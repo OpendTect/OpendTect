@@ -22,14 +22,16 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-/*!Interface for DataPointSet Displays. Object must be locked before
-   accessing any of the other functions, and should be unlocked when
-   done.
+/*!
+\brief Interface for DataPointSet Displays.
 
-   The datapointset can be displayed in a number of viewers.
-
-   DispID not to be confused with Visid. Its used to keep an account for the
-   DataPointSetDisplayMgr only.
+  Object must be locked before accessing any of the other functions, and should
+  be unlocked when done.
+  
+  The datapointset can be displayed in a number of viewers.
+  
+  DispID not to be confused with Visid. It is used to keep an account for the
+  DataPointSetDisplayMgr only.
 */
 
 mClass(General) DataPointSetDisplayProp
@@ -92,6 +94,10 @@ protected:
    bool				showsel_;
 };
 
+
+/*!
+\brief DataPointSet display manager.
+*/
 
 mClass(General) DataPointSetDisplayMgr : public CallBacker
 {

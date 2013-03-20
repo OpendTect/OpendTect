@@ -12,14 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-/*! brief elastic formula def to generate elastic layers !*/
-
 #include "generalmod.h"
 #include "enums.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include "propertyref.h"
 
+/*!
+\brief Elastic formula def to generate elastic layers.
+*/
 
 mExpClass(General) ElasticFormula : public NamedObject
 {
@@ -69,6 +70,9 @@ protected:
 };
 
 
+/*!
+\brief ElasticFormula repository.
+*/
 
 mExpClass(General) ElasticFormulaRepository 
 {
@@ -98,6 +102,9 @@ protected:
 mGlobal(General) ElasticFormulaRepository& ElFR();
 
 
+/*!
+\brief Elastic property reference data.
+*/
 
 mExpClass(General) ElasticPropertyRef : public PropertyRef
 {

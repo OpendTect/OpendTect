@@ -18,6 +18,10 @@ ________________________________________________________________________
 namespace Survey
 {
 
+/*!
+\brief 2D GeometryWriter.
+*/
+
 mExpClass(General) GeometryWriter2D : public GeometryWriter
 {
 public:
@@ -31,6 +35,10 @@ public:
 };
 
 
+/*!
+\brief 3D GeometryWriter.
+*/
+
 mExpClass(General) GeometryWriter3D : public GeometryWriter
 {
 public:
@@ -42,6 +50,10 @@ public:
 
 };
 
+
+/*!
+\brief 2D GeometryReader.
+*/
 
 mExpClass(General) GeometryReader2D : public GeometryReader
 {
@@ -55,6 +67,10 @@ public:
 
 };
 
+
+/*!
+\brief 3D GeometryReader.
+*/
 
 mExpClass(General) GeometryReader3D : public GeometryReader
 {

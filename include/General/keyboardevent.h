@@ -16,6 +16,10 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "geometry.h"
 
+/*!
+\brief Keyboard event.
+*/
+
 mExpClass(General) KeyboardEvent
 {
 public:
@@ -29,6 +33,10 @@ public:
     bool			operator !=( const KeyboardEvent& ev ) const;
 };
 
+
+/*!
+\brief Handles KeyboardEvent.
+*/
 
 mExpClass(General) KeyboardEventHandler : public CallBacker
 {

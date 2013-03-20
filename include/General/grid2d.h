@@ -21,11 +21,15 @@ class HorSampling;
 class IOPar;
 class Line2;
 
-/* Represents a grid of 2D lines in Inl-Crl plane */
+/*!
+\brief Represents a grid of 2D lines in an Inl-Crl plane.
+*/
 
 mExpClass(General) Grid2D
 {
 public:
+
+    /*!\brief Line in an Inl-Crl plane.*/
 
     mExpClass(General) Line
     {

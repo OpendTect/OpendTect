@@ -23,6 +23,10 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
+/*!
+\brief Data type.
+*/
+
 mExpClass(General) DataType
 {
 public:
@@ -49,6 +53,10 @@ protected:
 
 };
 
+
+/*!
+\brief DataType implementation.
+*/
 
 template<class T>
 mClass(General) DataTypeImpl : public DataType

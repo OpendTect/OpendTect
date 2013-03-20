@@ -19,6 +19,10 @@ ________________________________________________________________________
 namespace PosInfo { class Line2DData; }
 namespace Table { class FormatDesc; }
 
+/*!
+\brief Ascii I/O for 2D Geometry.
+*/
+
 mExpClass(General) Geom2dAscIO : public Table::AscIO
 {
 public:

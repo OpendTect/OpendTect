@@ -12,14 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-/*! brief user params to compute values for an elastic layer (den,p/s-waves) !*/
-
 #include "generalmod.h"
 #include "elasticprop.h"
 
 class IOObj;
 class MultiID;
 
+/*!
+\brief User parameters to compute values for an elastic layer (den,p/s-waves).
+*/
 
 mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 {
@@ -51,6 +52,11 @@ protected:
 };
 
 
+/*!
+\brief Computes elastic properties using parameters in ElasticPropSelection and
+PropertyRefSelection.
+*/
+
 mExpClass(General) ElasticPropGen
 {
 public:
@@ -77,6 +83,10 @@ protected:
 };
 
 
+/*!
+\brief Guesses elastic properties using parameters in ElasticPropSelection and
+PropertyRefSelection.
+*/
 
 mExpClass(General) ElasticPropGuess
 {

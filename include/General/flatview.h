@@ -31,14 +31,18 @@ namespace FlatView
 typedef Geom::Point2D<double> Point;
 typedef Geom::PosRectangle<double> Rect;
 
-/*!Class that represenents non-bitmap data to be displayed in a flatviewer,
-   such as markers, lines and more */
+/*!
+\brief Class that represents non-bitmap data to be displayed in a flatviewer,
+such as markers, lines and more.
+*/
 
 mExpClass(General) AuxData
 {
 public:
-    //!\brief explains what part of the an auxdata's appearance that may be
-    //!	  edited by the user
+    
+    /*!\brief Explains what part of an AuxData's appearance may be edited by
+    the user.*/
+
     mExpClass(General) EditPermissions
     {
     public:			EditPermissions();
@@ -90,14 +94,17 @@ public:
 				friend class Viewer;
 };
 
-/*!\brief Annotation data for flat views */
+
+/*!
+\brief Annotation data for flatviewers.
+*/
 
 mExpClass(General) Annotation
 {
 public:
 
 
-    //!\brief Things like well tracks, cultural data, 2-D line positions
+    /*!\brief Things like well tracks, cultural data, 2-D line positions.*/
 
     mStruct(General) AxisData
     {
@@ -155,14 +162,14 @@ public:
 };
 
 
-/*!\brief Data display paramters
+/*!
+\brief Data display parameters.
 
-  When data needs to be displayed, there is a load of parameters and
-  options for display. The two main display modes are:
+  When data needs to be displayed, there is a load of parameters and options
+  for display. The two main display modes are:
   Variable Density = display according to color table
   Wiggle/Variable Area = wiggles with (possibly) filled amplitude
-
-  */
+*/
 
 mExpClass(General) DataDispPars
 {
@@ -240,7 +247,9 @@ public:
 };
 
 
-/*!\brief Flat views: Appearance  */
+/*!
+\brief Flatviewer appearance.
+*/
 
 mExpClass(General) Appearance
 {
@@ -272,12 +281,11 @@ protected:
     bool		darkbg_;	//!< Two styles: dark (=black)
 					//!< and lite (=white) background
     					//!< Impacts a lot of display choices
-
 };
 
 
-
-/*!\brief Flat Viewer using FlatView::Data and FlatView::Appearance
+/*!
+\brief Flat Viewer using FlatView::Data and FlatView::Appearance.
 
   Interface for displaying data and related annotations where at least one of
   the directions is sampled regularly.
@@ -296,8 +304,7 @@ protected:
   setPack() -> Combination of addPack and usePack.
   removePack() -> removes this pack from the available packs, if necessary
   		  it also clears the wva or vd display to no display.
-
-  */
+*/
 
 mExpClass(General) Viewer
 {

@@ -9,6 +9,7 @@
 
 #include "generalmod.h"
 #include "bufstring.h"
+
 class StreamData;
 class Coord;
 class LatLong;
@@ -20,6 +21,10 @@ template <class T> class TypeSet;
 namespace ODGoogle
 {
 class XMLItem;
+
+/*!
+\brief XML Writer.
+*/
 
 mExpClass(General) XMLWriter
 {
