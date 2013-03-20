@@ -66,6 +66,9 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 # define pFreeFnErrMsg(msg,fn)		EmptyFunction()
 #endif
 
+#if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
+# define mUseCrashDumper
+
 namespace System
 {
 
@@ -95,7 +98,9 @@ private:
     google_breakpad::ExceptionHandler*	handler_;
 };
 
-}; //Namespace
+}; //Namespace System
+
+#endif mUseCrashDumper
 
 #endif
 

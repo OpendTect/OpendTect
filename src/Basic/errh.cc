@@ -147,6 +147,8 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     return strs[ (int)typ ];
 }
 
+#ifdef mUseCrashDumper
+
 using namespace System;
 
 //Crashdumper stuff
@@ -160,7 +162,6 @@ CrashDumper::CrashDumper()
 
 CrashDumper* CrashDumper::theinst_ = 0;
 
-#if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
 
 static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
                      void *context, EXCEPTION_POINTERS *exinfo,
@@ -176,7 +177,6 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
 	theinst->sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-
 
 void CrashDumper::init()
 {
@@ -194,13 +194,6 @@ void CrashDumper::init()
 			google_breakpad::ExceptionHandler::HANDLER_ALL );
     }
 }
-#else
-void CrashDumper::init()
-{
-    
-}
-
-#endif
 
 
 void CrashDumper::sendDump( const char* filename )
@@ -231,3 +224,5 @@ FixedString CrashDumper::sSenderAppl()
 FixedString CrashDumper::sUiSenderAppl()
 { return FixedString( "od_uiReportIssue" ); }
 
+
+#endif
