@@ -1064,10 +1064,14 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( "GeomID", geomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
-    const Interval<int> trcnrrg(
-	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
-	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
-    par.set( sKeyTrcNrRange(), trcnrrg );
+    if ( !trcdisplayinfo_.alltrcnrs.isEmpty() )
+    {
+	const Interval<int> trcnrrg(
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
+		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
+	par.set( sKeyTrcNrRange(), trcnrrg );
+    }
+
     par.set( sKeyZRange(), trcdisplayinfo_.zrg );
 }
 
