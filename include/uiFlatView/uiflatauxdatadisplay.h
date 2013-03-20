@@ -24,6 +24,10 @@ class uiTextItem;
 namespace FlatView
 {
 
+/*!
+\brief Auxiliary data display of flatviewers.
+*/
+
 mExpClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
 {
 public:

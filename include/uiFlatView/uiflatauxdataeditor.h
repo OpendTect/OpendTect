@@ -16,6 +16,10 @@ ________________________________________________________________________
 
 class uiFlatViewer;
 
+/*!
+\brief Flatview auxiliary data editor.
+*/
+
 mExpClass(uiFlatView) uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
 {
 public:
