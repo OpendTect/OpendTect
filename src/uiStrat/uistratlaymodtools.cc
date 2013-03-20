@@ -124,17 +124,9 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selPropCB) );
 
-    uiLabel* eachlbl = new uiLabel( leftgrp, "each" );
-    eachlbl->attach( rightOf, propfld_ );
-    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
-    eachfld_->setInterval( 1, 1000 );
-    eachfld_->attach( rightOf, eachlbl );
-    eachfld_->valueChanging.notify(
-				mCB(this,uiStratLayModEditTools,dispEachCB) );
-
     lvlfld_ = new uiComboBox( leftgrp, "Level" );
     lvlfld_->setToolTip( "Selected stratigraphic level" );
-    lvlfld_->attach( rightOf, eachfld_ );
+    lvlfld_->attach( rightOf, propfld_ );
     lvlfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selLevelCB) );
 
@@ -144,6 +136,14 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     contfld_->setHSzPol( uiObject::Small );
     contfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selContentCB) );
+
+    eachlbl_ = new uiLabel( leftgrp, "each" );
+    eachlbl_->attach( rightOf, contfld_ );
+    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
+    eachfld_->setInterval( 1, 1000 );
+    eachfld_->attach( rightOf, eachlbl_ );
+    eachfld_->valueChanging.notify(
+				mCB(this,uiStratLayModEditTools,dispEachCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
@@ -165,6 +165,13 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     zoomtb_->attach( leftOf, lithtb_ );
     rightgrp->attach( rightTo, leftgrp );
     rightgrp->attach( rightBorder );
+}
+
+
+void uiStratLayModEditTools::setNoDispEachFld()
+{
+    eachlbl_->display( false ); eachfld_->display( false );
+    eachfld_ = 0;
 }
 
 
@@ -242,7 +249,7 @@ Color uiStratLayModEditTools::selLevelColor() const
 
 int uiStratLayModEditTools::dispEach() const
 {
-    return eachfld_->getValue();
+    return eachfld_ ? eachfld_->getValue() : 1;
 }
 
 
@@ -284,7 +291,7 @@ void uiStratLayModEditTools::setSelContent( const char* sel )
 
 void uiStratLayModEditTools::setDispEach( int nr )
 {
-    eachfld_->setValue( nr );
+    if ( eachfld_ ) eachfld_->setValue( nr );
 }
 
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uigroup.h"
+class uiLabel;
 class uiSpinBox;
 class uiGenInput;
 class uiComboBox;
@@ -79,6 +80,8 @@ public:
     void	setDispLith(bool);
     void	setShowFlattened(bool);
 
+    void	setNoDispEachFld();
+
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
     Notifier<uiStratLayModEditTools>	selContentChg;
@@ -111,6 +114,7 @@ protected:
     uiComboBox*	lvlfld_;
     uiComboBox*	contfld_;
     uiSpinBox*	eachfld_;
+    uiLabel*	eachlbl_;
     uiToolButton* zoomtb_;
     uiToolButton* lithtb_;
     uiToolButton* flattenedtb_;
