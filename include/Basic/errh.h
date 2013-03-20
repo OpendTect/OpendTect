@@ -100,7 +100,7 @@ private:
 
 }; //Namespace System
 
-#endif mUseCrashDumper
+#endif
 
 #endif
 
