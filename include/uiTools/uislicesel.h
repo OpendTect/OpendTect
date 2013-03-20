@@ -33,13 +33,14 @@ mExpClass(uiTools) uiSliceSel : public uiGroup
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
-				uiSliceSel(uiParent*,Type,const ZDomain::Info&);
+				uiSliceSel(uiParent*,Type,const ZDomain::Info&,
+					   bool dogeomcheck=true);
 				~uiSliceSel();
 
     void			setApplyCB(const CallBack&);
 
     const CubeSampling&		getCubeSampling() const	{ return cs_; }
-    void			setCubeSampling(const CubeSampling&);
+    virtual void		setCubeSampling(const CubeSampling&);
     void			setMaxCubeSampling(const CubeSampling&);
     void			enableApplyButton(bool);
     void			enableScrollButton(bool);
@@ -77,7 +78,8 @@ protected:
     CubeSampling		maxcs_;
     CubeSampling		cs_;
     CallBack*			applycb_;
-    bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
+    bool			isinl_, iscrl_, istsl_, isvol_, is2d_,
+				dogeomcheck_;
     ZDomain::Info		zdominfo_;
 
     Threads::Mutex&		updatemutex_;

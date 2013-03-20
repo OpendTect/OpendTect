@@ -24,8 +24,8 @@ static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
 
 
-uiSliceSel::uiSliceSel( uiParent* p, Type type,
-			const ZDomain::Info& zi )
+uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
+			bool dogeomcheck )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
     , updatemutex_(*new Threads::Mutex)
@@ -34,6 +34,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type,
     , scrollbut_(0)
     , applybut_(0)
     , zdominfo_(zi)
+    , dogeomcheck_(dogeomcheck)
 {
     isinl_ = type == Inl;
     iscrl_ = type == Crl;
@@ -157,10 +158,10 @@ uiSliceScroll( uiSliceSel* ss )
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
     stepfld_ = new uiLabeledSpinBox( this, "Scroll step" );
-    stepfld_->box()->setMinValue( -maxstep );
-    stepfld_->box()->setMaxValue( maxstep );
-    stepfld_->box()->setStep( step );
-    stepfld_->box()->setValue( step );
+    stepfld_->box()->setMinValue( !ss->dogeomcheck_ ? -1 : -maxstep );
+    stepfld_->box()->setMaxValue( !ss->dogeomcheck_ ? 1 : maxstep );
+    stepfld_->box()->setStep( !ss->dogeomcheck_ ? 1 : step );
+    stepfld_->box()->setValue( !ss->dogeomcheck_ ? 1 : step );
 
     typfld_ = new uiLabeledComboBox( this, "Control" );
     typfld_->box()->addItem( "Manual" );
@@ -247,7 +248,7 @@ void doAdvance( bool reversed )
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->cs_.hrg.start.inl + step;
-	if ( !SI().sampling(true).hrg.inlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -255,7 +256,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->cs_.hrg.start.crl + step;
-	if ( !SI().sampling(true).hrg.crlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -263,7 +264,8 @@ void doAdvance( bool reversed )
     else
     {
 	float newval = slcsel_->cs_.zrg.start + step / zfact_;
-	if ( !SI().sampling(true).zrg.includes(newval,false) )
+	if ( slcsel_->dogeomcheck_ &&
+	     !SI().sampling(true).zrg.includes(newval,false) )
 	    stopAuto( true );
 	else
 	{
@@ -404,8 +406,11 @@ void uiSliceSel::readInput()
     cs_.hrg.set( inlrg, crlrg );
     cs_.zrg.setFrom( zrg );
 
-    SI().snap( cs_.hrg.start, BinID(0,0) );
-    SI().snap( cs_.hrg.stop, BinID(0,0) );
+    if ( dogeomcheck_ )
+    {
+	SI().snap( cs_.hrg.start, BinID(0,0) );
+	SI().snap( cs_.hrg.stop, BinID(0,0) );
+    }
 }
 
 
