@@ -319,7 +319,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 
 	for ( int idy=0; idy<outpinterest_.size(); idy++ )
 	{
-	    if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
+	    if ( !globaloutputinterest.isPresent(outpinterest_[idy]) )
 		globaloutputinterest += outpinterest_[idy];
 	}
 	outputs_[idx]->setDesiredOutputs( outpinterest_ );

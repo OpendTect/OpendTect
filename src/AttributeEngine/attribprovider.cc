@@ -557,7 +557,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( !inputs_[idx]->getMSCProvider( needmscprov ) && needmscprov )
 		continue;
 
-	    if ( movinginputs.indexOf( inputs_[idx] ) < 0 )
+	    if ( !movinginputs.isPresent( inputs_[idx] ) )
 		movinginputs += inputs_[idx];
 	}
 	if ( !needmove || docheck ) 

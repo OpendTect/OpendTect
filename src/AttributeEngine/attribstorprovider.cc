@@ -109,8 +109,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 
 	BufferStringSet steernms;
 	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	const bool issteering = steernms.indexOf( attrnm ) >= 0;
-	if ( !issteering )
+	if ( !steernms.isPresent( attrnm ) )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
 	    if ( !transl )
@@ -922,8 +921,7 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
 	const BufferString attrnm = lk.attrName();
 	BufferStringSet steernms;
 	lset->getAvailableAttributes( steernms, sKey::Steering() );
-	const bool issteering = steernms.indexOf( attrnm ) >= 0;
-	if ( !issteering ) return false;
+	if ( !steernms.isPresent( attrnm ) ) return false;
     }
 
     S2DPOS().setCurLineSet( lset->name() );
@@ -967,8 +965,7 @@ bool StorageProvider::useInterTrcDist() const
 	{
 	    BufferStringSet steernms;
 	    rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	    const bool issteering = steernms.indexOf( attrnm ) >= 0;
-	    if ( issteering )
+	    if ( steernms.isPresent( attrnm ) )
 	    {
 		int lineidx = rdr.lineSet()->indexOf( curlinekey_.buf() );
 		if ( lineidx<0 ) return false;

@@ -1041,7 +1041,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    if ( kpdefault && !descidx ) continue; //default desc always first
 
 	    DescID descid = getID( descidx );
-	    if ( torem.indexOf(descid) >= 0 ) continue;
+	    if ( torem.isPresent(descid) ) continue;
 
 	    const Desc& dsc = *getDesc( descid );
 	    bool iscandidate = false;

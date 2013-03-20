@@ -41,13 +41,13 @@ bool InputSpec::operator==(const InputSpec& b) const
 
     for ( int idx=0; idx<forbiddenDts_.size(); idx++ )
     {
-	if ( b.forbiddenDts_.indexOf(forbiddenDts_[idx])==-1 )
+	if ( !b.forbiddenDts_.isPresent(forbiddenDts_[idx]) )
 	    return false;
     }
 
     for ( int idx=0; idx<b.forbiddenDts_.size(); idx++ )
     {
-	if ( forbiddenDts_.indexOf(b.forbiddenDts_[idx])==-1 )
+	if ( !forbiddenDts_.isPresent(b.forbiddenDts_[idx]) )
 	    return false;
     }
 
@@ -253,7 +253,7 @@ void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 	if ( !inputs_[idx] )
 	    continue;
 
-	if ( deps.indexOf(inputs_[idx]->id())!=-1 )
+	if ( deps.isPresent(inputs_[idx]->id()) )
 	    continue;
 
 	deps += inputs_[idx]->id();
@@ -266,7 +266,7 @@ bool Desc::getParentID( DescID did, DescID& pid, int& dididx ) const
 {
     TypeSet<DescID> tmp;
     getDependencies( tmp );
-    if ( tmp.indexOf(did)==-1 )
+    if ( !tmp.isPresent(did) )
 	return false; 
 
     for ( int idx=nrInputs()-1; idx>=0; idx-- )
@@ -333,7 +333,7 @@ bool Desc::setInput( int inp, const Desc* nd )
 
 bool Desc::setInput_( int input, Desc* nd )
 {
-    if ( nd && (inputspecs_[input].forbiddenDts_.indexOf(nd->dataType())!=-1 ||
+    if ( nd && (inputspecs_[input].forbiddenDts_.isPresent(nd->dataType()) ||
 		inputspecs_[input].issteering_!=nd->isSteering()) )
 	return false;
 
@@ -392,7 +392,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	    TypeSet<Attrib::DescID> deps( 1, inputs_[idx]->id() );
 	    inputs_[idx]->getDependencies( deps );
 
-	    if ( deps.indexOf( id() )!=-1 )
+	    if ( deps.isPresent( id() ) )
 	    {
 		BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
 		msg += "' is dependent on itself";
