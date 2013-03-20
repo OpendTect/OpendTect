@@ -642,6 +642,7 @@ public:
     	table_->setColumnResizeMode( uiTable::ResizeToContents );
     	table_->setRowResizeMode( uiTable::Interactive );
     	table_->setColumnStretchable( 0, true );
+    	table_->setColumnStretchable( 1, true );
 	
     	uiPushButton* addbut = new uiPushButton( this, "&Add", 
 		mCB(this,uiFaultOptSel,addCB), true );
