@@ -25,6 +25,8 @@ mDefModInitFn(uiTools)
     uiExtensionArray2DInterpol::initClass();
     uiVrmsRayTracer1D::initClass();
     
+#ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
 	    				System::CrashDumper::sUiSenderAppl() );
+#endif
 }
