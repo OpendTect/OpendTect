@@ -306,6 +306,7 @@ const char* ChainExecutor::message() const
 }
 
 
+// Chain
 Chain::Chain()
     : zstep_( SI().zRange(true).step )
     , zist_( SI().zIsTime() )
@@ -320,11 +321,11 @@ int Chain::nrSteps() const
 { return steps_.size(); }
 
 
-Step* Chain::getStep(int idx)
+Step* Chain::getStep( int idx )
 { return steps_[idx]; }
 
 
-int Chain::indexOf(const Step* r) const
+int Chain::indexOf( const Step* r ) const
 { return steps_.indexOf( r ); }
 
 
@@ -387,7 +388,7 @@ bool Chain::needsFullVolume() const
 }
 
 
-void Chain::fillPar(IOPar& par) const
+void Chain::fillPar( IOPar& par ) const
 {
     par.set( sKeyNrSteps(), steps_.size() );
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -408,12 +409,11 @@ bool Chain::usePar( const IOPar& par )
     const char* parseerror = "Parsing error";
 
     int nrsteps;
-    if ( !par.get( sKeyNrSteps(), nrsteps ) )
+    if ( !par.get(sKeyNrSteps(),nrsteps) )
     {
 	errmsg_ = parseerror;
 	return false;
     }
-
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -456,13 +456,13 @@ bool Chain::usePar( const IOPar& par )
 
 
 void Chain::setStorageID( const MultiID& mid )
-{ storageid_=mid; }
-
+{ storageid_ = mid; }
 
 const char* Chain::errMsg() const
 { return errmsg_.str(); }
 
 
+// Step
 Step::Step()
     : chain_( 0 )
     , output_( 0 )
@@ -502,32 +502,32 @@ void Step::setUserName( const char* nm )
 { username_ = nm; }
 
 
-HorSampling Step::getInputHRg(const HorSampling& hr) const
+HorSampling Step::getInputHRg( const HorSampling& hr ) const
 { return hr; }
 
 
 StepInterval<int>
-Step::getInputZRg(const StepInterval<int>& si) const
+    Step::getInputZRg( const StepInterval<int>& si ) const
 { return si; }
 
 
-bool Step::setInput( const Attrib::DataCubes* ni )
+bool Step::setInput( const Attrib::DataCubes* dc )
 {
     if ( input_ ) input_->unRef();
-    input_ = ni;
+    input_ = dc;
     if ( input_ ) input_->ref();
 
     return false;
 }
 
 
- void Step::setOutput( Attrib::DataCubes* ni,
- 	const StepInterval<int>& inlrg,
- 	const StepInterval<int>& crlrg,
- 	const StepInterval<int>& zrg) 
+void Step::setOutput( Attrib::DataCubes* dc,
+		      const StepInterval<int>& inlrg,
+		      const StepInterval<int>& crlrg,
+		      const StepInterval<int>& zrg ) 
 {
     if ( output_ ) output_->unRef();
-    output_ = ni;
+    output_ = dc;
     if ( output_ ) output_->ref();
 
     hrg_.set( inlrg, crlrg );
@@ -560,5 +560,4 @@ Task* Step::createTask()
     return 0;
 }
 
-
-}; //namespace
+} // namespace VolProc
