@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "bufstringset.h"
+#include "rowcol.h"
 
 #include "uiprestackprocessingmod.h"
 #include "uislicesel.h"
