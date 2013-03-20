@@ -396,53 +396,10 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 void FaultTrace::getAllActNames( BufferStringSet& bss )
 {
     bss.erase();
-    bss.add( "AllowCrossing" );
-    bss.add( "BetweenSticks" );
-    bss.add( "ForbidCrossHigher" );
-    bss.add( "ForbidCrossLower" );
-}
-
-
-bool FaultTrace::posFollowsAct( const BinID& bid , float z, Act act ) const 
-{
-    //Not comparable ones return true
-    if ( ( isinl_ && bid.inl != nr_ ) || ( !isinl_ && bid.crl != nr_ ) ||
-	   act==AllowCrossing )
-	return true;
-    
-    const int trcnr = isinl_ ? bid.crl : bid.inl;
-    if ( trcnr > trcrange_.stop )
-	return act==ForbidCrossLower;
-
-    if ( trcnr <= trcrange_.start )
-	return act==ForbidCrossHigher;
-
-    const int lastidx = trcnrs_.size() - 1;
-    const float intsectz = getZValFor( bid );
-    if ( mIsUdf(intsectz) || lastidx<0 )
-	return true;
-
-    if ( act==ForbidCrossHigher )
-    {
-	if ( trcnrs_[0] < trcnrs_[lastidx] )
-    	    return coords_[0].z > coords_[lastidx].z ? z <= intsectz
-						     : z >= intsectz;
-	else
-    	    return coords_[0].z < coords_[lastidx].z ? z <= intsectz
-						     : z >= intsectz;
-    }
-    else if ( act==ForbidCrossLower )
-    {
-    
-	if ( trcnrs_[0] < trcnrs_[lastidx] )
-    	    return coords_[0].z > coords_[lastidx].z ? z >= intsectz
-						     : z <= intsectz;
-	else
-    	    return coords_[0].z < coords_[lastidx].z ? z >= intsectz
-						     : z <= intsectz;
-    }
-
-    return true;
+    bss.add( "AllowCrossing(Default)" );
+    bss.add( "ForbidCrossing(DataDriven)" );
+    bss.add( "ForbidCrossHigher(ModelDriven)" );
+    bss.add( "ForbidCrossLower(ModelDriven)" );
 }
 
 
