@@ -43,7 +43,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , slicepos_(0)	 
     , seldatacalled_(this)
     , axispainter_(0)
-    , cs_(false)	  
+    , cs_(true)	  
 {
 }
 
@@ -161,9 +161,9 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
 	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
 					!isStored() );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
+	posdlg_->setSelGatherInfos( gatherinfos_ );
     }
 
-    posdlg_->setSelGatherInfos( gatherinfos_ );
     posdlg_->raise();
     posdlg_->show();
 }
@@ -189,6 +189,8 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 	const int acttrcnr = trcrg.atIndex( trcidx );
 	BinID posbid( isinl ? bid.inl : acttrcnr, isinl ? acttrcnr : bid.crl );
 	bids.addIfNew( posbid );
+	if ( bids.size() >= sStartNrViewers )
+	    return;
     }
 
     for ( int trcnr=starttrcnr; trcnr>=trcrg.start; trcnr-=approxstep )
@@ -199,6 +201,8 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 	if ( bids.isPresent(posbid) )
 	    continue;
 	bids.insert( 0, posbid );
+	if ( bids.size() >= sStartNrViewers )
+	    return;
     }
 }
 
@@ -291,6 +295,7 @@ void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 	}
     }
 
+    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
     setUpView();
 }
 
@@ -382,9 +387,11 @@ void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms)
 	{
 	    GatherInfo ginfo = oldginfos[gidx];
 	    ginfo.gathernm_ = nms.get( nmidx );
-	    gatherinfos_ += ginfo;
+	    gatherinfos_.addIfNew( ginfo );
 	}
     }
+
+    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
 }
 
 
@@ -437,6 +444,7 @@ void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
 					   gatherinfos_[0].bid_.inl,1) );
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	trcrg.include( gatherinfos_[idx].bid_.crl, false );
+    trcrg.step = cs_.hrg.crlRange().step;
     TypeSet<BinID> selbids;
     getStartupPositions( gatherinfos_[0].bid_, trcrg, true, selbids );
     
@@ -491,7 +499,7 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
     CubeSampling cs;
-    const int modelnr = ginfo.bid_.crl - cs.hrg.stop.crl;
+    const int modelnr = (ginfo.bid_.crl - cs.hrg.stop.crl)/cs.hrg.step.crl;
     info->setData( modelnr, ginfo.gathernm_ );
 }
 

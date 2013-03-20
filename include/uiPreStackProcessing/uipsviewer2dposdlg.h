@@ -41,7 +41,7 @@ bool operator==( const GatherInfo& info ) const
 {
     return isstored_==info.isstored_ && bid_==info.bid_ &&
 	   (isstored_ ? mid_==info.mid_
-	   	      : (gathernm_==info.gathernm_ && dpid_==info.dpid_));
+	   	      : (gathernm_==info.gathernm_));
 }
 
 };
@@ -56,23 +56,32 @@ public:
 						    bool issynthetic=false);
 
     const CubeSampling&		cubeSampling(); 
+    void			setCubeSampling(const CubeSampling&); 
     void 			setStep(int);	
     int 			step() const;	
 
     void			enableZDisplay(bool);
-    void			updatePosTable();
     void			getSelGatherInfos(TypeSet<GatherInfo>&);
     void			setSelGatherInfos(const TypeSet<GatherInfo>&);
 
 protected:
     uiLabeledSpinBox* 		stepfld_;
+    uiPushButton*		updbut_;
     uiTable*			posseltbl_;
     BufferStringSet		gathernms_;
     bool			issynthetic_;
-    CubeSampling		fullcs_;
+    TypeSet<GatherInfo>		gatherinfos_;
+    TypeSet<int>		dispgatheridxs_;
+    TypeSet<RowCol>		disptblposs_;
+
+    void			resetDispGatherInfos();
+    void			reDoTable();
 
     void			posChged(CallBacker*);
     void			applyPushed(CallBacker*);
+    void			gatherChecked(CallBacker*);
+    void			gatherPosChanged(CallBacker*);
+    void			updatePosTable(CallBacker*);
 };
 
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
