@@ -27,6 +27,10 @@ class uiStatusBar;
 class uiToolBar;
 class BufferStringSet;
 
+/*!
+\brief User interface main window.
+*/
+
 mExpClass(uiBase) uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
