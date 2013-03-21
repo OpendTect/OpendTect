@@ -222,10 +222,6 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 
     switch ( *nm )
     {
-    case 'P' : case 'p':
-	if ( caseInsensitiveEqual(nm,"PU",0) )
-	    return "%";
-    break;
     case 'F': case 'f':
 	if ( caseInsensitiveEqual(nm,"F",0)
 	  || caseInsensitiveEqual(nm,"FT",0)
@@ -238,16 +234,28 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 		    && (matchStringCI("FT",nm) || matchStringCI("FEET",nm)) )
 	    return "ft/s";
     break;
+    case 'G' : case 'g':
+    	if ( matchStringCI("G/cm2s",nm) )
+	    return "m/s x g/cc";
+	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
+	  || matchStringCI("GR/C",nm) )
+	    return "g/cc";
+    break;
+    case 'K' : case 'k':
+	if ( matchStringCI("kg/m2s",nm) )
+	    return "m/s x kg/m3";
+	if ( matchStringCI("kg/m2us",nm) )
+	    return "kg/m3 / us/m";
+    break;
+    case 'P' : case 'p':
+	if ( caseInsensitiveEqual(nm,"PU",0) )
+	    return "%";
+    break;
     case 'U' : case 'u':
 	if ( matchStringCI("USEC/F",nm) || matchStringCI("US/F",nm) )
 	    return "us/ft";
 	else if ( matchStringCI("USEC/M",nm) )
 	    return "us/m";
-    break;
-    case 'G' : case 'g':
-	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
-	  || matchStringCI("GR/C",nm) )
-	    return "g/cc";
     break;
     }
 

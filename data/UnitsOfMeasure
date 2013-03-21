@@ -1,36 +1,38 @@
-dTect V4.3
+dTect V4.4
 Units of measure
-Wed Apr 11 15:47:13 2012
+Wed Mar 20 09:22:05 2013
 !
-Milliseconds: Time`ms`0.001
 Seconds: Time`s`1
+Milliseconds: Time`ms`0.001
 Microseconds: Time`us`1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
 -Meter: Distance/Depth`-m`-1
 -Feet: Distance/Depth`-ft`-0.3048
-Gram/cm3: Density`g/cc`1000
 Kg/m3: Density`kg/m3`1
+Gram/cm3: Density`g/cc`1000
 Meter/second: Velocity`m/s`1
 Feet/second : Velocity`ft/s`0.3048
 Km/second : Velocity`km/s`1000
-Microseconds/foot: Sonic travel time`us/ft`3.28084e-6
-Microseconds/meter: Sonic travel time`us/m`1e-6
 Seconds/meter: Sonic travel time`s/m`1
-Kg/m2s: Impedance`kg/m2s`1
-G/cm2s: Impedance`g/cm2s`1000
-Kg/m2us: Impedance`kg/m2us`1000000
-G/ft2s: Impedance`g/ft2s`0.0107639
-Percent: Volumetrics`%`0.01
+Microseconds/meter: Sonic travel time`us/m`1e-6
+Microseconds/foot: Sonic travel time`us/ft`3.28084e-6
+Meter/second x Kg/m3: Impedance`m/s x kg/m3`1
+Meter/second x Gram/cm3: Impedance`m/s x g/cc`1000
+Kg/m3 / Microseconds/meter: Impedance`kg/m3 / us/m`1000000
+Feet/second x Kg/m3: Impedance`ft/s x kg/m3`0.3048
+Feet/second x Gram/cm3: Impedance`ft/s x g/cc`304.8
+Kg/m3 / Microseconds/feet: Impedance`kg/m3 / us/ft`304800
+Gram/ft2s: Impedance`g/ft2s`0.0107639
 Fraction: Volumetrics``1
+Ratio: Elastic Ratio/Anisotropy``1
+Percent: Volumetrics/Elastic Ratio/Anisotropy`%`0.01
 Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
 OhmMeter: Resistivity`ohmm`1
-Ratio: Elastic Ratio``1
-Percent: Elastic Ratio`%`0.01
 Pascal.Kg/m3: Pressure-Weight`Pa.Kg/m3`1
 Pascal.g/cm3: Pressure-Weight`Pa.g/cm3`1e3
 GigaPascal.Kg/m3: Pressure-Weight`GPa.Kg/m3`1e9
@@ -46,5 +48,4 @@ GigaPascal: Pressure`GPa`1e9
 Atmosphere: Pressure`atm`101325.01
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
-Ratio: Anisotropy``1
 !
