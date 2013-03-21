@@ -117,38 +117,38 @@ public:
     const SeisTrc&	result() const		{ return outtrc_; }
     SeisTrc&		result() 		{ return outtrc_; }
 
-    void 		getSampledReflectivities(TypeSet<float>&) const;
+    void 		getSampledReflectivities( TypeSet<float>& s ) const
+			{ computeSampledReflectivities(s); }
     
     od_int64            currentProgress() const { return progress_; }
 
 protected:
-    void		computeSampledReflectivities(
-			    TypeSet<float>&, TypeSet<float_complex>* = 0) const;
     
     int			nextStep();
+    int			setConvolveSize();
+    int			genFreqWavelet();
 
-    bool 		computeTrace(SeisTrc& result) const;
-    bool 		doTimeConvolve(ValueSeries<float>&,int sz) const;
-    bool 		doFFTConvolve(ValueSeries<float>&,int sz) const;
+    bool 		computeTrace(SeisTrc&) const;
+    void		computeSampledReflectivities(TypeSet<float>&,
+	    				TypeSet<float_complex>* = 0) const;
     bool		doNMOStretch(const ValueSeries<float>&, int insz,
-				     ValueSeries<float>& out, int outsz) const;
+				     ValueSeries<float>& out,int outsz) const;
+    bool 		doFFTConvolve(ValueSeries<float>&,int sz) const;
+    bool 		doTimeConvolve(ValueSeries<float>&,int sz) const;
+
     virtual bool	computeReflectivities();
 
     const ReflectivityModel*	refmodel_;
+    int				convolvesize_;
+    SeisTrc&			outtrc_;
 
-    TypeSet<float_complex>	freqwavelet_;
-    
     TypeSet<float>		reflectivities_;
     TypeSet<float_complex>	creflectivities_;
     TypeSet<float_complex>	freqreflectivities_;
-    
-    int				convolvesize_;
-    
-    SeisTrc&			outtrc_;
-
-    bool			doresample_;
+    TypeSet<float_complex>	freqwavelet_;
 
     od_int64                    progress_;
+
 };
 
 
@@ -209,6 +209,7 @@ public:
 	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
 	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal);
 	void		getSampledRefs(TypeSet<float>&) const;
+	void		forceReflTimes(const StepInterval<float>&);
 
 	const SeisTrc*	stackedTrc() const;
 
@@ -220,8 +221,6 @@ public:
 
 	friend class 				RaySynthGenerator;
 
-    public:
-	void		forceReflTimes(const StepInterval<float>&);
     };
 
     //available after execution

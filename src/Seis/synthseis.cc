@@ -103,7 +103,6 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 SynthGenerator::SynthGenerator()
     : outtrc_(*new SeisTrc)
     , refmodel_(0)
-    , doresample_(true)
     , progress_(-1)
     , convolvesize_( 0 )
 {}
@@ -170,129 +169,105 @@ bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
     return true;
 }
 
-#define mPrepFFT( ft, arr, dir, sz )\
-ft->setInputInfo( Array1DInfoImpl(sz) );\
-ft->setDir( dir );\
-ft->setNormalization( !dir );\
-ft->setInput( arr );\
-ft->setOutput( arr );\
 
-#define mDoFFT( ft, arr, dir, sz ) \
-mPrepFFT( ft, arr, dir, sz ) \
-ft->run( true );
+#define mPrepFFT( ft, arr, dir, sz )\
+    ft->setInputInfo( Array1DInfoImpl(sz) );\
+    ft->setDir( dir ); ft->setNormalization( !dir );\
+    ft->setInput( arr ); ft->setOutput( arr )
+
+#define mErrOccRet SequentialTask::ErrorOccurred()
+#define mMoreToDoRet SequentialTask::MoreToDo()
+#define mFinishedRet SequentialTask::Finished()
 
 
 int SynthGenerator::nextStep()
 {
+    // Sanity checks
     if ( !wavelet_ )
-	mErrRet( "No wavelet found", SequentialTask::ErrorOccurred() );
-    
-    if ( !refmodel_ ) mErrRet( "No reflectivity model found",
-		SequentialTask::ErrorOccurred() );
-    
+	mErrRet( "No wavelet found", mErrOccRet );
+    if ( !refmodel_ )
+	mErrRet( "No reflectivity model found", mErrOccRet );
     if ( outputsampling_.nrSteps() < 2 )
-	mErrRet( "Output sampling is too small",
-		SequentialTask::ErrorOccurred() );
-    
+	mErrRet( "Output sampling is too small", mErrOccRet );
     const int wvltsz = wavelet_->size();
     if ( wvltsz < 2 )
-	mErrRet( "Wavelet is too short",
-		SequentialTask::ErrorOccurred() );
-    
+	mErrRet( "Wavelet is too short", mErrOccRet );
     if ( wvltsz > outtrc_.size() )
-	mErrRet( "Wavelet is longer than the output trace",
-		SequentialTask::ErrorOccurred() );
-    
-    if ( convolvesize_==0 )
-    {
-	if ( applynmo_ )
-	{
-	    float maxtime = 0;
-	    for ( int idx=0; idx<refmodel_->size(); idx++)
-	    {
-		const ReflectivitySpike& spike = (*refmodel_)[idx];
-		const float time = spike.time_;
-		if ( mIsUdf(time) )
-		{
-		    pErrMsg("Undefined time detected");
-		    continue;
-		}
+	mErrRet( "Wavelet is longer than the output trace", mErrOccRet );
 
-		maxtime = mMAX( time, maxtime );
-	    }
-	    
-	    maxtime += wavelet_->samplePositions().stop;
-	    
-	    const StepInterval<float> convrg( outputsampling_.start,
-					maxtime, outputsampling_.step );
-	    convolvesize_ = convrg.nrSteps()+1;
-	    if ( convolvesize_<1 )
-	    {
-		mErrRet("Not sound", SequentialTask::ErrorOccurred() );
-	    }
-	}
-	else
-	{
-	    convolvesize_ = outputsampling_.nrSteps()+1;
-	}
-	
-	if ( convolvesize_<1 )
-	    mErrRet( "Cannot determine convolution size.",
-		      SequentialTask::ErrorOccurred());
-    }
-    
-    if ( isfourier_ && !freqwavelet_.size() )
-    {
-	PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+    if ( convolvesize_ == 0 )
+	return setConvolveSize();
 
-	const int oldconvsize = convolvesize_;
-	convolvesize_ = fft->getFastSize( oldconvsize );
-	if ( convolvesize_<oldconvsize || convolvesize_<wavelet_->size() )
-	    return SequentialTask::ErrorOccurred();
-	
-	freqwavelet_.setSize( convolvesize_, float_complex(0,0) );
-	for ( int idx=0; idx<wavelet_->size(); idx++ )
-	{
-	    int arrpos = idx-wavelet_->centerSample();
-	    if ( arrpos<0 )
-		arrpos += convolvesize_;
-	    
-	    freqwavelet_[arrpos] = wavelet_->samples()[idx];
-	}
-	
-	mPrepFFT( fft, freqwavelet_.arr(), true, convolvesize_ );
-	if ( !fft->run( true ) )
-	{
-	    freqwavelet_.erase();
-	    	    
-	    mErrRet( "Error running FFT", SequentialTask::ErrorOccurred());
-	}
-	
-	return SequentialTask::MoreToDo();
-    }
+    if ( isfourier_ && freqwavelet_.isEmpty() )
+	return genFreqWavelet();
+
+    if ( (!isfourier_ && reflectivities_.isEmpty())
+      || (isfourier_ && freqreflectivities_.isEmpty()) )
+	return computeReflectivities() ? mMoreToDoRet : mErrOccRet;
     
-    if ( reflectivities_.isEmpty() && freqreflectivities_.isEmpty() )
-    {
-	return computeReflectivities()
-	    ? SequentialTask::MoreToDo()
-	    : SequentialTask::ErrorOccurred();
-    }
-    
-    return computeTrace( outtrc_ )
-	? SequentialTask::Finished()
-	: SequentialTask::ErrorOccurred();
+    return computeTrace( outtrc_ ) ? mFinishedRet : mErrOccRet;
 }
 
 
-bool SynthGenerator::doWork()
+int SynthGenerator::setConvolveSize()
 {
-    int res = SequentialTask::MoreToDo();
-    while ( res==SequentialTask::MoreToDo() )
+    if ( !applynmo_ )
+	convolvesize_ = outputsampling_.nrSteps() + 1;
+    else
     {
-    	res = nextStep();
+	float maxtime = 0;
+	for ( int idx=0; idx<refmodel_->size(); idx++)
+	{
+	    const ReflectivitySpike& spike = (*refmodel_)[idx];
+	    if ( !spike.isDefined() )
+		continue;
+
+	    if ( spike.time_ > maxtime ) maxtime = spike.time_;
+	}
+	maxtime += wavelet_->samplePositions().stop;
+
+	const StepInterval<float> convrg( outputsampling_.start,
+				    maxtime, outputsampling_.step );
+				//TODO check, is maxtime really good here?
+	convolvesize_ = convrg.nrSteps() + 1;
+    }
+
+    if ( convolvesize_ < 1 )
+	mErrRet( "Cannot determine convolution size", mErrOccRet );
+
+    return mMoreToDoRet;
+}
+
+
+int SynthGenerator::genFreqWavelet()
+{
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+
+    const int oldconvsize = convolvesize_;
+    convolvesize_ = fft->getFastSize( oldconvsize );
+    if ( convolvesize_<oldconvsize || convolvesize_<wavelet_->size() )
+	mErrRet( "Internal error: convolution size is too small",
+		 mErrOccRet );
+    
+    freqwavelet_.setSize( convolvesize_, float_complex(0,0) );
+    for ( int idx=0; idx<wavelet_->size(); idx++ )
+    {
+	int arrpos = idx - wavelet_->centerSample();
+	if ( arrpos < 0 )
+	    arrpos += convolvesize_;
+	//TODO check, looks weird
+	
+	freqwavelet_[arrpos] = wavelet_->samples()[idx];
     }
     
-    return res==SequentialTask::Finished();
+    mPrepFFT( fft, freqwavelet_.arr(), true, convolvesize_ );
+    if ( !fft->run(true) )
+    {
+	freqwavelet_.erase();
+	mErrRet( "Error running FFT", mErrOccRet );
+    }
+    
+    return mMoreToDoRet;
 }
 
 
@@ -394,27 +369,6 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     return true;
 }
 
-bool SynthGenerator::computeReflectivities()
-{
-    reflectivities_.erase();
-    freqreflectivities_.erase();
-    creflectivities_.erase();
-    
-    const StepInterval<float> sampling( outputsampling_.start,
-	      outputsampling_.atIndex( convolvesize_ ), outputsampling_.step );
-
-    if ( isfourier_ )
-    {
-	ReflectivitySampler sampler( *refmodel_, sampling,
-				     freqreflectivities_, false );
-	sampler.setTargetDomain( true );
-	return sampler.execute( true );
-    }
-        
-    computeSampledReflectivities( reflectivities_, &creflectivities_ );
-    return true;
-}
-
 
 bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz ) const
 {
@@ -467,13 +421,29 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz ) const
 }
 
 
-void SynthGenerator::getSampledReflectivities( TypeSet<float>& refs ) const
+bool SynthGenerator::computeReflectivities()
 {
-    computeSampledReflectivities( refs );
+    reflectivities_.erase(); freqreflectivities_.erase();
+
+    const StepInterval<float> sampling( outputsampling_.start,
+	      outputsampling_.atIndex( convolvesize_ ), outputsampling_.step );
+
+    if ( isfourier_ )
+    {
+	ReflectivitySampler sampler( *refmodel_, sampling,
+				 freqreflectivities_, false );
+	sampler.setTargetDomain( true );
+	bool isok = sampler.execute( true );
+	if ( !isok )
+	    mErrRet( sampler.message(), false );
+    }
+
+    computeSampledReflectivities( reflectivities_, &creflectivities_ );
+    return true;
 }
 
 
-void SynthGenerator::computeSampledReflectivities(TypeSet<float>& realres,
+void SynthGenerator::computeSampledReflectivities( TypeSet<float>& realres,
 				      TypeSet<float_complex>* cres ) const
 {
     const StepInterval<float> sampling( outputsampling_.start,
@@ -492,16 +462,38 @@ void SynthGenerator::computeSampledReflectivities(TypeSet<float>& realres,
     {
 	const ReflectivitySpike& spike = (*refmodel_)[idx];
 	const int sample = sampling.nearestIndex( spike.time_ );
-	realres[sample] += spike.reflectivity_.real();
-	if ( cres) (*cres)[sample] += spike.reflectivity_;
+	if ( !sampling.includes(sampling.atIndex(sample),false) )
+	    continue;
+
+	if ( spike.isDefined() )
+	{
+	    realres[sample] += spike.reflectivity_.real();
+	    if ( cres ) (*cres)[sample] += spike.reflectivity_;
+	}
+	else
+	{
+	    realres[sample] += 0.;
+	    if ( cres ) (*cres)[sample] += float_complex(0,0);
+	}
     }
+}
+
+
+bool SynthGenerator::doWork()
+{
+    int res = mMoreToDoRet;
+    while ( res == mMoreToDoRet )
+    	res = nextStep();
+    
+    return res == mFinishedRet;
 }
 
 
 
 MultiTraceSynthGenerator::MultiTraceSynthGenerator()
     : totalnr_( -1 )
-{}
+{
+}
 
 
 MultiTraceSynthGenerator::~MultiTraceSynthGenerator()
