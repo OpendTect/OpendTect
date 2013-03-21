@@ -13,14 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "zdomain.h"
 
-#include "datainpspec.h"
-#include "refcount.h"
-#include "uibutton.h"
-#include "uigeninput.h"
-#include "uidialog.h"
-#include "zaxistransform.h"
-#include "uimsg.h"
-
 
 uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
     : uiGenInput( p, BufferString(
