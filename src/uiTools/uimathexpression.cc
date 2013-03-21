@@ -34,7 +34,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
     if ( !setup_.label_.isEmpty() )
     {
 	uiLabel* lbl = new uiLabel( this, setup_.label_ );
-	lbl->attach( rightOf, txtfld_ );
+	lbl->attach( leftOf, txtfld_ );
     }
 
     if ( setup_.withsetbut_ )
@@ -57,7 +57,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
 	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\":"   /" );
-	lbl->attach( rightOf, grpfld_ );
+	lbl->attach( leftOf, grpfld_ );
 	insgrp->setHAlignObj( lbl );
 	grpfld_->setHSzPol( uiObject::Medium );
 	grpfld_->setStretch( 0, 0 );
