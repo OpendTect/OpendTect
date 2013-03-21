@@ -396,10 +396,10 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 void FaultTrace::getAllActNames( BufferStringSet& bss )
 {
     bss.erase();
-    bss.add( "AllowCrossing(Default)" );
-    bss.add( "ForbidCrossing(DataDriven)" );
-    bss.add( "ForbidCrossHigher(ModelDriven)" );
-    bss.add( "ForbidCrossLower(ModelDriven)" );
+    bss.add( "AllowCross (Default)" );
+    bss.add( "ForbidCross (DataDriven)" );
+    bss.add( "ForbidCrossHigh (ModelDriven)" );
+    bss.add( "ForbidCrossLow (ModelDriven)" );
 }
 
 
