@@ -113,7 +113,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	    if ( range.isUdf() )
 		range = StepInterval<float>::udf();
 	    else
-		range.step = 	range.width()/nrsamples;
+		range.step = range.width()/nrsamples;
 	}
 	
 	NotifyStopper stopper( rangefld_->valuechanging );
