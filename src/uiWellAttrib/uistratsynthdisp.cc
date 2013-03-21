@@ -366,6 +366,7 @@ void uiStratSynthDisp::drawLevel()
 
 void uiStratSynthDisp::setCurrentWavelet()
 {
+    currentsynthetic_ = 0;
     stratsynth_.setWavelet( wvltfld_->getWavelet() );
     SyntheticData* sd = stratsynth_.getSynthetic( datalist_->box()->text() );
     if ( !sd ) return;
