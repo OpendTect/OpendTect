@@ -92,7 +92,7 @@ const V& HiddenParam<O,V>::getParam( const O* obj ) const
 {
     Threads::MutexLocker lock( lock_ );
     const int idx = objects_.indexOf( obj );
-    if ( !objects.validIdx(idx) )
+    if ( !objects_.validIdx(idx) )
     {
 	pErrMsg("Object not found");
 	return undef_;
