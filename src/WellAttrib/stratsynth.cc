@@ -480,7 +480,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	return false; 
 
     ElasticPropGen elpgen( eps, props );
-    const float srddepth = -1*0; // SHOULD COME from SI() - depth, not elevation
+    const float srddepth = -1.* mCast(float,SI().seismicReferenceDatum() );
     int firstidx = 0;
     if ( seq.startDepth() < srddepth )
     {
