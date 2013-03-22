@@ -250,6 +250,7 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
 
+    setEmpty( true );
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
 	setInput( MultiID(res) );
