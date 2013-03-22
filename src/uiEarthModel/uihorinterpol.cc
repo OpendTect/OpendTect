@@ -60,11 +60,11 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     if ( !is2d )
     {
-	const char* geometries[] = { "Full survey", "Bounding box",
+	const char* scopes[] = { "Full survey", "Bounding box",
 				     "Convex hull", "Only holes", 0 };
-	geometrysel_ = new uiGenInput( this, "Geometry",
-				       StringListInpSpec( geometries ) );
-	geometrysel_->setText( geometries[2] );
+	geometrysel_ = new uiGenInput( this, "Scope",
+				       StringListInpSpec(scopes) );
+	geometrysel_->setText( scopes[2] );
 
 	if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
 	interpol2dsel_ =
