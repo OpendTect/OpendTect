@@ -524,6 +524,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     BinIDValue biv; 
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
+#define mLocalEps 1e-2;
     dahrg.start -= mLocalEps;
     dahrg.stop  += mLocalEps;
     while ( true )
