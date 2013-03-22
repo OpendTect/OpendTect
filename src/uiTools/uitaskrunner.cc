@@ -113,7 +113,6 @@ void uiTaskRunner::onFinalise( CallBacker* )
 
 void uiTaskRunner::doWork( CallBacker* )
 {
-    task_->enableNrDoneCounting( true );
     task_->enableWorkControl( true );
     bool res = task_->execute();
 

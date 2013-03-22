@@ -222,7 +222,6 @@ int Hor2DTo3D::nextStep()
 
     if ( curinterp_ )
     {
-	curinterp_->enableNrDoneCounting( true );
 	curinterp_->execute();
     }
 

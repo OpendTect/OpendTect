@@ -42,7 +42,6 @@ public:
     inline bool			usePar(const IOPar&);
 
     inline void			setProgressMeter( ProgressMeter* pm );
-    inline void			enableNrDoneCounting( bool yn );
     inline bool			execute();
     inline void			enableWorkControl(bool);
     inline void			controlWork(Task::Control);
@@ -179,7 +178,6 @@ template <class T> inline void Smoother3D<T>::func( vartype var ) \
 { convolver_.func( var ); }
 
 mImplSetFunc( setProgressMeter, ProgressMeter* );
-mImplSetFunc( enableNrDoneCounting, bool );
 mImplSetFunc( enableWorkControl, bool);
 mImplSetFunc( controlWork, Task::Control);
 

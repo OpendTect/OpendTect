@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
+#include "errh.h"
 
 #include <limits.h>
 
@@ -99,6 +100,10 @@ bool Task::shouldContinue()
 }
 
 
+TaskGroup::TaskGroup()
+{}
+
+
 void TaskGroup::addTask( Task* t )
 { tasks_ += t; }
 
@@ -107,13 +112,6 @@ void TaskGroup::setProgressMeter( ProgressMeter* p )
 {
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	tasks_[idx]->setProgressMeter( p );
-}
-
-
-void TaskGroup::enableNrDoneCounting( bool yn )
-{
-    for ( int idx=0; idx<tasks_.size(); idx++ )
-	tasks_[idx]->enableNrDoneCounting( yn );
 }
 
 
@@ -179,6 +177,11 @@ Task::Control TaskGroup::getState() const
 {
     Threads::MutexLocker lock( lock_ );
     return tasks_[curtask_]->getState();
+}
+
+void TaskGroup::setParallel(bool)
+{
+    pErrMsg("Not implemented. Perhaps you should do it?");
 }
 
 
@@ -284,7 +287,6 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
     {
 	progressmeter_->setName( name() );
 	progressmeter_->setMessage( message() );
-	enableNrDoneCounting( true );
     }
 }
 

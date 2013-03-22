@@ -34,10 +34,6 @@ public:
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
     			//!<Must be called before execute()
-    virtual void	enableNrDoneCounting( bool yn )		{}
-    			/*<!It is not guaranteed that it's implemented by
-			    the class. If not, nrDone() will return -1.
-			    must be called before execute(). */
 
     virtual od_int64	nrDone() const			{ return -1; }
     			/*!<\note nrDone is only used for displaying progress
@@ -75,12 +71,14 @@ protected:
 mExpClass(Basic) TaskGroup : public Task
 {
 public:
+			TaskGroup();
     			~TaskGroup() { deepErase( tasks_ ); }
     void		addTask( Task* );
     			//Becomes mine
+    
+    void		setParallel(bool);
 
     void		setProgressMeter(ProgressMeter*);
-    virtual void	enableNrDoneCounting( bool yn );
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
 
@@ -94,7 +92,6 @@ public:
     virtual Control	getState() const;
 
 protected:
-
     ObjectSet<Task>		tasks_;
     int				curtask_;
 

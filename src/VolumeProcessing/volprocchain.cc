@@ -256,7 +256,6 @@ bool ChainExecutor::prepareNewStep()
     }
 
     curtask_->setProgressMeter( progressmeter_ );
-    curtask_->enableNrDoneCounting( true );
     curtask_->enableWorkControl( true );
 
     return true;
