@@ -28,7 +28,7 @@ mAttrDefCreateInstance(Instantaneous)
     
 void Instantaneous::initClass()
 {
-    mAttrStartInitClass
+    mAttrStartInitClassWithUpdate
 
     desc->addInput( InputSpec("Imag Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 14 );
@@ -43,6 +43,13 @@ void Instantaneous::initClass()
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
+}
+
+
+void Instantaneous::updateDesc( Desc& desc )
+{
+    int outputidx = desc.selectedOutput();
+    desc.setParamEnabled( rotateAngle(), outputidx == 13 );
 }
 
 
