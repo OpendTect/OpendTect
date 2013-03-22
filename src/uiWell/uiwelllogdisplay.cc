@@ -31,7 +31,9 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )  
     , unitmeas_(0)
-{}
+    , logSet(this)
+{
+}
 
 
 uiWellLogDisplay::~uiWellLogDisplay()
@@ -39,6 +41,7 @@ uiWellLogDisplay::~uiWellLogDisplay()
     delete ld1_; ld1_ = 0;
     delete ld2_; ld2_ = 0;
 }
+
 
 void uiWellLogDisplay::gatherDataInfo( bool first )
 {
@@ -60,7 +63,11 @@ const Well::Log* uiWellLogDisplay::LogData::log() const
 
 void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 {
-    dahobj_ = l;
+    if ( dahobj_ != l )
+    {
+	dahobj_ = l;
+	logSet.trigger();
+    }
 }
 
 
@@ -73,7 +80,6 @@ void uiWellLogDisplay::LogData::getInfoForDah( float dah,
     msg += toString( log()->getValue( dah ) );
     msg += log()->unitMeasLabel();
 }
-
 
 
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
@@ -322,9 +328,79 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 }
 
 
-const uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first ) const
-{ return const_cast<uiWellLogDisplay*>(this)->logData(first); }
-
-
 uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
-{ return *static_cast<LogData*>( first ? ld1_ : ld2_ ); }
+{
+    return *static_cast<LogData*>( first ? ld1_ : ld2_ );
+}
+
+
+uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
+				    const uiWellLogDisplay::Setup& wldsu,
+       				    bool mkcopy )
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpID).modal(false))
+    , logSet(this)
+    , logsmine_(mkcopy)
+    , log1_(0)
+    , log2_(0)
+{
+    dispfld_ = new uiWellLogDisplay( this, wldsu );
+    const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
+    dispfld_->logData(true).logSet.notify( cb );
+    dispfld_->logData(false).logSet.notify( cb );
+    dispfld_->dahObjData(true).col_ = Color::stdDrawColor( 0 );
+    dispfld_->dahObjData(false).col_ = Color::stdDrawColor( 1 );
+
+    dispfld_->setPrefWidth( 300 );
+    dispfld_->setPrefHeight( 500 );
+    postFinalise().notify( cb );
+    setDeleteOnClose( true );
+}
+
+
+uiWellLogDispDlg::~uiWellLogDispDlg()
+{
+    if ( logsmine_ )
+    {
+	delete const_cast<Well::Log*>(log1_);
+	delete const_cast<Well::Log*>(log2_);
+    }
+}
+
+
+void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first )
+{
+    if ( wl && logsmine_ )
+    {
+	Well::Log*& mywl = const_cast<Well::Log*&>(first ? log1_ : log2_);
+	delete mywl; mywl = new Well::Log( *wl );
+	wl = mywl;
+    }
+    dispfld_->logData( first ).setLog( wl );
+}
+
+
+const Well::Log* uiWellLogDispDlg::getLog( bool first ) const
+{
+    return dispfld_->logData( first ).log();
+}
+
+
+void uiWellLogDispDlg::logSetCB( CallBacker* )
+{
+    const Well::Log* l1 = getLog( true );
+    const Well::Log* l2 = getLog( false );
+    BufferString capt( "Log viewer" );
+    if ( l1 || l2 )
+	capt.add( ": " );
+    if ( l1 )
+	capt.add( l1->name() );
+    if ( l2 )
+    {
+	if ( l1 )
+	    capt.add( " and " );
+	capt.add( l2->name() );
+    }
+    setCaption( capt );
+
+    logSet.trigger();
+}

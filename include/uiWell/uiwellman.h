@@ -59,8 +59,9 @@ protected:
     void			writeLogs();
     void			fillLogsFld();
     void			wellsChgd();
-    void			removeLogPush(CallBacker*);
+    void			viewLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
+    void			removeLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
     void			checkMoveLogs(CallBacker*);
     void			logUOMPush(CallBacker*);

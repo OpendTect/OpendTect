@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogcalc.h"
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
+#include "uiwelllogdisplay.h"
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
@@ -73,6 +74,8 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
+    butgrp->addButton( "view_log", "View selected log",
+	    		mCB(this,uiWellMan,viewLogPush) );
     butgrp->addButton( uiManipButGrp::Rename, "Rename selected log",
 			mCB(this,uiWellMan,renameLogPush) );
     butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
@@ -425,32 +428,74 @@ void uiWellMan::wellsChgd()
 }
 
 
-void uiWellMan::exportLogs( CallBacker* )
-{
-    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
+#define mEnsureLogSelected() \
+    if ( logsfld_->isEmpty() ) return; \
+    if ( logsfld_->nrSelected() < 1 ) \
+	mErrRet("No log selected")
 
-    BufferStringSet sellogs;
-    logsfld_->getSelectedItems( sellogs );
+#define mGetWL() \
+    currdrs_[0]->getLogs(); \
+    const Well::LogSet& wls = curwds_[0]->logs(); \
+    const char* lognm = logsfld_->getText(); \
+    const Well::Log* wl = wls.getLog( lognm ); \
+    if ( !wl ) \
+	mErrRet( "Cannot read selected log" )
+
+
+void uiWellMan::viewLogPush( CallBacker* )
+{
+    mEnsureLogSelected();
+    mGetWL();
+
+    BufferString lognm1(lognm), lognm2;
+    for ( int idx=0; idx<logsfld_->size(); idx++ )
+    {
+	if ( !logsfld_->isSelected(idx) )
+	    continue;
+	const char* nm2 = logsfld_->textOfItem( idx );
+	if ( lognm1 != nm2 )
+	    { lognm2 = nm2; break; }
+    }
+
+    uiWellLogDisplay::Setup wldsu;
+    wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    dlg->setLog( wl, true );
+    if ( !lognm2.isEmpty() )
+	dlg->setLog( wls.getLog(lognm2), false );
+
+    dlg->show();
+}
+
+
+void uiWellMan::renameLogPush( CallBacker* )
+{
+    mEnsureLogSelected();
+    mGetWL();
+
+    BufferString titl( "Rename '" );
+    titl += lognm; titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
+    if ( !dlg.go() ) 
+	return;
+
+    BufferString newnm = dlg.text();
+    if ( logsfld_->isPresent(newnm) )
+	mErrRet("Name already in use")
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	currdrs_[idwell]->getD2T();
-	const IOObj* obj = IOM().get( curmultiids_[idwell] );
-	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
+	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
+	if ( log ) log->setName( newnm );
     }
-
-    uiExportLogs dlg( this, curwds_, sellogs );
-    dlg.go();
-
-    for ( int idw=0; idw<curwds_.size(); idw++ )
-	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
+    writeLogs();
 }
 
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
+    mEnsureLogSelected();
 
     BufferString msg;
     msg = logsfld_->nrSelected() == 1 ? "This log " : "These logs ";
@@ -478,34 +523,26 @@ void uiWellMan::removeLogPush( CallBacker* )
 }
 
 
-void uiWellMan::renameLogPush( CallBacker* )
+void uiWellMan::exportLogs( CallBacker* )
 {
-    if ( !logsfld_->size() || !logsfld_->nrSelected() )
-	mErrRet("No log selected")
+    mEnsureLogSelected();
 
-    currdrs_[0]->getLogs();
-    Well::LogSet& wls = curwds_[0]->logs();
-    const char* lognm = logsfld_->getText();
-    if ( !wls.getLog( lognm ) ) 
-	mErrRet( "Cannot read selected log" )
-
-    BufferString titl( "Rename '" );
-    titl += lognm; titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
-    if ( !dlg.go() ) 
-	return;
-
-    BufferString newnm = dlg.text();
-    if ( logsfld_->isPresent(newnm) )
-	mErrRet("Name already in use")
+    BufferStringSet sellogs;
+    logsfld_->getSelectedItems( sellogs );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
-	if ( log ) log->setName( newnm );
+	currdrs_[idwell]->getD2T();
+	const IOObj* obj = IOM().get( curmultiids_[idwell] );
+	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
     }
-    writeLogs();
+
+    uiExportLogs dlg( this, curwds_, sellogs );
+    dlg.go();
+
+    for ( int idw=0; idw<curwds_.size(); idw++ )
+	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
 }
 
 

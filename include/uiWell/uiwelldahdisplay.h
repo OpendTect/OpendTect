@@ -80,7 +80,7 @@ public:
 				    uiWellDahDisplay(uiParent*,const Setup&);
 				    ~uiWellDahDisplay();
 
-    mStruct(uiWell) DahObjData
+    mStruct(uiWell) DahObjData : public CallBacker
     {
 	virtual			~DahObjData() { delete xaxprcts_; }
 
@@ -220,5 +220,4 @@ protected:
 
 
 #endif
-
 
