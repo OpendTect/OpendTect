@@ -42,7 +42,7 @@ public:
 			    : name_( nm )
     			    , zdomain_( zd )
 			{}
-    bool		is2D() const		{ return true; }
+    bool		is2D() const		{ return false; }
     const BufferString&	name() const		{ return name_; }
     			    
     float		zScale() const 		{ return zscale_; }

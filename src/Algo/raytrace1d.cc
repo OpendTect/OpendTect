@@ -129,6 +129,9 @@ od_int64 RayTracer1D::nrIterations() const
 #define mVelMin 100
 bool RayTracer1D::doPrepare( int nrthreads )
 {
+    depths_.erase();
+    velmax_.erase();
+
     const int sz = model_.size();
 
     //See if we can find zero-offset
