@@ -1022,93 +1022,86 @@ od_int64 Well::LogSampler::nrIterations() const
 { return logset_.size(); }
 
 
+#define mGetDah(dah,zvalue) \
+	dah = zrgisintime_ \
+	    ? d2t_->getDah( zvalue ) \
+	    : track_.getDahForTVD( zvalue );
+
+
+#define mGetZ(zvalue,dah) \
+    	zvalue = zrgisintime_ \
+	       ? mCast( float, track_.getPos( dahrg.start ).z ) \
+    	       : d2t_->getTime( dahrg.start, track_ );
+
+
 bool Well::LogSampler::doPrepare( int thread )
 {
     if ( !nrIterations() )
 	{ errmsg_ = "No log found"; return false; } 
 
-    if ( mIsUdf( zstep_ ) )
-    {
-	zstep_ = SI().zStep()*0.5f;
-	if ( SI().zIsTime() )
-	    zstep_ = 2000 * zstep_;
-    }
-    if ( mIsUdf(zrg_.start) || mIsUdf(zstep_) )
-	{errmsg_ = "No valid range specified"; return false;}
+    if ( zrg_.isUdf() )
+	{ errmsg_ = "No valid range specified"; return false; }
 
-    if ( zrg_.start < mCast( float, track_.value(0) ) )
-	{errmsg_ = "Cannot extract data above well head"; return false;}
-
-    const int ns = track_.size();
-    if ( zrg_.stop > mCast( float, track_.value( ns-1 ) ) )
-	{errmsg_ = "Cannot extract data below TD"; return false;}
+    if ( mIsUdf(zstep_) )
+	{ errmsg_ = "No valid step specified"; return false; }
 
     if ( ( extrintime_ || zrgisintime_ ) && !d2t_ )
-    { 
-	errmsg_ ="Extraction is in time but no depth/time model found"; 
-	return false;
-    }	
+	{ errmsg_ ="No valid depth/time model found"; return false; }
 
-    TypeSet<float> dahs; Interval<float> dahrg;
-    const float dahstart = track_.getDahForTVD( zrg_.start, mUdf(float) );
-    const float dahstop = track_.getDahForTVD( zrg_.stop, mUdf(float) );
-    dahrg.start = zrgisintime_ ? d2t_->getDah(zrg_.start) : dahstart;
-    dahrg.stop = zrgisintime_ ? d2t_->getDah(zrg_.stop) : dahstop;
-
-    if ( mIsUdf(dahrg.start) || mIsUdf(dahrg.stop) )
+    Interval<float> dahrg;
+    mGetDah( dahrg.start, zrg_.start )
+    mGetDah( dahrg.stop, zrg_.stop )
+    if ( dahrg.isUdf() )
 	{errmsg_ = "Could not determine extraction boundaries"; return false;}
 
-    dahrg.start -= mLocalEps;
-    dahrg.stop  += mLocalEps;
+    const int ns = track_.size();
+    if ( dahrg.start < track_.dah(0) )
+	{ errmsg_ = "Cannot extract data above well head"; return false; }
 
-    int nrpts = 0;
-    float curz = mUdf(float);
-    if ( extrintime_ )
+    if ( dahrg.stop > track_.dah(ns-1) )
+	{ errmsg_ = "Cannot extract data below TD"; return false; }
+
+    if ( extrintime_ != zrgisintime_ )
     {
-	if ( zrgisintime_ )
+	mGetZ( zrg_.start, dahrg.start )
+	mGetZ( zrg_.stop, dahrg.stop )
+    } // zrg_ now matches the extraction domain
+
+    float zstart = (float) mNINT32(zrg_.start/zstep_) * zstep_;
+    if ( zstart < zrg_.start-(zstep_*1e-2) )
+	zstart += zstep_;
+
+    float zstop = (float) mNINT32(zrg_.stop/zstep_) * zstep_;
+    if ( zstop > zrg_.stop+(zstep_*1e-2) )
+	zstop -= zstep_;
+
+    StepInterval<float> zrgreg( zstart, zstop, zstep_ );
+    
+    TypeSet<float> dahs;
+    TypeSet<float> winsz;
+    for ( int idx=0; idx<=zrgreg.nrSteps(); idx++ )
+    {
+	const float zmid = zrgreg.atIndex(idx);
+	const float ztop = zmid - zstep_/2.;
+	const float zbase = zmid + zstep_/2.;
+	Interval<float> dahwin;
+	mGetDah( dahwin.start, ztop )
+	mGetDah( dahwin.stop, zbase )
+	if ( !dahwin.isUdf() )
 	{
-	    curz = zrg_.start;
-	    nrpts = mCast( int, zrg_.width() / zstep_ ) + 1;
-	}
-	else
-	{
-	    curz = d2t_->getTime( dahrg.start, track_ );
-	    const float lastz = d2t_->getTime( dahrg.stop, track_ );
-	    nrpts = mCast( int, ( lastz - curz ) / zstep_ ) + 1;
+	    dahs += dahwin.center();
+	    winsz += dahwin.width();
 	}
     }
-    else
-    {
-	if ( zrgisintime_ )
-	{
-	    curz = dahrg.start;
-	    nrpts = mCast( int, dahrg.width() / zstep_ ) + 1;
-	}
-	else
-	{
-	    curz = zrg_.start;
-	    nrpts = mCast( int, zrg_.width() / zstep_ ) + 1;
-	}
-    }
 
-    float dah = mUdf(float);
-    for ( int idx=0; idx<=nrpts; idx++ )
-    {
-	if ( extrintime_ )
-	{
-	    dah = d2t_->getDah( curz );
-	}
-	else
-	{
-	    dah = track_.getDahForTVD( curz, mUdf(float) );
-	}
-	curz += zstep_;
-	dahs += dah;
-    }
-
-    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+1), dahs.size() );
+    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+2),
+	   			    dahs.size() );
+    const int winszidx = nrIterations()+1;
     for ( int idz=0; idz<dahs.size(); idz++ )
+    {
 	data_->set( 0, idz, dahs[idz] );
+	data_->set( winszidx, idz, winsz[idz] );
+    }
 
     return true;
 }
@@ -1135,6 +1128,8 @@ bool Well::LogSampler::doLog( int logidx )
     const Well::Log* log = logset_.validIdx( logidx ) ? logset_[logidx] : 0;
     if ( !log || log->isEmpty() ) return false;
 
+    const int winszidx = data_->info().getSize(0)-1;
+
     for ( int idz=0; idz<data_->info().getSize(1); idz++ ) 
     {
 	float dah = data_->get( 0, idz );
@@ -1144,21 +1139,7 @@ bool Well::LogSampler::doLog( int logidx )
 	    lval = log->getValue(dah,true);
 	else
 	{
-	    float winsz = SI().zStep();
-	    if ( extrintime_ )
-	    {
-		const float startdahwin = idz == 0 ? dah :
-		    ( data_->get(0,idz)+data_->get(0,idz-1) ) / 2;
-		const float stopdahwin = idz < data_->info().getSize(1)-1 ?
-		    ( data_->get(0,idz)+data_->get(0,idz+1) ) / 2 : dah;
-		const float starttime = d2t_->getTime(startdahwin, track_ );
-		const float stoptime = d2t_->getTime( stopdahwin, track_ );
-		winsz = stoptime - starttime;
-		dah = d2t_->getDah( ( stoptime + starttime ) / 2 );
-	    }
-	    else if ( !mIsUdf(zstep_) )
-		winsz = zstep_;
-
+	    const float winsz = data_->get( winszidx, idz );
 	    lval = LogDataExtracter::calcVal(*log,dah,winsz,samppol_);
 	}
 	data_->set( logidx+1, idz, lval );
