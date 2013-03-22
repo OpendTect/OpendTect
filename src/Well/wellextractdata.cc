@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <math.h>
 
-#define mLocalEps 1e-1;
+#define mLocalEps 1e-2;
 
 namespace Well
 {
@@ -524,7 +524,6 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     BinIDValue biv; 
     BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
-#define mLocalEps 1e-2;
     dahrg.start -= mLocalEps;
     dahrg.stop  += mLocalEps;
     while ( true )
