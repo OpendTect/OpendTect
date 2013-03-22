@@ -1444,12 +1444,12 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
 	{
 	    if ( curline.size() == 1 )
 	    {
-		const BinID bid = SI().transform( curline[0].coord() );
+		const BinID curlinebid = SI().transform( curline[0].coord() );
 		bool hasseed = false;
 		for ( int idx=0; idx<seedposids->size(); idx++ )
 		{
 		    const BinID seedbid( (*seedposids)[idx].subID() );
-		    if ( seedbid[fastdim] == bid[fastdim] )
+		    if ( seedbid[fastdim] == curlinebid[fastdim] )
 		    {
 			hasseed = true;
 			break;
