@@ -1,3 +1,9 @@
 #!/bin/csh -f
 
-dvs annotate $*
+set filebrowser=$WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR/od_FileBrowser
+if ( -e $filebrowser ) then
+    dvs annotate -v $* > /tmp/svn_annot.$$
+    $filebrowser /tmp/svn_annot.$$
+else
+    dvs annotate -v $*
+endif
