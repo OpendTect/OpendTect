@@ -192,7 +192,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 {
     setTitleText( "Create new pickset with random positions" );
     nrfld_ = new uiGenInput( this, "Number of picks to generate",
-					 IntInpSpec(defnrpicks) );
+		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
     nrfld_->attach( alignedBelow, colsel_);
 
     if ( hornms_.size() )
