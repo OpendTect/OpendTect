@@ -7,3 +7,5 @@ ODScene.0.Name: Move slice forward
 ODScene.0.Keys: ----`X
 ODScene.1.Name: Move slice backward
 ODScene.1.Keys: ----`Z
+ODScene.2.Name: Save
+ODScene.2.Keys: Control`S
