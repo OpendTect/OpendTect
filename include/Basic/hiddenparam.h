@@ -25,7 +25,7 @@ binary compability issues.
   in the source-file:
   
   \code
-  HiddenParam<O,V>	myparammanager( default_value_of_V );
+  HiddenParam<O,V>	myparammanager( undef_val );
   \endcode
   
   You can then access the variable in the source-file by:
@@ -45,14 +45,17 @@ binary compability issues.
   removeParam (if the class does not already have a destructor), so
   so don't use with objects that are created millions of times in those
   cases, as you will leak memory.
+  Finally, note that you MUST set the parameter in the constructor. The
+  undef value is not ment to be returned, it's merely to keep the compiler
+  happy.
 */
 
 template <class O, class V>
 mClass(Basic) HiddenParam 
 {
 public:
-    		HiddenParam( const V& def )
-		    : default_( def ) 	{}
+    		HiddenParam( const V& undefval )
+		    : undef_( undefval ) 	{}
     void	setParam( O* obj, const V& val );
     const V&	getParam( const O* obj ) const;
 
@@ -64,7 +67,7 @@ protected:
     ObjectSet<O>		objects_;
     TypeSet<V>			params_;
     mutable Threads::Mutex	lock_;
-    V				default_;
+    V				undef_;
 };
 
 
@@ -89,10 +92,10 @@ const V& HiddenParam<O,V>::getParam( const O* obj ) const
 {
     Threads::MutexLocker lock( lock_ );
     const int idx = objects_.indexOf( obj );
-    if ( idx==-1 )
+    if ( !objects.validIdx(idx) )
     {
 	pErrMsg("Object not found");
-	return default_;
+	return undef_;
     }
 
     return params_[idx];
