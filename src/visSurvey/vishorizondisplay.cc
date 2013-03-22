@@ -1409,6 +1409,8 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
     const int prevline = rg.atIndex(rgindex);
     const int nextline = prevline<targetline ? rg.atIndex(rgindex+1) : prevline;
 
+    const TypeSet<EM::PosID>* seedposids = hor->getPosAttribList
+						( EM::EMObject::sSeedNode() );
     TypeSet<Coord3> curline;
     for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep )
     {
@@ -1438,6 +1440,28 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
 
 	if ( !pos.isDefined() || !cs.zrg.includes(pos.z,false) )
 	{
+	    if ( curline.size() == 1 )
+	    {
+		const BinID curlinebid = SI().transform( curline[0].coord() );
+		bool hasseed = false;
+		for ( int idx=0; idx<seedposids->size(); idx++ )
+		{
+		    const BinID seedbid = BinID::fromInt64( 
+						(*seedposids)[idx].subID() );
+		    if ( seedbid[fastdim] == curlinebid[fastdim] )
+		    {
+			hasseed = true;
+			break;
+		    }
+		}
+
+		if ( !hasseed )
+		{
+		    curline.erase();
+		    continue;
+		}
+	    }
+
 	    mEndLine;
 	    continue;
 	}
