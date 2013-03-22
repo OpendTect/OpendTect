@@ -44,7 +44,7 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     inpfld_->selectionChanged.notify( 
 		    mCB(this,uiElasticPropSelGrp::uiSelInpGrp,selVarCB ) );
 
-    ctefld_ = new uiGenInput( this, "Value", IntInpSpec() );
+    ctefld_ = new uiGenInput( this, "Value", FloatInpSpec() );
     ctefld_->attach( rightOf, lbl );
     ctefld_->setElemSzPol( uiObject::Small );
 
@@ -124,7 +124,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 					const BufferStringSet& prs,
        					ElasticPropertyRef& elprop,
        					const TypeSet<ElasticFormula>& el )
-    : uiGroup( p, "Prop Grp" )
+    : uiGroup( p, "Elastic Prop Sel Grp" )
     , propnms_(prs)  
     , elpropref_(elprop)			
     , elformsel_(elprop.formula())
@@ -309,8 +309,8 @@ static const char** props = ElasticFormula::TypeNames();
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p, 
 					const PropertyRefSelection& prs,
 					ElasticPropSelection& elsel )
-    : uiDialog(p,uiDialog::Setup("Synthetic layers property selection",
-		"Select quantities to compute density, p-wave and s-wave"
+    : uiDialog(p,uiDialog::Setup("Elastic Model",
+		"Specify how to obtain density and p-wave and s-wave velocities"
 		,"110.1.3"))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection)) 
     , elpropsel_(elsel)
