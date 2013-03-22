@@ -36,7 +36,7 @@ const BufferString& CommandLineParser::getExecutableName() const
 
 bool CommandLineParser::hasKey( const char* key ) const
 {
-    return isPresent( key );
+    return indexOf( key )!=-1;
 }
 
 
