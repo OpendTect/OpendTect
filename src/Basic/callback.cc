@@ -39,7 +39,7 @@ void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
     notif.cber_->addListener( this );
     
     Threads::SpinLockLocker lock( cblock_ );
-    if ( attachednotifiers_.indexOf( &notif )==-1 )
+    if ( !attachednotifiers_.isPresent( &notif ) )
 	attachednotifiers_ += &notif;
  
     listeners_ += notif.cber_;
@@ -142,7 +142,7 @@ void NotifierAccess::notify( const CallBack& cb, bool first )
 
 
 void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
-{ if ( cbs_.indexOf(cb)==-1 ) notify(cb); }
+{ if ( !cbs_.isPresent(cb) ) notify(cb); }
 
 
 void NotifierAccess::remove( const CallBack& cb )

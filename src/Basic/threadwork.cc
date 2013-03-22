@@ -455,7 +455,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
-    if ( ignoreduplicates && workload_.indexOf( newtask ) !=-1 )
+    if ( ignoreduplicates && workload_.isPresent( newtask ) )
 	return;
  
     const int nrfreethreads = freethreads_.size();
@@ -667,7 +667,7 @@ int Threads::WorkManager::nrFreeThreads() const
 
 bool Threads::WorkManager::isWorkThread() const
 {
-    return threadids_.indexOf( Threads::currentThread() )!=-1;
+    return threadids_.isPresent( Threads::currentThread() );
 }
 
 

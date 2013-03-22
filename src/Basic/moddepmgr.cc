@@ -133,7 +133,7 @@ void OD::ModDepMgr::readDeps( std::istream& strm )
 	    for ( int idep=depdep->mods_.size()-1; idep>=0; idep-- )
 	    {
 		const char* depdepmod = depdep->mods_.get(idep).buf();
-		if ( depmods.indexOf(depdepmod) < 0 )
+		if ( !depmods.isPresent(depdepmod) )
 		    depmods.add( depdepmod );
 	    }
 	}

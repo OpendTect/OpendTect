@@ -472,7 +472,7 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
     for ( int idx=0; idx<bss.size(); idx++ )
     {
 	const char* s = bss.get( idx );
-	if ( allowdup || indexOf(s) < 0 )
+	if ( allowdup || !isPresent(s) )
 	    add( s );
     }
     return *this;
@@ -481,7 +481,7 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
 
 bool BufferStringSet::addIfNew( const char* s )
 {
-    if ( indexOf(s) < 0 )
+    if ( !isPresent(s) )
 	{ add( s ); return true; }
     return false;
 }

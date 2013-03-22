@@ -248,8 +248,7 @@ void DataPackMgr::release( DataPack::ID dpid )
     lock_.writeLock();
 
     //We lost our lock, so idx may have changed.
-    idx = packs_.indexOf( pack );
-    if ( idx==-1 ) pErrMsg("Double delete detected");
+    if ( !packs_.isPresent( pack ) ) pErrMsg("Double delete detected");
 
     packs_.removeSingle( idx );
     lock_.writeUnLock();

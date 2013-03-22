@@ -23,7 +23,7 @@ int Coord2ListImpl::nextID( int previd ) const
     int res = previd + 1;
     while ( res<sz )
     {
-	if ( removedids_.indexOf(res)==-1 )
+	if ( !removedids_.isPresent(res) )
 	    return res;
 
 	res++;
@@ -35,7 +35,7 @@ int Coord2ListImpl::nextID( int previd ) const
 
 Coord Coord2ListImpl::get( int id ) const
 {
-    if ( id<0 || id>=points_.size() || removedids_.indexOf( id )!=-1 )
+    if ( id<0 || id>=points_.size() || removedids_.isPresent( id ) )
 	return Coord::udf();
     else
 	return points_[id];
@@ -73,7 +73,7 @@ int Coord2ListImpl::add( const Coord& co )
 
 void Coord2ListImpl::addValue( int idx, const Coord& co )
 {
-    if ( idx>=points_.size() || removedids_.indexOf(idx)!=-1 )
+    if ( idx>=points_.size() || removedids_.isPresent(idx) )
 	add( co );
     else
 	points_[idx] += co;
@@ -96,7 +96,7 @@ int Coord3ListImpl::nextID( int previd ) const
     int res = previd + 1;
     while ( res<sz )
     {
-	if ( removedids_.indexOf(res)==-1 )
+	if ( !removedids_.isPresent(res) )
 	    return res;
 
 	res++;
@@ -108,7 +108,7 @@ int Coord3ListImpl::nextID( int previd ) const
 
 Coord3 Coord3ListImpl::get( int id ) const
 {
-    if ( id<0 || id>=coords_.size() || removedids_.indexOf( id )!=-1 )
+    if ( id<0 || id>=coords_.size() || removedids_.isPresent( id ) )
 	return Coord3::udf();
     else
 	return coords_[id];
@@ -146,7 +146,7 @@ int Coord3ListImpl::add( const Coord3& coord3 )
 
 void Coord3ListImpl::addValue( int idx, const Coord3& co )
 {
-    if ( idx>=coords_.size() || removedids_.indexOf(idx)!=-1 )
+    if ( idx>=coords_.size() || removedids_.isPresent(idx) )
 	add( co );
     else
 	coords_[idx] += co;

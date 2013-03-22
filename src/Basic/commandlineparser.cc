@@ -36,7 +36,7 @@ const BufferString& CommandLineParser::getExecutableName() const
 
 bool CommandLineParser::hasKey( const char* key ) const
 {
-    return indexOf( key )>=0;
+    return isPresent( key );
 }
 
 
@@ -48,7 +48,7 @@ void CommandLineParser::setKeyHasValue( const char* key )
 
 bool CommandLineParser::isPresent( const char* arg ) const
 {
-    return argv_.indexOf( arg )>=0;
+    return argv_.isPresent( arg );
 }
 
 
@@ -73,7 +73,7 @@ bool CommandLineParser::isKeyValue( int idx ) const
     if ( !*keyptr )
 	return false;
     
-    return keyswithvalue_.indexOf(keyptr)>=0;
+    return keyswithvalue_.isPresent(keyptr);
 }
 
 

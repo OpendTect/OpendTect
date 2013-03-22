@@ -88,7 +88,7 @@ bool ArrayNDSliceBase::init()
 	}
 	else
 	{
-	    if ( unkdims.indexOf(vardim_[idx])==-1 )
+	    if ( !unkdims.isPresent(vardim_[idx]) )
 		return false;
 	    unkdims -= vardim_[idx];
 	}

@@ -50,7 +50,7 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
     
     CallBackSet& cbs = SH().getCBL( et );
-    if ( cbs.indexOf(cb) < 0 ) cbs += cb;
+    if ( !cbs.isPresent(cb) ) cbs += cb;
 #ifndef __win__
     if ( et == SignalHandling::Alarm )
     {
