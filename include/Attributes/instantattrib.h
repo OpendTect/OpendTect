@@ -29,7 +29,7 @@ public:
     				Instantaneous(Desc&);
 
     static const char*		attribName()	{ return "Instantaneous"; }
-    static const char*		rotateAngle()	{ return "Rotation angle"; }
+    static const char*		rotateAngle()	{ return "rotationangle"; }
 
 protected:
     				~Instantaneous() {}

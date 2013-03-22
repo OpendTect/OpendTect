@@ -21,6 +21,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+#define mOutAmplitude		0
+#define mOutPhase		1
+#define mOutFrequency		2
+#define mOutHilbert		3
+#define mOutAmplitude1Der	4
+#define mOutAmplitude2Der	5
+#define mOutCosPhase		6
+#define mOutEnvWPhase		7
+#define mOutEnvWFreq		8
+#define mOutPhaseAccel		9
+#define mOutThinBed		10
+#define mOutBandwidth		11
+#define mOutQFactor		12
+#define mOutRotatePhase		13
+
+
 namespace Attrib
 {
 
@@ -28,7 +44,7 @@ mAttrDefCreateInstance(Instantaneous)
     
 void Instantaneous::initClass()
 {
-    mAttrStartInitClass
+    mAttrStartInitClassWithUpdate
 
     desc->addInput( InputSpec("Imag Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 14 );
@@ -43,6 +59,13 @@ void Instantaneous::initClass()
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
+}
+
+
+void Instantaneous::updateDesc( Desc& desc )
+{
+    int outputidx = desc.selectedOutput();
+    desc.setParamEnabled( rotateAngle(), outputidx == mOutRotatePhase );
 }
 
 
@@ -85,34 +108,44 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	if ( isOutputEnabled(0) )
-	    setOutputValue( output, 0, idx, z0, calcAmplitude(idx,z0) );
-	if ( isOutputEnabled(1) )
-	    setOutputValue( output, 1, idx, z0, calcPhase(idx,z0) );
-	if ( isOutputEnabled(2) )
-	    setOutputValue( output, 2, idx, z0, calcFrequency(idx,z0) );
-	if ( isOutputEnabled(3) )
-	    setOutputValue( output, 3, idx, z0, mGetIVal(idx) );
-	if ( isOutputEnabled(4) )
-	    setOutputValue( output, 4, idx, z0, calcAmplitude1Der(idx,z0) );
-	if ( isOutputEnabled(5) )
-	    setOutputValue( output, 5, idx, z0, calcAmplitude2Der(idx,z0) );
-	if ( isOutputEnabled(6) )
-	    setOutputValue( output, 6, idx, z0, cos(calcPhase(idx,z0)) );
-	if ( isOutputEnabled(7) )
-	    setOutputValue( output, 7, idx, z0, calcEnvWPhase(idx,z0) );
-	if ( isOutputEnabled(8) )
-	    setOutputValue( output, 8, idx, z0, calcEnvWFreq(idx,z0) );
-	if ( isOutputEnabled(9) )
-	    setOutputValue( output, 9, idx, z0, calcPhaseAccel(idx,z0) );
-	if ( isOutputEnabled(10) )
-	    setOutputValue( output, 10, idx, z0, calcThinBed(idx,z0) );
-	if ( isOutputEnabled(11) )
-	    setOutputValue( output, 11, idx, z0, calcBandWidth(idx,z0) );
-	if ( isOutputEnabled(12) )
-	    setOutputValue( output, 12, idx, z0, calcQFactor(idx,z0) );
-	if ( isOutputEnabled(13) )
-	    setOutputValue(output, 13, idx, z0, calcRotPhase(idx,z0,rotangle_));
+	if ( isOutputEnabled(mOutAmplitude) )
+	    setOutputValue( output, mOutAmplitude, idx, z0,
+		    	    calcAmplitude(idx,z0) );
+	if ( isOutputEnabled(mOutPhase) )
+	    setOutputValue( output, mOutPhase, idx, z0, calcPhase(idx,z0) );
+	if ( isOutputEnabled(mOutFrequency) )
+	    setOutputValue( output, mOutFrequency, idx, z0,
+		    	    calcFrequency(idx,z0) );
+	if ( isOutputEnabled(mOutHilbert) )
+	    setOutputValue( output, mOutHilbert, idx, z0, mGetIVal(idx) );
+	if ( isOutputEnabled(mOutAmplitude1Der) )
+	    setOutputValue( output, mOutAmplitude1Der, idx, z0,
+			    calcAmplitude1Der(idx,z0) );
+	if ( isOutputEnabled(mOutAmplitude2Der) )
+	    setOutputValue( output, mOutAmplitude2Der, idx, z0,
+			    calcAmplitude2Der(idx,z0) );
+	if ( isOutputEnabled(mOutCosPhase) )
+	    setOutputValue( output, mOutCosPhase, idx, z0,
+			    cos(calcPhase(idx,z0)) );
+	if ( isOutputEnabled(mOutEnvWPhase) )
+	    setOutputValue( output, mOutEnvWPhase, idx, z0,
+			    calcEnvWPhase(idx,z0) );
+	if ( isOutputEnabled(mOutEnvWFreq) )
+	    setOutputValue( output, mOutEnvWFreq, idx, z0,
+			    calcEnvWFreq(idx,z0) );
+	if ( isOutputEnabled(mOutPhaseAccel) )
+	    setOutputValue( output, mOutPhaseAccel, idx, z0,
+			    calcPhaseAccel(idx,z0) );
+	if ( isOutputEnabled(mOutThinBed) )
+	    setOutputValue( output, mOutThinBed, idx, z0, calcThinBed(idx,z0) );
+	if ( isOutputEnabled(mOutBandwidth) )
+	    setOutputValue( output, mOutBandwidth, idx, z0,
+			    calcBandWidth(idx,z0) );
+	if ( isOutputEnabled(mOutQFactor) )
+	    setOutputValue( output, mOutQFactor, idx, z0, calcQFactor(idx,z0) );
+	if ( isOutputEnabled(mOutRotatePhase) )
+	    setOutputValue(output, mOutRotatePhase, idx, z0,
+			    calcRotPhase(idx,z0,rotangle_));
     }
 
     return true;
