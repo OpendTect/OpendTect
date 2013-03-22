@@ -43,8 +43,7 @@ static const BufferStringSet specvars( specvararr );
 
 HiddenParam<uiWellLogCalc,uiLabeledComboBox*>    fufldmanager( 0 );
 
-HiddenParam<uiWellLogCalc,TypeSet<PropertyRef::StdType>* > 
-			inputtypesparam( new TypeSet<PropertyRef::StdType> );
+HiddenParam<uiWellLogCalc,TypeSet<PropertyRef::StdType>* > inputtypesparam( 0 );
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
@@ -81,6 +80,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 	setCtrlStyle( LeaveOnly );
 	return;
     }
+
+    inputtypesparam.setParam( this, new TypeSet<PropertyRef::StdType> );
 
     setCtrlStyle( DoAndStay );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
@@ -148,6 +149,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 uiWellLogCalc::~uiWellLogCalc()
 {
     delete expr_;
+    delete inputtypesparam.getParam(this);
     inputtypesparam.removeParam(this);
 }
 
