@@ -515,7 +515,6 @@ bool Threads::WorkManager::removeWork( const ::Threads::Work& task )
 	return false;
     }
 
-
     workload_[idx].destroy();
 
     workqueueid_.removeSingle( idx );
