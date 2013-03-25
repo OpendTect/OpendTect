@@ -446,69 +446,6 @@ mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
 // Atomic implementations
 #ifdef __win__
 
-#define mAtomicSpecialization( type, postfix ) \
-template <> inline \
-Atomic<type>::Atomic( type val ) \
-: val_( val ) \
-, lock_( 0 ) \
-{} \
-\
-\
-template <> inline \
-bool Atomic<type>::setIfEqual(type newval, type oldval ) \
-{ \
-if ( newval==oldval ) \
-return true; \
-\
-return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
-} \
-\
-template <> inline \
-type Atomic<type>::operator += (type b) \
-{  \
-    return InterlockedExchangeAdd##postfix( &val_, b );  \
-}  \
-\
-template <> inline \
-type Atomic<type>::operator -= (type b) \
-{ \
-    return InterlockedExchangeAdd##postfix( &val_, -b ); \
-} \
-\
-\
-template <> inline \
-type Atomic<type>::operator ++() \
-{ \
-    return InterlockedIncrement##postfix( &val_); \
-} \
-\
-\
-template <> inline \
-type Atomic<type>::operator -- () \
-{ \
-    return InterlockedDecrement##postfix( &val_ ); \
-} \
-\
-\
-template <> inline \
-type Atomic<type>::operator ++(int) \
-{ \
-    return InterlockedIncrement##postfix( &val_ )-1; \
-} \
-\
-\
-template <> inline \
-type Atomic<type>::operator -- (int) \
-{ \
-    return InterlockedDecrement##postfix( &val_ )+1; \
-} \
-
-mAtomicSpecialization( long, )
-#ifdef _WIN64
-mAtomicSpecialization( long long, 64 )
-#endif
-
-#undef mAtomicSpecialization
 
 template <class T> inline
 Atomic<T>::Atomic( T val )
@@ -574,6 +511,72 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
 	val_ = newval;
     return res;
 }
+
+#define mAtomicSpecialization( type, postfix ) \
+    template <> inline \
+    Atomic<type>::Atomic( type val ) \
+    : val_( val ) \
+    , lock_( 0 ) \
+{} \
+\
+\
+template <> inline \
+bool Atomic<type>::setIfEqual(type newval, type oldval ) \
+{ \
+    return InterlockedCompareExchange##postfix( &val_, newval, oldval )==oldval; \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator += (type b) \
+{ \
+    return InterlockedExchangeAdd##postfix( &val_, b )+b;  \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator -= (type b) \
+{ \
+    return InterlockedExchangeAdd##postfix( &val_, -b )-b; \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator ++() \
+{ \
+    return InterlockedIncrement##postfix( &val_); \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator -- () \
+{ \
+    return InterlockedDecrement##postfix( &val_ ); \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator ++(int) \
+{ \
+    return InterlockedIncrement##postfix( &val_ )-1; \
+} \
+\
+\
+template <> inline \
+type Atomic<type>::operator -- (int) \
+{ \
+    return InterlockedDecrement##postfix( &val_ )+1; \
+}
+
+
+mAtomicSpecialization( long, )
+
+#ifdef __win64__
+    mAtomicSpecialization( long long, 64 )
+#endif
+
+#undef mAtomicSpecialization
+
 
 #else //not win
 
@@ -689,9 +692,6 @@ Atomic<T>::~Atomic()
 
 #undef mAtomicWithMutex
 #endif
-
-    
-    
 
 
 /* AtomicPointer implementations. */
