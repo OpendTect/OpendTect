@@ -67,6 +67,8 @@ public:
     inline virtual ObjectSet<T>& operator -=(T*);
     inline virtual void		push(T* ptr);
     inline virtual T*		pop();
+    
+    inline bool			addIfNew(T*);
 
     inline virtual void		erase()		{ plainErase(); }
     				
@@ -402,6 +404,17 @@ void ObjectSet<T>::push( T* ptr )
 template <class T> inline
 T* ObjectSet<T>::pop()
 { return (T*)vec_.pop_back(); }
+
+
+template <class T> inline
+bool ObjectSet<T>::addIfNew( T* ptr )
+{
+    if ( isPresent(ptr) )
+	return false;
+
+    *this += ptr;
+    return true;
+}
 
 
 template <class T> inline
