@@ -21,7 +21,8 @@ ________________________________________________________________________
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; class Gather; class AngleComputer; }
+namespace PreStack { class ProcessManager; class Gather; 
+		     class VelocityBasedAngleComputer; }
 
 
 namespace Attrib
@@ -96,7 +97,7 @@ protected:
     int				component_;
     SeisPSReader*		psrdr_;
     PreStack::PropCalc*		propcalc_;
-    PreStack::AngleComputer*    anglecomp_;
+    PreStack::VelocityBasedAngleComputer*    anglecomp_;
 
     PreStack::ProcessManager*	preprocessor_;
     MultiID			preprocid_;

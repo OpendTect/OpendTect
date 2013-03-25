@@ -112,7 +112,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	 lsqtype == PreStack::PropCalc::AngleCoeff ) 
     {
 	mGetString( velocityid_, velocityIDStr() );
-	anglecomp_ = new PreStack::AngleComputer;
+	anglecomp_ = new PreStack::VelocityBasedAngleComputer;
 	anglecomp_->ref();
 	anglecomp_->setMultiID( velocityid_ ); 
     }
@@ -164,7 +164,8 @@ bool PSAttrib::getAngleInputData()
 
     const FlatPosData& fp = gather->posData();
     anglecomp_->setOutputSampling( fp );
-    PreStack::Gather* angledata = anglecomp_->computeAngles(gather->getBinID());
+    anglecomp_->setTraceID( gather->getBinID() );
+    PreStack::Gather* angledata = anglecomp_->computeAngles();
 
     if ( !angledata )
 	return false;
