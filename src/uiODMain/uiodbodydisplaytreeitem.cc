@@ -597,11 +597,12 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displaybodymnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const bool bodydisplayed = displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
+	    const bool bodydisplayed = displaybodymnuitem_.checked;
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
     	    plg_->display( polygdisplayed, !bodydisplayed );
+    	    plg_->displayIntersections( bodydisplayed );
 	}
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
