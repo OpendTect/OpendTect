@@ -54,7 +54,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiGroup* inpgrp,
 	unfld_->box()->addItem( "-" );
 	for ( int idx=0; idx<alluom.size(); idx++ )
 	    unfld_->box()->addItem( alluom[idx]->name() );
-	unfld_->attach( rightOf, inpfld_ );
+	unfld_->attach( rightTo, inpfld_ );
     }
 
     cstvalfld_ = new uiGenInput( this, "value", FloatInpSpec() );
