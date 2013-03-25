@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "ptrman.h"
 #include "filepath.h"
+#include "errh.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -254,6 +255,7 @@ mExternC(Basic) const char* GetEnvVar( const char* env )
 	if ( !AreProgramArgsSet() )
 	{
 	    //We should not be here before SetProgramInfo() is called.
+	    pFreeFnErrMsg( "Use SetProgramArgs()", "GetEnvVar" );
 	    ExitProgram( 1 );
 	}
 	    
