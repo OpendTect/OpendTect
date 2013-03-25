@@ -9,25 +9,34 @@ static const char* rcsID mUsedVar = "$Id: svnversion.cc 28757 2013-03-07 10:50:1
 
 #include "thread.h"
 #include "genc.h"
+#include "keystrs.h"
+#include "commandlineparser.h"
 
 #include <iostream>
 
 #define mRunTest( val,func, finalval ) \
-    std::cout << "Atomic = " << val << " in funxtion: "; \
     if ( (func)==false || val!=finalval ) \
     { \
+	if ( quiet ) \
+	    std::cout << "Data type in test: " << valtype << " \n"; \
+	std::cerr << "Atomic = " << val << " in function: "; \
 	std::cerr << #func " failed!\n"; \
-    }\
-    else \
-	std::cerr << #func " passed!\n"; 
+	return false; \
+    } \
+    else if ( !quiet ) \
+    { \
+	std::cout << "Atomic = " << val << " in function: "; \
+	std::cerr << #func " passed!\n"; \
+    }
 
 
 template <class T>
-bool testAtomic( const char* valtype )
+bool testAtomic( const char* valtype, bool quiet )
 {
     Threads::Atomic<T> atomic( 0 );
 
-    std::cout << "Data type in test: " << valtype << " \n";
+    if ( !quiet )
+	std::cout << "Data type in test: " << valtype << " \n";
 
     mRunTest( atomic.get(),!atomic.setIfEqual( 1, 2 ), 0 ); //0
     mRunTest( atomic.get(),!atomic.setIfEqual( 1, 2 ), 0 ); //0
@@ -39,20 +48,24 @@ bool testAtomic( const char* valtype )
     mRunTest( atomic.get(), (atomic+=2)==3, 3 ); //3
     mRunTest( atomic.get(), (atomic-=2)==1, 1 );  //1
 
-    std::cout << "\n";
+    if ( !quiet )
+	std::cout << "\n";
 
     return true;
 }
 
 
 #define mRunTestWithType(thetype) \
-    if ( !testAtomic<thetype>( " " #thetype " " ) ) \
+    if ( !testAtomic<thetype>( " " #thetype " ", quiet ) ) \
 	return 1
 
 
 int main( int narg, char** argv )
 {
     SetProgramArgs( narg, argv );
+
+    CommandLineParser parser;
+    const bool quiet = parser.hasKey( sKey::quiet() );
 
     mRunTestWithType(od_int64);
     mRunTestWithType(od_uint64);

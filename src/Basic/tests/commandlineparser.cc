@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "commandlineparser.h"
 #include "typeset.h"
+#include "keystrs.h"
 
 #include <iostream>
 
@@ -30,7 +31,7 @@ int main( int narg, char** argv )
     SetProgramArgs( narg, argv );
     CommandLineParser parser;
     
-    const bool quiet = parser.hasKey("quiet");
+    const bool quiet = parser.hasKey( sKey::quiet() );
     
     const char* createkeystr = "--create";
     const char* createstr = createkeystr+2;
