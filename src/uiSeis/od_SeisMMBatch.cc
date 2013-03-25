@@ -31,6 +31,7 @@ int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
 
+    OD::ModDeps().ensureLoaded( "uiSeis" );
     const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
     if ( argc+bgadd < 3 )
     {
