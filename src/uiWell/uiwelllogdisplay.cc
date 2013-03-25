@@ -343,6 +343,7 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
     , log1_(0)
     , log2_(0)
 {
+    setCtrlStyle( LeaveOnly );
     dispfld_ = new uiWellLogDisplay( this, wldsu );
     const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
     dispfld_->logData(true).logSet.notify( cb );
