@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uiwelllogcalc.h"
 
-class uiGenInput;                                                               
-class uiCheckBox;                                                               
+class uiCheckBox;
+class uiToolButton;
+
 namespace Well { class Log; class LogSet; }
 
 /*! \ Brief: UI utility to select the well logs which will be used as input
@@ -26,24 +27,25 @@ namespace Well { class Log; class LogSet; }
 mClass(uiWell) uiWellLogCalcInpData : public uiMathExpressionVariable
 {
 public:
-				uiWellLogCalcInpData(uiWellLogCalc*,
-						     uiGroup*,int);
-				~uiWellLogCalcInpData();
+			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
+			~uiWellLogCalcInpData();
 
-    virtual void		use(const MathExpression*);
-    const Well::Log*		getLog();
-    bool			getInp(uiWellLogCalc::InpData&);
-    void                        restrictLogChoice(const PropertyRef::StdType&);
+    virtual void	use(const MathExpression*);
+    const Well::Log*	getLog();
+    bool		getInp(uiWellLogCalc::InpData&);
+    void		restrictLogChoice(const PropertyRef::StdType&);
 
-    const Well::LogSet* wls_;                                                   
+    const Well::LogSet* wls_;
 
 protected:
 
-    uiCheckBox*         udfbox_;                                                
-    Well::Log*          convertedlog_;                                          
-    bool                lognmsettodef_;
+    uiCheckBox*		udfbox_;
+
+    Well::Log*          convertedlog_;
 
     void		inputSel(CallBacker*);
+    void		vwLog(CallBacker*);
+
 };
 
 #endif
