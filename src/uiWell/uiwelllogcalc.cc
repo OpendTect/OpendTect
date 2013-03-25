@@ -107,6 +107,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 	formulaunfld_->box()->addItem( uns[idx]->name() );
     formulaunfld_->attach( alignedBelow,
 	  	    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
+    formulaunfld_->box()->setHSzPol( uiObject::Wide );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
@@ -129,6 +130,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    					"Output unit of measure" );
     outunfld_ = lcb->box();
+    outunfld_->setHSzPol( uiObject::Wide );
     outunfld_->addItem( "-" );
     for ( int idx=0; idx<uns.size(); idx++ )
 	outunfld_->addItem( uns[idx]->name() );
@@ -342,24 +344,26 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    mErrContinue( msg.buf());
 	} 
 	const int unselidx = outunfld_->currentItem();
+	const UnitOfMeasure* outun = 0;
 	if ( unselidx > 0 )
 	{
 	    const char* formulaunittxt = formulaunfld_->box()->text();
 	    const char* desunittxt = outunfld_->text();
-	    newwl->setUnitMeasLabel( desunittxt );
 	    const UnitOfMeasure* logun = UoMR().get( formulaunittxt );
-	    const UnitOfMeasure* convertun = UoMR().get( desunittxt );
+	    outun = UoMR().get( desunittxt );
 	    for ( int idx=0; idx<newwl->size(); idx++ )
 	    {
 		const float initialval = newwl->value( idx );
-		const float valinsi = logun ? logun->getSIValue( initialval )
-		    			    : initialval;
-		const float convertedval = convertun ?
-			    convertun->getUserValueFromSI( valinsi ) : valinsi;
+		const float valinsi = !logun ? initialval
+				    : logun->getSIValue( initialval );
+		const float convertedval = !outun ? valinsi
+				    : outun->getUserValueFromSI( valinsi );
 		newwl->valArr()[idx] = convertedval;
 	    }
 	}
 
+	if ( outun )
+	    newwl->setUnitMeasLabel( outun->name() );
 	wls.add( newwl );
 
 	Well::Writer wtr( fnm, wd );
@@ -481,7 +485,9 @@ bool uiWellLogCalc::getRecInfo()
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdata )
 {
-    //TODO inpdata[0].wl_ can be 0 ? check + make it safer
+    if ( inpdata.isEmpty() || !inpdata[0].wl_ )
+	{ pErrMsg("Missing log"); return false; }
+
     TypeSet<float> vals; int rgidx = 0;
     int nrstart = startvals_.size();
     if ( nrstart > 0 )
