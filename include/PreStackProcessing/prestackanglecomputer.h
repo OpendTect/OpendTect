@@ -13,18 +13,20 @@ ________________________________________________________________________
 
 -*/
 
+#include "ailayer.h"
+#include "flatposdata.h"
+#include "iopar.h"
+#include "position.h"
 #include "prestackprocessingmod.h"
 #include "refcount.h"
-#include "flatposdata.h"
-#include "ailayer.h"
-#include "iopar.h"
 
-class VelocityDesc;
+template <class T> class Array2D;
 class MultiID;
-class TraceID;
 class RayTracer1D;
+class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
+
 
 namespace PreStack
 {

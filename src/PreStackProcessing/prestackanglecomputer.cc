@@ -248,8 +248,8 @@ bool VelocityBasedAngleComputer::createElasticModel(
 		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f 
 		    :  zrange.start+zrange.step-srddepth;
     
-    ElasticLayer elayer( firstlayerthickness, pvel[firstidx], svel, den );
-    firstrawem.add( elayer );
+    ElasticLayer firstelayer( firstlayerthickness, pvel[firstidx], svel, den );
+    firstrawem.add( firstelayer );
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
@@ -265,6 +265,7 @@ bool VelocityBasedAngleComputer::createElasticModel(
     
     BlockElasticModel( firstrawem, secondrawem, thresholdparam_, true );
     SetMaxThicknessElasticModel( secondrawem, elasticmodel_, maxthickness_ );
+    return true;
 }
 
 
