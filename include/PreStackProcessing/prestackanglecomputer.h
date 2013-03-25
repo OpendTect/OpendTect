@@ -27,7 +27,6 @@ class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
 
-
 namespace PreStack
 {
 
