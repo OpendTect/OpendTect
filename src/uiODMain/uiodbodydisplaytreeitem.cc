@@ -93,15 +93,15 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
     else if ( mnuid==1 )
     {
-	RefMan<EM::EMObject> plg =
+	RefMan<EM::EMObject> emplg =
 	    EM::EMM().createTempObject( EM::PolygonBody::typeStr() );
-	if ( !plg )
+	if ( !emplg )
 	    return false;
 
-	plg->setPreferredColor( getRandomColor(false) );
-	plg->setNewName();
-	plg->setFullyLoaded( true );
-	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
+	emplg->setPreferredColor( getRandomColor(false) );
+	emplg->setNewName();
+	emplg->setFullyLoaded( true );
+	addChild( new uiODBodyDisplayTreeItem( emplg->id() ), false );
 	
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
@@ -384,21 +384,20 @@ bool uiODBodyDisplayTreeItem::init()
     if ( displayid_==-1 )
     {
 	EM::EMObject* object = EM::EMM().getObject( emid_ );
-	mDynamicCastGet( EM::PolygonBody*, plg0, object );
-	mDynamicCastGet( EM::MarchingCubesSurface*, mcd0, object );
-	mDynamicCastGet( EM::RandomPosBody*, rpb0, object );
-	if ( plg0 )
+	mDynamicCastGet( EM::PolygonBody*, emplg, object );
+	mDynamicCastGet( EM::MarchingCubesSurface*, emmcs, object );
+	mDynamicCastGet( EM::RandomPosBody*, emrpb, object );
+	if ( emplg )
 	{
 	    visSurvey::PolygonBodyDisplay* plg =
 		visSurvey::PolygonBodyDisplay::create();
 	    displayid_ = plg->id();
 	    plg_ = plg;
 	    plg_->ref();
-	    
-	    plg->setEMID(emid_);
-	    visserv_->addObject( plg, sceneID(), true );
+	    plg_->setEMID(emid_);
+	    visserv_->addObject( plg_, sceneID(), true );
 	}
-	else if ( mcd0 ) 
+	else if ( emmcs ) 
 	{
 	    visSurvey::MarchingCubesDisplay* mcd =
 		visSurvey::MarchingCubesDisplay::create();
@@ -407,9 +406,9 @@ bool uiODBodyDisplayTreeItem::init()
 	    mcd_->ref();
 	    uiTaskRunner taskrunner( getUiParent() );
 	    mcd_->setEMID( emid_, &taskrunner );
-	    visserv_->addObject( mcd, sceneID(), true );
+	    visserv_->addObject( mcd_, sceneID(), true );
 	}
-	else if ( rpb0 )
+	else if ( emrpb )
 	{
 	    visSurvey::RandomPosBodyDisplay* rpb = 
 		visSurvey::RandomPosBodyDisplay::create();
@@ -417,7 +416,7 @@ bool uiODBodyDisplayTreeItem::init()
 	    rpb_ = rpb;
 	    rpb_->ref();
 	    rpb_->setEMID( emid_ );
-	    visserv_->addObject( rpb, sceneID(), true );
+	    visserv_->addObject( rpb_, sceneID(), true );
 	}
     }
     else
@@ -490,7 +489,6 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	mcd_->unRef();
     }
-
     mcd_ = 0;
 
     if ( plg_ )
@@ -499,7 +497,6 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	plg_->unRef();
     }
-
     plg_ = 0;
 
     if ( rpb_ ) 
@@ -508,8 +505,8 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	rpb_->unRef();
     }
-
     rpb_ = 0;
+    
     uiODDisplayTreeItem::prepareForShutdown();
 }
 
@@ -518,31 +515,24 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
-	return;
-
-    mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    if ( !mcd && !plg && !rpb )
+    if ( menu->menuID()!=displayID() || ( mcd_ && !plg_ && !rpb_) )
 	return;
 	
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
-    if ( mcd )
+    if ( mcd_ )
     {
+	const bool intersectdisplay = mcd_->areIntersectionsDisplayed();
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true, true );
+	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
+ 		!intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true, 
-	       mcd_->areIntersectionsDisplayed()	);
+		intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
-		!mcd->usesTexture() );
+		!mcd_->usesTexture() );
     }
 
-    if ( plg )
+    if ( plg_ )
     {
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		      plg_->isBodyDisplayed() );
@@ -568,7 +558,6 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==saveasmnuitem_.id || mnuid==savemnuitem_.id )
     {
-	menu->setIsHandled(true);
 	bool saveas = mnuid==saveasmnuitem_.id ||
 	    applMgr()->EMServer()->getStorageID(emid_).isEmpty();
 	if ( !saveas )
@@ -596,38 +585,40 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==displaybodymnuitem_.id )
     {
-	menu->setIsHandled(true);
+	const bool bodydisplay = !displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
-	    const bool bodydisplayed = displaybodymnuitem_.checked;
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, !bodydisplayed );
-    	    plg_->displayIntersections( bodydisplayed );
+    	    plg_->display( polygdisplayed, bodydisplay );
+    	    plg_->displayIntersections( !bodydisplay );
 	}
+	else if ( mcd_ )
+	    mcd_->displayIntersections( !bodydisplay );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
-	menu->setIsHandled(true);
 	const bool polygdisplayed = displaypolygonmnuitem_.checked;
 	const bool bodydisplayed = displaybodymnuitem_.checked;
 	plg_->display( !polygdisplayed, bodydisplayed );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
-	menu->setIsHandled(true);
-	const bool intersectdisplayed = displayintersectionmnuitem_.checked;
+	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
 	if ( plg_ )
 	{
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, intersectdisplayed );
-    	    plg_->displayIntersections( !intersectdisplayed );
+    	    plg_->display( polygdisplayed, !intersectdisplay );
+    	    plg_->displayIntersections( intersectdisplay );
 	}
 	else if ( mcd_ )
-	    mcd_->displayIntersections( !intersectdisplayed );
+	    mcd_->displayIntersections( intersectdisplay );
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
-	menu->setIsHandled(true);
 	mcd_->useTexture( !mcd_->usesTexture() );
     }
+    else
+	return;
+	
+    menu->setIsHandled(true);
 }
