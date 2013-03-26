@@ -124,7 +124,7 @@ void RelationTree::getParents( int index, TypeSet<int>& parents ) const
     const RelationTree::Node* node = nodes_[index];
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
-	if ( nodes_[idx]->children_.indexOf(node) >= 0 )
+	if ( nodes_[idx]->children_.isPresent(node) )
 	    parents += idx;
     }
 }

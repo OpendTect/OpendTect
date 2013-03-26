@@ -256,7 +256,7 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
     while ( query.next() )
 	tables.add( query.data(0) );
 
-    if ( tables.indexOf( tableName() )==-1 )
+    if ( !tables.isPresent(tableName()) )
     {
 	if ( !fix )
 	    return MinorError;

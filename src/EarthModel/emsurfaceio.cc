@@ -743,7 +743,7 @@ bool dgbSurfaceReader::shouldSkipRow( int row ) const
     if ( version_==1 || (version_==2 && !isBinary()) )
 	return false;
 
-    if ( sectionsel_.indexOf(sectionids_[sectionindex_])==-1 )
+    if ( !sectionsel_.isPresent(sectionids_[sectionindex_]) )
 	return true;
 
     if ( !readrowrange_ )
@@ -983,7 +983,7 @@ int dgbSurfaceReader::nextStep()
 int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 {
     const SectionID sectionid = sectionids_[sectionindex_];
-    if ( version_==3 && sectionsel_.indexOf(sectionid)==-1 )
+    if ( version_==3 && !sectionsel_.isPresent(sectionid) )
     {
 	sectionindex_++;
 	return MoreToDo();
@@ -1608,7 +1608,7 @@ void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
     {
 	for ( int idx=0; idx<sel.size(); idx++ )
 	{
-	    if ( sectionsel_.indexOf(sel[idx]) == -1 )
+	    if ( !sectionsel_.isPresent(sel[idx]) )
 		sectionsel_ += sel[idx];
 	}
     }

@@ -176,8 +176,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	    if ( !&nodes ) continue;
 
-	    const int idy = nodes.indexOf(pid);
-	    if ( idy!=-1 )
+	    if ( nodes.isPresent(pid) )
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
     }
@@ -390,7 +389,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
     const int idx = attribs_.indexOf( attr );
-    return idx != -1 && posattribs_[idx]->posids_.indexOf( pid ) != -1;
+    return idx != -1 && posattribs_[idx]->posids_.isPresent( pid );
 }
 
 

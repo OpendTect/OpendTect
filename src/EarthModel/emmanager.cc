@@ -183,7 +183,7 @@ MultiID EMManager::getMultiID( const ObjectID& oid ) const
 
 bool EMManager::objectExists( const EMObject* obj ) const
 {
-    return objects_.indexOf( obj ) != -1;
+    return objects_.isPresent(obj);
 }
 
 
@@ -194,7 +194,7 @@ void EMManager::addObject( EMObject* obj )
 	return;
     }
 
-    if ( objects_.indexOf( obj )!=-1 )
+    if ( objects_.isPresent(obj) )
     {
 	pErrMsg("Adding object twice");
 	return;
@@ -207,7 +207,7 @@ void EMManager::addObject( EMObject* obj )
 
 void EMManager::removeObject( const EMObject* obj )
 {
-    const int idx = objects_.indexOf( obj );
+    const int idx = objects_.indexOf(obj);
     if ( idx<0 ) return;
     objects_.removeSingle( idx );
     addRemove.trigger();

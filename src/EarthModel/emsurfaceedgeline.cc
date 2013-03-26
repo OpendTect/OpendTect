@@ -983,7 +983,7 @@ int EdgeLine::computeArea() const
 	while ( curdir!=backnodeidx )
 	{
 	    const RowCol seed = curnode+step*dirs[curdir];
-	    if ( isInside(seed,false) && nodesinside.indexOf(seed)==-1 )
+	    if ( isInside(seed,false) && !nodesinside.isPresent(seed) )
 		nodesinside+= seed;
 
 	    curdir = (curdir+1)%dirs.size();
@@ -1257,7 +1257,7 @@ bool EdgeLine::repairLine()
 		cursegidx = iterator.currentSegment();
 		curnodeidx = iterator.currentNodeIdx();
 
-		if ( segmentstoremove.indexOf(cursegidx)==-1 )
+		if ( !segmentstoremove.isPresent(cursegidx) )
 		     segmentstoremove += cursegidx;
 	    }
 

@@ -525,8 +525,7 @@ bool Horizon3DGeometry::isFullResolution() const
 
 bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
-    int idx=sids_.indexOf(sid);
-    if ( idx==-1 ) return false;
+    if ( !sids_.isPresent(sid) ) return false;
 
     ((Horizon3D&) surface_).edgelinesets.removeSection( sid );
     ((Horizon3D&) surface_).auxdata.removeSection( sid );

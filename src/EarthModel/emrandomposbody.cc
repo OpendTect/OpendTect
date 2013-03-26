@@ -270,7 +270,7 @@ void RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 
 bool RandomPosBody::addPos( const Coord3& np )
 {
-    if ( locations_.indexOf(np)!=-1 )
+    if ( locations_.isPresent(np) )
 	return false;
 
     locations_ += np;
@@ -308,8 +308,7 @@ bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
     if ( sub==ids_.size() )
 	return addPos( pos );
 
-    const int posidx = ids_.indexOf( sub );
-    if ( posidx==-1 && sub==ids_.size() )
+    if ( !ids_.isPresent(sub) && sub==ids_.size() )
 	return addPos( pos );
     else
 	locations_[mCast(int,sub)] = pos;

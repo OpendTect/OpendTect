@@ -1047,7 +1047,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     if ( sid==-1 )
     {
 	sid = 0;
-	while ( sids_.indexOf(sid)!=-1 ) sid++;
+	while ( sids_.isPresent(sid) ) sid++;
     }
     
     BufferString name; 
