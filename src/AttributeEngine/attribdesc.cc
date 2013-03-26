@@ -21,15 +21,15 @@ namespace Attrib
 {
 
 DescSetup::DescSetup()
-	: is2d_(false)
-	      , ps_(false)
-	      , singletraceonly_(true)
-	      , usingtrcpos_(true)
-	      , depthonly_(!SI().zIsTime())
-	      , timeonly_(SI().zIsTime())
-	      , hidden_(false)
-	      , steering_(false)
-	      , stored_(false)
+    : is2d_(false)
+    , ps_(false)
+    , singletraceonly_(true)
+    , usingtrcpos_(true)
+    , depthonly_(!SI().zIsTime())
+    , timeonly_(SI().zIsTime())
+    , hidden_(false)
+    , steering_(false)
+    , stored_(false)
 {
 }
 
