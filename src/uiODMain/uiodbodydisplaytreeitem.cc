@@ -365,10 +365,12 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd )
     {
+	const bool intersectdisplay = mcd_->areIntersectionsDisplayed();
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true, true );
+	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true, 
+		!intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true, 
-	       mcd_->areIntersectionsDisplayed()	);
+		intersectdisplay	);
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
 		!mcd->usesTexture() );
 	mAddMenuItem( menu, &volcalmnuitem_, true, true );
@@ -448,13 +450,16 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displaybodymnuitem_.id )
     {
 	menu->setIsHandled(true);
+	    
+	const bool bodydisplay = !displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
-	    const bool bodydisplayed = displaybodymnuitem_.checked;
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, !bodydisplayed );
-	    plg_->displayIntersections( bodydisplayed );
+    	    plg_->display( polygdisplayed, bodydisplay );
+	    plg_->displayIntersections( !bodydisplay );
 	}
+	else if ( mcd_ )
+	    mcd_->displayIntersections( !bodydisplay );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
@@ -466,15 +471,15 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const bool intersectdisplayed = displayintersectionmnuitem_.checked;
+	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
 	if ( plg_ )
 	{
     	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, intersectdisplayed );
-    	    plg_->displayIntersections( !intersectdisplayed );
+    	    plg_->display( polygdisplayed, !intersectdisplay );
+    	    plg_->displayIntersections( intersectdisplay );
 	}
 	else if ( mcd_ )
-	    mcd_->displayIntersections( !intersectdisplayed );
+	    mcd_->displayIntersections( intersectdisplay );
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
