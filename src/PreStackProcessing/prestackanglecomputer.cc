@@ -96,15 +96,14 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const StepInterval<double> outputzrg = outputsampling_.range( false );
     ManagedObjectSet<PointBasedMathFunction> (anglevals)(true);
 
+    TimeDepthModel td;
+    raytracer_->getTDModel( 0, td );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	anglevals += new PointBasedMathFunction( 
 				    PointBasedMathFunction::Linear,
 				    PointBasedMathFunction::ExtraPolGradient );
 
-	TimeDepthModel td;
-	raytracer_->getTDModel( 0, td );
-	
 	if ( offsets[ofsidx] )
 	    anglevals[ofsidx]->add( 0, M_PI_2 );
 	else
