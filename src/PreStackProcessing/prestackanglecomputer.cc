@@ -103,7 +103,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 				    PointBasedMathFunction::ExtraPolGradient );
 
 	TimeDepthModel td;
-	raytracer_->getTDModel( ofsidx, td );
+	raytracer_->getTDModel( 0, td );
 	
 	if ( offsets[ofsidx] )
 	    anglevals[ofsidx]->add( 0, M_PI_2 );
