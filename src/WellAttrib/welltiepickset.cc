@@ -64,20 +64,22 @@ int PickSetMgr::getEventType() const
     
 void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 {
-    const int seissz = seispickset_.size();
-    const int synthsz = synthpickset_.size();
-    if ( abs(seissz-synthsz)<2 )
+    TypeSet<Marker>& curpickset = issynth ? synthpickset_ : seispickset_;
+    TypeSet<Marker>& altpickset = issynth ? seispickset_ : synthpickset_;
+    const int curpicksetsz = curpickset.size();
+    const int altpicksetsz = altpickset.size();
+    if ( abs(curpicksetsz-altpicksetsz)<2 )
     {
-	TypeSet<Marker>& pickset = issynth ? synthpickset_ : seispickset_;
-	const int sz = pickset.size();
-	if ( (issynth && (abs(sz+1-seissz) > 1 || lastpicksynth_))
-		|| (!issynth && (abs(sz+1-synthsz) > 1 || !lastpicksynth_)) )
-	    pickset.remove( sz -1 );
-	Marker m( trc ? findEvent( *trc, zpos ) : zpos );
-	m.color_ = Color::DgbColor();
-	pickset += m;
+	if ( (issynth==lastpicksynth_) && curpicksetsz-altpicksetsz>0 )
+	    if ( curpicksetsz )
+		curpickset.remove( curpicksetsz - 1 );
+
+	Marker marker( trc ? findEvent( *trc, zpos ) : zpos );
+	marker.color_ = Color::DgbColor();
+	curpickset += marker;
 	lastpicksynth_ = issynth;
     }
+
     pickadded.trigger();
 }
 
