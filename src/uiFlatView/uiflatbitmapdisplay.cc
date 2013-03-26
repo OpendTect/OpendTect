@@ -159,6 +159,7 @@ void uiBitMapDisplay::removeDisplay()
 
 void uiBitMapDisplay::update()
 {
+    display_->clearImages( true );
     basetask_->reset();
 
     if ( !viewer_.pack(true) && !viewer_.pack(false) )
@@ -221,6 +222,7 @@ void uiBitMapDisplay::reGenerateCB(CallBacker*)
 {
     const uiWorldRect wr = display_->wantedWorldRect();
     const uiSize sz = display_->wantedScreenSize();
+    if ( sz.width()<=0 || sz.height()<=0 ) return;
 
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );

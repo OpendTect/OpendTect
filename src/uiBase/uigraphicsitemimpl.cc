@@ -298,6 +298,12 @@ void uiDynamicImageItem::setImage( bool isdynamic, const uiRGBArray& image,
 }
 
 
+void uiDynamicImageItem::clearImages( bool triggerupdate )
+{
+    item_->clearImages( triggerupdate );
+}
+
+
 NotifierAccess& uiDynamicImageItem::wantsData()
 { return item_->wantsData; }
 

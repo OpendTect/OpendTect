@@ -393,6 +393,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
     , bbox_( 0, 0, 1, 1 )
     , updatedynpixmap_( false )
+    , forceredraw_( false )
 {}
 
 
@@ -420,6 +421,23 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 #endif
 	bbox_ = rect;
     }
+}
+
+
+void ODGraphicsDynamicImageItem::clearImages( bool triggerupdate )
+{
+    const bool invalidwrsz = wantedwr_.width()<=0 || wantedwr_.height()<=0;
+    
+    if ( triggerupdate && !invalidwrsz )
+    {
+	wantsData.trigger();
+	return;
+    }
+
+    const QImage qimage;
+    setImage( true, qimage, wantedwr_ );
+    setImage( false, qimage, bbox_ );
+    if ( triggerupdate ) forceredraw_ = true;
 }
 
 
@@ -494,8 +512,11 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
 	return false;
     }
 
-    if ( wantedwr==wantedwr_ )
+    if ( wantedwr==wantedwr_ || forceredraw_ )
+    {
+	if ( forceredraw_ ) { forceredraw_ = false; return true; }
 	return false;
+    }
 
     wantedwr_ = wantedwr;
     const QRect wantedscenerect =

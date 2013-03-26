@@ -153,6 +153,7 @@ public:
 					 const uiWorldRect&);
     				/*!<If dynamic==false, worldrect will define
 				    the bounding box of the item. */
+    void			clearImages( bool triggerupdate=false );
 
     NotifierAccess&		wantsData();
     uiWorldRect			wantedWorldRect() const;
