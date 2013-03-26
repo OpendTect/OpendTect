@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 namespace EM { class Fault; class Horizon; }
+namespace Geometry { class ExplFaultStickSurface; }
+namespace PosInfo { class Line2DData; }
 class IOObj;
 class MultiID;
 class BinIDValueSet;
@@ -90,6 +92,8 @@ public:
 
 protected:
 
+    			~FaultTrace() {}
+
     void		computeTraceSegments();
     Coord		getIntersection(const BinID&,float,
 	    				const BinID&,float) const;
@@ -123,6 +127,8 @@ public:
 			~FaultTrcHolder();
 
     const FaultTrace*	getTrc(int linenr,bool isinl) const;
+    int			indexOf(int linenr,bool isinl) const;
+
     bool		isEditedOnCrl() const;
 
     ObjectSet<FaultTrace>	traces_;
@@ -138,55 +144,61 @@ public:
 \brief FaultTrace extractor 
 */
 
-mExpClass(EarthModel) FaultTraceExtractor
+mExpClass(EarthModel) FaultTraceExtractor : public ParallelTask
 {
 public:
-    			FaultTraceExtractor(const EM::Fault&,int linenumber,
-				bool isinline);
-    			FaultTraceExtractor(const EM::Fault&,
-				const PosInfo::GeomID&);
+    			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
-    bool		execute();
-    ObjectSet<FaultTrace>&	getFaultTraces()	{ return flttrcs_; }
+    const char*		message() const;
 
 protected:
 
-    bool		get2DFaultTrace();
+    virtual bool	extractFaultTrace(int)			= 0;
+    virtual od_int64	nrIterations() const;
+    virtual bool	doPrepare(int);
+    virtual bool	doWork(od_int64,od_int64,int);
+    virtual bool	doFinish(bool)	{ return true; }
 
-    ObjectSet<FaultTrace>	flttrcs_;
-
-    int			nr_;
-    PosInfo::GeomID	geomid_;	// For 2D
     const EM::Fault&	fault_;
-    bool		is2d_;
-    bool		isinl_;
+    FaultTrcHolder&	holder_;
     bool		editedoncrl_;
+    od_int64		totalnr_;
 };
 
 
-/*!
-\brief FaultTrace calculator
-*/
-
-mExpClass(EarthModel) FaultTraceCalc : public Executor
+mExpClass(EarthModel) FaultTraceExtractor3D : public FaultTraceExtractor
 {
 public:
-			FaultTraceCalc(const EM::Fault&,FaultTrcHolder&);
-			~FaultTraceCalc();
-
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
-    const char*		message() const;
-    int			nextStep();
+    			FaultTraceExtractor3D(const EM::Fault&,FaultTrcHolder&);
+			~FaultTraceExtractor3D();
 
 protected:
 
-    int			curnr_;
-    const EM::Fault&	flt_;
-    FaultTrcHolder&	holder_;
-    od_int64		nrdone_;
-    bool		isinl_;
+    bool		extractFaultTrace(int);
+
+    virtual bool	doPrepare(int);
+
+    Geometry::ExplFaultStickSurface* fltsurf_;
+
+};
+
+
+mExpClass(EarthModel) FaultTraceExtractor2D : public FaultTraceExtractor
+{
+public:
+    			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
+					      const PosInfo::GeomID&);
+			~FaultTraceExtractor2D();
+
+protected:
+
+    bool		extractFaultTrace(int);
+    virtual bool	doPrepare(int);
+    virtual bool	doFinish(bool);
+
+    PosInfo::GeomID	geomid_;
+    PosInfo::Line2DData& linegeom_;
 };
 
 
@@ -225,7 +237,7 @@ public:
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,HorSampling&) const;
-    bool		get2DTraces(const TypeSet<MultiID>&);
+    bool		get2DTraces(const TypeSet<MultiID>&,TaskRunner*);
 
     ObjectSet<FaultTrcHolder>	holders_;
 
