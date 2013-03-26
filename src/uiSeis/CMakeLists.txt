@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-05-01 11:39:45 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo Seis Usage Velocity )
@@ -65,6 +65,6 @@ SET(OD_MODULE_SOURCES
 		uiwaveletextraction.cc	
 )
 
-SET( OD_MODULE_PROGS od_SeisMMBatch od_SEGYExaminer od_ClusterProc )
+SET( OD_MODULE_PROGS od_SeisMMBatch.cc  od_SEGYExaminer.cc  od_ClusterProc.cc  )
 
 OD_INIT_MODULE()

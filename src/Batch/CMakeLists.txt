@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Batch
 # 	Sep 1998	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.5 2012-02-22 12:34:45 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 ADD_DEFINITIONS( -D_CONSOLE )

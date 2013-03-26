@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Earth Model
 # 	MNov 1999	Kris Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-08-20 21:19:53 cvsyuancheng Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Geometry )

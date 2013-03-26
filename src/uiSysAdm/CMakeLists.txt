@@ -2,12 +2,12 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-03-29 11:26:27 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo )
 SET(OD_MODULE_SOURCES uiodsysadm.cc uiodsysadmcoltabs.cc )
 
-SET( OD_MODULE_PROGS od_sysadmmain )
+SET( OD_MODULE_PROGS od_sysadmmain.cc  )
 
 OD_INIT_MODULE()

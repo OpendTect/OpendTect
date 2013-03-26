@@ -2,7 +2,7 @@
 #
 #	Makefile : 	VMB::VelocityFunction
 # 	2008		Kris
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-08-20 21:04:23 cvsyuancheng Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Velocity)
@@ -18,6 +18,6 @@ SET(OD_MODULE_SOURCES
 		volprocbodyfiller.cc
 		volprocvolreader.cc
 )
-SET(OD_MODULE_BATCHPROGS od_process_volume )
+SET(OD_MODULE_BATCHPROGS od_process_volume.cc )
 OD_INIT_MODULE()
 

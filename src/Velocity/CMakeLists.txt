@@ -2,7 +2,7 @@
 #
 #	Makefile : 	VMB::VelocityFunction
 # 	2008		Kris
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS AttributeEngine EarthModel )
@@ -19,6 +19,6 @@ SET(OD_MODULE_SOURCES
 		velocityvolumeconversion.cc
      )
 
-SET(OD_MODULE_BATCHPROGS od_process_velocityconv )
+SET(OD_MODULE_BATCHPROGS od_process_velocityconv.cc )
 OD_INIT_MODULE()
 

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Coin Extensions
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.9 2012-08-30 13:41:34 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET( OD_USECOIN 1 )

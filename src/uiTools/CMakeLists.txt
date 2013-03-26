@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General uiToolkits
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id: CMakeLists.txt,v 1.16 2012-09-17 14:48:53 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiBase Network )
@@ -91,5 +91,6 @@ SET(OD_MODULE_SOURCES
 		uizrangeinput.cc
                 uipolardiagram.cc)
 
-SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue.cc )
+SET(OD_MODULE_GUI_PROGS od_FileBrowser.cc  od_ProgressViewer.cc
+			od_uiReportIssue.cc )
 OD_INIT_MODULE()

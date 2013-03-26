@@ -2,7 +2,7 @@
 #
 #	Makefile: 	ui- based on EarthModel
 # 	May 2002	Nanne Hemstra
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-04-18 15:25:21 cvsyuancheng Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiStrat EarthModel )

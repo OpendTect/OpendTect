@@ -2,7 +2,7 @@
 #
 #       Makefile :      uiViewer2D
 #       July 2002       Umesh Sinha
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-01-23 20:55:23 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiMPE )

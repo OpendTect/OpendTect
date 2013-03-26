@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-06-28 13:07:25 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Geometry MMProc )
@@ -65,6 +65,6 @@ SET(OD_MODULE_SOURCES
 	    waveletattrib.cc
 	    waveletextractor.cc
 	     )
-SET(OD_MODULE_BATCHPROGS od_process_time2depth od_process_segyio )
+SET(OD_MODULE_BATCHPROGS od_process_time2depth.cc  od_process_segyio.cc  )
 OD_INIT_MODULE()
 

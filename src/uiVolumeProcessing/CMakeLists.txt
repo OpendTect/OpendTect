@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Volume Processing
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-08-20 21:05:52 cvsyuancheng Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiVelocity VolumeProcessing)

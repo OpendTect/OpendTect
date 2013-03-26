@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiWellAttrib
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.2 2012-07-23 09:32:25 cvssatyaki Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiWell uiAttributes WellAttrib )

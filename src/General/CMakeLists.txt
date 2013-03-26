@@ -2,12 +2,12 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id: CMakeLists.txt,v 1.11 2012-09-10 10:02:15 cvskris Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
-    set ( OD_TEST_PROGS ibmformat )
+    set ( OD_TEST_PROGS ibmformat.cc )
 endif()
 set ( OD_MODULE_SOURCES arrayndutils.cc
 	    array2dbitmap.cc

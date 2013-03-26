@@ -5,7 +5,7 @@
  * FUNCTION : 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: testsvnversion.cc 27628 2012-11-25 16:04:42Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "typeset.h"
 #include "objectset.h"

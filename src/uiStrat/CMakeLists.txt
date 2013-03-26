@@ -2,7 +2,7 @@
 #
 #	Makefile : 	ui - Strat
 # 	Jun 2007	Bert
-#	RCS :		$Id: CMakeLists.txt,v 1.3 2012-08-30 13:39:13 cvsbert Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiIo Strat )

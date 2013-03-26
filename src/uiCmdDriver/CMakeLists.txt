@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiCmdDriver
 # 	Sep 2012	Jaap
-#	RCS :		$Id: CMakeLists.txt,v 1.1 2012-09-17 12:37:40 cvsjaap Exp $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiTools )
