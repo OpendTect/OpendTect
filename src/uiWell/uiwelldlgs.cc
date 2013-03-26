@@ -159,7 +159,7 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 
 bool acceptOK( CallBacker* )
 {
-    track_.erase();
+    track_.setEmpty();
     fnm_ = wtinfld_->fileName();
     if ( File::isEmpty(fnm_.buf()) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
@@ -202,7 +202,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
 bool uiWellTrackDlg::updNow( CallBacker* )
 {
-    track_.erase();
+    track_.setEmpty();
     const int nrrows = tbl_->nrRows();
     const bool zinft = zinftfld_->isChecked();
 
@@ -500,7 +500,7 @@ void uiD2TModelDlg::updNow( CallBacker* )
 
 void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 {
-    d2t.erase();
+    d2t.setEmpty();
     const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )

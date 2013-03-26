@@ -101,7 +101,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	else initialt = replvelshift;
     }
     sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
-    d2t.erase();
+    d2t.setEmpty();
 
     d2t.add( 0, replvelshift ); //set KB
     if ( srdbelowkb )
@@ -187,7 +187,7 @@ void GeoCalculator::vel2TWT(Well::Log& log, const Well::Track& track,
 	    { dpts += dah; vals += log.value( idx ); }
     }
 
-    log.erase();
+    log.setEmpty();
     float prevval, newval; newval = prevval = 0;
     for ( int idx=1; idx<dpts.size(); idx++ )
     {
@@ -336,7 +336,7 @@ double GeoCalculator::crossCorr( const float* seis, const float* synth,
 void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t, 
 					Well::Log& log ) const
 {
-    log.erase();
+    log.setEmpty();
     for ( int idx=0; idx<d2t.size(); idx++ )
 	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
 

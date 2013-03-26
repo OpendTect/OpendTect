@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class PropertyRef;
 class uiStratLayModEditTools;
-namespace Strat { class LayerModelProvider; class Layer; }
+namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 /*!
 \brief Strat Layer Model Displayer
@@ -36,6 +36,7 @@ public:
     virtual void	modelChanged()			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
 
+    const Strat::LayerModel& layerModel() const;
     const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);

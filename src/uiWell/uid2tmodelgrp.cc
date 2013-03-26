@@ -97,7 +97,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
 	
-	d2t.erase();
+	d2t.setEmpty();
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
 	float srd = wd.info().srdelev;
 	float kb  = wd.track().getKbElev();

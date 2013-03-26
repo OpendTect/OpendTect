@@ -445,7 +445,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 
 		filter.apply( inplogarr, outplogarr, size );
 
-		outplog->erase();
+		outplog->setEmpty();
 		for ( int idz=0; idz<size; idz++ )
 		    outplog->addValue( ls.getDah(idz), outplogarr[idz] );
 	    }

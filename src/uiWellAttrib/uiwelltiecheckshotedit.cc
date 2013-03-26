@@ -320,7 +320,7 @@ void uiCheckShotEdit::drawDrift()
     int maxsz = mMAX(sz1,sz2);
     const Well::D2TModel* longermdl = sz1 > sz2 ? orgd2t_ : cs_;
 
-    driftcurve_.erase();
+    driftcurve_.setEmpty();
     for ( int idx=0; idx<maxsz; idx++ )
     {
 	const float dah = longermdl->dah( idx );

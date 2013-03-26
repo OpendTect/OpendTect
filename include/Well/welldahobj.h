@@ -42,7 +42,7 @@ public:
     int			indexOf(float dah) const;	
     virtual void	remove( int idx )
 			{ dah_.removeSingle(idx); removeAux(idx); }
-    virtual void	erase()
+    virtual void	setEmpty()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
     Interval<float>	dahRange() const

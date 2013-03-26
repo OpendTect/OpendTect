@@ -14,8 +14,9 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "namedobj.h"
 #include "color.h"
+#include "namedobj.h"
+#include "manobjectset.h"
 
 namespace Well
 {
@@ -63,14 +64,13 @@ protected:
 };
 
 
-/*!
-\brief ObjectSet of Markers.
-*/
+/*!\brief Set of Markers. */
 
-mExpClass(Well) MarkerSet : public ObjectSet<Marker>
+mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
-    			MarkerSet()		{}
+    			MarkerSet()
+			    : ManagedObjectSet<Marker>(false)	{}
 
     virtual ObjectSet<Marker>& operator +=(Marker*);
 

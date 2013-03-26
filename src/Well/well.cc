@@ -153,7 +153,6 @@ Well::Data::~Data()
     delete &disp3d_;
     delete d2tmodel_;
     delete csmodel_;
-    deepErase( markers_ );
     delete &markers_;
 
     Strat::eLVLS().levelToBeRemoved.remove( 
@@ -194,9 +193,9 @@ void Well::Data::setCheckShotModel( D2TModel* d )
 void Well::Data::empty()
 {
     setD2TModel( 0 ); setCheckShotModel( 0 );
-    track_.erase();
-    logs_.empty();
-    deepErase( markers_ );
+    track_.setEmpty();
+    logs_.setEmpty();
+    markers_.setEmpty();
 }
 
 
@@ -275,7 +274,7 @@ Well::Log* Well::LogSet::remove( int logidx )
 }
 
 
-void Well::LogSet::empty()
+void Well::LogSet::setEmpty()
 {
     deepErase( logs );
 }

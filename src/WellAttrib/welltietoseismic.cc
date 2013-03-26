@@ -283,7 +283,7 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
     else
 	log = data_.logset_.getLog( nm );
 
-    log->erase();
+    log->setEmpty();
 
     for( int idx=0; idx<sz; idx ++)
 	log->addValue( dah[idx], vals[idx] );

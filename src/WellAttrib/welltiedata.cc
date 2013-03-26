@@ -335,7 +335,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
     Well::Data wd; 
     wd.track() = wd_->track();
     wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
-    wd.logs().empty(); 
+    wd.logs().setEmpty(); 
     LogCubeCreator lcr( wd ); 
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )

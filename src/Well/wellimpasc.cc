@@ -675,7 +675,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
        				const Well::Data& wll ) const
 {
-    d2t.erase();
+    d2t.setEmpty();
     if ( wll.track().isEmpty() ) return true;
 
     const int dpthopt = formOf( false, 0 );

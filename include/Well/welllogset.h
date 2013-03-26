@@ -32,7 +32,7 @@ mExpClass(Well) LogSet
 public:
 
 			LogSet()		{ init(); }
-    virtual		~LogSet()		{ empty(); }
+    virtual		~LogSet()		{ setEmpty(); }
 
     int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
@@ -53,7 +53,7 @@ public:
     bool		validIdx(int idx) const	{ return logs.validIdx(idx); }
 
     bool		isEmpty() const		{ return size() == 0; }
-    void		empty();
+    void		setEmpty();
 
 protected:
 

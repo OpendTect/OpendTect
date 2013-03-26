@@ -155,8 +155,7 @@ void uiDispEditMarkerDlg::modeChg( CallBacker* )
 
 void uiDispEditMarkerDlg::addMarkerSet( Well::MarkerSet& mrks ) 
 {
-    Well::MarkerSet* orgmrks = new Well::MarkerSet();
-    deepCopy( *orgmrks, mrks );
+    Well::MarkerSet* orgmrks = new Well::MarkerSet( mrks );
     orgmarkerssets_ += orgmrks;
     markerssets_ += &mrks;
     fillMarkerList( 0 );
@@ -219,10 +218,7 @@ bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
 	if ( !uiMSG().askContinue( msg ) )
 	{
 	    for ( int idx=0; idx<markerssets_.size(); idx++ )
-	    {
-		deepErase( *markerssets_[idx] );
-		deepCopy( *markerssets_[idx], *orgmarkerssets_[idx] );
-	    }
+		*markerssets_[idx] = *orgmarkerssets_[idx];
 	    return true;
 	}
 	else

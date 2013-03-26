@@ -400,7 +400,7 @@ Interval<float> Well::Reader::getAllLogsDahRange() const
 bool Well::Reader::getLogs() const
 {
     bool rv = false;
-    wd.logs().empty();
+    wd.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
 	StreamData sd = mkSD( sExtLog(), idx );
@@ -526,7 +526,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
-    deepErase( wd.markers() );
+    wd.markers().erase();
     BufferString bs;
     for ( int idx=1;  ; idx++ )
     {

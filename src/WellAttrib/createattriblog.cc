@@ -76,7 +76,7 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     else
     {
 	Well::Log& log = wd.logs().getLog( sellogidx_ );
-	log.erase();
+	log.setEmpty();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
 	delete newlog;
