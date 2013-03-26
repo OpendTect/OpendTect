@@ -77,6 +77,7 @@ if ( ${errsize} == 0 ) then
 	rm -rf ${tmpfile} ${tmperrfile}
 	exit 1
     endif
+    svn propdel svn:needs-lock ${filename}
 endif
 
 goto nextfile
