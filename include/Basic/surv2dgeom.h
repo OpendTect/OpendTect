@@ -42,6 +42,7 @@ public:
 
     bool	isOK() const;
     void	setUndef();
+    bool	isUndef() const;
 
     bool	operator ==( const GeomID& a ) const
    		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }

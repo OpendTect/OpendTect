@@ -51,6 +51,9 @@ bool PosInfo::GeomID::isOK() const
 void PosInfo::GeomID::setUndef()
 { lineid_ = lsid_ = -1; }
 
+bool PosInfo::GeomID::isUndef() const
+{ return lineid_==-1 || lsid_==-1; }
+
 BufferString PosInfo::GeomID::toString() const
 {
     BufferString str; str.add(lsid_).add(".").add(lineid_);
