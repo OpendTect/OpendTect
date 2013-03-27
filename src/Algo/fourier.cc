@@ -4082,7 +4082,7 @@ int n;  mType c;
 {  180180, mFloatOrDouble(1.875000) },
 {  240240, mFloatOrDouble(2.500000) },
 {  360360, mFloatOrDouble(3.750000) },
-{  720720, mFloatOrDouble(7.500000) },
+{  720720, mFloatOrDouble(7.500000) }
 };
 
 
@@ -4211,9 +4211,19 @@ void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
 
 int CC::CC1D::getFastSize( int nmin )
 {
-    int i;
-    for ( i=0; i<NTAB-1 && nctab[i].n<nmin; ++i );
-    return nctab[i].n;
+    for ( int idx=0; idx<NTAB; idx++ )
+    {
+	if ( nctab[idx].n >= nmin )
+	    return nctab[idx].n;
+    }
+
+#ifdef __debug__
+    BufferString msg( "\n\tFFT size above largest fast size asked: ", nmin,
+	    	      "\n\tLargest fast is: " );
+    msg.add( nctab[NTAB-1].n ).add( "\n\t--> Consider extending nctab ..." );
+    pFreeFnErrMsg( msg, "CC::CC1D::getFastSize" );
+#endif
+    return nmin;
 }
 
 
@@ -4221,8 +4231,8 @@ int CC::npfao( int nmin, int nmax )
 {
     int i,j;
     for (i=0; i<NTAB-1 && nctab[i].n<nmin; ++i);
-    for (j=i+1; j<NTAB-1 && nctab[j].n<=nmax; ++j)
-	if (nctab[j].c<nctab[i].c) i = j;
+	for (j=i+1; j<NTAB-1 && nctab[j].n<=nmax; ++j)
+	    if (nctab[j].c<nctab[i].c) i = j;
 
     return nctab[i].n;
 }
