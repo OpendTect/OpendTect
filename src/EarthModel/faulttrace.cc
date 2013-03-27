@@ -769,7 +769,7 @@ FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 {
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     const EM::SectionID sid = fault_.sectionID( 0 );
-    totalnr_ = fss->geometry().nrSticks( sid );
+    totalnr_ = fss ? fss->geometry().nrSticks( sid ) : 0;
 }
    
 
