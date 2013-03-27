@@ -366,5 +366,20 @@ mGlobal(Algo) void SetMaxThicknessElasticModel(const ElasticModel& inmdl,
 					ElasticModel& outmdl,
 					float maxthickness);
 
+/*!Compute depth values for the times in timesampling, using v0 and dv. v0 is
+   the interval velocity at depth v0depth. v0depth is also the depth at t=0. */
+
+mGlobal(Algo) bool computeLinearT2D( double v0, double dv, double v0depth,
+				     const SamplingData<float>& timesampling,
+				     int sz, float* res );
+
+/*!Compute time values for the depths in depthsampling, using v0 and dv. v0 is
+   the interval velocity at depth v0depth. v0depth is also the depth at t=0. */
+
+mGlobal(Algo) bool computeLinearD2T( double v0, double dv, double v0depth,
+		      const SamplingData<float>& depthsampling,
+		      int sz, float* res );
+
+
 #endif
 

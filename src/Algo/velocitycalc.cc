@@ -1614,3 +1614,89 @@ void SetMaxThicknessElasticModel( const ElasticModel& inmdl,
 
 }
 
+#define mSmallNumber 1e-7
+
+
+bool computeLinearT2D( double v0, double dv, double v0depth,
+		       const SamplingData<float>& sd,
+		       int sz, float* res )
+{
+    if ( sz<=0 )
+	return true;
+    
+    if ( v0<=0 || mIsUdf(v0) )
+	return false;
+    
+    const bool zerogradient = mIsZero( dv, 1e-6 ) || mIsUdf(dv);
+    
+    if ( zerogradient )
+	dv = mSmallNumber;
+
+    const double fact = dv / v0;
+    const double dv2 = 2. / dv;
+    
+    const double logval = Math::Log( 1. + v0depth * fact );
+    if ( mIsUdf(logval) )
+	return false;
+    
+    const double sealeveltwt = - dv2 * logval;
+    
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double time = (sd.start+idx*sd.step-sealeveltwt) / 2.;
+	const double expterm = Math::Exp( dv * time );
+	
+	if ( mIsUdf(expterm) )
+	{
+	    res[idx] = mUdf(float);
+	    continue;
+	}
+	
+	const double depth = ( expterm - 1. ) / fact;
+	
+	if ( depth>MAXFLOAT )
+	    res[idx] = mUdf(float);
+	else
+	    res[idx] = mCast(float,depth);
+    }
+    
+    return true;
+}
+
+
+bool computeLinearD2T( double v0, double dv, double v0depth,
+		      const SamplingData<float>& sd,
+		      int sz, float* res )
+{
+    if ( sz < 0 )
+	return true;
+    
+    if ( v0<=0 || mIsUdf(v0) )
+	return false;
+    
+    const bool zerogradient = mIsZero( dv, 1e-6 ) || mIsUdf(dv);
+
+    if ( zerogradient )
+	dv = mSmallNumber;
+
+    const double fact = dv / v0;
+    const double dv2 = 2. / dv;
+    double logval = Math::Log( 1. + v0depth * fact );
+    if ( mIsUdf(logval) )
+	return false;
+    
+    const double sealeveltwt = - dv2 * logval;
+    
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double depth = sd.start + idx*sd.step;
+	logval = Math::Log(1.+depth*fact);
+	if ( mIsUdf(logval) )
+	    res[idx] = mUdf(float);
+	else
+	    res[idx] = mCast(float,dv2 * logval+sealeveltwt);
+    }
+
+    return true;
+}
+

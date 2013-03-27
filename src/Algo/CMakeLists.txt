@@ -5,9 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Basic )
+set(OD_MODULE_DEPS Basic )
+set( OD_TEST_PROGS velocitycalc.cc )
 
-SET(OD_MODULE_SOURCES timeser.c
+set(OD_MODULE_SOURCES timeser.c
 	    array1dinterpol.cc
 	    array2dinterpol.cc
 	    bendpointfinder.cc

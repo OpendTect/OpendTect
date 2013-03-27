@@ -876,19 +876,11 @@ void LinearVelTransform::transformT2D( const BinID& bid,
 				       const SamplingData<float>& sd,
 				       int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-    
-    const double dv = mIsZero( dv_, 1e-6 ) ? 1e-7 : dv_;
-    const double fact = dv / startvel_;
-    const double dv2 = 2.f / dv;
-
-    const double srd = SI().seismicReferenceDatum();
-    const double sealeveltwt = -1.f * dv2 * Math::Log( 1.f - srd * fact );
-    for ( int idx=0; idx<sz; idx++ )
+    if ( !computeLinearT2D( startvel_, dv_, -SI().seismicReferenceDatum(),
+			    sd, sz, res) )
     {
-	const double time = ( sd.start + idx*sd.step - sealeveltwt ) / 2.f;
-	res[idx] = mCast(float,( Math::Exp( dv * time ) - 1.f ) / fact);
+	for ( int idx=0; idx<sz; idx++ )
+	    res[idx] = mUdf(float);
     }
 }
 
@@ -897,26 +889,11 @@ void LinearVelTransform::transformD2T( const BinID& bid,
 				      const SamplingData<float>& sd,
 				      int sz, float* res ) const
 {
-    if ( sz < 0 )
-	return;
-
-    const double dv = mIsZero( dv_, 1e-6 ) ? 1e-7 : dv_;
-    const double fact = dv / startvel_;
-    const double dv2 = 2.f / dv;
-    
-    const double srd = SI().seismicReferenceDatum();
-    for ( int idx=0; idx<sz; idx++ )
+    if ( !computeLinearD2T( startvel_, dv_, -SI().seismicReferenceDatum(),
+			   sd, sz, res) )
     {
-	const double depth = sd.start + idx*sd.step - srd;
-	res[idx] = mCast(float,dv2 * Math::Log( 1.f + depth*fact ));
-    }
-
-    if ( !mIsZero(srd,1e-2) )
-    {
-	const float sealeveltwt = mCast(float,
-				  -1.f * dv2 * Math::Log( 1.f - srd * fact ));
 	for ( int idx=0; idx<sz; idx++ )
-	    res[idx] += sealeveltwt;
+	    res[idx] = mUdf(float);
     }
 }
 
