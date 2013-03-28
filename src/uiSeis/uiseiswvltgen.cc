@@ -213,7 +213,8 @@ void uiSeisWvltMerge::makeStackedWvlt()
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
 	Wavelet* curwvlt = wvltset_[selitems[selidx]];
-	stackedwvlt_->set( maxwvltsize_/2, curwvlt->sampleRate() );
+	stackedwvlt_->setSampleRate( curwvlt->sampleRate() );
+	stackedwvlt_->setCenterSample( maxwvltsize_/2 );
 	WvltMathFunction* func = wvltfuncset_[selitems[selidx]];
 	for ( int idx=0; idx<maxwvltsize_; idx++ )
 	{
@@ -342,7 +343,7 @@ void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet& wvlt )
 	    centeridx = idx;
 	}
     }
-    wvlt.set( centeridx, wvlt.sampleRate() );
+    wvlt.setCenterSample( centeridx );
 }
 
 
@@ -362,7 +363,7 @@ void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet& wvlt )
 	    break;
 	}
     }
-    wvlt.set( centeridx, wvlt.sampleRate() );
+    wvlt.setCenterSample( centeridx );
 }
 
 
