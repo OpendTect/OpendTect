@@ -410,7 +410,7 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 {
     if ( !inputfld_->ioobj() || !outputfld_->ioobj() )
-	return;
+	return false;
 
     uiTaskRunner tr( this );
     RefMan<EM::EMObject> emo =
