@@ -83,6 +83,7 @@ public:
     bool		isPresent(const char* n) const 	{ return getByName(n); }
     int			indexOf(const char*) const;		  
     bool		insertNew(Well::Marker*); //becomes mine
+    virtual void	append(const ObjectSet<Marker>&);
 
     int			indexOf( const Marker* m ) const
 			{ return ObjectSet<Marker>::indexOf(m); }	

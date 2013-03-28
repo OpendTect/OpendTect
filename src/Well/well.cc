@@ -548,6 +548,18 @@ bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 }
 
 
+void Well::MarkerSet::append( const ObjectSet<Well::Marker>& ms )
+{
+    const size_type sz = ms.size();
+    for ( size_type idx=0; idx<sz; idx++ )
+    {
+	if ( !isPresent(ms[idx]->name()) )
+	    insertNew( new Well::Marker( *ms[idx] ) );
+    }
+
+}
+
+
 Well::Marker* Well::MarkerSet::gtByLvlID(int lvlid) const
 {
     if ( lvlid<=0 ) return 0;
