@@ -515,7 +515,7 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 
 void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
 {
-    if ( ids_.indexOf(id) >= 0 ) return;
+    if ( ids_.isPresent(id) ) return;
 
     ids_ += id;
     obs_ += obs;
@@ -559,7 +559,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 
     if ( id == DataPack::cNoID() )
 	(wva ? wvapack_ : vdpack_) = 0;
-    else if ( ids_.indexOf(id) < 0 )
+    else if ( !ids_.isPresent(id) )
     {
 	pErrMsg("Requested usePack, but ID not added");
 	return;

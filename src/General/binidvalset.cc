@@ -442,7 +442,7 @@ bool BinIDValueSet::valid( const BinID& bid ) const
 {
     Pos pos = findFirst( bid );
     return pos.valid()
-	&& inls_.indexOf(bid.inl) >= 0
+	&& inls_.isPresent(bid.inl)
 	&& getCrlSet(pos).size() > pos.j;
 }
 
@@ -646,7 +646,7 @@ od_int64 BinIDValueSet::totalSize() const
 
 bool BinIDValueSet::hasInl( int inl ) const
 {
-    return inls_.indexOf(inl) >= 0;
+    return inls_.isPresent(inl);
 }
 
 

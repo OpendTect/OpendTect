@@ -45,7 +45,7 @@ TranslatorGroup::~TranslatorGroup()
     for ( int idx=0; idx<templs_.size(); idx++ )
 	delete const_cast<Translator*>( templs_[idx] );
 
-    while ( getGroups().indexOf(this)!=-1 )
+    while ( getGroups().isPresent(this) )
 	getGroups() -= this;
 }
 

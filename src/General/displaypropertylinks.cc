@@ -111,8 +111,7 @@ DisplayLinkManager& DisplayLinkManager::getImpl()
 int DisplayLinkManager::addHolder( DisplayPropertyHolder* hldr )
 {
     Threads::MutexLocker lock( lock_ );
-    const int idx = holders_.indexOf( hldr );
-    if ( idx==-1 )
+    if ( !holders_.isPresent( hldr ) )
     {
 	hldr->propertyholderid_ = freeholderid_++;
 	holders_ += hldr;
@@ -189,7 +188,7 @@ int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 	bool hascommon = false;
 	for ( int idy=lnk->holders_.size(); idy>=0; idy-- )
 	{
-	    if ( propertylinks_[idx]->holders_.indexOf(lnk->holders_[idy])>=0 )
+	    if ( propertylinks_[idx]->holders_.isPresent(lnk->holders_[idy]) )
 	    {
 		hascommon = true;
 		break;
@@ -202,7 +201,7 @@ int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 	//Add everything that's not present in existing link from previous link
 	for ( int idy=lnk->holders_.size(); idy>=0; idy-- )
 	{
-	    if ( propertylinks_[idx]->holders_.indexOf(lnk->holders_[idy])<0 )
+	    if ( !propertylinks_[idx]->holders_.isPresent(lnk->holders_[idy]) )
 	    {
 		if ( !propertylinks_[idx]->addHolder( lnk->holders_[idy] ) )
 		{
@@ -256,7 +255,7 @@ DisplayPropertyLink* DisplayLinkManager::getDisplayPropertyLink( int id )
 void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( holders_.indexOf( hldr )==-1 )
+    if ( !holders_.isPresent( hldr ) )
 	return;
 
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
