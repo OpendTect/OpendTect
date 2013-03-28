@@ -72,7 +72,7 @@ public:
     virtual bool			setInfo( const ArrayNDInfo& )
 					{ return false; }
 
-    inline void				setAll(const T&);
+    virtual void			setAll(T);
     virtual void			getAll(T* ptr) const;
     					/*!<Fills ptr with values from array.
 					    ptr is assumed to be allocated
@@ -104,7 +104,7 @@ protected:
 
 template <class T>
 mClass(Basic) Array1D : public ArrayND<T>
-	      , public ValueSeries<T>
+		      , public ValueSeries<T>
 {
 public: 
 
@@ -117,6 +117,7 @@ public:
     T				value(od_int64 i) const	{ return get( (int) i); }
     bool			writable() const	{ return true; }
     void			setValue(od_int64 i,T t){ set( (int) i,t); }
+    virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
 
     virtual const Array1DInfo&	info() const = 0;
 
@@ -357,7 +358,7 @@ T* ArrayND<T>::get1D( const int* i )
 
 
 template <class T> inline
-void ArrayND<T>::setAll( const T& val )
+void ArrayND<T>::setAll( T val )
 {
     ValueSeries<T>* stor = getStorage();
     if ( stor )
