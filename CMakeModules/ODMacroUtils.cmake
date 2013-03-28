@@ -250,17 +250,17 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ARCHIVE DESTINATION lib )
 
     #Add to list of all files
-    foreach ( THEFILE ${OD_MODULE_SOURCES} ${OD_MODULE_INCFILES} )
-	get_filename_component( PATH ${THEFILE} ABSOLUTE )
-	file(RELATIVE_PATH RELPATH ${CMAKE_SOURCE_DIR} ${PATH} )
-	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
-    endforeach()
+    OD_ADD_SOURCE_FILES( ${OD_MODULE_SOURCES} ${OD_MODULE_INCFILES} )
 
 endif ( OD_MODULE_HAS_LIBRARY )
+
+OD_ADD_SOURCE_FILES( CMakeLists.txt )
 
 #Setup common things for batch-programs
 if( OD_MODULE_PROGS OR OD_MODULE_BATCHPROGS OR OD_MODULE_GUI_PROGS )
     set ( OD_USEBATCH 1 )
+    OD_ADD_SOURCE_FILES( ${OD_MODULE_PROGS} ${OD_MODULE_BATCHPROGS}
+			 ${OD_MODULE_GUI_PROGS} )
 endif()
 set ( OD_RUNTIMELIBS ${OD_MODULE_DEPS})
 if ( OD_MODULE_HAS_LIBRARY )
@@ -373,6 +373,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} )
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( TEST_NAME test_${TEST_NAME} )
     add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} tests/${TEST_FILE} )
+    OD_ADD_SOURCE_FILES( tests/${TEST_FILE} )
 
     set_target_properties( ${TEST_NAME}
 	    PROPERTIES 
@@ -543,3 +544,14 @@ macro ( OD_CURRENT_YEAR RESULT)
         SET(${RESULT} 0000)
     endif (WIN32)
 endmacro (OD_CURRENT_YEAR )
+
+
+#Adds lists of files to global file-list
+macro ( OD_ADD_SOURCE_FILES )
+    foreach ( THEFILE ${ARGV} )
+	get_filename_component( PATH ${THEFILE} ABSOLUTE )
+	file ( RELATIVE_PATH RELPATH ${CMAKE_SOURCE_DIR} ${PATH} )
+	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
+    endforeach()
+endmacro()
+
