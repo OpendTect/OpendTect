@@ -523,6 +523,15 @@ bool FaultTrace::isOnFault( const BinID& bid, float z,
 bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 			     const BinID& bid2, float z2  ) const
 {
+    if ( (isinl_ && bid1.inl != bid2.inl) || (!isinl_ && bid1.crl != bid2.crl) )
+	return false;
+
+    Interval<int> trcrg( isinl_ ? bid1.crl : bid1.inl,
+	    		 isinl_ ? bid2.crl : bid2.inl );
+    trcrg.sort();
+    if ( !trcrg.overlaps(trcrange_,false) )
+	return false;
+
     const Coord intersection = getIntersection( bid1, z1, bid2, z2 );
     return intersection.isDefined();
 }
