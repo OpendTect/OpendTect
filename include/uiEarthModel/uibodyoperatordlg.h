@@ -35,7 +35,7 @@ public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();  
 
-    const MultiID	getBodyMid() const { return outputfld_->key(); }			
+    MultiID		getBodyMid() const { return outputfld_->key(); }			
 protected:
 
     bool		acceptOK(CallBacker*);
@@ -75,6 +75,21 @@ protected:
     ObjectSet<uiTreeViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
+};
+
+
+mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
+{
+public:
+    			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
+
+    MultiID		getBodyMid() const { return outputfld_->key(); }			
+protected:
+
+    bool		acceptOK(CallBacker*);
+
+    uiIOObjSel*		inputfld_;
+    uiIOObjSel*		outputfld_;
 };
 
 

@@ -16,8 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "embodytr.h"
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
 #include "executor.h"
 #include "ioman.h"
+#include "marchingcubes.h"
 #include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -383,3 +386,96 @@ uiBodyOperatorDlg::bodyOprand::bodyOprand()
 
 bool uiBodyOperatorDlg::bodyOprand::operator==( const bodyOprand& v ) const
 { return mid==v.mid && act==v.act; }
+
+
+//uiImplicitBodyValueSwitchDlg
+uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p, 
+	const IOObj* ioobj )
+    : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
+		mNoDlgTitle,mTODOHelpID) )
+{
+    setCtrlStyle( DoAndStay );
+    
+    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Input body" );
+    inputfld_->setForRead( true );
+    if ( ioobj )
+	inputfld_->setInput( *ioobj );
+    
+    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
+    outputfld_->setForRead( false );
+    outputfld_->attach( alignedBelow, inputfld_ );
+}
+
+
+bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
+{
+    if ( !inputfld_->ioobj() || !outputfld_->ioobj() )
+	return;
+
+    uiTaskRunner tr( this );
+    RefMan<EM::EMObject> emo =
+	EM::EMM().loadIfNotFullyLoaded( inputfld_->key(), &tr );
+    mDynamicCastGet(EM::Body*,emb,emo.ptr());
+    if ( !emb )
+	mRetErr( "Cannot read input body" );
+    
+    PtrMan<EM::ImplicitBody> impbd = emb->createImplicitBody( &tr, false );
+    if ( !impbd || !impbd->arr_ )
+	mRetErr( "Creating implicit body failed" );
+
+    float* data = impbd->arr_->getData();
+    if ( data )
+    {
+    	const int sz = impbd->arr_->info().getTotalSz();
+    	for ( int idx=0; idx<sz; idx++ )
+    	    data[idx] = -data[idx];
+    }
+    else
+    {
+	const int isz = impbd->arr_->info().getSize(0);
+	const int csz = impbd->arr_->info().getSize(1);
+	const int zsz = impbd->arr_->info().getSize(2);
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int idy=0; idy<csz; idy++ )
+	    {
+		for ( int idz=0; idz<zsz; idz++ )
+		{
+		    const float val = impbd->arr_->get( idx, idy, idz );
+		    impbd->arr_->set( idx, idy, idz, -val ); 
+		}
+	    }
+	}
+    }
+
+    RefMan<EM::MarchingCubesSurface> emcs =
+	new EM::MarchingCubesSurface( EM::EMM() );
+    
+    emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &tr );
+    emcs->setInlSampling( SamplingData<int>(impbd->cs_.hrg.inlRange()) );
+    emcs->setCrlSampling( SamplingData<int>(impbd->cs_.hrg.crlRange()) );
+    emcs->setZSampling( SamplingData<float>(impbd->cs_.zrg) );
+    
+    emcs->setMultiID( outputfld_->key() );
+    emcs->setName( outputfld_->getInput() );
+    emcs->setFullyLoaded( true );
+    emcs->setChangedFlag();
+    
+    EM::EMM().addObject( emcs );
+    PtrMan<Executor> exec = emcs->saver();
+    if ( !exec )
+	mRetErr( "Body saving failed" );
+
+    PtrMan<IOObj> ioobj = IOM().get( outputfld_->key() );
+    if ( !ioobj->pars().find(sKey::Type()) )
+    {
+	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
+	if ( !IOM().commitChanges(*ioobj) )
+	    mRetErr( "Writing body to disk failed. Please check permissions." )
+    }
+    
+    if ( !TaskRunner::execute(&tr,*exec) )
+	mRetErr("Saving body failed");
+
+    return true;
+}

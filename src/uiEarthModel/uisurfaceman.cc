@@ -142,6 +142,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
 	manipgrp->addButton( "set_implicit", "Create region body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
+	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
+		mCB(this,uiSurfaceMan,switchValCB) );
 	manipgrp->addButton( "bodyvolume", "Volume estimate",
 		mCB(this,uiSurfaceMan,calVolCB) );
     }
@@ -238,6 +240,14 @@ void uiSurfaceMan::createBodyRegionCB( CallBacker* )
     uiBodyRegionDlg dlg( this );
     if ( dlg.go() )
     	selgrp_->fullUpdate( dlg.getBodyMid() );
+}
+
+
+void uiSurfaceMan::switchValCB( CallBacker* )
+{
+    uiImplicitBodyValueSwitchDlg dlg( this, curioobj_ );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 

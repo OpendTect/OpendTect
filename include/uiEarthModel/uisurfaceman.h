@@ -49,6 +49,7 @@ protected:
 
     void		mergeBodyCB(CallBacker*);
     void		createBodyRegionCB(CallBacker*);
+    void		switchValCB(CallBacker*);
     void		calVolCB(CallBacker*);
 
     void		removeAttribCB(CallBacker*);
