@@ -8,6 +8,10 @@
 static const char* rcsID = "$Id$";
 
 #include "wavelet.h"
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
+#include "fourier.h"
+#include "hilberttransform.h"
 #include "seisinfo.h"
 #include "wvltfact.h"
 #include "ascstream.h"
@@ -164,40 +168,149 @@ void Wavelet::reSize( int newsz )
 }
 
 
-bool Wavelet::reSampleTime( float sr )
+class WaveletFFTData
 {
-    if ( mIsEqual(dpos,sr,1e-5) )
-	return true;
+public:
 
-    if ( sr > dpos )
+WaveletFFTData( int sz, float sr )
+    : fft_(*Fourier::CC::createDefault())
+    , sz_(getPower2Size(sz))
+    , halfsz_(sz_/2)
+    , sr_(sr)
+    , ctwtwvlt_(sz_)
+    , cfreqwvlt_(sz_)
+    , nyqfreq_(1.f / (2.f * sr_))
+    , freqstep_(2 * nyqfreq_ / sz_)
+{
+    const float_complex cnullval = float_complex( 0, 0 );
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	ErrMsg( "New sampling rate should be lower than current sampling rate");
+	ctwtwvlt_.set( idx, cnullval );
+	cfreqwvlt_.set( idx, cnullval );
+    }
+}
+
+~WaveletFFTData()
+{
+    delete &fft_;
+}
+
+int getPower2Size( int inpsz )
+{
+    int outsz = 1;
+    while ( outsz < inpsz )
+	outsz <<=1;
+    return outsz;
+}
+
+
+bool doFFT( bool isfwd )
+{
+    fft_.setInputInfo( Array1DInfoImpl(sz_) );
+    fft_.setDir( isfwd );
+    fft_.setNormalization( !isfwd );
+    fft_.setInput(   (isfwd ? ctwtwvlt_ : cfreqwvlt_).getData() );
+    fft_.setOutput( (!isfwd ? ctwtwvlt_ : cfreqwvlt_).getData() );
+    return fft_.run( isfwd );
+}
+
+			// Beware ... the order *is* important!
+    Fourier::CC&	fft_;
+    const int		sz_;
+    const int		halfsz_;
+    Array1DImpl<float_complex> ctwtwvlt_;
+    Array1DImpl<float_complex> cfreqwvlt_;
+    const float		sr_;
+    const float		nyqfreq_;
+    const float		freqstep_;
+
+};
+
+
+bool Wavelet::reSample( float newsr )
+{
+    const int outsz = mNINT32( samplePositions().width() / newsr ) + 1;
+
+    WaveletFFTData inp(sz,dpos), out(outsz,newsr);
+
+    const int fwdfirstidx = inp.halfsz_ + iw;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float_complex val( samps[idx], 0 );
+	inp.ctwtwvlt_.set( idx + fwdfirstidx, val );
+    }
+    if ( !inp.doFFT(true) )
 	return false;
+
+    // Interpolate Frequency Wavelet
+    PointBasedMathFunction spectrumreal( PointBasedMathFunction::Poly,
+	    				 PointBasedMathFunction::None );
+    PointBasedMathFunction spectrumimag( PointBasedMathFunction::Poly,
+	    				 PointBasedMathFunction::None );
+    for ( int idx=0; idx<inp.sz_; idx++ )
+    {
+	float freq = idx * inp.freqstep_;
+	if ( idx > inp.halfsz_ )
+	    freq -= 2 * inp.nyqfreq_;
+	spectrumreal.add( freq, inp.cfreqwvlt_.get(idx).real() );
+	spectrumimag.add( freq, inp.cfreqwvlt_.get(idx).imag() );
+    }
+    spectrumreal.add( -inp.nyqfreq_, spectrumreal.getValue(inp.nyqfreq_) );
+    spectrumimag.add( -inp.nyqfreq_, spectrumimag.getValue(inp.nyqfreq_) );
+
+    for ( int idx=0; idx<out.sz_; idx++ )
+    {
+	float freq = idx * out.freqstep_;
+	if ( idx > out.halfsz_ )
+	    freq -= 2 * out.nyqfreq_;
+	const bool isabovenf = abs(freq) > inp.nyqfreq_;
+	const float realval = isabovenf ? 0.f : spectrumreal.getValue( freq );
+	const float imagval = isabovenf ? 0.f : spectrumimag.getValue( freq );
+	const float_complex val( realval, imagval );
+	out.cfreqwvlt_.set( idx, val );
     }
 
-    StepInterval<float> twtrg = samplePositions();
-    SeisTrc initialwvlt = SeisTrc( sz );
-    initialwvlt.info().sampling = twtrg;
-    for ( int idx=0; idx<sz; idx++ )
-	initialwvlt.set( idx, samps[idx], 0 );
+    if ( !out.doFFT(false) )
+	return false;
 
-    const int newsz = (sz-1) * mNINT32( dpos / sr ) + 1;
+    reSize( outsz );
+    const float starttwtinp = samplePositions().start;
+    dpos = newsr;
+    iw = mNINT32( starttwtinp / dpos );
+    const int revfirstidx = out.halfsz_ + iw;
+    const float normfact = ((float)out.sz_) / inp.sz_;
+    for ( int idx=0; idx<sz; idx++ )
+	samps[idx] = normfact * out.ctwtwvlt_.get( idx + revfirstidx ).real();
+
+    return true;
+}
+
+
+bool Wavelet::reSampleTime( float newsr )
+{
+    if ( newsr < 1e-6 )
+	return false;
+    float fnewsz = (sz-1) * dpos / newsr + 1 - 1e-5;
+    const int newsz = mNINT32( ceil(fnewsz) );
     float* newsamps = new float [newsz];
     if ( !newsamps )
 	return false;
 
-    twtrg.step = sr;
-    for ( int idx=0; idx<newsz; idx++ )
-    {
-	const float twt = twtrg.atIndex(idx);
-	newsamps[idx] = initialwvlt.getValue( twt, 0 );
-    }
+    StepInterval<float> twtrg = samplePositions();
+    twtrg.step = dpos;
+    SeisTrc wvlttrc( sz );
+    wvlttrc.info().sampling.start = twtrg.start;
+    wvlttrc.info().sampling.step = twtrg.step;
+    for ( int idx=0; idx<sz; idx++ )
+	wvlttrc.set( idx, samps[idx], 0 );
 
-    delete [] samps;
-    iw = -1 * twtrg.getIndex( 0.f );
-    dpos =  sr;
-    samps = newsamps;
     sz = newsz;
+    twtrg.step = newsr;
+    delete [] samps; samps = newsamps;
+    for ( int idx=0; idx<sz; idx++ )
+	samps[idx] = wvlttrc.getValue( twtrg.atIndex(idx), 0 );
+    iw = -1 * twtrg.getIndex( 0.f );
+    dpos =  newsr;
 
     return true;
 }

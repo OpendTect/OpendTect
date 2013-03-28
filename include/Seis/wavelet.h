@@ -70,6 +70,7 @@ protected:
 
 public:
     bool		reSampleTime(float newsr);
+    bool		reSample(float newsr);
 };
 
 
