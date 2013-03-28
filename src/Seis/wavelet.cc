@@ -274,9 +274,9 @@ bool Wavelet::reSample( float newsr )
     reSize( outsz );
     const float starttwtinp = samplePositions().start;
     dpos_ = newsr;
-    cidx_ = -starttwtinp / dpos_;
+    cidx_ = mNINT32( -starttwtinp / dpos_ );
     const int revfirstidx = out.halfsz_ - cidx_;
-    const float normfact = ((float)inp.sz_) / out.sz_;
+    const float normfact = ((float)out.sz_) / inp.sz_;
     for ( int idx=0; idx<sz_; idx++ )
 	samps_[idx] = normfact * out.ctwtwvlt_.get( idx + revfirstidx ).real();
 
@@ -295,7 +295,7 @@ bool Wavelet::reSampleTime( float newsr )
 	return false;
 
     StepInterval<float> twtrg = samplePositions();
-    twtrg.step = newsr;
+    twtrg.step = dpos_;
     SeisTrc wvlttrc( sz_ );
     wvlttrc.info().sampling.start = twtrg.start;
     wvlttrc.info().sampling.step = twtrg.step;
@@ -303,6 +303,7 @@ bool Wavelet::reSampleTime( float newsr )
 	wvlttrc.set( idx, samps_[idx], 0 );
 
     sz_ = newsz;
+    twtrg.step = newsr;
     delete [] samps_; samps_ = newsamps;
     for ( int idx=0; idx<sz_; idx++ )
 	samps_[idx] = wvlttrc.getValue( twtrg.atIndex(idx), 0 );
