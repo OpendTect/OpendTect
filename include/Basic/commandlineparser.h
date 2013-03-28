@@ -31,7 +31,7 @@ ________________________________________________________________________
     const BufferString exec = parser.getExecutable(); //returns "bin/my_prog"
 
     int nriter;
-    if ( !parser.get( "nriter", nriter ) )
+    if ( !parser.getVal( "nriter", nriter ) )
         return false;
     
     const bool fast = parser.hasKey("fast");
@@ -62,8 +62,12 @@ public:
 				    key-values. */
     
     bool			hasKey(const char*) const;
-    template <class T> bool	getVal(const char* key,T&) const;
-				//!<Will parse the argument following key
+    template <class T> bool	getVal(const char* key,T&,
+	    			       bool acceptnone=false) const;
+				/*!<Will parse the argument following key
+				    If acceptnone is true, it will only give
+				    error if key is found, but no value can be
+				    parsed. */
     
     bool			isPresent(const char*) const;
 				//!<Is string present as an argument.
@@ -102,11 +106,11 @@ private:
 //Implementation
 
 template <class T> inline
-bool CommandLineParser::getVal( const char* key, T& val ) const
+bool CommandLineParser::getVal( const char* key, T& val, bool acceptnone ) const
 {
     const int keyidx = indexOf( key );
     if ( keyidx<0 )
-	return false;
+	return acceptnone;
 
     const int validx = keyidx+1;
     if ( !argv_.validIdx( validx ) )
