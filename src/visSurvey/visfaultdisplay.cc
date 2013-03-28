@@ -406,6 +406,9 @@ void FaultDisplay::updateSingleColor()
 
     texture_->turnOn( !usesinglecolor );
 
+    if ( !getMaterial() )
+	return;
+
     const Color prevcol = getMaterial()->getColor();
     const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
     if ( newcol==prevcol )
