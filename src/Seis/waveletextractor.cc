@@ -61,8 +61,9 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     CubeSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
-    wvlt_.set( mNINT32((float) wvltsize_/2), cs.zrg.step );
     wvlt_.reSize( wvltsize_ );
+    wvlt_.setSampleRate( cs.zrg.step );
+    wvlt_.setCenterSample( mNINT32((float) wvltsize_/2) );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
 }

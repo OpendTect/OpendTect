@@ -24,8 +24,7 @@ class IOObj;
 mExpClass(Seis) Wavelet : public NamedObject
 {
 public:
-			Wavelet(const char* nm=0,int idxfsamp=0,
-				float sr=mUdf(float));
+			Wavelet(const char* nm=0);
 			Wavelet(bool ricker_else_sinc,float fpeak,
 				float sample_intv=mUdf(float),float scale=1);
 			Wavelet(const Wavelet&);
@@ -35,19 +34,26 @@ public:
     static Wavelet*	get(const IOObj*);
     bool		put(const IOObj*) const;
 
-    int			size() const		{ return sz; }
-    float*		samples()		{ return samps; }
-    const float*	samples() const		{ return samps; }
-    float		sampleRate() const	{ return dpos; }
-    int			centerSample() const	{ return -iw; }
+    int			size() const		{ return sz_; }
+    float*		samples()		{ return samps_; }
+    const float*	samples() const		{ return samps_; }
+    float		sampleRate() const	{ return dpos_; }
+    int			centerSample() const	{ return cidx_; }
     StepInterval<float>	samplePositions() const
-    			{ return StepInterval<float>( iw*dpos, (sz+iw-1)*dpos,
-						      dpos ); }
+    			{ return StepInterval<float>(
+				-cidx_*dpos_, (sz_-cidx_-1)*dpos_, dpos_ ); }
+    bool		hasSymmetricalSamples()	{ return cidx_ * 2 + 1 == sz_; }
 
+    void		setSampleRate(float sr)	{ dpos_ = sr; }
+    void		setCenterSample(int cidx)	{ cidx_ = cidx; }
+    			//!< positive for starttwt < 0
     void		reSize(int); // destroys current sample data!
-    bool		reSampleTime(float newsr);
-    void		set(int center,float samplerate);
 
+    bool		reSample(float newsr);
+    bool		reSampleTime(float newsr);
+    void		ensureSymmetricalSamples();
+    			//!< pads with zeros - use with and before reSample
+   			//  for better results
     void		transform(float,float);
     void		normalize();
     float		getExtrValue(bool ismax = true) const;
@@ -64,11 +70,10 @@ public:
 
 protected:
 
-    int			iw;		// The index of the first sample
-					// where the center is 0
-    float		dpos;
-    float*		samps;
-    int			sz;
+    float		dpos_;
+    float*		samps_;
+    int			sz_;
+    int			cidx_;		//!< The index of the center sample
 
 };
 

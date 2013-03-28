@@ -108,7 +108,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	msg += "\n\nDo you want to reposition the center sample,"
 	       "\nSo it will be at the highest amplitude position?";
 	if ( uiMSG().askGoOn( msg ) )
-	    wvlt->set( maxsamp, wvlt->sampleRate() );
+	    wvlt->setCenterSample( maxsamp );
     }
 
     const float fac = scalefld_->getfValue();
