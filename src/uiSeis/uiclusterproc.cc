@@ -132,7 +132,6 @@ class ClusterProc : public NamedObject
 public:
 ClusterProc( const IOPar& pars )
     : pars_(pars)
-    , jobs_(false)
 {
 }
 

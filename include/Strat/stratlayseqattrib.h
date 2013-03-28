@@ -93,8 +93,7 @@ mExpClass(Strat) LaySeqAttribSet : public NamedObject
 public:
 
     			LaySeqAttribSet( const char* nm=0 )
-			    : NamedObject(nm)
-			    , ManagedObjectSet<LaySeqAttrib>(false)	{}
+			    : NamedObject(nm)	{}
 
     LaySeqAttrib&	attr( int idx )		{ return *(*this)[idx]; }
     const LaySeqAttrib&	attr( int idx ) const	{ return *(*this)[idx]; }

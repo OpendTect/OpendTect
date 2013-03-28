@@ -69,9 +69,7 @@ public:
 	Angle::Type	angletype_;
     };
 
-    			DirectionalData()
-			    : ManagedObjectSet<SectorData>(false)	{}
-			DirectionalData(int nrsectors,int nrparts=0);
+			DirectionalData(int nrsectors=0,int nrparts=0);
 
     SectorPartData&	get( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
@@ -126,7 +124,6 @@ inline int DirectionalData::sector( float ang ) const
 
 
 inline DirectionalData::DirectionalData( int nrsect, int nrparts )
-    : ManagedObjectSet<SectorData>(false)
 {
     for ( int isect=0; isect<nrsect; isect++ )
     {

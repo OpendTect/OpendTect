@@ -105,7 +105,7 @@ int SeisPSMerger::nextStep()
 
 	nrdone_ ++;
 
-	ManagedObjectSet<SeisTrcBuf> gatherset( false );
+	ManagedObjectSet<SeisTrcBuf> gatherset;
 	for ( int idx=0; idx<readers_.size(); idx++ )
 	{
 	    gather = new SeisTrcBuf( true );

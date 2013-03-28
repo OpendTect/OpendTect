@@ -26,12 +26,9 @@ class GlobExpr;
 mExpClass(Basic) BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
-    			BufferStringSet();
+
+    			BufferStringSet(int n=0,const char* s=0);
 			BufferStringSet(const char* arr[],int len=-1);
-    			BufferStringSet( const BufferStringSet& bss )
-			    : ManagedObjectSet<BufferString>(false)
-						{ *this = bss; }
-    BufferStringSet&	operator =(const BufferStringSet&);
     bool		operator ==(const BufferStringSet&) const;
 
     BufferString&	get( int idx )		{ return *((*this)[idx]); }

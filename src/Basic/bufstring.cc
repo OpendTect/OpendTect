@@ -317,15 +317,15 @@ std::ostream& operator <<( std::ostream& s, const FixedString& fs )
 }
 
 
-BufferStringSet::BufferStringSet()
-    : ManagedObjectSet<BufferString>(false)
+BufferStringSet::BufferStringSet( int nelem, const char* s )
 {
+    for ( int idx=0; idx<nelem; idx++ )
+	add( s );
 }
 
 
 
 BufferStringSet::BufferStringSet( const char* arr[], int len )
-    : ManagedObjectSet<BufferString>(false)
 {
     if ( len < 0 )
 	for ( int idx=0; arr[idx]; idx++ )
@@ -333,13 +333,6 @@ BufferStringSet::BufferStringSet( const char* arr[], int len )
     else
 	for ( int idx=0; idx<len; idx++ )
 	    add( arr[idx] );
-}
-
-
-BufferStringSet& BufferStringSet::operator =( const BufferStringSet& bss )
-{
-    ManagedObjectSet<BufferString>::operator =( bss );
-    return *this;
 }
 
 

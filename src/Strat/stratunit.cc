@@ -370,6 +370,12 @@ Strat::LeafUnitRef::LeafUnitRef( Strat::NodeUnitRef* up, int lithidx,
 }
 
 
+bool Strat::LeafUnitRef::isUndef() const
+{
+    return this == &refTree().undefLeaf();
+}
+
+
 void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 {
     UnitRef::getPropsFrom( iop );

@@ -94,7 +94,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
-    ManagedObjectSet<PointBasedMathFunction> (anglevals)(true);
+    ManagedObjectSet<PointBasedMathFunction> anglevals;
 
     TimeDepthModel td;
     raytracer_->getTDModel( 0, td );

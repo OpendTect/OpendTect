@@ -139,8 +139,7 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 HostDataList::HostDataList( bool readhostfile )
-    	: ManagedObjectSet<HostData>(false)
-	, realaliases_(false)
+    	: realaliases_(false)
     	, rshcomm_("rsh")
     	, defnicelvl_(19)
     	, portnr_(1963)

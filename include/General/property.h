@@ -181,6 +181,7 @@ public:
     float		val_;
 
     mDefPropertyFns(ValueProperty,"Value");
+    void		setValue( float v )	{ val_ = v; }
 
 };
 

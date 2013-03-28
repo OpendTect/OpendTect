@@ -380,7 +380,7 @@ bool uiImportHorizon::doImport()
 	return false;
     }
 
-    ManagedObjectSet<BinIDValueSet> sections(false);
+    ManagedObjectSet<BinIDValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )

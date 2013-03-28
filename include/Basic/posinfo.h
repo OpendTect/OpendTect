@@ -97,13 +97,11 @@ mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
-    			CubeData()
-			    : ManagedObjectSet<LineData>(false)	{}
+    			CubeData()		{}
     			CubeData( BinID start, BinID stop, BinID step )
-			    : ManagedObjectSet<LineData>(false)
 						{ generate(start,stop,step); }
     			CubeData( const CubeData& cd )
-			    : ManagedObjectSet<LineData>(false)	{ *this = cd; }
+						{ *this = cd; }
     CubeData&		operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 

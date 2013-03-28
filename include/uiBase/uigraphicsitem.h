@@ -102,8 +102,7 @@ private:
 mExpClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
 {
 public:
-			uiGraphicsItemSet()
-			    : ManagedObjectSet<uiGraphicsItem>(false)	{}
+			uiGraphicsItemSet()		{}
 
     void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
     uiGraphicsItem*	get( int idx )			{ return (*this)[idx]; }

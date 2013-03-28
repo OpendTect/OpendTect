@@ -574,7 +574,7 @@ void uiContourTreeItem::createContours()
     const float fac = mCast( float, scene->zDomainInfo().userFactor() );
     while ( contourval < maxcontourval+mDefEps )
     {
-	ManagedObjectSet<ODPolygon<float> > isocontours( false );
+	ManagedObjectSet<ODPolygon<float> > isocontours;
 	ictracer.getContours( isocontours, contourval, false );
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	{

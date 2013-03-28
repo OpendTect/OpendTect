@@ -74,7 +74,7 @@ mExpClass(Strat) LithologySet : public CallBacker
 {
 public:
     			LithologySet()
-			    : lths_(false), anyChange(this)	{}
+			    : anyChange(this)	{}
 
     int			size() const		{ return lths_.size(); }
     bool		isEmpty() const		{ return lths_.isEmpty(); }

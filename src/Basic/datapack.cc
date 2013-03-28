@@ -31,7 +31,7 @@ DataPack::ID DataPack::getNewID()
 }
 
 
-ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_( false );
+ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 Threads::Mutex DataPackMgr::mgrlistlock_;
 
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )

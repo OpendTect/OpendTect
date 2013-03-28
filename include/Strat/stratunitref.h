@@ -49,6 +49,7 @@ public:
 
     virtual Type	type() const		= 0;
     virtual bool	isEmpty() const		{ return false; }
+    virtual bool	isUndef() const		{ return false; }
     virtual bool	hasChildren() const	= 0;
     bool		isLeaf() const		{ return type()==Leaf; }
     bool		isLeaved() const	{ return type()==Leaved; }
@@ -228,6 +229,7 @@ public:
 
 			LeafUnitRef(NodeUnitRef*,int lithidx=-1,
 				    const char* desc=0);
+    virtual bool	isUndef() const;
 
     virtual Type	type() const		{ return Leaf; }
     virtual bool	hasChildren() const	{ return false; }

@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "price.h"
 #include "bufstringset.h"
 
-ManagedObjectSet<const Currency> Currency::repository_( false );
+ManagedObjectSet<const Currency> Currency::repository_;
 
 const Currency* Currency::getCurrency( const char* abrevation )
 {

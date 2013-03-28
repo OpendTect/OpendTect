@@ -94,7 +94,6 @@ public:
 
 
 BatchProgInfoList::BatchProgInfoList()
-    : ManagedObjectSet<BatchProgInfo>(false)
 {
     const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
     if ( fromenv && *fromenv )

@@ -69,8 +69,7 @@ protected:
 mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
-    			MarkerSet()
-			    : ManagedObjectSet<Marker>(false)	{}
+    			MarkerSet()			{}
 
     virtual ObjectSet<Marker>& operator +=(Marker*);
 
