@@ -33,6 +33,7 @@ public:
 
     inline virtual ManagedObjectSet<T>& operator -=( T* ptr );
 
+    inline virtual void		append(const ObjectSet<T>&);
     inline virtual void		erase();
     inline virtual void		removeRange(od_int64,od_int64);
     inline virtual T*		removeSingle( int idx, bool kporder=true );
@@ -89,6 +90,19 @@ ManagedObjectSet<T>& ManagedObjectSet<T>::operator -=( T* ptr )
     if ( isarr_ )	delete [] ptr;
     else		delete ptr;
     return *this;
+}
+
+
+template <class T> inline
+void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
+{
+    const int sz = os.size();
+    this->vec_.setCapacity( this->size()+sz );
+    if ( !os.isManaged() )
+	ObjectSet<T>::append( os );
+    else
+	for ( int idx=0; idx<sz; idx++ )
+	    *this += new T( *os[idx] );
 }
 
 
