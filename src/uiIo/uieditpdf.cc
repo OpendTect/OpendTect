@@ -286,7 +286,8 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
     {
 	if ( !vwwinnd_ )
 	{
-	    uiFlatViewMainWin::Setup su( "Probability Density Function" );
+	    uiFlatViewMainWin::Setup su( BufferString(
+			"Probability Density Function: ", pdf_.name()) );
 	    su.nrstatusfields(0);
 	    vwwinnd_ = new uiFlatViewMainWin( this, su );
 	    vwwinnd_->setDarkBG( false );
@@ -297,7 +298,6 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.vd_.blocky_ = true;
 	    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0,0);
 	    FlatView::Annotation& ann = app.annot_;
-	    ann.title_ = pdf_.name();
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
 	    ann.x2_.name_ = pdf_.dimName(1);
@@ -337,6 +337,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	DPM( DataPackMgr::FlatID() ).add( dp );
 
 	vwwinnd_->viewer().setPack( false, dp->id(), false );
+	vwwinnd_->viewer().setViewToBoundingBox();
 	vwwinnd_->start();
     }
 }

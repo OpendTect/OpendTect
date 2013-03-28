@@ -34,7 +34,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , view_( new uiGraphicsView( this, "Flatview" ) )
     , axesdrawer_(*new FlatView::AxesDrawer(*this,*view_))
-    , dim0extfac_(0.5)
+    , extfac_(0.5f)
     , extraborders_(0,0,5,0)
     , worldgroup_( new uiGraphicsItemGroup( true ) )
     , bitmapdisp_( new FlatView::uiBitMapDisplay( *this ) )
@@ -63,7 +63,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
     reportedchanges_ += All;
     bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
-    bitmapdisp_->setXExtraFactor( dim0extfac_ );
+    bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
 }
@@ -89,6 +89,7 @@ void uiFlatViewer::reSizeCB( CallBacker* cb )
 {
     axesdrawer_.setViewRect( getViewRect() );
     bitmapdisp_->setViewRect( getViewRect() );
+    bitmapdisp_->update();
     updateTransforms();
 }
 
@@ -195,9 +196,9 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     rg0.sort( true ); 
     rg1.sort( true );
 
-    rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
+    rg0.widen( extfac_ * rg0.step, true );
     if ( !wva )
-	rg1.start -= dim0extfac_ * rg1.step; rg1.stop += dim0extfac_ * rg1.step;
+	rg1.widen( extfac_ * rg1.step, true );
     return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
 }
 
@@ -397,7 +398,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool yn )
     : uiGroup(p,"Flat viewer")
     , view_( new uiGraphicsView( this, "Flatview" ) )
     , axesdrawer_(*new FlatView::AxesDrawer(*this,*view_))
-    , dim0extfac_(0.5)
+    , extfac_(0.5)
     , extraborders_(0,0,5,0)
     , worldgroup_( new uiGraphicsItemGroup( true ) )
     , bitmapdisp_( new FlatView::uiBitMapDisplay( *this ) )
@@ -426,7 +427,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool yn )
 
     reportedchanges_ += All;
     bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
-    bitmapdisp_->setXExtraFactor( dim0extfac_ );
+    bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
 }

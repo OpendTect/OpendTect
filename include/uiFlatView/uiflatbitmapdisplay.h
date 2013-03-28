@@ -51,8 +51,8 @@ public:
 
     Interval<float>	getDataRange(bool iswva) const;
 
-    void		setXExtraFactor(float fac) 
-    			{ xextfac_ = fac; }
+    void		setExtraFactor(float fac) 
+    			{ extfac_ = fac; }
 
     void		setViewRect(const uiRect& uir) 
     			{ viewrect_ = uir; }
@@ -65,7 +65,7 @@ protected:
     Viewer&			viewer_;
     int				workqueueid_;
     uiRect                      viewrect_;
-    float			xextfac_;
+    float			extfac_;
 
     uiDynamicImageItem*		display_;
 

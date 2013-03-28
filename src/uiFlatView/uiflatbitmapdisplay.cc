@@ -127,7 +127,7 @@ public:
 
 uiBitMapDisplay::uiBitMapDisplay( Viewer& viewer )
     : viewer_( viewer )
-    , xextfac_(0)
+    , extfac_(0.0f)
     , display_( new uiDynamicImageItem )
     , basetask_( new uiBitMapDisplayTask( viewer, display_, false ) )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
@@ -190,9 +190,10 @@ void uiBitMapDisplay::update()
     {
 	xrg = viewer_.pack(false)->posData().range(true);
 	yrg = viewer_.pack(false)->posData().range(false);
+	yrg.widen( extfac_ * yrg.step, true );
     }
 
-    xrg.widen( xextfac_, true );
+    xrg.widen( extfac_ * xrg.step, true );
     const uiWorldRect wr( xrg.start, yrg.start, xrg.stop, yrg.stop );
     const uiSize sz( viewrect_.width(), viewrect_.height() );
 

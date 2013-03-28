@@ -58,7 +58,7 @@ public:
     			/*!<The rectangle onto which wr_ is projected */
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
-    void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
+    void		setExtraFactor( float f )	{ extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
 
@@ -96,7 +96,6 @@ protected:
     uiGraphicsItemGroup*	worldgroup_;
 
     TypeSet<DataChangeType>	reportedchanges_;
-    float			dim0extfac_;
     uiRect			extraborders_;
 
     FlatView::uiBitMapDisplay*	bitmapdisp_;
@@ -114,6 +113,7 @@ protected:
     void			reSizeCB(CallBacker*);
 
     int				updatequeueid_;
+    float                       extfac_;
 
     void			updateTransforms();
 
