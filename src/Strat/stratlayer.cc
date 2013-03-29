@@ -27,19 +27,13 @@ Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
     , content_(0)
 {
-    setValue( 0, 0 ); setValue( 1, 0 );
+    setValue( 0, 0 ); // layers always have a thickness
 }
 
 
 BufferString Strat::Layer::name() const
 {
     return BufferString( unitRef().fullCode().buf() );
-}
-
-
-const Strat::LeafUnitRef& Strat::Layer::unitRef() const
-{
-    return ref_ ? *ref_ : RT().undefLeaf();
 }
 
 
@@ -119,22 +113,44 @@ const Strat::RefTree& Strat::LayerSequence::refTree() const
 }
 
 
-int Strat::LayerSequence::layerIdxAtZ( float zreq, bool retszifafter ) const
+int Strat::LayerSequence::layerIdxAtZ( float zreq ) const
 {
-    const ObjectSet<Layer>& lays = layers();
-    const int nrlays = lays.size();
-    if ( nrlays == 0 || zreq < lays[0]->zTop() )
+    const int nrlays = layers_.size();
+    if ( nrlays == 0 || zreq < layers_[0]->zTop()
+	    	     || zreq > layers_[nrlays-1]->zBot() )
 	return -1;
-    else if ( zreq > lays[nrlays-1]->zBot() )
-	return retszifafter ? nrlays : -1;
 
     for ( int ilay=0; ilay<nrlays; ilay++ )
     {
-	const Layer& lay( *lays[ilay] );
-	if ( zreq < lay.zBot() )
+	if ( zreq < layers_[ilay]->zBot() )
 	    return ilay;
     }
     return nrlays-1;
+}
+
+
+int Strat::LayerSequence::nearestLayerIdxAtZ( float zreq ) const
+{
+    const int nrlays = layers_.size();
+    if ( nrlays < 2 )
+	return nrlays == 1 ? 0 : -1;
+    if ( zreq <= startDepth() ) return 0;
+
+    for ( int ilay=0; ilay<nrlays; ilay++ )
+    {
+	if ( layers_[ilay]->zTop() <= zreq )
+	    return ilay;
+    }
+    return nrlays - 1;
+}
+
+
+float Strat::LayerSequence::totalThickness() const
+{
+    float sum = 0;
+    for ( int ilay=0; ilay<layers_.size(); ilay++ )
+	sum += layers_[ilay]->thickness();
+    return sum;
 }
 
 

@@ -47,9 +47,11 @@ public:
     int			size() const		{ return layers_.size(); }
     ObjectSet<Layer>&	layers()		{ return layers_; }
     const ObjectSet<Layer>& layers() const	{ return layers_; }
-    int			layerIdxAtZ(float,bool ret_size_if_after=false) const;
-    			//!< return -1 if outside, unless below and par==true
+    int			layerIdxAtZ(float) const; //!< returns -1 if outside
+    int			nearestLayerIdxAtZ(float z) const;
+    						//!< returns -1 only if empty
 
+    float		totalThickness() const;
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; }
 

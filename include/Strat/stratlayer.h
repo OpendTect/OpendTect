@@ -43,7 +43,7 @@ public:
 			Layer(const LeafUnitRef&);
 
     BufferString	name() const;
-    const LeafUnitRef&	unitRef() const;
+    const LeafUnitRef&	unitRef() const			{ return *ref_; }
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
     const RefTree&	refTree() const;
     const Lithology&	lithology() const;

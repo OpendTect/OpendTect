@@ -474,6 +474,8 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 				ElasticModel& aimodel, int seqidx )
 {
     const Strat::LayerSequence& seq = lm.sequence( seqidx ); 
+    if ( seq.isEmpty() )
+	{ errmsg_ = "Empty layer sequence"; return false; }
     const ElasticPropSelection& eps = lm.elasticPropSel();
     const PropertyRefSelection& props = lm.propertyRefs();
     if ( !eps.isValidInput(&errmsg_) )
@@ -483,11 +485,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
     const float srddepth = -1.* mCast(float,SI().seismicReferenceDatum() );
     int firstidx = 0;
     if ( seq.startDepth() < srddepth )
-    {
-	firstidx = seq.layerIdxAtZ( srddepth, false );
-	if ( firstidx < 0 )
-	    firstidx = 0;
-    }
+	firstidx = seq.nearestLayerIdxAtZ( srddepth );
 
     for ( int idx=firstidx; idx<seq.size(); idx++ )
     {
