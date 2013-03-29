@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "color.h"
 #include "namedobj.h"
 #include "manobjectset.h"
+class IOPar;
+
 
 namespace Well
 {
-
 class Track;
 
 /*!
@@ -39,11 +40,13 @@ public:
 			, levelid_(-1)		{}
 			Marker(int lvlid,float dh);
 			Marker(const Marker&);
+    inline bool		operator ==( const Marker& m )
+			{ return m.name() == name(); }
 
-    float		dah() const		{ return dah_; }
-    void		setDah( float v )	{ dah_ = v; }
-    int			levelID() const		{ return levelid_; }
-    void		setLevelID( int id )	{ levelid_ = id; }
+    inline float	dah() const		{ return dah_; }
+    inline void		setDah( float v )	{ dah_ = v; }
+    inline int		levelID() const		{ return levelid_; }
+    inline void		setLevelID( int id )	{ levelid_ = id; }
 
     const BufferString&	name() const;
     Color		color() const;
@@ -55,16 +58,16 @@ public:
     bool                operator > (const Marker& dm) const 
     			{ return dah_ >= dm.dah_; }
 
-
 protected:
 
     float		dah_;
     int			levelid_;
     Color		color_;
+
 };
 
 
-/*!\brief Set of Markers. */
+/*!\brief Set of Markers */
 
 mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
@@ -75,7 +78,6 @@ public:
 
     const Marker* 	getByName(const char* nm) const { return gtByName(nm); }
     Marker* 		getByName(const char* nm) 	{ return gtByName(nm); }
-
     const Marker* 	getByLvlID(int id) const	{ return gtByLvlID(id);}
     Marker* 		getByLvlID(int id) 		{ return gtByLvlID(id);}
 
@@ -90,6 +92,9 @@ public:
 			{ return ObjectSet<Marker>::isPresent(m); }	
 
     void		getNames(BufferStringSet&) const;
+    void		getColors(TypeSet<Color>&) const;
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
 protected:
 
