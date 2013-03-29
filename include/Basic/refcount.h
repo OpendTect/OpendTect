@@ -114,13 +114,45 @@ mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
 #define mRefCountImplNoDestructor(ClassName) \
 mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
 
-mObjectSetApplyToAllFunc( deepUnRef, if ( os[idx] ) os[idx]->unRef(),
-		      os.plainErase() )
-mObjectSetApplyToAllFunc( deepRef, if ( os[idx] ) os[idx]->ref(), )
-mObjectSetApplyToAllFunc( deepUnRefNoDelete,
-		      if ( os[idx] ) os[idx]->unRefNoDelete(),
-		      os.plainErase() )
+//! Un-reference class pointer, and set it to zero. Works for null-pointers. 
 
+template <class T> inline
+void unRefAndZero( T*& ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRef();
+    ptr = 0;
+}
+
+/*! Un-reference class pointer. Works for null pointers. */
+template <class T> inline
+void unRef( const T* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRef();
+}
+
+//! Reference class pointer. Works for null pointers.
+template <class T> inline
+void ref( const T* ptr )
+{
+    if ( !ptr ) return;
+    ptr->ref();
+}
+
+//! Call unRefNoDelete for class pointer. Works for null pointers.
+template <class T> inline
+void unRefNoDelete( const T* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRefNoDelete();
+}
+
+
+mObjectSetApplyToAllFunc( deepUnRef, unRef( os[idx] ), os.plainErase() )
+mObjectSetApplyToAllFunc( deepRef, ref( os[idx] ), )
+mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDelete( os[idx] ),
+			  os.plainErase() )
 
 //Macro to implement a refman class
 #define mDefRefMan( clss, reffunc, unreffunc ) \
@@ -132,7 +164,6 @@ mDefPtrMan3(clss, if (ptr_) reffunc, if ( ptr_ ) unreffunc )
 
 //Implement RefMan
 mDefRefMan( RefMan, ptr_->ref(), ptr_->unRef() )
-
 
 
 #endif
