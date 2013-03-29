@@ -30,11 +30,14 @@ public:
     virtual		~Set()					{}
 
     virtual od_int64	nrItems() const				= 0;
-    inline bool		isEmpty() const		{ return nrItems() <= 0; }
     virtual bool	validIdx(od_int64) const		= 0;
     virtual void	swap(od_int64,od_int64)			= 0;
     virtual void	erase()					= 0;
     virtual void	removeRange(od_int64 start,od_int64 stop)  = 0;
+
+    inline bool		isEmpty() const		{ return nrItems() <= 0; }
+    inline void		setEmpty()		{ erase(); }
+
 };
 
 } // namespace
