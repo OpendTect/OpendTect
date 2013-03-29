@@ -148,6 +148,13 @@ public:
     static void		getStdNames(BufferStringSet&);
     static LevelSet*	createStd(const char*);
 
+    inline const Level&	getLevel( int idx ) const
+			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
+    int			levelID( int idx ) const
+			{ return getLevel(idx).id(); }
+    Color		color( int idx ) const
+			{ return getLevel(idx).color(); }
+
 protected:
 
     ObjectSet<Level>	lvls_;

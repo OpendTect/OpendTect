@@ -32,7 +32,7 @@ const Level& Level::undef()
     {
 	lvl = new Level( "Undefined", 0 );
 	lvl->id_ = -1;
-	lvl->color_ = Color::LightGrey();
+	lvl->color_ = Color::Black();
     }
     return *lvl;
 }
