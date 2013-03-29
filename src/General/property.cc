@@ -162,6 +162,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     , expr_(0)
     , uom_(0)
 {
+    setFormulaOutputUnit( 0 );
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( df && *df )
 	setDef( df );
