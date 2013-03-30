@@ -1,39 +1,86 @@
-#!/bin/csh
+#!/bin/csh -f
 
-if ( $#argv != 1 ) then
-    echo "Usage $0 <directory path to scan zip files>"
+if ( $#argv != 3 ) then
+    echo "Usage $0 <directory to scan zip file(s)> <instdir like 4.4.0 or 4.5.0> <all/single zipfile name>"
     exit
 endif
 
 set dirtoscan=$1
+set instdir=$2
+set pkgstoscan=$3
+set macinstdir=OpendTect${instdir}.app
+if( -d $dirtoscan ) then
+    cd $dirtoscan
+else
+    echo "Entered directory ($dirtoscan) for virus scan does not exist"
+    exit 0
+endif
 
-cd $dirtoscan
-set pkgs=`ls *.zip`
-if ( -d virusscan ) then
-    rm -rf virusscan
+set pkgs=""
+if( $pkgstoscan == all ) then
+    set pkgs=`ls *.zip`
+else
+    set pkgs=$pkgstoscan
 endif
 echo $pkgs
 
+rm -rf virusscan backup_temp scaninfo.log
 mkdir virusscan backup_temp
+
 cd virusscan
+set error = 0
 foreach pkg ( ${pkgs} )
-    if( -d 4.4.0 ) then
-	echo "4.4.0 existed"
-	rm -rf 4.4.0
+    if ( -d instdir ) then
+	echo "$instdir already exists, removing."
+	rm -rf $instdir
     endif
 
-    echo "Scaning  $pkg"
+    if ( -d $macinstdir ) then
+	echo "$macinstdir already exists, removing."
+	rm -rf $macinstdir
+    endif
+
+    echo "Scaning $pkg ..."
     set filename=${pkg}.virusscan.log
     cp -p ../$pkg .
     mv ../$pkg ../backup_temp/.
-    clamscan $pkg > $filename
+    avgscan $pkg --report=$filename
+    if ( $status != 0 ) then
+	echo "Failed to scan package $pkg. Scanning stopped!"
+	echo "Failed to scan $pkg" >> ../scaninfo.log
+	mv ../backup_temp/$pkg ../.
+	cd ..
+	rm -rf virusscan backup_temp
+	exit 1
+    endif
+
     unzip -oq $pkg
-    mv $filename 4.4.0/relinfo/.
+    if ( -d $instdir ) then
+	set dirtozip=$instdir
+    else if( -d $macinstdir ) then
+	set dirtozip=$macinstdir
+    endif
+    if( -e $dirtozip/relinfo/$filename ) then
+	echo "Replacing existing scan report"
+	rm -rf $dirtozip/relinfo/$filename
+    endif
+    mv $filename $dirtozip/relinfo/.
     rm -rf $pkg
-    zip -r -y -q $pkg 4.4.0
-    rm -rf 4.4.0
+    zip -r -y -q $pkg $dirtozip
+    if ( $status != 0 ) then
+	echo "Zip failed. Scanning stopped!"
+	echo "Zip failed at $pkg" >> ../scaninfo.log
+	mv ../backup_temp/$pkg ../.
+	cd ..
+	rm -rf virusscan backup_temp
+	exit 1
+    endif
+
+    rm -rf $instdir $macinstdir $dirtozip
     mv $pkg ../.
+    rm -rf ../backup_temp/$pkg
+    echo "$pkg scanned successfully" >> ../scaninfo.log
 end
 cd ..
-rm -rf virusscan
-rm -rf backup_temp
+rm -rf virusscan backup_temp
+cat scaninfo.log
