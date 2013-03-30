@@ -557,7 +557,8 @@ void ColTabTextureChannel2RGBA::allowShading( bool yn )
     update();
 
     if ( channels_ && channels_->getOsgTexture() )
-	channels_->getOsgTexture()->allowShaders( yn );
+    /* TODO: Removed by Bert because it doesn't compile
+	channels_->getOsgTexture()->allowShaders( yn ) */;
 }
 
 
