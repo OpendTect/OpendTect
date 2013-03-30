@@ -5,29 +5,41 @@
 #RCS:           $Id: ODMakePackagesUtils.cmake,v 1.11 2012/09/11 12:25:44 cvsnageswara Exp $
 
 macro ( create_package PACKAGE_NAME )
-    IF( APPLE )
-	SET( MACBINDIR "Contents/MacOS" )
-    ENDIF()
 
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin )
-    IF( APPLE )
-	FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/${MACBINDIR} )
-    ENDIF()
 
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     FILE( MAKE_DIRECTORY ${DESTINATION_DIR}/plugins
 			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+    IF( APPLE )
+	set( MACBINDIR "Contents/MacOS" )
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}/Contents )
+    ENDIF()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
 	IF( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${PSD}/data/install_files/macscripts/Contents/Resources/qt_menu.nib
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/qt_menu.nib )
+	    execute_process( COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/macos_link
+			     RESULT_VARIABLE STATUS )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/macos_link
+			     ${DESTINATION_DIR}/Contents )
+	    execute_process( COMMAND ${DESTINATION_DIR}/Contents/macos_link 
+				     WORKING_DIRECTORY ${DESTINATION_DIR}/Contents
+				     RESULT_VARIABLE STATUS )
+	    FILE( REMOVE_RECURSE ${DESTINATION_DIR}/Contents/macos_link)
+	    IF( NOT ${STATUS} EQUAL "0" )
+		MESSAGE( FATAL_ERROR "Failed to create link" )
+	    ENDIF()
 	ENDIF()
+
         copy_thirdpartylibs()
         SET( LIBLIST ${LIBLIST};${PLUGINS} )
     ENDIF()
 
+    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
     MESSAGE( "Copying ${OD_PLFSUBDIR} libraries" )
     FOREACH ( FILE ${LIBLIST} )
 	IF( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
@@ -42,17 +54,10 @@ macro ( create_package PACKAGE_NAME )
 		SET( LIB "${FILE}.dll" )
 	ENDIF()
 
-	IF( APPLE )
-	    SET( COPYTODIR ${DESTINATION_DIR}/${MACBINDIR} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-	ELSE()
-	    SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-	ENDIF()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${LIB}
-			 ${COPYTODIR} )
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
+
 	FILE( GLOB ALOFILES ${PSD}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
 	FOREACH( ALOFILE ${ALOFILES} )
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
@@ -103,11 +108,6 @@ macro ( create_package PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE} 
 			 ${COPYTODIR} )
-	IF( APPLE )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${EXE}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-	ENDIF()
     ENDFOREACH()
 
     IF( ${PACKAGE_NAME} STREQUAL "base" )
@@ -152,21 +152,14 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
-    IF( APPLE )
-	SET( COPYTODIR ${DESTINATION_DIR}/${MACBINDIR} )
-    ELSE()
-	SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-    ENDIF()
+    SET( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
 
     MESSAGE( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     FILE( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/* )
     FOREACH( LIB ${LIBS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
-	IF( APPLE )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB}
-				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR} )
-	ENDIF()
     ENDFOREACH()
+
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
 		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
@@ -345,6 +338,14 @@ macro( init_destinationdir  PACKAGE_NAME )
 
     FILE( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
     FILE( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
+
+    IF( APPLE )
+	IF( ${PACKAGE_NAME} STREQUAL "base" )
+	    FILE( WRITE ${CMAKE_INSTALL_PREFIX}/macos_link
+		  "#!/bin/csh -f\nln -s ../bin/mac MacOS")
+	    FILE( APPEND ${CMAKE_INSTALL_PREFIX}/macos_link "\n" )
+	ENDIF()
+    ENDIF()
 endmacro( init_destinationdir )
 
 
@@ -370,7 +371,7 @@ macro( create_develpackages )
 			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
     ENDFOREACH()
 
-    FOREACH( DIR CMakeModules include src plugins spec )
+    FOREACH( DIR CMakeModules include src plugins spec tests )
 	Message( "Copying ${DIR} files" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/${DIR}
@@ -467,8 +468,7 @@ macro( od_sign_libs )
 	SET ( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
 	FILE( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/mac/* )
 	FOREACH( FIL ${FILES} )
-	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
-			     RESULT_VARIABLE STATUS )
+	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL} RESULT_VARIABLE STATUS )
 	    IF( NOT STATUS EQUAL "0" )
 		message("Failed while signing mac libs")
 	    ENDIF()
