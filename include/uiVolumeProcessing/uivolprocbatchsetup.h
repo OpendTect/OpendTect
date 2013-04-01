@@ -14,12 +14,14 @@ ________________________________________________________________________
 
 #include "uivolumeprocessingmod.h"
 #include "uibatchlaunch.h"
+
+class CtxtIOObj;
 class IOObj;
 class IOPar;
-class CtxtIOObj;
+
+class uiGenInput;
 class uiIOObjSel;
 class uiPosSubSel;
-class uiGenInput;
 class uiVelocityDesc;
 
 
@@ -32,13 +34,14 @@ mExpClass(uiVolumeProcessing) uiBatchSetup : public uiFullBatchDialog
 {
 
 public:
-                        uiBatchSetup(uiParent*, const IOObj* setupsel = 0 );
+                        uiBatchSetup(uiParent*,const IOObj* setupsel=0);
                         ~uiBatchSetup();
 
 protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
+    bool		retrieveChain();
 
     uiIOObjSel*		setupsel_;
     uiPushButton*	editsetup_;
@@ -50,7 +53,7 @@ protected:
     void		editPushCB(CallBacker*);
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 

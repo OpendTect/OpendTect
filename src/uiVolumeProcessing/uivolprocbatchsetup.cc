@@ -7,26 +7,28 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivolprocbatchsetup.h"
-#include "volproctrans.h"
-#include "seisselection.h"
+
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "pixmap.h"
+#include "seisselection.h"
 #include "volprocchain.h"
+#include "volproctrans.h"
 
 #include "uibutton.h"
-#include "uipossubsel.h"
-#include "uiioobjsel.h"
-#include "uiseissel.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uipossubsel.h"
+#include "uiseissel.h"
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
-#include "uimsg.h"
-#include "pixmap.h"
 
+namespace VolProc
+{
 
-
-VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
+uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     : uiFullBatchDialog( p,
 	    uiFullBatchDialog::Setup("Volume Builder: Create output")
 	    .procprognm("od_process_volume" ) )
@@ -44,7 +46,7 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
     editsetup_ = new uiPushButton( uppgrp_, "Create",
-	    ioPixmap(VolProc::uiChain::pixmapFileName()),
+	    ioPixmap(uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 
@@ -59,44 +61,55 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 
     setParFileNmDef( "volume_builder" );
 
-    addStdFields( false, true );
+    addStdFields( false, false, true );
     setupSelCB( 0 );
 }
 
 
-VolProc::uiBatchSetup::~uiBatchSetup()
+uiBatchSetup::~uiBatchSetup()
 {
     if ( chain_ ) chain_->unRef();
 }
 
 
-void VolProc::uiBatchSetup::editPushCB( CallBacker* )
+bool uiBatchSetup::retrieveChain()
 {
-    const IOObj* setupioobj = setupsel_->ioobj(true);
-
     if ( !chain_ )
     {
-	chain_ = new VolProc::Chain;
+	chain_ = new Chain;
 	chain_->ref();
     }
 
-    if ( setupioobj && chain_->storageID()!=setupioobj->key() )
-    {
-	BufferString errmsg;
-	MouseCursorChanger mcc( MouseCursor::Wait );
+    const IOObj* setupioobj = setupsel_->ioobj( true );
+    if ( !setupioobj || chain_->storageID()==setupioobj->key() )
+	return true;
+
+    BufferString errmsg;
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    const bool res =
 	VolProcessingTranslator::retrieve( *chain_, setupioobj, errmsg );
-    }
-
-    VolProc::uiChain dlg( this, *chain_, false );
-
-    if ( dlg.go() )
+    if ( !res )
     {
-	setupsel_->setInput( dlg.storageID() );
+	if ( chain_ ) chain_->unRef();
+	chain_ = 0;
     }
+
+    return res;
+}
+
+
+void uiBatchSetup::editPushCB( CallBacker* )
+{
+    if ( !retrieveChain() )
+	return;
+
+    uiChain dlg( this, *chain_, false );
+    if ( dlg.go() )
+	setupsel_->setInput( dlg.storageID() );
 } 
 
 
-bool VolProc::uiBatchSetup::prepareProcessing()
+bool uiBatchSetup::prepareProcessing()
 {
     if ( !setupsel_->ioobj() || !outputsel_->ioobj() )
 	return false;
@@ -105,23 +118,36 @@ bool VolProc::uiBatchSetup::prepareProcessing()
 }
 
 
-bool VolProc::uiBatchSetup::fillPar( IOPar& par )
+bool uiBatchSetup::fillPar( IOPar& par )
 {
-    const IOObj* setupioobj = setupsel_->ioobj(true);
-    PtrMan<IOObj> outputioobj = outputsel_->getIOObj(true);
+    const IOObj* setupioobj = setupsel_->ioobj( true );
+    PtrMan<IOObj> outputioobj = outputsel_->getIOObj( true );
     if ( !setupioobj || !outputioobj )
 	return false; 
 
     par.set( VolProcessingTranslatorGroup::sKeyChainID(), setupioobj->key() );
-    possubsel_->fillPar( par );
 
-    par.set( VolProcessingTranslatorGroup::sKeyOutputID(), outputioobj->key() );
+    // TODO: Make this more general, e.g remove all Attrib related keys
+    par.set( "Output.0.Seismic.ID", outputioobj->key() );
+
+    IOPar cspar;
+    possubsel_->fillPar( cspar );
+    par.mergeComp( cspar, sKey::Subsel() );
     return true;
 }
 
 
-void VolProc::uiBatchSetup::setupSelCB( CallBacker* )
+void uiBatchSetup::setupSelCB( CallBacker* )
 {
-    const IOObj* outputioobj = setupsel_->ioobj(true);
+    const IOObj* outputioobj = setupsel_->ioobj( true );
     editsetup_->setText( outputioobj ? "Edit ..." : "Create ..." );
+
+    retrieveChain();
+    const bool needsfullvol = chain_ ? chain_->needsFullVolume() : true;
+    if ( needsfullvol )
+	setMode( uiFullBatchDialog::Single );
+
+    singmachfld_->setSensitive( !needsfullvol );
 }
+
+} // namespace VolProc

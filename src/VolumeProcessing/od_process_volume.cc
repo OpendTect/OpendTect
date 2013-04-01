@@ -8,15 +8,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 
+#include "arrayndimpl.h"
 #include "attribdatacubeswriter.h"
 #include "ioman.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
+#include "survinfo.h"
+#include "veldesc.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
-#include "veldesc.h"
 
-#include "arrayndimpl.h"
-#include "survinfo.h"
-#include "moddepmgr.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
@@ -34,9 +35,9 @@ bool BatchProgram::go( std::ostream& strm )
     
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
     BufferString errmsg;
-    if ( !VolProcessingTranslator::retrieve( *chain, ioobj, errmsg ) )
+    if ( !VolProcessingTranslator::retrieve(*chain,ioobj,errmsg) )
     {
-   	 chain = 0;
+	 chain = 0;
 	 strm << "Could not open volume processing: \"" << ioobj->name() <<
 	     "\". Error description: " << errmsg.buf();
 
@@ -49,20 +50,21 @@ bool BatchProgram::go( std::ostream& strm )
 	return true;
     }
 
+    PtrMan<IOPar> subselpar = pars().subselect(
+	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     CubeSampling cs( true );
-    if ( !cs.usePar( pars() ) )
+    if ( !subselpar || !cs.usePar(*subselpar) )
 	strm << "Could not read ranges - Will process full survey\n";
 
-    if ( chain->getStep( 0 ) && chain->getStep( 0 )->needsInput() )
+    if ( chain->getStep(0) && chain->getStep(0)->needsInput() )
     {
 	strm << "First step in chain (";
-	strm << chain->getStep( 0 )->userName();
+	strm << chain->getStep(0)->userName();
 	strm << ") requires an input and can thus not be first.";
 	return false;
     }
 
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
-
 
     const float zstep = chain->getZStep();
     HorSampling inputhrg = cs.hrg;
@@ -109,13 +111,13 @@ bool BatchProgram::go( std::ostream& strm )
 
     strm << "Allocating " << getBytesString( nrbytes ) << " memory\n";
     
-    if ( !pce->setCalculationScope( cs ) )
+    if ( !pce->setCalculationScope(cs) )
     {
 	strm << "Could not set calculation scope!";
 	return false;
     } 
 
-    if ( !pce->execute( &strm ) )
+    if ( !pce->execute(&strm) )
     {
 	strm << "Unexecutable Chain!";
 	return false;
@@ -131,7 +133,7 @@ bool BatchProgram::go( std::ostream& strm )
     chain = 0;
    
     MultiID outputid;
-    pars().get( VolProcessingTranslatorGroup::sKeyOutputID(), outputid );
+    pars().get( "Output.0.Seismic.ID", outputid );
     PtrMan<IOObj> outputobj = IOM().get( outputid );
     if ( !outputobj )
     {
