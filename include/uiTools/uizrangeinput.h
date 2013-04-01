@@ -20,7 +20,7 @@ ________________________________________________________________________
 mExpClass(uiTools) uiZRangeInput : public uiGenInput
 {
 public:
-    				uiZRangeInput(uiParent*,bool time,bool wstep);
+    				uiZRangeInput(uiParent*,bool depth,bool wstep);
 
     template <class T> inline
     void			setZRange(T);
