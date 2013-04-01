@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 #include "uibutton.h"
+#include "uizrangeinput.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -332,12 +333,7 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     velsel_->selectionDone.notify(
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );
 	
-    BufferString str = t2d ? sKey::Depth().str() : sKey::Time().str();
-    str += " range ";
-    str += UnitOfMeasure::zUnitAnnot( !t2d, true, true );
-
-    rangefld_ = new uiGenInput(this, str.buf(),
-	    		       FloatInpIntervalSpec(true) );
+    rangefld_ = new uiZRangeInput(this,t2d,true);
     rangefld_->attach( alignedBelow, velsel_ );
 
     setHAlignObj( rangefld_ );
@@ -368,14 +364,7 @@ StepInterval<float> uiTimeDepthBase::getZRange() const
 
 bool uiTimeDepthBase::getTargetSampling( StepInterval<float>& res ) const
 {
-    res = rangefld_->getFStepInterval();
-    if ( !t2d_ && !res.isUdf() )
-    {
-	res.start /= ZDomain::Time().userFactor();
-	res.stop /= ZDomain::Time().userFactor();
-	res.step /= ZDomain::Time().userFactor();
-    }
-
+    res = rangefld_->getFZRange();
     return true;
 } 
 
@@ -402,10 +391,7 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
     else
 	rg = SI().zRange( true );
 
-    if ( !t2d_ )
-	rg.scale( mCast(float,ZDomain::Time().userFactor()) );
-
-    rangefld_->setValue( rg );
+    rangefld_->setZRange( rg );
 }
 
 

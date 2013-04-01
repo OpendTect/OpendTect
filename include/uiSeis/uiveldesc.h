@@ -21,6 +21,7 @@ ________________________________________________________________________
 class uiSeisSel;
 class uiCheckBox;
 class uiStaticsDesc;
+class uiZRangeInput;
 class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
@@ -137,7 +138,7 @@ protected:
     BufferString		selname_;
     MultiID			selkey_;
 
-    uiGenInput*			rangefld_;
+    uiZRangeInput*		rangefld_;
 
     uiVelSel*			velsel_;
     bool 			t2d_;
