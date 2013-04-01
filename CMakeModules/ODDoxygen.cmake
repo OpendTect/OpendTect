@@ -8,34 +8,48 @@
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 
 # OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
-MACRO( OD_BUILD_DOCUMENTATION )
-    SET( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
-    SET( OD_DOXYGEN_FILE ${OD_DOXYGEN_PATH}/Doxyfile )
-    SET( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
+macro( OD_BUILD_DOCUMENTATION )
+    set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
+    set( OD_DOXYGEN_FILE ${OD_DOXYGEN_PATH}/Doxyfile )
+    set( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
+    OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/include/Basic/main.dox )
 
-    FOREACH ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
-	IF ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
-	    SET ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE}/module.dox ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE}" )
-	ENDIF()
-	IF( EXISTS ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
-	    SET ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE}" )
-	ENDIF()
-    ENDFOREACH()
+    foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
+	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
+	string(TOLOWER ${OD_DOXYGEN_MODULE} OD_DOXYGEN_MODULE_lower )
+	if ( EXISTS ${INCLUDE_DIR} )
+	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${INCLUDE_DIR}" )
+	    set( DOX_FILE ${INCLUDE_DIR}/${OD_DOXYGEN_MODULE_lower}.dox )
+	    message ( ${DOX_FILE} )
+	    if ( EXISTS ${DOX_FILE} )
+		OD_ADD_SOURCE_FILES( ${DOX_FILE} )
+		set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${DOX_FILE}" )
+	    endif()
+	endif()
+	set( SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
+	if( EXISTS ${SOURCE_DIR} )
+	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
+	endif()
+    endforeach()
 
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in 
+    set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+
+    configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
+
+    OD_ADD_SOURCE_FILES( ${TEMPLATE} )
 
     add_custom_target ( doc 
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    INSTALL ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
-ENDMACRO()
+    install ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
+endmacro()
 
 IF ( BUILD_DOCUMENTATION )
-  FIND_PACKAGE( Doxygen )
-  IF ( NOT DOXYGEN_FOUND )
-    MESSAGE( FATAL_ERROR 
+  find_package( Doxygen )
+  if ( NOT DOXYGEN_FOUND )
+    message( FATAL_ERROR 
       "Doxygen is needed to build the documentation. Please install it correctly")
-  ENDIF()
-ENDIF()
+  endif()
+endif()
 
