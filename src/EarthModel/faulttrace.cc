@@ -667,6 +667,8 @@ bool FaultTraceExtractor::doWork( od_int64 start, od_int64 stop,
     {
 	if ( !extractFaultTrace(idx) )
 	    return false;
+
+	addToNrDone( 1 );
     }
 
     return true;
@@ -719,7 +721,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
     const HorSampling& hs = holder_.hs_;
     const bool isinl = hs.nrCrl() > 1 && idx < hs.nrInl();
     const int linenr = isinl ? hs.start.inl + idx * hs.step.inl
-	: hs.start.crl + (hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.start.crl );
+	: hs.start.crl + (hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl );
 
     const StepInterval<float>& zrg = SI().zRange( false );
     BinID start( isinl ? linenr : holder_.hs_.start.inl,
