@@ -56,7 +56,7 @@ struct PropRef_ThickRef_Man : public CallBacker
 
 PropRef_ThickRef_Man()
 {
-    ref_ = new PropertyRef( "Thickness", PropertyRef::Dist );
+    ref_ = new PropertyRef( sKey::Thickness(), PropertyRef::Dist );
     ref_->aliases().add( "thick" );
     const PropertyRef* thref = PROPS().find( "thickness" );
     if ( thref )

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "ioobj.h"
 #include "transl.h"
+#include "keystrs.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -47,7 +48,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     selfld_->attach( alignedBelow, inpfld2_ );
 
     attribnamefld_ = new uiGenInput( this, "Attribute name",
-	    		StringInpSpec( "Thickness" ) );
+	    		StringInpSpec( sKey::Thickness() ) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing

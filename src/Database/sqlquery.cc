@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include <QString>
 
 
-const char* paranstart = " ( ";
-const char* paranend = " ) ";
+static const char* parenstart = " ( ";
+static const char* parenend = " ) ";
 
 DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
 { "=", "<", ">", "<=", ">=", "!=",
@@ -34,6 +34,7 @@ DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
 
 #else
 
+// Some dummy code to make sure we can compile&link without SQL support
 class mQSqlQuery
 {
 public:
@@ -186,7 +187,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	return querystr;
 
     const int nrvals = values.size();
-    querystr = "INSERT INTO "; querystr.add( tablenm ).add( paranstart );
+    querystr = "INSERT INTO "; querystr.add( tablenm ).add( parenstart );
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() );
@@ -194,7 +195,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	    querystr.add( "," );
     }
 
-    querystr.add( paranend );
+    querystr.add( parenend );
 
     querystr.add( " VALUES (" );
 
@@ -215,7 +216,7 @@ BufferString SqlDB::Query::getInsertString( const BufferStringSet& colnms,
 	    querystr.add( "," );
     }
 
-    querystr.add( paranend );
+    querystr.add( parenend );
 
     return querystr;
 }
@@ -232,14 +233,12 @@ int SqlDB::Query::addToColList(BufferStringSet& columns,const char* newcol)
 BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 					    const BufferStringSet& values,
 					    const BufferString& tablenm,
-					    int bugid ) const
+					    int id ) const
 {
     BufferString querystr;
-    if ( bugid<0 || colnms.size()!=values.size() )
+    if ( id<0 || colnms.size()!=values.size() )
 	return querystr;
-//TODO
-//Better to get bug_text_id from mantis_bug_table by using bugid and update
-//mantis_bug_text_table by using bug_text_id which is id in this table    
+
     const int nrvals = values.size();
     querystr = "UPDATE "; querystr.add( tablenm ).add( " SET " );
     for ( int idx=0; idx<nrvals; idx++ )
@@ -249,7 +248,7 @@ BufferString SqlDB::Query::getUpdateString( const BufferStringSet& colnms,
 		.add( idx != nrvals-1 ? "'," : "'" );
     }
 
-    querystr.add( " WHERE id=" ).add( bugid );
+    querystr.add( " WHERE id=" ).add( id );
     return querystr;
 }
 
@@ -280,9 +279,9 @@ BufferString SqlDB::Query::select( const BufferStringSet& colnms,
 
 bool SqlDB::Query::update( const BufferStringSet& colnms,
 			   const BufferStringSet& values,
-			   const BufferString& tablenm, int bugid )
+			   const BufferString& tablenm, int id )
 {
-    BufferString qstr = getUpdateString( colnms, values, tablenm, bugid );
+    BufferString qstr = getUpdateString( colnms, values, tablenm, id );
     return execute( qstr );
 }
 
@@ -302,15 +301,16 @@ SqlDB::ValueCondition::ValueCondition(const char* key,
     : col_(key)
     , op_( op )
     , val_(val)
-{}
+{
+}
 
 
 BufferString SqlDB::ValueCondition::getStr() const
 {
-    BufferString res( paranstart );
+    BufferString res( parenstart );
     res.add ( col_ );
-    res.add( sKey::SpaceString()).add( toString( op_ ) )
-        .add( sKey::SpaceString() ).add( val_ ).add( paranend );
+    res.add( sKey::SpaceString() ).add( toString( op_ ) )
+        .add( sKey::SpaceString() ).add( val_ ).add( parenend );
     return res;
 }
 
@@ -321,17 +321,17 @@ BufferString SqlDB::MultipleLogicCondition::getStr() const
 	    ? ValueCondition::And
 	    : ValueCondition::Or );
 
-    BufferString res( paranstart );
+    BufferString res( parenstart );
     for ( int idx=0; idx<statements_.size(); idx++ )
     {
-	res.add( paranstart ).add( statements_[idx]->buf() ).add( paranend );
+	res.add( parenstart ).add( statements_[idx]->buf() ).add( parenend );
 	if ( idx!=statements_.size()-1 )
 	{
 	    res.add( op );
 	}
     }
 
-    res.add( paranend );
+    res.add( parenend );
 
     return res;
 }
@@ -364,12 +364,14 @@ SqlDB::FullTextCondition::FullTextCondition( BufferStringSet& cols,
 					     const char* searchstr )
     : cols_( cols )
     , searchstr_( searchstr )
-{}
+{
+}
 
 
 SqlDB::FullTextCondition::FullTextCondition( const char* searchstr )
     : searchstr_( searchstr )
-{}
+{
+}
 
 
 SqlDB::FullTextCondition& SqlDB::FullTextCondition::addColumn( const char* col )

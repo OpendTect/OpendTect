@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapackbase.h"
 #include "flatposdata.h"
 #include "fourier.h"
+#include "keystrs.h"
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p )
@@ -137,7 +138,7 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    MapDataPack* datapack = new MapDataPack( "Attribute", "F-K", &array );
+    MapDataPack* datapack = new MapDataPack( sKey::Attribute(), "F-K", &array );
     const int sz0 = array.info().getSize( 0 );
     const int sz1 = array.info().getSize( 1 );
     // TODO: Get dk and df from input data

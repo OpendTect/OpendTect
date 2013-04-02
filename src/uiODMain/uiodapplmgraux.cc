@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
+#include "keystrs.h"
 #include "separstr.h"
 #include "odinst.h"
 #include "string2.h"
@@ -404,7 +405,8 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
     BinID step( SI().inlStep(), SI().crlStep() );
     BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(*cache, colnr, step);
 
-    MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
+    MapDataPack* newpack = new MapDataPack( sKey::Attribute(), data.name(),
+	    				    bvsarr );
     StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
     StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
     StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,

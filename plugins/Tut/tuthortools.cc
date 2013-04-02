@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "emsurfaceauxdata.h"
 #include "statruncalc.h"
+#include "keystrs.h"
 
 
 
@@ -80,7 +81,7 @@ void Tut::ThicknessCalculator::init( const char* attribname )
     }
 
     dataidx_ = horizon1_->auxdata.addAuxData( attribname && *attribname ?
-	    				attribname : "Thickness" );
+	    				attribname : sKey::Thickness() );
     posid_.setObjectID( horizon1_->id() );
 }
 
