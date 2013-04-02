@@ -81,7 +81,7 @@ void Tut::ThicknessCalculator::init( const char* attribname )
     }
 
     dataidx_ = horizon1_->auxdata.addAuxData( attribname && *attribname ?
-	    				attribname : sKey::Thickness() );
+				attribname : (const char*)sKey::Thickness() );
     posid_.setObjectID( horizon1_->id() );
 }
 
