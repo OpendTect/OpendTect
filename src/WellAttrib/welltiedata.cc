@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
+#include "waveletattrib.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
@@ -40,94 +41,100 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
-static const char* sKeyIsMarkerDisp = "Display Markers on Well Display";
-static const char* sKeyVwrMarkerDisp = "Display Markers on 2D Viewer";
-static const char* sKeyVwrHorizonDisp = "Display Horizon on 2D Viewer";
-static const char* sKeyZInFeet	= "Z in Feet";
-static const char* sKeyZInTime	= "Z in Time";
-static const char* sKeyMarkerFullName	= "Dilplay markers full name";
-static const char* sKeyHorizonFullName	= "Dilplay horizon full name";
-
-
 namespace WellTie
 {
 
 
 void DispParams::fillPar( IOPar& iop ) const 
 {
-    iop.setYN( sKeyIsMarkerDisp, ismarkerdisp_ );
-    iop.setYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
-    iop.setYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
-    iop.setYN( sKeyZInFeet, iszinft_ );
-    iop.setYN( sKeyZInTime, iszintime_ );	
-    iop.setYN( sKeyMarkerFullName, dispmrkfullnames_ );
-    iop.setYN( sKeyHorizonFullName, disphorfullnames_ );
+    iop.setYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
+    iop.setYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
+    iop.setYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
+    iop.setYN( sKeyZInFeet(), iszinft_ );
+    iop.setYN( sKeyZInTime(), iszintime_ );	
+    iop.setYN( sKeyMarkerFullName(), dispmrkfullnames_ );
+    iop.setYN( sKeyHorizonFullName(), disphorfullnames_ );
     mrkdisp_.fillPar( iop );
 }
 
 
 void DispParams::usePar( const IOPar& iop ) 
 {
-    iop.getYN( sKeyIsMarkerDisp, ismarkerdisp_ );
-    iop.getYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
-    iop.getYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
-    iop.getYN( sKeyZInFeet, iszinft_ );
-    iop.getYN( sKeyZInTime, iszintime_ );	
-    iop.getYN( sKeyMarkerFullName, dispmrkfullnames_ );
-    iop.getYN( sKeyHorizonFullName, disphorfullnames_ );
+    iop.getYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
+    iop.getYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
+    iop.getYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
+    iop.getYN( sKeyZInFeet(), iszinft_ );
+    iop.getYN( sKeyZInTime(), iszintime_ );	
+    iop.getYN( sKeyMarkerFullName(), dispmrkfullnames_ );
+    iop.getYN( sKeyHorizonFullName(), disphorfullnames_ );
     mrkdisp_.usePar( iop );
-}    
+}
 
 
+float Data::cDefSeisSr()
+{
+    return 0.001;
+}
 
-Data::Data( const Setup& wts, Well::Data& w)
-    : logset_(*new Well::LogSet)  
-    , wd_(&w)  
-    , setup_(wts)  
+
+Data::Data( const Setup& wts, Well::Data& wdata )
+    : logset_(*new Well::LogSet)
+    , wd_(&wdata)
+    , setup_(wts)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
-    , estimatedwvlt_(*new Wavelet(initwvlt_))
-    , isinitwvltactive_(true)					     
-    , timeintv_(SI().zRange(true))
-    , seistrc_(*new SeisTrc)  
-    , synthtrc_(*new SeisTrc)  
+    , estimatedwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
+    , isinitwvltactive_(true)
+    , seistrc_(*new SeisTrc)
+    , synthtrc_(*new SeisTrc)
     , trunner_(0)
 {
+    const Well::Track& track = wdata.track();
+    const Well::D2TModel* d2t = wdata.d2TModel();
+    float stoptime = SI().zRange(true).stop;
+    const int nrtrackpts = track.nrPoints();
+    const float td = track.dah(nrtrackpts-1);
+    float tdtime = d2t->getTime( td, track );
+    if ( !mIsUdf(tdtime) && tdtime > stoptime )
+	stoptime = mCast( float, mNINT32(tdtime/cDefSeisSr())*cDefSeisSr() );
+
     SeisIOObjInfo oinf( wts.seisid_ );
     if ( oinf.isOK() )
     {
 	CubeSampling cs;
 	oinf.getRanges( cs );
-	StepInterval<float> welltieint;
-	welltieint.start = 0.f; //DO not change, required for the ray-tracer
-	welltieint.step = cs.zrg.step;
-	welltieint.stop = cs.zrg.stop;
-	const int nrtrackpts = w.track().nrPoints();
-	const float td = w.track().dah(nrtrackpts-1);
-	float tdtime = w.d2TModel()->getTime( td, w.track() );
-	tdtime =  (float) mNINT32(tdtime/welltieint.step) * welltieint.step;
-	if ( tdtime > welltieint.stop )
-	    welltieint.stop = tdtime;
-	const_cast<StepInterval<float>&>(this->timeintv_) = welltieint;
+	if ( cs.zrg.stop > stoptime )
+	    stoptime = cs.zrg.stop;
     }
 
-    estimatedwvlt_.setName( "Estimated wavelet" );
-    for ( int idx=0; idx<w.markers().size(); idx++ )
-    {
-	dispparams_.allmarkernms_.add( w.markers()[idx]->name() );
-	dispparams_.mrkdisp_.selmarkernms_.add( w.markers()[idx]->name() );
-    }
-
-    const Well::Log* vlog = w.logs().getLog( wts.vellognm_ );
-    const Well::Log* dlog = w.logs().getLog( wts.denlognm_ );
-    if ( vlog && dlog )
-    {
-	dahrg_.start = mMIN( vlog->dahRange().start, dlog->dahRange().start );
-	dahrg_.stop  = mMAX( vlog->dahRange().stop,  dlog->dahRange().stop );
-    }
-    const Well::Track& track = w.track();
+    const Well::Log* velplog = wdata.logs().getLog( wts.vellognm_ );
+    if ( velplog )
+	dahrg_ = velplog->dahRange();
     if ( !track.isEmpty() )
 	dahrg_.limitTo( track.dahRange() );
 
+    tracerg_.set( 0.f, stoptime, cDefSeisSr() );
+    float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start, track ) );
+    twtstart = (float) mNINT32(twtstart/cDefSeisSr()) * cDefSeisSr();
+    float twtstop = d2t->getTime( dahrg_.stop, track );
+    twtstop = (float) mNINT32(twtstop/cDefSeisSr()) * cDefSeisSr();
+
+    dahrg_.start = d2t->getDah( twtstart );
+    dahrg_.stop = d2t->getDah( twtstop );
+    modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
+    twtstart += cDefSeisSr();
+    twtstop -= cDefSeisSr();
+    reflrg_.set( twtstart, twtstop, cDefSeisSr() );
+
+    for ( int idx=0; idx<wdata.markers().size(); idx++ )
+    {
+	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
+	dispparams_.mrkdisp_.selmarkernms_.add( wdata.markers()[idx]->name() );
+    }
+
+    initwvlt_.reSample( cDefSeisSr() );
+
+    estimatedwvlt_ = initwvlt_;
+    estimatedwvlt_.setName( "Estimated wavelet" );
 }
 
 
@@ -140,27 +147,6 @@ Data::~Data()
     delete &seistrc_;
     delete &synthtrc_;
 }
-
-const char* Data::sonic() const
-{ return setup_.vellognm_; }
-
-const char* Data::density() const
-{ return setup_.denlognm_; }
-
-const char* Data::ai() const
-{ return "AI"; }
-
-const char* Data::reflectivity() const
-{ return "Reflectivity"; }
-
-const char* Data::synthetic() const
-{ return "Synthetic"; }
-
-const char* Data::seismic() const
-{ return "Seismic"; }
-
-bool Data::isSonic() const
-{ return setup_.issonic_; }
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
@@ -364,19 +350,19 @@ Server::Server( const WellTie::Setup& wts )
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     wdmgr_->datadeleted_.notify( mCB(this,Server,wellDataDel) );
 
-    Well::Data* w = wdmgr_->wd();
-    if ( !w ) return; //TODO close + errmsg
+    Well::Data* wdata = wdmgr_->wd();
+    if ( !wdata ) return; //TODO close + errmsg
 
-    data_ = new Data( wts, *w );
-    datawriter_ = new DataWriter( *w, wts.wellid_ );
+    data_ = new Data( wts, *wdata );
+    datawriter_ = new DataWriter( *wdata, wts.wellid_ );
 
-    d2tmgr_ = new D2TModelMgr( *w, *datawriter_, *data_ );
+    d2tmgr_ = new D2TModelMgr( *wdata, *datawriter_, *data_ );
     dataplayer_ = new DataPlayer( *data_, wts.seisid_, &wts.linekey_ );
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
     hormgr_ = new HorizonMgr( data_->horizons_ );
 
-    hormgr_->setWD( w );
-    d2tmgr_->setWD( w );
+    hormgr_->setWD( wdata );
+    d2tmgr_->setWD( wdata );
 }
 
 
@@ -401,15 +387,23 @@ void Server::wellDataDel( CallBacker* )
 }
 
 
-bool Server::computeAll()
+bool Server::computeSynthetics()
 {
-    if ( !dataplayer_->computeAll() )
+    if ( !dataplayer_->computeSynthetics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
     return true;
 }
 
 
-bool Server::computeSynthetics()
+bool Server::extractSeismics()
+{
+    if ( !dataplayer_->extractSeismics() )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+    return true;
+}
+
+
+bool Server::updateSynthetics()
 {
     if ( !dataplayer_->doFastSynthetics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
@@ -422,6 +416,24 @@ bool Server::computeAdditionalInfo( const Interval<float>& zrg )
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
     return true;
+}
+
+
+bool Server::hasSynthetic() const
+{
+    return dataplayer_->isOKSynthetic() && !wellid_.isEmpty();
+}
+
+
+bool Server::hasSeismic() const
+{
+    return dataplayer_->isOKSeismic();
+}
+
+
+bool Server::doSeismic() const
+{
+    return dataplayer_->hasSeisId();
 }
 
 }; //namespace WellTie

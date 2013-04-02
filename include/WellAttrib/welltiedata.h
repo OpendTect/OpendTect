@@ -61,6 +61,19 @@ public:
     Well::DisplayProperties::Markers mrkdisp_;
     BufferStringSet	    allmarkernms_;
 
+    static const char*		sKeyIsMarkerDisp()	{ return
+					   "Display Markers on Well Display"; }
+    static const char*		sKeyVwrMarkerDisp()	{ return
+					      "Display Markers on 2D Viewer"; }
+    static const char*		sKeyVwrHorizonDisp()	{ return
+					      "Display Horizon on 2D Viewer"; }
+    static const char*		sKeyZInFeet()		{ return "Z in Feet"; }
+    static const char*		sKeyZInTime()		{ return "Z in Time"; }
+    static const char*		sKeyMarkerFullName()	{ return
+						 "Display markers full name"; }
+    static const char*		sKeyHorizonFullName()	{ return
+						 "Display horizon full name"; }	
+
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&); 
 };
@@ -108,17 +121,22 @@ public :
     Wavelet&			estimatedwvlt_;
     const Well::Log*		cslog_;
     bool			isinitwvltactive_;
-    const StepInterval<float>& 	timeintv_;
-    Interval<float>		dahrg_;
-    const Setup&		setup() const		{ return setup_; }
 
-    const char*  		sonic() 	const;
-    const char*  		density() 	const;
-    const char*  		ai() 		const;
-    const char*  		reflectivity() 	const;
-    const char*  		synthetic() 	const;
-    const char*  		seismic() 	const;
-    bool			isSonic() 	const;
+    const StepInterval<float>&	getTraceRange() const	{ return tracerg_; }
+    const Interval<float>&	getDahRange() const	{ return dahrg_; }
+    const StepInterval<float>&	getModelRange() const	{ return modelrg_; }
+    const StepInterval<float>&	getReflRange() const	{ return reflrg_; }
+
+    const Setup&		setup() const	{ return setup_; }
+    const char* 		density() const	{ return setup_.denlognm_; }
+    const char* 		sonic() const	{ return setup_.vellognm_; }
+    bool			isSonic() const	{ return setup_.issonic_; }
+
+    static const char* 		ai()		{ return "AI"; }
+    static const char* 		reflectivity()	{ return "Reflectivity"; }
+    static const char* 		synthetic()	{ return "Synthetic"; }
+    static const char* 		seismic()	{ return "Seismic"; }
+    static float		cDefSeisSr();
 
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
@@ -137,6 +155,10 @@ public :
 
 protected:
 
+    StepInterval<float>		tracerg_;
+    Interval<float>		dahrg_;
+    StepInterval<float>		modelrg_;
+    StepInterval<float>		reflrg_;
     const Setup&		setup_;
 };
 
@@ -256,9 +278,13 @@ public :
 
     bool			is2D() const	{ return is2d_; }
 
-    bool			computeAll();
     bool			computeSynthetics();
+    bool			extractSeismics();
+    bool			updateSynthetics();
     bool			computeAdditionalInfo(const Interval<float>&);
+    bool			hasSynthetic() const;
+    bool			hasSeismic() const;
+    bool			doSeismic() const;
 
     void			setInitWvltActive(bool yn)
 				{ data_->isinitwvltactive_ = yn; }

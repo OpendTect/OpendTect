@@ -173,7 +173,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	lds.seisctioset_ = seisctioset_;
 	lds.nrtraces_ = repeatfld_->box()->getValue(); 
 	lds.ctioidxset_ = logidces; 
-	if ( !datawriter_.writeLogs2Cube( lds, data_.dahrg_ ) )
+	if ( !datawriter_.writeLogs2Cube( lds, data_.getDahRange() ) )
 	    mCanNotWriteLogs();
     }
     if ( success )

@@ -65,7 +65,7 @@ protected:
 
     const DispParams&		params_;
     const Data&			data_;
-    const StepInterval<float>&	zrange_;
+    const StepInterval<float>	zrange_;
     const TypeSet<Marker>&	seispickset_;
     const TypeSet<Marker>&	synthpickset_;
     SeisTrcBuf&			trcbuf_;

@@ -142,8 +142,13 @@ void uiTieWin::displayUserMsg( CallBacker* )
 void uiTieWin::doWork( CallBacker* cb )
 {
     drawer_->enableCtrlNotifiers( false );
-    if ( !server_.computeAll() )
-	{ uiMSG().error( server_.errMSG() ); return; }
+    if ( !server_.computeSynthetics() )
+	{ uiMSG().error( server_.errMSG() ); }
+
+    if ( server_.doSeismic() ) //needs to be redone also when new d2t
+	if ( !server_.extractSeismics() )
+	    { uiMSG().error( server_.errMSG() ); }
+
     getDispParams();
     reDrawAll(0);
     drawer_->enableCtrlNotifiers( true );
@@ -326,6 +331,16 @@ void uiTieWin::infoPushed( CallBacker* )
 {
     if ( !infodlg_ )
     {
+	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
+	{
+	    BufferString errmsg = "No ";
+	    errmsg += server_.hasSeismic() ? "synthetic" : "seismic";
+	    errmsg += " data extracted\n";
+	    errmsg += "Cannot go further";
+	    uiMSG().error( errmsg );
+	    return;
+	}
+
 	infodlg_ = new uiInfoDlg( this, server_ );
 	infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
 	infodlg_->usePar( par_ );
@@ -493,8 +508,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     "107.4.2").modal(false))
 	, server_(server)
-	, selidx_(0)			 
-      	, crosscorr_(0)	       
+	, selidx_(0)
+    	, crosscorr_(0)
 	, wvltdraw_(0)
 	, redrawNeeded(this)
 	, data_(server_.data())
@@ -515,7 +530,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
 
-    uiSeparator* verSepar = new uiSeparator( viewersgrp,"Verical", false );
+    uiSeparator* verSepar = new uiSeparator( viewersgrp,"Vertical", false );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );
@@ -564,9 +579,6 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     }
     setPrefWidth( 400 );
     setPrefHeight( 200 );
-
-    putToScreen();
-    propChanged( this );
 }
 
 
@@ -577,28 +589,33 @@ uiInfoDlg::~uiInfoDlg()
 }
 
 
+#define mMarkerFldIdx 0
+#define mTwtFldIdx 1
+#define mDahFldIdx 2
 void uiInfoDlg::putToScreen()
 {
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
-						 : data_.estimatedwvlt_;
-    wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
-    estwvltlengthfld_->setValue(
-	    wvlt.samplePositions().width()*SI().zDomain().userFactor());
-    zrangeflds_[selidx_]->setValue( zrg_ );
-    if ( !selidx_ )
+    choicefld_->setValue( selidx_ );
+    if ( selidx_ == mMarkerFldIdx )
     {
 	zrangeflds_[0]->setText( startmrknm_.buf(), 0 );
 	zrangeflds_[0]->setText( stopmrknm_.buf(), 1 );
     }
+    else
+	zrangeflds_[selidx_]->setValue( zrg_ );
+
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_
+						  : data_.estimatedwvlt_;
+    wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
+    estwvltlengthfld_->setValue(
+	    wvlt.samplePositions().width()*SI().zDomain().userFactor());
 }
 
 
 bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
-    zrg.start = data_.dahrg_.start;
-    zrg.stop = data_.dahrg_.stop;
 
+    zrg = data_.getDahRange();
     const Interval<int> mintv = zrangeflds_[0]->getIInterval();
     const Well::Marker* topmarkr = 
 			wd->markers().getByName( zrangeflds_[0]->text(0) );
@@ -637,11 +654,12 @@ void uiInfoDlg::usePar( const IOPar& par )
     propChanged(0);
 }
 
-
-#define md2T( zval, time )\
-    time ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
-#define md2TI( zrg, time )\
-    { zrg.start = md2T( zrg.start, time ); zrg.stop = md2T( zrg.stop, time ) }
+#define mMinWvlLength 20
+#define md2T( zval, outistime )\
+    outistime ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
+#define md2TI( inzrg, ouzrg, outistime )\
+    { ouzrg.start = md2T( inzrg.start, outistime ); \
+      ouzrg.stop = md2T( inzrg.stop, outistime) }
 void uiInfoDlg::propChanged( CallBacker* )
 {
     NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valuechanged );
@@ -650,41 +668,65 @@ void uiInfoDlg::propChanged( CallBacker* )
 
     mGetWD(return)
     selidx_ = choicefld_->getIntValue();
-    zrg_ = zrangeflds_[selidx_]->getFInterval();
-    if ( !selidx_ ) getMarkerDepths( zrg_ );
+    Interval<float> dahrg;
+    Interval<float> timerg;
+    dahrg.set( mUdf(float), mUdf(float) );
+    timerg.set( mUdf(float), mUdf(float) );
+    const Well::D2TModel* d2t = wd->d2TModel();
+    if ( selidx_ == mTwtFldIdx )
+    {
+	timerg = zrangeflds_[selidx_]->getFInterval();
+	md2TI( timerg, dahrg, false )
+    }
+    else
+    {
+	if ( selidx_ == mMarkerFldIdx )
+	    getMarkerDepths( dahrg );
+	else if ( selidx_ == mDahFldIdx )
+	    dahrg = zrangeflds_[selidx_]->getFInterval();
+	md2TI( dahrg, timerg, true )
+    }
+
+    if ( timerg.isUdf() || dahrg.isUdf() )
+	return;
 
     for ( int idx=0; idx<zrangeflds_.size(); idx++ )
     {
 	zrangeflds_[idx]->display( idx == selidx_ );
 	zlabelflds_[idx]->display( idx == selidx_ );
     }
-    const Well::D2TModel* d2t = wd->d2TModel();
-    if ( !selidx_ || selidx_ == 2 )
-    {
-	zrangeflds_[2]->setValue( zrg_ );
-	md2TI( zrg_, true ); zrangeflds_[1]->setValue( zrg_ );
-    }
-    else 
-    { 
-	Interval<float> depthzrg = zrg_;
-	md2TI( depthzrg, false ); 
-	zrangeflds_[2]->setValue( depthzrg ); 
-    }
 
-    const double wvltlgth = (double)estwvltlengthfld_->getIntValue()/1000;
-    if ( wvltlgth >= zrg_.width() )
+    zrangeflds_[1]->setValue( timerg );
+    zrangeflds_[2]->setValue( dahrg );
+
+    const StepInterval<float> reflrg = data_.getReflRange();
+    zrg_.start = mMAX( timerg.start, reflrg.start );
+    zrg_.stop = mMIN( timerg.stop, reflrg.stop );
+    const float reflstep = reflrg.step;
+    zrg_.start = (float) mNINT32( zrg_.start / reflstep ) * reflstep;
+    zrg_.stop = (float) mNINT32( zrg_.stop / reflstep ) * reflstep;
+
+    const int reqwvltlgthms = estwvltlengthfld_->getIntValue();
+    if ( zrg_.width() < (double)mMinWvlLength/1000.f )
     {
-	uiMSG().error("the wavelet must be shorter than the computation time");
+	BufferString errmsg = "the wavelet length must be at least ";
+	errmsg += mMinWvlLength;
+	errmsg += "ms";
+	uiMSG().error( errmsg );
 	return;
     }
-    data_.estimatedwvlt_.reSize( mNINT32( wvltlgth/SI().zStep() ) );
+
+    const double reqwvltlgth = (double)reqwvltlgthms / 1000.f;
+    const double wvltlgth = zrg_.width() < reqwvltlgth ? zrg_.width()
+						       : reqwvltlgth;
+    data_.estimatedwvlt_.reSize( mNINT32( wvltlgth/data_.getTraceRange().step ) );
     wvltChanged(0);
 }
 
 
 void uiInfoDlg::computeData()
 {
-    zrg_.limitTo( data_.timeintv_ );
+    zrg_.limitTo( data_.getTraceRange() );
     if ( !server_.computeAdditionalInfo( zrg_ ) )
 	{ uiMSG().error( server_.errMSG() ); return; }
     crosscorr_->set( data_.correl_ );
@@ -705,7 +747,7 @@ void uiInfoDlg::wvltChanged( CallBacker* cb )
 	mCBCapsuleUnpack(bool,isinitwvlatactive,cb);
 	server_.setInitWvltActive( isinitwvlatactive );
     }
-    server_.computeSynthetics(); 
+    server_.updateSynthetics(); 
     computeData();
     drawData();
     redrawNeeded.trigger();

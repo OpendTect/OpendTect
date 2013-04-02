@@ -16,53 +16,452 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndutils.h"
 #include "raytrace1d.h"
 #include "synthseis.h"
+#include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
+#include "wellelasticmodelcomputer.h"
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "welltiedata.h"
-#include "welltieunitfactors.h"
 #include "welltieextractdata.h"
 #include "welltrack.h"
 
 
 namespace WellTie
 {
-static const int cDefTimeResampFac = 20;
-
 #define mErrRet(msg) { errmsg_ = msg; return false; }
-#define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
-DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk ) 
+DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     : data_(data)		    
     , seisid_(seisid)
     , linekey_(lk)
 {
-    disprg_ = data_.timeintv_;
-    dispsz_ = disprg_.nrSteps();
-
-    workrg_ = disprg_; workrg_.step /= cDefTimeResampFac;
-    worksz_ = workrg_.nrSteps()+1;
 }
 
 
-bool DataPlayer::computeAll()
+bool DataPlayer::computeSynthetics()
 {
-    mGetWD();
+    if ( !data_.wd_ )
+	mErrRet( "Cannot read well data" );
 
-    d2t_ = wd_->d2TModel(); 
-    if ( !d2t_ )
+    if ( !data_.wd_->d2TModel() )
 	mErrRet( "No depth/time model computed" );
 
+    if ( !setAIModel() )
+	mErrRet( "Could not set AI model for raytracing" );
 
-    bool success = setAIModel() && doFullSynthetics() && extractSeismics(); 
-    copyDataToLogSet();
+    if ( !doFullSynthetics() )
+	mErrRet( "Could not compute the synthetic trace" );
 
-    computeAdditionalInfo( disprg_ );
+    if ( !copyDataToLogSet() )
+	mErrRet( "Could not copy the AI model to composite logs" );
 
-    return success;
+    return true;
+}
+
+
+bool DataPlayer::extractSeismics()
+{
+    const IOObj& ioobj = *IOM().get( seisid_ );
+    IOObj* seisobj = ioobj.clone();
+    SeisIOObjInfo oinf( seisid_ );
+    if ( !seisobj || !oinf.isOK() )
+	mErrRet( "Cannot read seismic data" );
+
+    CubeSampling cs;
+    oinf.getRanges( cs );
+    const StepInterval<float> tracerg = data_.getTraceRange();
+    StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zrg.step );
+
+    Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
+	   			     true, false);
+    wtextr.setSampling( seisrg );
+    TaskRunner::execute( data_.trunner_, wtextr );
+
+    SeismicExtractor seisextr( *seisobj );
+    if ( linekey_ )
+	seisextr.setLineKey( linekey_ );
+    TypeSet<BinID> bids;  wtextr.getBIDs( bids );
+    seisextr.setBIDValues( bids );
+    seisextr.setInterval( seisrg );
+
+    if ( !TaskRunner::execute(data_.trunner_,seisextr) )
+    {
+	BufferString msg;
+	msg += "Can not extract seismic: "; 
+	msg += seisextr.errMsg(); 
+	mErrRet( msg ); 
+    }
+
+    SeisTrc rawseis = SeisTrc( seisextr.result() );
+
+    const int newsz = tracerg.nrSteps()+1;
+    data_.seistrc_ = SeisTrc( newsz );
+    data_.seistrc_.info().sampling = tracerg;
+
+    for ( int idx=0; idx<newsz; idx++ )
+    {
+	const float twt = tracerg.atIndex(idx);
+	const float outval = rawseis.getValue( twt, 0 );
+	data_.seistrc_.set( idx, outval, 0 );
+    }
+
+    return true;
+}
+
+
+bool DataPlayer::doFastSynthetics()
+{
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+						  : data_.estimatedwvlt_;
+
+    Seis::SynthGenerator gen;
+    gen.enableFourierDomain( false );
+    gen.setModel( refmodel_ );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( data_.getTraceRange() );
+
+    if ( !gen.doWork() )
+	mErrRet( gen.errMsg() )
+
+    data_.synthtrc_ = *new SeisTrc( gen.result() );
+
+    return true;
+}
+
+
+#define mDelAndReturn(yn) { delete [] seisarr;  delete [] syntharr; return yn;}
+bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
+{
+    if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2) )
+	mErrRet( "Synthetic and seismic traces do not have same length" )
+
+    if ( !isOKSynthetic() && !isOKSeismic() )
+	mErrRet( "Seismic/Synthetic data too short" )
+
+    const int istartseis = data_.seistrc_.nearestSample( zrg.start );
+    const int istopseis = data_.seistrc_.nearestSample( zrg.stop );
+    const int nrsamps = istopseis - istartseis + 1;
+    if ( nrsamps < 2 )
+	mErrRet( "Cross-correlation too short" )
+
+    if ( zrg.start < data_.seistrc_.startPos() ||
+	 zrg.stop > data_.seistrc_.endPos() )
+    {
+	BufferString errmsg = "The cross-correlation window must be smaller ";
+	errmsg += "than the synthetic/seismic traces";
+	mErrRet( errmsg )
+    }
+
+    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
+    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
+    if ( !seisarr || !syntharr )
+	mErrRet( "Cannot allocate memory" )
+
+    TypeSet<float> twt;
+    int idy = 0;
+    for ( int idseis=istartseis; idseis<=istopseis; idseis++ )
+    {
+	twt += data_.synthtrc_.samplePos( idseis );
+	syntharr[idy] = data_.synthtrc_.get( idseis, 0 );
+	seisarr[idy] = data_.seistrc_.get( idseis, 0 );
+	idy++;
+    }
+
+    Data::CorrelData& cd = data_.correl_;
+    cd.vals_.erase();
+    cd.vals_.setSize( nrsamps, 0 );
+    GeoCalculator gccc;
+    cd.coeff_ = gccc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
+
+    if ( data_.isinitwvltactive_ )
+    {
+	const int totnrspikes = refmodel_.size();
+	if ( totnrspikes < nrsamps )
+	    mErrRet( "Reflectivity serie too short" )
+
+	int firstspike = 0;
+	int lastspike = 0;
+	const float starttwtseis = twt[0];
+	const float stoptwtseis = twt[twt.size()-1];
+	while ( lastspike<refmodel_.size() )
+	{
+	    const ReflectivitySpike spike = refmodel_[lastspike];
+	    const float spiketwt = spike.correctedtime_;
+	    if ( mIsEqual(spiketwt,stoptwtseis,1e-5 ) )
+		break;
+	    if ( spiketwt - starttwtseis < -1e-5 )
+		firstspike++;
+
+	    lastspike++;
+	}
+
+	if ( refmodel_[firstspike].correctedtime_ - starttwtseis < -1e-5 )
+	{
+	    errmsg_ = "The wavelet estimation window must start ";
+	    errmsg_ += "above the first spike at ";
+	    errmsg_ += refmodel_[firstspike].correctedtime_;
+	    errmsg_ += "ms";
+	    mDelAndReturn(false);
+	}
+
+	if ( refmodel_[lastspike].correctedtime_ - stoptwtseis > 1e-5 )
+	{
+	    errmsg_ = "The wavelet estimation window must stop ";
+	    errmsg_ += "before the last spike at ";
+	    errmsg_ += refmodel_[lastspike].correctedtime_;
+	    errmsg_ += "ms";
+	    mDelAndReturn(false);
+	}
+
+	if ( (lastspike-firstspike+1) != nrsamps )
+	{
+	    errmsg_ = "The wavelet estimation window must be";
+	    errmsg_ += " smaller than the reflectivity serie";
+	    mDelAndReturn(false);
+	}
+
+	mDeclareAndTryAlloc( float_complex*, refarr, float_complex[nrsamps] );
+	if ( !refarr )
+	{
+	    errmsg_ = "Cannot allocate memory for reflectivity serie";
+	    mDelAndReturn(false);
+	}
+
+	int nrspikefound = 0;
+	for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
+	{
+	    const ReflectivitySpike spike = refmodel_[idsp];
+	    const float twtspike = spike.correctedtime_;
+	    if ( !mIsEqual(twtspike,twt[nrspikefound],1e-5) )
+	    {
+		errmsg_ = "Mismatch between spike twt and seismic twt";
+		delete [] refarr;
+		mDelAndReturn(false);
+	    }
+
+	    refarr[nrspikefound] = spike.isDefined() ? spike.reflectivity_ : 0.;
+	    nrspikefound++;
+	}
+
+	mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
+	GeoCalculator gcwvltest;
+	gcwvltest.deconvolve( seisarr, refarr, wvltarrfull, nrsamps );
+
+	const int initwvltsz = data_.initwvlt_.size();
+	const float sr = data_.initwvlt_.sampleRate();
+	int outwvltsz = initwvltsz;
+	if ( !(initwvltsz%2) )
+	    outwvltsz++;
+	Array1DImpl<float> wvltarr( outwvltsz );
+	data_.estimatedwvlt_.reSize( outwvltsz );
+	for ( int idx=0; idx<outwvltsz; idx++ )
+	    wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
+
+	ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
+	       		      0.90 );
+	window.apply( &wvltarr );
+	memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
+		outwvltsz*sizeof(float) );
+	data_.estimatedwvlt_.setSampleRate( sr );
+	data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
+	delete [] wvltarrfull; delete [] refarr;
+    }
+    mDelAndReturn(true)
+}
+
+
+bool DataPlayer::isOKSynthetic() const
+{
+    return data_.synthtrc_.size();
+}
+
+
+bool DataPlayer::isOKSeismic() const
+{
+    return data_.seistrc_.size();
+}
+
+
+bool DataPlayer::hasSeisId() const
+{
+    return !seisid_.isEmpty();
+}
+
+
+bool DataPlayer::setAIModel()
+{
+    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sonic() );
+    const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
+
+    Well::Log pcvellog, pcdenlog;
+    if ( !processLog(sonlog,pcvellog,data_.sonic()) ||
+	 !processLog(denlog,pcdenlog,data_.density()) )
+	return false;
+
+    if ( data_.isSonic() )
+    {
+	GeoCalculator gc;
+	gc.son2Vel( pcvellog );
+    }
+
+    aimodel_.erase();
+    Well::ElasticModelComputer emodelcomputer( *data_.wd_ );
+    emodelcomputer.setVelLog( pcvellog );
+    emodelcomputer.setDenLog( pcdenlog );
+    emodelcomputer.setZrange( data_.getModelRange(), true );
+    emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
+    emodelcomputer.computeFromLogs();
+    aimodel_ = emodelcomputer.elasticModel();
+
+    return true;
+}
+
+
+bool DataPlayer::doFullSynthetics()
+{
+    refmodel_.erase();
+    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
+						  : data_.estimatedwvlt_;
+
+    Seis::RaySynthGenerator gen;
+    gen.addModel( aimodel_ );
+    gen.forceReflTimes( data_.getReflRange() );
+    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setOutSampling( data_.getTraceRange() );
+    IOPar par;
+    gen.usePar( par ); 
+    TaskRunner* tr = data_.trunner_;
+    if ( !TaskRunner::execute( tr, gen ) )
+	mErrRet( gen.errMsg() )
+
+    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
+    ObjectSet<const ReflectivityModel> refmodels;
+    rm.getRefs( refmodels, true );
+    if ( refmodels.isEmpty() )
+	mErrRet( "Could not retrieve the reflectivities after ray-tracing" )
+    refmodel_ = *refmodels[0];
+    data_.synthtrc_ = *rm.stackedTrc();
+
+    return true;
+}
+
+
+bool DataPlayer::copyDataToLogSet()
+{
+    if ( aimodel_.isEmpty() ) 
+	mErrRet( "No data found" )
+
+    data_.logset_.setEmpty();
+    const StepInterval<float> dahrg = data_.getDahRange();
+
+    TypeSet<float> dahlog, son, den, ai;
+    for ( int idx=0; idx<aimodel_.size(); idx++ )
+    {
+	const float twt = data_.getModelRange().atIndex(idx);
+	const float dah = data_.wd_->d2TModel()->getDah( twt );
+	if ( !dahrg.includes( dah, true ) )
+	    continue;
+
+	dahlog += dah;
+	const AILayer& layer = aimodel_[idx];
+	son += layer.vel_;
+	den += layer.den_;
+	ai += layer.getAI();
+    }
+
+    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
+    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
+    createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
+
+    TypeSet<float> dahref, refs;
+    for ( int idx=0; idx<refmodel_.size(); idx++ )
+    {
+	const ReflectivitySpike spike = refmodel_[idx];
+	if ( !spike.isDefined() )
+	    continue;
+
+	const float twt = spike.correctedtime_;
+	const float dah = data_.wd_->d2TModel()->getDah( twt );
+	if ( !dahrg.includes( dah, true ) )
+	    continue;
+
+	dahref += dah;
+	refs += spike.reflectivity_.real();
+    }
+
+    createLog( data_.reflectivity(), dahref.arr(), refs.arr(), refs.size() );
+
+    TypeSet<float> dahsynth, synth;
+    const StepInterval<float> tracerg = data_.getTraceRange();
+    for ( int idx=0; idx<=tracerg.nrSteps(); idx++ )
+    {
+	const float twt = tracerg.atIndex(idx);
+	const float dah = data_.wd_->d2TModel()->getDah( twt );
+
+	if ( !dahrg.includes( dah, true ) )
+	    continue;
+
+	dahsynth += dah;
+	if ( data_.synthtrc_.size() > idx )
+	    synth += data_.synthtrc_.get( idx, 0 );
+    }
+
+    createLog( data_.synthetic(), dahsynth.arr(), synth.arr(), synth.size() );
+
+    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sonic() );
+    const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
+    Well::Log* vellogfrommodel = data_.logset_.getLog( data_.sonic() );
+    if ( vellogfrommodel && sonlog )
+    {
+	if ( data_.isSonic() )
+	{
+	    GeoCalculator gc;
+	    gc.son2Vel( *vellogfrommodel );
+	}
+	vellogfrommodel->convertTo( sonuom );
+    }
+
+    const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
+    const UnitOfMeasure* denuom = denlog ? denlog->unitOfMeasure() : 0;
+    Well::Log* denlogfrommodel = data_.logset_.getLog( data_.density() );
+    if ( denlogfrommodel && denlog )
+    {
+	const UnitOfMeasure* denuomfrommodel =
+	   				UoMR().getInternalFor(PropertyRef::Den);
+	if ( denuomfrommodel )
+	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
+	denlogfrommodel->convertTo( denuom );
+    }
+
+    Well::Log* ailogfrommodel = data_.logset_.getLog( data_.ai() );
+    if ( ailogfrommodel && sonuom && denuom )
+    {
+	const PropertyRef::StdType& impprop = PropertyRef::Imp;
+	const UnitOfMeasure* aiuomfrommodel = UoMR().getInternalFor( impprop );
+	ailogfrommodel->setUnitMeasLabel( aiuomfrommodel->symbol() );
+	float fact = denuom->scaler().factor;
+	if ( sonuom->isImperial() )
+	    fact *= mFromFeetFactorF;
+
+	ObjectSet<const UnitOfMeasure> relevantunits;
+	UoMR().getRelevant( impprop, relevantunits );
+	const UnitOfMeasure* aiuom = 0;
+	for ( int idx=0; idx<relevantunits.size(); idx++ )
+	{
+	    const float curfactor = relevantunits[idx]->scaler().factor;
+	    const float eps = curfactor / 100.f;
+	    if ( mIsEqual(curfactor,fact,eps) )
+		aiuom = relevantunits[idx];
+	}
+
+	if ( aiuom )
+	    ailogfrommodel->convertTo( aiuom );
+    }
+
+    return true;
 }
 
 
@@ -76,16 +475,15 @@ bool DataPlayer::processLog( const Well::Log* log,
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 
     int sz = log->size();
-    for ( int idx=1; idx<sz-1; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
-	const float prvval = log->value( idx-1 );
-	const float curval = log->value( idx );
-	const float nxtval = log->value( idx+1 );
-	if ( mIsUdf(prvval) || mIsUdf(curval) || mIsUdf(nxtval) )
+	const float logval = log->value( idx );
+	if ( mIsUdf(logval) )
 	    continue;
 
-	outplog.addValue( log->dah(idx), (prvval + curval + nxtval )/3 );
+	outplog.addValue( log->dah(idx), logval );
     }
+
     sz = outplog.size();
     if ( sz <= 2 )
     {
@@ -101,181 +499,10 @@ bool DataPlayer::processLog( const Well::Log* log,
 }
 
 
-bool DataPlayer::setAIModel()
-{
-    aimodel_.erase();
-
-    const Well::Log* sonlog = wd_->logs().getLog( data_.sonic() );
-    const Well::Log* denlog = wd_->logs().getLog( data_.density() );
-
-    Well::Log pslog, pdlog;
-    if ( !processLog( sonlog, pslog, data_.sonic() ) 
-	    || !processLog( denlog, pdlog, data_.density() ) )
-	return false;
-
-    if ( data_.isSonic() )
-	{ GeoCalculator gc; gc.son2Vel( pslog, true ); }
-
-    const float srddepth = -1.f * data_.wd_->info().srdelev;
-
-    float prev_depth = srddepth;
-    // Now we take srd from well; we should get it from SI() if it is set there
-    float thickness = 0;
-    for ( int idx=0; idx<worksz_; idx++ )
-    {
-	const float twt = workrg_.atIndex( idx );
-	const float dah = d2t_->getDah( twt );
-	const float depth = (float) wd_->track().getPos(dah).z;
-	if ( depth <= srddepth || mIsUdf(dah) || mIsUdf(depth) )
-	    continue;
-	if ( !data_.dahrg_.includes(dah,true) )
-	    continue;
-	const float vel = pslog.getValue( dah, true );
-	const float den = pdlog.getValue( dah, true );
-	if ( mIsUdf(vel) || mIsUdf(den) || mIsEqual(prev_depth,depth,1e-3) )
-	    continue;
-	thickness = depth - prev_depth;
-	aimodel_ += AILayer( thickness, vel, den );
-	prev_depth = depth;
-    }
-
-    return true;
-}
-
-
-bool DataPlayer::doFullSynthetics()
-{
-    refmodel_.erase();
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-    StepInterval<float> reflrg = workrg_;
-    reflrg.start = d2t_->getTime( data_.dahrg_.start, wd_->track() );
-    reflrg.stop  = d2t_->getTime( data_.dahrg_.stop, wd_->track() );
-    if ( disprg_.start > reflrg.start )
-	reflrg.start = workrg_.start; 
-    if ( disprg_.stop < reflrg.stop )
-	reflrg.stop = workrg_.stop; 
-
-    Seis::RaySynthGenerator gen;
-    gen.addModel( aimodel_ );
-    gen.forceReflTimes( reflrg );
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.setOutSampling( disprg_ );
-    IOPar par;
-    gen.usePar( par ); 
-    TaskRunner* tr = data_.trunner_;
-    if ( !TaskRunner::execute( tr, gen ) )
-	mErrRet( gen.errMsg() )
-
-    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    data_.synthtrc_ = *rm.stackedTrc();
-    rm.getSampledRefs( reflvals_ );
-    for ( int idx=0; idx<reflvals_.size(); idx++ )
-    {
-	refmodel_ += ReflectivitySpike(); 
-	refmodel_[idx].reflectivity_ = reflvals_[idx];
-    }
-
-    return true;
-}
-
-
-bool DataPlayer::doFastSynthetics()
-{
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-    Seis::SynthGenerator gen;
-    gen.enableFourierDomain( false );
-    gen.setModel( refmodel_ );
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.setOutSampling( disprg_ );
-
-    if ( !gen.doWork() )
-	mErrRet( gen.errMsg() )
-
-    data_.synthtrc_ = *new SeisTrc( gen.result() );
-
-    return true;
-}
-
-
-bool DataPlayer::extractSeismics()
-{
-    Well::SimpleTrackSampler wtextr( wd_->track(), d2t_, true, false);
-    wtextr.setSampling( disprg_ );
-    TaskRunner::execute( data_.trunner_, wtextr );
-
-    const IOObj& ioobj = *IOM().get( seisid_ );
-    IOObj* seisobj = ioobj.clone();
-
-    SeismicExtractor seisextr( *seisobj );
-    if ( linekey_ )
-	seisextr.setLineKey( linekey_ );
-    TypeSet<BinID> bids;  wtextr.getBIDs( bids );
-    seisextr.setBIDValues( bids );
-    seisextr.setInterval( disprg_ );
-
-    const bool success = TaskRunner::execute( data_.trunner_, seisextr );
-    data_.seistrc_ = SeisTrc( seisextr.result() );
-    BufferString msg;
-    if ( !success )
-    { 
-	msg += "Can not extract seismic: "; 
-	msg += seisextr.errMsg(); 
-	mErrRet( msg ); 
-    }
-    return success;
-}
-
-
-bool DataPlayer::copyDataToLogSet()
-{
-    if ( aimodel_.isEmpty() ) 
-	mErrRet( "No data found" )
-
-    TypeSet<float> dahlog, son, den, ai, synth, refs;
-    for ( int idx=0; idx<dispsz_; idx++ )
-    {
-	const int workidx = idx*cDefTimeResampFac;
-	const float dah = d2t_->getDah( workrg_.atIndex(workidx) );
-
-	if ( !data_.dahrg_.includes( dah, true ) )
-	    continue;
-
-	dahlog += dah;
-	refs += reflvals_.validIdx(idx) ? reflvals_[idx] : mUdf(float);
-	synth += data_.synthtrc_.size() > idx ? data_.synthtrc_.get(idx,0) 
-					      : mUdf(float);
-
-	const AILayer& layer = aimodel_[workidx];
-	son += layer.vel_;
-	den += layer.den_;
-	ai += layer.getAI();
-    }
-    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() ); 
-    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() ); 
-    createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
-    createLog( data_.reflectivity(), dahlog.arr(), refs.arr(), refs.size()  );
-    createLog( data_.synthetic(), dahlog.arr(), synth.arr(), synth.size()  );
-
-    if ( data_.isSonic() )
-    {
-	Well::Log* vellog = data_.logset_.getLog( data_.sonic() );
-	if ( vellog )
-	{ 
-	    vellog->setUnitMeasLabel( UnitFactors::getStdVelLabel() );
-	    GeoCalculator gc; 
-	    gc.son2Vel( *vellog, false ); 
-	}
-    }
-    return true;
-}
-
-
 void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 {
     Well::Log* log = 0;
-    if ( data_.logset_.indexOf( nm ) < 0 ) 
+    if ( data_.logset_.indexOf( nm ) < 0 )
     {
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
@@ -284,80 +511,8 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 	log = data_.logset_.getLog( nm );
 
     log->setEmpty();
-
     for( int idx=0; idx<sz; idx ++)
 	log->addValue( dah[idx], vals[idx] );
-}
-
-
-#define mDelAndReturn(yn) { delete [] seisarr;  delete [] syntharr; return yn;}
-bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
-{
-    const float step = disprg_.step;
-    const int nrsamps = mNINT32( zrg.width()/step )+1;
-    const int istart = mNINT32( zrg.start/step );
-
-    if ( data_.seistrc_.size() < nrsamps || data_.synthtrc_.size() < nrsamps )
-	{ errmsg_ = "No valid synthetic or seismic trace"; return false; }
-
-    if ( nrsamps <= 1 )
-	{ errmsg_ = "Invalid time or depth range specified"; return false; }
-
-    Data::CorrelData& cd = data_.correl_;
-    cd.vals_.erase();
-    cd.vals_.setSize( nrsamps, 0 ); 
-
-    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
-
-    for ( int idx=0; idx<nrsamps; idx++ )
-    {
-	if ( idx+istart >= data_.synthtrc_.size() ) break;
-	syntharr[idx] = data_.synthtrc_.get( idx + istart, 0 );
-	seisarr[idx] = data_.seistrc_.get( idx + istart, 0 );
-    }
-    GeoCalculator gc;
-    cd.coeff_ = gc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
-    if ( data_.isinitwvltactive_ )
-    {
-	int wvltsz = data_.estimatedwvlt_.size();
-	wvltsz += wvltsz%2 ? 0 : 1;
-	data_.estimatedwvlt_.reSize( wvltsz );
-	if ( data_.timeintv_.nrSteps() < wvltsz )
-	{
-	    errmsg_ = "Seismic trace shorter than wavelet";
-	    mDelAndReturn(false)
-	}
-
-	const Well::Log* log = data_.logset_.getLog( data_.reflectivity() );
-	if ( !log )
-	{
-	    errmsg_ = "No reflectivity to estimate wavelet";
-	    mDelAndReturn(false);
-	}
-
-	mDeclareAndTryAlloc( float*, refarr, float[nrsamps] );
-	mDeclareAndTryAlloc( float*, wvltarr, float[nrsamps] );
-	mDeclareAndTryAlloc( float*, wvltshiftedarr, float[wvltsz] );
-
-	mGetWD()
-
-	for ( int idx=0; idx<nrsamps; idx++ )
-	    refarr[idx]= log->getValue(d2t_->getDah(zrg.atIndex(idx,step)),true);
-
-	gc.deconvolve( seisarr, refarr, wvltarr, nrsamps );
-	for ( int idx=0; idx<wvltsz; idx++ )
-	    wvltshiftedarr[idx] = wvltarr[(nrsamps-wvltsz)/2 + idx];
-
-	Array1DImpl<float> wvltvals( wvltsz );
-	memcpy( wvltvals.getData(), wvltshiftedarr, wvltsz*sizeof(float) );
-	ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
-	window.apply( &wvltvals );
-	memcpy( data_.estimatedwvlt_.samples(),
-	wvltvals.getData(), wvltsz*sizeof(float) );
-	delete [] wvltarr;      delete [] wvltshiftedarr;  delete [] refarr;
-    }
-    mDelAndReturn(true)
 }
 
 }; //namespace WellTie

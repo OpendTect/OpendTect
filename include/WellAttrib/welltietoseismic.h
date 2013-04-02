@@ -15,8 +15,10 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "ailayer.h"
+#include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
+#include "unitofmeasure.h"
 #include "welltiegeocalculator.h"
 
 class LineKey;
@@ -32,37 +34,35 @@ mExpClass(WellAttrib) DataPlayer
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 
-    bool 		computeAll();
-    bool		doFullSynthetics();
+    bool 		computeSynthetics();
+    bool		extractSeismics();
     bool		doFastSynthetics();
     bool		computeAdditionalInfo(const Interval<float>&);
+    			// log order in log set: Vp, [den], [Vs]
+    bool		computeElasticModelFromLogs(ElasticModel&,
+	    				const StepInterval<float>,bool rgistime,
+					const Well::Data&,
+					const ObjectSet<const Well::Log>&,
+					BufferString& errmsg);
+    bool		isOKSynthetic() const;
+    bool		isOKSeismic() const;
+    bool		hasSeisId() const;
 
     const char*		errMSG() const		{ return errmsg_.buf(); } 
    
 protected:
 
-    bool		extractSeismics();
     bool		setAIModel();
+    bool		doFullSynthetics();
     bool		copyDataToLogSet();
     bool		processLog(const Well::Log*,Well::Log&,const char*); 
     void		createLog(const char*nm,float* dah,float* vals,int sz);
 
-    const Well::Data*	wd_;
-    const Well::D2TModel* d2t_;
     ElasticModel 	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
-    GeoCalculator 	geocalc_;
-
     const MultiID&	seisid_;
     const LineKey*	linekey_;
-
-    StepInterval<float> disprg_;
-    StepInterval<float> workrg_;
-    StepInterval<float> timerg_;
-    int			dispsz_;
-    int			worksz_;
-    TypeSet<float>	reflvals_;
 
     BufferString	errmsg_;
 };

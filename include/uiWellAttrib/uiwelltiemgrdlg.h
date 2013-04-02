@@ -74,7 +74,10 @@ protected:
     uiLabeledComboBox*	cscorrfld_;
     uiWaveletExtraction* extractwvltdlg_;
 
-    bool		getDefaults();
+    bool		getSetup( const char* wllnm );
+    bool		getSeismicInSetup();
+    bool		getVelLogInSetup() const;
+    bool		getDenLogInSetup() const;
     bool		initSetup();
     void		saveWellTieSetup(const MultiID&,
 	    				const WellTie::Setup&) const;
@@ -91,7 +94,6 @@ protected:
     void		setLine() const;
     void		setTypeFld();
     bool		seisIDIs3D(MultiID) const;
-    bool		setupwasused_;
 };
 
 }; //namespace WellTie
