@@ -157,6 +157,8 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     setKeyboardTracking( false );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
     oldvalue_ = getFValue();
+
+    setMaxValue( mUdf(int) );
 }
 
 
