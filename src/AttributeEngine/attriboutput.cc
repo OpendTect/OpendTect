@@ -961,6 +961,21 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 }
 
 
+bool TrcSelectionOutput::getDesiredVolume( CubeSampling& cs ) const
+{
+    Interval<int> inlrg = bidvalset_.inlRange(); 
+    Interval<int> crlrg = bidvalset_.crlRange(); 
+    Interval<float> zrg =
+	Interval<float>( stdstarttime_, stdstarttime_ + stdtrcsz_ );
+    CubeSampling trcselsampling( false ); 
+    trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start); 
+    trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop); 
+    if ( !cs.includes( trcselsampling ) )   
+	cs = trcselsampling;
+    return true;
+}
+
+
 const CubeSampling Trc2DVarZStorOutput::getCS()
 {
     CubeSampling cs;

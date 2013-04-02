@@ -324,8 +324,7 @@ public:
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
-    bool			getDesiredVolume(CubeSampling&) const
-				{ return true;}
+    bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
