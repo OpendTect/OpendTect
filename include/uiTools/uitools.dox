@@ -17,8 +17,8 @@ ________________________________________________________________________
 
   The uiTools module is a collection of tools that are based on the uiBase
   module (and thus on Qt services) but that combine uiBase services without
-  accessing Qt at all. Throughout OpnedTect, Qt is not directly accessed
-  anywhere else than in uiBase, not from uiTools either.
+  accessing Qt at all. Throughout OpendTect, Qt is not directly accessed from
+  anywhere else other than uiBase, not from uiTools either.
 
   Some commonly used classes:
   <ul>
