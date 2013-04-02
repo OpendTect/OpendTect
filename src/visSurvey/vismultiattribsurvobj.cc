@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "envvars.h"
 #include "settings.h"
-
+#include "vismaterial.h"
 
 namespace visSurvey {
 
@@ -652,7 +652,14 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 
 int MultiTextureSurveyObject::usePar( const IOPar& par )
 {
-    const int res =  visBase::VisualObjectImpl::usePar( par );
+    // TODO: Replace following lines by outcommented one when OD-version>4.6
+    int matid = -1; int res = 0;
+    if ( !par.get(visBase::VisualObjectImpl::sKeyMaterialID(),matid) )
+	res = visBase::VisualObject::usePar( par );
+    else
+	res = visBase::VisualObjectImpl::usePar( par );
+    // const int res = visBase::VisualObjectImpl::usePar( par );
+
     if ( res!=1 ) return res;
 
     par.get( sKeyResolution(), resolution_ );
