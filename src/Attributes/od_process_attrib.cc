@@ -187,9 +187,15 @@ bool BatchProgram::go( std::ostream& strm )
 	    else
 	        break;
 	}
-	linename = output->find(sKey::LineKey);
+	linename = output->find( sKey::LineKey );
 	indexoutp++;
     }
+
+    PtrMan<IOPar> subselpar = pars().subselect(
+	    IOPar::compKey(sKey::Output,sKey::Subsel) );
+    if ( linename.isEmpty() && subselpar )
+	linename = subselpar->find( sKey::LineKey );
+
     BufferString errmsg;
     proc = attrengman->usePar( pars(), attribset, linename, errmsg );
     if ( !proc )
