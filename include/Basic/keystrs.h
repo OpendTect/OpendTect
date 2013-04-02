@@ -86,7 +86,7 @@ namespace sKey
     inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
-    inline FixedString SpaceString()	{ return "{ return "; }
+    inline FixedString SpaceString()	{ return " "; }
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }
@@ -100,6 +100,7 @@ namespace sKey
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
+    inline FixedString Thickness()	{ return "Thickness"; }
     inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
@@ -137,6 +138,7 @@ namespace sKey
     inline FixedString TrcDist()	{ return "Inter-trace Distance"; }
 
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
+
 };
 
 
