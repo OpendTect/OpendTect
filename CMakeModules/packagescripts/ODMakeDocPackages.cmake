@@ -9,7 +9,7 @@ IF( UNIX OR APPLE )
     download_packages()
 ENDIF()
 
-SET( DOCPACKAGES doc dgbdoc )
+SET( DOCPACKAGES doc dgbdoc classdoc )
 foreach ( PACKAGE ${DOCPACKAGES} )
     SET( PACK ${PACKAGE} )
     MESSAGE( "Preparing package ${PACK}.zip ......" )
