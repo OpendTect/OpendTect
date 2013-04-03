@@ -276,6 +276,10 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 }
 
 
+void uiGraphicsItem::setToolTip( const char* tt )
+{ qgraphicsitem_->setToolTip( tt ); }
+
+
 void uiGraphicsItemSet::setZValue( int zval )
 {
     for ( int idx=0; idx<size(); idx++ )

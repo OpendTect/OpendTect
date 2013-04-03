@@ -64,6 +64,7 @@ public:
     virtual void	setFillPattern(const FillPattern&);
 
     void		setCursor(const MouseCursor&);
+    void		setToolTip(const char*);
 
     virtual void	setScene(uiGraphicsScene*);
     void		setParent(uiGraphicsItem*);
