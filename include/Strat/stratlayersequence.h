@@ -43,6 +43,7 @@ public:
     virtual		~LayerSequence();
     LayerSequence&	operator =(const LayerSequence&);
     bool		isEmpty() const		{ return layers_.isEmpty(); }
+    void		setEmpty()		{ layers_.setEmpty(); }
 
     int			size() const		{ return layers_.size(); }
     ObjectSet<Layer>&	layers()		{ return layers_; }
