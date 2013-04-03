@@ -406,8 +406,8 @@ void uiStratSimpleLayerModelDisp::modelChanged()
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
 	const float lvldpth = lvldpths_[iseq]; \
-	int layzlvl = 0; \
 	if ( flattened_ && mIsUdf(lvldpth) ) continue; \
+	int layzlvl = 0; \
 	const Strat::LayerSequence& seq = lmp_.get().sequence( iseq ); \
 	const int nrlays = seq.size(); \
 	perseqstmt; \
@@ -432,15 +432,8 @@ void uiStratSimpleLayerModelDisp::getBounds()
     for ( int iseq=0; iseq<lmp_.get().size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = lmp_.get().sequence( iseq );
-	if ( !lvl || seq.isEmpty() )
-	    { lvldpths_ += mUdf(float); continue; }
-
-	const int posidx = seq.positionOf( *lvl );
-	float zlvl = mUdf(float);
-	if ( posidx >= seq.size() )
-	    zlvl = seq.layers()[seq.size()-1]->zBot();
-	else if ( posidx >= 0 )
-	    zlvl = seq.layers()[posidx]->zTop();
+	const int idxof = lvl ? seq.indexOf( *lvl ) : -1;
+	const float zlvl = idxof<0 ? mUdf(float) : seq.layers()[idxof]->zTop();
 	lvldpths_ += zlvl;
     }
 
@@ -507,7 +500,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     getBounds();
 
     xax_->updateDevSize(); yax_->updateDevSize();
-    if ( !showzoomed_ )
+    if ( !showzoomed_ || mIsUdf(zoomwr_.left()) )
     {
 	xax_->setBounds( Interval<float>(1,lmp_.get().size()+1) );
     	mGetDispZrg(dispzrg);

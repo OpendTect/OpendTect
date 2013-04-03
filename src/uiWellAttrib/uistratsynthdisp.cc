@@ -293,15 +293,9 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
     stratsynth_.setLevel( lvl );
 
-    const bool modelchange = dispflattened_ != dispflattened;
     dispflattened_ = dispflattened;
-    if ( modelchange )
-    {
-	doModelChange();
-	control_->zoomMgr().toStart();
-    }
-
-    levelSnapChanged(0);
+    doModelChange();
+    control_->zoomMgr().toStart();
 }
 
 
@@ -357,8 +351,10 @@ void uiStratSynthDisp::drawLevel()
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
 	{
-	    const float tval = imdl < tbuf.size() ? tbuf.get(imdl)->info().pick
-						  : mUdf(float);
+	    if ( tbuf.get(imdl)->isNull() )
+		continue;
+	    const float tval =
+		dispflattened_ ? 0.0f : tbuf.get(imdl)->info().pick;
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 	    cMarkerSize, lvl->col_ );
 	    auxd->poly_ += FlatView::Point( imdl+1, tval );
