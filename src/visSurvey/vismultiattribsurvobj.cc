@@ -652,7 +652,12 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 
 int MultiTextureSurveyObject::usePar( const IOPar& par )
 {
-    const int res =  visBase::VisualObjectImpl::usePar( par );
+    int matid = -1; int res = 0;
+    if ( !par.get(visBase::VisualObjectImpl::sKeyMaterialID(),matid) )
+	res = visBase::VisualObject::usePar( par );
+    else
+	res = visBase::VisualObjectImpl::usePar( par );
+
     if ( res!=1 ) return res;
 
     par.get( sKeyResolution(), resolution_ );
