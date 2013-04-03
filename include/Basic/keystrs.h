@@ -20,7 +20,11 @@ ________________________________________________________________________
 /*!
 \brief is used for defining key strings that are 'global'.
 
-Some standard key strings are shared between otherwise unrelated modules.
+The idea is also that we get some uniformity in how we read/write things
+from/to file. Thus, if you suspect a string is rather common, try to find
+something similar here first.
+
+Also, some standard key strings are shared between otherwise unrelated modules.
 To make sure no artificial dependencies are created, such a key can be added
 to this namespace.
 
@@ -28,6 +32,7 @@ to this namespace.
 
 namespace sKey
 {
+
     inline FixedString All()		{ return "All"; }
     inline FixedString Ascii()		{ return "Ascii"; }
     inline FixedString Attribute()	{ return "Attribute"; }
@@ -77,7 +82,7 @@ namespace sKey
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
     inline FixedString Property()	{ return "Property"; }
-    inline FixedString quiet()		{ return "quiet"; }
+    inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
     inline FixedString Range()		{ return "Range"; }
     inline FixedString Sampling()	{ return "Sampling"; }
@@ -97,6 +102,7 @@ namespace sKey
     inline FixedString Target()		{ return "Target"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString Title()		{ return "Title"; }
+    inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
@@ -111,7 +117,9 @@ namespace sKey
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString Yes()		{ return "Yes"; }
+    inline FixedString ZRange()		{ return "Z range"; }
 
+    // Stats
     inline FixedString Average()	{ return "Average"; }
     inline FixedString Maximum()	{ return "Maximum"; }
     inline FixedString Median()		{ return "Median"; }
@@ -120,7 +128,7 @@ namespace sKey
     inline FixedString Sum()		{ return "Sum"; }
     inline FixedString Variance()	{ return "Variance"; }
 
-    inline FixedString BinIDSel()	{ return "BinID selection"; }
+    // (Horizontal) position selection in the survey
     inline FixedString InlRange()	{ return "In-line range"; }
     inline FixedString FirstInl()	{ return "First In-line"; }
     inline FixedString LastInl()	{ return "Last In-line"; }
@@ -131,13 +139,9 @@ namespace sKey
     inline FixedString LastCrl()	{ return "Last Cross-line"; }
     inline FixedString StepCrl()	{ return "Step Cross-line"; }
     inline FixedString StepOutCrl()	{ return "Stepout Cross-line"; }
-    inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }
-    inline FixedString TrcDist()	{ return "Inter-trace Distance"; }
-
-    inline FixedString TmpStor()	{ return "Temporary storage location"; }
 
 };
 

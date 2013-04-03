@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
+static const char* sKeyBinIDSel = "BinID selection";
 
 
 Seis::SelData::SelData()
@@ -51,7 +52,7 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 
 void Seis::SelData::removeFromPar( IOPar& iop )
 {
-    iop.removeWithKey( sKey::BinIDSel() );
+    iop.removeWithKey( sKeyBinIDSel );
     iop.set( sKey::Type(), sKey::None() );
 }
 
@@ -134,7 +135,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 {
     const char* res = iop.find( sKey::Type() );
     if ( !res )
-	res = iop.find( sKey::BinIDSel() );
+	res = iop.find( sKeyBinIDSel );
     isall_ = !res || !*res || *res == *sKey::None();
 
     iop.get( sKey::GeomID(), geomid_ );

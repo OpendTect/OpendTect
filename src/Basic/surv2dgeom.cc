@@ -29,6 +29,7 @@ static PosInfo::Survey2D* theinst = 0;
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
+static const char* sKeyTrcDist = "Inter-trace Distance";
 static bool cWriteAscii = false;
 
 
@@ -667,7 +668,7 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 
     float max, median;
     l2dd.compDistBetwTrcsStats( max, median );
-    astrm.put( sKey::TrcDist(), max, median );
+    astrm.put( sKeyTrcDist, max, median );
 
     astrm.put( sKeyStor, cWriteAscii ? sKey::Ascii() : sKey::Binary() );
     astrm.newParagraph();
@@ -908,7 +909,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     ascistream astrm( sfio.istrm() ); // read header
     while ( !atEndOfSection(astrm.next()) )
     {   
-	if ( FixedString(astrm.keyWord()) == sKey::TrcDist() )
+	if ( FixedString(astrm.keyWord()) == sKeyTrcDist )
 	{
 	    FileMultiString statsstr(astrm.value());
 	    max = statsstr.getFValue(0);

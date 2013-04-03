@@ -31,7 +31,7 @@ int main( int narg, char** argv )
     SetProgramArgs( narg, argv );
     CommandLineParser parser;
     
-    const bool quiet = parser.hasKey( sKey::quiet() );
+    const bool quiet = parser.hasKey( sKey::Quiet() );
     
     const char* createkeystr = "--create";
     const char* createstr = createkeystr+2;

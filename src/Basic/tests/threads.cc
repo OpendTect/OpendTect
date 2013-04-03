@@ -65,7 +65,7 @@ int main( int narg, char** argv )
     SetProgramArgs( narg, argv );
 
     CommandLineParser parser;
-    const bool quiet = parser.hasKey( sKey::quiet() );
+    const bool quiet = parser.hasKey( sKey::Quiet() );
 
     mRunTestWithType(od_int64);
     mRunTestWithType(od_uint64);
