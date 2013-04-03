@@ -7,44 +7,45 @@
 
 
 cmake_minimum_required (VERSION 2.6)
-PROJECT(OpendTect_Tutorial_Plugin)
+project(OpendTect_Tutorial_Plugin)
 
-SET ( OD_SUBSYSTEM "tut_plugin" )
-SET ( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
+set ( OD_SUBSYSTEM "tut_plugin" )
+set ( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
 
-LIST(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
-FIND_PACKAGE( OpendTect )
+list(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
+find_package( OpendTect )
 
-OPTION ( OD_BUILD_LOCAL "Build in local directory" ON )
+option ( OD_BUILD_LOCAL "Build in local directory" ON )
 
 #Setup the modules
-SET ( PLUGINS Tut uiTut )
+set ( PLUGINS Tut uiTut )
 OD_ADD_MODULES( plugins ${PLUGINS} )
 
-FOREACH ( plugin ${PLUGINS} )
-    LIST( APPEND RUNTIMEPATH ${OD_${plugin}_RUNTIMEPATH} )
-ENDFOREACH()
+foreach ( plugin ${PLUGINS} )
+    list( APPEND RUNTIMEPATH ${OD_${plugin}_RUNTIMEPATH} )
+endforeach()
 
-LIST ( APPEND RUNTIMEPATH ${OD_EXEC_OUTPUT_PATH} )
-LIST ( REMOVE_DUPLICATES RUNTIMEPATH )
+list ( APPEND RUNTIMEPATH ${OD_EXEC_OUTPUT_PATH} )
+list ( REMOVE_DUPLICATES RUNTIMEPATH )
 
-IF( OD_CREATE_LAUNCHERS )
-    add_custom_target( od_main ALL )
-    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
-	set_target_properties( od_main
-		PROPERTIES
-		LOCATION_${CONFIG}
-		${OD_EXEC_OUTPUT_PATH}/${CONFIG}/od_main )
+if( OD_CREATE_LAUNCHERS )
+    set ( OD_LAUNCHERS od_main od_process_attrib od_process_volume )
+    foreach ( LAUNCHER ${OD_LAUNCHERS} )
+	add_custom_target( ${LAUNCHER} ALL )
+	foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+	    set_target_properties( ${LAUNCHER}
+		    PROPERTIES
+		    LOCATION_${CONFIG}
+		    ${OD_EXEC_OUTPUT_PATH}/${CONFIG}/${LAUNCHER} )
+	endforeach()
+
+	create_target_launcher( ${LAUNCHER}
+	    RUNTIME_LIBRARY_DIRS
+	    ${RUNTIMEPATH}
+	    ENVIRONMENT
+	    DTECT_APPL=${OpendTect_DIR}
+	    WORK=${OpendTect_DIR} )
     endforeach()
-
-    create_target_launcher( od_main
-    	RUNTIME_LIBRARY_DIRS
-	${RUNTIMEPATH}
-    	ENVIRONMENT
-	DTECT_APPL=${OpendTect_DIR}
-	WORK=${OpendTect_DIR} )
-
-    MESSAGE( 	${RUNTIMEPATH} )
-ENDIF( OD_CREATE_LAUNCHERS )
+endif( OD_CREATE_LAUNCHERS )
 
 OD_WRITE_ALOFILES( ${CMAKE_CURRENT_BINARY_DIR} )
