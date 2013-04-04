@@ -307,6 +307,12 @@ void uiStratLayModEditTools::setDispLith( bool yn )
 }
 
 
+void uiStratLayModEditTools::setFlatTBSensitive( bool yn )
+{
+    flattenedtb_->setSensitive( yn );
+}
+
+
 void uiStratLayModEditTools::setShowFlattened( bool yn )
 {
     flattenedtb_->setOn( yn );

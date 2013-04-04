@@ -79,6 +79,7 @@ public:
     void	setDispZoomed(bool);
     void	setDispLith(bool);
     void	setShowFlattened(bool);
+    void	setFlatTBSensitive(bool);
 
     void	setNoDispEachFld();
 
