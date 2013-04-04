@@ -1,9 +1,9 @@
-Opendtect 4.0 release info
+Opendtect 4.4 release info
 
 Build platforms/distributions:
 
-Linux 32   : Fedora Core 3
-Linux 64   : CentOS 4.5 (CentOS is a RH-clone)
+Linux 32   : CentOS release 4.9 (Final)
+Linux 64   : CentOS release 4.8 (Final)
 Mac	   : Mac OS X 10.5.8 (Leopard, Intel)
 Windows 32 : Windows XP Professional SP3
 Windows 64 : Windows XP Professional x64 SP2
@@ -13,19 +13,18 @@ Compiler:
 
 Linux: gcc/g++ 4.1.2
 Mac: gcc/g++ 4.0.1
-Windows: Visual C++ 8.0
+Windows: Visual C++ 10.0
 
 
 OpenSource packages/versions used:
 
 Coin et al:
-Coin 3.0.0
-SoQt 1.4.2a
-simage 1.6.2a
-SIMVoleon 2.0.2a
+Coin 3.1.3
+SoQt 1.5.0
+simage 1.7.0
+SIMVoleon 2.0.2a (changeset: 993:0eb85216a1ad)
 
-Qt: 4.4.3
+Linux and Windows: Qt 4.5.3
+Mac: Qt 4.8.2
 
-FFTW: 3.2.1 (Linux, Mac), 3.2.2 (Windows)
-
-# $Id: RELEASEINFO.txt,v 1.9 2012/04/19 09:34:10 cvsraman Exp $
+# $Id: RELEASEINFO.txt 28739 2013-03-07 04:54:16Z nageswara.rao@dgbes.com $

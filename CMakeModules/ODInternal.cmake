@@ -28,6 +28,10 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/data
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo 
 	 DESTINATION .
 	 PATTERN ".svn" EXCLUDE )
+install( FILES ${CMAKE_SOURCE_DIR}/doc/ReleaseInfo/RELEASE.txt
+	 DESTINATION relinfo )
+install( FILES ${CMAKE_SOURCE_DIR}/doc/ReleaseInfo/RELEASEINFO.txt
+	 DESTINATION relinfo )
 IF( WIN32 )
     install( DIRECTORY ${CMAKE_SOURCE_DIR}/bin/win32/rsm 
 	     DESTINATION .
