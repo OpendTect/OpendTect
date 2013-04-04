@@ -117,6 +117,14 @@ uiRayTracer1D* uiRayTracerSel::current()
 }
 
 
+bool uiRayTracerSel::setCurrent( int selidx )
+{
+    if ( !grps_.validIdx(selidx) ) return false;
+    raytracerselfld_->box()->setCurrentItem( selidx );
+    return true;
+}
+
+
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
     , doreflectivity_(s.doreflectivity_)
@@ -158,7 +166,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
     usePar( par ); 
 
-    setHAlignObj( lastfld_ );
+    if ( lastfld_ ) setHAlignObj( lastfld_ );
 }
 
 
@@ -178,7 +186,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     }
 
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
-    if ( !offsets.isEmpty() )
+    if ( offsets.size()>1 )
     {
 	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
 	if ( offsetfld_ && offsetstepfld_  )
@@ -205,7 +213,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     tmpsetup.fillPar( par );
 
     StepInterval<float> offsetrg;
-    if ( offsetfld_ && offsetstepfld_  )
+    if ( offsetfld_ && offsetstepfld_ && offsetfld_->attachObj()->isDisplayed())
     {
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );

@@ -89,6 +89,7 @@ public:
 
     uiRayTracer1D*	current();
     const uiRayTracer1D* current() const;
+    bool		setCurrent(int);
     Notifier<uiRayTracerSel> offsetChanged;
 
 protected:
