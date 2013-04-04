@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <math.h>
 
-#define mLocalEps 1e-2;
+#define mLocalEps 1e-2f;
 
 namespace Well
 {
@@ -1082,8 +1082,8 @@ bool Well::LogSampler::doPrepare( int thread )
     for ( int idx=0; idx<=zrgreg.nrSteps(); idx++ )
     {
 	const float zmid = zrgreg.atIndex(idx);
-	const float ztop = zmid - zstep_/2.;
-	const float zbase = zmid + zstep_/2.;
+	const float ztop = zmid - zstep_/2.f;
+	const float zbase = zmid + zstep_/2.f;
 	Interval<float> dahwin;
 	mGetDah( dahwin.start, ztop )
 	mGetDah( dahwin.stop, zbase )
@@ -1096,7 +1096,7 @@ bool Well::LogSampler::doPrepare( int thread )
 
     data_ = new Array2DImpl<float>( mCast(int,nrIterations()+2),
 	   			    dahs.size() );
-    const int winszidx = nrIterations()+1;
+    const int winszidx = mCast(int,nrIterations())+1;
     for ( int idz=0; idz<dahs.size(); idz++ )
     {
 	data_->set( 0, idz, dahs[idz] );
