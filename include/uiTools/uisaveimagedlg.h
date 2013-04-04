@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "geometry.h"
+#include "pixmap.h"
 #include "ptrman.h"
 
 class IOPar;
@@ -104,6 +105,20 @@ protected:
     static const char*  sKeyRes()       { return "Resolution"; }
     static const char*  sKeyFileType()  { return "File type"; }
 };
+
+
+mExpClass(uiTools) uiSaveWinImageDlg : public uiSaveImageDlg
+{
+public:
+			uiSaveWinImageDlg(uiParent*);
+protected:
+    void		getSupportedFormats(const char** imgfrmt,
+	    				    const char** frmtdesc,
+					    BufferString& filter);
+    void		setFldVals(CallBacker*);
+    bool		acceptOK(CallBacker*);
+};
+
 
 #endif
 

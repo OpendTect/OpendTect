@@ -516,3 +516,57 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
 }
+
+
+uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
+    : uiSaveImageDlg(p,false)
+{
+    enableSaveButton( 0 );
+    screendpi_ = 90;
+    createGeomInpFlds( 0 );
+    useparsfld_->display( false, true );
+    dpifld_->box()->setValue( screendpi_ );
+    setFldVals( 0 );
+}
+
+
+void uiSaveWinImageDlg::setFldVals( CallBacker* )
+{
+    mDynamicCastGet(uiMainWin*,mw,parent());
+    if ( mw )
+    {
+	const int w = mw->geometry().width();
+	const int h = mw->geometry().height();
+	setSizeInPix( w, h );
+    }
+}
+
+
+void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
+					     const char** frmtdesc,
+					     BufferString& filters )
+{
+    BufferStringSet supportedformats;
+    supportedImageFormats( supportedformats );
+    int idy = 0;
+    while ( imagefrmt[idy] )
+    {
+	const int idx = supportedformats.indexOf( imagefrmt[idy] );
+	if ( idx>=0 )
+	{
+	    if ( !filters.isEmpty() ) filters += ";;";
+	    filters += frmtdesc[idy++];
+	}
+    }
+}
+
+
+bool uiSaveWinImageDlg::acceptOK( CallBacker* )
+{
+    if ( !filenameOK() ) return false;
+    mDynamicCastGet(uiMainWin*,mw,parent());
+    if ( !mw ) return false;
+    mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
+	    	   (int)sizepix_.height(),dpifld_->box()->getValue());
+    return true;
+}
