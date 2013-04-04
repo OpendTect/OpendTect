@@ -67,7 +67,11 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     uiODViewer2D* curvwr = find2DViewer( visid );
     if ( !curvwr )
+    {
 	curvwr = &addViewer2D( visid );
+	curvwr->winClosed.notify(
+		mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB) );
+    }
 
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
     curvwr->setSelSpec( as, dowva );
@@ -92,10 +96,8 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
 
-    curvwr->winClosed.notify( mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB ) );
     visServ().fillDispPars( visid, attribid,
 	    	curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
-
     curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
 }
 
