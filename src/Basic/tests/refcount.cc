@@ -1,0 +1,80 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : K. Tingdahl
+ * DATE     : July 2012
+ * FUNCTION : 
+-*/
+
+static const char* rcsID mUsedVar = "$Id: sets.cc 28998 2013-03-26 13:38:10Z kristofer.tingdahl@dgbes.com $";
+
+#include "typeset.h"
+#include "objectset.h"
+#include "refcount.h"
+#include "commandlineparser.h"
+#include "keystrs.h"
+
+#include <iostream>
+
+
+class ReferencedClass
+{ mRefCountImpl(ReferencedClass);
+public:
+    ReferencedClass(bool* delflag )
+	: deleteflag_( delflag )
+    {}
+    
+    
+    bool*		deleteflag_;
+};
+
+
+ReferencedClass::~ReferencedClass()
+{
+    *deleteflag_ = true;
+}
+
+#define mRunTest( voiddo, test, delstatus, rc ) \
+deleted = false; \
+voiddo; \
+if ( !(test) || delstatus!=deleted || (rc>=0 && rc!=refclass->nrRefs() )) \
+{ \
+std::cerr << "Test " << #voiddo << " " << #test << " FAILED\n"; \
+return 1; \
+} \
+else if ( !quiet ) \
+{ \
+std::cerr << "Test " << #voiddo << " " << #test << " - SUCCESS\n"; \
+}
+
+
+int main( int narg, char** argv )
+{
+    SetProgramArgs( narg, argv );
+
+    CommandLineParser clparser;
+    const bool quiet = clparser.hasKey( sKey::Quiet() );
+    
+    bool deleted = false;
+    ReferencedClass* refclass = new ReferencedClass( &deleted );
+    
+    mRunTest( , refclass->refIfReffed()==false, false, 0 );
+    mRunTest( refclass->ref(), true, false, 1 );
+    mRunTest( , refclass->refIfReffed()==true, false, 2 );
+    mRunTest( refclass->unRef(), true, false, 1 );
+    mRunTest( refclass->unRefNoDelete(), true, false, 0 );
+    mRunTest( refclass->ref(), true, false, 1 );
+    mRunTest( unRefAndZero( refclass ), refclass==0, true, mInvalidRefCount );
+    
+    //Test null pointers
+    mRunTest( ref(refclass), true, false, mInvalidRefCount );
+    mRunTest( unRef(refclass), true, false, mInvalidRefCount );
+
+    refclass = new ReferencedClass( &deleted );
+    RefMan<ReferencedClass> rptr = refclass;
+    mRunTest( ref(refclass), true, false, 2 );
+    mRunTest( ref(refclass), true, false, 3 );
+    mRunTest( unRef(refclass), true, false, 2 );
+    mRunTest( unRef(refclass), true, false, 1 );
+    
+    return 0;
+}
