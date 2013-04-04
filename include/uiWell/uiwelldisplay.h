@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uigroup.h"
 #include "uimainwin.h"
 #include "welldata.h"
@@ -28,6 +27,10 @@ class uiWellLogDisplay;
 class uiWellStratDisplay;
 
 namespace Well { class Data; }
+
+/*!
+\brief Well display.
+*/
 
 mExpClass(uiWell) uiWellDisplay : public uiGroup
 {
@@ -107,6 +110,10 @@ protected:
     void			applyWDChanges(CallBacker*);
 };
 
+
+/*!
+\brief Main window to display wells.
+*/
 
 mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 {
