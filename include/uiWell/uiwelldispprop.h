@@ -38,6 +38,10 @@ namespace Well
     class LogSet;
 }
 
+/*!
+\brief Well display properties.
+*/
+
 mExpClass(uiWell) uiWellDispProperties : public uiGroup
 {
 public:
@@ -78,6 +82,10 @@ protected:
 };
 
 
+/*!
+\brief Well Track display properties.
+*/
+
 mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
@@ -100,6 +108,10 @@ protected:
     uiComboBox*		nmstylefld_;
 };
 
+
+/*!
+\biref Well Markers display properties.
+*/
 
 mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
 {
@@ -134,6 +146,10 @@ protected:
     bool		is2d_;
 };
 
+
+/*!
+\brief Well Log display properties.
+*/
 
 mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
 {
