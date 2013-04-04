@@ -54,24 +54,30 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     if ( sz < 1 ) return;
     const SeisTrc* trc = first();
     BinID bid = trc->info().binid;
-    spi.inlrg.start = bid.inl; spi.inlrg.stop = bid.inl;
-    spi.crlrg.start = bid.crl; spi.crlrg.stop = bid.crl;
-    spi.zrg.start = trc->info().sampling.start;
-    spi.zrg.step = trc->info().sampling.step;
-    spi.zrg.stop = spi.zrg.start + spi.zrg.step * (trc->size() - 1);
-    if ( sz < 2 ) return;
+    const BinID pbid = bid;
+    spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
+    spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
+    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step );
 
     bool doneinl = false, donecrl = false;
-    const BinID pbid = bid;
-    for ( int idx=1; idx<sz; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	trc = get( idx ); bid = trc->info().binid;
-	spi.inlrg.include( bid.inl ); spi.crlrg.include( bid.crl );
+	spi.inlrg.include( bid.inl, false ); spi.crlrg.include( bid.crl, false);
+	if ( !trc->isNull() )
+	{
+	    StepInterval<float> zrg(trc->info().sampling.start,
+		    		    trc->info().sampling.atIndex(trc->size()-1),
+				    trc->info().sampling.step );
+	    spi.zrg.include( zrg, false );
+	}
+
 	if ( !doneinl && bid.inl != pbid.inl )
 	    { spi.inlrg.step = bid.inl - pbid.inl; doneinl = true; }
 	if ( !donecrl && bid.crl != pbid.crl )
 	    { spi.crlrg.step = bid.crl - pbid.crl; donecrl = true; }
     }
+
     if ( spi.inlrg.step < 0 ) spi.inlrg.step = -spi.inlrg.step;
     if ( spi.crlrg.step < 0 ) spi.crlrg.step = -spi.crlrg.step;
 }
