@@ -227,6 +227,40 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
 }
 
 
+void uiObjFileMan::getTimeStamp( const char* fname,
+				 BufferString& timestamp )
+{
+    timestamp = File::timeLastModified( fname );
+    FilePath fp( fname );
+    fp.setExtension( "" );          
+    const BufferString dirnm = fp.fullPath();           
+    if ( File::isDirectory(dirnm) )
+    	getTimeLastModified( dirnm, timestamp );
+}
+
+
+void uiObjFileMan::getTimeLastModified( const char* fname,
+					BufferString& timestamp )
+{
+    const FixedString ftimestamp = File::timeLastModified( fname );
+    if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
+	timestamp = ftimestamp;
+    
+    if ( !File::isDirectory(fname) ) return;
+    
+    DirList dl( fname );
+    BufferString subtimestamp;
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString subfnm( dl.fullPath(idx) );
+	getTimeLastModified( subfnm, subtimestamp );
+	
+	if ( Time::isEarlier( timestamp, subtimestamp ) )
+	    timestamp = subtimestamp;
+    }
+}
+
+
 BufferString uiObjFileMan::getFileInfo()
 {
     BufferString txt;
@@ -257,8 +291,8 @@ BufferString uiObjFileMan::getFileInfo()
 	txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
 	if ( nrfiles > 1 )
 	    { txt += "\nNumber of files: "; txt += nrfiles; }
-	const char* timestr = File::timeLastModified( fname );
-	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
+	BufferString timestr; getTimeStamp( fname, timestr );
+	if ( !timestr.isEmpty() ) { txt += "\nLast modified: ";txt += timestr; }
 	int txtsz = txt.size()-1;
 	if ( txt[ txtsz ] != '\n' ) txt += "\n";
 	conn->close();

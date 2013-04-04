@@ -58,6 +58,8 @@ protected:
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false);
+    void			getTimeStamp(const char*,BufferString&);
+    void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
     virtual double		getFileSize(const char*,int&) const;
