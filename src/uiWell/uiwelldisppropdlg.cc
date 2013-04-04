@@ -41,7 +41,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 
     Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
 
-    ts_ = new uiTabStack( this, "Well display porperties tab stack" );
+    ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
     tgs += new uiGroup( ts_->tabGroup(),"Left log properties");
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties");
