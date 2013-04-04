@@ -38,19 +38,25 @@ mStruct(WellAttrib) SynthGenParams
 {
 			SynthGenParams();
 
-    bool		isps_;
+    enum SynthType	{ PreStack, ZeroOffset, AngleStack };
+    			DeclareEnumUtils(SynthType);
+
+    SynthType		synthtype_;
     BufferString	name_;
+    BufferString	inpsynthnm_;
     IOPar		raypars_;
     BufferString	wvltnm_;
-
     
+    bool		hasOffsets() const;
+    bool		isPreStack() const 	{ return synthtype_==PreStack; }
     void		createName(BufferString&) const;
     			//!<Create name from wvlt and raypars
-    
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+
 bool operator==( const SynthGenParams& gp )
-{ return isps_==gp.isps_ && wvltnm_==gp.wvltnm_ && raypars_==gp.raypars_; }
+{ return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&
+         raypars_==gp.raypars_; }
 
 };
 
@@ -79,9 +85,11 @@ public:
     int					id_;
     virtual bool			isPS() const 		= 0;
     virtual bool			hasOffset() const 	= 0;
+    bool				isAngleStack() const;
+    virtual SynthGenParams::SynthType	synthType() const	= 0;
 
-    void				useGenParams(const SynthGenParams&);
-    void				fillGenParams(SynthGenParams&) const;
+    virtual void			useGenParams(const SynthGenParams&);
+    virtual void			fillGenParams(SynthGenParams&) const;
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
@@ -106,8 +114,11 @@ public:
 							SeisTrcBufDataPack&);
 				~PostStackSyntheticData();
 
-    bool				isPS() const 	  { return false; }
-    bool				hasOffset() const { return false; }
+    bool			isPS() const 	  { return false; }
+    bool			hasOffset() const { return false; }
+    bool			isAngleStack() const { return false; }
+    SynthGenParams::SynthType	synthType() const
+				{ return SynthGenParams::ZeroOffset; }
 
     const SeisTrc*		getTrace(int seqnr) const;
 
@@ -115,6 +126,23 @@ public:
 				{ return (SeisTrcBufDataPack&)datapack_; }
     const SeisTrcBufDataPack& 	postStackPack() const
 				{ return (SeisTrcBufDataPack&)datapack_; }
+};
+
+
+mExpClass(WellAttrib) AngleStackSyntheticData : public PostStackSyntheticData
+{
+public:
+				AngleStackSyntheticData(const SynthGenParams&,
+						SeisTrcBufDataPack&);
+				~AngleStackSyntheticData();
+    bool			isPS() const 	  { return false; }
+    bool			isAngleStack() const { return true; }
+    void			useGenParams(const SynthGenParams&);
+    void			fillGenParams(SynthGenParams&) const;
+    SynthGenParams::SynthType	synthType() const
+				{ return SynthGenParams::AngleStack; }
+protected:
+    BufferString 		inpsynthnm_;
 };
 
 
@@ -127,6 +155,8 @@ public:
     bool				isPS() const 	  { return true; }
     bool				hasOffset() const;
     const Interval<float>		offsetRange() const; 
+    SynthGenParams::SynthType		synthType() const
+					{ return SynthGenParams::PreStack; }
 
     const SeisTrc*			getTrace(int seqnr) const
     					{ return getTrace(seqnr,0); }
@@ -228,6 +258,10 @@ protected:
     SyntheticData* 		generateSD(const Strat::LayerModel&,
 	    				const SynthGenParams&,
 					TaskRunner* tr=0);
+    SyntheticData*		createAngleStack(SyntheticData* sd,
+	    					 const CubeSampling&,
+						 const SynthGenParams&,
+						 TaskRunner*);
 };
 
 #endif

@@ -322,6 +322,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
 	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
+    synthdisp_->synthsChanged.notify( mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
@@ -390,68 +391,9 @@ uiStratLayerModel::~uiStratLayerModel()
 }
 
 
-class uiStratLayModelSnapshotDlg : public uiSaveImageDlg
-{
-public:
-uiStratLayModelSnapshotDlg( uiParent* p )
-    : uiSaveImageDlg(p)
-{
-    screendpi_ = 90;
-    createGeomInpFlds( cliboardselfld_ );
-    dpifld_->box()->setValue( screendpi_ );
-    setFldVals( 0 );
-}
-
-protected:
-
-void setFldVals( CallBacker* )
-{
-    mDynamicCastGet(uiMainWin*,mw,parent());
-    if ( mw )
-    {
-	const int w = mw->geometry().width();
-	const int h = mw->geometry().height();
-	setSizeInPix( w, h );
-    }
-}
-
-
-void getSupportedFormats( const char** imagefrmt, const char** frmtdesc,
-			  BufferString& filters )
-{
-    BufferStringSet supportedformats;
-    supportedImageFormats( supportedformats );
-    int idy = 0;
-    while ( imagefrmt[idy] )
-    {
-	const int idx = supportedformats.indexOf( imagefrmt[idy] );
-	if ( idx>=0 )
-	{
-	    if ( !filters.isEmpty() ) filters += ";;";
-	    filters += frmtdesc[idy];
-	}
-	idy++;
-    }
-
-    filters_ = filters;
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    mDynamicCastGet(uiMainWin*,mw,parent());
-    if ( !mw ) return false;
-    mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-	    	   (int)sizepix_.height(),dpifld_->box()->getValue());
-    return true;
-}
-
-};
-
-
 void uiStratLayerModel::snapshotCB( CallBacker* )
 {
-    uiStratLayModelSnapshotDlg snapshotdlg( this );
+    uiSaveWinImageDlg snapshotdlg( this );
     snapshotdlg.go();
 }
 
@@ -523,11 +465,22 @@ void uiStratLayerModel::dispEachChg( CallBacker* )
 }
 
 
+bool uiStratLayerModel::canShowFlattened() const
+{
+    TypeSet<float> zlvls = moddisp_->levelDepths();
+    for ( int idx=0; idx<zlvls.size(); idx++ )
+	if ( !mIsUdf(zlvls[idx]) ) return true;
+    return false;
+}
+
+
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
-    moddisp_->setFlattened( modtools_->showFlattened() );
+    synthdisp_->setSnapLevelSensitive( canShowFlattened() );
+    modtools_->setFlatTBSensitive( canShowFlattened() );
+    moddisp_->setFlattened( canShowFlattened() && modtools_->showFlattened() );
     if ( cb )
 	levelChanged.trigger();
 }
@@ -770,6 +723,7 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
+    useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->modelChanged();
 }
 
@@ -792,12 +746,10 @@ void uiStratLayerModel::genModels( CallBacker* )
     setModelProps();
     setElasticProps();
 
-    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
-	return;
+    useSyntheticsPars( desc_.getWorkBenchParams() );
 
-    moddisp_->setZoomBox( uiWorldRect(mUdf(double),0,0,0) );
-    moddisp_->modelChanged();
     synthdisp_->modelChanged();
+    moddisp_->modelChanged();
     levelChg( 0 );
     newModels.trigger();
 
@@ -986,6 +938,12 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 
 void uiStratLayerModel::helpCB( CallBacker* )
 { uiMainWin::provideHelp( "110.2.0" ); }
+
+
+void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
+{
+    fillSyntheticsPars( desc_.getWorkBenchParams() );
+}
 
 
 void uiStratLayerModel::infoChanged( CallBacker* cb )

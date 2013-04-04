@@ -82,6 +82,7 @@ public:
     Notifier<uiStratSynthDisp>	viewChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
+    Notifier<uiStratSynthDisp>	synthsChanged;
 
     //mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
@@ -92,6 +93,8 @@ public:
     void		displaySynthetic(const SyntheticData*);
     void		cleanSynthetics();
     float		centralTrcShift() const;
+    void		setCurrentSynthetic();
+    void		setSnapLevelSensitive(bool);
 
     uiMultiFlatViewControl* control() 	{ return control_; }
 
@@ -130,7 +133,6 @@ protected:
     PtrMan<TaskRunner>	taskrunner_;
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
-    void		setCurrentSynthetic();
     void		setCurrentWavelet();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
@@ -220,12 +222,12 @@ protected:
     void			updateFieldSensitivity();
 
     uiSeisWaveletSel*		wvltfld_;
-    uiGenInput*			typefld_;
+    uiComboBox*			typefld_;
+    uiLabeledComboBox*		psselfld_;
     uiGenInput*  		namefld_;
     uiGenInput*			nmofld_;
     uiGenInput*			stretchmutelimitfld_;
     uiGenInput*			mutelenfld_;
-    uiCheckBox*			stackfld_;
     uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
@@ -235,6 +237,7 @@ protected:
     StratSynth&			stratsynth_;
 
 
+    void			getPSNames(BufferStringSet&);
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);

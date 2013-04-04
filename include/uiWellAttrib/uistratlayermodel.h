@@ -108,6 +108,7 @@ protected:
     void			seqSel(CallBacker*);
     void			modEd(CallBacker*);
     void			modDispRangeChanged(CallBacker*);
+    void			syntheticsChangedCB(CallBacker*);
     void			zoomChg(CallBacker*);
     void			wvltChg(CallBacker*);
     void			modSelChg(CallBacker*);
@@ -115,6 +116,7 @@ protected:
     void			xPlotReq(CallBacker*);
     void			helpCB(CallBacker*);
 
+    bool			canShowFlattened() const;
     void			setWinTitle();
     void			setModelProps();
     void			setElasticProps();
