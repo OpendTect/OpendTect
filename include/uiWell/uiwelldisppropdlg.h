@@ -21,8 +21,9 @@ class uiLabeledComboBox;
 
 namespace Well { class Data; class DisplayProperties; class LogSet; };
 
-
-/*! \brief Dialog for well display properties. */
+/*!
+\brief Well display properties dialog box.
+*/
 
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {
@@ -58,6 +59,10 @@ protected:
     void			welldataDelNotify(CallBacker*);
 };
 
+
+/*!
+\brief Multi Well display properties dialog box.
+*/
 
 mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {
