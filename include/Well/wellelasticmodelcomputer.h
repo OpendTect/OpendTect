@@ -26,9 +26,7 @@ class LogSet;
 class LogSampler;
 
 /*!
-\extraction of an elastic model from well data
-\Either from the time-depth model
-\Or from at least a velocity log
+\brief Extraction of an ElasticModel from Well::Data either from the time-depth model or from at least a velocity Log.
 */
 
 mExpClass(Well) ElasticModelComputer
