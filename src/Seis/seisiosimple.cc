@@ -237,12 +237,8 @@ void SeisIOSimple::startImpRead()
     if ( data_.havesd_ )
     {
 	if ( data_.isasc_ )
-	{
 	    *sd_.istrm >> data_.sd_.start >> data_.sd_.step
 		       >> data_.nrsamples_;
-	    if ( sd_.istrm->peek() == '\n' )
-		sd_.istrm->ignore( 1 );
-	}
 	else
 	{
 	    mStrmBinRead( data_.sd_.start, float );
@@ -314,8 +310,11 @@ int SeisIOSimple::nextStep()
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
     std::istream& strm = *sd_.istrm;
+    while ( isspace(strm.peek()) )
+	strm.ignore( 1 );
     if ( !strm.good() )
 	return Executor::Finished();
+
 
     BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
     const bool is2d = Seis::is2D(data_.geom_);
@@ -437,11 +436,9 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    Conv::set( val, ptr );
 	}
 	else
-	{
 	    mStrmBinRead( val, float );
-	    if ( !strm.good() )
-		return Executor::Finished();
-	}
+	if ( !strm.good() )
+	    return Executor::Finished();
 
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
