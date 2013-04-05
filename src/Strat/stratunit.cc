@@ -191,6 +191,12 @@ Strat::NodeUnitRef::~NodeUnitRef()
     for( int idx=0; idx<nrRefs(); idx++ )
 	ref( idx ).toBeDeleted.disable();
 
+    setEmpty();
+}
+
+
+void Strat::NodeUnitRef::setEmpty()
+{
     deepErase( refs_ );
 }
 

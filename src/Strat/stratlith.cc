@@ -53,7 +53,7 @@ int Strat::ContentSet::getIndexOf( const char* nm ) const
 
 const Strat::Lithology& Strat::Lithology::undef()
 {
-    static Strat::Lithology udf( -1, "<Undef>" );
+    static Strat::Lithology udf( -1, "*", true );
     udf.color() = Color::LightGrey();
     return udf;
 }

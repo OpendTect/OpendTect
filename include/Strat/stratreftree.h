@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 namespace Strat
 {
+class LevelSet;
 
 
 /*!\brief Tree of UnitRef's  */
@@ -51,6 +52,10 @@ public:
 
     static void		getStdNames(BufferStringSet&);
     static RefTree*	createStd(const char*);
+
+    void		createFromLevelSet(const LevelSet&);
+    			//!< keep contents and lithologies
+    const LeavedUnitRef* getLevelSetUnit(const char* lvlnm) const;
 
     Notifier<RefTree>	deleteNotif;
 

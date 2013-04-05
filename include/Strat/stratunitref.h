@@ -121,6 +121,7 @@ public:
 
 			NodeUnitRef(NodeUnitRef*,const char*,const char* d=0);
 			~NodeUnitRef();
+    void		setEmpty();
 
     virtual bool	isEmpty() const		{ return refs_.isEmpty(); }
     virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }

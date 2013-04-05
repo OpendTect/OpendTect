@@ -266,20 +266,69 @@ void Strat::RefTree::getStdNames( BufferStringSet& nms )
 Strat::RefTree* Strat::RefTree::createStd( const char* nm )
 {
     RefTree* ret = new RefTree;
-    const BufferString fnm( getStdFileName(nm,"Tree") );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( sd.usable() )
-	ret->read( *sd.istrm );
+    if ( nm && *nm )
+    {
+	const BufferString fnm( getStdFileName(nm,"Tree") );
+	StreamData sd( StreamProvider(fnm).makeIStream() );
+	if ( sd.usable() )
+	    ret->read( *sd.istrm );
+    }
     return ret;
+}
+
+
+void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
+{
+    setEmpty();
+    if ( ls.isEmpty() )
+	return;
+
+    NodeOnlyUnitRef* ndun = new NodeOnlyUnitRef( this, "Above",
+	    					"Layers above all markers" );
+    ndun->add( new LeavedUnitRef( ndun, ls.getLevel(0).name(),
+			BufferString("Above ",ls.getLevel(0).name()) ) );
+    add( ndun );
+
+    ndun = new NodeOnlyUnitRef( this, "Below", "Layers below a marker" );
+    for ( int idx=0; idx<ls.size(); idx++ )
+	ndun->add( new LeavedUnitRef( ndun, ls.getLevel(idx).name(),
+			BufferString("Below ",ls.getLevel(idx).name()) ) );
+    add( ndun );
+
+    UnitRefIter it( *this, UnitRefIter::LeavedNodes );
+    while ( it.next() )
+    {
+	LeavedUnitRef* lur = (LeavedUnitRef*)it.unit();
+	lur->add( new LeafUnitRef(lur) );
+    }
+}
+
+
+const Strat::LeavedUnitRef* Strat::RefTree::getLevelSetUnit(
+						const char* lvlnm ) const
+{
+    if ( isEmpty() ) return 0;
+
+    UnitRefIter it( *this, UnitRefIter::LeavedNodes );
+    const LeavedUnitRef* first = 0;
+    while ( it.next() )
+    {
+	const LeavedUnitRef* lur = (const LeavedUnitRef*)it.unit();
+	if ( !first )
+	    first = lur;
+	else if ( lur->code() == lvlnm )
+	    return lur;
+    }
+    return first;
 }
 
 
 Strat::LeavedUnitRef* Strat::RefTree::getByLevel( int lvlid ) const
 {
-    Strat::UnitRefIter it( *this, Strat::UnitRefIter::LeavedNodes );
+    UnitRefIter it( *this, UnitRefIter::LeavedNodes );
     while ( it.next() )
     {
-	Strat::LeavedUnitRef* lur = ( Strat::LeavedUnitRef*)it.unit();
+	LeavedUnitRef* lur = (LeavedUnitRef*)it.unit();
 	if ( lur && lur->levelID() == lvlid )
 	    return lur;
     }
