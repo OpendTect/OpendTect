@@ -17,18 +17,9 @@ endif
 set diffinp=$1
 
 if ( ! -d CVS ) then
-    if ( "$rev" == "" ) then
-	set dir=$diffinp:h
-	set file=$diffinp:t
-	if ( $dir == $diffinp ) set dir=.
-	echo "tkdiff $dir/.svn/text-base/${file}.svn-base ${diffinp}"
-	tkdiff $dir/.svn/text-base/${file}.svn-base ${diffinp}
-	exit 0
-    endif
-
-    echo "No support for diff with previous revision yet"
-    echo "Please use 'dvs diff' for time being"
-    exit 1
+    set arg=--diff-cmd='tkdiff'
+    svn diff $rev $arg $diffinp
+    exit 0
 else
     set reposfile=./CVS/Repository
     if ( ! -e $reposfile ) then
@@ -39,7 +30,7 @@ else
 
     set repos=`cat $reposfile`
     dvs co -p ${rev} $repos/$diffinp > /tmp/mdiff.$$
-endif
 
-tkdiff /tmp/mdiff.$$ $diffinp
-\rm /tmp/mdiff.$$
+    tkdiff /tmp/mdiff.$$ $diffinp
+    \rm /tmp/mdiff.$$
+endif
