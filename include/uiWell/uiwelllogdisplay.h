@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 
 #include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uiwelldahdisplay.h"
 #include "uidialog.h"
 #include "uiaxishandler.h"
@@ -29,8 +28,9 @@ class UnitOfMeasure;
 
 namespace Well { class Log; class Marker; }
 
-
-/*!\brief displays max 2 well logs */
+/*!
+\brief Displays maximum two Well logs.
+*/
 
 mExpClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
@@ -87,7 +87,9 @@ protected:
 };
 
 
-/*!\brief Non-modal dialog displaying max 2 well logs */
+/*!
+\brief Non-modal dialog displaying a maximum of two Well logs.
+*/
 
 mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
 {
