@@ -69,8 +69,8 @@ public:
     inline T	operator++(int);
     inline T	operator--(int);
 
-    inline T exchange(T newval);
-    /*!<Returns old value. */
+    inline T	exchange(T newval);
+    		/*!<Returns old value. */
 
     inline bool	setIfEqual(T newval, T oldval );
     /*!<Sets the val_ only if value is previously set
@@ -104,7 +104,7 @@ mClass(Basic) AtomicPointer
 public:
     inline	AtomicPointer(T* newptr = 0);
 
-    inline bool setIfEqual(T* newptr,const T* oldptr);
+    inline bool	setIfEqual(T* newptr,const T* oldptr);
     
     inline void	unRef();
     		/*!<Don't be confused, class works for non-ref-counted objects
@@ -113,9 +113,10 @@ public:
     
     inline T*	setToNull();
 		/*!<Returns the last value of the ptr. */
-    T* exchange(T* newptr);
-    //*!<\returns old value  
 
+    T*		exchange(T* newptr);
+		//*!<\returns old value
+    
     inline	operator T*();
     inline	operator const T*() const;
 
