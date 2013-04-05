@@ -13,71 +13,135 @@ ________________________________________________________________________
 -*/
 
 #include "general.h"
+#include "thread.h"
 
+/*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
+    or RefMan instead. */
 
-// We have to make 3 macros because of compiler restrictions
-// concerning the total length of macros
+template<class T>
+mClass(Basic) PtrManBase
+{
+public:
 
-#define mDefPtrMan1(Clss,PostSet, EraseFunc) \
-\
-template<class T> \
-mClass(Basic) Clss \
-{ \
-public: \
-\
-				Clss( T* p=0 ) : ptr_( 0 )	{ set(p); } \
-				~Clss()		{ erase(); } \
-    inline Clss<T>&		operator=( T* p ) \
-				{ set(p); return *this; } \
-\
-    inline T*			ptr()			{ return ptr_; } \
-    inline const T*		ptr() const		{ return ptr_; } \
-    inline			operator T*()		{ return ptr_; } \
-    inline			operator const T*() const { return ptr_; } \
-    inline T*			operator ->()		{ return ptr_; } \
-    inline const T*		operator ->() const	{ return ptr_; } \
-    inline T&			operator *()		{ return *ptr_; } \
+    inline T*			ptr() const		{ return ptr_; }
+    inline			operator T*()		{ return ptr_; }
+    inline			operator const T*() const { return ptr_; }
+    inline T*			operator ->()		{ return ptr_; }
+    inline const T*		operator ->() const	{ return ptr_; }
+    inline T&			operator *()		{ return *ptr_; }
+    inline bool			operator !() const	{ return !ptr_; }
 
-#define mDefPtrMan2(Clss,PostSet, EraseFunc) \
-    inline bool			operator !() const { return !ptr_; } \
-\
-    void			erase() \
-				{ EraseFunc; ptr_ = 0; } \
-    void			set( T* p, bool doerase=true ) \
-				{ if ( doerase ) erase(); ptr_=p; PostSet; }
+    inline void			set(T* p, bool doerase=true);
+    inline void			erase() { set( 0, true ); }
 
-#define mDefPtrMan3(Clss,PostSet, EraseFunc) \
-private: \
-\
-    T*				ptr_; \
-\
-    Clss<T>&			operator=(const T& p) const; \
-\
+protected:
+
+    typedef void		(*PtrFunc)(T*);
+    inline			PtrManBase(PtrFunc setfunc,PtrFunc deletor,T*);
+    virtual			~PtrManBase()		{ set(0,true); }
+    
+private:
+    Threads::AtomicPointer<T>	ptr_;
+
+    PtrFunc			setfunc_;
+    PtrFunc			deletefunc_;
 };
 
 
-/*!\brief a simple autopointer.
+/*!Smart pointer for normal pointers. */
+template <class T>
+mClass(Basic) PtrMan : public PtrManBase<T>
+{
+public:
+    inline		PtrMan(T* = 0);
+    PtrMan<T>&		operator=( T* p )  { set( p ); return *this; }
+    PtrMan<T>&		operator=(const PtrMan<T>&);
+			//Will give linkerror if used
+private:
+    static void		deleteFunc( T* p )    { delete p; }
+};
 
-It is assigned to a pointer, and takes over
-the responsibility for its deletion.
-For Arrays, use the ArrPtrMan class.
 
-*/
-mDefPtrMan1(PtrMan, , delete ptr_ )
-inline PtrMan<T>& operator=(const PtrMan<T>& p ); //Will give linkerror if used
-mDefPtrMan2(PtrMan, , delete ptr_ )
-mDefPtrMan3(PtrMan, , delete ptr_ )
+/*!Smart pointer for pointers allocated as arrays. */
+template <class T>
+mClass(Basic) ArrPtrMan : public PtrManBase<T>
+{
+public:
+    inline			ArrPtrMan(T* = 0);
+    ArrPtrMan<T>&		operator=( T* p )  { set( p ); return *this; }
+    inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
+				//Will give linkerror if used
+			
+private:
+    static void			deleteFunc( T* p )    { delete [] p; }
+};
 
-/*!\brief a simple autopointer for arrays.
 
-For Non-arrays, use the PtrMan class.
+/*!Smart pointer for reference counted objects. */
+template <class T>
+mClass(Basic) RefMan : public PtrManBase<T>
+{
+public:
+    inline		RefMan(const RefMan<T>&);
+    inline		RefMan(T* = 0);
+    RefMan<T>&		operator=( T* p ) { set( p ); return *this; }
+    inline RefMan<T>&	operator=(const RefMan<T>&);
 
-*/
-mDefPtrMan1(ArrPtrMan, , delete [] ptr_)
-//Will give linkerror is used
-inline ArrPtrMan<T>& operator=(const ArrPtrMan<T>& p );
-mDefPtrMan2(ArrPtrMan, , delete [] ptr_)
-mDefPtrMan3(ArrPtrMan, , delete [] ptr_)
+private:
+    static void		ref(T* p) { p->ref(); }
+    static void		unRef(T* p) { if ( p ) p->unRef(); }
+    
+};
 
+//Implementations below
+
+template <class T> inline
+PtrManBase<T>::PtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
+    : deletefunc_( deletor )
+    , setfunc_( setfunc )
+{ set(p); }
+
+
+template <class T> inline
+void PtrManBase<T>::set( T* p, bool doerase )
+{
+    if ( setfunc_ && p )
+	setfunc_(p);
+    
+    T* oldptr = ptr_.exchange(p);
+    if ( doerase ) deletefunc_(oldptr);
+}
+
+
+template <class T> inline
+PtrMan<T>::PtrMan( T* p )
+    : PtrManBase<T>( 0, deleteFunc, p )
+{}
+
+
+template <class T> inline
+ArrPtrMan<T>::ArrPtrMan( T* p )
+    : PtrManBase<T>( 0, deleteFunc, p )
+{}
+
+
+template <class T> inline
+RefMan<T>::RefMan( const RefMan<T>& p )
+    : PtrManBase<T>( ref, unRef, p.ptr() )
+{}
+
+    
+template <class T> inline
+RefMan<T>::RefMan( T* p )
+    : PtrManBase<T>( ref, unRef, p )
+{}
+
+
+template <class T> inline
+RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
+{
+    set( p.ptr() );
+    return *this;
+}
 
 #endif
