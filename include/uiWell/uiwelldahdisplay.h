@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
