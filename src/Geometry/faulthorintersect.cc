@@ -193,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    if ( !getSurfacePos(vertex,intersect) )
 			continue;
 
-		    if ( tmp.indexOf(intersect)!=-1 )
+		    if ( tmp.isPresent(intersect) )
 			continue;
 
 		    Coord3 temp = intersect - center;

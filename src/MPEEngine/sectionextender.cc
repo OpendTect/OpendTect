@@ -61,7 +61,7 @@ void SectionExtender::excludePositions( const TypeSet<EM::SubID>* exclpos )
 
 bool SectionExtender::isExcludedPos( const EM::SubID& pos ) const
 {
-    return excludedpos_ && excludedpos_->indexOf(pos)!=-1;
+    return excludedpos_ && excludedpos_->isPresent(pos);
 }
 
 

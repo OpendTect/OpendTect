@@ -302,7 +302,7 @@ void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 {
     if ( !ig ) return;
     geometrieslock_.writeLock();
-    if ( geometries_.indexOf( ig )!=-1 )
+    if ( geometries_.isPresent( ig ) )
 	pErrMsg("Adding more than once");
 
     ig->ischanged_ = true;

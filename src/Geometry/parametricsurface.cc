@@ -384,7 +384,7 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	const RowCol neighbor = step_*dirs[(idx+udefidx)%dirs.size()]+rc1;
-	if ( path && path->indexOf(neighbor)!=-1 )
+	if ( path && path->isPresent(neighbor) )
 	    continue;
 
 	if ( isKnotDefined(neighbor) )

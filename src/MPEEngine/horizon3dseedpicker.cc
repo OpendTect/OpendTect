@@ -284,7 +284,7 @@ void Horizon3DSeedPicker::processJunctions()
 	tracker_.snapPositions( curpidlisted );
 	const Coord3 snappednewpos = emobj->getPos( curpid );
 	
-	if ( snappednewpos==snappedoldpos && propagatelist_.indexOf(curpid)<0 )
+	if ( snappednewpos==snappedoldpos && !propagatelist_.isPresent(curpid) )
 	    propagatelist_ += curpid;
 
 	emobj->setPos( curpid, oldcurpos , true );

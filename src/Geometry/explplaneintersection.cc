@@ -548,7 +548,7 @@ int ExplPlaneIntersection::addPlane( const Coord3& normal,
 	return -1;
 
     int id = 0;
-    while ( planeids_.indexOf(id)!=-1 ) id++;
+    while ( planeids_.isPresent(id) ) id++;
 
     planeids_ += id;
     planenormals_ += normal;

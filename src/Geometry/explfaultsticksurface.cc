@@ -516,7 +516,7 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 		    		: bid.inl, 
 			     trialg_==ExplFaultStickSurface::Zslice ? bid.crl 
 			     	: stick[idy].z*zscale );
-	    if ( knots.indexOf(pos)==-1 )
+	    if ( !knots.isPresent(pos) )
 	    {
 		knots += pos;
 		coordlist_->set( knots.size()-1, stick[idy] );
@@ -1280,7 +1280,7 @@ void ExplFaultStickSurface::addToGeometries( IndexedGeometry* ig )
 	return;
 
     geometrieslock_.writeLock();
-    if ( geometries_.indexOf( ig )!=-1 )
+    if ( geometries_.isPresent( ig ) )
     {
 	pErrMsg("Adding more than once");
     }

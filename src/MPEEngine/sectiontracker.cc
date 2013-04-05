@@ -160,7 +160,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
 	    pid.setSubID(subids[idx]);
-	    if ( excludedpos.indexOf(subids[idx])!=-1 || 
+	    if ( excludedpos.isPresent(subids[idx]) || 
 		 emobject.unSetPos(pid,addtoundo) )
 	    {
 		subids.removeSingle(idx--);
