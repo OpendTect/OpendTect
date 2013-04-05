@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "general.h"
 #include "thread.h"
 
+
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
     or RefMan instead. */
 
@@ -41,10 +42,12 @@ protected:
     virtual			~PtrManBase()		{ set(0,true); }
     
 private:
+
     Threads::AtomicPointer<T>	ptr_;
 
     PtrFunc			setfunc_;
     PtrFunc			deletefunc_;
+
 };
 
 
@@ -53,12 +56,16 @@ template <class T>
 mClass(Basic) PtrMan : public PtrManBase<T>
 {
 public:
+
     inline		PtrMan(T* = 0);
-    PtrMan<T>&		operator=( T* p )  { set( p ); return *this; }
+    PtrMan<T>&		operator=( T* p )
+    			{ this->set( p, true ); return *this; }
     PtrMan<T>&		operator=(const PtrMan<T>&);
-			//Will give linkerror if used
+			//!< Will give linkerror if used
 private:
+
     static void		deleteFunc( T* p )    { delete p; }
+
 };
 
 
@@ -67,13 +74,17 @@ template <class T>
 mClass(Basic) ArrPtrMan : public PtrManBase<T>
 {
 public:
-    inline			ArrPtrMan(T* = 0);
-    ArrPtrMan<T>&		operator=( T* p )  { set( p ); return *this; }
-    inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
-				//Will give linkerror if used
+
+    inline		ArrPtrMan(T* = 0);
+    inline ArrPtrMan<T>& operator=( T* p )
+    			{ this->set( p, true ); return *this; }
+    inline ArrPtrMan<T>& operator=(const ArrPtrMan<T>&);
+			//!< Will give linkerror if used
 			
 private:
-    static void			deleteFunc( T* p )    { delete [] p; }
+
+    static void		deleteFunc( T* p )    { delete [] p; }
+
 };
 
 
@@ -82,24 +93,31 @@ template <class T>
 mClass(Basic) RefMan : public PtrManBase<T>
 {
 public:
+
     inline		RefMan(const RefMan<T>&);
     inline		RefMan(T* = 0);
-    RefMan<T>&		operator=( T* p ) { set( p ); return *this; }
+    inline RefMan<T>&	operator=( T* p )
+    			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
+			//!< Will give linkerror if used
 
 private:
+
     static void		ref(T* p) { p->ref(); }
     static void		unRef(T* p) { if ( p ) p->unRef(); }
     
 };
 
+
 //Implementations below
 
 template <class T> inline
-PtrManBase<T>::PtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
+PtrManBase<T>::PtrManBase( PtrFunc setfunc, PtrFunc deletor, T* p )
     : deletefunc_( deletor )
     , setfunc_( setfunc )
-{ set(p); }
+{
+    set(p);
+}
 
 
 template <class T> inline
@@ -109,7 +127,8 @@ void PtrManBase<T>::set( T* p, bool doerase )
 	setfunc_(p);
     
     T* oldptr = ptr_.exchange(p);
-    if ( doerase ) deletefunc_(oldptr);
+    if ( doerase )
+	deletefunc_( oldptr );
 }
 
 
@@ -143,5 +162,6 @@ RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
     set( p.ptr() );
     return *this;
 }
+
 
 #endif
