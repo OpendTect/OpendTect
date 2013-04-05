@@ -1,0 +1,15 @@
+#!/bin/csh -f
+
+if ( $#argv < 1 ) then
+    echo "Usage: $0 [--new] <files>"
+    exit 1
+endif
+
+set args=--allow-untracked
+
+if ( "$1" == "--new" ) then
+    set args="${args} --create"
+    shift
+endif
+
+arc diff $args $*
