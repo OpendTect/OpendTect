@@ -236,10 +236,16 @@ private:
 };
 
 
+#ifdef __win__
+# define mDeclareCounters	od_int32 oldcount = 0, newcount = 0
+#else
+# define mDeclareCounters    	od_int32 oldcount, newcount
+#endif
 
 inline void ReferenceCounter::ref()
 {
-    od_int32 oldcount, newcount;
+    mDeclareCounters;
+
     do
     {
 	oldcount = count_.get();
@@ -263,7 +269,8 @@ inline void ReferenceCounter::ref()
 
 inline bool ReferenceCounter::unRef()
 {
-    long newcount, oldcount;
+    mDeclareCounters;
+
     do
     {
 	oldcount = count_.get();
@@ -289,7 +296,8 @@ inline bool ReferenceCounter::unRef()
 
 inline bool ReferenceCounter::refIfReffed()
 {
-    od_int32 oldcount, newcount;
+    mDeclareCounters;
+
     do
     {
 	oldcount = count_.get();
@@ -315,7 +323,8 @@ inline bool ReferenceCounter::refIfReffed()
 
 inline void ReferenceCounter::unRefDontInvalidate()
 {
-    long newcount, oldcount;
+    mDeclareCounters;
+
     do
     {
 	oldcount = count_.get();
@@ -333,6 +342,8 @@ inline void ReferenceCounter::unRefDontInvalidate()
 	
     } while ( !count_.setIfEqual(newcount,oldcount) );
 }
+
+#undef mDeclareCounters
 
 
 #endif
