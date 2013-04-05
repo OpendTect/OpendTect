@@ -33,11 +33,16 @@ macro( OD_BUILD_DOCUMENTATION )
     endforeach()
 
     set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+    set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 
+    
     configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
+    OD_CURRENT_YEAR( YEAR )
+    configure_file( ${FOOTER}
+		 ${OD_DOXYGEN_PATH}/footer.html @ONLY IMMEDIATE)
 
-    OD_ADD_SOURCE_FILES( ${TEMPLATE} )
+    OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
     add_custom_target ( doc 
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
