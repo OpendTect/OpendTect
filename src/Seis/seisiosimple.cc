@@ -237,8 +237,12 @@ void SeisIOSimple::startImpRead()
     if ( data_.havesd_ )
     {
 	if ( data_.isasc_ )
+	{
 	    *sd_.istrm >> data_.sd_.start >> data_.sd_.step
 		       >> data_.nrsamples_;
+	    if ( sd_.istrm->peek() == '\n' )
+		sd_.istrm->ignore( 1 );
+	}
 	else
 	{
 	    mStrmBinRead( data_.sd_.start, float );
