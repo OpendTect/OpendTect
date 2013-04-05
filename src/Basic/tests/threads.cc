@@ -47,6 +47,7 @@ bool testAtomic( const char* valtype, bool quiet )
     mRunTest( atomic.get(), --atomic==1, 1 ); //1
     mRunTest( atomic.get(), (atomic+=2)==3, 3 ); //3
     mRunTest( atomic.get(), (atomic-=2)==1, 1 );  //1
+    mRunTest( atomic.get(), atomic.exchange(2)==1, 2 ); //2
 
     if ( !quiet )
 	std::cout << "\n";

@@ -69,6 +69,9 @@ public:
     inline T	operator++(int);
     inline T	operator--(int);
 
+    inline T exchange(T newval);
+    /*!<Returns old value. */
+
     inline bool	setIfEqual(T newval, T oldval );
     /*!<Sets the val_ only if value is previously set
      to oldval */
@@ -86,7 +89,7 @@ protected:
 #ifdef __win__
 #define mAtomicPointerType od_uint64
 #else
-#define mAtomicPointerType void*
+#define mAtomicPointerType T*
 #endif
 
     
@@ -101,7 +104,7 @@ mClass(Basic) AtomicPointer
 public:
     inline	AtomicPointer(T* newptr = 0);
 
-    inline bool	setIfOld(const T* oldptr, T* newptr);
+    inline bool setIfEqual(T* newptr,const T* oldptr);
     
     inline void	unRef();
     		/*!<Don't be confused, class works for non-ref-counted objects
@@ -110,8 +113,11 @@ public:
     
     inline T*	setToNull();
 		/*!<Returns the last value of the ptr. */
-    
+    T* exchange(T* newptr);
+    //*!<\returns old value  
+
     inline	operator T*();
+    inline	operator const T*() const;
 
     inline T*	operator+=(int);
     inline T*	operator-=(int);
@@ -512,6 +518,25 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
     return res;
 }
 
+template <class T> inline
+T Atomic<T>::exchange( T newval )
+{
+#ifdef mAtomicWithMutex
+    MutexLocker lock( *lock_ );
+    T oldval = val_;
+    val_ = newval;
+    return oldval;
+#else
+    T oldval;
+    do
+    {
+	oldval = val_;
+    } while ( !setIfEqual( newval, oldval ) );
+    return oldval;
+#endif
+}
+
+
 #define mAtomicSpecialization( type, postfix ) \
     template <> inline \
     Atomic<type>::Atomic( type val ) \
@@ -530,14 +555,14 @@ bool Atomic<type>::setIfEqual(type newval, type oldval ) \
 template <> inline \
 type Atomic<type>::operator += (type b) \
 { \
-    return InterlockedExchangeAdd##postfix( &val_, b )+b;  \
+    return InterlockedAdd##postfix( &val_, b );  \
 } \
 \
 \
 template <> inline \
 type Atomic<type>::operator -= (type b) \
 { \
-    return InterlockedExchangeAdd##postfix( &val_, -b )-b; \
+    return InterlockedAdd##postfix( &val_, -b ); \
 } \
 \
 \
@@ -563,6 +588,13 @@ type Atomic<type>::operator ++(int) \
 \
 \
 template <> inline \
+type Atomic<type>::exchange(type newval) \
+{ \
+    return InterlockedExchange##postfix( &val_, newval ); \
+} \
+\
+\
+template <> inline \
 type Atomic<type>::operator -- (int) \
 { \
     return InterlockedDecrement##postfix( &val_ )+1; \
@@ -571,8 +603,13 @@ type Atomic<type>::operator -- (int) \
 
 mAtomicSpecialization( long, )
 
+#ifdef InterlockedAdd16
+mAtomicSpecialization( short, 16 )
+#endif
+
+
 #ifdef __win64__
-    mAtomicSpecialization( long long, 64 )
+mAtomicSpecialization( long long, 64 )
 #endif
 
 #undef mAtomicSpecialization
@@ -675,6 +712,24 @@ bool Atomic<T>::setIfEqual(T newval, T oldval )
     return __sync_bool_compare_and_swap( &val_, oldval, newval );
 #endif
 }
+template <class T> inline
+T Atomic<T>::exchange( T newval )
+{
+#ifdef mAtomicWithMutex
+    MutexLocker lock( *lock_ );
+    T oldval = val_;
+    val_ = newval;
+    return oldval;
+#else
+    T oldval;
+    do
+    {
+	oldval = val_;
+    } while ( !setIfEqual( newval, oldval ) );
+
+    return oldval;
+#endif
+}
 
 #endif // not win
 
@@ -691,6 +746,8 @@ Atomic<T>::~Atomic()
 }
 
 #undef mAtomicWithMutex
+
+
 #endif
 
 
@@ -702,18 +759,25 @@ AtomicPointer<T>::AtomicPointer(T* newptr )
 
 
 template <class T> inline
-bool AtomicPointer<T>::setIfOld(const T* oldptr, T* newptr)
+bool AtomicPointer<T>::setIfEqual( T* newptr, const T* oldptr )
 {
     return ptr_.setIfEqual( (mAtomicPointerType) newptr,
-			    (mAtomicPointerType)oldptr );
+			    (mAtomicPointerType) oldptr );
 }
     
     
 template <class T> inline
+T* AtomicPointer<T>::exchange( T* newptr )
+{
+    return (T*) ptr_.exchange( (mAtomicPointerType) newptr );
+}
+
+
+template <class T> inline
 T* AtomicPointer<T>::setToNull()
 {
     T* oldptr = (T*) ptr_.get();
-    while ( oldptr && !setIfOld( oldptr, 0 ) )
+    while ( oldptr && !setIfEqual( 0, oldptr ) )
 	oldptr = (T*) ptr_.get();
     
     return oldptr;    
@@ -735,6 +799,10 @@ void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
 
 template <class T> inline
 AtomicPointer<T>::operator T*() { return (T*) ptr_.get(); }
+
+
+template <class T> inline
+AtomicPointer<T>::operator const T*() const { return (const T*) ptr_.get(); }
 
 
 template <class T> inline
