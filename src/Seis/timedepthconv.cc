@@ -627,7 +627,10 @@ bool Depth2TimeStretcher::needsVolumeOfInterest() const
 
 
 void Depth2TimeStretcher::fillPar( IOPar& par ) const
-{ stretcher_->fillPar( par ); }
+{ 
+    stretcher_->fillPar( par );
+    ZAxisTransform::fillPar( par );
+}
 
 
 bool Depth2TimeStretcher::usePar( const IOPar& par )

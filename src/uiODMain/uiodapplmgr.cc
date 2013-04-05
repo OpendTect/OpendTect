@@ -338,9 +338,11 @@ void uiODApplMgr::addTimeDepthScene()
     const int sceneid = sceneMgr().addScene( true, ztrans, snm );
     if ( sceneid!=-1 )
     {
-	const float zscale = SI().zIsTime()
-	    ? SurveyInfo::defaultXYtoZScale(SurveyInfo::Meter, SI().xyUnit())
-	    : SurveyInfo::defaultXYtoZScale(SurveyInfo::Second, SI().xyUnit());
+	const SurveyInfo::Unit scenezunit = !SI().zIsTime() ? SurveyInfo::Second
+		: (SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter); 
+				      
+	const float zscale = SurveyInfo::defaultXYtoZScale( scenezunit,
+							    SI().xyUnit() );
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	CubeSampling cs = SI().sampling( true );

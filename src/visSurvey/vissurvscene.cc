@@ -867,6 +867,43 @@ int Scene::usePar( const IOPar& par )
     if ( !par.getYN( sKeyAppAllowShading(), appallowshad_ ) )
 	par.getYN( "Allow shading", appallowshad_ ); //Old key
 
+    ZDomain::Info zdomaininfo( ZDomain::SI() ); 
+    PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
+    if ( transpar )
+    {
+	const char* nm = transpar->find( sKey::Name );
+	RefMan<ZAxisTransform> transform =
+	    ZAxisTransform::factory().create( nm );
+	if ( transform && transform->usePar( *transpar ) )
+	{
+	    setZAxisTransform( transform,0 );
+	    if ( transform->toZDomainInfo().def_.isDepth() )
+	    {
+		const SurveyInfo::Unit zunit = SI().depthsInFeet() 
+					? SurveyInfo::Feet : SurveyInfo::Meter;
+		const float zscale = SurveyInfo::defaultXYtoZScale( zunit, 
+								SI().xyUnit() );
+		setZScale( zscale );
+	    }
+	    else if ( transform->toZDomainInfo().def_.isTime() )
+	    {
+		const float zscale = SurveyInfo::defaultXYtoZScale
+					    (SurveyInfo::Second, SI().xyUnit());
+		setZScale( zscale );
+	    }
+
+	}
+    }
+    else
+    {
+	CubeSampling cs; float zscale;
+	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
+	{
+	    setCubeSampling( cs );
+	    setZScale( zscale );
+	    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info( par );
+	}
+    }
 
     int res = visBase::Scene::usePar( par );
     if ( res!=1 ) return res;
@@ -897,27 +934,6 @@ int Scene::usePar( const IOPar& par )
 
     if ( zstretch != curzstretch_ )
 	setZStretch( zstretch );
-  
-    ZDomain::Info zdomaininfo( ZDomain::SI() ); 
-    PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
-    if ( transpar )
-    {
-	const char* nm = transpar->find( sKey::Name );
-	RefMan<ZAxisTransform> transform =
-	    ZAxisTransform::factory().create( nm );
-	if ( transform && transform->usePar( *transpar ) )
-	    setZAxisTransform( transform,0 );
-    }
-    else
-    {
-	CubeSampling cs; float zscale;
-	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
-	{
-	    setCubeSampling( cs );
-	    setZScale( zscale );
-	    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info( par );
-	}
-    }
 
     res = getImageFromPar( par,sKeyTopImageID(), topimg_ );
     if ( res != 1 ) return res;
