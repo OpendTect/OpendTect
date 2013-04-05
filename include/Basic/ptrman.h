@@ -99,7 +99,6 @@ public:
     inline RefMan<T>&	operator=( T* p )
     			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
-			//!< Will give linkerror if used
 
 private:
 
@@ -159,7 +158,7 @@ RefMan<T>::RefMan( T* p )
 template <class T> inline
 RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
 {
-    set( p.ptr() );
+    this->set( p.ptr() );
     return *this;
 }
 
