@@ -65,8 +65,8 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 {
     res.setEmpty();
     
-    res.add( "Details:\n" ).add( commentfld_->text() );
-    res.add( "\nReport:\n" ).add( reporter_.getReport() );
+    res.add( "\n\nDetails:\n\n" ).add( commentfld_->text() );
+    res.add( "\n\nReport:\n\n" ).add( reporter_.getReport() );
 }
 
 

@@ -17,4 +17,9 @@ mDefModInitFn(uiBase)
     mIfNotFirstTime( return );
 
     uiCursorManager::initClass();
+
+#ifdef mUseCrashDumper
+    System::CrashDumper::getInstance().setSendAppl(
+	    				System::CrashDumper::sUiSenderAppl() );
+#endif
 }

@@ -116,7 +116,7 @@ int _postFileAndData( const char* path, const char* filename,
     QString boundary = "---------------------------193971182219750";
  
     QByteArray data(QString("--" + boundary + "\r\n").toAscii());
-    data += "Content-Disposition: form-data; name=\"crash\";"; 
+    data += "Content-Disposition: form-data; name=\"dumpfile\";"; 
     data += "filename=\"crash.dmp\"\r\n";
     data += "Content-Type: application/octet-stream\r\n\r\n";
  
@@ -126,9 +126,6 @@ int _postFileAndData( const char* path, const char* filename,
  
     data += file.readAll();
     data += "\r\n";
-    data += QString("--" + boundary + "\r\n").toAscii();
-    data += "Content-Disposition: form-data; name=\"upload\"\r\n\r\n";
-    data += "Uploader\r\n";
 
     QString postarr;
     for ( int idx=0; idx<postvars.size(); idx++ )
@@ -142,7 +139,7 @@ int _postFileAndData( const char* path, const char* filename,
     }
 
     data += QString("--" + boundary + "\r\n").toAscii();
-    data += "Content-Disposition: form-data; name=\"description\"\r\n\r\n";
+    data += "Content-Disposition: form-data; name=\"report\"\r\n\r\n";
     data += postarr; 
     data += "\r\n";
     data += QString("--" + boundary + "--\r\n").toAscii();

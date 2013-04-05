@@ -173,8 +173,7 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
     BufferString dmppath ( path.toAscii().constData() );
     BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
     FilePath dmpfp( dmppath, dmpid );
-    if ( theinst )
-	theinst->sendDump( dmpfp.fullPath() );
+    System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
 
