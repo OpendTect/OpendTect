@@ -261,7 +261,7 @@ bool Wavelet::reSample( float newsr )
 	float freq = idx * out.freqstep_;
 	if ( idx > out.halfsz_ )
 	    freq -= 2 * out.nyqfreq_;
-	const bool isabovenf = abs(freq) > inp.nyqfreq_;
+	const bool isabovenf = fabs(freq) > inp.nyqfreq_;
 	const float realval = isabovenf ? 0.f : spectrumreal.getValue( freq );
 	const float imagval = isabovenf ? 0.f : spectrumimag.getValue( freq );
 	const float_complex val( realval, imagval );
