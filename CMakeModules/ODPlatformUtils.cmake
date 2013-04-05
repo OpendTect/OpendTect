@@ -25,6 +25,7 @@ set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_S
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
 if(UNIX) #Apple an Linux
+
     if(APPLE)
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
 	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
@@ -52,6 +53,9 @@ if(UNIX) #Apple an Linux
 	#NEEDED AS LONG AS WE HAVE COIN
 	set ( CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
     else() #Linux
+	if ( NOT CMAKE_COMPILER_IS_GNUCC  ) #Most probably the intel compiler
+	    set ( CMAKE_SKIP_RPATH TRUE )
+	endif()
 
 	#Not on most platforms, but for the few that does, it's better
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
