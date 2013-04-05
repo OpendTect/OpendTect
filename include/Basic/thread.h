@@ -117,8 +117,7 @@ public:
     T*		exchange(T* newptr);
 		//*!<\returns old value
     
-    inline	operator T*();
-    inline	operator const T*() const;
+    inline	operator T*() const;
 
     inline T*	operator+=(int);
     inline T*	operator-=(int);
@@ -799,11 +798,7 @@ void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
 
 
 template <class T> inline
-AtomicPointer<T>::operator T*() { return (T*) ptr_.get(); }
-
-
-template <class T> inline
-AtomicPointer<T>::operator const T*() const { return (const T*) ptr_.get(); }
+AtomicPointer<T>::operator T*() const { return (T*) ptr_.get(); }
 
 
 template <class T> inline
