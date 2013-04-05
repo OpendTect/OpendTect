@@ -53,10 +53,6 @@ if(UNIX) #Apple an Linux
 	#NEEDED AS LONG AS WE HAVE COIN
 	set ( CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
     else() #Linux
-	if ( NOT CMAKE_COMPILER_IS_GNUCC  ) #Most probably the intel compiler
-	    set ( CMAKE_SKIP_RPATH TRUE )
-	endif()
-
 	#Not on most platforms, but for the few that does, it's better
 	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
 
@@ -67,20 +63,22 @@ if(UNIX) #Apple an Linux
 	    add_definitions("-march=pentium4")
 	endif()
 
-	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
-			 OUTPUT_VARIABLE GCC_VERSION )
+	if ( CMAKE_COMPILER_IS_GNUCC  ) 
+	    execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
+			     OUTPUT_VARIABLE GCC_VERSION )
 
-	if ( GCC_VERSION VERSION_GREATER 4.2 )
-	    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
-	endif()
+	    if ( GCC_VERSION VERSION_GREATER 4.2 )
+		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
+	    endif()
 
-	set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
+	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
 
-	if ( (CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4") OR
-             (CMAKE_C_COMPILER STREQUAL "/usr/bin/gcc4") )
-            set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
-            set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2" )
-        endif()
+	    if ( (CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4") OR
+		 (CMAKE_C_COMPILER STREQUAL "/usr/bin/gcc4") )
+		set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
+		set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2" )
+	    endif()
+	endif(CMAKE_COMPILER_IS_GNUCC)
 
     endif()
 
@@ -88,26 +86,30 @@ if(UNIX) #Apple an Linux
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
+    if ( CMAKE_COMPILER_IS_GNUCC  ) 
+	set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wshadow -Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wformat -Wmissing-field-initializers ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wreturn-type -Winit-self -Wno-char-subscripts ${CMAKE_CXX_FLAGS}" )
 
-    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wshadow -Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wformat -Wmissing-field-initializers ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wreturn-type -Winit-self -Wno-char-subscripts ${CMAKE_CXX_FLAGS}" )
-
-    #use below and you'll be flooded with warnings:
-    #set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align -Wconversion ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align ${CMAKE_CXX_FLAGS}" )
+	#use below and you'll be flooded with warnings:
+	#set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align -Wconversion ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align ${CMAKE_CXX_FLAGS}" )
 
 
-    set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline ${CMAKE_CXX_FLAGS_RELEASE}" )
+	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline ${CMAKE_CXX_FLAGS_RELEASE}" )
 
-    set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
-    set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
+	set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
+	set ( CMAKE_C_FLAGS "-Wimplicit-function-declaration -Wpointer-sign -Wstrict-prototypes ${CMAKE_C_FLAGS}" )
 
-    set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
-    set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
+	set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
+	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
+
+    else()
+	set ( CMAKE_SKIP_RPATH TRUE )
+    endif( CMAKE_COMPILER_IS_GNUCC )
 
 endif(UNIX)
 
