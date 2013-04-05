@@ -32,8 +32,6 @@ class uiPolygonItem;
 class uiGraphicsScene;
 class UnitOfMeasure;
 
-
-
 #define mDefZPos(zpos)\
 if ( zdata_.zistime_ && zdata_.d2T() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
@@ -45,6 +43,10 @@ else if ( !zdata_.zistime_ && track() )\
     mDefZPos(zpos)\
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
+
+/*!
+\brief Well depth/distance along hole display.
+*/
 
 mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 {
