@@ -7,8 +7,8 @@
 #OpenDtect libraries
 SET( LIBLIST Algo AttributeEngine Attributes Basic Batch Database EarthModel General
 	     Geometry MMProc MPEEngine Network NLA Seis Strat Velocity VolumeProcessing
-	     PreStackProcessing EMAttrib SoOD Well WellAttrib uiAttributes uiBase uiCoin
-	     uiEarthModel uiEMAttrib uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
+	     PreStackProcessing EMAttrib ExpAttribs SoOD Well WellAttrib uiAttributes uiBase uiCoin
+	     uiEarthModel uiEMAttrib uiExpAttribs uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
 	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver )
 
