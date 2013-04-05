@@ -359,8 +359,7 @@ public:
     virtual void	reGenerate(AuxData&)		{}
     virtual void	remove(const AuxData&)		{}
     
-    const StepInterval<double> getDataPackRange( bool forx1 ) const;
-
+    StepInterval<double> getDataPackRange(bool forx1) const;
     virtual Interval<float> getDataRange(bool wva) const;
 
     virtual AuxData*		createAuxData(const char* nm) const	= 0;

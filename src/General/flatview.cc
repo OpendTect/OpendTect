@@ -613,7 +613,7 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 }
 
 
-const StepInterval<double> FlatView::Viewer::getDataPackRange(bool forx1) const
+StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = isVisible(true);
     const FlatDataPack* dp = pack(wva) ? pack(wva) : pack(!wva); 
