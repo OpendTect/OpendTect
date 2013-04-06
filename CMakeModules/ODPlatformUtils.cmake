@@ -27,6 +27,7 @@ set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYM
 if(UNIX) #Apple an Linux
 
     if(APPLE)
+	set ( OD_GCC_COMPILER 1 )
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
 	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
@@ -64,6 +65,7 @@ if(UNIX) #Apple an Linux
 	endif()
 
 	if ( CMAKE_COMPILER_IS_GNUCC  ) 
+	    set ( OD_GCC_COMPILER 1 )
 	    execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
 			     OUTPUT_VARIABLE GCC_VERSION )
 
@@ -82,11 +84,10 @@ if(UNIX) #Apple an Linux
 
     endif()
 
-
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
-    if ( CMAKE_COMPILER_IS_GNUCC  ) 
+    if ( OD_GCC_COMPILER )
 	set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
@@ -107,9 +108,9 @@ if(UNIX) #Apple an Linux
 	set ( CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
-    else()
+    else() # Intel compiler
 	set ( CMAKE_SKIP_RPATH TRUE )
-    endif( CMAKE_COMPILER_IS_GNUCC )
+    endif( OD_GCC_COMPILER )
 
 endif(UNIX)
 
