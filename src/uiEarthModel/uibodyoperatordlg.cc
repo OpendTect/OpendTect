@@ -426,8 +426,8 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     float* data = impbd->arr_->getData();
     if ( data )
     {
-    	const int sz = impbd->arr_->info().getTotalSz();
-    	for ( int idx=0; idx<sz; idx++ )
+    	const od_int64 sz = impbd->arr_->info().getTotalSz();
+    	for ( od_int64 idx=0; idx<sz; idx++ )
     	    data[idx] = -data[idx];
     }
     else
