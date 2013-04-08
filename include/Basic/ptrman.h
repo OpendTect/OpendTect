@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "errh.h"
 #include "thread.h"
 
-#define mImpPtrManPointerAccess( constvar ) \
-    inline constvar T*		ptr() const		{ return this->ptr_; } \
-    inline			operator constvar T*() const	{ return this->ptr_; } \
-    inline constvar T*		operator ->() const	{ return this->ptr_; } \
-    inline constvar T&		operator *() const	{ return *this->ptr_; }
+#define mImpPtrManPointerAccess( type ) \
+    inline type*		ptr() const		{ return this->ptr_; } \
+    inline			operator type*() const	{ return this->ptr_; } \
+    inline type*		operator ->() const	{ return this->ptr_; } \
+    inline type&		operator *() const	{ return *this->ptr_; }
 
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
     or RefMan instead. */
@@ -61,7 +61,7 @@ public:
     PtrMan<T>&		operator=( T* p );
     PtrMan<T>&		operator=(const PtrMan<T>&);
 			//!< Will give linkerror if used
-			mImpPtrManPointerAccess( )
+			mImpPtrManPointerAccess( T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -80,7 +80,7 @@ public:
     ConstPtrMan<T>&	operator=(const T* p);
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
 			//!< Will give linkerror if used
-			mImpPtrManPointerAccess( const )
+			mImpPtrManPointerAccess( const T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -99,7 +99,7 @@ public:
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//Will give linkerror if used
 			
-				mImpPtrManPointerAccess( )
+				mImpPtrManPointerAccess( T )
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
@@ -118,7 +118,7 @@ public:
     ConstArrPtrMan<T>&	operator=(const T* p);
     ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&);
 			//!< Will give linkerror if used
-			mImpPtrManPointerAccess( const )
+			mImpPtrManPointerAccess( const T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -136,7 +136,7 @@ public:
     inline RefMan<T>&	operator=( T* p )
     			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
-			mImpPtrManPointerAccess( )
+			mImpPtrManPointerAccess( T )
 
 private:
 
@@ -156,7 +156,7 @@ public:
     ConstRefMan<T>&		operator=(const T* p);
     inline ConstRefMan<T>&	operator=(const ConstRefMan<T>&);
 
-				mImpPtrManPointerAccess( const )
+				mImpPtrManPointerAccess( const T )
 
 private:
     static void		ref(T* p) { p->ref(); }
