@@ -29,7 +29,7 @@ AngleComputer::AngleComputer()
     iopar_.set( sKeySmoothType(), TimeAverage );
     iopar_.set( sKeyWinFunc(), HanningWindow::sName() );
     iopar_.set( sKeyWinParam(), 0.95f );
-    iopar_.set( sKeyWinLen(), 500 );
+    iopar_.set( sKeyWinLen(), 125 );
 }
 
 
