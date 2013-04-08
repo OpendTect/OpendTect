@@ -451,7 +451,7 @@ bool DataPlayer::copyDataToLogSet()
 	const UnitOfMeasure* aiuom = 0;
 	for ( int idx=0; idx<relevantunits.size(); idx++ )
 	{
-	    const float curfactor = relevantunits[idx]->scaler().factor;
+	    const float curfactor = (float) relevantunits[idx]->scaler().factor;
 	    const float eps = curfactor / 100.f;
 	    if ( mIsEqual(curfactor,fact,eps) )
 		aiuom = relevantunits[idx];
