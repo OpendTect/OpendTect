@@ -17,15 +17,6 @@ ________________________________________________________________________
 
 typedef std::complex<float> float_complex;
 
-#ifdef __win__
-# define mSetComplexReal(compl_numb,val) compl_numb.real(val)
-# define mSetComplexImag(compl_numb,val) compl_numb.imag(val)
-#else
-# define mSetComplexReal(compl_numb,val) compl_numb.real() = val
-# define mSetComplexImag(compl_numb,val) compl_numb.imag() = val
-#endif
-
-
 namespace Values
 {
 
@@ -41,8 +32,8 @@ public:
     static bool			hasUdf() 		{ return true; }
     static float_complex	val()
 				{
-				    return float_complex( (float)__mUndefValue,
-					    		  (float)__mUndefValue);
+				    return float_complex( __mUndefFValue,
+					    		  __mUndefFValue);
 				}
     static bool			isUdf( float_complex f )
 				{
@@ -53,12 +44,8 @@ public:
 				}
     static void			setUdf( float_complex& f )
 				{
-#ifdef __msvc__
-				    f.real( (float)__mUndefValue );
-				    f.imag( (float)__mUndefValue );
-#else
-				    f.real() = f.imag() = (float)__mUndefValue;
-#endif
+				    f = float_complex(__mUndefFValue,
+					    	      __mUndefFValue );
 				}
 
 };

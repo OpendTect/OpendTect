@@ -1018,8 +1018,7 @@ bool FFTCC1D::doFinish()
 		idx1 = 0;
  		do 
  		{
-		    mSetComplexReal(data_[kidx],rtmp_[idx1]);
-		    mSetComplexImag(data_[kidx],itmp_[idx1]);
+		    data_[kidx] = float_complex(rtmp_[idx1],itmp_[idx1]);
  		    idx1++;
  		    kidx -= sample_;		    
  		} while ( kidx != tidx );
