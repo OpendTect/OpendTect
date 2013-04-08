@@ -139,7 +139,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , zinft_(SI().depthsInFeetByDefault())
 {
     border_.setTop( border_.top() + 25 );
-    setPrefWidth( 200 );
+    setPrefWidth( 180 );
     setPrefHeight( 500 );
     reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
     reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
