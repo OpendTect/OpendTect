@@ -663,7 +663,7 @@ bool FaultTraceExtractor::doPrepare( int nrthreads )
 bool FaultTraceExtractor::doWork( od_int64 start, od_int64 stop,
 				  int nrthreads )
 {
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	if ( !extractFaultTrace(idx) )
 	    return false;
