@@ -171,7 +171,7 @@ PtrManBase<T>::PtrManBase( PtrFunc setfunc, PtrFunc deletor, T* p )
     : deletefunc_( deletor )
     , setfunc_( setfunc )
 {
-    set(p);
+    this->set(p);
 }
 
 
@@ -204,7 +204,7 @@ PtrMan<T>::PtrMan( T* p )
 template <class T> inline
 PtrMan<T>& PtrMan<T>::operator=( T* p )
 {
-    set( p );
+    this->set( p );
     return *this;
 }
 
@@ -226,7 +226,7 @@ ConstPtrMan<T>::ConstPtrMan( const T* p )
 template <class T> inline
 ConstPtrMan<T>& ConstPtrMan<T>::operator=( const T* p )
 {
-    set( const_cast<T*>( p ) );
+    this->set( const_cast<T*>( p ) );
     return *this;
 }
 
@@ -248,7 +248,7 @@ ArrPtrMan<T>::ArrPtrMan( T* p )
 template <class T> inline
 ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
 {
-    set( p );
+    this->set( p );
     return *this;
 }
 
@@ -270,7 +270,7 @@ ConstArrPtrMan<T>::ConstArrPtrMan( const T* p )
 template <class T> inline
 ConstArrPtrMan<T>& ConstArrPtrMan<T>::operator=( const T* p )
 {
-    set( const_cast<T*>(p) );
+    this->set( const_cast<T*>(p) );
     return *this;
 }
 
@@ -310,7 +310,7 @@ ConstRefMan<T>::ConstRefMan( const T* p )
 template <class T> inline
 ConstRefMan<T>& ConstRefMan<T>::operator=( const ConstRefMan<T>& p )
 {
-    set( const_cast<T*>(p.ptr()) );
+    this->set( const_cast<T*>(p.ptr()) );
     return *this;
 }
 
@@ -318,7 +318,7 @@ ConstRefMan<T>& ConstRefMan<T>::operator=( const ConstRefMan<T>& p )
 template <class T> inline
 ConstRefMan<T>&	ConstRefMan<T>::operator=(const T* p)
 {
-    set( const_cast<T*>( p ) );
+    this->set( const_cast<T*>( p ) );
     return *this;
 }
 
