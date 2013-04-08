@@ -37,9 +37,11 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
-    , wvlt_(*new Wavelet("",-wvltsize/2))
+    , wvlt_(*new Wavelet)
     , lineidx_(-1)
+    , paramval_( mUdf(float) )
 {
+    wvlt_.setCenterSample( wvltsize/2 );
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
     
