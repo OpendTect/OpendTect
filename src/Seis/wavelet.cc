@@ -288,7 +288,7 @@ bool Wavelet::reSampleTime( float newsr )
 {
     if ( newsr < 1e-6 )
 	return false;
-    float fnewsz = (sz_-1) * dpos_ / newsr + 1 - 1e-5;
+    float fnewsz = (sz_-1) * dpos_ / newsr + 1.f - 1e-5f;
     const int newsz = mNINT32( ceil(fnewsz) );
     float* newsamps = new float [newsz];
     if ( !newsamps )
