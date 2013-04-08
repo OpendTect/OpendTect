@@ -2416,7 +2416,7 @@ void HorizonSectionTile::tesselateWireframe( char res, TypeSet<int>& ci,
 
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
-    RefMan<const Transformation> trans = section_.transformation_;
+    ConstRefMan<Transformation> trans = section_.transformation_;
     nrdefinedpos_ = 0;
     bbox_.makeEmpty();
 

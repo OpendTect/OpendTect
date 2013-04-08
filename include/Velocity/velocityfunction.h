@@ -93,7 +93,7 @@ public:
 				    BinIDValueSet&) const;
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
 
-    RefMan<const Function>	getFunction(const BinID&);
+    ConstRefMan<Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;
 
     const MultiID&		multiID() const		{ return mid_; }

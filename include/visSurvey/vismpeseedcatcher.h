@@ -92,10 +92,10 @@ protected:
     Coord3				clickedpos_;
     int					clickedobjid_;
     CubeSampling			clickedcs_;
-    RefMan<const Attrib::DataCubes>	attrdata_;
+    ConstRefMan<Attrib::DataCubes>	attrdata_;
     Attrib::SelSpec			attrsel_;
 
-    RefMan<const Attrib::Data2DHolder>	linedata_;
+    ConstRefMan<Attrib::Data2DHolder>	linedata_;
     MultiID				lineset_;
     BufferString			linename_;
     DataPack::ID			datapackid_;

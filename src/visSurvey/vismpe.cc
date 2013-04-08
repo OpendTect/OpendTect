@@ -921,7 +921,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
     channels_->setNrVersions( attrib, 1 );
     
-    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
+    ConstRefMan<Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
 	engine_.getAttribCache( as_ )->get3DData() : 0;
     if ( !attrdata )
 	return false;

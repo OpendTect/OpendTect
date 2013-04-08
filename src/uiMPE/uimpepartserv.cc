@@ -742,7 +742,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
 				     const Attrib::Data2DArray* newdata )
 {
-    RefMan<const Attrib::Data2DArray> reffer = newdata;
+    ConstRefMan<Attrib::Data2DArray> reffer = newdata;
 
     if ( !newdata )
     {

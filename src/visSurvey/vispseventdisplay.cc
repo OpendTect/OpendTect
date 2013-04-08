@@ -399,7 +399,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
 	{
 	    const BinID bid = locations.getBinID( locations.getPos(lidx) );
-	    RefMan<const PreStack::EventSet> eventset
+	    ConstRefMan<PreStack::EventSet> eventset
 		    = eventman_->getEvents(bid, true );
 	    if ( !eventset )
 		return clearAll();

@@ -935,7 +935,7 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
     info = "";
     val = "undef";
     Coord3 attribpos = pos;
-    RefMan<const ZAxisTransform> datatrans = getZAxisTransform();
+    ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();
     if ( datatrans ) //TODO check for allready transformed data.
     {
 	attribpos.z = datatrans->transformBack( pos );

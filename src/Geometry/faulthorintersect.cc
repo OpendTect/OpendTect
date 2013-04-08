@@ -81,7 +81,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     const float zscale = SI().zScale();
     const StepInterval<int>& surfrrg = surf_.rowRange();
     const StepInterval<int>& surfcrg = surf_.colRange();
-    RefMan<const Coord3List> coordlist = shape_.coordList();
+    ConstRefMan<Coord3List> coordlist = shape_.coordList();
 
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {	

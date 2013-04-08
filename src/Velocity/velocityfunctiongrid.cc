@@ -55,7 +55,7 @@ bool GriddedFunction::fetchSources()
     if ( gvs.sourcepos_.valid(bid_) )
     {
 	int funcsource;
-	RefMan<const Function> velfunc = getInputFunction( bid_, funcsource );
+	ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
 	if  ( velfunc )
 	{
 	    velfunc->ref();
@@ -78,7 +78,7 @@ bool GriddedFunction::fetchSources()
 	    const BinID curbid = binids[gridinput[idx]];
 
 	    int funcsource;
-	    RefMan<const Function> velfunc = getInputFunction(curbid,funcsource);
+	    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
 	    if ( !velfunc )
 	    {
 		pErrMsg("Error");
@@ -145,13 +145,13 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 }
 
 
-RefMan<const Function>
+ConstRefMan<Function>
 GriddedFunction::getInputFunction( const BinID& bid, int& funcsource ) 
 { 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    RefMan<const Function> velfunc = 0;
+    ConstRefMan<Function> velfunc = 0;
     for ( funcsource=0; funcsource<velfuncsources.size();
 	  funcsource++ )
     {

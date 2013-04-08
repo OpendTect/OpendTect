@@ -666,7 +666,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 
     for ( int idx=nrHorizons()-1; idx>=0; idx-- )
     {
-	RefMan<const EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
+	ConstRefMan<EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
 	if ( !hor ) continue;
 
 	const EM::SectionID sid = hor->sectionID( 0 );
@@ -689,7 +689,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 					BinIDValueSet& res ) const
 {
-    RefMan<const EM::Horizon3D> horizon = getHorizon( emid );
+    ConstRefMan<EM::Horizon3D> horizon = getHorizon( emid );
     if ( !horizon )
 	return false;
 
@@ -879,7 +879,7 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 	BinIDValueSet::Pos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
-	    RefMan<const EM::Horizon3D> hor = horizons_[idx];
+	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice
@@ -932,7 +932,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 	BinIDValueSet::Pos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
-	    RefMan<const EM::Horizon3D> hor = horizons_[idx];
+	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice

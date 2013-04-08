@@ -682,7 +682,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
 
     Coord3 attribpos = pos;
-    RefMan<const ZAxisTransform> datatrans = getZAxisTransform();
+    ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();
     if ( datatrans ) //TODO check for allready transformed data.
     {
 	attribpos.z = datatrans->transformBack( pos );

@@ -129,7 +129,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	    errmsg_ = "Error while calculating.";
     }
 
-    RefMan<const Attrib::DataCubes> datacubes = executor.getOutput();
+    ConstRefMan<Attrib::DataCubes> datacubes = executor.getOutput();
     if ( !datacubes->nrCubes() )
     {
 	errmsg_ = "No output produced";

@@ -117,7 +117,7 @@ mClass(Basic) ConstRefMan : public PtrManBase<T>
 public:
     inline			ConstRefMan(const ConstRefMan<T>&);
     inline			ConstRefMan(const T* = 0);
-    ConstRefMan<T>&		operator=(const T* p) { set( p ); return *this; }
+    ConstRefMan<T>&		operator=(const T* p);
     inline ConstRefMan<T>&	operator=(const ConstRefMan<T>&);
 
 				mImpPtrManPointerAccess( const )
@@ -199,6 +199,14 @@ template <class T> inline
 ConstRefMan<T>& ConstRefMan<T>::operator=( const ConstRefMan<T>& p )
 {
     set( const_cast<T*>(p.ptr()) );
+    return *this;
+}
+
+
+template <class T> inline
+ConstRefMan<T>&	ConstRefMan<T>::operator=(const T* p)
+{
+    set( const_cast<T*>( p ) );
     return *this;
 }
 

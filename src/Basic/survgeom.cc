@@ -125,7 +125,7 @@ const char* GeometryManager::getName( TraceID::GeomID geomid ) const
 
 Coord GeometryManager::toCoord( const TraceID& tid ) const
 {
-    RefMan<const Geometry> geom = getGeometry( tid.geomid_ );
+    ConstRefMan<Geometry> geom = getGeometry( tid.geomid_ );
     return geom
 	? geom->toCoord( tid.lineNr(), tid.trcNr() )
 	: Coord::udf();

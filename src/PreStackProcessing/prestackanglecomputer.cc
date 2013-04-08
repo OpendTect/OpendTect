@@ -270,7 +270,7 @@ bool VelocityBasedAngleComputer::createElasticModel(
 
 Gather* VelocityBasedAngleComputer::computeAngles()
 {
-    RefMan<const Survey::Geometry> geom =
+    ConstRefMan<Survey::Geometry> geom =
 	SI().geomManager().getGeometry( trcid_.geomid_ );
     
     if ( geom->is2D() )
@@ -283,7 +283,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( !source )
 	return 0;
 
-    RefMan<const Vel::Function> func =
+    ConstRefMan<Vel::Function> func =
 	source->getFunction( BinID(trcid_.lineNr(),trcid_.trcNr()) );
     if ( !func )
 	return 0;

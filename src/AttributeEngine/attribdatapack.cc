@@ -376,7 +376,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     , dataholderarr_( 0 )
     , array2dslice_( 0 )
 {
-    RefMan<const Data2DHolder> dataref( &dh );
+    ConstRefMan<Data2DHolder> dataref( &dh );
     mTryAlloc( dataholderarr_, Data2DArray( dh ) );
     if ( !dataholderarr_ )
 	return;

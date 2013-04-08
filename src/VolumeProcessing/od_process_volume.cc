@@ -123,7 +123,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }	
 
-    RefMan<const Attrib::DataCubes> cube = pce->getOutput();
+    ConstRefMan<Attrib::DataCubes> cube = pce->getOutput();
     PtrMan<const VelocityDesc> veldesc = chain->getVelDesc() 
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;

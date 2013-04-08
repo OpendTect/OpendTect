@@ -52,7 +52,7 @@ protected:
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
-    RefMan<const Function> getInputFunction(const BinID& bid,int& source);
+    ConstRefMan<Function> getInputFunction(const BinID& bid,int& source);
 
     ObjectSet<const Function>		velocityfunctions_;
     TypeSet<int>			sources_;

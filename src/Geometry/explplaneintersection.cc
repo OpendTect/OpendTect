@@ -235,7 +235,7 @@ bool addNewPos( const Coord3& point, int& residx )
 
 void intersectTriangle( int lci0, int lci1, int lci2 ) 
 {
-    RefMan<const Coord3List> coordlist = explsurf_.getShape()->coordList();
+    ConstRefMan<Coord3List> coordlist = explsurf_.getShape()->coordList();
     const float zscale = explsurf_.getZScale();
 
     Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;

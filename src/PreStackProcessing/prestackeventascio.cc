@@ -85,7 +85,7 @@ int EventExporter::nextStep()
     while ( currentbatch.next( pos ) )
     {
 	const BinID bid = currentbatch.getBinID( pos );
-	RefMan<const EventSet> eventset = events_.getEvents( bid, false,false );
+	ConstRefMan<EventSet> eventset = events_.getEvents( bid, false,false );
 	if ( !eventset )
 	    return ErrorOccurred();
 

@@ -206,7 +206,7 @@ int FunctionSource::findFunction( const BinID& bid ) const
 }
 
 
-RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
+ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 {
     if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
 	return 0;
@@ -231,7 +231,7 @@ RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
     
     lock.unLock();
     
-    RefMan<const Function> res = tmpfunc;
+    ConstRefMan<Function> res = tmpfunc;
     tmpfunc->unRef();
     
     return res;
