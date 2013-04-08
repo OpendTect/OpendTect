@@ -124,7 +124,7 @@ bool BatchProgram::go( std::ostream& strm )
     }	
 
     ConstRefMan<Attrib::DataCubes> cube = pce->getOutput();
-    PtrMan<const VelocityDesc> veldesc = chain->getVelDesc() 
+    ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc() 
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;
 

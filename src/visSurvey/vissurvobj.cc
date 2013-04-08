@@ -227,7 +227,7 @@ int SurveyObject::useSOPar( const IOPar& par )
     {
 	BufferString key = sKeyAttribs();
 	key += attrib;
-	PtrMan<const IOPar> attribpar = par.subselect( key );
+	ConstPtrMan<IOPar> attribpar = par.subselect( key );
 	if ( !attribpar )
 	    continue;
 

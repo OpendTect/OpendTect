@@ -287,7 +287,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     }
 
     //Keep the section in mem until everyone is notified
-    PtrMan<const Geometry::Element> removedelem = sections_[idx];
+    ConstPtrMan<Geometry::Element> removedelem = sections_[idx];
     sections_.removeSingle( idx );
     sids_.removeSingle( idx );
     sectionnames_.removeSingle( idx );
