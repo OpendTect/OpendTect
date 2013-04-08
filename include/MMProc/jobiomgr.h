@@ -79,6 +79,7 @@ public:
     void		setNiceNess( int n )		{ niceval_ = n; }
     void		reqModeForJob(const JobInfo&,Mode);
     void		removeJob(const char*,int);
+    bool		isReady() const;
 
     ObjQueue<StatusInfo>& statusQueue(); 
 

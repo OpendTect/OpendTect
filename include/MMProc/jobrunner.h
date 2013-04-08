@@ -112,8 +112,9 @@ public:
     const FilePath&		curJobFilePath()	{ return curjobfp_; }
 
     const char*			procDir() const	{ return procdir_.buf(); }
-    				// processing directory on local machine
-
+				// processing directory on local machine
+    const char*			errorMsg() const;
+    				
 protected:
 
     JobDescProv*		descprov_;
@@ -127,7 +128,7 @@ protected:
     JobInfo*			curjobinfo_;
 
     JobIOMgr&			iomgr();
-    JobIOMgr*			iomgr__;
+    JobIOMgr*			iomgr_;
 
     int				niceval_;
     int				firstport_;
@@ -140,6 +141,7 @@ protected:
     int				wrapuptimeout_;
     int				hosttimeout_; 
     int				startwaittime_;  //!< wait B4 next client start
+    BufferString		errmsg_;
 
     int				doCycle();
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;

@@ -423,7 +423,12 @@ void uiSeisMMProc::doCycle( CallBacker* )
 {
     nrcyclesdone++;
 
-    jobrunner->nextStep();
+    if ( jobrunner->nextStep() == Executor::ErrorOccurred() )
+    {
+	delete jobrunner;
+	jobrunner = 0;
+	return;
+    }
 
     pauseJobs();
     updateCurMachs();
@@ -600,6 +605,11 @@ void uiSeisMMProc::addPush( CallBacker* )
 	    BufferString msg = "Could not start job";
 	    if ( lb )
 		{ msg += " on "; msg += hnm; }
+	    if ( jobrunner->errorMsg() )
+	    {
+		msg += " : ";
+		msg += jobrunner->errorMsg();
+	    }
 	    progrfld->append( msg );
 	}
     }

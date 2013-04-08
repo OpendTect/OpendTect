@@ -71,7 +71,7 @@ int& MMJob_getTempFileNr()
 
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
-	, iomgr__(0)
+	, iomgr_(0)
 	, descprov_(p)
     	, rshcomm_("rsh")
 	, niceval_(19)
@@ -118,7 +118,7 @@ JobRunner::~JobRunner()
     deepErase( jobinfos_ );
     deepErase( hostinfo_ );
     deepErase( failedjobs_ );
-    delete iomgr__;
+    delete iomgr_;
 }
 
 
@@ -137,6 +137,14 @@ HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
 
 bool JobRunner::addHost( const HostData& hd )
 {
+    if ( !iomgr().isReady() )
+    {
+	delete iomgr_;
+	iomgr_ = 0;
+	errmsg_ = BufferString( "Failed to listen to Port ", firstport_, " on ");
+	errmsg_ += HostData::localHostName();
+	return false;
+    }
 
     HostNFailInfo* hfi = hostNFailInfoFor( &hd );
     const bool isnew = !hfi;
@@ -262,8 +270,8 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
 JobIOMgr& JobRunner::iomgr()
 {
-    if ( !iomgr__ ) iomgr__ = new JobIOMgr(firstport_, niceval_);
-    return *iomgr__;
+    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, niceval_);
+    return *iomgr_;
 }
 
 
@@ -531,7 +539,7 @@ const char* JobRunner::nrDoneMessage() const
 void JobRunner::setNiceNess( int n )
 {
     niceval_ = n;
-    if ( iomgr__ ) iomgr__->setNiceNess(n);
+    if ( iomgr_ ) iomgr_->setNiceNess(n);
 }
 
 
@@ -555,6 +563,10 @@ bool JobRunner::stopAll()
 
 int JobRunner::doCycle()
 {
+    if ( !iomgr().isReady() )
+	return ErrorOccurred();
+    
+
     updateJobInfo();
 
     if ( !haveIncomplete() )
@@ -762,3 +774,6 @@ JobInfo* JobRunner::gtJob( int descnr )
     return ret;
 }
 
+
+const char* JobRunner::errorMsg() const
+{   return errmsg_.size() ? errmsg_.buf() : 0; } 
