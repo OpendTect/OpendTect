@@ -537,6 +537,7 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
+    Threads::MutexLocker lock( mutex_ );
     if ( !lsnm || !*lsnm )
     {
 	lineindex_.setEmpty();
