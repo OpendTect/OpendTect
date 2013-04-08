@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "general.h"
+#include "errh.h"
 #include "thread.h"
 
 #define mImpPtrManPointerAccess( constvar ) \
@@ -55,10 +56,9 @@ mClass(Basic) PtrMan : public PtrManBase<T>
 {
 public:
     			PtrMan(const PtrMan<T>&);
-			//Will give linkerror if used
+			//Don't use
     inline		PtrMan(T* = 0);
-    PtrMan<T>&		operator=( T* p )
-    			{ this->set( p, true ); return *this; }
+    PtrMan<T>&		operator=( T* p );
     PtrMan<T>&		operator=(const PtrMan<T>&);
 			//!< Will give linkerror if used
 			mImpPtrManPointerAccess( )
@@ -69,15 +69,33 @@ private:
 };
 
 
+/*!Smart pointer for normal const pointers. */
+template <class T>
+mClass(Basic) ConstPtrMan : public PtrManBase<T>
+{
+public:
+    			ConstPtrMan(const ConstPtrMan<T>&);
+			//Don't use
+    inline		ConstPtrMan(const T* = 0);
+    ConstPtrMan<T>&	operator=(const T* p);
+    ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
+			//!< Will give linkerror if used
+			mImpPtrManPointerAccess( const )
+private:
+
+    static void		deleteFunc( T* p )    { delete p; }
+};
+
+
 /*!Smart pointer for pointers allocated as arrays. */
 template <class T>
 mClass(Basic) ArrPtrMan : public PtrManBase<T>
 {
 public:
 				ArrPtrMan(const ArrPtrMan<T>&);
-				//Will give linkerror if used
+				//Don't use
     inline			ArrPtrMan(T* = 0);
-    ArrPtrMan<T>&		operator=( T* p )  { set( p ); return *this; }
+    ArrPtrMan<T>&		operator=( T* p );
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//Will give linkerror if used
 			
@@ -86,6 +104,24 @@ private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
 
+};
+
+
+/*!Smart pointer for const pointers allocated as arrays. */
+template <class T>
+mClass(Basic) ConstArrPtrMan : public PtrManBase<T>
+{
+public:
+    			ConstArrPtrMan(const ConstArrPtrMan<T>&);
+			//Don't use
+    inline		ConstArrPtrMan(const T* = 0);
+    ConstArrPtrMan<T>&	operator=(const T* p);
+    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&);
+			//!< Will give linkerror if used
+			mImpPtrManPointerAccess( const )
+private:
+
+    static void		deleteFunc( T* p )    { delete p; }
 };
 
 
@@ -152,15 +188,91 @@ void PtrManBase<T>::set( T* p, bool doerase )
 
 
 template <class T> inline
+PtrMan<T>::PtrMan( const PtrMan<T>& p )
+    : PtrManBase<T>( 0, deleteFunc, 0 )
+{
+    pErrMsg("Shold not be called");
+}
+
+
+template <class T> inline
 PtrMan<T>::PtrMan( T* p )
     : PtrManBase<T>( 0, deleteFunc, p )
 {}
 
 
 template <class T> inline
+PtrMan<T>& PtrMan<T>::operator=( T* p )
+{
+    set( p );
+    return *this;
+}
+
+
+template <class T> inline
+ConstPtrMan<T>::ConstPtrMan( const ConstPtrMan<T>& p )
+    : PtrManBase<T>( 0, deleteFunc, 0 )
+{
+    pErrMsg("Shold not be called");
+}
+
+
+template <class T> inline
+ConstPtrMan<T>::ConstPtrMan( const T* p )
+    : PtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
+{}
+
+
+template <class T> inline
+ConstPtrMan<T>& ConstPtrMan<T>::operator=( const T* p )
+{
+    set( const_cast<T*>( p ) );
+    return *this;
+}
+
+
+template <class T> inline
+ArrPtrMan<T>::ArrPtrMan( const ArrPtrMan<T>& p )
+    : PtrManBase<T>( 0, deleteFunc, 0 )
+{
+    pErrMsg("Shold not be called");
+}
+
+
+template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
     : PtrManBase<T>( 0, deleteFunc, p )
 {}
+
+
+template <class T> inline
+ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
+{
+    set( p );
+    return *this;
+}
+
+
+template <class T> inline
+ConstArrPtrMan<T>::ConstArrPtrMan( const ConstArrPtrMan<T>& p )
+    : PtrManBase<T>( 0, deleteFunc, 0 )
+{
+    pErrMsg("Shold not be called");
+}
+
+
+template <class T> inline
+ConstArrPtrMan<T>::ConstArrPtrMan( const T* p )
+    : PtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
+{}
+
+
+template <class T> inline
+ConstArrPtrMan<T>& ConstArrPtrMan<T>::operator=( const T* p )
+{
+    set( const_cast<T*>(p) );
+    return *this;
+}
 
 
 template <class T> inline
