@@ -327,23 +327,32 @@ protected:
     bool			doLog(int logidx);
 
     const Well::Data&		wd_;
-    Array2DImpl<float>*		data_;
-
-    const Well::D2TModel* 	d2t_;
+	const Well::D2TModel* 	d2t_;
+	// do not use, will be removed
     StepInterval<float>		zrg_;
+	float			zstep_;
     bool 			extrintime_;
     bool			zrgisintime_;
-    float			zstep_;
+	Array2DImpl<float>*		data_;
     const BufferStringSet& 	lognms_;
+	// do not use, will be removed
 
     BufferString		errmsg_;
     Stats::UpscaleType 		samppol_;
 
 public:
+			LogSampler(const Well::Data& wd,
+				const Interval<float>& zrg, bool zrgintime,
+				float zstep, bool extractintime,
+				Stats::UpscaleType samppol,
+				const Well::LogSet& logs);
 
-    int 			nrZSamples() const;
+    void			setLogs(const Well::LogSet*);
+	const Well::LogSet* getLogs() const;
+			
+	int 			nrZSamples() const;
     Interval<float> 		zRange() const { return zrg_; }
-    void			snapZRangeToSI(); 
+    void			snapZRangeToSI();
 };
 
 }; // namespace Well
