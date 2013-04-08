@@ -1030,8 +1030,8 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #define mGetZ(zvalue,dah) \
     	zvalue = zrgisintime_ \
-	       ? mCast( float, track_.getPos( dahrg.start ).z ) \
-    	       : d2t_->getTime( dahrg.start, track_ );
+	       ? mCast( float, track_.getPos( dah ).z ) \
+    	   : d2t_->getTime( dah, track_ );
 
 
 bool Well::LogSampler::doPrepare( int thread )
@@ -1068,11 +1068,11 @@ bool Well::LogSampler::doPrepare( int thread )
     } // zrg_ now matches the extraction domain
 
     float zstart = (float) mNINT32(zrg_.start/zstep_) * zstep_;
-    if ( zstart < zrg_.start-(zstep_*1e-2) )
+    if ( zstart < zrg_.start-(zstep_*1e-2f) )
 	zstart += zstep_;
 
     float zstop = (float) mNINT32(zrg_.stop/zstep_) * zstep_;
-    if ( zstop > zrg_.stop+(zstep_*1e-2) )
+    if ( zstop > zrg_.stop+(zstep_*1e-2f) )
 	zstop -= zstep_;
 
     StepInterval<float> zrgreg( zstart, zstop, zstep_ );
