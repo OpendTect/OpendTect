@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "plftypes.h"
 
 //! Undefined value. IEEE gives NaN but that's not exactly what we want
-#define __mUndefValue             1e30
+#define __mUndefDValue            1e30
+#define __mUndefFValue            1e30f
 //! Check on undefined. Also works when double converted to float and vv
 #define __mIsUndefinedD(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
 #define __mIsUndefinedF(x)         (((x)>9.99999e29f)&&((x)<1.00001e30f))
@@ -173,10 +174,10 @@ template<>
 mClass(Basic) Undef<float>
 {
 public:
-    static float	val()			{ return (float)__mUndefValue; }
+    static float	val()			{ return __mUndefFValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( float f )	{ return __mIsUndefinedF(f); }
-    static void		setUdf( float& f )	{ f = (float)__mUndefValue; }
+    static void		setUdf( float& f )	{ f = __mUndefFValue; }
 };
 
 
@@ -188,10 +189,10 @@ template<>
 mClass(Basic) Undef<double>
 {
 public:
-    static double	val()			{ return __mUndefValue; }
+    static double	val()			{ return __mUndefDValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( double d )	{ return __mIsUndefinedD(d); }
-    static void		setUdf( double& d )	{ d = __mUndefValue; }
+    static void		setUdf( double& d )	{ d = __mUndefDValue; }
 };
 
 
@@ -280,7 +281,7 @@ mGlobal(Basic) bool dbgIsUdf(double);
    ensure explicit thinking about the situation. */
 
 # define scUndefValue		 "1e30"
-# define mcUndefValue             __mUndefValue
+# define mcUndefValue             __mUndefDValue
 # define mcIsUndefined(x)         __mIsUndefinedD(x)
 
 
