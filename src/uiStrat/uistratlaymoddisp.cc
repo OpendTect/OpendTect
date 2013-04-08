@@ -151,7 +151,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , allcontents_(false)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
-    gv_->setPrefWidth( 500 ); gv_->setPrefHeight( 250 );
+    gv_->setPrefWidth( 800 ); gv_->setPrefHeight( 300 );
     gv_->getMouseEventHandler().buttonReleased.notify(
 			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
     gv_->getMouseEventHandler().doubleClick.notify(
@@ -451,14 +451,15 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 }
 
 
+
 #define mStartLayLoop(chckdisp,perseqstmt) \
     const int nrseqs = layerModel().size(); \
     for ( int iseq=0; iseq<nrseqs; iseq++ ) \
     { \
 	if ( chckdisp && !isDisplayedModel(iseq) ) continue; \
 	const float lvldpth = lvldpths_[iseq]; \
-	int layzlvl = 0; \
 	if ( flattened_ && mIsUdf(lvldpth) ) continue; \
+	int layzlvl = 0; \
 	const Strat::LayerSequence& seq = layerModel().sequence( iseq ); \
 	const int nrlays = seq.size(); \
 	perseqstmt; \
