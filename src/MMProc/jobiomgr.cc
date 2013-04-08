@@ -167,14 +167,14 @@ protected:
 
 void JobIOHandler::listen( int firstport, int maxtries ) // as used in 4.0
 {	
-    int port = firstport;
-    for ( int idx=0; idx<maxtries; idx++, port++ )
+    int currentport = firstport;
+    for ( int idx=0; idx<maxtries; idx++, currentport++ )
     {
 	serversocket_.listen( System::localAddress(),
-	    port );
+	    currentport );
 	if ( serversocket_.isListening() )
 	{
-	    usedport_ = port;
+	    usedport_ = currentport;
 	    ready_ = true;
 	    break;
 	}
