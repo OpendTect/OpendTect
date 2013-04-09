@@ -101,7 +101,7 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    return spinlock_.setIfEqual( 1, 0 );
+    return spinlock_.strongSetIfEqual( 1, 0 );
 }
 #else
 Threads::SpinLock::SpinLock()
