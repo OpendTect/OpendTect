@@ -343,7 +343,7 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     Array1DImpl<float_complex> cfiltervals( inpsz );
     memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float) );
     window.apply( &cfiltervals );
-    removeBias<float_complex,float_complex>( &cfiltervals );
+    removeBias<float_complex,float>( &cfiltervals );
    
     Spectrogram spec;
     Array1DImpl<float_complex> cspecfiltervals( inpsz );
