@@ -1595,6 +1595,7 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
 void SetMaxThicknessElasticModel( const ElasticModel& inmdl,
        				ElasticModel& outmdl, float maxthickness )
 {
+    ElasticModel output;
     const int initialsz = inmdl.size();
     int nbinsert = mUdf(int);
 
@@ -1609,9 +1610,10 @@ void SetMaxThicknessElasticModel( const ElasticModel& inmdl,
 	    newlayer.thickness_ /= (float)nbinsert;
 	}
 	for ( int nlidx=0; nlidx<nbinsert; nlidx++ )
-	    outmdl += newlayer;
+	    output += newlayer;
     }
 
+    outmdl = output;
 }
 
 #define mSmallNumber 1e-7
