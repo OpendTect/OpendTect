@@ -278,6 +278,14 @@ ParallelTask::ParallelTask( const char* nm )
 { }
 
 
+ParallelTask::ParallelTask( const ParallelTask& t )
+    : Task( t.name() )
+    , progressmeter_( 0 )
+    , nrdone_( -1 )
+    , totalnrcache_( -1 )
+{ }
+
+
 ParallelTask::~ParallelTask()
 {}
 
@@ -295,7 +303,7 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 
 void ParallelTask::addToNrDone( int nr )
 {
-    if ( !nrdone_.setIfEqual( nr, -1 ) )
+    if ( !nrdone_.strongSetIfEqual( nr, -1 ) )
 	nrdone_ += nr;
 
     if ( progressmeter_ )

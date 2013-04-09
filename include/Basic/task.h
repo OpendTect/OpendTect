@@ -225,6 +225,7 @@ protected:
 			    regularly. */
 
 			ParallelTask(const char* nm=0);
+			ParallelTask(const ParallelTask&);
     od_int64		calculateThreadSize(od_int64 totalnr,int nrthreads,
 	    				    int thread) const;
 

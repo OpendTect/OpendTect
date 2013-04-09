@@ -226,9 +226,9 @@ private:
 
 
 #ifdef __win__
-# define mDeclareCounters	od_int32 oldcount = 0, newcount = 0
+# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount = 0
 #else
-# define mDeclareCounters    	od_int32 oldcount, newcount
+# define mDeclareCounters    	od_int32 oldcount = count_.get(), newcount;
 #endif
 
 inline void ReferenceCounter::ref()
@@ -237,7 +237,6 @@ inline void ReferenceCounter::ref()
 
     do
     {
-	oldcount = count_.get();
 	if ( oldcount==mInvalidRefCount )
 	{
 	    pErrMsg("Invalid ref");
@@ -252,7 +251,7 @@ inline void ReferenceCounter::ref()
 	    newcount = oldcount+1;
 	}
 	
-    } while ( !count_.setIfEqual( newcount, oldcount) );
+    } while ( !count_.weakSetIfEqual( newcount, oldcount ) );
 }
 
 
@@ -262,7 +261,6 @@ inline bool ReferenceCounter::unRef()
 
     do
     {
-	oldcount = count_.get();
 	if ( oldcount==mInvalidRefCount )
 	{
 	    pErrMsg("Invalid reference.");
@@ -277,7 +275,7 @@ inline bool ReferenceCounter::unRef()
 	else
 	    newcount = oldcount-1;
 	
-    } while ( !count_.setIfEqual(newcount,oldcount) );
+    } while ( !count_.weakSetIfEqual(newcount,oldcount ) );
     
     return newcount==mInvalidRefCount;
 }
@@ -289,7 +287,6 @@ inline bool ReferenceCounter::refIfReffed()
 
     do
     {
-	oldcount = count_.get();
 	if ( oldcount==mInvalidRefCount )
 	{
 	    pErrMsg("Invalid ref");
@@ -304,7 +301,7 @@ inline bool ReferenceCounter::refIfReffed()
 	
 	newcount = oldcount+1;
 	
-    } while ( !count_.setIfEqual( newcount, oldcount) );
+    } while ( !count_.weakSetIfEqual( newcount, oldcount ) );
     
     return true;
 }
@@ -316,7 +313,6 @@ inline void ReferenceCounter::unRefDontInvalidate()
 
     do
     {
-	oldcount = count_.get();
 	if ( oldcount==mInvalidRefCount )
 	{
 	    pErrMsg("Invalid reference.");
@@ -329,7 +325,7 @@ inline void ReferenceCounter::unRefDontInvalidate()
 	else
 	    newcount = oldcount-1;
 	
-    } while ( !count_.setIfEqual(newcount,oldcount) );
+    } while ( !count_.weakSetIfEqual(newcount,oldcount ) );
 }
 
 #undef mDeclareCounters

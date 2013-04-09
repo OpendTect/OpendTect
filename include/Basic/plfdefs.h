@@ -145,6 +145,9 @@ Always defined:
 
 #undef __cpp__
 #ifdef __cplusplus
+# if __cplusplus >= 201103L
+#  define __cpp11__ 1
+# endif
 # define __cpp__ 1
 #endif
 #ifdef _LANGUAGE_C_PLUS_PLUS
