@@ -18,18 +18,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewslicepos.h"
 #include "uipsviewer2d.h"
 #include "uipsviewer2dinfo.h"
+#include "uiioobjsel.h"
+#include "uigraphicsitemimpl.h"
 #include "uirgbarraycanvas.h"
 #include "uislider.h"
+#include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "ctxtioobj.h"
 #include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "prestackmutedef.h"
+#include "prestackmutedeftransl.h"
 #include "prestackgather.h"
+#include "randcolor.h"
 #include "seisioobjinfo.h"
+#include "survinfo.h"
 
 static int sStartNrViewers = 10;
 
@@ -43,9 +51,13 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , slicepos_(0)	 
     , seldatacalled_(this)
     , axispainter_(0)
-    , cs_(true)	  
+    , cs_(false)	  
 {
+
 }
+
+uiViewer2DMainWin::~uiViewer2DMainWin()
+{ deepErase( mutes_ ); }
 
 
 void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
@@ -85,6 +97,7 @@ void uiViewer2DMainWin::setUpView()
 	nrvwr++;
     }
 
+    displayMutes();
     reSizeSld(0);
 }
 
@@ -108,6 +121,87 @@ void uiViewer2DMainWin::doHelp( CallBacker* )
 {
     provideHelp( "50.2.2" );
 }
+
+
+void uiViewer2DMainWin::displayMutes()
+{
+    for ( int gidx=0; gidx<nrItems(); gidx++ )
+    {
+	uiObjectItem* item = mainViewer()->getItem( gidx );
+	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
+	if ( !gd ) continue;
+	
+	gd->getUiFlatViewer()->handleChange( FlatView::Viewer::Auxdata );
+	for ( int muteidx=0; muteidx<mutes_.size(); muteidx++ )
+	{
+	    const PreStack::MuteDef* mutedef = mutes_[muteidx];
+	    const BinID& bid = gd->getBinID();
+	    FlatView::AuxData* muteaux =
+		gd->getUiFlatViewer()->createAuxData( mutedef->name() );
+	    muteaux->linestyle_.color_ = mutecolors_[muteidx];
+	    muteaux->linestyle_.type_ = LineStyle::Solid;
+	    muteaux->linestyle_.width_ = 3;
+
+	    StepInterval<float> offsetrg = gd->getOffsetRange();
+	    offsetrg.step = offsetrg.width()/20.0f;
+	    const int sz = offsetrg.nrSteps()+1;
+	    muteaux->poly_.setCapacity( sz );
+	    for ( int offsidx=0; offsidx<sz; offsidx++ )
+	    {
+		const float offset = offsetrg.atIndex( offsidx );
+		const float val = mutedef->value( offset, bid );
+		muteaux->poly_ +=  FlatView::Point( offset, val );
+	    }
+
+	    muteaux->namepos_ = 0;
+	    gd->getUiFlatViewer()->addAuxData( muteaux );
+	}
+    }
+}
+
+
+void uiViewer2DMainWin::clearAuxData()
+{
+    for ( int gidx=0; gidx<nrItems(); gidx++ )
+    {
+	uiObjectItem* item = mainViewer()->getItem( gidx );
+	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
+	if ( !gd ) continue;
+	uiFlatViewer* vwr = gd->getUiFlatViewer();
+	vwr->removeAllAuxData( true );
+    }
+}
+
+
+void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
+{
+    uiIOObjSelDlg mutesel( this, *mMkCtxtIOObj(MuteDef),
+	    		   "Select Mute for display", true );
+    if ( mutesel.go() )
+    {
+	clearAuxData();
+	deepErase( mutes_ );
+	for ( int idx=0; idx<mutesel.selGrp()->nrSel(); idx++ )
+	{
+	    const MultiID& muteid = mutesel.selGrp()->selected( idx );
+	    PtrMan<IOObj> muteioobj = IOM().get( muteid );
+		if ( !muteioobj ) continue;
+	    PreStack::MuteDef* mutedef = new PreStack::MuteDef;
+	    BufferString errmsg;
+	    if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj,errmsg) )
+	    {
+		uiMSG().error( errmsg );
+		continue;
+	    }
+
+	    mutes_ += mutedef;
+	    mutecolors_ += getRandomColor();
+	}
+
+	displayMutes();
+    }
+}
+
 
 void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 {
@@ -142,9 +236,15 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	control_ = ctrl;
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
+	{
+	    if  ( isStored() )
+		tb->addButton( 
+		    new uiToolButton( tb, "contexthelp", "Help",
+			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
 	    tb->addButton( 
-		new uiToolButton( tb, "contexthelp", "Help",
-		    mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
+		new uiToolButton( tb, "mute", "Load Mute",
+		    mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
+	}
     }
 
     control_->addViewer( *fv );
@@ -233,6 +333,7 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
     SeisIOObjInfo info( mid );
     is2d_ = info.is2D();
     linename_ = linename;
+    cs_.zrg = SI().zRange(true);
 
     if ( is2d_ )
     {
@@ -444,7 +545,7 @@ void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
 					   gatherinfos_[0].bid_.inl,1) );
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	trcrg.include( gatherinfos_[idx].bid_.crl, false );
-    trcrg.step = cs_.hrg.crlRange().step;
+    trcrg.step = SI().crlStep();
     TypeSet<BinID> selbids;
     getStartupPositions( gatherinfos_[0].bid_, trcrg, true, selbids );
     
@@ -457,6 +558,7 @@ void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
     }
 
     cs_.hrg.setCrlRange( trcrg );
+    cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);
 }
