@@ -838,7 +838,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 	synthp_.edstratsynth_->addDefaultSynthetic();
     }
 
-    synthdisp_->setBrineFilled( true );
+    //synthdisp_->setBrineFilled( true );
     synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
     levelChg( 0 );		//no change in fact but a redraw is needed
 
