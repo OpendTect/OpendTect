@@ -69,8 +69,8 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 
     T avg = 0;
     T sum = 0;
-    TT sumindexes = 0;
-    TT sumsqidx = 0;
+    od_int64 sumindexes = 0;
+    od_int64 sumsqidx = 0;
     T crosssum = 0;
 
     if ( out_ && in->info() != out_->info() ) return false;
