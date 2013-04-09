@@ -273,7 +273,7 @@ SyntheticData* getCurrentSyntheticData() const
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(p,"",1,false)
+    : uiMainWin(0,"",1,false)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
@@ -838,6 +838,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 	synthp_.edstratsynth_->addDefaultSynthetic();
     }
 
+    synthdisp_->setBrineFilled( true );
     synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
     levelChg( 0 );		//no change in fact but a redraw is needed
 
