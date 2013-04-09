@@ -62,7 +62,7 @@ remove only the average or an eventual linear trend.
 	const T bval = ( sum * (TT)sumsqidx - (TT)sumindexes * crosssum ) / \
 		       ( (TT)sz * (TT)sumsqidx - (TT)sumindexes * (TT)sumindexes );
 
-template <class T, class TT >
+template <class T, class TT>
 inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 {
     ArrayND<T>* out = out_ ? out_ : in; 
