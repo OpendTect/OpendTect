@@ -253,7 +253,6 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
     
-
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
@@ -484,6 +483,7 @@ bool uiTieWin::acceptOK( CallBacker* )
 	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
 	    mErrRet("Cannot write new depth/time model")
+
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() ); 
     }
@@ -589,16 +589,16 @@ uiInfoDlg::~uiInfoDlg()
 }
 
 
-#define mMarkerFldIdx 0
-#define mTwtFldIdx 1
-#define mDahFldIdx 2
+#define	mMarkerFldIdx	0
+#define	mTwtFldIdx  1
+#define	mDahFldIdx  2
 void uiInfoDlg::putToScreen()
 {
     choicefld_->setValue( selidx_ );
     if ( selidx_ == mMarkerFldIdx )
     {
-	zrangeflds_[0]->setText( startmrknm_.buf(), 0 );
-	zrangeflds_[0]->setText( stopmrknm_.buf(), 1 );
+	zrangeflds_[selidx_]->setText( startmrknm_.buf(), 0 );
+	zrangeflds_[selidx_]->setText( stopmrknm_.buf(), 1 );
     }
     else
 	zrangeflds_[selidx_]->setValue( zrg_ );
@@ -607,20 +607,19 @@ void uiInfoDlg::putToScreen()
 						  : data_.estimatedwvlt_;
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
     estwvltlengthfld_->setValue(
-	    wvlt.samplePositions().width()*SI().zDomain().userFactor());
+	    wvlt.samplePositions().width() * SI().zDomain().userFactor() );
 }
 
 
 bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
-
     zrg = data_.getDahRange();
-    const Interval<int> mintv = zrangeflds_[0]->getIInterval();
-    const Well::Marker* topmarkr = 
-			wd->markers().getByName( zrangeflds_[0]->text(0) );
-    const Well::Marker* botmarkr = 
-			wd->markers().getByName( zrangeflds_[0]->text(1) );
+    const Interval<int> mintv = zrangeflds_[mMarkerFldIdx]->getIInterval();
+    const Well::Marker* topmarkr =
+		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(0) );
+    const Well::Marker* botmarkr =
+		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(1) );
 
     if ( mintv.start == mintv.stop ) { topmarkr = 0; botmarkr = 0; }
     if ( topmarkr ) zrg.start = topmarkr->dah();
@@ -654,12 +653,13 @@ void uiInfoDlg::usePar( const IOPar& par )
     propChanged(0);
 }
 
-#define mMinWvlLength 20
+
+#define mMinWvltLength	20
 #define md2T( zval, outistime )\
     outistime ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
 #define md2TI( inzrg, ouzrg, outistime )\
     { ouzrg.start = md2T( inzrg.start, outistime ); \
-      ouzrg.stop = md2T( inzrg.stop, outistime) }
+      ouzrg.stop = md2T( inzrg.stop, outistime ) }
 void uiInfoDlg::propChanged( CallBacker* )
 {
     NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valuechanged );
@@ -668,10 +668,8 @@ void uiInfoDlg::propChanged( CallBacker* )
 
     mGetWD(return)
     selidx_ = choicefld_->getIntValue();
-    Interval<float> dahrg;
-    Interval<float> timerg;
-    dahrg.set( mUdf(float), mUdf(float) );
-    timerg.set( mUdf(float), mUdf(float) );
+    Interval<float> dahrg( mUdf(float), mUdf(float) );
+    Interval<float> timerg( mUdf(float), mUdf(float) );
     const Well::D2TModel* d2t = wd->d2TModel();
     if ( selidx_ == mTwtFldIdx )
     {
@@ -684,6 +682,7 @@ void uiInfoDlg::propChanged( CallBacker* )
 	    getMarkerDepths( dahrg );
 	else if ( selidx_ == mDahFldIdx )
 	    dahrg = zrangeflds_[selidx_]->getFInterval();
+
 	md2TI( dahrg, timerg, true )
     }
 
@@ -696,30 +695,30 @@ void uiInfoDlg::propChanged( CallBacker* )
 	zlabelflds_[idx]->display( idx == selidx_ );
     }
 
-    zrangeflds_[1]->setValue( timerg );
-    zrangeflds_[2]->setValue( dahrg );
+    zrangeflds_[mTwtFldIdx]->setValue( timerg );
+    zrangeflds_[mDahFldIdx]->setValue( dahrg );
 
     const StepInterval<float> reflrg = data_.getReflRange();
     zrg_.start = mMAX( timerg.start, reflrg.start );
     zrg_.stop = mMIN( timerg.stop, reflrg.stop );
     const float reflstep = reflrg.step;
     zrg_.start = (float) mNINT32( zrg_.start / reflstep ) * reflstep;
-    zrg_.stop = (float) mNINT32( zrg_.stop / reflstep ) * reflstep;
-
-    const int reqwvltlgthms = estwvltlengthfld_->getIntValue();
-    if ( zrg_.width() < (double)mMinWvlLength/1000.f )
+    zrg_.stop = (float) mNINT32( zrg_.stop / reflstep ) * reflstep;    
+    if ( zrg_.width() < (float)mMinWvltLength / SI().zDomain().userFactor() )
     {
 	BufferString errmsg = "the wavelet length must be at least ";
-	errmsg += mMinWvlLength;
+	errmsg += mMinWvltLength;
 	errmsg += "ms";
 	uiMSG().error( errmsg );
 	return;
     }
 
-    const double reqwvltlgth = (double)reqwvltlgthms / 1000.f;
-    const double wvltlgth = zrg_.width() < reqwvltlgth ? zrg_.width()
+    const int reqwvltlgthms = estwvltlengthfld_->getIntValue();
+    const float reqwvltlgth = (float)reqwvltlgthms / SI().zDomain().userFactor();
+    const float wvltlgth = zrg_.width() < reqwvltlgth ? zrg_.width()
 						       : reqwvltlgth;
-    data_.estimatedwvlt_.reSize( mNINT32( wvltlgth/data_.getTraceRange().step ) );
+    data_.estimatedwvlt_.reSize(
+		mNINT32( wvltlgth / data_.getTraceRange().step ) );
     wvltChanged(0);
 }
 
