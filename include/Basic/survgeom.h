@@ -42,6 +42,7 @@ public:
     bool		includes(const TraceID& tid) const;
     virtual bool	includes(int linenr,int tracenr) const		= 0;
     
+    virtual StepInterval<float>   zRange() const			= 0;
 protected:
 			Geometry();
     TraceID::GeomID	geomid_;

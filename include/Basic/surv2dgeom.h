@@ -179,6 +179,8 @@ public:
     bool			is2D() const		{ return true; }
     PosInfo::Line2DData&	data()			{ return data_; }
     const PosInfo::Line2DData	data() const		{ return data_; }
+    
+    StepInterval<float>		zRange() const;
 
     static BufferString  	makeUniqueLineName(const char* lsnm,
 	    					   const char* lnm);

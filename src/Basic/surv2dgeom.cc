@@ -953,7 +953,12 @@ TraceID Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     PosInfo::Line2DPos pos;
     return data_.getPos(crd,pos,dist) ? TraceID( geomid_, geomid_, pos.nr_) 
 				      : TraceID::udf();
+}
 
+
+StepInterval<float> Survey::Geometry2D::zRange() const
+{
+    return data_.zRange();
 }
 
 
