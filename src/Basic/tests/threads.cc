@@ -35,6 +35,8 @@ else \
     if ( (func)==false || atomic.get()!=finalval ) \
 	mPrintResult( #func )
 
+#define mTestVal 100
+
 template <class T>
 class AtomicIncrementer : public CallBacker
 {
@@ -95,7 +97,7 @@ bool testAtomic( const char* valtype, bool quiet )
     expected = atomic.get();
     for ( int idx=0; idx<count; idx++ )
     {
-	if ( atomic.weakSetIfEqual(240,expected) )
+	if ( atomic.weakSetIfEqual( mTestVal,expected) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -113,7 +115,7 @@ bool testAtomic( const char* valtype, bool quiet )
     for ( int idx=0; idx<count; idx++ )
     {
 	expected = atomic.get();
-	if ( atomic.strongSetIfEqual(-10,expected) )
+	if ( atomic.strongSetIfEqual(mTestVal,expected) )
 	    successfound = true;
 	else
 	    failurefound = true;
