@@ -83,7 +83,7 @@ Threads::SpinLock::~SpinLock()
 
 void Threads::SpinLock::lock()
 {
-    while ( !spinlock_.setIfEqual( 1, 0 ) )
+    while ( !spinlock_.strongSetIfEqual( 1, 0 ) )
 	;
 }
 
@@ -91,7 +91,7 @@ void Threads::SpinLock::lock()
 void Threads::SpinLock::unLock()
 {
 #ifdef __debug__
-    if ( !spinlock_.setIfEqual( 0, 1 ) )
+    if ( !spinlock_.strongSetIfEqual( 0, 1 ) )
 	pErrMsg( "Unlocking unlocked spinlock" );
 #else
     spinlock_ = 0;
