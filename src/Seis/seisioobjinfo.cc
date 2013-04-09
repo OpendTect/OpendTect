@@ -345,12 +345,12 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
 	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
-	if ( bss.indexOf(nm) >= 0 )
+	if ( bss.isPresent(nm) )
 	    continue;
 
 	if ( o2d.bvs_ )
 	{
-	    if ( rejected.indexOf(nm) >= 0 )
+	    if ( rejected.isPresent(nm) )
 		continue;
 	    if ( !lset->haveMatch(idx,*o2d.bvs_) )
 	    {
@@ -459,9 +459,7 @@ static TypeSet<MultiID>& getIDs()
 void SeisIOObjInfo::initDefault( const char* typ )
 {
     BufferStringSet& typs = getTypes();
-    const int typidx = typs.indexOf( typ );
-    if ( typidx > -1 )
-	return;
+    if ( typs.isPresent(typ) ) return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     ctxt.toselect.require_.set( sKey::Type(), typ );

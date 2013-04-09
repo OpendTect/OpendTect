@@ -212,7 +212,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
     static const bool nowarn = Settings::common().isTrue("SEG-Y.No warnings");
-    if ( nowarn || warnnrs_.indexOf(nr) >= 0 ) return;
+    if ( nowarn || warnnrs_.isPresent(nr) ) return;
 
     BufferString msg;
     if ( nr == cSEGYWarnBadFmt )

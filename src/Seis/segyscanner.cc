@@ -121,7 +121,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
     for ( int idx=0; idx<fnms_.size(); idx++ )
     {
 	const char* fnm = fnms_.get( idx );
-	if ( scanerrfnms_.indexOf(fnm) < 0 )
+	if ( !scanerrfnms_.isPresent(fnm) )
 	{
 	    if ( idx < fds_.nrFiles() )
 		iop.add( "Successfully scanned", fnm );

@@ -249,7 +249,7 @@ EventManager::~EventManager()
 
 int EventManager::addHorizon( int id )
 {
-    if ( id!=-1 && horids_.indexOf( id )!=-1 )
+    if ( id!=-1 && horids_.isPresent( id ) )
     {
 	pErrMsg("Horizon ID interference");
 	id = -1;

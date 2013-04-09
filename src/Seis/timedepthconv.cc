@@ -139,7 +139,7 @@ int Time2DepthStretcher::addVolumeOfInterest(const CubeSampling& cs,
 					     bool depth )
 {
     int id = 0;
-    while ( voiids_.indexOf(id)!=-1 ) id++;
+    while ( voiids_.isPresent(id) ) id++;
 
     voidata_ += 0;
     voivols_ += cs;

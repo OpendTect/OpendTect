@@ -563,7 +563,7 @@ bool SeisTrcTranslator::haveWarnings() const
 
 void SeisTrcTranslator::addWarn( int nr, const char* msg )
 {
-    if ( !msg || !*msg || warnnrs_.indexOf(nr) >= 0 ) return;
+    if ( !msg || !*msg || warnnrs_.isPresent(nr) ) return;
     warnnrs_ += nr;
     warnings_.add( msg );
 }

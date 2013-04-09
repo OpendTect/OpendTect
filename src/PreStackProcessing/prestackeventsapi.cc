@@ -163,7 +163,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     if ( !ioobj ) return -1;
 
     int res = 0;
-    while ( ids_.indexOf(res)!=-1 ) res++;
+    while ( ids_.isPresent(res) ) res++;
 
     if ( !strcmp(ioobj->group(),PSEventTranslatorGroup::sKeyword() ) )
     {

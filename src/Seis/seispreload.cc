@@ -68,8 +68,7 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
 	const char* fnm = iop.find( sKey::FileName() );
 	if ( !fnm ) continue;
 
-	const int idxof = nms.indexOf( fnm );
-	if ( idxof >= 0 )
+	if ( nms.isPresent(fnm) )
 	    lks.add( ls.lineKey(iln).buf() );
     }
 }
@@ -127,7 +126,7 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
     {
 	const char* lnm = ls.lineName( iln );
 	const char* attrnm = ls.attribute( iln );
-	if ( lnms.indexOf(lnm) < 0 || attrnms.indexOf(attrnm) < 0 )
+	if ( !lnms.isPresent(lnm) || !attrnms.isPresent(attrnm) )
 	    continue;
 
 	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );

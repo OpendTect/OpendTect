@@ -604,7 +604,7 @@ int EventWriter::nextStep()
 	    const RowCol rc( (bid.inl-inlsampling.start)/inlsampling.step,
 		    	     (bid.crl-crlsampling.start)/crlsampling.step );
 
-	    if ( rcols.indexOf( rc )==-1 )
+	    if ( !rcols.isPresent( rc ) )
 		rcols += rc;
 	}
 
