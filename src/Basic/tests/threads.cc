@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "commandlineparser.h"
 #include "callback.h"
+#include "limits.h"
 
 #include <iostream>
 
@@ -94,7 +95,7 @@ bool testAtomic( const char* valtype, bool quiet )
     expected = atomic.get();
     for ( int idx=0; idx<count; idx++ )
     {
-	if ( atomic.weakSetIfEqual(-10,expected) )
+	if ( atomic.weakSetIfEqual(240,expected) )
 	    successfound = true;
 	else
 	    failurefound = true;
