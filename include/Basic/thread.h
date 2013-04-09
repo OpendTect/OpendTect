@@ -724,18 +724,17 @@ type Atomic<type>::operator -- (int) \
 }
 
 
+#ifdef InterlockedAdd
 mAtomicSpecialization( long, )
+#endif
 
-#  ifdef InterlockedAdd16
-mAtomicSpecialization( short, 16 )
-#  endif
+#ifdef InterlockedAdd16
+    mAtomicSpecialization( short, 16 )
+#endif
 
-
-#  ifdef __win64__
-mAtomicSpecialization( long long, 64 )
-#  endif
-
-#  undef mAtomicSpecialization
+#ifdef InterlockedAdd64
+    mAtomicSpecialization( long long, 64 )
+#endif
 
 
 # else //not win
