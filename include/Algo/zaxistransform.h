@@ -103,6 +103,8 @@ public:
     const char*			fromZDomainKey() const;
     const char*			toZDomainKey() const;
 
+    virtual float		zScale() const;
+
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
     				//!\return the index of a line in a 2D lineset.

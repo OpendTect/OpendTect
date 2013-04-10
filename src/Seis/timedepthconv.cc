@@ -605,6 +605,14 @@ void Time2DepthStretcher::releaseData()
 }
 
 
+float Time2DepthStretcher::zScale() const
+{
+    const SurveyInfo::Unit zscaleunit = SI().depthsInFeet() ? SurveyInfo::Feet 
+							    : SurveyInfo::Meter;
+    return SurveyInfo::defaultXYtoZScale( zscaleunit, SI().xyUnit() ); 
+}
+
+
 //Depth2Time
 
 
@@ -627,7 +635,10 @@ bool Depth2TimeStretcher::needsVolumeOfInterest() const
 
 
 void Depth2TimeStretcher::fillPar( IOPar& par ) const
-{ stretcher_->fillPar( par ); }
+{ 
+    stretcher_->fillPar( par );
+    ZAxisTransform::fillPar( par );
+}
 
 
 bool Depth2TimeStretcher::usePar( const IOPar& par )
@@ -700,6 +711,10 @@ float Depth2TimeStretcher::getGoodZStep() const
 
 const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
+
+
+float Depth2TimeStretcher::zScale() const
+{ return SurveyInfo::defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() ); }
 
 
 VelocityModelScanner::VelocityModelScanner( const IOObj& input, 

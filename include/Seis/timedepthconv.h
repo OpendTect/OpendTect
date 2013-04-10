@@ -77,6 +77,8 @@ public:
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
 
+    float		zScale() const;
+
     const Interval<float>& getVavgRg(bool start) const;
     static Interval<float> getDefaultVAvg();
 
@@ -136,7 +138,8 @@ public:
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
-    float		getZFactor() const			{ return 1000; }
+
+    float		zScale() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

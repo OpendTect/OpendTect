@@ -164,6 +164,10 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 }
 
 
+float ZAxisTransform::zScale() const
+{ return SI().zScale(); }
+
+
 bool ZAxisTransform::usePar( const IOPar& par )
 {
     const char* res = par.find( sKey::ID() );
