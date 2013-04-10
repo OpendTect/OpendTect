@@ -97,6 +97,7 @@ public:
     Color	selLevelColor() const;		//!< May return NoColor
 
     uiToolButton* lithButton() 		{ return lithtb_; }
+    uiToolButton* zoomButton() 		{ return zoomtb_; }
     
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
