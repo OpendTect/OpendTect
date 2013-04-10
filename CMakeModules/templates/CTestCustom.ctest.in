@@ -4,6 +4,6 @@
 # $Id$
 #
 
-if( ${CTEST_MODEL} STREQUAL "Continuous" )
+if( ${CTEST_MODEL} STREQUAL "Experimental" )
     message( Hello )
 endif()
