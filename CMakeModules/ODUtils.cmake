@@ -28,7 +28,7 @@ endif()
 
 set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
 configure_file ( ${OpendTect_DIR}/CMakeModules/templates/CTestCustom.ctest.in
-		 ${CMAKE_BINARY_DIR}/CTestCustom.ctest )
+		 ${CMAKE_BINARY_DIR}/CTestCustom.ctest @ONLY )
 
 add_definitions("-D__cmake__")
 
