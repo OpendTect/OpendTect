@@ -533,9 +533,6 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { errmsg = s; return 0; }
-
 #define mStepEps 1e-3
 
 
@@ -940,7 +937,6 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 }
 
 
-#undef mErrRet
 #define mErrRet(s) { errmsg = s; return 0; }
 
 Processor* EngineMan::getProcessor( BufferString& errmsg )
@@ -1058,6 +1054,9 @@ int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 }
 
 
+#undef mErrRet
+#define mErrRet(s) { errmsg = s; return false; }
+
 bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 					 const Attrib::DescSet& descset,
 					 BufferString& errmsg )
@@ -1090,7 +1089,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    }
 	    if ( descid == DescID::undef() )
 		mErrRet( BufferString("Cannot find specified '",
-			    nmstr,"' in object management") );
+			 nmstr,"' in object management") );
 
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;
@@ -1127,5 +1126,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
     }
     return true;
 }
+
+#undef mErrRet
 
 } // namespace Attrib
