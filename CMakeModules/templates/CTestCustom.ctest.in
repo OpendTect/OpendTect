@@ -4,6 +4,8 @@
 # $Id$
 #
 
-if( ${CTEST_MODEL} STREQUAL "Experimental" )
-    message( Hello )
+if( CTEST_MODEL )
+    if ( ${CTEST_MODEL} STREQUAL "Experimental" )
+	message( Hello )
+    endif()
 endif()
