@@ -96,6 +96,8 @@ ENDIF()
 add_custom_target( sources ${CMAKE_COMMAND}
 	-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 	-DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+	-DISTAG=${ISTAG}
+	-DOD_BRANCH=${BRANCH}
 	-P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake 
 	 COMMENT "Installing sources" )
 include ( ODSubversion )
