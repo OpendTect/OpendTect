@@ -212,7 +212,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 	prevz = z;
     }
 
-    zintv.start = prevz; 
+    zintv.start = prevz;
     bid = posbid;
     prevz = mUdf(float);
     origin = BinID( isinl_ ? nr_ : trcrange_.start-10,
@@ -240,7 +240,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 	prevz = z;
     }
 
-    zintv.stop = prevz; 
+    zintv.stop = prevz;
     return true;
 }
 
@@ -560,7 +560,7 @@ void FaultTrace::computeRange()
 	    floattrcrg.include( trcnrs_[idx], false );
 
 	trcrange_.set( (int) floattrcrg.start, (int) ceil(floattrcrg.stop) );
-	
+
 	for ( int idx=0; idx<coords_.size(); idx++ )
 	    zrange_.include( (float) coords_[idx].z, false );
     }
@@ -760,7 +760,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
     holder_.traces_.replace( idx, flttrc );
     return true;
 }
- 
+
 
 FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 					  FaultTrcHolder& holder,
@@ -773,7 +773,7 @@ FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
     const EM::SectionID sid = fault_.sectionID( 0 );
     totalnr_ = fss ? fss->geometry().nrSticks( sid ) : 0;
 }
-   
+
 
 FaultTraceExtractor2D::~FaultTraceExtractor2D()
 { delete &linegeom_; }
@@ -831,7 +831,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
 	return mUdf(float);
 
     const float frac =
-       mCast(float,linepos1.distTo(posonline)/linepos1.distTo(linepos2));
+	mCast(float,linepos1.distTo(posonline)/linepos1.distTo(linepos2));
     return (float)(pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ ));
 }
 
@@ -862,7 +862,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 
     const EM::SectionID sid = fault_.sectionID( 0 );
     const Geometry::FaultStickSet* fltgeom =
-			    fss->geometry().sectionGeometry( sid );
+			fss->geometry().sectionGeometry( sid );
     if ( !fltgeom ) return false;
 
     const int sticknr = fltgeom->rowRange().atIndex( stickidx );
@@ -883,7 +883,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 
     const int nrknots = fltgeom->nrKnots( sticknr );
     if ( nrknots < 2 ) return true;
-    
+
     FaultTrace* flttrc = new FaultTrace;
     flttrc->ref();
     flttrc->setIsInl( true );
@@ -1000,7 +1000,7 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 }
 
 # define mErrRet( str ) \
-{ errmsg_.setEmpty(); errmsg_ = str; return false; } 
+{ errmsg_.setEmpty(); errmsg_ = str; return false; }
 
 bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 				 const HorSampling& hrg, TaskRunner* tr )
@@ -1122,13 +1122,13 @@ bool FaultTrcDataProvider::isOnFault( const BinID& bid, float z,
 
 	return false;
     }
-    
+
     for ( int idx=0; idx<nrFaults(); idx++ )
     {
 	const FaultTrace* flt = getFaultTrace( idx, bid.inl, true );
 	if ( !flt )
 	    flt = getFaultTrace( idx, bid.crl, false );
-	
+
 	if ( flt && flt->isOnFault(bid,z,thresholddist) )
 	    return true;
     }
@@ -1165,11 +1165,11 @@ bool FaultTrcDataProvider::isCrossingFault( const BinID& bid1, float z1,
 	    const FaultTrace* flt = getFaultTrace( idx, bid1.inl, true );
 	    if ( !flt )
 		flt = getFaultTrace( idx, bid1.crl, false );
-	    
+
 	    if ( flt && flt->isCrossing(bid1,z1,bid2,z2) )
 		return true;
 	}
-	
+
 	return false;
     }
 
@@ -1213,9 +1213,9 @@ bool FaultTrcDataProvider::getFaultZVals( const BinID& bid,
 		getFaultTrace( idx,bid.inl,true);
 	    if ( !is2d_ && !flt )
 		flt = getFaultTrace( idx, bid.crl, false );
-	    
+
 	    if ( !flt ) continue;
-	    
+
 	    const float z = flt->getZValFor( bid );
 	    if ( !mIsUdf(z) )
 	   	zvals += z;
