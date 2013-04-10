@@ -31,7 +31,8 @@ class Vw2DDataManager;
 namespace Attrib { class SelSpec; }
 namespace FlatView { class AuxData; }
 
-/*!\brief A 2D Viewer
+/*!
+\brief A 2D Viewer.
 */
 
 mExpClass(uiODMain) uiODViewer2D : public CallBacker
