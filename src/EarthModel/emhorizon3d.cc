@@ -353,10 +353,9 @@ Array2D<float>* Horizon3D::createArray2D(
 	    {
 		for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 		{
-		    Coord3 pos = geom->getKnot( RowCol(row,col), false );
-		    pos.z = zaxistransform->transform( pos );
-
-		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), (float) pos.z );
+		    const Coord3 pos = geom->getKnot( RowCol(row,col), false );
+		    const float zval = zaxistransform->transform( pos );
+		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), zval );
 		}
 	    }
 	}
