@@ -34,7 +34,7 @@
  *
  * Brian Paul  26 January 2000
  */
-static const char* rcsID = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #define GLX_GLXEXT_PROTOTYPES
 
