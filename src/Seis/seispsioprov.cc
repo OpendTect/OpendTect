@@ -135,12 +135,13 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 }
 
 
-SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcnr ) const
+SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 {
     SeisTrcBuf buf( true );
-    if ( !getGather(bid,buf) || buf.size() <= trcnr )
+    if ( !getGather(bid,buf) || buf.size()<=trcidx )
 	return 0;
-    return buf.remove( trcnr );
+
+    return buf.remove( trcidx );
 }
 
 
