@@ -576,7 +576,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     strm << "The " << datastr
 	 << (info().geom.fullyrectandreg ?
 	    (singinl == -999 ? " is 100% rectangular.": " has no gaps.")
-	    : " is irregular.")
+	    : " has varying cross-line ranges.")
 	 << '\n';
 
     if ( info().compinfo.size() > 1 )

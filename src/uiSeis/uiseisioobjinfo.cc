@@ -59,6 +59,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     }
 
     std::ostringstream strm;
+    strm << "The cube is available for work.\n\n";
     tr->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.str().c_str() );
 
