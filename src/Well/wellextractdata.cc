@@ -816,16 +816,18 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 {
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
-    for ( int idx=0; idx<wl.size(); idx++ )
+    int startidx = wl.indexOf( rg.start );
+    if ( startidx < 0 ) startidx = 0;
+    for ( int idx=startidx; idx<wl.size(); idx++ )
     {
-	float newdah = wl.dah( idx );
-	if ( rg.includes(newdah,false) )
+	float curdah = wl.dah( idx );
+	if ( rg.includes(curdah,false) )
 	{
 	    float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
 		vals += wl.value(idx);
 	}
-	else if ( newdah > rg.stop )
+	else if ( curdah > rg.stop )
 	    break;
     }
     if ( vals.size() < 1 ) return mUdf(float);
