@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellmarker.h"
+#include "welltrack.h"
 #include "iopar.h"
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -56,6 +57,21 @@ Well::Marker* Well::MarkerSet::gtByName( const char* mname ) const
 {
     const int idx = indexOf( mname );
     return  idx < 0 ? 0 : const_cast<Well::Marker*>((*this)[idx]); 
+}
+
+
+int Well::MarkerSet::getIdxAbove( float reqz, const Well::Track* trck ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Marker& mrk = *(*this)[idx];
+	float z = mrk.dah();
+	if ( trck )
+	    z = trck->getPos(z).z;
+	if ( reqz > z )
+	    return idx - 1;
+    }
+    return size() - 1;
 }
 
 

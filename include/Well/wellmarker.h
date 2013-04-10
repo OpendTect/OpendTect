@@ -82,6 +82,8 @@ public:
     Marker* 		getByName(const char* nm) 	{ return gtByName(nm); }
     const Marker* 	getByLvlID(int id) const	{ return gtByLvlID(id);}
     Marker* 		getByLvlID(int id) 		{ return gtByLvlID(id);}
+    int			getIdxAbove(float z,const Well::Track* trck=0) const;
+    			//!< is trck provided, compares TVDs
 
     bool		isPresent(const char* n) const 	{ return getByName(n); }
     int			indexOf(const char*) const;		  
