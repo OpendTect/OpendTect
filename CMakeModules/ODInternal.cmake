@@ -8,6 +8,8 @@
 #Configure odversion.h
 configure_file ( ${OpendTect_DIR}/include/Basic/odversion.h.in ${OpendTect_DIR}/include/Basic/odversion.h )
 
+OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/CMakeModules/*.cmake )
+
 #Install cmake things.
 install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE )
