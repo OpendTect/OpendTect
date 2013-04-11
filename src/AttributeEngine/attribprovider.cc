@@ -1348,7 +1348,17 @@ int Provider::getTotalNrPos( bool is2d )
 	    desiredvolume_->hrg.start.crl < cs.hrg.start.crl ?
 	    cs.hrg.start.crl : desiredvolume_->hrg.start.crl;
     }
-    return is2d ? cs.nrCrl() : cs.nrInl() * cs.nrCrl();
+
+    if ( is2d )
+    {
+	const PosInfo::GeomID geomid = getGeomID();
+	PosInfo::Line2DData l2dd;
+	cs.hrg.step.crl = S2DPOS().getGeometry(geomid,l2dd) ?
+	    l2dd.trcNrRange().step : 1;
+	return cs.nrCrl();
+    }
+
+    return cs.nrInl() * cs.nrCrl();
 }
 
 
