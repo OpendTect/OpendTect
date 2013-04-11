@@ -276,23 +276,22 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-	    if ( zaxt_ )
-		pos.z = zaxt_->transform2D( linenm, rc.col, mCast(float,pos.z));
+	    const float zval = mCast(float,pos.z);
 
-	    // Skip if survey coordinates not available
-	    if ( !Coord(pos).isDefined() )
-		continue;
-
-	    if ( !pos.isDefined() || 
-		(lineranges_ &&
-		!Horizon2DDisplay::withinRanges(rc,(float)pos.z,*lineranges_)))
+	    if ( !pos.isDefined() || (lineranges_ &&
+		 !Horizon2DDisplay::withinRanges(rc,zval,*lineranges_)) )
 	    {
 		if ( positions.size() )
 		    sendPositions( positions );
 	    }
 	    else 
 	    {
-		positions += pos;
+    		if ( zaxt_ )
+    		    pos.z = zaxt_->transform2D( linenm, rc.col, zval ); 
+		if ( !mIsUdf(pos.z) )
+    		    positions += pos;
+		else if ( positions.size() )
+		    sendPositions( positions );
 	    }
 	}
 
@@ -389,8 +388,37 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     BufferStringSet linenames;
     EM::IOObjInfo info( emobject_->multiID() );
     info.getLineNames( linenames );
+	
+    LineRanges linergs;
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
+    const bool redo = h2d && zaxistransform_ && linenames.isEmpty();
+    if ( redo )
+    {
+	const EM::Horizon2DGeometry& emgeo = h2d->geometry();
+	for ( int lnidx=0; lnidx<emgeo.nrLines(); lnidx++ )
+	{
+	    linenames.add( emgeo.lineName(lnidx) );
+	    const PosInfo::GeomID& geomid = emgeo.lineGeomID( lnidx );
 
-    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps,
+	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
+	    {
+		const Geometry::Horizon2DLine* ghl = 
+		    emgeo.sectionGeometry( h2d->sectionID(idy) );
+		if ( ghl )
+		{ 
+	    	    linergs.trcrgs += TypeSet<Interval<int> >();
+    		    linergs.zrgs += TypeSet<Interval<float> >();
+    		    const int ridx = linergs.trcrgs.size()-1;
+		    
+    		    linergs.trcrgs[ridx] += ghl->colRange( geomid );
+    		    linergs.zrgs[ridx] += ghl->zRange( geomid );
+		}
+	    }
+	}
+    }
+
+    const LineRanges* lrgs = redo ? &linergs : lineranges; 
+    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
 				     zaxistransform_, linenames );
     updater.execute();
 }
