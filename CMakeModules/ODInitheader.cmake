@@ -10,10 +10,10 @@
 # OD_MODULE_NAME			: Name of the module, or the plugin
 #
 
-MACRO( OD_CREATE_INIT_HEADER )
+macro( OD_CREATE_INIT_HEADER )
     
-    STRING ( TOUPPER ${OD_MODULE_NAME} OD_MODULE_NAME_UPPER )
-    STRING ( TOLOWER ${OD_MODULE_NAME} OD_MODULE_NAME_LOWER )
+    string ( TOUPPER ${OD_MODULE_NAME} OD_MODULE_NAME_UPPER )
+    string ( TOLOWER ${OD_MODULE_NAME} OD_MODULE_NAME_LOWER )
 
     if ( OD_IS_PLUGIN )
 	set ( INCLUDEDIR ${CMAKE_SOURCE_DIR}/plugins/${OD_MODULE_NAME} )
@@ -39,7 +39,7 @@ MACRO( OD_CREATE_INIT_HEADER )
 	    set ( MODFILEHEADER "${MODFILEHEADER}\n#include \"${DEPLOWER}mod.h\"" )
 	endforeach()
 
-	CONFIGURE_FILE( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
+	configure_file( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 
 			${INITHEADER} )
     endif ()
-ENDMACRO()
+endmacro()
