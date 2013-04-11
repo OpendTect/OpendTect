@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 class IOPar;
 
-#define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<5 )
+#define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<2 )
 namespace WellTie
 {
 
