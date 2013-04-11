@@ -15,6 +15,7 @@ SET( INCLUDES
     ODInitheader
     ODDoxygen
     ODPackages
+    ODTesting
 )
 
 FOREACH( INC ${INCLUDES} )

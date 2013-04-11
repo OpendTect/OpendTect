@@ -26,10 +26,6 @@ if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
     set( OD_BUILDSUBDIR "/${CMAKE_BUILD_TYPE}" )
 endif()
 
-set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
-configure_file ( ${OpendTect_DIR}/CMakeModules/templates/CTestCustom.ctest.in
-		 ${CMAKE_BINARY_DIR}/CTestCustom.ctest @ONLY )
-
 add_definitions("-D__cmake__")
 
 set ( OD_SOURCELIST_FILE ${CMAKE_BINARY_DIR}/CMakeModules/sourcefiles.txt )

@@ -499,40 +499,6 @@ macro ( OD_ADD_PLUGIN_BATCHPROGS )
     endforeach()
 endmacro()
 
-macro ( OD_ADD_KEYWORD_TEST KW NM )
-    if ( NOT DEFINED WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/FindKeyword" )
-	list( APPEND CMD "--keyword" "${KW}" "--listfile" "${OD_SOURCELIST_FILE}" )
-	set ( EXCEPTIONFILE ${CMAKE_SOURCE_DIR}/CMakeModules/exceptions/${KW}_exceptions )
-	if ( EXISTS ${EXCEPTIONFILE} )
-	    list( APPEND CMD "--exceptionfile" "${EXCEPTIONFILE}" )
-	endif()
-	add_test( "Keyword_${NM}" ${CMD} )
-    endif()
-endmacro()
-
-macro ( OD_ADD_LINEEND_TEST )
-    if ( NOT DEFINED WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/FindDosEOL.sh" )
-	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
-	add_test( LineEndTest ${CMD} )
-
-	set( CMD "${OpendTect_DIR}/dtect/FindNoNewlineAtEndOfFile.csh" )
-	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
-	add_test( FileEndTest ${CMD} )
- 
-    endif()
-endmacro()
-
-
-macro ( OD_ADD_SVNPROP_TEST )
-    if ( NOT DEFINED WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/CheckSVNProps.csh" )
-	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
-	add_test( SVNPropertyTest ${CMD} )
-    endif()
-endmacro()
-
 #Get current year
 macro ( OD_CURRENT_YEAR RESULT)
     if (WIN32)

@@ -4,8 +4,4 @@
 # $Id$
 #
 
-if( CTEST_MODEL )
-    if ( ${CTEST_MODEL} STREQUAL "Experimental" )
-	message( Hello )
-    endif()
-endif()
+set ( CTEST_CUSTOM_TESTS_IGNORE @CTEST_CUSTOM_TESTS_IGNORE@ )
