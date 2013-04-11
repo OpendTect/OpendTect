@@ -7,32 +7,32 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-SET( OpendTect_VERSION_MAJOR 4 )
-SET( OpendTect_VERSION_MINOR 5 )
-SET( OpendTect_VERSION_DETAIL 0 )
-SET( OpendTect_VERSION_PATCH a )
+set( OpendTect_VERSION_MAJOR 4 )
+set( OpendTect_VERSION_MINOR 5 )
+set( OpendTect_VERSION_DETAIL 0 )
+set( OpendTect_VERSION_PATCH a )
 
 PROJECT( "OpendTect" )
 
-INCLUDE( CTest )
+include( CTest )
 
-SET( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
-SET( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
+set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
+set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
-IF( NOT DEFINED CMAKE_BUILD_TYPE )
-    SET( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
-ENDIF()
+if( NOT DEFINED CMAKE_BUILD_TYPE )
+    set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
+endif()
 
-SET( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
+set( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
 
-LIST( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
+list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
-INCLUDE( OD_SetupOD )
-INCLUDE( ODInternal )
+include( OD_SetupOD )
+include( ODInternal )
 
-SET( OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
+set( OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
-SET( OD_MODULES
+set( OD_MODULES
 	Basic Algo General Database
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
@@ -47,7 +47,7 @@ SET( OD_MODULES
 	uiODMain
 )
 
-SET( OD_PLUGINS
+set( OD_PLUGINS
 	Annotations
 	Bouncy
 	ExpAttribs
@@ -83,7 +83,7 @@ SET( OD_PLUGINS
 	CmdDriver
 )
 
-SET( OD_SPECPROGS ODSeis visBase )
+set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 
 OD_ADD_MODULES( src ${OD_MODULES} )
@@ -98,10 +98,13 @@ OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt )
 OD_ADD_LINEEND_TEST()
-IF( NOT DEFINED APPLE )
+if( NOT DEFINED APPLE )
     OD_ADD_SVNPROP_TEST()
 endif()
 
-IF( BUILD_DOCUMENTATION )
+set ( OD_TESTS_IGNORE_CONTINUOUS SVNPropertyTest )
+OD_SETUP_TEST_FILTER()
+
+if( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
-ENDIF()
+endif()
