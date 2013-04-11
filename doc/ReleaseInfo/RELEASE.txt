@@ -3,6 +3,10 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0i: April 11, 2013
+  * Fix for crash while restoring session with faults
+  * Fix for displaying rotation axis after restoring session
+
 v4.4.0h: March 14, 2013
   * Fix for setting data root path
   * Fix for crash in CmdDriver while stopping record
