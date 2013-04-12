@@ -78,6 +78,9 @@ public:
 protected:
     			uiArray2DInterpol(uiParent*,const char* nm);
     			~uiArray2DInterpol();
+
+    virtual Array2DInterpol*	createResult() const	{ return 0; }
+
     Array2DInterpol*	result_;
 };
 
@@ -108,6 +111,7 @@ protected:
 
     void			useRadiusCB(CallBacker*);
     void			doParamDlg(CallBacker*);
+    virtual Array2DInterpol*	createResult() const;
 
     friend class		uiInvDistA2DInterpolPars;
 
@@ -131,6 +135,8 @@ public:
 protected:
 
     void			intCB(CallBacker*);
+    virtual Array2DInterpol*	createResult() const;
+
     uiGenInput*			maxdistfld_;
     uiCheckBox*			useneighborfld_;
 };
@@ -150,6 +156,8 @@ public:
     const char*			helpID() const { return "104.0.13"; }
 
 protected:
+
+    virtual Array2DInterpol*	createResult() const;
 
     uiGenInput*                 nrstepsfld_;
 };

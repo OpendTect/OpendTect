@@ -427,6 +427,10 @@ void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
 }
 
 
+Array2DInterpol* uiTriangulationArray2DInterpol::createResult() const
+{ return new TriangulationArray2DInterpol; }
+
+
 bool uiTriangulationArray2DInterpol::acceptOK()
 {
     bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
@@ -443,7 +447,7 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 	result_ = 0; 
     }
     
-    TriangulationArray2DInterpol* res = new TriangulationArray2DInterpol;
+    mDynamicCastGet( TriangulationArray2DInterpol*, res, createResult() )
     res->doInterpolation( !useneighborfld_->isChecked() );
     if ( usemax )
     	res->setMaxDistance( maxdist );
@@ -473,6 +477,10 @@ uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
 }
 
 
+Array2DInterpol* uiExtensionArray2DInterpol::createResult() const
+{ return new ExtensionArray2DInterpol; }
+
+
 bool uiExtensionArray2DInterpol::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
@@ -484,7 +492,7 @@ bool uiExtensionArray2DInterpol::acceptOK()
     if ( result_ )
 	{ delete result_; result_ = 0; }
     
-    ExtensionArray2DInterpol* res = new ExtensionArray2DInterpol;
+    mDynamicCastGet( ExtensionArray2DInterpol*, res, createResult() )
     res->setNrSteps( nrstepsfld_->getIntValue() );
 
     result_ = res;    
@@ -550,6 +558,10 @@ void uiInverseDistanceArray2DInterpol::doParamDlg( CallBacker* )
 }
 
 
+Array2DInterpol* uiInverseDistanceArray2DInterpol::createResult() const
+{ return new InverseDistanceArray2DInterpol; }
+
+
 bool uiInverseDistanceArray2DInterpol::acceptOK()
 {
     if ( result_ )
@@ -566,9 +578,7 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 	return false;
     }
 
-    InverseDistanceArray2DInterpol* res = new
-	InverseDistanceArray2DInterpol;
-
+    mDynamicCastGet( InverseDistanceArray2DInterpol*, res, createResult() )
     res->setSearchRadius( radius );
     if ( hasradius )
     {
