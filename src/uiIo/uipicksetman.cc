@@ -88,7 +88,7 @@ void uiPickSetMan::mkFileInfo()
 		ODPolygon<double> odpoly;
 		for ( int idx=0; idx<sz; idx++ )
 		{
-		    const Coord c( ps[idx].pos );
+		    const Coord c( ps[idx].pos_ );
 		    odpoly.add( Geom::Point2D<double>( c.x, c.y ) );
 		}
 		txt.add( ", area=" ).add( odpoly.area() );

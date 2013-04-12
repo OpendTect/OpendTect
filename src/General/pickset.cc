@@ -23,42 +23,71 @@ static const char* rcsID mUsedVar = "$Id$";
 static char pipechar = '|';
 static char newlinechar = '\n';
 
-Pick::Location::~Location()
+
+namespace Pick
 {
-    if ( text ) delete text;
+
+Location::Location( double x, double y, double z )
+    : pos_(x,y,z), text_(0)
+{}
+
+Location::Location( const Coord& c, float z )
+    : pos_(c,z), text_(0)
+{}
+
+Location::Location( const Coord3& c )
+    : pos_(c), text_(0)
+{}
+
+Location::Location( const Coord3& c, const Coord3& d )
+    : pos_(c), dir_(d), text_(0)
+{}
+
+Location::Location( const Coord3& c, const Sphere& d )
+    : pos_(c), dir_(d), text_(0)
+{}
+
+Location::Location( const Location& pl )
+    : text_(0)
+{ *this = pl; }
+
+
+Location::~Location()
+{
+    if ( text_ ) delete text_;
 }
 
 
-void Pick::Location::operator=( const Pick::Location& pl )
+void Location::operator=( const Location& pl )
 {
-    pos = pl.pos;
-    dir = pl.dir;
-    if ( pl.text )
+    pos_ = pl.pos_;
+    dir_ = pl.dir_;
+    if ( pl.text_ )
     {
-	if ( !text )
-	    text = new BufferString( *pl.text );
+	if ( !text_ )
+	    text_ = new BufferString( *pl.text_ );
 	else
-	    *text = *pl.text;
+	    *text_ = *pl.text_;
     }
 }
 
 
-void Pick::Location::setText( const char* key, const char* txt )
+void Location::setText( const char* key, const char* txt )
 {
     unSetText( key );
-    if ( !text ) text = new BufferString;
-    SeparString sepstr( *text, '\'' );
+    if ( !text_ ) text_ = new BufferString;
+    SeparString sepstr( *text_, '\'' );
 
     sepstr.add( key );
     sepstr.add( txt );
-    *text = sepstr;
+    *text_ = sepstr;
 }
 
 
-void Pick::Location::unSetText( const char* key )
+void Location::unSetText( const char* key )
 {
-    if ( !text ) return;
-    SeparString sepstr( *text, '\'' );
+    if ( !text_ ) return;
+    SeparString sepstr( *text_, '\'' );
     for ( int idx=0; idx<sepstr.size(); idx+=2 )
     {
 	if ( key!=sepstr[idx] )
@@ -78,7 +107,7 @@ void Pick::Location::unSetText( const char* key )
 	idx-=2;
     }
 
-    (*text) = sepstr;
+    (*text_) = sepstr;
 }
 
 
@@ -93,7 +122,7 @@ static double getNextVal( char*& str )
 }
 
 
-bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
+bool Location::fromString( const char* s, bool doxy, bool testdir )
 {
     if ( !s || !*s ) return false;
 
@@ -101,27 +130,27 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
     {
 	s++;
 
-	if ( !text ) text = new BufferString( s );
-	else *text = s;
+	if ( !text_ ) text_ = new BufferString( s );
+	else *text_ = s;
 
-	char* start = text->buf();
+	char* start = text_->buf();
 	char* stop = strchr( start, '"' );
 	if ( !stop )
 	{
-	    delete text;
-	    text = 0;
+	    delete text_;
+	    text_ = 0;
 	}
 	else
 	{
 	    *stop = '\0';
 	    s += stop - start + 1;
-	    replaceCharacter( text->buf(), newlinechar, pipechar );
+	    replaceCharacter( text_->buf(), newlinechar, pipechar );
 	}
     }
-    else if ( text )
+    else if ( text_ )
     {
-	delete text;
-	text = 0;
+	delete text_;
+	text_ = 0;
     }
 
     BufferString bufstr( s );
@@ -134,20 +163,20 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
     if ( mIsUdf(zread) )
 	return false;
 
-    pos.x = xread;
-    pos.y = yread;
-    pos.z = zread;
+    pos_.x = xread;
+    pos_.y = yread;
+    pos_.z = zread;
 
     // Check if data is in inl/crl rather than X and Y
-    if ( !SI().isReasonable(pos) || !doxy )
+    if ( !SI().isReasonable(pos_) || !doxy )
     {
-	BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
+	BinID bid( mNINT32(pos_.x), mNINT32(pos_.y) );
 	SI().snap( bid, BinID(0,0) );
-	Coord newpos = SI().transform( bid );
-	if ( SI().isReasonable(newpos) )
+	Coord newpos_ = SI().transform( bid );
+	if ( SI().isReasonable(newpos_) )
 	{
-	    pos.x = newpos.x;
-	    pos.y = newpos.y;
+	    pos_.x = newpos_.x;
+	    pos_.y = newpos_.y;
 	}
     }
 
@@ -161,27 +190,27 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 	if ( !mIsUdf(yread) )
 	{
 	    if ( mIsUdf(zread) ) zread = 0;
-	    dir = Sphere( ( float ) xread,( float )  yread,( float )  zread );
+	    dir_ = Sphere( ( float ) xread,( float )  yread,( float )  zread );
 	}
     }
     else
-	dir = Sphere( ( float )  xread,( float )  yread,( float )  zread );
+	dir_ = Sphere( ( float )  xread,( float )  yread,( float )  zread );
 
     return true;
 }
 
 
-void Pick::Location::toString( BufferString& str, bool forexport ) const
+void Location::toString( BufferString& str, bool forexport ) const
 {
     str = "";
-    if ( text && *text )
+    if ( text_ && *text_ )
     {
-	BufferString txt( *text );
+	BufferString txt( *text_ );
 	replaceCharacter( txt.buf(), newlinechar, pipechar );
 	str = "\""; str += txt; str += "\"\t";
     }
 
-    Coord3 usepos( pos );
+    Coord3 usepos( pos_ );
     if ( forexport )
     {
 	mPIEPAdj(Coord,usepos,false);
@@ -208,22 +237,22 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 
     if ( hasDir() )
     {
-	str += "\t"; getStringFromDouble( 0, dir.radius, str.bufEnd() );
-	str += "\t"; getStringFromDouble( 0, dir.theta, str.bufEnd() );
-	str += "\t"; getStringFromDouble( 0, dir.phi, str.bufEnd() );
+	str += "\t"; getStringFromDouble( 0, dir_.radius, str.bufEnd() );
+	str += "\t"; getStringFromDouble( 0, dir_.theta, str.bufEnd() );
+	str += "\t"; getStringFromDouble( 0, dir_.phi, str.bufEnd() );
     }
 }
 
 
-bool Pick::Location::getText( const char* idkey, BufferString& val ) const
+bool Location::getText( const char* idkey, BufferString& val ) const
 {
-    if ( !text )
+    if ( !text_ )
     {
 	val = "";
 	return false;
     }
     
-    SeparString sepstr( *text, '\'' );
+    SeparString sepstr( *text_, '\'' );
     const int strsz = sepstr.size();
     if ( !strsz ) return false;
 
@@ -240,14 +269,15 @@ bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 }
 
 
-Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
+// Pick::SetMgr
+SetMgr& SetMgr::getMgr( const char* nm )
 {
-    static ObjectSet<Pick::SetMgr>* mgrs = 0;
-    Pick::SetMgr* newmgr = 0;
+    static ObjectSet<SetMgr>* mgrs = 0;
+    SetMgr* newmgr = 0;
     if ( !mgrs )
     {
-	mgrs = new ObjectSet<Pick::SetMgr>;
-	newmgr = new Pick::SetMgr( 0 );
+	mgrs = new ObjectSet<SetMgr>;
+	newmgr = new SetMgr( 0 );
 	    // ensure the first mgr has the 'empty' name
     }
     else if ( (!nm || !*nm) )
@@ -262,15 +292,15 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
     }
 
     if ( !newmgr )
-	newmgr = new Pick::SetMgr( nm );
+	newmgr = new SetMgr( nm );
     *mgrs += newmgr;
-    IOM().surveyToBeChanged.notify( mCB(newmgr,Pick::SetMgr,survChg) );
-    IOM().entryRemoved.notify( mCB(newmgr,Pick::SetMgr,objRm) );
+    IOM().surveyToBeChanged.notify( mCB(newmgr,SetMgr,survChg) );
+    IOM().entryRemoved.notify( mCB(newmgr,SetMgr,objRm) );
     return *newmgr;
 }
 
 
-Pick::SetMgr::SetMgr( const char* nm )
+SetMgr::SetMgr( const char* nm )
     : NamedObject(nm)
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
@@ -278,14 +308,14 @@ Pick::SetMgr::SetMgr( const char* nm )
 {}
 
 
-void Pick::SetMgr::add( const MultiID& ky, Set* st )
+void SetMgr::add( const MultiID& ky, Set* st )
 {
     pss_ += st; ids_ += ky; changed_ += false;
     setAdded.trigger( st );
 }
 
 
-void Pick::SetMgr::set( const MultiID& ky, Set* newset )
+void SetMgr::set( const MultiID& ky, Set* newset )
 {
     Set* oldset = find( ky );
     if ( !oldset )
@@ -309,23 +339,23 @@ void Pick::SetMgr::set( const MultiID& ky, Set* newset )
 }
 
 
-const MultiID& Pick::SetMgr::id( int idx ) const
+const MultiID& SetMgr::id( int idx ) const
 { return ids_[idx]; }
 
 
-void Pick::SetMgr::setID( int idx, const MultiID& mid )
+void SetMgr::setID( int idx, const MultiID& mid )
 {
     ids_[idx] = mid;
 }
 
 
-int Pick::SetMgr::indexOf( const Pick::Set& st ) const
+int SetMgr::indexOf( const Set& st ) const
 {
     return pss_.indexOf( &st );
 }
 
 
-int Pick::SetMgr::indexOf( const MultiID& ky ) const
+int SetMgr::indexOf( const MultiID& ky ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -336,7 +366,7 @@ int Pick::SetMgr::indexOf( const MultiID& ky ) const
 }
 
 
-int Pick::SetMgr::indexOf( const char* nm ) const
+int SetMgr::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -347,28 +377,28 @@ int Pick::SetMgr::indexOf( const char* nm ) const
 }
 
 
-Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
+Set* SetMgr::find( const MultiID& ky ) const
 {
     const int idx = indexOf( ky );
-    return idx < 0 ? 0 : const_cast<Pick::Set*>( pss_[idx] );
+    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
 }
 
 
-MultiID* Pick::SetMgr::find( const Pick::Set& st ) const
+MultiID* SetMgr::find( const Set& st ) const
 {
     const int idx = indexOf( st );
     return idx < 0 ? 0 : const_cast<MultiID*>( &ids_[idx] );
 }
 
 
-Pick::Set* Pick::SetMgr::find( const char* nm ) const
+Set* SetMgr::find( const char* nm ) const
 {
     const int idx = indexOf( nm );
-    return idx < 0 ? 0 : const_cast<Pick::Set*>( pss_[idx] );
+    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
 }
 
 
-void Pick::SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
+void SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
 {
     const int setidx = pss_.indexOf( cd.set_ );
     if ( setidx >= 0 )
@@ -379,29 +409,29 @@ void Pick::SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
 }
 
 
-void Pick::SetMgr::reportChange( CallBacker* sender, const Set& s )
+void SetMgr::reportChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
     {
 	changed_[setidx] = true;
-	setChanged.trigger( const_cast<Pick::Set*>(&s), sender );
+	setChanged.trigger( const_cast<Set*>(&s), sender );
     }
 }
 
 
-void Pick::SetMgr::reportDispChange( CallBacker* sender, const Set& s )
+void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
     {
 	changed_[setidx] = true;
-	setDispChanged.trigger( const_cast<Pick::Set*>(&s), sender );
+	setDispChanged.trigger( const_cast<Set*>(&s), sender );
     }
 }
 
 
-void Pick::SetMgr::removeCBs( CallBacker* cb )
+void SetMgr::removeCBs( CallBacker* cb )
 {
     locationChanged.removeWith( cb );
     setToBeRemoved.removeWith( cb );
@@ -411,7 +441,7 @@ void Pick::SetMgr::removeCBs( CallBacker* cb )
 }
 
 
-void Pick::SetMgr::survChg( CallBacker* )
+void SetMgr::survChg( CallBacker* )
 {
     locationChanged.cbs_.erase();
     setToBeRemoved.cbs_.erase();
@@ -424,7 +454,7 @@ void Pick::SetMgr::survChg( CallBacker* )
 }
 
 
-void Pick::SetMgr::objRm( CallBacker* cb )
+void SetMgr::objRm( CallBacker* cb )
 {
     mCBCapsuleUnpack(MultiID,ky,cb);
     if ( indexOf(ky) >= 0 )
@@ -432,24 +462,25 @@ void Pick::SetMgr::objRm( CallBacker* cb )
 }
 
 
-DefineEnumNames( Pick::Set::Disp, Connection, 0, "Connection" )
+// Pick::Set
+DefineEnumNames( Set::Disp, Connection, 0, "Connection" )
 { "None", "Open", "Close", 0 };
 
-Pick::Set::Set( const char* nm )
+Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
 {}
 
 
-Pick::Set::Set( const Pick::Set& s )
+Set::Set( const Set& s )
     : pars_(*new IOPar)
 { *this = s; }
 
-Pick::Set::~Set()
+Set::~Set()
 { delete &pars_; }
 
 
-Pick::Set& Pick::Set::operator=( const Set& s )
+Set& Set::operator=( const Set& s )
 {
     if ( &s == this ) return *this;
     copy( s ); setName( s.name() );
@@ -458,15 +489,15 @@ Pick::Set& Pick::Set::operator=( const Set& s )
 }
 
 
-float Pick::Set::getXYArea() const
+float Set::getXYArea() const
 {
-    if ( size()<3 || disp_.connect_==Pick::Set::Disp::None )
+    if ( size()<3 || disp_.connect_==Set::Disp::None )
 	return mUdf(float);
     
     TypeSet<Geom::Point2D<float> > posxy;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	const Coord localpos = (*this)[idx].pos;
+	const Coord localpos = (*this)[idx].pos_;
 	posxy += Geom::Point2D<float>(( float )localpos.x,( float )localpos.y);
     }
 
@@ -484,7 +515,7 @@ float Pick::Set::getXYArea() const
 
 static const char* sKeyConnect = "Connect";
 
-void Pick::Set::fillPar( IOPar& par ) const
+void Set::fillPar( IOPar& par ) const
 {
     BufferString colstr;
     if ( disp_.color_ != Color::NoColor() )
@@ -500,7 +531,7 @@ void Pick::Set::fillPar( IOPar& par ) const
 }
 
 
-bool Pick::Set::usePar( const IOPar& par )
+bool Set::usePar( const IOPar& par )
 {
     BufferString colstr;
     if ( par.get(sKey::Color(),colstr) )
@@ -528,7 +559,10 @@ bool Pick::Set::usePar( const IOPar& par )
 }
 
 
+} // namespace Pick
 
+
+// PickSetAscIO
 Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PickSet" );
@@ -601,3 +635,4 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 
     return true;
 }
+

@@ -131,7 +131,7 @@ bool PickSetDisplay::setBodyDisplay()
     TypeSet<Coord3> picks;
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	picks += (*set_)[idx].pos;
+	picks += (*set_)[idx].pos_;
     	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
@@ -156,8 +156,8 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
-    marker->setCenterPos( loc.pos );
-    marker->setDirection( loc.dir );
+    marker->setCenterPos( loc.pos_ );
+    marker->setDirection( loc.dir_ );
     BufferString dipvaluetext;
     loc.getText( "Dip", dipvaluetext );
     SeparString dipstr( dipvaluetext );

@@ -601,9 +601,9 @@ bool TextSubItem::init()
 	if ( (*set_)[idx].getText("O", orientation ) )
 	{
 	    if ( orientation[0] == '1' )
-		(*set_)[idx].dir = crldir;
+		(*set_)[idx].dir_ = crldir;
 	    else 
-		(*set_)[idx].dir = inldir;
+		(*set_)[idx].dir_ = inldir;
 	}
 
 	(*set_)[idx].unSetText("O");
@@ -863,20 +863,21 @@ bool ArrowSubItem::init()
 	BufferString orientation;
 	if ( (*set_)[idx].getText("O", orientation ) )
 	{
+	    Sphere& dir = (*set_)[idx].dir_;
 	    if ( orientation[0] == '2' )
 	    {
-		(*set_)[idx].dir.phi = (float) (-M_PI_2-(*set_)[idx].dir.phi);
-		(*set_)[idx].dir.theta = M_PI_2;
+		dir.phi = (float) (-M_PI_2-dir.phi);
+		dir.theta = M_PI_2;
 	    }
 	    else
 	    {
-		(*set_)[idx].dir.phi = (float) (M_PI_2-(*set_)[idx].dir.phi);
-		(*set_)[idx].dir.theta -= M_PI_2;
+		dir.phi = (float) (M_PI_2-dir.phi);
+		dir.theta -= M_PI_2;
 	    }
 	}
 
-	delete (*set_)[idx].text;
-	(*set_)[idx].text = 0;
+	delete (*set_)[idx].text_;
+	(*set_)[idx].text_ = 0;
     }
 
     return SubItem::init();

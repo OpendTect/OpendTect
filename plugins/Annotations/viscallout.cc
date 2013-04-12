@@ -195,21 +195,21 @@ void Callout::setPick( const Pick::Location& loc )
 {
     if ( isdragging_ ) return;
 
-    marker_->setCenterPos( loc.pos );
-    Coord3 pickpos = loc.pos;
+    Coord3 pickpos = loc.pos_;
+    marker_->setCenterPos( pickpos );
     if ( displaytrans_ )
 	pickpos = displaytrans_->transform( pickpos );
 
     object2display_->setTranslation( pickpos );
 
-    Coord3 textpos( sin(loc.dir.theta)*loc.dir.radius, 0,
-	            cos(loc.dir.theta)*loc.dir.radius );
+    Coord3 textpos( sin(loc.dir_.theta)*loc.dir_.radius, 0,
+	            cos(loc.dir_.theta)*loc.dir_.radius );
     textpos.z /= zscale_;
     if ( scale_ ) textpos = scale_->transformBack( textpos );
 
     fronttext_->setPosition( Coord3(textpos.x,textpos.z, mTextLift ));
 
-    const Quaternion rot1( Coord3( 0,0,1 ), loc.dir.phi );
+    const Quaternion rot1( Coord3( 0,0,1 ), loc.dir_.phi );
     static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
 
     rotation_->set( rot1*rot2 );
@@ -475,7 +475,7 @@ void Callout::updateArrow()
     {
 	const Coord3 pickpos =
 	    faceset_->getCoordinates()->getPos( mPickPosIdx );
-	if ( !mIsZero( pickpos.z, 1e-3) || !xrange.includes(pickpos.x,false) ||
+	if ( !mIsZero(pickpos.z,1e-3) || !xrange.includes(pickpos.x,false) ||
 	     !yrange.includes(pickpos.y,false) )
 	{
 	    float minsqdist = mUdf(float);
@@ -717,7 +717,7 @@ void CalloutDisplay::directionChangeCB( CallBacker* cb )
     if ( idx<0 )
 	return;
 
-    (*set_)[idx].dir = call->getDirection();
+    (*set_)[idx].dir_ = call->getDirection();
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Changed,
 				set_, idx );
     picksetmgr_->reportChange( 0, cd );
@@ -738,7 +738,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
 	return;
 
     BufferString url;
-    if ( (*set_)[child].text &&
+    if ( (*set_)[child].text_ &&
 	    (*set_)[child].getText( CalloutDisplay::sKeyURL(), url ) )
 	uiDesktopServices::openUrl( url );
 }

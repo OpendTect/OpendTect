@@ -92,12 +92,13 @@ void Image::setDisplayTransformation( const mVisTrans* trans )
 void Image::setPick( const Pick::Location& loc )
 {
     const Coord3 displaypos =
-	transform_ ? transform_->transform(loc.pos) : loc.pos;
+	transform_ ? transform_->transform(loc.pos_) : loc.pos_;
     position_->setTranslation( displaypos );
-    position_->setRotation( Coord3(0,0,1), loc.dir.phi );
+    position_->setRotation( Coord3(0,0,1), loc.dir_.phi );
 }
 
 
+// ImageDisplay
 ImageDisplay::ImageDisplay()
     : shape_( visBase::FaceSet::create() )
     , image_( visBase::Image::create() )

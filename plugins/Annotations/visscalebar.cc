@@ -32,7 +32,7 @@ ScaleBar::ScaleBar()
     , firstloc_(*new Pick::Location)
     , orientation_(0)
 {
-    firstloc_.pos = Coord3::udf();
+    firstloc_.pos_ = Coord3::udf();
     setMaterial( 0 );
 
     linestyle_ = visBase::DrawStyle::create();
@@ -99,10 +99,10 @@ void ScaleBar::setPick( const Pick::Location& loc )
 
 void ScaleBar::updateVis( const Pick::Location& loc )
 {
-    if ( !loc.pos.isDefined() )
+    if ( !loc.pos_.isDefined() )
 	return;
 
-    const Coord3 pos1 = loc.pos;
+    const Coord3 pos1 = loc.pos_;
     const Coord3 pos2 = getSecondPos( loc );
 
     marker1_->setCenterPos( pos1 );
@@ -119,19 +119,19 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 {
     if ( orientation_ == 1 )
     {
-	Coord3 pos = loc.pos;
+	Coord3 pos = loc.pos_;
 	pos.z += length_;
 	return pos;
     }
 
-    Coord3 normal = spherical2Cartesian( loc.dir, true );
+    Coord3 normal = spherical2Cartesian( loc.dir_, true );
     const double l2 = length_*length_;
     const double ny2 = normal.x*normal.x;
     const double nx2 = normal.y*normal.y;
     const double term = 1 + nx2/ny2;
     const double dx2 = l2 / term;
     const double dy2 = l2 - dx2;
-    Coord3 pos = loc.pos + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
+    Coord3 pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
     return pos;
 }
 

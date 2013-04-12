@@ -197,8 +197,8 @@ void VW2DPickSet::updateSetIdx( const CubeSampling& cs )
     picksetidxs_.erase();
     for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Coord3& pos = (*pickset_)[idx].pos;
-	const BinID bid = SI().transform(pos);
+	const Coord3& pos = (*pickset_)[idx].pos_;
+	const BinID bid = SI().transform( pos );
 	if ( cs.hrg.includes(bid) )
 	    picksetidxs_ += idx;
     }
@@ -235,7 +235,7 @@ void VW2DPickSet::drawAll()
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	const int pickidx = picksetidxs_[idx];
-	const Coord3& pos = (*pickset_)[pickidx].pos;
+	const Coord3& pos = (*pickset_)[pickidx].pos_;
 	const BinID bid = SI().transform(pos);
 	FlatView::Point point( oninl ? bid.crl : bid.inl, pos.z );
 	picks_->poly_ += point;

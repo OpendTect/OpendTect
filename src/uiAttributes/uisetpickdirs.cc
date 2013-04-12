@@ -144,7 +144,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	Pick::Location pl( ps_[idx] );
-	DataPointSet::DataRow dtrow( DataPointSet::Pos( pl.pos ) );
+	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos_) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
     }
@@ -193,7 +193,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    { phi = 0; theta = 0; }
 	}
 	
-	ps_[idx].dir = Sphere( 1, theta, phi );
+	ps_[idx].dir_ = Sphere( 1, theta, phi );
     }
  
     ps_.disp_.markertype_ = MarkerStyle3D::Plane;

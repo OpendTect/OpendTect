@@ -158,8 +158,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	for ( int pidx=0; pidx<set_->size(); pidx++ )
 	{
 	    Pick::Location loc = (*set_)[pidx];
-	    BinID bid = SI().transform( loc.pos );
-	    const float zval = mCast( float, loc.pos.z );
+	    BinID bid = SI().transform( loc.pos_ );
+	    const float zval = mCast( float, loc.pos_.z );
 	    cs.hrg.include( bid );
 	    cs.zrg.include( zval, false );
 	}
@@ -251,7 +251,7 @@ void LocationDisplay::createLine()
 
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	Coord3 pos = (*set_)[idx].pos;
+	Coord3 pos = (*set_)[idx].pos_;
 	if ( datatransform_ )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
@@ -292,12 +292,12 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
-	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
+	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos_;
 	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
 	    dir.z *= -zscale; //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
-		 (*set_)[waitsfordirectionid_].dir =
+		 (*set_)[waitsfordirectionid_].dir_ =
 		     cartesian2Spherical( dir, true );
 		Pick::SetMgr::ChangeData cd(
 			Pick::SetMgr::ChangeData::Changed,
@@ -313,7 +313,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
-	    (*set_)[waitsforpositionid_].pos = newpos;
+	    (*set_)[waitsforpositionid_].pos_ = newpos;
 	    Pick::SetMgr::ChangeData cd(
 		    Pick::SetMgr::ChangeData::Changed,
 		    set_, waitsforpositionid_ );
@@ -510,11 +510,11 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 {
     if ( !datatransform_ ) return true;
 
-    const float newdepth = datatransform_->transform( loc.pos );
+    const float newdepth = datatransform_->transform( loc.pos_ );
     if ( mIsUdf(newdepth) )
 	return false;
 
-    loc.pos.z = newdepth;
+    loc.pos_.z = newdepth;
 
     if ( hasDirection() )
 	pErrMsg("Direction not impl");
@@ -656,13 +656,13 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	{
 	    int pidx = idx>0 ? idx-1 : set_->size()-1;
 
-	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos ) >= 0;
-	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos ) >= 0;
+	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos_ ) >= 0;
+	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos_ ) >= 0;
 	    if ( nrmatches != sowinghistory.size() )
 		continue;
 
-	    const float dist = findDistance( world2Display((*set_)[pidx].pos),
-		    			     world2Display((*set_)[idx].pos),
+	    const float dist = findDistance( world2Display((*set_)[pidx].pos_),
+		    			     world2Display((*set_)[idx].pos_),
 					     displaypos );
 	    if ( mIsUdf(dist) ) continue;
 
@@ -700,7 +700,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 
     if ( !hasText() ) return true;
 
-    if ( !(*set_)[locidx].text || !(*set_)[locidx].text->size() )
+    if ( !(*set_)[locidx].text_ || !(*set_)[locidx].text_->size() )
     {
 	removePick( locidx );
 	return false;
@@ -757,7 +757,7 @@ void LocationDisplay::otherObjectsMoved(
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	Coord3 pos = (*set_)[idx].pos;
+	Coord3 pos = (*set_)[idx].pos_;
 	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
 
 	if ( scene_ )
@@ -774,7 +774,7 @@ void LocationDisplay::otherObjectsMoved(
 
 	    for ( int idy=0; idy<objs.size(); idy++ )
 	    {
-		const float dist = objs[idy]->calcDist(pos);
+		const float dist = objs[idy]->calcDist( pos );
 		if ( dist<objs[idy]->maxDist() )
 		{
 		    newstatus = true;
@@ -944,7 +944,7 @@ void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
     for ( int idx=set_->size()-1; idx>=0; idx-- )
     {
 	const Pick::Location& loc = (*set_)[idx];
-	if ( selector.includes( loc.pos ) )
+	if ( selector.includes(loc.pos_) )
 	    removePick( idx );
     }
 }

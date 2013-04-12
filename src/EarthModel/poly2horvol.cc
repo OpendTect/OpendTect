@@ -68,8 +68,8 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
 	const Pick::Location& pl( (*ps_)[idx] );
-	pts += pl.pos; zvals += (float) pl.pos.z;
-	const BinID bid( SI().transform(pl.pos) );
+	pts += pl.pos_; zvals += (float) pl.pos_.z;
+	const BinID bid( SI().transform(pl.pos_) );
 	poly.add( mPolyLoc(bid) );
 	if ( idx )
 	    hs.include( bid );

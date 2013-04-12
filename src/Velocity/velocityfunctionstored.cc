@@ -184,10 +184,10 @@ bool StoredFunctionSource::load( const MultiID& velid )
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos );
+	const BinID bid = SI().transform( pspick.pos_ );
 
-	vals[0] = (float) pspick.pos.z;
-	vals[1] = pspick.dir.radius;
+	vals[0] = (float) pspick.pos_.z;
+	vals[1] = pspick.dir_.radius;
 
 	veldata_.add( bid, vals );
     }

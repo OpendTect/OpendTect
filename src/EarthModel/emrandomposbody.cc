@@ -215,7 +215,7 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	locations_ += ps[idx].pos;
+	locations_ += ps[idx].pos_;
 	ids_ += idx;
     }
 }

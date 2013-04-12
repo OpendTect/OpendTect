@@ -1420,23 +1420,23 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     int idx = 0;
     while ( idx < ps.size() )
     {
-	const Coord pos( ps[idx].pos.x, ps[idx].pos.y );
-	const BinID bid = SI().transform( pos );
+	const BinID bid = SI().transform( ps[idx].pos_ );
 	const EM::SubID subid = bid.toInt64();
-	float z = (float) hor->getPos( hor->sectionID(0), subid ).z;
-	if ( mIsUdf(z) )
+	double zval = hor->getPos( hor->sectionID(0), subid ).z;
+	if ( mIsUdf(zval) )
 	{
 	    const Geometry::BinIDSurface* geom = 
 		hor->geometry().sectionGeometry( hor->sectionID(0) );
-	    if ( geom ) z = (float) geom->computePosition( Coord(bid.inl,bid.crl) ).z;
-	    if ( mIsUdf(z) )
+	    if ( geom )
+		zval = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	    if ( mIsUdf(zval) )
 	    {
-		ps.removeSingle( idx );
+		ps.removeSingle(idx);
 		continue;
 	    }
 	}
 
-	ps[idx].pos.z = z;
+	ps[idx].pos_.z = zval;
 	idx++;
     }
 

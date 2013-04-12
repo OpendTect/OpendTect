@@ -211,7 +211,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos.x << " " << ps[idx].pos.y << std::endl;
+	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
 
     sd.close();
     strm << "Done" << std::endl;
@@ -311,7 +311,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos.x << " " << ps[idx].pos.y << std::endl;
+	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
 
     sd.close();
 

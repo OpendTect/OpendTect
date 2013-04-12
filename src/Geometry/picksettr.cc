@@ -241,7 +241,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
-	crds += ((*ps)[ipck]).pos;
+	crds += ((*ps)[ipck]).pos_;
 
     delete createdps;
     return true;
@@ -269,7 +269,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Pick::Location& pl = ps[idx];
-	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
+	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
 	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
     }
 

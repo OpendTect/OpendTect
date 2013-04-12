@@ -411,7 +411,7 @@ bool Picks::store( const IOObj* ioobjarg )
 
 	    const int idx = emids.indexOf(pick.emobjid_);
 	    if ( idx!=-1 )
-		pickloc.text = new BufferString("",idx);
+		pickloc.text_ = new BufferString("",idx);
 
 	    ps += pickloc;
 	} while ( picks_.next(arrpos,false) );
@@ -798,16 +798,17 @@ bool Picks::load( const IOObj* ioobj )
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos );
+	const BinID bid = SI().transform( pspick.pos_ );
+	const float z = mCast(float,pspick.pos_.z);
 	Pick pick = version==1
-	    ? Pick( (float) pspick.pos.z, pspick.dir.radius, refoffset_, -1 )
-	    : Pick( (float) pspick.pos.z, pspick.dir.radius,pspick.dir.theta - 1);
+	    ? Pick( z, pspick.dir_.radius, refoffset_, -1 )
+	    : Pick( z, pspick.dir_.radius, pspick.dir_.theta-1 );
 
-	if ( pspick.text )
+	if ( pspick.text_ )
 	{
 	    int horidx;
-	    if ( getFromString( horidx, pspick.text->buf(),-1 ) && horidx!=-1 &&
-	         horizons_[horidx] )
+	    if ( getFromString(horidx,pspick.text_->buf(),-1) &&
+		 horidx!=-1 && horizons_[horidx] )
 		pick.emobjid_ = horizons_[horidx]->id();
 	}
 
