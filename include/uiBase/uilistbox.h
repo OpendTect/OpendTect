@@ -141,6 +141,8 @@ public:
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     static int		cDefNrLines();		//!< == 7 (July 2011)
+    void		scrollToTop();
+    void		scrollToBottom();
 
     Notifier<uiListBox> selectionChanged;
     CNotifier<uiListBox,int> itemChecked;	//!< or un-checked (of course)
