@@ -517,7 +517,8 @@ void uiStratSimpleLayerModelDisp::doDraw()
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
 
-    mStartLayLoop( true, int prevypix1 = -mUdf(int) )
+    mStartLayLoop( true, int lastdrawnypix = mUdf(int) )
+
 
 	float dispz0 = z0; float dispz1 = z1;
 	mGetConvZ( dispz0, zfac ); mGetConvZ( dispz1, zfac );
@@ -531,38 +532,43 @@ void uiStratSimpleLayerModelDisp::doDraw()
 		dispz0 = (float)zoomwr_.bottom();
 	}
 
-	int ypix0 = yax_->getPix( dispz0 );
 	const int ypix1 = yax_->getPix( dispz1 );
-	if ( ypix0 <= prevypix1 ) ypix0 = prevypix1 + 1;
-	prevypix1 = ypix1;
+	if ( mIsUdf(val) )
+	    { lastdrawnypix = ypix1; continue; }
 
-	if ( ypix0 < ypix1 && !mIsUdf(val) )
+	const int ypix0 = mIsUdf(lastdrawnypix) ? yax_->getPix( dispz0 )
+						: lastdrawnypix + 1;
+	if ( ypix0 >= ypix1 )
+	    continue;
+
+	lastdrawnypix = ypix1;
+	const float relx = (val-vrg_.start) / vwdth;
+	const int xpix0 = getXPix( iseq, 0 );
+	const int xpix1 = getXPix( iseq, relx );
+
+	uiRectItem* it = new uiRectItem( xpix0, ypix0,
+					 xpix1-xpix0+1, ypix1-ypix0+1 );
+
+	const Color laycol = lay.dispColor( uselithcols_ );
+	bool mustannotcont = false;
+	if ( !lay.content().isUnspecified() )
+	    mustannotcont = selectedcontent_
+			 && lay.content() == *selectedcontent_;
+	const Color pencol = mustannotcont ? lay.content().color_ : laycol;
+	it->setPenColor( pencol );
+	if ( pencol != laycol )
+	    it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
+
+	if ( fillmdls_ )
 	{
-	    const float relx = (val-vrg_.start) / vwdth;
-	    const int xpix0 = getXPix( iseq, 0 );
-	    const int xpix1 = getXPix( iseq, relx );
-
-	    uiRectItem* it = scene().addRect( xpix0, ypix0,
-		    			xpix1-xpix0+1, ypix1-ypix0+1 );
-	    it->setZValue( layzlvl );
-
-	    const Color laycol = lay.dispColor( uselithcols_ );
-	    const bool isannotcont = selectedcontent_
-				  && lay.content() == *selectedcontent_;
-	    const Color pencol = isannotcont ? lay.content().color_ : laycol;
-	    it->setPenColor( pencol );
-	    if ( pencol != laycol )
-		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
-
-	    if ( fillmdls_ )
-	    {
-		it->setFillColor( laycol );
-		if ( isannotcont )
-		    it->setFillPattern( lay.content().pattern_ );
-	    }
-
-	    logblckitms_ += it;
+	    it->setFillColor( laycol );
+	    if ( mustannotcont )
+		it->setFillPattern( lay.content().pattern_ );
 	}
+
+	it->setZValue( layzlvl );
+	scene().addItem( it );
+	logblckitms_ += it;
 
     mEndLayLoop()
 
