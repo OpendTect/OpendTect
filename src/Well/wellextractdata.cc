@@ -596,12 +596,12 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 					  ObjectSet<DataPointSet>& d,
        					  bool ztm )
-	: Executor("Well log data extraction")
-	, ids_(i)
-	, dpss_(d)
+    : Executor("Well log data extraction")
+    , ids_(i)
+    , dpss_(d)
     , samppol_(Stats::UseMed)
-	, curid_(0)
-	, zistime_(ztm)
+    , curid_(0)
+    , zistime_(ztm)
 {
 }
 
@@ -691,7 +691,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     // Should be OK for all wells without horizontal sections
 
     int trackidx = 0;
-    float z1 = track.pos(trackidx).z;
+    float z1 = (float)track.pos(trackidx).z;
 
     int dpsrowidx = 0; float dpsz = 0;
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
@@ -716,18 +716,18 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
 	dpsz = dps.z(dpsrowidx);
-	float z2 = track.pos( trackidx ).z;
+	float z2 = (float)track.pos( trackidx ).z;
 	while ( dpsz > z2 )
 	{
 	    trackidx++;
 	    if ( trackidx >= track.size() )
 		return;
-	    z2 = track.pos( trackidx ).z;
+	    z2 = (float)track.pos( trackidx ).z;
 	}
 	if ( trackidx == 0 ) // Huh?
 	    continue;
 
-	z1 = track.pos( trackidx - 1 ).z;
+	z1 = (float)track.pos( trackidx - 1 ).z;
 	if ( z1 > dpsz )
 	{
 	    // This is not uncommon. A new binid with higher posns.
@@ -757,7 +757,6 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
     if ( dps.isEmpty() || track.isEmpty() )
 	return;
 
-    const float dahstep = wl.dahStep(true);
     float prevwinsz = mDefWinSz;
     float prevdah = mUdf(float);
     DataPointSet::RowID dpsrowidx = 0;
@@ -793,16 +792,18 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 {
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
-    for ( int idx=0; idx<wl.size(); idx++ )
+    int startidx = wl.indexOf( rg.start );
+    if ( startidx < 0 ) startidx = 0;
+    for ( int idx=startidx; idx<wl.size(); idx++ )
     {
-	float newdah = wl.dah( idx );
-	if ( rg.includes(newdah,false) )
+	float curdah = wl.dah( idx );
+	if ( rg.includes(curdah,false) )
 	{
 	    float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
 		vals += wl.value(idx);
 	}
-	else if ( newdah > rg.stop )
+	else if ( curdah > rg.stop )
 	    break;
     }
     if ( vals.size() < 1 ) return mUdf(float);
@@ -827,7 +828,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx] * vals[idx];
-	return sqrt( val / sz );
+	return Math::Sqrt( val / sz );
     }
     else if ( samppol == Stats::UseMostFreq )
     {
@@ -931,51 +932,42 @@ int Well::SimpleTrackSampler::nextStep()
 HiddenParam<Well::LogSampler, const Well::LogSet*> inplogs_( 0 );
 
 
-Well::LogSampler::LogSampler( const Well::Data& wd, 
-			    const Well::ExtractParams& pars, 
-			    const BufferStringSet& lognms )
+Well::LogSampler::LogSampler( const Well::Data& wd,
+			      const Well::ExtractParams& pars,
+			      const BufferStringSet& lognms )
     : wd_(wd)
-    , data_(0)
-    , samppol_(pars.samppol_)
-    , zrg_(pars.calcFrom(wd,lognms))
-    , extrintime_(pars.extractzintime_)
     , lognms_(lognms)
-    , zrgisintime_(pars.isZRangeInTime())
-    , zstep_(pars.zstep_)	 
 {
-	Well::LogSet alllogs = wd.logs();
-	Well::LogSet* inplogs = new Well::LogSet;
-	for ( int idx=0; idx<lognms.size(); idx++ )
-	{
-		Well::Log* log = alllogs.getLog( lognms.get( idx ) );
-		inplogs->add( log );
-	}
-	setLogs( inplogs );
+    init( pars.calcFrom(wd,lognms), pars.isZRangeInTime(), pars.zstep_,
+	  pars.extractzintime_, pars.samppol_ );
+    const Well::LogSet& alllogs = wd_.logs();
+    Well::LogSet* inplogs = new Well::LogSet;
+    for ( int idx=0; idx<lognms.size(); idx++ )
+    {
+	Well::Log* log = new Well::Log( *alllogs.getLog( lognms.get( idx ) ) );
+	inplogs->add( log );
+    }
+    setLogs( inplogs );
 }
 
 
-Well::LogSampler::LogSampler( const Well::Data& wd, 
+Well::LogSampler::LogSampler( const Well::Data& wd,
 			    const Interval<float>& zrg, bool zrgisintime,
 			    float zstep, bool extrintime,
 			    Stats::UpscaleType samppol,
 			    const BufferStringSet& lognms )
     : wd_(wd)
-    , data_(0)
-    , samppol_(samppol)
     , lognms_(lognms)
-    , zrg_(zrg)
-    , zrgisintime_(zrgisintime) 
-    , extrintime_(extrintime)
-    , zstep_(zstep)
 {
-	Well::LogSet alllogs = wd.logs();
-	Well::LogSet* inplogs = new Well::LogSet;
-	for ( int idx=0; idx<lognms.size(); idx++ )
-	{
-		Well::Log* log = alllogs.getLog( lognms.get( idx ) );
-		inplogs->add( log );
-	}
-	setLogs( inplogs );
+    init( zrg, zrgisintime, zstep, extrintime, samppol );
+    const Well::LogSet& alllogs = wd_.logs();
+    Well::LogSet* inplogs = new Well::LogSet;
+    for ( int idx=0; idx<lognms.size(); idx++ )
+    {
+	Well::Log* log = new Well::Log( *alllogs.getLog( lognms.get( idx ) ) );
+	inplogs->add( log );
+    }
+    setLogs( inplogs );
 }
 
 
@@ -985,23 +977,18 @@ Well::LogSampler::LogSampler(const Well::Data& wd,
 			    Stats::UpscaleType samppol,
 			    const Well::LogSet& logs )
     : wd_(wd)
-	, data_(0)
-	, samppol_(samppol)
-	, lognms_(*new BufferStringSet)
-    , zrg_(zrg)
-    , zrgisintime_(zrgisintime) 
-    , extrintime_(extrintime)
-    , zstep_(zstep)
+    , lognms_(*new BufferStringSet)
 {
-	setLogs( &logs );
+    init( zrg, zrgisintime, zstep, extrintime, samppol );
+    setLogs( &logs );
 }
 
 
 Well::LogSampler::~LogSampler()
 {
     delete data_;
-	delete inplogs_.getParam(this);
-	inplogs_.removeParam(this);
+    delete inplogs_.getParam(this);
+    inplogs_.removeParam(this);
 }
 
 
@@ -1014,6 +1001,19 @@ void Well::LogSampler::setLogs( const Well::LogSet* logs )
 const Well::LogSet* Well::LogSampler::getLogs() const
 {
 	return inplogs_.getParam(this);
+}
+
+
+void Well::LogSampler::init( const Interval<float>& zrg, bool zrgisintime,
+       			     float zstep, bool extrintime,
+			     Stats::UpscaleType samppol )
+{
+    data_ = 0;
+    samppol_ = samppol;
+    zrg_ = zrg;
+    zrgisintime_ = zrgisintime;
+    extrintime_ = extrintime;
+    zstep_ = zstep;
 }
 
 
@@ -1044,62 +1044,62 @@ bool Well::LogSampler::doPrepare( int thread )
     if ( mIsUdf(zstep_) )
 	{ errmsg_ = "No valid step specified"; return false; }
 
-	if ( (extrintime_ || zrgisintime_ ) && !wd_.d2TModel() )
+    if ( (extrintime_ || zrgisintime_ ) && !wd_.d2TModel() )
 	{ errmsg_ = "No valid depth/time model found"; return false; }
 
-	Interval<float> dahrg;
-	mGetDah( dahrg.start, zrg_.start );
-	mGetDah( dahrg.stop, zrg_.stop );
-	if ( dahrg.isUdf() )
+    Interval<float> dahrg;
+    mGetDah( dahrg.start, zrg_.start );
+    mGetDah( dahrg.stop, zrg_.stop );
+    if ( dahrg.isUdf() )
 	{ errmsg_ = "Could not determine extraction boundaries"; return false; }
 
     const int ns = wd_.track().size();
     if ( dahrg.start < wd_.track().dah(0) )
 	{ errmsg_ = "Cannot extract data above well head"; return false; }
 
-	if ( dahrg.stop > wd_.track().dah(ns-1) )
+    if ( dahrg.stop > wd_.track().dah(ns-1) )
 	{ errmsg_ = "Cannot extract data below TD"; return false; }
 	
-	if ( extrintime_ != zrgisintime_ )
+    if ( extrintime_ != zrgisintime_ )
+    {
+	mGetZ( zrg_.start, dahrg.start )
+	mGetZ( zrg_.stop, dahrg.stop )
+    } // zrg_ now matches the extraction domain
+
+    float zstart = (float) mNINT32(zrg_.start/zstep_) * zstep_;
+    if ( zstart < zrg_.start-(zstep_*1e-2f) )
+	zstart += zstep_;
+
+    float zstop = (float) mNINT32(zrg_.stop/zstep_) * zstep_;
+    if ( zstop > zrg_.stop+(zstep_*1e-2f) )
+	zstop -= zstep_;
+
+    StepInterval<float> zrgreg( zstart, zstop, zstep_ );
+
+    TypeSet<float> dahs;
+    TypeSet<float> winsz;
+    for ( int idx=0; idx<=zrgreg.nrSteps(); idx++ )
+    {
+	const float zmid = zrgreg.atIndex(idx);
+	const float ztop = zmid - zstep_/2.f;
+	const float zbase = zmid + zstep_/2.f;
+	Interval<float> dahwin;
+	mGetDah( dahwin.start, ztop )
+	mGetDah( dahwin.stop, zbase )
+	if ( !dahwin.isUdf() )
 	{
-		mGetZ( zrg_.start, dahrg.start )
-		mGetZ( zrg_.stop, dahrg.stop )
-	} // zrg_ now matches the extraction domain
-
-	float zstart = (float) mNINT32(zrg_.start/zstep_) * zstep_;
-	if ( zstart < zrg_.start-(zstep_*1e-2f) )
-		zstart += zstep_;
-
-	float zstop = (float) mNINT32(zrg_.stop/zstep_) * zstep_;
-	if ( zstop > zrg_.stop+(zstep_*1e-2f) )
-		zstop -= zstep_;
-
-	StepInterval<float> zrgreg( zstart, zstop, zstep_ );
-
-	TypeSet<float> dahs;
-	TypeSet<float> winsz;
-	for ( int idx=0; idx<=zrgreg.nrSteps(); idx++ )
-	{
-		const float zmid = zrgreg.atIndex(idx);
-		const float ztop = zmid - zstep_/2.f;
-		const float zbase = zmid + zstep_/2.f;
-		Interval<float> dahwin;
-		mGetDah( dahwin.start, ztop );
-		mGetDah( dahwin.stop, zbase );
-		if ( !dahwin.isUdf() )
-		{
-			dahs += dahwin.center();
-			winsz += dahwin.width();
-		}
+	    dahs += dahwin.center();
+	    winsz += dahwin.width();
 	}
+    }
 
-    data_ = new Array2DImpl<float>( nrIterations()+2, dahs.size() );
-	const int winszidx = (int)nrIterations() + 1;
-	for ( int idz=0; idz<dahs.size(); idz++ )
-	{
-		data_->set( 0, idz, dahs[idz] );
-		data_->set( winszidx, idz, winsz[idz] );
-	}
+    data_ = new Array2DImpl<float>( (int)nrIterations()+2, dahs.size() );
+    const int winszidx = (int)nrIterations() + 1;
+    for ( int idz=0; idz<dahs.size(); idz++ )
+    {
+	data_->set( 0, idz, dahs[idz] );
+	data_->set( winszidx, idz, winsz[idz] );
+    }
 
     return true;
 }
@@ -1107,7 +1107,7 @@ bool Well::LogSampler::doPrepare( int thread )
 
 bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=(int)start; idx<=stop; idx++ )
     {
 	if ( !shouldContinue() )
 	    return false;
@@ -1123,30 +1123,30 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 bool Well::LogSampler::doLog( int logidx )
 {
-	const Well::LogSet* inplogs = getLogs();
-	if ( !inplogs || !inplogs->validIdx(logidx) )
-		return false;
+    const Well::LogSet* inplogs = getLogs();
+    if ( !inplogs || !inplogs->validIdx(logidx) )
+	return false;
 
     const Well::Log* log = &(inplogs->getLog( logidx ));
     if ( !log || log->isEmpty() )
-		return false;
+	return false;
 
-	const int winszidx = data_->info().getSize(0)-1;
+    const int winszidx = data_->info().getSize(0)-1;
     for ( int idz=0; idz<data_->info().getSize(1); idz++ ) 
     {
-		float dah = data_->get( 0, idz );
-		float lval = mUdf(float);
+	float dah = data_->get( 0, idz );
+	float lval = mUdf(float);
 		
-		if ( samppol_ == Stats::TakeNearest )
-			lval = log->getValue(dah,true);
-		else
-		{
-			const float winsz = data_->get( winszidx, idz );
-			lval = LogDataExtracter::calcVal(*log,dah,winsz,samppol_);
-		}
-
-		data_->set( logidx+1, idz, lval );
+	if ( samppol_ == Stats::TakeNearest )
+	    lval = log->getValue(dah,true);
+	else
+	{
+	    const float winsz = data_->get( winszidx, idz );
+	    lval = LogDataExtracter::calcVal(*log,dah,winsz,samppol_);
 	}
+
+	data_->set( logidx+1, idz, lval );
+    }
 
     return true;
 }
@@ -1161,38 +1161,41 @@ float Well::LogSampler::getDah( int idz ) const
 
 float Well::LogSampler::getLogVal( int logidx, int idz ) const
 {
+    if ( !data_ )
+	return mUdf( float );
+
     const int xsz = data_->info().getSize(0);
     const int zsz = data_->info().getSize(1);
 
-    return data_ && logidx+1 < xsz && idz < zsz ? 
-	data_->get( logidx + 1, idz ) : mUdf( float );
+    return logidx+1 < xsz && idz < zsz ? data_->get( logidx+1, idz )
+       				       : mUdf( float );
 }
 
 
 float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
 {
-	bool found = false;
+    bool found = false;
 
-	const Well::LogSet* inplogs = getLogs();
-	if ( !inplogs )
-		return false;
+    const Well::LogSet* inplogs = getLogs();
+    if ( !inplogs )
+	return false;
 
-	int logidx = 0;
-	for ( logidx=0; logidx<inplogs->size(); logidx++ )
+    int logidx = 0;
+    for ( logidx=0; logidx<inplogs->size(); logidx++ )
+    {
+	if ( !inplogs->validIdx(logidx) )
+	    continue;
+
+	const Well::Log* log = &(inplogs->getLog( logidx ));
+	if ( !log )
+	    continue;
+
+	if ( !strcmp(log->name(),lnm) )
 	{
-		if ( !inplogs->validIdx(logidx) )
-			continue;
-
-		const Well::Log* log = &(inplogs->getLog( logidx ));
-		if ( !log )
-			continue;
-
-		if ( !strcmp(log->name(),lnm) )
-		{
-			found = true;
-			break;
-		}
+	    found = true;
+	    break;
 	}
+    }
 
     return found ? getLogVal( logidx, idz ) : mUdf(float);
 }
@@ -1221,3 +1224,4 @@ void Well::LogSampler::snapZRangeToSI()
 	zrg_.stop = sizrg.snap( zrg_.stop );
     }
 }
+

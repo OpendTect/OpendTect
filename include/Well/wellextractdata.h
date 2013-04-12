@@ -112,7 +112,8 @@ mClass InfoCollector : public ::Executor
 {
 public:
 
-			InfoCollector(bool wellloginfo=true,bool markers=true,
+			InfoCollector(bool wellloginfo=true,
+				      bool markers=true,
 				      bool dotracks=false);
 			~InfoCollector();
 
@@ -130,7 +131,6 @@ public:
     const ObjectSet<BufferStringSet>& logs() const { return logs_; }
     				//!< If selected, same size as ids()
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
-
 
 protected:
 
@@ -295,13 +295,16 @@ public:
 			LogSampler(const Well::Data& wd,
 				const Well::ExtractParams&,
 				const BufferStringSet& lognms);
-
 			LogSampler(const Well::Data& wd,
 				const Interval<float>& zrg, bool zrgintime,
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const BufferStringSet& lognms);
-
+			LogSampler(const Well::Data& wd,
+				const Interval<float>& zrg, bool zrgintime,
+				float zstep, bool extractintime,
+				Stats::UpscaleType samppol,
+				const Well::LogSet& logs);
 			~LogSampler();
 
     //avalaible after execution
@@ -313,45 +316,41 @@ public:
     float		getLogVal(const char* lognm,int idx) const;
 
     int			nrSamples() const 	{ return zrg_.nrSteps()+1; }
+    // do not use, will be removed
 
+    const char*		errMsg() const
+    			       { return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
-    const char*		errMsg() const 
-	 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    int 		nrZSamples() const;
+    Interval<float>	zRange() const { return zrg_; } //can be in time
 
 protected:
+    void		init(const Interval<float>&,bool zrgintime,float zstep,
+	   		     bool extractintime,Stats::UpscaleType);
+    od_int64           	nrIterations() const;
 
-    od_int64            	nrIterations() const;
-
-    bool 			doPrepare(int);
-    bool 			doWork(od_int64,od_int64,int);
-    bool			doLog(int logidx);
+    bool		doLog(int logidx);
+    bool 		doPrepare(int);
+    bool 		doWork(od_int64,od_int64,int);
 
     const Well::Data&		wd_;
-	const Well::D2TModel* 	d2t_;
-	// do not use, will be removed
+    const Well::D2TModel* 	d2t_;
+    // do not use, will be removed
     StepInterval<float>		zrg_;
-	float			zstep_;
+    float			zstep_;
     bool 			extrintime_;
     bool			zrgisintime_;
-	Array2DImpl<float>*		data_;
+    Array2DImpl<float>*		data_;
     const BufferStringSet& 	lognms_;
-	// do not use, will be removed
+    // do not use, will be removed
 
     BufferString		errmsg_;
     Stats::UpscaleType 		samppol_;
 
 public:
-			LogSampler(const Well::Data& wd,
-				const Interval<float>& zrg, bool zrgintime,
-				float zstep, bool extractintime,
-				Stats::UpscaleType samppol,
-				const Well::LogSet& logs);
-
     void			setLogs(const Well::LogSet*);
-	const Well::LogSet* getLogs() const;
+    const Well::LogSet*		getLogs() const;
 			
-	int 			nrZSamples() const;
-    Interval<float> 		zRange() const { return zrg_; }
     void			snapZRangeToSI();
 };
 
