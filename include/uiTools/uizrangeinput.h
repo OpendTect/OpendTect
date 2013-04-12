@@ -38,7 +38,7 @@ template <class T> inline
 void uiZRangeInput::setZRange( T range )
 {
     if ( !isdepth_ && !range.isUdf() )
-	range.scale( ZDomain::Time().userFactor() );
+	range.scale( (float) ZDomain::Time().userFactor() );
     
     setValue( range );
 }
