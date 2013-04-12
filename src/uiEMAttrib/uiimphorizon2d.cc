@@ -181,8 +181,8 @@ void interpolateAndSetVals( int hidx, const PosInfo::GeomID& geomid,
 	    continue;
 
 	const Coord newvec = pos.coord_ - prevpos.coord_;
-	const float sq = (float) vec.sqAbs();
-	const float prod = (float) vec.dot(newvec);
+	const float sq = mCast(float,vec.sqAbs());
+	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
 	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
@@ -241,6 +241,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	   				"Select Horizons to import", true ); 
     horbox->attach( alignedBelow, lsetbox );
     horselfld_ = horbox->box();
+    horselfld_->selectAll( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, "Add new",
@@ -321,6 +322,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
     horselfld_->addItem( hornm );
     const int idx = horselfld_->size() - 1;
     horselfld_->setSelected( idx, true );
+    horselfld_->scrollToBottom();
 }
 
 
@@ -454,10 +456,10 @@ bool uiImportHorizon2D::doImport()
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
     PtrMan<Horizon2DImporter> exec =
-	    new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
-				   (UndefTreat) udftreatfld_->getIntValue() );
+	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
+			       (UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
-    if ( !TaskRunner::execute( &impdlg, *exec ) )
+    if ( !TaskRunner::execute(&impdlg,*exec) )
 	mUnrefAndDeburstRet( false );
 
     for ( int idx=0; idx<horizons.size(); idx++ )
@@ -519,3 +521,4 @@ bool uiImportHorizon2D::checkInpFlds()
 
     return true;
 }
+
