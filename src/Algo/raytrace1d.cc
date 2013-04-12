@@ -288,7 +288,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 float RayTracer1D::getSinAngle( int layer, int offset ) const
 {
     if ( !offsetpermutation_.validIdx( offset ) )
-	return false;
+	return mUdf(float);
 
     const int offsetidx = offsetpermutation_[offset];
 
