@@ -41,6 +41,10 @@ public:
     float		getKbElev() const	{ return dah_[0] - value(0); }
     int			nrPoints() const	{ return pos_.size(); }
     bool		zIsTime() const		{ return zistime_; }
+    const Interval<float> zRange() const;
+    			//!< returns (0, 0) for empty track
+    const Interval<float> dahRange() const;
+    			//!< returns (0, 0) for empty track
 
     int			insertPoint(const Coord&,float z);
     			//!< a 'good' place will be found
