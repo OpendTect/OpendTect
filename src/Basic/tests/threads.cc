@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "genc.h"
 #include "keystrs.h"
+#include "string2.h"
 #include "commandlineparser.h"
 #include "callback.h"
 #include "limits.h"
@@ -21,14 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 	if ( quiet ) \
 	    std::cout << "Data type in test: " << valtype << " \n"; \
 	std::cerr << "Atomic = " << atomic.get() << " in function: "; \
-	std::cerr << func " failed!\n"; \
+	std::cerr << func << " failed!\n"; \
 	stopflag = true; \
 	return false; \
 } \
 else \
 { \
 	std::cout << "Atomic = " << atomic.get() << " in function: "; \
-	std::cerr << #func " passed!\n"; \
+	std::cerr << func << " passed!\n"; \
 }
 
 #define mRunTest( func, finalval ) \
@@ -112,7 +113,8 @@ bool testAtomic( const char* valtype, bool quiet )
     count = 10000000;
     successfound = false;
     failurefound = false;
-    for ( int idx=0; idx<count; idx++ )
+    int idx;
+    for ( idx=0; idx<count; idx++ )
     {
 	expected = atomic.get();
 	if ( atomic.strongSetIfEqual(mTestVal,expected) )
@@ -124,8 +126,14 @@ bool testAtomic( const char* valtype, bool quiet )
 	    break;
     }
     
+    BufferString message("strongSetIfEqual stresstest: nrattempts = ", toString(idx) );
+    message += ", successfound=";
+    message += toString(successfound);
+    message += ", failurefound=";
+    message += toString(failurefound);
+
     if ( !successfound || !failurefound )
-	mPrintResult( "strongSetIfEqual stresstest");
+	mPrintResult( message.buf() );
     
     stopflag = true;
     
