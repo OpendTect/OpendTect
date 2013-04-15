@@ -515,7 +515,7 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() || ( mcd_ && !plg_ && !rpb_) )
+    if ( menu->menuID()!=displayID() || ( !mcd_ && !plg_ && !rpb_) )
 	return;
 	
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
@@ -588,26 +588,26 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const bool bodydisplay = !displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
-    	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, bodydisplay );
-    	    plg_->displayIntersections( !bodydisplay );
+    	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
+    	    plg_->display( polygondisplayed, bodydisplay );
+    	    plg_->displayIntersections( !polygondisplayed && !bodydisplay );
 	}
 	else if ( mcd_ )
 	    mcd_->displayIntersections( !bodydisplay );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
-	const bool polygdisplayed = displaypolygonmnuitem_.checked;
+	const bool polygondisplay = !displaypolygonmnuitem_.checked;
 	const bool bodydisplayed = displaybodymnuitem_.checked;
-	plg_->display( !polygdisplayed, bodydisplayed );
+	plg_->display( polygondisplay, bodydisplayed );
+	plg_->displayIntersections( !polygondisplay && !bodydisplayed );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
 	if ( plg_ )
 	{
-    	    const bool polygdisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygdisplayed, !intersectdisplay );
+    	    plg_->display( false, !intersectdisplay );
     	    plg_->displayIntersections( intersectdisplay );
 	}
 	else if ( mcd_ )
