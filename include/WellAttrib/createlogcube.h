@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "wellattribmod.h"
 #include "task.h"
 #include "horsampling.h"
 #include "wellextractdata.h"
