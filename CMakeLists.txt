@@ -108,3 +108,6 @@ OD_SETUP_TEST_FILTER()
 if( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
 endif()
+
+#Avoid warnings if specified on command line
+set ( DUMMY ${ISTAG} ${BRANCH} )
