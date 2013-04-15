@@ -405,7 +405,7 @@ bool uiImportHorizon2D::doImport()
     {
 	BufferString nm = hornms.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm );
-	EM::ObjectID id = em.getObjectID( ioobj->key() );
+	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
 	EM::EMObject* emobj = em.getObject(id);
 	if ( emobj )
 	    emobj->setBurstAlert( true );
