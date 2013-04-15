@@ -17,7 +17,7 @@ uiMPE contains user interface for the MPE-engines trackers and editors. The
 class uiMPEPartServer provides tracking services for higher hierarchies 
 (i.e. the application manager).
 
-There are two factories avaliable for Tracking and Editing UI from
+There are two factories available for Tracking and Editing UI from
 the MPE::uiMPEEngine object, which is available through the static function
 MPE::uiMPE().
 
