@@ -532,9 +532,6 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { errmsg = s; return 0; }
-
 #define mStepEps 1e-3
 
 
@@ -689,7 +686,6 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets )
     : Executor("Extracting attributes")
 {
-    const int nrinps = inputs.size();
     const DescSet* attrset = aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -781,12 +777,11 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const LineKey lk( storeddesc->getValParam(
 			StorageProvider::keyStr())->getStringValue(0) );
-
     const MultiID key( lk.lineName() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
-    const Seis2DLineSet lset(ioobj->fullUserExpr(true));
 
+    const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
     S2DPOS().setCurLineSet( lset.name() );
     PosInfo::LineSet2DData linesetgeom;
     for ( int idx=0; idx<lset.nrLines(); idx++ )
@@ -941,8 +936,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg = s; return 0; }
 
 Processor* EngineMan::getProcessor( BufferString& errmsg )
 {
@@ -985,7 +979,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )
-	    
+
     if ( doeval )
     {
 	for ( int idx=1; idx<attrspecs_.size(); idx++ )
@@ -1029,7 +1023,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  const IOPar& pars,
 					  DataPointSet* datapointset,
 					  float outval,
-       					  Interval<float>* cubezbounds )
+					  Interval<float>* cubezbounds )
 {
     PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output,"0") );
     const char* linename = output->find(sKey::LineKey);
@@ -1059,14 +1053,16 @@ int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 }
 
 
+#undef mErrRet
+#define mErrRet(s) { errmsg = s; return false; }
+
 bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 					 const Attrib::DescSet& descset,
-       					 BufferString& errmsg )
+					 BufferString& errmsg )
 {
     BufferStringSet attrrefs;
     descset.fillInAttribColRefs( attrrefs );
     
-    const int nrdpsfixcols = datapointset.nrFixedCols();
     for ( int idx=0; idx<datapointset.nrCols(); idx++ )
     {
 	DataColDef& dcd = datapointset.colDef( idx );
@@ -1092,7 +1088,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    }
 	    if ( descid == DescID::undef() )
 		mErrRet( BufferString("Cannot find specified '",
-			    nmstr,"' in object management") );
+			 nmstr,"' in object management") );
 
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;
@@ -1129,5 +1125,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
     }
     return true;
 }
+
+#undef mErrRet
 
 } // namespace Attrib

@@ -467,7 +467,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     if ( !fdp )
     {
 	DPM(DataPackMgr::FlatID()).release( dp );
-	return false;
+	return 0;
     }
 
     vwr.setPack( false, dpid, false, true );

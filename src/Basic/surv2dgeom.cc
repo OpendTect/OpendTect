@@ -343,7 +343,7 @@ bool PosInfo::Survey2D::hasLineSet( int lsid ) const
 const char* PosInfo::Survey2D::getLineName( int lineid ) const
 {
     if ( lineid < 0 )
-	return false;
+	return 0;
     
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {

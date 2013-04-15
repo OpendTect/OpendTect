@@ -580,13 +580,13 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 {
     if ( targetspecs_.isEmpty() ||
 	 targetspecs_[0].id().asInt() == SelSpec::cNoAttrib().asInt())
-	{ pErrMsg("Nothing to do"); return false; }
+	{ pErrMsg("Nothing to do"); return 0; }
     
     const bool istargetstored = targetspecs_[0].isStored();
     const bool is2d = targetspecs_[0].is2D();
     const DescSet* ads = DSHolder().getDescSet( is2d, istargetstored );
     if ( !ads )
-	{ pErrMsg("No attr set"); return false; }
+	{ pErrMsg("No attr set"); return 0; }
 
     EngineMan* aem = new EngineMan;
     aem->setAttribSet( ads );

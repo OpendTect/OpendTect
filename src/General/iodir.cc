@@ -83,7 +83,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 	msg += "\n-> Please check directory (read permissions, existence):\n'";
 	msg += dirnm; msg += "'";
 	ErrMsg( msg );
-	return false;
+	return 0;
     }
 
     IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, needid );
