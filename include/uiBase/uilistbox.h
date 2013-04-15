@@ -170,6 +170,8 @@ public:
     void                setItemChecked(const char*,bool);
     bool                isItemChecked(const char*) const;
     void		disableRightClick(bool yn);
+    void		scrollToTop();
+    void		scrollToBottom();
 
 };
 

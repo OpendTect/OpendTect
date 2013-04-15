@@ -916,6 +916,13 @@ void uiListBox::disableRightClick( bool yn )
 }
 
 
+void uiListBox::scrollToTop()
+{ body_->scrollToTop(); }
+
+void uiListBox::scrollToBottom()
+{ body_->scrollToBottom(); }
+
+
 // -------------- uiLabeledListBox ----------------
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const char* txt, bool multisel,
 				    uiLabeledListBox::LblPos pos )

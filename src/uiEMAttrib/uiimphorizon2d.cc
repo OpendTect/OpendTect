@@ -41,7 +41,7 @@ static const char* rcsID = "$Id$";
 #include <math.h>
 
 
-enum UndefTreat			{ Skip, Adopt, Interpolate };
+enum UndefTreat		{ Skip, Adopt, Interpolate };
 
 
 class Horizon2DImporter : public Executor
@@ -50,7 +50,7 @@ public:
 
 Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 		   const MultiID& setid, const BinIDValueSet* valset,
-       		   UndefTreat udftreat )
+		   UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
     , hors_(hors)
@@ -181,8 +181,8 @@ void interpolateAndSetVals( int hidx, const PosInfo::GeomID& geomid,
 	    continue;
 
 	const Coord newvec = pos.coord_ - prevpos.coord_;
-	const float sq = vec.sqAbs();
-	const float prod = vec.dot(newvec);
+	const float sq = mCast(float,vec.sqAbs());
+	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
 	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
@@ -243,6 +243,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	   				"Select Horizons to import", true ); 
     horbox->attach( alignedBelow, lsetbox );
     horselfld_ = horbox->box();
+    horselfld_->selectAll( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, "Add new",
@@ -262,7 +263,6 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     BufferStringSet udftreatments;
     udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
-
     udftreatfld_ = new uiGenInput( this, "Undefined values",
 				   StringListInpSpec(udftreatments) );
     udftreatfld_->attach( alignedBelow, scanbut_ );
@@ -324,6 +324,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
     horselfld_->addItem( hornm );
     const int idx = horselfld_->size() - 1;
     horselfld_->setSelected( idx, true );
+    horselfld_->scrollToBottom();
 }
 
 
@@ -522,5 +523,4 @@ bool uiImportHorizon2D::checkInpFlds()
 
     return true;
 }
-
 
