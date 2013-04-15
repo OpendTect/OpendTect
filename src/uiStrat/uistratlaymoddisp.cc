@@ -44,11 +44,10 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     : uiGroup(t.parent(),"LayerModel display")
     , tools_(t)
     , lmp_(lmp)
-    , zoomwr_(mUdf(double),0,0,0)
+    , zrg_(0,1)
     , selseqidx_(-1)
     , flattened_(false)
     , fluidreplon_(false)
-    , zrg_(0,1)
     , sequenceSelected(this)
     , genNewModelNeeded(this)
     , rangeChanged(this)   
@@ -91,8 +90,8 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
 {
     const int nrseqs = layerModel().size();
     mGetDispZrg(dispzrg);
-    uiWorldRect wr( 1, dispzrg.start, nrseqs + 1, dispzrg.stop );
-    return zoomwr_.isInside( wr, 1e-5 );
+    uiWorldRect wr( 1, dispzrg.start, nrseqs, dispzrg.stop );
+    return zoomBox().isInside( wr, 1e-5 );
 }
 
 
@@ -138,6 +137,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , zoomboxitm_(0)
     , dispprop_(1)
     , dispeach_(1)
+    , zoomwr_(mUdf(double),0,0,0)
     , fillmdls_(true)
     , uselithcols_(true)
     , showzoomed_(true)

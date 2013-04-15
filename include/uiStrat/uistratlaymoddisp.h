@@ -34,6 +34,7 @@ public:
 			~uiStratLayerModelDisp();
 
     virtual void	modelChanged()			= 0;
+    virtual uiWorldRect	zoomBox() const			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
 
     const Strat::LayerModel& layerModel() const;
@@ -61,11 +62,10 @@ protected:
 
     const Strat::LayerModelProvider& lmp_;
     uiStratLayModEditTools& tools_;
-    uiWorldRect		zoomwr_;
     int			selseqidx_;
+    Interval<float>	zrg_;
     bool		flattened_;
     bool		fluidreplon_;
-    Interval<float>	zrg_;
     TypeSet<float>	lvldpths_;
     IOPar		frpars_;
 

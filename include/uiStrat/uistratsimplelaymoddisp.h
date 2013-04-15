@@ -33,6 +33,7 @@ public:
     			~uiStratSimpleLayerModelDisp();
 
     virtual void	modelChanged();
+    virtual uiWorldRect	zoomBox() const			{ return zoomwr_; }
     virtual void	setZoomBox(const uiWorldRect&);
 
     Color		levelColor() const		{ return lvlcol_; }
@@ -51,6 +52,7 @@ protected:
     uiGraphicsItemSet&	contitms_;
     uiLineItem*		selseqitm_;
 
+    uiWorldRect		zoomwr_;
     Color		lvlcol_;
     int			dispprop_;
     int			dispeach_;
