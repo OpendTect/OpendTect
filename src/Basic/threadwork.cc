@@ -325,8 +325,15 @@ void Threads::WorkManager::executeQueue( int queueid )
 
 inline void Threads::WorkManager::reduceWorkload( int queueidx )
 {
+    if ( !queueworkload_.validIdx(queueidx) )
+    {
+	pErrMsg("Invalid index found" );
+	workloadcond_.signal( true );
+	return;
+    }
+    
     queueworkload_[queueidx]--;
-    if ( queueisclosing_[queueidx] && !queueworkload_[queueidx] )
+    if ( !queueworkload_[queueidx] )
 	workloadcond_.signal( true );
 }
 
@@ -339,8 +346,7 @@ void Threads::WorkManager::emptyQueue( int queueid, bool finishall )
     if ( finishall )
     {
 	//Wait for all threads to exit
-	queueisclosing_[queueidx] = true;
-	while ( queueworkload_[queueidx] && queueSizeNoLock( queueid ) )
+	while ( queueworkload_[queueidx] || queueSizeNoLock( queueid ) )
 	    workloadcond_.wait();
     }
     else
@@ -374,6 +380,9 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
     emptyQueue( queueid, finishall );
 
     Threads::MutexLocker lock(workloadcond_);
+
+    while ( queueworkload_[queueidx] )
+	workloadcond_.wait();
 
     queueidx = queueids_.indexOf( queueid );
     queueworkload_.remove( queueidx );
