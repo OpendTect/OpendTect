@@ -80,6 +80,10 @@ public:
     void		toTime(const D2TModel&, const Track&);
     float		getKbElev() const		{ return dah_[0]-
 							  value(0); }
+    const Interval<float> zRange() const;
+    			//!< returns (0, 0) for empty track
+    const Interval<float> dahRange() const;
+    			//!< returns (0, 0) for empty track
 };
 
 
