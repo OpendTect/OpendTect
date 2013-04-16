@@ -53,7 +53,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , axispainter_(0)
     , cs_(false)	  
 {
-
+    setPrefWidth( 500 );
 }
 
 uiViewer2DMainWin::~uiViewer2DMainWin()
@@ -451,7 +451,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	|| (!is2d_ && gather->readFrom(mid,bid)) )
     {
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	gd->setGather( gather->id() );
+	gd->setVDGather( gather->id() );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
@@ -459,7 +459,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     }
     else
     {
-	gd->setGather( -1 );
+	gd->setVDGather( -1 );
 	delete gather;
     }
 
@@ -505,7 +505,7 @@ void uiSyntheticViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
 
 
 uiSyntheticViewer2DMainWin::~uiSyntheticViewer2DMainWin()
-{ removeDataPacks(); }
+{ removeGathers(); }
 
 
 void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
@@ -537,7 +537,7 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 }
 
 
-void uiSyntheticViewer2DMainWin::setDataPacks( const TypeSet<GatherInfo>& dps )
+void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
 {
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
@@ -568,19 +568,31 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     if ( !ginfo.isselected_ ) return;
 
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    PreStack::Gather* gather;
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( ginfo.dpid_ );
-    mDynamicCast(PreStack::Gather*,gather,dp);
+    DataPack* vddp = DPM(DataPackMgr::FlatID()).obtain( ginfo.vddpid_ );
+    DataPack* wvadp = DPM(DataPackMgr::FlatID()).obtain( ginfo.wvadpid_ );
+    ColTab::MapperSetup& vdmapper =
+	gd->getUiFlatViewer()->appearance().ddpars_.vd_.mappersetup_;
+    vdmapper.cliprate_ = Interval<float>(0.0,0.0);
+    vdmapper.autosym0_ = true;
+    vdmapper.symmidval_ = 0.0;
 
-    if ( !gather )
+    mDynamicCastGet(PreStack::Gather*,vdgather,vddp);
+    mDynamicCastGet(PreStack::Gather*,wvagather,wvadp);
+
+    if ( !vdgather && !wvagather  )
     {
-	gd->setGather( -1 );
-	delete gather;
+	gd->setVDGather( -1 );
+	gd->setWVAGather( -1 );
+	delete wvagather;
+	delete vdgather;
 	return;
     }
 
-    cs_.zrg.include( gather->zRange(), false );
-    gd->setGather( gather->id() );
+    cs_.zrg.include(wvagather ? wvagather->zRange()
+	    		      : vdgather->zRange(),false);
+    gd->setVDGather( ginfo.vddpid_<0 ? ginfo.wvadpid_ : ginfo.vddpid_ );
+    if (  ginfo.vddpid_>=0 )
+	gd->setWVAGather( ginfo.wvadpid_ );
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -588,10 +600,16 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 }
 
 
-void uiSyntheticViewer2DMainWin::removeDataPacks()
+void uiSyntheticViewer2DMainWin::removeGathers()
 {
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( gatherinfos_[idx].dpid_ );
+    {
+	if ( gatherinfos_[idx].vddpid_>0 )
+	    DPM(DataPackMgr::FlatID()).release( gatherinfos_[idx].vddpid_ );
+	if ( gatherinfos_[idx].wvadpid_>0 )
+	    DPM(DataPackMgr::FlatID()).release( gatherinfos_[idx].wvadpid_ );
+    }
+
     gatherinfos_.erase();
 }
 

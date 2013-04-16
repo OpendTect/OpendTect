@@ -33,12 +33,14 @@ public:
     				Viewer2DGatherPainter(FlatView::Viewer&);
     				~Viewer2DGatherPainter();
 
-    void			setGather(DataPack::ID);
+    void			setVDGather(DataPack::ID);
+    void			setWVAGather(DataPack::ID);
     void			setColorTableClipRate(float);
     float			colorTableClipRate() const;
 
     BinID			getBinID() const;
-    bool			hasData() const { return inputgather_; }
+    bool			hasData() const
+    				{ return inputwvagather_ || inputvdgather_; }
 
 protected:
     void			getGatherRange(const PreStack::Gather*,
@@ -46,7 +48,8 @@ protected:
 					       int& nrsamp) const;
 
     FlatView::Viewer&		viewer_;
-    const PreStack::Gather*	inputgather_;
+    const PreStack::Gather*	inputwvagather_;
+    const PreStack::Gather*	inputvdgather_;
 };
 
 

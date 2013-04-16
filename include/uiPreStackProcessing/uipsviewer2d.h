@@ -34,7 +34,8 @@ public:
 
     virtual void                setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
-    virtual void		setGather(int id);
+    void			setVDGather(int);
+    void			setWVAGather(int);
 
     void                        displayAnnotation(bool yn);
     bool                        displaysAnnotation() const;
@@ -76,7 +77,7 @@ public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
-    uiGatherDisplay*		addGatherDisplay(int gatherid);
+    uiGatherDisplay*		addGatherDisplay(int vdid, int wvaid=-1);
     void			addGatherDisplay(uiGatherDisplay*);
     void 			removeGatherDisplay(const uiGatherDisplay*);
     uiGatherDisplay& 		getGatherDisplay(int idx);
