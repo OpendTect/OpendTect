@@ -96,11 +96,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
     ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
-    ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
-        	    mCB(this,uiColorTableMan,rightClick) );
+    ctabcanvas_->getMouseEventHandler().buttonPressed.notify(
+			mCB(this,uiColorTableMan,rightClick) );
     ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDrawCB) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
-	         uiSize(mTransWidth,mTransWidth/10) );
+				      uiSize(mTransWidth,mTransWidth/10) );
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
     ctabcanvas_->setPrefWidth( mTransWidth );
     ctabcanvas_->setPrefHeight( mTransWidth/10 );
@@ -124,14 +124,13 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     undefcolfld_->colorChanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, segmentfld_ );
 
-    uiColorInput::Setup ctsu( ctab_.markColor(),
-	    		      uiColorInput::Setup::None );
-    ctsu.withdesc(false);
+    uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
+    ctsu.withdesc( false );
     markercolfld_ = new uiColorInput( rightgrp, ctsu.lbltxt("Marker color") );
     markercolfld_->colorChanged.notify(
-	    mCB(this,uiColorTableMan,markerColChgd) );
+			mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );
-    
+
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
@@ -142,15 +141,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     importbut_ = new uiPushButton( this, "&From other user", false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
-    importbut_->attach( centeredRightOf, removebut_ ); 
-    
+    importbut_->attach( centeredRightOf, removebut_ );
+
     uiPushButton* savebut = new uiPushButton( this, "&Save as", false );
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
-    savebut->attach( rightTo, importbut_ ); 
+    savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );
 
-    markercanvas_->markerChanged.notify( mCB(this,
-					     uiColorTableMan,markerChange) );
+    markercanvas_->markerChanged.notify(
+			mCB(this,uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
     postFinalise().notify( mCB(this,uiColorTableMan,doFinalise) );
@@ -170,7 +169,7 @@ uiColorTableMan::~uiColorTableMan()
 void uiColorTableMan::doFinalise( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
-    sequenceChange(0);
+    sequenceChange( 0 );
     toStatusBar( "", 1 );
 }
 
@@ -188,7 +187,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
 
 	BufferString status;
-        if ( seq->type() == ColTab::Sequence::System )
+	if ( seq->type() == ColTab::Sequence::System )
 	    status = sKeyDefault;
 	else if ( seq->type() == ColTab::Sequence::Edited )
 	    status = sKeyEdited;
@@ -250,8 +249,8 @@ void uiColorTableMan::removeCB( CallBacker* )
     }
 
     const char* ctnm = ctab_.name();
-    BufferString msg( selstatus_ == sKeyEdited ? "Edited colortable '" 
-	    				       : "Own made colortable '" );
+    BufferString msg( selstatus_ == sKeyEdited ? "Edited colortable '"
+					       : "Own made colortable '" );
     msg += ctnm; msg += "' will be removed";
     if ( selstatus_ == sKeyEdited )
 	msg += "\nand replaced by the default";
@@ -279,7 +278,7 @@ void uiColorTableMan::saveCB( CallBacker* )
 {
     if ( saveColTab(true) )
     {
-        ColTab::SM().write();
+	ColTab::SM().write();
 	ColTab::SM().refresh();
     }
     tableAddRem.trigger();
@@ -328,7 +327,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	}
     }
 
-    if ( !msg.isEmpty() && !uiMSG().askContinue( msg ) ) 
+    if ( !msg.isEmpty() && !uiMSG().askContinue( msg ) )
 	return false;
 
     newctab.setUndefColor( undefcolfld_->color() );
@@ -578,7 +577,7 @@ void uiColorTableMan::transptSel( CallBacker* )
 	return;
 
     Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
-	    		     cttranscanvas_->yVals()[ptidx] );
+			     cttranscanvas_->yVals()[ptidx] );
     ctab_.setTransparency( pt );
     tableChanged.trigger();
 }
