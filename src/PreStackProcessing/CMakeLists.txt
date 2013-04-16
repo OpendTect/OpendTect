@@ -6,6 +6,7 @@
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Velocity)
+SET(OD_NIGHTLY_TEST_PROGS angle_computer.cc)
 SET(OD_MODULE_SOURCES
 		initprestackprocessing.cc
 		prestackagc.cc
