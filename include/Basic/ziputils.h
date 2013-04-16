@@ -68,7 +68,7 @@ protected:
     BufferString		errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;
-    bool				needfilelist_ ;
+    bool			needfilelist_ ;
 
 };
 
@@ -82,10 +82,9 @@ mExpClass(Basic) Zipper : public Executor
 {
 public:
 				Zipper(ZipHandler& zh)
-				: Executor( "Compressing Files" )
+				: Executor( "Making Zip Archive" )
 				, ziphd_(zh)
-				, nrdone_(0)
-				, nrdir_(0)			{}
+				, nrdone_(0)	    {}
 
     const char*			message() const;
     od_int64			nrDone() const;
@@ -94,10 +93,9 @@ public:
 
 protected:
 
-    od_int32				nextStep();
-    ZipHandler&				ziphd_;
-    od_int32				nrdone_;
-    od_int32				nrdir_;
+    int				nextStep();
+    ZipHandler&			ziphd_;
+    int				nrdone_;
 };
 
 
@@ -111,9 +109,9 @@ mExpClass(Basic) UnZipper : public Executor
 {
 public:
 				UnZipper(ZipHandler& zh)
-				: Executor("Uncompressing Files")
+				: Executor("Unpacking Files")
 				, ziphd_(zh)
-				, nrdone_(0)	{}
+				, nrdone_(0)	    {}
 
     const char*			message() const;
     od_int64			nrDone() const;
@@ -122,9 +120,9 @@ public:
 
 protected:
 
-    od_int32				nextStep();
-    ZipHandler&				ziphd_;
-    od_int32				nrdone_;
+    int				nextStep();
+    ZipHandler&			ziphd_;
+    int				nrdone_;
 };
 
 

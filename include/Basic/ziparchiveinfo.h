@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 class BufferStringSet;
-class ZipHandler;
 class ZipFileInfo;
 
 
@@ -34,22 +33,22 @@ public:
     bool			isOK() const { return isok_; }
     const char*			errorMsg() const;
 
-    bool			getAllFnms(BufferStringSet&)const;
+    bool			getAllFnms(BufferStringSet&) const;
 
     //!< All sizes in Bytes
     od_int64			getFileCompSize(const char* fnm) const;
-    od_int64			getFileCompSize(od_int32) const;
-    od_int64			getFileUnCompSize(const char* fnm)const;
-    od_int64			getFileUnCompSize(od_int32)const;
+    od_int64			getFileCompSize(int) const;
+    od_int64			getFileUnCompSize(const char* fnm) const;
+    od_int64			getFileUnCompSize(int) const;
 
-    od_int64			getLocalHeaderOffset(const char* fnm)const;
-    od_int64			getLocalHeaderOffset(od_int32)const;
+    od_int64			getLocalHeaderOffset(const char* fnm) const;
+    od_int64			getLocalHeaderOffset(int) const;
 
 protected:
 
     bool			readZipArchive(const char* fnm);
+
     ObjectSet<ZipFileInfo>	fileinfo_;
-    ZipHandler&			ziphd_;
     mutable BufferString	errormsg_;
     bool			isok_;
 

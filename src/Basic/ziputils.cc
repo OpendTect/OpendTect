@@ -143,18 +143,18 @@ bool ZipUtils::makeZip( const char* zipfnm, const char* src,
 }
 
 
-#define mErrRet { errmsg = ziphdler_.errorMsg(); return false; }
+#define mErrRet { errmsg = ziphdler.errorMsg(); return false; }
 
 bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
        			BufferString& errmsg, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
-    ZipHandler ziphdler_;
-    ziphdler_.setCompLevel( cl );
-    if ( !ziphdler_.initMakeZip(zipfnm,src) )
+    ZipHandler ziphdler;
+    ziphdler.setCompLevel( cl );
+    if ( !ziphdler.initMakeZip(zipfnm,src) )
 	mErrRet
 
-    Zipper exec( ziphdler_ );
+    Zipper exec( ziphdler );
     if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
@@ -166,12 +166,12 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 				BufferString& errmsg, TaskRunner* tr,
 				ZipHandler::CompLevel cl )
 {
-    ZipHandler ziphdler_;
-    ziphdler_.setCompLevel( cl );
-    if ( !ziphdler_.initAppend(srcfnm,fnm) )
+    ZipHandler ziphdler;
+    ziphdler.setCompLevel( cl );
+    if ( !ziphdler.initAppend(srcfnm,fnm) )
 	mErrRet
 
-    Zipper exec( ziphdler_ );
+    Zipper exec( ziphdler );
     if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
@@ -179,78 +179,49 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 }
 
 
-od_int32 Zipper::nextStep()
+int Zipper::nextStep()
 {
-    if ( ziphd_.getCumulativeFileCount(nrdir_) == nrdone_ )
-    {
-	nrdir_++;
-	FilePath fp( ziphd_.getAllFileNames().get(nrdone_) );
-	ziphd_.setNrLevel( fp.nrLevels() );
-    }
-
-    od_int32 ret;
-    ret = ziphd_.openStrmToRead(ziphd_.getAllFileNames().get(nrdone_));
-    if ( ret == 0 )
-    {
-	ziphd_.closeDestStream();
+    if ( !ziphd_.compressNextFile() ) 
 	return ErrorOccurred();
-    }
-
-    if ( ret == 1 )
-    {
-	ret = ziphd_.doZCompress();
-	ziphd_.closeSrcStream();
-	if ( !ret )
-	{
-	    ziphd_.closeDestStream();
-	    return ErrorOccurred();
-	}
-
-    }
 
     nrdone_++;
     if ( nrdone_ < totalNr() )
 	return MoreToDo();
 
-    const od_int32 ptrlctn = (od_int32) ziphd_.getDestStream().tellp();
-    ret = ziphd_.setCentralDirHeader();
-    if ( !ret )
-    {
-	ziphd_.closeDestStream();
-	return ErrorOccurred();
-    }
-
-    ret = ziphd_.setEndOfCentralDirHeader ( ptrlctn );
-    if ( !ret )
-    {
-	ziphd_.closeDestStream();
-	return ErrorOccurred();
-    }
-
-    ziphd_.closeDestStream();
-    return Finished();
+    return ziphd_.setEndOfArchiveHeaders() ? Finished() : ErrorOccurred();
 }
+
 
 od_int64 Zipper::nrDone() const
 { return nrdone_; }
 
+
 od_int64 Zipper::totalNr() const
 { return ziphd_.getAllFileNames().size(); }
 
+
 const char* Zipper::nrDoneText() const
-{ return "Files"; }
+{ return "Files archived"; }
+
 
 const char* Zipper::message() const
-{ return ziphd_.errorMsg(); }
+{ 
+    const FixedString errmsg( ziphd_.errorMsg() );
+    if ( errmsg.isEmpty() )
+	return "Archiving files";
+    else
+	return "Archiving of files fail";
+}
+
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 			     BufferString& errmsg, TaskRunner* tr )
 {
-    ZipHandler ziphdler_;
-    if ( !ziphdler_.initUnZipArchive(srcfnm,basepath) )
+    ZipHandler ziphdler;
+    if ( !ziphdler.initUnZipArchive(srcfnm,basepath) )
 	mErrRet
 
-    UnZipper exec( ziphdler_ );
+    UnZipper exec( ziphdler );
     if ( !(TaskRunner::execute( tr, exec )) )
 	mErrRet
 
@@ -261,32 +232,41 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 			  BufferString& errmsg )
 {
-    ZipHandler ziphdler_;
-    if ( !ziphdler_.unZipFile(srcfnm,fnm,path) )
+    ZipHandler ziphdler;
+    if ( !ziphdler.unZipFile(srcfnm,fnm,path) )
 	mErrRet
 
     return true;
 }
 
 
-od_int32 UnZipper::nextStep()
+int UnZipper::nextStep()
 {
-    bool ret = ziphd_.readFileHeader(); 
-    if ( ret == 0)
+    if ( !ziphd_.extractNextFile() )
 	return ErrorOccurred();
 
     nrdone_++;
     return nrDone() < totalNr() ? MoreToDo() : Finished();
 }
 
+
 od_int64 UnZipper::nrDone() const
 { return nrdone_; }
+
 
 od_int64 UnZipper::totalNr() const
 { return ziphd_.getCumulativeFileCount(); }
 
+
 const char* UnZipper::nrDoneText() const
-{ return "Files"; }
+{ return "Files unpacked"; }
+
 
 const char* UnZipper::message() const
-{ return ziphd_.errorMsg(); }
+{ 
+    const FixedString errmsg( ziphd_.errorMsg() );
+    if ( errmsg.isEmpty() )
+	return "Unpacking files";
+    else
+	return "Unpacking of files fail";
+}

@@ -43,10 +43,8 @@ ________________________________________________________________________
 
 #define mInsertToCharBuff( inserttobuffer, datatype, insertat, len) \
     buf = ( char* ) &datatype;\
-    for( od_int32 idx=0; idx<len; idx++ ) \
-    { \
-	inserttobuffer[insertat+idx] = *(buf + idx); \
-    } \
+    for( int idx=0; idx<len; idx++ ) \
+	inserttobuffer[insertat+idx] = *(buf + idx); 
 
 #define mCntrlFileHeaderSigCheck( buff, ptr ) \
     sigcheck = false; \
@@ -60,13 +58,14 @@ ________________________________________________________________________
 	    buff[ptr + 2] == 3 && buff[ptr + 3] == 4 ) \
 	    sigcheck = true; \
     else \
-	sigcheck = false; \
+	sigcheck = false; 
 
 #define mHeaderSize 30
 #define mCentralHeaderSize 46
 #define mDigSigSize 6
 #define mEndOfDirHeaderSize 22
 
+class ZipArchiveInfo;
 
 /*!
 \brief Zip file information.
@@ -84,7 +83,7 @@ public:
 				: fnm_(fnm)
 				, compsize_(compsize) 
 				, uncompsize_(uncompsize)
-				, localheaderoffset_(offset)	{}
+				, localheaderoffset_(offset)	    {}
 
     BufferString		fnm_;
     od_uint32			compsize_;
@@ -112,57 +111,63 @@ public:
 				ZipHandler()
 				: initialfilecount_(0)
 				, srcfilesize_(0)
-				, destfilesize_(0)
-				, srcfnmsize_(0)
 				, offsetofcentraldir_(0)
-				, sizeofcentraldir_(0)	{}
+				, curinputidx_(0)
+				, curfileidx_(0)
+				, ziparchinfo_(0)		{}
+
+				~ZipHandler();
 
     const char*			errorMsg()const;
 
     bool			getArchiveInfo(const char*,
 						ObjectSet<ZipFileInfo>&);
 
-    bool			getBitValue(const unsigned char byte,
-						od_int32 bitposition)const;
-    void			setBitValue(unsigned char& byte, od_int32 
-						bitposition, bool value)const;
+    bool			getFileList(const char*,BufferStringSet&) const;
 
-	void			setNrLevel(od_int32 level){ nrlevels_ = level; }
+    od_int16			dateInDosFormat(const char*) const;
+    od_int16			timeInDosFormat(const char*) const;
+    bool			setTimeDateModified(const char*,od_uint16,
+						    od_uint16)const;
+
+    bool			getBitValue(const unsigned char byte,
+							int bitposition) const;
+    void			setBitValue(unsigned char& byte, int 
+						bitposition, bool value) const;
+
 
 protected:
 
     bool			initUnZipArchive(const char*,const char*);
     bool			unZipFile(const char* srcfnm,const char* fnm,
-															const char* path);
+					  const char* path);
+
+    bool			extractNextFile();
+    int				readLocalFileHeader();
+    bool			openStreamToWrite();
 
     bool			doZUnCompress();
     bool			readEndOfCentralDirHeader();
-    bool			readFileHeader();
 
     bool			initMakeZip(const char*,BufferStringSet);
     bool			initAppend(const char*,const char*);
 
-    bool			manageDir(const char*);
+    bool			compressNextFile();
     bool			doZCompress();
-    od_int32			openStrmToRead(const char* src); 
+    int				openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
+    bool			setEndOfArchiveHeaders();
     bool			setCentralDirHeader();
-    bool			setEndOfCentralDirHeader(od_int32);
+    bool			setEndOfCentralDirHeader(int);
 
-    od_int16			dateInDosFormat(const char*)const;
-    od_int16			timeInDosFormat(const char*)const;
-    bool			setTimeDateModified();
+    
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
-    std::ostream&		getDestStream()const { return *osd_.ostrm; }
-    std::istream&		getSrcStream()const { return *isd_.istrm; }
-    od_uint32			getCumulativeFileCount()const 
-					{ return cumulativefilecount_.last(); }
-    od_int32			getCumulativeFileCount(od_int32)const;
-    void			closeDestStream() { osd_.close(); }
-    void			closeSrcStream() { isd_.close(); }
-    StreamData			makeOStreamForAppend(const char*)const;
+    int				getCumulativeFileCount() const 
+					{ return cumulativefilecounts_.last(); }
+    int				getCumulativeFileCount(int) const;
+    StreamData			makeOStreamForAppend(const char*) const;
     void			setCompLevel(CompLevel);
 
 
@@ -171,33 +176,29 @@ protected:
     
     BufferString		srcfile_ ;
     od_uint32			srcfilesize_;
-    BufferString		srcfnm_;
     od_uint16			srcfnmsize_;
 
     BufferString		destbasepath_;
     BufferString		destfile_;
-    od_uint32			destfilesize_ ;
-    BufferString		destfnm_;
 
     od_uint16			compmethod_;
-    od_int32			complevel_;
+    CompLevel			complevel_;
     
-    od_int32			nrlevels_;
+    int				curnrlevels_;
 
-    od_uint32			initialfilecount_;
-    TypeSet<od_uint32>		cumulativefilecount_;
+    int				curinputidx_;
+    int				curfileidx_;
+    int				initialfilecount_;
+    TypeSet<int>		cumulativefilecounts_;
     
-    od_uint16			version_;
     od_uint16			lastmodtime_;
     od_uint16			lastmoddate_;
-    
-    od_uint16			xtrafldlth_ ;
-    od_uint16			commentlen_;
 
     od_uint32			crc_;
 
-    od_uint32			sizeofcentraldir_;
     od_uint32			offsetofcentraldir_;
+
+    ZipArchiveInfo*		ziparchinfo_;
 
     StreamData			osd_;
     StreamData			isd_;
