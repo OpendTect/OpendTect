@@ -91,7 +91,7 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
+void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
 {
     DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
@@ -117,12 +117,12 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
-	viewwin()->viewer(ivwr).removePack( curpackid );
+	viewwin()->viewer(ivwr).usePack( wva, DataPack::cNoID(), false, false );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
 
 	FlatView::DataDispPars& ddp = 
 	    		viewwin()->viewer(ivwr).appearance().ddpars_;
-	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
+	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = show;
 	DPM(DataPackMgr::FlatID()).obtain( packid, false );
 	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
     }

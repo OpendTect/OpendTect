@@ -66,8 +66,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( dtpackid < 0 ) return;
 
     uiODViewer2D* curvwr = find2DViewer( visid );
+    bool newvwr = false;
     if ( !curvwr )
     {
+	newvwr = true;
 	curvwr = &addViewer2D( visid );
 	curvwr->winClosed.notify(
 		mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB) );
@@ -91,8 +93,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	    }
 	}
     }
-    
+
     curvwr->setUpView( dtpackid, dowva );
+    if ( newvwr )
+	curvwr->setUpView( dtpackid, !dowva, false );
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
 

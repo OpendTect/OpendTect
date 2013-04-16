@@ -78,9 +78,6 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-
-    const DataPack* fdpw = vwr.pack( true );
-
     const DataPack* fdpv = vwr.pack( false );
     if ( fdpv )
 	dpid_ = fdpv->id();
@@ -88,8 +85,9 @@ bool uiODVW2DVariableDensityTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setChecked( fdpv );
-    uitreeviewitem_->setCheckable( fdpw && dpid_!=DataPack::cNoID() );
+    uitreeviewitem_->setCheckable( fdpv || dpid_!=DataPack::cNoID() );
+    if ( uitreeviewitem_->isCheckable() )
+    	uitreeviewitem_->setChecked( vwr.appearance().ddpars_.wva_.show_ );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,checkCB) );
@@ -126,11 +124,11 @@ void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	DataPack::ID id = DataPack::cNoID();
-
-	if ( isChecked() )
-	    id = dpid_;
-
-	viewer2D()->viewwin()->viewer(ivwr).usePack( false, id, false );
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+	const bool ischecked = isChecked();
+	ddp.vd_.show_ = ischecked; if ( ischecked ) id = dpid_;
+	vwr.usePack( false, id, false );
     }
 }
 
@@ -143,15 +141,11 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     displayMiniCtab(0);
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const DataPack* fdpw = vwr.pack( true );
     const DataPack* fdpv = vwr.pack( false );
-    
-    uitreeviewitem_->setChecked( fdpv );
-    uitreeviewitem_->setCheckable( fdpw &&
-	    			   (dpid_!=DataPack::cNoID() || fdpw) );
-
-    if ( fdpv )
-	dpid_ = fdpv->id();
+    uitreeviewitem_->setCheckable( fdpv || dpid_!=DataPack::cNoID() );
+    if ( uitreeviewitem_->isCheckable() )
+    	uitreeviewitem_->setChecked( vwr.appearance().ddpars_.vd_.show_ );
+    if ( fdpv )	dpid_ = fdpv->id();
 
     if ( !fdpv )
 	displayMiniCtab(0);

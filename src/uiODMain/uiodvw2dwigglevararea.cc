@@ -69,17 +69,16 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-
     const DataPack* fdpw = vwr.pack( true );
     if ( fdpw )
 	dpid_ = fdpw->id();
-    const DataPack* fdpv = vwr.pack( false );
 
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setChecked( fdpw );
-    uitreeviewitem_->setCheckable( fdpv && dpid_!=DataPack::cNoID() );
+    uitreeviewitem_->setCheckable( fdpw || dpid_!=DataPack::cNoID() );
+    if ( uitreeviewitem_->isCheckable() )
+    	uitreeviewitem_->setChecked( vwr.appearance().ddpars_.wva_.show_ );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
@@ -107,11 +106,11 @@ void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	DataPack::ID id = DataPack::cNoID();
-
-	if ( isChecked() )
-	    id = dpid_;
-
-	viewer2D()->viewwin()->viewer(ivwr).usePack( true, id, false );
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+	const bool ischecked = isChecked();
+	ddp.wva_.show_ = ischecked; if ( ischecked ) id = dpid_;
+	vwr.usePack( true, id, false );
     }
 }
 
@@ -122,17 +121,11 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 	return;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-
     const DataPack* fdpw = vwr.pack( true );
-
-    const DataPack* fdpv = vwr.pack( false );
-    
-    uitreeviewitem_->setChecked( fdpw );
-    uitreeviewitem_->setCheckable( fdpv &&
-	    			   (dpid_!=DataPack::cNoID() || fdpw) );
-
-    if ( fdpw )
-	dpid_ = fdpw->id();
+    uitreeviewitem_->setCheckable( fdpw || dpid_!=DataPack::cNoID()  );
+    if ( uitreeviewitem_->isCheckable() )
+    	uitreeviewitem_->setChecked( vwr.appearance().ddpars_.wva_.show_ );
+    if ( fdpw )	dpid_ = fdpw->id();
 }
 
 
