@@ -64,18 +64,18 @@ int main( int narg, char** argv )
     mRunTest( refclass->unRef(), true, false, 1 );
     mRunTest( refclass->unRefNoDelete(), true, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( unRefAndZero( refclass ), refclass==0, true, mInvalidRefCount );
+    mRunTest( unRefAndZeroPtr( refclass ), refclass==0, true, mInvalidRefCount );
     
     //Test null pointers
-    mRunTest( ref(refclass), true, false, mInvalidRefCount );
-    mRunTest( unRef(refclass), true, false, mInvalidRefCount );
+    mRunTest( refPtr(refclass), true, false, mInvalidRefCount );
+    mRunTest( unRefPtr(refclass), true, false, mInvalidRefCount );
 
     refclass = new ReferencedClass( &deleted );
     RefMan<ReferencedClass> rptr = refclass;
-    mRunTest( ref(refclass), true, false, 2 );
-    mRunTest( ref(refclass), true, false, 3 );
-    mRunTest( unRef(refclass), true, false, 2 );
-    mRunTest( unRef(refclass), true, false, 1 );
+    mRunTest( refPtr(refclass), true, false, 2 );
+    mRunTest( refPtr(refclass), true, false, 3 );
+    mRunTest( unRefPtr(refclass), true, false, 2 );
+    mRunTest( unRefPtr(refclass), true, false, 1 );
     
     return 0;
 }

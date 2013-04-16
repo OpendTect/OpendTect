@@ -172,7 +172,7 @@ mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
 
 //!Un-reference class pointer, and set it to zero. Works for null-pointers. 
 template <class T> inline
-void unRefAndZero( T*& ptr )
+void unRefAndZeroPtr( T*& ptr )
 {
     if ( !ptr ) return;
     ptr->unRef();
@@ -182,7 +182,7 @@ void unRefAndZero( T*& ptr )
 
 /*! Un-reference class pointer. Works for null pointers. */
 template <class T> inline
-void unRef( const T* ptr )
+void unRefPtr( const T* ptr )
 {
     if ( !ptr ) return;
     ptr->unRef();
@@ -190,14 +190,14 @@ void unRef( const T* ptr )
 
 //! Reference class pointer. Works for null pointers.
 template <class T> inline
-void ref( const T* ptr )
+void refPtr( const T* ptr )
 {
     if ( !ptr ) return;
     ptr->ref();
 }
 
-mObjectSetApplyToAllFunc( deepUnRef, unRef( os[idx] ), os.plainErase() )
-mObjectSetApplyToAllFunc( deepRef, ref( os[idx] ), )
+mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
+mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
 
 
 /*! Actual implementation of the reference counting. Normally not used by
