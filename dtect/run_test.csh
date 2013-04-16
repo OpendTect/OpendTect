@@ -10,8 +10,9 @@ set datadir = ""
 set wdir = ""
 set plf = ""
 set config = ""
-set parfile = ""
 set cmd = ""
+set args = ""
+set qtdir = ""
 
 parse_args:
 if ( "$1" == "--command" ) then
@@ -23,6 +24,8 @@ else if ( "$1" == "--datadir" ) then
 else if ( "$1" == "--plf" ) then
     set plf=$2
     shift
+else if ( "$1" == "--quiet" ) then
+    set args="${args} --quiet"
 else if ( "$1" == "--wdir" ) then
     set wdir=$2
     shift
@@ -30,7 +33,10 @@ else if ( "$1" == "--config" ) then
     set config=$2
     shift
 else if ( "$1" == "--parfile" ) then
-    set parfile=$2
+    set args="${args} $2"
+    shift
+else if ( "$1" == "--qtdir" ) then
+    set qtdir=$2
     shift
 else if ( "$1" == "--help" ) then
     echo "Usage: run_tst [option]"
@@ -69,12 +75,11 @@ if ( "$config" == "" ) then
 endif
 
 if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${qtdir}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
 else
-    setenv LD_LIBRARY_PATH ${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
 endif
 
-set args = ${parfile}
 
 if ( "$datadir" != "" ) then
     set args = "${args} --datadir=${datadir}"
