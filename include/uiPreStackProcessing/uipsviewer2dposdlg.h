@@ -30,12 +30,13 @@ namespace PreStackView
 mStruct(uiPreStackProcessing) GatherInfo
 {
     			GatherInfo()
-			: isstored_(true), isselected_( false ), dpid_(-1)
-			, bid_(mUdf(int),mUdf(int))	{}
+			: isstored_(true), isselected_( false ), vddpid_(-1)
+			, wvadpid_(-1), bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
     MultiID		mid_;
-    int			dpid_;
+    int			vddpid_;
+    int			wvadpid_;
     BufferString	gathernm_;
     BinID		bid_;
 bool operator==( const GatherInfo& info ) const
