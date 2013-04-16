@@ -228,6 +228,8 @@ public:
     const RayModel&	result(int id) const 	{ return *raymodels_[id]; }
 
     const Interval<float>&	raySampling() const { return raysampling_; }
+    const ObjectSet<RayTracer1D>& rayTracers() const;
+    const TypeSet<ElasticModel>& elasticModels() const	{ return aimodels_; }
 
 protected:
     RayTracerRunner*		rtr_;
@@ -247,6 +249,7 @@ protected:
 
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;
+    bool			raytracingdone_;
 
 public:
     void			forceReflTimes(const StepInterval<float>&);

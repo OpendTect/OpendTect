@@ -583,11 +583,13 @@ RaySynthGenerator::RaySynthGenerator()
     : raysampling_(0,0)
     , forcerefltimes_(false)
     , rtr_( 0 )
+    , raytracingdone_( false )
 {}
 
 
 RaySynthGenerator::~RaySynthGenerator()
 {
+    delete rtr_;
     deepErase( raymodels_ );
 }
 
@@ -602,6 +604,10 @@ od_int64 RaySynthGenerator::nrIterations() const
 {
     return aimodels_.size();
 }
+
+
+const ObjectSet<RayTracer1D>& RaySynthGenerator::rayTracers() const
+{ return  rtr_->rayTracers(); }
 
 
 bool RaySynthGenerator::doPrepare( int )
@@ -619,20 +625,17 @@ bool RaySynthGenerator::doPrepare( int )
 
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
-    RayTracerRunner rtr( aimodels_, raysetup_ );
-    rtr_ = &rtr;
+    rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
     message_ = "Raytracing";
-    if ( !rtr.execute() ) 
-	mErrRet( rtr.errMsg(), false );
-    rtr_ = 0;
+    if ( !rtr_->execute() ) 
+	mErrRet( rtr_->errMsg(), false );
+    raytracingdone_ = true;
 
-    ObjectSet<RayTracer1D>& rt1ds = rtr.rayTracers();
+    const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
-	const RayTracer1D* rt1d = rt1ds.removeSingle(idx);
+	const RayTracer1D* rt1d = rt1ds[idx];
 	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
-	delete rt1d;
-
 	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
 	{
 	    const TimeDepthModel& d2t = applynmo_ ? *rm->t2dmodels_[0]
@@ -710,13 +713,13 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 
 od_int64 RaySynthGenerator::totalNr() const
 {
-    return rtr_ ? rtr_->totalNr() : nrIterations();
+    return !raytracingdone_ && rtr_ ? rtr_->totalNr() : nrIterations();
 }
 
 
 od_int64 RaySynthGenerator::nrDone() const
 {
-    return rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
+    return !raytracingdone_ && rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
 }
 
 
