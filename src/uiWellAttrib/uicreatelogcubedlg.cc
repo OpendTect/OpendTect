@@ -37,7 +37,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 {
     setCtrlStyle( DoAndStay );
 
-    uiWellExtractParams::Setup su; 
+    uiWellExtractParams::Setup su;
     su.withzstep(false).withsampling(true).withextractintime(false);
     welllogsel_ = mid ? new uiMultiWellLogSel( this, su, *mid )
 		      : new uiMultiWellLogSel( this, su );
@@ -51,8 +51,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
     savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with well name and suffix" );
-    savefld_->setElemSzPol( uiObject::Small );
+    savefld_ = new uiGenInput( this, "with well name and suffix", "_log cube" );
     savefld_->attach( rightOf, savelbl );
 }
 
@@ -60,7 +59,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 #define mErrRet( msg, act ) { uiMSG().error( msg ); act; }
 bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 {
-    const int nrtrcs = repeatfld_->box()->getValue();
+    const int nrtrcs = repeatfld_->box()->getValue()+1;
     const Well::ExtractParams& extractparams = welllogsel_->params();
 
     BufferStringSet wids; BufferStringSet lognms;

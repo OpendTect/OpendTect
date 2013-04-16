@@ -27,7 +27,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellmarkersel.h"
 
 
-#define mDefWMS mDynamicCastGet(uiWellMarkerSel*,wms,zselectionflds_[0])
+#define	cMarkersFld	0
+#define	cDepthFld	1
+#define	cTWTFld		2
+#define mDefWMS mDynamicCastGet(uiWellMarkerSel*,wms, \
+				zselectionflds_[cMarkersFld])
 #define mGetZFld(i) \
     int zfldidx = i; \
     if ( zfldidx >= zselectionflds_.size() ) \
@@ -152,20 +156,21 @@ void uiWellZRangeSelector::putToScreen()
     selidx_ = (int)params_->zselection_ ;
     zchoicefld_->setValue( selidx_ );	
 
-    if ( selidx_ == 0 )
+    if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
 	wms->setInput( params_->topMarker(), true );
 	wms->setInput( params_->botMarker(), false );
-	abovefld_->setValue( params_->topOffset(), 0 ); 
-	belowfld_->setValue( params_->botOffset(), 0 ); 
+	abovefld_->setValue( params_->topOffset(), 0 );
+	belowfld_->setValue( params_->botOffset(), 0 );
     }
     else
     {
-	mGetZFld(selidx_);
+	mGetZFld( selidx_ );
 	Interval<float> zrg( params_->getFixedRange() );
-	if ( selidx_ > 1 )
+	if ( selidx_ == cTWTFld )
 	    zrg.scale( ztimefac_ );
+
 	zfld->setValue( zrg );
     }
 
@@ -181,7 +186,7 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     params_->zselection_ = Well::ExtractParams::ZSelection( 
 	    				zchoicefld_->getIntValue() );
 
-    if ( selidx_ == 0 )
+    if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
 	params_->setTopMarker( wms->getText(true), abovefld_->getfValue(0,0) );
@@ -189,11 +194,13 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     }
     else
     {
-	mGetZFld(selidx_);
+	mGetZFld( selidx_);
 	Interval<float> zrg( zfld->getFInterval() );
-	if ( selidx_ > 1 )
+	const bool isintime = selidx_ == cTWTFld;
+	if ( isintime )
 	    zrg.scale( 1/ztimefac_ );
-	params_->setFixedRange( zrg, true );
+
+	params_->setFixedRange( zrg, isintime );
     }
 
     updateDisplayFlds();
@@ -205,14 +212,14 @@ void uiWellZRangeSelector::updateDisplayFlds()
     for ( int idx=0; idx<zselectionflds_.size(); idx++ )
 	zselectionflds_[idx]->display( idx == selidx_ );
 
-    abovefld_->display( selidx_ == 0 );
-    belowfld_->display( selidx_ == 0 );
+    abovefld_->display( selidx_ == cMarkersFld );
+    belowfld_->display( selidx_ == cMarkersFld );
 }
 
 
 void uiWellZRangeSelector::setRange( Interval<float> zrg, bool istime )
 {
-    selidx_ = istime ? 2 : 1;
+    selidx_ = istime ? cDepthFld : cTWTFld;
     mGetZFld(selidx_);
     zchoicefld_->setValue( selidx_ );	
     zfld->setValue( zrg );
@@ -244,7 +251,6 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	zistimefld_->attach( rightOf, zchoicefld_ );
 	zistimefld_->activated.notify( cb );
     }
-
 
     if ( dostep_ )
     {
@@ -281,6 +287,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     {
 	sampfld_ = new uiGenInput( this, "Log resampling method",
 				StringListInpSpec(Stats::UpscaleTypeNames()) );
+	sampfld_->setValue( Stats::UseAvg );
 	sampfld_->valuechanged.notify( cb );
 	sampfld_->attach( alignedBelow, abovefld_ );
     }
