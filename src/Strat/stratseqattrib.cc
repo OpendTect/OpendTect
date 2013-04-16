@@ -342,14 +342,9 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     , seqidx_(0)
     , msg_("Extracting layer attributes")
     , calczwdth_(SI().zRange(false).step / 2)
-    , dpsmodnrcidx_(-1)
 {
     if ( SI().zIsTime() )
 	calczwdth_ *= 2000;
-
-    dpsdepthcidx_ = dps_.indexOf( sKey::Depth() );
-    if ( dpsdepthcidx_ < 0 )
-	return;
 
     for ( int idx=0; idx<lsas.size(); idx++ )
     {
@@ -362,8 +357,6 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 	calcs_ += calc;
 	dpscidxs_ += dpsidx;
     }
-
-    dpsmodnrcidx_ = dps_.indexOf( sKeyModelIdx() );
 }
 
 
@@ -379,9 +372,7 @@ Strat::LayModAttribCalc::~LayModAttribCalc()
 int Strat::LayModAttribCalc::nextStep()
 {
     const int dpssz = dps_.size();
-    if ( dpsdepthcidx_ < 0 )
-	mErrRet("Internal: no depth information found in DPS")
-    else if ( dpssz < 1 )
+    if ( dpssz < 1 )
 	mErrRet("No data points for extraction")
     if ( seqidx_ >= lm_.size() )
 	return Finished();
@@ -395,16 +386,13 @@ int Strat::LayModAttribCalc::nextStep()
     {
 	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
 	float* dpsvals = dps_.getValues( dpsrid );
-	const float z = dpsvals[ dpsdepthcidx_ ];
+	const float z = dps_.z( dpsrid );
 	const Interval<float> zrg( z-calczwdth_, z+calczwdth_ );
 	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
 	{
 	    const float val = calcs_[idx]->getValue( seq, zrg );
 	    dpsvals[ dpscidxs_[idx] ] = val;
 	}
-
-	if ( dpsmodnrcidx_ >= 0 )
-	    dpsvals[ dpsmodnrcidx_ ] = mCast( float, seqidx_ + 1 );
 
 	dpsrid++;
     }

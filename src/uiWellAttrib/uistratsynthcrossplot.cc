@@ -109,13 +109,13 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	{ uiMSG().error(seisattrs.errMsg()); return 0; }
     if ( dps->nrCols() )
     {
-	dps->dataSet().insert( dps->nrFixedCols(),new DataColDef("Depth") );
+	dps->dataSet().insert(dps->nrFixedCols(),new DataColDef(sKey::Depth()));
 	dps->dataSet().insert( dps->nrFixedCols()+1,
 		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
     else
     {
-	dps->dataSet().add( new DataColDef("Depth") );
+	dps->dataSet().add( new DataColDef(sKey::Depth()) );
 	dps->dataSet().add( 
 		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
@@ -123,6 +123,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
+
+    const int depthidx = dps->indexOf( sKey::Depth() );
 
     for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
     {
@@ -164,7 +166,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		    float dah = d2tmodels[itrc]->getDepth( dr.pos_.z_ );
 		    if ( SI().depthsInFeet() )
 			dah *= mToFeetFactorF;
-		    dr.data_[0] = dah;
+		    dr.data_[depthidx] = dah;
 		    dps->addRow( dr );
 		}
 	    }
@@ -182,7 +184,24 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    || !extractLayerAttribs(*dps,seqattrs) )
 	{ delete dps; dps = 0; }
 
+    extractModelNr( *dps );
     return dps;
+}
+
+
+bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
+{
+    const int modnridx =
+	dps.indexOf( Strat::LayModAttribCalc::sKeyModelIdx() );
+    if ( modnridx<0 ) return false;
+
+    for ( int dpsrid=0; dpsrid<dps.size(); dpsrid++ )
+    {
+	float* dpsvals = dps.getValues( dpsrid );
+	dpsvals[modnridx] = dps.trcNr(dpsrid)+1;
+    }
+
+    return true;
 }
 
 

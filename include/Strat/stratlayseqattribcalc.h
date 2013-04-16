@@ -82,8 +82,6 @@ protected:
     ObjectSet<LaySeqAttribCalc>	calcs_;
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
-    int				dpsdepthcidx_;
-    int				dpsmodnrcidx_;
     DataPointSet&		dps_;
     BufferString		msg_;
     float			calczwdth_;
