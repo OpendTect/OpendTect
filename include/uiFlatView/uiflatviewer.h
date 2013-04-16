@@ -126,9 +126,6 @@ protected:
 
     ObjectSet<FlatView::uiAuxDataDisplay>	auxdata_;
 
-public:
-				//od4.4 legacy, remove when not used anymore
-    				uiFlatViewer(uiParent*,bool yn); 
 };
 
 #endif
