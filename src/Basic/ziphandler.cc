@@ -254,9 +254,6 @@ bool ZipHandler::doZCompress()
     int flushpolicy = Z_FINISH;
     mAllocVarLenArr( unsigned char, in, chunksize );
     mAllocVarLenArr( unsigned char, out, upperbound );
-    if ( !mVarLenArr(in) || !mVarLenArr(out)  )
-    { mErrRet( "Unable to allot memory on the heap","","") }
-
     od_uint32 bytestowrite;
     do
     {
@@ -774,9 +771,6 @@ bool ZipHandler::extractNextFile()
 	int count = chunksize;
 	bool finish = false;
 	mAllocVarLenArr( unsigned char, in, chunksize );
-	if ( !mVarLenArr(in) )
-	{ mErrRet( "Unable to allot memory on the heap","","" ) }
-
 	do
 	{
 	    if ( count <= srcfilesize_ )
@@ -938,9 +932,6 @@ bool ZipHandler::doZUnCompress()
     const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
     mAllocVarLenArr( unsigned char, in, chunksize );
     mAllocVarLenArr( unsigned char, out, chunksize );
-    if ( !mVarLenArr(in) || !mVarLenArr(out)  )
-    { mErrRet( "Unable to allot memory on the heap","","") }
-
     int count = chunksize;
     od_uint32 crc = 0;
     od_uint32 bytestowrite;
