@@ -4,7 +4,7 @@
 # Date:         Nov 2012
 #RCS:           $Id$
 
-SET( LIBLIST dGBCommon dGBUsage dGBPreStack FaultAutoExtractor
+SET( LIBLIST dGBCommon dGBPreStack FaultAutoExtractor
 	     uidGBPreStack uidGBCommon uiFaultAutoExtractor )
 SET( SPECFILES .dgb.lmgrd.vars .start.dgb.lmgrd .install.dgb.license odinit.dgb )
 SET( EXECLIST  od_process_extractfault )
