@@ -352,6 +352,7 @@ public:
     const Well::LogSet*		getLogs() const;
 			
     void			snapZRangeToSI();
+    // do not use, will be removed
 };
 
 }; // namespace Well

@@ -27,15 +27,6 @@ static const char* rcsID = "$Id$";
 static Well::ExtractParams* extractparams_;
 
 
-void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs, 
-			const Well::ExtractParams& extractpars )
-{
-    setInput( lcds, nrdupltrcs );
-    *extractparams_ = extractpars;
-}
-
-
-
 LogCubeCreator::LogCubeData::~LogCubeData()
 {
     delete seisctio_.ioobj;
@@ -48,11 +39,11 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     , nrduplicatetrcs_(0)		 
 {
     extractparams_ = new Well::ExtractParams();
-    extractparams_->setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
     Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
+    extractparams_->setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
 }
 
 
@@ -67,16 +58,36 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
 {
     while ( !lcds.isEmpty() )
 	logdatas_ += lcds.remove(0);
+
     nrduplicatetrcs_ = nrdupltrcs;
 }
 
 
-#define mErrRet(msg)\
-{ errmsg_= msg; errmsg_ += " for "; errmsg_ += wd_.name(); return false; }
+void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
+			const Well::ExtractParams& pars )
+{
+    setInput( lcds, nrdupltrcs );
+    *extractparams_ = pars;
+}
+
+
+#define mErrRet(msg,withwellname)\
+{ \
+    if ( !errmsg_.isEmpty() ) \
+    	const_cast<LogCubeCreator*>(this)->errmsg_.add( "\n" ); \
+    \
+    const_cast<LogCubeCreator*>(this)->errmsg_.add( msg ); \
+    if ( withwellname ) \
+    { \
+	const_cast<LogCubeCreator*>(this)->errmsg_.add( " for " ); \
+	const_cast<LogCubeCreator*>(this)->errmsg_.add( wd_.name() ); \
+    } \
+    return false; \
+}
 bool LogCubeCreator::doPrepare( int )
 {
     if ( binids_.isEmpty() )
-	mErrRet( "No valid position extracted along the track");
+	mErrRet( "No valid position extracted along the track", true )
 
     hrg_ = HorSampling( false );
     for ( int idx=0; idx<binids_.size(); idx++ )
@@ -97,18 +108,24 @@ bool LogCubeCreator::doPrepare( int )
 bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( SI().zIsTime() && !wd_.haveD2TModel() )
-	mErrRet( "No depth/time model found" );
-
-    for ( int idx=start; idx<=stop; idx++ )
     {
+	errmsg_.setEmpty();
+	BufferString errmsg = "No depth/time model found";
+	errmsg += "\n";
+	errmsg += "No log cubes created";
+	mErrRet( errmsg, true )
+    }
 
+    for ( int idx=(int)start; idx<=stop; idx++ )
+    {
 	if ( !shouldContinue() )
 	    return false;
 
-	if ( !writeLog2Cube( *logdatas_[idx] ) )
-	{ 
-	    errmsg_ = "One or several logs could not be written"; 
-	    errmsg_ += " for "; errmsg_ += wd_.name(); 
+	if ( !writeLog2Cube(*logdatas_[idx]) )
+	{
+	    const bool errmsgwithwellnm = errmsg_.isEmpty();
+	    mErrRet( "One or several log cubes could not be computed",
+		     errmsgwithwellnm )
 	}
 
 	addToNrDone( 1 );
@@ -119,40 +136,34 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
-    SeisTrcWriter writer( lcd.seisctio_.ioobj );
+    if ( !lcd.seisctio_.ioobj )
+	return false;
 
-    SeisTrc trc( SI().zRange(true).nrSteps() +1 );
+    SeisTrc trc( SI().zRange(true).nrSteps() + 1 );
     trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler ls( wd_, *extractparams_, lognms );
-    ls.snapZRangeToSI();
-    if ( !ls.execute( false ) )
-	return false;
+    Well::LogSampler logsamp( wd_, *extractparams_, lognms );
+    if ( !logsamp.execute(false) )
+	mErrRet( logsamp.errMsg(), true )
 
-    StepInterval<float> zrg = ls.zRange(); 
-    int idztrc = 0;
-    const Well::D2TModel* d2t = wd_.d2TModel();
-    if ( SI().zIsTime() && !extractparams_->isZRangeInTime() && d2t )
+    StepInterval<float> zrg = logsamp.zRange();
+    zrg.step = extractparams_->zstep_;
+    for ( int idztrc=0; idztrc<trc.size(); idztrc++ )
     {
-	zrg.start = d2t->getTime( zrg.start, wd_.track() );
-	zrg.stop = d2t->getTime( zrg.stop, wd_.track() );
-    }
-    zrg.step = trc.info().sampling.step;
-
-    for ( idztrc=0; idztrc<trc.size(); idztrc++ )
-    {
-	const float z = trc.info().sampling.atIndex(idztrc);
+	const float depth = trc.info().sampling.atIndex(idztrc);
 	float val = mUdf(float);
-        if ( zrg.includes( z, true ) )
+	if ( zrg.includes(depth,true) )
 	{
-	    const int idz = zrg.getIndex( z );
-	    if ( idz >=0 && idz< ls.nrZSamples() )
-		val = ls.getLogVal( 0, idz );
+	    const int idz = zrg.getIndex( depth );
+	    if ( idz >=0 && idz < logsamp.nrZSamples() )
+		val = logsamp.getLogVal( 0, idz );
 	}
+
 	trc.set( idztrc, val, 0 );
     }
 
+    SeisTrcWriter writer( lcd.seisctio_.ioobj );
     HorSamplingIterator hsit( hrg_ );
     bool succeeded = true;
     BinID bid;
