@@ -7,16 +7,29 @@
 #
 
 set datadir = ""
+set wdir = ""
+set plf = ""
+set config = ""
 set parfile = ""
+set cmd = ""
 
 parse_args:
 if ( "$1" == "--command" ) then
     set cmd=$2
     shift
-if ( "$1" == "--datadir" ) then
+else if ( "$1" == "--datadir" ) then
     set datadir=$2
     shift
-if ( "$1" == "--parfile" ) then
+else if ( "$1" == "--plf" ) then
+    set plf=$2
+    shift
+else if ( "$1" == "--wdir" ) then
+    set wdir=$2
+    shift
+else if ( "$1" == "--config" ) then
+    set config=$2
+    shift
+else if ( "$1" == "--parfile" ) then
     set parfile=$2
     shift
 else if ( "$1" == "--help" ) then
@@ -35,18 +48,36 @@ goto parse_args
 
 do_it:
 
+if ( "$cmd" == "" ) then
+    echo "Command not specified"
+    exit 1
+endif
+
+if ( "$wdir" == "" ) then
+    echo "--wdir not specified"
+    exit 1
+endif
+
+if ( "$plf" == "" ) then
+    echo "--plf not specified"
+    exit 1
+endif
+
+if ( "$config" == "" ) then
+    echo "--config not specified"
+    exit 1
+endif
+
 if ( $?LD_LIBRARY_PATH ) then
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
 else
     setenv LD_LIBRARY_PATH ${OD_QTDIR}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
 endif
 
+set args = ${parfile}
+
 if ( "$datadir" != "" ) then
-    set cmd = "${cmd} --datadir=${datadir}"
+    set args = "${args} --datadir=${datadir}"
 endif
 
-if ( "$parfile" != "" ) then
-    set cmd = "${cmd} ${parfile}"
-endif
-
-${cmd}
+"${wdir}/bin/${plf}/${config}/${cmd}" ${args}
