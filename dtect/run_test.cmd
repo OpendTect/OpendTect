@@ -17,11 +17,14 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--wdir" (
     set wdir=%2
     shift
+) ELSE IF "%1"=="--parfile" (
+    set args=%args% %2
+    shift
 ) ELSE IF "%1"=="--plf" (
     set plf=%2
     shift
 ) ELSE IF "%1"=="--datadir" (
-    set args=--datadir %2
+    set args=%args% --datadir %2
     shift
 ) ELSE IF "%1"=="--qtdir" (
     set qtdir=%2
@@ -32,7 +35,7 @@ shift
 goto parse_args
 
 :syntax
-echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir
+echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir --parfile parfile
 exit 1
 
 :do_it

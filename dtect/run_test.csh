@@ -7,6 +7,7 @@
 #
 
 set datadir = ""
+set parfile = ""
 
 parse_args:
 if ( "$1" == "--command" ) then
@@ -15,11 +16,15 @@ if ( "$1" == "--command" ) then
 if ( "$1" == "--datadir" ) then
     set datadir=$2
     shift
+if ( "$1" == "--parfile" ) then
+    set parfile=$2
+    shift
 else if ( "$1" == "--help" ) then
     echo "Usage: run_tst [option]"
     echo " --command cmd"
     echo " --ldpath ldpath"
     echo " --datadir datadir"
+    echo " [--parfile parfile]"
     exit 0
 else
     goto do_it
@@ -38,6 +43,10 @@ endif
 
 if ( "$datadir" != "" ) then
     set cmd = "${cmd} --datadir=${datadir}"
+endif
+
+if ( "$parfile" != "" ) then
+    set cmd = "${cmd} ${parfile}"
 endif
 
 ${cmd}

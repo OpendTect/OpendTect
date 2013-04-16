@@ -402,6 +402,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
 		DTECT_APPL=${OD_BINARY_BASEDIR}
 		WORK=${OD_BINARY_BASEDIR})
     endif( OD_CREATE_LAUNCHERS )
+    set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/test/${TEST_NAME}.par )
     if ( WIN32 )
         set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.cmd" )
         set ( TEST_ARGS --command ${TEST_NAME}.exe
@@ -410,13 +411,17 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
 			--qtdir ${QTDIR}
 			--quiet )
     else()
-        set ( TEST_COMMAND "${OD_EXEC_OUTPUT_PATH}/${TEST_NAME}" )
+        set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.csh" )
 	set ( TEST_ARGS "--quiet" )
+    endif()
+
+    if ( EXISTS ${PARAMETER_FILE} )
+	list( APPEND TEST_ARGS --parfile ${PARAMETER_FILE} )
     endif()
 
     if ( NOT (OD_TESTDATA_DIR STREQUAL "") )
 	if ( EXISTS ${OD_TESTDATA_DIR} )
-	    set ( TEST_ARGS "${TEST_ARGS} --datadir ${OD_TESTDATA_DIR}" )
+	    list ( APPEND TEST_ARGS --datadir ${OD_TESTDATA_DIR} )
 	endif()
     endif()
 
