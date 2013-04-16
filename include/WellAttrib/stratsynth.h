@@ -22,16 +22,18 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseriesevent.h"
 
-class TaskRunner;
-class TimeDepthModel;
 class PropertyRef;
 class PropertyRefSelection;
+class RayTracer1D;
 class SeisTrcBufDataPack;
 class SeisTrc;
 class SeisTrcBuf;
+class TaskRunner;
+class TimeDepthModel;
 class Wavelet;
+
 namespace Strat { class LayerModel; class LayerSequence; }
-namespace PreStack { class GatherSetDataPack; }
+namespace PreStack { class GatherSetDataPack; class Gather; } 
 
 
 mStruct(WellAttrib) SynthGenParams
@@ -151,6 +153,7 @@ mExpClass(WellAttrib) PreStackSyntheticData : public SyntheticData
 public:
 				PreStackSyntheticData(const SynthGenParams&,
 						PreStack::GatherSetDataPack&);
+				~PreStackSyntheticData();
 
     bool				isPS() const 	  { return true; }
     bool				hasOffset() const;
@@ -158,6 +161,9 @@ public:
     SynthGenParams::SynthType		synthType() const
 					{ return SynthGenParams::PreStack; }
 
+    void				createAngleData(
+						const ObjectSet<RayTracer1D>&,
+						const TypeSet<ElasticModel>&);
     const SeisTrc*			getTrace(int seqnr) const
     					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
@@ -168,6 +174,11 @@ public:
 	{ return (PreStack::GatherSetDataPack&)(datapack_); }
     const PreStack::GatherSetDataPack&	preStackPack() const
 	{ return (PreStack::GatherSetDataPack&)(datapack_); }
+    const PreStack::GatherSetDataPack&	angleData() const { return *angledp_; }
+protected:
+    PreStack::GatherSetDataPack*	angledp_;
+    void				convertAngleDataToDegrees(
+	    					PreStack::Gather*) const;
 };
 
 
@@ -203,6 +214,7 @@ public:
     SyntheticData* 		getSynthetic(const PropertyRef&);
     SyntheticData* 		getSyntheticByIdx(int idx);
     void			clearSynthetics();
+    void			generateOtherQuantities();
     static float		cMaximumVpWaterVel();
 
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
@@ -251,7 +263,7 @@ protected:
     bool			fillElasticModel(const Strat::LayerModel&,
 					ElasticModel&,int seqidx);
     void			generateOtherQuantities( 
-	    				PostStackSyntheticData& sd,
+	    				const PostStackSyntheticData& sd,
 	    				const Strat::LayerModel&);
     SyntheticData* 		generateSD(const Strat::LayerModel&,
 					TaskRunner* tr=0);
