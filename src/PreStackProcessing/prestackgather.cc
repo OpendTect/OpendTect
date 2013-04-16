@@ -70,7 +70,9 @@ Gather::Gather( const FlatPosData& fposdata )
     , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
-{}
+{
+    posdata_ = fposdata;
+}
 
 
 Gather::~Gather()
@@ -279,7 +281,8 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( zit_ ) z *= 1000;
     par.set( "Z", z );
     par.set( sKey::Offset(), getOffset(idim0) );
-    par.set( sKey::Azimuth(), getAzimuth(idim0) );
+    if ( azimuths_.validIdx(idim0) )
+	par.set( sKey::Azimuth(), getAzimuth(idim0) );
     if ( !is3D() )
 	par.set( sKey::TraceNr(), binid_.crl );
     else

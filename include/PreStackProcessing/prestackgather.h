@@ -114,6 +114,11 @@ public:
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyVelocityCubeID();
     static const char*		sKeyStaticsID();
+    
+    void			getAzimuths(TypeSet<float>& azimuths ) const
+				{ azimuths = azimuths_; }
+    void			setAzimuths( const TypeSet<float>& azimuths )
+				{ azimuths_ = azimuths; }
 
 protected:
 

@@ -23,6 +23,7 @@ using namespace PreStack;
 AngleComputer::AngleComputer()
     : thresholdparam_(0.01)
     , raytracer_(0)
+    , extraytracer_(0)
     , needsraytracing_(true)
 {
     maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
@@ -85,9 +86,10 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
 
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
-    if ( !raytracer_ )
+    if ( !raytracer_ && !extraytracer_ )
 	return false;
 
+    const RayTracer1D& actrt = extraytracer_ ? *extraytracer_ : *raytracer_;
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
 
@@ -97,7 +99,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     ManagedObjectSet<PointBasedMathFunction> anglevals;
 
     TimeDepthModel td;
-    raytracer_->getTDModel( 0, td );
+    actrt.getTDModel( 0, td );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	anglevals += new PointBasedMathFunction( 
@@ -119,7 +121,15 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    if ( zidx == prevzidx )
 		continue;
 
-	    const float angle = asin(raytracer_->getSinAngle(layeridx,ofsidx));
+	    float sinangle = actrt.getSinAngle(layeridx,ofsidx);
+	    if ( mIsUdf(sinangle) || sinangle<-1.5f || sinangle>1.5f )
+		continue;
+	    if ( sinangle<-1.0f )
+		sinangle = -1;
+	    else if ( sinangle>1.0f )
+		sinangle = 1;
+
+	    const float angle = asin(sinangle);
 	    anglevals[ofsidx]->add( (float)zidx, angle );
 	    prevzidx = zidx;
 	}
@@ -315,24 +325,29 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 }
 
 
-void ModelBasedAngleComputer::setElasticModel( ElasticModel& em, 
-					       bool block, bool pvelonly )
+ModelBasedAngleComputer::ModelBasedAngleComputer()
+    : AngleComputer()
 {
-    if ( block )
-    {
-	ElasticModel rawem;
-	BlockElasticModel( em, rawem, thresholdparam_, pvelonly );
-	SetMaxThicknessElasticModel( rawem, em, maxthickness_ );
-    }
-
-    elasticmodel_ = em;
 }
 
 
-void ModelBasedAngleComputer::setRayTracer( RayTracer1D* rt )
+void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em, 
+					       bool block, bool pvelonly )
 {
-    raytracer_ = rt;
-    if ( raytracer_ )
+    elasticmodel_ = em;
+    if ( block )
+    {
+	ElasticModel rawem;
+	BlockElasticModel( elasticmodel_, rawem, thresholdparam_, pvelonly );
+	SetMaxThicknessElasticModel( rawem, elasticmodel_, maxthickness_ );
+    }
+}
+
+
+void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt )
+{
+    extraytracer_ = rt;
+    if ( extraytracer_ )
 	needsraytracing_ = false;
 }
 
