@@ -285,7 +285,7 @@ void createSet()
 	if ( tmp->isEmpty() )
 	    delete tmp;
 	else
-	    { prs_ = tmp; break; }
+	    { prs_ = tmp; sfio.closeSuccess(); break; }
     }
 
     if ( !prs_ )
@@ -416,8 +416,7 @@ bool PropertyRefSet::save( Repos::Source src ) const
     if ( !writeTo(astrm) )
 	{ sfio.closeFail(); return false; }
 
-    sfio.closeSuccess();
-    return true;
+    return sfio.closeSuccess();
 }
 
 
