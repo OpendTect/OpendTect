@@ -93,13 +93,16 @@ public:
     void		displaySynthetic(const SyntheticData*);
     void		cleanSynthetics();
     float		centralTrcShift() const;
-    void		setCurrentSynthetic();
+    void		setCurrentWVASynthetic();
+    void		setCurrentVDSynthetic();
     void		setSnapLevelSensitive(bool);
 
     uiMultiFlatViewControl* control() 	{ return control_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+
+    void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
 
 protected:
 
@@ -109,6 +112,7 @@ protected:
     int			selectedtrace_;
     int			dispeach_;
     bool		dispflattened_;
+    bool		isbrinefilled_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentsynthetic_;
@@ -126,8 +130,9 @@ protected:
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
     uiToolButton*	addeditbut_;
-    uiLabeledComboBox*	datalist_;
-    uiLabeledComboBox*	levelsnapselfld_;
+    uiComboBox*		wvadatalist_;
+    uiComboBox*		vddatalist_;
+    uiComboBox*		levelsnapselfld_;
     uiSynthGenDlg*	synthgendlg_;
     uiSynthSlicePos*	offsetposfld_;
     PtrMan<TaskRunner>	taskrunner_;
@@ -136,14 +141,16 @@ protected:
     void		setCurrentWavelet();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		updateSyntheticList();
+    void		updateWVASyntheticList();
+    void		updateVDSyntheticList();
 
     void		drawLevel();
     void		displayPreStackDirSynthetic(const SyntheticData*);
     void		displayPostStackDirSynthetic(const SyntheticData*);
 
     void		addEditSynth(CallBacker*);
-    void		dataSetSel(CallBacker*);
+    void		wvDataSetSel(CallBacker*);
+    void		vdDataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
