@@ -364,7 +364,15 @@ if(OD_MODULE_BATCHPROGS)
 
 endif( OD_MODULE_BATCHPROGS )
 
-foreach ( TEST_FILE ${OD_TEST_PROGS} )
+foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} )
+    get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
+    set ( TEST_NAME test_${TEST_NAME} )
+
+    set ( OD_TESTS_IGNORE_CONTINUOUS ${OD_TESTS_IGNORE_CONTINUOUS} ${TEST_NAME} PARENT_SCOPE )
+    set ( OD_TESTS_IGNORE_EXPERIMENTAL ${OD_TESTS_IGNORE_EXPERIMENTAL} ${TEST_NAME} PARENT_SCOPE )
+endforeach()
+
+foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
     #Add dep on Batch if there are batch-progs
     if ( OD_USEBATCH )
 	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
