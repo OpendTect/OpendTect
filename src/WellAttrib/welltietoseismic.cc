@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "synthseis.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
+#include "statruncalc.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"
@@ -162,15 +163,24 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 
     TypeSet<float> twt;
     int idy = 0;
+    Stats::CalcSetup scalercalc;
+    scalercalc.require( Stats::RMS );
+    Stats::RunCalc<double> seisstats( scalercalc );
+    Stats::RunCalc<double> syntstats( scalercalc );
     for ( int idseis=istartseis; idseis<=istopseis; idseis++ )
     {
 	twt += data_.synthtrc_.samplePos( idseis );
 	syntharr[idy] = data_.synthtrc_.get( idseis, 0 );
+	syntstats += syntharr[idy];
 	seisarr[idy] = data_.seistrc_.get( idseis, 0 );
+	seisstats += seisarr[idy];
 	idy++;
     }
+    const double seisrms = seisstats.rms();
+    const double syntrms = syntstats.rms();
 
     Data::CorrelData& cd = data_.correl_;
+    cd.scaler_ = syntrms > 0 ? mCast( float, seisrms / syntrms ) : mUdf(float);
     cd.vals_.erase();
     cd.vals_.setSize( nrsamps, 0 );
     GeoCalculator gccc;

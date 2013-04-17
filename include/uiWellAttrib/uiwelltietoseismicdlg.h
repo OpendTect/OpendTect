@@ -148,6 +148,7 @@ protected:
     uiGenInput*                 estwvltlengthfld_;
     uiCrossCorrView*      	crosscorr_;
     uiWaveletView*     		wvltdraw_;
+    uiLabel*			wvltscaler_;
 
     BufferStringSet             markernames_;
 

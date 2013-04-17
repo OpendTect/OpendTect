@@ -150,6 +150,7 @@ public :
 	TypeSet<float>		vals_;
 	int			lag_;
 	double			coeff_;
+	float			scaler_;
     };
     CorrelData			correl_;
 

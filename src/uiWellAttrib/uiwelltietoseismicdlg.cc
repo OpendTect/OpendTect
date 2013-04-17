@@ -526,8 +526,11 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
+    wvltscaler_ = new uiLabel( wvltgrp, 0 );
+    wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
-    estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
+    estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
+    estwvltlengthfld_->setElemSzPol( uiObject::Small );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp,"Vertical", false );
@@ -736,6 +739,12 @@ void uiInfoDlg::drawData()
 {
     wvltdraw_->redrawWavelets();
     crosscorr_->draw();
+    if ( wvltscaler_ )
+    {
+	BufferString scalerfld = "Synthetic to seismic scaler: ";
+	scalerfld += data_.correl_.scaler_;
+	wvltscaler_->setText( scalerfld );
+    }
 }
 
 
