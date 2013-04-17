@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "seismod.h"
 #include "ailayer.h"
 #include "factory.h"
 #include "reflectivitymodel.h"
@@ -195,6 +194,7 @@ public:
 
     //input
     void		addModel(const ElasticModel&);
+    void		forceReflTimes(const StepInterval<float>&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
@@ -250,9 +250,6 @@ protected:
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;
     bool			raytracingdone_;
-
-public:
-    void			forceReflTimes(const StepInterval<float>&);
 };
 
 } //namespace
