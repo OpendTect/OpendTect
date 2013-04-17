@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS
+set(OD_MODULE_DEPS
 	uiVis
 	uiAttributes
 	uiNLA
@@ -13,7 +13,7 @@ SET(OD_MODULE_DEPS
 	uiEMAttrib 
 	uiViewer2D
 )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	inituiodmain.cc
 	odsession.cc
 	uiodapplmgr.cc
@@ -54,11 +54,14 @@ SET(OD_MODULE_SOURCES
 	uiodwelltreeitem.cc
 )
 
-SET( OD_MODULE_GUI_PROGS od_main.cc  )
-IF(WIN32)
-    SET(OD_MODULE_GUI_PROGS ${OD_MODULE_GUI_PROGS} od_start_dtect.cc  )
-    SET(OD_od_main_RESOURCE  resources/od_main.rc )
-    SET(OD_od_start_dtect_RESOURCE resources/od_main.rc )
-ENDIF()
+set( OD_MODULE_GUI_PROGS od_main.cc  )
+if(WIN32)
+    set(OD_MODULE_GUI_PROGS ${OD_MODULE_GUI_PROGS} od_start_dtect.cc  )
+    set(OD_MODULE_PROGS od_main_console )
+    set(OD_od_main_RESOURCE  resources/od_main.rc )
+    set(OD_od_start_dtect_RESOURCE resources/od_main.rc )
+endif()
+
+OD_ADD_SOURCE_FILES( resources/od_main.rc resources/resource.h resources/icon1.ico scene.xpm )
 
 OD_INIT_MODULE()

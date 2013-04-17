@@ -280,7 +280,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 	endif()
 
 	if ( ${TARGET_NAME} MATCHES od_main_console )
-	set( EXEC od_main )
+	    set( EXEC od_main.cc )
 	endif()
 
 	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
