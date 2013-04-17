@@ -402,7 +402,10 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     }
     else
     {
-	array2dslice_->setPos(  0, component );
+	const int nrseries = dataholderarr_->dataset_->info().getSize( 0 );
+	if ( nrseries==1 )
+	    component = 0;
+	array2dslice_->setPos( 0, component );
 	array2dslice_->setDimMap( 0, 1 );
     }
 
