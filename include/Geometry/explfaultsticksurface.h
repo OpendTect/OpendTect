@@ -136,7 +136,6 @@ protected:
     RowCol					texturesize_;
     bool					texturepot_;
     BinIDValue					texturesampling_;
-    Coord3					stickorientation_;
 };
 
 };
