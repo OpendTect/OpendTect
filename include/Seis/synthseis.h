@@ -153,7 +153,7 @@ public:
     const char*                 message() const 
     					{ return "Generating synthetics..."; }
 
-    od_int64                    totalNr() const         { return totalnr_; }
+    od_int64                    totalNr() const		{ return totalnr_; }
 
 protected:
 
@@ -179,6 +179,7 @@ public:
 
     //input
     void		addModel(const ElasticModel&);
+    void		forceReflTimes(const StepInterval<float>&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
@@ -225,6 +226,10 @@ protected:
     IOPar 			raysetup_;
 
     ObjectSet<RayModel>		raymodels_;
+    void			setForcedReflTimes(const StepInterval<float>&);
+    const StepInterval<float>&	getForcedReflTimes();
+    void			setForceReflTime(const int);
+    const int			getForceReflTime();
 };
 
 } //namespace

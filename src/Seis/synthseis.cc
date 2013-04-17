@@ -13,6 +13,7 @@ static const char* rcsID = "$Id$";
 #include "factory.h"
 #include "fourier.h"
 #include "genericnumer.h"
+#include "hiddenparam.h"
 #include "reflectivitysampler.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
@@ -55,7 +56,7 @@ bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
     if ( waveletismine_ ) 
 	{ delete wavelet_; wavelet_ = 0; }
     if ( !wvlt )
-	mErrRet( "No valid wavelet given" );	
+	mErrRet( "No valid wavelet given" );
     if ( pol != OD::CopyPtr )
 	wavelet_ = wvlt;
     else 
@@ -373,19 +374,17 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 
 	if ( !synthgen.doPrepare() )
 	    mErrRet( synthgen.errMsg() );
+
 	synthgen.setWavelet( wavelet_, OD::UsePtr );
 	IOPar par; fillPar( par ); synthgen.usePar( par ); 
 	synthgen.setOutSampling( outputsampling_ );
 	if ( !synthgen.doWork() )
-	    mErrRet( synthgen.errMsg() );	
+	    mErrRet( synthgen.errMsg() );
 	
 	lock_.lock();
-
 	trcs_ += new SeisTrc( synthgen.result() );
 	trcidxs_ += idx;
-
 	lock_.unLock();
-
 	addToNrDone( synthgen.currentProgress() );
     }
     return true;
@@ -416,12 +415,47 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 
 RaySynthGenerator::RaySynthGenerator()
     : raysampling_(0,0)
-{}
+{
+    setForcedReflTimes( StepInterval<float>( mUdf(float), mUdf(float),
+			mUdf(float)) );
+    setForceReflTime( 0 );
+}
 
 
 RaySynthGenerator::~RaySynthGenerator()
 {
     deepErase( raymodels_ );
+}
+
+HiddenParam<RaySynthGenerator, StepInterval<float> >
+	forcedrefltimes_( StepInterval<float>(mUdf(float),mUdf(float),
+		    	  mUdf(float)) );
+
+HiddenParam<RaySynthGenerator, int > forcerefltimes_(0);
+
+
+const StepInterval<float>& RaySynthGenerator::getForcedReflTimes()
+{
+    return forcedrefltimes_.getParam( this );
+}
+
+
+void RaySynthGenerator::setForcedReflTimes(
+				const StepInterval<float>& forcedrefltimes )
+{
+    forcedrefltimes_.setParam( this, forcedrefltimes );
+}
+
+
+const int RaySynthGenerator::getForceReflTime()
+{
+    return forcerefltimes_.getParam( this );
+}
+
+
+void RaySynthGenerator::setForceReflTime( const int forcerefltimes )
+{
+    forcerefltimes_.setParam( this, forcerefltimes );
 }
 
 
@@ -460,9 +494,13 @@ bool RaySynthGenerator::doRayTracing()
 		raysampling_.include( d2t.getLastTime() );
 	}
 	raymodels_.insertAt( rm, 0 );
+
+	if ( (bool)getForceReflTime() )
+	    rm->forceReflTimes( getForcedReflTimes() );
     }
     if ( !raysampling_.width() )
 	mErrRet( "no valid time generated from raytracing" );
+
     return true;
 }
 
@@ -527,10 +565,18 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
     for ( int idx=0; idx<nroffsets; idx++ )
     {
 	ReflectivityModel* refmodel = new ReflectivityModel(); 
-	refmodels_ += refmodel;
 	rt1d.getReflectivity( idx, *refmodel );
 	TimeDepthModel* t2dm = new TimeDepthModel();
 	rt1d.getTWT( idx, *t2dm );
+
+	for ( int idy=refmodel->size()-1; idy>=0; idy-- )
+	{
+	    const ReflectivitySpike& spike = (*refmodel)[idy];
+	    if ( !spike.isDefined() )
+		refmodel->remove( idy );
+	}
+
+	refmodels_ += refmodel;
 	t2dmodels_ += t2dm;
     }
 }
@@ -622,6 +668,13 @@ void RaySynthGenerator::fillPar( IOPar& par ) const
 {
     SynthGenBase::fillPar( par );
     par.merge( raysetup_ );
+}
+
+
+void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
+{
+    setForcedReflTimes( si );
+    setForceReflTime( 1 );
 }
 
 }// namespace
