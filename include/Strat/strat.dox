@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 /*!
 \defgroup Strat Strat
-\section Introduction Introduction Stratigraphy
+
+Stratigraphy
 
 This module supports hierarchical naming of units, with supporting tools like
 lithology selection.
@@ -39,7 +40,5 @@ To implement these thoughts the separation 'reference data' and 'actual
 subsurface unit' has been made. A layer is a unit that holds a pointer to 
 a conceptual unit (e.g. there are a couple of sand layers connected to
 the cret.upp.sand reference data).
-
-\section Content Content
 
 */
