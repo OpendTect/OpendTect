@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "synthseis.h"
 #include "timeser.h"
 #include "wavelet.h"
+#include "math2.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
