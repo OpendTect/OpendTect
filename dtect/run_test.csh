@@ -75,9 +75,9 @@ if ( "$config" == "" ) then
 endif
 
 if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${qtdir}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${LD_LIBRARY_PATH}
 else
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${OD_OSGDIR}/lib:${OD_COINDIR}/lib
+    setenv LD_LIBRARY_PATH ${qtdir}/lib
 endif
 
 
