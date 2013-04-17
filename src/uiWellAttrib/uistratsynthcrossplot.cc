@@ -198,7 +198,7 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
     for ( int dpsrid=0; dpsrid<dps.size(); dpsrid++ )
     {
 	float* dpsvals = dps.getValues( dpsrid );
-	dpsvals[modnridx] = dps.trcNr(dpsrid)+1;
+	dpsvals[modnridx] = mCast(float,dps.trcNr(dpsrid)+1);
     }
 
     return true;
