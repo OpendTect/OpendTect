@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "polygon.h"
 
-/*!\brief Data Point Set Cross Plotter */
-
 
 mStruct(uiIo) SelectionArea
 {
