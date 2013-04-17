@@ -875,7 +875,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees( PreStack::Gather* ag ) co
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval = radval * (180.0/M_PI);
+	    const float dval = Math::toDegrees(radval);
 	    agdata.set( idx, idy, dval );
 	}
     }
