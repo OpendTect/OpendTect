@@ -44,6 +44,7 @@ public:
     int				size() const	{ return seqs_.size(); }
     LayerSequence&		sequence( int idx )	  { return *seqs_[idx];}
     const LayerSequence& 	sequence( int idx ) const { return *seqs_[idx];}
+    Interval<float>		zRange() const;
 
     void			setEmpty();
     LayerSequence&		addSequence();

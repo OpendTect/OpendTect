@@ -145,12 +145,11 @@ int Strat::LayerSequence::nearestLayerIdxAtZ( float zreq ) const
 }
 
 
-float Strat::LayerSequence::totalThickness() const
+Interval<float> Strat::LayerSequence::zRange() const
 {
-    float sum = 0;
-    for ( int ilay=0; ilay<layers_.size(); ilay++ )
-	sum += layers_[ilay]->thickness();
-    return sum;
+    if ( isEmpty() )
+	return Interval<float>( z0_, z0_ );
+    return Interval<float>( z0_, layers_[layers_.size()-1]->zBot() );
 }
 
 
@@ -284,6 +283,18 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 	}
     }
     return *this;
+}
+
+
+Interval<float> Strat::LayerModel::zRange() const
+{
+    if ( isEmpty() )
+	return Interval<float>( 0, 0 );
+
+    Interval<float> ret( seqs_[0]->zRange() );
+    for ( int iseq=1; iseq<seqs_.size(); iseq++ )
+	ret.include( seqs_[iseq]->zRange(), false );
+    return ret;
 }
 
 

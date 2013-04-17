@@ -52,9 +52,9 @@ public:
     int			nearestLayerIdxAtZ(float z) const;
     						//!< returns -1 only if empty
 
-    float		totalThickness() const;
     float		startDepth() const	{ return z0_; }
-    void		setStartDepth( float z ) { z0_ = z; }
+    void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
+    Interval<float>	zRange() const;
 
     PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
