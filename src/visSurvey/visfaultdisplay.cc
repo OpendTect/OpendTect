@@ -527,8 +527,7 @@ void FaultDisplay::updateIntersectionDisplay()
     {
 	setLineRadius( intersectiondisplay_ );
 
-	const bool dodisplay = areIntersectionsDisplayed() &&
-			       arePanelsDisplayed();
+	const bool dodisplay = areIntersectionsDisplayed();
 	if ( dodisplay )
 	    intersectiondisplay_->touch( false );
 
