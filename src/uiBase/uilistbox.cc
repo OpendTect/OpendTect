@@ -797,7 +797,7 @@ void uiListBox::setSelectedItems( const BufferStringSet& itms )
     mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.indexOf(textOfItem(idx))>=0 );
+	setSelected( idx, itms.isPresent(textOfItem(idx)) );
 }
 
 
@@ -806,21 +806,21 @@ void uiListBox::setSelectedItems( const TypeSet<int>& itms )
     mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.indexOf(idx)>=0 );
+	setSelected( idx, itms.isPresent(idx) );
 }
 
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.indexOf(textOfItem(idx))>=0 );
+	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
 }
 
 
 void uiListBox::setCheckedItems( const TypeSet<int>& itms )
 {
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.indexOf(idx)>=0 );
+	setItemChecked( idx, itms.isPresent(idx) );
 }
 
 

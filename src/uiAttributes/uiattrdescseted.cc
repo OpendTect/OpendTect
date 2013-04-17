@@ -730,9 +730,6 @@ void uiAttribDescSetEd::updateUserRefs()
 	attrdescs_ += desc;
 	userattrnames_.add( desc->userRef() );
     }
-
-    int newselidx = userattrnames_.indexOf( selnm );
-    if ( newselidx < 0 ) newselidx = 0;
 }
 
 

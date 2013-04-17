@@ -136,8 +136,7 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
 	{
 	    case MathExpression::Variable :
 	    {
-		const int specidx = Attrib::Math::getSpecVars().indexOf(varnm);
-		if ( specidx<0 )
+		if ( !Attrib::Math::getSpecVars().isPresent(varnm) )
 		{
 		    nrvars_++;
 		    varnms.add( varnm );

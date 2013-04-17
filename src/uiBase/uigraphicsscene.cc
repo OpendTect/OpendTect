@@ -259,8 +259,7 @@ uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 
 uiGraphicsItem* uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 {
-    const int idx = items_.indexOf( itm );
-    if ( idx<0 || !itm )
+    if ( !items_.isPresent(itm) || !itm )
 	return 0;
 
     odgraphicsscene_->removeItem( itm->qGraphicsItem() );

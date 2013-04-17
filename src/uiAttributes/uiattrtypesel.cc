@@ -74,7 +74,7 @@ void uiAttrTypeSel::fill( BufferStringSet* selgrps )
     {
 	const char* grpnm = uiAF().getGroupName( iattr );
 	if ( uiAF().domainType(iattr) != forbiddendomtyp
-	  && (!selgrps || selgrps->indexOf(grpnm) >= 0) )
+	  && (!selgrps || selgrps->isPresent(grpnm)) )
 	    add( grpnm, uiAF().getDisplayName(iattr) );
     }
 
@@ -97,9 +97,7 @@ const char* uiAttrTypeSel::attr() const
 
 void uiAttrTypeSel::setGrp( const char* grp )
 {
-    if ( grpnms_.indexOf(grp) < 0 )
-	return;
-
+    if ( !grpnms_.isPresent(grp) ) return;
     grpfld_->setText( grp );
     updAttrNms();
 }

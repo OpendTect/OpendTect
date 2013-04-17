@@ -217,7 +217,7 @@ bool uiAttrVolOut::prepareProcessing()
 	info.getLineNamesWithAttrib( attrnm.buf(), lnms );
 	const bool singline = transffld_->selFld2D()->isSingLine();
 	const char* lnm = singline ? transffld_->selFld2D()->selectedLine() : 0;
-	if ( (!singline && lnms.size()) || (singline && lnms.indexOf(lnm) >=0) )
+	if ( (!singline && lnms.size()) || (singline && lnms.isPresent(lnm)) )
 	{
 	    const bool rv = uiMSG().askGoOn( "Output attribute already exists.",
 		    			     "Overwrite", "Cancel" );

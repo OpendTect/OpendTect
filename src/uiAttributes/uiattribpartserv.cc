@@ -1161,7 +1161,7 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 						  bool is2d, bool useext )
 {
     SelInfo attrinf( DSHolder().getDescSet(is2d,false) );
-    const bool isattrib = attrinf.attrids_.indexOf( as.id() ) >= 0; 
+    const bool isattrib = attrinf.attrids_.isPresent( as.id() ); 
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
@@ -1421,7 +1421,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 					  TypeSet<int>& selectedcomps )
 {
     //Trick for old steering cubes: fake good component names
-    if ( !is2d && issteering && complist.indexOf("Component 1")>=0 )
+    if ( !is2d && issteering && complist.isPresent("Component 1") )
     {
 	complist.erase();
 	complist.add( "Inline Dip" );

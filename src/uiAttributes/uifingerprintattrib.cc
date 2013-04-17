@@ -7,10 +7,9 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
+-*/
 
 static const char* rcsID mUsedVar = "$Id$";
-
--*/
 
 #include "uifingerprintattrib.h"
 #include "uifingerprintcalcobj.h"
