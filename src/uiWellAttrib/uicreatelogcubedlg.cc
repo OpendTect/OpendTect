@@ -51,8 +51,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const Well::Data& wd )
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
     savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with well name and suffix" );
-    savefld_->setElemSzPol( uiObject::Small );
+    savefld_ = new uiGenInput( this, "with well name and suffix", "_log cube" );
     savefld_->attach( rightOf, savelbl );
 }
 
@@ -108,7 +107,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 
 	logdatas += new LogCubeCreator::LogCubeData( log.name(), *ctio );
     }
-    lcr.setInput( logdatas, repeatfld_->box()->getValue() );
+    lcr.setInput( logdatas, repeatfld_->box()->getValue()+1 );
     uiTaskRunner* tr = new uiTaskRunner( this );
     if ( !tr->execute( lcr ) || lcr.errMsg() )
 	mErrRet( lcr.errMsg(), return false );
@@ -138,8 +137,7 @@ uiMultiWellCreateLogCubeDlg::uiMultiWellCreateLogCubeDlg( uiParent* p )
 
     uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
     savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with well name and suffix" );
-    savefld_->setElemSzPol( uiObject::Small );
+    savefld_ = new uiGenInput( this, "with well name and suffix", "_log cube" );
     savefld_->attach( rightOf, savelbl );
 }
 
@@ -161,16 +159,16 @@ void uiMultiWellCreateLogCubeDlg::initDlg( CallBacker* )
 }
 bool uiMultiWellCreateLogCubeDlg::acceptOK( CallBacker* )
 {
-    const int nrtrcs = repeatfld_->box()->getValue();
+    const int nrtrcs = repeatfld_->box()->getValue()+1;
     const Well::ExtractParams& extractparams = welllogsel_->params();
 
     BufferStringSet wids; BufferStringSet lognms;
-    BufferString suffix = savefld_->text();
     welllogsel_->getSelWellIDs( wids );
     welllogsel_->getSelLogNames( lognms );
     if ( wids.isEmpty() )
 	mMultiErrRet( "No well selected" )
 
+    BufferString suffix = savefld_->text();
     for ( int idwell=0; idwell<wids.size(); idwell++)
     {
 	Well::Data* wd = Well::MGR().get( MultiID( wids.get(idwell)) );

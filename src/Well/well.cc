@@ -587,6 +587,30 @@ Well::Track& Well::Track::operator =( const Track& t )
 }
 
 
+const Interval<float> Well::Track::zRange() const
+{
+    const int nrpts = nrPoints();
+    if ( nrpts < 1 )
+	return Interval<float> ( 0., 0. );
+
+    const float zstart = value(0);
+    const float zstop = value( nrpts-1 );
+    return Interval<float> ( zstart, zstop );
+}
+
+
+const Interval<float> Well::Track::dahRange() const
+{
+    const int nrpts = nrPoints();
+    if ( nrpts < 1 )
+	return Interval<float> ( 0., 0. );
+
+    const float dahstart = dah_[0];
+    const float dahstop = dah_[ nrpts-1 ];
+    return Interval<float> ( dahstart, dahstop );
+}
+
+
 void Well::Track::addPoint( const Coord& c, float z, float dahval )
 {
     pos_ += Coord3(c,z);
