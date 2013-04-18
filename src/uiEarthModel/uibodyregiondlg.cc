@@ -648,7 +648,7 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
 	BufferString unt( " ", SI().getZUnitString() );
 	shiftfld->setSuffix( unt.buf() );
-	shiftfld->setMinValue( (int)-1e+28 );
+	shiftfld->setMinValue( -INT_MAX );
     	table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
     }
     
