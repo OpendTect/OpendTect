@@ -420,11 +420,19 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 	zoomboxitm_->setZValue( 100 );
     }
 
-    // provided rect is always in system [0.5,N+0.5]
-    zoomwr_.setLeft( wr.left() + .5 );
-    zoomwr_.setRight( wr.right() + .5 );
-    zoomwr_.setTop( wr.bottom() );
-    zoomwr_.setBottom( wr.top() );
+    if ( mIsUdf(wr.left()) )
+    {
+	zoomwr_.setLeft( mUdf(float) );
+	getBounds();
+    }
+    else
+    {
+	// provided rect is always in system [0.5,N+0.5]
+	zoomwr_.setLeft( wr.left() + .5 );
+	zoomwr_.setRight( wr.right() + .5 );
+	zoomwr_.setTop( wr.bottom() );
+	zoomwr_.setBottom( wr.top() );
+    }
     updZoomBox();
     if ( showzoomed_ )
 	forceRedispAll();
