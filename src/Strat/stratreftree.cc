@@ -285,14 +285,20 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 
     NodeOnlyUnitRef* ndun = new NodeOnlyUnitRef( this, "Above",
 	    					"Layers above all markers" );
-    ndun->add( new LeavedUnitRef( ndun, ls.getLevel(0).name(),
-			BufferString("Above ",ls.getLevel(0).name()) ) );
+    const Level& lvl0 = ls.getLevel( 0 );
+    ndun->add( new LeavedUnitRef( ndun, lvl0.name(),
+				BufferString("Above ",lvl0.name()) ) );
     add( ndun );
 
     ndun = new NodeOnlyUnitRef( this, "Below", "Layers below a marker" );
-    for ( int idx=0; idx<ls.size(); idx++ )
-	ndun->add( new LeavedUnitRef( ndun, ls.getLevel(idx).name(),
-			BufferString("Below ",ls.getLevel(idx).name()) ) );
+    for ( int ilvl=0; ilvl<ls.size(); ilvl++ )
+    {
+	const Level& lvl = ls.getLevel( ilvl );
+	LeavedUnitRef* lur = new LeavedUnitRef( ndun, lvl.name(),
+					BufferString("Below ",lvl.name()) );
+	lur->setLevelID( lvl.id() );
+	ndun->add( lur );
+    }
     add( ndun );
 
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
