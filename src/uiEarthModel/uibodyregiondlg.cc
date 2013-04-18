@@ -29,11 +29,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uispinbox.h"
 #include "uipossubsel.h"
+#include "uistepoutsel.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "varlenarray.h"
-
 
 
 #define mBelow 0
@@ -43,20 +44,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mToMinCrossline 2
 #define mToMaxCrossline 3
 
-
-static const char* collbls[] = { "Name", "Side", 0 };
 #define cNameCol 0
 #define cSideCol 1
+#define cRelLayerCol 2
 
 class BodyExtractorFromHorizons : public ParallelTask
 {
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist, 
-	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res,
-	const ODPolygon<float>& plg )
-    : res_( res )
-    , cs_( cs )
-    , plg_( plg )	      
+	const TypeSet<char>& sides, const TypeSet<float>& horshift,
+	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
+    : res_(res)
+    , cs_(cs)
+    , plg_(p)	      
 {
     res_.setAll( 1 );
     for ( int idx=0; idx<hlist.size(); idx++ )
@@ -68,6 +68,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	hor->ref();
 	hors_ += hor;
 	hsides_ += sides[idx];
+	horshift_ += horshift[idx];
     }
 }
 
@@ -101,15 +102,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
 	{
-    	    const double curz = cs_.zrg.atIndex( idz );
+    	    const float curz = cs_.zrg.atIndex( idz );
 	    bool curzinrange = true;
 	    float mindist = -1;
 	    for ( int idy=0; idy<horsz; idy++ )
 	    {
-		const float hz = hors_[idy]->getZ(bid);
+		const float hz = hors_[idy]->getZ(bid) + horshift_[idy];
 		if ( mIsUdf(hz) ) continue;
 	    
-		const float dist = (float)( hsides_[idy]==mBelow ? curz-hz : hz-curz );
+		const float dist = hsides_[idy]==mBelow ? curz-hz : hz-curz;
 		if ( dist<0 )
 		{
 		    curzinrange = false;
@@ -132,6 +133,7 @@ Array3D<float>&					res_;
 const CubeSampling&				cs_;
 ObjectSet<EM::Horizon3D>			hors_;
 TypeSet<char>					hsides_;
+TypeSet<float>					horshift_;
 const ODPolygon<float>&				plg_;
 };
 
@@ -140,11 +142,11 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 {
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist, 
-	const TypeSet<char>& sides, const CubeSampling& cs, Array3D<float>& res,
-	const ODPolygon<float>& plg )
+	const TypeSet<char>& sides, const TypeSet<float>& horshift,
+	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
     , cs_(cs)
-    , plg_(plg)
+    , plg_(p)
     , bidinplg_(0)
 {
     res_.setAll( 1 );
@@ -167,6 +169,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	    hor->ref();
 	    hors_ += hor;
 	    hsides_ += sides[idx];
+	    horshift_ += horshift[idx];
 	}
 	else
 	{
@@ -249,7 +252,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const int cornersz = corners.size();
 
     for ( int idz=mCast(int,start); idz<=stop && shouldContinue(); 
-						    idz++, addToNrDone(1) )
+	    idz++, addToNrDone(1) )
     {
 	if ( !idz || idz==lastzidx )
 	    continue;
@@ -315,7 +318,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    float maxz = mUdf(float);
 	    for ( int idy=0; idy<horsz; idy++ )
 	    {
-		const float hz = hors_[idy]->getZ(bid);
+		const float hz = hors_[idy]->getZ(bid) + horshift_[idy];
 		if ( mIsUdf(hz) ) continue;
 	    
 		if ( hsides_[idy]==mBelow )
@@ -336,7 +339,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 	    
 	    double val = curz < minz ? minz - curz : 
-		( curz > maxz ? curz - maxz : -mMIN ( curz - minz,maxz - curz ) );
+		( curz > maxz ? curz - maxz : -mMIN(curz-minz, maxz-curz) );
 	    res_.set( inlidx, crlidx, idz, (float) val );
 	}
     }
@@ -517,6 +520,7 @@ Geom::Point2D<float>				c_[4];
 
 ObjectSet<EM::Horizon3D>			hors_;
 TypeSet<char>					hsides_;
+TypeSet<float>					horshift_;
 
 ObjectSet<EM::Fault3D>				flts_;
 TypeSet<char>					fsides_;
@@ -540,15 +544,16 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
 	    	seltxt("Geometry boundary").withstep(false) );
 
-    table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(true)
-	    .rightclickdisabled(true).selmode(uiTable::Single), "Edges" );
+    uiTable::Setup tsu( 4, 3 );
+    table_ = new uiTable( this, tsu.rowdesc("Boundary").defrowlbl(true), "Sf" );
+    BufferStringSet lbls; lbls.add("Name").add("Region location").add(
+	    "Relative horizon shift");
     table_->attach( alignedBelow, subvolfld_ );
-    table_->setColumnLabels( collbls ); 
-    table_->setLeftMargin( 0 );
-    table_->setSelectionBehavior( uiTable::SelectRows );
+    table_->setColumnLabels( lbls );
+    table_->setPrefWidth( 550 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
-    table_->setRowResizeMode( uiTable::Interactive );
-    table_->setColumnStretchable( cNameCol, true );
+    table_->resizeColumnsToContents();
+    table_->setTableReadOnly( true );
 
     addhorbutton_ = new uiPushButton( this, "&Add horizon",
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
@@ -588,8 +593,22 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
     for ( int idx=0; idx<dlg->nrSel(); idx++ )
     {
 	const MultiID& mid = dlg->selected( idx );
-	if ( surfacelist_.indexOf(mid)!=-1 )
-	    continue;
+	if ( isflt )
+	{
+    	    if ( surfacelist_.indexOf(mid)!=-1 )
+    		continue;
+	}
+	else
+	{
+	    int count = 0;
+	    for ( int idy=0; idy<surfacelist_.size(); idy++ )
+	    {
+		if ( surfacelist_[idy]==mid )
+		    count++;
+	    }
+	    if ( count>1 )
+		continue;
+	}
 	
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	addSurfaceTableEntry( *ioobj, isflt, 0 );
@@ -614,19 +633,26 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
     }
     else
     {
-	sidenms.add("Follow Z increase side (Below)");
-	sidenms.add("Follow Z decrease side (Above)");
+	sidenms.add("Below horizon+shift (Z increase side)");
+	sidenms.add("Above horizon+shift (Z decrease side)");
     }
     
     uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
     sidesel->setCurrentItem( side==-1 ? 0 : 1 );
-    
     table_->setCellObject( RowCol(row,cSideCol), sidesel );
     table_->setText( RowCol(row,cNameCol), ioobj.name() );
     table_->setCellReadOnly( RowCol(row,cNameCol), true );
+
+    if ( !isfault )
+    {
+	uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
+	BufferString unt( " ", SI().getZUnitString() );
+	shiftfld->setSuffix( unt.buf() );
+	shiftfld->setMinValue( (int)-1e+28 );
+    	table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
+    }
     
     surfacelist_ += ioobj.key();
-
     removebutton_->setSensitive( surfacelist_.size() );
 }
 
@@ -640,6 +666,9 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
 	surfacelist_.removeSingle( currow );
 
     table_->removeRow( currow );
+    if ( table_->nrRows() < 4 )
+	table_->setNrRows( 4 );
+
     removebutton_->setSensitive( surfacelist_.size() );
 }
 
@@ -676,12 +705,17 @@ bool uiBodyRegionDlg::createImplicitBody()
     MouseCursorChanger mcc( MouseCursor::Wait );
 
     TypeSet<char> sides;
+    TypeSet<float> horshift;
     bool hasfaults = false;
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*, selbox, 
 		table_->getCellObject(RowCol(idx,cSideCol)) );    
     	sides += mCast(char,selbox->currentItem());
+	
+	mDynamicCastGet(uiSpinBox*, shiftfld, 
+		table_->getCellObject(RowCol(idx,cRelLayerCol)) );    
+    	horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
 	
 	if ( !hasfaults )
 	{
@@ -708,15 +742,15 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     if ( hasfaults )
     {
-	ImplicitBodyRegionExtractor ext( surfacelist_, sides, cs, *arr, 
-     		plgp ? plgp->polygon() : dummy );
+	ImplicitBodyRegionExtractor ext( surfacelist_, sides, horshift, cs, 
+		*arr, plgp ? plgp->polygon() : dummy );
     
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
     	    mRetErr("Extracting body region failed.")
     }
     else
     {
-	BodyExtractorFromHorizons ext( surfacelist_, sides, cs, *arr, 
+	BodyExtractorFromHorizons ext( surfacelist_, sides, horshift, cs, *arr, 
      		plgp ? plgp->polygon() : dummy );
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
     	    mRetErr("Extracting body from horizons failed.")
