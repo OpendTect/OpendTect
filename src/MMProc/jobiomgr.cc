@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "string2.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
 #include "thread.h"
@@ -414,7 +415,7 @@ static FilePath getConvertedFilePath( const HostData& hd, const FilePath& fp )
     BufferString proc( getTempBaseNm() );
     proc += "_";
     proc += MMJob_getTempFileNr()-1;
-    newfp.add(  GetSurveyName() ).add( "Proc" )
+    newfp.add( GetSurveyName() ).add( "Proc" )
 	 .add( proc ).add( fp.fileName() );
     return newfp;
 }
@@ -448,7 +449,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 						  : path.fullPath() );
 	if ( remdata.nrLevels() )
 	{
-	    remotetmpdir.add(  GetSurveyName() ).add( "Seismics" )
+	    remotetmpdir.add( GetSurveyName() ).add( "Seismics" )
 			.add( path.fileName() );
 	}
 
