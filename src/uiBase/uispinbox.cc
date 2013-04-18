@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QContextMenuEvent>
 #include <QLineEdit>
 #include <QValidator>
+#include <limits.h>
 #include <math.h>
 
 mUseQtnamespace
