@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "dirlist.h"
 #include "executor.h"
+#include "ptrman.h"
 #include "separstr.h"
 #include "task.h"
 #include "varlenarray.h"
@@ -252,20 +253,24 @@ bool ZipHandler::doZCompress()
     crc_ = 0;
 
     int flushpolicy = Z_FINISH;
-    mAllocVarLenArr( unsigned char, in, chunksize );
-    mAllocVarLenArr( unsigned char, out, upperbound );
+
+    ArrPtrMan<char> in, out;
+    mTryAllocPtrMan( in, char [chunksize] );
+    mTryAllocPtrMan( out, char [upperbound] );
+    if ( !in || !out )
+    { mErrRet("Cannot allocate memory.","System is out of memory","") }
     od_uint32 bytestowrite;
     do
     {
-	isd_.istrm->read( mCast(char*,mVarLenArr(in)), chunksize );
+	isd_.istrm->read( in, chunksize );
 	zlibstrm.avail_in = isd_.istrm->gcount();
 	flushpolicy = isd_.istrm->eof() ? Z_FINISH : Z_NO_FLUSH;
-	crc_ = crc32( crc_, mCast(Bytef*,mVarLenArr(in)), isd_.istrm->gcount());
-	zlibstrm.next_in = mVarLenArr(in);
+	crc_ = crc32( crc_, mCast(Bytef*,in.ptr()), isd_.istrm->gcount());
+	zlibstrm.next_in = mCast( Bytef*, in.ptr() );
 	do
 	{
 	    zlibstrm.avail_out = upperbound;
-	    zlibstrm.next_out = mVarLenArr(out);
+	    zlibstrm.next_out = mCast( Bytef*, out.ptr() );
 	    ret = deflate( &zlibstrm, flushpolicy );
 	    if ( ret < 0 )
 	    {
@@ -276,8 +281,7 @@ bool ZipHandler::doZCompress()
 	    bytestowrite = upperbound - zlibstrm.avail_out;
 	    destfilesize = destfilesize + bytestowrite;
 	    if ( bytestowrite > 0 ) 
-		osd_.ostrm->write( mCast(const char*,mVarLenArr(out)), 
-								bytestowrite );
+		osd_.ostrm->write( out, bytestowrite );
 
 	    if ( !*osd_.ostrm )
 	    {
@@ -299,8 +303,7 @@ bool ZipHandler::doZCompress()
     if ( !*osd_.ostrm )
     { mWriteErr( destfile_ ) }
 
-    osd_.ostrm->seekp( mHeaderSize + destfilesize
-			    			+ srcfnmsize_ + ptrlocation );
+    osd_.ostrm->seekp( mHeaderSize + destfilesize + srcfnmsize_ + ptrlocation );
     return true;
 #else
     pErrMsg( "ZLib library not available" );
@@ -770,20 +773,21 @@ bool ZipHandler::extractNextFile()
 	const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
 	int count = chunksize;
 	bool finish = false;
-	mAllocVarLenArr( unsigned char, in, chunksize );
+	ArrPtrMan<char> in;
+	mTryAllocPtrMan( in, char [chunksize] );
+	if ( !in )
+	{ mErrRet("Cannot allocate memory.","System is out of memory","") }
 	do
 	{
 	    if ( count <= srcfilesize_ )
 	    {
-		isd_.istrm->read( (char*) mVarLenArr(in), chunksize );
-		osd_.ostrm->write ( (char*) mVarLenArr(in), chunksize );
+		isd_.istrm->read( in, chunksize );
+		osd_.ostrm->write( in, chunksize );
 	    }
 	    else
 	    {
-		isd_.istrm->read( (char*) mVarLenArr(in), 
-						    srcfilesize_ % chunksize );
-		osd_.ostrm->write ( (char*) mVarLenArr(in), 
-						    srcfilesize_ % chunksize);
+		isd_.istrm->read( in, srcfilesize_ % chunksize );
+		osd_.ostrm->write ( in, srcfilesize_ % chunksize);
 		finish = true;
 	    }
 
@@ -930,8 +934,11 @@ bool ZipHandler::doZUnCompress()
     }
 
     const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
-    mAllocVarLenArr( unsigned char, in, chunksize );
-    mAllocVarLenArr( unsigned char, out, chunksize );
+    ArrPtrMan<char> in, out;
+    mTryAllocPtrMan( in, char [chunksize] );
+    mTryAllocPtrMan( out, char [chunksize] );
+    if ( !in || !out )
+    { mErrRet("Cannot allocate memory.","System is out of memory","") }
     int count = chunksize;
     od_uint32 crc = 0;
     od_uint32 bytestowrite;
@@ -939,22 +946,21 @@ bool ZipHandler::doZUnCompress()
     do
     {
 	if ( count <= srcfilesize_ ) 
-	    isd_.istrm->read( mCast(char *,mVarLenArr(in)), chunksize );
+	    isd_.istrm->read( in, chunksize );
 	else
 	{
-	    isd_.istrm->read( mCast(char *,mVarLenArr(in)), 
-						    srcfilesize_ % chunksize);
+	    isd_.istrm->read( in, srcfilesize_ % chunksize);
 	    flushpolicy =  Z_FINISH ;
 	}
 
 	count += chunksize;
 	zlibstrm.avail_in = isd_.istrm->gcount();
 	if (zlibstrm.avail_in == 0 ) break;
-	zlibstrm.next_in = mVarLenArr(in);
+	zlibstrm.next_in = mCast( Bytef*, in.ptr() );
 	do
 	{
 	    zlibstrm.avail_out = chunksize;
-	    zlibstrm.next_out = mVarLenArr(out);
+	    zlibstrm.next_out = mCast( Bytef*, out.ptr() );
 	    ret = inflate( &zlibstrm, flushpolicy );
 	    if ( ret < 0 )
 	    {
@@ -963,8 +969,8 @@ bool ZipHandler::doZUnCompress()
 	    }
 
 	    bytestowrite = chunksize - zlibstrm.avail_out;
-	    crc = crc32( crc, mCast(Bytef*,mVarLenArr(out)), bytestowrite );
-	    osd_.ostrm->write( mCast(char*,mVarLenArr(out)), bytestowrite );
+	    crc = crc32( crc, mCast(Bytef*,out.ptr()), bytestowrite );
+	    osd_.ostrm->write( out, bytestowrite );
 	    if ( !*osd_.ostrm )
 	    {
 		(void)inflateEnd( &zlibstrm );
@@ -1084,9 +1090,9 @@ bool ZipHandler::setTimeDateModified( const char* fnm, od_uint16 timeindos,
     unsigned char bytetime[mSizeTwoBytes], bytedate[mSizeTwoBytes], byte = 0;
     int sec, min, hour, day, month, year, idx;
     bytetime[0] = *mCast( char*, &timeindos );
-    bytetime[1] = *( mCast(char*,&timeindos)+1 );
+    bytetime[1] = *( mCast(char*,&timeindos) + 1 );
     bytedate[0] = *mCast( char*, &dateindos );
-    bytedate[1] = *( mCast(char*,&dateindos)+1 );
+    bytedate[1] = *( mCast(char*,&dateindos) + 1 );
     for ( idx=0; idx<5; idx++ )
 	setBitValue( byte, idx, getBitValue(bytetime[0],idx) );
 
