@@ -55,6 +55,7 @@ DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
 
 SynthGenParams::SynthGenParams()
 {
+    synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
     const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
     if ( !facnms.isEmpty() )
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
