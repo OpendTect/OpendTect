@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup Network Network
-\section Introduction Introduction
-  This module contains all Network related classes
 
-\section Content Content
+  This module contains all Network related classes.
 
 */
