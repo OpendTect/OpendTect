@@ -158,7 +158,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
     oldvalue_ = getFValue();
 
-    setMaxValue( mUdf(int) );
+    setMaxValue( INT_MAX );
 }
 
 
