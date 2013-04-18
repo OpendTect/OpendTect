@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "executor.h"
 #include "jobinfo.h"
 
-class IOPar;
+class BufferStringSet;
+class FilePath;
 class HostData;
+class IOPar;
 class JobDescProv;
 class JobIOMgr;
 class StatusInfo;
-class BufferStringSet;
-class FilePath;
 
 /*!
 \brief Holds host-specific status information.
@@ -114,7 +114,7 @@ public:
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine
     const char*			errorMsg() const;
-    				
+
 protected:
 
     JobDescProv*		descprov_;
@@ -139,7 +139,7 @@ protected:
     int				starttimeout_;
     int				failtimeout_;
     int				wrapuptimeout_;
-    int				hosttimeout_; 
+    int				hosttimeout_;
     int				startwaittime_;  //!< wait B4 next client start
     BufferString		errmsg_;
 

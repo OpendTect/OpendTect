@@ -13,16 +13,15 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "general.h"
 #include "callback.h"
-//#include "queue.h"
+#include "general.h"
 
-class HostData;
 class CommandString;
-class JobInfo;
-class IOPar;
-class HostDataList;
 class FilePath;
+class HostData;
+class HostDataList;
+class IOPar;
+class JobInfo;
 class JobIOHandler;
 template <class T> class ObjQueue;
 
@@ -41,7 +40,7 @@ mExpClass(MMProc) StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
-				    const BufferString& mg, 
+				    const BufferString& mg,
 				    const BufferString& hostname, int time )
 			    : tag(tg), descnr(desc), status(stat), msg(mg)
 			    , hostnm(hostname), timestamp(time), procid(pid) {}
@@ -66,7 +65,7 @@ mExpClass(MMProc) JobIOMgr : public CallBacker
 public:
     enum		Mode { Work, Pause, Stop };
 
-    			JobIOMgr( int firstport=19345, int niceval=19 );
+    			JobIOMgr(int firstport=19345,int niceval=19);
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
@@ -81,7 +80,7 @@ public:
     void		removeJob(const char*,int);
     bool		isReady() const;
 
-    ObjQueue<StatusInfo>& statusQueue(); 
+    ObjQueue<StatusInfo>& statusQueue();
 
 protected:
 
@@ -89,12 +88,12 @@ protected:
     BufferString	msg_;
     int			niceval_;
 
-    bool 		mkIOParFile( FilePath&, const FilePath& basefnm,
-				     const HostData&, const IOPar&);
-    void 		mkCommand( CommandString&, const HostData&,
-				   const char* progname, const FilePath& basefp,
-				   const FilePath& iopfp, const JobInfo&,
-				   const char* rshcomm );
+    bool 		mkIOParFile(FilePath&,const FilePath& basefnm,
+				    const HostData&,const IOPar&);
+    void 		mkCommand(CommandString&,const HostData&,
+				  const char* progname,const FilePath& basefp,
+				  const FilePath& iopfp,const JobInfo&,
+				  const char* rshcomm);
 };
 
 
