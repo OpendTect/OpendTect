@@ -14,9 +14,11 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "enums.h"
+
 class Settings;
 class BufferStringSet;
 
+/*!\brief OpendTect Installation*/
 
 namespace ODInst
 {
