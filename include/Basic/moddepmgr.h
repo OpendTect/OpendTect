@@ -13,7 +13,10 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
+
 class SharedLibAccess;
+
+/*!\brief OpendTect*/
 
 namespace OD
 {
