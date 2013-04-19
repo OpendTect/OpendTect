@@ -700,7 +700,7 @@ void WindowStack::synchronize()
 
     for ( int idx=winstack_.size()-1; idx>=0; idx-- )
     {
-	if ( windowlist.indexOf(winstack_[idx]) < 0 )
+	if ( !windowlist.isPresent(winstack_[idx]) )
 	    winstack_.removeSingle( idx );
     }
 
@@ -708,7 +708,7 @@ void WindowStack::synchronize()
     {
 	uiMainWin* curwin = windowlist[idx];
 
-	if ( winstack_.indexOf(curwin) >= 0 )
+	if ( winstack_.isPresent(curwin) )
 	    continue;
 
 	if ( !curwin->isModal() )

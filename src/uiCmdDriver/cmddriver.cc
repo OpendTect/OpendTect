@@ -1101,7 +1101,7 @@ void CmdDriver::timerShootsCB( CallBacker* cb )
     cmddrvmutex_.lock();
     mTimerListUpdate( timer );
 
-    if ( timerlist_.indexOf(timer) >= 0 )
+    if ( timerlist_.isPresent(timer) )
 	timeoutlist_ += timer;
 
     if ( timer->isSingleShot() )

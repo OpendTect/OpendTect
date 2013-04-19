@@ -595,7 +595,7 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	const MultiID& mid = dlg->selected( idx );
 	if ( isflt )
 	{
-    	    if ( surfacelist_.indexOf(mid)!=-1 )
+    	    if ( surfacelist_.isPresent(mid) )
     		continue;
 	}
 	else

@@ -694,7 +694,7 @@ public:
 	table_->setText( RowCol(row,0), fltnm );
 	table_->setCellReadOnly( RowCol(row,0), true );
 
-	if ( fltpar_.selfaultnms_.indexOf(fltnm)!=-1 )
+	if ( fltpar_.selfaultnms_.isPresent(fltnm) )
 	    return;	  
 
 	fltpar_.selfaultids_ += ioobj.key();

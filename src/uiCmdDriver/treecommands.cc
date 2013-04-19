@@ -951,7 +951,7 @@ void TreeCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselectedchecked, treeitem ) \
-    ( iswasselectedchecked##items_.indexOf(treeitem) >= 0 )
+    ( iswasselectedchecked##items_.isPresent(treeitem) )
 
 
 #define mGetTreeCmdArgs( event, dqkeystr, treenodesel, casedep, mousetag ) \

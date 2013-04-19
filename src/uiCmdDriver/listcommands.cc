@@ -185,7 +185,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
-	if ( actlist_.isSelected(idx) == (oldselitems.indexOf(idx)<0) ) \
+	if ( actlist_.isSelected(idx) == (!oldselitems.isPresent(idx)) ) \
 	{ \
 	    actlist_.selectionChanged.trigger(); \
 	    break; \
@@ -214,7 +214,7 @@ void ListActivator::actCB( CallBacker* cb )
 	{
 	    mHandleSelectionChangedBegin( oldselitems );
 	    mInitListSelection( oldselitems, actitmidx_ );
-	    const bool wasselected = oldselitems.indexOf(actitmidx_) >= 0;
+	    const bool wasselected = oldselitems.isPresent(actitmidx_);
 
 	    if ( actclicktags_.isPresent("Ctrl") )
 		actlist_.setSelected( actitmidx_, !wasselected );
@@ -277,7 +277,7 @@ static bool selectionEquals( const uiListBox& uilist,
 {
     for ( int idx=0; idx<uilist.size(); idx++ )
     {
-	const bool tobeselected = selset.indexOf(idx)>=0;
+	const bool tobeselected = selset.isPresent(idx);
 	if ( uilist.isSelected(idx) != tobeselected )
 	    return false;
     }
@@ -310,7 +310,7 @@ bool ListSelectCmd::act( const char* parstr )
     TypeSet<int> selset;
     for ( int idx=0; idx<nritems; idx++ )
     {
-	bool specified = itemidxs1.indexOf(idx)>=0;
+	bool specified = itemidxs1.isPresent(idx);
 	if ( !itemidxs2.isEmpty() )
 	{
 	    const int firstidx = itemidxs1[0];
@@ -732,8 +732,7 @@ void ListCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselectedchecked, itemidx ) \
-    ( iswasselectedchecked##items_.indexOf(itemidx) >= 0 )
-
+    ( iswasselectedchecked##items_.isPresent(itemidx) )
 
 void ListCmdComposer::writeListSelect()
 {

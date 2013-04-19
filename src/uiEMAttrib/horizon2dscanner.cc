@@ -204,7 +204,7 @@ int Horizon2DScanner::nextStep()
 
     if ( curline_.isEmpty() || curline_ != linenm )
     {
-	if ( invalidnms_.indexOf(linenm) >= 0 )
+	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
 	PtrMan<IOObj> lsobj = IOM().get( setid_ );

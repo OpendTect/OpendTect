@@ -250,7 +250,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     const BufferString srckey = CmdComposer::factoryKey( event.object_ );
     takeSimilarObjs( objsfound, srckey, true, true );
 
-    if ( objsfound.indexOf(event.object_) < 0 )
+    if ( !objsfound.isPresent(event.object_) )
 	return deepFindKeyStr( srcwin, event, localenv );
 
     ObjectSet<const uiObject> curobjset = objsfound;
@@ -265,8 +265,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 
 	for ( int idx=0; idx<curobjset.size(); idx++ )
 	{
-	    allobjsrelative = relatives.indexOf(curobjset[idx]) >= 0;
-	    if ( !allobjsrelative )
+	    if ( !relatives.isPresent(curobjset[idx]) )
 		break;
 	}
 
@@ -293,7 +292,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 	    aliases.removeSingle( 0 );
 
 	    csobjfinder.selectNodes( newobjset, newkeystr );
-	    if ( newobjset.indexOf(event.object_) < 0 )
+	    if ( !newobjset.isPresent(event.object_) )
 		continue;
 
 	    if ( minobjset.isEmpty() || newobjset.size()<minobjset.size() )
@@ -325,7 +324,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 		shorterkeystr += curkeystr[idy];
 	}
 	csobjfinder.selectNodes( newobjset, shorterkeystr );
-	if ( newobjset.indexOf(event.object_) < 0 )
+	if ( !newobjset.isPresent(event.object_) )
 	    continue;
 	if ( newobjset.size() == curobjset.size() )
 	    curkeystr = shorterkeystr;
@@ -394,7 +393,7 @@ bool CmdRecorder::findKeyString( const uiMainWin& srcwin, CmdRecEvent& event )
 	lastobjsearched_ = event.object_;
 	lastobjfreewins_.erase();
     }
-    else if ( lastobjfreewins_.indexOf( &srcwin ) >= 0 )
+    else if ( lastobjfreewins_.isPresent( &srcwin ) )
 	return false;
 
     bool res = doFindKeyStr( srcwin, event );
