@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "visbasemod.h"
 #include "sets.h"
 #include "visdatagroup.h"
@@ -21,6 +20,8 @@ ________________________________________________________________________
 class SoEnvironment;
 class SoAction;
 class SoCallback;
+
+/*!\brief Open Scene Graph*/
 
 namespace osg { class Group; }
 
