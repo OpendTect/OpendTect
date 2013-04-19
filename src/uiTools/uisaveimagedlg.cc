@@ -527,6 +527,7 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
     setFldVals( 0 );
+    updateFilter();
 }
 
 
@@ -557,6 +558,7 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
 	    if ( !filters.isEmpty() ) filters += ";;";
 	    filters += frmtdesc[idy++];
 	}
+	idy++;
     }
 }
 
