@@ -39,6 +39,7 @@ namespace WellTie
 {
 
 
+#define	mLocalEps	1e-2f
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 						   const char* sonlog ) const
 {
@@ -57,10 +58,12 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     {
 	const float dah = proclog.dah( idx );
 	if ( mIsUdf(dah) )
-	   continue;
-	const float twt = proclog.value( idx );
-	if ( mIsUdf(twt) || twt < -1e-2 )
 	    continue;
+
+	const float twt = proclog.value( idx );
+	if ( mIsUdf(twt) || twt < -1. * mLocalEps )
+	    continue;
+
 	dpt += dah;
 	vals += twt;
     }
@@ -93,9 +96,9 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	dahs += d2t.dah( idx ); 
 	times += d2t.value( idx ); 
 	zidxs[idx] = idx;
-	if ( mIsZero( d2t.dah( idx ), 1e-3 ) )
+	if ( mIsZero(d2t.dah(idx),mLocalEps) )
 	    initialt = d2t.value( idx );
-	else if ( mIsZero( d2t.dah( idx ) - srddah, 1e-3 ) )
+	else if ( mIsZero(d2t.dah(idx)-srddah,mLocalEps) )
 	    initialt = 2.f * srddah / replvel;
 	else initialt = replvelshift;
     }
@@ -107,15 +110,18 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	d2t.add( srddah, 0); //set SRD
 
     int idah = -1;
-    const float bulkshift = mIsZero( initialt-replvelshift, 1e-3 ) ? 0 :
+    const float bulkshift = mIsZero( initialt-replvelshift, mLocalEps ) ? 0 :
 				     initialt-replvelshift;
+    const float lastdah = dahs[zidxs[sz-1]];
+    if ( lastdah < srddah-mLocalEps )
+	return;
+
     do { idah++; }
-    while ( dahs[zidxs[idah]] <= srddah || dahs[zidxs[idah]]  < 1e-1 ||
-	    times[zidxs[idah]] < 0 );
-    if ( idah >= d2t.size() )
-	idah = 0;
-    if ( dahs[zidxs[idah]] > srddah && dahs[zidxs[idah]] > 1e-1 &&
-	 times[zidxs[idah]] > 0 )
+    while ( dahs[zidxs[idah]] <= srddah || dahs[zidxs[idah]]  < mLocalEps ||
+	    times[zidxs[idah]] < mLocalEps );
+
+    if ( dahs[zidxs[idah]] > srddah && dahs[zidxs[idah]] > mLocalEps &&
+	 times[zidxs[idah]] > mLocalEps )
 	d2t.add( dahs[zidxs[idah]], times[zidxs[idah]] + bulkshift );
 
     for ( int idx=idah+1; idx<sz; idx++ )
@@ -124,10 +130,12 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	int idx1 = zidxs[idx];
 	const float dh = dahs[idx1] - dahs[idx0];
 	const float dt = times[idx1] - times[idx0];
-	if ( dh > 1e-1 && dahs[idx1] > dahs[0] && dahs[idx1] > srddah
-	    && dt > 1e-6 && times[idx1] > times[0] && times[idx1] > 0)
+	if ( dh > mLocalEps && dahs[idx1] > dahs[0] && dahs[idx1] > srddah
+	     && dt > 1e-6f && times[idx1] > times[0] && times[idx1] >mLocalEps )
 	    d2t.add( dahs[idx1], times[idx1] + bulkshift );
     }
+    if ( d2t.size() < 2 )
+	d2t.setEmpty();
 }
 
 
@@ -136,7 +144,7 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
     const UnitOfMeasure* loguom = log.unitOfMeasure();
     bool issonic = false;
     bool isimperial = false;
-    float fact = 1;
+    float fact = 1.f;
     if ( loguom )
     {
 	isimperial = loguom->isImperial();
@@ -144,14 +152,15 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
 	{
 	    issonic = true;
 	    if ( strstr(loguom->name(),"Milli") )
-		fact = 1e3;
+		fact = 1e3f;
+
 	    if ( strstr(loguom->name(),"Micro") )
-		fact = 1e6;
+		fact = 1e6f;
 	}
     }
 
     if ( !issonic )
-	fact = 1e6;
+	fact = 1e6f;
 
     BufferString outuomlbl;
     outuomlbl = issonic ? getDistUnitString( isimperial, false ) : "us/";
@@ -219,7 +228,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     {
 	const float dah = log.dah( idx );
 	const float logval = log.value( idx );
-	if ( !mIsUdf(dah) && !mIsUdf(logval) && dah > startdah+1e-2 )
+	if ( !mIsUdf(dah) && !mIsUdf(logval) && dah > startdah+mLocalEps )
 	{
 	    dpts += (float)track.getPos(dah).z;
 	    vals += loguom ? loguom->getSIValue( logval ) : logval;
@@ -240,8 +249,8 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	const float newdepth = dpts[idx];
 	const float newval = vals[sidx];
 	const int cursz = sdpts.size();
-	if ( cursz>1 && (mIsEqual(newdepth,sdpts[cursz-1],1e-2) ||
-		    	 mIsEqual(newval,svals[cursz-1],1e-2)) )
+	if ( cursz>1 && (mIsEqual(newdepth,sdpts[cursz-1],mLocalEps) ||
+		    	 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
 	    continue;
 	sdpts += dpts[idx];
 	svals += vals[sidx];
@@ -258,6 +267,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	ArrayValueSeries<float,float> sdptsvs(sdpts.arr(),false);
 	if ( !TimeDepthConverter::calcTimes(svalsvs,sz,sdptsvs,outvals.arr()) )
 	    return;
+
 	const float startime = outvals[0];
 	for ( int idx=0; idx<sz; idx++ )
 	    outvals[idx] += bulkshift - startime;
@@ -267,6 +277,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	TimeDepthModel verticaldtmod;
 	if ( !verticaldtmod.setModel(sdpts.arr(),svals.arr(),sz) )
 	    return;
+
 	outvals += replvel;
 	for ( int idx=1; idx<sz; idx++ )
 	    outvals += verticaldtmod.getVelocity( sdpts.arr(), svals.arr(),
@@ -367,9 +378,8 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 
 	double rfilterval = filterval.real();
 	double ifilterval = filterval.imag();
-	float_complex conjfilterval = float_complex( (float) rfilterval ,
-							(float) -ifilterval ); 
-
+	float_complex conjfilterval = float_complex( (float) rfilterval,
+						     (float) -ifilterval );
 	float_complex num = inputval * conjfilterval;
 	float_complex denom = filterval * conjfilterval + cnoiseshift;
 	float_complex res = num / denom;
