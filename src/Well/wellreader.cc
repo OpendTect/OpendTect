@@ -376,6 +376,8 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 
 	readLogData( *log, strm, bintype );
 	sd.close();
+	if ( log->isEmpty() )
+	    continue;
 	
 	const bool valinmtr = SI().zInFeet() && (version < 4.195);
 
