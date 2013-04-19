@@ -19,9 +19,11 @@ ________________________________________________________________________
 # include "msvcdefs.h"
 #endif
 
+/*!\brief Template based type conversion. */
+
 namespace Conv{
 
-//! template based type converstion
+//! template based type conversion
 template <class T, class F>
 inline void set( T& _to, const F& fr )
     { _to = (T)fr; }
