@@ -17,10 +17,12 @@ ________________________________________________________________________
 #include "position.h"
 #include "factory.h"
 #include "surv2dgeom.h"
+
 class IOPar;
 class Executor;
 class TaskRunner;
 
+/*!\brief Position*/
 
 namespace Pos
 {
