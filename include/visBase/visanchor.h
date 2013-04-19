@@ -18,6 +18,8 @@ ________________________________________________________________________
 class SbString;
 class SoWWWAnchor;
 
+/*!\brief Visualisation - Open Inventor based tools.*/
+
 namespace visBase
 {
 
