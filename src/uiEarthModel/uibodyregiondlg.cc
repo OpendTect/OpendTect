@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uispinbox.h"
@@ -47,6 +48,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define cNameCol 0
 #define cSideCol 1
 #define cRelLayerCol 2
+#define cHorShiftUpCol 2
+#define cHorShiftDownCol 3
 
 class BodyExtractorFromHorizons : public ParallelTask
 {
@@ -536,6 +539,7 @@ Array2D<unsigned char>*				bidinplg_;
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     : uiDialog( p, Setup("Region constructor","Boundary settings",mNoHelpID) )
+    , singlehoradded_(false)  
 {
     setCtrlStyle( DoAndStay );
     //setHelpID( "dgb:104.0.4" );
@@ -544,13 +548,18 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
 	    	seltxt("Geometry boundary").withstep(false) );
 
-    uiTable::Setup tsu( 4, 3 );
+    singlehorfld_ = new uiGenInput( this, "Apply", BoolInpSpec(false, 
+		"Single horizon wrapping", "Multiple horizon layers") );
+    singlehorfld_->attach( alignedBelow, subvolfld_ );
+    singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
+
+    uiTable::Setup tsu( 4, 4 );
     table_ = new uiTable( this, tsu.rowdesc("Boundary").defrowlbl(true), "Sf" );
     BufferStringSet lbls; lbls.add("Name").add("Region location").add(
-	    "Relative horizon shift");
-    table_->attach( alignedBelow, subvolfld_ );
+	    "Relative horizon shift").add(" ");
+    table_->attach( alignedBelow, singlehorfld_ );
     table_->setColumnLabels( lbls );
-    table_->setPrefWidth( 550 );
+    table_->setPrefWidth( 600 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
@@ -578,6 +587,27 @@ uiBodyRegionDlg::~uiBodyRegionDlg()
 {}
 
 
+void uiBodyRegionDlg::horModChg( CallBacker* cb )
+{
+    table_->clearTable();
+    table_->selectRow( 0 );
+    surfacelist_.erase();
+    
+    const bool singlehormod = singlehorfld_->getBoolValue();
+    BufferStringSet lbls;  
+    lbls.add("Name").add("Region location");
+    if ( singlehormod )
+	lbls.add("Relative shift up").add("Relative shift down");
+    else
+	lbls.add("Relative horizon shift").add("  ");
+   
+    table_->setColumnLabels( lbls );
+    table_->resizeColumnsToContents();
+    singlehoradded_ = false;
+    removebutton_->setSensitive( false );
+}
+
+
 void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 {
     const bool isflt = addfltbutton_==cb;
@@ -590,6 +620,7 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
     if ( !dlg->go() )
 	return;
 
+    const bool singlehormod = singlehorfld_->getBoolValue();
     for ( int idx=0; idx<dlg->nrSel(); idx++ )
     {
 	const MultiID& mid = dlg->selected( idx );
@@ -611,7 +642,19 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	}
 	
 	PtrMan<IOObj> ioobj = IOM().get( mid );
-	addSurfaceTableEntry( *ioobj, isflt, 0 );
+	if ( isflt || !singlehormod )
+    	    addSurfaceTableEntry( *ioobj, isflt, 0 );
+	else 
+	{
+	    if ( singlehoradded_ )
+	    {
+		uiMSG().message("You already picked a horizon");
+		return;
+	    }
+
+	    singlehoradded_ = true;
+	    addSurfaceTableEntry( *ioobj, isflt, 0 );
+	}
     }
 }
 
@@ -623,6 +666,8 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
     if ( row==table_->nrRows() )
 	table_->insertRows( row, 1 );
 
+    const bool singlehormod = singlehorfld_->getBoolValue();
+
     BufferStringSet sidenms;
     if ( isfault )
     {
@@ -631,25 +676,44 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	sidenms.add("Between min Crossline and fault");
 	sidenms.add("Between max Crossline and fault");
     }
-    else
+    else if ( !singlehormod ) 
     {
 	sidenms.add("Below horizon+shift (Z increase side)");
 	sidenms.add("Above horizon+shift (Z decrease side)");
     }
-    
-    uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
-    sidesel->setCurrentItem( side==-1 ? 0 : 1 );
-    table_->setCellObject( RowCol(row,cSideCol), sidesel );
+
+    if ( isfault || (!isfault && !singlehormod) )
+    {
+	uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
+    	sidesel->setCurrentItem( side==-1 ? 0 : 1 );
+    	table_->setCellObject( RowCol(row,cSideCol), sidesel );
+    }
+
     table_->setText( RowCol(row,cNameCol), ioobj.name() );
     table_->setCellReadOnly( RowCol(row,cNameCol), true );
 
     if ( !isfault )
     {
-	uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
-	BufferString unt( " ", SI().getZUnitString() );
-	shiftfld->setSuffix( unt.buf() );
-	shiftfld->setMinValue( -INT_MAX );
-    	table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
+	if ( singlehormod )
+	{
+	    BufferString unt( " ", SI().getZUnitString() );
+	    
+	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
+	    shiftupfld->setSuffix( unt.buf() );
+	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
+	    
+	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
+	    shiftdownfld->setSuffix( unt.buf() );
+	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
+	}
+	else
+	{
+	    uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
+	    BufferString unt( " ", SI().getZUnitString() );
+	    shiftfld->setSuffix( unt.buf() );
+	    shiftfld->setMinValue( -INT_MAX );
+	    table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
+	}
     }
     
     surfacelist_ += ioobj.key();
@@ -663,7 +727,16 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
     if ( currow==-1 ) return;
 
     if ( currow<surfacelist_.size() )
+    {
+	if ( singlehorfld_->getBoolValue() )
+	{
+	    const char* objtype = EM::EMM().objectType( surfacelist_[currow] );
+	    if ( !strcmp( objtype, sKey::Horizon() ) )
+    		singlehoradded_ = false;
+	}
+    
 	surfacelist_.removeSingle( currow );
+    }
 
     table_->removeRow( currow );
     if ( table_->nrRows() < 4 )
@@ -674,6 +747,13 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
 
 
 #define mRetErr(msg)  { uiMSG().error( msg ); return false; }
+#define mRetErrDelHoridx(msg)  \
+{  \
+    if ( duplicatehoridx>=0 ) \
+	surfacelist_.removeSingle( duplicatehoridx ); \
+    mRetErr(msg) \
+}
+
 
 bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 {
@@ -686,8 +766,7 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
     if ( !outputfld_->commitInput() )
 	return false;
 
-    const bool res = createImplicitBody();
-    if ( res )
+    if ( createImplicitBody() )
     {
 	BufferString msg = "The body ";
 	msg += outputfld_->getInput();
@@ -703,19 +782,41 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 bool uiBodyRegionDlg::createImplicitBody()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-
+    
+    const bool singlehormod = singlehorfld_->getBoolValue();
+    
     TypeSet<char> sides;
     TypeSet<float> horshift;
     bool hasfaults = false;
+    int duplicatehoridx = -1;
+
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*, selbox, 
 		table_->getCellObject(RowCol(idx,cSideCol)) );    
-    	sides += mCast(char,selbox->currentItem());
-	
-	mDynamicCastGet(uiSpinBox*, shiftfld, 
-		table_->getCellObject(RowCol(idx,cRelLayerCol)) );    
-    	horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
+	if ( singlehormod && !selbox )
+	{
+	    mDynamicCastGet(uiSpinBox*, shiftupfld, 
+		    table_->getCellObject(RowCol(idx,cHorShiftUpCol)) );    
+
+	    mDynamicCastGet(uiSpinBox*, shiftdownfld, 
+		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );    
+	    if ( !shiftupfld->getValue() && !shiftdownfld->getValue() )
+		mRetErr("You did not choose any horizon shift");
+
+	    duplicatehoridx = idx;
+	    sides += mBelow;
+	    horshift += -shiftupfld->getValue()/SI().zScale();
+	    sides += mAbove;
+	    horshift += shiftdownfld->getValue()/SI().zScale();
+	}
+	else
+	{
+	    sides += mCast(char,selbox->currentItem());
+	    mDynamicCastGet(uiSpinBox*, shiftfld, 
+		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );    
+	    horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
+	}
 	
 	if ( !hasfaults )
 	{
@@ -725,7 +826,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    if ( emflt ) hasfaults = true;
 	}
     }
-   
+
+    if ( duplicatehoridx>=0 )
+    	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
+
     CubeSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
     cs.hrg.start.inl -= cs.hrg.step.inl; cs.hrg.stop.inl += cs.hrg.step.inl;
@@ -734,7 +838,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
     if ( !arr )
-	return false;
+	mRetErrDelHoridx("Can not allocate disk space to create region.")
     
     uiTaskRunner taskrunner( this );
     ODPolygon<float> dummy;
@@ -746,14 +850,14 @@ bool uiBodyRegionDlg::createImplicitBody()
 		*arr, plgp ? plgp->polygon() : dummy );
     
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-    	    mRetErr("Extracting body region failed.")
+    	    mRetErrDelHoridx("Extracting body region failed.")
     }
     else
     {
 	BodyExtractorFromHorizons ext( surfacelist_, sides, horshift, cs, *arr, 
      		plgp ? plgp->polygon() : dummy );
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-    	    mRetErr("Extracting body from horizons failed.")
+    	    mRetErrDelHoridx("Extracting body from horizons failed.")
     }
 
     RefMan<EM::MarchingCubesSurface> emcs = 
@@ -772,7 +876,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver(); 
     if ( !exec ) 
- 	mRetErr( "Body saving failed" ) 
+ 	mRetErrDelHoridx( "Body saving failed" ) 
 
     MultiID key = emcs->multiID(); 
     PtrMan<IOObj> ioobj = IOM().get( key ); 
@@ -780,11 +884,11 @@ bool uiBodyRegionDlg::createImplicitBody()
     { 
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() ); 
 	if ( !IOM().commitChanges( *ioobj ) ) 
-	    mRetErr( "Writing body to disk failed, no permision?" ) 
+	    mRetErrDelHoridx( "Writing body to disk failed, no permision?" ) 
     } 
 
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
-	mRetErr("Saving body failed");
+	mRetErrDelHoridx("Saving body failed");
 
     return true;
 }

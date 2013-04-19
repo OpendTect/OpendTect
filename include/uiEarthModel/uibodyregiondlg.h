@@ -20,9 +20,10 @@ ________________________________________________________________________
 
 class MultiID;
 class IOObj;
-class uiTable;
+class uiGenInput;
 class uiPosSubSel;
 class uiPushButton;
+class uiTable;
 
 
 mExpClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
@@ -40,6 +41,7 @@ protected:
     void			addSurfaceTableEntry(const IOObj&,
 						     bool isfault,char side);
     bool			createImplicitBody();
+    void			horModChg(CallBacker*);
 
     TypeSet<MultiID>		surfacelist_;
 
@@ -50,6 +52,8 @@ protected:
     uiPushButton*		addhorbutton_;
     uiPushButton*		addfltbutton_;
     uiPushButton*		removebutton_;
+    uiGenInput*			singlehorfld_;
+    bool			singlehoradded_;
 };
 
 
