@@ -36,8 +36,11 @@ public:
     D2TModel&		operator =(const D2TModel&);
 
     float		getTime(float d_ah, const Track&) const;
-    double		getVelocity(float d_ah,const Track&) const;
+    float		getDepth(float time, const Track&) const;
     float		getDah(float time, const Track&) const;
+    double		getVelocityForDah(float d_ah,const Track&) const;
+    double		getVelocityForDepth(float dpt,const Track&) const;
+    double		getVelocityForTwt(float twt,const Track&) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
     float		value( int idx ) const	{ return t(idx); }
@@ -62,7 +65,10 @@ protected:
     void		removeAux( int idx )	{ t_.removeSingle(idx); }
     void		eraseAux()		{ t_.erase(); }
 
-    bool		getVelocityBounds(float d_ah,const Track&,
+    bool		getVelocityBoundsForDah(float d_ah,const Track&,
+	    				  Interval<double>& depths,
+					  Interval<float>& times) const;
+    bool		getVelocityBoundsForTwt(float twt,const Track&,
 	    				  Interval<double>& depths,
 					  Interval<float>& times) const;
 
@@ -73,7 +79,11 @@ protected:
     int			getDahIndex(float d_ah,const Track&) const;
 			/*!<For dah which are out of range of 
 			    time-depth model gives correct index!>*/
-    bool		getOldVelocityBounds(float d_ah,const Track&,
+    bool		getOldVelocityBoundsForDah(float d_ah,const Track&,
+	    				     Interval<double>& depths,
+					     Interval<float>& times) const;
+    			//!<Read legacy incorrect time-depth model!>
+    bool		getOldVelocityBoundsForTwt(float twt,const Track&,
 	    				     Interval<double>& depths,
 					     Interval<float>& times) const;
     			//!<Read legacy incorrect time-depth model!>
