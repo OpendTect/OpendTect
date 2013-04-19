@@ -44,25 +44,26 @@ namespace WellTie
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 	: vwr_(vwr)
 	, parent_(p)
-	, trcbuf_(*new SeisTrcBuf(true))	    
+	, trcbuf_(*new SeisTrcBuf(true))
 	, params_(data.dispparams_)
-	, data_(data)				   
-	, synthpickset_(data_.pickdata_.synthpicks_)
-	, seispickset_(data_.pickdata_.seispicks_)
-	, zrange_(data_.timeintv_)
+	, data_(data)
+	, synthpickset_(data.pickdata_.synthpicks_)
+	, seispickset_(data.pickdata_.seispicks_)
+	, zrange_(data.getTraceRange())
 	, checkshotitm_(0)
 	, wellcontrol_(0)
-	, seisdp_(0)			 
+	, seisdp_(0)
 	, infoMsgChanged(this)
 {
     initFlatViewer();
     initLogViewers();
     initWellControl();
-} 
+}
 
 
 uiTieView::~uiTieView()
 {
+    delete wellcontrol_;
     vwr_->clearAllPacks();
     delete &trcbuf_;
 }
@@ -135,9 +136,10 @@ void uiTieView::initFlatViewer()
     app.setGeoDefaults( true );
     app.annot_.showaux_ = true ;
     app.annot_.x1_.showannot_ = true;
+    app.annot_.x1_.sampling_ = 100;
     app.annot_.x1_.showgridlines_ = false;
     app.annot_.x2_.showannot_ = true;
-    app.annot_.x2_.sampling_ = 0.2;
+    app.annot_.x2_.sampling_ = 0.1;
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
@@ -191,7 +193,7 @@ void uiTieView::drawTraces()
 	const bool issynth = idx < midtrc;
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
-	trc->info().sampling = data_.seistrc_.info().sampling;
+	trc->info().sampling = data_.getTraceRange();
 	trc->info().sampling.scale( 1000 );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
@@ -436,8 +438,8 @@ void uiCrossCorrView::set( const Data::CorrelData& cd )
     vals_.erase();
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
 	vals_ += cd.vals_[idx];
-    lag_ = cd.lag_;
-    coeff_ = cd.coeff_;
+    lag_ = (float)cd.lag_;
+    coeff_ = (float)cd.coeff_;
 }
 
 
@@ -451,9 +453,10 @@ void uiCrossCorrView::draw()
     TypeSet<float> xvals, yvals;
     for ( int idx=-halfsz; idx<halfsz; idx++)
     {
-	float xaxistime = idx*data_.timeintv_.step*1000;
+	const float xaxistime = idx * data_.getTraceRange().step * 1000.;
 	if ( fabs( xaxistime ) > lag_ )
 	    continue;
+
 	xvals += xaxistime;
 	float val = vals_[idx+halfsz];
 	val *= normalfactor;
@@ -467,3 +470,4 @@ void uiCrossCorrView::draw()
 }
 
 }; //namespace WellTie
+

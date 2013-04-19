@@ -80,19 +80,22 @@ protected:
     uiWaveletExtraction* extractwvltdlg_;
 
     bool		getDefaults();
+    // do not use, will be removed
+    void		getSetup(const char* wllnm );
+    bool		getSeismicInSetup();
+    bool		getVelLogInSetup() const;
+    bool		getDenLogInSetup() const;
     bool		initSetup();
     void		saveWellTieSetup(const MultiID&,
-	    				const WellTie::Setup&) const;
+	    				 const WellTie::Setup&) const;
     
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
-    void                extractWvltDone(CallBacker*);
+    void		extractWvltDone(CallBacker*);
     void		seisSelChg(CallBacker*);
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void 		wellTieDlgClosed(CallBacker*);
-
-protected:
     void		set3DSeis() const;
     void		set2DSeis() const;
     void		setLine() const;
@@ -104,3 +107,4 @@ protected:
 
 }; //namespace WellTie
 #endif
+

@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "commondefs.h"
+#include "odcomplex.h"
 
 /* !brief performs the computations needed by TWTS  !*/   
 
@@ -28,31 +29,48 @@ public :
 //Well data operations
     Well::D2TModel* 	getModelFromVelLog(const Well::Data&,const char* son, 
 					   bool issonic,float replacevel) const;
+			// do not use, will be removed
     void		ensureValidD2TModel(Well::D2TModel&,
-	    				const Well::Data&) const;
-
-    			// DO NOT USE this son2TWT, will be removed
+	    				    const Well::Data&) const;
     void		son2TWT(Well::Log&,bool straight,float startdah) const;
-    			// DO NOT USE this vel2TWT, will be removed
+    			// do not use, will be removed
     void 		vel2TWT(Well::Log&,bool straight,float startdah) const;
+			// do not use, will be removed
     void		son2Vel(Well::Log&,bool yn) const;
+			// do not use, will be removed
     void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
-    float		getSRDElevation(const Well::Data&) const; //DO NOT USE
+    float		getSRDElevation(const Well::Data&) const;
+			// do not use, will be removed
 
 //others  
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
     double 		crossCorr(const float*,const float*,float*,int) const;
     void 		deconvolve(const float*,const float*,float*,int) const;
+			// do not use, will be removed
+
 
 public:
-    			// DO NOT USE ensureValidD2TModel, was added unnecessarily
     void		ensureValidD2TModel(Well::D2TModel&,const Well::Data&,
 					    float replacevel ) const;
+			// do not use, will be removed
     Well::D2TModel* 	getModelFromVelLog(const Well::Data&,const char* son, 
 					   bool issonic) const;
+			// do not use, will be removed
     void		son2TWT(Well::Log&,const Well::Track&,bool,float) const;
+			// do not use, will be removed
     void		vel2TWT(Well::Log&,const Well::Track&,bool,float) const;
+			// do not use, will be removed
+
+public:
+    Well::D2TModel* 	getModelFromVelLog(const Well::Data&,
+	    				   const char* lognm) const;
+    void		son2TWT(Well::Log&,const Well::Data&) const;
+    void		vel2TWT(Well::Log&,const Well::Data&) const;
+    void		son2Vel(Well::Log&) const;
+    void 		deconvolve(const float*,const float_complex*,float*,
+	    			   int) const;
 };
 
 }; //namespace WellTie
 #endif
+

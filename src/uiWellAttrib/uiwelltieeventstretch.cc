@@ -85,7 +85,7 @@ void EventStretch::doStretchSqueeze()
     d2tarr += d2t_->value( d2tsz-1 );
     daharr += d2t_->dah( d2tsz-1 );
 
-    const float lasttime = d2tmgr_.getData().timeintv_.stop;
+    const float lasttime = d2tmgr_.getData().getTraceRange().stop;
     float lastd2ttime = d2t_->value( d2tsz-1 );
     while ( lastd2ttime < lasttime  )
     {
@@ -114,3 +114,4 @@ void EventStretch::doStretchSqueeze()
 }
 
 }; //namespace WellTie
+

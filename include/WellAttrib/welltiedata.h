@@ -97,8 +97,14 @@ public :
     const Well::Log*		cslog_;
     bool			isinitwvltactive_;
     const StepInterval<float>& 	timeintv_;
+	// do not use, will be deleted
     Interval<float>		dahrg_;
     const Setup&		setup() const	{ return setup_; }
+    
+    const StepInterval<float>&	getTraceRange() const;
+    const Interval<float>&	getDahRange() const { return dahrg_; }
+    const StepInterval<float>&	getModelRange() const;
+    const StepInterval<float>&	getReflRange() const;
 
     const char*  		sonic() 	const;
     const char*  		density() 	const;
@@ -107,6 +113,7 @@ public :
     const char*  		synthetic() 	const;
     const char*  		seismic() 	const;
     bool			isSonic() 	const;
+    static float		cDefSeisSr();
 
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
@@ -126,6 +133,9 @@ public :
 protected:
 
     const Setup&		setup_;
+    void			setTraceRange(const StepInterval<float>);
+    void			setModelRange(const StepInterval<float>);
+    void			setRelfRange(const StepInterval<float>);
 };
 
 
@@ -244,8 +254,14 @@ public :
     bool			is2D() const	{ return is2d_; }
 
     bool			computeAll();
+    // do not use, will be deleted
     bool			computeSynthetics();
+    bool			extractSeismics();
+    bool			updateSynthetics();
     bool			computeAdditionalInfo(const Interval<float>&);
+    bool			hasSynthetic() const;
+    bool			hasSeismic() const;
+    bool			doSeismic() const;
 
     void			setInitWvltActive(bool yn)
 				{ data_->isinitwvltactive_ = yn; }
@@ -271,3 +287,4 @@ protected :
 
 
 #endif
+

@@ -50,11 +50,12 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     wvltnms.add( data_.initwvlt_.name() );
     wvltnms.add( data_.estimatedwvlt_.name() );
 
+    //start at 2, the first 2 are sonic and density.
     for ( int idx=2; idx<data_.logset_.size(); idx++)
     {
 	seisctioset_ += mMkCtxtIOObj(SeisTrc);
-	seisctioset_[idx-2]->ctxt.forread = false;
 	seisctioset_[idx-2]->ctxt.deftransl =CBVSSeisTrcTranslator::translKey();
+	seisctioset_[idx-2]->ctxt.forread = false;
 	lognms.add( data_.logset_.getLog(idx).name() );
     }
 
@@ -168,7 +169,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	lds.seisctioset_ = seisctioset_;
 	lds.nrtraces_ = repeatfld_->box()->getValue(); 
 	lds.ctioidxset_ = logidces; 
-	if ( !datawriter_.writeLogs2Cube( lds, data_.dahrg_ ) )
+	if ( !datawriter_.writeLogs2Cube( lds, data_.getDahRange() ) )
 	    mCanNotWriteLogs();
     }
     if ( success )
@@ -268,3 +269,4 @@ bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms,
 }
 
 }; //namespace Well Tie
+
