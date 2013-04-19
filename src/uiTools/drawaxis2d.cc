@@ -242,22 +242,23 @@ view_.scene().addItem( var ); \
 var->setFillColor( Color::White() ); \
 var->setPenStyle( lst )
 
-
-
 uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     : view_( view )
     , xaxis_( new uiGraphicsSceneAxis( view.scene() ) )
     , yaxis_( new uiGraphicsSceneAxis( view.scene() ) )
+    , uifont_( uiFontList::getInst().get(FontData::key(FontData::GraphicsMed)) )
 {
     xaxis_->setPosition( true, true, false );
     yaxis_->setPosition( false, true, false );
-    
+
+    updateFontSizeCB( 0 );
     LineStyle lst; lst.type_ = LineStyle::None;
 
     mAddMask( topmask_ );
     mAddMask( bottommask_ );
     mAddMask( leftmask_ );
     mAddMask( rightmask_ );
+    mAttachCB( uifont_.changed, uiGraphicsSceneAxisMgr,updateFontSizeCB);
 }
 
 
@@ -325,6 +326,31 @@ void uiGraphicsSceneAxisMgr::setXLineStyle( const LineStyle& xls )
 void uiGraphicsSceneAxisMgr::setYLineStyle( const LineStyle& yls )
 {
     yaxis_->setLineStyle( yls );
+}
+
+
+int uiGraphicsSceneAxisMgr::getNeededWidth()
+{
+    const int nrchars = 11;
+    return nrchars*uifont_.avgWidth();
+}
+
+
+int uiGraphicsSceneAxisMgr::getNeededHeight()
+{
+    return uifont_.height()+2;
+}
+
+
+NotifierAccess& uiGraphicsSceneAxisMgr::layoutChanged()
+{ return uifont_.changed; }
+
+
+void uiGraphicsSceneAxisMgr::updateFontSizeCB( CallBacker* )
+{
+    const FontData& fontdata = uifont_.fontData();
+    xaxis_->setFontData( fontdata );
+    yaxis_->setFontData( fontdata );
 }
 
 

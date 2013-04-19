@@ -20,7 +20,7 @@ class Settings;
 class uiParent;
 class BufferStringSet;
 
-mExpClass(uiBase) uiFont 
+mExpClass(uiBase) uiFont : public CallBacker
 {			//!< font stuff that needs Qt.
 
     friend bool		select(uiFont&,uiParent*,const char*); 
@@ -58,8 +58,7 @@ public:
     int			descent() const; 
 
     const char*		key() const		{ return key_; }
-    
-    
+    Notifier<uiFont>    changed;    
 
 protected: 
 

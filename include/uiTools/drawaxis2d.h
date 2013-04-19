@@ -105,7 +105,7 @@ protected:
 \brief Manages uiGraphicsSceneAxis.
 */
 
-mExpClass(uiTools) uiGraphicsSceneAxisMgr
+mExpClass(uiTools) uiGraphicsSceneAxisMgr : public CallBacker
 {
 public:
 			uiGraphicsSceneAxisMgr(uiGraphicsView&);
@@ -117,8 +117,11 @@ public:
 				       const StepInterval<float>& yrg);
 
     void		enableXAxis(bool yn) { xaxis_->turnOn(yn); }
-    void		enableYAxis(bool yn) { yaxis_->turnOn(yn); } 
-    
+    void		enableYAxis(bool yn) { yaxis_->turnOn(yn); }
+
+    int			getNeededWidth();
+    int			getNeededHeight();
+
     void		annotInside( bool yn );
     void		drawAxisLine( bool yn );
     void		setXFactor(int);
@@ -128,6 +131,8 @@ public:
     void		setGridLineStyle(const LineStyle&);
 
     void		setZvalue(int z);
+    NotifierAccess&	layoutChanged();
+
 protected:
     
     
@@ -147,13 +152,14 @@ protected:
     
     uiGraphicsSceneAxis*	xaxis_;
     uiGraphicsSceneAxis*	yaxis_;
-    
 
+    uiFont&			uifont_;
     uiGraphicsView&		view_;
     uiRectItem*			topmask_;
     uiRectItem*			bottommask_;
     uiRectItem*			leftmask_;
     uiRectItem*			rightmask_;
+    void			updateFontSizeCB(CallBacker*);
 };
 
 #endif

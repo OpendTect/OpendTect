@@ -66,6 +66,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
+    mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer, reSizeCB );
 }
 
 
@@ -94,9 +95,6 @@ void uiFlatViewer::reSizeCB( CallBacker* cb )
 }
 
 
-#define mAxisHeight 20
-#define mAxisWidth 50
-
 uiRect uiFlatViewer::getViewRect() const
 {
     const FlatView::Annotation& annot = appearance().annot_;
@@ -104,12 +102,15 @@ uiRect uiFlatViewer::getViewRect() const
     int r = extraborders_.right();
     int t = extraborders_.top();
     int b = extraborders_.bottom();
+
+    const int axisheight = axesdrawer_.getNeededHeight();
+    const int axiswidth = axesdrawer_.getNeededWidth();
     
-    if ( annot.haveTitle() ) t += mAxisHeight;
+    if ( annot.haveTitle() ) t += axisheight;
     if ( annot.haveAxisAnnot(false) ) 
-	{ l += mAxisWidth; r += 2; }
+	{ l += axiswidth; r += 2; }
     if ( annot.haveAxisAnnot(true) )
-	{ b += mAxisHeight;  t += mAxisHeight; }
+	{ b += axisheight;  t += axisheight; }
     
     const uiBorder annotborder(l,t,r,b);
 

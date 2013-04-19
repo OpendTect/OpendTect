@@ -40,6 +40,7 @@ uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
 			   ps > 1 ? ps : 12, FontData::numWeight(w),it))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( ky )
+        , changed(this)
 {}
 
 
@@ -47,6 +48,7 @@ uiFont::uiFont( const char* ky, FontData fdat )
 	: qfont_( createQFont(fdat))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( ky )
+	, changed(this)
 {}
 
 
@@ -54,6 +56,7 @@ uiFont::uiFont( const uiFont& afont )
 	: qfont_(new QFont(*afont.qfont_))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_(afont.key_)
+	, changed(this)
 {} 
 
 
@@ -109,6 +112,7 @@ void uiFont::getFontData( FontData& fData, const mQtclass(QFont)& qfont )
 void uiFont::updateMetrics()
 {
     qfontmetrics_ = QFontMetrics( *qfont_ );
+    changed.trigger();
 }
 
 
@@ -163,8 +167,7 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
     if( ok ) 
     { 
 	*fnt.qfont_ = fontNew;
-        QFontMetrics metr( *fnt.qfont_ );
-	fnt.qfontmetrics_ = metr;
+	 fnt.updateMetrics();
     }
     return ok;
 }
