@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
-#include "waveletattrib.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
