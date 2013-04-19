@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "ranges.h"
 
-/*!\brief Color Table */
+/*!\brief %Color %Table */
 
 namespace ColTab
 {
