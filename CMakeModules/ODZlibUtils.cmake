@@ -6,10 +6,12 @@
 #_______________________________________________________________________________
 
 MACRO( OD_SETUP_ZLIB )
-    if ( QT_QTCORE_INCLUDE_DIR )
-	if ( EXISTS "${QT_QTCORE_INCLUDE_DIR}/zlib.h" )
-	    set ( ZLIB_INCLUDE_DIR ${QT_QTCORE_INCLUDE_DIR} )
-	    set ( ZLIB_LIBRARY ${QT_QTCORE_LIBRARY} )
+    if ( NOT DEFINED APPLE ) #QT never includes zlib on Mac
+	if ( QT_QTCORE_INCLUDE_DIR )
+	    if ( EXISTS "${QT_QTCORE_INCLUDE_DIR}/zlib.h" )
+		set ( ZLIB_INCLUDE_DIR ${QT_QTCORE_INCLUDE_DIR} )
+		set ( ZLIB_LIBRARY ${QT_QTCORE_LIBRARY} )
+	    endif()
 	endif()
     endif()
 
