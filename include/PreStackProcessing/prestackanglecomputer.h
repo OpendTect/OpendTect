@@ -75,6 +75,9 @@ protected:
     bool			needsraytracing_;
 };
 
+/*!
+\brief Computes angles for PreStack::Gather from velocity model.
+*/
 
 mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
 { mRefCountImpl(VelocityBasedAngleComputer);
@@ -102,6 +105,9 @@ protected:
     TraceID			trcid_;
 };
 
+/*!
+\brief Computes angles for PreStack::Gather from ElasticModel.
+*/
 
 mExpClass(PreStackProcessing) ModelBasedAngleComputer : public AngleComputer
 {
