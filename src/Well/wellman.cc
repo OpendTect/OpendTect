@@ -92,15 +92,14 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 
 
 bool Well::Man::isLoaded( const MultiID& key ) const
-{ return gtByKey( key ) >= 0; }
+{
+    return gtByKey( key ) >= 0;
+}
 
 
 bool Well::Man::reload( const MultiID& key )
 {
-    Well::Data* wd = 0;
-    if ( isLoaded(key) )
-	wd = get( key, true );
-    return wd;
+    return get( key, true );
 }
 
 
