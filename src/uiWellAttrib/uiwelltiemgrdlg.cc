@@ -97,7 +97,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
 	typefld_ = new uiGenInput( seisgrp, "Seismic",
-					StringListInpSpec( seistypes ) );
+				   StringListInpSpec( seistypes ) );
 	typefld_->setValue( !is2d_ );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
@@ -107,9 +107,10 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	uiSeisSel::Setup seis2dfldsetup = uiSeisSel::Setup(Seis::Line);
 	seis2dfldsetup.optional_ = true;
 	seis2dfld_ = new uiSeisSel( seisgrp, seisctio2d_, seis2dfldsetup );
-	seis2dfld_->setChecked(true);
+	seis2dfld_->setChecked( true );
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
+
 	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
 	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
@@ -120,14 +121,15 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	uiSeisSel::Setup seis3dfldsetup = uiSeisSel::Setup(Seis::Vol);
 	seis3dfldsetup.optional_ = true;
 	seis3dfld_ = new uiSeisSel( seisgrp, seisctio3d_, seis3dfldsetup );
-	seis3dfld_->setChecked(true);
+	seis3dfld_->setChecked( true );
 	if ( typefld_ )
 	    seis3dfld_->attach( alignedBelow, typefld_ );
+
 	seis3dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
 
     seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_ 
-				    : (uiGroup*)seis2dfld_ ? 
+				    : (uiGroup*)seis2dfld_ ?
 				    seis2dfld_ : seis3dfld_ );
 
     sep = new uiSeparator( this, "Seismic2Log Sep" );
@@ -219,8 +221,10 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 
     if ( seis3dfld_ )
 	seis3dfld_->display( !is2d_ );
+
     if ( seis2dfld_ )
 	seis2dfld_->display( is2d_ );
+
     if ( seislinefld_ )
 	seislinefld_->display( is2d_ );
 
@@ -233,6 +237,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 	    set2DSeis();
 	    seis2dfld_->commitInput();
 	}
+
 	if ( seislinefld_ )
 	{
 	    setLine();
@@ -267,11 +272,12 @@ void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
 
 
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+
+
 bool uiTieWinMGRDlg::getSetup( const char* nm )
 {
     WellTie::Reader wtr( nm );
     wtr.getWellTieSetup( wtsetup_ );
-
     getSeismicInSetup();
     getVelLogInSetup();
     getDenLogInSetup();
@@ -392,10 +398,12 @@ bool uiTieWinMGRDlg::initSetup()
 {
     if ( !wellfld_->commitInput() )
 	mErrRet("Please select a valid well")
+
     const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
     wd_ = Well::MGR().get( wellid, false );
     if ( !wd_ )
 	mErrRet("Cannot read the well data")
+
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];
@@ -412,6 +420,7 @@ bool uiTieWinMGRDlg::initSetup()
     {
 	if ( !seisfld->commitInput() )
 	    mErrRet("Please select the input seimic data")
+
 	wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
 	if ( is2d_ )
 	{
@@ -435,11 +444,14 @@ bool uiTieWinMGRDlg::initSetup()
 				 getPropSelFromListByIndex( mDensityIdx );
     if ( !psflden )
 	mErrRet( "Cannot find the density in the log selection list" )
+
     Well::Log* den = wd_->logs().getLog( psflden->text() );
     if ( !den )
 	mErrRet( "Could not extract this density log" )
+
     if ( !psflden->uom() )
 	mErrRet( "Please select a unit for the density log" )
+
     den->setUnitMeasLabel( psflden->uom()->symbol() );
     wtsetup_.denlognm_ = psflden->text();
 
@@ -447,11 +459,14 @@ bool uiTieWinMGRDlg::initSetup()
 				getPropSelFromListByIndex( mPwaveIdx );
     if ( !psflvp )
 	mErrRet( "Cannot find the Pwave in the log selection list" )
+
     Well::Log* vp = wd_->logs().getLog( psflvp->text() );
     if ( !vp )
 	mErrRet( "Could not extract this velocity log" )
+
     if ( !psflvp->uom() )
 	mErrRet( "Please select a unit for the velocity log" )
+
     vp->setUnitMeasLabel( psflvp->uom()->symbol() );
     wtsetup_.vellognm_ = psflvp->text();
     wtsetup_.issonic_  = psflvp->isUseAlternate();
@@ -462,6 +477,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     if ( !wvltfld_->getWavelet() )
 	mErrRet("Please select a valid wavelet")
+
     wtsetup_.wvltid_ = wvltfld_->getID();
 
     wtsetup_.commitDefaults();
