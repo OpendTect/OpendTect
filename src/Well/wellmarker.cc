@@ -65,11 +65,11 @@ int Well::MarkerSet::getIdxAbove( float reqz, const Well::Track* trck ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Marker& mrk = *(*this)[idx];
-	float z = mrk.dah();
+	float mrkz = mrk.dah();
 	if ( trck )
-	    z = mCast(float,trck->getPos(z).z);
-	if ( reqz > z )
-	    return idx - 1;
+	    mrkz = mCast(float,trck->getPos(mrkz).z);
+	if ( mrkz > reqz )
+	    return idx-1;
     }
     return size() - 1;
 }
