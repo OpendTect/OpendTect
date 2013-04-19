@@ -74,10 +74,11 @@ protected:
 mExpClass(uiWell) uiWellPropSel : public uiGroup
 {
 public:
+
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
+    int			size() const	{ return propflds_.size(); }
 
     bool		setLogs(const Well::LogSet&);
-
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*, int idx);
     bool		getLog(const PropertyRef::StdType,BufferString&,
