@@ -15,12 +15,13 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uibatchlaunch.h"
 
-
 class CtxtIOObj;
 class uiVelSel;
 class uiSeisSel;
 class uiPosSubSel;
 class uiLabeledComboBox;
+
+/*!\brief Velocity*/
 
 namespace Vel
 {
