@@ -117,8 +117,8 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     float twtstop = d2t->getTime( dahrg_.stop, track );
     twtstop = (float) mNINT32(twtstop/cDefSeisSr()) * cDefSeisSr();
 
-    dahrg_.start = d2t->getDah( twtstart );
-    dahrg_.stop = d2t->getDah( twtstop );
+    dahrg_.start = d2t->getDah( twtstart, track );
+    dahrg_.stop = d2t->getDah( twtstop, track );
     modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
     twtstart += cDefSeisSr();
     twtstop -= cDefSeisSr();

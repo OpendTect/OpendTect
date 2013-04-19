@@ -376,7 +376,8 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 	resampsz = resamprg.nrSteps(); 
 	for ( int idx=0; idx<resampsz; idx++ )
 	{
-	    const float dah = d2t.getDah( resamprg.atIndex( idx ) );
+	    const float dah = d2t.getDah( resamprg.atIndex( idx ),
+		   			  wd->track() );
 	    resamplvals += log->getValue( dah );
 	}
     }

@@ -174,7 +174,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
     if ( zrgistime_ )
     {
-	const float startdah = wd_.d2TModel()->getDah( startdepth );
+	const float startdah = wd_.d2TModel()->getDah( startdepth, wd_.track());
 	startdepth = mCast(float,wd_.track().getPos( startdah ).z);
     }
 

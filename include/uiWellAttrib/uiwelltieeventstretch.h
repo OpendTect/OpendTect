@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "callback.h"
 
-namespace Well { class D2TModel; }
+namespace Well { class D2TModel; class Track;}
 
 namespace WellTie
 {
@@ -33,11 +33,14 @@ public:
     void 				doWork(CallBacker*); 
     void				setD2TModel(const Well::D2TModel* d2t)
 					{ d2t_ = d2t; }
+    void				setTrack(const Well::Track* track)
+					{ track_ = track; }
 protected:
 
     PickSetMgr&				pmgr_;
     D2TModelMgr&			d2tmgr_;
     const Well::D2TModel*		d2t_;
+    const Well::Track*			track_;
 
     const TypeSet<Marker>&      	synthpickset_;
     const TypeSet<Marker>&      	seispickset_;

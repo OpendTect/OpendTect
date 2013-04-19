@@ -37,7 +37,7 @@ public:
 
     float		getTime(float d_ah, const Track&) const;
     double		getVelocity(float d_ah,const Track&) const;
-    float		getDah(float time) const;
+    float		getDah(float time, const Track&) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
     float		value( int idx ) const	{ return t(idx); }
@@ -68,7 +68,7 @@ protected:
 
 protected:
 
-    inline float	getDepth( float time ) const { return getDah(time); }
+    inline float	getDepth( float time ) const { return mUdf(float); }
 			//!< Legacy, misleading name. Use getDah().
     int			getDahIndex(float d_ah,const Track&) const;
 			/*!<For dah which are out of range of 

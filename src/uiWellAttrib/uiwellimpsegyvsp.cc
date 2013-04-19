@@ -352,6 +352,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( !isdpth_ && !wd->d2TModel() )
 	mErrRet("Selected well has no Depth vs Time model")
 
+    const Well::Track& track = wd->track();
     int wlidx = wd->logs().indexOf( lognm );
     if ( wlidx >= 0 )
 	delete wd->logs().remove( wlidx );
@@ -364,9 +365,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( outistvdfld_->isChecked() )
     {
 	if ( havestartout )
-	    outzrg.start = wd->track().getDahForTVD( outzrg.start );
+	    outzrg.start = track.getDahForTVD( outzrg.start );
 	if ( havestopout )
-	    outzrg.start = wd->track().getDahForTVD( outzrg.stop );
+	    outzrg.start = track.getDahForTVD( outzrg.stop );
     }
 
     const bool inptvd = inpistvdfld_->isChecked();
@@ -376,9 +377,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth_ )
-	    z = wd->d2TModel()->getDah( z );
+	    z = wd->d2TModel()->getDah( z, track );
 	else if ( inptvd )
-	    prevdah = z = wd->track().getDahForTVD( z, prevdah );
+	    prevdah = z = track.getDahForTVD( z, prevdah );
 
 	if ( havestartout && z>outzrg.start-zeps )
 	    continue;

@@ -220,8 +220,8 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 	if ( !d2t ) return;
 	zrg.start = survrg.snap( d2t->getTime( zrg.start, track ) );
 	zrg.stop = survrg.snap( d2t->getTime( zrg.stop, track ) );
-	zrg.start = d2t->getDah( zrg.start );
-	zrg.stop = d2t->getDah( zrg.stop );
+	zrg.start = d2t->getDah( zrg.start, track );
+	zrg.stop = d2t->getDah( zrg.stop, track );
     }
     else
     {
@@ -493,6 +493,7 @@ int Well::TrackSampler::nextStep()
 void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 {
     const Well::D2TModel* d2t = wd.d2TModel();
+    const Well::Track& track = wd.track();
     const bool zrgistime = params_.zselection_ == ZRangeSelector::Times && d2t;
     const bool extractintime = params_.extractzintime_ && d2t && SI().zIsTime();
 
@@ -509,11 +510,11 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     }
 
     Interval<float> dahrg; 
-    dahrg.start = zrgistime ? d2t->getDah( zrg_.start ) : zrg_.start;
-    dahrg.stop = zrgistime ? d2t->getDah( zrg_.stop ) : zrg_.stop;
+    dahrg.start = zrgistime ? d2t->getDah( zrg_.start, track ) : zrg_.start;
+    dahrg.stop = zrgistime ? d2t->getDah( zrg_.stop, track ) : zrg_.stop;
     float zpos = dahrg.start;
     if ( extractintime )
-	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, wd.track() );
+	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, track );
 
     zpos -= zincr;
 
@@ -526,9 +527,8 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     while ( true )
     {
 	zpos += zincr;
-	const float dah = extractintime ? d2t->getDah( zpos ) : zpos;
-
-	if ( mIsUdf(dah) || !dahrg.includes( dah, true ) )
+	const float dah = extractintime ? d2t->getDah( zpos, track ) :zpos;
+	if ( mIsUdf(dah) || !dahrg.includes(dah,true) )
 	    return;
 	else if ( !getPos(wd,dah,biv,trackidx,precisepos) )
 	    continue;
@@ -922,7 +922,7 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
 int Well::SimpleTrackSampler::nextStep()
 {
     float zval = extrintv_.atIndex( nrdone_ );
-    float dah = d2t_ ? d2t_->getDah(zval) : zval;
+    float dah = d2t_ ? d2t_->getDah( zval, track_ ) : zval;
 
     if ( zval > extrintv_.stop )
 	return Executor::Finished();
@@ -1026,7 +1026,7 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #define mGetDah(dah,zvalue,zintime) \
 	dah = zintime \
-	    ? d2t_->getDah( zvalue ) \
+	    ? d2t_->getDah( zvalue, track_ ) \
 	    : track_.getDahForTVD( zvalue );
 
 

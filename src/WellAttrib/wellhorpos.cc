@@ -52,7 +52,7 @@ float WellHorIntersectFinder::findZIntersection() const
 
     while ( zval < zstop )
     {
-	const float dah = d2t_ ? d2t_->getDah( zval ) : zval;
+	const float dah = d2t_ ? d2t_->getDah( zval, track_ ) : zval;
 	const Coord3& crd = track_.getPos( dah );
 	const float horz = intersectPosHor( crd );
 

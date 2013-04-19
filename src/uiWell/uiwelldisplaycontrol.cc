@@ -103,16 +103,16 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
 	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
 	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
+	const Well::Track* tr = zdata.track(); 
 	if ( zdata.zistime_ )
 	{
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
-	    if ( d2t && d2t->size() >= 1 )
-		depth_ = d2t->getDah( ypos_*0.001f );
+	    if ( d2t && d2t->size() > 2 && tr && tr->size() > 2 )
+		depth_ = d2t->getDah( ypos_*0.001f, *tr );
 	}
 	else
 	{
-	    const Well::Track* tr = zdata.track(); 
 	    depth_ = tr ? tr->getDahForTVD( ypos_ ) : mUdf(float);
 	    time_ = ypos_;
 	}

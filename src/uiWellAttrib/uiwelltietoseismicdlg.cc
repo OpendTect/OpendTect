@@ -377,6 +377,7 @@ void uiTieWin::applyPushed( CallBacker* cb )
 {
     mGetWD(return);
     stretcher_.setD2TModel( wd->d2TModel() );
+    stretcher_.setTrack( &wd->track() );
     stretcher_.doWork( cb );
     doWork( cb );
     clearPicks( cb );
@@ -663,7 +664,8 @@ void uiInfoDlg::usePar( const IOPar& par )
 
 #define mMinWvltLength	20
 #define md2T( zval, outistime )\
-    outistime ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
+    outistime ? d2t->getTime( zval, wd->track() ) \
+	      : d2t->getDah( zval, wd->track() );
 #define md2TI( inzrg, ouzrg, outistime )\
     { ouzrg.start = md2T( inzrg.start, outistime ); \
       ouzrg.stop = md2T( inzrg.stop, outistime ) }

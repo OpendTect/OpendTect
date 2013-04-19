@@ -179,7 +179,7 @@ bool Well::D2TModel::getOldVelocityBounds( float dh, const Track& track,
 }
 
 
-float Well::D2TModel::getDah( float time ) const
+float Well::D2TModel::getDah( float time, const Track& track ) const
 { return TimeDepthModel::getDepth( dah_.arr(), t_.arr(), size(), time ); }
 
 

@@ -40,17 +40,17 @@ bool WellT2DTransform::calcDepths()
     const Well::Track& track = data_->track();
     const int modelsz = wllmodel->size();
     const float time0 = wllmodel->t( 0 );
-    const float dah0 = wllmodel->getDah( time0 );
+    const float dah0 = wllmodel->getDah( time0, track );
     times_ += time0; depths_ += dah0;
     float vertdepth = dah0;
     for ( int idx=0; idx<=modelsz-2; idx++ )
     {
 	const float prevtime = wllmodel->t( idx );
-	const float dah1 = wllmodel->getDah( prevtime );
+	const float dah1 = wllmodel->getDah( prevtime, track );
 	const Coord3 prevcrd = track.getPos( dah1 );
 	const float nexttime = wllmodel->t( idx+1 );
 	times_ += nexttime;
-	const float dah2 = wllmodel->getDah( nexttime );
+	const float dah2 = wllmodel->getDah( nexttime, track );
 	const Coord3 nextcrd = track.getPos( dah2 );
 	const float hyp = dah2 - dah1;
 	const float dist = (float) Math::Sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +

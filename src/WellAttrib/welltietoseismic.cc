@@ -377,7 +377,8 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<aimodel_.size(); idx++ )
     {
 	const float twt = data_.getModelRange().atIndex(idx);
-	const float dah = data_.wd_->d2TModel()->getDah( twt );
+	const float dah = data_.wd_->d2TModel()->getDah( twt,
+							 data_.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -400,7 +401,8 @@ bool DataPlayer::copyDataToLogSet()
 	    continue;
 
 	const float twt = spike.correctedtime_;
-	const float dah = data_.wd_->d2TModel()->getDah( twt );
+	const float dah = data_.wd_->d2TModel()->getDah( twt,
+							 data_.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -415,7 +417,8 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<=data_.synthtrc_.size(); idx++ )
     {
 	const float twt = tracerg.atIndex( idx );
-	const float dah = data_.wd_->d2TModel()->getDah( twt );
+	const float dah = data_.wd_->d2TModel()->getDah( twt,
+							 data_.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
