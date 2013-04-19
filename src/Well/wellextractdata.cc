@@ -828,11 +828,13 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	else if ( curdah > rg.stop )
 	    break;
     }
-    if ( vals.size() < 1 ) return mUdf(float);
-    if ( vals.size() == 1 ) return vals[0];
-    if ( vals.size() == 2 ) return samppol == Stats::UseAvg
-				? (vals[0]+vals[1])/2 : vals[0];
+
     const int sz = vals.size();
+    if ( sz < 1 ) return mUdf(float);
+    if ( sz == 1 ) return vals[0];
+    if ( sz == 2 ) return samppol == Stats::UseAvg
+				? (vals[0]+vals[1])*0.5f : vals[0];
+
     if ( samppol == Stats::UseMed )
     {
 	sort_array( vals.arr(), sz );
