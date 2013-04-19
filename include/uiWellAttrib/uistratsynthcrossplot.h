@@ -64,6 +64,7 @@ protected:
 	    					   const Attrib::DescSet&);
     bool			extractLayerAttribs(DataPointSet&,
 						const Strat::LaySeqAttribSet&);
+    bool			extractModelNr(DataPointSet&) const;
     bool			launchCrossPlot(const DataPointSet&,
 					const Strat::Level&,
 					const StepInterval<float>&);
