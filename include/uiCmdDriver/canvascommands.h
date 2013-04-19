@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cmdcomposer.h"
 #include "uigraphicsviewbase.h"
 
+/*!\brief Command Drive*/
 
 namespace CmdDrive
 {
