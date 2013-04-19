@@ -27,6 +27,7 @@ class mQSqlQuery;
 class BufferStringSet;
 class IOPar;
 
+/*!\brief SQL Database*/
 
 namespace SqlDB
 {
