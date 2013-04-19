@@ -680,3 +680,14 @@ bool PropertySet::prepareUsage() const
     }
     return true;
 }
+
+
+void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
+       					  ObjectSet<Property>& resultset )
+{
+    for ( int idx=0; idx<props_.size(); idx++ )
+	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )
+	    resultset += props_[idx];
+}
+
+
