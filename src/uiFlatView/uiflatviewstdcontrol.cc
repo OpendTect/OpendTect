@@ -44,6 +44,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
     , editbut_(0)
+    , zoominbut_(0)
+    , zoomoutbut_(0)
 {
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 	    					    : uiToolBar::Top );
@@ -71,7 +73,9 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,"Flip left/right");
     }
-    tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
+
+    if ( setup.withsnapshot_ )
+	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");

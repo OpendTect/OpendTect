@@ -38,6 +38,7 @@ public:
 			    , withthumbnail_(true)		      
 			    , withstates_(true)
 			    , withhanddrag_(true)
+			    , withsnapshot_(true)
 				, withflip_(true)
 			    , tba_(-1)		      	{}
 
@@ -50,6 +51,7 @@ public:
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(BufferString,helpid)
 	mDefSetupMemb(bool,withflip)
+	mDefSetupMemb(bool,withsnapshot)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
