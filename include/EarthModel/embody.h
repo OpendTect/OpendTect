@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 class TaskRunner;
 
+/*!\brief Earth Model objects like horizons, faults, fault-sticks and bodies.*/
+
 namespace EM
 {
 
