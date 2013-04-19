@@ -20,9 +20,10 @@ ________________________________________________________________________
 
 #define mUndefReplacement 0
 
+/*!\brief Statistics*/
+
 namespace Stats
 {
-
 
 /*!
 \brief Setup for the Stats::RunCalc and Stats::ParallelCalc objects.
