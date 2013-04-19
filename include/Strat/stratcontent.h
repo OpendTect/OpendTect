@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "draw.h"
 
+/*!\brief Stratigraphy*/
 
 namespace Strat
 {
