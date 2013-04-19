@@ -10,13 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratlaymodtools.h"
-#include "uitoolbutton.h"
-#include "uigeninput.h"
-#include "uispinbox.h"
-#include "uicombobox.h"
-#include "uilabel.h"
-#include "stratlevel.h"
+
+
 #include "keystrs.h"
+#include "property.h"
+#include "stratlevel.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uispinbox.h"
+#include "uitoolbutton.h"
 
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
@@ -377,3 +380,45 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
     return true;
 }
+
+
+//-----------------------------------------------------------------------------
+
+uiStratLayModPropSelector::uiStratLayModPropSelector( uiParent* p,
+						    const PropertySet& propset )
+	: uiDialog(p,uiDialog::Setup("Property Selector",
+		    		     "Select a property for each type",
+				     mTODOHelpID) )
+{
+    uiLabeledComboBox* lblbox1 = new uiLabeledComboBox(this, "Property for Vp");
+    vpfld_ = lblbox1->box();
+    ObjectSet<Property> propsvp;
+    propset.getPropertiesOfRefType( PropertyRef::Vel, propsvp );
+    for ( int idx=0; idx<propsvp.size(); idx++ )
+	if ( propsvp[idx] )
+	    vpfld_->addItem( propsvp[idx]->name() );
+
+    uiLabeledComboBox* lblbox2 = new uiLabeledComboBox(this, "Property for Vs");
+    vsfld_ = lblbox2->box();
+    ObjectSet<Property> propsvs;
+    propset.getPropertiesOfRefType( PropertyRef::Vel, propsvs );
+    for ( int idx=0; idx<propsvs.size(); idx++ )
+	if ( propsvs[idx] )
+	    vsfld_->addItem( propsvs[idx]->name() );
+
+    lblbox2->attach( alignedBelow, lblbox1 );
+
+    uiLabeledComboBox* lblbox3 = new uiLabeledComboBox( this,
+	    						"Property for Density");
+    denfld_ = lblbox3->box();
+    ObjectSet<Property> propsden;
+    propset.getPropertiesOfRefType( PropertyRef::Vel, propsden );
+    for ( int idx=0; idx<propsden.size(); idx++ )
+	if ( propsden[idx] )
+	    denfld_->addItem( propsden[idx]->name() );
+
+    lblbox3->attach( alignedBelow, lblbox2 );
+  
+}
+
+

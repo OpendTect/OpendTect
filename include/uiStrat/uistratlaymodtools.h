@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
+#include "uidialog.h"
 #include "uigroup.h"
 class uiLabel;
 class uiSpinBox;
@@ -128,6 +129,22 @@ protected:
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
+
+};
+
+
+class PropertySet;
+
+mExpClass(uiStrat) uiStratLayModPropSelector : public uiDialog
+{
+public:
+
+			uiStratLayModPropSelector(uiParent*,const PropertySet&);
+protected:
+
+    uiComboBox*		vpfld_;
+    uiComboBox*		vsfld_;
+    uiComboBox*		denfld_;
 
 };
 
