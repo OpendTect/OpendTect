@@ -24,7 +24,7 @@ namespace Attrib { class SelSpec; }
 namespace Geometry { class Element; }
 template <class T> class Array2D;
 
-/*!\brief MPE stands for Model, Predict, Edit. Contains tracking and editing functions.*/
+/*!\brief %MPE stands for Model, Predict, Edit. Contains tracking and editing functions.*/
 
 namespace MPE
 {
