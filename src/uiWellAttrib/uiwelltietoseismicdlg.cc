@@ -476,8 +476,9 @@ bool uiTieWin::rejectOK( CallBacker* )
 
 bool uiTieWin::acceptOK( CallBacker* )
 {
-    BufferString msg("This will overwrite your depth/time model, do you want to continue?");
-    if ( uiMSG().askOverwrite(msg) )
+    BufferString errmsg = "This will overwrite your depth/time model, ";
+    errmsg += "do you want to continue?";
+    if ( uiMSG().askOverwrite(errmsg) )
     {
 	drawer_->enableCtrlNotifiers( false );
 	close();
@@ -487,6 +488,7 @@ bool uiTieWin::acceptOK( CallBacker* )
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() ); 
     }
+
     return false;
 }
 
@@ -558,6 +560,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	for ( int idx=0; idx<wd->markers().size(); idx++)
 	    markernames_.add( wd->markers()[idx]->name() );
     }
+
     markernames_.add( Well::ExtractParams::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
@@ -575,6 +578,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	else
 	    zrangeflds_ += new uiGenInput( markergrp, "",
 					    FloatInpIntervalSpec() );
+
 	zrangeflds_[idx]->valuechanged.notify(mCB(this,uiInfoDlg,propChanged));
 	zrangeflds_[idx]->attach( rightOf, choicefld_ );
 	zlabelflds_ += new uiLabel( markergrp, units[idx] );
@@ -706,7 +710,7 @@ void uiInfoDlg::propChanged( CallBacker* )
     zrg_.stop = mMIN( timerg.stop, reflrg.stop );
     const float reflstep = reflrg.step;
     zrg_.start = (float) mNINT32( zrg_.start / reflstep ) * reflstep;
-    zrg_.stop = (float) mNINT32( zrg_.stop / reflstep ) * reflstep;    
+    zrg_.stop = (float) mNINT32( zrg_.stop / reflstep ) * reflstep;
     if ( zrg_.width() < (float)mMinWvltLength / SI().zDomain().userFactor() )
     {
 	BufferString errmsg = "the wavelet length must be at least ";
@@ -717,9 +721,9 @@ void uiInfoDlg::propChanged( CallBacker* )
     }
 
     const int reqwvltlgthms = estwvltlengthfld_->getIntValue();
-    const float reqwvltlgth = (float)reqwvltlgthms / SI().zDomain().userFactor();
+    const float reqwvltlgth = (float)reqwvltlgthms /SI().zDomain().userFactor();
     const float wvltlgth = zrg_.width() < reqwvltlgth ? zrg_.width()
-						       : reqwvltlgth;
+						      : reqwvltlgth;
     data_.estimatedwvlt_.reSize(
 		mNINT32( wvltlgth / data_.getTraceRange().step ) );
     wvltChanged(0);
@@ -731,6 +735,7 @@ void uiInfoDlg::computeData()
     zrg_.limitTo( data_.getTraceRange() );
     if ( !server_.computeAdditionalInfo( zrg_ ) )
 	{ uiMSG().error( server_.errMSG() ); return; }
+
     crosscorr_->set( data_.correl_ );
 }
 
@@ -755,6 +760,7 @@ void uiInfoDlg::wvltChanged( CallBacker* cb )
 	mCBCapsuleUnpack(bool,isinitwvlatactive,cb);
 	server_.setInitWvltActive( isinitwvlatactive );
     }
+
     server_.updateSynthetics(); 
     computeData();
     drawData();
