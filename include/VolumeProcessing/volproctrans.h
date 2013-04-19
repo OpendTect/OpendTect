@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "volumeprocessingmod.h"
 #include "transl.h"
 
+/*!\brief Volume Processing*/
+
 namespace VolProc { class Chain; }
 
 /*!
