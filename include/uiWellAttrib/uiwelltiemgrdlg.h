@@ -74,7 +74,7 @@ protected:
     uiLabeledComboBox*	cscorrfld_;
     uiWaveletExtraction* extractwvltdlg_;
 
-    bool		getSetup( const char* wllnm );
+    void		getSetup( const char* wllnm );
     bool		getSeismicInSetup();
     bool		getVelLogInSetup() const;
     bool		getDenLogInSetup() const;

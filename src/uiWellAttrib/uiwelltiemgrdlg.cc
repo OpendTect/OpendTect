@@ -274,7 +274,7 @@ void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 
-bool uiTieWinMGRDlg::getSetup( const char* nm )
+void uiTieWinMGRDlg::getSetup( const char* nm )
 {
     WellTie::Reader wtr( nm );
     wtr.getWellTieSetup( wtsetup_ );
@@ -294,8 +294,6 @@ bool uiTieWinMGRDlg::getSetup( const char* nm )
     }
 
     d2TSelChg(0);
-
-    return true;
 }
 
 
