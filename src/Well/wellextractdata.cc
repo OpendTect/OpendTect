@@ -986,7 +986,6 @@ Well::LogSampler::LogSampler(const Well::Data& wd,
 Well::LogSampler::~LogSampler()
 {
     delete data_;
-    delete inplogs_.getParam(this);
     inplogs_.removeParam(this);
 }
 
