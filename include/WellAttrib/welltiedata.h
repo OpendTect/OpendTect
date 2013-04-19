@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "wellattribmod.h"
 #include "callback.h"
 #include "color.h"
 #include "iopar.h"
