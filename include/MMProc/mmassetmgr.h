@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "mmprocmod.h"
 #include "namedobj.h"
 #include "bufstring.h"
+
 class BufferStringSet;
+
+/*!\brief Multi Machine Processing*/
 
 namespace MMProc
 {
