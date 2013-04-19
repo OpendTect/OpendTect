@@ -77,13 +77,14 @@ bool DataPlayer::extractSeismics()
     StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zrg.step );
 
     Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
-	   			     true, false);
+	    			     true, false );
     wtextr.setSampling( seisrg );
     TaskRunner::execute( data_.trunner_, wtextr );
 
     SeismicExtractor seisextr( *seisobj );
     if ( linekey_ )
 	seisextr.setLineKey( linekey_ );
+
     TypeSet<BinID> bids;  wtextr.getBIDs( bids );
     seisextr.setBIDValues( bids );
     seisextr.setInterval( seisrg );
@@ -91,9 +92,9 @@ bool DataPlayer::extractSeismics()
     if ( !TaskRunner::execute(data_.trunner_,seisextr) )
     {
 	BufferString msg;
-	msg += "Can not extract seismic: "; 
-	msg += seisextr.errMsg(); 
-	mErrRet( msg ); 
+	msg += "Can not extract seismic: ";
+	msg += seisextr.errMsg();
+	mErrRet( msg );
     }
 
     SeisTrc rawseis = SeisTrc( seisextr.result() );
@@ -134,7 +135,7 @@ bool DataPlayer::doFastSynthetics()
 
 
 #define mDelAndReturn(yn) { delete [] seisarr;  delete [] syntharr; return yn;}
-bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )  
+bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 {
     if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2) )
 	mErrRet( "Synthetic and seismic traces do not have same length" )
@@ -202,6 +203,7 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	    const float spiketwt = spike.correctedtime_;
 	    if ( mIsEqual(spiketwt,stoptwtseis,1e-5 ) )
 		break;
+
 	    if ( spiketwt - starttwtseis < -1e-5 )
 		firstspike++;
 
@@ -265,13 +267,14 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	int outwvltsz = initwvltsz;
 	if ( !(initwvltsz%2) )
 	    outwvltsz++;
+
 	Array1DImpl<float> wvltarr( outwvltsz );
 	data_.estimatedwvlt_.reSize( outwvltsz );
 	for ( int idx=0; idx<outwvltsz; idx++ )
 	    wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
 
 	ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
-	       		      0.90 );
+			      0.90 );
 	window.apply( &wvltarr );
 	memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
 		outwvltsz*sizeof(float) );
@@ -279,6 +282,7 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
 	delete [] wvltarrfull; delete [] refarr;
     }
+
     mDelAndReturn(true)
 }
 
@@ -306,21 +310,22 @@ bool DataPlayer::setAIModel()
     const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sonic() );
     const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
 
-    Well::Log pcvellog, pcdenlog;
-    if ( !processLog(sonlog,pcvellog,data_.sonic()) ||
-	 !processLog(denlog,pcdenlog,data_.density()) )
+    Well::Log* pcvellog = new Well::Log;
+    Well::Log* pcdenlog = new Well::Log;
+    if ( !processLog(sonlog,*pcvellog,data_.sonic()) ||
+	 !processLog(denlog,*pcdenlog,data_.density()) )
 	return false;
 
     if ( data_.isSonic() )
     {
 	GeoCalculator gc;
-	gc.son2Vel( pcvellog );
+	gc.son2Vel( *pcvellog );
     }
 
     aimodel_.erase();
     Well::ElasticModelComputer emodelcomputer( *data_.wd_ );
-    emodelcomputer.setVelLog( pcvellog );
-    emodelcomputer.setDenLog( pcdenlog );
+    emodelcomputer.setVelLog( *pcvellog );
+    emodelcomputer.setDenLog( *pcdenlog );
     emodelcomputer.setZrange( data_.getModelRange(), true );
     emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
     emodelcomputer.computeFromLogs();
@@ -352,6 +357,7 @@ bool DataPlayer::doFullSynthetics()
     rm.getRefs( refmodels, true );
     if ( refmodels.isEmpty() )
 	mErrRet( "Could not retrieve the reflectivities after ray-tracing" )
+
     refmodel_ = *refmodels[0];
     data_.synthtrc_ = *rm.stackedTrc();
 
@@ -361,7 +367,7 @@ bool DataPlayer::doFullSynthetics()
 
 bool DataPlayer::copyDataToLogSet()
 {
-    if ( aimodel_.isEmpty() ) 
+    if ( aimodel_.isEmpty() )
 	mErrRet( "No data found" )
 
     data_.logset_.setEmpty();
@@ -372,7 +378,7 @@ bool DataPlayer::copyDataToLogSet()
     {
 	const float twt = data_.getModelRange().atIndex(idx);
 	const float dah = data_.wd_->d2TModel()->getDah( twt );
-	if ( !dahrg.includes( dah, true ) )
+	if ( !dahrg.includes(dah,true) )
 	    continue;
 
 	dahlog += dah;
@@ -395,7 +401,7 @@ bool DataPlayer::copyDataToLogSet()
 
 	const float twt = spike.correctedtime_;
 	const float dah = data_.wd_->d2TModel()->getDah( twt );
-	if ( !dahrg.includes( dah, true ) )
+	if ( !dahrg.includes(dah,true) )
 	    continue;
 
 	dahref += dah;
@@ -406,17 +412,15 @@ bool DataPlayer::copyDataToLogSet()
 
     TypeSet<float> dahsynth, synth;
     const StepInterval<float> tracerg = data_.getTraceRange();
-    for ( int idx=0; idx<=tracerg.nrSteps(); idx++ )
+    for ( int idx=0; idx<=data_.synthtrc_.size(); idx++ )
     {
-	const float twt = tracerg.atIndex(idx);
+	const float twt = tracerg.atIndex( idx );
 	const float dah = data_.wd_->d2TModel()->getDah( twt );
-
-	if ( !dahrg.includes( dah, true ) )
+	if ( !dahrg.includes(dah,true) )
 	    continue;
 
 	dahsynth += dah;
-	if ( data_.synthtrc_.size() > idx )
-	    synth += data_.synthtrc_.get( idx, 0 );
+	synth += data_.synthtrc_.get( idx, 0 );
     }
 
     createLog( data_.synthetic(), dahsynth.arr(), synth.arr(), synth.size() );
@@ -440,9 +444,10 @@ bool DataPlayer::copyDataToLogSet()
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
-	   				UoMR().getInternalFor(PropertyRef::Den);
+	    			UoMR().getInternalFor(PropertyRef::Den);
 	if ( denuomfrommodel )
 	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
+
 	denlogfrommodel->convertTo( denuom );
     }
 
@@ -461,7 +466,7 @@ bool DataPlayer::copyDataToLogSet()
 	const UnitOfMeasure* aiuom = 0;
 	for ( int idx=0; idx<relevantunits.size(); idx++ )
 	{
-	    const float curfactor = (float) relevantunits[idx]->scaler().factor;
+	    const float curfactor = (float)relevantunits[idx]->scaler().factor;
 	    const float eps = curfactor / 100.f;
 	    if ( mIsEqual(curfactor,fact,eps) )
 		aiuom = relevantunits[idx];
@@ -504,6 +509,7 @@ bool DataPlayer::processLog( const Well::Log* log,
 
     GeoCalculator gc; 
     gc.removeSpikes( outplog.valArr(), sz, 10, 3 );
+    outplog.setName( log->name() );
 
     return true;
 }
@@ -526,3 +532,4 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 }
 
 }; //namespace WellTie
+
