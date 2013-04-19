@@ -683,11 +683,11 @@ bool PropertySet::prepareUsage() const
 
 
 void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
-       					  ObjectSet<Property>& resultset )
+       					  ObjectSet<Property>& resultset ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
 	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )
-	    resultset += props_[idx];
+	    resultset += const_cast<PropertySet*>(this)->props_[idx];
 }
 
 

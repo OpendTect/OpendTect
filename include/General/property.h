@@ -128,7 +128,7 @@ public:
 						{ return indexOf(pr.name()); }
     int			indexOf(PropertyRef::StdType,int occ=0) const;
     void		getPropertiesOfRefType(PropertyRef::StdType,
-	    				       ObjectSet<Property>&);
+	    				       ObjectSet<Property>&) const;
 
     bool		add(Property*); //!< refuses to add with identical name
     int			set(Property*); //!< add or change into. returns index.
