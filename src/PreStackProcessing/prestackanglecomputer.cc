@@ -302,23 +302,26 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( !veldesc.isVelocity() )
 	return 0;
 
-    const StepInterval<float> availz = func->getAvailableZ();
-    const int availzsize = availz.nrSteps() + 1;
+    const StepInterval<float> desiredzrange = func->getDesiredZ();
+    StepInterval<float> zrange = func->getAvailableZ();
+    zrange.limitTo( desiredzrange );
+
+    const int zsize = zrange.nrSteps() + 1;
     TypeSet<float> vel;
-    vel.setCapacity( availzsize );
-    for( int idx=0; idx<availzsize; idx++ )
-	vel += func->getVelocity( availz.atIndex(idx) );
+    vel.setCapacity( zsize );
+    for( int idx=0; idx<zsize; idx++ )
+	vel += func->getVelocity( zrange.atIndex(idx) );
     
     if ( veldesc.type_ != VelocityDesc::Interval )
     {
-	mAllocVarLenArr( float, velocityvalues, availzsize );
-	if ( !checkAndConvertVelocity(vel.arr(),veldesc,availz,velocityvalues) )
+	mAllocVarLenArr( float, velocityvalues, zsize );
+	if ( !checkAndConvertVelocity(vel.arr(),veldesc,zrange,velocityvalues) )
 	    return 0;
 
-	if ( !createElasticModel(availz,velocityvalues) )
+	if ( !createElasticModel(zrange,velocityvalues) )
 	    return 0;
     }
-    else if ( !createElasticModel(availz,vel.arr()) )
+    else if ( !createElasticModel(zrange,vel.arr()) )
 	return 0;
 
     return computeAngleData();
