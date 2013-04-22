@@ -415,7 +415,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
     endif()
 
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
-		    --config Debug --plf ${OD_PLFSUBDIR}
+		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --qtdir ${QTDIR}
 		    --quiet )
 
