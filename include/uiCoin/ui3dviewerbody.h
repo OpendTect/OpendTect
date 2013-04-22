@@ -17,8 +17,16 @@ ________________________________________________________________________
 #include "refcount.h"
 
 namespace visBase { class Camera; class Scene; }
+
+/*!\brief 'GA' stands for 'GUI ( Graphical user interface ) Abstraction'.
+Provides facilities to help developers write the glue to allow the osg to work
+with varying window systems.
+*/
+
 namespace osgGA { class GUIActionAdapter; }
+
 class ui3DViewer;
+
 namespace osg
 {
     class GraphicsContext;
