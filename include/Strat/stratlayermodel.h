@@ -54,8 +54,6 @@ public:
     				//!< Does a match of props
     void			removeSequence(int);
 
-    PropertySet&		properties()		{ return propset_; }
-    const PropertySet&		properties() const	{ return propset_; }
     PropertyRefSelection&	propertyRefs()		{ return proprefs_; }
     const PropertyRefSelection&	propertyRefs() const	{ return proprefs_; }
     void			prepareUse() const;
@@ -73,7 +71,6 @@ protected:
 
     ObjectSet<LayerSequence>	seqs_;
     PropertyRefSelection	proprefs_;
-    PropertySet			propset_;
     ElasticPropSelection	elasticpropsel_;
 
 };
