@@ -80,4 +80,5 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitreeview.cc
 		uivirtualkeyboard.cc)
 SET(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
+OD_ADD_SOURCE_FILES( uimainicon.xpm )
 OD_INIT_MODULE()

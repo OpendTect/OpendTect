@@ -9,7 +9,8 @@
 configure_file ( ${OpendTect_DIR}/include/Basic/odversion.h.in ${OpendTect_DIR}/include/Basic/odversion.h )
 
 file(GLOB CMAKE_FILES CMakeModules/*.cmake )
-
+file(GLOB TEMPLATE_FILES CMakeModules/templates/*.in )
+set( CMAKE_FILES ${CMAKE_FILES} ${TEMPLATE_FILES} )
 OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
