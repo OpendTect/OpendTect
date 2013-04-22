@@ -1293,7 +1293,7 @@ void TableCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselected, cellrc ) \
-    ( iswasselected##cells_.indexOf(cellrc) >= 0 )
+    ( iswasselected##cells_.indexOf(cellrc)>=0 ? 1 : 0 )
 
 
 void TableCmdComposer::writeTableSelect()
