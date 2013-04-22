@@ -25,6 +25,7 @@ public:
 						  visSurvey::SurveyObject&,
 				       		  int attrib	);
 protected:
+    bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			changeCB(CallBacker*);
 
