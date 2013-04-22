@@ -472,8 +472,8 @@ endmacro( create_docpackages )
 macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
 	message( "Using ${OD_PLFSUBDIR} zip command" )
-	execute_process( COMMAND ${PSD}/bin/win/zip -r -q
-					   "${PACKAGE_FILENAME}" ${REL_DIR} 
+	execute_process( COMMAND ${PSD}/bin/win64/zip -r -q
+			 	 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     else()

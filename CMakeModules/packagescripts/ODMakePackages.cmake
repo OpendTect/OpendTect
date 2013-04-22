@@ -44,9 +44,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
     endif()
 
     if( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	if( NOT EXISTS "${PSD}/bin/win/zip.exe" )
-	    message( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
-		     Unable to create packages.Please do an update" )
+	if( NOT EXISTS "${PSD}/bin/win64/zip.exe" )
+	    message( FATAL_ERROR "${PSD}/bin/win64/zip.exe is not existed. Unable to create packages." )
 	endif()
     endif()
 
