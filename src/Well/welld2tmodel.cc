@@ -55,7 +55,7 @@ float Well::D2TModel::getTime( float dh, const Track& track ) const
 
 float Well::D2TModel::getDepth( float time, const Track& track ) const
 {
-    float depth = mUdf(float);
+    double depth = mUdf(double);
     Interval<float> times( mUdf(float), mUdf(float) );
     Interval<double> depths( mUdf(double), mUdf(double) );
 
@@ -63,9 +63,10 @@ float Well::D2TModel::getDepth( float time, const Track& track ) const
 	return depth;
 
     const double curvel = getVelocityForTwt( time, track );
-    depth = depths.start + (float)( ( time - times.start ) * curvel ) / 2.f;
+    depth = depths.start + 
+	( ( mCast(double,time) - mCast(double,times.start) ) * curvel ) / 2.f;
 
-    return depth;
+    return mCast( float, depth );
 }
 
 
