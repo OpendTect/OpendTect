@@ -732,7 +732,7 @@ void ListCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselectedchecked, itemidx ) \
-    ( iswasselectedchecked##items_.isPresent(itemidx) )
+    ( iswasselectedchecked##items_.isPresent(itemidx) ? 1 : 0 )
 
 void ListCmdComposer::writeListSelect()
 {
