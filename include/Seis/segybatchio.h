@@ -17,14 +17,12 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 
-/*!\brief
-
-Keys that should be used with od_process_segyio.cc
-
-*/
+/*!\brief Keys that should be used with od_process_segyio.cc */
 
 namespace SEGY
 {
+
+/*!\brief Input/Output*/
 
 namespace IO
 {
