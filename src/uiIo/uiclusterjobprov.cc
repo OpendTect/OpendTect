@@ -86,7 +86,11 @@ od_int64 totalNr() const
 
 
 #define mSetEnvVar(s) \
-    *sd.ostrm << "setenv " << s << " " << GetEnvVar(s) << std::endl;
+{ \
+    const char* envval = GetEnvVar( s ); \
+    *sd.ostrm << "setenv " << s << " " << (envval ? envval : "") << std::endl; \
+}
+
 static bool writeScriptFile( const char* scrfnm, const char* prognm,
 			     const char* desc )
 {
@@ -98,7 +102,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
     mSetEnvVar("DTECT_APPL")
     mSetEnvVar("DTECT_DATA")
     mSetEnvVar("LD_LIBRARY_PATH")
-    *sd.ostrm << GetExecScript(false) << " " << prognm << "\\" << std::endl;
+    *sd.ostrm << GetExecScript(false) << " " << prognm << " \\" << std::endl;
     FilePath fp( scrfnm );
     fp.setExtension( ".par" );
     *sd.ostrm << fp.fullPath().buf() << std::endl;
