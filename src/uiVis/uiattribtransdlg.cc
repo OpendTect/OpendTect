@@ -45,3 +45,8 @@ bool uiAttribTransDlg::rejectOK( CallBacker* )
     return true;
 }
 
+bool uiAttribTransDlg::acceptOK( CallBacker* )
+{
+    slider_->processInput();
+    return true;
+}
