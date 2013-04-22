@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 class CubeSampling;
 
+/*!\brief A collection of geoscientific extensions to OpenSceneGraph.*/
+
 namespace osgGeo { class TexturePlaneNode; }
 
 namespace visBase
@@ -26,8 +28,7 @@ namespace visBase
 
 class TextureChannels;
 
-/*!\brief
-    A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
+/*!\brief A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
 */
 
 mExpClass(visBase) TextureRectangle : public VisualObjectImpl
