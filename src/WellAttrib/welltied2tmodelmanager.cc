@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
+#include "welltiegeocalculator.h"
 #include "welltiesetup.h"
 
 #include <math.h>
@@ -25,21 +26,20 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
-	: orgd2t_(0)					    
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
+	: orgd2t_(0)
 	, prvd2t_(0)
-	, data_(data)	 
-	, datawriter_(dwr)  
+	, datawriter_(dwr)
 	, wd_(&wd)
-	, emptyoninit_(false) 
+	, emptyoninit_(false)
 {
-    const WellTie::Setup& wts = data.setup();
     if ( mIsUnvalidD2TM( wd ) )
 	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
 
     WellTie::GeoCalculator gc;
-    Well::D2TModel* d2t = wts.useexistingd2tm_ ? wd.d2TModel()
-			      : gc.getModelFromVelLog( wd, wts.vellognm_ );
+    Well::D2TModel* d2t = wts.useexistingd2tm_
+			? wd.d2TModel()
+			: gc.getModelFromVelLog( wd, wts.vellognm_ );
     if ( !d2t )
 	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
 
@@ -142,7 +142,10 @@ bool D2TModelMgr::commitToWD()
 void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
 {
     if ( wd_ )
-	calc_.ensureValidD2TModel( d2t, *wd_ );
+    {
+	GeoCalculator calc;
+	calc.ensureValidD2TModel( d2t, *wd_ );
+    }
 }
 
 
