@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 
-/*!\brief Repository*/
-
 namespace Repos
 {
 
