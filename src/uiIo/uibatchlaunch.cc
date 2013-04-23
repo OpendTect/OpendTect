@@ -56,9 +56,9 @@ static bool enabClusterProc()
 uiProcSettings::uiProcSettings( uiParent* p )
     : uiDialog(p,Setup("Processing settings",mNoDlgTitle,mTODOHelpID))
 {
-    int nrinl = 3;
+    int nrinl = 10;
     Settings::common().get( sKeyNrInlJob, nrinl );
-    nrinlfld_ = new uiGenInput( this, "Nr inlines per job", IntInpSpec() );
+    nrinlfld_ = new uiGenInput( this, "Nr inlines per job", IntInpSpec(nrinl) );
 
     const bool enabclusterproc = enabClusterProc();
     clusterfld_ = new uiGenInput( this, "Enable cluster processing",
