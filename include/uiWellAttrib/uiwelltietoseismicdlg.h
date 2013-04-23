@@ -137,6 +137,8 @@ public:
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
+    uiLabel*			getScalerFld() const;
+    void			setScalerFld(uiLabel*);
 
 protected:
    

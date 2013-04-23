@@ -30,6 +30,7 @@ static const char* rcsID = "$Id$";
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
+#include "hiddenparam.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
@@ -518,6 +519,8 @@ static const char* sKeyInfoSelZrange = "Selected Z Range";
 static const char* sKeyStartMrkrName = "Start Marker Name";
 static const char* sKeyStopMrkrName = "Stop Marker Name";
 
+HiddenParam<uiInfoDlg,uiLabel*> wvltscaler_(0);
+
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     "107.4.2").modal(false))
@@ -540,8 +543,11 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
     wvltdraw_->setActiveWavelet( data_.isinitwvltactive_ );
+    setScalerFld( new uiLabel( wvltgrp, 0 ) );
+    getScalerFld()->attach( leftAlignedBelow, wvltdraw_ );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
-    estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
+    estwvltlengthfld_ ->attach( leftAlignedBelow, getScalerFld() );
+    estwvltlengthfld_->setElemSzPol( uiObject::Small );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp,"Vertical", false );
@@ -602,6 +608,18 @@ uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
     delete wvltdraw_;
+}
+
+
+uiLabel* uiInfoDlg::getScalerFld() const
+{
+    return wvltscaler_.getParam( this );
+}
+
+
+void uiInfoDlg::setScalerFld( uiLabel* scalerfld )
+{
+    wvltscaler_.setParam( this, scalerfld );
 }
 
 
@@ -754,6 +772,12 @@ void uiInfoDlg::drawData()
 {
     wvltdraw_->redrawWavelets();
     crosscorr_->draw();
+    if ( getScalerFld() )
+    {
+	BufferString scalerfld = "Synthetic to seismic scaler: ";
+	scalerfld += data_.getScaler();
+	getScalerFld()->setText( scalerfld );
+    }
 }
 
 

@@ -15,6 +15,7 @@ static const char* rcsID = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
 #include "raytrace1d.h"
+#include "statruncalc.h"
 #include "synthseis.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
@@ -169,13 +170,23 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 
     TypeSet<float> twt;
     int idy = 0;
+    Stats::CalcSetup scalercalc;
+    scalercalc.require( Stats::RMS );
+    Stats::RunCalc<double> seisstats( scalercalc );
+    Stats::RunCalc<double> syntstats( scalercalc );
     for ( int idseis=istartseis; idseis<=istopseis; idseis++ )
     {
 	twt += data_.synthtrc_.samplePos( idseis );
 	syntharr[idy] = data_.synthtrc_.get( idseis, 0 );
+	syntstats += syntharr[idy];
 	seisarr[idy] = data_.seistrc_.get( idseis, 0 );
+	seisstats += seisarr[idy];
 	idy++;
     }
+    const double seisrms = seisstats.rms();
+    const double syntrms = syntstats.rms();
+    data_.setScaler( syntrms > 0 ? mCast( float, seisrms / syntrms )
+	    			 : mUdf(float) );
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.erase();

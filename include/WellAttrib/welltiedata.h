@@ -100,6 +100,8 @@ public :
 	// do not use, will be deleted
     Interval<float>		dahrg_;
     const Setup&		setup() const	{ return setup_; }
+    const float			getScaler() const;
+    void			setScaler(const float);
     
     const StepInterval<float>&	getTraceRange() const;
     const Interval<float>&	getDahRange() const { return dahrg_; }

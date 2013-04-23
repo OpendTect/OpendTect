@@ -60,6 +60,7 @@ HiddenParam<Data, StepInterval<float> >
 	modelrg_( StepInterval<float>( mUdf(float),mUdf(float),mUdf(float)) );
 HiddenParam<Data, StepInterval<float> >
 	reflrg_( StepInterval<float>( mUdf(float),mUdf(float),mUdf(float)) );
+HiddenParam<Data, float> scaler_( mUdf(float) );
 
 void DispParams::fillPar( IOPar& iop ) const 
 {
@@ -135,6 +136,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 
     estimatedwvlt_ = initwvlt_;
     estimatedwvlt_.setName( "Estimated wavelet" );
+    setScaler(mUdf(float));
 }
 
 
@@ -179,9 +181,21 @@ const StepInterval<float>& Data::getReflRange() const
 }
 
 
-void Data::setRelfRange(StepInterval<float> reflrg)
+void Data::setRelfRange( StepInterval<float> reflrg )
 {
-    reflrg_.setParam(this, reflrg );
+    reflrg_.setParam( this, reflrg );
+}
+
+
+const float Data::getScaler() const
+{
+    return scaler_.getParam( this );
+}
+
+
+void Data::setScaler( const float scaler )
+{
+    scaler_.setParam( this, scaler );
 }
 
 
