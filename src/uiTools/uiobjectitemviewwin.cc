@@ -323,6 +323,7 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
 
     const float selwidth = selrect->width();
     const float selheight = selrect->height();
+    if ( selwidth<=0 || selheight<=0 ) return;
 
     const uiRect viewrect = mainviewer_->getViewArea();
     const float viewwidth = viewrect.width(); 
