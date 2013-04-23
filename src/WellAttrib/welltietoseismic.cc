@@ -262,8 +262,8 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	GeoCalculator gcwvltest;
 	gcwvltest.deconvolve( seisarr, refarr, wvltarrfull, nrsamps );
 
-	const int initwvltsz = data_.initwvlt_.size();
-	const float sr = data_.initwvlt_.sampleRate();
+	const int initwvltsz = data_.estimatedwvlt_.size();
+	const float sr = data_.estimatedwvlt_.sampleRate();
 	int outwvltsz = initwvltsz;
 	if ( !(initwvltsz%2) )
 	    outwvltsz++;
