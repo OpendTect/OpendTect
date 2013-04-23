@@ -10,6 +10,8 @@ ________________________________________________________________________
 static const char* rcsID = "$Id$";
 
 #include "jobrunner.h"
+
+#include "hiddenparam.h"
 #include "jobinfo.h"
 #include "jobiomgr.h"
 #include "jobdescprov.h"
@@ -69,6 +71,7 @@ int& MMJob_getTempFileNr()
     return tmpfile_nr;
 }
 
+HiddenParam<JobRunner,BufferString> errmsg_("");
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
 	, iomgr__(0)
@@ -96,6 +99,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     procdir_ = GetProcFileName( getTempBaseNm() );
     procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
     MMJob_getTempFileNr()++;
+    errmsg_.setParam( this, "" );
 
     if ( File::exists(procdir_) && !File::isDirectory(procdir_) )
 	File::remove(procdir_);
@@ -137,6 +141,16 @@ HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
 
 bool JobRunner::addHost( const HostData& hd )
 {
+    if ( !iomgr().isReady() )
+    {
+	delete iomgr__;
+	iomgr__ = 0;
+	BufferString errmsg;
+	errmsg = BufferString( "Failed to listen to Port ", firstport_, " on ");
+	errmsg += HostData::localHostName();
+	errmsg_.setParam( this, errmsg );
+	return false;
+    }
 
     HostNFailInfo* hfi = hostNFailInfoFor( &hd );
     const bool isnew = !hfi;
@@ -555,6 +569,10 @@ bool JobRunner::stopAll()
 
 int JobRunner::doCycle()
 {
+    if ( !iomgr().isReady() )
+	return ErrorOccurred();
+    
+
     updateJobInfo();
 
     if ( !haveIncomplete() )
@@ -762,3 +780,6 @@ JobInfo* JobRunner::gtJob( int descnr )
     return ret;
 }
 
+
+const char* JobRunner::errorMsg() const
+{   return errmsg_.getParam(this).size() ? errmsg_.getParam(this).buf() : 0; } 

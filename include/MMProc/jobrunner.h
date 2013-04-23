@@ -156,6 +156,8 @@ protected:
     enum HostStat		{ OK = 0, SomeFailed = 1, HostFailed = 2 };
     HostStat			hostStatus(const HostNFailInfo*) const;
 
+public:
+    const char*			errorMsg() const;
 };
 
 #endif

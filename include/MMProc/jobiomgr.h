@@ -91,6 +91,9 @@ protected:
 				   const char* progname, const FilePath& basefp,
 				   const FilePath& iopfp, const JobInfo&,
 				   const char* rshcomm );
+public:
+    bool		isReady() const;
+
 };
 
 
