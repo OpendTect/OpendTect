@@ -360,7 +360,10 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
     
     uiD2TModelDlg d2tmdlg( this, *wd, false );
     if ( d2tmdlg.go() )
+    {
+	server_.updateExtractionRange();
 	doWork( cb );
+    }
 }
 
 
@@ -383,10 +386,12 @@ void uiTieWin::applyPushed( CallBacker* cb )
     mGetWD(return);
     stretcher_.setD2TModel( wd->d2TModel() );
     stretcher_.doWork( cb );
+    server_.updateExtractionRange();
     doWork( cb );
     clearPicks( cb );
     if ( infodlg_ )
 	infodlg_->propChanged(0);
+
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
 }
@@ -422,6 +427,8 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
     	mErrRet( "Cannot go back to previous model" );
+
+    server_.updateExtractionRange();
     doWork( cb );
     clearPicks( cb );
 
@@ -665,7 +672,8 @@ void uiInfoDlg::usePar( const IOPar& par )
 
 #define mMinWvltLength	20
 #define md2T( zval, outistime )\
-    outistime ? d2t->getTime( zval, wd->track() ) : d2t->getDah( zval ); 
+    outistime ? d2t->getTime( zval, wd->track() ) \
+	      : d2t->getDah( zval );
 #define md2TI( inzrg, ouzrg, outistime )\
     { ouzrg.start = md2T( inzrg.start, outistime ); \
       ouzrg.stop = md2T( inzrg.stop, outistime ) }

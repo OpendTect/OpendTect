@@ -105,6 +105,7 @@ public :
     const Interval<float>&	getDahRange() const { return dahrg_; }
     const StepInterval<float>&	getModelRange() const;
     const StepInterval<float>&	getReflRange() const;
+    void			computeExtractionRange();
 
     const char*  		sonic() 	const;
     const char*  		density() 	const;
@@ -262,6 +263,7 @@ public :
     bool			hasSynthetic() const;
     bool			hasSeismic() const;
     bool			doSeismic() const;
+    void			updateExtractionRange();
 
     void			setInitWvltActive(bool yn)
 				{ data_->isinitwvltactive_ = yn; }

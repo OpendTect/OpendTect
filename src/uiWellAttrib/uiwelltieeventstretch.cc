@@ -23,11 +23,11 @@ static const char* rcsID = "$Id$";
 namespace WellTie
 {
 
-EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr ) 
-  	: pmgr_(pmgr) 
+EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
+  	: pmgr_(pmgr)
 	, synthpickset_(pmgr_.synthPickSet())
 	, seispickset_(pmgr_.seisPickSet())
-	, d2tmgr_(d2tmgr)					   
+	, d2tmgr_(d2tmgr)
 	, d2t_(0)
 {} 
 
@@ -84,16 +84,6 @@ void EventStretch::doStretchSqueeze()
 
     d2tarr += d2t_->value( d2tsz-1 );
     daharr += d2t_->dah( d2tsz-1 );
-
-    const float lasttime = d2tmgr_.getData().getTraceRange().stop;
-    float lastd2ttime = d2t_->value( d2tsz-1 );
-    while ( lastd2ttime < lasttime  )
-    {
-	lastd2ttime += mGapSize;
-	d2tarr += lastd2ttime;
-	daharr += d2t_->getDah( lastd2ttime );
-    }
-
     d2tsz = d2tarr.size();
 
     Array1DImpl<float> calibratedarr( d2tsz );
@@ -107,8 +97,8 @@ void EventStretch::doStretchSqueeze()
 	ctrlvals += seispickset_[idx].zpos_;
     }
     IdxAble::callibrateArray( d2tarr.arr(), d2tsz,
-				ctrlvals.arr(), ctrlidxs.arr(),
-				ctrlvals.size(), false, calibratedarr.arr() );
+	    		      ctrlvals.arr(), ctrlidxs.arr(),
+			      ctrlvals.size(), false, calibratedarr.arr() );
 
     d2tmgr_.setFromData( daharr.arr(), calibratedarr.arr(), d2tsz );
 }

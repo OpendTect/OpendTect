@@ -30,11 +30,14 @@ namespace WellTie
 
 class Data;
 class DataWriter;
+class Setup;
 
 mClass D2TModelMgr
 {
 public:
 			D2TModelMgr(Well::Data&,DataWriter&,const Data&);
+			D2TModelMgr(Well::Data&,DataWriter&,const Setup&,
+				    const Data&);
 			~D2TModelMgr();
 
     bool 		undo();
