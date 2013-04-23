@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseismulticubeps.h"
+
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -43,8 +44,8 @@ public:
 
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
-	: uiDialog(p, uiDialog::Setup("MultiCube Pre-Stack data store",
-		   "Create MultiCube Pre-Stack data store","103.1.7"))
+	: uiDialog(p,uiDialog::Setup("Create MultiCube Pre-Stack data store",
+		   mNoDlgTitle,"103.1.7"))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
 	, curselidx_(-1)
@@ -64,6 +65,10 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     cubefld_ = cubesllb->box();
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
+    cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
+    allcompfld_ = new uiCheckBox( this, "Use all components" );
+    allcompfld_->setSensitive( false );
+    allcompfld_->attach( alignedBelow, cubesllb );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", true );
     new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
@@ -91,7 +96,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep", true, false );
     sep->attach( stretchedBelow, offsfld_ );
-    sep->attach( ensureBelow, cubesllb );
+    sep->attach( ensureBelow, allcompfld_ );
 
     outfld_ = new uiIOObjSel( this, ctio_, "Output data store" );
     outfld_->attach( alignedBelow, bgrp );
@@ -141,6 +146,22 @@ void uiSeisMultiCubePS::recordEntryData()
 }
 
 
+void uiSeisMultiCubePS::inputChg( CallBacker* )
+{
+    const int cubeidx = cubefld_->currentItem();
+    if ( !entries_.validIdx(cubeidx) )
+	return;
+
+    uiSeisMultiCubePSEntry* entry = entries_[cubeidx];
+    SeisIOObjInfo ioobjinf( entry->ioobj_ );
+    BufferStringSet compnms;
+    ioobjinf.getComponentNames( compnms );
+    const bool hascomps = compnms.size() > 1;
+    allcompfld_->setChecked( hascomps );
+    allcompfld_->setSensitive( hascomps );
+}
+
+
 void uiSeisMultiCubePS::selChg( CallBacker* cb )
 {
     const int selidx = selfld_->currentItem();
@@ -178,7 +199,24 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
     recordEntryData();
 
     uiSeisMultiCubePSEntry* entry = entries_[cubeidx];
-    selentries_ += new uiSeisMultiCubePSEntry( *entry );
+    if ( !allcompfld_->isChecked() )
+	selentries_ += new uiSeisMultiCubePSEntry( *entry );
+    else
+    {
+	SeisIOObjInfo ioobjinf( entry->ioobj_ );
+	BufferStringSet compnms;
+	ioobjinf.getComponentNames( compnms );
+	if ( compnms.size() > 1 )
+	{
+	    for ( int idx=0; idx<compnms.size(); idx++ )
+	    {
+		uiSeisMultiCubePSEntry* selentry = new uiSeisMultiCubePSEntry( *entry );
+		selentry->comp_ = idx;
+		selentry->offs_ = mCast(float,10*idx);
+		selentries_ += selentry;
+	    }
+	}
+    }
 
     curselidx_ = selentries_.size() - 1;
     fullUpdate();

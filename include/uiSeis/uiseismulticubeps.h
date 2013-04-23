@@ -14,15 +14,15 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+
+class uiCheckBox;
+class uiComboBox;
 class uiGenInput;
-class uiListBox;
-class uiListBox;
 class uiIOObjSel;
+class uiListBox;
+class uiSeisMultiCubePSEntry;
 class IOObj;
 class CtxtIOObj;
-class uiComboBox;
-class uiSeisMultiCubePSEntry;
-
 
 mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
 {
@@ -41,6 +41,7 @@ protected:
     int			curselidx_;
 
     uiListBox*		cubefld_;
+    uiCheckBox*		allcompfld_;
     uiListBox*		selfld_;
     uiGenInput*		offsfld_;
     uiIOObjSel*		outfld_;
@@ -52,6 +53,7 @@ protected:
     void		fullUpdate();
     void		setCompFld(const uiSeisMultiCubePSEntry&);
 
+    void		inputChg(CallBacker*);
     void		selChg(CallBacker*);
     void		addCube(CallBacker*);
     void		rmCube(CallBacker*);
