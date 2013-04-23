@@ -355,7 +355,10 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
     
     uiD2TModelDlg d2tmdlg( this, *wd, false );
     if ( d2tmdlg.go() )
+    {
+	server_.updateExtractionRange();
 	doWork( cb );
+    }
 }
 
 
@@ -379,10 +382,12 @@ void uiTieWin::applyPushed( CallBacker* cb )
     stretcher_.setD2TModel( wd->d2TModel() );
     stretcher_.setTrack( &wd->track() );
     stretcher_.doWork( cb );
+    server_.updateExtractionRange();
     doWork( cb );
     clearPicks( cb );
     if ( infodlg_ )
 	infodlg_->propChanged(0);
+
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
 }
@@ -418,6 +423,8 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
     	mErrRet( "Cannot go back to previous model" );
+
+    server_.updateExtractionRange();
     doWork( cb );
     clearPicks( cb );
 
