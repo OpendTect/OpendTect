@@ -295,16 +295,13 @@ void uiODApplMgr::editAttribSet( bool is2d )
 }
 
 void uiODApplMgr::processTime2Depth( CallBacker* )
-{
-    seisserv_->processTime2Depth();
-}
-
+{ seisserv_->processTime2Depth(); }
 
 void uiODApplMgr::processVelConv( CallBacker* )
-{
-    seisserv_->processVelConv();
-}
+{ seisserv_->processVelConv(); }
 
+void uiODApplMgr::createMultiCubeDS( CallBacker* )
+{ seisserv_->createMultiCubeDataStore(); }
 
 void uiODApplMgr::setStereoOffset()
 {

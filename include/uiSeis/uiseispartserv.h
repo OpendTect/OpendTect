@@ -69,6 +69,7 @@ public:
     void		processTime2Depth() const;
     void		resortSEGY() const;
     void		processVelConv() const;
+    void		createMultiCubeDataStore() const;
 
     void		manageSeismics(bool);
     void		managePreLoad();

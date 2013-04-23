@@ -94,12 +94,14 @@ public:
     				//!< This plots between well and attrib
     void			doAttribXPlot(CallBacker* =0);
     				//!< This plots between attribs.
-    void			openCrossPlot(CallBacker* = 0 ); // Crate XPlot from file
+    void			openCrossPlot(CallBacker* =0);
+				//!< Create crossplot from file
     void			createHorOutput(int,bool);
     void			reStartProc();
     void			setProcSettings();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
+    void			createMultiCubeDS(CallBacker* =0);
     void			processVelConv(CallBacker* =0);
     void			genAngleMuteFunction(CallBacker* =0);
     void			bayesClass2D(CallBacker* =0);

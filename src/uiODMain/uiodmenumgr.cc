@@ -428,6 +428,9 @@ void uiODMenuMgr::fillProcMenu()
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
 	csoitm->insertItem(
+	    new uiMenuItem("&Create MultiCube DataStore ...",
+			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
+	csoitm->insertItem(
 	    new uiMenuItem("Angle mute function ...",
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
