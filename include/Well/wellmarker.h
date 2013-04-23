@@ -40,8 +40,11 @@ public:
 			, dah_(dh)
 			, color_(c)
 			, levelid_(-1)		{}
-			Marker(int lvlid,float dh);
-			Marker(const Marker&);
+			Marker( int lvlid, float dh )
+			    : dah_(dh)
+			    , color_(Color::Black())
+			    , levelid_(lvlid)	{}
+    Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }
 
@@ -49,8 +52,6 @@ public:
     inline void		setDah( float v )	{ dah_ = v; }
     inline int		levelID() const		{ return levelid_; }
     inline void		setLevelID( int id )	{ levelid_ = id; }
-
-    const BufferString&	name() const;
     Color		color() const;
 
     static const char*	sKeyDah();
