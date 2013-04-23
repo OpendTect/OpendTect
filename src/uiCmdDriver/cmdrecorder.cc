@@ -265,7 +265,8 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 
 	for ( int idx=0; idx<curobjset.size(); idx++ )
 	{
-	    if ( !relatives.isPresent(curobjset[idx]) )
+	    allobjsrelative = relatives.isPresent(curobjset[idx]);
+	    if ( !allobjsrelative )
 		break;
 	}
 
