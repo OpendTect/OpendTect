@@ -124,7 +124,10 @@ bool uiLayerSequenceGenDesc::selProps()
     uiSelectPropRefs dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
+    {
 	desc_.setPropSelection( prs );
+	descHasChanged();
+    }
     return ret;
 }
 
