@@ -129,7 +129,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 	    if ( !code[2].isEmpty() )
 		wid += code[2];
 	}
-	if ( wid != winid ) continue;
+	if ( wid != MultiID(winid) ) continue;
 
 	ptr = astream.value();
 	mSkipBlanks(ptr);

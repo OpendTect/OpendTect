@@ -411,7 +411,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	    		      BoolInpSpec(douse,"Enabled","Disabled") );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, "Use one for this survey",
-	    		      BoolInpSpec(id != "") );
+	    		      BoolInpSpec( !id.isEmpty() ) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 

@@ -34,6 +34,8 @@ public:
     FixedString& operator=(const BufferString& b);
 
     bool	operator==(const char*) const;
+    bool	operator==(const BufferString&) const;
+    bool 	operator!=(const BufferString&) const;
     bool	operator!=(const char* s) const		{ return !(*this==s); }
     bool	operator==(const FixedString& f) const	{ return *this==f.ptr_;}
     bool	operator!=(const FixedString& f) const	{ return *this!=f.ptr_;}
