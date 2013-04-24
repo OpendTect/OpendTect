@@ -464,6 +464,20 @@ PropertyRefSelection::PropertyRefSelection()
 }
 
 
+bool PropertyRefSelection::operator ==( const PropertyRefSelection& oth ) const
+{
+    if ( size() != oth.size() )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] != oth[idx] )
+	    return false;
+
+    return true;
+}
+
+
+
 int PropertyRefSelection::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
