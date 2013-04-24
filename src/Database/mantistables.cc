@@ -195,8 +195,8 @@ void SqlDB::BugTableEntry::addToHistory( const char* fldnm, const char* oldval,
     bool isexisted = false;
     for ( int idx=0; idx<historyset_.size(); idx++ )
     {
-	BufferString fieldnm = historyset_[idx]->fieldnm_;
-	if ( fldnm==fieldnm )
+	const BufferString& fieldnm = historyset_[idx]->fieldnm_;
+	if ( fieldnm==fldnm )
 	{
 	    historyset_[idx]->newvalue_ = newval;
 	    isexisted = true;

@@ -125,6 +125,17 @@ private:
 
 };
 
+/*!Not implemented. Only here to cause link-errors if used. The reason
+   of not implementing is that we want to avoid promotions to 
+   BufferStrings if not needed. */
+mGlobal(Basic) bool operator==(const char*,const BufferString&);
+
+/*!Not implemented. Only here to cause link-errors if used. The reason
+   of not implementing is that we want to avoid promotions to 
+   BufferStrings if not needed. */
+mGlobal(Basic) bool operator!=(const char*,const BufferString&);
+
+
 mGlobal(Basic) std::ostream& operator <<(std::ostream&,const BufferString&);
 mGlobal(Basic) std::istream& operator >>(std::istream&,BufferString&);
 

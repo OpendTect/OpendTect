@@ -126,6 +126,6 @@ void uiPickSetMan::mergeSets( CallBacker* )
     MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
     mgr.mergeSets( curkey );
 
-    if ( curkey != "" )
+    if ( !curkey.isEmpty() )
 	selgrp_->fullUpdate( curkey );
 }

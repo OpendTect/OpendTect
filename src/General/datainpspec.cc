@@ -294,7 +294,7 @@ const char* BoolInpSpec::text( int idx ) const
 
 bool BoolInpSpec::setText( const char* s, int idx )
 {
-    yn_ = s && s!=falsetext_;
+    yn_ = s && falsetext_!=s;
     isset_ = true;
     return true;
 }

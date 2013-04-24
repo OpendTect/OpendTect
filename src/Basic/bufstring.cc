@@ -636,6 +636,18 @@ bool FixedString::operator==( const char* s ) const
 }
 
 
+bool FixedString::operator==( const BufferString& s ) const
+{
+    return FixedString::operator==( s.buf() );
+}
+
+
+bool FixedString::operator!=( const BufferString& s ) const
+{
+    return FixedString::operator!=( s.buf() );
+}
+
+
 int FixedString::size() const
 {
     if ( !ptr_ ) return 0;

@@ -106,8 +106,8 @@ public:
     virtual const char*	text() const{ return yn ? truetxt : falsetxt; }
     virtual void        setText( const char* t )	
 			    {  
-				if ( t == truetxt ) yn = true;
-				else if ( t == falsetxt ) yn = false;
+				if ( truetxt == t ) yn = true;
+				else if ( falsetxt==t ) yn = false;
 				else yn = toBool(t);
 
 				setvalue_(yn);
