@@ -47,7 +47,7 @@ static const char* mkFullPath( const char* path, const char* filename )
     char* chptr;
 
     /* Copy path to result buf */
-    if ( path != result )
+    if ( result != path )
 	strcpy( result.buf(), path && *path ? path : "." );
     if ( !filename || !*filename ) return result;
 
