@@ -159,6 +159,7 @@ mExpClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
 public:
 
     			PropertyRefSelection();
+    bool		operator ==(const PropertyRefSelection&) const;
 
     int			indexOf(const char*) const;
     int			find(const char*) const; // also uses 'isKnownAs'
