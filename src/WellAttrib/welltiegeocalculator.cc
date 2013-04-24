@@ -342,6 +342,9 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 			        float* deconvals, int inpsz ) const
 {
+    if ( !inp || !filter )
+	return;
+
     ArrayNDWindow window( Array1DInfoImpl(inpsz), false, "CosTaper", 0.90 );
 
     Array1DImpl<float> inputvals( inpsz );
@@ -353,7 +356,7 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 	cinputvals.set( idx, inputvals.get( idx ) );
 
     Array1DImpl<float_complex> cfiltervals( inpsz );
-    memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float) );
+    memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
     removeBias( &cfiltervals );
    
