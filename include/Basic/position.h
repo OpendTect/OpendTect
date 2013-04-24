@@ -257,11 +257,16 @@ public:
     static GeomID		std3DGeomID();
     static GeomID		cUndefGeomID();
     
+    bool			is2D() const
+    				{ return geomid_!=std3DGeomID(); }
     int&			trcNr()		{ return pos_.trcNr(); }
     int				trcNr() const	{ return pos_.trcNr(); }
     int&			lineNr()	{ return pos_.lineNr(); }
     int				lineNr() const	{ return pos_.lineNr(); }
     
+    bool			operator ==( const TraceID& a ) const
+    				{ return a.geomid_==geomid_ && a.pos_==pos_; }
+
     static const TraceID&	udf();
     
     bool			isUdf() const { return mIsUdf(pos_.trcNr()); }
