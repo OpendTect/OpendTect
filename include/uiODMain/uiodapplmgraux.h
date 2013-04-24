@@ -102,7 +102,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 
     bool		editNLA(bool);
     void		createHorOutput(int,bool);
-    void		createVol(bool);
+    void		createVol(bool is2d,bool multiattrib);
     void		doXPlot();
     void		crossPlot();
     void		setZStretch();

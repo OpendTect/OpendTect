@@ -69,7 +69,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 }
 
 
-void uiODApplMgrAttrVisHandler::createVol( bool is2d )
+void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 {
     MultiID nlaid;
     if ( am_.nlaserv_ )
@@ -77,7 +77,7 @@ void uiODApplMgrAttrVisHandler::createVol( bool is2d )
 	am_.nlaserv_->set2DEvent( is2d );
 	nlaid = am_.nlaserv_->modelId();
     }
-    am_.attrserv_->outputVol( nlaid, is2d );
+    am_.attrserv_->outputVol( nlaid, is2d, multiattrib );
 }
 
 

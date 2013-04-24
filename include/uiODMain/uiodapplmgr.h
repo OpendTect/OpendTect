@@ -87,9 +87,9 @@ public:
 
     // Processing menu operations
     void			editAttribSet();
-    void			editAttribSet(bool);
-    bool			editNLA(bool);
-    void			createVol(bool);
+    void			editAttribSet(bool is2d);
+    bool			editNLA(bool is2d);
+    void			createVol(bool is2d,bool multiattrib);
     void			doWellXPlot(CallBacker* =0);
     				//!< This plots between well and attrib
     void			doAttribXPlot(CallBacker* =0);
@@ -102,6 +102,7 @@ public:
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
     void			createMultiCubeDS(CallBacker* =0);
+    void			createMultiAttribVol(CallBacker*);
     void			processVelConv(CallBacker* =0);
     void			genAngleMuteFunction(CallBacker* =0);
     void			bayesClass2D(CallBacker* =0);
@@ -166,8 +167,8 @@ public:
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
-    void			seisOut2DCB(CallBacker*)  { createVol(true); }
-    void			seisOut3DCB(CallBacker*)  { createVol(false); }
+    void			seisOut2DCB(CallBacker*)  { createVol(true,false); }
+    void			seisOut3DCB(CallBacker*)  { createVol(false,false); }
     void			createVolProcOutput(CallBacker*);
     void			editAttr2DCB(CallBacker*)
 				    { editAttribSet(true); }

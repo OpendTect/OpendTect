@@ -94,11 +94,11 @@ public:
     			//!< Request current 3D NLAModel* via getObject()
 
     void		manageAttribSets();
-    const Attrib::DescSet* curDescSet(bool) const;
+    const Attrib::DescSet* curDescSet(bool is2d) const;
     void		getDirectShowAttrSpec(Attrib::SelSpec&) const;
-    bool		setSaved(bool) const;
-    void		saveSet(bool);
-    bool		editSet(bool);
+    bool		setSaved(bool is2d) const;
+    void		saveSet(bool is2d);
+    bool		editSet(bool is2d);
     			//!< returns whether new AttribDescSet has been created
     bool		attrSetEditorActive() const	{ return attrsetdlg_; }
     void		updateSelSpec(Attrib::SelSpec&) const;
@@ -107,11 +107,11 @@ public:
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
 	    			     bool is2d, const char* seltxt="View Data");
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
-    void		outputVol(MultiID&,bool);
-    bool		replaceSet(const IOPar&,bool,float);
-    bool		addToDescSet(const char*,bool);
+    void		outputVol(const MultiID&,bool is2d,bool multioutput);
+    bool		replaceSet(const IOPar&,bool is2d,float versionnr);
+    bool		addToDescSet(const char*,bool is2d);
     int			getSliceIdx() const		{ return sliceidx_; }
-    void		getPossibleOutputs(bool,BufferStringSet&) const;
+    void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const

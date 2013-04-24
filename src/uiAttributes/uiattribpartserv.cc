@@ -555,12 +555,13 @@ void uiAttribPartServer::saveSet( bool is2d )
 }
 
 
-void uiAttribPartServer::outputVol( MultiID& nlaid, bool is2d )
+void uiAttribPartServer::outputVol( const MultiID& nlaid, bool is2d,
+				    bool multiattrib )
 {
     const DescSet* dset = DSHolder().getDescSet( is2d, false );
     if ( !dset ) { pErrMsg("No attr set"); return; }
 
-    uiAttrVolOut dlg( parent(), *dset, getNLAModel(is2d), nlaid );
+    uiAttrVolOut dlg( parent(), *dset, multiattrib, getNLAModel(is2d), nlaid );
     dlg.go();
 }
 

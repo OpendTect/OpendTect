@@ -54,7 +54,8 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
-			    const NLAModel* n, MultiID id )
+			    bool multioutput,
+			    const NLAModel* n, const MultiID& id )
 	: uiFullBatchDialog(p,Setup("Process"))
 	, ctio_(mkCtxtIOObj(ad))
     	, subselpar_(*new IOPar)
@@ -62,20 +63,32 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	, ads_(const_cast<DescSet&>(ad))
 	, nlamodel_(n)
 	, nlaid_(id)
+	, todofld_(0)
+	, attrselfld_(0)
 {
     setHelpID( "101.2.0" );
 
-    bool is2d = ad.is2D();
-    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
+    const bool is2d = ad.is2D();
+    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute" );
 
     uiAttrSelData attrdata( ad, false );
     attrdata.nlamodel_ = nlamodel_;
-    todofld_ = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
-    todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
+
+    if ( !multioutput )
+    {
+	todofld_ = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
+	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
+    }
+    else
+	attrselfld_ = new uiMultiAttribSel( uppgrp_, attrdata.attrSet() );
 
     transffld_ = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
 	    	.fornewentry(!is2d).withstep(false).multiline(true) );
-    transffld_->attach( alignedBelow, todofld_ );
+    if ( todofld_ )
+	transffld_->attach( alignedBelow, todofld_ );
+    else
+	transffld_->attach( centeredBelow, attrselfld_ );
+
     if ( transffld_->selFld2D() )
 	transffld_->selFld2D()->singLineSel.notify(
 				mCB(this,uiAttrVolOut,singLineSel) );
@@ -190,70 +203,76 @@ bool uiAttrVolOut::prepareProcessing()
     if ( !objfld_->commitInput() || !ctio_.ioobj )
     {
 	if ( objfld_->isEmpty() )
-	    uiMSG().error( "Please enter an output Seismic data set name" );
-	return false;
-    }
-    else if ( !todofld_->checkOutput(*ctio_.ioobj) )
-	return false;
-
-    if ( todofld_->is2D() )
-    {
-	const char* outputnm = objfld_->getInput();
-	BufferString attrnm = LineKey( outputnm ).attrName();
-	if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
-	{
-	    const bool res = uiMSG().askGoOn(
-		"No attribute name given. Do you want to continue? "
-		"Click on 'Yes' if you want 'Seis' as attribute name. "
-		"Click on 'No' to provide another name." );
-	    if ( !res ) return false; 
-	}
-
-	if ( attrnm.isEmpty() )
-	    attrnm = LineKey::sKeyDefAttrib();
-
-	SeisIOObjInfo info( ctio_.ioobj );
-	BufferStringSet lnms;
-	info.getLineNamesWithAttrib( attrnm.buf(), lnms );
-	const bool singline = transffld_->selFld2D()->isSingLine();
-	const char* lnm = singline ? transffld_->selFld2D()->selectedLine() : 0;
-	if ( (!singline && lnms.size()) || (singline && lnms.isPresent(lnm)) )
-	{
-	    const bool rv = uiMSG().askGoOn( "Output attribute already exists.",
-		    			     "Overwrite", "Cancel" );
-	    if ( !rv ) return false; 
-	}
-    }
-
-    sel_.ioobjkey_ = ctio_.ioobj->key();
-    sel_.attrid_ = todofld_->attribID();
-    sel_.outputnr_ = todofld_->outputNr();
-    if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
-    {
-	uiMSG().error( "Please select the output quantity" );
+	    uiMSG().error( "Please enter output Seismic data name" );
 	return false;
     }
 
-    if ( todofld_->is3D() )
+    if ( todofld_ )
     {
-	ctio_.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	IOM().commitChanges( *ctio_.ioobj );
-    }
+	if ( !todofld_->checkOutput(*ctio_.ioobj) )
+	    return false;
 
-    Desc* seldesc = ads_.getDesc( todofld_->attribID() );
-    if ( seldesc )
-    {
-	uiMultOutSel multoutdlg( this, *seldesc );
-	if ( multoutdlg.doDisp() )
+	if ( todofld_->is2D() )
 	{
-	    if ( multoutdlg.go() )
+	    const char* outputnm = objfld_->getInput();
+	    BufferString attrnm = LineKey( outputnm ).attrName();
+	    if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
 	    {
-		seloutputs_.erase();
-		multoutdlg.getSelectedOutputs( seloutputs_ );
-		multoutdlg.getSelectedOutNames( seloutnms_ );
+		const bool res = uiMSG().askGoOn(
+		    "No attribute name given. Do you want to continue? "
+		    "Click on 'Yes' if you want 'Seis' as attribute name. "
+		    "Click on 'No' to provide another name." );
+		if ( !res ) return false; 
 	    }
-	    else
-		return false;
+
+	    if ( attrnm.isEmpty() )
+		attrnm = LineKey::sKeyDefAttrib();
+
+	    SeisIOObjInfo info( ctio_.ioobj );
+	    BufferStringSet lnms;
+	    info.getLineNamesWithAttrib( attrnm.buf(), lnms );
+	    const bool singline = transffld_->selFld2D()->isSingLine();
+	    const char* lnm =
+		singline ? transffld_->selFld2D()->selectedLine() : 0;
+	    if ( (!singline && lnms.size()) ||
+		 (singline && lnms.isPresent(lnm)) )
+	    {
+		const bool rv = uiMSG().askGoOn(
+		    "Output attribute already exists.", "Overwrite", "Cancel" );
+		if ( !rv ) return false; 
+	    }
+	}
+
+	sel_.ioobjkey_ = ctio_.ioobj->key();
+	sel_.attrid_ = todofld_->attribID();
+	sel_.outputnr_ = todofld_->outputNr();
+	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
+	{
+	    uiMSG().error( "Please select the output quantity" );
+	    return false;
+	}
+
+	if ( todofld_->is3D() )
+	{
+	    ctio_.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	    IOM().commitChanges( *ctio_.ioobj );
+	}
+
+	Desc* seldesc = ads_.getDesc( todofld_->attribID() );
+	if ( seldesc )
+	{
+	    uiMultOutSel multoutdlg( this, *seldesc );
+	    if ( multoutdlg.doDisp() )
+	    {
+		if ( multoutdlg.go() )
+		{
+		    seloutputs_.erase();
+		    multoutdlg.getSelectedOutputs( seloutputs_ );
+		    multoutdlg.getSelectedOutNames( seloutnms_ );
+		}
+		else
+		    return false;
+	    }
 	}
     }
 
@@ -268,31 +287,46 @@ bool uiAttrVolOut::prepareProcessing()
 
 bool uiAttrVolOut::fillPar( IOPar& iop )
 {
-    DescID nlamodel_id(-1, false);
-    if ( nlamodel_ && todofld_->outputNr() >= 0 )
+    DescSet* clonedset = 0;
+    TypeSet<DescID> outdescids;
+    int nrseloutputs = 1;
+
+    if ( todofld_ )
     {
-	if ( !nlaid_ || !(*nlaid_) )
-	{ 
-	    uiMSG().message( "NN needs to be stored before creating volume" ); 
-	    return false; 
+	DescID nlamodel_id(-1, false);
+	if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
+	{
+	    if ( !nlaid_ || !(*nlaid_) )
+	    { 
+		uiMSG().message("NN needs to be stored before creating volume");
+		return false; 
+	    }
+	    addNLA( nlamodel_id );
 	}
-	addNLA( nlamodel_id );
+
+	const DescID targetid = nlamodel_id.isValid() ? nlamodel_id
+						      : todofld_->attribID();
+	clonedset = ads_.optimizeClone( targetid );
+
+	nrseloutputs = seloutputs_.size() ? seloutputs_.size() : 1;
+	if ( clonedset && seloutputs_.size() )
+	    clonedset->createAndAddMultOutDescs( targetid, seloutputs_,
+						 seloutnms_, outdescids );
+	else
+	    outdescids += targetid;
     }
-    const DescID targetid = nlamodel_id.isValid() ? nlamodel_id
-						 : todofld_->attribID();
-    IOPar attrpar( "Attribute Descriptions" );
-    DescSet* clonedset = ads_.optimizeClone( targetid );
+    else
+    {
+	attrselfld_->getSelIds( outdescids );
+	clonedset = ads_.optimizeClone( outdescids );
+	nrseloutputs = outdescids.size();
+    }
+
     if ( !clonedset )
 	return false;
 
-    const int nrseloutputs = seloutputs_.size() ? seloutputs_.size() : 1;
-    TypeSet<DescID> outdescids;
-    if ( seloutputs_.size() )
-	clonedset->createAndAddMultOutDescs( targetid, seloutputs_, seloutnms_,
-					     outdescids );
-
+    IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
-
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
@@ -306,25 +340,21 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey() );
 
     iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), nrseloutputs );
+    if ( nrseloutputs != outdescids.size() ) return false;
 
-    if ( seloutputs_.size() )
-    {
-	if ( nrseloutputs != outdescids.size() ) return false;
-	for ( int idx=0; idx<nrseloutputs; idx++ )
-	    iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
-    }
-    else
-	iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
+    for ( int idx=0; idx<nrseloutputs; idx++ )
+	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
 
+    const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
     BufferString outseisid;
     outseisid += ctio_.ioobj->key();
-    if ( todofld_->is2D() )
+    if ( is2d )
     {
 	outseisid += "|";
 	outseisid += objfld_->attrNm();
     }
 
-    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid );
+    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid);
 
     transffld_->scfmtfld->updateIOObj( ctio_.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
@@ -344,20 +374,20 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( strcmp( typestr.buf(), "" ) )
 	tmpiop.set( sKey::Type(), typestr );
     
-    bool usecs = strcmp( typestr.buf(), "None" );
+    const bool usecs = strcmp( typestr.buf(), "None" );
     if ( usecs )
     {
 	cs.usePar( subselpar_ );
 	if ( !cs.hrg.isEmpty() )
 	    cs.fillPar( tmpiop );
-	else
+	else if ( todofld_ )
 	{
 	    CubeSampling curcs; todofld_->getRanges( curcs );
 	    curcs.fillPar( tmpiop );
 	}
     }
 
-    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
+    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel());
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar_ );
@@ -371,15 +401,15 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	delete sc;
     }
 
-    BufferString attrnm = todofld_->getAttrName();
-    if ( todofld_->is2D() )
+    BufferString attrnm = todofld_ ? todofld_->getAttrName() : "Multi-attribs";
+    if ( is2d )
     {
 	const char* outputnm = objfld_->getInput();
 	attrnm = LineKey( outputnm ).attrName();
     }
     iop.set( sKey::Target(), attrnm.buf() );
     BufferString linename;
-    if ( todofld_->is2D() )
+    if ( is2d )
     {
 	MultiID ky;
 	DescSet descset(true);
@@ -419,7 +449,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     if ( usecs )
     {
-	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
+	EngineMan::getPossibleVolume( *clonedset, cs, linename, outdescids[0] );
 	iop.set( sKeyMaxInlRg(),
 		 cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
 	iop.set( sKeyMaxCrlRg(),
@@ -446,4 +476,3 @@ void uiAttrVolOut::addNLA( DescID& id )
     if ( errmsg.size() )
         uiMSG().error( errmsg );
 }
-

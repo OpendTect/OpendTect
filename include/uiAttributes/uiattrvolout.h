@@ -17,13 +17,16 @@ ________________________________________________________________________
 #include "multiid.h"
 
 namespace Attrib { class CurrentSel; class DescID; class DescSet; };
+
+class CtxtIOObj;
 class IOObj;
 class IOPar;
 class NLAModel;
-class CtxtIOObj;
-class uiSeisSel;
+
 class uiAttrSel;
 class uiIOObjSel;
+class uiMultiAttribSel;
+class uiSeisSel;
 class uiSeisTransfer;
 
 
@@ -33,7 +36,8 @@ mExpClass(uiAttributes) uiAttrVolOut : public uiFullBatchDialog
 {
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
-				     const NLAModel* n=0,MultiID i=0);
+				     bool multioutput,
+				     const NLAModel*,const MultiID& nlaid);
 			~uiAttrVolOut();
 
     const IOPar&	subSelPar() const		{ return subselpar_; }
@@ -52,6 +56,7 @@ protected:
     const NLAModel*	nlamodel_;
 
     uiAttrSel*		todofld_;
+    uiMultiAttribSel*	attrselfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		objfld_;
 
