@@ -56,8 +56,11 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     setPrefWidth( 500 );
 }
 
+
 uiViewer2DMainWin::~uiViewer2DMainWin()
-{ deepErase( mutes_ ); }
+{
+    deepErase( mutes_ );
+}
 
 
 void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
@@ -221,6 +224,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     uiFlatViewer* fv = gd->getUiFlatViewer();
     gd->displayAnnotation( false );
     fv->appearance().annot_.x1_.showannot_ = false;
+
     vwrs_ += fv;
     addGroup( gd, gdi );
 
@@ -234,6 +238,15 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
 	control_ = ctrl;
+	if ( !isStored() )
+	{
+	    ColTab::MapperSetup& vdmapper =
+		control_->dispPars().vd_.mappersetup_;
+	    vdmapper.cliprate_ = Interval<float>(0.0,0.0);
+	    vdmapper.autosym0_ = true;
+	    vdmapper.symmidval_ = 0.0;
+	}
+
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
 	{
@@ -247,6 +260,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	}
     }
 
+    fv->appearance().ddpars_ = control_->dispPars();
     control_->addViewer( *fv );
 }
 
@@ -570,11 +584,6 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
     DataPack* vddp = DPM(DataPackMgr::FlatID()).obtain( ginfo.vddpid_ );
     DataPack* wvadp = DPM(DataPackMgr::FlatID()).obtain( ginfo.wvadpid_ );
-    ColTab::MapperSetup& vdmapper =
-	gd->getUiFlatViewer()->appearance().ddpars_.vd_.mappersetup_;
-    vdmapper.cliprate_ = Interval<float>(0.0,0.0);
-    vdmapper.autosym0_ = true;
-    vdmapper.symmidval_ = 0.0;
 
     mDynamicCastGet(PreStack::Gather*,vdgather,vddp);
     mDynamicCastGet(PreStack::Gather*,wvagather,wvadp);
@@ -657,14 +666,16 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    FlatView::Appearance& app0 = propdlg_->viewer().appearance();
+    disppars_ = propdlg_->viewer().appearance().ddpars_;
     const int selannot = propdlg_->selectedAnnot();
 
+    const FlatDataPack* vddatapack = vwrs_[0]->pack( false );
+    const FlatDataPack* wvadatapack = vwrs_[0]->pack( true );
     for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
     {
 	if ( !vwrs_[ivwr] ) continue;
 	uiFlatViewer& vwr = *vwrs_[ivwr];
-	vwr.appearance() = app0;
+	vwr.appearance().ddpars_ = disppars_;
 
 	const uiWorldRect cv( vwr.curView() );
 	FlatView::Annotation& annot = vwr.appearance().annot_;
@@ -676,10 +687,13 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
 	{
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
-	    if ( app0.ddpars_.wva_.show_ )
-		vwr.usePack( true, id, false );
-	    if ( app0.ddpars_.vd_.show_ )
+	    FixedString datanm( DPM(DataPackMgr::FlatID()).nameOf(id) );
+	    if ( vddatapack && datanm == vddatapack->name() &&
+		 disppars_.vd_.show_ )
 		vwr.usePack( false, id, false );
+	    if ( wvadatapack && datanm == wvadatapack->name() &&
+		 disppars_.wva_.show_ )
+		vwr.usePack( true, id, false );
 	}
 
 	vwr.setAnnotChoice( selannot );
@@ -717,6 +731,10 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx, bool dowva )
 	    break;
     }
     return uiFlatViewControl::doPropertiesDialog( ivwr, dowva );
+}
+
+uiViewer2DControl::~uiViewer2DControl()
+{
 }
 
 }; //namepsace

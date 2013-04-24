@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "cubesampling.h"
+#include "flatview.h"
 
 
 class uiSlicePos2DView;
@@ -136,15 +137,19 @@ mClass(uiPreStackProcessing) uiViewer2DControl : public uiFlatViewStdControl
 {
 public:
 			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);
+			~uiViewer2DControl();
 
     Notifier<uiViewer2DControl> posdlgcalled_;
     Notifier<uiViewer2DControl> datadlgcalled_;
 
-    void 		removeAllViewers();
+    void 			removeAllViewers();
+    const FlatView::DataDispPars& dispPars() const	{ return disppars_; }
+    FlatView::DataDispPars&	dispPars()		{ return disppars_; }
 
 protected:
 
-    uiObjectItemViewControl* objectitemctrl_;
+    uiObjectItemViewControl*	objectitemctrl_;
+    FlatView::DataDispPars	disppars_;
 
     void		doPropertiesDialog(int vieweridx,bool dowva);
 
