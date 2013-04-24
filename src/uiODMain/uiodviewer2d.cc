@@ -59,11 +59,12 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , mousecursorexchange_(0)
     , marker_(0)
 {
-    basetxt_ = "2D Viewer - ";
+    basetxt_ = "2D Viewer";
     BufferString info;
     appl.applMgr().visServer()->getObjectInfo( visid, info );
     if ( info.isEmpty() )
 	info = appl.applMgr().visServer()->getObjectName( visid );
+    if ( !info.isEmpty() ) basetxt_ += " - ";
     basetxt_ += info;
 
     linesetid_.setEmpty();
@@ -93,7 +94,8 @@ uiODViewer2D::~uiODViewer2D()
 
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    DataPack* dp = dpm.obtain( packid, true );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
@@ -116,15 +118,30 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
-	viewwin()->viewer(ivwr).usePack( wva, DataPack::cNoID(), false, false );
-	DPM(DataPackMgr::FlatID()).release( curpackid );
+	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	vwr.usePack( wva, DataPack::cNoID(), false );
 
-	FlatView::DataDispPars& ddp = 
-	    		viewwin()->viewer(ivwr).appearance().ddpars_;
+    	TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	const FixedString newpackname = dpm.nameOf(packid);
+	bool setforotherdisp = false;
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    const FixedString packname = dpm.nameOf(ids[idx]);
+	    if ( packname == newpackname )
+	    { 
+		if ( ids[idx] == vwr.packID( !wva ) )
+		    setforotherdisp = true;
+		vwr.removePack( ids[idx] );
+		dpm.release( ids[idx] );
+		break;
+	    }
+	}
+
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = show;
-	DPM(DataPackMgr::FlatID()).obtain( packid, false );
-	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
+	dpm.obtain( packid, false );
+	vwr.setPack( wva, packid, false, isnew );
+	if ( setforotherdisp ) vwr.setPack( !wva, packid, false, isnew );
     }
 
     if ( dp3d )

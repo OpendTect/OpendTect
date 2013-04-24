@@ -66,6 +66,18 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( dtpackid < 0 ) return;
 
     uiODViewer2D* curvwr = find2DViewer( visid );
+    if ( curvwr )
+    {
+	BufferString titletext = "2D Viewer";
+	BufferString info;
+	applMgr().visServer()->getObjectInfo( visid, info );
+	if ( info.isEmpty() )
+	    info = applMgr().visServer()->getObjectName( visid );
+	if ( !info.isEmpty() ) titletext += " - ";
+	titletext += info;
+	curvwr->viewwin()->setWinTitle( titletext );
+    }
+
     bool newvwr = false;
     if ( !curvwr )
     {

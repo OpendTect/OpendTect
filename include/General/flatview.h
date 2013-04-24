@@ -320,7 +320,7 @@ public:
     void		addPack(::DataPack::ID,bool observe=false);
     			//!< Adds to list, but doesn't use for WVA or VD
     void		usePack(bool wva,::DataPack::ID,bool usedefs=true,
-	    					bool updatebitmaps=true);
+	    					bool forcehandlechg=false);
     			//!< Does not add new packs, just selects from added
     void		removePack(::DataPack::ID);
     void		setPack( bool wva, ::DataPack::ID id, bool obs,
