@@ -15,7 +15,7 @@ SET( OpendTect_VERSION_DETAIL 0 )
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
 #Dummy statement to avoid warning if OSG_DIR is set
-SET ( DUMMY_VAR ${OSG_DIR} ${CTEST_MODEL} )
+SET ( DUMMY_VAR ${OSG_DIR} ${CTEST_MODEL} ${OD_TESTDATA_DIR} )
 
 INCLUDE(CTest)
 
