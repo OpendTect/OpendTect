@@ -418,7 +418,7 @@ void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
 
 
 float ElasticPropGen::getVal( const ElasticFormula& ef,
-			      const float* vals, int sz) const
+			      const float* vals, int sz ) const
 {
     const BufferStringSet& selvars = ef.variables();
     if ( selvars.isEmpty() )
@@ -442,7 +442,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 	    const int pridx = refprops_.indexOf(var);
 	    val = vals[pridx];
 	}
-	else if ( elasticprops_.isPresent( var ) && var!=ef.name() )
+	else if ( elasticprops_.isPresent(var) && ef.name() != var )
 	{
 	    const int propidx = elasticprops_.indexOf(var);
 	    val = getVal( elasticprops_.get( propidx ), vals, sz );
