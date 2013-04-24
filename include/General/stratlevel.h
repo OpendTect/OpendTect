@@ -195,6 +195,7 @@ inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 // default levels are restored
 mGlobal(General) void pushLevelSet(LevelSet*);
 mGlobal(General) void popLevelSet();
+mGlobal(General) const LevelSet& unpushedLVLS();
 
 mGlobal(General) void setLVLS(LevelSet*);
 
