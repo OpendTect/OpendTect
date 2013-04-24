@@ -40,7 +40,7 @@ const char* uiStratLayModEditTools::sKeyZoomToggle()
 { return "Allow zoom"; }
 
 const char* uiStratLayModEditTools::sKeyDispLith()
-{ return "Dislay lithology"; }
+{ return "Display lithology"; }
 
 
 const char* uiStratLayModEditTools::sKeyShowFlattened()
