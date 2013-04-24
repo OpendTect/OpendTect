@@ -209,6 +209,7 @@ void VW2DPickSet::drawAll()
 {
     const FlatDataPack* fdp = viewer_.pack( true );
     if ( !fdp )	fdp = viewer_.pack( false );
+    if ( !fdp ) return;
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
     const bool oninl = dp3d->dataDir() == CubeSampling::Inl;
