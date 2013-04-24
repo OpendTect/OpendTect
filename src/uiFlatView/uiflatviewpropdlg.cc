@@ -289,7 +289,12 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
 	return;
 
     if ( dispfld_->currentItem() == 0 )
-	{ vwr_.usePack( wva, DataPack::cNoID(), false ); return; }
+    {
+	wva ? vwr_.appearance().ddpars_.wva_.show_
+	    : vwr_.appearance().ddpars_.vd_.show_ = false;
+	vwr_.usePack( wva, DataPack::cNoID(), false, true );
+	return;
+    }
 
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
