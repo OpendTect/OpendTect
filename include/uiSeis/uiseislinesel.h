@@ -39,8 +39,8 @@ public:
 
     			uiSeis2DLineSel(uiParent*,const char* lsnm=0);
 
-    const char*		lineName() const	{ return lnm_; }
-    const char*		lineSetName() const	{ return lsnm_; }
+    const char*		lineName() const	{ return lnm_.str(); }
+    const char*		lineSetName() const	{ return lsnm_.str(); }
     MultiID		lineSetID() const;
     void		set(const char* lsnm,const char* lnm=0);
 
