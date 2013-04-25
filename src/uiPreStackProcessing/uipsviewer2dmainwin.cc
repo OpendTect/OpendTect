@@ -171,7 +171,7 @@ void uiViewer2DMainWin::clearAuxData()
 	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
 	if ( !gd ) continue;
 	uiFlatViewer* vwr = gd->getUiFlatViewer();
-	vwr->removeAllAuxData( true );
+	vwr->removeAllAuxData();
     }
 }
 
