@@ -81,7 +81,7 @@ macro ( create_package PACKAGE_NAME )
 		RESULT_VARIABLE STATUS )
 	    file( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links )
 	    if( NOT ${STATUS} EQUAL "0" )
-		message( FATAL_ERROR "Failed to create license related links" )
+		message( "Failed to create license related links" )
 	    endif()
 	endif()	
     endif()
@@ -130,13 +130,11 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
-    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-#TODO install all external libs to extlibs directory.
-# Then copy all QT,OSG and COIN libs from extlibs installation directory
-    file( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/extlibs/* )
-    foreach( LIB ${LIBS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${LIB} ${COPYTODIR} )
+    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+    foreach( LIB ${OD_THIRD_PARTY_LIBS} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${LIB} ${COPYTODIR} )
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory

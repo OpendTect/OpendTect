@@ -109,5 +109,7 @@ if( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
 endif()
 
+OD_ADD_PACKAGES_TARGET()
+
 #Avoid warnings if specified on command line
 set ( DUMMY ${ISTAG} ${BRANCH} )
