@@ -281,6 +281,9 @@ macro( init_destinationdir  PACKAGE_NAME )
 	    file( WRITE ${CMAKE_INSTALL_PREFIX}/create_macos_link
 			"#!/bin/csh -f\nln -s ../bin/${OD_PLFSUBDIR}/Release MacOS\n" )
 	endif()
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/Contents
+			 ${DESTINATION_DIR}/Contents )
      endif()
 
     message( "Preparing package ${VER_FILENAME}.zip ......" )

@@ -79,6 +79,9 @@ if( APPLE )
     install( DIRECTORY data/install_files/macscripts/Contents
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
+    OD_CURRENT_YEAR( YEAR )
+    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
+		    ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist @ONLY)
 endif( APPLE )
 
 set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
