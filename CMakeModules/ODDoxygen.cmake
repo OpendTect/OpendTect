@@ -10,7 +10,7 @@ OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentat
 # OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
-    set( OD_DOXYGEN_FILE ${OD_DOXYGEN_PATH}/Doxyfile )
+    set( OD_DOXYGEN_FILE ${CMAKE_BUILD_DIR}/CMakeModules/Doxyfile )
     set( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
     OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/include/Basic/main.dox )
 
@@ -39,7 +39,8 @@ macro( OD_BUILD_DOCUMENTATION )
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${FOOTER}
-		 ${OD_DOXYGEN_PATH}/footer.html @ONLY IMMEDIATE)
+		${CMAKE_BUILD_DIR}/CMakeFiles/doxygenfooter.html @ONLY
+		IMMEDIATE)
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
