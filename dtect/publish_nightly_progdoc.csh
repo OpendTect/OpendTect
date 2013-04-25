@@ -11,14 +11,15 @@ endif
 
 set progname=${0}
 
-set dtectdir = `dirname ${progname}`
+set prevdir = `pwd`
+set dtectdir = ${prevdir}/`dirname ${progname}`
 set sendappl = ${dtectdir}/copyto_s3bucket.csh
+set nrcpus = `${dtectdir}/GetNrProc`
 if ( ! -e ${sendappl} ) then
     echo "${sendappl} does not exist"
     exit 1
 endif
 
-set prevdir = `pwd`
 
 set docdir=${1}
 
@@ -40,25 +41,24 @@ endif
 
 mkdir ${compdir}
 
-find . -name "*.md5" | xargs rm -f
-find . -name "*.map" | xargs rm -f
-find . -name "*.tmp" | xargs rm -f
-find . -name "*.tag" | xargs rm -f
+find . -name "*.md5" | xargs -P ${nrcpus} rm -f
+find . -name "*.map" | xargs -P ${nrcpus} rm -f
+find . -name "*.tmp" | xargs -P ${nrcpus} rm -f
+find . -name "*.tag" | xargs -P ${nrcpus} rm -f
+find . -name "*.dot" | xargs -P ${nrcpus} rm -f
+
+set files = `find . ! -path "*.svn*"`
 
 echo "Compressing Documentation"
-foreach file ( `find .` )
+foreach file ( ${files} )
     if ( "${file}" == "." ) then
 	continue
     endif
 
-    if ( "${file}" == ".svn" ) then
-	continue
-    endif
-
-    if ( -d $file ) then
-	mkdir ${compdir}${file}
+    if ( -d ${file} ) then
+	mkdir ${compdir}/${file}
     else
-	gzip -c ${file} > ${compdir}${file}
+	gzip -c ${file} > ${compdir}/${file}
     endif
 end
 
@@ -66,7 +66,7 @@ find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.
 
 cd ${prevdir}
 
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
+${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
 exit 0
 
 syntax:
