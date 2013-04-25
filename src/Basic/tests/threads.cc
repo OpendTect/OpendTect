@@ -86,6 +86,7 @@ bool testAtomic( const char* valtype, bool quiet )
 	mPrintResult( "weakSetIfEqual" )
 
 
+#ifndef __win__
     //Let's do some stress-test
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
@@ -136,6 +137,8 @@ bool testAtomic( const char* valtype, bool quiet )
 	mPrintResult( message.buf() );
     
     stopflag = true;
+
+#endif
     
     if ( !quiet )
 	std::cout << "\n";
