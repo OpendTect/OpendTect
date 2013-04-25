@@ -44,13 +44,9 @@ macro( OD_BUILD_DOCUMENTATION )
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
-    add_custom_target ( doxygen
+    add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    add_custom_target ( doc 
-			COMMAND ${CMAKE_SOURCE_DIR}/dtect/make_classdoc_sitemap.csh ${OD_DOXYGEN_PATH}/html
-			DEPENDS doxygen
-			SOURCES ${OD_DOXYGEN_FILE} ${CMAKE_SOURCE_DIR}/dtect/make_classdoc_sitemap.csh )
     install ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
 endmacro()
 
