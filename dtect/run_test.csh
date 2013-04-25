@@ -82,7 +82,7 @@ endif
 
 
 if ( "$datadir" != "" ) then
-    set args = "${args} --datadir=${datadir}"
+    set args = "${args} --datadir ${datadir}"
 endif
 
 "${wdir}/bin/${plf}/${config}/${cmd}" ${args}
