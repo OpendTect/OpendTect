@@ -357,48 +357,69 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==statisticsitem_.id )
+    else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id
+	      || mnuid==fkspectrumitem_.id )
     {
-	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
-							  attribNr() );
-	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiStatsDisplay::Setup su; su.countinplot( false );
-	uiStatsDisplayWin* dwin =
-	    new uiStatsDisplayWin( applMgr()->applService().parent(), su,
-		    		   1, false );
-	dwin->statsDisplay()->setDataPackID( dpid, dmid );
-	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin->setDeleteOnClose( true );
-	dwin->show();
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
-    {
-	const DataPack::ID dpid =
-	    visserv->getDataPackID( displayID(), attribNr() );
-	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	const bool isselmodeon = visserv->isSelectionModeOn();
-	if ( !isselmodeon )
+	int visid = displayID();
+	int attribid = attribNr();
+	DataPack::ID dpid = visserv->getDataPackID( visid, attribid );
+	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( visid );
+
+	const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribid );
+	FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf( dpid );
+	if ( as && dpname != as->userRef() )
 	{
-	    if ( mnuid==amplspectrumitem_.id )
+	    const int nrpacks = DPM(DataPackMgr::FlatID()).packs().size();
+	    for ( int idx=0; idx<nrpacks; idx++ )
 	    {
-		uiAmplSpectrum* asd = new uiAmplSpectrum(
-					applMgr()->applService().parent() );
-		asd->setDeleteOnClose( true );
-		asd->setDataPackID( dpid, dmid );
-		asd->show();
-	    }
-	    else
-	    {
-		uiFKSpectrum* fks = new uiFKSpectrum(
-					applMgr()->applService().parent() );
-		fks->setDeleteOnClose( true );
-		fks->setDataPackID( dpid, dmid );
-		fks->show();
+		const int tmpdtpackid =
+				DPM(DataPackMgr::FlatID()).packs()[idx]->id();
+		FixedString tmpnm =
+		    		DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
+		if ( tmpnm == as->userRef() )
+		{
+		    dpid = tmpdtpackid;
+		    break;
+		}
 	    }
 	}
+	if ( mnuid==statisticsitem_.id )
+	{
+	    uiStatsDisplay::Setup su; su.countinplot( false );
+	    uiStatsDisplayWin* dwin =
+		new uiStatsDisplayWin( applMgr()->applService().parent(), su,
+				       1, false );
+	    dwin->statsDisplay()->setDataPackID( dpid, dmid );
+	    dwin->setDataName( DPM(dmid).nameOf(dpid)  );
+	    dwin->setDeleteOnClose( true );
+	    dwin->show();
+	    menu->setIsHandled( true );
+	}
+	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
+	{
+	    const bool isselmodeon = visserv->isSelectionModeOn();
+	    if ( !isselmodeon )
+	    {
+		if ( mnuid==amplspectrumitem_.id )
+		{
+		    uiAmplSpectrum* asd = new uiAmplSpectrum(
+					    applMgr()->applService().parent() );
+		    asd->setDeleteOnClose( true );
+		    asd->setDataPackID( dpid, dmid );
+		    asd->show();
+		}
+		else
+		{
+		    uiFKSpectrum* fks = new uiFKSpectrum(
+					    applMgr()->applService().parent() );
+		    fks->setDeleteOnClose( true );
+		    fks->setDataPackID( dpid, dmid );
+		    fks->show();
+		}
+	    }
 
-	menu->setIsHandled( true );
+	    menu->setIsHandled( true );
+	}
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
     {
