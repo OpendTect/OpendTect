@@ -618,7 +618,7 @@ void uiStratSynthDisp::displayPostStackDirSynthetic( const SyntheticData* sd )
     const bool hadpack = vwr_->pack( true ); 
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(true) ); 
-    vwr_->removeAllAuxData( true );
+    vwr_->removeAllAuxData();
     d2tmodels_ = 0;
     if ( !sd ) return;
 

@@ -371,9 +371,8 @@ public:
     virtual void		addAuxData(AuxData* a)			= 0;
     virtual AuxData*		removeAuxData(AuxData* a)		= 0;
     virtual AuxData*		removeAuxData(int idx)			= 0;
-    void			removeAuxDatas(ObjectSet<AuxData>&,
-						 bool deleteaux=false);
-    void			removeAllAuxData(bool deleteaux=false);
+    void			removeAuxDatas(ObjectSet<AuxData>&);
+    void			removeAllAuxData();
 
 protected:
 

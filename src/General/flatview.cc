@@ -485,23 +485,22 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 }
 
 
-void FlatView::Viewer::removeAllAuxData( bool del )
+void FlatView::Viewer::removeAllAuxData()
 {
     while ( nrAuxData() )
-    {
-	AuxData* ad = removeAuxData( 0 );
-	if ( del ) delete ad;
-    }
+	delete removeAuxData( 0 );
 }
 
 
-void FlatView::Viewer::removeAuxDatas( ObjectSet<AuxData>& ads, bool del )
+void FlatView::Viewer::removeAuxDatas( ObjectSet<AuxData>& ads )
 {
+    const bool ismanaged = ads.isManaged();
     for ( int idx=ads.size()-1; idx>=0; idx -- )
     {
 	AuxData* ad = removeAuxData( ads[idx] );
-	if ( del ) delete ad;
+	if ( !ismanaged ) delete ad;
     }
+    ads.erase();
 }
 
 
