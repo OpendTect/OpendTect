@@ -1,0 +1,5 @@
+OpendTect V4.6.x : Release info
+
+In general, all fixes in the stable 4.4 are also applied in the 4.6 releases.
+
+----
