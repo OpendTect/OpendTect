@@ -19,9 +19,9 @@ foreach( FIL ${DEVELSTUFF} )
 	get_filename_component( FNAME ${FIL} NAME )
 	file( READ ${CMAKE_INSTALL_PREFIX}/${FPATH}/${FNAME} temp )
 	file( WRITE ${CMAKE_INSTALL_PREFIX}/${FPATH}/tempfile
-	      "${lic_temp}\n" )
+	      "${lic_temp}${OD_LINESEP}" )
 	file( APPEND ${CMAKE_INSTALL_PREFIX}/${FPATH}/tempfile
-	      "${temp}\n" )
+	      "${temp}${OD_LINESEP}" )
 	file( RENAME
 		${CMAKE_INSTALL_PREFIX}/${FPATH}/tempfile 
 		${CMAKE_INSTALL_PREFIX}/${FPATH}/${FNAME} )

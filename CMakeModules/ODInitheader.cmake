@@ -36,7 +36,7 @@ macro( OD_CREATE_INIT_HEADER )
 
 	foreach ( DEP ${OD_MODULE_DEPS} )
 	    string ( TOLOWER ${DEP} DEPLOWER )
-	    set ( MODFILEHEADER "${MODFILEHEADER}\n#include \"${DEPLOWER}mod.h\"" )
+	    set ( MODFILEHEADER "${MODFILEHEADER}${OD_LINESEP}#include \"${DEPLOWER}mod.h\"" )
 	endforeach()
 
 	configure_file( ${OpendTect_DIR}/CMakeModules/templates/initheader.h.in 

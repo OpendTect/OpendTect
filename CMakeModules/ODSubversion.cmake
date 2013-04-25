@@ -39,12 +39,12 @@ if ( OD_FROM_SVN OR OD_CREATE_INC_FILE )
 
     # write a file with the SVNVERSION define
     file( WRITE ${TMPFILE} 
-	 "// Generated automatically by CMakeModules/ODSubversion.cmake\n"
-	 "//\n"
-	 "#ifndef mSVN_VERSION\n"
-	 "#define mSVN_VERSION ${MY_WC_REVISION}\n"
-	 "#define mSVN_URL \"${MY_WC_URL}\"\n"
-	 "#endif\n")
+	 "// Generated automatically by CMakeModules/ODSubversion.cmake${OD_LINESEP}"
+	 "//${OD_LINESEP}"
+	 "#ifndef mSVN_VERSION${OD_LINESEP}"
+	 "#define mSVN_VERSION ${MY_WC_REVISION}${OD_LINESEP}"
+	 "#define mSVN_URL \"${MY_WC_URL}\"${OD_LINESEP}"
+	 "#endif${OD_LINESEP}")
 
     # copy the file to the final header only if the version changes
     # reduces needless rebuilds

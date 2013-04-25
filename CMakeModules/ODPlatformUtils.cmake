@@ -84,6 +84,7 @@ if(UNIX) #Apple an Linux
 
     endif()
 
+    set ( OD_LINESEP "\n" )
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
@@ -163,6 +164,7 @@ if(WIN32)
     endif()
 
     set  ( OD_GUI_SYSTEM "WIN32" )
+    set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
 endif()
 
 add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
