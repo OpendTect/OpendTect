@@ -162,7 +162,7 @@ void uiBitMapDisplay::update()
     display_->clearImages( true );
     basetask_->reset();
 
-    if ( !viewer_.pack(true) && !viewer_.pack(false) )
+    if ( !viewer_.isVisible(true) && !viewer_.isVisible(false) )
     {
 	display_->setVisible( false );
 	return;
@@ -170,12 +170,12 @@ void uiBitMapDisplay::update()
 
     StepInterval<double> xrg, yrg;
 
-    if ( viewer_.pack(true) )
+    if ( viewer_.isVisible(true) )
     {
 	xrg = viewer_.pack(true)->posData().range(true);
 	yrg = viewer_.pack(true)->posData().range(false);
 
-	if ( viewer_.pack( false ) )
+	if ( viewer_.isVisible( false ) )
 	{
 	    const StepInterval<double> vdxrg =
 		viewer_.pack(false)->posData().range(true);
