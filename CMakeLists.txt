@@ -10,7 +10,10 @@ cmake_minimum_required (VERSION 2.8.4 )
 set( OpendTect_VERSION_MAJOR 4 )
 set( OpendTect_VERSION_MINOR 6 )
 set( OpendTect_VERSION_DETAIL 0 )
-set( OpendTect_VERSION_PATCH a )
+#Default patch value
+if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
+    set( OpendTect_VERSION_PATCH a ) 
+endif()
 
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
@@ -108,6 +111,8 @@ OD_SETUP_TEST_FILTER()
 if( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
 endif()
+
+OD_ADD_PACKAGES_TARGET()
 
 #Avoid warnings if specified on command line
 set ( DUMMY ${ISTAG} ${BRANCH} )
