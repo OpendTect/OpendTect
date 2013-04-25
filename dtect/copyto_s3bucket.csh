@@ -33,7 +33,7 @@ else if ( "${1}" == "--s3arg" ) then
 	echo "No arguments given to --s3arg"
 	goto syntax
     endif
-    set s3args="${s3args} ${2}"
+    set s3args="${s3args} '${2}'"
     shift
 else if ( "${1}" == "--quiet" ) then
     set verboseflag=""
@@ -84,7 +84,7 @@ endif
 set s3cmd = "s3cmd sync ${s3args} ${verboseflag} ${md5arg} ${src} s3://${bucket}/${dest}/"
 set s3host=dgb31
 
-ssh ${s3host} "${s3cmd}"
+ssh -l dgb ${s3host} "${s3cmd}"
 if ( ${status} > 0 ) then
     echo "The execution of \"${s3cmd}\" on ${s3host} failed"
     exit 1
