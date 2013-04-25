@@ -79,6 +79,7 @@ void BatchProgram::init()
     clparser_->setKeyHasValue( sKeyMasterHost() );
     clparser_->setKeyHasValue( sKeyMasterPort() );
     clparser_->setKeyHasValue( sKeyJobID() );
+    clparser_->setKeyHasValue( sKeyDataDir() );
     
     inbg_ = clparser_->hasKey( sKeyBG() );
 
@@ -156,6 +157,10 @@ void BatchProgram::init()
     
     res = iopar_->find( sKey::DataRoot() ).str();
     if ( !res.isEmpty() && File::exists(res) )
+	SetEnvVar( "DTECT_DATA", res );
+
+    if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() && 
+	 File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
     res = iopar_->find( sKey::Survey() ).str();
