@@ -79,6 +79,7 @@ public:
     static const char*	sKeyMasterPort()	{ return "masterport"; }
     static const char*	sKeyBG()		{ return "bg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
+    static const char*	sKeyDataDir()		{ return "datadir"; }
     
 protected:
 

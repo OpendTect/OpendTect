@@ -304,18 +304,18 @@ mExternC(Basic) int SetEnvVar( const char* env, const char* val )
     if ( !env || !*env ) return mC_False;
     if ( !val ) val = "";
 
-#ifdef __msvc__
-    SetEnvironmentVariable( env, val );
-    return mC_True;
-#else
     buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
     strcpy( buf, env );
     if ( *val ) strcat( buf, "=" );
     strcat( buf, val );
 
+#ifdef __msvc__
+    _putenv( buf );
+#else
     putenv( buf );
-    return mC_True;
 #endif
+
+    return mC_True;
 }
 
 
