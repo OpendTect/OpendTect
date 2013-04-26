@@ -285,7 +285,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
 	return;
 
     if ( dispfld_->currentItem() == 0 )
-	{ vwr_.usePack( wva, DataPack::cNoID(), false ); return; }
+    { vwr_.setVisible( wva, false ); return; }
 
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )

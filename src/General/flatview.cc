@@ -586,6 +586,14 @@ bool FlatView::Viewer::isVisible( bool wva ) const
 }
 
 
+void FlatView::Viewer::setVisible( bool wva, bool visibility )
+{
+    FlatView::DataDispPars& ddp = appearance().ddpars_;
+    ( wva ? ddp.wva_.show_ : ddp.vd_.show_ ) = visibility;
+    handleChange( wva ? WVAData : VDData );
+}
+
+
 void FlatView::Viewer::storeDefaults( const char* ky ) const
 {
     Settings& setts = Settings::fetch( "flatview" );
