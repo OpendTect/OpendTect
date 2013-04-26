@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "synthseis.h"
 #include "timeser.h"
 #include "wavelet.h"
-#include "math2.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
@@ -51,7 +50,7 @@ static const char* sKeyInput()	 		{ return "Input Synthetic"; }
 
 
 DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
-{ "Pre Stack", "Zero Offset Stack", "Angle Stack", 0 };
+{ "Pre Stack", "Zero Offset Stack", "Angle Stack", "AVO Gradient", 0 };
 
 SynthGenParams::SynthGenParams()
 {
@@ -334,79 +333,114 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     param->setValue( newval ); \
 }
 
+
+#define mCreateDesc() \
+mDynamicCastGet(PreStackSyntheticData*,presd,sd); \
+if ( !presd ) return 0; \
+BufferString dpidstr( "#" ); \
+SeparString fullidstr( toString(DataPackMgr::CubeID()), '.' ); \
+const PreStack::GatherSetDataPack& gdp = presd->preStackPack(); \
+fullidstr.add( toString(gdp.id()) ); \
+dpidstr.add( fullidstr.buf() ); \
+Attrib::Desc* psdesc = \
+    Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
+mSetString(Attrib::StorageProvider::keyStr(),dpidstr.buf()); \
+mSetFloat( Attrib::PSAttrib::offStartStr(), \
+	   presd->offsetRange().start ); \
+mSetFloat( Attrib::PSAttrib::offStopStr(), \
+	   presd->offsetRange().stop ); 
+
+
+#define mSetProc() \
+psdesc->setUserRef( synthgenpar.name_ ); \
+psdesc->updateParams(); \
+PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
+if ( !descset ) return 0; \
+Attrib::DescID attribid = descset->addDesc( psdesc ); \
+PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan; \
+TypeSet<Attrib::SelSpec> attribspecs; \
+Attrib::SelSpec sp( 0, attribid ); \
+sp.set( *psdesc ); \
+attribspecs += sp; \
+aem->setAttribSet( descset ); \
+aem->setAttribSpecs( attribspecs ); \
+aem->setCubeSampling( cs ); \
+BinIDValueSet bidvals( 0, false ); \
+const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
+for ( int idx=0; idx<gathers.size(); idx++ ) \
+    bidvals.add( gathers[idx]->getBinID() ); \
+SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true ); \
+Interval<float> zrg( cs.zrg ); \
+PtrMan<Attrib::Processor> proc = \
+    aem->createTrcSelOutput( errmsg_, bidvals, *dptrcbufs, 0, &zrg); \
+if ( !proc || !proc->getProvider() ) \
+    mErrRet( errmsg_, delete sd; return 0 ) ; \
+proc->getProvider()->setDesiredVolume( cs ); \
+proc->getProvider()->setPossibleVolume( cs );
+
+
+#define mCreateSeisBuf() \
+if ( !TaskRunner::execute(tr,*proc) ) \
+    mErrRet( proc->message(), delete sd; return 0 ) ; \
+const int crlstep = SI().crlStep(); \
+const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
+		  SI().crlRange(false).stop + crlstep ); \
+for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
+{ \
+    const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
+    dptrcbufs->get( trcidx )->info().nr =(bid.crl-bid0.crl)/crlstep; \
+} \
+SeisTrcBufDataPack* angledp = \
+    new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
+			    SeisTrcInfo::TrcNr, synthgenpar.name_ ); \
+delete sd;
+
+SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
+					     const CubeSampling& cs,
+       					     const SynthGenParams& synthgenpar,
+					     const Seis::RaySynthGenerator& sg,
+       					     TaskRunner* tr )
+{
+    mCreateDesc()
+    mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
+    mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
+    mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::AngleCoeff );
+
+    mSetProc();
+
+    mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
+    if ( !psattr )
+	mErrRet( proc->message(), delete sd; return 0 ) ;
+    PreStack::ModelBasedAngleComputer* anglecomp =
+	new PreStack::ModelBasedAngleComputer;
+    const ObjectSet<RayTracer1D>& rts = sg.rayTracers();
+    for ( int idx=0; idx<rts.size(); idx++ )
+    {
+	const PreStack::Gather* gather = gathers[idx];
+	const TraceID trcid( gather->getBinID() );
+	anglecomp->setRayTracer( rts[idx], trcid );
+    }
+    psattr->setAngleComp( anglecomp );
+
+    mCreateSeisBuf();
+    return new AVOGradSyntheticData( synthgenpar, *angledp );
+}
+
+
 SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
 					     const CubeSampling& cs,
        					     const SynthGenParams& synthgenpar,
        					     TaskRunner* tr )
 {
-    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
-    if ( !presd ) return 0;
-    BufferString dpidstr( "#" );
-    SeparString fullidstr( toString(DataPackMgr::CubeID()), '.' );
-    const PreStack::GatherSetDataPack& gdp = presd->preStackPack();
-    fullidstr.add( toString(gdp.id()) );
-    dpidstr.add( fullidstr.buf() );
-
-    Attrib::Desc* psdesc =
-	Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName());
-
-    mSetString(Attrib::StorageProvider::keyStr(),dpidstr.buf());
-    mSetFloat( Attrib::PSAttrib::offStartStr(),
-	       presd->offsetRange().start );
-    mSetFloat( Attrib::PSAttrib::offStopStr(),
-	       presd->offsetRange().stop );
+    mCreateDesc();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-    psdesc->setUserRef( synthgenpar.name_ );
-    psdesc->updateParams();
 
-    PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false );
-    if ( !descset ) return 0;
-
-    Attrib::DescID attribid = descset->addDesc( psdesc );
-    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
-
-    TypeSet<Attrib::SelSpec> attribspecs;
-    Attrib::SelSpec sp( 0, attribid );
-    sp.set( *psdesc );
-    attribspecs += sp;
-
-    aem->setAttribSet( descset );
-    aem->setAttribSpecs( attribspecs );
-    aem->setCubeSampling( cs );
-    
-    BinIDValueSet bidvals( 0, false );
-    const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-	bidvals.add( gathers[idx]->getBinID() );
-
-    SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
-    Interval<float> zrg( cs.zrg );
-    PtrMan<Attrib::Processor> proc =
-	aem->createTrcSelOutput( errmsg_, bidvals, *dptrcbufs, 0, &zrg);
-    if ( !proc ) 
-	mErrRet( errmsg_, return 0 ) ;
-
-    proc->getProvider()->setDesiredVolume( cs );
-    proc->getProvider()->setPossibleVolume( cs );
-    if ( !TaskRunner::execute(tr,*proc) )
-	mErrRet( proc->message(), return 0 ) ;
-
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-	    	      SI().crlRange(false).stop + crlstep );
-    for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ )
-    {
-	BinID bid = dptrcbufs->get( trcidx )->info().binid;
-	dptrcbufs->get( trcidx )->info().nr =(bid.crl-bid0.crl)/crlstep;
-    }
-
-    SeisTrcBufDataPack* angledp =
-	new SeisTrcBufDataPack( dptrcbufs, Seis::Line,
-				SeisTrcInfo::TrcNr, synthgenpar.name_ );
-    delete sd;
+    mSetProc();
+    mCreateSeisBuf();
     return new AngleStackSyntheticData( synthgenpar, *angledp );
 }
+
 
 SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 				       const SynthGenParams& synthgenpar,
@@ -493,7 +527,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     SyntheticData* sd = 0;
     if ( synthgenpar.synthtype_ == SynthGenParams::PreStack ||
-	 synthgenpar.synthtype_ == SynthGenParams::AngleStack )
+	 synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
+	 synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
     {
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
@@ -512,6 +547,8 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
 	if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
 	    sd = createAngleStack( sd, cs, synthgenpar, tr );
+	else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
+	    sd = createAVOGradient( sd, cs, synthgenpar, synthgen, tr );
 	else
 	{
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
@@ -538,6 +575,9 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 				   SeisTrcInfo::TrcNr, synthgenpar.name_ );	
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
+
+    if ( !sd )
+	return 0;
 
     sd->id_ = ++lastsyntheticid_;
 
@@ -877,7 +917,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees( PreStack::Gather* ag ) co
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval = Math::toDegrees(radval);
+	    const float dval = Math::toDegrees( radval );
 	    agdata.set( idx, idy, dval );
 	}
     }
@@ -897,8 +937,9 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 	    continue;
 	const PreStack::Gather* gather = gathers[idx];
 	anglecomp.setOutputSampling( gather->posData() );
-	anglecomp.setElasticModel( ems[idx], false, false ); 
-	anglecomp.setRayTracer( rts[idx] );
+	const TraceID trcid( gather->getBinID() );
+	anglecomp.setRayTracer( rts[idx], trcid );
+	anglecomp.setTraceID( trcid );
 	PreStack::Gather* anglegather = anglecomp.computeAngles();
 	convertAngleDataToDegrees( anglegather );
 	TypeSet<float> azimuths;
@@ -943,26 +984,26 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 }
 
 
-AngleStackSyntheticData::AngleStackSyntheticData( const SynthGenParams& sgp,
-						  SeisTrcBufDataPack& sdp )
+PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(
+	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
     : PostStackSyntheticData(sgp,sdp)
 {
     useGenParams( sgp );
 }
 
 
-AngleStackSyntheticData::~AngleStackSyntheticData()
+PSBasedPostStackSyntheticData::~PSBasedPostStackSyntheticData()
 {}
 
 
-void AngleStackSyntheticData::fillGenParams( SynthGenParams& sgp ) const
+void PSBasedPostStackSyntheticData::fillGenParams( SynthGenParams& sgp ) const
 {
     SyntheticData::fillGenParams( sgp );
     sgp.inpsynthnm_ = inpsynthnm_;
 }
 
 
-void AngleStackSyntheticData::useGenParams( const SynthGenParams& sgp )
+void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 {
     SyntheticData::useGenParams( sgp );
     inpsynthnm_ = sgp.inpsynthnm_;

@@ -34,13 +34,14 @@ class Wavelet;
 
 namespace Strat { class LayerModel; class LayerSequence; }
 namespace PreStack { class GatherSetDataPack; class Gather; } 
+namespace Seis { class RaySynthGenerator; }
 
 
 mStruct(WellAttrib) SynthGenParams
 {
 			SynthGenParams();
 
-    enum SynthType	{ PreStack, ZeroOffset, AngleStack };
+    enum SynthType	{ PreStack, ZeroOffset, AngleStack, AVOGradient };
     			DeclareEnumUtils(SynthType);
 
     SynthType		synthtype_;
@@ -87,7 +88,8 @@ public:
     int					id_;
     virtual bool			isPS() const 		= 0;
     virtual bool			hasOffset() const 	= 0;
-    bool				isAngleStack() const;
+    virtual bool			isAngleStack() const;
+    virtual bool			isAVOGradient() const { return false; }
     virtual SynthGenParams::SynthType	synthType() const	= 0;
 
     virtual void			useGenParams(const SynthGenParams&);
@@ -131,20 +133,48 @@ public:
 };
 
 
-mExpClass(WellAttrib) AngleStackSyntheticData : public PostStackSyntheticData
+mExpClass(WellAttrib) PSBasedPostStackSyntheticData : public PostStackSyntheticData
 {
 public:
-				AngleStackSyntheticData(const SynthGenParams&,
-						SeisTrcBufDataPack&);
-				~AngleStackSyntheticData();
-    bool			isPS() const 	  { return false; }
-    bool			isAngleStack() const { return true; }
+				PSBasedPostStackSyntheticData(
+				    const SynthGenParams&,SeisTrcBufDataPack&);
+				~PSBasedPostStackSyntheticData();
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
+protected:
+    BufferString 		inpsynthnm_;
+};
+
+
+mExpClass(WellAttrib) AVOGradSyntheticData : public PSBasedPostStackSyntheticData
+{
+public:
+				AVOGradSyntheticData(
+				    const SynthGenParams& sgp,
+				    SeisTrcBufDataPack& sbufdp )
+				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
+				{}
+    bool			isAVOGradient() const 	{ return true; }
+    bool			isAngleStack() const 	{ return false; }
+    SynthGenParams::SynthType	synthType() const
+				{ return SynthGenParams::AVOGradient; }
+protected:
+};
+
+
+mExpClass(WellAttrib) AngleStackSyntheticData : public PSBasedPostStackSyntheticData
+{
+public:
+				AngleStackSyntheticData(
+				    const SynthGenParams& sgp,
+				    SeisTrcBufDataPack& sbufdp )
+				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
+				{}
+    bool			isAVOGradient() const 	{ return false; }
+    bool			isAngleStack() const 	{ return true; }
     SynthGenParams::SynthType	synthType() const
 				{ return SynthGenParams::AngleStack; }
 protected:
-    BufferString 		inpsynthnm_;
 };
 
 
@@ -273,6 +303,11 @@ protected:
     SyntheticData*		createAngleStack(SyntheticData* sd,
 	    					 const CubeSampling&,
 						 const SynthGenParams&,
+						 TaskRunner*);
+    SyntheticData*		createAVOGradient(SyntheticData* sd,
+	    					 const CubeSampling&,
+						 const SynthGenParams&,
+						 const Seis::RaySynthGenerator&,
 						 TaskRunner*);
 };
 
