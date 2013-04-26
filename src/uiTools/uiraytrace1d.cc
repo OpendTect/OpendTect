@@ -61,7 +61,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_[0] );
 
-    selRayTraceCB( 0 );
+    postFinalise().notify( mCB(this,uiRayTracerSel,selRayTraceCB) );
 }
 
 

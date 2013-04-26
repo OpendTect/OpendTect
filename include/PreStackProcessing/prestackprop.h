@@ -39,7 +39,7 @@ public:
     			DeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
     			DeclareEnumUtils(AxisType)
-    enum LSQType	{ A0, Coeff, AngleA0, AngleCoeff, StdDevA0, StdDevCoeff, 
+    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, 
 		          CorrCoeff };
     			DeclareEnumUtils(LSQType)
 
@@ -53,7 +53,8 @@ public:
 			    , offsaxis_(Norm)
 			    , valaxis_(Norm)
 			    , offsrg_(0,mUdf(float))
-			    , useazim_(false)
+			    , anglerg_(0,30)
+			    , useangle_(false)
 			    , aperture_(0)  {}
 
 	mDefSetupMemb(CalcType,calctype)
@@ -62,7 +63,8 @@ public:
 	mDefSetupMemb(AxisType,offsaxis)
 	mDefSetupMemb(AxisType,valaxis)
 	mDefSetupMemb(Interval<float>,offsrg)
-	mDefSetupMemb(bool,useazim)
+	mDefSetupMemb(Interval<float>,anglerg)
+	mDefSetupMemb(bool,useangle)
 	mDefSetupMemb(int,aperture)
     };
 			PropCalc(const Setup&);

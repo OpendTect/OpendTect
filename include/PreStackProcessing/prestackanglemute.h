@@ -33,20 +33,25 @@ namespace PreStack
 \brief Base class for AngleMute and AngleMuteComputer.
 */
 
+mExpClass(PreStackProcessing) AngleCompParams
+{
+public:
+			AngleCompParams()
+			    : mutecutoff_(30)
+			    , anglerange_(0,30)
+			    , velvolmid_(MultiID::udf())
+			    {}	
+
+    float 			mutecutoff_;
+    Interval<float>		anglerange_;
+    MultiID			velvolmid_;   
+    IOPar			raypar_;
+    IOPar			smoothingpar_;
+};
+
 mExpClass(PreStackProcessing) AngleMuteBase 
 {
 public:
-    mStruct(PreStackProcessing) Params
-    {
-			    Params()
-				: mutecutoff_(30)
-				, velvolmid_(MultiID::udf())
-				{}	
-
-	float 			mutecutoff_;
-	MultiID			velvolmid_;   
-	IOPar			raypar_;
-    };
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -59,7 +64,7 @@ protected:
     			AngleMuteBase();
     			~AngleMuteBase();
 
-    Params*		params_;
+    AngleCompParams*		params_;
 
     Vel::VolumeFunctionSource*	velsource_;
 
@@ -86,7 +91,7 @@ public:
 			AngleMute();
 			~AngleMute();
 
-    mStruct(PreStackProcessing) AngleMutePars : public AngleMuteBase::Params
+    mStruct(PreStackProcessing) AngleMutePars : public AngleCompParams
     {
 			AngleMutePars()
 			    : tail_(false)

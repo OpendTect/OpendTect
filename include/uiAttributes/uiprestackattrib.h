@@ -19,11 +19,13 @@ ________________________________________________________________________
 class CtxtIOObj;
 namespace Attrib { class Desc; };
 
-class uiLabel;
+class uiCheckBox;
 class uiGenInput;
+class uiLabel;
 class uiPreStackSel;
 class uiVelSel;
-namespace PreStack { class uiProcSel; }
+namespace PreStack { class uiProcSel; class uiAngleCompGrp; 
+		     class AngleCompParams; class AngleComputer; }
 
 /*! \brief PreStack Attribute ui */
 
@@ -49,9 +51,11 @@ protected:
     uiGenInput*				lsqtypefld_;
     uiGenInput*				offsaxtypefld_;
     uiGenInput*				valaxtypefld_;
-    uiGenInput*				useazimfld_;
-    uiVelSel*				velselfld_;
-    uiLabel*				xlbl_;
+    uiCheckBox*				useanglefld_;
+    uiLabel*				offsrglbl_;
+
+    PreStack::uiAngleCompGrp*		anglecompgrp_;
+    PreStack::AngleCompParams&		params_;
 
     bool		usedatapackasinput_;
 
@@ -59,7 +63,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
 
     void		calcTypSel(CallBacker*);
-    void		lsqTypSel(CallBacker*);
+    void		angleTypSel(CallBacker*);
     void		doPreProcSel(CallBacker*);
 
     bool        	setInput(const Desc&);

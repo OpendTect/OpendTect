@@ -314,6 +314,13 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 { return generateSD( lm, genparams_, tr ); }
 
 
+#define mSetBool( str, newval ) \
+{ \
+    mDynamicCastGet(Attrib::BoolParam*,param,psdesc->getValParam(str)) \
+    param->setValue( newval ); \
+} \
+
+
 #define mSetEnum( str, newval ) \
 { \
     mDynamicCastGet(Attrib::EnumParam*,param,psdesc->getValParam(str)) \
@@ -404,7 +411,8 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mCreateDesc()
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
     mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
-    mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::AngleCoeff );
+    mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
+    mSetBool(Attrib::PSAttrib::useangleStr(), true );
 
     mSetProc();
 

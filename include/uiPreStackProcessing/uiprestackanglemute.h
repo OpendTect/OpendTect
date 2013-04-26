@@ -21,6 +21,8 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
+class uiLabel;
+class uiPushButton;
 class uiRayTracerSel;
 class uiVelSel;
 
@@ -28,21 +30,65 @@ namespace PreStack
 {
 
 class Processor;
+class uiAngleCompAdvParsDlg;
 
-mExpClass(uiPreStackProcessing) uiAngleMuteGrp : public uiGroup
+mExpClass(uiPreStackProcessing) uiAngleCompGrp : public uiGroup
 {
 public:
-			uiAngleMuteGrp(uiParent*,AngleMuteBase::Params&,
-					bool dooffset = false);
+				uiAngleCompGrp(uiParent*,
+					       PreStack::AngleCompParams&,
+					       bool dooffset=false,
+					       bool isformute=true);
 
-    bool		acceptOK();
+    void			setVelocityInput(const MultiID&);
+    void			setAngleRange(const Interval<float>&);
+
+    bool			acceptOK();
 
 protected:
-    AngleMuteBase::Params& params_;
+    PreStack::AngleCompParams&	params_;
+
+    void			advPushButCB(CallBacker*);
+
+    uiVelSel*			velfuncsel_;
+    uiGenInput*			anglefld_;
+    uiLabel*			anglelbl_;
+    uiPushButton*		advpushbut_;
+    uiAngleCompAdvParsDlg*	advpardlg_;
+
+    bool			isformute_;
+};
+
+
+mExpClass(uiPreStackProcessing) uiAngleCompAdvParsDlg : public uiDialog
+{
+public:
+			uiAngleCompAdvParsDlg(uiParent*,
+					      PreStack::AngleCompParams&,
+					      bool dooffset=false,
+					      bool isformute=true);
+			
+	enum smoothingType		{ TimeAverage, FFTFilter };
+					DeclareEnumUtils(smoothingType)
+	enum smoothingWindow		{ Box, Hamming, Hanning, Blackman, 
+					  Bartlet, Flattop };
+					DeclareEnumUtils(smoothingWindow)
+
+protected :
+
+    bool		acceptOK(CallBacker*);
+    void		smoothTypeSel(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
-    uiVelSel*		velfuncsel_;
-    uiGenInput*		cutofffld_;
+    uiGenInput*		smoothtypefld_;
+    uiGenInput*		smoothwindowfld_;
+    uiGenInput*		smoothwinparamfld_;
+    uiGenInput*		smoothwinlengthfld_;
+    uiGenInput*		freqf3fld_;
+    uiGenInput*		freqf4fld_;
+
+    bool		isformute_;
+    PreStack::AngleCompParams&	params_;
 };
 
 
@@ -64,7 +110,7 @@ protected:
 
     AngleMute*		processor_;
     
-    uiAngleMuteGrp*	anglemutegrp_;
+    uiAngleCompGrp*	anglecompgrp_;
     uiGenInput*		taperlenfld_;
     uiGenInput*		topfld_;
 };

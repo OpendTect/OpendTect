@@ -22,9 +22,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "survinfo.h"
+#include "raytrace1d.h"
 
 #include "ioman.h"
 #include "ioobj.h"
+
+
+#define mDefaultWindowLength	    125.0f
+#define mDefaultWindowParam	    0.95f
+#define mDefaultFreqF3		    50.0f
+#define mDefaultFreqF4		    60.0f
+#define mDefaultBlockthreshold	    0.01f
 
 
 namespace Attrib
@@ -50,7 +58,6 @@ void PSAttrib::initClass()
     mDefEnumPar(valaxis,PreStack::PropCalc::AxisType);
     mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType);
 
-    desc->addParam( new BoolParam( useazimStr(), false, false ) );
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
     desc->addParam( ipar );
@@ -63,6 +70,26 @@ void PSAttrib::initClass()
     desc->addParam( new StringParam( preProcessStr(), "", false ) );
 
     desc->addParam( new StringParam( velocityIDStr(), "", false ) );
+
+    desc->addParam( new FloatParam( angleStartStr(), 0, false ) );
+    desc->addParam( new FloatParam( angleStopStr(), mUdf(float), false ) );
+
+    desc->addParam( new EnumParam( PreStack::AngleComputer::sKeySmoothType(), 0, 
+				   false ) ); 
+    desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "", 
+				     false ) );
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(), 
+				    mDefaultWindowParam, false ) );
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinLen(), 
+				    mDefaultWindowLength, false ) );
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
+				    mDefaultFreqF3, false ) );
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
+				    mDefaultFreqF4, false ) );
+    desc->addParam( new FloatParam( RayTracer1D::sKeyBlockRatio(), 
+				    mDefaultBlockthreshold, false) );
+    desc->addParam( new BoolParam( useangleStr(), false, false ) );
+    desc->addParam( new BoolParam( rayTracerStr(), false, false ) );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -102,14 +129,13 @@ PSAttrib::PSAttrib( Desc& ds )
     mGetSetupEnumPar(valaxis,PreStack::PropCalc::AxisType);
     mGetSetupEnumPar(offsaxis,PreStack::PropCalc::AxisType);
 
-    bool useazim = setup_.useazim_;
-    mGetBool( useazim, useazimStr() ); setup_.useazim_ = useazim;
     mGetInt( component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
+
+    bool useangle = setup_.useangle_;
+    mGetBool( useangle, useangleStr() ); setup_.useangle_ = useangle;
     
-    const PreStack::PropCalc::LSQType lsqtype = setup_.lsqtype_;
-    if ( lsqtype == PreStack::PropCalc::AngleA0 || 
-	 lsqtype == PreStack::PropCalc::AngleCoeff ) 
+    if ( setup_.useangle_ ) 
     {
 	mGetString( velocityid_, velocityIDStr() );
 	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
@@ -120,6 +146,48 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_ = velangcomp;
 	    anglecomp_->ref();
 	}
+
+	float anglestart, anglestop;
+	mGetFloat( anglestart, angleStartStr() );
+	mGetFloat( anglestop, angleStopStr() );
+	setup_.anglerg_ = Interval<float>( anglestart, anglestop );
+
+	bool isadvraytracer = false;
+	mGetBool( isadvraytracer, rayTracerStr() );
+	if ( isadvraytracer )
+	{
+	    float thresholdparam;
+	    mGetFloat( thresholdparam, RayTracer1D::sKeyBlockRatio() );
+	    anglecomp_->setRayTracerParam( thresholdparam, isadvraytracer );
+	}
+
+	int smoothtype = 0;
+	mGetEnum( smoothtype , PreStack::AngleComputer::sKeySmoothType() );
+	IOPar iopar;
+	iopar.set( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+	if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+	{  
+	    BufferString smwindow;
+	    float windowparam, windowlength;
+	    mGetString( smwindow, PreStack::AngleComputer::sKeyWinFunc() );
+	    mGetFloat( windowparam, PreStack::AngleComputer::sKeyWinParam() );
+	    mGetFloat( windowlength, PreStack::AngleComputer::sKeyWinLen() );
+
+	    iopar.set( PreStack::AngleComputer::sKeyWinFunc(), smwindow );
+	    iopar.set( PreStack::AngleComputer::sKeyWinParam(), windowparam );
+	    iopar.set( PreStack::AngleComputer::sKeyWinLen(), windowlength );
+	}
+	else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
+	{
+	    float f3freq, f4freq;
+	    mGetFloat( f3freq, PreStack::AngleComputer::sKeyFreqF3() );
+	    mGetFloat( f4freq, PreStack::AngleComputer::sKeyFreqF4() );
+
+	    iopar.set( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
+	    iopar.set( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
+	}
+
+	anglecomp_->setSmoothingPars( iopar );
     }
 
     BufferString preprocessstr;

@@ -32,16 +32,16 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer) 
 {
-    anglemutegrp_ = new uiAngleMuteGrp( this, processor_->params(), true );
+    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
-    sep->attach( stretchedBelow, anglemutegrp_ );
+    sep->attach( stretchedBelow, anglecompgrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
     HorSampling hs; subsel_->getSampling( hs );
     hs.step = BinID( SI().inlStep()*20, SI().crlStep()*20 );
     subsel_->setInput( hs );
-    subsel_->attach( alignedBelow, anglemutegrp_ );
+    subsel_->attach( alignedBelow, anglecompgrp_ );
     subsel_->attach( ensureBelow, sep );
 
     outctio_.ctxt.forread = false;
@@ -59,7 +59,7 @@ uiAngleMuteComputer::~uiAngleMuteComputer()
 
 bool uiAngleMuteComputer::acceptOK(CallBacker*)
 {
-    if ( !anglemutegrp_->acceptOK() )
+    if ( !anglecompgrp_->acceptOK() )
 	return false;
 
     if ( !mutedeffld_->commitInput() || !outctio_.ioobj )

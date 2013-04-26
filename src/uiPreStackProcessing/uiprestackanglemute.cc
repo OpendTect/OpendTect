@@ -8,12 +8,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiprestackanglemute.h"
 
+#include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
 #include "raytrace1d.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
+#include "uimsg.h"
 #include "uiprestackprocessor.h"
 #include "uiraytrace1d.h"
 #include "uiseparator.h"
@@ -23,10 +26,30 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p, 
-			AngleMuteBase::Params& pars, bool dooffset )
+DefineEnumNames(uiAngleCompAdvParsDlg,smoothingType,1,"Smoothing Type")
+{
+	"Time-Average",
+	"Frequency-Filter", 
+	0
+};
+
+DefineEnumNames(uiAngleCompAdvParsDlg,smoothingWindow,1,"Smoothing Window")
+{
+	"Box",
+	"Hamming",
+	"Hanning",
+	"Blackman",
+	"Bartlet",
+	"Flattop",
+	0
+};
+
+uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars, 
+				bool dooffset, bool isformute )
     : uiGroup(p,"Angle Mute Group")
-    , params_(pars)  
+    , params_(pars)
+    , isformute_(isformute)
+    , anglelbl_(0)
 {
     IOObjContext ctxt = uiVelSel::ioContext(); 
     velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
@@ -34,35 +57,170 @@ uiAngleMuteGrp::uiAngleMuteGrp( uiParent* p,
     if ( !params_.velvolmid_.isUdf() )
        velfuncsel_->setInput( params_.velvolmid_ ); 
 
-    uiSeparator* sep = new uiSeparator( this, "sep" );
-    sep->attach( stretchedBelow, velfuncsel_ );
- 
-    uiRayTracer1D::Setup rsu; 
-    rsu.dooffsets_ = dooffset; 
-    rsu.doreflectivity_ = false;
-    raytracerfld_ = new uiRayTracerSel( this, rsu );
-    raytracerfld_->usePar( pars.raypar_ );
-    raytracerfld_->attach( alignedBelow, velfuncsel_ );
-    raytracerfld_->attach( ensureBelow, sep );
+    if ( isformute_ )
+    {
+	anglefld_ = new uiGenInput( this, "Mute cutoff angle (degree)",
+				     FloatInpSpec(false) );
+	anglefld_->attach( alignedBelow, velfuncsel_ );
+	anglefld_->setValue( params_.mutecutoff_ );
+    }
+    else
+    {
+	anglefld_ = new uiGenInput( this, "Angle range",
+	    FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
+	anglefld_->attach( alignedBelow, velfuncsel_ );
+	anglelbl_ = new uiLabel( this, "degree" );
+	anglelbl_->attach( rightOf, anglefld_ );
+    }
 
-    cutofffld_ = new uiGenInput( this, "Mute cutoff angle (degree)", 
-	    FloatInpSpec(false) );
-    cutofffld_->attach( alignedBelow, raytracerfld_ );
-    cutofffld_->setValue( params_.mutecutoff_ );
+    advpushbut_ = new uiPushButton( this, "Advance Parameters", true );
+    advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
+    advpushbut_->attach( alignedBelow, anglefld_ );
 
-    setHAlignObj( cutofffld_ );
+    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset, isformute);
+    setHAlignObj( velfuncsel_ );
 }
 
 
-bool uiAngleMuteGrp::acceptOK()
-{ 
-    raytracerfld_->fillPar( params_.raypar_ );
-    params_.mutecutoff_ = cutofffld_->getfValue();
+void uiAngleCompGrp::setVelocityInput( const MultiID& mid )
+{
+    velfuncsel_->setInput( mid );
+}
+
+
+void uiAngleCompGrp::setAngleRange( const Interval<float>& anglerange )
+{
+    anglefld_->setValue( anglerange );
+}
+
+
+bool uiAngleCompGrp::acceptOK()
+{
+    if ( !velfuncsel_->ioobj() )
+	return false;
+
     params_.velvolmid_ = velfuncsel_->key(true);
+    Interval<float> normalanglevalrange( 0, 90 );
+    if ( isformute_ )
+    {
+	params_.mutecutoff_ = anglefld_->getfValue();
+	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
+	{
+	    uiMSG().error( 
+		    "Please select the mute cutoff between 0 and 90 degree" );
+	    return false;
+	}
+    }
+    else
+    {
+	params_.anglerange_ = anglefld_->getFInterval();
+	if ( !normalanglevalrange.includes(params_.anglerange_,false) )
+	{
+	    uiMSG().error("Please provide angle range between 0 and 90 degree");
+	    return false;
+	}
+    }
 
     return true;
 }
 
+
+void uiAngleCompGrp::advPushButCB( CallBacker* )
+{
+    advpardlg_->go();
+}
+
+
+uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p, 
+					      PreStack::AngleCompParams& pars,
+					      bool offset, bool isformute )
+    : uiDialog(p, uiDialog::Setup("Advance Parameter","Advance angle parametrs",
+	       mNoHelpID))
+    , params_(pars)
+    , isformute_(isformute)
+    , smoothtypefld_(0)
+    , smoothwindowfld_(0)
+    , smoothwinparamfld_(0)
+    , smoothwinlengthfld_(0)
+    , freqf3fld_(0)
+    , freqf4fld_(0)
+{
+    uiRayTracer1D::Setup rsu; 
+    rsu.dooffsets_ = offset; 
+    rsu.doreflectivity_ = false;
+    raytracerfld_ = new uiRayTracerSel( this, rsu );
+
+    if ( isformute_ )
+	return;
+
+    smoothtypefld_ = new uiGenInput( this, "Smoothing Type",
+				     StringListInpSpec(smoothingTypeNames()) );
+    smoothtypefld_->attach( alignedBelow, raytracerfld_ );
+    smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
+					     smoothTypeSel) );
+
+    smoothwindowfld_ = new uiGenInput( this, "Smoothing Window", 
+				   StringListInpSpec(smoothingWindowNames()) );
+    smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
+
+    smoothwinparamfld_ = new uiGenInput( this, "Smoothing Param",
+					 FloatInpSpec() );
+    smoothwinparamfld_->attach( alignedBelow, smoothwindowfld_ );
+
+    smoothwinlengthfld_ = new uiGenInput( this, "Smoothing Length", 
+					FloatInpSpec() );
+    smoothwinlengthfld_->attach( alignedBelow, smoothwinparamfld_ );
+
+    freqf3fld_ = new uiGenInput( this, "Freq F3", FloatInpSpec() );
+    freqf3fld_->attach( alignedBelow, smoothtypefld_ );
+
+    freqf4fld_ = new uiGenInput( this, "Freq F4", FloatInpSpec() );
+    freqf4fld_->attach( alignedBelow, freqf3fld_ );
+
+    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,smoothTypeSel) );
+}
+
+
+bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
+{
+    raytracerfld_->fillPar( params_.raypar_ );
+    if ( isformute_ )
+	return true;
+
+    IOPar& iopar = params_.smoothingpar_;
+    const bool istimeavg = smoothtypefld_->getIntValue() == 0;
+    iopar.set( PreStack::AngleComputer::sKeySmoothType(),
+	       smoothtypefld_->getIntValue() );
+    if ( istimeavg )
+    {
+	smoothingWindow smwin = mCast( smoothingWindow, 
+				       smoothwindowfld_->getIntValue() );
+	iopar.set( PreStack::AngleComputer::sKeyWinFunc(), toString(smwin) );
+	iopar.set( PreStack::AngleComputer::sKeyWinParam(), 
+		   smoothwinparamfld_->getfValue() );
+	iopar.set( PreStack::AngleComputer::sKeyWinLen(), 
+		   smoothwinlengthfld_->getfValue() );
+    }
+    else
+    {
+	iopar.set( PreStack::AngleComputer::sKeyFreqF3(), 
+		   freqf3fld_->getFInterval() );
+	iopar.set( PreStack::AngleComputer::sKeyFreqF4(),
+		   freqf4fld_->getFInterval() );
+    }
+    return true;
+}
+
+
+void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
+{
+    const bool istimeavg = smoothtypefld_->getIntValue() == 0;
+    smoothwindowfld_->display( istimeavg );
+    smoothwinparamfld_->display( istimeavg );
+    smoothwinlengthfld_->display( istimeavg );
+    freqf3fld_->display( !istimeavg );
+    freqf4fld_->display( !istimeavg );
+}
 
 
 void uiAngleMute::initClass()
@@ -84,15 +242,15 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,"103.2.20") )
     , processor_( rt )		      
 {
-    anglemutegrp_ = new uiAngleMuteGrp( this, processor_->params() );
+    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params() );
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
-    sep->attach( stretchedBelow, anglemutegrp_ );
+    sep->attach( stretchedBelow, anglecompgrp_ );
 
     topfld_ = new uiGenInput( this, "Mute type",
 	    BoolInpSpec(!processor_->params().tail_,"Outer","Inner") );
     topfld_->attach( ensureBelow, sep );
-    topfld_->attach( centeredBelow, anglemutegrp_ );
+    topfld_->attach( centeredBelow, anglecompgrp_ );
 
     taperlenfld_ = new uiGenInput( this, "Taper length (samples)",
 	    FloatInpSpec(processor_->params().taperlen_) );
@@ -102,7 +260,7 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 
 bool uiAngleMute::acceptOK(CallBacker*)
 {
-    if ( !anglemutegrp_->acceptOK() )
+    if ( !anglecompgrp_->acceptOK() )
 	return false;
 
     processor_->params().taperlen_ = taperlenfld_->getfValue();
