@@ -150,8 +150,8 @@ public:
     float	getMaxDistance() const		{ return maxdistance_; }
     void	setMaxDistance(float r)		{ maxdistance_ = r; }
     
-    bool	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    virtual bool	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
 protected:
     int		minThreadSize() const		{ return 10000; }
@@ -160,7 +160,7 @@ protected:
     const char*	nrDoneText() const		{ return "Nodes gridded"; }
 
     bool        doPrepare(int);
-    bool	initFromArray(TaskRunner*);
+    virtual bool initFromArray(TaskRunner*);
     void	getNextNodes(TypeSet<od_int64>&);
 
     				//triangulation stuff
