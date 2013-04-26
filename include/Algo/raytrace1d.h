@@ -61,6 +61,8 @@ public:
     virtual const RayTracer1D::Setup& setup() const 	= 0;
 
     void		setModel(const ElasticModel&);
+    const ElasticModel&	getModel() const 	{ return model_; }
+    			// model top depth must be TWT = 0ms
 			/*!<Note, if either p-wave or s-wave are undef, 
 			  will fill them with Castagna 
 			  to compute zoeppritz coeffs <!*/

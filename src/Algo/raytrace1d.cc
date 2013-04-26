@@ -276,7 +276,10 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	const ElasticLayer& ail1 = model_[ layer+1 ];
 	const float ai0 = ail0.vel_ * ail0.den_;
 	const float ai1 = ail1.vel_ * ail1.den_;
-	reflectivity = float_complex( (ai1-ai0)/(ai1+ai0), 0 );
+	const float real =
+	    mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
+	    					           : (ai1-ai0)/(ai1+ai0);
+	reflectivity = float_complex( real, 0 );
     }
 
     reflectivity_->set( layer, offsetidx, reflectivity );
