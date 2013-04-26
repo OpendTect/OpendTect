@@ -1,5 +1,5 @@
 <hr>
-<p>Generated at <script>document.write(document.lastModified);</script>
+<p>Generated at <script type="text/javascript">document.write(document.lastModified);</script>
  for the <a href="http://www.opendtect.org">OpendTect</a>
 seismic interpretation project.
 Copyright (C): dGB Beheer B. V. @YEAR@</p></body></html>
