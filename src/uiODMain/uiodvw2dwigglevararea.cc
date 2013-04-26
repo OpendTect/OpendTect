@@ -104,14 +104,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	DataPack::ID id = DataPack::cNoID();
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	const bool ischecked = isChecked();
-	ddp.wva_.show_ = ischecked; if ( ischecked ) id = dpid_;
-	vwr.usePack( true, id, false, true );
-    }
+	viewer2D()->viewwin()->viewer(ivwr).setVisible( true, isChecked() );
 }
 
 

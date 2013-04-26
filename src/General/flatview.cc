@@ -551,16 +551,13 @@ void FlatView::Viewer::removePack( DataPack::ID id )
 }
 
 
-void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs,
-							   bool forcehandlechg )
+void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 {
     DataPack::ID curid = packID( wva );
-    if ( id == curid && !forcehandlechg ) return;
+    if ( id == curid ) return;
 
     if ( id == DataPack::cNoID() )
-    {
-	if ( !forcehandlechg ) (wva ? wvapack_ : vdpack_) = 0;
-    }
+	(wva ? wvapack_ : vdpack_) = 0;
     else if ( !ids_.isPresent(id) )
     {
 	pErrMsg("Requested usePack, but ID not added");
@@ -581,7 +578,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs,
 	if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
 	    annot.x2_.name_ = fdp->dimName( false );
     }
-    if ( id != DataPack::cNoID() || forcehandlechg )
+    if ( id != DataPack::cNoID() )
 	handleChange( BitmapData );
 }
 
@@ -592,6 +589,14 @@ bool FlatView::Viewer::isVisible( bool wva ) const
 	return wvapack_ && appearance().ddpars_.wva_.show_;
     else
         return vdpack_ && appearance().ddpars_.vd_.show_;
+}
+
+
+void FlatView::Viewer::setVisible( bool wva, bool visibility )
+{
+    FlatView::DataDispPars& ddp = appearance().ddpars_;
+    ( wva ? ddp.wva_.show_ : ddp.vd_.show_ ) = visibility;
+    handleChange( BitmapData );
 }
 
 

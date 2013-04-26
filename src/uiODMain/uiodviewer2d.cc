@@ -92,7 +92,7 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
+void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     DataPack* dp = dpm.obtain( packid, true );
@@ -119,9 +119,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	vwr.usePack( wva, DataPack::cNoID(), false );
-
 	TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	if ( ids.isPresent(packid) ) continue;
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
 	for ( int idx=0; idx<ids.size(); idx++ )
@@ -138,9 +137,14 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool show )
 	}
 
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = show;
+	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
 	dpm.obtain( packid, false );
 	vwr.setPack( wva, packid, false, isnew );
+	if ( isnew )
+	{
+	    (!wva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	    vwr.setPack( !wva, packid, false, false );
+	}
 	if ( setforotherdisp ) vwr.setPack( !wva, packid, false, isnew );
     }
 
@@ -324,12 +328,16 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
-	DPM(DataPackMgr::FlatID()).release( packid );
-	packid = viewwin()->viewer( ivwr ).packID( false );
-	DPM(DataPackMgr::FlatID()).release( packid );
+	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    vwr.removePack( ids[idx] );
+	    dpm.release( ids[idx] );
+	}
     }
     
     delete treetp_; treetp_ = 0;
