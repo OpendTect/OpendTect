@@ -22,7 +22,7 @@ class SeisPSReader;
 class IOObj;
 
 namespace PreStack { class ProcessManager; class Gather; 
-		     class VelocityBasedAngleComputer; }
+		     class AngleComputer; }
 
 
 namespace Attrib
@@ -77,6 +77,7 @@ public:
 					{ return velocityid_; }
 
     void                updateCSIfNeeded(CubeSampling&) const;
+    void		setAngleComp(PreStack::AngleComputer*);
 
 protected:
 
@@ -97,7 +98,7 @@ protected:
     int				component_;
     SeisPSReader*		psrdr_;
     PreStack::PropCalc*		propcalc_;
-    PreStack::VelocityBasedAngleComputer*    anglecomp_;
+    PreStack::AngleComputer*    anglecomp_;
 
     PreStack::ProcessManager*	preprocessor_;
     MultiID			preprocid_;
