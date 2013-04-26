@@ -66,6 +66,9 @@ find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.
 
 cd ${prevdir}
 
+#First, run to upload new stuff, keep removed files
+${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
+#Secondly, delete removed files
 ${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
 exit 0
 
