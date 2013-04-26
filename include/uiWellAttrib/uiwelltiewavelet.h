@@ -39,6 +39,7 @@ public:
 
     void 			redrawWavelets();
     void			setActiveWavelet(bool initial);
+    bool			isInitialWvltActive() const;
 
     Notifier<uiWaveletView> 	activeWvltChged;
     void 			activeWvltChanged(CallBacker*);

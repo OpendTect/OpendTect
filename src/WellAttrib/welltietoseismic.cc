@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "welltiedata.h"
 #include "welltieextractdata.h"
+#include "welltiegeocalculator.h"
 #include "welltrack.h"
 
 
@@ -38,11 +39,23 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     : data_(data)		    
     , seisid_(seisid)
     , linekey_(lk)
+    , seisarr_(0)
+    , syntarr_(0)
+    , refarr_(0)
 {
+    zrg_.set( mUdf(float), mUdf(float) );
 }
 
 
-bool DataPlayer::computeSynthetics()
+DataPlayer::~DataPlayer()
+{
+    delete [] refarr_;
+    delete [] syntarr_;
+    delete [] seisarr_;
+}
+
+
+bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 {
     if ( !data_.wd_ )
 	mErrRet( "Cannot read well data" );
@@ -53,7 +66,7 @@ bool DataPlayer::computeSynthetics()
     if ( !setAIModel() )
 	mErrRet( "Could not set AI model for raytracing" );
 
-    if ( !doFullSynthetics() )
+    if ( !doFullSynthetics(wvlt) )
 	mErrRet( "Could not compute the synthetic trace" );
 
     if ( !copyDataToLogSet() )
@@ -114,13 +127,10 @@ bool DataPlayer::extractSeismics()
 }
 
 
-bool DataPlayer::doFastSynthetics()
+bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-
     Seis::SynthGenerator gen;
-    gen.enableFourierDomain( false );
+    gen.enableFourierDomain( true );
     gen.setModel( refmodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( data_.getTraceRange() );
@@ -134,156 +144,232 @@ bool DataPlayer::doFastSynthetics()
 }
 
 
-#define mDelAndReturn(yn) { delete [] seisarr;  delete [] syntharr; return yn;}
 bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 {
-    if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2) )
+    setCrossCorrZrg( zrg );
+    if ( !checkCrossCorrInps() )
+	return false;
+
+    if ( !computeCrossCorrelation() || !computeEstimatedWavelet(0) )
+	return false;
+
+    return true;
+}
+
+
+bool DataPlayer::checkCrossCorrInps()
+{
+    if ( zrg_.isUdf() )
+	mErrRet( "Cross-correlation window not set" )
+
+    if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2f) )
 	mErrRet( "Synthetic and seismic traces do not have same length" )
 
     if ( !isOKSynthetic() && !isOKSeismic() )
 	mErrRet( "Seismic/Synthetic data too short" )
 
-    const int istartseis = data_.seistrc_.nearestSample( zrg.start );
-    const int istopseis = data_.seistrc_.nearestSample( zrg.stop );
+    const int istartseis = data_.seistrc_.nearestSample( zrg_.start );
+    const int istopseis = data_.seistrc_.nearestSample( zrg_.stop );
     const int nrsamps = istopseis - istartseis + 1;
     if ( nrsamps < 2 )
 	mErrRet( "Cross-correlation too short" )
 
-    if ( zrg.start < data_.seistrc_.startPos() ||
-	 zrg.stop > data_.seistrc_.endPos() )
+    if ( zrg_.start < data_.seistrc_.startPos() ||
+	 zrg_.stop > data_.seistrc_.endPos() )
     {
 	BufferString errmsg = "The cross-correlation window must be smaller ";
 	errmsg += "than the synthetic/seismic traces";
 	mErrRet( errmsg )
     }
 
-    mDeclareAndTryAlloc( float*, seisarr, float[nrsamps] );
-    mDeclareAndTryAlloc( float*, syntharr, float[nrsamps] );
-    if ( !seisarr || !syntharr )
+    // clip to nearest sample
+    zrg_.start = data_.seistrc_.samplePos( istartseis );
+    zrg_.stop = data_.seistrc_.samplePos( istopseis );
+
+    return true;
+}
+
+
+bool DataPlayer::computeCrossCorrelation()
+{
+    if ( zrg_.isUdf() )
+	mErrRet( "Cross-correlation window not set" )
+
+    if ( !extractWvf(false) )
+	mErrRet( "Cannot extraction seismic for cross-correlation" )
+
+    if ( !extractWvf(true) )
+	mErrRet( "Cannot extraction synthetic for cross-correlation" )
+
+    Data::CorrelData& cd = data_.correl_;
+    cd.vals_.erase();
+    const float step = data_.seistrc_.info().sampling.step;
+    const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
+    cd.vals_.setSize( nrsamps, 0 );
+    GeoCalculator gccc;
+    cd.coeff_ = gccc.crossCorr( seisarr_, syntarr_, cd.vals_.arr(), nrsamps );
+
+    return true;
+}
+
+
+bool DataPlayer::computeEstimatedWavelet( const int wvltsz )
+{
+    if ( zrg_.isUdf() )
+	mErrRet( "Cross-correlation window not set" )
+
+    if ( !extractReflectivity() )
+	mErrRet( "Cannot extraction reflectivity for wavelet estimation" )
+
+    if ( !extractWvf(false) )
+	mErrRet( "Cannot extraction seismic for wavelet estimation" )
+
+    const float step = data_.seistrc_.info().sampling.step;
+    const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
+    mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
+    if ( !wvltarrfull )
+	mErrRet( "Cannot allocate memory for estimated wavelet" )
+
+    GeoCalculator gcwvltest;
+    gcwvltest.deconvolve( seisarr_, refarr_, wvltarrfull, nrsamps );
+
+    const int outwvltsz = wvltsz%2 ? wvltsz : wvltsz + 1;
+    Array1DImpl<float> wvltarr( outwvltsz );
+    for ( int idx=0; idx<outwvltsz; idx++ )
+	wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
+
+    ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
+			  0.90 );
+    window.apply( &wvltarr );
+
+    data_.estimatedwvlt_.setSampleRate( step );
+    data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
+    data_.estimatedwvlt_.reSize( outwvltsz );
+    memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
+	    outwvltsz*sizeof(float) );
+    delete [] wvltarrfull;
+
+    return true;
+}
+
+
+bool DataPlayer::extractWvf( const bool issynt )
+{
+    if ( zrg_.isUdf() )
+	mErrRet( "Cross-correlation extraction window not set" )
+
+    const SeisTrc& trace = issynt ? data_.synthtrc_ : data_.seistrc_;
+    const int istartseis = trace.nearestSample( zrg_.start );
+    const int istopseis = trace.nearestSample( zrg_.stop );
+    const int nrsamps = istopseis - istartseis + 1;
+    mDeclareAndTryAlloc( float*, valarr, float[nrsamps] );
+    if ( !valarr )
 	mErrRet( "Cannot allocate memory" )
 
-    TypeSet<float> twt;
     int idy = 0;
     Stats::CalcSetup scalercalc;
     scalercalc.require( Stats::RMS );
-    Stats::RunCalc<double> seisstats( scalercalc );
-    Stats::RunCalc<double> syntstats( scalercalc );
+    Stats::RunCalc<double> stats( scalercalc );
     for ( int idseis=istartseis; idseis<=istopseis; idseis++ )
     {
-	twt += data_.synthtrc_.samplePos( idseis );
-	syntharr[idy] = data_.synthtrc_.get( idseis, 0 );
-	syntstats += syntharr[idy];
-	seisarr[idy] = data_.seistrc_.get( idseis, 0 );
-	seisstats += seisarr[idy];
+	const float val = trace.get( idseis, 0 );
+	valarr[idy] = val;
+	stats += val;
 	idy++;
     }
-    const double seisrms = seisstats.rms();
-    const double syntrms = syntstats.rms();
-
-    Data::CorrelData& cd = data_.correl_;
-    cd.scaler_ = syntrms > 0 ? mCast( float, seisrms / syntrms ) : mUdf(float);
-    cd.vals_.erase();
-    cd.vals_.setSize( nrsamps, 0 );
-    GeoCalculator gccc;
-    cd.coeff_ = gccc.crossCorr( seisarr, syntharr, cd.vals_.arr(), nrsamps );
-
-    if ( data_.isinitwvltactive_ )
+    const float wvfrms = mCast( float, stats.rms() );
+    if ( issynt )
     {
-	const int totnrspikes = refmodel_.size();
-	if ( totnrspikes < nrsamps )
-	    mErrRet( "Reflectivity serie too short" )
-
-	int firstspike = 0;
-	int lastspike = 0;
-	const float starttwtseis = twt[0];
-	const float stoptwtseis = twt[twt.size()-1];
-	while ( lastspike<refmodel_.size() )
-	{
-	    const ReflectivitySpike spike = refmodel_[lastspike];
-	    const float spiketwt = spike.correctedtime_;
-	    if ( mIsEqual(spiketwt,stoptwtseis,1e-5 ) )
-		break;
-
-	    if ( spiketwt - starttwtseis < -1e-5 )
-		firstspike++;
-
-	    lastspike++;
-	}
-
-	if ( refmodel_[firstspike].correctedtime_ - starttwtseis < -1e-5 )
-	{
-	    errmsg_ = "The wavelet estimation window must start ";
-	    errmsg_ += "above the first spike at ";
-	    errmsg_ += refmodel_[firstspike].correctedtime_;
-	    errmsg_ += "ms";
-	    mDelAndReturn(false);
-	}
-
-	if ( refmodel_[lastspike].correctedtime_ - stoptwtseis > 1e-5 )
-	{
-	    errmsg_ = "The wavelet estimation window must stop ";
-	    errmsg_ += "before the last spike at ";
-	    errmsg_ += refmodel_[lastspike].correctedtime_;
-	    errmsg_ += "ms";
-	    mDelAndReturn(false);
-	}
-
-	if ( (lastspike-firstspike+1) != nrsamps )
-	{
-	    errmsg_ = "The wavelet estimation window must be";
-	    errmsg_ += " smaller than the reflectivity serie";
-	    mDelAndReturn(false);
-	}
-
-	mDeclareAndTryAlloc( float_complex*, refarr, float_complex[nrsamps] );
-	if ( !refarr )
-	{
-	    errmsg_ = "Cannot allocate memory for reflectivity serie";
-	    mDelAndReturn(false);
-	}
-
-	int nrspikefound = 0;
-	for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
-	{
-	    const ReflectivitySpike spike = refmodel_[idsp];
-	    const float twtspike = spike.correctedtime_;
-	    if ( !mIsEqual(twtspike,twt[nrspikefound],1e-5) )
-	    {
-		errmsg_ = "Mismatch between spike twt and seismic twt";
-		delete [] refarr;
-		mDelAndReturn(false);
-	    }
-
-	    refarr[nrspikefound] = spike.isDefined() ? spike.reflectivity_ : 0.;
-	    nrspikefound++;
-	}
-
-	mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
-	GeoCalculator gcwvltest;
-	gcwvltest.deconvolve( seisarr, refarr, wvltarrfull, nrsamps );
-
-	const int initwvltsz = data_.initwvlt_.size();
-	const float sr = data_.initwvlt_.sampleRate();
-	int outwvltsz = initwvltsz;
-	if ( !(initwvltsz%2) )
-	    outwvltsz++;
-
-	Array1DImpl<float> wvltarr( outwvltsz );
-	data_.estimatedwvlt_.reSize( outwvltsz );
-	for ( int idx=0; idx<outwvltsz; idx++ )
-	    wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
-
-	ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
-			      0.90 );
-	window.apply( &wvltarr );
-	memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
-		outwvltsz*sizeof(float) );
-	data_.estimatedwvlt_.setSampleRate( sr );
-	data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
-	delete [] wvltarrfull; delete [] refarr;
+	delete [] syntarr_;
+	syntarr_ = valarr;
+	data_.correl_.scaler_ = mIsUdf(wvfrms) ? mUdf(float)
+	    		      : data_.correl_.scaler_ / wvfrms;
+    }
+    else
+    {
+	delete [] seisarr_;
+	seisarr_ = valarr;
+	data_.correl_.scaler_ = wvfrms;
     }
 
-    mDelAndReturn(true)
+    return true;
+}
+
+
+bool DataPlayer::extractReflectivity()
+{
+    if ( zrg_.isUdf() )
+	mErrRet( "Cross-correlation extraction window not set" )
+
+    const float step = data_.seistrc_.info().sampling.step;
+    const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
+    const int totnrspikes = refmodel_.size();
+    if ( totnrspikes < nrsamps )
+	mErrRet( "Reflectivity serie too short" )
+
+    int firstspike = 0;
+    int lastspike = 0;
+    while ( lastspike<refmodel_.size() )
+    {
+	const ReflectivitySpike spike = refmodel_[lastspike];
+	const float spiketwt = spike.correctedtime_;
+	if ( mIsEqual(spiketwt,zrg_.stop,1e-5f) )
+	    break;
+
+	if ( spiketwt - zrg_.start < -1e-5f )
+	    firstspike++;
+
+	lastspike++;
+    }
+
+    if ( refmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
+    {
+	BufferString errmsg = "The wavelet estimation window must start ";
+	errmsg += "above the first spike at ";
+	errmsg += refmodel_[firstspike].correctedtime_;
+	errmsg += "ms";
+	mErrRet( errmsg );
+    }
+
+    if ( refmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
+    {
+	BufferString errmsg = "The wavelet estimation window must stop ";
+	errmsg += "before the last spike at ";
+	errmsg += refmodel_[lastspike].correctedtime_;
+	errmsg += "ms";
+	mErrRet( errmsg );
+    }
+
+    if ( (lastspike-firstspike+1) != nrsamps )
+    {
+	BufferString errmsg = "The wavelet estimation window must be";
+	errmsg += " smaller than the reflectivity serie";
+	mErrRet( errmsg );
+    }
+
+    mDeclareAndTryAlloc( float_complex*, valarr, float_complex[nrsamps] );
+    if ( !valarr )
+	mErrRet( "Cannot allocate memory for reflectivity serie" )
+
+    int nrspikefound = 0;
+    for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
+    {
+	const ReflectivitySpike spike = refmodel_[idsp];
+	const float twtspike = spike.correctedtime_;
+	if ( !mIsEqual(twtspike,zrg_.atIndex(nrspikefound,step),1e-5f) )
+	{
+	    delete [] valarr;
+	    mErrRet( "Mismatch between spike twt and seismic twt" );
+	}
+
+	valarr[nrspikefound] = spike.isDefined()
+	    		     ? spike.reflectivity_ : float_complex( 0., 0. );
+	nrspikefound++;
+    }
+
+    delete [] refarr_;
+    refarr_ = valarr;
+    return true;
 }
 
 
@@ -335,12 +421,9 @@ bool DataPlayer::setAIModel()
 }
 
 
-bool DataPlayer::doFullSynthetics()
+bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     refmodel_.erase();
-    const Wavelet& wvlt = data_.isinitwvltactive_ ? data_.initwvlt_ 
-						  : data_.estimatedwvlt_;
-
     Seis::RaySynthGenerator gen;
     gen.addModel( aimodel_ );
     gen.forceReflTimes( data_.getReflRange() );

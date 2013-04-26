@@ -45,9 +45,9 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     BufferStringSet lognms; 	BufferStringSet wvltnms;
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
     wvltctioset_[0]->ctxt.forread = false;
+    wvltnms.add( data_.initwvlt_.name() );
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
     wvltctioset_[1]->ctxt.forread = false;
-    wvltnms.add( data_.initwvlt_.name() );
     wvltnms.add( data_.estimatedwvlt_.name() );
 
     //start at 2, the first 2 are sonic and density.
@@ -136,7 +136,8 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	    success = false; 
 	    continue;
 	}
-	Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_ ;
+
+	const Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_;
 	if ( !wvlt.put( wvltctioset_[wvltidx]->ioobj ) )
 	{
 	    errmsg += wvltnms.get(idx);

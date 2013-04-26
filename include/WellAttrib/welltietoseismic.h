@@ -18,12 +18,11 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
-#include "unitofmeasure.h"
-#include "welltiegeocalculator.h"
 
 class LineKey;
 class MultiID;
-namespace Well { class Data; class D2TModel; }
+class Wavelet;
+namespace Well { class Data; class D2TModel; class Log;}
 
 namespace WellTie
 {
@@ -33,38 +32,46 @@ mExpClass(WellAttrib) DataPlayer
 {
 public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
+			~DataPlayer();
 
-    bool 		computeSynthetics();
+    bool 		computeSynthetics(const Wavelet&);
     bool		extractSeismics();
-    bool		doFastSynthetics();
-    bool		computeAdditionalInfo(const Interval<float>&);
-    			// log order in log set: Vp, [den], [Vs]
-    bool		computeElasticModelFromLogs(ElasticModel&,
-	    				const StepInterval<float>,bool rgistime,
-					const Well::Data&,
-					const ObjectSet<const Well::Log>&,
-					BufferString& errmsg);
+    bool		doFastSynthetics(const Wavelet&);
     bool		isOKSynthetic() const;
     bool		isOKSeismic() const;
     bool		hasSeisId() const;
+
+    bool		computeAdditionalInfo(const Interval<float>&);
+    bool		computeCrossCorrelation();
+    bool		computeEstimatedWavelet(const int newsz);
+    void		setCrossCorrZrg( const Interval<float>& zrg )
+    								{ zrg_ = zrg; }
 
     const char*		errMSG() const		{ return errmsg_.buf(); } 
    
 protected:
 
     bool		setAIModel();
-    bool		doFullSynthetics();
+    bool		doFullSynthetics(const Wavelet&);
     bool		copyDataToLogSet();
     bool		processLog(const Well::Log*,Well::Log&,const char*); 
     void		createLog(const char*nm,float* dah,float* vals,int sz);
+    bool		checkCrossCorrInps();
+    			//!< check input synt/seis and zrg
+    bool		extractWvf(const bool issynt);
+    bool		extractReflectivity();
 
     ElasticModel 	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
     const MultiID&	seisid_;
     const LineKey*	linekey_;
+    Interval<float>	zrg_; //!< time range for cross-correlation
+    float_complex*	refarr_; //!< reflectivity in the cross-corr window
+    float*		syntarr_; //!< waveform for cross-correlation
+    float*		seisarr_; //!< waveform for cross-correlation
 
-    BufferString	errmsg_;
+    mutable BufferString errmsg_;
 };
 
 };//namespace WellTie

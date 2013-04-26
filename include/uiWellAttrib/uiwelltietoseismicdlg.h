@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
 
+class Wavelet;
 class uiGroup;
 class uiToolBar;
 class uiGenInput;
@@ -134,7 +135,9 @@ public:
 
     void 			drawData();
     bool 			getMarkerDepths(Interval<float>& zrg );
-    void 			propChanged(CallBacker*);
+    void 			dtmodelChanged(CallBacker*);
+    const Wavelet&		getWavelet() const;
+    bool			isInitWvltActive() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -160,10 +163,16 @@ protected:
     const Data& 		data_;
 
     void			putToScreen();
-    void    			computeData();
+    bool			updateZrg();
+    bool			computeNewWavelet();
 
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);
+    void 			needNewEstimatedWvlt(CallBacker*);
+    void 			zrgChanged(CallBacker*);
+    void 			synthChanged(CallBacker*);
+    void			crossCorrelationChanged(CallBacker*);
+    void 			crossAttribsParsChanged(CallBacker*);
 };
 
 }; //namespace WellTie
