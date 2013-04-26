@@ -46,6 +46,7 @@ find . -name "*.map" | xargs -P ${nrcpus} rm -f
 find . -name "*.tmp" | xargs -P ${nrcpus} rm -f
 find . -name "*.tag" | xargs -P ${nrcpus} rm -f
 find . -name "*.dot" | xargs -P ${nrcpus} rm -f
+find . -name "*.dot" | xargs rm -f
 
 set files = `find . ! -path "*.svn*"`
 
@@ -67,9 +68,9 @@ find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.
 cd ${prevdir}
 
 #First, run to upload new stuff, keep removed files
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
+${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
 #Secondly, delete removed files
-${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet
+${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
 exit 0
 
 syntax:
