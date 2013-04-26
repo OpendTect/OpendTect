@@ -22,9 +22,9 @@ using namespace PreStack;
 
 AngleComputer::AngleComputer()
     : thresholdparam_(0.01)
-    , raytracer_(0)
-    , extraytracer_(0)
     , needsraytracing_(true)
+    , raytracer_(0)
+    , trcid_(trcid_.std3DGeomID(),0,0)
 {
     maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
     iopar_.set( sKeySmoothType(), TimeAverage );
@@ -86,10 +86,11 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
 
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
-    if ( !raytracer_ && !extraytracer_ )
+    const RayTracer1D* rt = curRayTracer();
+    const ElasticModel& curem = curElasticModel();
+    if ( !rt )
 	return false;
 
-    const RayTracer1D& actrt = extraytracer_ ? *extraytracer_ : *raytracer_;
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
 
@@ -99,7 +100,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     ManagedObjectSet<PointBasedMathFunction> anglevals;
 
     TimeDepthModel td;
-    actrt.getTDModel( 0, td );
+    rt->getTDModel( 0, td );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	anglevals += new PointBasedMathFunction( 
@@ -112,16 +113,16 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    anglevals[ofsidx]->add( 0, 0 );
 
 	int prevzidx=0; float layerz = 0; float depth = 0;
-	for ( int layeridx=0; layeridx<elasticmodel_.size(); layeridx++ )
+	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
 	{
-	    depth += elasticmodel_[layeridx].thickness_;
+	    depth += curem[layeridx].thickness_;
 	    layerz = SI().zDomain().isTime() ? td.getTime( depth ) : depth;
 
 	    int zidx = outputzrg.getIndex( layerz );
 	    if ( zidx == prevzidx )
 		continue;
 
-	    float sinangle = actrt.getSinAngle(layeridx,ofsidx);
+	    float sinangle = rt->getSinAngle(layeridx,ofsidx);
 	    if ( mIsUdf(sinangle) || sinangle<-1.5f || sinangle>1.5f )
 		continue;
 	    if ( sinangle<-1.0f )
@@ -161,7 +162,7 @@ Gather* AngleComputer::computeAngleData()
 	}
 
 	raytracer_->setup().doreflectivity( false );
-	raytracer_->setModel( elasticmodel_ );
+	raytracer_->setModel( curElasticModel() );
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
 	raytracer_->setOffsets( offsets );
@@ -186,7 +187,6 @@ Gather* AngleComputer::computeAngleData()
 
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : velsource_( 0 )
-    , trcid_(trcid_.std3DGeomID(),0,0)
 {}
 
 
@@ -251,7 +251,6 @@ bool VelocityBasedAngleComputer::createElasticModel(
 		zit ? (zrange.atIndex(firstidx+1)-srddepth)*pvel[firstidx]/2.0f
 		    :  zrange.atIndex(firstidx+1)-srddepth;
     }
-
     else 
 	firstlayerthickness = 
 		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f 
@@ -328,6 +327,11 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 }
 
 
+const ElasticModel& ModelBasedAngleComputer::ModelTool
+					   ::elasticModel() const
+{ return rt_ ? rt_->getModel() : *em_; } 
+
+
 ModelBasedAngleComputer::ModelBasedAngleComputer()
     : AngleComputer()
 {
@@ -335,23 +339,55 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 
 
 void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em, 
+					       const TraceID& trcid,
 					       bool block, bool pvelonly )
 {
-    elasticmodel_ = em;
+    ElasticModel* elasticmodel = new ElasticModel( em );
     if ( block )
     {
 	ElasticModel rawem;
-	BlockElasticModel( elasticmodel_, rawem, thresholdparam_, pvelonly );
-	SetMaxThicknessElasticModel( rawem, elasticmodel_, maxthickness_ );
+	BlockElasticModel( *elasticmodel, rawem, thresholdparam_, pvelonly );
+	SetMaxThicknessElasticModel( rawem, *elasticmodel, maxthickness_ );
     }
+
+    ModelTool* tool = new ModelTool( *elasticmodel, trcid );
+    const int toolidx = tools_.indexOf( tool );
+    if ( toolidx<0 )
+	tools_ += tool;
+    else
+	delete tools_.replace( toolidx, tool );
 }
 
 
-void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt )
+void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt,
+					    const TraceID& trcid )
 {
-    extraytracer_ = rt;
-    if ( extraytracer_ )
-	needsraytracing_ = false;
+    ModelTool* tool = new ModelTool( rt, trcid );
+    const int toolidx = tools_.indexOf( tool );
+    if ( toolidx<0 )
+	tools_ += tool;
+    else
+	delete tools_.replace( toolidx, tool );
+    needsraytracing_ = false;
+}
+
+
+const ElasticModel& ModelBasedAngleComputer::curElasticModel() const
+{
+    for ( int idx=0; idx<tools_.size(); idx++ )
+	if ( tools_[idx]->trcID() == trcid_ )
+	    return tools_[idx]->elasticModel();
+    return elasticmodel_;
+}
+
+
+const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
+{
+    if ( raytracer_ ) return raytracer_;
+    for ( int idx=0; idx<tools_.size(); idx++ )
+	if ( tools_[idx]->trcID() == trcid_ )
+	    return tools_[idx]->rayTracer();
+    return 0;
 }
 
 
