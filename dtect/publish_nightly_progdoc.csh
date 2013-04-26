@@ -12,7 +12,7 @@ endif
 set progname=${0}
 
 set prevdir = `pwd`
-set dtectdir = ${prevdir}/`dirname ${progname}`
+set dtectdir = `dirname ${progname}`
 set sendappl = ${dtectdir}/copyto_s3bucket.csh
 set nrcpus = `${dtectdir}/GetNrProc`
 if ( ! -e ${sendappl} ) then
