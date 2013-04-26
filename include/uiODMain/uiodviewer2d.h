@@ -41,7 +41,7 @@ public:
 				uiODViewer2D(uiODMain&,int visid);
 				~uiODViewer2D();
 
-    virtual void		setUpView(DataPack::ID,bool wva,bool show=true);
+    virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
 
