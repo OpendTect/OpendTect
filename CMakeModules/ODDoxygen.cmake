@@ -10,7 +10,7 @@ OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentat
 # OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
-    set( OD_DOXYGEN_FILE ${CMAKE_BUILD_DIR}/CMakeModules/Doxyfile )
+    set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
     set( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
     OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/include/Basic/main.dox )
 
@@ -27,22 +27,24 @@ macro( OD_BUILD_DOCUMENTATION )
 	endif()
 	set( SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/${OD_DOXYGEN_MODULE} )
 	if( EXISTS ${SOURCE_DIR} )
-	    set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
-	endif()
-    endforeach()
+		set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
+	    endif()
+	endforeach()
 
-    set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
-    set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
+	set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+	set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 
-    
-    configure_file( ${TEMPLATE}
+	
+	configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${FOOTER}
-		${CMAKE_BUILD_DIR}/CMakeFiles/doxygenfooter.html @ONLY
+		${PROJECT_BINARY_DIR}/CMakeFiles/doxygenfooter.html @ONLY
 		IMMEDIATE)
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
+
+    message ( ${DOXYGEN_EXECUTABLE} )
 
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
