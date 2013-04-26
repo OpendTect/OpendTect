@@ -61,6 +61,13 @@ public:
 };
 
 
+//!\brief convenience: contents can be null or unspecified, handle in one go
+mGlobal(Strat) inline bool isUnspecified( const Content* ct )
+{
+    return !ct || ct->isUnspecified();
+}
+
+
 /*!\brief set of names for stuff that can be inside porous layers */
 
 mExpClass(Strat) ContentSet : public ObjectSet<Content>
