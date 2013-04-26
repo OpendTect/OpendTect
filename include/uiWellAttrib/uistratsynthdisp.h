@@ -14,31 +14,18 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uigroup.h"
-#include "uimainwin.h"
-#include "uidialog.h"
 #include "uiflatviewslicepos.h"
 #include "stratsynth.h"
-#include "valseriesevent.h"
 
-class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
-class RayParam;
 class uiComboBox;
-class uiGenInput;
-class uiCheckBox;
 class uiFlatViewer;
-class uiRayTracerSel;
-class uiListBox;
-class uiLabeledComboBox;
-class uiFlatViewMainWin;
 class uiMultiFlatViewControl;
-class uiOffsetSlicePos;
 class uiPushButton;
 class uiSynthGenDlg;
 class uiSeisWaveletSel;
-class uiStackGrp;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
@@ -84,7 +71,6 @@ public:
     Notifier<uiStratSynthDisp>	modSelChanged;
     Notifier<uiStratSynthDisp>	synthsChanged;
 
-    //mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
@@ -188,72 +174,6 @@ protected:
     void		nextCB(CallBacker*);
 
     StepInterval<float>	limitsampling_;
-};
-
-
-mExpClass(uiWellAttrib) uiStackGrp : public uiGroup
-{
-public:
-    			uiStackGrp(uiParent*);
-
-    Notifier<uiStackGrp> rangeChg;
-
-    void		setLimitRange(Interval<float>);
-    const Interval<float>& getRange() const;
-
-protected:
-    uiGenInput*		offsetfld_;
-    Interval<float>	limitrg_;
-    Interval<float>	offsetrg_;
-
-    void		valChgCB( CallBacker* );
-};
-
-
-mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
-{
-public:
-				uiSynthGenDlg(uiParent*,StratSynth&);
-
-    bool			getFromScreen();
-    void			putToScreen();
-    void			updateSynthNames();
-    void			updateWaveletName();
-    bool			isCurSynthChanged() const;
-
-    Notifier<uiSynthGenDlg>	genNewReq;
-    CNotifier<uiSynthGenDlg,BufferString> synthRemoved;
-    CNotifier<uiSynthGenDlg,BufferString> synthChanged;
-
-protected:
-    void			updateFieldSensitivity();
-
-    uiSeisWaveletSel*		wvltfld_;
-    uiComboBox*			typefld_;
-    uiLabeledComboBox*		psselfld_;
-    uiGenInput*  		namefld_;
-    uiGenInput*			nmofld_;
-    uiGenInput*			stretchmutelimitfld_;
-    uiGenInput*			mutelenfld_;
-    uiRayTracerSel*		rtsel_;
-    uiPushButton*		gennewbut_;
-    uiPushButton*		applybut_;
-    uiPushButton*		revertbut_;
-    uiPushButton*		savebut_;
-    uiListBox*			synthnmlb_;
-    StratSynth&			stratsynth_;
-
-
-    void			getPSNames(BufferStringSet&);
-    void			typeChg(CallBacker*);
-    bool			genNewCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    void			removeSyntheticsCB(CallBacker*);
-    void			changeSyntheticsCB(CallBacker*);
-    void			parsChanged(CallBacker*);
-    void			nameChanged(CallBacker*);
-    bool			rejectOK(CallBacker*);
-
 };
 
 #endif
