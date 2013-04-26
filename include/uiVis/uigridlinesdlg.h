@@ -39,6 +39,7 @@ protected:
     uiGenInput*		crlspacingfld_;
     uiGenInput*		zspacingfld_;
     uiSelLineStyle*     lsfld_;
+    uiCheckBox*		applyallfld_;
 
     visSurvey::PlaneDataDisplay*	pdd_;
 };

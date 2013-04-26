@@ -66,6 +66,17 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     }
     else
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
+
+    BufferString allmsg("Apply to all loaded ");
+    if ( visSurvey::PlaneDataDisplay::Inline == pdd_->getOrientation() )
+	allmsg += "inlines";
+    else if ( visSurvey::PlaneDataDisplay::Crossline == pdd_->getOrientation() )
+	allmsg += "crosslines";
+    else 
+	allmsg += "z slices";
+    applyallfld_ = new uiCheckBox( this, allmsg.buf() );
+    applyallfld_->setChecked( true );
+    applyallfld_->attach( alignedBelow, lsfld_ );
     
     setParameters();
 }
@@ -173,7 +184,6 @@ void uiGridLinesDlg::setParameters()
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
 {
-    visBase::GridLines& gl = *pdd_->gridlines();
     CubeSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
@@ -191,16 +201,26 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
-    gl.setGridCubeSampling( cs );
-    if ( inlfld_ )
-	gl.showInlines( inlfld_->isChecked() );
-    if ( crlfld_ )
-	gl.showCrosslines( crlfld_->isChecked() );
-    if ( zfld_ )
-	gl.showZlines( zfld_->isChecked() );
+    const visSurvey::Scene* scene = pdd_->getScene();
+    const bool applyall = applyallfld_->isChecked();
 
-    gl.setLineStyle( lsfld_->getStyle() );
+    for ( int idx=scene->size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet(const visBase::VisualObject*,so,scene->getObject(idx));
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		const_cast<visBase::VisualObject*>(so));
+	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() || 
+		(!applyall && pdd!=pdd_) )
+	    continue;
+
+	visBase::GridLines& gl = *pdd->gridlines();
+	gl.setPlaneCubeSampling( pdd->getCubeSampling(true,true) );
+	gl.setGridCubeSampling( cs );
+	gl.showInlines( inlfld_ ? inlfld_->isChecked() : false );
+	gl.showCrosslines( crlfld_ ? crlfld_->isChecked(): false );
+	gl.showZlines( zfld_ ? zfld_->isChecked(): false );
+	gl.setLineStyle( lsfld_->getStyle() );
+    }
 
     return true;
 }
