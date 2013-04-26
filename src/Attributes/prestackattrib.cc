@@ -112,9 +112,14 @@ PSAttrib::PSAttrib( Desc& ds )
 	 lsqtype == PreStack::PropCalc::AngleCoeff ) 
     {
 	mGetString( velocityid_, velocityIDStr() );
-	anglecomp_ = new PreStack::VelocityBasedAngleComputer;
-	anglecomp_->ref();
-	anglecomp_->setMultiID( velocityid_ ); 
+	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
+	{
+	    PreStack::VelocityBasedAngleComputer* velangcomp =
+		new PreStack::VelocityBasedAngleComputer;
+	    velangcomp->setMultiID( velocityid_ );
+	    anglecomp_ = velangcomp;
+	    anglecomp_->ref();
+	}
     }
 
     BufferString preprocessstr;
@@ -143,6 +148,14 @@ PSAttrib::~PSAttrib()
     delete psioobj_;
     if ( anglecomp_ )
 	anglecomp_->unRef();
+}
+
+
+void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
+{
+    if ( anglecomp_ ) anglecomp_->unRef();
+    anglecomp_ = ac;
+    anglecomp_->ref();
 }
 
 
