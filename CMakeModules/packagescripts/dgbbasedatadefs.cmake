@@ -4,6 +4,6 @@
 # Date:         Nov 2012
 #RCS:           $Id$
 
-SET( LIBLIST dgbAttribs ModDeps.dgb SequenceModels )
+SET( LIBLIST dgbAttribs SequenceModels )
 SET( EXECLIST  )
 SET( PACK "dgbbasedata")
