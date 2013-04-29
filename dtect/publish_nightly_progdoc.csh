@@ -67,9 +67,13 @@ find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.
 
 cd ${prevdir}
 
-#First, run to upload new stuff, keep removed files
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
-#Secondly, delete removed files
+#First, run to upload svg files, as they need special mime treatment
+${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*" --s3arg --include --s3arg "*.svg" --s3arg -m --s3arg "image/svg+xml" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
+
+#SecondlySecond, run to upload new stuff, keep removed files
+${sendappl} --s3arg --add-header --s3arg --exclude --s3arg "*.svg" --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
+
+#Third, delete removed files
 ${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
 exit 0
 
