@@ -33,7 +33,6 @@ if(UNIX) #Apple an Linux
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	endif()
 
-	set ( OD_SET_TARGET_PROPERTIES 1 )
 
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
