@@ -4,6 +4,6 @@
 # Date:         August 2012
 #RCS:           $Id$
 
-SET( LIBLIST dGBStrat uidGBStrat )
+SET( LIBLIST SynthRock uiSynthRock )
 SET( EXECLIST "" )
 SET( PACK "dgbstrat" )
