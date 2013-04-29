@@ -41,7 +41,7 @@ public:
     				AngleMuteComputer();
 				~AngleMuteComputer();
 
-    mStruct(PreStackProcessing) AngleMuteCompPars : public AngleMuteBase::Params
+    mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
     {
 	MultiID			outputmutemid_;
 	HorSampling 		hrg_;

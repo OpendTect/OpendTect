@@ -24,7 +24,7 @@ class uiVelSel;
 
 namespace PreStack
 {
-    class uiAngleMuteGrp;
+    class uiAngleCompGrp;
     class AngleMuteComputer;
 
 mExpClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
@@ -36,7 +36,7 @@ protected:
 
     CtxtIOObj&		outctio_;
 
-    uiAngleMuteGrp*     anglemutegrp_;
+    uiAngleCompGrp*		anglecompgrp_;
     AngleMuteComputer*	processor_;
     uiSeisSubSel*	subsel_;
     uiIOObjSel*		mutedeffld_;

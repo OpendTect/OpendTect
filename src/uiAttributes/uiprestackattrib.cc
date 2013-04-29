@@ -23,18 +23,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "uiattrsel.h"
 #include "uiattribfactory.h"
+#include "uibutton.h"
 #include "uiprestacksel.h"
 #include "uiprestackprocessorsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uiveldesc.h"
 
+#include "raytrace1d.h"
+#include "prestackanglemute.h"
+#include "prestackanglecomputer.h"
+#include "uiprestackanglemute.h"
+
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
 
 
+static const char*	sKeyRayTracer()	    { return "FullRayTracer"; }
+
+
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.17")
+	, params_(*new PreStack::AngleCompParams)
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
@@ -44,13 +54,10 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
     preprocsel_ = new PreStack::uiProcSel( this, "Preprocessing setup", 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
-    offsrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
-	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
-    offsrgfld_->attach( alignedBelow, preprocsel_ );
-
+    
     calctypefld_ = new uiGenInput( this, "Calculation type",
 		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
-    calctypefld_->attach( alignedBelow, offsrgfld_ );
+    calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
     stattypefld_ = new uiGenInput( this, "Statistics type",
@@ -60,26 +67,30 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     lsqtypefld_ = new uiGenInput( this, "LSQ output",
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
-    lsqtypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,lsqTypSel) );
 
-    valaxtypefld_ = new uiGenInput( this, "Axis transformations",
-		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
-    valaxtypefld_->attach( alignedBelow, lsqtypefld_ );
-    xlbl_ = new uiLabel( this, "X:" );
-    xlbl_->attach( rightOf, valaxtypefld_ );
-    offsaxtypefld_ = new uiGenInput( this, "",
+    useanglefld_ = new uiCheckBox( this, "Use Angles" );
+    useanglefld_->attach( rightOf, lsqtypefld_ );
+    useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
+
+    offsrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
+	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
+    offsrgfld_->attach( alignedBelow, stattypefld_ );
+
+    const char* offslabel = SI().xyInFeet() ? "feet" : "meters";
+    offsrglbl_ = new uiLabel( this, offslabel );
+    offsrglbl_->attach( rightOf, offsrgfld_ );
+
+    offsaxtypefld_ = new uiGenInput( this, "X Axis Transformation:",
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
 	   			      .setName("X") );
-    offsaxtypefld_->attach( rightOf, xlbl_ );
+    offsaxtypefld_->attach( alignedBelow, offsrgfld_ );
 
-    useazimfld_ = new uiGenInput( this, "X = Azimuth", BoolInpSpec(false) );
-    useazimfld_->attach( alignedBelow, valaxtypefld_ );
+    valaxtypefld_ = new uiGenInput( this, "Amplitude transformations",
+		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
+    valaxtypefld_->attach( alignedBelow, offsaxtypefld_ );
 
-    IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread = true;
-    uiSeisSel::Setup su( false, false ); su.seltxt( "Velocity Data" );
-    velselfld_ = new uiVelSel( this, ctxt, su, false );
-    velselfld_->attach( alignedBelow, useazimfld_ );
+    anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );
+    anglecompgrp_->attach( alignedBelow, valaxtypefld_ );
 
     calcTypSel(0);
     setHAlignObj( prestackinpfld_ );
@@ -107,8 +118,9 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
     offsaxtypefld_->setValue( (int)aps->setup().offsaxis_ );
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
-    useazimfld_->setValue( aps->setup().useazim_ );
-    velselfld_->setInput( aps->velocityID() );
+    useanglefld_->setChecked( aps->setup().useangle_ );
+    anglecompgrp_->setVelocityInput( aps->velocityID() );
+    anglecompgrp_->setAngleRange( aps->setup().anglerg_ );
 
     calcTypSel(0);
     doPreProcSel(0);
@@ -150,12 +162,56 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
 	mSetEnum(Attrib::PSAttrib::offsaxisStr(),offsaxtypefld_->getIntValue())
-	mSetBool(Attrib::PSAttrib::useazimStr(),useazimfld_->getBoolValue())
-	const int lsqtype = lsqtypefld_->getIntValue();
-	const bool isangleparam = ( lsqtype==PreStack::PropCalc::AngleA0 || 
-	                            lsqtype==PreStack::PropCalc::AngleCoeff );
+	const bool isangleparam = useanglefld_->isChecked();
+	mSetBool(Attrib::PSAttrib::useangleStr(),isangleparam )
+
 	if ( isangleparam )
-	    mSetString(Attrib::PSAttrib::velocityIDStr(),velselfld_->key())
+	{
+	    if ( !anglecompgrp_->acceptOK() )
+		return false;
+
+	    mSetString(Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
+	    Interval<float>& anglerg = params_.anglerange_;
+	    if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
+	    mSetFloat(Attrib::PSAttrib::angleStartStr(),anglerg.start)
+	    mSetFloat(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
+
+	    IOPar& raypar = params_.raypar_;
+	    BufferString raytracertype;
+	    raypar.get( sKey::Type(), raytracertype );
+	    if ( raytracertype == sKeyRayTracer() )
+	    {
+		float thresholdparam;
+		raypar.get( RayTracer1D::sKeyBlockRatio(), thresholdparam );
+		mSetFloat( RayTracer1D::sKeyBlockRatio(), thresholdparam );
+		mSetBool( Attrib::PSAttrib::rayTracerStr(), true );
+	    }
+	    
+	    int smoothtype;
+	    IOPar smpar ( params_.smoothingpar_ );
+	    smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+	    mSetInt( PreStack::AngleComputer::sKeySmoothType(), smoothtype )
+	    if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+	    {
+		BufferString winfunc; float winparam, winlength;
+		smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
+		smpar.get( PreStack::AngleComputer::sKeyWinParam(), winparam );
+		smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
+
+		mSetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc )
+		mSetFloat( PreStack::AngleComputer::sKeyWinParam(), winparam )
+		mSetFloat( PreStack::AngleComputer::sKeyWinLen(), winlength )
+	    }
+	    else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
+	    {
+		float f3freq, f4freq;
+		smpar.get( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
+		smpar.get( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
+
+		mSetFloat( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
+		mSetFloat( PreStack::AngleComputer::sKeyFreqF3(), f4freq );
+	    }
+	}
 	
     }
     mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
@@ -169,21 +225,21 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
     stattypefld_->display( isnorm );
     lsqtypefld_->display( !isnorm );
     offsaxtypefld_->display( !isnorm );
-    xlbl_->display( !isnorm );
-    useazimfld_->display( !isnorm );
+    useanglefld_->display( !isnorm );
     if ( !isnorm )
-	lsqTypSel( 0 );
+	angleTypSel( 0 );
     else
-	velselfld_->display( false );
+	anglecompgrp_->display( false );  
 }
 
 
-void uiPreStackAttrib::lsqTypSel( CallBacker* )
+void uiPreStackAttrib::angleTypSel( CallBacker* )
 {
-    const int lsqtype = lsqtypefld_->getIntValue();
-    const bool isangleparam = ( lsqtype==PreStack::PropCalc::AngleA0 || 
-	                        lsqtype==PreStack::PropCalc::AngleCoeff );
-    velselfld_->display( isangleparam );
+    bool isangleparam = useanglefld_->isChecked();
+    anglecompgrp_->display( isangleparam );
+    offsaxtypefld_->setSensitive( !isangleparam );
+    offsaxtypefld_->setValue( isangleparam ? PreStack::PropCalc::Sinsq
+					   : PreStack::PropCalc::Norm );
 }
 
 

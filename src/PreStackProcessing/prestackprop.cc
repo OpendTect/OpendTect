@@ -20,7 +20,7 @@ namespace PreStack
 DefineEnumNames(PropCalc,CalcType,1,"Calculation type")
 {
 	"Statistics",
-	"Least-Square",
+	"AVO Attributes",
 	0
 };
 
@@ -40,8 +40,6 @@ DefineEnumNames(PropCalc,LSQType,0,"Axis type")
 {
 	"Intercept",
 	"Gradient",
-	"Angle Intercept",
-	"Angle Gradient",
 	"StdDev of Intercept",
 	"StdDev of Gradient",
 	"Correlation coefficient",
@@ -153,12 +151,17 @@ float PropCalc::getVal( int sampnr ) const
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
 	    {
-		if ( (setup_.lsqtype_==AngleA0||setup_.lsqtype_==AngleCoeff) 
-		      && !setup_.useazim_ && angledata_ )
-		    axisvals += angledata_->data().get( itrc, (int)cursamp );
+		if ( setup_.useangle_ && angledata_ )
+		{
+		    const float angle = 
+				angledata_->data().get( itrc, (int)cursamp );
+		    const float angleindeg = angle * 180/M_PIf;
+		    if ( !setup_.anglerg_.includes(angleindeg,false) )
+			continue;	    
+		    axisvals += angle;
+		}
 		else
-		    axisvals += setup_.useazim_ ? gather_->getAzimuth(itrc)
-						: offset;
+		    axisvals += offset;
 	    }
 	}
     }
@@ -210,12 +213,17 @@ float PropCalc::getVal( float z ) const
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
 	    {
-		if ( (setup_.lsqtype_==AngleA0||setup_.lsqtype_==AngleCoeff) 
-		      && !setup_.useazim_ && angledata_ )
-		    axisvals += angledata_->data().get( itrc, (int)cursamp );
+		if ( setup_.useangle_ && angledata_ )
+		{
+		    const float angle = 
+				angledata_->data().get( itrc, (int)cursamp );
+		    const float angleindeg = angle * 180/M_PIf;
+		    if ( !setup_.anglerg_.includes(angleindeg,false) )
+			continue;	    
+		    axisvals += angle;
+		}
 		else
-		    axisvals += setup_.useazim_ ? gather_->getAzimuth(itrc)
-						: offset;
+		    axisvals += offset;
 	    }
 	}
     }
@@ -282,8 +290,6 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	    {
 		case A0:		return vals[0];
 		case Coeff:		return 0;
-		case AngleA0:		return vals[0];
-		case AngleCoeff:	return 0;
 		case StdDevA0:		return 0;
 		case StdDevCoeff:	return 0;
 		default:		return 1;
@@ -291,10 +297,13 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	}
     }
 
-    if ( (su.lsqtype_==AngleA0||su.lsqtype_==AngleCoeff) && !su.useazim_ )
+    if ( su.useangle_ )
 	transformAxis( axisvals, PropCalc::Sinsq );
     else
 	transformAxis( axisvals, su.offsaxis_ );
+
+    if ( !axisvals.size() )
+	return 0;
 
     LinStats2D ls2d;
     ls2d.use( axisvals.arr(), vals.arr(), vals.size() );
@@ -302,8 +311,6 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     {
     case A0:		return ls2d.lp.a0;
     case Coeff:		return ls2d.lp.ax;
-    case AngleA0:	return ls2d.lp.a0;
-    case AngleCoeff:	return ls2d.lp.ax;
     case StdDevA0:	return ls2d.sd.a0;
     case StdDevCoeff:	return ls2d.sd.ax;
     default:		return ls2d.corrcoeff;

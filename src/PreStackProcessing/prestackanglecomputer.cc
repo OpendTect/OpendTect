@@ -50,6 +50,13 @@ void AngleComputer::setSmoothingPars( const IOPar& iopar )
 }
 
 
+void AngleComputer::setRayTracerParam( float param, bool advraytracer )
+{
+    thresholdparam_ = param;
+    isadvraytracer_ = advraytracer;
+}
+
+
 void AngleComputer::fftSmoothing( Array2D<float>& angledata )
 {
     //TODO : Implement FFT Based Low Pass Filter;

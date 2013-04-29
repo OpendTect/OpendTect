@@ -65,10 +65,14 @@ public:
     static const char*  lsqtypeStr()		{ return "lsqtype"; }
     static const char*  offsaxisStr()		{ return "offsaxis"; }
     static const char*  valaxisStr()		{ return "valaxis"; }
-    static const char*  useazimStr()		{ return "useazim"; }
     static const char*  componentStr()		{ return "comp"; }
     static const char*  apertureStr()		{ return "aperture"; }
     static const char*  velocityIDStr()		{ return "velocityid"; }
+    static const char*  useangleStr()		{ return "useangle"; }
+    static const char*  angleStartStr()		{ return "anglestart"; }
+    static const char*  angleStopStr()		{ return "anglestop"; }
+    static const char*	thresholdParamStr()	{ return "thresholdparam"; }
+    static const char*	rayTracerStr()		{ return "raytracer"; }
 
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }
