@@ -201,16 +201,17 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    const visSurvey::Scene* scene = pdd_->getScene();
+    visSurvey::Scene* scene = pdd_->getScene();
     const bool applyall = applyallfld_->isChecked();
 
     for ( int idx=scene->size()-1; idx>=0; idx-- )
     {
-	mDynamicCastGet(const visBase::VisualObject*,so,scene->getObject(idx));
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		const_cast<visBase::VisualObject*>(so));
-	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() || 
-		(!applyall && pdd!=pdd_) )
+	mDynamicCastGet(visBase::VisualObject*,so,scene->getObject(idx));
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
+	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() )
+	   continue;
+	
+	if ( !applyall && pdd!=pdd_ )
 	    continue;
 
 	visBase::GridLines& gl = *pdd->gridlines();
