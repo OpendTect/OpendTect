@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigridlinesdlg.h"
 
 #include "draw.h"
+#include "hiddenparam.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -31,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	    				IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
+HiddenParam<uiGridLinesDlg, uiCheckBox*> applyallflds(0);
     
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options","50.0.3"))
@@ -66,7 +68,19 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     }
     else
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
-    
+
+    BufferString allmsg("Apply to all loaded ");
+    if ( visSurvey::PlaneDataDisplay::Inline == pdd_->getOrientation() )
+	allmsg += "inlines";
+    else if ( visSurvey::PlaneDataDisplay::Crossline == pdd_->getOrientation() )
+	allmsg += "crosslines";
+    else
+	allmsg += "z slices";
+    uiCheckBox* applyallfld = new uiCheckBox( this, allmsg.buf() );
+    applyallfld->setChecked( true );
+    applyallfld->attach( alignedBelow, lsfld_ );
+    applyallflds.setParam( this, applyallfld );
+        
     setParameters();
 }
 
@@ -173,7 +187,6 @@ void uiGridLinesDlg::setParameters()
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
 {
-    visBase::GridLines& gl = *pdd_->gridlines();
     CubeSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
@@ -191,16 +204,26 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
-    gl.setGridCubeSampling( cs );
-    if ( inlfld_ )
-	gl.showInlines( inlfld_->isChecked() );
-    if ( crlfld_ )
-	gl.showCrosslines( crlfld_->isChecked() );
-    if ( zfld_ )
-	gl.showZlines( zfld_->isChecked() );
+    visSurvey::Scene* scene = pdd_->getScene();
+    const bool applyall = applyallflds.getParam(this)->isChecked();
+    for ( int idx=scene->size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet(visBase::VisualObject*,so,scene->getObject(idx));
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
+	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() )
+	    continue;
 
-    gl.setLineStyle( lsfld_->getStyle() );
+	if ( !applyall && pdd!=pdd_ )
+	    continue;
+	
+	visBase::GridLines& gl = *pdd->gridlines();
+	gl.setPlaneCubeSampling( pdd->getCubeSampling(true,true) );
+	gl.setGridCubeSampling( cs );
+	gl.showInlines( inlfld_ ? inlfld_->isChecked() : false );
+	gl.showCrosslines( crlfld_ ? crlfld_->isChecked(): false );
+	gl.showZlines( zfld_ ? zfld_->isChecked(): false );
+	gl.setLineStyle( lsfld_->getStyle() );
+    }
 
     return true;
 }
