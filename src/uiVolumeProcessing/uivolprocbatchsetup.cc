@@ -132,7 +132,7 @@ bool uiBatchSetup::fillPar( IOPar& par )
 
     IOPar cspar;
     possubsel_->fillPar( cspar );
-    par.mergeComp( cspar, sKey::Subsel() );
+    par.mergeComp( cspar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     return true;
 }
 
