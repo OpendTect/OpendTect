@@ -22,7 +22,8 @@ class BinIDWiseTask : public ParallelTask
 {
 public:
     		BinIDWiseTask( Step& ro )
-		    : step_( ro ), totalnr_( -1 )			{}
+		    : step_( ro ), totalnr_( -1 )	{}
+    const char* message() const				{ return errmsg_; }
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
@@ -76,13 +77,16 @@ protected:
 		    return totalnr_;
 		}
 
-    bool	doPrepare(int nrthreads)
+    bool	doPrepare( int nrthreads )
 		{
-		    return step_.prepareComp( nrthreads );
+		    const bool res = step_.prepareComp( nrthreads );
+		    if ( !res ) errmsg_ = step_.errMsg();
+		    return res;
 		}
 
     Step&		step_;
     mutable int		totalnr_;
+    BufferString	errmsg_;
 };
 
 
@@ -144,7 +148,10 @@ int ChainExecutor::nextStep()
 	return errmsg_.isEmpty() ? Finished() : ErrorOccurred();
 
     if ( !curtask_->execute() )
+    {
+	errmsg_ = curtask_->message();
 	return ErrorOccurred();
+    }
 
     currentstep_++;
     if ( curtask_ ) delete curtask_;	//Avoids screwing up progressmeters
