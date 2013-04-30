@@ -40,8 +40,7 @@ public:
 					       bool dooffset=false,
 					       bool isformute=true);
 
-    void			setVelocityInput(const MultiID&);
-    void			setAngleRange(const Interval<float>&);
+    void			updateFromParams();
 
     bool			acceptOK();
 
@@ -67,12 +66,8 @@ public:
 					      PreStack::AngleCompParams&,
 					      bool dooffset=false,
 					      bool isformute=true);
-			
-	enum smoothingType		{ TimeAverage, FFTFilter };
-					DeclareEnumUtils(smoothingType)
-	enum smoothingWindow		{ Box, Hamming, Hanning, Blackman, 
-					  Bartlet, Flattop };
-					DeclareEnumUtils(smoothingWindow)
+
+    void		updateFromParams();
 
 protected :
 

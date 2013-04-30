@@ -36,12 +36,8 @@ namespace PreStack
 mExpClass(PreStackProcessing) AngleCompParams
 {
 public:
-			AngleCompParams()
-			    : mutecutoff_(30)
-			    , anglerange_(0,30)
-			    , velvolmid_(MultiID::udf())
-			    {}	
-
+				AngleCompParams();
+					
     float 			mutecutoff_;
     Interval<float>		anglerange_;
     MultiID			velvolmid_;   

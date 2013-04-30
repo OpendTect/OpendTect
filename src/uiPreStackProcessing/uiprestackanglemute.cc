@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackanglemute.h"
 #include "raytrace1d.h"
 #include "survinfo.h"
+#include "windowfunction.h"
 #include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
@@ -25,24 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace PreStack
 {
-
-DefineEnumNames(uiAngleCompAdvParsDlg,smoothingType,1,"Smoothing Type")
-{
-	"Time-Average",
-	"Frequency-Filter", 
-	0
-};
-
-DefineEnumNames(uiAngleCompAdvParsDlg,smoothingWindow,1,"Smoothing Window")
-{
-	"Box",
-	"Hamming",
-	"Hanning",
-	"Blackman",
-	"Bartlet",
-	"Flattop",
-	0
-};
 
 uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars, 
 				bool dooffset, bool isformute )
@@ -67,7 +50,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     else
     {
 	anglefld_ = new uiGenInput( this, "Angle range",
-	    FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
+				    FloatInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
 	anglelbl_ = new uiLabel( this, "degree" );
 	anglelbl_->attach( rightOf, anglefld_ );
@@ -82,15 +65,13 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 }
 
 
-void uiAngleCompGrp::setVelocityInput( const MultiID& mid )
+void uiAngleCompGrp::updateFromParams()
 {
-    velfuncsel_->setInput( mid );
-}
-
-
-void uiAngleCompGrp::setAngleRange( const Interval<float>& anglerange )
-{
-    anglefld_->setValue( anglerange );
+    velfuncsel_->setInput( params_.velvolmid_ );
+    if ( isformute_ )
+	anglefld_->setValue( params_.mutecutoff_ );
+    else
+	anglefld_->setValue( params_.anglerange_ );
 }
 
 
@@ -127,7 +108,8 @@ bool uiAngleCompGrp::acceptOK()
 
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
-    advpardlg_->go();
+    advpardlg_->updateFromParams();
+    advpardlg_->go(); 
 }
 
 
@@ -154,13 +136,14 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 	return;
 
     smoothtypefld_ = new uiGenInput( this, "Smoothing Type",
-				     StringListInpSpec(smoothingTypeNames()) );
+	StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					     smoothTypeSel) );
 
+    const BufferStringSet& windowfunctions = WINFUNCS().getNames();
     smoothwindowfld_ = new uiGenInput( this, "Smoothing Window", 
-				   StringListInpSpec(smoothingWindowNames()) );
+				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
 
     smoothwinparamfld_ = new uiGenInput( this, "Smoothing Param",
@@ -193,9 +176,8 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 	       smoothtypefld_->getIntValue() );
     if ( istimeavg )
     {
-	smoothingWindow smwin = mCast( smoothingWindow, 
-				       smoothwindowfld_->getIntValue() );
-	iopar.set( PreStack::AngleComputer::sKeyWinFunc(), toString(smwin) );
+	iopar.set( PreStack::AngleComputer::sKeyWinFunc(),
+		   smoothwindowfld_->text() );
 	iopar.set( PreStack::AngleComputer::sKeyWinParam(), 
 		   smoothwinparamfld_->getfValue() );
 	iopar.set( PreStack::AngleComputer::sKeyWinLen(), 
@@ -204,11 +186,42 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
     else
     {
 	iopar.set( PreStack::AngleComputer::sKeyFreqF3(), 
-		   freqf3fld_->getFInterval() );
+		   freqf3fld_->getfValue() );
 	iopar.set( PreStack::AngleComputer::sKeyFreqF4(),
-		   freqf4fld_->getFInterval() );
+		   freqf4fld_->getfValue() );
     }
+
     return true;
+}
+
+void uiAngleCompAdvParsDlg::updateFromParams()
+{
+    raytracerfld_->usePar( params_.raypar_ );
+    if ( isformute_ )
+	return;
+
+    const IOPar& iopar = params_.smoothingpar_;
+    int smoothtype = 0;
+    iopar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+    smoothtypefld_->setValue( smoothtype );
+    BufferString windowname;
+    iopar.get( PreStack::AngleComputer::sKeyWinFunc(), windowname );
+    smoothwindowfld_->setText( windowname );
+    float windowparam;
+    iopar.get( PreStack::AngleComputer::sKeyWinParam(), windowparam );
+    smoothwinparamfld_->setValue( windowparam );
+    float windowlength;
+    iopar.get( PreStack::AngleComputer::sKeyWinLen(), windowlength );
+    smoothwinlengthfld_->setValue( windowlength );
+    
+    float freqf3;
+    iopar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
+    freqf3fld_->setValue( freqf3 );
+    float freqf4;
+    iopar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
+    freqf4fld_->setValue( freqf4 );
+
+    smoothTypeSel(0);
 }
 
 

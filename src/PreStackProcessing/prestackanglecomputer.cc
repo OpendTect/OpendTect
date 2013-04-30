@@ -20,6 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace PreStack;
 
 
+DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
+{
+	"Time-Average",
+	"Frequency-Filter", 
+	0
+};
+
+
 AngleComputer::AngleComputer()
     : thresholdparam_(0.01)
     , needsraytracing_(true)

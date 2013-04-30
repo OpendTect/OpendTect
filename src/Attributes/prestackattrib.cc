@@ -74,8 +74,13 @@ void PSAttrib::initClass()
     desc->addParam( new FloatParam( angleStartStr(), 0, false ) );
     desc->addParam( new FloatParam( angleStopStr(), mUdf(float), false ) );
 
-    desc->addParam( new EnumParam( PreStack::AngleComputer::sKeySmoothType(), 0, 
-				   false ) ); 
+    EnumParam* smoothtype = new EnumParam( 
+				PreStack::AngleComputer::sKeySmoothType() );
+    smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
+    smoothtype->setDefaultValue( 0 );
+    smoothtype->setRequired( false );
+    desc->addParam( smoothtype );
+
     desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "", 
 				     false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(), 
@@ -84,7 +89,7 @@ void PSAttrib::initClass()
 				    mDefaultWindowLength, false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
 				    mDefaultFreqF3, false ) );
-    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
+    desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(), 
 				    mDefaultFreqF4, false ) );
     desc->addParam( new FloatParam( RayTracer1D::sKeyBlockRatio(), 
 				    mDefaultBlockthreshold, false) );
