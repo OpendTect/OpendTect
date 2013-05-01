@@ -551,8 +551,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltscaler_ = new uiLabel( wvltgrp, 0 );
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     const int initwvltsz = data_.initwvlt_.size() - 1;
-    const int maxwvltsz = server_.data().getTraceRange().width() *
-			  SI().zDomain().userFactor();
+    const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
+	    			   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)",
    IntInpSpec( initwvltsz ).setLimits(Interval<int>(mMinWvltLength,maxwvltsz)));
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
@@ -839,7 +839,7 @@ bool uiInfoDlg::updateZrg()
 
     if ( zrangeflds_[mTwtFldIdx] )
     {
-	Interval<int> timergms( timerg.start, timerg.stop );
+	Interval<int> timergms( (int)timerg.start, (int)timerg.stop );
 	timergms.scale( SI().zDomain().userFactor() );
 	zrangeflds_[mTwtFldIdx]->setValue( timerg );
     }
