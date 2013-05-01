@@ -955,8 +955,7 @@ bool DAGTriangleTree::DAGTriangle::hasChildren() const
 }
 
 
-bool DAGTriangleTree::DAGTriangle::operator==( 
-	const DAGTriangle& dag ) const
+bool DAGTriangleTree::DAGTriangle::operator==( const DAGTriangle& dag ) const
 {
     const int d0 = dag.coordindices_[0];
     const int d1 = dag.coordindices_[1];
