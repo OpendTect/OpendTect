@@ -130,7 +130,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 {
     allapplied_ = false;
-    Well::Data* wd = Well::MGR().get( mid );
+    Well::Data* wd = Well::MGR().get( mid, true );
     if ( !wd ) return false;
     
     if ( isdisppropopened_ == false )
