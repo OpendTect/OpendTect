@@ -25,6 +25,7 @@ namespace Well { class Data; class LogDisplayParSet; }
 
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
+class uiWellImportAsc;
 class uiD2TModelGen;
 class uiD2TMLogSelDlg;
 
@@ -42,12 +43,12 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			importTrack();
-    bool			importLogs();
-    bool			importMarkers();
-    bool			bulkImportTrack();
-    bool			bulkImportLogs();
-    bool			bulkImportMarkers();
+    void			importTrack();
+    void			importLogs();
+    void			importMarkers();
+    void			bulkImportTrack();
+    void			bulkImportLogs();
+    void			bulkImportMarkers();
 
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);
@@ -92,6 +93,7 @@ public:
     
 protected:
 
+    uiWellImportAsc*		uiwellimpdlg_;
     uiWell2RandomLineDlg*	rdmlinedlg_;
     uiWellDispPropDlg*		uiwellpropdlg_;
     uiD2TModelGen*		uid2tmgen_;
@@ -106,6 +108,7 @@ protected:
     bool			allapplied_;
     bool			isdisppropopened_;
 
+    void			importReadyCB(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
     void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);

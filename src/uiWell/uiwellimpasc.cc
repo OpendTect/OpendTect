@@ -42,12 +42,14 @@ static const char* nHelpID = "107.0.4";
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Well Track",
-				 "Import Well Track",sHelpID))
+    : uiDialog(p,uiDialog::Setup("Import Well Track",mNoDlgTitle,
+				 sHelpID).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
+    , importReady(this)
 {
+    enableSaveButton( "Display after import" );
     setCtrlStyle( DoAndStay );
 
     havetrckbox_ = new uiCheckBox( this, "" );
@@ -123,6 +125,10 @@ uiWellImportAsc::~uiWellImportAsc()
     delete &fd_;
     delete &wd_;
 }
+
+
+MultiID uiWellImportAsc::getWellID() const
+{ return outfld_->key(); }
 
 
 void uiWellImportAsc::haveTrckSel( CallBacker* )
@@ -369,7 +375,10 @@ bool uiWellImportAsc::doWork()
 
     if ( !wtr->write(wd_,*ioobj) ) mErrRet( "Cannot write well" );
 
-    uiMSG().message( "Well successfully created" );
+    uiMSG().message( "Well import successful" );
+    if ( saveButtonChecked() )
+	importReady.trigger();
+
     return false;
 }
 
