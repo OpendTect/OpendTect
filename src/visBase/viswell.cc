@@ -177,9 +177,8 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	if ( ptidx>=track_->size() )
 	{
 	    const int lastidx = track_->size();
-	    const Coord3 lastcrd =
-		track_->getPoint( lastidx >= 0 ? lastidx-1 : lastidx );
-	    if ( lastcrd != crd )
+	    if ( lastidx == 0 || ( lastidx >0 && track_->getPoint( lastidx-1 ) 
+		!= crd ) )
 		track_->addPoint( crd );
 	}
 	else
