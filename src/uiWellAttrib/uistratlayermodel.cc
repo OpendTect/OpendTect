@@ -185,11 +185,7 @@ void uiStratLayerModel::doBasicLayerModel()
 void uiStratLayerModel::doLayerModel( const char* modnm )
 {
     if ( Strat::RT().isEmpty() )
-    {
-	if ( uiMSG().askContinue( 
-		"No stratigraphic model found, please create one first" ) )
-	    StratTreeWin().popUp();
-    }
+	StratTreeWin().popUp();
     else
     {
 	uiStratLayerModelLauncher launcher;
@@ -740,12 +736,10 @@ void uiStratLayerModel::genModels( CallBacker* )
     seqdisp_->prepareDesc();
     Strat::LayerModelGenerator ex( desc_, lmp_.get(), nrmods );
     uiTaskRunner tr( this );
-    if ( !tr.execute(ex) )
-	return;
+    tr.execute( ex );
 
     setModelProps();
     setElasticProps();
-
     useSyntheticsPars( desc_.getWorkBenchParams() );
 
     synthdisp_->modelChanged();
