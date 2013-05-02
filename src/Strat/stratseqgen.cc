@@ -29,8 +29,7 @@ static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
-const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams()
-{ return "Workbench parameters"; }
+const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams() { return "WB"; }
 
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
@@ -131,8 +130,12 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     iop.get( sKeyTopdepth, startdepth_ );
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
+    if ( !workbenchpars || workbenchpars->isEmpty() )
+	workbenchpars = iop.subselect( "Workbench parameters" );
     if ( workbenchpars )
 	workbenchparams_ = *workbenchpars;
+    else
+	workbenchparams_.setEmpty();
 
     while ( !atEndOfSection(astrm.next()) )
     {
