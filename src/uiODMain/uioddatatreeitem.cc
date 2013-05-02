@@ -360,13 +360,13 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id
 	      || mnuid==fkspectrumitem_.id )
     {
-	int visid = displayID();
-	int attribid = attribNr();
+	const int visid = displayID();
+	const int attribid = attribNr();
 	DataPack::ID dpid = visserv->getDataPackID( visid, attribid );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( visid );
 
 	const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribid );
-	FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf( dpid );
+	const FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
 	    const int nrpacks = DPM(DataPackMgr::FlatID()).packs().size();
@@ -374,7 +374,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    {
 		const int tmpdtpackid =
 				DPM(DataPackMgr::FlatID()).packs()[idx]->id();
-		FixedString tmpnm =
+		const FixedString tmpnm =
 		    		DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
 		if ( tmpnm == as->userRef() )
 		{
