@@ -23,6 +23,7 @@ Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
     , hs_(*new HorSampling(true))
     , zrg_(SI().zRange(false))
+    , mid_(MultiID::udf())
 {
 }
 
@@ -31,6 +32,7 @@ Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& pp )
     : poly_(*new ODPolygon<float>(pp.poly_))
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
+    , mid_ (pp.mid_)
 {
 }
 
@@ -49,6 +51,7 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
 	poly_ = pp.poly_;
 	hs_ = pp.hs_;
 	zrg_ = pp.zrg_;
+	mid_ = pp.mid_;
     }
     return *this;
 }
@@ -167,6 +170,7 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.get( mGetPolyKey(sKey::StepInl()), hs_.step.inl );
     iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step.crl );
+    iop.get( mGetPolyKey(sKey::ID()), mid_ );
     ODPolygon<float>* poly = polyFromPar( iop );
     if ( poly )
     {
@@ -181,6 +185,7 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.set( mGetPolyKey(sKey::StepInl()), hs_.step.inl );
     iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step.crl );
+    iop.set( mGetPolyKey(sKey::ID()), mid_ );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
 }
 
