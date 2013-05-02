@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "ailayer.h"
+#include "enums.h"
 #include "flatposdata.h"
 #include "iopar.h"
 #include "position.h"
@@ -41,7 +42,9 @@ mExpClass(PreStackProcessing) AngleComputer
 public:
 				AngleComputer();
 
-				enum SmoothingType { TimeAverage, FFTFilter };
+    enum smoothingType		{ TimeAverage, FFTFilter };
+				DeclareEnumUtils(smoothingType);
+
     virtual Gather*		computeAngles() = 0;
     virtual bool		isOK() const = 0;
     void			setTraceID(const TraceID& trcid)

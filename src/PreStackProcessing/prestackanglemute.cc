@@ -15,15 +15,34 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "math.h"
 #include "muter.h"
+#include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "prestackmute.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "timedepthconv.h"
 #include "velocityfunctionvolume.h"
+#include "windowfunction.h"
 
 
 using namespace PreStack;
+
+
+AngleCompParams::AngleCompParams()
+    : mutecutoff_(30)
+    , anglerange_(0,30)
+    , velvolmid_(MultiID::udf())
+{
+    smoothingpar_.set( PreStack::AngleComputer::sKeySmoothType(),
+		       PreStack::AngleComputer::TimeAverage );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyWinFunc(),
+		       HanningWindow::sName() );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(), 125 );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF3(), 50 );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 60 );
+}
+
 
 AngleMuteBase::AngleMuteBase()
     : params_(0)

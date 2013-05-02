@@ -42,6 +42,7 @@ public:
 
     void			setVelocityInput(const MultiID&);
     void			setAngleRange(const Interval<float>&);
+	void			updateFromParams();
 
     bool			acceptOK();
 
@@ -73,6 +74,8 @@ public:
 	enum smoothingWindow		{ Box, Hamming, Hanning, Blackman, 
 					  Bartlet, Flattop };
 					DeclareEnumUtils(smoothingWindow)
+
+	void		updateFromParams();
 
 protected :
 

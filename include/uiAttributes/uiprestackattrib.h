@@ -60,7 +60,9 @@ protected:
     bool		usedatapackasinput_;
 
     bool		setParameters(const Attrib::Desc&);
+    bool		setAngleParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
+    bool		getAngleParameters(Attrib::Desc&);
 
     void		calcTypSel(CallBacker*);
     void		angleTypSel(CallBacker*);
