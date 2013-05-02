@@ -315,7 +315,10 @@ bool TriangulatedGridder2D::init()
     	    weights_ += (float) weight;
     	    usedvalues_ += idx;
     	}
-    
+
+	if ( !weights_.size() )
+	    return false;
+   	
 	for ( int idx=weights_.size()-1; idx>=0; idx-- )
     	    weights_[idx] /= (float) weightsum;
     }
