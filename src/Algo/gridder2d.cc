@@ -284,41 +284,50 @@ bool TriangulatedGridder2D::init()
     inited_ = false;
 
     if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
-	return true;
+	return false;
+    
+    Interval<double> xrg, yrg;
+    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
+	return false;
 
-    if ( !triangles_ )
+    if ( !triangles_ || !xrg.includes(gridpoint_.x,false) ||
+			!yrg.includes(gridpoint_.y,false) )
     {
-	if ( points_->size()==1 )
+	float weightsum = 0;
+	for ( int idx=points_->size()-1; idx>=0; idx-- )
 	{
-	    usedvalues_ += 0;
-	    weights_ += 1;
-	    inited_ = true;
-	    return true;
+	    if ( !(*points_)[idx].isDefined() )
+		continue;
+	    
+	    const double dist = gridpoint_.distTo( (*points_)[idx] );
+	    if ( mIsZero(dist,mEpsilon) )
+	    {
+		usedvalues_.erase();
+		weights_.erase();
+		usedvalues_ += idx;
+		weights_ += 1;
+		inited_ = true;
+		return true;
+	    }
+	    
+	    const float weight = 1./dist;
+	    weightsum += weight;
+	    weights_ += weight;
+	    usedvalues_ += idx;
 	}
-	else if ( points_->size()==2 )
-	{
-	    //Do inverse distance, better than nothing.
-	    const double dist0 = gridpoint_.distTo( (*points_)[0] );
-	    const double dist1 = gridpoint_.distTo( (*points_)[1] );
-	    const double totaldist = dist0+dist1;
+	
+	if ( !weights_.size() )	
+	    return false;
 
-	    if ( totaldist==0 )
-		return false;
-
-	    usedvalues_ += 0;
-	    weights_ += (totaldist-dist0)/totaldist;
-	    usedvalues_ += 1;
-	    weights_ += (totaldist-dist1)/totaldist;
-
-	    return true;
-	}
-
-	return false;
+	for ( int idx=weights_.size()-1; idx>=0; idx-- )
+	    weights_[idx] /= weightsum;
     }
-
-    if ( !interpolator_->computeWeights(gridpoint_-center_,usedvalues_,
-					weights_) )
-	return false;
+    else
+    {
+	if ( !interpolator_->computeWeights(
+		    gridpoint_-center_, usedvalues_, weights_ ) )
+	    return false;
+    }
 
     inited_ = true;
     return true;
