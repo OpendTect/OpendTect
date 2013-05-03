@@ -38,7 +38,8 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
-    topfld_ = new uiGenInput( this, "Top depth", FloatInpSpec(dpth) );
+    const BufferString thtxt( "Top depth (", depthinft ? "ft)" : "m)" );
+    topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(dpth) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
 
