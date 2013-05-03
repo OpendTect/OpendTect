@@ -44,6 +44,7 @@ int main( int argc, char** argv )
     if ( argc < 4 )
 	return 1;
 
+    SetProgramArgs( argc, argv );
     const char* remhost = argv[1];
     BufferString remhostaddress = System::hostAddress( remhost );
     if ( remhostaddress == System::localAddress() )
