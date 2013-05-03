@@ -70,7 +70,7 @@ foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	string( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
 			${OD_${MODULE}_INCLUDEPATH} )
 	set ( MODULE_INCLUDES 
-	   "${MODULE_INCLUDES}set( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )$\n" )
+	   "${MODULE_INCLUDES}set( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )\n" )
     endif()
 endforeach()
 
