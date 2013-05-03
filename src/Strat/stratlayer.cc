@@ -134,11 +134,10 @@ int Strat::LayerSequence::nearestLayerIdxAtZ( float zreq ) const
     const int nrlays = layers_.size();
     if ( nrlays < 2 )
 	return nrlays == 1 ? 0 : -1;
-    if ( zreq <= startDepth() ) return 0;
 
     for ( int ilay=0; ilay<nrlays; ilay++ )
     {
-	if ( layers_[ilay]->zTop() <= zreq )
+	if ( zreq < layers_[ilay]->zBot() )
 	    return ilay;
     }
     return nrlays - 1;
