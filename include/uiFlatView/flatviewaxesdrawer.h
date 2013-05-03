@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "drawaxis2d.h"
 
 class uiGraphicsView;
@@ -29,13 +31,21 @@ mExpClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);
+			~AxesDrawer();
 
     int			altdim0_;
     void		update();
+    void                setZvalue(int z);
+    void                setViewRect(const uiRect&);
 
 protected:
 
     Viewer&		vwr_;
+    uiRectItem*         rectitem_;
+    uiTextItem*         axis1nm_;
+    uiTextItem*         axis2nm_;
+    uiArrowItem*        arrowitem1_;
+    uiArrowItem*        arrowitem2_;
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 
 };
