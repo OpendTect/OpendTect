@@ -61,7 +61,7 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     , is2d_(is2d)
     , importReady(this)
 {
-    enableSaveButton( "Display on import" );
+    enableSaveButton( "Display after import" );
     setModal( false );
 
     setCtrlStyle( DoAndStay );
@@ -87,7 +87,6 @@ void uiImportFault::createUI()
     if ( !isfss_ ) 
     {
 	BufferStringSet types; types.add( "Plain ascii" );
-//	    			    .add( "Landmark format" );
     	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
