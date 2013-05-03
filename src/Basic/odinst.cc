@@ -27,13 +27,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
+#include <string.h>
 #include "winutils.h"
 static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
-    const int len = dirnm.size() - 10;
-    if ( len > 0 )
-	dirnm[len] = '\0';
+    char* termchar = 0;
+    termchar = strstr( dirnm.buf(), "\\bin\\win" ); 
+    if ( !termchar )
+	termchar = strstr( dirnm.buf(), "\\bin\\Win" );
+
+    if ( termchar )
+	*termchar = '\0';
     return dirnm;
 }
 #undef mRelRootDir
@@ -148,6 +153,14 @@ void ODInst::startInstManagement()
     executeWinProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
+
+
+bool ODInst::runInstMgrForUpdt()
+{
+    mDefCmd(false); cmd.add( " --updcheck_report" );
+    return ExecOSCmd( cmd, false, true );
+}
+
 
 bool ODInst::updatesAvailable()
 {
