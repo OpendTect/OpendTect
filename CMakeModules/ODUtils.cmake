@@ -80,7 +80,41 @@ macro ( OD_INSTALL_LIBRARY SOURCE )
 endmacro()
 
 
-macro ( OD_FILTER_LIBRARIES INPUTLIST )
+#Takes a library variable with both _RELEASE and _DEBUG variants, and constructs
+# a variable that combinse both
+
+macro ( OD_MERGE_LIBVAR VARNAME )
+    if ( ${${VARNAME}_RELEASE} STREQUAL "${VARNAME}_RELEASE-NOTFOUND" )
+	set( RELNOTFOUND 1 )
+    endif()
+    if ( ${${VARNAME}_DEBUG} STREQUAL "${VARNAME}_DEBUG-NOTFOUND" )
+	set( DEBNOTFOUND 1 )
+    endif()
+
+    if ( DEFINED RELNOTFOUND AND DEFINED DEBNOTFOUND )
+	message( FATAL_ERROR "${VARNAME} not found" )
+    endif()
+
+    if ( (NOT DEFINED RELNOTFOUND) )
+	if ( NOT DEFINED DEBNOTFOUND )
+	    set ( ${VARNAME} "optimized" ${${VARNAME}_RELEASE} "debug" ${${VARNAME}_DEBUG}  )
+	else()
+	    set ( ${VARNAME} ${${VARNAME}_RELEASE} )
+	endif()
+    else()
+	set ( ${VARNAME} ${${VARNAME}_DEBUG} )
+    endif()
+
+    unset( RELNOTFOUND )
+    unset( DEBNOTFOUND )
+endmacro()
+
+
+#Takes a list with both optimized and debug libraries, and removes one of them
+#According to BUILD_TYPE
+
+macro ( OD_FILTER_LIBRARIES INPUTLIST BUILD_TYPE )
+    unset( OUTPUT )
     foreach ( LISTITEM ${${INPUTLIST}} )
 	if ( DEFINED USENEXT )
 	    if ( USENEXT STREQUAL "yes" )
@@ -89,14 +123,14 @@ macro ( OD_FILTER_LIBRARIES INPUTLIST )
 	    unset( USENEXT )
 	else()
 	    if ( LISTITEM STREQUAL "debug" )
-		if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+		if ( "${BUILD_TYPE}" STREQUAL "Debug" )
 		    set ( USENEXT "yes" )
 		else()
 		    set ( USENEXT "no" )
 		endif()
 	    else()
 		if ( LISTITEM STREQUAL "optimized" )
-		    if ( CMAKE_BUILD_TYPE STREQUAL "Release" )
+		    if ( "${BUILD_TYPE}" STREQUAL "Release" )
 			set ( USENEXT "yes" )
 		    else()
 			set ( USENEXT "no" )
@@ -110,3 +144,5 @@ macro ( OD_FILTER_LIBRARIES INPUTLIST )
 
     set ( ${INPUTLIST} ${OUTPUT} )
 endmacro()
+
+
