@@ -56,35 +56,27 @@ endmacro()
 
 macro( OD_WRITE_FINDFILE )
 
-set( OD_FIND_OD_FILE ${CMAKE_SOURCE_DIR}/CMakeModules/FindOpendTect.cmake )
+set( OD_FIND_OD_FILE ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake )
 
 install( FILES ${OD_FIND_OD_FILE} DESTINATION data )
-file( WRITE ${OD_FIND_OD_FILE} "SET( OpendTect_VERSION_MAJOR ${OpendTect_VERSION_MAJOR} )\n")
-file( APPEND ${OD_FIND_OD_FILE} "SET( OpendTect_VERSION_MINOR ${OpendTect_VERSION_MINOR} )\n")
-file( APPEND ${OD_FIND_OD_FILE} "SET( OpendTect_VERSION_DETAIL ${OpendTect_VERSION_DETAIL} )\n")
-file( APPEND ${OD_FIND_OD_FILE} "INCLUDE( \${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )\n")
-file( APPEND ${OD_FIND_OD_FILE} "LINK_DIRECTORIES( \${OD_BINARY_BASEDIR}/\${OD_EXEC_OUTPUT_RELPATH} )\n")
-file( APPEND ${OD_FIND_OD_FILE} "set( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )\n" )
 
 foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     if ( OD_${MODULE}_DEPS )
-	file( APPEND ${OD_FIND_OD_FILE}
-	    "set( OD_${MODULE}_DEPS ${OD_${MODULE}_DEPS} )\n" )
+	set( MODULE_DEPS
+	    "${MODULE_DEPS}set( OD_${MODULE}_DEPS ${OD_${MODULE}_DEPS} )\n" )
     endif()
 
     if ( OD_${MODULE}_INCLUDEPATH )
 	string( REPLACE ${CMAKE_SOURCE_DIR} "" INCLUDEPATH
 			${OD_${MODULE}_INCLUDEPATH} )
-	file( APPEND ${OD_FIND_OD_FILE}
-	   "set( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )\n" )
+	set ( MODULE_INCLUDES 
+	   "${MODULE_INCLUDES}set( OD_${MODULE}_INCLUDEPATH \${OpendTect_DIR}${INCLUDEPATH} )$\n" )
     endif()
-    #if ( OD_${MODULE}_RUNTIMEPATH )
-	#string( REPLACE ${CMAKE_SOURCE_DIR} "" RUNTIMEPATH
-			#${OD_${MODULE}_RUNTIMEPATH} )
-	#file( APPEND ${OD_FIND_OD_FILE}
-       #"set( OD_${MODULE}_RUNTIMEPATH \${}${RUNTIMEPATH} )\n" )
-    #endif()
 endforeach()
+
+configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/FindOpendTect.cmake.in
+		${OD_FIND_OD_FILE}
+		@ONLY )
 endmacro()
 
 
@@ -126,3 +118,4 @@ file( APPEND ${OD_PROJECT_FILE} "</Project>\n")
 file( APPEND ${OD_SUBPROJECT_LISTFILE} ")\n" )
 
 endmacro()
+
