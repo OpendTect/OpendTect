@@ -323,15 +323,6 @@ macro( create_develpackages )
 			 ${CMAKE_INSTALL_PREFIX}/${DIR}
 			 ${DESTINATION_DIR}/${DIR} )
     endforeach()
-    foreach( DIR ${PMAKESTUFF} )
-	if( IS_DIRECTORY "${PSD}/Pmake/${DIR}" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
-	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
-	endif()
-    endforeach()
 
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin

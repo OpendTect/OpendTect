@@ -18,6 +18,4 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
 	      od_ReportIssue od_uiReportIssue )
-set( PMAKESTUFF Makefile RootMakefile make.od.Defaults make.od.Dirs 
-		make.od.Vars base )
 set( PACK "devel" )
