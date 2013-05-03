@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
+#include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
@@ -30,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 #include "welltrack.h"
 #include "wellwriter.h"
-#include "wavelet.h"
 
 #include "welltiecshot.h"
 #include "welltiedata.h"
@@ -81,8 +81,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , wd_(&wdata)
     , setup_(wts)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
-    , estimatedwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
-    , isinitwvltactive_(true)
+    , estimatedwvlt_(*new Wavelet("Estimated wavelet"))
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
@@ -114,9 +113,6 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     }
 
     initwvlt_.reSample( cDefSeisSr() );
-
-    estimatedwvlt_ = initwvlt_;
-    estimatedwvlt_.setName( "Estimated wavelet" );
 }
 
 
@@ -399,9 +395,12 @@ void Server::wellDataDel( CallBacker* )
 }
 
 
-bool Server::computeSynthetics()
+bool Server::computeSynthetics( const Wavelet& wvlt )
 {
-    if ( !dataplayer_->computeSynthetics() )
+    if ( !dataplayer_ )
+	return false;
+
+    if ( !dataplayer_->computeSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
@@ -410,6 +409,9 @@ bool Server::computeSynthetics()
 
 bool Server::extractSeismics()
 {
+    if ( !dataplayer_ )
+	return false;
+
     if ( !dataplayer_->extractSeismics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
@@ -417,9 +419,12 @@ bool Server::extractSeismics()
 }
 
 
-bool Server::updateSynthetics()
+bool Server::updateSynthetics( const Wavelet& wvlt )
 {
-    if ( !dataplayer_->doFastSynthetics() )
+    if ( !dataplayer_ )
+	return false;
+
+    if ( !dataplayer_->doFastSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
@@ -428,10 +433,46 @@ bool Server::updateSynthetics()
 
 bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 {
+    if ( !dataplayer_ )
+	return false;
+
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
+}
+
+
+bool Server::computeCrossCorrelation()
+{
+    if ( !dataplayer_ )
+	return false;
+
+    if ( !dataplayer_->computeCrossCorrelation() )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+
+    return true;
+}
+
+
+bool Server::computeEstimatedWavelet( int newsz )
+{
+    if ( !dataplayer_ )
+	return false;
+
+    if ( !dataplayer_->computeEstimatedWavelet( newsz ) )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
+
+    return true;
+}
+
+
+void Server::setCrossCorrZrg( const Interval<float>& zrg )
+{
+    if ( !dataplayer_ )
+	return;
+
+    dataplayer_->setCrossCorrZrg( zrg );
 }
 
 

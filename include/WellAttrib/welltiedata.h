@@ -119,7 +119,6 @@ public :
     Wavelet&			initwvlt_;
     Wavelet&			estimatedwvlt_;
     const Well::Log*		cslog_;
-    bool			isinitwvltactive_;
 
     const StepInterval<float>&	getTraceRange() const	{ return tracerg_; }
     const Interval<float>&	getDahRange() const	{ return dahrg_; }
@@ -279,17 +278,18 @@ public :
 
     bool			is2D() const	{ return is2d_; }
 
-    bool			computeSynthetics();
+    bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
-    bool			updateSynthetics();
+    bool			updateSynthetics(const Wavelet&);
     bool			computeAdditionalInfo(const Interval<float>&);
+    bool			computeCrossCorrelation();
+    bool			computeEstimatedWavelet(int newsz);
+    void			setCrossCorrZrg(const Interval<float>&);
     bool			hasSynthetic() const;
     bool			hasSeismic() const;
     bool			doSeismic() const;
     void			updateExtractionRange();
 
-    void			setInitWvltActive(bool yn)
-				{ data_->isinitwvltactive_ = yn; }
     void			setTaskRunner( TaskRunner* tr )
 				{ data_->trunner_ = tr; }
 protected :

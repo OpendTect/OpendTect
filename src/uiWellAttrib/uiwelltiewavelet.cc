@@ -35,7 +35,7 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	: uiGroup(p)
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, activeWvltChged(this)
-	, wvltset_(wvs)	       	       
+	, wvltset_(wvs)
 {
     createWaveletFields( this );
     for ( int idx=0; idx<wvs.size(); idx++ )
@@ -43,7 +43,7 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
 	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
-	uiwvlts_[idx]->wvltChged.notify( mCB( 
+	uiwvlts_[idx]->wvltChged.notify( mCB(
 				    this,uiWaveletView,activeWvltChanged ) );
     }
 } 
@@ -60,11 +60,11 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     grp->setHSpacing( 40 );
    
     const Wavelet* initw = wvltset_[0];
-    BufferString initwnm( "Initial :" ); 
-    BufferString estwnm( "Estimated" ); 
+    BufferString initwnm( "Initial :" );
+    BufferString estwnm( "Estimated" );
     initwnm += initw->name();
 
-    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : "); 
+    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : ");
     activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
@@ -92,9 +92,20 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
 
 void uiWaveletView::setActiveWavelet( bool initial )
 {
+    if ( !activewvltfld_ )
+	return;
+
     activewvltfld_->setValue( initial );
 }
 
+
+bool uiWaveletView::isInitialWvltActive() const
+{
+    if ( !activewvltfld_ )
+	return false;
+
+    return activewvltfld_->getBoolValue();
+}
 
 
 uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
@@ -220,3 +231,4 @@ void uiWavelet::drawWavelet()
 
 
 }; //namespace WellTie
+

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
 
+class Wavelet;
 class uiGroup;
 class uiToolBar;
 class uiGenInput;
@@ -49,7 +50,7 @@ public:
 				uiTieWin(uiParent*,WellTie::Server&);
 				~uiTieWin();
 
-    const WellTie::Setup&	Setup() const;	
+    const WellTie::Setup&	Setup() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -134,7 +135,9 @@ public:
 
     void 			drawData();
     bool 			getMarkerDepths(Interval<float>& zrg );
-    void 			propChanged(CallBacker*);
+    void 			dtmodelChanged(CallBacker*);
+    const Wavelet&		getWavelet() const;
+    bool			isInitWvltActive() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -153,6 +156,7 @@ protected:
     BufferStringSet             markernames_;
 
     Interval<float>		zrg_;
+    bool			zrginft_;
     int				selidx_;
     BufferString		startmrknm_;
     BufferString		stopmrknm_;
@@ -160,10 +164,16 @@ protected:
     const Data& 		data_;
 
     void			putToScreen();
-    void    			computeData();
+    bool			updateZrg();
+    bool			computeNewWavelet();
 
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);
+    void 			needNewEstimatedWvlt(CallBacker*);
+    void 			zrgChanged(CallBacker*);
+    void 			synthChanged(CallBacker*);
+    void			crossCorrelationChanged(CallBacker*);
+    void 			crossAttribsParsChanged(CallBacker*);
 };
 
 }; //namespace WellTie
