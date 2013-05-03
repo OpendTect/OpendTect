@@ -455,7 +455,7 @@ bool Server::computeCrossCorrelation()
 }
 
 
-bool Server::computeEstimatedWavelet( const int newsz )
+bool Server::computeEstimatedWavelet( int newsz )
 {
     if ( !dataplayer_ )
 	return false;

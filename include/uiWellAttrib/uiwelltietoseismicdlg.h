@@ -50,7 +50,7 @@ public:
 				uiTieWin(uiParent*,WellTie::Server&);
 				~uiTieWin();
 
-    const WellTie::Setup&	Setup() const;	
+    const WellTie::Setup&	Setup() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -156,6 +156,7 @@ protected:
     BufferStringSet             markernames_;
 
     Interval<float>		zrg_;
+    bool			zrginft_;
     int				selidx_;
     BufferString		startmrknm_;
     BufferString		stopmrknm_;

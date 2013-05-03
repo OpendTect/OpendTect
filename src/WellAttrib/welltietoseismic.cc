@@ -49,9 +49,14 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
 
 DataPlayer::~DataPlayer()
 {
-    delete [] refarr_;
-    delete [] syntarr_;
-    delete [] seisarr_;
+    if ( refarr_ )
+	delete [] refarr_;
+
+    if ( syntarr_ )
+	delete [] syntarr_;
+
+    if ( seisarr_ )
+	delete [] seisarr_;
 }
 
 
@@ -213,7 +218,7 @@ bool DataPlayer::computeCrossCorrelation()
 }
 
 
-bool DataPlayer::computeEstimatedWavelet( const int wvltsz )
+bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 {
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation window not set" )
@@ -253,7 +258,7 @@ bool DataPlayer::computeEstimatedWavelet( const int wvltsz )
 }
 
 
-bool DataPlayer::extractWvf( const bool issynt )
+bool DataPlayer::extractWvf( bool issynt )
 {
     if ( zrg_.isUdf() )
 	mErrRet( "Cross-correlation extraction window not set" )
@@ -280,14 +285,18 @@ bool DataPlayer::extractWvf( const bool issynt )
     const float wvfrms = mCast( float, stats.rms() );
     if ( issynt )
     {
-	delete [] syntarr_;
+	if ( syntarr_ )
+	    delete [] syntarr_;
+
 	syntarr_ = valarr;
 	data_.correl_.scaler_ = mIsUdf(wvfrms) ? mUdf(float)
 	    		      : data_.correl_.scaler_ / wvfrms;
     }
     else
     {
-	delete [] seisarr_;
+	if ( seisarr_ )
+	    delete [] seisarr_;
+
 	seisarr_ = valarr;
 	data_.correl_.scaler_ = wvfrms;
     }
@@ -367,7 +376,9 @@ bool DataPlayer::extractReflectivity()
 	nrspikefound++;
     }
 
-    delete [] refarr_;
+    if ( refarr_ )
+	delete [] refarr_;
+
     refarr_ = valarr;
     return true;
 }

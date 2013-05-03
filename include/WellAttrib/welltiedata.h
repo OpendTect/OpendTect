@@ -283,7 +283,7 @@ public :
     bool			updateSynthetics(const Wavelet&);
     bool			computeAdditionalInfo(const Interval<float>&);
     bool			computeCrossCorrelation();
-    bool			computeEstimatedWavelet(const int newsz);
+    bool			computeEstimatedWavelet(int newsz);
     void			setCrossCorrZrg(const Interval<float>&);
     bool			hasSynthetic() const;
     bool			hasSeismic() const;

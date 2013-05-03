@@ -43,7 +43,7 @@ public:
 
     bool		computeAdditionalInfo(const Interval<float>&);
     bool		computeCrossCorrelation();
-    bool		computeEstimatedWavelet(const int newsz);
+    bool		computeEstimatedWavelet(int newsz);
     void		setCrossCorrZrg( const Interval<float>& zrg )
     								{ zrg_ = zrg; }
 
@@ -58,7 +58,7 @@ protected:
     void		createLog(const char*nm,float* dah,float* vals,int sz);
     bool		checkCrossCorrInps();
     			//!< check input synt/seis and zrg
-    bool		extractWvf(const bool issynt);
+    bool		extractWvf(bool issynt);
     bool		extractReflectivity();
 
     ElasticModel 	aimodel_;

@@ -589,11 +589,14 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     markernames_.add( Well::ExtractParams::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
-    const char* units[] = { "", "ms", "meters", 0 };
 
-    zrangeflds_ += new uiGenInput( markergrp, "", 
-			slis.setName(markernms[0]),
-			slis.setName(markernms[1]) ); 
+    zrginft_ = SI().depthsInFeet();
+    const char* units[] = { "", UnitOfMeasure::zUnitAnnot(true,true,false),
+		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false), 0 };
+
+    zrangeflds_ += new uiGenInput( markergrp, "",
+	    			   slis.setName(markernms[0]),
+				   slis.setName(markernms[1]) ); 
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
     const int maxtwtval = mNINT32( server_.data().getTraceRange().stop *
@@ -604,6 +607,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const float maxdah = wd->track().dahRange().stop;
     zrangeflds_ += new uiGenInput( markergrp, "",
 	    FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
+    zrangeflds_[mDahFldIdx]->setNrDecimals(2,0);
+    zrangeflds_[mDahFldIdx]->setNrDecimals(2,1);
 
     for ( int idx=0; choice[idx]; idx++ )
     {
@@ -628,9 +633,24 @@ void uiInfoDlg::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyInfoIsInitWvltActive, isInitWvltActive() );
     par.set( sKeyInfoSelBoxIndex, selidx_ );
-    par.set( sKeyInfoSelZrange, zrg_ );
-    par.set( sKeyStartMrkrName, zrangeflds_[mMarkerFldIdx]->text(0) );
-    par.set( sKeyStopMrkrName, zrangeflds_[mMarkerFldIdx]->text(1) );
+    if ( selidx_ == mMarkerFldIdx )
+    {
+	par.set( sKeyStartMrkrName, zrangeflds_[mMarkerFldIdx]->text(0) );
+	par.set( sKeyStopMrkrName, zrangeflds_[mMarkerFldIdx]->text(1) );
+    }
+    else
+    {
+	const uiGenInput* selectedChoice = zrangeflds_[selidx_];
+	if ( selectedChoice )
+	{
+	    Interval<float> range = selectedChoice->getFInterval();
+	    const float scalefact = selidx_ == mTwtFldIdx
+				  ? 1.f / SI().zDomain().userFactor()
+				  : zrginft_ ? mFromFeetFactorF : 1.f;
+	    range.scale( scalefact );
+	    par.set( sKeyInfoSelZrange, range );
+	}
+    }
 }
 
 
@@ -639,9 +659,13 @@ void uiInfoDlg::usePar( const IOPar& par )
     bool isinitwvltactive;
     par.getYN( sKeyInfoIsInitWvltActive, isinitwvltactive );
     par.get( sKeyInfoSelBoxIndex, selidx_ );
-    par.get( sKeyInfoSelZrange, zrg_ );
-    par.get( sKeyStartMrkrName, startmrknm_ );
-    par.get( sKeyStopMrkrName, stopmrknm_ );
+    if ( selidx_ == mMarkerFldIdx )
+    {
+	par.get( sKeyStartMrkrName, startmrknm_ );
+	par.get( sKeyStopMrkrName, stopmrknm_ );
+    }
+    else
+	par.get( sKeyInfoSelZrange, zrg_ );
 
     if ( wvltdraw_ && isinitwvltactive != isInitWvltActive() )
 	wvltdraw_->setActiveWavelet( isinitwvltactive );
@@ -670,7 +694,7 @@ void uiInfoDlg::putToScreen()
 	Interval<float> zrg = zrg_;
 	const float scalefact = selidx_ == mTwtFldIdx
 	    		      ? SI().zDomain().userFactor()
-			      : 1.f;
+			      : zrginft_ ? mToFeetFactorF : 1.f;
 	zrg.scale( scalefact );
 	zrangeflds_[selidx_]->setValue( zrg );
     }
@@ -759,12 +783,12 @@ void uiInfoDlg::crossCorrelationChanged( CallBacker* )
 }
 
 
-#define md2T( zval, outistime )\
-    outistime ? d2t->getTime( zval, wd->track() ) \
-	      : d2t->getDah( zval, wd->track() );
 #define md2TI( inzrg, ouzrg, outistime )\
     { ouzrg.start = md2T( inzrg.start, outistime ); \
       ouzrg.stop = md2T( inzrg.stop, outistime ) }
+#define md2T( zval, outistime )\
+    outistime ? d2t->getTime( zval, wd->track() ) \
+	      : d2t->getDah( zval, wd->track() );
 
 
 bool uiInfoDlg::updateZrg()
@@ -777,17 +801,18 @@ bool uiInfoDlg::updateZrg()
     NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valuechanged );
 
     mGetWD(return false)
+    const Well::D2TModel* d2t = wd->d2TModel();
     selidx_ = choicefld_->getIntValue();
     Interval<float> dahrg( mUdf(float), mUdf(float) );
     Interval<float> timerg( mUdf(float), mUdf(float) );
-    const Well::D2TModel* d2t = wd->d2TModel();
-    uiGenInput* selectedChoice = zrangeflds_[selidx_];
-    if ( !selectedChoice )
+    const uiGenInput* selectedchoice = zrangeflds_[selidx_];
+    if ( !selectedchoice )
 	return false;
 
     if ( selidx_ == mTwtFldIdx )
     {
-	timerg = selectedChoice->getFInterval();
+	timerg = selectedchoice->getFInterval();
+	timerg.scale( 1.f / SI().zDomain().userFactor() );
 	md2TI( timerg, dahrg, false )
     }
     else
@@ -799,9 +824,12 @@ bool uiInfoDlg::updateZrg()
 	}
 	else if ( selidx_ == mDahFldIdx )
 	{
-	    dahrg = selectedChoice->getFInterval();
+	    dahrg = selectedchoice->getFInterval();
 	    if ( dahrg.isRev() )
 		mErrRetYN( "Top marker must be above base marker." )
+
+	    if ( zrginft_ )
+		dahrg.scale( mFromFeetFactorF );
 	}
 
 	if ( !wd->track().dahRange().includes(dahrg) )
@@ -839,13 +867,19 @@ bool uiInfoDlg::updateZrg()
 
     if ( zrangeflds_[mTwtFldIdx] )
     {
-	Interval<int> timergms( (int)timerg.start, (int)timerg.stop );
-	timergms.scale( SI().zDomain().userFactor() );
-	zrangeflds_[mTwtFldIdx]->setValue( timerg );
+	const float zfact = SI().zDomain().userFactor();
+	Interval<int> timergms( mCast( int, timerg.start * zfact ),
+				mCast( int, timerg.stop * zfact ) );
+	zrangeflds_[mTwtFldIdx]->setValue( timergms );
     }
     
     if( zrangeflds_[mDahFldIdx] )
+    {
+	if ( zrginft_ )
+	    dahrg.scale( mToFeetFactorF );
+
 	zrangeflds_[mDahFldIdx]->setValue( dahrg );
+    }
 
     return true;
 }
