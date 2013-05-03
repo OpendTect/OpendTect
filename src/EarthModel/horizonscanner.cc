@@ -341,6 +341,9 @@ int HorizonScanner::nextStep()
 	bid.crl = mNINT32( crd.y );
     }
 
+    if ( !SI().isReasonable(bid) )
+	return Executor::MoreToDo();
+
     bool validpos = true;
     int validx = 0;
     while ( validx < data.size() )
