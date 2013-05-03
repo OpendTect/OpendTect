@@ -18,9 +18,15 @@ install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE )
 
 #install doc stuff
-install( DIRECTORY doc/Programmer/pluginexample
-	 DESTINATION doc/Programmer
-	 PATTERN ".svn" EXCLUDE )
+file( GLOB TUTHFILES plugins/Tut/*.h )
+file( GLOB TUTCCFILES plugins/Tut/*.cc )
+set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
+install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/Tut )
+
+file( GLOB UITUTHFILES plugins/uiTut/*.h )
+file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
+set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
+install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/uiTut )
 
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION doc/Programmer
