@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigridlinesdlg.h"
 
 #include "draw.h"
-#include "hiddenparam.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -32,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 	    				IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
-HiddenParam<uiGridLinesDlg, uiCheckBox*> applyallflds(0);
     
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options","50.0.3"))
@@ -76,10 +74,9 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 	allmsg += "crosslines";
     else
 	allmsg += "z slices";
-    uiCheckBox* applyallfld = new uiCheckBox( this, allmsg.buf() );
-    applyallfld->setChecked( true );
-    applyallfld->attach( alignedBelow, lsfld_ );
-    applyallflds.setParam( this, applyallfld );
+    applyallfld_ = new uiCheckBox( this, allmsg.buf() );
+    applyallfld_->setChecked( true );
+    applyallfld_->attach( alignedBelow, lsfld_ );
         
     setParameters();
 }
@@ -205,7 +202,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     }
 
     visSurvey::Scene* scene = pdd_->getScene();
-    const bool applyall = applyallflds.getParam(this)->isChecked();
+    const bool applyall = applyallfld_->isChecked();
     for ( int idx=scene->size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet(visBase::VisualObject*,so,scene->getObject(idx));
