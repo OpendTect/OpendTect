@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
 <!--
   - CopyRight:  (C) dGB Earth Sciences
   - Author:     A.H. Lammertink / A.H. Bril
@@ -6,34 +7,50 @@
   - Contents:   Windows specific stuff for programmers
   - RCS:        $Id$ 
   -->
+		
+	<head>
+		<title>Windows development [OpendTect Programmer's manual V4.4]</title>
+  <base href="windows.html" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
 
-<body background="backg.png"><title>Windows development [OpendTect
-Programmer's manual V4.4]</title>
-
+<body id="page_bg" class="width_fmax">
+		
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                                
+                                        <div id="header_r">
+						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+						<div id="topmenu">
+						</div>
+			<div id="leftcolumn">	
+						<table id="greenborder"><tbody>
+								<tr><td valign="top">
 <center>
 <h1>OpendTect development on MS Windows</h1>
   <a href=#vs10>Visual Studio 10</a>
-  <a href=#cmake>CMake</a>
+ | <a href=#cmake>CMake</a>
 | <a href=#tutplugin>Building the Tutorial plugin</a>
 | <a href=#ownplugin>Building your own plugin</a>
 | <a href=#buildod>Building OpendTect</a>
 </center>
 
 <br>
-<img src="hr.png" border=0>
 
 
-<a name=vs10><h3>Visual Studio 10</h3></a>
+<a name="vs10"><h3 id="heading3">Visual Studio 10</h3></a>
 
-<p>OpendTect 4.4 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express">Microsoft's official web site </a></p>
+<p id="text">OpendTect 4.4 is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express">Microsoft's official web site </a></p>
 
-<a name=cmake><h3>CMake</h3></a>
-CMake is a cross-platform tool that takes care of generating system-dependent project files. It can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html">CMake's web site</a>.
-
-<a name=tutplugin><h3>Building the Tutorial plugin</h3></a>
-<p>
-To get the whole process going we will first build the Tutorial plugin. This will set up the Visual studio project we need, and the plugin itself can be very useful for understanding several important OpendTect programming concepts.
-<ul>
+<a name="cmake"><h3 id="heading3">CMake</h3></a>
+<p id="text">CMake is a cross-platform tool that takes care of generating system-dependent project files. It can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html">CMake's web site</a>.</p>
+<a name="tutplugin"><h3 id="heading3">Building the Tutorial plugin</h3></a>
+<p id="text">
+To get the whole process going we will first build the Tutorial plugin. This will set up the Visual studio project we need, and the plugin itself can be very useful for understanding several important OpendTect programming concepts.</p>
+<ul id="bullets">
 <li>Install developers package from the installation manager. 
 <li>start OpendTect and then from Utilities-Tools-Create Devel Environment launch the create work environment tool. There specify a folder (WORK) to copy the plugin building material into. That can be any folder with names like "C:\WORK" or "D:\Tools\ODWork" but <b><i>Do Not Put It In The OpendTect Installation Folder</i></b>. After creation, tis will be where you do your work, so choose a stable, backed-up directory there.
 <li>Now start CMake (desktop item or its Windows start menu). Select the WORK directory you just created, and put it in both the "source" and "output". Then press the 'Configure' button.
@@ -41,17 +58,16 @@ To get the whole process going we will first build the Tutorial plugin. This wil
 <li>Some virus scanners like AVG will ring the alarm bells, and this can make the whole process fail. This is because CMake tries to link a program to test the system setup. To get this right, I had to disable my virus scanner (AVG).
 <li>When you get 'Configuring done' you may still have a few red lines in the variables box. Don't worry: things should be ready and you can press the 'Generate' button. You can close CMake and switch your anti-virus back on.
 </ul>
-CMake has now generated the projects and the solution file for the plugins. Now you can start Visual studio and load the OpendTect_Tutorial_Plugin.sln which has just been created by CMake, in your WORK directory.
-</p><p>
-Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Build' for each. That's all.
+<p id="text">CMake has now generated the projects and the solution file for the plugins. Now you can start Visual studio and load the OpendTect_Tutorial_Plugin.sln which has just been created by CMake, in your WORK directory.<br>
+Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Build' for each. That's all.</p>
 
 
-<h3> Debugging the Tutorial plugin </h3>
-<p>When you load the plugin solution in Visual Studio, you will see a couple of projects. One of them is the "od_main" project. This is the launcher project to launch od_main debug executable that comes with the developers package. Right click on this project and set to "Set as startup project". When you press F5 for debugging this project will be started. Visual studio will show couple of warning messages because this is a debug executable; just ignore all of them and continue. The OpendTect main program, od_main.exe will be launched.</p>
-<p>From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win32 folder directory. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code.  Please note you can only debug your own code and cannot step in to any OpendTect library functions, as this is being used as an external library.
+<h3 id="heading3">Debugging the Tutorial plugin </h3>
+<p id="text">When you load the plugin solution in Visual Studio, you will see a couple of projects. One of them is the "od_main" project. This is the launcher project to launch od_main debug executable that comes with the developers package. Right click on this project and set to "Set as startup project". When you press F5 for debugging this project will be started. Visual studio will show couple of warning messages because this is a debug executable; just ignore all of them and continue. The OpendTect main program, od_main.exe will be launched.</p>
+<p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win32 folder directory. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code.  Please note you can only debug your own code and cannot step in to any OpendTect library functions, as this is being used as an external library.</p>
 
-<a name=ownplugin><h3>Building your own plugin</h3></a>
-If you want to create your own plugin, we have a starting point called "My_Plugin_Name" which is also one of the projects you see. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you. Procedure:
+<a name="ownplugin"><h3 id="heading3">Building your own plugin</h3></a>
+<p id="text">If you want to create your own plugin, we have a starting point called "My_Plugin_Name" which is also one of the projects you see. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you. Procedure:</p>
 
 <ul>
 <li>Exit Visual Studio.
@@ -61,32 +77,31 @@ If you want to create your own plugin, we have a starting point called "My_Plugi
 <li>Edit my_inv_plugin_pi.cc and replace every occurences of 'My_Plugin_Name' with 'My_Inversion'.
 <li>Keep the code as-is, or change something. If you add files, or remove/rename the ones provided in the plugin directory, change the CMakeLists.txt in the plugin directory accordingly.
 <li>Now configure CMake just like you configured before. I didn't have to disable my virus scanning anymore, but you may have to do this.
-<li>If you manage to make the the projects and successfully build them, then start the od_main project again and load the new plugin DLL form ODWork\bin\win32/64\Debug in to OpendTect. If you didn't change the example 'My_Class' you will see a 'Hello World!' message appear.
+<li>If you manage to make the the projects and successfully build them, then start the od_main project again and load the new plugin DLL form ODWork\bin\win32/64\<br>Debug in to OpendTect. If you didn't change the example 'My_Class' you will see a 'Hello World!' message appear.
 </ul>
 
-<h3> Debugging your own plugin </h3>
-The process is exactly similar as described above, 1)start Visual Stidio 2) build the plugin 3) start 'od_main' project 4) load and debug your plugin.
+<h3 id="heading3">Debugging your own plugin </h3>
+<p id="text">The process is exactly similar as described above, 1)start Visual Stidio 2) build the plugin 3) start 'od_main' project 4) load and debug your plugin.</p>
 
 
-<h3> Distributing your own plugins</h3>
-Your plugin can be distributed with the new installation manager and OpendTect download site. You have to ship the plugin binaries and documentation to opendtect.org, where it will be available for download.
+<h3 id="heading3">Distributing your own plugins</h3>
+<p id="text">Your plugin can be distributed with the new installation manager and OpendTect download site. You have to ship the plugin binaries and documentation to opendtect.org, where it will be available for download.</p>
 
 
+<a name="buildod"><h3 id="heading3">Building OpendTect (only for die hards)</h3></a>
+<p id="text">The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt anc Coin directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
-<a name=buildod><h3> Building OpendTect (only for die hards)</h3></a>
-The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt anc Coin directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.  
-
-<h3>Qt</h3>
-A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. 
+<h3 id="heading3">Qt</h3>
+<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. </p>
 
 
-<h3>Coin and friends</h3>
-<p>A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from the <a href="http://coin3d.org/">Coin website</a>. Or get the source code from <a href="http://tortoisehg.bitbucket.org/">Mercurial</a> repositories and build yourself using Visual Studio. Check <a href="http://www.coin3d.org/doc/mercurial_access/">this link</a> for more details</p>
+<h3 id="heading3">Coin and friends</h3>
+<p id="text">A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from the <a href="http://coin3d.org/">Coin website</a>. Or get the source code from <a href="http://tortoisehg.bitbucket.org/">Mercurial</a> repositories and build yourself using Visual Studio. Check <a href="http://www.coin3d.org/doc/mercurial_access/">this link</a> for more details</p>
 <br>
 
 
 <br>
-<img src="hr.png" border=0>
+
 
 <p>
 <center>
@@ -97,5 +112,18 @@ A Qt installation is only necessary when you want to build a plugin which is dir
 </center>
 </p>
 
-</body>
-</html>
+										
+</td></tr>
+
+			 </font>
+						 </tbody>
+			 </table>
+				 </div>
+			 <div id="footer">
+			 </div>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+ </body>
+ </html>
