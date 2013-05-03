@@ -111,7 +111,8 @@ public:
 			uiGraphicsSceneAxisMgr(uiGraphicsView&);
     virtual		~uiGraphicsSceneAxisMgr();
 
-    void		setViewRect(const uiRect&);
+    virtual void        setZvalue(int z);
+    virtual void	setViewRect(const uiRect&);
     void		setWorldCoords(const uiWorldRect&);
     void		setWorldCoords(const StepInterval<float>& xrg,
 				       const StepInterval<float>& yrg);
@@ -119,6 +120,7 @@ public:
     void		enableXAxis(bool yn) { xaxis_->turnOn(yn); }
     void		enableYAxis(bool yn) { yaxis_->turnOn(yn); }
 
+    int                 getZvalue() const;
     int			getNeededWidth();
     int			getNeededHeight();
 
@@ -130,7 +132,6 @@ public:
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
 
-    void		setZvalue(int z);
     NotifierAccess&	layoutChanged();
 
 protected:
@@ -149,7 +150,7 @@ protected:
 			    \param text	where	the text to display
 			    \returns 		the actual display pos is
 			 */
-    
+
     uiGraphicsSceneAxis*	xaxis_;
     uiGraphicsSceneAxis*	yaxis_;
 

@@ -290,6 +290,12 @@ void uiGraphicsItemSet::setZValue( int zval )
 }
 
 
+int uiGraphicsItem::getZValue() const
+{
+    return mNINT32(qgraphicsitem_->zValue());
+}
+
+
 
 // +++++ uiGraphicsItemGroup +++++
 

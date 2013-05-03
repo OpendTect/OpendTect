@@ -329,6 +329,12 @@ void uiGraphicsSceneAxisMgr::setYLineStyle( const LineStyle& yls )
 }
 
 
+int uiGraphicsSceneAxisMgr::getZvalue() const
+{
+    return topmask_->getZValue();
+}
+
+
 int uiGraphicsSceneAxisMgr::getNeededWidth()
 {
     const int nrchars = 11;

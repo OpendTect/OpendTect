@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mAxisZStart	200
 #define mAnnotZ		300
 
-
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , view_( new uiGraphicsView( this, "Flatview" ) )
@@ -130,6 +129,8 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
     axesdrawer_.update();
+    reSizeCB(0); // Needed as annotation changes may make view-area
+    		 // larger or smaller.
 }
 
 

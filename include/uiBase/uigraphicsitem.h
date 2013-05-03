@@ -70,6 +70,7 @@ public:
     void		setParent(uiGraphicsItem*);
 
     int			id() const			{ return id_; }
+    int			getZValue() const;
 
     			//Old, will be remove once all dep code is changed
     void		rotate(float angle) { setRotation(angle); }
