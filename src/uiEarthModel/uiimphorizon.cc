@@ -216,6 +216,11 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 	if ( filludffld_ )
 	    filludffld_->setSensitive( false );
     }
+    else
+    {
+	delete scanner_;
+	scanner_ = 0;
+    }
 
     FilePath fnmfp( fnm );
     sImportFromPath = fnmfp.pathOnly();
