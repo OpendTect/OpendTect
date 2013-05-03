@@ -250,7 +250,7 @@ Coord3 Well::Track::getPos( float dh ) const
     if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return pos_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
-	return Coord3(0,0,0);
+	return Coord3::udf();
 
     return coordAfterIdx( dh, idx1 );
 }

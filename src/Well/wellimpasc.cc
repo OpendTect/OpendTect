@@ -702,7 +702,13 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	    tval *= 2;
 
 	if ( !istvd )
-	    zvals += wll.track().getPos(mCast(float,zval)).z;
+	{
+	    const Coord3 crd = wll.track().getPos( mCast(float,zval) );
+	    if ( mIsUdf(crd) )
+		continue;
+
+	    zvals += crd.z;
+	}
 	else
 	    zvals += zval;
 
