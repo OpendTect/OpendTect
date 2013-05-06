@@ -50,6 +50,7 @@ protected:
     uiSeisWaveletSel*		wvltfld_;
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
+    uiGenInput*  		angleinpfld_;
     uiGenInput*  		namefld_;
     uiGenInput*			nmofld_;
     uiGenInput*			stretchmutelimitfld_;
