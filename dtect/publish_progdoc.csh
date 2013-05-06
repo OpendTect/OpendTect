@@ -5,7 +5,7 @@
 # $Id$
 # 
 
-if ( $#argv<1 ) then
+if ( $#argv<2 ) then
     goto syntax
 endif
 
@@ -21,7 +21,8 @@ if ( ! -e ${sendappl} ) then
 endif
 
 
-set docdir=${1}
+set serversubdir=progdoc/${1}
+set docdir=${2}
 
 if ( "${docdir}" == "" ) then
     echo "No docdir specified"
@@ -63,20 +64,20 @@ foreach file ( ${files} )
     endif
 end
 
-find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.org/progdoc/"$1 }' | gzip > ${compdir}/sitemap.txt
+find . -name "*.html" | sed 's/\.\///g' | awk '{ print "http://static.opendtect.org/${serversubdir}/"$1 }' | gzip > ${compdir}/sitemap.txt
 
 cd ${prevdir}
 
 #First, run to upload svg files, as they need special mime treatment
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*" --s3arg --include --s3arg "*.svg" --s3arg -m --s3arg "image/svg+xml" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
+${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*" --s3arg --include --s3arg "*.svg" --s3arg -m --s3arg "image/svg+xml" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 
 #SecondlySecond, run to upload new stuff, keep removed files
-${sendappl} --s3arg --add-header --s3arg --exclude --s3arg "*.svg" --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
+${sendappl} --s3arg --add-header --s3arg --exclude --s3arg "*.svg" --s3arg "Content-Encoding: gzip" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 
 #Third, delete removed files
-${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} progdoc --bucket static.opendtect.org --quiet --reduced-redundancy
+${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 exit 0
 
 syntax:
-    echo "$0 <docdir>"
+    echo "$0 <serversubdir> <docdir>"
     exit 1
