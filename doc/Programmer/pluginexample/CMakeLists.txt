@@ -16,14 +16,6 @@ set ( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
 #Setup output directory
 option ( OD_BUILD_LOCAL "Build in local directory" ON )
 
-if( (NOT DEFINED OD_BINARY_BASEDIR) OR OD_BINARY_BASEDIR STREQUAL "" )
-    if ( OD_BUILD_LOCAL )
-        set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
-    else()
-        set( OD_BINARY_BASEDIR ${OpendTect_DIR} )
-    endif()
-endif()
-
 #Find OpendTect
 list(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
 find_package( OpendTect )
