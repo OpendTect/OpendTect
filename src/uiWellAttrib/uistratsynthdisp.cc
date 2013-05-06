@@ -993,7 +993,7 @@ bool uiStratSynthDisp::prepareElasticModel()
 bool uiStratSynthDisp::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
-    if ( !stratsynthpar && stratsynth_.nrSynthetics() == 0 )
+    if ( !stratsynthpar )
     {
 	if ( !stratsynth_.hasElasticModels() )
 	    return false;
