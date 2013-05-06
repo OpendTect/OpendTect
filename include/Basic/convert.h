@@ -137,6 +137,10 @@ mConvDefFromStrToFn( float, strtof(s,&endptr) )
 
 #undef mConvDefFromStrToFn
 
+template <>
+inline void set( bool& _to, const FixedString& s )
+    { _to = yesNoFromString(s.str()); }
+
 
 #define mConvDefFromStrToFn(type,fn) \
 template <> \
