@@ -50,6 +50,7 @@ static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
 static const char* sKeyInput()	 		{ return "Input Synthetic"; } 
 static const char* sKeyAngleRange()		{ return "Angle Range"; } 
+#define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
 DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
@@ -58,6 +59,7 @@ DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
 SynthGenParams::SynthGenParams()
 {
     synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
+    anglerg_ = sDefaultAngleRange;
     const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
     if ( !facnms.isEmpty() )
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
