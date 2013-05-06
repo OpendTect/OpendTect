@@ -719,7 +719,8 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    useSyntheticsPars( desc_.getWorkBenchParams() );
+    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
+	return;
     synthdisp_->modelChanged();
 }
 
@@ -740,7 +741,8 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     setModelProps();
     setElasticProps();
-    useSyntheticsPars( desc_.getWorkBenchParams() );
+    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
+	return;
 
     synthdisp_->modelChanged();
     moddisp_->modelChanged();
@@ -915,6 +917,8 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 
 bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
 {
+    if ( !synthdisp_->prepareElasticModel() )
+	return false;
     return synthdisp_->usePar( par );
 }
 
