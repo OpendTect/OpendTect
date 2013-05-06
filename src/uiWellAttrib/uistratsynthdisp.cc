@@ -982,11 +982,7 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
 
 bool uiStratSynthDisp::prepareElasticModel()
 {
-    if ( !stratsynth_.createElasticModels() )
-	mErrRet(stratsynth_.errMsg(), stratsynth_.createElasticModels(); return false);
-    if ( stratsynth_.errMsg() )
-	uiMSG().warning( stratsynth_.errMsg() );
-    return true;
+    return stratsynth_.createElasticModels();
 }
 
 
