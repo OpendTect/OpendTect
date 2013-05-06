@@ -61,10 +61,16 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     psselfld_ = new uiLabeledComboBox( pargrp, "Input PreStack" );
     psselfld_->attach( alignedBelow, lblcbx );
 
+    FloatInpIntervalSpec finpspec(false);
+    finpspec.setLimits( Interval<float>(0,90) );
+    finpspec.setDefaultValue( Interval<float>(0,30) );
+    angleinpfld_ = new uiGenInput( pargrp, "Angle Range", finpspec );
+    angleinpfld_->attach( alignedBelow, psselfld_ );
+
     uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
     rtsel_ = new uiRayTracerSel( pargrp, rsu );
     rtsel_->usePar( stratsynth_.genParams().raypars_ ); 
-    rtsel_->attach( alignedBelow, psselfld_ );
+    rtsel_->attach( alignedBelow, angleinpfld_ );
     rtsel_->offsetChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
     wvltfld_ = new uiSeisWaveletSel( pargrp );
@@ -226,6 +232,7 @@ void uiSynthGenDlg::updateFieldSensitivity()
     wvltfld_->display( !psbased );
     mutelenfld_->display( isps );
     stretchmutelimitfld_->display( isps );
+    angleinpfld_->display( psbased );
 }
 
 
@@ -262,6 +269,7 @@ void uiSynthGenDlg::putToScreen()
 	psselfld_->box()->setEmpty();
 	psselfld_->box()->addItems( psnms );
 	psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
+	angleinpfld_->setValue( genparams.anglerg_ ); 
 	updateFieldSensitivity();
 	return;
     }
@@ -329,6 +337,7 @@ bool uiSynthGenDlg::getFromScreen()
 	genparams.name_ = nm;
 	genparams.synthtype_ = synthtype;
 	genparams.inpsynthnm_ = inppssd->name();
+	genparams.anglerg_ = angleinpfld_->getFInterval();
 	return true;
     }
 
@@ -394,9 +403,9 @@ bool uiSynthGenDlg::rejectOK( CallBacker* )
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
 
-    if ( !getFromScreen() ) return false;
     if ( !isCurSynthChanged() )
 	return true;
+    if ( !getFromScreen() ) return false;
     BufferString msg( "Selected synthetic has been changed. "
 	    	      "Do you want to Apply the changes?" );
     if ( uiMSG().askGoOn(msg,"Apply","Do not Apply") )
