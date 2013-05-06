@@ -28,9 +28,9 @@ const Interval<float> Well::Track::zRange() const
 {
     const int nrpts = nrPoints();
     if ( nrpts < 1 )
-	return Interval<float> ( 0., 0. );
+	return Interval<float>( 0., 0. );
 
-    const float zstart = value(0);
+    const float zstart = value( 0 );
     const float zstop = value( nrpts-1 );
     return Interval<float> ( zstart, zstop );
 }
@@ -40,11 +40,11 @@ const Interval<float> Well::Track::dahRange() const
 {
     const int nrpts = nrPoints();
     if ( nrpts < 1 )
-	return Interval<float> ( 0., 0. );
+	return Interval<float>( 0., 0. );
 
     const float dahstart = dah_[0];
     const float dahstop = dah_[ nrpts-1 ];
-    return Interval<float> ( dahstart, dahstop );
+    return Interval<float>( dahstart, dahstop );
 }
 
 
@@ -79,8 +79,8 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
     }
 
     pos_.insert( aftidx+1, c );
-    dah_.insert( aftidx+1, (float) owndah );
-    addToDahFrom( aftidx+2, (float) extradah );
+    dah_.insert( aftidx+1, mCast(float,owndah) );
+    addToDahFrom( aftidx+2, mCast(float,extradah) );
 }
 
 
@@ -183,25 +183,25 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     if ( dh < dah_[0] )
     {
 	dah_.insert( 0, dh );
-	Coord3 crd( pos_[0] ); crd.z = zpos;	
+	Coord3 crd( pos_[0] ); crd.z = zpos;
 	pos_.insert( 0, crd );
     }
     if ( dh > dah_[size()-1] )
     {
 	dah_ += dh;
-	Coord3 crd( pos_[size()-1] ); crd.z = zpos;	
+	Coord3 crd( pos_[size()-1] ); crd.z = zpos;
 	pos_ += crd;
     }
 
     const int insertidx = indexOf( dh );
-    if ( insertidx<0 ) 
+    if ( insertidx<0 )
 	return false;
     Coord3 prevcrd( pos_[insertidx] );
-    Coord3 nextcrd( pos_[insertidx+1] ); 
-    Coord3 crd( ( prevcrd + nextcrd )/2 ); 
-    crd.z = zpos;	
-    
-    dah_.insert( insertidx+1, dh ); 
+    Coord3 nextcrd( pos_[insertidx+1] );
+    Coord3 crd( ( prevcrd + nextcrd )/2 );
+    crd.z = zpos;
+
+    dah_.insert( insertidx+1, dh );
     pos_.insert( insertidx+1, crd );
 
     return true;
@@ -342,7 +342,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	{ nearidx = 1; sqneardist = sqdist; }
     else
 	{ secondidx = 1; sqsecdist = sqdist; }
-	
+
     for ( int idah=2; idah<dah_.size(); idah++ )
     {
 	curpos = getPos( dah_[idah] ); curpos.z *= zfac;

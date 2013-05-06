@@ -403,7 +403,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
     Coord3 c, prevc;
     Coord3 surfcoord;
     float dah = 0;
-    
+
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
 
     while ( true )
@@ -555,7 +555,8 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf()),
+	new Table::TargetInfo( "Undefined Value",
+				StringInpSpec(sKey::FloatUdf()),
 				Table::Required );
     createDescBody( fd, withunitfld );
     return fd;
@@ -614,7 +615,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     }
 
     inputsz = zvals.size();
-    if ( inputsz < 2 ) 
+    if ( inputsz < 2 )
 	return false;
 
     TypeSet<float> mds;
@@ -636,11 +637,11 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     mds += trck.getDahForTVD(mCast(float,firstz));
     ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
        				       mCast( double, wll.info().replvel );
-    // one SHOULD check here if this time corresponds to the time at the 
+    // one SHOULD check here if this time corresponds to the time at the
     // same depth in the input file, i.e. is the computed replacement velocity
     // in line with the one stored in info() or input in the advanced import
     // settings window
-    
+
     int prevvelidx = istartz;
     istartz++;
     for ( int idz=istartz; idz<inputsz; idz++ )
@@ -673,7 +674,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 
 
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
-       				const Well::Data& wll ) const
+			       const Well::Data& wll ) const
 {
     d2t.setEmpty();
     if ( wll.track().isEmpty() ) return true;
