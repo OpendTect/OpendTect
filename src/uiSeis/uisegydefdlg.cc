@@ -46,9 +46,9 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , geomtype_(Seis::Vol)
     , readParsReq(this)
 {
-    const bool havevol = su.geoms_.indexOf( Seis::Vol ) >= 0;
-    const bool havevolps = su.geoms_.indexOf( Seis::VolPS ) >= 0;
-    const bool havevlineps = su.geoms_.indexOf( Seis::LinePS ) >= 0;
+    const bool havevol = su.geoms_.isPresent( Seis::Vol );
+    const bool havevolps = su.geoms_.isPresent( Seis::VolPS );
+    const bool havevlineps = su.geoms_.isPresent( Seis::LinePS );
     uiSEGYFileSpec::Setup sgyfssu( havevol || havevolps || havevlineps );
     sgyfssu.forread(true).pars(&iop);
     sgyfssu.canbe3d( havevol || havevolps );
@@ -64,7 +64,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     {
 	if ( su.geoms_.isEmpty() )
 	    uiSEGYRead::Setup::getDefaultTypes( setup_.geoms_ );
-	if ( setup_.geoms_.indexOf( setup_.defgeom_ ) < 0 )
+	if ( !setup_.geoms_.isPresent( setup_.defgeom_ ) )
 	    setup_.defgeom_ = setup_.geoms_[0];
 
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "File type" );

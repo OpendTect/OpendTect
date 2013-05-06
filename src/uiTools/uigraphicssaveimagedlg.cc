@@ -64,8 +64,7 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
     int idy = 0;
     while ( imagefrmt[idy] )
     {
-	const int idx = supportedformats.indexOf( imagefrmt[idy] );
-	if ( idx>=0 )
+	if ( supportedformats.isPresent( imagefrmt[idy] ) )
 	{
 	    if ( !filters.isEmpty() ) filters += ";;";
 	    filters += frmtdesc[idy];

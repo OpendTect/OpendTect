@@ -113,7 +113,7 @@ void uiWindowGrabDlg::updateFilter()
 	    continue;
 	}
 
-	if ( supportedformats.indexOf(imageformats[idx]) >= 0 )
+	if ( supportedformats.isPresent(imageformats[idx]) )
 	    fileinputfld_->setSelectedFilter( filters[idx] );
 	break;
     }

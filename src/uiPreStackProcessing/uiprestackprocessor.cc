@@ -152,7 +152,7 @@ bool uiProcessorManager::hasPropDialog(int idx) const
     const Processor* proc = manager_.getProcessor(idx);
     if ( !proc ) return false;
 
-    return uiPSPD().getNames().indexOf( proc->name() )!=-1;
+    return uiPSPD().getNames().isPresent( proc->name() );
 }
 
 
