@@ -95,6 +95,7 @@ protected:
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
+    void		fillSmootheningPar(IOPar&);
 
     MultiID			psid_;
     IOObj*			psioobj_;

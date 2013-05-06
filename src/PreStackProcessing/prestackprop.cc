@@ -146,9 +146,6 @@ float PropCalc::getVal( int sampnr ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float val = gather_->data().get( itrc, cursamp );
-
-	    vals += val;
 	    if ( setup_.calctype_ != Stats )
 	    {
 		if ( setup_.useangle_ && angledata_ )
@@ -163,6 +160,10 @@ float PropCalc::getVal( int sampnr ) const
 		else
 		    axisvals += offset;
 	    }
+
+	    const float val = gather_->data().get( itrc, cursamp );
+	    vals += val;
+
 	}
     }
 
@@ -207,10 +208,6 @@ float PropCalc::getVal( float z ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float val =
-		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
-
-	    vals += val;
 	    if ( setup_.calctype_ != Stats )
 	    {
 		if ( setup_.useangle_ && angledata_ )
@@ -225,6 +222,10 @@ float PropCalc::getVal( float z ) const
 		else
 		    axisvals += offset;
 	    }
+
+	    const float val =
+		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
+	    vals += val;
 	}
     }
 
@@ -261,6 +262,9 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 
     if ( su.calctype_ == Stats && !vals.size() )
 	return 0;
+
+    if ( vals.size()!=axisvals.size() && su.calctype_!=Stats )
+	std::cout<<"Take a vreak \n";
 
     Stats::CalcSetup rcs;
     if ( su.calctype_ == Stats )
