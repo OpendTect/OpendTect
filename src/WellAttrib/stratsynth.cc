@@ -351,6 +351,9 @@ mSetFloat( Attrib::PSAttrib::offStopStr(), \
 
 
 #define mSetProc() \
+mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
+mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start ); \
+mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop ); \
 psdesc->setUserRef( synthgenpar.name_ ); \
 psdesc->updateParams(); \
 PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
@@ -404,9 +407,6 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
     mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
-    mSetBool(Attrib::PSAttrib::useangleStr(), true );
-    mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start );
-    mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop );
 
     mSetProc();
     mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
@@ -437,7 +437,6 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
     mCreateDesc();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-    mSetBool(Attrib::PSAttrib::useangleStr(), false );
 
     mSetProc();
     mCreateSeisBuf();
@@ -716,20 +715,6 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 	float dval, pval, sval;
 	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
-	const bool dudf = mIsUdf(dval); const bool pudf = mIsUdf(dval);
-	const bool sudf = mIsUdf(dval);
-	const int nrudf = (dudf?1:0) + (pudf?1:0) + (sudf?1:0);
-	if ( nrudf > 0 )
-	{
-	    BufferString msg(
-		    "Cannot derive layer propert", nrudf>1?"ies:":"y:" );
-#	    define mAddUdfProp(t,s) if ( t##udf ) msg.add( " " ).add( s )
-	    mAddUdfProp(d,"'Density'"); mAddUdfProp(p,"'P-wave velocity'");
-	    mAddUdfProp(s,"'S-wave velocity'");
-	    msg.add( ".\nPlease check the definition" );
-	    if ( nrudf > 1 ) msg.add( "s" );
-	    errmsg_ = msg; return false;
-	}
 
 	// Detect water - reset Vs
 	if ( pval < cMaximumVpWaterVel() )
@@ -743,9 +728,9 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 
 #define mValidDensityRange( val ) \
-(val>0.1 && val<10)
+(mIsUdf(val) && val>0.1 && val<10)
 #define mValidWaveRange( val ) \
-(val>10 && val<10000)
+(!mIsUdf(val) && val>10 && val<10000)
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 				     TypeSet<ElasticModel>& aimodels,
