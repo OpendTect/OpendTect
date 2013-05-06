@@ -12,6 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratsynth.h"
 
+#include "array1dinterpol.h"
+#include "arrayndimpl.h"
 #include "attribsel.h"
 #include "attribengman.h"
 #include "attribdesc.h"
@@ -47,6 +49,8 @@ static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
 static const char* sKeyInput()	 		{ return "Input Synthetic"; } 
+static const char* sKeyAngleRange()		{ return "Angle Range"; } 
+#define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
 DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
@@ -55,6 +59,7 @@ DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
 SynthGenParams::SynthGenParams()
 {
     synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
+    anglerg_ = sDefaultAngleRange;
     const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
     if ( !facnms.isEmpty() )
 	raypars_.set( sKey::Type(), facnms.get( facnms.size()-1 ) );
@@ -75,8 +80,12 @@ void SynthGenParams::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name_ );
     par.set( sKeySynthType(), SynthGenParams::toString(synthtype_) );
-    if ( synthtype_ == SynthGenParams::AngleStack )
+    if ( synthtype_ == SynthGenParams::AngleStack ||
+	 synthtype_ == SynthGenParams::AVOGradient )
+    {
 	par.set( sKeyInput(), inpsynthnm_ );
+	par.set( sKeyAngleRange(), anglerg_ );
+    }
     par.set( sKeyWaveLetName(), wvltnm_ );
     IOPar raypar;
     raypar.mergeComp( raypars_, sKeyRayPar() );
@@ -105,8 +114,12 @@ void SynthGenParams::usePar( const IOPar& par )
     {
 	BufferString typestr;
 	parseEnum( par, sKeySynthType(), synthtype_ );
-	if ( synthtype_ == SynthGenParams::AngleStack )
+	if ( synthtype_ == SynthGenParams::AngleStack ||
+	     synthtype_ == SynthGenParams::AVOGradient )
+	{
 	    par.get( sKeyInput(), inpsynthnm_ );
+	    par.get( sKeyAngleRange(), anglerg_ );
+	}
     }
 }
 
@@ -189,7 +202,7 @@ bool StratSynth::removeSynthetic( const char* nm )
 
 SyntheticData* StratSynth::addSynthetic()
 {
-    SyntheticData* sd = generateSD( lm_,tr_ );
+    SyntheticData* sd = generateSD( tr_ );
     if ( sd )
 	synthetics_ += sd;
     return sd;
@@ -198,7 +211,7 @@ SyntheticData* StratSynth::addSynthetic()
 
 SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
 {
-    SyntheticData* sd = generateSD( lm_, synthgen, tr_ );
+    SyntheticData* sd = generateSD( synthgen, tr_ );
     if ( sd )
 	synthetics_ += sd;
     return sd;
@@ -212,7 +225,7 @@ SyntheticData* StratSynth::replaceSynthetic( int id )
     if ( !sd ) return 0;
 
     const int sdidx = synthetics_.indexOf( sd );
-    sd = generateSD( lm_, tr_ );
+    sd = generateSD( tr_ );
     if ( sd )
     {
 	sd->setName( synthetics_[sdidx]->name() );
@@ -284,41 +297,20 @@ int StratSynth::nrSynthetics() const
 }
 
 
-bool StratSynth::generate( const Strat::LayerModel& lm, SeisTrcBuf& trcbuf )
-{
-    SyntheticData* dummysd = generateSD( lm );
-    if ( !dummysd ) 
-	return false;
-
-    for ( int idx=0; idx<lm.size(); idx ++ )
-    {
-	const SeisTrc* trc = dummysd->getTrace( idx );
-	if ( trc )
-	    trcbuf.add( new SeisTrc( *trc ) );
-    }
-    snapLevelTimes( trcbuf, dummysd->d2tmodels_ );
-
-    delete dummysd;
-    return !trcbuf.isEmpty();
-}
-
-
 float StratSynth::cMaximumVpWaterVel()
 {
     return 1510.f;
 }
 
 
-SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
-				       TaskRunner* tr )
-{ return generateSD( lm, genparams_, tr ); }
-
+SyntheticData* StratSynth::generateSD( TaskRunner* tr )
+{ return generateSD( genparams_, tr ); }
 
 #define mSetBool( str, newval ) \
 { \
     mDynamicCastGet(Attrib::BoolParam*,param,psdesc->getValParam(str)) \
     param->setValue( newval ); \
-} \
+}
 
 
 #define mSetEnum( str, newval ) \
@@ -413,6 +405,8 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
     mSetBool(Attrib::PSAttrib::useangleStr(), true );
+    mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start );
+    mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop );
 
     mSetProc();
 
@@ -443,6 +437,7 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
     mCreateDesc();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
+    mSetBool(Attrib::PSAttrib::useangleStr(), false );
 
     mSetProc();
     mCreateSeisBuf();
@@ -450,44 +445,51 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
 }
 
 
-SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
-				       const SynthGenParams& synthgenpar,
+bool StratSynth::createElasticModels()
+{
+    clearElasticModels();
+    const int nraimdls = lm_.size();
+    for ( int idm=0; idm<nraimdls; idm++ )
+    {
+	ElasticModel aimod; 
+	const Strat::LayerSequence& seq = lm_.sequence( idm ); 
+	const int sz = seq.size();
+	if ( sz < 1 )
+	    continue;
+
+	if ( !fillElasticModel(lm_,aimod,idm) )
+	    return false; 
+
+	aimodels_ += aimod;
+    }
+
+    errmsg_.setEmpty();
+    return adjustElasticModel( lm_, aimodels_, errmsg_ );
+}
+
+
+SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar,
 				       TaskRunner* tr )
 {
     errmsg_.setEmpty(); 
 
-    if ( lm.isEmpty() ) 
+    if ( lm_.isEmpty() ) 
     {
 	errmsg_ = "Empty layer model.";
 	return 0;
     }
 
-    Seis::RaySynthGenerator synthgen;
+    Seis::RaySynthGenerator synthgen( aimodels_ );
     BufferString capt( "Generating ", synthgenpar.name_ ); 
     synthgen.setName( capt.buf() );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
 
-    const int nraimdls = lm.size();
     int maxsz = 0;
-    for ( int idm=0; idm<nraimdls; idm++ )
-    {
-	ElasticModel aimod; 
-	const Strat::LayerSequence& seq = lm.sequence( idm ); 
-	const int sz = seq.size();
-	if ( sz < 1 )
-	    continue;
+    for ( int idx=0; idx<aimodels_.size(); idx++ )
+	maxsz = mMAX( aimodels_[idx].size(), maxsz );
 
-	if ( !fillElasticModel( lm, aimod, idm ) )
-	{
-	    BufferString msg( errmsg_ );
-	    mErrRet( msg.buf(), return 0;) 
-	}
-
-	maxsz = mMAX( aimod.size(), maxsz );
-	synthgen.addModel( aimod );
-    }
     if ( maxsz == 0 )
 	return 0;
 
@@ -496,10 +498,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 		return 0; );
 
     if ( !TaskRunner::execute( tr, synthgen) )
-    {
-	const char* errmsg = synthgen.errMsg();
-	mErrRet( errmsg ? errmsg : "", return 0 ) ;
-    }
+	return 0;
 
     const int crlstep = SI().crlStep();
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
@@ -507,7 +506,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 
     ObjectSet<SeisTrcBuf> tbufs;
     CubeSampling cs( false );
-    for ( int imdl=0; imdl<nraimdls; imdl++ )
+    for ( int imdl=0; imdl<lm_.size(); imdl++ )
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	ObjectSet<SeisTrc> trcs; rm.getTraces( trcs, true );
@@ -561,7 +560,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
 	{
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
 	    presd->createAngleData( synthgen.rayTracers(),
-		    		    synthgen.elasticModels() );
+		    		    aimodels_ );
 	}
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
@@ -590,7 +589,7 @@ SyntheticData* StratSynth::generateSD( const Strat::LayerModel& lm,
     sd->id_ = ++lastsyntheticid_;
 
     ObjectSet<TimeDepthModel> tmpd2ts;
-    for ( int imdl=0; imdl<nraimdls; imdl++ )
+    for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	rm.getD2T( tmpd2ts, true );
@@ -737,6 +736,107 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 	    sval = 0;
 
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
+    }
+
+    return true;
+}
+
+
+#define mValidDensityRange( val ) \
+(val>0.1 && val<10)
+#define mValidWaveRange( val ) \
+(val>10 && val<10000)
+
+bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
+				     TypeSet<ElasticModel>& aimodels,
+       				     BufferString& infomsg )
+{
+    infomsg.setEmpty();
+    for ( int midx=0; midx<aimodels.size(); midx++ )
+    {
+	const Strat::LayerSequence& seq = lm.sequence( midx ); 
+	ElasticModel& aimodel = aimodels[midx];
+	Array1DImpl<float> densvals( aimodel.size() );
+	Array1DImpl<float> velvals( aimodel.size() );
+	Array1DImpl<float> svelvals( aimodel.size() );
+	densvals.setAll( mUdf(float) );
+	velvals.setAll( mUdf(float) );
+	svelvals.setAll( mUdf(float) );
+	int invaliddenscount = 0;
+	int invalidvelcount = 0;
+	int invalidsvelcount = 0;
+	for ( int idx=0; idx<aimodel.size(); idx++ )
+	{
+	    const ElasticLayer& layer = aimodel[idx];
+	    densvals.set( idx, layer.den_ );
+	    velvals.set( idx, layer.vel_ );
+	    svelvals.set( idx, layer.svel_ );
+	    if ( !mValidDensityRange(layer.den_) ||
+		 !mValidWaveRange(layer.vel_) ||
+		 !mValidWaveRange(layer.svel_) )
+	    {
+		if ( infomsg.isEmpty() )
+		{
+		    infomsg += "Layer model contains invalid layer(s), "
+			       "first occurence found in layer '";
+		    infomsg += seq.layers()[idx]->name();
+		    infomsg += "' of pseudo well number ";
+		    infomsg += midx+1;
+		    infomsg += ". Invalid layers will be interpolated";
+		}
+
+		if ( !mValidDensityRange(layer.den_) )
+		{
+		    invaliddenscount++;
+		    densvals.set( idx, mUdf(float) );
+		}
+		if ( !mValidWaveRange(layer.vel_) )
+		{
+		    invalidvelcount++;
+		    velvals.set( idx, mUdf(float) );
+		}
+		if ( !mValidWaveRange(layer.svel_) )
+		{
+		    invalidsvelcount++;
+		    svelvals.set( idx, mUdf(float) );
+		}
+	    }
+	}
+
+	if ( invalidsvelcount>=aimodel.size() ||
+	     invalidvelcount>=aimodel.size() ||
+	     invaliddenscount>=aimodel.size() )
+	{
+	    infomsg.setEmpty();
+	    infomsg += "Cannot generate elastic model as all the values "
+		       "of the properties ";
+	    if ( invaliddenscount>=aimodel.size() )
+		infomsg += "'Density' ";
+	    if ( invalidvelcount>=aimodel.size() )
+		infomsg += "'Pwave Velocity' ";
+	    if ( invalidsvelcount>=aimodel.size() )
+		infomsg += "'Swave Velocity' ";
+	    infomsg += "are invalid. Probably units are not set correctly";
+	    return false;
+	}
+
+	LinearArray1DInterpol interpol;
+	interpol.setExtrapol( true );
+	interpol.setFillWithExtremes( true );
+	interpol.setArray( densvals );
+	interpol.execute();
+	interpol.setArray( velvals );
+	interpol.execute();
+	interpol.setArray( svelvals );
+	interpol.execute();
+
+	for ( int idx=0; idx<aimodel.size(); idx++ )
+	{
+	    ElasticLayer& layer = aimodel[idx];
+	    layer.den_ = densvals.get( idx );
+	    layer.vel_ = velvals.get( idx );
+	    layer.svel_ = svelvals.get( idx );
+	}
     }
 
     return true;
@@ -1008,6 +1108,7 @@ void PSBasedPostStackSyntheticData::fillGenParams( SynthGenParams& sgp ) const
 {
     SyntheticData::fillGenParams( sgp );
     sgp.inpsynthnm_ = inpsynthnm_;
+    sgp.anglerg_ = anglerg_;
 }
 
 
@@ -1015,6 +1116,7 @@ void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 {
     SyntheticData::useGenParams( sgp );
     inpsynthnm_ = sgp.inpsynthnm_;
+    anglerg_ = sgp.anglerg_;
 }
 
 

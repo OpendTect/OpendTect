@@ -741,16 +741,7 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 
 void uiStratSynthDisp::setCurrentWVASynthetic()
 {
-    SyntheticData* sd = 0;
-    if ( stratsynth_.nrSynthetics() == 0 )
-    {
-	sd = stratsynth_.addDefaultSynthetic();
-	synthsChanged.trigger();
-	updateWVASyntheticList();
-	updateVDSyntheticList();
-    }
-    else
-	sd = stratsynth_.getSynthetic( wvadatalist_->text() );
+    SyntheticData* sd = stratsynth_.getSynthetic( wvadatalist_->text() );
 
     currentsynthetic_ = sd;
     if ( !currentsynthetic_ ) return;
@@ -819,6 +810,8 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	SyntheticData* sd = stratsynth_.addSynthetic();
 	if ( !sd )
 	    mErrRet(stratsynth_.errMsg(), return );
+	if ( !stratsynth_.errMsg() )
+	    uiMSG().warning( stratsynth_.errMsg() );
 	synthsChanged.trigger();
 	updateWVASyntheticList();
 	updateVDSyntheticList();
@@ -937,14 +930,6 @@ const MultiID& uiStratSynthDisp::waveletID() const
 }
 
 
-void uiStratSynthDisp::genSyntheticsFor( const Strat::LayerModel& lm , 
-					SeisTrcBuf& seisbuf) 
-{
-    if ( !stratsynth_.generate( lm, seisbuf ) && stratsynth_.errMsg() )
-	mErrRet( stratsynth_.errMsg(), return )
-}
-
-
 void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 {
     if ( !synthgendlg_ ) 
@@ -997,35 +982,49 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
 }
 
 
+bool uiStratSynthDisp::prepareElasticModel()
+{
+    if ( !stratsynth_.createElasticModels() )
+	mErrRet(stratsynth_.errMsg(), stratsynth_.createElasticModels(); return false);
+    if ( stratsynth_.errMsg() )
+	uiMSG().warning( stratsynth_.errMsg() );
+    return true;
+}
+
+
 bool uiStratSynthDisp::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
-    if ( !stratsynthpar ) return false;
-
-    int snaplvl = 0;
-    stratsynthpar->get( sKeySnapLevel(), snaplvl );
-
-    int nrsynths;
-    stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
-    stratsynth_.clearSynthetics();
-    wvadatalist_->setEmpty();
-    for ( int idx=0; idx<nrsynths; idx++ )
+    if ( !stratsynthpar )
     {
-	PtrMan<IOPar> synthpar =
-	    stratsynthpar->subselect( IOPar::compKey(sKeySyntheticNr(),idx) );
-	if ( !synthpar ) continue;
-	SynthGenParams genparams;
-	genparams.usePar( *synthpar );
-	wvltfld_->setInput( genparams.wvltnm_ );
-	stratsynth_.setWavelet( wvltfld_->getWavelet() );
-	SyntheticData* sd = stratsynth_.addSynthetic( genparams );
-	if ( !sd )
+	if ( !stratsynth_.hasElasticModels() )
+	    return false;
+	stratsynth_.addDefaultSynthetic();
+    }
+    else
+    {
+	int nrsynths;
+	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
+	stratsynth_.clearSynthetics();
+	wvadatalist_->setEmpty();
+	for ( int idx=0; idx<nrsynths; idx++ )
 	{
-	    mErrRet(stratsynth_.errMsg(),);
-	    continue;
-	}
+	    PtrMan<IOPar> synthpar =
+		stratsynthpar->subselect( IOPar::compKey(sKeySyntheticNr(),idx) );
+	    if ( !synthpar ) continue;
+	    SynthGenParams genparams;
+	    genparams.usePar( *synthpar );
+	    wvltfld_->setInput( genparams.wvltnm_ );
+	    stratsynth_.setWavelet( wvltfld_->getWavelet() );
+	    SyntheticData* sd = stratsynth_.addSynthetic( genparams );
+	    if ( !sd )
+	    {
+		mErrRet(stratsynth_.errMsg(),);
+		continue;
+	    }
 
-	wvadatalist_->addItem( sd->name() );
+	    wvadatalist_->addItem( sd->name() );
+	}
     }
 
     if ( !stratsynth_.nrSynthetics() )
@@ -1039,7 +1038,13 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     setCurrentWVASynthetic();
     displaySynthetic( currentsynthetic_ );
     setCurrentVDSynthetic();
-    levelsnapselfld_->setCurrentItem( snaplvl );
+    
+    if ( stratsynthpar )
+    {
+	int snaplvl = 0;
+	stratsynthpar->get( sKeySnapLevel(), snaplvl );
+	levelsnapselfld_->setCurrentItem( snaplvl );
+    }
 
     return true;
 }

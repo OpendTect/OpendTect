@@ -47,7 +47,6 @@ public:
     const Wavelet*	getWavelet() const;
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
-    void		genSyntheticsFor(const Strat::LayerModel&,SeisTrcBuf&);
     SyntheticData*	getCurrentSyntheticData() const;
     const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
     const PropertyRefSelection&	modelPropertyRefs() const;
@@ -82,6 +81,7 @@ public:
     void		setCurrentWVASynthetic();
     void		setCurrentVDSynthetic();
     void		setSnapLevelSensitive(bool);
+    bool		prepareElasticModel();
 
     uiMultiFlatViewControl* control() 	{ return control_; }
 

@@ -49,6 +49,7 @@ mStruct(WellAttrib) SynthGenParams
     BufferString	inpsynthnm_;
     IOPar		raypars_;
     BufferString	wvltnm_;
+    Interval<float>	anglerg_;
     
     bool		hasOffsets() const;
     bool		isPreStack() const 	{ return synthtype_==PreStack; }
@@ -143,6 +144,7 @@ public:
     void			fillGenParams(SynthGenParams&) const;
 protected:
     BufferString 		inpsynthnm_;
+    Interval<float>		anglerg_;
 };
 
 
@@ -245,13 +247,16 @@ public:
     SyntheticData* 		getSyntheticByIdx(int idx);
     void			clearSynthetics();
     void			generateOtherQuantities();
+    bool			createElasticModels();
+    void			clearElasticModels()	{ aimodels_.erase(); }
+    bool			hasElasticModels() const
+    				{ return aimodels_.size(); }
     static float		cMaximumVpWaterVel();
 
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
     void			setWavelet(const Wavelet*);
     const Wavelet*		wavelet() const { return wvlt_; }
-    bool			generate(const Strat::LayerModel&,SeisTrcBuf&);
     SynthGenParams&		genParams()  	{ return genparams_; }
 
 
@@ -284,6 +289,7 @@ protected:
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
     ObjectSet<SyntheticData> 	synthetics_;
+    TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;
     const Wavelet*		wvlt_;
 
@@ -292,13 +298,13 @@ protected:
 
     bool			fillElasticModel(const Strat::LayerModel&,
 					ElasticModel&,int seqidx);
+    bool			adjustElasticModel(const Strat::LayerModel&,
+					TypeSet<ElasticModel>&,BufferString&);
     void			generateOtherQuantities( 
 	    				const PostStackSyntheticData& sd,
 	    				const Strat::LayerModel&);
-    SyntheticData* 		generateSD(const Strat::LayerModel&,
-					TaskRunner* tr=0);
-    SyntheticData* 		generateSD(const Strat::LayerModel&,
-	    				const SynthGenParams&,
+    SyntheticData* 		generateSD( TaskRunner* tr=0);
+    SyntheticData* 		generateSD( const SynthGenParams&,
 					TaskRunner* tr=0);
     SyntheticData*		createAngleStack(SyntheticData* sd,
 	    					 const CubeSampling&,
