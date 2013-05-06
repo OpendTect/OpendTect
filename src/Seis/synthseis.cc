@@ -579,11 +579,12 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 
 
 
-RaySynthGenerator::RaySynthGenerator()
+RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>& ems )
     : raysampling_(0,0)
     , forcerefltimes_(false)
     , rtr_( 0 )
     , raytracingdone_( false )
+    , aimodels_( ems )
 {}
 
 
@@ -591,12 +592,6 @@ RaySynthGenerator::~RaySynthGenerator()
 {
     delete rtr_;
     deepErase( raymodels_ );
-}
-
-
-void RaySynthGenerator::addModel( const ElasticModel& aim )
-{
-    aimodels_ += aim;
 }
 
 

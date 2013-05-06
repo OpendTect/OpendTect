@@ -187,18 +187,18 @@ protected:
 mExpClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase 
 {
 public:
-			RaySynthGenerator();
+			RaySynthGenerator(const TypeSet<ElasticModel>& ems );
 			~RaySynthGenerator();
     
     void		reset() { resetNrDone(); message_ = ""; }
 
     //input
-    void		addModel(const ElasticModel&);
     void		forceReflTimes(const StepInterval<float>&);
     void		fillPar(IOPar& raypars) const;
     bool		usePar(const IOPar& raypars);
 
-    const char*         message() const { return message_; }
+    const char*         message() const
+    			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
     mStruct(Seis) RayModel
     {
@@ -241,7 +241,7 @@ protected:
     bool        		doWork(od_int64,od_int64,int);
 
     BufferString		message_;
-    TypeSet<ElasticModel>	aimodels_;
+    const TypeSet<ElasticModel>& aimodels_;
     TypeSet<float>		offsets_;
     Interval<float>		raysampling_;
     IOPar 			raysetup_;
