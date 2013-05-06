@@ -35,6 +35,10 @@ public:
 
     od_int64			nrDone() const 		{ return nrdone_; }
     od_int64			nrIterations() const;
+    void			setExtrapol( bool yn )
+				{ doextrapol_ = yn; }
+    void			setFillWithExtremes( bool yn )
+				{ fillwithextremes_ = yn; }
 
 protected:
 				Array1DInterpol();
@@ -42,6 +46,8 @@ protected:
     				{ return "Points interpolated "; }
     Array1D<float>*	arr_;
     bool		arrstarted_;
+    bool		doextrapol_;
+    bool		fillwithextremes_; //extrapolate with last valid values
     int			maxgapsize_;
     unsigned int	nrdone_;
 
@@ -58,6 +64,7 @@ public:
     				LinearArray1DInterpol();
 protected:
     int				nextStep();
+    void			extrapolate(bool start);
 };
 
 
@@ -72,6 +79,7 @@ public:
 protected:
     int				nextStep();
     bool			getPositions(int pos,TypeSet<float>& posidxs);
+    void			extrapolate(bool start);
 };
 
 
