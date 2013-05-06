@@ -21,12 +21,14 @@ install ( DIRECTORY CMakeModules DESTINATION .
 file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
 set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
-install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/Tut )
+install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/Tut )
 
 file( GLOB UITUTHFILES plugins/uiTut/*.h )
 file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
 set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
-install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/uiTut )
+install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/uiTut )
+install( FILES doc/Programmer/pluginexample/CMakeLists.txt
+	 DESTINATION doc/Programmer/pluginexample )
 
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION doc/Programmer
