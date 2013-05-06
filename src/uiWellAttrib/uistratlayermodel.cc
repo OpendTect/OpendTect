@@ -491,7 +491,10 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
-    moddisp_->setZoomBox( synthdisp_->curView(true) );
+    uiWorldRect wr( mUdf(float), 0, 0, 0 );
+    if ( synthdisp_->getSynthetics().size() )
+	wr = synthdisp_->curView( true );
+    moddisp_->setZoomBox( wr );
 }
 
 
@@ -719,8 +722,7 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
-	return;
+    useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->modelChanged();
 }
 
@@ -742,8 +744,7 @@ void uiStratLayerModel::genModels( CallBacker* )
     setModelProps();
     setElasticProps();
 
-    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
-	return;
+    useSyntheticsPars( desc_.getWorkBenchParams() );
 
     synthdisp_->modelChanged();
     moddisp_->modelChanged();
