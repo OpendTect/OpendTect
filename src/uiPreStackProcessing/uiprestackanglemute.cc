@@ -52,11 +52,11 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglefld_ = new uiGenInput( this, "Angle range",
 				    FloatInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
-	anglelbl_ = new uiLabel( this, "degree" );
+	anglelbl_ = new uiLabel( this, "degrees" );
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, "Advance Parameters", true );
+    advpushbut_ = new uiPushButton( this, "Advanced Parameters", true );
     advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
     advpushbut_->attach( alignedBelow, anglefld_ );
 
@@ -116,8 +116,8 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p, 
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
-    : uiDialog(p, uiDialog::Setup("Advance Parameter","Advance angle parametrs",
-	       mNoHelpID))
+    : uiDialog(p, uiDialog::Setup("Advanced Parameter",
+				  "Advanced angle parametrs", mNoHelpID))
     , params_(pars)
     , isformute_(isformute)
     , smoothtypefld_(0)
@@ -150,7 +150,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					 FloatInpSpec() );
     smoothwinparamfld_->attach( alignedBelow, smoothwindowfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput( this, "Smoothing Length", 
+    smoothwinlengthfld_ = new uiGenInput( this, "Window width (ms)/(m)/(ft)", 
 					FloatInpSpec() );
     smoothwinlengthfld_->attach( alignedBelow, smoothwinparamfld_ );
 

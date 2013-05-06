@@ -23,7 +23,7 @@ using namespace PreStack;
 DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 {
 	"Time-Average",
-	"Frequency-Filter", 
+	"Low-pass frequency filter", 
 	0
 };
 
