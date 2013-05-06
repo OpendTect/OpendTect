@@ -154,7 +154,7 @@ bool uiEditProbDenFunc::getNamesFromScreen()
 	const BufferString newnm( nmflds_[idim]->text() );
 	if ( newnm.isEmpty() )
 	    mErrRet("Please enter all dimension names")
-	if ( nms.indexOf(newnm) >= 0 )
+	if ( nms.isPresent(newnm) )
 	    mErrRet("No duplicate dimension names allowed")
 	if ( newnm != pdf_.dimName(idim) )
 	{

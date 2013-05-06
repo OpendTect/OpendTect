@@ -116,9 +116,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs_->getFactory(idx)->create();
     const uiTreeItem* child = findChild( dummy->name() );
-    if ( children_.indexOf(child)==-1 )
-	return;
-
+    if ( !children_.isPresent(child) ) return;
     removeChild( const_cast<uiTreeItem*>(child) );
 }
 

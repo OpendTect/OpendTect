@@ -369,7 +369,7 @@ const char* uiNLAPartServer::convertToClasses(
 	    const float val = bvs.getVals(pos)[valnr];
 	    if ( mIsUdf(val) ) continue;
 	    const int code = mNINT32(val);
-	    if ( lcd.codes.indexOf(code) < 0 )
+	    if ( !lcd.codes.isPresent(code) )
 		lcd.codes += code;
 	}
     }

@@ -56,7 +56,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     for ( int idx=0; idx<factnms.size(); idx++ )
     {
 	const BufferString& nm( factnms.get(idx) );
-	if ( !reqnms.isEmpty() && reqnms.indexOf(nm) < 0 )
+	if ( !reqnms.isEmpty() && !reqnms.isPresent(nm) )
 	    continue;
 
 	uiPosProvGroup* grp = uiPosProvGroup::factory()

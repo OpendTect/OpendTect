@@ -65,9 +65,7 @@ bool uiODPickSetParentTreeItem::init()
 
 void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
 {
-    const int idx = children_.indexOf( child );
-    if ( idx<0 ) return;
-
+    if ( !children_.isPresent( child ) ) return;
     uiTreeItem::removeChild( child );
 }
 

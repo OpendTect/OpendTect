@@ -212,7 +212,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();
-    if ( subj_.names().indexOf(newnm) >= 0 )
+    if ( subj_.names().isPresent(newnm) )
     {
 	if ( newnm != ioobj->name() )
 	    uiMSG().error( "Name already in use" );

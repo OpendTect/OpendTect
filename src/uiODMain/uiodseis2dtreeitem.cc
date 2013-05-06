@@ -1073,7 +1073,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     SeisIOObjInfo objinfo( s2d->lineSetID() );
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
     objinfo.getAttribNamesForLine( s2d->name(), attribnms, opts2d );
-    if ( attribnms.indexOf(attribnm) < 0 )
+    if ( !attribnms.isPresent(attribnm) )
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
