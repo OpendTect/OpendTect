@@ -435,8 +435,9 @@ bool DataPlayer::setAIModel()
 bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     refmodel_.erase();
-    Seis::RaySynthGenerator gen;
-    gen.addModel( aimodel_ );
+    TypeSet<ElasticModel> aimodels;
+    aimodels += aimodel_;
+    Seis::RaySynthGenerator gen( aimodels );
     gen.forceReflTimes( data_.getReflRange() );
     gen.setWavelet( &wvlt, OD::UsePtr );
     gen.setOutSampling( data_.getTraceRange() );
