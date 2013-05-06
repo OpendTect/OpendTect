@@ -263,9 +263,6 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     if ( su.calctype_ == Stats && !vals.size() )
 	return 0;
 
-    if ( vals.size()!=axisvals.size() && su.calctype_!=Stats )
-	std::cout<<"Take a vreak \n";
-
     Stats::CalcSetup rcs;
     if ( su.calctype_ == Stats )
 	rcs.require( su.stattype_ );
