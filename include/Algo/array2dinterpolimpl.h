@@ -182,7 +182,7 @@ protected:
 
 
 /*!
-\brief An extension of array 2D interpolator.
+\brief Array 2D interpolator that works by extending the data into the udf areas.
 */
 
 mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
