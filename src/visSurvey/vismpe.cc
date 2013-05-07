@@ -268,7 +268,10 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     const char* usrref = as.userRef();
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->add( usrref );
-    delete userrefs_.replace( attrib, attrnms );
+    if ( userrefs_.isEmpty() )
+	userrefs_ += attrnms;
+    else
+	delete userrefs_.replace( attrib, attrnms );
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->setEnabled( attrib, false );
