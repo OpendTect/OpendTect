@@ -289,7 +289,6 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     dispgrp->setHSpacing( 50 );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
-    zinftfld_->attach( hCentered );
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
@@ -350,6 +349,7 @@ void uiTieWin::infoPushed( CallBacker* )
 	infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawSeisViewer) );
 	infodlg_->usePar( par_ );
     }
+
     infodlg_->show();
 }
 
