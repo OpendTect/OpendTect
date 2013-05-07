@@ -318,7 +318,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
 	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
-    synthdisp_->synthsChanged.notify( mCB(this,uiStratLayerModel,syntheticsChangedCB) );
+    synthdisp_->synthsChanged.notify(
+	    	mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
@@ -748,7 +749,6 @@ void uiStratLayerModel::genModels( CallBacker* )
     useSyntheticsPars( desc_.getWorkBenchParams() );
 
     synthdisp_->modelChanged();
-    moddisp_->modelChanged();
     levelChg( 0 );
     newModels.trigger();
 
