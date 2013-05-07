@@ -472,11 +472,12 @@ bool uiStratLayerModel::canShowFlattened() const
 
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
+    moddisp_->setFlattened( modtools_->showFlattened() );
+
+    const bool canshowflattened = canShowFlattened();
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
-    synthdisp_->setSnapLevelSensitive( canShowFlattened() );
-    modtools_->setFlatTBSensitive( canShowFlattened() );
-    moddisp_->setFlattened( canShowFlattened() && modtools_->showFlattened() );
+    synthdisp_->setSnapLevelSensitive( canshowflattened );
     if ( cb )
 	levelChanged.trigger();
 }

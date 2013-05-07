@@ -77,12 +77,9 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 
 void uiStratLayerModelDisp::setFlattened( bool yn )
 {
-    if ( flattened_ != yn )
-    {
-	flattened_ = yn;
-	setZoomBox(uiWorldRect(mUdf(double),0,0,0));
-	modelChanged();
-    }
+    flattened_ = yn;
+    setZoomBox(uiWorldRect(mUdf(double),0,0,0));
+    modelChanged();
 }
 
 
