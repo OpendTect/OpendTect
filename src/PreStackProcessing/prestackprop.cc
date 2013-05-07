@@ -119,67 +119,30 @@ void PropCalc::setAngleData( DataPack::ID id )
 
 float PropCalc::getVal( int sampnr ) const
 {
-    if ( !gather_  || gather_->isOffsetAngle() )
+    if ( !gather_ )
 	return mUdf(float);
 
-    const float eps = 1e-3;
-    Interval<float> offsrg( setup_.offsrg_ );
-    offsrg.start -= eps; offsrg.stop += eps;
-    offsrg.sort();
-
-    const int nroffsets = gather_->size( !gather_->offsetDim() );
-    const int nrz = gather_->size( gather_->offsetDim() );
-
-    TypeSet<float> axisvals, vals;
-    for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
-    {
-	for ( int itrc=0; itrc<nroffsets; itrc++ )
-	{
-	    const float offset = gather_->getOffset(itrc);
-	    if ( !offsrg.includes( offset, true ) )
-		continue;
-
-	    const int cursamp = sampnr + ishft;
-	    if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
-		continue;
-
-	    if ( cursamp<0 || cursamp>=nrz )
-		continue;
-
-	    if ( setup_.calctype_ != Stats )
-	    {
-		if ( setup_.useangle_ && angledata_ )
-		{
-		    const float angle = 
-				angledata_->data().get( itrc, (int)cursamp );
-		    const float angleindeg = angle * 180/M_PIf;
-		    if ( !setup_.anglerg_.includes(angleindeg,false) )
-			continue;	    
-		    axisvals += angle;
-		}
-		else
-		    axisvals += offset;
-	    }
-
-	    const float val = gather_->data().get( itrc, cursamp );
-	    vals += val;
-
-	}
-    }
-
-    return getVal( setup_, vals, axisvals );
+    const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
+    return getVal( (float) si.atIndex(sampnr) );
 }
 
 
 float PropCalc::getVal( float z ) const
 {
-    if ( !gather_  || gather_->isOffsetAngle() )
+    if ( !gather_ )
 	return mUdf(float);
 
+    const bool useangle = setup_.useangle_ && angledata_;
+    Interval<float> axisvalrg( useangle ? setup_.anglerg_ : setup_.offsrg_ );
+    if ( useangle )
+    {
+	axisvalrg.start *= M_PIf/180; 
+	axisvalrg.stop *= M_PIf/180;
+    }
+   
     const float eps = 1e-3;
-    Interval<float> offsrg( setup_.offsrg_ );
-    offsrg.start -= eps; offsrg.stop += eps;
-    offsrg.sort();
+    axisvalrg.start -= eps; axisvalrg.stop += eps;
+    axisvalrg.sort();
 
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( !gather_->zDim() );
@@ -192,10 +155,6 @@ float PropCalc::getVal( float z ) const
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
     for ( int itrc=0; itrc<nroffsets; itrc++ )
     {
-	const float offset = gather_->getOffset(itrc);
-	if ( !offsrg.includes( offset, true ) )
-	    continue;
-
 	const float* seisdata = gather_->data().getData() +
 	    gather_->data().info().getOffset(itrc,0);
 
@@ -208,21 +167,16 @@ float PropCalc::getVal( float z ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    if ( setup_.calctype_ != Stats )
-	    {
-		if ( setup_.useangle_ && angledata_ )
-		{
-		    const float angle = 
-				angledata_->data().get( itrc, (int)cursamp );
-		    const float angleindeg = angle * 180/M_PIf;
-		    if ( !setup_.anglerg_.includes(angleindeg,false) )
-			continue;	    
-		    axisvals += angle;
-		}
-		else
-		    axisvals += offset;
-	    }
+	    const float axisval = 
+			useangle ? angledata_->data().get( itrc, (int)cursamp ) 
+				 : gather_->getOffset(itrc);
 
+	    if ( !axisvalrg.includes( axisval, true ) )
+		continue;
+
+	    if ( setup_.calctype_ != Stats )
+		axisvals += axisval;
+	   
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
 	    vals += val;
