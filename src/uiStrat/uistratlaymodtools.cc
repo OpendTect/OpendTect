@@ -270,7 +270,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn();
+    return flattenedtb_->isOn() && (bool)selStratLevel();
 }
 
 
