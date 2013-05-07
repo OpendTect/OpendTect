@@ -728,7 +728,7 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 
 #define mValidDensityRange( val ) \
-(!mIsUdf(val) && val>0.1 && val<10)
+(!mIsUdf(val) && val>100 && val<10000)
 #define mValidWaveRange( val ) \
 (!mIsUdf(val) && val>10 && val<10000)
 
