@@ -293,7 +293,6 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     dispgrp->setHSpacing( 50 );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
-    zinftfld_->attach( hCentered );
     zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
