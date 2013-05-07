@@ -457,13 +457,13 @@ bool StratSynth::createElasticModels()
 	    continue;
 
 	if ( !fillElasticModel( lm_, aimod, idm ) )
-	    return false; 
+	    continue; 
 
 	aimodels_ += aimod;
     }
 
     errmsg_.setEmpty();
-    return adjustElasticModel( lm_, aimodels_, errmsg_ );
+    return adjustElasticModel( lm_, aimodels_ );
 }
 
 
@@ -689,6 +689,12 @@ const char* StratSynth::errMsg() const
 }
 
 
+const char* StratSynth::infoMsg() const
+{
+    return infomsg_.isEmpty() ? 0 : infomsg_.buf();
+}
+
+
 bool StratSynth::fillElasticModel( const Strat::LayerModel& lm, 
 				ElasticModel& aimodel, int seqidx )
 {
@@ -733,10 +739,9 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 (!mIsUdf(val) && val>10 && val<10000)
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
-				     TypeSet<ElasticModel>& aimodels,
-       				     BufferString& infomsg )
+				     TypeSet<ElasticModel>& aimodels )
 {
-    infomsg.setEmpty();
+    infomsg_.setEmpty();
     for ( int midx=0; midx<aimodels.size(); midx++ )
     {
 	const Strat::LayerSequence& seq = lm.sequence( midx ); 
@@ -760,16 +765,6 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		 !mValidWaveRange(layer.vel_) ||
 		 !mValidWaveRange(layer.svel_) )
 	    {
-		if ( infomsg.isEmpty() )
-		{
-		    infomsg += "Layer model contains invalid layer(s), "
-			       "first occurence found in layer '";
-		    infomsg += seq.layers()[idx]->name();
-		    infomsg += "' of pseudo well number ";
-		    infomsg += midx+1;
-		    infomsg += ". Invalid layers will be interpolated";
-		}
-
 		if ( !mValidDensityRange(layer.den_) )
 		{
 		    invaliddenscount++;
@@ -785,6 +780,17 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		    invalidsvelcount++;
 		    svelvals.set( idx, mUdf(float) );
 		}
+		
+		if ( infomsg_.isEmpty() )
+		{
+		    infomsg_ += "Layer model contains invalid layer(s), "
+			       "first occurence found in layer '";
+		    infomsg_ += seq.layers()[idx]->name();
+		    infomsg_ += "' of pseudo well number ";
+		    infomsg_ += midx+1;
+		    infomsg_ += ". Invalid layers will be interpolated";
+		}
+
 	    }
 	}
 
@@ -792,16 +798,16 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	     invalidvelcount>=aimodel.size() ||
 	     invaliddenscount>=aimodel.size() )
 	{
-	    infomsg.setEmpty();
-	    infomsg += "Cannot generate elastic model as all the values "
+	    errmsg_.setEmpty();
+	    errmsg_ += "Cannot generate elastic model as all the values "
 		       "of the properties ";
 	    if ( invaliddenscount>=aimodel.size() )
-		infomsg += "'Density' ";
+		errmsg_ += "'Density' ";
 	    if ( invalidvelcount>=aimodel.size() )
-		infomsg += "'Pwave Velocity' ";
+		errmsg_ += "'Pwave Velocity' ";
 	    if ( invalidsvelcount>=aimodel.size() )
-		infomsg += "'Swave Velocity' ";
-	    infomsg += "are invalid. Probably units are not set correctly";
+		errmsg_ += "'Swave Velocity' ";
+	    errmsg_ += "are invalid. Probably units are not set correctly";
 	    return false;
 	}
 
