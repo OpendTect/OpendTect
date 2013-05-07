@@ -270,6 +270,11 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)
+    const bool useangle = useanglefld_->isChecked();
+    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
+    if ( useangle && !getAngleParameters(desc) )
+	return false;
+
     const bool isnorm = calctyp == 0;
     if ( isnorm )
     {
@@ -279,11 +284,6 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
 	mSetEnum(Attrib::PSAttrib::offsaxisStr(),offsaxtypefld_->getIntValue())
-	const bool useangle = useanglefld_->isChecked();
-	mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
-	if ( useangle && !getAngleParameters(desc) )
-	    return false;
-
     }
     mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
     return true;
@@ -296,21 +296,19 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
     stattypefld_->display( isnorm );
     lsqtypefld_->display( !isnorm );
     offsaxtypefld_->display( !isnorm );
-    useanglefld_->display( !isnorm );
-    if ( !isnorm )
-	angleTypSel( 0 );
-    else
-	anglecompgrp_->display( false );  
+    angleTypSel( 0 );
 }
 
 
 void uiPreStackAttrib::angleTypSel( CallBacker* )
 {
-    bool isangleparam = useanglefld_->isChecked();
-    anglecompgrp_->display( isangleparam );
-    offsaxtypefld_->setSensitive( !isangleparam );
-    offsaxtypefld_->setValue( isangleparam ? PreStack::PropCalc::Sinsq
-					   : PreStack::PropCalc::Norm );
+    const bool useangle = useanglefld_->isChecked();
+    anglecompgrp_->display( useangle );
+    offsrgfld_->display( !useangle );
+    offsrglbl_->display( !useangle );
+    offsaxtypefld_->setSensitive( !useangle );
+    offsaxtypefld_->setValue( useangle ? PreStack::PropCalc::Sinsq 
+				       : PreStack::PropCalc::Sqr );
 }
 
 
