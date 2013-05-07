@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
 <!--
   - CopyRight:	(C) dGB Earth Sciences
   - Author:	Bert
@@ -6,67 +7,92 @@
   - Contents:	Some things on making batch programs
   - RCS:	$Id$
  -->
+		
+	<head>
+	<title>Batch Programs in OpendTect</title>
+  
+    <link rel="stylesheet" href="../style.css" type="text/css" />
+  </head>
 
-<body background="../backg.png"><title>Batch Programs in OpendTect</title>
-
-<table width="100%" border="0">
-<tr>
-        <td width="70%"align=left><h1>Batch Programs in OpendTect</h1></td>
-        <td width="10%"align=left><small>Bert Bril</small></td>
-        <td width="20%" align=right><a href="http://www.opendtect.org" target="popup"><img border=0 src="../od.png" height=150 width=150></a></td>
-</tr>
-</table>
+<body id="page_bg" class="width_fmax">
+		
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                                
+                                        <div id="header_r">
+						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+						<div id="topmenu">
+						</div>
+			<div id="leftcolumn">	
+						<table id="greenborder"><tbody>
+								<tr><td valign="top">
+<center>
+<h1>Batch programs in OpendTect</h1>
+</center>
 <center><small>Before reading this page, you may consider reading <a href="../overview.html">the overview doc</a> first.</small></center>
 
 <br><br>
-<img src="../hr.png" border=0>
 <br><br>
 
-<p>
+<p id="text">
 What we call a 'batch program' is usually called 'console program' on Windows. All our batch programs accept a single parameter file as argument, and optionally '-bg' if it has to run in the background (it will be ignored on Windows though).
 </p>
-<p>
-Rather than specifying a 'main', you have to specify:
-<pre>
+<p id="text">
+Rather than specifying a 'main', you have to specify:</p>
+<pre id="code">
 bool BatchProgram::go(std::ostream&);
 </pre>
 
-The <code>std::ostream&</code> parameter is the log file you can write to. It can be specified in the par file:
+<p id="text">The <code>std::ostream&</code> parameter is the log file you can write to. It can be specified in the par file:</p>
 
-<pre>
+<pre id="code">
 Log file: window
 </pre>
 
-other possibilities are 'stdout' or a file name.
+<p id="text">other possibilities are 'stdout' or a file name.
 </p>
-<p>
+<p id="text">
 
-That reveals what the par file is: a standard OpendTect Ascii data file with an asistream/ascostream header (see Basic/ascstream.h) and as contents a single IOPar written with <code>IOPar::putTo(ascostream&)</code> (see Basic/iopar.h). This file is read by the BatchProgram constructor into an IOPar instance which is available as 'pars()', like in:
+That reveals what the par file is: a standard OpendTect Ascii data file with an asistream/ascostream header (see Basic/ascstream.h) and as contents a single IOPar written with <code>IOPar::putTo(ascostream&)</code> (see Basic/iopar.h). This file is read by the BatchProgram constructor into an IOPar instance which is available as 'pars()', like in:</p>
 
-<pre>
+<pre id="code">
 const bool usewavelet = pars().isTrue( "Use Wavelet" );
 </pre>
 
-That would become false if the par file contains a line like:
+<p id="text">That would become false if the par file contains a line like:</p>
 
-<pre>
+<pre id="code">
 Use Wavelet: No
 </pre>
-</p>
-<p>
+
+<p id="text">
 Rather than returning an <code>int</code>, like <code>main()</code>, you return a <code>bool</code>. You can of course always use <code>ExitProgram(int)</code> from genc.h to return another value than 0 or 1 from <code>main()</code>.
 </p>
-<p>
+<p id="text">
 
-Example code is in <a href="od_example_batchprog.cc">od_example_batchprog.cc</a>, the program's example par file is <a href="od_example_batchprog.par">od_example_batchprog.par</a>. In CMakeLists.txt you need to add a line like:
-<pre>
+Example code is in <a href="od_example_batchprog.cc">od_example_batchprog.cc</a>, the program's example par file is <a href="od_example_batchprog.par">od_example_batchprog.par</a>. In CMakeLists.txt you need to add a line like:</p>
+<pre id="code">
 SET(OD_MODULE_BATCHPROGS your_program_file_name_without_cc_extension  )
 </pre>
-Output from the example program:<br><img src="snapshot_output.png">.
-</p>
+<p id="text">Output from the example program:</p><br><center><img src="snapshot_output.png"></center>
 
-<br><br>
-<img src="../hr.png" border=0>
 
-</body>
-</html>
+
+										
+</td></tr>
+
+			 </font>
+						 </tbody>
+			 </table>
+				 </div>
+			 <div id="footer">
+			 </div>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+ </body>
+ </html>

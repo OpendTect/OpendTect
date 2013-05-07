@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
 <!--
   - CopyRight:	(C) dGB Earth Sciences
   - Author:	A.H. Bril
@@ -6,21 +7,40 @@
   - Contents:	Development rules & standards
   - RCS:	$Id$
  -->
+		
+	<head>
+	<title>Rules [OpendTect Programmer's manual V4.4]</title>
+  <base href="rules.html" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
 
-<body background="backg.png"><title>Rules [OpendTect Programmer's manual V4.4]</title>
+<body id="page_bg" class="width_fmax">
+		
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                                
+                                        <div id="header_r">
+						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+						<div id="topmenu">
+						</div>
+			<div id="leftcolumn">	
+						<table id="greenborder"><tbody>
+								<tr><td valign="top">
 <center>
-<h1>OpendTect Software development rules</h1>
-  <a href=#intro>Intro</a>
+<h1>OpendTect software development rules</h1>
+<a href=#intro>Intro</a>
 | <a href=#reqs>Requirements</a>
 | <a href=#explrules>Explicit rules</a>
 | <a href=#fromhere>Where to go from here</a>
 </center>
 <br>
-<img src="hr.png" border=0>
 
-<a name=intro><h2>Intro</h2>
+<a name="intro"><h2 id="heading2">Intro</h2></a>
 
-<p>
+<p id="text">
 Software engineering is a game of trade-offs. Performance vs generality,
 flexibility vs stability, priorities vs general goals, and so on,
 and so on. A good software engineer weighs all pros and cons and comes up
@@ -28,8 +48,8 @@ with (near-)optimal solutions, often trying to get the best of everything.
 Of course, in fact, sometimes things can be completely ignored (e.g. in dialog-UI's performance is seldomly an issue).
 </p>
 
-<h3>Goals</h3>
-<p>
+<h3 id="heading3">Goals</h3>
+<p id="text">
 When creating and maintaining software code, invariably one wonders what
 choice will come out optimally. To define 'optimal', we have to define the
 goals we want to maximise. The most obvious is:
@@ -55,16 +75,16 @@ crucified by your team members when they have to do anything with your code.
 </p>
 
 <br>
-<a name=reqs><h2>Requirements</h2>
-<h3>Nice and neat</h3>
-<p>
+<a name="reqs"><h2 id="heading2">Requirements</h2></a>
+<h3 id="heading3">Nice and neat</h3>
+<p id="text">
 Good code should look good. You have to find joy in making the things you
 deliver look as good as (reasonably) possible, and as easy to understand
 as possible.
 
 Compare these two class definitions:
 
-<code><pre>
+<code><pre id="code">
 class SizeKeeper
 {
 public:
@@ -78,31 +98,31 @@ protected:
     int		sz_;
 };
 </code></pre>
-and:
-<code><pre>
+<p id="text">and:
+<code><pre id="code">
 class X { public: X() : n(0) {}
 protected: int n;
 public: int N() const { return n; } void sn(int p) { n = p; } };
 </code></pre>
 </p>
-<p>
+<p id="text">
 The second class definition looks like crap, and is difficult to understand,
 especially when you imagine the code where the class is used. Maybe the first
 definition isn't that clear for everybody immediately at the start, but it's
 easy to see that once you get used to the style, it will be easy and fun to
 work with this kind of code.
 </p>
-<p>
+<p id="text">
 For this to work, a team must agree on a style. The style characteristics are
 chosen so they match the requirements of esthetics/pleasure and time
 minimisation.
 </p>
-<p>
+<p id="text">
 It may look like the second class definition has an advantage over the first
 in the time spent creating it. Nothing is more true. Time in software
 development is spent on many things, and actually typing the code is just a
 tiny component:
-<ul>
+<ul id="bullets">
 <li>Time spent typing</li>
 <li>Time spent thinking/designing/creating
 <li>Time spent changing</li>
@@ -110,10 +130,10 @@ tiny component:
 <li>Time spent reworking</li>
 <li>Time spent debugging</li>
 </ul>
-For most practical purposes, the influence of typing time on the total time
+<p id="text">For most practical purposes, the influence of typing time on the total time
 spent can be neglected.
 </p>
-<p>
+<p id="text">
 That leads to an important principle:
 <br>
 <b>Rule (1): Make your code look good right from the start.</b>
@@ -128,8 +148,8 @@ code is actually <b>bad</b>.
 </p>
 
 
-<h3>Uniform</h3>
-<p>
+<h3 id="heading3">Uniform</h3>
+<p id="text">
 This is not a point to be taken lightly. Other team members <b>will</b> at
 some point have to change your code, other team members <b>will</b> at some
 point have to debug your code.
@@ -138,7 +158,7 @@ this: changing code you haven't made yourself is never easy, so do everything
 you can to help your team members. Moreover, changing code you've made some
 time ago is never easy, so you're even doing it for yourself.
 </p>
-<p>
+<p id="text">
 The implications are simple although a lot of programmers have a lot of
 problems with it:
 <br>
@@ -148,8 +168,8 @@ Combining (1) and (2) could casually be described as: make sure all team
 members feel at home in your code at all times.
 </p>
 
-<h3>Simple &amp; Easy</h3>
-<p>
+<h3 id="heading3">Simple &amp; Easy</h3>
+<p id="text">
 Any complex process can be broken up into simple steps, any complex object can
 be broken up into simple objects. Always consider yourself as publishing
 something that needs to be read by others. Take them by the hand and make it
@@ -157,16 +177,16 @@ easy to understand what you are doing, and why you are doing it. Avoid
 repetitions, complex constructions or long lines. Make things compact if that
 will make things clearer, or uncompact if needed.
 </p>
-<p>
+<p id="text">
 The best code you will ever make will invariably look as if it has cost hardly
 any time to make. Like good dancers make it look like there is no effort
 involved, an excellent solution always looks simple, compact and easy to use.
 </p>
 
 <br>
-<a name=explrules><h2>Explicit rules</h2>
+<a name="explrules"><h2 id="heading2">Explicit rules</h2></a>
 
-<p>
+<p id="text">
 The way we do things in OpendTect is not a 100% fixed body of rules. Moreover,
 we tend to say 'rather do this than that', or sometimes we change our point of
 view. Still, we almost unanimously agree on almost every issue. To lower the
@@ -175,10 +195,10 @@ make use of the rules that follow.
 </p>
 
 
-<h3>OO and general rules</h3>
+<h3 id="heading3">OO and general rules</h3>
 
-<p>
-<ul>
+<p id="text">
+<ul id="bullets">
 <li>Try to avoid pure implementation inheritance. Inheritance of 'mainly
 interface' is usually OK. In all cases, ask yourself whether there really is a
 'isA' relation between the classes. Prefer delegation in any doubt.
@@ -209,10 +229,10 @@ to you at the time but they are not. A mildly ironic comment once a year should 
 </p>
 
 
-<h3>C++ rules</h3>
+<h3 id="heading3">C++ rules</h3>
 
-<p>
-<ul>
+<p id="text">
+<ul id="bullets">
 <li>We do not use exceptions. Exceptions are the horror story of C++, try
 looking at C++ report, November-December 1994, Tom Cargill: "Exception
 handling: A false sense of security". There are more reasons, for example that
@@ -255,20 +275,17 @@ absolutely unavoidable design a strategy to minimise the impact of these
 horrible things.
 </li>
 <li>Consider implementing in a header file only if unavoidable (templates), or:
- <ul>
- <li>Is the implementation stable? If not, dependencies will trigger each time the implementation is changed.
+  <li>Is the implementation stable? If not, dependencies will trigger each time the implementation is changed.
  </li>
  <li>The implementation must be completely trivial or useful for a reader. In the latter case, it replaces comments with something that is fundamentally up-to-date.
  </li>
  <li>The space taken may not be huge - then implement in the .cc file anyway.
  </li>
  </ul>
-</li>
-</ul>
 </p>
 
-<h3>Semantical/typographical rules</h3>
-<p>
+<h3 id="heading3">Semantical/typographical rules</h3>
+<p id="text">
 First of all: the naming of classes, variables, namespaces, etc. is
 <b>extremely</b> important. You want to optimise understandability and
 compactness, in doubt always go for understandability. Naming should be as
@@ -278,7 +295,7 @@ hardly ever have non-intuitive names. If you are really convinced you're right
 but still you can't find anything intuitive, make sure you explain the meaning
 in comments.
 
-<ul>
+<ul id="bullets">
 <li>Classes and name spaces have a well-chosen name. Very well chosen. Do not
 rest before you have a name that really suits the class well. Name spaces tend
 to have short names, classes tend to be longer. If you cannot find a good
@@ -292,7 +309,7 @@ adopted the early Smalltalk rules:
 Then, how the method is named is dependent on what it does. The rule is that
 the resulting code must read as if it is English text, and that it does what it
 says. most often verbNoun is OK. Bad are:
-<ul>
+<ul id="bullets">
 <li>bool moderator() - bool functions must be usable directly in 'if' or '?'
 statements. Imagine 'if ( moderator() )'. Depending on what it does, consider
 'isModerator()' or 'moderate()'.
@@ -316,16 +333,16 @@ indispensible in real C++.
 </ul>
 </p>
 
-<h3>Layout</h3>
-<p>
+<h3 id="heading3">Layout</h3>
+<p id="text">
 No other subject brings up this many discussions. While it's simple: choose
 a policy and stick to it. The end result is what counts: readability,
 compactness, understandability. Thus all rules can be broken if it really helps
 those properties, but they rarely are.
 </p>
-<p>
+<p id="text">
 
-<ul>
+<ul id="bullets">
 <li><b>Indentation:</b><br>
 
 	4 spaces per level, 8 spaces = one tab.
@@ -454,7 +471,7 @@ private:
 };
 	</pre></code>
 Remarks:
-<ul>
+<ul id="bullets">
 <li>The tab alignment can be 2, 3 or 4 tabs, dependent on the length of things.
 </li>
 <li>functions implemented immediately get a normal space padding for the
@@ -469,17 +486,17 @@ Put variable names only if it adds to the understanding.
 </p>
 
 <br>
-<a name=fromhere><h2>Where to go from here</h2>
-<p>
+<a name="fromhere"><h2 id="heading2">Where to go from here</h2></a>
+<p id="text">
 From now on, new code will be as described above. What to do if the code
 you're changing is not good according to these standards? That depends on the
 amount of work vs the amount of time vs the importance of the deviation.
 </p>
 
-<h3>Adapting code</h3>
-<p>
+<h3 id="heading3">Adapting code</h3>
+<p id="text">
 The rules are:
-<ul>
+<ul id="bullets">
 <li>Make sure the code is, after you're done with it, 'internally consistent'.
 For example, when adding a member to a class with already 20 members without
 an underscore you will likely add a member without an underscore, rather than
@@ -498,10 +515,10 @@ considered 'unbearable' (see next item).
 </li>
 <li>Some things are 'unbearable'. Unbearably bad naming. Spaces instead of tabs. Unused code. Replace this kind of stuff where you see it. If these things happen too much, consider asking the producer of the crap to remove it him/herself.
 </li>
+</ul>
 </p>
 
 <br>
-<img src="hr.png" border=0>
 
 <p>
 <center>
@@ -510,6 +527,19 @@ considered 'unbearable' (see next item).
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
 </p>
+ 
+										
+</td></tr>
 
-</body>
-</html>
+			 </font>
+						 </tbody>
+			 </table>
+				 </div>
+			 <div id="footer">
+			 </div>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+ </body>
+ </html>
