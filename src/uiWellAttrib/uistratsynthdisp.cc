@@ -760,8 +760,16 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     d2tmodels_ = 0;
+    
+    if ( stratsynth_.errMsg() )
+	mErrRet( stratsynth_.errMsg(), return )
+    if ( stratsynth_.infoMsg() )
+	uiMSG().warning( stratsynth_.infoMsg() );
 
+    updateVDSyntheticList();
+    updateWVASyntheticList();
     setCurrentWVASynthetic();
+    setCurrentVDSynthetic();
 
     mDynamicCastGet(const PreStackSyntheticData*,pssd,currentsynthetic_);
     if ( pssd )
@@ -773,9 +781,6 @@ void uiStratSynthDisp::doModelChange()
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
 
-    if ( stratsynth_.errMsg() )
-	mErrRet( stratsynth_.errMsg(), return )
-
     topgrp_->setSensitive( currentsynthetic_ );
     datagrp_->setSensitive( currentsynthetic_ );
 
@@ -786,9 +791,6 @@ void uiStratSynthDisp::doModelChange()
     uiWorldRect wr( xrg.start, zrg.stop, xrg.stop, zrg.start );
     vwr_->setView( wr );
     drawLevel();
-
-    updateVDSyntheticList();
-    setCurrentVDSynthetic();
 }
 
 
@@ -989,12 +991,10 @@ bool uiStratSynthDisp::prepareElasticModel()
 bool uiStratSynthDisp::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
+    if ( !stratsynth_.hasElasticModels() )
+	return false;
     if ( !stratsynthpar )
-    {
-	if ( !stratsynth_.hasElasticModels() )
-	    return false;
 	stratsynth_.addDefaultSynthetic();
-    }
     else
     {
 	int nrsynths;
@@ -1004,7 +1004,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	for ( int idx=0; idx<nrsynths; idx++ )
 	{
 	    PtrMan<IOPar> synthpar =
-		stratsynthpar->subselect( IOPar::compKey(sKeySyntheticNr(),idx) );
+		stratsynthpar->subselect(IOPar::compKey(sKeySyntheticNr(),idx));
 	    if ( !synthpar ) continue;
 	    SynthGenParams genparams;
 	    genparams.usePar( *synthpar );
@@ -1019,6 +1019,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	    wvadatalist_->addItem( sd->name() );
 	}
+
+	if ( !nrsynths )
+	    stratsynth_.addDefaultSynthetic();
     }
 
     if ( !stratsynth_.nrSynthetics() )
@@ -1029,9 +1032,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     stratsynth_.generateOtherQuantities();
     synthsChanged.trigger();
-    setCurrentWVASynthetic();
-    displaySynthetic( currentsynthetic_ );
-    setCurrentVDSynthetic();
     
     if ( stratsynthpar )
     {
