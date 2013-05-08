@@ -36,6 +36,7 @@ public:
     virtual void	modelChanged()			= 0;
     virtual uiWorldRect	zoomBox() const			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
+    virtual float	getDisplayZSkip() const		= 0;
 
     const Strat::LayerModel& layerModel() const;
     const TypeSet<float>& levelDepths() const		{ return lvldpths_; }

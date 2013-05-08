@@ -35,6 +35,7 @@ public:
     virtual void	modelChanged();
     virtual uiWorldRect	zoomBox() const			{ return zoomwr_; }
     virtual void	setZoomBox(const uiWorldRect&);
+    virtual float	getDisplayZSkip() const;
 
     Color		levelColor() const		{ return lvlcol_; }
     bool&		fillLayerBoxes()		{ return fillmdls_; }

@@ -269,7 +269,7 @@ SyntheticData* getCurrentSyntheticData() const
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(0,"",1,false)
+    : uiMainWin(0,"",1,true,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
@@ -494,6 +494,7 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
     uiWorldRect wr( mUdf(float), 0, 0, 0 );
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     if ( synthdisp_->getSynthetics().size() )
 	wr = synthdisp_->curView( true );
     moddisp_->setZoomBox( wr );
@@ -725,7 +726,7 @@ void uiStratLayerModel::seqSel( CallBacker* )
 void uiStratLayerModel::modEd( CallBacker* )
 {
     useSyntheticsPars( desc_.getWorkBenchParams() );
-    synthdisp_->modelChanged();
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
 }
 
 
@@ -748,7 +749,7 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     useSyntheticsPars( desc_.getWorkBenchParams() );
 
-    synthdisp_->modelChanged();
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     levelChg( 0 );
     newModels.trigger();
 
@@ -837,7 +838,6 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 	synthp_.edstratsynth_->addDefaultSynthetic();
     }
 
-    //synthdisp_->setBrineFilled( true );
     synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
     levelChg( 0 );		//no change in fact but a redraw is needed
 

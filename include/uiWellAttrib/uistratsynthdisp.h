@@ -58,6 +58,7 @@ public:
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
+    void		setDisplayZSkip(float zskip,bool withmodchg);
 
     const uiWorldRect&	curView(bool indepth) const;
 
@@ -97,6 +98,7 @@ protected:
     const Strat::LayerModel& lm_;
     int			selectedtrace_;
     int			dispeach_;
+    float		dispskipz_;
     bool		dispflattened_;
     bool		isbrinefilled_;
 

@@ -54,6 +54,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , d2tmodels_(0)	    
     , stratsynth_(*new StratSynth(lm))
     , dispeach_(1)	
+    , dispskipz_(0)	
     , dispflattened_(false)
     , selectedtrace_(-1)	
     , selectedtraceaux_(0)
@@ -294,6 +295,14 @@ void uiStratSynthDisp::updateWVASyntheticList()
     }
 
     wvadatalist_->setCurrentItem( curitem );
+}
+
+
+void uiStratSynthDisp::setDisplayZSkip( float zskip, bool withmodchg )
+{
+    dispskipz_ = zskip;
+    if ( withmodchg )
+	modelChanged();
 }
 
 
