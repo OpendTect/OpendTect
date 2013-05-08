@@ -47,7 +47,7 @@ macro(OD_SETUP_COIN)
     endif()
 
     if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
-	foreach ( BUILD_TYPE "Debug" "Release" )
+	foreach ( BUILD_TYPE Debug Release )
 
 	    set( CARGS ${COINLIB} ${SOQTLIB} ${SIMAGELIB} )
 	    if ( WIN32 )
@@ -72,12 +72,14 @@ macro(OD_SETUP_COIN)
 		    set( ALLLIBS "" )
 		elseif( WIN32 )
 		    list( APPEND ARGS ${COINDIR}/bin/${COINLIBNAME}.dll )
+		    list( APPEND ARGS ${LIB} )
 		endif()
 	    endforeach()
 
 	    if ( WIN32 )
 		install( PROGRAMS ${ARGS}
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE} )
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+			CONFIGURATIONS ${BUILD_TYPE} )
 	    endif()
 	endforeach()
     endif()
