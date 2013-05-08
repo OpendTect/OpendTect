@@ -15,10 +15,10 @@ static const char* rcsID = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
 #include "raytrace1d.h"
-#include "statruncalc.h"
-#include "synthseis.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
+#include "statruncalc.h"
+#include "synthseis.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellextractdata.h"
@@ -269,23 +269,22 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 	GeoCalculator gcwvltest;
 	gcwvltest.deconvolve( seisarr, refarr, wvltarrfull, nrsamps );
 
-	const int initwvltsz = data_.initwvlt_.size();
-	const float sr = data_.initwvlt_.sampleRate();
-	int outwvltsz = initwvltsz;
-	if ( !(initwvltsz%2) )
-	    outwvltsz++;
-
+	const int wvltsz = data_.estimatedwvlt_.size();
+	const int outwvltsz = wvltsz%2 ? wvltsz : wvltsz + 1;
 	Array1DImpl<float> wvltarr( outwvltsz );
-	data_.estimatedwvlt_.reSize( outwvltsz );
+	const int nrsampshift = ( nrsamps - outwvltsz + 1 ) / 2;
 	for ( int idx=0; idx<outwvltsz; idx++ )
-	    wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
+	    wvltarr.set( idx, wvltarrfull[nrsampshift + idx] );
 
 	ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
 			      0.90 );
 	window.apply( &wvltarr );
+
+	const float sr = data_.seistrc_.info().sampling.step;
+	data_.estimatedwvlt_.set( (outwvltsz-1)/2, sr );
+	data_.estimatedwvlt_.reSize( outwvltsz );
 	memcpy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
 		outwvltsz*sizeof(float) );
-	data_.estimatedwvlt_.set( (outwvltsz-1)/2, sr );
 	delete [] wvltarrfull; delete [] refarr;
     }
 
