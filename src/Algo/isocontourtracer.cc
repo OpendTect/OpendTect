@@ -11,6 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndinfo.h"
 
 
+static ObjectSet<IsoContourTracer> isocontourtracers;
+static TypeSet<float> edgevalues;
+
+#define edgevalue_	edgevalues[isocontourtracers.indexOf(this)]
+
+
 IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     : field_( field )
     , xsampling_( 0, field.info().getSize(0)-1, 1 )
@@ -20,7 +26,17 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , polyroi_( 0 )
     , minnrvertices_( 2 )
     , nrlargestonly_( -1 )
-{}
+{
+    isocontourtracers += this;
+    edgevalues += mUdf(float);
+}
+
+
+IsoContourTracer::~IsoContourTracer()
+{
+    edgevalues.removeSingle( isocontourtracers.indexOf(this) );
+    isocontourtracers -= this;
+}
 
 
 void IsoContourTracer::setSampling( const StepInterval<int>& xsamp,
@@ -56,9 +72,20 @@ void IsoContourTracer::setNrLargestOnly( int nr )
 { nrlargestonly_ = nr>0 ? nr : -1; }
 
 
-#define mFieldX(idx) xsampling_.atIndex( xrange_.start+idx )
-#define mFieldY(idy) ysampling_.atIndex( yrange_.start+idy )
-#define mFieldZ(idx,idy) field_.get( xrange_.start+idx, yrange_.start+idy )
+void IsoContourTracer::setEdgeValue( float edgeval )
+{ edgevalue_ = edgeval; }
+
+
+#define mEdge			(mIsUdf(edgevalue_) ? 0 : 1)
+#define mOnEdge(xy,idx)		(idx<mEdge || idx>xy##range_.width()+mEdge)
+#define mFieldIdx(xy,idx)	(xy##range_.start + idx - mEdge)
+
+
+#define mFieldX(idx)		xsampling_.atIndex( mFieldIdx(x,idx) )
+#define mFieldY(idy)		ysampling_.atIndex( mFieldIdx(y,idy) )
+
+#define mFieldZ(idx,idy) ( mOnEdge(x,idx) || mOnEdge(y,idy) ? edgevalue_ : \
+			   field_.get(mFieldIdx(x,idx), mFieldIdx(y,idy)) )
 
 #define mMakeVertex( vertex, idx, idy, hor, frac ) \
 \
@@ -71,8 +98,8 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 				    float z, bool closedonly ) const
 {
     deepErase( contours );
-    Array3DImpl<float>* crossings = 
-	new Array3DImpl<float>( xrange_.width()+1, yrange_.width()+1, 2 );
+    Array3DImpl<float>* crossings = new Array3DImpl<float>(
+		    xrange_.width()+2*mEdge+1, yrange_.width()+2*mEdge+1, 2 );
 
     findCrossings( *crossings, z );
     traceContours( *crossings, contours, closedonly );

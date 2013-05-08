@@ -27,7 +27,7 @@ mExpClass(Algo) IsoContourTracer
 public:
 		
 		IsoContourTracer(const Array2D<float>&);
-		~IsoContourTracer()					{}
+		~IsoContourTracer();
 
     void	setSampling(const StepInterval<int>& xsamp,
 	    		    const StepInterval<int>& ysamp);
@@ -65,6 +65,10 @@ protected:
     int				nrlargestonly_;
 
     const ODPolygon<float>*	polyroi_;
+
+public:
+
+    void	setEdgeValue(float); //! To close contours along (RectROI) edge
 };
 
 
