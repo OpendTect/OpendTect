@@ -281,6 +281,8 @@ public:
 
     void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     const char* 		errMsg() const;
+    const char* 		warningMsg() const;
+    void			clearWanings()		{ infomsg_.setEmpty(); }
 
 protected:
 
@@ -294,12 +296,13 @@ protected:
     const Wavelet*		wvlt_;
 
     BufferString		errmsg_;
+    BufferString		infomsg_;
     TaskRunner*			tr_;
 
     bool			fillElasticModel(const Strat::LayerModel&,
 					ElasticModel&,int seqidx);
     bool			adjustElasticModel(const Strat::LayerModel&,
-					TypeSet<ElasticModel>&,BufferString&);
+						   TypeSet<ElasticModel>&);
     void			generateOtherQuantities( 
 	    				const PostStackSyntheticData& sd,
 	    				const Strat::LayerModel&);

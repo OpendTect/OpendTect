@@ -351,6 +351,9 @@ mSetFloat( Attrib::PSAttrib::offStopStr(), \
 
 
 #define mSetProc() \
+mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
+mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start ); \
+mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop ); \
 psdesc->setUserRef( synthgenpar.name_ ); \
 psdesc->updateParams(); \
 PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
@@ -404,10 +407,6 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
     mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
-    mSetBool(Attrib::PSAttrib::useangleStr(), true );
-    mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start );
-    mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop );
-
     mSetProc();
 
     mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
@@ -437,8 +436,7 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
     mCreateDesc();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-    mSetBool(Attrib::PSAttrib::useangleStr(), false );
-
+    
     mSetProc();
     mCreateSeisBuf();
     return new AngleStackSyntheticData( synthgenpar, *angledp );
@@ -457,14 +455,14 @@ bool StratSynth::createElasticModels()
 	if ( sz < 1 )
 	    continue;
 
-	if ( !fillElasticModel(lm_,aimod,idm) )
-	    return false; 
+	if ( !fillElasticModel( lm_, aimod, idm ) )
+	    continue; 
 
 	aimodels_ += aimod;
     }
 
     errmsg_.setEmpty();
-    return adjustElasticModel( lm_, aimodels_, errmsg_ );
+    return adjustElasticModel( lm_, aimodels_ );
 }
 
 
@@ -690,6 +688,12 @@ const char* StratSynth::errMsg() const
 }
 
 
+const char* StratSynth::warningMsg() const
+{
+    return infomsg_.isEmpty() ? 0 : infomsg_.buf();
+}
+
+
 bool StratSynth::fillElasticModel( const Strat::LayerModel& lm, 
 				ElasticModel& aimodel, int seqidx )
 {
@@ -729,15 +733,14 @@ bool StratSynth::fillElasticModel( const Strat::LayerModel& lm,
 
 
 #define mValidDensityRange( val ) \
-(mIsUdf(val) && val>0.1 && val<10)
+(!mIsUdf(val) && val>100 && val<10000)
 #define mValidWaveRange( val ) \
 (!mIsUdf(val) && val>10 && val<10000)
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
-				     TypeSet<ElasticModel>& aimodels,
-       				     BufferString& infomsg )
+				     TypeSet<ElasticModel>& aimodels )
 {
-    infomsg.setEmpty();
+    infomsg_.setEmpty();
     for ( int midx=0; midx<aimodels.size(); midx++ )
     {
 	const Strat::LayerSequence& seq = lm.sequence( midx ); 
@@ -761,16 +764,6 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		 !mValidWaveRange(layer.vel_) ||
 		 !mValidWaveRange(layer.svel_) )
 	    {
-		if ( infomsg.isEmpty() )
-		{
-		    infomsg += "Layer model contains invalid layer(s), "
-			       "first occurence found in layer '";
-		    infomsg += seq.layers()[idx]->name();
-		    infomsg += "' of pseudo well number ";
-		    infomsg += midx+1;
-		    infomsg += ". Invalid layers will be interpolated";
-		}
-
 		if ( !mValidDensityRange(layer.den_) )
 		{
 		    invaliddenscount++;
@@ -786,6 +779,17 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		    invalidsvelcount++;
 		    svelvals.set( idx, mUdf(float) );
 		}
+		
+		if ( infomsg_.isEmpty() )
+		{
+		    infomsg_.add( "Layer model contains invalid layer(s), " )
+			    .add( "first occurence found in layer '" )
+			    .add( seq.layers()[idx]->name() )
+			    .add( "' of pseudo well number " )
+			    .add( midx+1 )
+			    .add( ". Invalid layers will be interpolated" );
+		}
+
 	    }
 	}
 
@@ -793,16 +797,16 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	     invalidvelcount>=aimodel.size() ||
 	     invaliddenscount>=aimodel.size() )
 	{
-	    infomsg.setEmpty();
-	    infomsg += "Cannot generate elastic model as all the values "
+	    errmsg_.setEmpty();
+	    errmsg_ += "Cannot generate elastic model as all the values "
 		       "of the properties ";
 	    if ( invaliddenscount>=aimodel.size() )
-		infomsg += "'Density' ";
+		errmsg_ += "'Density' ";
 	    if ( invalidvelcount>=aimodel.size() )
-		infomsg += "'Pwave Velocity' ";
+		errmsg_ += "'Pwave Velocity' ";
 	    if ( invalidsvelcount>=aimodel.size() )
-		infomsg += "'Swave Velocity' ";
-	    infomsg += "are invalid. Probably units are not set correctly";
+		errmsg_ += "'Swave Velocity' ";
+	    errmsg_ += "are invalid. Probably units are not set correctly";
 	    return false;
 	}
 

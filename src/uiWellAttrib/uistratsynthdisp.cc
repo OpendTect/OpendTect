@@ -760,8 +760,17 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     d2tmodels_ = 0;
+    
+    if ( stratsynth_.errMsg() )
+	mErrRet( stratsynth_.errMsg(), return )
+    if ( stratsynth_.warningMsg() )
+	uiMSG().warning( stratsynth_.warningMsg() );
+    stratsynth_.clearWanings();
 
+    updateVDSyntheticList();
+    updateWVASyntheticList();
     setCurrentWVASynthetic();
+    setCurrentVDSynthetic();
 
     mDynamicCastGet(const PreStackSyntheticData*,pssd,currentsynthetic_);
     if ( pssd )
@@ -773,9 +782,6 @@ void uiStratSynthDisp::doModelChange()
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
 
-    if ( stratsynth_.errMsg() )
-	mErrRet( stratsynth_.errMsg(), return )
-
     topgrp_->setSensitive( currentsynthetic_ );
     datagrp_->setSensitive( currentsynthetic_ );
 
@@ -786,9 +792,6 @@ void uiStratSynthDisp::doModelChange()
     uiWorldRect wr( xrg.start, zrg.stop, xrg.stop, zrg.start );
     vwr_->setView( wr );
     drawLevel();
-
-    updateVDSyntheticList();
-    setCurrentVDSynthetic();
 }
 
 
@@ -810,8 +813,6 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	SyntheticData* sd = stratsynth_.addSynthetic();
 	if ( !sd )
 	    mErrRet(stratsynth_.errMsg(), return );
-	if ( !stratsynth_.errMsg() )
-	    uiMSG().warning( stratsynth_.errMsg() );
 	synthsChanged.trigger();
 	updateWVASyntheticList();
 	updateVDSyntheticList();
@@ -984,23 +985,17 @@ void uiStratSynthDisp::fillPar( IOPar& par ) const
 
 bool uiStratSynthDisp::prepareElasticModel()
 {
-    if ( !stratsynth_.createElasticModels() )
-	mErrRet(stratsynth_.errMsg(), stratsynth_.createElasticModels(); return false);
-    if ( stratsynth_.errMsg() )
-	uiMSG().warning( stratsynth_.errMsg() );
-    return true;
+    return stratsynth_.createElasticModels();
 }
 
 
 bool uiStratSynthDisp::usePar( const IOPar& par ) 
 {
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
+    if ( !stratsynth_.hasElasticModels() )
+	return false;
     if ( !stratsynthpar )
-    {
-	if ( !stratsynth_.hasElasticModels() )
-	    return false;
 	stratsynth_.addDefaultSynthetic();
-    }
     else
     {
 	int nrsynths;
@@ -1025,6 +1020,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	    wvadatalist_->addItem( sd->name() );
 	}
+
+	if ( !nrsynths )
+	    stratsynth_.addDefaultSynthetic();
     }
 
     if ( !stratsynth_.nrSynthetics() )
@@ -1035,9 +1033,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     stratsynth_.generateOtherQuantities();
     synthsChanged.trigger();
-    setCurrentWVASynthetic();
-    displaySynthetic( currentsynthetic_ );
-    setCurrentVDSynthetic();
     
     if ( stratsynthpar )
     {
