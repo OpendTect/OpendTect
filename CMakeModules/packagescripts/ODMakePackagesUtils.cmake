@@ -327,34 +327,19 @@ macro( create_develpackages )
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	file ( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release
+	       DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/
+	       FILES_MATCHING PATTERN "*.lib" )
+
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+	    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug
+	    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${PSD}/bin/od_cr_dev_env.bat
 				 ${DESTINATION_DIR}/bin )
-	foreach( WLIB ${SRCLIBLIST} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.lib
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.dll
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Release/${WLIB}.lib
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
-	endforeach()
-
-	foreach( WELIB ${EXECLIST} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.pdb
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	endforeach()
     endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
