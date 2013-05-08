@@ -94,34 +94,7 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 						const PropertyRef* pr,
 						int propidx ) const
 {
-    if ( propidx < lay.nrValues() )
-    {
-	if ( isFluidReplOn() )
-	{
-	    const int nrunits = frpars_.size() / 2;
-	    BufferString namestr;
-	    if ( pr->isKnownAs("PVel") || pr->isKnownAs("SVel")
-					|| pr->isKnownAs("Den") )
-	    {
-		float vp, vs, den;
-		for ( int idx=0; idx<nrunits; idx++ )
-		{
-		    frpars_.get( IOPar::compKey(toString(idx),sKey::Name),
-				namestr );
-		    if ( !strcmp( namestr.buf(), lay.name() ) )
-		    {
-			frpars_.get(IOPar::compKey(toString(idx),sKey::Value),
-				    vp, vs, den );
-			return pr->isKnownAs("PVel")
-					? vp : pr->isKnownAs("SVel") ? vs : den;
-		    }
-		}
-	    }
-	}
-	return lay.value( propidx );
-    }
-
-    return mUdf(float);
+    return propidx < lay.nrValues() ? lay.value( propidx ) : mUdf(float);
 }
 
 
