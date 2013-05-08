@@ -240,8 +240,9 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 
     const int outwvltsz = wvltsz%2 ? wvltsz : wvltsz + 1;
     Array1DImpl<float> wvltarr( outwvltsz );
+    const int nrsampshift = ( nrsamps - outwvltsz + 1 ) / 2;
     for ( int idx=0; idx<outwvltsz; idx++ )
-	wvltarr.set( idx, wvltarrfull[(nrsamps-outwvltsz+1)/2 + 2 + idx] );
+	wvltarr.set( idx, wvltarrfull[nrsampshift + idx] );
 
     ArrayNDWindow window( Array1DInfoImpl(outwvltsz), false, "CosTaper",
 			  0.90 );
