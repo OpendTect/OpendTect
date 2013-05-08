@@ -512,4 +512,72 @@ Standard color tables
 37.Undef color:	200`200`200
 37.Marker color: 0`0`0
 
+38.Name: Matteo terrain cube
+38.Marker color: 0`240`0`0
+38.Undef color: 150`200`150`0
+38.Nr segments: 0
+38.Value-Color.0: 0`131`12`171`0
+38.Value-Color.1: 0.07`133`45`206`0
+38.Value-Color.2: 0.13`125`74`235`0
+38.Value-Color.3: 0.2`110`98`253`0
+38.Value-Color.4: 0.27`99`122`249`0
+38.Value-Color.5: 0.33`85`144`231`0
+38.Value-Color.6: 0.4`71`164`211`0
+38.Value-Color.7: 0.47`56`182`185`0
+38.Value-Color.8: 0.53`63`194`159`0
+38.Value-Color.9: 0.6`72`207`129`0
+38.Value-Color.10: 0.67`82`217`101`0
+38.Value-Color.11: 0.73`92`227`74`0
+38.Value-Color.12: 0.8`116`233`77`0
+38.Value-Color.13: 0.87`154`236`84`0
+38.Value-Color.14: 0.93`180`236`87`0
+38.Value-Color.15: 1`204`236`90`0
+38.Transparency.0: 0`0
+38.Transparency.1: 1`0
+
+39.Name: Matteo terrain cube red
+39.Marker color: 0`240`0`0
+39.Undef color: 150`200`150`0
+39.Nr segments: 0
+39.Value-Color.0: 0`120`0`133`0
+39.Value-Color.1: 0.07`131`13`181`0
+39.Value-Color.2: 0.13`126`64`224`0
+39.Value-Color.3: 0.2`110`98`253`0
+39.Value-Color.4: 0.27`94`132`242`0
+39.Value-Color.5: 0.33`76`158`217`0
+39.Value-Color.6: 0.4`56`182`184`0
+39.Value-Color.7: 0.47`67`200`147`0
+39.Value-Color.8: 0.53`79`214`108`0
+39.Value-Color.9: 0.6`92`227`73`0
+39.Value-Color.10: 0.67`133`235`80`0
+39.Value-Color.11: 0.73`173`236`86`0
+39.Value-Color.12: 0.8`204`236`90`0
+39.Value-Color.13: 0.87`222`218`92`0
+39.Value-Color.14: 0.93`243`190`94`0
+39.Value-Color.15: 1`249`150`91`0
+39.Transparency.0: 0`0
+39.Transparency.1: 1`0
+
+40.Name: Matteo terrain linear
+40.Marker color: 0`240`0`0
+40.Undef color: 150`200`150`0
+40.Nr segments: 0
+40.Value-Color.0: 0`4`4`4`0
+40.Value-Color.1: 0.07`36`14`32`0
+40.Value-Color.2: 0.13`45`23`71`0
+40.Value-Color.3: 0.2`44`34`116`0
+40.Value-Color.4: 0.27`27`57`127`0
+40.Value-Color.5: 0.33`17`78`129`0
+40.Value-Color.6: 0.4`0`100`109`0
+40.Value-Color.7: 0.47`0`121`88`0
+40.Value-Color.8: 0.53`0`142`63`0
+40.Value-Color.9: 0.6`0`163`42`0
+40.Value-Color.10: 0.67`55`178`0`0
+40.Value-Color.11: 0.73`99`193`0`0
+40.Value-Color.12: 0.8`176`199`0`0
+40.Value-Color.13: 0.87`218`205`116`0
+40.Value-Color.14: 0.93`248`215`186`0
+40.Value-Color.15: 1`247`236`229`0
+40.Transparency.0: 0`0
+40.Transparency.1: 1`0
 !
