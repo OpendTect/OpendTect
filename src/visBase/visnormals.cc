@@ -109,7 +109,7 @@ int Normals::nextID( int previd ) const
     int res = previd+1;
     while ( res<sz )
     {
-	if ( unusednormals_.indexOf(res)==-1 )
+	if ( !unusednormals_.isPresent(res) )
 	    return res;
     }
 
@@ -258,7 +258,7 @@ void Normals::setDisplayTransformation( const mVisTrans* nt )
     const bool oldstatus = normals_->vector.enableNotify( false );
     for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
     {
-	if ( unusednormals_.indexOf( idx )!=-1 )
+	if ( unusednormals_.isPresent( idx ) )
 	    continue;
 
 	const SbVec3f norm = normals_->vector[idx];

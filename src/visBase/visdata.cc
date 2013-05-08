@@ -116,7 +116,7 @@ void DataObject::deSelect() const
 
 
 bool DataObject::isSelected() const
-{ return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
+{ return selectable() && DM().selMan().selected().isPresent( id()); }
 
 
 void DataObject::setDisplayTransformation( const mVisTrans* trans )

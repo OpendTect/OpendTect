@@ -271,7 +271,7 @@ void Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     if ( textureindex != -1 )
     {
 	iopar.set( sKeyTexture(), textureindex );
-	if ( saveids.indexOf(textureindex) == -1 )
+	if ( !saveids.isPresent(textureindex) )
 	    saveids += textureindex;
     }
 

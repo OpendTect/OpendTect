@@ -36,7 +36,7 @@ Vw2DDataManager::~Vw2DDataManager()
 
 void Vw2DDataManager::addObject( Vw2DDataObject* obj )
 {
-    if ( objects_.indexOf(obj)!=-1) return;
+    if ( objects_.isPresent(obj) ) return;
 
     objects_ += obj;
     obj->setID(freeid_++);
@@ -52,7 +52,7 @@ void Vw2DDataManager::addObject( Vw2DDataObject* obj )
 
 void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 {
-    if ( objects_.indexOf(dobj) == -1 ) return;
+    if ( !objects_.isPresent(dobj) ) return;
     
     objects_ -= dobj;
     

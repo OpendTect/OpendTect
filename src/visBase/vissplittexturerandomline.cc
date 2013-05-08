@@ -182,7 +182,7 @@ void SplitTextureRandomLine::updateDisplay( )
     	    for ( int idx=startpathidx+1; idx<lastpathidx; idx++ )
     	    {
     		const BinID bid = path_[idx];
-    		if ( knots_.indexOf( bid )>=0 && knots.indexOf(bid)<0 )
+    		if ( knots_.isPresent( bid ) && !knots.isPresent(bid) )
     		    knots += bid;
     	    }
 	    
@@ -263,7 +263,7 @@ void SplitTextureRandomLine::updateDisplay( )
 	    {
 		const Coord coord( knots[idx].inl, knots[idx].crl );
 		const Coord3 start(coord,blockzrg.start);
-		if ( usedpts.indexOf(start)==-1 )
+		if ( !usedpts.isPresent(start) )
 		{
 		    usedpts += start;
 		    coords_->setPos( coordidx, start );
@@ -277,7 +277,7 @@ void SplitTextureRandomLine::updateDisplay( )
 		curknot++;
 
 		const Coord3 stop = Coord3(coord,blockzrg.stop);
-		if ( usedpts.indexOf(stop)==-1 )
+		if ( !usedpts.isPresent(stop) )
 		{
 		    usedpts += stop;
 		    coords_->setPos( coordidx, stop );

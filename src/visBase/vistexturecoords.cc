@@ -134,7 +134,7 @@ Coord3 TextureCoords::getCoord( int idx ) const
 {
     Threads::MutexLocker lock( mutex_ );
     if ( idx<0 || idx>=coords_->point.getNum() ||
-	 unusedcoords_.indexOf(idx)!=-1 )
+	 unusedcoords_.isPresent(idx) )
     {
 	return Coord3::udf();
     }
@@ -152,7 +152,7 @@ int TextureCoords::nextID( int previd ) const
     int res = previd+1;
     while ( res<sz )
     {
-	if ( unusedcoords_.indexOf(res)==-1 )
+	if ( !unusedcoords_.isPresent(res) )
 	    return res;
     }
 

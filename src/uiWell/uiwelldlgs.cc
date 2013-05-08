@@ -960,7 +960,7 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
     if ( !*ptr )
 	mErrRet( "Please enter a name" )
 
-    if ( nms_->indexOf(ptr) >= 0 )
+    if ( nms_->isPresent(ptr) )
 	mErrRet( "Please specify a new name.\n"
 		 "Wells can be removed in 'Manage wells'" )
 

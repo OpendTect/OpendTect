@@ -383,7 +383,7 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	return -1;
 
     int id = 0;
-    while ( ids_.indexOf(id)!=-1 ) id++;
+    while ( ids_.isPresent(id) ) id++;
 
     for ( int idx=0; idx<parents.size(); idx++ )
     {

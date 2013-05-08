@@ -62,7 +62,7 @@ void uiWellLogCalcInpData::use( const MathExpression* expr )
     if ( idx_ >= nrvars )
 	{ display( false ); return; }
     const BufferString varnm = expr->uniqueVarName( idx_ );
-    if ( specvars.indexOf(varnm.buf()) >= 0 )
+    if ( specvars.isPresent(varnm.buf()) )
 	{ display( false ); return; }
 
     varnm_ = varnm;

@@ -559,8 +559,8 @@ void Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     int ctmid = coltabmod->id();
     par.set( coltabmodstr(), ctmid );
 
-    if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
-    if ( saveids.indexOf(ctmid) == -1 ) saveids += ctmid;
+    if ( !saveids.isPresent(ctid) ) saveids += ctid;
+    if ( !saveids.isPresent(ctmid) ) saveids += ctmid;
 }
 
 

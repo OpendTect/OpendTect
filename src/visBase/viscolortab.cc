@@ -273,7 +273,7 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     par.set( sKeyColorSeqID(), viscolseq_->id() );
-    if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
+    if ( !saveids.isPresent(viscolseq_->id()) ) saveids += viscolseq_->id();
     par.set( sKeyRange(), ctmapper_->range() );
     par.set( sKeyClipRate(), ctmapper_->setup_.cliprate_ );
     par.setYN( sKeyAutoScale(), autoScale() );

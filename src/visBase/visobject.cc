@@ -290,7 +290,7 @@ void VisualObjectImpl::fillPar( IOPar& iopar,
     VisualObject::fillPar( iopar, saveids );
     iopar.set( sKeyMaterialID(), material_ ? material_->id() : -1 );
 
-    if ( material_ && saveids.indexOf(material_->id()) == -1 )
+    if ( material_ && !saveids.isPresent(material_->id()) )
 	saveids += material_->id();
 
     iopar.setYN( sKeyIsOn(), isOn() );

@@ -110,7 +110,7 @@ int DataManager::usePar( const IOPar& par )
 	if ( !ptr ) continue;
 	*ptr++ = '\0';
 	const int id = toInt( key.buf() );
-	if ( lefttodo.indexOf(id) < 0 ) lefttodo += id;
+	if ( !lefttodo.isPresent(id) ) lefttodo += id;
     }
 
     sort( lefttodo );
@@ -302,7 +302,7 @@ const DataObject* DataManager::getObject( const SoNode* node ) const
 
 void DataManager::addObject( DataObject* obj )
 {
-    if ( objects_.indexOf(obj)==-1 )
+    if ( !objects_.isPresent(obj) )
     {
 	objects_ += obj;
 	obj->setID(freeid_++);

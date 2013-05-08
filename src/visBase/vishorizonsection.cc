@@ -1239,7 +1239,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	    tile = createTile( tilerowidx, tilecolidx );
 	    fullupdatetiles += tile;
 	}
-	else if ( fullupdatetiles.indexOf(tile)==-1 )
+	else if ( !fullupdatetiles.isPresent(tile) )
 	{
 	    for ( int res=0; res<=mLowestResIdx; res++ )
 		tile->setAllNormalsInvalid( res, false );
@@ -1248,7 +1248,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	    if ( desiredresolution_!=-1 )
 	    {
 		addoldtile = true;
-		if ( oldupdatetiles.indexOf(tile)==-1 )
+		if ( !oldupdatetiles.isPresent(tile) )
 		    oldupdatetiles += tile;		    
 	    }
 	}
@@ -1265,13 +1265,13 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 		    continue;
 
 		HorizonSectionTile* nbtile = tiles_.get( nbrow, nbcol );
-		if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
+		if ( !nbtile || fullupdatetiles.isPresent(nbtile) )
 		    continue;
 
 		nbtile->setPos( tilerow-rowidx*mTileSideSize,
 				tilecol-colidx*mTileSideSize, pos );
 		if ( !addoldtile || rowidx+colidx>=0 || desiredresolution_==-1 
-				 || oldupdatetiles.indexOf(nbtile)!=-1 )
+				 || oldupdatetiles.isPresent(nbtile) )
 		    continue;
 	    
 		if ( (!tilecol && !rowidx && colidx==-1) || 
@@ -2602,7 +2602,7 @@ void HorizonSectionTile::updateGlue()
     else if ( dfsum==mPoint ) \
     { \
 	const int ptidx= df0 ? i0 : (df1 ? i1 : i2); \
-	if ( pointci.indexOf(ptidx)==-1 ) mAddIndex( ptidx, point ) \
+	if ( !pointci.isPresent(ptidx) ) mAddIndex( ptidx, point ) \
     } \
     else if ( dfsum==mLine && (cornpos<0 || !mIsDef(coords_[cornpos])) ) \
     { \

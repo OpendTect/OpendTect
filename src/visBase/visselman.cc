@@ -40,7 +40,7 @@ void SelectionManager::setAllowMultiple( bool yn )
 void SelectionManager::select( int newid, bool keepoldsel, bool lock )
 {
     if ( lock ) mutex.lock();
-    if ( selectedids.indexOf( newid ) == -1 )
+    if ( !selectedids.isPresent( newid ) )
     {
 	if ( !allowmultiple || !keepoldsel )
 	    deSelectAll(false);

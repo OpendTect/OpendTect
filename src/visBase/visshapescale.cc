@@ -165,7 +165,7 @@ void ShapeScale::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
     int shapeid = shape ? shape->id() : -1;
     iopar.set( shapeidstr, shapeid );
-    if ( saveids.indexOf( shapeid )==-1 ) saveids += shapeid;
+    if ( !saveids.isPresent( shapeid ) ) saveids += shapeid;
 }
 
 }; // namespace visBase

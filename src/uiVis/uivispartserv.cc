@@ -486,7 +486,7 @@ int uiVisPartServer::getSceneID( int visid ) const
     {
 	TypeSet<int> childids;
 	getChildIds( sceneids[idx], childids );
-	if ( childids.indexOf(visid) > -1 )
+	if ( childids.isPresent(visid) )
 	    return sceneids[idx];
     }
 
@@ -1178,7 +1178,7 @@ void uiVisPartServer::updateDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
-	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && 
+	    bool isdraggeron = selected.isPresent(obj->id()) && 
 		(workmode_ == uiVisPartServer::Interactive); 
 
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
@@ -1357,7 +1357,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    int childid = children[idy];
-	    if ( hasconnections.indexOf( childid ) >= 0 ) continue;
+	    if ( hasconnections.isPresent( childid ) ) continue;
 
 	    setUpConnections( childid );
 	    hasconnections += childid;
@@ -2159,7 +2159,7 @@ void uiVisPartServer::lock( int id, bool yn )
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
 
-    const bool isdraggeron = selected.indexOf(id)!=-1 && 
+    const bool isdraggeron = selected.isPresent(id) && 
 	( workmode_ == uiVisPartServer::Interactive );
     so->showManipulator( isdraggeron && !so->isLocked() );
 }

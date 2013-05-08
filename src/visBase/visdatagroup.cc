@@ -203,7 +203,7 @@ void DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
 	key += idx;
 
 	int saveid = objects_[idx]->id();
-	if ( saveids.indexOf( saveid )==-1 ) saveids += saveid;
+	if ( !saveids.isPresent( saveid ) ) saveids += saveid;
 
 	par.set( key, saveid );
     }

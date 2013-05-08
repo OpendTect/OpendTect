@@ -155,7 +155,7 @@ void Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     int textureid = texture->id();
     par.set( textureidstr(), textureid );
 
-    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+    if ( !saveids.isPresent(textureid) ) saveids += textureid;
 }
 
 

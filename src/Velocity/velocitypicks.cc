@@ -541,7 +541,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor, caller );
-    if ( !hor || horizons_.indexOf(hor)==-1 )
+    if ( !hor || !horizons_.isPresent(hor) )
 	return;
 
     TypeSet<RowCol> rcs;
@@ -603,7 +603,7 @@ void Picks::addHorizon( const MultiID& mid, bool addzeroonfail )
 
 void Picks::addHorizon( EM::Horizon3D* hor )
 {
-    if ( horizons_.indexOf(hor)!=-1 )
+    if ( horizons_.isPresent(hor) )
 	return;
 
     horizons_ += hor;
@@ -884,7 +884,7 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice
-	    if ( emids.indexOf(hor->id()) !=-1 )
+	    if ( emids.isPresent(hor->id()) )
 		continue;
 
 	    bidset.set( pos, vals );
@@ -937,7 +937,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice
-	    if ( emids.indexOf(hor->id()) !=-1 )
+	    if ( emids.isPresent(hor->id()) )
 		continue;
 
 	    bidset.set( pos, vals );

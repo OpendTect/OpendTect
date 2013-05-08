@@ -536,7 +536,7 @@ void RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     Coord3 size = getDraggerSize();
     par.set( draggersizestr, size.x, size.y, size.z );
 
-    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+    if ( !saveids.isPresent(textureid) ) saveids += textureid;
 }
 
 

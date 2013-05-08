@@ -96,7 +96,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	return;
 
     if ( (!allowedscenes_.isEmpty() &&
-	  allowedscenes_.indexOf( scene->id() )==-1)
+	  !allowedscenes_.isPresent( scene->id() ))
 	  || eventinfo.pickedobjids.isEmpty() )
 	status_ = Failed;
     else
