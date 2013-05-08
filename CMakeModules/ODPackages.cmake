@@ -11,8 +11,16 @@ macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
 		    @ONLY )
 endmacro()
 
-add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
-		   WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+if ( WIN32 )
+    add_custom_target( do_install
+	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Debug
+	COMMAND
+	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Release
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+else()
+    add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
+WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+endif()
 
 macro( OD_ADD_PACKAGES_TARGET )
     add_custom_target( packages  ${CMAKE_COMMAND} 
@@ -26,7 +34,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
 	    -DPSD=${PROJECT_SOURCE_DIR}
 	    -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
-	    DEPENDS do_install
+	    DEPENDS do_install sources
 	    COMMENT "Creating packages" ) 
 endmacro()
 
