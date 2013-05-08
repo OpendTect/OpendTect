@@ -37,6 +37,7 @@ public:
 
     void	setMinNrVertices(int);
     void	setNrLargestOnly(int);
+    void	setEdgeValue(float); //! To close contours along (RectROI) edge
 
     bool	getContours(ObjectSet<ODPolygon<float> >&,
 	    		    float z,bool closedonly=false) const;
@@ -63,6 +64,7 @@ protected:
 
     int				minnrvertices_;
     int				nrlargestonly_;
+    float			edgevalue_;
 
     const ODPolygon<float>*	polyroi_;
 };
