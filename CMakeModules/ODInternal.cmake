@@ -132,10 +132,12 @@ else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
 endif()
+
 if( EXISTS ${MSVCPATH} )
     file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
     foreach( DLL ${MSVCDLLS} )
-	install( FILES ${DLL} DESTINATION bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/thirdpartylibs )
+	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
+	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} CONFIGURATIONS Debug )
     endforeach()
 endif()
 
