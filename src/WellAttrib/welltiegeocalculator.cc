@@ -319,26 +319,61 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 }
 
 
+class DeconvolveData
+{
+public:
 
-#define mDoTransform(tf,isstraight,inp,outp,sz) \
-{\
-    tf.setInputInfo(Array1DInfoImpl(sz));\
-    tf.setDir(isstraight);\
-    tf.init();\
-    tf.transform(inp,outp);\
+DeconvolveData( int sz )
+    : fft_(*Fourier::CC::createDefault())
+    , sz_(getPower2Size(sz))
+    , halfsz_(sz_/2)
+    , ctwtvals_(sz_)
+    , cfreqvals_(sz_)
+{
+    const float_complex cnullval = float_complex( 0, 0 );
+    for ( int idx=0; idx<sz_; idx++ )
+    {
+	ctwtvals_.set( idx, cnullval );
+	cfreqvals_.set( idx, cnullval );
+    }
 }
 
-#define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
-{   \
-    tf->setInputInfo(Array1DInfoImpl(sz));\
-    tf->setDir(isstraight);\
-    tf->setNormalization(!isstraight); \
-    tf->setInput(inp.getData());\
-    tf->setOutput(outp.getData());\
-    tf->run(true); \
+
+~DeconvolveData()
+{
+    delete &fft_;
 }
 
-#define mNoise 0.05f
+
+int getPower2Size( int inpsz )
+{
+    int outsz = 1;
+    while ( outsz < inpsz )
+	outsz <<= 1;
+    return outsz;
+}
+
+
+bool doFFT( bool isfwd )
+{
+    fft_.setInputInfo( Array1DInfoImpl(sz_) );
+    fft_.setDir( isfwd );
+    fft_.setNormalization( !isfwd );
+    fft_.setInput(  ( isfwd ? ctwtvals_ : cfreqvals_).getData() );
+    fft_.setOutput( (!isfwd ? ctwtvals_ : cfreqvals_).getData() );
+    return fft_.run( isfwd );
+}
+
+    Fourier::CC&		fft_;
+    const int			sz_;
+    const int			halfsz_;
+    Array1DImpl<float_complex>	ctwtvals_;
+    Array1DImpl<float_complex>	cfreqvals_;
+
+};
+
+
+#define mNoise 0.01f
 void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 			        float* deconvals, int inpsz ) const
 {
@@ -351,62 +386,60 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     memcpy( inputvals.getData(), inp, inpsz*sizeof(float) );
     window.apply( &inputvals );
     removeBias( &inputvals );
-    Array1DImpl<float_complex> cinputvals( inpsz );
-    for ( int idx=0; idx<inpsz; idx++ )
-	cinputvals.set( idx, inputvals.get( idx ) );
 
     Array1DImpl<float_complex> cfiltervals( inpsz );
     memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
     removeBias( &cfiltervals );
-   
-    Spectrogram spec;
-    Array1DImpl<float_complex> cspecfiltervals( inpsz );
-    mDoTransform( spec, true, cfiltervals, cspecfiltervals, inpsz );
 
-    float_complex wholespec = 0;
-    float_complex noise = mNoise/inpsz;
-    for ( int idx=0; idx<inpsz; idx++ )
-	wholespec += cspecfiltervals.get( idx );  
-    float_complex cnoiseshift = noise*wholespec;
-
-    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
-    mDoFourierTransform( fft, true, cinputvals, cinputvals, inpsz );
-    mDoFourierTransform( fft, true, cfiltervals, cfiltervals, inpsz );
-
-    Array1DImpl<float_complex> cdeconvvals( inpsz ); 
+    DeconvolveData dcinp( inpsz ), dcfilter( inpsz );
+    const int cidx = mCast(int, inpsz/2 );
+    const int firstidx = dcinp.halfsz_ - cidx;
     for ( int idx=0; idx<inpsz; idx++ )
     {
-	float_complex inputval = cinputvals.get(idx);
-	float_complex filterval = cfiltervals.get(idx);
+	const float_complex valinp( inputvals.get( idx ), 0. );
+	const float_complex valfilt( cfiltervals.get( idx ) );
+	dcinp.ctwtvals_.set( idx + firstidx, valinp );
+	dcfilter.ctwtvals_.set( idx + firstidx, valfilt );
+    }
+    if ( !dcinp.doFFT(true) || !dcfilter.doFFT(true) )
+	return;
 
-	double rfilterval = filterval.real();
-	double ifilterval = filterval.imag();
-	float_complex conjfilterval = float_complex( (float) rfilterval,
-						     (float) -ifilterval );
-	float_complex num = inputval * conjfilterval;
-	float_complex denom = filterval * conjfilterval + cnoiseshift;
-	float_complex res = num / denom;
+    float_complex wholespec = 0.;
+    for ( int idx=0; idx<dcfilter.sz_; idx++ )
+	wholespec += std::norm( dcfilter.cfreqvals_.get( idx ) );
+    const float_complex cnoiseshift = mNoise * wholespec / (float) dcfilter.sz_;
 
-	cdeconvvals.setValue( idx, res );
+    DeconvolveData dcout( dcinp.sz_ );
+    float summod = 0;
+    for ( int idx=0; idx<dcout.sz_; idx++ )
+    {
+	const float_complex inputval = dcinp.cfreqvals_.get( idx );
+	const float_complex filterval = dcfilter.cfreqvals_.get( idx );
+	const float_complex conjfilterval = std::conj( filterval );
+	const float_complex num = inputval * conjfilterval;
+	const float_complex denom = std::norm( filterval ) + cnoiseshift;
+	const float_complex res = num / denom;
+	summod += abs( res );
+	dcout.cfreqvals_.set( idx, res );
     }
 
-    float avg = 0;
-    for ( int idx=0; idx<inpsz; idx++ )
-	avg += abs( cdeconvvals.get( idx ) )/inpsz;
+    // one-forth of average + normalization by number of samples
+    const float minfreqamp = summod / mCast( float, 4 * inpsz );
+    const float_complex cnullval = float_complex( 0., 0. );
+    for ( int idx=0; idx<dcout.sz_; idx++ )
+    {
+	if ( abs( dcout.cfreqvals_.get( idx ) ) < minfreqamp )
+	    dcout.cfreqvals_.set( idx, cnullval );
+    }
+    if ( !dcout.doFFT(false) )
+	return;
+
     for ( int idx=0; idx<inpsz; idx++ )
     {
-	if ( abs( cdeconvvals.get( idx ) ) < avg/4 )
-	    cdeconvvals.set( idx, 0 );
+	const int readidx = idx < cidx ? dcout.sz_-cidx+idx : idx-cidx;
+	deconvals[idx] = dcout.ctwtvals_.get( readidx ).real();
     }
-
-    mDoFourierTransform( fft, false, cdeconvvals, cdeconvvals, inpsz );
-
-    int mid = (int)(inpsz)/2;
-    for ( int idx=0; idx<=mid; idx++ )
-	deconvals[idx] = cdeconvvals.get( mid-idx ).real();;
-    for ( int idx=mid+1; idx<inpsz; idx++ )
-	deconvals[idx] = cdeconvvals.get( inpsz-idx+mid ).real();
 }
 
 
@@ -707,6 +740,22 @@ void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
 
 
 // will be removed
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{\
+    tf.setInputInfo(Array1DInfoImpl(sz));\
+    tf.setDir(isstraight);\
+    tf.init();\
+    tf.transform(inp,outp);\
+}
+#define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
+{\
+    tf->setInputInfo(Array1DInfoImpl(sz));\
+    tf->setDir(isstraight);\
+    tf->setNormalization(!isstraight); \
+    tf->setInput(inp.getData());\
+    tf->setOutput(outp.getData());\
+    tf->run(true); \
+}
 void GeoCalculator::deconvolve( const float* inp, const float* filter,
 			        float* deconvals, int inpsz ) const
 {
