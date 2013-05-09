@@ -444,6 +444,13 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 }
 
 
+float uiStratSimpleLayerModelDisp::getDisplayZSkip() const
+{
+    if ( layerModel().isEmpty() ) return 0;
+    return layerModel().sequence(0).startDepth();
+}
+
+
 void uiStratSimpleLayerModelDisp::updZoomBox()
 {
     if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
@@ -519,7 +526,13 @@ void uiStratSimpleLayerModelDisp::getBounds()
 	mChckBnds(vrg.start,>,val);
 	mChckBnds(vrg.stop,<,val);
     mEndLayLoop()
-    zrg_ = mIsUdf(zrg.start) ? Interval<float>(0,1) : zrg;
+    if ( mIsUdf(zrg.start) )
+	zrg_ = Interval<float>( 0, 1 );
+    else
+    {
+	zrg_.start = zrg.start + getDisplayZSkip();
+	zrg_.stop = zrg.stop;
+    }
     vrg_ = mIsUdf(vrg.start) ? Interval<float>(0,1) : vrg;
 
     if ( mIsUdf(zoomwr_.left()) )

@@ -269,7 +269,7 @@ SyntheticData* getCurrentSyntheticData() const
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
-    : uiMainWin(0,"",1,false)
+    : uiMainWin(0,"",1,true,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
@@ -318,7 +318,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
 	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
-    synthdisp_->synthsChanged.notify( mCB(this,uiStratLayerModel,syntheticsChangedCB) );
+    synthdisp_->synthsChanged.notify(
+	    	mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
@@ -492,7 +493,11 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
-    moddisp_->setZoomBox( synthdisp_->curView(true) );
+    uiWorldRect wr( mUdf(float), 0, 0, 0 );
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
+    if ( synthdisp_->getSynthetics().size() )
+	wr = synthdisp_->curView( true );
+    moddisp_->setZoomBox( wr );
 }
 
 
@@ -720,9 +725,8 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
-	return;
-    synthdisp_->modelChanged();
+    useSyntheticsPars( desc_.getWorkBenchParams() );
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
 }
 
 
@@ -742,11 +746,10 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     setModelProps();
     setElasticProps();
-    if ( !useSyntheticsPars(desc_.getWorkBenchParams()) )
-	return;
 
-    synthdisp_->modelChanged();
-    moddisp_->modelChanged();
+    useSyntheticsPars( desc_.getWorkBenchParams() );
+
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     levelChg( 0 );
     newModels.trigger();
 
@@ -835,7 +838,6 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 	synthp_.edstratsynth_->addDefaultSynthetic();
     }
 
-    //synthdisp_->setBrineFilled( true );
     synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
     levelChg( 0 );		//no change in fact but a redraw is needed
 
