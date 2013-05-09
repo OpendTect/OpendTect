@@ -259,13 +259,13 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	     .add( temppath.fileName() );
 	FilePath logfp( remfp );
 	logfp.setExtension( ".log", true );
-	iop_.set( sKey::LogFile(), logfp.fullPath() );
+	iop_.set( sKey::LogFile(), logfp.fullPath(hd->pathStyle()) );
 	if ( !iop_.write(parfname_,sKey::Pars()) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
 	}
-	parfname_ = remfp.fullPath();
+	parfname_ = remfp.fullPath( hd->pathStyle() );
 	comm.add( "od_remexec " ).add( hostname_ )
 	    .add( " " ).add( progname_ ).add( " " );
     }
