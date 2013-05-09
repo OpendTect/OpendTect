@@ -30,10 +30,11 @@ public:
     mStruct LogCubeData
     {
 				LogCubeData(const BufferString& l,CtxtIOObj& c)
-				    : seisctio_(c), lognm_(l) {}
-			        ~LogCubeData();	
+				    	    : seisctio_(c),
+					    lognm_(*new BufferString(l)) {}
+			        ~LogCubeData();
 
-	CtxtIOObj& 		seisctio_;  
+	CtxtIOObj& 		seisctio_;
 	const BufferString&	lognm_;
     };
 
@@ -42,7 +43,7 @@ public:
 
     const char* 		errMsg() const;
 
-    od_int64    		totalNr() const { return nrdone_; };
+    od_int64    		totalNr() const { return nrIterations(); };
 
 protected:
 

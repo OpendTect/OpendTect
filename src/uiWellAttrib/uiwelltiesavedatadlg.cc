@@ -45,9 +45,9 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
     BufferStringSet lognms; 	BufferStringSet wvltnms;
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
     wvltctioset_[0]->ctxt.forread = false;
+    wvltnms.add( data_.initwvlt_.name() );
     wvltctioset_ += mMkCtxtIOObj(Wavelet);
     wvltctioset_[1]->ctxt.forread = false;
-    wvltnms.add( data_.initwvlt_.name() );
     wvltnms.add( data_.estimatedwvlt_.name() );
 
     //start at 2, the first 2 are sonic and density.
@@ -103,17 +103,19 @@ void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 }
 
 
-#define mCanNotWriteLogs(msg)\
+#define mCanNotWriteLogs()\
     mErrRet( "Cannot write log(s)" );
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;
     if ( !savelogsfld_ || !savewvltsfld_ ) 
 	return false;
+
     BufferStringSet lognms, wvltnms; TypeSet<int> logidces, wvltidces;
-    if ( !savelogsfld_->getNamesToBeSaved( lognms, logidces ) )
-       return false;	
-    if ( !savewvltsfld_->getNamesToBeSaved( wvltnms, wvltidces  ) )
+    if ( !savelogsfld_->getNamesToBeSaved(lognms,logidces) )
+       return false;
+
+    if ( !savewvltsfld_->getNamesToBeSaved(wvltnms,wvltidces) )
 	return false;
 
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
@@ -132,7 +134,8 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	    success = false; 
 	    continue;
 	}
-	Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_ ;
+
+	const Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_;
 	if ( !wvlt.put( wvltctioset_[wvltidx]->ioobj ) )
 	{
 	    errmsg += wvltnms.get(idx);
@@ -141,7 +144,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	}
     }
 
-    Well::LogSet logset; ;
+    Well::LogSet logset;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const char* orglognm = savelogsfld_->itemName( logidces[idx] );
@@ -160,16 +163,16 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 
     if ( saveasfld_->getBoolValue() )
     {
-	if ( !datawriter_.writeLogs( logset ) )
+	if ( !datawriter_.writeLogs(logset) )
 	    mCanNotWriteLogs();
     }
     else 
     {
-	DataWriter::LogData lds( logset ); 
+	DataWriter::LogData lds( logset );
 	lds.seisctioset_ = seisctioset_;
-	lds.nrtraces_ = repeatfld_->box()->getValue(); 
-	lds.ctioidxset_ = logidces; 
-	if ( !datawriter_.writeLogs2Cube( lds, data_.getDahRange() ) )
+	lds.nrtraces_ = repeatfld_->box()->getValue() + 1;
+	lds.ctioidxset_ = logidces;
+	if ( !datawriter_.writeLogs2Cube(lds,data_.getModelRange()) )
 	    mCanNotWriteLogs();
     }
     if ( success )

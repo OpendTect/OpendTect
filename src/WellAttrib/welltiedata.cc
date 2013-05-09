@@ -414,7 +414,7 @@ bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 }
 
 
-bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
+bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
 {
     if ( ld.logset_.isEmpty() )
 	return false;
@@ -435,7 +435,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> dahrg ) const
 	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[ctxtidx] );
 	logdatas += new LogCubeCreator::LogCubeData( lnm, *ctx );
     }
-    Well::ExtractParams wep; wep.setFixedRange( dahrg, false );
+    Well::ExtractParams wep; wep.setFixedRange( zrg, true );
     lcr.setInput( logdatas, ld.nrtraces_, wep );
     lcr.execute();
     BufferString errmsg = lcr.errMsg();

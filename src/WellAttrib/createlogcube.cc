@@ -30,6 +30,7 @@ static Well::ExtractParams* extractparams_;
 LogCubeCreator::LogCubeData::~LogCubeData()
 {
     delete seisctio_.ioobj;
+    delete &lognm_;
 }
 
 
@@ -136,11 +137,8 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
-    if ( !lcd.seisctio_.ioobj )
+    if ( !lcd.seisctio_.ioobj || lcd.lognm_.isEmpty() )
 	return false;
-
-    SeisTrc trc( SI().zRange(true).nrSteps() + 1 );
-    trc.info().sampling = SI().zRange(true);
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
     Well::LogSampler logsamp( wd_, *extractparams_, lognms );
@@ -149,6 +147,8 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 
     StepInterval<float> zrg = logsamp.zRange();
     zrg.step = extractparams_->zstep_;
+    SeisTrc trc( SI().zRange(true).nrSteps() + 1 );
+    trc.info().sampling = SI().zRange(true);
     for ( int idztrc=0; idztrc<trc.size(); idztrc++ )
     {
 	const float depth = trc.info().sampling.atIndex(idztrc);
