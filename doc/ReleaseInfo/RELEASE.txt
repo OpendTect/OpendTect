@@ -3,7 +3,23 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
-v4.4.0i: April11, 2013
+v4.4.0j: May 8, 2013
+  * Fix for multicomponent display in histogram & amplitude spectrum
+  * Improvement in multi machine processing:
+	Able to launch multiple instances of the program and process different
+        data in each of them
+  * Fix for crash in tie well to seicmic
+  * Fix for displaying faults if both 'show sticks' & 'only at section' are
+    toggled on
+  * Fix for histogram display for 2D Volume Staistics attributes in the tree
+  * Fix for crash while importing 2D horizon
+  * Fix for saving the data of Layer properties on Windows platform
+  * Fix for deleting Imported SEG-Y file on Windows platform
+  * Major improvements in the synthetic-to-seismic tie module, including quality and
+    stability improvements:log extraction, wavelet estimation,
+    cross-correlation, output log/cube creation, interactions
+
+v4.4.0i: April 11, 2013
   * Fix for crash while restoring session with faults
   * Fix for displaying rotation axis after restoring session
 
