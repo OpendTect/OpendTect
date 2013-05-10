@@ -854,8 +854,10 @@ SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
 void uiStratLayerModel::prepareFluidRepl()
 {
     lmp_.copyToEdited();
-    if ( lmp_.get().propertyRefs().find("SVel") == -1 )
-	lmp_.get().propertyRefs() += new PropertyRef( "SVel", PropertyRef::Vel );
+    if ( lmp_.get().propertyRefs().find(Strat::LayerModel::defSVelStr()) == -1 )
+	lmp_.get().propertyRefs() +=
+			new PropertyRef( Strat::LayerModel::defSVelStr(),
+					 PropertyRef::Vel );
 }
 
 
