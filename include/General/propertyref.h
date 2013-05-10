@@ -175,6 +175,7 @@ public:
 			{ const int idx = indexOf(nm);
 			  return idx < 0 ? 0 : (*this)[idx]; }
 
+    PropertyRefSelection subselect(PropertyRef::StdType) const;
 };
 
 
