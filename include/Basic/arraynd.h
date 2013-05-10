@@ -42,6 +42,7 @@ public:
     virtual				~ArrayND()	{}
 
     virtual inline bool			isOK() const;
+    virtual inline bool			isEmpty() const;
 
     virtual T	                	getND(const int*) const	= 0;
     virtual bool			isSettable() const	{ return true; }
@@ -309,6 +310,13 @@ template <class T> inline
 bool ArrayND<T>::isOK() const
 {
     return getStorage() ? getStorage()->isOK() : true;
+}
+
+
+template <class T> inline
+bool ArrayND<T>::isEmpty() const
+{
+    return !isOK() || info().getTotalSz() == 0;
 }
 
 
