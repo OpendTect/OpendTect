@@ -66,6 +66,7 @@ public:
     bool			read(std::istream&);
     bool			write(std::ostream&,int modnr=0) const;
     static const char*		sKeyNrSeqs()		{return "Nr Sequences";}
+    static FixedString          defSVelStr()		{ return "DefaultSVel";}
 
 protected:
 
