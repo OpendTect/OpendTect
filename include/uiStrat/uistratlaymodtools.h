@@ -133,13 +133,20 @@ protected:
 };
 
 
-class PropertySet;
+class PropertyRefSelection;
 
-mExpClass(uiStrat) uiStratLayModPropSelector : public uiDialog
+mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
 {
 public:
 
-			uiStratLayModPropSelector(uiParent*,const PropertySet&);
+			uiStratLayModFRPropSelector(uiParent*,
+						  const PropertyRefSelection&);
+
+    bool		needsDisplay() const;
+    const char*		getSelVPName() const;
+    const char*		getSelVSName() const;
+    const char*		getSelDenName() const;
+
 protected:
 
     uiComboBox*		vpfld_;

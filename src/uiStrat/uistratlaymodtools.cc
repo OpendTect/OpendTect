@@ -13,8 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "keystrs.h"
-#include "property.h"
+#include "propertyref.h"
 #include "stratlevel.h"
+#include "stratlayermodel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -384,41 +385,57 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 //-----------------------------------------------------------------------------
 
-uiStratLayModPropSelector::uiStratLayModPropSelector( uiParent* p,
-						    const PropertySet& propset )
+#define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
+    uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
+    propnm##fld_ = lblbox##propnm->box(); \
+    PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
+    for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
+	if ( subsel##propnm[idx] )\
+	    propnm##fld_->addItem( subsel##propnm[idx]->name() );\
+    if ( prevbox )\
+	lblbox##propnm->attach( alignedBelow, prevbox );
+
+
+uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
+					const PropertyRefSelection& proprefsel )
 	: uiDialog(p,uiDialog::Setup("Property Selector",
-		    		     "Select a property for each type",
+		    		     "There are multiple properties referenced"
+				     " with the same type. \n" 
+				     "Please specify which one to use as: ",
 				     mTODOHelpID) )
 {
-    uiLabeledComboBox* lblbox1 = new uiLabeledComboBox(this, "Property for Vp");
-    vpfld_ = lblbox1->box();
-    ObjectSet<Property> propsvp;
-    propset.getPropertiesOfRefType( PropertyRef::Vel, propsvp );
-    for ( int idx=0; idx<propsvp.size(); idx++ )
-	if ( propsvp[idx] )
-	    vpfld_->addItem( propsvp[idx]->name() );
-
-    uiLabeledComboBox* lblbox2 = new uiLabeledComboBox(this, "Property for Vs");
-    vsfld_ = lblbox2->box();
-    ObjectSet<Property> propsvs;
-    propset.getPropertiesOfRefType( PropertyRef::Vel, propsvs );
-    for ( int idx=0; idx<propsvs.size(); idx++ )
-	if ( propsvs[idx] )
-	    vsfld_->addItem( propsvs[idx]->name() );
-
-    lblbox2->attach( alignedBelow, lblbox1 );
-
-    uiLabeledComboBox* lblbox3 = new uiLabeledComboBox( this,
-	    						"Property for Density");
-    denfld_ = lblbox3->box();
-    ObjectSet<Property> propsden;
-    propset.getPropertiesOfRefType( PropertyRef::Vel, propsden );
-    for ( int idx=0; idx<propsden.size(); idx++ )
-	if ( propsden[idx] )
-	    denfld_->addItem( propsden[idx]->name() );
-
-    lblbox3->attach( alignedBelow, lblbox2 );
-  
+    mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
+    mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
+    mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
 }
 
 
+bool uiStratLayModFRPropSelector::needsDisplay() const
+{
+    if ( vpfld_->size() ==2 && vsfld_->size() ==2
+	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr()) )
+    {
+	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
+	return false;
+    }
+    
+    return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelVPName() const
+{
+    return vpfld_->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelVSName() const
+{
+    return vsfld_->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelDenName() const
+{
+    return denfld_->text();
+}
