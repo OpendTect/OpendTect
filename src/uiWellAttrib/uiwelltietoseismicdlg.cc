@@ -866,7 +866,7 @@ bool uiInfoDlg::updateZrg()
 
     if ( zrangeflds_[mTwtFldIdx] )
     {
-	const float zfact = SI().zDomain().userFactor();
+	const float zfact = mCast( float, SI().zDomain().userFactor() );
 	Interval<int> timergms( mCast( int, timerg.start * zfact ),
 				mCast( int, timerg.stop * zfact ) );
 	zrangeflds_[mTwtFldIdx]->setValue( timergms );
