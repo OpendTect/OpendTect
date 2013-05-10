@@ -35,7 +35,7 @@ The FlexNet licensing system allows a variety of licensing options. The most imp
 </ul>
 Demo and Node-locked licenses are the easiest to install but more difficult to maintain. Demo licenses because they are valid for a limited period of time, node-locked because they will only allow usage on one or more computers explicitly named in the license file. Node-locked licenses can be recognised by lines with the 'HOSTID=' in it, like:
 <pre>
-FEATURE dTect dgbld 4.4000 1-jan-2013 uncounted 023E2CE466C7 \
+FEATURE dTect dgbld 4.6000 1-jan-2014 uncounted 023E2CE466C7 \
         HOSTID="00146c37f273 00167600d558"
 </pre>
 </p><p>
@@ -43,7 +43,7 @@ Floating licenses are managed by a license server. When the plugin needs a licen
 <pre>
 SERVER houserv001 00146d37ec2a
 </pre>
-A more extensive introduction can be found in the <a href="http://opendtect.org/lic/doc/flexnet_explained.html">'FlexNet licenses explained'</a> page.
+A more extensive introduction can be found in the <a href="http://opendtect.org/lic/doc/flexnet_explained.html">'FlexNet licenses explained'</a> page. For system administrators it may be worthwhile to consult Flexera's <a href="http://opendtect.org/lic/flexnet_admin_guide.pdf">License administration guide</a> directly.
 </p>
 
 <h2><a name="hostid">Host identification</a></h2>
@@ -79,7 +79,7 @@ Note that you cannot change the host ID; that will invalidate the licenses.
 <li>The server(s) is/are re-started (if you have floating licenses). This can be done by using a 'reread' or just by stopping and starting. On Linux and Mac, the script that starts the daemon also stops it if you add 'stop' to the command line.
 </ol>
 </p><p>
-Quite annoying is the problem of FlexNet 'helping' you by remebering the location of old license files and using those rather than new ones that you have specified. Therefore, it is usually a good idea to remove all old license files that you can find, or at least renaming them just so FlexNet cannot find them.
+Quite annoying is the problem of FlexNet 'helping' you by remebering the location of old license files and using those rather than new ones that you have specified. Therefore, it is usually a good idea to <b>remove all old license files</b> that you can find, or at least renaming them just so FlexNet cannot find them.
 </p>
 
 <h2><a name="firewall">Firewall issues</a></h2>
