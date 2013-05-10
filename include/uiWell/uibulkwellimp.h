@@ -11,6 +11,7 @@
 #include "uidialog.h"
 
 class uiFileInput;
+class uiGenInput;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
@@ -29,6 +30,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiGenInput*		velocityfld_;
 
     ObjectSet<Well::Data>   wells_;
     Table::FormatDesc*	    fd_;
@@ -59,6 +61,9 @@ protected:
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	inpfld_;
+    uiTableImpDataSel*	dataselfld_;
+
+    Table::FormatDesc*	    fd_;
 };
 
 #endif

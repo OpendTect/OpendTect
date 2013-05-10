@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
+#include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "wellman.h"
@@ -35,57 +36,30 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 
-
-class BulkTrackAscIO : public Table::AscIO
-{
-public:
-BulkTrackAscIO( const Table::FormatDesc& fd, std::istream& strm )
-    : Table::AscIO(fd)
-    , strm_(strm)
-{}
-
-
-static Table::FormatDesc* getDesc()
-{
-    Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
-    fd->bodyinfos_ +=
-	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
-    return fd;
-}
-
-
-bool getData( BufferString& wellnm, Coord3& crd, float md, BufferString& uwi )
-{
-    const int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return false;
-
-    wellnm = text( 0 );
-    crd.x = getdValue( 1 );
-    crd.y = getdValue( 2 );
-    crd.z = getfValue( 3 );
-    md = getfValue( 4 );
-    uwi = text( 5 );
-    return true;
-}
-
-    std::istream&	strm_;
-
-};
+using namespace Well;
 
 
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Well Track Import",mNoDlgTitle,mTODOHelpID))
     , fd_(BulkTrackAscIO::getDesc())
+    , velocityfld_(0)
 {
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
+
+    if ( SI().zIsTime() )
+    {
+	const BufferString zlbl(
+		SI().depthsInFeetByDefault() ? " (ft" : " (m", "/s)" );
+	const BufferString vellbl( "Temporary model velocity", zlbl );
+	const float vel =
+		mCast(float,SI().depthsInFeetByDefault() ? 8000 : 2000);
+	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
+	velocityfld_->attach( alignedBelow, dataselfld_ );
+    }
 }
 
 
@@ -134,7 +108,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     BulkTrackAscIO aio( *fd_, *sd.istrm );
     BufferString wellnm, uwi; Coord3 crd;
     float md = mUdf(float);
-    while ( aio.getData(wellnm,crd,md,uwi) )
+    while ( aio.get(wellnm,crd,md,uwi) )
     {
 	if ( wellnm.isEmpty() )
 	    continue;
@@ -168,6 +142,8 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 		BufferString("Cannot create Database entry for: ",wd->name()) );
 	    continue;
 	}
+
+	wd->setD2TModel( new Well::D2TModel );
 
 	PtrMan<Translator> t = ioobj->createTranslator();
 	mDynamicCastGet(WellTranslator*,wtr,t.ptr())
@@ -271,8 +247,12 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Bulk Marker Import",mNoDlgTitle,mTODOHelpID))
+    , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup());
+
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
+    dataselfld_->attach( alignedBelow, inpfld_ );
 }
 
 
