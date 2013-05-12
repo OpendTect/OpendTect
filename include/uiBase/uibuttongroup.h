@@ -19,6 +19,12 @@ ________________________________________________________________________
 mFDQtclass(QButtonGroup)
 class uiButton;
 
+/* Group managing buttons, and their position.
+
+If the buttons have an on/off state, then you should consider the setExclusive() switch, which is by default ON.
+
+   */
+
 
 mExpClass(uiBase) uiButtonGroup : public uiGroup
 { 	
