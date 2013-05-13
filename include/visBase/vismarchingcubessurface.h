@@ -35,7 +35,7 @@ public:
     static MarchingCubesSurface*	create()
 					mCreateDataObj(MarchingCubesSurface);
 
-    void				setSurface(::MarchingCubesSurface&,
+    bool				setSurface(::MarchingCubesSurface&,
 	    					   TaskRunner*);
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
@@ -47,7 +47,7 @@ public:
 						  const SamplingData<float>&);
     const SamplingData<float>&		getScale(int dim) const;
 
-    void			touch(bool forall,TaskRunner* =0);
+    bool			touch(bool forall,TaskRunner* =0);
     void			renderOneSide( int side );
     				/*!< 0 = visisble from both sides.
 				     1 = visisble from positive side

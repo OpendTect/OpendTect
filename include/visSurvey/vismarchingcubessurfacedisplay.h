@@ -91,7 +91,7 @@ public:
 protected:
 
     virtual			~MarchingCubesDisplay();
-    void			updateVisFromEM(bool onlyshape,TaskRunner*);
+    bool			updateVisFromEM(bool onlyshape,TaskRunner*);
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
     void			materialChangeCB(CallBacker*);

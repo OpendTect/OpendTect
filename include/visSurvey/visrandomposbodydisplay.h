@@ -63,7 +63,7 @@ protected:
     static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
     virtual			~RandomPosBodyDisplay();
     
-    void			updateVisFromEM();
+    bool			updateVisFromEM();
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
 

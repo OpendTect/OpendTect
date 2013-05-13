@@ -53,7 +53,7 @@ public:
 				//!<in memory
     void			setRightHandSystem(bool);
 
-    void			touch(bool forall,TaskRunner* =0);
+    bool			touch(bool forall,TaskRunner* =0);
 
     void			set3DLineRadius(float radius,
 	    					bool constantonscreen=true,

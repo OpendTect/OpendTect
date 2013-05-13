@@ -68,16 +68,16 @@ void MarchingCubesSurface::renderOneSide( int side )
 }
 
 
-void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
+bool MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
        TaskRunner* tr	)
 {
     surface_->setSurface( &ns );
-    touch( true, tr );
+    return touch( true, tr );
 }
 
 
-void MarchingCubesSurface::touch( bool forall, TaskRunner* tr )
-{ shape_->touch( forall, tr ); }
+bool MarchingCubesSurface::touch( bool forall, TaskRunner* tr )
+{ return shape_->touch( forall, tr ); }
 
 
 ::MarchingCubesSurface* MarchingCubesSurface::getSurface()

@@ -451,12 +451,11 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-    updateVisFromEM( false, tr );
-    return true;
+    return updateVisFromEM( false, tr );
 }
 
 
-void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
+bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 {
     if ( !onlyshape || !displaysurface_ )
     {
@@ -481,11 +480,18 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 		SamplingData<float>(emsurface_->crlSampling()),
 				    emsurface_->zSampling() );
 
-	displaysurface_->setSurface( emsurface_->surface(), tr );
-	displaysurface_->turnOn( true );
+	if ( !displaysurface_->setSurface( emsurface_->surface(), tr ) )
+	{
+	    removeChild( displaysurface_->getInventorNode() );
+	    displaysurface_->unRef();
+	    displaysurface_ = 0;
+	    return false;
+	}
+	else
+    	    displaysurface_->turnOn( true );
     }
 
-    displaysurface_->touch( !onlyshape, tr );
+    return displaysurface_->touch( !onlyshape, tr );
 }
 
 

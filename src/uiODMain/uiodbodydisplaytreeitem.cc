@@ -223,31 +223,49 @@ bool uiODBodyDisplayTreeItem::init()
 	{
 	    visSurvey::PolygonBodyDisplay* plg =
 		visSurvey::PolygonBodyDisplay::create();
-	    displayid_ = plg->id();
 	    plg_ = plg;
 	    plg_->ref();
-	    plg_->setEMID( emid_ );
+	    if ( !plg_->setEMID( emid_ ) )
+	    {
+		plg_->unRef();
+		plg_ = 0;
+		return false;
+	    }
+
+	    displayid_ = plg->id();
 	    visserv_->addObject( plg, sceneID(), true );
 	}
 	else if ( emmcs ) 
 	{
 	    visSurvey::MarchingCubesDisplay* mcd =
 		visSurvey::MarchingCubesDisplay::create();
-	    displayid_ = mcd->id();
 	    mcd_ = mcd;
 	    mcd_->ref();
 	    uiTaskRunner taskrunner( getUiParent() );
-	    mcd_->setEMID( emid_, &taskrunner );
+	    if ( !mcd_->setEMID( emid_, &taskrunner ) )
+	    {
+		mcd_->unRef();
+		mcd_ = 0;
+		return false;
+	    }
+
+	    displayid_ = mcd->id();
 	    visserv_->addObject( mcd, sceneID(), true );
 	}
 	else if ( emrpb )
 	{
 	    visSurvey::RandomPosBodyDisplay* rpb = 
 		visSurvey::RandomPosBodyDisplay::create();
-	    displayid_ = rpb->id();
 	    rpb_ = rpb;
 	    rpb_->ref();
-	    rpb_->setEMID( emid_ );
+	    if ( !rpb_->setEMID( emid_ ) )
+	    {
+		rpb_->unRef();
+		rpb_ = 0;
+		return false;
+	    }
+
+	    displayid_ = rpb->id();
 	    visserv_->addObject( rpb, sceneID(), true );
 	}
     }
