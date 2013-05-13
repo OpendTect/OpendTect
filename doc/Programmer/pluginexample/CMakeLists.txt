@@ -40,12 +40,13 @@ if( OD_CREATE_LAUNCHERS )
 	    set_target_properties( ${LAUNCHER}
 		    PROPERTIES
 		    LOCATION_${CONFIG}
-		    ${OD_EXEC_OUTPUT_PATH}/${CONFIG}/${LAUNCHER} )
+	${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH}/${CONFIG}/${LAUNCHER}${OD_EXECUTABLE_EXTENSION} )
 	endforeach()
 
 	create_target_launcher( ${LAUNCHER}
 	    RUNTIME_LIBRARY_DIRS
-	    ${RUNTIMEPATH}
+	 ${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH}
+	 ${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH} 
 	    ENVIRONMENT
 	    DTECT_APPL=${OpendTect_DIR}
 	    WORK=${OpendTect_DIR} )
