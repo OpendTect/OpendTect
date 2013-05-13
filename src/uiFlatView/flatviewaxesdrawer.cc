@@ -100,8 +100,10 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     }
 
     if ( !rectitem_ )
-	rectitem_ =  view_.scene().addRect( rect.left(), rect.top(),
-					    rect.width(), rect.height() );
+	rectitem_ =  view_.scene().addRect( mCast(float,rect.left()),
+				            mCast(float,rect.top()),
+					    mCast(float,rect.width()),
+					    mCast(float,rect.height()) );
     else
 	rectitem_->setRect( rect.left(), rect.top(),
 			    rect.width(), rect.height() );
