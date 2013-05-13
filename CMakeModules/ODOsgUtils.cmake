@@ -68,7 +68,6 @@ macro(OD_SETUP_OSG)
 
 	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	    foreach ( BUILD_TYPE Debug Release )
-
 		set( OARGS  ${OD_OSG_LIBS} )
 		unset ( ARGS )
 
@@ -91,25 +90,20 @@ macro(OD_SETUP_OSG)
 			    list( APPEND ARGS ${OSG_DIR}/lib/${OSGLIBNAME} )
 			endif()
 			list( GET ARGS 0 FILENM )
-			OD_INSTALL_LIBRARY( ${FILENM} )
+			OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
 		    elseif( WIN32 )
 			file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
 			if ( EXISTS ${DLLFILE} )
-			    list( APPEND ARGS ${DLLFILE} )
-			endif()
-			if ( EXISTS ${LIB} )
-			    list( APPEND ARGS ${LIB} )
+			    OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
+			    install( PROGRAMS ${LIB}
+					DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+					CONFIGURATIONS ${BUILD_TYPE} )
 			endif()
 		    endif()
 		endforeach()
 
-		if ( WIN32 )
-		    install( PROGRAMS ${ARGS}
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
-			CONFIGURATIONS ${BUILD_TYPE} )
-		endif()
 	    endforeach()
 	endif()
     endif()

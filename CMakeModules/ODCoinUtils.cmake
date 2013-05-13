@@ -71,20 +71,17 @@ macro(OD_SETUP_COIN)
 		    endif()
 		    list( APPEND ARGS ${ALLLIBS} )
 		    list( GET ARGS 0 FILENM )
-		    OD_INSTALL_LIBRARY( ${FILENM} )
+		    OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
 		    set( ARGS )
 		    set( ALLLIBS "" )
 		elseif( WIN32 )
-		    list( APPEND ARGS ${COINDIR}/bin/${COINLIBNAME}.dll )
-		    list( APPEND ARGS ${LIB} )
+		    OD_INSTALL_LIBRARY( ${COINDIR}/bin/${COINLIBNAME}.dll ${BUILD_TYPE} )
+		    install( PROGRAMS ${LIB}
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+			CONFIGURATIONS ${BUILD_TYPE} )
 		endif()
 	    endforeach()
 
-	    if ( WIN32 )
-		install( PROGRAMS ${ARGS}
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
-			CONFIGURATIONS ${BUILD_TYPE} )
-	    endif()
 	endforeach()
     endif()
 
