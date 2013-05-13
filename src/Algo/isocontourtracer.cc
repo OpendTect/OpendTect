@@ -61,7 +61,7 @@ void IsoContourTracer::setEdgeValue( float edgeval )
 { edgevalue_ = edgeval; }
 
 
-#define mEdge			(mIsUdf(edgevalue_) ? 1 : 0)
+#define mEdge			(mIsUdf(edgevalue_) ? 0 : 1)
 #define mOnEdge(xy,idx)		(idx<mEdge || idx>xy##range_.width()+mEdge)
 #define mFieldIdx(xy,idx)	(xy##range_.start + idx - mEdge)
 
