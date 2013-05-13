@@ -69,6 +69,7 @@ protected:
 public:
 
     void	setEdgeValue(float); //! To close contours along (RectROI) edge
+    void	setBendPointsOnly(float eps);
 };
 
 

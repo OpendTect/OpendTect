@@ -13,8 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static ObjectSet<IsoContourTracer> isocontourtracers;
 static TypeSet<float> edgevalues;
+static TypeSet<float> bendpointepsilons;
 
 #define edgevalue_	edgevalues[isocontourtracers.indexOf(this)]
+#define bendpointeps_	bendpointepsilons[isocontourtracers.indexOf(this)]
 
 
 IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
@@ -29,12 +31,14 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
 {
     isocontourtracers += this;
     edgevalues += mUdf(float);
+    bendpointepsilons += mUdf(float);
 }
 
 
 IsoContourTracer::~IsoContourTracer()
 {
     edgevalues.removeSingle( isocontourtracers.indexOf(this) );
+    bendpointepsilons.removeSingle( isocontourtracers.indexOf(this) );
     isocontourtracers -= this;
 }
 
@@ -62,6 +66,10 @@ void IsoContourTracer::selectRectROI( const Interval<int>& xintv,
 
 void IsoContourTracer::selectPolyROI( const ODPolygon<float>* poly )
 { polyroi_ = poly; }
+
+
+void IsoContourTracer::setBendPointsOnly( float eps )
+{ bendpointeps_ = eps; }
 
 
 void IsoContourTracer::setMinNrVertices( int nr )
@@ -249,6 +257,9 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 			break;
 		    }
 		}
+
+		if ( !mIsUdf(bendpointeps_) )
+		    contour->keepBendPoints( bendpointeps_ );
 
 		const int sz = contour->size();
 		if ( sz<minnrvertices_ || (closedonly && !contour->isClosed()) )
