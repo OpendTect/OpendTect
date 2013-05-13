@@ -12,7 +12,7 @@ set( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 if( APPLE )
-    execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} 
+	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/Release ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release 
 		     RESULT_VARIABLE STATUS )
     if( NOT ${STATUS} EQUAL "0" )
 	message( FATAL_ERROR "changing dependency Failed" )

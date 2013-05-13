@@ -51,7 +51,7 @@ macro ( create_package PACKAGE_NAME )
 	endif()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${LIB}
+		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${LIB}
 		    ${COPYTODIR} )
 	file( GLOB ALOFILES ${CMAKE_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
 	foreach( ALOFILE ${ALOFILES} )
@@ -99,7 +99,7 @@ macro ( create_package PACKAGE_NAME )
 	endif()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${EXE} 
+		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${EXE} 
 		    ${COPYTODIR} )
     endforeach()
 
@@ -130,11 +130,13 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
-    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${LIB} ${COPYTODIR} )
+	if ( EXISTS ${FROMDIR}/${LIB} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${LIB} ${COPYTODIR} )
+	endif()
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -351,7 +353,7 @@ macro( od_sign_libs )
 	message( "Signing mac libs..." )
 	set( SIGN_ID "Developer ID Application: DGB-Earth Sciences B. V." )
 	file( GLOB FILES
-		   ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/* )
+		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/* )
 	foreach( FIL ${FILES} )
 	    execute_process( COMMAND  codesign -f -s ${SIGN_ID} ${FIL}
 			     RESULT_VARIABLE STATUS )
@@ -361,8 +363,8 @@ macro( od_sign_libs )
 	endforeach()
     elseif( WIN32 )
 	execute_process( COMMAND
-		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/sign.bat
-		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}
+		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/sign.bat
+		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release
 	        RESULT_VARIABLE STATUS )
 	if( NOT STATUS EQUAL "0" )
 	    message("Failed while signing windows libs")
