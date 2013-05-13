@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "iopar.h"
 #include "bufstring.h"
+#include "bendpointfinder.h"
 #include <math.h>
 
 /*!
@@ -78,6 +79,7 @@ public:
     bool	isSelfIntersecting() const;
 
     void	convexHull();
+    void	keepBendPoints(float eps);
     
     		// not for self-intersecting polygons
     float	area() const			{ return fabs(sgnArea()); } 	
@@ -766,5 +768,37 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
     return maxdist;
 }
 
+
+template <class T> inline
+void ODPolygon<T>::keepBendPoints( float eps )
+{
+    removeZeroLengths();
+
+    const int sz = size();
+    if ( sz < 3 )
+	return;
+
+    const int extra = closed_ ? 1 : 0;
+
+    TypeSet<Coord> coords;
+    for ( int idx=-extra; idx<sz+extra; idx++ )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( (sz+idx)%sz );
+	coords += Coord( vtx.x, vtx.y );
+    }
+
+    BendPointFinder2D finder( coords, eps );
+    finder.execute();    
+    const TypeSet<int>& bendpoints = finder.bendPoints();
+
+    int bpidx = bendpoints.size()-extra-1;
+    for ( int vtxidx=sz-1; vtxidx>=0; vtxidx-- )
+    {
+	if ( bpidx>=0 && vtxidx==bendpoints[bpidx]-extra )
+	    bpidx--;
+        else
+	    remove( vtxidx );
+    }
+}
 
 #endif

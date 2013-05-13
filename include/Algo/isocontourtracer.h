@@ -35,6 +35,7 @@ public:
 			      const Interval<int>& yintv);
     void	selectPolyROI(const ODPolygon<float>*); 
 
+    void	setBendPointsOnly(float eps);
     void	setMinNrVertices(int);
     void	setNrLargestOnly(int);
     void	setEdgeValue(float); //! To close contours along (RectROI) edge
@@ -65,6 +66,7 @@ protected:
     int				minnrvertices_;
     int				nrlargestonly_;
     float			edgevalue_;
+    float			bendpointeps_;
 
     const ODPolygon<float>*	polyroi_;
 };
