@@ -256,7 +256,7 @@ void uiFlatViewer::setViewToBoundingBox()
 
 void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 {
-    if ( dct==Annot || dct==All )
+    if ( dct==Auxdata || dct==All )
 	mAddToQueue( auxdatawork_ );
 
     if ( dct==Annot || dct==All )
