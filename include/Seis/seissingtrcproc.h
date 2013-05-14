@@ -51,7 +51,8 @@ public:
     void		skipCurTrc()		{ skipcurtrc_ = true; }
     			//!< will also be checked after processing CB
 
-    const SeisTrcReader* reader(int idx=0) const { return rdrset_[idx]; }
+    const SeisTrcReader* reader(int idx=0) const
+    			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
     const SeisTrcWriter* writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
