@@ -251,7 +251,6 @@ public:
     void			clearElasticModels()	{ aimodels_.erase(); }
     bool			hasElasticModels() const
     				{ return aimodels_.size(); }
-    static float		cMaximumVpWaterVel();
 
     const ObjectSet<SyntheticData>& synthetics() const 	{ return synthetics_; }
 
@@ -277,6 +276,9 @@ public:
 				    const ObjectSet<const TimeDepthModel>&);
 
     void			flattenTraces(SeisTrcBuf&) const;
+    void			trimTraces(SeisTrcBuf&,float,
+				    const ObjectSet<const TimeDepthModel>&,
+				    float zskip) const;
     void			decimateTraces(SeisTrcBuf&,int fac) const;
 
     void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
@@ -305,18 +307,15 @@ protected:
     void			generateOtherQuantities( 
 	    				const PostStackSyntheticData& sd,
 	    				const Strat::LayerModel&);
-    SyntheticData* 		generateSD( TaskRunner* tr=0);
-    SyntheticData* 		generateSD( const SynthGenParams&,
-					TaskRunner* tr=0);
+    SyntheticData* 		generateSD();
+    SyntheticData* 		generateSD( const SynthGenParams&);
     SyntheticData*		createAngleStack(SyntheticData* sd,
 	    					 const CubeSampling&,
-						 const SynthGenParams&,
-						 TaskRunner*);
+						 const SynthGenParams&);
     SyntheticData*		createAVOGradient(SyntheticData* sd,
 	    					 const CubeSampling&,
 						 const SynthGenParams&,
-						 const Seis::RaySynthGenerator&,
-						 TaskRunner*);
+						const Seis::RaySynthGenerator&);
 };
 
 #endif
