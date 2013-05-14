@@ -29,9 +29,9 @@ class FontData;
 class QGraphicsItem;
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
+class QGraphicsPolygonItem;
 class QGraphicsPathItem;
 class QGraphicsPixmapItem;
-class QGraphicsPolygonItem;
 class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
@@ -189,23 +189,24 @@ mExpClass(uiBase) uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
+			uiPolygonItem(QGraphicsPolygonItem*);
     			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
     			uiPolygonItem(const TypeSet<uiWorldPoint>&,
 				      bool fill);
     			uiPolygonItem(const ODPolygon<int>&,bool fill);
-    			uiPolygonItem(QGraphicsPolygonItem*);
 			~uiPolygonItem();
 
-    QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
     void		setPolygon(const TypeSet<uiPoint>&);
     void		setPolygon(const TypeSet<uiWorldPoint>&);
     void		setPolygon(const ODPolygon<int>&);
 
+    QGraphicsPolygonItem* qPolygonItem()	{ return 0; }
+
 protected:
 
-    QGraphicsItem*	mkQtObj();
-    QGraphicsPolygonItem* qpolygonitem_;
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsPolyLineItem*	qpolygonitem_;
 };
 
 

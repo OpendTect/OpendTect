@@ -150,16 +150,23 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    void			setPolyLine( const QPolygonF& polygon )
+    void			setPolyLine( const QPolygonF& polygon,
+					     bool closed )
     				{
 				    prepareGeometryChange();
 				    qpolygon_ = polygon;
+				    closed_ = closed;
 				}
+    
+    void			setFillRule(Qt::FillRule f) { fillrule_=f; }
     bool			isEmpty() const { return qpolygon_.isEmpty(); }
     void			setEmpty() 	{ qpolygon_.clear(); }
 
 protected:
+    
+    bool			closed_;
     QPolygonF			qpolygon_;
+    Qt::FillRule 		fillrule_;
 };
 
 

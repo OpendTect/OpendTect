@@ -374,15 +374,16 @@ void uiPixmapItem::setPixmap( const ioPixmap& pixmap )
 
 
 // uiPolygonItem
-uiPolygonItem::uiPolygonItem( QGraphicsPolygonItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qpolygonitem_(qtobj)
-{}
-
-
 uiPolygonItem::uiPolygonItem()
     : uiGraphicsItem(mkQtObj())
 {}
+
+
+uiPolygonItem::uiPolygonItem( QGraphicsPolygonItem* qg )
+    : uiGraphicsItem(mkQtObj())
+{
+    delete qg;
+}
 
 
 #define mImplPolygonConstructor( type ) \
@@ -406,7 +407,7 @@ uiPolygonItem::~uiPolygonItem()
 
 QGraphicsItem* uiPolygonItem::mkQtObj()
 {
-    qpolygonitem_ = new QGraphicsPolygonItem();
+    qpolygonitem_ = new ODGraphicsPolyLineItem();
     return qpolygonitem_;
 }
 
@@ -424,7 +425,7 @@ void uiPolygonItem::setPolygon( type ptlist ) \
     for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
 	qpolygonf[idx] = QPointF( (float) ptaccess[idx].x, \
 			         (float) ptaccess[idx].y );\
-    qpolygonitem_->setPolygon( qpolygonf ); \
+    qpolygonitem_->setPolyLine( qpolygonf, true ); \
 }
 
 
