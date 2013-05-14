@@ -369,10 +369,11 @@ uiGenInputIntFld::uiGenInputIntFld( uiParent* p, const DataInpSpec& spec,
     : uiSpinBox(p,0,nm)
     , UserInputObjImpl<int>()
 {
-    setvalue_( spec.getIntValue() );
     mDynamicCastGet(const IntInpSpec*,ispec,&spec)
     if ( spec.hasLimits() && ispec )
 	uiSpinBox::setInterval( *ispec->limits() );
+
+    setvalue_( spec.getIntValue() );
 }
 
 
@@ -392,13 +393,24 @@ int uiGenInputIntFld::getvalue_() const
 { return uiSpinBox::getValue(); }
 
 void uiGenInputIntFld::setvalue_( int val )
-{ uiSpinBox::setValue( val ); }
+{
+    if ( !mIsUdf(val) )
+	uiSpinBox::setValue( val );
+
+    if ( mIsUdf(-minValue()) && mIsUdf(maxValue()) )
+	val = 0;
+    else if ( mIsUdf(-minValue()) )
+	val = maxValue();
+    else if ( mIsUdf(maxValue()) )
+	val = minValue();
+    uiSpinBox::setValue( val );
+}
 
 bool uiGenInputIntFld::notifyValueChanging_( const CallBack& cb )
 { uiSpinBox::valueChanging.notify( cb ); return true; }
 
-bool uiGenInputIntFld::notifyValueChanged_( const CallBack&  cb )
+bool uiGenInputIntFld::notifyValueChanged_( const CallBack& cb )
 { uiSpinBox::valueChanged.notify( cb ); return true; }
 
-bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& )
-{ return false; }
+bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& cb )
+{ uiSpinBox::valueChanged.notify( cb ); return true; }
