@@ -205,6 +205,20 @@ void VW2DPickSet::updateSetIdx( const CubeSampling& cs )
 }
 
 
+void VW2DPickSet::updateSetIdx( const TypeSet<BinID>& bids )
+{
+    if ( !pickset_ ) return;
+    picksetidxs_.erase();
+    for ( int idx=0; idx<pickset_->size(); idx++ )
+    {
+	const Coord3& pos = (*pickset_)[idx].pos_;
+	const BinID bid = SI().transform( pos );
+	if ( bids.isPresent(bid) )
+	    picksetidxs_ += idx;
+    }
+}
+
+
 void VW2DPickSet::drawAll()
 {
     const FlatDataPack* fdp = viewer_.pack( true );
@@ -212,11 +226,12 @@ void VW2DPickSet::drawAll()
     if ( !fdp ) return;
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-    const bool oninl = dp3d->dataDir() == CubeSampling::Inl;
-    const CubeSampling& cs = dp3d->cube().cubeSampling();
-
-    updateSetIdx( cs );
-
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp);
+    if ( !dp3d && !dprdm ) return;
+    
+    const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;
+    dp3d ? updateSetIdx( dp3d->cube().cubeSampling() )
+	 : updateSetIdx( *dprdm->pathBIDs() );
     if ( isownremove_ ) return;
 
     const uiWorldRect& curvw = viewer_.curView();
@@ -238,16 +253,26 @@ void VW2DPickSet::drawAll()
 	const int pickidx = picksetidxs_[idx];
 	const Coord3& pos = (*pickset_)[pickidx].pos_;
 	const BinID bid = SI().transform(pos);
-	FlatView::Point point( oninl ? bid.crl : bid.inl, pos.z );
-	picks_->poly_ += point;
-
-	BufferString dipval;
-	(*pickset_)[pickidx].getText( "Dip" , dipval );
-	SeparString dipstr( dipval );
-	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
-	const float depth = (dip/1000000) * zfac;
-	markerstyle.rotation_ =
-	    (float) ( mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) ) );
+	if ( dp3d )
+	{
+    	    BufferString dipval;
+    	    (*pickset_)[pickidx].getText( "Dip" , dipval );
+    	    SeparString dipstr( dipval );
+    	    const float dip = oninl ? dipstr.getFValue( 1 )
+			      	    : dipstr.getFValue( 0 );
+    	    const float depth = (dip/1000000) * zfac;
+    	    markerstyle.rotation_ = atan2(2*depth,xfac) * (180/M_PI);
+	    FlatView::Point point( (oninl ? bid.crl : bid.inl), pos.z );
+	    picks_->poly_ += point;
+	}
+	else if ( dprdm )
+	{
+	    const FlatPosData& flatposdata = dprdm->posData();
+	    const int bidindex = dprdm->pathBIDs()->indexOf(bid);
+	    const double bidpos = flatposdata.position( true, bidindex );
+	    FlatView::Point point( bidpos, pos.z );
+	    picks_->poly_ += point;
+	}
 	picks_->markerstyles_ += markerstyle;
     }
     

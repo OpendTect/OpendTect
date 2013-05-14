@@ -51,6 +51,7 @@ protected:
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
     void		updateSetIdx(const CubeSampling&);
+    void		updateSetIdx(const TypeSet<BinID>& bids);
 
     Pick::Set*			pickset_;
     FlatView::AuxData*  	picks_;
