@@ -37,6 +37,7 @@ public:
 
     void				setSurface(::MarchingCubesSurface&,
 	    					   TaskRunner*);
+    bool				isUpdateOk() const;
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
 
@@ -81,6 +82,7 @@ protected:
     GeomIndexedShape*			shape_;
 
     ExplicitMarchingCubesSurface*	surface_;
+    bool				isupdateok_;
 };
 
 };

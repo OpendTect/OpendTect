@@ -54,6 +54,7 @@ public:
     void			setRightHandSystem(bool);
 
     void			touch(bool forall,TaskRunner* =0);
+    bool			isUpdateOk() const { return isupdateok_; }
 
     void			set3DLineRadius(float radius,
 	    					bool constantonscreen=true,
@@ -129,6 +130,8 @@ protected:
     
     ForegroundLifter*				lifter_;
     SoSwitch*					lifterswitch_;   
+
+    bool					isupdateok_;
 };
 
 };

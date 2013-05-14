@@ -39,7 +39,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , emsurface_( 0 )
     , displaysurface_( 0 )
     , impbody_( 0 )
-    , displayintersections_( false )		   
+    , displayintersections_( false )		  
+    , isupdateok_( false )  
 {
     cache_.allowNull( true );
     setColor( getRandomColor( false ) );
@@ -452,12 +453,13 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     emsurface_->ref();
 
     updateVisFromEM( false, tr );
-    return true;
+    return isupdateok_;
 }
 
 
 void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 {
+    isupdateok_ = false;
     if ( !onlyshape || !displaysurface_ )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
@@ -482,7 +484,17 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 				    emsurface_->zSampling() );
 
 	displaysurface_->setSurface( emsurface_->surface(), tr );
-	displaysurface_->turnOn( true );
+	isupdateok_ = displaysurface_->isUpdateOk();
+
+	if ( !isupdateok_ )
+	{
+	    removeChild( displaysurface_->getInventorNode() );
+	    displaysurface_->unRef();
+	    displaysurface_ = 0;
+	    return;
+	}
+	else
+	    displaysurface_->turnOn( true );
     }
 
     displaysurface_->touch( !onlyshape, tr );

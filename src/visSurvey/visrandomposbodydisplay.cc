@@ -26,7 +26,8 @@ RandomPosBodyDisplay::RandomPosBodyDisplay()
     : VisualObjectImpl(true)
     , embody_( 0 )
     , displaybody_( 0 )
-    , transform_( 0 )		       
+    , transform_( 0 )		      
+    , isupdateok_( false )  
 {
     getMaterial()->setAmbience( 0.5 );
     setColor( getRandomColor( false ) );
@@ -116,18 +117,19 @@ bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
     embody_ = embody;
     embody_->ref();
 
-    updateVisFromEM();
-    return true;
+   updateVisFromEM();
+   return isupdateok_;
 }
 
 
 void RandomPosBodyDisplay::updateVisFromEM()
 {
-    if ( !embody_ ) return;
+    isupdateok_ = false;
+    if ( !embody_ ) 
+	return;
+
     getMaterial()->setColor( embody_->preferredColor() );
-    if ( !embody_->name().isEmpty() )
-	setName( embody_->name() );
-    else setName( "<New body>" );
+    setName( embody_->name().isEmpty() ? "<New body>" : embody_->name() );
 
     if ( !displaybody_ )
     {
@@ -141,7 +143,15 @@ void RandomPosBodyDisplay::updateVisFromEM()
 	addChild( displaybody_->getInventorNode() );
     }
 
-    displaybody_->setPoints( embody_->getPositions() );
+    isupdateok_ = displaybody_->setPoints( embody_->getPositions() );
+    if ( !isupdateok_ )
+    {
+	removeChild( displaybody_->getInventorNode() );
+	displaybody_->unRef();
+	displaybody_ = 0;
+	return;
+    }
+
     displaybody_->turnOn( true );
 }
 

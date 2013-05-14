@@ -134,6 +134,7 @@ protected:
     };
 
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
+    bool					isupdateok_;
 };
 
 };

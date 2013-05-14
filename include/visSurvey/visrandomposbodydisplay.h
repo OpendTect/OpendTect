@@ -70,6 +70,7 @@ protected:
     const mVisTrans*		transform_;
     visBase::RandomPos2Body*	displaybody_;
     EM::RandomPosBody*		embody_;
+    bool			isupdateok_;
 };
 
 };
