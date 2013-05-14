@@ -18,9 +18,17 @@ install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE )
 
 #install doc stuff
-install( DIRECTORY doc/Programmer/pluginexample
-	 DESTINATION doc/Programmer
-	 PATTERN ".svn" EXCLUDE )
+file( GLOB TUTHFILES plugins/Tut/*.h )
+file( GLOB TUTCCFILES plugins/Tut/*.cc )
+set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
+install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/Tut )
+
+file( GLOB UITUTHFILES plugins/uiTut/*.h )
+file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
+set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
+install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/uiTut )
+install( FILES doc/Programmer/pluginexample/CMakeLists.txt
+	 DESTINATION doc/Programmer/pluginexample )
 
 install( DIRECTORY doc/Programmer/batchprogexample
 	 DESTINATION doc/Programmer
@@ -95,6 +103,24 @@ if( WIN32 )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
         set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
     endif()
+    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+	    DESTINATION bin/${OD_PLFSUBDIR}
+	    CONFIGURATIONS Debug
+	    FILES_MATCHING
+	    PATTERN *.pdb
+	)
+	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+	    DESTINATION bin/${OD_PLFSUBDIR}
+	    CONFIGURATIONS Debug
+	    FILES_MATCHING
+	    PATTERN *.lib
+	)
+	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
+	    DESTINATION bin/${OD_PLFSUBDIR}
+	    CONFIGURATIONS Release
+	    FILES_MATCHING
+	    PATTERN *.lib
+	)
     set( LMHOSTID "lmhostid.exe" )
 endif()
 
@@ -106,10 +132,12 @@ else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
 endif()
+
 if( EXISTS ${MSVCPATH} )
     file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
     foreach( DLL ${MSVCDLLS} )
-	install( FILES ${DLL} DESTINATION bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/thirdpartylibs )
+	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
+	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} CONFIGURATIONS Debug )
     endforeach()
 endif()
 

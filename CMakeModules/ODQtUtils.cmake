@@ -64,7 +64,7 @@ macro(OD_SETUP_QT)
 
 	list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_QT_LIBS} )
 	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
-	    foreach( BUILD_TYPE "Debug" "Release" )
+	    foreach( BUILD_TYPE Debug Release )
 		set( QARGS ${QT_QTOPENGL_LIBRARY} ${QT_QTCORE_LIBRARY}
 			   ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY}
 			   ${QT_QTGUI_LIBRARY} ${QT_QTXML_LIBRARY} )
@@ -83,11 +83,13 @@ macro(OD_SETUP_QT)
 			OD_INSTALL_LIBRARY( ${QTDIR}/lib/${FILENM} )
 		    elseif( WIN32 )
 			list( APPEND ARGS ${QTDIR}/bin/${QLIBNAME}.dll )
+			list( APPEND ARGS ${QLIB} )
 		    endif()
 		endforeach()
 		if( WIN32 )
 		    install( PROGRAMS ${ARGS}
-			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE} )
+			     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+			     CONFIGURATIONS ${BUILD_TYPE} )
 		endif()
 	    endforeach()
 	endif()

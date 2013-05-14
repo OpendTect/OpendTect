@@ -250,6 +250,13 @@ macro( init_destinationdir  PACKAGE_NAME )
 	    set( PACKAGE_FILENAME "dgbdoc_mac.zip" )
 	    set( VER_FILENAME "dgbdoc_mac" )
 	endif()
+    elseif( ${PACKAGE_NAME} STREQUAL "classdoc" )
+	set( VER_FILENAME "classdoc" )
+	set( PACKAGE_FILENAME "classdoc.zip" )
+	if( APPLE )
+	    set( PACKAGE_FILENAME "classdoc_mac.zip" )
+	    set( VER_FILENAME "classdoc_mac" )
+	endif()
     endif()
 
     if( NOT EXISTS ${PSD}/packages )
@@ -316,47 +323,23 @@ macro( create_develpackages )
 			 ${CMAKE_INSTALL_PREFIX}/${DIR}
 			 ${DESTINATION_DIR}/${DIR} )
     endforeach()
-    foreach( DIR ${PMAKESTUFF} )
-	if( IS_DIRECTORY "${PSD}/Pmake/${DIR}" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
-	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${PSD}/Pmake/${DIR} ${DESTINATION_DIR}/Pmake/${DIR} )
-	endif()
-    endforeach()
 
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	file ( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release
+	       DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/
+	       FILES_MATCHING PATTERN "*.lib" )
+
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+	    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug
+	    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${PSD}/bin/od_cr_dev_env.bat
 				 ${DESTINATION_DIR}/bin )
-	foreach( WLIB ${SRCLIBLIST} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.lib
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.dll
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WLIB}.pdb
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Release/${WLIB}.lib
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/release )
-	endforeach()
-
-	foreach( WELIB ${EXECLIST} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.pdb
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/Debug/${WELIB}.exe
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/debug )
-	endforeach()
     endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -464,6 +447,14 @@ macro( create_docpackages PACKAGE_NAME )
 	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt )
 		file( RENAME ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt
 			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt )
+	    endif()
+	elseif( ${PACKAGE_NAME} STREQUAL "classdoc" )
+	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated
+				 ${DESTINATION_DIR}/doc/Programmer/Generated )
+	    else()
+		message( "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
 	    endif()
 	endif()
     endif()
