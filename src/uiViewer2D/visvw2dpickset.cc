@@ -261,7 +261,7 @@ void VW2DPickSet::drawAll()
     	    const float dip = oninl ? dipstr.getFValue( 1 )
 			      	    : dipstr.getFValue( 0 );
     	    const float depth = (dip/1000000) * zfac;
-    	    markerstyle.rotation_ = mCast(float,atan2(2*depth,xfac)*(180/M_PI));
+    	    markerstyle.rotation_ = Math::toDegrees( atan2f(2*depth,xfac) );
 	    FlatView::Point point( (oninl ? bid.crl : bid.inl), pos.z );
 	    picks_->poly_ += point;
 	}
