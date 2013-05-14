@@ -70,7 +70,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiGenInput( rightgrp, "",
-	    			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
+			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
@@ -190,11 +190,17 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
     cb->addItems( nms );
     if ( wall )
 	cb->addItem( sKey::All() );
-    if ( !selnm.isEmpty() ) 
-	def = nms.indexOf( selnm );
+
     if ( wnone ) def++;
-    if ( def > cb->size() ) def = cb->size() - 1;
-    cb->setCurrentItem( def );
+    if ( !selnm.isEmpty() ) 
+    {
+	def = cb->indexOf( selnm );
+	if ( def < 0 )
+	    def = 0;
+    }
+    if ( def >= cb->size() ) def = cb->size() - 1;
+    if ( def >= 0 )
+	cb->setCurrentItem( def );
 }
 
 
