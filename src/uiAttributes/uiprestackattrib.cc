@@ -118,16 +118,16 @@ void uiPreStackAttrib::getStatTypeNames( BufferStringSet& stattypenames )
 }
 
 
-Stats::Type uiPreStackAttrib::getStatEnumfromString( const char* name )
+Stats::Type uiPreStackAttrib::getStatEnumfromString( const char* stattypename )
 {
-    FixedString typname( name );
+    FixedString typname( stattypename );
     if ( typname==statTypeCountStr() )
 	return Stats::Count;
     else if ( typname==statTypeAverageStr() )
 	return Stats::Average;
 
     Stats::Type enm;
-    if ( Stats::parseEnum(name,enm) )
+    if ( Stats::parseEnum(stattypename,enm) )
 	return enm;
     
     return Stats::Average;

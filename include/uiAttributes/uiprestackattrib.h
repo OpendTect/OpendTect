@@ -65,7 +65,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getAngleParameters(Attrib::Desc&);
 
-    Stats::Type		getStatEnumfromString(const char* name);
+    Stats::Type		getStatEnumfromString(const char* stattypename);
     const char*		getStringfromStatEnum(Stats::Type enm);
     void		getStatTypeNames(BufferStringSet& stattypenames);
 
