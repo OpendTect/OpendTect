@@ -530,31 +530,28 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 
 
 // uiTextItem
-uiTextItem::uiTextItem( bool useodvwrtxtitem )
-    : uiGraphicsItem(useodvwrtxtitem ? mkODObj() : mkQtObj())
-    , pos_(0,0)
-    , al_(Alignment::Left,Alignment::Top)
+uiTextItem::uiTextItem()
+    : uiGraphicsItem( mkODObj() )
 {
+    setAlignment( Alignment(Alignment::Left,Alignment::Top) );
 }
 
 
 uiTextItem::uiTextItem( const char* txt, const Alignment& al )
-    : uiGraphicsItem(mkQtObj())
-    , pos_(0,0)
-    , al_(al)
+    : uiGraphicsItem(mkODObj())
 {
     setText( txt );
+    setAlignment( al );
 }
 
 
 uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
 			const Alignment& al )
-    : uiGraphicsItem(mkQtObj())
-    , pos_(pos.x, pos.y )
-    , al_(al)
+    : uiGraphicsItem(mkODObj())
 {
     setText( txt );
-    updatePos();
+    setPos( pos );
+    setAlignment( al );
 }
 
 
@@ -563,16 +560,9 @@ uiTextItem::~uiTextItem()
 }
 
 
-QGraphicsItem* uiTextItem::mkQtObj()
+ODViewerTextItem* uiTextItem::mkODObj()
 {
-    qtextitem_ = new QGraphicsTextItem();
-    return qtextitem_;
-}
-
-
-QGraphicsItem* uiTextItem::mkODObj()
-{
-    qtextitem_ = new ODViewerTextItem();
+    qtextitem_ = new ODViewerTextItem( false );
     return qtextitem_;
 }
 
@@ -586,17 +576,7 @@ uiSize uiTextItem::getTextSize() const
 
 void uiTextItem::setText( const char* txt )
 {
-    const QString curtxt = qtextitem_->toPlainText();
-    if ( curtxt == txt ) return;
-
-    qtextitem_->setPlainText( QString(txt) );
-    updatePos();
-}
-
-
-void uiTextItem::setHtmlText( const char* txt )
-{
-    qtextitem_->setHtml( QString(txt) );
+    qtextitem_->setText( txt );
 }
 
 
@@ -606,10 +586,9 @@ void uiTextItem::setFont( const uiFont& font )
 }
 
 
-
 void uiTextItem::setFontData( const FontData& fd )
 {
-    QFont font = qtextitem_->font();
+    QFont font = qtextitem_->getFont();
     uiFont::setFontData( font, fd );
     qtextitem_->setFont( font );
 }
@@ -617,65 +596,45 @@ void uiTextItem::setFontData( const FontData& fd )
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
-    al_ = al; updatePos();
+
+    switch ( al.hPos() )
+    {
+	case Alignment::Right:
+	    qtextitem_->setHAlignment( Qt::AlignRight );
+	    break;
+	case Alignment::HCenter:
+	    qtextitem_->setHAlignment( Qt::AlignHCenter );
+	    break;
+	case Alignment::Left:
+	    qtextitem_->setHAlignment( Qt::AlignLeft );
+	    break;
+    }
+    
+    switch ( al.vPos() )
+    {
+	case Alignment::Bottom:
+	    qtextitem_->setVAlignment( Qt::AlignBottom );
+	    break;
+	case Alignment::VCenter:
+	    qtextitem_->setVAlignment( Qt::AlignVCenter );
+	    break;
+	case Alignment::Top:
+	    qtextitem_->setVAlignment( Qt::AlignTop );
+	    break;
+    }
 }
 
 
 void uiTextItem::stPos( float x, float y )
 {
-    pos_ = uiWorldPoint(x,y); updatePos();
-}
-
-
-void uiTextItem::updatePos()
-{
-    QFontMetrics qfm( qtextitem_->font() );
-    const float txtwidth = qtextitem_->document()->size().width();
-    const float txtheight = qfm.height();
-    float movex = 0, movey = 0;
-    switch ( al_.hPos() )
-    {
-	case Alignment::Right:
-	    movex = -txtwidth;
-	    break;
-	case Alignment::HCenter:
-	    movex = -txtwidth/2;
-	    break;
-	case Alignment::Left:
-	    break;
-    }
-    
-    switch ( al_.vPos() )
-    {
-	case Alignment::Bottom:
-	    movey = -txtheight;
-	    break;
-	case Alignment::VCenter:
-	    movey = -txtheight/2;
-	    break;
-	case Alignment::Top:
-	    break;
-    }
-
-    qtextitem_->setPos( pos_.x+movex, pos_.y+movey );
+    qtextitem_->setPos( x, y );
 }
 
 
 void uiTextItem::setTextColor( const Color& col )
-{ qtextitem_->setDefaultTextColor( QColor(QRgb(col.rgb())) ); }
-
-void uiTextItem::enableBackground( bool yn )
-{}
-
-bool uiTextItem::backgroundEnabled() const
-{ return false; }
-
-void uiTextItem::setBackgroundColor( const Color& col )
-{}
-
-Color uiTextItem::getBackgroundColor() const
-{ return Color(); }
-
+{
+    qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
+}
 
 
 // uiMarkerItem

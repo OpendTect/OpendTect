@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <QString>
 #include <QTextOption>
 #include <QMutex>
+#include <QFont>
 
 #include "draw.h"
 
@@ -108,11 +109,36 @@ protected:
 };
 
 
-class ODViewerTextItem : public QGraphicsTextItem
+class ODViewerTextItem : public QAbstractGraphicsShapeItem
 {
 public:
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		              QWidget*);
+			ODViewerTextItem(bool paintinwc = false)
+			    : paintinwc_( paintinwc )
+			    , hal_( Qt::AlignLeft )
+			    , val_( Qt::AlignTop )
+			{}
+    
+    void		setText(const char* t) { text_ = t; }
+    QRectF		boundingRect() const;
+    
+    void		setFont( const QFont& f ) { font_ = f; }
+    QFont		getFont() const { return font_; }
+    
+    void 		paint(QPainter*,const QStyleOptionGraphicsItem*,
+	    		      QWidget*);
+    
+    void		setVAlignment(const Qt::Alignment& a) { val_=a; }
+    void		setHAlignment(const Qt::Alignment& a) { hal_ = a; }
+    
+protected:
+    void		updateRect();
+    QPointF		getAlignment() const;
+    
+    QFont		font_;
+    BufferString	text_;
+    Qt::Alignment	hal_;
+    Qt::Alignment	val_;
+    bool		paintinwc_;
 };
 
 

@@ -45,6 +45,7 @@ class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
 class ODGraphicsDynamicImageItem;
+class ODViewerTextItem;
 template <class T> class ODPolygon;
 
 
@@ -248,7 +249,7 @@ protected:
 mExpClass(uiBase) uiTextItem : public uiGraphicsItem
 {
 public:
-			uiTextItem(bool useodvwrtxtitem=false);
+			uiTextItem();
     			uiTextItem(const char*,const Alignment& al=Alignment());
     			uiTextItem(const uiPoint&,const char*,
 				   const Alignment& al=Alignment());
@@ -259,27 +260,14 @@ public:
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
-    void		setHtmlText(const char*);
     void		setTextColor(const Color&);
-
-    void		enableBackground(bool);
-    bool		backgroundEnabled() const;
-    void		setBackgroundColor(const Color&);
-    Color		getBackgroundColor() const;
-
-    QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
 
 protected:
 			uiTextItem(QGraphicsItem*);
 
-    QGraphicsItem* 	mkQtObj();
-    QGraphicsItem* 	mkODObj();
-    QGraphicsTextItem*	qtextitem_;
+    ODViewerTextItem* 	mkODObj();
+    ODViewerTextItem*	qtextitem_;
 
-    Alignment		al_;
-    uiWorldPoint	pos_;
-
-    void		updatePos();
     virtual void	stPos(float,float);
 };
 

@@ -205,7 +205,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	if ( !nameitem_ )
 	{
-	    nameitem_ = new uiTextItem( true ); 
+	    nameitem_ = new uiTextItem; 
 	    display_->add( nameitem_ );
 	    //dispids_ += nameitem_->id();
 	}
