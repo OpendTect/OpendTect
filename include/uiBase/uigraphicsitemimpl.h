@@ -38,6 +38,7 @@ class QGraphicsTextItem;
 class QPainterPath;
 class QPolygonF;
 class QSize;
+class ODViewerTextItem;
 
 class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
@@ -259,25 +260,21 @@ public:
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
-    void		setHtmlText(const char*);
+    void		setHtmlText(const char*) {}
     void		setTextColor(const Color&);
 
-    void		enableBackground(bool);
-    bool		backgroundEnabled() const;
-    void		setBackgroundColor(const Color&);
-    Color		getBackgroundColor() const;
+    void		enableBackground(bool) {}
+    bool		backgroundEnabled() const { return false; }
+    void		setBackgroundColor(const Color&) {}
+    Color		getBackgroundColor() const { return Color(); }
 
-    QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
+    QGraphicsTextItem*  qTextItem()	{ return 0; }
 
 protected:
 			uiTextItem(QGraphicsItem*);
 
-    QGraphicsItem* 	mkQtObj();
-    QGraphicsItem* 	mkODObj();
-    QGraphicsTextItem*	qtextitem_;
-
-    Alignment		al_;
-    uiWorldPoint	pos_;
+    ODViewerTextItem* 	mkODObj();
+    ODViewerTextItem*	qtextitem_;
 
     void		updatePos();
     virtual void	stPos(float,float);

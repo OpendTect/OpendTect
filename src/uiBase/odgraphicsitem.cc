@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QRectF>
 #include <QRgb>
 #include <QStyleOption>
+#include <QTextDocument>
 
 mUseQtnamespace
 
@@ -328,25 +329,91 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 }
 
 
+QPointF ODViewerTextItem::getAlignment() const
+{
+    float movex = 0, movey = 0;
+    
+    switch ( hal_ )
+    {
+        case Qt::AlignRight:
+            movex = -1.0f;
+            break;
+        case Qt::AlignHCenter:
+            movex = -0.5f;
+            break;
+    }
+    
+    switch ( val_ )
+    {
+        case Qt::AlignBottom:
+            movey = -1;
+            break;
+        case Qt::AlignVCenter:
+            movey = -0.5f;
+            break;
+    }
+    
+    return QPointF( movex, movey );
+}
+
+
+QRectF ODViewerTextItem::boundingRect() const
+{
+    const QPointF alignment = getAlignment();
+    
+    QFontMetrics qfm( getFont() );
+    const float txtwidth = qfm.width( QString(text_.buf()) );
+    const float txtheight = qfm.height();
+    
+    const float movex = alignment.x() * txtwidth;
+    const float movey = alignment.y() * txtheight;
+
+    const QPointF paintpos = mapToScene( QPointF(0,0) );
+    const QRectF scenerect( paintpos.x()+movex, paintpos.y()+movey,
+			    txtwidth, txtheight );
+    return mapRectFromScene( scenerect );
+}
+
+
 void ODViewerTextItem::paint( QPainter* painter,
 			      const QStyleOptionGraphicsItem *option,
 			      QWidget *widget )
 {
-    const QTransform worldtrans = painter->worldTransform();
-    const QPointF projectedpos = worldtrans.inverted().map( pos() );
+    if ( option )
+	painter->setClipRect( option->exposedRect );
+    
+    QPointF paintpos( 0, 0 );
+    
+    paintpos = painter->worldTransform().map( paintpos );
 
     painter->save();
     painter->resetTransform();
-
-    if ( option )
-	painter->setClipRect( option->exposedRect );
-
-    painter->drawText( projectedpos, toPlainText() );
-
+    
+    const QString text( text_.buf() );
+    
+    const QPointF alignment = getAlignment();
+    
+    QFontMetrics qfm( getFont() );
+    const float txtwidth = qfm.width( text );
+    const float txtheight = qfm.height();
+    
+    const float movex = alignment.x() * txtwidth;
+    const float movey = alignment.y() * txtheight;
+    
+    painter->setPen( pen() );
+    painter->setFont( font_ );
+    
+    //Nice for debugging
+    //painter->drawPoint( paintpos.x(), paintpos.y() );
+    
+    painter->drawText( paintpos.x() + movex,
+		       paintpos.y()+movey+txtheight, text );
+		  
     painter->restore();
+    
+    //Nice for debugging
+    //painter->drawRect( boundingRect() );
 }
-
-
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
