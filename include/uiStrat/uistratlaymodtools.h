@@ -103,6 +103,8 @@ public:
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
+    bool	allownoprop_;
+
 protected:
     
     static const char*		sKeyDisplayedProp();
