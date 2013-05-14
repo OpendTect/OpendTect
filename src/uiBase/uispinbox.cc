@@ -35,22 +35,22 @@ public:
     void		setNrDecimals(int);
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
+    bool		hadFocusChg() const	{ return focuschg_; }
 
-    QValidator::State	validate( QString& input,
-	    			          int& posn ) const
+    QValidator::State	validate( QString& input, int& posn ) const
 			{
 			    const double val = input.toDouble();
 			    if ( val > maximum() )
 				input.setNum( maximum() );
-			    return QDoubleSpinBox::validate( input,
-				    				       posn );
+			    return QDoubleSpinBox::validate( input, posn );
 			}
 
-    virtual double		valueFromText(const QString&) const;
+    virtual double	valueFromText(const QString&) const;
     virtual QString	textFromValue(double value) const;
 
 protected:
     virtual void	contextMenuEvent(QContextMenuEvent*);
+    virtual void	focusOutEvent(QFocusEvent*);
 
 
 private:
@@ -58,8 +58,8 @@ private:
     i_SpinBoxMessenger& messenger_;
 
     QDoubleValidator*	dval;
-
     bool		isalpha_;
+    bool		focuschg_;
 
 };
 
@@ -69,6 +69,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& hndl, uiParent* p, const char* nm )
     , messenger_(*new i_SpinBoxMessenger(this,&hndl))
     , dval(new QDoubleValidator(this))
     , isalpha_(false)
+    , focuschg_(false)
 {
     setHSzPol( uiObject::Small );
     setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
@@ -144,6 +145,13 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 
 void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
 { handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
+
+void uiSpinBoxBody::focusOutEvent( QFocusEvent* ev )
+{
+    focuschg_ = true;
+    QAbstractSpinBox::focusOutEvent( ev );
+    focuschg_ = false;
+}
 
 
 //------------------------------------------------------------------------------
@@ -390,9 +398,9 @@ void uiSpinBox::notifyHandler( bool editingfinished )
     msg += editingfinished ? " valueChanged" : " valueChanging";
     const int refnr = beginCmdRecEvent( msg );
 
-    if ( editingfinished )
+    if ( editingfinished && !body_->hadFocusChg() )
 	valueChanged.trigger( this );
-    else
+    else if ( !editingfinished )
 	valueChanging.trigger( this );
 
     endCmdRecEvent( refnr, msg );
