@@ -10,8 +10,8 @@ Lithology: dolomite`3`P`#0000ff
 Lithology: halite`4`N`#ff00ff
 Lithology: anhydrite`5`N`#9be8e8
 Contents: Oil`Gas
-Contents.Oil.Appearance: 1`6`#008000
-Contents.Gas.Appearance: 1`6`#ff0000
+Contents.Oil.Appearance: 1`4`#008000
+Contents.Gas.Appearance: 1`4`#ff0000
 !
 Units
 Above: -1` 

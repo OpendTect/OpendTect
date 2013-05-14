@@ -15,6 +15,9 @@ Lithology: sandstone_and_carbonate`8`N`#81ff19
 Lithology: sandstone_and_shale`9`N`#ffaa7f
 Lithology: radiolarite`10`N`#aa00ff
 Lithology: shale_and_sandstone`11`N`#55aa7f
+Contents: Oil`Gas
+Contents.Oil.Appearance: 1`4`#008000
+Contents.Gas.Appearance: 1`4`#ff0000
 !
 Units
 Quaternary:  
