@@ -65,6 +65,13 @@ void AngleComputer::setRayTracerParam( float param, bool advraytracer )
 }
 
 
+void AngleComputer::setRayTracer( const IOPar& raypar )
+{
+    BufferString errormsg;
+    raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
+}
+
+
 void AngleComputer::fftSmoothing( Array2D<float>& angledata )
 {
     //TODO : Implement FFT Based Low Pass Filter;

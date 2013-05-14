@@ -55,6 +55,7 @@ public:
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracerParam(float thresholdparam,
 						  bool advraytracer=false);
+    void			setRayTracer(const IOPar& raypar);
     void			setSmoothingPars(const IOPar& iopar);
 
     static const char*		sKeySmoothType() { return "Smoothing type"; }

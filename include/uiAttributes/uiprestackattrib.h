@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "datapack.h"
+#include "stattype.h"
 
 class CtxtIOObj;
 namespace Attrib { class Desc; };
@@ -63,6 +64,10 @@ protected:
     bool		setAngleParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
     bool		getAngleParameters(Attrib::Desc&);
+
+    Stats::Type		getStatEnumfromString(const char* stattypename);
+    const char*		getStringfromStatEnum(Stats::Type enm);
+    void		getStatTypeNames(BufferStringSet& stattypenames);
 
     void		calcTypSel(CallBacker*);
     void		angleTypSel(CallBacker*);

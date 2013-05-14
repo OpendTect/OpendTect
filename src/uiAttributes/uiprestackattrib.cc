@@ -19,27 +19,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
 #include "multiid.h"
+#include "prestackanglecomputer.h"
+#include "prestackanglemute.h"
 #include "prestackprop.h"
+#include "raytrace1d.h"
 #include "seispsioprov.h"
 #include "uiattrsel.h"
 #include "uiattribfactory.h"
 #include "uibutton.h"
+#include "uiprestackanglemute.h"
 #include "uiprestacksel.h"
 #include "uiprestackprocessorsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uiveldesc.h"
 
-#include "raytrace1d.h"
-#include "prestackanglemute.h"
-#include "prestackanglecomputer.h"
-#include "uiprestackanglemute.h"
-
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
 
 
-static const char*	sKeyRayTracer()	    { return "FullRayTracer"; }
+static const char*	statTypeCountStr()	{ return "Fold"; }
+static const char*	statTypeAverageStr()	{ return "Stack"; }
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
@@ -60,8 +60,9 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
+    BufferStringSet stattypenames; getStatTypeNames(stattypenames);
     stattypefld_ = new uiGenInput( this, "Statistics type",
-				   StringListInpSpec(Stats::TypeNames()) );
+				   StringListInpSpec(stattypenames) );
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
     lsqtypefld_ = new uiGenInput( this, "LSQ output",
@@ -102,6 +103,52 @@ uiPreStackAttrib::~uiPreStackAttrib()
 }
 
 
+void uiPreStackAttrib::getStatTypeNames( BufferStringSet& stattypenames )
+{
+    stattypenames = Stats::TypeNames();
+    const char* countstr = Stats::toString( Stats::Count );
+    const int countidx = stattypenames.indexOf( countstr );
+    if ( countidx > -1 )
+	*stattypenames[countidx] = statTypeCountStr();
+    
+    const char* averagestr = Stats::toString( Stats::Average );
+    const int averageidx = stattypenames.indexOf( averagestr );
+    if ( averageidx > -1 )
+	*stattypenames[averageidx] = statTypeAverageStr();
+}
+
+
+Stats::Type uiPreStackAttrib::getStatEnumfromString( const char* stattypename )
+{
+    FixedString typname( stattypename );
+    if ( typname==statTypeCountStr() )
+	return Stats::Count;
+    else if ( typname==statTypeAverageStr() )
+	return Stats::Average;
+
+    Stats::Type enm;
+    if ( Stats::parseEnum(stattypename,enm) )
+	return enm;
+    
+    return Stats::Average;
+}
+
+
+const char* uiPreStackAttrib::getStringfromStatEnum( Stats::Type enm )
+{
+    FixedString typname = Stats::toString( enm );
+    if ( !typname )
+	return Stats::toString(Stats::Average);
+
+    if ( typname == Stats::toString(Stats::Count) )
+	return statTypeCountStr();
+    else if ( typname == Stats::toString(Stats::Average) )
+	return statTypeAverageStr();
+
+    return typname;
+}
+
+
 bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 {
     mIfGetString( Attrib::PSAttrib::velocityIDStr(), mid, 
@@ -113,17 +160,10 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 		 
     anglecompgrp_->updateFromParams();
 
-    bool isadvraytracer = false;
-    mIfGetBool( Attrib::PSAttrib::rayTracerStr(), raytracer, 
-		isadvraytracer=raytracer )
-
-    if ( isadvraytracer )
-    {   
-	float blockparam( mUdf(float) );
-	mIfGetFloat( RayTracer1D::sKeyBlockRatio(), thresholdparam, 
-		     blockparam=thresholdparam )
-	params_.raypar_.set( RayTracer1D::sKeyBlockRatio(), blockparam );
-    }
+    BufferString raytracerparam;
+    mIfGetString( Attrib::PSAttrib::rayTracerParamStr(), param,
+		  raytracerparam=param )
+    params_.raypar_.getParsFrom( raytracerparam );
 
     IOPar& smpar = params_.smoothingpar_;
     int smoothtype = 0;
@@ -178,7 +218,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     preprocsel_->setSel( ppid );
     offsrgfld_->setValue( aps->setup().offsrg_ );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
-    stattypefld_->setValue( (int)aps->setup().stattype_ );
+    stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
     offsaxtypefld_->setValue( (int)aps->setup().offsaxis_ );
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
@@ -203,17 +243,10 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     mSetFloat(Attrib::PSAttrib::angleStartStr(),anglerg.start)
     mSetFloat(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
 
-    const IOPar& raypar = params_.raypar_;
-    BufferString raytracertype;
-    raypar.get( sKey::Type(), raytracertype );
-    if ( raytracertype == sKeyRayTracer() )
-    {
-	float thresholdparam;
-	raypar.get( RayTracer1D::sKeyBlockRatio(), thresholdparam );
-	mSetFloat( RayTracer1D::sKeyBlockRatio(), thresholdparam );
-	mSetBool( Attrib::PSAttrib::rayTracerStr(), true );
-    }
-	    
+    BufferString rayparstr;
+    params_.raypar_.putParsTo( rayparstr );
+    mSetString( Attrib::PSAttrib::rayTracerParamStr(), rayparstr );
+   
     int smoothtype;
     const IOPar& smpar = params_.smoothingpar_;
     smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
@@ -278,7 +311,8 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     const bool isnorm = calctyp == 0;
     if ( isnorm )
     {
-	mSetEnum(Attrib::PSAttrib::stattypeStr(),stattypefld_->getIntValue())
+	mSetEnum(Attrib::PSAttrib::stattypeStr(),
+		 getStatEnumfromString(stattypefld_->text()))
     }
     else
     {

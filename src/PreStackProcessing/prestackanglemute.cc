@@ -38,7 +38,8 @@ AngleCompParams::AngleCompParams()
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinFunc(),
 		       HanningWindow::sName() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(), 125 );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(), 
+		       500.0f/SI().zDomain().userFactor() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF3(), 50 );
     smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 60 );
 }
