@@ -211,7 +211,7 @@ void MPEEditor::changeNumNodes( CallBacker* )
     TypeSet<EM::PosID> nodestoremove( posids );
     nodestoremove.createDifference( editnodes, false );
 
-    if ( nodestoremove.indexOf(activedragger)!=-1 )
+    if ( nodestoremove.isPresent(activedragger) )
 	setActiveDragger( EM::PosID::udf() );
 
     for ( int idx=0; idx<nodestoremove.size(); idx++ )
@@ -381,7 +381,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
     int nodeidx = -1;
     for ( int idx=0; idx<draggers.size(); idx++ )
     {
-	if ( eventinfo.pickedobjids.indexOf(draggers[idx]->id()) != -1 )
+	if ( eventinfo.pickedobjids.isPresent(draggers[idx]->id()) )
 	{
 	    nodeidx = idx;
 	    break;
@@ -410,7 +410,7 @@ EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 {
     for ( int idx=draggers.size()-1; idx>=0; idx-- )
     {
-	if ( path.indexOf(draggers[idx]->id()) != -1 )
+	if ( path.isPresent(draggers[idx]->id()) )
 	    return posids[idx];
     }
 

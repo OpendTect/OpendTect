@@ -1646,7 +1646,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    else
 	    {
 		if ( ( whichobj==objectid || whichobj==id() ) && 
-		     linestoupdate.indexOf(whichobj)==-1 )
+		     !linestoupdate.isPresent(whichobj) )
 		{
 		    linestoupdate += objectid;
 		}
@@ -2009,7 +2009,7 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     const int matid = 
 	intersectionlinematerial_ ? intersectionlinematerial_->id() : -1;
     par.set( sKeyIntersectLineMaterialID(), matid );
-    if ( matid!=-1 && saveids.indexOf(matid)==-1 )
+    if ( matid!=-1 && !saveids.isPresent(matid) )
 	saveids += matid;
 }
 

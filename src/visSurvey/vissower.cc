@@ -407,7 +407,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	    eventidx = idx%2 ? last-idx/2 : idx/2;
 
 	bendpoints_ += intersowing ? eventidx : bpfinder.bendPoints()[eventidx];
-	if ( intersowing && bpfinder.bendPoints().indexOf(eventidx)>=0 )
+	if ( intersowing && bpfinder.bendPoints().isPresent(eventidx) )
 	    bendpoints_ += eventidx;
     }
 

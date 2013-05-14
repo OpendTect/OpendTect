@@ -573,7 +573,7 @@ void LocationDisplay::locChg( CallBacker* cb )
 	Pick::Location loc = (*set_)[cd->loc_];
 	if ( !transformPos( loc ) )
 	{
-	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
+	    if ( !invalidpicks_.isPresent(cd->loc_) )
 		invalidpicks_ += cd->loc_;
 	    turnon = false;
 	}
@@ -783,7 +783,7 @@ void LocationDisplay::otherObjectsMoved(
 	    }
 	}
 
-	if ( newstatus && invalidpicks_.indexOf(idx)!=-1 )
+	if ( newstatus && invalidpicks_.isPresent(idx) )
 	{
 	    Pick::Location loc = (*set_)[idx];
 	    if ( transformPos(loc) )

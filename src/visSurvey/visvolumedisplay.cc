@@ -1125,7 +1125,7 @@ void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+	if ( !eventinfo.pickedobjids.isPresent(boxdragger_->id()) )
 	    newstatus = 0;
 	else
 	{
@@ -1225,7 +1225,7 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     {
 	int volid = volren_->id();
 	par.set( sKeyVolumeID(), volid );
-	if ( saveids.indexOf( volid )==-1 ) saveids += volid;
+	if ( !saveids.isPresent( volid ) ) saveids += volid;
     }
 
     const int nrslices = slices_.size();
@@ -1235,7 +1235,7 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	BufferString str( sKeySlice(), idx );
 	const int sliceid = slices_[idx]->id();
 	par.set( str, sliceid );
-	if ( saveids.indexOf(sliceid) == -1 ) saveids += sliceid;
+	if ( !saveids.isPresent(sliceid) ) saveids += sliceid;
     }
 
     const int nrisosurfaces = isosurfaces_.size();

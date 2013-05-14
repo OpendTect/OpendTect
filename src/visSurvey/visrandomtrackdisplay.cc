@@ -323,7 +323,7 @@ static bool decoincideKnots( const TypeSet<BinID>& knots,
 	for ( int step=0; step<nrsteps; step++ )
 	{
 	    const BinID newknot = SI().transform( dest+(crddif*step)/nrsteps );
-	    if ( uniqueknots.indexOf(newknot) < 0 )
+	    if ( !uniqueknots.isPresent(newknot) )
 	    {
 		uniqueknots += newknot;
 		break;
@@ -905,7 +905,7 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 
     TypeSet<BinID> bids;
     getDataTraceBids( bids );
-    if ( bids.indexOf(binid)==-1 )
+    if ( !bids.isPresent(binid) )
 	return mUdf(float);
 
     float zdiff = 0;

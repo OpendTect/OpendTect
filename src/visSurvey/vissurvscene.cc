@@ -808,7 +808,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	    continue;
 
 	const int objid = dobj->id();
-	if ( saveids.indexOf(objid) == -1 )
+	if ( !saveids.isPresent(objid) )
 	    saveids += objid;
 
 	BufferString key = kidprefix(); key += nrkids;

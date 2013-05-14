@@ -298,7 +298,7 @@ void EdgeLineSetDisplay::triggerRightClick(const visBase::EventInfo* ei)
 	int line = -1;
 	for ( int lineidx=0; lineidx<polylines.size(); lineidx++ )
 	{
-	    if ( ei->pickedobjids.indexOf(polylines[lineidx]->id())!=-1 )
+	    if ( ei->pickedobjids.isPresent(polylines[lineidx]->id()) )
 	    {
 		line = lineidx;
 		break;

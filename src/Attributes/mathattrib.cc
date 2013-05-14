@@ -74,8 +74,7 @@ void Math::updateDesc( Desc& desc )
 	{
 	    case MathExpression::Variable :
 	    {
-		const int specidx = getSpecVars().indexOf( uvarnm );
-		if ( specidx < 0 )
+		if ( !getSpecVars().isPresent( uvarnm ) )
 		{
 		    nrvariables++;
 		    varnms.add( uvarnm );

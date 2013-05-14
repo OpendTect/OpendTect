@@ -162,7 +162,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     bool onobject = getSectionID(&eventinfo.pickedobjids)!=-1;
 
     if ( !onobject && editor_ )
-	onobject = eventinfo.pickedobjids.indexOf( editor_->id() )!=-1;
+	onobject = eventinfo.pickedobjids.isPresent( editor_->id() );
 
     if  ( !onobject )
 	return;
@@ -365,7 +365,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 
 
 bool EMObjectDisplay::showsPosAttrib(int attr) const
-{ return posattribs_.indexOf(attr)!=-1; }
+{ return posattribs_.isPresent(attr); }
 
 
 const LineStyle* EMObjectDisplay::lineStyle() const
@@ -515,7 +515,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    {
 		const TypeSet<EM::PosID>* pids = 
 			emobject_->getPosAttribList(posattribs_[idx]); 
-		if ( !pids || pids->indexOf(cbdata.pid0)==-1 ) 
+		if ( !pids || !pids->isPresent(cbdata.pid0) ) 
 		    continue; 
 
 		updatePosAttrib(posattribs_[idx]); 
@@ -525,7 +525,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
-	if ( !burstalertison_ && posattribs_.indexOf(cbdata.attrib)!=-1 )
+	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
 	{
 	    updatePosAttrib(cbdata.attrib);
 	    if ( displayonlyatsections_ )

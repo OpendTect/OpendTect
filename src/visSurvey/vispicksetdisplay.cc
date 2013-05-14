@@ -265,7 +265,7 @@ int PickSetDisplay::isMarkerClick( const TypeSet<int>& path ) const
 	if ( !marker )
 	    continue;
 
-	if ( path.indexOf(marker->id())!=-1 )
+	if ( path.isPresent(marker->id()) )
 	    return idx;
     }
 

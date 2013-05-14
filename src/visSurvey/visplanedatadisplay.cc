@@ -1360,7 +1360,7 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( eventinfo.pickedobjids.indexOf(id())==-1 )
+	if ( !eventinfo.pickedobjids.isPresent(id()) )
 	    newstatus = 0;
 	else
 	{
@@ -1415,7 +1415,7 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     const int gridlinesid = gridlines_->id();
     par.set( sKeyGridLinesID(), gridlinesid );
-    if ( saveids.indexOf(gridlinesid) == -1 ) saveids += gridlinesid;
+    if ( !saveids.isPresent(gridlinesid) ) saveids += gridlinesid;
 }
 
 

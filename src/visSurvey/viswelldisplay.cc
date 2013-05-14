@@ -1027,7 +1027,7 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     const int viswellid = well_->id();
     par.set( sKeyWellID, viswellid );
-    if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
+    if ( !saveids.isPresent(viswellid) ) saveids += viswellid;
 
     mGetWD(return);
     wd->displayProperties().fillPar( par );
