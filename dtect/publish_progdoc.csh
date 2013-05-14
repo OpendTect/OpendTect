@@ -65,9 +65,9 @@ foreach file ( ${files} )
 end
 
 set awkprog = /tmp/awkcmd.awk
-echo '{ print "http://static.opendtect.org/'"${serversubdir}"'/"$1 }' > $awkcmdk
+echo '{ print "http://static.opendtect.org/'"${serversubdir}"'/"$1 }' > $awkprog
 
-find . -name "*.html" | sed 's/\.\///g' | awk -f ${awkcmd} | gzip > ${compdir}/sitemap.txt
+find . -name "*.html" | sed 's/\.\///g' | awk -f ${awkprog} | gzip > ${compdir}/sitemap.txt
 
 rm -rf ${awkprog}
 
