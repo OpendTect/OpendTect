@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratlaymodtools.h"
 
-
 #include "keystrs.h"
 #include "propertyref.h"
 #include "stratlevel.h"
@@ -26,7 +25,7 @@ const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
 
 const char* uiStratLayModEditTools::sKeyDisplayedProp()
-{return "Displayed property";}
+{ return "Displayed property"; }
 
 const char* uiStratLayModEditTools::sKeyDecimation()
 { return "Decimation"; }
@@ -71,7 +70,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiGenInput( rightgrp, "",
-	    			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
+			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
@@ -121,6 +120,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispZoomedChg(this)
     , dispLithChg(this)
     , flattenChg(this)
+    , allownoprop_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     propfld_ = new uiComboBox( leftgrp, "Display property" );
@@ -206,7 +206,7 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{ setFldNms( propfld_, nms, false, false, 0 ); }
+{ setFldNms( propfld_, nms, allownoprop_, false, 0 ); }
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
 { setFldNms( lvlfld_, nms, true, false, 0 ); }
 void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
@@ -221,7 +221,16 @@ const char* uiStratLayModEditTools::selProp() const
 
 int uiStratLayModEditTools::selPropIdx() const
 {
-    return propfld_->isEmpty() ? 0 : propfld_->getIntValue() + 1;
+    if ( propfld_->isEmpty() )
+	return -1;
+    const int selidx = propfld_->getIntValue();
+    if ( selidx < 0 || (allownoprop_ && selidx == 0) )
+	return -1;
+
+    int propidx = selidx;
+    if ( !allownoprop_ )
+	propidx++;
+    return propidx;
 }
 
 
