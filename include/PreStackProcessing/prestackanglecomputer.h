@@ -53,8 +53,7 @@ public:
     virtual const RayTracer1D*	curRayTracer() const = 0;
 
     void			setOutputSampling(const FlatPosData&);
-    void			setRayTracerParam(float thresholdparam,
-						  bool advraytracer=false);
+    void			setRayTracer(const IOPar& raypar);
     void			setSmoothingPars(const IOPar& iopar);
 
     static const char*		sKeySmoothType() { return "Smoothing type"; }
@@ -78,7 +77,6 @@ protected:
     float			thresholdparam_;
     float			maxthickness_;
     bool			needsraytracing_;
-    bool			isadvraytracer_;
     TraceID			trcid_;
 };
 

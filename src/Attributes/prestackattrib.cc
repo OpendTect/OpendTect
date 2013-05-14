@@ -46,17 +46,18 @@ void PSAttrib::initClass()
 
     desc->addParam( new SeisStorageRefParam("id") );
 
-#define mDefEnumPar(var,typ) \
+#define mDefEnumPar(var,typ,defval) \
     epar = new EnumParam( var##Str() ); \
     epar->addEnums( typ##Names() ); \
+    epar->setDefaultValue( defval ); \
     desc->addParam( epar )
 
     EnumParam*
-    mDefEnumPar(calctype,PreStack::PropCalc::CalcType);
-    mDefEnumPar(stattype,Stats::Type);
-    mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType);
-    mDefEnumPar(valaxis,PreStack::PropCalc::AxisType);
-    mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType);
+    mDefEnumPar(calctype,PreStack::PropCalc::CalcType,0);
+    mDefEnumPar(stattype,Stats::Type,Stats::Average);
+    mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType,0);
+    mDefEnumPar(valaxis,PreStack::PropCalc::AxisType,0);
+    mDefEnumPar(offsaxis,PreStack::PropCalc::AxisType,0);
 
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
@@ -91,10 +92,8 @@ void PSAttrib::initClass()
 				    mDefaultFreqF3, false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(), 
 				    mDefaultFreqF4, false ) );
-    desc->addParam( new FloatParam( RayTracer1D::sKeyBlockRatio(), 
-				    mDefaultBlockthreshold, false) );
     desc->addParam( new BoolParam( useangleStr(), false, false ) );
-    desc->addParam( new BoolParam( rayTracerStr(), false, false ) );
+    desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -152,25 +151,23 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_->ref();
 	}
 
-	float anglestart, anglestop;
-	mGetFloat( anglestart, angleStartStr() );
-	mGetFloat( anglestop, angleStopStr() );
-	setup_.anglerg_ = Interval<float>( anglestart, anglestop );
-
-	bool isadvraytracer = false;
-	mGetBool( isadvraytracer, rayTracerStr() );
-	if ( isadvraytracer && anglecomp_ )
-	{
-	    float thresholdparam;
-	    mGetFloat( thresholdparam, RayTracer1D::sKeyBlockRatio() );
-	    anglecomp_->setRayTracerParam( thresholdparam, isadvraytracer );
-	}
-
-	IOPar iopar;
-	fillSmootheningPar( iopar );
-
 	if ( anglecomp_ )
-	    anglecomp_->setSmoothingPars( iopar );
+	{
+	    float anglestart, anglestop;
+	    mGetFloat( anglestart, angleStartStr() );
+	    mGetFloat( anglestop, angleStopStr() );
+	    setup_.anglerg_ = Interval<float>( anglestart, anglestop );
+
+	    BufferString raytracerparam;
+	    mGetString( raytracerparam, rayTracerParamStr() );
+	    IOPar raypar;
+	    raypar.getParsFrom( raytracerparam );
+	    anglecomp_->setRayTracer( raypar );
+
+	    IOPar smoothingpar;
+	    fillSmootheningPar( smoothingpar );
+	    anglecomp_->setSmoothingPars( smoothingpar );
+	}
     }
 
     BufferString preprocessstr;

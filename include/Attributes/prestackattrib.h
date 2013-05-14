@@ -71,8 +71,7 @@ public:
     static const char*  useangleStr()		{ return "useangle"; }
     static const char*  angleStartStr()		{ return "anglestart"; }
     static const char*  angleStopStr()		{ return "anglestop"; }
-    static const char*	thresholdParamStr()	{ return "thresholdparam"; }
-    static const char*	rayTracerStr()		{ return "raytracer"; }
+    static const char*	rayTracerParamStr()	{ return "raytracerparam"; }
 
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }

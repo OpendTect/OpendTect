@@ -72,7 +72,9 @@ public:
 protected :
 
     bool		acceptOK(CallBacker*);
+    bool		isSmoothTypeTimeAverage();
     void		smoothTypeSel(CallBacker*);
+    void		smoothWindowSel(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
     uiGenInput*		smoothtypefld_;
@@ -81,6 +83,10 @@ protected :
     uiGenInput*		smoothwinlengthfld_;
     uiGenInput*		freqf3fld_;
     uiGenInput*		freqf4fld_;
+    uiLabel*		smoothwinparamlbl_;
+    uiLabel*		smoothwinlengthlbl_;
+    uiLabel*		freqf3lbl_;
+    uiLabel*		freqf4lbl_;
 
     bool		isformute_;
     PreStack::AngleCompParams&	params_;

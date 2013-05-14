@@ -58,10 +58,10 @@ void AngleComputer::setSmoothingPars( const IOPar& iopar )
 }
 
 
-void AngleComputer::setRayTracerParam( float param, bool advraytracer )
+void AngleComputer::setRayTracer( const IOPar& raypar )
 {
-    thresholdparam_ = param;
-    isadvraytracer_ = advraytracer;
+    BufferString errormsg;
+    raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
 }
 
 
