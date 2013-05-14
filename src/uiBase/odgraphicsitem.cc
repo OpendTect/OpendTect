@@ -438,6 +438,7 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
 
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
+    , closed_( false )
 {}
 
 
@@ -451,8 +452,29 @@ void ODGraphicsPolyLineItem::paint( QPainter* painter,
 			       const QStyleOptionGraphicsItem* option,
 			       QWidget* widget )
 {
+    const QTransform trans = painter->worldTransform();
+    
+    QPolygonF paintpolygon( qpolygon_.size() );
+    for ( int idx=qpolygon_.size()-1; idx>=0; idx-- )
+	paintpolygon[idx] = trans.map( qpolygon_[idx] );
+    
+    painter->save();
+    painter->resetTransform();
+
+    
     painter->setPen( pen() );
-    painter->drawPolyline( qpolygon_ );
+    
+    if ( closed_ )
+    {
+	painter->setBrush( brush() );
+	painter->drawPolygon( paintpolygon, fillrule_ );
+    }
+    else
+    {
+    	painter->drawPolyline( paintpolygon );
+    }
+    
+    painter->restore();
 }
 
 

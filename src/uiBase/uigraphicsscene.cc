@@ -290,19 +290,13 @@ uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 					    bool fill )
 {
-    QVector<QPointF> qpts;
-    for ( int idx=0; idx<pts.size(); idx++ )
-    {
-	QPointF pt( QPoint(pts[idx].x,pts[idx].y) );
-	qpts += pt;
-    }
-
-    uiPolygonItem* uipolyitem = new uiPolygonItem(
-	odgraphicsscene_->addPolygon(QPolygonF(qpts)) );
+    uiPolygonItem* uipolyitem = new uiPolygonItem;
+    uipolyitem->setPolygon( pts );
     if ( fill )
 	uipolyitem->fill();
-    uipolyitem->setScene( this );
-    items_ += uipolyitem;
+
+    addItem( uipolyitem );
+    
     return uipolyitem;
 }
 

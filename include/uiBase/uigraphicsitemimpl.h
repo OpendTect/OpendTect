@@ -31,7 +31,6 @@ class QGraphicsEllipseItem;
 class QGraphicsLineItem;
 class QGraphicsPathItem;
 class QGraphicsPixmapItem;
-class QGraphicsPolygonItem;
 class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
@@ -193,10 +192,8 @@ public:
     			uiPolygonItem(const TypeSet<uiWorldPoint>&,
 				      bool fill);
     			uiPolygonItem(const ODPolygon<int>&,bool fill);
-    			uiPolygonItem(QGraphicsPolygonItem*);
 			~uiPolygonItem();
 
-    QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
     void		setPolygon(const TypeSet<uiPoint>&);
     void		setPolygon(const TypeSet<uiWorldPoint>&);
@@ -204,8 +201,8 @@ public:
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
-    QGraphicsPolygonItem* qpolygonitem_;
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsPolyLineItem*	qpolygonitem_;
 };
 
 
