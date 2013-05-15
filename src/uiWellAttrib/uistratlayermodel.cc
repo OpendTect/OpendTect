@@ -68,21 +68,37 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 }
 
 
-class uiStratLayerModelLauncher : public CallBacker
+class uiStratLayerModelManager : public CallBacker
 {
 public:
 
-void theCB( CallBacker* cb )
+uiStratLayerModelManager()
+    : dlg_(0)
 {
-    if ( Strat::RT().isEmpty() )
-	return;
+    IOM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
+}
 
+void survChg( CallBacker* )
+{
+    if ( dlg_ )
+	dlg_->saveGenDescIfNecessary( false );
+    delete dlg_; dlg_ = 0;
+}
+
+void winClose( CallBacker* )
+{
+    dlg_ = 0;
+}
+
+void startCB( CallBacker* cb )
+{
+    if ( haveExistingDlg() )
+	return;
     const BufferStringSet& nms =
 			uiLayerSequenceGenDesc::factory().getNames( true );
-    if ( nms.isEmpty() ) return;
-
     mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( !tb ) return;
+    if ( Strat::RT().isEmpty() || nms.isEmpty() || !tb )
+	{ pErrMsg("Pre-condition not met"); return; }
 
     uiParent* par = tb->parent();
     const char* settres = Settings::common().find(
@@ -148,31 +164,48 @@ void theCB( CallBacker* cb )
     doLayerModel( par, modnm );
 }
 
+bool haveExistingDlg()
+{
+    if ( dlg_ )
+    {
+	uiMSG().error( "Please exit your other layer modeling window first" );
+	dlg_->raise();
+	return true;
+    }
+    return false;
+}
 
 void doLayerModel( uiParent* p, const char* modnm )
 {
-    if ( Strat::RT().isEmpty() )
+    if ( haveExistingDlg() || Strat::RT().isEmpty() )
 	return;
 
-    uiStratLayerModel* dlg = new uiStratLayerModel( p, modnm );
-    dlg->go();
+    dlg_ = new uiStratLayerModel( p, modnm );
+    dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
+    dlg_->go();
 }
-
 
 void addToTreeWin()
 {
     uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
 			    "Start layer/synthetics modeling",
-			    mCB(this,uiStratLayerModelLauncher,theCB) );
+			    mCB(this,uiStratLayerModelManager,startCB) );
     uiStratTreeWin::addTool( su );
 }
 
+    uiStratLayerModel*	dlg_;
+
 };
+
+static uiStratLayerModelManager& uislm_manager()
+{
+    static uiStratLayerModelManager theinst;
+    return theinst;
+}
 
 void uiStratLayerModel::initClass()
 {
-    static uiStratLayerModelLauncher launcher;
-    launcher.addToTreeWin();
+    uislm_manager().addToTreeWin();
 }
 
 
@@ -187,11 +220,9 @@ void uiStratLayerModel::doLayerModel( const char* modnm )
     if ( Strat::RT().isEmpty() )
 	StratTreeWin().popUp();
     else
-    {
-	uiStratLayerModelLauncher launcher;
-	launcher.doLayerModel( &StratTreeWin(), modnm );
-    }
+	uislm_manager().doLayerModel( &StratTreeWin(), modnm );
 }
+
 
 
 class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
@@ -598,14 +629,26 @@ bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 }
 
 
-bool uiStratLayerModel::saveGenDescIfNecessary() const
+bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 {
     if ( !seqdisp_->needSave() )
 	return true;
 
-    const int res = uiMSG().askSave( "Generation description not saved.\n"
-	    			     "Save now?" );
-    if ( res < 1 ) return res == 0;
+    while ( true )
+    {
+	const int res = uiMSG().askSave( "Generation description not saved.\n"
+					 "Save now?" );
+	if ( !allowcncl && res < 0 )
+	{
+	    uiMSG().error( "Sorry, you cannot cancel right now."
+		    	   "Please save or discard your work" );
+	    continue;
+	}
+	if ( res < 1 )
+	    return res == 0;
+	break;
+    }
+
     return saveGenDesc();
 }
 
