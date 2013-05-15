@@ -72,8 +72,8 @@ void PSAttrib::initClass()
 
     desc->addParam( new StringParam( velocityIDStr(), "", false ) );
 
-    desc->addParam( new FloatParam( angleStartStr(), 0, false ) );
-    desc->addParam( new FloatParam( angleStopStr(), mUdf(float), false ) );
+    desc->addParam( new IntParam( angleStartStr(), 0, false ) );
+    desc->addParam( new IntParam( angleStopStr(), mUdf(int), false ) );
 
     EnumParam* smoothtype = new EnumParam( 
 				PreStack::AngleComputer::sKeySmoothType() );
@@ -153,10 +153,10 @@ PSAttrib::PSAttrib( Desc& ds )
 
 	if ( anglecomp_ )
 	{
-	    float anglestart, anglestop;
-	    mGetFloat( anglestart, angleStartStr() );
-	    mGetFloat( anglestop, angleStopStr() );
-	    setup_.anglerg_ = Interval<float>( anglestart, anglestop );
+	    int anglestart, anglestop;
+	    mGetInt( anglestart, angleStartStr() );
+	    mGetInt( anglestop, angleStopStr() );
+	    setup_.anglerg_ = Interval<int>( anglestart, anglestop );
 
 	    BufferString raytracerparam;
 	    mGetString( raytracerparam, rayTracerParamStr() );

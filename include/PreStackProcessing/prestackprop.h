@@ -63,7 +63,7 @@ public:
 	mDefSetupMemb(AxisType,offsaxis)
 	mDefSetupMemb(AxisType,valaxis)
 	mDefSetupMemb(Interval<float>,offsrg)
-	mDefSetupMemb(Interval<float>,anglerg)
+	mDefSetupMemb(Interval<int>,anglerg)
 	mDefSetupMemb(bool,useangle)
 	mDefSetupMemb(int,aperture)
     };

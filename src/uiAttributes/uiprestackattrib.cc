@@ -153,9 +153,9 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 {
     mIfGetString( Attrib::PSAttrib::velocityIDStr(), mid, 
 		  params_.velvolmid_=mid )
-    mIfGetFloat( Attrib::PSAttrib::angleStartStr(), start,
+    mIfGetInt( Attrib::PSAttrib::angleStartStr(), start,
 		 params_.anglerange_.start=start )
-    mIfGetFloat( Attrib::PSAttrib::angleStopStr(), stop, 
+    mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop, 
 		 params_.anglerange_.stop=stop )
 		 
     anglecompgrp_->updateFromParams();
@@ -238,10 +238,10 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 	return false;
 
     mSetString(Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
-    Interval<float>& anglerg = params_.anglerange_;
+    Interval<int>& anglerg = params_.anglerange_;
     if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
-    mSetFloat(Attrib::PSAttrib::angleStartStr(),anglerg.start)
-    mSetFloat(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
+    mSetInt(Attrib::PSAttrib::angleStartStr(),anglerg.start)
+    mSetInt(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
 
     BufferString rayparstr;
     params_.raypar_.putParsTo( rayparstr );

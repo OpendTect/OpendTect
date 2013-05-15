@@ -39,7 +39,7 @@ public:
 				AngleCompParams();
 					
     float 			mutecutoff_;
-    Interval<float>		anglerange_;
+    Interval<int>		anglerange_;
     MultiID			velvolmid_;   
     IOPar			raypar_;
     IOPar			smoothingpar_;
