@@ -239,6 +239,10 @@ void ascistream::init( std::istream* strm, bool rdhead )
 }
 
 
+bool ascistream::hasStandardHeader() const
+{ return matchString( "dTect", header.buf() ); }
+
+
 ascistream& ascistream::next()
 {
     static const char* toreplace_newln =     "\\n";

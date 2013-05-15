@@ -95,6 +95,7 @@ public:
     ascistream&		next();
 
     const char*		headerStartLine() const	{ return header.buf(); }
+    bool		hasStandardHeader() const;
     const char*		fileType() const	{ return filetype.buf(); }
     bool		isOfFileType(const char*) const;
     const char*		version() const;
