@@ -464,16 +464,22 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
     posfld_ = fld;
     gt_ = gt;
 
-    if ( tbufsz<1 ) return;
-
-    SeisTrcInfo::getAxisCandidates( gt, flds_ );
-
     FlatPosData& pd = posData();
-    double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
-    pd.setX1Pos( hdrvals, tbufsz, ofv );
-    SeisPacketInfo pinf; tbuf->fill( pinf );
-    StepInterval<double> zrg; assign( zrg, pinf.zrg );
-    pd.setRange( false, zrg );
+    if ( tbufsz<1 )
+    {
+	pd.setRange( true, StepInterval<double>(1,1,1) );
+	pd.setRange( false, StepInterval<double>(0.5,0.5,1) );
+    }
+    else
+    {
+	SeisTrcInfo::getAxisCandidates( gt, flds_ );
+
+	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+	pd.setX1Pos( hdrvals, tbufsz, ofv );
+	SeisPacketInfo pinf; tbuf->fill( pinf );
+	StepInterval<double> zrg; assign( zrg, pinf.zrg );
+	pd.setRange( false, zrg );
+    }
 }
 
 
