@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "bufstringset.h"
 #include "strmprov.h"
+#include "arrayndimpl.h"
 #include <iostream>
 
 
@@ -445,7 +446,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     const bool bufisours =
 		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
     SeisTrcBuf* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
-    if ( bufisours )
+    if ( buf && bufisours )
 	buf = buf->clone();
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
@@ -456,30 +457,28 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
     delete arr2d_; arr2d_ = 0;
-    if ( !tbuf )
-	return;
-
-    arr2d_ = new SeisTrcBufArray2D( *tbuf, mine, icomp );
-    const int tbufsz = tbuf->size();
     posfld_ = fld;
     gt_ = gt;
-
+    const int tbufsz = tbuf ? tbuf->size() : 0;
     FlatPosData& pd = posData();
     if ( tbufsz<1 )
     {
 	pd.setRange( true, StepInterval<double>(1,1,1) );
 	pd.setRange( false, StepInterval<double>(0.5,0.5,1) );
+	arr2d_ = new Array2DImpl<float>( 1, 1 );
+	arr2d_->setAll( 0 );
+	return;
     }
-    else
-    {
-	SeisTrcInfo::getAxisCandidates( gt, flds_ );
 
-	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
-	pd.setX1Pos( hdrvals, tbufsz, ofv );
-	SeisPacketInfo pinf; tbuf->fill( pinf );
-	StepInterval<double> zrg; assign( zrg, pinf.zrg );
-	pd.setRange( false, zrg );
-    }
+    arr2d_ = new SeisTrcBufArray2D( *tbuf, mine, icomp );
+
+    SeisTrcInfo::getAxisCandidates( gt_, flds_ );
+
+    double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+    pd.setX1Pos( hdrvals, tbufsz, ofv );
+    SeisPacketInfo pinf; tbuf->fill( pinf );
+    StepInterval<double> zrg; assign( zrg, pinf.zrg );
+    pd.setRange( false, zrg );
 }
 
 
