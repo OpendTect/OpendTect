@@ -127,7 +127,8 @@ protected:
     bool			openGenDesc();
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
     bool			saveGenDesc() const;
-    bool			saveGenDescIfNecessary() const;
+    bool			saveGenDescIfNecessary(
+	    				bool allowcancel=true) const;
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
 
@@ -143,6 +144,7 @@ protected:
 public:
 
     static void			initClass();
+    friend class		uiStratLayerModelManager;
 
 };
 
