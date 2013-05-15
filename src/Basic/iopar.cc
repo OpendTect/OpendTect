@@ -1061,7 +1061,7 @@ bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 bool IOPar::read( std::istream& strm, const char* typ, bool chktyp )
 {
     const bool havetyp = typ && *typ;
-    ascistream astream( strm, havetyp ? true : false );
+    ascistream astream( strm, havetyp );
     if ( havetyp && chktyp && !astream.isOfFileType(typ) )
     {
 	BufferString msg( "File has wrong file type: '" );
@@ -1070,6 +1070,8 @@ bool IOPar::read( std::istream& strm, const char* typ, bool chktyp )
 	ErrMsg( msg );
 	return false;
     }
+    else if ( havetyp && !astream.hasStandardHeader() )
+	return false;
     else
 	getFrom( astream );
 
