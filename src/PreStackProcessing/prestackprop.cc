@@ -133,11 +133,11 @@ float PropCalc::getVal( float z ) const
 	return mUdf(float);
 
     const bool useangle = setup_.useangle_ && angledata_;
-    Interval<float> axisvalrg( useangle ? setup_.anglerg_ : setup_.offsrg_ );
+    Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start *= M_PIf/180; 
-	axisvalrg.stop *= M_PIf/180;
+	axisvalrg.start = setup_.anglerg_.start*M_PIf/180; 
+	axisvalrg.stop = setup_.anglerg_.stop*M_PIf/180;
     }
    
     const float eps = 1e-3;

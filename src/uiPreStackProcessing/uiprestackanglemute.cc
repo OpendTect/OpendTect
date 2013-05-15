@@ -48,9 +48,9 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglefld_->setValue( params_.mutecutoff_ );
     }
     else
-    {
-	anglefld_ = new uiGenInput( this, "Angle range",
-				    FloatInpIntervalSpec(params_.anglerange_) );
+    {	
+	anglefld_ = new uiGenInput( this, "Angle range", 
+				    IntInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
 	anglelbl_ = new uiLabel( this, "degrees" );
 	anglelbl_->attach( rightOf, anglefld_ );
@@ -81,7 +81,7 @@ bool uiAngleCompGrp::acceptOK()
 	return false;
 
     params_.velvolmid_ = velfuncsel_->key(true);
-    Interval<float> normalanglevalrange( 0, 90 );
+    Interval<int> normalanglevalrange( 0, 90 );
     if ( isformute_ )
     {
 	params_.mutecutoff_ = anglefld_->getfValue();
@@ -94,7 +94,7 @@ bool uiAngleCompGrp::acceptOK()
     }
     else
     {
-	params_.anglerange_ = anglefld_->getFInterval();
+	params_.anglerange_ = anglefld_->getIInterval();
 	if ( !normalanglevalrange.includes(params_.anglerange_,false) )
 	{
 	    uiMSG().error("Please provide angle range between 0 and 90 degree");
