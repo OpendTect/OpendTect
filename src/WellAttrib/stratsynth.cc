@@ -585,7 +585,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	{
 	    SeisTrc* trc = trcs[idx];
 	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
-	    trc->info().nr = imdl;
+	    trc->info().nr = imdl+1;
 	    cs.hrg.include( trc->info().binid );
 	    if ( !trc->isEmpty() )
 	    {
