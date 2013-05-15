@@ -33,6 +33,9 @@ struct Seis2DLineSetCache
     BufferString	fname_;
     BufferString	typestr_;
     ObjectSet<IOPar>	pars_;
+
+			~Seis2DLineSetCache()
+			{ deepErase( pars_ ); }
 };
 
 static Seis2DLineSetCache cache;
