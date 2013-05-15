@@ -210,9 +210,10 @@ void VW2DPickSet::drawAll()
     if ( !fdp )	fdp = viewer_.pack( false );
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
+    if ( !dp3d ) return;
+
     const bool oninl = dp3d->dataDir() == CubeSampling::Inl;
     const CubeSampling& cs = dp3d->cube().cubeSampling();
-
     updateSetIdx( cs );
 
     if ( isownremove_ ) return;
