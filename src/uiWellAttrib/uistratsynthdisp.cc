@@ -776,7 +776,10 @@ void uiStratSynthDisp::doModelChange()
     if ( stratsynth_.errMsg() )
 	mErrRet( stratsynth_.errMsg(), return )
     if ( stratsynth_.infoMsg() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
 	uiMSG().warning( stratsynth_.infoMsg() );
+    }
 
     updateSyntheticList( true );
     updateSyntheticList( false );
