@@ -170,7 +170,7 @@ struct IdxFileData
     IOPar		iopar_;
 };
 
-static ObjectSet<IdxFileData> idxfilecache;
+static ManagedObjectSet<IdxFileData> idxfilecache;
 static Threads::ReadWriteLock idxfilecachelock;
 
 static int getIdxFileCacheIdx( const char* fnm )

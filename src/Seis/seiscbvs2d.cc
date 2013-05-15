@@ -275,8 +275,15 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 	return 0;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps,
-	    		sd ? *sd : *Seis::SelData::get(Seis::Range));
+    const Seis::SelData* usedsd = sd;
+    PtrMan<Seis::SelData> tmpsd = 0;
+    if ( !usedsd )
+    {
+	tmpsd = Seis::SelData::get(Seis::Range);
+	usedsd = tmpsd;
+    }
+
+    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, *usedsd );
 }
 
 

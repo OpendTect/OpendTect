@@ -998,8 +998,8 @@ BufferStringSet uiAttribPartServer::get2DStoredLSets( const SelInfo& sinf) const
     {
 	const char* lsetid = sinf.ioobjids_.get(idlset);
 	const MultiID mid( lsetid );
-	const BufferString& lsetnm = IOM().get(mid)->name();
-	linesets.add( lsetnm );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	linesets.add( ioobj->name() );
     }
 
     return linesets;

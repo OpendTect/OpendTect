@@ -22,6 +22,13 @@ static const char* sKeyConst = "Constant";
 static const char* sKeyRg = "Typical Range";
 
 
+RockPhysics::Formula::~Formula()
+{
+    deepErase(constdefs_);
+    deepErase(vardefs_);
+}
+
+
 RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
 {
     Formula* fm = new Formula( PropertyRef::Other );
@@ -222,7 +229,13 @@ void createSet()
 	if ( tmp->isEmpty() )
 	    delete tmp;
 	else
-	    { fms_ = tmp; break; }
+	{
+	    fms_ = tmp;
+	    sfio.closeSuccess();
+	    break;
+	}
+	
+	sfio.closeSuccess();
     }
 
     if ( !fms_ )

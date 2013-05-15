@@ -419,6 +419,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 Flat2DDHDataPack::~Flat2DDHDataPack()
 {
     dataholderarr_->unRef();
+    delete array2dslice_;
 }
 
 
