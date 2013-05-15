@@ -341,6 +341,7 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 Data2DArray::~Data2DArray()
 {
     delete dataset_;
+    deepErase( trcinfoset_ );
 }
 
 
