@@ -55,7 +55,7 @@ public:
     			{ extfac_ = fac; }
 
     void		setViewRect(const uiRect& uir) 
-    			{ viewrect_ = uir; }
+    			{ viewrect_ = uir; update(); }
 
 protected:
 
