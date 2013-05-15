@@ -41,10 +41,11 @@ public:
     typedef PropertyRef::StdType PropType;
 
 			Formula( PropType t, const char* nm=0 )
-			: NamedObject(nm)
-			, type_(t)		{}
+			    : NamedObject(nm)
+			    , type_(t)		{}
+    
     static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
-			~Formula()		{ deepErase(constdefs_); }
+			~Formula();		
 			Formula( const Formula& f ) { *this = f; }
     Formula&		operator =(const Formula&);
     inline bool		operator ==( const Formula& pr ) const
