@@ -89,7 +89,6 @@ void uiFlatViewer::reSizeCB( CallBacker* cb )
 {
     axesdrawer_.setViewRect( getViewRect() );
     bitmapdisp_->setViewRect( getViewRect() );
-    bitmapdisp_->update();
     updateTransforms();
 }
 
@@ -278,7 +277,6 @@ void uiFlatViewer::updateCB( CallBacker* )
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-
     dataChanged.trigger();
     bitmapdisp_->update();
     dispParsChanged.trigger();
