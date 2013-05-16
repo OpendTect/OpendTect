@@ -28,7 +28,7 @@ endif()
 
 add_definitions("-D__cmake__")
 
-set ( OD_SOURCELIST_FILE ${CMAKE_BINARY_DIR}/CMakeModules/sourcefiles.txt )
+set ( OD_SOURCELIST_FILE ${CMAKE_BINARY_DIR}/CMakeModules/sourcefiles_${OD_SUBSYSTEM}.txt )
 file ( REMOVE ${OD_SOURCELIST_FILE} )
 
 set ( OD_EXEC_OUTPUT_RELPATH "bin/${OD_PLFSUBDIR}${OD_BUILDSUBDIR}" )

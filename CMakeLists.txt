@@ -30,10 +30,9 @@ set( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
+set( OD_SUBSYSTEM "od" )
 include( OD_SetupOD )
 include( ODInternal )
-
-set( OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
 
 set( OD_MODULES
 	Basic Algo General Database
