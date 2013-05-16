@@ -73,7 +73,7 @@ void setBaseLine( const Grid2D::Line* baseline )
     const Coord stoppos = SI().transform( line->stop_ ); \
     const uiPoint start = transform_->transform( startpos ); \
     const uiPoint stop = transform_->transform( stoppos ); \
-    uiLineItem* item = new uiLineItem( start, stop, true ); \
+    uiLineItem* item = new uiLineItem( start, stop ); \
     item->setPenStyle( ls ); \
     item->setZValue( graphicszval ); \
     itemgrp_->add( item ); \
