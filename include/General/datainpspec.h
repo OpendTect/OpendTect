@@ -178,7 +178,17 @@ public:
 			NumInpSpec( T val ) 
 			    : DataInpSpec( DataTypeImpl<T>() )
 			    , limits_(0)
-			    , value_( val )
+			    , value_(val)
+			    { mSetUdf( defaultvalue_ ); }
+			NumInpSpec( T val, T start, T stop=mUdf(T), T step=1)
+			    : DataInpSpec(DataTypeImpl<T>())
+			    , limits_(new StepInterval<T>(start,stop,step))
+			    , value_(val)
+			    { mSetUdf( defaultvalue_ ); }
+			NumInpSpec( T val, const StepInterval<T>& intv )
+			    : DataInpSpec(DataTypeImpl<T>())
+			    , limits_(new StepInterval<T>(intv))
+			    , value_(val)
 			    { mSetUdf( defaultvalue_ ); }
 			NumInpSpec(const NumInpSpec<T>&);
 			~NumInpSpec()			{ delete limits_; }
@@ -194,7 +204,7 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
     virtual double	getdValue(int idx=0) const    { return value(); }
-    virtual float	getfValue(int idx=0) const   { return ( float ) value(); }
+    virtual float	getfValue(int idx=0) const   { return (float)value(); }
 
     virtual int		getDefaultIntValue(int idx=0) const
     			{ return (int)defaultValue(); }
