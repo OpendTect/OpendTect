@@ -197,7 +197,7 @@ protected:
 
     uiSurfaceWrite*		auxfaultwrite_;
     uiSurfaceWrite*		auxfsswrite_;
-    uiColorInput*		auxcolorinput_;
+    uiColorInput*		auxcolorinput_;		// obsolete
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
