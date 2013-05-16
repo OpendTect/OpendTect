@@ -43,6 +43,15 @@ SafeFileIO::SafeFileIO( const char* fnm, bool l )
 }
 
 
+SafeFileIO::~SafeFileIO()
+{
+    if ( sd_.istrm || sd_.ostrm )
+    {
+	pErrMsg("You forgot to close");
+    }
+}
+
+
 bool SafeFileIO::open( bool forread, bool ignorelock )
 {
     return forread ? openRead( ignorelock ) : openWrite( ignorelock );

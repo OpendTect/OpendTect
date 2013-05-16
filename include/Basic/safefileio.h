@@ -48,6 +48,7 @@ mExpClass(Basic) SafeFileIO
 public:
 
 			SafeFileIO(const char*,bool locked=false);
+			~SafeFileIO();
 
     bool		open(bool forread,bool ignorelock=false);
     const char*		errMsg() const		{ return errmsg_.str(); }
