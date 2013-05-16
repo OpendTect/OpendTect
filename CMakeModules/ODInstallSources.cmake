@@ -6,10 +6,9 @@
 #_______________________________________________________________________________
 
 #TODO Add date
+message( FATAL_ERROR "OD_SUBSYSTEM:${OD_SUBSYSTEM}" )
 file( READ ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in lic_temp )
-message( "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}" )
-message( "inst dir: ${CMAKE_INSTALL_PREFIX}" )
-file( STRINGS ${CMAKE_SOURCE_DIR}/CMakeModules/sourcefiles.txt DEVELSTUFF )
+file( STRINGS ${CMAKE_SOURCE_DIR}/CMakeModules/sourcefiles_od.txt DEVELSTUFF )
 foreach( FIL ${DEVELSTUFF} )
     get_filename_component( FPATH ${FIL} PATH )
     file( INSTALL DESTINATION ${CMAKE_INSTALL_PREFIX}/${FPATH}
