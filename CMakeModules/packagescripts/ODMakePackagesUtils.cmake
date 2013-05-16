@@ -375,11 +375,12 @@ endmacro( od_sign_libs )
 
 macro( download_packages  )
     message( "downloading doc pkgs" )
-#    set( DOCNAMES appman workflows user dgb )
-    set( DOCNAMES dgb )
+    set( DOCVERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}" )
+    set( DOCNAMES appman workflows user dgb )
     foreach( DOCNAME ${DOCNAMES} )
-	set( url "http://intranet/documentations/devel" )
-	set( url "${url}/${DOCNAME}doc.zip" )
+	set( url "http://intranet/documentations/${DOCVERSION}" )
+	set( FILENAME "${DOCNAME}doc_${DOCVERSION}.zip" )
+	set( url "${url}/${FILENAME}" )
 	set( DIRNAME ${DOCNAME} )
         if( ${DOCNAME} STREQUAL "appman" )
 	    set( DIRNAME SysAdm )
@@ -390,8 +391,8 @@ macro( download_packages  )
 	if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
 	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
 	endif()
-
-	file( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip"
+	message( "Downloading: ${url}" )
+	file( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${FILENAME}"
 	      STATUS var
 	      LOG log
 	      SHOW_PROGRESS)
@@ -399,7 +400,7 @@ macro( download_packages  )
 	    message( "***${url} Download Failed***")
 	else()
 	    execute_process( COMMAND unzip -o -q
-			     ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip
+			     ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${FILENAME}
 			     -d ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}
 			     RESULT_VARIABLE STATUS )
 	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip )
