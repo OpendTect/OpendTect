@@ -421,6 +421,20 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 }
 
 
+static const char* getShortPathName( const char* path )
+{
+#ifndef __win__
+    return path;
+#else
+    char fullpath[1024];
+    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) ); // get the fullpath to the exectuabe including the extension. Do not use argv[0] on Windows
+    static char shortpath[1024];
+    GetShortPathName( fullpath, shortpath, sizeof(shortpath) ); //Extract the shortname by removing spaces
+    return shortpath;
+#endif
+}
+
+
 mExternC(Basic) const char* GetFullExecutablePath( void )
 {
     static char* res = 0;
@@ -434,10 +448,9 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 	    executable = filepath;
 	}
 	
-	BufferString fullpath = executable.fullPath();
+	BufferString fullpath = getShortPathName( executable.fullPath() );
 	res = new char[fullpath.size()+1];
 	fullpath.fill( res );
-	
     }
     
     return res;
