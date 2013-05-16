@@ -197,7 +197,6 @@ protected:
 
     uiSurfaceWrite*		auxfaultwrite_;
     uiSurfaceWrite*		auxfsswrite_;
-    uiColorInput*		auxcolorinput_;
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
@@ -210,6 +209,7 @@ protected:
     BufferString		flashname_;
     Color			flashcolor_;
 
+    Color			colorbutcolor_;
     Color			randomcolor_;
     Color			usercolor_;
     BufferString		usercolorlink_;

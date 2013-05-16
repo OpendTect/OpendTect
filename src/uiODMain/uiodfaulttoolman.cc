@@ -228,6 +228,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , tracktbwashidden_( false )
     , selectmode_( false )
     , settingsdlg_( 0 )
+    , colorbutcolor_( Color(0,0,0) )
     , usercolor_( Color(0,0,255) )
     , randomcolor_ ( getRandStdDrawColor() )
     , flashcolor_( Color(0,0,0) )
@@ -293,11 +294,6 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				false );
     outputselbut_->setToolTip( "Select output" );
     toolbar_->addObject( outputselbut_ );
-
-    auxcolorinput_ = new uiColorInput( 0, uiColorInput::Setup(Color(0,0,0)),
-				       "Output color" );
-    auxcolorinput_->colorChanged.notify(
-	    			mCB(this,uiODFaultToolMan,outputColorChg) );
 
     colorbut_ = new uiToolButton( toolbar_, uiIcon::None(), "Output color",
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
@@ -368,7 +364,6 @@ uiODFaultToolMan::~uiODFaultToolMan()
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 
     delete toolbar_;
-    delete auxcolorinput_;
 
     if ( settingsdlg_ )
 	delete settingsdlg_;
@@ -792,7 +787,10 @@ void uiODFaultToolMan::publishOutputItems()
 
 
 void uiODFaultToolMan::colorPressedCB( CallBacker* cb )
-{ auxcolorinput_->getButton()->click(); }
+{
+    if ( selectColor(colorbutcolor_) )
+	outputColorChg( cb );
+}
 
 
 void uiODFaultToolMan::outputColorChg( CallBacker* cb )
@@ -801,18 +799,18 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
     if ( cb )
     {
-	usercolor_ = auxcolorinput_->color();
+	usercolor_ = colorbutcolor_;
 	usercolorlink_ = getObjSel()->inpBox()->text();
 	updateColorMode();
     }
     else if ( randomColor() )
     {
-	auxcolorinput_->setColor( randomcolor_ );
+	colorbutcolor_ = randomcolor_;
 	colorbut_->setToolTip( "Output color [random]" );
     }
     else
     {
-	auxcolorinput_->setColor( usercolor_ );
+	colorbutcolor_ = usercolor_;
 
 	if ( currentColor() || inheritColor() )
 	{
@@ -834,7 +832,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{
-		    auxcolorinput_->setColor( curcolor );
+		    colorbutcolor_ = curcolor;
 		    colorbut_->setToolTip( currentColor() ?
 					   "Output color [current]" :
 					   "Output color [predecessor]" );
@@ -844,7 +842,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
     }
 
     ioPixmap colorpm( 20, 20 );
-    colorpm.fill( auxcolorinput_->color() );
+    colorpm.fill( colorbutcolor_ );
     colorbut_->setPixmap( colorpm );
 }
 
@@ -1034,7 +1032,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	srcfault->setChangedFlag();
 
     destfault->setFullyLoaded( true );
-    destfault->setPreferredColor( auxcolorinput_->color(), true );
+    destfault->setPreferredColor( colorbutcolor_, true );
     displayUpdate();
 
     bool saved = false;
