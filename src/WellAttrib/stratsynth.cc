@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratsynth.h"
 
 #include "array1dinterpol.h"
+#include "angles.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "attribengman.h"
@@ -454,7 +455,7 @@ protected :
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    for ( int idm=start; idm<=stop; idm++ )
+    for ( int idm=(int) start; idm<=stop; idm++ )
     {
 	addToNrDone(1);
 	ElasticModel& curem = aimodels_[idm];
@@ -1075,7 +1076,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees( PreStack::Gather* ag ) co
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval = Math::toDegrees( radval );
+	    const float dval =  Angle::rad2deg( radval );
 	    agdata.set( idx, idy, dval );
 	}
     }
