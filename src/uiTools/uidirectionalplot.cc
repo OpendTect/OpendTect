@@ -200,7 +200,7 @@ void uiDirectionalPlot::drawGrid()
 	const float ang = data_.angle( isect, 1 );
 	const float mathang = Angle::convert( data_.setup_.angletype_, ang,
 					      Angle::Rad );
-	uiLineItem* li = new uiLineItem( center_, mathang, radius_ );
+	uiLineItem* li = new uiLineItem( center_, mathang, (float) radius_ );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
     }
