@@ -126,10 +126,8 @@ void uiPolarDiagram::drawSegments()
 	if ( create )
 	{
 	    uiLineItem* li = scene().addItem( 
-		    new uiLineItem( mCast(float,center_.x), 
-				    mCast(float,center_.y), 
-				    mCast(float,center_.x+x), 
-				    mCast(float,center_.y+y) , true ) );
+		    new uiLineItem( center_.x,center_.y,
+				    center_.x+x,center_.y+y ) );
   	    segmentitms_ += li;
 
 	    float usrangle = Angle::convert( 

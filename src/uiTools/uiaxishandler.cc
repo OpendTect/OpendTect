@@ -352,10 +352,9 @@ void uiAxisHandler::drawAxisLine()
 	    		 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(mCast(float,startpix),mCast(float,pixpos),
-				mCast(float,endpix),mCast(float,pixpos),true) );
+		    new uiLineItem(startpix,pixpos,endpix,pixpos) );
 	else
-	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos, true );
+	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos );
 	axislineitm_->setPenStyle( ls );
 	axislineitm_->setZValue( setup_.zval_ );
     }
@@ -368,10 +367,9 @@ void uiAxisHandler::drawAxisLine()
 
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(mCast(float,pixpos),mCast(float,startpix),
-			        mCast(float,pixpos),mCast(float,endpix),true) );
+		    new uiLineItem(pixpos,startpix,pixpos,endpix) );
 	else
-	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix, true );
+	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix );
 	axislineitm_->setPenStyle( ls );
 	axislineitm_->setZValue( setup_.zval_ );
     }
@@ -453,7 +451,7 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
 	}
     }
 
-    lineitm.setLine( from, to, true );
+    lineitm.setLine( from, to );
 }
 
 

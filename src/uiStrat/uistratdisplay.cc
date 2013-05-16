@@ -499,9 +499,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
 	int y = yax_->getPix( lvl.zpos_ );
 
-	uiLineItem* li = scene_.addItem( new uiLineItem(
-				mCast(float,x1), mCast(float,y), 
-				mCast(float,x2), mCast(float,y), true) );
+	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
 
 	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot 
 	    					  : LineStyle::Solid;

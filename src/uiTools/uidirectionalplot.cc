@@ -200,7 +200,7 @@ void uiDirectionalPlot::drawGrid()
 	const float ang = data_.angle( isect, 1 );
 	const float mathang = Angle::convert( data_.setup_.angletype_, ang,
 					      Angle::Rad );
-	uiLineItem* li = new uiLineItem( center_, mathang, radius_, true );
+	uiLineItem* li = new uiLineItem( center_, mathang, radius_ );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
     }
@@ -214,13 +214,13 @@ void uiDirectionalPlot::drawScale()
     const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1f),135) );
     if ( !scalelineitm_ )
     {
-	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt,true) );
+	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt) );
 	scalestartptitem_ = scene().addItem(
 	    new uiMarkerItem(startpt,MarkerStyle2D(MarkerStyle2D::Circle,3)) );
     }
     else
     {
-	scalelineitm_->setLine( startpt, endpt, true );
+	scalelineitm_->setLine( startpt, endpt );
 	scalestartptitem_->setPos( startpt );
     }
 
@@ -329,7 +329,7 @@ void uiDirectionalPlot::drawDirAnnot()
 
 	    uiPoint pt( isew ? (idx==1 ? 2 : -2) : 0,
 		        isew ? 0 : (idx==2 ? 2 : -2) );
-	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt,false) );
+	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
 	}
     }
 

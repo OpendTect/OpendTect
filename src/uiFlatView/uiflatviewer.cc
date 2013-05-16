@@ -231,7 +231,7 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	return;
 
     wr_ = wr;
-    if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
+ 	   if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
 	wr_.swapHor();
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();

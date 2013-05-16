@@ -656,7 +656,7 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 	const int xpix1 = getXPix( iseq, 0 );
 	const int xpix2 = getXPix( iseq, 1 );
 	uiLineItem* it = scene().addItem(
-	    new uiLineItem( uiPoint(xpix1,ypix), uiPoint(xpix2,ypix), true ) );
+	    new uiLineItem( uiPoint(xpix1,ypix), uiPoint(xpix2,ypix) ) );
 
 	it->setPenStyle( LineStyle(LineStyle::Solid,2,lvlcol_) );
 	it->setZValue( 999999 );
@@ -678,7 +678,7 @@ void uiStratSimpleLayerModelDisp::drawSelectedSequence()
     const int midpix = (int)( xpix1 + ( xpix2 - xpix1 ) /2 );
 
     uiLineItem* it = scene().addItem(
-	new uiLineItem( uiPoint(midpix,ypix1), uiPoint(midpix,ypix2), true ) );
+	new uiLineItem( uiPoint(midpix,ypix1), uiPoint(midpix,ypix2) ) );
 
     it->setPenStyle( LineStyle(LineStyle::Dot,2,Color::Black()) );
     it->setZValue( 9999999 );

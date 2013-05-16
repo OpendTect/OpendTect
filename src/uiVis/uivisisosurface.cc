@@ -281,7 +281,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	    initiallineitem_->setZValue( 3 );
 	}
 
-	initiallineitem_->setLine( valx, valytop, valx, valybottom, true );
+	initiallineitem_->setLine( valx, valytop, valx, valybottom );
     }
 
     if ( !mIsUdf(thresholdfld_->getfValue()) )
@@ -299,7 +299,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	    thresholdlineitem_->setZValue( 3 );
 	}
 
-	thresholdlineitem_->setLine( valx, valytop, valx, valybottom, true);
+	thresholdlineitem_->setLine( valx, valytop, valx, valybottom );
     }
 
     if ( !mIsUdf(vd_->isoValue(isosurfacedisplay_) ) )
@@ -317,6 +317,6 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	    isovallineitem_->setZValue( 2 );
 	}
 
-	isovallineitem_->setLine( valx, valytop, valx, valybottom, true );
+	isovallineitem_->setLine( valx, valytop, valx, valybottom );
     }
 }

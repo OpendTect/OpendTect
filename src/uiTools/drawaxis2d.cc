@@ -160,7 +160,7 @@ void uiGraphicsSceneAxis::update()
 	    stop.swapXY();
 	}
 	
-	line->setLine( start, stop, false );
+	line->setLine( start, stop );
 	line->setPenStyle( ls_ );
     }
     
@@ -200,7 +200,7 @@ void uiGraphicsSceneAxis::update()
 	    tickstop.swapXY();
 	}
 	
-	tickline->setLine( tickstart, tickstop, false );
+	tickline->setLine( tickstart, tickstop );
 	tickline->setPenStyle( ls_ );
 	
 	if ( drawgridlines_ )

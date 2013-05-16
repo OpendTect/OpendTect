@@ -91,7 +91,7 @@ void uiSurveyBoxObject::update()
     }
 
     for ( int idx=0; idx<edges_.size(); idx++ )
-	edges_[idx]->setLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0], true );
+	edges_[idx]->setLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0] );
 
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
@@ -177,7 +177,7 @@ void uiNorthArrowObject::update()
     if ( !angleline_ || !anglelabel_ )
 	return;
 
-    angleline_->setLine( origin, uiPoint(origin.x+dxpix,yarrowtop), true );
+    angleline_->setLine( origin, uiPoint(origin.x+dxpix,yarrowtop) );
     float usrang100 = usrang * 100;
     if ( usrang100 < 0 ) usrang100 = -usrang100;
     int iusrang = (int)(usrang100 + .5);

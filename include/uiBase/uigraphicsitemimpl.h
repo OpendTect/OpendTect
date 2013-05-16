@@ -105,30 +105,25 @@ public:
 };
 
 
+
 mExpClass(uiBase) uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
-			uiLineItem(float x1,float y1,float x2,float y2,
-				   bool abspos);
-    			uiLineItem(const uiPoint& start,const uiPoint& stop,
-				   bool abspos);
-			uiLineItem(const uiPoint&,double angle,double len,
-				   bool abspos);
+    			uiLineItem(int x1,int y1,int x2,int y2);
+			uiLineItem(float x1,float y1,float x2,float y2);
+    			uiLineItem(const uiPoint& start,const uiPoint& stop);
+			uiLineItem(const uiPoint&,float angle,float len);
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
     void 		setPenStyle(const LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
-    void		setLine(const uiPoint& start,const uiPoint& end,
-	    			bool abspos=true);
-    void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
-    void		setLine(float x1,float y1,float x2,float y2,
-				bool abspos=true);
+    void		setLine(const uiPoint& start,const uiPoint& end);
+    void		setLine(int x1,int y1,int x2,int y2);
+    void		setLine(float x1,float y1,float x2,float y2);
     void		setLine(const Geom::Point2D<float>&,
-				const Geom::Point2D<float>&,bool abspos=true);
-    void		setStartPos(const uiPoint&,bool abspos);
-    void		setEndPos(const uiPoint&,bool abspos);
+				const Geom::Point2D<float>&);
     uiRect		lineRect() const;
 
 protected:

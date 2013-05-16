@@ -176,32 +176,38 @@ uiLineItem::uiLineItem()
 {}
 
 
-uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos,
-			bool abspos )
+uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos )
     : uiGraphicsItem(mkQtObj())
 {
-    setLine( startpos, endpos, abspos );
+    setLine( startpos, endpos );
 }
 
 
-uiLineItem::uiLineItem( float x1, float y1, float x2, float y2, bool abspos )
+uiLineItem::uiLineItem( float x1, float y1, float x2, float y2 )
     : uiGraphicsItem(mkQtObj())
 {
-    setLine( mNINT32(x1), mNINT32(y1), mNINT32(x2), mNINT32(y2), abspos );
+    setLine( x1, y1, x2, y2 );
 }
 
 
-uiLineItem::uiLineItem( const uiPoint& pt, double angle, double len,
-			bool abspos )
+uiLineItem::uiLineItem( int x1, int y1, int x2, int y2 )
+: uiGraphicsItem(mkQtObj())
+{
+    setLine( x1, y1, x2, y2 );
+}
+
+
+uiLineItem::uiLineItem( const uiPoint& pt, float angle, float len )
     : uiGraphicsItem(mkQtObj())
 {
-    uiPoint endpt( pt );
-    double delta = len * cos( angle );
-    endpt.x += mNINT32(delta);
+    Geom::Point2D<float> ptf( pt.x, pt.y );
+    Geom::Point2D<float> endpt( ptf );
+    float delta = len * cos( angle );
+    endpt.x += delta;
     delta = -len * sin( angle );
-    endpt.y += mNINT32(delta);
+    endpt.y += delta;
 
-    setLine( pt, endpt, abspos );
+    setLine( ptf, endpt );
 }
 
 
@@ -217,43 +223,22 @@ QGraphicsItem* uiLineItem::mkQtObj()
 }
 
 
-void uiLineItem::setLine( const uiPoint& start, const uiPoint& end, bool abs )
-{ setLine( start.x, start.y, end.x, end.y, abs ); }
+void uiLineItem::setLine( const uiPoint& start, const uiPoint& end )
+{ setLine( start.x, start.y, end.x, end.y ); }
 
 void uiLineItem::setLine( const Geom::Point2D<float>& start,
-			  const Geom::Point2D<float>& end, bool abs )
-{ setLine( start.x, start.y, end.x, end.y, abs ); }
+			  const Geom::Point2D<float>& end )
+{ setLine( start.x, start.y, end.x, end.y ); }
 
-void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
-{ setLine( (float)x1, (float)y1, (float)x2, (float)y2, abs ); }
+void uiLineItem::setLine( int x1, int y1, int x2, int y2 )
+{ setLine( (float)x1, (float)y1, (float)x2, (float)y2 ); }
 
 
-void uiLineItem::setLine( float x1, float y1, float x2, float y2, bool abs )
+void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
 {
-    if ( !abs )
-	qlineitem_->setLine( x1, y1, x2, y2 );
-    else
-    {
-	qlineitem_->setLine( 0, 0, x2-x1, y2-y1 );
-	qlineitem_->setPos( x1, y1 );
-    }
+    qlineitem_->setLine( x1, y1, x2, y2 );
 }
 
-
-void uiLineItem::setStartPos( const uiPoint& start, bool abspos )
-{
-    QPointF qstoppos = qlineitem_->mapToScene( qlineitem_->line().p1() );
-    uiPoint stoppos( (int)qstoppos.x(), (int)qstoppos.y() );
-    setLine( start.x, start.y, stoppos.x, stoppos.y, abspos );
-}
-
-
-void uiLineItem::setEndPos( const uiPoint& end, bool abspos )
-{
-    QPointF qstartpos = qlineitem_->mapToScene( qlineitem_->line().p2() );
-    uiPoint startpos( (int)qstartpos.x(), (int)qstartpos.y() );
-    setLine( startpos.x, startpos.y, end.x, end.y, abspos );
-}
 
 
 uiRect uiLineItem::lineRect() const
