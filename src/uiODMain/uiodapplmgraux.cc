@@ -22,15 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
 #include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
-#include "keystrs.h"
 #include "separstr.h"
-#include "odinst.h"
 #include "string2.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -41,35 +40,36 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ui2dgeomman.h"
 #include "uibatchlaunch.h"
-#include "uidatapointsetman.h"
-#include "uimsg.h"
-#include "uiconvpos.h"
-#include "uidatapointset.h"
-#include "uiveldesc.h"
-#include "uifontsel.h"
-#include "uipluginman.h"
-#include "uishortcuts.h"
-#include "uiselsimple.h"
-#include "uibatchprogs.h"
-#include "uibatchlaunch.h"
-#include "uistrattreewin.h"
-#include "uiprestackimpmute.h"
-#include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
-#include "uimanprops.h"
-#include "uiprestackanglemutecomputer.h"
-#include "uivelocityfunctionimp.h"
-#include "uivisdatapointsetdisplaymgr.h"
-#include "uiprobdenfuncman.h"
+#include "uibatchprogs.h"
+#include "uicoltabimport.h"
+#include "uicoltabman.h"
+#include "uiconvpos.h"
+#include "uicreate2dgrid.h"
+#include "uicreatelogcubedlg.h"
+#include "uidatapointset.h"
+#include "uidatapointsetman.h"
+#include "uifontsel.h"
 #include "uiimpexppdf.h"
 #include "uiimppvds.h"
+#include "uimanprops.h"
+#include "uimsg.h"
+#include "uipluginman.h"
+#include "uiprestackanglemutecomputer.h"
+#include "uiprestackexpmute.h"
+#include "uiprestackimpmute.h"
+#include "uiprobdenfuncman.h"
 #include "uiseisbayesclass.h"
-#include "uisurvmap.h"
 #include "uiseis2dto3d.h"
-#include "uicreate2dgrid.h"
+#include "uiselsimple.h"
+#include "uishortcuts.h"
+#include "uistrattreewin.h"
+#include "uisurvmap.h"
+#include "uiveldesc.h"
+#include "uivelocityfunctionimp.h"
+#include "uivisdatapointsetdisplaymgr.h"
 
 #include "uiattribpartserv.h"
-#include "uicreatelogcubedlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uinlapartserv.h"
@@ -320,6 +320,18 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(NLA):
 	    pErrMsg("NLA event occurred");
     break;
+    mCase(ColTab):
+	if ( at == uiODApplMgr::Man )
+	{
+	    ColTab::Sequence ctseq;
+	    uiColorTableMan dlg( par_, ctseq, true );
+	    dlg.go();
+	}
+        else if ( at == uiODApplMgr::Imp )
+	{
+	    uiColTabImport dlg( par_ );
+	    dlg.go();
+	}
     }
 }
 
