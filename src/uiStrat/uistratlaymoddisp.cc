@@ -33,10 +33,10 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( SI().depthsInFeet() ) var *= conv
 #define mGetRealZ(var) mGetConvZ(var,mFromFeetFactorF)
 #define mGetDispZ(var) mGetConvZ(var,mToFeetFactorF)
-#define mGetDispZrg(var) \
-    Interval<float> var( zrg_ ); \
+#define mGetDispZrg(src,target) \
+    Interval<float> target( src ); \
     if ( SI().depthsInFeet() ) \
-	var.scale( mToFeetFactorF )
+	target.scale( mToFeetFactorF )
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
@@ -78,7 +78,6 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 void uiStratLayerModelDisp::setFlattened( bool yn )
 {
     flattened_ = yn;
-    setZoomBox(uiWorldRect(mUdf(double),0,0,0));
     modelChanged();
 }
 
@@ -86,7 +85,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn )
 bool uiStratLayerModelDisp::haveAnyZoom() const
 {
     const int nrseqs = layerModel().size();
-    mGetDispZrg(dispzrg);
+    mGetDispZrg(zrg_,dispzrg);
     uiWorldRect wr( 1, dispzrg.start, nrseqs, dispzrg.stop );
     return zoomBox().isInside( wr, 1e-5 );
 }
@@ -408,8 +407,10 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 	// provided rect is always in system [0.5,N+0.5]
 	zoomwr_.setLeft( wr.left() + .5 );
 	zoomwr_.setRight( wr.right() + .5 );
-	zoomwr_.setTop( wr.bottom() );
-	zoomwr_.setBottom( wr.top() );
+	Interval<float> zrg( (float)wr.bottom(), (float)wr.top() );
+    	mGetDispZrg(zrg,dispzrg);
+	zoomwr_.setTop( dispzrg.start );
+	zoomwr_.setBottom( dispzrg.stop );
     }
     updZoomBox();
     if ( showzoomed_ )
@@ -512,7 +513,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
     {
 	zoomwr_.setLeft( 1 );
 	zoomwr_.setRight( nrseqs+1 );
-	mGetDispZrg(dispzrg);
+	mGetDispZrg(zrg_,dispzrg);
 	zoomwr_.setTop( dispzrg.stop );
 	zoomwr_.setBottom( dispzrg.start );
     }
@@ -562,7 +563,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     if ( !showzoomed_ )
     {
 	xax_->setBounds( Interval<float>(1,mCast(float,layerModel().size() )));
-    	mGetDispZrg(dispzrg);
+    	mGetDispZrg(zrg_,dispzrg);
 	yax_->setBounds( Interval<float>(dispzrg.stop,dispzrg.start) );
     }
     else
@@ -570,7 +571,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	xax_->setBounds( Interval<float>((float)zoomwr_.left(),
 						(float)zoomwr_.right()) );
 	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
-						(float)zoomwr_.bottom()) );
+		    	 		 (float)zoomwr_.bottom()) );
     }
 
     yax_->plotAxis(); xax_->plotAxis();

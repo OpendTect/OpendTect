@@ -277,12 +277,14 @@ public:
 				    const ObjectSet<const TimeDepthModel>&);
 
     void			flattenTraces(SeisTrcBuf&) const;
+    void			trimTraces(SeisTrcBuf&,float,
+				    const ObjectSet<const TimeDepthModel>&,
+				    float zskip) const;
     void			decimateTraces(SeisTrcBuf&,int fac) const;
 
     void			setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     const char* 		errMsg() const;
-    const char* 		warningMsg() const;
-    void			clearWanings()		{ infomsg_.setEmpty(); }
+    const char* 		infoMsg() const;
 
 protected:
 
@@ -306,18 +308,15 @@ protected:
     void			generateOtherQuantities( 
 	    				const PostStackSyntheticData& sd,
 	    				const Strat::LayerModel&);
-    SyntheticData* 		generateSD( TaskRunner* tr=0);
-    SyntheticData* 		generateSD( const SynthGenParams&,
-					TaskRunner* tr=0);
+    SyntheticData* 		generateSD();
+    SyntheticData* 		generateSD( const SynthGenParams&);
     SyntheticData*		createAngleStack(SyntheticData* sd,
 	    					 const CubeSampling&,
-						 const SynthGenParams&,
-						 TaskRunner*);
+						 const SynthGenParams&);
     SyntheticData*		createAVOGradient(SyntheticData* sd,
 	    					 const CubeSampling&,
 						 const SynthGenParams&,
-						 const Seis::RaySynthGenerator&,
-						 TaskRunner*);
+						const Seis::RaySynthGenerator&);
 };
 
 #endif

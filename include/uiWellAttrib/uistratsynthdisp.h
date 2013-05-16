@@ -47,7 +47,7 @@ public:
     const Wavelet*	getWavelet() const;
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
-    SyntheticData*	getCurrentSyntheticData() const;
+    SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
     const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
     const PropertyRefSelection&	modelPropertyRefs() const;
 
@@ -79,8 +79,7 @@ public:
     void		displaySynthetic(const SyntheticData*);
     void		cleanSynthetics();
     float		centralTrcShift() const;
-    void		setCurrentWVASynthetic();
-    void		setCurrentVDSynthetic();
+    void		setCurrentSynthetic(bool wva);
     void		setSnapLevelSensitive(bool);
     bool		prepareElasticModel();
 
@@ -103,7 +102,8 @@ protected:
     bool		isbrinefilled_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    SyntheticData* 	currentsynthetic_;
+    SyntheticData* 	currentwvasynthetic_;
+    SyntheticData* 	currentvdsynthetic_;
 
     uiMultiFlatViewControl* control_;
     FlatView::AuxData*	selectedtraceaux_;
@@ -129,12 +129,15 @@ protected:
     void		setCurrentWavelet();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		updateWVASyntheticList();
-    void		updateVDSyntheticList();
+    void		updateFields();
+    void		updateSynthetic(const char* nm,bool wva);
+    void		updateSyntheticList(bool wva);
 
     void		drawLevel();
-    void		displayPreStackDirSynthetic(const SyntheticData*);
-    void		displayPostStackDirSynthetic(const SyntheticData*);
+    void		displayFRText();
+    void		displayPreStackSynthetic(const SyntheticData*);
+    void		displayPostStackSynthetic(const SyntheticData*,
+	    					  bool wva=true);
 
     void		addEditSynth(CallBacker*);
     void		wvDataSetSel(CallBacker*);
