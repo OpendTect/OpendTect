@@ -74,5 +74,5 @@ void RemoteJobExec::uiErrorMsg( const char* msg )
 {
     BufferString cmd = FilePath( GetBinPlfDir(), "od_DispMsg" ).fullPath();
     cmd.add( " --err " ).add( msg );
-    ExecOSCmd( cmd.buf() );
+    ExecOSCmd( cmd.buf(), true, false );
 }

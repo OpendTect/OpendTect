@@ -42,7 +42,13 @@ RemCommHandler::~RemCommHandler()
 
 void RemCommHandler::listen() const
 {   
-    server_.listen( System::localAddress(), port_ );
+    if ( server_.listen( System::localAddress(), port_ ) )
+	 DBG::message( BufferString("Listenning on: ",System::localAddress()) );
+    else
+    {
+	DBG::message( BufferString("Failed to Listenning on: ",
+			System::localAddress()) );
+    }
 }
 
 
