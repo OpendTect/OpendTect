@@ -69,7 +69,7 @@ private:
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
 #elif (defined __WINATOMICS__)
-    volatile T		values_[64];
+    volatile T		values_[8];
     volatile T*		valptr_;
 
     Mutex*			lock_;
@@ -311,9 +311,6 @@ T Atomic<T>::exchange( T newval )
 #ifdef __WINATOMICS__
 
 
-
-
-
 template <class T> inline
 Atomic<T>::Atomic( T val )
     : lock_( new Mutex )
@@ -433,11 +430,11 @@ bool Atomic<T>::weakSetIfEqual(T newval, T& expected )
 #ifdef __win64__
 
 template <> inline
-Atomic<od_int64>::Atomic( od_int64 val )
+Atomic<long long>::Atomic( long long val )
 	: lock_( 0 )
 {
     valptr_ = &values_[0];
-    while ( ((long) valptr_) % 64  )
+    while ( ((long long) valptr_) % 64  )
 		valptr_++;
     
     *valptr_ = val;
@@ -445,16 +442,16 @@ Atomic<od_int64>::Atomic( od_int64 val )
 	 
 	 
 template <> inline
-bool Atomic<od_int64>::strongSetIfEqual(od_int64 newval, od_int64 expected )
+bool Atomic<long long>::strongSetIfEqual(long long newval, long long expected )
 {
     return InterlockedCompareExchange64( valptr_,newval,expected)==expected;
 }
 	 
 	 
 template <> inline
-bool Atomic<od_int64>::weakSetIfEqual(od_int64 newval, od_int64& expected )
+bool Atomic<long long>::weakSetIfEqual(long long newval, long long& expected )
 {
-    const od_int64 prevval =
+    const long long prevval =
     	InterlockedCompareExchange64(valptr_,newval,expected);
     if ( prevval==expected )
 		return true;
@@ -464,61 +461,142 @@ bool Atomic<od_int64>::weakSetIfEqual(od_int64 newval, od_int64& expected )
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator += (od_int64 b)
+long long Atomic<long long>::operator += (long long b)
 {
     return InterlockedAdd64( valptr_, b );
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator -= (od_int64 b)
+long long Atomic<long long>::operator -= (long long b)
 {
     return InterlockedAdd64( valptr_, -b );
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator ++()
+long long Atomic<long long>::operator ++()
 {
     return InterlockedIncrement64( valptr_ );
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator -- ()
+long long Atomic<long long>::operator -- ()
 {
     return InterlockedDecrement64( valptr_ );
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator ++(int)
+long long Atomic<long long>::operator ++(int)
 {
     return InterlockedIncrement64( valptr_ )-1;
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::exchange(od_int64 newval)
+long long Atomic<long long>::exchange(long long newval)
 {
     return InterlockedExchange64( valptr_, newval );
 }
 	 
 	 
 template <> inline
-od_int64 Atomic<od_int64>::operator -- (int)
+long long Atomic<long long>::operator -- (int)
 {
     return InterlockedDecrement64( valptr_ )+1;
 }
 
+
 # endif //not win32
 
 template <> inline
-Atomic<od_int32>::Atomic( od_int32 val )
+Atomic<int>::Atomic( int val )
 	: lock_( 0 )
 {
     valptr_ = &values_[0];
-    while ( ((long) valptr_) % 32  )
+    while ( ((int) valptr_) % 32  )
+		valptr_++;
+    
+    *valptr_ = val;
+}
+	 
+	 
+template <> inline
+bool Atomic<int>::strongSetIfEqual(int newval, int expected )
+{
+    return InterlockedCompareExchange( (volatile long*) valptr_,newval,expected)==expected;
+}
+	 
+	 
+template <> inline
+bool Atomic<int>::weakSetIfEqual(int newval, int& expected )
+{
+    const int prevval =
+    	InterlockedCompareExchange((volatile long*) valptr_,newval,expected);
+    if ( prevval==expected )
+		return true;
+    expected = prevval;
+    return false; 
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator += (int b)
+{
+    return InterlockedAdd( (volatile long*) valptr_, b );
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator -= (int b)
+{
+    return InterlockedAdd( (volatile long*) valptr_, -b );
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator ++()
+{
+    return InterlockedIncrement( (volatile long*) valptr_ );
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator -- ()
+{
+    return InterlockedDecrement( (volatile long*) valptr_ );
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator ++(int)
+{
+    return InterlockedIncrement( (volatile long*) valptr_ )-1;
+}
+	 
+	 
+template <> inline
+int Atomic<int>::exchange(int newval)
+{
+    return InterlockedExchange( (volatile long*) valptr_, newval );
+}
+	 
+	 
+template <> inline
+int Atomic<int>::operator -- (int)
+{
+    return InterlockedDecrement( (volatile long*) valptr_ )+1;
+}
+
+
+template <> inline
+Atomic<long>::Atomic( long val )
+	: lock_( 0 )
+{
+    valptr_ = &values_[0];
+    while ( ((long long) valptr_) % 32  )
 		valptr_++;
     
     *valptr_ = val;
@@ -526,17 +604,17 @@ Atomic<od_int32>::Atomic( od_int32 val )
 
 
 template <> inline
-bool Atomic<od_int32>::strongSetIfEqual(od_int32 newval, od_int32 expected )
+bool Atomic<long>::strongSetIfEqual(long newval, long expected )
 {
     return InterlockedCompareExchange( (volatile long*) valptr_, newval, expected)==expected;
 }
 
 
 template <> inline
-bool Atomic<od_int32>::weakSetIfEqual(od_int32 newval, od_int32& expected )
+bool Atomic<long>::weakSetIfEqual(long newval, long& expected )
 {
-    const od_int32 prevval =
-		InterlockedCompareExchange( (volatile long*) valptr_,  newval,  expected);
+    const long prevval =
+		InterlockedCompareExchange( valptr_,  newval,  expected);
     if ( prevval==expected )
 		return true;
     expected = prevval;
@@ -545,51 +623,51 @@ bool Atomic<od_int32>::weakSetIfEqual(od_int32 newval, od_int32& expected )
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator += (od_int32 b)
+long Atomic<long>::operator += (long b)
 {
-    return InterlockedAdd( (volatile long*) valptr_, (long) b );
+    return InterlockedAdd( valptr_, (long) b );
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator -= (od_int32 b)
+long Atomic<long>::operator -= (long b)
 {
-    return InterlockedAdd( (volatile long*) valptr_, -b );
+    return InterlockedAdd( valptr_, -b );
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator ++()
+long Atomic<long>::operator ++()
 {
-    return InterlockedIncrement( (volatile long*) valptr_ );
+    return InterlockedIncrement( valptr_ );
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator -- ()
+long Atomic<long>::operator -- ()
 {
-    return InterlockedDecrement( (volatile long*) valptr_ );
+    return InterlockedDecrement( valptr_ );
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator ++(int)
+long Atomic<long>::operator ++(int)
 {
-    return InterlockedIncrement( (volatile long*) valptr_ )-1;
+    return InterlockedIncrement( valptr_ )-1;
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::exchange(od_int32 newval)
+long Atomic<long>::exchange(long newval)
 {
-    return InterlockedExchange( (volatile long*) valptr_, newval );
+    return InterlockedExchange( valptr_, newval );
 }
 
 
 template <> inline
-od_int32 Atomic<od_int32>::operator -- (int)
+long Atomic<long>::operator -- (int)
 {
-    return InterlockedDecrement( (volatile long*) valptr_ )+1;
+    return InterlockedDecrement( valptr_ )+1;
 }
 
 
@@ -679,4 +757,3 @@ mImplAtomicPointerOperator( operator--(int), old-1, old );
 } //namespace
 
 #endif
-
