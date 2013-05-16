@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "visvw2dpickset.h"
 
+#include "angles.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "cubesampling.h"
@@ -262,7 +263,7 @@ void VW2DPickSet::drawAll()
 			      	    : dipstr.getFValue( 0 );
     	    const float depth = (dip/1000000) * zfac;
     	    markerstyle.rotation_ =
-		mIsUdf(dip) ? 0 : Math::toDegrees( atan2f(2*depth,xfac) );
+		mIsUdf(dip) ? 0 : Angle::rad2deg( atan2f(2*depth,xfac) );
 	    FlatView::Point point( (oninl ? bid.crl : bid.inl), pos.z );
 	    picks_->poly_ += point;
 	}

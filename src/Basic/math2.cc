@@ -125,19 +125,3 @@ int Math::HCFOf( int num1, int num2 )
 
     return 1;
 }
-
-
-double Math::toDegrees( double rad )
-{ return rad*57.2957795131; }
-
-
-double Math::toRadians( double deg )
-{ return deg * 1.74532925199e-2; }
-
-
-float Math::toDegrees( float rad )
-{ return rad*57.2957795131f; }
-
-
-float Math::toRadians( float deg )
-{ return deg * 1.74532925199e-2f; }

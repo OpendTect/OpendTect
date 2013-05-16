@@ -79,10 +79,6 @@ mGlobal(Basic) double Log10(double);
 mGlobal(Basic) double Exp(double);
 mGlobal(Basic) double Sqrt(double);
 mGlobal(Basic) double toDB(double);
-mGlobal(Basic) double toDegrees(double);
-mGlobal(Basic) double toRadians(double);
-mGlobal(Basic) float toDegrees(float);
-mGlobal(Basic) float toRadians(float);
 
 mGlobal(Basic) int IntPowerOf(int,int);
 mGlobal(Basic) od_int64 IntPowerOf(od_int64,int);
