@@ -621,6 +621,8 @@ bool RaySynthGenerator::doPrepare( int )
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
     rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
+    if ( !rtr_->prepareRayTracers() )
+	 mErrRet( rtr_->errMsg(), false );
     message_ = "Raytracing";
     if ( !rtr_->execute() ) 
 	mErrRet( rtr_->errMsg(), false );
@@ -717,6 +719,12 @@ od_int64 RaySynthGenerator::nrDone() const
     return !raytracingdone_ && rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
 }
 
+
+
+const char* RaySynthGenerator::nrDoneText() const
+{
+    return !raytracingdone_ && rtr_ ? "Layers done" : "Models done";
+}
 
 
 RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
