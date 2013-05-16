@@ -44,6 +44,8 @@ ________________________________________________________________________
 #define mSessRestMnuItm		(mFileSessMnu + 20)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
 
+#define mImpColTabMnuItm	(mFileImpMnu + 5)
+
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSEGYMnuItm	(mFileImpMnu + 11)
 #define mImpSeisSEGYDirectMnuItm (mFileImpMnu + 12)
@@ -104,6 +106,7 @@ ________________________________________________________________________
 #define mExpPDFMnuItm		(mFileExpMnu + 90)
 #define mExpPDFAsciiMnuItm	(mFileExpMnu + 91)
 
+#define mManColTabMnuItm	(mFileManMnu + 5)
 #define mManSeis3DMnuItm	(mFileManMnu + 10)
 #define mManSeis2DMnuItm	(mFileManMnu + 11)
 #define mManHor3DMnuItm		(mFileManMnu + 20)

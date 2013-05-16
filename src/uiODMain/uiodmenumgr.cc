@@ -10,13 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodmenumgr.h"
-#include "uitoolbutton.h"
 
+#include "ui3dviewer.h"
 #include "uicrdevenv.h"
 #include "uifiledlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uivolprocchain.h"
 #include "uiodapplmgr.h"
 #include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
@@ -24,13 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodstdmenu.h"
 #include "uiproxydlg.h"
 #include "uisettings.h"
-#include "ui3dviewer.h"
 #include "uitextfile.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uivispartserv.h"
+#include "uivolprocchain.h"
 #include "visemobjdisplay.h"
-#include "uimsg.h"
 
 #include "dirlist.h"
 #include "envvars.h"
@@ -38,15 +37,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "odinst.h"
 #include "odsysmem.h"
 #include "settings.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "thread.h"
-#include "odinst.h"
+
 
 static const char* sKeyIconSetNm = "Icon set name";
-
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : appl_(*a)
@@ -215,6 +214,7 @@ void uiODMenuMgr::fillSurveyMenu()
 void uiODMenuMgr::fillImportMenu()
 {
     impmnu_->clear();
+
     uiPopupMenu* impseis = new uiPopupMenu( &appl_, "&Seismics" );
     uiPopupMenu* imphor = new uiPopupMenu( &appl_, "&Horizons" );
     uiPopupMenu* impfault = new uiPopupMenu( &appl_, "&Faults" );
@@ -227,17 +227,20 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impvelfn = new uiPopupMenu( &appl_, "&Velocity Functions" );
     uiPopupMenu* imppdf =
 	new uiPopupMenu( &appl_, "Probability &Density Functions" );
-    impmnu_->insertItem( impseis );
-    impmnu_->insertItem( imphor );
+
+    mInsertItem( impmnu_, "&Color Table ...", mImpColTabMnuItm );
+    impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
-    impmnu_->insertItem( impwell );
-    impmnu_->insertItem( imppick );
-    impmnu_->insertItem( impwvlt );
+    impmnu_->insertItem( imphor );
     impmnu_->insertItem( impmute );
-    impmnu_->insertItem( impvelfn );
-    impmnu_->insertItem( impcpd );
+    impmnu_->insertItem( imppick );
     impmnu_->insertItem( imppdf );
+    impmnu_->insertItem( impseis );
+    impmnu_->insertItem( impvelfn );
+    impmnu_->insertItem( impwvlt );
+    impmnu_->insertItem( impwell );
+    impmnu_->insertSeparator();
 
     mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
     mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
@@ -307,14 +310,16 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     uiPopupMenu* exppdf =
 	new uiPopupMenu( &appl_, "Probability &Density Functions" );
-    expmnu_->insertItem( expseis );
-    expmnu_->insertItem( exphor );
+
     expmnu_->insertItem( expflt );
     expmnu_->insertItem( expfltss );
-    expmnu_->insertItem( exppick );
-    expmnu_->insertItem( expwvlt );
+    expmnu_->insertItem( exphor );
     expmnu_->insertItem( expmute );
+    expmnu_->insertItem( exppick );
     expmnu_->insertItem( exppdf );
+    expmnu_->insertItem( expseis );
+    expmnu_->insertItem( expwvlt );
+    expmnu_->insertSeparator();
 
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
@@ -351,7 +356,8 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
     mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm, 
 	    		"man_attrs" );
-    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm,"man_body" );
+    mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm, "man_body" );
+    mInsertPixmapItem( manmnu_, "Color Tables ...", mManColTabMnuItm, "" );
     mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
 	    		"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
@@ -977,6 +983,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
+    case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;
     case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
     case mImpSeisSEGYMnuItm:		mDoOp(Imp,Seis,1); break;
     case mImpSeisSEGYDirectMnuItm:	mDoOp(Imp,Seis,2); break;
@@ -1022,6 +1029,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
+    case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,2); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;
     case mManHor3DMnuItm:		mDoOp(Man,Hor,2); break;
@@ -1047,7 +1055,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;
     case mEdit3DAttrMnuItm: 	applMgr().editAttribSet(false); break;
-    case mSeisOutMnuItm:	applMgr().createVol( SI().has2D(), false ); break;
+    case mSeisOutMnuItm:	applMgr().createVol(SI().has2D(),false); break;
     case mSeisOut2DMnuItm: 	applMgr().createVol(true,false); break;
     case mSeisOut3DMnuItm: 	applMgr().createVol(false,false); break;
     case mCreateSurf2DMnuItm: 	applMgr().createHorOutput(0,true); break;

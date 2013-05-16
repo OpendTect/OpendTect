@@ -28,6 +28,7 @@ mExpClass(uiTools) uiColorTableSel : public uiComboBox
 {
 public:
     			uiColorTableSel(uiParent*,const char* nm);
+			~uiColorTableSel();
 
     void		update();
     void		setCurrent(const ColTab::Sequence&);
@@ -35,6 +36,7 @@ public:
     const char*		getCurrent() const;
 
 protected:
+    void		seqChgCB(CallBacker*);
 };
 
 

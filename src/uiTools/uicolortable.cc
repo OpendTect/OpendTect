@@ -168,11 +168,24 @@ uiColorTableSel::uiColorTableSel( uiParent* p, const char* nm )
     : uiComboBox(p,nm)
 {
     update();
+    ColTab::SM().seqAdded.notify( mCB(this,uiColorTableSel,seqChgCB) );
+    ColTab::SM().seqRemoved.notify( mCB(this,uiColorTableSel,seqChgCB) );
 }
 
 
+uiColorTableSel::~uiColorTableSel()
+{
+    ColTab::SM().seqAdded.remove( mCB(this,uiColorTableSel,seqChgCB) );
+    ColTab::SM().seqRemoved.remove( mCB(this,uiColorTableSel,seqChgCB) );
+}
+
+
+void uiColorTableSel::seqChgCB( CallBacker* )
+{ update(); }
+
 void uiColorTableSel::update()
 {
+    const BufferString curitm = getCurrent();
     setEmpty();
     BufferStringSet seqnames;
     ColTab::SM().getSequenceNames( seqnames );
@@ -185,6 +198,12 @@ void uiColorTableSel::update()
 	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
 	addItem( seq.name() );
 	setPixmap( ioPixmap(seq,16,10,true), idx );
+    }
+
+    if ( !curitm.isEmpty() )
+    {
+	setCurrent( curitm );
+	selectionChanged.trigger();
     }
 }
 
