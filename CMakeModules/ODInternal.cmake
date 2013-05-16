@@ -88,8 +88,10 @@ if( APPLE )
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
     OD_CURRENT_YEAR( YEAR )
+    set ( INFOFILE CMakeModules/Info.plist )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
-		    ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist @ONLY)
+		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
+    install( FILES ${INFOFILE} DESTINATION "Contents" )
 endif( APPLE )
 
 set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
