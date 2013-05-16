@@ -215,7 +215,7 @@ void uiGraphicsSceneAxis::update()
 		gridstop.swapXY();
 	    }
 	    
-	    gridline->setLine( gridstart, gridstop );
+	    gridline->setLine( gridstart, gridstop, false );
 	    gridline->setPenStyle( gridls_ );
 	}
 	
