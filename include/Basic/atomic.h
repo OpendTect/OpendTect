@@ -22,6 +22,7 @@ ________________________________________________________________________
 #else
 # ifdef __win__
 #  define __WINATOMICS__
+#  include <Windows.h>
 # else
 #  define __GCCATOMICS__
 # endif
@@ -29,15 +30,16 @@ ________________________________________________________________________
 
 namespace Threads {
 
+class Mutex;
 
 template <class T>
 mClass(Basic) Atomic
 {
 public:
     		Atomic(T val=0);
-		~Atomic();
+			~Atomic();
 
-		operator T() const { return get(); }
+			operator T() const { return get(); }
     T		get() const;
     
     T		operator=(T v);
@@ -66,12 +68,12 @@ private:
     
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
-#elif __WINATOMICS__
-    T			values_[64];
-    T*			valptr_;
-# ifdef __win32__
-    Mutex*		lock_;
-# endif
+#elif (defined __WINATOMICS__)
+    volatile T		values_[64];
+    volatile T*		valptr_;
+
+    Mutex*			lock_;
+
 #else
     volatile T		val_;
 #endif
@@ -306,97 +308,137 @@ T Atomic<T>::exchange( T newval )
 
 
 
-#if __WINATOMICS__
-# ifdef __win32__
-template <> inline
-Atomic<od_int64>::Atomic( T val )
-    : val_( val )
-    , lock_( new Mutex )
-    , valptr_( &val_ )
-{}
+#ifdef __WINATOMICS__
 
 
-template <> inline
-T Atomic<od_int64>::operator += (T b)
+
+
+
+template <class T> inline
+Atomic<T>::Atomic( T val )
+    : lock_( new Mutex )
+    , valptr_( values_ )
 {
-    MutexLocker lock( *lock_ );
-    return val_ += b;
+	*valptr_ = val;
 }
 
 
-template <> inline
-T Atomic<od_int64>::operator -= (T b)
+template <class T> inline
+Atomic<T>::~Atomic()
 {
-    MutexLocker lock( *lock_ );
-    return val_ -= b;
+	delete lock_;
 }
 
 
-template <> inline
-T Atomic<od_int64>::operator ++()
+template <class T> inline
+T Atomic<T>::get() const
 {
-    MutexLocker lock( *lock_ );
-    return ++val_;
+	return *valptr_;
+}
+
+template <class T> inline
+T Atomic<T>::exchange( T newval )
+{
+    T expected = *valptr_;
+    while ( !weakSetIfEqual( newval, expected ) )
+    {}
+
+    return expected;
 }
 
 
-template <c> inline
-T Atomic<od_int64>::operator -- ()
+template <class T> inline
+T Atomic<T>::operator=(T val)
 {
-    MutexLocker lock( *lock_ );
-    return --val_;
+	*valptr_ = val;
+	return *valptr_;
 }
 
 
-template <> inline
-T Atomic<od_int64>::operator ++(int)
+
+template <class T> inline
+T Atomic<T>::operator += (T b)
 {
     MutexLocker lock( *lock_ );
-    return val_++;
+    return (*valptr_) += b;
 }
 
 
-template <> inline
-T Atomic<od_int64>::operator -- (int)
+template <class T> inline
+T Atomic<T>::operator -= (T b)
 {
     MutexLocker lock( *lock_ );
-    return val_--;
+    return (*valptr_) -= b;
 }
 
 
-template <> inline
-bool Atomic<od_int64>::strongSetIfEqual(T newval, T expected )
+template <class T> inline
+T Atomic<T>::operator ++()
 {
     MutexLocker lock( *lock_ );
-    const bool res = val_==expected;
+    return ++(*valptr_);
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- ()
+{
+    MutexLocker lock( *lock_ );
+    return --(*valptr_);
+}
+
+
+template <class T> inline
+T Atomic<T>::operator ++(int)
+{
+    MutexLocker lock( *lock_ );
+    return (*valptr_)++;
+}
+
+
+template <class T> inline
+T Atomic<T>::operator -- (int)
+{
+    MutexLocker lock( *lock_ );
+    return (*valptr_)--;
+}
+
+
+template <class T> inline
+bool Atomic<T>::strongSetIfEqual(T newval, T expected )
+{
+    MutexLocker lock( *lock_ );
+    const bool res = (*valptr_)==expected;
     if ( res )
-	val_ = newval;
+		(*valptr_) = newval;
     
     return res;
 }
 
 
-template <> inline
-bool Atomic<od_int64>::weakSetIfEqual(T newval, T& expected )
+template <class T> inline
+bool Atomic<T>::weakSetIfEqual(T newval, T& expected )
 {
     MutexLocker lock( *lock_ );
-    const bool res = val_==expected;
+    const bool res = (*valptr_)==expected;
     if ( res )
-	val_ = newval;
+		(*valptr_) = newval;
     else
-	expected = val_;
+		expected = (*valptr_);
     
     return res;
 }
 
-# else
+
+#ifdef __win64__
 
 template <> inline
 Atomic<od_int64>::Atomic( od_int64 val )
+	: lock_( 0 )
 {
-    valptr_ = &vals_[0];
-    while ( valptr_%64 )
-	valptr_++;
+    valptr_ = &values_[0];
+    while ( ((long) valptr_) % 64  )
+		valptr_++;
     
     *valptr_ = val;
 }
@@ -415,7 +457,7 @@ bool Atomic<od_int64>::weakSetIfEqual(od_int64 newval, od_int64& expected )
     const od_int64 prevval =
     	InterlockedCompareExchange64(valptr_,newval,expected);
     if ( prevval==expected )
-	return true;
+		return true;
     expected = prevval;
     return false; 
 }
@@ -473,10 +515,11 @@ od_int64 Atomic<od_int64>::operator -- (int)
 
 template <> inline
 Atomic<od_int32>::Atomic( od_int32 val )
+	: lock_( 0 )
 {
-    valptr_ = &vals_[0];
-    while ( valptr_%32 )
-	valptr_++;
+    valptr_ = &values_[0];
+    while ( ((long) valptr_) % 32  )
+		valptr_++;
     
     *valptr_ = val;
 }
@@ -485,7 +528,7 @@ Atomic<od_int32>::Atomic( od_int32 val )
 template <> inline
 bool Atomic<od_int32>::strongSetIfEqual(od_int32 newval, od_int32 expected )
 {
-    return InterlockedCompareExchange( valptr_,newval,expected)==expected;
+    return InterlockedCompareExchange( (volatile long*) valptr_, newval, expected)==expected;
 }
 
 
@@ -493,9 +536,9 @@ template <> inline
 bool Atomic<od_int32>::weakSetIfEqual(od_int32 newval, od_int32& expected )
 {
     const od_int32 prevval =
-	InterlockedCompareExchange(valptr_,newval,expected);
+		InterlockedCompareExchange( (volatile long*) valptr_,  newval,  expected);
     if ( prevval==expected )
-	return true;
+		return true;
     expected = prevval;
     return false;
 }
@@ -504,49 +547,49 @@ bool Atomic<od_int32>::weakSetIfEqual(od_int32 newval, od_int32& expected )
 template <> inline
 od_int32 Atomic<od_int32>::operator += (od_int32 b)
 {
-    return InterlockedAdd( valptr_, b );
+    return InterlockedAdd( (volatile long*) valptr_, (long) b );
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::operator -= (od_int32 b)
 {
-    return InterlockedAdd( valptr_, -b );
+    return InterlockedAdd( (volatile long*) valptr_, -b );
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::operator ++()
 {
-    return InterlockedIncrement( valptr_ );
+    return InterlockedIncrement( (volatile long*) valptr_ );
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::operator -- ()
 {
-    return InterlockedDecrement( valptr_ );
+    return InterlockedDecrement( (volatile long*) valptr_ );
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::operator ++(int)
 {
-    return InterlockedIncrement( valptr_ )-1;
+    return InterlockedIncrement( (volatile long*) valptr_ )-1;
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::exchange(od_int32 newval)
 {
-    return InterlockedExchange( valptr_, newval );
+    return InterlockedExchange( (volatile long*) valptr_, newval );
 }
 
 
 template <> inline
 od_int32 Atomic<od_int32>::operator -- (int)
 {
-    return InterlockedDecrement( valptr_ )+1;
+    return InterlockedDecrement( (volatile long*) valptr_ )+1;
 }
 
 
