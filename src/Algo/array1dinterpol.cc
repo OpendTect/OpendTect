@@ -197,7 +197,7 @@ void PolyArray1DInterpol::extrapolate( bool start )
 	const float arrval = arr_->get( nextvalidix );
 	if ( !mIsUdf(arrval) )
 	{
-	    posidxs[positridx] = nextvalidix;
+	    posidxs[positridx] = (float) nextvalidix;
 	    vals[positridx] = arrval;
 	    positridx++;
 	}
