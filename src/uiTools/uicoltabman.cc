@@ -45,8 +45,8 @@ static const char* sKeyOwn = "Own";
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
-    : uiDialog(p,uiDialog::Setup("Colortable Manager",
-				 "Add, remove, change colortables",
+    : uiDialog(p,uiDialog::Setup("Manage Color Tables",
+				 "Add, remove, change color tables",
 				 "50.1.1"))
     , ctab_(ctab)
     , orgctab_(0)
@@ -59,7 +59,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiGroup* leftgrp = new uiGroup( this, "Left" );
 
-    coltablistfld_ = new uiTreeView( leftgrp, "Colortable Manager" );
+    coltablistfld_ = new uiTreeView( leftgrp, "Color Table List" );
     BufferStringSet labels;
     labels.add( "Color table" ).add( "Status" );
     coltablistfld_->addColumns( labels );
@@ -139,7 +139,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     removebut_->activated.notify( mCB(this,uiColorTableMan,removeCB) );
     removebut_->attach( alignedBelow, splitter );
 
-    importbut_ = new uiPushButton( this, "&From other user", false );
+    importbut_ = new uiPushButton( this, "&Import", false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ );
 
@@ -589,7 +589,6 @@ void uiColorTableMan::importColTab( CallBacker* )
     uiColTabImport dlg( this );
     if ( dlg.go() )
     {
-	ColTab::SM().write(false);
 	refreshColTabList( dlg.getCurrentSelColTab() );
 	tableAddRem.trigger();
 	selChg(0);

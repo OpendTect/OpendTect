@@ -25,21 +25,33 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
+static const char* getLabel( bool fromusr )
+{ return fromusr ? "User's HOME directory" : "File"; }
+
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import color table",0,"50.1.4"))
+    : uiDialog(p,uiDialog::Setup("Import Color Table",mNoDlgTitle,"50.1.4"))
+    , dirfld_(0)
+    , dtectusrfld_(0)
 {
-    FilePath fp( GetPersonalDir() ); fp.setFileName( 0 );
-    homedirfld_ = new uiFileInput( this, "User's HOME directory",
-	    			  uiFileInput::Setup(fp.fullPath())
-				  .directories(true) );
-    homedirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
+    choicefld_ = new uiGenInput( this, "Import from",
+	BoolInpSpec(true,"Other user","File") );
+    choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
+
+    FilePath fp( GetPersonalDir() ); //fp.setFileName( 0 );
+    dirfld_ = new uiFileInput( this, getLabel(true),
+			       uiFileInput::Setup(fp.fullPath())
+			       .directories(true) );
+    dirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
+    dirfld_->attach( alignedBelow, choicefld_ );
 
     dtectusrfld_ = new uiGenInput( this, "DTECT_USER (if any)" );
-    dtectusrfld_->attach( alignedBelow, homedirfld_ );
+    dtectusrfld_->attach( alignedBelow, dirfld_ );
     dtectusrfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
 
     listfld_ = new uiLabeledListBox( this, "Color table(s) to add", true );
     listfld_->attach( alignedBelow, dtectusrfld_ );
+
+    choiceSel( 0 );
 }
 
 
@@ -55,39 +67,73 @@ const char* uiColTabImport::getCurrentSelColTab() const
 }
 
 
+void uiColTabImport::choiceSel( CallBacker* )
+{
+    usrSel( 0 );
+    const bool fromuser = choicefld_->getBoolValue();
+    dirfld_->setSelectMode(
+	fromuser ? uiFileDialog::DirectoryOnly : uiFileDialog::ExistingFile );
+    dirfld_->setTitleText( getLabel(fromuser) );
+
+    dtectusrfld_->display( fromuser );
+}
+
+
 #define mErrRet(s1) { uiMSG().error(s1); return; }
 
 void uiColTabImport::usrSel( CallBacker* )
 {
+    PtrMan<IOPar> ctabiop = 0;
     listfld_->box()->setEmpty();
 
-    FilePath fp( homedirfld_->fileName() );
+    FilePath fp( dirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )
 	mErrRet( "Please select an existing directory" );
-    fp.add( ".od" );
-    if ( !File::exists(fp.fullPath()) )
-	mErrRet( "No '.od' directory found in directory" );
 
-    BufferString settdir( fp.fullPath() );
-    const char* dtusr = dtectusrfld_->text();
+    if ( choicefld_->getBoolValue() )
+    {
+	fp.add( ".od" );
+	if ( !File::exists(fp.fullPath()) )
+	    mErrRet( "No '.od' directory found in directory" );
 
-    PtrMan<IOPar> ctabiop = Settings::fetchExternal( "coltabs", dtusr, settdir);
-    if ( !ctabiop )
-	mErrRet( "No user-defined color tables found" );
+	BufferString settdir( fp.fullPath() );
+	const char* dtusr = dtectusrfld_->text();
+	ctabiop = Settings::fetchExternal( "coltabs", dtusr, settdir );
+	if ( !ctabiop )
+	    mErrRet( "No user-defined color tables found" );
+    }
+    else
+    {
+	if ( File::isDirectory(fp.fullPath()) )
+	    return;
+
+	ctabiop = new IOPar;
+	bool res =
+	    ctabiop->read( fp.fullPath(), "Default settings" );
+	if ( !res )
+	{
+	    res = ctabiop->read( fp.fullPath(), 0 );
+	    if ( !res )
+		mErrRet( "Cannot read color tables from selected file" );
+	}
+    }
 
     deepErase( seqs_ );
+    int nrinvalididx = 0;
     for ( int idx=0; ; idx++ )
     {
 	IOPar* subpar = ctabiop->subselect( idx );
 	if ( !subpar || !subpar->size() )
 	{
 	    delete subpar;
-	    if ( idx )	break;
-	    else	continue;
+	    nrinvalididx++;
+	    if ( nrinvalididx>1000 ) break;
+	    else
+		continue;
 	}
 	const char* nm = subpar->find( sKey::Name() );
 	if ( !nm )
-	    { delete subpar; continue; }
+	    { delete subpar; nrinvalididx++; continue; }
 	
 	ColTab::Sequence* seq = new ColTab::Sequence;
 	seq->usePar( *subpar );
@@ -130,5 +176,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
 	}
     }
 
+    if ( oneadded )
+	ColTab::SM().write( false );
     return oneadded;
 }

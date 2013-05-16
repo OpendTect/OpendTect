@@ -32,12 +32,14 @@ public:
 
 protected:
 
-    uiFileInput*	        homedirfld_;
+    uiGenInput*			choicefld_;
+    uiFileInput*	        dirfld_;
     uiGenInput*         	dtectusrfld_;
     uiLabeledListBox*   	listfld_;
 
     ObjectSet<ColTab::Sequence> seqs_;
 
+    void			choiceSel(CallBacker*);
     void			usrSel(CallBacker*);
     bool			acceptOK(CallBacker*);
 };
