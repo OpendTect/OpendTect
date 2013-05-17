@@ -553,7 +553,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
 	    			   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)",
-   IntInpSpec( initwvltsz ).setLimits(Interval<int>(mMinWvltLength,maxwvltsz)));
+	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
     estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,

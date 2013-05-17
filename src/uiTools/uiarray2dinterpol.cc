@@ -471,8 +471,7 @@ uiArray2DInterpol* uiExtensionArray2DInterpol::create( uiParent* p )
 uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
     : uiArray2DInterpol( p, "Extension" )
 {
-    nrstepsfld_ = new  uiGenInput( this, "Number of steps", IntInpSpec() );
-    nrstepsfld_->setValue( 20 );
+    nrstepsfld_ = new uiGenInput( this, "Number of steps", IntInpSpec(20) );
     setHAlignObj( nrstepsfld_ );
 }
 

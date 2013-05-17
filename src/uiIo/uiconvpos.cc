@@ -35,11 +35,12 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 
     mangrp = new uiGroup( this, "Manual group" );
     uiGroup* inlcrlgrp = new uiGroup( mangrp, "InlCrl group" );
+    const Interval<int> intv( -mUdf(int), mUdf(int) );
     inlfld = new uiGenInput( inlcrlgrp, "In-line", 
-			     IntInpSpec().setName("Inl-field") );
+		IntInpSpec(0,intv).setName("Inl-field") );
     inlfld->setElemSzPol( uiObject::Small );
     crlfld = new uiGenInput( inlcrlgrp, "Cross-line", 
-	    		     IntInpSpec().setName("Crl-field") );
+		IntInpSpec(0,intv).setName("Crl-field") );
     crlfld->setElemSzPol( uiObject::Small );
     crlfld->attach( alignedBelow, inlfld );
 
