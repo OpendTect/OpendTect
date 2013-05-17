@@ -820,14 +820,14 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     if ( startidx < 0 ) startidx = 0;
     for ( int idx=startidx; idx<wl.size(); idx++ )
     {
-	float curdah = wl.dah( idx );
+	const float curdah = wl.dah( idx );
 	if ( rg.includes(curdah,false) )
 	{
-	    float val = wl.value(idx);
+	    const float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
 	    {
 		if ( logisvel && val > 1e-5f )
-		    vals += 1. / val;
+		    vals += 1.f / val;
 		else
 		    vals += val;
 	    }
@@ -838,15 +838,15 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 
     const int sz = vals.size();
     if ( sz < 1 ) return mUdf(float);
-    if ( sz == 1 ) return logisvel ? 1. / vals[0] : vals[0];
+    if ( sz == 1 ) return logisvel ? 1.f / vals[0] : vals[0];
     if ( sz == 2 ) return samppol == Stats::UseAvg
-		? ( logisvel ? 2./(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
-		: logisvel ? 1. / vals[0] : vals[0];
+		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
+		: logisvel ? 1.f / vals[0] : vals[0];
 
     if ( samppol == Stats::UseMed )
     {
 	sort_array( vals.arr(), sz );
-	return logisvel ? 1. / vals[sz/2] : vals[sz/2];
+	return logisvel ? 1.f / vals[sz/2] : vals[sz/2];
     }
     else if ( samppol == Stats::UseAvg )
     {
@@ -887,7 +887,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	    if ( valsseencount[idx] > valsseencount[maxvsidx] )
 		maxvsidx = idx;
 	}
-	return logisvel ? 1. / valsseen[ maxvsidx ] : valsseen[ maxvsidx ];
+	return logisvel ? 1.f / valsseen[ maxvsidx ] : valsseen[ maxvsidx ];
     }
 
     //pErrMsg( "UpscaleType not supported" );
