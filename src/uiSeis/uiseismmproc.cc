@@ -137,7 +137,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    inlperjobattach = tmpstordirfld->mainObject();
 	}
 
-	inlperjobfld = new uiGenInput( this, "Nr inlines per job",
+	inlperjobfld = new uiGenInput( this, "Nr of inlines per job",
 				       IntInpSpec( defltNrInlPerJob(iop) ) );
 
 	sepattach = inlperjobfld->mainObject();
@@ -340,32 +340,15 @@ void uiSeisMMProc::startWork( CallBacker* )
     timer->start( 100, true );
 }
 
-#define mMMKey			"MultiMachine"
-#define mNrInlPerJobSettKey	"Nr inline per job"
 #define mNrInlPerJobProcKey	"Nr of Inlines per Job"
 
 int uiSeisMMProc::defltNrInlPerJob( const IOPar& inputpar )
 {
     static int nr_inl_job = -1;
-
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
 
     if ( nr_inl_job <= 0 )
-    {
-	IOPar* iopar = Settings::common().subselect( mMMKey );
-	if ( !iopar ) iopar = new IOPar;
-
-	bool insettings = iopar->get( mNrInlPerJobSettKey, nr_inl_job );
-
-	if ( !insettings )
-	{
-	    nr_inl_job = 3;
-	    iopar->set( mNrInlPerJobSettKey, nr_inl_job );
-
-	    Settings::common().mergeComp( *iopar, mMMKey );
-	    Settings::common().write();
-	} 
-    } 
+	nr_inl_job = InlineSplitJobDescProv::defaultNrInlPerJob();
 
     return nr_inl_job;
 }
