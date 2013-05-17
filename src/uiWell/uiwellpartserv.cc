@@ -99,6 +99,7 @@ void uiWellPartServer::importTrack()
     {
 	uiwellimpdlg_->show();
 	uiwellimpdlg_->raise();
+	return;
     }
 
     uiwellimpdlg_ = new uiWellImportAsc( parent() );
@@ -117,7 +118,7 @@ void uiWellPartServer::importMarkers()
 
 void uiWellPartServer::importReadyCB( CallBacker* cb )
 {
-    if ( cb==uiwellimpdlg_ && uiwellimpdlg_->saveButtonChecked() )
+    if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
     {
 	crwellids_.erase();
 	crwellids_.add( uiwellimpdlg_->getWellID().buf() );
