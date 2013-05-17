@@ -689,6 +689,7 @@ void StratSynth::generateOtherQuantities()
     }
 }
 
+
 void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd, 
 					  const Strat::LayerModel& lm ) 
 {
@@ -763,14 +764,18 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 		{
 		    const Strat::Layer* lay = seq.layers()[ilay];
 		    if ( !lay ) continue;
-		    const float val = propisvel && !mIsUdf(lay->value(iprop))
-				    ? 1. / lay->value( iprop )
-				    : lay->value( iprop );
-		    propval.addValue( val, lay->thickness() );
+		    const float val = lay->value(iprop);
+		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+			continue;
+
+		    propval.addValue( propisvel ? 1.f / val : val,
+			   	      lay->thickness() );
 		}
 		const float val = mCast( float, propval.average() );
-		if ( !mIsUdf(val) )
-		    propvals.add( time, propisvel ? 1/val : val );
+		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+		    continue;
+
+		propvals.add( time, propisvel ? 1.f / val : val );
 	    }
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
