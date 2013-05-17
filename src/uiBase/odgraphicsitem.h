@@ -174,6 +174,7 @@ class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
 {
 public:
 			ODGraphicsDynamicImageItem();
+			~ODGraphicsDynamicImageItem();
 
     void		setImage( bool isdynamic, const QImage& image,
 	    			  const QRectF& rect );

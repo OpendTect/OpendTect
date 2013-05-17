@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "geometry.h"
 #include "pixmap.h"
 #include "uifont.h"
+#include "uimain.h"
 
 #include <math.h>
 
@@ -406,8 +407,8 @@ void ODViewerTextItem::paint( QPainter* painter,
     //Nice for debugging
     //painter->drawPoint( paintpos.x(), paintpos.y() );
     
-    painter->drawText( paintpos.x() + movex,
-		       paintpos.y()+movey+txtheight, text );
+    painter->drawText(
+	    QPointF(paintpos.x() + movex, paintpos.y()+movey+txtheight), text );
 		  
     painter->restore();
     
@@ -486,6 +487,12 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
 {}
 
 
+ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
+{
+    
+}
+
+
 void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 					   const QImage& image,
 					   const QRectF& rect )
@@ -502,13 +509,19 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
     }
     else
     {
-
+	bbox_ = rect;
+	if ( !isMainThreadCurrent() )
+	{
+	    pErrMsg("Wrong thread");
+	    return;
+	}
+	
 #if QT_VERSION>=0x040700
 	basepixmap_.convertFromImage( image );
 #else
 	basepixmap_ = QPixmap::fromImage( image, Qt::OrderedAlphaDither );
 #endif
-	bbox_ = rect;
+	
     }
 }
 
