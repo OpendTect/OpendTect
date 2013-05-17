@@ -414,6 +414,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
     for ( int layer=mCast(int,start); layer<=stop; layer++ )
     {
+	addToNrDone( 1 );
 	const ElasticLayer& ellayer = model_[layer];
 	const float depth = 2*depths_[layer];
 	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;

@@ -235,7 +235,7 @@ protected:
     RayTracerRunner*		rtr_;
     od_int64            	nrIterations() const;
     od_int64			nrDone() const;
-    const char*			nrDoneText() const { return "Models done"; }
+    const char*			nrDoneText() const;
     od_int64			totalNr() const;
     bool                        doPrepare(int);
     bool        		doWork(od_int64,od_int64,int);
