@@ -73,7 +73,7 @@ bool Threads::Mutex::tryLock()
 #endif
 }
 
-#ifdef mHasAtomic
+
 Threads::SpinLock::SpinLock()
     : spinlock_( 0 )
 {}
@@ -103,30 +103,6 @@ bool Threads::SpinLock::tryLock()
 {
     return spinlock_.strongSetIfEqual( 1, 0 );
 }
-#else
-Threads::SpinLock::SpinLock()
-{}
-
-Threads::SpinLock::~SpinLock()
-{}
-
-void Threads::SpinLock::lock()
-{
-    spinlock_.lock();
-}
-
-
-void Threads::SpinLock::unLock()
-{
-    spinlock_.unLock();
-}
-
-
-bool Threads::SpinLock::tryLock()
-{
-    return spinlock_.tryLock();
-}
-#endif
 
 #define mUnLocked	0
 #define mPermissive	-1
