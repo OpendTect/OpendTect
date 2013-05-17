@@ -135,7 +135,10 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     }
     else if ( ipar )
     {
-	initspec = new IntInpSpec( ipar->getIntValue() );
+	IntInpSpec* ispec = new IntInpSpec( ipar->getIntValue() );
+	if ( ipar->limits() )
+	    ispec->setLimits( *(ipar->limits()) );
+	initspec = ispec;
 	const int step = ipar->limits() ? ipar->limits()->step : 1;
 	incrspec = new IntInpSpec( step );
     }
