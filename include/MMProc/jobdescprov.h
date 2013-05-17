@@ -105,6 +105,9 @@ public:
     static const char*	sKeyMaxInlRg(); //!< absolute limit - will override
     static const char*	sKeyMaxCrlRg(); //!< absolute limit - will override
 
+    static int		defaultNrInlPerJob();
+    static void		setDefaultNrInlPerJob(int);
+
 protected:
 
     const BufferString	singlekey_;

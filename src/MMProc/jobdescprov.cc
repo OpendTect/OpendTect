@@ -10,10 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobdescprov.h"
+
+#include "cubesampling.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "settings.h"
 #include "survinfo.h"
-#include "cubesampling.h"
 #include "undefval.h"
 #include <iostream>
 
@@ -220,4 +222,24 @@ void InlineSplitJobDescProv::dump( std::ostream& strm ) const
 	    strm << (*inls_)[idx] << ' ';
     }
     strm << std::endl;
+}
+
+
+#define mMMKey		"MultiMachine"
+#define mNrInlPerJobKey	"Nr inline per job"
+
+int InlineSplitJobDescProv::defaultNrInlPerJob()
+{
+    int nrinljob = 10;
+    Settings::common().get( IOPar::compKey(mMMKey,mNrInlPerJobKey), nrinljob );
+    return nrinljob;
+}
+
+
+void InlineSplitJobDescProv::setDefaultNrInlPerJob( int nr )
+{
+    if ( nr <= 0 ) return;
+
+    Settings::common().set( IOPar::compKey(mMMKey,mNrInlPerJobKey), nr );
+    Settings::common().write();
 }
