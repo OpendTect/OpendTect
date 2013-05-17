@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratsynth.h"
 
 #include "array1dinterpol.h"
+#include "angles.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "attribengman.h"
@@ -28,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "elasticpropsel.h"
 #include "flatposdata.h"
 #include "ioman.h"
+#include "mathfunc.h"
 #include "prestackattrib.h"
 #include "prestackgather.h"
 #include "prestackanglecomputer.h"
@@ -38,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "survinfo.h"
+#include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "synthseis.h"
@@ -296,10 +299,6 @@ int StratSynth::nrSynthetics() const
     return synthetics_.size();
 }
 
-float StratSynth::cMaximumVpWaterVel()
-{
-    return 1510.f;
-}
 
 SyntheticData* StratSynth::generateSD()
 { return generateSD( genparams_ ); }
@@ -404,8 +403,8 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
     mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
-    mSetProc();
 
+    mSetProc();
     mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
     if ( !psattr )
 	mErrRet( proc->message(), delete sd; return 0 ) ;
@@ -418,8 +417,9 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
 	const TraceID trcid( gather->getBinID() );
 	anglecomp->setRayTracer( rts[idx], trcid );
     }
-    psattr->setAngleComp( anglecomp );
 
+    psattr->setAngleComp( anglecomp );
+    
     mCreateSeisBuf();
     return new AVOGradSyntheticData( synthgenpar, *angledp );
 }
@@ -432,7 +432,7 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
     mCreateDesc();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-    
+
     mSetProc();
     mCreateSeisBuf();
     return new AngleStackSyntheticData( synthgenpar, *angledp );
@@ -457,7 +457,7 @@ protected :
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    for ( int idm=start; idm<=stop; idm++ )
+    for ( int idm=(int) start; idm<=stop; idm++ )
     {
 	addToNrDone(1);
 	ElasticModel& curem = aimodels_[idm];
@@ -588,7 +588,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	{
 	    SeisTrc* trc = trcs[idx];
 	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
-	    trc->info().nr = imdl;
+	    trc->info().nr = imdl+1;
 	    cs.hrg.include( trc->info().binid );
 	    if ( !trc->isEmpty() )
 	    {
@@ -694,60 +694,102 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 					  const Strat::LayerModel& lm ) 
 {
     const PropertyRefSelection& props = lm.propertyRefs();
+    const StepInterval<double>& zrg = sd.postStackPack().posData().range(false);
+
+    TypeSet<Interval<float> > seqtimergs;
+    ManagedObjectSet<Strat::LayerModel> layermodels;
+    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	layermodels += new Strat::LayerModel();
+
+    for ( int iseq=0; iseq<lm.size(); iseq ++ )
+    {
+	const Strat::LayerSequence& seq = lm.sequence( iseq ); 
+	const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
+	const Interval<float> seqdepthrg = seq.zRange();
+	const float seqstarttime = t2d.getTime(
+					 seq.layerIdxAtZ( seqdepthrg.start ) );
+	const float seqstoptime = t2d.getTime(
+					 seq.layerIdxAtZ( seqdepthrg.stop ) );
+	seqtimergs += Interval<float> ( seqstarttime, seqstoptime );
+	for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	{
+	    Strat::LayerModel* lmsamp = layermodels[idz];
+	    if ( !lmsamp )
+		continue;
+
+	    lmsamp->addSequence();
+	    Strat::LayerSequence& curseq = lmsamp->sequence( iseq );
+	    const float time = mCast( float, zrg.atIndex(idz) );
+	    if ( !seqtimergs[iseq].includes(time,false) )
+		continue;
+
+	    const float dptstart = t2d.getDepth( time - (float)zrg.step );
+	    const float dptstop = t2d.getDepth( time + (float)zrg.step );
+	    Interval<float> depthrg( dptstart, dptstop );
+	    seq.getSequencePart( depthrg, true, curseq );
+	}
+    }
 
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
+	const bool propisvel = props[iprop]->stdType() == PropertyRef::Vel;
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( sd.postStackPack() );
-
-	BufferString nm( "[" ); nm += props[iprop]->name(); nm += "]";
-
-	const StepInterval<double>& zrg = dp->posData().range( false );
-
 	SeisTrcBuf* trcbuf = new SeisTrcBuf( dp->trcBuf() );
 	const int bufsz = trcbuf->size();
-
 	for ( int iseq=0; iseq<lm.size(); iseq ++ )
 	{
-	    const Strat::LayerSequence& seq = lm.sequence( iseq ); 
-	    const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
+	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
+	    if ( !rawtrc )
+		continue;
 
-	    int layidx = 0;
-	    float laydpt = seq.startDepth();
-	    float val = mUdf(float);
-	    TypeSet<float> vals; 
+	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
+		    			     PointBasedMathFunction::EndVal );
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
 		const float time = mCast( float, zrg.atIndex(idz) );
-		const float dpt = t2d.getDepth( time );
+		if ( !seqtimergs[iseq].includes(time,false) )
+		    continue;
 
-		const Strat::Layer* lay = 0;
-		while ( layidx < seq.size() - 1 )
+		if ( !layermodels.validIdx(idz) )
+		    continue;
+
+		Strat::LayerSequence& seq = layermodels[idz]->sequence(iseq);
+		if ( seq.isEmpty() )
+		    continue;
+
+		Stats::CalcSetup laypropcalc( true );
+		laypropcalc.require( Stats::Average );
+		Stats::RunCalc<double> propval( laypropcalc );
+		for ( int ilay=0; ilay<seq.size(); ilay++ )
 		{
-		    if ( dpt <= laydpt )
-			break;
+		    const Strat::Layer* lay = seq.layers()[ilay];
+		    if ( !lay ) continue;
+		    const float val = lay->value(iprop);
+		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+			continue;
 
-		    lay = seq.layers()[layidx];
-		    laydpt += lay->thickness();
-		    layidx ++;
+		    propval.addValue( propisvel ? 1.f / val : val,
+			   	      lay->thickness() );
 		}
-		if ( lay && iprop < lay->nrValues() )
-		    val = lay->value( iprop );
+		const float val = mCast( float, propval.average() );
+		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+		    continue;
 
-		vals += val;
+		propvals.add( time, propisvel ? 1.f / val : val );
 	    }
-	    SeisTrc* trc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
-	    if ( !trc ) continue;
-	    //Array1DImpl<float> outvals( vals.size() );
-	    //AntiAlias( 1/(float)5, vals.size(), vals.arr(), outvals.arr() );
-	    for ( int idz=0; idz<vals.size(); idz++ )
-		trc->set( idz, vals[idz], 0 );
+	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	    {
+		const float time = mCast( float, zrg.atIndex(idz) );
+		rawtrc->set( idz, propvals.getValue( time ), 0 );
+	    }
+	    // TODO: add Anti-Alias frequency filter
 	}
 
-
-	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );	
+	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
+	BufferString nm( "[", props[iprop]->name(), "]" );
 	dp->setName( nm );
 	PropertyRefSyntheticData* prsd = 
-	    new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
+	    	 new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
 
@@ -767,6 +809,7 @@ const char* StratSynth::infoMsg() const
 {
     return infomsg_.isEmpty() ? 0 : infomsg_.buf();
 }
+
 
 
 
@@ -1077,7 +1120,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees( PreStack::Gather* ag ) co
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval = Math::toDegrees( radval );
+	    const float dval =  Angle::rad2deg( radval );
 	    agdata.set( idx, idy, dval );
 	}
     }
