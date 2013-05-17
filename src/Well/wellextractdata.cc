@@ -812,18 +812,25 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 				   float winsz, Stats::UpscaleType samppol ) 
 {
+    const bool logisvel = wl.unitOfMeasure() &&
+       			  wl.unitOfMeasure()->propType() == PropertyRef::Vel;
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
     int startidx = wl.indexOf( rg.start );
     if ( startidx < 0 ) startidx = 0;
     for ( int idx=startidx; idx<wl.size(); idx++ )
     {
-	float curdah = wl.dah( idx );
+	const float curdah = wl.dah( idx );
 	if ( rg.includes(curdah,false) )
 	{
-	    float val = wl.value(idx);
+	    const float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
-		vals += wl.value(idx);
+	    {
+		if ( logisvel && val > 1e-5f )
+		    vals += 1.f / val;
+		else
+		    vals += val;
+	    }
 	}
 	else if ( curdah > rg.stop )
 	    break;
@@ -831,28 +838,30 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 
     const int sz = vals.size();
     if ( sz < 1 ) return mUdf(float);
-    if ( sz == 1 ) return vals[0];
+    if ( sz == 1 ) return logisvel ? 1.f / vals[0] : vals[0];
     if ( sz == 2 ) return samppol == Stats::UseAvg
-				? (vals[0]+vals[1])*0.5f : vals[0];
+		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
+		: logisvel ? 1.f / vals[0] : vals[0];
 
     if ( samppol == Stats::UseMed )
     {
 	sort_array( vals.arr(), sz );
-	return vals[sz/2];
+	return logisvel ? 1.f / vals[sz/2] : vals[sz/2];
     }
     else if ( samppol == Stats::UseAvg )
     {
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx];
-	return val / sz;
+	return logisvel ? (float)sz / val : val / (float)sz;
     }
     else if ( samppol == Stats::UseRMS )
     {
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx] * vals[idx];
-	return Math::Sqrt( val / sz );
+	return logisvel ? Math::Sqrt( (float)sz / val )
+	    		: Math::Sqrt( val / (float)sz );
     }
     else if ( samppol == Stats::UseMostFreq )
     {
@@ -878,7 +887,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	    if ( valsseencount[idx] > valsseencount[maxvsidx] )
 		maxvsidx = idx;
 	}
-	return valsseen[ maxvsidx ];
+	return logisvel ? 1.f / valsseen[ maxvsidx ] : valsseen[ maxvsidx ];
     }
 
     //pErrMsg( "UpscaleType not supported" );
