@@ -246,6 +246,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	    return false;
 	}
     }
+    ls.prepareUse();
 
     return true;
 }
