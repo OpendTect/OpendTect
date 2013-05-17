@@ -728,8 +728,7 @@ void uiInfoDlg::needNewEstimatedWvlt( CallBacker* )
     if ( !computeNewWavelet() )
 	return;
 
-    if ( !isInitWvltActive() )
-	wvltChanged(0);
+    wvltChanged(0);
 }
 
 

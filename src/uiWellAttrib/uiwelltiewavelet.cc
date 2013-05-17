@@ -226,8 +226,10 @@ void uiWavelet::drawWavelet()
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );
+    viewer_->setViewToBoundingBox();
     viewer_->handleChange( uiFlatViewer::All );
 }
 
 
-}; //namespace WellTi
+}; //namespace WellTie
+
