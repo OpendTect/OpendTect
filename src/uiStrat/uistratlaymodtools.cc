@@ -427,9 +427,10 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 
 bool uiStratLayModFRPropSelector::needsDisplay() const
 {
-    if ( vpfld_->size() ==2 && vsfld_->size() ==2
+    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
 	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr()) )
     {
+	vpfld_->setCurrentItem( 0 );
 	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
 	return false;
     }
