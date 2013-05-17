@@ -86,11 +86,7 @@ public:
     bool		tryLock();
 
 protected:
-#ifdef mHasAtomic
     Atomic<long>	spinlock_;
-#else
-    Mutex		spinlock_;
-#endif
 };
 
 
