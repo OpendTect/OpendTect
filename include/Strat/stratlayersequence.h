@@ -63,6 +63,11 @@ public:
 			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
 	    			     ObjectSet<const Layer>&) const;
+    			//!< cropfirstlast updates thicknesses of first and last
+    			//!< layers to exactly match the window
+    void		getSequencePart(const Interval<float>& depthrg,
+	    				bool cropfirstlast,
+					LayerSequence&) const;
     const RefTree&	refTree() const;
 
     void		prepareUse() const ;	//!< needed after changes
