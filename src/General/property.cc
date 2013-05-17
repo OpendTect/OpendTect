@@ -529,6 +529,11 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
     if ( !expr_ )
 	return mUdf(float);
 
+    EvalOpts nonmatheo( eo );
+    if ( nonmatheo.valopt_ == EvalOpts::New )
+	nonmatheo.valopt_ = EvalOpts::Prev;
+    const EvalOpts matheo( eo );
+
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
@@ -538,7 +543,8 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    v = eo.relpos_;
 	else if ( p != &depthprop )
 	{
-	    v = p->value( eo );
+	    mDynamicCastGet(const MathProperty*,mp,p)
+	    v = p->value( mp ? matheo : nonmatheo );
 	    const UnitOfMeasure* uom = inpunits_[idx];
 	    if ( uom )
 		v = uom->getUserValueFromSI( v );
@@ -558,9 +564,6 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 
     if ( uom_ )
 	res = uom_->getUserValueFromSI( res );
-
-    if ( eo.valopt_ == EvalOpts::New )
-	eo.valopt_ = EvalOpts::Prev;
 
     return res;
 }
