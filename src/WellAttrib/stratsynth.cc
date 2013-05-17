@@ -16,6 +16,7 @@ static const char* rcsID  = "$Id$";
 #include "elasticpropsel.h"
 #include "flatposdata.h"
 #include "ioman.h"
+#include "mathfunc.h"
 #include "prestackgather.h"
 #include "propertyref.h"
 #include "raytracerrunner.h"
@@ -23,6 +24,7 @@ static const char* rcsID  = "$Id$";
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "synthseis.h"
@@ -389,63 +391,110 @@ void StratSynth::generateOtherQuantities( PostStackSyntheticData& sd,
 					  const Strat::LayerModel& lm ) 
 {
     const PropertyRefSelection& props = lm.propertyRefs();
+    const StepInterval<double>& zrg = sd.postStackPack().posData().range(false);
+
+    TypeSet<Interval<float> > seqtimergs;
+    ObjectSet<Strat::LayerModel> layermodels;
+    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	layermodels += new Strat::LayerModel();
+
+    for ( int iseq=0; iseq<lm.size(); iseq ++ )
+    {
+	const Strat::LayerSequence& seq = lm.sequence( iseq ); 
+	const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
+	const Interval<float> seqdepthrg( seq.startDepth(),
+	       		      seq.layers()[seq.layers().size()-1]->zBot() );
+	const float seqstarttime = t2d.getTime(
+					 seq.layerIdxAtZ( seqdepthrg.start ) );
+	const float seqstoptime = t2d.getTime(
+					 seq.layerIdxAtZ( seqdepthrg.stop ) );
+	seqtimergs += Interval<float> ( seqstarttime, seqstoptime );
+	for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	{
+	    Strat::LayerModel* lmsamp = layermodels[idz];
+	    if ( !lmsamp )
+		continue;
+
+	    lmsamp->addSequence();
+	    Strat::LayerSequence& curseq = lmsamp->sequence( iseq );
+	    const float time = mCast( float, zrg.atIndex(idz) );
+	    if ( !seqtimergs[iseq].includes(time,false) )
+		continue;
+
+	    const float dptstart = t2d.getDepth( time - (float)zrg.step );
+	    const float dptstop = t2d.getDepth( time + (float)zrg.step );
+	    Interval<float> depthrg( dptstart, dptstop );
+	    seq.getSequencePart( depthrg, true, curseq );
+	}
+    }
 
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
+	const bool propisvel = props[iprop]->stdType() == PropertyRef::Vel;
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( sd.postStackPack() );
-
-	BufferString nm; nm += "["; nm += props[iprop]->name(); nm += "]";
-
-	const StepInterval<double>& zrg = dp->posData().range( false );
-
 	SeisTrcBuf* trcbuf = new SeisTrcBuf( dp->trcBuf() );
 	const int bufsz = trcbuf->size();
-
 	for ( int iseq=0; iseq<lm.size(); iseq ++ )
 	{
-	    const Strat::LayerSequence& seq = lm.sequence( iseq ); 
-	    const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
+	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
+	    if ( !rawtrc )
+		continue;
 
-	    int layidx = 0;
-	    float laydpt = seq.startDepth();
-	    float val = mUdf(float);
-	    TypeSet<float> vals;
+	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
+		    			     PointBasedMathFunction::EndVal );
 	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	    {
-		const float time = zrg.atIndex( idz );
-		const float dpt = t2d.getDepth( time );
+		const float time = mCast( float, zrg.atIndex(idz) );
+		if ( !seqtimergs[iseq].includes(time,false) )
+		    continue;
 
-		const Strat::Layer* lay = 0;
-		while ( layidx < seq.size() - 1 )
+		if ( !layermodels.validIdx(idz) )
+		    continue;
+
+		Strat::LayerSequence& seq = layermodels[idz]->sequence(iseq);
+		if ( seq.isEmpty() )
+		    continue;
+
+		Stats::CalcSetup laypropcalc( true );
+		laypropcalc.require( Stats::Average );
+		Stats::RunCalc<double> propval( laypropcalc );
+		for ( int ilay=0; ilay<seq.size(); ilay++ )
 		{
-		    if ( dpt <= laydpt )
-			break;
+		    const Strat::Layer* lay = seq.layers()[ilay];
+		    if ( !lay ) continue;
+		    const float val = lay->value(iprop);
+		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+			continue;
 
-		    lay = seq.layers()[layidx];
-		    laydpt += lay->thickness();
-		    layidx ++;
+		    propval.addValue( propisvel ? 1.f / val : val,
+			   	      lay->thickness() );
 		}
-		if ( lay && iprop < lay->nrValues() )
-		    val = lay->value( iprop );
+		const float val = mCast( float, propval.average() );
+		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+		    continue;
 
-		vals += val;
+		propvals.add( time, propisvel ? 1.f / val : val );
 	    }
-	    SeisTrc* trc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
-	    if ( !trc ) continue;
-	    Array1DImpl<float> outvals( vals.size() );
-	    AntiAlias( 1/(float)5, vals.size(), vals.arr(), outvals.arr() );
-	    for ( int idz=0; idz<vals.size(); idz++ )
-		trc->set( idz, outvals.get(idz), 0 );
+	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	    {
+		const float time = mCast( float, zrg.atIndex(idz) );
+		rawtrc->set( idz, propvals.getValue( time ), 0 );
+	    }
+	    // TODO: add Anti-Alias frequency filter
 	}
-	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );	
+
+	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
+	BufferString nm( "[", props[iprop]->name(), "]" );
 	dp->setName( nm );
 	PropertyRefSyntheticData* prsd = 
-		new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
+	    	 new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
+
 	deepCopy( prsd->d2tmodels_, sd.d2tmodels_ );
 	synthetics_ += prsd;
     }
+    deepErase( layermodels );
 }
 
 
