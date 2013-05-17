@@ -244,6 +244,68 @@ void Strat::LayerSequence::getLayersFor( const UnitRef* ur,
 }
 
 
+void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
+					    bool cropfirstlast,
+					    LayerSequence& seq ) const
+{
+    const int sz = size();
+    if ( sz < 1 ) return;
+    if ( depthrg.isUdf() ) return;
+
+    Interval<int> laysidx( layerIdxAtZ( depthrg.start ), 
+	    		   layerIdxAtZ( depthrg.stop ) );
+
+    if ( laysidx.isUdf() ) return;
+    if ( laysidx.start == -1 )
+	laysidx.start = 0;
+
+    if ( laysidx.stop == -1 )
+	laysidx.stop = sz - 1;
+
+    const Layer* firstlay = layers_[laysidx.start];
+    if ( firstlay )
+    {
+	Layer* croppedlay = new Layer( *firstlay );
+	const float ztop = firstlay->zTop() > depthrg.start
+			 ? firstlay->zTop() : depthrg.start;
+	if ( cropfirstlast && croppedlay )
+	{
+	    const float zbase = firstlay->zBot() < depthrg.stop
+			      ? firstlay->zBot() : depthrg.stop;
+	    croppedlay->setThickness( zbase - ztop );
+	}
+	seq.layers() += croppedlay;
+	seq.z0_ = ztop;
+    }
+
+    for ( int ilay=laysidx.start+1; ilay<laysidx.stop-1; ilay++ )
+    {
+	Layer* lay = new Layer( *layers_[ilay] );
+	if ( lay ) seq.layers() += lay;
+    }
+    if ( laysidx.stop == laysidx.start )
+	return;
+
+    const Layer* lastlay = layers_[laysidx.stop];
+    if ( lastlay )
+    {
+	Layer* croppedlay = new Layer( *lastlay );
+	if ( cropfirstlast && croppedlay )
+	{
+	    const float ztop = lastlay->zTop() > depthrg.start
+			     ? lastlay->zTop() : depthrg.start;
+	    const float zbase = lastlay->zBot() < depthrg.stop
+			      ? lastlay->zBot() : depthrg.stop;
+	    croppedlay->setThickness( zbase - ztop );
+	}
+
+	seq.layers() += croppedlay;
+    }
+
+    seq.prepareUse();
+}
+
+
 void Strat::LayerSequence::prepareUse() const
 {
     float z = z0_;
