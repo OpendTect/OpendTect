@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellt2dconv.h"
 #include "uiioobjsel.h"
 #include "welltransl.h"
+#include "keystrs.h"
 
 
 uiT2DWellConvSelGroup::uiT2DWellConvSelGroup( uiParent* p )
@@ -23,12 +24,14 @@ uiT2DWellConvSelGroup::uiT2DWellConvSelGroup( uiParent* p )
 
 bool uiT2DWellConvSelGroup::usePar( const IOPar& iop )
 {
-    const IOObj* ioobj = fld_->ioobj();
+    const IOObj* ioobj = fld_->ioobj(true);
     MultiID ky; if ( ioobj ) ky = ioobj->key();
-    if ( iop.get("ID",ky) )
+
+    const bool havekey = iop.get( sKey::ID(), ky );
+    if ( havekey )
 	fld_->setInput( ky );
 
-    return true;
+    return havekey;
 }
 
 
@@ -40,7 +43,7 @@ bool uiT2DWellConvSelGroup::fillPar( IOPar& iop ) const
     else
 	iop.set( "ID", ioobj->key() );
 
-    return true;
+    return (bool)ioobj;
 }
 
 
