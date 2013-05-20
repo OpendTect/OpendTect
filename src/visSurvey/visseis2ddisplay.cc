@@ -726,7 +726,10 @@ void Seis2DDisplay::emptyCache( int attrib )
 	cache_[attrib]->unRef();
 
     cache_.replace( attrib, 0 );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_[attrib] = -1;
+    channels_->setNrVersions( attrib, 1 );
+    channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, 0 );
 }
 
 
