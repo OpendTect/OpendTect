@@ -52,8 +52,15 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     }
 
     // The uiFileDialog should make sure an actual existing file is selected
-    uiTaskRunner tr( par ); BufferString emsg;
-    return ZipUtils::unZipArchive( zipfnm, destdir, emsg, &tr );
+    uiTaskRunner tr( par, false ); BufferString emsg;
+    if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&tr) )
+    {
+	BufferStringSet detailedmsg( 1, emsg );
+	uiMSG().errorWithDetails( detailedmsg, "Failed to unzip the survey" );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -88,6 +95,13 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 	zipfnm = fd.fileName();
     }
 
-    uiTaskRunner tr( par ); BufferString emsg;
-    return ZipUtils::makeZip( zipfnm, inpdir, emsg, &tr );
+    uiTaskRunner tr( par, false ); BufferString emsg;
+    if ( !ZipUtils::makeZip(zipfnm,inpdir,emsg,&tr) )
+    {
+	BufferStringSet detailedmsg( 1, emsg );
+	uiMSG().errorWithDetails( detailedmsg, "Failed to zip the survey" );
+	return false;
+    }
+
+    return true;
 }
