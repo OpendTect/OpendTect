@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
 #include "uitblimpexpdatasel.h"
+#include "uitoolbutton.h"
 
 #include "arrayndimpl.h"
 #include "array2dinterpolimpl.h"
@@ -86,25 +87,29 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
-    attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
-	   				 true );
-    attrlistfld_->box()->setNrLines( 4 );
-    attrlistfld_->attach( alignedBelow, inpfld_ );
-    attrlistfld_->box()->selectionChanged.notify(
-	    			mCB(this,uiImportHorizon,inputChgd) );
+    uiLabeledListBox* attrllb =
+	new uiLabeledListBox( this, "Attribute(s) to import" );
+    attrllb->attach( alignedBelow, inpfld_ );
+    attrlistfld_ = attrllb->box();
+    attrlistfld_->setItemsCheckable( true );
+    attrlistfld_->setNrLines( 6 );
+    attrlistfld_->itemChecked.notify( mCB(this,uiImportHorizon,inputChgd) );
 
-    uiPushButton* addbut = new uiPushButton( this, "Add new",
-				mCB(this,uiImportHorizon,addAttribCB), false );
-    addbut->attach( rightTo, attrlistfld_ );
-    uiPushButton* rmbut = new uiPushButton( this, "Remove",
-				mCB(this,uiImportHorizon,rmAttribCB), true );
+    uiToolButton* addbut = new uiToolButton( this, "addnew", "Add new",
+				mCB(this,uiImportHorizon,addAttribCB) );
+    addbut->attach( rightTo, attrllb );
+    uiToolButton* rmbut = new uiToolButton( this, "stop", "Remove",
+				mCB(this,uiImportHorizon,rmAttribCB) );
     rmbut->attach( alignedBelow, addbut );
+    uiToolButton* clearbut = new uiToolButton( this, "clear", "Clear list",
+				mCB(this,uiImportHorizon,clearListCB) );
+    clearbut->attach( alignedBelow, rmbut );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, attrlistfld_ );
+    sep->attach( stretchedBelow, attrllb );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.8" );
-    dataselfld_->attach( alignedBelow, attrlistfld_ );
+    dataselfld_->attach( alignedBelow, attrllb );
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
@@ -116,7 +121,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     sep->attach( stretchedBelow, scanbut_ );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
-    subselfld_->attach( alignedBelow, attrlistfld_ );
+    subselfld_->attach( alignedBelow, attrllb );
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
@@ -197,7 +202,7 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
 void uiImportHorizon::inputChgd( CallBacker* cb )
 {
     BufferStringSet attrnms;
-    attrlistfld_->box()->getSelectedItems( attrnms );
+    attrlistfld_->getCheckedItems( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
     const int nrattrib = attrnms.size();
     const bool keepdef = cb==inpfld_ && fd_.isGood();
@@ -235,25 +240,40 @@ void uiImportHorizon::addAttribCB( CallBacker* )
     if ( !dlg.go() ) return;
 
     const char* attrnm = dlg.text();
-    attrlistfld_->box()->addItem( attrnm );
-    const int idx = attrlistfld_->box()->size() - 1;
-    attrlistfld_->box()->setSelected( idx, true );
+    attrlistfld_->addItem( attrnm );
+    const int idx = attrlistfld_->size() - 1;
+    attrlistfld_->setItemChecked( idx, true );
 }
 
 
 void uiImportHorizon::rmAttribCB( CallBacker* )
 {
-    int selidx = attrlistfld_->box()->currentItem();
-    attrlistfld_->box()->removeItem( selidx );
+    int selidx = attrlistfld_->currentItem();
+    const bool updatedef = attrlistfld_->isItemChecked( selidx );
+
+    attrlistfld_->removeItem( selidx );
     selidx--;
     if ( selidx < 0 ) selidx = 0;
-    attrlistfld_->box()->setSelected( selidx );
+    attrlistfld_->setSelected( selidx );
+
+    if ( updatedef )
+	inputChgd( 0 );
+}
+
+
+void uiImportHorizon::clearListCB( CallBacker* )
+{
+    const bool updatedef = attrlistfld_->nrChecked() > 0;
+    attrlistfld_->setEmpty();
+
+    if ( updatedef )
+	inputChgd( 0 );
 }
 
 
 void uiImportHorizon::scanPush( CallBacker* )
 {
-    if ( !isgeom_ && !attrlistfld_->box()->nrSelected() )
+    if ( !isgeom_ && !attrlistfld_->nrChecked() )
     { uiMSG().error("Please select at least one attribute"); return; }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
@@ -368,7 +388,7 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 bool uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
-    attrlistfld_->box()->getSelectedItems( attrnms );
+    attrlistfld_->getCheckedItems( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
     if ( !attrnms.size() ) mErrRet( "No Attributes Selected" );
 

@@ -23,12 +23,12 @@ class HorizonScanner;
 
 class uiCheckBox;
 class uiColorInput;
-class uiLabeledListBox;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
-class uiPushButton;
+class uiListBox;
 class uiPosSubSel;
+class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
@@ -53,7 +53,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiPushButton*	scanbut_;
-    uiLabeledListBox*	attrlistfld_;
+    uiListBox*		attrlistfld_;
     uiPosSubSel*	subselfld_;
     uiGenInput*		filludffld_;
     uiPushButton*	interpolparbut_;
@@ -69,6 +69,7 @@ protected:
     void		inputChgd(CallBacker*);
     void		addAttribCB(CallBacker*);
     void		rmAttribCB(CallBacker*);
+    void		clearListCB(CallBacker*);
     void		scanPush(CallBacker*);
     void		fillUdfSel(CallBacker*);
     void		stratLvlChg(CallBacker*);
