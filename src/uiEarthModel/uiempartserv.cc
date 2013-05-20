@@ -268,10 +268,11 @@ bool uiEMPartServer::exportFaultStickSet()
 
 
 
-BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
+BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
 {
-    if ( !em_.getObject( id )->name().isEmpty() )
-	return em_.getObject( id )->name();
+    const EM::EMObject* emobj = em_.getObject( emid );
+    if ( emobj && !emobj->name().isEmpty() )
+	return emobj->name();
     
     BufferString bs;
     return bs;
@@ -280,13 +281,14 @@ BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
 
 const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
-    return em_.getObject( emid )->getTypeStr();
+    const EM::EMObject* emobj = em_.getObject( emid );
+    return emobj ? emobj->getTypeStr() : 0;
 }
 
 
 bool uiEMPartServer::isChanged( const EM::ObjectID& emid ) const
 {
-    EM::EMObject* emobj = em_.getObject( emid );
+    const EM::EMObject* emobj = em_.getObject( emid );
     return emobj && emobj->isChanged();
 }
 
