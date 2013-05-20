@@ -382,11 +382,17 @@ int Strat::LayModAttribCalc::nextStep()
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
 
+    const int dpthidx = dps_.indexOf( sKey::Depth() );
+    if ( dpthidx < 0 )
+	mErrRet("No 'Depth' column in input data")
+    const bool zinft = SI().depthsInFeet();
+
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
     {
 	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
 	float* dpsvals = dps_.getValues( dpsrid );
-	const float z = dps_.z( dpsrid );
+	float z = dpsvals[dpthidx];
+	if ( zinft ) z *= mFromFeetFactorF;
 	const Interval<float> zrg( z-calczwdth_, z+calczwdth_ );
 	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
 	{
