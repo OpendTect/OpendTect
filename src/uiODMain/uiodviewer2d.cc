@@ -77,6 +77,13 @@ uiODViewer2D::~uiODViewer2D()
 
     if ( viewwin_ )
     {
+	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+	{
+	    DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
+	    DPM(DataPackMgr::FlatID()).release( packid );
+	    packid = viewwin()->viewer( ivwr ).packID( false );
+	    DPM(DataPackMgr::FlatID()).release( packid );
+	}		
 	delete treetp_;
 	delete datamgr_;
     }
@@ -302,14 +309,6 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
-	DPM(DataPackMgr::FlatID()).release( packid );
-	packid = viewwin()->viewer( ivwr ).packID( false );
-	DPM(DataPackMgr::FlatID()).release( packid );
-    }
-    
     delete treetp_; treetp_ = 0;
     datamgr_->removeAll();
 
