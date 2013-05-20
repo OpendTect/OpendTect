@@ -17,7 +17,8 @@ OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 install ( DIRECTORY CMakeModules DESTINATION .
 	  PATTERN ".svn" EXCLUDE
 	  PATTERN "*.swp" EXCLUDE
-	  PATTERN "*.cmake~" EXCLUDE )
+	  PATTERN "*.cmake~" EXCLUDE
+	  PATTERN "sourcefiles*.txt*" EXCLUDE)
 
 #install doc stuff
 file( GLOB TUTHFILES plugins/Tut/*.h )
