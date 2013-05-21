@@ -412,7 +412,7 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-    return DefWindowProc(hWnd, uMsg, wParam, lParam); 
+    return (LONG)DefWindowProc(hWnd, uMsg, wParam, lParam); 
 
 } 
 
@@ -554,7 +554,7 @@ CreateOpenGLWindow(char* title, int x, int y, int width, int height,
 
 
 
-    ReleaseDC(hDC, hWnd);
+    ReleaseDC(hWnd,hDC);
 
 
 
@@ -742,7 +742,7 @@ main(int argc, char** argv)
 
     wglMakeCurrent(NULL, NULL);
 
-    ReleaseDC(hDC, hWnd);
+    ReleaseDC(hWnd,hDC);
 
     wglDeleteContext(hRC);
 
