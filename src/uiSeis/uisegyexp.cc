@@ -453,6 +453,11 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
     if ( sstp )
     {
+	if ( !sstp->reader(0) )
+	{
+	    delete tmpioobj;
+	    return false;
+	}
 	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	if ( oinf.isOK() && oinf.nrComponents() > 1 && selcomp_ < 0 )
