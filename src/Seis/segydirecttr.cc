@@ -398,8 +398,8 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
     if ( ild_ < 0 || ild_ >= cd.size() )
 	return false;
 
-    const PosInfo::LineData& ld = *cd[ild_];
-    const PosInfo::LineData::Segment& seg = ld.segments_[iseg_];
+    const PosInfo::LineData* ld = cd[ild_];
+    PosInfo::LineData::Segment seg = ld->segments_[iseg_];
     if ( !atstart )
 	itrc_++;
 
@@ -408,12 +408,14 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
 	if ( seg.atIndex(itrc_) > seg.stop )
 	{
 	    iseg_++; itrc_ = 0;
-	    if ( iseg_ >= ld.segments_.size() )
+	    if ( iseg_ >= ld->segments_.size() )
 	    {
 		ild_++; iseg_ = 0;
 		if ( ild_ >= cd.size() )
 		    { ild_ = -2; return false; }
+		ld = cd[ild_];
 	    }
+	    seg = ld->segments_[iseg_];
 	}
 
 	if ( !seldata || seldata->isOK(curBinID()) )
