@@ -551,7 +551,14 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     if ( !dirNmOK(true) ) return;
 
     const BufferString fnm( get2DFileName(lnm) );
-    if ( !File::exists(fnm) ) return;
+    if ( !File::exists(fnm) )
+    {
+	errmsg_ = BufferString( "Line ", lnm, " does not exist" );
+	const BufferString lnm2( lnm, "_Seis" );
+	fnm = get2DFileName( lnm2 );
+	if ( !File::exists(fnm) )
+	    return;
+    }	
 
     errmsg_ = "";
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
