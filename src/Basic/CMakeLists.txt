@@ -14,7 +14,7 @@ set( OD_TEST_PROGS svnversion.cc
 		threads.cc
 		commandlineparser.cc
 		refcount.cc )
-set( OD_MODULE_SOURCES genc.cc oddirs.cc
+set( OD_MODULE_SOURCES
 	    ailayer.cc
 	    arrayndinfo.cc
 	    arrayndslice.cc
@@ -39,6 +39,7 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    file.cc
 	    filesystemwatcher.cc
 	    filepath.cc
+	    genc.cc
 	    globexpr.cc
 	    hostdata.cc
 	    iopar.cc
@@ -47,6 +48,7 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    math2.cc
 	    moddepmgr.cc
 	    namedobj.cc
+	    oddirs.cc
 	    odimage.cc
 	    odinst.cc
 	    odmemory.cc
