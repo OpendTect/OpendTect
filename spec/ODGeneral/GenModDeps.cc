@@ -119,7 +119,7 @@ int main( int argc, char** argv )
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
 	    {
 		const char* depdepmod = depdep->mods.get(idep).buf();
-		if ( depmods.indexOf(depdepmod) < 0 )
+		if ( !depmods.isPresent(depdepmod) )
 		    depmods.add( depdepmod );
 	    }
 	}

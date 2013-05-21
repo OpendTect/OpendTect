@@ -96,7 +96,7 @@ static int doWork( int argc, char** argv )
 	if ( mIsUdf(zpos) ) continue;
 
 	const Coord3 pickpos( pos, zpos );
-	if ( picklocations.indexOf(pickpos) < 0 )
+	if ( !picklocations.isPresent(pickpos) )
 	    picklocations += pickpos;
 
 	if ( picklocations.size() == nrpicks )

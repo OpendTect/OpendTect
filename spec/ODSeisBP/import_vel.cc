@@ -76,7 +76,7 @@ bool BatchProgram::go( std::ostream& strm )
 	const int tidx = timerg.nearestIndex( time );
 	velarr.set( cdpidx, tidx, vel );
 
-	if ( cdps.indexOf(cdp) < 0 )
+	if ( !cdps.isPresent(cdp) )
 	{
 	    cdps += cdp;
 	    xyvals += Coord( x, y );
