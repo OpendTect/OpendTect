@@ -32,10 +32,7 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( uiIOObjSel* tied, bool opt=true )
-			    : tiedto_(tied)
-			    , optional_(opt)
-			    , fldtext_( "" ) {}
+			Setup(uiIOObjSel* tiedto,bool opt=true);
 
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)

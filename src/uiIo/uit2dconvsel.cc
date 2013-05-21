@@ -23,6 +23,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory1Param(uiT2DConvSelGroup,uiParent*,uiT2DConvSelGroup::factory);
 
+uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt )
+    : tiedto_(tied)
+    , optional_(opt)
+    , ist2d_(SI().zIsTime())
+{
+}
+
 
 uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiGroup(p)
@@ -88,7 +95,7 @@ void uiT2DConvSel::choiceSel( CallBacker* cb )
 void uiT2DConvSel::inpSel( CallBacker* cb )
 {
     if ( !setup_.tiedto_ ) return;
-    const IOObj* ioobj = setup_.tiedto_->ioobj();
+    const IOObj* ioobj = setup_.tiedto_->ioobj( true );
     if ( !ioobj ) return;
 
     choicefld_->setSensitive( ZDomain::isSI(ioobj->pars()) );
