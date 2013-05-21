@@ -433,16 +433,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( isoverwrite ) { mUpdateTexture(); }
     }
     else if ( mnuid==snapeventmnuitem_.id )
-    {
-	MultiID newmid;
-	bool createnew = false;
-	if ( emattrserv->snapHorizon(emid_,newmid,createnew,false) ) //Overwrite
-	{
-	    mUpdateTexture();
-	}
-	else if ( createnew )
-	    emserv->displayEMObject( newmid );
-    }
+	emattrserv->snapHorizon( emid_, false );
     else if ( mnuid==geom2attrmnuitem_.id )
     {
 	if ( applMgr()->EMServer()->geom2Attr(emid_) )
@@ -754,18 +745,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );
     else if ( mnuid==snapeventmnuitem_.id )
-    {
-	const int visid = displayID();
-	MultiID newmid;
-	bool createnew = false;
-	if ( applMgr()->EMAttribServer()->snapHorizon(
-		    emid_,newmid,createnew,true) )
-	{
-	    mUpdateTexture();
-	}
-	else if ( createnew )
-	    applMgr()->EMServer()->displayEMObject( newmid );
-    }
+	applMgr()->EMAttribServer()->snapHorizon( emid_,true );
     else
 	handled = false;
 

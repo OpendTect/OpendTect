@@ -20,32 +20,32 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
-#include "arraynd.h"
+#include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "ioobj.h"
 #include "mousecursor.h"
-#include "ptrman.h"
 #include "seiseventsnapper.h"
 #include "seis2deventsnapper.h"
 #include "seistrctr.h"
 #include "survinfo.h"
-#include "binidvalset.h"
-#include "valseriesevent.h"
 
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
-    : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,"104.0.11"))
+    : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,
+		       "104.0.11").modal(false))
     , seisctio_(*uiSeisSel::mkCtxtIOObj(is2d ? Seis::Line : Seis::Vol,true))
     , horizon_(0)
     , is2d_(is2d)
+    , readyForDisplay(this)
 {
+    setCtrlStyle( DoAndStay );
+
     horinfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
 	    				   : mIOObjContext(EMHorizon3D),
 			        "Horizon to snap" );
@@ -142,7 +142,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
 	   
 	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute( &dlg, snapper ) )
+	    if ( !TaskRunner::execute(&dlg,snapper) )
 		return false;
 
 	    hor3d->setBurstAlert( true );
@@ -183,8 +183,9 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	MouseCursorManager::restoreOverride();
     }
 
-    return savefldgrp_->saveHorizon();
+    const bool res = savefldgrp_->saveHorizon();
+    if ( res && savefldgrp_->displayNewHorizon() )
+	readyForDisplay.trigger();
+
+    return false;
 }
-
-
-

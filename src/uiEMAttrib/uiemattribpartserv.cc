@@ -40,6 +40,9 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     , horshiftdlg_(0)
     , shiftidx_(10)
     , attribidx_(0)
+    , uiimphor2ddlg_(0)
+    , uiseisevsnapdlg_(0)
+    , uiimpfss2ddlg_(0)
 {}
 
 
@@ -61,30 +64,53 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 }
 
 
-bool uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, MultiID& mid,
-       					bool& displaynew, bool is2d )
+void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 {
-    IOObj* ioobj = IOM().get( EM::EMM().getMultiID(emid) );
-    if ( !ioobj )
-	return false;
+    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid) );
+    if ( !ioobj ) return;
 
-    uiSeisEventSnapper dlg( parent(), ioobj, is2d );
-    dlg.go();
-    delete ioobj;
-
-    displaynew = dlg.saveFldGrp()->displayNewHorizon() &&
-		 dlg.saveFldGrp()->getNewHorizon();
-    if ( displaynew )
-	mid = dlg.saveFldGrp()->getNewHorizon()->multiID(); 
-
-    return dlg.saveFldGrp()->overwriteHorizon();
+    if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;
+    uiseisevsnapdlg_ = new uiSeisEventSnapper( parent(), ioobj, is2d );
+    uiseisevsnapdlg_->readyForDisplay.notify(
+		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
+    uiseisevsnapdlg_->show();
 }
 
 
-void uiEMAttribPartServer::import2DHorizon() const
+void uiEMAttribPartServer::import2DHorizon()
 {
-    uiImportHorizon2D dlg( parent() );
-    dlg.go();
+    if ( uiimphor2ddlg_ )
+    {
+	uiimphor2ddlg_->show();
+	uiimphor2ddlg_->raise();
+	return;
+    }
+
+    uiimphor2ddlg_ = new uiImportHorizon2D( parent() );
+    uiimphor2ddlg_->readyForDisplay.notify(
+		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
+    uiimphor2ddlg_->show();
+}
+
+
+void uiEMAttribPartServer::readyForDisplayCB( CallBacker* cb )
+{
+    emobjids_.erase();
+    if ( uiseisevsnapdlg_ && cb==uiseisevsnapdlg_ )
+    {
+	uiHorSaveFieldGrp* grp = uiseisevsnapdlg_->saveFldGrp();
+	if ( !grp->getNewHorizon() )
+	    return;
+
+	emobjids_ += grp->getNewHorizon()->id();
+    }
+    else if ( uiimphor2ddlg_ && cb==uiimphor2ddlg_ )
+	uiimphor2ddlg_->getEMObjIDs( emobjids_ );
+    else if ( uiimpfss2ddlg_ && cb==uiimpfss2ddlg_ )
+	emobjids_ += EM::EMM().getObjectID( uiimpfss2ddlg_->getSelID() );
+
+    if ( !emobjids_.isEmpty() )
+	sendEvent( evDisplayEMObject() );
 }
 
 
@@ -227,7 +253,15 @@ void uiEMAttribPartServer::horShifted( CallBacker* cb )
 
 void uiEMAttribPartServer::import2DFaultStickset( const char* type )
 {
-    uiImportFaultStickSet2D fssdlg( parent(), type );
-    fssdlg.setModal( true );
-    fssdlg.go();
+    if ( uiimpfss2ddlg_ )
+    {
+	uiimpfss2ddlg_->show();
+	uiimpfss2ddlg_->raise();
+	return;
+    }
+
+    uiimpfss2ddlg_ = new uiImportFaultStickSet2D( parent(), type );
+    uiimpfss2ddlg_->importReady.notify(
+		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
+    uiimpfss2ddlg_->show();
 }

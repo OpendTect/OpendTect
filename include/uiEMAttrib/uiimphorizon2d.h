@@ -14,12 +14,13 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uidialog.h"
+#include "emposid.h"
+#include "multiid.h"
 
 class BufferStringSet;
 class Horizon2DScanner;
-class MultiID;
 class SurfaceInfo;
-class uiCheckBox;
+
 class uiComboBox;
 class uiFileInput;
 class uiGenInput;
@@ -36,7 +37,8 @@ public:
 			uiImportHorizon2D(uiParent*);
 			~uiImportHorizon2D();
 
-    bool                doDisplay() const;
+    void		getEMObjIDs(TypeSet<EM::ObjectID>&) const;
+    Notifier<uiImportHorizon2D>	readyForDisplay;
 
 protected:
 
@@ -45,7 +47,6 @@ protected:
     uiPushButton*       scanbut_;
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
-    uiCheckBox*         displayfld_;
     uiGenInput*		udftreatfld_;
 
     virtual bool	acceptOK(CallBacker*);
@@ -63,6 +64,7 @@ protected:
     Horizon2DScanner*	scanner_;
     BufferStringSet&	linesetnms_;
     TypeSet<MultiID>	setids_;
+    TypeSet<EM::ObjectID> emobjids_;
 
     ObjectSet<SurfaceInfo>	horinfos_;
 };

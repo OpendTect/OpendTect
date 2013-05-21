@@ -21,12 +21,14 @@ ________________________________________________________________________
 #include "ranges.h"
 
 namespace Attrib { class DescSet; }
-template <class T> class TypeSet;
-class BufferStringSet;
 class DataPointSet;
 class NLAModel;
 class TaskRunner;
+
 class uiHorizonShiftDialog;
+class uiImportFaultStickSet2D;
+class uiImportHorizon2D;
+class uiSeisEventSnapper;
 
 /*!
 \ingroup uiEMAttrib
@@ -47,14 +49,12 @@ public:
     static int			evShiftDlgOpened()		{ return 3; }
     static int			evShiftDlgClosedCancel()	{ return 4; }
     static int			evShiftDlgClosedOK()		{ return 5; }
+    static int			evDisplayEMObject()		{ return 6; }
 
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
 
-    bool			snapHorizon(const EM::ObjectID&,MultiID& nwid,
-	    				    bool& displaynew,bool is2d);
-    				/*<return bool is overwrite old hor or not, if
-				   No and displaynew, newmid will be set. */
+    void			snapHorizon(const EM::ObjectID&,bool is2d);
 
     void			setNLA( const NLAModel* mdl, const MultiID& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }
@@ -68,7 +68,8 @@ public:
 	    				TaskRunner*);
 
     const DataColDef&		sidDef() const;
-    const BoolTypeSet&		initialAttribStatus() const { return initialattribstatus_; }
+    const BoolTypeSet&		initialAttribStatus() const
+				    { return initialattribstatus_; }
     float			initialShift() const { return initialshift_; }
 
     float			getShift() const;
@@ -82,8 +83,10 @@ public:
     					//Works only in case of Shift Dlg
     StepInterval<float>		shiftRange() const;
     const char*			getAttribBaseNm() const;
-    void			import2DHorizon() const;
+    void			import2DHorizon();
     void			import2DFaultStickset(const char* type);
+
+    const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
 
 protected:
 
@@ -91,7 +94,10 @@ protected:
     const Attrib::DescSet*	descset_;
     MultiID			nlaid_;
     uiHorizonShiftDialog*	horshiftdlg_;
-
+    uiSeisEventSnapper*		uiseisevsnapdlg_;
+    uiImportHorizon2D*		uiimphor2ddlg_;
+    uiImportFaultStickSet2D*	uiimpfss2ddlg_;
+    TypeSet<EM::ObjectID>	emobjids_;
 
     float			initialshift_;
     BoolTypeSet			initialattribstatus_;
@@ -103,6 +109,8 @@ protected:
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);
     void			shiftDlgClosed(CallBacker*);
+
+    void			readyForDisplayCB(CallBacker*);
 };
 
 #endif

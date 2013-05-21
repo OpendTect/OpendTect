@@ -1237,6 +1237,17 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    }
 	}
     }
+    else if ( evid == uiEMAttribPartServer::evDisplayEMObject() )
+    {
+	const int sceneid = sceneMgr().askSelectScene();
+	if ( sceneid<0 ) return false;
+
+	const TypeSet<EM::ObjectID>& emobjids = emattrserv_->getEMObjIDs();
+	for ( int idx=0; idx<emobjids.size(); idx++ )
+	    sceneMgr().addEMItem( emobjids[idx], sceneid );
+
+	sceneMgr().updateTrees();
+    }
     else
 	pErrMsg("Unknown event from emattrserv");
 

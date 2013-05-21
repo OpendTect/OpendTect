@@ -208,13 +208,13 @@ protected:
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
     : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
-				 "104.0.14"))
-    , displayfld_(0)
-    , dataselfld_(0)
+				 "104.0.14").modal(false))
     , scanner_(0)
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
+    , readyForDisplay(this)
 {
+    enableSaveButton( "Display after import" );
     setCtrlStyle( DoAndStay );
 
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
@@ -286,8 +286,6 @@ void uiImportHorizon2D::descChg( CallBacker* cb )
 
 void uiImportHorizon2D::formatSel( CallBacker* cb )
 {
-    if ( !dataselfld_ ) return;
-
     BufferStringSet hornms;
     horselfld_->getSelectedItems( hornms );
     const int nrhors = hornms.size();
@@ -361,20 +359,14 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 }
 
 
-bool uiImportHorizon2D::doDisplay() const
-{
-    return displayfld_ && displayfld_->isChecked();
-}
-
-
-#define mUnrefAndDeburstRet( retval ) \
+#define mDeburstRet( retval, unreffn ) \
 { \
     for ( int horidx=0; horidx<horizons.size(); horidx++ ) \
     { \
 	if ( horizons[horidx]->hasBurstAlert() ) \
 	    horizons[horidx]->setBurstAlert( false ); \
 \
-	horizons[horidx]->unRef(); \
+	horizons[horidx]->unreffn(); \
     } \
     return retval; \
 }
@@ -429,7 +421,7 @@ bool uiImportHorizon2D::doImport()
 	if ( !hor )
 	{
 	    uiMSG().error( "Could not load horizon" );
-	    mUnrefAndDeburstRet( false );
+	    mDeburstRet( false, unRef );
 	}
 
 	for ( int ldx=0; ldx<linenms.size(); ldx++ )
@@ -444,7 +436,7 @@ bool uiImportHorizon2D::doImport()
 	    msg += linenm;
 	    msg += ". Overwrite?";
 	    if ( !uiMSG().askOverwrite(msg) )
-		mUnrefAndDeburstRet( false );
+		mDeburstRet( false, unRef );
 	}
 
 	hor->ref();
@@ -460,15 +452,17 @@ bool uiImportHorizon2D::doImport()
 			       (UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
     if ( !TaskRunner::execute(&impdlg,*exec) )
-	mUnrefAndDeburstRet( false );
+	mDeburstRet( false, unRef );
 
+    emobjids_.erase();
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons[idx]->saver();
-	saver->execute();
+	if ( saver->execute() )
+	    emobjids_ += horizons[idx]->id();
     }
-	    					
-    mUnrefAndDeburstRet( true );
+
+    mDeburstRet( true, unRefNoDelete );
 }
 
 
@@ -477,8 +471,11 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     if ( !checkInpFlds() ) return false;
 
     const bool res = doImport();
-    if ( res )
-	uiMSG().message( "Horizon successfully imported" );
+    if ( !res ) return false;
+
+    uiMSG().message( "Horizon(s) successfully imported" );
+    if ( saveButtonChecked() )
+	readyForDisplay.trigger();
 
     return false;
 }
@@ -522,3 +519,6 @@ bool uiImportHorizon2D::checkInpFlds()
     return true;
 }
 
+
+void uiImportHorizon2D::getEMObjIDs( TypeSet<EM::ObjectID>& ids ) const
+{ ids = emobjids_; }

@@ -29,10 +29,11 @@ class uiSeisSel;
 mExpClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
 {
 public:
-			uiSeisEventSnapper(uiParent*,const IOObj*,
-					   bool is2d=false);
+			uiSeisEventSnapper(uiParent*,const IOObj*,bool is2d);
 			~uiSeisEventSnapper();
-    uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }	
+
+    uiHorSaveFieldGrp*	saveFldGrp() const	{ return savefldgrp_; }
+    Notifier<uiSeisEventSnapper>	readyForDisplay;
 
 protected:
 

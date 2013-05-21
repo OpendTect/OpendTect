@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uiimpfault.h"
+#include "emposid.h"
 
 class BufferStringSet;
 class MultiID;
@@ -23,7 +24,7 @@ class uiComboBox;
 mExpClass(uiEMAttrib) uiImportFaultStickSet2D : public uiImportFault
 {
 public:
-    			uiImportFaultStickSet2D(uiParent*,const char*);
+    			uiImportFaultStickSet2D(uiParent*,const char* type);
 
 protected:
     bool		acceptOK(CallBacker*);
