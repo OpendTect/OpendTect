@@ -134,7 +134,8 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     else if ( psioprov )
     {
 	const char* psstorkey = ioobj->fullUserExpr(Conn::Write);
-	pswriter_ = is2d ? psioprov->make2DWriter( psstorkey, mCurLineKey )
+	const LineKey lk = mCurLineKey;
+	pswriter_ = is2d ? psioprov->make2DWriter( psstorkey, lk.lineName() )
 	    		: psioprov->make3DWriter( psstorkey );
 	if ( !pswriter_ )
 	{
