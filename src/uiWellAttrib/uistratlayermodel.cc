@@ -308,6 +308,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , lmp_(*new uiStratLayerModelLMProvider)
     , synthp_(*new uiStratSyntheticsProvider)
     , needtoretrievefrpars_(false)
+    , automksynth_(true)
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)
@@ -384,6 +385,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
     modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
     modtools_->flattenChg.notify( mCB(this,uiStratLayerModel,levelChg) );
+    modtools_->mkSynthChg.notify( mCB(this,uiStratLayerModel,mkSynthChg) );
     gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
@@ -500,6 +502,18 @@ bool uiStratLayerModel::canShowFlattened() const
     for ( int idx=0; idx<zlvls.size(); idx++ )
 	if ( !mIsUdf(zlvls[idx]) ) return true;
     return false;
+}
+
+
+void uiStratLayerModel::mkSynthChg( CallBacker* cb )
+{
+    automksynth_ = modtools_->mkSynthetics();
+    /*TODO
+    synthdisp_->setUpdating( automksynth_ );
+    if ( automksynth_ )
+	update synthetics now;
+    (else do nothing)
+	*/
 }
 
 

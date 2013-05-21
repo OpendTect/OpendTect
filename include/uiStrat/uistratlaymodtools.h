@@ -72,6 +72,7 @@ public:
     bool	dispZoomed() const;
     bool	dispLith() const;
     bool	showFlattened() const;
+    bool	mkSynthetics() const;
 
     void	setSelProp(const char*);
     void	setSelLevel(const char*);
@@ -91,6 +92,7 @@ public:
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
     Notifier<uiStratLayModEditTools>	flattenChg;
+    Notifier<uiStratLayModEditTools>	mkSynthChg;
 
     int		selPropIdx() const;		//!< May return -1
     int		selLevelIdx() const;		//!< May return -1
@@ -123,6 +125,7 @@ protected:
     uiToolButton* zoomtb_;
     uiToolButton* lithtb_;
     uiToolButton* flattenedtb_;
+    uiToolButton* mksynthtb_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
     void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
@@ -131,6 +134,7 @@ protected:
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
+    void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
 
 };
 
