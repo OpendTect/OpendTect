@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "elasticpropsel.h"
 #include "envvars.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "pixmap.h"
@@ -61,6 +62,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uichecklist.h"
 
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
+
+
+HiddenParam<uiStratLayerModel,const char*> needtoretrievefrpars( "false" );
 
 const char* uiStratLayerModel::sKeyModeler2Use()
 {
@@ -314,6 +318,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , retrieveRequired(this) 
 {
     setDeleteOnClose( true );
+    needtoretrievefrpars.setParam( this, "false" );
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
@@ -722,18 +727,22 @@ bool uiStratLayerModel::openGenDesc()
 
     delete elpropsel_; elpropsel_ = 0;
     
-    CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
-	    		    const_cast<uiStratLayerModel*>(this) );
-    const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
-
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
     if ( !profilestr.isStartOf(edtyp) )
     {
+	needtoretrievefrpars.setParam( this, "true" );
 	gentools_->genReq.trigger();
 	//Set when everything is in place.
     }
+    else
+    {
+	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
+				const_cast<uiStratLayerModel*>(this) );
+	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
+    }
+
 
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
@@ -793,7 +802,17 @@ void uiStratLayerModel::genModels( CallBacker* )
     useSyntheticsPars( desc_.getWorkBenchParams() );
 
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    levelChg( 0 );
+
+    if ( needtoretrievefrpars.getParam(this) == FixedString("true") )
+    {
+	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
+				const_cast<uiStratLayerModel*>(this) );
+	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
+	needtoretrievefrpars.setParam( this, "false" );
+    }
+    else
+	levelChg( 0 );
+
     newModels.trigger();
 
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
