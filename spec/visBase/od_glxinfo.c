@@ -34,6 +34,11 @@
  *
  * Brian Paul  26 January 2000
  */
+
+#if defined (WIN32) || defined (_WINDOWS)
+#include "w32glxinfo.c"
+#else
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #define GLX_GLXEXT_PROTOTYPES
@@ -957,3 +962,4 @@ main(int argc, char *argv[])
 
    return 0;
 }
+#endif
