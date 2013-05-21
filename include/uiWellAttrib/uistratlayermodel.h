@@ -101,6 +101,7 @@ protected:
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
     bool			mostlyfilledwithbrine_;
+    bool			needtoretrievefrpars_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);

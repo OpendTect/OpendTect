@@ -307,6 +307,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , analtb_(0)
     , lmp_(*new uiStratLayerModelLMProvider)
     , synthp_(*new uiStratSyntheticsProvider)
+    , needtoretrievefrpars_(false)
     , newModels(this)				   
     , levelChanged(this)				   
     , waveletChanged(this)
@@ -722,18 +723,22 @@ bool uiStratLayerModel::openGenDesc()
 
     delete elpropsel_; elpropsel_ = 0;
     
-    CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
-	    		    const_cast<uiStratLayerModel*>(this) );
-    const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
-
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
     if ( !profilestr.isStartOf(edtyp) )
     {
+	needtoretrievefrpars_ = true;
 	gentools_->genReq.trigger();
 	//Set when everything is in place.
     }
+    else
+    {
+	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
+				const_cast<uiStratLayerModel*>(this) );
+	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
+    }
+
 
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
@@ -793,7 +798,17 @@ void uiStratLayerModel::genModels( CallBacker* )
     useSyntheticsPars( desc_.getWorkBenchParams() );
 
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    levelChg( 0 );
+
+    if ( needtoretrievefrpars_ )
+    {
+	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
+				const_cast<uiStratLayerModel*>(this) );
+	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
+	needtoretrievefrpars_ = false;
+    }
+    else
+	levelChg( 0 );
+
     newModels.trigger();
 
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
