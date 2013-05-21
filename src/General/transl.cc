@@ -14,6 +14,7 @@
 #include "iopar.h"
 #include "errh.h"
 #include "debugmasks.h"
+#include "keystrs.h"
 
 #include <iostream>
 
@@ -243,7 +244,7 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 
 const char* TranslatorGroup::getSurveyDefaultKey(const IOObj*) const
 {
-    return userName();
+    return IOPar::compKey( sKey::Default(), userName() );
 }
 
 
