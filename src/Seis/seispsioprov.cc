@@ -100,10 +100,9 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     if ( !prov ) return 0;
 
-    SeisPS2DReader* reader = 0;
-	//prov->make2DReader( ioobj.fullUserExpr(true), lnm );
-
-    if ( !reader ) 
+    SeisPS2DReader* reader = 
+	prov->make2DReader( ioobj.fullUserExpr(true), lnm );
+    if ( !reader ) //If lnm is 0 or empty, use _Seis as name. 
 	reader = prov->make2DReader( ioobj.fullUserExpr(true),
 				     BufferString(lnm,"_Seis") );
 
