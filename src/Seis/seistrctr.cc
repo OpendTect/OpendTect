@@ -50,12 +50,12 @@ const char*
 SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 {
     if ( ioobj && SeisTrcTranslator::is2D( *ioobj ) )
-	return sKeyDefault2D();
+	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
     
     if ( SI().survDataType()==SurveyInfo::Only2D )
-	return sKeyDefault2D();
+	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
 
-    return sKeyDefault3D();
+    return IOPar::compKey( sKey::Default(), sKeyDefault3D() );
 }
 
 
