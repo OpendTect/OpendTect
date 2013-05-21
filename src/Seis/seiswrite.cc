@@ -152,8 +152,9 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     else if ( psioprov_ )
     {
 	const char* psstorkey = ioobj_->fullUserExpr(true);
-	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, mCurLineKey )
-	    		: psioprov_->make3DWriter( psstorkey );
+	const LineKey lk = mCurLineKey;
+	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, lk.lineName() )
+			  : psioprov_->make3DWriter( psstorkey );
 	if ( !pswriter_ )
 	{
 	    errmsg_ = "Cannot open Pre-Stack data store for write";

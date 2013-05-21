@@ -98,8 +98,14 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 {
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    SeisPS2DReader* reader =
-	prov ? prov->make2DReader( ioobj.fullUserExpr(true), lnm ) : 0;
+    if ( !prov ) return 0;
+
+    SeisPS2DReader* reader = 0;
+	//prov->make2DReader( ioobj.fullUserExpr(true), lnm );
+
+    if ( !reader ) 
+	reader = prov->make2DReader( ioobj.fullUserExpr(true),
+				     BufferString(lnm,"_Seis") );
 
     if ( reader )
 	reader->usePar( ioobj.pars() );
