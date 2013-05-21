@@ -24,7 +24,10 @@ PROJECT_NAME           = @CMAKE_PROJECT_NAME@
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 
+PROJECT_NUMBER         = @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@
+
+
+PROJECT_LOGO		= @CMAKE_SOURCE_DIR@/data/od_small.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -806,3 +809,4 @@ DOT_CLEANUP            = YES
 # used. If set to NO the values of all tags below this one will be ignored.
 
 SEARCHENGINE           = YES
+
