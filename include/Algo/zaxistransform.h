@@ -103,7 +103,11 @@ public:
     const char*			fromZDomainKey() const;
     const char*			toZDomainKey() const;
 
-    virtual float		zScale() const;
+    
+    virtual float		toZScale() const;
+    				/*!<\returns the target domain z-scale. */
+    virtual float		zScale() const { return toZScale(); }
+				/*!<Old name, use toZScale instead. */
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }

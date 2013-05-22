@@ -164,8 +164,22 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 }
 
 
-float ZAxisTransform::zScale() const
-{ return SI().zScale(); }
+float ZAxisTransform::toZScale() const
+{
+    if ( toZDomainInfo().def_.isDepth() )
+    {
+	return SI().defaultXYtoZScale(
+				      SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter,
+				      SI().xyUnit() );
+    }
+    else if (  toZDomainInfo().def_.isTime() )
+    {
+	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
+    }
+    
+    return SI().zScale();
+}
+
 
 
 bool ZAxisTransform::usePar( const IOPar& par )

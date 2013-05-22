@@ -357,7 +357,7 @@ void uiODApplMgr::addTimeDepthScene()
     const int sceneid = sceneMgr().addScene( true, ztrans, snm );
     if ( sceneid!=-1 )
     {
-	const float zscale = ztrans->zScale();
+	const float zscale = ztrans->toZScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	CubeSampling cs = SI().sampling( true );
 	cs.zrg = zsampling;
