@@ -270,7 +270,7 @@ int uiViewer3DMgr::getSceneID( int mnid )
     {
 	TypeSet<int> scenechildren;
 	visserv_->getChildIds( sceneids[idx], scenechildren );
-	if ( scenechildren.indexOf(mnid)>=0 )
+	if ( scenechildren.isPresent(mnid) )
 	{
 	    sceneid = sceneids[idx];
 	    break;

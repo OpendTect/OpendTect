@@ -194,7 +194,7 @@ bool uiStratAmpCalc::prepareProcessing()
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
     isoverwrite_ = false;
-    if ( attrnms.indexOf( attribnm ) >= 0 )
+    if ( attrnms.isPresent( attribnm ) )
     {
 	BufferString errmsg = "Attribute name ";
 	errmsg.add( attribnm ).add( " already exists, Overwrite?" );

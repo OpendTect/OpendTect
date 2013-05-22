@@ -140,8 +140,7 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     welllistfld_->clearSelection();
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
-	const int index = selnames.indexOf( welllistfld_->textOfItem(idx) );
-	if ( index >= 0 )
+	if ( selnames.isPresent( welllistfld_->textOfItem(idx) ) )
 	    welllistfld_->setSelected( idx, true );
 	else
 	    welllistfld_->setSelected( idx, false );

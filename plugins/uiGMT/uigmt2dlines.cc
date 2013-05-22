@@ -173,7 +173,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     par.get( ODGMT::sKeyLineNames(), linenms );
     linelistfld_->clearSelection();
     for ( int idx=0; idx<linelistfld_->size(); idx++ )
-	if ( linenms.indexOf(linelistfld_->textOfItem(idx)) >= 0 )
+	if ( linenms.isPresent(linelistfld_->textOfItem(idx)) )
 	    linelistfld_->setSelected( idx, true );
 
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );

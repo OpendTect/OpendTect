@@ -106,8 +106,7 @@ bool Horizon::isOK() const
     {
 	EM::SurfaceIOData sd;
 	EM::EMM().getSurfaceData( horid_, sd );
-	int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
-	if ( surfdtidx<0 ) return false;
+	if ( !sd.valnames.isPresent( surfdatanm_ ) ) return false;
     }
 
     return true;

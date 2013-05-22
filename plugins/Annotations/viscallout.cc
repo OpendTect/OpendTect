@@ -831,7 +831,7 @@ int CalloutDisplay::isMarkerClick(const TypeSet<int>& path) const
 	if ( !callout )
 	    continue;
 	
-	if ( path.indexOf(callout->getMarkerID())!=-1 )
+	if ( path.isPresent(callout->getMarkerID()) )
 	    return idx;
     }
 

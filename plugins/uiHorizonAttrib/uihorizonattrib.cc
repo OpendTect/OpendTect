@@ -83,7 +83,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
 
     mIfGetString( Horizon::sKeySurfDataName(), surfdtnm, 
-		  surfdatafld_->setValue(surfdatanms_.indexOf( surfdtnm )<0 
+		  surfdatafld_->setValue( !surfdatanms_.isPresent( surfdtnm ) 
 		      ? 0 : surfdatanms_.indexOf(surfdtnm) ) );
 
     mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));

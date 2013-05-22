@@ -212,7 +212,7 @@ int ImageDisplay::isMarkerClick(const TypeSet<int>& path) const
 	if ( !image )
 	    continue;
 	
-	if ( path.indexOf(group_->getObject(idx)->id())!=-1 )
+	if ( path.isPresent(group_->getObject(idx)->id()) )
 	    return idx;
     }
 

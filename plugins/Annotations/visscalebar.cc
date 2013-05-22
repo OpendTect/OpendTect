@@ -254,7 +254,7 @@ int ScaleBarDisplay::isMarkerClick( const TypeSet<int>& path ) const
     for ( int idx=0; idx<group_->size(); idx++ )
     {
 	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
-	if ( sb && path.indexOf(sb->id()) != -1 )
+	if ( sb && path.isPresent(sb->id()) )
 	    return idx;
     }
 

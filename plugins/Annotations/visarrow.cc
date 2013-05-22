@@ -173,7 +173,7 @@ int ArrowDisplay::isMarkerClick( const TypeSet<int>& path ) const
 {
     for ( int idx=group_->size()-1; idx>=0; idx-- )
     {
-	if ( path.indexOf(group_->getObject(idx)->id())!=-1 )
+	if ( path.isPresent(group_->getObject(idx)->id()) )
 	    return idx;
     }
 
