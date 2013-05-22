@@ -550,7 +550,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 {
     if ( !dirNmOK(true) ) return;
 
-    const BufferString fnm( get2DFileName(lnm) );
+    BufferString fnm( get2DFileName(lnm) );
     if ( !File::exists(fnm) )
     {
 	errmsg_ = BufferString( "Line ", lnm, " does not exist" );
