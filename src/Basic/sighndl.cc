@@ -103,7 +103,7 @@ SignalHandling::SignalHandling()
     // Have to handle
     mCatchSignal( SIGALRM );	/* Alarm clock */
     mCatchSignal( SIGSTOP );	/* Stop process */
-    mCatchSignal( SIGTSTP );	/* Software stop process (e.g. ) */
+    mCatchSignal( SIGTSTP );	/* Software stop process (e.g. Ctrl-Z) */
     mCatchSignal( SIGCONT );	/* Continue after stop */
     mCatchSignal( SIGPIPE );	/* Write on a pipe, no one listening */
     mCatchSignal( SIGHUP );	/* Hangup */
