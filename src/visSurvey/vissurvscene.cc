@@ -617,7 +617,10 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 
     CubeSampling cs = SI().sampling( true );
     if ( !zat )
+    {
 	setZDomainInfo( ZDomain::Info(ZDomain::SI()) );
+	setZScale( SI().zScale() );
+    }
     else
     {
 	const Interval<float> zrg = zat->getZInterval( false );
@@ -629,6 +632,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	}
 
 	setZDomainInfo( zat->toZDomainInfo() );
+	setZScale( zat->toZScale() );
     }
 
     setCubeSampling( cs );
