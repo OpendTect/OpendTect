@@ -54,13 +54,14 @@ int uiWellPartServer::evDisplayWell()		    { return 2; }
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , rdmlinedlg_(0)
-    , uiwellpropdlg_(0)		    
+    , uiwellpropdlg_(0)
+    , uiwellimpdlg_(0)
     , cursceneid_(-1)
     , disponcreation_(false)
     , multiid_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
-    , isdisppropopened_(false)			       
+    , isdisppropopened_(false)
 {
 }
 
@@ -94,20 +95,36 @@ bool uiWellPartServer::bulkImportMarkers()
 
 bool uiWellPartServer::importTrack()
 {
-    uiWellImportAsc dlg( parent() );
-    return dlg.go();
+    if ( uiwellimpdlg_ )
+    {
+	uiwellimpdlg_->show();
+	uiwellimpdlg_->raise();
+	return false;
+    }
+
+    uiwellimpdlg_ = new uiWellImportAsc( parent() );
+    uiwellimpdlg_->importReady.notify(
+		mCB(this,uiWellPartServer,importReadyCB) );
+    uiwellimpdlg_->show();
+    return true;
 }
 
 
 bool uiWellPartServer::importLogs()
-{
-    manageWells(); return true;
-}
-
+{ manageWells(); return true; }
 
 bool uiWellPartServer::importMarkers()
+{ manageWells(); return true; }
+
+
+void uiWellPartServer::importReadyCB( CallBacker* cb )
 {
-    manageWells(); return true;
+    if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
+    {
+	crwellids_.erase();
+	crwellids_.add( uiwellimpdlg_->getWellID().buf() );
+	sendEvent( evDisplayWell() );
+    }
 }
 
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "multiid.h"
 
 class uiCheckBox;
 class uiD2TModelGroup;
@@ -35,6 +36,9 @@ mExpClass(uiWell) uiWellImportAsc : public uiDialog
 public:
 			uiWellImportAsc(uiParent*);
 			~uiWellImportAsc();
+
+    MultiID		getWellID() const;
+    Notifier<uiWellImportAsc> importReady;
 
 protected:
 
