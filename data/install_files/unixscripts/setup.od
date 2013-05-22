@@ -113,7 +113,7 @@ if ( ! $?DTECT_DATA ) then
     endif
 endif
 
-if ( "$DTECT_DATA" == "" ) then
+if ( "$DTECT_DATA" == "" || "$DTECT_DATA" == "/" ) then
     setenv replacedatadir __none__
 else
     setenv replacedatadir `echo $DTECT_DATA | sed 's/\//\\\//g'`
