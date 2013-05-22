@@ -32,7 +32,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	{
 	    mess += ioobj_.fullUserExpr(true);
 	    mess += "'?";
-	    FilePath cursurvfp( IOM().rootDir() );
+	    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
 	    FilePath orgfp( ioobj_.fullUserExpr(true) ); orgfp.makeCanonical();
 	    isoutside = !orgfp.isSubDirOf(cursurvfp);
 	    mess += isoutside ? "\nFile not in current survey.\n"
