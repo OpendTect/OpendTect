@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
@@ -42,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "errh.h"
 #include "ioobj.h"
 #include "multiid.h"
+#include "pixmap.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
@@ -263,6 +265,29 @@ void uiWellPartServer::manageWells()
     dlg.go();
 }
 
+
+void uiWellPartServer::launchRockPhysics()
+{
+    uiWellMan dlg( parent() );
+    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
+					 "Create multiple simple wells",
+					 mCB(this,uiWellPartServer,simpImp) );
+    dlg.addTool( tb );
+
+    uiDialog msgdlg( &dlg, uiDialog::Setup("Rock Physics",mNoDlgTitle,
+					   mNoHelpID).modal(false) );
+    msgdlg.setCtrlStyle( uiDialog::LeaveOnly );
+    uiLabel* lbl = new uiLabel( &msgdlg, "Select one or several wells, "
+	    "press 'Create' button\nand then press the rock physics icon" );
+    uiPushButton* rpicon = new uiPushButton( &msgdlg, "",
+	    				     ioPixmap("rockphys.png"), false );
+    rpicon->attach( leftAlignedBelow, lbl );
+    lbl = new uiLabel( &msgdlg, "in the 'Calculate new logs' window" );
+    lbl->attach( rightOf, rpicon );
+    msgdlg.show();
+    msgdlg.raise();
+    dlg.go();
+}
 
 void uiWellPartServer::simpImp( CallBacker* )
 { createSimpleWells(); }

@@ -51,6 +51,7 @@ public:
     void			bulkImportMarkers();
 
     void			manageWells();
+    void			launchRockPhysics();
     bool			selectWells(ObjectSet<MultiID>&);
 
     bool			hasLogs(const MultiID&) const;
