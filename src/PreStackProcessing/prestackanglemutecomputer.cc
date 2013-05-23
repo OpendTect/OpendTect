@@ -85,7 +85,8 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
-	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
+	ElasticModel layers;
+	SamplingData<float> sd;
 	if ( !getLayers( curbid, layers, sd ) )
 	    continue;
 

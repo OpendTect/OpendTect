@@ -140,10 +140,10 @@ public:
     };
 				ModelBasedAngleComputer();
 				
-    void			setElasticModel(const ElasticModel& em,
-						const TraceID& trcid,
+    void			setElasticModel(const TraceID& trcid,
 	    					bool doblock,
-						bool pvelonly=true );
+						bool pvelonly,
+	   					ElasticModel& em);
     void			setRayTracer(const RayTracer1D* rt,
 	    				     const TraceID&);
     const ElasticModel&		curElasticModel() const;

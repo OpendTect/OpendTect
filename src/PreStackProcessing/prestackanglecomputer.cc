@@ -247,10 +247,9 @@ bool VelocityBasedAngleComputer::createElasticModel(
 					    const StepInterval<float>& zrange, 
 					    const float* pvel ) 
 {
-    elasticmodel_.erase();
+    elasticmodel_.setEmpty();
     const bool zit =  SI().zDomain().isTime();
     const int zsize = zrange.nrSteps();
-    ElasticModel firstrawem, secondrawem;
     const float svel(mUdf(float)), den(mUdf(float));
 
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
@@ -271,8 +270,8 @@ bool VelocityBasedAngleComputer::createElasticModel(
 		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f 
 		    :  zrange.start+zrange.step-srddepth;
     
-    ElasticLayer firstelayer( firstlayerthickness, pvel[firstidx], svel, den );
-    firstrawem.add( firstelayer );
+    ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx], svel, den );
+    elasticmodel_ += firstlayer;
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
@@ -280,14 +279,14 @@ bool VelocityBasedAngleComputer::createElasticModel(
 					 : zrange.step;
 
 	ElasticLayer elayer( layerthickness, pvel[idx], svel, den );
-	firstrawem.add( elayer );
+	elasticmodel_ += elayer;
     }
 
-    if ( firstrawem.isEmpty() )
+    if ( elasticmodel_.isEmpty() )
 	return false;
-    
-    BlockElasticModel( firstrawem, secondrawem, thresholdparam_, true );
-    SetMaxThicknessElasticModel( secondrawem, elasticmodel_, maxthickness_ );
+
+    elasticmodel_.block( thresholdparam_, true );
+    elasticmodel_.setMaxThickness( maxthickness_ );
     return true;
 }
 
@@ -353,19 +352,18 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 }
 
 
-void ModelBasedAngleComputer::setElasticModel( const ElasticModel& em, 
-					       const TraceID& trcid,
-					       bool block, bool pvelonly )
+void ModelBasedAngleComputer::setElasticModel( const TraceID& trcid,
+					       bool block, bool pvelonly,
+       					       ElasticModel& em	)
 {
-    ElasticModel* elasticmodel = new ElasticModel( em );
     if ( block )
     {
 	ElasticModel rawem;
-	BlockElasticModel( *elasticmodel, rawem, thresholdparam_, pvelonly );
-	SetMaxThicknessElasticModel( rawem, *elasticmodel, maxthickness_ );
+	em.block( thresholdparam_, pvelonly );
+	em.setMaxThickness( maxthickness_ );
     }
 
-    ModelTool* tool = new ModelTool( *elasticmodel, trcid );
+    ModelTool* tool = new ModelTool( em, trcid );
     const int toolidx = tools_.indexOf( tool );
     if ( toolidx<0 )
 	tools_ += tool;
