@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
 #include "pixmap.h"
@@ -344,21 +343,23 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 
     viewer2D()->setSelSpec( &selas, false );
 
-    ColTab::MapperSetup mapper;
-    ColTab::Sequence seq( 0 );
-
     PtrMan<IOObj> ioobj = attrserv->getIOObj( selas );
     if ( ioobj )
     {
 	FilePath fp( ioobj->fullUserExpr(true) );
 	fp.setExtension( "par" );
 	IOPar iop;
-	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
+	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
 	{
+	    ColTab::Sequence seq( 0 );
 	    const char* ctname = iop.find( sKey::Name() );
 	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );
+
+	    ColTab::MapperSetup mapper;
+	    mapper.usePar( iop );
+	    vwr.appearance().ddpars_.vd_.mappersetup_ = mapper;
 	}
     }
 
