@@ -20,6 +20,9 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
+#include "filepath.h"
+#include "ioobj.h"
+#include "keystrs.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -294,6 +297,21 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     if ( newid == DataPack::cNoID() ) return true;
 
     viewer2D()->setSelSpec( &selas, true );
+
+    PtrMan<IOObj> ioobj = attrserv->getIOObj( selas );
+    if ( ioobj )
+    {
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	IOPar iop;
+	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	{
+	    ColTab::MapperSetup mapper;
+	    mapper.usePar( iop );
+	    vwr.appearance().ddpars_.wva_.mappersetup_ = mapper;
+	}
+    }
+
     viewer2D()->setUpView( newid, true );
 
     return false;
