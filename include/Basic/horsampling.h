@@ -98,6 +98,8 @@ public:
     bool		operator==( const HorSampling& hs ) const
 			{ return hs.start==start && hs.stop==stop 
 			    			 && hs.step==step; }
+    bool		operator!=( const HorSampling& hs ) const
+    			{ return !(*this==hs); }
 
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
