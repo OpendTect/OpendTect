@@ -180,7 +180,6 @@ bool ZipHandler::compressNextFile()
     {
 	ret = doZCompress();
 	isd_.close();
-
     }
 
     if ( !ret )
@@ -229,6 +228,9 @@ bool ZipHandler::doZCompress()
     const od_uint32 ptrlocation = osd_.ostrm->tellp();
     if ( !setLocalFileHeader( ) )
 	return false;
+
+    if ( srcfilesize_ == 0 )
+	return true;
 
     int ret;
     z_stream zlibstrm;
@@ -759,7 +761,9 @@ bool ZipHandler::extractNextFile()
 	return false;
     }
 
-    if ( compmethod_ == mDeflate )
+    if ( srcfilesize_ == 0 )
+    {}
+    else if ( compmethod_ == mDeflate )
     {
 	if ( !doZUnCompress() )
 	{
