@@ -34,9 +34,7 @@ public:
 
     virtual void	addChild( uiBaseObject& child )
 			{ 
-			    if ( children_.indexOf(&child )!=-1 )
-				return;
-
+			    if ( children_.isPresent(&child ) )	return;
 			    children_ += &child; 
 			    child.deleteNotify(mCB(this,uiParentBody,childDel));
 			}

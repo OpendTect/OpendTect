@@ -130,7 +130,7 @@ protected:
     bool		handleImpState(ImportHandler::State);
     inline bool		colSel() const
 			{ return selcols_.isEmpty()
-			      || selcols_.indexOf(colnr_) > -1; }
+			      || selcols_.isPresent(colnr_); }
 };
 
 }; // namespace Table

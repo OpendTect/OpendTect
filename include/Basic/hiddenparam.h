@@ -106,7 +106,7 @@ template <class O, class V>
 bool HiddenParam<O,V>::hasParam( const O* obj ) const
 {
     Threads::MutexLocker lock( lock_ );
-    return objects_.indexOf( obj ) !=-1;
+    return objects_.isPresent( obj );
 }
 
 
