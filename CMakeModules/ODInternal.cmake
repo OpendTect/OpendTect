@@ -74,7 +74,10 @@ endif()
 file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
 if( UNIX OR APPLE )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
-    list( REMOVE_ITEM PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
+    list( REMOVE_ITEM PROGRAMS
+	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
+    list( REMOVE_ITEM PROGRAMS
+	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/makeself )
     foreach( TEXTFILE ${TEXTFILES} )
         list( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
     endforeach()
