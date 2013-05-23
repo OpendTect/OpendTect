@@ -145,12 +145,6 @@ bool AngleMuteBase::getLayers(const BinID& bid,
     bool doblock = false; float blockratiothreshold;
     params_->raypar_.getYN( RayTracer1D::sKeyBlock(), doblock );
     params_->raypar_.get( RayTracer1D::sKeyBlockRatio(), blockratiothreshold );
-/*    if ( doblock )
-    {
-	BendPointVelBlock( depths, vels, blockrelthreshold );
-	nrlayers = vels.size();
-    }
-    Should call BlockElasticModel as discussed with Aneesh */
 
     int il = 1;
     for ( il=1; il<nrlayers; il++ )
@@ -295,7 +289,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const BinID bid = input->getBinID();
 
 	int nrlayers = input->data().info().getSize( Gather::zDim() );
-	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
+	ElasticModel layers; SamplingData<float> sd;
 	if ( !getLayers( bid, layers, sd, nrlayers ) )
 	    continue;
 
