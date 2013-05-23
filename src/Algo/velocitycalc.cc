@@ -1443,15 +1443,24 @@ void BlockElasticModel( const ElasticModel& inmdl, ElasticModel& outmdl,
     int nrcomp = 1;
     if ( !pvelonly )
     {
+	bool dodensity = true;
+	TypeSet<float> denvals( modelsize, mUdf(float) );
 	for ( int idx=0; idx<modelsize; idx++ )
 	{
 	    const float den = inmdl[idx].den_;
-	    values += den;
+	    denvals += den;
 	    if ( mIsUdf(den) || mIsZero(den,1e-3) )
-		return;
+	    {
+		dodensity = false;
+		break;
+	    }
 	}
 
-	nrcomp++;
+	if ( dodensity )
+	{
+	    values.append( denvals );
+	    nrcomp++;
+	}
 
 	bool dosvel = true;
 	TypeSet<float> svals( modelsize, mUdf(float) );
