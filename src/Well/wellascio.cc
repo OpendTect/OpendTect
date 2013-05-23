@@ -75,8 +75,8 @@ bool TrackAscIO::getData( Data& wd, bool tosurf ) const
 	if ( mIsUdf(c.x) || mIsUdf(c.y) )
 	    continue;
 
-	c.z = mCast( float, getdValue(2) );
-	const float newdah = mCast( float, getdValue( 3 ) );
+	c.z = getdValue(2);
+	const float newdah = getfValue( 3 );
 	const bool havez = !mIsUdf(c.z);
 	const bool havedah = !mIsUdf(newdah);
 	if ( !havez && !havedah )

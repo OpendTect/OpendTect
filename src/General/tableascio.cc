@@ -786,12 +786,12 @@ float Table::AscIO::getfValue( int ifld, float udf ) const
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(float);
-    float val = toFloat( sval );
+    const double val = toDouble( sval );
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
-    return unit ? unit->internalValue( val ) : val;
+    return mCast(float, unit ? unit->internalValue( val ) : val );
 }
 
 
