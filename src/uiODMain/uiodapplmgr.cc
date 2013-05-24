@@ -1720,6 +1720,8 @@ void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )
 { wellserv_->doLogTools(); }
+void uiODApplMgr::launchRockPhysics( CallBacker* )
+{ wellserv_->launchRockPhysics(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
 void uiODApplMgr::doVolProcCB( CallBacker* )

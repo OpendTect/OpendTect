@@ -177,6 +177,7 @@ public:
     void			doVolProc(const MultiID&);
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);
+    void			launchRockPhysics(CallBacker*);
     void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();

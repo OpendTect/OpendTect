@@ -501,6 +501,8 @@ void uiODMenuMgr::fillAnalMenu()
     if (  SI().zIsTime() )
 	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...", 
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
+    analwellmnu_->insertItem( new uiMenuItem( "&Rock Physics ...",
+		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
     analmnu_->insertItem( analwellmnu_ );
 
     layermodelmnu_ = new uiPopupMenu( 
@@ -738,6 +740,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	   false,doWellXPlot);
     mAddTB(dtecttb_,"xplot_attribs","Cross-plot Attribute vs Attribute data",
 	   false,doAttribXPlot);
+
+    mAddTB(dtecttb_,"rockphys","Rock Physics",false,launchRockPhysics);
 
     dTectTBChanged.trigger();
 }
