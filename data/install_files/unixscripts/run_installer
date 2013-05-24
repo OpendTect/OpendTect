@@ -1,0 +1,25 @@
+#!/bin/sh -f
+# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
+# Description:  Script to launch installer
+# Author:       Nageswara
+# Date:         May 2013
+# RCS:          $Id: $
+
+if [ ! -f /bin/csh ]; then
+    echo "You do not have csh installed which is required by OpendTect"
+    echo "Please install csh or contact your system administrator."
+    exit 1
+fi
+
+curdir=`pwd`
+export DTECT_APPL=${curdir}
+if [ ! $?LD_LIBRARY_PATH ]; then
+    export LD_LIBRARY_PATH=${curdir}
+else
+    export LD_LIBRARY_PATH=${curdir}:${LD_LIBRARY_PATH}
+fi
+
+./od_instmgr $*
+
+stat=$status
+exit $stat
