@@ -334,6 +334,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 {
     plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
     plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
+    delete mathobj_; delete mathobj1_;
 }
 
 
@@ -376,9 +377,9 @@ bool parseExp( CallBacker* cb )
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
     isy1 ? plotter_.y1rmserr_.setEmpty() : plotter_.y2rmserr_.setEmpty();;
     MathExpressionParser mep( mathexpr );
-    MathExpression* mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
+    MathExpression*& mathobj = isy1 ? mathobj_ : mathobj1_;
+    delete mathobj; mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
     uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
-    ( isy1 ? mathobj_ : mathobj1_ ) = mathobj;
 
     if ( !mathobj )
     {
@@ -398,7 +399,7 @@ bool parseExp( CallBacker* cb )
 	return false;
     }
 
-    if ( mathobj && mathobj->nrVariables() > 1 )
+    if ( mathobj->nrVariables() > 1 )
     {
 	msg_ = "Expression for Y";
 	msg_ += isy1 ? "1" : "2";
@@ -544,7 +545,7 @@ void computePts( bool isy2 )
 	mathobj->setVariableValue( 0, curvxval );	
 	float curvyval = mathobj->getValue();
 	if ( !Math::IsNormalNumber(curvyval) ) break;
-	if ( mIsUdf(curvxval) || mIsUdf(curvyval) ) continue;
+	if ( mIsUdf(curvyval) || mIsUdf(curvxval) ) continue;
 
 	curvyvalrg.include( curvyval, false );
 	pts += uiWorldPoint( curvxval, curvyval );
@@ -552,8 +553,8 @@ void computePts( bool isy2 )
     
     if ( pts.size() == 0 )
     {
-	msg_ = "No valid points to plot Y";
-	msg_ += isy2 ? 2 : 1; msg_ += ".";
+	msg_ = "Y"; msg_ += isy2 ? 2 : 1;
+	msg_ += " cannot be plotted.";
 	uiMSG().error( msg() );
 	return;
     }
