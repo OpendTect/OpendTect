@@ -148,6 +148,10 @@ public:
 						const TraceID& trcid,
 	    					bool doblock,
 						bool pvelonly=true );
+    void			setElasticModel(const TraceID& trcid,
+	    					bool doblock,
+						bool pvelonly,
+						ElasticModel& em);
     void			setRayTracer(const RayTracer1D* rt,
 	    				     const TraceID&);
     const ElasticModel&		curElasticModel() const;
