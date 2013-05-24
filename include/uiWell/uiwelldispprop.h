@@ -111,6 +111,7 @@ public:
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
     
+    void		setAllMarkerNames(const BufferStringSet&);
     void 		resetProps(Well::DisplayProperties::Markers&);
 
 protected:

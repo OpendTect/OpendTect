@@ -250,10 +250,20 @@ void uiWellMarkersDispProperties::setSelNames()
 }
 
 
+void uiWellMarkersDispProperties::setAllMarkerNames(
+					const BufferStringSet& allmarkernms )
+{
+    displaymarkersfld_->setEmpty();
+    displaymarkersfld_->addItems( allmarkernms );
+    setSelNames();
+}
+
+
 void uiWellMarkersDispProperties::resetProps(
 				Well::DisplayProperties::Markers& pp )
 {
     props_ = &pp;
+    setSelNames();
 }
 
 
