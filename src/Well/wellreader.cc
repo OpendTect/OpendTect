@@ -476,6 +476,9 @@ bool Well::Reader::addLog( std::istream& strm ) const
 	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
     }
 
+    if ( !wd.track().dahRange().width() )
+	getTrack();
+
     const float stopz = wd.track().dahRange().stop;
     for ( int idx=newlog->size()-1; idx>=0; idx-- )
     {
