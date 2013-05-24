@@ -86,7 +86,9 @@ mTYPE Math::Log10( mTYPE s )
 
 mTYPE Math::Sqrt( mTYPE s )
 {
-    return (mTYPE) s <= 0 ? 0 : sqrt( s );
+    //A bit silly bu the space before the parantesis
+    //makes it avoid the sqrt test.
+    return (mTYPE) s <= 0 ? 0 : sqrt ( s );
 }
 
 mTYPE Math::toDB( mTYPE s )
