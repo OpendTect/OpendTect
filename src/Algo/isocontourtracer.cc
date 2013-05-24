@@ -10,13 +10,30 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndinfo.h"
 
-
+static Threads::ReadWriteLock ictlock;
 static ObjectSet<IsoContourTracer> isocontourtracers;
-static TypeSet<float> edgevalues;
-static TypeSet<float> bendpointepsilons;
+static ObjectSet<float> edgevalues;
+static ObjectSet<float> bendpointepsilons;
 
-#define edgevalue_	edgevalues[isocontourtracers.indexOf(this)]
-#define bendpointeps_	bendpointepsilons[isocontourtracers.indexOf(this)]
+static float& getEdgeValue( const IsoContourTracer* ict )
+{
+    ictlock.readLock();
+    float& res = *edgevalues[isocontourtracers.indexOf(ict)];
+    ictlock.readUnLock();
+    return res;
+}
+
+
+static float& getBendPointEps( const IsoContourTracer* ict )
+{
+    ictlock.readLock();
+    float& res = *bendpointepsilons[isocontourtracers.indexOf(ict)];
+    ictlock.readUnLock();
+    return res;
+}
+
+#define edgevalue_	getEdgeValue(this)
+#define bendpointeps_	getBendPointEps(this)
 
 
 IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
@@ -29,17 +46,21 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , minnrvertices_( 2 )
     , nrlargestonly_( -1 )
 {
+    ictlock.writeLock();
     isocontourtracers += this;
-    edgevalues += mUdf(float);
-    bendpointepsilons += mUdf(float);
+    edgevalues += new float( mUdf(float) );
+    bendpointepsilons += new float( mUdf(float) );
+    ictlock.writeUnLock();
 }
 
 
 IsoContourTracer::~IsoContourTracer()
 {
-    edgevalues.removeSingle( isocontourtracers.indexOf(this) );
-    bendpointepsilons.removeSingle( isocontourtracers.indexOf(this) );
+    ictlock.writeLock();
+    delete edgevalues.removeSingle( isocontourtracers.indexOf(this) );
+    delete bendpointepsilons.removeSingle( isocontourtracers.indexOf(this) );
     isocontourtracers -= this;
+    ictlock.writeUnLock();
 }
 
 
