@@ -247,7 +247,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly,
 	    int bendpoint = curblock.center();
 	    if ( bendpoints.isEmpty() )
 	    {
-		pFreeFnErrMsg("Should never happen", "BlockElasticModel");
+		pFreeFnErrMsg("Should never happen", "ElasticModel::block");
 	    }
 	    else if ( bendpoints.size()==1 )
 	    {
