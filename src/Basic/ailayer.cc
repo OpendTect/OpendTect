@@ -393,9 +393,9 @@ bool ElasticModel::upscaleBackus( ElasticModel& inmdl, ElasticLayer& outlay,
 	return inmdl.upscaleByThicknessAvg( outlay );
 
     const bool zerooffset = mIsZero( theta, 1e-5f );
-    const float s2 = zerooffset ? 0. : sin( theta ) * sin( theta );
-    const float c2 = zerooffset ? 1. : cos( theta ) * cos( theta );
-    const float s22 = zerooffset ? 0. : sin( 2.f * theta ) * sin( 2.f * theta );
+    const float s2 = zerooffset ? 0.f : sin( theta ) * sin( theta );
+    const float c2 = zerooffset ? 1.f : cos( theta ) * cos( theta );
+    const float s22 = zerooffset ? 0.f : sin( 2.f *theta ) * sin( 2.f *theta );
 
     const float mm = c11 * s2 + c33 * c2 + c44;
     const float mn = Math::Sqrt( ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 ) *
