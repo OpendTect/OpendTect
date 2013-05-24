@@ -213,7 +213,14 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	else if ( trckfld )
 	    trckfld->resetProps( prop.track_ );
 	else if ( mrkfld )
+	{
+	    BufferStringSet allmarkernms;
+	    for ( int idy=0; idy<wd_->markers().size(); idy++ )
+		allmarkernms.add( wd_->markers()[idy]->name() );
+	    
+	    mrkfld->setAllMarkerNames( allmarkernms );
 	    mrkfld->resetProps( prop.markers_ );
+	}
     }
     putToScreen();
 }
