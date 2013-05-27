@@ -470,7 +470,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const char* nm = dp->name();
     iop.set( iswva ? "Wiggle/VA data" : "Variable density data", nm );
 
-    const Array2DInfoImpl& info = arr.info();
+    const Array2DInfo& info = arr.info();
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
