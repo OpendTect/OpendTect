@@ -40,6 +40,7 @@ public:
 				uiStratSynthCrossplot(uiParent*,
 				    const Strat::LayerModel&,
 				    const ObjectSet<SyntheticData>&);
+				~uiStratSynthCrossplot();
 
     void			setRefLevel(const char*);
     const char*			errMsg() const 
@@ -50,6 +51,7 @@ protected:
     const Strat::LayerModel&	lm_;
 
     const ObjectSet<SyntheticData>& synthdatas_;
+    TypeSet<TypeSet<Interval<float> > > extrgates_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;

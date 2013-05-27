@@ -39,6 +39,9 @@ public:
 
     float		getValue(const LayerSequence&,
 	    			 const Interval<float>& zrange) const;
+    
+    void		setExtrGates(const TypeSet<Interval<float> >& extrgates)
+						 { extrgates_ = extrgates; }
 
 protected:
 
@@ -49,6 +52,7 @@ protected:
     int					validx_;
     ObjectSet<const Strat::UnitRef>	units_;
     ObjectSet<const Strat::Lithology>	liths_;
+    TypeSet<Interval<float> >&		extrgates_;
 
     float		getLocalValue(const LayerSequence&,
 	    			      const Interval<float>&) const;
@@ -62,11 +66,16 @@ mExpClass(Strat) LayModAttribCalc : public Executor
 {
 public:
     			LayModAttribCalc(const LayerModel&,
-					 const LaySeqAttribSet&,
-					 DataPointSet&);
+				     const LaySeqAttribSet&,
+				     DataPointSet&);
 			~LayModAttribCalc();
 
+    			// point-specific extraction gates have precedence over
+    			// global calczwdth_
     void		setCalcZWidth( float w ) { calczwdth_ = w; }
+    void		setExtrGates(
+			const TypeSet<TypeSet<Interval<float> > >& extrgates )
+						   { extrgates_ = extrgates; }
 
     const char*		message() const		{ return msg_.buf(); }
     const char*		nrDoneText() const	{ return "Models handled";}
@@ -85,6 +94,7 @@ protected:
     DataPointSet&		dps_;
     BufferString		msg_;
     float			calczwdth_;
+    TypeSet<TypeSet<Interval<float> > >&	extrgates_;
 
 };
 
