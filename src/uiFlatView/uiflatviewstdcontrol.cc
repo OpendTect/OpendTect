@@ -139,16 +139,22 @@ void uiFlatViewStdControl::finalPrepare()
 }
 
 
+void uiFlatViewStdControl::clearToolBar()
+{
+    tb_->clear(); delete tb_; tb_ = 0;
+    zoominbut_ = zoomoutbut_ = manipdrawbut_ = parsbut_ = editbut_ = 0;
+}
+
+
 void uiFlatViewStdControl::updatePosButtonStates()
 {
-    zoomoutbut_->setSensitive( !zoommgr_.atStart() );
+    if ( zoomoutbut_ ) zoomoutbut_->setSensitive( !zoommgr_.atStart() );
 }
 
 
 void uiFlatViewStdControl::dispChgCB( CallBacker* )
 {
-    if ( ctabed_ )
-	ctabed_->setColTab( vwr_ );
+    if ( ctabed_ ) ctabed_->setColTab( vwr_ );
 }
 
 
@@ -178,6 +184,7 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
 
 void uiFlatViewStdControl::zoomCB( CallBacker* but )
 {
+    if ( !but ) return;
     const bool zoomin = but == zoominbut_;
     doZoom( zoomin, *vwrs_[0], zoommgr_ );
 }
