@@ -47,7 +47,7 @@ namespace WellTie
 uiControlView::uiControlView( uiParent* p, uiToolBar* tb, 
 				uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
-						    .withcoltabed(false))
+	    		         .withcoltabed(false).withsnapshot(false))
     , toolbar_(tb)
     , manip_(true)
     , selhordlg_(0)
@@ -63,7 +63,6 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     else
 	tb_->display(false);
     toolbar_->addSeparator();
-    toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton(toolbar_) );
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
     mDefBut(zoominbut_,"zoomforward",altZoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward",altZoomCB,"Zoom out");

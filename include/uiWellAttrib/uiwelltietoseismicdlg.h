@@ -120,6 +120,7 @@ protected:
     void 			timeChanged(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
+    void			snapshotCB(CallBacker*);
 };
 
 
