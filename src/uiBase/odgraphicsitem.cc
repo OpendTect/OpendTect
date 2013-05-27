@@ -406,8 +406,8 @@ void ODViewerTextItem::paint( QPainter* painter,
     //Nice for debugging
     //painter->drawPoint( paintpos.x(), paintpos.y() );
     
-    painter->drawText( paintpos.x() + movex,
-		       paintpos.y()+movey+txtheight, text );
+    painter->drawText( QPointF(paintpos.x() + movex,
+		       paintpos.y()+movey+txtheight), text );
 		  
     painter->restore();
     
