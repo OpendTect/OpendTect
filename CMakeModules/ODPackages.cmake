@@ -35,5 +35,16 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    DEPENDS do_install sources
 	    COMMENT "Creating packages" ) 
-endmacro()
 
+add_custom_target( installer ${CMAKE_COMMAND}
+		    -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+		    -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
+		    -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
+		    -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
+		    -DInstaller_VERSION=${Installer_VERSION}
+		    "-DOD_THIRD_PARTY_LIBS=\"${OD_THIRD_PARTY_LIBS}\""
+		    -DPSD=${PROJECT_SOURCE_DIR}
+		    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+		    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeInstaller.cmake
+		    COMMENT "Creating installer" )
+endmacro()
