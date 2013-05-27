@@ -418,6 +418,7 @@ int Strat::LayModAttribCalc::nextStep()
 	   z *= mFromFeetFactorF;
 
 	Interval<float> zrg;
+	const int seqnb = mCast( int, seqidx_ );
 	if ( extrgates_.isEmpty() )
 	{
 	    if( mIsUdf(calczwdth_) )
@@ -427,19 +428,19 @@ int Strat::LayModAttribCalc::nextStep()
 	}
 	else
 	{
-	    if ( !extrgates_.validIdx(seqidx_) )
+	    if ( !extrgates_.validIdx(seqnb) )
 	    {
-		errmsg.add( seqidx_+1 );
+		errmsg.add( seqnb+1 );
 		mErrRet( errmsg )
 	    }
 
-	    if ( !extrgates_[seqidx_].validIdx(pointidx) )
+	    if ( !extrgates_[seqnb].validIdx(pointidx) )
 	    {
-		errmsg.add( seqidx_+1 );
+		errmsg.add( seqnb+1 );
 		mErrRet( errmsg )
 	    }
 
-	    zrg.setFrom( extrgates_[seqidx_][pointidx] );
+	    zrg.setFrom( extrgates_[seqnb][pointidx] );
 	}
 
 	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
