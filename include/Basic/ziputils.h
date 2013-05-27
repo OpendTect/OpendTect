@@ -37,6 +37,10 @@ public:
     static bool			unZipArchive(const char* src,const char* dest,
 	    				     BufferString& errmsg,
 					     TaskRunner* tr=0);
+    static bool			unZipArchives(const BufferStringSet& archvs,
+					      const char* dest,
+	    				      BufferString& errmsg,
+					      TaskRunner* tr=0);
     static bool			unZipFile(const char* ziparchive,
 					  const char* fnm,const char* path,
 					  BufferString& errmsg);
@@ -64,7 +68,7 @@ protected:
 
     bool			doZip(const char* src,const char* dest);
     bool			doUnZip(const char* src,const char* dest);
-
+   
     BufferString		errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;

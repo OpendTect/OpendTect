@@ -229,6 +229,35 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 }
 
 
+bool ZipUtils::unZipArchives( const BufferStringSet& archvs,const char* basepath,
+			     BufferString& errmsg, TaskRunner* tr )
+{
+    ExecutorGroup execgrp( "Archive unpacker" );
+    for ( int idx=0; idx<archvs.size(); idx++ )
+    {
+	ZipHandler* ziphdler = new ZipHandler;
+	const BufferString& archvnm = archvs.get( idx );
+	if ( !ziphdler->initUnZipArchive(archvnm,basepath) )
+	{
+	    errmsg = ziphdler->errorMsg();
+	    return false;
+	}
+
+	UnZipper* exec = new UnZipper( *ziphdler );
+	execgrp.add( exec );
+    }
+
+
+    if ( !(TaskRunner::execute(tr,execgrp)) )
+    {
+	errmsg = execgrp.message();
+	return false;
+    }
+
+    return true;
+}
+
+
 bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 			  BufferString& errmsg )
 {
