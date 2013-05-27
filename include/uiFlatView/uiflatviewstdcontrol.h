@@ -81,6 +81,7 @@ protected:
     uiFlatViewColTabEd*	ctabed_;
 
     virtual void	finalPrepare();
+    void		clearToolBar();
     void		updatePosButtonStates();
     void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
@@ -102,7 +103,7 @@ protected:
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
 
-    virtual bool		handleUserClick();
+    virtual bool	handleUserClick();
 
     uiMenuHandler&      menu_;
     MenuItem           	propertiesmnuitem_;

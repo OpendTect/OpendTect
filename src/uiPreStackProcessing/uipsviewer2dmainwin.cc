@@ -660,8 +660,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     , datadlgcalled_(this)
 {
     removeViewer( vwr );
-
-    tb_->clear(); delete tb_;
+    clearToolBar();
 
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
@@ -669,7 +668,6 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     mDefBut(posbut,"orientation64",gatherPosCB,"Set positions");
     mDefBut(databut,"gatherdisplaysettings64",gatherDataCB, "Set gather data");
     mDefBut(parsbut,"2ddisppars",parsCB,"Set seismic display properties");
-
     tb_->addSeparator();
 }
 
