@@ -17,9 +17,21 @@ macro(OD_SETUP_BREAKPAD)
 
 	if(OD_ENABLE_BREAKPAD)
 		if( WIN32 )
-			find_library( BREAKPADLIB NAMES BreakPad PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib REQUIRED )
-			find_library( BREAKPADCOMMONLIB NAMES BreakPadCommon PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib REQUIRED )
-			find_library( BREAKPADCLIENTLIB NAMES BreakPadClient PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib REQUIRED )
+			foreach( BUILD_TYPE DEBUG RELEASE )
+				find_library( BREAKPADLIB_${BUILD_TYPE} NAMES exception_handler 
+				      	      PATHS ${BREAKPAD_DIR}/client/windows/${BUILD_TYPE}/lib
+				      	      REQUIRED )
+				find_library( BREAKPADCOMMONLIB_${BUILD_TYPE} NAMES common 
+				      	      PATHS ${BREAKPAD_DIR}/client/windows/${BUILD_TYPE}/lib 
+				      	      REQUIRED )
+				find_library( BREAKPADCLIENTLIB_${BUILD_TYPE} NAMES crash_generation_client 
+				      	      PATHS ${BREAKPAD_DIR}/client/windows/${BUILD_TYPE}/lib 
+				      	      REQUIRED )
+			 endforeach()
+
+			 OD_MERGE_LIBVAR( BREAKPADLIB )
+			 OD_MERGE_LIBVAR( BREAKPADCOMMONLIB )
+			 OD_MERGE_LIBVAR( BREAKPADCLIENTLIB )
 		endif( WIN32 )
 		
 		set(OD_BREAKPADLIBS ${BREAKPADLIB} ${BREAKPADCOMMONLIB} ${BREAKPADCLIENTLIB} )
