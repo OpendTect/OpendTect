@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uispinbox.h"
 
 #include "file.h"
@@ -523,10 +524,22 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
 {
     enableSaveButton( 0 );
     screendpi_ = 90;
+    mDynamicCastGet(uiMainWin*,mw,p);
+    aspectratio_ = 1.0f;
+    if ( mw )
+	aspectratio_ = mCast(float,mw->geometry().width())/
+	    	       mCast(float,mw->geometry().height());
     createGeomInpFlds( 0 );
     useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
     setFldVals( 0 );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( ensureBelow, fileinputfld_ );
+    uiLabel* warninglbl =
+	new uiLabel( this, "Do not place this dialog over the window \n"
+			   "for which snapshot has to be taken" );
+    warninglbl->attach( alignedBelow, fileinputfld_ );
+    warninglbl->attach( ensureBelow, sep );
     updateFilter();
 }
 
