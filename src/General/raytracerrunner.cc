@@ -16,7 +16,8 @@ RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
 				    const IOPar& raypars ) 
     : aimodels_(aims)
     , raypar_(raypars)		
-{}
+{
+}
 
 
 RayTracerRunner::RayTracerRunner( const IOPar& raypars ) 
@@ -43,7 +44,7 @@ void RayTracerRunner::addModel( const ElasticModel& aim, bool dosingle )
     if ( dosingle )
 	aimodels_.erase();
 
-    aimodels_ += aim; 
+    aimodels_ += aim;
 }
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
@@ -91,13 +92,17 @@ od_int64 RayTracerRunner::nrDone() const
 }
 
 
-int RayTracerRunner::curModelIdx( od_int64 idx ) const
+int RayTracerRunner::modelIdx( od_int64 idx, bool& startlayer ) const
 {
-    od_int64 stopidx = 0;
+    od_int64 stopidx = -1;
+    startlayer = false;
     for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
     {
+	if ( idx == (stopidx + 1) )
+	    startlayer = true;
+
 	stopidx += raytracers_[modelidx]->totalNr();
-	if ( stopidx>idx )
+	if ( stopidx>=idx )
 	    return modelidx;
     }
 
@@ -105,11 +110,13 @@ int RayTracerRunner::curModelIdx( od_int64 idx ) const
 }
 
 
+
 bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    int startmdlidx = curModelIdx(start);
-    if ( start ) startmdlidx++;
-    const int stopmdlidx = curModelIdx(stop);
+    bool startlayer = false;
+    int startmdlidx = modelIdx( start, startlayer );
+    if ( !startlayer ) startmdlidx++;
+    const int stopmdlidx = modelIdx( stop, startlayer );
     for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
     {
 	const ElasticModel& aim = aimodels_[idx];
