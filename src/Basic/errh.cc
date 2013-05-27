@@ -168,25 +168,22 @@ static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
                      MDRawAssertionInfo *assertion,
                      bool succeeded)
 { 
-    QString path = QString::fromWCharArray( dump_path );
-    QString mndmpid = QString::fromWCharArray( id );
-    BufferString dmppath ( path.toAscii().constData() );
-    BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
-    FilePath dmpfp( dmppath, dmpid );
+    const QString path = QString::fromWCharArray( dump_path );
+    const QString mndmpid = QString::fromWCharArray( id );
+    const BufferString dmppath ( path.toAscii().constData() );
+    const BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
+    const FilePath dmpfp( dmppath, dmpid );
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
+
 
 void CrashDumper::init()
 {
     if ( !handler_ )
     {
-	BufferString path = FilePath::getTempDir();
-	QString dmppath( path );
-	int dmplen = dmppath.length();
-	int cordmplen = dmplen - 2;
-	wchar_t* wpath = new wchar_t[ cordmplen ];
-	dmppath.toWCharArray( wpath );
+	const QString dmppath = FilePath::getTempDir();
+	const std::wstring wpath = dmppath.toStdWString();
 	handler_ = new google_breakpad::ExceptionHandler(
 			wpath,
 			NULL, MinidumpCB, NULL,
