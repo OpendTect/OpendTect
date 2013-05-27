@@ -588,12 +588,12 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
 
+    setPosData( path );
     const int nrtrcs = seisbuf_->size();
-    const int arrsz0 = path ? path->size() : nrtrcs;
+    const int arrsz0 = posData().nrPts( true );
     const int nrsamp = nrtrcs ? seisbuf_->get(0)->size() : 0;
     arr2d_ = new Array2DImpl<float>( arrsz0, nrsamp );
     fill2DArray( path );
-    setPosData( path );
 }
 
 
