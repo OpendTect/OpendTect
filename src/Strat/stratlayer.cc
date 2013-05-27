@@ -264,7 +264,7 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 	seq.z0_ = ztop;
     }
 
-    for ( int ilay=laysidx.start+1; ilay<laysidx.stop-1; ilay++ )
+    for ( int ilay=laysidx.start+1; ilay<laysidx.stop; ilay++ )
     {
 	Layer* lay = new Layer( *layers_[ilay] );
 	if ( lay ) seq.layers() += lay;
