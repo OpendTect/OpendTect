@@ -138,6 +138,7 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 					   const Strat::LayerModel& lm )
     : attr_(desc)
     , validx_(-1)
+    , extrgates_(*new TypeSet<Interval<float> >)
 {
     if ( attr_.islocal_ )
     {
@@ -352,12 +353,12 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     : Executor("Attribute extraction")
     , lm_(lm)
     , dps_(res)
+    , extrgates_(*new TypeSet<TypeSet<Interval<float> > >)
     , seqidx_(0)
     , msg_("Extracting layer attributes")
     , calczwdth_(SI().zRange(false).step / 2)
 {
-    //TODO: should be the step from the user-defined extraction window,
-    // converted to time using the time-depth model of the sequence
+    // calczwdth_ default only used if no valid extrgates_ is provided
     if ( SI().zIsTime() )
 	calczwdth_ *= 2000;
 
@@ -369,6 +370,9 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 	    continue;
 
 	LaySeqAttribCalc* calc = new LaySeqAttribCalc( lsa, lm );
+	if ( extrgates_.validIdx(idx) )
+	    calc->setExtrGates( extrgates_[idx] );
+
 	calcs_ += calc;
 	dpscidxs_ += dpsidx;
     }
@@ -393,6 +397,8 @@ int Strat::LayModAttribCalc::nextStep()
 	return Finished();
 
     const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
+    BufferString errmsg = "No extraction interval specified ";
+    errmsg.add( "for pseudo-well number " );
     DataPointSet::RowID dpsrid = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
@@ -400,15 +406,42 @@ int Strat::LayModAttribCalc::nextStep()
     const int dpthidx = dps_.indexOf( sKey::Depth() );
     if ( dpthidx < 0 )
 	mErrRet("No 'Depth' column in input data")
-    const bool zinft = SI().depthsInFeet();
 
+    const bool zinft = SI().depthsInFeet();
+    int pointidx = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
     {
 	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
 	float* dpsvals = dps_.getValues( dpsrid );
 	float z = dpsvals[dpthidx];
-	if ( zinft ) z *= mFromFeetFactorF;
-	const Interval<float> zrg( z-calczwdth_, z+calczwdth_ );
+	if ( zinft )
+	   z *= mFromFeetFactorF;
+
+	Interval<float> zrg;
+	if ( extrgates_.isEmpty() )
+	{
+	    if( mIsUdf(calczwdth_) )
+		mErrRet( "Neither calculation width nor extraction gate set" )
+
+	    zrg.setFrom( Interval<float>(z-calczwdth_, z+calczwdth_) );
+	}
+	else
+	{
+	    if ( !extrgates_.validIdx(seqidx_) )
+	    {
+		errmsg.add( seqidx_+1 );
+		mErrRet( errmsg )
+	    }
+
+	    if ( !extrgates_[seqidx_].validIdx(pointidx) )
+	    {
+		errmsg.add( seqidx_+1 );
+		mErrRet( errmsg )
+	    }
+
+	    zrg.setFrom( extrgates_[seqidx_][pointidx] );
+	}
+
 	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
 	{
 	    const float val = calcs_[idx]->getValue( seq, zrg );
@@ -416,6 +449,7 @@ int Strat::LayModAttribCalc::nextStep()
 	}
 
 	dpsrid++;
+	pointidx++;
     }
 
     seqidx_++;
