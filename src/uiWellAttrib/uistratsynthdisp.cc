@@ -166,7 +166,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 
-    offsetChged(0);
+    displayPostStackSynthetic( currentwvasynthetic_, true );
+    displayPostStackSynthetic( currentvdsynthetic_, false );
 
     //mTriggerInstanceCreatedNotifier();
 }
@@ -393,7 +394,7 @@ void uiStratSynthDisp::drawLevel()
 	}
     }
 
-    vwr_->handleChange( FlatView::Viewer::Annot, true );
+    vwr_->handleChange( FlatView::Viewer::Auxdata, true );
 }
 
 
@@ -599,7 +600,15 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	vwr_->removePack( vwr_->packID(wva) ); 
     vwr_->removeAllAuxData();
     d2tmodels_ = 0;
-    if ( !sd ) return;
+    if ( !sd )
+    {
+	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
+	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
+					SeisTrcInfo::TrcNr, "Forward Modeling");
+	DPM( DataPackMgr::FlatID() ).add( dp );
+	vwr_->setPack( wva, dp->id(), false, !hadpack );
+	return;
+    }
 
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
@@ -625,8 +634,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
-    dp->setName( sd->name() );
     DPM( DataPackMgr::FlatID() ).add( dp );
+    dp->setName( sd->name() );
 
     d2tmodels_ = &sd->d2tmodels_;
     for ( int idx=0; idx<d2tmodels_->size(); idx++ )
@@ -695,6 +704,21 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     }
 
     prestackwin_->setGathers( gatherinfos );
+    for ( int idx=0; idx<prestackwin_->nrViewers(); idx++ )
+    {
+	uiFlatViewer& vwr = prestackwin_->viewer( idx );
+	ColTab::MapperSetup& vdmapper =
+	    vwr.appearance().ddpars_.vd_.mappersetup_;
+	vdmapper.cliprate_ = Interval<float>(0.0,0.0);
+	vdmapper.autosym0_ = false;
+	vdmapper.symmidval_ = mUdf(float);
+	vwr.appearance().ddpars_.vd_.ctab_ = "Rainbow";
+	ColTab::MapperSetup& wvamapper =
+	    vwr.appearance().ddpars_.wva_.mappersetup_;
+	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
+	wvamapper.autosym0_ = true;
+	wvamapper.symmidval_ = 0.0f;
+    }
 }
 
 

@@ -83,6 +83,16 @@ void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 void uiViewer2DMainWin::setUpView()
 {
+    ColTab::MapperSetup prevvdmapper;
+    ColTab::MapperSetup prevwvamapper;
+    BufferString vdctab;
+    if ( nrViewers() )
+    {
+	prevvdmapper = vwrs_[0]->appearance().ddpars_.vd_.mappersetup_;
+	prevwvamapper = vwrs_[0]->appearance().ddpars_.wva_.mappersetup_;
+	vdctab = vwrs_[0]->appearance().ddpars_.vd_.ctab_;
+    }
+
     uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
@@ -100,6 +110,17 @@ void uiViewer2DMainWin::setUpView()
 	nrvwr++;
     }
 
+    for ( int idx=0; idx<nrViewers(); idx++ )
+    {
+	ColTab::MapperSetup& vdmapper =
+	    vwrs_[idx]->appearance().ddpars_.vd_.mappersetup_;
+	vdmapper = prevvdmapper;
+	vwrs_[idx]->appearance().ddpars_.vd_.ctab_ = vdctab;
+	ColTab::MapperSetup& wvamapper =
+	    vwrs_[idx]->appearance().ddpars_.wva_.mappersetup_;
+	wvamapper = prevwvamapper;
+    }
+    
     displayMutes();
     reSizeSld(0);
 }
@@ -238,14 +259,6 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
 	control_ = ctrl;
-	if ( !isStored() )
-	{
-	    ColTab::MapperSetup& vdmapper =
-		control_->dispPars().vd_.mappersetup_;
-	    vdmapper.cliprate_ = Interval<float>(0.0,0.0);
-	    vdmapper.autosym0_ = true;
-	    vdmapper.symmidval_ = 0.0;
-	}
 
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
