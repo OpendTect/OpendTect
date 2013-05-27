@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "uisaveimagedlg.h"
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
 #include "uiwelltieeventstretch.h"
@@ -186,6 +187,7 @@ void uiTieWin::addToolBarTools()
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t", editD2TPushed, "View/Edit Model" );
     mAddButton( "save", saveDataPushed, "Save Data" );
+    mAddButton( "snapshot", snapshotCB, "Get snapshot" );
 }    
 
 
@@ -195,6 +197,13 @@ void uiTieWin::addControls()
     controlview_ = new WellTie::uiControlView(this,toolbar_,&viewer(),server_);
     controlview_->redrawNeeded.notify( mCB(this,uiTieWin,reDrawAll) );
     controlview_->redrawAnnotNeeded.notify( mCB(this,uiTieWin,reDrawAuxDatas) );
+}
+
+
+void uiTieWin::snapshotCB( CallBacker* )
+{
+    uiSaveWinImageDlg snapshotdlg( this );
+    snapshotdlg.go();
 }
 
 
