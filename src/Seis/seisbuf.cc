@@ -366,42 +366,54 @@ bool validPos( int p0, int p1 ) const { return Array2DInfo::validPos(p0,p1); }
 };
 
 
-SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
+SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf* tbuf, bool mine, int icomp )
     : buf_(tbuf)
-    , info_(*new SeisTrcBufArray2DInfo(tbuf))
     , comp_(icomp)
     , bufmine_(mine)
 {
+    if ( !buf_ )
+    {
+	buf_ = new SeisTrcBuf(true);
+	bufmine_ = true;
+    }
+
+    info_ = new SeisTrcBufArray2DInfo(*buf_);
 }
 
 
-SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
-    : buf_(const_cast<SeisTrcBuf&>(tbuf))
-    , info_(*new SeisTrcBufArray2DInfo(tbuf))
+SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf* tbuf, int icomp )
+    : buf_(const_cast<SeisTrcBuf*>(tbuf))
     , comp_(icomp)
     , bufmine_(false)
 {
+    if ( !buf_ )
+    {
+	buf_ = new SeisTrcBuf(true);
+	bufmine_ = true;
+    }
+
+    info_ = new SeisTrcBufArray2DInfo(*buf_);
 }
 
 
 SeisTrcBufArray2D::~SeisTrcBufArray2D()
 {
     if ( bufmine_ )
-	delete &buf_;
-    delete &info_;
+	delete buf_;
+    delete info_;
 }
 
 
 float SeisTrcBufArray2D::get( int itrc, int isamp ) const
 {
-    const SeisTrc* trc = buf_.get( itrc );
+    const SeisTrc* trc = buf_->get( itrc );
     return trc && trc->size() > isamp ? trc->get(isamp,comp_) : mUdf(float);
 }
 
 
 void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
 {
-    SeisTrc* trc = buf_.get( itrc );
+    SeisTrc* trc = buf_->get( itrc );
     if ( trc && trc->size() > isamp )
 	trc->set( isamp, val, comp_ );
 }
@@ -410,7 +422,7 @@ void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
 void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
 				    IOPar& iop ) const
 {
-    SeisTrc* trc = buf_.get( itrc );
+    SeisTrc* trc = buf_->get( itrc );
     if ( trc )
 	trc->info().getInterestingFlds( gt, iop );
 }
@@ -461,24 +473,18 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
     gt_ = gt;
     const int tbufsz = tbuf ? tbuf->size() : 0;
     FlatPosData& pd = posData();
-    if ( tbufsz<1 )
+
+    arr2d_ = new SeisTrcBufArray2D( tbuf, mine, icomp );
+
+    if ( tbuf )
     {
-	pd.setRange( true, StepInterval<double>(1,1,1) );
-	pd.setRange( false, StepInterval<double>(0.5,0.5,1) );
-	arr2d_ = new Array2DImpl<float>( 1, 1 );
-	arr2d_->setAll( 0 );
-	return;
+	SeisTrcInfo::getAxisCandidates( gt_, flds_ );
+	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+	pd.setX1Pos( hdrvals, tbufsz, ofv );
+	SeisPacketInfo pinf; tbuf->fill( pinf );
+	StepInterval<double> zrg; assign( zrg, pinf.zrg );
+	pd.setRange( false, zrg );
     }
-
-    arr2d_ = new SeisTrcBufArray2D( *tbuf, mine, icomp );
-
-    SeisTrcInfo::getAxisCandidates( gt_, flds_ );
-
-    double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
-    pd.setX1Pos( hdrvals, tbufsz, ofv );
-    SeisPacketInfo pinf; tbuf->fill( pinf );
-    StepInterval<double> zrg; assign( zrg, pinf.zrg );
-    pd.setRange( false, zrg );
 }
 
 

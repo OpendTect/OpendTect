@@ -26,21 +26,21 @@ mExpClass(Seis) SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
-    			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr);
-    			SeisTrcBufArray2D(const SeisTrcBuf&,int compnr);
+    			SeisTrcBufArray2D(SeisTrcBuf*,bool mine,int compnr);
+    			SeisTrcBufArray2D(const SeisTrcBuf*,int compnr);
 			~SeisTrcBufArray2D();
 
     bool		isOK() const		{ return true; }
 
-    const Array2DInfo&	info() const		{ return info_; }
+    const Array2DInfo&	info() const		{ return *info_; }
     float*		getData() const		{ return 0; }
     void		set(int,int,float);
     float		get(int,int) const;
 
     void		getAuxInfo(Seis::GeomType,int,IOPar&) const;
 
-    SeisTrcBuf&		trcBuf()		{ return buf_; }
-    const SeisTrcBuf&	trcBuf() const		{ return buf_; }
+    SeisTrcBuf&		trcBuf()		{ return *buf_; }
+    const SeisTrcBuf&	trcBuf() const		{ return *buf_; }
 
     void		setComp( int ic )	{ comp_ = ic; }
     int			getComp() const		{ return comp_; }
@@ -50,8 +50,8 @@ public:
 
 protected:
 
-    SeisTrcBuf&		buf_;
-    Array2DInfo&	info_;
+    SeisTrcBuf*		buf_;
+    Array2DInfo*	info_;
     bool		bufmine_;
     int			comp_;
 
