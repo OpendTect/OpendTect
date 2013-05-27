@@ -59,14 +59,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , mousecursorexchange_(0)
     , marker_(0)
 {
-    basetxt_ = "2D Viewer";
-    BufferString info;
-    appl.applMgr().visServer()->getObjectInfo( visid, info );
-    if ( info.isEmpty() )
-	info = appl.applMgr().visServer()->getObjectName( visid );
-    if ( !info.isEmpty() ) basetxt_ += " - ";
-    basetxt_ += info;
-
+    setWinTitle( visid );
     linesetid_.setEmpty();
 
     initSelSpec( vdselspec_ );
@@ -86,7 +79,20 @@ uiODViewer2D::~uiODViewer2D()
     deepErase( auxdataeditors_ );
     setMouseCursorExchange( 0 );
     if ( viewwin() )
+    {
+	DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+	{
+	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	    TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	    for ( int idx=0; idx<ids.size(); idx++ )
+	    {
+		vwr.removePack( ids[idx] );
+		dpm.release( ids[idx] );
+	    }
+	}
 	viewwin()->viewer(0).removeAuxData( marker_ );
+    }
     delete marker_;
     delete viewwin();
 }
@@ -119,8 +125,10 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-    	TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	if ( ids.isPresent(packid) ) continue;
+    	TypeSet<DataPack::ID> ids = vwr.availablePacks();	
+	if ( ids.isPresent(packid) )
+	{ vwr.setPack( wva, packid, true, false ); continue; }
+
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
 	for ( int idx=0; idx<ids.size(); idx++ )
@@ -140,12 +148,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
 	dpm.obtain( packid, false );
 	vwr.setPack( wva, packid, false, isnew );
-	if ( isnew )
-	{ 
-	    (!wva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-	    vwr.setPack( !wva, packid, false, false );
-	}
-	if ( setforotherdisp ) vwr.setPack( !wva, packid, false, isnew );
+	if ( isnew || setforotherdisp )
+	    vwr.setPack( !wva, packid, true, isnew ? true : false );
     }
 
     if ( dp3d )
@@ -328,18 +332,6 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    vwr.removePack( ids[idx] );
-	    dpm.release( ids[idx] );
-	}
-    }
-    
     delete treetp_; treetp_ = 0;
     datamgr_->removeAll();
 
@@ -439,6 +431,18 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
     {
 	auxdataeditors_[edidx]->removePolygonSelected( -1 );
     }
+}
+
+
+void uiODViewer2D::setWinTitle( int visid )
+{
+    basetxt_ = "2D Viewer - ";
+    BufferString info;
+    appl_.applMgr().visServer()->getObjectInfo( visid, info );
+    if ( info.isEmpty() )
+	info = appl_.applMgr().visServer()->getObjectName( visid );
+    basetxt_ += info;
+    if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
 }
 
 
