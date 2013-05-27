@@ -44,7 +44,7 @@ protected:
 
     bool                	doWork(od_int64,od_int64,int);
     od_int64                    nrIterations() const;
-    int 			curModelIdx(od_int64) const;
+    int 			modelIdx(od_int64,bool&) const;
 
     BufferString		errmsg_;
 
