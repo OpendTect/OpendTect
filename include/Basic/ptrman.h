@@ -56,11 +56,11 @@ mClass(Basic) PtrMan : public PtrManBase<T>
 {
 public:
     			PtrMan(const PtrMan<T>&);
-			//Don't use
+			//!<Don't use
     inline		PtrMan(T* = 0);
     PtrMan<T>&		operator=( T* p );
     PtrMan<T>&		operator=(const PtrMan<T>&);
-			//!< Will give linkerror if used
+			//!<Don't use
 			mImpPtrManPointerAccess( T )
 private:
 
@@ -79,7 +79,7 @@ public:
     inline		ConstPtrMan(const T* = 0);
     ConstPtrMan<T>&	operator=(const T* p);
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
-			//!< Will give linkerror if used
+			//!<Don't use
 			mImpPtrManPointerAccess( const T )
 private:
 
@@ -97,7 +97,7 @@ public:
     inline			ArrPtrMan(T* = 0);
     ArrPtrMan<T>&		operator=( T* p );
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
-				//Will give linkerror if used
+				//!<Don't use
 			
 				mImpPtrManPointerAccess( T )
 private:
@@ -188,10 +188,19 @@ void PtrManBase<T>::set( T* p, bool doerase )
 
 
 template <class T> inline
-PtrMan<T>::PtrMan( const PtrMan<T>& p )
+PtrMan<T>::PtrMan( const PtrMan<T>& )
     : PtrManBase<T>( 0, deleteFunc, 0 )
 {
-    pErrMsg("Shold not be called");
+    pErrMsg("Should not be called");
+}
+
+
+template <class T> inline
+PtrMan<T>& PtrMan<T>::operator=( const PtrMan<T>& )
+{
+    PtrManBase<T>::set( 0, true );
+    pErrMsg("Should not be called");
+    return *this;
 }
 
 
@@ -210,10 +219,19 @@ PtrMan<T>& PtrMan<T>::operator=( T* p )
 
 
 template <class T> inline
-ConstPtrMan<T>::ConstPtrMan( const ConstPtrMan<T>& p )
+ConstPtrMan<T>::ConstPtrMan( const ConstPtrMan<T>& )
     : PtrManBase<T>( 0, deleteFunc, 0 )
 {
-    pErrMsg("Shold not be called");
+    pErrMsg("Should not be called");
+}
+
+
+template <class T> inline
+ConstPtrMan<T>& ConstPtrMan<T>::operator=( const ConstPtrMan<T>& )
+{
+    PtrManBase<T>::set( 0, true );
+    pErrMsg("Should not be called");
+    return *this;
 }
 
 
@@ -232,10 +250,19 @@ ConstPtrMan<T>& ConstPtrMan<T>::operator=( const T* p )
 
 
 template <class T> inline
-ArrPtrMan<T>::ArrPtrMan( const ArrPtrMan<T>& p )
+ArrPtrMan<T>::ArrPtrMan( const ArrPtrMan<T>& )
     : PtrManBase<T>( 0, deleteFunc, 0 )
 {
-    pErrMsg("Shold not be called");
+    pErrMsg("Should not be called");
+}
+
+
+template <class T> inline
+ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
+{
+    PtrManBase<T>::set( 0, true );
+    pErrMsg("Should not be called");
+    return *this;
 }
 
 
