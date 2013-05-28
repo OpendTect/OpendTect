@@ -22,10 +22,10 @@ const char* ZDomain::sKeyDepth()	{ return "Depth"; }
 
 static ObjectSet<ZDomain::Def>& DEFS()
 {
-    static ObjectSet<ZDomain::Def>* defs = 0;
+    static PtrMan<ManagedObjectSet<ZDomain::Def> > defs = 0;
     if ( !defs )
     {
-	defs = new ObjectSet<ZDomain::Def>;
+	defs = new ManagedObjectSet<ZDomain::Def>;
 	*defs += new ZDomain::Def( ZDomain::sKeyTime(), "Time", "ms", 1000 );
 	*defs += new ZDomain::Def( ZDomain::sKeyDepth(), "Depth", "", 1 );
     }
