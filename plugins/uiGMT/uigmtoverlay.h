@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uidlggroup.h"
 
+#include "manobjectset.h"
+
 class uiPushButton;
 class GMTPar;
 
@@ -59,9 +61,9 @@ protected:
 	uiGMTOverlayGrpCreateFunc	crfn_;
     };
 
-    ObjectSet<Entry>	entries_;
+    ManagedObjectSet<Entry>	entries_;
 
-    Entry*		getEntry(const char*) const;
+    Entry*			getEntry(const char*) const;
 
     friend uiGMTOverlayGrpFactory&	uiGMTOF();
 };

@@ -13,7 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "gmtmod.h"
-#include "gmtmod.h"
+
+#include "manobjectset.h"
 #include "iopar.h"
 #include "gmtdef.h"
 
@@ -62,9 +63,9 @@ protected:
 	GMTParCreateFunc	crfn_;
     };
 
-    ObjectSet<Entry>	entries_;
+    ManagedObjectSet<Entry>	entries_;
 
-    Entry*		getEntry(const char*) const;
+    Entry*			getEntry(const char*) const;
 
     friend mGlobal(GMT) GMTParFactory&	GMTPF();
 };
