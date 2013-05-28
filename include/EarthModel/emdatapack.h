@@ -29,7 +29,7 @@ class Fault;
 
 
 /*!
-\brief Mixing to provide general services to Earth Model data packs.
+\brief Mixin to provide general services to Earth Model data packs.
 */
 
 mExpClass(EarthModel) DataPackCommon : 	public ::FlatDataPack
