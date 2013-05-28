@@ -35,7 +35,8 @@ public:
     void		setNrDecimals(int);
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
-    bool		hadFocusChg() const	{ return focuschg_; }
+    bool		hadFocusChg() const	{ return hadfocuschg_; }
+    bool		isModified() const;
 
     QValidator::State	validate( QString& input, int& posn ) const
 			{
@@ -48,6 +49,8 @@ public:
     virtual double	valueFromText(const QString&) const;
     virtual QString	textFromValue(double value) const;
 
+    QLineEdit*		getLineEdit() const	{ return lineEdit(); }
+
 protected:
     virtual void	contextMenuEvent(QContextMenuEvent*);
     virtual void	focusOutEvent(QFocusEvent*);
@@ -59,7 +62,7 @@ private:
 
     QDoubleValidator*	dval;
     bool		isalpha_;
-    bool		focuschg_;
+    bool		hadfocuschg_;
 
 };
 
@@ -69,7 +72,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& hndl, uiParent* p, const char* nm )
     , messenger_(*new i_SpinBoxMessenger(this,&hndl))
     , dval(new QDoubleValidator(this))
     , isalpha_(false)
-    , focuschg_(false)
+    , hadfocuschg_(false)
 {
     setHSzPol( uiObject::Small );
     setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
@@ -143,14 +146,18 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 { dval->setDecimals( dec ); }
 
 
+bool uiSpinBoxBody::isModified() const
+{ return lineEdit()->isModified(); }
+
+
 void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
 { handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
 
 void uiSpinBoxBody::focusOutEvent( QFocusEvent* ev )
 {
-    focuschg_ = true;
+    hadfocuschg_ = true;
     QAbstractSpinBox::focusOutEvent( ev );
-    focuschg_ = false;
+    hadfocuschg_ = false;
 }
 
 
@@ -161,6 +168,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     , valueChanged(this)
     , valueChanging(this)
     , dosnap_(false)
+    , focuschgtrigger_(true)
 {
     setNrDecimals( dec );
     setKeyboardTracking( false );
@@ -391,16 +399,26 @@ bool uiSpinBox::keyboardTracking() const
 }
 
 
+void uiSpinBox::setFocusChangeTrigger( bool yn )
+{ focuschgtrigger_ = yn; }
+
+bool uiSpinBox::focusChangeTrigger() const
+{ return focuschgtrigger_; }
+
+
 void uiSpinBox::notifyHandler( bool editingfinished )
 {
+    if ( editingfinished && body_->hadFocusChg() && !focuschgtrigger_ )
+	return;
+
     BufferString msg = toString( oldvalue_ );
     oldvalue_ = getFValue();
     msg += editingfinished ? " valueChanged" : " valueChanging";
     const int refnr = beginCmdRecEvent( msg );
 
-    if ( editingfinished && !body_->hadFocusChg() )
+    if ( editingfinished )
 	valueChanged.trigger( this );
-    else if ( !editingfinished )
+    else
 	valueChanging.trigger( this );
 
     endCmdRecEvent( refnr, msg );
