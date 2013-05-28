@@ -45,7 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Strat;
 
-ObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
+ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
 static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()

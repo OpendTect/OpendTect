@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uimainwin.h"
+#include "manobjectset.h"
 
 class uiMenuItem;
 class uiStratLvlList;
@@ -94,7 +95,7 @@ protected:
 private:
 
     friend const uiStratTreeWin& StratTWin();
-    static ObjectSet<uiToolButtonSetup> tbsetups_;
+    static ManagedObjectSet<uiToolButtonSetup> tbsetups_;
 
 public:
     void			changeLayerModelNumber(bool add);
