@@ -13,10 +13,14 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+
+#include "manobjectset.h"
 #include "transl.h"
 #include "bufstring.h"
 #include "seispsread.h"
 #include "seispswrite.h"
+
+
 class IOObj;
 
 
@@ -103,7 +107,7 @@ public:
 
 protected:
 
-    ObjectSet<SeisPSIOProvider>	provs_;
+    ManagedObjectSet<SeisPSIOProvider>	provs_;
 
 };
 

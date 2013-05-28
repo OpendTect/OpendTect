@@ -26,12 +26,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "sorting.h"
 
+class Seis2DLineIOProviderSet : public ObjectSet<Seis2DLineIOProvider>
+{
+public:
+    ~Seis2DLineIOProviderSet() { deepErase( *this ); }
+};
+
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 {
-    static ObjectSet<Seis2DLineIOProvider>* theinst = 0;
-    if ( !theinst ) theinst = new ObjectSet<Seis2DLineIOProvider>;
-    return *theinst;
+    static PtrMan<Seis2DLineIOProviderSet> theinst = 0;
+    if ( !theinst ) theinst = new Seis2DLineIOProviderSet;
+    return *theinst.ptr();
 }
 
 
