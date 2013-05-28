@@ -537,7 +537,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 {
     if ( !ismultisel_ )
     {
-	const char* res = iop.find( "ID" );
+	const char* res = iop.find( sKey::ID() );
 	if ( !res || !*res ) return;
 
 	const int selidx = indexOf( ioobjids_, MultiID(res) );
@@ -702,7 +702,8 @@ void uiIOObjSel::setForRead( bool yn )
 
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::ID(), workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
+    iopar.set( sKey::ID(),
+	       workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
     return true;
 }
 
