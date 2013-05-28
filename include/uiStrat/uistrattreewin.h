@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uimainwin.h"
 #include "manobjectset.h"
+#include "uitoolbutton.h"
 
 class uiMenuItem;
 class uiStratLvlList;
@@ -23,7 +24,6 @@ class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
 class uiToolButton;
-class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
