@@ -32,7 +32,7 @@ class DataHolderArray;
 class Data2DArray;
 
 /*!
-\brief Mixing to provide general services to attribute data packs.
+\brief Mixin to provide general services to attribute data packs.
 */
 
 mExpClass(AttributeEngine) DataPackCommon
