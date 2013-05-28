@@ -90,6 +90,8 @@ public:
 
     void		setKeyboardTracking(bool);
     bool		keyboardTracking() const;
+    void		setFocusChangeTrigger(bool);
+    bool		focusChangeTrigger() const;
 
     bool		handleLongTabletPress();
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
@@ -97,7 +99,7 @@ public:
     Notifier<uiSpinBox>	valueChanged;
     Notifier<uiSpinBox>	valueChanging;
 
-    void		notifyHandler( bool editingfinished );
+    void		notifyHandler(bool editingfinished);
 
 private:
 
@@ -108,6 +110,7 @@ private:
 
     bool		dosnap_; /*!< If true, value in spinbox will be snapped 
 				  to a value equal to N*step. */
+    bool		focuschgtrigger_;
     void		snapToStep(CallBacker*);
 };
 
