@@ -70,6 +70,7 @@ protected:
     uiFlatViewColTabEd*	ctabed_;
 
     virtual void	finalPrepare();
+    void		clearToolBar();
     void		updatePosButtonStates();
     void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
