@@ -353,13 +353,19 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	{
 	    ColTab::Sequence seq( 0 );
 	    const char* ctname = iop.find( sKey::Name() );
-	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );
 
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
-	    vwr.appearance().ddpars_.vd_.mappersetup_ = mapper;
+
+	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+	    {
+		FlatView::DataDispPars& ddp =
+		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
+		ddp.vd_.ctab_ = ctname;
+		ddp.vd_.mappersetup_ = mapper;
+	    }
 	}
     }
 
