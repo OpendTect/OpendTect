@@ -8,6 +8,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackanglecomputer.h"
 
+#include "arrayndimpl.h"
+#include "arrayndinfo.h"
+#include "arrayndutils.h"
+#include "fourier.h"
+#include "fftfilter.h"
 #include "mathfunc.h"
 #include "position.h"
 #include "prestackgather.h"
@@ -26,6 +31,9 @@ DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 	"Low-pass frequency filter", 
 	0
 };
+
+
+static const float deftimestep = 0.004;
 
 
 AngleComputer::AngleComputer()
@@ -65,9 +73,140 @@ void AngleComputer::setRayTracer( const IOPar& raypar )
 }
 
 
+void AngleComputer::fftDepthSmooth(::FFTFilter& filter, 
+				   Array2D<float>& angledata ) 
+{
+    const RayTracer1D* rt = curRayTracer();
+    if ( !rt )
+	return;
+
+    float* arr1doutput = angledata.getData();
+    if ( !arr1doutput )
+	return;
+
+    const StepInterval<double> zrange = outputsampling_.range( false );
+    const int zsize = zrange.nrSteps() + 1;
+    const int offsetsize = outputsampling_.nrPts( true );
+
+    float freqf3;
+    iopar_.get( sKeyFreqF3(), freqf3 );
+    TimeDepthModel td;
+
+    for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
+    {
+	PointBasedMathFunction anglevals( PointBasedMathFunction::Linear,
+					  PointBasedMathFunction::EndVal );
+
+	rt->getTDModel( ofsidx, td );
+	float layertwt = 0, prevlayertwt = mUdf(float);
+	for ( int zidx=0; zidx<zsize; zidx++ )
+	{
+	    const float depth = mCast( float, zrange.atIndex(zidx) );
+	    layertwt = td.getTime( depth );
+	    if ( mIsEqual(layertwt,prevlayertwt,1e-3) )
+		continue;
+
+	    anglevals.add( layertwt, angledata.get(ofsidx, zidx) );
+	    prevlayertwt = layertwt;
+	}
+
+	const int zsizeintime = mCast( int, layertwt/deftimestep );
+	const float df = Fourier::CC::getDf( deftimestep, zsizeintime );
+	filter.setLowPass( df, freqf3, false );
+
+	mAllocVarLenArr( float, inputarray, zsizeintime );
+	mAllocVarLenArr( float, outputarray, zsizeintime );
+	for ( int zidx=0; zidx<zsizeintime; zidx++ )
+	    inputarray[zidx] = anglevals.getValue( zidx*deftimestep );
+	
+	filter.apply( inputarray, outputarray, zsizeintime );
+
+	PointBasedMathFunction anglevalsindepth( PointBasedMathFunction::Linear,
+					    PointBasedMathFunction::EndVal );
+
+	float layerdepth = 0, prevlayerdepth = mUdf(float);
+	for ( int zidx=0; zidx<zsizeintime; zidx++ )
+	{
+	    const float time = zidx * deftimestep;
+	    layerdepth = td.getDepth( time );
+	    if ( mIsEqual(layerdepth,prevlayerdepth,1e-3) )
+		continue;
+
+	    anglevalsindepth.add( layerdepth, outputarray[zidx] );
+	    prevlayerdepth = layerdepth;
+	}
+
+	for ( int zidx=0; zidx<zsize; zidx++ )
+	{
+	    const float depth = mCast( float, zrange.atIndex(zidx) );
+	    arr1doutput[zidx] = anglevalsindepth.getValue( depth );
+	}
+
+	arr1doutput = arr1doutput + zsize;
+    }
+}
+
+
+void AngleComputer::fftTimeSmooth(::FFTFilter& filter, 
+				  Array2D<float>& angledata )
+{
+    const StepInterval<double> zrange = outputsampling_.range( false );
+    const int zsize = zrange.nrSteps() + 1;
+    const int offsetsize = outputsampling_.nrPts( true );
+    float freqf3;
+    iopar_.get( sKeyFreqF3(), freqf3 );
+
+    const float df = Fourier::CC::getDf( mCast(float,zrange.step), zsize );
+    filter.setLowPass( df, freqf3, false );
+
+    mAllocVarLenArr( float, arr1dinput, zsize );
+    float* arr1doutput = angledata.getData();
+    if ( !arr1doutput )
+	return;
+
+    for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
+    {
+	memcpy( arr1dinput, arr1doutput, zsize*sizeof(float) );
+	filter.apply( arr1dinput, arr1doutput, zsize );
+	arr1doutput = arr1doutput + zsize;
+    }
+}
+
+
 void AngleComputer::fftSmoothing( Array2D<float>& angledata )
 {
-    //TODO : Implement FFT Based Low Pass Filter;
+    float freqf3=mUdf(float), freqf4=mUdf(float);
+    iopar_.get( sKeyFreqF3(), freqf3 );
+    iopar_.get( sKeyFreqF4(), freqf4 );
+
+    if ( mIsUdf(freqf3) || mIsUdf(freqf4) )
+	return;
+
+    ::FFTFilter filter;
+    const int nyquistfreq = (int)( Fourier::CC::getNyqvist( 
+			SI().zDomain().isTime() ? SI().zStep() : deftimestep) ); 
+    int winsz = 2*( nyquistfreq-(int)freqf3 );
+    if ( nyquistfreq<=(int)freqf3 || mIsEqual( freqf3, freqf4, 0.5 ) )
+	winsz = 0;
+
+    Array1DImpl<float> lwin( winsz/2 );
+    if ( winsz > 0 )
+    {
+	float taperwinrelsz = 1-(freqf4-freqf3) / (nyquistfreq - freqf3);
+			  
+	if ( taperwinrelsz >=0 && taperwinrelsz <= 1 )
+	{
+	    ArrayNDWindow window( Array1DInfoImpl(winsz), false,
+				  CosTaperWindow().sName(), taperwinrelsz );
+	    float* winvals = window.getValues();
+	    for ( int idx=0; idx<winsz/2 && winvals; idx++ )
+		lwin.set( idx, 1-winvals[idx] );
+	    filter.setFreqBorderWindow( lwin.getData(), winsz/2, true );
+	}
+    }
+
+    SI().zDomain().isTime() ? fftTimeSmooth( filter, angledata )
+			    : fftDepthSmooth( filter, angledata );
 }
 
 
@@ -84,17 +223,17 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
     const int zsize = outputsampling_.nrPts( false );
 
     Smoother1D<float> sm;
-    mAllocVarLenArr( float, arr1dinp, zsize );
-    float* arr1dout = angledata.getData();
+    mAllocVarLenArr( float, arr1dinput, zsize );
+    float* arr1doutput = angledata.getData();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	memcpy( arr1dinp, arr1dout, zsize*sizeof(int) );
-	sm.setInput( arr1dinp, zsize );
-	sm.setOutput( arr1dout );
+	memcpy( arr1dinput, arr1doutput, zsize*sizeof(float) );
+	sm.setInput( arr1dinput, zsize );
+	sm.setOutput( arr1doutput );
 	sm.setWindow( windowname, smoothingparam, smoothinglength );
 	sm.execute();
 
-	arr1dout = arr1dout + zsize;
+	arr1doutput = arr1doutput + zsize;
     }
 }
 
@@ -193,7 +332,7 @@ Gather* AngleComputer::computeAngleData()
 
     if ( smtype == TimeAverage )
 	averageSmoothing( angledata );
-    else
+    else if ( smtype == FFTFilter )
 	fftSmoothing( angledata );
 
     return gather;

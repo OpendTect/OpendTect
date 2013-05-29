@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "refcount.h"
 
 template <class T> class Array2D;
+class FFTFilter;
 class MultiID;
 class RayTracer1D;
 class VelocityDesc;
@@ -69,6 +70,10 @@ protected:
     Gather*			computeAngleData();
     void			averageSmoothing(Array2D<float>& angledata);
     void			fftSmoothing(Array2D<float>& angledata);
+    void			fftTimeSmooth(::FFTFilter& fftfilter,
+					      Array2D<float>& angledata);
+    void			fftDepthSmooth(::FFTFilter& fftfilter,
+					       Array2D<float>& angledata);
     
     IOPar			iopar_;
     FlatPosData			outputsampling_;
