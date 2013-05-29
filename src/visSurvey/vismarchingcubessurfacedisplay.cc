@@ -193,7 +193,7 @@ MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
 void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
 	const ColTab::MapperSetup& setup, TaskRunner* tr )
 {
-    if ( !attrib )
+    if ( !attrib && displaysurface_ )
 	displaysurface_->getShape()->setDataMapper( setup, tr );
 }
 
