@@ -657,7 +657,7 @@ void uiSeis2DMultiLineSel::updateFromLineset()
     if ( attrnm_.isEmpty() )
 	attrnm_ = LineKey::sKeyDefAttrib();
 
-    if ( attrnms.indexOf(attrnm_) < 0 )
+    if ( !attrnms.isPresent(attrnm_) && !attrnms.isEmpty() )
 	attrnm_ = attrnms.get(0);
 
     oinf.getLineNamesWithAttrib( attrnm_.buf(), lnms );
