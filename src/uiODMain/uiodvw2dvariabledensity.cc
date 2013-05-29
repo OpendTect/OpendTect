@@ -279,8 +279,10 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    }
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start, 
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg(
+			mCast(float,dprdm->posData().range(false).start),
+			mCast(float,dprdm->posData().range(false).stop) );
+
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();
@@ -353,13 +355,19 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	{
 	    ColTab::Sequence seq( 0 );
 	    const char* ctname = iop.find( sKey::Name() );
-	    vwr.appearance().ddpars_.vd_.ctab_ = ctname;
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );
 
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
-	    vwr.appearance().ddpars_.vd_.mappersetup_ = mapper;
+
+	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+	    {
+		FlatView::DataDispPars& ddp = 
+		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
+		ddp.vd_.ctab_ = ctname;
+		ddp.vd_.mappersetup_ = mapper;
+	    }
 	}
     }
 

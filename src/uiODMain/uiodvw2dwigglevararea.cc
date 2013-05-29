@@ -234,8 +234,10 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 		    			    DataPack::cNoID() );
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start,
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg(
+			mCast(float,dprdm->posData().range(false).start),
+			mCast(float,dprdm->posData().range(false).stop) );
+
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();
@@ -308,7 +310,13 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	{
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
-	    vwr.appearance().ddpars_.wva_.mappersetup_ = mapper;
+
+	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+	    {
+		FlatView::DataDispPars& ddp =
+		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
+    		ddp.wva_.mappersetup_ = mapper;
+	    }
 	}
     }
 

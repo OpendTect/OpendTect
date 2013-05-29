@@ -86,7 +86,7 @@ protected:
     void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
     virtual void	coltabChg(CallBacker*);
-    void		dispChgCB(CallBacker*);
+    virtual void	dispChgCB(CallBacker*);
     virtual void	editCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
