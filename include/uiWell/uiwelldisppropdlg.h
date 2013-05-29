@@ -54,6 +54,7 @@ protected:
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
+    void			prepareForShutdown(CallBacker*);
 
 public:
     void			disableWDNotifiers()
@@ -75,6 +76,10 @@ protected:
     void			resetProps(int logidx);
     virtual void 		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
+    
+public:
+    void			prepareMultiWellForShutdown(CallBacker*);
+
 };
 
 

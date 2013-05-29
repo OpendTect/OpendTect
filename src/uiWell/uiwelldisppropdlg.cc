@@ -89,12 +89,21 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 
+    windowClosed.notify( mCB(this,uiWellDispPropDlg,prepareForShutdown) );
     setWDNotifiers( true );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
-{}
+{
+}
+
+
+void uiWellDispPropDlg::prepareForShutdown( CallBacker* )
+{
+    setWDNotifiers( false ); //Does both single and multi well window
+    wd_ = 0;
+}
 
 
 void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
@@ -184,6 +193,16 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }
+    
+    windowClosed.notify( mCB(this,uiMultiWellDispPropDlg,
+			     prepareMultiWellForShutdown) );
+}
+
+
+void uiMultiWellDispPropDlg::prepareMultiWellForShutdown( CallBacker* cb )
+{
+    prepareForShutdown( cb );
+    wds_.erase();
 }
 
 
