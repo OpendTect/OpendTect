@@ -55,5 +55,11 @@ namespace ODInst
 
 } // namespace
 
+#ifdef __mac__
+#define mInstallerDirNm "OpendTect Installer.app"
+#else
+#define mInstallerDirNm "Installer"
+#endif
+
 #endif
 
