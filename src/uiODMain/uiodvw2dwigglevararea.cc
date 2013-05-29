@@ -317,7 +317,13 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	{
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
-	    vwr.appearance().ddpars_.wva_.mappersetup_ = mapper;
+
+	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+	    {
+		FlatView::DataDispPars& ddp =
+		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
+		ddp.wva_.mappersetup_ = mapper;
+	    }
 	}
     }
 
