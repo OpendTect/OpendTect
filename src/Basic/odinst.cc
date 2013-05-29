@@ -117,7 +117,10 @@ bool ODInst::canInstall()
     FilePath installerdir( GetInstallerDir() ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
-    installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
+    if ( __iswin__ ) \
+	installerdir.add( "od_instmgr" ); \
+    else if ( __islinux__ ) \
+	installerdir.add( "run_installer" ); \
     BufferString cmd( installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
@@ -129,7 +132,7 @@ BufferString ODInst::GetInstallerDir()
 	appldir = File::linkTarget( appldir );
 
     FilePath installerdir( appldir );
-    installerdir.setFileName( "Installer" );
+    installerdir.setFileName( mInstallerDirNm );
     return installerdir.fullPath();
 }
 
