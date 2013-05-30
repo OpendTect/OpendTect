@@ -226,7 +226,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
     if ( setup_.withlinesetsel_ )
     {
 	uiSeisSel::Setup sssu(Seis::Line);
-	sssu.selattr(setup_.withattr_).filldef(setup_.filldef_);
+	sssu.selattr(setup_.withattr_).allowsetdefault(setup_.filldef_);
 	if ( setup_.withattr_ && !setup_.allattribs_ )
 	    sssu.selattr( true ).wantSteering(setup_.steering_);
 
@@ -643,7 +643,7 @@ void uiSeis2DMultiLineSel::updateFromLineset()
     if ( attrnm_.isEmpty() )
 	attrnm_ = LineKey::sKeyDefAttrib();
 
-    if ( attrnms.indexOf(attrnm_) < 0 )
+    if ( attrnms.indexOf(attrnm_) < 0 && !attrnms.isEmpty() )
 	attrnm_ = attrnms.get(0);
 
     oinf.getLineNamesWithAttrib( attrnm_.buf(), lnms );
