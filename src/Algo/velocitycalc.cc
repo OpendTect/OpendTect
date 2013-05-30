@@ -1381,40 +1381,6 @@ void sampleIntvThomsenPars( const float* inarr, const float* t_in, int nr_in,
 }
 
 
-void BendPointVelBlock( TypeSet<float>& dpts, TypeSet<float>& vels, 
-			float threshold, TypeSet<int>* remidxs )
-{
-    if ( dpts.size() != vels.size() ) 
-	return;
-
-    TypeSet<Coord> velsc; 
-    for ( int idvel=0; idvel<vels.size(); idvel++ )
-	velsc += Coord( dpts[idvel], vels[idvel] );
-
-    BendPointFinder2D finder( velsc, threshold );
-    if ( !finder.execute() ||  finder.bendPoints().isEmpty() )
-	return;
-
-    const TypeSet<int>& bpidvels = finder.bendPoints();
-    int bpidvel = 0; TypeSet<int> torem;
-    for ( int idvel=0; idvel<velsc.size(); idvel++ )
-    {
-	if ( idvel !=  bpidvels[bpidvel] )
-	    torem += idvel;
-	else
-	    bpidvel ++;
-    }
-
-    for ( int idvel=torem.size()-1; idvel>=0; idvel-- )
-    {
-	vels.removeSingle( torem[idvel] );
-	dpts.removeSingle( torem[idvel] );
-    }
-    if ( remidxs )
-	*remidxs = torem;
-}
-
-
 #define mSmallNumber 1e-7
 
 

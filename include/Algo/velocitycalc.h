@@ -344,11 +344,6 @@ mGlobal(Algo) void resampleContinuousData(const float* inarr,const float* t_in,
 				int nr_out,float* outarr);
 
 
-/* Block velocities and resamples depths and vel arrays at bend points */
-mGlobal(Algo) void BendPointVelBlock(TypeSet<float>& dpts,TypeSet<float>& vels,
-				float threshold,TypeSet<int>* remidxs=0);
-
-
 /*!Compute depth values for the times in timesampling, using v0 and dv. v0 is
    the interval velocity at depth v0depth. v0depth is also the depth at t=0. */
 

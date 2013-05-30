@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 
 class ElasticLayer;
+class ElasticModel;
 class MultiID;
 class Muter;
 class RayTracer1D;
@@ -65,7 +66,7 @@ protected:
     Vel::VolumeFunctionSource*	velsource_;
 
     bool	setVelocityFunction();
-    bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
+    bool	getLayers(const BinID&,ElasticModel&,
 	    			SamplingData<float>&,int resamplesz=-1);
     float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
 				int startlayer=0,bool belowcutoff=true) const;
