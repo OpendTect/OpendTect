@@ -454,7 +454,7 @@ public:
     bool execute()
     {
 	BufferString errmsg;
-	if ( !writer_.put( *trc_ ) )
+	if ( !writer_.put(*trc_) )
 	{
 	    errmsg = writer_.errMsg();
 	    if ( errmsg.isEmpty() )
@@ -504,6 +504,9 @@ bool SeisSequentialWriter::submitGather( ObjectSet<SeisTrc>& gather,
 
 bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 {
+    if ( !writer_ )
+	return false;
+
     bool found = true;
     while ( found )
     {
@@ -517,7 +520,10 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    ObjectSet<SeisTrc> trcs;
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
-		if ( outputs_[idy]->info().binid==bid )
+		const bool samepos = writer_->is2D()
+		    ? bid.crl == outputs_[idy]->info().nr
+		    : outputs_[idy]->info().binid == bid;
+		if ( samepos )
 		{
 		    trcs += outputs_.removeSingle( idy );
 		    idy--;
@@ -536,8 +542,8 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    {
 		Task* task =
 		    new SeisSequentialWriterTask( *this, *writer_, trcs[idy] );
-		Threads::WorkManager::twm().addWork( Threads::Work(*task,true), 0,
-						     queueid_, false );
+		Threads::WorkManager::twm().addWork( Threads::Work(*task,true),
+						     0, queueid_, false );
 	    }
 
 	    found = true;
