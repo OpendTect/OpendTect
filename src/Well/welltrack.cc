@@ -265,8 +265,8 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const Coord3& c2 = pos_[idx2];
     const double f =  1. / (d1 + d2);
     return Coord3( f * ( d1 * c2.x + d2 * c1.x ), 
-	f * ( d1 * c2.y + d2 * c1.y ),
-	f * ( d1 * c2.z + d2 * c1.z ) );
+ 	           f * ( d1 * c2.y + d2 * c1.y ),
+    		   f * ( d1 * c2.z + d2 * c1.z ) );
 }
 
 
