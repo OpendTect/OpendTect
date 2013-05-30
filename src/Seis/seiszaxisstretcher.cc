@@ -203,10 +203,12 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     SeisTrc modeltrc;
     PtrMan<FloatMathFunction> intrcfunc = 0;
     PtrMan<ZAxisTransformSampler> sampler = 0;
-    
+
     if ( !stretchz_ )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
+	if ( is2d_ && seisreader_ && seisreader_->selData() )
+	    sampler->setLineName( seisreader_->selData()->lineKey().lineName() );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
@@ -502,7 +504,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 		continue;
 	}
 
-	sequentialwriter_->announceTrace( trc.info().binid );
+	sequentialwriter_->announceTrace( curbid );
 
 	return true;
     }
