@@ -242,7 +242,7 @@ void uiMainWinBody::setModal( bool yn )
 
 
 Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
-{ return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window ); }
+{ return Qt::WindowFlags( Qt::Window ); }
 
 
 void uiMainWinBody::doShow( bool minimized )
