@@ -266,32 +266,27 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	else
 	    anglevals[ofsidx]->add( 0, 0 );
 
-	int prevzidx=0; float layerz = 0; float depth = 0;
+	float depth = mCast( float, -1.0 * SI().seismicReferenceDatum() );
 	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
 	{
 	    depth += curem[layeridx].thickness_;
-	    layerz = SI().zDomain().isTime() ? td.getTime( depth ) : depth;
-
-	    int zidx = outputzrg.getIndex( layerz );
-	    if ( zidx == prevzidx )
-		continue;
-
 	    float sinangle = rt->getSinAngle(layeridx,ofsidx);
-	    if ( mIsUdf(sinangle) || sinangle<-1.5f || sinangle>1.5f )
+	    if ( mIsUdf(sinangle) || fabs(sinangle) > 1.001f )
 		continue;
-	    if ( sinangle<-1.0f )
-		sinangle = -1;
-	    else if ( sinangle>1.0f )
-		sinangle = 1;
+
+	    if ( fabs(sinangle) > 1.0f )
+		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
 	    const float angle = asin(sinangle);
-	    anglevals[ofsidx]->add( (float)zidx, angle );
-	    prevzidx = zidx;
+	    anglevals[ofsidx]->add( depth, angle );
 	}
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    float angle = anglevals[ofsidx]->getValue( (float)zidx );
+	    const float layerz = outputzrg.atIndex( zidx );
+	    const float depth = SI().zDomain().isTime() ? td.getDepth( layerz )
+							: layerz;
+	    const float angle = anglevals[ofsidx]->getValue( depth );
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }
