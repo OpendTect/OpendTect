@@ -173,7 +173,7 @@ void AngleComputer::fftTimeSmooth(::FFTFilter& filter,
 }
 
 
-void AngleComputer::fftSmoothing( Array2D<float>& angledata )
+void AngleComputer::fftSmooth( Array2D<float>& angledata )
 {
     float freqf3=mUdf(float), freqf4=mUdf(float);
     iopar_.get( sKeyFreqF3(), freqf3 );
@@ -210,7 +210,7 @@ void AngleComputer::fftSmoothing( Array2D<float>& angledata )
 }
 
 
-void AngleComputer::averageSmoothing( Array2D<float>& angledata )
+void AngleComputer::averageSmooth( Array2D<float>& angledata )
 {
     BufferString windowname;
     float smoothingparam; int smoothinglength;
@@ -331,9 +331,9 @@ Gather* AngleComputer::computeAngleData()
     iopar_.get( sKeySmoothType(), smtype );
 
     if ( smtype == TimeAverage )
-	averageSmoothing( angledata );
+	averageSmooth( angledata );
     else if ( smtype == FFTFilter )
-	fftSmoothing( angledata );
+	fftSmooth( angledata );
 
     return gather;
 }

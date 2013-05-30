@@ -68,8 +68,8 @@ protected:
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     Gather*			computeAngleData();
-    void			averageSmoothing(Array2D<float>& angledata);
-    void			fftSmoothing(Array2D<float>& angledata);
+    void			averageSmooth(Array2D<float>& angledata);
+    void			fftSmooth(Array2D<float>& angledata);
     void			fftTimeSmooth(::FFTFilter& fftfilter,
 					      Array2D<float>& angledata);
     void			fftDepthSmooth(::FFTFilter& fftfilter,
