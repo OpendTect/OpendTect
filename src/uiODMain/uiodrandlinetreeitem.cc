@@ -437,9 +437,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     }
     else
     {
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	const bool hasztf = scene && scene->getZAxisTransform();
+
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
 	PtrMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
-	rln->setZRange( rtd->getDepthInterval() );
+	rln->setZRange( hasztf ? SI().zRange(false) : rtd->getDepthInterval() );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
 	    
