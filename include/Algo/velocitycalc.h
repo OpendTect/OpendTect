@@ -348,6 +348,7 @@ mGlobal(Algo) void resampleContinuousData(const float* inarr,const float* t_in,
 /* Block velocities and resamples depths and vel arrays at bend points */
 mGlobal(Algo) void BendPointVelBlock(TypeSet<float>& dpts,TypeSet<float>& vels,
 				float threshold,TypeSet<int>* remidxs=0);
+//Don't use. It will be removed. Instead use block function of Elastic Model.
 
 /*! Do not use, will be removed; use 'block' from ailayer.h instead */
 
