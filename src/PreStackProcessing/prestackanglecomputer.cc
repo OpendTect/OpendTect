@@ -283,7 +283,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    const float layerz = outputzrg.atIndex( zidx );
+	    const float layerz = mCast( float, outputzrg.atIndex(zidx) );
 	    const float depth = SI().zDomain().isTime() ? td.getDepth( layerz )
 							: layerz;
 	    const float angle = anglevals[ofsidx]->getValue( depth );
