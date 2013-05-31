@@ -70,8 +70,9 @@ protected:
 
 
 
-   void			setAddedCB(CallBacker*);
    void			setRemovedCB(CallBacker*);
+   void			addPickSet(Pick::Set* ps);
+   void			removePickSet(Pick::Set* ps);
 
    BufferString		typestr_;
 };
@@ -88,6 +89,7 @@ public:
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
+    Pick::Set*		getSet() { return set_; }
 
 protected:
     			SubItem(Pick::Set&,int displayid=-1);
