@@ -897,6 +897,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 
 	synthp_.edstratsynth_ = new StratSynth( lmp_.modled_ );
 	synthp_.edstratsynth_->setWavelet( wavelet() );
+	synthp_.edstratsynth_->createElasticModels();
 	synthp_.edstratsynth_->addDefaultSynthetic();
     }
 
