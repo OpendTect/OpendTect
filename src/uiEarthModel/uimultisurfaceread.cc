@@ -58,9 +58,6 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     ioobjselgrp_->getListField()->doubleClicked.notify( 
 					mCB(this,uiMultiSurfaceRead,dClck) );
 
-    mkSectionFld( true );
-    sectionfld_->attach( rightTo, ioobjselgrp_ );  
-
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
@@ -68,7 +65,6 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
 	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword()) ||
          !strcmp(type,EMFault3DTranslatorGroup::keyword()) )
     {
-	sectionfld_->display( false, true );
 	rgfld_->display( false, true );
     }
 
@@ -116,7 +112,6 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	}
 
 	fillRangeFld( hs );
-	sectionfld_->box()->setEmpty();
 	return;
     }
 
