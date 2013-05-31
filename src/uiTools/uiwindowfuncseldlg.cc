@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "windowfunction.h"

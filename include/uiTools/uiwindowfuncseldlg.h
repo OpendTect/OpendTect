@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "mathfunc.h"
 #include "multiid.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "arrayndimpl.h"
 
 class uiAxisHandler;

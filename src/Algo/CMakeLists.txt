@@ -11,6 +11,7 @@ set( OD_TEST_PROGS velocitycalc.cc )
 set(OD_MODULE_SOURCES timeser.c
 	    array1dinterpol.cc
 	    array2dinterpol.cc
+            arrayndalgo.cc
 	    bendpointfinder.cc
 	    bendpoints2coords.cc
 	    binidsorting.cc

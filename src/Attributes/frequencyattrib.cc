@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"

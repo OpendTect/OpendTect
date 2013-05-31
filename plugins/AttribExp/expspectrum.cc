@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 #include "samplfunc.h"
 #include "genericnumer.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 
 #include <stdio.h>
 

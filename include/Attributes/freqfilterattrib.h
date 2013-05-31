@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "arrayndimpl.h"
 #include <complex>
 

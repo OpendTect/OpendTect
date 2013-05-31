@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "ioman.h"
 #include "scaler.h"
 #include "seisbuf.h"

@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emundo.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "emmanager.h"
 #include "emsurface.h"
 #include "emhorizon3d.h"

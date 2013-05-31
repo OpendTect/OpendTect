@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include <linsolv.h>
 #include <arrayndimpl.h>
-#include <arrayndutils.h>
+#include <arrayndalgo.h>
 #include <simpnumer.h>
 
 /*!

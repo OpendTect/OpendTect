@@ -34,7 +34,7 @@ Output:
 #include "fft.h"
 #include "attribparamimpl.h"
 
-#include <arrayndutils.h>
+#include <arrayndalgo.h>
 
     
 mClass(AttribExp) DeConvolveAttrib : public AttribCalc

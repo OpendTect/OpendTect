@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "cubesampling.h"

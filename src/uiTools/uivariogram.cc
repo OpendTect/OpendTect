@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id Exp $";
 #include "uivariogram.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "bufstringset.h"
 #include "datapointset.h"
 #include "executor.h"

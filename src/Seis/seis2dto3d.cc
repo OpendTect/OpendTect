@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dto3d.h"
 
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "bufstring.h"
 #include "fftfilter.h"
 #include "scaler.h"
