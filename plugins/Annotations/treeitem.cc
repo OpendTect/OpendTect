@@ -154,20 +154,7 @@ const char* AnnotTreeItem::parentType() const
 bool AnnotTreeItem::init()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.setAdded.notify( mCB(this,AnnotTreeItem,setAddedCB));
     mgr.setToBeRemoved.notify( mCB(this,AnnotTreeItem,setRemovedCB));
-    uiVisPartServer* visserv = applMgr()->visServer();
-    for ( int idx=0; idx<mgr.size(); idx++ )
-    {
-	const MultiID mid = mgr.id(idx);
-	TypeSet<int> dispids;
-	visserv->findObject( mid, dispids );
-	uiTreeItem* item = createSubItem( dispids.size() ? dispids[0] : -1,
-					  mgr.get(idx) );
-	addChild( item, true );
-	item->setChecked( true );
-    }
-
     return true;
 }
 
@@ -178,9 +165,8 @@ void AnnotTreeItem::prepareForShutdown()
 }
 
 
-void AnnotTreeItem::setAddedCB( CallBacker* cb )
+void AnnotTreeItem::addPickSet( Pick::Set* ps )
 {
-    mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
 
     uiTreeItem* item = createSubItem( -1, *ps );
@@ -188,22 +174,19 @@ void AnnotTreeItem::setAddedCB( CallBacker* cb )
 }
 
 
-
-void AnnotTreeItem::setRemovedCB( CallBacker* cb )
+void AnnotTreeItem::removePickSet( Pick::Set* ps )
 {
-    mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
-
     uiVisPartServer* visserv = applMgr()->visServer();
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
+	    if ( !itm ) continue;
 
 	const int displayid = itm->displayID();
 	mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-			visserv->getObject(displayid));
+	    visserv->getObject(displayid));
 	if ( !ld ) continue;
 
 	if ( ld->getSet() == ps )
@@ -213,6 +196,25 @@ void AnnotTreeItem::setRemovedCB( CallBacker* cb )
 	    return;
 	}
     }
+}
+
+void AnnotTreeItem::setRemovedCB( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps ) return;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(SubItem*,itm,children_[idx])
+	    if ( !itm ) continue;
+	if ( itm->getSet() == ps )
+	{
+	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	    uiTreeItem::removeChild( itm );
+	    return;
+	}
+    }
+
 }
 
 
@@ -262,6 +264,8 @@ bool AnnotTreeItem::showSubMenu()
 	    if ( defScale()!=-1 ) set->disp_.pixsize_ = defScale();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
+	    uiTreeItem* item = createSubItem( -1, *set );
+	    addChild( item, true );
 	    break;
 	}
     }
@@ -294,15 +298,15 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
     { uiMSG().error( bs ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.set( dlg.ioObj()->key(), &ps );
-    const int setidx = mgr.indexOf( ps );
-    mgr.setUnChanged( setidx );
-
+    if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
+    {
+	mgr.set( dlg.ioObj()->key(), &ps );
+	const int setidx = mgr.indexOf( ps );
+	mgr.setUnChanged( setidx );
+	addPickSet( &ps );
+    }
     return true;
 }
-
-
-
 
 // SubItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -555,7 +559,9 @@ void SubItem::removeStuff()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     if ( setidx >= 0 )
+    {
 	mgr.set( mgr.id(setidx), 0 );
+    }
     mgr.removeCBs( this );
 }
 

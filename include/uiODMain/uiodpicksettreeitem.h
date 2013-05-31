@@ -15,16 +15,17 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
-namespace Pick		{ class Set; }
+namespace Pick	{ class Set; class SetMgr; }
 
 
 mDefineItem( PickSetParent, TreeItem, TreeTop, \
     ~uiODPickSetParentTreeItem(); \
     virtual bool init(); \
     virtual void removeChild(uiTreeItem*); \
-    void setAdd(CallBacker*); \
+    void addPickSet(Pick::Set*);\
     void setRm(CallBacker*); \
     bool display_on_add; \
+    Pick::SetMgr& picksetmgr_;\
     mShowMenu mMenuOnAnyButton );
 
 

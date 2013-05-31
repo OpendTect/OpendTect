@@ -35,8 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem("PickSet/Polygon")
     , display_on_add(false)
+    , picksetmgr_(Pick::Mgr())
 {
-    Pick::Mgr().setAdded.notify( mCB(this,uiODPickSetParentTreeItem,setAdd) );
     Pick::Mgr().setToBeRemoved.notify(
 	    			mCB(this,uiODPickSetParentTreeItem,setRm) );
 }
@@ -65,18 +65,15 @@ bool uiODPickSetParentTreeItem::init()
 
 void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
 {
-    const int idx = children_.indexOf( child );
-    if ( idx<0 ) return;
-
+    if ( !children_.isPresent( child ) ) return;
     uiTreeItem::removeChild( child );
 }
 
 
-void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
+void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
 {
-    display_on_add = true;
-    mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
+    display_on_add = true;
 
     uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
     addChild( item, false );
@@ -156,10 +153,15 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	display_on_add = true;
 	TypeSet<MultiID> mids;
-	bool res = applMgr()->pickServer()->loadSets(mids,mnuid==mLoadPolyIdx);
-	display_on_add = false;
-	if ( !res )
+	const bool res = applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
+	if ( !res ) 
 	    return false;
+	display_on_add = false;
+	for ( int idx=0; idx<mids.size(); idx++ )
+	{
+	    Pick::Set& ps = picksetmgr_.get( mids[idx] );
+	    addPickSet( &ps );
+	}
     }
     else if ( mnuid==mGen3DIdx )
     {
