@@ -155,7 +155,7 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
     {
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? "%lf" : "%lg";
+	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? "%.15f" : "%.15g";
 	sprintf( bufptr, fmt, val );
 	prettyNumber( ret, 1 );
     }
@@ -223,7 +223,7 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
     {
 	char* bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%g";
+	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%.7g";
 	sprintf( bufptr, fmt, val );
 	if ( fmt == normalfmt )
 	    truncFloatStr( actualval, ret );
