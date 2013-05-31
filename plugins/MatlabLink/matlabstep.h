@@ -37,12 +37,16 @@ public:
 
     Task*		createTask();
 
+    void		setSharedLibFileName(const char*);
+    const char*		sharedLibFileName() const;
+
 protected:
 
 			MatlabStep();
 			~MatlabStep();
 
     FixedString		errmsg_;
+    BufferString	sharedlibfnm_;
 };
 
 } // namespace VolProc

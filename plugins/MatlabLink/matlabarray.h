@@ -13,22 +13,53 @@ ________________________________________________________________________
 -*/
 
 #include "matlablinkmod.h"
+#include "task.h"
 
-class mxArray;
+#ifdef HAS_MATLAB
+
+// MATLAB header files
+#include "matrix.h"
+
 template <class T> class ArrayND;
 
-//mExpClass(MatlabLink) MatlabArrayND
-class MatlabArrayND
+
+mExpClass(MatlabLink) ArrayNDCopier : public ParallelTask
 {
 public:
-			MatlabArrayND(const ArrayND<float>&);
-			~MatlabArrayND();
+			ArrayNDCopier(const ArrayND<float>&);
+			~ArrayNDCopier();
+    bool		init();
+
+   mxArray*		getMxArray()		{ return mxarr_; }
 
 protected:
 
-    mxArray*			mxarr_;
-    const ArrayND<float>&	arrnd_;
+    od_int64		nrIterations() const	{ return totalnr_; }
+    bool		doWork(od_int64 start,od_int64 stop,int thrid);
 
+    mxArray*		mxarr_;
+    const ArrayND<float>& arrnd_;
+    od_int64		totalnr_;
 };
+
+
+mExpClass(MatlabLink) mxArrayCopier : public ParallelTask
+{
+public:
+			mxArrayCopier(const mxArray&,ArrayND<float>&);
+			~mxArrayCopier();
+    bool		init();
+
+protected:
+
+    od_int64		nrIterations() const	{ return totalnr_; }
+    bool		doWork(od_int64 start,od_int64 stop,int thrid);
+
+    const mxArray&	mxarr_;
+    ArrayND<float>&	arrnd_;
+    od_int64		totalnr_;
+};
+
+#endif // HAS_MATLAB
 
 #endif
