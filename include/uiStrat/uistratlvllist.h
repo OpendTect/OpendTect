@@ -19,25 +19,30 @@ mExpClass(uiStrat) uiStratLvlList : public uiLabeledListBox
 {
 public:
 
-				uiStratLvlList(uiParent*);
-				~uiStratLvlList();
+		uiStratLvlList(uiParent*);
+		~uiStratLvlList();
 
-    void			setLevels();
-    void			setIsLocked(bool yn) { islocked_ = yn; }
+    void	setLevels();
+    void	setIsLocked(bool yn) { islocked_ = yn; }
 
-    bool			anyChg() const 	{ return anychange_; }
-    void			setNoChg() 	{ anychange_ = false; }
+    bool	anyChg() const 	{ return anychange_; }
+    void	setNoChg() 	{ anychange_ = false; }
+
 protected:
 
-    bool			islocked_;
-    bool			anychange_;
+    bool	islocked_;
+    bool	anychange_;
 
-    void                        editLevel(bool);
+    void	editLevel(bool);
 
-    void                        fill(CallBacker*);
-    void			removeLvl(CallBacker*);
-    void                        selLvlChgCB(CallBacker*);
-    void                        rClickLvlCB(CallBacker*);
+    void	fill(CallBacker*);
+    void	removeLvl(CallBacker*);
+    void	selLvlChgCB(CallBacker*);
+
+    void	addCB(CallBacker*);
+    void	editCB(CallBacker*);
+    void	removeCB(CallBacker*);
+    void	removeAllCB(CallBacker*);
 };
 
 

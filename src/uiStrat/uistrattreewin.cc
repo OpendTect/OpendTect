@@ -178,7 +178,7 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setPixmap( ioPixmap("undo") );
     mnu->insertSeparator();
     
-    saveasmnuitem_ = new uiMenuItem( "Save&As...",
+    saveasmnuitem_ = new uiMenuItem( "Save &As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setPixmap( ioPixmap("saveas") );
@@ -194,6 +194,7 @@ void uiStratTreeWin::createToolBar()
 {
     tb_ = new uiToolBar( this, "Stratigraphy Manager Tools" );
     mDefBut(colexpbut_,"collapse_tree",setExpCB,mCollapseTxt(false));
+    colexpbut_->setSensitive( istreedisp_ );
     tb_->addSeparator();
     mDefBut(moveunitupbut_,"uparrow",moveUnitCB,"Move unit up");
     mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,"Move unit down");
@@ -358,13 +359,14 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 
 void uiStratTreeWin::switchViewCB( CallBacker* )
 {
-    istreedisp_ = istreedisp_ ? false : true;
+    istreedisp_ = !istreedisp_;
     uistratdisp_->display( !istreedisp_ );
     if ( uistratdisp_->control() )
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
     uitree_->treeView()->display( istreedisp_ );
-    switchviewbut_->setPixmap( istreedisp_ ? "stratframeworkgraph"
-					   : "strat_tree" );
+    switchviewbut_->setPixmap(
+	istreedisp_ ? "stratframeworkgraph" : "strat_tree" );
+    colexpbut_->setSensitive( istreedisp_ );
 }
 
 
