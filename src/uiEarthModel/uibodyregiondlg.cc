@@ -206,8 +206,8 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     delete bidinplg_;
     deepUnRef( hors_ );
-    deepUnRef( flts_ );
     deepErase( expflts_ );
+    deepUnRef( flts_ );
 }
 
 od_int64 nrIterations() const   	{ return cs_.nrZ(); }
