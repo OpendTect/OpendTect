@@ -159,7 +159,7 @@ public:
 			BulkTrackAscIO(const Table::FormatDesc&,std::istream&);
 
     static Table::FormatDesc*	getDesc();
-    bool			get(BufferString& wellnm,Coord3& crd,float md,
+    bool			get(BufferString& wellnm,Coord3& crd,float& md,
 				    BufferString& uwi) const;
 
 protected:
@@ -177,7 +177,8 @@ public:
 			BulkMarkerAscIO(const Table::FormatDesc&,std::istream&);
 
     static Table::FormatDesc*	getDesc();
-    bool			get(BufferString& wellnm,float md,
+    bool			get(float& md,BufferString& markernm,
+				    BufferString& wellnm,
 				    BufferString& uwi) const;
 
 protected:

@@ -395,7 +395,7 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
 }
 
 
-bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float md,
+bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
 			  BufferString& uwi ) const
 {
     const int ret = getNextBodyVals( strm_ );
@@ -404,7 +404,7 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float md,
     wellnm = text( 0 );
     crd.x = getdValue( 1 );
     crd.y = getdValue( 2 );
-    crd.z = getfValue( 3 );
+    crd.z = getdValue( 3 );
     md = getfValue( 4 );
     uwi = text( 5 );
     return true;
@@ -430,15 +430,16 @@ Table::FormatDesc* BulkMarkerAscIO::getDesc()
 }
 
 
-bool BulkMarkerAscIO::get( BufferString& wellnm, float md,
-			  BufferString& uwi ) const
+bool BulkMarkerAscIO::get( float& md, BufferString& markernm,
+			   BufferString& wellnm, BufferString& uwi ) const
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    wellnm = text( 0 );
-    md = getfValue( 4 );
-    uwi = text( 5 );
+    md = getfValue( 0 );
+    markernm = text( 1 );
+    wellnm = text( 2 );
+    uwi = text( 3 );
     return true;
 }
 
