@@ -822,13 +822,14 @@ Coord3 Well::Track::getPos( float dh ) const
 Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
 {
     const int idx2 = idx1 + 1;
-    const float d1 = dh - dah_[idx1];
-    const float d2 = dah_[idx2] - dh;
+    const double d1 = (double)( dh - dah_[idx1] );
+    const double d2 = (double)( dah_[idx2] - dh );
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
-    const float f = 1. / (d1 + d2);
-    return Coord3( f * (d1 * c2.x + d2 * c1.x), f * (d1 * c2.y + d2 * c1.y),
-		   f * (d1 * c2.z + d2 * c1.z) );
+    const double f =  1. / (d1 + d2);
+    return Coord3( f * ( d1 * c2.x + d2 * c1.x ), 
+		   f * ( d1 * c2.y + d2 * c1.y ),
+		   f * ( d1 * c2.z + d2 * c1.z ) );
 }
 
 
