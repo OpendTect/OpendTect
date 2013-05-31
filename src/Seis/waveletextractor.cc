@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "waveletextractor.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
 #include "cubesampling.h"

@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uiwindowfunctionsel.h"
 #include "uibutton.h"
 #include "survinfo.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include <arrayndimpl.h>
 
 class uiGenInput;

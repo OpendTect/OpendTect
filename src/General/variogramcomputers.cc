@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "variogramcomputers.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "datapointset.h"

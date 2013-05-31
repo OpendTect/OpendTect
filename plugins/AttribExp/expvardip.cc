@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "ptrman.h"
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "attribdescsetproc.h"
 
 

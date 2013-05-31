@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
 #include "ioman.h"

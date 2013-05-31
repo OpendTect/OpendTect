@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiegeocalculator.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "hilberttransform.h"

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "wavelettrans.h"
 #include "fourier.h"
 

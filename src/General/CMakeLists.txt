@@ -9,8 +9,7 @@ set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
-set ( OD_MODULE_SOURCES arrayndutils.cc
-	    array2dbitmap.cc
+set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc
 	    bidvsetarrayadapter.cc

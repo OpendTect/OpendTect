@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "waveletattrib.h"
 
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "wavelet.h"

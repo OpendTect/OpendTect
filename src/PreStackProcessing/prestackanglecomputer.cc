@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "mathfunc.h"
