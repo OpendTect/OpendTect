@@ -219,8 +219,11 @@ float MathExpressionDivide::getValue() const
 {
     float val0 = inputs_[0]->getValue();
     float val1 = inputs_[1]->getValue();
-    if ( Values::isUdf(val0) || Values::isUdf(val1) || mIsZero(val1,mDefEps) )
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
+
+    if ( mIsZero(val1,mDefEps) )
+	return mIsZero(val0,mDefEps) ? 1 : mUdf(float);
 
     return val0/val1;
 }
