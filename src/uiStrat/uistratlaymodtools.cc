@@ -69,12 +69,13 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
-    nrmodlsfld_ = new uiGenInput( rightgrp, "",
-			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
-    nrmodlsfld_->setElemSzPol( uiObject::Small );
+    nrmodlsfld_ = new uiSpinBox( rightgrp );
+    nrmodlsfld_->setInterval( Interval<int>(1,10000) );
+    nrmodlsfld_->setValue( 25 );
+    nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );
-    nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
-    nrmodlsfld_->updateRequested.notify( gocb );
+    nrmodlsfld_->setToolTip( "Number of models to generate" );
+    nrmodlsfld_->valueChanged.notify( gocb );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
 	    			"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
@@ -85,7 +86,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 
 int uiStratGenDescTools::nrModels() const
 {
-    return nrmodlsfld_->getIntValue();
+    return nrmodlsfld_->getValue();
 }
 
 

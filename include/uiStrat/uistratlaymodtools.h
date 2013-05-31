@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 class uiComboBox;
-class uiGenInput;
 class uiLabel;
 class uiSpinBox;
 class uiToolButton;
@@ -44,7 +43,7 @@ protected:
 
     static const char*		sKeyNrModels();
     
-    uiGenInput*	nrmodlsfld_;
+    uiSpinBox*	nrmodlsfld_;
     uiToolButton* savetb_;
 
     void	openCB(CallBacker*)	{ openReq.trigger(); }
