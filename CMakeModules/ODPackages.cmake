@@ -30,10 +30,11 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH} 
 	    "-DOD_THIRD_PARTY_LIBS=\"${OD_THIRD_PARTY_LIBS}\""
 	    -DOD_PLFSUBDIR=${OD_PLFSUBDIR} 
-	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
 	    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
-	    -DPSD=${PROJECT_SOURCE_DIR}
-	    -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
+	    -DPSD=${OD_BINARY_BASEDIR}
+	    -DOD_CODESIGN_CERTIFICATE=${OD_CODESIGN_CERTIFICATE}
+	    -DCODESIGN_KEY=${CODESIGN_KEY}
+	    -P ${OD_BINARY_BASEDIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
 	    DEPENDS do_install
 	    COMMENT "Creating packages" ) 
 endmacro()

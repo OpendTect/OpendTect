@@ -4,15 +4,11 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
-set( BASEPACKAGES basedatadefs dgbbasedatadefs)
-set( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
-		 dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs
-		 odgmtdefs odgprdefs odmadagascardefs develdefs ) 
-
-include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+include( CMakeModules/packagescripts/packages.cmake )
+include( ${PSD}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 if( APPLE )
-    execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} 
+    execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/Release ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release 
 		     RESULT_VARIABLE STATUS )
     if( NOT ${STATUS} EQUAL "0" )
 	message( FATAL_ERROR "changing dependency Failed" )
@@ -24,7 +20,7 @@ if( APPLE OR WIN32 )
 endif()
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    include( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
+    include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
