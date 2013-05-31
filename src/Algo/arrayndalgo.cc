@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "arrayndutils.h"
+#include "arrayndalgo.h"
 
 #include "windowfunction.h"
 

@@ -1,5 +1,5 @@
-#ifndef arrayndutils_h
-#define arrayndutils_h
+#ifndef arrayndalgo_h
+#define arrayndalgo_h
 
 /*@+
 ________________________________________________________________________
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 
 @$*/
-#include "generalmod.h"
+#include "algomod.h"
 #include "arraynd.h"
 #include "enums.h"
 #include "arrayndslice.h"
@@ -50,7 +50,7 @@ inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
 
 
 /*!
-\ingroup General
+\ingroup Algo
 \brief Removes the DC component from an ArrayND. If no output is given,
 removeBias( ) will store the result in the input ArrayND. User can choose to
 remove only the average or an eventual linear trend.
@@ -160,7 +160,7 @@ inline T computeAvg( ArrayND<T>* in )
   at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 */
 
-mExpClass(General) ArrayNDWindow
+mExpClass(Algo) ArrayNDWindow
 {
 public:
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
