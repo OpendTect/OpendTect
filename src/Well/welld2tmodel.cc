@@ -154,6 +154,9 @@ bool Well::D2TModel::getVelocityBoundsForTwt( float time, const Track& track,			
 		
     depths.start = track.getPos(dah_[idah]).z;
     depths.stop = track.getPos(dah_[idah+1]).z;
+    if ( mIsUdf(depths.start) || mIsUdf(depths.stop) )
+	return mUdf(float);
+
     times.start = t_[idah];
     times.stop = t_[idah+1];
 
