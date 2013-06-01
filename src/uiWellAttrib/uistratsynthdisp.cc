@@ -71,6 +71,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm )
     , prestackwin_(0)		      
     , currentwvasynthetic_(0)
     , currentvdsynthetic_(0)
+    , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
 {
     stratsynth_.setTaskRunner( taskrunner_ );
