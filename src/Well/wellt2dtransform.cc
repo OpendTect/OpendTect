@@ -33,89 +33,128 @@ WellT2DTransform::WellT2DTransform()
 
 bool WellT2DTransform::calcDepths()
 {
-    const Well::D2TModel* wllmodel = data_ ? data_->d2TModel() : 0;
-    if ( !wllmodel )
+    const Well::D2TModel* d2t = data_ ? data_->d2TModel() : 0;
+    if ( !d2t )
 	return false;
 
     const Well::Track& track = data_->track();
-    const int modelsz = wllmodel->size();
-    const float time0 = wllmodel->t( 0 );
-    const float dah0 = wllmodel->getDah( time0, track );
+    const int d2tsz = d2t->size();
+    float dah0 = mUdf(float);
+    float time0 = 0; int idx0 = 0;
+    for ( ; idx0<d2tsz && mIsUdf(dah0); idx0++ )
+    {
+	time0 = d2t->t( idx0 );
+	dah0 = d2t->getDah( time0, track );
+    }
+    if ( mIsUdf(dah0) )
+    {
+	errmsg_ = "Z Transform: Well Depth to time model has no valid points";
+	return false;
+    }
+
     times_ += time0; depths_ += dah0;
     float vertdepth = dah0;
-    for ( int idx=0; idx<=modelsz-2; idx++ )
+    for ( int idx=idx0; idx<d2tsz-1; idx++ )
     {
-	const float prevtime = wllmodel->t( idx );
-	const float dah1 = wllmodel->getDah( prevtime, track );
+	const float prevtime = d2t->t( idx );
+	const float nexttime = d2t->t( idx+1 );
+	const float dah1 = d2t->getDah( prevtime, track );
+	const float dah2 = d2t->getDah( nexttime, track );
+	if ( mIsUdf(dah1) || mIsUdf(dah2) )
+	    continue;
+
 	const Coord3 prevcrd = track.getPos( dah1 );
-	const float nexttime = wllmodel->t( idx+1 );
-	times_ += nexttime;
-	const float dah2 = wllmodel->getDah( nexttime, track );
 	const Coord3 nextcrd = track.getPos( dah2 );
 	const float hyp = dah2 - dah1;
-	const float dist = (float) Math::Sqrt( ((prevcrd.x-nextcrd.x)*(prevcrd.x-nextcrd.x)) +
-			   ((prevcrd.y-nextcrd.y)*(prevcrd.y-nextcrd.y)) ); 
-	vertdepth += Math::Sqrt( (hyp*hyp) - (dist*dist) );
+	const Coord dc( prevcrd.x-nextcrd.x, prevcrd.y-nextcrd.y );
+	const double hdist = (float) Math::Sqrt( dc.x*dc.x + dc.y*dc.y );
+	vertdepth += (float)Math::Sqrt( (hyp*hyp) - (hdist*hdist) );
+
+	times_ += nexttime;
 	depths_ += vertdepth;
     }
-    
+
+    if ( times_.size() < 2 )
+    {
+	times_ += 2.f * times_[0];
+	depths_ += 2.f * depths_[0];
+    }
     return true;
+}
+
+
+void WellT2DTransform::doTransform( const BinID& bid,
+					const SamplingData<float>& sd,
+					int ressz, float* res, bool back ) const
+{
+    const int possz = times_.size();
+    if ( possz < 2 )
+    {
+	for ( int idx=0; idx<ressz; idx++ )
+	    res[idx] = (float)idx;
+	return;
+    }
+
+    const TypeSet<float>& frompos = back ? depths_ : times_;
+    const TypeSet<float>& topos =  !back ? depths_ : times_;
+
+    for ( int residx=0; residx<ressz; residx++ )
+    {
+	const float curfrom = sd.start + residx*sd.step;
+	if ( curfrom <= frompos[0] )
+	{
+	    const float slope = (topos[1] - topos[0]) / (frompos[1] - frompos[0]);
+	    res[residx] = topos[0] - slope * (frompos[0] - curfrom);
+	}
+	else if ( curfrom >= frompos[possz-1] )
+	{
+	    const float slope = (topos[possz-1] - topos[possz-2])
+			    / (frompos[possz-1] - frompos[possz-2]);
+	    res[residx] = topos[possz-1] + slope * (curfrom - frompos[possz-1]);
+	}
+	else
+	{
+	    for ( int pidx=0; pidx<possz-1; pidx++ )
+	    {
+		if ( curfrom>=frompos[pidx] && curfrom<frompos[pidx+1] )
+		{
+		    res[residx] = Interpolate::linear1D(
+				    frompos[pidx], topos[pidx],
+				    frompos[pidx+1], topos[pidx+1],
+				    curfrom );
+		    break;
+		}
+	    }
+	}
+    }
 }
 
 
 void WellT2DTransform::transform( const BinID& bid,
 					const SamplingData<float>& sd,
-					int sz, float* res ) const
+					int ressz, float* res ) const
 {
-    if ( !sz )
-	return;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	float time = sd.start + idx*sd.step;
-	for ( int didx=0; didx<=times_.size()-2; didx++ )
-	{
-	    if ( time>times_[didx] && time<times_[didx+1] )
-	    {
-		res[idx] = Interpolate::linear1D( times_[didx], depths_[didx],
-						  times_[didx+1], depths_[didx],
-						  time );
-		break;
-	    }
-	}
-    }
+    doTransform( bid, sd, ressz, res, false );
 }
 
 
 
 void WellT2DTransform::transformBack( const BinID& bid,
 					    const SamplingData<float>& sd,
-					    int sz, float* res ) const
+					    int ressz, float* res ) const
 {
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	float depth = sd.start + idx*sd.step;
-	for ( int didx=0; didx<=times_.size()-2; didx++ )
-	{
-	    if ( depth>depths_[didx] && depth<depths_[didx+1] )
-	    {
-		res[idx] = Interpolate::linear1D( depths_[didx], times_[didx],
-						  depths_[didx+1], times_[didx],
-						  depth );
-		break;
-	    }
-	}
-    }
+    doTransform( bid, sd, ressz, res, true );
 }
 
 
 Interval<float> WellT2DTransform::getZInterval( bool time ) const
 {
-    Interval<float> zrg( 0, 0 );
-    zrg.start = depths_[0];
-    zrg.stop = depths_[ depths_.size()-1];
+    const int sz = times_.size();
+    if ( sz < 1 )
+	return Interval<float>(0,0);
 
-    return zrg;
+    return Interval<float>( time ? times_[0] : depths_[0],
+	    		    time ? times_[sz-1] : depths_[sz-1] );
 }
 
 
@@ -134,6 +173,5 @@ bool WellT2DTransform::usePar( const IOPar& iop )
 	return false;
     }
 
-    calcDepths();
-    return true;;
+    return calcDepths();
 }
