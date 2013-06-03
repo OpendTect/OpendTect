@@ -40,8 +40,15 @@ float Array1DInterpol::getMaxGapSize() const
 { return (float)maxgapsize_; }
 
 
+void Array1DInterpol::reset()
+{
+    nrdone_ = 0;
+    arrstarted_ = false;
+}
+
+
 void Array1DInterpol::setArray( Array1D<float>& arr )
-{ arr_ = &arr; }
+{ arr_ = &arr; reset(); }
 
 
 LinearArray1DInterpol::LinearArray1DInterpol()
@@ -197,7 +204,7 @@ void PolyArray1DInterpol::extrapolate( bool start )
 	const float arrval = arr_->get( nextvalidix );
 	if ( !mIsUdf(arrval) )
 	{
-	    posidxs[positridx] = nextvalidix;
+	    posidxs[positridx] = mCast(float,nextvalidix);
 	    vals[positridx] = arrval;
 	    positridx++;
 	}

@@ -39,6 +39,7 @@ public:
 				{ doextrapol_ = yn; }
     void			setFillWithExtremes( bool yn )
 				{ fillwithextremes_ = yn; }
+    void			reset();
 
 protected:
 				Array1DInterpol();
