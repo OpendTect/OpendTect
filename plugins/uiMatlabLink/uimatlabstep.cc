@@ -64,7 +64,7 @@ void uiMatlabStep::loadCB( CallBacker* )
 {
     const char* fnm = filefld_->fileName();
     const bool isok = File::exists( fnm );
-
+    if ( !isok ) return;
 }
 
 
