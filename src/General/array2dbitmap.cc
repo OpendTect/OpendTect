@@ -566,15 +566,18 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
 void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 					 const Interval<int>& xpixs2do )
 {
-    PtrMan< Interpolate::Applier2D<float> > interp = 0;
-    if ( vdpars().lininterp_ )
-	interp = new Interpolate::LinearReg2DWithUdf<float>;
-    else
+    Interpolate::Applier2D<float>* interp = 0;
+    if ( !pars_.nointerpol_ )
     {
-	const float pixperval0 = setup_.nrXPix() / ((float)szdim0_);
-	const float pixperval1 = setup_.nrYPix() / ((float)szdim1_);
-	const float xstretch = pixperval0 / pixperval1;
-	interp = new Interpolate::PolyReg2DWithUdf<float>( xstretch );
+	if ( vdpars().lininterp_ )
+	    interp = new Interpolate::LinearReg2DWithUdf<float>;
+	else
+	{
+	    const float pixperval0 = setup_.nrXPix() / ((float)szdim0_);
+	    const float pixperval1 = setup_.nrYPix() / ((float)szdim1_);
+	    const float xstretch = pixperval0 / pixperval1;
+	    interp = new Interpolate::PolyReg2DWithUdf<float>( xstretch );
+	}
     }
 
     const Array2D<float>& inpdata = data_.data();
@@ -604,11 +607,11 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 	    int idim1 = (int)floor( fdim1 + 1e-6 );
 	    const float dim1offs = fdim1 - idim1;
 
-	    if ( !pars_.nointerpol_ && idim1 != previdim1 )
+	    if ( interp && idim1 != previdim1 )
 		fillInterpPars( *interp, idim0, idim1 );
 
 	    float val;
-	    if ( !pars_.nointerpol_ )
+	    if ( interp )
 		val = interp->apply( dim0offs, dim1offs );
 	    else
 	    {
@@ -618,10 +621,12 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 		    idim0 = inpdata.info().getSize(0)-1;
 		if ( idim1 >= inpdata.info().getSize(1) )
 		    idim1 = inpdata.info().getSize(1)-1;
-		float v[4]; val = v[0] = mV00Val;
-		if ( dim0offs > 0.5 || dim1offs > 0.5 )
+		if ( dim0offs <= 0.5 && dim1offs <= 0.5 )
+		    { val = mV00Val; }
+		else
 		{
-		    v[1] = mV01Val; v[2] = mV10Val;
+		    float v[4];
+		    v[0] = mV00Val; v[1] = mV01Val; v[2] = mV10Val;
 		    if ( dim0offs > 0.5 && dim1offs > 0.5 )
 			val = mV11Val;
 		    else
@@ -634,6 +639,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 	    previdim1 = idim1;
 	}
     }
+    delete interp;
 }
 
 

@@ -46,6 +46,7 @@ public:
 protected:
 
     od_uint64		calcTotalSz() const;
+
 };
 
 
@@ -71,7 +72,7 @@ mExpClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
 
-    int			getNDim() const				{ return 1; }
+    virtual int		getNDim() const			{ return 1; }
 
     virtual od_uint64	getOffset( int pos ) const
 			{ return pos; }
@@ -95,7 +96,7 @@ mExpClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
 
-    int			getNDim() const			{ return 2; }
+    virtual int		getNDim() const			{ return 2; }
 
     virtual od_uint64	getOffset(int,int) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -118,7 +119,7 @@ mExpClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
 
-    int			getNDim() const			{ return 3; }
+    virtual int		getNDim() const			{ return 3; }
 
     virtual od_uint64	getOffset(int, int, int) const;
 			/*!<Returns offset in a 'flat' array.*/
@@ -139,20 +140,22 @@ public:
 mExpClass(Basic) Array1DInfoImpl : public Array1DInfo
 {
 public:
-    Array1DInfo*	clone() const
+
+    virtual Array1DInfo* clone() const
 			{ return new Array1DInfoImpl(*this); }
 
 			Array1DInfoImpl(int nsz=0); 
 			Array1DInfoImpl(const Array1DInfo&);
 
-    inline int		getSize(int dim) const; 
-    bool		setSize(int dim,int nsz);
-    bool		isOK() const			{ return sz_>=0; }
-    od_uint64		getTotalSz() const		{ return sz_; }
+    virtual int		getSize(int dim) const; 
+    virtual bool	setSize(int dim,int nsz);
+    virtual bool	isOK() const			{ return dimsz_>=0; }
+    virtual od_uint64	getTotalSz() const		{ return dimsz_; }
 
 protected:
 
-    int			sz_;
+    int			dimsz_;
+
 };
 
 
@@ -164,22 +167,22 @@ mExpClass(Basic) Array2DInfoImpl : public Array2DInfo
 {
 public:
 
-    Array2DInfo*	clone() const { return new Array2DInfoImpl(*this); }
+    virtual Array2DInfo* clone() const { return new Array2DInfoImpl(*this); }
 
 			Array2DInfoImpl(int sz0=0, int sz1=0);
 			Array2DInfoImpl(const Array2DInfo&);
 
-    inline int		getSize(int dim) const;
-    bool		setSize(int dim,int nsz);
-    bool		isOK() const		{ return sz0_>=0 && sz1_>=0; }
+    virtual int		getSize(int dim) const;
+    virtual bool	setSize(int dim,int nsz);
+    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
-    od_uint64		getTotalSz() const	{ return cachedtotalsz_; }
+    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
     
 protected:
 
-    int                 sz0_;
-    int                 sz1_;
+    int                 dimsz_[2];
     od_uint64		cachedtotalsz_;
+
 };
 
 
@@ -191,22 +194,21 @@ mExpClass(Basic) Array3DInfoImpl : public Array3DInfo
 {
 public:
 
-    Array3DInfo*	clone() const { return new Array3DInfoImpl(*this); }
+    virtual Array3DInfo* clone() const { return new Array3DInfoImpl(*this); }
 
 			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
 
-    inline int		getSize(int dim) const; 
-    bool                setSize(int dim,int nsz);
-    bool		isOK() const { return sz0_>=0 && sz1_>=0 && sz2_>=0; }
-    od_uint64		getTotalSz() const { return cachedtotalsz_; }
+    virtual int		getSize(int dim) const; 
+    virtual bool	setSize(int dim,int nsz);
+    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
+    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
 
 protected:
 
-    int                 sz0_;
-    int                 sz1_;
-    int                 sz2_;
+    int                 dimsz_[3];
     od_uint64		cachedtotalsz_;
+
 };  
 
 
@@ -218,24 +220,23 @@ mExpClass(Basic) ArrayNDInfoImpl : public ArrayNDInfo
 {
 public:
 
-    ArrayNDInfo*	clone() const;
-    static ArrayNDInfo*	create( int ndim );
+    virtual ArrayNDInfo* clone() const;
+    static ArrayNDInfo*	create(int ndim);
 
 			ArrayNDInfoImpl(int ndim);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
-			ArrayNDInfoImpl(const ArrayNDInfoImpl&);
-
 			~ArrayNDInfoImpl();
+    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 
-    od_uint64		getTotalSz() const { return cachedtotalsz_; }
-    int                 getNDim() const;
-    int                 getSize(int dim) const;
-    bool                setSize(int dim,int nsz);
+    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    virtual int		getNDim() const;
+    virtual int		getSize(int dim) const;
+    virtual bool	setSize(int dim,int nsz);
 
 protected:
 
-    int*		sizes;
-    int 		ndim;
+    int 		ndim_;
+    int*		dimsz_;
 
     od_uint64		cachedtotalsz_;
 };
@@ -243,19 +244,19 @@ protected:
 
 inline int Array1DInfoImpl::getSize( int dim ) const
 {
-    return dim ? 0 : sz_;
+    return dim ? 0 : dimsz_;
 }
 
 
 inline int Array2DInfoImpl::getSize( int dim ) const
 {
-    return dim>1 || dim<0 ? 0 : (&sz0_)[dim];
+    return dim>1 || dim<0 ? 0 : dimsz_[dim];
 }
 
 
 inline int Array3DInfoImpl::getSize( int dim ) const
 {
-    return dim>2 || dim<0 ? 0 : (&sz0_)[dim];
+    return dim>2 || dim<0 ? 0 : dimsz_[dim];
 }
 
 

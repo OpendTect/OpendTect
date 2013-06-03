@@ -135,7 +135,7 @@ Coord PointDataPack::coord( int idx ) const
 
 FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
     : DataPack(cat)
-    , arr2d_(arr ? arr : new Array2DImpl<float>(0,0))
+    , arr2d_(arr ? arr : new Array2DImpl<float>(1,1))
     , posdata_(*new FlatPosData)
 {
     init();

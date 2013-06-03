@@ -135,34 +135,35 @@ bool Array3DInfo::validPos( int p0, int p1, int p2 ) const
 
 
 Array1DInfoImpl::Array1DInfoImpl( int nsz ) 
-	: sz_( nsz ) 
-{ }
+	: dimsz_(nsz) 
+{
+}
 
 
 Array1DInfoImpl::Array1DInfoImpl( const Array1DInfo& nsz)
-	: sz_( nsz.getSize(0) )
+	: dimsz_( nsz.getSize(0) )
 { } 
 
 
 bool Array1DInfoImpl::setSize( int dim, int nsz )
 {
     if( dim != 0 ) return false;
-    sz_ = nsz;
+    dimsz_ = nsz;
     return true;
 }
 
 
 Array2DInfoImpl::Array2DInfoImpl( int sz0, int sz1 )
 {
-    sz0_ = sz0; sz1_ = sz1;
+    dimsz_[0] = sz0; dimsz_[1] = sz1;
     cachedtotalsz_ = calcTotalSz();
 }
 
 
-Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& nsz)
+Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& nsz )
 {
-    sz0_ = nsz.getSize(0);
-    sz1_ = nsz.getSize(1);
+    dimsz_[0] = nsz.getSize(0);
+    dimsz_[1] = nsz.getSize(1);
 
     cachedtotalsz_ = calcTotalSz(); 
 }
@@ -171,26 +172,24 @@ Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& nsz)
 bool Array2DInfoImpl::setSize( int dim, int nsz )
 {
     if( dim > 1 || dim < 0 ) return false;
-    if ( dim == 0 ) sz0_ = nsz;
-    else sz1_ = nsz;
+    dimsz_[dim] = nsz;
     cachedtotalsz_ = calcTotalSz();	
     return true;
 }
 
 
-Array3DInfoImpl::Array3DInfoImpl( int sz0, int sz1, int sz2) 
-{ 
-    sz0_ = sz0; sz1_ = sz1; sz2_ = sz2;
+Array3DInfoImpl::Array3DInfoImpl( int sz0, int sz1, int sz2 ) 
+{
+    dimsz_[0] = sz0; dimsz_[1] = sz1; dimsz_[2] = sz2;
     cachedtotalsz_ = calcTotalSz();
 }
 
 
 Array3DInfoImpl::Array3DInfoImpl( const Array3DInfo& nsz)
 {
-    sz0_ = nsz.getSize(0);
-    sz1_ = nsz.getSize(1);
-    sz2_ = nsz.getSize(2);
-
+    dimsz_[0] = nsz.getSize(0);
+    dimsz_[1] = nsz.getSize(1);
+    dimsz_[2] = nsz.getSize(2);
     cachedtotalsz_ = calcTotalSz();
 }
 
@@ -198,9 +197,7 @@ Array3DInfoImpl::Array3DInfoImpl( const Array3DInfo& nsz)
 bool Array3DInfoImpl::setSize(int dim, int nsz)
 {
     if( dim > 2 || dim < 0 ) return false;
-    if ( dim == 0 ) sz0_ = nsz;
-    else if ( dim == 1) sz1_ = nsz;
-    else sz2_ = nsz;
+    dimsz_[dim] = nsz;
     cachedtotalsz_ = calcTotalSz(); 
     return true;
 }
@@ -208,9 +205,9 @@ bool Array3DInfoImpl::setSize(int dim, int nsz)
 
 ArrayNDInfo* ArrayNDInfoImpl::clone() const
 {
-    if ( ndim==1 ) return new Array1DInfoImpl(sizes[0]);
-    if ( ndim==2 ) return new Array2DInfoImpl(sizes[0], sizes[1]);
-    if ( ndim==3 ) return new Array3DInfoImpl(sizes[0], sizes[1], sizes[2]);
+    if ( ndim_==1 ) return new Array1DInfoImpl(dimsz_[0]);
+    if ( ndim_==2 ) return new Array2DInfoImpl(dimsz_[0], dimsz_[1]);
+    if ( ndim_==3 ) return new Array3DInfoImpl(dimsz_[0], dimsz_[1], dimsz_[2]);
 
     return new ArrayNDInfoImpl(*this); 
 }
@@ -226,51 +223,43 @@ ArrayNDInfo* ArrayNDInfoImpl::create( int ndim )
 }
 
 
-ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim_ )
-	: sizes( new int[ndim_] )  
-	, ndim( ndim_ )
+ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
+	: dimsz_( new int[ndim_] )  
+	, ndim_( ndim )
 {
     cachedtotalsz_ = 0;
-    for ( int idx = 0; idx < ndim; idx++ )
-	sizes[idx] = 0;
-}
-
-
-ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
-	: ArrayNDInfo( nsz )
-        , sizes(new int[nsz.getNDim()]) 
-	, ndim( nsz.getNDim() )
-{
-    for (int idx = 0; idx < ndim; idx++)
-	setSize( idx, nsz.getSize(idx) ); 
+    for ( int idx = 0; idx<ndim_; idx++ )
+	dimsz_[idx] = 0;
 }
 
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
-	: sizes(new int[nsz.getNDim()]) 
-	, ndim( nsz.getNDim() )
+	: ArrayNDInfo( nsz )
+        , dimsz_(new int[nsz.getNDim()]) 
+	, ndim_(nsz.getNDim())
 {
-    for (int idx = 0; idx < ndim; idx++)
+    for ( int idx=0; idx<ndim_; idx++ )
 	setSize( idx, nsz.getSize(idx) ); 
 }
 
+
 ArrayNDInfoImpl::~ArrayNDInfoImpl()
 {
-    delete [] sizes;
+    delete [] dimsz_;
 }
 
 
 int ArrayNDInfoImpl::getNDim() const
 {
-    return ndim;
+    return ndim_;
 }
 
 
 bool ArrayNDInfoImpl::setSize( int dim, int newSz )
 {
-    if ( dim >= ndim || dim < 0 ) return false;
+    if ( dim >= ndim_ || dim < 0 ) return false;
 
-    sizes[dim] = newSz;
+    dimsz_[dim] = newSz;
     cachedtotalsz_ = calcTotalSz();
     return true;
 }
@@ -278,7 +267,7 @@ bool ArrayNDInfoImpl::setSize( int dim, int newSz )
 
 int ArrayNDInfoImpl::getSize( int dim ) const
 {
-    return dim >= ndim || dim < 0 ? 0 : sizes[dim];
+    return dim >= ndim_ || dim < 0 ? 0 : dimsz_[dim];
 }
 
 
