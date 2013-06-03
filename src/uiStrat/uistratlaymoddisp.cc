@@ -399,7 +399,7 @@ void uiStratSimpleLayerModelDisp::setZoomBox( const uiWorldRect& wr )
 
     if ( mIsUdf(wr.left()) )
     {
-	zoomwr_.setLeft( mUdf(float) );
+	zoomwr_.setLeft( mUdf(double) );
 	getBounds();
     }
     else
@@ -435,7 +435,7 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
     const int wdth = xax_->getPix( (float)zoomwr_.right() ) - xpix;
     const int hght = yax_->getPix( (float)zoomwr_.bottom() ) - ypix;
     zoomboxitm_->setRect( xpix, ypix, wdth, hght );
-    zoomboxitm_->setVisible( haveAnyZoom() && !showzoomed_ );
+    zoomboxitm_->setVisible( !showzoomed_ );
 }
 
 

@@ -35,8 +35,6 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthRemoved(this)
     , synthChanged(this)
 {
-    setCtrlStyle( DoAndStay );
-
     setOkText( "Apply" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
@@ -106,7 +104,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
     updateSynthNames();
     synthnmlb_->setSelected( 0, true );
-    stratsynth_.genParams().name_ = synthnmlb_->getText();
+    changeSyntheticsCB( 0 );
 }
 
 
@@ -146,7 +144,9 @@ void uiSynthGenDlg::updateSynthNames()
 
 void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
-    SyntheticData* sd = stratsynth_.getSynthetic( synthnmlb_->getText() );
+    FixedString synthnm( synthnmlb_->textOfItem(synthnmlb_->nextSelected(-1)) );
+    if ( synthnm.isEmpty() ) return;
+    SyntheticData* sd = stratsynth_.getSynthetic( synthnm );
     if ( !sd ) return;
     sd->fillGenParams( stratsynth_.genParams() );
     putToScreen();
@@ -260,6 +260,8 @@ void uiSynthGenDlg::putToScreen()
     
     const bool isps = genparams.isPreStack();
     typefld_->setCurrentItem( (int)genparams.synthtype_ );
+    if ( genparams.synthtype_ == SynthGenParams::ZeroOffset )
+	rtsel_->setCurrent( 0 );
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
 	 genparams.synthtype_ == SynthGenParams::AVOGradient )
@@ -403,9 +405,9 @@ bool uiSynthGenDlg::rejectOK( CallBacker* )
     if ( !nm )
 	mErrRet("Please specify a valid name",return false);
 
+    if ( !getFromScreen() ) return false;
     if ( !isCurSynthChanged() )
 	return true;
-    if ( !getFromScreen() ) return false;
     BufferString msg( "Selected synthetic has been changed. "
 	    	      "Do you want to Apply the changes?" );
     if ( uiMSG().askGoOn(msg,"Apply","Do not Apply") )
