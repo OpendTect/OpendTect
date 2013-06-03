@@ -60,7 +60,7 @@ public:
     				//!< Returns a new float [], size=nrPts()
     				//!< offset not applied (it's a float*)
     inline double		offset( bool forx1 ) const
-    				{ return x1offs_ ? x1offs_ : 0; }
+    				{ return forx1 ? x1offs_ : 0; }
     				//!< For use with getPositions
 
     inline bool			isIrregular() const
