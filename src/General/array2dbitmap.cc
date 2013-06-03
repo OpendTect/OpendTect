@@ -70,6 +70,8 @@ A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
     	, szdim1_(i.getSize(1))
 	, nrxpix_(0)
 	, nrypix_(0)
+	, dim0rg_(0,0)
+	, dim1rg_(0,0)
 	, dim0pos_(0)
 {
     setDim0Positions( p );
