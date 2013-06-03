@@ -1726,11 +1726,8 @@ bool ui3DViewer::usePar( const IOPar& par )
 
     PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
 
-    if ( homepos )
-    {
+    if ( homepos && homepos_.isEmpty() )
 	homepos_ = *homepos;
-	saveHomePos();
-    }
 
     RefMan<visBase::Camera> camera = sobody_
 	? sobody_->getVisCamera()
