@@ -366,7 +366,7 @@ macro( od_sign_libs )
 	set( TIMESTAMPDLL "http://timestamp.verisign.com/scripts/timestamp.dll" )
 	foreach( SIGNFILE ${FILESTOSIGN} )
 	    execute_process( COMMAND 
-			${CMAKE_INSTALL_PREFIX}/signtool.exe sign /f ${${OD_CODESIGN_CERTIFICATE} /p ${${CODESIGN_KEY} /t ${TIMESTAMPDLL} /v ${SIGNFILE} 
+			${CMAKE_INSTALL_PREFIX}/signtool.exe sign /f ${${OD_CODESIGN_CERTIFICATE} /p ${${OD_CODESIGN_KEY} /t ${TIMESTAMPDLL} /v ${SIGNFILE} 
 			RESULT_VARIABLE STATUS )
 	    if( NOT STATUS EQUAL "0" )
 		message("Failed while signing ${SIGNFILE}")
