@@ -10,6 +10,8 @@ macro( init_destinationdir )
     elseif( APPLE )
 	set( SHFILENAME "OpendTect\ Installer.dmg" )
     elseif( WIN32 )
+	set( SHFILENAME "OpendTect_Installer_${OD_PLFSUBDIR}.exe" )
+	set( SETUPDIR od_${OD_PLFSUBDIR}_setup )
     endif()
 
     if( NOT EXISTS ${PSD}/packages )
@@ -22,10 +24,14 @@ macro( init_destinationdir )
     set( PACKAGE_DIR ${PSD}/packages/installers)
     if( EXISTS ${PACKAGE_DIR}/${SHFILENAME} )
 	file( REMOVE_RECURSE ${PACKAGE_DIR}/${SHFILENAME} )
+	if( WIN32 )
+	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${SETUPDIR}.zip" )
+	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${SETUPDIR}" )
+	endif()
     endif()
 
-    if( UNIX )
-	set( REL_DIR libs )
+    if( UNIX OR WIN32 )
+	set( REL_DIR OpendTect_Installer_${OD_PLFSUBDIR} )
     elseif( APPLE )
 	set( REL_DIR "OpendTect\ Installer.app" )
     endif()
@@ -41,6 +47,9 @@ macro( init_destinationdir )
     file( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
     file( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
     if( APPLE )
+    endif()
+    if( WIN32 )
+	file( MAKE_DIRECTORY ${PACKAGE_DIR}/${SETUPDIR} )
     endif()
 endmacro( init_destinationdir )
 
@@ -94,6 +103,11 @@ foreach( FILE ${LIBLIST} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 		     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${LIB}
 		     ${DESTINATION_DIR} )
+    if( WIN32 )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${LIB}
+			 ${PACKAGE_DIR}/${SETUPDIR} )
+    endif()
 endforeach()
 
 foreach( QFILE ${THIRDPARTYLIBS} )
@@ -107,7 +121,13 @@ foreach( QFILE ${THIRDPARTYLIBS} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 		     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${QLIB}
 		     ${DESTINATION_DIR} )
+    if( WIN32 )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${QLIB}
+			 ${PACKAGE_DIR}/${SETUPDIR} )
+    endif()
 endforeach()
+
 
 message( "Copying ${OD_PLFSUBDIR} executables" )
 foreach( EXE ${EXECLIST} )
@@ -121,6 +141,14 @@ message( "Copying executables" )
 		     ${DESTINATION_DIR} )
 endforeach()
 
+if( WIN32 )
+    foreach( SETUPEXE ${SETUPEXECLIST} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${SETUPEXE}.exe
+			 ${PACKAGE_DIR}/${SETUPDIR} )
+    endforeach()
+endif()
+
 foreach( ODSCRIPT ${ODSCRIPTS} )
     if( UNIX )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -130,5 +158,32 @@ endforeach()
 
 if( UNIX)
     execute_process( COMMAND ${MAKESELF_DIR}/makeself.sh ${DESTINATION_DIR} ${PACKAGE_DIR}/${SHFILENAME} \"InstallManager\" ./run_installer )
+
+elseif( WIN32 )
+    file( GLOB ZIPFILES ${DESTINATION_DIR}/* )
+    foreach( ZIPFILE ${ZIPFILES} )
+	get_filename_component( LIB ${ZIPFILE} NAME )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E chdir ${PACKAGE_DIR}/${REL_DIR}
+		         zip -r -q ${PACKAGE_DIR}/${REL_DIR}.zip ${LIB} 
+			 RESULT_VARIABLE STATUS )
+    endforeach()
+    if( NOT ${STATUS} EQUAL "0" )
+	message( "Failed to create zip file ${REL_DIR}.zip" )
+    endif()
+
+    execute_process( COMMAND "C:\Program Files (x86)\WinZip Self-Extractor\WZIPSE32.EXE" ${REL_DIR}.zip  -silent -setup /auto -runasadmin -c od_instmgr.exe
+		     WORKING_DIRECTORY ${PACKAGE_DIR}
+		     RESULT_VARIABLE STATUS )
+    if( NOT ${STATUS} EQUAL "0" )
+	message( "Failed to create ${OD_PLFSUBDIR} self extractor file ${SHFILENAME} " )
+    endif()
+
+    execute_process( COMMAND ${PSD}/bin/win64/zip -r -q ${SETUPDIR}.zip ${SETUPDIR}
+		     WORKING_DIRECTORY ${PACKAGE_DIR}
+		     RESULT_VARIABLE STATUS )
+    if( NOT ${STATUS} EQUAL "0" )
+	message( "Failed to create ${SETUPDIR}.zip file " )
+    endif()
+
 endif()
 
