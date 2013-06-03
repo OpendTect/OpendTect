@@ -149,7 +149,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	dpm.obtain( packid, false );
 	vwr.setPack( wva, packid, false, isnew );
 	if ( isnew || setforotherdisp )
-	    vwr.setPack( !wva, packid, true, isnew ? true : false );
+	    vwr.setPack( !wva, packid, true, isnew );
     }
 
     if ( dp3d )
