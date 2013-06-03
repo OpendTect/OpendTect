@@ -103,7 +103,7 @@ void WellT2DTransform::doTransform( const BinID& bid,
 	const float curfrom = sd.start + residx*sd.step;
 	if ( curfrom <= frompos[0] )
 	{
-	    const float slope = (topos[1] - topos[0]) / (frompos[1] - frompos[0]);
+	    const float slope = (topos[1]-topos[0]) / (frompos[1]-frompos[0]);
 	    res[residx] = topos[0] - slope * (frompos[0] - curfrom);
 	}
 	else if ( curfrom >= frompos[possz-1] )

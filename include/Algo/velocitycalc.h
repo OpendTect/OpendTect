@@ -40,13 +40,11 @@ public:
 
     bool		setModel(const float* dpths,const float* times,int sz);
 
-    float		getDepth(int idx) const;
-    float		getTime(int idx) const;
-    float		getLastTime() const;
-
     float		getDepth(float time) const;
     float		getTime(float depth) const;
     float	 	getVelocity(float depth) const;
+    float		getFirstTime() const;
+    float		getLastTime() const;
 
     static float	getDepth(const float* dpths,const float* times,int sz,
 	    			float time);
@@ -54,6 +52,11 @@ public:
 				float depth);
     static float 	getVelocity(const float* dpths,const float* times,
 	    				int sz,float depth);
+
+    			// use only if you're sure about what you're doing
+    float		getDepth(int idx) const;
+    float		getTime(int idx) const;
+
 protected:
 
     static float	convertTo(const float* dpths,const float* times,int sz,

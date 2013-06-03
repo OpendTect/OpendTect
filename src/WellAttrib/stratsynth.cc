@@ -706,10 +706,8 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 	const Strat::LayerSequence& seq = lm.sequence( iseq ); 
 	const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
 	const Interval<float> seqdepthrg = seq.zRange();
-	const float seqstarttime = t2d.getTime(
-					 seq.layerIdxAtZ( seqdepthrg.start ) );
-	const float seqstoptime = t2d.getTime(
-					 seq.layerIdxAtZ( seqdepthrg.stop ) );
+	const float seqstarttime = t2d.getTime( seqdepthrg.start );
+	const float seqstoptime = t2d.getTime( seqdepthrg.stop );
 	seqtimergs += Interval<float> ( seqstarttime, seqstoptime );
 	for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
 	{

@@ -48,13 +48,19 @@ bool TimeDepthModel::isOK() const
 { return times_ && depths_ && sz_ > 0; }
 
 
-#define mChkIdx \
+#ifdef __debug__
+# define mChkIdx \
     if ( idx >= sz_ ) \
     { \
-	BufferString msg("sz_=",sz_, "asked "); \
-	msg.add( idx ); \
-	pErrMsg(msg); return mUdf(float); \
+	BufferString msg("sz_=",sz_, " asked "); msg.add( idx ); \
+	pErrMsg(msg); \
+	idx = sz_ - 1; \
     }
+#else
+# define mChkIdx \
+    if ( idx >= sz_ ) \
+	idx = sz_ - 1;
+#endif
 
 
 float TimeDepthModel::getDepth( float time ) const
@@ -62,10 +68,7 @@ float TimeDepthModel::getDepth( float time ) const
 
 
 float TimeDepthModel::getDepth( int idx ) const
-{
-    mChkIdx;
-    return isOK() ? depths_[idx] : mUdf(float);
-}
+{ mChkIdx; return isOK() ? depths_[idx] : mUdf(float); }
 
 
 float TimeDepthModel::getTime( float dpt ) const
@@ -73,10 +76,11 @@ float TimeDepthModel::getTime( float dpt ) const
 
 
 float TimeDepthModel::getTime( int idx ) const
-{
-    mChkIdx;
-    return isOK() ? times_[idx] : mUdf(float);
-}
+{ mChkIdx; return isOK() ? times_[idx] : mUdf(float); }
+
+
+float TimeDepthModel::getFirstTime() const
+{ return isOK() ? times_[0] : mUdf(float); }
 
 
 float TimeDepthModel::getLastTime() const
