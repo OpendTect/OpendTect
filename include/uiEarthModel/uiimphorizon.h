@@ -69,6 +69,7 @@ protected:
     void		inputChgd(CallBacker*);
     void		addAttribCB(CallBacker*);
     void		rmAttribCB(CallBacker*);
+    void		clearListCB(CallBacker*);
     void		scanPush(CallBacker*);
     void		fillUdfSel(CallBacker*);
     void		stratLvlChg(CallBacker*);
