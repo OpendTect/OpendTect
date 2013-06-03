@@ -53,6 +53,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , saveReq(this)
     , propEdReq(this)
     , genReq(this)
+    , nrmodels_(0)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     uiToolButton* opentb = new uiToolButton( leftgrp, "open",
@@ -74,7 +75,8 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
-    nrmodlsfld_->updateRequested.notify( gocb );
+    nrmodlsfld_->updateRequested.notify(
+	    mCB(this,uiStratGenDescTools,nrModelsChangedCB) );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
 	    			"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
@@ -104,11 +106,24 @@ bool uiStratGenDescTools::usePar( const IOPar& par )
 {
     int nrmodels;
     if ( par.get( sKeyNrModels(), nrmodels ) )
+    {
+	nrmodels_ = nrmodels;
 	nrmodlsfld_->setValue( nrmodels );
+    }
 	
     return true;
 }
 
+
+
+void uiStratGenDescTools::nrModelsChangedCB( CallBacker* )
+{
+    if ( nrmodels_ != nrmodlsfld_->getIntValue() )
+    {
+	nrmodels_ = nrmodlsfld_->getIntValue();
+	genReq.trigger();
+    }
+}
 
 
 uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )

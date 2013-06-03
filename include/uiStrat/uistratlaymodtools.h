@@ -46,11 +46,13 @@ protected:
     
     uiGenInput*	nrmodlsfld_;
     uiToolButton* savetb_;
+    int		nrmodels_;
 
     void	openCB(CallBacker*)	{ openReq.trigger(); }
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
     void	genCB(CallBacker*)	{ genReq.trigger(); }
+    void	nrModelsChangedCB(CallBacker*);
 
 };
 
