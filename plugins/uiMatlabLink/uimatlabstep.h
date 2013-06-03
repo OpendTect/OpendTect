@@ -14,11 +14,11 @@ ________________________________________________________________________
 
 #include "uimatlablinkmod.h"
 #include "uivolprocstepdlg.h"
-//#include "factory.h"
 #include "matlabstep.h"
 
 class uiFileInput;
-class uiGenInput;
+class uiPushButton;
+class uiTable;
 
 namespace VolProc
 {
@@ -35,10 +35,14 @@ protected:
 
     			uiMatlabStep(uiParent*,MatlabStep*);
     static uiStepDialog* createInstance(uiParent*,Step*);
+
+    void		fileSelCB(CallBacker*);
+    void		loadCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    uiGenInput*		choicefld_;
     uiFileInput*	filefld_;
+    uiPushButton*	loadbut_;
+    uiTable*		partable_;
 };
 
 } // namespace VolProc
