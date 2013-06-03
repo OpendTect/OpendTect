@@ -134,6 +134,7 @@ void uiMultiFlatViewControl::reInitZooms()
     {
 	vwrs_[idx]->setView( vwrs_[idx]->boundingBox() );
 	zoommgrs_[idx]->reInit( vwrs_[idx]->boundingBox() );
+	zoommgrs_[idx]->toStart();
     }
 }
 
@@ -248,7 +249,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	ad->poly_ += newwr.bottomRight();
 	ad->poly_ += newwr.bottomLeft(); 
 	ad->poly_ += newwr.topLeft(); 
-	vwrs_[idx]->handleChange( FlatView::Viewer::Annot ); 
+	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata ); 
     }
 }
 
