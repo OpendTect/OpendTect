@@ -508,12 +508,14 @@ bool uiStratLayerModel::canShowFlattened() const
 void uiStratLayerModel::mkSynthChg( CallBacker* cb )
 {
     automksynth_ = modtools_->mkSynthetics();
-    /*TODO
-    synthdisp_->setUpdating( automksynth_ );
+    synthdisp_->setAutoUpdate( automksynth_ );
     if ( automksynth_ )
-	update synthetics now;
-    (else do nothing)
-	*/
+    {
+	useSyntheticsPars( desc_.getWorkBenchParams() );
+	synthdisp_->modelChanged();
+	mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+	if ( mfvc ) mfvc->reInitZooms();
+    }
 }
 
 
@@ -539,7 +541,9 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
-    uiWorldRect wr( mUdf(float), 0, 0, 0 );
+    if ( !automksynth_ )
+	return;
+    uiWorldRect wr( mUdf(double), 0, 0, 0 );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     if ( synthdisp_->getSynthetics().size() )
 	wr = synthdisp_->curView( true );
@@ -787,8 +791,11 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
+    useSyntheticsPars( desc_.getWorkBenchParams() );
+    synthdisp_->modelChanged();
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
 }
 
 
@@ -850,6 +857,9 @@ void uiStratLayerModel::setModelProps()
 
 void uiStratLayerModel::setElasticProps()
 {
+    if ( !automksynth_ )
+	return;
+
     if ( !elpropsel_ )
     {
 	elpropsel_ = new ElasticPropSelection;
@@ -995,7 +1005,7 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
 
 bool uiStratLayerModel::useSyntheticsPars( const IOPar& par ) 
 {
-    if ( !synthdisp_->prepareElasticModel() )
+    if ( !automksynth_ || !synthdisp_->prepareElasticModel() )
 	return false;
     return synthdisp_->usePar( par );
 }

@@ -89,6 +89,7 @@ public:
     bool		usePar(const IOPar&);
 
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
+    void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
 
 protected:
 
@@ -100,6 +101,7 @@ protected:
     float		dispskipz_;
     bool		dispflattened_;
     bool		isbrinefilled_;
+    bool		autoupdate_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentwvasynthetic_;
