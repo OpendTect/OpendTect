@@ -529,7 +529,7 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
-    uiWorldRect wr( mUdf(float), 0, 0, 0 );
+    uiWorldRect wr( mUdf(double), 0, 0, 0 );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     if ( synthdisp_->getSynthetics().size() )
 	wr = synthdisp_->curView( true );
@@ -777,8 +777,11 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
-    useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
+    useSyntheticsPars( desc_.getWorkBenchParams() );
+    synthdisp_->modelChanged();
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
 }
 
 

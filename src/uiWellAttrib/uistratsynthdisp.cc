@@ -252,7 +252,7 @@ void uiStratSynthDisp::setDispEach( int de )
 {
     dispeach_ = de;
     displayPostStackSynthetic( currentwvasynthetic_, true );
-    displayPostStackSynthetic( currentvdsynthetic_, true );
+    displayPostStackSynthetic( currentvdsynthetic_, false );
 }
 
 
@@ -820,13 +820,20 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) )
 	return;
+    SyntheticData* cursd = stratsynth_.getSynthetic( synthnm );
+    SynthGenParams curgp;
+    cursd->fillGenParams( curgp );
+    if ( !(curgp == stratsynth_.genParams()) )
+    {
+	stratsynth_.removeSynthetic( syntheticnm );
+	SyntheticData* sd = stratsynth_.addSynthetic();
+	if ( !sd )
+	    mErrRet(stratsynth_.errMsg(), return );
+	updateSyntheticList( wva );
+	synthsChanged.trigger();
+    }
+
     datalist->setCurrentItem( syntheticnm );
-    stratsynth_.removeSynthetic( syntheticnm );
-    SyntheticData* sd = stratsynth_.addSynthetic();
-    if ( !sd )
-	mErrRet(stratsynth_.errMsg(), return );
-    synthsChanged.trigger();
-    updateSyntheticList( wva );
     setCurrentSynthetic( wva );
 }
 
@@ -842,11 +849,15 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     else
 	syntheticnm = wvadatalist_->text();
 
+    FixedString curvdsynthnm( currentvdsynthetic_->name().buf() );
     updateSynthetic( syntheticnm, true );
     updateSyntheticList( false );
     displaySynthetic( currentwvasynthetic_ );
-    if ( syntheticnm == currentvdsynthetic_->name() )
+    if ( syntheticnm == curvdsynthnm )
+    {
+	setCurrentSynthetic( false );
 	displayPostStackSynthetic( currentvdsynthetic_, false );
+    }
 }
 
 
@@ -857,6 +868,10 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
     synthsChanged.trigger();
     updateSyntheticList( true );
     updateSyntheticList( false );
+    setCurrentSynthetic( true );
+    setCurrentSynthetic( false );
+    displayPostStackSynthetic( currentwvasynthetic_, true );
+    displayPostStackSynthetic( currentvdsynthetic_, false );
 }
 
 
@@ -1018,6 +1033,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	int nrsynths;
 	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
 	stratsynth_.clearSynthetics();
+	currentvdsynthetic_ = 0;
+	currentwvasynthetic_ = 0;
 	wvadatalist_->setEmpty();
 	for ( int idx=0; idx<nrsynths; idx++ )
 	{
