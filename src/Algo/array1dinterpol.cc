@@ -40,8 +40,15 @@ float Array1DInterpol::getMaxGapSize() const
 { return (float)maxgapsize_; }
 
 
+void Array1DInterpol::reset()
+{
+    nrdone_ = 0;
+    arrstarted_ = false;
+}
+
+
 void Array1DInterpol::setArray( Array1D<float>& arr )
-{ arr_ = &arr; }
+{ arr_ = &arr; reset(); }
 
 
 LinearArray1DInterpol::LinearArray1DInterpol()
