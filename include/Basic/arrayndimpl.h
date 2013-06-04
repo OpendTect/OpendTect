@@ -193,6 +193,16 @@ protected:
 }; 
 
 
+#define mArrNDImplCreateStor \
+    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
+					info().getTotalSz()))
+#define mArrayNDImplSetSize(s) \
+    if ( !stor_ ) \
+	mArrNDImplCreateStor; \
+    if ( !stor_ || !stor_->setSize(s) ) \
+	{ ptr_ = 0; delete stor_; stor_ = 0; return false; } \
+    ptr_ = stor_->arr()
+
 #define mArrNDImplConstructor \
     , stor_(0) \
     , ptr_(0) \
@@ -202,8 +212,7 @@ protected:
 	pErrMsg( "Invalid size" ); \
 	return; \
     } \
-    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
-					info().getTotalSz())); \
+    mArrNDImplCreateStor; \
 }
 
 #define mArrNDImplCopyConstructor(clss,from) \
@@ -330,9 +339,7 @@ template <class T> inline
 bool Array1DImpl<T>::setSize( int s )
 {
     in_.setSize( 0, s );
-    if ( !stor_->setSize(s) )
-	{ ptr_ = 0; return false; }
-    ptr_ = stor_->arr();
+    mArrayNDImplSetSize( s );
     return true;
 }
 
@@ -409,9 +416,7 @@ template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 );
-    if ( !stor_->setSize( in_.getTotalSz() ) )
-	{ ptr_ = 0; return false; }
-    ptr_ = stor_->arr();
+    mArrayNDImplSetSize( in_.getTotalSz() );
     return true;
 }
 
@@ -481,9 +486,7 @@ template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 ); in_.setSize( 2, d2 );
-    if ( !stor_->setSize( in_.getTotalSz() ) )
-	{ ptr_ = 0; return false; }
-    ptr_ = stor_->arr();
+    mArrayNDImplSetSize( in_.getTotalSz() );
     return true;
 }
 
@@ -586,10 +589,7 @@ bool ArrayNDImpl<T>::setSize( const int* d )
     for ( int idx=0; idx<ndim; idx++ )
 	in_->setSize( idx, d[idx] );
 
-    if ( !stor_->setSize(in_->getTotalSz()) )
-	{ ptr_ = 0; return false; }
-
-    ptr_ = stor_->arr();
+    mArrayNDImplSetSize( in_->getTotalSz() );
     return true;
 }
 
