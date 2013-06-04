@@ -71,6 +71,9 @@ protected:
     bool		haveAnyZoom() const;
     virtual void	drawSelectedSequence()		= 0;
 
+    bool		doLayerModelIO(bool);
+    				//!< returns whether layermodel has changed
+
 };
 
 
