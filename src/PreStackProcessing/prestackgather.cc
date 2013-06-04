@@ -37,7 +37,7 @@ const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 const char* Gather::sKeyStaticsID()		{ return "Statics"; }
 
 Gather::Gather()
-    : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(0,0) )
+    : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(1,1) )
     , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
