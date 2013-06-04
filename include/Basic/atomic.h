@@ -545,14 +545,14 @@ bool Atomic<int>::weakSetIfEqual(int newval, int& expected )
 template <> inline
 int Atomic<int>::operator += (int b)
 {
-    return InterlockedAdd( (volatile long*) valptr_, b );
+    return InterlockedExchangeAdd( (volatile long*) valptr_, b ) + b;
 }
 	 
 	 
 template <> inline
 int Atomic<int>::operator -= (int b)
 {
-    return InterlockedAdd( (volatile long*) valptr_, -b );
+    return InterlockedExchangeAdd( (volatile long*) valptr_, -b ) -b;
 }
 	 
 	 
@@ -625,14 +625,14 @@ bool Atomic<long>::weakSetIfEqual(long newval, long& expected )
 template <> inline
 long Atomic<long>::operator += (long b)
 {
-    return InterlockedAdd( valptr_, (long) b );
+    return  InterlockedExchangeAdd( valptr_, (long) b ) + b;
 }
 
 
 template <> inline
 long Atomic<long>::operator -= (long b)
 {
-    return InterlockedAdd( valptr_, -b );
+    return  InterlockedExchangeAdd( valptr_, -b ) - b;
 }
 
 
