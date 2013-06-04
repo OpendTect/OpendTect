@@ -48,7 +48,6 @@ public:
     void		setFlattened(bool yn);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
 
     float		getLayerPropValue(const Strat::Layer&,
 	    				  const PropertyRef*,int) const;
@@ -68,10 +67,12 @@ protected:
     bool		flattened_;
     bool		fluidreplon_;
     TypeSet<float>	lvldpths_;
-    IOPar		frpars_;
 
     bool		haveAnyZoom() const;
     virtual void	drawSelectedSequence()		= 0;
+
+    bool		doLayerModelIO(bool);
+    				//!< returns whether layermodel has changed
 
 };
 

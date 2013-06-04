@@ -99,6 +99,50 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 }
 
 
+#define mErrRet(s) \
+{ \
+    uiMainWin* mw = uiMSG().setMainWin( parent()->mainwin() ); \
+    uiMSG().error(s); \
+    uiMSG().setMainWin(mw); \
+    return false; \
+}
+
+
+bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
+{
+    const Strat::LayerModel& lm = layerModel();
+    if ( !foradd && lm.isEmpty() )
+	mErrRet( "Please generate some layer sequences" )
+
+    uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
+    if ( !dlg.go() ) return false;
+
+    StreamProvider sp( dlg.fileName() );
+    StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
+    if ( !sd.usable() )
+	mErrRet( BufferString("Cannot open:\n",dlg.fileName()) )
+
+    if ( !foradd )
+    {
+	if ( !lm.write(*sd.ostrm) )
+	    mErrRet( "Unknown error during write ..." )
+	return false;
+    }
+
+    Strat::LayerModel newlm;
+    if ( !newlm.read(*sd.istrm) )
+	mErrRet( "Cannot read layer model from file."
+		 "\nFile may not be a layer model file" )
+
+    for ( int ils=0; ils<newlm.size(); ils++ )
+	const_cast<Strat::LayerModel&>(lm)
+			    .addSequence( newlm.sequence( ils ) );
+
+    return true;
+}
+
+
+
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 		uiStratLayModEditTools& t, const Strat::LayerModelProvider& l )
     : uiStratLayerModelDisp(t,l)
@@ -277,46 +321,10 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 }
 
 
-#define mErrRet(s) \
-{ \
-    uiMainWin* mw = uiMSG().setMainWin( parent()->mainwin() ); \
-    uiMSG().error(s); \
-    uiMSG().setMainWin(mw); \
-}
-
-
 void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
 {
-    const Strat::LayerModel& lm = layerModel();
-    if ( !foradd && lm.isEmpty() )
-	mErrRet( "Please generate some layer sequences" )
-
-    uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
-    if ( !dlg.go() ) return;
-
-    StreamProvider sp( dlg.fileName() );
-    StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
-    if ( !sd.usable() )
-	mErrRet( BufferString("Cannot open:\n",dlg.fileName()) )
-
-    if ( !foradd )
-    {
-	if ( !lm.write(*sd.ostrm) )
-	    mErrRet( "Unknown error during write ..." )
-    }
-    else
-    {
-	Strat::LayerModel newlm;
-	if ( !newlm.read(*sd.istrm) )
-	    mErrRet( "Cannot read layer model from file."
-		     "\nFile may not be a layer model file" )
-
-	for ( int ils=0; ils<newlm.size(); ils++ )
-	    const_cast<Strat::LayerModel&>(lm)
-				.addSequence( newlm.sequence( ils ) );
-
+    if ( doLayerModelIO(foradd) )
 	forceRedispAll( true );
-    }
 }
 
 
