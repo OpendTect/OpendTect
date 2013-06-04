@@ -88,6 +88,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     addbut_ = new uiPushButton( this, "Add new",
 	    			mCB(this,uiImportHorizon,addAttrib), false );
     addbut_->attach( rightTo, attrlistfld_ );
+    uiPushButton* rmbut = new uiPushButton( this, "Remove",
+				mCB(this,uiImportHorizon,rmAttrib), true );
+    rmbut->attach( alignedBelow, addbut_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrlistfld_ );
@@ -185,21 +188,31 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     attrlistfld_->box()->getSelectedItems( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
     const int nrattrib = attrnms.size();
-    EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
-    dataselfld_->updateSummary();
+    const bool keepdef = cb==inpfld_ && fd_.isGood();
+    if ( !keepdef )
+    {
+	EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
+	dataselfld_->updateSummary();
+    }
     dataselfld_->setSensitive( nrattrib );
-    scanbut_->setSensitive( *inpfld_->fileName() && nrattrib );
-    inpfld_->fileName();
+
+    const FixedString fnm = inpfld_->fileName();
+    scanbut_->setSensitive( !fnm.isEmpty() && nrattrib );
     if ( !scanner_ ) 
     {
 	subselfld_->setSensitive( false );
 	if ( filludffld_ )
 	    filludffld_->setSensitive( false );
     }
+    else
+    {
+	delete scanner_;
+	scanner_ = 0;
+    }
 }
 
 
-void uiImportHorizon::addAttrib( CallBacker* cb )
+void uiImportHorizon::addAttrib( CallBacker* )
 {
     uiGenInputDlg dlg( this, "Add Attribute", "Name", new StringInpSpec() );
     if ( !dlg.go() ) return;
@@ -208,6 +221,16 @@ void uiImportHorizon::addAttrib( CallBacker* cb )
     attrlistfld_->box()->addItem( attrnm );
     const int idx = attrlistfld_->box()->size() - 1;
     attrlistfld_->box()->setSelected( idx, true );
+}
+
+
+void uiImportHorizon::rmAttrib( CallBacker* )
+{
+    int selidx = attrlistfld_->box()->currentItem();
+    attrlistfld_->box()->removeItem( selidx );
+    selidx--;
+    if ( selidx < 0 ) selidx = 0;
+    attrlistfld_->box()->setSelected( selidx );
 }
 
 

@@ -86,6 +86,8 @@ protected:
     Table::FormatDesc&  fd_;
     HorizonScanner*	scanner_;
     bool		isgeom_;
+
+    void		rmAttrib(CallBacker*);
 };
 
 
