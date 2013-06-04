@@ -209,8 +209,11 @@ bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 
 const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 {
-    if ( !isOK() )
+    if ( !ioobj_ )
 	return "Cannot find surface in object database";
+
+    if ( !ioobj_->implExists(true) )
+	return "Cannot find file on disk";
 
     if ( !isSurface() )
     {
