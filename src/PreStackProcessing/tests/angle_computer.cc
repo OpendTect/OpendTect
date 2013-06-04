@@ -24,16 +24,16 @@ bool isAngleOK(PreStack::Gather* angles)
 {
     mCheckVal( 0, 0, 0 );
     mCheckVal( 0, 28, 0 );
-    mCheckVal( 1, 5, 0.9173 );
-    mCheckVal( 1, 25, 0.2364 );
-    mCheckVal( 2, 10, 0.9115 );
-    mCheckVal( 2, 20, 0.5549 );
-    mCheckVal( 3, 10, 1.0920 );
-    mCheckVal( 3, 20, 0.7481 );
-    mCheckVal( 4, 5, 1.3750 );
-    mCheckVal( 4, 25, 0.7659 );
-    mCheckVal( 5, 0, 1.5357 );
-    mCheckVal( 5, 28, 0.8283 );
+    mCheckVal( 1, 5, 0.9779 );
+    mCheckVal( 1, 25, 0.2413 );
+    mCheckVal( 2, 10, 0.9361 );
+    mCheckVal( 2, 20, 0.5657 );
+    mCheckVal( 3, 10, 1.1124 );
+    mCheckVal( 3, 20, 0.7601 );
+    mCheckVal( 4, 5, 1.3969 );
+    mCheckVal( 4, 25, 0.7764 );
+    mCheckVal( 5, 0, 1.5439 );
+    mCheckVal( 5, 28, 0.8382 );
 
     return true;
 }
