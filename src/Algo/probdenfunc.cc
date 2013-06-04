@@ -322,7 +322,7 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 Sampled1DProbDenFunc::Sampled1DProbDenFunc()
     : ProbDenFunc1D("")
     , sd_(0,1)
-    , bins_( 0 )
+    , bins_(1)
 {}
 
 
@@ -464,8 +464,9 @@ Sampled2DProbDenFunc::Sampled2DProbDenFunc()
     : ProbDenFunc2D("","")
     , sd0_(0,1)
     , sd1_(0,1)
-    , bins_( 0, 0 )
-{}
+    , bins_(1,1)
+{
+}
 
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
