@@ -25,6 +25,7 @@ static const char* rcsID = "$Id$";
 #include "embodytr.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "iodirentry.h"
@@ -117,7 +118,8 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 
     if ( forread_ )
     {
-	const char* res = EM::EMM().getSurfaceData( id, sd );
+	EM::IOObjInfo oi( id );
+	const char* res = oi.getSurfaceData( sd );
 	if ( res )
 	{
 	    if ( showerrmsg )
