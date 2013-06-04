@@ -65,7 +65,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 				   StringListInpSpec(stattypenames) );
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
-    lsqtypefld_ = new uiGenInput( this, "LSQ output",
+    lsqtypefld_ = new uiGenInput( this, "AVO output",
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
