@@ -78,6 +78,8 @@ bool WellT2DTransform::calcDepths()
     {
 	times_ += 2.f * times_[0];
 	depths_ += 2.f * depths_[0];
+	if ( times_[0] == times_[1] ) times_[1] = times_[0] + 1;
+	if ( depths_[0] == depths_[1] ) depths_[1] = depths_[0] + 1000;
     }
     return true;
 }
