@@ -26,27 +26,34 @@ namespace Well { class Data; }
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
 {
 public:
+
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
 				  "WellT2D", sFactoryKeyword() );
 
 				WellT2DTransform();
+
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformBack(const BinID&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
+
     Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
 
     bool			usePar(const IOPar&);
 
 protected:
-    bool			calcDepths();
 
     Well::Data*			data_;
     TypeSet<float>		times_;
     TypeSet<float>		depths_;
+
+    bool			calcDepths();
+    void			doTransform(const BinID&,
+	    				    const SamplingData<float>&,
+					    int sz,float*,bool) const;
 };
 
 #endif
