@@ -286,6 +286,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellbulk, "Track ... ", mImpBulkWellTrackItm );
     mInsertItem( impwellbulk, "Logs ...", mImpBulkWellLogsItm );
     mInsertItem( impwellbulk, "Markers ...", mImpBulkWellMarkersItm );
+    mInsertItem( impwellbulk, "Depth/Time Model ...", mImpBulkWellD2TItm );
     impwell->insertItem( impwellbulk );
 
     impmnus_.erase();
@@ -1020,6 +1021,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpBulkWellTrackItm:		mDoOp(Imp,Wll,5); break;
     case mImpBulkWellLogsItm:		mDoOp(Imp,Wll,6); break;
     case mImpBulkWellMarkersItm:	mDoOp(Imp,Wll,7); break;
+    case mImpBulkWellD2TItm:		mDoOp(Imp,Wll,8); break;
     case mImpPickAsciiMnuItm:		mDoOp(Imp,Pick,0); break;
     case mExpPickAsciiMnuItm:		mDoOp(Exp,Pick,0); break;
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;

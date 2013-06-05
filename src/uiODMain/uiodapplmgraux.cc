@@ -216,6 +216,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->bulkImportLogs();
 	    else if ( opt == 7 )
 		am_.wellserv_->bulkImportMarkers();
+	    else if ( opt == 8 )
+		am_.wellserv_->bulkImportD2TModel();
 
 	break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;

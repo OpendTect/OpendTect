@@ -177,9 +177,29 @@ public:
 			BulkMarkerAscIO(const Table::FormatDesc&,std::istream&);
 
     static Table::FormatDesc*	getDesc();
-    bool			get(float& md,BufferString& markernm,
-				    BufferString& wellnm,
-				    BufferString& uwi) const;
+    bool			get(BufferString& wellnm,
+				    float& md,BufferString& markernm) const;
+    bool			identifierIsUWI() const;
+
+protected:
+    std::istream&	strm_;
+};
+
+
+/*!
+\brief Bulk D2TModel Ascii I/O.
+*/
+
+mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
+{
+public:
+			BulkD2TModelAscIO(const Table::FormatDesc&,
+					  std::istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			get(BufferString& wellnm,
+				    float& md,float& twt) const;
+    bool			identifierIsUWI() const;
 
 protected:
     std::istream&	strm_;

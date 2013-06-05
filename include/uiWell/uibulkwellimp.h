@@ -17,7 +17,8 @@ class BufferString;
 class BufferStringSet;
 
 namespace Table { class FormatDesc; }
-namespace Well { class Data; class MarkerSet; }
+namespace Well  { class Data; class D2TModel; class MarkerSet; }
+class D2TModelData;
 
 
 mExpClass(uiWell) uiBulkTrackImport : public uiDialog
@@ -37,8 +38,8 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     uiGenInput*		velocityfld_;
 
-    ObjectSet<Well::Data>   wells_;
-    Table::FormatDesc*	    fd_;
+    ObjectSet<Well::Data> wells_;
+    Table::FormatDesc*	fd_;
 };
 
 
@@ -65,12 +66,30 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void		readFile(std::istream&,BufferStringSet&,
-	    			 BufferStringSet&,ObjectSet<Well::MarkerSet>&);
+				 ObjectSet<Well::MarkerSet>&);
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
 
-    Table::FormatDesc*	    fd_;
+    Table::FormatDesc*	fd_;
+};
+
+
+mExpClass(uiWell) uiBulkD2TModelImport : public uiDialog
+{
+public:
+			uiBulkD2TModelImport(uiParent*);
+			~uiBulkD2TModelImport();
+protected:
+
+    bool		acceptOK(CallBacker*);
+    void		readFile(std::istream&,
+				 ObjectSet<D2TModelData>&);
+
+    uiFileInput*	inpfld_;
+    uiTableImpDataSel*	dataselfld_;
+
+    Table::FormatDesc*	fd_;
 };
 
 #endif

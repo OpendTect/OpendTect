@@ -411,6 +411,16 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
 }
 
 
+Table::TargetInfo* gtWellNameTI()
+{
+    Table::TargetInfo* ti = new Table::TargetInfo( "Well identifier",
+	   					   Table::Required );
+    ti->form(0).setName( "Name" );
+    ti->add( new Table::TargetInfo::Form("UWI",StringInpSpec()) );
+    return ti;
+}
+
+
 // Well::BulkMarkerAscIO
 BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
 				std::istream& strm )
@@ -421,26 +431,73 @@ BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
 
 Table::FormatDesc* BulkMarkerAscIO::getDesc()
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellMarkers" );
+    Table::FormatDesc* fd = new Table::FormatDesc( "BulkMarkerSet" );
+    fd->bodyinfos_ += gtWellNameTI();
     fd->bodyinfos_ += gtDepthTI( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Marker name", Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
     return fd;
 }
 
 
-bool BulkMarkerAscIO::get( float& md, BufferString& markernm,
-			   BufferString& wellnm, BufferString& uwi ) const
+bool BulkMarkerAscIO::get( BufferString& wellnm,
+			   float& md, BufferString& markernm ) const
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
-    md = getfValue( 0 );
-    markernm = text( 1 );
-    wellnm = text( 2 );
-    uwi = text( 3 );
+    wellnm = text( 0 );
+    md = getfValue( 1 );
+    markernm = text( 2 );
     return true;
 }
+
+
+bool BulkMarkerAscIO::identifierIsUWI() const
+{ return formOf( false, 0 ) == 1; }
+
+
+// Well::BulkD2TModelAscIO
+BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
+				      std::istream& strm )
+    : Table::AscIO(fd)
+    , strm_(strm)
+{}
+
+
+Table::FormatDesc* BulkD2TModelAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "BulkDepthTimeModel" );
+    fd->bodyinfos_ += gtWellNameTI();
+
+    Table::TargetInfo* ti = gtDepthTI( true );
+    ti->add( new Table::TargetInfo::Form( "TVD rel SRD", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( "TVD rel KB", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( "TVD rel GL", FloatInpSpec() ) );
+    fd->bodyinfos_ += ti;
+
+    ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
+	    			PropertyRef::Time );
+    ti->form(0).setName( "TWT" );
+    ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    fd->bodyinfos_ += ti;
+    return fd;
+}
+
+
+bool BulkD2TModelAscIO::get( BufferString& wellnm,
+			     float& md, float& twt ) const
+{
+    const int ret = getNextBodyVals( strm_ );
+    if ( ret <= 0 ) return false;
+
+    wellnm = text( 0 );
+    md = getfValue( 1 );
+    twt = getfValue( 2 );
+    return true;
+}
+
+
+bool BulkD2TModelAscIO::identifierIsUWI() const
+{ return formOf( false, 0 ) == 1; }
 
 } // namespace Well
