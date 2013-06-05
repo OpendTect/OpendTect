@@ -286,7 +286,11 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
     if ( attrfld_ )
     {
 	const char* selattrnm = iopar.find( sKey::Attribute() );
-	if ( selattrnm ) attrfld_->setText( selattrnm );
+	if ( selattrnm )
+	{
+	    if ( attrlistfld_ ) attrlistfld_->setCurrentItem( selattrnm );
+	    attrfld_->setText( selattrnm );
+	}
     }
     if ( compfld_ )
     {
@@ -628,7 +632,8 @@ void uiSeisSel::commitSucceeded()
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    attrnm_ = workctio_.ioobj ? LineKey( getInput() ).attrName() : "";
+    setAttrNm( workctio_.ioobj ? LineKey( getInput() ).attrName() : "" );
+    uiIOObjSel::fillPar( dlgiopar_ );
     if ( workctio_.ioobj || workctio_.ctxt.forread )
 	updateInput();
 }
