@@ -49,6 +49,7 @@ protected:
 
     void			advPushButCB(CallBacker*);
 
+    uiGenInput*			velsource_;
     uiVelSel*			velfuncsel_;
     uiGenInput*			anglefld_;
     uiLabel*			anglelbl_;
