@@ -25,8 +25,8 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-mExpClass(Geometry) ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
-    				     public CallBacker
+mExpClass(Geometry) ExplicitMarchingCubesSurface : public CallBacker,
+						   public Geometry::IndexedShape
 {
 public:
 			ExplicitMarchingCubesSurface(MarchingCubesSurface*);
