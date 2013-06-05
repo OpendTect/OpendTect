@@ -256,48 +256,6 @@ void copyToEdited()
 
 };
 
-class uiStratSyntheticsProvider
-{
-public:
-
-uiStratSyntheticsProvider()
-    : useed_(false)
-    , edstratsynth_(0)		{}
-
-const ObjectSet<SyntheticData>* getSynthetics() const
-{
-    return useed_ ? edstratsynth_ ? &edstratsynth_->synthetics() : 0
-		  : synthdisp_ ? &synthdisp_->getSynthetics() : 0;
-}
-
-
-SyntheticData* getCurrentSyntheticData() const
-{
-    if ( useed_ )
-    {
-	const char* cursynthnm = 0;
-	if ( synthdisp_ )
-	{
-	    SyntheticData* nonedsynth = synthdisp_->getCurrentSyntheticData();
-	    if ( nonedsynth )
-		cursynthnm = nonedsynth->name();
-	}
-
-	const int synthidx = edstratsynth_ ? edstratsynth_->nrSynthetics()-1 : 0;
-	return edstratsynth_ ? cursynthnm ? edstratsynth_->getSynthetic( cursynthnm )
-	   				  : edstratsynth_->getSyntheticByIdx( synthidx)
-			     : 0; 
-    }
-
-    return synthdisp_ ? synthdisp_->getCurrentSyntheticData() : 0;
-
-}
-
-    uiStratSynthDisp*           synthdisp_;
-    StratSynth*			edstratsynth_;
-    bool			useed_;
-};
-
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     : uiMainWin(0,"",1,true,true)
@@ -306,7 +264,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , analtb_(0)
     , lmp_(*new uiStratLayerModelLMProvider)
-    , synthp_(*new uiStratSyntheticsProvider)
     , needtoretrievefrpars_(false)
     , automksynth_(true)
     , newModels(this)				   
@@ -345,7 +302,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     if ( !moddisp_ )
 	return;
 
-    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_.modl_ );
+    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_.modl_, lmp_.modled_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
@@ -356,8 +313,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr ) synthdisp_->addViewerToControl( *vwr );
-
-    synthp_.synthdisp_ = synthdisp_;
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -416,7 +371,6 @@ uiStratLayerModel::~uiStratLayerModel()
 {
     delete &desc_;
     delete &lmp_;
-    delete &synthp_;
     delete descctio_.ioobj; delete &descctio_;
     StratTreeWin().changeLayerModelNumber( false );
 }
@@ -588,9 +542,9 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !checkUnscaledWavelet() )
 	return;
 
-    if ( !synthp_.getSynthetics() ) return;
+    if ( !synthdisp_->getSynthetics().size() ) return;
 
-    uiStratSynthCrossplot dlg( this, layerModel(), *synthp_.getSynthetics() );
+    uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
     if ( dlg.errMsg() )
 	{ uiMSG().error( dlg.errMsg() ); return; } 
     const char* lvlnm = modtools_->selLevel();
@@ -906,31 +860,21 @@ bool uiStratLayerModel::closeOK()
 void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd )
 {
     lmp_.useed_ = usefr;
-    synthp_.useed_ = usefr;
     mostlyfilledwithbrine_ = !fwd;
     if ( !usefr )
 	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
-    if ( parschanged )
-    {
-	if ( synthp_.edstratsynth_ )
-	    delete synthp_.edstratsynth_;
 
-	synthp_.edstratsynth_ = new StratSynth( lmp_.modled_ );
-	synthp_.edstratsynth_->setWavelet( wavelet() );
-	synthp_.edstratsynth_->createElasticModels();
-	synthp_.edstratsynth_->addDefaultSynthetic();
-    }
-
-    synthdisp_->displaySynthetic( synthp_.getCurrentSyntheticData() );
-    levelChg( 0 );		//no change in fact but a redraw is needed
+    synthdisp_->setUseEdited( usefr );
+    IOPar synthpar, edsynthpar;
+    synthdisp_->fillPar( synthpar, false );
+    synthdisp_->fillPar( edsynthpar, true );
+    if ( parschanged || synthpar != edsynthpar )
+	useSyntheticsPars( desc_.getWorkBenchParams() );
+    synthdisp_->modelChanged();
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+		    modtools_->selLevelColor(), modtools_->showFlattened() );
 
     moddisp_->modelChanged();
-}
-
-
-SyntheticData* uiStratLayerModel::getCurrentSyntheticData() const
-{
-    return synthp_.getCurrentSyntheticData();
 }
 
 

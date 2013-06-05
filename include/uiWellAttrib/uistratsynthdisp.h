@@ -38,7 +38,8 @@ mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 {
 public:
 
-    			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
+    			uiStratSynthDisp(uiParent*,const Strat::LayerModel&,
+					 const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;	
@@ -86,15 +87,18 @@ public:
     uiMultiFlatViewControl* control() 	{ return control_; }
 
     void		fillPar(IOPar&) const;
+    void		fillPar(IOPar&,bool) const;
     bool		usePar(const IOPar&);
 
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
+	void		setUseEdited( bool yn )	  { useed_ = yn; }
 
 protected:
 
     int			longestaimdl_;
-    StratSynth&		stratsynth_;
+    StratSynth*		stratsynth_;
+    StratSynth*		edstratsynth_;
     const Strat::LayerModel& lm_;
     int			selectedtrace_;
     int			dispeach_;
@@ -102,6 +106,7 @@ protected:
     bool		dispflattened_;
     bool		isbrinefilled_;
     bool		autoupdate_;
+	bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentwvasynthetic_;
@@ -129,6 +134,7 @@ protected:
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
     void		setCurrentWavelet();
+    void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
     void		updateFields();

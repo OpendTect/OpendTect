@@ -31,7 +31,6 @@ class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayModEditTools;
 class uiStratLayerModelLMProvider;
-class uiStratSyntheticsProvider;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
@@ -81,7 +80,7 @@ public:
     void			prepareFluidRepl();
 
     //Utility
-    SyntheticData*		getCurrentSyntheticData() const;
+    //SyntheticData*		getCurrentSyntheticData() const;
 
     void			setSynthView(const uiWorldRect& wr);
     const uiWorldRect&		curSynthView() const; 
@@ -97,7 +96,6 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
-    uiStratSyntheticsProvider& 	synthp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
     bool			mostlyfilledwithbrine_;
