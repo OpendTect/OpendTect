@@ -280,6 +280,11 @@ SyntheticData* StratSynth::getSyntheticByIdx( int idx )
 }
 
 
+const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
+{
+    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : 0;
+}
+
 
 SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
 {
@@ -503,7 +508,7 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	if ( thickness < 1e-4 )
 	    continue;
 
-	float dval, pval, sval;
+	float dval =mUdf(float), pval = mUdf(float), sval = mUdf(float);
 	elpgen.getVals( dval, pval, sval, lay->values(), props.size() );
 
 	// Detect water - reset Vs
@@ -534,10 +539,26 @@ bool StratSynth::createElasticModels()
 {
     clearElasticModels();
     
+    if ( !lm_.size() )
+	return false;
+
     ElasticModelCreator emcr( lm_, aimodels_ );
     if ( !TaskRunner::execute(tr_,emcr) )
 	return false;
+    bool modelsvalid = false;
+    for ( int idx=0; idx<aimodels_.size(); idx++ )
+    {
+	if ( aimodels_[idx].size() )
+	{
+	    modelsvalid = true;
+	    break;
+	}
+    }
+
     errmsg_.setEmpty();
+    if ( !modelsvalid )
+	return false;
+
     return adjustElasticModel( lm_, aimodels_ );
 }
 
@@ -861,8 +882,14 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		
 		if ( infomsg_.isEmpty() )
 		{
-		    infomsg_ += "Layer model contains invalid layer(s), "
-			       "first occurence found in layer '";
+		    infomsg_ += "Layer model contains invalid values of :";
+		    if ( !mValidDensityRange(layer.den_) )
+			infomsg_ += "'Density'";
+		    if ( !mValidWaveRange(layer.vel_) )
+			infomsg_ += "'P-Wave'";
+		    if ( !mValidWaveRange(layer.svel_) )
+			infomsg_ += "'S-Wave'";
+		    infomsg_ += ". First occurence found in layer '";
 		    infomsg_ += seq.layers()[idx]->name();
 		    infomsg_ += "' of pseudo well number ";
 		    infomsg_ += midx+1;
