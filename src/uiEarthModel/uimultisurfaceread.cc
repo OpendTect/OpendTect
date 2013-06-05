@@ -141,4 +141,26 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 					EM::SurfaceIODataSelection& sel ) const
 {
     uiIOSurface::getSelection( sel );
+
+    if ( ioobjselgrp_->nrSel() != 1 )
+	return;
+
+    const MultiID mid = ioobjselgrp_->selected( 0 );
+    const EM::IOObjInfo info( mid );
+    EM::SurfaceIOData sd;
+    const char* res = info.getSurfaceData( sd );
+    if ( res || sd.sections.size() < 2 || !info.isHorizon() ) return;
+
+    uiDialog dlg( const_cast<uiParent*>(parent()),
+	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpID) );
+    uiListBox* lb = new uiListBox( &dlg, "Patches", true );
+    lb->addItems( sd.sections );
+    lb->selectAll( true );
+    if ( dlg.go() )
+    {
+	sel.selsections.erase();
+	lb->getSelectedItems( sel.selsections );
+	if ( sel.selsections.isEmpty() )
+	    sel.selsections += 0;
+    }
 }
