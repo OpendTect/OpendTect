@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class PropertyRef;
+class uiGraphicsScene;
 class uiStratLayModEditTools;
+class uiTextItem;
 namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 /*!
@@ -48,6 +50,9 @@ public:
     void		setFlattened(bool yn);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    bool		isBrineFilled() const		{return isbrinefilled_; }
+    void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
+    
 
     float		getLayerPropValue(const Strat::Layer&,
 	    				  const PropertyRef*,int) const;
@@ -62,13 +67,17 @@ protected:
 
     const Strat::LayerModelProvider& lmp_;
     uiStratLayModEditTools& tools_;
+    uiTextItem*		frtxtitm_;
     int			selseqidx_;
     Interval<float>	zrg_;
     bool		flattened_;
     bool		fluidreplon_;
+    bool		isbrinefilled_;
     TypeSet<float>	lvldpths_;
 
     bool		haveAnyZoom() const;
+    virtual uiGraphicsScene& scene() const		= 0;		
+    void		displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
     bool		doLayerModelIO(bool);

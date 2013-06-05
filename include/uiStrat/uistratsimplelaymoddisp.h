@@ -65,7 +65,7 @@ protected:
     bool		allcontents_;
     Interval<float>	vrg_;
 
-    uiGraphicsScene&	scene();
+    uiGraphicsScene&	scene() const;
     void		doDraw();
     void		eraseAll();
     void		reDrawCB(CallBacker*);
