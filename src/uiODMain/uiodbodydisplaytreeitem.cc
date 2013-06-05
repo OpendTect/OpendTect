@@ -12,18 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodbodydisplaytreeitem.h"
 
 #include "arrayndimpl.h"
-#include "embody.h"
-#include "empolygonbody.h"
-#include "emmarchingcubessurface.h"
-#include "emmanager.h"
-#include "emrandomposbody.h"
+#include "ascstream.h"
 #include "datapointset.h"
+#include "embody.h"
+#include "emmanager.h"
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "randcolor.h"
 
+#include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
 #include "uiimpbodycaldlg.h"
 #include "uimenu.h"
@@ -88,9 +90,47 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectBodies( objs );
-	MouseCursorChanger uics( MouseCursor::Wait );
+	TypeSet<EM::ObjectID> oids;
 	for ( int idx=0; idx<objs.size(); idx++ )
-	    addChild( new uiODBodyDisplayTreeItem(objs[idx]->id()), false );
+	{
+	    oids += objs[idx]->id();
+	    const char* stype = objs[idx]->getTypeStr();
+	    if ( strcmp(stype,EM::MarchingCubesSurface::typeStr()) &&
+	         strcmp(stype,"MarchingCubesSurface") )
+		continue;
+
+	    const MultiID& mid = objs[idx]->multiID();
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+	    if ( !ioobj )
+		continue;
+
+	    std::istream& strm = ((StreamConn*)conn)->iStream();
+	    ascistream astream( strm );
+	    const int majorversion = astream.majorVersion();
+	    const int minorversion = astream.minorVersion();
+	    if ( majorversion<4 || (majorversion==4 && minorversion<3) )
+	    {
+		BufferString msg("The geobody '"); msg.add(ioobj->name());
+		msg.add("' is made in od"); msg.add(astream.version());
+		msg.add(", do you want to convert it to current version?");
+		if ( !uiMSG().askGoOn(msg.buf()) )
+		    continue;
+
+		uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );
+		if ( dlg.go() )
+		{
+		    EM::EMObject* eo = 
+			EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
+		    if ( eo )
+    			oids[idx] = eo->id();
+		}
+	    }
+	}
+
+	MouseCursorChanger uics( MouseCursor::Wait );
+	for ( int idx=0; idx<oids.size(); idx++ )
+	    addChild( new uiODBodyDisplayTreeItem(oids[idx]), false );
 	deepUnRef( objs );
     }
     else if ( mnuid==1 )
