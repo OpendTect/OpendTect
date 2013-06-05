@@ -245,6 +245,7 @@ public:
     SyntheticData* 		getSynthetic(int id);
     SyntheticData* 		getSynthetic(const PropertyRef&);
     SyntheticData* 		getSyntheticByIdx(int idx);
+    const SyntheticData* 	getSyntheticByIdx(int idx) const;
     void			clearSynthetics();
     void			generateOtherQuantities();
     bool			createElasticModels();
