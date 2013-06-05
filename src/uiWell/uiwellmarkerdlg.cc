@@ -131,9 +131,12 @@ void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
     uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
-    table_->setCellGroup( RowCol(table_->currentRow(),cLevelCol), levelsel );
+    const int currentrow = table_->currentRow();
+    const Color defgreycol( 128, 128, 128 );
+    table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
+    table_->setColor( RowCol(currentrow,cColorCol), defgreycol );
     levelsel->setSensitive( false );
-    depths_.insert( table_->currentRow(), 1e30 );
+    depths_.insert( currentrow, mUdf(float) );
     markerChangedCB( 0 );
 }
 
