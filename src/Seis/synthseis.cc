@@ -651,7 +651,7 @@ bool RaySynthGenerator::doPrepare( int )
 
     if ( mIsUdf( outputsampling_.start ) )
     {
-	raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
+	//TODO raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
 	outputsampling_ = raysampling_; 
     }
     if ( mIsUdf( outputsampling_.step ) )
