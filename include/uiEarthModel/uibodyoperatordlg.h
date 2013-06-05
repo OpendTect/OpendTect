@@ -83,7 +83,8 @@ mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
 public:
     			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
 
-    MultiID		getBodyMid() const { return outputfld_->key(); }			
+    MultiID		getBodyMid() const	{ return outputfld_->key(); }
+
 protected:
 
     bool		acceptOK(CallBacker*);
