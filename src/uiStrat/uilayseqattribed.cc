@@ -224,7 +224,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 	}
 	lithofld_->getCheckedItems( liths );
 
-	if ( uns.isEmpty() || liths.isEmpty() )
+	if ( uns.isEmpty() || (!lithofld_->isEmpty() && liths.isEmpty()) )
 	{
 	    uiMSG().error("Please select at least one unit and one lithology");
 	    return false;
