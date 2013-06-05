@@ -17,53 +17,6 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "typeset.h"
 
-#define mLocalFileHeaderSig(T) \
-    T[0] = 80; \
-    T[1] = 75; \
-    T[2] = 3; \
-    T[3] = 4; \
-
-#define mCntrlDirHeaderSig(T) \
-    T[0] = 80; \
-    T[1] = 75; \
-    T[2] = 1; \
-    T[3] = 2; \
-
-#define mCntrlDirDigitalSig(T, ptr) \
-    T[ptr + 0] = 80; \
-    T[ptr + 1] = 75; \
-    T[ptr + 2] = 5; \
-    T[ptr + 3] = 5; \
-
-#define mEndOfCntrlDirHeaderSig(T) \
-    T[0] = 80; \
-    T[1] = 75; \
-    T[2] = 5; \
-    T[3] = 6; \
-
-#define mInsertToCharBuff( inserttobuffer, datatype, insertat, len) \
-    buf = ( char* ) &datatype;\
-    for( int idx=0; idx<len; idx++ ) \
-	inserttobuffer[insertat+idx] = *(buf + idx); 
-
-#define mCntrlFileHeaderSigCheck( buff, ptr ) \
-    sigcheck = false; \
-    if( buff[ptr] == 80 && buff[ptr + 1] == 75 && \
-	    buff[ptr + 2] == 1 && buff[ptr + 3] == 2 ) \
-	    sigcheck = true; 
-
-#define mFileHeaderSigCheck( buff, ptr ) \
-    sigcheck = false; \
-    if( buff[ptr] == 80 && buff[ptr + 1] == 75 && \
-	    buff[ptr + 2] == 3 && buff[ptr + 3] == 4 ) \
-	    sigcheck = true; \
-    else \
-	sigcheck = false; 
-
-#define mHeaderSize 30
-#define mCentralHeaderSize 46
-#define mDigSigSize 6
-#define mEndOfDirHeaderSize 22
 
 class ZipArchiveInfo;
 
@@ -77,18 +30,18 @@ mExpClass(Basic) ZipFileInfo
 public:
 
 				ZipFileInfo(const char* fnm, 
-				    od_uint32 compsize, 
-				    od_uint32 uncompsize,
-				    od_uint32 offset)
+				    od_int64 compsize, 
+				    od_int64 uncompsize,
+				    od_int64 offset)
 				: fnm_(fnm)
 				, compsize_(compsize) 
 				, uncompsize_(uncompsize)
 				, localheaderoffset_(offset)	    {}
 
     BufferString		fnm_;
-    od_uint32			compsize_;
-    od_uint32			uncompsize_;
-    od_uint32			localheaderoffset_;
+    od_int64			compsize_;
+    od_int64			uncompsize_;
+    od_int64			localheaderoffset_;
 
 };
 
@@ -110,11 +63,13 @@ public:
 
 				ZipHandler()
 				: initialfilecount_(0)
-				, srcfilesize_(0)
+				, uncompfilesize_(0)
+				, compfilesize_(0)
 				, offsetofcentraldir_(0)
 				, curinputidx_(0)
 				, curfileidx_(0)
-				, ziparchinfo_(0)		{}
+				, totalsize_(0)
+				, nrdonesize_(0)		{}
 
 				~ZipHandler();
 
@@ -123,10 +78,10 @@ public:
     bool			getArchiveInfo(const char*,
 						ObjectSet<ZipFileInfo>&);
 
-    bool			getFileList(const char*,BufferStringSet&) const;
+    bool			getFileList(const char*,BufferStringSet&);
 
-    od_int16			dateInDosFormat(const char*) const;
-    od_int16			timeInDosFormat(const char*) const;
+    od_uint16			dateInDosFormat(const char*) const;
+    od_uint16			timeInDosFormat(const char*) const;
     bool			setTimeDateModified(const char*,od_uint16,
 						    od_uint16)const;
 
@@ -148,6 +103,11 @@ protected:
 
     bool			doZUnCompress();
     bool			readEndOfCentralDirHeader();
+    bool			readCentralDirHeader(ObjectSet<ZipFileInfo>* 
+						     zfileinfo=0);
+    bool			readZIP64EndOfCentralDirLocator();
+    bool			readZIP64EndOfCentralDirRecord();
+    bool			readXtraFldForZIP64(const char*,int);
 
     bool			initMakeZip(const char*,BufferStringSet);
     bool			initAppend(const char*,const char*);
@@ -157,29 +117,36 @@ protected:
     int				openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
+    bool			setZIP64Header();
     bool			setEndOfArchiveHeaders();
     bool			setCentralDirHeader();
-    bool			setEndOfCentralDirHeader(int);
+    bool			setEndOfCentralDirHeader(od_int64,od_uint32);
+    bool			setZIP64EndOfDirRecord(od_int64);
+    bool			setZIP64EndOfDirLocator(od_int64);
 
     
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
-    int				getCumulativeFileCount() const 
+    od_int64			getCumulativeFileCount() const 
 					{ return cumulativefilecounts_.last(); }
     int				getCumulativeFileCount(int) const;
     StreamData			makeOStreamForAppend(const char*) const;
     void			setCompLevel(CompLevel);
 
+    od_int64			getTotalSize()const  { return totalsize_; }
+    od_int64			getNrDoneSize()const  { return nrdonesize_; }
 
     BufferString		errormsg_;
     BufferStringSet		allfilenames_;
     
     BufferString		srcfile_ ;
-    od_uint32			srcfilesize_;
     od_uint16			srcfnmsize_;
 
     BufferString		destbasepath_;
     BufferString		destfile_;
+
+    od_int64			compfilesize_;
+    od_int64			uncompfilesize_;
 
     od_uint16			compmethod_;
     CompLevel			complevel_;
@@ -188,17 +155,19 @@ protected:
 
     int				curinputidx_;
     int				curfileidx_;
-    int				initialfilecount_;
-    TypeSet<int>		cumulativefilecounts_;
+    od_int64			initialfilecount_;
+    TypeSet<od_int64>		cumulativefilecounts_;
     
     od_uint16			lastmodtime_;
     od_uint16			lastmoddate_;
 
     od_uint32			crc_;
 
-    od_uint32			offsetofcentraldir_;
+    od_int64			offsetofcentraldir_;
+    od_int64			offsetoflocalheader_;
 
-    ZipArchiveInfo*		ziparchinfo_;
+    od_int64			totalsize_;
+    od_int64			nrdonesize_;
 
     StreamData			osd_;
     StreamData			isd_;

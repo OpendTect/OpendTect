@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ptrman.h"
 #include "separstr.h"
+#include "strmoper.h"
 #include "task.h"
 #include "varlenarray.h"
 #include "ziparchiveinfo.h"
@@ -43,8 +44,69 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <fstream>
 #include <math.h>
 
-#define mVerNeedToExtract 20
+
+#define mLocalFileHeaderSig(T) \
+    T[0] = 80; \
+    T[1] = 75; \
+    T[2] = 3; \
+    T[3] = 4; \
+
+#define mCntrlDirHeaderSig(T) \
+    T[0] = 80; \
+    T[1] = 75; \
+    T[2] = 1; \
+    T[3] = 2; \
+
+#define mCntrlDirDigitalSig(T, ptr) \
+    T[ptr + 0] = 80; \
+    T[ptr + 1] = 75; \
+    T[ptr + 2] = 5; \
+    T[ptr + 3] = 5; \
+
+#define mEndOfCntrlDirHeaderSig(T) \
+    T[0] = 80; \
+    T[1] = 75; \
+    T[2] = 5; \
+    T[3] = 6; \
+
+#define mZIP64EndOfDirRecordHeaderSig(T) \
+    T[0] = 80; \
+    T[1] = 75; \
+    T[2] = 6; \
+    T[3] = 6; \
+
+#define mZIP64EndOfDirLocatorHeaderSig(T) \
+    T[0] = 80; \
+    T[1] = 75; \
+    T[2] = 6; \
+    T[3] = 7; \
+
+#define mInsertToCharBuff( inserttobuffer, datatype, insertat, len) \
+    buf = ( char* ) &datatype;\
+    for( int idx=0; idx<len; idx++ ) \
+	inserttobuffer[insertat+idx] = *(buf + idx); 
+
+#define mCntrlFileHeaderSigCheck( buff, ptr ) \
+    sigcheck = false; \
+    if( buff[ptr] == 80 && buff[ptr + 1] == 75 && \
+	    buff[ptr + 2] == 1 && buff[ptr + 3] == 2 ) \
+	    sigcheck = true; 
+
+#define mFileHeaderSigCheck( buff, ptr ) \
+    sigcheck = false; \
+    if( buff[ptr] == 80 && buff[ptr + 1] == 75 && \
+	    buff[ptr + 2] == 3 && buff[ptr + 3] == 4 ) \
+	    sigcheck = true; \
+    else \
+	sigcheck = false; 
+
+#define mHeaderSize 30
+#define mCentralHeaderSize 46
+#define mEndOfDirHeaderSize 22
+
+#define mVerNeedToExtract 45
 #define mDeflate 8
+#define mNoCompression 0
 #define mLVerNeedToExtract 4		//L for Location
 #define mLGenPurBitFlag 6
 #define mLCompMethod 8
@@ -79,7 +141,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mLZipFileComntLength 20
 #define mSizeTwoBytes 2
 #define mSizeFourBytes 4
+#define mSizeEightBytes 8
 #define mMaxChunkSize 10485760	    //10MB
+#define m32BitSizeLimit 4294967294  //4GB
+#define m16BitSizeLimit 65534
+#define mSizeOfZIP64Header 20
+#define mLZIP64HeaderID 0
+#define mLZIP64DataSize 2
+#define mLZIP64UnCompSize 4
+#define mLZIP64CompSize 12
+#define mLZIP64RelOffset 20
+#define mZIP64EndOfDirRecordSize 56
+#define mZIP64EndOfDirLocatorSize 20
+#define mLZIP64EndOfDirRecordOffset 8
+#define mLZIP64EndOfDirLocatorTotalDisks 16
+#define mLZIP64CentralDirOffset 48
+#define mLZIP64CentralDirTotalEntry 32
+#define mZIP64Tag 1
 
 #define mZDefaultMemoryLevel 9
 #define mMaxWindowBitForRawDeflate -15
@@ -102,7 +180,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 ZipHandler::~ZipHandler()
-{ delete ziparchinfo_; }
+{}
 
 
 bool ZipHandler::initMakeZip( const char* destfnm, BufferStringSet srcfnms )
@@ -137,7 +215,7 @@ bool ZipHandler::initMakeZip( const char* destfnm, BufferStringSet srcfnms )
 
 
 bool ZipHandler::getFileList( const char* src, 
-			      BufferStringSet& filenames ) const
+			      BufferStringSet& filenames )
 {
 
     DirList dlist( src, DirList::DirsOnly, 0 );
@@ -150,8 +228,10 @@ bool ZipHandler::getFileList( const char* src,
     }
 
     for( int idx=0; idx<flist.size(); idx++)
+    {
 	filenames.add( flist.fullPath(idx) );
-
+	totalsize_ += File::getFileSize( flist.fullPath(idx) );
+    }
     return true;
 }
 
@@ -225,11 +305,11 @@ void ZipHandler::setCompLevel( CompLevel cl )
 bool ZipHandler::doZCompress()
 {
 #ifdef HAS_ZLIB
-    const od_uint32 ptrlocation = osd_.ostrm->tellp();
+    const od_int64 ptrlocation = StrmOper::tell( *osd_.ostrm );
     if ( !setLocalFileHeader( ) )
 	return false;
 
-    if ( srcfilesize_ == 0 )
+    if ( uncompfilesize_ == 0 )
 	return true;
 
     int ret;
@@ -243,7 +323,7 @@ bool ZipHandler::doZCompress()
     zlibstrm.opaque = Z_NULL;
     ret = deflateInit2( &zlibstrm, complevel_, method, windowbits, memlevel,
 								    stategy );
-    const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
+    const od_uint32 chunksize = mMIN( mMaxChunkSize, uncompfilesize_ );
     od_uint32 upperbound = deflateBound( &zlibstrm, chunksize );
     if ( ret != Z_OK ) 
     {
@@ -251,7 +331,7 @@ bool ZipHandler::doZCompress()
 		fails.\n", "Error type:", ret )
     }
 
-    od_uint32 destfilesize = 0;
+    compfilesize_ = 0;
     crc_ = 0;
 
     int flushpolicy = Z_FINISH;
@@ -266,6 +346,7 @@ bool ZipHandler::doZCompress()
     {
 	isd_.istrm->read( in, chunksize );
 	zlibstrm.avail_in = isd_.istrm->gcount();
+	nrdonesize_ += zlibstrm.avail_in;
 	flushpolicy = isd_.istrm->eof() ? Z_FINISH : Z_NO_FLUSH;
 	crc_ = crc32( crc_, mCast(Bytef*,in.ptr()), isd_.istrm->gcount());
 	zlibstrm.next_in = mCast( Bytef*, in.ptr() );
@@ -281,7 +362,7 @@ bool ZipHandler::doZCompress()
 	    }
 
 	    bytestowrite = upperbound - zlibstrm.avail_out;
-	    destfilesize = destfilesize + bytestowrite;
+	    compfilesize_ = compfilesize_ + bytestowrite;
 	    if ( bytestowrite > 0 ) 
 		osd_.ostrm->write( out, bytestowrite );
 
@@ -296,16 +377,31 @@ bool ZipHandler::doZCompress()
     } while( flushpolicy != Z_FINISH );
 
     deflateEnd( &zlibstrm );
-    osd_.ostrm->seekp( ptrlocation + mLCRC32 );
+    StrmOper::seek( *osd_.ostrm, ptrlocation + mLCRC32 );
     osd_.ostrm->write( mCast(const char*,&crc_), sizeof(od_uint32) );
     if ( !*osd_.ostrm )
     { mWriteErr( destfile_ ) }
 
-    osd_.ostrm->write( mCast(const char*,&destfilesize), sizeof(od_uint32) );
+    if ( uncompfilesize_ > m32BitSizeLimit )
+    {
+	const od_uint32 fullvalue = m32BitSizeLimit + 1;
+	osd_.ostrm->write( mCast(const char*,&fullvalue), sizeof(od_uint32));
+	StrmOper::seek( *osd_.ostrm, ptrlocation + mHeaderSize + srcfnmsize_ + 
+				     mLZIP64CompSize );
+	osd_.ostrm->write( mCast(const char*,&compfilesize_), sizeof(od_int64));
+	StrmOper::seek( *osd_.ostrm, ptrlocation + mHeaderSize + srcfnmsize_ + 
+			mSizeOfZIP64Header + compfilesize_ );
+    }
+    else
+    {
+	osd_.ostrm->write( mCast(const char*,&compfilesize_),sizeof(od_uint32));
+	StrmOper::seek( *osd_.ostrm, ptrlocation + mHeaderSize + srcfnmsize_ + 
+				     compfilesize_ );
+    }
+
     if ( !*osd_.ostrm )
     { mWriteErr( destfile_ ) }
 
-    osd_.ostrm->seekp( mHeaderSize + destfilesize + srcfnmsize_ + ptrlocation );
     return true;
 #else
     pErrMsg( "ZLib library not available" );
@@ -316,7 +412,13 @@ bool ZipHandler::doZCompress()
 
 bool ZipHandler::setLocalFileHeader()
 {
-    srcfilesize_ = mCast( od_uint32, File::getFileSize(srcfile_) );
+    od_int64 srcfilesize;
+    uncompfilesize_ = File::getFileSize(srcfile_);
+    if ( uncompfilesize_ > m32BitSizeLimit )
+	srcfilesize = m32BitSizeLimit + 1;
+    else
+	srcfilesize = uncompfilesize_;
+
     FilePath fnm( srcfile_ );
     int p = fnm.nrLevels();
     BufferString srcfnm = "";
@@ -330,9 +432,10 @@ bool ZipHandler::setLocalFileHeader()
     srcfnmsize_ = ( od_uint16 ) srcfnm.size();
     char* buf = 0;
     unsigned char headerbuff[1024];
-    const od_uint16 nullvalue = 0;
+    const od_uint32 nullvalue = 0;
     const od_uint16 version = mVerNeedToExtract;
     const od_uint16 compmethod = mDeflate;
+    od_uint16 xtrafldlength = mSizeOfZIP64Header;
 
     mLocalFileHeaderSig ( headerbuff );
     mInsertToCharBuff( headerbuff, version, mLVerNeedToExtract, mSizeTwoBytes );
@@ -358,9 +461,15 @@ bool ZipHandler::setLocalFileHeader()
     mInsertToCharBuff( headerbuff, dostime, mLLastModFTime, mSizeTwoBytes );
     const od_uint16 dosdate = dateInDosFormat( srcfile_ );
     mInsertToCharBuff( headerbuff, dosdate, mLLastModFDate, mSizeTwoBytes );
-    mInsertToCharBuff( headerbuff, srcfilesize_, mLUnCompSize, mSizeFourBytes );
+    mInsertToCharBuff( headerbuff, nullvalue, mLCRC32, mSizeFourBytes );
+    mInsertToCharBuff( headerbuff, nullvalue, mLCompSize, mSizeFourBytes );
+    mInsertToCharBuff( headerbuff, srcfilesize, mLUnCompSize, mSizeFourBytes );
     mInsertToCharBuff( headerbuff, srcfnmsize_, mLFnmLength, mSizeTwoBytes );
-    mInsertToCharBuff( headerbuff, nullvalue, mLExtraFldLength, mSizeTwoBytes );
+    if ( uncompfilesize_ <= m32BitSizeLimit )
+	xtrafldlength = 0;
+
+    mInsertToCharBuff( headerbuff, xtrafldlength, mLExtraFldLength, 
+		       mSizeTwoBytes );
     osd_.ostrm->write( mCast(const char*,headerbuff), mHeaderSize );
     if ( !*osd_.ostrm )
     { mWriteErr( destfile_ ) }
@@ -368,6 +477,9 @@ bool ZipHandler::setLocalFileHeader()
     osd_.ostrm->write( srcfnm.buf(), srcfnmsize_ );
     if ( !*osd_.ostrm )
     { mWriteErr( destfile_ ) }
+
+    if ( uncompfilesize_ > m32BitSizeLimit )
+	setZIP64Header();
 
     return true;
 }
@@ -411,9 +523,27 @@ bool ZipHandler::setLocalFileHeaderForDir()
 }
 
 
+bool ZipHandler::setZIP64Header()
+{
+    unsigned char headerbuff[mSizeOfZIP64Header];
+    const od_uint16 headerid  = 1;
+    const od_uint16 datasize = 16;
+    char* buf = 0;
+    mInsertToCharBuff( headerbuff, headerid, mLZIP64HeaderID, mSizeTwoBytes );
+    mInsertToCharBuff( headerbuff, datasize, mLZIP64DataSize, mSizeTwoBytes );
+    mInsertToCharBuff( headerbuff, uncompfilesize_, mLZIP64UnCompSize, 
+		       mSizeEightBytes );
+    osd_.ostrm->write( mCast(const char*,headerbuff), mSizeOfZIP64Header );
+    if ( !*osd_.ostrm )
+    { mWriteErr( destfile_ ) }
+
+    return true;
+}
+
+
 bool ZipHandler::setEndOfArchiveHeaders()
 {
-    const int ptrlctn = (int) osd_.ostrm->tellp();
+    const od_int64 ptrlctn = StrmOper::tell( *osd_.ostrm );
     bool ret = setCentralDirHeader();
     if ( !ret )
     {
@@ -421,7 +551,26 @@ bool ZipHandler::setEndOfArchiveHeaders()
 	return false;
     }
 
-    ret = setEndOfCentralDirHeader ( ptrlctn );
+    const od_int64 ptrlctn2 = StrmOper::tell( *osd_.ostrm );
+    const od_uint32 sizecntrldir = ptrlctn2 - ptrlctn;
+    const od_int64 totalentries = cumulativefilecounts_.last() +
+							    initialfilecount_;
+    if ( ptrlctn > m32BitSizeLimit || totalentries > m16BitSizeLimit )
+    {
+	if ( !setZIP64EndOfDirRecord(ptrlctn) )
+	{
+	    osd_.close();
+	    return false;
+	}
+
+	if ( !setZIP64EndOfDirLocator(ptrlctn2) )
+	{
+	    osd_.close();
+	    return false;
+	}
+    }
+
+    ret = setEndOfCentralDirHeader ( ptrlctn, sizecntrldir );
     osd_.close();
     return ret;
 }
@@ -448,29 +597,72 @@ bool ZipHandler::setCentralDirHeader()
     for( int index=0; index<cumulativefilecounts_.last()+initialfilecount_; 
 								index++ )
     {
-	od_uint32 offset;
-	od_uint32 compsize;
-	od_uint16 fnmsize;
+	od_uint32 offset32bit;
+	od_uint16 xtrafldlength;
 	char localheader[1024];
-	offset = readdest.istrm->tellg();
+	offsetoflocalheader_ = StrmOper::tell( *readdest.istrm );
+	offset32bit = offsetoflocalheader_;
 	readdest.istrm->read( mCast(char*,localheader), mHeaderSize);
 	if ( !*readdest.istrm )
 	{ mReadErr( destfile_ ) }
 
 	localheader[mHeaderSize] = 0;
-	compsize = *(od_uint32*)( localheader + mLCompSize );
-	fnmsize = *(od_uint16*)( localheader + mLFnmLength );
-	readdest.istrm->read( mCast(char*,localheader+mHeaderSize),fnmsize );
-	localheader[mHeaderSize + fnmsize] = 0;
+	compfilesize_ = *(od_uint32*)( localheader + mLCompSize );
+	uncompfilesize_ = *(od_uint32*)( localheader + mLUnCompSize );
+	srcfnmsize_ = *(od_uint16*)( localheader + mLFnmLength );
+	xtrafldlength = *(od_uint16*)( localheader + mLExtraFldLength );
+	readdest.istrm->read( mCast(char*,localheader+mHeaderSize),srcfnmsize_);
+	localheader[mHeaderSize + srcfnmsize_] = 0;
+	if ( offsetoflocalheader_ > m32BitSizeLimit || uncompfilesize_ > 
+			    m32BitSizeLimit || compfilesize_ > m32BitSizeLimit )
+	{
+	    offset32bit = m32BitSizeLimit + 1;
+	    unsigned char zip64headerbuff[100];
+	    if ( xtrafldlength > 0 )
+	    {
+		readdest.istrm->read( mCast(char*,zip64headerbuff), 
+				      xtrafldlength );
+		mInsertToCharBuff( zip64headerbuff, offsetoflocalheader_, 
+				   mLZIP64RelOffset, mSizeEightBytes );
+		xtrafldlength += 8;
+		for ( int id=0; id<xtrafldlength; id++ )
+		    headerbuff[id+mCentralHeaderSize+srcfnmsize_] = 
+							    zip64headerbuff[id];
+		compfilesize_ = *(od_int64*)( zip64headerbuff + 
+					      mLZIP64CompSize );
+	    }
+	    else
+	    {
+		const od_uint16 headerid  = 1;
+		const od_uint16 datasize = 8;
+		char* buf = 0;
+		mInsertToCharBuff( zip64headerbuff, headerid, mLZIP64HeaderID,	
+				   mSizeTwoBytes );
+		mInsertToCharBuff( zip64headerbuff, datasize, mLZIP64DataSize, 
+				   mSizeTwoBytes );
+		mInsertToCharBuff( zip64headerbuff, offsetoflocalheader_, 4,
+				   mSizeEightBytes );
+		xtrafldlength = 12;
+		for ( int id=0; id<xtrafldlength; id++ )
+		    headerbuff[id+mCentralHeaderSize+srcfnmsize_] = 
+							    zip64headerbuff[id];
+	    }
+	}
+
 	for( int id=mSizeFourBytes; id<mHeaderSize; id++ )
 	    headerbuff[id + 2] = localheader[id];
 
-	for( int id=0; id<fnmsize; id++ )
+	for( int id=0; id<srcfnmsize_; id++ )
 	    headerbuff[id + mCentralHeaderSize] = localheader[id + mHeaderSize];
 
-	mInsertToCharBuff( headerbuff, offset, mLRelOffset, mSizeFourBytes );
-	readdest.istrm->seekg( mHeaderSize + compsize + fnmsize + offset );
-	osd_.ostrm->write( mCast(char*,headerbuff),mCentralHeaderSize+fnmsize );
+	mInsertToCharBuff( headerbuff, offset32bit, mLRelOffset, 
+			   mSizeFourBytes );
+	mInsertToCharBuff( headerbuff, xtrafldlength, mLExtraFldLengthCentral, 
+			   mSizeTwoBytes );
+	StrmOper::seek( *readdest.istrm, StrmOper::tell(*readdest.istrm) +
+					 compfilesize_ );
+	osd_.ostrm->write( mCast(char*,headerbuff), 
+                           mCentralHeaderSize + srcfnmsize_ + xtrafldlength );
 	if ( !*osd_.ostrm )
 	{ mWriteErr( destfile_ ) }
 
@@ -481,7 +673,71 @@ bool ZipHandler::setCentralDirHeader()
 }
 
 
-bool ZipHandler::setEndOfCentralDirHeader( int ptrlctn )
+bool ZipHandler::setZIP64EndOfDirRecord( od_int64 ptrlctn )
+{
+    char headerbuff[mZIP64EndOfDirRecordSize];
+    char* buf;
+    mZIP64EndOfDirRecordHeaderSig( headerbuff );
+
+    const od_int64 sizeofheader = mZIP64EndOfDirRecordSize - 12;
+    mInsertToCharBuff( headerbuff, sizeofheader, mLSizeOfData, mSizeEightBytes);
+
+    const od_uint32 zipversion = 63;	    //Zip version used is 6.3
+    mInsertToCharBuff( headerbuff, zipversion, mLVerMadeBy+8, mSizeTwoBytes );
+
+    const od_uint16 version = mVerNeedToExtract;
+    mInsertToCharBuff( headerbuff, version, mLVerNeedToExtract+10, 
+		       mSizeTwoBytes );
+
+    const od_uint32 nullvalue = 0;
+    mInsertToCharBuff( headerbuff, nullvalue, mLDiskNo+12, mSizeFourBytes);
+    mInsertToCharBuff( headerbuff, nullvalue, mLCentralDirDiskNo+14, 
+		       mSizeFourBytes);
+
+    const od_int64 totalentries = cumulativefilecounts_.last() +
+							    initialfilecount_;
+    mInsertToCharBuff( headerbuff, totalentries, mLTotalEntryOnDisk+16,
+		       mSizeEightBytes);
+    mInsertToCharBuff( headerbuff, totalentries, mLTotalEntry+22,
+		       mSizeEightBytes);
+
+    od_int64 ptrlocation = StrmOper::tell( *osd_.ostrm );
+    od_int64 sizecntrldir = ptrlocation - ptrlctn;
+    mInsertToCharBuff( headerbuff, sizecntrldir, mLSizeCentralDir+28,
+		       mSizeEightBytes);
+    mInsertToCharBuff( headerbuff, ptrlctn, mLOffsetCentralDir+32,
+		       mSizeEightBytes);
+
+    osd_.ostrm->write( mCast(char*,headerbuff), mZIP64EndOfDirRecordSize );
+    if ( !*osd_.ostrm )
+    { mWriteErr( destfile_ ) }
+
+    return true;
+}
+
+
+bool ZipHandler::setZIP64EndOfDirLocator( od_int64 ptrlctn )
+{
+    char headerbuff[mZIP64EndOfDirLocatorSize];
+    char* buf;
+    const od_uint32 nullvalue = 0;
+    const od_uint32 numberofdisks = 1;
+    mZIP64EndOfDirLocatorHeaderSig( headerbuff );
+    mInsertToCharBuff( headerbuff, nullvalue, mLDiskNo, mSizeFourBytes);
+    mInsertToCharBuff( headerbuff, ptrlctn, mLZIP64EndOfDirRecordOffset, 
+		       mSizeEightBytes);
+    mInsertToCharBuff( headerbuff, numberofdisks, mLDiskNo+12, mSizeFourBytes);
+    osd_.ostrm->write( mCast(char*,headerbuff), mZIP64EndOfDirLocatorSize );
+    if ( !*osd_.ostrm )
+    { mWriteErr( destfile_ ) }
+
+    return true;
+}
+
+
+
+bool ZipHandler::setEndOfCentralDirHeader( od_int64 ptrlctn, 
+					   od_uint32 sizecntrldir )
 {
     char headerbuff[100];
     mEndOfCntrlDirHeaderSig( headerbuff );
@@ -489,14 +745,18 @@ bool ZipHandler::setEndOfCentralDirHeader( int ptrlctn )
     char* buf;
     mInsertToCharBuff( headerbuff, nullvalue, mLDiskNo, mSizeTwoBytes );
     mInsertToCharBuff( headerbuff, nullvalue, mLCentralDirDiskNo,mSizeTwoBytes);
-    int ptrlocation = osd_.ostrm->tellp();
-    int sizecntrldir = ptrlocation - ptrlctn;
+    if ( ptrlctn > m32BitSizeLimit )
+	ptrlctn = m32BitSizeLimit + 1;
 
     cumulativefilecounts_[(cumulativefilecounts_.size()-1)] = 
 			  cumulativefilecounts_.last() + initialfilecount_;
-    mInsertToCharBuff( headerbuff, cumulativefilecounts_.last(), 
-		       mLTotalEntryOnDisk, mSizeTwoBytes );
-    mInsertToCharBuff( headerbuff, cumulativefilecounts_.last(), mLTotalEntry, 
+    od_uint16 cumulativefilecount = cumulativefilecounts_.last();
+    if ( cumulativefilecounts_.last() > m16BitSizeLimit )
+	cumulativefilecount = m16BitSizeLimit + 1;
+
+    mInsertToCharBuff( headerbuff, cumulativefilecount, mLTotalEntryOnDisk, 
+		       mSizeTwoBytes );
+    mInsertToCharBuff( headerbuff, cumulativefilecount, mLTotalEntry, 
 		       mSizeTwoBytes);
     mInsertToCharBuff( headerbuff, sizecntrldir, mLSizeCentralDir, 
 		       mSizeFourBytes );
@@ -548,7 +808,7 @@ bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
     if ( !osd_.usable() )
     { mWriteErr( srcfnm ) }
 
-    osd_.ostrm->seekp( offsetofcentraldir_ );
+    StrmOper::seek( *osd_.ostrm, offsetofcentraldir_ );
     return true;
 }
 
@@ -566,65 +826,12 @@ bool ZipHandler::getArchiveInfo( const char* srcfnm,
     if ( !readEndOfCentralDirHeader() )
 	return false;
 
-    isd_.istrm->seekg( offsetofcentraldir_, std::ios::beg );
-    od_uint32 ptrlocation;
-    ptrlocation = isd_.istrm->tellg();
-    char headerbuff[1024];
-    bool sigcheck;
-    for ( int idx=0; idx<cumulativefilecounts_.last(); idx++ )
+    if ( !readCentralDirHeader(&zfileinfo) )
     {
-	isd_.istrm->read( mCast(char*,headerbuff), mCentralHeaderSize);
-	mCntrlFileHeaderSigCheck( headerbuff, 0 );
-	if ( !sigcheck )
-	{
-	    isd_.close();
-	    mErrRet( srcfnm, " is not a valid zip archive", "" )
-	}
-
-	if ( getBitValue( *(headerbuff + mLCentralDirBitFlag), 0 ) )
-	{
-	    mErrRet( "Encrypted file::Not supported", "", "" )
-	    ////TODO
-	}
-
-	od_uint16 version = *mCast( od_uint16*, headerbuff + 
-							mLCentralDirVersion );
-	if ( version > mVerNeedToExtract )
-	{ mErrRet("Failed to unzip ", srcfnm, 
-		   "\nVersion of zip format needed to unpack is not supported")}
-
-	od_uint16 compmethod = *mCast( od_uint16*, headerbuff + 
-						    mLCentralDirCompMethod );
-	if ( compmethod != mDeflate && compmethod != 0 )
-	{ mErrRet( "Failed to unzip ", srcfnm, "\nCompression method used \
-						   is not supported" ) }
-
-	od_uint16 bitflag = *mCast( od_uint16*, headerbuff + 
-						    mLCentralDirBitFlag );
-	if ( bitflag > 14 )
-	{ mErrRet("Failed to unzip ", srcfnm, 
-		   "\nVersion of zip format needed to unpack is not supported")}
-
-	isd_.istrm->seekg( ptrlocation + mCentralHeaderSize );
-	BufferString headerfnm;
-	isd_.istrm->read( headerfnm.buf(),
-			    *mCast(od_int16*,headerbuff+mLFnmLengthCentral) );
-	headerfnm[*((od_int16*)(headerbuff+mLFnmLengthCentral))] = '\0';
-
-	ZipFileInfo* fi = new ZipFileInfo( headerfnm, 
-			    *mCast(od_uint32*,headerbuff+mLCompSizeCentral),
-			    *mCast(od_uint32*,headerbuff+mLUnCompSizeCentral),
-			    *mCast(od_uint32*,headerbuff+mLRelOffset) );
-	zfileinfo += fi;
-	ptrlocation = ptrlocation
-			+ *mCast( od_int16*,headerbuff+mLFnmLengthCentral )
-			+ *mCast( od_int16*,headerbuff+mLExtraFldLengthCentral )
-			+ *mCast( od_int16*,headerbuff+mLFileComntLength )
-			+ mCentralHeaderSize;
-	isd_.istrm->seekg( ptrlocation );
+	isd_.close();
+	return false;
     }
 
-    isd_.istrm->read( mCast(char*,headerbuff), 10);
     isd_.close();
     return true;
 }
@@ -635,7 +842,6 @@ bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
     if ( !File::exists(srcfnm) )
     { mErrRet( srcfnm, " does not exist", "" ) }
 
-    ziparchinfo_ = new ZipArchiveInfo( srcfnm );
     srcfile_ = srcfnm;
     if ( !File::isDirectory(basepath) && !File::createDir(basepath) )
     { mErrRet( basepath, " is not a valid path", "" ) }
@@ -648,6 +854,12 @@ bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
     { mReadErr( srcfnm ) }
 
     if ( !readEndOfCentralDirHeader() )
+    {
+	isd_.close();
+	return false;
+    }
+
+    if ( !readCentralDirHeader() )
     {
 	isd_.close();
 	return false;
@@ -681,7 +893,7 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
 	return false;
     }
 
-    isd_.istrm->seekg( offset );
+    StrmOper::seek( *isd_.istrm, offset );
     srcfile_ = srcfnm;
     FilePath fp;
     fp = srcfnm;
@@ -702,25 +914,110 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
 }
 
 
+bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
+{
+    if ( offsetofcentraldir_ == 0 )
+    {
+	if ( !readEndOfCentralDirHeader() )
+	    return false;
+    }
+    
+    StrmOper::seek( *isd_.istrm, offsetofcentraldir_ );
+    od_int64 ptrlocation;
+    ptrlocation = StrmOper::tell( *isd_.istrm );
+    char headerbuff[1024];
+    bool sigcheck;
+    for ( int idx=0; idx<cumulativefilecounts_.last(); idx++ )
+    {
+	isd_.istrm->read( mCast(char*,headerbuff), mCentralHeaderSize );
+	headerbuff[mCentralHeaderSize] = '\0';
+	mCntrlFileHeaderSigCheck( headerbuff, 0 );
+	if ( !sigcheck )
+	{
+	    isd_.close();
+	    mErrRet( srcfile_, " is not a valid zip archive", "" )
+	}
+
+	if ( getBitValue( *(headerbuff + mLCentralDirBitFlag), 0 ) )
+	{
+	    mErrRet( "Encrypted file::Not supported", "", "" )
+	    ////TODO
+	}
+
+	od_uint16 version = *mCast( od_uint16*, headerbuff + 
+							mLCentralDirVersion );
+	if ( version > mVerNeedToExtract )
+	{ mErrRet("Failed to unzip ", srcfile_, 
+		   "\nVersion of zip format needed to unpack is not supported")}
+
+	od_uint16 compmethod = *mCast( od_uint16*, headerbuff + 
+						    mLCentralDirCompMethod );
+	if ( compmethod != mDeflate && compmethod != 0 )
+	{ mErrRet( "Failed to unzip ", srcfile_, "\nCompression method used \
+						   is not supported" ) }
+
+	od_uint16 bitflag = *mCast( od_uint16*, headerbuff + 
+						    mLCentralDirBitFlag );
+	if ( bitflag > 14 )
+	{ mErrRet("Failed to unzip ", srcfile_, 
+		   "\nVersion of zip format needed to unpack is not supported")}
+
+	StrmOper::seek( *isd_.istrm, ptrlocation + mCentralHeaderSize );
+	BufferString headerfnm;
+	isd_.istrm->read( headerfnm.buf(),
+			  *mCast(od_uint16*,headerbuff+mLFnmLengthCentral) );
+	headerfnm[*((od_uint16*)(headerbuff+mLFnmLengthCentral))] = '\0';
+	od_uint16 xtrafldlength = *mCast( od_uint16*,
+                                          headerbuff + mLExtraFldLengthCentral);
+	if ( xtrafldlength > 0 )
+	    isd_.istrm->read( headerbuff + mCentralHeaderSize, xtrafldlength );
+	    
+	uncompfilesize_ = *(od_uint32*)(headerbuff+mLUnCompSizeCentral);
+	compfilesize_ = *(od_uint32*)(headerbuff+mLCompSizeCentral);
+	offsetoflocalheader_ = *(od_uint32*)(headerbuff+mLRelOffset);
+	if ( uncompfilesize_ > m32BitSizeLimit || 
+             compfilesize_ > m32BitSizeLimit || 
+             offsetoflocalheader_ > m32BitSizeLimit )
+	    readXtraFldForZIP64(headerbuff + mCentralHeaderSize, xtrafldlength);
+
+	if ( zfileinfo )
+	    *zfileinfo += new ZipFileInfo( srcfile_, compfilesize_,
+					   uncompfilesize_, 
+offsetoflocalheader_ );
+
+	totalsize_ += uncompfilesize_;
+	ptrlocation = ptrlocation
+			+ *mCast( od_uint16*,headerbuff+mLFnmLengthCentral )
+			+ *mCast( od_uint16*,headerbuff+mLExtraFldLengthCentral)
+			+ *mCast( od_uint16*,headerbuff+mLFileComntLength )
+			+ mCentralHeaderSize;
+	StrmOper::seek( *isd_.istrm, ptrlocation );
+    }
+
+    StrmOper::seek( *isd_.istrm, 0 );
+    return true;
+}
+
+
 bool ZipHandler::readEndOfCentralDirHeader()
 {
     char headerbuff[mEndOfDirHeaderSize];
-    int ptrlocation;
+    od_int64 ptrlocation;
     char sig[mSizeFourBytes];
     mEndOfCntrlDirHeaderSig( sig );
-    isd_.istrm->seekg( 0 , std::ios::end );
-    ptrlocation = isd_.istrm->tellg();
+    StrmOper::seek( *isd_.istrm, 0, std::ios::end );
+    ptrlocation = StrmOper::tell( *isd_.istrm );
     if ( ptrlocation == 0 )
     { mErrRet( "Zip archive is empty", "", "" ) }
 
-    isd_.istrm->seekg( ptrlocation - mEndOfDirHeaderSize , std::ios::beg );
-    ptrlocation = isd_.istrm->tellg();
+    StrmOper::seek( *isd_.istrm, ptrlocation - mEndOfDirHeaderSize );
+    ptrlocation = StrmOper::tell( *isd_.istrm );
     isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
     headerbuff[mSizeFourBytes] = 0;
     while (!( *mCast(od_uint32*,headerbuff) == *mCast(od_uint32*,sig) ))
     {
-	isd_.istrm->seekg( (ptrlocation-1), std::ios::beg );
-	ptrlocation = isd_.istrm->tellg();
+	StrmOper::seek( *isd_.istrm, ptrlocation - 1 );
+	ptrlocation = StrmOper::tell( *isd_.istrm );
 	if ( ptrlocation == 0 || ptrlocation == -1 )
 	{ mErrRet( "Failed to unzip ", srcfile_, "\nZip archive is corrupt" ) }
 
@@ -729,9 +1026,121 @@ bool ZipHandler::readEndOfCentralDirHeader()
 
     isd_.istrm->read( mCast(char*,headerbuff+mSizeFourBytes),
 				        mEndOfDirHeaderSize-mSizeFourBytes );
-    isd_.istrm->seekg(0);   
-    cumulativefilecounts_ += *mCast( od_int16*, headerbuff+mLTotalEntry );
-    offsetofcentraldir_ = *mCast( int*, headerbuff+mLOffsetCentralDir );
+    StrmOper::seek( *isd_.istrm, 0 );
+    offsetofcentraldir_ = *mCast( od_uint32*, headerbuff+mLOffsetCentralDir );
+    od_uint16 cumulativefilecount = *mCast(od_uint16*, headerbuff+mLTotalEntry);
+    if ( offsetofcentraldir_ > m32BitSizeLimit || cumulativefilecount > 
+							     m16BitSizeLimit )
+    { return readZIP64EndOfCentralDirLocator(); }
+
+    cumulativefilecounts_ += cumulativefilecount;
+    return true;
+}
+
+
+bool ZipHandler::readZIP64EndOfCentralDirLocator()
+{
+    char headerbuff[mZIP64EndOfDirLocatorSize];
+    od_int64 ptrlocation;
+    char sig[mSizeFourBytes];
+    mZIP64EndOfDirLocatorHeaderSig( sig );
+    StrmOper::seek( *isd_.istrm, 0, std::ios::end );
+    ptrlocation = StrmOper::tell( *isd_.istrm );
+    StrmOper::seek( *isd_.istrm, ptrlocation - mEndOfDirHeaderSize - 
+					       mZIP64EndOfDirLocatorSize );
+    ptrlocation = StrmOper::tell( *isd_.istrm );
+    isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
+    headerbuff[mSizeFourBytes] = 0;
+    while (!( *mCast(od_uint32*,headerbuff) == *mCast(od_uint32*,sig) ))
+    {
+	StrmOper::seek( *isd_.istrm, ptrlocation - 1 );
+	ptrlocation = StrmOper::tell( *isd_.istrm );
+	if ( ptrlocation == 0 || ptrlocation == -1 )
+	{ mErrRet( "Failed to unzip ", srcfile_, "\nZip archive is corrupt" ) }
+
+	isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
+    }
+
+    isd_.istrm->read( mCast(char*,headerbuff+mSizeFourBytes),
+		      mZIP64EndOfDirLocatorSize-mSizeFourBytes );
+    offsetofcentraldir_ = *mCast( od_int64*, 
+                                  headerbuff + mLZIP64EndOfDirRecordOffset );
+    int totaldisks = *mCast( int*, headerbuff+mLZIP64EndOfDirLocatorTotalDisks);
+    if ( totaldisks > 1 )
+	{ mErrRet( "Failed to unzip ", srcfile_, 
+		"\nMultiple disk spanning of zip archive is not supported" ) }
+	
+    return readZIP64EndOfCentralDirRecord();
+}
+
+
+bool ZipHandler::readZIP64EndOfCentralDirRecord()
+{
+    char headerbuff[mZIP64EndOfDirRecordSize];
+    od_int64 ptrlocation;
+    char sig[mSizeFourBytes];
+    mZIP64EndOfDirRecordHeaderSig( sig );
+    StrmOper::seek( *isd_.istrm, offsetofcentraldir_ );
+    ptrlocation = StrmOper::tell( *isd_.istrm );
+    isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
+    headerbuff[mSizeFourBytes] = 0;
+    if ( *mCast(od_uint32*,headerbuff) != *mCast(od_uint32*,sig) )
+    { mErrRet( "Failed to unzip ", srcfile_, "\nZip archive is corrupt" ) }
+
+    isd_.istrm->read( mCast(char*,headerbuff+mSizeFourBytes),
+				     mZIP64EndOfDirRecordSize-mSizeFourBytes );
+    offsetofcentraldir_ = *mCast( od_int64*, headerbuff +
+					     mLZIP64CentralDirOffset );
+    cumulativefilecounts_ += *mCast( od_int64*, headerbuff + 
+						mLZIP64CentralDirTotalEntry );
+    StrmOper::seek( *isd_.istrm, 0 );
+    return true;
+}
+
+
+bool ZipHandler::readXtraFldForZIP64( const char* xtrafld, int size )
+{
+    int idx = 0;
+    while ( true )
+    {
+	if ( idx >= size )
+	    break;
+
+	if ( *mCast(od_uint16*,xtrafld + idx) != mZIP64Tag )
+	{
+	    const od_uint16 sizeofblock = *mCast(od_uint16*, xtrafld + idx + 2);
+	    idx += (sizeofblock+mSizeFourBytes);
+	    continue;
+	}
+	else
+	{
+	    od_uint16 sizeofblock = *mCast(od_uint16*, xtrafld + idx + 2);
+	    if ( uncompfilesize_ == m32BitSizeLimit + 1 && sizeofblock > 4 )
+	    {
+		uncompfilesize_ = *mCast( od_int64*, xtrafld + idx + 
+						     mSizeFourBytes );
+		idx += mSizeEightBytes;
+		sizeofblock -= mSizeEightBytes;
+	    }
+
+	    if ( compfilesize_ == m32BitSizeLimit + 1 && sizeofblock > 4 )
+	    {
+		compfilesize_ = *mCast( od_int64*, xtrafld+idx+mSizeFourBytes );
+		idx += mSizeEightBytes;
+		sizeofblock -= mSizeEightBytes;
+	    }
+
+	    if ( offsetoflocalheader_ == m32BitSizeLimit + 1 && sizeofblock > 4)
+	    {
+		offsetoflocalheader_ = *mCast( od_int64*, 
+					       xtrafld+idx+mSizeFourBytes );
+		idx += mSizeEightBytes;
+	    }
+
+	    break;
+	}
+    }
+
     return true;
 }
 
@@ -761,7 +1170,7 @@ bool ZipHandler::extractNextFile()
 	return false;
     }
 
-    if ( srcfilesize_ == 0 )
+    if ( compfilesize_ == 0 )
     {}
     else if ( compmethod_ == mDeflate )
     {
@@ -772,10 +1181,10 @@ bool ZipHandler::extractNextFile()
 	    return false;
 	}
     }
-    else if ( compmethod_ == 0 )
+    else if ( compmethod_ == mNoCompression )
     {
-	const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
-	int count = chunksize;
+	const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
+	od_int64 count = chunksize;
 	bool finish = false;
 	ArrPtrMan<char> in;
 	mTryAllocPtrMan( in, char [chunksize] );
@@ -783,15 +1192,15 @@ bool ZipHandler::extractNextFile()
 	{ mErrRet("Cannot allocate memory.","System is out of memory","") }
 	do
 	{
-	    if ( count <= srcfilesize_ )
+	    if ( count <= compfilesize_ )
 	    {
 		isd_.istrm->read( in, chunksize );
 		osd_.ostrm->write( in, chunksize );
 	    }
 	    else
 	    {
-		isd_.istrm->read( in, srcfilesize_ % chunksize );
-		osd_.ostrm->write ( in, srcfilesize_ % chunksize);
+		isd_.istrm->read( in, compfilesize_ % chunksize );
+		osd_.ostrm->write ( in, compfilesize_ % chunksize);
 		finish = true;
 	    }
 
@@ -827,7 +1236,7 @@ bool ZipHandler::extractNextFile()
 int ZipHandler::readLocalFileHeader()
 {
     char headerbuff[1024];
-    const od_int64 ptrlocation = isd_.istrm->tellg();
+    const od_int64 ptrlocation = StrmOper::tell( *isd_.istrm );
     isd_.istrm->read( (char*) headerbuff, mHeaderSize );
     headerbuff[mHeaderSize] = 0;
     if ( isd_.istrm->gcount() != mHeaderSize )
@@ -863,7 +1272,8 @@ int ZipHandler::readLocalFileHeader()
     lastmodtime_ = *mCast( od_uint16*, headerbuff + mLLastModFTime );
     lastmoddate_ = *mCast( od_uint16*, headerbuff + mLLastModFDate );
     crc_ = *mCast( od_uint32*, headerbuff + mLCRC32 );
-    srcfilesize_ = *mCast( od_uint32*, headerbuff + mLCompSize );
+    compfilesize_ = *mCast( od_uint32*, headerbuff + mLCompSize );
+    uncompfilesize_ = *mCast( od_uint32*, headerbuff + mLUnCompSize );
     srcfnmsize_ = *mCast( od_uint16*, headerbuff + mLFnmLength );
     od_uint16 xtrafldlth = *mCast( od_uint16*, headerbuff + mLExtraFldLength );
     isd_.istrm->read( mCast(char*,headerbuff), srcfnmsize_ );
@@ -880,13 +1290,21 @@ int ZipHandler::readLocalFileHeader()
 	     !File::createDir(destfile_.buf()) )
 	{ mErrRet("Failed to unzip ",srcfile_,"\nUnable to create directory.") }
 
-	isd_.istrm->seekg(ptrlocation + srcfnmsize_ + xtrafldlth + mHeaderSize);
+	StrmOper::seek( *isd_.istrm, ptrlocation + mHeaderSize + srcfnmsize_ + 
+				     xtrafldlth );
 	return 2;
     }
 
     destfile_ = destbasepath_;
     destfile_ += headerbuff;
-    isd_.istrm->seekg( ptrlocation + srcfnmsize_ + xtrafldlth + mHeaderSize );
+    if ( xtrafldlth > 0 && compfilesize_ > m32BitSizeLimit )
+    {
+	isd_.istrm->read( mCast(char*,headerbuff), xtrafldlth );
+	readXtraFldForZIP64( headerbuff, xtrafldlth );
+    }
+
+    StrmOper::seek( *isd_.istrm, ptrlocation + mHeaderSize + srcfnmsize_ + 
+				 xtrafldlth );
     return 1;
 }
 
@@ -937,23 +1355,27 @@ bool ZipHandler::doZUnCompress()
 		data fails.\n", "Error type:", ret )
     }
 
-    const od_uint32 chunksize = mMIN( mMaxChunkSize, srcfilesize_ );
+    const od_uint32 chunksize = mMIN( mMaxChunkSize, compfilesize_ );
     ArrPtrMan<char> in, out;
     mTryAllocPtrMan( in, char [chunksize] );
     mTryAllocPtrMan( out, char [chunksize] );
     if ( !in || !out )
     { mErrRet("Cannot allocate memory.","System is out of memory","") }
-    int count = chunksize;
+    od_int64 count = chunksize;
     od_uint32 crc = 0;
     od_uint32 bytestowrite;
     int flushpolicy = Z_NO_FLUSH;
     do
     {
-	if ( count <= srcfilesize_ ) 
+	if ( count <= compfilesize_ )
+	{
+	    od_int64 ptr1 = StrmOper::tell( *isd_.istrm );
 	    isd_.istrm->read( in, chunksize );
+	    ptr1 = StrmOper::tell( *isd_.istrm );
+	}
 	else
 	{
-	    isd_.istrm->read( in, srcfilesize_ % chunksize);
+	    isd_.istrm->read( in, compfilesize_ % chunksize);
 	    flushpolicy =  Z_FINISH ;
 	}
 
@@ -966,13 +1388,14 @@ bool ZipHandler::doZUnCompress()
 	    zlibstrm.avail_out = chunksize;
 	    zlibstrm.next_out = mCast( Bytef*, out.ptr() );
 	    ret = inflate( &zlibstrm, flushpolicy );
-	    if ( ret < 0 )
+	    if ( ret < 0 && ret != Z_BUF_ERROR )
 	    {
 		(void)inflateEnd( &zlibstrm );
 		mErrRet( "Failed to unzip ", srcfile_, "\nZip file is corrupt" )
 	    }
 
 	    bytestowrite = chunksize - zlibstrm.avail_out;
+	    nrdonesize_ += bytestowrite;
 	    crc = crc32( crc, mCast(Bytef*,out.ptr()), bytestowrite );
 	    osd_.ostrm->write( out, bytestowrite );
 	    if ( !*osd_.ostrm )
@@ -1030,7 +1453,7 @@ const char* ZipHandler::errorMsg()const
 {  return errormsg_.buf(); }
 
 
-od_int16 ZipHandler::timeInDosFormat( const char* fnm )const
+od_uint16 ZipHandler::timeInDosFormat( const char* fnm )const
 {
     unsigned char bte[2];
     QFileInfo qfi( fnm );
@@ -1057,7 +1480,7 @@ od_int16 ZipHandler::timeInDosFormat( const char* fnm )const
 }
 
 
-od_int16 ZipHandler::dateInDosFormat( const char* fnm )const
+od_uint16 ZipHandler::dateInDosFormat( const char* fnm )const
 {
     unsigned char bte[2];
     QFileInfo qfi( fnm );
