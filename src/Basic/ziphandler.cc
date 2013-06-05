@@ -635,7 +635,6 @@ bool ZipHandler::setCentralDirHeader()
 	    {
 		const od_uint16 headerid  = 1;
 		const od_uint16 datasize = 8;
-		char* buf = 0;
 		mInsertToCharBuff( zip64headerbuff, headerid, mLZIP64HeaderID,	
 				   mSizeTwoBytes );
 		mInsertToCharBuff( zip64headerbuff, datasize, mLZIP64DataSize, 
