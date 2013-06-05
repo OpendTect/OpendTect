@@ -80,7 +80,7 @@ public:
     const char*		message() const		{ return msg_.buf(); }
     const char*		nrDoneText() const	{ return "Models handled";}
     od_int64		nrDone() const		{ return seqidx_; }
-    od_int64		totalNr() const		{ return calcs_.size(); }
+    od_int64		totalNr() const;
     int			nextStep();
 
     static const char*	sKeyModelIdx()		{ return "Model Index"; }

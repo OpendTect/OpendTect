@@ -388,6 +388,10 @@ Strat::LayModAttribCalc::~LayModAttribCalc()
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 
+od_int64 Strat::LayModAttribCalc::totalNr() const
+{ return lm_.size(); }
+
+
 int Strat::LayModAttribCalc::nextStep()
 {
     const int dpssz = dps_.size();
@@ -396,6 +400,9 @@ int Strat::LayModAttribCalc::nextStep()
     if ( seqidx_ >= lm_.size() )
 	return Finished();
 
+    const int dpsdepthidx = dps_.indexOf( sKey::Depth() );
+    if ( dpsdepthidx<0 )
+	mErrRet( "No depth data found" )
     const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
     BufferString errmsg = "No extraction interval specified ";
     errmsg.add( "for pseudo-well number " );
