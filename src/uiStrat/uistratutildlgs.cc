@@ -680,17 +680,30 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units )
 }
 
 
-bool uiStratUnitDivideDlg::areTimesOK( 
-				ObjectSet<Strat::LeavedUnitRef>& units ) const
+bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
+       				       BufferString& errmsg ) const
 {
     for ( int idx=0; idx<units.size()-1; idx++ )
     {
 	const Strat::LeavedUnitRef& curunit = *units[idx];
 	const Strat::LeavedUnitRef& nextunit = *units[idx+1];
-	if ( !curunit.timeRange().width() || !nextunit.timeRange().width() )
+	const bool iscurunitrgok = curunit.timeRange().width();
+	if ( !iscurunitrgok || !nextunit.timeRange().width() )
+	{
+	    errmsg = BufferString("Time-span for unit '",
+		    	!iscurunitrgok ? curunit.code() : nextunit.code(),
+		   	"' is equal to 0. \nPlease correct it." );
 	    return false;
+	}
 	if ( curunit.timeRange().stop > nextunit.timeRange().start )
+	{
+	    errmsg = BufferString("Time overlap detected between units '")
+		    		.add(  curunit.code() )
+	   			.add( "' and '" )
+				.add( nextunit.code() )
+				.add( "'. \nPlease correct it." );
 	    return false;
+	}
     }
     return ( units[0]->timeRange().width() >= 0 );
 }
@@ -740,8 +753,13 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    mErrRet( errmsg, deepErase( units); return false )	
 	}
     }
-    if ( !areTimesOK( units) )
-	{ mErrRet("No valid times specified", deepErase(units); return false;) }
+    BufferString errmsg;
+    if ( !areTimesOK( units, errmsg ) )
+    { 
+	if ( errmsg.isEmpty() )
+	    errmsg = "No valid times specified";
+
+	mErrRet( errmsg, deepErase(units); return false;) }
 
     deepErase( units );
     return true;

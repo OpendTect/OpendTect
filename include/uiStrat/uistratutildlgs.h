@@ -127,8 +127,8 @@ protected :
     uiTable*                    table_;
     const Strat::LeavedUnitRef& rootunit_;
 
-    bool			areTimesOK(
-	    				ObjectSet<Strat::LeavedUnitRef>&) const;
+    bool			areTimesOK(ObjectSet<Strat::LeavedUnitRef>&,
+					   BufferString&) const;
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
