@@ -566,9 +566,14 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) ) 
 	return;
 
+    CubeSampling cs;
+    attrfld_->getRanges( cs );
+
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    seissubselfld_->setInput( horsampling );
+
+    cs.hrg.limitTo( horsampling );
+    seissubselfld_->setInput( cs );
 }
 
 
