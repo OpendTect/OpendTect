@@ -153,11 +153,15 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 {
     mIfGetString( Attrib::PSAttrib::velocityIDStr(), mid, 
 		  params_.velvolmid_=mid )
+		  
+    Interval<int> anglerange, normalanglevalrange( 0, 90 );
     mIfGetInt( Attrib::PSAttrib::angleStartStr(), start,
-		 params_.anglerange_.start=start )
-    mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop, 
-		 params_.anglerange_.stop=stop )
-		 
+		anglerange.start=start )
+    mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop,
+		anglerange.stop=stop )
+    if ( normalanglevalrange.includes(anglerange,false) )
+	params_.anglerange_ = anglerange;
+
     anglecompgrp_->updateFromParams();
 
     BufferString raytracerparam;

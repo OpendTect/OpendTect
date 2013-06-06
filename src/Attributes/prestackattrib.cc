@@ -92,7 +92,7 @@ void PSAttrib::initClass()
 				    mDefaultFreqF3, false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(), 
 				    mDefaultFreqF4, false ) );
-    desc->addParam( new BoolParam( useangleStr(), false, false ) );
+    desc->addParam( new BoolParam( useangleStr(), true, false ) );
     desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
 
     desc->addOutputDataType( Seis::UnknowData );
