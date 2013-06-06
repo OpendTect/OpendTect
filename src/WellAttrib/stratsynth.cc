@@ -833,13 +833,13 @@ const char* StratSynth::infoMsg() const
 
 
 #define mValidDensityRange( val ) \
-(!mIsUdf(val) && val>100 && val<10000)
+(mIsUdf(val) || (val>100 && val<10000))
 #define mValidWaveRange( val ) \
-(!mIsUdf(val) && val>10 && val<10000)
+(mIsUdf(val) || (val>10 && val<10000))
 
 #define mAddValToMsg( var, isdens ) \
 infomsg_ += "( sample value "; \
-infomsg_ += layer.den_; \
+infomsg_ += var; \
 infomsg_ += isdens ? "kg/m3" : "m/s"; \
 infomsg_ += ") \n";
 
