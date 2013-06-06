@@ -81,6 +81,8 @@ public:
 
     void		setInp2D(bool);
     bool		isProbablySwapped() const	{ return swpd_; }
+    bool		isIEEEFmt() const		{ return isieee_; }
+    bool		isProbablySeisWare() const	{ return issw_; }
 
     static const char*	sKeyLineNmToken()	{ return "#L"; }
     static const char*	fileFilter()
@@ -96,6 +98,8 @@ protected:
     bool		is2d_;
     bool		needmulti_;
     bool		swpd_;
+    bool		isieee_;
+    bool		issw_;
 
     void		setMultiInput(const StepInterval<int>&,int);
 
@@ -119,7 +123,8 @@ public:
     SEGY::FilePars	getPars() const;
     void		setPars(const SEGY::FilePars&);
 
-    void		setBytesSwapped(bool);
+    void		setBytesSwapped(bool fullswap,bool dataswap=false);
+    			//!< dataswap only used if fullswap is false
 
     Notifier<uiSEGYFilePars> readParsReq;
 

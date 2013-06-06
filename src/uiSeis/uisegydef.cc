@@ -54,6 +54,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , manipbut_(0)
     , needmulti_(su.forread_ && su.needmultifile_)
     , swpd_(false)
+    , isieee_(false)
+    , issw_(false)
     , fileSelected(this)
 {
     SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
@@ -251,6 +253,10 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
     SEGY::BinHeader bh; bh.setInput( buf );
     bh.guessIsSwapped();
     swpd_ = bh.isSwapped();
+    isieee_ = bh.format() == 5;
+    issw_ = false; //TODO: find out how we can detect SeisWare SEG-Y files
+    // The problem is they write IEEE native PC little-endian
+    // the Rev. 1 standard says it needs to be big-endian, i.e. byte-swapped)
 
     fileSelected.trigger();
 }
@@ -404,10 +410,10 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 }
 
 
-void uiSEGYFilePars::setBytesSwapped( bool yn )
+void uiSEGYFilePars::setBytesSwapped( bool full, bool data )
 {
-    if ( !byteswapfld_ ) return;
-    byteswapfld_->setValue( yn ? 2 : 0 );
+    if ( byteswapfld_ )
+	byteswapfld_->setValue( full ? 2 : (data ? 1 : 0) );
 }
 
 

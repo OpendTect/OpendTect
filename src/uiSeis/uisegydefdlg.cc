@@ -174,7 +174,10 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
 
 void uiSEGYDefDlg::fileSel( CallBacker* )
 {
-    fileparsfld_->setBytesSwapped( filespecfld_->isProbablySwapped() );
+    const bool allswpd = filespecfld_->isProbablySwapped();
+    const bool dataswpd = filespecfld_->isProbablySeisWare()
+			&& filespecfld_->isIEEEFmt();
+    fileparsfld_->setBytesSwapped( allswpd, dataswpd );
 }
 
 
