@@ -899,8 +899,11 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     cmd += " --err "; \
     cmd += " Could not write to "; \
     cmd += s; \
+    if ( File::isHidden(s) ) \
+	cmd += ". This is a hidden file"; \
+    else \
     cmd += " Please check the file permission"; \
-    ExecOSCmd( cmd.buf() ); } \
+    ExecOSCmd( cmd.buf(), true ); } \
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
