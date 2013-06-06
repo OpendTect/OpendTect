@@ -848,13 +848,17 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     const Interval<int> possintv( mNINT32(possiblevolume_->zrg.start/dz),
 	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
 
-    Array2DImpl< BasicInterval<int> > inputranges( inputs_.size(), intvs.size() );
-    for ( int idx=0; idx<intvs.size(); idx++ )
+    const int nrintvs = intvs.size();
+    if ( nrintvs < 1 ) { pErrMsg("Huh"); return; }
+    const int nrinps = inputs_.size();
+
+    Array2DImpl< BasicInterval<int> > inputranges( nrinps<1?1:nrinps, nrintvs );
+    for ( int idx=0; idx<nrintvs; idx++ )
     {
 	BasicInterval<int> reqintv = intvs[idx];
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
-	    for ( int inp=0; inp<inputs_.size(); inp++ )
+	    for ( int inp=0; inp<nrinps; inp++ )
 		inputranges.set( inp, idx, Interval<int>(mUdf(int),mUdf(int)) );
 	    continue;
 	}
@@ -877,13 +881,13 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	fillInputRangesArray( inputranges, idx, reqintv );
     }
 
-    for ( int inp=0; inp<inputs_.size(); inp++ )
+    for ( int inp=0; inp<nrinps; inp++ )
     {
 	if ( !inputs_[inp] )
 	    continue;
 
 	TypeSet<Interval<int> > inpranges;
-	for ( int idx=0; idx<intvs.size(); idx++ )
+	for ( int idx=0; idx<nrintvs; idx++ )
 	{
 	    const BasicInterval<int> rg = inputranges.get( inp, idx );
 	    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
@@ -905,12 +909,13 @@ void Provider::fillInputRangesArray(
 				Array2DImpl< BasicInterval<int> >& inputranges,
 				int idx, const BasicInterval<int>& reqintv )
 {
+    const int nrinps = inputs_.size();
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
 	if ( !outputinterest_[out] ) continue;
 
-	for ( int inp=0; inp<inputs_.size(); inp++ )
+	for ( int inp=0; inp<nrinps; inp++ )
 	{
 	    if ( !inputs_[inp] )
 		continue;
