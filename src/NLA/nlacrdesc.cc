@@ -58,8 +58,8 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
     if ( isstored )
 	{ inpnodenm++; if ( !*inpnodenm ) return false; }
     BufferString nodenm( inpnodenm );
-    if ( isstored && nodenm[colnm.size()-1] == ']' )
-	nodenm[colnm.size()-1] = '\0';
+    if ( isstored && nodenm[nodenm.size()-1] == ']' )
+	nodenm[nodenm.size()-1] = '\0';
 
     if ( colnm == nodenm )
 	return true;
