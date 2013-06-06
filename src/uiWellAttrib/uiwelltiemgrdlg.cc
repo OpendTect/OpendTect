@@ -105,7 +105,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( has2d )
     {
 	uiSeisSel::Setup seis2dfldsetup = uiSeisSel::Setup(Seis::Line);
-	seis2dfldsetup.optional_ = has3d;
+	seis2dfldsetup.optional_ = true;
 	seis2dfld_ = new uiSeisSel( seisgrp, seisctio2d_, seis2dfldsetup );
 	seis2dfld_->setChecked( true );
 	if ( typefld_ )
@@ -119,7 +119,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( has3d )
     {
 	uiSeisSel::Setup seis3dfldsetup = uiSeisSel::Setup(Seis::Vol);
-	seis3dfldsetup.optional_ = has2d;
+	seis3dfldsetup.optional_ = true;
 	seis3dfld_ = new uiSeisSel( seisgrp, seisctio3d_, seis3dfldsetup );
 	seis3dfld_->setChecked( true );
 	if ( typefld_ )
