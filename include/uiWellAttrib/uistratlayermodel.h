@@ -93,6 +93,7 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_;
+    uiWorldRect			zoomwr_;
 
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
