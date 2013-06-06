@@ -834,9 +834,15 @@ const char* StratSynth::infoMsg() const
 
 
 #define mValidDensityRange( val ) \
-(!mIsUdf(val) && val>100 && val<10000)
+(mIsUdf(val) || (val>100 && val<10000))
 #define mValidWaveRange( val ) \
-(!mIsUdf(val) && val>10 && val<10000)
+(mIsUdf(val) || (val>10 && val<10000))
+
+#define mAddValToMsg( var, isdens ) \
+infomsg_ += "( sample value "; \
+infomsg_ += var; \
+infomsg_ += isdens ? "kg/m3" : "m/s"; \
+infomsg_ += ") \n";
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 				     TypeSet<ElasticModel>& aimodels )
@@ -883,18 +889,29 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 		
 		if ( infomsg_.isEmpty() )
 		{
-		    infomsg_ += "Layer model contains invalid values of :";
+		    infomsg_ += "Layer model contains invalid values of "
+				"following properties :\n";
 		    if ( !mValidDensityRange(layer.den_) )
+		    {
 			infomsg_ += "'Density'";
+			mAddValToMsg( layer.den_, true );
+		    }
 		    if ( !mValidWaveRange(layer.vel_) )
+		    {
 			infomsg_ += "'P-Wave'";
+			mAddValToMsg( layer.vel_, false );
+		    }
 		    if ( !mValidWaveRange(layer.svel_) )
+		    {
 			infomsg_ += "'S-Wave'";
-		    infomsg_ += ". First occurence found in layer '";
+			mAddValToMsg( layer.svel_, false );
+		    }
+
+		    infomsg_ += "First occurence found in layer '";
 		    infomsg_ += seq.layers()[idx]->name();
 		    infomsg_ += "' of pseudo well number ";
 		    infomsg_ += midx+1;
-		    infomsg_ += ". Invalid layers will be interpolated";
+		    infomsg_ += ". Invalid values will be interpolated";
 		}
 
 	    }
@@ -907,12 +924,23 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	    errmsg_.setEmpty();
 	    errmsg_ += "Cannot generate elastic model as all the values "
 		       "of the properties ";
+	    const ElasticLayer& layer = aimodel[0];
 	    if ( invaliddenscount>=aimodel.size() )
+	    {
 		errmsg_ += "'Density' ";
+		mAddValToMsg( layer.den_, true );
+	    }
 	    if ( invalidvelcount>=aimodel.size() )
+	    {
 		errmsg_ += "'Pwave Velocity' ";
+		mAddValToMsg( layer.vel_, false );
+	    }
 	    if ( invalidsvelcount>=aimodel.size() )
+	    {
 		errmsg_ += "'Swave Velocity' ";
+		mAddValToMsg( layer.svel_, false );
+	    }
+
 	    errmsg_ += "are invalid. Probably units are not set correctly";
 	    return false;
 	}
