@@ -267,6 +267,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     , elpropsel_(0)				   
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , analtb_(0)
+    , zoomwr_(mUdf(double),0,0,0)
     , lmp_(*new uiStratLayerModelLMProvider)
     , newModels(this)				   
     , levelChanged(this)				   
@@ -488,6 +489,7 @@ void uiStratLayerModel::zoomChg( CallBacker* )
     if ( synthdisp_->getSynthetics().size() )
 	wr = synthdisp_->curView( true );
     moddisp_->setZoomBox( wr );
+    zoomwr_ = synthdisp_->curView( false );
 }
 
 
@@ -847,6 +849,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
     if ( !usefr )
 	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
 
+    uiWorldRect prevzoomwr = zoomwr_;
     synthdisp_->setUseEdited( usefr );
     IOPar synthpar, edsynthpar;
     synthdisp_->fillPar( synthpar, false );
@@ -858,6 +861,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
 
     moddisp_->modelChanged();
+    if ( !mIsUdf(prevzoomwr.left()) )
+	synthdisp_->setZoomView( prevzoomwr );
 }
 
 

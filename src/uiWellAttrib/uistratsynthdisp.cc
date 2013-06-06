@@ -318,6 +318,14 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 }
 
 
+void uiStratSynthDisp::setZoomView( const uiWorldRect& wr )
+{
+    Geom::Point2D<double> centre = wr.centre();
+    Geom::Size2D<double> newsz = wr.size();
+    control_->setNewView( centre, newsz );
+}
+
+
 void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 {
     Interval<double> newzrg; newzrg.set( zrg.start, zrg.stop );
@@ -809,7 +817,10 @@ void uiStratSynthDisp::doModelChange()
     if ( mStratSynth->errMsg() )
 	mErrRet( mStratSynth->errMsg(), return )
     if ( mStratSynth->infoMsg() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
 	uiMSG().warning( mStratSynth->infoMsg() );
+    }
 
     updateSyntheticList( true );
     updateSyntheticList( false );

@@ -62,6 +62,7 @@ public:
     void		setDisplayZSkip(float zskip,bool withmodchg);
 
     const uiWorldRect&	curView(bool indepth) const;
+    void		setZoomView(const uiWorldRect&);
 
     uiFlatViewer*	viewer()		{ return vwr_; }
 
