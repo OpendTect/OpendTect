@@ -68,7 +68,12 @@ void LinearArray1DInterpol::extrapolate( bool start )
     {
 	const int posidx = start ? ++nextvalidix : --nextvalidix;
 	if ( !arr_->info().validPos(posidx) )
-	    return;
+	{
+	    if ( !doneonce )
+		return;
+	    start ? nextvalidix-- : nextvalidix++;
+	    break;
+	}
 	if ( !mIsUdf(arr_->get(posidx)) )
 	{
 	    if ( doneonce )
