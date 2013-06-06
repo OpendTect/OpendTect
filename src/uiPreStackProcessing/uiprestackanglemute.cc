@@ -286,9 +286,9 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
 {
     freqf3fld_->setToolTip( "Frequency where the cosine tapering window starts:"
-			    "Amplitude=input" );
+			    " Amplitude=input" );
     freqf4fld_->setToolTip( "Frequency where the cosine tapering window stops:"
-			    "Amplitude=0" );
+			    " Amplitude=0" );
     smoothTypeSel(0);
 }
 
