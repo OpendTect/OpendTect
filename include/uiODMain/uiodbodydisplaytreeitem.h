@@ -24,7 +24,8 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 		      class RandomPosBodyDisplay; }
 
 
-mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( BodyDisplayParent, TreeItem, TreeTop, 
+	mShowMenu mMenuOnAnyButton void loadBodies(); );
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory

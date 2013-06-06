@@ -87,52 +87,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
-    {
-	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectBodies( objs );
-	TypeSet<EM::ObjectID> oids;
-	for ( int idx=0; idx<objs.size(); idx++ )
-	{
-	    oids += objs[idx]->id();
-	    const char* stype = objs[idx]->getTypeStr();
-	    if ( strcmp(stype,EM::MarchingCubesSurface::typeStr()) &&
-	         strcmp(stype,"MarchingCubesSurface") )
-		continue;
-
-	    const MultiID& mid = objs[idx]->multiID();
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
-	    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
-	    if ( !ioobj )
-		continue;
-
-	    std::istream& strm = ((StreamConn*)conn)->iStream();
-	    ascistream astream( strm );
-	    const int majorversion = astream.majorVersion();
-	    const int minorversion = astream.minorVersion();
-	    if ( majorversion<4 || (majorversion==4 && minorversion<3) )
-	    {
-		BufferString msg("The geobody '"); msg.add(ioobj->name());
-		msg.add("' is made in od"); msg.add(astream.version());
-		msg.add(", do you want to convert it to current version?");
-		if ( !uiMSG().askGoOn(msg.buf()) )
-		    continue;
-
-		uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );
-		if ( dlg.go() )
-		{
-		    EM::EMObject* eo = 
-			EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
-		    if ( eo )
-    			oids[idx] = eo->id();
-		}
-	    }
-	}
-
-	MouseCursorChanger uics( MouseCursor::Wait );
-	for ( int idx=0; idx<oids.size(); idx++ )
-	    addChild( new uiODBodyDisplayTreeItem(oids[idx]), false );
-	deepUnRef( objs );
-    }
+	loadBodies();
     else if ( mnuid==1 )
     {
 	RefMan<EM::EMObject> plg =
@@ -155,6 +110,60 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     return true;
 }
 
+
+void uiODBodyDisplayParentTreeItem::loadBodies()
+{
+    ObjectSet<EM::EMObject> objs;
+    applMgr()->EMServer()->selectBodies( objs );
+    TypeSet<EM::ObjectID> oids;
+
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	oids += objs[idx]->id();
+	const FixedString stype = objs[idx]->getTypeStr();
+	if ( stype != EM::MarchingCubesSurface::typeStr() &&
+	     stype != "MarchingCubesSurface" )
+	    continue;
+
+	const MultiID& mid = objs[idx]->multiID();
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+	if ( !ioobj )
+	    continue;
+
+	std::istream& strm = ((StreamConn*)conn)->iStream();
+	ascistream astream( strm );
+	const int majorversion = astream.majorVersion();
+	const int minorversion = astream.minorVersion();
+	if ( majorversion>=4 && minorversion>2 )
+	    continue;
+    
+	BufferString msg("The geobody '", ioobj->name() );
+	msg.add( "' is made in OpendTect V" ).add( astream.version() )
+	    .add( ", do you want to convert it to current version?" );
+	if ( !uiMSG().askGoOn(msg.buf()) )
+	    continue;
+
+	uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );
+	if ( !dlg.go() )
+	    continue;
+
+	EM::EMObject* emobj = 
+	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
+	if ( emobj )
+	{
+	    emobj->ref();
+	    objs.replace( idx, emobj )->unRef();
+	    oids[idx] = emobj->id();
+	}
+    }
+
+    MouseCursorChanger uics( MouseCursor::Wait );
+    for ( int idx=0; idx<oids.size(); idx++ )
+	addChild( new uiODBodyDisplayTreeItem(oids[idx]), false );
+
+    deepUnRef( objs );
+}
 
 uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 							  uiTreeItem* ) const
