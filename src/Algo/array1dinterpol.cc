@@ -68,7 +68,12 @@ void LinearArray1DInterpol::extrapolate( bool start )
     {
 	const int posidx = start ? ++nextvalidix : --nextvalidix;
 	if ( !arr_->info().validPos(posidx) )
-	    return;
+	{
+	    if ( !doneonce )
+		return;
+	    start ? nextvalidix-- : nextvalidix++;
+	    break;
+	}
 	if ( !mIsUdf(arr_->get(posidx)) )
 	{
 	    if ( doneonce )
@@ -79,7 +84,7 @@ void LinearArray1DInterpol::extrapolate( bool start )
     }
 
     int iteratoridx = start ? 0 : arr_->info().getSize(0)-1;
-    while( arr_->info().validPos(iteratoridx) && mIsUdf(arr_->get(iteratoridx)))
+    while(arr_->info().validPos(iteratoridx) && mIsUdf(arr_->get(iteratoridx)))
     {
 	float val =
 	    fillwithextremes_ ? arr_->get(firstvalidix)
@@ -190,7 +195,7 @@ bool PolyArray1DInterpol::getPositions( int curpos, TypeSet<float>& posidxs )
     return true;
 }
 
-
+//TODO Test for single valid value extrapolate
 void PolyArray1DInterpol::extrapolate( bool start )
 {
     TypeSet<float> posidxs(4,0);
