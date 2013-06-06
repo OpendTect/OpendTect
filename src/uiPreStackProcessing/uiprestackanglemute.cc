@@ -100,12 +100,16 @@ bool uiAngleCompGrp::acceptOK()
     }
     else
     {
-	params_.anglerange_ = anglefld_->getIInterval();
-	if ( !normalanglevalrange.includes(params_.anglerange_,false) )
+	Interval<int> anglerange = anglefld_->getIInterval();
+	anglerange.sort();
+
+	if ( !normalanglevalrange.includes(anglerange,false) )
 	{
 	    uiMSG().error("Please provide angle range between 0 and 90 degree");
 	    return false;
 	}
+	
+	params_.anglerange_ = anglerange;
     }
 
     return true;
@@ -179,7 +183,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     freqf4lbl_ = new uiLabel( this, "Hz" );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
 
-    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,smoothTypeSel) );
+    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
 }
 
 
@@ -276,6 +280,16 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
     const bool iscostaper = smoothwindow==CosTaperWindow::sName();
     smoothwinparamfld_->display( istimeavg && iscostaper );
     smoothwinparamlbl_->display( istimeavg && iscostaper );
+}
+
+
+void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
+{
+    freqf3fld_->setToolTip( "Frequency where the cosine tapering window starts:"
+			    "Amplitude=input" );
+    freqf4fld_->setToolTip( "Frequency where the cosine tapering window stops:"
+			    "Amplitude=0" );
+    smoothTypeSel(0);
 }
 
 

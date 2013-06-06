@@ -76,6 +76,7 @@ protected :
     bool		isSmoothTypeTimeAverage();
     void		smoothTypeSel(CallBacker*);
     void		smoothWindowSel(CallBacker*);
+    void		finaliseCB(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
     uiGenInput*		smoothtypefld_;
