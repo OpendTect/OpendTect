@@ -58,10 +58,10 @@ ArrayND. User can choose to remove only the average or an eventual linear trend.
 
 
 #define mComputeTrendAandB( sz ) \
-	const T aval = ( (T)sz * crosssum - sum * (T)sumindexes ) / \
-		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );\
-	const T bval = ( sum * (T)sumsqidx - (T)sumindexes * crosssum ) / \
-		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );
+	aval = ( (T)sz * crosssum - sum * (T)sumindexes ) / \
+	       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );\
+	bval = ( sum * (T)sumsqidx - (T)sumindexes * crosssum ) / \
+	       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );
 
 template <class T>
 inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
@@ -70,59 +70,93 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 
     T avg = 0;
     T sum = 0;
-    int sumindexes = 0;
-    int sumsqidx = 0;
+    od_int64 sumindexes = 0;
+    od_int64 sumsqidx = 0;
     T crosssum = 0;
+    T aval = mUdf(T);
+    T bval = mUdf(T);
 
     if ( out_ && in->info() != out_->info() ) return false;
 
-    const int sz = in->info().getTotalSz();
+    const od_int64 sz = in->info().getTotalSz();
 
     T* inpptr = in->getData();
     T* outptr = out->getData();
 
     if ( inpptr && outptr )
     {
+	int count = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	{
+	    const T value = inpptr[idx];
+	    if ( mIsUdf(value) )
+		continue;
+
 	    sum += inpptr[idx];
+	    count++;
+	    if ( onlyavg )
+		continue;
+
 	    sumindexes += idx;
 	    sumsqidx += idx * idx;
 	    crosssum += inpptr[idx] * (T)idx;
-	} 
+	}
 
-	avg = sum / (T)sz;
-	mComputeTrendAandB(sz)
+	if ( !count )
+	    return false;
+
+	if ( onlyavg )
+	    avg = sum / (T)count;
+	else
+	    mComputeTrendAandB(count)
 
 	for ( int idx=0; idx<sz; idx++ )
-	    outptr[idx] = onlyavg ? inpptr[idx] - avg
-				  : inpptr[idx] - (aval*(T)idx+bval);
+	{
+	    const T value = inpptr[idx];
+	    outptr[idx] = mIsUdf(value ) ? mUdf(T)
+					 : onlyavg ? value - avg
+					 : value - (aval*(T)idx+bval);
+	}
     }
     else
     {
 	ArrayNDIter iter( in->info() );
 	int index = 0;
+	int count = 0;
 
 	do
 	{
 	    const T value = in->getND( iter.getPos() );
+	    index++;
+	    if ( mIsUdf(value) )
+		continue;
+
 	    sum += value;
+	    count++;
+	    if ( onlyavg )
+		continue;
+
 	    sumindexes += index;
 	    sumsqidx += index * index;
 	    crosssum += value * (T)index;
-	    index++;
 	} while ( iter.next() );
 
 	iter.reset();
-	index = 0;
-	avg = sum / (T)sz;
-	mComputeTrendAandB(index)
+	if ( !count )
+	    return false;
 
+	if ( onlyavg )
+	    avg = sum / (T)count;
+	else
+	    mComputeTrendAandB(count)
+
+	index = 0;
 	do
 	{
-	    const T outval = 
-		onlyavg ? in->getND( iter.getPos() ) - avg
-		        : in->getND( iter.getPos() ) - avg-(aval*(T)index+bval);
+	    const T inpval = in->getND( iter.getPos() );
+	    const T outval = mIsUdf(inpval) ? mUdf(T)
+			   : onlyavg ? inpval - avg
+			   	     : inpval - avg-(aval*(T)index+bval);
 	    out->setND(iter.getPos(), outval );
 	    index++;
 	} while ( iter.next() );
@@ -141,10 +175,21 @@ inline T computeAvg( ArrayND<T>* in )
 
     if ( inpptr )
     {
+	int count = 0;
 	for ( int idx=0; idx<sz; idx++ )
-	    avg += inpptr[idx]; 
+	{
+	    const T val = inpptr[idx];
+	    if ( !mIsUdf(val) )
+	    {
+		avg += inpptr[idx];
+		count++;
+	    }
+	}
 
-	avg /= sz;
+	if ( !count )
+	    return mUdf(T);
+
+	avg /= count;
     }
 
     return avg;
@@ -631,3 +676,4 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 
 
 #endif
+
