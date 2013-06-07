@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "scaler.h"
 #include "seisioobjinfo.h"
+#include "seismulticubeps.h"
 #include "seisselection.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -56,15 +57,16 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-	: uiFullBatchDialog(p,Setup("Process"))
-	, ctio_(mkCtxtIOObj(ad))
-    	, subselpar_(*new IOPar)
-    	, sel_(*new CurrentSel)
-	, ads_(const_cast<DescSet&>(ad))
-	, nlamodel_(n)
-	, nlaid_(id)
-	, todofld_(0)
-	, attrselfld_(0)
+    : uiFullBatchDialog(p,Setup("Process"))
+    , ctio_(mkCtxtIOObj(ad))
+    , subselpar_(*new IOPar)
+    , sel_(*new CurrentSel)
+    , ads_(const_cast<DescSet&>(ad))
+    , nlamodel_(n)
+    , nlaid_(id)
+    , todofld_(0)
+    , attrselfld_(0)
+    , datastorefld_(0)
 {
     setHelpID( "101.2.0" );
 
@@ -100,6 +102,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     objfld_ = new uiSeisSel( uppgrp_, ctio_, su );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
+
+    if ( multioutput )
+    {
+	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
+	ctxt.forread = false;
+	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
+	datastorefld_ = new uiIOObjSel( uppgrp_, ctxt, "Output data store" );
+	datastorefld_->attach( alignedBelow, objfld_ );
+    }
 
     uppgrp_->setHAlignObj( transffld_ );
 

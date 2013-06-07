@@ -59,6 +59,7 @@ protected:
     uiMultiAttribSel*	attrselfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		objfld_;
+    uiIOObjSel*		datastorefld_;
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
