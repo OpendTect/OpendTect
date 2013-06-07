@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "thread.h"
 #include "callback.h"
@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "windows.h"
 #endif
 
-mUseQtnamespace
 
 Threads::Mutex::Mutex( bool recursive )
 #ifndef OD_NO_QT
@@ -73,7 +72,7 @@ bool Threads::Mutex::tryLock()
 #endif
 }
 
-
+#ifdef mHasAtomic
 Threads::SpinLock::SpinLock()
     : spinlock_( 0 )
 {}
@@ -83,7 +82,7 @@ Threads::SpinLock::~SpinLock()
 
 void Threads::SpinLock::lock()
 {
-    while ( !spinlock_.strongSetIfEqual( 1, 0 ) )
+    while ( !spinlock_.setIfEqual( 1, 0 ) )
 	;
 }
 
@@ -91,7 +90,7 @@ void Threads::SpinLock::lock()
 void Threads::SpinLock::unLock()
 {
 #ifdef __debug__
-    if ( !spinlock_.strongSetIfEqual( 0, 1 ) )
+    if ( !spinlock_.setIfEqual( 0, 1 ) )
 	pErrMsg( "Unlocking unlocked spinlock" );
 #else
     spinlock_ = 0;
@@ -101,8 +100,32 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    return spinlock_.strongSetIfEqual( 1, 0 );
+    return spinlock_.setIfEqual( 1, 0 );
 }
+#else
+Threads::SpinLock::SpinLock()
+{}
+
+Threads::SpinLock::~SpinLock()
+{}
+
+void Threads::SpinLock::lock()
+{
+    spinlock_.lock();
+}
+
+
+void Threads::SpinLock::unLock()
+{
+    spinlock_.unLock();
+}
+
+
+bool Threads::SpinLock::tryLock()
+{
+    return spinlock_.tryLock();
+}
+#endif
 
 #define mUnLocked	0
 #define mPermissive	-1
@@ -487,7 +510,7 @@ const void* Threads::Thread::threadID() const
 }
 
 
-const void* Threads::currentThread()
+const void* Threads::Thread::currentThread()
 {
 #ifndef OD_NO_QT
     return QThread::currentThread();
@@ -504,9 +527,6 @@ void Threads::Thread::waitForFinish()
 #endif
 }
 
-
-int Threads::getSystemNrProcessors()
-{ return QThread::idealThreadCount(); }
 
 int Threads::getNrProcessors()
 {
@@ -537,10 +557,7 @@ int Threads::getNrProcessors()
 	}
 
 	if ( nrproc < 1 || needauto )
-	{
-	    havesett = false;
 	    nrproc = QThread::idealThreadCount();
-	}
 
 	float fnrproc = nrproc * perc * 0.01;
 	nrproc = mNINT32(fnrproc);

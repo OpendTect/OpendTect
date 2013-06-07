@@ -4,7 +4,7 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -16,20 +16,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "iopar.h"
+#include "hiddenparam.h"
 
 
 #define mFileType "Layer Sequence Generator Description"
 
 static const char* sKeyFileType = mFileType;
 static const char* sKeyIDNew = "[New]";
-static const char* sKeyTopdepth = "Top depth";
 static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
-const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams() { return "WB"; }
+HiddenParam<Strat::LayerSequenceGenDesc,IOPar*>    wbmparsmanager( 0 );
+
+const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams()
+{ return "Workbench parameters"; }
 
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
@@ -60,7 +62,7 @@ int Strat::LayerModelGenerator::nextStep()
     if ( seqnr_ == -1 )
 	return ErrorOccurred();
 
-    const float modpos = nrseqs_ < 2 ? 0.5f : ((float)seqnr_)/(nrseqs_-1);
+    const float modpos = nrseqs_ < 2 ? 0.5 : ((float)seqnr_)/(nrseqs_-1);
     if ( !desc_.generate(lm_.addSequence(),modpos) )
     {
 	msg_ = desc_.errMsg();
@@ -75,7 +77,7 @@ int Strat::LayerModelGenerator::nextStep()
 Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 						const Strat::RefTree& rt )
 {
-    Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type()) );
+    Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type) );
     if ( !ret ) return 0;
     if ( ret->usePar(iop,rt) )
 	return ret;
@@ -91,7 +93,7 @@ bool Strat::LayerGenerator::usePar( const IOPar&, const Strat::RefTree& )
 
 void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), factoryKeyword() );
+    iop.set( sKey::Type, factoryKeyword() );
 }
 
 
@@ -106,14 +108,17 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
-    , startdepth_(0)
 {
     elasticpropselmid_.setEmpty(); 
+    IOPar* startiopar = new IOPar();
+    wbmparsmanager.setParam( this, startiopar );
 }
 
 
 Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 {
+    delete wbmparsmanager.getParam(this);
+    wbmparsmanager.removeParam(this);
     deepErase( *this );
 }
 
@@ -127,15 +132,14 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     deepErase( *this );
 
     IOPar iop; iop.getFrom(astrm);
-    iop.get( sKeyTopdepth, startdepth_ );
     iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
-    PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
-    if ( !workbenchpars || workbenchpars->isEmpty() )
-	workbenchpars = iop.subselect( "Workbench parameters" );
+
+    IOPar* workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( workbenchpars )
-	workbenchparams_ = *workbenchpars;
-    else
-	workbenchparams_.setEmpty();
+    {
+	delete wbmparsmanager.getParam(this);
+	wbmparsmanager.setParam( this, workbenchpars );
+    }
 
     while ( !atEndOfSection(astrm.next()) )
     {
@@ -165,10 +169,8 @@ bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
     if ( !astrm.putHeader(sKeyFileType) )
 	{ errmsg_ = "Cannot write file header"; return false; }
 
-    IOPar iop;
-    iop.set( sKeyTopdepth, startdepth_ );
-    iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
-    iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
+    IOPar iop; iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.mergeComp( *wbmparsmanager.getParam( this ), sKeyWorkBenchParams() );
     iop.putTo( astrm );
 
     for ( int idx=0; idx<size(); idx++ )
@@ -220,12 +222,10 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 {
     errmsg_.setEmpty();
 
-    ls.setStartDepth( startdepth_ );
     const Property::EvalOpts eo( Property::EvalOpts::New, modpos );
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
-	
 	if ( !lgen.generateMaterial(ls,eo) )
 	{
 	    errmsg_ = lgen.errMsg();
@@ -311,6 +311,12 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 }
 
 
+IOPar* Strat::LayerSequenceGenDesc::getWorkBenchParams()
+{
+    return wbmparsmanager.getParam( this );
+}
+
+
 Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
     , content_(&Strat::Content::unspecified())
@@ -387,14 +393,14 @@ void Strat::SingleLayerGenerator::updateUsedProps(
 bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
     unit_ = 0;
-    const char* res = iop.find( sKey::Unit() );
+    const char* res = iop.find( sKey::Unit );
     if ( res && *res )
     {
 	const UnitRef* ur = rt.find( res );
 	if ( ur && ur->isLeaf() )
 	    unit_ = static_cast<const LeafUnitRef*>( ur );
     }
-    res = iop.find( sKey::Content() );
+    res = iop.find( sKey::Content );
     if ( res && *res )
     {
 	content_ = rt.contents().getByName( res );
@@ -405,7 +411,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     for ( int pidx=0; ; pidx++ )
     {
 	PtrMan<IOPar> proppar = iop.subselect(
-				IOPar::compKey(sKey::Property(),pidx) );
+				IOPar::compKey(sKey::Property,pidx) );
 	if ( !proppar || proppar->isEmpty() )
 	    break;
 
@@ -422,17 +428,17 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     LayerGenerator::fillPar( iop );
-    iop.set( sKey::Unit(), unit().fullCode() );
+    iop.set( sKey::Unit, unit().fullCode() );
 
     if ( content().isUnspecified() )
-	iop.removeWithKey( sKey::Content() );
+	iop.removeWithKey( sKey::Content );
     else
-	iop.set( sKey::Content(), content().name() );
+	iop.set( sKey::Content, content().name() );
 
     for ( int pidx=0; pidx<props_.size(); pidx++ )
     {
 	IOPar subpar; props_.get(pidx).fillPar( subpar );
-	const BufferString ky( IOPar::compKey(sKey::Property(),pidx) );
+	const BufferString ky( IOPar::compKey(sKey::Property,pidx) );
 	iop.mergeComp( subpar, ky );
     }
 }
@@ -459,14 +465,14 @@ static bool setLayVal( Strat::Layer& lay, int iprop, const Property& prop,
 
 #define mSetLayVal \
 { \
-    if ( !setLayVal(*newlay,ipr,prop,eo) ) \
+    if ( setLayVal(*newlay,ipr,prop,eo) ) \
+        haveset = true; \
+    else \
     {  \
 	errmsg_ = prop.errMsg(); \
 	delete newlay; return false; \
     } \
 }
-
-
 
 
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
@@ -477,14 +483,12 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
 
-    TypeSet<int> indexesofprsmath;
-    TypeSet<int> correspondingidxinprops;
-
-    // first non-Math
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
 	const PropertyRef* pr = prs[ipr];
 
+	// first non-Math
+	bool haveset = false;
 	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
 	    const Property& prop = props_.get( iprop );
@@ -493,24 +497,25 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 		mDynamicCastGet(const MathProperty*,mp,&prop)
 		if ( !mp )
 		    mSetLayVal
-		else
-		{
-		    indexesofprsmath += ipr;
-		    correspondingidxinprops += iprop;
-		}
 		break;
 	    }
+	    if ( haveset ) break;
 	}
-    }
 
-    // then Math
-    for ( int mathidx=0; mathidx<indexesofprsmath.size(); mathidx++ )
-    {
-	const int ipr = indexesofprsmath[mathidx];
-	const PropertyRef* pr = prs[ipr];
-	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
-	if ( pr != &prop.ref() ) continue; 	//huh? should never happen
-	mSetLayVal
+	// then Math
+	haveset = false;
+	for ( int iprop=0; iprop<props_.size(); iprop++ )
+	{
+	    const Property& prop = props_.get( iprop );
+	    if ( pr == &prop.ref() )
+	    {
+		mDynamicCastGet(const MathProperty*,mp,&prop)
+		if ( mp )
+		    mSetLayVal
+		break;
+	    }
+	    if ( haveset ) break;
+	}
     }
 
     const float th = newlay->thickness();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "scalingattrib.h"
 
@@ -218,7 +218,7 @@ Scaling::Scaling( Desc& desc )
     {
 	const ValParam& param = (ValParam&)(*gateset)[idx];
 	Interval<float> interval( param.getfValue(0), param.getfValue(1) );
-	interval.sort(); interval.scale( 1.f/zFactor() );
+	interval.sort(); interval.scale( 1./zFactor() );
 	gates_ += interval;
     }
     
@@ -231,8 +231,8 @@ Scaling::Scaling( Desc& desc )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/(2.f*SI().zDomain().userFactor()), 
-				width_/(2.f*SI().zDomain().userFactor()) );
+    window_ = Interval<float>( -width_/(2.*SI().zFactor()), 
+				width_/(2.*SI().zFactor()) );
 }
 
 
@@ -281,7 +281,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 
 	float val = (float)stats.getValue( statstype );
-	scalefactors += !mIsZero(val,mDefEps) ? 1.f/val : 1;
+	scalefactors += !mIsZero(val,mDefEps) ? 1./val : 1;
 	stats.clear();
     }
 }
@@ -310,7 +310,7 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 	{
 	    float val = getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 	    stats += val;
-	    statsidx += mCast(float,idx);
+	    statsidx += idx;
 	    crosssum += val*idx;
 	    nrindexes++;
 	}
@@ -379,20 +379,18 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !found && samplegates[sgidx].includes(csamp, true ) )
 	    {
 		if ( statstype_ == mStatsTypeDetrend )
-		    scalefactors[sgidx] = 
-				trends_[sgidx].valueAtX( mCast(float,csamp) );
+		    scalefactors[sgidx] = trends_[sgidx].valueAtX( csamp );
 		if ( sgidx+1 < samplegates.size() && 
 		     samplegates[sgidx+1].includes(csamp, true ) )
 		{
 		    if ( statstype_ == mStatsTypeDetrend )
-			scalefactors[sgidx+1] =
-			      trends_[sgidx+1].valueAtX( mCast(float,csamp) );
+			scalefactors[sgidx+1] =trends_[sgidx+1].valueAtX(csamp);
 
 		    scalefactor = interpolator( scalefactors[sgidx], 
-			    		scalefactors[sgidx+1],
-					mCast(float,samplegates[sgidx+1].start),
-					mCast(float,samplegates[sgidx].stop),
-					mCast(float,csamp) );
+			    			scalefactors[sgidx+1],
+						samplegates[sgidx+1].start,
+						samplegates[sgidx].stop,
+						csamp );
 		}
 		else
 		    scalefactor = scalefactors[sgidx];
@@ -445,8 +443,8 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     int curgateidx = 0;
     TypeSet< Interval<int> > gates;
     for ( int idx=0; idx<gates_.size(); idx++ )
-	gates += Interval<int>( (int)gates_[idx].start*1000, 
-				(int)gates_[idx].stop*1000 );
+	gates += Interval<int>( (int)(gates_[idx].start*1000), 
+				(int)(gates_[idx].stop*1000) );
     
     for ( int idx=0; idx<nrsamples; idx++ )
     {

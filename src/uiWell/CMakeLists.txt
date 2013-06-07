@@ -8,7 +8,6 @@
 SET(OD_MODULE_DEPS uiStrat Well)
 SET(OD_MODULE_SOURCES
 		inituiwell.cc
-		uibulkwellimp.cc
 		uid2tmodelgrp.cc
 		uimultiwelllogsel.cc
 		uisimplemultiwell.cc

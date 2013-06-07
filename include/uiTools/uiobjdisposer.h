@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "callback.h"
 #include "sets.h"
 class Timer;
@@ -26,7 +25,7 @@ class Timer;
  
  */
 
-mExpClass(uiTools) uiObjDisposer : public CallBacker
+mClass uiObjDisposer : public CallBacker
 { 	
 public:
 
@@ -40,12 +39,11 @@ protected:
 				uiObjDisposer();
 
     void			doDel(CallBacker*);
-    mGlobal(uiTools) friend uiObjDisposer*	uiOBJDISP();
+    mGlobal friend uiObjDisposer*	uiOBJDISP();
 
 };
 
-mGlobal(uiTools) uiObjDisposer* uiOBJDISP();
+mGlobal uiObjDisposer* uiOBJDISP();
 
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "bufstringset.h"
 #include "emposid.h"
 #include "emobject.h"
@@ -37,11 +36,8 @@ namespace EM
 class Surface;
 class SurfaceIODataSelection;
 
-/*!
-\brief Surface geometry
-*/
 
-mExpClass(EarthModel) SurfaceGeometry : public CallBacker
+mClass SurfaceGeometry : public CallBacker
 {
 public:
     			SurfaceGeometry(Surface&);
@@ -120,11 +116,7 @@ protected:
 };
 
 
-/*!
-\brief RowCol SurfaceGeometry
-*/
-
-mExpClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
+mClass RowColSurfaceGeometry : public SurfaceGeometry
 {
 public:
     			RowColSurfaceGeometry(Surface&);
@@ -149,4 +141,3 @@ public:
 }; // namespace EM
 
 #endif
-

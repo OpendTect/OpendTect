@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -29,8 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <qfontdialog.h> 
 #include <qfontmetrics.h> 
 
-mUseQtnamespace
-
 static const char* fDefKey = "Font.def";
 
 
@@ -40,15 +38,18 @@ uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
 			   ps > 1 ? ps : 12, FontData::numWeight(w),it))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( ky )
-        , changed(this)
 {}
 
 
 uiFont::uiFont( const char* ky, FontData fdat )
-	: qfont_( createQFont(fdat))
+	: qfont_( new QFont(
+		    QString( fdat.family() && *fdat.family()
+				? fdat.family() : "helvetica" ),
+		    fdat.pointSize() > 1 ? fdat.pointSize() : 12,
+		    FontData::numWeight(fdat.weight()),
+		    fdat.isItalic()))  
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( ky )
-	, changed(this)
 {}
 
 
@@ -56,7 +57,6 @@ uiFont::uiFont( const uiFont& afont )
 	: qfont_(new QFont(*afont.qfont_))
 	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_(afont.key_)
-	, changed(this)
 {} 
 
 
@@ -77,42 +77,25 @@ uiFont& uiFont::operator=( const uiFont& tf )
 
 FontData uiFont::fontData() const
 {
-    FontData fdata;
-    getFontData( fdata, *qfont_ );
-    return fdata;
+    return FontData( qfont_->pointSize(), mQStringToConstChar(qfont_->family()),
+		     FontData::enumWeight(qfont_->weight()),
+		     qfont_->italic() );
 }
 
 
 void uiFont::setFontData( const FontData& fData )
 {
-    setFontData( *qfont_, fData );
+    qfont_->setFamily( fData.family() );
+    qfont_->setPointSize( fData.pointSize() );
+    qfont_->setWeight( fData.weight() );
+    qfont_->setItalic( fData.isItalic() );
     updateMetrics();
 }
-
-
-void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fData )
-{
-    qfont.setFamily(
-	    fData.family() && *fData.family() ? fData.family(): "helvetica" );
-    qfont.setPointSize( fData.pointSize() );
-    qfont.setWeight( fData.weight() );
-    qfont.setItalic( fData.isItalic() );
-}
-
-
-void uiFont::getFontData( FontData& fData, const mQtclass(QFont)& qfont )
-{
-    fData = FontData( qfont.pointSize(), mQStringToConstChar(qfont.family()),
-		    FontData::enumWeight(qfont.weight()),
-		    qfont.italic() );
-}
-
 
 
 void uiFont::updateMetrics()
 {
     qfontmetrics_ = QFontMetrics( *qfont_ );
-    changed.trigger();
 }
 
 
@@ -154,35 +137,22 @@ int uiFont::ascent() const
 }
 
 
-#define mImplGetFont( qfont, oldfont ) \
-bool ok; \
-qfont  = QFontDialog::getFont( &ok, oldfont, \
-			      parnt ? parnt->pbody()->qwidget() : 0, nm ) 
-
 bool select( uiFont& fnt, uiParent* parnt, const char* nm )
-{  
+{
+    bool ok;
+  
     QFont fontNew;
-    mImplGetFont( fontNew, fnt.qFont() );
-    
+    fontNew = QFontDialog::getFont( &ok, fnt.qFont(), 
+				    parnt ? parnt->pbody()->qwidget() : 0, nm );
     if( ok ) 
     { 
 	*fnt.qfont_ = fontNew;
-	 fnt.updateMetrics();
+        QFontMetrics metr( *fnt.qfont_ );
+	fnt.qfontmetrics_ = metr;
     }
     return ok;
 }
 
-bool select( FontData& fnt, uiParent* parnt, const char* nm )
-{
-    mQtclass(QFont) qfont;
-    uiFont::setFontData( qfont, fnt );
-    mImplGetFont( qfont, qfont );
-    
-    if ( ok )
-	uiFont::getFontData( fnt, qfont );
-    
-    return ok;
-}
 
 //----------------------------------------------------------------------------
 
@@ -423,7 +393,7 @@ void uiFontList::addOldGuess( const Settings& settings,
 			      const char* ky, int idx )
 {
     const char* fontface = settings["Font face"];
-    bool boldfont = true; settings.getYN( "Bold font", boldfont );
+    bool boldfont = false; settings.getYN( "Bold font", boldfont );
 
     int fontsz = FontData::defaultPointSize() * 10;
     if ( !strcmp(ky,FontData::defaultKeys()[0]) )
@@ -445,12 +415,4 @@ void uiFontList::removeOldEntries( Settings& settings )
     settings.removeWithKey( "Dialog font size" );
     settings.removeWithKey( "Graphics large font size" );
     settings.removeWithKey( "Graphics small font size" );
-}
-
-
-mQtclass(QFont)* uiFont::createQFont( const FontData& fdat )
-{
-    mQtclass(QFont)* res = new QFont;
-    setFontData( *res, fdat );
-    return res;
 }

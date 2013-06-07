@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vissplittexture2rectangle.h"
 
@@ -149,7 +149,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	SoSeparator* sep = 0;
 	SoIndexedFaceSet* fs = 0;
 	if ( unusedseparators.size() )
-	    sep = unusedseparators.removeSingle( 0 );
+	    sep = unusedseparators.remove( 0 );
 	else
 	{
 	    sep = new SoSeparator;
@@ -184,7 +184,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		SoTextureComposer* sp = 0;
 
 		if ( unusedseparators.size() )
-		    sep = unusedseparators.removeSingle( 0 );
+		    sep = unusedseparators.remove( 0 );
 		else
 		{
 		    sep =new SoSeparator;
@@ -206,8 +206,8 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		    sp->size.setValue( 1, texturerowsz, texturecolsz );
 		}
 
-		const float rowstartmargin = 0.5f/texturerowsz;
-		const float colstartmargin = 0.5f/texturecolsz;
+		const float rowstartmargin = 0.5/texturerowsz;
+		const float colstartmargin = 0.5/texturecolsz;
 		const float rowendmargin = 
 		    (float)rowsz/texturerowsz-rowstartmargin;
 		const float colendmargin = 
@@ -248,7 +248,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	separators_ -= unusedseparators[idx];
 	unusedseparators[idx]->unref();
 	removeChild( unusedseparators[idx] );
-	unusedseparators.removeSingle( idx );
+	unusedseparators.remove( idx );
     }
 
     updateCoordinates();

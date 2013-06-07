@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocstepdlg.h"
 #include "volprocbodyfiller.h"
 
@@ -23,7 +22,7 @@ class uiIOObjSel;
 namespace VolProc
 {
 
-mExpClass(uiVolumeProcessing) uiBodyFiller: public uiStepDialog
+mClass uiBodyFiller: public uiStepDialog
 {
 public:
 	mDefaultFactoryInstanciationBase(
@@ -51,4 +50,3 @@ protected:
 }; //namespace
 
 #endif
-

@@ -85,7 +85,7 @@ int EventExporter::nextStep()
     while ( currentbatch.next( pos ) )
     {
 	const BinID bid = currentbatch.getBinID( pos );
-	ConstRefMan<EventSet> eventset = events_.getEvents( bid, false,false );
+	RefMan<const EventSet> eventset = events_.getEvents( bid, false,false );
 	if ( !eventset )
 	    return ErrorOccurred();
 
@@ -198,7 +198,7 @@ Table::FormatDesc* EventAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PreStack Event" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     createDescBody( fd );
     return fd;
 }

@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
+#include "thread.h"
 
 class uiLabeledComboBox;
 class uiFileInput;
 class uiSliderExtra;
 class uiLabel;
 class uiMainWin;
-class Timer;
 
 
 /*!Dialog to specify the grab window and the output image file */
 
-mExpClass(uiTools) uiWindowGrabDlg : public uiDialog
+mClass uiWindowGrabDlg : public uiDialog
 {
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
@@ -59,7 +58,7 @@ protected:
 
 /*!Grabs the screen area covered by a window or the whole desktop */
 
-mExpClass(uiTools) uiWindowGrabber: public CallBacker
+mClass uiWindowGrabber: public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);
@@ -75,9 +74,10 @@ protected:
     uiMainWin*		grabwin_;
     BufferString	filename_;
     int			quality_;
-    Timer*		tmr_;
+    
+    void		mkThread(CallBacker*);	/* obsolete */
+    Threads::Thread*	execthr_;		/* obsolete */
 };
 
 
 #endif
-

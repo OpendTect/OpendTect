@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.16 2011/04/21 13:09:13 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -61,7 +61,7 @@ public:
     void		doIt(CallBacker*);
 };
 
-static const char* pixmapfilename = "dpsdemo";
+static const char* pixmapfilename = "dpsdemo.png";
 
 
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )

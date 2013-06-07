@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistype.h"
 #include "executor.h"
 #include "bufstring.h"
@@ -30,7 +29,7 @@ namespace Seis { class SelData; }
 
 /*!\brief Helps import or export of seismic data. */
 
-mExpClass(Seis) SeisImporter : public Executor
+mClass SeisImporter : public Executor
 {
 public:
 
@@ -43,7 +42,7 @@ public:
 
       */
 
-    mStruct(Seis) Reader
+    struct Reader
     {
 	virtual			~Reader()			{}
 
@@ -104,7 +103,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
+mClass SeisStdImporterReader : public SeisImporter::Reader
 {
 public:
 			SeisStdImporterReader(const IOObj&,const char* nm);
@@ -134,4 +133,3 @@ protected:
 
 
 #endif
-

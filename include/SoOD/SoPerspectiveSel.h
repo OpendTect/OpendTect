@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoMFVec3f.h>
@@ -19,7 +18,7 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
-mSoODClass SoPerspectiveSel : public SoGroup
+mClass SoPerspectiveSel : public SoGroup
 {
     typedef SoGroup inherited;
 
@@ -54,4 +53,3 @@ private:
 };
 
 #endif
-

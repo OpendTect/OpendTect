@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
 #include "position.h"
 
@@ -22,11 +21,7 @@ namespace EM
 class EMObjectIterator;
 class Horizon;
 
-/*!
-\brief %Horizon z-axis transformer
-*/
-
-mExpClass(EarthModel) HorizonZTransformer : public Executor
+mClass HorizonZTransformer : public Executor
 {
 public:
 			HorizonZTransformer(const ZAxisTransform&,
@@ -58,4 +53,3 @@ protected:
 } // namespace EM
 
 #endif
-

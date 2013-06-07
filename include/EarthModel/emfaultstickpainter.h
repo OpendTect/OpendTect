@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
@@ -30,11 +28,7 @@ class MultiID;
 namespace EM
 {
 
-/*!
-\brief %Fault stick painter.
-*/
-
-mExpClass(EarthModel) FaultStickPainter : public CallBacker
+mClass FaultStickPainter : public CallBacker
 {
 public:
     			FaultStickPainter(FlatView::Viewer&,
@@ -53,12 +47,12 @@ public:
     int			getActiveStickId()	{ return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*);
-    FlatView::AuxData*	getAuxData(const EM::PosID*);
+    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
 
-    	mStruct(EarthModel) StkMarkerInfo
+    	mStruct StkMarkerInfo
 	{
-	    FlatView::AuxData*	marker_;
-	    int			stickid_;
+	    FlatView::Annotation::AuxData*	marker_;
+	    int					stickid_;
 	};
 
     EM::ObjectID&	getFaultSSID()			{ return emid_; }
@@ -125,5 +119,3 @@ protected:
 } //namespace EM
 
 #endif
-
-

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uit2dconvsel.h"
 
 #include "multiid.h"
@@ -19,7 +18,7 @@ ________________________________________________________________________
 class uiVelSel;
 class IOPar;
 
-mExpClass(uiSeis) uiT2DVelConvSelGroup : public uiT2DConvSelGroup
+mClass uiT2DVelConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DVelConvSelGroup(uiParent*);
@@ -37,4 +36,3 @@ protected:
 
 
 #endif
-

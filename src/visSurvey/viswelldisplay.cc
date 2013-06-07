@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "viswelldisplay.h"
 
@@ -38,8 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define         mPickType	3
 
 #define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
-#define mMeter2Feet(val) val *= mToFeetFactorF;
-#define mFeet2Meter(val) val *= mFromFeetFactorF;
+#define mMeter2Feet(val) val *= mToFeetFactor;
+#define mFeet2Meter(val) val *= mFromFeetFactor;
 #define mGetDispPar(param) wd->displayProperties().param
 
 
@@ -224,6 +224,8 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
     mp.col_ 		= mGetDispPar( markers_.color_  );
     mp.shapeint_ 	= mGetDispPar( markers_.shapeint_ );
     mp.cylinderheight_ 	= mGetDispPar( markers_.cylinderheight_ );
+    mp.issinglecol_ 	= mGetDispPar( markers_.issinglecol_ );
+    mp.issamenmcol_ 	= mGetDispPar( markers_.samenmcol_ );
     mp.font_ 		= mGetDispPar( markers_.font_ );
     mp.namecol_ 	= mGetDispPar( markers_.nmcol_ );
     mp.size_ 		= mGetDispPar( markers_.size_ );
@@ -270,8 +272,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     const bool waslogconstsize = well_->logConstantSize();
 
-    TypeSet<Coord3> trackpos;
-    getTrackPos( wd, trackpos );
+    TypeSet<Coord3> trackpos = getTrackPos( wd );
     if ( trackpos.isEmpty() ) return;
 
     visBase::Well::TrackParams tp;
@@ -303,12 +304,15 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
 
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
+    if ( wd->displayProperties().markers_.selmarkernms_.isEmpty() ) 
     {
-	if ( !wd->markers()[idx] ) continue;
+	for ( int idx=0; idx<wd->markers().size(); idx++ )
+	{
+	    if ( !wd->markers()[idx] ) continue;
 
-	const char* mrkrnm = wd->markers()[idx]->name();
-	wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
+	    const char* mrkrnm = wd->markers()[idx]->name();
+	    wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
+	}
     }
 
     const Well::D2TModel* d2t = wd->d2TModel();
@@ -328,21 +332,18 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 }
 
 
-void WellDisplay::getTrackPos( const Well::Data* wd,
-			       TypeSet<Coord3>& trackpos )
+TypeSet<Coord3> WellDisplay::getTrackPos( const Well::Data* wd )
 {
-    trackpos.erase();
+    TypeSet<Coord3> trackpos;
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
 
-    if ( wd->track().size() < 1 )
-	return;
-    
+    if ( wd->track().size() < 1 ) return trackpos;
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ )
     {
 	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *d2t , wd->track() );
+	ttrack->toTime( *d2t, wd->track() );
     }
     const Well::Track& track = zistime_ ? *ttrack : wd->track();
 
@@ -354,6 +355,8 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 	if ( !mIsUdf(pt.z) )
 	    trackpos += pt;
     }
+
+    return trackpos;
 }
 
 
@@ -364,8 +367,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 
     visBase::Well::MarkerParams mp;
     fillMarkerParams( mp );
-    
-    const BufferStringSet selnms(
+
+    const BufferStringSet selnms( 
 	    	wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
@@ -384,9 +387,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();	
 
-	if ( !mGetDispPar( markers_.issinglecol_ ) )
-	    mp.col_ = wellmarker->color();
-	if ( mGetDispPar( markers_.samenmcol_ ) ) mp.namecol_  = mp.col_;
+	if ( !mp.issinglecol_ ) mp.col_  = wellmarker->color();
+	if ( mp.issamenmcol_ ) mp.namecol_  = mp.col_;
 
 	well_->addMarker( mp );
     }
@@ -550,7 +552,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
     well_->setLogLineDisplayed( lp.size_ > 0, lognr );
 
     setLogColor( lp.col_, lognr );
-    setLogLineWidth( mCast(float,lp.size_), lognr );
+    setLogLineWidth( lp.size_, lognr );
     setLogWidth( lp.logwidth_, lognr );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
@@ -671,14 +673,14 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( ztop == zbase )
 	dah = dahtop;
     else
-	dah = (float)(dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop))));
+	dah = dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop)));
 
     if( dah == 0 )
 	return;
 
     info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
-							mToFeetFactorF : 1;
+							mToFeetFactor : 1;
     if ( nrsegment != 0 )
     {
 	info += ", MD ";
@@ -840,7 +842,7 @@ void WellDisplay::addPick( Coord3 pos )
 	TypeSet<Coord3> wcoords;
 	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y),
-					       (float) (pos.z * zfactor)  );
+					       pos.z * zfactor  );
 	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 	{
 	    wcoords += pseudotrack_->pos(idx);

@@ -12,16 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "draw.h"
 
-mFDQtclass(QStatusBar)
 class uiStatusBarBody;
+class QStatusBar;
 class uiMainWin;
 
 
-mExpClass(uiBase) uiStatusBar : public uiBaseObject
+mClass uiStatusBar : public uiBaseObject
 {
 
     friend class	uiMainWinBody;
@@ -48,15 +47,12 @@ public:
 
 protected:
 
-                        uiStatusBar(uiMainWin*,const char*,
-				    mQtclass(QStatusBar&)); 
+                        uiStatusBar(uiMainWin*,const char*,QStatusBar&); 
 private:
 
     uiStatusBarBody*	body_;
-    uiStatusBarBody&	mkbody(uiMainWin*, const char*,
-	    		       mQtclass(QStatusBar&));
+    uiStatusBarBody&	mkbody(uiMainWin*, const char*, QStatusBar&);
 };
 
 
 #endif
-

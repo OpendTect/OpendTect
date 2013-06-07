@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2008
- RCS:		$Id$
+ RCS:		$Id: externalattribrandom.h,v 1.4 2011/11/04 08:20:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace ExternalAttrib
 
 
 //Class that calculates the random values
-mClass(ExternalAttrib) Random : public Attrib::ExtAttribCalc
+class Random : public Attrib::ExtAttribCalc
 {
 public:
     static void			initClass();
@@ -59,7 +59,7 @@ protected:
    createMenu is called.
 */
 
-mClass(ExternalAttrib) RandomManager : public CallBacker
+class RandomManager : public CallBacker
 {
 public:
     		RandomManager();
@@ -77,7 +77,7 @@ protected:
 /* Class that holds the external attrib's tree-item. Can easily be complemented
    with meny handling by implementing more intelligent createMenu/handleMenu. */
 
-mClass(ExternalAttrib) uiRandomTreeItem : public uiODDataTreeItem
+class uiRandomTreeItem : public uiODDataTreeItem
 {
 public:
     static void		initClass();
@@ -87,7 +87,7 @@ public:
 
 protected:
 
-    bool		anyButtonClick( uiTreeViewItem* );
+    bool		anyButtonClick( uiListViewItem* );
     BufferString	createDisplayName() const;
     void		updateColumnText( int );
 

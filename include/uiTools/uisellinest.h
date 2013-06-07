@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiComboBox;
@@ -25,11 +24,11 @@ class LineStyle;
 Provides selection of linestyle, linecolor and linewidth
 */
 
-mExpClass(uiTools) uiSelLineStyle : public uiGroup
+mClass uiSelLineStyle : public uiGroup
 { 	
 public:
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* lbltxt=0 )
@@ -84,4 +83,3 @@ private:
 };
 
 #endif
-

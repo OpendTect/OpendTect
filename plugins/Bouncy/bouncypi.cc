@@ -4,11 +4,9 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: bouncypi.cc,v 1.6 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "odplugin.h"
-
-#include "bouncymod.h"
 
 
 mDefODPluginEarlyLoad(Bouncy)

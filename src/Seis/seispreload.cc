@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seispreload.h"
 #include "seiscbvs.h"
@@ -65,10 +65,11 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     for ( int iln=0; iln<nrlns; iln++ )
     {
 	const IOPar& iop = ls.getInfo( iln );
-	const char* fnm = iop.find( sKey::FileName() );
+	const char* fnm = iop.find( sKey::FileName );
 	if ( !fnm ) continue;
 
-	if ( nms.isPresent(fnm) )
+	const int idxof = nms.indexOf( fnm );
+	if ( idxof >= 0 )
 	    lks.add( ls.lineKey(iln).buf() );
     }
 }
@@ -78,10 +79,10 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    if ( !is2dln && ioobj->translator()!= \
-		CBVSSeisTrcTranslator::translKey() ) \
+    if ( !is2dln && strcmp(ioobj->translator(), \
+		CBVSSeisTrcTranslator::translKey()) ) \
 	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
-    TaskRunner& trunnr mUnusedVar = getTr()
+    TaskRunner& trunnr = getTr()
 
 
 bool Seis::PreLoader::loadVol() const
@@ -126,7 +127,7 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
     {
 	const char* lnm = ls.lineName( iln );
 	const char* attrnm = ls.attribute( iln );
-	if ( !lnms.isPresent(lnm) || !attrnms.isPresent(attrnm) )
+	if ( lnms.indexOf(lnm) < 0 || attrnms.indexOf(attrnm) < 0 )
 	    continue;
 
 	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );
@@ -227,7 +228,7 @@ void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 
 void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 {
-    const char* id = iop.find( sKey::ID() );
+    const char* id = iop.find( sKey::ID );
     if ( !id || !*id ) return;
 
     const MultiID ky( id );
@@ -255,7 +256,7 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	} break;
 	case Seis::VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
-	    if ( iop.get(sKey::Range(),nrrg) )
+	    if ( iop.get(sKey::Range,nrrg) )
 		toload = &nrrg;
 	    spl.loadPS3D( toload );
 	} break;
@@ -274,7 +275,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 {
     SeisIOObjInfo oinf( id_ );
     if ( !oinf.isOK() ) return;
-    iop.set( sKey::ID(), id_.buf() );
+    iop.set( sKey::ID, id_.buf() );
     const Seis::GeomType gt = oinf.geomType();
 
     switch ( gt )
@@ -294,7 +295,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 	    iop.set( sKeyLines(), lnms ); iop.set( sKeyAttrs(), attrs );
 	} break;
 	case Seis::VolPS: {
-	    iop.set( sKey::Range(), inlRange() );
+	    iop.set( sKey::Range, inlRange() );
 	} break;
 	case Seis::LinePS: {
 	    BufferStringSet fnms;

@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "horsampling.h"
 
 
-/*!
-\brief Hor+Vert sampling in 3D surveys.
+/*\brief Hor+Vert sampling in 3D surveys
 
   When slices are to be taken from a CubeSampling, they should be ordered
   as follows:
@@ -29,9 +27,10 @@ ________________________________________________________________________
   Z   |   Inl     Crl
 
   See also the direction() and dimension() free functions.
-*/
 
-mExpClass(Basic) CubeSampling
+ */
+
+mClass CubeSampling
 {
 public:
 
@@ -74,7 +73,6 @@ public:
     bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
-    void		include(const BinID&,float z);
     void		include(const CubeSampling&);
     void		limitTo(const CubeSampling&);
     void		limitToWithUdf(const CubeSampling&);
@@ -122,4 +120,3 @@ inline int dimension( CubeSampling::Dir slctype, CubeSampling::Dir direction )
 
 
 #endif
-

@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "keyenum.h"
 #include "gendefs.h"
 #include "geometry.h"
 #include "position.h"
 
 
-mExpClass(General) TabletInfo
+mClass TabletInfo
 {
     friend class	QtTabletEventFilter;
 
@@ -69,7 +68,7 @@ protected:
 };
 
 
-mExpClass(General) MouseEvent
+mClass MouseEvent
 {
 public:
 
@@ -150,7 +149,7 @@ void MyClass::handleMouseClick( CallBacker* cb )
 
 */
 
-mExpClass(General) MouseEventHandler : public CallBacker
+mClass MouseEventHandler : public CallBacker
 {
 public:
     				MouseEventHandler();
@@ -190,11 +189,11 @@ protected:
    displaying a marker (or similar) at the current positions may subscribe to
    the notifier. */
 
-mExpClass(General) MouseCursorExchange : public CallBacker
+mClass MouseCursorExchange : public CallBacker
 {
 public:
     				MouseCursorExchange();
-    mExpClass(General) Info
+    mClass Info
     {
     public:
 				Info(const Coord3&,float offset=mUdf(float));
@@ -209,4 +208,3 @@ public:
 
 
 #endif
-

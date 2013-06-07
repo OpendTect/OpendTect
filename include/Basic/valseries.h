@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #include "errh.h"
 #include "odmemory.h"
@@ -22,14 +21,15 @@ ________________________________________________________________________
 #endif
 
 
-/*!
-\brief Interface to a series of values.
+/*\brief Interface to a series of values
 
-  If the values are in contiguous memory, arr() should return non-null. 
+  If the values are in contiguous memory, arr() should return non-null.
+ 
 */
 
+
 template <class T>
-mClass(Basic) ValueSeries
+class ValueSeries
 {
 public:
 
@@ -62,12 +62,8 @@ public:
 };
 
 
-/*!
-\brief ValueSeries of offsets.
-*/
-
 template <class T>
-mClass(Basic) OffsetValueSeries : public ValueSeries<T>
+class OffsetValueSeries : public ValueSeries<T>
 {
 public:
     inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
@@ -98,14 +94,12 @@ protected:
 #define mImplArr \
 { return typeid(RT)==typeid(AT) ? (RT*) ptr_ : (RT*) 0;}
 
-/*!
-\brief Series of values from a pointer to some kind of array.
-  If a more advanced conversion between the return type and the array type is
-  wanted, use ConvValueSeries instead.
-*/
+/*\brief series of values from a pointer to some kind of array. If a more
+         advanced conversion between the return type and the array type is
+	 wanted, use ConvValueSeries instead. */
 
 template <class RT, class AT>
-mClass(Basic) ArrayValueSeries : public ValueSeries<RT>
+class ArrayValueSeries : public ValueSeries<RT>
 {
 public:
 
@@ -145,12 +139,12 @@ protected:
 #define mChunkSize	0x20000000
 
 
-/*!
-\brief Valueseries that allocates its data in smaller chunks (default is 512MB).By doing this, it performs better in environments where the memory is fragmented(i.e. windows 32 bit).
-*/
+/*!Valueseries that allocates its data in smaller chunks
+   (default is 512MB). Bydoing this, it performs better in environments
+   where the memory is fragmented (i.e. windows 32 bit). */
 
 template <class RT, class AT>
-mClass(Basic) MultiArrayValueSeries : public ValueSeries<RT>
+class MultiArrayValueSeries : public ValueSeries<RT>
 {
 public:
     		MultiArrayValueSeries(od_int64);
@@ -183,13 +177,8 @@ protected:
     const unsigned int	chunksize_;
 };
 
-
-/*!
-\brief Gets ValueSeries.
-*/
-
 template <class T>
-mClass(Basic) ValueSeriesGetAll : public ParallelTask
+mClass ValueSeriesGetAll : public ParallelTask
 {
 public:
 		ValueSeriesGetAll(const ValueSeries<T>& from,
@@ -213,12 +202,10 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		{
 		    od_int64 nrleft = stop-start+1;
 		    const T* fromarr = from_.arr();
-		    T* toarr = toptr_ ? toptr_ : to_->arr(); 
+		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-		    {
-			memcpy( toarr+start, fromarr+start,
-			        (size_t) (nrleft*from_.bytesPerItem()) );
-		    }
+			memcpy( toarr+start, fromarr+start, 
+				nrleft*from_.bytesPerItem() );
 		    else if ( toarr )
 		    {
 			toarr += start;
@@ -380,7 +367,7 @@ RT ArrayValueSeries<RT,AT>::value( od_int64 idx ) const
     }
 #endif
 
-    return (RT) ptr_[idx];
+    return ptr_[idx];
 }
 
 
@@ -424,10 +411,10 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     else
 	ptr_ = 0;
 
-    const od_int64 copysize = mMIN(sz,cursize_);
+    const int copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
     if ( ptr_ && copysize>0 )
-	memcpy( ptr_, oldptr, (size_t) (copysize*sizeof(AT)) );
+        memcpy( ptr_, oldptr, copysize*sizeof(AT) );
     
     delete [] oldptr;
     return ptr_;
@@ -447,8 +434,7 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
 template <class RT, class AT> inline
 MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries( 
 				const MultiArrayValueSeries<RT, AT>& mavs )
-    : ValueSeries<RT>( mavs )
-    , cursize_( -1 )
+    : cursize_( -1 )
     , chunksize_( mavs.chunksize_ )
 {
     ptrs_.allowNull( true );
@@ -496,7 +482,7 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 	return RT();
 
     idx -= arridx*chunksize_;
-    return  ptrs_[mCast(int,arridx)][idx];
+    return ptrs_[arridx][idx];
 }
 
 
@@ -515,7 +501,7 @@ void MultiArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 	return;
 
     idx -= arridx*chunksize_;
-    ptrs_[mCast(int,arridx)][idx] = v;
+    ptrs_[arridx][idx] = v;
 }
 
 
@@ -564,13 +550,13 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    od_uint64 lefttoalloc = sz > 0 ? (od_uint64)sz : 0;
+    od_int64 lefttoalloc = sz;
     deepEraseArr( ptrs_ );
 
-    while ( lefttoalloc )
+    while ( lefttoalloc>0 )
     {
-	const unsigned int allocsize = lefttoalloc>=chunksize_
-	    ? (unsigned int)chunksize_ : (unsigned int)lefttoalloc;
+	const od_int64 allocsize = lefttoalloc>=chunksize_
+	    ? chunksize_ : lefttoalloc;
 
 	AT* ptr;
 	mTryAlloc( ptr, AT[allocsize] );
@@ -583,10 +569,7 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 
 	ptrs_ += ptr;
 
-	if ( lefttoalloc > allocsize )
-	    lefttoalloc -= allocsize;
-	else
-	    lefttoalloc = 0;
+	lefttoalloc -= allocsize;
     }
 
     cursize_ = sz;
@@ -596,4 +579,3 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 #undef mChunkSize
 
 #endif
-

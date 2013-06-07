@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "executor.h"
 #include "bufstringset.h"
 
@@ -26,11 +25,7 @@ namespace Attrib
 class EngineMan;
 class DescSet;
 
-/*!
-\brief Positionvector output generator for attributes.
-*/
-
-mExpClass(AttributeEngine) PosVecOutputGen : public Executor
+mClass PosVecOutputGen : public Executor
 {
 public:
 
@@ -65,4 +60,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

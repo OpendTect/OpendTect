@@ -12,34 +12,44 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
+#include "uimainwin.h"
+#include "uidialog.h"
 #include "uiflatviewslicepos.h"
 #include "stratsynth.h"
+#include "valseriesevent.h"
+#include "flatview.h"
 
+class FlatDataPack;
 class TimeDepthModel;
 class SeisTrcBuf;
 class Wavelet;
+class RayParam;
 class uiComboBox;
+class uiGenInput;
+class uiCheckBox;
 class uiFlatViewer;
+class uiRayTracerSel;
+class uiLabeledComboBox;
+class uiFlatViewMainWin;
 class uiMultiFlatViewControl;
+class uiOffsetSlicePos;
 class uiPushButton;
-class uiSynthGenDlg;
+class uiRayTrcParamsDlg;
 class uiSeisWaveletSel;
+class uiSynthGenDlg;
+class uiStackGrp;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; }
-namespace FlatView { class AuxData; }
-namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 
 
-mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
+mClass uiStratSynthDisp : public uiGroup
 {
 public:
 
-    			uiStratSynthDisp(uiParent*,const Strat::LayerModel&,
-					 const Strat::LayerModel&);
+    			uiStratSynthDisp(uiParent*,const Strat::LayerModel&);
     			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;	
@@ -48,123 +58,121 @@ public:
     const Wavelet*	getWavelet() const;
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
-    SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
-    const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
-    const PropertyRefSelection&	modelPropertyRefs() const;
-
+    void		genSyntheticsFor(const Strat::LayerModel&,SeisTrcBuf&);
+    const SeisTrcBuf&	postStackTraces() const { return postStackTraces(0); }
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
 	    			     Color,bool);
-    void		setSelectedTrace(int);
     void		setDispEach(int);
-    void		setZDataRange(const Interval<double>&,bool indpt);
-    void		setDisplayZSkip(float zskip,bool withmodchg);
+    void		setZDataRange(const Interval<double>& zrg,bool indpth);
+
 
     const uiWorldRect&	curView(bool indepth) const;
-    void		setZoomView(const uiWorldRect&);
-
     uiFlatViewer*	viewer()		{ return vwr_; }
 
     Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	zoomChanged;
-    Notifier<uiStratSynthDisp>	viewChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
-    Notifier<uiStratSynthDisp>	synthsChanged;
 
+    mDeclInstanceCreatedNotifierAccess(uiStratSynthDisp);
     void		addTool(const uiToolButtonSetup&);
     void		addViewerToControl(uiFlatViewer&);
 
     void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
-    void		displayPostStackSynthetic(const SyntheticData*,
-	    					  bool wva=true);
-    void		cleanSynthetics();
-    float		centralTrcShift() const;
-    void		setCurrentSynthetic(bool wva);
-    void		setSnapLevelSensitive(bool);
-    bool		prepareElasticModel();
-
-    uiMultiFlatViewControl* control() 	{ return control_; }
-
-    void		fillPar(IOPar&) const;
-    void		fillPar(IOPar&,bool) const;
-    bool		usePar(const IOPar&);
-
-    void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
-    void		setUseEdited( bool yn )	  { useed_ = yn; }
 
 protected:
 
     int			longestaimdl_;
-    StratSynth*		stratsynth_;
-    StratSynth*		edstratsynth_;
+    StratSynth&		stratsynth_;
     const Strat::LayerModel& lm_;
-    int			selectedtrace_;
     int			dispeach_;
-    float		dispskipz_;
     bool		dispflattened_;
-    bool		isbrinefilled_;
-    bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    SyntheticData* 	currentwvasynthetic_;
-    SyntheticData* 	currentvdsynthetic_;
+    SyntheticData* 	currentsynthetic_;
 
     uiMultiFlatViewControl* control_;
-    FlatView::AuxData*	selectedtraceaux_;
-    FlatView::AuxData*	levelaux_;
 
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
-    uiGroup*		prestackgrp_;
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
-    uiToolButton*	addeditbut_;
-    uiComboBox*		wvadatalist_;
-    uiComboBox*		vddatalist_;
-    uiComboBox*		levelsnapselfld_;
-    uiSynthGenDlg*	synthgendlg_;
+    uiPushButton*	addasnewbut_;
+    uiLabeledComboBox*	datalist_;
+    uiLabeledComboBox*	levelsnapselfld_;
+    uiRayTrcParamsDlg*	raytrcpardlg_;
     uiSynthSlicePos*	offsetposfld_;
-    PtrMan<TaskRunner>	taskrunner_;
-    PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
+    uiSynthSlicePos*	modelposfld_;
+    uiStackGrp*		stackfld_;
+    uiFlatViewMainWin*	prestackwin_;
 
-    void		setCurrentWavelet();
-    void		fillPar(IOPar&,const StratSynth*) const;
+    void		cleanSynthetics();
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		updateFields();
-    void		updateSynthetic(const char* nm,bool wva);
-    void		updateSyntheticList(bool wva);
 
     void		drawLevel();
-    void		displayFRText();
-    void		displayPreStackSynthetic(const SyntheticData*);
+    void		displayPreStackSynthetic(const SyntheticData*) {};
+    void		displayPostStackSynthetic(const SyntheticData*) {};
 
-    void		addEditSynth(CallBacker*);
-    void		wvDataSetSel(CallBacker*);
-    void		vdDataSetSel(CallBacker*);
+    void		addSynth2List(CallBacker*){};
+    void		dataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
+    void		rayTrcParPush(CallBacker*);
+    void		rayTrcParChged(CallBacker*);
+    void		modelPosChged(CallBacker*);
     void		scalePush(CallBacker*);
-    void 		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
-    void		viewChg(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticChanged(CallBacker*);
-    void		selPreStackDataCB(CallBacker*);
+
+    uiSynthGenDlg*	synthgendlg_;
+    uiGroup*		prestackgrp_;
+    uiToolButton*       addeditbut_;
+    void		setCurrentSynthetic();
+    void		updateSyntheticList();
+    void		displayPreStackDirSynthetic(const SyntheticData*);
+    void		displayPostStackDirSynthetic(const SyntheticData*);
+
+    void		addEditSynth(CallBacker*);
+    void		syntheticDataParChged(CallBacker*);
+    void 		genNewSynthetic(CallBacker*);
+
+    int                 selectedtrace_;
+    FlatView::Annotation::AuxData*  selectedtraceaux_;
+    FlatView::Annotation::AuxData*  levelaux_;
+
+public:
+
+    const SeisTrcBuf&	postStackTraces(const PropertyRef*) const;
+    const PropertyRefSelection& modelPropertyRefs() const;
+    void 		setSelectedTrace(int);
+    SyntheticData*	getCurrentSyntheticData() const;
+    uiMultiFlatViewControl* control() 	{ return control_; }
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		setCurrentWavelet();
+    float		centralTrcShift() const;
+    Notifier<uiStratSynthDisp>*	synthsChanged();
+protected:
+    void		setSynthNames();
+public:
+    void		setSnapLevelSensitive(bool);
+
 };
 
 
-mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
+mClass uiSynthSlicePos : public uiGroup
 {
 public:
     			uiSynthSlicePos(uiParent*,const char* lbltxt);
@@ -172,7 +180,6 @@ public:
     Notifier<uiSynthSlicePos>	positionChg;
     void		setLimitSampling(StepInterval<float>);
     int			getValue() const;
-    void		setValue(int) const;
 
 protected:
     uiLabel* 		label_;
@@ -186,7 +193,63 @@ protected:
     void		nextCB(CallBacker*);
 
     StepInterval<float>	limitsampling_;
+public:
+    void		setValue(int);
 };
 
-#endif
 
+mClass uiRayTrcParamsDlg : public uiDialog
+{
+public:
+				uiRayTrcParamsDlg(uiParent* p,IOPar& rp) 
+				: uiDialog(p,Setup("",mNoDlgTitle,mNoHelpID))
+				, raypars_(rp) {}
+protected:
+    uiCheckBox*			nmobox_;
+    uiRayTracerSel*		rtsel_;
+    IOPar&			raypars_;
+
+    bool			acceptOK( CallBacker* ) { return true; };
+};
+
+
+mClass uiSynthGenDlg : public uiDialog
+{
+public:
+				uiSynthGenDlg(uiParent*,SynthGenParams&);
+
+    void			getFromScreen();
+    void			putToScreen();
+
+    Notifier<uiSynthGenDlg>	genNewReq;
+
+protected:
+
+    uiGenInput*			typefld_;
+    uiGenInput*  		namefld_;
+    uiCheckBox*			nmobox_;
+    uiCheckBox*			stackbox_;
+    uiRayTracerSel*		rtsel_;
+    uiPushButton*		gennewbut_;
+    uiPushButton*		applybut_;
+    uiPushButton*		revertbut_;
+    uiPushButton*		savebut_;
+    SynthGenParams&		sd_;
+
+    void			typeChg(CallBacker*);
+    bool			genNewCB(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    void			removeSyntheticsCB(CallBacker*);
+    void			nameToBeChged(CallBacker*);
+    void			nameChanged(CallBacker*);
+    void			changeSyntheticsCB(CallBacker*);
+    void			wvltChanged(CallBacker*);
+public:
+    void			setSynthList(const BufferStringSet&);
+    void			setWaveletName(const char*);
+    void			setCurSynthetic(const char*);
+};
+
+
+
+#endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistratlvllist.h"
 
@@ -56,7 +56,8 @@ uiStratLvlList::~uiStratLvlList()
 
 void uiStratLvlList::rClickLvlCB( CallBacker* )
 {
-    if ( islocked_ ) return;
+    if ( islocked_ ) 
+	return;
 
     int curit = box()->currentItem();
     Strat::LevelSet& levelset = Strat::eLVLS();
@@ -77,7 +78,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 	const char* lvlnm = box()->getText();
 	if ( !levelset.isPresent( lvlnm ) ) return;
 	const Strat::Level& lvl = *levelset.get( lvlnm );
-	levelset.remove( lvl.id() ) ;
+	levelset.remove( lvl.id() );
 	anychange_ = true;
     }
     else if ( mnuid == 3 )
@@ -92,7 +93,7 @@ void uiStratLvlList::rClickLvlCB( CallBacker* )
 		const Strat::Level* lvl = levelset.levels()[idx];
 		if ( lvl->id() >= 0 )
 		{
-		    levelset.remove( lvl->id() ); 
+		    levelset.remove( lvl->id() );
 		    anychange_ = true;
 		}
 	    }

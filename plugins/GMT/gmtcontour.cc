@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.19 2012/05/21 22:41:24 cvsnanne Exp $";
 
 #include "gmtcontour.h"
 
@@ -44,7 +44,7 @@ GMTPar* GMTContour::createInstance( const IOPar& iop )
 const char* GMTContour::userRef() const
 {
     BufferString* str = new BufferString( "Contour: " );
-    const char* nm = find( sKey::Name() );
+    const char* nm = find( sKey::Name );
     *str += nm;
     return str->buf();
 }
@@ -52,31 +52,31 @@ const char* GMTContour::userRef() const
 
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), find(sKey::Name()) );
-    FixedString attrnm = find( ODGMT::sKeyAttribName() );
+    par.set( sKey::Name, find(sKey::Name) );
+    FixedString attrnm = find( ODGMT::sKeyAttribName );
     BufferString str = "\""; str += attrnm;
-    if ( attrnm == ODGMT::sKeyZVals() )
+    if ( attrnm == ODGMT::sKeyZVals )
 	str += SI().getZUnitString();
 
     str += "\"";
-    par.set( ODGMT::sKeyAttribName(), str.buf() );
+    par.set( ODGMT::sKeyAttribName, str.buf() );
     bool drawcontour = false;
-    getYN( ODGMT::sKeyDrawContour(), drawcontour );
+    getYN( ODGMT::sKeyDrawContour, drawcontour );
     if ( drawcontour )
     {
-	par.set( ODGMT::sKeyShape(), "Line" );
-	par.set( sKey::Size(), 1 );
-	str = find( ODGMT::sKeyLineStyle() ).str();
-	par.set( ODGMT::sKeyLineStyle(), str );
+	par.set( ODGMT::sKeyShape, "Line" );
+	par.set( sKey::Size, 1 );
+	str = find( ODGMT::sKeyLineStyle ).str();
+	par.set( ODGMT::sKeyLineStyle, str );
     }
 
     bool dofill = false;
-    getYN( ODGMT::sKeyFill(), dofill );
+    getYN( ODGMT::sKeyFill, dofill );
     if ( dofill )
     {
-	par.set( ODGMT::sKeyPostColorBar(), true );
-	str = find( ODGMT::sKeyDataRange() ).str();
-	par.set( ODGMT::sKeyDataRange(), str );
+	par.set( ODGMT::sKeyPostColorBar, true );
+	str = find( ODGMT::sKeyDataRange ).str();
+	par.set( ODGMT::sKeyDataRange, str );
     }
 
     return true;
@@ -86,17 +86,17 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 bool GMTContour::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
-    get( sKey::ID(), id );
+    get( sKey::ID, id );
     bool drawcontour=false, dofill=false;
-    getYN( ODGMT::sKeyDrawContour(), drawcontour );
-    getYN( ODGMT::sKeyFill(), dofill );
+    getYN( ODGMT::sKeyDrawContour, drawcontour );
+    getYN( ODGMT::sKeyFill, dofill );
 
-    const char* hornm = find( sKey::Name() );
+    const char* hornm = find( sKey::Name );
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
     EM::EMM().getSurfaceData( id, sd );
-    PtrMan<IOPar> subpar = subselect( sKey::Selection() );
+    PtrMan<IOPar> subpar = subselect( sKey::Selection );
     if ( !subpar )
 	mErrStrmRet("Missing subselection")
 
@@ -119,8 +119,8 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     hor->ref();
     exec.erase();
 
-    FixedString attribnm = find( ODGMT::sKeyAttribName() );
-    const bool isz = attribnm == ODGMT::sKeyZVals();
+    FixedString attribnm = find( ODGMT::sKeyAttribName );
+    const bool isz = attribnm == ODGMT::sKeyZVals;
     if ( !isz )
     {
 	strm << "Loading Horizon Data \"" << attribnm << "\" ... ";
@@ -166,7 +166,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     HorSamplingIterator iter( sd.rg );
     BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
-    const float fac = mCast( float, SI().zDomain().userFactor() );
+    const float fac = SI().zFactor();
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {
@@ -175,7 +175,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !pos.isDefined() )
 	    continue;
 
-	const float val = isz ? (float) pos.z * fac
+	const float val = isz ? pos.z * fac
 	    		      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 
@@ -215,7 +215,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( drawcontour )
     {
 	strm << "Drawing contours ...  ";
-	FixedString lskey = find( ODGMT::sKeyLineStyle() );
+	FixedString lskey = find( ODGMT::sKeyLineStyle );
 	LineStyle ls; ls.fromString( lskey.str() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
@@ -251,15 +251,15 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 bool GMTContour::makeCPT( const char* cptfnm ) const
 {
     StepInterval<float> rg;
-    get( ODGMT::sKeyDataRange(), rg );
-    const char* seqname = find( ODGMT::sKeyColSeq() );
+    get( ODGMT::sKeyDataRange, rg );
+    const char* seqname = find( ODGMT::sKeyColSeq );
     if ( !seqname || !*seqname ) return false;
 
     ColTab::Sequence seq;
     if ( !ColTab::SM().get(seqname,seq) ) return false;
 
     bool doflip = false;
-    getYN( ODGMT::sKeyFlipColTab(), doflip );
+    getYN( ODGMT::sKeyFlipColTab, doflip );
     StreamData sd = StreamProvider(cptfnm).makeOStream();
     if ( !sd.usable() ) return false;
 
@@ -283,8 +283,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
-    const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
+    const Color bgcol = seq.color( doflip ? 1 : 0 );
+    const Color fgcol = seq.color( doflip ? 0 : 1 );
     *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, std::endl );
     *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, std::endl );
     sd.close();

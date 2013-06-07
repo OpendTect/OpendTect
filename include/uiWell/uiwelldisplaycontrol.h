@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellmod.h"
 #include "callback.h"
 
 class MouseEventHandler;
@@ -21,7 +20,7 @@ class uiWellDahDisplay;
 
 namespace Well { class Marker; }
 
-mExpClass(uiWell) uiWellDisplayControl : public CallBacker
+mClass uiWellDisplayControl : public CallBacker
 {
 public:
 				uiWellDisplayControl(uiWellDahDisplay&);
@@ -87,4 +86,3 @@ protected:
 };
 
 #endif
-

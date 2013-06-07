@@ -13,23 +13,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
-namespace Pick	{ class Set; class SetMgr; }
+namespace Pick		{ class Set; }
 
 
 mDefineItem( PickSetParent, TreeItem, TreeTop, \
     ~uiODPickSetParentTreeItem(); \
     virtual bool init(); \
     virtual void removeChild(uiTreeItem*); \
-    void addPickSet(Pick::Set*);\
+    void setAdd(CallBacker*); \
     void setRm(CallBacker*); \
     bool display_on_add; \
-    Pick::SetMgr& picksetmgr_;\
     mShowMenu mMenuOnAnyButton );
 
 
-mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
+mClass uiODPickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
 
@@ -40,7 +38,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
+mClass uiODPickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);
@@ -55,7 +53,7 @@ protected:
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChg(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
@@ -75,4 +73,3 @@ protected:
 
 
 #endif
-

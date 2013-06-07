@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
@@ -21,14 +20,9 @@ class Muter;
 
 namespace PreStack
 {
-
 class MuteDef;
 
-/*!
-\brief Processor for PreStack muting.
-*/
-
-mExpClass(PreStackProcessing) Mute : public Processor
+mClass Mute : public Processor
 {
 public:
 			mDefaultFactoryInstantiation( Processor, Mute,
@@ -78,4 +72,3 @@ protected:
 }; //namespace
 
 #endif
-

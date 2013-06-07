@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "position.h"
 
@@ -26,7 +25,7 @@ class PolygonSurface;
 /*!A triangulated representation of a polygonsurface */
 
 
-mExpClass(Geometry) ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
+mClass ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,
@@ -84,4 +83,3 @@ protected:
 };
 
 #endif
-

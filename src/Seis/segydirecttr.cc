@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -107,7 +107,7 @@ const PosInfo::CubeData& SEGYDirect3DPSReader::posData() const
 bool SEGYDirect3DPSReader::goTo( const BinID& bid )
 {
     SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid), false );
-    return ti.isValid() ? goTo( ti.filenr_, mCast(int,ti.trcidx_) ) : false;
+    return ti.isValid() ? goTo( ti.filenr_, ti.trcidx_ ) : false;
 }
 
 
@@ -142,7 +142,7 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
 SeisTrc* SEGYDirect3DPSReader::getTrace( const BinID& bid, int nr ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid), nr );
-    return ti.isValid() ? getTrace(ti.filenr_,mCast(int,ti.trcidx_),bid) : 0;
+    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,bid) : 0;
 }
 
 
@@ -155,7 +155,7 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
     if ( !ti.isValid() )
 	return false;
 
-    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid );
+    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, bid );
     if ( !trc ) return false;
 
     tb.deepErase();
@@ -189,7 +189,7 @@ const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const
 bool SEGYDirect2DPSReader::goTo( const BinID& bid )
 {
     SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl), false );
-    return ti.isValid() ? goTo( ti.filenr_, mCast(int,ti.trcidx_) ) : false;
+    return ti.isValid() ? goTo( ti.filenr_, ti.trcidx_ ) : false;
 }
 
 
@@ -224,7 +224,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl), nr );
-    return ti.isValid() ? getTrace(ti.filenr_,mCast(int,ti.trcidx_),bid.crl): 0;
+    return ti.isValid() ? getTrace(ti.filenr_,ti.trcidx_,bid.crl) : 0;
 }
 
 
@@ -234,7 +234,7 @@ bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
     if ( !ti.isValid() )
 	return 0;
 
-    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl );
+    SeisTrc* trc = getTrace( ti.filenr_, ti.trcidx_, bid.crl );
     if ( !trc ) return false;
 
     tb.deepErase();
@@ -337,7 +337,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	tr_ = createTranslator( *def_, curfilenr_ );
     }
 
-    return tr_ && tr_->goToTrace( mCast(int,fdsidx.trcidx_) );
+    return tr_ && tr_->goToTrace(fdsidx.trcidx_);
 }
 
 

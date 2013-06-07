@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorizontracksetup.h"
 
@@ -261,8 +261,9 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 
     seedsliderfld_ = new uiSliderExtra( grp,
 	    			uiSliderExtra::Setup("Seed Size").
-				withedit(true),	"Seed Size" );
-    seedsliderfld_->sldr()->setInterval( 1, 15 );
+				withedit(true),	"Slider Size" );
+    seedsliderfld_->sldr()->setMinValue( 1 );
+    seedsliderfld_->sldr()->setMaxValue( 15 );
     seedsliderfld_->sldr()->valueChanged.notify(
 	    		mCB(this,uiHorizonSetupGroup,seedSliderMove));
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
@@ -495,8 +496,8 @@ void uiHorizonSetupGroup::initEventGroup()
     evfld_->setValue( fldidx );
 
     Interval<float> srchintv(
-	    horadj_->permittedZRange().start * SI().zDomain().userFactor(),
-	    horadj_->permittedZRange().stop * SI().zDomain().userFactor() );
+	    horadj_->permittedZRange().start * SI().zFactor(),
+	    horadj_->permittedZRange().stop * SI().zFactor() );
 
     char str[255];
     getStringFromFloat("%.5f",srchintv.start, str);
@@ -514,8 +515,8 @@ void uiHorizonSetupGroup::initSimiGroup()
     usesimifld_->setValue( !horadj_->trackByValue() );
 
     Interval<float> simiintv(
-	    horadj_->similarityWindow().start * SI().zDomain().userFactor(),
-	    horadj_->similarityWindow().stop * SI().zDomain().userFactor() );
+	    horadj_->similarityWindow().start * SI().zFactor(),
+	    horadj_->similarityWindow().stop * SI().zFactor() );
 
     char str[255];
     getStringFromFloat("%.5f",simiintv.start, str );
@@ -542,7 +543,7 @@ void uiHorizonSetupGroup::setMode(EMSeedPicker::SeedModeOrder mode)
 }
 
 
-int uiHorizonSetupGroup::getMode()
+const int uiHorizonSetupGroup::getMode()
 {
     return modeselgrp_ ? modeselgrp_->selectedId() : -1;
 }
@@ -600,8 +601,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( "Search window should be minus to positive, ex. -20, 20");
-    Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
-			     (float)intv.stop/SI().zDomain().userFactor() );
+    Interval<float> relintv( (float)intv.start/SI().zFactor(),
+			     (float)intv.stop/SI().zFactor() );
     if ( horadj_->permittedZRange() != relintv )
     {
 	fieldchange = true;
@@ -620,9 +621,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	Interval<float> intval = compwinfld_->getFInterval();
 	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
 	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
-	Interval<float> relintval(
-		(float)intval.start/SI().zDomain().userFactor(),
-	        (float)intval.stop/SI().zDomain().userFactor() );
+	Interval<float> relintval( (float)intval.start/SI().zFactor(),
+				   (float)intval.stop/SI().zFactor() );
 	if ( horadj_->similarityWindow() != relintval )
 	{
 	    fieldchange = true;
@@ -699,7 +699,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAmplitudeThresholds().size();
 	    fieldchange = true;
-	    horadj_->getAmplitudeThresholds().removeRange( idx, size-1 );
+	    horadj_->getAmplitudeThresholds().remove( idx, size-1 );
 	}
     }
     else
@@ -754,7 +754,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAllowedVariances().size();
 	    fieldchange = true;
-	    horadj_->getAllowedVariances().removeRange( idx, size-1 );
+	    horadj_->getAllowedVariances().remove( idx, size-1 );
 	}
     }
 

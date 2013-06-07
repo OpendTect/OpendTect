@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vismultitexture.h"
 #include "rowcol.h"
 
@@ -31,7 +30,7 @@ class SoShaderParameterArray1f;
 namespace visBase
 {
 
-mExpClass(visBase) MultiTexture2 : public MultiTexture
+mClass MultiTexture2 : public MultiTexture
 {
 public:
     static MultiTexture2*	create()
@@ -143,4 +142,3 @@ protected:
 }; // Namespace
 
 #endif
-

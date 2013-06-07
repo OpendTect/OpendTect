@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
@@ -37,17 +36,17 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Used for displaying a random or arbitrary line.
+/*!\brief Used for displaying a random or arbitrary line.
 
-  RandomTrackDisplay is the front-end class for displaying arbitrary lines.
-  The complete line consists of separate sections connected at inline/crossline
-  positions, called knots or nodes. Several functions are available for adding
-  or inserting knot positions. The depth range of the line can be changed by
-  <code>setDepthInterval(const Interval<float>&)</code>
+    RandomTrackDisplay is the front-end class for displaying arbitrary lines.
+    The complete line consists of separate sections connected at 
+    inline/crossline positions, called knots or nodes. Several functions are
+    available for adding or inserting knot positions. The depth range of the
+    line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
+mClass RandomTrackDisplay : public MultiTextureSurveyObject
+			    
 {
 public:
     static RandomTrackDisplay*	create()
@@ -201,8 +200,6 @@ protected:
     TypeSet<BinID>		knots_;
 
     ZAxisTransform*		datatransform_;
-    Interval<float>		depthrg_;
-    int				voiidx_;
 
     bool			lockgeometry_;
     bool			ismanip_;
@@ -220,4 +217,3 @@ protected:
 
 
 #endif
-

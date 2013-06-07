@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
 #include "Inventor/fields/SoMFInt32.h"
 #include "Inventor/fields/SoMFVec3f.h"
@@ -34,7 +33,7 @@ are organized in a grid where index=row*((sideSize+1)*spacing)+1)+col*spacing;
 */
 
 
-mSoODClass SoMeshSurfaceBrickWire : public SoIndexedLineSet
+mClass SoMeshSurfaceBrickWire : public SoIndexedLineSet
 {
     typedef SoIndexedLineSet	inherited;
     SO_NODE_HEADER(SoMeshSurfaceBrickWire);
@@ -90,4 +89,3 @@ inline short SoMeshSurfaceBrickWire::getCoordIndex(int relrow, int relcol) const
 
 
 #endif
-

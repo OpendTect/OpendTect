@@ -11,16 +11,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-#include "uibasemod.h"
 #include "fontdata.h"
 
-mFDQtclass(QFont)
-mFDQtclass(QFontMetrics)
+class QFont;
+class QFontMetrics;
 class Settings;
 class uiParent;
 class BufferStringSet;
 
-mExpClass(uiBase) uiFont : public CallBacker
+mClass uiFont 
 {			//!< font stuff that needs Qt.
 
     friend bool		select(uiFont&,uiParent*,const char*); 
@@ -43,12 +42,9 @@ public:
     FontData		fontData() const ;
     void		setFontData(const FontData&); 
                         //!< Updates internal QFont and QFontMetrics.
-    static void		setFontData(mQtclass(QFont)&,const FontData&);
-    static void		getFontData(FontData&,const mQtclass(QFont)&);
-    static mQtclass(QFont)* createQFont(const FontData&);
-    
-    inline const mQtclass(QFont&)	qFont() const { return *qfont_; }
-    
+
+    inline const QFont&	qFont() const { return *qfont_; } 
+
     int			height() const;
     int			leading() const; 
     int 		maxWidth() const;
@@ -58,22 +54,21 @@ public:
     int			descent() const; 
 
     const char*		key() const		{ return key_; }
-    Notifier<uiFont>    changed;    
 
 protected: 
 
     // don't change order of these attributes!
-    mQtclass(QFont*)		qfont_; 
-    mQtclass(QFontMetrics&)	qfontmetrics_; 
+    QFont*		qfont_; 
+    QFontMetrics&	qfontmetrics_; 
 
-    BufferString		key_;
+    BufferString	key_;
 
-    void			updateMetrics();
+    void		updateMetrics();
 
 };
 
 
-mExpClass(uiBase) uiFontList : public CallBacker
+mClass uiFontList : public CallBacker
 {
     friend class	uiSetFonts;
 
@@ -91,7 +86,7 @@ public:
     ObjectSet<uiFont>&	fonts()			{ return fonts_; }
 
     uiFont&		get(const char* ky=0);
-    uiFont&		getFromQfnt(mQtclass(QFont*));
+    uiFont&		getFromQfnt(QFont*);
 
     uiFont&		add(const char* ky,const FontData&);
     uiFont&		add(const char* ky,
@@ -108,7 +103,7 @@ protected:
     ObjectSet<uiFont>	fonts_;
     void		initialise();
     uiFont&		gtFont(const char*,const FontData* =0,
-			       const mQtclass(QFont*) =0 );
+			       const QFont* =0 );
 private:
 
     bool		inited_;
@@ -123,4 +118,3 @@ private:
 
 
 #endif
-

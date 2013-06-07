@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -22,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Reference Attribute description editor */
 
-mExpClass(uiAttributes) uiReferenceAttrib : public uiAttrDescEd
+mClass uiReferenceAttrib : public uiAttrDescEd
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 };
 
 #endif
-

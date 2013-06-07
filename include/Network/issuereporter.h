@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "bufstring.h"
 
 namespace System
@@ -21,29 +20,27 @@ namespace System
     
 /*Class that can post a crash-report to OpendTect's website */
     
-mExpClass(Network) IssueReporter
+mClass IssueReporter
 {
 public:
     				IssueReporter( const char* hostname = 0,
 					       const char* path = 0 );
 
     bool			readReport(const char* filename);
-    bool			setDumpFileName(const char* filename);
-    BufferString&		getReport()	    { return report_; }
-    const BufferString&		getReport() const   { return report_; }
+    BufferString&		getReport() { return report_; }
+    const BufferString&		getReport() const { return report_; }
     
     bool			send();
-    const char*			errMsg() const	    { return errmsg_.str(); }
+    const char*			errMsg() const { return errmsg_.str(); }
+    
+    bool			parseCommandLine( int, char** );
 
-    bool			parseCommandLine();
-    
 protected:
-    
+
     BufferString		host_;
     BufferString		path_;
     BufferString		errmsg_;
     BufferString		report_;
-    BufferString                crashreportpath_;
 };
     
     
@@ -52,4 +49,3 @@ protected:
 } //Namespace
 
 #endif
-

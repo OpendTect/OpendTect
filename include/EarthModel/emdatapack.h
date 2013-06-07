@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "datapackbase.h"
 
 template <class T> class Array2D;
@@ -28,11 +27,9 @@ class Horizon;
 class Fault;
 
 
-/*!
-\brief Mixin to provide general services to Earth Model data packs.
-*/
+/*!\brief Mixin to provide general services to Earth Model data packs */
 
-mExpClass(EarthModel) DataPackCommon : 	public ::FlatDataPack
+mClass DataPackCommon : 	public ::FlatDataPack
 {
 public:
     			DataPackCommon(const EMObject&,Array2D<float>*);
@@ -54,11 +51,9 @@ protected:
 };
 
 
-/*!
-\brief Flat data pack class for Horizons.
-*/
+/*!\brief Flat Data Pack class for Horizons. */
 
-mExpClass(EarthModel) HorDataPack : public DataPackCommon
+mClass HorDataPack : public DataPackCommon
 {
 public:
     			HorDataPack(const EM::Horizon&,Array2D<float>*);
@@ -79,11 +74,9 @@ protected:
 };
 
 
-/*!
-\brief Flat data pack from attribute extraction on faults.
-*/ 
+/*!\brief Flat data pack from attribute extraction on faults*/ 
 
-mExpClass(EarthModel) FaultDataPack : public DataPackCommon
+mClass FaultDataPack : public DataPackCommon
 {
 public:
 
@@ -107,4 +100,3 @@ protected:
 } // namespace EM
 
 #endif
-

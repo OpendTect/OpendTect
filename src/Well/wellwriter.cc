@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -81,9 +81,9 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 	char str[80]; wd.info().surfacecoord.fill( str );
 	astrm.put( Well::Info::sKeycoord(), str );
     }
-    astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
-    astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
-    astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );
+    astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
+    astrm.put( "Replacement velocity", wd.info().getReplVel() );
+    astrm.put( "Ground level elevation", wd.info().getGroundElev() );
     astrm.newParagraph();
 
     return putTrack( strm );
@@ -143,7 +143,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
     if ( !wrHdr(strm,sKeyLog()) ) return false;
 
     ascostream astrm( strm );
-    astrm.put( sKey::Name(), wl.name() );
+    astrm.put( sKey::Name, wl.name() );
     const bool haveunits = *wl.unitMeasLabel();
     const bool havepars = !wl.pars().isEmpty();
     if ( haveunits )
@@ -183,7 +183,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	else
 	{
 	    if ( mIsUdf(v[1]) )
-		strm << v[0] << '\t' << sKey::FloatUdf() << '\n';
+		strm << v[0] << '\t' << sKey::FloatUdf << '\n';
 	    else
 		strm << v[0] << '\t' << v[1] << '\n';
 	}
@@ -213,11 +213,11 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
     {
 	BufferString basekey; basekey += idx+1;
 	const Well::Marker& wm = *wd.markers()[idx];
-	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
+	astrm.put( IOPar::compKey(basekey,sKey::Name), wm.name() );
 	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), wm.dah() );
-	astrm.put( IOPar::compKey(basekey,sKey::StratRef()), wm.levelID() );
+	astrm.put( IOPar::compKey(basekey,sKey::StratRef), wm.levelID() );
 	BufferString bs; wm.color().fill( bs.buf() );
-	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
+	astrm.put( IOPar::compKey(basekey,sKey::Color), bs );
     }
 
     return strm.good();
@@ -250,8 +250,8 @@ bool Well::Writer::doPutD2T( std::ostream& strm, bool csmdl ) const
 
     ascostream astrm( strm );
     const Well::D2TModel& d2t = *(csmdl ? wd.checkShotModel(): wd.d2TModel());
-    astrm.put( sKey::Name(), d2t.name() );
-    astrm.put( sKey::Desc(), d2t.desc );
+    astrm.put( sKey::Name, d2t.name() );
+    astrm.put( sKey::Desc, d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
     astrm.newParagraph();
 

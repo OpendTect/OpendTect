@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "basemap.h"
 #include "uigroup.h"
 
@@ -22,7 +21,7 @@ class uiGraphicsItemGroup;
 class uiGraphicsView;
 class uiWorld2Ui;
 
-mExpClass(uiTools) uiBaseMapObject : public CallBacker
+mClass uiBaseMapObject : public CallBacker
 {
 public:
     				uiBaseMapObject(BaseMapObject*);
@@ -45,7 +44,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
+mClass uiBaseMap : public BaseMap, public uiGroup
 {
 public:
 				uiBaseMap(uiParent*);
@@ -72,4 +71,3 @@ protected:
 };
 
 #endif
-

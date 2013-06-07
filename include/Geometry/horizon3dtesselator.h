@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 #include "task.h"
 
@@ -28,7 +27,7 @@ class Coord3List;
    based on my own normals, hence normstartidx is provided in case you want to 
    arrange your global indices based on your spacing or whatever. */
 
-mExpClass(Geometry) Horizon3DTesselator : public SequentialTask
+mClass Horizon3DTesselator : public SequentialTask
 {
 public:
     			Horizon3DTesselator(const Coord3List*,
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

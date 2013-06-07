@@ -1,4 +1,4 @@
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: csv2sql.cc,v 1.4 2008/11/25 15:35:21 cvsbert Exp $";
 
 #include <iostream>
 #include "tableconvimpl.h"

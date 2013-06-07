@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; class FileIndexer; }
 class CtxtIOObj;
@@ -22,7 +21,7 @@ class uiSeis2DLineSel;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiSEGYScanDlg : public uiSEGYReadDlg
+mClass uiSEGYScanDlg : public uiSEGYReadDlg
 {
 public :
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

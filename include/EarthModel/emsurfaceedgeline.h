@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "callback.h"
 #include "mathfunc.h"
@@ -47,11 +46,7 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 
 class EdgeLineSegmentFactory;
 
-/*!
-\brief Edge line segment
-*/
-
-mExpClass(EarthModel) EdgeLineSegment : public CallBacker
+mClass EdgeLineSegment : public CallBacker
 { 
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
@@ -66,7 +61,7 @@ public:
 
     bool		haveIdenticalSettings( const EdgeLineSegment& ) const;
     			/*!<\returns true if the segments are of the same
-			     	     type and have the same settings */
+			     	     type and have the same settigs */
 
     int			size() const;
     int			indexOf( const RowCol&, bool forward=true ) const;
@@ -173,11 +168,7 @@ private:
 };
 
 
-/*!
-\brief Edge line segment factory.
-*/
-
-mExpClass(EarthModel) EdgeLineSegmentFactory 
+mClass EdgeLineSegmentFactory 
 {
 public:
 			EdgeLineSegmentFactory( const char* nm,
@@ -190,11 +181,7 @@ public:
 };
 
 
-/*!
-\brief Edge line
-*/
-
-mExpClass(EarthModel) EdgeLine : public CallBacker
+mClass EdgeLine : public CallBacker
 {
 public:
     			EdgeLine( EM::Horizon3D&, const EM::SectionID& );
@@ -263,11 +250,7 @@ protected:
 };
 
 
-/*!
-\brief Edge line iterator
-*/
-
-mExpClass(EarthModel) EdgeLineIterator
+mClass EdgeLineIterator
 {
 public:
     			EdgeLineIterator( const EM::EdgeLine& el_,
@@ -303,11 +286,7 @@ protected:
 };
 
 
-/*!
-\brief Edge line set
-*/
-
-mExpClass(EarthModel) EdgeLineSet : public CallBacker
+mClass EdgeLineSet : public CallBacker
 {
 public:
     			EdgeLineSet( EM::Horizon3D&, const EM::SectionID&);
@@ -352,11 +331,7 @@ protected:
 };
 
 
-/*!
-\brief Edge line manager
-*/
-
-mExpClass(EarthModel) EdgeLineManager : public CallBacker
+mClass EdgeLineManager : public CallBacker
 {
 public:
     				EdgeLineManager(Horizon3D&);
@@ -385,4 +360,6 @@ protected:
 };
 
 #endif
+
+
 

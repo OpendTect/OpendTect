@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seis2dlineio.h"
 class SeisTrc;
 class CBVSSeisTrcTranslator;
@@ -20,7 +19,7 @@ class CBVSSeisTrcTranslator;
 namespace PosInfo { class Line2DData; }
 
 
-mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
+mClass SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
 {
 public:
 
@@ -44,7 +43,7 @@ public:
 
 private:
 
-    static int		factid_;
+    static int		factid;
 
 public:
 
@@ -53,7 +52,7 @@ public:
 };
 
 
-mExpClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
+mClass SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 
@@ -61,18 +60,17 @@ public:
 			~SeisCBVS2DLinePutter();
 
     const char*		errMsg() const      		{ return errmsg_.str();}
-    int			nrWritten() const		{ return nrwr_; }
+    int			nrWritten() const		{ return nrwr; }
     bool		put(const SeisTrc&);
     bool		close();
 
-    int                 		nrwr_;
-    BufferString        		fname_;
-    BufferString        		errmsg_;
-    CBVSSeisTrcTranslator*		tr_;
-    BinID               		bid_;
-    DataCharacteristics::UserType	preseldt_;
+    int                 nrwr;
+    BufferString        fname;
+    BufferString        errmsg_;
+    CBVSSeisTrcTranslator* tr;
+    BinID               bid;
+    DataCharacteristics::UserType preseldt;
 
 };
 
 #endif
-

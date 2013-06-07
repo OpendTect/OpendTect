@@ -13,20 +13,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "zaxistransform.h"
 
 namespace EM
 {
 class Horizon;
 
-/*!
-\brief Z-transform that flattens a horizon. Everything else will also be
-flattened accordingly. In case of reverse faulting, the area between the two
-patches will not be included.
-*/
+/*!Z-transform that flatterns a horizon. Everything else will also be flatterned
+accordingly. In case of reverse faulting, the area between the two patches will
+not be included.  */
 
-mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
+mClass HorizonZTransform : public ZAxisTransform
 			 , public CallBacker
 {
 public:
@@ -70,4 +67,3 @@ protected:
 } // namespace EM
 
 #endif
-

@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -141,6 +141,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 void IODirEntryList::removeWithTranslator( const char* trnm )
 {
     BufferString nm = trnm;
+    int curidx = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	IODirEntry* entry = (*this)[idx];

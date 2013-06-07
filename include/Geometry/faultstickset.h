@@ -17,14 +17,13 @@ Info:
 	stickidx: row index, starting from 0
 */
 
-#include "geometrymod.h"
 #include "refcount.h"
 #include "rowcolsurface.h"
 
 namespace Geometry
 {
 
-mExpClass(Geometry) FaultStickSet : public RowColSurface
+mClass FaultStickSet : public RowColSurface
 {
 public:
     			FaultStickSet();
@@ -94,4 +93,3 @@ protected:
 };
 
 #endif
-

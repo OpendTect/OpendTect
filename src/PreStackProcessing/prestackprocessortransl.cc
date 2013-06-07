@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackprocessortransl.h"
 
@@ -30,10 +30,9 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 	const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false; }
-    
+    mDynamicCastGet(PreStackProcTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Mute Definition"; return false; }
+    PtrMan<PreStackProcTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -46,8 +45,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
 	const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> tr,
-		 ioobj->createTranslator());
+    mDynamicCastGet(PreStackProcTranslator*,tr,ioobj->getTranslator())
     if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false;}
 
     bs = "";
@@ -58,7 +56,8 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     {
 	bs = tr->write( md, *conn );
     }
-    
+
+    delete tr;
     return bs.isEmpty();
 }
 

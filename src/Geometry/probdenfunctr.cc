@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "probdenfunctr.h"
 
@@ -37,8 +37,8 @@ const char* ProbDenFuncTranslator::key()
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 					  BufferString* emsg )
 {
-    mDynamicCast(ProbDenFuncTranslator*,
-	    	 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
+    Translator* trl = ioobj.getTranslator();
+    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
     if ( !pdftr )
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
 
@@ -63,8 +63,8 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 				   BufferString* emsg )
 {
-    mDynamicCast(ProbDenFuncTranslator*,
-		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
+    Translator* trl = ioobj.getTranslator();
+    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
     if ( !pdftr )
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return false; }
 
@@ -89,21 +89,21 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 {
     ascistream astrm( strm );
     IOPar par( astrm );
-    FixedString type = par.find( sKey::Type() );
+    FixedString type = par.find( sKey::Type );
     if ( type.isEmpty() )
 	return 0;
 
-    ProbDenFunc* pdf = 0;
+    ProbDenFunc* pdf;
     if ( type == Sampled1DProbDenFunc::typeStr() )
-	pdf = new Sampled1DProbDenFunc();
+	pdf = new Sampled1DProbDenFunc( Array1DImpl<float>(-1) );
     else if ( type == Sampled2DProbDenFunc::typeStr() )
-	pdf = new Sampled2DProbDenFunc();
+	pdf = new Sampled2DProbDenFunc( Array2DImpl<float>(-1,-1) );
     else if ( type == SampledNDProbDenFunc::typeStr() )
 	pdf = new SampledNDProbDenFunc();
 
     pdf->usePar( par );
     binary_ = false;
-    par.getYN( sKey::Binary(), binary_ );
+    par.getYN( sKey::Binary, binary_ );
 
     pdf->obtain( strm, binary_ );
     return pdf;
@@ -121,7 +121,7 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
 
     IOPar par;
     pdf.fillPar( par );
-    par.setYN( sKey::Binary(), binary_ );
+    par.setYN( sKey::Binary, binary_ );
     par.putTo( astrm );
 
     pdf.dump( strm, binary_ );

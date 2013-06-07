@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -26,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
 
-mExpClass(uiEarthModel) uiImportFault : public uiDialog
+mClass uiImportFault : public uiDialog
 {
 public:
 			~uiImportFault();
@@ -38,7 +37,6 @@ protected:
 			uiImportFault(uiParent*,const char*,bool is2d=false);
 
     void		createUI();
-    void		inputChgd(CallBacker*);
     void		typeSel(CallBacker*);
     void		stickSel(CallBacker*);
     bool		checkInpFlds();
@@ -71,7 +69,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
+mClass uiImportFault3D : public uiImportFault
 {
 public:
     			uiImportFault3D(uiParent*,const char* type);
@@ -80,4 +78,3 @@ protected:
 };
 
 #endif
-

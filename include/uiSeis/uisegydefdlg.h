@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "uivarwizarddlg.h"
 #include "seistype.h"
 class uiSEGYFileSpec;
@@ -26,11 +24,11 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-mExpClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
+mClass uiSEGYDefDlg : public uiVarWizardDlg
 {
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 					Setup();
 
@@ -73,5 +71,3 @@ protected:
 
 
 #endif
-
-

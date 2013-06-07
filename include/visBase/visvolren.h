@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 
 class SoROI;
@@ -22,7 +21,7 @@ class SoVolumeRender;
 namespace visBase
 {
 
-mExpClass(visBase) VolrenDisplay : public visBase::VisualObjectImpl
+mClass VolrenDisplay : public visBase::VisualObjectImpl
 {
 public:
     static VolrenDisplay*	create()
@@ -36,4 +35,3 @@ protected:
 }; //Namespace
 
 #endif
-

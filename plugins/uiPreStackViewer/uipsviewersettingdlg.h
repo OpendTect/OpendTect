@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id$
+ RCS:           $Id: uipsviewersettingdlg.h,v 1.8 2011/09/19 05:18:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,10 @@ ________________________________________________________________________
 
 class uiCheckBox;
 namespace PreStack { class ProcessManager; }
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView 
 { 
+    class Viewer3D; 
     class uiViewer3DMgr;
     class uiViewer3DScalingTab;
     class uiViewer3DAppearanceTab; 
@@ -28,11 +28,11 @@ namespace PreStackView
     class uiViewer3DPreProcTab;
     class uiViewer3DEventsTab;
 
-mClass(uiPreStackViewer) uiViewer3DSettingDlg : public uiTabStackDlg
+class uiViewer3DSettingDlg : public uiTabStackDlg
 {
 public:
 				uiViewer3DSettingDlg(uiParent*,
-						   visSurvey::PreStackDisplay&,
+						   PreStackView::Viewer3D&,
 						   uiViewer3DMgr&,
 						   PreStack::ProcessManager&);
 protected:

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/lists/SbPList.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec2i32.h>
@@ -40,7 +39,7 @@ class SoElement;
 */
 
 
-mSoODClass SoSplitTexture2: public SoNode
+mClass SoSplitTexture2: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2);
 public:
     static		void initClass();
@@ -65,7 +64,7 @@ protected:
    image was put on the state.  If the requested part is outside the source
    texture, it is clamped to edge.*/
 
-mSoODClass SoSplitTexture2Part: public SoNode
+mClass SoSplitTexture2Part: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2Part);
 public:
     static		void initClass();
@@ -104,4 +103,3 @@ protected:
 };
 
 #endif
-

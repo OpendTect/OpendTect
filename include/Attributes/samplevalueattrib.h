@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
+
+/*!\brief Sample Value Attribute
+
+  Shortcut for dummies (like us) to Shift or Mathematics or ... attribute's
+  functionality.
+
+*/
 
 namespace Attrib
 {
 
-/*!
-\brief Sample Value Attribute
-  
-  Shortcut for dummies (like us) to Shift or Mathematics or ... attribute's
-  functionality.
-*/
-
-mExpClass(Attributes) SampleValue : public Provider
+mClass SampleValue : public Provider
 {
 public:
     static void			initClass();

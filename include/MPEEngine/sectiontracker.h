@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
@@ -29,15 +28,13 @@ namespace MPE
 
 class TrackPlane;
 
+
 class SectionSourceSelector;
 class SectionExtender;
 class SectionAdjuster;
 
-/*!
-\brief Tracks sections of EM::EMObject with ID EM::SectionID.
-*/
 
-mExpClass(MPEEngine) SectionTracker
+mClass SectionTracker
 {
 public:
     				SectionTracker( EM::EMObject&,
@@ -117,5 +114,4 @@ protected:
 };
 
 #endif
-
 

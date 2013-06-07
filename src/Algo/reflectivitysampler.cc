@@ -80,12 +80,12 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 
     const float df = Fourier::CC::getDf( outsampling_.step, size );
     const float nyqfreq = Fourier::CC::getNyqvist( outsampling_.step );
-    const float tapersz = mCast( float, (int)( size/10 ) );
+    const float tapersz = (int)( size/10 );
     const float maxfreq = nyqfreq + tapersz*df;
     LinScaler cosscale( nyqfreq, 0, maxfreq, M_PI/2 );
 
     const float_complex* stopptr = buffer+size;
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const ReflectivitySpike& spike = model_[idx];
 	const float time = usenmotime_ ? spike.correctedtime_ : spike.time_ ;
@@ -102,7 +102,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	const float anglesampling = -time * df;
 	while ( ptr!=stopptr )
 	{
-	    const float angle = (float) ( 2*M_PI *anglesampling * freqidx );
+	    const float angle = 2*M_PI *anglesampling * freqidx;
 	    const float freq = df * freqidx;
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cpexref = cexp * reflectivity;

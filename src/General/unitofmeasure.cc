@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -234,18 +234,18 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 		    && (matchStringCI("FT",nm) || matchStringCI("FEET",nm)) )
 	    return "ft/s";
     break;
-    case 'K' : case 'k':
-    	if ( matchStringCI("kg/m2s",nm) )
-	    return "m/s x kg/m3";
-	if ( matchStringCI("kg/m2us",nm) )
-	    return "kg/m3 / us/m";
-    break;
     case 'G' : case 'g':
     	if ( matchStringCI("G/cm2s",nm) )
 	    return "m/s x g/cc";
 	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
 	  || matchStringCI("GR/C",nm) )
 	    return "g/cc";
+    break;
+    case 'K' : case 'k':
+	if ( matchStringCI("kg/m2s",nm) )
+	    return "m/s x kg/m3";
+	if ( matchStringCI("kg/m2us",nm) )
+	    return "kg/m3 / us/m";
     break;
     case 'P' : case 'p':
 	if ( caseInsensitiveEqual(nm,"PU",0) )
@@ -327,7 +327,7 @@ void UnitOfMeasureRepository::getRelevant(
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
-		PropertyRef::StdType st ) const
+	                PropertyRef::StdType st ) const
 {
     ObjectSet<const UnitOfMeasure> candidates;
     getRelevant( st, candidates );
@@ -338,3 +338,4 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
     }
     return 0;
 }
+

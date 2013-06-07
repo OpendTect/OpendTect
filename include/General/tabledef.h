@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "sets.h"
 #include "rowcol.h"
 #include "namedobj.h"
@@ -39,7 +38,7 @@ namespace Table
  
  */
 
-mExpClass(General) TargetInfo : public NamedObject
+mClass TargetInfo : public NamedObject
 {
 public:
 
@@ -214,7 +213,7 @@ protected:
 
 /*!\brief description of input our output data content */
 
-mExpClass(General) FormatDesc : public NamedObject
+mClass FormatDesc : public NamedObject
 {
 public:
     			FormatDesc( const char* nm )
@@ -257,4 +256,3 @@ public:
 
 
 #endif
-

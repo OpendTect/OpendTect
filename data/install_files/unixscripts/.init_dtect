@@ -35,7 +35,7 @@ setenv LANG C
 #-----------------------------------------------------
 # PATH variables
 
-set bindir="${DTECT_APPL}/bin/${binsubdir}/Release"
+set bindir="${DTECT_APPL}/bin/${binsubdir}"
 set binpath="${bindir}:${DTECT_APPL}/bin"
 
 setenv PATH "${binpath}:${PATH}"

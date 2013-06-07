@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -126,7 +126,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();
-	    rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
+	    rc.setValues( array, arr3d->info().getTotalSz() );
 	}
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
@@ -142,8 +142,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 		return false;
 
 	    if ( array->getData() )
-		rc.setValues( array->getData(), 
-				mCast(int,array->info().getTotalSz()) );
+		rc.setValues( array->getData(), array->info().getTotalSz() );
 	    else
 	    {
 		const int sz2d0 = array->info().getSize( 0 );
@@ -286,10 +285,17 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 }
 
 
-void uiStatsDisplayWin::setData( const float* medvals, int medsz, int dispidx )
+void uiStatsDisplayWin::setData( const Stats::ParallelCalc<float>& rc, int idx )
 {
-    if ( disps_.validIdx(dispidx) )
-	disps_[dispidx]->setData( medvals, medsz );
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->setData( rc.medvals_.arr(), rc.medvals_.size() );
+}
+
+
+void uiStatsDisplayWin::setData( const float* array, int sz, int idx )
+{
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->setData( array, sz );
 }
 
 

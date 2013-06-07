@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
-#include "seismod.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "linekey.h"
@@ -28,7 +26,7 @@ namespace ZDomain { class Def; }
 
 /*!\brief Info on IOObj for seismics */
 
-mExpClass(Seis) SeisIOObjInfo
+mClass SeisIOObjInfo
 {
 public:
 
@@ -52,7 +50,7 @@ public:
     bool		isDepth() const;
     const ZDomain::Def&	zDomainDef() const;
 
-    mStruct(Seis) SpaceInfo
+    mStruct SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
 	int		expectednrsamps;
@@ -77,14 +75,14 @@ public:
     void		getComponentNames(BufferStringSet&,
 	    				LineKey lk=LineKey()) const;
 
-    mStruct(Seis) Opts2D
+    mStruct Opts2D
     {
 				Opts2D()
 				    : bvs_(0), steerpol_(2)	{}
 	const BinIDValueSet*	bvs_;
 	BufferString		zdomky_;	//!< default=empty=only SI()'s
 				//!< Will be matched as GlobExpr
-	int			steerpol_;	//!< 0=none, 1=only, 2=both
+	int			steerpol_;	//!< 0=only, 1=none, 2=both
 				//!< Casts into uiSeisSel::Setup::SteerPol
     };
 
@@ -135,5 +133,3 @@ protected:
 
 
 #endif
-
-

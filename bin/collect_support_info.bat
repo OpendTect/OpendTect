@@ -4,7 +4,7 @@
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id$
+:: CVS: $Id: collect_support_info.bat,v 1.7 2005/04/06 13:36:14 cvsarend Exp $
 ::______________________________________________________________________________
 ::
 

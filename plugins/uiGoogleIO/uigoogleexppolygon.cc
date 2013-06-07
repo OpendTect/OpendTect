@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigoogleexppolygon.cc,v 1.8 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "uigoogleexppolygon.h"
 #include "googlexmlwriter.h"
@@ -45,10 +45,10 @@ bool uiGoogleExportPolygon::acceptOK( CallBacker* )
 
     TypeSet<Coord> coords;
     for ( int idx=0; idx<ps_.size(); idx++ )
-	coords += ps_[idx].pos_;
-    coords += ps_[0].pos_;
+	coords += ps_[idx].pos;
+    coords += ps_[0].pos;
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
+    const float reqwdth = lsfld_->getWidth() * 0.1;
     wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );
     wrr.writePoly( "polygon", ps_.name(), coords, hghtfld_->getfValue() );
 

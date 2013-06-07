@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -24,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Shift Attribute description editor */
 
-mExpClass(uiAttributes) uiShiftAttrib : public uiAttrDescEd
+mClass uiShiftAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-

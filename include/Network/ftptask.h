@@ -12,12 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "executor.h"
 
 class ODFtp;
 
-mExpClass(Network) FtpTask : public Executor
+mClass FtpTask : public Executor
 {
 public:
 			FtpTask(ODFtp&);
@@ -46,4 +45,3 @@ protected:
 };
 
 #endif
-

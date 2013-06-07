@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "flatview.h"
@@ -24,12 +23,11 @@ class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
 class uiColorTable;
-    
-/*!
-\brief uiFlatViewer properties tabs.
-*/
 
-mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
+    
+/*!\brief flat viewer properties tabs */
+
+mClass uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
@@ -46,11 +44,9 @@ protected:
 };
 
     
-/*!
-\brief uiFlatViewer data display properties tabs.
-*/
+/*!\brief flat viewer data display properties tabs */
 
-mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+mClass uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
     			~uiFlatViewDataDispPropTab();
@@ -93,11 +89,9 @@ protected:
 };
 
     
-/*!
-\brief uiFlatViewer WVA display properties tabs.
-*/
+/*!\brief flat viewer WVA display properties tabs */
 		     
-mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
@@ -126,11 +120,9 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer VD display properties tabs.
-*/
+/*!\brief flat viewer VD display properties tabs */
 
-mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
@@ -154,11 +146,9 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer annotation properties tabs.
-*/
+/*!\brief flat viewer annotation properties tabs */
 
-mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
+mClass uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
@@ -180,7 +170,7 @@ protected:
     
     FlatView::Annotation& annot_;
 
-    mExpClass(uiFlatView) AxesGroup : public uiGroup
+    mClass AxesGroup : public uiGroup
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
@@ -216,17 +206,16 @@ protected:
     uiGenInput*		x1rgfld_;
     uiGenInput*		x2rgfld_;
 
-    ObjectSet<FlatView::AuxData::EditPermissions>	permissions_;
-    BoolTypeSet						enabled_;
-    TypeSet<LineStyle>					linestyles_;
-    TypeSet<int>					indices_;
-    TypeSet<Color>					fillcolors_;
-    TypeSet<MarkerStyle2D>				markerstyles_;
-    TypeSet<Interval<double> >				x1rgs_;
-    TypeSet<Interval<double> >				x2rgs_;
-    int							currentaux_;
+    ObjectSet<FlatView::Annotation::AuxData::EditPermissions>	permissions_;
+    BoolTypeSet							enabled_;
+    TypeSet<LineStyle>						linestyles_;
+    TypeSet<int>						indices_;
+    TypeSet<Color>						fillcolors_;
+    TypeSet<MarkerStyle2D>					markerstyles_;
+    TypeSet<Interval<double> >					x1rgs_;
+    TypeSet<Interval<double> >					x2rgs_;
+    int								currentaux_;
 };
 
 
 #endif
-

@@ -12,17 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "odimage.h"
 
-mFDQtclass(QImage)
+class QImage;
 
 
-mExpClass(uiBase) uiRGBArray : public OD::RGBImage
+mClass uiRGBArray : public OD::RGBImage
 {
 public:
                         uiRGBArray(bool withalpha);
-			uiRGBArray(const OD::RGBImage&);
+			uiRGBArray(const uiRGBArray&);
     virtual		~uiRGBArray();
 
     char		nrComponents() const { return withalpha_ ? 4 : 3; }
@@ -32,15 +31,14 @@ public:
     bool		set(int,int,const Color&);
     void		clear(const Color&);
 
-    const mQtclass(QImage&)	qImage() const	{ return *qimg_; } ;
-    mQtclass(QImage&)		qImage()	{ return *qimg_; } ;
+    const QImage&	qImage() const		{ return *qimg_; } ;
+    QImage&		qImage()		{ return *qimg_; } ;
 
 protected:
 
-    mQtclass(QImage*)	qimg_;
+    QImage*		qimg_;
     bool		withalpha_;
 
 };
 
 #endif
-

@@ -1,31 +1,36 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 # Description:  CMake script to prepare documentation packages
 # Author:       Nageswara
-# Date:		March 2013		
+# Date:		January 2013		
 #RCS:           $Id$
 
-include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
-if( UNIX OR APPLE )
+INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+IF( UNIX OR APPLE )
     download_packages()
-else()
-    message( FATAL_ERROR "Documentation packages are not prepared on Windows" )
-endif()
+ENDIF()
 
-set( DOCPACKAGES doc dgbdoc classdoc )
+SET( DOCPACKAGES doc dgbdoc classdoc )
 foreach ( PACKAGE ${DOCPACKAGES} )
-    set( PACK ${PACKAGE} )
-    message( "Preparing package ${PACK}.zip ......" )
-    if( NOT DEFINED OpendTect_VERSION_MAJOR )
-	message( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
-    endif()
+    SET( PACK ${PACKAGE} )
+    MESSAGE( "Preparing package ${PACK}.zip ......" )
+    IF( NOT DEFINED OpendTect_VERSION_MAJOR )
+	MESSAGE( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
+    ENDIF()
 
-    if( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	message( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
-    endif()
+    IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	MESSAGE( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
+    ENDIF()
 
-    if( UNIX OR APPLE )
+    IF( WIN32 )
+	IF( NOT EXISTS "${PSD}/bin/win/unzip.exe" )
+	    MESSAGE( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
+		     Unable to create packages.Please do an update" )
+	ENDIF()
+    ENDIF()
+
+    IF( UNIX OR APPLE )
 	init_destinationdir( ${PACK} )
 	create_docpackages( ${PACK} )
-    endif()
+    ENDIF()
 endforeach()
-message( "\n Created doc packages are available under ${PSD}/packages" )
+MESSAGE( "\n Created doc packages are available under ${PSD}/packages" )

@@ -12,7 +12,6 @@
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class BinID;
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiTable;
 template <class T> class Interval;
 
-mExpClass(uiTools) uiBinIDTable : public uiGroup
+mClass uiBinIDTable : public uiGroup
 {
 public:
 			uiBinIDTable(uiParent*,bool withz);
@@ -40,4 +39,3 @@ protected:
 };
 
 #endif
-

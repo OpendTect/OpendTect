@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "randomlinetr.h"
 #include "randomlinefact.h"
@@ -36,7 +36,7 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 	{ bs = "Cannot find object in data base"; return false; }
 
     PtrMan<RandomLineSetTranslator> tr
-	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
     if ( !tr )
 	{ bs = "Selected object is not a Random Line"; return false; }
 
@@ -72,7 +72,7 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 	{ bs = "No object to store set in data base"; return false; }
     
     PtrMan<RandomLineSetTranslator> tr
-	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
     if ( !tr )
 	{ bs = "Selected object is not an Attribute Set"; return false; }
 
@@ -88,14 +88,14 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 			   BufferString& nm )
 {
-    if ( !astrm.hasKeyword(sKey::ZRange()) )
+    if ( !astrm.hasKeyword(sKey::ZRange) )
 	return;
 
     FileMultiString fms = astrm.value();
     zrg.start = toFloat( fms[0] ); zrg.stop = toFloat( fms[1] );
     astrm.next();
 
-    if ( astrm.hasKeyword(sKey::Name()) )
+    if ( astrm.hasKeyword(sKey::Name) )
     {
 	nm = astrm.value();
 	astrm.next();
@@ -109,9 +109,9 @@ static void putZRangeAndName( ascostream& astrm,
     const Interval<float> zrg( rdl.zRange() );
     FileMultiString fms = toString( zrg.start );
     fms.add( toString(zrg.stop) );
-    astrm.put( sKey::ZRange(), fms );
+    astrm.put( sKey::ZRange, fms );
     if ( !rdl.name().isEmpty() )
-	astrm.put( sKey::Name(), rdl.name() );
+	astrm.put( sKey::Name, rdl.name() );
 }
 
 

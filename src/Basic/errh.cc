@@ -4,7 +4,7 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -15,13 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <fstream>
 
-#ifdef HAS_BREAKPAD
-#include "client\windows\handler\exception_handler.h"
-#include <QString>
-#endif
-
-Export_Basic const char* logMsgFileName();
-Export_Basic std::ostream& logMsgStrm();
+mGlobal const char* logMsgFileName();
+mGlobal std::ostream& logMsgStrm();
 bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__
     true;
@@ -29,10 +24,11 @@ bool ErrMsgClass::printProgrammerErrs =
     false;
 # endif
 static BufferString logmsgfnm;
-Export_Basic int gLogFilesRedirectCode = -1;
+mBasicGlobal int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
 
-Export_Basic const char* logMsgFileName()
+
+mBasicGlobal const char* logMsgFileName()
 {
     return logmsgfnm.buf();
 }
@@ -49,7 +45,7 @@ Export_Basic const char* logMsgFileName()
 #endif
 	
   
-Export_Basic std::ostream& logMsgStrm()
+mBasicGlobal std::ostream& logMsgStrm()
 {
     if ( gLogFilesRedirectCode < 1 )
 	return std::cerr;
@@ -146,79 +142,3 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
     	{ "Information", "Message", "Warning", "Error", "PE", 0 };
     return strs[ (int)typ ];
 }
-
-#ifdef mUseCrashDumper
-
-using namespace System;
-
-//Crashdumper stuff
-CrashDumper::CrashDumper()
-    : sendappl_( sSenderAppl() )
-    , handler_(0)
-{
-    init();
-}
-
-
-CrashDumper* CrashDumper::theinst_ = 0;
-
-
-static bool MinidumpCB(const wchar_t* dump_path, const wchar_t *id,
-                     void *context, EXCEPTION_POINTERS *exinfo,
-                     MDRawAssertionInfo *assertion,
-                     bool succeeded)
-{ 
-    const QString path = QString::fromWCharArray( dump_path );
-    const QString mndmpid = QString::fromWCharArray( id );
-    const BufferString dmppath ( path.toAscii().constData() );
-    const BufferString dmpid ( mndmpid.toAscii().constData(), ".dmp" );
-    const FilePath dmpfp( dmppath, dmpid );
-    System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
-    return succeeded;
-}
-
-
-void CrashDumper::init()
-{
-    if ( !handler_ )
-    {
-	const QString dmppath = FilePath::getTempDir();
-	const std::wstring wpath = dmppath.toStdWString();
-	handler_ = new google_breakpad::ExceptionHandler(
-			wpath,
-			NULL, MinidumpCB, NULL,
-			google_breakpad::ExceptionHandler::HANDLER_ALL );
-    }
-}
-
-
-void CrashDumper::sendDump( const char* filename )
-{
-    if ( sendappl_.isEmpty() || !File::exists(filename) )
-	return;
-    
-    const BufferString cmd( sendappl_, " --binary ", filename );
-    StreamProvider(cmd).executeCommand( true, true );
-}
-
-
-CrashDumper& CrashDumper::getInstance()
-{
-    if ( !theinst_ )
-    {
-	theinst_ = new CrashDumper;
-    }
-    
-    return *theinst_;
-}
-
-
-FixedString CrashDumper::sSenderAppl()
-{ return FixedString("od_ReportIssue" ); }
-
-
-FixedString CrashDumper::sUiSenderAppl()
-{ return FixedString( "od_uiReportIssue" ); }
-
-
-#endif

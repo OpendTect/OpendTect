@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: process_attrib_exp.cc,v 1.3 2009/07/22 16:01:26 cvsbert Exp $";
 
 /* process_attrib with experimental attributes */
 

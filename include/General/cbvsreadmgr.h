@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "datainterp.h"
@@ -27,7 +26,7 @@ class CubeSampling;
 
 */
 
-mExpClass(General) CBVSReadMgr : public CBVSIOMgr
+mClass CBVSReadMgr : public CBVSIOMgr
 {
 public:
 
@@ -97,4 +96,3 @@ private:
 
 
 #endif
-

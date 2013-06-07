@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          May 2008
- RCS:           $Id$
+ RCS:           $Id: uipsviewerappearancetab.h,v 1.4 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,18 +20,18 @@ class uiLabel;
 class uiPushButton;
 class uiGenInput;
 namespace visBase { class FlatViewer; };
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
 class uiViewer3DMgr; 
+class Viewer3D;
 
-mClass(uiPreStackViewer) uiViewer3DAppearanceTab : public uiDlgGroup 
+class uiViewer3DAppearanceTab : public uiDlgGroup 
 {
 public:
 				uiViewer3DAppearanceTab(uiParent*,
-						 visSurvey::PreStackDisplay&,
+						 PreStackView::Viewer3D&,
   						 uiViewer3DMgr&);
     bool			acceptOK();
     void			applyToAll(bool yn)	{ applyall_ = yn; }
@@ -68,6 +68,8 @@ protected:
     SamplingData<float>		manuoffssampl_;
 };
 
-} // namespace
+
+}; //namespace
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "zaxistransformdatapack.h"
 
@@ -49,8 +49,6 @@ ZAxisTransformDataPack::~ZAxisTransformDataPack()
     transform_.removeVolumeOfInterest( voiid_ );
     transform_.unRef();
     delete outputcs_;
-    delete array2dsl_;
-    delete array3d_;
 }
 
 
@@ -65,7 +63,7 @@ void ZAxisTransformDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
     FlatDataPack::dumpInfo( iop );
-    iop.set( sKey::Type(), "Flat ZAxis Transformed" );
+    iop.set( sKey::Type, "Flat ZAxis Transformed" );
 }
 
 

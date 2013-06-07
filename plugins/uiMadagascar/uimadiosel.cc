@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.34 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -25,12 +25,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "keystrs.h"
 
+
 static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
 		    BufferString("Specify the ",isinp?"input to":"output of",
 					 " the processing flow"),"103.5.1") )
+	, ctio3d_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,isinp))
+	, ctio2d_(*uiSeisSel::mkCtxtIOObj(Seis::Line,isinp))
+	, ctiops3d_(*uiSeisSel::mkCtxtIOObj(Seis::VolPS,isinp))
+	, ctiops2d_(*uiSeisSel::mkCtxtIOObj(Seis::LinePS,isinp))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)
@@ -56,21 +61,18 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     if ( isinp )
 	mAdd( "SU", idxsu_ );
 
-    mAdd( sKey::None(), idxnone_ );
+    mAdd( sKey::None, idxnone_ );
 
     typfld_ = new uiGenInput( this, isinp ? "Input" : "Output",
 	    		      StringListInpSpec(seistypes) );
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
     {
-	const IOObjContext ioct3d( uiSeisSel::ioContext(Seis::Vol,isinp) );
-	seis3dfld_ = new uiSeisSel( this, ioct3d, uiSeisSel::Setup(Seis::Vol));
+	seis3dfld_ = new uiSeisSel( this, ctio3d_, uiSeisSel::Setup(Seis::Vol));
 	seis3dfld_->attach( alignedBelow, typfld_ );
 	seis3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
-
-	const IOObjContext ioctps3d( uiSeisSel::ioContext(Seis::VolPS,isinp) );
-	seisps3dfld_ = new uiSeisSel( this, ioctps3d,
-				      uiSeisSel::Setup(Seis::VolPS) );
+	seisps3dfld_ = new uiSeisSel( this, ctiops3d_,
+				      uiSeisSel::Setup(Seis::VolPS));
 	seisps3dfld_->attach( alignedBelow, typfld_ );
 	seisps3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
@@ -82,13 +84,10 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     }
     if ( have2d )
     {
-	const IOObjContext ioct2d( uiSeisSel::ioContext(Seis::Line,isinp) );
-	seis2dfld_ = new uiSeisSel( this, ioct2d, uiSeisSel::Setup(Seis::Line));
+	seis2dfld_ = new uiSeisSel( this, ctio2d_,uiSeisSel::Setup(Seis::Line));
 	seis2dfld_->attach( alignedBelow, typfld_ );
 	seis2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
-
-	const IOObjContext ioctps2d( uiSeisSel::ioContext(Seis::LinePS,isinp) );
-	seisps2dfld_ = new uiSeisSel( this, ioctps2d,
+	seisps2dfld_ = new uiSeisSel( this, ctiops2d_,
 					uiSeisSel::Setup(Seis::LinePS) );
 	seisps2dfld_->attach( alignedBelow, typfld_ );
 	seisps2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
@@ -110,6 +109,15 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     sconsfld_->attach( rightTo, madfld_ );
 
     postFinalise().notify( mCB(this,uiMadIOSelDlg,initWin) );
+}
+
+
+uiMadIOSelDlg::~uiMadIOSelDlg()
+{
+    delete ctio3d_.ioobj; delete &ctio3d_;
+    delete ctio2d_.ioobj; delete &ctio2d_;
+    delete ctiops3d_.ioobj; delete &ctiops3d_;
+    delete ctiops2d_.ioobj; delete &ctiops2d_;
 }
 
 
@@ -138,6 +146,15 @@ Seis::GeomType uiMadIOSelDlg::geomType() const
 	: (choice == idx2d_ ?	Seis::Line
 	: (choice == idxps2d_ ?	Seis::LinePS
 	:			Seis::VolPS) );
+}
+
+
+CtxtIOObj& uiMadIOSelDlg::ctxtIOObj( Seis::GeomType gt )
+{
+    return gt == Seis::Vol ?	ctio3d_
+	: (gt == Seis::Line ?	ctio2d_
+	: (gt == Seis::LinePS ?	ctiops2d_
+	:			ctiops3d_ ) );
 }
 
 
@@ -173,7 +190,7 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     const bool filesel = choice == idxmad_ || choice == idxsu_;
-    madfld_->display( filesel );
+    madfld_->display( choice == idxmad_ || choice == idxsu_ );
     sconsfld_->display( choice == idxmad_ );
     if ( choice == idxsu_ )
 	madfld_->setFilter( "*.su" );
@@ -205,24 +222,24 @@ void uiMadIOSelDlg::selChg( CallBacker* )
     const Seis::GeomType gt = geomType();
     if ( !seisSel(gt)->commitInput() ) return;
 
-    const IOObj* ioobj = seisSel(gt)->ioobj();
+    CtxtIOObj& ctio = ctxtIOObj( gt );
     uiSeisSubSel* subsel = seisSubSel( gt );
-    if ( !ioobj )
+    if ( !ctio.ioobj )
 	subsel->clear();
     else if ( gt == Seis::Line )
     {
 	mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel);
-	subsel2d->setInputWithAttrib( *ioobj, seisSel(gt)->attrNm() );
+	subsel2d->setInputWithAttrib( *ctio.ioobj, seisSel(gt)->attrNm() );
     }
     else
-	subsel->setInput( *ioobj );
+	subsel->setInput( *ctio.ioobj );
 }
 
 
 void uiMadIOSelDlg::usePar( const IOPar& iop )
 {
     bool istypselected = false;
-    if ( !iop.find(sKey::Type()) )
+    if ( !iop.find(sKey::Type) )
 	typfld_->setValue( 0 );
     else
 	istypselected = true;
@@ -232,7 +249,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     if ( istypselected )
 	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
 			? ODMad::sKeyMadagascar()
-			: iot == ODMad::ProcFlow::None ? sKey::None().str()
+			: iot == ODMad::ProcFlow::None ? sKey::None.str()
 						       : Seis::nameOf(gt) );
     typSel( this );
     if ( iot == ODMad::ProcFlow::None ) return;
@@ -247,7 +264,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 	}
 
 	BufferString txt;
-	if ( iop.get(sKey::FileName(),txt) )
+	if ( iop.get(sKey::FileName,txt) )
 	    madfld_->setFileName( txt );
 	return;
     }
@@ -257,7 +274,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     uiSeisSubSel* subsel = seisSubSel( gt );
     if ( subsel )
     {
-	PtrMan<IOPar> subpar = iop.subselect( sKey::Subsel() );
+	PtrMan<IOPar> subpar = iop.subselect( sKey::Subsel );
 	if ( subpar ) subsel->usePar( *subpar );
     }
 }
@@ -270,10 +287,10 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
     if ( isMad() )
     {
 	iop.setYN( sKeyScons, sconsfld_->isChecked() );
-	iop.set( sKey::FileName(), madfld_->fileName() );
+	iop.set( sKey::FileName, madfld_->fileName() );
     }
     else if ( isSU() )
-	iop.set( sKey::FileName(), madfld_->fileName() );
+	iop.set( sKey::FileName, madfld_->fileName() );
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
@@ -286,7 +303,7 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 		return false;
 
 	    if ( subpar.size() )
-		iop.mergeComp( subpar, sKey::Subsel() );
+		iop.mergeComp( subpar, sKey::Subsel );
 	}
     }
 
@@ -311,9 +328,15 @@ bool uiMadIOSelDlg::getInp()
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
-	if ( !seisSel(gt)->ioobj() )
-	    return false;
+	if ( !seisSel(gt)->commitInput() )
+	{
+	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
+	    if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
+	       && !uiMSG().askOverwrite("Output cube exists. Overwrite?") )
+		return false;
+	}
     }
+
     return true;
 }
 
@@ -346,17 +369,17 @@ void uiMadIOSel::usePar( const IOPar& iop )
 
 void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 {
-    if ( iop_.find(sKey::Type()) ) return;
+    if ( iop_.find(sKey::Type) ) return;
 
-    BufferString typ( iop.find(sKey::Type()) );
+    BufferString typ( iop.find(sKey::Type) );
     if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
 
-    BufferString idval( iop.find(sKey::ID()) );
-    if ( !idval.isEmpty() && !iop_.find(sKey::ID()) )
-	iop_.set( sKey::ID(), idval );
+    BufferString idval( iop.find(sKey::ID) );
+    if ( !idval.isEmpty() && !iop_.find(sKey::ID) )
+	iop_.set( sKey::ID, idval );
 
-    iop_.set( sKey::Type(), typ );
-    const char* lkey = IOPar::compKey( sKey::Subsel(), sKey::LineKey() );
+    iop_.set( sKey::Type, typ );
+    const char* lkey = IOPar::compKey( sKey::Subsel, sKey::LineKey );
     BufferString lnm( iop.find(lkey) );
     if ( !lnm.isEmpty() && !iop_.find(lkey) )
 	iop_.set( lkey, lnm );
@@ -377,14 +400,14 @@ BufferString uiMadIOSel::getSummary() const
 {
     BufferString ret( "-" );
 
-    if ( !iop_.find(sKey::Type()) )
+    if ( !iop_.find(sKey::Type) )
 	return ret;
 
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
     if ( iot == ODMad::ProcFlow::None )
-	ret = sKey::None();
+	ret = sKey::None;
     else if ( iot == ODMad::ProcFlow::Madagascar )
-	ret = iop_.find( sKey::FileName() );
+	ret = iop_.find( sKey::FileName );
     else
 	ret = IOM().nameOf( iop_.find("ID") );
 

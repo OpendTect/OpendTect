@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -66,7 +66,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     currdridx_ = 0;
     if ( !is2d_ )
-	totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+	totnrpos_ = SI().sampling(false).hrg.totalNr();
 }
 
 
@@ -85,7 +85,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     if ( iop.isEmpty() )
 	{ errmsg_ = "Nothing to merge"; return; }
 
-    FilePath fp( iop.find(sKey::TmpStor()) );
+    FilePath fp( iop.find(sKey::TmpStor) );
     DirList dlist( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dlist.size(); idx++ )
     {
@@ -100,7 +100,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
 	rdrs_ += newrdr;
     }
 
-    PtrMan<IOPar> outiop = iop.subselect( sKey::Output() );
+    PtrMan<IOPar> outiop = iop.subselect( sKey::Output );
     if ( !outiop )
 	return;
 
@@ -116,7 +116,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     }
 
     currdridx_ = 0;
-    totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+    totnrpos_ = SI().sampling(false).hrg.totalNr();
 }
 
 
@@ -259,7 +259,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     {
 	SeisTrcPropChg stckr( trc );
 	for ( int idx=1; idx<nrtrcs; idx++ )
-	    stckr.stack( *buf.get(idx), false, mCast(float,idx) );
+	    stckr.stack( *buf.get(idx), false, idx );
     }
 
     ret = buf.remove( 0 );

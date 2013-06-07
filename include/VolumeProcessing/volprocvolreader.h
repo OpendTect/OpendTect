@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "multiid.h"
 #include "samplingdata.h"
 #include "volprocchain.h"
@@ -24,12 +23,10 @@ class BinID;
 namespace VolProc
 {
 
-/*!
-\brief Reads in a volume. Will replace previous values if data is present in
-the read volume.
-*/
+/*! Reads in a volume. Will replace previous values if data is present
+    in the read volume. */
     
-mExpClass(VolumeProcessing) VolumeReader : public Step
+mClass VolumeReader : public Step
 {
 public:
     			mDefaultFactoryInstantiation( Step, VolumeReader,
@@ -62,4 +59,3 @@ protected:
 
 
 #endif
-

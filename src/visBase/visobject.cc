@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visobject.h"
 
@@ -19,8 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include "SoLockableSeparator.h"
-
-#include <osg/Switch>
 
 namespace visBase
 {
@@ -44,15 +42,12 @@ VisualObject::~VisualObject()
 
 VisualObjectImpl::VisualObjectImpl( bool issel )
     : VisualObject( issel )
-    , osgroot_( doOsg() ? new osg::Switch : 0 )
     , root_( new SoSeparator )
     , lockableroot_( 0 )
     , onoff_( new SoSwitch )
     , material_( 0 )
     , righthandsystem_( true )
 {
-    if ( osgroot_ ) osgroot_->ref();
-
     setMaterial( Material::create() );
     onoff_->ref();
     onoff_->addChild( root_ );
@@ -62,8 +57,6 @@ VisualObjectImpl::VisualObjectImpl( bool issel )
 
 VisualObjectImpl::~VisualObjectImpl()
 {
-    if ( osgroot_ ) osgroot_->unref();
-
     getInventorNode()->unref();
     if ( material_ ) material_->unRef();
 }
@@ -151,22 +144,11 @@ void VisualObjectImpl::turnOn( bool yn )
     {
 	pErrMsg( "Turning off object without switch");
     }
-    if ( osgroot_ )
-    {
-	if ( yn )
-	    osgroot_->setAllChildrenOn();
-	else
-	    osgroot_->setAllChildrenOff();
-    }
 }
 
 
 bool VisualObjectImpl::isOn() const
 {
-    if ( osgroot_ && osgroot_->getNumChildren() )
-    {
-	return osgroot_->getValue( 0 );
-    }
 
     return !onoff_ || onoff_->whichChild.getValue()==SO_SWITCH_ALL;
 }
@@ -202,12 +184,6 @@ SoNode* VisualObjectImpl::gtInvntrNode()
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 
-osg::Node* VisualObjectImpl::gtOsgNode()
-{
-    return osgroot_;
-}
-
-
 void VisualObjectImpl::addChild( SoNode* nn )
 { root_->addChild( nn ); }
 
@@ -222,33 +198,6 @@ void VisualObjectImpl::removeChild( SoNode* nn )
 
 int VisualObjectImpl::childIndex( const SoNode* nn ) const
 { return root_->findChild(nn); }
-
-
-void VisualObjectImpl::addChild( osg::Node* nn )
-{
-    osgroot_->addChild( nn );
-}
-
-
-void VisualObjectImpl::insertChild( int pos, osg::Node* nn )
-{
-    osgroot_->insertChild( pos, nn );
-}
-
-
-void VisualObjectImpl::removeChild( osg::Node* nn )
-{
-    osgroot_->removeChild( nn );
-}
-
-
-int VisualObjectImpl::childIndex( const osg::Node* nn ) const
-{
-    const int idx = osgroot_->getChildIndex(nn);
-    if ( idx==osgroot_->getNumChildren() )
-	return -1;
-    return idx;
-}
 
 
 SoNode* VisualObjectImpl::getChild(int idx)

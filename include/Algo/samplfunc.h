@@ -15,21 +15,19 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "periodicvalue.h"
 
-/*!
-\brief Make any sampled series comply with MathFunction.
-
-  If the sampled values are periodic (i.e. phase), set the periodic flag and
-  let period() return the period ( i.e. 2*pi for phase ).
+/*!\brief make any sampled series comply with MathFunction.
+If the sampled values are periodic (i.e. phase), set the periodic flag and let
+period() return the period ( i.e. 2*pi for phase ).
 */
 
 template <class RT,class T>
-mClass(Algo) SampledFunction : public MathFunction<RT,RT>
+class SampledFunction : public MathFunction<RT,RT>
 {
 public:
 				SampledFunction( bool periodic_= false )
 				    : periodic( periodic_ ) {}
 
-    virtual RT			operator[](od_int64)	const		= 0;
+    virtual RT			operator[](int)	const			= 0;
 
     virtual float		getDx() const				= 0;
     virtual float		getX0() const				= 0;
@@ -86,12 +84,10 @@ protected:
 };
 
 
-/*!
-\brief Implementation for array-type of SampledFunction.
-*/
+/*!\brief implementation for array-type of SampledFunction */
 
 template <class RT, class T>
-mClass(Algo) SampledFunctionImpl : public SampledFunction<RT,T>
+class SampledFunctionImpl : public SampledFunction<RT,T>
 {
 public:
 			SampledFunctionImpl(const T& idxabl,int sz,
@@ -105,7 +101,7 @@ public:
 			    , interpolate_( true )
 			{}
 
-    RT			operator[](od_int64 idx) const	{ return idxabl_[idx];}
+    RT			operator[](int idx) const	{ return idxabl_[idx]; }
 
     float		getDx() const			{ return dx_; }
     float		getX0() const			{ return x0_; }

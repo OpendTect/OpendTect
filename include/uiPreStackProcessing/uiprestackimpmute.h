@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -26,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
-mExpClass(uiPreStackProcessing) uiImportMute : public uiDialog
+mClass uiImportMute : public uiDialog
 {
 public:
   			uiImportMute(uiParent*);
@@ -56,4 +55,3 @@ protected:
 
 }; //namespace Prestack
 #endif
-

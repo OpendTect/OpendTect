@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "bufstring.h"
 
 class DataInpSpec;
@@ -21,18 +20,17 @@ class BufferStringSet;
 namespace Attrib
 {
 
-/*!
-\brief A parameter that is used by an attribute.
-  
-  Each attribute has a definition string that defines how the attribute is
-  computed. The definition string has the format:
-  
-  AttribNameWithoutSpaces param1=value1 param2=value2,value3
-  
-  The parameter thus has a key (e.g. param1) and one or more associated values.
+/*! A parameter that is used by an attribute.
+
+Each attribute has a definition string that defines how the attribute is
+computed. The definition string has the format:
+
+AttribNameWithoutSpaces param1=value1 param2=value2,value3
+
+The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
-mExpClass(AttributeEngine) Param
+mClass Param
 {
 public:
     				Param(const char* key);
@@ -54,7 +52,7 @@ public:
     void			setRequired(bool yn=true) { required_=yn; }
     bool			isGroup() const		  { return isgroup_; }
 
-    FixedString			getKey() const		  { return key_.buf(); }
+    const char*			getKey() const		  { return key_.buf(); }
 
     				/*!Set all values from one composite string.*/
     virtual bool		setCompositeValue(const char*) 
@@ -86,11 +84,7 @@ protected:
 };
 
 
-/*!
-\brief Attribute Value Parameter
-*/
-
-mExpClass(AttributeEngine) ValParam : public Param
+mClass ValParam : public Param
 {
 public:
     				ValParam(const char* key,DataInpSpec*);
@@ -140,4 +134,3 @@ protected:
 
 
 #endif
-

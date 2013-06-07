@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "faulttracker.h"
 
@@ -58,7 +58,7 @@ FaultTracker::~FaultTracker()
 SectionTracker* FaultTracker::createSectionTracker( EM::SectionID sid )
 {
     return 0;
-/*    if ( !getFault() ) return 0;
+    if ( !getFault() ) return 0;
 
     SurfaceSourceSelector* srcsel =
 	new SurfaceSourceSelector( *getFault(), sid );
@@ -70,7 +70,7 @@ SectionTracker* FaultTracker::createSectionTracker( EM::SectionID sid )
     FaultAdjuster* fltadj = 
 	new FaultAdjuster( *getFault(), sid );
 
-    return new SectionTracker( *emObject(), sid, srcsel, extender, fltadj ); */
+    return new SectionTracker( *emObject(), sid, srcsel, extender, fltadj );
 }
 
 

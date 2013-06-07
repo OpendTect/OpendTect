@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id$
+ RCS:           $Id: expwavelet1d.h,v 1.5 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 Wavelet1D minwaveletlen= maxwaveletlen= wavelet=
@@ -47,7 +47,7 @@ Output
 
 class SeisTrc;
     
-mClass(AttribExp) Wavelet1DAttrib : public AttribCalc
+class Wavelet1DAttrib : public AttribCalc
 {
 public:
     mAttrib3Param( Wavelet1DAttrib
@@ -107,10 +107,10 @@ protected:
     Interval<int>	dsg;
     BufferString	desc;
 
-    mClass(AttribExp) Task : public AttribCalc::Task
+    class Task : public AttribCalc::Task
     {
     public:
-	mClass(AttribExp) Input : public AttribCalc::Task::Input
+	class Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const Wavelet1DAttrib& calculator_ )

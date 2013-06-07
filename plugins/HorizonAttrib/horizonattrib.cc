@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.23 2012/05/21 22:41:24 cvsnanne Exp $";
 
 #include "horizonattrib.h"
 
@@ -212,7 +212,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
 	    		   rc.toInt64() );
-    const float zval = (float) horizon_->getPos( posid ).z;
+    const float zval = horizon_->getPos( posid ).z;
 
     const bool isz = outtype_ == mOutTypeZ;
     if ( relz_ && isz )

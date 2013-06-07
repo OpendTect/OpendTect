@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uisip.h"
 
 
-mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
+mClass ui2DSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
     			ui2DSurvInfoProvider()
@@ -32,4 +31,3 @@ public:
 
 
 #endif
-

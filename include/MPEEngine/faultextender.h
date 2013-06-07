@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionextender.h"
 
 #include "position.h"
@@ -22,11 +21,7 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
-/*!
-\brief SectionExtender to extend EM::Fault3D.
-*/
-
-mExpClass(MPEEngine) FaultExtender : public SectionExtender
+mClass FaultExtender : public SectionExtender
 {
 public:
 			FaultExtender(EM::Fault3D&,const EM::SectionID& =-1);
@@ -49,5 +44,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

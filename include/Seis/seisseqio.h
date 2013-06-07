@@ -7,7 +7,6 @@
  * ID       : $Id$
 -*/
 
-#include "seismod.h"
 #include "seistype.h"
 #include "bufstring.h"
 #include "factory.h"
@@ -28,7 +27,7 @@ class Bounds;
 
 /*!\brief Base class for Seismic Sequential IO classes */
 
-mExpClass(Seis) SeqIO
+mClass SeqIO
 {
 public:
 
@@ -49,7 +48,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential input classes */
 
-mExpClass(Seis) SeqInp : public SeqIO
+mClass SeqInp : public SeqIO
 {
 public:
 
@@ -78,7 +77,7 @@ protected:
  */
 
 
-mExpClass(Seis) ODSeqInp : public SeqInp
+mClass ODSeqInp : public SeqInp
 {
 public:
 
@@ -114,7 +113,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential output classes */
 
-mExpClass(Seis) SeqOut : public SeqIO
+mClass SeqOut : public SeqIO
 {
 public:
 
@@ -135,7 +134,7 @@ public:
  
  */
 
-mExpClass(Seis) ODSeqOut : public SeqOut
+mClass ODSeqOut : public SeqOut
 {
 public:
 
@@ -161,4 +160,3 @@ public:
 
 
 #endif
-

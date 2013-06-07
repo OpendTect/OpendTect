@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -24,10 +23,10 @@ class uiVelSel;
 
 namespace PreStack
 {
-    class uiAngleCompGrp;
+    class uiAngleMuteGrp;
     class AngleMuteComputer;
 
-mExpClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
+mClass uiAngleMuteComputer : public uiDialog
 {
 public:
 			uiAngleMuteComputer(uiParent*);
@@ -36,7 +35,7 @@ protected:
 
     CtxtIOObj&		outctio_;
 
-    uiAngleCompGrp*		anglecompgrp_;
+    uiAngleMuteGrp*     anglemutegrp_;
     AngleMuteComputer*	processor_;
     uiSeisSubSel*	subsel_;
     uiIOObjSel*		mutedeffld_;
@@ -48,4 +47,3 @@ protected:
 }; //namespace
 
 #endif
-

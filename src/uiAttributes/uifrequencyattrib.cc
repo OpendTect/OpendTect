@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uifrequencyattrib.h"
@@ -78,7 +78,7 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetString( Frequency::windowStr(), window,
 	        winfld->setWindowName(window) );
     mIfGetFloat( Frequency::paramvalStr(), variable,
-	    	 const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
+	    	 const float resvar = float( mNINT32((1-variable)*1000) )/1000.0;
 	         winfld->setWindowParamValue(resvar) );
 
     return true;
@@ -108,7 +108,7 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
     mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
     mSetString( Frequency::windowStr(), winfld->windowName() );
     const float resvar =
-		float( mNINT32( (1-winfld->windowParamValue())*1000) )/1000.0f;
+		float( mNINT32( (1-winfld->windowParamValue())*1000) )/1000.0;
     mSetFloat( Frequency::paramvalStr(), resvar );
 
     return true;

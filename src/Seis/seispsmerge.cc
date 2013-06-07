@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seispsmerge.h"
 #include "seisresampler.h"
@@ -68,7 +68,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
     if ( readers_.isEmpty() )
 	{ msg_ = "No valid inputs specified"; return; }
 
-    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr() );
+    totnr_ = sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr();
     iter_ = new HorSamplingIterator( cs.hrg );
     resampler_ = new SeisResampler( cs );
 
@@ -105,7 +105,7 @@ int SeisPSMerger::nextStep()
 
 	nrdone_ ++;
 
-	ManagedObjectSet<SeisTrcBuf> gatherset;
+	ManagedObjectSet<SeisTrcBuf> gatherset( false );
 	for ( int idx=0; idx<readers_.size(); idx++ )
 	{
 	    gather = new SeisTrcBuf( true );

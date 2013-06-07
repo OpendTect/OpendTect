@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "histequalizer.h"
 #include "dataclipper.h"
@@ -15,14 +15,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 
 HistEqualizer::HistEqualizer( const int nrseg )
-    : datapts_(*new LargeValVec<float>() )
+    : datapts_(*new TypeSet<float>() )
     , histeqdatarg_(0)
     , nrseg_(nrseg)
 {
 }
 
 
-void HistEqualizer::setData( const LargeValVec<float>& datapts )
+void HistEqualizer::setData( const TypeSet<float>& datapts ) 
 {
     datapts_ = datapts;
     update();
@@ -40,7 +40,7 @@ void HistEqualizer::setRawData( const TypeSet<float>& datapts )
 
 void HistEqualizer::update()
 {
-    const int datasz = mCast( int, datapts_.size() );
+    const int datasz = datapts_.size();
     if ( histeqdatarg_ )
 	delete histeqdatarg_;
     histeqdatarg_ = new TypeSet< Interval<float> >();
@@ -99,7 +99,7 @@ float HistEqualizer::position( float val ) const
 
 void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
 {
-    const int datasz = mCast( int, datapts_.size() );
+    const int datasz = datapts_.size();
     const int aindexlength = (int)(datasz/nrseg_);
     const int bindexlength = aindexlength+1;
     const int numberofa = bindexlength*nrseg_ - datasz;
@@ -111,7 +111,7 @@ void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
     {
 	if ( numberofb == 0 )
 	    break;
-	int idx = Stats::randGen().getIndex( nrseg_ );
+	int idx = Stats::RandGen::getIndex( nrseg_ );
 	if ( segszs[idx] == bindexlength )
 	    continue;
 

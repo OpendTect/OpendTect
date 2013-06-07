@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiGroup;
 class uiObjStackBody;
 
-mExpClass(uiBase) uiObjectStack : public uiObject
+mClass uiObjectStack : public uiObject
 {
 public:
 
@@ -37,4 +36,3 @@ private:
 };
 
 #endif
-

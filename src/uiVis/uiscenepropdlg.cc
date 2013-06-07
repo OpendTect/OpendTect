@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiscenepropdlg.h"
 
@@ -23,33 +23,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewer.h"
 #include "uimsg.h"
 
-bool uiScenePropertyDlg::savestatus_ = true;
+bool uiScenePropertyDlg::savestatus = true;
 
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p, 
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
-    : uiDialog(p,uiDialog::Setup("Scene properties","","50.0.5"))
-    , hadsurveybox_(true)
-    , hadannot_(true)
-    , hadannotscale_(true)
-    , hadannotgrid_(true)
-    , oldbgcolor_(Color::Black())
-    , annotcolor_(Color::White())
-    , oldmarkersize_(5)
-    , oldmarkercolor_(Color::White())
-    , hadanimation_(true)
-    , viewers_(viewers)
-    , curvwridx_(curvwridx)
-    , scene_(0)
-    , separationdlg_(0)
+    : uiDialog( p, uiDialog::Setup("Scene properties","","50.0.5") )
+    , hadsurveybox_( true )
+    , hadannot_( true )
+    , hadannotscale_( true )
+    , hadannotgrid_( true )
+    , oldbgcolor_( Color::Black() )
+    , annotcolor_( Color::White() )
+    , oldmarkersize_( 5 )
+    , oldmarkercolor_( Color::White() )
+    , markersizefld_( 0 )
+    , annotfld_( 0 )
+    , annotscalefld_( 0 )
+    , survboxfld_( 0 )
+    , bgcolfld_( 0 )
+    , viewers_( viewers )
+    , curvwridx_( curvwridx )
+    , scene_( NULL )
+    , separationdlg_( 0 )
 {
     enableSaveButton( "Apply to all scenes");
-    setSaveButtonChecked( savestatus_ );
+    setSaveButtonChecked( savestatus );
 
     if ( viewers_[curvwridx_] )
     {
 	oldbgcolor_ = viewers_[curvwridx_]->getBackgroundColor();
-	hadanimation_ = viewers_[curvwridx_]->isAnimationEnabled();
 
         mDynamicCast(visSurvey::Scene*, scene_, const_cast <visBase::Scene*> 
 			(viewers_[curvwridx_]->getScene()));
@@ -117,11 +120,6 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     uiPushButton* ltbutton = new uiPushButton(this, "Line/Surface separation",
 	    		mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
     ltbutton->attach( alignedBelow, annotcolfld_ );
-
-    animationfld_ = new uiCheckBox( this, "Allow spin animation" );
-    animationfld_->setChecked( hadanimation_ );
-    animationfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
-    animationfld_->attach( alignedBelow, ltbutton );
 }
 
 
@@ -141,7 +139,6 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
     {
 	vwr->setBackgroundColor( bgcolfld_->color() );
 	vwr->setAxisAnnotColor( annotcolfld_->color() );
-	vwr->enableAnimation( animationfld_->isChecked() );
     }
 
     annotfld_->setSensitive( survboxfld_->isChecked() );
@@ -192,7 +189,6 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     {
 	vwr->setBackgroundColor( oldbgcolor_ );
 	vwr->setAxisAnnotColor( annotcolor_ );
-	vwr->enableAnimation( hadanimation_ );
     }
 
     return true;
@@ -247,8 +243,8 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
     if ( viewers_[curvwridx_] )
 	viewers_[curvwridx_]->savePropertySettings();
 
-    savestatus_ = saveButtonChecked();
-    if ( !savestatus_ )
+    savestatus = saveButtonChecked();
+    if ( !savestatus )
 	return true;
 
     for ( int idx=0; idx<viewers_.size() && viewers_[idx]; idx++ )
@@ -262,7 +258,6 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	{
 	    vwr->setBackgroundColor( bgcolfld_->color() );
 	    vwr->setAxisAnnotColor( annotcolfld_->color() );
-	    vwr->enableAnimation( animationfld_->isChecked() );
 	}
     }
 

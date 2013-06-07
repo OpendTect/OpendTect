@@ -1,0 +1,23 @@
+ifndef __make.od.Defaults__
+__make.od.Defaults__ := 1
+#_______________________Pmake__________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile : 	Project include for OpendTect
+# 	Oct 2003	A.H. Bril
+#	$Id: make.od.Defaults,v 1.5 2009/03/16 14:32:11 cvsbert Exp $
+#_______________________________________________________________________________
+
+include make.od.Dirs
+
+include make.od.Vars
+
+ifdef ALLINC
+
+    EXTRAINC := $(foreach inc,$(ALLINC),$(I$(inc)))
+
+endif
+
+include make.Defaults
+
+endif

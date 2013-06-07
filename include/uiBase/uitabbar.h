@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiTabBarBody;
@@ -22,7 +21,7 @@ class uiTab;
 
 
 //! TabBar widget only. Normally you'd want to use the uiTabStack class.
-mExpClass(uiBase) uiTabBar : public uiObject
+mClass uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
 friend class		uiTabStack;
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiTab : public NamedObject
+mClass uiTab : public NamedObject
 {
 friend class		uiTabBar;
 public:
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

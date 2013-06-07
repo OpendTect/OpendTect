@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "transl.h"
 
-mDeclEmptyTranslatorBundle(General,ElasticPropSelection,od,"elas")
+mDeclEmptyTranslatorBundle(ElasticPropSelection,od,"elas")
 
 #endif
 

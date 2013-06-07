@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emeditor.h"
 
@@ -286,7 +286,7 @@ void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 	     !interactionline->getLine(0)->getSegment(0)->size() )
 	{
 	    //Start a new line
-	    const RowCol activenoderc = pid.getRowCol();
+	    const RowCol activenoderc( pid.subID() );
 	    EM::EdgeLine* edgeline = interactionline->getLine(0);
 	    if ( !edgeline->nrSegments() )
 	    {
@@ -336,7 +336,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 
     EM::Horizon3D& emsurface = interactionline->getHorizon();
     const EM::SectionID sid = interactionline->getSection();
-    const RowCol rc = pid.getRowCol();
+    const RowCol rc( pid.subID() );
 
     EM::EdgeLineSegment& els = *interactionline->getLine(0)->getSegment(0);
 
@@ -355,7 +355,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
     TypeSet <RowCol> line;
     makeLine( lastrc, rc, emsurface.geometry().step(), line );
     if ( rc==els[0] )
-	line.removeSingle(line.size()-1);
+	line.remove(line.size()-1);
 
     for ( int idx=0; idx<line.size(); idx++ )
     {
@@ -384,7 +384,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 	    return false;
     }
 
-    line.removeSingle(0);
+    line.remove(0);
     if ( doit )
 	els.insert( els.size(), line );
     return true;
@@ -438,7 +438,8 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
 
     if ( !ge && editoridx!=-1 )
     {
-	delete geeditors.removeSingle(editoridx);
+	delete geeditors[editoridx];
+	geeditors.remove(editoridx);
 	editpositionchange.trigger();
     }
     else if ( ge && editoridx==-1 )

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocstepdlg.h"
 #include "volprochorinterfiller.h"
 
@@ -23,7 +22,7 @@ class CtxtIOObj;
 namespace VolProc
 {
 
-mExpClass(uiVolumeProcessing) uiHorInterFiller : public uiStepDialog
+mClass uiHorInterFiller : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -61,4 +60,3 @@ protected:
 }; //namespace
 
 #endif
-

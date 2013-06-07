@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "position.h"
 #include "selector.h"
@@ -26,11 +25,7 @@ namespace EM
 
 class EMObject;    
 
-/*!
-\brief EMObject RowCol selection removal.
-*/
-
-mExpClass(EarthModel) EMObjectRowColSelRemoval : public ParallelTask
+mClass EMObjectRowColSelRemoval : public ParallelTask
 {
 public:
     			EMObjectRowColSelRemoval(EMObject& emobj,
@@ -78,4 +73,3 @@ protected:
 
 
 #endif
-

@@ -20,7 +20,7 @@ class uiGenInput;
 
 /*! \brief MatchDelta Attribute description editor */
 
-mClass(uiAttributes) uiMatchDeltaAttrib : public uiAttrDescEd
+class uiMatchDeltaAttrib : public uiAttrDescEd
 {
 public:
 

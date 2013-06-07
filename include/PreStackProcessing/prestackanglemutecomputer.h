@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
 #include "task.h"
 #include "ranges.h"
 #include "horsampling.h"
@@ -28,20 +26,15 @@ namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
 {
+    class MuteDef;
 
-class MuteDef;
-
-/*!
-\brief Computes angle mute.
-*/
-
-mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
+mClass AngleMuteComputer : public ParallelTask, public AngleMuteBase
 {
 public:
     				AngleMuteComputer();
 				~AngleMuteComputer();
 
-    mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
+    mStruct AngleMuteCompPars : public AngleMuteBase::Params
     {
 	MultiID			outputmutemid_;
 	HorSampling 		hrg_;
@@ -72,6 +65,4 @@ protected:
 };
 
 }
-
 #endif
-

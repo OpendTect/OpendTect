@@ -11,41 +11,30 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsitemimpl.h"
 #include "drawaxis2d.h"
 
 class uiGraphicsView;
 class uiGraphicsScene;
-
 namespace FlatView
 {
+
 class Viewer;
 
-/*!
-\brief Axis drawer for flat viewers.
-*/
+/*!\brief Axis drawer for flat viewers */
 
-mExpClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
+mClass AxesDrawer : public ::DrawAxis2D
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);
-			~AxesDrawer();
+
+    void		draw(uiRect,uiWorldRect);
 
     int			altdim0_;
-    void		update();
-    void                setZvalue(int z);
-    void                setViewRect(const uiRect&);
 
 protected:
 
     Viewer&		vwr_;
-    uiRectItem*         rectitem_;
-    uiTextItem*         axis1nm_;
-    uiTextItem*         axis2nm_;
-    uiArrowItem*        arrowitem1_;
-    uiArrowItem*        arrowitem2_;
+
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 
 };
@@ -53,4 +42,3 @@ protected:
 } // namespace
 
 #endif
-

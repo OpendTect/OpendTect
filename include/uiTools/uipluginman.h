@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 class uiListBox;
 class uiTextEdit;
@@ -21,7 +20,7 @@ class uiCheckBox;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-mExpClass(uiTools) uiPluginMan : public uiDialog
+mClass uiPluginMan : public uiDialog
 { 	
 public:
 			uiPluginMan(uiParent*);
@@ -41,4 +40,3 @@ protected:
 
 
 #endif
-

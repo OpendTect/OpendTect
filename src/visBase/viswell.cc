@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "viswell.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "coltabsequence.h"
 #include "cubesampling.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "ranges.h"
 #include "scaler.h"
@@ -53,6 +54,7 @@ const char* Well::showlogsstr()		{ return "Show logs"; }
 const char* Well::showlognmstr()	{ return "Show logname"; }
 const char* Well::logwidthstr()		{ return "Screen width"; }
 
+HiddenParam<Well,int> voiidx_(-1);
 
 Well::Well()
     : VisualObjectImpl( false )
@@ -60,10 +62,14 @@ Well::Well()
     , showlogs_(true)
     , transformation_(0)
     , zaxistransform_(0)
-    , voiidx_(-1)
 {
+    voiidx_.setParam( this, -1 );
+
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
+    drawstyle_ = DrawStyle::create();
+    drawstyle_->ref();
+    sep->addChild( drawstyle_->getInventorNode() );
 
     track_ = PolyLine3D::create();
     track_->ref();
@@ -115,6 +121,9 @@ Well::~Well()
     removeChild( track_->getInventorNode() );
     track_->unRef();
 
+    removeChild( drawstyle_->getInventorNode() );
+    drawstyle_->unRef();
+
     markergroup_->removeAll();
     removeChild( markergroup_->getInventorNode() );
     markergroup_->unRef();
@@ -154,15 +163,22 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
     CubeSampling cs( false );
     for ( int idx=0; idx<pts.size(); idx++ )
-	cs.include( SI().transform(pts[idx]), (float) pts[idx].z );
+    {
+	cs.hrg.include( SI().transform(pts[idx]) );
+	cs.zrg.include ( pts[idx].z );
+    }
 
     if ( zaxistransform_ && zaxistransform_->needsVolumeOfInterest() )
     {
-	if ( voiidx_ < 0 )
-	    voiidx_ = zaxistransform_->addVolumeOfInterest( cs, true );
+	int voiidx = voiidx_.getParam( this );
+	if ( voiidx < 0 )
+	{
+	    voiidx = zaxistransform_->addVolumeOfInterest( cs, true );
+	    voiidx_.setParam( this, voiidx );
+	}
 	else
-	    zaxistransform_->setVolumeOfInterest( voiidx_, cs, true );
-	zaxistransform_->loadDataIfMissing( voiidx_ );
+	    zaxistransform_->setVolumeOfInterest( voiidx, cs, true );
+	zaxistransform_->loadDataIfMissing( voiidx );
     }
 
     int ptidx = 0;
@@ -177,8 +193,9 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	if ( ptidx>=track_->size() )
 	{
 	    const int lastidx = track_->size();
-	    if ( lastidx == 0 || ( lastidx >0 && track_->getPoint( lastidx-1 ) 
-		!= crd ) )
+	    const Coord3 lastcrd =
+		track_->getPoint( lastidx >= 0 ? lastidx-1 : lastidx );
+	    if ( lastcrd != crd )
 		track_->addPoint( crd );
 	}
 	else
@@ -205,7 +222,11 @@ void Well::setLineStyle( const LineStyle& lst )
 
 const LineStyle& Well::lineStyle() const
 {
-    return track_->lineStyle();
+    static LineStyle ls;
+    ls.type_ = drawstyle_->lineStyle().type_;
+    ls.width_ = drawstyle_->lineStyle().width_;
+    ls.color_ = track_->getMaterial()->getColor();
+    return ls;
 }
 
 #define mSetWellName( nm, pos, post, font ) \
@@ -404,9 +425,8 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 	    continue;   
 	
 	for ( int lidx=0; lidx<log_.size(); lidx++ )
-	    log_[lidx]->setLogValue( validx, 
-			    SbVec3f((float) pos.x,(float) pos.y,(float) pos.z), 
-			    val, lp.lognr_ );
+	    log_[lidx]->setLogValue( validx, SbVec3f(pos.x,pos.y,pos.z), 
+		    		     val, lp.lognr_ );
 	validx++;
     }
     showLog( showlogs_, lp.lognr_ );
@@ -443,8 +463,8 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
 
     Interval<float> selrg = lp.fillrange_;
     selrg.sort();
-    float rgstop = (float) scaler.scale( selrg.stop );
-    float rgstart = (float) scaler.scale( selrg.start );
+    float rgstop = scaler.scale( selrg.stop );
+    float rgstart = scaler.scale( selrg.start );
     if ( lp.islogarithmic_ )
     {
 	mSclogval( rgstop ); 
@@ -478,7 +498,7 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 		      bool sclog, const LinScaler& scaler ) const
 {
     const Coord3Value& cv = crdvals[idx];
-    float val = (float) scaler.scale( cv.value );
+    float val = scaler.scale( cv.value );
     if ( val < 0 || mIsUdf(val) ) val = 0;
     if ( val > 100 ) val = 100;
     if ( sclog ) mSclogval(val);
@@ -507,7 +527,7 @@ void Well::removeLogs()
     {
 	log_[idx]->unrefNoDelete();
 	removeChild( log_[idx]  );
-	log_.removeSingle( idx );
+	log_.remove( idx );
     }
 }
 
@@ -531,7 +551,7 @@ float Well::constantLogSizeFactor() const
 {
     const int inlnr = SI().inlRange( true ).nrSteps();
     const int crlnr = SI().crlRange( true ).nrSteps();
-    const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
+    const float survfac = sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
     return survfac * 43; //hack 43 best factor based on F3_Demo
 }
 

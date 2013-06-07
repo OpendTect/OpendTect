@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seiscubeprov.h"
 
@@ -202,7 +202,7 @@ int SeisMSCProvider::estimatedNrTraces() const
     if ( estnrtrcs_ != -2 ) return estnrtrcs_;
     estnrtrcs_ = -1;
     if ( !rdr_.selData() )
-	return is2D() ? estnrtrcs_ : (int) SI().sampling(false).hrg.totalNr();
+	return is2D() ? estnrtrcs_ : SI().sampling(false).hrg.totalNr();
 
     estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
     return estnrtrcs_;
@@ -367,10 +367,10 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
 	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
     RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
-    const int bottomdist mUnusedVar = pivotbid.inl-curbid.inl-bidstepout.row; \
-    const int topdist mUnusedVar = curbid.inl-pivotbid.inl-bidstepout.row; \
-    const int leftdist mUnusedVar = pivotbid.crl-curbid.crl-bidstepout.col; \
-    const int rightdist mUnusedVar = curbid.crl-pivotbid.crl-bidstepout.col;
+    const int bottomdist = pivotbid.inl - curbid.inl - bidstepout.row; \
+    const int topdist = curbid.inl - pivotbid.inl - bidstepout.row; \
+    const int leftdist = pivotbid.crl - curbid.crl - bidstepout.col; \
+    const int rightdist = curbid.crl - pivotbid.crl - bidstepout.col;
    
 
 bool SeisMSCProvider::isReqBoxFilled() const
@@ -417,7 +417,7 @@ bool SeisMSCProvider::doAdvance()
 
 	    if ( tbufs_[0]->isEmpty() )
 	    {
-		delete tbufs_.removeSingle(0);
+		delete tbufs_.remove(0);
 		pivotidx_--; 
 	    }
 	}
@@ -572,16 +572,13 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 
     PtrMan<TrcDataLoader> loader = new TrcDataLoader( seisrdr, *data_, cs_.hrg,
 	    					      lk );
-    const bool res = TaskRunner::execute( tr, *loader );
+    const bool res = tr ? tr->execute(*loader) : loader->execute();
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
 
     return true;
 }
 
-
-const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
-{ return getTrace( BinID(0,trcnr) ); }
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
@@ -590,3 +587,5 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 
     return data_->get( cs_.inlIdx(bid.inl), cs_.crlIdx(bid.crl) );
 }
+
+

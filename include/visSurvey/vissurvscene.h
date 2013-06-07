@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visscene.h"
 #include "bufstring.h"
 #include "cubesampling.h"
@@ -44,37 +43,36 @@ namespace visBase
 namespace visSurvey
 {
 
-/*!
-\brief Database for 3D objects.
+/*!\brief Database for 3D objects
 
-  <code>VisSurvey::Scene</code> is the database for all 'xxxxDisplay' objects.
-  Use <code>addObject(visBase::SceneObject*)</code> to add an object to the
-  Scene.
-  
-  It also manages the size of the survey cube. The ranges in each direction are
-  obtained from <code>SurveyInfo</code> class.<br>
-  The display coordinate system is given in [m/m/ms] if the survey's depth is
-  given in time. If the survey's depth is given in meters, the display
-  coordinate system is given as [m/m/m]. The display coordinate system is
-  _righthand_ oriented!<br>
-  
-  OpenInventor(OI) has difficulties handling real-world coordinates (like xy
-  UTM). Therefore the coordinates given to OI must be transformed from the UTM
-  system to the display coordinate system. This is done by the display
-  transform, which is given to all objects in the UTM system. These object are
-  responsible to transform their coords themselves before giving them to OI.<br>
+<code>VisSurvey::Scene</code> is the database for all 'xxxxDisplay' objects.
+Use <code>addObject(visBase::SceneObject*)</code> to add an object to the Scene.
 
-  The visSurvey::Scene has two domains:<br>
-  1) the UTM coordinate system. It is advised that most objects are here.
-  The objects added to this domain will have their transforms set to the
-  displaytransform which transforms their coords from UTM lefthand
-  (x, y, time[s] or depth[m] ) to display coords (righthand).<br>
-  
-  2) the InlCrl domain. Here, OI takes care of the transformation between
-  inl/crl/t to display coords, so the objects does not need any own transform.
+It also manages the size of the survey cube. The ranges in each direction are
+obtained from <code>SurveyInfo</code> class.<br>
+The display coordinate system is given in [m/m/ms] if the survey's depth is
+given in time. If the survey's depth is given in meters, the display coordinate
+system is given as [m/m/m]. The display coordinate system is _righthand_
+oriented!<br>
+
+OpenInventor(OI) has difficulties handling real-world coordinates (like xy UTM).
+Therefore the coordinates given to OI must be transformed from the UTM system
+to the display coordinate system. This is done by the display transform, which
+is given to all objects in the UTM system. These object are responsible to
+transform their coords themselves before giving them to OI.<br>
+
+The visSurvey::Scene has two domains:<br>
+1) the UTM coordinate system. It is advised that most objects are here.
+The objects added to this domain will have their transforms set to the
+displaytransform which transforms their coords from UTM lefthand
+(x, y, time[s] or depth[m] ) to display coords (righthand).<br>
+
+2) the InlCrl domain. Here, OI takes care of the transformation between
+inl/crl/t to display coords, so the objects does not need any own transform.
+
 */
 
-mExpClass(visSurvey) Scene : public visBase::Scene
+mClass Scene : public visBase::Scene
 {
 public:
     static Scene*		create()
@@ -148,7 +146,7 @@ public:
     const mVisTrans*		getInlCrl2DisplayTransform() const;
     const mVisTrans*		getUTM2DisplayTransform() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform() const;
+    ZAxisTransform*		getZAxisTransform();
 
     void			setBaseMap(BaseMap*);
     BaseMap*			getBaseMap();
@@ -247,4 +245,3 @@ protected:
 
 
 #endif
-

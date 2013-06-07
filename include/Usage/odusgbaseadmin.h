@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "odusgadmin.h"
 
 
 namespace Usage
 {
 
-mExpClass(Usage) BaseAdministrator : public Administrator
+mClass BaseAdministrator : public Administrator
 {
 public:
 
@@ -39,4 +38,3 @@ protected:
 
 
 #endif
-

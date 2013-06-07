@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"
@@ -111,7 +111,8 @@ DisplayLinkManager& DisplayLinkManager::getImpl()
 int DisplayLinkManager::addHolder( DisplayPropertyHolder* hldr )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( !holders_.isPresent( hldr ) )
+    const int idx = holders_.indexOf( hldr );
+    if ( idx==-1 )
     {
 	hldr->propertyholderid_ = freeholderid_++;
 	holders_ += hldr;
@@ -177,18 +178,17 @@ int DisplayLinkManager::getDisplayPropertyLinkID( int idx ) const
 
 int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 {
-    FixedString lnktype = lnk->type();
     Threads::MutexLocker lock( lock_ );
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
     {
-	if ( propertylinks_[idx]->type()!=lnktype )
+	if ( strcmp(propertylinks_[idx]->type(), lnk->type() ) )
 	    continue;
 
 	//If we have at least one holder in common, we can combine them
 	bool hascommon = false;
 	for ( int idy=lnk->holders_.size(); idy>=0; idy-- )
 	{
-	    if ( propertylinks_[idx]->holders_.isPresent(lnk->holders_[idy]) )
+	    if ( propertylinks_[idx]->holders_.indexOf(lnk->holders_[idy])>=0 )
 	    {
 		hascommon = true;
 		break;
@@ -201,7 +201,7 @@ int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 	//Add everything that's not present in existing link from previous link
 	for ( int idy=lnk->holders_.size(); idy>=0; idy-- )
 	{
-	    if ( !propertylinks_[idx]->holders_.isPresent(lnk->holders_[idy]) )
+	    if ( propertylinks_[idx]->holders_.indexOf(lnk->holders_[idy])<0 )
 	    {
 		if ( !propertylinks_[idx]->addHolder( lnk->holders_[idy] ) )
 		{
@@ -231,8 +231,8 @@ void DisplayLinkManager::removeDisplayPropertyLink( int id )
     if ( idx<0 )
 	return;
 
-    delete propertylinks_.removeSingle( idx );
-    propertylinkids_.removeSingle( idx );
+    delete propertylinks_.remove( idx );
+    propertylinkids_.remove( idx );
 }
 
 
@@ -255,7 +255,7 @@ DisplayPropertyLink* DisplayLinkManager::getDisplayPropertyLink( int id )
 void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( !holders_.isPresent( hldr ) )
+    if ( holders_.indexOf( hldr )==-1 )
 	return;
 
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
@@ -268,7 +268,7 @@ void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 		link.removeHolder( hldr );
 		if ( !link.isValid() )
 		{
-		    delete propertylinks_.removeSingle( idx );
+		    delete propertylinks_.remove( idx );
 		    break;
 		}
 	    }

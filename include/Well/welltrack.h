@@ -13,38 +13,27 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 #include "position.h"
 
 namespace Well
 {
-
 class D2TModel;
 
-/*!
-\brief Well track
-*/
-
-mExpClass(Well) Track : public DahObj
+mClass Track : public DahObj
 {
 public:
 
 			Track( const char* nm=0 )
-			: DahObj(nm), zistime_(false) {}
+			: DahObj(nm), zistime_(false)	{}
 			Track( const Track& t )
-			: DahObj("")		{ *this = t; }
+			: DahObj("")			{ *this = t; }
     Track&		operator =(const Track&);
 
-    const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
-    float		value( int idx ) const	{ return (float) pos_[idx].z; }
-    float		getKbElev() const	{ return dah_[0] - value(0); }
-    int			nrPoints() const	{ return pos_.size(); }
-    bool		zIsTime() const		{ return zistime_; }
-    const Interval<float> zRange() const;
-    			//!< returns (0, 0) for empty track
-    const Interval<float> dahRange() const;
-    			//!< returns (0, 0) for empty track
+    const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
+    float		value( int idx ) const		{ return pos_[idx].z; }
+    int			nrPoints() const		{ return pos_.size(); }
+    bool		zIsTime() const			{ return zistime_; }
 
     int			insertPoint(const Coord&,float z);
     			//!< a 'good' place will be found
@@ -60,11 +49,9 @@ public:
     			//!< Will correct all dahs below point
 
     Coord3		getPos(float d_ah) const;
-    const TypeSet<Coord3>& getAllPos() const { return pos_; }
-
     float		getDahForTVD(float,float prevdah=mUdf(float)) const;
     			//!< Non-unique. previous DAH may be helpful
-    			//!< Don't use if track is in time
+    			//!< Don;t use is track is in time
     float		nearestDah(const Coord3&) const;
     			// If zIsTime() z must be time
 
@@ -76,7 +63,9 @@ public:
     			//!< will interpolate x,y coords
 
     bool		alwaysDownward() const;
-    void		toTime(const D2TModel&, const Track&);
+
+    //Do not use! To be removed shortly
+    void		toTime(const D2TModel&);
 
 protected:
 
@@ -84,13 +73,20 @@ protected:
     TypeSet<Coord3>	pos_;
     bool		zistime_;
 
-    void		removeAux( int idx )	{ pos_.removeSingle(idx); }
-    void		eraseAux()		{ pos_.erase(); }
+    void		removeAux( int idx )		{ pos_.remove(idx); }
+    void		eraseAux()			{ pos_.erase(); }
 
+public:
+    void		toTime(const D2TModel&, const Track&);
+    float		getKbElev() const		{ return dah_[0]-
+							  value(0); }
+    const Interval<float> zRange() const;
+    			//!< returns (0, 0) for empty track
+    const Interval<float> dahRange() const;
+    			//!< returns (0, 0) for empty track
 };
 
 
 }; // namespace Well
 
 #endif
-

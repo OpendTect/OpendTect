@@ -14,13 +14,12 @@ ________________________________________________________________________
 
 #include "ui3dviewerbody.h"
 
+
 class GraphicsWindowIndirect;
 
-/*!
-\brief Class used by ui3DViewer to render things indirectly.
-*/
+//Class used by ui3DViewer to render things indirectly
 
-mClass(uiCoin) ui3DIndirectViewBody : public ui3DViewerBody
+class ui3DIndirectViewBody : public ui3DViewerBody
 {
 public:
 				ui3DIndirectViewBody(ui3DViewer&,uiParent*);

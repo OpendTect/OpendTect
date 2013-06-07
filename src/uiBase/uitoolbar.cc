@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitoolbar.h"
 
@@ -25,13 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_qtoolbut.h"
 #include "i_qtoolbar.h"
 
-mUseQtnamespace
-
-const char* uiIcon::save()		{ return "save"; }
-const char* uiIcon::saveAs()		{ return "saveas"; }
-const char* uiIcon::openObject()	{ return "openstorage"; }
-const char* uiIcon::newObject()		{ return "newstorage"; }
-const char* uiIcon::removeObject()	{ return "trashcan"; }
+const char* uiIcon::save()		{ return "save.png"; }
+const char* uiIcon::saveAs()		{ return "saveas.png"; }
+const char* uiIcon::openObject()	{ return "openstorage.png"; }
+const char* uiIcon::newObject()		{ return "newstorage.png"; }
+const char* uiIcon::removeObject()	{ return "trashcan.png"; }
 const char* uiIcon::None()		{ return "-"; }
 
 
@@ -45,7 +43,7 @@ public:
     int 		addButton(const uiToolButtonSetup&);
     int 		addButton(const char*,const char*,const CallBack&,bool);
     int			addButton(const MenuItem&);
-    int			getButtonID(QAction*); //QAction from MenuItem
+    int			getButtonID(QAction*); // QAction from MenuItem
 
     void		addObject(uiObject*);
     void		clear();
@@ -69,8 +67,8 @@ public:
 
 protected:
 
-    virtual const QWidget*    managewidg_() const { return qbar_; }
-    virtual const QWidget*	qwidget_() const    { return qbar_; }
+    virtual const QWidget*      managewidg_() const	{ return qbar_; }
+    virtual const QWidget*	qwidget_() const	{ return qbar_; }
     QToolBar*			qbar_;
     uiToolBar&			tbar_;
     int				iconsz_;
@@ -92,7 +90,7 @@ private:
     TypeSet<int>		butindex_;
 
     // MenuItems
-    ObjectSet<QAction>	qactions_;
+    ObjectSet<QAction>		qactions_;
     TypeSet<int>		mnuids_;
 
 };

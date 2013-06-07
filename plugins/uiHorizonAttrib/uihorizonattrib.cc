@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.23 2012/05/21 22:41:24 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -70,7 +70,7 @@ uiHorizonAttrib::~uiHorizonAttrib()
 
 bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( FixedString(desc.attribName())!=Horizon::attribName() )
+    if ( strcmp(desc.attribName(),Horizon::attribName()) )
 	return false;
 
     mIfGetString( Horizon::sKeyHorID(), horidstr,
@@ -103,7 +103,7 @@ bool uiHorizonAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( FixedString(desc.attribName())!=Horizon::attribName() )
+    if ( strcmp(desc.attribName(),Horizon::attribName()) )
 	return false;
 
     mSetString( Horizon::sKeyHorID(),

@@ -25,10 +25,9 @@ ________________________________________________________________________
 #define mMaxNrComp	10
 
 
-/*!
-\brief Given an input array and a threshold, we use flood fill to find all the
-locations with values less (or greater) than the threshold based on seeds.
-User has the option to set inside or outside value on the output. 
+/*! Given an input array and a threshold, we use flood fill to find all the 
+    locations with values less (or greater) than the threshold based on seeds. 
+    User has the option to set inside or outside value on the output. 
     
     Example: Given known array, threshold, T=float
 
@@ -44,7 +43,7 @@ User has the option to set inside or outside value on the output.
 */
 
 template <class T>
-mClass(Algo) Array3DFloodfill : public ParallelTask
+class Array3DFloodfill : public ParallelTask
 {
 public:
     			Array3DFloodfill(const Array3D<T>& input,T threshold,

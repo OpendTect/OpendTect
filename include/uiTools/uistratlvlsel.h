@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class Color;
@@ -22,7 +21,7 @@ namespace Strat { class Level; }
 
 /*!\brief Selector for stratigraphic levels */
 
-mExpClass(uiTools) uiStratLevelSel : public uiGroup
+mClass uiStratLevelSel : public uiGroup
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

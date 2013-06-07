@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -41,10 +41,12 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     scanEntries( mGetUserDocDir() );
     mkVarMenu();
     if ( havedtectdoc_ )
-    {
 	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
+
+    const char* programmerdocdir = mGetProgrammerDocDir();
+    if ( File::isDirectory(programmerdocdir) )
 	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
-    }
+
     mkAboutMenu();
     mkCreditsMenu();
 }
@@ -101,7 +103,8 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 void uiODHelpMenuMgr::scanEntries( const char* docdir )
 {
     DirList dl( docdir, DirList::DirsOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    int mnuidx = 1;
+    for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirnm = dl.get( idx );
 	if ( dirnm == "Programmer" || dirnm == "Credits" ) continue;
@@ -123,7 +126,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 		    { delete di; sd.close(); continue; }
 	    }
 	    di->starturl = fp.fullPath();
-	    di->iconfnm = FilePath(docdir,"defhelpicon").fullPath();
+	    di->iconfnm = FilePath(docdir,"defhelpicon.png").fullPath();
 	    di->nm = dirnm;
 	}
 	sd.close();

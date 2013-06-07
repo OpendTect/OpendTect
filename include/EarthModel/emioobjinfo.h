@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "earthmodelmod.h"
 #include "emobject.h"
 #include "ranges.h"
 #include "typeset.h"
@@ -22,17 +21,15 @@ class MultiID;
 class CubeSampling;
 class BufferStringSet;
 
+/*!\brief Info on IOObj for earthmodel */
+
 namespace EM
 {
 
 class dgbSurfaceReader;
 class SurfaceIOData;
 
-/*!
-\brief Info on IOObj for earthmodel.
-*/
-
-mExpClass(EarthModel) IOObjInfo
+mClass IOObjInfo
 {
 public:
 
@@ -105,4 +102,3 @@ protected:
 
 
 #endif
-

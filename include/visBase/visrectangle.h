@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "ranges.h"
 #include "position.h"
@@ -31,7 +30,7 @@ class SoDragger;
 namespace visBase
 {
 
-mExpClass(visBase) RectangleDragger : public DataObject
+mClass RectangleDragger : public DataObject
 {
 public:
     static RectangleDragger*	create()
@@ -94,7 +93,7 @@ protected:
     be snapped.
 */
 
-mExpClass(visBase) Rectangle : public VisualObjectImpl
+mClass Rectangle : public VisualObjectImpl
 {
 public:
     static Rectangle*	create()
@@ -193,4 +192,3 @@ protected:
 };
 	
 #endif
-

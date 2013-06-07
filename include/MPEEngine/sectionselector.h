@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "task.h"
 #include "bufstring.h"
 #include "emposid.h"
@@ -30,11 +29,7 @@ namespace MPE
 
 class TrackPlane;
 
-/*!
-\brief SequentialTask to select source of an EM section with ID EM::SectionID.
-*/
-
-mExpClass(MPEEngine) SectionSourceSelector : public SequentialTask
+mClass SectionSourceSelector : public SequentialTask
 {
 public:
     				SectionSourceSelector(
@@ -62,5 +57,4 @@ protected:
 };
 
 #endif
-
 

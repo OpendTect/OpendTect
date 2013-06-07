@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "task.h"
 
 namespace Fourier { class CC; };
 
-/*!
-\brief Takes a ReflectivityModel and samples it in either frequency or
+/*!Takes a ReflectivityModel and samples it in either frequency or
 time domain.
 */
 
-mExpClass(Algo) ReflectivitySampler : public ParallelTask
+
+mClass ReflectivitySampler : public ParallelTask
 {
 public:
     			ReflectivitySampler(const ReflectivityModel&,
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

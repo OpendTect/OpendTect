@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodviewer2d.h"
 
@@ -19,19 +19,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewpropdlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
 #include "uitoolbar.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "pixmap.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
-#include "mouseevent.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -54,12 +53,15 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
-    , ispolyselect_(true)
-    , winClosed(this)
-    , mousecursorexchange_(0)
-    , marker_(0)
+    , isPolySelect_(true)
 {
-    setWinTitle( visid );
+    basetxt_ = "2D Viewer - ";
+    BufferString info;
+    appl.applMgr().visServer()->getObjectInfo( visid, info );
+    if ( info.isEmpty() )
+	info = appl.applMgr().visServer()->getObjectName( visid );
+    basetxt_ += info;
+
     linesetid_.setEmpty();
 
     initSelSpec( vdselspec_ );
@@ -73,35 +75,28 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    delete treetp_;
-    delete datamgr_;
-
-    deepErase( auxdataeditors_ );
-    setMouseCursorExchange( 0 );
-    if ( viewwin() )
+    if ( viewwin_ )
     {
-	DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
 	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
 	{
-	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	    TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	    for ( int idx=0; idx<ids.size(); idx++ )
-	    {
-		vwr.removePack( ids[idx] );
-		dpm.release( ids[idx] );
-	    }
-	}
-	viewwin()->viewer(0).removeAuxData( marker_ );
+	    DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
+	    DPM(DataPackMgr::FlatID()).release( packid );
+	    packid = viewwin()->viewer( ivwr ).packID( false );
+	    DPM(DataPackMgr::FlatID()).release( packid );
+	}		
+	delete treetp_;
+	delete datamgr_;
     }
-    delete marker_;
+
+    deepErase( auxdataeditors_ );
     delete viewwin();
+    viewwin_ = 0;
 }
 
 
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    DataPack* dp = dpm.obtain( packid, true );
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
@@ -124,35 +119,18 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	if ( ids.isPresent(packid) )
-	{ vwr.setPack( wva, packid, true, false ); continue; }
-	
-	const FixedString newpackname = dpm.nameOf(packid);
-	bool setforotherdisp = false;
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    const FixedString packname = dpm.nameOf(ids[idx]);
-	    if ( packname == newpackname )
-	    {
-		if ( ids[idx] == vwr.packID( !wva ) )
-		    setforotherdisp = true;
-		vwr.removePack( ids[idx] );
-		dpm.release( ids[idx] );
-		break;
-	    }
-	}
+	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
+	viewwin()->viewer(ivwr).removePack( curpackid );
+	DPM(DataPackMgr::FlatID()).release( curpackid );
 
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+	FlatView::DataDispPars& ddp = 
+	    		viewwin()->viewer(ivwr).appearance().ddpars_;
 	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
-	dpm.obtain( packid, false );
-	vwr.setPack( wva, packid, false, isnew );
-	if ( isnew || setforotherdisp )
-	    vwr.setPack( !wva, packid, true, isnew );
+	DPM(DataPackMgr::FlatID()).obtain( packid, false );
+	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
     }
 
-    if ( dp3d )
+    if( dp3d )
     {
 	cs_ = dp3d->cube().cubeSampling();
 	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
@@ -207,15 +185,15 @@ void uiODViewer2D::createViewWin( bool isvert )
     uiParent* controlparent = 0;
     if ( !wantdock )
     {
-	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( &appl_,
+	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
 	       					  .withhanddrag(true) );
 	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
 
 	slicepos_ = new uiSlicePos2DView( fvmw );
 	slicepos_->positionChg.notify( mCB(this,uiODViewer2D,posChg) );
-
 	viewwin_ = fvmw;
+
 	createTree( fvmw );
     }
     else
@@ -241,7 +219,6 @@ void uiODViewer2D::createViewWin( bool isvert )
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
 						      .withedit(true) );
-    viewstdcontrol_->infoChanged.notify( mCB(this,uiODViewer2D,mouseMoveCB) );
     createPolygonSelBut( viewstdcontrol_->toolBar() );
     viewwin_->addControl( viewstdcontrol_ );
     createViewWinEditors();
@@ -254,7 +231,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 
     uiDockWin* treedoc = new uiDockWin( mw, "Tree items" );
     treedoc->setMinimumWidth( 200 );
-    uiTreeView* lv = new uiTreeView( treedoc, "Tree items" );
+    uiListView* lv = new uiListView( treedoc, "Tree items" );
     treedoc->setObject( lv );
     BufferStringSet labels;
     labels.add( "Elements" );
@@ -284,7 +261,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     for ( int iidx=0; iidx<idxs.size(); iidx++ )
     {
 	const int fidx = idxs[iidx];
-	treetp_->addChild( tifs_->getFactory(fidx)->create(), true );
+	treetp_->addChild( tifs_->getFactory(iidx)->create(), true );
     }
 
     lv->display( true );
@@ -297,23 +274,23 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 {
     if ( !tb ) return;
 
-    polyseltbid_ = tb->addButton( "polygonselect", "Polygon Selection mode",
+    polyseltbid_ = tb->addButton( "polygonselect.png", "Polygon Selection mode",
 	    			  mCB(this,uiODViewer2D,selectionMode), true );
     uiPopupMenu* polymnu = new uiPopupMenu( tb, "PoluMenu" );
 
     uiMenuItem* polyitm = new uiMenuItem( "Polygon",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
-    polyitm->setPixmap( ioPixmap("polygonselect") );
+    polyitm->setPixmap( ioPixmap("polygonselect.png") );
 
     uiMenuItem* rectitm = new uiMenuItem( "Rectangle",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
-    rectitm->setPixmap( ioPixmap("rectangleselect") );
+    rectitm->setPixmap( ioPixmap("rectangleselect.png") );
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
-    tb->addButton( "trashcan", "Remove PolySelection",
+    tb->addButton( "trashcan.png", "Remove PolySelection",
 			mCB(this,uiODViewer2D,removeSelected), false );
 }
 
@@ -342,12 +319,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     if ( slicepos_ )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
 
-    winClosed.trigger();
-
-    if ( viewstdcontrol_ )
-	viewstdcontrol_->infoChanged.remove( mCB(this,uiODViewer2D,mouseMoveCB) );
     viewstdcontrol_ = 0;
-    viewwin_ = 0;
 }
 
 
@@ -392,17 +364,17 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
     if ( !viewstdcontrol_ || !viewstdcontrol_->toolBar() )
 	return;
 
-    viewstdcontrol_->toolBar()->setPixmap( polyseltbid_, ispolyselect_ ?
-	    			"polygonselect" : "rectangleselect" );
-    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, ispolyselect_ ?
+    viewstdcontrol_->toolBar()->setPixmap( polyseltbid_, isPolySelect_ ?
+	    			"polygonselect.png" : "rectangleselect.png" );
+    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, isPolySelect_ ?
 	    		"Polygon Selection mode" : "Rectangle Selection mode" );
 
-    if ( auxdataeditors_.isEmpty() )
+    if ( !auxdataeditors_.size() )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
     {
-	auxdataeditors_[edidx]->setSelectionPolygonRectangle( !ispolyselect_ );
+	auxdataeditors_[edidx]->setSelectionPolygonRectangle( !isPolySelect_ );
 	auxdataeditors_[edidx]->setSelActive(
 		viewstdcontrol_->toolBar()->isOn(polyseltbid_) );
     }
@@ -414,7 +386,7 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
-    ispolyselect_ = itm->id()==0;
+    isPolySelect_ = itm->id()==0;
     selectionMode( cb );
 }
 
@@ -424,7 +396,7 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
     if ( !viewstdcontrol_->toolBar()->isOn(polyseltbid_) )
 	return;
 
-    if ( auxdataeditors_.isEmpty() )
+    if ( !auxdataeditors_.size() )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
@@ -434,21 +406,10 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 }
 
 
-void uiODViewer2D::setWinTitle( int visid )
-{
-    basetxt_ = "2D Viewer - ";
-    BufferString info;
-    appl_.applMgr().visServer()->getObjectInfo( visid, info );
-    if ( info.isEmpty() )
-	info = appl_.applMgr().visServer()->getObjectName( visid );
-    basetxt_ += info;
-    if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
-}
-
-
 void uiODViewer2D::usePar( const IOPar& iop )
 {
-    if ( !viewwin() ) return;
+    if ( !viewwin() ) 
+	return;
 
     IOPar* vdselspecpar = iop.subselect( sKeyVDSelSpec() );
     if ( vdselspecpar ) vdselspec_.usePar( *vdselspecpar );
@@ -491,69 +452,4 @@ void uiODViewer2D::rebuildTree()
     dataMgr()->getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
 	uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
-}
-
-
-void uiODViewer2D::setMouseCursorExchange( MouseCursorExchange* mce )
-{
-    if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.remove(
-		mCB(this,uiODViewer2D,mouseCursorCB) );
-
-    mousecursorexchange_ = mce;
-
-    if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.notify(
-		mCB(this,uiODViewer2D,mouseCursorCB) );
-}
-
-
-void uiODViewer2D::mouseCursorCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller(const MouseCursorExchange::Info&,info,
-			       caller,cb);
-    if ( caller==this )
-	return;
-
-    uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( !marker_ )
-    {
-	marker_ = vwr.createAuxData( "XYZ Marker" );
-	vwr.addAuxData( marker_ );
-	marker_->poly_ += FlatView::Point(0,0);
-	marker_->markerstyles_ += MarkerStyle2D();
-    }
-
-    const BinID bid = SI().transform( info.surveypos_.coord() );
-    FlatView::Point& pt = marker_->poly_[0];
-    if ( cs_.defaultDir() == CubeSampling::Inl )
-	pt = FlatView::Point( bid.crl, info.surveypos_.z );
-    else if ( cs_.defaultDir() == CubeSampling::Crl )
-	pt = FlatView::Point( bid.inl, info.surveypos_.z );
-    else
-	pt = FlatView::Point( bid.inl, bid.crl );
-
-    vwr.handleChange( FlatView::Viewer::Annot );
-}
-
-
-void uiODViewer2D::mouseMoveCB( CallBacker* cb )
-{
-    Coord3 mousepos( Coord3::udf() );
-    mCBCapsuleUnpack(IOPar,pars,cb);
-
-    const char* valstr = pars.find( "X" );
-    if ( !valstr ) valstr = pars.find( "X-coordinate" );
-    if ( valstr && *valstr ) mousepos.x = toDouble( valstr );
-    valstr = pars.find( "Y" );
-    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-    if ( valstr && *valstr ) mousepos.y = toDouble( valstr );
-    valstr = pars.find( "Z" );
-    if ( valstr && *valstr ) mousepos.z = toDouble(valstr)/1000.;
-
-    if ( mousecursorexchange_ && mousepos.isDefined() )
-    {
-	MouseCursorExchange::Info info( mousepos );
-	mousecursorexchange_->notifier.trigger( info, this );
-    }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseiswvltgen.h"
@@ -74,15 +74,15 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				BoolInpSpec(true,"Ricker","Sinc") );
 
     const float sisr = SI().zStep();
-    float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
+    float deffrq = 0.1 / sisr; int ideffr = mNINT32(deffrq);
     if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
-	deffrq = mCast( float, ideffr ); // avoid awkward 99.999 display
+	deffrq = ideffr; // avoid awkward 99.999 display
     BufferString txt( "Central " );
     txt += SI().zIsTime() ? "Frequency" : "Wavenumber";
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
     freqfld_->attach( alignedBelow, isrickfld_ );
 
-    const float usrsr = sisr * SI().zDomain().userFactor();
+    const float usrsr = sisr * SI().zFactor();
     txt = "Sample interval "; txt += SI().getZUnitString();
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
@@ -107,7 +107,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
     else if ( mIsUdf(freq) || freq <= 0 )
 	mErrRet( "The frequency must be positive" )
 
-    const float realsr = sr / SI().zDomain().userFactor();
+    const float realsr = sr / SI().zFactor();
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
     putWvlt( wvlt );
 
@@ -189,8 +189,8 @@ void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* wd )
 {
     if ( stackedwvlt_ )
     {
-	delete wvltfuncset_.removeSingle( wd->removeLastItem() );
-	wvltset_.removeSingle( wvltset_.size()-1 );
+	delete wvltfuncset_.remove( wd->removeLastItem() );
+	wvltset_.remove( wvltset_.size()-1 );
 	delete stackedwvlt_; stackedwvlt_=0;
     }
 }
@@ -213,13 +213,12 @@ void uiSeisWvltMerge::makeStackedWvlt()
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
 	Wavelet* curwvlt = wvltset_[selitems[selidx]];
-	stackedwvlt_->setSampleRate( curwvlt->sampleRate() );
-	stackedwvlt_->setCenterSample( maxwvltsize_/2 );
+	stackedwvlt_->set( maxwvltsize_/2, curwvlt->sampleRate() );
 	WvltMathFunction* func = wvltfuncset_[selitems[selidx]];
 	for ( int idx=0; idx<maxwvltsize_; idx++ )
 	{
 	    const int shift = maxwvltsize_%2 ? 1 : 0;
-	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
+	    const float coeff = 2*idx-maxwvltsize_ + shift;
 	    const float val = func->getValue( coeff*5*SI().zStep());
 	    stackedwvlt_->samples()[idx] += val/selsize; 
 	}
@@ -343,7 +342,7 @@ void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet& wvlt )
 	    centeridx = idx;
 	}
     }
-    wvlt.setCenterSample( centeridx );
+    wvlt.set( centeridx, wvlt.sampleRate() );
 }
 
 
@@ -363,7 +362,7 @@ void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet& wvlt )
 	    break;
 	}
     }
-    wvlt.setCenterSample( centeridx );
+    wvlt.set( centeridx, wvlt.sampleRate() );
 }
 
 
@@ -389,7 +388,7 @@ uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
-    float x = ( t*0.1f - samppos_.start );
+    float x = ( t*0.1 - samppos_.start );
     x /= samppos_.step;
     const int x1 = int(x);
     if ( x1 > size_-1 || x1<0 )

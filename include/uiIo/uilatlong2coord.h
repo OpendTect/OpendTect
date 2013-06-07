@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class SurveyInfo;
 class LatLong2Coord;
@@ -19,7 +18,7 @@ class uiGenInput;
 class uiLatLongInp;
 
 
-mExpClass(uiIo) uiLatLong2CoordDlg : public uiDialog
+mClass uiLatLong2CoordDlg : public uiDialog
 {
 public:
 			uiLatLong2CoordDlg(uiParent*,const LatLong2Coord&,
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

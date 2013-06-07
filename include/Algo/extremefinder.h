@@ -13,22 +13,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "task.h"
 #include "ranges.h"
 #include "mathfunc.h"
 
+/*!\brief Finds extreme values in FloatMathFunctions
 
-/*!
-\brief Finds extreme values in FloatMathFunctions.
+Implementation of Brent's Method in one dimension.
 
-  Implementation of Brent's Method in one dimension.
 */
 
-mExpClass(Algo) ExtremeFinder1D : public SequentialTask
+mClass ExtremeFinder1D : public SequentialTask
 {
 public:
-    			ExtremeFinder1D( const FloatMathFunction& func,
+    			ExtremeFinder1D( const FloatMathFunction&,
 					 bool max, int itermax, float tol,
 					 const Interval<float>& startinterval,
 					 const Interval<float>* limitinterval);
@@ -79,26 +77,22 @@ public:
 
 protected:
 
-    float 			ax_,bx_,cx_;
-    float			e_, d_;
-    float			a_, b_;
-    float			u_, w_, v_, x_;
-    float			fw_, fv_, fx_;
+    float 			ax,bx,cx;
+    float			e, d;
+    float			a, b;
+    float			u, w, v, x;
+    float			fw, fv, fx;
 
-    Interval<float>*		limits_;
-    int				iter_;
-    const float 		tol_;
-    const FloatMathFunction&	func_;
-    const bool			max_;
-    const int			itermax_;
+    Interval<float>*		limits;
+    int				iter;
+    const float 		tol;
+    const FloatMathFunction&	func;
+    const bool			max;
+    const int			itermax;
 };
 
 
-/*!
-\brief Bisection Extreme Finder
-*/
-
-mExpClass(Algo) BisectionExtremeFinder1D : public SequentialTask
+mClass BisectionExtremeFinder1D : public SequentialTask
 {
 public:
     			BisectionExtremeFinder1D(
@@ -152,7 +146,7 @@ public:
 			*/
 
 protected:
-    Interval<float>*		limits_;
+    Interval<float>*		limits;
     int				iter;
     const float 		tol;
     const bool			max;
@@ -168,13 +162,14 @@ protected:
 };
 
 
-/*!
-\brief Finds the nearest local extreme position in ND's.  
+/*!\brief Finds the nearest local extreme position in ND's
+
 Implementation of Powell's Quadratically Convergent Method
+
 \note The implementation is not tested (yet) 030512.
 */
 
-mExpClass(Algo) ExtremeFinderND : public SequentialTask
+mClass ExtremeFinderND : public SequentialTask
 {
 
 public:
@@ -191,8 +186,8 @@ public:
     template<class IDXABL>	
     void		setStartPos( const IDXABL& sp )
     			{
-			    for ( int idx=0; idx<n_; idx++ )
-			    	p_[idx] = sp[idx];
+			    for ( int idx=0; idx<n; idx++ )
+			    	p[idx] = sp[idx];
 			}
 
     int			nextStep();
@@ -205,16 +200,16 @@ public:
     int			nrIter() const;
     			/*!<\return	The number of iterations */
 
-    float 		extremeVal() { return fret_; }
+    float 		extremeVal() { return fret; }
     			/*!<\return	The extreme value */
-    const float*	extremePos() { return p_; }
+    const float*	extremePos() { return p; }
     			/*!<\return	A pointer to the extreme positions */
 
     template<class IDXABL>	
     void		extremePos( IDXABL& sp ) const
     			{
-			    for ( int idx=0; idx<n_; idx++ )
-			    	sp[idx] = p_[idx];
+			    for ( int idx=0; idx<n; idx++ )
+			    	sp[idx] = p[idx];
 			}
     			/*!<\brief Sets the sp variable to the extreme position
 			*/
@@ -222,20 +217,19 @@ private:
 
     float		linExtreme(float*);
 
-    float*		p_;
-    ObjectSet<float>	xi_;
-    float		ftol_;
-    int			n_;
-    int			iter_;
-    float		fret_;
+    float*		p;
+    ObjectSet<float>	xi;
+    float		ftol;
+    int			n;
+    int			iter;
+    float		fret;
 
-    float*		pt_;
+    float*		pt;
 
-    const bool 			max_;
-    const int			itermax_;
-    const FloatMathFunctionND&	func_;
+    const bool 			max;
+    const int			itermax;
+    const FloatMathFunctionND&	func;
 };
 
 
 #endif
-

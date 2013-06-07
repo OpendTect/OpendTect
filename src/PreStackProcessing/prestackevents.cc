@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackevents.h"
 
@@ -249,7 +249,7 @@ EventManager::~EventManager()
 
 int EventManager::addHorizon( int id )
 {
-    if ( id!=-1 && horids_.isPresent( id ) )
+    if ( id!=-1 && horids_.indexOf( id )!=-1 )
     {
 	pErrMsg("Horizon ID interference");
 	id = -1;
@@ -272,10 +272,10 @@ bool EventManager::removeHorizon( int id )
     const int idx = horids_.indexOf( id );
     if ( idx<0 ) return false;
 
-    horids_.removeSingle( idx );
-    horrefs_.removeSingle( idx );
+    horids_.remove( idx );
+    horrefs_.remove( idx );
     if ( emhorizons_[idx] ) emhorizons_[idx]->unRef();
-    emhorizons_.removeSingle( idx );
+    emhorizons_.remove( idx );
 
     RowCol arraypos( -1, -1 );
     while ( events_.next( arraypos, true ) )
@@ -287,7 +287,7 @@ bool EventManager::removeHorizon( int id )
 	    bool ischanged = false;
 	    if ( ge->events_[idy]->horid_ == id )
 	    {
-		delete ge->events_.removeSingle(idy);
+		delete ge->events_.remove(idy);
 		ischanged = ge->ischanged_ = true;
 		idy--;
 	    }
@@ -700,9 +700,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff = (float) 
-	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
+	const float inldiff =
+	    emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z;
 
 	BinID prevcrl( bidv.binid.inl, bidv.binid.crl-horstep.inl );
 	BinID nextcrl( bidv.binid.inl, bidv.binid.crl+horstep.inl );
@@ -714,9 +714,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff = (float) 
-	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
+	const float crldiff =
+	    emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
+	    emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z;
 
 	inldip = inldiff/((nextinl.inl-previnl.inl)*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl-prevcrl.crl)*SI().crlDistance() );
@@ -759,8 +759,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
 	if ( SI().zIsTime() )
 	{
-	    inldip = tmpinldip/1e6f;
-	    crldip = tmpcrldip/1e6f;
+	    inldip = tmpinldip/1e6;
+	    crldip = tmpcrldip/1e6;
 	}
 	else
 	{
@@ -802,8 +802,8 @@ void EventManager::DipSource::fill( BufferString& buf ) const
 
 bool EventManager::DipSource::use( const char* str )
 {
-    const FileMultiString fms( str );
-    const char* type = fms[0];
+    const SeparString sep( str, '`' );
+    const char* type = sep[0];
     if ( !type || !type )
 	return false;
 
@@ -813,7 +813,7 @@ bool EventManager::DipSource::use( const char* str )
 
     if ( typeenum==SteeringVolume )
     {
-	const char* midstr = fms[1];
+	const char* midstr = sep[1];
 	if ( !midstr )
 	    return false;
 
@@ -974,7 +974,7 @@ bool SetEventUndo::removeEvent()
     if ( !events )
 	return false;
 
-    delete events->events_.removeSingle( horidx_ );
+    delete events->events_.remove( horidx_ );
 
     manager_.reportChange( bid_ );
 

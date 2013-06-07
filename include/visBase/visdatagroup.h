@@ -12,19 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "sets.h"
 #include "visdata.h"
 
 class SoGroup;
 class SoSeparator;
 
-namespace osg { class Group; }
-
 namespace visBase
 {
 
-mExpClass(visBase) DataObjectGroup : public DataObject
+mClass DataObjectGroup : public DataObject
 {
 public:
 
@@ -82,12 +79,10 @@ protected:
     virtual SoGroup*		createGroup();
     virtual void		ensureGroup();
     SoGroup*			group_;
-    osg::Group*			osggroup_;
 
     bool			righthandsystem_;
 
     virtual SoNode*		gtInvntrNode();
-    virtual osg::Node*		gtOsgNode();
 
 protected:
 
@@ -101,4 +96,3 @@ protected:
 } //namespace
 
 #endif
-

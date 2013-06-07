@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 
 #include "soodbasic.h"
@@ -28,7 +27,7 @@ A TabPlaneDragger where the moving on moves the dragger in z direction
 to how small the dragger is allowed to be.
 */
 
-mSoODClass SoDepthTabPlaneDragger : public SoDragger
+mClass SoDepthTabPlaneDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoDepthTabPlaneDragger);
@@ -68,7 +67,7 @@ protected:
     			~SoDepthTabPlaneDragger();
     virtual void	GLRender(SoGLRenderAction*);
 
-			//Hack to avoid crash in Pdf3d
+    			//Hack to avoid crash in Pdf3d
     void		copyContents( const SoFieldContainer*, SbBool) {}
 
     virtual SbBool	setUpConnections(SbBool onoff,
@@ -108,5 +107,4 @@ private:
 };
 
 #endif
-
 

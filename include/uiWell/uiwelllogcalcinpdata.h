@@ -16,36 +16,36 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uiwelllogcalc.h"
 
-class uiCheckBox;
-class uiToolButton;
-
+class uiGenInput;                                                               
+class uiCheckBox;                                                               
 namespace Well { class Log; class LogSet; }
 
 /*! \ Brief: UI utility to select the well logs which will be used as input
   to compute a new log from a formula*/
 
-mClass(uiWell) uiWellLogCalcInpData : public uiMathExpressionVariable
+class uiWellLogCalcInpData : public uiMathExpressionVariable
 {
 public:
-			uiWellLogCalcInpData(uiWellLogCalc*,uiGroup*,int);
-			~uiWellLogCalcInpData();
+				uiWellLogCalcInpData(uiWellLogCalc*,
+						     uiGroup*,int);
+				~uiWellLogCalcInpData();
 
-    virtual void	use(const MathExpression*);
-    const Well::Log*	getLog();
-    bool		getInp(uiWellLogCalc::InpData&);
-    void		restrictLogChoice(const PropertyRef::StdType&);
+    virtual void		use(const MathExpression*);
+    const Well::Log*		getLog();
+    bool			getInp(uiWellLogCalc::InpData&);
 
-    const Well::LogSet* wls_;
+    const Well::LogSet* wls_;                                                   
 
 protected:
 
-    uiCheckBox*		udfbox_;
-
-    Well::Log*          convertedlog_;
+    uiCheckBox*         udfbox_;                                                
+    Well::Log*          convertedlog_;                                          
+    bool                lognmsettodef_;
 
     void		inputSel(CallBacker*);
-    void		vwLog(CallBacker*);
 
+public:
+    void                        restrictLogChoice(const PropertyRef::StdType&);
 };
 
 #endif

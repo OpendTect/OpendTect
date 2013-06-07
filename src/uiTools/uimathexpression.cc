@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"
@@ -32,10 +32,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
     txtfld_->setStretch( 2, 0 );
     txtfld_->returnPressed.notify( mCB(this,uiMathExpression,retPressCB) );
     if ( !setup_.label_.isEmpty() )
-    {
-	uiLabel* lbl = new uiLabel( this, setup_.label_ );
-	lbl->attach( leftOf, txtfld_ );
-    }
+	new uiLabel( this, setup_.label_, txtfld_ );
 
     if ( setup_.withsetbut_ )
     {
@@ -56,9 +53,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	    grpfld_->addItem( grps[idx]->name_ );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\":"   /" );
-	lbl->attach( leftOf, grpfld_ );
-	insgrp->setHAlignObj( lbl );
+	new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\" : "   /", grpfld_ );
 	grpfld_->setHSzPol( uiObject::Medium );
 	grpfld_->setStretch( 0, 0 );
 

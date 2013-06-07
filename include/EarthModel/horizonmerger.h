@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "task.h"
 #include "emposid.h"
 #include "enums.h"
@@ -25,11 +24,7 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief A subclass of ParallelTask that merges horizons.
-*/
-
-mExpClass(EarthModel) HorizonMerger : public ParallelTask
+mClass HorizonMerger : public ParallelTask
 {
 public:
     enum Mode		{ Average, Top, Base };
@@ -45,11 +40,7 @@ protected:
 };
 
 
-/*!
-\brief 3D HorizonMerger
-*/
-
-mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
+mClass Horizon3DMerger : public HorizonMerger
 {
 public:
 			Horizon3DMerger(const TypeSet<ObjectID>&);
@@ -75,5 +66,4 @@ private:
 } // namespace EM
 
 #endif
-
 

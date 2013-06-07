@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwellattribpartserv.h"
@@ -92,9 +92,9 @@ void uiWellAttribPartServer::doXPlot()
 
     uiWellAttribCrossPlot*& xplotwin = is2d ? xplotwin2d_ : xplotwin3d_;
     if ( !xplotwin )
-	xplotwin = new uiWellAttribCrossPlot( parent(), attrset );
+	xplotwin = new uiWellAttribCrossPlot( parent(), *attrset );
     else
-	xplotwin->setDescSet( attrset );
+	xplotwin->setDescSet( *attrset );
 
     xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();
@@ -148,7 +148,12 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
 
 bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 {
-    uiCreateLogCubeDlg dlg( parent(), &wellid );
+    Well::Data* wd = Well::MGR().get( wellid );
+    if ( !wd ) 
+	mErrRet("Cannot read well data");
+
+    uiCreateLogCubeDlg dlg( parent(), *wd );
+
     return dlg.go();
 }
 

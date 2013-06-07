@@ -13,8 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
-#include "visbasemod.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
@@ -35,23 +33,24 @@ class SoSwitch;
 
 namespace visBase
 {
+class DrawStyle;
 class PolyLineBase;
 class DataObjectGroup;
 class Text2;
 class Transformation;
 
-/*!
-\brief Base class for well display.
+/*! \brief 
+Base class for well display
 */
 
-mExpClass(visBase) Well : public VisualObjectImpl
+mClass Well : public VisualObjectImpl
 {
 public:
 
     static Well*		create()
     				mCreateDataObj(Well);
 
-    mStruct(visBase) BasicParams
+    mStruct BasicParams
     {
 				BasicParams(){}
 	const char* 		name_;
@@ -60,7 +59,7 @@ public:
     };
     
     //Well
-    mStruct(visBase) TrackParams : public BasicParams
+    mStruct TrackParams : public BasicParams
     {
 				TrackParams()
 				{}
@@ -80,12 +79,14 @@ public:
 
     
     //Markers
-    mStruct(visBase) MarkerParams : public BasicParams
+    mStruct MarkerParams : public BasicParams
     {
 				MarkerParams()
 				{}
 	int			shapeint_; 
 	int			cylinderheight_; 
+	bool 			issinglecol_; 
+	bool 			issamenmcol_; 
 	FontData		font_;
 	Color			namecol_;			
 	Coord3* 		pos_;
@@ -105,7 +106,7 @@ public:
     float			constantLogSizeFactor() const;
 
     //logs
-    mStruct(visBase) LogParams : public BasicParams
+    mStruct LogParams : public BasicParams
     {
 				LogParams()
 				{}
@@ -196,6 +197,7 @@ protected:
     				~Well();
 
     PolyLineBase*		track_;
+    DrawStyle*			drawstyle_;
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
     DataObjectGroup*		markergroup_;
@@ -212,11 +214,9 @@ protected:
     
     ObjectSet<SoPlaneWellLog>	log_;
     ZAxisTransform*		zaxistransform_;
-    int				voiidx_;
 };
 
-} // namespace visBase
+
+};
 
 #endif
-
-

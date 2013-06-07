@@ -11,13 +11,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 class uiMarkerStyle3D;
 
-mExpClass(uiVis) uiMarkerStyleDlg : public uiDialog
+mClass uiMarkerStyleDlg : public uiDialog
 {
+public:
+
+    virtual		~uiMarkerStyleDlg()		{}
+
 protected:
 
     			uiMarkerStyleDlg(uiParent*,const char* title);
@@ -34,4 +37,3 @@ protected:
 };
 
 #endif
-

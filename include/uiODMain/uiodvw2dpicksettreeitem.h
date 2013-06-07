@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -23,7 +22,7 @@ namespace Pick{ class Set; class SetMgr; }
 
 
 
-mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DPickSetParentTreeItem();
@@ -42,7 +41,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const		{ return typeid(*this).name(); }
@@ -52,7 +51,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 {
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
@@ -74,8 +73,8 @@ protected:
     void		displayMiniCtab();
     void		removePickSetCB(CallBacker*);
 
-    int 		cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
+    const int 		cPixmapWidth()				{ return 16; }
+    const int		cPixmapHeight()				{ return 10; }
     
     Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

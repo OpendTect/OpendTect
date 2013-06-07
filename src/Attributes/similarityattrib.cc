@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "similarityattrib.h"
 
@@ -20,8 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genericnumer.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-
-#include <math.h>
 
 #define mExtensionNone		0
 #define mExtensionRot90		1
@@ -127,9 +125,9 @@ void Similarity::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor( roundedzstep );
+	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -155,7 +153,7 @@ Similarity::Similarity( Desc& desc )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( donormalize_, normalizeStr() );
     mGetEnum( extension_, extensionStr() );
@@ -194,7 +192,7 @@ Similarity::Similarity( Desc& desc )
     getTrcPos();
 
     float maxdist = dosteer_ || dobrowsedip_ ? 
-		mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
+		mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
     if ( dobrowsedip_ )		//approx: dip from trc to trc, not central ref
 	maxdist *= 2;
     
@@ -206,7 +204,7 @@ Similarity::Similarity( Desc& desc )
 
 bool Similarity::getTrcPos()
 {
-    const bool is2d = is2D();
+    const bool is2d = desc_.is2D();
     trcpos_.erase();
     if ( extension_==mExtensionCube )
     {
@@ -343,7 +341,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     else if ( isalldirext )
 	nrpairs = 8;
     else if ( isperpendicularext )
-	nrpairs = is2D() ? 2 : 4;
+	nrpairs = desc_.is2D() ? 2 : 4;
     else
 	nrpairs = inputdata_.size()/2;
 
@@ -374,7 +372,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    const int idx1 = iscubeext ? pos1s_[pair]
 				       : iscenteredext ? pair+1 : pair*2 +1;
 
-	    float bases0 = mCast( float,firstsample + idx + samplegate.start );
+	    float bases0 = firstsample + idx + samplegate.start;
 	    float bases1 = bases0;
 
 	    if ( !inputdata_[idx0] || !inputdata_[idx1] )
@@ -383,8 +381,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float dist = 0;
 	    if ( dobrowsedip_ )
 	    {
-		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inlDist();
-		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crlDist();
+		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inldist();
+		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crldist();
 		dist = Math::Sqrt( di*di + dc*dc );
 	    }
 
@@ -425,13 +423,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				inputdata_[idx1]->nrsamples_-1 );
 		const bool valids0 = s0>=0 && 
 				     (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
-		if ( !valids0 ) s0 = 
-			mCast( float, firstsample + idx + samplegate.start );
+		if ( !valids0 ) s0 = firstsample + idx + samplegate.start;
 
 		const bool valids1 = s1>=0 && 
 				     (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
-		if ( !valids1 ) s1 = 
-			mCast( float, firstsample + idx + samplegate.start );
+		if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
 
 
 		float simival = similarity( vals0, vals1, s0+extras0,
@@ -457,10 +453,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( dobrowsedip_ )
 	    {
 		const bool hasoutput = outputinterest_[5] ||
-			(!is2D() && outputinterest_[6]);
+			(!desc_.is2D() && outputinterest_[6]);
 		if ( hasoutput )
 		{ 
-		    if ( !pair || pair==2 || is2D() )
+		    if ( !pair || pair==2 || desc_.is2D() )
 			crldip = pair ? (crldip + dipatmax)/2 : dipatmax;
 		    else
 			inldip = pair==1 ? (inldip + dipatmax)/2 : dipatmax;
@@ -476,11 +472,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	else
 	{
 	    if ( outputinterest_[0] )
-		setOutputValue( output, 0, idx, z0, (float) stats.average() );
+		setOutputValue( output, 0, idx, z0, stats.average() );
 	    if ( outputinterest_[1] )
 		setOutputValue( output, 1, idx, z0, stats.median() );
 	    if ( outputinterest_[2] ) 
-		setOutputValue( output, 2, idx, z0, (float) stats.variance() );
+		setOutputValue( output, 2, idx, z0, stats.variance() );
 	    if ( outputinterest_[3] )
 		setOutputValue( output, 3, idx, z0, stats.min() );
 	    if ( outputinterest_[4] )
@@ -489,9 +485,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		if ( outputinterest_[5] )
 		    setOutputValue( output, 5, idx, z0,
-				    is2D() ? crldip*dipFactor()
+				    desc_.is2D() ? crldip*dipFactor()
 						 : inldip*dipFactor() );
-		if ( !is2D() && outputinterest_[6] )
+		if ( !desc_.is2D() && outputinterest_[6] )
 		    setOutputValue( output, 6, idx, z0, crldip*dipFactor() );
 	    }
 	}

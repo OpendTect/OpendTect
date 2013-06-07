@@ -12,10 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "commondefs.h"
 
-mExpClass(uiBase) uiDesktopServices
+mClass uiDesktopServices
 {
 public:
     static bool		openUrl(const char* url);
@@ -29,4 +28,3 @@ protected:
 
 
 #endif
-

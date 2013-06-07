@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiimpfault.h"
 
@@ -18,10 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfsstofault3d.h"
 #include "emmanager.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "lmkemfaulttransl.h"
-#include "oddirs.h"
 #include "streamconn.h"
 #include "strmdata.h"
 #include "strmprov.h"
@@ -34,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
+#include "uidatapointset.h"
 
 #define mGet( tp, fss, f3d ) \
     !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
@@ -81,8 +80,7 @@ void uiImportFault::createUI()
 {
     infld_ = new uiFileInput( this, "Input ascii file",
 		uiFileInput::Setup().withexamine(true)
-		.defseldir(GetDataDir()) );
-    infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
+		.defseldir(IOObjContext::getDataDirName(IOObjContext::Surf)) );
 
     if ( !isfss_ ) 
     {
@@ -138,14 +136,6 @@ void uiImportFault::createUI()
 uiImportFault::~uiImportFault()
 {
     delete ctio_.ioobj; delete &ctio_;
-}
-
-
-void uiImportFault::inputChgd( CallBacker* )
-{
-    FilePath fnmfp( infld_->fileName() );
-    fnmfp.setExtension( "" );
-    outfld_->setInputText( fnmfp.fileName() );
 }
 
 
@@ -211,7 +201,7 @@ bool uiImportFault::handleLMKAscii()
 	mErrRet( "Cannot import fault" );
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *exec ) )
+    if ( !taskrunner.execute(*exec) )
 	mErrRet( taskrunner.lastMsg() );
 
     if ( saveButtonChecked() )
@@ -239,7 +229,7 @@ bool uiImportFault::handleAscii()
 	mErrRet( "Cannot open input file" )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
-
+    mDynamicCastGet(EM::FaultStickSet*,fss,fault)
     const char* tp = fault3d ? "fault" : "faultstickset";
 
     const bool res = getFromAscIO( *sd.istrm, *fault );
@@ -298,10 +288,9 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 
 bool uiImportFault::checkInpFlds()
 {
-    FixedString fnm = infld_->fileName();
-    if ( fnm.isEmpty() )
+    if ( !*infld_->fileName() )
 	mErrRet( "Please select the input file" )
-    else if ( !File::exists(fnm) )
+    else if ( !File::exists(infld_->fileName()) )
 	mErrRet( "Input file does not exist" )
 
     if( !isfss_ )

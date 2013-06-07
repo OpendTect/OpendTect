@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 #include "ranges.h"
 
@@ -23,7 +22,7 @@ namespace Geometry
 
 /*!Iterator through all positions on an element. */
 
-mExpClass(Geometry) Iterator
+mClass Iterator
 {
 public:
     virtual 			~Iterator()		{}
@@ -32,7 +31,7 @@ public:
 };
 
 
-mExpClass(Geometry) Element : public CallBacker
+mClass Element : public CallBacker
 {
 public:
     				Element();
@@ -90,4 +89,3 @@ private:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "executor.h"
 #include "position.h"
 
@@ -28,20 +27,14 @@ class Desc;
 class Output;
 class Provider;
 
-/*!
-\brief Attribute Processor
-*/
-
-mExpClass(AttributeEngine) Processor : public Executor
+mClass Processor : public Executor
 {
 public:
-				Processor(Desc&,const char* linenm,
-					  BufferString&);
-				~Processor();
+    				Processor(Desc&,const char*,BufferString&);
+    				~Processor();
 
     virtual bool		isOK() const;
     void			addOutput(Output*);
-    void			setLineName(const char*);
 
     int				nextStep();
     void			init();
@@ -98,4 +91,3 @@ protected:
 
 
 #endif
-

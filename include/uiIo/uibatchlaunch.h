@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -24,19 +23,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mExpClass(uiIo) uiProcSettings : public uiDialog
-{
-public:
-			uiProcSettings(uiParent*);
-protected:
-    bool		acceptOK(CallBacker*);
-
-    uiGenInput*		nrinlfld_;
-    uiGenInput*		clusterfld_;
-};
-
-
-mExpClass(uiIo) uiBatchLaunch : public uiDialog
+mClass uiBatchLaunch : public uiDialog
 {
 public:
 			uiBatchLaunch(uiParent*,const IOPar&,
@@ -71,14 +58,14 @@ protected:
 };
 
 
-mExpClass(uiIo) uiFullBatchDialog : public uiDialog
+mClass uiFullBatchDialog : public uiDialog
 {
 public:
     enum Mode		{ Single, Multi, Cluster };
 
 protected:
 
-    mExpClass(uiIo) Setup
+    mClass Setup
     {
     public:
 			Setup(const char* txt)
@@ -134,7 +121,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiRestartBatchDialog : public uiFullBatchDialog
+mClass uiRestartBatchDialog : public uiFullBatchDialog
 {
 public:
 
@@ -150,4 +137,3 @@ protected:
 };
 
 #endif
-

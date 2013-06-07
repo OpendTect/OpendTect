@@ -1,0 +1,89 @@
+ifndef __make.ORB__
+__make.ORB__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Makefile for ORB usage
+#	Sept 1998	Bert Bril
+#	$Id: make.ORB,v 1.10 2008/08/29 13:50:52 cvsbert Exp $
+#______________________________________________________________________________
+#
+# defines extras needed for ORB usage. Requirements are:
+# * The modules are in a directory relative to $WORK/serv/$(ORBPROJ)
+# * The include files are in an inc/ subdirectory there, with subdirs for
+#   each module.
+# only MICO supported
+
+ORBTYPE := MICO
+
+WORKORBDIR := $(WORK)/serv/$(ORBPROJ)
+IDL.cc	:= $(SRC.idl:.idl=.cc)
+IDL.h	:= $(SRC.idl:.idl=.h)
+IDL.INC := $(OWNINC.IDL) -I. -I$(WORKORBDIR)/IDL
+OWNINC	:= $(OWNINC) $(IDL.INC)
+
+C++OPTS += -DIIOPVER=1.2
+IDL.DEFS := -D$(ORBTYPE)
+
+ifdef CLIENTONLY
+  C++OPTS += -DCLIENTONLY
+else
+  IDL.cc += $(SRC.idl:.idl=_skel.cc)
+endif
+
+ifndef MICODIR
+   MICODIR := $(MICO_DEFAULT)
+endif
+IDLCMD := $(MICODIR)/bin/idl
+IDL.PC := $(IDLCMD) --relative-paths --boa
+ifndef CLIENTONLY
+  IDL.PC += --c++-skel
+endif
+IDL.INC += -I$(MICODIR)/include -I$(MICODIR)/include/mico
+MICOVERSION := $(word 3,$(shell $(IDLCMD) --version))
+ORBVERSION := $(MICOVERSION)
+C++OPTS += -D_REENTRANT
+
+LDLINKDIRS += -L$(MICODIR)/lib
+EXTRALDLIBS += -lmico$(ORBVERSION) -lmicoaux$(ORBVERSION)
+
+OWNINC += -I$(MICODIR)/include
+C++OPTS += $(IDL.DEFS)
+
+ifdef SRC.idl
+    SRC.cc += $(IDL.cc)
+    SRC.h += $(IDL.h)
+    INTERMEDFILES += $(IDL.cc) $(IDL.h)
+    SRCFILES := $(sort $(SRCFILES) $(SRC.idl))
+    FILES := $(sort $(SRCFILES) $(INTERMEDFILES))
+endif
+
+ifneq ($(CURDIR)),$(ORBTYPE))
+    OWNINC += -I$(WORKORBDIR)/inc
+endif
+
+ifdef EXTRAINC.ORB
+    OWNINC +=  $(foreach subd, \
+                $(addprefix -I$(WORKORBDIR)/inc/$(subd), $(EXTRAINC.ORB)), \
+                $(subd))
+endif
+
+
+ifeq ($(HDIR),lux)
+    EXTRALDLIBS += -ldl
+endif
+ifeq ($(HDIR),sun5)
+    EXTRALDLIBS += -lcurses -ltermcap -lelf -lposix4
+endif
+
+ifndef CLIENTONLY
+    %.cc %.h %_skel.cc : %.idl
+else
+    %.cc %.h : %.idl
+endif
+	@echo "IDL-compiling ($(ORBTYPE) $(ORBVERSION)) $*.idl ..." $(TEE)
+	@-$(IDL.PC) $(IDL.INC) $(IDL.DEFS) $*.idl $(OUT)
+
+# -- multiple inclusion protection --
+endif

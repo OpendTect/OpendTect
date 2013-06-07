@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        P.F.M. de Groot
  Date:          September 2012
- RCS:           $Id$
+ RCS:           $Id: textureattrib.h 27530 2012-11-19 09:49:13Z kristofer.tingdahl@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ Outputs:
 namespace Attrib
 {
 
-mClass(TextureAttrib) Texture : public Provider
+class Texture : public Provider
 {
 public:
     static void		initClass();
@@ -97,3 +97,4 @@ protected:
 } // namespace Attrib
 
 #endif
+

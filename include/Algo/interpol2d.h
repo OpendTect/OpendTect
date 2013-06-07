@@ -17,46 +17,42 @@ ________________________________________________________________________
 namespace Interpolate
 {
 
-/*!
-\brief specification for a 2D interpolator
+/*!\brief specification for a 2D interpolator
 
   The 'set' method accepts values arranged like this:
-  <pre>
+<pre>
     7 9
   5 1 3 11
   4 0 2 10
     6 8
-  </pre>
-  The interpolation is supposed to take place in the 0-1-3-2 'base square'.
-  This looks crazy but the idea is that 0-3 are always needed, and the rest is
-  provided bottom-left to top-right.
-  
-  In some cases, you don't have or don't want to provide data outside the base
-  square.  If you want to be 100% sure that any applier is able to use the data,
-  make sure that the size is at least 5, that 0-3 are filled (possibly with
-  undefineds) and set the v[4] to -mUdf(T) (that is a minus there).
-  
-  The 'apply' method needs the relative distance in x and y direction from
-  the origin (where v[0] is located), and should therefore generally be between
-  0 and 1, although you can also use the classes for near extrapolation.
-*/
-    
+</pre>
+The interpolation is supposed to take place in the 0-1-3-2 'base square'.
+This looks crazy but the idea is that 0-3 are always needed, and the rest is
+provided bottom-left to top-right.
+
+In some cases, you don't have or don't want to provide data outside the base
+square.  If you want to be 100% sure that any applier is able to use the data,
+make sure that the size is at least 5, that 0-3 are filled (possibly with
+undefineds) and set the v[4] to -mUdf(T) (that is a minus there).
+
+The 'apply' method needs the relative distance in x and y direction from
+the origin (where v[0] is located), and should therefore generally be between
+0 and 1, although you can also use the classes for near extrapolation.
+
+  */
+
 template <class T>
-mClass(Algo) Applier2D
+struct Applier2D
 {
-public:
-    virtual		~Applier2D()				{}
     virtual void	set(const T*)				= 0;
     virtual T		apply(float x,float y) const		= 0;
 };
 
 
-/*!
-\brief Linear 2D interpolation.
-*/
+/*!\brief Linear 2D interpolation. */
 
 template <class T>
-mClass(Algo) LinearReg2D : public Applier2D<T>
+class LinearReg2D : public Applier2D<T>
 {
 public:
 
@@ -79,12 +75,10 @@ inline T linearReg2D( T v00, T v01, T v10, T v11, float x, float y )
 { return LinearReg2D<T>( v00, v01, v10, v11 ).apply ( x, y ); }
 
 
-/*!
-\brief Linear 2D interpolation with standard undef handling.
-*/
+/*!\brief Linear 2D interpolation with standard undef handling.  */
 
 template <class T>
-mClass(Algo) LinearReg2DWithUdf : public Applier2D<T>
+class LinearReg2DWithUdf : public Applier2D<T>
 {
 public:
 
@@ -114,16 +108,15 @@ inline T linearReg2DWithUdf( T v00, T v01, T v10, T v11, float x, float y )
 }
 
 
-/*!
-\brief Interpolate 2D regularly sampled, using a 2nd order surface.
-  
+/*!<\brief Interpolate 2D regularly sampled, using a 2nd order surface.
+
   Contrary to teh linear approach it does matter whether deltaX is different
   from deltaY. That is why you can supply an xstretch. If xstretch > 1 then
   the deltaX < deltaY, moreover: xstretch = deltaY / deltaX;
-*/
+ */
 
 template <class T>
-mClass(Algo) PolyReg2D : public Applier2D<T>
+class PolyReg2D : public Applier2D<T>
 {
 public:
 
@@ -162,16 +155,16 @@ inline T polyReg2D( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 }
 
 
-/*!
-\brief PolyReg2D which smoothly handles undefined values.
+/*!<\brief PolyReg2D which smoothly handles undefined values
 
   Note that this class _requires_ x and y to be between 0 and 1 for correct
   undef handling. Correct means: if the nearest sample is undefined, return
   undefined. Otherwise always return a value.
-*/
+
+  */
 
 template <class T>
-mClass(Algo) PolyReg2DWithUdf : public Applier2D<T>
+class PolyReg2DWithUdf : public Applier2D<T>
 {
 public:
 
@@ -574,6 +567,6 @@ T PolyReg2DWithUdf<T>::apply( float x, float y ) const
 #undef mRetUdfIfNearestUdf
 
 
-}// namespace Interpolate
+} // namespace Interpolate
 
 #endif

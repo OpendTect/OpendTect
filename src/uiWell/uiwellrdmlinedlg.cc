@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -92,11 +92,11 @@ void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiWellSelGrp,selButPush);
-    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
+    toselect_ = new uiToolButton( selbuttons, "rightarrow.png",
 					"Move right", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
+    fromselect_ = new uiToolButton( selbuttons, "leftarrow.png",
 	    				"Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
@@ -108,11 +108,10 @@ void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
 {
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWellSelGrp,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
-	    			    "Move Up", cb );
+    moveupward_ = new uiToolButton( movebuttons, "uparrow.png", "Move Up", cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
+    movedownward_ = new uiToolButton( movebuttons, "downarrow.png",
 	    				"Move Down", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
@@ -372,7 +371,7 @@ void uiWell2RandomLineDlg::createFields()
     BufferString txt( "Extend outward (" );
     txt += SI().xyInFeet() ? "ft)" : "m)";
     float defdist = 100 * SI().inlDistance();
-    extendfld_ = new uiGenInput(this,txt,FloatInpSpec((float)mNINT32(defdist)));
+    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT32(defdist)) );
     extendfld_->setWithCheck( true );
     extendfld_->setChecked( true );
 
@@ -419,7 +418,7 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
     float extradist = extendfld_->getfValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
     if ( SI().xyInFeet() )
-	extradist *= mFromFeetFactorF;
+	extradist *= mFromFeetFactor;
     if ( nrcoords == 1 )
     {
 	const Coord c( coords[0] );
@@ -434,11 +433,11 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
 	coords.erase();
 	const Coord d0( oldcrds[1].x - oldcrds[0].x,
 			oldcrds[1].y - oldcrds[0].y );
-	float p = (float) Math::Sqrt( extradist * extradist / d0.sqAbs() );
+	float p = sqrt( extradist * extradist / d0.sqAbs() );
 	const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
 	const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
 			oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
-	p = (float) Math::Sqrt( extradist * extradist / d1.sqAbs() );
+	p = sqrt( extradist * extradist / d1.sqAbs() );
 	const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
 			   oldcrds[nrcoords-1].y + p * d1.y );
 

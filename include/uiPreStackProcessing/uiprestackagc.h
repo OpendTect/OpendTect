@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 class uiGenInput;
 
@@ -23,7 +22,7 @@ namespace PreStack
 class AGC;
 class Processor;
 
-mExpClass(uiPreStackProcessing) uiAGC : public uiDialog
+mClass uiAGC : public uiDialog
 {
 public:
     static void		initClass();
@@ -42,4 +41,3 @@ protected:
 }; //namespace
 
 #endif
-

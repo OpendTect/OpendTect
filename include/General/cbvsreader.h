@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "datainterp.h"
@@ -36,7 +35,7 @@ inlines, no matter whether the data is stored with descending inlines.
 
 */
 
-mExpClass(General) CBVSReader : public CBVSIO
+mClass CBVSReader : public CBVSIO
 {
 public:
 
@@ -118,4 +117,3 @@ private:
 
 
 #endif
-

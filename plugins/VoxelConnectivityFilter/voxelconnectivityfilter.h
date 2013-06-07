@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2011
- RCS:		$Id$
+ RCS:		$Id: voxelconnectivityfilter.h,v 1.6 2011/10/21 13:53:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "voxelconnectivityfiltermod.h"
 #include "volprocchain.h"
 #include "enums.h"
 #include "enums.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mExpClass(VoxelConnectivityFilter) VoxelConnectivityFilter : public Step
+mClass VoxelConnectivityFilter : public Step
 {
 public:
 
@@ -95,4 +94,3 @@ protected:
 }; //namespace
 
 #endif
-

@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimultiflatviewcontrol.h"
 
 #include "uiflatviewer.h"
-#include "uimainwin.h"
 #include "uigraphicsscene.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -44,7 +43,7 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     for ( int idx=zoommgrs_.size()-1; idx>=1; idx-- )
-	delete zoommgrs_.removeSingle( idx );
+	delete zoommgrs_.remove( idx );
 }
 
 
@@ -88,7 +87,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 
     vwr.setRubberBandingOn( !manip_ );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
-    //vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
+    vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
     vwr.appearance().annot_.editable_ = false;
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
@@ -120,12 +119,14 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
+    const uiWorldRect oldview( activevwr_->curView() );
     setNewView( centre, newsz );
 }
 
 
 void uiMultiFlatViewControl::dataChangeCB( CallBacker* cb )
-{}
+{
+}
 
 
 void uiMultiFlatViewControl::reInitZooms()
@@ -134,7 +135,6 @@ void uiMultiFlatViewControl::reInitZooms()
     {
 	vwrs_[idx]->setView( vwrs_[idx]->boundingBox() );
 	zoommgrs_[idx]->reInit( vwrs_[idx]->boundingBox() );
-	zoommgrs_[idx]->toStart();
     }
 }
 
@@ -219,7 +219,6 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	delete vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
 
     zoomboxes_.erase();
-
     if ( iszoomcoupled_ || !activeVwr() || !drawzoomboxes_ ) 
 	return;
 
@@ -249,7 +248,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	ad->poly_ += newwr.bottomRight();
 	ad->poly_ += newwr.bottomLeft(); 
 	ad->poly_ += newwr.topLeft(); 
-	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata ); 
+	vwrs_[idx]->handleChange( FlatView::Viewer::Annot ); 
     }
 }
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
  
  
-#include "generalmod.h"
 #include "multiid.h"
 #include "objectset.h"
 #include "namedobj.h"
@@ -33,7 +32,7 @@ the service access point.
 */
 
 
-mExpClass(General) IODir : public NamedObject
+mClass IODir : public NamedObject
 {
 public:
 			IODir(const char*);
@@ -93,4 +92,3 @@ private:
 
 
 #endif
-

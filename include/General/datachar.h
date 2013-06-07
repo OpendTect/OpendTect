@@ -14,9 +14,19 @@ ________________________________________________________________________
 */
 
 
-#include "generalmod.h"
 #include "bindatadesc.h"
 #include "enums.h"
+
+
+/*!\brief byte-level data characteristics of stored data.
+
+Used for the interpretation (read or write) of data in buffers that are read
+directly from disk into buffer. In that case cross-platform issues arise:
+byte-ordering and int/float layout.
+The Ibm Format is only supported for the types that are used in SEG-Y sample
+data handling. SGI is a future option.
+
+*/
 
 #define mDeclConstr(T,ii,is) \
 DataCharacteristics( const T* ) \
@@ -24,17 +34,8 @@ DataCharacteristics( const T* ) \
 DataCharacteristics( const T& ) \
 : BinDataDesc(ii,is,sizeof(T)), fmt_(Ieee), littleendian_(__islittle__) {}
 
-/*!
-\brief byte-level data characteristics of stored data.
 
-  Used for the interpretation (read or write) of data in buffers that are read
-  directly from disk into buffer. In that case cross-platform issues arise:
-  byte-ordering and int/float layout.
-  The IBM Format is only supported for the types that are used in SEG-Y sample
-  data handling. SGI is a future option.
-*/
-
-mExpClass(General) DataCharacteristics : public BinDataDesc
+mClass DataCharacteristics : public BinDataDesc
 {
 public:
 
@@ -96,4 +97,3 @@ public:
 #undef mDeclConstr
 
 #endif
-

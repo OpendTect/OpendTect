@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: visarrow.cc,v 1.17 2009/12/01 02:35:14 cvsnanne Exp $";
 
 #include "visarrow.h"
 
@@ -109,20 +109,19 @@ visBase::VisualObject* ArrowDisplay::createLocation() const
 void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet( visBase::IndexedPolyLine*, line, group_->getObject(idx) );
-    line->getCoordinates()->setPos( 0, loc.pos_ );
-    if ( mIsUdf(loc.dir_.radius) || mIsUdf(loc.dir_.theta) ||
-	 mIsUdf(loc.dir_.phi) )
+    line->getCoordinates()->setPos( 0, loc.pos );
+    if ( mIsUdf(loc.dir.radius) || mIsUdf(loc.dir.theta) || mIsUdf(loc.dir.phi))
 	return;
 
-    const Coord3 d0 = world2Display( loc.pos_ );
-    Coord3 vector = spherical2Cartesian( loc.dir_, true );
+    const Coord3 d0 = world2Display( loc.pos );
+    Coord3 vector = spherical2Cartesian( loc.dir, true );
 
     if ( scene_ )
 	vector.z /= -scene_->getZScale();
-    const Coord3 c1 = loc.pos_+vector;
+    const Coord3 c1 = loc.pos+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;
-    const double len = displayvector.abs();
+    const float len = displayvector.abs();
     if ( mIsZero(len,1e-3) )
 	return;
 
@@ -130,9 +129,9 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     displayvector *= set_->disp_.pixsize_;
     //Note: pos.vec points in the direction of the tail, not the arrow.
     d1 = d0+displayvector;
-    line->getCoordinates()->setPos( 1, display2World(d1) );
+    line->getCoordinates()->setPos( 1, display2World( d1 ) );
 
-    const Coord3 planenormal( sin(loc.dir_.phi), -cos(loc.dir_.phi), 0 );
+    const Coord3 planenormal( sin(loc.dir.phi), -cos(loc.dir.phi), 0 );
     const Quaternion plus45rot(planenormal, M_PI/4);
     const Quaternion minus45rot(planenormal, -M_PI/4 );
     Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );

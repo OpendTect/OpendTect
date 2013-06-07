@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "math2.h"
 #include "undefval.h"
@@ -31,13 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTYPE double
 #include "math2_inc.h"
 #undef mTYPE
-
-
-float_complex Math::Sqrt( const float_complex& s )
-{
-    return sqrt ( s ); //A bit silly bu the space before the parantesis
-		       //makes it avoid the sqrt test.
-}
 
 
 
@@ -125,19 +118,3 @@ int Math::HCFOf( int num1, int num2 )
 
     return 1;
 }
-
-
-double Math::toDegrees( double rad )
-{ return rad*57.2957795131; }
-
-
-double Math::toRadians( double deg )
-{ return deg * 1.74532925199e-2; }
-
-
-float Math::toDegrees( float rad )
-{ return rad*57.2957795131f; }
-
-
-float Math::toRadians( float deg )
-{ return deg * 1.74532925199e-2f; }

@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
-#include "algomod.h"
 #include "arrayndimpl.h"
 #include "odcomplex.h"
 #include "ranges.h"
@@ -21,11 +19,7 @@ ________________________________________________________________________
 
 namespace Fourier { class CC; };
 
-/*!
-\brief Base class for fourier interpolation.
-*/
-
-mExpClass(Algo) FourierInterpolBase
+mClass FourierInterpolBase
 {
 public:
     void                	setTargetDomain(bool fourier);
@@ -38,15 +32,11 @@ protected:
 };
 
 
-/*!
-\brief Fourier interpolation for 1D datasets.
-*/
-
-mExpClass(Algo) FourierInterpol1D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol1D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x)
 				    : val_(v), pos_(x) {}		    
@@ -82,15 +72,12 @@ protected:
 };
 
 
-/*!
-\brief Fourier interpolation for 2D datasets.
-*/
 
-mExpClass(Algo) FourierInterpol2D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol2D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x,float y)
 				    : val_(v), xpos_(x) , ypos_(y) {}		    
@@ -127,15 +114,12 @@ protected:
 };
 
 
-/*!
-\brief Fourier interpolation for 3D datasets.
-*/
 
-mExpClass(Algo) FourierInterpol3D : public ParallelTask, public FourierInterpolBase
+mClass FourierInterpol3D : public ParallelTask, public FourierInterpolBase
 {
 public:
 
-    mStruct(Algo) Point 
+    mStruct Point 
     {
        				Point(float_complex v,float x,float y,float z)
 				    : val_(v), xpos_(x) , ypos_(y) , zpos_(z) {}		    
@@ -177,5 +161,3 @@ protected:
 };
 
 #endif
-
-

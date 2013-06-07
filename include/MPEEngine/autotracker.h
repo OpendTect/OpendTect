@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emposid.h"
 #include "executor.h"
 #include "sets.h"
@@ -24,7 +23,6 @@ namespace Attrib { class SelSpec; }
 namespace Geometry { class Element; }
 template <class T> class Array2D;
 
-/*!\brief %MPE stands for Model, Predict, Edit. Contains tracking and editing functions.*/
 
 namespace MPE
 {
@@ -34,11 +32,7 @@ class SectionAdjuster;
 class SectionExtender;
 class EMTracker;
 
-/*!
-\brief Executor to auto track.
-*/
-
-mExpClass(MPEEngine) AutoTracker : public Executor
+mClass AutoTracker : public Executor
 {
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);
@@ -82,8 +76,8 @@ protected:
 };
 
 
+
 }; // namespace MPE
 
 #endif
-
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 #include "sets.h"
 #include "ranges.h"
@@ -58,7 +57,7 @@ class HorSampling;
  */
 
 
-mExpClass(General) BinIDValueSet
+mClass BinIDValueSet
 {
 public:
 
@@ -141,7 +140,6 @@ public:
     			//!< You cannot remove while iterating
     			//!< Collect the to-be-removed and use this instead
     void		removeVal(int); // Will remove entire 'column'
-    bool		insertVal(int);
     bool		setNrVals(int,bool kp_data=true);
     int			nrDuplicateBinIDs() const;
     void		sortDuplicateBids(int value_nr,bool ascending=true);
@@ -159,7 +157,6 @@ public:
     			// Convenience stuff
     Pos			add(const BinIDValue&);
     Pos			add(const BinID&,float);
-    Pos			add(const BinID&,double);
     Pos			add(const BinID&,float,float);
     Pos			add(const BinID&,const TypeSet<float>&);
     void		add(const PosInfo::CubeData&);
@@ -232,8 +229,13 @@ protected:
 
     friend class	DataPointSet;
     friend class	PosVecDataSet;
+
+public:
+
+    inline void		empty() 	{ setEmpty(); } //!< legacy
+    bool		insertVal(int);
+
 };
 
 
 #endif
-

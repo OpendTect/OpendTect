@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -172,7 +172,7 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_->setRadius( radius_ );
 	for ( int idx=0; idx<4; idx++ )
 	{
-	    const float rad = (.2f + .2f*idx)*radius_ ;
+	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
 	    ci.setPos( center_ ); ci.setRadius( mNINT32(rad) );
 	}
@@ -184,7 +184,7 @@ void uiDirectionalPlot::drawGrid()
 	outercircleitm_->setZValue( 1 );
 	for ( int idx=0; idx<4; idx++ )
 	{
-	    const float rad = (.2f + .2f*idx)*radius_ ;
+	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
 								 mNINT32(rad)) );
 	    ci->setZValue( 1 );
@@ -195,6 +195,7 @@ void uiDirectionalPlot::drawGrid()
 
     sectorlines_.removeAll( true );
     const int nrsectors = data_.nrSectors();
+    const float stepang = 360 / ((float)nrsectors);
     for ( int isect=0; isect<nrsectors; isect++ )
     {
 	const float ang = data_.angle( isect, 1 );
@@ -209,9 +210,9 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawScale()
 {
-    static const float sqrt2 = M_SQRT2f;
-    const uiPoint startpt( usrUIPos(radius_*1.1f,135) );
-    const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1f),135) );
+    static const float sqrt2 = sqrt( 2.0 );
+    const uiPoint startpt( usrUIPos(radius_*1.1,135) );
+    const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1),135) );
     if ( !scalelineitm_ )
     {
 	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt,true) );
@@ -395,13 +396,14 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
 						 Color col )
 {
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
-    const float dangrad = dang * Angle::cPI<float>() / 180;
+    const float dangrad = dang * Angle::cPI(dang) / 180;
+    const Stats::SectorData& sd = *data_[isect];
     Interval<float> angrg( data_.angle(isect,-1), 0 );
     angrg.stop = angrg.start + dang;
     Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
     radangrg.stop = radangrg.start - dangrad;
 
-    rrg.scale( mCast(float,radius_) );
+    rrg.scale( radius_ );
     uiCurvedItem* ci = new uiCurvedItem(
 				dataUIPos(rrg.start,angrg.start) );
     ci->drawTo( dataUIPos(rrg.stop,angrg.start) );
@@ -444,16 +446,16 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 		if ( reversepos )
 		{
 		    if ( ipart < sd.size()-1 )
-			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5f;
+			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5;
 		    if ( ipart > 0 )
-			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5f;
+			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5;
 		}
 		else
 		{
 		    if ( ipart )
-			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5f;
+			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
 		    if ( ipart < sd.size()-1 )
-			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5f;
+			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
 		}
 	    }
 

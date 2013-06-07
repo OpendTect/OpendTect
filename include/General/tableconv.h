@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "sets.h"
 #include "executor.h"
 #include "bufstringset.h"
@@ -21,13 +20,12 @@ ________________________________________________________________________
 namespace Table
 {
 
-mExpClass(General) ImportHandler
+mClass ImportHandler
 {
 public:
     			ImportHandler( std::istream& strm )
 			    : strm_(strm)
 			    , colpos_(0)	{}
-    virtual		~ImportHandler()	{}
 
     enum State		{ Error, InCol, EndCol, EndRow };
 
@@ -41,7 +39,7 @@ public:
 
     inline char		readNewChar() const
 			{
-			    char c = mCast( char, strm_.peek() );
+			    char c = strm_.peek();
 			    strm_.ignore( 1 );
 			    return atEnd() ? '\n' : c;
 			}
@@ -58,12 +56,11 @@ protected:
 };
 
 
-mExpClass(General) ExportHandler
+mClass ExportHandler
 {
 public:
     			ExportHandler( std::ostream& strm )
 			    : strm_(strm)		{}
-    virtual		~ExportHandler()		{}
 
     virtual const char*	putRow(const BufferStringSet&)	= 0;
 
@@ -88,7 +85,7 @@ protected:
 
 
 
-mExpClass(General) Converter : public Executor
+mClass Converter : public Executor
 {
 public:
     			Converter( ImportHandler& i, ExportHandler& o )
@@ -137,4 +134,3 @@ protected:
 
 
 #endif
-

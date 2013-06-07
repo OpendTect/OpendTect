@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "attribsel.h"
 #include "bufstring.h"
@@ -26,11 +25,8 @@ class uiListBox;
 class uiRadioButton;
 class NLAModel;
 
-/*!
-\brief Selection dialog for 2D attributes.
-*/
 
-mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
+mClass uiAttr2DSelDlg : public uiDialog
 {
 public:
 
@@ -73,4 +69,3 @@ protected:
 
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 #include "ranges.h"
 class CubeSampling;
@@ -22,19 +21,21 @@ class CubeSampling;
 namespace Pos
 {
 
-/*!
-\brief Provides a series of positions; can also be used for subselection.
-  
+/*!\brief provides a series of positions; can also be used fo subselection.
+
   toNextPos() will ignore any Z settings and go to the first Z on the next 
   position. toNextZ() is the normal 'iterator increment'. After initialization,
   you need to do toNextZ() or toNextPos() for a valid position.
-*/
 
-mExpClass(Algo) Provider : public virtual Filter
+ */
+
+class Provider : public virtual Filter
 {
 public:
 
-    virtual bool	isProvider() const;
+    virtual bool	isProvider() const			{ return true; }
+
+    mGlobal virtual Provider*	clone() const			= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
@@ -44,18 +45,16 @@ public:
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    virtual float	estRatio(const Provider&) const;
-    virtual void	getCubeSampling(CubeSampling&) const;
+    mGlobal virtual float	estRatio(const Provider&) const;
+    mGlobal virtual void	getCubeSampling(CubeSampling&) const;
 
-    static Provider*	make(const IOPar&,bool is2d);
+    mGlobal static Provider*	make(const IOPar&,bool is2d);
 };
 
 
-/*!
-\brief Provides a subselection for 3D surveys.
-*/
+/*!\brief provides a subselection for 3D surveys */
 
-mExpClass(Algo) Provider3D : public Filter3D
+mClass Provider3D : public Filter3D
 		 , public Provider
 {
 public:
@@ -77,11 +76,9 @@ public:
 };
 
 
-/*!
-\brief Provides a subselection for 2D surveys - requires the line name(s).
-*/
+/*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-mExpClass(Algo) Provider2D : public Filter2D
+mClass Provider2D : public Filter2D
 		 , public Provider
 {
 public:
@@ -104,4 +101,3 @@ public:
 } // namespace
 
 #endif
-

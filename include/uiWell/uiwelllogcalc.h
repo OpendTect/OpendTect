@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -21,7 +20,6 @@ ________________________________________________________________________
 class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
-class uiLabeledComboBox;
 class uiMathExpression;
 class MathExpression;
 class uiWellLogCalcInpData;
@@ -29,7 +27,7 @@ namespace Well { class Log; class LogSet; }
 
 /*! \brief Dialog for marker specifications */
 
-mExpClass(uiWell) uiWellLogCalc : public uiDialog
+mClass uiWellLogCalc : public uiDialog
 {
 public:
 				uiWellLogCalc(uiParent*,const Well::LogSet&,
@@ -39,25 +37,13 @@ public:
 
     bool			haveNewLogs() const	{ return havenew_; }
 
-    void			setOutputLogName(const char* nm);
-    const char*			getOutputLogName() const;
-
-    static void			getSuitableLogs(const Well::LogSet&,
-	                                        BufferStringSet& lognms,
-						TypeSet<int>& propidx,
-						TypeSet<int>& isaltpropref,
-						const PropertyRef& propref,
-						const PropertyRef* altpropref);
-
-
 protected:
 
     uiMathExpression*		formfld_;
     uiGenInput*			nmfld_;
     uiGenInput*			srfld_;
     uiCheckBox*			ftbox_;
-    uiLabeledComboBox*		formulaunfld_;
-    uiComboBox*			outunfld_;
+    uiComboBox*			unfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
 
     int				nrvars_;
@@ -73,7 +59,7 @@ protected:
     const Well::LogSet&		wls_;
     const TypeSet<MultiID>	wellids_;
     BufferStringSet		inputunits_;
-    TypeSet<PropertyRef::StdType>	inputtypes_;
+    BufferString		rpoutunit_;
 
     friend class		uiWellLogCalcInpData;
 
@@ -107,7 +93,16 @@ protected:
     void			inpSel(CallBacker*);
     bool			acceptOK(CallBacker*);
 
+public:
+    void                        setOutputLogName(const char* nm);
+    const char*                 getOutputLogName() const;
+	static void			getSuitableLogs(const Well::LogSet&,
+	                                        BufferStringSet& lognms,
+						TypeSet<int>& propidx,
+						TypeSet<int>& isaltpropref,
+						const PropertyRef& propref,
+						const PropertyRef* altpropref);
+
 };
 
 #endif
-

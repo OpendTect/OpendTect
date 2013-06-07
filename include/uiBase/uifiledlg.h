@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "bufstringset.h"
 
 class uiParent;
@@ -21,7 +20,7 @@ class FileMultiString;
 /*!\brief Dialog to get a file or directory name from user
 */
 
-mExpClass(uiBase) uiFileDialog
+mClass uiFileDialog
 {
 public:
     //! File selection mode
@@ -110,4 +109,3 @@ private:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiobjfileman.h"
 
 /*! \brief
@@ -21,7 +20,7 @@ PickSet manager
 
 class uiButton;
 
-mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
+mClass uiPickSetMan : public uiObjFileMan
 {
 public:
     				uiPickSetMan(uiParent*);
@@ -37,4 +36,3 @@ protected:
 };
 
 #endif
-

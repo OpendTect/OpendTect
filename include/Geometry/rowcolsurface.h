@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "rowcol.h"
 #include "geomelement.h"
 
@@ -24,7 +23,7 @@ namespace Geometry
 /*!Surface which positions are orgainzied in rows/cols. The number of
    columns in each row may vary. */
 
-mExpClass(Geometry) RowColSurface : public Element
+mClass RowColSurface : public Element
 {
 public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
@@ -50,4 +49,3 @@ public:
 };
 
 #endif
-

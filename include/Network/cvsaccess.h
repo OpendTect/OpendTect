@@ -13,12 +13,11 @@ ________________________________________________________________________
 -*/
 ;
 
-#include "networkmod.h"
 #include "bufstring.h"
 class BufferStringSet;
 
 
-mExpClass(Network) CVSAccess
+mClass CVSAccess
 {
 
 public:
@@ -70,4 +69,3 @@ protected:
 };
 
 #endif
-

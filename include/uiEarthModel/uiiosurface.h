@@ -12,37 +12,30 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
-#include "uicompoundparsel.h"
-#include "uigroup.h"
-#include "uidialog.h"
-
-#include "bufstringset.h"
-#include "faulttrace.h"
 #include "horsampling.h"
-#include "surv2dgeom.h"
+#include "uigroup.h"
 
+class BufferStringSet;
 class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
 class MultiID;
 
-class uiCheckBox;
+class uiPosSubSel;
 class uiColorInput;
-class uiFaultOptSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
-class uiPosSubSel;
+class uiCheckBox;
 class uiStratLevelSel;
-class uiTable;
+
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 
 
 /*! \brief Base group for Surface input and output */
 
-mExpClass(uiEarthModel) uiIOSurface : public uiGroup
+mClass uiIOSurface : public uiGroup
 {
 public:
 			~uiIOSurface();
@@ -90,11 +83,11 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
+mClass uiSurfaceWrite : public uiIOSurface
 {
 public:
 
-    mExpClass(uiEarthModel) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -121,7 +114,6 @@ public:
 
     virtual bool	processInput();
     int			getStratLevelID() const;
-    void		setColor(const Color&);
     Color		getColor() const;
     bool		replaceInTree()	const;
 
@@ -136,10 +128,10 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
+mClass uiSurfaceRead : public uiIOSurface
 {
 public:
-    mExpClass(uiEarthModel) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -170,43 +162,6 @@ protected:
 
     void		inpChanged()	{ inpChange.trigger(); }
 
-};
-
-
-mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
-{
-public:
-				uiFaultParSel(uiParent*,bool is2d,
-					      bool use_act_option=false);
-
-				/*Set my own options on selected, optional*/
-    void			setActOptions(const BufferStringSet&);
-    const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
-
-    void			setSelectedFaults(const TypeSet<MultiID>&,
-	    				const TypeSet<FaultTrace::Act>* =0);
-    BufferString		getSummary() const;
-    const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
-					
-    void			set2DGeomIds(const TypeSet<PosInfo::GeomID>&);
-    				/*<for FaultStickSet picked from 2D lines.*/
-
-    Notifier<uiFaultParSel>	selChange;
-
-protected:
-
-    friend class		uiFaultOptSel;
-    void			clearPush(CallBacker*);
-    void			doDlg(CallBacker*);
-
-    bool			is2d_;
-    BufferStringSet		selfaultnms_;
-    TypeSet<MultiID>		selfaultids_;
-    TypeSet<PosInfo::GeomID>	geomids_;
-    
-    bool			useoptions_;
-    BufferStringSet		optnms_;
-    TypeSet<int>		optids_;
 };
 
 

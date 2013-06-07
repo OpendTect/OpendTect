@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -48,7 +48,7 @@ public:
 			{
 			    if ( *s == 'W' ) return Words;
 			    if ( *s == 'Q' ) return QWord;
-			    if ( FixedString(s)=="FileRead" )
+			    if ( !strcmp("FileRead",s) )
 				return FileRead;
 			    else
 				return FileWrite;
@@ -94,6 +94,7 @@ public:
 
 
 BatchProgInfoList::BatchProgInfoList()
+    : ManagedObjectSet<BatchProgInfo>(false)
 {
     const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
     if ( fromenv && *fromenv )

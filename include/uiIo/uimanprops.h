@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uidialog.h"
 class PropertyRef;
@@ -25,7 +24,7 @@ class uiListBox;
 
 /*!\brief Manages the PROPS(). */
 
-mExpClass(uiIo) uiManPROPS : public uiDialog
+mClass uiManPROPS : public uiDialog
 {
 public:
 
@@ -55,7 +54,7 @@ protected:
  
  */
 
-mExpClass(uiIo) uiSelectPropRefs : public uiDialog
+mClass uiSelectPropRefs : public uiDialog
 {
 public:
 
@@ -81,4 +80,3 @@ protected:
 
 
 #endif
-

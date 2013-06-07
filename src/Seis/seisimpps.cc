@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisimpps.h"
 #include "seispsioprov.h"
@@ -154,9 +154,9 @@ bool SeisPSImpDataMgr::writeGather()
 	    { lbuf = lines_[idx]; break; }
     }
     if ( !lbuf || lbuf->gathers_.isEmpty() )
-	{ delete lbuf; towrite_.removeSingle(0); return true; } // shouldn't happen
+	{ delete lbuf; towrite_.remove(0); return true; } // shouldn't happen
 
-    SeisTrcBuf* gath2write = lbuf->gathers_.removeSingle( 0 );
+    SeisTrcBuf* gath2write = lbuf->gathers_.remove( 0 );
     const bool lbufempty = lbuf->gathers_.isEmpty();
     if ( lbufempty )
     {

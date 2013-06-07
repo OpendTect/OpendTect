@@ -7,8 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
@@ -20,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
-#include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 #include "welltrack.h"
 #include "wellwriter.h"
+#include "wavelet.h"
 
 #include "welltiecshot.h"
 #include "welltiedata.h"
@@ -40,32 +41,49 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
+static const char* sKeyIsMarkerDisp = "Display Markers on Well Display";
+static const char* sKeyVwrMarkerDisp = "Display Markers on 2D Viewer";
+static const char* sKeyVwrHorizonDisp = "Display Horizon on 2D Viewer";
+static const char* sKeyZInFeet	= "Z in Feet";
+static const char* sKeyZInTime	= "Z in Time";
+static const char* sKeyMarkerFullName	= "Display markers full name";
+static const char* sKeyHorizonFullName	= "Display horizon full name";
+
+
+
 namespace WellTie
 {
 
+HiddenParam<Data, StepInterval<float> >
+	tracerg_( StepInterval<float>(mUdf(float),mUdf(float),mUdf(float)) );
+HiddenParam<Data, StepInterval<float> >
+	modelrg_( StepInterval<float>( mUdf(float),mUdf(float),mUdf(float)) );
+HiddenParam<Data, StepInterval<float> >
+	reflrg_( StepInterval<float>( mUdf(float),mUdf(float),mUdf(float)) );
+HiddenParam<Data, float> scaler_( mUdf(float) );
 
 void DispParams::fillPar( IOPar& iop ) const 
 {
-    iop.setYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
-    iop.setYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
-    iop.setYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
-    iop.setYN( sKeyZInFeet(), iszinft_ );
-    iop.setYN( sKeyZInTime(), iszintime_ );	
-    iop.setYN( sKeyMarkerFullName(), dispmrkfullnames_ );
-    iop.setYN( sKeyHorizonFullName(), disphorfullnames_ );
+    iop.setYN( sKeyIsMarkerDisp, ismarkerdisp_ );
+    iop.setYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
+    iop.setYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
+    iop.setYN( sKeyZInFeet, iszinft_ );
+    iop.setYN( sKeyZInTime, iszintime_ );	
+    iop.setYN( sKeyMarkerFullName, dispmrkfullnames_ );
+    iop.setYN( sKeyHorizonFullName, disphorfullnames_ );
     mrkdisp_.fillPar( iop );
 }
 
 
 void DispParams::usePar( const IOPar& iop ) 
 {
-    iop.getYN( sKeyIsMarkerDisp(), ismarkerdisp_ );
-    iop.getYN( sKeyVwrMarkerDisp(), isvwrmarkerdisp_ );
-    iop.getYN( sKeyVwrHorizonDisp(), isvwrhordisp_ );
-    iop.getYN( sKeyZInFeet(), iszinft_ );
-    iop.getYN( sKeyZInTime(), iszintime_ );	
-    iop.getYN( sKeyMarkerFullName(), dispmrkfullnames_ );
-    iop.getYN( sKeyHorizonFullName(), disphorfullnames_ );
+    iop.getYN( sKeyIsMarkerDisp, ismarkerdisp_ );
+    iop.getYN( sKeyVwrMarkerDisp, isvwrmarkerdisp_ );
+    iop.getYN( sKeyVwrHorizonDisp, isvwrhordisp_ );
+    iop.getYN( sKeyZInFeet, iszinft_ );
+    iop.getYN( sKeyZInTime, iszintime_ );	
+    iop.getYN( sKeyMarkerFullName, dispmrkfullnames_ );
+    iop.getYN( sKeyHorizonFullName, disphorfullnames_ );
     mrkdisp_.usePar( iop );
 }
 
@@ -81,7 +99,9 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , wd_(&wdata)
     , setup_(wts)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
-    , estimatedwvlt_(*new Wavelet("Estimated wavelet"))
+    , estimatedwvlt_(*new Wavelet(initwvlt_))
+    , isinitwvltactive_(true)
+    , timeintv_(SI().zRange(true))
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
@@ -104,7 +124,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 	    stoptime = cs.zrg.stop;
     }
 
-    tracerg_.set( 0.f, stoptime, cDefSeisSr() );
+    setTraceRange( StepInterval<float> ( 0.f, stoptime, cDefSeisSr() ) );
     computeExtractionRange();
     for ( int idx=0; idx<wdata.markers().size(); idx++ )
     {
@@ -113,6 +133,10 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     }
 
     initwvlt_.reSample( cDefSeisSr() );
+
+    estimatedwvlt_ = initwvlt_;
+    estimatedwvlt_.setName( "Estimated wavelet" );
+    setScaler(mUdf(float));
 }
 
 
@@ -124,6 +148,54 @@ Data::~Data()
     delete &estimatedwvlt_;
     delete &seistrc_;
     delete &synthtrc_;
+}
+
+
+const StepInterval<float>& Data::getTraceRange() const
+{
+    return tracerg_.getParam( this );
+}
+
+
+void Data::setTraceRange(StepInterval<float> tracerg)
+{
+    tracerg_.setParam(this, tracerg );
+}
+
+
+const StepInterval<float>& Data::getModelRange() const
+{
+    return modelrg_.getParam( this );
+}
+
+
+void Data::setModelRange(StepInterval<float> modelrg)
+{
+    modelrg_.setParam(this, modelrg );
+}
+
+
+const StepInterval<float>& Data::getReflRange() const
+{
+    return reflrg_.getParam( this );
+}
+
+
+void Data::setRelfRange( StepInterval<float> reflrg )
+{
+    reflrg_.setParam( this, reflrg );
+}
+
+
+const float Data::getScaler() const
+{
+    return scaler_.getParam( this );
+}
+
+
+void Data::setScaler( const float scaler )
+{
+    scaler_.setParam( this, scaler );
 }
 
 
@@ -144,17 +216,37 @@ void Data::computeExtractionRange()
     float twtstop = d2t->getTime( dahrg_.stop, track );
     twtstart = (float) mNINT32(twtstart/cDefSeisSr()) * cDefSeisSr();
     twtstop = (float) mNINT32(twtstop/cDefSeisSr()) * cDefSeisSr();
-    modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
+    setModelRange( StepInterval<float>( twtstart, twtstop, cDefSeisSr() ) );
 
-    dahrg_.start = d2t->getDah( twtstart, track );
-    dahrg_.stop = d2t->getDah( twtstop, track );
+    dahrg_.start = d2t->getDah( twtstart );
+    dahrg_.stop = d2t->getDah( twtstop );
 
     twtstart += cDefSeisSr();
     twtstop -= cDefSeisSr();
-    reflrg_.set( twtstart, twtstop, cDefSeisSr() );
+    setRelfRange( StepInterval<float> ( twtstart, twtstop, cDefSeisSr() ) );
 }
 
 
+const char* Data::sonic() const
+{ return setup_.vellognm_; }
+
+const char* Data::density() const
+{ return setup_.denlognm_; }
+
+const char* Data::ai() const
+{ return "AI"; }
+
+const char* Data::reflectivity() const
+{ return "Reflectivity"; }
+
+const char* Data::synthetic() const
+{ return "Synthetic"; }
+
+const char* Data::seismic() const
+{ return "Seismic"; }
+
+bool Data::isSonic() const
+{ return setup_.issonic_; }
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids, 
@@ -181,7 +273,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
-		if ( TaskRunner::execute( &tr, *exec ) )
+		if ( tr.execute( *exec ) )
 		    success = true;
 	    }
 	    if ( success )
@@ -201,8 +293,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !hor ) continue;
 	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
 	whfinder.setHorizon( emid );
-	const float zval = 
-	    whfinder.findZIntersection()*SI().zDomain().userFactor();
+	const float zval = whfinder.findZIntersection()*1000;
 	if ( !mIsUdf( zval ) )
 	{
 	    Marker hd( zval );
@@ -233,8 +324,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
-		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
-		    		      SI().zDomain().userFactor(); 
+		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*1000; 
 		pc.z2_ = hd.zpos_;
 	    }
 	}
@@ -307,7 +397,10 @@ void DataWriter::setWellWriter()
 
 bool DataWriter::writeD2TM() const
 {
-    return ( wtr_ && wtr_->putD2T() );
+    if ( !wtr_ )
+	return false;
+
+    return wtr_->putD2T();
 }
 
 
@@ -329,7 +422,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
     Well::Data wd; 
     wd.track() = wd_->track();
     wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
-    wd.logs().setEmpty(); 
+    wd.logs().empty(); 
     LogCubeCreator lcr( wd ); 
     ObjectSet<LogCubeCreator::LogCubeData> logdatas;
     for ( int idx=0; idx<ld.logset_.size(); idx++ )
@@ -361,9 +454,10 @@ Server::Server( const WellTie::Setup& wts )
     Well::Data* wdata = wdmgr_->wd();
     if ( !wdata ) return; //TODO close + errmsg
 
+    const Data* dummydata = new Data( wts, *wdata ); // hack for stable rel
     // Order below matters
     datawriter_ = new DataWriter( *wdata, wts.wellid_ );
-    d2tmgr_ = new D2TModelMgr( *wdata, *datawriter_, wts );
+    d2tmgr_ = new D2TModelMgr( *wdata, *datawriter_, wts, *dummydata ); 
     data_ = new Data( wts, *wdata );
     dataplayer_ = new DataPlayer( *data_, wts.seisid_, &wts.linekey_ );
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
@@ -395,12 +489,18 @@ void Server::wellDataDel( CallBacker* )
 }
 
 
-bool Server::computeSynthetics( const Wavelet& wvlt )
+bool Server::computeAll()
 {
-    if ( !dataplayer_ )
-	return false;
+    if ( !dataplayer_->computeAll() )
+	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
-    if ( !dataplayer_->computeSynthetics(wvlt) )
+    return true;
+}
+
+
+bool Server::computeSynthetics()
+{
+    if ( !dataplayer_->computeSynthetics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
@@ -409,9 +509,6 @@ bool Server::computeSynthetics( const Wavelet& wvlt )
 
 bool Server::extractSeismics()
 {
-    if ( !dataplayer_ )
-	return false;
-
     if ( !dataplayer_->extractSeismics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
@@ -419,12 +516,9 @@ bool Server::extractSeismics()
 }
 
 
-bool Server::updateSynthetics( const Wavelet& wvlt )
+bool Server::updateSynthetics()
 {
-    if ( !dataplayer_ )
-	return false;
-
-    if ( !dataplayer_->doFastSynthetics(wvlt) )
+    if ( !dataplayer_->doFastSynthetics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
@@ -433,46 +527,10 @@ bool Server::updateSynthetics( const Wavelet& wvlt )
 
 bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 {
-    if ( !dataplayer_ )
-	return false;
-
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
     return true;
-}
-
-
-bool Server::computeCrossCorrelation()
-{
-    if ( !dataplayer_ )
-	return false;
-
-    if ( !dataplayer_->computeCrossCorrelation() )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
-
-    return true;
-}
-
-
-bool Server::computeEstimatedWavelet( int newsz )
-{
-    if ( !dataplayer_ )
-	return false;
-
-    if ( !dataplayer_->computeEstimatedWavelet( newsz ) )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
-
-    return true;
-}
-
-
-void Server::setCrossCorrZrg( const Interval<float>& zrg )
-{
-    if ( !dataplayer_ )
-	return;
-
-    dataplayer_->setCrossCorrZrg( zrg );
 }
 
 

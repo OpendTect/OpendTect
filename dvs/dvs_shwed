@@ -1,4 +1,5 @@
 #!/bin/csh -f
+# SVN: $Id$
 
 if ( -d CVS ) then
     dvs editors $*  

@@ -13,16 +13,150 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "iopar.h"
+
+/*!\brief Some utilities surrounding the often needed enum <-> string table.
+
+The function EnumDef::convert returns the enum (integer) value from a text
+string. The first arg is string you wish to convert to the enum, the second
+is the array with enum names. Then, the integer value of the first enum value
+(also returned when no match is found) and the number of characters to be
+matched (0=all). Make absolutely sure the char** definition has a closing
+' ... ,0 };'.
+
+Normally, you'll have a class with an enum member. In that case, you'll want to
+use the EnumDef classes. These are normally almost hidden by a few
+simple macros:
+* DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
+* DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
+* For namespaces, you can use DeclareNameSpaceEnumUtils only
+
+The 'Declare' macros should be placed in the public section of the class.
+Example of usage:
+
+in myclass.h:
+\code
+#include <enums.h>
+
+class MyClass
+{
+public:
+    enum State  { Good, Bad, Ugly };
+		DeclareEnumUtils(State)
+    enum Type   { Yes, No, Maybe };
+		DeclareEnumUtils(Type)
+
+    // rest of class
+
+};
+\endcode
+
+in myclass.cc:
+
+\code
+#include <myclass.h>
+
+DefineEnumNames(MyClass,State,1,"My class state")
+	{ "Good", "Bad", "Not very handsome", 0 };
+DefineEnumNames(MyClass,Type,0,"My class type")
+	{ "Yes", "No", "Not sure", 0 };
+\endcode
+
+Note the '1' in the first one telling the EnumDef that only one character needs
+to be matched when converting string -> enum. The '0' in the second indicates
+that the entire string must match.
+
+This will expand to (added newlines, removed some superfluous stuff:
+
+\code
+
+class MyClass
+{
+public:
+
+    enum			State { Good, Bad, Ugly };
+    static const EnumDef&	StateDef();
+    static const char**		StateNames();
+    static bool 		parseEnum(const char*, State& );
+    static bool 		parseEnum(const IOPar&,const char* key,State&);
+    static int 			parseEnumState(const char*);
+    static const char*		toString(State);
+
+protected:
+
+    static const char*		StateNames_[];
+    static const EnumDef	StateDefinition_;
+
+// similar for Type
+
+};
+
+\endcode
+
+and, in myclass.cc:
+
+\code
+
+const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
+
+const EnumDef MyClass::StateDefinition_("My class state",MyClass::Statenames,1);
+
+bool MyClass::parseEnum(const char* txt, State& res ) \
+{ \
+    const int idx = StateDef().isValidName( txt ) \
+        ?  StateDef().convert( txt ) \
+	: -1; \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (State) idx; \
+    return true; \
+} \
+bool MyClass::parseEnum( const IOPar& par, const char* key, State& res ) \
+{ return parseEnum( par.find( key ), res ); } \
+MyClass::State MyClass::parseEnumState(const char* txt) \
+{ \
+    return (MyClass::State) StateDef().convert( txt ); \
+} \
+
+const char* MyClass::Statenames_[] =
+        { "Good", "Bad", "Not very handsome", 0 };
+
+
+const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
+const EnumDef MyClass::TypeDefinition_("My class type", MyClass::Typenames, 0 );
+bool MyClass::parseEnum(const char* txt, Type& res ) \
+{ \
+    const int idx = TypeDef().isValidName( txt ) \
+        ?  TypeDef().convert( txt ) \
+	: -1; \
+    if ( idx<0 ) \
+	return false; \
+ \
+    res = (Type) idx; \
+    return true; \
+} \
+bool MyClass::parseEnum( const IOPar& par, const char* key, Type& res ) \
+{ return parseEnum( par.find( key ), res ); } \
+MyClass::Type MyClass::parseEnumType(const char* txt) \
+{ \
+    return (MyClass::Type) TypeDef().convert( txt ); \
+} \
+
+const char* MyClass::Typenames_[] =
+        { "Yes", "No", "Not sure", 0 };
+
+\endcode
+
+-*/
+
 
 #include "namedobj.h"
 
-/*!
-\brief Holds data pertinent to a certain enum.
-*/
 
-mExpClass(Basic) EnumDef : public NamedObject
+/*\brief holds data pertinent for a certain enum */
+
+mClass EnumDef : public NamedObject
 {
 public:
 		EnumDef( const char* nm, const char* s[], short nrs=0 );
@@ -37,144 +171,6 @@ protected:
     const char**	names_;
     short		nrsign_;
 };
-
-
-/*!
-\ingroup Basic
-\brief Some utilities surrounding the often needed enum <-> string table.
-
-  The function EnumDef::convert returns the enum (integer) value from a text
-  string. The first arg is string you wish to convert to the enum, the second
-  is the array with enum names. Then, the integer value of the first enum value
-  (also returned when no match is found) and the number of characters to be
-  matched (0=all). Make absolutely sure the char** definition has a closing
-  ' ... ,0 };'.
-
-  Normally, you'll have a class with an enum member. In that case, you'll want
-  to use the EnumDef classes. These are normally almost hidden by a few
-  simple macros:
-  * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
-  * DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
-  * For namespaces, you can use DeclareNameSpaceEnumUtils only
-
-  The 'Declare' macros should be placed in the public section of the class.
-  Example of usage:
-
-  in myclass.h:
-  \code
-  #include <enums.h>
-
-  class MyClass
-  {
-  public:
-      enum State  { Good, Bad, Ugly };
-		  DeclareEnumUtils(State)
-      enum Type   { Yes, No, Maybe };
-       	          DeclareEnumUtils(Type)
-
-		  // rest of class
-  };
-  \endcode
-
-  in myclass.cc:
-
-  \code
-  #include <myclass.h>
-  
-  DefineEnumNames(MyClass,State,1,"My class state")
-	  { "Good", "Bad", "Not very handsome", 0 };
-  DefineEnumNames(MyClass,Type,0,"My class type")
-          { "Yes", "No", "Not sure", 0 };
-  \endcode
-
-  Note the '1' in the first one telling the EnumDef that only one character
-  needs	to be matched when converting string -> enum. The '0' in the second
-  indicates that the entire string must match.
-
-  This will expand to (added newlines, removed some superfluous stuff:
-
-  \code
-  
-  class MyClass
-  {
-  public: 
-
-      enum 			  State { Good, Bad, Ugly };
-      static const EnumDef&       StateDef();
-      static const char**         StateNames();
-      static bool                 parseEnum(const char*, State& );
-      static bool                 parseEnum(const IOPar&,const char*key,State&);
-      static int                  parseEnumState(const char*);
-      static const char*          toString(State);
-
-  protected:
-
-      static const char*          StateNames_[];
-      static const EnumDef        StateDefinition_;
-
-  // similar for Type
-
-  };
-
-  \endcode
-
-  and, in myclass.cc:
-
-  \code
-
-  const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
-
-  const EnumDef MyClass::StateDefinition_("My class state",
-	  					MyClass::Statenames,1);
-
-  bool MyClass::parseEnum(const char* txt, State& res ) \
-  { \
-      const int idx = StateDef().isValidName( txt ) \
-          ?  StateDef().convert( txt ) \
-          : -1; \
-      if ( idx<0 ) \
-          return false; \
-    \
-      res = (State) idx; \
-      return true; \
-  } \
-  bool MyClass::parseEnum( const IOPar& par, const char* key, State& res ) \
-  { return parseEnum( par.find( key ), res ); } \
-  MyClass::State MyClass::parseEnumState(const char* txt) \
-  { \
-      return (MyClass::State) StateDef().convert( txt ); \
-  } \
-
-  const char* MyClass::Statenames_[] =
-          { "Good", "Bad", "Not very handsome", 0 };
-
-
-  const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
-  const EnumDef MyClass::TypeDefinition_("My class type",MyClass::Typenames, 0);
-  bool MyClass::parseEnum(const char* txt, Type& res ) \
-  { \
-      const int idx = TypeDef().isValidName( txt ) \
-          ?  TypeDef().convert( txt ) \
-          : -1; \
-      if ( idx<0 ) \
-          return false; \
-    \
-      res = (Type) idx; \
-      return true; \
-  } \
-  bool MyClass::parseEnum( const IOPar& par, const char* key, Type& res ) \
-  { return parseEnum( par.find( key ), res ); } \
-  MyClass::Type MyClass::parseEnumType(const char* txt) \
-  { \
-      return (MyClass::Type) TypeDef().convert( txt ); \
-  } \
-
-  const char* MyClass::Typenames_[] =
-          { "Yes", "No", "Not sure", 0 };
-
-  \endcode
-
--*/
 
 #define DeclareEnumUtils(enm) \
 public: \
@@ -191,17 +187,17 @@ protected: \
     static const EnumDef enm##Definition_; \
 public:
 
-#define DeclareNameSpaceEnumUtils(mod,enm) \
-    mExtern(mod) const EnumDef& enm##Def(); \
-    mExtern(mod) const char** enm##Names();\
+#define DeclareNameSpaceEnumUtils(enm) \
+    mExtern const EnumDef& enm##Def(); \
+    mExtern const char** enm##Names();\
     extern const char* enm##Names_[];\
     extern const EnumDef enm##Definition_; \
-    mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
-    mExtern(mod) bool parseEnum(const char*,enm&); \
-    mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern(mod) enm parseEnum##enm(const char*); \
-    mExtern(mod) const char* toString(enm); \
-    mExtern(mod) const char* get##enm##String(enm); /*legacy */ 
+    mExtern bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern bool parseEnum(const char*,enm&); \
+    mExtern bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern enm parseEnum##enm(const char*); \
+    mExtern const char* toString(enm); \
+    mExtern const char* get##enm##String(enm); /*legacy */ 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 const EnumDef clss::enm##Definition_ \
@@ -291,4 +287,3 @@ const char* nmspc::toString( enm theenum ) \
 const char* nmspc::enm##Names_[] =
 
 #endif
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: gmtarray2dinterpol.cc,v 1.5 2011/12/14 13:16:41 cvsbert Exp $";
 
 #include "gmtarray2dinterpol.h"
 
@@ -79,7 +79,7 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     nrdone_ = 0;
-    for ( int ridx=mCast(int,start); ridx<stop; ridx++ )
+    for ( int ridx=start; ridx<stop; ridx++ )
     {
 	if ( !*sd_.ostrm || !*sdmask_.ostrm )
 	    break;

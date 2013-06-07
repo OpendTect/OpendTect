@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "factory.h"
 #include "task.h"
 #include "emposid.h"
@@ -34,12 +33,7 @@ namespace MPE
 
 class SectionSourceSelector;
 
-/*!
-\brief SequentialTask to extend the section of an EM object with ID
-EM::SectionID.
-*/
-
-mExpClass(MPEEngine) SectionExtender : public SequentialTask
+mClass SectionExtender : public SequentialTask
 {
 public:
     				SectionExtender(const EM::SectionID& si = -1);
@@ -94,10 +88,9 @@ protected:
 };
 
 
-mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      const EM::SectionID&, ExtenderFactory );
+mDefineFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
+		      ExtenderFactory );
 
 }; //namespace MPE
 
 #endif
-

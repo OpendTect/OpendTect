@@ -18,12 +18,11 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "windowfunction.h"
 
-/*!
-\brief Smoothes a 3d signal with an operator.
-*/
+/*!Smothes a 3d signal with an an operator. */
+
 
 template <class T>
-mClass(Algo) Smoother3D : public Task
+class Smoother3D : public Task
 {
 public:
 
@@ -42,6 +41,7 @@ public:
     inline bool			usePar(const IOPar&);
 
     inline void			setProgressMeter( ProgressMeter* pm );
+    inline void			enableNrDoneCounting( bool yn );
     inline bool			execute();
     inline void			enableWorkControl(bool);
     inline void			controlWork(Task::Control);
@@ -105,7 +105,7 @@ template <class T> inline
 bool Smoother3D<T>::setWindow( const char* nm, float param,
 			       int sz0, int sz1, int sz2 )
 {
-    PtrMan<WindowFunction> wf = WINFUNCS().create( nm );
+    PtrMan<WindowFunction> wf = WinFuncs().create( nm );
     if ( !wf )
 	return false;
 
@@ -132,8 +132,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 	    {
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
-		window_.set( idx0, idx1, idx2, 
-				    wf->getValue( (float) pos.abs() ) );
+		window_.set( idx0, idx1, idx2, wf->getValue( pos.abs() ) );
 	    }
 	}
     }
@@ -141,7 +140,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
     convolver_.setY( window_, hsz0, hsz1, hsz2 );
 
     windowname_ = nm;
-    windowparam_ = (float) ( wf->hasVariable() ? param : 1e30 );
+    windowparam_ = wf->hasVariable() ? param : 1e30;
 
     return true;
 }
@@ -178,6 +177,7 @@ template <class T> inline void Smoother3D<T>::func( vartype var ) \
 { convolver_.func( var ); }
 
 mImplSetFunc( setProgressMeter, ProgressMeter* );
+mImplSetFunc( enableNrDoneCounting, bool );
 mImplSetFunc( enableWorkControl, bool);
 mImplSetFunc( controlWork, Task::Control);
 

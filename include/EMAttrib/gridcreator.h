@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "emattribmod.h"
 #include "executor.h"
 
 #include "bufstring.h"
@@ -25,11 +24,8 @@ class SeisTrcWriter;
 class TaskRunner;
 namespace EM { class Horizon2D; }
 
-/*!
-\brief ExecutorGroup to create 2D seismic grid from 3D.
-*/
 
-mExpClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
+mClass Seis2DGridCreator : public ExecutorGroup
 {
 public:
     			Seis2DGridCreator(const IOPar&);
@@ -64,11 +60,7 @@ protected:
 };
 
 
-/*!
-\brief ExecutorGroup to create 2D horizon grid from 3D.
-*/
-
-mExpClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
+mClass Horizon2DGridCreator : public ExecutorGroup
 {
 public:
     			Horizon2DGridCreator();
@@ -95,4 +87,3 @@ protected:
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigoogleexpsurv.cc,v 1.20 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "uigoogleexpsurv.h"
 #include "googlexmlwriter.h"
@@ -55,7 +55,7 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     coords += si_->transform(BinID(inlrg.stop,crlrg.start));
     coords += si_->transform(BinID(inlrg.start,crlrg.start));
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
+    const float reqwdth = lsfld_->getWidth() * 0.1;
     wrr.writePolyStyle( "survey", lsfld_->getColor(), mNINT32(reqwdth) );
     wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getfValue(), si_ );
 

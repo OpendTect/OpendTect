@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackprocessorsel.h"
 
@@ -25,7 +25,7 @@ uiProcSel::uiProcSel( uiParent* p, const char* lbl,
 {
     const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
     selfld_ = new uiIOObjSel( this, ctxt, lbl );
-    ConstPtrMan<IOObj> ioobj = mid ? IOM().get(*mid) : 0;
+    PtrMan<const IOObj> ioobj = mid ? IOM().get(*mid) : 0;
     if ( ioobj ) selfld_->setInput( *ioobj );
     selfld_->selectionDone.notify( mCB(this,uiProcSel,selDoneCB));
     editbut_ = new uiPushButton( this, "",

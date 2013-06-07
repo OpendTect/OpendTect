@@ -12,14 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "uifunctiondisplay.h"
 #include "uiwindowfunctionsel.h"
 #include "uibutton.h"
 #include "survinfo.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include <arrayndimpl.h>
 
 class uiGenInput;
@@ -32,7 +30,7 @@ class ArrayNDWindow;
 class CubeSampling;
 
 
-mStruct(uiSeis) FreqTaperSetup
+mStruct FreqTaperSetup
 {
 		    FreqTaperSetup()
 			: hasmin_(false)
@@ -52,7 +50,7 @@ mStruct(uiSeis) FreqTaperSetup
 };
 
 
-mStruct(uiSeis) TaperData
+mStruct TaperData
 {
 		    TaperData()
 			: window_(0)  
@@ -69,11 +67,11 @@ mStruct(uiSeis) TaperData
 };
 
 
-mExpClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
+mClass uiFuncTaperDisp : public uiFunctionDisplay
 {
 public:
 
-    struct Setup : public uiFunctionDisplay::Setup
+    mStruct Setup : public uiFunctionDisplay::Setup
     {
 			Setup()
 			    : is2sided_(false)
@@ -138,7 +136,7 @@ protected:
 
 
 
-mExpClass(uiSeis) uiFreqTaperGrp : public uiGroup
+mClass uiFreqTaperGrp : public uiGroup
 {
 
 public:
@@ -184,7 +182,7 @@ protected :
 
 
 
-mExpClass(uiSeis) uiFreqTaperDlg : public uiDialog
+mClass uiFreqTaperDlg : public uiDialog
 {
 public:
 
@@ -212,7 +210,7 @@ protected:
 
 
 
-mExpClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
+mClass uiFreqTaperSel : public uiWindowFunctionSel
 {
 public:
 			uiFreqTaperSel(uiParent*,const Setup&,
@@ -235,5 +233,3 @@ protected :
 };
 
 #endif
-
-

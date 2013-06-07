@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackeventtracker.h"
 
@@ -39,6 +39,7 @@ void EventTracker::setMute( bool inner, MuteDef* mutedef,
 {
     MuteDef*& mymute = inner ? innermute_ : outermute_;
     bool& myownership = inner ? ownsinnermute_ : ownsoutermute_;
+    MultiID& myid = inner ? innermuteid_ : outermuteid_;
 
     if ( mymute && myownership )
 	delete mymute;

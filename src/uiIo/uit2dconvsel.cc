@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uit2dconvsel.h"
 
@@ -23,13 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory1Param(uiT2DConvSelGroup,uiParent*,uiT2DConvSelGroup::factory);
 
-uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt )
-    : tiedto_(tied)
-    , optional_(opt)
-    , ist2d_(SI().zIsTime())
-{
-}
-
 
 uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiGroup(p)
@@ -39,8 +32,8 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     if ( setup_.fldtext_.isEmpty() )
     {
 	const FixedString zunit = setup_.ist2d_
-	    ? sKey::Depth()
-	    : sKey::Time();
+	    ? sKey::Depth
+	    : sKey::Time;
 	
 	if ( setup_.optional_ )
 	    fldtext.add( "Convert to " ).add( zunit );
@@ -95,7 +88,7 @@ void uiT2DConvSel::choiceSel( CallBacker* cb )
 void uiT2DConvSel::inpSel( CallBacker* cb )
 {
     if ( !setup_.tiedto_ ) return;
-    const IOObj* ioobj = setup_.tiedto_->ioobj( true );
+    const IOObj* ioobj = setup_.tiedto_->ioobj();
     if ( !ioobj ) return;
 
     choicefld_->setSensitive( ZDomain::isSI(ioobj->pars()) );
@@ -104,7 +97,7 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
 
 bool uiT2DConvSel::usePar( const IOPar& iop )
 {
-    const char* typ = iop.find( sKey::Type() );
+    const char* typ = iop.find( sKey::Type );
     if ( !typ || !*typ || !choicefld_->isPresent(typ) )
 	return false;
 
@@ -124,7 +117,7 @@ bool uiT2DConvSel::fillPar( IOPar& iop, bool typeonly ) const
 {
     BufferString typestr = choicefld_->text();
     typestr += setup_.ist2d_ ? "T2D" : "D2T";
-    iop.set( sKey::Name(), typestr );
+    iop.set( sKey::Name, typestr );
     if ( typeonly )
 	return true;
 
@@ -138,7 +131,7 @@ uiT2DLinConvSelGroup::uiT2DLinConvSelGroup( uiParent* p )
     : uiT2DConvSelGroup(p,"Linear T2D conv sel")
 {
     const float dv = 0;    
-    const float v0 = mCast( float, SI().zInFeet() ? 3000 : 1000 );
+    const float v0 = SI().zInFeet() ? 3000 : 1000;
     
     BufferString text( "V0 " );
     text.add( VelocityDesc::getVelUnit(true) );

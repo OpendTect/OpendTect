@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vishorizon2ddisplay.h"
 
@@ -46,6 +46,7 @@ Horizon2DDisplay::Horizon2DDisplay()
 Horizon2DDisplay::~Horizon2DDisplay()
 {
     setZAxisTransform( 0, 0 );
+
     for ( int idx=0; idx<sids_.size(); idx++ )
     	removeSectionDisplay( sids_[idx] );
 
@@ -153,7 +154,7 @@ bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     pl->ref();
     pl->setDisplayTransformation( transformation_ );
     pl->setMaterial( 0 );
-    pl->setRadius( mCast(float,drawstyle_->lineStyle().width_/2) );
+    pl->setRadius( drawstyle_->lineStyle().width_/2 );
     addChild( pl->getInventorNode() );
     lines_ += pl;
     points_ += 0;
@@ -178,9 +179,9 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 	points_[idx]->unRef();
     }
 
-    points_.removeSingle( idx );
-    lines_.removeSingle( idx );
-    sids_.removeSingle( idx );
+    points_.remove( idx );
+    lines_.remove( idx );
+    sids_.remove( idx );
 }
 
 
@@ -219,7 +220,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , linenames_(linenames)
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
+    eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -269,29 +270,31 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    break;
 
 	const int rowidx = rowrg_.getIndex( rc.row );
-	const char* linenm =
+	const char* linenm = 
 	    linenames_.validIdx(rowidx) ? linenames_.get(rowidx).buf() : 0;
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rc.row );
+
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-	    const float zval = mCast(float,pos.z);
+	    if ( zaxt_ )
+		pos.z = zaxt_->transform2D( linenm, rc.col, mCast(float,pos.z));
 
-	    if ( !pos.isDefined() || (lineranges_ &&
-		 !Horizon2DDisplay::withinRanges(rc,zval,*lineranges_)) )
+	    // Skip if survey coordinates not available
+	    if ( !Coord(pos).isDefined() )
+		continue;
+
+	    if ( !pos.isDefined() || 
+		(lineranges_ &&
+		!Horizon2DDisplay::withinRanges(rc,pos.z,*lineranges_)) )
 	    {
 		if ( positions.size() )
 		    sendPositions( positions );
 	    }
 	    else 
 	    {
-    		if ( zaxt_ )
-    		    pos.z = zaxt_->transform2D( linenm, rc.col, zval ); 
-		if ( !mIsUdf(pos.z) )
-    		    positions += pos;
-		else if ( positions.size() )
-		    sendPositions( positions );
+		positions += pos;
 	    }
 	}
 
@@ -388,37 +391,8 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     BufferStringSet linenames;
     EM::IOObjInfo info( emobject_->multiID() );
     info.getLineNames( linenames );
-	
-    LineRanges linergs;
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
-    const bool redo = h2d && zaxistransform_ && linenames.isEmpty();
-    if ( redo )
-    {
-	const EM::Horizon2DGeometry& emgeo = h2d->geometry();
-	for ( int lnidx=0; lnidx<emgeo.nrLines(); lnidx++ )
-	{
-	    linenames.add( emgeo.lineName(lnidx) );
-	    const PosInfo::GeomID& geomid = emgeo.lineGeomID( lnidx );
 
-	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
-	    {
-		const Geometry::Horizon2DLine* ghl = 
-		    emgeo.sectionGeometry( h2d->sectionID(idy) );
-		if ( ghl )
-		{ 
-	    	    linergs.trcrgs += TypeSet<Interval<int> >();
-    		    linergs.zrgs += TypeSet<Interval<float> >();
-    		    const int ridx = linergs.trcrgs.size()-1;
-		    
-    		    linergs.trcrgs[ridx] += ghl->colRange( geomid );
-    		    linergs.zrgs[ridx] += ghl->zRange( geomid );
-		}
-	    }
-	}
-    }
-
-    const LineRanges* lrgs = redo ? &linergs : lineranges; 
-    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
+    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps,
 				     zaxistransform_, linenames );
     updater.execute();
 }
@@ -468,8 +442,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
-		const float maxdist = 
-			(float) ( 0.1 * sp0.distTo(sp1) / trcrg.width() );
+		const float maxdist = 0.1 * sp0.distTo(sp1) / trcrg.width();
 		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
 		    continue;
 	    }

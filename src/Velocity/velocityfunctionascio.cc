@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctionascio.h"
 
@@ -78,19 +78,19 @@ int FunctionAscIO::nextStep()
     const bool isxy = isXY();
     float farr[3];
 
-    const std::streamoff oldpos = strm_.tellg();
+    const int oldpos = strm_.tellg();
     const int ret = getNextBodyVals( strm_ );
     if ( ret < 0 ) return ErrorOccurred();
     if ( ret == 0) return Finished();
 
-    const std::streamoff newpos = strm_.tellg();
+    const int newpos = strm_.tellg();
     nrdone_ += newpos-oldpos;
 
     if ( first_ )
     {
 	first_ = false;
 	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
-	output_->setEmpty();
+	output_->empty();
 	output_->setNrVals( hasanisotropy ? 2 : 3, false );
     }
 

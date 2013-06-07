@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2001
- RCS:           $Id: i_datainterp.h,v 1.3 2012-05-02 12:58:01 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,6 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
 		case BinDataDesc::N2: mDefGetPut(S2Ibm)		break;
 		case BinDataDesc::N4: mDefGetPut(S4Ibm)		break;
-		default:	      pErrMsg("Invalid enum");	break;
 		}
 	    }
 	    else
@@ -88,7 +87,6 @@ void DataInterpreter<mTheType>::set( const DataCharacteristics& dc,
 	    case BinDataDesc::N1: mDefGetPutNoSwap(U1)		break;
 	    case BinDataDesc::N2: mDefGetPut(U2)		break;
 	    case BinDataDesc::N4: mDefGetPut(U4)		break;
-		default:	  pErrMsg("Unhandled enum");	break;
 	    }
 	}
     }

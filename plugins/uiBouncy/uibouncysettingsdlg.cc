@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uibouncysettingsdlg.cc,v 1.3 2010/03/16 10:02:46 cvsbert Exp $";
 
 #include "uibouncysettingsdlg.h"
 #include "uigeninput.h"
@@ -138,6 +138,7 @@ bool uiBouncySettingsDlg::isOK()
     if ( ( radiusfld_->isUndef( 0 ) ) || ( !binIDOK() ) )
     {
 	mErrRet( "Error in input. Try again!" );
+	return false;
     }
     else 
 	return true;

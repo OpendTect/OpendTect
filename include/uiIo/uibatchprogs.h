@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class uiGenInput;
 class uiTextEdit;
@@ -23,7 +22,7 @@ class uiLabeledComboBox;
 
 
 
-mExpClass(uiIo) uiBatchProgLaunch : public uiDialog
+mClass uiBatchProgLaunch : public uiDialog
 {
 public:
 
@@ -48,4 +47,3 @@ protected:
 
 
 #endif
-

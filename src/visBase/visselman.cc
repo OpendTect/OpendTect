@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -66,7 +66,7 @@ void SelectionManager::deSelect( int id, bool lock )
     int idx = selectedids.indexOf( id );
     if ( idx!=-1 )
     {
-	selectedids.removeSingle( idx );
+	selectedids.remove( idx );
 
 	DataObject* dataobj = DM().getObject( id );
 	if ( dataobj )

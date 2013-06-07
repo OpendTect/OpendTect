@@ -12,15 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 
-mFDQtclass(QButtonGroup)
+class QButtonGroup;
 class uiButton;
 
 
-mExpClass(uiBase) uiButtonGroup : public uiGroup
+mClass uiButtonGroup : public uiGroup
 { 	
 public:
 			uiButtonGroup(uiParent*,const char* nm="uiButtonGrp",
@@ -43,11 +42,10 @@ public:
 
 protected:
 
-    mQtclass(QButtonGroup*)	qbuttongrp_;
-    ObjectSet<uiButton>		uibuts_;
-    bool			vertical_;
+    QButtonGroup*	qbuttongrp_;
+    ObjectSet<uiButton>	uibuts_;
+    bool		vertical_;
 
 };
 
 #endif
-

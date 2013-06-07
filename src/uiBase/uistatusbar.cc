@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -19,8 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <qstatusbar.h> 
 #include <qlabel.h> 
 #include <qtooltip.h>
-
-mUseQtnamespace
 
 class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
 {
@@ -63,8 +61,7 @@ public:
 			    else 
 				widget = qthing();
 
-			    const QColor qcol(col.r(),col.g(),
-				    			col.b());
+			    const QColor qcol(col.r(),col.g(),col.b());
 			    QPalette palette;
 			    palette.setColor( widget->backgroundRole(), qcol );
 			    widget->setPalette(palette);
@@ -82,9 +79,8 @@ public:
 			    else 
 				widget = qthing();
 
-			    const QBrush& qbr =
-				widget->palette().brush(
-						     widget->backgroundRole() );
+			    const QBrush& qbr = widget->palette().brush(
+				    widget->backgroundRole() );
 			    const QColor& qc = qbr.color();
 			    return Color( qc.red(), qc.green(), qc.blue() );
 			}
@@ -117,8 +113,7 @@ public:
 
 protected:
 
-    virtual const QWidget*	managewidg_() const
-    							{ return qwidget(); }
+    virtual const QWidget*	managewidg_() const	{ return qwidget(); }
 
     ObjectSet<QLabel>		msgs;
 
@@ -216,8 +211,7 @@ void uiStatusBar::setLabelTxt( int idx, const char* lbltxt )
 {
     if ( idx<0 || idx >= body_->msgs.size() ) return;
 
-    QLabel* lbl =
-		     dynamic_cast<QLabel*>(body_->msgs[idx]->buddy());
+    QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs[idx]->buddy());
 
     if ( lbl ) lbl->setText( lbltxt );
 }

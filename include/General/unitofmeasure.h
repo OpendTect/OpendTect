@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "propertyref.h"
 #include "scaler.h"
 #include "repos.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 
 class UnitOfMeasureRepository;
 
-mGlobal(General) UnitOfMeasureRepository& UoMR();
+mGlobal UnitOfMeasureRepository& UoMR();
 
 
 /*!\brief Unit of Measure
@@ -32,7 +31,7 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
 
  */
 
-mExpClass(General) UnitOfMeasure : public NamedObject
+mClass UnitOfMeasure : public NamedObject
 {
 public:
 
@@ -63,10 +62,10 @@ public:
 
     template <class T>
     T			getSIValue( T inp ) const
-			{ return ( T ) scaler_.scale(inp); }
+    						{ return scaler_.scale(inp); }
     template <class T>
     T			getUserValueFromSI( T inp ) const
-			{ return ( T ) scaler_.unScale(inp); }
+						{ return scaler_.unScale(inp); }
     template <class T>
     T			internalValue(T inp) const;
     template <class T>
@@ -94,7 +93,7 @@ protected:
 
 //!> Converts from one unit into another.
 //!> Both units may be null (hence the non-member function).
-template <class T> void convUserValue(T& val,
+template <class T> mGlobal void convUserValue(T& val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
 
 
@@ -109,7 +108,7 @@ template <class T> void convUserValue(T& val,
  */
 
 
-mExpClass(General) UnitOfMeasureRepository
+mClass UnitOfMeasureRepository
 {
 public:
 
@@ -138,13 +137,13 @@ private:
 	    			  const char* nm) const;
     			//!< Will try names first, then symbols, otherwise null
 
-    friend mGlobal(General) UnitOfMeasureRepository& UoMR();
+    friend UnitOfMeasureRepository& UoMR();
 
 };
 
 
 
-template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
+template <class T> T UnitOfMeasure::internalValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
@@ -161,7 +160,7 @@ template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
 }
 
 
-template <class T> inline T UnitOfMeasure::userValue( T inp ) const
+template <class T> T UnitOfMeasure::userValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
@@ -178,7 +177,8 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 }
 
 
-template <class T> void convUserValue( T& val,
+
+template <class T> mGlobal inline void convUserValue( T& val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
 {
     if ( oldunit == newunit || mIsUdf(val) )
@@ -191,5 +191,5 @@ template <class T> void convUserValue( T& val,
 }
 
 
-#endif
 
+#endif

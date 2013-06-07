@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uidialog.h"
 
 class BufferStringSet;
@@ -22,7 +21,6 @@ class SurfaceInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiFileInput;
-class uiGenInput;
 class uiListBox;
 class uiPushButton;
 class uiTableImpDataSel;
@@ -30,7 +28,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
-mExpClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
+mClass uiImportHorizon2D : public uiDialog
 {
 public:
 			uiImportHorizon2D(uiParent*);
@@ -46,7 +44,6 @@ protected:
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
     uiCheckBox*         displayfld_;
-    uiGenInput*		udftreatfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void                descChg(CallBacker*);
@@ -69,4 +66,3 @@ protected:
 
 
 #endif
-

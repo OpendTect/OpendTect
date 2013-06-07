@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.22 2012/06/27 09:16:33 cvshelene Exp $";
 
 #include "uistratamp.h"
 
@@ -220,9 +220,9 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
     iop.set( StratAmpCalc::sKeyAmplitudeOption(), ampoptionfld_->box()->text());
     iop.setYN( StratAmpCalc::sKeyOutputFoldYN(), foldfld_->getBoolValue() );
     iop.set( StratAmpCalc::sKeyTopShift(),
-	     tophorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     tophorshiftfld_->getfValue() / SI().zFactor() );
     iop.set( StratAmpCalc::sKeyBottomShift(),
-	     bothorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     bothorshiftfld_->getfValue() / SI().zFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 
@@ -232,8 +232,8 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
     hs.limitTo( inhs );
     IOPar subselpar;
     hs.fillPar( subselpar );
-    subselpar.set( sKey::ZRange(), SI().zRange(false) );
-    iop.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    subselpar.set( sKey::ZRange, SI().zRange(false) );
+    iop.mergeComp( subselpar, IOPar::compKey(sKey::Output,sKey::Subsel) );
 
     const Attrib::DescID targetid = inpfld_->attribID();
     Attrib::DescSet* clonedset = Attrib::DSHolder().getDescSet(
@@ -259,6 +259,6 @@ bool uiStratAmpCalc::fillPar( IOPar& iop )
 	    IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
     iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()), 1 );
     iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
-    iop.set( IOPar::compKey(sKey::Output(), sKey::Type()), sKey::Cube() );
+    iop.set( IOPar::compKey(sKey::Output, sKey::Type), sKey::Cube );
     return true;
 }

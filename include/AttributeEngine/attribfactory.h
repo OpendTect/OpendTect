@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 
 namespace Attrib
@@ -23,11 +22,7 @@ class Provider;
 
 typedef Provider* (*ProviderCreater)(Desc&);
 
-/*!
-\brief Factory for attribute providers.
-*/
-
-mExpClass(AttributeEngine) ProviderFactory
+mClass ProviderFactory
 {
 public:
 			ProviderFactory();
@@ -52,10 +47,9 @@ protected:
 
 };
 
-mGlobal(AttributeEngine) extern ProviderFactory& PF();
+mGlobal extern ProviderFactory& PF();
 
 }; //Namespace
 
 #endif
-
 

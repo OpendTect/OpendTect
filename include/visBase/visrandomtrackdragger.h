@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "ranges.h"
@@ -31,7 +30,7 @@ namespace visBase
 class Transformation;
 
 
-mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
+mClass RandomTrackDragger : public VisualObjectImpl
 {
 public:
     static RandomTrackDragger*	create()
@@ -82,4 +81,3 @@ protected:
 } // namespace visBase
 
 #endif
-

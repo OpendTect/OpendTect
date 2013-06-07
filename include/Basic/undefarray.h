@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 #include "ptrman.h"
@@ -31,12 +30,10 @@ template <class T>
 inline bool filterUndef(const ValueSeries<T>& input,ValueSeries<T>& output,int);
 
 
-/*!
-\brief Class that handles undefvalues in arrays that are in a format described
-by a BinDataDesc.
-*/
+/*!Class that handles undefvalues in arrays that are in a format described
+   by a BinDataDesc */
 
-mExpClass(Basic) UndefArrayHandler
+mClass UndefArrayHandler
 {
 public:
 		UndefArrayHandler(const BinDataDesc& desc);
@@ -185,4 +182,3 @@ bool filterUndef(const T* input, T* output, int sz )
 }
 
 #endif
-

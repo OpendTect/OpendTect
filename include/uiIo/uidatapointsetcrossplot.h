@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
 #include "coltabsequence.h"
@@ -34,7 +33,6 @@ class Timer;
 class uiDataPointSet;
 class uiPolygonItem;
 class uiLineItem;
-class uiPolyLineItem;
 class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
@@ -42,11 +40,10 @@ class uiColTabItem;
 class uiRect;
 template <class T> class Array1D;
 
-/*!
-\brief DataPointSet crossplotter.
-*/
+/*!\brief Data Point Set Cross Plotter */
 
-mExpClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
+
+mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
 public:
 
@@ -62,8 +59,8 @@ public:
 	mDefSetupMemb(LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
-	mDefSetupMemb(bool,showy1userdefpolyline)
-	mDefSetupMemb(bool,showy2userdefpolyline)
+	mDefSetupMemb(bool,showy1userdefline)
+	mDefSetupMemb(bool,showy2userdefline)
     };
 
     			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -80,8 +77,6 @@ public:
     void		setOverlayY2Cols(DataPointSet::ColID y3);
 
     Notifier<uiDataPointSetCrossPlotter>	lineDrawn;
-    Notifier<uiDataPointSetCrossPlotter>	mouseReleased;
-    Notifier<uiDataPointSetCrossPlotter>        dataChgd;
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
@@ -93,7 +88,7 @@ public:
     void		dataChanged();
 
     //!< Only use if you know what you're doing
-    mExpClass(uiIo) AxisData : 	public uiAxisData
+    mClass AxisData : 	public uiAxisData
     {
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,
@@ -156,14 +151,10 @@ public:
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).axis_; }
-    const uiAxisHandler*	axisHandler( int ax ) const
-				{ return axisData(ax).axis_; }
     const LinStats2D&		linStats( bool y1=true ) const
 				{ return y1 ? lsy1_ : lsy2_; }
 
     AxisData&			axisData( int ax )
-				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
-    const AxisData&		axisData( int ax ) const
 				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
 
     friend class		uiDataPointSetCrossPlotWin;
@@ -171,13 +162,7 @@ public:
     
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
-
-    BufferString&		userdefy1str_;
-    BufferString&		userdefy2str_;
-
-    BufferString&		y1rmserr_;
-    BufferString&		y2rmserr_;
-
+    
     void			setMathObj(MathExpression*);
     void			setMathObjStr(const BufferString& str )
 				{ mathobjstr_ = str; }
@@ -195,6 +180,9 @@ public:
     uiDataPointSet&		uidps()			{ return uidps_; }
     
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
+
+    void			drawYUserDefLine(const Interval<int>&,bool draw,
+	    					 bool isy1);
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
@@ -255,10 +243,10 @@ public:
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
-    void			setUserDefDrawType(bool dodrw,bool isy2,
-	    						bool drwln = false);
-    void			setUserDefPolyLine(TypeSet<uiWorldPoint>&,bool);
-    void			drawUserDefPolyLine(bool);
+    void			setUserDefDrawType( bool dodrw, bool isy2 )
+				{ drawuserdefline_ = dodrw; drawy2_ = isy2;
+			       	  selectable_ = !dodrw; }
+    void			setUserDefLine(const uiPoint&,const uiPoint&);
 
     void			updateOverlayMapper(bool isy1);
     Color			getOverlayColor(uiDataPointSet::DRowID,bool);
@@ -291,8 +279,8 @@ protected:
     uiGraphicsItemGroup*	selrectitems_;
     uiGraphicsItemGroup*	selpolyitems_;
     uiLineItem*			regrlineitm_;
-    uiPolyLineItem*		y1userdefpolylineitm_;
-    uiPolyLineItem*		y2userdefpolylineitm_;
+    uiLineItem*			y1userdeflineitm_;
+    uiLineItem*			y2userdeflineitm_;
     uiColTabItem*		y1overlayctitem_;
     uiColTabItem*		y2overlayctitem_;
 
@@ -313,9 +301,7 @@ protected:
     bool			rectangleselection_;
     bool                        isdensityplot_;
     bool                        drawuserdefline_;
-    bool			drawy1userdefpolyline_;
-    bool                        drawy2userdefpolyline_;
-    bool			drawy2_;
+    bool                        drawy2_;
     float			plotperc_;
     int				curgrp_;
     int				selyitems_;
@@ -329,8 +315,6 @@ protected:
     TypeSet<RowCol>		selrowcols_;
     TypeSet<Color>		y1grpcols_;
     TypeSet<Color>		y2grpcols_;
-    TypeSet<uiWorldPoint>	y1userdefpts_;
-    TypeSet<uiWorldPoint>	y2userdefpts_;
     Array1D<char>*		yrowidxs_;
     Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
@@ -354,12 +338,18 @@ protected:
 	    				MarkerStyle2D&,int idmidx,bool rempt);
 
     bool			selNearest(const MouseEvent&);
-    void 			reDrawCB(CallBacker*);
-    void 			reSizeDrawCB(CallBacker*);
-    void                        mouseClickedCB(CallBacker*);
-    void                        mouseMoveCB(CallBacker*);
-    void                        mouseReleasedCB(CallBacker*);
+    void 			reDraw(CallBacker*);
+    void 			reSizeDraw(CallBacker*);
+    void                        mouseClicked(CallBacker*);
+    void                        mouseMove(CallBacker*);
+    void                        mouseReleased(CallBacker*);
+    void                        removeSelections(CallBacker*);
+
+public:
+    const AxisData&		axisData( int ax ) const
+				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
+    const uiAxisHandler*	axisHandler( int ax ) const
+				{ return axisData(ax).axis_; }
 };
 
 #endif
-

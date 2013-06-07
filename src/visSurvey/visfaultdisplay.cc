@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visfaultdisplay.h"
 
@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 
+
 mCreateFactoryEntry( visSurvey::FaultDisplay );
 
 namespace visSurvey
@@ -57,11 +58,12 @@ const char* FaultDisplay::sKeyTriProjection()	{ return "TriangulateProj"; }
 const char* FaultDisplay::sKeyDisplayPanels()	{ return "Display panels"; }
 const char* FaultDisplay::sKeyDisplaySticks()	{ return "Display sticks"; }
 const char* FaultDisplay::sKeyDisplayIntersections()
-				{ return "Display intersections"; }
+				    { return "Display intersections"; }
 const char* FaultDisplay::sKeyDisplayHorIntersections()
-				{ return "Display horizon intersections"; }
+				    { return "Display horizon intersections"; }
 const char* FaultDisplay::sKeyUseTexture()	{ return "Use texture"; }
 const char* FaultDisplay::sKeyLineStyle()	{ return "Linestyle"; }
+
 
 FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject( false )
@@ -154,7 +156,8 @@ FaultDisplay::~FaultDisplay()
 
     while ( horintersections_.size() )
     {
-	horintersections_.removeSingle(0)->unRef();
+	horintersections_[0]->unRef();
+	horintersections_.remove(0);
     }
 
     deepErase( horshapes_ );
@@ -179,7 +182,8 @@ FaultDisplay::~FaultDisplay()
     for ( int idx=knotmarkers_.size()-1; idx>=0; idx-- )
     {
 	removeChild( knotmarkers_[idx]->getInventorNode() );
-	knotmarkers_.removeSingle( idx )->unRef();
+	knotmarkers_[idx]->unRef();
+	knotmarkers_.remove( idx );
     }
 
     deepErase( stickintersectpoints_ );
@@ -299,25 +303,25 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     {
 	const float zscale = scene_
 	    ? scene_->getZScale() *scene_->getZStretch()
-	    : inlcrlsystem_->zScale();
+	    : inlCrlSystem()->zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
 	explicitpanels_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
-		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
-				  inlcrlsystem_->crlRange().step),
-				  inlcrlsystem_->zStep() ) );
+		BinIDValue( BinID(inlCrlSystem()->inlRange().step,
+				  inlCrlSystem()->crlRange().step),
+				  inlCrlSystem()->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
-		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
-				  inlcrlsystem_->crlRange().step),
-				  inlcrlsystem_->zStep() ) );
+		BinIDValue( BinID(inlCrlSystem()->inlRange().step,
+				  inlCrlSystem()->crlRange().step),
+				  inlCrlSystem()->zStep() ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
@@ -405,9 +409,6 @@ void FaultDisplay::updateSingleColor()
 	stickdisplay_->getMaterial()->setColor( nontexturecol_ );
 
     texture_->turnOn( !usesinglecolor );
-
-    if ( !getMaterial() )
-	return;
 
     const Color prevcol = getMaterial()->getColor();
     const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
@@ -616,7 +617,7 @@ void FaultDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyDisplayIntersections(), displayintersections_ );
     par.setYN( sKeyDisplayHorIntersections(), displayhorintersections_ );
     par.setYN( sKeyUseTexture(), usestexture_ );
-    par.set( sKey::Color(), (int) getColor().rgb() );
+    par.set( sKey::Color, (int) getColor().rgb() );
 
     if ( lineStyle() )
     {
@@ -658,7 +659,7 @@ int FaultDisplay::usePar( const IOPar& par )
     par.getYN( sKeyDisplayHorIntersections(), displayhorintersections_ );
     par.getYN( sKeyUseTexture(), usestexture_ );
 
-    par.get( sKey::Color(), (int&) nontexturecol_.rgb() );
+    par.get( sKey::Color, (int&) nontexturecol_.rgb() ); 
     updateSingleColor();
 
     BufferString linestyle;
@@ -724,7 +725,7 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 
 
 #define mZScale() \
-    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlcrlsystem_->zScale() )
+    ( scene_ ? scene_->getZScale()*scene_->getZStretch() : inlCrlSystem()->zScale() )
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
@@ -804,7 +805,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    if ( !eventinfo.pressed )
 	    {
 		bool res;
-		const int rmstick = pid.getRowCol().row;
+		const int rmstick = RowCol(pid.subID()).row;
 
 		EM::Fault3DGeometry& f3dg = emfault_->geometry(); 
 		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
@@ -844,7 +845,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
 	const int insertstick = insertpid.isUdf()
 	    ? mUdf(int)
-	    : insertpid.getRowCol().row;
+	    : RowCol(insertpid.subID()).row;
 
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
 	       insertstick, 0, pos, editnormal, true ) )
@@ -883,7 +884,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 static bool isSameMarkerPos( const Coord3& pos1, const Coord3& pos2 )
 {
     const Coord3 diff = pos2 - pos1;
-    float xymargin = 0.01f * SI().inlDistance();
+    float xymargin = 0.01 * SI().inlDistance();
     if ( diff.x*diff.x + diff.y*diff.y > xymargin*xymargin )
 	return false;
 
@@ -946,7 +947,7 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 		if ( pid.objectID() == -1 )
 		    return;
 
-		const int sticknr = pid.getRowCol().row;
+		const int sticknr = RowCol( pid.subID() ).row;
 		mMatchMarker( pid.sectionID(), sticknr,
 			      marker->centerPos(), emfault_->getPos(pid) );
 	    }
@@ -957,7 +958,7 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
 
 void FaultDisplay::setActiveStick( const EM::PosID& pid )
 {
-    const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row;
+    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
     if ( activestick_ != sticknr )
     {
 	activestick_ = sticknr;
@@ -992,7 +993,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	    if ( cbdata.pid0.getRowCol().row==activestick_ )
+	    if ( RowCol(cbdata.pid0.subID()).row==activestick_ )
 		updateActiveStickMarker();
 	}
 	else
@@ -1094,22 +1095,6 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* tr ) const
 }
 
 
-void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
-{
-    if ( attrib<0 || attrib>=nrAttribs() )
-	return;
-
-    DataPack::ID dpid = getDataPackID( attrib );
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet( const DataPointSet*, dps, datapack );
-    if ( dps )
-	data  = *dps;
-
-    dpman.release( dpid );
-}
-
-
 void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
 				     TaskRunner* )
 {
@@ -1132,6 +1117,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	return;
     }
 
+    const BinIDValueSet& bidvset = dpset->bivSet();
     RowCol sz = explicitpanels_->getTextureSize();
     mDeclareAndTryAlloc( PtrMan<Array2D<float> >, texturedata,
 	    		 Array2DImpl<float>(sz.col,sz.row) );
@@ -1193,7 +1179,7 @@ void FaultDisplay::removeCache( int attrib )
 	return;
 
     DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
+    datapackids_.remove( attrib );
 }
 
 void FaultDisplay::swapCache( int attr0, int attr1 )
@@ -1294,9 +1280,10 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
-	horintersections_.removeSingle( idx )->unRef();
-	delete horshapes_.removeSingle( idx );
-	horintersectids_.removeSingle( idx ); 
+	horintersections_[idx]->unRef();
+	horintersections_.remove( idx );
+	delete horshapes_.remove( idx );
+	horintersectids_.remove( idx ); 
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -1328,7 +1315,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	shape->display( false, false );
 	line->setSurface( shape );
 	shape->setSurface( fss );
-	const float zshift = (float) activehordisps[idx]->getTranslation().z;
+	const float zshift = activehordisps[idx]->getTranslation().z;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
 		*explicitpanels_, *shape->coordList() );
 	it.setShape( *shape );
@@ -1375,10 +1362,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( inlcrlsystem_->transform(b00),cs.zrg.start );
-	const Coord3 c01( inlcrlsystem_->transform(b01),cs.zrg.stop );
-	const Coord3 c11( inlcrlsystem_->transform(b11),cs.zrg.stop );
-	const Coord3 c10( inlcrlsystem_->transform(b10),cs.zrg.start );
+	const Coord3 c00( inlCrlSystem()->transform(b00),cs.zrg.start );
+	const Coord3 c01( inlCrlSystem()->transform(b01),cs.zrg.stop );
+	const Coord3 c11( inlCrlSystem()->transform(b11),cs.zrg.stop );
+	const Coord3 c10( inlCrlSystem()->transform(b10),cs.zrg.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 
@@ -1401,8 +1388,8 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 					      normal, positions );
 	    planeids += planeids_[idy];
 
-	    intersectionobjs_.removeSingle( idy );
-	    planeids_.removeSingle( idy );
+	    intersectionobjs_.remove( idy );
+	    planeids_.remove( idy );
 	}
     }
 
@@ -1504,7 +1491,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = pid.getRowCol().row;
+	const int sticknr = RowCol( pid.subID() ).row;
 	const EM::SectionID sid = pid.sectionID();
 	Geometry::FaultStickSet* fss =
 	    			 emfault_->geometry().sectionGeometry( sid );
@@ -1538,8 +1525,8 @@ void FaultDisplay::updateEditorMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const EM::SectionID sid = pid.sectionID();
-	const int sticknr = pid.getRowCol().row;
+	const int sid = pid.sectionID();
+	const int sticknr = RowCol( pid.subID() ).row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
     }
@@ -1597,8 +1584,8 @@ void FaultDisplay::updateKnotMarkers()
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const EM::SectionID sid = pid.sectionID();
-	const int sticknr = pid.getRowCol().row;
+	const int sid = pid.sectionID();
+	const int sticknr = RowCol( pid.subID() ).row;
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
 	if ( !fs || fs->isStickHidden(sticknr) )
 	    continue;
@@ -1626,9 +1613,9 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	const float onestepdist = 
-	    mCast( float, Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) ) );
+	const float onestepdist =
+	    Coord3(1,1,mZScale()).dot(
+		    inlCrlSystem()->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -1669,10 +1656,10 @@ bool FaultDisplay::coincidesWithPlane(
 
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist = 
-	    mCast( float, Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(planenormal) ) );
+	    Coord3(1,1,mZScale()).dot(
+		    inlCrlSystem()->oneStepTranslation(planenormal) );
 
-	float prevdist=-1;
+	float prevdist;
 	Coord3 prevpos;
 
 	const StepInterval<int> colrg = fss.colRange( rc.row );
@@ -1695,7 +1682,7 @@ bool FaultDisplay::coincidesWithPlane(
 		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
-			intersectpoints.removeSingle( intersectpoints.size()-1 );
+			intersectpoints.remove( intersectpoints.size()-1 );
 
 		    res = res || coincidemode;
 		    intersectpoints += interpos;
@@ -1720,7 +1707,7 @@ void FaultDisplay::updateStickHiding()
 
     for ( int sidx=0; sidx<emfault_->nrSections(); sidx++ )
     {
-	EM::SectionID sid = emfault_->sectionID( sidx );
+	int sid = emfault_->sectionID( sidx );
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 			 emfault_->sectionGeometry( sid ) );
 	if ( !fss || fss->isEmpty() )
@@ -1786,17 +1773,17 @@ void FaultDisplay::getLineWidthBounds( int& min, int& max )
 void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
     const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
-    const float linewidth = islinesolid ? 0.5f*lineStyle()->width_ : -1.0f;
+    const float linewidth = islinesolid ? 0.5*lineStyle()->width_ : -1.0;
     const float inllen =
-	inlcrlsystem_->inlDistance() * inlcrlsystem_->inlRange().width();
+	inlCrlSystem()->inlDistance() * inlCrlSystem()->inlRange().width();
     const float crllen =
-	inlcrlsystem_->crlDistance() * inlcrlsystem_->crlRange().width();
-    const float maxlinethickness = 0.02f * mMAX( inllen, crllen );
+	inlCrlSystem()->crlDistance() * inlCrlSystem()->crlRange().width();
+    const float maxlinethickness = 0.02 * mMAX( inllen, crllen );
     if ( shape )
 	shape->set3DLineRadius( linewidth, true, maxlinethickness );
 
-    activestickmarker_->setRadius( mMAX(linewidth+0.5f, 1.0f),
-				   true, maxlinethickness+0.5f );
+    activestickmarker_->setRadius( mMAX(linewidth+0.5, 1.0),
+				   true, maxlinethickness+0.5 );
 }
 
 

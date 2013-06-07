@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "datainpspec.h"
 #include "convert.h"
 #include "initval.h"
@@ -22,7 +21,7 @@ class BufferString;
 class BufferStringSet;
 template <class T> class ObjectSet;
 
-mExpClass(General) UserInputObj
+mClass UserInputObj
 {
 public:
 
@@ -36,7 +35,7 @@ public:
     virtual bool        getBoolValue() const		= 0;
 
     virtual void        setText(const char*)		= 0;
-    virtual void        setValue(const char* s);
+    virtual void        setValue( const char* s )	{ setText(s); }
     virtual void        setValue(int)			= 0;
     virtual void        setValue(double)		= 0;
     virtual void        setValue(float )		= 0;
@@ -49,24 +48,29 @@ public:
     virtual void	initClearValue()		= 0;
     virtual void	clear()				= 0;
 
-    virtual void        addItem( const char* txt );
+    virtual void        addItem( const char* txt )	{ setText( txt ); }
 //    void		addItems(const char**);
 //    void		addItems(const BufferStringSet&);
 
 
 		        /*! \brief intermediate value available
 			    \return true if this notification is supported */
-    bool		notifyValueChanging( const CallBack& cb );
+    bool		notifyValueChanging( const CallBack& cb )
+			{ return notifyValueChanging_( cb ); }
 
 		        /*! \brief value change complete cq. commited
 			    \return true if this notification is supported */
-    bool		notifyValueChanged( const CallBack& cb );
+    bool		notifyValueChanged( const CallBack& cb )
+			{ return notifyValueChanged_( cb ); }
 
     			/*! \return true if this notification is supported */
-    bool		notifyUpdateRequested( const CallBack& cb );
-			
+    bool		notifyUpdateRequested( const CallBack& cb )
+			{ return notifyUpdateRequested_( cb ); }
+
+
 			//! return false if not updated for whatever reason.
-    bool		update( const DataInpSpec& s );
+    bool		update( const DataInpSpec& s )		
+			    { return update_(s); }
 
     virtual void        setToolTip(const char*)			= 0;
 
@@ -81,7 +85,7 @@ protected:
 
 
 template<class T>
-mClass(General) UserInputObjImpl : public UserInputObj
+class UserInputObjImpl : public UserInputObj
 {
 public:
                         UserInputObjImpl()
@@ -138,4 +142,3 @@ protected:
 
 
 #endif
-

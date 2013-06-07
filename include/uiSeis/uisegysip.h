@@ -11,12 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uisip.h"
 #include "iopar.h"
 
 
-mExpClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mClass uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 
@@ -41,4 +40,3 @@ public:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uilayout.h"
 
@@ -24,7 +23,7 @@ class Color;
 class uiParentBody;
 
 
-mExpClass(uiBase) uiParent : public uiBaseObject
+mClass uiParent : public uiBaseObject
 {
 friend class uiParentBody;
 friend class uiObjectBody;
@@ -117,4 +116,3 @@ protected:
 };
 
 #endif
-

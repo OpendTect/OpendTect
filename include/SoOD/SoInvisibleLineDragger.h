@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 
 #include "soodbasic.h"
@@ -49,7 +48,7 @@ read in SoInvisibleLineDragger::translation following a Motion or Start
 callback.
 */
 
-mSoODClass SoInvisibleLineDragger : public SoDragger
+mClass SoInvisibleLineDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoInvisibleLineDragger);
@@ -84,4 +83,3 @@ private:
 };
 
 #endif
-

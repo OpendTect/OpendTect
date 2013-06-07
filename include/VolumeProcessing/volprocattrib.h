@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 //#include "attribprovider.h"
 #include "attribparam.h"
 #include "externalattrib.h"
@@ -25,7 +24,7 @@ namespace VolProc
 class Chain;
 class ChainExecutor;
 /*
-mExpClass(VolumeProcessing) AttributeAdapter : public Attrib::Provider
+mClass AttributeAdapter : public Attrib::Provider
 {
 public:
     static void		initClass();
@@ -56,11 +55,9 @@ protected:
 
 */
 
-/*!
-\brief Adapter for a VolProc chain to external attribute calculation.
-*/
+/*!Adapter for a VolProc chain to external attribute calculation */
 
-mExpClass(VolumeProcessing) ExternalAttribCalculator : public Attrib::ExtAttribCalc
+mClass ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {
 public:
     static void		initClass();
@@ -98,4 +95,3 @@ protected:
 }; //namespace
 
 #endif
-

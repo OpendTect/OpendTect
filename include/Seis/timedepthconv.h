@@ -13,7 +13,6 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "zaxistransform.h"
 
 #include "cubesampling.h"
@@ -32,7 +31,7 @@ template <class T> class Array3D;
 template <class T> class ValueSeries;
 
 
-mExpClass(Seis) VelocityStretcher : public ZAxisTransform
+mClass VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
@@ -52,7 +51,7 @@ protected:
 /*!ZAxisstretcher that converts from time to depth (or back) using a
    velocity model on disk. */
 
-mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
+mClass Time2DepthStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
@@ -76,8 +75,6 @@ public:
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
-
-    float		zScale() const;
 
     const Interval<float>& getVavgRg(bool start) const;
     static Interval<float> getDefaultVAvg();
@@ -114,7 +111,7 @@ protected:
    an Time2Depth converter to do the job. */
 
 
-mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
+mClass Depth2TimeStretcher : public VelocityStretcher
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
@@ -138,8 +135,7 @@ public:
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
-
-    float		zScale() const;
+    float		getZFactor() const			{ return 1000; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -152,7 +148,7 @@ protected:
 
 /*! Scans a velocity model for minimum top/bottom average velocity. */
 
-mExpClass(Seis) VelocityModelScanner : public SequentialTask
+mClass VelocityModelScanner : public SequentialTask
 {
 public:
     			VelocityModelScanner(const IOObj&,
@@ -190,35 +186,13 @@ protected:
 };
 
 
-mExpClass(Seis) LinearVelTransform : public ZAxisTransform
-{
-public:
-    bool			usePar(const IOPar&);
-    void			fillPar(IOPar&) const;
-    
-protected:
-				LinearVelTransform(const ZDomain::Def& from,
-						   const ZDomain::Def& to,
-						   float v0, float dv);
-    void			transformT2D(const BinID&,
-					     const SamplingData<float>&,
-					     int sz,float* res) const;
-    void			transformD2T(const BinID&,
-					     const SamplingData<float>&,
-					     int sz,float* res) const;
-    
-    float			startvel_;
-    float			dv_;
-
-};
-
-mExpClass(Seis) LinearT2DTransform : public LinearVelTransform
+mClass LinearT2DTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearT2D", "Linear velocity" );
+	    			  "LinearT2D", sFactoryKeyword() );
 
-    				LinearT2DTransform(float v0=0, float dv=0);
+    				LinearT2DTransform();
 
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
@@ -226,21 +200,24 @@ public:
     void			transformBack(const BinID&,
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
-    
     Interval<float>		getZInterval(bool time) const;
- 
+    bool			usePar(const IOPar&);
     bool			needsVolumeOfInterest() const
     				{ return false; }
+
+protected:
+    float			startvel_;
+    float			dv_;
 };
 
 
-mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
+mClass LinearD2TTransform : public ZAxisTransform
 {
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearD2T", "Linear velocity" );
+	    			  "LinearD2T", sFactoryKeyword() );
 
-    				LinearD2TTransform(float v0=0, float dv=0);
+    				LinearD2TTransform();
 
     void			transform(const BinID&,
 	    				  const SamplingData<float>&,
@@ -249,10 +226,13 @@ public:
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;
-
+    bool			usePar(const IOPar&);
     bool			needsVolumeOfInterest() const
     				{ return false; }
+
+protected:
+    float			startvel_;
+    float			dv_;
 };
 
 #endif
-

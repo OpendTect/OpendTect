@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "cubesampling.h"
 #include "executor.h"
 #include "multiid.h" 
@@ -27,11 +26,7 @@ namespace Attrib
     
 class DataCubes;
 
-/*!
-\brief Writes Attribute DataCubes.
-*/
-
-mExpClass(AttributeEngine) DataCubesWriter : public Executor
+mClass DataCubesWriter : public Executor
 {
 public:
     			DataCubesWriter(const MultiID&,const Attrib::DataCubes&,
@@ -66,4 +61,3 @@ private:
 
 
 #endif
-

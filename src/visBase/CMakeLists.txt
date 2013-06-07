@@ -7,8 +7,6 @@
 
 SET(OD_MODULE_DEPS SoOD Geometry)
 SET(OD_USECOIN 1)
-
-SET(OD_USEOSG 1)
 SET(OD_MODULE_SOURCES
 	   initvisbase.cc
 	   visanchor.cc
@@ -79,7 +77,6 @@ SET(OD_MODULE_SOURCES
 	   vistexturechannels.cc
 	   vistexturechannel2rgba.cc
            vistexturechannel2voldata.cc
-	   vistexturerect.cc
 	   vistopbotimage.cc
 	   vistransform.cc
 	   vistristripset.cc

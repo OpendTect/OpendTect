@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -23,9 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 bool BatchProgram::go( std::ostream& strm )
-{
-    OD::ModDeps().ensureLoaded("Seis");
-    
+{ 
+    OD::ModDeps().ensureLoaded( "Seis" );
+
     CubeSampling outputcs;
     if ( !outputcs.hrg.usePar( pars() ) )
     { outputcs.hrg.init( true ); }
@@ -35,7 +35,6 @@ bool BatchProgram::go( std::ostream& strm )
 	strm << "Cannot read output sampling";
 	return false;
     }
-
 
     MultiID inputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )

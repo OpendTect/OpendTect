@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 template <class T> class Array2D;
@@ -25,7 +24,7 @@ class TextureInfo;
 class VisColorTab;
 class ColorSequence;
 
-mExpClass(visBase) MultiTexture : public DataObject
+mClass MultiTexture : public DataObject
 {
 public:
     enum Operation		{ BLEND, ADD, REPLACE };
@@ -101,4 +100,3 @@ protected:
 }; // Namespace
 
 #endif
-

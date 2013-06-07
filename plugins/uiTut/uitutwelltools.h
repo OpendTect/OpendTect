@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
- * ID       : $Id$
+ * ID       : $Id: uitutwelltools.h,v 1.3 2009/07/22 16:01:29 cvsbert Exp $
 -*/
 
-#include "uitutmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -18,7 +17,7 @@ namespace Tut { class LogTools; }
 namespace Well { class Data; }
 
 
-mExpClass(uiTut) uiTutWellTools : public uiDialog
+class uiTutWellTools : public uiDialog
 {
 public:
 

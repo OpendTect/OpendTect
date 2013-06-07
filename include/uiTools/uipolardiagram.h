@@ -15,7 +15,6 @@ ________________________________________________________________________
  by linear motion towards or away from the center.
 -*/
 
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 
 class uiCircleItem;
@@ -23,7 +22,7 @@ class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
 
-mExpClass(uiTools) uiPolarDiagram : public uiGraphicsView
+mClass uiPolarDiagram : public uiGraphicsView
 {
 public:
 
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

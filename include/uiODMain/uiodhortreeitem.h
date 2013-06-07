@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodemsurftreeitem.h"
 
 class uEMHorizonShiftDialog;
@@ -21,7 +20,7 @@ mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
+mClass uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -31,7 +30,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizonTreeItem( int, bool rgba, bool dummy );
@@ -47,7 +46,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
     bool		askContinueAndSaveIfNeeded(bool withcancel);
@@ -69,7 +68,7 @@ mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
 
 
-mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
+mClass uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -79,7 +78,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizon2DTreeItem( int, bool dummy );
@@ -92,13 +91,11 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
-    MenuItem		algomnuitem_;
-    MenuItem		workflowsmnuitem_;
     MenuItem		derive3dhormnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		interpolatemnuitem_;
@@ -106,4 +103,3 @@ protected:
 
 
 #endif
-

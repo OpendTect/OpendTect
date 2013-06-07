@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -19,11 +18,8 @@ class uiTextEdit;
 class uiFileInput;
 namespace Attrib { class DescSet; }
 
-/*!
-\brief 
-*/
 
-mExpClass(uiAttributes) uiGetFileForAttrSet : public uiDialog
+mClass uiGetFileForAttrSet : public uiDialog
 {
 public:
 			uiGetFileForAttrSet(uiParent*,bool isads,bool is2d);
@@ -48,4 +44,3 @@ protected:
 
 
 #endif
-

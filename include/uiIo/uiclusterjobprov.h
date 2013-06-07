@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -22,7 +21,7 @@ class uiFileInput;
 class uiLabel;
 
 
-mExpClass(uiIo) uiClusterJobProv : public uiDialog
+mClass uiClusterJobProv : public uiDialog
 {
 public:
     			uiClusterJobProv(uiParent* p,const IOPar& iop,
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

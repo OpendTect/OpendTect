@@ -12,25 +12,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "datapack.h"
-#include "stattype.h"
 
 class CtxtIOObj;
 namespace Attrib { class Desc; };
 
-class uiCheckBox;
-class uiGenInput;
 class uiLabel;
+class uiGenInput;
 class uiPreStackSel;
-class uiVelSel;
-namespace PreStack { class uiProcSel; class uiAngleCompGrp; 
-		     class AngleCompParams; class AngleComputer; }
+namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
 
-mExpClass(uiAttributes) uiPreStackAttrib : public uiAttrDescEd
+mClass uiPreStackAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,25 +47,15 @@ protected:
     uiGenInput*				lsqtypefld_;
     uiGenInput*				offsaxtypefld_;
     uiGenInput*				valaxtypefld_;
-    uiCheckBox*				useanglefld_;
-    uiLabel*				offsrglbl_;
-
-    PreStack::uiAngleCompGrp*		anglecompgrp_;
-    PreStack::AngleCompParams&		params_;
+    uiGenInput*				useazimfld_;
+    uiLabel*				xlbl_;
 
     bool		usedatapackasinput_;
 
     bool		setParameters(const Attrib::Desc&);
-    bool		setAngleParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
-    bool		getAngleParameters(Attrib::Desc&);
-
-    Stats::Type		getStatEnumfromString(const char* stattypename);
-    const char*		getStringfromStatEnum(Stats::Type enm);
-    void		getStatTypeNames(BufferStringSet& stattypenames);
 
     void		calcTypSel(CallBacker*);
-    void		angleTypSel(CallBacker*);
     void		doPreProcSel(CallBacker*);
 
     bool        	setInput(const Desc&);
@@ -79,4 +64,3 @@ protected:
 };
 
 #endif
-

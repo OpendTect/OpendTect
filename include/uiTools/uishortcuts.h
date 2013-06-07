@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "iopar.h"
 
@@ -24,7 +23,7 @@ class uiLabeledSpinBox;
   shortcuts.
 */
 
-mExpClass(uiTools) uiShortcutsDlg : public uiDialog
+mClass uiShortcutsDlg : public uiDialog
 {
 public:
 		    	uiShortcutsDlg(uiParent*,const char* selkey);
@@ -41,4 +40,3 @@ protected:
 };
 
 #endif
-

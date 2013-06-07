@@ -21,8 +21,6 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
-
 class i_ToolBarMessenger : public QObject 
 {
     Q_OBJECT
@@ -50,7 +48,5 @@ void actionTriggered( QAction* qaction )
 }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

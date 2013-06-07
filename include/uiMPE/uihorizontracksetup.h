@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
 #include "color.h"
 #include "draw.h"
 #include "valseriesevent.h"
@@ -39,7 +38,7 @@ class SectionTracker;
 
 /*!\brief Horizon tracking setup dialog. */
 
-mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
+mClass uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
     //static void			initClass();
@@ -53,7 +52,7 @@ public:
     void			setAttribSet(const Attrib::DescSet*);
 
     void                        setMode(const EMSeedPicker::SeedModeOrder);
-    int		                getMode();
+    const int                   getMode();
     void                        setColor(const Color&);
     const Color&                getColor();
     void                        setMarkerStyle(const MarkerStyle3D&);
@@ -142,7 +141,7 @@ protected:
 };
 
 
-mExpClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
+mClass uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
 {
 public:
     static void			initClass();
@@ -159,4 +158,3 @@ protected:
 } // namespace MPE
 
 #endif
-

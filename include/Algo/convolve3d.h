@@ -17,12 +17,11 @@ ________________________________________________________________________
 #include "task.h"
 #include "math2.h"
 
-/*!
-\brief Convolves (or correlates) two 3D signals.
-*/
+/*!Convolves (or correlates) two 3D signals. */
+
 
 template <class T>
-mClass(Algo) Convolver3D : public ParallelTask
+class Convolver3D : public ParallelTask
 {
 public:
     inline		Convolver3D();
@@ -162,7 +161,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
     const ValueSeries<T>* ystor_ = y_->getStorage();
     const T* yptr_ = y_->getData();
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const int* zvar = iterator.getPos();
 	T sum = 0;
@@ -252,18 +251,15 @@ bool Convolver3D<T>::doFFT()
 template <class T> inline
 bool Convolver3D<T>::shouldFFT() const
 {
-    return false;
-}
-
-template <> inline
-bool Convolver3D<float>::shouldFFT() const
-{
     return false; //Remove when doFFT is implemented
-/*
+
     if ( correlate_ || normalize_ )
 	return false;
 
     if ( !x_ || !y_ || !z_ )
+	return false;
+
+    if ( typeid(T)!=typeid(float) )
 	return false;
 
     const int xsz = x_->info().getTotalSz();
@@ -280,7 +276,6 @@ bool Convolver3D<float>::shouldFFT() const
 
 
     return fftsz<tradsz;
-    */
 }
 
 

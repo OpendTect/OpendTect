@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "executor.h"
 #include "samplingdata.h"
 class MultiID;
@@ -27,7 +26,7 @@ namespace PosInfo { class Line2DData; }
 
 /*!\brief merges two 2D lines into a new one (same Line Set) */
 
-mExpClass(Seis) Seis2DLineMerger : public Executor
+mClass Seis2DLineMerger : public Executor
 {
 public:
 
@@ -90,4 +89,3 @@ protected:
 
 
 #endif
-

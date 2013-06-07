@@ -15,7 +15,6 @@ Some general utilities, that need to be accessible in many places:
 -*/
 
 #ifndef gendefs_h
-#include "basicmod.h"
 #include "gendefs.h"
 #endif
 
@@ -27,37 +26,24 @@ extern "C" {
 # include "string2_c.h"
 #endif
 
-mGlobal(Basic) const char* GetProjectVersionName(void);
+mGlobal const char* GetProjectVersionName(void);
 		/*!< "dTect Vx.x" */
 
-mGlobal(Basic) int GetPID(void);
+mGlobal int GetPID();
 		/*!< returns process ID */
 
-mGlobal(Basic) const char* GetLocalHostName(void);
+mGlobal const char* GetLocalHostName();
 		/*!< returns (as expected) local host name */
 
 #ifdef __win__
-mGlobal(Basic) const char* GetLocalIP(void);
+mGlobal const char* GetLocalIP();
 		/*!< returns local IP Address */
 #endif
-    
-    
-mGlobal(Basic) const char* GetFullExecutablePath(void);
-		/*!< returns full path to executable. setProgramArgs
-		     must be called for it to work. */
-    
-mGlobal(Basic) char** GetArgV(void);
-    
-mGlobal(Basic) int GetArgC(void);
 
-mGlobal(Basic) int AreProgramArgsSet(void);
-    
-mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
-    
-mGlobal(Basic) int isProcessAlive(int pid);
+mGlobal int isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 
-mGlobal(Basic) void ExitProgram( int ret );
+mGlobal int ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
@@ -65,37 +51,24 @@ mGlobal(Basic) void ExitProgram( int ret );
                 */
 
 typedef void (*PtrAllVoidFn)(void);
-mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
+mGlobal void NotifyExitProgram(PtrAllVoidFn);
 		/*!< Function will be called on 'ExitProgram' */
 
-mGlobal(Basic) void PutIsLittleEndian(unsigned char*);
+mGlobal void PutIsLittleEndian(unsigned char*);
 		/*!< Puts into 1 byte: 0=SunSparc/SGI (big), 1=PC (little) */
 
-mGlobal(Basic) void SwapBytes(void*,int nbytes);
+mGlobal void SwapBytes(void*,int nbytes);
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
-mGlobal(Basic) int InSysAdmMode(void);
+mGlobal int InSysAdmMode();
 		/*!< returns 0 unless in sysadm mode */
-    
-    
-mGlobal(Basic) int GetSubversionRevision(void);
-		/*!< Returns Subversion revision number */
 
-mGlobal(Basic) const char* GetSubversionUrl(void);
-		/*!< Returns Subversion url */
-    
-    
-mGlobal( Basic ) void forkProcess(void);
-    
-    
-mGlobal( Basic ) int InSysAdmMode(void);
-    
-    
-mGlobal( Basic ) void SetInSysAdmMode(void);
-    
-    
-inline void EmptyFunction() 			{}
-/* Used in some macros and ifdefs */
+
+mGlobal int GetSubversionRevision(void);
+
+
+mGlobal const char* GetSubversionUrl(void);
+
 
 #ifdef __cpp__
 }
@@ -108,4 +81,3 @@ typedef char	FileNameString[mMaxFilePathLength+1];
 
 
 #endif
-

@@ -1,0 +1,91 @@
+ifndef __make.Appli__
+__make.Appli__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Pmake application level
+#	August 1992	Bert Bril
+#	$Id: make.Appli,v 1.5 2008/11/27 12:29:22 cvsbert Exp $
+#_______________________________________________________________________________
+#
+# Include this in project make files.
+
+
+WORK := $(shell pwd)
+
+ifndef MODULES
+    MODULES := $(addsuffix .src,$(ALLMODS))
+endif
+
+ifndef PROJECTS
+    DO_MSG := Making
+    END_MSG := ....
+    MODULEDIR := src/
+else
+    DO_MSG  := $(empty)	---- PROJECT
+    END_MSG := ----
+    MODULES := $(PROJECTS:.proj=.src)
+endif
+
+include make.Defaults
+
+all: $(PREMAKETARGET) $(MODULES)
+%.src   :
+	@echo "	$(DO_MSG) $* $(END_MSG) " ; cd $(MODULEDIR)$*; $(MAKE)
+
+lib : $(PREMAKETARGET) $(MODULES:.src=.lib)
+%.lib   :
+	@echo "	$(DO_MSG) $* : lib $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) lib
+
+alib : $(PREMAKETARGET) $(MODULES:.src=.alib)
+%.alib   :
+	@echo "	$(DO_MSG) $* : alib $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) alib
+
+dep : $(PREMAKETARGET) $(MODULES:.src=.dep)
+%.dep   :
+	@echo "	$(DO_MSG) $* : dependencies $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) dep
+
+deplib : $(PREMAKETARGET) $(MODULES:.src=.deplib)
+%.deplib   :
+	@echo "	$(DO_MSG) $* : dependencies+lib $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) dep
+	@cd $(MODULEDIR)$*; $(MAKE) lib
+
+doc : $(PREMAKETARGET) $(MODULES:.src=.doc)
+%.doc   :
+	@echo "	$(DO_MSG) $* : Documentation $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) doc
+
+lint : $(PREMAKETARGET) $(MODULES:.src=.lint)
+%.lint   :
+	@echo "	$(DO_MSG) $* : lint $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) lint
+
+clean: $(PREMAKETARGET) $(MODULES:.src=.clean)
+%.clean   :
+	@-cd $(MODULEDIR)$*; $(MAKE) clean
+
+realclean: $(PREMAKETARGET) $(MODULES:.src=.realclean) cleanbin cleanlib
+%.realclean   :
+	@-cd $(MODULEDIR)$*; $(MAKE) realclean
+
+files	: $(PREMAKETARGET) $(MODULES:.src=.files)
+%.files   :
+	@echo "	$(DO_MSG) $* : files $(END_MSG) "
+	@-cd $(MODULEDIR)$*; $(MAKE) .FILES
+
+special : $(PREMAKETARGET) $(MODULES:.src=.special)
+%.special   :
+	@echo "	$(DO_MSG) $* : special $(END_MSG) "
+	@cd $(MODULEDIR)$*; $(MAKE) special
+
+.q:
+	@echo "$($(v))"
+
+
+# -- multiple inclusion protection --
+endif

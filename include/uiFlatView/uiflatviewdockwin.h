@@ -11,15 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uiflatviewwin.h"
 #include "uidockwin.h"
 
-/*!
-\brief (Non-modal) main window containing one or more uiFlatViewer(s).
-*/
 
-mExpClass(uiFlatView) uiFlatViewDockWin : public uiDockWin
+/*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
+
+mClass uiFlatViewDockWin : public uiDockWin
 			, public uiFlatViewWin
 {
 public:
@@ -46,4 +44,3 @@ public:
 
 
 #endif
-

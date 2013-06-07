@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -21,7 +20,7 @@ class CtxtIOObj;
 
 /*!\brief Finds created objects in processing specification files */
 
-mExpClass(uiIo) uiSrchProcFiles : public uiDialog
+mClass uiSrchProcFiles : public uiDialog
 {
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,
@@ -45,4 +44,3 @@ protected:
 
 
 #endif
-

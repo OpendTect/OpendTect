@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "color.h"
 
@@ -22,7 +21,7 @@ namespace visSurvey { class Scene; }
 
 /*! sets the top and/or bottom images. */
 
-mExpClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
+mClass uiSurvTopBotImageDlg : public uiDialog
 {
 public:
 			uiSurvTopBotImageDlg(uiParent*,visSurvey::Scene*);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

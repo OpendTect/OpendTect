@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 */
 
-#include "generalmod.h"
 #include "rawarray.h"
 
 
 /*!\brief Raw data array with memory management. */
 
-mExpClass(General) DataBuffer : public RawDataArray
+mClass DataBuffer : public RawDataArray
 {
 public:
 			DataBuffer(int n,int byts=4,bool setnull=false);
@@ -37,4 +36,3 @@ public:
 
 
 #endif
-

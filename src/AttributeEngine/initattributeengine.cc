@@ -7,19 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "attribstorprovider.h"
-#include "attribdescsettr.h"
-
 
 mDefModInitFn(AttributeEngine)
 {
     mIfNotFirstTime( return );
 
-    AttribDescSetTranslatorGroup::initClass();
-    dgbAttribDescSetTranslator::initClass();
-    
     Attrib::StorageProvider::initClass();
 }

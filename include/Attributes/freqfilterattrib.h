@@ -13,33 +13,31 @@ ________________________________________________________________________
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "arrayndimpl.h"
+#include "fourier.h"
 #include <complex>
 
+
+/*!\brief Frequency filtering Attribute
+
+  FreqFilter type=LowPass,HighPass,BandPass minfreq= maxfreq= nrpoles=
+             isfftfilter= window=
+
+Input:                                  ||
+0       Real data                       ||0     Real Data
+                                        ||1     Imaginary Data
+Output:                                 ||
+0       Frequency filtered data         ||0     Frequency filtered data
+          (Butterworth Filter)          ||           (FFT Filter)
+
+*/
 
 namespace Attrib
 {
 
-/*!
-\brief %Frequency filtering attribute.
-
-<pre>
-  FreqFilter type=LowPass,HighPass,BandPass minfreq= maxfreq= nrpoles=
-             isfftfilter= window=
-
-  Input:                                  ||
-  0       Real data                       ||0     Real Data
-                                          ||1     Imaginary Data
-  Output:                                 ||
-  0       Frequency filtered data         ||0     Frequency filtered data
-            (Butterworth Filter)          ||           (FFT Filter)
-</pre>
-*/
-
-mExpClass(Attributes) FreqFilter: public Provider
+mClass FreqFilter: public Provider
 {
 public:
     static void		initClass();
@@ -80,6 +78,8 @@ protected:
     float                       maxfreq_;
     int				nrpoles_;
     bool			isfftfilter_;
+    Fourier::CC*		fft_;
+    Fourier::CC*		fftinv_;
     int                         fftsz_;
 
     ArrayNDWindow*              window_;
@@ -92,6 +92,8 @@ protected:
 
     Array1DImpl<float_complex>  signal_;
     Array1DImpl<float_complex>  timedomain_;
+    Array1DImpl<float_complex>  freqdomain_;
+    Array1DImpl<float_complex>  tmpfreqdomain_;
     Array1DImpl<float_complex>  timecplxoutp_;
     
     const DataHolder*		redata_;
@@ -104,4 +106,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

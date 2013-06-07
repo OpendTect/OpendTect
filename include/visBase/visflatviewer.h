@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "flatview.h"
 #include "visobject.h"
 
@@ -26,7 +25,7 @@ class SplitTexture2Rectangle;
 
 /*!Implementation of FlatViewer::Viewer in 3D. */
 
-mExpClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
+mClass FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
     static FlatViewer*		create()
@@ -50,15 +49,6 @@ public:
     int				getResolution() const	{ return resolution_; } 
     BufferString		getResolutionName(int) const;
 
-    FlatView::AuxData*		createAuxData(const char* nm) const { return 0; }
-
-    int				nrAuxData() const { return 0; }
-    FlatView::AuxData*		getAuxData(int idx) { return 0; }
-    const FlatView::AuxData*	getAuxData(int idx) const { return 0; }
-    void			addAuxData(FlatView::AuxData* a) {}
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) { return a; }
-    FlatView::AuxData*		removeAuxData(int idx) { return 0; }
-
 protected:
     				~FlatViewer();
     
@@ -78,4 +68,3 @@ protected:
 
 
 #endif
-

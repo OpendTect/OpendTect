@@ -3,7 +3,7 @@
 # AL 15/9/99
 #
 # Wrapper around cvs/svn.
-
+# SVN: $Id$
 
 if ( ! -d CVS ) then
     svn $*

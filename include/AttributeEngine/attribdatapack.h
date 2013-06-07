@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "datapackbase.h"
 #include "cubesampling.h"
 #include "attribdescid.h"
@@ -31,11 +30,9 @@ class Data2DHolder;
 class DataHolderArray;
 class Data2DArray;
 
-/*!
-\brief Mixin to provide general services to attribute data packs.
-*/
+/*!\brief Mixin to provide general services to Attrib data packs */
 
-mExpClass(AttributeEngine) DataPackCommon
+mClass DataPackCommon
 {
 public:
     			DataPackCommon( DescID id )
@@ -57,11 +54,9 @@ protected:
 };
 
 
-/*!
-\brief Base class data pack for 2D.
-*/
+/*!\brief Base class Data Pack for 2D. */
 
-mExpClass(AttributeEngine) Flat2DDataPack : public ::FlatDataPack
+mClass Flat2DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -85,11 +80,9 @@ protected:
 };
 
 
-/*!
-\brief Data pack from 2D attribute data.
-*/
+/*!\brief Data Pack from 2D attribute data. */
 
-mExpClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
+mClass Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
@@ -126,11 +119,9 @@ protected:
 };
 
 
-/*!
-\brief Flat data pack from 3D attribute extraction.
-*/ 
+/*!\brief Flat data pack from 3D attribute extraction */ 
 
-mExpClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
+mClass Flat3DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -172,11 +163,9 @@ protected:
 };
 
 
-/*!
-\brief Volume data pack.
-*/ 
+/*!\brief Volume data pack */ 
 
-mExpClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
+mClass CubeDataPack : public ::CubeDataPack
 		   , public DataPackCommon
 {
 public:
@@ -200,11 +189,9 @@ protected:
 };
 
 
-/*!
-\brief Data pack from random traces extraction.
-*/
+/*!\brief Data Pack from random traces extraction. */
 
-mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
+mClass FlatRdmTrcsDataPack : public Flat2DDataPack
 {
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
@@ -236,4 +223,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

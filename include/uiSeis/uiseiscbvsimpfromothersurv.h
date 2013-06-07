@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "uidialog.h"
@@ -36,7 +34,7 @@ class uiLabeledSpinBox;
 class uiSeisSel;
 class uiSeisSubSel;
 
-mExpClass(uiSeis) SeisImpCBVSFromOtherSurvey : public Executor
+mClass SeisImpCBVSFromOtherSurvey : public Executor
 {
 public:
 
@@ -71,7 +69,7 @@ protected:
 
     Interpol		interpol_;
 
-    mStruct(uiSeis) 		PosData
+    mStruct 		PosData
     {
 			PosData()
 			    : hsit_(0)
@@ -106,7 +104,7 @@ protected:
 
 
 
-mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
+mClass uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 {
 public:
 
@@ -133,5 +131,3 @@ protected:
 
 
 #endif
-
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "tableconv.h"
 #include "bufstringset.h"
 #include "globexpr.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-mExpClass(General) WSImportHandler : public ImportHandler
+mClass WSImportHandler : public ImportHandler
 {
 public:
 
@@ -45,7 +44,7 @@ protected:
 };
 
 
-mExpClass(General) CSVImportHandler : public ImportHandler
+mClass CSVImportHandler : public ImportHandler
 {
 public:
     			CSVImportHandler( std::istream& s )
@@ -69,7 +68,7 @@ protected:
 };
 
 
-mExpClass(General) WSExportHandler : public ExportHandler
+mClass WSExportHandler : public ExportHandler
 {
 public:
 
@@ -91,7 +90,7 @@ protected:
 };
 
 
-mExpClass(General) CSVExportHandler : public ExportHandler
+mClass CSVExportHandler : public ExportHandler
 {
 public:
     			CSVExportHandler( std::ostream& s )
@@ -106,7 +105,7 @@ protected:
 };
 
 
-mExpClass(General) SQLInsertExportHandler : public ExportHandler
+mClass SQLInsertExportHandler : public ExportHandler
 {
 public:
 
@@ -146,7 +145,7 @@ protected:
 
   */
 
-mExpClass(General) StartStopManipulator : public Converter::RowManipulator
+mClass StartStopManipulator : public Converter::RowManipulator
 {
 public:
 		StartStopManipulator()
@@ -188,7 +187,7 @@ protected:
 /*!\brief Only passes records where col(s) (don't) match expression(s) */
 
 
-mExpClass(General) RecordMatcher : public Converter::RowManipulator
+mClass RecordMatcher : public Converter::RowManipulator
 {
 public:
     			RecordMatcher( bool a=true )
@@ -217,7 +216,7 @@ protected:
   */
 
 
-mExpClass(General) DuplicateKeyRemover : public Converter::RowManipulator
+mClass DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
     			DuplicateKeyRemover()
@@ -242,4 +241,3 @@ protected:
 }; // namespace Table
 
 #endif
-

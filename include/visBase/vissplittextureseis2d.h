@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "posinfo2d.h"
 #include "visobject.h"
 
@@ -26,23 +25,20 @@ namespace visBase
 
 class Coordinates;
 
-/*!
-\ingroup visBase
-\brief Used for splitting 2D surface into smaller blocks with triangle strips.
-  No matter split texture or not, we always split the shape along horizon with
-  size mMaxHorSz. should set path before having the shape. To split texture,
-  make sure to set z pixels and texture units.
-*/
+/*!used for splitting 2D surface into smaller blocks with triangle strips.
+   No matter split texture or not, we always split the shape along horizon with
+   size mMaxHorSz. should set path before having the shape. To split texture,
+   make sure to set z pixels and texture units. */
 
-mExpClass(visBase) SplitTextureSeis2D : public VisualObjectImpl
+mClass SplitTextureSeis2D : public VisualObjectImpl
 {
 public:
     static SplitTextureSeis2D*	create()
 				mCreateDataObj(SplitTextureSeis2D);
 
     void			setTextureZPixelsAndPathScale(int zsz,int);
-    				/*!<\note Horizontal size is trcrg.width()+1, 
-					  but need scale if set resolution. */
+    				//!<\note Horizontal size is trcrg.width()+1, 
+				//!<\but need scale if set resolution. 
 
     void			setPath(const TypeSet<PosInfo::Line2DPos>&);
     				//!<Is assumed to remain in memory
@@ -76,7 +72,7 @@ protected:
     TypeSet<int>		trcnrs_;
 };
 
-} // namespace visBase
+}; // Namespace
+
 
 #endif
-

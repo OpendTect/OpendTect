@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackeventio.h"
 
@@ -279,7 +279,7 @@ int EventReader::nextStep()
 
     if ( !res )
     {
-	delete patchreaders_.removeSingle( 0 );
+	delete patchreaders_.remove( 0 );
 	if ( patchreaders_.size() )
 	    return MoreToDo();
         
@@ -494,7 +494,7 @@ bool EventReader::readAuxData(const char* fnm)
     }
 
     Color col = Color(255,0,0); //Todo: Make mandatory to have color
-    par.get( sKey::Color(), col );
+    par.get( sKey::Color, col );
     eventmanager_->setColor( col );
 
     eventmanager_->setNextHorizonID( nexthor );
@@ -604,7 +604,7 @@ int EventWriter::nextStep()
 	    const RowCol rc( (bid.inl-inlsampling.start)/inlsampling.step,
 		    	     (bid.crl-crlsampling.start)/crlsampling.step );
 
-	    if ( !rcols.isPresent( rc ) )
+	    if ( rcols.indexOf( rc )==-1 )
 		rcols += rc;
 	}
 
@@ -675,7 +675,7 @@ int EventWriter::nextStep()
 
     if ( !res )
     {
-	delete patchwriters_.removeSingle( 0 );
+	delete patchwriters_.remove( 0 );
 	if ( patchwriters_.size() )
 	    return MoreToDo();
         
@@ -721,7 +721,7 @@ bool EventWriter::writeAuxData( const char* fnm )
     horidfnm.setPath( fnm );
     horidfnm.add( EventReader::sAuxDataFileName() );
 
-    auxinfo_.set( sKey::Color(), eventmanager_.getColor() );
+    auxinfo_.set( sKey::Color, eventmanager_.getColor() );
 
     SafeFileIO fileio( horidfnm.fullPath().buf(), false );
     if ( !fileio.open( false ) )
@@ -849,7 +849,7 @@ int EventDuplicator::nextStep()
 	return ErrorOccurred();
     }
 
-    filestocopy_.removeSingle( idx );
+    filestocopy_.remove( idx );
     return MoreToDo();
 }
 
@@ -1246,8 +1246,8 @@ int EventPatchReader::nextStep()
 
 	Event* pse = new Event( nrpicks, true );
 
-	pse->horid_ = mCast( short, readInt32( strm ) );
-	pse->quality_ = mCast( unsigned char, readUInt8( strm ) );
+	pse->horid_ = readInt32( strm );
+	pse->quality_ = readUInt8( strm );
 	if ( readeventtype_ )
 	{
 	    const int eventtype = readUInt8( strm );
@@ -1264,7 +1264,7 @@ int EventPatchReader::nextStep()
 	for ( int idy=0; idy<nrpicks; idy++ )
 	{
 	    pse->pick_[idy] = readFloat( strm );
-	    pse->pickquality_[idy] = mCast( unsigned char, readUInt8( strm ) );
+	    pse->pickquality_[idy] = readUInt8( strm );
 	    pse->offsetazimuth_[idy].setFrom( readInt32( strm ) );
 	}
 
@@ -1502,7 +1502,7 @@ int EventPatchWriter::nextStep()
 	ascostream astream( strm );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
-	fileheaderoffset_ = mCast(int,strm.tellp());
+	fileheaderoffset_ = strm.tellp();
 	if ( !fileheader_.toStream( strm, binary_ ) )
 	{
 	    errmsg_ = "Cannot write file header to stream ";
@@ -1527,9 +1527,9 @@ int EventPatchWriter::nextStep()
 	return Finished();
     }
 
-    std::streamoff curoffset = strm.tellp();
+    int curoffset = strm.tellp();
     const BinID bid = fileheader_.getBinID( headeridx_ );
-    fileheader_.setOffset( headeridx_, mCast(int,curoffset) );
+    fileheader_.setOffset( headeridx_, curoffset );
 
     RefMan<EventSet> pses = eventmanager_.getEvents( bid, false, false);
 

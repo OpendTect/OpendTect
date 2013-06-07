@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "datapointset.h"
 #include "bufstringset.h"
@@ -24,7 +22,6 @@ class uiToolBar;
 class uiIOObjSelDlg;
 class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
-class uiDPSDispPropDlg;
 class uiVariogramDisplay;
 
 class DataPointSetDisplayMgr;
@@ -41,7 +38,7 @@ namespace Stats { template <class T> class RunCalc; }
  */
 
 
-mExpClass(uiIo) uiDataPointSet : public uiDialog
+mClass uiDataPointSet : public uiDialog
 { 	
 public:
 
@@ -50,7 +47,7 @@ public:
     typedef DataPointSet::ColID	DColID;
     typedef DataPointSet::RowID	DRowID;
 
-    mStruct(uiIo) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 				Setup(const char* wintitl,bool ismodal=false);
 
@@ -78,7 +75,7 @@ public:
 
     void			setZFactor( float f, const char* unnm )
     				{ zfac_ = f; zunitnm_ = unnm; }
-				//!< Default is SI().zDomain().userFactor()
+					//!< Default is SI().zFactor()
 
     uiTable*			table()		{ return tbl_; }
     uiToolBar*			ioToolBar()	{ return iotb_; }
@@ -134,8 +131,6 @@ public:
 
     void			calcSelectedness();
     void			setDisp(DataPointSetDisplayProp*);
-    void			showXY(bool yn);
-    void			showZ(bool yn);
 
     mDeclInstanceCreatedNotifierAccess(uiDataPointSet);
 
@@ -181,7 +176,6 @@ protected:
     int				dispxytbid_;
     int				dispztbid_;
     uiIOObjSelDlg*		curseldlg_;
-    uiDPSDispPropDlg*		dpsdisppropdlg_;
 
     void			mkToolBars();
 
@@ -229,7 +223,6 @@ protected:
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
-    void			showPtsInWorkSpace(CallBacker*);
 
     friend class		uiDataPointSetCrossPlotter;
     uiDataPointSetCrossPlotWin*	xplotwin_;
@@ -259,9 +252,9 @@ public:
 				{ return getVal(did,rid,userunits); }
     void			setUnsavedChg( bool chg )
 				{ unsavedchgs_ = chg; }
+    void			showXY(bool yn);
+    void			showZ(bool yn);
 };
 
 
 #endif
-
-

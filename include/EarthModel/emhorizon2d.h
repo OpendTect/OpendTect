@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
@@ -31,11 +30,7 @@ namespace EM
 {
 class EMManager;
 
-/*!
-\brief 2D HorizonGeometry
-*/
-
-mExpClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
+mClass Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
@@ -43,30 +38,17 @@ public:
     const Geometry::Horizon2DLine* sectionGeometry(const SectionID&) const;
 
     int				nrLines() const;
-
     int				lineIndex(const PosInfo::GeomID&) const;
-    int				lineIndex(TraceID::GeomID geomid) const;
-
     int				lineIndex(const char* linenm) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
     PosInfo::GeomID		lineGeomID(int idx) const;
-    TraceID::GeomID		geomID(int idx) const;
 
     bool			includeLine(const PosInfo::GeomID&,int step=1);
-    bool			includeLine(TraceID::GeomID geomid,int step=1);
-
     bool 			addLine(const PosInfo::GeomID&,int step=1);
-    bool 			addLine(TraceID::GeomID geomid,int step=1);
-
     bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg);
-    bool 			addLine(TraceID::GeomID geomid,
-					const StepInterval<int>& trcrg);
-
     void			removeLine(const PosInfo::GeomID&);
-    void			removeLine(TraceID::GeomID geomid);
-
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
 	    				    bool retundef=false) const;
@@ -75,7 +57,7 @@ public:
 					   true, it returnes unf, if not
 					   it return the id of the undef
 					   neighbor. */
-
+					   
     static const char*		sKeyLineIDs()	{ return "Line IDs"; }
     static const char*		sKeyLineNames()	{ return "Line names"; }
     static const char*		sKeyLineSets()	{ return "Set ID of line "; }
@@ -89,42 +71,32 @@ public:
 						TypeSet<PosID>* res) const;
     StepInterval<int>		colRange(const SectionID&,
 	    				 const PosInfo::GeomID&) const;
-    StepInterval<int>		colRange(const SectionID&,
-					 TraceID::GeomID geomid) const;
-
     StepInterval<int>		colRange(const PosInfo::GeomID&) const;
-    StepInterval<int>		colRange(TraceID::GeomID geomid) const;
 
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
-    bool 			doAddLine(const PosInfo::GeomID&,
+    bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
-    bool 			doAddLine(TraceID::GeomID geomid,
-					  const StepInterval<int>& trcrg,
-					  bool mergewithdouble);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-
-    TypeSet<PosInfo::GeomID>	oldgeomids_;
-    TypeSet<TraceID::GeomID>	geomids_;
+    
+    TypeSet<PosInfo::GeomID>	geomids_;
 };
 
-
 /*!
-\brief 2D Horizon. The Horizon is only present along 2d lines, set by addLine.
-Each position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
-multiple z-values per trace is needed, multiple sections can be added.
-*/
+2d horizons. The horizons is only present along 2d lines, set by addLine. Each
+position's subid is formed by RowCol( lineid, tracenr ).getInt64(). If
+multiple z-values per trace is needed, multiple sections can be added. */
 
-mExpClass(EarthModel) Horizon2D : public Horizon
+mClass Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
-					  int nr=0) const;
+	    				  int nr=0) const;
     				//!< Convenience function. If you need speed,
     				//!< don't use it.
 
@@ -139,14 +111,8 @@ public:
 
     Coord3			getPos(EM::SectionID,const PosInfo::GeomID&,
 	    			       int trcnr) const;
-    Coord3			getPosition(EM::SectionID,TraceID::GeomID geomid
-					    ,int trcnr) const;
-
     bool			setPos(EM::SectionID,const PosInfo::GeomID&,
 	    			       int trcnr,float z,bool addtohistory);
-    bool			setPos(EM::SectionID,TraceID::GeomID geomid,
-	    			       int trcnr,float z,bool addtohistory);
-
     bool			setPos(const EM::PosID&,const Coord3&,bool);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
 	    			       const Coord3&,bool addtohistory);
@@ -158,24 +124,11 @@ public:
     void			removeSelected(const Selector<Coord3>& selector,
 	    				       TaskRunner* tr );
 
-    bool			setArray1D(const Array1D<float>&,
-					   SectionID sid,
-					   const PosInfo::GeomID& geomid,
-					   bool onlyfillundefs);
-    bool			setArray1D(const Array1D<float>&,
-					   const StepInterval<int>& trcrg,
-					   SectionID sid,
-					   const PosInfo::GeomID& geomid,
-					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,SectionID sid,
-	    				   TraceID::GeomID geomid,
+	    				   const PosInfo::GeomID& geomid,
 					   bool onlyfillundefs );
-
     Array1D<float>*		createArray1D(SectionID,
 	    				      const PosInfo::GeomID& geomid,
-	    				      const ZAxisTransform* =0) const;
-    Array1D<float>*		createArray1D(SectionID,
-	    				      TraceID::GeomID geomid,
 	    				      const ZAxisTransform* =0) const;
 
 protected:
@@ -185,11 +138,7 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for Horizon2D.
-*/
-
-mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
+mClass Horizon2DAscIO : public Table::AscIO
 {
 public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,
@@ -220,4 +169,3 @@ protected:
 } // namespace EM
 
 #endif
-

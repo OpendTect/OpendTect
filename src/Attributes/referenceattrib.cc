@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "referenceattrib.h"
@@ -47,7 +47,7 @@ Reference::Reference( Desc& ds )
 {
     if ( !isOK() ) return;
     
-    is2d_ = is2D();
+    is2d_ = ds.descSet() ? ds.descSet()->is2D() : false;
 }
 
 
@@ -75,8 +75,9 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	setOutputValue( output, 0, idx, z0, (float) coord.x );
-	setOutputValue( output, 1, idx, z0, (float) coord.y );
+	const int outidx = z0 - output.z0_ + idx;
+	setOutputValue( output, 0, idx, z0, coord.x );
+	setOutputValue( output, 1, idx, z0, coord.y );
 	if ( outputinterest_[2] )
 	{
 	    if ( nrsamples==1 )
@@ -100,35 +101,35 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( !is2d_ )
 	{
-	    setOutputValue( output, 3, idx, z0, mCast(float,truepos.inl) );
-	    setOutputValue( output, 4, idx, z0, mCast(float,truepos.crl) );
-	    setOutputValue( output, 5, idx, z0, mCast(float,z0+idx+1) );
+	    setOutputValue( output, 3, idx, z0, truepos.inl );
+	    setOutputValue( output, 4, idx, z0, truepos.crl );
+	    setOutputValue( output, 5, idx, z0, z0+idx+1 );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val = truepos.inl - SI().inlRange(0).start + 1;
-		setOutputValue( output, 6, idx, z0, mCast(float,val) );
+		setOutputValue( output, 6, idx, z0, val );
 	    }
 	    if ( isOutputEnabled(7) )
 	    {
 		const int val = truepos.crl - SI().crlRange(0).start + 1;
-		setOutputValue( output, 7, idx, z0, mCast(float,val) );
+		setOutputValue( output, 7, idx, z0, val );
 	    }
 	    if ( isOutputEnabled(8) )
 	    {
 		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
-		setOutputValue( output, 8, idx, z0, mCast(float,val) );
+		setOutputValue( output, 8, idx, z0, val );
 	    }
 	}
 	else
 	{
-	    setOutputValue( output, 3, idx, z0, mCast(float,truepos.crl) );
-	    setOutputValue( output, 4, idx, z0, mCast(float,z0+idx+1) );
+	    setOutputValue( output, 3, idx, z0, truepos.crl );
+	    setOutputValue( output, 4, idx, z0, z0+idx+1 );
 	    setOutputValue( output, 5, idx, z0,
-		mCast(float,truepos.crl - desiredvolume_->hrg.start.crl + 1) );
+			    truepos.crl - desiredvolume_->hrg.start.crl + 1 );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
-		setOutputValue( output, 6, idx, z0, mCast(float,val) );
+		setOutputValue( output, 6, idx, z0, val );
 	    }
 	}
     }

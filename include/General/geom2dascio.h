@@ -13,17 +13,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "tableascio.h"
 
 namespace PosInfo { class Line2DData; }
 namespace Table { class FormatDesc; }
 
-/*!
-\brief Ascii I/O for 2D Geometry.
-*/
-
-mExpClass(General) Geom2dAscIO : public Table::AscIO
+mClass Geom2dAscIO : public Table::AscIO
 {
 public:
 				Geom2dAscIO(const Table::FormatDesc&,
@@ -37,4 +32,3 @@ protected:
 };
 
 #endif
-

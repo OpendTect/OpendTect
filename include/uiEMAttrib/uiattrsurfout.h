@@ -12,9 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uiattremout.h"
 
+class CtxtIOObj;
 class IOPar;
 class MultiID;
 class NLAModel;
@@ -32,7 +32,7 @@ Used for calculating attributes on surfaces
 */
 
 
-mExpClass(uiEMAttrib) uiAttrSurfaceOut : public uiAttrEMOut
+mClass uiAttrSurfaceOut : public uiAttrEMOut
 {
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,
@@ -58,4 +58,3 @@ protected:
 };
 
 #endif
-

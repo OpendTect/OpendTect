@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uimainwin.h"
 
 
@@ -21,7 +20,7 @@ class uiLineEdit;
 class uiGraphicsItemSet;
 
 
-mExpClass(uiBase) uiVirtualKeyboard : public uiMainWin
+mClass uiVirtualKeyboard : public uiMainWin
 {
 public:
     				uiVirtualKeyboard(uiObject&,int x,int y);
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

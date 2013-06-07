@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 
 
@@ -22,11 +21,9 @@ ________________________________________________________________________
 namespace Pos
 {
 
-/*!
-\brief Set of Filters. Owns the Filters.
-*/
+/*!\brief Set of Filters. Owns the Filters. */
 
-mExpClass(Algo) FilterSet : public virtual Filter
+mClass FilterSet : public virtual Filter
 {
 public:
 
@@ -75,11 +72,7 @@ protected:
 			{ return FilterSet::includes(c,z); } \
 
 
-/*!
-\brief 3D FilterSet
-*/
-
-mExpClass(Algo) FilterSet3D : public FilterSet
+mClass FilterSet3D : public FilterSet
 		  , public Filter3D
 {
 public:
@@ -92,11 +85,7 @@ public:
 };
 
 
-/*!
-\brief 2D FilterSet
-*/
-
-mExpClass(Algo) FilterSet2D : public FilterSet
+mClass FilterSet2D : public FilterSet
 		  , public Filter2D
 {
 public:
@@ -112,4 +101,3 @@ public:
 } // namespace
 
 #endif
-

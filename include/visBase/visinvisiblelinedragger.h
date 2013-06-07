@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 
 
@@ -30,7 +29,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) InvisibleLineDragger : public VisualObjectImpl
+mClass InvisibleLineDragger : public VisualObjectImpl
 {
 public:
     static InvisibleLineDragger*	create()
@@ -68,4 +67,3 @@ private:
 };
 
 #endif
-

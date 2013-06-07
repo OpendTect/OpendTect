@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
 #include "menuhandler.h"
 #include "uiemobjeditor.h"
 
@@ -30,7 +29,7 @@ namespace MPE
 {
 class HorizonEditor;
 
-mExpClass(uiMPE) uiEMHorizonEditor : public uiEMObjectEditor
+mClass uiEMHorizonEditor : public uiEMObjectEditor
 {
 
 public:
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

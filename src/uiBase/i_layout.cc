@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -25,17 +25,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifdef __debug__
 #define MAX_ITER	2000
-static bool lyoutdbg = false;
+static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #else
 #define MAX_ITER	20000
 #endif
 
-mUseQtnamespace
 
 #define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
 		     managedBody.uiObjHandle().mainwin()->finalised() : true )
 
-i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy )
+i_LayoutMngr::i_LayoutMngr( QWidget* parnt, 
+			    const char* nm, uiObjectBody& mngbdy )
     : QLayout(parnt)
     , NamedObject(nm)
     , minimumDone(false), preferredDone(false), ismain(false)
@@ -43,11 +43,6 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
     , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
-#ifdef __debug__
-    static bool lyoutdbg_loc = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
-    lyoutdbg = lyoutdbg_loc;
-#endif
-
     poptimer.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
 }
 
@@ -209,10 +204,7 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
     i_LayoutItem* managedItem = 
 	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
 
-    if ( ismain && managedItem )
-	return managedItem->curpos(lom);
-
-    if ( !managedItem )
+    if ( ismain && !managedItem )
     {
 	int hborder = layoutpos[lom].left();
 	int vborder = layoutpos[lom].top();
@@ -220,7 +212,9 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
 			     layoutpos[lom].bottom()+2*vborder );
     }
 
-    return managedItem->mngr().winpos( lom );
+    if ( ismain ) { return managedItem->curpos(lom); }
+
+    return managedItem->mngr().winpos(lom);
 }
 
 
@@ -729,8 +723,7 @@ int i_LayoutMngr::count () const
 
 
 bool i_LayoutMngr::attach( constraintType type, QWidget& current, 
-			   QWidget* other, int mrgin,
-			   bool reciprocal ) 
+			   QWidget* other, int mrgin, bool reciprocal ) 
 {
     if ( &current == other )
 	{ pErrMsg("Attempt to attach an object to itself"); return false; }
@@ -754,11 +747,11 @@ bool i_LayoutMngr::attach( constraintType type, QWidget& current,
     }
 
     BufferString msg( NamedObject::name() ); msg += ": Cannot attach '";
-    msg += current.objectName().toLatin1().constData(); msg += "'";
+    msg += current.objectName().toAscii().constData(); msg += "'";
     if ( needother )
     {
 	msg += " and '";
-	msg += other->objectName().toLatin1().constData(); msg += "'";
+	msg += other->objectName().toAscii().constData(); msg += "'";
     }
 
     msg += " - constraint: "; msg += (int)type;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id$
+ RCS:           $Id: uieventfreqattrib.h,v 1.3 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 
 /*! \brief DeltaResample Attribute description editor */
 
-mClass(uiEventFreq) uiEventFreqAttrib : public uiAttrDescEd
+class uiEventFreqAttrib : public uiAttrDescEd
 {
 public:
 

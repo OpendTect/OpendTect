@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uibatchlaunch.h"
 #include "multiid.h"
 
@@ -29,34 +28,34 @@ class uiSeisTransfer;
 
 /*! \brief Dialog for creating volume output */
 
-mExpClass(uiAttributes) uiAttrVolOut : public uiFullBatchDialog
+mClass uiAttrVolOut : public uiFullBatchDialog
 {
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
 				     const NLAModel* n=0,MultiID i=0);
 			~uiAttrVolOut();
 
-    const IOPar&	subSelPar() const		{ return subselpar_; }
-    const Attrib::CurrentSel& outputSelection() const	{ return sel_; }
+    const IOPar&	subSelPar() const		{ return subselpar; }
+    const Attrib::CurrentSel& outputSelection() const	{ return sel; }
 
     static const char*  sKeyMaxCrlRg();
     static const char*  sKeyMaxInlRg();
 
 protected:
 
-    CtxtIOObj&		ctio_;
-    Attrib::CurrentSel&	sel_;
-    IOPar&		subselpar_;
-    Attrib::DescSet& 	ads_;
-    MultiID		nlaid_;
-    const NLAModel*	nlamodel_;
+    CtxtIOObj&		ctio;
+    Attrib::CurrentSel&	sel;
+    IOPar&		subselpar;
+    Attrib::DescSet& 	ads;
+    MultiID		nlaid;
+    const NLAModel*	nlamodel;
 
-    uiAttrSel*		todofld_;
-    uiSeisTransfer*	transffld_;
-    uiSeisSel*		objfld_;
+    uiAttrSel*		todofld;
+    uiSeisTransfer*	transffld;
+    uiSeisSel*		objfld;
 
-    TypeSet<int>	seloutputs_;
-    BufferStringSet	seloutnms_;
+    TypeSet<int>	seloutputs;
+    BufferStringSet	seloutnms;
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
@@ -72,4 +71,3 @@ private:
 };
 
 #endif
-

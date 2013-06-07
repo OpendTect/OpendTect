@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistype.h"
 #include "valseriesevent.h"
 class SeisTrc;
@@ -20,7 +19,7 @@ class SeisTrc;
 
 /*!\brief calculates properties of a trace component */
 
-mExpClass(Seis) SeisTrcPropCalc
+mClass SeisTrcPropCalc
 {
 public:
 		SeisTrcPropCalc( const SeisTrc& t, int ic=0 )
@@ -48,7 +47,7 @@ protected:
   Component -1 (the default) changes all components.
  */
 
-mExpClass(Seis) SeisTrcPropChg : public SeisTrcPropCalc
+mClass SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
 		SeisTrcPropChg( SeisTrc& t, int ic=-1 )
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

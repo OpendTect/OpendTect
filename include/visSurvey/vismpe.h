@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -42,7 +41,7 @@ namespace visSurvey
 
 */
 
-mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
+mClass MPEDisplay : public visBase::VisualObjectImpl, 
 		    public visSurvey::SurveyObject
 {
 public:
@@ -64,7 +63,7 @@ public:
     float           getDraggerTransparency() const;
     
     void            setPlaneOrientation(int orient);
-    int       getPlaneOrientation() const;
+    const int       getPlaneOrientation() const;
 
     bool            getPlanePosition(CubeSampling&) const;
     void            moveMPEPlane(int nrsteps);    
@@ -174,8 +173,6 @@ protected:
     			~MPEDisplay();
     CubeSampling	getBoxPosition() const;
     void		setPlanePosition(const CubeSampling&);
-
-    void		alignSliceToSurvey(visBase::OrthogonalSlice&);
 	
     void		setSceneEventCatcher(visBase::EventCatcher*);
 	
@@ -209,6 +206,7 @@ protected:
     
     // texture channel-related methods
     bool		updateFromCacheID(int attrib, TaskRunner* tr);
+
 
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;
@@ -259,10 +257,10 @@ protected:
 
     virtual SoNode*		gtInvntrNode();
 
+    void			alignSliceToSurvey(visBase::OrthogonalSlice&);
 };
 
 }; // namespace visSurvey
 
 #endif
-
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
@@ -192,5 +192,5 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     if ( pprov )
 	sr.setFilter( *pprov );
     uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, sr );
+    return tr.execute( sr );
 }

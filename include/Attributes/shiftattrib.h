@@ -12,32 +12,29 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "position.h"
+
+/*!\brief Shift Attribute
+
+  Shift pos= steering=Yes/No
+
+  Shift takes the input at a specified position and outputs it at other
+  relative positions.
+
+Input:
+0 - attrib to be hashed
+1 - steering (optional)
+
+Output
+0 - hashed attrib
+
+*/
 
 namespace Attrib
 {
 
-/*!
-\brief %Shift Attribute
-  %Shift takes the input at a specified position and outputs it at other
-  relative positions.
-
-<pre>
-  %Shift pos= steering=Yes/No
-
-  Input:
-  0 - attrib to be hashed
-  1 - steering (optional)
-  
-  %Output:
-  0 - hashed attrib
-</pre>
-*/
-
-
-mExpClass(Attributes) Shift : public Provider
+mClass Shift : public Provider
 {
 public:
     static void			initClass();
@@ -50,6 +47,8 @@ public:
     void			initSteering()	{ stdPrepSteering(stepout_); }
 
     void			prepPriorToBoundsCalc();
+
+    void			set(const BinID&,float,bool dosteer);
 
     virtual bool		isSingleTrace() const
 				{ return !stepout_.inl && !stepout_.crl; }
@@ -92,4 +91,3 @@ protected:
 
 
 #endif
-

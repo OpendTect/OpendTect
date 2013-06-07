@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorsavefieldgrp.h"
 
@@ -114,7 +114,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 	    mErrRet( "Could not read horizon." );
 
 	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *reader ) )
+	if ( !dlg.execute(*reader) )
 	{
 	    delete reader;
 	    mErrRet( "Could not read horizon." );
@@ -144,7 +144,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
     if ( !exec ) mErrRet( "Cannot save horizon" );
 
     uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *exec );
+    return dlg.execute( *exec );
 }
 
 
@@ -197,7 +197,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     uiTaskRunner tr( this );
     PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
-    if ( !loader || !TaskRunner::execute( &tr, *loader ) )
+    if ( !loader || !tr.execute(*loader) ) 
 	mErrRet( "New horizon data loading failed" );
 
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );

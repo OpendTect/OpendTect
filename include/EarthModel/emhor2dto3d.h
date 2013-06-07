@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstring.h"
 #include "horsampling.h"
@@ -27,11 +26,7 @@ class Horizon2D;
 class Horizon3D;
 class Hor2DTo3DSectionData;
 
-/*!
-\brief Horizon2D to Horizon3D.
-*/
-
-mExpClass(EarthModel) Hor2DTo3D : public Executor
+mClass Hor2DTo3D : public Executor
 {
 public:
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
@@ -66,4 +61,3 @@ protected:
 } // namespace EM
 
 #endif
-

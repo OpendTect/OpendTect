@@ -27,7 +27,7 @@ template <class T> class StepInterval;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; }
 
-mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
+class uiHorizonShiftDialog : public uiDialog
 {
 public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,

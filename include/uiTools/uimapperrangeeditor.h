@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 #include "datapack.h"
@@ -26,12 +25,11 @@ class uiAxisHandler;
 template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
-mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
+mClass uiMapperRangeEditor : public uiGroup
 {
 public:
 
-    				uiMapperRangeEditor(uiParent*,int id,
-					bool fixdrawrg=true);
+    				uiMapperRangeEditor(uiParent*,int id);
 				~uiMapperRangeEditor();
 
     int				ID()		       { return id_; }
@@ -86,8 +84,6 @@ protected:
     void			mouseReleased(CallBacker*);
 
     void			histogramResized(CallBacker*);
-    void			histDRChanged(CallBacker*);
 };
 
 #endif
-

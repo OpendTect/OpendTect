@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emfault.h"
 #include "tableascio.h"
 #include "emfaultstickset.h"
@@ -27,13 +26,8 @@ namespace Pos { class Filter; }
 namespace EM
 {
 class EMManager;
-class FaultAuxData;
 
-/*!
-\brief 3D FaultGeometry.
-*/
-
-mExpClass(EarthModel) Fault3DGeometry : public FaultGeometry
+mClass Fault3DGeometry : public FaultGeometry
 {
 public:
     			Fault3DGeometry(Surface&);
@@ -53,7 +47,6 @@ public:
 	    			   bool addtohistory);
     
     bool		areSticksVertical(const SectionID&) const;
-    bool		areEditPlanesMostlyCrossline() const;
 
     Geometry::FaultStickSurface*
 			sectionGeometry(const SectionID&);
@@ -71,18 +64,16 @@ protected:
 };
 
 
-/*!
-\brief 3D Fault
+
+/*!\brief 3D Fault
 */
 
-mExpClass(EarthModel) Fault3D : public Fault
+mClass Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);
-
-    FaultAuxData&		auxdata;
 
 protected:
 
@@ -94,11 +85,7 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for Fault.
-*/
-
-mExpClass(EarthModel) FaultAscIO : public Table::AscIO
+mClass FaultAscIO : public Table::AscIO
 {
 public:
     				FaultAscIO( const Table::FormatDesc& fd )
@@ -119,4 +106,3 @@ protected:
 
 
 #endif
-

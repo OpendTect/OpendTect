@@ -13,7 +13,6 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "cubesampling.h"
 #include "task.h"
 
@@ -30,7 +29,7 @@ class ZAxisTransform;
    out into another volume. If stretchinverse is true, the stretching will
    be done on the inveres of the values. */
 
-mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
+mClass SeisZAxisStretcher : public ParallelTask
 {
 public:
     			SeisZAxisStretcher( const IOObj& in,
@@ -94,4 +93,3 @@ protected:
 };
 
 #endif
-

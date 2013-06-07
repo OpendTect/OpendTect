@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiattributesmod.h"
 #include "uibuildlistfromlist.h"
 #include "datapack.h"
 
@@ -22,11 +21,11 @@ namespace Attrib { class DescSet; }
 class uiPreStackAttrib;
 
 
-mExpClass(uiAttributes) uiAttribDescSetBuild : public uiBuildListFromList
+mClass uiAttribDescSetBuild : public uiBuildListFromList
 {
 public:
 
-    mExpClass(uiAttributes) Setup
+    mClass Setup
     {
     public:
 			Setup(bool for2d);
@@ -75,4 +74,3 @@ protected:
 
 
 #endif
-

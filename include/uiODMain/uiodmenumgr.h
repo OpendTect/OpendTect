@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodapplmgr.h"
 
 class DirList;
@@ -33,7 +32,7 @@ class uiToolBar;
 
 */
 
-mExpClass(uiODMain) uiODMenuMgr : public CallBacker
+mClass uiODMenuMgr : public CallBacker
 {
 
     friend class	uiODMain;
@@ -44,8 +43,6 @@ public:
     uiPopupMenu*	fileMnu()		{ return surveymnu_; }
     uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
     uiPopupMenu*	analMnu()		{ return analmnu_; }
-    uiPopupMenu*	analWellMnu()		{ return analwellmnu_; }
-    uiPopupMenu*	layerModelMnu()		{ return layermodelmnu_; }
     uiPopupMenu*	procMnu()		{ return procmnu_; }
     uiPopupMenu*	sceneMnu()		{ return scenemnu_; }
     uiPopupMenu*	viewMnu()		{ return viewmnu_; }
@@ -91,8 +88,6 @@ protected:
 
     uiPopupMenu*	surveymnu_;
     uiPopupMenu*	analmnu_;
-    uiPopupMenu*	analwellmnu_;
-    uiPopupMenu*	layermodelmnu_;
     uiPopupMenu*	procmnu_;
     uiPopupMenu*	scenemnu_;
     uiPopupMenu*	viewmnu_;
@@ -135,7 +130,6 @@ protected:
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
     void		manBody(CallBacker*);
-    void		manProps(CallBacker*);
     void		manFlt(CallBacker*);
     void		manWll(CallBacker*);
     void		manPick(CallBacker*);
@@ -166,8 +160,11 @@ protected:
     void		mkViewIconsMnu();
     void		addIconMnuItems(const DirList&,uiPopupMenu*,
 	    				BufferStringSet&);
+
+public:
+    uiPopupMenu*       layerModelMnu();
+    void 		manProps(CallBacker*);
 };
 
 
 #endif
-

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "ranges.h"
 
@@ -21,7 +20,7 @@ class uiSelLineStyle;
 
 namespace visSurvey { class PlaneDataDisplay; }
 
-mExpClass(uiVis) uiGridLinesDlg : public uiDialog
+mClass uiGridLinesDlg : public uiDialog
 {
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);
@@ -39,10 +38,8 @@ protected:
     uiGenInput*		crlspacingfld_;
     uiGenInput*		zspacingfld_;
     uiSelLineStyle*     lsfld_;
-    uiCheckBox*		applyallfld_;
 
     visSurvey::PlaneDataDisplay*	pdd_;
 };
 
 #endif
-

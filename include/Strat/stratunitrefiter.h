@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stratunitref.h"
 
 
@@ -27,7 +26,7 @@ namespace Strat
 
 */
 
-mExpClass(Strat) UnitRefIter
+mClass UnitRefIter
 {
 public:
 
@@ -64,4 +63,3 @@ protected:
 } // namespace
 
 #endif
-

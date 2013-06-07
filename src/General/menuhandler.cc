@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "menuhandler.h"
@@ -148,8 +148,8 @@ void MenuItemHolder::itemIsDeletedCB( CallBacker* cb )
 	pErrMsg( "Hugh?" );
     else
     {
-	items_.removeSingle( idx );
-	manageitems_.removeSingle( idx );
+	items_.remove( idx );
+	manageitems_.remove( idx );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribsel.h"
 
@@ -150,7 +150,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
 	if ( ds.getDesc(id_) && 
-	     attribname!=ds.getDesc(id_)->attribName() )
+	     strcmp( attribname, ds.getDesc(id_)->attribName() ) )
 	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
     }
     const Desc* desc = ds.getDesc( id_ );
@@ -179,10 +179,11 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
-		Desc* ncdesc = const_cast<Desc*>( desc );
 		BufferString attrnm;
 		LineKey lk( desc->userRef() );
 		attrnm = lk.attrName();
+		Desc* ncdesc = const_cast<Desc*>( desc );
+
 		if ( !desc->is2D() && attrnm == LineKey::sKeyDefAttrib() )
 		    ncdesc->setUserRef( ioobj->name() );
 		else
@@ -256,7 +257,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	    const Desc* desc = attrset->getDesc( descid );
 	    const BufferString usrref( desc->userRef() );
 	    if ( !desc || usrref.isEmpty()
-	      || desc->attribName()==StorageProvider::attribName()
+	      || !strcmp(desc->attribName(),StorageProvider::attribName())
 	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
 		continue;
 
@@ -305,9 +306,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( !ZDomain::isSI(ioobj.pars()) )
 	    continue;
 
-	FixedString res = ioobj.pars().find( sKey::Type() );
-	if ( res && ( (!steerdata && res==sKey::Steering() )
-	         || ( steerdata && res!=sKey::Steering() ) ) )
+	const char* res = ioobj.pars().find( sKey::Type );
+	if ( res && ( (!steerdata && !strcmp(res,sKey::Steering) )
+	         || ( steerdata && strcmp(res,sKey::Steering) ) ) )
 	    continue;
 
 	if ( !res && steerdata && !is2d ) continue;
@@ -407,7 +408,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 	{
 	    LineKey tmpkey( "", nms.get(idx).buf() );
 	    if ( SeisIOObjInfo(*ioobj).nrComponents(tmpkey) < 2 )
-		nms.removeSingle( idx );
+		nms.remove( idx );
 	}
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistratreftree.h"
 
@@ -19,11 +19,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratunitrefiter.h"
 #include "sorting.h"
 #include "uigeninput.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uirgbarray.h"
 #include "uistratutildlgs.h"
-#include "uitreeview.h"
 
 #define mAddCol(wdth,nr) \
     lv_->setColumnWidth( nr, wdth )
@@ -38,10 +38,10 @@ static const int cLithoCol	= 2;
 using namespace Strat;
 
 uiStratRefTree::uiStratRefTree( uiParent* p )
-    : tree_(0)
+    : tree_( 0 )
     , anychange_(false)
 {
-    lv_ = new uiTreeView( p, "RefTree viewer" );
+    lv_ = new uiListView( p, "RefTree viewer" );
     BufferStringSet labels;
     labels.add( "Unit" );
     labels.add( "Description" );
@@ -56,7 +56,6 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     lv_->mouseButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
     lv_->rightButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );
 
-    tree_ = 0;
     setTree( Strat::eRT() );
 }
 
@@ -78,7 +77,6 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 
     if  ( !haveTimes() )
 	setEntranceDefaultTimes();
-
 }
 
 
@@ -87,13 +85,13 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
     lvit->setPixmap( 0, *pm );\
     delete pm;
 
-void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
+void uiStratRefTree::addNode( uiListViewItem* parlvit,
 			      const NodeUnitRef& nur, bool root )
 {
-    uiTreeViewItem* lvit = parlvit
-        ? new uiTreeViewItem( parlvit, uiTreeViewItem::Setup()
+    uiListViewItem* lvit = parlvit
+	? new uiListViewItem( parlvit, uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description()) )
-	: root ? 0 : new uiTreeViewItem( lv_,uiTreeViewItem::Setup()
+	: root ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description() ));
 
     if ( parlvit || !root )
@@ -104,17 +102,20 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 	const UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
 	{
-	    uiTreeViewItem* item;
+	    uiListViewItem* item;
 	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
 	    if ( !lur ) continue;
-
-	    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup()
+	    const int lidx = lur->lithology();
+	    const Strat::LithologySet& liths = tree_->lithologies();
+	    const Strat::Lithology* litho = ( lidx >= 0 && lidx<liths.size() ) ?
+				    &liths.getLith( lur->lithology() ) : 0;
+	    uiListViewItem::Setup setup = uiListViewItem::Setup()
 				.label( lur->code() )
 				.label( lur->description() );
 	    if ( lvit )
-		item = new uiTreeViewItem( lvit, setup );
+		item = new uiListViewItem( lvit, setup );
 	    else
-		item = new uiTreeViewItem( lv_, setup );
+		item = new uiListViewItem( lv_, setup );
 	    
 	    mCreateAndSetUnitPixmap( (*lur), item )
 	}
@@ -139,7 +140,7 @@ void uiStratRefTree::expand( bool yn ) const
 
 void uiStratRefTree::makeTreeEditable( bool yn ) const
 {
-    uiTreeViewItem* lvit = lv_->firstItem();
+    uiListViewItem* lvit = lv_->firstItem();
     while ( lvit )
     {
 	lvit->setRenameEnabled( cUnitsCol, false );  //TODO
@@ -161,13 +162,13 @@ void uiStratRefTree::mousePressedCB( CallBacker* )
 
 void uiStratRefTree::rClickCB( CallBacker* )
 {
-    uiTreeViewItem* lvit = lv_->itemNotified();
+    uiListViewItem* lvit = lv_->itemNotified();
     if ( !lvit || !lvit->dragEnabled() ) return;
     handleMenu( lvit );
 }
 
 
-void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
+void uiStratRefTree::handleMenu( uiListViewItem* lvit )
 {
     if ( !strcmp( lvit->text(), Strat::RefTree::sKeyNoCode() ) )
 	{ updateUnitProperties( lvit ); return; }
@@ -204,7 +205,7 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 }
 
 
-void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
+void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
     const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
 				    : 0;
@@ -267,7 +268,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 void uiStratRefTree::addLithologies( Strat::LeavedUnitRef& un, 
 					const TypeSet<int>& ids )
 {
-    uiTreeViewItem* lvit = getLVItFromFullCode( un.fullCode() );
+    uiListViewItem* lvit = getLVItFromFullCode( un.fullCode() );
     if ( !lvit ) return;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -299,7 +300,7 @@ void uiStratRefTree::updateLithoCol()
 }
 
 
-void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
+void uiStratRefTree::subdivideUnit( uiListViewItem* lvit ) 
 {
     if ( !lvit ) return;
 
@@ -349,12 +350,12 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 }
 
 
-void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
+void uiStratRefTree::insertUnitInLVIT( uiListViewItem* lvit, int posidx,  
 					const Strat::UnitRef& unit ) const
 {
-    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup().label( unit.code() );
-    uiTreeViewItem* newitem = lvit ? new uiTreeViewItem( lvit , setup )
-                                   : new uiTreeViewItem( lv_, setup );
+    uiListViewItem::Setup setup = uiListViewItem::Setup().label( unit.code() );
+    uiListViewItem* newitem = lvit ? new uiListViewItem( lvit , setup )
+    				   : new uiListViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
     newitem->setRenameEnabled( cDescCol, false );	//TODO
     newitem->setRenameEnabled( cLithoCol, false );
@@ -368,14 +369,14 @@ void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
 	lvit->insertItem( posidx, newitem );
     }
     lv_->setCurrentItem( newitem );
-    uiTreeViewItem* parit = newitem->parent();
+    uiListViewItem* parit = newitem->parent();
     if ( !parit ) return;
     parit->setOpen( true );
     mCreateAndSetUnitPixmap( unit, newitem )
 }
 
 
-void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
+void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
     if ( !lvit ) return;
     Strat::UnitRef* un = tree_->find( getFullCodeFromLVIt( lvit ) );
@@ -412,7 +413,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 }
 
 
-void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
+void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 {
     UnitRef* unitref = tree_->find( getFullCodeFromLVIt(lvit) );
     if ( !unitref || unitref->isLeaf() ) return;
@@ -459,12 +460,12 @@ ioPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
 }
 
 
-uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
+uiListViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 {
-    uiTreeViewItem* lvit = lv_->firstItem();
+    uiListViewItem* lvit = lv_->firstItem();
     while ( lvit )
     {
-        uiTreeViewItem* item = lvit;
+	uiListViewItem* item = lvit;
 	BufferString bs = item->text();
 	while ( item->parent() )
 	{
@@ -482,7 +483,7 @@ uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 }
 
 
-BufferString uiStratRefTree::getFullCodeFromLVIt( const uiTreeViewItem* item ) const
+BufferString uiStratRefTree::getFullCodeFromLVIt( const uiListViewItem* item ) const
 {
     if ( !item )
 	return BufferString();
@@ -506,7 +507,7 @@ void uiStratRefTree::updateUnitsPixmaps()
     Strat::UnitRefIter it( *tree_ );
     const UnitRef* firstun = it.unit();
     if ( !firstun ) return;
-    uiTreeViewItem* lvit = lv_->findItem( firstun->code().buf(), 0, false);
+    uiListViewItem* lvit = lv_->findItem( firstun->code().buf(), 0, false);
     if ( lvit )
 	{ mCreateAndSetUnitPixmap( (*firstun), lvit ) }
     while ( it.next() )
@@ -522,11 +523,11 @@ void uiStratRefTree::updateUnitsPixmaps()
 
 void uiStratRefTree::moveUnit( bool up )
 {
-    uiTreeViewItem* curit = lv_->currentItem();
+    uiListViewItem* curit = lv_->currentItem();
     if ( !curit ) return;
 
     const bool isexpanded = curit->isOpen();
-    uiTreeViewItem* targetit = up ? curit->prevSibling() : curit->nextSibling();
+    uiListViewItem* targetit = up ? curit->prevSibling() : curit->nextSibling();
     if ( targetit )
 	curit->moveItem( targetit );
     else if ( lv_->findItem( curit->text(), 0, true ) ) //may be main unit 
@@ -545,10 +546,10 @@ void uiStratRefTree::moveUnit( bool up )
 
 bool uiStratRefTree::canMoveUnit( bool up )
 {
-    uiTreeViewItem* curit = lv_->currentItem();
+    uiListViewItem* curit = lv_->currentItem();
     if ( !curit ) return false;
 
-    uiTreeViewItem* target = up ? curit->prevSibling() : curit->nextSibling();
+    uiListViewItem* target = up ? curit->prevSibling() : curit->nextSibling();
 
     if ( !target && lv_->findItem( curit->text(), 0, true ) ) //may be main unit
     {
@@ -560,7 +561,7 @@ bool uiStratRefTree::canMoveUnit( bool up )
 }
 
 
-bool uiStratRefTree::isLeaved( uiTreeViewItem* lvit ) const
+bool uiStratRefTree::isLeaved( uiListViewItem* lvit ) const
 {
     const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
 				    : 0;
@@ -568,7 +569,7 @@ bool uiStratRefTree::isLeaved( uiTreeViewItem* lvit ) const
 }
 
 
-void uiStratRefTree::assignLevelBoundary( uiTreeViewItem* lvit )
+void uiStratRefTree::assignLevelBoundary( uiListViewItem* lvit )
 {
     if ( lvit )
 	setUnitLvl( getFullCodeFromLVIt(lvit) );

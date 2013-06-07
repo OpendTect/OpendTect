@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelltiewavelet.h"
 
@@ -35,7 +35,7 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	: uiGroup(p)
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, activeWvltChged(this)
-	, wvltset_(wvs)
+	, wvltset_(wvs)	       	       
 {
     createWaveletFields( this );
     for ( int idx=0; idx<wvs.size(); idx++ )
@@ -43,7 +43,7 @@ uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
 	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
 	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
-	uiwvlts_[idx]->wvltChged.notify( mCB(
+	uiwvlts_[idx]->wvltChged.notify( mCB( 
 				    this,uiWaveletView,activeWvltChanged ) );
     }
 } 
@@ -60,11 +60,11 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     grp->setHSpacing( 40 );
    
     const Wavelet* initw = wvltset_[0];
-    BufferString initwnm( "Initial :" );
-    BufferString estwnm( "Estimated" );
+    BufferString initwnm( "Initial :" ); 
+    BufferString estwnm( "Estimated" ); 
     initwnm += initw->name();
 
-    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : ");
+    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : "); 
     activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
@@ -92,20 +92,9 @@ void uiWaveletView::activeWvltChanged( CallBacker* )
 
 void uiWaveletView::setActiveWavelet( bool initial )
 {
-    if ( !activewvltfld_ )
-	return;
-
     activewvltfld_->setValue( initial );
 }
 
-
-bool uiWaveletView::isInitialWvltActive() const
-{
-    if ( !activewvltfld_ )
-	return false;
-
-    return activewvltfld_->getBoolValue();
-}
 
 
 uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
@@ -117,15 +106,15 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 {
     viewer_ = new uiFlatViewer( this );
     
-    wvltbuts_ += new uiToolButton( this, "info", "Properties",
+    wvltbuts_ += new uiToolButton( this, "info.png", "Properties",
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
-    wvltbuts_ += new uiToolButton( this, "phase", "Rotate phase",
+    wvltbuts_ += new uiToolButton( this, "phase.png", "Rotate phase",
 	    mCB(this,uiWavelet,rotatePhase) );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "wavelet_taper", "Taper Wavelet",
+    wvltbuts_ += new uiToolButton( this, "wavelet_taper.png", "Taper Wavelet",
 	    mCB(this,uiWavelet,taper) );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 
@@ -224,12 +213,10 @@ void uiWavelet::drawWavelet()
     dp->setName( wvlt_->name() );
     viewer_->setPack( true, dp->id(), false, false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
+    if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
     dp->posData().setRange( false, posns );
-    viewer_->setViewToBoundingBox();
     viewer_->handleChange( uiFlatViewer::All );
 }
 
 
 }; //namespace WellTie
-

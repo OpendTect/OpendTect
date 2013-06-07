@@ -12,12 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 class uiCheckBox;
 
-mExpClass(uiTools) uiPluginSel : public uiDialog
+mClass uiPluginSel : public uiDialog
 {
 public:
     				uiPluginSel(uiParent*);
@@ -35,4 +34,3 @@ protected:
 
 
 #endif
-

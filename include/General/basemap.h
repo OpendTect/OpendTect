@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "namedobj.h"
 #include "thread.h"
 
@@ -25,7 +24,7 @@ class LineStyle;
 /*!Object that can be painted in a basemap. */
 
 
-mExpClass(General) BaseMapObject : public NamedObject
+mClass BaseMapObject : public NamedObject
 {
 public:
 				BaseMapObject(const char* nm);
@@ -70,7 +69,7 @@ protected:
 
 
 /*!Base class for a Basemap. */
-mExpClass(General) BaseMap
+mClass BaseMap
 {
 public:
     virtual void		addObject(BaseMapObject*) 		= 0;
@@ -82,4 +81,3 @@ public:
 
 
 #endif
-

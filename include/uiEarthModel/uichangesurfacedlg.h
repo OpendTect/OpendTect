@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 namespace EM { class Horizon; }
@@ -27,7 +26,7 @@ template <class T> class StepInterval;
 
 /*!\brief Base class for surface changers. At the moment only does horizons. */
 
-mExpClass(uiEarthModel) uiChangeHorizonDlg : public uiDialog
+mClass uiChangeHorizonDlg : public uiDialog
 {
 public:
 				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
@@ -65,7 +64,7 @@ protected:
 
 class uiStepOutSel;
 
-mExpClass(uiEarthModel) uiFilterHorizonDlg : public uiChangeHorizonDlg
+mClass uiFilterHorizonDlg : public uiChangeHorizonDlg
 {
 public:
 				uiFilterHorizonDlg(uiParent*,EM::Horizon*);
@@ -84,4 +83,3 @@ protected:
 
 
 #endif
-

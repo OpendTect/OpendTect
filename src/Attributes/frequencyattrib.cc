@@ -4,11 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <stdio.h>
-#include <math.h>
 
 
 namespace Attrib
@@ -75,7 +74,7 @@ void Frequency::updateDesc( Desc& desc )
     else if ( winstr == "CosTaper20" )
     { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 
-    WindowFunction* winfunc = WINFUNCS().create( winstr );
+    WindowFunction* winfunc = WinFuncs().create( winstr );
     const bool hasvar = winfunc && winfunc->hasVariable();
     desc.setParamEnabled( paramvalStr(), hasvar );
     delete winfunc;
@@ -86,9 +85,9 @@ void Frequency::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor ( roundedzstep );
+	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -107,7 +106,7 @@ Frequency::Frequency( Desc& ds )
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( normalize_, normalizeStr() );
     mGetString( windowtype_, windowStr() );
@@ -134,7 +133,7 @@ Frequency::~Frequency()
 	    {
 		FilePath fp( GetDataDir() );
 		BufferString filename( "frequency." );
-		filename += Stats::randGen().getIndex(mUdf(int));
+		filename += Stats::RandGen::getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();
 		StreamData sd = StreamProvider( filename ).makeOStream();
 		if ( sd.usable() )
@@ -237,7 +236,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	}
 
 	if ( window_ ) window_->apply( myself->signal_ );
-	removeBias<float_complex,float>( myself->signal_ );
+	removeBias( myself->signal_ );
 	for ( int idy=0; idy<sz; idy++ )
 	    myself->timedomain_->set( sz+idy, signal_->get(idy) );
 
@@ -277,12 +276,11 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	ArrayValueSeries<float,float> arr( freqdomainpower.arr(), false );
 	FreqFunc func( arr, fftsz_ );
-	float exactpos = findExtreme( func, false, mCast(float,maxnr-1), 
-						      mCast(float,maxnr+1) );
+	float exactpos = findExtreme( func, false, maxnr-1, maxnr+1 );
 	if ( !mIsUdf(exactpos) )
 	    maxval = func.getValue( exactpos );
 	else
-	    exactpos = mCast( float, maxnr );
+	    exactpos = maxnr;
 
 	if ( mIsZero(sum,mDefEps) )
 	{

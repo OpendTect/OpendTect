@@ -12,12 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "thread.h"
-#include "callback.h"
-
 #include <iosfwd>
-
 class IOPar;
 
 
@@ -25,7 +21,7 @@ namespace Usage
 {
 class Info;
 
-mExpClass(Usage) Server : public CallBacker
+mClass Server : public CallBacker
 {
 public:
 
@@ -68,4 +64,3 @@ protected:
 
 
 #endif
-

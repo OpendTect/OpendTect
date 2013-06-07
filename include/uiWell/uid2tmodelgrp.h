@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uigroup.h"
 
 class uiFileInput;
@@ -21,11 +20,11 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 namespace Well { class Data; }
 
-mExpClass(uiWell) uiD2TModelGroup : public uiGroup
+mClass uiD2TModelGroup : public uiGroup
 {
 public:
 
-    mExpClass(uiWell) Setup
+    mClass Setup
     {
     public:
 			Setup( bool fopt=true )
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

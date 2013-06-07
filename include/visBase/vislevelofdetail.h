@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoLevelOfDetail;
@@ -27,7 +26,7 @@ resolution. Depending on how large parts of the screen the objects will fill,
 one of the versions will be used.
 */
 
-mExpClass(visBase) LevelOfDetail : public DataObject
+mClass LevelOfDetail : public DataObject
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

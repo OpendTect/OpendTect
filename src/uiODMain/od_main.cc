@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "genc.h"
@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 extern int ODMain(int,char**);
-extern Export_Basic int gLogFilesRedirectCode;
+mBasicExtern int gLogFilesRedirectCode;
 
 
 inline static bool isPromised( const char* claim )
@@ -29,7 +29,6 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
     const bool showversiononly = argv[1]
 	    && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"--version"));
 
@@ -58,6 +57,8 @@ int main( int argc, char** argv )
 	    if ( gLogFilesRedirectCode == 1 )
 		UsrMsg( msg );
 	}
+
+	od_putProgInfo( argc, argv );
    
 	ret = ODMain( argc, argv );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: stratamp.cc,v 1.15 2011/10/26 14:20:13 cvsbruno Exp $";
 
 #include "stratamp.h"
 
@@ -99,10 +99,10 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( !attribs || !descset_->usePar( *attribs, vsn ) )
 	return -1;
 
-    BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
+    BufferString outpstr = IOPar::compKey( sKey::Output, 0 );
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
     if ( !outputpar ) return -1;
-    BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
+    BufferString attribidstr = IOPar::compKey( sKey::Attributes, 0 );
     int attribid;
     if ( !outputpar->get(attribidstr,attribid) ) return -1;
 
@@ -191,9 +191,9 @@ int StratAmpCalc::nextStep()
 
     const BinID bid = trc->info().binid;
     const EM::SubID subid = bid.toInt64();
-    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
+    float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
-		     : (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+		     : bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     z1 += tophorshift_;
     z2 += bothorshift_;
     Interval<int> sampintv( trc->info().nearestSample(z1),
@@ -220,20 +220,20 @@ int StratAmpCalc::nextStep()
     {
 	case Stats::Min: outval = runcalc.min(); break;
 	case Stats::Max: outval = runcalc.max(); break;
-	case Stats::Average: outval = (float) runcalc.average(); break;
-	case Stats::RMS: outval = (float) runcalc.rms(); break;  
+	case Stats::Average: outval = runcalc.average(); break;
+	case Stats::RMS: outval = runcalc.rms(); break;  
 	case Stats::Sum: outval = runcalc.sum(); break;  
 	default: break;
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
-    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float) outval );
+    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, outval );
     if ( outfold_ )
     {
 	posidfold_.setSubID( subid );
 	addtohor->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
-					  mCast(float,runcalc.count()) );
+					  runcalc.count() );
     }
 
     nrdone_++;

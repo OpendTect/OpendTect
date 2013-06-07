@@ -7,25 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "jobrunner.h"
 
-#include "debugmasks.h"
-#include "envvars.h"
-#include "file.h"
-#include "filepath.h"
-#include "hostdata.h"
-#include "iopar.h"
-#include "jobdescprov.h"
+#include "hiddenparam.h"
 #include "jobinfo.h"
 #include "jobiomgr.h"
-#include "mmdefs.h"
-#include "msgh.h"
-#include "oddirs.h"
+#include "jobdescprov.h"
+#include "hostdata.h"
+#include "filepath.h"
+#include "file.h"
+#include "iopar.h"
+#include "jobiomgr.h"
 #include "queue.h"
+#include "mmdefs.h"
+#include "envvars.h"
 #include "timefun.h"
-
+#include "debugmasks.h"
+#include "oddirs.h"
+#include "msgh.h"
 #include <iostream>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
@@ -58,20 +59,22 @@ const BufferString& getTempBaseNm()
 
 
 int mkTmpFileNr()
-{ return 1; }
+{
+    return 1;
+}
+ 
 
-
-mGlobal(MMProc) int& MMJob_getTempFileNr(); // keep compiler happy
+mGlobal int& MMJob_getTempFileNr(); // keep compiler happy
 int& MMJob_getTempFileNr()
 {
     static int tmpfile_nr = 1;
     return tmpfile_nr;
 }
 
-
+HiddenParam<JobRunner,BufferString> errmsg_("");
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
-	, iomgr_(0)
+	, iomgr__(0)
 	, descprov_(p)
     	, rshcomm_("rsh")
 	, niceval_(19)
@@ -96,6 +99,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     procdir_ = GetProcFileName( getTempBaseNm() );
     procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
     MMJob_getTempFileNr()++;
+    errmsg_.setParam( this, "" );
 
     if ( File::exists(procdir_) && !File::isDirectory(procdir_) )
 	File::remove(procdir_);
@@ -107,7 +111,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	UsrMsg( "No jobs to process!", MsgClass::Error );
 	return;
     }
-
+	
     for ( int idx=0; idx<descprov_->nrJobs(); idx++ )
 	jobinfos_ += new JobInfo( idx );
 }
@@ -118,7 +122,7 @@ JobRunner::~JobRunner()
     deepErase( jobinfos_ );
     deepErase( hostinfo_ );
     deepErase( failedjobs_ );
-    delete iomgr_;
+    delete iomgr__;
 }
 
 
@@ -139,10 +143,12 @@ bool JobRunner::addHost( const HostData& hd )
 {
     if ( !iomgr().isReady() )
     {
-	delete iomgr_;
-	iomgr_ = 0;
-	errmsg_ = BufferString( "Failed to listen to Port ", firstport_," on ");
-	errmsg_ += HostData::localHostName();
+	delete iomgr__;
+	iomgr__ = 0;
+	BufferString errmsg;
+	errmsg = BufferString( "Failed to listen to Port ", firstport_, " on ");
+	errmsg += HostData::localHostName();
+	errmsg_.setParam( this, errmsg );
 	return false;
     }
 
@@ -162,6 +168,7 @@ bool JobRunner::addHost( const HostData& hd )
 	return true; // host already in use
 
     AssignStat res = assignJob( *hfi );
+
     if ( isnew )
     {
 	if ( res == BadHost )
@@ -177,23 +184,25 @@ bool JobRunner::addHost( const HostData& hd )
 JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
     if ( hfi.inuse_ ) return NotReady;
-
+    
     static int timestamp = -1;
-    const int elapsed = Time::passedSince( timestamp );
+
+    int elapsed = Time::passedSince( timestamp );
     if ( elapsed < 0 ) timestamp = Time::getMilliSeconds();
-    if ( elapsed < startwaittime_ ) return NotReady;
+
+    if ( elapsed < startwaittime_ ) return NotReady; 
 
     timestamp = Time::getMilliSeconds();
-
+    
     // First go for new jobs, then try failed
     for ( int tryfailed=0; tryfailed<2; tryfailed++ )
     {
 	for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
 	{
 	    JobInfo& ji = *jobinfos_[ijob];
-	    const bool isnew = ji.state_ == JobInfo::ToDo;
-	    const bool isfailed = ji.state_==JobInfo::JobFailed ||
-				  ji.state_==JobInfo::HostFailed;
+	    bool isnew = ji.state_ == JobInfo::ToDo;
+	    bool isfailed = ( ji.state_ == JobInfo::JobFailed
+		           || ji.state_ == JobInfo::HostFailed);
 	    if ( isfailed )
 	    {
 		if ( !tryfailed ) continue;
@@ -221,12 +230,12 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
     if ( hostStatus(&hfi) == HostFailed ) return HostBad;
 
-    if ( ji.jobfailures_>maxjobfailures_ || ji.hstfailures_>maxjobhstfails_)
+    if ( ji.jobfailures_ > maxjobfailures_ || ji.hstfailures_ > maxjobhstfails_)
     {
-	ji.infomsg_ = " Too many failures -- Job Bad";
+	ji.infomsg_ = " Too many failures -- Job Bad"; 
 	curjobinfo_ = &ji;
 	msgAvail.trigger();
-
+    
 	if ( mDebugOn )
 	{
 	    BufferString msg("----\nJobRunner::startJob : job ");
@@ -234,7 +243,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 	    mAddDebugMsg( ji )
 	    DBG::message(msg);
 	}
-
+   
 	jobinfos_ -= &ji; failedjobs_ += &ji;
 	return JobBad;
     }
@@ -267,8 +276,8 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
 JobIOMgr& JobRunner::iomgr()
 {
-    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, niceval_);
-    return *iomgr_;
+    if ( !iomgr__ ) iomgr__ = new JobIOMgr(firstport_, niceval_);
+    return *iomgr__;
 }
 
 
@@ -284,12 +293,13 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
     basefp = procdir_;
     basefp.add( basenm );
+
     return basefp;
 }
-
+   
 
 void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
-{
+{ 
     HostNFailInfo* hfi = 0;
     if ( ji.hostdata_ )
     {
@@ -315,8 +325,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
     curjobinfo_ = &ji;
     ji.state_ = reason;
 
-    if ( reason == JobInfo::JobFailed )
-	ji.jobfailures_++;
+    if ( reason == JobInfo::JobFailed ) ji.jobfailures_++;
     else
     {
 	ji.hstfailures_++;
@@ -338,10 +347,10 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	mAddDebugMsg( ji )
 	DBG::message(msg);
     }
-
+    
     jobFailed.trigger();
     ji.infomsg_ = "";
-}
+} 
 
 
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
@@ -378,7 +387,6 @@ JobInfo* JobRunner::currentJob( const HostNFailInfo* hfi ) const
 	if ( ji->hostdata_ == &hfi->hostdata_ && isAssigned(*ji) )
 	    return const_cast<JobInfo*>( ji );
     }
-
     return 0;
 }
 
@@ -389,7 +397,9 @@ void JobRunner::removeHost( int hnr )
 	return;
     HostNFailInfo* hfi = hostinfo_[hnr];
     hostinfo_ -= hfi;
+
     JobInfo* ji = currentJob( hfi );
+
     if ( ji )
     {
 	ji->hostdata_ = &hfi->hostdata_;
@@ -409,7 +419,6 @@ void JobRunner::pauseHost( int hnr, bool yn )
 {
     if ( hnr < 0 || hnr >= hostinfo_.size() )
 	return;
-
     JobInfo* ji = currentJob( hostinfo_[hnr] );
     if ( !ji ) return;
 
@@ -424,7 +433,6 @@ bool JobRunner::isPaused( int hnr ) const
 {
     if ( hnr < 0 || hnr >= hostinfo_.size() )
 	return false;
-
     const JobInfo* ji = currentJob( hostinfo_[hnr] );
     return ji ? ji->state_ == JobInfo::Paused : false;
 }
@@ -470,7 +478,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
     if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
 
     int totltim = Time::passedSince( hfi->starttime_ );
-
+	    
     if ( totltim > 0 && totltim <= hosttimeout_ ) // default: 10 mins.
 	return SomeFailed;
 
@@ -486,12 +494,13 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	msg += "\n last succes time: "; msg += hfi->lastsuccess_;
 
 	DBG::message(msg);
-	return HostFailed;
+	return HostFailed; 
     }
 
-    const int lastsuctim = Time::passedSince( hfi->lastsuccess_ );
-    if ( lastsuctim < 0 )  return HostFailed;
+    int lastsuctim = Time::passedSince( hfi->lastsuccess_ );
 
+    if ( lastsuctim < 0 )  return HostFailed;
+    
     if ( hfi->nrsucces_ > 0 && lastsuctim < hosttimeout_ ) return SomeFailed;
 
     return HostFailed;
@@ -522,16 +531,21 @@ int JobRunner::jobsInProgress() const
 
 
 const char* JobRunner::message() const
-{ return "Processing"; }
+{
+    return "Processing";
+}
+
 
 const char* JobRunner::nrDoneMessage() const
-{ return "Jobs completed"; }
+{
+    return "Jobs completed";
+}
 
 
 void JobRunner::setNiceNess( int n )
 {
     niceval_ = n;
-    if ( iomgr_ ) iomgr_->setNiceNess(n);
+    if ( iomgr__ ) iomgr__->setNiceNess(n);
 }
 
 
@@ -540,7 +554,6 @@ bool JobRunner::haveIncomplete() const
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
 	if ( jobinfos_[ijob]->state_ != JobInfo::Completed )
 	    return true;
-
     return false;
 }
 
@@ -548,8 +561,8 @@ bool JobRunner::haveIncomplete() const
 bool JobRunner::stopAll()
 {
     while( !hostinfo_.isEmpty() )
-	removeHost(0);
-
+	removeHost(0); 
+	
     return true;
 }
 
@@ -558,6 +571,7 @@ int JobRunner::doCycle()
 {
     if ( !iomgr().isReady() )
 	return ErrorOccurred();
+    
 
     updateJobInfo();
 
@@ -584,6 +598,7 @@ int JobRunner::doCycle()
 void JobRunner::updateJobInfo()
 {
     ObjQueue<StatusInfo>& queue = iomgr().statusQueue();
+
     while( StatusInfo* si = queue.next() )
     {
 	handleStatusInfo( *si );
@@ -593,22 +608,24 @@ void JobRunner::updateJobInfo()
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
     {
 	JobInfo& ji = *jobinfos_[ijob];
+
 	if ( isAssigned(ji)  )
 	{
 	    if ( !ji.starttime_ ) { pErrMsg("huh?"); Time::getMilliSeconds(); }
 
-	    int since_lst_chk = Time::passedSince( ji.starttime_ );
+	    int since_lst_chk = Time::passedSince( ji.starttime_ ); 
 	    if ( since_lst_chk > starttimeout_ )
 	    {
-		const int since_lst_recv = ji.recvtime_ ?
+		int since_lst_recv = ji.recvtime_ ?
 					Time::passedSince(ji.recvtime_) : -1;
-		const int to = ji.state_ == JobInfo::WrappingUp
-		    ? wrapuptimeout_ : failtimeout_;
+		int to = ji.state_ == JobInfo::WrappingUp ? wrapuptimeout_
+							  : failtimeout_;
 
 		if ( since_lst_recv < 0 || since_lst_recv > to )
 		{
 		    ji.statusmsg_ = "Timed out.";
 		    failedJob( ji, JobInfo::HostFailed );
+		
 		    if ( ji.hostdata_ )
 			iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
 		}
@@ -624,11 +641,14 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
     {
 	const JobInfo& ji = *jobinfos_[ijob];
 	const bool active = isAssigned(ji);
+	    
 	if ( active && ji.hostdata_ )
 	{
 	    BufferString* mch = new BufferString( ji.hostdata_->name() );
+
 	    *mch += " -:- ";
 	    *mch += ji.statusmsg_;
+
 	    res += mch;
 	}
     }
@@ -641,6 +661,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     if ( !ji ) return;
 
     curjobinfo_ = ji;
+
     ji->infomsg_ = "";
     ji->recvtime_ = si.timestamp;
     if ( si.msg.size() ) ji->infomsg_ = si.msg;
@@ -712,7 +733,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	break;
 
 	case mSTAT_HSTERROR:
-	case mSTAT_KILLED:
+	case mSTAT_KILLED: 
 	    failedJob( *ji, JobInfo::HostFailed );
 	break;
 
@@ -730,11 +751,11 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	if ( mDebugOn )
 	{
 	    BufferString msg("----\nJobRunner::handleStatusInfo: info for job");
-	    msg += ji->descnr_;	msg += " : ";
+	    msg += ji->descnr_;	msg += " : "; 
 	    mAddDebugMsg( (*ji) )
 	    DBG::message(msg);
 	}
-
+  
 	msgAvail.trigger();
     }
 }
@@ -743,6 +764,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 JobInfo* JobRunner::gtJob( int descnr )
 {
     JobInfo* ret =0;
+
     for ( int idx=0; idx<jobinfos_.size(); idx++ )
 	if ( jobinfos_[idx]->descnr_ == descnr )
 	    ret = jobinfos_[idx];
@@ -753,10 +775,11 @@ JobInfo* JobRunner::gtJob( int descnr )
 	    if ( failedjobs_[idx]->descnr_ == descnr )
 		ret = failedjobs_[idx];
     }
+	
 
     return ret;
 }
 
 
 const char* JobRunner::errorMsg() const
-{ return errmsg_.size() ? errmsg_.buf() : 0; }
+{   return errmsg_.getParam(this).size() ? errmsg_.getParam(this).buf() : 0; } 

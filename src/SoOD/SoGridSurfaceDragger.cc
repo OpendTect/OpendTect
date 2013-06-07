@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "SoGridSurfaceDragger.h"
@@ -154,9 +154,8 @@ SbBool SoGridSurfaceDragger::setUpConnections( SbBool onOff,
 
         SoDragger::setUpConnections( onOff, doItAlways );
     }
-
-    connectionsSetUp = onOff;
-    return !connectionsSetUp;
+    
+    return !(connectionsSetUp = onOff);
 }
 
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "datapack.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -26,7 +25,7 @@ class TaskRunner;
 
 /*!\brief DataPack for point data. */
     
-mExpClass(General) PointDataPack : public DataPack
+mClass PointDataPack : public DataPack
 {
 public:
 
@@ -54,7 +53,7 @@ protected:
 
   */
     
-mExpClass(General) FlatDataPack : public DataPack
+mClass FlatDataPack : public DataPack
 {
 public:
     				FlatDataPack(const char* categry,
@@ -110,7 +109,7 @@ private:
 
 /*!\brief DataPack for 2D data to be plotted on a Map. */
 
-mExpClass(General) MapDataPack : public FlatDataPack
+mClass MapDataPack : public FlatDataPack
 {
 public:
     				MapDataPack(const char* categry,const char* nm,
@@ -154,7 +153,7 @@ protected:
 /*!\brief DataPack for volume data, where the dims correspond to 
           inl/crl/z . */
     
-mExpClass(General) VolumeDataPack : public DataPack
+mClass VolumeDataPack : public DataPack
 {
 public:
 
@@ -185,7 +184,7 @@ protected:
           inl/crl/z .
 */
     
-mExpClass(General) CubeDataPack : public VolumeDataPack
+mClass CubeDataPack : public VolumeDataPack
 {
 public:
     				CubeDataPack(const char* categry,
@@ -217,4 +216,3 @@ private:
 
 
 #endif
-

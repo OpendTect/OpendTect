@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.6 2010/08/11 10:01:48 cvshelene Exp $";
 
 
 #include "uisemblanceattrib.h"
@@ -38,6 +38,14 @@ static const char* extstrs2d[] =
 	"None",
 	"Mirror 180 degrees",
 	"Full block",
+	0
+};
+
+static const char* outpstrs[] =
+{
+	"Average",
+	"Min",
+	"Max",
 	0
 };
 

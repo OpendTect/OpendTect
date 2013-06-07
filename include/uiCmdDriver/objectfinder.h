@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "sets.h"
 
 class FileMultiString;
@@ -25,7 +24,7 @@ namespace CmdDrive
 
 class WildcardManager;
 
-mExpClass(uiCmdDriver) ObjectFinder
+mClass ObjectFinder
 {
 public:
     			ObjectFinder(const uiMainWin&,bool casesensitive=true,

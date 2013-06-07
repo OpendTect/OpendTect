@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		Sept 2008
- RCS:		$Id$
+ RCS:		$Id: uigmtsymbolpars.h,v 1.5 2011/04/01 09:44:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 class uiColorInput;
 
 
-mClass(uiGMT) uiGMTSymbolPars : public uiGroup
+class uiGMTSymbolPars : public uiGroup
 {
 public:
 			uiGMTSymbolPars(uiParent*,bool);

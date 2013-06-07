@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "task.h"
 #include "objectset.h"
 #include "callback.h"
@@ -28,13 +27,13 @@ class ConditionVar;
 class WorkThread;
 class Work;
 
-
-/*!
-\brief Takes work and puts it on a queue for execution either in parallel,
-singlethread or manual.
+/*!\brief
+Takes work and puts it on a queue for execution either in parallel, singlethread
+or manual.
 */
 
-mExpClass(Basic) WorkManager : public CallBacker
+
+mClass WorkManager : public CallBacker
 {
 public:
 
@@ -53,23 +52,20 @@ public:
     				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
     static int			cDefaultQueueID() { return 0; }
-    bool			executeQueue(int queueid);
+    void			executeQueue(int queueid);
     				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
     void			addWork(const Work&,CallBack* finished,
-	    				int queueid, bool putfirstinline,
-					bool discardduplicates=false);
+	    				int queueid, bool putfirstinline);
+    				//!< Managed by caller if manage flag is false
 
-    bool			addWork(TypeSet<Work>&, int queueid = -1,
+    bool			addWork(TypeSet<Work>&, int queueid,
 	    				bool firstinline = false);
-    
-    bool			executeWork( Work*, int sz, int queueid = -1,
-					bool firstinline = false );
-    				//!<Returns when finished with all
     bool			removeWork(const Work&);	
     				/*!< Removes the task from queue
-				     and stop it if allready running.
+				     and stop it if allready running. If
+				     task is managed, it will be deleted.
 				    \returns true if the task was removed
 				    before it had started.*/
 
@@ -121,12 +117,13 @@ protected:
 };
 
 
-/*!
-\brief The abstraction of something that can be done. It can be an ordinary
-CallBack, a static function (must return bool) or a TaskFunction on a CallBackerinheriting class, or a Task. The three examples are shown below.
+/*! The abstraction of something that can be done. It can be an ordinary
+    CallBack, a static function (must return bool) or a TaskFunction on
+    a CallBacker inheriting class, or a Task. The three examples are shown
+    below.
 
 \code
-    mExpClass(Basic) MyClass : public CallBacker
+    mClass MyClass : public CallBacker
     {
         void		normalCallBack(CallBacker*);
 	bool		taskFunction();
@@ -150,7 +147,8 @@ You can also add Tasks, with the option that they may be deleted when
 the work is done, or if there is an error.
 */
 
-mExpClass(Basic) Work
+
+mClass Work
 {
 public:
     inline		Work();
@@ -172,7 +170,7 @@ protected:
     CallBackFunction	cbf_;
     TaskFunction	tf_;
     StaticTaskFunction	stf_;
-    bool		takeover_;
+    bool			takeover_;
 };
 
 #define mSTFN(clss,fn) ((::TaskFunction)(&clss::fn))
@@ -222,5 +220,6 @@ inline bool Threads::Work::doRun()
     return true;
 }
 
-#endif
 
+
+#endif

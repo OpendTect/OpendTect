@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "cubesampling.h"
 #include "datapack.h"
 #include "emposid.h"
@@ -23,19 +22,16 @@ class uiMainWin;
 class uiODMain;
 class uiODVw2DTreeTop;
 class uiSlicePos2DView;
-class uiToolBar;
 class uiTreeFactorySet;
-class MouseCursorExchange;
+class uiToolBar;
 class Vw2DDataManager;
 
 namespace Attrib { class SelSpec; }
-namespace FlatView { class AuxData; }
 
-/*!
-\brief A 2D Viewer.
+/*!\brief Manages the 2D Viewers
 */
 
-mExpClass(uiODMain) uiODViewer2D : public CallBacker
+mClass uiODViewer2D : public CallBacker
 {
 public:
 				uiODViewer2D(uiODMain&,int visid);
@@ -43,7 +39,6 @@ public:
 
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
-    void			setMouseCursorExchange(MouseCursorExchange*);
 
     uiFlatViewWin* 		viewwin() 		{ return  viewwin_; }
     const uiFlatViewWin* 	viewwin() const		{ return  viewwin_; }
@@ -77,13 +72,10 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void 		setWinTitle(int visid);
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
     static const char*		sKeyPos() 	 { return "Position"; }
-
-    Notifier<uiODViewer2D>	winClosed;
 
 protected:
 
@@ -98,14 +90,12 @@ protected:
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
     uiFlatViewWin*		viewwin_;
-    MouseCursorExchange*	mousecursorexchange_;
-    FlatView::AuxData*		marker_;
 
     MultiID			linesetid_;
     CubeSampling		cs_;
 
     int				polyseltbid_;
-    bool			ispolyselect_;
+    bool			isPolySelect_;
 
     virtual void		createViewWin(bool isvert);
     virtual void		createTree(uiMainWin*);
@@ -121,9 +111,6 @@ protected:
     void			selectionMode(CallBacker*);
     void			handleToolClick(CallBacker*);
     void			removeSelected(CallBacker*);
-    void			mouseCursorCB(CallBacker*);
-    void			mouseMoveCB(CallBacker*);
 };
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "callback.h"
 #include "flatview.h"
 
@@ -22,11 +21,8 @@ class uiColorTable;
 class uiGroup;
 class uiParent;
 
-/*!
-\brief FlatView color table editor.
-*/
 
-mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
+mClass uiFlatViewColTabEd : public CallBacker
 {
 public:
     				uiFlatViewColTabEd(uiParent*,FlatView::Viewer&);
@@ -48,4 +44,3 @@ protected:
 };
 
 #endif
-

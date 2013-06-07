@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -24,7 +23,7 @@ namespace visBase
 /*!\brief
 */
 
-mExpClass(visBase) ObliqueSlice : public visBase::VisualObjectImpl
+mClass ObliqueSlice : public visBase::VisualObjectImpl
 {
 public:
     static ObliqueSlice*	create()
@@ -44,4 +43,3 @@ protected:
 };
 	
 #endif
-

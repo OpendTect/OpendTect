@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigeninput.h"
 #include "uifiledlg.h"
 
@@ -30,11 +29,11 @@ you specify otherwise in the setup.
 
 */
 
-mExpClass(uiTools) uiFileInput : public uiGenInput
+mClass uiFileInput : public uiGenInput
 { 	
 public:
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup(const char* filenm=0);
@@ -114,4 +113,3 @@ protected:
 
 
 #endif
-

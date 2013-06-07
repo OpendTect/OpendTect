@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -27,6 +27,7 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
 {
     setColors( Color(0,0,200), Color(255,255,200) );
     viewer_.viewChanged.notify( mCB(this,uiFlatViewThumbnail,vwChg) );
+    viewer_.viewChanging.notify( mCB(this,uiFlatViewThumbnail,vwChging) );
     mousehandler_.buttonReleased.notify(
 	    		mCB(this,uiFlatViewThumbnail,mouseRelCB) );
     mousehandler_.buttonPressed.notify(
@@ -80,20 +81,16 @@ void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
     mDeclW2UVars( viewarea );
     const uiRect uibr( w2u.transform(br) );
     if ( !bgrectitem_ )
-	bgrectitem_ = scene().addRect( mCast(float,uibr.left()), 
-				       mCast(float,uibr.top()), 
-				       mCast(float,uibr.width()),
-				       mCast(float,uibr.height()) );
+	bgrectitem_ = scene().addRect( uibr.left(), uibr.top(), uibr.width(),
+				     uibr.height() );
     else
 	bgrectitem_->setRect( uibr.left(),uibr.top(),uibr.width(),uibr.height() );
 
     uiRect uiwr;
     getUiRect( feedbackwr_ ? *feedbackwr_ : wr , uiwr );
     if ( !fgrectitem_ )
-	fgrectitem_ = scene().addRect( mCast(float,uiwr.left()), 
-				       mCast(float,uiwr.top()), 
-				       mCast(float,uiwr.width()),
-				       mCast(float,uiwr.height()) );
+	fgrectitem_ = scene().addRect( uiwr.left(), uiwr.top(), uiwr.width(),
+				     uiwr.height() );
     else
 	fgrectitem_->setRect( uiwr.left(), uiwr.top(),
 			      uiwr.width(), uiwr.height() );

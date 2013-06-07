@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "SoMFImage.h"
 #include <Inventor/fields/SoMFBool.h>
 #include <Inventor/nodes/SoNode.h>
@@ -28,7 +27,7 @@ class SoSensor;
 */
 
 
-mSoODClass SoTextureChannelSet : public SoNode
+mClass SoTextureChannelSet : public SoNode
 { SO_NODE_HEADER(SoTextureChannelSet);
 public:
     static		void initClass();
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

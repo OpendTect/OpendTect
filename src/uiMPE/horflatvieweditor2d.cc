@@ -531,7 +531,7 @@ void HorizonFlatViewEditor2D::horRepaintedCB( CallBacker* )
 }
 
 
-FlatView::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
+FlatView::Annotation::AuxData* HorizonFlatViewEditor2D::getAuxData( int markid )
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
     {
@@ -583,7 +583,7 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     if ( !linesetgeom.getLineData( linenm_ ) )
 	return false;
 
-    linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mUdf(float) );
+    linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mUdf(double) );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
     if ( !hor2d ) return false;
@@ -634,8 +634,7 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 	bid.inl = hor2d->geometry().lineIndex( linenm_ );
 
 	int posidx = horpainter_->getDistances().indexOf(
-				mCast( float, getAuxData(selectedids[ids])->
-				poly_[selectedidxs[ids]].x ) );
+		getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x );
 	bid.crl = horpainter_->getTrcNos()[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );

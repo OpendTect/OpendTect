@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiioobjsel.h"
 
@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
-#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 
@@ -97,14 +96,13 @@ void relocStart( const char* msg )
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel,
-			      bool havereloc, bool havesetsurvdefault )
+			      bool havereloc )
     : uiGroup(p)
     , ctio_(c)
     , ismultisel_(multisel && ctio_.ctxt.forread)
     , nmfld_(0)
     , manipgrpsubj(0)
     , newStatusMsg(this)
-    , mkdefbut_( 0 )
     , selectionChg(this)
     , confirmoverwrite_(true)
     , asked2overwrite_(false)
@@ -161,13 +159,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
 							 havereloc );
-	
-	if ( havesetsurvdefault )
-	{
-	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
-		"makedefault", "Set as default",
-		mCB(this,uiIOObjSelGrp,makeDefaultCB) );
-    }
     }
 
     listfld_->setHSzPol( uiObject::Wide );
@@ -261,27 +252,6 @@ void uiIOObjSelGrp::delPress( CallBacker* )
 {
     if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
 	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
-}
-
-
-void uiIOObjSelGrp::setSurveyDefaultSubsel(const char* subsel)
-{
-    surveydefaultsubsel_ = subsel;
-}
-
-
-void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
-{
-    if ( nrSel()!=1 )
-	return;
-    
-    PtrMan<IOObj> ioobj = IOM().get( selected() );
-    if ( !ioobj )
-	return;
-    
-    ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
-    
-    fullUpdate( 0 );
 }
 
 
@@ -396,12 +366,10 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
     BufferString info;
-    bool allowsetdefault;
     if ( ismultisel_ && nrSel()>1 )
     {
 	info += "Multiple objects selected (";
 	info += nrSel(); info += "/"; info += listfld_->size(); info += ")";
-	allowsetdefault = false;
     }
     else
     {
@@ -411,11 +379,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	    nmfld_->setText( ioobj ? ioobj->name() : "" );
 	info = getLimitedDisplayString( !ioobj ? "" :
 			 ioobj->fullUserExpr(ctio_.ctxt.forread), 40, false );
-	allowsetdefault = ioobj && ioobj->implExists(true);
     }
-
-    if ( mkdefbut_ )
-	mkdefbut_->setSensitive( allowsetdefault );
 
     toStatusBar( info );
     selectionChg.trigger();
@@ -520,13 +484,13 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 	return false;
 
     if ( !ismultisel_ )
-	iop.set( sKey::ID(), ctio_.ioobj->key() );
+	iop.set( sKey::ID, ctio_.ioobj->key() );
     else
     {
 	TypeSet<MultiID> mids; getSelected( mids );
-	iop.set( sKey::Size(), mids.size() );
+	iop.set( sKey::Size, mids.size() );
 	for ( int idx=0; idx<mids.size(); idx++ )
-	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+	    iop.set( IOPar::compKey(sKey::ID,idx), mids[idx] );
     }
 
     return true;
@@ -547,12 +511,12 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     else
     {
 	int nrids;
-	iop.get( sKey::Size(), nrids );
+	iop.get( sKey::Size, nrids );
 	TypeSet<MultiID> mids;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
 	    MultiID mid;
-	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	    if ( iop.get(IOPar::compKey(sKey::ID,idx),mid) )
 		mids += mid;
 	}
 
@@ -562,8 +526,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt, bool multisel,
-			      bool havesetsurvdefault)
+			      const char* seltxt, bool multisel )
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
 		    	mNoDlgTitle,"8.1.1")
@@ -571,8 +534,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, selgrp_( 0 )
 {
     const bool ismultisel = multisel && c.ctxt.forread;
-    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel, false,
-				 havesetsurvdefault );
+    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel );
     selgrp_->getListField()->setHSzPol( uiObject::Wide );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
@@ -613,13 +575,6 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
     toStatusBar( msg );
-}
-
-
-void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
-{
-    selgrp_->setSurveyDefaultSubsel(subsel);
-
 }
 
 
@@ -702,7 +657,7 @@ void uiIOObjSel::setForRead( bool yn )
 
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::ID(), workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
+    iopar.set( sKey::ID, workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
     return true;
 }
 
@@ -717,7 +672,7 @@ bool uiIOObjSel::fillPar( IOPar& iopar, const char* bky ) const
 
 void uiIOObjSel::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKey::ID() );
+    const char* res = iopar.find( sKey::ID );
     if ( res && *res )
     {
 	workctio_.setObj( MultiID(res) );
@@ -782,7 +737,7 @@ void uiIOObjSel::obtainIOObj()
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
 	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj 
-			      && workctio_.ioobj->name()==inp.buf() )
+			      && !strcmp(workctio_.ioobj->name(), inp.buf()) )
 	    return;
     }
 

@@ -11,26 +11,24 @@ ________________________________________________________________________
 
 -*/
 
-#include "multiid.h"
 #include "propertyref.h"
-#include "welllogset.h"
 #include "uigroup.h"
-#include "uiwellmod.h"
+#include "multiid.h"
 
 class ElasticPropSelection;
 class PropertyRef;
 class UnitOfMeasure;
+class uiPushButton;
 
 class uiLabel;
 class uiComboBox;
 class uiCheckBox;
-class uiPushButton;
 class uiUnitSel;
 
 namespace Well { class LogSet; }
 
 
-mExpClass(uiWell) uiPropSelFromList : public uiGroup
+mClass uiPropSelFromList : public uiGroup
 {
 public:
 			uiPropSelFromList(uiParent*,const PropertyRef&,
@@ -54,8 +52,6 @@ public:
     const PropertyRef*  altPropRef() const { return altpropref_; }
 
     uiComboBox*   	typeFld() const         { return typefld_; }
-    uiLabel*		getLabel() const	{ return typelbl_; }
-    Notifier<uiPropSelFromList>	comboChg_;
 
 protected:
     const PropertyRef&  propref_;
@@ -66,47 +62,70 @@ protected:
     uiUnitSel*          unfld_;
     uiCheckBox*         checkboxfld_;
 
-    void		updateSelCB(CallBacker*);
     void                switchPropCB(CallBacker*);
+
+public:
+    Notifier<uiPropSelFromList>*	comboChg();
+    uiLabel*		getLabel() const	{ return typelbl_; }
+
+
+protected:
+    void		updateSelCB(CallBacker*);
 };
 
 
-mExpClass(uiWell) uiWellPropSel : public uiGroup
+
+
+mClass uiWellPropSel : public uiGroup
 {
 public:
-
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
-    int			size() const	{ return propflds_.size(); }
 
-    bool		setLogs(const Well::LogSet&);
+			//do NOT use, will be removed shortly
+    void		setLogs(const Well::LogSet&);
+
+			//do NOT use, will be removed shortly
+    bool		setLog(const PropertyRef::StdType,const char*,
+	    			bool check,const UnitOfMeasure*);
     bool		setLog(const PropertyRef::StdType,const char*,
 	    			bool check,const UnitOfMeasure*, int idx);
+    			//do NOT use, will be removed shortly
     bool		getLog(const PropertyRef::StdType,BufferString&,
-	    			bool&, BufferString& uom, int idx) const;
+	    			bool&,BufferString& uom) const;
+    bool		getLog(const PropertyRef::StdType,BufferString&,
+	    			bool&,BufferString& uom, int idx) const;
 
-    uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
-    uiPropSelFromList*	getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
-    void		setWellID( const MultiID& wid ) { wellid_ = wid; }
-
-    MultiID		wellid_;
 
 protected:
     void				initFlds();
 
     const PropertyRefSelection&  	proprefsel_;
     ObjectSet<uiPropSelFromList> 	propflds_;
-    void		updateSelCB(CallBacker*);
 
     static const char*			sKeyPlsSel() { return "Please select"; }
+
+public:
+    void		setWellIDMain(const MultiID& wid);
+    MultiID		getWellIDMain();
+    uiPropSelFromList*	getPropSelFromListByName(const BufferString&);
+    // od4.4 binary compatibility - corresponds to setLogs in od
+    bool		setLogsBool(const Well::LogSet&);
+
+protected:
+    void		updateSelCB(CallBacker*);
 };
 
 
-mExpClass(uiWell) uiWellPropSelWithCreate : public uiWellPropSel
+
+mClass uiWellPropSelWithCreate : public uiWellPropSel
 {
 public:
 			uiWellPropSelWithCreate(uiParent*,
-				const PropertyRefSelection&);
+			const PropertyRefSelection&);
+
+    void		setWellID(const MultiID& wid) { wellid_ = wid; }
+    MultiID		wellid_;
 
     Notifier<uiWellPropSel> logscreated; 
 
@@ -117,14 +136,19 @@ protected:
 
 
 
-mExpClass(uiWell) uiWellElasticPropSel : public uiWellPropSel
+mClass uiWellElasticPropSel : public uiWellPropSel
 {
 public:
 			uiWellElasticPropSel(uiParent*,bool withswaves=false);
 			~uiWellElasticPropSel();
 
+    bool		setDenLog(const char*,const UnitOfMeasure*);
+    bool		getDenLog(BufferString&,BufferString& uom) const;
+
+    bool		setVelLog(const char*,const UnitOfMeasure*,bool);
+    bool		getVelLog(BufferString&,BufferString& uom,
+	    			bool& isrev)const;
 };
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidlggroup.h"
 
 class Array1DInterpol;
@@ -23,7 +22,7 @@ class uiArray2DInterpol;
 template <class T> class Array1D;
 
 
-mExpClass(uiTools) uiArray1DInterpolSel : public uiDlgGroup
+mClass uiArray1DInterpolSel : public uiDlgGroup
 {
 public:
     				uiArray1DInterpolSel( uiParent*,bool extrapol,
@@ -49,4 +48,3 @@ protected:
 };
 
 #endif
-

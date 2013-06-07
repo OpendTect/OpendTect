@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiobjfileman.h"
 
@@ -24,7 +23,7 @@ class uiStratLevelSel;
 class uiTextEdit;
 class uiToolButton;
 
-mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
+mClass uiSurfaceMan : public uiObjFileMan
 {
 public:
 			uiSurfaceMan(uiParent*,const char* typ);
@@ -49,8 +48,6 @@ protected:
 
     void		mergeBodyCB(CallBacker*);
     void		createBodyRegionCB(CallBacker*);
-    void		switchValCB(CallBacker*);
-    void		calVolCB(CallBacker*);
 
     void		removeAttribCB(CallBacker*);
     void		renameAttribCB(CallBacker*);
@@ -58,10 +55,12 @@ protected:
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
     double		getFileSize(const char*,int&) const;
+
+    const char*		getDefKey() const;
 };
 
 
-mExpClass(uiEarthModel) uiSurface2DMan : public uiDialog
+mClass uiSurface2DMan : public uiDialog
 {
 public:
     			uiSurface2DMan(uiParent*,const EM::IOObjInfo&);
@@ -75,4 +74,3 @@ protected:
 
 
 #endif
-

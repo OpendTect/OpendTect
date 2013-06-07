@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uisaveimagedlg.h"
 
 class IOPar;
@@ -19,11 +18,7 @@ class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;
 
-/*!
-\brief Print scene dialog box.
-*/
-
-mExpClass(uiCoin) uiPrintSceneDlg : public uiSaveImageDlg
+mClass uiPrintSceneDlg : public uiSaveImageDlg
 {
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
@@ -48,4 +43,3 @@ protected:
 };
 
 #endif
-

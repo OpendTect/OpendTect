@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id$
+# $Id: mkshobjlib,v 1.12 2009/03/06 13:52:28 cvskris Exp $
 # This script creates a shared object lib from a number of input libraries
 #_______________________________________________________________________________
 

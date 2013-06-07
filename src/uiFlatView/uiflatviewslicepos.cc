@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiflatviewslicepos.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
     : uiSlicePos( p )
 {
-    zfactor_ = SI().zDomain().userFactor();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cmddriverbasics.h"
 
@@ -20,14 +20,12 @@ namespace CmdDrive
 {
 
 
-#define mReturnRetIfReadOnly( retval ) \
+#define mReturnIfReadOnly( retval ) \
     if ( !bufstr_ ) \
     { \
 	pErrMsg( "StringProcessor: Attempt to write read-only string" ); \
 	return retval; \
     }
-
-#define mReturnIfReadOnly()	mReturnRetIfReadOnly(;)
 
 const char* StringProcessor::parseDQuoted( BufferString& unquotedstr ) const
 {
@@ -63,7 +61,7 @@ const char* StringProcessor::parseBracketed( BufferString& unbracketedstr,
 	stop++;
     }
 
-    unbracketedstr.setBufSize( mCast(unsigned int, stop - start + 1) );
+    unbracketedstr.setBufSize( stop - start + 1 );
     char* ptrbuf = unbracketedstr.buf();
     while ( start != stop )
 	*ptrbuf++ = *start++;
@@ -100,7 +98,7 @@ int StringProcessor::nrDQuotes() const
 
 int StringProcessor::removeNumAppendix() 
 {
-    mReturnRetIfReadOnly( 0 );
+    mReturnIfReadOnly( 0 );
 
     char* wicketptr = bufstr_->buf() + bufstr_->size();
 
@@ -127,7 +125,7 @@ int StringProcessor::removeNumAppendix()
 
 bool StringProcessor::removeTokenAppendix( char token )
 {
-    mReturnRetIfReadOnly( 0 );
+    mReturnIfReadOnly( 0 );
 
     char* tokenptr = bufstr_->buf() + bufstr_->size() - 1;
 
@@ -572,7 +570,7 @@ void StringProcessor::cleanUp()
 char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 					  const char* endsymbols )
 {
-    mReturnRetIfReadOnly( '\0' );
+    mReturnIfReadOnly( '\0' );
 
     BufferString bufcopy = bufstr_->buf();
     char* firstptr = bufcopy.buf();
@@ -625,7 +623,7 @@ bool isCmdDriverWindow( const uiMainWin* uimw )
     if ( !uimw )
 	return false;
 
-    if ( uimw->name() == controllerTitle() )
+    if ( !strcmp(uimw->name(), controllerTitle()) )
 	return true;
 
     uiParent* parent = const_cast<uiParent*>( uimw->parent() );
@@ -681,7 +679,7 @@ bool WindowStack::moveToTopWithoutSync( const uiMainWin* curwin )
     int framecnt = 0;
     while ( true )
     {
-	const uiMainWin* uimw = winstack_.removeSingle( stackidx+framecnt );
+	const uiMainWin* uimw = winstack_.remove( stackidx+framecnt );
 	winstack_.insertAt( uimw, framecnt );
 	if ( !uimw->isModal() )
 	    break;
@@ -700,15 +698,15 @@ void WindowStack::synchronize()
 
     for ( int idx=winstack_.size()-1; idx>=0; idx-- )
     {
-	if ( !windowlist.isPresent(winstack_[idx]) )
-	    winstack_.removeSingle( idx );
+	if ( windowlist.indexOf(winstack_[idx]) < 0 )
+	    winstack_.remove( idx );
     }
 
     for ( int idx=0; idx<windowlist.size(); idx++ )
     {
 	uiMainWin* curwin = windowlist[idx];
 
-	if ( winstack_.isPresent(curwin) )
+	if ( winstack_.indexOf(curwin) >= 0 )
 	    continue;
 
 	if ( !curwin->isModal() )
@@ -739,7 +737,7 @@ void WindowStack::synchronize()
     for ( int idx=winstack_.size()-1; idx>=0; idx-- )
     {
 	if ( winstack_[idx]->isHidden() )
-	    winstack_.removeSingle( idx );
+	    winstack_.remove( idx );
     }
 }
 

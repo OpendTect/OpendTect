@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -22,7 +21,7 @@ class uiLabel;
 class uiLineEdit;
 template <class T> class StepInterval;
 
-mExpClass(uiBase) uiSlider : public uiObject
+mClass uiSlider : public uiObject
 {
 public:
 
@@ -37,7 +36,6 @@ public:
     void		setText(const char*);
     const char*		text() const;
 
-    void		setValue(int);
     void		setValue(float);
     int 		getIntValue() const;
     float 		getValue() const;
@@ -49,11 +47,7 @@ public:
     void		setStep(float);
     void		setScale(float fact,float constant);
     float		step() const;
-
-    void		setInterval(const StepInterval<int>&);
-    void		setInterval(int start,int stop,int step=1);
     void		setInterval(const StepInterval<float>&);
-    void		setInterval(float start,float stop,float step);
     void		getInterval(StepInterval<float>&) const;
     void		setLinearScale(double,double);
 
@@ -69,7 +63,7 @@ public:
     void		setInvertedControls(bool);
     bool		hasInvertedControls() const;
 
-    bool		isLogScale()			{ return logscale_; }
+    bool		isLogScale()			{ return logscale; }
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
@@ -81,9 +75,9 @@ public:
 
 private:
 
-    mutable BufferString result_;
+    mutable BufferString result;
     LinScaler*		scaler_;
-    bool		logscale_;
+    bool		logscale;
 
     uiSliderBody*	body_;
     uiSliderBody&	mkbody(uiParent*,const char*);
@@ -96,11 +90,11 @@ private:
 
 /*! Slider with label */
 
-mExpClass(uiBase) uiSliderExtra : public uiGroup
+mClass uiSliderExtra : public uiGroup
 {
 public:
 
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
     public:
 			Setup(const char* l=0)
@@ -143,4 +137,3 @@ protected:
 
 
 #endif
-

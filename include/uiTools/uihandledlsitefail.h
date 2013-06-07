@@ -13,13 +13,11 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
 class ODDLSite;
 class BufferStringSet;
 class uiComboBox;
-class uiPushButton;
 class uiSlider;
 
 
@@ -33,7 +31,7 @@ class uiSlider;
  */
 
 
-mExpClass(uiTools) uiHandleDLSiteFail : public uiDialog
+mClass uiHandleDLSiteFail : public uiDialog
 {
 public:
 
@@ -50,15 +48,12 @@ protected:
     const bool		isfatal_;
 
     uiComboBox*		dlsitefld_;
-    uiPushButton*	proxybut_;
     uiSlider*		timeoutfld_;
 
-    void		proxyButCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
-
+    void		proxyButCB(CallBacker*);
 };
 
 
 #endif
-

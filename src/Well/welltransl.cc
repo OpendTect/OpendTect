@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "welltransl.h"
@@ -22,7 +22,7 @@ mDefSimpleTranslatorioContext(Well,WllInf)
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
+    if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
     if ( !iostrm ) return false; \
 \

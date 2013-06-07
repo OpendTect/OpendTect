@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexture.h"
 
 class SoTexture2;
@@ -30,7 +29,7 @@ class VisColorTab;
 Used for creating a 2D texture
 */
 
-mExpClass(visBase) Texture2 : public Texture
+mClass Texture2 : public Texture
 {
 public:
 
@@ -81,7 +80,7 @@ To let the children share the same properties by default, use the
 share## functions.
 */
 
-mExpClass(visBase) Texture2Set : public DataObject
+mClass Texture2Set : public DataObject
 {
 public:
     static Texture2Set*	create()
@@ -124,4 +123,3 @@ protected:
 }
 
 #endif
-

@@ -12,34 +12,32 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "position.h"
 #include "arrayndimpl.h"
 
+/*!\brief Position Attribute
+
+Position stepout=2,2 gate=[0,0] oper=Min|Max steering=
+
+Calculates 'attribute 0' on every position within the cube defined by 'stepout'
+and 'gate'. Then determines at which position the oper is valid.
+At this position 'attribute 1' is calculated.
+
+
+Input:
+0       Input attribute
+1       Output attribute
+
+Output:
+0       Value of output attribute on statistical calculated position
+
+*/
+
 namespace Attrib
 {
 
-/*!
-\brief Position Attribute
-
-  Calculates 'attribute 0' on every position within the cube defined by
-  'stepout' and 'gate'. Then determines at which position the oper is valid.
-  At this position 'attribute 1' is calculated.
-
-\code
-  Position stepout=2,2 gate=[0,0] oper=Min|Max steering=
-
-  Input:
-  0       Input attribute
-  1       Output attribute
-  
-  Output:
-  0       Value of output attribute on statistical calculated position
-\endcode
-*/
-
-mExpClass(Attributes) Position : public Provider
+mClass Position : public Provider
 {
 public:
     static void			initClass();
@@ -98,4 +96,3 @@ protected:
 
 
 #endif
-

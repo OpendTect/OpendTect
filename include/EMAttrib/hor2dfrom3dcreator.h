@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "emattribmod.h"
 #include "executor.h"
 #include "posinfo2d.h"
 #include "surv2dgeom.h"
@@ -21,11 +20,7 @@ class BufferString;
 class BufferStringSet;
 class MultiID;
 
-/*!
-\brief ExecutorGroup to create EM::Horizon2D from EM::Horizon3D.
-*/
-
-mExpClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
+mClass Hor2DFrom3DCreatorGrp : public ExecutorGroup
 {
 public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
@@ -39,11 +34,7 @@ protected:
 };
 
 
-/*!
-\brief Executor to create EM::Horizon2D from EM::Horizon3D.
-*/
-
-mExpClass(EMAttrib) Hor2DFrom3DCreator : public Executor
+mClass Hor2DFrom3DCreator : public Executor
 {
 public:
     				Hor2DFrom3DCreator(const EM::Horizon3D&,
@@ -59,11 +50,9 @@ protected:
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
-    PosInfo::GeomID		oldgeomid_;
-    TraceID::GeomID             geomid_;
+    PosInfo::GeomID		geomid_;
     
     PosInfo::Line2DData		posdata_;
 };
 
 #endif
-

@@ -20,8 +20,6 @@ ________________________________________________________________________
   Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
-
 class QLocalSocketComm : public QObject 
 {
     Q_OBJECT
@@ -60,7 +58,5 @@ private:
     LocalSocket*		localsocket_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

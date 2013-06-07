@@ -2,173 +2,120 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
+#	RCS :		$Id: ODInternal.cmake,v 1.6 2012/09/11 06:14:31 cvsnageswara Exp $
 #_______________________________________________________________________________
-
-#Configure odversion.h
-configure_file ( ${OpendTect_DIR}/include/Basic/odversion.h.in ${OpendTect_DIR}/include/Basic/odversion.h )
-
-file(GLOB CMAKE_FILES CMakeModules/*.cmake )
-file(GLOB TEMPLATE_FILES CMakeModules/templates/*.in )
-set( CMAKE_FILES ${CMAKE_FILES} ${TEMPLATE_FILES} )
-OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
 install ( DIRECTORY CMakeModules DESTINATION .
-	  PATTERN ".svn" EXCLUDE
-	  PATTERN "*.swp" EXCLUDE
-	  PATTERN "*.cmake~" EXCLUDE
-	  PATTERN "sourcefiles*.txt*" EXCLUDE)
+	  PATTERN ".svn" EXCLUDE )
 
-#install doc stuff
-file( GLOB TUTHFILES plugins/Tut/*.h )
-file( GLOB TUTCCFILES plugins/Tut/*.cc )
-set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
-install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/Tut )
+#Install plugin example
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/pluginexample
+	 	   DESTINATION doc/Programmer
+	 	   PATTERN ".svn" EXCLUDE )
 
-file( GLOB UITUTHFILES plugins/uiTut/*.h )
-file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
-set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
-install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/uiTut )
-install( FILES doc/Programmer/pluginexample/CMakeLists.txt
-	 DESTINATION doc/Programmer/pluginexample )
+#Install batchprogram example
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Programmer/batchprogexample
+		   DESTINATION doc/Programmer
+		   PATTERN ".svn" EXCLUDE )
 
-install( DIRECTORY doc/Programmer/batchprogexample
-	 DESTINATION doc/Programmer
+#install data folder
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/data 
+	 DESTINATION .
+	 PATTERN "install_files" EXCLUDE
 	 PATTERN ".svn" EXCLUDE )
 
-install( DIRECTORY doc/Credits/base
-	 DESTINATION doc/Credits
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo 
+	 DESTINATION .
 	 PATTERN ".svn" EXCLUDE )
+install( FILES ${CMAKE_SOURCE_DIR}/doc/ReleaseInfo/RELEASE.txt
+	 DESTINATION relinfo )
+install( FILES ${CMAKE_SOURCE_DIR}/doc/ReleaseInfo/RELEASEINFO.txt
+	 DESTINATION relinfo )
+IF( WIN32 )
+    install( DIRECTORY ${CMAKE_SOURCE_DIR}/bin/win32/rsm 
+	     DESTINATION .
+	     PATTERN ".svn" EXCLUDE )
+ENDIF()
 
-file( GLOB FLEXNETFILES doc/*.html )
-foreach( FLEXNETFILE ${FLEXNETFILES} )
-    install( FILES ${FLEXNETFILE} DESTINATION doc )
-endforeach()
-
-install( DIRECTORY doc/Scripts
+#install scripts
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/doc/Scripts 
 	 DESTINATION doc
 	 PATTERN ".svn" EXCLUDE )
 
-#Install data
-install ( DIRECTORY "data" DESTINATION .
-	  PATTERN "install_files" EXCLUDE
-	  PATTERN ".svn" EXCLUDE )
+install( FILES ${CMAKE_SOURCE_DIR}/doc/about.html
+	       DESTINATION doc )
 
-#install alo files
-install ( DIRECTORY plugins/${OD_PLFSUBDIR}
-	  DESTINATION plugins )
-
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo
-	 DESTINATION .
-	 PATTERN ".svn" EXCLUDE )
-
-install( FILES CMakeLists.txt DESTINATION . )
-
-if( WIN32 )
-    install( DIRECTORY bin/win32/rsm
-	     DESTINATION .
-	     PATTERN ".svn" EXCLUDE )
-endif()
-
-file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
-if( UNIX OR APPLE )
-    file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
-    list( REMOVE_ITEM PROGRAMS
-	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
-    list( REMOVE_ITEM PROGRAMS
-	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/makeself )
-    foreach( TEXTFILE ${TEXTFILES} )
-        list( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
+if ( UNIX )
+    file ( GLOB TEXTFILES
+	   ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
+    file( GLOB PROGRAMS
+	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
+    list ( REMOVE_ITEM PROGRAMS
+	   ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
+    foreach ( TEXTFILE ${TEXTFILES} )
+	list ( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
     endforeach()
 
     install ( PROGRAMS ${PROGRAMS} DESTINATION . )
-endif()
-install ( FILES ${TEXTFILES} DESTINATION . )
+    install ( FILES ${TEXTFILES} DESTINATION . )
+endif( UNIX )
 
-if( APPLE )
-    install( PROGRAMS data/install_files/macscripts/chfwscript
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
-
-    install( DIRECTORY data/install_files/macscripts/Contents
-	     DESTINATION .
-	     PATTERN ".svn" EXCLUDE )
-    OD_CURRENT_YEAR( YEAR )
-    set ( INFOFILE CMakeModules/Info.plist )
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
-		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
-    install( FILES ${INFOFILE} DESTINATION "Contents" )
+if ( APPLE )
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents 
+	 DESTINATION .
+	 PATTERN ".svn" EXCLUDE )
 endif( APPLE )
 
-set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
-set( LMHOSTID lmhostid )
-if( WIN32 )
-    install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
-    set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
-    if( ${OD_PLFSUBDIR} STREQUAL "win32" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
-    elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
-    endif()
-    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Debug
-	    FILES_MATCHING
-	    PATTERN *.pdb
-	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Debug
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
-	    DESTINATION bin/${OD_PLFSUBDIR}
-	    CONFIGURATIONS Release
-	    FILES_MATCHING
-	    PATTERN *.lib
-	)
-    set( LMHOSTID "lmhostid.exe" )
-endif()
+SET( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
+SET( LMHOSTID lmhostid)
+IF( WIN32 )
+    install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/win/unzip.exe DESTINATION
+	      ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
+    INSTALL( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
+    SET( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
+    IF( ${OD_PLFSUBDIR} STREQUAL "win32" )
+#	SET( MSVCPATH "C:/Program\ Files/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
+	SET( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
+    ELSEIF( ${OD_PLFSUBDIR} STREQUAL "win64" )
+	SET( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
+    ENDIF()
+    SET( LMHOSTID "lmhostid.exe" )
+ENDIF()
 
-install( PROGRAMS ${QJPEG} DESTINATION imageformats )
-if ( WIN32 )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
-else()
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
-endif()
-
-if( EXISTS ${MSVCPATH} )
-    file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
-    foreach( DLL ${MSVCDLLS} )
-	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
-	get_filename_component( FILENAME ${DLL} NAME )
-	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
-    endforeach()
-endif()
-
-FILE( GLOB SCRIPTS ${CMAKE_SOURCE_DIR}/bin/od_* )
-install( PROGRAMS ${SCRIPTS} DESTINATION bin )
-install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION bin )
-install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mac_term DESTINATION bin )
-install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION bin )
+install ( PROGRAMS ${QJPEG} DESTINATION imageformats )
+install ( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	    DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_EXEC_OUTPUT_RELPATH} )
+IF( EXISTS ${MSVCPATH} )
+        FILE( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
+        FOREACH( DLL ${MSVCDLLS} )
+	    INSTALL( FILES ${DLL} DESTINATION bin/${OD_PLFSUBDIR}/Release )
+        ENDFOREACH()
+ENDIF()
 
 add_custom_target( sources ${CMAKE_COMMAND}
-		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-		   -P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake
-		   COMMENT "Installing sources" )
-
-add_custom_target( docpackages ${CMAKE_COMMAND}
-        -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
-        -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
-        -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
-        -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
-        -DPSD=${PROJECT_SOURCE_DIR}
-        -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
-         COMMENT "Preparing doc packages" )
+	-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+	-DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+	-DISTAG=${ISTAG}
+	-DOD_BRANCH=${BRANCH}
+	-P ${CMAKE_SOURCE_DIR}/CMakeModules/ODInstallSources.cmake 
+	 COMMENT "Installing sources" )
 include ( ODSubversion )
+add_custom_target( docpackages ${CMAKE_COMMAND}
+	-DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
+	-DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
+	-DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
+	-DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
+	-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+	-DOD_PLFSUBDIR=${OD_PLFSUBDIR}
+	-DPSD=${PROJECT_SOURCE_DIR}
+	-P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
+	 COMMENT "Preparing doc packages" )
+
+OD_CURRENT_YEAR( YEAR )
+IF( APPLE )
+    string(REPLACE "\n" "" YEAR ${YEAR} )
+    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
+		    ${CMAKE_SOURCE_DIR}/data/install_files/macscripts/Contents/Info.plist @ONLY )
+
+ENDIF()

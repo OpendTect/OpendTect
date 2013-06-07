@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "color.h"
 #include "cubesampling.h"
@@ -39,11 +38,12 @@ class Text2;
 class DataObjectGroup;
 class PickStyle;
 
-/*!
-\brief Annotation is a simple wireframe box with text on its axis.
+/*!\brief
+    Annotation is a simple wireframe box with text on its
+    axis.
 */
 
-mExpClass(visBase) Annotation : public VisualObjectImpl
+mClass Annotation : public VisualObjectImpl
 {
 public:
     static Annotation*		create()
@@ -109,4 +109,3 @@ protected:
 };
 
 #endif
-

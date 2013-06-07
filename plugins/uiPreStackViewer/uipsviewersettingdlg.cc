@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.15 2011/11/07 06:05:57 cvsranojay Exp $";
 
 #include "uipsviewersettingdlg.h"
 
@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipsviewerappearancetab.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerpreproctab.h"
+#include "visprestackviewer.h"
 #include "visflatviewer.h"
-#include "visprestackdisplay.h"
 #include "prestackprocessor.h"
 
 namespace PreStackView
@@ -25,11 +25,11 @@ namespace PreStackView
 
 
 uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p, 
-	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr, 
+	PreStackView::Viewer3D& viewer, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
-    : uiTabStackDlg( p, uiDialog::Setup("Prestack display properties", 
-			viewer.getObjectName(),"50.0.8").modal(false) ) 
-    , preproctab_(0)
+    : uiTabStackDlg( p, uiDialog::Setup( viewer.getObjectName(), 
+		"Prestack display properties", "50.0.8").modal(false) ) 
+    , preproctab_( 0 )		     
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );

@@ -11,26 +11,20 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "ailayer.h"
 #include "fixedstring.h"
 #include "factory.h"
 #include "odcomplex.h"
 #include "reflectivitymodel.h"
 #include "survinfo.h"
-#include "task.h"
 #include "velocitycalc.h"
+#include "task.h"
 
 template <class T> class Array2DImpl;
 class IOPar;
 class TimeDepthModel;
 
-
-/*!
-\brief Ray tracer in 1D.
-*/
-
-mExpClass(Algo) RayTracer1D : public ParallelTask
+mClass RayTracer1D : public ParallelTask
 { 
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
@@ -39,18 +33,27 @@ public:
 
 			~RayTracer1D();
 
-    mExpClass(Algo) Setup
+    mClass Setup
     {
     public:
 			Setup() 
 			    : pdown_( true )
 			    , pup_( true )
+			    , sourcedepth_( 6 )
+			    , receiverdepth_( 7 )
 			    , doreflectivity_(true)			 
 			{
+			    if ( SI().depthsInFeetByDefault() )
+			    {
+				sourcedepth_ = 20;
+				receiverdepth_ = 25;
+			    }
 			}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
+	mDefSetupMemb(float,sourcedepth);
+	mDefSetupMemb(float,receiverdepth);
 	mDefSetupMemb(bool,doreflectivity);
 
 	virtual void	fillPar(IOPar&) const;
@@ -61,8 +64,6 @@ public:
     virtual const RayTracer1D::Setup& setup() const 	= 0;
 
     void		setModel(const ElasticModel&);
-    const ElasticModel&	getModel() const 	{ return model_; }
-    			// model top depth must be TWT = 0ms
 			/*!<Note, if either p-wave or s-wave are undef, 
 			  will fill them with Castagna 
 			  to compute zoeppritz coeffs <!*/
@@ -74,33 +75,32 @@ public:
     			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
     bool                getReflectivity(int offset,ReflectivityModel&) const;
-    bool		getTDModel(int offset,TimeDepthModel&) const;
+    bool		getTWT(int offset,TimeDepthModel&) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyPWave()	   { return "Wavetypes"; }
+    static const char*	sKeySRDepth()	   { return "Source/Receiver Depths"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
-    static const char*  sKeyBlock()	   { return "Block model"; }
-    static const char*  sKeyBlockRatio()   { return "Blocking ratio threshold";}
-    static float	cDefaultBlockRatio();
-
-    static void		setIOParsToZeroOffset(IOPar& iop);
 
 protected:
 			RayTracer1D();
-    
+
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     virtual bool	compute(int,int,float);
 
     			//Setup variables
-    ElasticModel	model_; // model top depth must be TWT = 0ms
+    ElasticModel	model_;
     TypeSet<float>	offsets_;
     FixedString		errmsg_;
 
 			//Runtime variables
+    int			sourcelayer_;
+    int			receiverlayer_;
+    int			firstlayer_;
     TypeSet<int>	offsetpermutation_;
     TypeSet<float>	velmax_;
     TypeSet<float>	depths_;
@@ -109,14 +109,17 @@ protected:
     Array2DImpl<float>*		sini_;
     Array2DImpl<float>*		twt_;
     Array2DImpl<float_complex>* reflectivity_;
+
+public:
+    static const char*  sKeyVelBlock()     { return "Block velocities"; }
+    static const char*  sKeyVelBlockVal()  { return "Block threshold"; }
+
+    static void		setIOParsToZeroOffset(IOPar& iop);
 };
 
 
-/*!
-\brief Ray tracer in 1D based on Vrms.
-*/
 
-mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
+mClass VrmsRayTracer1D : public RayTracer1D
 { 
 public:
 
@@ -136,5 +139,20 @@ protected:
 };
 
 
-#endif
+static void blockElasticModel( ElasticModel& mdl )
+{
+    float velthreshold = 5; //in m/s
+    float denthreshold = 5; //in kg/m3
+    for ( int idx=mdl.size()-1; idx>=1; idx-- )
+    {
+	const float veldiff = mdl[idx].vel_ - mdl[idx-1].vel_;
+	const float dendiff = mdl[idx].den_ - mdl[idx-1].den_;
+	if ( fabs( veldiff ) < velthreshold && fabs( dendiff ) < denthreshold )
+	{
+	    mdl[idx-1].thickness_ += mdl[idx].thickness_;
+	    mdl.remove( idx );
+	}
+    }
+}
 
+#endif

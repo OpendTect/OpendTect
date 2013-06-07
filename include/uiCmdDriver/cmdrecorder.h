@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "callback.h"
 #include "separstr.h"
 
@@ -33,7 +32,7 @@ namespace CmdDrive
     if ( !rec_.mustSkip() ) rec_.outputStrm()
 
 
-mExpClass(uiCmdDriver) CmdRecEvent
+mClass CmdRecEvent
 {
 public:
 			CmdRecEvent()
@@ -69,7 +68,7 @@ public:
 
 class CmdComposer;
 
-mExpClass(uiCmdDriver) CmdRecorder : public CallBacker
+mClass CmdRecorder : public CallBacker
 {
 public:
     friend class	CmdComposer;

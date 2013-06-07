@@ -5,11 +5,10 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUnusedVar = "$Id: uitextureattribpi.cc 27530 2012-11-19 09:49:13Z kristofer.tingdahl@dgbes.com $";
 
 #include "uitextureattrib.h"
 #include "odplugin.h"
-#include "uitextureattribmod.h"
 
 
 mDefODPluginInfo(uiTextureAttrib)

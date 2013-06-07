@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribparambase.h"
 #include "datainpspec.h"
 
@@ -23,21 +22,20 @@ template <class T> class Interval;
 namespace Attrib
 {
 
-/*!
-\brief A parameter that is used by an attribute.
-  
-  Each attribute has a definition string that defines how the attribute is
-  computed. The definition string has the format:
-  
-  AttribNameWithoutSpaces param1=value1 param2=value2,value3
-  
-  The paramater thus has a key (e.g. param1) and one or more associated values.
-  
-  Subclasses are used to provide accurate parameter definition for parameters
-  of each and every type.
+/*! A parameter that is used by an attribute.
+
+Each attribute has a defenition string that defines how the attribute is
+computed. The defenition string has the format:
+
+AttribNameWithoutSpaces param1=value1 param2=value2,value3
+
+The paramater thus has a key (e.g. param1) and one or more associated values.
+
+Subclasses are used to provide accurate parameter definition for parameters
+of each and every type
 */
 
-mExpClass(AttributeEngine) BinIDParam : public ValParam
+mClass BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
@@ -61,11 +59,7 @@ public:
 };
 
 
-/*!
-\brief Bool parameter that is used by an attribute.
-*/
-
-mExpClass(AttributeEngine) BoolParam : public ValParam
+mClass BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
@@ -80,11 +74,7 @@ public:
 };
 
 
-/*!
-\brief Enum parameter that is used by an attribute.
-*/
-
-mExpClass(AttributeEngine) EnumParam : public ValParam
+mClass EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
@@ -102,11 +92,7 @@ public:
 };
 
 
-/*!
-\brief String parameter that is used by an attribute.
-*/
-
-mExpClass(AttributeEngine) StringParam : public ValParam
+mClass StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);
@@ -121,13 +107,8 @@ public:
 };
 
 
-/*!
-\brief Numerical parameter that is used by an attribute.
-For example: IntParam, FloatParam and DoubleParam.
-*/
-
 template <class T>
-mClass(AttributeEngine) NumParam : public ValParam
+class NumParam : public ValParam
 {
 public:
     				NumParam(const char* key)
@@ -235,13 +216,8 @@ typedef NumParam<float>		FloatParam;
 typedef NumParam<double>	DoubleParam;
 
 
-/*!
-\brief Gate parameter that is used by an attribute.
-For example: IntGateParam, FloatGateParam, DoubleGateParam and ZGateParam.
-*/
-
 template <class T>
-mClass(AttributeEngine) NumGateParam : public ValParam
+class NumGateParam : public ValParam
 {
 public:
     				NumGateParam(const char* key)
@@ -405,11 +381,7 @@ typedef NumGateParam<double>		DoubleGateParam;
 typedef NumGateParam<float>		ZGateParam;
 
 
-/*!
-\brief Stored seismic input parameter used by an attribute.
-*/
-
-mExpClass(AttributeEngine) SeisStorageRefParam : public StringParam
+mClass SeisStorageRefParam : public StringParam
 {
 public:
 				SeisStorageRefParam(const char* key);
@@ -422,4 +394,3 @@ public:
 
 
 #endif
-

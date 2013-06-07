@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -30,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "survinfo.h"
 
+static int nrsteps = 10;
+static float srchrad = -1;
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
@@ -114,7 +116,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     uiTaskRunner tr( this );
     //Takes over interpolator
     EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, &tr );
-    bool rv = TaskRunner::execute( &tr, converter );
+    bool rv = tr.execute( converter );
 
 #undef mErrRet
     if ( !rv ) return false;
@@ -123,7 +125,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !exec )
 	return false;
 
-    rv = TaskRunner::execute( &tr, *exec );
+    rv = tr.execute( *exec );
     if ( rv )
 	selid_ = ioobj->key();
     return rv;

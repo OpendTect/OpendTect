@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "odremexec", "projects\odremexec.vcproj", "{29582396-402A-45AE-9124-7A5839C0CAA4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "odremoteservice", "projects\odremotervice.vcproj", "{13997B0E-95F1-4DDD-AB16-6020B9122232}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "od_remote_service_manager", "projects\OD_RSM\od_rsm.vcproj", "{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Debug|Win32.Build.0 = Debug|Win32
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Debug|x64.ActiveCfg = Debug|x64
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Debug|x64.Build.0 = Debug|x64
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Release|Win32.ActiveCfg = Release|Win32
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Release|Win32.Build.0 = Release|Win32
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Release|x64.ActiveCfg = Release|x64
+		{29582396-402A-45AE-9124-7A5839C0CAA4}.Release|x64.Build.0 = Release|x64
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Debug|Win32.Build.0 = Debug|Win32
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Debug|x64.ActiveCfg = Debug|x64
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Debug|x64.Build.0 = Debug|x64
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Release|Win32.ActiveCfg = Release|Win32
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Release|Win32.Build.0 = Release|Win32
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Release|x64.ActiveCfg = Release|x64
+		{13997B0E-95F1-4DDD-AB16-6020B9122232}.Release|x64.Build.0 = Release|x64
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Debug|Win32.Build.0 = Debug|Win32
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Debug|x64.ActiveCfg = Debug|x64
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Debug|x64.Build.0 = Debug|x64
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Release|Win32.ActiveCfg = Release|Win32
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Release|Win32.Build.0 = Release|Win32
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Release|x64.ActiveCfg = Release|x64
+		{5AA4A162-0A9B-47DB-B6C2-BD5E6F3E59C0}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

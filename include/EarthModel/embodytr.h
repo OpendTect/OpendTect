@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "transl.h"
 #include "emsurfaceiodata.h"
 
@@ -24,11 +23,7 @@ namespace EM { class Body; class PolygonBody; }
 
 typedef EM::Body 	EMBody;
 
-/*!
-\brief TranslatorGroup for EM::Body.
-*/
-
-mExpClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
+mClass EMBodyTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMBody)
 public:
 		    	mDefEmptyTranslatorGroupConstructor(EMBody)
@@ -37,31 +32,23 @@ public:
 };
 
 
-/*!
-\brief Marching cubes EM::Body Translator.
-*/
-
-mExpClass(EarthModel) mcEMBodyTranslator : public Translator
+mClass mcEMBodyTranslator : public Translator
 {			    isTranslator(mc,EMBody)
 public:
     			mDefEmptyTranslatorBaseConstructor( mcEMBody );
     const char*		defExtension() const	{ return "mc"; }
-    static FixedString  sKeyUserName()		{ return "MCBody"; }
+    static const char*  sKeyUserName()		{ return "MCBody"; }
 };
 
 
-/*!
-\brief EM::PolygonBody Translator.
-*/
-
-mExpClass(EarthModel) polygonEMBodyTranslator : public Translator
+mClass polygonEMBodyTranslator : public Translator
 {				 isTranslator(polygon,EMBody)
 public:
 			polygonEMBodyTranslator(const char* unm,const char* nm);
 			~polygonEMBodyTranslator();
 
     const char*		defExtension() const	{ return "plg"; }
-    static FixedString  sKeyUserName()		{ return "PolygonBody"; }
+    static const char*  sKeyUserName()		{ return "PolygonBody"; }
     static const IOObjContext&	getIOObjContext();
 
     Executor*		reader(const IOObj&,EM::PolygonBody&);
@@ -75,24 +62,17 @@ protected:
 };
 
 
-/*!
-\brief Random position EM::Body Translator.
-*/
-
-mExpClass(EarthModel) randposEMBodyTranslator : public Translator
+mClass randposEMBodyTranslator : public Translator
 {                                isTranslator(randpos,EMBody)
 public:
     			mDefEmptyTranslatorBaseConstructor( randposEMBody );
     const char*		defExtension() const	{ return "rdpos"; }
-    static FixedString	sKeyUserName()		{ return "RandomPosBody"; }
+    static const char*	sKeyUserName()		{ return "RandomPosBody"; }
 };
 
 
-/*!
-\brief For selection of old (3.2) marchingcube (mc) bodies.
-*/
-
-mExpClass(EarthModel) dGBEMBodyTranslator : public Translator
+//For selection of old (3.2) mc bodies.
+mClass dGBEMBodyTranslator : public Translator
 {			    isTranslator(dGB,EMBody)
 public:
  			mDefEmptyTranslatorBaseConstructor( dGBEMBody );
@@ -100,5 +80,5 @@ public:
 };
 
 
-#endif
 
+#endif

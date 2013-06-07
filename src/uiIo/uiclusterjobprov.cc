@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiclusterjobprov.h"
 
@@ -46,8 +46,8 @@ static BufferString getDefTempStorDir()
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
-    Stats::randGen().init();
-    stordir += Stats::randGen().getIndex(100000);
+    Stats::RandGen::init();
+    stordir += Stats::RandGen::getIndex(100000);
     const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());
@@ -123,7 +123,7 @@ int nextStep()
     jobprov_.getJob( curidx_, iop );
     BufferString desc( "Inline " );
     desc.add( jobprov_.objName(curidx_++) );
-    iop.set( sKey::Desc(), desc.buf() );
+    iop.set( sKey::Desc, desc.buf() );
     BufferString filenm( "Job" );
     filenm += curidx_;
     FilePath fp( dirnm_.buf() );
@@ -132,8 +132,8 @@ int nextStep()
     BufferString parfnm = fp.fullPath();
     fp.setExtension( "log" );
     BufferString logfnm = fp.fullPath();
-    iop.set( sKey::LogFile(), logfnm );
-    if ( !iop.write(parfnm.buf(),sKey::Pars()) )
+    iop.set( sKey::LogFile, logfnm );
+    if ( !iop.write(parfnm.buf(),sKey::Pars) )
 	return ErrorOccurred();
 
     fp.setExtension( "scr" );
@@ -249,13 +249,13 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     jobprov_->setNrInlsPerJob( nrinlperjob );
     iopar_.set( "Output.ID", outseisid );
     iopar_.set( "Script dir", scriptdir.buf() );
-    iopar_.set( sKey::TmpStor(), tmpdir.buf() );
+    iopar_.set( sKey::TmpStor, tmpdir.buf() );
     const char* cmd = cmdfld_->text();
     if ( !cmd || !*cmd )
 	mErrRet("Please enter a valid command for submitting jobs")
 
     iopar_.set( "Command", cmd );
-    if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
+    if ( !iopar_.write(parfnm.buf(),sKey::Pars) )
 	mErrRet("Failed to write parameter file")
 
     if ( !createJobScripts(scriptdir.buf()) )
@@ -269,7 +269,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	BufferString comm( "@" );
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";
-	comm += " --dosubmit "; comm += parfnm;
+	comm += " -bg -dosubmit "; comm += parfnm;
 	if ( !StreamProvider( comm ).executeCommand(true) )
 	{
 	    uiMSG().error( "Cannot start batch program" );
@@ -288,7 +288,7 @@ bool uiClusterJobProv::createJobScripts( const char* scriptdir )
 
     ClusterJobCreator exec( *jobprov_, scriptdir, prognm_ );
     uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, exec);
+    return dlg.execute( exec );
 }
 
 

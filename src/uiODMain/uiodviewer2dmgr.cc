@@ -62,28 +62,17 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 
 void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    int dtpackid = visServ().getDataPackID( visid, attribid );
-    if ( dtpackid < 0 ) return;
-
     uiODViewer2D* curvwr = find2DViewer( visid );
-    bool isnewvwr = false;    
-    if ( !curvwr )
-    {
-	isnewvwr = true;
-	curvwr = &addViewer2D( visid );
-	curvwr->winClosed.notify(
-		mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB) );
-    }
-    else
-    {
-	curvwr->setWinTitle( visid );
-	visServ().fillDispPars( visid, attribid,
-		curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
-    }
 
+    if ( !curvwr )
+	curvwr = &addViewer2D( visid );
+
+    bool hasvwr = curvwr->viewwin();
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
     curvwr->setSelSpec( as, dowva );
 
+    int dtpackid = visServ().getDataPackID(visid,attribid);
+    if ( dtpackid < 0 ) return;
     FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
     if ( as && dpname != as->userRef() )
     {
@@ -99,19 +88,34 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	    }
 	}
     }
-
+    
+    const bool isnew = !curvwr-> viewwin();
     curvwr->setUpView( dtpackid, dowva );
-    if ( !curvwr->viewwin() )
-	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
-    if ( !isnewvwr ) return;
-    
-    FlatView::DataDispPars& ddp =
-	curvwr->viewwin()->viewer().appearance().ddpars_;
-    visServ().fillDispPars( visid, attribid, ddp, dowva );
-    visServ().fillDispPars( visid, attribid, ddp, !dowva );
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-    
-    curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
+    mDynamicCastGet(uiMainWin*,win,curvwr->viewwin());
+    if ( isnew && win )
+	win->windowClosed.notify(mCB(this,uiODViewer2DMgr,viewer2DWinClosedCB));
+
+    visServ().fillDispPars( visid, attribid,
+	    	curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
+
+    if ( !hasvwr )
+	curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::All );
+    else
+	curvwr->viewwin()->viewer().handleChange(
+		dowva ? FlatView::Viewer::WVAPars : FlatView::Viewer::VDPars );
+}
+
+
+void uiODViewer2DMgr::viewer2DWinClosedCB( CallBacker* cb )
+{
+
+    mDynamicCastGet( uiFlatViewMainWin*, win, cb );
+    for ( int idx=0; idx<viewers2d_.size(); idx ++ )
+    {
+	const uiFlatViewWin* vwrwin = viewers2d_[idx]->viewwin();
+	if ( vwrwin == win )
+	    remove2DViewer( viewers2d_[idx]->visid_ );
+    }
 }
 
 
@@ -122,8 +126,6 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 	    		visServ().getObject(visid));
     if ( s2d )
 	vwr->setLineSetID(  s2d->lineSetID() );
-
-    vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;
     return *vwr;
 }
@@ -145,14 +147,6 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int visid )
 }
 
 
-void uiODViewer2DMgr::viewer2DWinClosedCB( CallBacker* cb )
-{
-    mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
-    if ( vwr2d )
-	remove2DViewer( vwr2d->visid_ );
-}
-
-
 void uiODViewer2DMgr::remove2DViewer( int visid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
@@ -160,7 +154,7 @@ void uiODViewer2DMgr::remove2DViewer( int visid )
 	if ( viewers2d_[idx]->visid_ != visid )
 	    continue;
 
-	delete viewers2d_.removeSingle( idx );
+	delete viewers2d_.remove( idx );
 	return;
     }
 }
@@ -170,10 +164,11 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	const uiODViewer2D& vwr2d = *viewers2d_[idx];
-	if ( !vwr2d.viewwin() ) continue;
+	if ( !viewers2d_[idx]->viewwin() )
+	    continue;
 
 	IOPar vwrpar;
+	const uiODViewer2D& vwr2d = *viewers2d_[idx];
 	vwrpar.set( sKeyVisID(), viewers2d_[idx]->visid_ );
 	bool wva = vwr2d.viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );

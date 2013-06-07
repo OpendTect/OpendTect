@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -39,7 +38,7 @@ class uiSliderExtra;
 class IOPar;
 
 
-mExpClass(uiAttributes) AttribParamGroup : public uiGroup
+mClass AttribParamGroup : public uiGroup
 {
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
@@ -66,7 +65,7 @@ protected:
 };
 
 
-mExpClass(uiAttributes) uiEvaluateDlg : public uiDialog
+mClass uiEvaluateDlg : public uiDialog
 {
 public:
 				uiEvaluateDlg(uiParent*,uiAttrDescEd&,
@@ -114,4 +113,3 @@ protected:
 
 
 #endif
-

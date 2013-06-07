@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "factory.h"
 #include "uidialog.h"
 
@@ -24,7 +23,7 @@ namespace PreStack
 class SemblanceAlgorithm;
 
 /*! Base class for algorithms that computes semblance along a moveout */
-mExpClass(uiPreStackProcessing) uiSemblanceAlgorithm : public uiDialog
+mClass uiSemblanceAlgorithm : public uiDialog
 {
 public:
     			mDefineFactory1ParamInClass(uiSemblanceAlgorithm,
@@ -38,4 +37,3 @@ protected:
 }; //namespace
 
 #endif
-

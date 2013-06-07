@@ -12,16 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiparent.h"
 
 class uiDockWinBody;
 class uiGroup;
 class uiObject;
 class uiMainWin;
-mFDQtclass(QDockWidget)
+class QDockWidget;
 
-mExpClass(uiBase) uiDockWin : public uiParent
+mClass uiDockWin : public uiParent
 {
 public:
 			uiDockWin(uiParent* parnt=0, 
@@ -45,7 +44,7 @@ public:
 
     void		setMinimumWidth(int);
 
-    mQtclass(QDockWidget*)	qwidget();
+    QDockWidget*	qwidget();
 
 protected:
 
@@ -56,4 +55,3 @@ protected:
 };
 
 #endif
-

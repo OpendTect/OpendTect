@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoSubNode.h"
 #include "Inventor/fields/SoSFFloat.h"
@@ -28,7 +27,7 @@ it represents.
 
 */
 
-mSoODClass SoForegroundTranslation : public SoNode
+mClass SoForegroundTranslation : public SoNode
 {
     typedef SoNode		inherited;
     SO_NODE_HEADER(SoForegroundTranslation);
@@ -52,5 +51,4 @@ protected:
 };
 
 #endif
-
 

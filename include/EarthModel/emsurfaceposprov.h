@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "posprovider.h"
 
 #include "emposid.h"
@@ -29,19 +28,20 @@ namespace EM { class RowColIterator; class Surface; }
 namespace Pos
 {
 
-/*!
-\brief Provider based on surface(s)
+/*!\brief Provider based on surface(s)
  
-  For one surface, the provider iterates through the horizon. For two horizons,
-  the points between the surfaces are visited with the specified Z step.
-*/
+  For one surface, the provider iterates trhough the horizon. For two
+  horizons, the points between the surfaces are visited with the
+  specified Z step.
+ 
+ */
 
-mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
+mClass EMSurfaceProvider : public virtual Filter
 {
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
-    const char*		type() const;	//!< sKey::Surface()
+    const char*		type() const;	//!< sKey::Surface
 
     virtual bool	initialize(TaskRunner* tr=0);
     virtual void	reset();
@@ -116,11 +116,9 @@ protected:
 			{ return EMSurfaceProvider::estNrZPerPos(); } \
     virtual od_int64	estNrPos() const { return estnrpos_; } \
 
-/*!
-\brief EMSurfaceProvider for 3D positioning.
-*/
+/*!\brief EMSurfaceProvider for 3D positioning */
 
-mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
+mClass EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
 {
 public:
@@ -154,11 +152,9 @@ public:
 };
 
 
-/*!
-\brief EMSurfaceProvider for 2D positioning.
-*/
+/*!\brief EMSurfaceProvider for 2D positioning */
 
-mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
+mClass EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 {
 public:
@@ -193,11 +189,9 @@ public:
 };
 
 
-/*!
-\brief EMSurfaceProvider for 3D positions with 2D Horizon.
-*/
+/* !\brief EMSurfaceProvider for 3D positions with 2D Horizon */
 
-mExpClass(EarthModel) EMSurface2DProvider3D : public Provider3D
+mClass EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
 {
 public:
@@ -238,11 +232,7 @@ protected:
 };
 
 
-/*!
-\brief EM implicit body provider for 3D positioning.
-*/
-
-mExpClass(EarthModel) EMImplicitBodyProvider : public Provider3D
+mClass EMImplicitBodyProvider : public Provider3D
 {
 public:
 
@@ -257,7 +247,7 @@ public:
 				{ return new EMImplicitBodyProvider(*this); }
 
     EMImplicitBodyProvider&	operator =(const EMImplicitBodyProvider&);
-    const char*			type() const		{ return sKey::Body(); }
+    const char*			type() const		{ return sKey::Body; }
     const char*			factoryKeyword() const	{ return type(); }
 
     virtual bool		initialize(TaskRunner* tr=0);
@@ -306,4 +296,3 @@ protected:
 } // namespace
 
 #endif
-

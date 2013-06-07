@@ -4,7 +4,7 @@
  * DATE     : June 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vispolygonoffset.h"
 

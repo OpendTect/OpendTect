@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 #include "ranges.h"
 #include "namedobj.h"
@@ -26,7 +25,7 @@ namespace Geometry
 
 class RandomLineSet;
 
-mExpClass(Geometry) RandomLine : public NamedObject
+mClass RandomLine : public NamedObject
 {
 public:
     			RandomLine(const char* nm=0);
@@ -71,7 +70,7 @@ protected:
 };
 
 
-mExpClass(Geometry) RandomLineSet
+mClass RandomLineSet
 {
 public:
 
@@ -85,7 +84,7 @@ public:
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
-    void		removeLine( int idx )	{ delete lines_.removeSingle(idx); }
+    void		removeLine( int idx )	{ delete lines_.remove(idx); }
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
     void		limitTo(const CubeSampling&);
@@ -105,4 +104,3 @@ protected:
 } // namespace
 
 #endif
-

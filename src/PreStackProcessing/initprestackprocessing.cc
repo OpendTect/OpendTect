@@ -7,28 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "prestackagc.h"
 #include "prestackmute.h"
 #include "prestacklateralstack.h"
 #include "prestackanglemute.h"
-#include "prestackeventtransl.h"
-#include "prestackmutedeftransl.h"
-#include "prestackprocessortransl.h"
 
 mDefModInitFn(PreStackProcessing)
 {
     mIfNotFirstTime( return );
-    
-    PSEventTranslatorGroup::initClass();
-    MuteDefTranslatorGroup::initClass();
-    PreStackProcTranslatorGroup::initClass();
-    
-    dgbPSEventTranslator::initClass();
-    dgbMuteDefTranslator::initClass();
-    dgbPreStackProcTranslator::initClass();
 
     PreStack::Mute::initClass();
     PreStack::AGC::initClass();

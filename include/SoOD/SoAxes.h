@@ -11,14 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFColor.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include "soodbasic.h"
 
 // SoAxes class for drawing coloured annotated axes
-mSoODClass SoAxes : public SoShape
+mClass SoAxes : public SoShape
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoAxes);
@@ -43,4 +42,3 @@ protected:
 };
 
 #endif
-

@@ -60,10 +60,10 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     autogenfld_ = new uiGenInput( this, "Automatically generate",
 	    			  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "saveset", "Write to file",
+    uiToolButton* wtb = new uiToolButton( this, "saveset.png", "Write to file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "openset", "Read file",
+    uiToolButton* rtb = new uiToolButton( this, "openset.png", "Read file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 
@@ -453,11 +453,6 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
     if ( sstp )
     {
-	if ( !sstp->reader(0) )                                                 
-	{                                                                       
-	    delete tmpioobj;                                                    
-	    return false;                                                       
-	}
 	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	if ( oinf.isOK() && oinf.nrComponents() > 1 && selcomp_ < 0 )
@@ -497,7 +492,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     uiTaskRunner dlg( this );
-    rv = TaskRunner::execute( &dlg, *exec );
+    rv = dlg.execute( *exec );
     execptrman.erase();
 
     if ( tmpioobj )

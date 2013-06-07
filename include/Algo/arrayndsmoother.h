@@ -13,21 +13,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "executor.h"
 #include "arraynd.h"
 
-/*!
-\brief Gently smooths ArrayND by averaging with neighbours.
+/* Gently smooths ArrayND by averaging with neighbours,
    
-  The weight of the centre is always equal to the sum of the
-  weights of the rest.
+   The weight of the centre is always equal to the sum of the
+   weights of the rest.
 
-  The idea is to do this multiple times when stronger smoothing is required.
+   The idea is to do this multiple times when stronger smoothing is required.
 */
 
 template <class T>
-mClass(Algo) ArrayNDGentleSmoother : public Executor
+mClass ArrayNDGentleSmoother : public Executor
 {
 public:
 
@@ -115,4 +113,3 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
 
 #endif
-

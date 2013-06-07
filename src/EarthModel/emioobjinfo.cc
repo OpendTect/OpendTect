@@ -188,11 +188,7 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
     mGetReaderRet
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
-#ifdef mNew2DGeometryImpl
-	linenames.add(Survey::GM().getName(reader_->lineGeomID(idx)) );
-#else
 	linenames.add( reader_->lineName(idx) );
-#endif
     return true;
 }
 
@@ -221,7 +217,7 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 	return "Internal: Trying to get surface data from a non-surface";
     }
 
-    Translator* tr = ioobj_->createTranslator();
+    Translator* tr = ioobj_->getTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,tr)
     PtrMan<EMSurfaceTranslator> ptrman_tr = str;
     if ( !str )

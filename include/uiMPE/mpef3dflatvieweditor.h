@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
-#include "uimpemod.h"
 #include "emfaultsticksetflatvieweditor.h"
 
 #include "emposid.h"
@@ -29,7 +27,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
-mExpClass(uiMPE) Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mClass Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
     			Fault3DFlatViewEditor(FlatView::AuxDataEditor*,
@@ -59,7 +57,7 @@ protected:
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
 
-	mStruct(uiMPE) StkMarkerIdInfo
+	mStruct StkMarkerIdInfo
 	{
 	    int	    merkerid_;
 	    int	    stickid_;
@@ -67,7 +65,7 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    int				getStickId(int markerid) const;
+    const int			getStickId(int markerid) const;
 
     bool			getMousePosInfo(
 	    				const Geom::Point2D<int>& mousepos,
@@ -91,5 +89,3 @@ protected:
 }; //namespace MPE
 
 #endif
-
-

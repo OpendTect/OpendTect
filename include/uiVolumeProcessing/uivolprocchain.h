@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "iopar.h"
 #include "uivolprocstepdlg.h"
 
@@ -32,7 +31,7 @@ class Chain;
 class Step;
 
 
-mExpClass(uiVolumeProcessing) uiChain : public uiDialog
+mClass uiChain : public uiDialog
 {
 public:
 
@@ -41,7 +40,7 @@ public:
 
     const MultiID&		storageID() const;
 
-    static const char*		pixmapFileName()    { return "volproc"; }
+    static const char*		pixmapFileName()    { return "volproc.png"; }
 
 protected:
 
@@ -84,4 +83,3 @@ protected:
 }; //namespace
 
 #endif
-

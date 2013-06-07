@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiemattribmod.h"
 #include "uibatchlaunch.h"
 #include "uigroup.h"
 #include "grid2d.h"
@@ -34,7 +33,7 @@ class uiSurveyMap;
 
 namespace Geometry { class RandomLine; }
 
-mExpClass(uiEMAttrib) ui2DGridLines : public uiGroup
+mClass ui2DGridLines : public uiGroup
 {
 public:
 				~ui2DGridLines();
@@ -63,7 +62,7 @@ protected:
 };
 
 
-mExpClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
+mClass ui2DGridLinesFromInlCrl : public ui2DGridLines
 {
 public:
     				ui2DGridLinesFromInlCrl(uiParent*,
@@ -90,7 +89,7 @@ protected:
 };
 
 
-mExpClass(uiEMAttrib) ui2DGridLinesFromRandLine : public ui2DGridLines
+mClass ui2DGridLinesFromRandLine : public ui2DGridLines
 {
 public:
     				ui2DGridLinesFromRandLine(uiParent*,
@@ -117,7 +116,7 @@ protected:
 };
 
 
-mExpClass(uiEMAttrib) uiCreate2DGrid : public uiFullBatchDialog
+mClass uiCreate2DGrid : public uiFullBatchDialog
 {
 public:
 				uiCreate2DGrid(uiParent*,
@@ -169,4 +168,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwellpartserv.h"
@@ -23,9 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 
 #include "uiamplspectrum.h"
-#include "uibulkwellimp.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
@@ -43,27 +41,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "errh.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "pixmap.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
 
-int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
-int uiWellPartServer::evCleanPreview()		    { return 1; }
-int uiWellPartServer::evDisplayWell()		    { return 2; }
+const int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
+const int uiWellPartServer::evCleanPreview()	    { return 1; }
+const int uiWellPartServer::evDisplayWell()	    { return 2; }
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , rdmlinedlg_(0)
-    , uiwellpropdlg_(0)
-    , uiwellimpdlg_(0)
+    , uiwellpropdlg_(0)		    
     , cursceneid_(-1)
     , disponcreation_(false)
     , multiid_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
-    , isdisppropopened_(false)
+    , isdisppropopened_(false)			       
 {
 }
 
@@ -75,58 +71,29 @@ uiWellPartServer::~uiWellPartServer()
 }
 
 
-bool uiWellPartServer::bulkImportTrack()
-{
-    uiBulkTrackImport dlg( parent() );
-    return dlg.go();
-}
-
-
-bool uiWellPartServer::bulkImportLogs()
-{
-    uiBulkLogImport dlg( parent() );
-    return dlg.go();
-}
-
-bool uiWellPartServer::bulkImportMarkers()
-{
-    uiBulkMarkerImport dlg( parent() );
-    return dlg.go();
-}
-
-
 bool uiWellPartServer::importTrack()
 {
-    if ( uiwellimpdlg_ )
-    {
-	uiwellimpdlg_->show();
-	uiwellimpdlg_->raise();
-	return false;
-    }
-
-    uiwellimpdlg_ = new uiWellImportAsc( parent() );
-    uiwellimpdlg_->importReady.notify(
-		mCB(this,uiWellPartServer,importReadyCB) );
-    uiwellimpdlg_->show();
-    return true;
+    uiWellImportAsc dlg( parent() );
+    return dlg.go();
 }
 
 
 bool uiWellPartServer::importLogs()
-{ manageWells(); return true; }
+{
+    manageWells(); return true;
+}
+
 
 bool uiWellPartServer::importMarkers()
-{ manageWells(); return true; }
-
-
-void uiWellPartServer::importReadyCB( CallBacker* cb )
 {
-    if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
-    {
-	crwellids_.erase();
-	crwellids_.add( uiwellimpdlg_->getWellID().buf() );
-	sendEvent( evDisplayWell() );
-    }
+    manageWells(); return true;
+}
+
+
+void uiWellPartServer::doLogTools()
+{
+    uiWellLogToolWinMgr tooldlg( parent() );
+    tooldlg.go();
 }
 
 
@@ -155,11 +122,11 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     if ( isdisppropopened_ == false )
     {
 	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), wd );
-	uiwellpropdlg_->applyAllReq.notify( 
-			    mCB(this,uiWellPartServer,applyAll) );
-	uiwellpropdlg_->windowClosed.notify(
-			    mCB(this,uiWellPartServer, wellPropDlgClosed) );
-	isdisppropopened_ = uiwellpropdlg_->go();    
+	isdisppropopened_ = true;
+	uiwellpropdlg_->applyAllReq.notify(mCB(this,uiWellPartServer,applyAll));
+	uiwellpropdlg_->windowClosed.notify(mCB(this,uiWellPartServer,
+		    				wellPropDlgClosed));
+	bool rv = uiwellpropdlg_->go();    
     }
     return true;
 }
@@ -170,6 +137,8 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     isdisppropopened_ = false;
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
+    dlg->disableWDNotifiers();
+
     const Well::Data* edwd = dlg->wellData();
     if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
     const Well::DisplayProperties& edprops = edwd->displayProperties();
@@ -180,7 +149,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 	saveWellDispProps( allapplied_ ? 0 : edwd );
 	edprops.commitDefaults();
     }
-    
+
     sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
 }
@@ -194,17 +163,17 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 	Well::Data& curwd = *wds[iwll];
 	if ( wd && &curwd != wd )
 	   continue;
-	saveWellDispProps( curwd, curwd.multiID() );
+	saveWellDispProps( curwd, *Well::MGR().keys()[iwll] );
     }
 }
 
 
-void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
+void uiWellPartServer::saveWellDispProps( const Well::Data& wd, const MultiID& key )
 {
-    Well::Writer wr( Well::IO::getMainFileName(key), w );
+    Well::Writer wr( Well::IO::getMainFileName(key), wd );
     if ( !wr.putDispProps() )
     uiMSG().error( "Could not write display properties for \n",
-    w.name() );
+    wd.name() );
 }
 
 
@@ -259,36 +228,13 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
-    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
+    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell.png",
 					 "Create multiple simple wells",
 					 mCB(this,uiWellPartServer,simpImp) );
     dlg.addTool( tb );
     dlg.go();
 }
 
-
-void uiWellPartServer::launchRockPhysics()
-{
-    uiWellMan dlg( parent() );
-    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
-					 "Create multiple simple wells",
-					 mCB(this,uiWellPartServer,simpImp) );
-    dlg.addTool( tb );
-
-    uiDialog msgdlg( &dlg, uiDialog::Setup("Rock Physics",mNoDlgTitle,
-					   mNoHelpID).modal(false) );
-    msgdlg.setCtrlStyle( uiDialog::LeaveOnly );
-    uiLabel* lbl = new uiLabel( &msgdlg, "Select one or several wells, "
-	    "press 'Create' button\nand then press the rock physics icon" );
-    uiPushButton* rpicon = new uiPushButton( &msgdlg, "",
-	    				     ioPixmap("rockphys.png"), false );
-    rpicon->attach( leftAlignedBelow, lbl );
-    lbl = new uiLabel( &msgdlg, "in the 'Calculate new logs' window" );
-    lbl->attach( rightOf, rpicon );
-    msgdlg.show();
-    msgdlg.raise();
-    dlg.go();
-}
 
 void uiWellPartServer::simpImp( CallBacker* )
 { createSimpleWells(); }
@@ -303,13 +249,6 @@ void uiWellPartServer::createSimpleWells()
     crwellids_ = dlg.createdWellIDs();
     if ( dlg.wantDisplay() )
 	sendEvent( evDisplayWell() );
-}
-
-
-void uiWellPartServer::doLogTools()
-{
-    uiWellLogToolWinMgr tooldlg( parent() );
-    tooldlg.go();
 }
 
 
@@ -364,25 +303,25 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet("Cannot create an entry in the data store")
-    PtrMan<Translator> tr = ctio->ioobj->createTranslator();
+    PtrMan<Translator> tr = ctio->ioobj->getTranslator();
     mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 			 "Another type object with this name already exists." );
 
     PtrMan<Well::Data> well = new Well::Data( wellname );
     Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
-    const float vel = mCast( float, d2t ? 3000 : 1 );
+    const float vel = d2t ? 3000 : 1;
     const Coord3& c0( coords[0] );
-    const float minz = (float) c0.z * vel;
+    const float minz = c0.z * vel;
     well->track().addPoint( c0, minz, minz );
     well->info().surfacecoord = Coord( c0.x, c0.y );
-    if ( d2t ) d2t->add( minz, (float) c0.z );
+    if ( d2t ) d2t->add( minz, c0.z );
 
     for ( int idx=1; idx<coords.size(); idx++ )
     {
 	const Coord3& c( coords[idx] );
-	well->track().addPoint( c, (float) c.z*vel );
-	if ( d2t ) d2t->add( well->track().dah(idx), (float) c.z );
+	well->track().addPoint( c, c.z*vel );
+	if ( d2t ) d2t->add( well->track().dah(idx), c.z );
     }
 
     well->setD2TModel( d2t );
@@ -414,12 +353,11 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 	const Well::D2TModel& d2t = *wd->d2TModel();
 	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
 		     d2t.getTime(resamprg.stop, wd->track()),1);
-	resamprg.step /= SI().zDomain().userFactor();
+	resamprg.step /= SI().zFactor();
 	resampsz = resamprg.nrSteps(); 
 	for ( int idx=0; idx<resampsz; idx++ )
 	{
-	    const float dah = d2t.getDah( resamprg.atIndex( idx ),
-		   			  wd->track() );
+	    const float dah = d2t.getDah( resamprg.atIndex( idx ) );
 	    resamplvals += log->getValue( dah );
 	}
     }

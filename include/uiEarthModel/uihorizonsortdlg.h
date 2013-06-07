@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "multiid.h"
@@ -23,7 +22,7 @@ namespace EM { class Horizon; }
 class IOPar;
 class uiSurfaceSel;
 
-mExpClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
+mClass uiHorizonSortDlg : public uiDialog
 {
 public:
 
@@ -60,4 +59,3 @@ protected:
 };
 
 #endif
-

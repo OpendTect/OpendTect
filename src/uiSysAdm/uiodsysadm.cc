@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
@@ -32,11 +32,14 @@ uiODSysAdm& ODSysAdmMainWin()
 }
 
 
-mGlobal(uiSysAdm) int ODSysAdmMain(int,char**); // keep compiler happy
+extern "C" void SetInSysAdmMode();
+
+mGlobal int ODSysAdmMain(int,char**); // keep compiler happy
 int ODSysAdmMain( int argc, char** argv )
 {
     SetInSysAdmMode();
 
+    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
     uiMain app( argc, argv );
     uiODSysAdm& odsa = ODSysAdmMainWin(); // Has to be done here - constructs

@@ -13,9 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
-#include "thread.h"
 
 class SoSeparator;
 class SoLockableSeparator;
@@ -23,20 +21,15 @@ class SoNode;
 class SoSwitch;
 class Coord3;
 
-namespace osg { class Switch; }
-
 namespace visBase
 {
 class Material;
 class Transformation;
 class EventCatcher;
 
-/*!
-\ingroup visBase
-\brief Base class for all objects that are visual on the scene.
-*/
+/*!\brief Base class for all objects that are visual on the scene. */
 
-mExpClass(visBase) VisualObject : public DataObject
+mClass VisualObject : public DataObject
 {
 public:
     virtual void		turnOn(bool)				= 0;
@@ -80,7 +73,7 @@ private:
 };
 
 
-mExpClass(visBase) VisualObjectImpl : public VisualObject
+mClass VisualObjectImpl : public VisualObject
 {
 public:
     void		turnOn(bool);
@@ -121,12 +114,6 @@ protected:
     int			childIndex(const SoNode*) const;
     SoNode*		getChild(int);
 
-    void		addChild(osg::Node*);
-    void		insertChild(int pos,osg::Node*);
-    void		removeChild(osg::Node*);
-    int			childIndex(const osg::Node*) const;
-
-
 			VisualObjectImpl(bool selectable);
     virtual		~VisualObjectImpl();
 
@@ -135,19 +122,48 @@ protected:
     bool		righthandsystem_;
 
     SoNode*		gtInvntrNode();
-    osg::Node*		gtOsgNode();
 
 private:
     SoSeparator*	root_;
     SoLockableSeparator* lockableroot_;
-    osg::Switch*	osgroot_;
 };
 
-mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,
+
+mLockerClassImpl( VisualReadLockLocker, VisualObjectImpl,
 		  readLock(), readUnLock(), tryReadLock() )
-mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
+mLockerClassImpl( VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
+
+
 };
+
+
+/*!\page visBase Visualisation - Open Inventor-based tools
+
+  All 3D visualisation in OpendTect is COIN based. COIN is an implementation
+  of the OpenInventor interface sepecification. As usual, the external package
+  (i.e. COIN) is not visible to any object outside this module.
+  This module can be seen as a layer on top of the COIN library. Compliant with
+  the 'DIF' principle (Don't implement the future), the layer only contains
+  those tools that are really used in OpendTect.
+
+  The function initODInventorClasses() initialises our own 
+  Inventor classes, which are in fact extensions of the COIN library. 
+  These classes can be found is SoOD. The 'vis' classes in this module are 
+  used in the rest of OpendTect. 
+
+  In the 3D visualisation world you'll see that it is almost unavoidable that
+  all objects will be managed by a centralised manager. That is
+  DataManager. 
+
+  The main classes for displaying scene objects are:
+  - TextureRect, for inlines, crosslines and timeslices.
+  - RandomTrack, for random lines.
+  - CubeView, for the volume viewer.
+  - Marker, for picks.
+  - HorizonSection, for Horizons.
+  - Well, for wells.
+
+*/
 
 #endif
-

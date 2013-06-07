@@ -13,17 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurfaceedgeline.h"
 
 namespace EM
 {
 
-/*!
-\brief Termination EdgeLineSegment
-*/
 
-mExpClass(EarthModel) TerminationEdgeLineSegment : public EdgeLineSegment
+mClass TerminationEdgeLineSegment : public EdgeLineSegment
 {
 public:
 		    mEdgeLineSegmentClone(TerminationEdgeLineSegment, TermLine);
@@ -36,11 +32,7 @@ public:
 };
 
 
-/*!
-\brief Surface connecting EdgeLineSegment.
-*/
-
-mExpClass(EarthModel) SurfaceConnectLine : public EdgeLineSegment
+mClass SurfaceConnectLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceConnectLine,ConnLine);
@@ -72,4 +64,3 @@ protected:
 };
 
 #endif
-

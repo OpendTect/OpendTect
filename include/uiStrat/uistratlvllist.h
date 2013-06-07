@@ -12,25 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uilistbox.h"
 
-mExpClass(uiStrat) uiStratLvlList : public uiLabeledListBox
+mClass uiStratLvlList : public uiLabeledListBox
 {
 public:
 
 				uiStratLvlList(uiParent*);
 				~uiStratLvlList();
-
-    void			setLevels();
-    void			setIsLocked(bool yn) { islocked_ = yn; }
-
-    bool			anyChg() const 	{ return anychange_; }
-    void			setNoChg() 	{ anychange_ = false; }
 protected:
-
-    bool			islocked_;
-    bool			anychange_;
 
     void                        editLevel(bool);
 
@@ -38,8 +28,20 @@ protected:
     void			removeLvl(CallBacker*);
     void                        selLvlChgCB(CallBacker*);
     void                        rClickLvlCB(CallBacker*);
+
+public:
+    void                        setLevels();
+    void			setIsLocked(bool yn) { islocked_ = yn; }
+protected:
+    bool			islocked_;
+
+    bool                	anychange_;
+
+public:
+    void                	setNoChg()    		{ anychange_ = false; }
+    bool                	anyChg() const          { return anychange_; }
+
 };
 
 
 #endif
-

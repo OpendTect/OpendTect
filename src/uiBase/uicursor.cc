@@ -7,16 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicursor.h"
 #include "pixmap.h"
-#include "uirgbarray.h"
 
 #include <QCursor>
 #include <QApplication>
 
-mUseQtnamespace
 
 void uiCursorManager::initClass()
 {
@@ -37,26 +35,16 @@ uiPoint uiCursorManager::cursorPos()
 { return uiPoint( QCursor::pos().x(), QCursor::pos().y() ); }
 
 
-void uiCursorManager::fillQCursor( const MouseCursor& mc,
-				   QCursor& qcursor )
+void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )
 {
     if ( mc.shape_==MouseCursor::Bitmap )
     {
-	if ( !mc.filename_.isEmpty() )
-	{
-	    ioPixmap pixmap( mc.filename_ );
-	    qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
-	}
-	else
-	{
-	    ioPixmap pixmap( uiRGBArray(*mc.image_)) ;
-	    qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
-	}
+	ioPixmap pixmap( mc.filename_ );
+	qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
     }
     else
     {
-	const Qt::CursorShape qshape =
-	    			     (Qt::CursorShape)(int) mc.shape_;
+	const Qt::CursorShape qshape = (Qt::CursorShape)(int) mc.shape_;
 	qcursor.setShape( qshape );
     }
 }
@@ -143,8 +131,7 @@ void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
     overrideshape_ = MouseCursor::NotSet; \
     if ( QApplication::overrideCursor() ) \
     { \
-	const QCursor overridecursor = \
-					*QApplication::overrideCursor(); \
+	const QCursor overridecursor = *QApplication::overrideCursor(); \
 	overrideshape_ = (MouseCursor::Shape) overridecursor.shape(); \
     } \
 }
@@ -154,8 +141,7 @@ void uiCursorManager::restoreInternal()
     if ( !QApplication::overrideCursor() )
 	return;
 
-    const QCursor topcursor =
-				     *QApplication::overrideCursor();
+    const QCursor topcursor = *QApplication::overrideCursor();
     QApplication::restoreOverrideCursor();
 
     if ( !prioritycursoractive_ )

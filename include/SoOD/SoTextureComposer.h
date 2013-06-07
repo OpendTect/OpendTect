@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/lists/SbPList.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec3i32.h>
@@ -37,7 +36,7 @@ class SbImage;
    to OpenGL */
 
 
-mSoODClass SoTextureComposer: public SoNode
+mClass SoTextureComposer: public SoNode
 { SO_NODE_HEADER(SoTextureComposer);
 public:
     static		void initClass();
@@ -79,7 +78,7 @@ protected:
 };
 
 
-mSoODClass SoTextureComposerInfo : public SoNode
+mClass SoTextureComposerInfo : public SoNode
 { SO_NODE_HEADER(SoTextureComposerInfo );
 public:
     static		void initClass();
@@ -100,4 +99,3 @@ protected:
 };
 
 #endif
-

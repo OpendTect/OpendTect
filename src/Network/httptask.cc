@@ -36,7 +36,7 @@ int HttpTask::nextStep()
     if ( !http_.isOK() )
     {
 	msg_ = http_.message();
-	state_ = ErrorOccurred();
+	return ErrorOccurred();
     }
 
     return state_;
@@ -74,4 +74,3 @@ void HttpTask::doneCB( CallBacker* )
 	msg_ = http_.message();
     }
 }
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivisdirlightdlg.h"
 
@@ -197,7 +197,7 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
     if ( pd_ ) return;
 
     pd_ = new uiPolarDiagram( pddlg_ );
-    pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()), 
+    pd_->setValues( azimuthfld_->dial()->getValue(), 
 	    	    dipfld_->sldr()->getValue() );
     pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
 }
@@ -289,7 +289,7 @@ void uiDirLightDlg::updateInitInfo()
 		    initinfo_[idx].directlighton_ );
 	}
 
-	initinfo_.removeSingle( idx );
+	initinfo_.remove( idx );
     }    
     
     // append new info for scene(s) added
@@ -335,7 +335,7 @@ void uiDirLightDlg::saveInitInfo()
 	const bool dosave = saveall || idx==scenefld_->box()->currentItem()-1;
 	if ( !dosave ) continue;
 
-        initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
+        initinfo_[idx].azimuth_ = azimuthfld_->dial()->getValue();
         initinfo_[idx].dip_ = dipfld_->sldr()->getValue();
         initinfo_[idx].intensity_ = intensityfld_->sldr()->getValue();
         initinfo_[idx].headonintensity_ = 
@@ -402,7 +402,7 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
         }
 
         float x = dl->direction( 0 );
-        float y mUnusedVar = dl->direction( 1 );
+        float y = dl->direction( 1 );
         float z = dl->direction( 2 );
         float dip = Angle::convert( Angle::Rad, asin( z ), Angle::Deg );
 	dip += 180;  // offset for observed deviation
@@ -567,7 +567,7 @@ void uiDirLightDlg::showWidgets( bool showAll )
 
 void uiDirLightDlg::validateInput()
 {
-    const float az = mCast( float, azimuthfld_->dial()->getValue() );
+    const float az = azimuthfld_->dial()->getValue();
     if ( az<0 || az>360 )
 	azimuthfld_->dial()->setValue( mInitAzimuth );
     
@@ -725,7 +725,7 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* c )
     // do the work only if this is not called by setValue of polarDiagramCB
     else if ( !pd_->hasFocus() )
     {
-	pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()), 
+	pd_->setValues( azimuthfld_->dial()->getValue(), 
 		dipfld_->sldr()->getValue() );
         setDirLight();
     }

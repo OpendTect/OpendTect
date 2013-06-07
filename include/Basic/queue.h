@@ -14,13 +14,7 @@ ________________*_______________________________________________________
 
 #include "thread.h"
 
-
-/*!
-\brief One single queue entry.
-*/
-
-template <class T>
-mClass(Basic) QueueEntry
+template <class T> class QueueEntry
 {
 public:
 			QueueEntry( T item )
@@ -31,12 +25,7 @@ public:
 };
 
 
-/*!
-\brief Queue of objects.
-*/
-
-template <class T>
-mClass(Basic) ObjQueue
+template <class T> class ObjQueue
 {
 public:
 			ObjQueue() : head(0), tail(0) {}
@@ -84,12 +73,7 @@ protected:
 };
 
 
-/*!
-\brief Queue of basic data types.
-*/
-
-template <class T>
-mClass(Basic) TypeQueue
+template <class T> class TypeQueue
 {
 public:
 			TypeQueue() : head(0), tail(0) {}

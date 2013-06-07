@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 
@@ -34,13 +33,12 @@ namespace PreStack { class GatherSetDataPack; }
 
 /*!\brief Dialog specifying what to crossplot */
 
-mExpClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
+mClass uiStratSynthCrossplot : public uiDialog
 {
 public:
 				uiStratSynthCrossplot(uiParent*,
 				    const Strat::LayerModel&,
 				    const ObjectSet<SyntheticData>&);
-				~uiStratSynthCrossplot();
 
     void			setRefLevel(const char*);
     const char*			errMsg() const 
@@ -51,7 +49,6 @@ protected:
     const Strat::LayerModel&	lm_;
 
     const ObjectSet<SyntheticData>& synthdatas_;
-    TypeSet<TypeSet<Interval<float> > > extrgates_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;
@@ -82,4 +79,3 @@ protected:
 
 
 #endif
-

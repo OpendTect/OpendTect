@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
@@ -265,16 +265,17 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
 
-    edbut_ = new uiToolButton( grp, "edit", "Edit calculation", edcb );
+    edbut_ = new uiToolButton( grp, "edit.png", "Edit calculation", edcb );
     edbut_->attach( rightOf, trchdrfld_ );
-    rmbut_ = new uiToolButton( grp, "trashcan", "Remove calculation",
-		    mCB(this,uiSEGYFileManip,rmReq) );
+    rmbut_ = new uiToolButton( grp, "trashcan.png",
+		    "Remove calculation", mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
-    uiToolButton* openbut = new uiToolButton( grp, "openset",
+    uiToolButton* openbut = new uiToolButton( grp, "openset.png",
 		    "Open stored calculation set",
 		    mCB(this,uiSEGYFileManip,openReq) );
     openbut->attach( alignedBelow, rmbut_ );
-    savebut_ = new uiToolButton( grp, "save", "Save calculation set",
+    savebut_ = new uiToolButton( grp, "save.png",
+		    "Save calculation set",
 		    mCB(this,uiSEGYFileManip,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
@@ -298,7 +299,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->setStretch( 0, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
-    plotbut_ = new uiToolButton( grp, "distmap",
+    plotbut_ = new uiToolButton( grp, "distmap.png",
 		    "Plot the values of the selected header entries",
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
@@ -635,7 +636,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
 	    { totalnr_ = -1; return; }
 	trcrg_ = dlg.getFld(0)->getIInterval();
 	trcrg_.sort();
-	trcrg_.limitTo( Interval<int>(1,mCast(int,totalnr_)) );
+	trcrg_.limitTo( Interval<int>(1,totalnr_) );
     }
     totalnr_ = trcrg_.stop - trcrg_.start + 1;
 
@@ -666,7 +667,7 @@ int nextStep()
     fm_.calcset_.apply( buf_, fm_.binhdr_.isSwapped() );
 
     for ( int idx=0; idx<sel_.size(); idx++ )
-	*data_[idx] += mCast(float,hdef_[sel_[idx]]->getValue(buf_,needswap_));
+	*data_[idx] += hdef_[ sel_[idx] ]->getValue( buf_, needswap_ );
 
     nrdone_++;
     return nrdone_ < totalnr_ ? MoreToDo() : Finished();
@@ -700,7 +701,7 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     if ( de.totalnr_ < 0 )
 	return;
     uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, de );
+    tr.execute( de );
     if ( de.data_[0]->size() < 2 )
 	return;
 
@@ -763,7 +764,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     Executor* exec = calcset_.getApplier( strm(), *sdout.ostrm, bptrc,
 	   				  &binhdr_, &txthdr_ );
     uiTaskRunner tr( this );
-    const bool rv = TaskRunner::execute( &tr, *exec );
+    const bool rv = tr.execute( *exec );
     sdout.close(); delete exec;
 
     if ( rv )

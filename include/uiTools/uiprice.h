@@ -12,22 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiLineEdit;
 class uiComboBox;
 class Price;
 
-mExpClass(uiTools) uiPrice : public uiGroup
+mClass uiPrice : public uiGroup
 {
 public:
 		uiPrice( uiParent* p, const char* label,
 			 const Price* price = 0 );
     void	setPrice(const Price&);
     bool	getPrice(Price&) const;
-
-    void	allowCurrencyEdit( bool );
 
 protected:
     uiComboBox*	currencyselfld_;
@@ -37,4 +34,3 @@ protected:
 
 
 #endif
-

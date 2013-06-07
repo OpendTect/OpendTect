@@ -16,17 +16,17 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "vectoraccess.h"
 
-/*!
-\brief A SortedList is a list where all objects are stored in ascending order.
-The objects should be capable of doing <,> and ==. If allowmultiples is true,
-multiple objects with the same value are allowed in the list. 
+/*!\brief
+  A SortedList is a list where all objects are stored in ascending order.
+  The objects should be capable of doing <,> and ==. If allowmultiples
+  is true, multiple objects with the same value are allowed in the list. 
 
   A SortedList can be used together with all other lists that have a []
   operator, such as TypeSets.
-*/
+  */
 
 template <class T>
-mClass(Algo) SortedList
+class SortedList
 {
 public:
     			SortedList( bool allowmultiples_ )
@@ -68,7 +68,7 @@ protected:
 			 */
 
     bool		allowmultiples;
-    VectorAccess<T,int>	tvec;
+    VectorAccess<T>	tvec;
 
 };
 

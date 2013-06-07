@@ -4,10 +4,8 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2003
- * SVN      : $Id$
 -*/
 
-#include "seismod.h"
 #include "samplingdata.h"
 #include "multiid.h"
 #include "position.h"
@@ -17,6 +15,7 @@ class IOPar;
 class Scaler;
 class SeisTrc;
 class LineKey;
+class CtxtIOObj;
 class StreamData;
 class uiGenInput;
 class uiIOObjSel;
@@ -28,11 +27,11 @@ class SeisResampler;
 namespace Seis { class SelData; }
 
 
-mExpClass(Seis) SeisIOSimple : public Executor
+mClass SeisIOSimple : public Executor
 {
 public:
 
-    mExpClass(Seis) Data
+    mClass Data
     {
     public:
 			Data(const char*,Seis::GeomType);
@@ -126,4 +125,3 @@ protected:
 
 
 #endif
-

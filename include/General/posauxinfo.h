@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 class CubeSampling;
 
 
 /*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */
 
-mExpClass(General) PosAuxInfo
+mClass PosAuxInfo
 {
 public:
 
@@ -47,7 +46,7 @@ public:
 /*!\brief Selection of aux info at location.
 	  Note that BinID is always selected */
 
-mExpClass(General) PosAuxInfoSelection
+mClass PosAuxInfoSelection
 {
 public:
 		PosAuxInfoSelection()
@@ -68,4 +67,3 @@ public:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cmdfunction.h"
 
@@ -48,7 +48,6 @@ BufferString Function::createFactoryKey( const char* keyword )
 
     return fackey;
 }
-
 
 void Function::initStandardFunctions()
 {
@@ -147,7 +146,7 @@ const WildcardManager& Function::wildcardMan() const
 
 #define mGetNumArg( idx, num, args, res ) \
 \
-    double num = mUdf(double); \
+    double num; \
     if ( idx<args.size() && \
 	 !StringProcessor(args.get(idx)).convertToDouble(&num) ) \
     { \
@@ -158,7 +157,7 @@ const WildcardManager& Function::wildcardMan() const
 
 #define mGetIntArg( idx, num, args, res ) \
 \
-    int num = mUdf(int); \
+    int num; \
     if ( idx<args.size() && \
 	 !StringProcessor(args.get(idx)).convertToInt(&num) ) \
     { \
@@ -200,7 +199,7 @@ mDefMathFunc( Log,   num<=0, "positive argument", res=log10(num) );
 mDefMathFunc( Round, false, "", res=(num<0 ? ceil(num-0.5) : floor(num+0.5)) );
 mDefMathFunc( Sgn,   false, "", res=(!num ? 0 : (num<0 ? -1 : 1)) );
 mDefMathFunc( Sin,   false, "", res=sin(num) );
-mDefMathFunc( Sqrt,  num<0, "non-negative argument", res=Math::Sqrt(num) );
+mDefMathFunc( Sqrt,  num<0, "non-negative argument", res=sqrt(num) );
 mDefMathFunc( Tan,   false, "", res=tan(num) );
 mDefMathFunc( Trunc, false, "", res=(num<0 ? ceil(num) : floor(num)) );
 
@@ -214,7 +213,7 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     if ( !args.size() ) \
 	num = 1.0; \
 \
-    res = mIsUdf(num) ? num : num*Stats::randGen().funcall; \
+    res = mIsUdf(num) ? num : num*Stats::RandGen::funcall; \
     return true; \
 }
 
@@ -246,8 +245,8 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     mCheckMinArgs( 1, args, res ); \
     const int sz = args.size(); \
     TypeSet<double> ts; \
-    double mUnusedVar a1 = 0.0; \
-    double mUnusedVar a2 = 0.0; \
+    double a1 = 0.0; \
+    double a2 = 0.0; \
     for ( int idx=0; idx<sz; idx++ ) \
     { \
 	mGetNumArg( idx, num, args, res ); \

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigeninput.h"
 #include "uigeninput_impl.h"
@@ -72,6 +72,7 @@ protected:
 };
 
 typedef uiSimpleInputFld<uiLineEdit>	uiTextInputFld;
+
 
 class uiFileInputFld : public uiSimpleInputFld<uiLineEdit>
 {
@@ -343,10 +344,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 	if ( !dis.name(2) && nm && *nm )
 	    step->setName( BufferString(nm," step").buf() );
 
-	step->notifyValueChanging(
-		mCB(this,uiGenInputInputFld,valChangingNotify) );
-	step->notifyValueChanged(
-		mCB(this,uiGenInputInputFld,valChangedNotify) );
+	step->notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
+	step->notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
 	step->setReadOnly( false );
 
 	lbl = new uiLabel(&intvalGrp, "Step" );
@@ -418,8 +417,6 @@ protected:
     uiComboBox&		cbb;
 };
 
-typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
-
 /*!
 
 creates a new InpFld and attaches it rightTo the last one already present in
@@ -460,6 +457,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	{
 	    switch( desc.type().rep() )
 	    {
+
 	    case DataType::intTp:
 		fld = new uiIntervalInpFld<int>( this, desc, name() ); 
 	    break;
@@ -469,14 +467,10 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    case DataType::doubleTp:
 		fld = new uiIntervalInpFld<double>( this, desc, name() ); 
 	    break;
-	    default:
-	    break;
 	    }
 	}
 	else if ( desc.type().form() == DataType::position )
 	    fld = new uiPositionInpFld( this, desc, name() ); 
-	else if ( desc.type() == DataType::intTp )
-	    fld = new uiIntInputFld( this, desc, name() );
 	else
 	    fld = new uiTextInputFld( this, desc ); 
     }
@@ -945,7 +939,7 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
 
     if ( selbut ) selbut->setSensitive( elemsens );
     if ( clrbut ) clrbut->setSensitive( elemsens );
-    checked.trigger(this);
+    checked.trigger(cb);
 }
 
 

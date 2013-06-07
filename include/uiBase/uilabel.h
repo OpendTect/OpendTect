@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "draw.h"
 
@@ -20,7 +19,7 @@ class uiGroup;
 class uiLabelBody;
 class ioPixmap;
 
-mExpClass(uiBase) uiLabel : public uiObject
+mClass uiLabel : public uiObject
 {
 public:
 
@@ -57,4 +56,3 @@ private:
 };
 
 #endif
-

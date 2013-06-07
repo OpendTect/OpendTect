@@ -12,18 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "ranges.h"
 #include "position.h"
 
 class IOPar;
 
 
-/*!
-\brief Horizontal sampling (inline and crossline range and steps).
-*/
+/*\brief Horizontal sampling (inline and crossline range and steps) */
 
-mExpClass(Basic) HorSampling
+mClass HorSampling
 {
 public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
@@ -107,28 +104,28 @@ public:
     BinID		start;
     BinID		stop;
     BinID		step;
-    TraceID::GeomID	geomid_;
+
 };
 
 
-/*!
-\brief Finds next BinID in HorSampling; initializes to first position.
-*/
+//\brief Finds next BinID in HorSampling; initializes to first position
 
-mExpClass(Basic) HorSamplingIterator
+mClass HorSamplingIterator
 {
 public:
-    		HorSamplingIterator() : hrg_( true ) { reset(); }
-    		HorSamplingIterator( const HorSampling& hs )
-		    : hrg_(hs)	{ reset(); }
+    			HorSamplingIterator() : hrg_( true ) { reset(); }
+    			HorSamplingIterator( const HorSampling& hs )
+			    : hrg_(hs)	{ reset(); }
 
-    void	setSampling( const HorSampling& hs )
-		{ hrg_ = hs; reset(); }
+    void		setSampling( const HorSampling& hs )
+			{ hrg_ = hs; reset(); }
+    
 
-    void	reset(bool nextisfirstpos=true)	{ firstpos_ = nextisfirstpos; }
-    		/*!<If nextisfirstpos, the next call to next will automatically
-		    be hrg_.start. */
-    bool	next(BinID&);
+    void		reset(bool nextisfirstpos)
+    			{ firstpos_ = nextisfirstpos; }
+    void		reset() { firstpos_=true;}
+    
+    bool		next(BinID&);
 
 protected:
 
@@ -139,4 +136,3 @@ protected:
 
 
 #endif
-

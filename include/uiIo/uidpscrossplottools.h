@@ -12,13 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
 #include "uigeom.h"
 #include "polygon.h"
 
+/*!\brief Data Point Set Cross Plotter */
 
-mStruct(uiIo) SelectionArea
+
+mStruct SelectionArea
 {
     enum SelAxisType	{ Y1, Y2, Both };
 
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mExpClass(uiIo) SelectionGrp : public NamedObject
+mClass SelectionGrp : public NamedObject
 {
 public:
 				SelectionGrp(const char* nm, const Color& col)
@@ -96,5 +96,3 @@ protected:
 };
 
 #endif
-
-

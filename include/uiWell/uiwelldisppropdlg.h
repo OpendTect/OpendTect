@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 
 class uiTabStack;
@@ -21,21 +20,20 @@ class uiLabeledComboBox;
 
 namespace Well { class Data; class DisplayProperties; class LogSet; };
 
-/*!
-\brief Well display properties dialog box.
-*/
 
-mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
+/*! \brief Dialog for well display properties. */
+
+mClass uiWellDispPropDlg : public uiDialog
 {
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						    bool is2ddisplay=false);
+				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
     Well::Data*			wellData()		{ return wd_; }
     const Well::Data*		wellData() const	{ return wd_; }
-
 
     bool 			savedefault_;
  
@@ -52,25 +50,24 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
-    virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
+    void			prepareForShutdown(CallBacker*);
+
+public:
+    void			disableWDNotifiers()
+				{ setWDNotifiers( false ); }
 };
 
 
-/*!
-\brief Multi Well display properties dialog box.
-*/
-
-mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
+mClass uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {
 public:
 				uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
-
 protected:
 
     ObjectSet<Well::Data> 	wds_;
@@ -79,9 +76,11 @@ protected:
     void			resetProps(int logidx);
     virtual void 		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
-    void			onClose(CallBacker*);
+    
+public:
+    void			prepareMultiWellForShutdown(CallBacker*);
+
 };
 
 
 #endif
-

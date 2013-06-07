@@ -12,33 +12,28 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "welldata.h"
 
-class uiCheckBox;
-class uiD2TModelGroup;
-class uiFileInput;
-class uiGenInput;
+class CtxtIOObj;
 class uiLabel;
+class uiCheckBox;
+class uiGenInput;
+class uiIOObjSel;
+class uiFileInput;
+class uiD2TModelGroup;
 class uiTableImpDataSel;
-class uiWellSel;
-class UnitOfMeasure;
 
 namespace Table { class FormatDesc; }
-namespace Well { class Data; }
 
 
 /*! \brief Dialog for well import from Ascii */
 
-mExpClass(uiWell) uiWellImportAsc : public uiDialog
+mClass uiWellImportAsc : public uiDialog
 {
 public:
 			uiWellImportAsc(uiParent*);
 			~uiWellImportAsc();
-
-    MultiID		getWellID() const;
-    Notifier<uiWellImportAsc> importReady;
 
 protected:
 
@@ -49,21 +44,19 @@ protected:
     uiGenInput*		tdfld_;
     uiLabel*		vertwelllbl_;
 
-    Well::Data&		wd_;
+    Well::Data		wd_;
+    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&  fd_;
     uiTableImpDataSel*  dataselfld_;
     uiD2TModelGroup*	d2tgrp_;
-    uiWellSel*		outfld_;
-    bool		zinft_;
-    const UnitOfMeasure* zun_;
+    uiIOObjSel*		outfld_;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
     bool		doWork();
     void		doAdvOpt(CallBacker*);
     void		trckFmtChg(CallBacker*);
-    void		inputChgd(CallBacker*);
     void		haveTrckSel(CallBacker*);
 
     friend class	uiWellImportAscOptDlg;
@@ -71,4 +64,3 @@ protected:
 
 
 #endif
-

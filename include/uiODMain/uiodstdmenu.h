@@ -56,15 +56,11 @@ ________________________________________________________________________
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)
 #define mImpHor2DAsciiMnuItm	(mFileImpMnu + 32)
-#define mImpBulkHorAsciiMnuIm	(mFileImpMnu + 33)
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
 #define mImpWellAsciiLogsMnuItm	(mFileImpMnu + 41)
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
 #define mImpWellSEGYVSPMnuItm	(mFileImpMnu + 45)
 #define mImpWellSimpleMnuItm	(mFileImpMnu + 46)
-#define mImpBulkWellTrackItm	(mFileImpMnu + 47)
-#define mImpBulkWellLogsItm	(mFileImpMnu + 48)
-#define mImpBulkWellMarkersItm	(mFileImpMnu + 49)
 #define mImpFaultMnuItm		(mFileImpMnu + 50)
 #define mImpFaultSSMnuItm	(mFileImpMnu + 51)
 #define mImpFaultSSAscii3DMnuItm (mFileImpMnu + 52)
@@ -126,21 +122,13 @@ ________________________________________________________________________
 #define mPreLoadHorMnuItm	(mFilePreLoadMnu + 11)
 
 
-/* 'Analysis' menu */
-
-#define mEditAttrMnuItm		(mAppMnu + 10)
-#define mEdit2DAttrMnuItm	(mAppMnu + 11)
-#define mEdit3DAttrMnuItm	(mAppMnu + 12)
-#define mXplotMnuItm		(mAppMnu + 40)
-#define mAXplotMnuItm		(mAppMnu + 50)
-#define mOpenXplotMnuItm	(mAppMnu + 60)
-
-
 /* 'Processing' menu */
 
 #define mUseHorMnu       	(mProcMnu + 30)
 
-
+#define mEditAttrMnuItm		(mProcMnu + 10)
+#define mEdit2DAttrMnuItm	(mProcMnu + 11)
+#define mEdit3DAttrMnuItm	(mProcMnu + 12)
 #define mSeisOutMnuItm		(mProcMnu + 20)
 #define mSeisOut2DMnuItm	(mProcMnu + 21)
 #define mSeisOut3DMnuItm	(mProcMnu + 22)
@@ -152,8 +140,10 @@ ________________________________________________________________________
 #define mCreateSurf3DMnuItm	(mUseHorMnu + 4)
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
+#define mXplotMnuItm		(mProcMnu + 40)
+#define mAXplotMnuItm		(mAppMnu + 60)
+#define mOpenXplotMnuItm	(mAppMnu + 70)
 #define mReStartMnuItm		(mProcMnu + 50)
-#define mProcSettingsItm	(mProcMnu + 55)
 
 
 /* 'Scenes' menu */

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicmddrivermgr.h"
 
@@ -181,6 +181,7 @@ void uiCmdDriverMgr::setLogFileName( const char* fnm )
     } \
 }
 
+
 void uiCmdDriverMgr::addCmdLineScript( const char* fnm )
 {
     BufferString filenm( fnm );
@@ -207,12 +208,13 @@ void uiCmdDriverMgr::commandLineParsing()
     uiMain::theMain().getCmdLineArgs( cmdline );
     for ( int idx=1; idx<cmdline.size(); idx++ )
     {
-	char* ptr = strchr( cmdline.get(idx).buf(), '=' );
+	char* str = cmdline.get(idx).buf();
+	char* ptr = strchr( str, '=' );
 	if ( !ptr )
 	    continue;
 
 	*ptr++ = '\0';
-	if ( cmdline.get(idx) == "cmd" )
+	if ( !strcmp(str,"cmd") )
 	{
 
 	    BufferString fnm( ptr );
@@ -236,7 +238,7 @@ void uiCmdDriverMgr::commandLineParsing()
 	    addCmdLineScript( fnm );
 	}
 
-	if ( cmdline.get(idx) == "cmdlog" )
+	if ( !strcmp(str,"cmdlog") )
 	    cmdlogname_ = ptr;
     }
 }

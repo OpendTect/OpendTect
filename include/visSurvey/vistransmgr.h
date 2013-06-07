@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "commondefs.h"
 #include "vistransform.h"
 
@@ -23,11 +22,7 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Scene transform manager.
-*/
-
-mExpClass(visSurvey) SceneTransformManager
+mClass SceneTransformManager
 {
 public:
     			SceneTransformManager()
@@ -54,9 +49,8 @@ protected:
 };
 
 
-mGlobal(visSurvey) SceneTransformManager& STM();
+mGlobal SceneTransformManager& STM();
 
 } // namespace visSurvey
 
 #endif
-

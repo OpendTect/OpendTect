@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class uiListBox;
 
-mExpClass(uiIo) ui2DGeomManageDlg : public uiDialog
+mClass ui2DGeomManageDlg : public uiDialog
 {
 public:
 
@@ -37,4 +36,3 @@ protected:
 
 
 #endif
-

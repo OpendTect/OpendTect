@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseparator.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QFrame>
 
-mUseQtnamespace
 
 class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 {
@@ -26,8 +25,7 @@ uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
     : uiObjBodyImpl<uiSeparator,QFrame>(hndl,p,nm)
 {
     setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
-		 | (raised ? QFrame::Raised
-		     	   : QFrame::Sunken) );
+		 | (raised ? QFrame::Raised : QFrame::Sunken) );
     setLineWidth( 1 ); setMidLineWidth( 0 );
 }
 
@@ -49,6 +47,5 @@ uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 
 void uiSeparator::setRaised( bool yn )
 { 
-    body_->setFrameShadow( yn ? QFrame::Raised
-	    		      : QFrame::Sunken );
+    body_->setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
 }

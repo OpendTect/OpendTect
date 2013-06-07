@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -44,7 +44,8 @@ void SoPlaneWellLog::initClass()
 
 
 SoPlaneWellLog::SoPlaneWellLog()
-    : timesensor( new SoTimerSensor() )
+    : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
+    , timesensor( new SoTimerSensor() )
     , revscale1(false)
     , revscale2(false)
     , fillrevscale1(false)
@@ -139,7 +140,6 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( screenWidth1, (40) );
     SO_KIT_ADD_FIELD( screenWidth2, (40) );
 
-    valuesensor = new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this);
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
     valuesensor->attach( &screenWidth1 );
@@ -284,7 +284,8 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 void SoPlaneWellLog::setFillLogValue( int index, float fillval, int lnr )
 {
     SoMFFloat& filllog    = lnr==1 ? filllog1 : filllog2;
-
+    SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
     filllog.set1Value( index, fillval );
 }
 
@@ -403,7 +404,7 @@ void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
     float meanvalF = 0;
-    float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0f );
+    float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
     float meanlogval = ( maxvalF - minvalF ) / 2;
 
     const int pathsz = path.getNum();
@@ -488,6 +489,9 @@ void SoPlaneWellLog::buildSeismicLog(int lnr, const SbVec3f& projdir, int res)
 
 void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
 {
+    SoCoordinate3* coords = SO_GET_ANY_PART( this,
+             lnr==1 ? "coords1" : "coords2", SoCoordinate3 );
+    
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
 	    lnr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
    
@@ -498,12 +502,14 @@ void SoPlaneWellLog::buildFilledLog(int lnr, const SbVec3f& projdir, int res)
     SoMFFloat& log = lnr==1 ? log1 : log2;
     SoMFFloat& filllog = lnr==1 ? filllog1 : filllog2;
     SoSFFloat& maxval = lnr==1 ? maxval1 : maxval2;
+    SoSFFloat& minval = lnr==1 ? minval1 : minval2;
     SoSFFloat& fillmaxval = lnr==1 ? fillmaxval1 : fillmaxval2;
     SoSFFloat& fillminval = lnr==1 ? fillminval1 : fillminval2;
 
     if ( filllog.getNum() == 0 )
 	return;
 
+    float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
     float fillminvalF = fillminval.getValue();
     float fillmaxvalF = fillmaxval.getValue();
@@ -583,6 +589,7 @@ SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
     }
 
     SbVec3f normal = getNormal( pt1, pt2, projdir );
+    SbVec3f normalshift = getNormal( pt1, pt2, projdir );
     normal.normalize();
     
     float maxvalF = maxval.getValue();
@@ -636,6 +643,7 @@ void SoPlaneWellLog::setLineDisplayed( bool isdisp, int lnr )
 
 bool SoPlaneWellLog::lineDisp( int lnr ) const
 {
+    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
     const bool isdisp = lnr==1 ? islinedisp1 : islinedisp2;
     return isdisp;
 }

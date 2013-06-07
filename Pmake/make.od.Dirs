@@ -1,0 +1,35 @@
+# This include sets defaults for external software
+#
+# Some things are sorted out here, as they are at dGB:
+
+APPMANSUBDIR := appman
+ifdef OD_STABLE
+    APPMANSUBDIR := appstable
+endif
+
+APPMANROOT := /d28/$(APPMANSUBDIR)
+
+include make.Site
+
+ifeq ($(HDIR),sun5)
+    APPMANROOT := /d32/$(APPMANSUBDIR)
+endif
+ifeq ($(HDIR),win)
+    APPMANROOT := /dw103/$(APPMANSUBDIR)
+endif
+ifeq ($(HDIR),mac)
+    APPMANROOT := /d15/$(APPMANSUBDIR)
+endif
+ifeq ($(PLFSUBDIR),lux64)
+    APPMANROOT := /d25/$(APPMANSUBDIR)
+endif
+
+ifdef APPMANROOT_OVERRULE
+    APPMANROOT := $(APPMANROOT_OVERRULE)
+endif
+
+#
+# But this is what may be needed by the makefiles:
+OD_QTDIR_DEFAULT := $(APPMANROOT)/qt/rel
+COINDIR_DEFAULT := $(APPMANROOT)/coin/inst
+MICO_DEFAULT := $(APPMANROOT)/mico/inst

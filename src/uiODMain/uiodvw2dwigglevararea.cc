@@ -14,12 +14,12 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
+#include "uilistview.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -72,16 +72,18 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+
     const DataPack* fdpw = vwr.pack( true );
     if ( fdpw )
 	dpid_ = fdpw->id();
+    const DataPack* fdpv = vwr.pack( false );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
-    uitreeviewitem_->setChecked( ddp.wva_.show_ );
+    uilistviewitem_->setChecked( vwr.isVisible(true) );
+    uilistviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,checkCB) );
@@ -95,7 +97,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 
 bool uiODVW2DWiggleVarAreaTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
@@ -107,7 +109,10 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-	viewer2D()->viewwin()->viewer(ivwr).setVisible( true, isChecked() );
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	vwr.setVisible( true, isChecked() );
+    }
 }
 
 
@@ -118,10 +123,14 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const DataPack* fdpw = vwr.pack( true );
+    const DataPack* fdpv = vwr.pack( false );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    uitreeviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
-    uitreeviewitem_->setChecked( ddp.wva_.show_ );
-    if ( fdpw )	dpid_ = fdpw->id();
+    
+    uilistviewitem_->setChecked( vwr.isVisible(true) );
+    uilistviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
+
+    if ( fdpw )
+	dpid_ = fdpw->id();
 }
 
 
@@ -176,7 +185,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp);
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
-    MenuItem* subitem = 0;
+    MenuItem* subitem;
     applMgr()->attrServer()->resetMenuItems();
     if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
@@ -234,8 +243,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 		    			    DataPack::cNoID() );
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start,
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg( dprdm->posData().range(false).start,
+					   dprdm->posData().range(false).stop );
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();
@@ -304,7 +313,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	FilePath fp( ioobj->fullUserExpr(true) );
 	fp.setExtension( "par" );
 	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	if ( iop.read(fp.fullPath(),sKey::Pars) && !iop.isEmpty() )
 	{
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
@@ -317,7 +326,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	    }
 	}
     }
-    
+
     viewer2D()->setUpView( newid, true );
 
     return false;

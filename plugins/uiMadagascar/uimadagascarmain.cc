@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.42 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -86,10 +86,10 @@ uiMadagascarMain::~uiMadagascarMain()
 void uiMadagascarMain::createToolBar()
 {
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
-    mAddButton( "newflow", newFlow, "Empty this flow" );
-    mAddButton( "openflow", openFlow, "Open saved flow" );
-    mAddButton( "save", saveFlow, "Save flow" );
-    mAddButton( "export", exportFlow, "Export flow" );
+    mAddButton( "newflow.png", newFlow, "Empty this flow" );
+    mAddButton( "openflow.png", openFlow, "Open saved flow" );
+    mAddButton( "save.png", saveFlow, "Save flow" );
+    mAddButton( "export.png", exportFlow, "Export flow" );
 }
 
 
@@ -110,7 +110,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 	    			"Move current command up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 	    			"Move current command down", butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan",
+    rmbut_ = new uiToolButton( bgrp, "trashcan.png",
 	    			"Remove current command from flow", butpushcb );
     bgrp->attach( centeredBelow, pfld );
 
@@ -130,8 +130,8 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
 
     IOPar& outpar = procflow_.output();
     outfld_->fillPar( outpar );
-    BufferString inptyp( inpar.find(sKey::Type()) );
-    BufferString outptyp( outpar.find(sKey::Type()) );
+    BufferString inptyp( inpar.find(sKey::Type) );
+    BufferString outptyp( outpar.find(sKey::Type) );
 
     if ( inptyp==Seis::nameOf(Seis::Vol) && outptyp==Seis::nameOf(Seis::Vol) )
 	singmachfld_->setSensitive( true );
@@ -194,7 +194,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	if ( curidx < 0 ) return;
 	needsave_ = true;
 	procsfld_->removeItem( curidx );
-	ODMad::Proc* prevproc = procflow_.removeSingle( curidx );
+	ODMad::Proc* prevproc = procflow_.remove( curidx );
 	delete prevproc;
 	if ( curidx >= procsfld_->size() )
 	    curidx--;

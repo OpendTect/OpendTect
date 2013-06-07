@@ -2,7 +2,7 @@
 # Description:  CMake script to define dgbvmb package variables
 # Author:       Nageswara
 # Date:         August 2012
-#RCS:           $Id$
+#RCS:           $Id: dgbvmbdefs.cmake,v 1.4 2012/09/06 05:50:52 cvsnageswara Exp $
 
 SET( LIBLIST VMB uiVMB )
 SET( EXECLIST "" )

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "factory.h"
 #include "sets.h"
 #include "emposid.h"
@@ -32,11 +31,7 @@ class SectionTracker;
 class TrackPlane;
 class EMSeedPicker;
 
-/*!
-\brief Tracks EM objects.
-*/
-
-mExpClass(MPEEngine) EMTracker
+mClass EMTracker
 {
 mRefCountImplWithDestructor(EMTracker,virtual ~EMTracker(),delete this;);
 public:
@@ -95,11 +90,10 @@ private:
 };
 
 
-mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
+mDefineFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
 
 
 }; // namespace MPE
 
 #endif
-
 

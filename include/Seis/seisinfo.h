@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "seisposkey.h"
 #include "samplingdata.h"
 #include "position.h"
@@ -26,7 +25,7 @@ template <class T> class TypeSet;
 
 /*!\brief Information for a seismic trace, AKA trace header info */
 
-mExpClass(Seis) SeisTrcInfo
+mClass SeisTrcInfo
 {
 public:
 			SeisTrcInfo()
@@ -107,7 +106,7 @@ namespace Seis
 
    */
 
-mExpClass(Seis) InternalUnitsEnsurer
+mClass InternalUnitsEnsurer
 {
 public:
     			InternalUnitsEnsurer( SeisTrcInfo& ti,
@@ -141,4 +140,3 @@ public:
 
 
 #endif
-

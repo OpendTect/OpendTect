@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "arraynd.h"
 
 
@@ -23,7 +22,7 @@ namespace Geometry
 /*!Class to tesselate part of an array2D data, rrg/crg are given to set the 
   start, step and size of the tesselation. */
 
-mExpClass(Geometry) ArrayTesselator : public ParallelTask
+mClass ArrayTesselator : public ParallelTask
 {
 public:
     			ArrayTesselator(const float* data,
@@ -98,13 +97,12 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
     const int glastrowidx = datarowsize_ - 1;
     const int glastcolidx = datacolsize_ - 1;
     const int colsz = colrange_.nrSteps()+1;
+    const int startidx = rowrange_.start * datacolsize_ + colrange_.start;
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int currow = mCast( int, (idx/colsz)*rowrange_.step + 
-							    rowrange_.start );
-	const int curcol = mCast( int, (idx%colsz)*colrange_.step + 
-							    colrange_.start );
+	const int currow = (idx/colsz)*rowrange_.step + rowrange_.start;
+	const int curcol = (idx%colsz)*colrange_.step + colrange_.start;
 	if ( currow > glastrowidx || curcol > glastcolidx )
 	    continue;
 
@@ -207,4 +205,3 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 };
 
 #endif
-

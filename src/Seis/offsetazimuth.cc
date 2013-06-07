@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "offsetazimuth.h"
 #include <math.h>
@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mAzimuthFactor	0.012295862	//2PI/511
 #define mAzimuthUndef	511		
 #define mAzimuthMask	511		
-#define mOffsetFactor	0.1f		//Decimeters
+#define mOffsetFactor	0.1		//Decimeters
 #define mOffsetMax      4194302
 #define mOffsetMin      -4194302	//Decimeters
 #define mOffsetUndef    4194303
@@ -56,7 +56,7 @@ float OffsetAzimuth::azimuth() const
 {
     unsigned int azi = offsetazi_;
     azi &= mAzimuthMask;
-    return azi==mAzimuthUndef ? mUdf(float) : (float) (azi * mAzimuthFactor);
+    return azi==mAzimuthUndef ? mUdf(float) : azi * mAzimuthFactor;
 }
 
 
@@ -127,7 +127,7 @@ float OffsetAzimuth::distanceTo( const OffsetAzimuth& b, bool sq ) const
     if ( !bvec.isDefined() )
 	return mUdf(float);
 
-    return (float) (sq ? myvec.sqDistTo( bvec ) : myvec.distTo( bvec ));
+    return sq ? myvec.sqDistTo( bvec ) : myvec.distTo( bvec );
 }
 
 

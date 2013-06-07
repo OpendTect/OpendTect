@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id$
+ RCS:           $Id: treeitem.h,v 1.19 2009/07/22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ namespace Pick { class Set; }
 namespace Annotations
 {
 
-mClass(Annotations) ParentTreeItem : public uiTreeItem
+class ParentTreeItem : public uiTreeItem
 {
 public:
 			ParentTreeItem();
@@ -33,11 +33,11 @@ public:
 protected:
     bool		init();
     const char*		parentType() const;
-    virtual bool	rightClick(uiTreeViewItem*);
+    virtual bool	rightClick(uiListViewItem*);
 };
 
 
-mClass(Annotations) TreeItemFactory : public uiODTreeItemFactory
+class TreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const   { return getName(); }
@@ -47,7 +47,7 @@ public:
 };
 
 
-mClass(Annotations) AnnotTreeItem : public uiODTreeItem
+class AnnotTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem  inheritedClass;
 public:
@@ -70,16 +70,15 @@ protected:
 
 
 
+   void			setAddedCB(CallBacker*);
    void			setRemovedCB(CallBacker*);
-   void			addPickSet(Pick::Set* ps);
-   void			removePickSet(Pick::Set* ps);
 
    BufferString		typestr_;
 };
 
 
 
-mClass(Annotations) SubItem : public uiODDisplayTreeItem
+class SubItem : public uiODDisplayTreeItem
 {
 public:
     static bool		doesNameExist(const char*);
@@ -89,7 +88,6 @@ public:
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
-    Pick::Set*		getSet() { return set_; }
 
 protected:
     			SubItem(Pick::Set&,int displayid=-1);
@@ -105,7 +103,7 @@ protected:
     virtual void	mouseMoveCB(CallBacker*)	{}
     virtual void	rightclickCB(CallBacker*)	{}
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
     virtual bool	hasScale() const		{ return false; }
@@ -127,7 +125,7 @@ protected:
 };
 
 
-mClass(Annotations) TextSubItem : public SubItem
+class TextSubItem : public SubItem
 {
 public:
     			TextSubItem(Pick::Set& pck,int displayid=-1);
@@ -141,7 +139,7 @@ protected:
     virtual void	pickAddedCB(CallBacker*);
     const char*		managerName() const	{ return sKeyManager(); }
 
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     bool		editText(BufferString& str, BufferString& url,
@@ -160,7 +158,7 @@ protected:
 };
 
 
-mClass(Annotations) ArrowSubItem : public SubItem
+class ArrowSubItem : public SubItem
 {
 public:
 
@@ -174,7 +172,7 @@ protected:
     virtual const char*	parentType() const;
 
     void		fillStoragePar(IOPar&) const;
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		propertyChange(CallBacker*);
 
@@ -189,8 +187,7 @@ protected:
 
 };
 
-
-mClass(Annotations) ImageSubItem : public SubItem
+class ImageSubItem : public SubItem
 {
 public:
     			ImageSubItem(Pick::Set&,int displayid=-1);
@@ -202,7 +199,7 @@ protected:
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
 
-    void		createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     void		retrieveFileName(CallBacker*);
@@ -217,32 +214,6 @@ protected:
     MenuItem		filemnuitem_;
 };
 
-
-mClass(Annotations) ScaleBarSubItem : public SubItem
-{
-public:
-    			ScaleBarSubItem(Pick::Set&,int displayid=-1);
-    bool		init();
-    static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
-
-protected:
-			~ScaleBarSubItem()	{ removeStuff(); }
-
-    const char*		parentType() const;
-    void		fillStoragePar(IOPar&) const;
-
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    void		propertyChange(CallBacker*);
-
-    const char*		managerName() const		{ return sKeyManager();}
-
-    MenuItem		propmnuitem_;
-
-    static const char*		sKeyOrientation()      { return "Orientation"; }
-    static const char*		sKeyLineWidth()	       { return "Line width"; }
-    static const char*		sKeyLength()	       { return "Length"; }
-};
 
 
 #define mDefineParentItem(type,typestr,defsz) \
@@ -262,7 +233,6 @@ protected: \
 mDefineParentItem(Text,"Text",25);
 mDefineParentItem(Arrow,"Arrows",1000);
 mDefineParentItem(Image,"Image",1000);
-mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 
 }; // namespace Annotations

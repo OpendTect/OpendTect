@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
 #include "callback.h"
 #include "cubesampling.h"
 #include "multiid.h"
@@ -32,7 +31,7 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mExpClass(uiMPE) HorizonFlatViewEditor : public CallBacker
+mClass HorizonFlatViewEditor : public CallBacker
 {
 public:
     				HorizonFlatViewEditor(FlatView::AuxDataEditor*);
@@ -96,5 +95,4 @@ protected:
 } // namespace MPE
 
 #endif
-
 

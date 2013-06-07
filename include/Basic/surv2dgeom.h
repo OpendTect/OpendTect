@@ -13,12 +13,9 @@ ________________________________________________________________________
 -*/
  
  
-#include "basicmod.h"
 #include "posinfo2d.h"
 #include "separstr.h"
-#include "survgeom.h"
 #include "thread.h"
-
 class IOPar;
 class FilePath;
 class BufferStringSet;
@@ -27,11 +24,7 @@ class BufferStringSet;
 namespace PosInfo
 {
 
-/*!
-\brief Geometry ID. 
-*/
-
-mExpClass(Basic) GeomID
+mClass GeomID
 {
 public:
     		GeomID( int lsid=-1, int lineid=-1 )
@@ -41,29 +34,24 @@ public:
     int		lineid_;
 
     bool	isOK() const;
-    void	setUndef();
-    bool	isUndef() const;
-
     bool	operator ==( const GeomID& a ) const
-   		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
+    		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
     bool	operator !=( const GeomID& a ) const
 		{ return !( operator==(a) ); }
     BufferString toString() const;
     bool	fromString(const char*);
 };
 
-
-/*!
-\brief Repository for 2D line geometries.
+/*!\brief Repository for 2D line geometries
 
   You can access it using S2DPOS() (or PosInfo::POS2DAdmin()).
-*/
+ 
+ */
 
-mExpClass(Basic) Survey2D : public CallBacker
+mClass Survey2D : public CallBacker
 {
 public:
 
-    static void		initClass();
     bool		isEmpty() const		{ return lsnm_.isEmpty(); }
 
     //using names
@@ -91,7 +79,6 @@ public:
     bool		hasLineSet(int lsid) const;
     bool		hasLine(int lineid,int lsid=-1) const;
     void		getLineIDs(TypeSet<int>&,int lsid) const;
-    void		getLines(BufferStringSet&,int lsid) const;
 
     int			curLineSetID() const;
     void		setCurLineSet(int lsid) const;
@@ -107,9 +94,6 @@ public:
     GeomID		getGeomID(const char* lsnm,const char* linenm) const;
     const char*		getLSFileNm(const char* lsnm) const;
     const char*		getLineFileNm(const char* lsnm,const char* lnm) const;
-
-    bool		readDistBetwTrcsStats(const char* linemn,float& max,
-	    				      float& median) const;
 
 protected:
     int			getNewID(IOPar&);
@@ -137,7 +121,7 @@ private:
     int			getLineSetIdx(int lsid) const;
     int			getLineIdx(int lineid) const;
 
-    mGlobal(Basic) friend Survey2D&	POS2DAdmin();
+    mGlobal friend Survey2D&	POS2DAdmin();
 
     			Survey2D();
 public:
@@ -145,53 +129,13 @@ public:
 
 };
 
-mGlobal(Basic) Survey2D& POS2DAdmin();
+mGlobal Survey2D& POS2DAdmin();
 
 } // namespace PosInfo
 
 
-inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
+inline mGlobal const PosInfo::Survey2D& S2DPOS()
 { return const_cast<PosInfo::Survey2D&>( PosInfo::POS2DAdmin() ); }
 
 
-
-//New Stuff post 4.4 that will replace the old stuff in due course
-
-namespace Survey
-{
-
-/*!
-\brief Geometry of a 2D Line.
-*/
-
-mExpClass(Basic) Geometry2D : public Geometry
-{
-public:
-                   		Geometry2D();
-				Geometry2D(PosInfo::Line2DData*);
-				//!<Line2DData becomes mine
-
-    virtual Coord		toCoord(int linenr,int tracenr) const;
-    virtual TraceID		nearestTrace(const Coord&,float* dist) const;
-
-    virtual bool		includes(int linenr,int tracenr) const;
-
-    bool			is2D() const		{ return true; }
-    PosInfo::Line2DData&	data()			{ return data_; }
-    const PosInfo::Line2DData	data() const		{ return data_; }
-    
-    StepInterval<float>		zRange() const;
-
-    static BufferString  	makeUniqueLineName(const char* lsnm,
-	    					   const char* lnm);
-protected:
-
-                    		~Geometry2D();
-
-    PosInfo::Line2DData&	data_;
-};
-
-} // namespace Survey
-
 #endif
-

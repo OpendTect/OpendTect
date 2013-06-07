@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribengman.h"
 
@@ -86,13 +86,13 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 
 
 Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset, 
-			      const char* linename, BufferString& errmsg )
+	      		      const char* linename, BufferString& errmsg )
 {
     int outputidx = 0;
     TypeSet<DescID> ids;
     while ( true )
     {    
-	BufferString outpstr = IOPar::compKey( sKey::Output(), outputidx );
+	BufferString outpstr = IOPar::compKey( sKey::Output, outputidx );
 	PtrMan<IOPar> outputpar = iopar.subselect( outpstr );
 	if ( !outputpar )
 	{
@@ -106,7 +106,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	while ( true )
 	{
 	    BufferString attribidstr = 
-			IOPar::compKey( sKey::Attributes(), attribidx );
+			IOPar::compKey( sKey::Attributes, attribidx );
 	    int attribid;
 	    if ( !outputpar->get(attribidstr,attribid) )
 		break;
@@ -126,7 +126,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	proc->addOutputInterest(idx);
 
     PtrMan<IOPar> outpar =
-	iopar.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+	iopar.subselect( IOPar::compKey(sKey::Output,sKey::Subsel) );
     if ( !outpar || !cs_.usePar(*outpar) )
     {
 	if ( !attribset.is2D() )
@@ -231,11 +231,10 @@ void EngineMan::setExecutorName( Executor* ex )
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
 					    const LineKey& lkey,
-					    BufferString& errmsg )
+       					    BufferString& errmsg )
 {
-    const FixedString typestr =
-		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
-    if ( typestr==sKey::Cube() )
+    const char* typestr = pars.find( IOPar::compKey(sKey::Output,sKey::Type) );
+    if ( typestr && !strcmp(typestr,sKey::Cube) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
@@ -900,9 +899,9 @@ int nextStep()
 
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
-					const Attrib::DescSet& descset,
-					BufferString& errmsg, int firstcol,
-					bool needprep )
+       					const Attrib::DescSet& descset,
+       					BufferString& errmsg, int firstcol,
+       					bool needprep )
 {
     if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
 	return 0;
@@ -994,9 +993,9 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
-					  Interval<float>* cubezbounds,
-					  TypeSet<BinID>* trueknotspos,
-					  TypeSet<BinID>* snappedpos )
+       					  Interval<float>* cubezbounds,
+       					  TypeSet<BinID>* trueknotspos,
+       					  TypeSet<BinID>* snappedpos )
 {
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -1026,10 +1025,10 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output(),"0") );
-    const char* linename = output->find(sKey::LineKey());
+    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output,"0") );
+    const char* linename = output->find(sKey::LineKey);
     if ( !linename )
-	linename = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()) );
+	linename = pars.find( IOPar::compKey(sKey::Geometry,sKey::LineKey) );
 
     setLineKey( linename );
 
@@ -1038,7 +1037,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 
     LineKey lkey( linename, proc->getAttribUserRef() );
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, datapointset,
-							    outval );
+	    						    outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
@@ -1075,7 +1074,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    for ( int ids=0; ids<attrrefs.size(); ids++ )
 	    {
 		FileMultiString fms( attrrefs.get(ids) );
-		if ( fms[0]==nmstr )
+		if ( !strcmp(fms[0],nmstr) )
 		    { refidx = ids; break; }
 	    }
 	    

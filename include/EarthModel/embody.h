@@ -13,26 +13,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "arraynd.h"
 #include "emobject.h"
 #include "samplingdata.h"
 
 class TaskRunner;
 
-/*!\brief Earth Model objects like horizons, faults, fault-sticks and bodies.*/
-
 namespace EM
 {
 
-/*!
-\brief Implicit representation of a body.
-*/
+/*!Implicit representation of a body. */
 
-mExpClass(EarthModel) ImplicitBody
+mStruct ImplicitBody
 {
-public:
     				ImplicitBody();
     				ImplicitBody(const ImplicitBody& nb);
     virtual			~ImplicitBody();
@@ -44,11 +37,9 @@ public:
 };
 
 
-/*!
-\brief A body that can deliver an implicit body.
-*/
+/*!A body that can deliver an implicit body. */
 
-mExpClass(EarthModel) Body
+mClass Body
 { 
 public:
 
@@ -76,5 +67,3 @@ protected:
 }; // Namespace
 
 #endif
-
-

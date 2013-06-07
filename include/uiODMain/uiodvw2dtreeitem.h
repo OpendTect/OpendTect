@@ -12,18 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 
 class CubeSampling;
-class uiTreeView;
+class uiListView;
 class uiODApplMgr;
 class uiODViewer2D;
 
 namespace Attrib { class SelSpec; }
 
 
-mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
+mClass uiODVw2DTreeItem : public uiTreeItem
 {
 public:
     			uiODVw2DTreeItem(const char*);
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
+mClass uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
 	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
@@ -59,10 +58,10 @@ mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 
 
 
-mExpClass(uiODMain) uiODVw2DTreeTop : public uiTreeTopItem
+mClass uiODVw2DTreeTop : public uiTreeTopItem
 {
 public:
-				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,
+    				uiODVw2DTreeTop(uiListView*,uiODApplMgr*,
 					uiODViewer2D*,uiTreeFactorySet*);
 				~uiODVw2DTreeTop();
     
@@ -87,4 +86,3 @@ protected:
 
 
 #endif
-

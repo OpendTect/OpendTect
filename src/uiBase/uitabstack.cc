@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitabstack.h"
 #include "uitabbar.h"
@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QFrame>
 
-mUseQtnamespace
 
 uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     : uiGroup( parnt, nm, mnge )

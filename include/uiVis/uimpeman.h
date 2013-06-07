@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uiparent.h"
 #include "trackplane.h"
 
@@ -29,7 +28,7 @@ class uiVisPartServer;
 
 /*! \brief Dialog for tracking properties
 */
-mExpClass(uiVis) uiMPEMan : public CallBacker
+mClass uiMPEMan : public CallBacker
 {
 public:		
     friend class uiPropertiesDialog;
@@ -53,7 +52,6 @@ public:
     void			turnQCPlaneOff();
 
     void                        visObjectLockedCB(CallBacker*);
-    void			updateButtonSensitivity(CallBacker* = 0);
 
 protected:
     void			addButtons();
@@ -80,6 +78,9 @@ protected:
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
     void			savePush(CallBacker*);
+public:
+    void			updateButtonSensitivity(CallBacker* = 0);
+protected:
     void			moveBackward(CallBacker*);
     void			moveForward(CallBacker*);
     void			trackFromSeedsOnly(CallBacker*);
@@ -151,4 +152,3 @@ protected:
 };
 
 #endif
-

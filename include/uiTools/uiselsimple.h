@@ -12,10 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
-class uiGroup;
 class uiListBox;
 class uiGenInput;
 class uiCheckList;
@@ -23,11 +21,11 @@ class BufferStringSet;
 
 /*!\brief Select entry from list */
 
-mExpClass(uiTools) uiSelectFromList : public uiDialog
+mClass uiSelectFromList : public uiDialog
 { 	
 public:
 
-    mExpClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
@@ -49,7 +47,6 @@ public:
 
     uiListBox*		selFld()		{ return selfld_; }
     uiGenInput*		filtFld()		{ return filtfld_; }
-    uiObject*		bottomFld(); //!< is selFld()
 
 protected:
 
@@ -70,11 +67,11 @@ private:
 
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
-mExpClass(uiTools) uiGetObjectName : public uiDialog
+mClass uiGetObjectName : public uiDialog
 { 	
 public:
 
-    mExpClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )
@@ -95,8 +92,8 @@ public:
     const char*		text() const;
 
     uiGenInput*		inpFld()		{ return inpfld_; }
+    			//!< Is the lowest field
     uiListBox*		selFld()		{ return listfld_; }
-    uiGroup*		bottomFld(); //!< is inpFld()
 
 protected:
 
@@ -111,7 +108,7 @@ protected:
 
 /*!\brief Get an action from a series of possibilities from user */
 
-mExpClass(uiTools) uiGetChoice : public uiDialog
+mClass uiGetChoice : public uiDialog
 { 	
 public:
 
@@ -128,9 +125,6 @@ public:
     int			choice() const		{ return choice_; }
     			//!< on cancel will be -1
 
-    uiCheckList*	checkList();
-    uiGroup*		bottomFld(); //!< is checkList()
-
 protected:
 
     uiCheckList*	inpfld_;
@@ -144,4 +138,3 @@ protected:
 
 
 #endif
-

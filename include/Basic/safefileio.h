@@ -12,15 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 #include "strmdata.h"
 #include <iosfwd>
 
 
-/*!
-\brief Protects file IO when you can't afford to have partly written things
-after write errors or have a file garbled by multiple access.
+/*!\brief Protects file IO when you can't afford to have partly written things
+  after write errors or have a file garbled by multiple access.
  
   Use the locking only when multiple processes can concurrently write to
   the same file. For most purposes, you won't need the locking, which is kind
@@ -41,9 +39,10 @@ after write errors or have a file garbled by multiple access.
   writing. In that case, you need to keep the lock that was made for the
   reading. There is where you want to use the 'ignorelock' and 'keeplock'
   flags. Otherwise, don't specify these.
-*/
+ 
+ */
 
-mExpClass(Basic) SafeFileIO
+mClass SafeFileIO
 {
 public:
 
@@ -97,4 +96,3 @@ protected:
 
 
 #endif
-

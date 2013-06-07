@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "gendefs.h"
 #include "general.h"
 #include "ptrman.h"
@@ -21,12 +20,12 @@ ________________________________________________________________________
 #include "thread.h"
 
 
-#define mDoSort(extra_var,extra_action,sztype) \
+#define mDoSort(extra_var,extra_action) \
 { \
     T tmp; extra_var; \
-    for ( sztype d=sz/2; d>0; d=d/2 ) \
-	for ( sztype i=d; i<sz; i++ ) \
-	    for ( sztype j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+    for ( int d=sz/2; d>0; d=d/2 ) \
+	for ( int i=d; i<sz; i++ ) \
+	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
 	    { \
 		tmp = arr[j]; arr[j] = arr[j+d]; arr[j+d] = tmp; \
 		extra_action; \
@@ -34,22 +33,22 @@ ________________________________________________________________________
 }
 
 /*!> sort quickly (algorithm taken from xv). */
-template <class T,class I>
-inline void sort_array( T* arr, I sz )
-mDoSort(,,I)
+template <class T>
+inline void sort_array( T* arr, int sz )
+mDoSort(,)
 
 /*!> sort and remember where it was before sorting. */
-template <class T, class IT,class I>
-inline void sort_coupled( T* arr, IT* idxs, I sz )
-mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,I)
+template <class T, class IT>
+inline void sort_coupled( T* arr, IT* idxs, int sz )
+mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 
 #undef mDoSort
-#define mDoSort(extra_var,extra_action,sztype) \
+#define mDoSort(extra_var,extra_action) \
 { \
     extra_var; \
-    for ( sztype d=sz/2; d>0; d=d/2 ) \
-	for ( sztype i=d; i<sz; i++ ) \
-	    for ( sztype j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+    for ( int d=sz/2; d>0; d=d/2 ) \
+	for ( int i=d; i<sz; i++ ) \
+	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
 	    { \
 		Swap( arr[j], arr[j+d] ); \
 		extra_action; \
@@ -59,59 +58,23 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,I)
 /*!> sort quickly (algorithm taken from xv). */
 template <class T>
 inline void sort_idxabl( T& arr, int sz )
-mDoSort(,,int)
+mDoSort(,)
 
 /*!> sort and remember where it was before sorting. */
 template <class T, class IT>
 inline void sort_idxabl_coupled( T& arr, IT* idxs, int sz )
-mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
+mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 #undef mDoSort
 
 
-/*!> Sorting for data with many duplicates. */
-template <class T,class I>
-inline void duplicate_sort( T* arr, I sz )
-{
-    TypeSet<T> vals;
-    TypeSet<int> count;
-    for ( I idx=0; idx<sz; ++idx )
-    {
-	const int vidx = vals.indexOf( arr[idx] );
-	if ( vidx<0 )
-	{
-	    count += 1;
-	    vals += arr[idx];
-	}
-	else
-	    count[vidx] += 1;
-    }
-
-    const int vsize = mCast(int,vals.size());
-    TypeSet<int> idxs;
-    for ( int idx=0; idx<vsize; idx++ )
-    	idxs += idx;
-    sort_coupled( vals.arr(), idxs.arr(), vsize );
-
-    I index = -1;
-    for ( int idx=0; idx<vsize; ++idx )
-    {
-	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
-	    arr[++index] = vals[idx];
-    }
-}
-
-
-/*!
-\brief Sorting in parallel. Code is still experimental.
-
-  The basic principle is:
-  1. Divide samples into subsets.
-  2. Sort subsets in parallel.
-  3. Merge pairs of subsets iteratively until there are only one subset left.
+/*!Sorting in parallel. Code is still experimental. The basic principle is:
+1. Divide samples into subsets.
+2. Sort subsets in parallel
+3. Merge pairs of subsets iteratively until there are only one subset left.
 */
 
 template <class T>
-mClass(Algo) ParallelSorter : public ParallelTask
+mClass ParallelSorter : public ParallelTask
 {
 public:
 				ParallelSorter(T* vals, int sz);
@@ -152,11 +115,11 @@ protected:
 #define FC 1663
 #define NSTACK 50
 
-template <class T,class I> inline
-void partSort( T* arr, I istart, I istop,
-		      I* jstart, I* jstop )
+template <class T> inline
+void partSort( T* arr, int istart, int istop,
+		      int* jstart, int* jstop )
 {
-    I ipivot, ileft, iright;
+    int ipivot, ileft, iright;
     T pivotval, tmp;
     static long int seed = 0L;
 
@@ -197,10 +160,10 @@ void partSort( T* arr, I istart, I istop,
 }
 
 
-template <class T, class I> inline
-void insertionSort( T* arr, I istart, I istop )
+template <class T> inline
+void insertionSort( T* arr, int istart, int istop )
 {
-    I i, j;
+    int i, j;
     T arr_i;
 
     for ( i=istart+1; i<=istop; i++ )
@@ -212,13 +175,13 @@ void insertionSort( T* arr, I istart, I istop )
 }
 
 
-template <class T,class I> inline
-void sortFor( T* arr, I sz, I itarget )
+template <class T> inline
+void sortFor( T* arr, int sz, int itarget )
 /*!> sorts the array until the 'itarget' element has exactly the right
 value. The rest of the array must be considered unsorted after the operation,
 although it will generally be better sorted. */
 {
-    I j, k, p = 0, q = sz-1;
+    int j, k, p = 0, q = sz-1;
 
     while( q - p > NSMALL )
     {
@@ -233,11 +196,11 @@ although it will generally be better sorted. */
 }
 
 
-template <class T,class I> inline
-void quickSort( T* arr, I sz )
+template <class T> inline
+void quickSort( T* arr, int sz )
 /*!> is quicker than sort_array for arrays larger than about 100 values. */
 {
-    I pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
+    int pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
 
     pstack[top] = 0;
     qstack[top++] = sz - 1;
@@ -527,13 +490,13 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	    break;
 	}
 
-	const int curstart0 = starts_[0]; starts_.removeSingle( 0 );
-	const int curstart1 = starts_[0]; starts_.removeSingle( 0 );
+	const int curstart0 = starts_[0]; starts_.remove( 0 );
+	const int curstart1 = starts_[0]; starts_.remove( 0 );
 	int curstart2;
 	if ( starts_.size()==1 )
 	{
 	    curstart2 = starts_[0];
-	    starts_.removeSingle( 0 );
+	    starts_.remove( 0 );
 	}
 	else
 	    curstart2 = -1;
@@ -602,5 +565,5 @@ bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
 }
 
 
-#endif
 
+#endif

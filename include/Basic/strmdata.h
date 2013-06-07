@@ -13,20 +13,19 @@ ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
 #include "gendefs.h"
 #include <stdio.h>
 #include <iosfwd>
 
 
-/*!
-\brief Holds data to use and close an iostream.
+/*!\brief holds data to use and close an iostream.
 
-  Usually created by StreamProvider.
-  Need to find out what to do with the pipe in windows.
+Usualyy created by StreamProvider.
+Need to find out what to do with the pipe in windows.
+
 */
 
-mExpClass(Basic) StreamData
+mClass StreamData
 {
 public:
 
@@ -65,4 +64,3 @@ private:
 
 
 #endif
-

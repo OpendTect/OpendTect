@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "commondefs.h"
 
 namespace Attrib 
@@ -21,15 +20,13 @@ class DescSet;
 class DescSetMan;
 class DescSetsHolder;
 
-mGlobal(AttributeEngine) const DescSetsHolder& DSHolder();
-mGlobal(AttributeEngine) DescSetsHolder& eDSHolder();
+mGlobal const DescSetsHolder& DSHolder();
+mGlobal DescSetsHolder& eDSHolder();
 
-/*!
-\brief Pack to carry DescSet Managers for live attributes and DescSets for
-stored data, both in 2D and 3D.
-*/
+/*!\brief Pack to carry DescSet Managers for live attributes and DescSets
+  for stored data, both in 2D and 3D*/
 
-mExpClass(AttributeEngine) DescSetsHolder
+mClass DescSetsHolder
 {
 public:
     				DescSetsHolder();
@@ -56,8 +53,8 @@ protected:
     static DescSetsHolder*	dsholder_;
 
 private:
-    friend mExp(AttributeEngine) DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
-    friend mExp(AttributeEngine) const DescSetsHolder&	DSHolder();
+    friend DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
+    friend const DescSetsHolder&	DSHolder();
 
 public:
     
@@ -68,5 +65,4 @@ public:
 } // namespace Attrib
 
 #endif
-
 

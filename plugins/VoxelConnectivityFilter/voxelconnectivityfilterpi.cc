@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: voxelconnectivityfilterpi.cc,v 1.2 2011/08/11 09:54:15 cvskris Exp $";
 
 #include "odplugin.h"
 #include "voxelconnectivityfilter.h"
@@ -13,8 +13,8 @@ mDefODPluginEarlyLoad(VoxelConnectivityFilter);
 mDefODPluginInfo(VoxelConnectivityFilter)
 {
     static PluginInfo retpi = {
-	"VoxelConnectivityFilter plugin (base)",
-	"dGB (Kristofer)",
+	"VoxelConnectivityFilter plugin",
+	"Kristofer",
 	"1.0",
    	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies." };
     return &retpi;

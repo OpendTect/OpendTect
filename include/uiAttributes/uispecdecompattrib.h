@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "multiid.h"
 #include "uiattrdesced.h"
 #include "uiattribpanel.h"
@@ -30,7 +29,7 @@ class BinID;
 
 /*! \brief Spectral Decomposition Attribute description editor */
 
-mExpClass(uiAttributes) uiSpecDecompAttrib : public uiAttrDescEd
+mClass uiSpecDecompAttrib : public uiAttrDescEd
 {
 public:
 
@@ -93,7 +92,7 @@ protected:
 };
 
 
-mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
+class uiSpecDecompPanel	: public uiAttribPanel
 {
 public:
     				uiSpecDecompPanel( uiParent* p )
@@ -107,4 +106,3 @@ protected:
 };
 
 #endif
-

@@ -14,12 +14,9 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 
 class CubeSampling;
-
-/*!\brief A collection of geoscientific extensions to OpenSceneGraph.*/
 
 namespace osgGeo { class TexturePlaneNode; }
 
@@ -28,10 +25,11 @@ namespace visBase
 
 class TextureChannels;
 
-/*!\brief A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
+/*!\brief
+    A TextureRectangle is a Rectangle with a datatexture.  The data is set via setData.
 */
 
-mExpClass(visBase) TextureRectangle : public VisualObjectImpl
+mClass TextureRectangle : public VisualObjectImpl
 {
 public:
     static TextureRectangle*	create()
@@ -44,9 +42,6 @@ public:
     Coord3			getWidth() const;
     Coord3			getCenter() const;
 
-    void			swapTextureAxes(bool yn=true);
-    bool			areTextureAxesSwapped() const;
-
 protected:
     				~TextureRectangle();
 
@@ -57,4 +52,3 @@ protected:
 };
 
 #endif
-

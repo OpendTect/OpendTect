@@ -11,15 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
+/*! brief : a control for FlatViewers with different zoom properties and settings !*/
+
 #include "uiflatviewstdcontrol.h"
 #include "flatview.h"
 
-/*!
-\brief A control for flatviewers with different zoom properties and settings.
-*/
-
-mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
+mClass uiMultiFlatViewControl : public uiFlatViewStdControl
 {
 public:
     			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
@@ -60,4 +57,3 @@ protected:
 };
 
 #endif
-

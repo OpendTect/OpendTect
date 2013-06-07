@@ -12,23 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "callback.h"
 #include "bufstring.h"
-#include "commondefs.h"
 
 class BufferStringSet;
-mFDQtclass(QFileSystemWatcher)
-mFDQtclass(QFileSystemWComm)
+class QFileSystemWatcher;
+class QFileSystemWComm;
 
-/*!
-\brief Class for monitoring a file system.
-*/
-
-mExpClass(Basic) FileSystemWatcher : public CallBacker 
+mClass FileSystemWatcher : public CallBacker 
 {
 public:
-    friend class mQtclass(QFileSystemWComm);
+    friend class QFileSystemWComm;
 
 				FileSystemWatcher();
 				~FileSystemWatcher();
@@ -49,12 +43,11 @@ protected:
     BufferString		chgddir_;
     BufferString		chgdfile_;
 
-    mQtclass(QFileSystemWatcher*)	qfswatcher_;
-    mQtclass(QFileSystemWComm*)		qfswatchercomm_;
+    QFileSystemWatcher*		qfswatcher_;
+    QFileSystemWComm*		qfswatchercomm_;
 
 };
 
-mGlobal(Basic) FileSystemWatcher& FSW();
+mGlobal FileSystemWatcher& FSW();
 
 #endif
-

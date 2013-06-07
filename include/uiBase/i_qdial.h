@@ -21,9 +21,6 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_DialMessenger : public QObject 
 {
     Q_OBJECT
@@ -60,7 +57,5 @@ void sliderReleased()	{ mTrigger(sliderReleased); }
 void valueChanged(int)	{ mTrigger(valueChanged); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

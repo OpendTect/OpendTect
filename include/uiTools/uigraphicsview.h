@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigraphicsviewbase.h"
 
 class uiToolButton;
 class uiParent;
 
-mExpClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
+mClass uiGraphicsView : public uiGraphicsViewBase
 {
 public:
 				uiGraphicsView(uiParent*,const char* nm);
@@ -33,4 +32,3 @@ protected:
 };
 
 #endif
-

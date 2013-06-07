@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
 #include "namedobj.h"
 #include "sets.h"
 #include "fixedstring.h"
@@ -29,21 +28,22 @@ class SeparString;
 class ascistream;
 class ascostream;
 
-/*!
-\brief Generalized set of parameters of the keyword-value type.
+/*\brief generalised set of parameters of the keyword-value type.
 
-  Part of the function of this class is as in an STL map<string,string>.
-  Passing a keyword will return the appropriate value.
-  
-  Tools around this basic idea are paring into other types, key composition,
-  reading/writing to/from file, merging, and more.
-  
-  dumpPretty() is used for reports.  The title of the report is the name of the
-  IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
-  with the value. Use add() rather than set(). Values may contain newlines.
+Part of the function of this class is as in an STL map<string,string> .
+Passing a keyword will return the appropriate value.
+
+Tools around this basic idea are paring into other types, key composition,
+reading/writing to/from file, merging, and more.
+
+dumpPretty() is used for reports.  The title of the report is the name of the
+IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
+with the value. Use add() rather than set(). Values may contain newlines.
+
 */
 
-mExpClass(Basic) IOPar : public NamedObject
+
+mClass IOPar : public NamedObject
 {
 public:
 			IOPar(const char* nm=0); //!< empty
@@ -61,8 +61,8 @@ public:
     bool		isEqual(const IOPar&,bool need_same_order=false) const;
 
     int			indexOf(const char* key) const;
-    FixedString		getKey(int) const;
-    FixedString		getValue(int) const;
+    const char*		getKey(int) const;
+    const char*		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
     void		remove(int);
@@ -295,4 +295,3 @@ inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 
 
 #endif
-

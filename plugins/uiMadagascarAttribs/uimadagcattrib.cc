@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uimadagcattrib.cc,v 1.3 2011/03/31 09:11:17 cvshelene Exp $";
 
 #include "uimadagcattrib.h"
 #include "madagcattrib.h"
@@ -45,7 +45,7 @@ uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 
 bool uiMadAGCAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( desc.attribName()!=MadAGC::attribName() )
+    if ( strcmp(desc.attribName(),MadAGC::attribName()) )
 	return false;
 
     mIfGetInt( MadAGC::smoothzradiusStr(), zrad,
@@ -66,7 +66,7 @@ bool uiMadAGCAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiMadAGCAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( desc.attribName()!=MadAGC::attribName() )
+    if ( strcmp(desc.attribName(),MadAGC::attribName()) )
 	return false;
 
     mSetInt( MadAGC::smoothzradiusStr(), smoothzradiusfld_->getIntValue() );

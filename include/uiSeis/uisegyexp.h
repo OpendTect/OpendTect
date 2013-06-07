@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiioobjsel.h"
 #include "seistype.h"
 #include "iopar.h"
@@ -24,7 +23,7 @@ class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 
 
-mExpClass(uiSeis) uiSEGYExp : public uiDialog
+mClass uiSEGYExp : public uiDialog
 		 , public Usage::Client
 {
 public:
@@ -60,4 +59,3 @@ protected:
 
 
 #endif
-

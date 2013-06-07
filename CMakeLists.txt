@@ -2,40 +2,45 @@
 #
 #       CopyRight:      dGB Beheer B.V.
 #       Jan 2012        K. Tingdahl
-#       SVN:		$Id$
+#       RCS :           $Id: RootMakefile,v 1.4 2010-09-28 07:21:07 cvsbert
 #_______________________________________________________________________________
 
-cmake_minimum_required (VERSION 2.8.4 )
+cmake_minimum_required (VERSION 2.6)
 
-set( OpendTect_VERSION_MAJOR 4 )
-set( OpendTect_VERSION_MINOR 6 )
-set( OpendTect_VERSION_DETAIL 0 )
-#Default patch value
-if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
-    set( OpendTect_VERSION_PATCH a ) 
-endif()
-
+SET( OpendTect_VERSION_MAJOR 4 )
+SET( OpendTect_VERSION_MINOR 4 )
+#These variables are importent to prepare packages
+SET( OpendTect_VERSION_DETAIL 0 )
+#SET( OpendTect_VERSION_PATCH "test" )
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
-include( CTest )
+#Dummy statement to avoid warning if OSG_DIR is set
+SET ( DUMMY_VAR ${OSG_DIR} ${CTEST_MODEL} ${OD_TESTDATA_DIR} )
 
-set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
-set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
+INCLUDE(CTest)
 
-if( NOT DEFINED CMAKE_BUILD_TYPE )
-    set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
-endif()
+SET ( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
+SET( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
-set( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
 
-list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
+IF ( NOT DEFINED CMAKE_BUILD_TYPE )
+    SET(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
+ENDIF()
 
-set( OD_SUBSYSTEM "od" )
-include( OD_SetupOD )
-include( ODInternal )
+SET(OD_DGB_DIR "" CACHE PATH
+	"Place where closed source part is found")
 
-set( OD_MODULES
-	Basic Algo General Database
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules")
+
+INCLUDE ( OD_SetupOD )
+INCLUDE ( ODInternal )
+
+OD_INIT_QT()
+
+SET (OD_SUBSYSTEM ${OD_CORE_SUBSYSTEM} )
+
+SET(OD_MODULES
+	Basic Algo Database General
 	Strat Network Batch Usage
 	Geometry EarthModel MMProc Seis
 	NLA AttributeEngine Velocity
@@ -49,8 +54,8 @@ set( OD_MODULES
 	uiODMain
 )
 
-set( OD_PLUGINS
-	Annotations
+SET( OD_PLUGINS
+        Annotations
 	Bouncy
 	ExpAttribs
 	GapDecon
@@ -76,40 +81,26 @@ set( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiTextureAttrib
-	uiTut
+        uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
 	CmdDriver
 )
 
-set( OD_SPECPROGS ODSeis visBase )
-OD_CREATE_DEVEL_PACKAGE_DEFINITION()
+SET( OD_SPECPROGS ODGeneral ODSeis )
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
+OD_ADD_MODULES( tests testBasic testGeneral )
 
-OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
+OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data/ )
 OD_WRITE_FINDFILE()
-OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
 OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 
-#OD_ADD_KEYWORD_TEST( strcmp strcmp )
-OD_ADD_KEYWORD_TEST( "sqrt(" sqrt )
-OD_ADD_LINEEND_TEST()
-if( NOT DEFINED APPLE )
-    OD_ADD_SVNPROP_TEST()
-endif()
+OD_SIGN_TARGETS()
 
-set ( OD_TESTS_IGNORE_CONTINUOUS "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
-OD_SETUP_TEST_FILTER()
-
-if( BUILD_DOCUMENTATION )
+IF( BUILD_DOCUMENTATION )
     OD_BUILD_DOCUMENTATION()
-endif()
-
-OD_ADD_PACKAGES_TARGET()
-
-#Avoid warnings if specified on command line
-set ( DUMMY ${ISTAG} ${BRANCH} )
+ENDIF()

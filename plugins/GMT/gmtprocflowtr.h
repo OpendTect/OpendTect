@@ -4,17 +4,16 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id$
+ * ID       : $Id: gmtprocflowtr.h,v 1.3 2009/07/22 16:01:27 cvsbert Exp $
 -*/
  
-#include "gmtmod.h"
 #include "transl.h"
 class Conn;
 class BufferString;
 namespace ODGMT { class ProcFlow; }
 
 
-mExpClass(GMT) ODGMTProcFlowTranslatorGroup : public TranslatorGroup
+mClass ODGMTProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODGMTProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODGMTProcFlow)
@@ -23,7 +22,7 @@ public:
 };
 
 
-mExpClass(GMT) ODGMTProcFlowTranslator : public Translator
+mClass ODGMTProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODGMTProcFlow)
@@ -40,7 +39,7 @@ public:
 };
 
 
-mExpClass(GMT) dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
+mClass dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
 {			     isTranslator(dgb,ODGMTProcFlow)
 public:
 
@@ -53,4 +52,3 @@ public:
 
 
 #endif
-

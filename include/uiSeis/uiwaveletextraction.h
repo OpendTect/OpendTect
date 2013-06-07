@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -27,7 +26,7 @@ class IOPar;
 class MultiID;
 namespace Seis { class SelData; class TableSelData; }
 
-mExpClass(uiSeis) uiWaveletExtraction : public uiDialog
+mClass uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);
@@ -68,4 +67,3 @@ protected:
 };
 
 #endif
-

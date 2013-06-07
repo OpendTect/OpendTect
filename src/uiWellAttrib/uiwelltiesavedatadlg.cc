@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -104,11 +104,7 @@ void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 
 
 #define mCanNotWriteLogs()\
-{\
-    BufferString msg = datawriter_.errMsg();\
-    if ( msg.isEmpty() ) msg = "Cannot write log(s)";\
-    mErrRet( msg );\
-}
+    mErrRet( "Cannot write log(s)" );
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;

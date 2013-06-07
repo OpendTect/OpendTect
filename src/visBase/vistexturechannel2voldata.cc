@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -304,14 +304,14 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
     
     const ::Color col = sequence_.undefColor();
     transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
     transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
     transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-    transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+    transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();

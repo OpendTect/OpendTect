@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -22,7 +21,7 @@ template <class T> class StepInterval;
 class uiLabel;
 class uiLineEdit;
 
-mExpClass(uiBase) uiDial : public uiObject
+mClass uiDial : public uiObject
 {
 public:
 
@@ -71,11 +70,11 @@ private:
 };
 
 /*! Dial with label */
-mExpClass(uiBase) uiDialExtra : public uiGroup
+mClass uiDialExtra : public uiGroup
 {
 public:
 
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
 	public:
 	    		Setup(const char* l=0)
@@ -112,4 +111,3 @@ protected:
 };
 
 #endif
-

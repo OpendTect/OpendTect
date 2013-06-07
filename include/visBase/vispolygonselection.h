@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "selector.h"
 #include "draw.h"
@@ -34,7 +33,7 @@ by mouse- movement. Once drawn, queries can be made whether points are
 inside or outside the polygon.
 */
 
-mExpClass(visBase) PolygonSelection : public VisualObjectImpl
+mClass PolygonSelection : public VisualObjectImpl
 {
 public:
     static PolygonSelection*	create()
@@ -91,7 +90,7 @@ protected:
 };
 
 
-mExpClass(visBase) PolygonCoord3Selector : public Selector<Coord3>
+mClass PolygonCoord3Selector : public Selector<Coord3>
 {
 public:
 				PolygonCoord3Selector(const PolygonSelection&);
@@ -116,4 +115,3 @@ protected:
 
 
 #endif
-

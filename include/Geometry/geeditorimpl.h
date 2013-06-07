@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geeditor.h"
 
 namespace Geometry
@@ -22,7 +21,7 @@ namespace Geometry
 class TrackPlane;
 
 
-mExpClass(Geometry) ElementEditorImpl : public ElementEditor
+mClass ElementEditorImpl : public ElementEditor
 {
 public:
     		ElementEditorImpl( Element& elem,
@@ -48,7 +47,7 @@ protected:
 };
 
 
-mExpClass(Geometry) BinIDElementEditor : public ElementEditorImpl
+mClass BinIDElementEditor : public ElementEditorImpl
 {
 public:
 	    BinIDElementEditor( Geometry::Element& elem)
@@ -56,7 +55,7 @@ public:
 };
 
 
-mExpClass(Geometry) PlaneElementEditor : public ElementEditorImpl
+mClass PlaneElementEditor : public ElementEditorImpl
 {
 public:
 	    PlaneElementEditor( Element& elem, const Coord3& normal )
@@ -65,5 +64,4 @@ public:
 };
 
 #endif
-
 

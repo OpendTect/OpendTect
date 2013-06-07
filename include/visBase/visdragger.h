@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -31,7 +30,7 @@ namespace visBase
 class Transformation;
 
 
-mExpClass(visBase) Dragger : public DataObject
+mClass Dragger : public DataObject
 {
 public:
     static Dragger*		create()
@@ -96,4 +95,3 @@ protected:
 } // namespace visBase
 
 #endif
-

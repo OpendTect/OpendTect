@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uilistbox.h"
 
@@ -23,8 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-mUseQtnamespace
-
 #define mNoSelection QAbstractItemView::NoSelection
 #define mSingle QAbstractItemView::SingleSelection
 #define mMulti QAbstractItemView::MultiSelection
@@ -36,7 +34,7 @@ static const char* startmark = ":"; static const char* endmark = ":";
 #define mGetMarkededBufferString(nm,yn,inpstr) \
     const BufferString nm( yn ? startmark : "", inpstr, yn ? endmark : "" )
 
-int uiListBox::cDefNrLines()	{ return 7; }
+const int uiListBox::cDefNrLines()	{ return 7; }
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -74,10 +72,7 @@ public:
     void		removeAll();
     void		removeItem( int idx )
 			{
-			    if ( !items_.validIdx(idx) )
-				return;
-
-			    items_.removeSingle( idx );
+			    items_.remove( idx );
 			    delete takeItem(idx);
 			}
 
@@ -256,8 +251,7 @@ int uiListBoxBody::maxNrOfSelections() const
     , itemChecked(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
-    , alignment_(Alignment::Left) \
-    , allowduplicates_(true)
+    , alignment_(Alignment::Left)
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
@@ -303,7 +297,7 @@ void uiListBox::menuCB( CallBacker* )
     rightclickmnu_.insertItem( new uiMenuItem("Uncheck all items"), 1 );
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
-	setAllItemsChecked( res==0 );
+	setItemsChecked( res==0 );
 }
 
 
@@ -364,19 +358,16 @@ void uiListBox::selectAll( bool yn )
 	body_->clearSelection();
 }
 
-
 void uiListBox::setAllowDuplicates( bool yn )
 {
-    allowduplicates_ = yn;
     BufferStringSet allitems; getItems( allitems );
     while ( !allitems.isEmpty() )
     {
-	BufferString nm = allitems[0]->buf();
-	allitems.removeSingle(0);
-	while ( allitems.isPresent( nm ) ) 
+	const char* nm = allitems.remove(0)->buf();
+	while ( allitems.isPresent( nm ) )
 	{
 	    const int itmidx = allitems.indexOf( nm );
-	    allitems.removeSingle( itmidx );
+	    allitems.remove( itmidx );
 	    removeItem( itmidx + 1 );
 	}
     }
@@ -386,15 +377,12 @@ void uiListBox::setAllowDuplicates( bool yn )
 void uiListBox::getItems( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	nms.add( textOfItem( idx ) ); 
+	nms.add( textOfItem( idx ) );
 }
 
 
 void uiListBox::addItem( const char* text, bool mark, int id ) 
 {
-    if ( !allowduplicates_ && isPresent( text ) )
-	return;
-
     mBlockCmdRec;
     body_->addItem( text, mark, id );
     setItemCheckable( size()-1, false ); // Qt bug
@@ -443,9 +431,6 @@ void uiListBox::insertItem( const char* text, int index, bool mark, int id )
 	addItem( text, mark );
     else
     {
-	if ( !allowduplicates_ && isPresent( text ) )
-	    return;
-
 	body_->insertItem( index, text, mark, id );
 	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 	body_->setItemAlignment( size()-1, alignment_ );
@@ -567,10 +552,6 @@ void uiListBox::sortItems( bool asc )
 }
 
 
-void uiListBox::removeItem( const char* txt )
-{ removeItem( indexOf(txt) ); }
-
-
 void uiListBox::removeItem( int idx )
 {
     mBlockCmdRec;
@@ -597,7 +578,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( body_->item(idx)->text().toLatin1().data() );
+	BufferString itmtxt( body_->item(idx)->text().toAscii().data() );
 	char* ptr = itmtxt.buf();
 	mSkipBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
@@ -611,7 +592,7 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIndex(idx) )
 	return "";
 
-    rettxt = (const char*)body_->item(idx)->text().toLatin1();
+    rettxt = (const char*)body_->item(idx)->text().toAscii();
     if ( rettxt[0] != *startmark )
 	return rettxt;
 
@@ -626,7 +607,7 @@ const char* uiListBox::textOfItem( int idx ) const
 
 bool uiListBox::isMarked( int idx ) const
 {
-    rettxt = (const char*)body_->item(idx)->text().toLatin1();
+    rettxt = (const char*)body_->item(idx)->text().toAscii();
     return rettxt.buf()[0] == *startmark
 	&& rettxt.buf()[rettxt.size()-1] == *endmark;
 }
@@ -643,6 +624,8 @@ void uiListBox::setMarked( int idx, bool yn )
 
 int uiListBox::currentItem() const
 {
+    QListWidgetItem* itm1 = body_->currentItem();
+    QListWidgetItem* itm2 = body_->item( body_->currentRow() );
     return body_->currentRow();
 }
 
@@ -700,7 +683,7 @@ void uiListBox::setItemCheckable( int idx, bool yn )
     if ( !validIndex(idx) ) return;
 
     Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable);
+    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable );
     if ( ischeckable == yn )
 	return;
 
@@ -718,11 +701,14 @@ bool uiListBox::isItemCheckable( int idx ) const
 
 void uiListBox::setAllItemsChecked( bool yn )
 {
+    setItemsChecked( yn );
+}
+
+
+void uiListBox::setItemsChecked( bool yn )
+{
     for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( isItemCheckable( idx ) )
-	    setItemChecked( idx, yn );
-    }
+	setItemChecked( idx, yn );
 }
 
 
@@ -736,7 +722,7 @@ void uiListBox::setItemChecked( int idx, bool yn )
 
 bool uiListBox::isItemChecked( int idx ) const
 {
-    return validIndex(idx) && body_->item(idx)->checkState()== Qt::Checked;
+    return validIndex(idx) && body_->item(idx)->checkState()==Qt::Checked;
 }
 
 
@@ -747,7 +733,7 @@ void uiListBox::setItemChecked( const char* nm, bool yn )
 
 
 bool uiListBox::isItemChecked( const char* nm ) const
-{
+{   
     return isPresent( nm ) ? isItemChecked( indexOf( nm ) ) : false;
 }
 
@@ -797,7 +783,7 @@ void uiListBox::setSelectedItems( const BufferStringSet& itms )
     mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(textOfItem(idx)) );
+	setSelected( idx, itms.indexOf(textOfItem(idx))>=0 );
 }
 
 
@@ -806,21 +792,21 @@ void uiListBox::setSelectedItems( const TypeSet<int>& itms )
     mBlockCmdRec;
     body_->setCurrentRow( -1 );
     for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(idx) );
+	setSelected( idx, itms.indexOf(idx)>=0 );
 }
 
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+	setItemChecked( idx, itms.indexOf(textOfItem(idx))>=0 );
 }
 
 
 void uiListBox::setCheckedItems( const TypeSet<int>& itms )
 {
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.isPresent(idx) );
+	setItemChecked( idx, itms.indexOf(idx)>=0 );
 }
 
 

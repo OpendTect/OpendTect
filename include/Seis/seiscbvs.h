@@ -14,7 +14,6 @@ CBVS-based seimic translator.
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "cbvsinfo.h"
@@ -24,7 +23,7 @@ class VBrickSpec;
 class SeisTrcBuf;
 
 
-mExpClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator
+mClass CBVSSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(CBVS,SeisTrc)
 public:
 
@@ -110,4 +109,3 @@ private:
 
 
 #endif
-

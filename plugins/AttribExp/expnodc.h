@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id$
+ RCS:           $Id: expnodc.h,v 1.6 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 NoDC
@@ -30,7 +30,7 @@ Output:
 #include <attribparamimpl.h>
 
 
-mClass(AttribExp) NoDCAttrib : public AttribCalc
+class NoDCAttrib : public AttribCalc
 {
 public:
 			mAttrib0Param(NoDCAttrib,"NoDC");
@@ -51,10 +51,10 @@ protected:
     
     BufferString	desc;
 
-    mClass(AttribExp) Task : public AttribCalc::Task
+    class Task : public AttribCalc::Task
     {
     public:
-	mClass(AttribExp) Input : public AttribCalc::Task::Input
+	class Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const NoDCAttrib& calculator_ )

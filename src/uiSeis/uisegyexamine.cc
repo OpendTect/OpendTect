@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -67,7 +67,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
-    uiToolButton* tb = new uiToolButton( txtgrp, "saveset",
+    uiToolButton* tb = new uiToolButton( txtgrp, "saveset.png",
 	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
     tb->attach( rightBorder );
@@ -79,7 +79,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "vd", "Display traces",
+    tb = new uiToolButton( tblgrp, "vd.png", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
@@ -341,6 +341,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
+    const SEGY::TrcHeader& trhead = tr.trcHeader();
     for ( int ival=0; ival<nrvals; ival++ )
     {
 	const SEGY::HdrEntry& he( *hdef[ival] );

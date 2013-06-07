@@ -13,10 +13,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
 #include "tableascio.h"
+
+/*!
+*/
 
 class BinIDValueSet;
 class DataPointSet;
@@ -31,11 +33,7 @@ namespace Pos { class Provider3D; }
 namespace EM
 {
 
-/*!
-\brief 3D HorizonGeometry
-*/
-
-mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
+mClass Horizon3DGeometry : public HorizonGeometry
 {
 public:
 				Horizon3DGeometry(Surface&);
@@ -73,7 +71,6 @@ public:
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
 protected:
-
     Geometry::BinIDSurface*	createSectionGeometry() const;
 
     RowCol			loadedstep_;
@@ -82,13 +79,13 @@ protected:
 };
 
 
-/*!
-\brief 3D Horizon. A Horizon is made up of one or more grids (so they can
-overlap at faults). The grids are defined by knot-points in a matrix and
-fillstyle in between the knots.
+/*!\brief
+The horizon is made up of one or more grids (so they can overlap at faults).
+The grids are defined by knot-points in a matrix and the fillstyle inbetween
+the knots.
 */
 
-mExpClass(EarthModel) Horizon3D : public Horizon
+mClass Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
@@ -96,10 +93,10 @@ public:
 				//!< Fast: reads from the first section
     bool			setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+    HorSampling			range(SectionID sid=-1) const;
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 	    				  int nr=0) const;
-				//!< Slow: if you need the choices
-    HorSampling			range(SectionID sid=-1) const;
+    				//!< Slow: if you need the choices
 
     void			removeAll();
     Horizon3DGeometry&		geometry();
@@ -137,11 +134,7 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for Horizon3D.
-*/
-
-mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
+mClass Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,
@@ -160,9 +153,6 @@ public:
     bool			isXY() const;
     int				getNextLine(Coord&,TypeSet<float>&);
 
-    static const char*		sKeyFormatStr();
-    static const char*		sKeyAttribFormatStr();
-
 protected:
 
     std::istream&		strm_;
@@ -174,4 +164,3 @@ protected:
 } // namespace EM
 
 #endif
-

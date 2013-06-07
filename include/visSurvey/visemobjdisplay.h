@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "bufstringset.h"
 #include "draw.h"
 #include "emposid.h"
@@ -40,7 +39,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mExpClass(visSurvey) EMObjectDisplay :  public  visBase::VisualObjectImpl,
+mClass EMObjectDisplay :  public  visBase::VisualObjectImpl,
                           public visSurvey::SurveyObject
 {
 public:
@@ -116,9 +115,6 @@ public:
 
     void			lock(bool yn);
     NotifierAccess*		getLockNotifier()	{ return &locknotifier;}
-    virtual void		doOtherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,
-				    int whichobj )	=0;
 
 protected:
     				~EMObjectDisplay();
@@ -176,6 +172,5 @@ protected:
 };
 
 #endif
-
 
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "attribdescid.h"
 
@@ -30,7 +29,7 @@ namespace Pick { class Set; }
 
 /*! \brief */
 
-mExpClass(uiAttributes) uiSetPickDirs : public uiDialog
+mClass uiSetPickDirs : public uiDialog
 {
 public:
     				uiSetPickDirs(uiParent*,Pick::Set&,
@@ -72,4 +71,3 @@ protected:
 
 
 #endif
-

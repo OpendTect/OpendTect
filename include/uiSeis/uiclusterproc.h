@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 class DirList;
@@ -24,7 +23,7 @@ class uiTextEdit;
 
 class ClusterProc;
 
-mExpClass(uiSeis) uiClusterProc : public uiDialog
+mClass uiClusterProc : public uiDialog
 {
 public:
                         uiClusterProc(uiParent*,const IOPar& iop);
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

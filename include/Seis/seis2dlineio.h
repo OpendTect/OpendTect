@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "seistrctr.h"
 
 class IOPar;
@@ -25,7 +24,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief interface for object that writes 2D seismic data */
 
-mExpClass(Seis) Seis2DLinePutter
+mClass Seis2DLinePutter
 {
 public:
     virtual		~Seis2DLinePutter()	{}
@@ -44,7 +43,7 @@ public:
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
 
-mExpClass(Seis) Seis2DLineIOProvider
+mClass Seis2DLineIOProvider
 {
 public:
 
@@ -88,7 +87,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //------
 //! Translator mechanism is only used for selection etc.
 
-mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
+mClass TwoDSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(TwoD,SeisTrc) public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
@@ -105,22 +104,4 @@ mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
 };
 
 
-mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoDData,SeisTrc) public:
-			TwoDDataSeisTrcTranslator( const char* s1, const char* s2 )
-			: SeisTrcTranslator(s1,s2)      {}
-
-    const char*		defExtension() const		{ return "2ds"; }
-    bool		implRemove(const IOObj*) const;
-    bool		initRead_();		//!< supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
-    bool		isReadDefault() const		{ return true; }
-
-    bool		implRename( const IOObj*,const char*,
-	    			    const CallBack* cb=0) const;
-
-};
-
-
 #endif
-

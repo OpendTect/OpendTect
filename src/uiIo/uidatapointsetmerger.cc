@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$";
+static const char* rcsID = "$";
 
 #include "uidatapointsetmerger.h"
 
@@ -172,7 +172,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup("Cross-plot data merging","","103.1.18") )
+    : uiDialog(p,uiDialog::Setup("Crossplot data merging","","103.1.18") )
     , mdps_(mdps)
     , sdps_(sdps)
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
@@ -233,7 +233,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
     zgatefld_->setElemSzPol( uiObject::Small );
     zgatefld_->attach( rightTo, distfld_ );
-    zgatefld_->setValue( SI().zStep()*SI().zDomain().userFactor() );
+    zgatefld_->setValue( SI().zStep()*SI().zFactor() );
     
     BufferStringSet replaceopts;
     BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
@@ -256,7 +256,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     overwritefld_->attach( alignedBelow, rlcbox );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Cross-plot" );
+    outfld_ = new uiIOObjSel( this, ctio_, "Output Crossplot" );
     outfld_->attach( alignedBelow, overwritefld_ ); 
 
     matchPolChangedCB( 0 );
@@ -416,12 +416,11 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     uiTaskRunner tr( this );
     dpsmrfprop.setOverWriteUndef( overwritefld_->getBoolValue() );
     dpsmrfprop.setMaxAllowedHorDist( distfld_->getfValue() );
-    dpsmrfprop.setMaxAllowedZDist(
-	    zgatefld_->getfValue()/SI().zDomain().userFactor() );
+    dpsmrfprop.setMaxAllowedZDist( zgatefld_->getfValue()/SI().zFactor() );
     
     DPSMerger merger( dpsmrfprop ); 
     merger.addNewCols( newcolnms );
-    TaskRunner::execute( &tr, merger );
+    tr.execute( merger );
 
     BufferString errmsg;
     const bool ret =

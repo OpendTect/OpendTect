@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        P.F.M. de Groot
  Date:          September 2012
- RCS:           $Id$
+ RCS:           $Id: uitextureattrib.h 27530 2012-11-19 09:49:13Z kristofer.tingdahl@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class SeisTrcBuf;
 class CubeSampling;
 class LineKey;
 
-mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
+class uiTextureAttrib : public uiAttrDescEd
 {
 public:
                         uiTextureAttrib(uiParent*,bool);
@@ -57,3 +57,4 @@ protected:
 };
 
 #endif
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -52,6 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 static const char* outlsfilename = "outls.2ds";
+static const char* outlskey = "Output Line Set";
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
@@ -92,7 +93,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     setTitleText( multihost ? "Multi-Machine Processing"
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
-    FixedString res = iop.find( sKey::Target() );
+    FixedString res = iop.find( sKey::Target );
     caption = "Processing";
     if ( res )
 	{ caption += " '"; caption += res; caption += "'"; }
@@ -108,7 +109,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iop.find(sKey::TmpStor()).str();
+	BufferString tmpstordir = iop.find(sKey::TmpStor).str();
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
@@ -119,7 +120,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 
 	if ( isrestart )
 	{
-	    BufferString msg( sKey::TmpStor() ); msg += ": ";
+	    BufferString msg( sKey::TmpStor ); msg += ": ";
 	    uiLabel* tmpstorloc = new uiLabel( this, msg );
 
 	    inlperjobattach = new uiLabel( this, tmpstordir );
@@ -128,7 +129,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	else
 	{
 	    tmpstordirfld = new uiIOFileSelect( this,
-			    sKey::TmpStor(), false, tmpstordir );
+			    sKey::TmpStor, false, tmpstordir );
 	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory() );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
@@ -166,8 +167,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    avmachfld->box()->addItem( nm );
 	}
 
-	avmachfld->setPrefWidthInChar( mCast(float,hostnmwdth) );
-	avmachfld->setPrefHeightInChar( mCast(float,maxhostdisp) );
+	avmachfld->setPrefWidthInChar( hostnmwdth );
+	avmachfld->setPrefHeightInChar( maxhostdisp );
     }
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
@@ -289,14 +290,14 @@ void uiSeisMMProc::startWork( CallBacker* )
 {
     BufferString tmpstordir;
     if ( !tmpstordirfld )
-	iop.get( sKey::TmpStor(), tmpstordir );
+	iop.get( sKey::TmpStor, tmpstordir );
     else
     {
 	tmpstordir = tmpstordirfld->getInput();
 	if ( !File::isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
-	const_cast<IOPar&>(iop).set( sKey::TmpStor(), tmpstordir );
+	const_cast<IOPar&>(iop).set( sKey::TmpStor, tmpstordir );
 	tmpstordirfld->setSensitive( false );
     }
 
@@ -318,7 +319,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 
     if ( !is2d )
     {
-	iop.get( sKey::TmpStor(), tmpstordir );
+	iop.get( sKey::TmpStor, tmpstordir );
 	if ( !File::isDirectory(tmpstordir) )
 	{
 	    if ( File::exists(tmpstordir) )
@@ -329,7 +330,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 	    mErrRet("Cannot create temporary storage directory")
     }
 
-    jobprov->pars().write( parfnm, sKey::Pars() );
+    jobprov->pars().write( parfnm, sKey::Pars );
 
     setOkText( "Finish Now" );
     setCancelText( "Abort" );
@@ -460,8 +461,8 @@ void uiSeisMMProc::updateAliveDisp()
 	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
 
-    const int totsteps = mCast( int, jobrunner->totalNr() );
-    const int nrdone = mCast( int, jobrunner->nrDone() );
+    const int totsteps = jobrunner->totalNr();
+    const int nrdone = jobrunner->nrDone();
     const bool hastot = totsteps > 0;
     progbar->display( hastot );
     if ( hastot )
@@ -469,7 +470,7 @@ void uiSeisMMProc::updateAliveDisp()
 	progbar->setTotalSteps( totsteps );
 	progbar->setProgress( nrdone );
 
-	const float fpct = 100.f * ((float)nrdone) / totsteps;
+	const float fpct = 100. * ((float)nrdone) / totsteps;
 	int pct = (int)fpct; if ( pct > 100 ) pct = 100;
 	BufferString newcap( "[" ); newcap += pct; newcap += "%] ";
 	newcap += caption;
@@ -689,7 +690,7 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
 	jobprov->preparePreSet( jobrunner->curJobIOPar(),
 				SeisJobExecProv::sKeyOutputLS() );
 	jobrunner->curJobIOPar().set(
-		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName()),
+		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName),
 		    lsfnm );
     }
 }
@@ -823,7 +824,7 @@ bool uiSeisMMProc::wrapUp( bool force )
     if ( exec )
     {
 	uiTaskRunner uitr( this );
-	const bool res = TaskRunner::execute( &uitr, *exec );
+	const bool res = uitr.execute( *exec );
 	delete exec;
 	if ( !res )
 	    return false;

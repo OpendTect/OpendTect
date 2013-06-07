@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 	    uibodyposprovgroup.cc
 	    uibodyregiondlg.cc
 	    uibodyoperatordlg.cc
-	    uibulkhorizonimp.cc
 	    uicalcpoly2horvol.cc
 	    uichangesurfacedlg.cc
 	    uiemauxdatasel.cc
@@ -28,7 +27,6 @@ SET(OD_MODULE_SOURCES
 	    uihorizonrelations.cc
 	    uihorizonsortdlg.cc
 	    uihorsavefieldgrp.cc
-	    uiimpbodycaldlg.cc
 	    uiimpfault.cc
 	    uiimphorizon.cc
 	    uiiosurface.cc

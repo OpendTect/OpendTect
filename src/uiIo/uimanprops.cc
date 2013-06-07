@@ -161,7 +161,7 @@ void uiEditPropRef::unitSel( CallBacker* )
     if ( newun == curunit_ )
 	return;
 
-    Interval<double> vintv( rgfld_->getDInterval() );
+    Interval<float> vintv( rgfld_->getFInterval() );
     convUserValue( vintv.start, curunit_, newun );
     convUserValue( vintv.stop, curunit_, newun );
     rgfld_->setValue( vintv );
@@ -180,9 +180,8 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 		mNoDlgTitle,mTODOHelpID) )
     , pr_(pr)
 {
-    uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
+    uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( false );
     formfld_ = new uiMathExpression( this, mesu );
-    formfld_->formSet.notify( mCB(this,uiEditPropRefMathDef,formSet) );
     BufferString curdef( pr_.disp_.defval_ ? pr_.disp_.defval_->def() : "" );
     if ( !pr_.disp_.defval_ )
     {
@@ -194,7 +193,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
     formfld_->setText( curdef );
     uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
 	    mCB(this,uiEditPropRefMathDef,rockPhysReq), "RockPhysics");
-    formfld_->addButton( tbsu );
+    formfld_->addButton(tbsu)->attach( centeredAbove, formfld_->textField() );
 }
 
 void rockPhysReq( CallBacker* )
@@ -205,31 +204,6 @@ void rockPhysReq( CallBacker* )
     if ( dlg.go() )
 	formfld_->setText( formgrp->getText(true) );
 }
-
-//TODO implement
-void formSet( CallBacker*  c )                                   
-{                                                                               
-    getMathExpr();                                                              
-//    nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;                            
-}
-
-
-void getMathExpr()                                               
-{                                                                               
-/*    delete expr_; expr_ = 0;                                                    
-    if ( !formfld_ ) return;                                                    
-
-    const BufferString inp( formfld_->text() );                                 
-    if ( inp.isEmpty() ) return;                                                
-	    
-    MathExpressionParser mep( inp );                                            
-    expr_ = mep.parse();                                                        
-		    
-    if ( !expr_ )                                                               
-    uiMSG().warning(                                                        
-	BufferString("The provided expression cannot be used:\n",mep.errMsg()));
-*/}
-
 
     const PropertyRef&	pr_;
     uiMathExpression*	formfld_;
@@ -326,7 +300,7 @@ void uiBuildPROPS::removeReq()
     {
 	const int idx = props_.indexOf( prnm );
 	if ( idx < 0 ) return;
-	delete props_.removeSingle( idx );
+	delete props_.remove( idx );
 	removeItem();
     }
 }
@@ -407,7 +381,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
     propfld_->setItemsCheckable( true );
     fillList();
 
-    uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
+    uiToolButton* manpropsbut = new uiToolButton( this, "man_props.png",
 	    				"Manage available properties",
 					mCB(this,uiSelectPropRefs,manPROPS) );
     if ( llb )
@@ -461,7 +435,7 @@ void uiSelectPropRefs::manPROPS( CallBacker* )
     for ( int idx=0; idx<orgnms.size(); idx++ )
     {
 	if ( !props_.isPresent(prsel_[idx]) )
-	    { structchg_ = true; prsel_.removeSingle( idx ); idx--; }
+	    { structchg_ = true; prsel_.remove( idx ); idx--; }
     }
 
     propfld_->setEmpty();

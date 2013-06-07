@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "undo.h"
 
@@ -131,7 +131,7 @@ void Undo::removeAllAfterCurrentEvent()
 	const int idx = indexOf(event);
 
 	mUpdateUserEndsCount(idx,false);
-	delete events_.removeSingle(idx);
+	delete events_.remove(idx);
     }
 
     changenotifier.trigger();
@@ -286,7 +286,7 @@ void Undo::removeStartToAndIncluding( int eventid )
     while ( firsteventid_<=eventid )
     {
 	mUpdateUserEndsCount(0,false);
-	delete events_.removeSingle(0);
+	delete events_.remove(0);
 	firsteventid_++;
     }
 

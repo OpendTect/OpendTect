@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "enums.h"
 #include "factory.h"
 #include "multiid.h"
@@ -38,7 +37,7 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-mExpClass(Velocity) Function
+mClass Function
 {
 public:
     void			ref() const;
@@ -82,7 +81,7 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-mExpClass(Velocity) FunctionSource : public CallBacker
+mClass FunctionSource : public CallBacker
 { mRefCountImplNoDestructor(FunctionSource);
 public:
     mDefineFactory1ParamInClass( FunctionSource, const MultiID&, factory );
@@ -93,7 +92,7 @@ public:
 				    BinIDValueSet&) const;
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
 
-    ConstRefMan<Function>	getFunction(const BinID&);
+    RefMan<const Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;
 
     const MultiID&		multiID() const		{ return mid_; }
@@ -128,4 +127,3 @@ protected:
 
 
 #endif
-

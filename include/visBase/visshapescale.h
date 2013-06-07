@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoShapeScale;
@@ -28,7 +27,7 @@ a constant size is given to the object via setShape.
 
 */
 
-mExpClass(visBase) ShapeScale : public DataObject
+mClass ShapeScale : public DataObject
 {
 public:
 
@@ -74,4 +73,3 @@ private:
 
 
 #endif
-

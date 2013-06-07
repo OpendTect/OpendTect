@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "color.h"
 
@@ -33,7 +32,7 @@ class MouseEventHandler;
 
  */
 
-mExpClass(uiTools) uiRGBArrayCanvas : public uiGraphicsView
+mClass uiRGBArrayCanvas : public uiGraphicsView
 {
 public:
     			uiRGBArrayCanvas(uiParent*,uiRGBArray&);
@@ -82,4 +81,3 @@ protected:
 
 
 #endif
-

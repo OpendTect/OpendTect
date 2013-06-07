@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.39 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -74,7 +74,7 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 
     proc->setName( "Compute autocorrelation values" );
     uiTaskRunner dlg( parent_ );
-    if ( !TaskRunner::execute( &dlg, *proc ) )
+    if ( !dlg.execute(*proc) )
 	return false;
 
     dset_->is2D() ? createFD2DDataPack( isqc, *d2dh )

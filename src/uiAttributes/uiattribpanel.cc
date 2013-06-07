@@ -69,7 +69,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 
     proc->setName( getProcName() );
     uiTaskRunner dlg( parent_ );
-    if ( !TaskRunner::execute( &dlg, *proc ) )
+    if ( !dlg.execute(*proc) )
 	return 0;
 
     FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )

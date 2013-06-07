@@ -4,7 +4,7 @@
  * DATE     : Aug 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "bufstringset.h"
 #include "file.h"
@@ -26,8 +26,8 @@ public:
 };
 
 
-mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines(); // compiler
-mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
+mGlobal void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines(); // compiler
+mGlobal void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
 {
     static OD_2DLineGeometryFrom2DLinesTransf transf;
     transf.doTransf();

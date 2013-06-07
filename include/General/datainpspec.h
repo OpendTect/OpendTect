@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ranges.h"
 #include "string2.h"
 #include "undefval.h"
@@ -23,11 +22,7 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
-/*!
-\brief Data type.
-*/
-
-mExpClass(General) DataType
+mClass DataType
 {
 public:
 
@@ -54,12 +49,8 @@ protected:
 };
 
 
-/*!
-\brief DataType implementation.
-*/
-
 template<class T>
-mClass(General) DataTypeImpl : public DataType
+class DataTypeImpl : public DataType
 {
 public:
 
@@ -85,7 +76,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-mExpClass(General) DataInpSpec
+mClass DataInpSpec
 {
 public:
 
@@ -168,7 +159,7 @@ private:
 
 */
 template <class T>
-mClass(General) NumInpSpec : public DataInpSpec
+class NumInpSpec : public DataInpSpec
 {
 public:
 			NumInpSpec() 
@@ -194,14 +185,14 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
     virtual double	getdValue(int idx=0) const    { return value(); }
-    virtual float	getfValue(int idx=0) const   { return ( float ) value(); }
+    virtual float	getfValue(int idx=0) const   { return value(); }
 
     virtual int		getDefaultIntValue(int idx=0) const
     			{ return (int)defaultValue(); }
     virtual double	getDefaultValue(int idx=0) const
     			{ return defaultValue(); }
     virtual float	getDefaultfValue(int idx=0) const
-    			{ return ( float ) defaultValue(); }
+    			{ return defaultValue(); }
     
     virtual void	setDefaultValue( int val, int idx=0 )
 			{ defaultvalue_ = (T)val; }
@@ -290,7 +281,7 @@ typedef NumInpSpec<double>	DoubleInpSpec;
 
 */
 template <class T>
-mClass(General) NumInpIntervalSpec : public DataInpSpec
+class NumInpIntervalSpec : public DataInpSpec
 {
 public:
 			NumInpIntervalSpec( bool withstep=false )
@@ -390,10 +381,7 @@ public:
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
     virtual double	getdValue(int idx=0) const    { return value(idx); }
-    virtual float	getfValue(int idx=0) const   
-			{ 
-			    return (float) value(idx); 
-			}
+    virtual float	getfValue(int idx=0) const   { return value(idx); }
 
     T			defaultValue( int idx=0 ) const
 			{
@@ -406,7 +394,7 @@ public:
     virtual double	getDefaultValue(int idx=0) const
     			{ return defaultValue(idx); }
     virtual float	getDefaultfValue(int idx=0) const
-    			{ return (float) defaultValue(idx); }
+    			{ return defaultValue(idx); }
     
     virtual const char*	text( int idx=0 ) const
 			{
@@ -553,7 +541,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
-mExpClass(General) StringInpSpec : public DataInpSpec
+mClass StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
@@ -576,14 +564,14 @@ public:
 protected:
 
     bool		isUndef_;
-    BufferString	str_;
-    BufferString	defaultstr_;
+    BufferString	str;
+    BufferString	defaultstr;
 
 };
 
 /*! \brief Specifications for file-name inputs.
 */
-mExpClass(General) FileNameInpSpec : public StringInpSpec
+mClass FileNameInpSpec : public StringInpSpec
 {
 public:
 				FileNameInpSpec( const char* fname=0 );
@@ -603,11 +591,11 @@ It does not change the underlying true/false texts.
 */
 
 
-mExpClass(General) BoolInpSpec : public DataInpSpec
+mClass BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes(),
-				    const char* falsetxt=sKey::No(),
+			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes,
+				    const char* falsetxt=sKey::No,
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 
@@ -634,16 +622,16 @@ public:
     			mDefDISSetDefValBaseClassImpl(double)
     			mDefDISSetDefValBaseClassImpl(const char*)
 
-    bool		isSet() const 			{ return isset_; }
-    void		setSet( bool yesno=true )	{ isset_ = yesno; }
+    bool		isSet() const 			{ return isset; }
+    void		setSet( bool yesno=true )	{ isset = yesno; }
 
 protected:
 
-    BufferString	truetext_;
-    BufferString	falsetext_;
-    bool		yn_;
-    bool		defaultyn_;
-    bool		isset_;
+    BufferString	truetext;
+    BufferString	falsetext;
+    bool		yn;
+    bool		defaultyn;
+    bool		isset;
 
 };
 
@@ -652,7 +640,7 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-mExpClass(General) StringListInpSpec : public DataInpSpec
+mClass StringListInpSpec : public DataInpSpec
 {
 public:
     			StringListInpSpec(const BufferStringSet&);
@@ -702,7 +690,7 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
-mExpClass(General) PositionInpSpec : public DataInpSpec
+mClass PositionInpSpec : public DataInpSpec
 {
 public:
 
@@ -779,4 +767,3 @@ protected:
 };
 
 #endif
-

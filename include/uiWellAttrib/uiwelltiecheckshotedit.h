@@ -13,10 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "welldahobj.h"
-#include "undo.h"
 
 namespace Well { class D2TModel; class Data; class DahObj;}
 class uiWellDahDisplay;
@@ -31,32 +29,14 @@ namespace WellTie
 {
     class Server;
 
-mExpClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
-{
-public:
-    			DahObjUndoEvent( float dah, float val, 
-					Well::DahObj&, bool isadd);
-
-    const char*         getStandardDesc() const;
-    bool                unDo();
-    bool                reDo();
-
-protected:
-
-    bool		isadd_;
-    Well::DahObj& 	dahobj_;
-    float		dah_;
-    float		val_;
-};
-
-
-mExpClass(uiWellAttrib) uiCheckShotEdit : public uiDialog
+mClass uiCheckShotEdit : public uiDialog
 {
 public:
 				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();
+protected:
 
-    mExpClass(uiWellAttrib) DriftCurve : public Well::DahObj
+    mClass DriftCurve : public Well::DahObj
     {
     public:
 			DriftCurve() : DahObj("Drift Curve") {}
@@ -65,16 +45,13 @@ public:
 	float  		value( int idx ) const      { return val_[idx]; }
 	bool		insertAtDah(float dh,float v);
 
-	int 		indexOfCurrentPoint(float dah,float val) const;
-
     protected:
 	TypeSet<float>	val_;
 
-	void 		removeAux(int idx)	{ val_.removeSingle( idx ); }
-	void		eraseAux()		{ val_.erase(); } 
+	void 		removeAux(int idx)	    { val_.remove( idx ); }
+	void		eraseAux() 		    { val_.erase(); } 
     };
 
-protected:
     Server&			server_;
     Well::Data&			wd_;
 
@@ -87,10 +64,6 @@ protected:
 
     uiToolBar*			toolbar_;
     uiToolButton*		editbut_;
-    uiToolButton*		undobut_;
-    uiToolButton*		redobut_;
-    uiCheckBox*			viewcorrd2t_;
-
     uiComboBox*			driftchoicefld_;
 
     bool			isedit_;
@@ -100,23 +73,15 @@ protected:
     uiWellDisplayControl*	control_;
     uiPolyLineItem*		d2tlineitm_;
 
-    Undo			undo_;
-    int				movingpointidx_;
-
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
-    void			movePt();
-    void			doInsertRemovePt();
 
-    void			applyCB(CallBacker*);
+    void			applyPushed(CallBacker*);
     void			editCSPushed(CallBacker*);
     void			editCB(CallBacker*);
-    void			undoCB(CallBacker*);
-    void			redoCB(CallBacker*);
     void			mousePressedCB(CallBacker*);
     void			mouseReleasedCB(CallBacker*);
-    void			mouseMovedCB(CallBacker*);
     void			setInfoMsg(CallBacker*);
 
     bool			acceptOK(CallBacker*);
@@ -127,5 +92,4 @@ protected:
 }; //namespace WellTie
 
 #endif
-
 

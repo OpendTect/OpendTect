@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
 #include "multiid.h"
 
 namespace VolProc
 {
 
-mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
+mClass uiDataTreeItem : public uiODDataTreeItem
 {
 public:
    static void			initClass();
@@ -34,7 +33,7 @@ public:
 
 protected:
     
-    bool			anyButtonClick(uiTreeViewItem*);
+    bool			anyButtonClick(uiListViewItem*);
    
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			createMenu(MenuHandler* menu ,bool istoolbar);
@@ -53,4 +52,3 @@ protected:
 }; //namespace
 
 #endif
-

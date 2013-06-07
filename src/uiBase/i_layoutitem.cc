@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -23,12 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifdef __debug__
 # define MAX_ITER	2000
-static bool lyoutdbg = false;
+static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #else
 # define MAX_ITER	10000
 #endif
-
-mUseQtnamespace
 
 //------------------------------------------------------------------------------
 
@@ -37,10 +35,6 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
     , preferred_pos_inited( false ), minimum_pos_inited( false )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
 {
-#ifdef __debug__
-    static bool lyoutdbg_loc = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
-    lyoutdbg = lyoutdbg_loc;
-#endif
 }
 
 i_LayoutItem::~i_LayoutItem()
@@ -100,7 +94,7 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 #endif
 
     qlayoutitm->setGeometry ( QRect ( mPos.left(), mPos.top(), 
-                                      mPos.hNrPics(), mPos.vNrPics() )); 
+                                        mPos.hNrPics(), mPos.vNrPics() )); 
 }
 
 
@@ -184,8 +178,6 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 		mPos.setVNrPics( pref_v_nr_pics );
 		preferred_pos_inited = true;
 	    }
-	    break;
-	case all:
 	    break;
     } 
 

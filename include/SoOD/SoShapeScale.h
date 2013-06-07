@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/fields/SoSFFloat.h>
@@ -33,7 +32,7 @@ position in (0, 0, 0).
 	      
 */
 
-mSoODClass SoShapeScale : public SoNode
+mClass SoShapeScale : public SoNode
 {
     SO_NODE_HEADER(SoShapeScale);
 public:
@@ -72,4 +71,3 @@ protected:
 };
 
 #endif
-

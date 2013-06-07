@@ -12,18 +12,15 @@ ________________________________________________________________________
 -*/
 
 
-#include "basicmod.h"
 #include "sets.h"
 #include "thread.h"
 #include "bufstringset.h"
 
 
-/*!
-\brief Class that keeps one static string per thread. This enables temporary
-passing of static strings where needed.
-*/
+/*!Class that keeps one static string per thread. This enables temporary passing
+   of static strings where needed. */
 
-mExpClass(Basic) StaticStringManager
+mClass StaticStringManager
 {
 public:
     BufferString&		getString();
@@ -37,4 +34,3 @@ protected:
 };
 
 #endif
-

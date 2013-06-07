@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoPickStyle;
@@ -26,7 +25,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) PickStyle : public DataObject
+mClass PickStyle : public DataObject
 {
 public:
     static PickStyle*	create()
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

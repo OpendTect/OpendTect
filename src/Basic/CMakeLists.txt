@@ -5,17 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set( OD_USEQT Core)
-set( OD_USEBREAKPAD Yes)
-set( OD_USEZLIB Yes)
-set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
-set( OD_TEST_PROGS svnversion.cc
-		sets.cc
-		threads.cc
-		commandlineparser.cc
-		refcount.cc )
-set( OD_MODULE_SOURCES genc.cc oddirs.cc
-	    ailayer.cc
+SET(OD_USEQT Core)
+SET(OD_USEZLIB Yes)
+SET(QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h)
+SET(OD_MODULE_SOURCES genc.c filegen.c errnomsg.c oddirs.c
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc
@@ -24,7 +17,6 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    callback.cc
 	    color.cc
 	    compoundkey.cc
-	    commandlineparser.cc
 	    conn.cc
 	    cubesampling.cc
 	    dateinfo.cc
@@ -41,8 +33,8 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    filepath.cc
 	    globexpr.cc
 	    hostdata.cc
-	    iopar.cc
 	    initbasic.cc
+	    iopar.cc
 	    latlong.cc
 	    math2.cc
 	    moddepmgr.cc
@@ -60,7 +52,6 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    rcol2coord.cc
 	    repos.cc
 	    rowcol.cc
-	    qptr.cc
 	    safefileio.cc
 	    separstr.cc
 	    settings.cc
@@ -70,7 +61,6 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    string2.cc
 	    strmoper.cc
 	    strmprov.cc
-	    survgeom.cc
 	    survinfo.cc
 	    surv2dgeom.cc
 	    task.cc
@@ -84,7 +74,5 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    winutils.cc
 	    winterminate.cc
 	    zdomain.cc
-	    ziputils.cc
-	    ziparchiveinfo.cc 
-	    ziphandler.cc )
+	    ziputils.cc )
 OD_INIT_MODULE()

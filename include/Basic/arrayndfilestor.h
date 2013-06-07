@@ -19,12 +19,8 @@ ________________________________________________________________________
 #define mArrNDChunkSz 1024
 
 
-/*!
-\brief ArrayND I/O from/to a file.
-*/
-
 template <class T>
-mClass(Basic) ArrayNDFileStor : public ValueSeries<T>
+class ArrayNDFileStor : public ValueSeries<T>
 {
 public:
 

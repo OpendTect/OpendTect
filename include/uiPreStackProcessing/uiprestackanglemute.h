@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "prestackanglemute.h"
@@ -21,8 +20,6 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
-class uiLabel;
-class uiPushButton;
 class uiRayTracerSel;
 class uiVelSel;
 
@@ -30,80 +27,26 @@ namespace PreStack
 {
 
 class Processor;
-class uiAngleCompAdvParsDlg;
 
-mExpClass(uiPreStackProcessing) uiAngleCompGrp : public uiGroup
+mClass uiAngleMuteGrp : public uiGroup
 {
 public:
-				uiAngleCompGrp(uiParent*,
-					       PreStack::AngleCompParams&,
-					       bool dooffset=false,
-					       bool isformute=true);
+			uiAngleMuteGrp(uiParent*,AngleMuteBase::Params&,
+					bool dooffset = false);
 
-    void			setVelocityInput(const MultiID&);
-    void			setAngleRange(const Interval<float>&);
-	void			updateFromParams();
-
-    bool			acceptOK();
+    bool		acceptOK();
 
 protected:
-    PreStack::AngleCompParams&	params_;
-
-    void			advPushButCB(CallBacker*);
-
-    uiGenInput*			velsource_;
-    uiVelSel*			velfuncsel_;
-    uiGenInput*			anglefld_;
-    uiLabel*			anglelbl_;
-    uiPushButton*		advpushbut_;
-    uiAngleCompAdvParsDlg*	advpardlg_;
-
-    bool			isformute_;
-};
-
-
-mExpClass(uiPreStackProcessing) uiAngleCompAdvParsDlg : public uiDialog
-{
-public:
-			uiAngleCompAdvParsDlg(uiParent*,
-					      PreStack::AngleCompParams&,
-					      bool dooffset=false,
-					      bool isformute=true);
-			
-	enum smoothingType		{ TimeAverage, FFTFilter };
-					DeclareEnumUtils(smoothingType)
-	enum smoothingWindow		{ Box, Hamming, Hanning, Blackman, 
-					  Bartlet, Flattop };
-					DeclareEnumUtils(smoothingWindow)
-
-	void		updateFromParams();
-
-protected :
-
-    bool		acceptOK(CallBacker*);
-    bool		isSmoothTypeTimeAverage();
-    void		smoothTypeSel(CallBacker*);
-    void		smoothWindowSel(CallBacker*);
-    void		finaliseCB(CallBacker*);
+    AngleMuteBase::Params& params_;
 
     uiRayTracerSel*	raytracerfld_;
-    uiGenInput*		smoothtypefld_;
-    uiGenInput*		smoothwindowfld_;
-    uiGenInput*		smoothwinparamfld_;
-    uiGenInput*		smoothwinlengthfld_;
-    uiGenInput*		freqf3fld_;
-    uiGenInput*		freqf4fld_;
-    uiLabel*		smoothwinparamlbl_;
-    uiLabel*		smoothwinlengthlbl_;
-    uiLabel*		freqf3lbl_;
-    uiLabel*		freqf4lbl_;
-
-    bool		isformute_;
-    PreStack::AngleCompParams&	params_;
+    uiVelSel*		velfuncsel_;
+    uiGenInput*		cutofffld_;
+    uiCheckBox*		blockfld_;
 };
 
 
-mExpClass(uiPreStackProcessing) uiAngleMute : public uiDialog
+mClass uiAngleMute : public uiDialog
 {
 public:
 
@@ -121,7 +64,7 @@ protected:
 
     AngleMute*		processor_;
     
-    uiAngleCompGrp*	anglecompgrp_;
+    uiAngleMuteGrp*	anglemutegrp_;
     uiGenInput*		taperlenfld_;
     uiGenInput*		topfld_;
 };
@@ -130,4 +73,3 @@ protected:
 }; //namespace
 
 #endif
-

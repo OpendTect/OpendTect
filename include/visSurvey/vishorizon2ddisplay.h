@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+
 #include "emposid.h"
 #include "multiid.h"
 #include "visemobjdisplay.h"
@@ -27,7 +27,7 @@ namespace visSurvey
 
 class Seis2DDisplay;
 
-mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
+mClass Horizon2DDisplay : public EMObjectDisplay
 {
 public:
     static Horizon2DDisplay*	create()
@@ -47,12 +47,9 @@ public:
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-
+    //const ZAxisTransform*	getZAxisTransform() const;
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::IndexedPolyLine3D* getLine(const EM::SectionID&) const;
-    void			doOtherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,
-				    int whichobj );
 
 protected:
     friend			class Horizon2DDisplayUpdater;
@@ -82,6 +79,7 @@ protected:
 	    				const ObjectSet<const Seis2DDisplay>&);
 
     void			zAxisTransformChg(CallBacker*);
+    //ZAxisTransform*		zaxistransform_;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
@@ -89,10 +87,14 @@ protected:
     ObjectSet<visBase::IndexedPolyLine3D>	lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
+
+public:
+    void			doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
 };
 
 
 };
 
 #endif
-

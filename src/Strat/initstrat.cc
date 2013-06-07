@@ -7,21 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "stratsinglaygen.h"
-#include "strattransl.h"
 
 mDefModInitFn(Strat)
 {
     mIfNotFirstTime( return );
-    
-    StratLayerSequenceAttribSetTranslatorGroup::initClass();
-    StratLayerSequenceGenDescTranslatorGroup::initClass();
-    
-    odStratLayerSequenceGenDescTranslator::initClass();
-    odStratLayerSequenceAttribSetTranslator::initClass();
-    
+
     Strat::SingleLayerGenerator::initClass();
 }

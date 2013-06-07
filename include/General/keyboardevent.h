@@ -12,15 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "keyenum.h"
 #include "geometry.h"
 
-/*!
-\brief Keyboard event.
-*/
-
-mExpClass(General) KeyboardEvent
+mClass KeyboardEvent
 {
 public:
  				KeyboardEvent();
@@ -34,11 +29,7 @@ public:
 };
 
 
-/*!
-\brief Handles KeyboardEvent.
-*/
-
-mExpClass(General) KeyboardEventHandler : public CallBacker
+mClass KeyboardEventHandler : public CallBacker
 {
 public:
     				KeyboardEventHandler();
@@ -63,4 +54,3 @@ protected:
 
 
 #endif
-

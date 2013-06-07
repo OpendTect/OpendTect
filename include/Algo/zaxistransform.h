@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
+//! \defgroup Algo Algo
+
 #include "enums.h"
 #include "factory.h"
 #include "position.h"
@@ -26,15 +27,15 @@ class TaskRunner;
 
 namespace ZDomain { class Def; class Info; }
 
-/*!
-\brief Base class for z-axis transforms.
-
-  ZAxisTransform is the base class for z stretching in different ways.
-  The z-stretch may be dependent on the location (binid).
-  The various transforms can be retrieved from factory ZATF().
+/*! \class ZAxisTransform
+    \ingroup Algo
+    \brief The ZAxisTransform class
+    is the base class for z stretching in different ways.
+    The z-stretch may be dependent on the location (binid).
+    The various transforms can be retrieved from factory ZATF().
 */
 
-mExpClass(Algo) ZAxisTransform
+mClass ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
@@ -103,12 +104,6 @@ public:
     const char*			fromZDomainKey() const;
     const char*			toZDomainKey() const;
 
-    
-    virtual float		toZScale() const;
-    				/*!<\returns the target domain z-scale. */
-    virtual float		zScale() const { return toZScale(); }
-				/*!<Old name, use toZScale instead. */
-
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
     				//!\return the index of a line in a 2D lineset.
@@ -127,11 +122,12 @@ protected:
 };
 
 
-/*!
-\brief Samples Z-axis transformed data
+/*! \class ZAxisTransformSampler
+    \ingroup Algo
+    \brief The ZAxisTransformSampler class ...
 */
 
-mExpClass(Algo) ZAxisTransformSampler
+mClass ZAxisTransformSampler
 {
 public:
     				ZAxisTransformSampler(const ZAxisTransform&,
@@ -159,4 +155,3 @@ protected:
 };
 
 #endif
-

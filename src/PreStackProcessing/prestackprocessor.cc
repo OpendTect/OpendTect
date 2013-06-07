@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackprocessor.h"
 
@@ -315,7 +315,7 @@ int ProcessManager::nrProcessors() const
 
 void ProcessManager::removeProcessor( int idx )
 {
-    delete processors_.removeSingle( idx );
+    delete processors_.remove( idx );
     setupChange.trigger();
 }
 
@@ -349,7 +349,7 @@ void ProcessManager::fillPar( IOPar& par ) const
     for ( int idx=0; idx<processors_.size(); idx++ )
     {
 	IOPar procpar;
-	procpar.set( sKey::Name(), processors_[idx]->name() );
+	procpar.set( sKey::Name, processors_[idx]->name() );
 	processors_[idx]->fillPar( procpar );
 
 	const BufferString idxstr( "", idx );
@@ -373,7 +373,7 @@ bool ProcessManager::usePar( const IOPar& par )
 	const BufferString idxstr( "", idx );
 	BufferString name;
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
-	if ( !steppar || !steppar->get( sKey::Name(), name ) )
+	if ( !steppar || !steppar->get( sKey::Name, name ) )
 	{
 	    errmsg_ = "Could not find name for processing step ";
 	    errmsg_ += idx;

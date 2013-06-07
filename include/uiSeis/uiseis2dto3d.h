@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 
@@ -24,7 +23,7 @@ class uiGenInput;
 class CtxtIOObj;
 class Seis2DTo3D;
 
-mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
+mClass uiSeis2DTo3D : public uiDialog
 {
 public:
 
@@ -41,7 +40,6 @@ protected:
     uiSeisSel*		outfld_;
     uiGenInput*		iterfld_;
     uiGenInput*		winfld_;
-    uiGenInput*		interpoltypefld_;
     uiCheckBox*		reusetrcsbox_;
     uiGenInput*		velfiltfld_;
 
@@ -51,4 +49,3 @@ protected:
 
 
 #endif
-

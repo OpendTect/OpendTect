@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2011
- SVN:           $Id$
+ RCS:           $Id: uidpsselgrpdlg.cc,: 
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ class uiDataPointSetCrossPlotter;
 class uiTable;
 class SelectionGrp;
 
-mClass(uiIo) uiDPSSelGrpDlg : public uiDialog
+class uiDPSSelGrpDlg : public uiDialog
 {
 public:
 

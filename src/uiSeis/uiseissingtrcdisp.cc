@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseissingtrcdisp.h"
 #include "arrayndimpl.h"
 #include "flatposdata.h"
+#include "wavelet.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "wavelet.h"
 
 
 uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
@@ -44,8 +44,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 void uiSeisSingleTraceDisplay::cleanUp()
 {
     removeRefs();
-    removePack( curid_ );
-    curid_ = DataPack::cNoID();
+    removePack( curid_ ); curid_ = DataPack::cNoID();
 }
 
 
@@ -56,7 +55,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	const float zfac = SI().zDomain().userFactor();
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
@@ -69,11 +68,10 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
     addRefZ( 0 );
 
     handleChange( All );
-    setViewToBoundingBox();
 }
 
 
@@ -84,7 +82,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     if ( trc )
     {
 	const int trcsz = trc->size();
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	const float zfac = SI().zDomain().userFactor();
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, trcsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
@@ -100,7 +98,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false, false );
+    setPack( true, curid_, false );
 
     if ( trc )
     {
@@ -112,30 +110,32 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     }
 
     handleChange( All );
-    setViewToBoundingBox();
 }
 
 
 void uiSeisSingleTraceDisplay::removeRefs()
 {
-    removeAllAuxData();
+    deepErase( appearance().annot_.auxdata_ );
+    handleChange( Annot );
 }
 
 
 void uiSeisSingleTraceDisplay::addRefZ( float zref )
 {
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac = SI().zDomain().userFactor();
     if ( SI().zIsTime() ) 
 	zref *= zfac;
 
-    const int curnraux = nrAuxData();
-    FlatView::AuxData* ad = createAuxData(
+    FlatView::Annotation& ann = appearance().annot_;
+    const int curnraux = ann.auxdata_.size();
+
+    FlatView::Annotation::AuxData* ad = new FlatView::Annotation::AuxData( 
 	    			BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
     ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
 				Color::stdDrawColor(curnraux) );
     ad->zvalue_ = 100;
-    addAuxData( ad );
+    ann.auxdata_ += ad;
 
     handleChange( Annot );
 }

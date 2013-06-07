@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Aug 2010
- RCS:           $Id$
+ RCS:           $Id: gmtarray2dinterpol.h,v 1.4 2011/01/10 10:20:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "gmtmod.h"
 #include "array2dinterpol.h"
 
 #include "bufstring.h"
 #include "strmdata.h"
 
 
-mExpClass(GMT) GMTArray2DInterpol : public Array2DInterpol
+mClass GMTArray2DInterpol : public Array2DInterpol
 {
 public:
     				GMTArray2DInterpol();
@@ -47,7 +46,7 @@ protected:
 };
 
 
-mExpClass(GMT) GMTSurfaceGrid : public GMTArray2DInterpol
+mClass GMTSurfaceGrid : public GMTArray2DInterpol
 {
 public:
     				GMTSurfaceGrid();
@@ -69,7 +68,7 @@ protected:
 };
 
 
-mExpClass(GMT) GMTNearNeighborGrid : public GMTArray2DInterpol
+mClass GMTNearNeighborGrid : public GMTArray2DInterpol
 {
 public:
     				GMTNearNeighborGrid();
@@ -91,4 +90,3 @@ protected:
 };
 
 #endif
-

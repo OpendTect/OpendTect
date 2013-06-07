@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "bufstringset.h"
 #include "seisselection.h"
 #include "uidialog.h"
@@ -37,7 +36,7 @@ class uiSelSubline;
 class uiSeis2DLineNameSel;
 
 
-mExpClass(uiSeis) uiSeisSubSel : public uiGroup
+mClass uiSeisSubSel : public uiGroup
 {
 public:
 
@@ -73,7 +72,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
+mClass uiSeis3DSubSel : public uiSeisSubSel
 {
 public:
 
@@ -85,7 +84,7 @@ public:
 };
 
 
-mExpClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
+mClass uiSeis2DSubSel : public uiSeisSubSel
 { 	
 public:
 
@@ -123,4 +122,3 @@ protected:
 };
 
 #endif
-

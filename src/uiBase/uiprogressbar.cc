@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiprogressbar.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include	<QProgressBar>
 
-mUseQtnamespace
 
 class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
 {

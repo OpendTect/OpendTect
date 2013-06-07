@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurvmap.h"
 
@@ -98,13 +98,12 @@ void uiSurveyBoxObject::update()
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = cpt[idx].y > cpt[oppidx].y;
         BinID bid = si.transform( mapcnr[idx] );
-	Alignment al( Alignment::HCenter, bot ? Alignment::Top : Alignment::Bottom );
+        const int spacing =  bot ? 10 : -10;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
-	uiPoint txtpos( cpt[idx].x, cpt[idx].y );
+	uiPoint txtpos( cpt[idx].x, cpt[idx].y+spacing );
 	labels_[idx]->setPos( txtpos );
 	labels_[idx]->setText( annot.buf() );
-	labels_[idx]->setAlignment( al );
     }
 }
 
@@ -195,7 +194,7 @@ void uiNorthArrowObject::update()
 	}
     }
 	
-    anglelabel_->setPos( mCast(float,lastx), mCast(float,yarrowtop) );
+    anglelabel_->setPos( lastx, yarrowtop );
     anglelabel_->setText( angtxt );
 }
 

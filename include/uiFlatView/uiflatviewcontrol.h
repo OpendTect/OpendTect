@@ -11,21 +11,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "iopar.h"
-
 class uiFlatViewer;
 class uiFlatViewPropDlg;
 class uiTabStackDlg;
 class MouseEventHandler;
 namespace FlatView { class ZoomMgr; class Viewer; }
 
-/*!
-\brief Tools to control uiFlatViewer(s).
-*/
 
-mExpClass(uiFlatView) uiFlatViewControl : public uiGroup
+/*!\brief Tools to control uiFlatViewer(s). */
+
+mClass uiFlatViewControl : public uiGroup
 {
 public:
 
@@ -59,7 +56,7 @@ public:
     Notifier<uiFlatViewControl>  viewerAdded;
     Notifier<uiFlatViewControl>  zoomChanged;
 
-    uiRect			getViewRect(const uiFlatViewer*);
+    uiRect			getViewRect(uiFlatViewer*);
     static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
 						  Geom::Size2D<double>,
 						  const uiWorldRect& bbox);
@@ -75,12 +72,11 @@ public:
 
 protected:
 
-    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool,bool);
+    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
 
     ObjectSet<uiFlatViewer> vwrs_;
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
-    bool		withhanddrag_;
     BufferString	category_;
     IOPar		infopars_;
 
@@ -111,4 +107,3 @@ protected:
 };
 
 #endif
-

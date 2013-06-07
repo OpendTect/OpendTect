@@ -11,14 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "commondefs.h"
 
 class ArrayNDWindow;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-mExpClass(Seis) WaveletAttrib
+mClass WaveletAttrib
 {
 public:
     			WaveletAttrib(const Wavelet&);
@@ -42,4 +41,3 @@ protected:
 };
 
 #endif
-

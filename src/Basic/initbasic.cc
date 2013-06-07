@@ -7,27 +7,31 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
-#include "debug.h"
-#include "sighndl.h"
-#include "surv2dgeom.h"
-#include "errh.h"
-#include "filepath.h"
 
 #define OD_EXT_KEYSTR_EXPAND 1
+
+#define mKeyStrsNameSpace(ns) namespace ns
+#ifdef __msvc__
+# define mKeyStrsDecl(nm,str) mBasicExtern FixedString nm = str
+#else
+# define mKeyStrsDecl(nm,str) FixedString nm = str
+#endif
 
 #include "keystrs.h"
 
 mDefModInitFn(Basic)
 {
     mIfNotFirstTime( return );
-    SignalHandling::initClass();
-    PosInfo::Survey2D::initClass();
-    
-#ifdef mUseCrashDumper
-    System::CrashDumper::getInstance().setSendAppl(
-	    				System::CrashDumper::sSenderAppl() );
-#endif
+
+#undef keystrs_h
+# define mKeyStrsNameSpace(ns) /* empty */
+# define mKeyStrsDecl(nm,str) \
+        static const char* backup_str_for_##nm = str; \
+        sKey::nm = backup_str_for_##nm
+
+#include "keystrs.h"
+
 }

@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathproperty.h"
+#include "hiddenparam.h"
 #include "propertyref.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
@@ -40,15 +41,15 @@ bool Property::isEqualTo( const Property& oth ) const
 
 void Property::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Name(), name() );
-    iop.set( sKey::Type(), type() );
-    iop.set( sKey::Value(), def() );
+    iop.set( sKey::Name, name() );
+    iop.set( sKey::Type, type() );
+    iop.set( sKey::Value, def() );
 }
 
 
 void Property::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Value() );
+    const char* res = iop.find( sKey::Value );
     if ( res && *res )
 	setDef( res );
 }
@@ -56,7 +57,7 @@ void Property::usePar( const IOPar& iop )
 
 Property* Property::get( const IOPar& iop )
 {
-    const char* nm = iop.find( sKey::Name() );
+    const char* nm = iop.find( sKey::Name );
     if ( !nm || !*nm ) return 0;
 
     const PropertyRef* ref = PROPS().find( nm );
@@ -64,7 +65,7 @@ Property* Property::get( const IOPar& iop )
 	ref = &PropertyRef::thickness();
     if ( !ref ) return 0;
 
-    const char* typ = iop.find( sKey::Type() );
+    const char* typ = iop.find( sKey::Type );
     if ( !typ || !*typ ) typ = ValueProperty::typeStr();
     Property* prop = factory().create( typ, *ref );
     if ( prop )
@@ -153,12 +154,15 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 }
 
 
+HiddenParam<MathProperty,const UnitOfMeasure*> formulauomman( 0 );
+
+
 MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , expr_(0)
     , uom_(0)
-    , formulauom_(0)
 {
+    setFormulaOutputUnit( 0 );
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( df && *df )
 	setDef( df );
@@ -169,7 +173,6 @@ MathProperty::MathProperty( const MathProperty& mp )
     : Property(mp.ref())
     , expr_(0)
     , uom_(mp.uom_)
-    , formulauom_(mp.formulauom_)
 {
     inps_.allowNull( true ); inpunits_.allowNull( true );
     if ( !mp.def_.isEmpty() )
@@ -177,6 +180,8 @@ MathProperty::MathProperty( const MathProperty& mp )
     inpunits_.erase();
     for ( int idx=0; idx<mp.inpunits_.size(); idx++ )
 	inpunits_ += mp.inpunits_[idx];
+
+    setFormulaOutputUnit( mp.formulaOutputUnit() );
 }
 
 
@@ -444,8 +449,10 @@ const char* MathProperty::def() const
 	cdef.add( constValue(idx) );
 	fms += cdef;
     }
-    if ( formulauom_ )
-	fms += formulauom_->name();
+
+    const UnitOfMeasure* formulauom = formulaOutputUnit();
+    if ( formulauom )
+	fms += formulauom->name();
     else
 	fms.add( "" );
 
@@ -486,7 +493,7 @@ void MathProperty::setDef( const char* s )
 	inps_ += 0;
 
     if ( fmssz > constsz+1 )
-	formulauom_ = UoMR().get( ref_.stdType(), fms[constsz+1] );
+	setFormulaOutputUnit( UoMR().get( ref_.stdType(), fms[constsz+1] ) );
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
@@ -529,11 +536,6 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
     if ( !expr_ )
 	return mUdf(float);
 
-    EvalOpts nonmatheo( eo );
-    if ( nonmatheo.valopt_ == EvalOpts::New )
-	nonmatheo.valopt_ = EvalOpts::Prev;
-    const EvalOpts matheo( eo );
-
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
@@ -543,8 +545,7 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    v = eo.relpos_;
 	else if ( p != &depthprop )
 	{
-	    mDynamicCastGet(const MathProperty*,mp,p)
-	    v = p->value( mp ? matheo : nonmatheo );
+	    v = p->value( eo );
 	    const UnitOfMeasure* uom = inpunits_[idx];
 	    if ( uom )
 		v = uom->getUserValueFromSI( v );
@@ -559,13 +560,29 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	      			 constValue(idx) );
 
     float res = expr_->getValue();
-    if ( formulauom_ )
-	res = formulauom_->getSIValue( res );
+
+    if ( formulaOutputUnit() )
+	res = formulaOutputUnit()->getSIValue( res );
 
     if ( uom_ )
 	res = uom_->getUserValueFromSI( res );
 
+    if ( eo.valopt_ == EvalOpts::New )
+	eo.valopt_ = EvalOpts::Prev;
+
     return res;
+}
+
+
+const UnitOfMeasure* MathProperty::formulaOutputUnit() const
+{
+    return formulauomman.getParam( this ); 
+}
+
+
+void MathProperty::setFormulaOutputUnit( const UnitOfMeasure* uom )
+{
+    formulauomman.setParam( this, uom );
 }
 
 
@@ -670,7 +687,7 @@ int PropertySet::set( Property* p )
 
 void PropertySet::remove( int idx )
 {
-    delete props_.removeSingle( idx );
+    delete props_.remove( idx );
 }
 
 
@@ -683,14 +700,3 @@ bool PropertySet::prepareUsage() const
     }
     return true;
 }
-
-
-void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
-       					  ObjectSet<Property>& resultset ) const
-{
-    for ( int idx=0; idx<props_.size(); idx++ )
-	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )
-	    resultset += const_cast<PropertySet*>(this)->props_[idx];
-}
-
-

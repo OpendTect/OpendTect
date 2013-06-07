@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiobjfileman.h"
@@ -27,8 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "keystrs.h"
 #include "streamconn.h"
-#include "strmdata.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "transl.h"
@@ -61,30 +59,22 @@ void uiObjFileMan::createDefaultUI( bool needreloc )
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, false,
-				 needreloc, true );
+				 needreloc);
     selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
+
+    mkdefbut_ = selgrp_->getManipGroup()->addButton( "makedefault.png",
+	    "Set as default", mCB(this,uiObjFileMan,makeDefault) );
 
     infogrp_ = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
-
-    uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    notesfld_ = new uiTextEdit( notesgrp, "User info" );
-    notesfld_->setPrefHeightInChar( 5 );
-    notesfld_->setStretch( 2, 2 );
-    notesfld_->setToolTip( "Notes" );
-    uiToolButton* savebut = new uiToolButton( notesgrp, "save", "Save Notes",
-	    mCB(this,uiObjFileMan,saveNotes) );
-    savebut->attach( rightTo, notesfld_ );
-
     setPrefWidth( cPrefWidth );
 
     uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
-    sep->addGroup( notesgrp );
 }
 
 
@@ -102,63 +92,12 @@ void uiObjFileMan::addTool( uiButton* but )
 }
 
 
-static BufferString getFileName( const IOObj& ioobj )
-{
-    FilePath fp( ioobj.fullUserExpr() );
-    fp.setExtension( "note" );
-    return fp.fullPath();
-}
-
-
-void uiObjFileMan::saveNotes( CallBacker* )
-{
-    BufferString txt = notesfld_->text();
-    if ( !curioobj_ || txt.isEmpty() )
-	return;
-
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeOStream();
-    if ( !sd.usable() )
-	return;
-
-    *sd.ostrm << txt << '\n';
-    sd.close();
-}
-
-
-void uiObjFileMan::readNotes()
-{
-    if ( !curioobj_ )
-    {
-	notesfld_->setText( "" );
-	return;
-    }
-
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeIStream();
-    if ( !sd.usable() )
-    {
-	notesfld_->setText( "" );
-	return;
-    }
-
-    BufferString note;
-    char buf[1024];
-    while ( sd.istrm->getline(buf,1024) )
-    {
-	if ( !note.isEmpty() )
-	    note += "\n";
-	note += buf;
-    }
-
-    sd.close();
-    notesfld_->setText( note );
-}
-
-
 void uiObjFileMan::selChg( CallBacker* cb )
 {
-    saveNotes(0);
     delete curioobj_;
     curioobj_ = selgrp_->nrSel() > 0 ? IOM().get(selgrp_->selected(0)) : 0;
+    curimplexists_ = curioobj_ && curioobj_->implExists(true);
+    mkdefbut_->setSensitive( curimplexists_ );
 
     ownSelChg();
     if ( curioobj_ )
@@ -166,11 +105,28 @@ void uiObjFileMan::selChg( CallBacker* cb )
     else
 	setInfo( "" );
 
-    readNotes();
     BufferString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
     toStatusBar( msg );
+}
+
+
+void uiObjFileMan::makeDefault( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+    SI().getPars().set( getDefKey(), curioobj_->key() );
+    SI().savePars();
+    selgrp_->fullUpdate( curioobj_->key() );
+}
+
+
+const char* uiObjFileMan::getDefKey() const
+{
+    static BufferString ret;
+    ctxt_.fillTrGroup();
+    ret = IOPar::compKey(sKey::Default,ctxt_.trgroup->userName());
+    return ret.buf();
 }
 
 
@@ -227,40 +183,6 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
 }
 
 
-void uiObjFileMan::getTimeStamp( const char* fname,
-				 BufferString& timestamp )
-{
-    timestamp = File::timeLastModified( fname );
-    FilePath fp( fname );
-    fp.setExtension( "" );          
-    const BufferString dirnm = fp.fullPath();           
-    if ( File::isDirectory(dirnm) )
-    	getTimeLastModified( dirnm, timestamp );
-}
-
-
-void uiObjFileMan::getTimeLastModified( const char* fname,
-					BufferString& timestamp )
-{
-    const FixedString ftimestamp = File::timeLastModified( fname );
-    if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
-	timestamp = ftimestamp;
-    
-    if ( !File::isDirectory(fname) ) return;
-    
-    DirList dl( fname );
-    BufferString subtimestamp;
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const BufferString subfnm( dl.fullPath(idx) );
-	getTimeLastModified( subfnm, subtimestamp );
-	
-	if ( Time::isEarlier( timestamp, subtimestamp ) )
-	    timestamp = subtimestamp;
-    }
-}
-
-
 BufferString uiObjFileMan::getFileInfo()
 {
     BufferString txt;
@@ -291,18 +213,15 @@ BufferString uiObjFileMan::getFileInfo()
 	txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
 	if ( nrfiles > 1 )
 	    { txt += "\nNumber of files: "; txt += nrfiles; }
-	BufferString timestr; getTimeStamp( fname, timestr );
-	if ( !timestr.isEmpty() ) { txt += "\nLast modified: ";txt += timestr; }
+	const char* timestr = File::timeLastModified( fname );
+	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
 	int txtsz = txt.size()-1;
 	if ( txt[ txtsz ] != '\n' ) txt += "\n";
 	conn->close();
 	delete conn;
     }
 
-    BufferString usrnm; curioobj_->pars().get( sKey::User(), usrnm );
-    if ( !usrnm.isEmpty() )
-	txt.add( "User: " ).add( usrnm ).add( "\n" );
-    txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
+    txt += "Object ID: "; txt += curioobj_->key(); txt += "\n";
     return txt;
 }
 
@@ -315,6 +234,6 @@ void uiObjFileMan::setInfo( const char* txt )
 
 void uiObjFileMan::setPrefWidth( int width )
 {
-    selgrp_->setPrefWidthInChar( mCast(float,width) );
+    selgrp_->setPrefWidthInChar( width );
     infofld_->setPrefWidthInChar( width );
 }

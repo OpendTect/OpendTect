@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "odsession.h"
 
@@ -95,7 +95,7 @@ bool ODSession::operator==( const ODSession& sess ) const
 }
    
 #define mAddVersionNr(iopar) \
-    iopar.add( sKey::Version(), versionnr_ );
+    iopar.add( sKey::Version, versionnr_ );
 
 bool ODSession::usePar( const IOPar& par )
 {
@@ -227,7 +227,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 {
     if ( !ioobj ) { err = "Cannot find object in data base"; return false; }
     PtrMan<ODSessionTranslator> tr =
-		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
+		dynamic_cast<ODSessionTranslator*>(ioobj->getTranslator());
     if ( !tr ) { err = "Selected object is not an Session"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -244,7 +244,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 {
     if ( !ioobj ) { err = "No object to store set in data base"; return false; }
     PtrMan<ODSessionTranslator> tr
-	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
+	 = dynamic_cast<ODSessionTranslator*>(ioobj->getTranslator());
     if ( !tr )
 	{ err = "Selected object is not an OpendTect Session"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );

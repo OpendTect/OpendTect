@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistoredattrreplacer.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "bufstringset.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "linekey.h"
 #include "varlenarray.h"
@@ -25,6 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdlib.h>
 
 using namespace Attrib;
+
+BufferStringSet bfset;
+HiddenParam<uiStoredAttribReplacer,BufferStringSet> storedrefsmanager( bfset );
 
 uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						DescSet* attrset )
@@ -86,6 +90,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	    if ( !descpar->get(key,descidx) ) break;
 	    if ( descidx < 0 ) continue;
 	    DescID descid( descidx, false );
+	    bool issteering = false;
 	    for ( int stridx=0; stridx<storedids_.size(); stridx++ )
 	    {
 		if ( (storedids_[stridx].firstid_ == descid) ||
@@ -100,13 +105,14 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 
 void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 {
+    BufferStringSet mytmpset = storedrefsmanager.getParam( this );
+    mytmpset.erase();
     BufferStringSet storageidstr;
     for ( int idx=0; idx<iopar.size(); idx++ )
     {
 	IOPar* descpar = iopar.subselect( idx );
 	if ( !descpar ) continue;
-	const char* defstring = descpar->find( 
-					Attrib::DescSet::definitionStr() );
+	const char* defstring = descpar->find( "Definition" );
 	if ( !defstring ) continue;
 	BufferString attribnm;
 	Attrib::Desc::getAttribName( defstring, attribnm );
@@ -128,10 +134,12 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    storagestr[spacepos-equalpos] = 0;
 	    if ( storageidstr.addIfNew(storagestr) )
 	    {
+		storedids_ += StoredEntry( DescID(idx,false),
+					   LineKey(storagestr) );
 		const char* storedref = descpar->find(
 						Attrib::DescSet::userRefStr() );
-		storedids_ += StoredEntry( DescID(idx,false),
-					   LineKey(storagestr), storedref );
+		mytmpset.add ( storedref );
+		storedrefsmanager.setParam( this, mytmpset );
 	    }
 	    else
 	    {
@@ -217,7 +225,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 					  const char* key, const char* userref )
 {
     if ( !key || !userref )
-	return uiMSG().error( "No valid steering input selected" );
+	return uiMSG().warning( "No valid steering input selected." );
 
     const int output = getOutPut( storeentry.firstid_.asInt() );
     if ( output==0 )
@@ -318,8 +326,8 @@ void uiStoredAttribReplacer::handleSingleInput()
 	    StoredEntry storeentry = storedids_[steeridx];
 	    const int ouputidx = attrset_->getDesc(
 		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
-	    Desc* adsteerinl = 0;
-	    Desc* adsteercrl = 0;
+	    Desc* adsteerinl = new Desc( "Inline Desc" );
+	    Desc* adsteercrl = new Desc( "Cross Line Desc" );
 	    if ( ouputidx == 0 )
 	    {
 		adsteerinl = attrset_->getDesc(
@@ -334,19 +342,15 @@ void uiStoredAttribReplacer::handleSingleInput()
 		adsteercrl = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false));
 	    }
+	    adsteerinl->changeStoredID( dlg.getSteerKey() );
+	    BufferString bfstr = dlg.getSteerRef();
+	    bfstr += "_inline_dip";
+	    adsteerinl->setUserRef( bfstr.buf() );
 
-	    if ( adsteerinl && adsteercrl )
-	    {
-		adsteerinl->changeStoredID( dlg.getSteerKey() );
-		BufferString bfstr = dlg.getSteerRef();
-		bfstr += "_inline_dip";
-		adsteerinl->setUserRef( bfstr.buf() );
-
-		adsteercrl->changeStoredID( dlg.getSteerKey() );
-		bfstr = dlg.getSteerRef();
-		bfstr += "_crline_dip";
-		adsteercrl->setUserRef( bfstr.buf() );
-	    }
+	    adsteercrl->changeStoredID( dlg.getSteerKey() );
+	    bfstr = dlg.getSteerRef();
+	    bfstr += "_crline_dip";
+	    adsteercrl->setUserRef( bfstr.buf() );
 	}
 	else
 	    setSteerPar( storedids_[steeridx], dlg.getSteerKey(),
@@ -369,7 +373,9 @@ void uiStoredAttribReplacer::handleMultiInput()
 	if ( usrrefs.isEmpty() )
 	    continue;
 
-	BufferString prevref = storeentry.storedref_;
+	BufferStringSet tmpstrset = storedrefsmanager.getParam( this );
+	BufferString prevref = tmpstrset.size()>= idnr ? tmpstrset.get(idnr)
+	    					       : 0;
 	if ( stringEndsWith( "_inline_dip", prevref.buf() ) )
 	{
 	    int newsz = prevref.size() - strlen("_inline_dip");
@@ -428,8 +434,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 		const int ouputidx = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false))->
 			    selectedOutput();
-		Desc* adsteerinl = 0;
-		Desc* adsteercrl = 0;
+		Desc* adsteerinl = new Desc( "Inline Desc" );
+		Desc* adsteercrl = new Desc( "Cross Line Desc" );
 		if ( ouputidx == 0 )
 		{
 		    adsteerinl = attrset_->getDesc(
@@ -445,18 +451,15 @@ void uiStoredAttribReplacer::handleMultiInput()
 			    DescID(storeentry.firstid_.asInt(),false));
 		}
 
-		if ( adsteerinl && adsteercrl )
-		{
-		    adsteerinl->changeStoredID( dlg.getSteerKey() );
-		    BufferString bfstr = dlg.getSteerRef();
-		    bfstr += "_inline_dip";
-		    adsteerinl->setUserRef( bfstr.buf() );
+		adsteerinl->changeStoredID( dlg.getSteerKey() );
+		BufferString bfstr = dlg.getSteerRef();
+		bfstr += "_inline_dip";
+		adsteerinl->setUserRef( bfstr.buf() );
 
-		    adsteercrl->changeStoredID( dlg.getSteerKey() );
-		    bfstr = dlg.getSteerRef();
-		    bfstr += "_crline_dip";
-		    adsteercrl->setUserRef( bfstr.buf() );
-		}
+		adsteercrl->changeStoredID( dlg.getSteerKey() );
+		bfstr = dlg.getSteerRef();
+		bfstr += "_crline_dip";
+		adsteercrl->setUserRef( bfstr.buf() );
 	    }
 	    else
 		setSteerPar( storeentry, dlg.getSteerKey(), dlg.getSteerRef() );
@@ -498,6 +501,8 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 
 void uiStoredAttribReplacer::getStoredIds()
 {
+    BufferStringSet mytmpset = storedrefsmanager.getParam( this );
+    mytmpset.erase();
     TypeSet<LineKey> linekeys;
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
@@ -524,7 +529,11 @@ void uiStoredAttribReplacer::getStoredIds()
 	    }
 	}
 	else
-	    storedids_ += StoredEntry( descid, lk, ad->userRef() );
+	{
+	    mytmpset.add ( ad->userRef() );
+	    storedrefsmanager.setParam( this, mytmpset );
+	    storedids_ += StoredEntry( descid, lk );
+	}
     }
 }
 

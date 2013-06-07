@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uimsg.h"
@@ -25,8 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #undef Ok
 #include <QMessageBox>
 #include <QAbstractButton>
-
-mUseQtnamespace
 
 uiMsg* uiMsg::theinst_ = 0;
 uiMsg& uiMSG()
@@ -171,8 +169,7 @@ void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
  \
     const char* title = mCapt(caption); \
     const int refnr = beginCmdRecEvent( title ); \
-    QMessageBox::qtfunc( popParnt(), QString(title), \
-	    			   mTxt, QString(oktxt) ); \
+    QMessageBox::qtfunc( popParnt(), QString(title), mTxt, QString(oktxt) ); \
     endCmdRecEvent( refnr, 0, oktxt ); \
 }
 
@@ -278,12 +275,12 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
     if ( !notxt || !*notxt )
 	notxt = "No";
 
-    const int res = QMessageBox::question( popParnt(), QString(wintitle),
-					   QString(text), QString(yestxt),
-					   QString(notxt),
-					   cncltxt ? QString(cncltxt)
-					           : QString::null,
-			       	           0, 2 );
+    const int res = QMessageBox::question( popParnt(),
+				QString(wintitle), QString(text),
+				QString(yestxt),
+				QString(notxt),
+				cncltxt ? QString(cncltxt) : QString::null,
+			       	0, 2 );
 
     endCmdRecEvent( refnr, res, yestxt, notxt, cncltxt );
     return res == 0 ? 1 : (res == 1 ? 0 : -1);
@@ -295,8 +292,7 @@ void uiMsg::about( const char* text )
     mPrepCursor();
     const char* wintitle = mCapt("About");
     const int refnr = beginCmdRecEvent( wintitle );
-    QMessageBox::about( popParnt(), QString(wintitle),
-	    			  QString(text) );
+    QMessageBox::about( popParnt(), QString(wintitle), QString(text) );
     endCmdRecEvent( refnr, 0, "&OK" );
 }
 
@@ -318,8 +314,7 @@ bool uiMsg::askGoOn( const char* text, const char* textyes, const char* textno )
     const int refnr = beginCmdRecEvent( wintitle );
     const int res = QMessageBox::warning( popParnt(), QString(wintitle),
 	    				  QString(text), QString(textyes),
-					  QString(textno),
-					  QString::null, 0, 1);
+					  QString(textno), QString::null, 0, 1);
     endCmdRecEvent( refnr, res, textyes, textno );
     return !res;
 }
@@ -338,10 +333,11 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
 
     const char* wintitle = mCapt("Please specify");
     const int refnr = beginCmdRecEvent( wintitle );
-    const int res = QMessageBox::warning( popParnt(), QString(wintitle),
-					  QString(text),
-					  QString(textyes), QString(textno),
-				          QString(cnclmsg), 0, 2 );
+    const int res = QMessageBox::warning( popParnt(),
+				QString(wintitle), QString(text),
+				QString(textyes),
+				QString(textno),
+				QString(cnclmsg), 0, 2 );
 
     endCmdRecEvent( refnr, res, textyes, textno, cnclmsg );
     return res;
@@ -358,10 +354,11 @@ bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
     const char* wintitle = mCapt("Information");
     const int refnr = beginCmdRecEvent( wintitle );
 
-    const int res = QMessageBox::information( popParnt(), QString(wintitle),
-					      QString(text), QString(oktxt),
-					      QString(ntmsg),
-					      QString::null, 0, 1 );
+    const int res = QMessageBox::information( popParnt(),
+				QString(wintitle), QString(text),
+				QString(oktxt),
+				QString(ntmsg),
+				QString::null, 0, 1 );
 
     endCmdRecEvent( refnr, res, oktxt, ntmsg );
     return !res;

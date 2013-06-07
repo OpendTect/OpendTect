@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -39,30 +39,16 @@ const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
 const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
 const char* SurveyInfo::sKeyYRange()	    { return "Y range"; }
 const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
-const char* SurveyInfo::sKeyWSProjName()    {return "Workstation Project Name";}
+const char* SurveyInfo::sKeyWSProjName()    { return "Workstation Project Name"; }
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
-const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
 
 DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
-
-
-Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
-{ return transform( BinID(linenr,tracenr) ); }
-
-
-TraceID	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
-{ return TraceID( transform(crd) ); }
-
-
-bool InlCrlSystem::includes( int line, int tracenr ) const
-{ return cs_.hrg.includes( BinID(line,tracenr) ); }
-
 
 const SurveyInfo& SI()
 {
@@ -76,7 +62,6 @@ const SurveyInfo& SI()
 	}
 	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
-    
     return *SurveyInfo::theinst_;
 }
 
@@ -92,10 +77,6 @@ void SurveyInfo::setInvalid() const
 {
     SurveyInfo* myself = const_cast<SurveyInfo*>(this);
     myself->valid_ = false;
-    
-    
-    winlcrlsystem_.unRef();
-    inlcrlsystem_.unRef();
 }
 
 
@@ -111,7 +92,6 @@ SurveyInfo::SurveyInfo()
     , workRangeChg(this)
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
-    , seisrefdatum_( 0 )
 {
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl = 0;
@@ -126,8 +106,7 @@ SurveyInfo::SurveyInfo()
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : NamedObject( si )
-    , cs_(*new CubeSampling(false))
+    : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
     , zdef_(*new ZDomain::Def( si.zDomain() ) )
@@ -145,9 +124,6 @@ SurveyInfo::~SurveyInfo()
     delete &cs_;
     delete &wcs_;
     delete &zdef_;
-    
-    inlcrlsystem_.unRef();
-    winlcrlsystem_.unRef();
 }
 
 
@@ -173,8 +149,6 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3coords_[idx] = si.set3coords_[idx];
     }
     cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
-    seisrefdatum_ = si.seisrefdatum_;
-
 
     return *this;
 }
@@ -189,6 +163,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	return new SurveyInfo;
 
     ascistream astream( sfio.istrm() );
+    static bool errmsgdone = false;
     if ( !astream.isOfFileType(sKeySI) )
     {
 	BufferString errmsg( "Survey definition file cannot be read.\n"
@@ -197,9 +172,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	errmsg += astream.fileType();
 	errmsg += "'.\nThe file may be corrupt or not accessible.";
 	ErrMsg( errmsg );
+	errmsgdone = true;
 	sfio.closeFail();
 	return new SurveyInfo;
     }
+    errmsgdone = false;
 
     astream.next();
     BufferString keyw = astream.keyWord();
@@ -213,7 +190,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
     //Scrub away old settings (confusing to users)
     si->getPars().remove("Depth in feet");
-    
+
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
@@ -221,7 +198,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     while ( !atEndOfSection(astream) )
     {
 	keyw = astream.keyWord();
-	if ( keyw == sKey::Name() )
+	if ( keyw == sKey::Name )
 	    si->setName( astream.value() );
 	else if ( keyw == sKeyWSProjName() )
 	    si->wsprojnm_ = astream.value();
@@ -274,8 +251,6 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	}
 	else if ( keyw == sKeyXYInFt() )
 	    si->xyinfeet_ = astream.getYN();
-	else if ( keyw == sKeySeismicRefDatum() )
-	    si->seisrefdatum_ = astream.getDValue();
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
@@ -292,7 +267,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	si->comment_ += buf;
     }
     sfio.closeSuccess();
-    
+
     if ( si->wrapUpRead() )
 	si->valid_ = true;
 
@@ -367,7 +342,7 @@ float SurveyInfo::inlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(1,0) );
-    return (float) c00.distTo(c10);
+    return c00.distTo(c10);
 }
 
 
@@ -375,7 +350,7 @@ float SurveyInfo::crlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c01 = transform( BinID(0,1) );
-    return (float) c00.distTo(c01);
+    return c00.distTo(c01);
 }
 
 
@@ -387,11 +362,11 @@ float SurveyInfo::computeArea( const Interval<int>& inlrg,
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl,crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactorF : 1; 
+    const float scale = xyInFeet() ? mFromFeetFactor : 1; 
     const double d01 = c00.distTo( c01 ) * scale;
     const double d10 = c00.distTo( c10 ) * scale;
 
-    return (float)( d01*d10 );
+    return d01*d10;
 }
 
 
@@ -615,10 +590,10 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 	return 3048;
     }
     else if ( zunit==Feet && xyunit==Meter )
-	return mFromFeetFactorF;
+	return mFromFeetFactor;
 
     //  zunit==Meter && xyunit==Feet
-    return mToFeetFactorF;
+    return mToFeetFactor;
 }
 
 
@@ -701,7 +676,7 @@ static void doSnap( int& idx, int start, int step, int dir )
 }
 
 
-void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
+void SurveyInfo::snap( BinID& binid, BinID rounding ) const
 {
     const CubeSampling& cs = sampling( false );
     const BinID& stp = cs.hrg.step;
@@ -711,7 +686,7 @@ void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 }
 
 
-void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
+void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
 {
     const BinID& stp = cs_.hrg.step;
     if ( s.inl < 0 ) s.inl = -s.inl;
@@ -776,12 +751,12 @@ void SurveyInfo::putTr( const RCol2Coord::RCTransform& tr,
 
 bool SurveyInfo::isClockWise() const
 {
-    double xinl = b2c_.getTransform(true).b;
-    double xcrl = b2c_.getTransform(true).c;
-    double yinl = b2c_.getTransform(false).b;
-    double ycrl = b2c_.getTransform(false).c;
+    float xinl = b2c_.getTransform(true).b;
+    float xcrl = b2c_.getTransform(true).c;
+    float yinl = b2c_.getTransform(false).b;
+    float ycrl = b2c_.getTransform(false).c;
 
-    double det = xinl*ycrl - xcrl*yinl;
+    float det = xinl*ycrl - xcrl*yinl;
     return det < 0;
 }
 
@@ -810,7 +785,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    astream.put( sKey::Name(), name() );
+    astream.put( sKey::Name, name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
@@ -890,7 +865,6 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	astream.put( sKeyLatLongAnchor, buf );
     }
     astream.putYN( sKeyXYInFt(), xyinfeet_ );
-    astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
 
@@ -899,10 +873,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     cmd += " --err "; \
     cmd += " Could not write to "; \
     cmd += s; \
-    if ( File::isHidden(s) ) \
-	cmd += ". This is a hidden file"; \
-    else \
-    cmd += " Please check the file permission"; \
+    cmd += ". This file is not writable"; \
     ExecOSCmd( cmd.buf(), true ); } \
 
 void SurveyInfo::savePars( const char* basedir ) const
@@ -929,28 +900,15 @@ bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
 
 
-RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
+InlCrlSystem* SurveyInfo::create3DGeometry(bool work) const
 {
-    Threads::AtomicPointer<InlCrlSystem>& sys = work
-        ? winlcrlsystem_
-        : inlcrlsystem_;
+    InlCrlSystem* res = new InlCrlSystem( name(), zdef_ );
     
-    if ( !sys )
-    {
-	RefMan<InlCrlSystem> newsys = new InlCrlSystem( name(), zdef_ );
-	newsys->ref();
-	if ( work )
-	    newsys->setGeomID( Survey::GeometryManager::cDefault3DGeom() );
-	
-	newsys->b2c_ = b2c_;
-	newsys->cs_ = sampling( work );
-	newsys->zscale_ = zScale();
-	
-	 if ( sys.setIfEqual( newsys, 0 ) )
-	    newsys->ref();
-    }
+    res->b2c_ = b2c_;
+    res->cs_ = sampling( work );
+    res->zscale_ = zScale();
     
-    return RefMan<InlCrlSystem>( sys );
+    return res;
 }
 
 
@@ -960,7 +918,7 @@ float SurveyInfo::computeAngleXInl() const
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
-    return (float) atan2( ydiff, xdiff );
+    return atan2( ydiff, xdiff );
 }
 
 
@@ -970,6 +928,60 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
     const Interval<int> crlrg( crlRange(work) );
     return inlrg.includes(bid.inl,false) && crlrg.includes(bid.crl,false);
 }
+
+
+BinID InlCrlSystem::transform( const Coord& c ) const
+{
+    StepInterval<int> inlrg, crlrg;
+    cs_.hrg.get( inlrg, crlrg );
+    return b2c_.transformBack( c, &inlrg, &crlrg );
+}
+
+
+Coord InlCrlSystem::transform( const BinID& b ) const
+{ return b2c_.transform(b); }
+
+
+Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const
+{
+    Coord3 translation( 0, 0, 0 ); 
+    
+    if ( fabs(planenormal.z) > 0.5 )
+    {
+	translation.z = SI().zStep();
+    }
+    else
+    {
+	Coord norm2d = planenormal;
+	norm2d.normalize();
+	
+	if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
+	    translation.x = inlDistance();
+	else
+	    translation.y = crlDistance();
+    }
+    
+    return translation;
+}
+
+
+
+float InlCrlSystem::inlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(1,0) );
+    return c00.distTo(c10);
+}
+
+
+float InlCrlSystem::crlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c01 = transform( BinID(0,1) );
+    return c00.distTo(c01);
+}
+
+
 
 
 

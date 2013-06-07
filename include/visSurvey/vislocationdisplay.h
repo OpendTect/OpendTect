@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 
@@ -44,7 +43,7 @@ class Sower;
   shapes ++.
 */
 
-mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl,
+mClass LocationDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
     friend class Sower;
@@ -142,7 +141,6 @@ protected:
     bool			showall_;
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
-    int				voiidx_;
 
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
@@ -167,4 +165,3 @@ protected:
 
 
 #endif
-

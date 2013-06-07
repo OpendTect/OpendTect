@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "faultadjuster.h"
 
@@ -165,23 +165,21 @@ void FaultAdjuster::prepareCalc( EM::SubID subid )
 void FaultAdjuster::getTargetPositions( EM::SubID target, const EM::SubID* src,
 					TypeSet<BinID>& targetpos ) const
 {
-    RowCol rc = RowCol::fromInt64( target );
+    RowCol rc( target );
     const Coord3& pos = fault_.getPos( sectionid_, target );
     const BinID bid = SI().transform( pos );
     targetpos += bid;
 
     if ( !src ) return;
     
-    const RowCol srcrc = RowCol::fromInt64( *src );
+    const RowCol srcrc( *src );
 
     if ( srcrc.col==rc.col ) // tracking up/down
     {
 	const Geometry::ParametricSurface* psurf = 0;
 	    				//fault_.geometry().sectionGeometry(0);
 	if ( !psurf ) return;
-	Geometry::ParametricCurve* pcurv = 
-				psurf->createRowCurve( mCast(float,rc.row) );
-
+	Geometry::ParametricCurve* pcurv = psurf->createRowCurve( rc.row );
 	mDynamicCastGet(Geometry::CubicBezierCurve*,bcurv,pcurv)
 	if ( !bcurv ) return;
 

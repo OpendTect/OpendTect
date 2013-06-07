@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiemattribpartserv.h"
@@ -165,6 +165,7 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	horshiftdlg_->horizon3D().geometry();
     for ( int idx=0; idx<nrshifts; idx++ )
     {
+	const float shift = intv.atIndex(idx);
 	TypeSet<DataPointSet::DataRow> drset;
 	BufferStringSet nmset;
 	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
@@ -186,8 +187,8 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	{
 	    const BinID bid =
 		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
-	    const float realz = (float) (
-		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z );
+	    const float realz = 
+		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z;
 	    if ( mIsUdf(realz) )
 		continue;
 

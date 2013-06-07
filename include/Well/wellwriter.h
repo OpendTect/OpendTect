@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "wellio.h"
 #include <iosfwd>
 
@@ -22,11 +21,7 @@ namespace Well
 class Data;
 class Log;
 
-/*!
-\brief Writes Well::Data.
-*/
-
-mExpClass(Well) Writer : public IO
+mClass Writer : public IO
 {
 public:
 
@@ -66,4 +61,3 @@ protected:
 }; // namespace Well
 
 #endif
-

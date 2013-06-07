@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
-#include "seistrctr.h"
 #include "odver.h"
 
 namespace Attrib
@@ -80,36 +79,29 @@ bool DescSet::hasStoredInMem() const
 }
 
 
-#define mGetPar(key) \
-    defpars->find(SeisTrcTranslatorGroup::key())
-
 DescID DescSet::ensureDefStoredPresent() const
 {
     BufferString idstr; DescID retid;
 
-    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
-    if ( defpars )
+    if ( is2d_ )
     {
-	if ( is2d_ )
+	const FixedString lsid = SI().pars().find( sKey::DefLineSet );
+	PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
+	BufferString attrnm = SI().pars().find( sKey::DefAttribute ).str();
+	if ( lsobj && attrnm.isEmpty() )
 	{
-	    const FixedString lsid = mGetPar( sKeyDefault2D );
-	    PtrMan<IOObj> lsobj = IOM().get( MultiID(lsid) );
-	    BufferString attrnm = mGetPar( sKeyDefaultAttrib );
-	    if ( lsobj && attrnm.isEmpty() )
-	    {
-		SeisIOObjInfo seisinfo( lsobj );
-		BufferStringSet attrnms;
-		SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
-		seisinfo.getAttribNames( attrnms, o2d );
-		if ( !attrnms.isEmpty() )
-		    attrnm = attrnms.get(0);
-	    }
-
-	    idstr = LineKey( lsid, attrnm );
+	    SeisIOObjInfo seisinfo( lsobj );
+	    BufferStringSet attrnms;
+	    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+	    seisinfo.getAttribNames( attrnms, o2d );
+	    if ( !attrnms.isEmpty() )
+		attrnm = attrnms.get(0);
 	}
-	else
-	    idstr = mGetPar( sKeyDefault3D );
+
+	idstr = LineKey( lsid, attrnm );
     }
+    else
+	idstr = SI().pars().find( sKey::DefCube );
 
     if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
 	return defattribid_;
@@ -281,8 +273,9 @@ void DescSet::removeDesc( const DescID& id )
     if ( descs_[idx]->descSet()==this )
 	descs_[idx]->setDescSet(0);
 
-    descs_.removeSingle(idx)->unRef();
-    ids_.removeSingle(idx);
+    descs_[idx]->unRef();
+    descs_.remove(idx);
+    ids_.remove(idx);
 }
 
 
@@ -315,8 +308,7 @@ void DescSet::sortDescSet()
     ids_.erase();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	Attrib::Desc* newdesc = descscopy[ sortindexes[idx] ];
-	descs_ += newdesc;
+	descs_ += descscopy[ sortindexes[idx] ];
 	ids_ += idscopy[ sortindexes[idx] ];
     }
 
@@ -352,8 +344,7 @@ void DescSet::fillPar( IOPar& par ) const
 	apar.set( userRefStr(), userref );
 
 	apar.setYN( hiddenStr(), dsc.isHidden() );
-	apar.set( sKey::DataType(), Seis::nameOf(dsc.dataType()) );
-	apar.set( indexStr(), idx );
+	apar.set( sKey::DataType, Seis::nameOf(dsc.dataType()) );
 
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
@@ -370,14 +361,14 @@ void DescSet::fillPar( IOPar& par ) const
 
     par.set( highestIDStr(), maxid );
     if ( descs_.size() > 0 )
-	par.set( sKey::Type(), couldbeanydim_ ? "AnyD" : is2D() ? "2D" : "3D" );
+	par.set( sKey::Type, couldbeanydim_ ? "AnyD" : is2D() ? "2D" : "3D" );
 }
 
 
 void DescSet::handleStorageOldFormat( IOPar& descpar )
 {
-    FixedString typestr = descpar.find( "Type" );
-    if ( typestr.isEmpty() || typestr!="Stored" )
+    const char* typestr = descpar.find( "Type" );
+    if ( !typestr || strcmp(typestr,"Stored") )
 	return;
 
     const char* olddef = descpar.find( definitionStr() );
@@ -533,8 +524,8 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     bool selectout = descpar.get("Selected Attrib",selout);
     if ( dsc->isStored() )
     {
-	FixedString type = descpar.find( sKey::DataType() );
-	if ( type=="Dip" )
+	const char* type = descpar.find( sKey::DataType );
+	if ( type && !strcmp( type, "Dip" ) )
 	    dsc->setNrOutputs( Seis::Dip, 2 );
 	else
 	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
@@ -594,14 +585,13 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    dsc.setInput( input, inpdesc );
 	}
 
-	if ( dsc.attribName()=="Reference" )
+	if ( !strcmp( dsc.attribName(), "Reference" ) )
 	    handleReferenceInput( &dsc );
 	
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
-	    BufferString err;
-	    FixedString dscerr = dsc.errMsg();
-	    if ( dscerr=="Parameter 'id' is not correct" &&
+	    BufferString err;                                                   
+	    if ( !strcmp( dsc.errMsg(), "Parameter 'id' is not correct") &&    
 		 dsc.isStored() )                                              
 	    {                                                                   
 		err = "Impossible to find stored data '";             
@@ -631,7 +621,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     if ( mIsUdf(versionnr) )
 	versionnr = mODVersion * 0.01;
 
-    const char* typestr = par.find( sKey::Type() );
+    const char* typestr = par.find( sKey::Type );
     if ( typestr )
     {
 	is2d_ = *typestr == '2';
@@ -645,7 +635,6 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     IOPar copypar(par);
     bool res = true;
 
-    TypeSet<int> indexes;
     for ( int id=0; id<=maxid; id++ )
     {
 	PtrMan<IOPar> descpar = par.subselect( toString(id) );
@@ -680,17 +669,12 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	     res = false; 
 	     continue;
 	 }
-
-	int idx=-1;
-	descpar->get( indexStr(), idx );
-	indexes += idx;
-
+	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,storedattronly_) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
- 
-    // sort_coupled();
+    
     ObjectSet<Desc> newsteeringdescs;
     useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
 
@@ -730,7 +714,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( "Input", idx );
-		if ( descpar->find(inputstr)=="-1" )
+		if ( !strcmp(descpar->find(inputstr),"-1") )
 		{
 		    const char* newkey =
 			IOPar::compKey(toString(id),inputstr);
@@ -758,7 +742,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  BufferStringSet* errmsgs )
 {
-    FixedString steeringtype = steeringpar.find( sKey::Type() );
+    FixedString steeringtype = steeringpar.find( sKey::Type );
     BufferString steeringdef = steeringtype.str();
     if ( steeringtype == "ConstantSteering" )
     {
@@ -859,10 +843,9 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
+DescID DescSet::getStoredID( const char* lk, int selout, bool create,
 			     bool blindcomp, const char* blindcompnm )
 {
-    FixedString lk( lkstr );
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
     for ( int idx=0; idx<descs_.size(); idx++ )
@@ -873,7 +856,7 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( lk==keypar.getStringValue() )
+	if ( !strcmp(lk,keypar.getStringValue()) )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -889,7 +872,7 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk, bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx] 
@@ -970,7 +953,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
     while ( needednodes.size() )
     {
 	const DescID needednode = needednodes[0];
-	needednodes.removeSingle( 0 );
+	needednodes.remove( 0 );
 	const Desc* dsc = getDesc( needednode );
 	if ( !dsc )
 	{
@@ -1041,7 +1024,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    if ( kpdefault && !descidx ) continue; //default desc always first
 
 	    DescID descid = getID( descidx );
-	    if ( torem.isPresent(descid) ) continue;
+	    if ( torem.indexOf(descid) >= 0 ) continue;
 
 	    const Desc& dsc = *getDesc( descid );
 	    bool iscandidate = false;
@@ -1164,7 +1147,6 @@ void DescSet::setContainStoredDescOnly( bool yn )
 	defattribid_.setStored( yn );
 }
 
-
 DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
 					   bool withstored ) const
 {
@@ -1183,6 +1165,12 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
     }
 
     return new DataPointSet( pts, dcds, is2D() );
+}
+
+
+DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu ) const
+{
+    return createDataPointSet( dsu, true );
 }
 
 

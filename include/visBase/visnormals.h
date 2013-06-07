@@ -14,11 +14,8 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
-#include "viscoord.h"
-
 
 class CallBacker;
 class SoNormal;
@@ -33,7 +30,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) Normals : public DataObject
+mClass Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -55,10 +52,7 @@ public:
 
     void		setDisplayTransformation( const mVisTrans* nt );
     const mVisTrans*	getDisplayTransformation() const { return transformation_; }
-    
-    osg::Array*		osgArray() { return osgnormals_; }
-    const osg::Array*	osgArray() const { return osgnormals_; }
-    
+
 protected:
     void		transformNormal(const Transformation*,Coord3&,
 	    				bool todisplay) const;
@@ -75,12 +69,10 @@ protected:
     const mVisTrans*		transformation_;
 
     virtual SoNode*		gtInvntrNode();
-    
-    osg::Array*			osgnormals_;
     			
 };
 
-mExpClass(visBase) NormalListAdapter : public Coord3List
+mClass NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )
@@ -107,5 +99,4 @@ protected:
 };
 
 #endif
-
 

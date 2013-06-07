@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocitypicks.h"
 
@@ -184,7 +184,7 @@ void Picks::getColorKey( BufferString& key ) const
     key = "dTect.VelPick.";
     key += getPickTypeString(picktype_);
     key += ".";
-    key += sKey::Color();
+    key += sKey::Color;
 }
 
 
@@ -299,7 +299,7 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	RefMan<EM::Horizon3D> hor = getHorizon( velpick.emobjid_ );
 	if ( hor )
 	{
-	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
+	    pick.depth_ = hor->getPos( hor->sectionID(0),
 		    		       pickbid.toInt64() ).z;
 	}
 	else if ( mIsUdf( pick.depth_ ) )
@@ -411,14 +411,14 @@ bool Picks::store( const IOObj* ioobjarg )
 
 	    const int idx = emids.indexOf(pick.emobjid_);
 	    if ( idx!=-1 )
-		pickloc.text_ = new BufferString("",idx);
+		pickloc.text = new BufferString("",idx);
 
 	    ps += pickloc;
 	} while ( picks_.next(arrpos,false) );
     }
 
     fillPar( ps.pars_ );
-    ps.pars_.set( sKey::Version(), 2 );
+    ps.pars_.set( sKey::Version, 2 );
 
     if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
 	return false;
@@ -442,7 +442,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
 
-    par.set( sKey::Type(), sKeyVelocityPicks() );
+    par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
     par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
     par.set( ZDomain::sKey(), zDomain() );
@@ -451,7 +451,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
 bool Picks::useIOObjPar( const IOPar& par ) 
 {
-    const char* res = par.find( sKey::Type() );
+    const char* res = par.find( sKey::Type );
     if ( !res || strcmp(res,sKeyVelocityPicks()) )
 	return false;
 
@@ -551,7 +551,8 @@ void Picks::horizonChangeCB( CallBacker* cb )
     }
     else
     {
-	BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
+	BinID bid;
+	bid.fromInt64( cbdata.pid0.subID() );
 	RowCol arrpos;
 	BinID curbid;
 	if ( picks_.findFirst( bid, arrpos ) )
@@ -574,12 +575,12 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
+	    hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
 
 	if ( mIsUdf(depth) )
 	    continue;
 
-	picks_.getRef( rcs[idx], 0 ).depth_ = depth;
+	const float vel = picks_.getRef( rcs[idx], 0 ).depth_ = depth;
 
 	change.trigger( bid );
 	changelate.trigger( bid );
@@ -633,7 +634,7 @@ void Picks::removeHorizon( EM::ObjectID id )
 	    //TODO: Remove all picks on this horizon.
 	    horizons_[idx]->change.remove(
 		    mCB(this,Picks,horizonChangeCB) );
-	    horizons_.removeSingle( idx )->unRef();
+	    horizons_.remove( idx )->unRef();
 	    return;
 	}
     }
@@ -666,7 +667,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 
     for ( int idx=nrHorizons()-1; idx>=0; idx-- )
     {
-	ConstRefMan<EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
+	RefMan<const EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
 	if ( !hor ) continue;
 
 	const EM::SectionID sid = hor->sectionID( 0 );
@@ -689,7 +690,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 					BinIDValueSet& res ) const
 {
-    ConstRefMan<EM::Horizon3D> horizon = getHorizon( emid );
+    RefMan<const EM::Horizon3D> horizon = getHorizon( emid );
     if ( !horizon )
 	return false;
 
@@ -719,9 +720,9 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 
 	if ( mIsUdf(vel) )
 	{
-	    vels.removeSingle(idx);
-	    picks.removeSingle(idx);
-	    bids.removeSingle(idx);
+	    vels.remove(idx);
+	    picks.remove(idx);
+	    bids.remove(idx);
 	    continue;
 	}
 
@@ -739,14 +740,14 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] = (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
+	vals[0] = horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
 
 	float weightsum = 0;
 	float weightvalsum = 0;
 	for ( int idx=vels.size()-1; idx>=0; idx-- )
 	{
 	    const Coord pickcoord = SI().transform( bids[idx] );
-	    const float sqdist = (float) pickcoord.sqDistTo( coord );
+	    const float sqdist = pickcoord.sqDistTo( coord );
 	    if ( usesearchradius && sqdist>searchradius2 )
 		continue;
 
@@ -757,7 +758,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 		break;
 	    }
 
-	    const float weight = 1.0f/sqdist;
+	    const float weight = 1.0/sqdist;
 
 	    weightvalsum += weight * vels[idx];
 	    weightsum += weight;
@@ -773,6 +774,8 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 bool Picks::load( const IOObj* ioobj )
 {
     picks_.empty();
+
+    bool isrighttype;
 
     if ( !useIOObjPar( ioobj->pars() ) )
     {
@@ -793,22 +796,21 @@ bool Picks::load( const IOObj* ioobj )
     }
 
     int version = 1;
-    pickset.pars_.get( sKey::Version(), version );
+    pickset.pars_.get( sKey::Version, version );
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
-	const float z = mCast(float,pspick.pos_.z);
+	const BinID bid = SI().transform( pspick.pos );
 	Pick pick = version==1
-	    ? Pick( z, pspick.dir_.radius, refoffset_, -1 )
-	    : Pick( z, pspick.dir_.radius, pspick.dir_.theta-1 );
+	    ? Pick( pspick.pos.z, pspick.dir.radius, refoffset_, -1 )
+	    : Pick( pspick.pos.z, pspick.dir.radius,pspick.dir.theta-1);
 
-	if ( pspick.text_ )
+	if ( pspick.text )
 	{
 	    int horidx;
-	    if ( getFromString(horidx,pspick.text_->buf(),-1) &&
-		 horidx!=-1 && horizons_[horidx] )
+	    if ( getFromString( horidx, pspick.text->buf(),-1 ) && horidx!=-1 &&
+	         horizons_[horidx] )
 		pick.emobjid_ = horizons_[horidx]->id();
 	}
 
@@ -880,7 +882,7 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 	BinIDValueSet::Pos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
-	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
+	    RefMan<const EM::Horizon3D> hor = horizons_[idx];
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice
@@ -933,7 +935,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 	BinIDValueSet::Pos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
-	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
+	    RefMan<const EM::Horizon3D> hor = horizons_[idx];
 	    if ( !hor ) continue;
 
 	    //We don't want the same pick twice
@@ -1055,7 +1057,7 @@ const IOObjContext& Picks::getStorageContext()
     {
 	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ret->setName( "Velocity picks" );
-	ret->toselect.require_.set( sKey::Type(), sKeyVelocityPicks() );
+	ret->toselect.require_.set( sKey::Type, sKeyVelocityPicks() );
     }
     return *ret;
 }

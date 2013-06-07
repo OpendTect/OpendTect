@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "segyhdrdef.h"
 #include "bufstring.h"
 class IOPar;
@@ -23,7 +22,7 @@ namespace SEGY
 
 /*!\brief stores HdrEntry info of the needed fields from the trace header.  */
 
-mExpClass(Seis) TrcHeaderDef
+mClass TrcHeaderDef
 {
 public:
 			TrcHeaderDef();
@@ -73,4 +72,3 @@ public:
 } // namespace
 
 #endif
-

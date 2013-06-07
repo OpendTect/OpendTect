@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "";
+static const char* rcsID = "";
 
 #include "uidpsselgrpdlg.h"
 
@@ -32,6 +32,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 {
     setPrefHeight( 500 );
     TypeSet<int> colids;
+    const DataPointSet& dps = plotter_.dps();
 
     uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
@@ -143,6 +144,8 @@ void uiDPSSelGrpDlg::importSelectionGrps( CallBacker* )
 
 void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 {
+    const bool showboth =
+	plotter_.isY2Selectable() && plotter_.isY1Selectable();
     uiExpSelectionArea::Setup su( plotter_.axisHandler(0)->name().buf(), 
 				  plotter_.axisHandler(1)->name().buf(),
 				  plotter_.axisHandler(2)
@@ -156,7 +159,7 @@ void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 {
     if ( tbl_->currentRow()<0 || tbl_->nrRows() <= 1 ) return;
 
-    selgrps_.removeSingle( tbl_->currentRow() );
+    selgrps_.remove( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
     
     setCurSelGrp(0);

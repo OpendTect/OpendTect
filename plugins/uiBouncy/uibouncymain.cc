@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uibouncymain.cc,v 1.2 2012/07/16 06:22:47 cvskris Exp $";
 
 #include "uibouncymain.h"
 #include "uibouncysettingsdlg.h"
@@ -39,6 +39,7 @@ bool uiBouncyMain::acceptOK( CallBacker* )
     if ( strcmp( namefld_->text(), "") == 0 ) 
     {
 	mErrRet( "Enter your name!" );
+	return false;
     }
     else if ( !(*bsdlg_)->isOK() )
 	return false;
@@ -53,7 +54,7 @@ BufferString uiBouncyMain::getPlayerName() const
 }
 
 
-void uiBouncyMain::setPlayerName( const BufferString& nm )
+void uiBouncyMain::setPlayerName( const BufferString nm )
 {
     namefld_->setText( nm );
 }

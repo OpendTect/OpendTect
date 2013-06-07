@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackmute.h"
 
@@ -151,7 +151,7 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
     if ( !muter_ )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int outidx = outidx_[idx];
 	const int ioffs = offsets_[idx];
@@ -159,9 +159,9 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
 	Gather* output = outputs_[outidx];
 	const Gather* input = inputs_[outidx];
 
+
 	const int nrsamples = input->size(Gather::zDim()==0);
 	const float offs = input->getOffset(ioffs);
-
 	const float mutez = def_.value( offs, input->getBinID() );
 	if ( mIsUdf(mutez) )
 	    continue;

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodtreeitem.h"
 #include "factory.h"
 
@@ -24,7 +23,7 @@ namespace ColTab { class Sequence; };
 
 /*!Base class for a data treeitem. */
 
-mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
+mClass uiODDataTreeItem : public uiTreeItem
 {
 public:
 				uiODDataTreeItem(const char* parenttype);
@@ -34,8 +33,8 @@ public:
     int				displayID() const;
     int				attribNr() const;
 
-    static int			cPixmapWidth()		{ return 16; }
-    static int			cPixmapHeight()		{ return 10; }
+    static const int		cPixmapWidth()		{ return 16; }
+    static const int		cPixmapHeight()		{ return 10; }
 
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,
@@ -48,7 +47,7 @@ public:
 
 protected:
 
-    int				uiTreeViewItemType() const;
+    int				uiListViewItemType() const;
     virtual bool		init();
 
     virtual void		checkCB(CallBacker*);
@@ -84,11 +83,10 @@ protected:
     MenuItem			changetransparencyitem_;
     MenuItem                    statisticsitem_;
     MenuItem			amplspectrumitem_;
-    MenuItem			fkspectrumitem_;
+    MenuItem			addto2dvieweritem_;
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
 };
 
 #endif
-

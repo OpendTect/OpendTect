@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "propertyref.h"
 class uiComboBox;
@@ -23,7 +22,7 @@ class uiTextEdit;
 class uiRockPhysCstFld;
 
 
-mExpClass(uiTools) uiRockPhysForm : public uiGroup
+mClass uiRockPhysForm : public uiGroup
 {
 public:
 
@@ -36,11 +35,12 @@ public:
     const char*		formulaName() const;
     void		setFormulaName(const char*);
 
+    //will be removed, do not use
     bool		getFormulaInfo(BufferString&,BufferString&,
-				       BufferString&,BufferStringSet&,
-				       TypeSet<PropertyRef::StdType>&,
-				       bool) const;
-    BufferString	getText(bool usecstevals) const;
+	    			       BufferStringSet&,
+				       bool usecstvals=true) const;
+    BufferString	getText(bool) const;
+    const char*		getText() const;	//will be removed, do not use
     const char*		errMsg() const		{ return errmsg_.buf(); }
     bool		isOK();
 
@@ -48,8 +48,8 @@ protected:
 
     uiComboBox*		typfld_;
     uiComboBox*		nmfld_;
-    uiTextEdit*		formulafld_;
     uiTextEdit*		descriptionfld_;
+    uiTextEdit*		formulafld_;
     const PropertyRef::StdType fixedtype_;
 
     void		typSel(CallBacker*);
@@ -60,10 +60,16 @@ protected:
     ObjectSet<uiRockPhysCstFld>	cstflds_;
 
     BufferString	errmsg_;
+
+public:
+    bool		getFormulaInfo(BufferString&,BufferString&,
+	    				BufferString&,BufferStringSet&,
+						TypeSet<PropertyRef::StdType>&,
+				       	bool usecstvals=true) const;
 };
 
 
-mExpClass(uiTools) uiRockPhysCstFld : public uiGroup
+mClass uiRockPhysCstFld : public uiGroup
 {
 public:
 
@@ -89,4 +95,3 @@ protected:
 
 
 #endif
-

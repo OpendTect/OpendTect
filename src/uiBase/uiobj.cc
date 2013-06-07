@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QEvent>
 
-mUseQtnamespace
 
 static CallBackSet cmdrecorders_;
 
@@ -88,6 +87,9 @@ bool uiBaseObject::finalised() const
 { return body() ? body()->finalised() : false; }
 
 
+CallBack* uiBaseObject::cmdrecorder_ = 0;
+
+
 int uiBaseObject::beginCmdRecEvent( const char* msg )
 { return beginCmdRecEvent( (od_uint64) 0, msg ); }
 
@@ -112,10 +114,6 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 }
 
 
-const QWidget* uiBaseObject::getWidget() const
-{ return const_cast<uiBaseObject*>(this)->getWidget(); }
-
-
 void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
 { endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
 
@@ -134,6 +132,21 @@ void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
     actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
     cmdrecorders_.doCall( &caps );
+}
+
+
+void uiBaseObject::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiBaseObject::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
 }
 
 
@@ -268,7 +281,7 @@ static BufferString getCleanName( const char* nm )
 {
     QString qstr( nm );
     qstr.remove( QChar('&') );
-    return BufferString( qstr.toLatin1().data() );
+    return BufferString( qstr.toAscii().data() );
 }
 
 
@@ -422,6 +435,7 @@ bool uiObject::isCursorInside() const
 {
     const uiPoint cursorpos = uiCursorManager::cursorPos();
     const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
+
     return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
 	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
 }
@@ -464,9 +478,6 @@ void uiObject::setPrefWidth( int w )
     { mBody()->setPrefWidth(w); }
 
 
-void uiObject::setPrefWidthInChar( int w )
-    { mBody()->setPrefWidthInChar( (float)w ); }
-
 void uiObject::setPrefWidthInChar( float w )
      { mBody()->setPrefWidthInChar(w); }
 
@@ -488,14 +499,14 @@ int uiObject::prefVNrPics() const
 void uiObject::setPrefHeight( int h )
     { mBody()->setPrefHeight(h); }
 
-void uiObject::setPrefHeightInChar( int h )
-    { mBody()->setPrefHeightInChar( (float)h ); }
 
 void uiObject::setPrefHeightInChar( float h )
      {mBody()->setPrefHeightInChar(h);}
 
+
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
+
 
 void uiObject::attach ( constraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }

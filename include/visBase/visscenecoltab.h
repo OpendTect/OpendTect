@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "coltabsequence.h"
 
@@ -23,9 +22,9 @@ namespace ColTab { class MapperSetup; }
 namespace visBase
 {
 
-mExpClass(visBase) VisColorTab;
+mClass VisColorTab;
 
-mExpClass(visBase) SceneColTab : public VisualObjectImpl
+mClass SceneColTab : public VisualObjectImpl
 {
 public:
     static SceneColTab*		create()
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "mpeengine.h"
 
@@ -534,9 +534,10 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	if ( cacheid <= DataPack::cNoID() )
 	{
-	    attribcachedatapackids_.removeSingle( idx );
-	    attribcache_.removeSingle( idx )->unRef();
-	    delete attribcachespecs_.removeSingle( idx );
+	    attribcache_[idx]->unRef();
+	    attribcachedatapackids_.remove( idx );
+	    attribcache_.remove( idx );
+	    delete attribcachespecs_.remove( idx );
 	}
 	else
 	{
@@ -578,8 +579,8 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	attribcache_[idx]->unRef();
 	if ( !newdata )
 	{
-	    attribcache_.removeSingle( idx );
-	    delete attribcachespecs_.removeSingle( idx );
+	    attribcache_.remove( idx );
+	    delete attribcachespecs_.remove( idx );
 	}
 	else
 	{
@@ -609,7 +610,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 	return false;
 
     CubeSampling cachedcs = cache->getCubeSampling();
-    const float zrgeps = 0.01f * SI().zStep();
+    const float zrgeps = 0.01 * SI().zStep();
     cachedcs.zrg.widen( zrgeps );  
     
     return cachedcs.includes( cs );
@@ -682,7 +683,7 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 
 	flatcubes[idxinquestion]->nrseeds_--;
 	if ( flatcubes[idxinquestion]->nrseeds_ == 0 )
-	    flatcubes.removeSingle( idxinquestion );
+	    flatcubes.remove( idxinquestion );
     }
 }
 

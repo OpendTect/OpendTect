@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uicursor.h"
@@ -17,9 +17,4 @@ mDefModInitFn(uiBase)
     mIfNotFirstTime( return );
 
     uiCursorManager::initClass();
-
-#ifdef mUseCrashDumper
-    System::CrashDumper::getInstance().setSendAppl(
-	    				System::CrashDumper::sUiSenderAppl() );
-#endif
 }

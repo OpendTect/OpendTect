@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "progressmeter.h"
 #include "timefun.h"
@@ -93,7 +93,7 @@ void TextStreamProgressMeter::addProgress( int nr )
     for ( int idx=0; idx<nr; idx++ )
     {
 	nrdone_ ++;
-	od_uint64 relprogress = nrdone_ - lastannotatednrdone_;
+	unsigned long relprogress = nrdone_ - lastannotatednrdone_;
 	if ( !(relprogress % nrdoneperchar_) )
 	{
 	    strm_ << (relprogress%(10*nrdoneperchar_)
@@ -122,7 +122,7 @@ void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
     if ( nrdone<=nrdone_ )
     	return;
 
-    addProgress( (int)(nrdone-nrdone_) );
+    addProgress( nrdone-nrdone_ );
 }
 
 
@@ -164,34 +164,21 @@ void TextStreamProgressMeter::annotate( bool withrate )
     int tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {
-	od_int64 nrdone = nrdone_ - lastannotatednrdone_;
+	float nrdone;
+	if ( totalnr_>0 )
+ 	{
+	    const float lastpercentage = ((float)lastannotatednrdone_)/totalnr_;
+	    nrdone = (percentage-lastpercentage)*100;
+	}
+ 	else
+ 	    nrdone = nrdone_ - lastannotatednrdone_;
+
 	od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
-	strm_ << " (" << permsec * .001 << "/s)";
+	strm_ << " (" << permsec * .001;
+	if ( totalnr_>0 ) strm_ << "%";
+	strm_ << "/s)";
+
     }
-    if ( withrate && tdiff>0 && totalnr_>0 )
-    {
-	const float nrdone = (float) nrdone_ - lastannotatednrdone_;
-	const float todo = (float) totalnr_ - nrdone_;
-	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
-	BufferString eta;
-	if ( etasec > 3600 )
-	{
-	    const int hours = (int) etasec/3600;
-	    eta.add(hours).add("h:");
-	    etasec = etasec%3600;
-	}
-	if ( etasec > 60 )
-	{
-	    const int mins = (int) etasec/60;
-	    eta.add(mins).add("m:");
-	    etasec = etasec%60;
-	}
-
-	eta.add(etasec).add("s");
-
-	strm_ << " (" << eta << ")";
-    }
-
     strm_ << std::endl;
 
     lastannotatednrdone_ = nrdone_;

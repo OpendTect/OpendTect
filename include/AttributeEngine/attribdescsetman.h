@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "multiid.h"
 
 class IOPar;
@@ -22,11 +21,7 @@ namespace Attrib
 
 class DescSet;
 
-/*!
-\brief Manages attribute description set. 
-*/
-
-mExpClass(AttributeEngine) DescSetMan
+mClass DescSetMan
 {
 public:
 
@@ -66,4 +61,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

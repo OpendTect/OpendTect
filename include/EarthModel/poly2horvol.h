@@ -12,18 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "gendefs.h"
 class MultiID;
 class TaskRunner;
 namespace Pick	{ class Set; }
 namespace EM	{ class Horizon3D; }
 
-/*!
-\brief Calculate volume between horizon and polygon.
-*/
 
-mExpClass(EarthModel) Poly2HorVol
+/*! \brief Calculate volume between horizon and polygon */
+
+mClass Poly2HorVol
 {
 public:
 
@@ -50,4 +48,3 @@ protected:
 
 
 #endif
-

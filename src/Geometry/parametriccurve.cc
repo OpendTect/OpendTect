@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "parametriccurve.h"
 
@@ -52,7 +52,7 @@ public:
 		       {}
 
     float		getValue( float p ) const
-			{ return (float) curve.computePosition(p).sqDistTo(pos); }
+			{ return curve.computePosition(p).sqDistTo(pos); }
     float		getValue( const float* p ) const
 			{ return getValue( *p ); }
 
@@ -74,17 +74,16 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	float closestsqdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
 	{
-	    const float sqdist = (float) getPosition(idx).sqDistTo(pos);
+	    const float sqdist = getPosition(idx).sqDistTo(pos);
 	    if ( sqdist<closestsqdist )
 	    {
 		closestsqdist = sqdist;
-		p = mCast( float, idx );
+		p = idx;
 	    }
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
-					    mCast(float,prange.stop) );
+    const Interval<float> limits( prange.start, prange.stop );
     ExtremeFinder1D finder( mfunc, false, 20, eps,
 	    		    Interval<float>(mMAX(p-prange.step,prange.start),
 					    mMIN(p+prange.step,prange.stop) ),
@@ -112,24 +111,23 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	{
 	    const Coord3 pos = getPosition(idx);
 	    const float dist =
-		(float) (plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
+		plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
 	    if ( fabs(dist)<closestdist )
 	    {
 		closestdist = dist;
-		p = mCast( float, idx );
+		p = idx;
 	    }
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
-						mCast(float,prange.stop) );
+    const Interval<float> limits( prange.start, prange.stop );
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
-	float fp = (float)(plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
+	float fp = plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
 
 	const Coord3 dir = computeTangent(p);
-	float dp = (float)(plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_);
+	float dp = plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_;
 
 	const float diff = dp/fp;
 	p = p - diff;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -215,8 +215,7 @@ void RectangleDragger::setCenter( const Coord3& pos_ )
 
     Coord3 pos( pos_ );
 
-    manipxydragger0->translation.setValue( (float) pos.x, 
-					(float) pos.y, (float) pos.z );
+    manipxydragger0->translation.setValue( pos.x, pos.y, pos.z );
 
     float xd = manipzdraggertop->translation.getValue()[2] /
 	       zdraggerscale->scaleFactor.getValue()[0];
@@ -225,19 +224,19 @@ void RectangleDragger::setCenter( const Coord3& pos_ )
 
     pos.z /= zdraggerscale->scaleFactor.getValue()[2];
 
-    manipzdraggertop->translation.setValue( (float) pos.z, yd, xd );
+    manipzdraggertop->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerright->translation.getValue()[2];
     yd = manipzdraggerright->translation.getValue()[1];
-    manipzdraggerright->translation.setValue( (float) pos.z, yd, xd );
+    manipzdraggerright->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerbottom->translation.getValue()[2];
     yd = manipzdraggerbottom->translation.getValue()[1];
-    manipzdraggerbottom->translation.setValue( (float) pos.z, yd, xd );
+    manipzdraggerbottom->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerleft->translation.getValue()[2];
     yd = manipzdraggerleft->translation.getValue()[1];
-    manipzdraggerleft->translation.setValue( (float) pos.z, yd, xd );
+    manipzdraggerleft->translation.setValue( pos.z, yd, xd );
 
     syncronizeDraggers();
     allowcb = allowcb_bak;
@@ -318,17 +317,17 @@ void RectangleDragger::syncronizeDraggers()
     if ( manipzdraggertop )
     {
 	manipzdraggertop->translation.setValue( z/zdragscale[2],
-					    (y + 1.1f * yscale)/zdragscale[1],
+					    (y + 1.1 * yscale)/zdragscale[1],
 					    (-x)/zdragscale[0] );
 	manipzdraggerright->translation.setValue( z/zdragscale[2],
 					    (y)/zdragscale[1],
-					    (-x-1.1f*xscale)/zdragscale[0] );
+					    (-x-1.1*xscale)/zdragscale[0] );
 	manipzdraggerbottom->translation.setValue( z/zdragscale[2],
-					    (y - 1.1f * yscale)/zdragscale[1],
+					    (y - 1.1 * yscale)/zdragscale[1],
 					    (-x)/zdragscale[0] );
 	manipzdraggerleft->translation.setValue( z/zdragscale[2],
 					    (y)/zdragscale[1],
-					    (-x+1.1f*xscale)/zdragscale[0] );
+					    (-x+1.1*xscale)/zdragscale[0] );
     }
 
     if ( manipxydragger0 )
@@ -341,8 +340,8 @@ void RectangleDragger::syncronizeDraggers()
     SbVec3f xydragpos1 = xydragpos0;
     xydragpos1[1] *= -1;
     xydragpos1[2] *= -1;
-    xydragpos1[2] += 0.001f * zdraggerscale->scaleFactor.getValue()[2];
-    xydragpos0[2] += 0.001f * zdraggerscale->scaleFactor.getValue()[2];
+    xydragpos1[2] += 0.001 * zdraggerscale->scaleFactor.getValue()[2];
+    xydragpos0[2] += 0.001 * zdraggerscale->scaleFactor.getValue()[2];
 
     manipxydragger0->translation.setValue( xydragpos0 );
     manipxydragger1->translation.setValue( xydragpos1 );
@@ -495,9 +494,9 @@ Rectangle::Rectangle()
 
     addChild( localscale );
     float localwidth = 2;
-    localscale->scaleFactor.setValue(	1.0f/localwidth,
-	    				1.0f/localwidth,
-					1.0f/localwidth );
+    localscale->scaleFactor.setValue(	1.0/localwidth,
+	    				1.0/localwidth,
+					1.0/localwidth );
 
     SoCoordinate3* coords = new SoCoordinate3;
     addChild( coords );
@@ -642,7 +641,7 @@ void Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
 void Rectangle::setOrigo( const Coord3& np )
 {
-    origotrans->translation.setValue((float) np.x, (float) np.y, (float) np.z);
+    origotrans->translation.setValue( np.x, np.y, np.z );
 }
 
 
@@ -724,8 +723,8 @@ void Rectangle::setRanges( const StepInterval<float>& range0,
     if ( !manip )
     {
 	setWidth( range0.width(), range1.width() );
-	setWidthRange( 0, Interval<float>( range0.width()*0.1f, mUdf(float) ));
-	setWidthRange( 1, Interval<float>( range1.width()*0.1f, mUdf(float) ));
+	setWidthRange( 0, Interval<float>( range0.width()*0.1, mUdf(float) ));
+	setWidthRange( 1, Interval<float>( range1.width()*0.1, mUdf(float) ));
     }
 
     setRange( 0, range0 );
@@ -777,9 +776,7 @@ void Rectangle::moveManipRectangletoDragger(CallBacker*)
     float yscale = maniprectscale->scaleFactor.getValue()[1];
 
     Coord3 newpos = dragger->center();
-    float newx = (float) newpos.x; 
-    float newy = (float) newpos.y; 
-    float newz = (float) newpos.z;
+    float newx = newpos.x; float newy = newpos.y; float newz = newpos.z;
 
     float newxscale = dragger->scale(0);
     float newyscale = dragger->scale(1);
@@ -854,18 +851,18 @@ Coord3 Rectangle::getDraggerSize() const
 {
     Coord3 res = dragger->getDraggerSize();
 
-    res.x = getWidth( 0, (float) res.x );
-    res.y = getWidth( 1, (float) res.y );
+    res.x = getWidth( 0, res.x );
+    res.y = getWidth( 1, res.y );
     return res;
 }
 
 
 void Rectangle::moveObjectToManipRect()
 {
+    SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
-    SbVec3f origopos( (float) manipOrigo().x, (float) manipOrigo().y, 
-						 (float) manipOrigo().z );
+    SbVec3f origopos( manipOrigo().x, manipOrigo().y, manipOrigo().z );
 
     if ( origotrans->translation.getValue()!=origopos )
     {
@@ -890,10 +887,10 @@ bool Rectangle::isManipRectOnObject() const
 {
     bool res = true;
     float eps = 1e-5;
+    SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
-    SbVec3f origopos( (float) manipOrigo().x, 
-			(float) manipOrigo().y, (float) manipOrigo().z );
+    SbVec3f origopos( manipOrigo().x, manipOrigo().y, manipOrigo().z );
 
     if ( origotrans->translation.getValue()[0] != origopos[0] ||
 	 origotrans->translation.getValue()[1] != origopos[1] ||

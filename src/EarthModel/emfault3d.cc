@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emfault3d.h"
 
-#include "emfaultauxdata.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -30,14 +29,13 @@ mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() )
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
-    , auxdata( *new FaultAuxData(*this) )  
 {
     geometry_.addSection( "", false );
 }
 
 
 Fault3D::~Fault3D()
-{ delete &auxdata; }
+{}
 
 
 Fault3DGeometry& Fault3D::geometry()
@@ -72,7 +70,7 @@ void Fault3D::apply( const Pos::Filter& pf )
 	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+		if ( !pf.includes( (Coord) pos, pos.z) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -197,7 +195,8 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 				const Coord3& pos, bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
@@ -224,40 +223,14 @@ bool Fault3DGeometry::areSticksVertical( const SectionID& sid ) const
 }
 
 
-#define mEps 1e-3
-bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
-{
-    int nrcrls=0, nrnoncrls=0;
-    const Coord crldir = SI().binID2Coord().colDir().normalize();
-    for ( int sidx=0; sidx<nrSections(); sidx++ )
-    {	
-	const EM::SectionID sid = sectionID( sidx );
-	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-	if ( !fss ) continue;
-
-	StepInterval<int> stickrg = fss->rowRange();
-	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
-	{
-	    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
-	    if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
-		    		      && mIsEqual(normal.y,crldir.y,mEps) )
-		nrcrls++;
-	    else
-		nrnoncrls++;
-	}
-    }
-
-    return nrcrls > nrnoncrls;
-}
-
-
 bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 				bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     if ( !fss ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc;
+    rc.fromInt64( subid );
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
@@ -288,7 +261,7 @@ void Fault3DGeometry::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	const EM::SectionID sid = sectionID( idx );
+	int sid = sectionID( idx );
 	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
 	if ( !fss ) continue;
 
@@ -306,7 +279,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 {
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	const EM::SectionID sid = sectionID( idx );
+	int sid = sectionID( idx );
 	Geometry::FaultStickSurface* fss = sectionGeometry( sid );
 	if ( !fss ) return false;
 
@@ -407,7 +380,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 
     bool oninl = false; bool oncrl = false; bool ontms = false;
 
-    double firstz = mUdf(double); 
+    float firstz; 
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;
@@ -495,7 +468,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    fss->geometry().insertStick( sid, sticknr, 0,
+	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					linesetmid, stick->lnm_, false );
 	}

@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class IOXProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const
-		{ return FixedString(typ)==XConn::sType(); }
+		{ return !strcmp(typ,XConn::sType()); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
 		{ return new IOX(nm,ky,fd); }
 };
@@ -42,7 +42,7 @@ void IOX::setOwnKey( const MultiID& ky )
 }
 
 
-FixedString IOX::connType() const
+const char* IOX::connType() const
 {
     return XConn::sType();
 }

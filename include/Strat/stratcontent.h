@@ -14,34 +14,31 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "draw.h"
 
-/*!\brief Stratigraphy*/
 
 namespace Strat
 {
 
 /*!\brief stuff that can be inside porous layers */
 
-mExpClass(Strat) Content : public NamedObject
+mClass Content : public NamedObject
 {
 public:
 
 			Content( const char* nm )
 			    : NamedObject(nm)				{}
 			Content( const Content& c )
-			    : NamedObject(c)
-			    , pattern_(c.pattern_)
+			    : NamedObject(c) 
+			    , pattern_(c.pattern_) 
 			    , color_(c.color_)				{}
-
     Content&		operator =( const Content& c )
 			{ 
 			    setName(c.name()); 
-			    pattern_=c.pattern_; 
-			    color_ = c.color_; 
+			    pattern_ = c.pattern_; 
+			    color_ = c.color_;
 			    return *this;
 			}
     bool		operator ==( const Content& c ) const
@@ -61,16 +58,9 @@ public:
 };
 
 
-//!\brief convenience: contents can be null or unspecified, handle in one go
-mGlobal(Strat) inline bool isUnspecified( const Content* ct )
-{
-    return !ct || ct->isUnspecified();
-}
-
-
 /*!\brief set of names for stuff that can be inside porous layers */
 
-mExpClass(Strat) ContentSet : public ObjectSet<Content>
+mClass ContentSet : public ObjectSet<Content>
 {
 public:
 
@@ -92,4 +82,3 @@ public:
 } // namespace Strat
 
 #endif
-

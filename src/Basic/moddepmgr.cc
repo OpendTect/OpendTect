@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"
@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "strmprov.h"
 #include "envvars.h"
-#include "errh.h"
 #include "sharedlibs.h"
 #include <iostream>
 
@@ -37,36 +36,70 @@ const OD::ModDepMgr& OD::ModDeps()
 }
 
 
-OD::ModDepMgr::ModDepMgr( const char* mdfnm )	
+OD::ModDepMgr::ModDepMgr( const char* mdfnm )
+    : isrel_( true )
 {
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
-    
-    const FilePath moddepfp( GetSoftwareDir(0), "data", mdfnm );
-    const BufferString moddepfnm = moddepfp.fullPath();
-    StreamData sd( StreamProvider( moddepfnm ).makeIStream() );
+    FilePath relfp( GetSoftwareDir(0), "data", mdfnm );
+    BufferString fnm( relfp.fullPath() );
+    const BufferString workdir = GetEnvVar("WORK");
+    FilePath devfp( workdir.buf(), "Pmake", mdfnm );
+    if ( !File::exists(fnm) )
+    {
+	isrel_ = false;
+	BufferString devfnm = devfp.fullPath();
+	if ( !File::exists(devfnm) )
+	{
+	    if ( DBG::isOn(DBG_PROGSTART) )
+	    {
+		BufferString msg( "Ouch. No ",mdfnm," found.\nTried " );
+		msg.add( fnm ). add( " and " ).add( devfnm ).add( "." );
+		DBG::message( msg );
+	    }
+	    return;
+	}
+	fnm = devfnm;
+    }
+
+    StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
     {
 	if ( DBG::isOn(DBG_PROGSTART) )
 	{
-	    BufferString msg( "Ouch. Cannot read ", moddepfnm,"." );
+	    BufferString msg( "Ouch. Cannot read ",fnm,"." );
+	    msg.add( fnm ). add( " and " ).add( fnm ).add( "." );
 	    DBG::message( msg );
 	}
 	return;
     }
 
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Start reading ",moddepfnm,".") );
+	DBG::message( BufferString("Start reading ",fnm,".") );
     readDeps( *sd.istrm );
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Read ",moddepfnm,".") );
+	DBG::message( BufferString("Read ",fnm,".") );
     sd.close();
 
-    if ( !File::exists( GetBinPlfDir()) )
+    relfp.set( GetBinPlfDir() );
+
+    relbindir_ = relfp.fullPath();
+    devfp = workdir.buf();
+    devfp.add( "bin" ).add( GetPlfSubDir() );
+    
+    devfp.add( isdebug ? "Debug" : "Release" );
+    devbindir_ = devfp.fullPath();
+    if ( !File::exists(devbindir_) )
     {
-	const BufferString msg( "Cannot find ", GetBinPlfDir() );
-	pErrMsg( msg );
-	return;
+	devfp = workdir.buf();
+	devfp.add( "bin" ).add( GetPlfSubDir() );
+	devbindir_ = devfp.fullPath();
+    }
+    
+    relbindir_ = isdebug ? devbindir_ : relbindir_;
+    if ( !File::exists(devbindir_) )
+    {
+	devbindir_ = "";
     }
 }
 
@@ -133,7 +166,7 @@ void OD::ModDepMgr::readDeps( std::istream& strm )
 	    for ( int idep=depdep->mods_.size()-1; idep>=0; idep-- )
 	    {
 		const char* depdepmod = depdep->mods_.get(idep).buf();
-		if ( !depmods.isPresent(depdepmod) )
+		if ( depmods.indexOf(depdepmod) < 0 )
 		    depmods.add( depdepmod );
 	    }
 	}
@@ -169,8 +202,9 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	char libnm[256];
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
-	FilePath fp( GetBinPlfDir(), libnm );
-	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
+	FilePath fp( isrel_ ? relbindir_ : devbindir_, libnm );
+	const BufferString libpath = fp.fullPath();
+	SharedLibAccess* sla = new SharedLibAccess( libpath.buf() );
 	if ( !sla->isOK() )
 	    { delete sla; continue; }
 

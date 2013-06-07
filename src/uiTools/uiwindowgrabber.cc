@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwindowgrabber.h"
 
@@ -223,20 +223,16 @@ int uiWindowGrabDlg::getQuality() const
 { return qualityfld_->sldr()->getIntValue(); }
 
 
+
+static Timer* tmr_ = new Timer();
+
 uiWindowGrabber::uiWindowGrabber( uiParent* p )
     : parent_(p)
     , desktop_(false)
     , grabwin_(0)
     , quality_(50)
-    , tmr_(new Timer())
 {
     tmr_->tick.notify( mCB(this,uiWindowGrabber,actCB) );
-}
-
-
-uiWindowGrabber::~uiWindowGrabber()
-{
-    delete tmr_;
 }
 
 
@@ -260,6 +256,16 @@ bool uiWindowGrabber::go()
 
     return true;
 }
+
+
+uiWindowGrabber::~uiWindowGrabber()
+{
+    tmr_->tick.remove( mCB(this,uiWindowGrabber,actCB) );
+}
+
+
+void uiWindowGrabber::mkThread( CallBacker* ) /* obsolete */
+{}
 
 
 void uiWindowGrabber::actCB( CallBacker* )

@@ -25,9 +25,6 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_tableMessenger : public QObject 
 {
     Q_OBJECT
@@ -189,8 +186,7 @@ void rowDoubleClicked( int idx )
 void columnDoubleClicked( int idx )
 { mNoHeaderTrigger( columnDoubleClicked, idx, false ); }
 
-};
 
-QT_END_NAMESPACE
+};
 
 #endif

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class PropertyRef;
 class UnitOfMeasure;
@@ -19,7 +18,7 @@ class uiGenInput;
 class uiUnitSel;
 
 
-mExpClass(uiTools) uiPropertyValFld : public uiGroup
+mClass uiPropertyValFld : public uiGroup
 {
 public:
 

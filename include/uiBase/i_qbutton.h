@@ -21,8 +21,6 @@ ________________________________________________________________________
     Relays QT button signals to the notifyHandler of a uiButton object.
 */
 
-QT_BEGIN_NAMESPACE
-
 class i_ButMessenger : public QObject 
 { 
     Q_OBJECT
@@ -41,7 +39,7 @@ i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
 
 private:
 
-    uiButtonBody*		receiver_;
+    uiButtonBody*	receiver_;
     QAbstractButton*	sender_;
 
 public slots:
@@ -52,6 +50,6 @@ void released()		{ receiver_->notifyHandler( uiButtonBody::released); }
 
 };
 
-QT_END_NAMESPACE
+
 
 #endif

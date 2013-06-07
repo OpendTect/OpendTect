@@ -12,22 +12,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
-#include "callback.h"
 #include "general.h"
+#include "callback.h"
+//#include "queue.h"
 
-class CommandString;
-class FilePath;
 class HostData;
-class HostDataList;
-class IOPar;
+class CommandString;
 class JobInfo;
+class IOPar;
+class HostDataList;
+class FilePath;
 class JobIOHandler;
 template <class T> class ObjQueue;
 
-/*!
-\brief Encapsulates status message from a running client.
-
+/*!\brief Encapsulates status message from a running client.
+ *
  * Running clients report back to the master on a regular basis.
  * Whenever a client contacts the master, whatever it has
  * to say is put into a StatusInfo structure.
@@ -35,12 +34,11 @@ template <class T> class ObjQueue;
  * between the communication thread and the GUI/manager thread.
  *
 */
-
-mExpClass(MMProc) StatusInfo
+mClass StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
-				    const BufferString& mg,
+				    const BufferString& mg, 
 				    const BufferString& hostname, int time )
 			    : tag(tg), descnr(desc), status(stat), msg(mg)
 			    , hostnm(hostname), timestamp(time), procid(pid) {}
@@ -55,17 +53,17 @@ public:
 };
 
 
-/*!
-\brief Handles starting & stopping of jobs on client machines. Sets up a
-separate thread to maintain contact with client.
-*/
+/*!\brief Handles starting&stopping of jobs on client machines
+ 
+  sets up a separate thread to maintain contact with client.
 
-mExpClass(MMProc) JobIOMgr : public CallBacker
+*/
+mClass JobIOMgr : public CallBacker
 {
 public:
     enum		Mode { Work, Pause, Stop };
 
-    			JobIOMgr(int firstport=19345,int niceval=19);
+    			JobIOMgr( int firstport=19345, int niceval=19 );
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
@@ -78,9 +76,8 @@ public:
     void		setNiceNess( int n )		{ niceval_ = n; }
     void		reqModeForJob(const JobInfo&,Mode);
     void		removeJob(const char*,int);
-    bool		isReady() const;
 
-    ObjQueue<StatusInfo>& statusQueue();
+    ObjQueue<StatusInfo>& statusQueue(); 
 
 protected:
 
@@ -88,17 +85,19 @@ protected:
     BufferString	msg_;
     int			niceval_;
 
-    bool 		mkIOParFile(FilePath&,const FilePath& basefnm,
-				    const HostData&,const IOPar&);
-    void 		mkCommand(CommandString&,const HostData&,
-				  const char* progname,const FilePath& basefp,
-				  const FilePath& iopfp,const JobInfo&,
-				  const char* rshcomm);
+    bool 		mkIOParFile( FilePath&, const FilePath& basefnm,
+				     const HostData&, const IOPar&);
+    void 		mkCommand( CommandString&, const HostData&,
+				   const char* progname, const FilePath& basefp,
+				   const FilePath& iopfp, const JobInfo&,
+				   const char* rshcomm );
+public:
+    bool		isReady() const;
+
 };
 
 
-mGlobal(MMProc) const BufferString& getTempBaseNm();
-mGlobal(MMProc) int mkTmpFileNr();
+mGlobal const BufferString& getTempBaseNm();
+mGlobal int mkTmpFileNr();
 
 #endif
-

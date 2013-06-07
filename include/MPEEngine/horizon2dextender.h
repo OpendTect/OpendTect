@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "position.h"
 #include "surv2dgeom.h"
@@ -22,11 +21,7 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
-/*!
-\brief SectionExtender to extend EM::Horizon2D.
-*/
-
-mExpClass(MPEEngine) Horizon2DExtender : public SectionExtender
+mClass Horizon2DExtender : public SectionExtender
 {
 public:
 				Horizon2DExtender(EM::Horizon2D&,
@@ -64,5 +59,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

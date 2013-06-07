@@ -91,12 +91,6 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 }
 
 
-uiStratSynthCrossplot::~uiStratSynthCrossplot()
-{
-    extrgates_.erase();
-}
-
-
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
 					const Strat::Level& lvl,
@@ -115,13 +109,13 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	{ uiMSG().error(seisattrs.errMsg()); return 0; }
     if ( dps->nrCols() )
     {
-	dps->dataSet().insert(dps->nrFixedCols(),new DataColDef(sKey::Depth()));
+	dps->dataSet().insert(dps->nrFixedCols(),new DataColDef(sKey::Depth));
 	dps->dataSet().insert( dps->nrFixedCols()+1,
 		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
     else
     {
-	dps->dataSet().add( new DataColDef(sKey::Depth()) );
+	dps->dataSet().add( new DataColDef(sKey::Depth) );
 	dps->dataSet().add( 
 		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
@@ -130,7 +124,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	dps->dataSet().add(
 		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
 
-    const int depthidx = dps->indexOf( sKey::Depth() );
+    const int depthidx = dps->indexOf( sKey::Depth );
 
     for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
     {
@@ -147,7 +141,6 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 
 	TypeSet<float> lvltms;
 	const Strat::SeisEvent& ssev = evfld_->event();
-	const float owtstep = ssev.extrwin_.step / 2.f;
 	for ( int imod=0; imod<nrmdls; imod++ )
 	{
 	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
@@ -159,37 +152,23 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	if ( isynth == 0 )
 	{
 	    const int nrextr = extrwin.nrSteps() + 1;
-	    for ( int itrc=0; itrc<nrmdls; itrc++ )
+	    for ( int iextr=0; iextr<nrextr; iextr++ )
 	    {
-		const SeisTrc& trc = *tbuf.get( itrc );
-		const float starttwt = lvltms[itrc];
-		TypeSet<Interval<float> > extrgate;
-		for ( int iextr=0; iextr<nrextr; iextr++ )
+		const float relz = extrwin.atIndex( iextr );
+		for ( int itrc=0; itrc<nrmdls; itrc++ )
 		{
-		    const float twt = starttwt + extrwin.atIndex( iextr );
-		    float dah = d2tmodels[itrc]->getDepth( twt );
-		    if ( mIsUdf(dah) )
-			continue;
-
-		    if ( SI().depthsInFeet() )
-			dah *= mToFeetFactorF;
-
+		    const SeisTrc& trc = *tbuf.get( itrc );
 		    DataPointSet::DataRow dr;
-		    dr.data_.setSize( dps->nrCols(), mUdf(float) );
 		    dr.pos_.nr_ = trc.info().nr;
 		    dr.pos_.set( trc.info().coord );
-		    dr.pos_.z_ = twt;
+		    dr.pos_.z_ = lvltms[itrc] + relz;
+		    dr.data_.setSize( dps->nrCols(), mUdf(float) );
+		    float dah = d2tmodels[itrc]->getDepth( dr.pos_.z_ );
+		    if ( SI().depthsInFeet() )
+			dah *= mToFeetFactor;
 		    dr.data_[depthidx] = dah;
 		    dps->addRow( dr );
-
-		    Interval<float> timerg( dr.pos_.z_ - owtstep,
-			    		    dr.pos_.z_ + owtstep );
-		    Interval<float> depthrg;
-		    depthrg.start = d2tmodels[itrc]->getDepth( timerg.start );
-		    depthrg.stop = d2tmodels[itrc]->getDepth( timerg.stop );
-		    extrgate += depthrg;
 		}
-		extrgates_ += extrgate;
 	    }
 	}
     }
@@ -219,7 +198,7 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
     for ( int dpsrid=0; dpsrid<dps.size(); dpsrid++ )
     {
 	float* dpsvals = dps.getValues( dpsrid );
-	dpsvals[modnridx] = mCast(float,dps.trcNr(dpsrid));
+	dpsvals[modnridx] = dps.trcNr(dpsrid)+1;
     }
 
     return true;
@@ -243,8 +222,8 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
     }
 
     exec->setName( "Attributes from Traces" );                       
-    uiTaskRunner dlg( this );
-    TaskRunner::execute( &dlg, *exec );
+    uiTaskRunner dlg( this );                                                   
+    dlg.execute(*exec);
     return true;
 }
 
@@ -256,9 +235,8 @@ bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 	return true;
 
     Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
-    lmac.setExtrGates( extrgates_ );
     uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, lmac );
+    return tr.execute( lmac );
 }
 
 

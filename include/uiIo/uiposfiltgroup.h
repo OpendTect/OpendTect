@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
 class IOPar;
@@ -20,7 +19,7 @@ class IOPar;
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-mExpClass(uiIo) uiPosFiltGroup : public uiGroup
+mClass uiPosFiltGroup : public uiGroup
 {
 public:
 
@@ -45,4 +44,3 @@ public:
 
 
 #endif
-

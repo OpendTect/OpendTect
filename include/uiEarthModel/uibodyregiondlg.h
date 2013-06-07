@@ -13,20 +13,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
 
 
 class MultiID;
 class IOObj;
-class uiGenInput;
+class uiTable;
 class uiPosSubSel;
 class uiPushButton;
-class uiTable;
 
 
-mExpClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
+mClass uiBodyRegionDlg : public uiDialog
 {
 public: 
     				uiBodyRegionDlg(uiParent*);
@@ -41,7 +39,6 @@ protected:
     void			addSurfaceTableEntry(const IOObj&,
 						     bool isfault,char side);
     bool			createImplicitBody();
-    void			horModChg(CallBacker*);
 
     TypeSet<MultiID>		surfacelist_;
 
@@ -52,10 +49,7 @@ protected:
     uiPushButton*		addhorbutton_;
     uiPushButton*		addfltbutton_;
     uiPushButton*		removebutton_;
-    uiGenInput*			singlehorfld_;
-    bool			singlehoradded_;
 };
 
 
 #endif
-

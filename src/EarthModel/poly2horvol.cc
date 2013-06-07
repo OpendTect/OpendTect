@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "poly2horvol.h"
 
@@ -64,12 +64,13 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     ODPolygon<float> poly;
     HorSampling hs;
+    const Pick::Location& pl0( (*ps_)[0] );
     TypeSet<Coord> pts; TypeSet<float> zvals;
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
 	const Pick::Location& pl( (*ps_)[idx] );
-	pts += pl.pos_; zvals += (float) pl.pos_.z;
-	const BinID bid( SI().transform(pl.pos_) );
+	pts += pl.pos; zvals += pl.pos.z;
+	const BinID bid( SI().transform(pl.pos) );
 	poly.add( mPolyLoc(bid) );
 	if ( idx )
 	    hs.include( bid );
@@ -98,10 +99,10 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
-	    float horz = (float) hor_->getPos( sid, subid ).z;
+	    float horz = hor_->getPos( sid, subid ).z;
 	    if ( mIsUdf(horz) && bid.inl!=hs.stop.inl && bid.crl!=hs.stop.crl )
  	    { //The very last edges should exclude.
-		horz = (float) hor_->geometry().sectionGeometry(sid)->computePosition(
+		horz = hor_->geometry().sectionGeometry(sid)->computePosition(
        			Coord(bid.inl,bid.crl) ).z;
  	    }
 		    
@@ -128,7 +129,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     const float cellarea = SI().inlDistance() * hs.step.inl
 			 * SI().crlDistance() * hs.step.crl;
-    const float v = SI().zIsTime() ? vel * .5f : 1; // TWT
+    const float v = SI().zIsTime() ? vel * .5 : 1; // TWT
     return cellarea * v * totth;
 }
 

@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id$
+ * ID       : $Id: madseisio.h,v 1.5 2009/07/22 16:01:27 cvsbert Exp $
 -*/
 
 #include "madio.h"
@@ -13,7 +13,7 @@
 namespace ODMad
 {
 
-mClass(Madagascar) SeisSeqIO
+class SeisSeqIO
 {
 public:
 
@@ -33,7 +33,7 @@ protected:
 };
 
 
-mClass(Madagascar) SeisSeqInp : public SeisSeqIO
+class SeisSeqInp : public SeisSeqIO
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 };
 
 
-mClass(Madagascar) SeisSeqOut : public Seis::SeqOut
+class SeisSeqOut : public Seis::SeqOut
 		 , public SeisSeqIO
 {
 public:

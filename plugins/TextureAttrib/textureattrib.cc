@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUnusedVar = "$Id$";
+static const char* rcsID mUnusedVar = "$Id: textureattrib.cc 27530 2012-11-19 09:49:13Z kristofer.tingdahl@dgbes.com $";
 
 #include "textureattrib.h"
 #include "attribdataholder.h"

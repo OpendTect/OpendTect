@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "visrandomtrackdisplay.h"
@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatapack.h"
 #include "attribsel.h"
 #include "coltabmapper.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -62,6 +63,10 @@ const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
 const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
+HiddenParam<RandomTrackDisplay, Interval<float> > 
+    depthrg_(Interval<float>(0,0));
+HiddenParam<RandomTrackDisplay, int > voiidx_(-1);
+
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject(true)
     , triangles_(visBase::SplitTextureRandomLine::create())
@@ -76,9 +81,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     , datatransform_(0)
     , lockgeometry_(false)
     , eventcatcher_(0)
-    , depthrg_(SI().zRange(true)) 
-    , voiidx_(-1)  
 {
+    depthrg_.setParam( this, SI().zRange(true) );
+    voiidx_.setParam( this, -1 );
+
     TypeSet<int> randomlines;
     visBase::DM().getIds( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -120,14 +126,12 @@ RandomTrackDisplay::RandomTrackDisplay()
     addChild( markergrp_->getInventorNode() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange( 
-			    mCast(float,SI().sampling(true).hrg.start.inl),
-	    		    mCast(float,SI().sampling(true).hrg.stop.inl),
-			    mCast(float,SI().inlStep()) );
-    const StepInterval<float> crlrange( 
-			    mCast(float,SI().sampling(true).hrg.start.crl),
-	    		    mCast(float,SI().sampling(true).hrg.stop.crl),
-	    		    mCast(float,SI().crlStep()) );
+    const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
+	    				SI().sampling(true).hrg.stop.inl,
+					SI().inlStep() );
+    const StepInterval<float> crlrange( SI().sampling(true).hrg.start.crl,
+	    				SI().sampling(true).hrg.stop.crl,
+	    				SI().crlStep() );
 
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl, mNINT32(crlrange.stop) );
@@ -163,8 +167,6 @@ RandomTrackDisplay::~RandomTrackDisplay()
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
-
-    setZAxisTransform( 0, 0 );
 }
 
 
@@ -186,8 +188,8 @@ CubeSampling RandomTrackDisplay::getCubeSampling( int attrib ) const
 
 
 void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
-{
-    depthrg_ = intv;
+{ 
+    depthrg_.setParam( this, intv );
     if ( datatransform_ )
 	return;
 
@@ -222,7 +224,7 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
 
 
 Interval<float> RandomTrackDisplay::getDataTraceRange() const
-{ return depthrg_; }
+{ return depthrg_.getParam( this ); }
 
 
 int RandomTrackDisplay::nrKnots() const
@@ -251,7 +253,7 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
     {
 	knots_.insert( knotidx, sbid );
 	if ( !datatransform_ )
-	    triangles_->setDepthRange( getDataTraceRange() );
+    	    triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -295,7 +297,7 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 	knots_[knotidx] = sbid;
 
 	if ( !datatransform_ )
-	    triangles_->setDepthRange( getDataTraceRange() );
+    	    triangles_->setDepthRange( getDataTraceRange() );
 
 	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
@@ -348,7 +350,7 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
     {				  // TODO: Make better fix
 	while ( nrKnots()>0 )
 	{
-	    knots_.removeSingle( 0 );
+	    knots_.remove( 0 );
 	    dragger_->removeKnot( 0 );
 	}
 
@@ -392,7 +394,7 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 	return;
     }
 
-    knots_.removeSingle(knotidx);
+    knots_.remove(knotidx);
     triangles_->setLineKnots( knots_ );	
     dragger_->removeKnot( knotidx );
 }
@@ -436,13 +438,13 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
 	const Coord startcoord = SI().transform( start );
 	const Coord stopcoord = SI().transform( stop );
-	const float delx = (float) ( stopcoord.x - startcoord.x ) / nrtraces;
-	const float dely = (float) ( stopcoord.y - startcoord.y ) / nrtraces; 
+	const float delx = ( stopcoord.x - startcoord.x ) / nrtraces;
+	const float dely = ( stopcoord.y - startcoord.y ) / nrtraces; 
    
 	for ( int idx=0; idx<nrtraces; idx++ )
 	{
-	    const float x = (float) ( startcoord.x + delx * idx );
-	    const float y = (float) ( startcoord.y + dely * idx );
+	    const float x = startcoord.x + delx * idx;
+	    const float y = startcoord.y + dely * idx;
 	    coords += Coord( x, y );
 	}
     }
@@ -504,9 +506,9 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 {
     if ( datatransform_ )
     {
-	if ( voiidx_!=-1 )
-	    datatransform_->removeVolumeOfInterest(voiidx_);
-
+	if ( voiidx_.getParam(this)!=-1 )
+	    datatransform_->removeVolumeOfInterest(voiidx_.getParam(this));
+	
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
@@ -515,7 +517,7 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
     }
     
     datatransform_ = zat;
-    voiidx_ = -1;
+    voiidx_.setParam( this, -1 );
     if ( datatransform_ )
     {
 	datatransform_->ref();
@@ -543,13 +545,14 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 {
     if ( resetz )
     {
-    	const Interval<float>& depthrg = datatransform_->getZInterval(false);
-    	triangles_->setDepthRange( depthrg );
-    	dragger_->setDepthRange( depthrg );
-    
+	const Interval<float>& depthrg = datatransform_->getZInterval(false);
+	triangles_->setDepthRange( depthrg );
+	dragger_->setDepthRange( depthrg );
+	
 	moving_.trigger();
     }
 }
+
 
 
 void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
@@ -564,7 +567,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 
     const Interval<float> zrg = datatransform_ ? triangles_->getDepthRange()
 					       : getDataTraceRange();
-    const float step = datatransform_ ? ( scene_ ? 
+    const float step = datatransform_ ? ( scene_ ?
 	    scene_->getCubeSampling().zrg.step:datatransform_->getGoodZStep() )
 	: trcbuf.get(0)->info().sampling.step;
     const int nrsamp = mNINT32( zrg.width() / step ) + 1;
@@ -589,12 +592,16 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    cs.hrg.include( path[pi] );
 	cs.zrg = zrg;
 	cs.zrg.step = step;
-		
-	if ( voiidx_<0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+
+	int voiid = voiidx_.getParam( this );
+	if ( voiid<0 )
+	{
+	    voiid = datatransform_->addVolumeOfInterest( cs, true );
+	    voiidx_.setParam( this, voiid );
+	}
 	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );
+	    datatransform_->setVolumeOfInterest( voiid, cs, true );
+	datatransform_->loadDataIfMissing( voiid );
     }
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -627,7 +634,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 		    arrptr[ids] = trc->getValue(ctime,sidx);
 		}
 	    }
-	    else 
+	    else
 	    {
 		SamplingData<float> sd(zrg.start, step );
 		mAllocVarLenArr( float, res, nrsamp );
@@ -657,7 +664,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	}
 
 	if ( !datatransform_ )
-	    triangles_->setDepthRange( zrg );
+    	    triangles_->setDepthRange( zrg );
 	triangles_->setTexturePathAndPixels( path, resolution_+1, sz1 );
     }
     
@@ -726,7 +733,7 @@ bool RandomTrackDisplay::isManipulated() const
 void RandomTrackDisplay::acceptManipulation()
 {
     if ( !datatransform_ )
-    	setDepthInterval( dragger_->getDepthRange() );
+	setDepthInterval( dragger_->getDepthRange() );
     else
     {
 	triangles_->setDepthRange( dragger_->getDepthRange() );
@@ -886,7 +893,7 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const BinID bid1( mNINT32(pos1.x), mNINT32(pos1.y));
 
     const Coord dir = SI().transform(bid0)-SI().transform(bid1);
-    const float dist = (float) dir.abs();
+    const float dist = dir.abs();
 
     if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
 	return Coord3::udf();
@@ -911,9 +918,9 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
     const Interval<float> intv = getDataTraceRange();
     if ( xytpos.z < intv.start )
-	zdiff = (float) ( intv.start - xytpos.z );
+	zdiff = intv.start - xytpos.z;
     else if ( xytpos.z > intv.stop )
-	zdiff = (float) ( xytpos.z - intv.stop );
+	zdiff = xytpos.z - intv.stop;
 
     return zdiff;
 }
@@ -962,7 +969,7 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, getKnotPos(idx) );
     }
 
-    par.set( sKey::Version(), 3 );
+    par.set( sKey::Version, 3 );
     par.setYN( sKeyLockGeometry(), lockgeometry_ );
 }
 
@@ -1036,7 +1043,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     if ( trcidx<0 ) return false;
 
     const SeisTrc& trc = *cache_[attrib]->get( trcidx );
-    const int sampidx = trc.nearestSample( (float) pos.z );
+    const int sampidx = trc.nearestSample( pos.z );
     if ( sampidx>=0 && sampidx<trc.size() )
     {
 	val = trc.get( sampidx, 0 );
@@ -1059,10 +1066,11 @@ void RandomTrackDisplay::addCache()
 
 void RandomTrackDisplay::removeCache( int attrib )
 {
-    delete cache_.removeSingle( attrib );
+    delete cache_[attrib];
+    cache_.remove( attrib );
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
+    datapackids_.remove( attrib );
 }
 
 

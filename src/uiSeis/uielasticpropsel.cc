@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uielasticpropsel.h"
 
@@ -44,7 +44,7 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     inpfld_->selectionChanged.notify( 
 		    mCB(this,uiElasticPropSelGrp::uiSelInpGrp,selVarCB ) );
 
-    ctefld_ = new uiGenInput( this, "Value", FloatInpSpec() );
+    ctefld_ = new uiGenInput( this, "Value", IntInpSpec() );
     ctefld_->attach( rightOf, lbl );
     ctefld_->setElemSzPol( uiObject::Small );
 
@@ -124,7 +124,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 					const BufferStringSet& prs,
        					ElasticPropertyRef& elprop,
        					const TypeSet<ElasticFormula>& el )
-    : uiGroup( p, "Elastic Prop Sel Grp" )
+    : uiGroup( p, "Prop Grp" )
     , propnms_(prs)  
     , elpropref_(elprop)			
     , elformsel_(elprop.formula())
@@ -191,6 +191,8 @@ void uiElasticPropSelGrp::selComputeFldChgCB( CallBacker* )
 void uiElasticPropSelGrp::selFormulaChgCB( CallBacker* )
 {
     const int selidx = selmathfld_->box()->currentItem();
+    const bool wantmathexpr = selidx > 0;
+
     elformsel_.setExpression( "" );
 
     if ( selidx == selmathfld_->box()->size() -1 )
@@ -268,9 +270,10 @@ void uiElasticPropSelGrp::putToScreen()
     const BufferString& expr = elformsel_.expression();
     const bool hasexpr = !expr.isEmpty() 
 	|| selmathfld_->box()->currentItem() == selmathfld_->box()->size()-1;
+    const BufferStringSet& selvariables = elformsel_.variables();
 
     if ( elformsel_.name().isEmpty() )
-	selmathfld_->box()->setCurrentItem( 0 );
+       selmathfld_->box()->setCurrentItem( 0 );
     else    
 	selmathfld_->box()->setCurrentItem( elformsel_.name() );
     formfld_->setText( expr );
@@ -309,8 +312,8 @@ static const char** props = ElasticFormula::TypeNames();
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p, 
 					const PropertyRefSelection& prs,
 					ElasticPropSelection& elsel )
-    : uiDialog(p,uiDialog::Setup("Elastic Model",
-		"Specify how to obtain density and p-wave and s-wave velocities"
+    : uiDialog(p,uiDialog::Setup("Synthetic layers property selection",
+		"Select quantities to compute density, p-wave and s-wave"
 		,"110.1.3"))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection)) 
     , elpropsel_(elsel)
@@ -337,7 +340,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	tgs += new uiGroup( ts_->tabGroup(), props[idx] );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
-	ElasticPropertyRef& epr = elpropsel_.get(tp);
+	ElasticPropertyRef& epr = elpropsel_.getPropertyRef(tp);
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
 	ts_->addTab( tgs[idx], props[idx] );
     }
@@ -346,10 +349,10 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
     uiGroup* gengrp = new uiGroup( this, "buttons" );
     gengrp->attach( ensureBelow, ts_ );
-    uiToolButton* opentb = new uiToolButton( gengrp, "open",
+    uiToolButton* opentb = new uiToolButton( gengrp, "open.png",
 				"Open stored property selection",
 				mCB(this,uiElasticPropSelDlg,openPropSelCB) );
-    uiToolButton* stb = new uiToolButton( gengrp, "save",
+    uiToolButton* stb = new uiToolButton( gengrp, "save.png",
 				"Save property selection",
 				mCB(this,uiElasticPropSelDlg,savePropSelCB) );
     stb->attach( rightOf, opentb );
@@ -400,7 +403,7 @@ bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->setPropRef( elpropsel_.get( idx ) );
+	propflds_[idx]->setPropRef( elpropsel_.getPropertyRefs()[ idx ] );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
@@ -491,9 +494,9 @@ bool uiElasticPropSelDlg::doRead( const MultiID& mid )
 
     elpropsel_ = *elp; delete elp;
     propnms_ = orgpropnms_;
-    for ( int idx=0; idx<elpropsel_.size(); idx++ )
+    for ( int idx=0; idx<elpropsel_.getPropertyRefs().size(); idx++ )
     {
-	const ElasticPropertyRef& epr = elpropsel_.get(idx);
+	const ElasticPropertyRef& epr = elpropsel_.getPropertyRefs()[idx];
 	propnms_.addIfNew( epr.name() );
     }
 

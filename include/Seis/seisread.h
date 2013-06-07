@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisstor.h"
 #include "seistype.h"
 #include "linekey.h"
@@ -39,7 +38,7 @@ Note: 2D Pre-Stack data cannot (yet) be read via this class.
 
 */
 
-mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
+mClass SeisTrcReader : public SeisStoreAccess
 {
 public:
 
@@ -135,4 +134,3 @@ protected:
 
 
 #endif
-

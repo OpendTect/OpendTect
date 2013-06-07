@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.30 2012/07/10 13:05:58 cvskris Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilistview.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uiodapplmgr.h"
@@ -35,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uisellinest.h"
 #include "uistatusbar.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "viscoord.h"
@@ -71,7 +71,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
     if ( iszval_ )
     {
-	zfac_ = mCast( float, scene->zDomainInfo().userFactor() );
+	zfac_ = scene->zDomainInfo().userFactor();
 	rg_.scale( zfac_ );
 	contourintv_.scale( zfac_ );
     }
@@ -267,7 +267,7 @@ bool uiContourTreeItem::init()
     if ( !uiODDataTreeItem::init() )
 	return false;
 
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setChecked( true );
     parent_->checkStatusChange()->notify(mCB(this,uiContourTreeItem,checkCB));
     return true;
 }
@@ -284,7 +284,7 @@ uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 
 void uiContourTreeItem::checkCB(CallBacker*)
 {
-    bool newstatus = uitreeviewitem_->isChecked();
+    bool newstatus = uilistviewitem_->isChecked();
     if ( newstatus && parent_ )
 	newstatus = parent_->isChecked();
 
@@ -348,8 +348,13 @@ void uiContourTreeItem::removeLabels()
 void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDataTreeItem::createMenu( menu, istb );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
-		      &optionsmenuitem_, lines_, false );
+    if ( istb )
+    { mAddMenuOrTBItem( istb, menu, &optionsmenuitem_, lines_, false ); }
+    else
+    {
+	mAddMenuOrTBItem( istb, &displaymnuitem_, &optionsmenuitem_,
+			  lines_, false );
+    }
 }
 
 
@@ -571,10 +576,11 @@ void uiContourTreeItem::createContours()
 
     mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
     const ZAxisTransform* transform = scene ? scene->getZAxisTransform() : 0;
-    const float fac = mCast( float, scene->zDomainInfo().userFactor() );
+    const float fac = scene->zDomainInfo().userFactor();
+
     while ( contourval < maxcontourval+mDefEps )
     {
-	ManagedObjectSet<ODPolygon<float> > isocontours;
+	ObjectSet<ODPolygon<float> > isocontours;
 	ictracer.getContours( isocontours, contourval, false );
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	{
@@ -613,11 +619,13 @@ void uiContourTreeItem::createContours()
 	    lines_->setCoordIndex( cii++, -1 );
 	}
 
+	deepErase( isocontours );
 	progwin.setProgress( progwin.progress() + 1 );
 	contourval += contourintv_.step;
     }
 
     progwin.close();
+    lines_->getCoordinates()->removeAfter( cii-1 );
     lines_->removeCoordIndexAfter( cii-1 );
     if ( hd->getZAxisTransform() )
 	delete field;
@@ -639,7 +647,7 @@ void uiContourTreeItem::createLines()
     {
 	drawstyle_ = visBase::DrawStyle::create();
 	drawstyle_->ref();
-	//if ( lines_ ) lines_->insertNode( drawstyle_->getInventorNode() );
+	if ( lines_ ) lines_->insertNode( drawstyle_->getInventorNode() );
     }
 
     if ( !material_ )
@@ -647,7 +655,7 @@ void uiContourTreeItem::createLines()
 	material_ = visBase::Material::create();
 	material_->setColor( color_ );
 	material_->ref();
-	if ( lines_ ) lines_->setMaterial( material_ );
+	if ( lines_ ) lines_->insertNode( material_->getInventorNode() );
     }
 }
 
@@ -705,7 +713,7 @@ void uiContourTreeItem::updateZShift()
 	return;
 
     const Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
-    const float deltaz = (float) (trans.z - zshift_);
+    const float deltaz = trans.z - zshift_;
     if ( !deltaz )
 	return;
 
@@ -728,7 +736,7 @@ void uiContourTreeItem::updateZShift()
 	pos.z += deltaz;
 	labels_[idx]->setPosition( pos );
 	float labelval = toFloat( labels_[idx]->getText() );
-	labelval += deltaz * SI().zDomain().userFactor(); 
+	labelval += deltaz * SI().zFactor(); 
 	labels_[idx]->setText( getStringFromFloat(fmt, labelval, buf) );
     }
 

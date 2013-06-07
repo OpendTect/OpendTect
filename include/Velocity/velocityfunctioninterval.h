@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
@@ -31,7 +30,7 @@ class IntervalSource;
 /*!A velocity funcion that computes interval velocity from where from
    another velocity function with RMS velocity */
 
-mExpClass(Velocity) IntervalFunction : public Function
+mClass IntervalFunction : public Function
 {
 public:
 			IntervalFunction(IntervalSource&);
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mExpClass(Velocity) IntervalSource : public FunctionSource
+mClass IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();
@@ -78,4 +77,3 @@ protected:
 }; //namespace
 
 #endif
-

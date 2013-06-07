@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "callback.h"
 #include "cubesampling.h"
 
@@ -23,11 +22,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace EM
 {
 
-/*!
-\brief %Fault stick set flat view editor.
-*/
-
-mExpClass(EarthModel) FaultStickSetFlatViewEditor : public CallBacker
+mClass FaultStickSetFlatViewEditor : public CallBacker
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
@@ -43,4 +38,3 @@ protected:
 
 
 #endif
-

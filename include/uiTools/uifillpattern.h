@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "draw.h"
 class uiComboBox;
@@ -23,7 +22,7 @@ class uiRectItem;
 /*! \brief one-line element for fill pattern selection. No text label. */
 
 
-mExpClass(uiTools) uiFillPattern : public uiGroup
+mClass uiFillPattern : public uiGroup
 {
 public:
 

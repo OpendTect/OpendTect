@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          May 2008
- RCS:           $Id$
+ RCS:           $Id: uiflattenedcube.h,v 1.4 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace Pos { class EMSurfaceProvider3D; }
 
 /*! \brief Create flattened cube from horizon */
 
-mClass(uiHorizonAttrib) uiWriteFlattenedCube : public uiDialog
+class uiWriteFlattenedCube : public uiDialog
 {
 public:
 

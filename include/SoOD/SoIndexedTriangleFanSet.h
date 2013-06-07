@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoIndexedShape.h"
 
 #include "soodbasic.h"
@@ -34,7 +33,7 @@ This saves quite much mem compared with stripsets.
 
 */
 
-mSoODClass SoIndexedTriangleFanSet : public SoIndexedShape
+mClass SoIndexedTriangleFanSet : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedTriangleFanSet);
 public:
@@ -64,5 +63,4 @@ private:
 };
 
 #endif
-
 

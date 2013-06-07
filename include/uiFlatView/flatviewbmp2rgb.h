@@ -11,30 +11,26 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "flatview.h"
 #include "array2dbitmap.h"
 #include "uirgbarray.h"
-
 class HistEqualizer;
+
 
 namespace FlatView
 {
 
-/*!
-\brief Draws bitmaps on RGBArray according to FlatView specs. Assumes bitmaps
-are 100% aligned with array, only sizes may differ.
-*/
+/*!\brief Draws bitmaps on RGBArray according to FlatView specs.
+	  Assumes bitmaps are 100% aligned with array, only sizes may differ. */
 
-mExpClass(uiFlatView) BitMap2RGB
+mClass BitMap2RGB
 {
 public:
 
 			BitMap2RGB(const Appearance&,uiRGBArray&);
 
     void		draw(const A2DBitMap* wva,const A2DBitMap* vd,
-	    		     const Geom::Point2D<int>& offset,
-			     bool clearexisting = true);
+	    		     const Geom::Point2D<int>& offset);
 
     uiRGBArray&		rgbArray()		{ return arr_; }
     void		setRGBArr( const uiRGBArray& arr)	{ arr_ = arr; }
@@ -56,4 +52,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@
       -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -25,7 +24,7 @@ class SeisTrc;
 class CtxtIOObj;
 
 
-mExpClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
+mClass uiWellImportSEGYVSP : public uiDialog
 {
 public:
     			uiWellImportSEGYVSP(uiParent*);
@@ -69,4 +68,3 @@ protected:
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.50 2011/09/16 11:33:24 cvskris Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -142,7 +142,7 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloatInterval( GapDecon::gateStr(), gate, gatefld_->setValue(gate) )
     mIfGetInt( GapDecon::lagsizeStr(), lagsz, lagfld_->setValue(lagsz) )
     mIfGetInt( GapDecon::gapsizeStr(), gapsz, gapfld_->setValue(gapsz) )
-    int stout = mUdf(int);
+    int stout;
     mIfGetInt( GapDecon::stepoutStr(), stepout, 
 	       stepoutfld_->box()->setValue(stepout); stout = stepout; )
     wantmixfld_->setValue( stout>0 );
@@ -550,7 +550,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    gate.scale(1.f/SI().zDomain().userFactor());
+    gate.scale(1./SI().zFactor());
     if ( cs.zrg.start < gate.start )
 	cs.zrg.start = gate.start;
     if ( cs.zrg.stop > gate.stop )
@@ -682,6 +682,7 @@ void uiGDPositionDlg::popUpPosDlg()
 		    		     = inputcs.hrg.crlRange().snappedCenter();
 	}
 
+	float zstop = 500./SI().zFactor();
 	inputcs.zrg.start = 0;
     }
 

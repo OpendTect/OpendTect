@@ -39,9 +39,6 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
     , withheader_(withheader)
     , header_(0)
     , nitm_(0)
-    , mydrawrg_(mUdf(float),mUdf(float))
-    , usemydrawrg_(false) 
-    , drawRangeChanged(this)  
 {
     xAxis()->setName( "Value" );
     yAxis(false)->setName( "Count" );
@@ -78,7 +75,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
 	if ( !arr3d ) return false;
 
-	setData( arr3d->getData(), mCast(int,arr3d->info().getTotalSz()) );
+	setData( arr3d->getData(), arr3d->info().getTotalSz() );
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
@@ -140,7 +137,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     if ( array->getData() )
     {
-	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
+	setData( array->getData(), array->info().getTotalSz() );
 	return;
     }
 
@@ -153,7 +150,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	{
 	    const float val = array->get( idx0, idx1 );
 	    if ( mIsUdf(val) ) continue;
-	    
+
 	    valarr += val;
 	}
     }
@@ -166,32 +163,7 @@ void uiHistogramDisplay::setData( const float* array, int sz )
 {
     if ( !array ) return;
 
-    if ( array != originaldata_.arr() )
-    {
-    	originaldata_.erase();
-    	for ( int idx=0; idx<sz; idx++ )
-    	    originaldata_ += array[idx];
-    }
-
-    const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) && 
-	!mIsUdf(mydrawrg_.stop);
-    if ( usedrawrg )
-    {
-	mydisplaydata_.erase();
-	for ( int idx=0; idx<sz; idx++ )
-	{
-    	    if ( mIsUdf(array[idx]) )
-     		continue;
-      	    
-	    if ( mydrawrg_.includes(array[idx],false) )
-    		mydisplaydata_ += array[idx];
-	}
-    
-	rc_.setValues( mydisplaydata_.arr(), mydisplaydata_.size() );
-    }
-    else
-	rc_.setValues( originaldata_.arr(), originaldata_.size() );
-
+    rc_.setValues( array, sz );
     updateAndDraw();
 }
 
@@ -215,7 +187,7 @@ void uiHistogramDisplay::updateHistogram()
     const float step = (max - min) / nrclasses_;
     if ( mIsZero(step,1e-6) )
     {
-	histdata[nrclasses_/2] = mCast( float, nrpts );
+	histdata[nrclasses_/2] = nrpts;
 	setHistogram( histdata, Interval<float>(min-1,max+1), nrpts );
 	return;
     }
@@ -237,36 +209,6 @@ void uiHistogramDisplay::updateHistogram()
     setHistogram( histdata, Interval<float>(min + 0.5f*step, max - 0.5f*step),
 	    	  nrinpvals_ );
 }
-
-
-void uiHistogramDisplay::useDrawRange( bool yn )    
-{
-   if ( usemydrawrg_==yn )
-      return;
-
-    usemydrawrg_ = yn; 
-    if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
-    {
-	setData( originaldata_.arr(), originaldata_.size() );
-    	drawRangeChanged.trigger();
-    }
-}
-
-
-void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
-{
-    if ( mIsEqual(ni.start,mydrawrg_.start,1e-5) && 
-	 mIsEqual(ni.stop,mydrawrg_.stop,1e-5) )
-	return;
-
-    mydrawrg_ = ni;
-    if ( usemydrawrg_ )
-    {
-	setData( originaldata_.arr(), originaldata_.size() );
-    	drawRangeChanged.trigger();
-    }
-}
-
 
 
 void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,

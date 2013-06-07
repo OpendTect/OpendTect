@@ -12,16 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiobjfileman.h"
 
 class uiButton;
 
-/*!
-\brief AttributeSet Manager
+/*! \brief
+AttributeSet manager
 */
 
-mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
+mClass uiAttrSetMan : public uiObjFileMan
 {
 public:
     				uiAttrSetMan(uiParent*);
@@ -35,4 +34,3 @@ protected:
 };
 
 #endif
-

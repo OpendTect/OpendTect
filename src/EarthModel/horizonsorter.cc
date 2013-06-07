@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizonsorter.h"
 
@@ -67,7 +67,7 @@ void HorizonSorter::calcBoundingBox()
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 	    if ( !hor2d ) continue;
 
-	    const EM::SectionID sid = hor2d->sectionID( 0 );
+	    const int sid = hor2d->sectionID( 0 );
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
 		const Geometry::Horizon2DLine* geom =
@@ -126,13 +126,13 @@ void HorizonSorter::sort()
 		if ( nrbelow > nrabove )
 		{
 		    MultiID mid = sortedids_[idx0];
-		    sortedids_.removeSingle( idx0 );
+		    sortedids_.remove( idx0 );
 		    sortedids_.insert( idx1, mid );
 		}
 		else if ( nrbelow < nrabove )
 		{
 		    MultiID mid = sortedids_[idx1];
-		    sortedids_.removeSingle( idx1 );
+		    sortedids_.remove( idx1 );
 		    sortedids_.insert( idx0, mid );
 		}
 		else
@@ -240,10 +240,10 @@ int HorizonSorter::nextStep()
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    (float) hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
+		    hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
 	    }
 	    else
-		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z;
+		depths[idx] = horizons_[idx]->getPos( sid, subid ).z;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

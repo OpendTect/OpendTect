@@ -163,7 +163,7 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 	    if ( !idx ) continue;
 	    break;
 	}
-	const char* type = objpar->find( sKey::Type() );
+	const char* type = objpar->find( sKey::Type );
 	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
 	if ( obj && obj->usePar( *objpar ) )
 	{

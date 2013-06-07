@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uidatapointsetcrossplot.h"
 #include "uigroup.h"
@@ -32,7 +31,7 @@ class uiToolButton;
 class uiDataPointSetCrossPlotter;
 
 
-mExpClass(uiIo) uiSGSel : public uiGroup
+mClass uiSGSel : public uiGroup
 {
 public:
     					uiSGSel(uiParent*,bool forread);
@@ -65,7 +64,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiSGSelGrp : public uiGroup
+mClass uiSGSelGrp : public uiGroup
 {
 public:
     				uiSGSelGrp(uiParent*,bool forread);
@@ -109,7 +108,7 @@ protected:
 };
 
 
-mExpClass(uiIo) SelGrpImporter
+mClass SelGrpImporter
 {
 public:
     				SelGrpImporter(const char*);
@@ -132,7 +131,7 @@ protected:
 };
 
 
-mExpClass(uiIo) SelGrpExporter
+mClass SelGrpExporter
 {
 public:
     				SelGrpExporter(const char* fnm);
@@ -149,7 +148,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiReadSelGrp : public uiDialog
+mClass uiReadSelGrp : public uiDialog
 {
 public:
 			uiReadSelGrp(uiParent*,uiDataPointSetCrossPlotter&);
@@ -189,11 +188,11 @@ protected:
 };
 
 
-mExpClass(uiIo) uiExpSelectionArea : public uiDialog
+mClass uiExpSelectionArea : public uiDialog
 {
 public:
 
-	mExpClass(uiIo) Setup
+	mClass Setup
 	{
 	    public:
 		    Setup(const char* x,const char* y, const char* y2)
@@ -221,4 +220,3 @@ protected:
 };
 
 #endif
-

@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: od_glxinfo.c,v 1.1 2009/05/21 10:54:04 cvsnanne Exp $ */
 
 /*
  * Copyright (C) 1999-2006  Brian Paul   All Rights Reserved.
@@ -34,12 +34,7 @@
  *
  * Brian Paul  26 January 2000
  */
-
-#if defined (WIN32) || defined (_WINDOWS)
-#include "w32glxinfo.c"
-#else
-
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: od_glxinfo.c,v 1.1 2009/05/21 10:54:04 cvsnanne Exp $";
 
 #define GLX_GLXEXT_PROTOTYPES
 
@@ -962,4 +957,3 @@ main(int argc, char *argv[])
 
    return 0;
 }
-#endif

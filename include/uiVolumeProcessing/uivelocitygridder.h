@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocstepdlg.h"
 #include "velocitygridder.h"
 
@@ -27,7 +26,7 @@ namespace VolProc
 
 class VelGriddingStep;
 
-mExpClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
+mClass uiVelocityGridder : public uiStepDialog
 {
 public:
 
@@ -57,4 +56,3 @@ protected:
 }; //namespace
 
 #endif
-

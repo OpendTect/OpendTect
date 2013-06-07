@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribstorprovider.h"
 
@@ -15,9 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attriblinebuffer.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
+#include "commondefs.h"
 #include "datainpspec.h"
 #include "datapack.h"
-#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
-#include "seiscbvs.h"
 #include "seiscubeprov.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -37,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "seistrctr.h"
 #include "simpnumer.h"
-#include "statruncalc.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "threadwork.h"
@@ -108,8 +106,9 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	}
 
 	BufferStringSet steernms;
-	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	if ( !steernms.isPresent( attrnm ) )
+	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering );
+	const bool issteering = steernms.indexOf( attrnm ) >= 0;
+	if ( !issteering )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
 	    if ( !transl )
@@ -148,10 +147,10 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	}
 
 	BufferString type;
-	ioobj->pars().get( sKey::Type(), type );
+	ioobj->pars().get( sKey::Type, type );
 
 	const int nrattribs = transl->componentInfo().size();
-	if ( type == sKey::Steering() )
+	if ( type == sKey::Steering )
 	    desc.setNrOutputs( Seis::Dip, nrattribs );
 	else
 	{
@@ -173,8 +172,6 @@ StorageProvider::StorageProvider( Desc& desc )
     , status_( Nada )
     , stepoutstep_(-1,0)
     , isondisc_(true)
-    , useintertrcdist_(false)
-    , ls2ddata_(0)
 {
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     BufferString bstring = lk.lineName();
@@ -190,7 +187,6 @@ StorageProvider::StorageProvider( Desc& desc )
 StorageProvider::~StorageProvider()
 {
     if ( mscprov_ ) delete mscprov_;
-    if ( ls2ddata_ ) delete ls2ddata_;
 }
 
 
@@ -203,7 +199,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     if ( !isondisc_ )
     {
-	storedvolume_.zrg.start = 0;	//cover up for synthetics
+	storedvolume_.zrg.start = 0;    //cover up for synthetics
 	return true;
     }
 
@@ -225,6 +221,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	if ( !lset )
 	    mErrRet( "2D seismic data/No line set found" );
 
+	setLineSet( lset->name() );
 	int lineidx = lset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
 	{
@@ -739,6 +736,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 					     const DataHolder& data ) const
 {
     const int z0 = data.z0_;
+    float exacttime = 0;
     float extrazfromsamppos = 0;
     BoolTypeSet isclass( outputinterest_.size(), true );
     if ( needinterp_ )
@@ -749,7 +747,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     }
     
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
 	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
@@ -827,16 +825,6 @@ void StorageProvider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::GeomID StorageProvider::getGeomID() const
-{
-    const ValParam* idpar = desc_.getValParam( keyStr() );
-    LineKey lk( idpar->getStringValue() );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-    return !ioobj ? PosInfo::GeomID()
-                  : S2DPOS().getGeomID( ioobj->name(), curlinekey_.lineName() );
-}
-
-
 void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 {
     if ( !mscprov_ ) return;
@@ -844,7 +832,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     if ( !trc ) return;
 
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     const BinID bid = trc->info().binid;
     if ( !dc->includes(bid) )
 	return;
@@ -853,7 +841,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const int crlidx = dc->crlsampling_.nearestIndex( bid.crl );
     for ( int idz=0; idz<dc->getZSz(); idz++ )
     {
-	const float curt = (float) ((dc->z0_+idz) * dc->zstep_);
+	const float curt = (dc->z0_+idz) * dc->zstep_;
 	int cubeidx = -1;
 	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
@@ -904,103 +892,59 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 }
 
 
-bool StorageProvider::compDistBetwTrcsStats( bool force )
+float StorageProvider::getMaxDistBetwTrcs() const
 {
-    if ( !mscprov_ ) return false;
-    if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
+    if ( !mscprov_ ) return mUdf(float);
 
     const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return false;
+    if ( !reader.is2D() ) return mUdf(float);
 
     const Seis2DLineSet* lset = reader.lineSet();
-    if ( !lset ) return false;
-
-    if ( !force )
-    {
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	const BufferString attrnm = lk.attrName();
-	BufferStringSet steernms;
-	lset->getAvailableAttributes( steernms, sKey::Steering() );
-	if ( !steernms.isPresent( attrnm ) ) return false;
-    }
+    if ( !lset )
+	return mUdf(float);
 
     S2DPOS().setCurLineSet( lset->name() );
-    if ( ls2ddata_ ) delete ls2ddata_;
-    ls2ddata_ = new PosInfo::LineSet2DData();
+    PosInfo::LineSet2DData ls2ddata;
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(lset->lineName(idx));
+	PosInfo::Line2DData& linegeom = ls2ddata.addLine(lset->lineName(idx));
 	S2DPOS().getGeometry( linegeom );
 	if ( linegeom.positions().isEmpty() )
 	{
-	    ls2ddata_->removeLine( lset->lineName(idx) );
-	    return false;
+	    ls2ddata.removeLine( lset->lineName(idx) );
+	    return mUdf(float);
 	}
     }
 
-    ls2ddata_->compDistBetwTrcsStats();
-    return true;
+    double maxdistsq = 0;
+    for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
+    {
+	const TypeSet<PosInfo::Line2DPos>& posns
+				    = ls2ddata.lineData(lidx).positions();
+	for ( int pidx=1; pidx<posns.size(); pidx++ )
+	{
+	    const double distsq =
+			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+	    if ( distsq > maxdistsq )
+		maxdistsq = distsq;
+	}
+    }
+
+    return maxdistsq < 1e-3 ? mUdf(float) : (float)sqrt(maxdistsq);
 }
 
 
-void StorageProvider::getCompNames( BufferStringSet& nms ) const
+void StorageProvider::getCompNamesFakeToKeepHeadersOK( 
+					BufferStringSet& nms ) const
 {
     updateDescAndGetCompNms( desc_, &nms );
 }
 
 
-bool StorageProvider::useInterTrcDist() const
+SeisMSCProvider* StorageProvider::getMSCProv() const
 {
-    if ( useintertrcdist_ )
-	return true;
-
-    if ( getDesc().is2D() )
-    {                                                                           
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	const BufferString attrnm = lk.attrName();
-	const MultiID key( lk.lineName() );
-	PtrMan<IOObj> ioobj = IOM().get( key );
-	SeisTrcReader rdr( ioobj );
-	if ( rdr.ioObj() && rdr.lineSet() )
-	{
-	    BufferStringSet steernms;
-	    rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering() );
-	    if ( steernms.isPresent( attrnm ) )
-	    {
-		int lineidx = rdr.lineSet()->indexOf( curlinekey_.buf() );
-		if ( lineidx<0 ) return false;
-		IOPar linepars = rdr.lineSet()->getInfo( lineidx );
-		FixedString fname = linepars.find( sKey::FileName() );
-		FilePath fp( fname ); 
-		if ( !fp.isAbsolute() )
-		    fp.setPath( IOObjContext::getDataDirName(
-							IOObjContext::Seis) );
-		PtrMan<CBVSSeisTrcTranslator> tmptransl =
-		    CBVSSeisTrcTranslator::make( fp.fullPath(), true, true, 0 );
-		BufferStringSet compnms;
-		tmptransl->getComponentNames( compnms );
-		if ( compnms.size()>=2 
-		    && compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
-		{
-		    const_cast<Attrib::StorageProvider*>(this)
-					->useintertrcdist_ = true;
-		    return useintertrcdist_;
-		}
-	    }
-	}
-    }                                                                           
-
-    return false; 
+    return mscprov_;
 }
 
-
-float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
-{
-    if ( !ls2ddata_ )
-	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
-
-    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, linenm )
-		     : mUdf(float);
-}
 
 }; // namespace Attrib

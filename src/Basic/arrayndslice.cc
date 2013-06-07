@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "arrayndslice.h"
@@ -81,14 +81,14 @@ bool ArrayNDSliceBase::init()
 	    if ( unkdims.size() )
 	    {
 		vardim_[idx] = unkdims[0];
-		unkdims.removeSingle( 0 );
+		unkdims.remove( 0 );
 	    }
 	    else
 		return false;
 	}
 	else
 	{
-	    if ( !unkdims.isPresent(vardim_[idx]) )
+	    if ( unkdims.indexOf(vardim_[idx])==-1 )
 		return false;
 	    unkdims -= vardim_[idx];
 	}

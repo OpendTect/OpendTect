@@ -13,21 +13,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "transl.h"
 #include "position.h"
-
 class Executor;
 class DataPointSet;
 class BufferStringSet;
 
+
 namespace Well { class Data; };
 
-/*!
-\brief Well TranslatorGroup
-*/
 
-mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
+mClass WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
     			mDefEmptyTranslatorGroupConstructor(Well)
@@ -35,11 +31,7 @@ public:
 };
 
 
-/*!
-\brief Well Translator
-*/
-
-mExpClass(Well) WellTranslator : public Translator
+mClass WellTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(Well)
@@ -60,11 +52,7 @@ public:
 };
 
 
-/*!
-\brief dgb WellTranslator
-*/
-
-mExpClass(Well) dgbWellTranslator : public WellTranslator
+mClass dgbWellTranslator : public WellTranslator
 {			  isTranslator(dgb,Well)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Well)
@@ -76,4 +64,3 @@ public:
 
 
 #endif
-

@@ -12,26 +12,23 @@ ________________________________________________________________________
 -*/
 
 #include "undefval.h"
-#include "fixedstring.h"
 #include "string2.h"
 
 #ifdef __msvc__
 # include "msvcdefs.h"
 #endif
 
-/*!\brief Template based type conversion. */
-
 namespace Conv{
 
-//! template based type conversion
+//! template based type converstion
 template <class T, class F>
 inline void set( T& _to, const F& fr )
-    { _to = (T)fr; }
+    { _to = fr; }
 
 template <class T, class F>
-inline T to( const F& fr )
+inline T& to( const F& fr )
 { 
-    T ret;
+    static T ret;
     Values::setUdf(ret);
     set<T,F>(ret,fr);
 
@@ -53,9 +50,9 @@ inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 }
 
 template <class T, class F>
-inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
+inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 { 
-    T ret;
+    static T ret;
     Values::setUdf(ret);
     udfset<T,F>(ret,fr,und);
 
@@ -109,21 +106,9 @@ inline void set( type& _to, const char* const& s ) \
     if ( !s || !*s ) { return; } \
 \
     char* endptr; \
-    type tmpval = (type) function; \
+    type tmpval = function; \
     if ( s != endptr ) \
-	_to = (type) tmpval; \
-    else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
-} \
-template <> \
-inline void set( type& _to, const FixedString& s ) \
-{ \
-    if ( !s ) { return; } \
-\
-    char* endptr; \
-    type tmpval = (type) function; \
-    if ( s.str() != endptr ) \
-	_to = (type) tmpval; \
+	_to = tmpval; \
     else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
 } 
@@ -136,10 +121,6 @@ mConvDefFromStrToFn( double, strtod(s,&endptr) )
 mConvDefFromStrToFn( float, strtof(s,&endptr) )
 
 #undef mConvDefFromStrToFn
-
-template <>
-inline void set( bool& _to, const FixedString& s )
-    { _to = yesNoFromString(s.str()); }
 
 
 #define mConvDefFromStrToFn(type,fn) \
@@ -172,7 +153,7 @@ inline void set( short& _to, const float& f )
 
 template <>
 inline void set( unsigned short& _to, const float& f )
-    { _to = mRounded(od_uint16,f); }
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const float& f )
@@ -196,7 +177,7 @@ inline void set( short& _to, const double& f )
 
 template <>
 inline void set( unsigned short& _to, const double& f )
-    { _to = mRounded(od_uint16,f); }
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const double& f )
@@ -212,11 +193,11 @@ inline void set( bool& _to, const int& i )
 
 template <>
 inline void set( bool& _to, const float& f )
-    { _to = !mIsZero(f,mDefEpsF); }
+    { _to = !mIsZero(f,mDefEps); }
 
 template <>
 inline void set( bool& _to, const double& d )
-    { _to = !mIsZero(d,mDefEpsD); }
+    { _to = !mIsZero(d,mDefEps); }
 
 
 }

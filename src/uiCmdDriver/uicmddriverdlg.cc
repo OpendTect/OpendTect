@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicmddriverdlg.h"
 
@@ -160,7 +160,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			mCB(this,uiCmdDriverDlg,selectStopRecordCB), true );
     stopbut_->attach( alignedBelow, logfld_ );
 
-    uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this, "" );
+    uiLabel* cmddriverhackdummy = new uiLabel( this, "" );
 
     drv_.interactRequest.notify( mCB(this,uiCmdDriverDlg,interactCB) );
 
@@ -350,16 +350,16 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 
 void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 {
-    FixedString buttext = pausebut_->text();
-    if ( buttext == "&Resume" )
-    {
-	pausebut_->setText( "&Pause" );
-	drv_.pause( false );
-    }
-    else
+    BufferString buttext = pausebut_->text();
+    if ( strcmp(buttext,"&Resume") )
     {
 	pausebut_->setText( "-Interrupting-" );
 	drv_.pause( true );
+    }
+    else
+    {
+	pausebut_->setText( "&Pause" );
+	drv_.pause( false );
     }
 } 
 
@@ -375,8 +375,8 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
 	return;
     }
 
-    FixedString buttext = pausebut_->text();
-    if ( buttext=="-Interrupting-" && ispec->dlgtitle_.isEmpty() )
+    BufferString buttext = pausebut_->text();
+    if ( !strcmp(buttext,"-Interrupting-") && ispec->dlgtitle_.isEmpty() )
     {
 	pausebut_->setText( "&Resume" );
 	return;

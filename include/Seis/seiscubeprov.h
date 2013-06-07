@@ -13,7 +13,6 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "arraynd.h"
 #include "cubesampling.h"
 #include "rowcol.h"
@@ -54,7 +53,7 @@ traces.
  */
 
 
-mExpClass(Seis) SeisMSCProvider
+mClass SeisMSCProvider
 {
 public:
 
@@ -137,7 +136,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisFixedCubeProvider
+mClass SeisFixedCubeProvider
 {
 public:
     			SeisFixedCubeProvider(const MultiID&);
@@ -150,7 +149,6 @@ public:
 	    			 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
-    const SeisTrc*	getTrace(int trcnr) const;
     const char*		errMsg() const;
 
 protected:
@@ -164,4 +162,3 @@ protected:
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
+#include "uiodbodydisplaytreeitem.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
@@ -56,14 +57,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
-#include "emhorizon3d.h"
 #include "emseedpicker.h"
-#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "errh.h"
 #include "externalattrib.h"
 #include "filepath.h"
 #include "flatposdata.h"
+#include "emhorizon3d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -88,7 +88,6 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
 	, applservice_(*new uiODApplService(&a,*this))
 	, nlaserv_(0)
-	, attribSetChg(this)
 	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
@@ -127,9 +126,9 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 
 uiODApplMgr::~uiODApplMgr()
 {
+    IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
-    IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
     delete mpeserv_;
     delete pickserv_;
     delete nlaserv_;
@@ -319,48 +318,35 @@ void uiODApplMgr::addTimeDepthScene()
 {
     uiDialog::Setup setup("Velocity model",
 		"Select velocity model to base scene on","0.4.4");
-    
     uiSingleGroupDlg dlg( &appl_, setup );
-    
-    uiZAxisTransformSel* uitrans = SI().zIsTime()
-	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
-				   ZDomain::sKeyDepth(), true )
-	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
-				   ZDomain::sKeyTime(), true );
-    
-    if ( !uitrans->isOK() )
-    {
-	uiMSG().error("No suitable transforms found");
-	return;
-    }
-
+    uiTimeDepthBase* uitrans = SI().zIsTime() 
+	? (uiTimeDepthBase*) new uiTime2Depth( &dlg )
+	: (uiTimeDepthBase*) new uiDepth2Time( &dlg );
     dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
-    BufferString snm( SI().zIsTime() ? sKey::Depth() : sKey::Time() );
+    BufferString snm( SI().zIsTime() ? sKey::Depth : sKey::Time );
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
-    
-    StepInterval<float> zsampling;
-    if ( !uitrans->getTargetSampling( zsampling ) )
-    {
-	pErrMsg( "Cannot get sampling.");
-	return;
-    }
 
     snm += " (using '";
-    snm += ztrans->factoryDisplayName();
+    snm += uitrans->selName();
     snm += "')";
 
     sceneMgr().tile();
     const int sceneid = sceneMgr().addScene( true, ztrans, snm );
     if ( sceneid!=-1 )
     {
-	const float zscale = ztrans->toZScale();
+	const SurveyInfo::Unit scenezunit = !SI().zIsTime() ? SurveyInfo::Second
+		: (SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter); 
+				      
+	const float zscale = SurveyInfo::defaultXYtoZScale( scenezunit,
+							    SI().xyUnit() );
+
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	CubeSampling cs = SI().sampling( true );
-	cs.zrg = zsampling;
+	cs.zrg = uitrans->getZRange();
 	scene->setCubeSampling( cs );
 	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 );
@@ -397,8 +383,10 @@ bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 {
     const int sceneid = sceneMgr().askSelectScene();
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-    const float velocity = scene->getZStretch() * scene->getZScale();
-    return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0,velocity);
+    const float velocity =
+	scene ? scene->getZStretch() * scene->getZScale() : 2000;
+    return attrserv_->setPickSetDirs( ps,
+		nlaserv_ ? &nlaserv_->getModel() : 0, velocity );
 }
 
 bool uiODApplMgr::pickSetsStored() const
@@ -489,8 +477,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    mDynamicCastGet(const FlatDataPack*, fdp, dp);
 		    if ( fdp )
 		    {
-			const float newstep0 = (float) fdp->posData().range(true).step;
-			const float newstep1 = (float) fdp->posData().range(false).step;
+			const float newstep0 = fdp->posData().range(true).step;
+			const float newstep1 = fdp->posData().range(false).step;
 			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
 			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
 			{
@@ -624,7 +612,7 @@ void uiODApplMgr::calShiftAttribute( int attrib, const Attrib::SelSpec& as )
     }
 
     mAllocVarLenArr( float, attribvals, dpsset.size()+2 );
-    if ( !mIsVarLenArrOK(attribvals) )
+    if ( !mIsVarLenArrOK( attribvals ) )
     {
 	deepErase( dpsset );
 	return;
@@ -675,7 +663,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const MultiID surfmid = visserv_->getMultiID(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
-        if ( auxdatanr<0 )
+	bool allok = true;
+	if ( auxdatanr<0 )
 	    uiMSG().error( "Cannot find stored data" );
 	else
 	{
@@ -729,7 +718,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	createAndSetMapDataPack( visid, attrib, *data, dataidx );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1, (float) visserv_->getTranslation(visid).z );
+	    TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -975,11 +964,10 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 		    		     (const char*) emserv_->getName(emid) );
 	}
 
-	if ( emserv_->getType(emid)==EM::Horizon3D::typeStr() || 
-	     emserv_->getType(emid)==EM::Horizon2D::typeStr() )
-	{
+	const FixedString tp = emserv_->getType( emid );
+	if ( tp==EM::Horizon3D::typeStr() || 
+            tp==EM::Horizon2D::typeStr() )
 	    mpeserv_->saveSetup( mid );
-	}
 
 	sceneMgr().updateTrees();
     }
@@ -1149,8 +1137,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    float shift =
-		emattrserv_->shiftRange().atIndex(idx) *
-		SI().zDomain().userFactor();
+		emattrserv_->shiftRange().atIndex(idx) * SI().zFactor();
 	    BufferString shiftstr;
 	    getStringFromFloat( SI().zIsTime() ? "%g" : "%f", shift,
 		    		shiftstr.buf() );
@@ -1522,11 +1509,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet() )
-    {
-	attribSetChg.trigger();
 	mpeserv_->setCurrentAttribDescSet(
 				attrserv_->curDescSet(attrserv_->is2DEvent()) );
-    }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed() )
     {
 	enableMenusAndToolBars( true );
@@ -1574,6 +1558,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
 	visserv_->selectTexture( visid, attrnr, sliceidx );
+	const int nrslices = attrserv_->getTargetSelSpecs().size();
 
 	updateColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
@@ -1592,7 +1577,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	const MultiID mid = visserv_->getMultiID( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const float shift = (float) visserv_->getTranslation(visid).z;
+	const float shift = visserv_->getTranslation(visid).z;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
@@ -1670,7 +1655,6 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 	visserv_->addObject( doobj, sceneids[idx], true );
 	plids.addIfNew( doobj->id() );
     }
-    
     wellserv_->setPreviewIds(plids);
 }
 
@@ -1720,8 +1704,6 @@ void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )
 { wellserv_->doLogTools(); }
-void uiODApplMgr::launchRockPhysics( CallBacker* )
-{ wellserv_->launchRockPhysics(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
 void uiODApplMgr::doVolProcCB( CallBacker* )
@@ -1770,8 +1752,6 @@ void uiODApplMgr::processPreStack( CallBacker* )
 { dispatcher_.processPreStack(); }
 void uiODApplMgr::genAngleMuteFunction( CallBacker* )
 { dispatcher_.genAngleMuteFunction(); }
-void uiODApplMgr::createCubeFromWells( CallBacker* )
-{ dispatcher_.createCubeFromWells(); }
 void uiODApplMgr::bayesClass2D( CallBacker* )
 { dispatcher_.bayesClass(true); }
 void uiODApplMgr::bayesClass3D( CallBacker* )
@@ -1780,8 +1760,6 @@ void uiODApplMgr::resortSEGY( CallBacker* )
 { dispatcher_.resortSEGY(); }
 void uiODApplMgr::reStartProc()
 { dispatcher_.reStartProc(); }
-void uiODApplMgr::setProcSettings()
-{ dispatcher_.setProcSettings(); }
 void uiODApplMgr::batchProgs()
 { dispatcher_.batchProgs(); }
 void uiODApplMgr::pluginMan()
@@ -1798,6 +1776,8 @@ void uiODApplMgr::startInstMgr()
 { dispatcher_.startInstMgr(); }
 void uiODApplMgr::setAutoUpdatePol()
 { dispatcher_.setAutoUpdatePol(); }
+void uiODApplMgr::createCubeFromWells( CallBacker* )
+{ dispatcher_.createCubeFromWells(); }
 void uiODApplMgr::create2Dfrom3D()
 { dispatcher_.process2D3D( true ); }
 void uiODApplMgr::create3Dfrom2D()
@@ -1810,3 +1790,4 @@ void uiODApplMgr::MiscSurvInfo::refresh()
     zunit_ = SI().zUnit();
     zstep_ = SI().zStep();
 }
+

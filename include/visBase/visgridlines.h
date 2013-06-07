@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "cubesampling.h"
 
@@ -30,7 +29,7 @@ class DrawStyle;
 class IndexedPolyLine;
 class Transformation;
 
-mExpClass(visBase) GridLines : public VisualObjectImpl
+mClass GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()
@@ -94,4 +93,3 @@ protected:
 } // Namespace visBase
 
 #endif
-

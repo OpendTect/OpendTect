@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "samplingdata.h"
 #include "valseriesevent.h"
@@ -22,7 +21,7 @@ class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
-mExpClass(Seis) SeisEventSnapper : public Executor
+mClass SeisEventSnapper : public Executor
 {
 public:
 				SeisEventSnapper( const Interval<float>& gate);
@@ -52,7 +51,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
+mClass SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
 				SeisEventSnapper3D(const IOObj&,BinIDValueSet&,
@@ -67,4 +66,3 @@ protected:
 };
 
 #endif
-

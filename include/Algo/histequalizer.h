@@ -12,20 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 template <class T> class TypeSet;
 
 
-/*!
-\brief Class to do histogram equalization of datasets.
-*/
-
-mExpClass(Algo) HistEqualizer
+mClass HistEqualizer
 {
 public:
     			HistEqualizer(const int nrseg=256);
-    void 		setData(const LargeValVec<float>&);
+    void 		setData(const TypeSet<float>&);
     			//!< use in case of sorted data
     void 		setRawData(const TypeSet<float>&);
     			//!< use in case of unsorted data
@@ -34,7 +29,7 @@ public:
 
 protected:
 
-    LargeValVec<float>&	 	datapts_;
+    TypeSet<float>&	 	datapts_;
     const int		 	nrseg_;
     TypeSet<Interval<float> >*	histeqdatarg_;
 
@@ -42,5 +37,4 @@ protected:
 };
 
 #endif
-
 

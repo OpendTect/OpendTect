@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "bufstring.h"
 
 
@@ -21,7 +20,7 @@ namespace CmdDrive
 
 class CmdDriver;
 
-mExpClass(uiCmdDriver) ExprInterpreter
+mClass ExprInterpreter
 {
 public:
     			ExprInterpreter(const CmdDriver&);

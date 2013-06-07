@@ -153,7 +153,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     }
 
     // Get the data into train and test set
-    Stats::randGen().init();
+    Stats::RandGen::init();
 
     // All the following to support non-random test set extraction
     const bool extractrand = ratiotst > -0.001;
@@ -184,10 +184,10 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	    if ( addcols )
 	    {
 		for ( int iout=0; iout<nrout; iout++ )
-		    outdr.data_ += mCast( float, iout == idps ? 1 : 0 );
+		    outdr.data_ += iout == idps ? 1 : 0;
 	    }
 
-	    const bool istest = extractrand ? Stats::randGen().get() < tstratio
+	    const bool istest = extractrand ? Stats::RandGen::get() < tstratio
 					     : itotal > lasttrain;
 	    outdr.setGroup( istest ? 2 : 1 );
 	    dps.addRow( outdr );

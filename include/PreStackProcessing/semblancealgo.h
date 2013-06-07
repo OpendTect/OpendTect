@@ -13,22 +13,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "factory.h"
 #include "objectset.h"
 
 class IOPar;
+
 
 namespace PreStack
 {
 
 class Gather;
 
-/*!
-\brief Base class for algorithms that compute semblance along a moveout.
-*/
-
-mExpClass(PreStackProcessing) SemblanceAlgorithm
+/*! Base class for algorithms that computes semblance along a moveout */
+mClass SemblanceAlgorithm
 {
 public:
     			mDefineFactoryInClass( SemblanceAlgorithm, factory );
@@ -54,4 +51,3 @@ public:
 }; //namespace
 
 #endif
-

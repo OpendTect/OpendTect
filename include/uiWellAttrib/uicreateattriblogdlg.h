@@ -12,7 +12,6 @@
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "createattriblog.h"
@@ -25,7 +24,7 @@ class uiListBox;
 class uiGenInput;
 class uiWellExtractParams;
 
-mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
+mClass uiCreateAttribLogDlg : public uiDialog
 {
 public:
     				uiCreateAttribLogDlg(uiParent*,
@@ -49,9 +48,9 @@ protected:
 
     bool                        inputsOK(int);
     bool			acceptOK(CallBacker*);
-    void			init(CallBacker*);
     void			selDone(CallBacker*);
+
+    void			init(CallBacker*);
 };
 
 #endif
-

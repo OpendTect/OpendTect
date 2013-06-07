@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctionvolume.h"
 
@@ -98,6 +98,7 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
     {
+	const int msize = mMIN(velsz,nr);
 	memcpy( res, vel_.arr(), sizeof(float)*velsz );
     }
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
@@ -178,7 +179,7 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
     if ( !velioobj )
     {
 	errmsg_ = "Velocity volume with id: ";
-	errmsg_.add( velid ).add(" is not found." );
+	errmsg_.add( velid ).add( "is not found." );
 	return false;
     }
 
@@ -197,7 +198,7 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 SeisTrcReader* VolumeFunctionSource::getReader()
 {
     Threads::MutexLocker lock( readerlock_ );
-    const void* thread = Threads::currentThread();
+    const void* thread = Threads::Thread::currentThread();
 
     const int idx = threads_.indexOf( thread );
     if ( threads_.validIdx(idx) )
@@ -303,7 +304,10 @@ FunctionSource* VolumeFunctionSource::create(const MultiID& mid)
     VolumeFunctionSource* res = new VolumeFunctionSource;
     if ( !res->setFrom( mid ) )
     {
+#if mODMinorVersion > 3
 	FunctionSource::factory().errMsg() = res->errMsg();
+#endif
+
 	delete res;
 	return 0;
     }

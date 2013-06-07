@@ -54,7 +54,7 @@ for ( int idx=0; new##variable && idx<curnrrows+nrtoinsert; idx++ ) \
 		const float relrow = origin_.row + \
 		    ((float) idx-rowidx)/(nrtoinsert+1)*step_.row; \
 		const Coord param( relrow, origin_.col+idy*step_.col ); \
-		new##variable->set(idx,idy,(type) interpolfunc); \
+		new##variable->set(idx,idy,interpolfunc); \
 	    } \
 	} \
 	else \
@@ -85,7 +85,7 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
 		const float relcol = origin_.col + \
 		    ((float) idy-colidx)/(nrtoinsert+1)*step_.col; \
 		const Coord param( origin_.row+idx*step_.row, relcol ); \
-		new##variable->set(idx,idy,(type) interpolfunc); \
+		new##variable->set(idx,idy,interpolfunc); \
 	    } \
 	} \
 	else \

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "indexedshape.h"
 
@@ -13,57 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Geometry
 {
 
-    
-PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
-    
-    
-DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
-{ "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
-  "Other", 0 };
-    
-    
-    
-PrimitiveSet::PrimitiveSet()
-    : primitivetype_( Triangles )
-{}
-    
-PrimitiveSet::PrimitiveType PrimitiveSet::getPrimitiveType() const
-{
-    return primitivetype_;
-}
-
-
-void PrimitiveSet::setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType tp)
-{
-    primitivetype_ = tp;
-}
-
-    
-    
-PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
-{
-    return creator_ ? creator_->doCreate( indexed, large ) : 0;
-}
-    
-    
-IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
-{
-    return (IndexedPrimitiveSet*) PrimitiveSetCreator::create( true, large );
-}
-    
-    
-RangePrimitiveSet* RangePrimitiveSet::create()
-{
-    return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
-}
-
-    
-    
-void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
-{
-    creator_ = c;
-}
-    
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 				  Coord3List* coords, Coord3List* normals,
@@ -144,24 +93,6 @@ void IndexedGeometry::removeAll( bool deep )
 	    texturecoordlist_->remove( texturecoordindices_[idx] );
 	}
     }
-    
-    if ( primitivesets_.size() && deep )
-    {
-	for ( int idx=0; idx<primitivesets_.size(); idx++ )
-	{
-	    ConstRefMan<PrimitiveSet> primitive = primitivesets_[idx];
-	    for ( int idy=primitive->size()-1; idy>=0; idy-- )
-	    {
-		const int index = primitive->get(idy);
-		if ( coordlist_ )
-		    coordlist_->remove( index );
-		if ( normallist_ )
-		    normallist_->remove( index );
-		if ( texturecoordlist_ )
-		    texturecoordlist_->remove( index );
-	    }
-	}
-    }
 
     if ( coordindices_.size() || normalindices_.size() ||
 	 texturecoordindices_.size() )
@@ -170,8 +101,6 @@ void IndexedGeometry::removeAll( bool deep )
     coordindices_.erase();
     normalindices_.erase();
     texturecoordindices_.erase();
-    
-    deepUnRef( primitivesets_ );
 }
 
 
@@ -261,7 +190,7 @@ void ExplicitIndexedShape::removeFromGeometries( const IndexedGeometry* ig )
     geometrieslock_.writeLock();
     const int idx = geometries_.indexOf( ig );
     if ( idx!=-1 )
-	geometries_.removeSingle( idx, false );
+	geometries_.remove( idx, false );
     geometrieslock_.writeUnLock();
 }
 

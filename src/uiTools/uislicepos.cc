@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uislicepos.h"
 
@@ -43,9 +43,9 @@ uiSlicePos::uiSlicePos( uiParent* p )
     slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
 
-    prevbut_ = new uiToolButton( toolbar_, "prevpos", "Previous position",
+    prevbut_ = new uiToolButton( toolbar_, "prevpos.png", "Previous position",
 				mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( toolbar_, "nextpos", "Next position",
+    nextbut_ = new uiToolButton( toolbar_, "nextpos.png", "Next position",
 				mCB(this,uiSlicePos,nextCB) );
 
     toolbar_->addObject( label_ );
@@ -75,11 +75,29 @@ void uiSlicePos::shortcutsChg( CallBacker* )
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
     if ( keydesc )
-	nextbut_->setShortcut( keydesc->getKeySequenceStr() );
+    {
+	BufferString keyseq;
+	if ( keydesc->state() == OD::ControlButton )
+	    keyseq += "Ctrl+";
+	else if ( keydesc->state() == OD::ShiftButton )
+	    keyseq += "Shift+";
+
+	keyseq += keydesc->keyStr();
+	nextbut_->setShortcut( keyseq.buf() );
+    }
 
     keydesc = scl.keyDescOf( "Move slice backward" );
     if ( keydesc )
-	prevbut_->setShortcut( keydesc->getKeySequenceStr() );
+    {
+	BufferString keyseq;
+	if ( keydesc->state() == OD::ControlButton )
+	    keyseq += "Ctrl+";
+	else if ( keydesc->state() == OD::ShiftButton )
+	    keyseq += "Shift+";
+
+	keyseq += keydesc->keyStr();
+	prevbut_->setShortcut( keyseq.buf() );
+    }
 }
 
 

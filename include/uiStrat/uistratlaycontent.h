@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uigroup.h"
 class uiComboBox;
 namespace Strat { class Content; class RefTree; }
@@ -20,7 +19,7 @@ namespace Strat { class Content; class RefTree; }
 
 /*!\brief Gets the layer content */
 
-mExpClass(uiStrat) uiStratLayerContent : public uiGroup
+mClass uiStratLayerContent : public uiGroup
 {
 public:
 
@@ -47,4 +46,3 @@ protected:
 
 
 #endif
-

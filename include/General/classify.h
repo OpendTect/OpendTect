@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "typeset.h"
 
 
@@ -21,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-mExpClass(General) WeightedClassCounter
+mClass WeightedClassCounter
 {
 public:
     		WeightedClassCounter( bool canbeneg=true )
@@ -91,4 +90,3 @@ inline int WeightedClassCounter<T>::result() const
 
 
 #endif
-

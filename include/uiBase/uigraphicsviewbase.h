@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class Alignment;
@@ -25,7 +24,7 @@ class MouseEventHandler;
 class uiRect;
 
 
-mExpClass(uiBase) uiGraphicsViewBase : public uiObject
+mClass uiGraphicsViewBase : public uiObject
 {
 friend class uiGraphicsViewBody;
 public:
@@ -51,9 +50,6 @@ public:
     int				width() const; 
     int				height() const; 
 
-    int				getSceneBorder() const;
-    void			setSceneBorder(int);
-
     void			centreOn(uiPoint);
     uiRect			getSceneRect() const;
     void			setSceneRect(const uiRect&);
@@ -72,12 +68,11 @@ public:
     void                        uisetBackgroundColor(const Color&);
     Color		        uibackgroundColor() const;
     void			setNoBackGround();
-    void			rePaint(); 
+    void			rePaintRect(const uiRect*); 
     void			enableScrollZoom()  { enabscrollzoom_ = true; }
     void			disableScrollZoom() { enabscrollzoom_ = false; }
     bool			scrollZoomEnabled()
     				{ return enabscrollzoom_; }
-    uiSize			scrollBarSize(bool horizontal) const;
     
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )
@@ -96,7 +91,6 @@ public:
     Notifier<uiGraphicsViewBase> reDrawNeeded;
     Notifier<uiGraphicsViewBase> reDrawn;
     				//!< In practice, this happens only after reSize
-    Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
 
 
@@ -107,14 +101,15 @@ protected:
 
     uiRect*			selectedarea_;
     uiGraphicsScene*		scene_;
-    int				sceneborder_;
 
     bool			isctrlpressed_;
     bool			enabscrollzoom_;
     bool			enabbgzoom_;
     void 			rubberBandCB(CallBacker*);
 
+public:
+    uiSize			scrollBarSize(bool horizontal) const;
+
 };
 
 #endif
-

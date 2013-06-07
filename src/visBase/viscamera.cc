@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -16,15 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "UTMCamera.h"
 #include "Inventor/nodes/SoGroup.h"
 
-#include <osg/Camera>
-
-
 mCreateFactoryEntry( visBase::Camera );
 
 namespace visBase
 {
 
-const char* Camera::sKeyPosition() 	{ return sKey::Position(); }
+const char* Camera::sKeyPosition() 	{ return sKey::Position; }
 const char* Camera::sKeyOrientation() 	{ return "Orientation"; }
 const char* Camera::sKeyAspectRatio() 	{ return "Aspect ratio"; }
 const char* Camera::sKeyNearDistance() 	{ return "Near Distance"; }
@@ -35,9 +32,6 @@ const char* Camera::sKeyFocalDistance()	{ return "Focal Distance"; }
 Camera::Camera()
     : group( new SoGroup )
 {
-    camera_ = doOsg() ? new osg::Camera : 0;
-    if ( camera_ ) camera_->ref();
-
     group->ref();
     group->addChild( new UTMCamera );
 }
@@ -46,18 +40,11 @@ Camera::Camera()
 Camera::~Camera()
 {
     group->unref();
-    if ( camera_ ) camera_->unref();
 }
 
 
 SoNode* Camera::gtInvntrNode()
 { return group; }
-
-
-osg::Node* Camera::gtOsgNode()
-{
-    return camera_;
-}
 
 
 void Camera::setPosition(const Coord3& pos)

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "volprocchain.h"
 #include "veldesc.h"
 
@@ -28,11 +27,7 @@ namespace Vel
 namespace VolProc
 {
 
-/*!
-\brief VolProc::Step for velocity gridding.
-*/
-
-mExpClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
+mClass VelGriddingStep : public VolProc::Step
 {
 public:
 			VelGriddingStep();
@@ -81,4 +76,3 @@ protected:
 }; //namespace
 
 #endif
-

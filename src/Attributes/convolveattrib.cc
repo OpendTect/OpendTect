@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -214,10 +214,10 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 	    {
 		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
 		{
-		    const float nv =
+		    float nv =
 			( shapetype==mShapeSphere && 
 			  limit2<inl*inl+crl*crl+tidx*tidx )
-			? 0.f : value;
+			? 0 : value;
 		    kernel_[pos++] = nv;
 		    sum_ += nv;
 		}
@@ -301,7 +301,7 @@ Convolve::Convolve( Desc& ds )
 	return;
     }
 
-    kernel_ = new Kernel( kerneltype_, shape_ , size_, is2D() );
+    kernel_ = new Kernel( kerneltype_, shape_ , size_, desc_.is2D() );
     stepout_ = kernel_->getStepout();
 }
 

@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
  
-#include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
 
 namespace Geometry { class RandomLineSet; }
 class Conn;
 
-mExpClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
+mClass RandomLineSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(RandomLineSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
@@ -28,7 +27,7 @@ public:
 };
 
 
-mExpClass(Geometry) RandomLineSetTranslator : public Translator
+mClass RandomLineSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
@@ -45,7 +44,7 @@ public:
 };
 
 
-mExpClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
+mClass dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 
@@ -57,4 +56,3 @@ public:
 
 
 #endif
-

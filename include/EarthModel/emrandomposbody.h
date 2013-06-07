@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "embody.h"
 #include "emobject.h"
 
@@ -23,11 +22,7 @@ namespace Pick { class Set; }
 namespace EM
 {
 
-/*!
-\brief Random position Body.
-*/
-
-mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
+mClass RandomPosBody : public Body, public EMObject
 { mDefineEMObjFuncs( RandomPosBody );
 public:
     
@@ -86,4 +81,3 @@ protected:
 
 
 #endif
-

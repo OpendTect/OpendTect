@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
@@ -41,12 +40,9 @@ template <class T> class Interval;
 
 namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
-/*!
-\ingroup uiEarthModel
-\brief Earth Model UI Part Server
-*/
+/*! \brief Earth Model UI Part Server */
 
-mExpClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
+mClass uiEMPartServer : public uiApplPartServer
 {
 public:
 			uiEMPartServer(uiApplService&);
@@ -55,7 +51,7 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		import3DHorGeom(bool bulk=false);
+    bool		import3DHorGeom();
     bool		import3DHorAttr();
     bool		export3DHorizon();
     bool		export2DHorizon();
@@ -84,7 +80,7 @@ public:
     			/*!<return bool is overwrite old horizon or not. */
     void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
-    bool		askUserToSave(const EM::ObjectID&,bool withcancel) const;
+    bool		askUserToSave(const EM::ObjectID&,bool withcancl) const;
     			/*!< If object has changed, user is asked whether
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
@@ -135,8 +131,7 @@ public:
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
 	    			   DataPointSet&, float& shift) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
-	    			      TypeSet<float>* shfs=0,
-				      const CubeSampling* cs=0) const;
+	    			      TypeSet<float>* shfs=0) const;
     bool		interpolateAuxData(const EM::ObjectID&,const char* nm,
 	    				   DataPointSet& res);
     bool		filterAuxData(const EM::ObjectID&,const char* nm,
@@ -152,14 +147,14 @@ public:
 
     void		removeUndo();
 
-    static int		evDisplayHorizon();
-    static int		evRemoveTreeObject();
+    static const int	evDisplayHorizon();
+    static const int	evRemoveTreeObject();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
 
-    EM::ObjectID	saveUnsavedEMObject();
+    const EM::ObjectID	saveUnsavedEMObject();
     void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);
 
@@ -190,9 +185,23 @@ protected:
     bool		disponcreation_;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;
-
     static const char*  sKeySectionID() { return "Section ID"; }
+
+public:    
+    
+    bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
+				TypeSet<float>* shfs,
+				const CubeSampling* cs) const;
 };
 
-#endif
 
+/*!\page uiEarthModel Earth Model User Interface
+
+ The earth model objects are visualised by the visXX classes. The I/O,
+ parameters and other data-related issues also require standard user interface
+ elements. The classes in this module provide these services via the
+ uiEMPartServer interface.
+
+*/
+
+#endif

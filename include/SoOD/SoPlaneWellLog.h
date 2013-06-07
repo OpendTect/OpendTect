@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodekits/SoBaseKit.h>
 
 #include <Inventor/fields/SoSFBool.h>
@@ -40,7 +39,7 @@ class SoSwitch;
 
 */
 
-mSoODClass SoPlaneWellLog : public SoBaseKit
+mClass SoPlaneWellLog : public SoBaseKit
 {
     typedef SoBaseKit inherited;
     SO_KIT_HEADER(SoPlaneWellLog);
@@ -171,5 +170,4 @@ protected:
 };
 
 #endif
-
 

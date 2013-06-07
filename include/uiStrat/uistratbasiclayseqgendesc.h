@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uistratextlayseqgendesc.h"
 class uiTextItem;
 class uiLineItem;
@@ -21,7 +20,7 @@ class uiPolygonItem;
 namespace Strat { class LayerGenerator; class SingleLayerGenerator; }
 
 
-mExpClass(uiStrat) uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
+mClass uiBasicLayerSequenceGenDesc : public uiExtLayerSequenceGenDesc
 {
 public:
 
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

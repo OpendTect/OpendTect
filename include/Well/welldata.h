@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "fixedstring.h"
 #include "sets.h"
-#include "multiid.h"
 #include "position.h"
 #include "namedobj.h"
 #include "callback.h"
@@ -32,19 +31,14 @@ class D2TModel;
 class DisplayProperties;
 
 
-/*!
-\brief Information about a certain well.
-*/
+/*!\brief Infomation about a certain well */
 
-mExpClass(Well) Info : public ::NamedObject
+mClass Info : public ::NamedObject
 {
 public:
 
 			Info( const char* nm )
-			    : ::NamedObject(nm)
-			    , srdelev(0)
-			    , replvel(2000.f)
-			    , groundelev(mUdf(float))	{}
+			    : ::NamedObject(nm), surfaceelev(0)	{}
 
     void                fillPar(IOPar&) const;
     void                usePar(const IOPar&);
@@ -55,42 +49,39 @@ public:
     BufferString	county;
 
     Coord		surfacecoord;
-    float		srdelev;
-    float		replvel;
-    float		groundelev;
+    float		surfaceelev;
 
     static const char*	sKeyuwid();
     static const char*	sKeyoper();
     static const char*	sKeystate();
     static const char*	sKeycounty();
     static const char*	sKeycoord();
-    static const char*	sKeykbelev();
-    static const char*	sKeyOldelev();
-    static const char*	sKeySRD();
-    static const char*	sKeyreplvel();
-    static const char*	sKeygroundelev();
+    static const char*	sKeyelev();
+
+    float 		getReplVel() const;
+    float 		getGroundElev() const;
+    void		setReplVel(float);
+    void		setGroundElev(float);
+    inline FixedString	getsKeyreplvel() { return "Replacement velocity"; }
+    inline FixedString	getsKeygroundelev() { return "Ground level elevation"; }
 
 };
 
 
-/*!
-\brief The holder of all data concerning a certain well.
+/*!\brief The holder of all data concerning a certain well.
  
-  Note that a well is not a POSC well in the sense that it describes the data
-  for one well bore. Thus, a well has a single track. This may mean duplication
-  when more well tracks share an upper part.
+ Note that a well is not a POSC well in the sense that it describes the
+ data for one well bore. Thus, a well has a single track.
+ This may mean duplication when more well tracks share an upper part.
+
 */
 
-mExpClass(Well) Data : public CallBacker
+mClass Data : public CallBacker
 {
 public:
 
 				Data(const char* nm=0);
 				~Data();
-
-    const MultiID&		multiID() const		{ return mid_; }
-    void			setMultiID(const MultiID& mid) 
-    							{ mid_ = mid; }
 
     const char*			name() const		{ return info_.name(); }
     const Info&			info() const		{ return info_; }
@@ -132,7 +123,6 @@ public:
 protected:
 
     Info		info_;
-    MultiID		mid_;
     Track&		track_;
     LogSet&		logs_;
     D2TModel*		d2tmodel_;
@@ -142,7 +132,28 @@ protected:
     DisplayProperties&	disp3d_;
 };
 
-} // namespace Well
+}; // namespace Well
+
+
+/*!\page Well Wells
+ 
+ The OpendTect Well object is a single track, logs and markers bearing thing
+ with some global data and possibly a Depth vs Time model attached.
+ Therefore, it is not a POSC well in the sense that it describes the
+ data for one well bore only. This may mean duplication when more well
+ tracks share an upper part.
+
+ The well track is a 3D line-segment geometry. The traditional description of
+ the Z value in true vertical depth (TVD) breaks down miserably when
+ horizontal well tracks (and worse) come into play. A much better single
+ coordinate to describe the position in a well is the depth-along-hole (or
+ more correctly distance-along-hole). This is why everything in this module
+ is related to the DAH, not TVD. There are facilities to work with TVD, though.
+
+ Further it seems to me that anyone familiar with wells, logs and that kind of
+ concepts should find this module's object model fairly intuitive.
+
+*/
+
 
 #endif
-

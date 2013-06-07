@@ -27,13 +27,19 @@ Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
     , content_(0)
 {
-    setValue( 0, 0 ); // layers always have a thickness
+    setValue( 0, 0 ); setValue( 1, 0 );
 }
 
 
 BufferString Strat::Layer::name() const
 {
     return BufferString( unitRef().fullCode().buf() );
+}
+
+
+const Strat::LeafUnitRef& Strat::Layer::unitRef() const
+{
+    return ref_ ? *ref_ : RT().undefLeaf();
 }
 
 
@@ -113,42 +119,22 @@ const Strat::RefTree& Strat::LayerSequence::refTree() const
 }
 
 
-int Strat::LayerSequence::layerIdxAtZ( float zreq ) const
+int Strat::LayerSequence::layerIdxAtZ( float zreq, bool retszifafter ) const
 {
-    const int nrlays = layers_.size();
-    if ( nrlays == 0 || zreq < layers_[0]->zTop()
-	    	     || zreq > layers_[nrlays-1]->zBot() )
+    const ObjectSet<Layer>& lays = layers();
+    const int nrlays = lays.size();
+    if ( nrlays == 0 || zreq < lays[0]->zTop() )
 	return -1;
+    else if ( zreq > lays[nrlays-1]->zBot() )
+	return retszifafter ? nrlays : -1;
 
     for ( int ilay=0; ilay<nrlays; ilay++ )
     {
-	if ( zreq < layers_[ilay]->zBot() )
+	const Layer& lay( *lays[ilay] );
+	if ( zreq < lay.zBot() )
 	    return ilay;
     }
     return nrlays-1;
-}
-
-
-int Strat::LayerSequence::nearestLayerIdxAtZ( float zreq ) const
-{
-    const int nrlays = layers_.size();
-    if ( nrlays < 2 )
-	return nrlays == 1 ? 0 : -1;
-
-    for ( int ilay=0; ilay<nrlays; ilay++ )
-    {
-	if ( zreq < layers_[ilay]->zBot() )
-	    return ilay;
-    }
-    return nrlays - 1;
-}
-
-
-Interval<float> Strat::LayerSequence::zRange() const
-{
-    if ( isEmpty() )
-	return Interval<float>( z0_, z0_ );
-    return Interval<float>( z0_, layers_[layers_.size()-1]->zBot() );
 }
 
 
@@ -320,7 +306,7 @@ void Strat::LayerSequence::prepareUse() const
 
 Strat::LayerModel::LayerModel()
 {
-    proprefs_ += &Layer::thicknessRef();
+    props_ += &Layer::thicknessRef();
 }
 
 
@@ -335,27 +321,15 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
     setEmpty();
     if ( this != &oth )
     {
-	proprefs_ = oth.proprefs_;
+	props_ = oth.props_;
 	for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
 	{
 	    LayerSequence* newseq = new LayerSequence( *oth.seqs_[iseq] );
-	    newseq->propertyRefs() = proprefs_;
+	    newseq->propertyRefs() = props_;
 	    seqs_ += newseq;
 	}
     }
     return *this;
-}
-
-
-Interval<float> Strat::LayerModel::zRange() const
-{
-    if ( isEmpty() )
-	return Interval<float>( 0, 0 );
-
-    Interval<float> ret( seqs_[0]->zRange() );
-    for ( int iseq=1; iseq<seqs_.size(); iseq++ )
-	ret.include( seqs_[iseq]->zRange(), false );
-    return ret;
 }
 
 
@@ -367,7 +341,7 @@ void Strat::LayerModel::setEmpty()
 
 Strat::LayerSequence& Strat::LayerModel::addSequence()
 {
-    LayerSequence* newseq = new LayerSequence( &proprefs_ );
+    LayerSequence* newseq = new LayerSequence( &props_ );
     seqs_ += newseq;
     return *newseq;
 }
@@ -376,7 +350,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 Strat::LayerSequence& Strat::LayerModel::addSequence(
 				const Strat::LayerSequence& inpls )
 {
-    LayerSequence* newls = new LayerSequence( &proprefs_ );
+    LayerSequence* newls = new LayerSequence( &props_ );
 
     const PropertyRefSelection& inpprops = inpls.propertyRefs();
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
@@ -384,9 +358,9 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	const Layer& inplay = *inpls.layers()[ilay];
 	Layer* newlay = new Layer( inplay.unitRef() );
 	newlay->setThickness( inplay.thickness() );
-	for ( int iprop=1; iprop<proprefs_.size(); iprop++ )
+	for ( int iprop=1; iprop<props_.size(); iprop++ )
 	{
-	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
+	    const int idxof = inpprops.indexOf( props_[iprop] );
 	    newlay->setValue( iprop,
 		    	idxof < 0 ? mUdf(float) : inplay.value(idxof) );
 	}
@@ -401,7 +375,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 void Strat::LayerModel::removeSequence( int seqidx )
 {
     if ( seqidx >= 0 && seqidx < seqs_.size() )
-	delete seqs_.removeSingle( seqidx );
+	delete seqs_.remove( seqidx );
 }
 
 
@@ -447,13 +421,13 @@ bool Strat::LayerModel::read( std::istream& strm )
     }
     if ( !strm.good() ) return false;
 
-    proprefs_ = newprops;
+    props_ = newprops;
     const RefTree& rt = RT();
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
 	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S.."
-	LayerSequence* seq = new LayerSequence( &proprefs_ );
+	LayerSequence* seq = new LayerSequence( &props_ );
 	int nrlays; strm >> nrlays;
 	StrmOper::wordFromLine( strm, buf, 256 ); // read newline
 	if ( strm.bad() ) return false;
@@ -488,11 +462,11 @@ bool Strat::LayerModel::read( std::istream& strm )
 bool Strat::LayerModel::write( std::ostream& strm, int modnr ) const
 {
     const int nrseqs = seqs_.size();
-    const int nrprops = proprefs_.size();
+    const int nrprops = props_.size();
     strm << "#M" << modnr << '\t' << nrprops << '\t' << nrseqs << '\n';
 
     for ( int iprop=0; iprop<nrprops; iprop++ )
-	strm << "#P" << iprop << '\t' << proprefs_[iprop]->name() << '\n';
+	strm << "#P" << iprop << '\t' << props_[iprop]->name() << '\n';
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {

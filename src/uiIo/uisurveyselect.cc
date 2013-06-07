@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uisurveyselect.h"
@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisurvey.h"
-#include "survinfo.h"
+
+extern "C" const char* GetSurveyName();
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 

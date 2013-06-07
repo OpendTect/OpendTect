@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelldisppropdlg.h"
 
@@ -41,7 +41,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 
     Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
 
-    ts_ = new uiTabStack( this, "Well display properties tab stack" );
+    ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
     tgs += new uiGroup( ts_->tabGroup(),"Left log properties");
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties");
@@ -50,12 +50,10 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
-		uiWellDispProperties::Setup( "Line thickness", "Line color"),
-		props.logs_[0]->left_, &(wd_->logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->left_, &(wd_->logs()) );
     wlp1->disableLogWidth( is2d );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
-		uiWellDispProperties::Setup( "Line thickness", "Line color"),
-		props.logs_[0]->right_, &(wd_->logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props.logs_[0]->right_, &(wd_->logs()) );
     wlp2->disableLogWidth( is2d );
 
     propflds_ += wlp1;
@@ -66,19 +64,18 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	allmarkernms.add( wd_->markers()[idx]->name() );
 
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
-	uiWellDispProperties::Setup( "Marker size", "Marker color" )
-	, props.markers_, allmarkernms, is2d );
-
+		    uiWellDispProperties::Setup( "Marker size", "Marker color" )
+		    , props.markers_, allmarkernms, is2d );
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
-			    uiWellDispProperties::Setup(), props.track_ );
+		    uiWellDispProperties::Setup(), props.track_ );
 
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	propflds_[idx]->propChanged.notify(
 					mCB(this,uiWellDispPropDlg,propChg) );
-	if ( !strcmp( sKey::Log(), propflds_[idx]->props().subjectName() ) )
+	if ( !strcmp( sKey::Log, propflds_[idx]->props().subjectName() ) )
 	{
 	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log" 
 		    			    : is2d ? "Log 1" : "Left Log" );
@@ -92,15 +89,26 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 
+    windowClosed.notify( mCB(this,uiWellDispPropDlg,prepareForShutdown) );
     setWDNotifiers( true );
-    windowClosed.notify( mCB(this,uiWellDispPropDlg,onClose) );
+}
+
+
+uiWellDispPropDlg::~uiWellDispPropDlg()
+{
+}
+
+
+void uiWellDispPropDlg::prepareForShutdown( CallBacker* )
+{
+    setWDNotifiers( false ); //Does both single and multi well window
+    wd_ = 0;
 }
 
 
 void uiWellDispPropDlg::setWDNotifiers( bool yn ) 
 {
     if ( !wd_ ) return;
-
     if ( yn )
     {
 	mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
@@ -157,12 +165,6 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 }
 
 
-void uiWellDispPropDlg::onClose( CallBacker* )
-{
-    setWDNotifiers( false );
-}
-
-
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
     savedefault_ = saveButtonChecked();
@@ -170,7 +172,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 }
 
 
-
+//uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p, 
 					        ObjectSet<Well::Data>& wds,
        						bool is2ddisplay )
@@ -191,6 +193,16 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }
+    
+    windowClosed.notify( mCB(this,uiMultiWellDispPropDlg,
+			     prepareMultiWellForShutdown) );
+}
+
+
+void uiMultiWellDispPropDlg::prepareMultiWellForShutdown( CallBacker* cb )
+{
+    prepareForShutdown( cb );
+    wds_.erase();
 }
 
 
@@ -236,7 +248,6 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 
 void uiMultiWellDispPropDlg::setWDNotifiers( bool yn ) 
 {
-    Well::Data* curwd = wd_;
     for ( int idx=0; idx<wds_.size(); idx++ ) 
     {
 	wd_ = wds_[idx];
@@ -244,21 +255,13 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 	{
 	    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
 	    mDelNot.notify( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    wd_ = wds_[0];
 	}
 	else
 	{
 	    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
 	    mDelNot.remove( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    wds_.erase();
 	}
     }
-    wd_ = curwd;
 }
-
-
-void uiMultiWellDispPropDlg::onClose( CallBacker* )
-{
-    setWDNotifiers( false );
-    wds_.erase();
-}
-
-

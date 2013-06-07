@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiobjectitemviewwin.h"
 
@@ -65,9 +65,6 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->attach( ensureBelow, infobar_, 0 );
     mainviewer_->attach( ensureBelow, dummyview, 0 );
 
-    mainviewer_->setSceneBorder(0);
-    infobar_->setSceneBorder(0);
-
     makeSliders();
     versliderfld_->attach( ensureRightOf, dummyview );
 }
@@ -124,7 +121,7 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->attach( centeredBelow, dummylbl );
     versliderfld_->setStretch( 0, 0 );
 
-    fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
+    fittoscreenbut_ = new uiToolButton( this, "exttofullsurv.png",
 		    "Fit to screen", mCB(this,uiObjectItemViewWin,fitToScreen));
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
@@ -184,14 +181,15 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 
 void uiObjectItemViewWin::scaleVal( float& val, bool hor, bool yn )
 {
+    const float nritems = hor ? mainviewer_->nrItems() : 1;
     scaler_.set( 1, 1, mSldUnits, mMaxObjectSize );
-    val = (float) ( yn ? scaler_.scale( val ) : scaler_.unScale( val ) );
+    val = yn ? scaler_.scale( val ) : scaler_.unScale( val );
 }
 
 
 void uiObjectItemViewWin::reSizeItems()
 {
-    const int nritems = mainviewer_->nrItems();
+    const float nritems = mainviewer_->nrItems();
     if ( !nritems ) return;
 
     scaleVal( hslval_, true, true ); 
@@ -287,7 +285,7 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     scaleVal( newhslval, true, false ); 
     scaleVal( newvslval, false, false );
     if ( ( newhslval == hslval_ ) && ( newvslval == vslval_ ) )
-	return;
+       return;
 
     horsliderfld_->sldr()->setValue( newhslval );
     versliderfld_->sldr()->setValue( newvslval );
@@ -323,16 +321,16 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     const uiRect* selrect = mainviewer_->getSelectedArea();
     if ( !selrect || selrect->width() < mMinSelWidth ) return;
 
-    const int selwidth = selrect->width();
-    const int selheight = selrect->height();
+    const float selwidth = selrect->width();
+    const float selheight = selrect->height();
     if ( selwidth<=0 || selheight<=0 ) return;
 
     const uiRect viewrect = mainviewer_->getViewArea();
-    const int viewwidth = viewrect.width(); 
-    const int viewheight = viewrect.height(); 
+    const float viewwidth = viewrect.width(); 
+    const float viewheight = viewrect.height(); 
 
-    const float xfac = float(viewwidth)/selwidth;
-    const float yfac = float(viewheight)/selheight;
+    const float xfac = viewwidth/selwidth;
+    const float yfac = viewheight/selheight;
 
     zoomratiofld_->setChecked(false);
 
@@ -369,16 +367,16 @@ void uiObjectItemViewInfoBar::addItem( uiObjectItem* infoitm,
 {
     addItem( infoitm );
     coupleditems_ += cpleditm;
-    resetViewArea(0);
+    updateItemsPos();
 }
 
 
 void uiObjectItemViewInfoBar::removeItem( uiObjectItem* itm )
 {
     const int idx = objectitems_.indexOf( itm );
-    if ( idx >= 0 ) coupleditems_.removeSingle( idx );
+    if ( idx >= 0 ) coupleditems_.remove( idx );
     uiObjectItemView::removeItem( itm );
-    resetViewArea(0);
+    updateItemsPos();
 }
 
 
@@ -387,7 +385,6 @@ void uiObjectItemViewInfoBar::removeItemByCouple( uiObjectItem* coupleditem )
     const int idx = coupleditems_.indexOf( coupleditem );
     if ( objectitems_.validIdx( idx ) )
 	removeItem( objectitems_[idx] );
-    resetViewArea(0);
 }
 
 
@@ -396,7 +393,7 @@ void uiObjectItemViewInfoBar::insertItem( uiObjectItem* itm,
 {
     insertItem( itm, pos );
     coupleditems_.insertAt( cpleditm, pos );
-    resetViewArea(0);
+    updateItemsPos();
 }
 
 
@@ -409,6 +406,18 @@ void uiObjectItemViewInfoBar::reSizeItems()
 	const int w = cpleditm->objectSize().width();
 	const int h = height();
 	itm->setObjectSize( w, h );
+    }
+    updateItemsPos();
+}
+
+
+void uiObjectItemViewInfoBar::updateItemsPos()
+{
+    for( int idx=0; idx<objectitems_.size(); idx++ )
+    {
+	uiObjectItem* itm = objectitems_[idx];
+	uiObjectItem* cpleditm = coupleditems_[idx];
+	itm->setPos( cpleditm->getPos().x, itm->getPos().y );
     }
     resetViewArea(0);
 }
@@ -441,7 +450,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 
 void uiObjectItemViewControl::setToolButtons()
 {
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
 }
 
 
@@ -459,7 +468,7 @@ void uiObjectItemViewControl::changeStatus()
 	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
 
     if ( manipdrawbut_ ) 
-	manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+	manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
 
     mainviewer_.setDragMode( mode );
     mainviewer_.scene().setMouseEventActive( true );

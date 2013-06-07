@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwaveletextraction.h"
 
@@ -58,7 +58,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     if ( !is2d )
     {
 	seisctio_.ctxt.forread = true;
-	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+	seisctio_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
 
 	seissel3dfld_ = new uiSeisSel( this, seisctio_,
 	    			     uiSeisSel::Setup(false,false) );
@@ -98,7 +98,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     zrangefld_ = new uiSelZRange( this, false, false, "Z Range " );
     zrangefld_->attach( alignedBelow, zextraction_ );
 
-    surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface(), this,
+    surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface, this,
 	   		 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
@@ -262,7 +262,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 bool uiWaveletExtraction::checkWaveletSize()
 {
     wvltsize_ = mNINT32( wtlengthfld_->getIntValue() /
-		      (datastep_ * ((float) SI().zDomain().userFactor())) ) + 1;
+	    		      (datastep_ * ((float) SI().zFactor())) ) + 1;
     if ( wvltsize_ < 3 )
     {
 	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
@@ -357,14 +357,13 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 
     const int taperlength = taperfld_->getIntValue();
     const float val =
-	  1-(2*taperlength/( (wvltsize_-1)*datastep_*
-		      ((float)SI().zDomain().userFactor())) );
-    const float paramval = (float) ( val == 1 ? 1.0 - 1e-6 : val );
+	  1-(2*taperlength/( (wvltsize_-1)*datastep_*((float)SI().zFactor())) );
+    const float paramval = val == 1 ? 1.0 - 1e-6 : val;
     extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *extractor ) )
+    if ( !taskrunner.execute(*extractor) )
 	return false;
 
     Wavelet storewvlt = extractor->getWavelet();
@@ -379,20 +378,20 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 					      const IOPar& surfacepar,
 					      Seis::TableSelData& tsd )
 {
-    const char* extrazkey = IOPar::compKey( sKey::Surface(),
+    const char* extrazkey = IOPar::compKey( sKey::Surface,
 	    			  	  Pos::EMSurfaceProvider::extraZKey() );
     Interval<float> extz( 0, 0 );
     if ( surfacepar.get(extrazkey,extz) )
 	tsd.extendZ( extz );
 
     Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
-    BufferString surfkey = IOPar::compKey( sKey::Surface(),
+    BufferString surfkey = IOPar::compKey( sKey::Surface,
 	    				   Pos::EMSurfaceProvider::id1Key() );
     MultiID surf1mid, surf2mid;
     if ( !surfacepar.get( surfkey.buf(), surf1mid ) )
 	return false;
 
-    surfkey = IOPar::compKey( sKey::Surface(),
+    surfkey = IOPar::compKey( sKey::Surface,
 			      Pos::EMSurfaceProvider::id2Key() );
     const bool betweenhors = surfacepar.get( surfkey.buf(), surf2mid );
 

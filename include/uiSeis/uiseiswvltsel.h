@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 class MultiID;
@@ -21,7 +20,7 @@ class uiComboBox;
 
 /*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
 
-mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
+mClass uiSeisWaveletSel : public uiGroup
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

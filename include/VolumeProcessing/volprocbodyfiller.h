@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "volprocchain.h"
 #include "arrayndimpl.h"
 
@@ -24,11 +23,7 @@ namespace VolProc
 
 class Step;
 
-/*!
-\brief Body filler
-*/
-
-mExpClass(VolumeProcessing) BodyFiller : public Step
+mClass BodyFiller : public Step
 {
 public:
 	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );
@@ -99,4 +94,3 @@ protected:
 }; //namespace
 
 #endif
-

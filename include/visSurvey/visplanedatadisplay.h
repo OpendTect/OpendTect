@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "mousecursor.h"
 #include "ranges.h"
@@ -45,15 +44,14 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Used for displaying an inline, crossline or timeslice.
+/*!\brief Used for displaying an inline, crossline or timeslice.
 
-  A PlaneDataDisplay object is the front-end object for displaying an inline,
-  crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
-  setting the requested orientation of the slice.
+    A PlaneDataDisplay object is the front-end object for displaying an inline,
+    crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
+    setting the requested orientation of the slice.
 */
 
-mExpClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
+mClass PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 
@@ -65,7 +63,7 @@ public:
     static PlaneDataDisplay*	create()
 				mCreateDataObj(PlaneDataDisplay);
 
-    void			setInlCrlSystem(const InlCrlSystem*);
+    void			setInlCrlSystem(const SurveyInfo& si);
 
     void			setOrientation(Orientation);
     Orientation			getOrientation() const { return orientation_; }
@@ -153,8 +151,6 @@ public:
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
-    void			setDisplayTransformation(const mVisTrans*) {}
-
 protected:
 
 				~PlaneDataDisplay();
@@ -236,4 +232,3 @@ protected:
 
 
 #endif
-

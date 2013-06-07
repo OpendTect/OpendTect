@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "velocityfunction.h"
 #include "binidvalset.h"
 
@@ -29,7 +28,7 @@ class StoredFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Picks. */
 
-mExpClass(Velocity) StoredFunction : public Function
+mClass StoredFunction : public Function
 {
 public:
 				StoredFunction(StoredFunctionSource&);
@@ -47,7 +46,7 @@ protected:
 };
 
 
-mExpClass(Velocity) StoredFunctionSource : public FunctionSource
+mClass StoredFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "StoredVelFunc", sFactoryKeyword());
@@ -90,4 +89,3 @@ protected:
 
 
 #endif
-

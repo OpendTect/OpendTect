@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uisetpickdirs.h"
@@ -144,7 +144,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	Pick::Location pl( ps_[idx] );
-	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos_) );
+	DataPointSet::DataRow dtrow( DataPointSet::Pos( pl.pos ) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
     }
@@ -182,8 +182,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    phi = (float) (dps.value( 0, rid ) * M_PI / 180);
-	    theta = (float) (dps.value( 1, rid ) * M_PI / 180);
+	    phi = dps.value( 0, rid ) * M_PI / 180;
+	    theta = dps.value( 1, rid ) * M_PI / 180;
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );
@@ -193,7 +193,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    { phi = 0; theta = 0; }
 	}
 	
-	ps_[idx].dir_ = Sphere( 1, theta, phi );
+	ps_[idx].dir = Sphere( 1, theta, phi );
     }
  
     ps_.disp_.markertype_ = MarkerStyle3D::Plane;
@@ -323,7 +323,7 @@ bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
+    if ( !taskrunner.execute(*tabextr) )
 	return false;
 
     return true;
@@ -335,10 +335,10 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
     const float azi = atan2( inldip, crldip );
 
     const RCol2Coord& b2c = SI().binID2Coord();
-    const double xcrl = b2c.getTransform(true).c;
-    double ycrl = b2c.getTransform(false).c;
+    const float xcrl = b2c.getTransform(true).c;
+    float ycrl = b2c.getTransform(false).c;
 
-    const float angN = (float) atan2( xcrl, ycrl );
+    const float angN = atan2( xcrl, ycrl );
 
     float phi;
     if ( SI().isClockWise() )
@@ -355,7 +355,7 @@ float uiSetPickDirs::calcTheta( float inldip, float crldip )
 {
     const float poldip = Math::Sqrt( inldip*inldip + crldip*crldip );
     
-    float theta = (float) atan( poldip * velocity_ * 1e-6 );
+    float theta = atan( poldip * velocity_ * 1e-6 );
     return theta;
 }
 
@@ -363,7 +363,7 @@ float uiSetPickDirs::calcTheta( float inldip, float crldip )
 void uiSetPickDirs::wrapPhi( float& phi )
 {
     int nrcycles = (int)( phi / (2*M_PI) );
-    phi -= (float) (nrcycles * 2*M_PI);
+    phi -= (nrcycles * 2*M_PI);
 }
 
 

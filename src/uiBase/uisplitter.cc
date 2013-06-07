@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uisplitter.h"
@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QSplitter>
 
-mUseQtnamespace
 
 class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
 {

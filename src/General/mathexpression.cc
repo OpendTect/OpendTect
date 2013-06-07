@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -411,7 +411,7 @@ float MathExpressionAND::getValue() const
 
 static int ensureRandInited()
 {
-    Stats::randGen().init();
+    Stats::RandGen::init();
     return 0;
 }
 
@@ -422,8 +422,8 @@ float MathExpressionRandom::getValue() const
     if ( Values::isUdf(maxval) )
 	return mUdf(float);
 
-    static int dum mUnusedVar = ensureRandInited();
-    return ( float )( maxval * Stats::randGen().get() );
+    static int dum = ensureRandInited();
+    return maxval * Stats::RandGen::get();
 }
 
 
@@ -434,8 +434,8 @@ float MathExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(float);
 
-    static int dum mUnusedVar = ensureRandInited();
-    return ( float ) Stats::randGen().getNormal(0,stdev);
+    static int dum = ensureRandInited();
+    return Stats::RandGen::getNormal(0,stdev);
 }
 
 
@@ -492,7 +492,7 @@ public: \
 			    for ( int idx=0; idx<inputs_.size(); idx++) \
 				stats += inputs_[idx]->getValue(); \
  \
-			    return ( float ) stats.getValue(Stats::statnm); \
+			    return stats.getValue(Stats::statnm); \
 			} \
  \
     MathExpression*	clone() const \
@@ -546,13 +546,13 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 
 	for ( int idx=0; idx<obj->nrVariables(); idx++ )
 	{
-	    FixedString str = obj->fullVariableExpression(idx);
+	    const char* str = obj->fullVariableExpression(idx);
 
 	    bool found=false;
 
 	    for ( int idy=0; idy<nrVariables(); idy++ )
 	    {
-		if ( str==fullVariableExpression(idy) )
+		if ( !strcmp( str, fullVariableExpression(idy) ) )	
 		{
 		    (*variableobj_[idy]) += inp;
 		    (*variablenr_[idy]) += idx;
@@ -1100,7 +1100,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     double tres = strtod( str, &endptr );
 
     if ( endptr != str )
-	return new MathExpressionConstant( ( float )tres );
+	return new MathExpressionConstant( tres );
 
 
 #define mParseFunction( func, clss ) { \
@@ -1228,19 +1228,19 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     }
 
     if ( isvariable )
-    {
-	if ( varTypeOf(str)== MathExpression::Recursive )
-	{
-	    int recshift;
-	    varNameOf( str, &recshift );
-	    if ( !recshift )
-	    {
-		errmsg_ = "Cannot parse this:\n'";
-		errmsg_ += input; errmsg_ += "'\n";
-		errmsg_ += "Recursive expression must be of type ";
-		errmsg_ += "'THIS[-n]' or 'OUT[-n]'";
-		return 0;
-	    }
+    {                                                                           
+	if ( varTypeOf(str)== MathExpression::Recursive )                       
+	{                                                                       
+	    int recshift;                                                       
+	    varNameOf( str, &recshift );                                        
+	    if ( !recshift )                                                    
+	    {                                                                   
+		errmsg_ = "Cannot parse this:\n'";                              
+		errmsg_ += input; errmsg_ += "'\n";                             
+		errmsg_ += "Recursive expression must be of type ";             
+		errmsg_ += "'THIS[-n]' or 'OUT[-n]'";                           
+		return 0;                                                       
+	    }                                                                   
 	}
 
 	return new MathExpressionVariable( str );

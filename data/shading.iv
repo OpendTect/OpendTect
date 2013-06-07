@@ -4,7 +4,7 @@
 # CopyRight:     (C) dGB Beheer B.V.
 # Author:        K. Tingdahl
 # Date:          Jan 2007
-# RCS:           $Id$
+# RCS:           $Id: shading.iv,v 1.1 2007/02/05 16:30:52 cvskris Exp $
 #________________________________________________________________________
 #
 # Simple shading program to see if fragment shading programs work.

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "welltieunitfactors.h"
 #include "unitofmeasure.h"
@@ -29,15 +29,15 @@ const char*  UnitFactors::getStdSonLabel()
 double UnitFactors::getDenFactor( const Well::Log& denlog  ) const
 {
     const UnitOfMeasure* uom = getUOM( denlog );
-    return uom ? calcDensFactor( uom->symbol() ) : mUdf(double);
+    return uom ? calcDensFactor( uom->symbol() ) : 0;
 }
 
 
 double UnitFactors::getVelFactor( const Well::Log& vellog, bool issonic ) const
 {
     const UnitOfMeasure* uom = getUOM( vellog );
-    const char* s = uom ? uom->symbol() : 0;
-    return s ? issonic ? calcSonicVelFactor( s ) : calcVelFactor( s ) : mUdf(double); 
+    const char* s= uom ? uom->symbol() : 0;
+    return s ? issonic ? calcSonicVelFactor( s ) : calcVelFactor( s ) : 0; 
 }
 
 
@@ -50,14 +50,14 @@ const UnitOfMeasure* UnitFactors::getUOM( const Well::Log& log ) const
 double UnitFactors::calcSonicVelFactor( const char* velunit ) const
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
-    return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactorF;
+    return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactor;
 }
 
 
 double UnitFactors::calcVelFactor( const char* velunit ) const
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
-    return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactorF;
+    return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactor;
 }
 
 

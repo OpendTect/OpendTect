@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id$
+ RCS:           $Id: uipsviewerposdlg.h,v 1.12 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,17 +20,17 @@ class uiCheckBox;
 class uiPushButton;
 class uiLabeledSpinBox;
 
-namespace visSurvey { class PreStackDisplay; }
-
 namespace PreStackView 
 { 
+class Viewer3D; 
 
-mClass(uiPreStackViewer) uiViewer3DPositionDlg : public uiDialog
+
+class uiViewer3DPositionDlg : public uiDialog
 {
 public:			
 
     			uiViewer3DPositionDlg(uiParent*,
-					      visSurvey::PreStackDisplay&);
+					      PreStackView::Viewer3D&);
 			~uiViewer3DPositionDlg();
 
     bool		is3D() const;
@@ -56,10 +56,12 @@ protected:
     bool		applyCB(CallBacker*);
 
     bool		rejectOK(CallBacker*);
-
-    visSurvey::PreStackDisplay& viewer_;
+    
+    PreStackView::Viewer3D& viewer_;
 };
 
-} // namespace 
+
+}; //namespace 
 
 #endif
+

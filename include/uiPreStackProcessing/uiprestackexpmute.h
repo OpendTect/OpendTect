@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -24,7 +23,7 @@ class uiIOObjSel;
 namespace PreStack
 {
 
-mExpClass(uiPreStackProcessing) uiExportMute : public uiDialog
+mClass uiExportMute : public uiDialog
 {
 public:
 			uiExportMute(uiParent*);
@@ -46,4 +45,3 @@ protected:
 
 
 #endif
-

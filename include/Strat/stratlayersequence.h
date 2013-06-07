@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "ailayer.h"
 #include "stratlayer.h"
 #include "propertyref.h"
@@ -33,7 +32,7 @@ class RefTree;
 
  */
 
-mExpClass(Strat) LayerSequence
+mClass LayerSequence
 {
 public:
 
@@ -43,18 +42,15 @@ public:
     virtual		~LayerSequence();
     LayerSequence&	operator =(const LayerSequence&);
     bool		isEmpty() const		{ return layers_.isEmpty(); }
-    void		setEmpty()		{ layers_.setEmpty(); }
 
     int			size() const		{ return layers_.size(); }
     ObjectSet<Layer>&	layers()		{ return layers_; }
     const ObjectSet<Layer>& layers() const	{ return layers_; }
-    int			layerIdxAtZ(float) const; //!< returns -1 if outside
-    int			nearestLayerIdxAtZ(float z) const;
-    						//!< returns -1 only if empty
+    int			layerIdxAtZ(float,bool ret_size_if_after=false) const;
+    			//!< return -1 if outside, unless below and par==true
 
     float		startDepth() const	{ return z0_; }
-    void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
-    Interval<float>	zRange() const;
+    void		setStartDepth( float z ) { z0_ = z; }
 
     PropertyRefSelection& propertyRefs() 	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
@@ -97,4 +93,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

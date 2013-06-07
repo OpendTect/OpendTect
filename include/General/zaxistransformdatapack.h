@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "datapackbase.h"
 
 #include "cubesampling.h"
@@ -28,7 +27,7 @@ class ZAxisTransform;
 */
 
 
-mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
+mClass ZAxisTransformDataPack : public FlatDataPack
 {
 public:
     				ZAxisTransformDataPack(const FlatDataPack&,
@@ -68,4 +67,3 @@ protected:
 
 
 #endif
-

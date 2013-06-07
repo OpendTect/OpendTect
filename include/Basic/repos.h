@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 
 namespace Repos
@@ -20,8 +19,7 @@ namespace Repos
 
     enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
 
-/*!
-\brief Constructs repository file names.
+/*!\brief constructs repository file names.
  
   The basename is the name of a file in upper and lower case,
   e.g. UnitsOfMeasure.
@@ -43,9 +41,10 @@ namespace Repos
   Repos::FileProvider rfp( "UnitsOfMeasure" )
   while ( rfp.next() )
       addUnitsFromFile( rfp.fileName(), rfp.source() );
-*/
 
-mExpClass(Basic) FileProvider
+ */
+
+mClass FileProvider
 {
 public:
 
@@ -75,4 +74,3 @@ protected:
 }; // namespace Repos
 
 #endif
-

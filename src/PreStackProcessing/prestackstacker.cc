@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackstacker.h"
 
@@ -70,7 +70,7 @@ bool Stack::usePar( const IOPar& par )
 
 bool Stack::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idz=mCast(int,start); idz<=stop; idz++, addToNrDone(1) )
+    for ( int idz=start; idz<=stop; idz++, addToNrDone(1) )
     {
 	 for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	 {
@@ -86,7 +86,7 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
 	    const int nroffsets =
 		input->data().info().getSize(Gather::offsetDim());
 	    int nrvals = 0;
-	    float stack = mUdf(float);
+	    float stack;
 	    for ( int ioff=0; ioff<nroffsets; ioff++ )
 	    {
 		const float offset = input->getOffset(ioff);
@@ -108,6 +108,19 @@ bool Stack::doWork( od_int64 start, od_int64 stop, int )
     }
 
     return true;
+}
+
+
+Gather* Stack::createOutputArray( const Gather& input ) const
+{
+    Gather* res = new Gather( input );
+    if ( !res->setSize( 1, input.size(false) ) )
+    {
+	delete res;
+	return 0;
+    }
+
+    return res;
 }
 
 

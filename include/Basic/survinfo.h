@@ -12,28 +12,23 @@ ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
+ 
 #include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
 #include "enums.h"
 #include "zdomain.h"
-#include "refcount.h"
-#include "thread.h"
 #include "cubesampling.h"
-#include "survgeom.h"
 
 class ascostream;
 class IOPar;
 class CubeSampling;
 class LatLong2Coord;
 
+/*!Scaled down survey geometry for an inl/crl geometry . */
 
-/*!
-\brief Scaled down survey geometry for an inl/crl geometry.
-*/
 
-mExpClass(Basic) InlCrlSystem : public Survey::Geometry
+mClass InlCrlSystem
 {
 public:
     friend		class SurveyInfo;
@@ -42,7 +37,7 @@ public:
 			    : name_( nm )
     			    , zdomain_( zd )
 			{}
-    bool		is2D() const		{ return false; }
+    
     const BufferString&	name() const		{ return name_; }
     			    
     float		zScale() const 		{ return zscale_; }
@@ -52,13 +47,10 @@ public:
     StepInterval<float>	zRange() const		{ return cs_.zrg; }
     int			inlStep() const 	{ return cs_.hrg.step.inl; }
     int			crlStep() const 	{ return cs_.hrg.step.crl; }
+
     
     float		zStep() const 		{ return cs_.zrg.step; }
     
-    Coord		toCoord(int line,int tracenr) const;
-    TraceID		nearestTrace(const Coord&,float* distance) const;
-    bool		includes(int line,int tracenr) const;
-
     Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;
     const RCol2Coord&	binID2Coord() const	{ return b2c_; }
@@ -84,37 +76,35 @@ protected:
 };
 
 
-/*!
-\brief Holds survey general information.
+/*!\brief Holds survey general information.
 
-  The surveyinfo is the primary source for ranges and steps.It also provides the  transformation between inline/xline <-> coordinates and lat/long estimates.
-  
-  Note: the Z range step is only a default. It should not be used further
-  because different cubes/lines have different sample rates.
-  
-  The ranges are defined for two cubes: the entire survey, and a 'working area'.
-  Normally, you'll want to have the working area.
-  
-  If you are an expert, and you feel you need more 'power', you may want to look
-  at the bottom part of the class too for some more public functions.
+The surveyinfo is the primary source for ranges and steps. It also provides
+the transformation between inline/xline <-> coordinates and lat/long estimates.
+
+Note: the Z range step is only a default. It should not be used further
+because different cubes/lines have different sample rates.
+
+The ranges are defined for two cubes: the entire survey, and a 'working area'.
+Normally, you'll want to have the working area.
+
+If you are an expert, and you feel you need more 'power', you may want to look
+at the bottom part of the class too for some more public functions.
+
 */
 
-mExpClass(Basic) SurveyInfo : public NamedObject
+mClass SurveyInfo : public NamedObject
 {
 
-    mGlobal(Basic) friend const SurveyInfo&	SI();
-		
+    mGlobal friend const SurveyInfo&	SI();
 
 public:
+
 			~SurveyInfo();
     bool		isValid() const		{ return valid_; }
     bool		has2D() const;
     bool		has3D() const;
     
-    RefMan<InlCrlSystem> 		get3DGeometry(bool work) const;
-    Survey::GeometryManager&		geomManager()	{ return geometryman_; }
-    const Survey::GeometryManager&	geomManager() const
-    					{ return geometryman_; }
+    InlCrlSystem*	create3DGeometry(bool work) const;
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
@@ -142,8 +132,6 @@ public:
     const char*		getXYUnitString(bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
-    inline float	showZ2UserFactor() const
-			{ return (float)zDomain().userFactor(); }
 
     bool		depthsInFeetByDefault() const { return depthsInFeet(); }
     			//!<Legacy, don't use. Use depthsInFeet().
@@ -155,6 +143,20 @@ public:
     inline bool		zInFeet() const
     			{ return zDomain().isDepth() && depthsinfeet_;}
     			//<Legacy, don't use
+    int			zFactor() const
+    			{ return zDomain().userFactor(); }
+    			//!<Legacy, don't use
+    			//!< Factor between real and displayed unit in UI
+    static int		zFactor(bool time)	
+    			//!<Legacy, don't use
+			{
+			    return ( time
+				? ZDomain::Time()
+				: ZDomain::Depth()
+				).userFactor();
+			}
+			
+    			//!< Factor between real and displayed unit in UI
     const char*		getZUnitString(bool withparens=true) const
     			//!<Legacy, don't use
 			{ return zDomain().unitStr( withparens ); }
@@ -183,17 +185,12 @@ public:
     bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
-    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
+    void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
+    void		snapStep(BinID&,BinID direction=BinID(0,0)) const;
     			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
     			//!< see snap() for direction
-    
-    double		seismicReferenceDatum() const	 {return seisrefdatum_;}
-			/*!<In depth units (m or ft), positive upward
-    			from sea level */
-    void		setSeismicReferenceDatum(double d){ seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
     void		putZDomain(IOPar&) const;
@@ -222,13 +219,6 @@ protected:
     CubeSampling&	cs_;
     CubeSampling&	wcs_;
     IOPar&		pars_;
-    
-    double		seisrefdatum_;
-    
-    mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
-    mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
-    
-    Survey::GeometryManager geometryman_;
 
     RCol2Coord		b2c_;
     LatLong2Coord&	ll2c_;
@@ -294,7 +284,6 @@ public:
     static const char*	sKeyXYInFt();
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
-    static const char*  sKeySeismicRefDatum();
 
     BufferString	getDirName() const	{ return dirname_; }
 
@@ -336,18 +325,16 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
+    inline float        showZ2UserFactor() const
+			{ return (float)zDomain().userFactor(); }
+
 };
 
 
-mGlobal(Basic) const SurveyInfo& SI();
+mGlobal const SurveyInfo& SI();
 
-mExternC( Basic ) const char* GetSurveyFileName(void);
-mExternC( Basic ) int SurveyNameDirty(void);
-mExternC( Basic ) void SetSurveyNameDirty(void);
-mExternC( Basic ) void SetSurveyName(const char*);
-mExternC( Basic ) const char* GetSurveyName(void);
+
 
 
 
 #endif
-

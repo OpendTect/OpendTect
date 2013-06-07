@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,10 +164,6 @@ bool ExecOSCmd( const char* comm, bool inconsole, bool inbg )
 #endif
 }
 
-#ifndef __msvc__
-//! Create Execute command
-const char* GetExecCommand(const char* prognm,const char* filenm);
-
 const char* GetExecCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
@@ -180,25 +176,25 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
     cmd += " \'"; cmd += fp.fullPath( FilePath::Unix ); cmd += "\' ";
     return cmd;
 }
-#endif
 
 
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
+
 #if defined( __win__ ) || defined( __mac__ )
     bool inbg = true;
 #else
     bool inbg = false;
 #endif
-
 #ifdef __msvc__
     cmd = BufferString( prognm );
     cmd += " \"";
     cmd += filenm;
     cmd += "\"";
     return ExecOSCmd( cmd, true, inbg );
-#else
+#endif
+    
     cmd = GetExecCommand( prognm, filenm );
     StreamProvider strmprov( cmd );
 
@@ -211,7 +207,6 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
     }
 
     return true;
-#endif
 }
 
 
@@ -291,7 +286,7 @@ StreamProviderPreLoadDataPack( char* b, od_int64 s,
 void dumpInfo( IOPar& iop ) const
 {
     BufferDataPack::dumpInfo( iop );
-    iop.set( IOPar::compKey("Object",sKey::ID()), keyid_ );
+    iop.set( IOPar::compKey("Object",sKey::ID), keyid_ );
 }
 
     BufferString	keyid_;
@@ -382,7 +377,7 @@ int nextStep()
 
 bool go( TaskRunner& tr )
 {
-    return TaskRunner::execute( &tr, *this );
+    return tr.execute( *this );
 }
 
 bool isOK() const
@@ -534,7 +529,7 @@ bool StreamProvider::preLoad( const BufferStringSet& fnms, TaskRunner& tr,
     if ( fnms.isEmpty() ) return true;
 
     StreamProviderDataPreLoader exec( fnms, id );
-    return TaskRunner::execute( &tr, exec );
+    return tr.execute( exec );
 }
 
 
@@ -545,7 +540,7 @@ void StreamProvider::unLoad( const char* key, bool isid )
     {
 	int plid = getPLID( key, isid );
 	if ( plid < 0 ) return;
-	delete plds.removeSingle( plid, false );
+	delete plds.remove( plid, false );
     }
 }
 
@@ -631,19 +626,17 @@ StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 }
 
 
-void StreamProvider::set( const char* inpstr )
+void StreamProvider::set( const char* inp )
 {
     iscomm_ = isbad_ = false;
     hostname_.setEmpty(); fname_.setEmpty();
 
-    FixedString inp = inpstr;
-
-    if ( !inp || inp==sStdIO() || inp==sStdErr() )
-	{ fname_ = inpstr ? inpstr : sStdIO(); return; }
-    else if ( inp.isEmpty() )
+    if ( !inp || !strcmp(inp,sStdIO()) || !strcmp(inp,sStdErr()) )
+	{ fname_ = inp ? inp : sStdIO(); return; }
+    else if ( !*inp )
 	{ isbad_ = true; return; }
 
-    char* ptr = (char*)inpstr;
+    char* ptr = (char*)inp;
     mSkipBlanks( ptr );
     if ( *ptr == '@' ) { iscomm_ = true; ptr++; }
 

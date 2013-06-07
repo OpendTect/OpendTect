@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisrchprocfiles.h"
 
@@ -82,7 +82,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	IOPar iop; const BufferString fnm( dl.fullPath(idx) );
-	if ( !iop.read(fnm,sKey::Pars(),true) )
+	if ( !iop.read(fnm,sKey::Pars,true) )
 	    continue;
 	const char* res = iop.find( iopkey_ );
 	if ( res && key == res )

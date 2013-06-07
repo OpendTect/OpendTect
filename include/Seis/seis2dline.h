@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "namedobj.h"
 #include "linekey.h"
 #include "objectset.h"
@@ -36,7 +35,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-mExpClass(Seis) Seis2DLineSet : public NamedObject
+mClass Seis2DLineSet : public NamedObject
 {
     friend class SeisTrcWriter;
     friend class OD_2DLineGeometryFrom2DLinesTransf;
@@ -112,8 +111,6 @@ public:
     void		getFrom(std::istream&,BufferString*);
     void		putTo(std::ostream&) const;
 
-    static void		invalidateCache();
-
 protected:
 
     Seis2DLineIOProvider* liop_;
@@ -143,8 +140,10 @@ private:
 	    				float z_val=mUdf(float),
 	    				const char* linekey=0) const;
 
+public:
+    void		invalidateCache() const;
+
 };
 
 
 #endif
-

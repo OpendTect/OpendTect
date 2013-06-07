@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uidpsrefineseldlg.h"
@@ -49,8 +49,8 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 
     vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3.0f*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );
@@ -116,7 +116,7 @@ void uiDPSRefineSelDlg::updateDisplay()
     {
 	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
-	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
+	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
 	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }

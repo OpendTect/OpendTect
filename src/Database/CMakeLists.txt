@@ -5,13 +5,13 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS General )
+SET(OD_MODULE_DEPS Basic)
 SET(OD_MODULE_SOURCES 
 	sqldatabase.cc sqlquery.cc
 	mantisdatabase.cc mantistables.cc
 	databaseobject.cc )
 
-# SET(USESQL 1)
+#SET(USESQL 1)
 
 IF(USESQL)
     SET(OD_USEQT Sql)

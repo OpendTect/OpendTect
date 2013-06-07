@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "explpolygonsurface.h"
 
@@ -302,7 +302,7 @@ void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 {
     if ( !ig ) return;
     geometrieslock_.writeLock();
-    if ( geometries_.isPresent( ig ) )
+    if ( geometries_.indexOf( ig )!=-1 )
 	pErrMsg("Adding more than once");
 
     ig->ischanged_ = true;
@@ -318,7 +318,7 @@ void ExplPolygonSurface::removeFromGeometries( const IndexedGeometry* ig )
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
-	geometries_.removeSingle( idx, false );
+	geometries_.remove( idx, false );
 
     geometrieslock_.writeUnLock();
 }

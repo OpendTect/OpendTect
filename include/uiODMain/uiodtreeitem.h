@@ -13,21 +13,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "menuhandler.h"
 
-class uiTreeView;
+class uiListView;
 class uiODApplMgr;
 class uiPopupMenu;
 class ui3DViewer;
 
 
-mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
+mClass uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiListViewItem*);
 
     int			sceneID() const;
 protected:
@@ -40,10 +39,10 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
+mClass uiODTreeTop : public uiTreeTopItem
 {
 public:
-			uiODTreeTop(ui3DViewer*,uiTreeView*,
+			uiODTreeTop(ui3DViewer*,uiListView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
@@ -71,7 +70,7 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
+mClass uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
@@ -82,15 +81,15 @@ public:
 
 
 #define mShowMenu		bool showSubMenu();
-#define mMenuOnAnyButton	bool anyButtonClick(uiTreeViewItem* lv) \
+#define mMenuOnAnyButton	bool anyButtonClick(uiListViewItem* lv) \
 { \
-    if ( lv==uitreeviewitem_ ) { select(); showSubMenu(); return true; } \
+    if ( lv==uilistviewitem_ ) { select(); showSubMenu(); return true; } \
     return inheritedClass::anyButtonClick( lv ); \
 }
     
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
+mClass uiOD##type##TreeItem : public uiOD##inherited \
 { \
     typedef uiOD##inherited inheritedClass; \
 public: \
@@ -102,4 +101,3 @@ protected: \
 
 
 #endif
-

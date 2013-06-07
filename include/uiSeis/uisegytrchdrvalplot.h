@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 class uiLabel;
 class uiFunctionDisplay;
 namespace SEGY { class HdrEntry; }
 
 
-mExpClass(uiSeis) uiSEGYTrcHdrValPlot : public uiGroup
+mClass uiSEGYTrcHdrValPlot : public uiGroup
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

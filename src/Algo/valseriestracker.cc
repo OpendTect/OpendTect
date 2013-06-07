@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "valseriestracker.h"
 
@@ -221,7 +221,7 @@ bool EventTracker::track()
 	if ( useAbsThreshold() && !mIsUdf(ampthreshold_) )
 	    return snap( amplitudeThreshold() );
 
-	float refampl = mUdf(float);
+	float refampl;
 	if ( sourcevs_ )
 	{
 	    const SampledFunctionImpl<float,ValueSeries<float> >
@@ -252,13 +252,13 @@ bool EventTracker::track()
 
     const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
 				       mNINT32(permrange_.stop/rangestep_) );
-    float upsample=mUdf(float), upsim=mUdf(float); bool upflatstart=false;
+    float upsample, upsim; bool upflatstart;
     const bool findup = permsamplerange.start<=0
 	? findMaxSimilarity( -permsamplerange.start, -1, 1,
 			     upsample, upsim, upflatstart )
 	: false;
 
-    float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
+    float dnsample, dnsim; bool dnflatstart;
     const bool finddn = permsamplerange.stop>=0
 	? findMaxSimilarity( permsamplerange.stop, 1, 1, dnsample,dnsim,dnflatstart)
 	: false;
@@ -376,7 +376,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	if ( !idx || sim>maxsim )
 	{
 	    maxsim = sim;
-	    res = mCast(float,idx);
+	    res = idx;
 	    nreqsamples = 0;
 	}
 	else if ( sim==maxsim )
@@ -450,8 +450,8 @@ bool EventTracker::snap( float threshold )
 
     const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
 				       mNINT32(permrange_.stop/rangestep_) );
-    const float upbound = targetdepth_ + permsamplerange.start - 0.01f;
-    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01f;
+    const float upbound = targetdepth_ + permsamplerange.start - 0.01;
+    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01;
 
     const Interval<float> uprg( targetdepth_, mMAX(0,upbound-1) );
     const Interval<float> dnrg( targetdepth_, mMIN(targetsize_-1, dnbound+1) );
@@ -490,7 +490,7 @@ bool EventTracker::snap( float threshold )
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
 
-	float troughthreshold = !mIsUdf(threshold) ? -0.1f*threshold : 0;
+	float troughthreshold = !mIsUdf(threshold) ? -0.1*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
 	    troughthreshold *= -1;

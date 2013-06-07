@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uipickpartserv.h"
 
@@ -30,13 +30,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "ptrman.h"
 
-int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
-int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
-int uiPickPartServer::evGetHorDef3D()	{ return 2; }
-int uiPickPartServer::evGetHorDef2D()	{ return 3; }
-int uiPickPartServer::evFillPickSet()	{ return 4; }
-int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
-int uiPickPartServer::evGet2DLineDef()	{ return 6; }
+const int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
+const int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
+const int uiPickPartServer::evGetHorDef3D()	{ return 2; }
+const int uiPickPartServer::evGetHorDef2D()	{ return 3; }
+const int uiPickPartServer::evFillPickSet()	{ return 4; }
+const int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
+const int uiPickPartServer::evGet2DLineDef()	{ return 6; }
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -82,7 +82,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
     if ( poly )
-	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
 
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
@@ -172,7 +172,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    Stats::randGen().init();
+    Stats::RandGen::init();
     setid_ = setids_[rp.lsetidx_];
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
@@ -208,10 +208,9 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::randGen().getIndex( nrpos );
+	const int posidx = Stats::RandGen::getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = (float) ( zrg.start + 
-				  Stats::randGen().get() * zrg.width(false) ); 
+	float val = zrg.start + Stats::RandGen::get() * zrg.width(false);
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 

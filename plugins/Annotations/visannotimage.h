@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id$
+ RCS:		$Id: visannotimage.h,v 1.7 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace Annotations
   Image
 */
 
-mClass(Annotations) ImageDisplay : public visSurvey::LocationDisplay
+class ImageDisplay : public visSurvey::LocationDisplay
 {
 public:
     static ImageDisplay*	create()
@@ -58,7 +58,7 @@ protected:
 };
 
 
-mClass(Annotations) Image : public visBase::VisualObjectImpl
+class Image : public visBase::VisualObjectImpl
 {
 public:
     static Image*		create()

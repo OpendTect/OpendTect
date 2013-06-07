@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "sets.h"
 #include "visshape.h"
 #include "position.h"
@@ -26,7 +25,7 @@ namespace visBase
 
 class DrawStyle;
 
-mExpClass(visBase) PointSet	: public VertexShape
+mClass PointSet	: public VertexShape
 {
 public:
     static PointSet*	create()
@@ -39,7 +38,7 @@ protected:
     DrawStyle*		drawstyle_;
 };
 
-mExpClass(visBase) IndexedPointSet : public IndexedShape
+mClass IndexedPointSet : public IndexedShape
 {
 public:
     static IndexedPointSet*	create()
@@ -50,4 +49,3 @@ public:
 
 
 #endif
-

@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id$
+ RCS:           $Id: uihorizonattrib.h,v 1.9 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uihorizonattribmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -25,7 +24,7 @@ class uiCheckBox;
 
 /*! \brief Horizon attribute description editor */
 
-mClass(uiHorizonAttrib) uiHorizonAttrib : public uiAttrDescEd
+class uiHorizonAttrib : public uiAttrDescEd
 {
 public:
 

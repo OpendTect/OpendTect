@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emsurfauxdataio.h"
 
@@ -187,8 +187,8 @@ int dgbSurfDataWriter::nextStep()
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
 	    mErrRetWrite("Error in writing datavalues")
 
-	subids_.removeSingle( subidindex );
-	values_.removeSingle( subidindex );
+	subids_.remove( subidindex );
+	values_.remove( subidindex );
     }
 
     nrdone_++;
@@ -203,25 +203,38 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
     return res;
 }
 
-#define mWriteData() \
-    if ( !stream_ ) return false; \
-    if ( binary_ ) \
-	stream_->write( (char*) &val, sizeof(val) ); \
-    else \
-	(*stream_) << val << '\n'; \
-    return true
-
 
 bool dgbSurfDataWriter::writeInt( int val )
-{ mWriteData(); }
+{
+    if ( binary_ )
+	stream_->write( (char*) &val, sizeof(val) );
+    else
+	(*stream_) << val << '\n' ;
+
+    return (*stream_);
+}
 
 
 bool dgbSurfDataWriter::writeInt64( od_int64 val )
-{ mWriteData(); }
+{
+    if ( binary_ )
+	stream_->write( (char*) &val, sizeof(val) );
+    else
+	(*stream_) << val << '\n' ;
+
+    return (*stream_);
+}
 
 
 bool dgbSurfDataWriter::writeFloat( float val )
-{ mWriteData(); }
+{
+    if ( binary_ )
+	stream_->write( (char*) &val ,sizeof(val) );
+    else
+	(*stream_) << val << '\n';
+
+    return (*stream_);
+}
 
 
 od_int64 dgbSurfDataWriter::nrDone() const 
@@ -367,7 +380,7 @@ int dgbSurfDataReader::nextStep()
 	    if ( !readInt(cp) || !readInt(valsleftonsection_) )
 		mErrRetRead( "Error in reading data information" )
 
-	    currentsection_ = mCast(EM::SectionID,cp);
+	    currentsection_ = cp;
 	    totalnr_ = 100;
 	    chunksize_ = valsleftonsection_/totalnr_+1;
 	    if ( chunksize_ < 100 )
@@ -394,8 +407,11 @@ int dgbSurfDataReader::nextStep()
 }
 
 
-#define mReadData(interpreter) \
-    if ( !stream_ ) return false; \
+static int sizeofint = sizeof(int);
+static int sizeofint64 = sizeof(od_int64);
+static int sizeoffloat = sizeof(float);
+
+#define mReadData(interpreter,size) \
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
@@ -405,16 +421,16 @@ int dgbSurfDataReader::nextStep()
     else \
 	(*stream_) >> res; \
 \
-    return true;
+    return (*stream_);
 
 bool dgbSurfDataReader::readInt( int& res )
-{ mReadData(intinterpreter_) }
+{ mReadData(intinterpreter_,sizeofint) }
 
 bool dgbSurfDataReader::readInt64( od_int64& res )
-{ mReadData(int64interpreter_) }
+{ mReadData(int64interpreter_,sizeofint64) }
 
 bool dgbSurfDataReader::readFloat( float& res )
-{ mReadData(floatinterpreter_) }
+{ mReadData(floatinterpreter_,sizeoffloat) }
 
 
 od_int64 dgbSurfDataReader::nrDone() const 

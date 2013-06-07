@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -280,7 +280,7 @@ void ColTab::Sequence::removeColor( int idx )
 {
     if ( idx>0 && idx<size()-1 )
     {
-	x_.removeSingle( idx ); r_.removeSingle( idx ); g_.removeSingle( idx ); b_.removeSingle( idx );
+	x_.remove( idx ); r_.remove( idx ); g_.remove( idx ); b_.remove( idx );
 	colorChanged.trigger();
     }
 }
@@ -323,7 +323,7 @@ void ColTab::Sequence::removeTransparencies()
 
 void ColTab::Sequence::removeTransparencyAt( int idx )
 {
-    tr_.removeSingle( idx );
+    tr_.remove( idx );
     transparencyChanged.trigger();
 }
 
@@ -357,7 +357,7 @@ void ColTab::Sequence::flipColor()
     }
 
     for ( int idx=0; idx<size(); idx++ )
-	x_[idx] = 1.0f - x_[idx];
+	x_[idx] = 1.0-x_[idx];
 }
 
 
@@ -391,7 +391,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColTab::Sequence::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::Name(), name() );
+    iopar.set( sKey::Name, name() );
     FileMultiString fms;
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
@@ -425,7 +425,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
     ColTab::Sequence backup = *this;
-    FixedString res = iopar.find( sKey::Name() );
+    FixedString res = iopar.find( sKey::Name );
     if ( !res )
 	return false;
 
@@ -640,7 +640,7 @@ void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 void ColTab::SeqMgr::remove( int idx )
 {
     if ( idx < 0 || idx > size() ) return;
-    ColTab::Sequence* seq = seqs_.removeSingle( idx );
+    ColTab::Sequence* seq = seqs_.remove( idx );
     seqRemoved.trigger();
     delete seq;
 }
@@ -674,14 +674,14 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     if ( File::exists(fnm) && !File::isWritable(fnm)
 		&& !File::makeWritable(fnm,true,false) )
     {
-	BufferString msg( "Cannot make:\n" ); msg += fnm; msg += "\nwritable.";
+	BufferString msg( "Cannot make:\n" ); msg == fnm; msg += "\nwritable.";
 	ErrMsg( msg ); return false;
     }
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() || !sd.ostrm->good() )
     {
-	BufferString msg( "Cannot open:\n" ); msg += fnm; msg += "\nfor write.";
+	BufferString msg( "Cannot open:\n" ); msg == fnm; msg += "\nfor write.";
 	ErrMsg( msg ); return false;
     }
 
@@ -718,9 +718,9 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
     if ( nrsegments_==1 )
 	return 0.5;
 
-    const float segmentsize = 1.0f / (nrsegments_ - 1);
+    const float segmentsize = 1.0/(nrsegments_-1);
 
-    int segment = (int) ( x/segmentsize + 0.5 );
+    int segment = (int) (x/segmentsize+0.5 );
     if ( segment<0 ) segment = 0;
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;

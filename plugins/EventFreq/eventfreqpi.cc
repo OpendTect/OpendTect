@@ -4,7 +4,7 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: eventfreqpi.cc,v 1.3 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "eventfreqattrib.h"
 #include "odplugin.h"

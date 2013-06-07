@@ -11,14 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiSliderExtra;
 
-mExpClass(uiVis) uiZStretchDlg : public uiDialog
+mClass uiZStretchDlg : public uiDialog
 {
 public:
 			uiZStretchDlg(uiParent*);
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigeom.h"
 #include "draw.h"
 
@@ -27,12 +26,12 @@ class uiRGBArray;
 typedef Geom::Point2D<double> dPoint;
 typedef Geom::Point2D<int> iPoint;
 
-mExpClass(uiTools) AnnotBufferFiller
+mClass AnnotBufferFiller
 {
 
 public:
 
-    mExpClass(uiTools) LineInfo
+    mClass LineInfo
     {
 	public:
 
@@ -76,4 +75,3 @@ protected:
 
 
 #endif
-

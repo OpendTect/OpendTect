@@ -4,7 +4,7 @@
  * DATE     : Jun 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id";
 
 #include "uitutodmad.h"
 #include "odplugin.h"
@@ -28,7 +28,7 @@ mDefODPluginInfo(uiTutMadagascar)
 // We need an object to receive the CallBacks, we will thus create a manager
 // inheriting from CallBacker.
 
-class uiMadTutMgr :  public CallBacker
+mClass uiMadTutMgr :  public CallBacker
 {
     public:
 

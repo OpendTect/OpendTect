@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "transform.h"
 #include "arraynd.h"
@@ -223,7 +223,7 @@ bool GenericTransformND::setup()
 
 		const od_int64 offset = info_->getOffset( globalarrpos );
 		//Multiply by sampling_ ?
-		offsets += mCast( int, offset );
+		offsets += offset;
 	    } while ( iter.next() );
 
 
@@ -243,7 +243,7 @@ bool GenericTransformND::setup()
 	    //Compute sampling for 1D transform
 	    const od_int64 offset = info_->getOffset( globalarrpos );
 	    const od_int64 nextoffset = info_->getOffset( nextarrpos );
-	    const int sampling = mCast( int, sampling_*(nextoffset-offset) );
+	    const int sampling = sampling_*(nextoffset-offset);
 
 	    Transform1D* trans = createTransform();
 	    trans->setSize( info_->getSize(dim) );

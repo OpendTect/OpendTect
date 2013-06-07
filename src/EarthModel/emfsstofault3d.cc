@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emfsstofault3d.h"
 
@@ -23,7 +23,7 @@ namespace  EM
 #define mOnInline 0
 #define mOnCrlline 1
 #define mOnZSlice 2
-#define mOnOther 3
+#define mOnOther 3    
 
 
 FSStoFault3DConverter::FaultStick::FaultStick( int sticknr )
@@ -130,23 +130,29 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
 }
 
 
+bool FSStoFault3DConverter::convert()
+{ return convert( true ); }
+
+
 bool FSStoFault3DConverter::convert( bool forimport )
 {
     fault3d_.geometry().selectAllSticks();
     fault3d_.geometry().removeSelectedSticks( setup_.addtohistory_ );
-    bool selhorpicked = false;
+    bool selhorpicked;
+
     for ( int sidx=0; sidx<fss_.nrSections(); sidx++ )
     {
-	const EM::SectionID sid = fss_.sectionID( sidx );
+	const int sid = fss_.sectionID( sidx );
 	if ( forimport )
 	    readSectionForImport( sid );
 	else
 	    readSection( sid );
 
-	if ( sidx==0 )
+	if ( !sidx )
 	    selhorpicked = preferHorPicked();
 
-	selectSticks( selhorpicked );		
+	selectSticks( selhorpicked );
+		
 	if ( setup_.sortsticks_ )
 	    geometricSort( (selhorpicked ? MAXDOUBLE : 0.0), forimport );
 
@@ -201,12 +207,14 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 }
 
 
-#define mAddStickPositions() \
+#define mAddStickPoses() \
     for ( int k=0; k<=lastidx; k++ ) \
-        sticks_[idy]->crds_.addIfNew(stickpositions[k]); \
+    { \
+ 	if ( sticks_[idy]->crds_.indexOf(stickposes[k])==-1 ) \
+	    sticks_[idy]->crds_ += stickposes[k]; \
+    } \
     found = true; \
-    break; \
-
+    break
 
 bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 {
@@ -225,7 +233,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
     const float zd = SI().zStep() * SI().zScale();
     const float epsilon = Math::Sqrt(inld*inld+crld*crld+zd*zd)/2;
     const float zepsilon = SI().zStep()/2;
-
+    
     TypeSet<Coord3> singles;
     TypeSet<char> pickedplane;
     TypeSet<int> inlcrl;
@@ -235,52 +243,52 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	const StepInterval<int> colrg = curfssg_->colRange( row );
 	if ( colrg.isUdf() )
 	    return false;
-	
-	TypeSet<Coord3> stickpositions;
+
+	TypeSet<Coord3> stickposes;
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    const Coord3 pos = curfssg_->getKnot( RowCol(row,col) );
 	    if ( pos.isDefined() )
-		stickpositions += pos;
+		stickposes += pos;
 	}
-
-	const int lastidx = stickpositions.size()-1;
+	
+	const int lastidx = stickposes.size()-1;
 	if ( lastidx<1 )
 	{
 	    if ( !lastidx )
-		singles += stickpositions[0];
+		singles += stickposes[0];
 	    continue;
 	}
 	
 	Interval<int> inlrg, crlrg;
 	Interval<double> zrg;
-	for ( int idy=0; idy<=lastidx; idy++ )
+ 	for ( int idy=0; idy<=lastidx; idy++ )           
 	{
-	    const BinID bid = SI().transform( stickpositions[idy] );
+	    const BinID bid = SI().transform( stickposes[idy] );
 	    if ( !idy )
 	    {
 		inlrg.start = inlrg.stop = bid.inl;
 		crlrg.start = crlrg.stop = bid.crl;
-		zrg.start = zrg.stop = stickpositions[idy].z;
+		zrg.start = zrg.stop = stickposes[idy].z;
 	    }
 	    else
 	    {
 		inlrg.include( bid.inl );
 		crlrg.include( bid.crl );
-		zrg.include( stickpositions[idy].z );
+		zrg.include( stickposes[idy].z );
 	    }
 	}
 
 	/*Before making a new stick, check to see if current end points are on
 	  any existing stick or not, if so, merge them. */
-	bool found = false;
-	if ( inlrg.start==inlrg.stop ) 
+        bool found = false;
+	if ( inlrg.start==inlrg.stop )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
 		if ( pickedplane[idy]==mOnInline && inlcrl[idy]==inlrg.start )
 		{
-		    mAddStickPositions();
+		    mAddStickPoses();
 		}
 	    }
 	}
@@ -290,18 +298,18 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    {
 		if ( pickedplane[idy]==mOnCrlline && inlcrl[idy]==crlrg.start )
 		{
-		    mAddStickPositions();
+		    mAddStickPoses();
 		}
 	    }
 	}
-	else if ( mIsEqual(zrg.start,zrg.stop,zepsilon) )
+        else if ( mIsEqual(zrg.start,zrg.stop,zepsilon) )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( pickedplane[idy]==mOnZSlice && 
+		if ( pickedplane[idy]==mOnZSlice &&
 		     mIsEqual(zs[idy],zrg.stop,zepsilon) )
 		{
-		    mAddStickPositions();
+		    mAddStickPoses();
 		}
 	    }
 	}
@@ -309,28 +317,28 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( found ) 
+		if ( found )
 		    break;
-
-    		const int picksz = sticks_[idy]->crds_.size();
+		
+		const int picksz = sticks_[idy]->crds_.size();
 		for ( int idz=0; idz<picksz-1; idz++ )
 		{
-		    Coord3 k0 = sticks_[idy]->crds_[idz]; 
+		    Coord3 k0 = sticks_[idy]->crds_[idz];
 		    k0.z *= SI().zScale();
 		    Coord3 k1 = sticks_[idy]->crds_[idz+1];
 		    k1.z *= SI().zScale();
 		    Line3 segment( k0, k1-k0 );
-		    Coord3 tmp = stickpositions[0]; tmp.z *= SI().zScale();
-		    float dist = (float) segment.distanceToPoint(tmp);
+		    Coord3 tmp = stickposes[0]; tmp.z *= SI().zScale();
+		    float dist = segment.distanceToPoint(tmp);
 		    if ( dist>epsilon )
 		    {
-			tmp = stickpositions[lastidx]; tmp.z *= SI().zScale();
-			dist = (float) segment.sqDistanceToPoint( tmp );
+			tmp = stickposes[lastidx]; tmp.z *= SI().zScale();
+			dist = segment.sqDistanceToPoint( tmp );
 		    }
-
+		    
 		    if ( dist<epsilon )
 		    {
-			mAddStickPositions();
+			mAddStickPoses();
 		    }
 		}
 	    }
@@ -340,7 +348,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    continue;
 
 	FaultStick* stick = new FaultStick( row );
-	stick->crds_ = stickpositions;
+	stick->crds_ = stickposes;
 	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, row );
 	if ( stick->pickedonplane_ )
 	    stick->normal_ = stick->findPlaneNormal();
@@ -348,39 +356,39 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    stick->normal_ = curfssg_->getEditPlaneNormal( row );
 	
 	sticks_ += stick;
-	pickedplane += (inlrg.start==inlrg.stop ? mOnInline : 
-		(crlrg.start==crlrg.stop ? mOnCrlline : 
+	pickedplane += (inlrg.start==inlrg.stop ? mOnInline :
+		(crlrg.start==crlrg.stop ? mOnCrlline :
 		(mIsEqual(zrg.start,zrg.stop,zepsilon) ? mOnZSlice:mOnOther)));
-	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start : 
-		(crlrg.start==crlrg.stop ? crlrg.start : -1));
-	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? (float) zrg.start : 0);
+	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start :
+		  (crlrg.start==crlrg.stop ? crlrg.start : -1));
+	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? zrg.start : 0);
     }
-
+    
     /*Merge single pick to nearest stick, not sorted yet*/
     const int sz = sticks_.size();
     for ( int idx=0; idx<singles.size(); idx++ )
     {
 	const Coord3& pos = singles[idx];
 	const BinID bid = SI().transform( pos );
-
+	
 	int nearidx = -1;
 	for ( int idy=0; idy<sz; idy++ )
 	{
 	    if ( (pickedplane[idy]==mOnInline && inlcrl[idy]==bid.inl) ||
-	         (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl) ||
-	         (pickedplane[idy]==mOnZSlice && 
-		  mIsEqual(pos.z,zs[idy],zepsilon)) )
+		    (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl) ||
+		    (pickedplane[idy]==mOnZSlice &&
+		     mIsEqual(pos.z,zs[idy],zepsilon)) )
 	    {
 		nearidx = idy;
 		sticks_[idy]->crds_ += pos;
 		break;
 	    }
 	}
-
+	
 	if ( nearidx>-1 )
 	    continue;
 
-	float mindist = 0;
+        float mindist = 0;
 	for ( int idy=0; idy<sz; idy++ )
 	{
 	    const int picksz = sticks_[idy]->crds_.size();
@@ -389,7 +397,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 		const Coord3& k0 = sticks_[idy]->crds_[idz];
 		const Coord3& k1 = sticks_[idy]->crds_[idz+1];
 		Line3 segment( k0, k1-k0 );
-		const float pldist = (float) segment.sqDistanceToPoint( pos );
+		const float pldist = segment.sqDistanceToPoint( pos );
 		if ( nearidx==-1 || pldist<mindist )
 		{
 		    nearidx = idy;
@@ -447,14 +455,14 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 	    		   sticks_[idx]->pickedOnHorizon();
 
 	if ( ishorpicked != selhorpicked )
-	    delete sticks_.removeSingle( idx );
+	    delete sticks_.remove( idx );
     }
     if ( selhorpicked )
 	return;
 
     bool useinlcrlsep = setup_.useinlcrlslopesep_;
     double slopethres = setup_.stickslopethres_;
-    bool inlsteeper = true;
+    bool inlsteeper;
 
     if ( useinlcrlsep )
     {
@@ -510,7 +518,7 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 	    if ( (stick.pickedOnInl() && inlsteeper==selhorsticks) ||
 		 (stick.pickedOnCrl() && inlsteeper!=selhorsticks) )
 	    {
-		delete sticks_.removeSingle( idx );
+		delete sticks_.remove( idx );
 		continue;
 	    }
 	    if ( mIsUdf(setup_.stickslopethres_) )
@@ -519,14 +527,19 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 
 	const double slope = stick.slope( setup_.zscale_ );
 	if ( !mIsUdf(slope) && (slope<fabs(slopethres)) != selhorsticks )
-	    delete sticks_.removeSingle( idx );
+	    delete sticks_.remove( idx );
     }
 }
+
+
+void FSStoFault3DConverter::geometricSort( double zscale )
+{ geometricSort( zscale, true ); }
 
 
 void FSStoFault3DConverter::geometricSort( double zscale, bool forimport )
 {
     TypeSet<int> sticknrs;
+
     for ( int idx=0; idx<sticks_.size(); idx++ )
 	sticknrs += sticks_[idx]->sticknr_;
 
@@ -552,7 +565,7 @@ void FSStoFault3DConverter::geometricSort( double zscale, bool forimport )
     {
 	const int nrcrds = sticks_[idx]->crds_.size();
 	if ( nrcrds<2 ) continue;
-
+	
 	TypeSet<int> tmp;
 	TypeSet<float> zs;
 	for ( int idy=0; idy<nrcrds; idy++ )
@@ -582,26 +595,19 @@ void FSStoFault3DConverter::geometricSort( double zscale, bool forimport )
 
 void FSStoFault3DConverter::untwistSticks( double zscale )
 {
+    bool reverse = false;
+    int refidx = 0;
     for ( int idx=1; idx<sticks_.size(); idx++ )
     {
-	if ( !curfssg_ || !curfssg_->isTwisted(sticks_[idx-1]->sticknr_,
-		    sticks_[idx]->sticknr_, zscale) )
-	    continue;
+	if ( curfssg_ && curfssg_->isTwisted(sticks_[refidx]->sticknr_,
+					     sticks_[idx]->sticknr_, zscale) )
+	    reverse = !reverse;
 
-	const int nbnrknots = sticks_[idx-1]->crds_.size();
 	const int nrknots = sticks_[idx]->crds_.size();
-	if ( nbnrknots<2 || nrknots<2 )
-	    continue;
+	if ( nrknots > 1 )
+	    refidx = idx;
 
-	Coord3 d0 = sticks_[idx-1]->crds_[0]-sticks_[idx-1]->crds_[nbnrknots-1];
-	d0.z *= zscale;
-	Coord3 d1 = sticks_[idx]->crds_[0]-sticks_[idx]->crds_[nrknots-1];
-	d1.z *= zscale;
-	double cosangle = d0.dot(d1)/Math::Sqrt(d0.dot(d0)*d1.dot(d1));
-	if ( fabs(cosangle)<0.707 ) //if skewed more than 45 degree ignore it
-	    continue;
-
-	for ( int idy=0; idy<nrknots/2; idy++ )
+	for ( int idy=0; reverse && idy<nrknots/2; idy++ )
 	    sticks_[idx]->crds_.swap( idy, nrknots-1-idy );
     }
 }
@@ -651,7 +657,7 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
     {
 	const FaultStick* stick = sticks_[idx];
 	if ( stick->crds_.isEmpty() )
-  	    continue;
+	    continue;
 
 	if ( !fault3d_.geometry().insertStick( sid, sticknr, 0,
 			stick->crds_[0], stick->normal_, setup_.addtohistory_) )

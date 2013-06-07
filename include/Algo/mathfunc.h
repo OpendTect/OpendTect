@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "algomod.h"
 #include "mathfunc.h"
 #include "position.h"
 #include "ptrman.h"
@@ -26,16 +25,16 @@ ________________________________________________________________________
 template <class T> class LineParameters;
 
 
-/*!
-\brief Multidimensional Mathematical function.
-  
-  A MathFunctionND must deliver a value at any position: F(x*).
-  The positioning may need a different precision than the outcome, hence
-  the two types.
+/*!\brief Multidimensional Mathematical function
+
+A MathFunctionND must deliver a value at any position: F(x*).
+The positioning may need a different precision than the outcome, hence
+the two types.
+
 */
 
 template <class RT,class PT>
-mClass(Algo) MathFunctionND
+class MathFunctionND
 {
 public:
     virtual	~MathFunctionND() {}
@@ -57,16 +56,16 @@ public:
 typedef MathFunctionND<float,float> FloatMathFunctionND;
 
 
-/*!
-\brief Mathematical function
-  
-  A MathFunction must deliver a value at any position: F(x).
-  The positioning may need a different precision than the outcome, hence
-  the two types.
+/*!\brief Mathematical function
+
+A MathFunction must deliver a value at any position: F(x).
+The positioning may need a different precision than the outcome, hence
+the two types.
+
 */
 
 template <class RT,class PT>
-mClass(Algo) MathFunction : public MathFunctionND<RT,PT>
+class MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -80,12 +79,11 @@ public:
 typedef MathFunction<float,float> FloatMathFunction;
 
 
-/*!
-\brief Makes a MathFunction indexable through an operator[].
+/*! \brief Makes a MathFunction indexable through an operator[].
 */
 
 template <class RT,class PT>
-mClass(Algo) MathFunctionSampler
+class MathFunctionSampler
 {
 public:
 			MathFunctionSampler( const MathFunction<RT,PT>& f )
@@ -103,12 +101,10 @@ protected:
 };
 
 
-/*!
-\brief A Math Function as in F(x,y).
-*/
+/*!\brief a Math Function as in F(x,y). */
 
 template <class RT,class PT>
-mClass(Algo) MathXYFunction : public MathFunctionND<RT,PT>
+class MathXYFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -121,11 +117,9 @@ public:
 };
 
 
-/*!
-\brief A Math Function as in F(x,y,z).
-*/
+/*!\brief a Math Function as in F(x,y,z). */
 template <class RT,class PT>
-mClass(Algo) MathXYZFunction : public MathFunctionND<RT,PT>
+class MathXYZFunction : public MathFunctionND<RT,PT>
 {
 public:
 
@@ -139,21 +133,21 @@ public:
 
 
 
-/*!
-\brief MathFunction based on bend points
-  
+/*!\brief MathFunction based on bend points
+
   The object maintains sorted positions (in X), so you cannot bluntly stuff
   X and Y in. You cannot change or remove positions; instead make a copy.
-  
+
   If the given point is outside the 'defined' X-range, the value can be undef
   or the first/last defined point's value, depending on the 'extrapol_'
   setting. If no point at all is defined you will always get undef.
 
   You can add undefined Y-values, but not undef X-values (those add()'s simply
   return). Undef sections are therefore supported.
-*/
 
-mExpClass(Algo) PointBasedMathFunction : public FloatMathFunction
+ */
+
+mClass PointBasedMathFunction : public FloatMathFunction
 {
 public:
 
@@ -161,9 +155,11 @@ public:
     enum ExtrapolType   { None, EndVal, ExtraPolGradient };
 
     			PointBasedMathFunction( InterpolType t=Linear,
-			       			ExtrapolType extr=EndVal )
-			    : itype_(t)
-			    , extrapol_(extr)	{}
+			       			bool extr=true )
+			    : itype_(t)    { setExtrapolate( extr ); }
+			PointBasedMathFunction( InterpolType t,
+						ExtrapolType extr )
+			    : itype_(t)	   { setExtrapolate( extr ); }
 
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
@@ -180,12 +176,25 @@ public:
     InterpolType	interpolType() const	{ return itype_; }
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
-    void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
+    void		setExtrapolate( bool yn ) { extrapol_ = yn ? cEdgeVal() : cNone(); }
+    void		setExtrapolate( ExtrapolType t )
+			{
+			    if ( t==ExtraPolGradient )
+				extrapol_ = cExtraPolGradient();
+			    else if ( t==None )
+				extrapol_ = cNone();
+			    else
+				extrapol_ = cEdgeVal();
+			}
 
 protected:
 
+    static char		cNone() { return 0; }
+    static char		cEdgeVal() { return 1; }
+    static char		cExtraPolGradient() { return 2; }
+
     InterpolType	itype_;
-    ExtrapolType	extrapol_;
+    char		extrapol_;
     TypeSet<float>	x_;
     TypeSet<float>	y_;
 
@@ -196,18 +205,17 @@ protected:
 };
 
 
-/*!
-\brief A MathFunction that cuts through another mathfunction with
-higher number of dimensions.
-  
-  A starting point (P) and a vector (N) is used to project a line through
-  a MathFunctionND (func). The value returned is:
-  
-  f(x) = func(P+N*x)
+/*! \brief A MathFunction that cuts through another mathfunction with
+           higher number of dimensions.
+
+A starting point (P) and a vector (N) is used to project a line through
+a MathFunctionND (func). The value returned is:
+
+f(x) = func(P+N*x)
 */
 
 template <class RT,class PT>
-mClass(Algo) AlongVectorFunction : public MathFunction<RT,PT>
+class AlongVectorFunction : public MathFunction<RT,PT>
 {
 public:
     			AlongVectorFunction( const MathFunctionND<RT,PT>& func_,
@@ -237,11 +245,12 @@ protected:
 };
 
 
-/*!
-\brief A class for 2nd order polynomials of the form: a x^2 + b x + c
+/*! A class for 2nd order polynomials on the form:
+
+    a x^2 + b x + c
 */
 
-mExpClass(Algo) SecondOrderPoly : public FloatMathFunction
+mClass SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -306,11 +315,12 @@ public:
 };
 
 
-/*!
-\brief A class for 3rd order polynomials on the form: a x^3 + b x^2 + c x + d
+/*! A class for 3rd order polynomials on the form:
+
+    a x^3 + b x^2 + c x + d
 */
 
-mExpClass(Algo) ThirdOrderPoly : public FloatMathFunction
+mClass ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,
@@ -361,4 +371,3 @@ public:
 
 
 #endif
-

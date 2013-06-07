@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "seistype.h"
 #include "uigroup.h"
 #include "uisegyread.h"
@@ -19,7 +18,6 @@ ________________________________________________________________________
 class IOObj;
 class uiLabel;
 class uiButton;
-class uiCheckBox;
 class uiGenInput;
 class uiTabStack;
 class uiFileInput;
@@ -28,7 +26,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 
 /*!\brief base class for specification of SEG-Y file stuff */
 
-mExpClass(uiSeis) uiSEGYDefGroup : public uiGroup
+mClass uiSEGYDefGroup : public uiGroup
 {
 public:
     			uiSEGYDefGroup( uiParent* p, const char* grpnm,
@@ -51,10 +49,10 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
-mExpClass(uiSeis) uiSEGYFileSpec : public uiSEGYDefGroup
+mClass uiSEGYFileSpec : public uiSEGYDefGroup
 {
 public:
-    mExpClass(uiSeis) Setup
+    mClass Setup
     {
     public:
 			Setup( bool needmulti )
@@ -107,7 +105,7 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
-mExpClass(uiSeis) uiSEGYFilePars : public uiSEGYDefGroup
+mClass uiSEGYFilePars : public uiSEGYDefGroup
 {
 public:
     			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0);
@@ -142,11 +140,11 @@ protected:
  */
 class uiSEGYFOByteSpec;
 
-mExpClass(uiSeis) uiSEGYFileOpts : public uiSEGYDefGroup
+mClass uiSEGYFileOpts : public uiSEGYDefGroup
 {
 public:
 
-    mExpClass(uiSeis) Setup
+    mClass Setup
     {
     public:
 				Setup( Seis::GeomType gt,
@@ -203,15 +201,12 @@ protected:
     uiGenInput*		readcoordsfld_;
     uiGenInput*		coordsstartfld_;
     uiGenInput*		coordsstepfld_;
-    uiGenInput*		coordsextfld_;
     uiFileInput*	coordsfnmfld_;
-    uiCheckBox*		coordsspecfnmbox_;
     uiLabel*		ensurepsxylbl_;
 
     uiGenInput*		scalcofld_;
     uiGenInput*		timeshiftfld_;
     uiGenInput*		sampleratefld_;
-    uiGenInput*		havecoordsinhdrfld_;
 
     uiGroup*		mkORuleGrp(const IOPar&);
     uiGroup*		mkPosGrp(const IOPar&);
@@ -237,4 +232,3 @@ protected:
 
 
 #endif
-

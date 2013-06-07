@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.8 2011/04/28 11:30:53 cvsbert Exp $";
 
 #include "uipsviewershapetab.h"
 
@@ -18,12 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "uislider.h"
-#include "visprestackdisplay.h"
+#include "visprestackviewer.h"
 
-#define mSliderMinFactor 0.1f
-#define mSliderMaxFactor 1.9f
+#define mSliderMinFactor 0.1
+#define mSliderMaxFactor 1.9
 #define mSliderDecimal   2
-#define mSliderStep      0.01f
+#define mSliderStep      0.01
 
 
 namespace PreStackView
@@ -31,7 +31,7 @@ namespace PreStackView
 
 
 uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p, 
-	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
+	PreStackView::Viewer3D& vwr, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Shape" )
     , factorslider_( 0 )
     , widthslider_( 0 )		
@@ -143,7 +143,7 @@ bool uiViewer3DShapeTab::acceptOK( )
     {
 	for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
 	{
-	    visSurvey::PreStackDisplay* psv = mgr_.get3DViewers()[idx];
+	    PreStackView::Viewer3D* psv = mgr_.get3DViewers()[idx];
 	    if ( !psv ) continue;
 	    
 	    psv->displaysAutoWidth( autowidthfld_->getBoolValue() );
@@ -155,13 +155,13 @@ bool uiViewer3DShapeTab::acceptOK( )
 	}
     }
 
-#define mPSD visSurvey::PreStackDisplay
     if ( saveAsDefault() )
     {
 	Settings& settings = Settings::fetch( uiViewer3DMgr::sSettings3DKey() );
-	settings.set( mPSD::sKeyFactor(),viewer_.getFactor());
-	settings.set( mPSD::sKeyWidth(), viewer_.getWidth() );
-	settings.set( mPSD::sKeyAutoWidth(), viewer_.displayAutoWidth() );
+	settings.set( PreStackView::Viewer3D::sKeyFactor(),viewer_.getFactor());
+	settings.set( PreStackView::Viewer3D::sKeyWidth(), viewer_.getWidth() );
+	settings.set( PreStackView::Viewer3D::sKeyAutoWidth(),
+		      viewer_.displayAutoWidth() );
 
 	if ( !settings.write() )
 	{

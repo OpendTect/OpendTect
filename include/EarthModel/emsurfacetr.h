@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "transl.h"
 #include "emsurfaceiodata.h"
 
@@ -38,85 +37,62 @@ typedef EM::Fault3D		EMFault3D;
 typedef EM::FaultStickSet	EMFaultStickSet;
 
 
-/*!
-\brief TranslatorGroup for EM::Horizon3D. Reads/writes 3D EM::Horizon3D to
-storage.
-*/
+/*!\brief Read/write EM::Horizon to storage */
 
-mExpClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon3DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon3D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
     const char*			defExtension() const	{ return "hor"; }
 
-    static FixedString		keyword();
+    static const char*		keyword();
 };
 
 
-/*!
-\brief TranslatorGroup for EM::Horizon2D.
-*/
-
-mExpClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon2DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon2D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
     const char*			defExtension() const	{ return "2dh"; }
 
-    static FixedString		keyword();
+    static const char*		keyword();
 };
 
 
-/*!
-\brief TranslatorGroup for EM::Horizon.
-*/
-
-mExpClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
+mClass EMAnyHorizonTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(EMAnyHorizon)
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 
-    static FixedString	    keyword();
+    static const char*	    keyword();
 };
 
 
-/*!
-\brief TranslatorGroup for EM::Fault3D.
-*/
-
-mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
+mClass EMFault3DTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMFault3D)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
 
-    static FixedString	keyword();
+    static const char*	keyword();
 };
 
 
-/*!
-\brief TranslatorGroup for EM::FaultStickSet.
-*/
-
-mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
+mClass EMFaultStickSetTranslatorGroup : public TranslatorGroup
 {				       isTranslatorGroup(EMFaultStickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
     const char*		defExtension() const { return "fss"; }
 
-    static FixedString	keyword();
+    static const char*	keyword();
 };
 
 
-/*!
-\brief Translator for EM::Surface.
-*/
-
-mExpClass(EarthModel) EMSurfaceTranslator : public Translator
+mClass EMSurfaceTranslator : public Translator
 {
 public:
     				EMSurfaceTranslator(const char* nm,
@@ -164,11 +140,7 @@ protected:
 };
 
 
-/*!
-\brief dgb EMSurfaceTranslator
-*/
-
-mExpClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
+mClass dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
     				dgbEMSurfaceTranslator(const char*,const char*);
@@ -194,11 +166,7 @@ protected:
 };
 
 
-/*!
-\brief dgbEMSurfaceTranslator for EM::Horizon3D.
-*/
-
-mExpClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon3D)
 public:
     				dgbEMHorizon3DTranslator(const char* unm,
@@ -213,11 +181,7 @@ protected:
 };
 
 
-/*!
-\brief dgbEMSurfaceTranslator for EM::Horizon2D.
-*/
-
-mExpClass(EarthModel) dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon2D)
 public:
     				dgbEMHorizon2DTranslator(const char* unm,
@@ -232,11 +196,7 @@ protected:
 };
 
 
-/*!
-\brief dgbEMSurfaceTranslator for EM::Fault3D.
-*/
-
-mExpClass(EarthModel) dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
 {			       isTranslator(dgb,EMFault3D)
 public:
     				dgbEMFault3DTranslator(const char* unm,
@@ -251,11 +211,7 @@ protected:
 };
 
 
-/*!
-\brief dgbEMSurfaceTranslator for EM::FaultStickSet.
-*/
-
-mExpClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
     				dgbEMFaultStickSetTranslator(const char* unm,
@@ -271,4 +227,3 @@ protected:
 
 
 #endif
-

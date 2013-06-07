@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 class IOObj;
 class uiListBox;
@@ -22,7 +21,7 @@ class Seis2DLineSet;
 class uiSeisIOObjInfo;
 
 
-mExpClass(uiSeis) uiSeis2DFileMan : public uiDialog
+mClass uiSeis2DFileMan : public uiDialog
 {
 public:
 
@@ -48,7 +47,6 @@ protected:
     void		attribSel(CallBacker*);
     void		browsePush(CallBacker*);
     void		renameLine(CallBacker*);
-    void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
     void		removeAttrib(CallBacker*);
     void		renameAttrib(CallBacker*);
@@ -59,7 +57,6 @@ protected:
     uiListBox*		attrfld_;
     uiTextEdit*		infofld_;
     uiToolButton*	browsebut_;
-    uiToolButton*	mkdefbut_;
     uiManipButGrp*	linegrp_;
     uiManipButGrp*	attrgrp_;
 
@@ -70,4 +67,3 @@ protected:
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <iostream>
 
@@ -422,8 +422,8 @@ void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega0 = idx<=nrsamples/2 ? 5.f : -5.f;
-	float omega =  2 * M_PIf * omidx / scale;
+	float omega0 = idx<=nrsamples/2 ? 5 : -5;
+	float omega = 2 * M_PI * omidx / scale;
         float val = (omega-omega0) * (omega-omega0) / 2;
 	wavelet += exp( -val );
     }
@@ -436,7 +436,7 @@ void CWT::CWTWavelets::createMexhatWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = (float) ( 2 * M_PI * omidx / scale );
+	float omega = 2 * M_PI * omidx / scale;
         float omega2 = omega*omega;
 	wavelet += omega2 * exp( -omega2/2 );
     }
@@ -449,7 +449,7 @@ void CWT::CWTWavelets::createGaussWavelet( int nrsamples, float scale,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = (float) ( 2 * M_PI * omidx / scale );
+	float omega = 2 * M_PI * omidx / scale;
         float omega2 = omega*omega;
 	wavelet += exp( -omega2/2 );
     }
@@ -541,12 +541,13 @@ bool CWT::init()
 {
     if ( inited_ ) return true;
     
+    const int ndim = info_->getNDim();
     const int nrsamp = info_->getSize( 0 );
     const int nrsteps = freqrg_.nrSteps()+1;
     
     for ( int idx=0; idx<nrsteps; idx++ ) 
     {
-	if ( !outfreqidxs_.isPresent(idx) )
+	if ( outfreqidxs_.indexOf(idx) < 0 )
 	    continue;
 
 	const float freq = freqrg_.atIndex( idx );
@@ -582,7 +583,7 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     arr2d->setSize( nrsamples, nrsteps );
     for ( int idx=0; idx<nrsteps; idx++ ) 
     {
-	if ( !outfreqidxs_.isPresent(idx) )
+	if ( outfreqidxs_.indexOf(idx) < 0 )
 	    continue;
 
 	const float freq = freqrg_.atIndex( idx );
@@ -628,16 +629,16 @@ float CWT::getScale( int nrsamples, float dt, float freq ) const
     if ( !nrsamples || mIsZero(dt, mDefEps) )
 	return mUdf(float);
 
-    const float df = 1.f / ( dt * nrsamples );
+    const float df = 1. / ( dt * nrsamples );
     const float freqidx = freq / df;
 
     float omega0 = 5;
     if ( wt_ == Gaussian )
-	omega0 =  M_SQRT2f;
+	omega0 = sqrt(2.);
     else if ( wt_ == Morlet )
 	omega0 = 5;
     else if ( wt_ == MexicanHat )
-	omega0 = M_SQRT2f;
+	omega0 = sqrt(2.);
 
-    return (float) ( freqidx * (2*M_PI) / omega0 );
+    return freqidx * (2*M_PI) / omega0;
 }

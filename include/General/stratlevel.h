@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "undefval.h"
 #include "namedobj.h"
 #include "ranges.h"
@@ -40,7 +39,7 @@ class LevelSet;
 
 */
 
-mExpClass(General) Level : public NamedObject
+mClass Level : public NamedObject
 {
 public:
 
@@ -97,7 +96,7 @@ public:
 */
 
 
-mExpClass(General) LevelSet : public CallBacker
+mClass LevelSet : public CallBacker
 {
 public:
 
@@ -148,13 +147,6 @@ public:
     static void		getStdNames(BufferStringSet&);
     static LevelSet*	createStd(const char*);
 
-    inline const Level&	getLevel( int idx ) const
-			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
-    int			levelID( int idx ) const
-			{ return getLevel(idx).id(); }
-    Color		color( int idx ) const
-			{ return getLevel(idx).color(); }
-
 protected:
 
     ObjectSet<Level>	lvls_;
@@ -188,22 +180,20 @@ public:
 
 };
 
-mGlobal(General) const LevelSet& LVLS();
+mGlobal const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 
 // Needless to say that if you push, make sure you pop (so afterwards the real
 // default levels are restored
-mGlobal(General) void pushLevelSet(LevelSet*);
-mGlobal(General) void popLevelSet();
-mGlobal(General) const LevelSet& unpushedLVLS();
+mGlobal void pushLevelSet(LevelSet*);
+mGlobal void popLevelSet();
 
-mGlobal(General) void setLVLS(LevelSet*);
+mGlobal void setLVLS(LevelSet*);
 
-mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
+mGlobal BufferString getStdFileName(const char* inpnm,const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
 
 }; //namespace
 
 #endif
-

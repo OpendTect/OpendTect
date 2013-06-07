@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 
 class SoRGBATextureChannel2RGBA;
@@ -25,7 +24,7 @@ namespace visBase
 Does also handle enable/disable of the channels. */
 
 
-mExpClass(visBase) RGBATextureChannel2RGBA : public TextureChannel2RGBA
+mClass RGBATextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static RGBATextureChannel2RGBA*	create()
@@ -39,7 +38,6 @@ public:
     bool			usesShading() const	{ return false; }
     int				maxNrChannels() const	{ return 4; }
     int				minNrChannels() const	{ return 4; }
-    void			getChannelName(int,BufferString&) const;
 
     bool			createRGBA(SbImagei32&) const;
 
@@ -60,4 +58,3 @@ protected:
 
 
 #endif
-

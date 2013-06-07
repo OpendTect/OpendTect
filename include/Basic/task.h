@@ -12,28 +12,32 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "thread.h"
 
+#include <limits.h>
 
 namespace Threads { class ThreadWorkManager; }
 
 class ProgressMeter;
 
-/*!
-\brief Generalization of something (e.g. a computation) that needs to be
-done in multiple steps.
-*/
 
-mExpClass(Basic) Task : public NamedObject
+
+/* generalization of something (e.g. a computation) that needs to be
+   done in multiple steps. */
+
+mClass Task : public NamedObject
 {
 public:
     virtual		~Task();
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
     			//!<Must be called before execute()
+    virtual void	enableNrDoneCounting( bool yn )		{}
+    			/*<!It is not guaranteed that it's implemented by
+			    the class. If not, nrDone() will return -1.
+			    must be called before execute(). */
 
     virtual od_int64	nrDone() const			{ return -1; }
     			/*!<\note nrDone is only used for displaying progress
@@ -64,21 +68,16 @@ protected:
 };
 
 
-/*!
-\brief A collection of tasks, that behave as a single task.
-*/
-
-mExpClass(Basic) TaskGroup : public Task
+/*! A collection of tasks, that behave as a single task. */
+mClass TaskGroup : public Task
 {
 public:
-			TaskGroup();
     			~TaskGroup() { deepErase( tasks_ ); }
     void		addTask( Task* );
     			//Becomes mine
-    
-    void		setParallel(bool);
 
     void		setProgressMeter(ProgressMeter*);
+    virtual void	enableNrDoneCounting( bool yn );
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
 
@@ -92,6 +91,7 @@ public:
     virtual Control	getState() const;
 
 protected:
+
     ObjectSet<Task>		tasks_;
     int				curtask_;
 
@@ -99,12 +99,12 @@ protected:
 };
 
 
-/*!
-\brief The generalization of something (e.g. a computation) where the steps must
-be done in sequence, i.e. not parallely.
-*/
 
-mExpClass(Basic) SequentialTask : public Task
+/*!The generalization of something (e.g. a computation) where the steps must
+   be done in sequence, i.e. not parallely. */
+
+
+mClass SequentialTask : public Task
 {
 public:
 		SequentialTask(const char* nm=0)
@@ -140,51 +140,52 @@ protected:
 
 class ParallelTaskRunner;
 
-
 /*!
-\brief Generalization of a task that can be run in parallel. Any task that has
+Generalization of a task that can be run in parallel. Any task that has
 a fixed number of computations that are independent (i.e. they don't need to
 be done in a certain order) can inherit ParallelTask and be executed in
 parallel by calling the ParallelTask::execute().
 
-  Example of usage:
- 
-  \code
+Example of usage:
+
+\code
     float result[N];
     for ( int idx=0; idx<N; idx++ )
     	result[idx] = input1[idx]* function( idx, other, variables );
-  \endcode
+\endcode
 
-  Could be made parallel by adding the class:
+could be made parallel by adding the class:
 
-  \code
-  
-  class CalcClass : public ParallelTask
-  {
-  public:
-        od_int64	nrIterations() const { return N; }
-    	int		doWork( od_int64 start, od_int64 stop, int threadid )
-			{
-    			for ( int idx=start;idx<=stop &&shouldContinue();idx++ )
-    			{
-				result[idx] = input1[idx] *
-				function( idx, other, variables );
-				addToNrDone( 1 );
-	    		}
-			
-    			return true;
-			}
-			};
-			
-  \endcode
-  and in use that instead of the for-loop:
-  \code
-      CalcClass myclass( N, my, parameters );
-      myclass.exectute();
-  \endcode
+\code
+
+class CalcClass : public ParallelTask
+{
+public:
+    od_int64	nrIterations() const { return N; }
+    int		doWork( od_int64 start, od_int64 stop, int threadid )
+    		{
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		    {
+		    	result[idx] = input1[idx] *
+				      function( idx, other, variables );
+			addToNrDone( 1 );
+		    }
+
+		    return true;
+		}
+};
+
+\endcode
+and in use that instead of the for-loop:
+\code
+    CalcClass myclass( N, my, parameters );
+    myclass.exectute();
+\endcode
+		
 */
 
-mExpClass(Basic) ParallelTask : public Task
+
+mClass ParallelTask : public Task
 {
 public:
     virtual		~ParallelTask();
@@ -212,7 +213,15 @@ protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
-    virtual int		maxNrThreads() const;
+    virtual int		maxNrThreads() const
+    			{
+			    const od_int64 res = nrIterations();
+			    if ( res>INT_MAX )
+				return INT_MAX;
+
+			    return (int) res;
+			}
+
     virtual int		minThreadSize() const	{ return 1; }
     			/*!<\returns the minimum number of computations that
 			     effectively can be run in a separate thread.
@@ -225,7 +234,6 @@ protected:
 			    regularly. */
 
 			ParallelTask(const char* nm=0);
-			ParallelTask(const ParallelTask&);
     od_int64		calculateThreadSize(od_int64 totalnr,int nrthreads,
 	    				    int thread) const;
 
@@ -234,6 +242,9 @@ protected:
 			    that you have done something. */
     
     void		resetNrDone();
+    void		reportNrDone(int nrdone);
+    			//Legacy, don't use in new code. Use addToNrDone
+
     
 private:
     virtual bool	doWork(od_int64 start,od_int64 stop,int threadid) = 0;
@@ -286,7 +297,7 @@ interp.execute();
  
  */
 
-#define mDefParallelCalcNoPars(clss) \
+#define mDefParallelCalcNoPars(clss,sz) \
 	class clss : public ParallelTask \
 	{ \
 	public: \
@@ -312,7 +323,7 @@ interp.execute();
 	    T1 v1##_; T2 v2##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) 			{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) 		{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc3Pars(clss,T1,v1,T2,v2,T3,v3) \
@@ -324,7 +335,8 @@ interp.execute();
 	    clss( od_int64 _sz_, \
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
 		: sz_(_sz_) \
-		, v1##_(_##v1##_), v2##_(_##v2##_) , v3##_(_##v3##_)	{} \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_)			{} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalc4Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4) \
@@ -344,7 +356,7 @@ interp.execute();
 	    bool doWork( od_int64 start, od_int64 stop, int ) \
 	    { \
 		preop; \
-		for ( int idx=(int) start; idx<=stop; idx++ ) \
+		for ( int idx=start; idx<=stop; idx++ ) \
 		    { impl; } \
 		postop; \
 		return true; \
@@ -352,12 +364,11 @@ interp.execute();
 	};
 
 
-/*!
-\brief Class that can execute a task. Can be used as such, be inherited by
-fancy subclasses with user interface and progressbars etc.
-*/
 
-mExpClass(Basic) TaskRunner
+/*!Class that can execute a task. Can be used as such, be inherited by
+   fancy subclasses with user interface and progressbars etc. */
+
+mClass TaskRunner
 {
 public:
     static bool		execute(TaskRunner* tr, Task& );
@@ -376,4 +387,3 @@ protected:
 };
 
 #endif
-

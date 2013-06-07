@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "factory.h"
 #include "identifierman.h"
 #include "objectfinder.h"
 #include "uidialog.h"
 #include "uimainwin.h"
-#include "uitreeview.h"
+#include "uilistview.h"
 #include "cmddriver.h"
 #include "timefun.h"
 
@@ -33,7 +32,7 @@ namespace CmdDrive
 class Activator;
 
 
-mExpClass(uiCmdDriver) Command
+mClass Command
 {
 public:
 
@@ -44,7 +43,6 @@ public:
     			Command(CmdDriver& cmddrv)
 			    : drv_(cmddrv)
     			{}
-    virtual		~Command()			{}
 
     virtual const char* name() const			= 0; 			
     virtual bool	act(const char* parstr)		= 0;
@@ -120,9 +118,9 @@ protected:
 };
 
 
-#define mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
+#define mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
 \
-mExpClass(mod) cmdkey##Cmd : public parentclass \
+mClass cmdkey##Cmd : public parentclass \
 { \
 public: \
     			cmdkey##Cmd(CmdDriver& cmddrv) \
@@ -132,9 +130,9 @@ public: \
     static const char*	keyWord()			{ return #cmdkey; } \
     virtual const char* name() const			{ return keyWord(); }
 
-#define mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
+#define mStartDeclCmdClassNoAct(cmdkey,parentclass) \
 \
-    mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
+    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
 \
     static Command*	createInstance(CmdDriver& cmddrv) \
 			{ return new cmdkey##Cmd(cmddrv); } \
@@ -142,31 +140,31 @@ public: \
 			{ factory().addCreator( createInstance, \
 					        createFactoryKey(keyWord()) ); }
 
-#define mStartDeclCmdClassNoEntry(mod,cmdkey,parentclass) \
-    mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
+#define mStartDeclCmdClassNoEntry(cmdkey,parentclass) \
+    mStartDeclCmdClassNoActNoEntry(cmdkey,parentclass) \
     virtual bool	act(const char* parstr);
 
-#define mStartDeclCmdClass( mod,cmdkey,parentclass) \
-    mStartDeclCmdClassNoAct(mod,cmdkey,parentclass) \
+#define mStartDeclCmdClass(cmdkey,parentclass) \
+    mStartDeclCmdClassNoAct(cmdkey,parentclass) \
     virtual bool	act(const char* parstr);
 
 #define mEndDeclCmdClass \
 };
 
 
-mStartDeclCmdClassNoActNoEntry( uiCmdDriver, UiObject, Command )
+mStartDeclCmdClassNoActNoEntry( UiObject, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isUiObjChangeCommand() const	{ return true; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoActNoEntry( uiCmdDriver,UiObjQuestion, Command )
+mStartDeclCmdClassNoActNoEntry( UiObjQuestion, Command )
     virtual bool	isOpenQDlgCommand() const	{ return false; }
     virtual bool	isLocalEnvCommand() const	{ return true; }
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClassNoActNoEntry( uiCmdDriver,Stealth, Command )
+mStartDeclCmdClassNoActNoEntry( Stealth, Command )
     virtual bool	isVisualCommand() const		{ return false; }
 mEndDeclCmdClass
 
@@ -184,7 +182,7 @@ mEndDeclCmdClass
     in case activateInGUIThread(.,.) is going to be called with busywait=false.
 */
 
-mExpClass(uiCmdDriver) Activator : public CallBacker
+mClass Activator : public CallBacker
 {
 public:
     virtual		~Activator()			{};
@@ -192,7 +190,7 @@ public:
 };
 
 
-mExpClass(uiCmdDriver) CloseActivator: public Activator
+mClass CloseActivator: public Activator
 {
 public:
 			CloseActivator(const uiMainWin& uimw)
@@ -205,7 +203,7 @@ protected:
 };
 
 
-mExpClass(uiCmdDriver) CloseQDlgActivator: public Activator
+mClass CloseQDlgActivator: public Activator
 {
 public:
 			CloseQDlgActivator(int retval)
@@ -221,7 +219,7 @@ protected:
 //====== Menu tracer ==========================================================
 
 
-mExpClass(uiCmdDriver) MenuTracer
+mClass MenuTracer
 {
 public:
     			MenuTracer(const uiMenuItemContainer& mnu,
@@ -307,7 +305,7 @@ protected:
 	for ( int idx=objsfound.size()-1; idx>=0; idx-- ) \
 	{ \
 	    if ( idx != selidx ) \
-		objsfound.removeSingle( idx );  \
+		objsfound.remove( idx );  \
 	} \
     } \
 }
@@ -566,7 +564,7 @@ protected:
 	StringProcessor strproc( valstr ); \
 	const char* quote = strproc.convertToDouble() ? "" : "\""; \
 	mLogStrm << " -->> " << identnm << (isarg ? "'" : "") \
-		 << (FixedString(identnm).isEmpty() ? "" : " = " ) \
+		 << (strcmp(identnm,"") ? " = " : "") \
 		 << quote << valstr << quote << std::endl; \
     }
 
@@ -744,7 +742,7 @@ protected:
 	mDynamicCastGet( const objcls2*, uiobj2, objsfound[idx] ); \
 	mDynamicCastGet( const objcls3*, uiobj3, objsfound[idx] ); \
 	if ( !uiobj1 && !uiobj2 && !uiobj3 ) \
-	    objsfound.removeSingle( idx ); \
+	    objsfound.remove( idx ); \
     } \
 \
     int errkeyidx; \
@@ -777,7 +775,7 @@ protected:
 #define mFindListTableObjs( objnm, objsfound, objclass, keys, nrgrey ) \
 \
     mFindObjsBase( objsfound, objclass, keys ); \
-    mFindObjs2Base( objsfound2, objclass, uiTreeView, keys, false ); \
+    mFindObjs2Base( objsfound2, objclass, uiListView, keys, false ); \
     const bool uilviewonly = objsfound.isEmpty() && !objsfound2.isEmpty(); \
     const bool uilviewcloser = !objsfound.isEmpty() && \
 			       objsfound2.indexOf(objsfound[0])<0; \

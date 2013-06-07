@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "rowcolsurface.h"
 
@@ -115,15 +115,15 @@ StepInterval<int> RowColSurface::colRange() const
 
 
 Coord3 RowColSurface::getPosition( GeomPosID pid ) const
-{ return getKnot( RowCol::fromInt64(pid) ); }
+{ return getKnot( RowCol(pid) ); }
 
 
 bool RowColSurface::setPosition( GeomPosID pid, const Coord3& pos )
-{ return setKnot( RowCol::fromInt64(pid), pos ); }
+{ return setKnot( RowCol(pid), pos ); }
 
 
 bool RowColSurface::isDefined( GeomPosID pid ) const
-{ return isKnotDefined( RowCol::fromInt64(pid) ); }
+{ return isKnotDefined( RowCol(pid) ); }
 
 }; //namespace
 

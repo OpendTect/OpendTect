@@ -7,25 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistratlaymodtools.h"
-
-#include "keystrs.h"
-#include "propertyref.h"
-#include "stratlevel.h"
-#include "stratlayermodel.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uilabel.h"
-#include "uispinbox.h"
 #include "uitoolbutton.h"
+#include "uigeninput.h"
+#include "uispinbox.h"
+#include "uicombobox.h"
+#include "uilabel.h"
+#include "stratlevel.h"
 
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
 
 const char* uiStratLayModEditTools::sKeyDisplayedProp()
-{ return "Displayed property"; }
+{return "Displayed property";}
 
 const char* uiStratLayModEditTools::sKeyDecimation()
 { return "Decimation"; }
@@ -40,7 +36,7 @@ const char* uiStratLayModEditTools::sKeyZoomToggle()
 { return "Allow zoom"; }
 
 const char* uiStratLayModEditTools::sKeyDispLith()
-{ return "Display lithology"; }
+{ return "Dislay lithology"; }
 
 
 const char* uiStratLayModEditTools::sKeyShowFlattened()
@@ -53,31 +49,28 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , saveReq(this)
     , propEdReq(this)
     , genReq(this)
-    , nrmodels_(0)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
-    uiToolButton* opentb = new uiToolButton( leftgrp, "open",
+    uiToolButton* opentb = new uiToolButton( leftgrp, "open.png",
 				"Open stored generation description",
 				mCB(this,uiStratGenDescTools,openCB) );
-    savetb_ = new uiToolButton( leftgrp, "save",
+    savetb_ = new uiToolButton( leftgrp, "save.png",
 	    			"Save generation description",
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
-    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
+    uiToolButton* proptb = new uiToolButton( leftgrp, "defprops.png",
 	    			"Select layer properties",
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
-    nrmodlsfld_ = new uiGenInput( rightgrp, "",
-			  IntInpSpec(25).setLimits(Interval<int>(1,10000)) );
+    nrmodlsfld_ = new uiGenInput( rightgrp, "", IntInpSpec(25) );
     nrmodlsfld_->setElemSzPol( uiObject::Small );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( "Number of models to generate", 0 );
-    nrmodlsfld_->updateRequested.notify(
-	    mCB(this,uiStratGenDescTools,nrModelsChangedCB) );
-    uiToolButton* gotb = new uiToolButton( rightgrp, "go",
+    nrmodlsfld_->updateRequested.notify( gocb );
+    uiToolButton* gotb = new uiToolButton( rightgrp, "go.png",
 	    			"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
@@ -96,6 +89,7 @@ void uiStratGenDescTools::enableSave( bool yn )
     savetb_->setSensitive( yn );
 }
 
+
 void uiStratGenDescTools::fillPar( IOPar& par ) const
 {
     par.set( sKeyNrModels(), nrModels() );
@@ -106,23 +100,9 @@ bool uiStratGenDescTools::usePar( const IOPar& par )
 {
     int nrmodels;
     if ( par.get( sKeyNrModels(), nrmodels ) )
-    {
-	nrmodels_ = nrmodels;
 	nrmodlsfld_->setValue( nrmodels );
-    }
 	
     return true;
-}
-
-
-
-void uiStratGenDescTools::nrModelsChangedCB( CallBacker* )
-{
-    if ( nrmodels_ != nrmodlsfld_->getIntValue() )
-    {
-	nrmodels_ = nrmodlsfld_->getIntValue();
-	genReq.trigger();
-    }
 }
 
 
@@ -135,7 +115,6 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispZoomedChg(this)
     , dispLithChg(this)
     , flattenChg(this)
-    , allownoprop_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     propfld_ = new uiComboBox( leftgrp, "Display property" );
@@ -143,9 +122,17 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selPropCB) );
 
+    uiLabel* eachlbl = new uiLabel( leftgrp, "each" );
+    eachlbl->attach( rightOf, propfld_ );
+    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
+    eachfld_->setInterval( 1, 1000 );
+    eachfld_->attach( rightOf, eachlbl );
+    eachfld_->valueChanging.notify(
+				mCB(this,uiStratLayModEditTools,dispEachCB) );
+
     lvlfld_ = new uiComboBox( leftgrp, "Level" );
     lvlfld_->setToolTip( "Selected stratigraphic level" );
-    lvlfld_->attach( rightOf, propfld_ );
+    lvlfld_->attach( rightOf, eachfld_ );
     lvlfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selLevelCB) );
 
@@ -155,14 +142,6 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     contfld_->setHSzPol( uiObject::Small );
     contfld_->selectionChanged.notify(
 	    			mCB(this,uiStratLayModEditTools,selContentCB) );
-
-    eachlbl_ = new uiLabel( leftgrp, "each" );
-    eachlbl_->attach( rightOf, contfld_ );
-    eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
-    eachfld_->setInterval( 1, 1000 );
-    eachfld_->attach( rightOf, eachlbl_ );
-    eachfld_->valueChanging.notify(
-				mCB(this,uiStratLayModEditTools,dispEachCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
@@ -187,15 +166,8 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 }
 
 
-void uiStratLayModEditTools::setNoDispEachFld()
-{
-    eachlbl_->display( false ); eachfld_->display( false );
-    eachfld_ = 0;
-}
-
-
 static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
-			bool wall, int def )
+		       int def )
 {
     const BufferString selnm( cb->text() );
     cb->setEmpty();
@@ -204,28 +176,20 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
     if ( nms.isEmpty() ) return;
 
     cb->addItems( nms );
-    if ( wall )
-	cb->addItem( sKey::All() );
-
-    if ( wnone ) def++;
     if ( !selnm.isEmpty() ) 
-    {
-	def = cb->indexOf( selnm );
-	if ( def < 0 )
-	    def = 0;
-    }
-    if ( def >= cb->size() ) def = cb->size() - 1;
-    if ( def >= 0 )
-	cb->setCurrentItem( def );
+	def = nms.indexOf( selnm );
+    if ( wnone ) def++;
+    if ( def > cb->size() ) def = cb->size() - 1;
+    cb->setCurrentItem( def );
 }
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{ setFldNms( propfld_, nms, allownoprop_, false, 0 ); }
+{ setFldNms( propfld_, nms, false, 0 ); }
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
-{ setFldNms( lvlfld_, nms, true, false, 0 ); }
+{ setFldNms( lvlfld_, nms, true, 0 ); }
 void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
-{ setFldNms( contfld_, nms, true, true, -1 ); }
+{ setFldNms( contfld_, nms, true, -1 ); }
 
 
 const char* uiStratLayModEditTools::selProp() const
@@ -236,16 +200,7 @@ const char* uiStratLayModEditTools::selProp() const
 
 int uiStratLayModEditTools::selPropIdx() const
 {
-    if ( propfld_->isEmpty() )
-	return -1;
-    const int selidx = propfld_->getIntValue();
-    if ( selidx < 0 || (allownoprop_ && selidx == 0) )
-	return -1;
-
-    int propidx = selidx;
-    if ( !allownoprop_ )
-	propidx++;
-    return propidx;
+    return propfld_->isEmpty() ? 0 : propfld_->getIntValue() + 1;
 }
 
 
@@ -283,7 +238,7 @@ Color uiStratLayModEditTools::selLevelColor() const
 
 int uiStratLayModEditTools::dispEach() const
 {
-    return eachfld_ ? eachfld_->getValue() : 1;
+    return eachfld_->getValue();
 }
 
 
@@ -301,7 +256,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn() && (bool)selStratLevel();
+    return flattenedtb_->sensitive() && flattenedtb_->isOn();
 }
 
 
@@ -325,7 +280,7 @@ void uiStratLayModEditTools::setSelContent( const char* sel )
 
 void uiStratLayModEditTools::setDispEach( int nr )
 {
-    if ( eachfld_ ) eachfld_->setValue( nr );
+    eachfld_->setValue( nr );
 }
 
 
@@ -352,18 +307,19 @@ void uiStratLayModEditTools::setShowFlattened( bool yn )
     flattenedtb_->setOn( yn );
 }
 
+
 #define mGetProp( func, key ) \
-if ( func ) \
+    if ( func ) \
 par.set( key, func )
 
 void uiStratLayModEditTools::fillPar( IOPar& par ) const
 {
     mGetProp( selProp(), sKeyDisplayedProp() );
     par.set( sKeyDecimation(), dispEach() );
-
+    
     mGetProp( selLevel(), sKeySelectedLevel() );
     mGetProp( selContent(), sKeySelectedContent() );
-    
+
     par.setYN( sKeyZoomToggle(), dispZoomed() );
     par.setYN( sKeyDispLith(), dispLith() );
     par.setYN( sKeyShowFlattened(), showFlattened() );
@@ -379,6 +335,7 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
     } \
 }
 
+
 #define mSetYN( func, key, cb ) \
 { \
     bool yn; \
@@ -388,8 +345,6 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
 	cb( 0 ); \
     } \
 }
-
-
 
 
 bool uiStratLayModEditTools::usePar( const IOPar& par )
@@ -404,7 +359,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 	setDispEach( decimation );
 	dispEachCB( 0 );
     }
-    
+
     mSetYN( setDispZoomed, sKeyZoomToggle, dispZoomedCB );
     mSetYN( setDispLith, sKeyDispLith, dispLithCB );
     mSetYN( setShowFlattened, sKeyShowFlattened, showFlatCB );
@@ -412,61 +367,3 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     return true;
 }
 
-
-//-----------------------------------------------------------------------------
-
-#define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
-    uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
-    propnm##fld_ = lblbox##propnm->box(); \
-    PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
-    for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
-	if ( subsel##propnm[idx] )\
-	    propnm##fld_->addItem( subsel##propnm[idx]->name() );\
-    if ( prevbox )\
-	lblbox##propnm->attach( alignedBelow, prevbox );
-
-
-uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel )
-	: uiDialog(p,uiDialog::Setup("Property Selector",
-		    		     "There are multiple properties referenced"
-				     " with the same type. \n" 
-				     "Please specify which one to use as: ",
-				     mTODOHelpID) )
-{
-    mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
-    mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
-    mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
-}
-
-
-bool uiStratLayModFRPropSelector::needsDisplay() const
-{
-    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
-	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr()) )
-    {
-	vpfld_->setCurrentItem( 0 );
-	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
-	return false;
-    }
-    
-    return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
-}
-
-
-const char* uiStratLayModFRPropSelector::getSelVPName() const
-{
-    return vpfld_->text();
-}
-
-
-const char* uiStratLayModFRPropSelector::getSelVSName() const
-{
-    return vsfld_->text();
-}
-
-
-const char* uiStratLayModFRPropSelector::getSelDenName() const
-{
-    return denfld_->text();
-}

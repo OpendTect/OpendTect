@@ -1,0 +1,21 @@
+#!/bin/csh -f
+#
+# $Id: parse_rel_number,v 1.1 2012/08/27 06:23:34 cvsnageswara Exp $
+#
+
+echo "Enter release number:"
+set relnr=$<
+echo $relnr
+
+set majornr=`echo $relnr | sed 's/\.[0-9a-zA-Z_#-]*$//'`
+set minornr=`echo $relnr | sed "s/$majornr\.//"`
+set patchcode=`echo $minornr | sed 's/.//'`
+if ( "$patchcode" != "" ) set minornr=`echo $minornr | sed "s/$patchcode//"`
+set relnr=$majornr.$minornr
+set fullrelnr=${relnr}${patchcode}
+echo "${fullrelnr}" > /dsk/d21/nageswara/dev/buildtest/lux64/od4.4/inst/fullversion.txt
+echo "${relnr}" > /dsk/d21/nageswara/dev/buildtest/lux64/od4.4/inst/version.txt
+echo "${majornr}" > /dsk/d21/nageswara/dev/buildtest/lux64/od4.4/inst/testmajor.txt
+echo "${minornr}" > /dsk/d21/nageswara/dev/buildtest/lux64/od4.4/inst/testminor.txt
+
+set relstr=opendtect-$relnr

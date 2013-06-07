@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uimainwin.h"
 
 class uiMenuItem;
@@ -26,13 +25,13 @@ class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
-mGlobal(uiStrat) const uiStratTreeWin& StratTWin();
-mGlobal(uiStrat) uiStratTreeWin& StratTreeWin();
+mGlobal const uiStratTreeWin& StratTWin();
+mGlobal uiStratTreeWin& StratTreeWin();
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
 
-mExpClass(uiStrat) uiStratTreeWin : public uiMainWin
+mClass uiStratTreeWin : public uiMainWin
 {
 public:
 
@@ -54,28 +53,26 @@ protected:
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;
     uiMenuItem*			saveasmnuitem_;
+    uiMenuItem*			openmnuitem_;
     uiMenuItem*			resetmnuitem_;
     uiToolBar*			tb_;
     uiToolButton*		colexpbut_;
     uiToolButton*		lockbut_;
-    uiToolButton*		newbut_;
+    uiToolButton*		openbut_;
     uiToolButton*		savebut_;
     uiToolButton*		moveunitupbut_;
     uiToolButton*		moveunitdownbut_;
     uiToolButton*		switchviewbut_;
-    uiToolButton*		lithobut_;
-    uiToolButton*		contentsbut_;
     bool			needsave_;
     bool			istreedisp_;
 
+    void			initRT();
     void			createMenu();
     void			createToolBar();
     void			createGroups();
-    void			setNewRT();
-    void			setIsLocked(bool yn);
 
-    void			newCB(CallBacker*);
     void			editCB(CallBacker*);
+    void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
     void			saveCB(CallBacker*);
     void                        selLvlChgCB(CallBacker*);
@@ -96,11 +93,17 @@ private:
     friend const uiStratTreeWin& StratTWin();
     static ObjectSet<uiToolButtonSetup> tbsetups_;
 
-public:
-    void			changeLayerModelNumber(bool add);
+protected:
+    void                        newCB(CallBacker*);
+    uiToolButton*		lithobut_;
+    uiToolButton*		contentsbut_;
+    uiToolButton*		newbut_;
 
+public:
+    void			doLayerModel();
+    void			setIsLocked(bool yn);
+    void			changeLayerModelNumber(bool add);
 };
 
 
 #endif
-

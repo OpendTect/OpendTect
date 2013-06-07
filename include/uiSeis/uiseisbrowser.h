@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -32,11 +31,11 @@ class uiSeisBrowserInfoVwr;
 namespace ZDomain { class Def; }
 
 
-mExpClass(uiSeis) uiSeisBrowser : public uiDialog
+mClass uiSeisBrowser : public uiDialog
 {
 public :
 
-    mExpClass(uiSeis) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
     			Setup(const MultiID&,Seis::GeomType);
@@ -67,7 +66,7 @@ public :
     bool 		is2d_;
 
     const BinID&	curBinID() const;
-    float		curZ() const;
+    const float		curZ() const;
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
     static void		doBrowse(uiParent*,const IOObj&,bool is2d,
@@ -134,4 +133,3 @@ private:
 
 
 #endif
-

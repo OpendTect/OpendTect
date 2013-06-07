@@ -4,7 +4,7 @@
  * DATE     : January 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visrandomposbodydisplay.h"
 
@@ -26,8 +26,7 @@ RandomPosBodyDisplay::RandomPosBodyDisplay()
     : VisualObjectImpl(true)
     , embody_( 0 )
     , displaybody_( 0 )
-    , transform_( 0 )		      
-    , isupdateok_( false )  
+    , transform_( 0 )		       
 {
     getMaterial()->setAmbience( 0.5 );
     setColor( getRandomColor( false ) );
@@ -117,19 +116,18 @@ bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
     embody_ = embody;
     embody_->ref();
 
-   updateVisFromEM();
-   return isupdateok_;
+    updateVisFromEM();
+    return true;
 }
 
 
 void RandomPosBodyDisplay::updateVisFromEM()
 {
-    isupdateok_ = false;
-    if ( !embody_ ) 
-	return;
-
+    if ( !embody_ ) return;
     getMaterial()->setColor( embody_->preferredColor() );
-    setName( embody_->name().isEmpty() ? "<New body>" : embody_->name() );
+    if ( !embody_->name().isEmpty() )
+	setName( embody_->name() );
+    else setName( "<New body>" );
 
     if ( !displaybody_ )
     {
@@ -143,15 +141,7 @@ void RandomPosBodyDisplay::updateVisFromEM()
 	addChild( displaybody_->getInventorNode() );
     }
 
-    isupdateok_ = displaybody_->setPoints( embody_->getPositions() );
-    if ( !isupdateok_ )
-    {
-	removeChild( displaybody_->getInventorNode() );
-	displaybody_->unRef();
-	displaybody_ = 0;
-	return;
-    }
-
+    displaybody_->setPoints( embody_->getPositions() );
     displaybody_->turnOn( true );
 }
 

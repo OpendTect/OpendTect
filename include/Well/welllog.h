@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 #include "ranges.h"
 #include "iopar.h"
@@ -22,8 +21,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!
-\brief Well log
+/*!\brief Well log
  
   No regular sampling required, as in all DahObjs. 
 
@@ -38,9 +36,10 @@ namespace Well
   The IOPar pars() will be retrieved and stored with each log; it is not
   really used; moreover, it's intended for plugins to dump their extra info
   about this log.
-*/
+ 
+ */
 
-mExpClass(Well) Log : public DahObj
+mClass Log : public DahObj
 {
 public:
 
@@ -64,10 +63,8 @@ public:
     Interval<float>&	valueRange() 			{ return range_; }
     const Interval<float>& valueRange() const 		{ return range_; }
 
-    const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
-    const UnitOfMeasure* unitOfMeasure() const;
+    const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
-    void		convertTo(const UnitOfMeasure*);
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
@@ -85,13 +82,16 @@ protected:
     BufferString	unitmeaslbl_;
     IOPar		pars_;
 
-    void		removeAux( int idx )	{ val_.removeSingle(idx); }
-    void		eraseAux()		{ val_.erase(); }
+    void		removeAux( int idx )		{ val_.remove(idx); }
+    void		eraseAux()			{ val_.erase(); }
     float		gtVal(float,int&) const;
+
+public:
+    const UnitOfMeasure* unitOfMeasure() const;
+    void		convertTo(const UnitOfMeasure*);
 
 };
 
 }; // namespace Well
 
 #endif
-

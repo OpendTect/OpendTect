@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "parametricsurface.h"
 
@@ -49,10 +49,6 @@ StepInterval<int> ParametricSurface::rowRange() const
     return StepInterval<int>( origin_.row, origin_.row+(nrRows()-1)*step_.row,
 	   		      step_.row );
 }
-
-
-StepInterval<int> ParametricSurface::rowRange(int) const
-{ return rowRange(); }
 
 
 StepInterval<int> ParametricSurface::colRange() const
@@ -129,7 +125,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	if ( rowindex < -1 )
 	{
 	    const int nrtoinsert = rc.row - origin_.row;
-	    insertRow( origin_.row-step_.row, nrtoinsert );
+	    bool res = insertRow( origin_.row-step_.row, nrtoinsert );
 	    rowindex = rowIndex( rc.row );
 	}
 
@@ -283,15 +279,15 @@ bool ParametricSurface::isKnotDefined( const RowCol& rc ) const
 
 
 Coord3 ParametricSurface::getPosition( od_int64 pid ) const
-{ return getKnot( RowCol::fromInt64(pid) ); }
+{ return getKnot( RowCol(pid) ); }
 
 
 bool ParametricSurface::setPosition( od_int64 pid, const Coord3& pos )
-{ return setKnot( RowCol::fromInt64(pid), pos ); }
+{ return setKnot( RowCol(pid), pos ); }
 
 
 bool ParametricSurface::isDefined( od_int64 pid ) const
-{ return isKnotDefined( RowCol::fromInt64(pid) ); }
+{ return isKnotDefined( RowCol(pid) ); }
 
 
 bool ParametricSurface::checkSupport(bool yn)
@@ -384,7 +380,7 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	const RowCol neighbor = step_*dirs[(idx+udefidx)%dirs.size()]+rc1;
-	if ( path && path->isPresent(neighbor) )
+	if ( path && path->indexOf(neighbor)!=-1 )
 	    continue;
 
 	if ( isKnotDefined(neighbor) )

@@ -12,17 +12,12 @@ ________________________________________________________________________
 
 @$*/
  
-#include "attributeenginemod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 class Conn;
 namespace Attrib { class DescSet; }
 
-/*!
-\brief Translator group for I/O of DescSet.
-*/
-
-mExpClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
+mClass AttribDescSetTranslatorGroup : public TranslatorGroup
 {			  isTranslatorGroup(AttribDescSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
@@ -31,11 +26,7 @@ public:
 };
 
 
-/*!
-\brief Base Translator class for I/O of DescSet.
-*/
-
-mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
+mClass AttribDescSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
@@ -54,11 +45,8 @@ public:
 };
 
 
-/*!
-\brief Actual Translator class for I/O of DescSet.
-*/
 
-mExpClass(AttributeEngine) dgbAttribDescSetTranslator : public AttribDescSetTranslator
+mClass dgbAttribDescSetTranslator : public AttribDescSetTranslator
 {			     isTranslator(dgb,AttribDescSet)
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
@@ -72,4 +60,3 @@ public:
 
 
 #endif
-

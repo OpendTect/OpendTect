@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -23,8 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QContextMenuEvent>
 #include <QIntValidator>
 #include <QDoubleValidator>
-
-mUseQtnamespace
 
 class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
 {
@@ -120,7 +118,7 @@ void uiLineEdit::setPasswordMode()
 
 void uiLineEdit::setValidator( const uiIntValidator& val )
 {
-    body_->setValidator( new QIntValidator(val.bottom_, val.top_,body_) );
+    body_->setValidator( new QIntValidator(val.bottom_,val.top_,body_) );
 }
 
 
@@ -153,8 +151,7 @@ void uiLineEdit::setCompleter( const BufferStringSet& bs, bool cs )
 	qsl << QString( bs.get(idx) );
 
     QCompleter* qc = new QCompleter( qsl, 0 );
-    qc->setCaseSensitivity( cs ? Qt::CaseSensitive
-	    		       : Qt::CaseInsensitive );
+    qc->setCaseSensitivity( cs ? Qt::CaseSensitive : Qt::CaseInsensitive );
     body_->setCompleter( qc );
 }
 

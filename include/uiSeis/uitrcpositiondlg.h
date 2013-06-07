@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "linekey.h"
@@ -24,7 +23,7 @@ class uiToolButton;
 class PickRetriever;
 namespace PosInfo { class Line2DData; }
 
-mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
+mClass uiTrcPositionDlg: public uiDialog
 {                                                                               
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,const CubeSampling&,
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

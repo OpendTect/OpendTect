@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFFloat.h>
 
@@ -26,7 +25,7 @@ ________________________________________________________________________
 */
 
 
-mSoODClass SoArrow : public SoShape
+mClass SoArrow : public SoShape
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoArrow);
@@ -49,4 +48,3 @@ protected:
 };
 
 #endif
-

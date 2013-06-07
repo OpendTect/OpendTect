@@ -67,7 +67,6 @@ macro(_launcher_system_settings)
 		set(VCPROJ_TYPE vcproj)
 		set(USERFILE_EXTENSION ${SYSTEM_NAME}.${USER_NAME}.user)
 		set(LAUNCHER_LINESEP "&#x0A;")
-
 		if(MSVC11)
 			set(LAUNCHER_LINESEP "\n")
 			set(USERFILE_VC_VERSION 11.00)

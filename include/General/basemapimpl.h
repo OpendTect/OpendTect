@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "basemap.h"
 
 #include "draw.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 
 /*!Object that draws markers on a basemap */
 
-mExpClass(General) BaseMapMarkers : public BaseMapObject
+mClass BaseMapMarkers : public BaseMapObject
 {
 public:
 				BaseMapMarkers();
@@ -48,4 +47,3 @@ protected:
 
 
 #endif
-

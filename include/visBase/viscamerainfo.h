@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoCameraInfo;
@@ -26,7 +25,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) CameraInfo : public DataObject
+mClass CameraInfo : public DataObject
 {
 public:
 
@@ -52,5 +51,4 @@ protected:
 };
 
 #endif
-
 

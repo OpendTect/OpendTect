@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -55,7 +55,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     BinID startbid = rln.nodePosition( 0 );
     Coord startpos = SI().transform( startbid );
     vals[0] = zrg.start;
-    vals[1] = (float) startpos.x; vals[2] = (float) startpos.y;
+    vals[1] = startpos.x; vals[2] = startpos.y;
     vals[3] = (float)trcnr;
     seldata_.binidValueSet().allowDuplicateBids( true );
     seldata_.binidValueSet().setNrVals( 4 );
@@ -69,15 +69,15 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	const double unitdist = mMAX( inpstep.inl * SI().inlDistance(),
 				      inpstep.crl * SI().crlDistance() );
 	const int nrsegs = mNINT32( dist / unitdist );
-	const double unitx = ( stoppos.x - startpos.x ) / nrsegs;
-	const double unity = ( stoppos.y - startpos.y ) / nrsegs;
+	const float unitx = ( stoppos.x - startpos.x ) / nrsegs;
+	const float unity = ( stoppos.y - startpos.y ) / nrsegs;
 	for ( int nidx=1; nidx<nrsegs; nidx++ )
 	{
 	    const double curx = startpos.x + nidx * unitx;
 	    const double cury = startpos.y + nidx * unity;
 	    Coord curpos( curx, cury );
 	    vals[0] = zrg.start;
-	    vals[1] = (float) curpos.x; vals[2] = (float) curpos.y;
+	    vals[1] = curpos.x; vals[2] = curpos.y;
 	    vals[3] = (float)trcnr;
 	    const BinID curbid = SI().transform(curpos);
 	    seldata_.binidValueSet().add( curbid, vals );
@@ -85,7 +85,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	}
 
 	vals[0] = zrg.stop;
-	vals[1] = (float) stoppos.x; vals[2] = (float) stoppos.y;
+	vals[1] = stoppos.x; vals[2] = stoppos.y;
 	vals[3] = (float)trcnr;
 	seldata_.binidValueSet().add( stopbid, vals );
 	trcnr += 1;
@@ -93,7 +93,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	startpos = stoppos;
     }
 
-    totnr_ = mCast( int, seldata_.binidValueSet().totalSize() );
+    totnr_ = seldata_.binidValueSet().totalSize();
     if ( rdr_ )
 	rdr_->setSelData( new Seis::TableSelData(seldata_) );
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/lists/SbList.h>
@@ -25,7 +24,7 @@ class SbImage;
 /* Element that holds one the active texture units for for SoTextureComposer
    and their transparency status. */
 
-mSoODClass SoTextureComposerElement : public SoReplacedElement
+mClass SoTextureComposerElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureComposerElement);
 public:
@@ -45,4 +44,3 @@ private:
 };
 
 #endif
-

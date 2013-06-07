@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id$
+ RCS:           $Id: uicontourtreeitem.h,v 1.10 2012/01/10 22:41:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ namespace visBase
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
-mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
+class uiContourTreeItem : public uiODDataTreeItem
 {
 public:
     static void			initClass();

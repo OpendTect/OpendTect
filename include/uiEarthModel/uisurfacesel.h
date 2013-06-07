@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uigroup.h"
 
 #include "bufstringset.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 class IOObjContext;
 class uiListBox;
 
-mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
+mClass uiSurfaceSel : public uiGroup
 {
 public:
 			~uiSurfaceSel();
@@ -47,7 +46,7 @@ protected:
 /*! \brief ui for horizon 3D selection */
 
 // TODO implement
-mExpClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
+mClass uiSurface3DSel : public uiSurfaceSel
 {
 public:
 protected:
@@ -58,7 +57,7 @@ protected:
 
 /*! \brief ui for horizon 2D selection */
 
-mExpClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
+mClass uiSurface2DSel : public uiSurfaceSel
 {
 public:
     void		setLineSetID(const MultiID&);
@@ -72,7 +71,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
+mClass uiHorizon2DSel : public uiSurface2DSel
 {
 public:
     			uiHorizon2DSel(uiParent*);
@@ -81,7 +80,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
+mClass uiHorizon3DSel : public uiSurface3DSel
 {
 public:
     			uiHorizon3DSel(uiParent*);
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

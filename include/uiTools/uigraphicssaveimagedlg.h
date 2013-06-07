@@ -11,12 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uisaveimagedlg.h"
 
 class uiGraphicsScene;
 
-mExpClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
+mClass uiGraphicsSaveImageDlg : public uiSaveImageDlg
 {
 public:
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);
@@ -34,4 +33,3 @@ protected:
 };
 
 #endif
-

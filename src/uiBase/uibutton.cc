@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QResizeEvent>
 #include <QToolButton>
 
-mUseQtnamespace
 
 //! Wrapper around QButtons. 
 /*!
@@ -100,9 +99,9 @@ class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
 public:
 			uiPushButtonBody( uiButton& hndle, 
 					  uiParent* parnt, const char* txt )
-		     : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
-		     , iconfrac_(0.75)
-		     {}
+			    : uiButtonTemplBody<QPushButton>(hndle,parnt,txt)
+			    , iconfrac_(0.75)
+			    {}
 
 			uiPushButtonBody( uiButton& hndle, const ioPixmap& pm,
 				          uiParent* parnt, const char* txt )
@@ -123,7 +122,7 @@ public:
 			    iconfrac_ = icf;
 			}
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -153,10 +152,10 @@ class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
 public:
 			uiRadioButtonBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-		    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
-		    {}
+			    : uiButtonTemplBody<QRadioButton>(hndle,parnt,txt)
+			    {}
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -171,10 +170,10 @@ public:
 
 			uiCheckBoxBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-		       : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
-		       {}
+			    : uiButtonTemplBody<QCheckBox>(hndle,parnt,txt)
+			    {}
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -188,13 +187,13 @@ class uiToolButtonBody : public uiButtonTemplBody<QToolButton>
 public:
 			uiToolButtonBody(uiButton& hndle, 
 				     uiParent* parnt, const char* txt)
-		     : uiButtonTemplBody<QToolButton>(hndle,parnt,txt)
-		      {
-			  setFocusPolicy( Qt::ClickFocus );
-		      }
+			    : uiButtonTemplBody<QToolButton>(hndle,parnt,txt)
+			    {
+				setFocusPolicy( Qt::ClickFocus );
+			    }
 
 
-    virtual QAbstractButton&    qButton()	{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 
 protected:
@@ -491,10 +490,10 @@ void uiToolButton::setArrowType( ArrowType type )
 #ifdef __win__
     switch ( type )
     {
-	case UpArrow: setPixmap( "uparrow" ); break;
-	case DownArrow: setPixmap( "downarrow" ); break;
-	case LeftArrow: setPixmap( "leftarrow" ); break;
-	case RightArrow: setPixmap( "rightarrow" ); break;
+	case UpArrow: setPixmap( "uparrow.png" ); break;
+	case DownArrow: setPixmap( "downarrow.png" ); break;
+	case LeftArrow: setPixmap( "leftarrow.png" ); break;
+	case RightArrow: setPixmap( "rightarrow.png" ); break;
     }
 #else
     body_->setArrowType( (Qt::ArrowType)(int)type );
@@ -517,8 +516,7 @@ void uiToolButton::setMenu( uiPopupMenu* mnu )
     qmenu_ = new QMenu;
     for ( int idx=0; idx<mnu->nrItems(); idx++ )
     {
-	QAction* qact =
-	    	 const_cast<QAction*>( mnu->items()[idx]->qAction() );
+	QAction* qact = const_cast<QAction*>( mnu->items()[idx]->qAction() );
 	qmenu_->addAction( qact );
     }
 

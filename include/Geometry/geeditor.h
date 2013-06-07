@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geomelement.h"
 
 namespace Geometry
@@ -22,7 +21,7 @@ namespace Geometry
 class TrackPlane;
 
 
-mExpClass(Geometry) ElementEditor : public CallBacker
+mClass ElementEditor : public CallBacker
 {
 public:
     			ElementEditor( Geometry::Element& element );
@@ -65,5 +64,4 @@ protected:
 };
 
 #endif
-
 

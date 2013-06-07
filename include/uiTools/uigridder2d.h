@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "factory.h"
 
@@ -21,7 +20,7 @@ class InverseDistanceGridder2D;
 class uiGenInput;
 
 
-mExpClass(uiTools) uiGridder2DSel : public uiDlgGroup
+mClass uiGridder2DSel : public uiDlgGroup
 {
 public:
     				uiGridder2DSel(uiParent*,const Gridder2D*);
@@ -38,7 +37,7 @@ protected:
     ObjectSet<Gridder2D>	gridders_;
 };
 
-mExpClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
+mClass uiInverseDistanceGridder2D : public uiDlgGroup
 {
 public:
     static void		initClass();
@@ -62,9 +61,7 @@ protected:
 };
 
 
-mDefineFactory2Param( uiTools, uiDlgGroup, uiParent*, Gridder2D*,
-		      uiGridder2DFact );
+mDefineFactory2Param( uiDlgGroup, uiParent*, Gridder2D*, uiGridder2DFact );
 
 
 #endif
-

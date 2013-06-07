@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "timefun.h"
 #include "bufstring.h"
@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QDateTime>
 #include <QTime>
-
-mUseQtnamespace
 
 namespace Time
 {
@@ -63,7 +61,7 @@ const char* getDateTimeString( const char* fmt, bool local )
     BufferString& datetimestr = stm.getString();
     QDateTime qdt = QDateTime::currentDateTime();
     if ( !local ) qdt = qdt.toUTC();
-    datetimestr = qdt.toString( fmt ).toLatin1().constData();
+    datetimestr = qdt.toString( fmt ).toAscii().constData();
     return datetimestr.buf();
 }
 

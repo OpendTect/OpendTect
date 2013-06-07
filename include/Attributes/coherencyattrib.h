@@ -10,9 +10,19 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
+Coherency type= gate= [maxdip=250] [ddip=10]
+
+Calculates the coherency.
+
+Input:
+0       Data
+
+Output:	3D			2D
+0       Coherency		Coherency
+1       Inline dip		Trace dip
+2       Crossline dip
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "valseries.h"
 #include "valseriesinterpol.h"
@@ -23,23 +33,7 @@ namespace Attrib
 
 class DataHolder;
 
-/*!
-\brief Calculates %coherency.
-
-<pre>
-  %Coherency type= gate= [maxdip=250] [ddip=10]
-  
-  Input:
-  0       Data
-  
-  %Output: 3D                      2D
-  0       Coherency               Coherency
-  1       Inline dip              Trace dip
-  2       Crossline dip
-</pre>
-*/
-
-mExpClass(Attributes) Coherency : public Provider
+mClass Coherency : public Provider
 {
 public:
     static void		initClass();
@@ -103,5 +97,4 @@ protected:
 
 
 #endif
-
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseisioobjinfo.h"
 
@@ -43,7 +43,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     if ( is2D() )
 	return true;
 
-    PtrMan<Translator> t = ioObj()->createTranslator();
+    PtrMan<Translator> t = ioObj()->getTranslator();
     if ( !t )
 	{ pErrMsg("No Translator"); return true; }
     mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t.ptr());

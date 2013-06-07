@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -74,7 +74,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 	emobj->setMultiID( mid );
 	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
 	uiTaskRunner taskrunner( this );
-	if ( !TaskRunner::execute( &taskrunner, *loader ) )
+	if ( !taskrunner.execute(*loader) )
 	    return false;
     }
 
@@ -88,7 +88,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     
     PtrMan<Executor> saver = horizon2d->saver();
     uiTaskRunner writedlg( this );
-    TaskRunner::execute( &writedlg, *saver );
+    writedlg.execute( *saver );
 
     EM::EMObjectCallbackData cbdata;
     cbdata.event = EM::EMObjectCallbackData::PositionChange;
@@ -139,7 +139,7 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     creator.init( sellinenames, linesetinpsel_->ioObj()->name() );
 
     uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, creator );
+    tr.execute( creator );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "resizeimage.h"
 
@@ -82,9 +82,9 @@ bool ImageResizer::doPrepare(int)
 bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 
 {
-    od_int64 idx0 = start/outputsize_[1];
-    od_int64 idx1 = start%outputsize_[1];
-    od_int64 idx = start;
+    int idx0 = start/outputsize_[1];
+    int idx1 = start%outputsize_[1];
+    int idx = start;
     Color colres;
     for ( ; idx<=stop; idx0++ )
     {
@@ -121,14 +121,14 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 
 	    for ( char idc=nrcomponents_-1; idc>=0; idc-- )
 	    {
-		double res = sums[idc];
+		float res = sums[idc];
 		if ( wsum!=0 )
 		    res /= wsum;
 
 		int ires = mNINT32( res );
 		if ( ires<0 ) ires=0; else if ( ires>256 ) ires = 256;
 
-		outputimage_[idx*nrcomponents_+idc] = mCast(unsigned char,ires);
+		outputimage_[idx*nrcomponents_+idc] = ires;
 	    }
 
 	    idx++;

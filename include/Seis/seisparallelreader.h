@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
 #include "cubesampling.h"
 #include "fixedstring.h"
 #include "sets.h"
@@ -32,7 +31,7 @@ namespace Seis
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
    into a BinIDValueSet */
 
-mExpClass(Seis) ParallelReader : public ParallelTask
+mClass ParallelReader : public ParallelTask
 {
 public:
 			ParallelReader(const IOObj&,
@@ -81,4 +80,3 @@ protected:
 } // namespace Seis
 
 #endif
-

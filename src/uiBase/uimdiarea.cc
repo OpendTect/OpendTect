@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -20,8 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QCloseEvent>
 #include <QIcon>
 #include <QMdiSubWindow>
-
-mUseQtnamespace
 
 static bool sNoCloseMessage = false;
 

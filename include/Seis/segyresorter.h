@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "seisposkey.h"
 #include "multiid.h"
@@ -34,11 +33,11 @@ class DirectReader;
 
  */
 
-mExpClass(Seis) ReSorter : public Executor
+mClass ReSorter : public Executor
 {
 public:
 
-    mExpClass(Seis) Setup
+    mClass Setup
     {
     public:
 
@@ -112,4 +111,3 @@ protected:
 } // namespace
 
 #endif
-

@@ -13,20 +13,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "multiid.h"
 
+
 template <class T> class Interval;
+
 
 namespace PreStack
 {
 
-/*!
-\brief Stacks PreStack data.
-*/
-
-mExpClass(PreStackProcessing) Stack : public Processor
+mClass Stack : public Processor
 {
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,
@@ -46,6 +43,7 @@ public:
 
 protected:
     static const char*		sKeyOffsetRange() { return "Offset Range"; }
+    Gather*			createOutputArray(const Gather&) const;
     od_int64			nrIterations() const;
     bool			doWork(od_int64,od_int64,int);
 
@@ -57,4 +55,3 @@ protected:
 }; //namespace
 
 #endif
-

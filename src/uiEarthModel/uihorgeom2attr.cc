@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorgeom2attr.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 	msfld_->attach( alignedBelow, att ); \
     }
 #define mGetZFac(valifms) \
-    const float zfac = (float) (msfld_ && msfld_->getBoolValue() ? valifms : 1)
+    const float zfac = msfld_ && msfld_->getBoolValue() ? valifms : 1
 
 
 uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
@@ -88,7 +88,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
 
-	    const float zval = (float) ( hor_.getPos(pid).z * zfac );
+	    const float zval = hor_.getPos(pid).z * zfac;
 	    hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
 	}
 	delete iter;
@@ -96,7 +96,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 
     PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );
     uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, *saver );
+    return tr.execute( *saver );
 }
 
 
@@ -154,7 +154,7 @@ int nextStep()
 	if ( pid.objectID() == -1 )
 	    return Finished();
  
-	const BinID bid = pid.getRowCol();
+	const BinID bid( pid.subID() );
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
 	if ( rid < 0 )
@@ -202,10 +202,10 @@ int nextStep()
 
 bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 {
-    mGetZFac( 0.001f );
+    mGetZFac( 0.001 );
     const bool isdelta = isdeltafld_->getBoolValue();
 
     uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );
     uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, exec );
+    return tr.execute( exec );
 }

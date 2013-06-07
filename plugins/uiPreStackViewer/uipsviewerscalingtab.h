@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          May 2008
- RCS:           $Id$
+ RCS:           $Id: uipsviewerscalingtab.h,v 1.2 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,18 +15,18 @@ ________________________________________________________________________
 #include "uiflatviewproptabs.h"
 
 class uiPushButton;
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
 class uiViewer3DMgr; 
+class Viewer3D;
 
-mClass(uiPreStackViewer) uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
+class uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
 {
 public:
 				uiViewer3DScalingTab(uiParent*,
-						 visSurvey::PreStackDisplay&,
+						 PreStackView::Viewer3D&,
   						 uiViewer3DMgr&);
     virtual void		putToScreen();
     virtual void		setData()		{ doSetData(true); }
@@ -54,6 +54,7 @@ protected:
 };
 
 
-} // namespace
+}; //namespace
 
 #endif
+

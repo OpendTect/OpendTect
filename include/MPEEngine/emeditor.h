@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "callback.h"
 #include "emposid.h"
 #include "factory.h"
@@ -29,9 +28,8 @@ namespace Geometry { class ElementEditor; };
 namespace MPE
 {
 
-/*!
-\brief Abstraction of EM Object editing. It gives lists of which nodes that may
-be moved, and in what manner.
+/*!Abstractation of EM Object editing. It gives lists of which nodes that
+   may be moved, and in what manner.
 
    Editing has three easy steps:
    \code
@@ -45,7 +43,7 @@ be moved, and in what manner.
    which are listed by getAlongMovingStyleNames().
 */
 
-mExpClass(MPEEngine) ObjectEditor : public CallBacker
+mClass ObjectEditor : public CallBacker
 { mRefCountImpl( ObjectEditor );
 public:
     			ObjectEditor( EM::EMObject& );
@@ -166,11 +164,10 @@ private:
 };
 
 
-mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
+mDefineFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 };
 
 #endif
-
 

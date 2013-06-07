@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "odimage.h"
 
@@ -29,7 +28,7 @@ namespace visBase
 
 /*!Displays an image that either is read from disk or in memory. */
 
-mExpClass(visBase) Image : public DataObject
+mClass Image : public DataObject
 {
 public:
     static Image*	create()
@@ -51,7 +50,7 @@ protected:
 };
 
 
-mExpClass(visBase) RGBImage : public OD::RGBImage
+mClass RGBImage : public OD::RGBImage
 {
 public:
     		RGBImage();
@@ -73,4 +72,3 @@ protected:
 };
 
 #endif
-

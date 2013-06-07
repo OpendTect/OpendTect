@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 */
 
-#include "generalmod.h"
 #include "general.h"
 
 
 /*!\brief Raw binary data access.  */
 
-mExpClass(General) RawDataArray
+mClass RawDataArray
 {
 public:
 			RawDataArray( int byts=4 )
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

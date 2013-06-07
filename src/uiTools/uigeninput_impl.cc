@@ -7,14 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigeninput.h"
 #include "uigeninput_impl.h"
-
 #include "uibutton.h"
-#include "uispinbox.h"
-
 #include "datainpspec.h"
 
 
@@ -194,7 +191,9 @@ void uiGenInputInputFld::init()
 {
     update_( spec_ );
 
-    uiObject::SzPolicy hpol = p_ ? p_->elemSzPol() : uiObject::Undef;
+    uiObject::SzPolicy hpol =
+    p_ ? p_->elemSzPol() : uiObject::Undef;
+
     if ( hpol == uiObject::Undef )
     {
 	int nel = p_ ? p_->nrElements() : nElems();
@@ -202,11 +201,10 @@ void uiGenInputInputFld::init()
 	switch( spec_.type().rep() )
 	{
 	case DataType::stringTp:
-	case DataType::boolTp:
 	    hpol = nel > 1 ? uiObject::SmallVar : uiObject::MedVar;
 	break;
-	case DataType::intTp:
-	    hpol = uiObject::Small;
+	case DataType::boolTp:
+	    hpol = nel > 1 ? uiObject::SmallVar : uiObject::MedVar;
 	break;
 	default:
 	    hpol = nel > 1 ? uiObject::Small : uiObject::Medium;
@@ -353,52 +351,3 @@ bool uiGenInputBoolFld::update_( const DataInpSpec& spec )
     setvalue_( spec.getBoolValue() );
     return true;
 }
-
-
-// uiGenInputIntFld
-uiGenInputIntFld::uiGenInputIntFld( uiParent* p, int val, const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<int>()
-{
-    setvalue_( val );
-}
-
-
-uiGenInputIntFld::uiGenInputIntFld( uiParent* p, const DataInpSpec& spec,
-				    const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<int>()
-{
-    setvalue_( spec.getIntValue() );
-    mDynamicCastGet(const IntInpSpec*,ispec,&spec)
-    if ( spec.hasLimits() && ispec )
-	uiSpinBox::setInterval( *ispec->limits() );
-}
-
-
-void uiGenInputIntFld::setReadOnly( bool yn )
-{ uiSpinBox::setSensitive( !yn ); }
-
-bool uiGenInputIntFld::isReadOnly() const
-{ return !uiSpinBox::sensitive(); }
-
-bool uiGenInputIntFld::update_( const DataInpSpec& spec )
-{ setvalue_( spec.getIntValue() ); return true; }
-
-void uiGenInputIntFld::setToolTip( const char* tt )
-{ uiSpinBox::setToolTip( tt ); }
-
-int uiGenInputIntFld::getvalue_() const
-{ return uiSpinBox::getValue(); }
-
-void uiGenInputIntFld::setvalue_( int val )
-{ uiSpinBox::setValue( val ); }
-
-bool uiGenInputIntFld::notifyValueChanging_( const CallBack& cb )
-{ uiSpinBox::valueChanging.notify( cb ); return true; }
-
-bool uiGenInputIntFld::notifyValueChanged_( const CallBack&  cb )
-{ uiSpinBox::valueChanged.notify( cb ); return true; }
-
-bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& )
-{ return false; }

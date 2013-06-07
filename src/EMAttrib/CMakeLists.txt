@@ -5,14 +5,14 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS EarthModel AttributeEngine )
-set(OD_MODULE_SOURCES
+SET(OD_MODULE_DEPS EarthModel AttributeEngine )
+SET(OD_MODULE_SOURCES
 		emhor2dseisiter.cc
 		hor2dfrom3dcreator.cc
 		seis2deventsnapper.cc
 		gridcreator.cc
 )
-set( OD_MODULE_BATCHPROGS od_process_2dgrid.cc od_process_attrib_em.cc )
+SET( OD_MODULE_BATCHPROGS od_process_2dgrid od_process_attrib_em )
 OD_INIT_MODULE()
 
 

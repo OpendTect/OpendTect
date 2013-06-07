@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 class uiComboBox;
@@ -21,7 +20,7 @@ namespace Well { class Marker; class MarkerSet; }
 
 /*!\brief Select one or two markers (i.e. a range) */
 
-mDefClass(uiWell) uiWellMarkerSel : public uiGroup
+mClass uiWellMarkerSel : public uiGroup
 {
 public:
 

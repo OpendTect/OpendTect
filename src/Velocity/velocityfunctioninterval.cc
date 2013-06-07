@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctioninterval.h"
 
@@ -58,7 +58,7 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
     
     for ( int idx=0; idx<nr; idx++ )
     {
-	float z = (float) sd.atIndex( idx );
+	float z = sd.atIndex( idx );
 	input[idx] = inputfunc_->getVelocity( z );
     }
 

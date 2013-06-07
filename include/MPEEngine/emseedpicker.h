@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "callback.h"
 #include "emtracker.h"
 #include "position.h"
@@ -25,11 +24,12 @@ namespace MPE
 {
 
 /*!
-\brief Handles adding of seeds and retracking of events based on new seeds. An
-instance of the class is usually available from each EMTracker.
+handles adding of seeds and retracking of events based on new seeds.
+
+An instance of the class is usually avaiable from the each EMTracker.
 */
 
-mExpClass(MPEEngine) EMSeedPicker: public CallBacker
+mClass EMSeedPicker: public CallBacker
 {
 public:
     virtual		~EMSeedPicker() {}
@@ -87,4 +87,3 @@ public:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "factory.h"
 #include "datapack.h"
 #include "sets.h"
@@ -30,11 +29,10 @@ namespace Attrib
 class SelSpec;
 class DataCubes;
 
-/*!
-\brief Generic class for attribs that does not come from the attribute engine.
-*/
+/*! Generic class for attribs that does not come from the attribute engine. */
 
-mExpClass(AttributeEngine) ExtAttribCalc
+
+mClass ExtAttribCalc
 {
 public:
     virtual			~ExtAttribCalc()			{}
@@ -57,10 +55,9 @@ public:
 };
 
 
-mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
+mDefineFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
 } // namespace Attrib
 
 #endif
-

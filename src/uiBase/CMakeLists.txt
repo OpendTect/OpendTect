@@ -5,14 +5,15 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS General)
-set(OD_USEQT Widgets)
-set(QT_MOC_HEADERS i_qaction.h
+SET(OD_MODULE_DEPS General)
+SET(OD_USEQT Gui)
+SET(QT_MOC_HEADERS i_qaction.h
 		i_qbutton.h
 		i_qcombobox.h
 		i_qdial.h
 		i_qlineedit.h
 		i_qlistbox.h
+		i_qlistview.h
 		i_qmdiarea.h
 		i_qmenu.h
 		i_qslider.h
@@ -23,15 +24,16 @@ set(QT_MOC_HEADERS i_qaction.h
 		i_qtextedit.h
 		i_qtoolbar.h
 		i_qtoolbut.h
-		i_qtreeview.h
 		i_qtxtbrowser.h)
 SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
+		iodraw.cc
 		inituibase.cc
 		pixmap.cc
 		uiaction.cc
 		uibutton.cc
 		uibuttongroup.cc
+		uicanvas.cc
 		uicolor.cc
 		uicombobox.cc
 		uicursor.cc
@@ -39,7 +41,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uidate.cc
 		uidial.cc
 		uidockwin.cc
-		uieventfilter.cc
+		uidrawable.cc
 		uifiledlg.cc
 		uifont.cc
 		uigroup.cc
@@ -52,6 +54,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uilayout.cc
 		uilineedit.cc
 		uilistbox.cc
+		uilistview.cc
 		uimain.cc
 		uimainwin.cc
 		uimdiarea.cc
@@ -77,8 +80,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitabstack.cc
 		uitextedit.cc
 		uitoolbar.cc
-		uitreeview.cc
 		uivirtualkeyboard.cc)
-SET(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
-OD_ADD_SOURCE_FILES( uimainicon.xpm )
+SET(OD_MODULE_GUI_PROGS od_DispMsg )
 OD_INIT_MODULE()

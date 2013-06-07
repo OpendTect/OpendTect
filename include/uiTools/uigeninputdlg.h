@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "datainpspec.h"
@@ -20,7 +19,7 @@ class uiGenInput;
 
 /*!\brief specifies how to get input from user - for uiGenInputDlg */
 
-mExpClass(uiTools) uiGenInputDlgEntry
+mClass uiGenInputDlgEntry
 {
 public:
     			uiGenInputDlgEntry( const char* t,
@@ -37,7 +36,7 @@ public:
 };
 
 
-mExpClass(uiTools) uiGenInputGrp : public uiGroup
+mClass uiGenInputGrp : public uiGroup
 {
 public:
 			uiGenInputGrp(uiParent*,const char* dlgtitle,
@@ -79,7 +78,7 @@ private:
 
 /*!\brief dialog with only uiGenInputs */
 
-mExpClass(uiTools) uiGenInputDlg : public uiDialog
+mClass uiGenInputDlg : public uiDialog
 { 	
 public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,
@@ -107,4 +106,3 @@ protected:
 
 
 #endif
-

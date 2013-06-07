@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "SoScale3Dragger.h"
@@ -288,8 +288,7 @@ SbBool SoScale3Dragger::setUpConnections( SbBool onoff, SbBool doitalways )
 	SoDragger::setUpConnections( onoff, doitalways );
     }
 
-    connectionsSetUp = onoff;
-    return !connectionsSetUp;
+    return !(connectionsSetUp=onoff);
 }
 
 

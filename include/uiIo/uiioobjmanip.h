@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
 #include "uibuttongroup.h"
 class IOObj;
 class MultiID;
@@ -25,7 +23,7 @@ class IODirEntryList;
 class BufferStringSet;
 
 
-mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
+mClass uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
@@ -44,7 +42,7 @@ public:
 
 protected:
 
-    mStruct(uiIo) ButData
+    mStruct ButData
     {
 			ButData(uiToolButton*,const char*,const char*);
 	uiToolButton*	but;
@@ -60,7 +58,7 @@ protected:
 class uiIOObjManipGroup;
 
 
-mExpClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
+mClass uiIOObjManipGroupSubj : public CallBacker
 {
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
@@ -80,7 +78,7 @@ public:
 
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
-mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
+mClass uiIOObjManipGroup : public uiManipButGrp
 {
 public:
 
@@ -117,5 +115,3 @@ protected:
 
 
 #endif
-
-

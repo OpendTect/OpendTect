@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "gendefs.h"
 class SeisTrc;
 class CubeSampling;
@@ -27,7 +26,7 @@ template <class T> class Interval;
 
  */
 
-mExpClass(Seis) SeisResampler
+mClass SeisResampler
 {
 public:
 
@@ -60,4 +59,3 @@ protected:
 
 
 #endif
-

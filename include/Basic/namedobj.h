@@ -12,21 +12,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
 
-/*!
-\brief Object with a name.
+/*!\brief object with a name
 
-  The NamedObject has a name and it can notify another NamedObject when it is
-  about to be deleted. The name may either be a string of the object itself,
-  or the name of another object, linked directly. This not only saves memory,
-  but allows for names that are fundamentally linked.
+The NamedObject has a name and it can notify another NamedObject when it is
+about to be deleted. The name may either be a string of the object itself,
+or the name of another object, linked directly. This not only saves memory,
+but allows for names that are fundamentally linked.
+
 */
 
-mExpClass(Basic) NamedObject : public CallBacker
+
+mClass NamedObject : public CallBacker
 {
 public:
 			NamedObject(const char* nm=0)
@@ -36,8 +36,7 @@ public:
 			: name_(0), linkedto_((NamedObject*)l), delnotify_(0)
 			{}
 			NamedObject( const NamedObject& o )
-			: CallBacker( o )
-			, linkedto_(o.linkedto_), delnotify_(0)
+			: linkedto_(o.linkedto_), delnotify_(0)
 			{ if ( o.name_ ) name_ = new BufferString(*o.name_); }
     virtual		~NamedObject()	;
     void		setLinked( NamedObject* l )
@@ -70,4 +69,3 @@ private:
 
 
 #endif
-

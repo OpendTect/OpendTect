@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
 
 namespace Attrib { class SelSpec; };
@@ -21,7 +20,7 @@ namespace Attrib { class SelSpec; };
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
-mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
+mClass uiODAttribTreeItem : public uiODDataTreeItem
 {
 public:
     			uiODAttribTreeItem( const char* parenttype );
@@ -34,7 +33,7 @@ public:
     static const char*	sKeyColSettingsMenuTxt();
 protected:
 
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiListViewItem*);
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB( CallBacker* );
@@ -47,4 +46,3 @@ protected:
 
 
 #endif
-

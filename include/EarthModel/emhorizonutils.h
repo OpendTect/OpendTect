@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "sets.h"
 #include "ranges.h"
 
@@ -28,14 +27,14 @@ namespace PosInfo { class GeomID; }
 namespace EM
 {
 
-class Surface;
-
-/*!
-\brief Group of utilities for horizons: here are all functions required in 
+/*! \brief
+Group of utilities for horizons : here are all functions required in 
 od_process_attrib_em for computing data on, along or between 2 horizons.
 */
 
-mExpClass(EarthModel) HorizonUtils
+class Surface;
+
+mClass HorizonUtils
 {
 public:
 			HorizonUtils(){};
@@ -77,4 +76,3 @@ protected:
 };//namespace
 
 #endif
-

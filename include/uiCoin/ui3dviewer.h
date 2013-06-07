@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "color.h"
@@ -27,11 +26,7 @@ class SoNode;
 
 namespace visBase { class Scene; };
 
-/*!
-\brief User interface for 3D viewer.
-*/
-
-mExpClass(uiCoin) ui3DViewer : public uiObject
+mClass ui3DViewer : public uiObject
 {
 friend class		uiSoViewerBody;
 friend class		ui3DViewerBody;
@@ -52,8 +47,6 @@ public:
     void		setViewing(bool);
     bool		isViewing() const;
 
-    void		enableAnimation(bool);
-    bool		isAnimationEnabled() const;
     void		anyWheelStart();
     void		anyWheelStop();
     void		rotateH(float angle);
@@ -95,7 +88,6 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    void		savePropertySettings() const;
 
     void		setKeyBindings(const char* keybindname);
     void		getAllKeyBindings(BufferStringSet&);
@@ -106,7 +98,6 @@ public:
 
 private:
     static const char* sKeySceneID()    { return "Scene ID"; }
-    static const char* sKeyAnimate()	{ return "Animate"; }
     static const char* sKeyBGColor()    { return "Background color"; }
     static const char* sKeyHomePos()    { return "Home position"; }
     static const char* sKeyStereo()     { return "Stereo viewing"; }
@@ -116,13 +107,16 @@ private:
     static const char* sKeyPersCamera() { return "Perspective camera"; }
 
     uiSoViewerBody*	sobody_;
-    ui3DViewerBody*	osgbody_;
 
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
     IOPar		homepos_;
+
+public:
+    void		savePropertySettings() const;
+    void		enableAnimation(bool);
+    bool		isAnimationEnabled() const;
 };
 
 
 #endif
-

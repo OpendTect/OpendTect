@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/SbLinear.h>
@@ -23,7 +22,7 @@ ________________________________________________________________________
 
 /*!  Element that holds one image per texture unit.  */
 
-mSoODClass SoSplitTexture2Element : public SoReplacedElement
+mClass SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:
@@ -48,5 +47,4 @@ private:
 };
 
 #endif
-
 

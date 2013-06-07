@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "treecommands.h"
 
@@ -15,19 +15,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmdrecorder.h"
 
 #include "uimenu.h"
-#include "uitreeview.h"
+#include "uilistview.h"
 
 namespace CmdDrive
 {
 
 
-void TreeCmd::unfoldTreeNodes( ObjectSet<const uiTreeViewItem>& nodelist ) const
+void TreeCmd::unfoldTreeNodes( ObjectSet<const uiListViewItem>& nodelist ) const
 {
     for ( int idx=0; idx<nodelist.size(); idx++ )
     {
 	for ( int idy=0; idy<nodelist[idx]->nrChildren(); idy++ )
 	{
-	    const uiTreeViewItem* curkid = nodelist[idx]->getChild(idy);
+	    const uiListViewItem* curkid = nodelist[idx]->getChild(idy);
 	    if ( !curkid->isVisible() )
 		continue;
 	    if ( greyOutsSkipped() && !curkid->isEnabled() )
@@ -39,9 +39,9 @@ void TreeCmd::unfoldTreeNodes( ObjectSet<const uiTreeViewItem>& nodelist ) const
 }
 
 
-bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
+bool TreeCmd::parTreeSelPre( const uiListView& uilview,
 			     FileMultiString& treepath,
-			     ObjectSet<const uiTreeViewItem>& nodesfound,
+			     ObjectSet<const uiListViewItem>& nodesfound,
 			     FileMultiString& curpath, bool multisel ) const
 {
     if ( !uilview.nrItems() && treepath.rep()=="\a<" )
@@ -56,7 +56,7 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 	return false;
     }
 
-    const uiTreeViewItem* curitm = 0;
+    const uiListViewItem* curitm = 0;
     bool disabledpath = false;
     bool collapsedpath = false;
     for ( int level=0; level<mSepStrSize(treepath); level++ )
@@ -68,7 +68,7 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 	const int nrkids = curitm ? curitm->nrChildren() : uilview.nrItems();
 	for ( int idx=0; idx<nrkids; idx++ )
 	{
-	    uiTreeViewItem* curkid = curitm ? curitm->getChild(idx)
+	    uiListViewItem* curkid = curitm ? curitm->getChild(idx)
 					    : uilview.getItem(idx);
 
 	    if  ( curkid && curkid->isVisible() &&
@@ -109,13 +109,13 @@ bool TreeCmd::parTreeSelPre( const uiTreeView& uilview,
 } 
 
 
-int TreeCmd::countTreeItems( const uiTreeView& uilview,
-                        const uiTreeViewItem* treenode, bool countkids ) const
+int TreeCmd::countTreeItems( const uiListView& uilview,
+                        const uiListViewItem* treenode, bool countkids ) const
 {
     if ( !treenode && !countkids )
 	return 0;
 
-    const uiTreeViewItem* parent = treenode;
+    const uiListViewItem* parent = treenode;
     if ( treenode && !countkids )
 	 parent = treenode->parent();
 
@@ -123,7 +123,7 @@ int TreeCmd::countTreeItems( const uiTreeView& uilview,
     const int nrkids = parent ? parent->nrChildren() : uilview.nrItems();
     for ( int idx=0; idx<nrkids; idx++ )
     {
-        uiTreeViewItem* curkid = parent ? parent->getChild(idx) :
+        uiListViewItem* curkid = parent ? parent->getChild(idx) :
 					  uilview.getItem(idx);
 	if ( !curkid->isVisible() )
 	    continue;
@@ -138,9 +138,9 @@ int TreeCmd::countTreeItems( const uiTreeView& uilview,
 }
 
 
-const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
+const uiListViewItem* TreeCmd::singleSelected( const uiListView& uilview ) const
 {
-    ObjectSet<const uiTreeViewItem> nodesfound;
+    ObjectSet<const uiListViewItem> nodesfound;
     FileMultiString treepath = "\a<";
     FileMultiString dummy;
     parTreeSelPre( uilview, treepath, nodesfound, dummy, true );
@@ -148,7 +148,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
     for ( int idx=nodesfound.size()-1; idx>=0; idx-- )
     {
 	if ( !nodesfound[idx]->isSelected() )
-	    nodesfound.removeSingle( idx );
+	    nodesfound.remove( idx );
     }
 
     return nodesfound.size()==1 ? nodesfound[0] : 0;
@@ -157,7 +157,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 
 #define mParTreeSelPre( uilview, treepath, nodesfound, curpath, multisel ) \
 \
-    ObjectSet<const uiTreeViewItem> nodesfound; \
+    ObjectSet<const uiListViewItem> nodesfound; \
     FileMultiString curpath; \
     if ( !parTreeSelPre(*uilview, treepath, nodesfound, curpath, multisel) ) \
 	return false;
@@ -195,7 +195,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 \
     bool pathcol = false; \
     BufferString tagstr; \
-    const char* mUnusedVar parnext = getNextWord( parstr, tagstr.buf() ); \
+    const char* parnext = getNextWord( parstr, tagstr.buf() ); \
 \
     if ( mMatchCI(tagstr,"PathCol") ) \
 	pathcol = true; \
@@ -251,9 +251,9 @@ bool TreeClickCmd::act( const char* parstr )
     mParMouse( parnexxxxt, partail, clicktags, "Left" );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
 
@@ -261,11 +261,11 @@ bool TreeClickCmd::act( const char* parstr )
     return true;
 }
 
-TreeActivator::TreeActivator( const uiTreeView& uilview,
-			      const uiTreeViewItem& treeitm,
+TreeActivator::TreeActivator( const uiListView& uilview,
+			      const uiListViewItem& treeitm,
 			      const BufferStringSet& clicktags, int column )
-    : actlview_( const_cast<uiTreeView&>(uilview) )
-    , actitem_( const_cast<uiTreeViewItem&>(treeitm) )
+    : actlview_( const_cast<uiListView&>(uilview) )
+    , actitem_( const_cast<uiListViewItem&>(treeitm) )
     , actclicktags_( clicktags )
     , actcolumn_( column )
 {}
@@ -296,7 +296,7 @@ TreeActivator::TreeActivator( const uiTreeView& uilview,
 
 void TreeActivator::actCB( CallBacker* cb )
 {
-    if ( actitem_.treeView() == &actlview_ &&
+    if ( actitem_.listView() == &actlview_ &&
 	 actcolumn_>=0 && actcolumn_<actlview_.nrColumns() )
     {
 	if ( actclicktags_.isPresent("Expand") )
@@ -344,9 +344,9 @@ bool TreeButtonCmd::act( const char* parstr )
     mParOnOffInit( parnexxxt, partail, onoff );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mTreeButtonCheck( nodesfound[0], pathstr );
     mParOnOffPre( "check-box", onoff, nodesfound[0]->isChecked(), true );
@@ -368,9 +368,9 @@ bool TreeExpandCmd::act( const char* parstr )
     mParOnOffInit( parnexxt, partail, onoff );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
 
     if ( !nodesfound[0]->nrChildren() )
@@ -405,9 +405,9 @@ bool TreeMenuCmd::act( const char* parstr )
     mParOnOffInit( parnexxxxxxt, partail, onoff );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
 
@@ -430,11 +430,11 @@ bool NrTreeItemsCmd::act( const char* parstr )
     mParPathStrInit( "tree", parnexxt, partail, treepath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
 
-    const uiTreeViewItem* curnode = 0;
+    const uiListViewItem* curnode = 0;
     if ( !treepath.isEmpty() )
     {
 	mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
@@ -459,9 +459,9 @@ bool NrTreeColsCmd::act( const char* parstr )
     const char* partail = extraparstr==parnext ? extraparnext : parnext;
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
 
     mParIdentPost( identname, uilview->nrColumns(), parnext );
     return true;
@@ -477,12 +477,12 @@ bool IsTreeItemOnCmd::act( const char* parstr )
     mParPathStrInit( "tree", parnexxt, partail, treepath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
 
-    const int ison = uilview->selectionMode()==uiTreeView::NoSelection  ? -1 :
+    const int ison = uilview->selectionMode()==uiListView::NoSelection  ? -1 :
 		     nodesfound[0]->isSelected() ? 1 : 0;
 
     mParIdentPost( identname, ison, parnext );
@@ -499,9 +499,9 @@ bool IsTreeItemExpandedCmd::act( const char* parstr )
     mParPathStrInit( "tree", parnexxt, partail, treepath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
 
     const int isopen = !nodesfound[0]->nrChildren() ? -1 :
@@ -521,9 +521,9 @@ bool IsTreeButtonOnCmd::act( const char* parstr )
     mParPathStrInit( "tree", parnexxt, partail, treepath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mTreeButtonCheck( nodesfound[0], pathstr );
 
@@ -536,7 +536,7 @@ bool IsTreeButtonOnCmd::act( const char* parstr )
 
 #define mGetReturnPath( uilview, treeitem, form, returnpath ) \
 \
-    const uiTreeViewItem* curnode = treeitem; \
+    const uiListViewItem* curnode = treeitem; \
     BufferStringSet pathitems; \
     while ( curnode ) \
     { \
@@ -566,11 +566,11 @@ bool CurTreePathCmd::act( const char* parstr )
     mParFormInit( parnexxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
 
-    const uiTreeViewItem* curitm = framed ? uilview->currentItem() :
+    const uiListViewItem* curitm = framed ? uilview->currentItem() :
 					    singleSelected(*uilview);
 
     mGetReturnPath( uilview, curitm, form, returnpath );
@@ -588,9 +588,9 @@ bool CurTreeColCmd::act( const char* parstr )
     mParFormInit( parnexxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     const int curcolidx = uilview->currentColumn();
     mParForm( answer, form, uilview->columnText(curcolidx), curcolidx+1 );
     mParIdentPost( identname, answer, parnext );
@@ -608,11 +608,11 @@ bool CurTreeItemCmd::act( const char* parstr )
     mParFormInit( parnexxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
 
-    const uiTreeViewItem* curitm = framed ? uilview->currentItem() :
+    const uiListViewItem* curitm = framed ? uilview->currentItem() :
 					    singleSelected(*uilview);
 
     mParForm( answer, form, curitm ? curitm->text() : "",
@@ -633,9 +633,9 @@ bool GetTreePathCmd::act( const char* parstr )
     mParFormInit( parnexxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mGetReturnPath( uilview, nodesfound[0], form, returnpath );
     mParEscIdentPost( identname, returnpath, parnext, false );
@@ -662,9 +662,9 @@ bool GetTreeColCmd::act( const char* parstr )
     mParFormInit( parnexxxxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, true );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
     mParForm( answer, form, uilview->columnText(columns[0]),columns[0]+1 );
@@ -686,9 +686,9 @@ bool GetTreeItemCmd::act( const char* parstr )
     mParFormInit( parnexxxxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
 
@@ -724,9 +724,9 @@ bool NrTreeMenuItemsCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxxxxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
     mInterceptTreeMenu(menupath,true,uilview,nodesfound[0],pathstr,columns[0]);
@@ -749,9 +749,9 @@ bool IsTreeMenuItemOnCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxxxxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
     mInterceptTreeMenu(menupath,false,uilview,nodesfound[0],pathstr,columns[0]);
@@ -775,9 +775,9 @@ bool GetTreeMenuItemCmd::act( const char* parstr )
     mParFormInit( parnexxxxxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiTreeView, keys, nrgrey );
+    mFindObjects( objsfound, uiListView, keys, nrgrey );
     mParKeyStrPre( "tree", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiTreeView*, uilview, objsfound[0] );
+    mDynamicCastGet( const uiListView*, uilview, objsfound[0] );
     mParTreeSelPre( uilview, treepath, nodesfound, pathstr, false );
     mParColSelPre( "column",uilview,nodesfound,itemstr,itemnr,columns,true );
     mInterceptTreeMenu(menupath,false,uilview,nodesfound[0],pathstr,columns[0]);
@@ -791,13 +791,13 @@ bool GetTreeMenuItemCmd::act( const char* parstr )
 
 //====== CmdComposers =========================================================
 
-static bool findTreePath( const uiTreeView& uilview,
-			  const uiTreeViewItem& searchitem,
+static bool findTreePath( const uiListView& uilview,
+			  const uiListViewItem& searchitem,
 			  FileMultiString& treepath, bool& casedep,
-			  const uiTreeViewItem* root=0 )
+			  const uiListViewItem* root=0 )
 {
     bool itemfound = false;
-    const uiTreeViewItem* curitem=0;
+    const uiListViewItem* curitem;
     FileMultiString pathtail;
 
     const int nritems = root ? root->nrChildren() : uilview.nrItems();
@@ -832,7 +832,7 @@ static bool findTreePath( const uiTreeView& uilview,
 
     for ( int idx=0; idx<nritems; idx++ )
     {
-        const uiTreeViewItem* treeitem = root ? root->getChild(idx) :
+        const uiListViewItem* treeitem = root ? root->getChild(idx) :
 						uilview.getItem(idx);
 
 	if ( !treeitem || !treeitem->isVisible() || !treeitem->isEnabled() )
@@ -899,7 +899,7 @@ void TreeCmdComposer::reInit()
 \
     if ( eventlist_.isEmpty() ) \
 	return retval; \
-    mDynamicCastGet( const uiTreeView*, uilview, eventlist_[0]->object_ ); \
+    mDynamicCastGet( const uiListView*, uilview, eventlist_[0]->object_ ); \
     if ( !uilview ) \
 	return retval;
 
@@ -922,13 +922,13 @@ void TreeCmdComposer::storeTreeState()
 }
 
 
-void TreeCmdComposer::addToTreeState( const uiTreeView& uilview,
-                                      const uiTreeViewItem* root )
+void TreeCmdComposer::addToTreeState( const uiListView& uilview,
+                                      const uiListViewItem* root )
 {
     const int nritems = root ? root->nrChildren() : uilview.nrItems();
     for ( int idx=0; idx<nritems; idx++ )
     {
-        const uiTreeViewItem* curitem = root ? root->getChild(idx) :
+        const uiListViewItem* curitem = root ? root->getChild(idx) :
 					       uilview.getItem(idx);
 
 	if ( !curitem || !curitem->isVisible() || !curitem->isEnabled() )
@@ -951,7 +951,7 @@ void TreeCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselectedchecked, treeitem ) \
-    ( iswasselectedchecked##items_.isPresent(treeitem) )
+    ( iswasselectedchecked##items_.indexOf(treeitem) >= 0 )
 
 
 #define mGetTreeCmdArgs( event, dqkeystr, treenodesel, casedep, mousetag ) \
@@ -1069,7 +1069,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
 	    shrinkEventList( 1, -3 );
 	    voideventnames_.add( "itemEntered" );
 	    stagenr_ = 0;
-	    //mNotifyTest( uiTreeView, ev.object_, leftButtonClicked );
+	    //mNotifyTest( uiListView, ev.object_, leftButtonClicked );
 	    return true;
 	}
     }
@@ -1079,7 +1079,7 @@ bool TreeCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( accepted )
     {
-        mDynamicCastGet( uiTreeView*, uilview, ev.object_ );
+        mDynamicCastGet( uiListView*, uilview, ev.object_ );
 
 	const bool notileft = mMatchCI( notifiername, "leftButtonClicked" );
 	const bool notiright = mMatchCI( notifiername, "rightButtonClicked" );

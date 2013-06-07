@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
-#include "uimpemod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -32,7 +30,7 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mExpClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
+mClass HorizonFlatViewEditor2D : public CallBacker
 {
 public:
     			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
@@ -82,16 +80,16 @@ protected:
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&) const;
 
-    	mStruct(uiMPE) Hor2DMarkerIdInfo
+    	mStruct Hor2DMarkerIdInfo
 	{
-	    FlatView::AuxData*	marker_;
-	    int			merkerid_;
-	    EM::SectionID	sectionid_;
+	    FlatView::Annotation::AuxData*	marker_;
+	    int					merkerid_;
+	    EM::SectionID			sectionid_;
 	};
 
     void			cleanAuxInfoContainer();
     void			fillAuxInfoContainer();
-    FlatView::AuxData*		getAuxData(int markerid);
+    FlatView::Annotation::AuxData* getAuxData(int markerid);
     EM::SectionID		getSectionID(int markerid);
 
     EM::ObjectID        	emid_;
@@ -115,5 +113,3 @@ protected:
 
 
 #endif
-
-

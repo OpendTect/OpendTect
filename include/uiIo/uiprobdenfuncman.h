@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiobjfileman.h"
 
 /*! \brief
 Probability Density Function manager
 */
 
-mExpClass(uiIo) uiProbDenFuncMan : public uiObjFileMan
+mClass uiProbDenFuncMan : public uiObjFileMan
 {
 public:
     				uiProbDenFuncMan(uiParent*);
@@ -28,11 +27,9 @@ public:
 protected:
 
     void			browsePush(CallBacker*);
-    void			genPush(CallBacker*);
 
     void			mkFileInfo();
 
 };
 
 #endif
-

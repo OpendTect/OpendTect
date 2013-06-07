@@ -11,16 +11,14 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "gendefs.h"
 class IOPar;
 
 namespace OD
 {
-    mGlobal(Basic) void	getSystemMemory(float& total,float& free);
-    mGlobal(Basic) void	dumpMemInfo(IOPar&);
+    mGlobal void	getSystemMemory(float& total,float& free);
+    mGlobal void	dumpMemInfo(IOPar&);
 }
 
 
 #endif
-

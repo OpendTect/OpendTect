@@ -6,12 +6,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id$
+ RCS:		$Id: gravhorcalc.h,v 1.5 2011/04/21 13:09:13 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include "uigravmod.h"
 #include "executor.h"
 #include "multiid.h"
 #include "grav.h"
@@ -24,11 +23,11 @@ namespace Grav
 {
 
 
-mClass(uiGrav) HorCalc : public ::Executor
+class HorCalc : public ::Executor
 {
 public:
 
-    mExpClass(uiGrav) Setup
+    mClass Setup
     {
     public:
 			Setup( const MultiID& calcmid )
@@ -75,4 +74,3 @@ protected:
 
 
 #endif
-

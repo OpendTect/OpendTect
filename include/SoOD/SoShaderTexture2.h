@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
@@ -27,7 +26,7 @@ class SoFieldSensor;
 class SoSensor;
 
 
-mSoODClass SoShaderTexture2: public SoNode
+mClass SoShaderTexture2: public SoNode
 { SO_NODE_HEADER(SoShaderTexture2);
 public:
     static		void initClass();
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

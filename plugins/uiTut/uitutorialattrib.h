@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id$
+ RCS:           $Id: uitutorialattrib.h,v 1.4 2012/01/11 08:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitutmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; }
@@ -22,7 +21,7 @@ class uiSteeringSel;
 class uiStepOutSel;
 
 
-mExpClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
+class uiTutorialAttrib : public uiAttrDescEd
 {
 public:
 

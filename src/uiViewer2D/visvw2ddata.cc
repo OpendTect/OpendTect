@@ -43,10 +43,10 @@ void Vw2DDataObject::setName( const char* nm )
 
 bool Vw2DDataObject::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type(), getClassName() );
+    par.set( sKey::Type, getClassName() );
     const char* nm = name();
     if ( nm )
-	par.set( sKey::Name(), nm );
+	par.set( sKey::Name, nm );
     par.set( sKeyMID(), toString(-1) );
     return true;
 }
@@ -54,7 +54,7 @@ bool Vw2DDataObject::fillPar( IOPar& par ) const
 
 bool Vw2DDataObject::usePar( const IOPar& par ) 
 {
-    const char* nm = par.find( sKey::Name() );
+    const char* nm = par.find( sKey::Name );
     if ( nm )
 	setName( nm );
     return true;
@@ -88,7 +88,7 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
     EM::SurfaceIODataSelection sel( sd );
     Executor* exec = EM::EMM().objectLoader( mid, &sel);
     TaskRunner exectr;
-    if ( exec && TaskRunner::execute( &exectr, *exec ) )
+    if ( exec && exectr.execute(*exec) )
     {
 	emid_ = EM::EMM().getObjectID( mid );
 	setEditors();

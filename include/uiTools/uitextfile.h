@@ -12,18 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 class uiTextEdit;
 class uiTextBrowser;
 class uiTable;
 
 
-mExpClass(uiTools) uiTextFile : public CallBacker
+mClass uiTextFile : public CallBacker
 {
 public:
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 
@@ -87,11 +86,11 @@ protected:
 };
 
 
-mExpClass(uiTools) uiTextFileDlg : public uiDialog
+mClass uiTextFileDlg : public uiDialog
 {
 public:
 
-    mExpClass(uiTools) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 
@@ -145,4 +144,3 @@ protected:
 
 
 #endif
-

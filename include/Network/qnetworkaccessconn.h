@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "odnetworkaccess.h"
 #include <QNetworkAccessManager>
 
-QT_BEGIN_NAMESPACE
 
 class QNAMConnector : public QObject
 {
@@ -110,7 +109,5 @@ private:
     ODNetworkReply*	receiver_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

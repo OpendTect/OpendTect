@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimpeman.h"
 
@@ -102,7 +102,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, "Settings", false );
+    mAddButton( "tools.png", showSettingsCB, "Settings", false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( "Seed connect mode" );
@@ -111,66 +111,66 @@ void uiMPEMan::addButtons()
     toolbar->addObject( seedconmodefld );
     toolbar->addSeparator();
 
-    seedidx = mAddButton( "seedpickmode", addSeedCB, 
+    seedidx = mAddButton( "seedpickmode.png", addSeedCB, 
 	    		  "Create seed ( key: 'Tab' )", true );
     toolbar->setShortcut( seedidx, "Tab" );
 
-    trackinvolidx = mAddButton( "autotrack", trackFromSeedsAndEdges,
+    trackinvolidx = mAddButton( "autotrack.png", trackFromSeedsAndEdges,
     				"Auto-track", false );
 
-    trackwithseedonlyidx = mAddButton( "trackfromseeds", trackFromSeedsOnly,
+    trackwithseedonlyidx = mAddButton( "trackfromseeds.png", trackFromSeedsOnly,
 	    			       "Track From Seeds Only", false );
 
-    retrackallinx = mAddButton( "retrackhorizon", retrackAllCB,
+    retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
 	    			"Retrack All", false );
     toolbar->addSeparator();
 
-    showcubeidx = mAddButton( "trackcube", showCubeCB,
+    showcubeidx = mAddButton( "trackcube.png", showCubeCB,
 	    		      "Show track area", true );
 
-    moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
+    moveplaneidx = mAddButton( "QCplane-inline.png", movePlaneCB,
 			       "Display QC plane", true );
     uiPopupMenu* mnu = new uiPopupMenu( toolbar, "Menu" );
     mAddMnuItm( mnu, "Inline", handleOrientationClick, 
-	    	"QCplane-inline", 0 );
+	    	"QCplane-inline.png", 0 );
     mAddMnuItm( mnu, "CrossLine", handleOrientationClick, 
-	    	"QCplane-crossline", 1 );
-    mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z", 2 );
+	    	"QCplane-crossline.png", 1 );
+    mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z.png", 2 );
     toolbar->setButtonMenu( moveplaneidx, mnu );
 
-    displayatsectionidx = mAddButton( "sectiononly", displayAtSectionCB,
+    displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
 	    			      "Display at section only", true );
 
     nrstepsbox = new uiSpinBox( toolbar, 0, "QC plane step" );
     nrstepsbox->setToolTip( "QC plane step" );
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
-    trackforwardidx = mAddButton( "prevpos", moveBackward,
+    trackforwardidx = mAddButton( "prevpos.png", moveBackward,
 	    			  "Move QC plane backward (key: '[')", false );
     toolbar->setShortcut(trackforwardidx,"[");
-    trackbackwardidx = mAddButton( "nextpos", moveForward,
+    trackbackwardidx = mAddButton( "nextpos.png", moveForward,
 	    			   "Move QC plane forward (key: ']')", false );
     toolbar->setShortcut(trackbackwardidx,"]");
-    clrtabidx = mAddButton( "colorbar", setColorbarCB,
+    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
 			    "Set QC plane colortable", false );
     toolbar->addSeparator();
 
-    polyselectidx =  mAddButton( "polygonselect", selectionMode,
+    polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
 	    			 "Polygon Selection mode", true );
     uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect", 0 );
-    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect", 1 );
+    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
-    removeinpolygon = mAddButton( "trashcan", removeInPolygon,
+    removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
 	    			  " Remove PolySelection", false );
     toolbar->addSeparator();
 
-    undoidx = mAddButton( "undo", undoPush, "Undo", false );
-    redoidx = mAddButton( "redo", redoPush, "Redo", false );
+    undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
+    redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
 
     toolbar->addSeparator();
-    mAddButton( "save", savePush, "Save", false );
+    mAddButton( "save.png", savePush, "Save", false );
 }
 
 
@@ -377,6 +377,9 @@ void uiMPEMan::seedClick( CallBacker* )
 	const MultiID& lset = clickcatcher->info().getObjLineSet();
 	const BufferString& lname = clickcatcher->info().getObjLineName();
 
+	const bool lineswitch = lset!=engine.active2DLineSetID() ||
+			        lname!=engine.active2DLineName(); 
+
 	engine.setActive2DLine( lset, lname );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -413,7 +416,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    newvolume = trkplanecs;
 	}
 	
-	if ( newvolume.isEmpty() || !newvolume.isDefined() )
+	if ( newvolume.isEmpty() )
 	    mSeedClickReturn();
 	
 	if ( newvolume != engine.activeVolume() )
@@ -459,7 +462,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     seedpicker->setSowerMode( clickcatcher->sequentSowing() );
     if ( mIsUdf(cureventnr_) && clickcatcher->moreToSow() )
-	ctrlshiftclicked = true;  // 1st seed sown is "tracking buffer" only
+	ctrlshiftclicked = true;    // 1st seed sown is "tracking buffer" only
 
     beginSeedClickEvent( emobj );
 
@@ -758,7 +761,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 			const Coord3 pos = emobj->getPos( (*seeds)[idx] );
 			const BinID bid = SI().transform(pos);
 			cube.hrg.include(bid);
-			cube.zrg.include((float) pos.z);
+			cube.zrg.include(pos.z);
 		    }
 		}
 	    }
@@ -946,6 +949,7 @@ void uiMPEMan::redoPush( CallBacker* )
 
 void uiMPEMan::savePush( CallBacker* )
 {
+    MPE::Engine& engine = MPE::engine();
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker )
 	return;
@@ -1109,7 +1113,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     {
 	const int currentevent = EM::EMM().undo().currentEventID();
 	uiTaskRunner uitr( toolbar );
-	if ( !TaskRunner::execute( &uitr, *exec ) )
+	if ( !uitr.execute(*exec) )
 	{
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );
@@ -1142,7 +1146,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
     }
 
     toolbar->setPixmap( polyselectidx, sIsPolySelect ?
-			"polygonselect" : "rectangleselect" );
+			"polygonselect.png" : "rectangleselect.png" );
     toolbar->setToolTip( polyselectidx, sIsPolySelect ?
 			"Polygon Selection mode" : "Rectangle Selection mode" );
 
@@ -1370,7 +1374,7 @@ void uiPropertiesDialog::updateSelectedAttrib()
 
 	userref = displays_[0]->getSelSpecUserRef();
     }
-    else if ( userref == sKey::None() )
+    else if ( userref == sKey::None )
 	userref = mpeman_->sKeyNoAttrib();
     
     if ( userref )  	
@@ -1484,11 +1488,11 @@ static void updateQCButton( uiToolBar* tb, int butidx, int dim )
 {
     BufferString pm, tooltip;
     if ( dim == 0 )
-	{ pm = "QCplane-inline"; tooltip = "Display QC plane Inline"; }
+    { pm = "QCplane-inline.png"; tooltip = "Display QC plane Inline"; }
     else if ( dim == 1 )
-	{ pm = "QCplane-crossline"; tooltip = "Display QC plane Crossline"; }
+    { pm = "QCplane-crossline.png"; tooltip = "Display QC plane Crossline"; }
     else
-	{ pm = "QCplane-z"; tooltip = "Display QC plane Z-dir"; }
+    { pm = "QCplane-z.png"; tooltip = "Display QC plane Z-dir"; }
 
     tb->setPixmap( butidx, pm );
     tb->setToolTip( butidx, tooltip );
@@ -1668,6 +1672,8 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
     const bool is2d = sp2d;
+    const bool isseedpicking = toolbar->isOn(seedidx);
+    
     toolbar->setSensitive( moveplaneidx, !is2d );
     toolbar->setSensitive( showcubeidx, !is2d );
 

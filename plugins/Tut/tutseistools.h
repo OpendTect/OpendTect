@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id$
+ * ID       : $Id: tutseistools.h,v 1.9 2010/02/18 10:37:39 cvsbert Exp $
 -*/
 
-#include "tutmod.h"
 #include "executor.h"
 #include "cubesampling.h"
 #include "samplingdata.h"
@@ -21,7 +20,7 @@ class SeisTrcWriter;
 namespace Tut
 {
 
-mExpClass(Tut) SeisTools : public Executor
+mClass SeisTools : public Executor
 {
 public:
 
@@ -86,4 +85,3 @@ protected:
 } // namespace
 
 #endif
-

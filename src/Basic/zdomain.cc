@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -64,15 +64,15 @@ bool ZDomain::isSI( const IOPar& iop )
 
 bool ZDomain::isDepth( const IOPar& iop )
 {
-    FixedString domstr = iop.find( sKey() );
-    return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zIsTime();
+    const char* domstr = iop.find( sKey() );
+    return domstr && *domstr ? !strcmp(domstr,sKeyDepth()) : !::SI().zIsTime();
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
-    FixedString domstr = iop.find( sKey() );
-    return domstr.isEmpty() ? ::SI().zIsTime() : domstr==sKeyTime();
+    const char* domstr = iop.find( sKey() );
+    return !domstr || !*domstr ? ::SI().zIsTime() : !strcmp(domstr,sKeyTime());
 }
 
 
@@ -217,9 +217,9 @@ bool ZDomain::Info::hasID() const
 
 const char* ZDomain::Info::getID() const
 {
-    const char* res = pars_.find( sKey::ID() );
+    const char* res = pars_.find( sKey::ID );
     if ( !res || !*res )
-	res = pars_.find( IOPar::compKey(sKey(),sKey::ID()) );
+	res = pars_.find( IOPar::compKey(sKey(),sKey::ID) );
     if ( !res || !*res )
 	res = pars_.find( "ZDomain ID" );
     return res;
@@ -228,7 +228,7 @@ const char* ZDomain::Info::getID() const
 
 void ZDomain::Info::setID( const char* id )
 {
-    pars_.set( sKey::ID(), id );
+    pars_.set( sKey::ID, id );
 }
 
 

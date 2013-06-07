@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "color.h"
 
@@ -25,7 +24,7 @@ namespace visSurvey { class Scene; }
 
 /*! Dialog for scene properties. */
 
-mExpClass(uiVis) uiScenePropertyDlg : public uiDialog
+mClass uiScenePropertyDlg : public uiDialog
 {
 public:
 			uiScenePropertyDlg(uiParent*,const 
@@ -46,14 +45,13 @@ protected:
     bool			hadannot_;
     bool			hadannotscale_;
     bool			hadannotgrid_;
-    bool			hadanimation_;
     Color			oldbgcolor_;
     float			oldmarkersize_;
     Color			oldmarkercolor_;
     Color			annotcolor_;
     float			oldfactor_;
     float			oldunits_;
-    static bool			savestatus_;
+    static bool			savestatus;
 
     uiCheckBox*			annotfld_;
     uiCheckBox*			annotscalefld_;
@@ -64,8 +62,6 @@ protected:
     uiColorInput*		markercolfld_;
     uiColorInput*		annotcolfld_;
     uiGenInputDlg*		separationdlg_;
-    uiCheckBox*			animationfld_;
 };
 
 #endif
-

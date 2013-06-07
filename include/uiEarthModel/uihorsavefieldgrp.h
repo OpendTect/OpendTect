@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiearthmodelmod.h"
 #include "uigroup.h"
 
 namespace EM { class Horizon; }
@@ -28,7 +27,7 @@ class uiIOObjSel;
     from memory. You can also call saveHorizon() to save horizon based on your
     choice of as new or overwrite. */
 
-mExpClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
+mClass uiHorSaveFieldGrp : public uiGroup
 {
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

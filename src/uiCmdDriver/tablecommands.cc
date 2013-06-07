@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tablecommands.h"
 #include "cmdrecorder.h"
@@ -489,9 +489,9 @@ bool TableSelectCmd::act( const char* parstr )
 				     tag1<CellTag  ? -1 : col );
 
 		specified = tag1!=RowTag || itemrcs12[0]==RowCol(-1,-1) ||
-			    itemrcs12.isPresent(RowCol(-1,col));
+			    itemrcs12.indexOf(RowCol(-1,col))>=0;
 		specified = specified && ( itemrcs11[0]==RowCol(-1,-1) ||
-					   itemrcs11.isPresent(itemrc) );
+					   itemrcs11.indexOf(itemrc)>=0 );
 	    }
 	    else
 	    {
@@ -1069,15 +1069,15 @@ int TableState::remove( const RowCol& rc, int startidx )
 	    if ( rc.row+step < set_[idx+1].row )
 		set_.insert( idx+1, RowCol(rc.row+step, -step) );
 	    else if ( rc.row+step > set_[idx+1].row )
-		set_.removeSingle( idx+1 );
+		set_.remove( idx+1 );
 
 	    if ( rc.row-step >= set_[idx].row )
 		set_.insert( idx+1, RowCol(rc.row-step, rc.col) );
 	    if ( rc.row-step <= set_[idx].row )
-		set_.removeSingle( idx );
+		set_.remove( idx );
 	}
 	else 
-	    set_.removeSingle( idx );
+	    set_.remove( idx );
     }
 
     return idx;
@@ -1293,7 +1293,7 @@ void TableCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselected, cellrc ) \
-    ( iswasselected##cells_.indexOf(cellrc)>=0 ? 1 : 0 )
+    ( iswasselected##cells_.indexOf(cellrc) >= 0 )
 
 
 void TableCmdComposer::writeTableSelect()
@@ -1370,8 +1370,8 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
     {
 	int topmargin = 0;
 	int firstrow = mUdf(int);
-	int lastrow = -1;
-	int blockstate = -1;
+	int lastrow;
+	int blockstate;
 
 	for ( rc0.row=0; rc0.row<=uitable->nrRows(); rc0.row++ )
 	{

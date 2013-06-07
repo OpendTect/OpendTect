@@ -12,22 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "ranges.h"
 #include "polygon.h"
 
-/*!
-\brief Tracing the z-level contour of a 2D scalar field.
-*/
+/*!\brief Tracing the z-level contour of a 2D scalar field. */
 
-mExpClass(Algo) IsoContourTracer
+mClass IsoContourTracer
 {
 public:
 		
 		IsoContourTracer(const Array2D<float>&);
-		~IsoContourTracer();
+		~IsoContourTracer()					{}
 
     void	setSampling(const StepInterval<int>& xsamp,
 	    		    const StepInterval<int>& ysamp);
@@ -65,13 +62,7 @@ protected:
     int				nrlargestonly_;
 
     const ODPolygon<float>*	polyroi_;
-
-public:
-
-    void	setEdgeValue(float); //! To close contours along (RectROI) edge
-    void	setBendPointsOnly(float eps);
 };
 
 
 #endif
-

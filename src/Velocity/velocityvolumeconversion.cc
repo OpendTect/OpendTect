@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityvolumeconversion.h"
 
@@ -291,7 +291,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     delete reader_;
     reader_ = 0;
 
-    return mCast( char, res );
+    return res;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 {
     bool dorm = true;
-    const bool isoutside = !ioobj_.isInCurrentSurvey();
+    bool isoutside = false;
     if ( !silent_ )
     {
 	BufferString mess = "Remove ";
@@ -32,6 +32,9 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	{
 	    mess += ioobj_.fullUserExpr(true);
 	    mess += "'?";
+	    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
+	    FilePath orgfp( ioobj_.fullUserExpr(true) ); orgfp.makeCanonical();
+	    isoutside = !orgfp.isSubDirOf(cursurvfp);
 	    mess += isoutside ? "\nFile not in current survey.\n"
 				"Specify what you would like to remove" : "";
 	}
@@ -42,7 +45,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	    mess += "'\n- and everything in it! - ?";
 	}
 
-	if ( isoutside )
+        if ( isoutside )
 	{
 	    const int resp = uiMSG().question( mess, "Remove file", 
 						     "Remove link", "Cancel",

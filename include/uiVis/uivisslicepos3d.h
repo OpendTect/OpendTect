@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uislicepos.h"
 
 namespace visSurvey 
@@ -25,7 +24,7 @@ class uiVisPartServer;
 
 /*! \brief Toolbar for setting slice position _ 3D visualization display */
 
-mExpClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
+mClass uiSlicePos3DDisp : public uiSlicePos
 {
 public:		
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uieditpdf.h"
 
@@ -29,9 +29,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDeclArrNDPDF	mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
 #define mDeclSzVars mDeclArrNDPDF; \
-    const int nrtbls mUnusedVar = nrdims_ > 2 ? andpdf->size(2) : 1; \
-    const int nrcols mUnusedVar = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
-    const int nrrows mUnusedVar = andpdf->size( nrdims_ < 2 ? 0 : 1 )
+    const int nrtbls = nrdims_ > 2 ? andpdf->size(2) : 1; \
+    const int nrcols = nrdims_ < 2 ? 1 : andpdf->size( 0 ); \
+    const int nrrows = andpdf->size( nrdims_ < 2 ? 0 : 1 )
 #define mDeclIdxs	int idxs[3]; idxs[2] = curdim2_
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
@@ -57,8 +57,6 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , nrdims_(pdf.nrDims())
     , curdim2_(0)
 {
-    if ( !ed )
-	setCtrlStyle( uiDialog::LeaveOnly );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
@@ -119,10 +117,10 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp );
-    new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
+    new uiToolButton( bgrp, nrdims_ == 1 ? "distmap.png" : "viewprdf.png",
 	    "View function", mCB(this,uiEditProbDenFunc,viewPDF) );
     if ( editable_ )
-	new uiToolButton( bgrp, "smoothcurve", "Smooth values",
+	new uiToolButton( bgrp, "smoothcurve.png", "Smooth values",
 				mCB(this,uiEditProbDenFunc,smoothReq) );
     if ( nrdims_ > 2 )
     {
@@ -286,8 +284,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
     {
 	if ( !vwwinnd_ )
 	{
-	    uiFlatViewMainWin::Setup su( BufferString(
-			"Probability Density Function: ", pdf_.name()) );
+	    uiFlatViewMainWin::Setup su( "Probability Density Function" );
 	    su.nrstatusfields(0);
 	    vwwinnd_ = new uiFlatViewMainWin( this, su );
 	    vwwinnd_->setDarkBG( false );
@@ -298,6 +295,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.vd_.blocky_ = true;
 	    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0,0);
 	    FlatView::Annotation& ann = app.annot_;
+	    ann.title_ = pdf_.name();
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
 	    ann.x2_.name_ = pdf_.dimName(1);
@@ -337,7 +335,6 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	DPM( DataPackMgr::FlatID() ).add( dp );
 
 	vwwinnd_->viewer().setPack( false, dp->id(), false );
-	vwwinnd_->viewer().setViewToBoundingBox();
 	vwwinnd_->start();
     }
 }

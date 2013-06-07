@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -46,7 +46,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
     	, selcomp_(-1)
 {
     init();
-    if ( ioobj_ )
+    if ( ioobj )
 	entryis2d = SeisTrcTranslator::is2D( *ioob, false );
 }
 
@@ -92,37 +92,37 @@ void SeisTrcReader::init()
 
 bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
-    if ( !ioobj_ )
+    if ( !ioobj )
     {
 	errmsg_ = "Info for input seismic data not found in Object Manager";
 	return false;
     }
-    else if ( psioprov_ )
+    else if ( psioprov )
     {
-	const char* fnm = ioobj_->fullUserExpr(Conn::Read);
-	if ( is2d_ )
+	const char* fnm = ioobj->fullUserExpr(Conn::Read);
+	if ( is2d )
 	{
 	    errmsg_ = "SeisTrcReader cannot read from 2D Pre-Stack data store";
 	    return false;
 	}
-	psrdr_ = psioprov_->make3DReader( fnm );
+	psrdr_ = psioprov->make3DReader( fnm );
     }
-    if ( (is2d_ && !lset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
+    if ( (is2d && !lset) || (!is2d && !trl) || (psioprov && !psrdr_) )
     {
 	errmsg_ = "No data interpreter available for '";
-	errmsg_ += ioobj_->name(); errmsg_ += "'";
+	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
 
     readmode = rm;
-    if ( is2d_ || psioprov_ )
+    if ( is2d || psioprov )
 	return (prepared = true);
 
     Conn* conn = openFirst();
     if ( !conn )
     {
 	errmsg_ = "Cannot open data files for '";
-	errmsg_ += ioobj_->name(); errmsg_ += "'";
+	errmsg_ += ioobj->name(); errmsg_ += "'";
 	return false;
     }
 
@@ -137,7 +137,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 void SeisTrcReader::startWork()
 {
     outer = 0;
-    if ( psioprov_ )
+    if ( psioprov )
     {
 	if ( !psrdr_ && !prepareWork(Seis::Prod) )
 	    { pErrMsg("Huh"); return; }
@@ -148,10 +148,10 @@ void SeisTrcReader::startWork()
 	pscditer_->reset();
 	return;
     }
-    else if ( is2d_ )
+    else if ( is2d )
 	{ tbuf_ = new SeisTrcBuf( false ); return; }
 
-    if ( !trl_ ) return;
+    if ( !trl ) return;
 
     SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
@@ -165,11 +165,11 @@ void SeisTrcReader::startWork()
 	    sttrl.componentInfo()[idx]->destidx = idx == selcomp_ ? 0 : -1;
     }
 
-    sttrl.setSelData( seldata_ );
-    if ( sttrl.inlCrlSorted() && seldata_ && !seldata_->isAll() )
+    sttrl.setSelData( seldata );
+    if ( sttrl.inlCrlSorted() && seldata && !seldata->isAll() )
     {
 	outer = new HorSampling;
-	outer->set( seldata_->inlRange(), seldata_->crlRange() );
+	outer->set( seldata->inlRange(), seldata->crlRange() );
     }
 
     if ( !sttrl.commitSelections() )
@@ -179,20 +179,20 @@ void SeisTrcReader::startWork()
 
 bool SeisTrcReader::isMultiConn() const
 {
-    return !psioprov_ && !is2d_ && !entryis2d
-	&& ioobj_ && ioobj_->hasConnType(StreamConn::sType())
-	&& ((IOStream*)ioobj_)->multiConn();
+    return !psioprov && !is2d && !entryis2d
+	&& ioobj && ioobj->hasConnType(StreamConn::sType())
+	&& ((IOStream*)ioobj)->multiConn();
 }
 
 
 Conn* SeisTrcReader::openFirst()
 {
-    mDynamicCastGet(IOStream*,iostrm,ioobj_)
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
     if ( iostrm )
 	iostrm->setConnNr( iostrm->fileNumbers().start );
 
-    Conn* conn = ioobj_->getConn( Conn::Read );
-    const char* fnm = ioobj_->fullUserExpr( Conn::Read );
+    Conn* conn = ioobj->getConn( Conn::Read );
+    const char* fnm = ioobj->fullUserExpr( Conn::Read );
     if ( !conn || (conn->bad() && !File::isDirectory(fnm)) )
     {
 	delete conn; conn = 0;
@@ -203,7 +203,7 @@ Conn* SeisTrcReader::openFirst()
 		delete conn; conn = 0;
 		if ( !iostrm->toNextConnNr() ) break;
 
-		conn = ioobj_->getConn( Conn::Read );
+		conn = ioobj->getConn( Conn::Read );
 	    }
 	}
     }
@@ -213,13 +213,13 @@ Conn* SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead( Conn* conn )
 {
-    if ( !trl_ )
+    if ( !trl )
 	{ pErrMsg("Should be a translator there"); return false; }
 
-    mDynamicCastGet(SeisTrcTranslator*,sttrl,trl_)
+    mDynamicCastGet(SeisTrcTranslator*,sttrl,trl)
     if ( !sttrl )
     {
-	errmsg_ = trl_->userName();
+	errmsg_ = trl->userName();
 	errmsg_ +=  "found where seismic cube was expected";
 	cleanUp(); return false;
     }
@@ -272,9 +272,9 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     else if ( outer == mUndefPtr(HorSampling) )
 	startWork();
 
-    if ( is2d_ )
+    if ( is2d )
 	return get2D(ti);
-    if ( psioprov_ )
+    if ( psioprov )
 	return getPS(ti);
 
     SeisTrcTranslator& sttrl = *strl();
@@ -303,14 +303,14 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     int selres = 0;
-    if ( seldata_ )
+    if ( seldata )
     {
 	if ( !entryis2d )
-	    selres = seldata_->selRes(ti.binid);
+	    selres = seldata->selRes(ti.binid);
 	else
 	{
-	    BinID bid( seldata_->inlRange().start, ti.nr );
-	    selres = seldata_->selRes( bid );
+	    BinID bid( seldata->inlRange().start, ti.nr );
+	    selres = seldata->selRes( bid );
 	}
     }
 
@@ -326,7 +326,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    bool neednewinl = outer && !outer->includes(ti.binid);
 	    if ( neednewinl )
 	    {
-		mDynamicCastGet(IOStream*,iostrm,ioobj_)
+		mDynamicCastGet(IOStream*,iostrm,ioobj)
 		if ( iostrm && iostrm->isMulti() )
 		    return nextConn(ti);
 	    }
@@ -335,7 +335,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return sttrl.skip() ? 2 : nextConn( ti );
     }
 
-    nrtrcs_++;
+    nrtrcs++;
     if ( new_packet )
     {
 	ti.new_packet = true;
@@ -368,9 +368,9 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	return false;
     else if ( outer == mUndefPtr(HorSampling) )
 	startWork();
-    if ( is2d_ )
+    if ( is2d )
 	return get2D(trc);
-    if ( psioprov_ )
+    if ( psioprov )
 	return getPS(trc);
 
     if ( !strl()->read(trc) )
@@ -402,10 +402,10 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 		delete psrdr_; psrdr_ = 0;
 		return 0;
 	    }
-	    selres = seldata_ ? seldata_->selRes( curpsbid_ ) : 0;
+	    selres = seldata ? seldata->selRes( curpsbid_ ) : 0;
 	}
 
-	if ( seldata_ && !seldata_->isOK(curpsbid_) )
+	if ( seldata && !seldata->isOK(curpsbid_) )
 	    return 2;
 
 	if ( !psrdr_->getGather(curpsbid_,*tbuf_) )
@@ -445,22 +445,22 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 
     delete tbuf_->remove(0);
     reduceComps( trc, selcomp_ );
-    nrtrcs_++;
+    nrtrcs++;
     return true;
 }
 
 
 LineKey SeisTrcReader::lineKey() const
 {
-    if ( lset_ )
+    if ( lset )
     {
-	if ( curlineidx >= 0 && lset_->nrLines() > curlineidx )
-	    return lset_->lineKey( curlineidx );
+	if ( curlineidx >= 0 && lset->nrLines() > curlineidx )
+	    return lset->lineKey( curlineidx );
     }
-    if ( seldata_ )
-	return seldata_->lineKey();
-    else if ( ioobj_ )
-	return LineKey(ioobj_->name(),ioobj_->pars().find(sKey::Attribute()));
+    if ( seldata )
+	return seldata->lineKey();
+    else if ( ioobj )
+	return LineKey(ioobj->name(),ioobj->pars().find(sKey::Attribute));
 
     return LineKey(0,0);
 }
@@ -484,10 +484,10 @@ LineKeyProvider* SeisTrcReader::lineKeyProvider() const
 
 bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
 {
-    const int nrlines = lset_->nrLines();
+    const int nrlines = lset->nrLines();
     while ( curlineidx < nrlines )
     {
-	if ( attrnm == lset_->attribute(curlineidx) )
+	if ( attrnm == lset->attribute(curlineidx) )
 	    break;
 	curlineidx++;
     }
@@ -502,11 +502,11 @@ bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf_->deepErase();
-    LineKey lk( seldata_ ? seldata_->lineKey() : "" );
+    LineKey lk( seldata ? seldata->lineKey() : "" );
     const BufferString attrnm = lk.attrName();
     const bool islinesel = !lk.lineName().isEmpty();
-    const bool istable = seldata_ && seldata_->type() == Seis::Table;
-    const int nrlines = lset_->nrLines();
+    const bool istable = seldata && seldata->type() == Seis::Table;
+    const int nrlines = lset->nrLines();
 
     if ( !islinesel )
     {
@@ -516,8 +516,8 @@ bool SeisTrcReader::mkNextFetcher()
 	if ( istable )
 	{
 	    // Chances are we do not need to go through this line at all
-	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    while ( !lset_->haveMatch(curlineidx,tsd->binidValueSet()) )
+	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata)
+	    while ( !lset->haveMatch(curlineidx,tsd->binidValueSet()) )
 	    {
 	    	curlineidx++;
 		if ( !ensureCurLineAttribOK(attrnm) )
@@ -533,29 +533,29 @@ bool SeisTrcReader::mkNextFetcher()
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )
 	{
-	    if ( lk == lset_->lineKey(curlineidx) )
+	    if ( lk == lset->lineKey(curlineidx) )
 		{ found = true; break; }
 	}
 	if ( !found )
 	{
 	    errmsg_ = "Line key not found in line set: ";
-	    errmsg_ += seldata_->lineKey();
+	    errmsg_ += seldata->lineKey();
 	    return false;
 	}
     }
 
     StepInterval<float> zrg;
-    lset_->getRanges( curlineidx, curtrcnrrg, zrg );
-    if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
+    lset->getRanges( curlineidx, curtrcnrrg, zrg );
+    if ( seldata && !seldata->isAll() && seldata->type() == Seis::Range )
     {
-	if ( seldata_->crlRange().start > curtrcnrrg.start )
-	    curtrcnrrg.start = seldata_->crlRange().start;
-	if ( seldata_->crlRange().stop < curtrcnrrg.stop )
-	    curtrcnrrg.stop = seldata_->crlRange().stop;
+	if ( seldata->crlRange().start > curtrcnrrg.start )
+	    curtrcnrrg.start = seldata->crlRange().start;
+	if ( seldata->crlRange().stop < curtrcnrrg.stop )
+	    curtrcnrrg.stop = seldata->crlRange().stop;
     }
 
     prev_inl = mUdf(int);
-    fetcher = lset_->lineFetcher( curlineidx, *tbuf_, 1, seldata_ );
+    fetcher = lset->lineFetcher( curlineidx, *tbuf_, 1, seldata );
     nrfetchers++;
     return fetcher;
 }
@@ -601,12 +601,12 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
     prev_inl = 0;
 
     bool isincl = true;
-    if ( seldata_ )
+    if ( seldata )
     {
-	if ( seldata_->type() == Seis::Table && !seldata_->isAll() )
+	if ( seldata->type() == Seis::Table && !seldata->isAll() )
 	    // Not handled by fetcher
 	{
-	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
+	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata)
 	    isincl = tsd->binidValueSet().includes(trcti.binid);
 	}
     }
@@ -628,7 +628,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 
     delete tbuf_->remove(0);
     reduceComps( trc, selcomp_ );
-    nrtrcs_++;
+    nrtrcs++;
     return true;
 }
 
@@ -640,7 +640,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     // Multiconn is only used for multi-machine data collection nowadays
     strl()->cleanUp(); setSelData( 0 );
-    IOStream* iostrm = (IOStream*)ioobj_;
+    IOStream* iostrm = (IOStream*)ioobj;
     if ( !iostrm->toNextConnNr() )
 	return 0;
 
@@ -672,7 +672,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 void SeisTrcReader::fillPar( IOPar& iopar ) const
 {
     SeisStoreAccess::fillPar( iopar );
-    if ( seldata_ )	seldata_->fillPar( iopar );
+    if ( seldata )	seldata->fillPar( iopar );
     else		Seis::SelData::removeFromPar( iopar );
 }
 
@@ -701,11 +701,11 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
     }
     b3d->cs_.zrg = zrg;
 
-    if ( !seldata_ || seldata_->isAll() )
+    if ( !seldata || seldata->isAll() )
 	return b3d;
 
 #define mChkRg(dir) \
-    const Interval<int> dir##rng( seldata_->dir##Range() ); \
+    const Interval<int> dir##rng( seldata->dir##Range() ); \
     if ( b3d->cs_.hrg.start.dir < dir##rng.start ) \
 	b3d->cs_.hrg.start.dir = dir##rng.start; \
     if ( b3d->cs_.hrg.stop.dir > dir##rng.stop ) \
@@ -714,7 +714,7 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
     mChkRg(inl)
     mChkRg(crl)
 
-    const Interval<float> zrng( seldata_->zRange() );
+    const Interval<float> zrng( seldata->zRange() );
     if ( b3d->cs_.zrg.start < zrng.start ) b3d->cs_.zrg.start = zrng.start;
     if ( b3d->cs_.zrg.stop > zrng.stop ) b3d->cs_.zrg.stop = zrng.stop;
 
@@ -761,9 +761,9 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 {
     if ( isPS() )
     {
-	if ( !ioobj_ ) return 0;
+	if ( !ioobj ) return 0;
 	if ( is2D() ) return 0; //TODO 2D pre-stack
-	SeisPSReader* r = SPSIOPF().get3DReader( *ioobj_ );
+	SeisPSReader* r = SPSIOPF().get3DReader( *ioobj );
 	mDynamicCastGet(SeisPS3DReader*,rdr,r)
 	if ( !rdr ) return 0;
 	const PosInfo::CubeData& cd = rdr->posData();
@@ -773,26 +773,26 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     }
     if ( !is2D() )
     {
-	if ( !trl_ ) return 0;
+	if ( !trl ) return 0;
 	return get3DBounds( strl()->packetInfo().inlrg,
 			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
 
-    if ( !lset_ || lset_->nrLines() < 1 )
+    if ( !lset || lset->nrLines() < 1 )
 	return 0;
 
     Seis::Bounds2D* b2d = new Seis::Bounds2D;
 
     for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
-	S2DPOS().setCurLineSet( lset_->name() );
-	for ( int iln=0; iln<lset_->nrLines(); iln++ )
+	S2DPOS().setCurLineSet( lset->name() );
+	for ( int iln=0; iln<lset->nrLines(); iln++ )
 	{
-	    if ( seldata_ && !seldata_->lineKey().isEmpty()
-	      && seldata_->lineKey() != lset_->lineKey(iln) )
+	    if ( seldata && !seldata->lineKey().isEmpty()
+	      && seldata->lineKey() != lset->lineKey(iln) )
 		continue;
 
-	    LineKey lk = seldata_ ? seldata_->lineKey() : lset_->lineKey( iln );
+	    LineKey lk = seldata ? seldata->lineKey() :  lset->lineKey( iln );
 	    PosInfo::Line2DData l2dd( lk.lineName() );
 	    if ( !S2DPOS().getGeometry(l2dd) )
 		continue;

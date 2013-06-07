@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"
@@ -82,15 +82,15 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 	    		     z0 + dessamps_.stop + nrsamples - 1 );
     worksamps.limitTo( refintv_ ); worksamps.limitTo( mtchintv_ );
 
-    SamplingData<float> refsd( mCast(float,refintv_.start), 1 );
-    SamplingData<float> mtchsd( mCast(float,mtchintv_.start), 1 );
+    SamplingData<float> refsd( refintv_.start, 1 );
+    SamplingData<float> mtchsd( mtchintv_.start, 1 );
     ValueSeriesEvFinder<float,float> refevf( *refseries_,
 	    refcubedata_->nrsamples_-1, refsd );
     ValueSeriesEvFinder<float,float> mtchevf( *mtchseries_,
 	    mtchcubedata_->nrsamples_-1, mtchsd );
 
-    ValueSeriesEvent<float,float> refev( 0, mCast(float,worksamps.start-2) );
-    Interval<float> sampsleft( 0, mCast(float,worksamps.stop) );
+    ValueSeriesEvent<float,float> refev( 0, worksamps.start - 2 );
+    Interval<float> sampsleft( 0, worksamps.stop );
     while ( true )
     {
 	sampsleft.start = refev.pos + 2;
@@ -135,7 +135,7 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 void MatchDelta::fillOutput( const DataHolder& output,
 			     int z0, int nrsamples ) const
 {
-    const float outfac = refstep_ * SI().zDomain().userFactor();
+    const float outfac = refstep_ * SI().zFactor();
     if ( poss_.size() < 2 )
     {
 	const float deltaval = (deltas_.isEmpty() ? 0 : deltas_[0]) * outfac;

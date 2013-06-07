@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoPolygonOffset;
@@ -22,7 +21,7 @@ namespace visBase
 {
 /*!Class that manipulates the zbuffer. See coin for details. */
 
-mExpClass(visBase) PolygonOffset : public DataObject
+mClass PolygonOffset : public DataObject
 {
 public:
     static PolygonOffset*	create()
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

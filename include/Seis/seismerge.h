@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -26,7 +25,7 @@ class SeisTrcWriter;
 
 /*!\brief Merges 2D and 3D post-stack data */
 
-mExpClass(Seis) SeisMerger : public Executor
+mClass SeisMerger : public Executor
 {
 public:
 
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

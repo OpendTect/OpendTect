@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "datainterp.h"
 
@@ -568,16 +568,16 @@ mDefDIPSIbm(od_int64,S2,Short)
 mDefDIPSIbm(od_int64,S4,Int)
 
 
-#define mDefDIPFIbm(inptyp) \
+#define mDefDIPFIbm(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::putFIbm(void* buf,od_int64 nr,\
+void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,od_int64 nr,\
 						 inptyp f) const \
-{ IbmFormat::putFloat( (float) f, ((TF*)buf)+nr ); }
+{ IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); }
 
-mDefDIPFIbm(float)
-mDefDIPFIbm(double)
-mDefDIPFIbm(int)
-mDefDIPFIbm(od_int64)
+mDefDIPFIbm(float,F,Float)
+mDefDIPFIbm(double,F,Float)
+mDefDIPFIbm(int,F,Float)
+mDefDIPFIbm(od_int64,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
@@ -600,19 +600,19 @@ mDefDIPSIbmswp(od_int64,S2,Short)
 mDefDIPSIbmswp(od_int64,S4,Int)
 
 
-#define mDefDIPFIbmswp(inptyp) \
+#define mDefDIPFIbmswp(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::putFIbmswp(void* buf,od_int64 nr,\
+void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,od_int64 nr,\
 						 inptyp f) \
 const { \
-    IbmFormat::putFloat( (float) f, ((TF*)buf)+nr ); \
-    SwapBytes( ((TF*)buf)+nr, sizeof(TF) ); \
+    IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
-mDefDIPFIbmswp(float)
-mDefDIPFIbmswp(double)
-mDefDIPFIbmswp(int)
-mDefDIPFIbmswp(od_int64)
+mDefDIPFIbmswp(float,F,Float)
+mDefDIPFIbmswp(double,F,Float)
+mDefDIPFIbmswp(int,F,Float)
+mDefDIPFIbmswp(od_int64,F,Float)
 
 
 #define mTheType float
@@ -636,31 +636,31 @@ type DataInterpreter<type>::get( std::istream& strm ) const \
     StrmOper::readBlock( strm, buf, nrBytes() ); \
     return get( buf, 0 ); \
 } \
- \
 template <> \
 bool DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-				 std::istream& strm, type& res ) \
+std::istream& strm, type& res ) \
 { \
-    if ( di ) \
-    { \
-	char buf[16]; \
-        if ( !StrmOper::readBlock( strm, buf, di->nrBytes() ) ) \
-	    return false;\
-	res = di->get( buf, 0 ); \
-	return true; \
-    } \
-    \
-    return StrmOper::readBlock( strm, &res, sizeof(type) ); \
+if ( di ) \
+{ \
+char buf[16]; \
+if ( !StrmOper::readBlock( strm, buf, di->nrBytes() ) ) \
+return false;\
+res = di->get( buf, 0 ); \
+return true; \
+} \
+\
+return StrmOper::readBlock( strm, &res, sizeof(type) ); \
 } \
  \
 template <> \
 type DataInterpreter<type>::get( const DataInterpreter<type>* di, \
-std::istream& strm ) \
+				 std::istream& strm ) \
 { \
-type val; \
-get( di, strm, val ); \
-return val; \
+    type val; \
+    get( di, strm, val ); \
+    return val; \
 } \
+ \
 template <> DataInterpreter<type>* \
 DataInterpreter<type>::create( \
 			const DataCharacteristics& dchar, \

@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "filepath.h"
 
@@ -134,7 +134,7 @@ void FilePath::setFileName( const char* fnm )
     if ( !fnm || !*fnm )
     {
 	if ( lvls_.size() )
-	    lvls_.removeSingle( lvls_.size()-1 );
+	    delete lvls_.remove( lvls_.size()-1 );
     }
     else if ( lvls_.isEmpty() )
 	add( fnm );
@@ -272,17 +272,6 @@ const BufferString& FilePath::fileName() const
 { return dir(-1); }
 
 
-BufferString FilePath::baseName() const
-{
-    BufferString ret = fileName();
-    char* ptr = ret.buf();
-    while ( *ptr && *ptr != '.' ) ptr++;
-    if ( !*ptr ) return ret;
-    *ptr++ = '\0';
-    return ret;
-}
-
-
 BufferString FilePath::pathOnly() const
 { return dirUpTo(lvls_.size()-2); }
 
@@ -348,8 +337,8 @@ BufferString FilePath::getTempName( const char* ext )
 
     BufferString fname( "od", GetPID() );
     static int counter = 0;
-    time_t time_stamp = time( (time_t*)0 ) + counter++;
-    fname += (od_int64)time_stamp;
+    int time_stamp = time( (time_t*)0 ) + counter++;
+    fname += time_stamp;
 
     if ( ext && *ext )
     {
@@ -424,7 +413,6 @@ void FilePath::addPart( const char* fnm )
     }
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
-    trueDirIfLink();
 }
 
 
@@ -441,7 +429,7 @@ void FilePath::compress( int startlvl )
 
 	if ( idx-remoffs >= 0 )
 	{
-	    lvls_.removeRange( idx-remoffs, idx );
+	    lvls_.remove( idx-remoffs, idx );
 	    idx -= remoffs + 1;
 	}
     }
@@ -471,3 +459,95 @@ BufferString FilePath::winDrive() const
     return windrive;
 }
 
+///////////Handle links
+
+FilePath& FilePath::addWithLink( const char* fnm )
+{
+    if ( !fnm || !*fnm )
+	return *this;
+
+    int sl = lvls_.size();
+    addPartWithLink( fnm );
+    compress( sl );
+
+    return *this;
+}
+
+void FilePath::addPartWithLink( const char* fnm )
+{
+    if ( !fnm || !*fnm ) return;
+
+    mSkipBlanks( fnm );
+    char prev = ' ';
+    char buf[mMaxFilePathLength];
+    char* bufptr = buf;
+    bool remdblsep = false;
+
+    while ( *fnm )
+    {
+	char cur = *fnm;
+
+	if ( cur != *dirSep(Local) )
+	    remdblsep = true;
+	else
+	{
+	    if ( prev != *dirSep(Local) || !remdblsep )
+	    {
+		*bufptr = '\0';
+		if ( buf[0] ) lvls_.add( buf );
+		bufptr = buf;
+		*bufptr = '\0';
+	    }
+	    fnm++;
+	    continue;
+	}
+
+	*bufptr++ = cur;
+	fnm++;
+	prev = cur;
+    }
+    *bufptr = '\0';
+    if ( buf[0] ) lvls_.add( buf );
+    trueDirIfLink();
+}
+
+
+void FilePath::setPathWithLink( const char* pth )
+{
+    BufferString fnm( lvls_.size() ?
+	    lvls_.get(lvls_.size()-1).buf() : (const char*) 0 );
+    setWithLink( pth );
+    if ( !fnm.isEmpty() )
+	addWithLink( fnm );
+}
+
+
+FilePath& FilePath::setWithLink( const char* _fnm )
+{
+    BufferString fnmbs( _fnm );
+    lvls_.erase(); prefix_ = ""; isabs_ = false;
+    if ( !_fnm ) return *this;
+
+    const char* fnm = fnmbs.buf(); 
+    mSkipBlanks( fnm );
+    if ( !*fnm ) return *this;
+
+    const char* ptr = strchr( fnm, *sPrefSep );
+    if ( ptr )
+    {
+	const char* dsptr = strchr( fnm, *dirSep(Local) );
+	if ( dsptr > ptr )
+	{
+	    prefix_ = fnm;
+	    *strchr( prefix_.buf(), *sPrefSep ) = '\0';
+	    fnm = ptr + 1;
+	}
+    }
+
+    isabs_ = *fnm == '\\' || *fnm == '/';
+
+    if ( isabs_ ) fnm++;
+    addPartWithLink( fnm );
+    compress();
+    return *this;
+}

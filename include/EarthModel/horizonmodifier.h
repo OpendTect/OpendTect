@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -23,11 +22,7 @@ class BinID;
 class BufferStringSet;
 class HorSamplingIterator;
 
-/*!
-\brief Modifies horizons.
-*/
-
-mExpClass(EarthModel) HorizonModifier
+mClass HorizonModifier
 {
 public:
 
@@ -66,4 +61,3 @@ protected:
 
 
 #endif
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 
@@ -148,7 +148,7 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
     mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );
     mSetBool( VolStats::steeringStr(), steerfld_->willSteer() );
     mSetInt( VolStats::optstackstepStr(), optstackstepfld_->box()->getValue() );
-    mSetEnum( VolStats::optstackdirStr(), (int)stackdirfld_->getBoolValue() );
+    mSetEnum( VolStats::optstackdirStr(), stackdirfld_->getBoolValue() );
 
     mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
     mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
@@ -214,3 +214,9 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     params += EvalParam( timegatestr(), VolStats::gateStr() );
     params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
 }
+
+
+void uiVolumeStatisticsAttrib::steerTypeSel( CallBacker* )
+{
+}
+

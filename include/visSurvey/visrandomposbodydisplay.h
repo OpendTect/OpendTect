@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -26,11 +25,9 @@ namespace visSurvey
 {
 class Scene;
 
-/*!
-\brief Used for displaying a set of random picks in xyz coordinates.
-*/
+/*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
-mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
+mClass RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject
 {
 public:
@@ -70,11 +67,9 @@ protected:
     const mVisTrans*		transform_;
     visBase::RandomPos2Body*	displaybody_;
     EM::RandomPosBody*		embody_;
-    bool			isupdateok_;
 };
 
 };
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiimphorizon2d.h"
 
@@ -206,6 +206,8 @@ protected:
 };
 
 
+static uiGenInput* udftreatfld_;
+
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
     : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
 				 "104.0.14"))
@@ -355,7 +357,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     const int setidx = linesetnms_.indexOf( setnm );
     scanner_ = new Horizon2DScanner( filenms, setids_[setidx], fd_ );
     uiTaskRunner taskrunner( this );
-    TaskRunner::execute( &taskrunner, *scanner_ );
+    taskrunner.execute( *scanner_ );
     if ( cb )
 	scanner_->launchBrowser();
 }
@@ -459,7 +461,7 @@ bool uiImportHorizon2D::doImport()
 	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
 			       (UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
-    if ( !TaskRunner::execute(&impdlg,*exec) )
+    if ( !impdlg.execute(*exec) )
 	mUnrefAndDeburstRet( false );
 
     for ( int idx=0; idx<horizons.size(); idx++ )

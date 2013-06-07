@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -31,7 +30,7 @@ class uiSurvInfoProvider;
 
 /*!\brief The main survey selection dialog */
 
-mExpClass(uiIo) uiSurvey : public uiDialog
+mClass uiSurvey : public uiDialog
 {
 
 public:
@@ -78,7 +77,6 @@ protected:
     uiPushButton*	rmbut_;
     uiPushButton*	datarootbut_;
     uiPushButton*	copybut_;
-    uiPushButton*	archbut_;
     ObjectSet<uiToolButton> utilbuts_;
     uiLabel*		inllbl_;
     uiLabel*		crllbl_; 
@@ -94,7 +92,6 @@ protected:
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		copyButPushed(CallBacker*);
-    void		archButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);
@@ -113,4 +110,3 @@ protected:
 };
 
 #endif
-

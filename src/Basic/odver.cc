@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -62,8 +62,6 @@ extern "C" const char* GetFullODVersion()
 void GetSpecificODVersion( const char* typ, BufferString& res )
 {
     res = ODInst::getPkgVersion( typ ? typ : "basedata" );
-    if ( res.matches( "*error*" ) )
-	res.setEmpty();
 }
 
 

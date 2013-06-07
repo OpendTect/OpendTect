@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -132,7 +132,7 @@ void Horizon2DScanner::report( IOPar& iopar ) const
 	iopar.add( "Rejected line names", msg );
     }
 
-    const int nrpos = mCast( int, bvalset_ ? bvalset_->totalSize() : 0 );
+    const int nrpos = bvalset_ ? bvalset_->totalSize() : 0;
     if ( !nrpos )
     {
 	iopar.add( "No valid positions found",
@@ -204,7 +204,7 @@ int Horizon2DScanner::nextStep()
 
     if ( curline_.isEmpty() || curline_ != linenm )
     {
-	if ( invalidnms_.isPresent(linenm) )
+	if ( invalidnms_.indexOf(linenm) >= 0 )
 	    return Executor::MoreToDo();
 
 	PtrMan<IOObj> lsobj = IOM().get( setid_ );
@@ -249,7 +249,6 @@ int Horizon2DScanner::nextStep()
 
     int validx = 0;
     const int nrvals = data.size();
-
     Interval<float> validzrg( linegeom_.zRange().start,
 			      linegeom_.zRange().stop );
     validzrg.widen( validzrg.width() );

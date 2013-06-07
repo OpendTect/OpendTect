@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class uiCheckBox;
 class BufferStringSet;
@@ -33,7 +32,7 @@ class BufferStringSet;
  
  */
 
-mExpClass(uiTools) uiCheckList : public uiGroup
+mClass uiCheckList : public uiGroup
 {
 public:
 
@@ -81,4 +80,3 @@ public:
 
 
 #endif
-

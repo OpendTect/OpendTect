@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -103,16 +103,16 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
 	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
 	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
-	const Well::Track* tr = zdata.track(); 
 	if ( zdata.zistime_ )
 	{
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
-	    if ( d2t && d2t->size() > 2 && tr && tr->size() > 2 )
-		depth_ = d2t->getDah( ypos_*0.001f, *tr );
+	    if ( d2t && d2t->size() >= 1 )
+		depth_ = d2t->getDah( ypos_*0.001 );
 	}
 	else
 	{
+	    const Well::Track* tr = zdata.track(); 
 	    depth_ = tr ? tr->getDahForTVD( ypos_ ) : mUdf(float);
 	    time_ = ypos_;
 	}
@@ -131,13 +131,14 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( !seldisp_ ) return;
     if ( selmarker_ )
     {
+	float markerpos = selmarker_->dah();
 	info += " Marker: ";
 	info += selmarker_->name();
 	info += "  ";
     }
     info += "  MD: ";
     bool zinft = seldisp_->zData().dispzinft_ && seldisp_->zData().zistime_;
-    float dispdepth = zinft ? mToFeetFactorF*depth_ : depth_;
+    float dispdepth = zinft ? mToFeetFactor*depth_ : depth_;
     info += toString( mNINT32(dispdepth) );
     info += seldisp_->zData().zistime_ ? " Time: " : " Depth: ";
     info += toString( mNINT32(time_) );

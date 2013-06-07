@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 */
 
-#include "networkmod.h"
 #include "bufstring.h"
 #include "genc.h"
 #include "thread.h"
@@ -48,7 +47,7 @@ class TcpSocket;
  *  Handles the communication between a client and the master, from
  *  the client's point of view. 
  */ 
-mExpClass(Network) JobCommunic : public CallBacker
+mClass JobCommunic : public CallBacker
 {
 public:
     enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
@@ -134,4 +133,3 @@ private:
 #undef mTryMaxtries
 
 #endif
-

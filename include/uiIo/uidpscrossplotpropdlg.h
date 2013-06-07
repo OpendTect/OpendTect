@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidlggroup.h"
 class uiDataPointSetCrossPlotter;
 class uiDPSCPScalingTab;
@@ -21,17 +20,14 @@ class uiDPSCPBackdropTab;
 class uiDPSCPDisplayPropTab;
 class uiDPSDensPlotSetTab;
 
-/*!
-\brief Crossplot properties dialog box.
-*/
-
-mExpClass(uiIo) uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
+		     
+mClass uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
 {
 public:
 					uiDataPointSetCrossPlotterPropDlg(
 					    uiDataPointSetCrossPlotter*);
     uiDataPointSetCrossPlotter&		plotter()	{ return plotter_; }
-    
+
 protected:
 
     uiDataPointSetCrossPlotter&		plotter_;
@@ -40,7 +36,7 @@ protected:
     uiDPSUserDefTab*			userdeftab_;
     uiDPSCPDisplayPropTab* 		dispproptab_;
     uiDPSDensPlotSetTab* 		densplottab_;
-    uiDPSCPBackdropTab*			bdroptab_;    
+    uiDPSCPBackdropTab*			bdroptab_;
 
     void				doApply(CallBacker*);
     bool				acceptOK(CallBacker*);
@@ -48,4 +44,3 @@ protected:
 };
 
 #endif
-

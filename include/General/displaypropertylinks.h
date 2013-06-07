@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "factory.h"
 #include "namedobj.h"
 #include "thread.h"
@@ -44,7 +43,7 @@ class DisplayPropertyLink;
 
 
 
-mExpClass(General) DisplayLinkManager
+mClass DisplayLinkManager
 {
 public:
     				DisplayLinkManager();
@@ -89,7 +88,7 @@ protected:
 
 
 
-mExpClass(General) DisplayPropertyHolder
+mClass DisplayPropertyHolder
 {
 public:
 			DisplayPropertyHolder(bool reg);
@@ -106,7 +105,7 @@ private:
 };
 
 
-mExpClass(General) DisplayPropertyLink : public NamedObject
+mClass DisplayPropertyLink : public NamedObject
 {
 public:
     mDefineFactory1ParamInClass(DisplayPropertyLink,
@@ -141,4 +140,3 @@ protected:
 };
 
 #endif
-

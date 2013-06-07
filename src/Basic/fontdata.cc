@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "fontdata.h"
 #include "separstr.h"
@@ -42,7 +42,7 @@ const char* FontData::key( StdSz ss )		 { return defaultkeys[(int)ss];}
 
 // static variables and their access functions
 static BufferString defaultfamily( universalfamilies[0] );
-static int defaultpointsize = 12;
+static int defaultpointsize = 9;
 static FontData::Weight defaultweight = FontData::Bold;
 static bool defaultitalic = false;
 
@@ -58,18 +58,16 @@ void FontData::setDefaultItalic( bool yn )      { defaultitalic = yn; }
 
 
 
-bool FontData::getFrom( const char* s )
+void FontData::getFrom( const char* s )
 {
     FileMultiString fms( s );
     const int nr = fms.size();
-    if ( nr < 1 ) return false;
+    if ( nr < 1 ) return;
 
     family_ = fms[0];
     if ( nr > 1 ) pointsize_ = toInt( fms[1] );
     if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
-    
-    return true;
 }
 
 

@@ -26,12 +26,10 @@ template <class T> class ValueSeries;
 #define mMemMinThreadSize 1048576
 
 
-/*!
-\brief Sets large amounts of values to a constant using multiple threads.
-*/
 
+/*!Sets large amounts of values to a constant using multiple threads. */
 template <class T>
-mClass(Basic) MemSetter : public ParallelTask
+class MemSetter : public ParallelTask
 {
 public:
     		MemSetter();
@@ -59,12 +57,8 @@ protected:
 };
 
 
-/*!
-\brief ValueSeries Copier
-*/
-
 template <class T>
-mClass(Basic) MemCopier : public ParallelTask
+class MemCopier : public ParallelTask
 {
 public:
 
@@ -99,12 +93,10 @@ protected:
 };
 
 
-/*!
-\brief Goes through some mem or a ValSeries and replaces one value with another.
-*/
+/*!Goes through some mem or a valseries and replaces one value with another */
 
 template <class T>
-mClass(Basic) MemValReplacer : public ParallelTask
+class MemValReplacer : public ParallelTask
 {
 public:
 		MemValReplacer();
@@ -185,7 +177,7 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -193,7 +185,7 @@ bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -201,7 +193,7 @@ bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
-    memset( ptr_+start, (int)val_, (size_t) size );
+    memset( ptr_+start, (int)val_, size );
     return true;
 }
 
@@ -221,7 +213,7 @@ bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
     { \
-	memset( ptr_+start, 0, (size_t) (size*sizeof(Type)) ); \
+	memset( ptr_+start, 0, size*sizeof(Type) ); \
 	return true; \
     } \
  \
@@ -304,7 +296,7 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
-    memcpy( outptr_ + start, inptr_ + start, (size_t) (size * sizeof(T)) );
+    memcpy( outptr_ + start, inptr_ + start, size * sizeof(T) );
     return true;
 }
 

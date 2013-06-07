@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uisysadmmod.h"
 #include "uidialog.h"
 class uiODSysAdm;
 class uiListBox;
@@ -22,11 +21,10 @@ class uiTextEdit;
 uiODSysAdm& ODSysAdmMainWin();
 //!< Top-level access
 
-/*!
-\brief OpendTect System Administration application top level object.
-*/
 
-mExpClass(uiSysAdm) uiODSysAdm : public uiDialog
+/*!\brief OpendTect sysadm application top level object */
+
+mClass uiODSysAdm : public uiDialog
 {
 public:
 
@@ -91,4 +89,3 @@ protected:
 
 
 #endif
-

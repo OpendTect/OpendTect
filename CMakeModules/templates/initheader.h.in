@@ -1,5 +1,5 @@
-#ifndef @OD_MODULE_NAME_LOWER@mod_h
-#define @OD_MODULE_NAME_LOWER@mod_h
+#ifndef init@OD_MODULE_NAME_LOWER@_h
+#define init@OD_MODULE_NAME_LOWER@_h
 
 /*+
 ________________________________________________________________________
@@ -7,56 +7,25 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id$
+ RCS:		$Id: initheader.h.in,v 1.2 2012/03/06 13:15:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#if defined( __win64__ ) || defined ( __win32__ )
-# define do_import_export
+#ifdef __msvc__
+# define dll_export	__declspec( dllexport )
+# define dll_import	__declspec( dllimport )
 #else
-# ifdef do_import_export
-#  undef do_import_export
-# endif
-#endif
-
-#ifndef dll_export
-# if defined( do_import_export )
-#  define dll_export	__declspec( dllexport )
-#  define dll_import	__declspec( dllimport )
-#  define dll_extern	extern
-# else
-#  define dll_export
-#  define dll_import
-# endif
+# define dll_export
+# define dll_import
 #endif
 
 #if defined(@OD_MODULE_NAME@_EXPORTS) || defined(@OD_MODULE_NAME_UPPER@_EXPORTS)
-# define do_export_@OD_MODULE_NAME@
-#else
-# if defined ( do_export_@OD_MODULE_NAME@ )
-#  undef do_export_@OD_MODULE_NAME@
-# endif
-#endif
-
-
-#if defined( do_export_@OD_MODULE_NAME@ )
 # define Export_@OD_MODULE_NAME@	dll_export
-# define Extern_@OD_MODULE_NAME@
 #else
 # define Export_@OD_MODULE_NAME@	dll_import
-# define Extern_@OD_MODULE_NAME@	dll_extern
 #endif
 
-#if defined ( do_import_export )
-//Temporary allow extern declaration of extern template instantiation
-#pragma warning( push )
-#pragma warning( disable : 4231 )
-@EXPORTFILEHEADER@
-#pragma warning( pop )
-@MODFILEHEADER@
-
-#endif
 
 #endif

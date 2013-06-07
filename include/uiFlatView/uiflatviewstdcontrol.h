@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
 #include "menuhandler.h"
 
@@ -20,11 +19,10 @@ class uiToolButton;
 class uiFlatViewColTabEd;
 class uiToolBar;
 
-/*!
-\brief The standard tools to control uiFlatViewer(s).
-*/
 
-mExpClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
+/*!\brief The standard tools to control uiFlatViewer(s). */
+
+mClass uiFlatViewStdControl : public uiFlatViewControl
 {
 public:
 
@@ -37,21 +35,17 @@ public:
 			    , withedit_(false)
 			    , withthumbnail_(true)		      
 			    , withstates_(true)
-			    , withhanddrag_(true)
-			    , withsnapshot_(true)
-				, withflip_(true)
+			    , withflip_(true)
 			    , tba_(-1)		      	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withthumbnail)
-	mDefSetupMemb(bool,withhanddrag)
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(BufferString,helpid)
 	mDefSetupMemb(bool,withflip)
-	mDefSetupMemb(bool,withsnapshot)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -60,15 +54,10 @@ public:
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
 
-    NotifierAccess* 	editPushed();
-
 protected:
 
     bool		manip_;
     bool		mousepressed_;
-    uiPoint		mousedownpt_;
-    uiWorldRect		mousedownwr_;
-    
     bool		viewdragged_;
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
@@ -86,8 +75,8 @@ protected:
     void		doZoom(bool in,uiFlatViewer&,FlatView::ZoomMgr&);
 
     virtual void	coltabChg(CallBacker*);
-    virtual void	dispChgCB(CallBacker*);
-    virtual void	editCB(CallBacker*);
+    void		dispChgCB(CallBacker*);
+    void		editCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
@@ -103,7 +92,7 @@ protected:
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
 
-    virtual bool	handleUserClick();
+    virtual bool		handleUserClick();
 
     uiMenuHandler&      menu_;
     MenuItem           	propertiesmnuitem_;
@@ -111,7 +100,9 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     BufferString	helpid_;
+
+public:
+    NotifierAccess*     editPushed();
 };
 
 #endif
-

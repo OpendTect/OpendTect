@@ -18,6 +18,6 @@ SET(OD_MODULE_SOURCES
 		volprocbodyfiller.cc
 		volprocvolreader.cc
 )
-SET(OD_MODULE_BATCHPROGS od_process_volume.cc )
+SET(OD_MODULE_BATCHPROGS od_process_volume )
 OD_INIT_MODULE()
 

@@ -13,44 +13,41 @@ ________________________________________________________________________
     
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 class Wavelet;
 
+/*!\brief Convolution Attribute
+
+Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
+
+Convolve convolves a signal with the on the command-line specified signal.
+
+Kernel:         Uses Shape      Uses Size       Desc
+
+LowPass         Yes             Yes             A basic averaging kernel.
+Laplacian       Yes             Yes             A laplacian kernel (signal-avg).
+Prewitt         No              No              A 3x3x3 gradient filter with
+                                                three subkernels: 1 (inl),
+						2 (crl) and 3 (time).
+
+Inputs:
+0       Signal to be convolved.
+
+Outputs:
+0       Sum of the convolution with all kernels / N
+1       Subkernel 1
+.
+.
+.
+N       Subkernel N
+
+*/
+
 namespace Attrib
 {
 
-/*!
-\brief Convolution Attribute.
-
-  %Convolve convolves a signal with the on the command-line specified signal.
-
-<pre>  
-  Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
-  
-  Kernel:         Uses Shape      Uses Size       Desc
-  
-  LowPass         Yes             Yes             A basic averaging kernel.
-  Laplacian       Yes             Yes             A laplacian kernel(signal-avg)
-  Prewitt         No              No              A 3x3x3 gradient filter with
-						  three subkernels: 1 (inl), 
-						  2 (crl) and 3 (time).
-
-  Inputs:
-  0       Signal to be convolved.
-  
-  Outputs:
-  0       Sum of the convolution with all kernels / N
-  1       Subkernel 1
-  .
-  .
-  .
-  N       Subkernel N  
-</pre>
-*/
-
-mExpClass(Attributes) Convolve : public Provider
+mClass Convolve : public Provider
 {
 public:
     static void			initClass();
@@ -103,7 +100,7 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata_;
 
-    mExpClass(Attributes) Kernel
+    mClass Kernel
     {
     public:
 	const float*            getKernel() const;
@@ -131,5 +128,4 @@ protected:
 
 
 #endif
-
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -68,7 +68,7 @@ void LatLong::getDMS( bool lat, int& d, int& m, float& s ) const
     v -= d; v *= 60;
     m = (int)v;
     v -= m; v *= 60;
-    s = (float)v;
+    s = v;
 }
 
 
@@ -108,7 +108,7 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 #define mPrepScaleFac() \
     if ( scalefac_ < 0 ) \
 	const_cast<LatLong2Coord*>(this)->scalefac_ \
-		= SI().xyInFeet() ? mFromFeetFactorF : 1;
+		= SI().xyInFeet() ? mFromFeetFactor : 1;
 
 
 LatLong LatLong2Coord::transform( const Coord& c ) const

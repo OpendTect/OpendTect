@@ -18,12 +18,11 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "windowfunction.h"
 
-/*!
-\brief Smoothes a 2d signal with an operator.
-*/
+/*!Smothes a 2d signal with an an operator. */
+
 
 template <class T>
-mClass(Algo) Smoother2D : public Task
+class Smoother2D : public Task
 {
 public:
 
@@ -43,6 +42,7 @@ public:
     inline bool			usePar(const IOPar&);
 
     inline void			setProgressMeter(ProgressMeter* pm);
+    inline void			enableNrDoneCounting(bool yn);
     inline bool			execute();
     inline void			enableWorkControl(bool);
     inline void			controlWork(Task::Control);
@@ -160,6 +160,7 @@ template <class T> inline void Smoother2D<T>::func( vartype var ) \
 { convolver_.func( var ); }
 
 mImplSetFunc( setProgressMeter, ProgressMeter* );
+mImplSetFunc( enableNrDoneCounting, bool );
 mImplSetFunc( enableWorkControl, bool);
 mImplSetFunc( controlWork, Task::Control);
 
@@ -172,7 +173,7 @@ bool Smoother2D<T>::execute()
 
     if ( !window_ )
     {
-	PtrMan<WindowFunction> wf = WINFUNCS().create( windowname_ );
+	PtrMan<WindowFunction> wf = WinFuncs().create( windowname_ );
 	if ( !wf )
 	    return false;
 
@@ -205,20 +206,20 @@ bool Smoother2D<T>::execute()
 
 	for ( int idx0=0; idx0<sz0; idx0++ )
 	{
-	    const float pos0 = mCast( float, idx0>hsz0 ? idx0-sz0 : idx0 );
+	    const float pos0 = idx0>hsz0 ? idx0-sz0 : idx0;
 	    pos[0] = pos0/hwinsz0;
 	    for ( int idx1=0; idx1<sz1; idx1++ )
 	    {
-		const float pos1 = mCast( float, idx1>hsz1 ? idx1-sz1 : idx1 );
+		const float pos1 = idx1>hsz1 ? idx1-sz1 : idx1;
 		pos[1] = pos1/hwinsz1;
-		const float weight = wf->getValue( (float) pos.abs() );
+		const float weight = wf->getValue( pos.abs() );
 		window_->set( idx0, idx1, weight );
 		weightsum += weight;
 	    }
 	}
 
 	if ( weightsum>1 )
-	    mPointerOperation( float, window_->getData(), /= (float)weightsum,
+	    mPointerOperation( float, window_->getData(), /= weightsum,
 		        window_->info().getTotalSz(), ++ );
 
 	convolver_.setY( *window_, false );

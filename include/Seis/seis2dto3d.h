@@ -14,8 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "seismod.h"
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 #include "arrayndimpl.h"
@@ -31,7 +29,7 @@ class SeisTrcWriter;
 class SeisTrcBuf;
 
 
-mExpClass(Seis) SeisInterpol : public Executor
+mClass SeisInterpol : public Executor
 {
 public:
 
@@ -66,7 +64,7 @@ protected:
     int 		szz_;
     float 		max_;
 
-    mStruct(Seis) TrcPosTrl
+    mStruct TrcPosTrl
     {
 		    TrcPosTrl(int x,int y, int trc)
 			: idx_(x)
@@ -97,7 +95,7 @@ protected:
 
 
 
-mExpClass(Seis) Seis2DTo3D : public Executor
+mClass Seis2DTo3D : public Executor
 {
 public:
 
@@ -108,7 +106,6 @@ public:
     void		setOutput(IOObj& cube,const CubeSampling& outcs);
 
     void		setParams(int inl,int crl,float maxvel,bool reuse);
-    void		setIsNearestTrace( bool yn );
 
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
@@ -148,15 +145,17 @@ protected:
     bool		read_;	
     int			nrdone_;
     mutable int		totnr_;
-    bool		nearesttrace_;
 
     void		clear();
     bool		writeTmpTrcs();
     bool		read();
+
+public:
+    void		setIsNearestTrace( bool yn );
 };
 
 
-mExpClass(Seis) SeisScaler
+mClass SeisScaler
 {
 public:
 			SeisScaler(const SeisTrcBuf&);
@@ -169,5 +168,3 @@ protected:
 };
 
 #endif
-
-

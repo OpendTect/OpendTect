@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uisrchprocfiles.h"
 
 
-mExpClass(uiAttributes) uiAttrSrchProcFiles : public uiSrchProcFiles
+mClass uiAttrSrchProcFiles : public uiSrchProcFiles
 {
 public:
 			uiAttrSrchProcFiles(uiParent*,bool is2d);
@@ -29,4 +28,3 @@ protected:
 };
 
 #endif
-

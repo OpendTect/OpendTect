@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimpepartserv.h"
 
@@ -40,24 +40,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uihorizontracksetup.h"
 #include "uimsg.h"
 
-int uiMPEPartServer::evGetAttribData()		    { return 0; }
-int uiMPEPartServer::evStartSeedPick()		    { return 1; }
-int uiMPEPartServer::evEndSeedPick()	   	    { return 2; }
-int uiMPEPartServer::evAddTreeObject()	      	    { return 3; }
-int uiMPEPartServer::evShowToolbar()	   	    { return 4; }
-int uiMPEPartServer::evInitFromSession()	    { return 5; }
-int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
-int uiMPEPartServer::evSetupLaunched()		    { return 7; }
-int uiMPEPartServer::evSetupClosed()	   	    { return 8; }
-int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
-int uiMPEPartServer::evMPEDispIntro()		    { return 10; }
-int uiMPEPartServer::evUpdateTrees()	   	    { return 11; }
-int uiMPEPartServer::evUpdateSeedConMode()   	    { return 12; }
-int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
-int uiMPEPartServer::evHideToolBar()		    { return 14; }
-int uiMPEPartServer::evSaveUnsavedEMObject() 	    { return 15; }
-int uiMPEPartServer::evRemoveUnsavedEMObject()	    { return 16; }
-int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
+const int uiMPEPartServer::evGetAttribData()	    { return 0; }
+const int uiMPEPartServer::evStartSeedPick()	    { return 1; }
+const int uiMPEPartServer::evEndSeedPick()	    { return 2; }
+const int uiMPEPartServer::evAddTreeObject()	    { return 3; }
+const int uiMPEPartServer::evShowToolbar()	    { return 4; }
+const int uiMPEPartServer::evInitFromSession()	    { return 5; }
+const int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
+const int uiMPEPartServer::evSetupLaunched()	    { return 7; }
+const int uiMPEPartServer::evSetupClosed()	    { return 8; }
+const int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
+const int uiMPEPartServer::evMPEDispIntro()	    { return 10; }
+const int uiMPEPartServer::evUpdateTrees()	    { return 11; }
+const int uiMPEPartServer::evUpdateSeedConMode()    { return 12; }
+const int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
+const int uiMPEPartServer::evHideToolBar()	    { return 14; }
+const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 15; }
+const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 16; }
+const int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -171,7 +171,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	CubeSampling poscs(false);
 	const BinID bid = SI().transform(pickedpos);
 	poscs.hrg.start = poscs.hrg.stop = bid;
-	poscs.zrg.start = poscs.zrg.stop = (float) pickedpos.z;
+	poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
 	expandActiveVolume( poscs );
     }
 
@@ -198,18 +198,22 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     emobj->setNewName();
     emobj->setFullyLoaded( true );
 
+    EM::ObjectID objid = emobj->id();
+
     const int trackerid = MPE::engine().addTracker( emobj );
 
     if ( trackerid == -1 ) return false;
 
-//    EM::ObjectID objid = emobj->id();
-//    if ( !MPE::engine().getEditor(objid,false) )
+    //if ( !MPE::engine().getEditor(objid,false) )
 //	MPE::engine().getEditor(objid,true);
 
     MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
     if ( !tracker ) return false;
 
+    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+
     activetrackerid_ = trackerid;
+
     if ( (addedtosceneid!=-1) && 
 	 !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
@@ -217,11 +221,12 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 	MPE::engine().removeTracker( trackerid );
 	emobj->ref(); emobj->unRef();
     }
-
-    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
+    
     emobj->setPreferredColor( getRandomColor(false) );
+
     trackercurrentobject_ = emobj->id();
-    if ( !initSetupDlg(emobj,tracker,sid,true) )
+
+    if ( !initSetupDlg(emobj,tracker,sectionid,true) )
 	return false;
 
     initialundoid_ = EM::EMM().undo().currentEventID();
@@ -458,8 +463,9 @@ void uiMPEPartServer::adjustSeedBox()
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( !emobj ) return;
 
-    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
-    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator( sid );
+    const int sectionid = emobj->sectionID( emobj->nrSections() - 1 );
+    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator( sectionid );
+
     while( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -475,12 +481,13 @@ void uiMPEPartServer::adjustSeedBox()
 	if ( trackerseedbox_.isEmpty() )
 	{
 	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop =(float)pos.z;
+	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop = pos.z;
+
 	}
 	else
 	{
-	    trackerseedbox_.hrg.include( bid );
-	    trackerseedbox_.zrg.include( (float)pos.z );
+	    trackerseedbox_.hrg.include(bid);
+	    trackerseedbox_.zrg.include(pos.z);
 	}
     }
 } 
@@ -742,7 +749,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
 				     const Attrib::Data2DArray* newdata )
 {
-    ConstRefMan<Attrib::Data2DArray> reffer = newdata;
+    RefMan<const Attrib::Data2DArray> reffer = newdata;
 
     if ( !newdata )
     {
@@ -929,7 +936,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
     emobj->ref();
     uiTaskRunner uiexec( appserv().parent() );
-    const bool keepobj = TaskRunner::execute( &uiexec, *exec );
+    const bool keepobj = uiexec.execute( *exec );	
     exec.erase();
     if ( keepobj )
 	emobj->unRefNoDelete();
@@ -1247,8 +1254,8 @@ void uiMPEPartServer::saveUnsaveEMObject()
 	{
 	    BufferString msg = EM::EMM().getObject(objid)->getTypeStr();
 	    msg.add( " " ).add( EM::EMM().getObject( objid )->name() );
-	    msg += " is not saved.\n Click 'Save' to save ";
-	    msg += " to disk or\n click 'Remove' to remove permanently. ";
+	    msg += " is not saved.\n Click Save to save ";
+	    msg += " to disk or\n click Remove to remove permanently. ";
 
 	    if ( uiMSG().askGoOn(msg, "Save", "Remove") )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );

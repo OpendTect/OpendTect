@@ -12,22 +12,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uiaxishandler.h"
 #include "statruncalc.h"
 
 class DataClipper;
 class uiGraphicsScene;
 
-/*!
-\brief Convenient base class to carry axis data:
-  1) the AxisHandler which handles the behaviour and positioning of an axis
-     in a 2D plot
-  2) axis scaling parameters
-  3) axis ranges
-*/
+/*!\brief convenient base class to carry axis data:
+  	# the AxisHandler which handles the behaviour and positioning of
+	  an axis in a 2D plot;
+	# axis scaling parameters
+	# axis ranges
+ */
 
-mExpClass(uiTools) uiAxisData
+mClass uiAxisData
 {
 public:
 
@@ -66,4 +64,3 @@ public:
 };
 
 #endif
-

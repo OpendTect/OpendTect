@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uigraphicscoltab.h"
@@ -88,12 +88,12 @@ void uiColTabItem::setPixmapPos()
 	{
 	    mSetAl( minvalitm_, Alignment::Left,
 		    Alignment::opposite(setup_.startal_.vPos()) );
-	    minvalitm_->setPos( (float) rect.left(), (float) starty );
+	    minvalitm_->setPos( rect.left(), starty );
 	}
 	else
 	{
 	    mSetAl( minvalitm_, Alignment::Right, setup_.startal_.vPos() );
-	    minvalitm_->setPos( (float) drect.left(), (float) starty );
+	    minvalitm_->setPos( drect.left(), starty );
 	}
 	const int stopy =
 	    setup_.stopal_.vPos() == Alignment::VCenter ? center.y
@@ -103,12 +103,12 @@ void uiColTabItem::setPixmapPos()
 	{
 	    mSetAl( maxvalitm_, Alignment::Right,
 		    Alignment::opposite(setup_.stopal_.vPos()) );
-	    maxvalitm_->setPos( (float) rect.right(), (float) stopy );
+	    maxvalitm_->setPos( rect.right(), stopy );
 	}
 	else
 	{
 	    mSetAl( maxvalitm_, Alignment::Left, setup_.stopal_.vPos() );
-	    maxvalitm_->setPos( (float) drect.right(), (float) stopy );
+	    maxvalitm_->setPos( drect.right(), stopy );
 	}
     }
     else
@@ -123,23 +123,26 @@ void uiColTabItem::setPixmapPos()
 	if ( setup_.startalong_ )
 	{
 	    mSetAl( minvalitm_, oppal, Alignment::Bottom );
-	    minvalitm_->setPos( (float) startx, (float) rect.bottom() );
+	    minvalitm_->setPos( startx, rect.bottom() );
 	}
 	else
 	{
 	    mSetAl( minvalitm_, oppal, Alignment::Top );
-	    minvalitm_->setPos( (float) startx, (float) drect.bottom() );
+	    minvalitm_->setPos( startx, drect.bottom() );
 	}
-
+	const int stopx =
+	    setup_.stopal_.hPos() == Alignment::HCenter ? center.x
+	 : (setup_.stopal_.hPos() == Alignment::Left ?    drect.left()
+						     :    drect.right());
 	if ( setup_.stopalong_ )
 	{
 	    mSetAl( maxvalitm_, oppal, Alignment::Top );
-	    minvalitm_->setPos( (float) startx, (float) rect.bottom() );
+	    minvalitm_->setPos( startx, rect.bottom() );
 	}
 	else
 	{
 	    mSetAl( maxvalitm_, oppal, Alignment::Bottom );
-	    minvalitm_->setPos( (float) startx, (float) drect.bottom() );
+	    minvalitm_->setPos( startx, drect.bottom() );
 	}
     }
 }
@@ -152,9 +155,9 @@ void uiColTabItem::setupChanged()
 }
 
 
-void uiColTabItem::stPos( float x, float y )
+void uiColTabItem::stPos( int x, int y )
 {
-    setPixmapPos( uiPoint(mNINT32(x),mNINT32(y)) );
+    setPixmapPos( uiPoint(x,y) );
     curpos_ += curpos_;
     curpos_ -= boundingRect().topLeft();
     setPixmapPos();

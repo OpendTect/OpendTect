@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoSeparator;
@@ -24,14 +23,13 @@ namespace visBase
 
 /*!SoSeparator and SoSwitch from Coin. */
 
-mExpClass(visBase) Switch : public DataObject
+mClass Switch : public DataObject
 {
 public:
 
     static Switch*		create() mCreateDataObj(Switch);
 
     void			turnOn(bool yn);
-    bool			isOn() const;
     void			addChild(SoNode*);
     void			removeChild(SoNode*);
 
@@ -40,9 +38,11 @@ protected:
     SoSwitch*			switch_;
     virtual SoNode*		gtInvntrNode();
 
+public:
+    bool			isOn() const;
 };
 
-mExpClass(visBase) Separator : public DataObject
+mClass Separator : public DataObject
 {
 public:
 

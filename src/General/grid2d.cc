@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "grid2d.h"
 
@@ -91,14 +91,16 @@ void Grid2D::set( const TypeSet<int>& inls, const TypeSet<int>& crls,
     {
 	const BinID start( inls[idx], hs.start.crl );
 	const BinID stop( inls[idx], hs.stop.crl );
-	dim0lines_ += new Grid2D::Line( start, stop );
+	if ( start != stop )
+	    dim0lines_ += new Grid2D::Line( start, stop );
     }
 
     for ( int idx=0; idx<crls.size(); idx++ )
     {
 	const BinID start( hs.start.inl, crls[idx] );
 	const BinID stop( hs.stop.inl, crls[idx] );
-	dim1lines_ += new Grid2D::Line( start, stop );
+	if ( start != stop )
+	    dim1lines_ += new Grid2D::Line( start, stop );
     }
 }
 
@@ -227,7 +229,7 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
     { \
 	dimstr##lines_[idx]->limitTo( cs ); \
 	if ( !dimstr##lines_[idx]->isReasonable() ) \
-	    delete dimstr##lines_.removeSingle( idx-- ); \
+	    delete dimstr##lines_.remove( idx-- ); \
     }
 
 void Grid2D::limitTo( const HorSampling& cs )

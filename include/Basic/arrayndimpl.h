@@ -34,12 +34,7 @@ ________________________________________________________________________
     inline bool			setStorageNoResize(ValueSeries<T>*);
 
 
-/*!
-\brief Implementation of Array1D.
-*/
-
-template <class T>
-mClass(Basic) Array1DImpl : public Array1D<T>
+template <class T> class Array1DImpl : public Array1D<T>
 {
 public:
 
@@ -79,12 +74,7 @@ protected:
 };
 
 
-/*!
-\brief Implementation of Array2D.
-*/
-
-template <class T>
-mClass(Basic) Array2DImpl : public Array2D<T>
+template <class T> class Array2DImpl : public Array2D<T>
 {
 public:
 			Array2DImpl(int sz0,int sz1);
@@ -117,12 +107,7 @@ protected:
 };
 
 
-/*!
-\brief Implementation of Array3D.
-*/
-
-template <class T>
-mClass(Basic) Array3DImpl : public Array3D<T>
+template <class T> class Array3DImpl : public Array3D<T>
 {
 public:
     inline		Array3DImpl(int sz0,int sz1,int sz2);
@@ -152,12 +137,7 @@ protected:
 };
 
 
-/*!
-\brief Implementation of ArrayND.
-*/
-
-template <class T>
-mClass(Basic) ArrayNDImpl : public ArrayND<T>
+template <class T> class ArrayNDImpl : public ArrayND<T>
 {
 public:
 
@@ -193,26 +173,12 @@ protected:
 }; 
 
 
-#define mArrNDImplCreateStor \
-    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
-					info().getTotalSz()))
-#define mArrayNDImplSetSize(s) \
-    if ( !stor_ ) \
-	mArrNDImplCreateStor; \
-    if ( !stor_ || !stor_->setSize(s) ) \
-	{ ptr_ = 0; delete stor_; stor_ = 0; return false; } \
-    ptr_ = stor_->arr()
-
 #define mArrNDImplConstructor \
     , stor_(0) \
     , ptr_(0) \
 { \
-    if ( !info().isOK() ) \
-    { \
-	pErrMsg( "Invalid size" ); \
-	return; \
-    } \
-    mArrNDImplCreateStor; \
+    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
+				info().isOK() ? info().getTotalSz() : 0 )); \
 }
 
 #define mArrNDImplCopyConstructor(clss,from) \
@@ -228,13 +194,8 @@ clss<T>::clss( const from<T>& templ ) \
 	: 0; \
     if ( !newstor || !setStorageNoResize( newstor ) )  \
     { \
-	if ( !info().isOK() ) \
-	{ \
-	    pErrMsg( "Invalid size" ); \
-	    return; \
-	} \
 	setStorageNoResize( \
-		new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
+		new MultiArrayValueSeries<T,T>(info().isOK() ? info().getTotalSz() : 0 ) ); \
 	copyFrom( templ ); \
     } \
 }
@@ -281,6 +242,7 @@ bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
     if ( inf != templ.info() ) \
 	setInfo( templ.info() ); \
     mArrNDImplDoNormalCopy; \
+    const int totsz = (inf).getTotalSz();
 
 
 template <class T> inline
@@ -320,8 +282,6 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 {
     mArrNDImplHandleNormalCopy(in_)
 
-    const int totsz = (int) in_.getTotalSz();
-
     for ( int idx=0; idx<totsz; idx++ )
 	set( idx, templ.get(idx) );
 }
@@ -339,7 +299,9 @@ template <class T> inline
 bool Array1DImpl<T>::setSize( int s )
 {
     in_.setSize( 0, s );
-    mArrayNDImplSetSize( s );
+    if ( !stor_->setSize(s) )
+	{ ptr_ = 0; return false; }
+    ptr_ = stor_->arr();
     return true;
 }
 
@@ -416,7 +378,9 @@ template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 );
-    mArrayNDImplSetSize( in_.getTotalSz() );
+    if ( !stor_->setSize( in_.getTotalSz() ) )
+	{ ptr_ = 0; return false; }
+    ptr_ = stor_->arr();
     return true;
 }
 
@@ -486,7 +450,9 @@ template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 ); in_.setSize( 2, d2 );
-    mArrayNDImplSetSize( in_.getTotalSz() );
+    if ( !stor_->setSize( in_.getTotalSz() ) )
+	{ ptr_ = 0; return false; }
+    ptr_ = stor_->arr();
     return true;
 }
 
@@ -499,12 +465,8 @@ clss<T>::clss( const from<T>& templ ) \
     , stor_(0) \
     , ptr_(0) \
 { \
-    if ( !info().isOK() ) \
-    { \
-	pErrMsg( "Invalid size" ); \
-	return; \
-    } \
-    setStorage( new MultiArrayValueSeries<T,T>(in_->getTotalSz()) ); \
+    setStorage( \
+	new MultiArrayValueSeries<T,T>(in_->isOK() ? in_->getTotalSz() : 0 ) ); \
     copyFrom( templ ); \
 }
 
@@ -589,7 +551,10 @@ bool ArrayNDImpl<T>::setSize( const int* d )
     for ( int idx=0; idx<ndim; idx++ )
 	in_->setSize( idx, d[idx] );
 
-    mArrayNDImplSetSize( in_->getTotalSz() );
+    if ( !stor_->setSize(in_->getTotalSz()) )
+	{ ptr_ = 0; return false; }
+
+    ptr_ = stor_->arr();
     return true;
 }
 

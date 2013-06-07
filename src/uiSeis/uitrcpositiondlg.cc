@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitrcpositiondlg.h"
 
@@ -65,7 +65,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
     }
 
-    getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
+    getposbut_ = new uiToolButton( this, "pick.png", "Point in 3D scene",
 				   mCB(this,uiTrcPositionDlg,getPosCB) );
     if ( trcnrfld_ )
 	getposbut_->attach( rightOf, trcnrfld_ );
@@ -120,7 +120,8 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	    return;
 
 	PosInfo::Line2DPos l2dpos;
-	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
+	const float dist = SI().crlDistance();
+	if ( !line2d.getPos( crd,  l2dpos, dist*dist ) )
 	{
 	    BufferString msg( "Please pick trace on line:",
 		    	      linesfld_->box()->text() );

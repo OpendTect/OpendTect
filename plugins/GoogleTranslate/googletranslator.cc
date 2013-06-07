@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: googletranslator.cc,v 1.11 2012/01/24 21:25:50 cvsnanne Exp $";
 
 #include "googletranslator.h"
 #include "odhttp.h"
@@ -46,7 +46,7 @@ GoogleTranslator::~GoogleTranslator()
 
 
 const char* GoogleTranslator::getIcon() const
-{ return "googletranslate"; }
+{ return "googletranslate.png"; }
 
 
 void GoogleTranslator::enable()

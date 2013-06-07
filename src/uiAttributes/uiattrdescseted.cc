@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiattrdescseted.h"
 
@@ -44,7 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
 #include "uiautoattrdescset.h"
-#include "uievaluatedlg.h"
 #include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
@@ -66,9 +65,9 @@ const char* uiAttribDescSetEd::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
 const char* uiAttribDescSetEd::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";
 
 BufferString uiAttribDescSetEd::nmprefgrp_( "" );
-static const char* sKeyNotSaved = "<not saved>";
 
 static bool prevsavestate = true;
+static bool evaldlgpoppedup = false;
 
 using namespace Attrib;
 
@@ -86,13 +85,12 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , attrset_(0)
     , dirshowcb(this)
     , evalattrcb(this)
-    , crossevalattrcb(this)
     , xplotcb(this)
     , adsman_(0)
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
-    setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
+    setctio_.ctxt.toselect.dontallow_.set( sKey::Type,
 	    				   adsm->is2D() ? "3D" : "2D" );
 
     createMenuBar();
@@ -122,17 +120,16 @@ void uiAttribDescSetEd::createMenuBar()
     if( !menu )		{ pErrMsg("huh?"); return; }
 
     uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
-    mInsertItem( "&New set ...", newSet, "newset" );
-    mInsertItem( "&Open set ...", openSet, "openset" );
-    mInsertItem( "&Save set ...", savePush, "save" );
-    mInsertItem( "&Save set as ...", saveAsPush, "saveas" );
+    mInsertItem( "&New set ...", newSet, "newset.png" );
+    mInsertItem( "&Open set ...", openSet, "openset.png" );
+    mInsertItem( "&Save set ...", savePush, "saveset.png" );
     mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
     mInsertItemNoIcon( "&Change input ...", changeInput );
     filemnu->insertSeparator();
-    mInsertItem( "Open &Default set ...", defaultSet, "defset" );
-    mInsertItem( "&Import set ...", importSet, "impset" );
+    mInsertItem( "Open &Default set ...", defaultSet, "defset.png" );
+    mInsertItem( "&Import set ...", importSet, "impset.png" );
     mInsertItemNoIcon( "Import set from &file ...", importFile );
-    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set" );
+    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set.png" );
 
     menu->insertItem( filemnu );
 }
@@ -144,20 +141,18 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, "AttributeSet tools" );
-    mAddButton( "newset", newSet, "New attribute set" );
-    mAddButton( "openset", openSet, "Open attribute set" );
-    mAddButton( "defset", defaultSet, "Open default attribute set" );
-    mAddButton( "impset", importSet, 
+    mAddButton( "newset.png", newSet, "New attribute set" );
+    mAddButton( "openset.png", openSet, "Open attribute set" );
+    mAddButton( "defset.png", defaultSet, "Open default attribute set" );
+    mAddButton( "impset.png", importSet, 
 	    	"Import attribute set from other survey" );
-    mAddButton( "job2set", job2Set, "Reconstruct set from job file" );
-    mAddButton( "save", savePush, "Save attribute set" );
-    mAddButton( "saveas", saveAsPush, "Save attribute set as" );
+    mAddButton( "job2set.png", job2Set, "Reconstruct set from job file" );
+    mAddButton( "saveset.png", savePush, "Save attribute set" );
     toolbar_->addSeparator();
-    mAddButton( "showattrnow", directShow, 
+    mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
-    mAddButton( "evalattr", evalAttribute, "Evaluate attribute" );
-    mAddButton( "evalcrossattr",crossEvalAttrs,"Cross attributes evaluate");
-    mAddButton( "xplot", crossPlot, "Cross-Plot attributes" );
+    mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
+    mAddButton( "xplot.png", crossPlot, "Cross-Plot attributes" );
 }
 
 
@@ -173,18 +168,21 @@ void uiAttribDescSetEd::createGroups()
     attrlistfld_->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
     attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
+    rmbut_ = new uiPushButton( leftgrp, "Remove selected", true );
+    rmbut_->attach( leftAlignedBelow, attrlistfld_ );
+    rmbut_->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
+
+    sortbut_ = new uiToolButton( leftgrp, "sort.png", "Sort attributes",
+	    			 mCB(this,uiAttribDescSetEd,sortPush) );
+    sortbut_->attach( rightOf, rmbut_ );
+    sortbut_->setPrefWidth( 30 );
+
     moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow, "Up",
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
     movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, "Down",
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
-    sortbut_ = new uiToolButton( leftgrp, "sort", "Sort attributes",
-	    			 mCB(this,uiAttribDescSetEd,sortPush) );
-    sortbut_->attach( alignedBelow, movedownbut_ );
-    rmbut_ = new uiToolButton( leftgrp, "trashcan", "Remove selected",
-				mCB(this,uiAttribDescSetEd,rmPush) );
-    rmbut_->attach( alignedBelow, sortbut_ );
 
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
@@ -220,7 +218,7 @@ void uiAttribDescSetEd::createGroups()
     attrtypefld_->update();
     degrp->setHAlignObj( attrtypefld_ );
 
-    helpbut_ = new uiToolButton( degrp, "contexthelp", "Help",
+    helpbut_ = new uiToolButton( degrp, "contexthelp.png", "Help",
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
@@ -312,11 +310,7 @@ void uiAttribDescSetEd::init()
 	}
     }
     else
-    {
-	const BufferString txt = setctio_.ioobj ? setctio_.ioobj->name().buf()
-						: sKeyNotSaved;
-    	attrsetfld_->setText( txt );
-    }
+    	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : "" );
 
     cancelsetid_ = setid_;
     newList(0);
@@ -368,13 +362,6 @@ void uiAttribDescSetEd::selChg( CallBacker* )
 
 
 void uiAttribDescSetEd::savePush( CallBacker* )
-{
-    removeNotUsedAttr();
-    doSave( true );
-}
-
-
-void uiAttribDescSetEd::saveAsPush( CallBacker* )
 {
     removeNotUsedAttr();
     doSave( false );
@@ -463,8 +450,8 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
     removeTrailingBlanks( newnm );
     if ( checkuref && !validName(newnm) ) return 0;
 
-    uiAttrDescEd* curde = curDescEd();
-    if ( !curde )
+    uiAttrDescEd* curde = 0;
+    if ( !(curde = curDescEd()) )
 	mErrRetNull( "Cannot add without a valid attribute type" )
 
     BufferString attribname = curde->attribName();
@@ -628,6 +615,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     
     dummydesc->ref();
     dummydesc->setDescSet( attrset_ );
+    const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds_[idx];
@@ -730,6 +718,9 @@ void uiAttribDescSetEd::updateUserRefs()
 	attrdescs_ += desc;
 	userattrnames_.add( desc->userRef() );
     }
+
+    int newselidx = userattrnames_.indexOf( selnm );
+    if ( newselidx < 0 ) newselidx = 0;
 }
 
 
@@ -874,7 +865,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
     setid_ = -1;
     updateUserRefs();
     newList( -1 );
-    attrsetfld_->setText( sKeyNotSaved );
+    attrsetfld_->setText( "" );
     adsman_->setSaved( true );
 }
 
@@ -946,7 +937,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
-    attrsetfld_->setText( sKeyNotSaved );
+    attrsetfld_->setText( attribnames[selitm]->buf() );
 }
 
 
@@ -962,7 +953,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     {
 	FilePath fp( dirnm, attrdl.get(idx), "index" );
 	IOPar iopar("AttributeSet Table");
-	iopar.read( fp.fullPath(), sKey::Pars(), false );
+	iopar.read( fp.fullPath(), sKey::Pars, false );
 	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
 	if ( !subpar ) continue;
 
@@ -1002,7 +993,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     replaceStoredAttr( iopar );
     attrset_->usePar( iopar, toFloat(ascstrm.version()) );
     newList( -1 );
-    attrsetfld_->setText( sKeyNotSaved );
+    attrsetfld_->setText( "" );
     setctio_.ioobj = 0;
 }
 
@@ -1024,7 +1015,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 	    setid_ = setctio_.ioobj->key();
 	    replaceStoredAttr();
 	    newList( -1 );
-	    attrsetfld_->setText( sKeyNotSaved );
+	    attrsetfld_->setText( "" );
 	    setctio_.ioobj = 0;
 	}
     }
@@ -1054,7 +1045,7 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 	adsman_->setSaved( false );
 
 	setctio_.setObj( 0 );
-	newList( -1 ); attrsetfld_->setText( sKeyNotSaved );
+	newList( -1 ); attrsetfld_->setText( "" );
     }
 }
 
@@ -1081,13 +1072,6 @@ void uiAttribDescSetEd::evalAttribute( CallBacker* )
 {
     if ( !doCommit() ) return;
     evalattrcb.trigger();
-}
-
-
-void uiAttribDescSetEd::crossEvalAttrs( CallBacker* )
-{
-    if ( !doCommit() ) return;
-    crossevalattrcb.trigger();
 }
 
 
@@ -1150,57 +1134,4 @@ bool uiAttribDescSetEd::is2D() const
 void uiAttribDescSetEd::updtAllEntries()
 {
     PF().updateAllDescsDefaults();
-}
-
-
-bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip, 
-	ObjectSet<AttribParamGroup>& res, BufferStringSet& paramnms, 
-	TypeSet<BufferStringSet>& usernms )
-{
-    if ( !curDesc() )
-	return false;
-
-    TypeSet<Attrib::DescID> adids;
-    curDesc()->getDependencies( adids );
-    adids.insert( 0, curDesc()->id() );
-
-    TypeSet<int> ids;
-    TypeSet<EvalParam> eps;
-
-    for ( int idx=0; idx<adids.size(); idx++ )
-    {
-	const Attrib::Desc* ad = attrset_->getDesc( adids[idx] );
-	const char* attrnm = ad->attribName();
-	const char* usernm = ad->userRef();
-	for ( int idy=0; idy<desceds_.size(); idy++ )
-    	{
-    	    if ( !desceds_[idy] || strcmp(attrnm,desceds_[idy]->attribName()) )
-	    continue;
-    
-	    TypeSet<EvalParam> tmp;
-    	    desceds_[idy]->getEvalParams( tmp );
-	    for ( int idz=0; idz<tmp.size(); idz++ )
-    	    {
-    		const int pidx = eps.indexOf(tmp[idz]);
-    		if ( pidx>=0 )
-    		    usernms[pidx].add( usernm );
-    		else
-    		{
-    		    eps += tmp[idz];
-    		    paramnms.add( tmp[idz].label_ );
-
-    		    BufferStringSet unms;
-    		    unms.add( usernm );
-    		    usernms += unms;
-    		    ids += idy;
-    		}
-    	    }
-	    break;
-    	}
-    }
-    
-    for ( int idx=0; idx<eps.size(); idx++ )
-    	res += new AttribParamGroup( uip, *desceds_[ids[idx]], eps[idx] );
-    
-    return eps.size();
 }

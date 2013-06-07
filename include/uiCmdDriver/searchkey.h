@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "bufstringset.h"
 
 class uiMainWin;
@@ -27,7 +26,7 @@ namespace CmdDrive {
 
 class WildcardManager;
 
-mExpClass(uiCmdDriver) SearchKey
+mClass SearchKey
 {
 public:
     			SearchKey(const char* expr,bool casesensitive=true);
@@ -54,7 +53,7 @@ protected:
 };
 
 
-mExpClass(uiCmdDriver) WildcardManager
+mClass WildcardManager
 {
 public:
     			WildcardManager();

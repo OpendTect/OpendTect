@@ -1,3 +1,4 @@
 #!/bin/csh -f
+# SVN: $Id$
 
 dvs revert $*

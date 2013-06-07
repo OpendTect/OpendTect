@@ -12,11 +12,11 @@ ________________________________________________________________________
 #include "uiodvw2dfaulttreeitem.h"
 
 #include "uiempartserv.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uitreeview.h"
 
 #include "emfault3d.h"
 #include "emmanager.h"
@@ -158,8 +158,8 @@ bool uiODVw2DFaultTreeItem::init()
     displayMiniCtab();
 
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uitreeviewitem_->setCheckable(true);
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setCheckable(true);
+    uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
 
     faultview_->draw();
@@ -184,7 +184,7 @@ void uiODVw2DFaultTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -212,7 +212,7 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DFaultTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( faultview_ );

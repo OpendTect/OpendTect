@@ -5,9 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Network )
+SET(OD_MODULE_DEPS General )
 SET(OD_MODULE_SOURCES
     odusgadm.cc odusgclient.cc odusginfo.cc odusgserver.cc )
-SET(OD_MODULE_BATCHPROGS od_usage_monitor.cc )
+SET(OD_MODULE_BATCHPROGS od_usage_monitor )
 OD_INIT_MODULE()
 

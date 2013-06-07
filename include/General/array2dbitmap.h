@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "ranges.h"
 #include "arraynd.h"
 #include "dataclipper.h"
@@ -21,11 +19,10 @@ ________________________________________________________________________
 typedef Array2D<char>	A2DBitMap;
 #define A2DBitMapImpl	Array2DImpl<char>
 
-/*!
-\brief Array2D Bitmap generation parameters.
-*/
 
-mStruct(General) A2DBitMapGenPars
+/*! \brief Array2D Bitmap generation parameters */
+
+mStruct A2DBitMapGenPars
 {
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
@@ -45,16 +42,14 @@ mStruct(General) A2DBitMapGenPars
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
-    static char cNoFill();	//!< -127, = background/transparent
+    static const char cNoFill();	//!< -127, = background/transparent
 
 };
 
 
-/*!
-\brief Array2D<float>& + statistics.
-*/
+/*! \brief Array2D<float>& + statistics */
 
-mExpClass(General) A2DBitMapInpData
+mClass A2DBitMapInpData
 {
 public:
 
@@ -75,41 +70,42 @@ protected:
 };
 
 
-/*!
-\brief Array2D Bitmap generation setup.
+/*! \brief Array2D Bitmap generation setup
 
-  This class allows 'zooming' into the data, and an irregularly positioned first
-  dimension.
-  
-  If this class wouldn't exist, both dimensions of the Array2D have to have
-  100% regular positioning. But if for example the data contains samples
-  of a 2-D seismic line with gaps, this is not the case. That is why you can add
-  positioning in one dimension. The second dimension is assumed to be regular,
-  step 1, starting at 0.
-  
-  Thus, the first dimension may be irregularly sampled. For the first dimension,
-  you can set up the axis by providing the positions in a float array. If you
-  don't provide that array, one will be generated, the postions are assumed to
-  be: 0 1 2 ..., which is the same as for the second dimension (which can never
-  be irregular, but it can be different from 0 - N-1).
-  
-  Then, you can zoom in by setting the different ranges. The default ranges will
-  be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
-  sides as border.
-  
-  The positions in dim 0 *must* be sorted, *ascending*. Only the distances may
-  vary. The average distance between the positions is used to calculate the
-  default border.
-  
-  Dim 0 <-> X ...  left-to-right
-  Dim 1 <-> Y ...  Top to bottom
-  
-  This class is _not_ intended to support direct world coordinates and that
-  kind of things. It just enables most simple bitmap generations. You may still
-  need a (usually linear) transformation in both directions for display.
+This class allows 'zooming' into the data, and an irregularly positioned
+first dimension.
+
+If this class wouldn't exist, both dimensions of the Array2D have to have
+100% regular positioning. But if for example the data contains samples
+of a 2-D seismic line with gaps, this is not the case. That is why you can add
+positioning in one dimension. The second dimension is assumed to be regular,
+step 1, starting at 0.
+
+Thus, the first dimension may be irregularly sampled. For the first dimension,
+you can set up the axis by providing the positions in a float array. If you
+don't provide that array, one will be generated, the postions are assumed to
+be: 0 1 2 ..., which is the same as for the second dimension (which can never
+be irregular, but it can be different from 0 - N-1).
+
+Then, you can zoom in by setting the different ranges. The default ranges will
+be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
+sides as border.
+
+The positions in dim 0 *must* be sorted, *ascending*. Only the distances may
+vary. The average distance between the positions is used to calculate the
+default border.
+
+Dim 0 <-> X ...  left-to-right
+Dim 1 <-> Y ...  Top to bottom
+
+This classs is _not_ intended to support direct world coordinates and that
+kind of things. It just enables most simple bitmap generations. You may still
+need a (usually linear) transformation in both directions for display.
+
 */
 
-mExpClass(General) A2DBitMapPosSetup
+
+mClass A2DBitMapPosSetup
 {
 public:
 
@@ -135,7 +131,7 @@ public:
     inline float	avgDist( int dim ) const
     			{ return dim ? dim1avgdist_ : dim0avgdist_; }
     inline float	dimEps( int dim ) const
-			{ return 1e-6f * avgDist(dim); }
+			{ return 1e-6 * avgDist(dim); }
 
     void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }
@@ -160,6 +156,7 @@ public:
 
 protected:
 
+
     float*		dim0pos_;
     Interval<float>	dim1pos_;
     int			szdim0_;
@@ -181,11 +178,9 @@ protected:
 };
 
 
-/*!
-\brief Generates Array2D bitmap from Array2D<float>.
-*/
+/*!\brief Generates Array2D bitmap from Array2D<float> */
 
-mExpClass(General) A2DBitMapGenerator
+mClass A2DBitMapGenerator
 {
 public:
 
@@ -243,4 +238,3 @@ protected:
 
 
 #endif
-

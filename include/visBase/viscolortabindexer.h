@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "task.h"
 
 namespace Threads { class Mutex; }
@@ -33,7 +32,7 @@ assigned nrStep() as index, and are not present in the histogram.
 */
 
 
-mExpClass(visBase) ColorTabIndexer : public ParallelTask
+mClass ColorTabIndexer : public ParallelTask
 {
 public:
 			ColorTabIndexer( const ValueSeries<float>& inp,
@@ -68,4 +67,3 @@ protected:
 
 
 #endif
-

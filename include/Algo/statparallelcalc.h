@@ -12,25 +12,24 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "math2.h"
 #include "task.h"
 #include "statruncalc.h"
 
+/*!\brief Stats computation running in parallel. 
+
+The difference with the running values (Stats::RunCalc) is that you have to 
+pass the entire data array prior to the execution. 
+
+It also works with optional weights.
+-!*/
+
+
 namespace Stats
 {
 
-/*!
-\brief Stats computation running in parallel. 
-  
-  The difference with the running values (Stats::RunCalc) is that you have to 
-  pass the entire data array prior to the execution. 
-  
-  It also works with optional weights.
-*/
-
 template <class T>
-mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
+mClass ParallelCalc : public ParallelTask, public BaseCalc<T>
 {
 public:
 				ParallelCalc(const CalcSetup& s,const T* data, 
@@ -129,7 +128,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
     for ( ; start<=stop && mIsUdf(data_[start] ); start++ )
 	/* just skip undefs at start */;
 
-    int idx = mCast( int, start );
+    int idx = start;
     const T* dataptr = data_ + start;
     const T* stopptr = dataptr + (stop-start+1);
 
@@ -144,7 +143,7 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	idx ++;
 
 	if ( mIsUdf( val ) )
-	    continue; 
+	    continue;
 
 	sum_x += val;
 	sum_xx += val*val;
@@ -313,4 +312,3 @@ inline double ParallelCalc<T>::variance() const
 
 }
 #endif
-

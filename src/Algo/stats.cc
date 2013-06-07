@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -32,22 +32,10 @@ DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 };
 
 
+int Stats::RandGen::seed_ = 0;
+
 #include <math.h>
 #include <stdlib.h>
-
-
-Stats::RandGen::RandGen()
-    :seed_(0)		{}
-
-
-Stats::RandGen Stats::randGen()
-{
-    static Stats::RandGen* rgptr = 0;
-    if ( !rgptr )
-	rgptr = new Stats::RandGen();
-
-    return *rgptr;
-}
 
 
 Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
@@ -116,17 +104,14 @@ int Stats::RandGen::getInt()
 }
 
 
-
 void Stats::RandGen::init( int seed )
 {
     if ( seed == 0 )
     {
 	if ( seed_ != 0 )
 	    return;
-
 	seed = (int)Time::getMilliSeconds();
     }
-
     seed_ = seed;
 
 #ifdef __win__
@@ -203,8 +188,8 @@ od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed )
 {
     if ( sz < 2 ) return 0;
 
-    const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
-    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u); 
+    const int randidx1 = 1664525u * seed + 1013904223u;
+    const int randidx2 = 1664525u * (seed+0x12341234) + 1013904223u;
     od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
     if ( randidx < 0 ) randidx = -randidx;
     return randidx % sz;

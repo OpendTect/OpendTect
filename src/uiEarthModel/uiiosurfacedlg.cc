@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
-#include "emfaultauxdata.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
@@ -29,11 +28,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rangeposprovider.h"
 #include "survinfo.h"
 
-#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
 #include "uitaskrunner.h"
 #include "uipossubsel.h"
 
@@ -161,71 +158,6 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 }
 
 
-uiStoreFaultData::uiStoreFaultData( uiParent* p, const EM::Fault3D& surf )
-    : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
-				 mTODOHelpID))
-    , surface_(surf)
-{
-    attrnmfld_ = new uiGenInput( this, "Surface data" );
-    if ( surface_.auxdata.auxDataList().size() )
-    	attrnmfld_->setText( surface_.auxdata.auxDataList().get(0) );
-
-    selbut_ = new uiPushButton( this, "Select", false );
-    selbut_->attach( rightTo, attrnmfld_ );
-    selbut_->activated.notify( mCB(this,uiStoreFaultData,selButPushedCB) );
-}
-
-
-uiStoreFaultData::~uiStoreFaultData()
-{}
-
-void uiStoreFaultData::selButPushedCB( CallBacker* )
-{
-    const BufferStringSet& nmlist = surface_.auxdata.auxDataList();
-    uiGetObjectName dlg( this, uiGetObjectName::Setup(0,nmlist) );
-    if ( dlg.go() )
-	attrnmfld_->setText( dlg.text() );
-}
-
-
-const char* uiStoreFaultData::surfaceDataName() const
-{ return attrnmfld_->text(); }
-
-
-int uiStoreFaultData::surfaceDataIdx() const
-{
-    BufferString attrnm = attrnmfld_->text();
-    return surface_.auxdata.dataIndex( attrnm.buf() );
-}
-
-
-Executor* uiStoreFaultData::dataSaver()
-{ return surface_.auxdata.dataSaver( surfaceDataIdx(), dooverwrite_ ); }
-
-
-bool uiStoreFaultData::acceptOK( CallBacker* )
-{
-    dooverwrite_ = false;
-    BufferString attrnm = attrnmfld_->text();
-    const int sdidx = surface_.auxdata.dataIndex(attrnm.buf());
-    if ( sdidx>=0 )
-    {
-	BufferString msg( "This surface already has an attribute called:\n" );
-	msg += attrnm; msg += "\nDo you wish to overwrite this data?";
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-	dooverwrite_ = true;
-    }
-
-    if ( dooverwrite_ )
-	surface_.auxdata.setDataName( sdidx, attrnm );
-    else
-       surface_.auxdata.addData( attrnm );	
-
-    return true;
-}
-
-
 #define mGet( ioobj, hor2d, hor3d, emfss, flt3d ) \
     !strcmp(ioobj.group(),EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
     (!strcmp(ioobj.group(),EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
@@ -313,7 +245,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     if ( !loader ) mErrRet("Cannot read surface")
 
     uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, *loader ) ) return false;
+    if ( !tr.execute(*loader) ) return false;
 
     uiPosSubSel* pss = inpfld->getPosSubSel();
     Pos::Filter* pf = pss ? pss->curProvider() : 0;
@@ -336,7 +268,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 
-    if ( !TaskRunner::execute( &tr, *saver ) ) return false;
+    if ( !tr.execute(*saver) ) return false;
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);

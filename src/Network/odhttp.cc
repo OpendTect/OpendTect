@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "odhttp.h"
 #include "qhttpconn.h"
@@ -109,56 +109,6 @@ int _post( const char* path, const IOPar& postvars, BufferString& errmsg )
 }
 
 
-int _postFileAndData( const char* path, const char* filename, 
-		      const IOPar& postvars )
-{
-    QUrl qurl( path );
-    QString boundary = "---------------------------193971182219750";
- 
-    QByteArray data(QString("--" + boundary + "\r\n").toAscii());
-    data += "Content-Disposition: form-data; name=\"dumpfile\";"; 
-    data += "filename=\"crash.dmp\"\r\n";
-    data += "Content-Type: application/octet-stream\r\n\r\n";
- 
-    QFile file( filename );
-    if (!file.open(QIODevice::ReadOnly))
-    return 0;
- 
-    data += file.readAll();
-    data += "\r\n";
-
-    QString postarr;
-    for ( int idx=0; idx<postvars.size(); idx++ )
-    {
-	BufferString varstr = postvars.getKey( idx );
-	varstr.add( "=" ).add( postvars.getValue( idx ) );
-	if ( idx!=postvars.size()-1 )
-	    varstr.add( "&" );
-			      
-	postarr.append( varstr );
-    }
-
-    data += QString("--" + boundary + "\r\n").toAscii();
-    data += "Content-Disposition: form-data; name=\"report\"\r\n\r\n";
-    data += postarr; 
-    data += "\r\n";
-    data += QString("--" + boundary + "--\r\n").toAscii();
- 
-    QHttpRequestHeader header( sKeyPost() , qurl.toEncoded() );
-    header.setValue( sKeyHost(), host_.buf() );
-    header.setValue( sKeyContentType(), 
-		     "multipart/form-data; boundary=" + boundary );
-    header.setValue( sKeyContentLength(), QString::number(data.length()) );
-
-    const int id = request( header, data );
-    file.close();
-    
-    requestids_ += id;
-    startEventLoop();
-    return id;
-}
-
-
 void handleFinishedRequest( int reqid )
 {
     const int reqidx = requestids_.indexOf( reqid );
@@ -167,8 +117,8 @@ void handleFinishedRequest( int reqid )
 	QFile* qfile = qfiles_[reqidx];
 	if ( qfile )
 	    qfile->close();
-	delete qfiles_.removeSingle( reqidx );
-	requestids_.removeSingle( reqidx );
+	delete qfiles_.remove( reqidx );
+	requestids_.remove( reqidx );
     }
 
     stopEventLoop();
@@ -182,19 +132,10 @@ protected:
     TypeSet<int>	requestids_;
     ObjectSet<QFile>	qfiles_;
     BufferString	host_;
-    
-    static const char*	sKeyPost();
-    static const char*	sKeyHost();
-    static const char*	sKeyContentType();
-    static const char*	sKeyContentLength();
 };
 
-const char* MyHttp::sKeyPost()		{ return "POST"; }
-const char* MyHttp::sKeyHost()		{ return "Host"; }
-const char* MyHttp::sKeyContentType()   { return "Content-Type"; }
-const char* MyHttp::sKeyContentLength() { return "Content-Length"; }
 
-// ODHttp
+
 const char* ODHttp::sKeyUseProxy()	{ return "Use Proxy"; }
 const char* ODHttp::sKeyUseAuthentication() { return "Use Authentication"; }
 const char* ODHttp::sKeyProxyHost()	{ return "Http Proxy Host"; }
@@ -315,17 +256,6 @@ int ODHttp::post( const char* path, const IOPar&postvars )
 }
 
 
-int ODHttp::postFile( const char* path, const char* filename, 
-		      const IOPar& postvars )
-{
-    int res = qhttp_->_postFileAndData( path, filename, postvars );
-    if ( res==-1 )
-	error_ = true;
-    
-    return res;
-}
-
-
 void ODHttp::forceAbort()
 {
     forcedabort_ = true;
@@ -379,9 +309,3 @@ void ODHttp::reqFinishedCB( CallBacker* )
 {
     qhttp_->handleFinishedRequest( requestid_ );
 }
-
-
-
-
-
-

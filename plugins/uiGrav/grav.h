@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Apr 2010
- RCS:		$Id$
+ RCS:		$Id: grav.h,v 1.2 2010/04/20 12:53:18 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -22,7 +22,7 @@ extern const double G; //!< Newton's constant, in SI units (about 6.67e-11)
 double Bouguer(double h,double rho=1);
 
 
-mClass(uiGrav) Block
+class Block
 {
 public:
 

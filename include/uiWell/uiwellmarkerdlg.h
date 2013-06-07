@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "wellmarker.h"
 
@@ -24,7 +23,7 @@ namespace Well { class Marker; class Track; class MarkerSet; }
 
 /*! \brief Dialog for marker specifications */
 
-mExpClass(uiWell) uiMarkerDlg : public uiDialog
+mClass uiMarkerDlg : public uiDialog
 {
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);
@@ -62,8 +61,9 @@ protected:
     bool			getKey(MultiID&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*);
+
+protected:
     bool			updateMarkerDepths(int rowidx, bool md2tvdss);
 };
 
 #endif
-

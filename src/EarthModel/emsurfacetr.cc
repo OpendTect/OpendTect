@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emsurfacetr.h"
 
@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
-FixedString EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
+const char* EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
 
 mDefSimpleTranslatorSelector(EMHorizon3D,keyword())
 
@@ -40,7 +40,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
+const char* EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
 
 mDefSimpleTranslatorSelector(EMHorizon2D,keyword())
 
@@ -58,7 +58,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
+const char* EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
 mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
 				       ctxt->toselect.allowtransls_=mDGBKey)
 
@@ -70,11 +70,11 @@ int EMAnyHorizonTranslatorGroup::selector( const char* s )
 }
 
 
-FixedString EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
+const char* EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
 mDefSimpleTranslatorSelector(EMFault3D,keyword())
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-FixedString EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
+const char* EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
 mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
@@ -131,7 +131,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
+    if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
     const BufferString basefnm( ioobj->fullUserExpr(true) ); \
     StreamProvider sp( basefnm.buf() ); \
     FilePath basefp( basefnm ); \
@@ -255,12 +255,8 @@ bool dgbEMSurfaceTranslator::prepRead()
 
     for ( int idx=0; idx<reader_->nrLines(); idx++ )
     {
-#ifdef mNew2DGeometryImpl
-	sd_.geomids_.add( reader_->lineGeomID(idx) );
-#else
 	sd_.linenames.add( reader_->lineName(idx) );
 	sd_.linesets.add( reader_->lineSet(idx) );
-#endif
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
 	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
 	    sd_.trcranges += reader_->lineTrcRanges(idx);

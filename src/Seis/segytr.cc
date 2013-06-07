@@ -203,8 +203,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     insd.step = pinfo.zrg.step;
     innrsamples = binhead_.nrSamples();
 
-    estnrtrcs_ = mCast( int, (endstrmpos - (std::streampos)3600)
-		/ (240 + dataBytes() * innrsamples) );
+    estnrtrcs_ = (endstrmpos - (std::streampos)3600)
+		/ (240 + dataBytes() * innrsamples);
     return true;
 }
 
@@ -212,7 +212,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
     static const bool nowarn = Settings::common().isTrue("SEG-Y.No warnings");
-    if ( nowarn || warnnrs_.isPresent(nr) ) return;
+    if ( nowarn || warnnrs_.indexOf(nr) >= 0 ) return;
 
     BufferString msg;
     if ( nr == cSEGYWarnBadFmt )
@@ -373,7 +373,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    if ( bp2c_->getIDs().size() < 2 )
 		{ errmsg = "Cannot read coordinate file"; return; }
 	}
-	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
+	ti.coord = bp2c_->coordAt( ti.nr );
     }
     
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
@@ -414,7 +414,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     SEGY::BinHeader binhead;
     binhead.setForWrite();
-    binhead.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
+    binhead.setFormat( filepars_.fmt_ < 2 ? 1 : filepars_.fmt_ );
     filepars_.fmt_ = binhead.format();
     binhead.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo.nr );
     static int jobid = 0;
@@ -449,7 +449,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
 
-    trchead_.putSampling( sdtoput, mCast(unsigned short,nstoput) );
+    trchead_.putSampling( sdtoput, nstoput );
 }
 
 
@@ -745,7 +745,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curoffs_ = -1;
 
 	if ( curoffs_ < 0 )
-	    curoffs_ = mCast( float, offsdef_.start );
+	    curoffs_ = offsdef_.start;
 	else
 	    curoffs_ += offsdef_.step;
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; }
@@ -23,7 +22,7 @@ class uiStepOutSel;
 
 /*! \brief Position Attribute description editor */
 
-mExpClass(uiAttributes) uiPositionAttrib : public uiAttrDescEd
+mClass uiPositionAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-

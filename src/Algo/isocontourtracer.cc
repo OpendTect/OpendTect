@@ -4,36 +4,11 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "isocontourtracer.h"
 
 #include "arrayndinfo.h"
-
-static Threads::ReadWriteLock ictlock;
-static ObjectSet<IsoContourTracer> isocontourtracers;
-static ObjectSet<float> edgevalues;
-static ObjectSet<float> bendpointepsilons;
-
-static float& getEdgeValue( const IsoContourTracer* ict )
-{
-    ictlock.readLock();
-    float& res = *edgevalues[isocontourtracers.indexOf(ict)];
-    ictlock.readUnLock();
-    return res;
-}
-
-
-static float& getBendPointEps( const IsoContourTracer* ict )
-{
-    ictlock.readLock();
-    float& res = *bendpointepsilons[isocontourtracers.indexOf(ict)];
-    ictlock.readUnLock();
-    return res;
-}
-
-#define edgevalue_	getEdgeValue(this)
-#define bendpointeps_	getBendPointEps(this)
 
 
 IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
@@ -45,23 +20,7 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , polyroi_( 0 )
     , minnrvertices_( 2 )
     , nrlargestonly_( -1 )
-{
-    ictlock.writeLock();
-    isocontourtracers += this;
-    edgevalues += new float( mUdf(float) );
-    bendpointepsilons += new float( mUdf(float) );
-    ictlock.writeUnLock();
-}
-
-
-IsoContourTracer::~IsoContourTracer()
-{
-    ictlock.writeLock();
-    delete edgevalues.removeSingle( isocontourtracers.indexOf(this) );
-    delete bendpointepsilons.removeSingle( isocontourtracers.indexOf(this) );
-    isocontourtracers -= this;
-    ictlock.writeUnLock();
-}
+{}
 
 
 void IsoContourTracer::setSampling( const StepInterval<int>& xsamp,
@@ -89,10 +48,6 @@ void IsoContourTracer::selectPolyROI( const ODPolygon<float>* poly )
 { polyroi_ = poly; }
 
 
-void IsoContourTracer::setBendPointsOnly( float eps )
-{ bendpointeps_ = eps; }
-
-
 void IsoContourTracer::setMinNrVertices( int nr )
 { minnrvertices_ = nr>2 ? nr : 2; }
 
@@ -101,34 +56,23 @@ void IsoContourTracer::setNrLargestOnly( int nr )
 { nrlargestonly_ = nr>0 ? nr : -1; }
 
 
-void IsoContourTracer::setEdgeValue( float edgeval )
-{ edgevalue_ = edgeval; }
-
-
-#define mEdge			(mIsUdf(edgevalue_) ? 0 : 1)
-#define mOnEdge(xy,idx)		(idx<mEdge || idx>xy##range_.width()+mEdge)
-#define mFieldIdx(xy,idx)	(xy##range_.start + idx - mEdge)
-
-
-#define mFieldX(idx)		xsampling_.atIndex( mFieldIdx(x,idx) )
-#define mFieldY(idy)		ysampling_.atIndex( mFieldIdx(y,idy) )
-
-#define mFieldZ(idx,idy) ( mOnEdge(x,idx) || mOnEdge(y,idy) ? edgevalue_ : \
-			   field_.get(mFieldIdx(x,idx), mFieldIdx(y,idy)) )
+#define mFieldX(idx) xsampling_.atIndex( xrange_.start+idx )
+#define mFieldY(idy) ysampling_.atIndex( yrange_.start+idy )
+#define mFieldZ(idx,idy) field_.get( xrange_.start+idx, yrange_.start+idy )
 
 #define mMakeVertex( vertex, idx, idy, hor, frac ) \
 \
     const Geom::Point2D<float> vertex( \
-			(1.0f-frac)*mFieldX(idx) + frac*mFieldX(idx+hor), \
-			(1.0f-frac)*mFieldY(idy) + frac*mFieldY(idy+1-hor) );
+			(1.0-frac)*mFieldX(idx) + frac*mFieldX(idx+hor), \
+			(1.0-frac)*mFieldY(idy) + frac*mFieldY(idy+1-hor) );
 
 
 bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 				    float z, bool closedonly ) const
 {
     deepErase( contours );
-    Array3DImpl<float>* crossings = new Array3DImpl<float>(
-		    xrange_.width()+2*mEdge+1, yrange_.width()+2*mEdge+1, 2 );
+    Array3DImpl<float>* crossings = 
+	new Array3DImpl<float>( xrange_.width()+1, yrange_.width()+1, 2 );
 
     findCrossings( *crossings, z );
     traceContours( *crossings, contours, closedonly );
@@ -201,9 +145,9 @@ static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
 
     if ( !mIsUdf(lfrac) && !mIsUdf(rfrac) )			/* Tie-break */
     {
-	const float ldist =   up    ? lfrac : 1.0f-lfrac;
-	const float rdist =   up    ? rfrac : 1.0f-rfrac;
-	const float  dist = up==hor ?  frac : 1.0f-frac;
+	const float ldist =   up    ? lfrac : 1.0-lfrac;
+	const float rdist =   up    ? rfrac : 1.0-rfrac;
+	const float  dist = up==hor ?  frac : 1.0-frac;
 
 	if ( ldist*ldist+dist*dist > rdist*rdist+(1.0-dist)*(1.0-dist) )
 	    lfrac = mUdf(float);
@@ -279,9 +223,6 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		    }
 		}
 
-		if ( !mIsUdf(bendpointeps_) )
-		    contour->keepBendPoints( bendpointeps_ );
-
 		const int sz = contour->size();
 		if ( sz<minnrvertices_ || (closedonly && !contour->isClosed()) )
 		    delete contour;
@@ -295,7 +236,7 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		    contours.insertAt( contour, idx );
 
 		    if ( oldnrcontours == nrlargestonly_ )
-			delete contours.removeSingle( oldnrcontours );
+			delete contours.remove( oldnrcontours );
 		}
 	    }
 	}

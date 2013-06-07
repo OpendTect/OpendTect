@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "color.h"
 #include "enums.h"
 #include "namedobj.h"
@@ -35,7 +34,7 @@ namespace ColTab
  
  */
 
-mExpClass(General) Sequence : public NamedObject
+mClass Sequence : public NamedObject
 {
 public:
 
@@ -140,7 +139,7 @@ protected:
  
  */
 
-mExpClass(General) SeqMgr : public CallBacker
+mClass SeqMgr : public CallBacker
 {
 public:
 
@@ -169,7 +168,7 @@ protected:
 
     ObjectSet<Sequence>	seqs_;
 
-    friend mGlobal(General) SeqMgr&	SM();
+    friend mGlobal SeqMgr&	SM();
 
     void		addFromPar(const IOPar&,bool);
     void		add( Sequence* seq )
@@ -177,11 +176,10 @@ protected:
     void		readColTabs();
 };
 
-mGlobal(General) SeqMgr& SM();
+mGlobal SeqMgr& SM();
 
 
 } // namespace ColTab
 
 
 #endif
-

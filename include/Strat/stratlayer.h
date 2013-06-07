@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stratcontent.h"
 #include "compoundkey.h"
 #include "typeset.h"
@@ -34,7 +33,7 @@ class Lithology;
  
  */
 
-mExpClass(Strat) Layer
+mClass Layer
 {
 public:
 
@@ -43,7 +42,7 @@ public:
 			Layer(const LeafUnitRef&);
 
     BufferString	name() const;
-    const LeafUnitRef&	unitRef() const			{ return *ref_; }
+    const LeafUnitRef&	unitRef() const;
     inline void		setRef( const LeafUnitRef& r )	{ ref_ = &r; }
     const RefTree&	refTree() const;
     const Lithology&	lithology() const;
@@ -81,4 +80,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

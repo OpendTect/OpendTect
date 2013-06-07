@@ -4,11 +4,10 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "posinfo2d.h"
 #include "math2.h"
-#include "surv2dgeom.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include <iostream>
@@ -102,7 +101,7 @@ void PosInfo::Line2DData::remove( int nr )
 {
     bool found; int idx = gtIndex( nr, found );
     if ( !found ) return;
-    posns_.removeSingle( idx );
+    posns_.remove( idx );
 }
 
 
@@ -111,7 +110,7 @@ void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
     trcrg.sort();
     for ( int idx=0; idx<posns_.size(); idx++ )
 	if ( posns_[idx].nr_ < trcrg.start || posns_[idx].nr_ > trcrg.stop )
-	    posns_.removeSingle( idx-- );
+	    posns_.remove( idx-- );
 }
 
 
@@ -139,24 +138,15 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
 
 
 bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos, float* dist ) const
+				  PosInfo::Line2DPos& pos, double thr ) const
 {
     double sqdist;
     const int idx = gtIndex( coord, &sqdist );
-    if ( !posns_.validIdx(idx) )
+    if ( !posns_.validIdx(idx) || (!mIsUdf(thr) && thr*thr < sqdist) )
 	return false;
 
     pos = posns_[idx];
-    if ( dist ) *dist = (float) Math::Sqrt( sqdist );
     return true;
-}
-
-
-bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos, float maxdist ) const
-{
-    float dist;
-    return getPos(coord,pos,&dist) && dist < maxdist;
 }
 
 
@@ -176,7 +166,7 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
     else
     {
 	strm << lnm_ << '\n';
-	const int fac = SI().zDomain().userFactor();
+	const float fac = SI().zFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrcNr\tX-coord\tY-coord" << std::endl;
@@ -325,39 +315,4 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 	const double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
-}
-
-
-void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
-						 float& median ) const
-{
-    max = 0;
-    median = 0;
-    if ( S2DPOS().readDistBetwTrcsStats( lnm_, max, median ) )
-	return;
-
-    double maxsq = 0;
-    TypeSet<double> medset;
-    const TypeSet<PosInfo::Line2DPos>& posns = positions();
-    for ( int pidx=1; pidx<posns.size(); pidx++ )
-    {
-	const double distsq =
-			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
-
-	if ( !mIsUdf(distsq) )
-	{
-	    if ( distsq > maxsq )
-		maxsq = distsq;
-	    medset += distsq;
-	}
-    }
-
-    if ( medset.size() )
-    {
-	sort( medset );
-	median = mCast( float,
-			Math::Sqrt( medset[ mCast(int, medset.size()/2) ] ) );
-    }
-   
-    max = mCast( float, Math::Sqrt(maxsq) );
 }

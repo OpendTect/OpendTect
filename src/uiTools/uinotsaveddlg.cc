@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uinotsaveddlg.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 
-class NotSavedPrompterData
+struct NotSavedPrompterData
 {
 public:
     NotSavedPrompterData(const char* str,const CallBack& cb,bool issaveas,
@@ -46,7 +46,7 @@ public:
 	BufferString action( actiontype );
 	if ( !withcancel ) setCancelText( 0 );
 
-	*action.buf() = mCast( char, toupper( *action.buf() ) );
+	*action.buf() = toupper( *action.buf() );
 	const BufferString txt( action.buf(), " now" );
 	setOkText( txt.buf() );
 

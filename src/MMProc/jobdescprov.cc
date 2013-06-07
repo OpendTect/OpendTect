@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "jobdescprov.h"
 #include "iopar.h"
@@ -105,11 +105,11 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 const BufferString& getOutSubSelKey()
 {
     static const BufferString outsubselkey(
-		IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+		IOPar::compKey(sKey::Output,sKey::Subsel) );
     return outsubselkey;
 }
 
-#define mGetSubselKey(s) IOPar::compKey(getOutSubSelKey().buf(),sKey::s())
+#define mGetSubselKey(s) IOPar::compKey(getOutSubSelKey().buf(),sKey::s)
 
 void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {
@@ -130,7 +130,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     //if Subsel Type == None : init rg with SI()
     BufferString typestr;
     inpiopar_.get( mGetSubselKey(Type), typestr );
-    if ( typestr==sKey::None() )
+    if ( !strcmp( typestr, sKey::None ) )
 	rg = SI().inlRange(true);
 				
     rg.sort();
@@ -180,7 +180,7 @@ void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 	iop.set( singlekey_, firstInlNr(jid), lastInlNr(jid), inlrg_.step );
     else
     {
-	iop.set( mGetSubselKey(Type), sKey::Range() );
+	iop.set( mGetSubselKey(Type), sKey::Range );
 	iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
 	iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
     }

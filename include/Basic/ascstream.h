@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 #include "plftypes.h"
 #include <limits.h>
@@ -22,15 +21,15 @@ ________________________________________________________________________
 #define mAscStrmKeyValSep		':'
 
 
-/*!
-\brief OpendTect standard ascii format file writing.
-  
-  An ascostream puts data in an OpendTect standard ascii format file. That means
-  it has a OpendTect standard header and often keyword/value pairs separated by
-  a colon.
+/*!\brief OpendTect standard ascii format file writing.
+
+An ascostream puts data in an OpendTect standard ascii format file. That means
+it has a OpendTect standard header and often keyword/value pairs separated by
+a colon.
+
 */
 
-mExpClass(Basic) ascostream
+mClass ascostream
 {
 
 public:
@@ -75,15 +74,15 @@ protected:
 };
 
 
-/*!
-\brief OpendTect standard ascii format file reading.
-  
-  An ascistream gets data from a OpendTect standard ascii format file. This
-  format consists of the OpendTect header (version, file type, date), and then
-  a number of 'paragraphs', each separated by a single '!' on a line.
+/*!\brief reading OpendTect standard ascii format file.
+
+An ascistream gets data from a OpendTect standard ascii format file. This format
+consists of the OpendTect header (version, file type, date), and then a number
+of 'paragraphs', each separated by a single '!' on a line.
+
 */
 
-mExpClass(Basic) ascistream
+mClass ascistream
 {
 public:
 			ascistream( std::istream& strm, bool rdhead=true )
@@ -148,4 +147,3 @@ inline bool atEndOfSection( const ascistream& strm )
 
 
 #endif
-

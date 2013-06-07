@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "propertyref.h"
 
@@ -21,7 +20,7 @@ class uiComboBox;
 class UnitOfMeasure;
 
 
-mExpClass(uiTools) uiUnitSel : public uiGroup
+mClass uiUnitSel : public uiGroup
 {
 public:
     				uiUnitSel(uiParent*,PropertyRef::StdType,
@@ -45,9 +44,9 @@ protected:
     PropertyRef::StdType	proptype_;
     ObjectSet<const UnitOfMeasure>	units_;
     bool			symbolsdisp_;
+    bool			withempty_;
 
     uiComboBox*			inpfld_;
-    bool 			withempty_;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			update();
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

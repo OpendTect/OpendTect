@@ -13,17 +13,16 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
 namespace visBase
 {
 
-class TriangleStripSet;
+class FaceSet;
 class Image;
 
-mExpClass(visBase) TopBotImage : public VisualObjectImpl
+mClass TopBotImage : public VisualObjectImpl
 {
 public:
     static TopBotImage*		create()
@@ -48,7 +47,7 @@ protected:
 
     void			updateCoords();
 
-    TriangleStripSet*		imgshape_;
+    FaceSet*			imgshape_;
     Image*			image_;
     const mVisTrans*		trans_;
     Coord3			pos0_;
@@ -66,4 +65,3 @@ protected:
 } // namespace visBase
 
 #endif 
-

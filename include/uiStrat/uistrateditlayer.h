@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uidialog.h"
 class BufferStringSet;
 class UnitOfMeasure;
@@ -23,7 +22,7 @@ namespace Strat { class Layer; class LayerSequence; }
 
 /*!\brief Displays and optionally edits a Strat::Layer instance */
 
-mExpClass(uiStrat) uiStratEditLayer : public uiDialog
+mClass uiStratEditLayer : public uiDialog
 {
 public:
 			uiStratEditLayer(uiParent*,Strat::Layer&,

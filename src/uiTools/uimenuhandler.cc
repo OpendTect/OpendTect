@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uimenuhandler.h"
@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uitoolbar.h"
 
-int uiMenuHandler::fromTree()	{ return 1; }
-int uiMenuHandler::fromScene()	{ return 0; }
+const int uiMenuHandler::fromTree()	{ return 1; }
+const int uiMenuHandler::fromScene()	{ return 0; }
 
 
 uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )
@@ -88,7 +88,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 
     while ( true )
     {
-	int lowest = mUdf(int);
+	int lowest;
 	int lowestitem = -1;
 	for ( int idx=0; idx<validsubitms.size(); idx++ )
 	{
@@ -151,7 +151,7 @@ void uiTreeItemTBHandler::handleEmpty()
     if ( nrItems() > 0 )
 	return;
 
-    tb_->addButton( "base_icon", "No tools available", CallBack() );
+    tb_->addButton( "base_icon.png", "No tools available", CallBack() );
 }
 
 

@@ -12,21 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
 #include "ptrman.h"
 
-namespace OD { class RGBImage; }
+/*!Definition of a mouse cursor, can be either a predefined shape (from the
+   enum, or a file. */
 
-/*!
-\brief Definition of a mouse cursor, can be either a predefined shape (from the
-enum, or a file.)
-*/
-
-mExpClass(General) MouseCursor
+mClass MouseCursor
 {
 public:
-    virtual		~MouseCursor();
+    virtual		~MouseCursor()					{}
 		    /*! This enum type defines the various cursors that can be
 		        used.
 
@@ -61,28 +56,21 @@ public:
 			  Last = ClosedHand, Bitmap = 24, NotSet
 			};
 
-    			MouseCursor();
-			MouseCursor( Shape s );
-
+    			MouseCursor() : shape_(NotSet)			{}
+			MouseCursor( Shape s ) : shape_(s)		{}
     bool		operator==(const MouseCursor&) const;
     bool		operator!=(const MouseCursor&) const;
 
     Shape		shape_;
-
     BufferString	filename_;
-			//!<Only used if shape_==Bitmap
-    OD::RGBImage*	image_;
-			//!<Only used if shape_==Bitmap && filename_ is empty
-    
     int			hotx_;
     int			hoty_;
 };
 
 
-/*!
-\brief Sets another cursor for current application.
+/*! \brief Sets another cursor for current application
 
-  Example:
+    example:
 
     \code
 	MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -102,7 +90,8 @@ public:
     FALSE, the new cursor is pushed onto the top of the stack.
 */
 
-mExpClass(General) MouseCursorManager
+
+mClass MouseCursorManager
 {
 public:
 
@@ -131,12 +120,11 @@ protected:
 };
 
 
-/*!
-\brief Class to automatically change cursor, and change it back automatically
-when class is running out of scope.
+/*! Class to automaticly change cursor, and change it back automaticly when
+    class is running out of scope.
 */
 
-mExpClass(General) MouseCursorChanger
+mClass MouseCursorChanger
 {
 public:
 		MouseCursorChanger(const char* fnm, int hotx, int hoty);
@@ -151,4 +139,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
 
@@ -22,11 +21,9 @@ namespace EM
 
 class Surface;
 
-/*!
-\brief Data interesting for Surface I/O.
-*/
+/*!\brief Data interesting for Surface I/O */
 
-mExpClass(EarthModel) SurfaceIOData
+mClass SurfaceIOData
 {
 public:
     			~SurfaceIOData()	{ clear(); }
@@ -46,16 +43,11 @@ public:
 
     BufferStringSet	linenames;		// 2D only
     BufferStringSet	linesets;		// 2D only
-    TypeSet<TraceID::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcranges;	// 2D only
 };
 
 
-/*!
-\brief Surface I/O data selection
-*/
-
-mExpClass(EarthModel) SurfaceIODataSelection
+mClass SurfaceIODataSelection
 {
 public:
 
@@ -79,4 +71,3 @@ public:
 }; // namespace EM
 
 #endif
-

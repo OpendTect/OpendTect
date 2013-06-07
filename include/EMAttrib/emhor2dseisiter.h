@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "emattribmod.h"
 #include "multiid.h"
 class Seis2DLineSet;
 namespace EM { class Horizon2D; class Horizon2DGeometry; }
@@ -21,11 +20,7 @@ namespace EM { class Horizon2D; class Horizon2DGeometry; }
 namespace EM
 {
 
-/*!
-\brief Horizon2D line iterator.
-*/
-
-mExpClass(EMAttrib) Hor2DSeisLineIterator
+mClass Hor2DSeisLineIterator
 {
 public:
 
@@ -66,4 +61,3 @@ private:
 } // namespace EM
 
 #endif
-

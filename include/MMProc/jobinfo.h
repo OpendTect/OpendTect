@@ -12,16 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "iopar.h"
 
 class HostData;
 
-/*!
-\brief All information on a job.
-*/
 
-mExpClass(MMProc) JobInfo
+/*!\brief All info on a job. */
+
+mClass JobInfo
 {
     friend class	JobRunner;
 public:
@@ -62,4 +60,3 @@ protected:
 
 
 #endif
-

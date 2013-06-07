@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewcoltabed.h"
+#include "uilistview.h"
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -77,16 +77,19 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+
+    const DataPack* fdpw = vwr.pack( true );
+
     const DataPack* fdpv = vwr.pack( false );
     if ( fdpv )
 	dpid_ = fdpv->id();
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    
+
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setCheckable( fdpv && ddp.wva_.show_ );
-    uitreeviewitem_->setChecked( ddp.vd_.show_ );
+    uilistviewitem_->setChecked( vwr.isVisible(false) );
+    uilistviewitem_->setCheckable( fdpv && ddp.wva_.show_ );
 
     checkStatusChange()->notify(
 	    mCB(this,uiODVW2DVariableDensityTreeItem,checkCB) );
@@ -109,7 +112,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
 bool uiODVW2DVariableDensityTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
@@ -121,7 +124,10 @@ bool uiODVW2DVariableDensityTreeItem::select()
 void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-	viewer2D()->viewwin()->viewer(ivwr).setVisible( false, isChecked() );
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	vwr.setVisible( false, isChecked() );
+    }
 }
 
 
@@ -133,12 +139,15 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     displayMiniCtab(0);
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    const DataPack* fdpw = vwr.pack( true );
     const DataPack* fdpv = vwr.pack( false );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+    
+    uilistviewitem_->setChecked( vwr.isVisible(false) );
+    uilistviewitem_->setCheckable( fdpv && ddp.wva_.show_ );
 
-    uitreeviewitem_->setCheckable( fdpv && ddp.wva_.show_ );
-    uitreeviewitem_->setChecked( ddp.vd_.show_ );
-    if ( fdpv )	dpid_ = fdpv->id();
+    if ( fdpv )
+	dpid_ = fdpv->id();
 
     if ( !fdpv )
 	displayMiniCtab(0);
@@ -164,7 +173,7 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
 	    				    cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -220,7 +229,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp)
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
-    MenuItem* subitem = 0;
+    MenuItem* subitem;
     applMgr()->attrServer()->resetMenuItems();
     if ( dp3d || dprdm )
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
@@ -279,8 +288,8 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    }
 	    else
 	    {
-		const Interval<float> zrg( (float) dprdm->posData().range(false).start, 
-					   (float) dprdm->posData().range(false).stop );
+		const Interval<float> zrg( dprdm->posData().range(false).start, 
+					   dprdm->posData().range(false).stop );
 		TypeSet<BinID> bids;
 		if ( dprdm->pathBIDs() )
 		    bids = *dprdm->pathBIDs();
@@ -349,13 +358,13 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	FilePath fp( ioobj->fullUserExpr(true) );
 	fp.setExtension( "par" );
 	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	if ( iop.read(fp.fullPath(),sKey::Pars) && !iop.isEmpty() )
 	{
 	    ColTab::Sequence seq( 0 );
-	    const char* ctname = iop.find( sKey::Name() );
+	    const char* ctname = iop.find( sKey::Name );
 	    seq = ColTab::Sequence( ctname );
 	    displayMiniCtab( &seq );
-
+	    
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( iop );
 

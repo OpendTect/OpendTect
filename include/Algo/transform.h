@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "complex"
 #include "task.h"
 #include "sets.h"
@@ -23,12 +22,14 @@ template <class T> class ArrayND;
 
 typedef std::complex<float> float_complex;
 
-/*!
-\brief Lets any 1D orthogonal transform (GenericTransformND::GenericTransform1D)be extended to ND. Most transform fftw can be implemented as a subclass of
+/*!\brief
+
+Lets any 1D orthogonal transform (GenericTransformND::GenericTransform1D) be
+extended to ND. Most transform fftw can be implemented as a subclass of
 GenericTransformND.
 */
 
-mExpClass(Algo) GenericTransformND : public SequentialTask
+mClass GenericTransformND : public SequentialTask
 {
 public:
 			GenericTransformND();
@@ -83,7 +84,7 @@ mProtected:
     float_complex*		coutput_;
     float*			routput_;
 
-    mExpClass(Algo) Transform1D
+    mClass Transform1D
     {
     public:
 	virtual		~Transform1D()				{}
@@ -127,4 +128,3 @@ mProtected:
 };
 
 #endif
-

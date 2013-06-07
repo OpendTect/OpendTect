@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "geometrymod.h"
 #include "transl.h"
 #include <iosfwd>
 
@@ -21,7 +20,7 @@ class ProbDenFunc;
 class BufferString;
 
 
-mExpClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
+mClass ProbDenFuncTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ProbDenFunc)
 public:
     			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
@@ -31,7 +30,7 @@ public:
 };
 
 
-mExpClass(Geometry) ProbDenFuncTranslator : public Translator
+mClass ProbDenFuncTranslator : public Translator
 {
 public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
@@ -50,7 +49,7 @@ public:
 };
 
 
-mExpClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
+mClass odProbDenFuncTranslator : public ProbDenFuncTranslator
 {				 isTranslator(od,ProbDenFunc)
 public:
     			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
@@ -62,4 +61,3 @@ public:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "statruncalc.h"
@@ -26,7 +25,7 @@ using namespace Attrib;
 
 /*! \brief FingerPrint Attribute parameters calculator */
 
-mExpClass(uiAttributes) calcFingParsObject
+mClass calcFingParsObject
 {
 public:
     			calcFingParsObject(uiParent*);
@@ -79,4 +78,3 @@ protected:
 };
 
 #endif
-

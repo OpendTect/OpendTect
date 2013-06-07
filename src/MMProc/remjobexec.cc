@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "remjobexec.h"
@@ -74,5 +74,5 @@ void RemoteJobExec::uiErrorMsg( const char* msg )
 {
     BufferString cmd = FilePath( GetBinPlfDir(), "od_DispMsg" ).fullPath();
     cmd.add( " --err " ).add( msg );
-    ExecOSCmd( cmd.buf(), true, false );
+    ExecOSCmd( cmd.buf() );
 }

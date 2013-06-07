@@ -11,13 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "faultstickset.h"
 
 namespace Geometry
 {
 
-mExpClass(Geometry) FaultStickSurface : public FaultStickSet
+mClass FaultStickSurface : public FaultStickSet
 {
 public:
     			FaultStickSurface();
@@ -37,4 +36,3 @@ protected:
 };
 
 #endif
-

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 
 class uiTextEdit;
@@ -20,7 +19,7 @@ class CtxtIOObj;
 class BufferStringSet;
 
 
-mExpClass(uiAttributes) uiAttrInpDlg : public uiDialog
+mClass uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Aug 2009
- * ID       : $Id$
+ * ID       : $Id: uibouncymain.h,v 1.2 2009/09/09 07:57:55 cvskarthika Exp $
 -*/
 
-#include "uibouncymod.h"
 #include "uidialog.h"
 
 class uiGenInput;
@@ -16,7 +15,7 @@ namespace uiBouncy
 {
 class uiBouncySettingsDlg;
 
-mExpClass(uiBouncy) uiBouncyMain : public uiDialog
+mClass uiBouncyMain : public uiDialog
 {
 public:
 
@@ -24,7 +23,7 @@ public:
 				~uiBouncyMain();
 
     BufferString		getPlayerName() const;
-    void			setPlayerName(const BufferString&);
+    void			setPlayerName(const BufferString);
 
 protected:
 
@@ -37,4 +36,3 @@ protected:
 };
 
 #endif
-

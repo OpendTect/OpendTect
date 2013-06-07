@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "multidimstorage.h"
 #include "thread.h"
@@ -25,7 +24,7 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-mExpClass(Geometry) ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
+mClass ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
     				     public CallBacker
 {
 public:
@@ -107,7 +106,7 @@ wanted.
    2 = the coordinate on the z-axis.
 */
 
-mExpClass(Geometry) MarchingCubeTriangleTable
+mClass MarchingCubeTriangleTable
 {
 public:
     ObjectSet<char>		indices_;
@@ -120,7 +119,7 @@ public:
 /*!Lookup table with one MarchingCubeTriangleTable per position constellation.*/
 
 
-mExpClass(Geometry) MarchingCubeLookupTable
+mClass MarchingCubeLookupTable
 {
 public:
     				MarchingCubeLookupTable();
@@ -131,4 +130,3 @@ public:
 };
 
 #endif
-

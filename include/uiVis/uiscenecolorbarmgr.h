@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 class uiGenInput;
 class uiSpinBox;
 namespace visBase{ class SceneColTab; }
 
-mExpClass(uiVis) uiSceneColorbarMgr : public uiDialog
+mClass uiSceneColorbarMgr : public uiDialog
 {
 public:
 			uiSceneColorbarMgr(uiParent*,visBase::SceneColTab*);
@@ -36,5 +35,4 @@ protected:
 };
 
 #endif
-
 

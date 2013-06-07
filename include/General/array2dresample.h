@@ -18,16 +18,16 @@ ________________________________________________________________________
 #include "geometry.h"
 #include "interpol2d.h"
 
-/*!
-\brief Fills an Array2D from another Array2D of another size.
-  Usage:
-  1. Create
-  2. call execute();
-  3. (optional) call set with rew arrays, and call execute() again.
+/*!Fills an Array2D from another Array2D of another size.
+Usage:
+1. Create
+2. call execute();
+3. (optional) call set with rew arrays, and call execute() again.
 */
 
+
 template <class T, class TT>
-mClass(General) Array2DReSampler : public ParallelTask
+class Array2DReSampler : public ParallelTask
 {
 public:
 
@@ -44,8 +44,7 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
     inline		Array2DReSampler(const Array2D<T>& from,
-			    ValueSeries<TT>& to,int sz0,int sz1,
-			    bool fromhasudfs,
+			    ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
@@ -63,8 +62,8 @@ public:
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
-    inline void		set(const Array2D<T>& from,ValueSeries<TT>& to,
-			    int sz0, int sz1,bool fromhasudfs,
+    inline void		set(const Array2D<T>& from, ValueSeries<TT>& to, int sz0, int sz1,
+	    		    bool fromhasudfs,
 			    const Geom::PosRectangle<float>* rectinfrom=0 );
     			/*!<\param rectinfrom specifies a part of from
 			     that should serve as source. If ommitted,
@@ -96,7 +95,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			Array2D<TT>& to, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, fromhasudfs, rectinfrom ); }
 
 
@@ -104,7 +102,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			TT* to, int sz0, int sz1, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, sz0, sz1, fromhasudfs, rectinfrom ); }
 
 
@@ -112,7 +109,6 @@ template <class T, class TT> inline
 Array2DReSampler<T,TT>::Array2DReSampler( const Array2D<T>& from,
 			ValueSeries<TT>& to, int sz0, int sz1, bool fromhasudfs,
 			const Geom::PosRectangle<float>* rectinfrom )
-    : ParallelTask("Re-sampling data")
 { set( from, to, sz0, sz1, fromhasudfs, rectinfrom ); }
 
 
@@ -198,9 +194,8 @@ void Array2DReSampler<T,TT>::updateScale(
     const int xsize = toinfo_.getSize( mXDim );
     const int ysize = toinfo_.getSize( mYDim );
 
-    Geom::PosRectangle<float> rectinfrom( 0, 0, 
-				mCast(float,from_->info().getSize(mXDim)-1),
-				mCast(float,from_->info().getSize(mYDim)-1) );
+    Geom::PosRectangle<float> rectinfrom( 0, 0, from_->info().getSize(mXDim)-1,
+					        from_->info().getSize(mYDim)-1);
 
     if ( rectinfromptr )
     {
@@ -233,7 +228,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
     int localnrdone = 0;
     od_int64 offset = start*ysize;
     TT* toptr = toptr_ ? toptr_+offset : 0;
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const float sourcex = xsampling_.atIndex( idx );
 	for ( int idy=0; idy<ysize; idy++ )
@@ -271,6 +266,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 #undef mXDim
 #undef mYDim
 #undef mUpdateResampler
+
 
 
 #endif

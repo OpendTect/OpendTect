@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiposfiltgroup.h"
 class uiSpinBox;
 class uiGenInput;
@@ -20,7 +19,7 @@ class uiGenInput;
 
 /*! \brief UI for Random Position filter */
 
-mExpClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
+mClass uiRandPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -43,7 +42,7 @@ protected:
 
 /*! \brief UI for Subsample Position filter */
 
-mExpClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
+mClass uiSubsampPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

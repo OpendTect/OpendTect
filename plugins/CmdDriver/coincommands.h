@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "cmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
 #include "uithumbwheel.h"
@@ -22,9 +21,9 @@ namespace CmdDrive
 {
 
 
-mStartDeclCmdClass( CmdDriver, Wheel, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Wheel, UiObjectCmd )		mEndDeclCmdClass
 
-mExpClass(CmdDriver) WheelActivator: public Activator
+mClass WheelActivator: public Activator
 {
 public:
 			WheelActivator(const uiThumbWheel&,float angle);
@@ -34,10 +33,10 @@ protected:
     float		actangle_;
 };
 
-mStartDeclCmdClass( CmdDriver, GetWheel, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( GetWheel, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( CmdDriver, Wheel, CmdComposer, uiThumbWheel )
+mStartDeclComposerClassWithInit( Wheel, CmdComposer, uiThumbWheel )
 protected:
     float oldvalue_;
 mEndDeclComposerClass 

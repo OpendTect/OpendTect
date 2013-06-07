@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiviscoltabed.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolortable.h"
 #include "mousecursor.h"
 
+
+static const char* sSetKey = "dTect.Color table.Name";
 
 const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
 const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }

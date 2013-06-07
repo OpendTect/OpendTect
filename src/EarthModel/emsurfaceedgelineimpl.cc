@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 
@@ -61,10 +61,10 @@ void SurfaceConnectLine::fillPar(IOPar& par) const
 
 bool SurfaceConnectLine::usePar(const IOPar& par)
 {
-    int dummy = mUdf(int);
+    int dummy;
     const bool res = EdgeLineSegment::usePar(par) &&
 		     par.get(connectingsectionstr,dummy);
-    if ( res ) connectingsection = mCast( EM::SectionID, dummy );
+    if ( res ) connectingsection = dummy;
     return res;
 }
 

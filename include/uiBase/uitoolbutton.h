@@ -11,14 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibutton.h"
 #include "uiicons.h"
 class uiToolButtonBody;
 class uiToolButtonSetup;
 
 
-mExpClass(uiBase) uiToolButton : public uiButton
+mClass uiToolButton : public uiButton
 {
 public:
 
@@ -63,14 +62,14 @@ private:
     int				id_; // Used by toolbar
 
     uiPopupMenu*		uimenu_;
-    mQtclass(QMenu*)		qmenu_;
+    QMenu*			qmenu_;
 
 };
 
 
 #define mDefuiTBSUMemb(typ,memb) mDefSetupClssMemb(uiToolButtonSetup,typ,memb)
 
-mExpClass(uiBase) uiToolButtonSetup
+mClass uiToolButtonSetup
 {
 public:
 		    uiToolButtonSetup( const char* fnm, const char* tt,
@@ -97,4 +96,3 @@ public:
 
 
 #endif
-

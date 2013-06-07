@@ -4,12 +4,11 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "iostrm.h"
 #include "iosubdir.h"
 #include "ioman.h"
-#include "iopar.h"
 #include "iodir.h"
 #include "ascstream.h"
 #include "filepath.h"
@@ -146,6 +145,8 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
+    IOObj* objptr = 0;
+
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
     if ( ky.isEmpty() && IOM().dirPtr() )
@@ -158,12 +159,11 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 	if ( prod.canMake(typ) )
 	    return prod.make( nm, ky, gendef );
     }
-
     return 0;
 }
 
 
-Translator* IOObj::createTranslator() const
+Translator* IOObj::getTranslator() const
 {
     if ( isSubdir() ) return 0;
 
@@ -193,11 +193,29 @@ IOObj* IOObj::clone() const
 
 
 void IOObj::acquireNewKey()
-{ key_ = IOM().dirPtr()->newKey(); }
+{
+    key_ = IOM().dirPtr()->newKey();
+}
 
 
 bool IOObj::isKey( const char* ky )
-{ return IOM().isKey(ky); }
+{
+    if ( !ky || !*ky || !isdigit(*ky) ) return false;
+
+    bool digitseen = false;
+    while ( *ky )
+    {
+	if ( isdigit(*ky) )
+	    digitseen = true;
+	else if ( *ky == '|' )
+	    return digitseen;
+	else if ( *ky != '.' )
+	    return false;
+	ky++;
+    }
+
+    return true;
+}
 
 
 bool IOObj::put( ascostream& astream ) const
@@ -231,42 +249,23 @@ int IOObj::myKey() const
 bool IOObj::isReadDefault() const
 {
     if ( myKey() < 2 || isSubdir() ) return false;
-    PtrMan<Translator> tr = createTranslator();
+    Translator* tr = getTranslator();
     if ( !tr ) return false;
 
     bool isrddef = tr->isReadDefault();
+    delete tr;
     return isrddef;
-}
-
-
-void IOObj::setSurveyDefault( const char* subsel ) const
-{
-    PtrMan<Translator> tr = createTranslator();
-    CompoundKey defaultkey = tr->group()->getSurveyDefaultKey( this );
-    if ( subsel )
-	defaultkey += subsel;
-    
-    SI().getPars().set( defaultkey.buf(), key() );
-    SI().savePars();
 }
 
 
 bool IOObj::isSurveyDefault( const MultiID& ky )
 {
-    IOPar* dpar = SI().pars().subselect( sKey::Default() );
+    IOPar* dpar = SI().pars().subselect( sKey::Default );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
 	ret = dpar->findKeyFor( ky );
     delete dpar;
     return ret;
-}
-
-
-bool IOObj::isInCurrentSurvey() const
-{
-    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
-    FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
-    return orgfp.isSubDirOf(cursurvfp);
 }
 
 
@@ -297,8 +296,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 bool fullImplRemove( const IOObj& ioobj )
 {
     if ( ioobj.isSubdir() ) return false;
-    
-    PtrMan<Translator> tr = ioobj.createTranslator();
+    PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "pixmap.h"
 
@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
-
 #include "uirgbarray.h"
 #include "uiicons.h"
 
@@ -32,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QColor>
 #include <QImageWriter>
 
-mUseQtnamespace
 
 ioPixmap::ioPixmap( const ioPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
@@ -70,11 +68,8 @@ ioPixmap::ioPixmap( const QPixmap& pm )
 }
 
 
-static bool getPngFileName( BufferString& fnm )
+static bool fileExists( BufferString& fnm )
 {
-    if ( File::exists( fnm ) )
-	return true;
-
     const BufferString pngfnm( fnm, ".png" );
     if ( File::exists(pngfnm) )
     {
@@ -82,7 +77,7 @@ static bool getPngFileName( BufferString& fnm )
 	return true;
     }
 
-    return false;
+    return File::exists( fnm );
 }
 
 
@@ -97,7 +92,7 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     if ( srcname_ != uiIcon::None() )
 	isnone = false;
     if ( isnone )
-        { qpixmap_ = new QPixmap; return; }
+	{ qpixmap_ = new QPixmap; return; }
 
     if ( fmt )
     {
@@ -118,23 +113,23 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 
 	fp.setPath( GetSettingsFileName(dirnm) );
 	fname = fp.fullPath();
-	if ( !getPngFileName(fname) )
+	if ( !fileExists(fname) )
 	{
 	    fp.setPath( mGetSetupFileName(dirnm) );
 	    fname = fp.fullPath();
 	}
 
 	// fallback to Default
-	if ( !getPngFileName(fname) )
+	if ( !fileExists(fname) )
 	{
 	    fp.setPath( mGetSetupFileName("icons.Default") );
 	    fname = fp.fullPath();
 	}
     }
 
-    if ( !getPngFileName(fname) )
+    // final fallback (icon simply missing)
+    if ( !fileExists(fname) )
     {
-	// final fallback (icon simply missing even from release)
 	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
 	fname = FilePath(mGetSetupFileName("icons.Default"),
 			"iconnotfound.png").fullPath();
@@ -154,8 +149,8 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
 
     if ( ctabin.size() == 0 || !validsz )
     {
-        qpixmap_ = new QPixmap( w, h );
-        qpixmap_->fill( QColor(0,0,0,0) );
+	qpixmap_ = new QPixmap( w, h );
+	qpixmap_->fill( QColor(0,0,0,0) );
 	return;
     }
 
@@ -189,17 +184,22 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
 
 ioPixmap::~ioPixmap()
 {
+    releaseDrawTool();
     delete qpixmap_;
 }
 
 
 void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
+    releaseDrawTool();
+
     if ( !qpixmap_ ) qpixmap_ = new QPixmap;
-    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
-                                    Qt::OrderedAlphaDither );
+    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(), Qt::OrderedAlphaDither );
 }    
 
+
+QPaintDevice* ioPixmap::qPaintDevice()
+{ return qpixmap_; }
 
 int ioPixmap::width() const
 { return qpixmap_->width(); }
@@ -234,11 +234,8 @@ ioBitmap::ioBitmap( const char* filenm, const char * format )
 }
 
 
-mQtclass(QBitmap*) ioBitmap::Bitmap() { return (QBitmap*)qpixmap_; }
-
-
-const mQtclass(QBitmap*) ioBitmap::Bitmap() const
-{ return (QBitmap*)qpixmap_; }
+QBitmap* ioBitmap::Bitmap() { return (QBitmap*)qpixmap_; }
+const QBitmap* ioBitmap::Bitmap() const { return (const QBitmap*)qpixmap_; }
 
 
 void supportedImageFormats( BufferStringSet& imageformats )

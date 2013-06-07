@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uirandlinegen.h"
 
@@ -45,7 +45,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 {
     IOM().to( horctio_.ctxt.getSelKey() );
     rlsctio_.ctxt.forread = false;
-    polyctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
 
     infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
     uiIOObjSel::Setup osu( "Within polygon" ); osu.optional( true );
@@ -53,7 +53,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     polyfld_->attach( alignedBelow, infld_ );
 
     StepInterval<float> sizrg( SI().zRange(true) );
-    sizrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    sizrg.scale( SI().zFactor() );
     StepInterval<float> suggestedzrg( sizrg );
     suggestedzrg.step *= 10;
     contzrgfld_ = new uiGenInput( this, "Contour Z range",
@@ -166,7 +166,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     StepInterval<float> contzrg = contzrgfld_->getFStepInterval();
     const bool isrel = isrelfld_->isChecked();
     Interval<float> linezrg = (isrel?relzrgfld_:abszrgfld_)->getFStepInterval();
-    const float zfac = 1.f / SI().zDomain().userFactor();
+    const float zfac = 1. / SI().zFactor();
     contzrg.scale( zfac ); linezrg.scale( zfac );
 
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
@@ -211,7 +211,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
     distfld_ = new uiGenInput( this, "Distance from input",
-				    FloatInpSpec((float)( 4*c1.distTo(c2)) ));
+				    FloatInpSpec(4*c1.distTo(c2)) );
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };
@@ -293,7 +293,7 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     outctio_.ctxt.forread = false;
-    inctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    inctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
 
     infld_ = new uiIOObjSel( this, inctio_, "Input Polygon" );
     zrgfld_ = new uiSelZRange( this, true );

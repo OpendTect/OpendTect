@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "property.h"
 class IOPar;
 
@@ -32,7 +31,7 @@ class LayerSequenceGenDesc;
  
  */
 
-mExpClass(Strat) LayerGenerator
+mClass LayerGenerator
 {
 public:	
 

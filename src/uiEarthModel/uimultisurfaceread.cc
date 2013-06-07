@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimultisurfaceread.h"
 
@@ -58,6 +58,9 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     ioobjselgrp_->getListField()->doubleClicked.notify( 
 					mCB(this,uiMultiSurfaceRead,dClck) );
 
+    mkSectionFld( true );
+    sectionfld_->attach( rightTo, ioobjselgrp_ );  
+
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
@@ -65,6 +68,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
 	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword()) ||
          !strcmp(type,EMFault3DTranslatorGroup::keyword()) )
     {
+	sectionfld_->display( false, true );
 	rgfld_->display( false, true );
     }
 
@@ -112,6 +116,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	}
 
 	fillRangeFld( hs );
+	sectionfld_->box()->setEmpty();
 	return;
     }
 
@@ -141,26 +146,4 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 					EM::SurfaceIODataSelection& sel ) const
 {
     uiIOSurface::getSelection( sel );
-
-    if ( ioobjselgrp_->nrSel() != 1 )
-	return;
-
-    const MultiID mid = ioobjselgrp_->selected( 0 );
-    const EM::IOObjInfo info( mid );
-    EM::SurfaceIOData sd;
-    const char* res = info.getSurfaceData( sd );
-    if ( res || sd.sections.size() < 2 || !info.isHorizon() ) return;
-
-    uiDialog dlg( const_cast<uiParent*>(parent()),
-	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpID) );
-    uiListBox* lb = new uiListBox( &dlg, "Patches", true );
-    lb->addItems( sd.sections );
-    lb->selectAll( true );
-    if ( dlg.go() )
-    {
-	sel.selsections.erase();
-	lb->getSelectedItems( sel.selsections );
-	if ( sel.selsections.isEmpty() )
-	    sel.selsections += 0;
-    }
 }

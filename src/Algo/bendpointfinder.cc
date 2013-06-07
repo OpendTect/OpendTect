@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
@@ -70,7 +70,7 @@ bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 	    continue;
 
 	const Interval<int> segment = queue_[sz-1];
-	queue_.removeSingle( sz-1 );
+	queue_.remove( sz-1 );
 	lock_.unLock();
 
 	findInSegment( segment.start, segment.stop );
@@ -139,7 +139,7 @@ float BendPointFinder2D::getMaxSqDistToLine( int& idx, int start,
     if ( stop-start==2 )
     {
 	idx = start+1;
-	return (float)(((coords_[start]+coords_[stop])/2).sqDistTo(coords_[idx]));
+	return ((coords_[start]+coords_[stop])/2).sqDistTo( coords_[idx] );
     }
 
     const Line2 line( coords_[start], coords_[stop] );
@@ -154,7 +154,7 @@ float BendPointFinder2D::getMaxSqDistToLine( int& idx, int start,
 	if ( dsq>dsqmax ) { dsqmax = dsq; idx = ipt; }
     }
 
-    return (float) dsqmax;
+    return dsqmax;
 }
 
 
@@ -173,7 +173,7 @@ float BendPointFinder3D::getMaxSqDistToLine( int& idx, int start,
     if ( stop-start==2 )
     {
 	idx = start+1;
-	return (float)((coords_[start]+coords_[stop]).scaleBy(scale_)/2).
+	return ((coords_[start]+coords_[stop]).scaleBy(scale_)/2).
 	    	sqDistTo( coords_[idx].scaleBy(scale_) );
     }
 
@@ -188,5 +188,5 @@ float BendPointFinder3D::getMaxSqDistToLine( int& idx, int start,
 	if ( dsq>dsqmax ) { dsqmax = dsq; idx = ipt; }
     }
 
-    return (float) dsqmax;
+    return dsqmax;
 }

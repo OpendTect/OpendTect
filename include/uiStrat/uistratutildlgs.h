@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uidialog.h"
 #include "uitable.h"
 #include "ranges.h"
@@ -31,7 +30,7 @@ namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
-mExpClass(uiStrat) uiStratLithoBox : public uiListBox
+mClass uiStratLithoBox : public uiListBox
 {
 public:
     			uiStratLithoBox(uiParent*);
@@ -42,7 +41,7 @@ protected:
 };
 
 
-mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
+mClass uiStratUnitEditDlg : public uiDialog
 {
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
@@ -66,12 +65,12 @@ protected:
     void		getFromScreen();
     void		putToScreen();
 
-    bool		acceptOK(CallBacker*);
     void		selLithCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
 };
 
 
-mExpClass(uiStrat) uiStratLithoDlg : public uiDialog
+mClass uiStratLithoDlg : public uiDialog
 {
 public:
 
@@ -79,7 +78,6 @@ public:
 
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
-    bool		anyChg() const		{ return anychg_; }
 
 protected:
 
@@ -89,20 +87,22 @@ protected:
     uiColorInput*	colfld_;
 
     Strat::Lithology*	prevlith_;
-    bool		anychg_;
 
     void		newLith(CallBacker*);
     void		selChg(CallBacker*);
     void		rmLast(CallBacker*);
     void		renameCB(CallBacker*);
 
+    bool                anychg_;
+public:
+    bool                anyChg() const          { return anychg_; }
 };
 
 
 
 /*!\brief Displays a Table to create new units from an existing one */
 
-mExpClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
+mClass uiStratUnitDivideDlg : public uiDialog
 {
 public:
 				uiStratUnitDivideDlg(uiParent*,
@@ -112,7 +112,7 @@ public:
 
 protected :
 
-    mExpClass(uiStrat) uiDivideTable : public uiTable
+    mClass uiDivideTable : public uiTable
     {
 	public: 	
 				uiDivideTable(uiParent* p,
@@ -127,11 +127,8 @@ protected :
     uiTable*                    table_;
     const Strat::LeavedUnitRef& rootunit_;
 
-	//This fisrt function will be removed shortly, replaced by the second one. Do not use.
     bool			areTimesOK(
 	    				ObjectSet<Strat::LeavedUnitRef>&) const;
-	bool			areTimesOK(ObjectSet<Strat::LeavedUnitRef>&,
-									BufferString&) const;
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
@@ -143,7 +140,7 @@ protected :
 
 /*!\brief Displays a dialog to create new lithology */
 
-mExpClass(uiStrat) uiStratLevelDlg : public uiDialog
+mClass uiStratLevelDlg : public uiDialog
 {
 public:
 
@@ -159,7 +156,7 @@ protected:
 };
 
 
-mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
+mClass uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 
@@ -178,7 +175,7 @@ protected:
 };
 
 
-mExpClass(uiStrat) uiStratContentsDlg : public uiDialog
+mClass uiStratContentsDlg : public uiDialog
 {
 public:
 			uiStratContentsDlg(uiParent*);
@@ -193,4 +190,3 @@ protected:
 
 
 #endif
-

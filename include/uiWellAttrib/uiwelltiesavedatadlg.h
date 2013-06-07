@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -41,11 +40,11 @@ namespace WellTie
     class Data;
     class DataWriter;
 
-mExpClass(uiWellAttrib) uiSaveDataGroup : public uiGroup
+mClass uiSaveDataGroup : public uiGroup
 {
 public:
 
-      mExpClass(uiWellAttrib) Setup
+      mClass Setup
       {
 	  public:
 				Setup()
@@ -65,7 +64,7 @@ public:
 
     bool 			getNamesToBeSaved(BufferStringSet&,
 	    					  TypeSet<int>&);
-    int				indexOf( const char* nm ) const
+    const int			indexOf( const char* nm ) const
 				{ return itmnames_.indexOf(nm); }
     const char*			itemName( int idx )
     				{ return itmnames_.get(idx); }
@@ -88,7 +87,7 @@ protected:
 };
 
 
-mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
+mClass uiSaveDataDlg : public uiDialog
 {
 public: 
 				uiSaveDataDlg(uiParent*,const Data&,
@@ -114,5 +113,4 @@ protected :
 }; //namespace WellTie
 
 #endif
-
 

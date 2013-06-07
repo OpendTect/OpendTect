@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "pixmap.h"
 #include "keyenum.h"
@@ -24,7 +23,7 @@ class uiLabel;
 class uiListBoxBody;
 class uiPopupMenu;
 
-mFDQtclass(QListWidgetItem)
+class QListWidgetItem;
 
 
 /*!\brief List Box.
@@ -40,7 +39,7 @@ mFDQtclass(QListWidgetItem)
 
 */
 
-mExpClass(uiBase) uiListBox : public uiObject
+mClass uiListBox : public uiObject
 {
 friend class i_listMessenger;
 friend class uiListBoxBody;
@@ -76,8 +75,6 @@ public:
 
     void		setEmpty();
     void		removeItem(int);
-    void		removeItem(const char*);
-    void		setAllowDuplicates(bool yn);
     void		addItem(const char*,bool marked=false,int id=-1);
     void		addItem(const char*,const ioPixmap&,int id=-1);
     void		addItem(const char*,const Color&,int id=-1);
@@ -111,12 +108,10 @@ public:
 
     void		setItemsCheckable(bool);	//!< Sets all items
     void		setItemCheckable(int,bool);
-    void		setAllItemsChecked(bool);
+    void		setItemsChecked(bool);		//!< Sets all items
     void		setItemChecked(int,bool);
-    void		setItemChecked(const char*,bool);
     bool		isItemCheckable(int) const;
     bool		isItemChecked(int) const;
-    bool		isItemChecked(const char*) const;
     int			nrChecked() const;
 
     void		setItemSelectable(int,bool);
@@ -140,9 +135,7 @@ public:
     void 		setNrLines(int);
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
-    static int		cDefNrLines();		//!< == 7 (July 2011)
-    void		scrollToTop();
-    void		scrollToBottom();
+    static const int	cDefNrLines();		//!< == 7 (July 2011)
 
     Notifier<uiListBox> selectionChanged;
     CNotifier<uiListBox,int> itemChecked;	//!< or un-checked (of course)
@@ -159,11 +152,10 @@ protected:
     OD::ButtonState	buttonstate_;
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
-    bool 		allowduplicates_;
     uiPopupMenu&	rightclickmnu_;
 
     void		menuCB(CallBacker*);
-    void		handleCheckChange(mQtclass(QListWidgetItem*));
+    void		handleCheckChange(QListWidgetItem*);
 
 private:
 
@@ -173,12 +165,18 @@ private:
     bool		validIndex(int) const;
 
 public:
+    void		setAllItemsChecked(bool yn);
+    void		setAllowDuplicates(bool yn);//4.4 will just remove them
+    void                setItemChecked(const char*,bool);
+    bool                isItemChecked(const char*) const;
     void		disableRightClick(bool yn);
+    void		scrollToTop();
+    void		scrollToBottom();
 
 };
 
 
-mExpClass(uiBase) uiLabeledListBox : public uiGroup
+mClass uiLabeledListBox : public uiGroup
 {
 public:
 
@@ -210,4 +208,3 @@ protected:
 
 
 #endif
-

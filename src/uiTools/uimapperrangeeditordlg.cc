@@ -39,7 +39,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     uiSeparator* sephor = 0;
 
     uiToolBar* tb = new uiToolBar( this, "Stats" );
-    tb->addButton( "info", "Statistics",
+    tb->addButton( "info.png", "Statistics",
 	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
 
     for ( int idx=0; idx<nr; idx++ )

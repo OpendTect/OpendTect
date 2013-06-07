@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "welltiesetup.h"
@@ -28,7 +28,9 @@ static const char* sKeyVelLogName = "Velocity log name";
 static const char* sKeyDensLogName = "Density log name";
 static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
+static const char* sKeyCSCorrType = "CheckShot Correction";
 static const char* sKeySetupPar = "Well Tie Setup";
+static const char* sKeyReplacementVel = "Replacement Velocity";
 
 DefineEnumNames(Setup,CorrType,0,"Check Shot Corrections")
 { "None", "Automatic", "Use editor", 0 };
@@ -116,14 +118,14 @@ bool Writer::putIOPar( const IOPar& iop, const char* subsel ) const
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = putIOPar( *filepar, subsel, *sd.ostrm );
+    const bool isok = ptIOPar( *filepar, subsel, *sd.ostrm );
     sd.close();
     delete filepar;
     return isok;
 }
 
 
-bool Writer::putIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
+bool Writer::ptIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
 {
     if ( !wrHdr(strm,sKeyWellTieSetup()) ) return false;
 
@@ -166,13 +168,13 @@ IOPar* Reader::getIOPar( const char* subsel ) const
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return 0;
 
-    IOPar* iop = getIOPar( subsel, *sd.istrm );
+    IOPar* iop = gtIOPar( subsel, *sd.istrm );
     sd.close();
     return iop;
 }
 
 
-IOPar* Reader::getIOPar( const char* subsel, std::istream& strm ) const
+IOPar* Reader::gtIOPar( const char* subsel, std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return 0;

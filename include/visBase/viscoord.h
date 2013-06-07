@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 
 -*/
-#include "visbasemod.h"
 #include "callback.h"
 #include "positionlist.h"
 #include "thread.h"
 #include "visdata.h"
-
 
 class SoCoordinate3;
 class SoGroup;
@@ -26,19 +24,10 @@ class Executor;
 
 namespace Geometry { class PosIdHolder; }
 
-namespace osg { class Array; }
-
-#define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
-
-#define mGetOsgVec2Arr(ptr) ((osg::Vec2Array*) ptr )
-
 
 namespace visBase
 {
 class Transformation;
-class Normals;
-    
-class CoordinatesOsgImpl;
 
 /*!\brief
 A set of coordinates. The coordinates will be transformed by the
@@ -48,7 +37,7 @@ getPos.
 set
 */
 
-mExpClass(visBase) Coordinates : public DataObject
+mClass Coordinates : public DataObject
 {
 public:
 
@@ -89,9 +78,6 @@ public:
     bool		autoUpdate();
     void		update();
 
-    osg::Array*		osgArray() { return osgcoords_; }
-    const osg::Array*	osgArray() const { return osgcoords_; }
-
 protected:
 
     void		getPositions(TypeSet<Coord3>&) const;
@@ -113,43 +99,16 @@ protected:
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
     const mVisTrans*		transformation_;
-    
-    osg::Array*			osgcoords_;
 
     virtual SoNode*		gtInvntrNode();
 
 };
 
-    
-mExpClass(visBase) CoinFloatVertexAttribList : public FloatVertexAttribList
-{
-public:
-    			CoinFloatVertexAttribList(Coordinates&,Normals*);
-    
-    virtual int		size() const;
-    virtual bool	setSize(int,bool cpdata);
-    
-    virtual void	setCoord(int,const float*);
-    virtual void	getCoord(int,float*) const;
-    
-    virtual void	setNormal(int,const float*);
-    virtual void	getNormal(int,float*) const;
-    
-    virtual void	setTCoord(int,const float*);
-    virtual void	getTCoord(int,float*) const;
-
-protected:
-			~CoinFloatVertexAttribList();
-    
-    Normals*		normals_;
-    Coordinates&	coords_;
-};
-    
 
 /*!Adapter between a CoordList and Coordinates. */
 
 
-mExpClass(visBase) CoordListAdapter : public Coord3List
+mClass CoordListAdapter : public Coord3List
 {
 public:
     		CoordListAdapter(Coordinates&);
@@ -172,4 +131,3 @@ protected:
 };
 
 #endif
-

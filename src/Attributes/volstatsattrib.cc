@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "volstatsattrib.h"
 
@@ -17,8 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "survinfo.h"
 #include "valseriesinterpol.h"
-
-#include <math.h>
 
 #define mShapeRectangle		0
 #define mShapeEllipse		1
@@ -85,9 +83,9 @@ void VolStatsBase::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor ( roundedzstep );
+	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -113,7 +111,7 @@ VolStatsBase::VolStatsBase( Desc& ds )
     mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
     gate_.sort();
 
     BinID pos;
@@ -258,7 +256,7 @@ VolStats::VolStats( Desc& ds )
 
     if ( dosteer_ )
     {
-	float maxso = mMAX(stepout_.inl*inlDist(), stepout_.crl*crlDist());
+	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
 	const float maxsecdip = maxSecureDip();
 	desgate_.start = gate_.start - maxso*maxsecdip;
 	desgate_.stop = gate_.stop + maxso*maxsecdip;
@@ -451,7 +449,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( outputinterest_[outidx] == 0 )
 		continue;
 
-	    const float outval = (float) wcalc.getValue(
+	    const float outval = wcalc.getValue(
 		    			(Stats::Type)outputtypes[outidx] );
 	    setOutputValue( output, outidx, isamp, z0, outval );
 	}
@@ -530,43 +528,37 @@ void VolStats::getIdealStackPos(
     }
 
     if ( optstackdir_ == mDirNorm && !mIsZero(coeffa,1e-6) )
-	coeffa = -1.f/coeffa;
+	coeffa = -1./coeffa;
 
     Geom::Point2D<float> pointa;
     Geom::Point2D<float> pointb;
     if ( (isinline && optstackdir_ == mDirLine)
 	|| (iscrossline && optstackdir_ == mDirNorm) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl) , 
-				       mCast(float,cpos.crl-optstackstep_) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl), 
-				       mCast(float,cpos.crl+optstackstep_) );
+	pointa = Geom::Point2D<float>( cpos.inl, cpos.crl-optstackstep_ );
+	pointb = Geom::Point2D<float>( cpos.inl, cpos.crl+optstackstep_ );
     }
     else if ( (isinline && optstackdir_ == mDirNorm)
 	    || (iscrossline && optstackdir_ == mDirLine) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl-optstackstep_), 
-				       mCast(float,cpos.crl) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl+optstackstep_), 
-				       mCast(float,cpos.crl) );
+	pointa = Geom::Point2D<float>( cpos.inl-optstackstep_, cpos.crl );
+	pointb = Geom::Point2D<float>( cpos.inl+optstackstep_, cpos.crl );
     }
     else
     {
 	const float coeffb = (float)cpos.crl - coeffa * (float)cpos.inl;
 
 	//compute 4 intersections with 'stepout box'
-	const Geom::Point2D<float> inter1(mCast(float,cpos.inl - optstackstep_),
+	const Geom::Point2D<float> inter1( cpos.inl - optstackstep_,
 				    (cpos.inl-optstackstep_)*coeffa + coeffb );
-	const Geom::Point2D<float> inter2(mCast(float,cpos.inl + optstackstep_),
+	const Geom::Point2D<float> inter2( cpos.inl + optstackstep_,
 				    (cpos.inl+optstackstep_)*coeffa + coeffb );
 	const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl
 				    : (cpos.crl-optstackstep_-coeffb)/coeffa;
-	const Geom::Point2D<float> inter3( interx3, 
-				       mCast(float,cpos.crl - optstackstep_) );
+	const Geom::Point2D<float> inter3( interx3, cpos.crl - optstackstep_);
 	const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl
 				    : (cpos.crl+optstackstep_-coeffb)/coeffa;
-	const Geom::Point2D<float> inter4( interx4, 
-				       mCast(float,cpos.crl + optstackstep_) );
+	const Geom::Point2D<float> inter4( interx4, cpos.crl + optstackstep_);
 
 	//keep 2 points that cross the 'stepout box'
 	pointa = inter1.x>cpos.inl-optstackstep_

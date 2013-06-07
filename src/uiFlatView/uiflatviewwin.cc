@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -17,11 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 
 
-void uiFlatViewWin::createViewers( int nr )
+void uiFlatViewWin::createViewers( int nr, bool withhanddrag )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
-	uiFlatViewer* vwr = new uiFlatViewer( dockParent() );
+	//TODO Nanne: with group in between nothing is right
+	uiFlatViewer* vwr = new uiFlatViewer( dockParent(), withhanddrag );
+	//uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
 	vwrs_ += vwr;
 	vwr->setStretch( 2, 2 );
 	handleNewViewer( vwr );
@@ -47,16 +49,16 @@ void uiFlatViewWin::setDarkBG( bool yn )
 }
 
 
-void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) 
+void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars ) const
 {
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
-    FixedString vdstr = pars.find( "Variable density data" );
-    FixedString wvastr = pars.find( "Wiggle/VA data" );
-    FixedString vdvalstr = pars.find( "VD Value" );
-    FixedString wvavalstr = pars.find( "WVA Value" );
-    const bool issame = vdstr && wvastr && vdstr==wvastr;
+    const char* vdstr = pars.find( "Variable density data" );
+    const char* wvastr = pars.find( "Wiggle/VA data" );
+    const char* vdvalstr = pars.find( "VD Value" );
+    const char* wvavalstr = pars.find( "WVA Value" );
+    const bool issame = vdstr && wvastr && !strcmp(vdstr,wvastr);
     if ( vdvalstr )
     {
 	mAddSep();
@@ -77,17 +79,17 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
-    FixedString valstr = pars.find( sKey::Offset() );
+    const char* valstr = pars.find( sKey::Offset );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
-    valstr = pars.find( sKey::Azimuth() );
-    if ( valstr && valstr!="0" )
+    valstr = pars.find( sKey::Azimuth );
+    if ( valstr && *valstr && strcmp(valstr,"0") )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
     valstr = pars.find( "Z" );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Z="; mesg += valstr; }
-    valstr = pars.find( sKey::Position() );
+    valstr = pars.find( sKey::Position );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
     else
@@ -101,7 +103,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	if ( valstr && *valstr )
 	    { mAddSep(); mesg += "Y="; mesg += valstr; }
 
-	valstr = pars.find( sKey::TraceNr() );
+	valstr = pars.find( sKey::TraceNr );
 	if ( valstr && *valstr )
 	{
 	    mAddSep(); mesg += "TrcNr="; mesg += valstr;
@@ -132,7 +134,7 @@ uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 				      const uiFlatViewMainWin::Setup& setup )
     : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
 {
-    createViewers( setup.nrviewers_ );
+    createViewers( setup.nrviewers_, setup.withhanddrag_ );
     setDeleteOnClose( setup.deleteonclose_ );
 }
 

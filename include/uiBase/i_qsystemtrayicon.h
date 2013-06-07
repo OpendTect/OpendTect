@@ -22,8 +22,6 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
-
 class QSystemTrayIconMessenger : public QObject 
 {
 Q_OBJECT
@@ -65,7 +63,5 @@ void activated( QSystemTrayIcon::ActivationReason reason )
 }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

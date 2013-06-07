@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 #include "seistype.h"
 class IOObj;
@@ -21,7 +20,7 @@ class uiGenInput;
 class uiSeisFmtScaleComp;
 
 
-mExpClass(uiSeis) uiSeisFmtScale : public uiGroup
+mClass uiSeisFmtScale : public uiGroup
 {
 public:
 
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

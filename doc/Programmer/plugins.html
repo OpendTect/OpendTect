@@ -1,37 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
+<html>
 <!--
   - CopyRight:	(C) dGB Earth Sciences
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id$
+  - RCS:	$Id: plugins.html,v 1.51 2012/04/26 10:05:33 cvsbert Exp $
  -->
-		
-	<head>
-	<title>Plugins [OpendTect Programmer's manual V4.4]</title>
-  <base href="plugins.html" />
-    <link rel="stylesheet" href="style.css" type="text/css" />
-  </head>
 
-<body id="page_bg" class="width_fmax">
-		
-<div id="all">
-        <div id="wrapper">
-                <div id="wrapper_r">
-<div id="header">
-                                <div id="header_l">
-                                
-                                        <div id="header_r">
-						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
-						<div id="topmenu">
-						</div>
-			<div id="leftcolumn">	
-						<table id="greenborder"><tbody>
-								<tr><td valign="top">
+<body background="backg.png"><title>Plugins [OpendTect Programmer's manual V4.4]</title>
 <center>
-<h1>OpendTect plugins</h1>
-<a href=#intro>Intro</a>
+<h1>OpendTect Plugins</h1>
+  <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
 | <a href=#helloworld>Hello World</a>
 | <a href=#mnudlg>Menus and Dialogs</a>
@@ -40,12 +19,12 @@
 | <a href=#autoload>Installation and auto-loading</a>
 </center>
 <br>
+<img src="hr.png" border=0>
 
+<a name=intro><h2>Intro</h2>
+<h3>Background</h3>
 
-<a name="intro"><h2 id="heading2">Intro</h2></a>
-<h3 id="heading3">Background</h3>
-
-<p id="text"> Making your own software within OpendTect is in principle pretty
+<p> Making your own software within OpendTect is in principle pretty
 easy. You <i>could</i> change the software by modifying existing
 classes and functions, and adding your own stuff to the libs. The
 advantage is total control. The problem with this approach, however,
@@ -54,21 +33,21 @@ releases. Furthermore, if you cannot convince the opendtect.org people
 to also make those changes, OpendTect users may not be happy with your
 work. </p>
 
-<p id="text"> An easy way to overcome this is to make your own plugins. Plugins
+<p> An easy way to overcome this is to make your own plugins. Plugins
 make use of all the facilities of OpendTect but are loaded at run-time
 and can therefore be developed in a completely independent way. If you
 then find things that can't be done without modifying the OpendTect
 environment, it should be much easier to convince the opendtect.org
 people to take over or even implement those things themselves. </p>
 
-<p id="text"> One thing you <i>cannot</i> do, is use another compiler than
+<p> One thing you <i>cannot</i> do, is use another compiler than
 <b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, COIN, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
 
 <br><br>
-<a name="concept"><h2 id="heading2">The concept</h2></a>
-<h3 id="heading3">Dynamic loading</h3>
+<a name=concept><h2>The concept</h2>
+<h3>Dynamic loading</h3>
 
-<p id="text"> All modern Operating systems nowadays have ways to dynamically
+<p> All modern Operating systems nowadays have ways to dynamically
 load libraries into a running program. The basic idea is:</p>
 
 <ul>
@@ -79,10 +58,10 @@ load libraries into a running program. The basic idea is:</p>
 </ul>
 
 
-<p id="text"> As an example, a 'hello world' program could conceptually look
+<p> As an example, a 'hello world' program could conceptually look
 like this:
 
-<pre id="code"><code>
+<pre><code>
 
 dynlib = OpenDynamicLib( "libc.so" );
 PrintfTypeFunction fn = (PrintfTypeFunction)GetDynLibFn( dynlib, "printf" );
@@ -91,24 +70,24 @@ fn( "Hello world\n" );
 </code></pre>
 </p>
 
-<p id="text"> In this very simple case calling the function has no other effect
+<p> In this very simple case calling the function has no other effect
 than printing a string. In OpendTect, you'd want to add an attribute,
 create a menu item in the Opendtect menu, start horizon tracking, that sort of thing. </p>
 
-<h3 id="heading3">OpendTect plugins</h3>
+<h3>OpendTect plugins</h3>
 
-<p id="text"> In OpendTect, all of the dynamic lib querying etc. is already
+<p> In OpendTect, all of the dynamic lib querying etc. is already
 programmed. A plugin just needs to contain a few standard functions
 that will be called automatically when the dynamic library is loaded.
 There are three functions, of which only one is really required. Let's
 say the name of the plugin is MyMod, these functions will be: </p>
 
-<pre id="code"><code>GetMyModPluginType
+<pre><code>GetMyModPluginType
 GetMyModPluginInfo
 InitMyModPlugin
 </code></pre>
 
-<p id="text"> Only the last one is required. The first one,
+<p> Only the last one is required. The first one,
 <code>Get...PluginType</code> determines whether the plugin can be
 used for the <a href=#autoload>auto-load</a>, and if so, when. 'When'
 means: before or after the program has created the OpendTect GUI
@@ -116,12 +95,11 @@ objects (and always after the static objects are initialised). The
 second function simply provides info for the users of your plugin.
 </p>
 
-<a name="helloworld"><h3 id="heading3">Hello world</h3></a>
-
-<p id="text"> Note that the standard plugin functions must be declared 'extern "C"', as you
+<a name=helloworld></a>
+<p> Note that the standard plugin functions must be declared 'extern "C"', as you
 can see in the first example plugin "Hello": </p>
 
-<pre id="code"><code>#include &lt;iostream&gt;
+<pre><code>#include &lt;iostream&gt;
 extern "C" const char* InitHelloPlugin( int, char** )
 {
     std::cout &lt;&lt; "Hello world" &lt;&lt; std::endl;
@@ -129,12 +107,12 @@ extern "C" const char* InitHelloPlugin( int, char** )
 }
 </code></pre>
 
-<p id="text"> You'll find this example plugin in the plugins directory of your
+<p> You'll find this example plugin in the plugins directory of your
 work environment. Those 6 lines are enough to constitute a plugin for
 OpendTect. The CMakeLists.txt to build the plugin looks like this: </p>
 
-<p id="text">
-<pre id="code"><code>SET(OD_MODULE_DEPS Basic)
+<p>
+<pre><code>SET(OD_MODULE_DEPS Basic)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
         hellopi.cc)
@@ -144,23 +122,23 @@ OD_INIT_MODULE()
 </code></pre>
 </p>
 
-<p id="text"> First try <code>make -n</code> (make sure you have <a
+<p> First try <code>make -n</code> (make sure you have <a
 href="http://cmake.org">CMake</a> initialised!). Notice that CMake makes an
 awful big Makefile with a small specification. This is because the CMakeLists.txt includes loads of stuff.</p>
-<p id="text">An important remark here is that CMake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
-<p id="text">Anyway, after typing
+<p>An important remark here is that CMake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
+<p>Anyway, after typing
 <code>make</code> the plugin should be generated. The new plugin can
 be loaded from within OpendTect (Menu Utilities-Plugins; press the
 'Load new' button). At that point in time, the message 'Hello world'
 should appear on stdout (on Windows, stdout messages appear on the
 OpendTect console window). </p>
 
-<p id="text"> To make this a UI - based program we'll need to use functionality
+<p> To make this a UI - based program we'll need to use functionality
 from the <code>uiBase</code> module. In this case, we use the
 <code>uiMSG()</code> utility: </p>
 
 
-<pre id="code"><code>#include "uimsg.h"
+<pre><code>#include "uimsg.h"
 extern "C" const char* InituiHelloPlugin( int*, char** )
 {
     uiMSG().message( "Hello world" );
@@ -168,27 +146,27 @@ extern "C" const char* InituiHelloPlugin( int*, char** )
 }
 </code></pre>
 
-<p id="text">Again 6 lines, but now, when you load it, you'll get a popup
+<p> Again 6 lines, but now, when you load it, you'll get a popup
 message with an OK button. </p>
 
-<p id="text">In this case we actually use stuff from OpendTect libraries, so the
+<p>In this case we actually use stuff from OpendTect libraries, so the
 Makefile needs to change. We need change the module dependency:
 
-<pre id="code"><code>SET(OD_MODULE_DEPS uiODMain)</code></pre>
+<pre><code>SET(OD_MODULE_DEPS uiODMain)</code></pre>
 
-<p id="text">If you really want to see this simple thing working, make sure you add <code>OWNC++FLAGS=-DPLAN_A</code> to the make command line.</p>
+<p>If you really want to see this simple thing working, make sure you add <code>OWNC++FLAGS=-DPLAN_A</code> to the make command line.</p>
 
-<h3 id="heading3">Macros to define the required functions</h3>
+<a name=pifnmacros><h3>Macros to define the required functions</h3>
 
-<p id="text">As of version 4.2, there are macros available to define the plugin functions. They make it easier to read and maintain these functions. They are in odplugin.h. You'll use 2 of them for late (UI) plugins, 3 for early:</p>
+As of version 4.2, there are macros available to define the plugin functions. They make it easier to read and maintain these functions. They are in odplugin.h. You'll use 2 of them for late (UI) plugins, 3 for early:
 <ul>
 <li><code>mDefODPluginEarlyLoad(PluginName)</code>
 <li><code>mDefODPluginInfo(PluginName)</code>
 <li><code>mDefODInitPlugin(PluginName)</code>
 </ul>
 </code>
-<p id="text">uiHello can be changed to:</p>
-<pre id="code"><code>#include "uimsg.h"
+uiHello can be changed to:
+<pre><code>#include "uimsg.h"
 mDefODInitPlugin(uiHello)
 {
     uiMSG().message( "Hello world" );
@@ -198,20 +176,20 @@ mDefODInitPlugin(uiHello)
 
 
 <br>
-<h2 id="heading2">Realistic examples</h2>
+<a name=real><h2>Realistic examples</h2>
 
-<a name="mnudlg"><h3 id="heading3">Menus and Dialogs</h3></a>
+<a name=mnudlg><h3>Menu and Dialog</h3>
 
-<h3 id="heading3">Intro</h3>
+<h4>Intro</h4>
 
-<p id="text"> Adding menu items popping up your own dialogs is pretty easy once
+<p> Adding menu items popping up your own dialogs is pretty easy once
 you get the hang of it. Although we fear that you might be scared by this code when you first see it, we hope that after the explanations below you will see
 some beauty in it and start to like it.</p>
 
-<p id="text">Look in uihellopi.cc - the else of the PLAN_A part. First of all,
-we nicely define the other standard plugin functions:</p>
+<p>Look in uihellopi.cc - the else of the PLAN_A part. First of all,
+we nicely define the other standard plugin functions:
 
-<pre id="code"><code>
+<pre><code>
 mDefODPluginInfo(uiHello)
 {
     static PluginInfo retpi = {
@@ -224,24 +202,24 @@ mDefODPluginInfo(uiHello)
 }
 </pre></code>
 
-<p id="text">The plugin will now <a href=#autoload>auto-load</a> late when added to the auto-loaded plugins, and show up in the Utilties-Plugins window with a proper name and description.</p>
+The plugin will now <a href=#autoload>auto-load</a> late when added to the auto-loaded plugins, and show up in the Utilties-Plugins window with a proper name and description.</p>
 
-<p id="text"> The idea is to add a menu item 'Display Hello Message ...' to the
+<p> The idea is to add a menu item 'Display Hello Message ...' to the
 'Utilities' menu of OpendTect. The CMakeLists.txt and the example code are
 already prepared for this.
 
 </p>
 
-<h3 id="heading3">Problems</h3>
+<h4>Problems</h4>
 
-<p id="text">The two problems we are faced with are:</p>
+The two problems we are faced with are:
 
 <ol>
 <li>How to add a new menu item
 <li>How to create a dialog
 </ol>
 
-<p id="text"> The real problem behind the first is not so much how to make the
+<p> The real problem behind the first is not so much how to make the
 item itself, but how to get hold of the parent menu it must be
 inserted into. This is a threshold that needs to be conquered for
 every new system: you'll need an entry point, a seed to get you going.
@@ -250,25 +228,25 @@ class that can be accessed through the <code>uiODMain*
 ODMainWin()</code> global function. Once you have that, you can reach
 any object you need.</p>
 
-<p id="text"> To see where things start, go to the InituiHelloPlugin
+<p> To see where things start, go to the InituiHelloPlugin
 function at the bottom of uihellopi.cc to find: </p>
 
-<pre id="code"><code>mDefODInitPlugin(uiHello)
+<pre><code>mDefODInitPlugin(uiHello)
 {
     (void)new uiHelloMgr( ODMainWin() );
     return 0; // All OK - no error messages
 }
 </pre></code>
 
-<p id="text"> As you can see, the ODMainWin() instance is passed to a new
+<p> As you can see, the ODMainWin() instance is passed to a new
 instance of <code>uiHelloMgr</code> which is programmed in the lines
 above it. This Manager object is needed as you will find that most
 non-trivial GUI plugin will need some kind of top-level 'application
 management' object to drive it. </p>
 
-<h3 id="heading3">The <code>uiHelloMgr</code></h3>
+<h4>The <code>uiHelloMgr</code></h4>
 
-<p id="text"> An important part of any GUI system is callback handling. In
+<p> An important part of any GUI system is callback handling. In
 OpendTect, callbacks are basic objects used throughout the system, not
 only in the User Interface. In any case, because callbacks can only be
 sent to objects that are <code>CallBacker</code>s, we have made
@@ -276,26 +254,26 @@ sent to objects that are <code>CallBacker</code>s, we have made
 can receive the callback from the menu. When the uiHelloMgr is
 constructed, it will add a menu item to the OpendTect menu: </p>
 
-<code><pre id="code">
+<code><pre>
     uiMenuItem* newitem = new uiMenuItem( "&amp;Diplay Hello Message ...",
                                           mCB(this,uiHelloMgr,dispMsg) );
     appl.menuMgr().utilMnu()->insertItem( newitem );
 </code></pre>
 
-<p id="text">The new menu item is defined by the display text (the '&amp;'
+<p> The new menu item is defined by the display text (the '&amp;'
 makes the 'D' the shortcut key) and the CallBack that needs to be
 called when the item is activated (by the user). Note the
 <code>mCB</code> which is a macro that makes the rather difficult C++
 notation easy to understand. See callback.h in the <code>Basic</code>
 include directory if you're really interested. </p>
 
-<p id="text"> The next line inserts the item into the 'Utilities' menu. You'll
+<p> The next line inserts the item into the 'Utilities' menu. You'll
 find a bunch of methods in the <code>uiODMenuMgr</code> class to
 access all menus and toolbars. </p>
 
-<h3 id="heading3">The <code>uiHelloMsgBringer</code></h3>
+<h4>The <code>uiHelloMsgBringer</code></h4>
 
-<p id="text"> Most dialog windows in OpendTect are objects of type
+<p> Most dialog windows in OpendTect are objects of type
 <code>uiDialog</code>. <code>uiDialog</code> inherits from <code>uiMainWin</code>, the base class without Ok and Cancel buttons, a window title,
 and so forth (all of those are optional BTW).
 The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>.
@@ -306,36 +284,36 @@ You can see the <code>uiGenInput</code> class will serve both input
 fields nicely, you just need to define another <code>InpSpec</code>
 instance: </p>
 
-<code><pre id="code">txtfld = new uiGenInput( this, "Hello message",
+<code><pre>txtfld = new uiGenInput( this, "Hello message",
                          StringInpSpec("Hello world") );
 typfld = new uiGenInput( this, "Message type",
                          BoolInpSpec(true,"Info","Warning") );
 typfld->attach( alignedBelow, txtfld );
 </code></pre>
 
-<p id="text"> Note that "Hello world" is the inital string displayed in
+<p> Note that "Hello world" is the inital string displayed in
 <code>txtfld</code>. Another feature of the OpendTect UI is the
 automatic layout: we program the positions of the various fields by
 attaching them in certain ways - most commonly
 <code>alignedBelow</code>. </p>
 
-<p id="text"> The actual message is displayed when the user presses Ok on the
+<p> The actual message is displayed when the user presses Ok on the
 dialog that pops up. When nothing is filled in, we give the user the
 finger with the "Please type a text" message, and we do not accept the
 Ok, i.e. the dialog remains on the screen and the user can either be a
 good girl (or boy) and fill in something or press cancel.</p>
 
-<code><pre id="code">if ( ! *typedtxt )
+<code><pre>if ( ! *typedtxt )
 {
     uiMSG().error( "Please type a message text" );
     return false;
 }
 </code></pre>
 
-<p id="text"> When a message is present, we do as we're told: </p>
+<p> When a message is present, we do as we're told: </p>
 
 
-<code><pre id="code">if ( typfld->getBoolValue() )
+<code><pre>if ( typfld->getBoolValue() )
     uiMSG().message( typedtxt );
 else
     uiMSG().warning( typedtxt );
@@ -343,24 +321,24 @@ return true;
 </code></pre>
 
 
-<p id="text">and the dialog disappears immediately after the message appears on
+<p>and the dialog disappears immediately after the message appears on
 the screen and the user clicks OK.</p>
 
 <br>
 <br>
-<a name="tutplugin"><h3 id="heading3">The Tutorial plugin</h3></a>
+<a name=tutplugin><h3>The Tutorial plugin</h3>
 
-<h3 id="heading3">Intro</h3>
+<a name=tutpiintro><h4>Intro</h4>
 
-<p id="text">Now that we've seen some basic plugin stuff, and some basic GUI stuff, we can move on to a real plugin that looks like something that could actually be useful. For this purpose, we have created the Tutorial plugins. As is common in OpendTect, there is a plugin 'Tut' for non-ui, real-work stuff, and the 'uiTut' for the GUI part.</p>
-<p id="text">The idea of the tutorial plugins is to show a variety of common things that one might want to do, rather than make something useful for end-users. For that we'll make the following tools:</p>
+<p>Now that we've seen some basic plugin stuff, and some basic GUI stuff, we can move on to a real plugin that looks like something that could actually be useful. For this purpose, we have created the Tutorial plugins. As is common in OpendTect, there is a plugin 'Tut' for non-ui, real-work stuff, and the 'uiTut' for the GUI part.</p>
+<p>The idea of the tutorial plugins is to show a variety of common things that one might want to do, rather than make something useful for end-users. For that we'll make the following tools:
 <ul>
 <li>Manipulating some seismic data (read, process, write)
 <li>The same, but now using an Attribute
 <li>Do some work with horizons
 <li>Do some work with wells
 </ul>
-<p id="text">In the process, we'll see how to:
+In the process, we'll see how to:
 <ul>
 <li>Create menu items and toolbar icons
 <li>Make right-click tree item menus
@@ -370,21 +348,21 @@ the screen and the user clicks OK.</p>
 </p>
 
 
-<h3 id="heading3">The <code>uiTut</code> plugin</h3>
+<a name=tutgui><h4>The <code>uiTut</code> plugin</h4>
 
-<p id="text">In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation</p>
+<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation</p>
 
-<p id="text">Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).</p>
+<p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).</p>
 
-<p id="text"> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.</p>
+<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.</p>
 
-<p id="text"> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
+<p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
 
-<p id="text">Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
+<p>Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
 
-<p id="text"> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.</p>
+<p> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.</p>
 
-<code><pre id="code">
+<code><pre>
 mDefODPluginInfo(uiTut)
 {
     static PluginInfo retpi = {
@@ -397,9 +375,9 @@ mDefODPluginInfo(uiTut)
 }
 </pre></code>
 
-<p id="text"> And the last 'special' function is the one which gets things going:</p>
+<p> And the last 'special' function is the one which gets things going:</p>
 
-<code><pre id="code">mDefODInitPlugin(uiTut)
+<code><pre>mDefODInitPlugin(uiTut)
 {
     static uiTutMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiTutMgr( ODMainWin() );
@@ -410,19 +388,19 @@ mDefODPluginInfo(uiTut)
 
 </pre></code>
 
-<a name="tut"><h3 id="heading3">The <code>Tut</code> plugin</h3></a>
+<a name=tut><h4>The <code>Tut</code> plugin</h4>
 
-<p id="text"> The responsibility of uiTut is limited to talking to the user and getting the input parameters. The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is very uncommon) and LATE, which is typical
-for UI plugins that want to start working when all objects have already been created. In this case, we need to specify that we have an EARLY plugin:</p>
-<pre id="code"><code>
+<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters. The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is very uncommon) and LATE, which is typical
+for UI plugins that want to start working when all objects have already been created. In this case, we need to specify that we have an EARLY plugin:
+<pre><code>
 mDefODPluginEarlyLoad(Tut)
 </pre></code></p>
 
-<a name="seistools"><h3 id="heading3">SeisTools</h3></a>
+<a name=seistools><h5>SeisTools</h5>
 
-<p id="text"> Let us first look at the direct seismic operations, that are handled by the class <code>SeisTools</code>, which in turn is a subclass of class <code>Executor</code>. 'Real work' is done by the function <code>nextStep()</code> which is typical of class <code>Executor</code>. Here, three different operations are possible: Scaling, where you can multiply the data values by a certain factor and apply a shift; Squaring, where as the name suggests, you can take a square of the data values; and Smoothening, where you can take the arithmatic average of 3 or 5 samples depending on the filter strength. Traces are read one-by-one by a <code>SeisTrcReader</code> and supplied to the function <code>handleTrace()</code> where the actual computation is done. Then a SeisTrcWriter writes the output traces on-by-one to the output cube.</p>
+<p> Let us first look at the direct seismic operations, that are handled by the class <code>SeisTools</code>, which in turn is a subclass of class <code>Executor</code>. 'Real work' is done by the function <code>nextStep()</code> which is typical of class <code>Executor</code>. Here, three different operations are possible: Scaling, where you can multiply the data values by a certain factor and apply a shift; Squaring, where as the name suggests, you can take a square of the data values; and Smoothening, where you can take the arithmatic average of 3 or 5 samples depending on the filter strength. Traces are read one-by-one by a <code>SeisTrcReader</code> and supplied to the function <code>handleTrace()</code> where the actual computation is done. Then a SeisTrcWriter writes the output traces on-by-one to the output cube.</p>
 
-<code><pre id="code">int Tut::SeisTools::nextStep()
+<code><pre>int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
 	return createReader() ? Executor::MoreToDo()
@@ -452,9 +430,9 @@ mDefODPluginEarlyLoad(Tut)
 
 </pre></code>
 
-<p id="text"> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.</p>
+<p> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.</p>
 
-<code><pre id="code">void Tut::SeisTools::handleTrace()
+<code><pre>void Tut::SeisTools::handleTrace()
 {
     switch ( action_ )
     {
@@ -506,11 +484,11 @@ mDefODPluginEarlyLoad(Tut)
 }
 </pre></code>
 
-<h3 id="heading3">HorTool</h3>
+<p><a name=hortools><h5>HorTool</h5>
 
-<p id="text"> Similar to <code>SeisTools, HorTool</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTool</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTool</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessCalculator</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessCalculator</code> to see how the data values are accessed in a <code>Horizon3D</code>:</p>
+<p> Similar to <code>SeisTools, HorTool</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTool</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTool</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessCalculator</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessCalculator</code> to see how the data values are accessed in a <code>Horizon3D</code>:</p>
 
-<code><pre id="code">int Tut::ThicknessCalculator::nextStep()
+<code><pre>int Tut::ThicknessCalculator::nextStep()
 {
     if ( !iter_->next(bid_) )
         return Executor::Finished();
@@ -536,75 +514,75 @@ mDefODPluginEarlyLoad(Tut)
     nrdone_++;
     return Executor::MoreToDo();
 }</pre></code>
-<p id="text"> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessCalculator</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.</p>
+<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessCalculator</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.</p>
+<p>
+<a name=tutattrib><h4>The Tutorial Attribute</h4>
 
-<a name="tutattrib"><h3 id="heading3">The Tutorial Attribute</h3></a>
+<p> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.<p> 
 
-<p id="text"> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.</p> 
+<p> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.</p>
 
-<p id="text"> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.</p>
+<a name=steer><h4>Steering</h4>
 
-<h3 id="heading3">Steering</h3>
+<p> A <i>Steering cube</i>, as the name suggests, works as a guiding cube. It stores the <i>Inline dip</i> and <i>Crossline dip</i> at each point, which guides the attribute engine in multi-trace computations. In case of our <i>Tutorial</i> attribute, we can use the steering data for horizontal smoothening. The key function is <a href=#initsteer><code>initSteering()</code></a> which makes the steering data available in the form of shifts relative to the central trace. To understand how this shift is used during computation, please refer to the <a href=#horsmooth><i>horizontal smoothening</i></a> section in the function <a href=#compdata><code>computeData().</code></a>
 
-<p id="text"> A <i>Steering cube</i>, as the name suggests, works as a guiding cube. It stores the <i>Inline dip</i> and <i>Crossline dip</i> at each point, which guides the attribute engine in multi-trace computations. In case of our <i>Tutorial</i> attribute, we can use the steering data for horizontal smoothening. The key function is <a href=#initsteer><code>initSteering()</code></a> which makes the steering data available in the form of shifts relative to the central trace. To understand how this shift is used during computation, please refer to the <a href=#horsmooth><i>horizontal smoothening</i></a> section in the function <a href=#compdata><code>computeData().</code></a></p>
-
-<p id="text">Some fundamental attribute functions are listed here:</p>
-<h3 id="heading3">initClass()</h3>
-<p id="text"> This static function initializes the attribute: sets up the parameters and 
+<p>Some fundamental attribute functions are listed here:</p>
+<a name=tutinit><h5>initClass()</h5>
+<p> This static function initializes the attribute: sets up the parameters and 
 the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut 
 plugin.</p>
 
-<p id="text"> If you look at the parts of the implementation carefully, 
+<p> If you look at the parts of the implementation carefully, 
 ( tutorialattrib.cc ) you'll see that each parameter is built up following 
 this example: </p>
 
-<pre id="code"><code>EnumParam* action = new EnumParam( actionStr() );
+<pre><code>EnumParam* action = new EnumParam( actionStr() );
     action->addEnum( "Scale" );
     action->addEnum( "Square" );
     action->addEnum( "Smooth" );
     desc->addParam( action );
 </code></pre>
 
-<p id="text">Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
+<p>Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
 
-<p id="text">initClass() also adds the attribute to the attribute factory.
+<p>initClass() also adds the attribute to the attribute factory.
 In this case, as every attribute is a provider, the Tutorial attribute is 
 added to PF() (the <a href="Generated/AttributeEngine/classAttrib_1_1ProviderFactory.html"
 >Attrib::ProviderFactory</a> singleton access function).</p>
 
 
-<h3 id="heading3">createInstance()</h3>
-<p id="text">This function is standard for every attribute, 
+<h5>createInstance()</h5>
+<p>This function is standard for every attribute, 
 here is the attribute constructor called.</p>
 
 
-<h3 id="heading3">updateDesc()</h3>
-<p id="text">Will be used not only to update the parameters but also the number and type 
+<h5>updateDesc()</h5>
+<p>Will be used not only to update the parameters but also the number and type 
 of the outputs and to add or disable some inputs. If you look at the 
 implementation for the tutorial attribute, this function just allows to enable or disable
 the inputs ( factor, shift and smooth ) according to the action chosen
 by the user</p>
 
 
-<h3 id="heading3">getInputOutput()</h3>
-<p id="text"> we need to define this <a href=attributes.html#phases>initialization</a> function because we have Steering. Steering always carries two outputs and we need them both.
+<h5>getInputOutput()</h5>
+<p> we need to define this <a href=attributes.html#phases>initialization</a> function because we have Steering. Steering always carries two outputs and we need them both.
 </p>
 
-<a name="initsteer"><h3 id="heading3">initSteering()</h3></a>
-<p id="text"> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.</p>
-<code><pre id="code">void Tutorial::initSteering()
+<a name=initsteer><h5>initSteering()</h5>
+<p> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.</p>
+<code><pre>void Tutorial::initSteering()
 {
     if ( inputs[1] && inputs[1]->getDesc().isSteering() )
         inputs[1]->initSteering( stepout_ );
 }
 </pre></code>
 
-<h3 id="heading3">getInputData()</h3>
-<p id="text">Before the work can be done, some input has to be given. This function is the
+<h5>getInputData()</h5>
+<p>Before the work can be done, some input has to be given. This function is the
 place where you specify how to get your input data.
 For the Tutorial this is the seismic data. But it can also be Steering Data or any other attribute.</p>
 
-<code><pre id="code">bool Tutorial::getInputData( const BinID& relpos, int zintv )
+<code><pre>bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
     if ( inpdata_.isEmpty() )
         inpdata_ += 0;
@@ -636,7 +614,7 @@ For the Tutorial this is the seismic data. But it can also be Steering Data or a
 
 }</pre></code>
 
-<p id="text"> You will notice from here that the calculation of the attributes is not done
+<p> You will notice from here that the calculation of the attributes is not done
 on traces but using a different object, the DataHolder. The dataholder contains
 a set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a> which 
 holds the value of every sample of the SeisTrc.
@@ -645,13 +623,13 @@ is available in the corresponding dataholders, it thus saves a lot of time
 ( easier and much faster to read some floats in a ValueSeries than to get values
 from a SeisTrc ). Stored data are read from cubes of seismic traces and written
 the same way.</p>
-<p id="text">The DataHolder is also carrying some specific information about the trace to
+<p>The DataHolder is also carrying some specific information about the trace to
 be processed, like the start sample number and the number of samples you wish 
 to calculate.</p>
-<p id="text">Another important remark: calculation is made using sample numbers, 
+<p>Another important remark: calculation is made using sample numbers, 
 not time or depth</p>
 
-<p id="text"> Most of the rest of the methods are there to comply with the
+<p> Most of the rest of the methods are there to comply with the
 <code>Attrib::Provider</code> interface - see the <a
 href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider
 documentation</a>. The basic idea is that for each sample of each
@@ -661,13 +639,13 @@ function. If your input requires additional samples (timegate) or neighbouring
 traces (stepout), you will have to define <code>reqZMargin()</code> and 
 <code>reqStepout()</code> respectively. </p>
 
-<a name="compdata"><h3 id="heading3">computeData()</h3></a>
-<p id="text"> When we want to look at the actual work, the place to be is the
+<a name=compdata><h5>computeData()</h5>
+<p> When we want to look at the actual work, the place to be is the
 <code><b>computeData()</b></code> method. This is the place where you define the
 mathematics for calculating the attribute. This function is called for each 
 trace of your output cube.</p>
 
-<p id="text">In the computeData() method, we are faced with a number of Z ranges.
+<p>In the computeData() method, we are faced with a number of Z ranges.
 To be able to support multi-threading, computeData must be ready to only
 process part of the trace. Then, also, we can have input cubes that are
 larger than requested or desired, or smaller than that. This delivers a
@@ -681,9 +659,9 @@ named 'z0_' in the corresponding DataHolders.</p>
 <img src="fig_explainz0.png" alt="Explaining Z0">
 </center>
 
-<p id="text">Let us have a look at the <code>Tutorial::computeData</code> function and compare it with the code in <code>SeisTools</code>. The algorithm for actual computation is the same in both the cases, but there is a marked difference in the manner in which seismic data is accessed in each case. </p>
+<p>Let us have a look at the <code>Tutorial::computeData</code> function and compare it with the code in <code>SeisTools</code>. The algorithm for actual computation is the same in both the cases, but there is a marked difference in the manner in which seismic data is accessed in each case. 
 
-<code><pre id="code">bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
+<code><pre>bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
                            int z0, int nrsamples, int threadid ) const
 {
     for ( int idx=0; idx < nrsamples; idx++ )
@@ -711,7 +689,7 @@ named 'z0_' in the corresponding DataHolders.</p>
                 }
             }
             outval = sum / count;
-	<a name="horsmooth">}</a>
+        }<a name=horsmooth>
         else if (action_ == 2 && horsmooth_ )
         {
             float sum = 0;
@@ -746,95 +724,95 @@ named 'z0_' in the corresponding DataHolders.</p>
 
 <br>
 
-<a name="helpdoc"><h2 id="heading2">Creating the Help Documention</h2></a>
+<a name=helpdoc><h2>Creating the Help Documention</h2>
 
-<h3 id="heading3">The help system</h3>
+<h3>The help system</h3>
 
-<p id="text"> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/doc/User/###</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tut</i>. There are 4 key files in this directory:</p>
+<p> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/doc/User/###</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tut</i>. There are 4 key files in this directory:
 <ul>
 <li>.mnuinfo 			: This contains the name and start page of the help document as seen in the <i>Index</i> menu.
 <li>WindowLinkTable.txt		: This file contains the window links and corresponding codes as used in the UI.
 <li>LinkFileTable.txt		: Relates the links to the actual files.
 <li>index.html			: This is the start page.
 </ul></pre>
-<p id="text"> The codes of these help documents as mentioned in the <code>WindowLinkTable.txt</code> can be passed as a parameter during creation of the UI dialog. For example,
-<code><pre id="code">uiTutSeisTools::uiTutSeisTools( uiParent* p )
+<p> The codes of these help documents as mentioned in the <code>WindowLinkTable.txt</code> can be passed as a parameter during creation of the UI dialog. For example,
+<code><pre>uiTutSeisTools::uiTutSeisTools( uiParent* p )
         : uiDialog( p, Setup( "Tut seismic tools",
                               "Specify process parameters",
                               "tut:105.0.1") )
 </pre></code>  
-<p id="text">In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.</p>
+In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.</p>
 
-<h3 id="heading3">The 'credits' documentation</h3>
-<p id="text">From 3.3.2, OpendTect has the 'Credits' documentation, for aknowledging
+<h3>The 'credits' documentation</h3>
+<p>From 3.3.2, OpendTect has the 'Credits' documentation, for aknowledging
 helpers, sponsors, idols, ....
 The structure is different from the user documentation described earlier. The base directory is <code>$WORK/doc/Credits</code>.</p>
-<p id="text">If you want to tie certain windows to specific credits (as we want in OpendTect base), you can use the Help ID as reference. This should then go in the <code>index.txt</code> file. All files are opened by the browser via that key. It's easy to see, for example in <code>Credits/tut/index.txt</code> how this works. Note that the IDs in index.txt need no scope, the scope is already used to for the subdirectory (no scope is as usual 'base'). Then, and this is essential, you'll have to use <code>setHaveCredits( true );</code> in the constructor of your dialog. This will add the 'credits' button to the dialog.
+<p>If you want to tie certain windows to specific credits (as we want in OpendTect base), you can use the Help ID as reference. This should then go in the <code>index.txt</code> file. All files are opened by the browser via that key. It's easy to see, for example in <code>Credits/tut/index.txt</code> how this works. Note that the IDs in index.txt need no scope, the scope is already used to for the subdirectory (no scope is as usual 'base'). Then, and this is essential, you'll have to use <code>setHaveCredits( true );</code> in the constructor of your dialog. This will add the 'credits' button to the dialog.
 </p>
-<p id="text">
+<p>
 If you want to add credits, you should at least make an <code>index.html</code>. If it is present, an entry will be made in the top-level Help-Credits menu.
 </p>
 
-<a name="autoload"><h2 id="heading2">Installation and auto-loading</h2></a>
+<a name=autoload><h2>Installation and auto-loading</h2>
 
-<p id="text"> Once you have made your own plugin, you probably would like it to
+<p> Once you have made your own plugin, you probably would like it to
 be loaded automatically whenever OpendTect is started. OpendTect
     provides some facilities that do just that. </p>
 
-<h3 id="heading3">Preparing a plugin for auto-load</h3>
+<h3>Preparing a plugin for auto-load</h3>
 
-<p id="text"><code>#include "odplugin.h"</code> is needed for the PluginInfo
+<p><code>#include "odplugin.h"</code> is needed for the PluginInfo
 structure and the PI_AUTO_INIT_xxx defines. </p>
 
-<p id="text">
-The GetxxxxPluginType() specifies when a plugin is loaded: </p>
+<p>
+The GetxxxxPluginType() specifies when a plugin is loaded: 
 <ul>
 <li>PI_AUTO_INIT_EARLY : Plugin is loaded before construction of main
 window</li>
 <li>PI_AUTO_INIT_LATE : Plugin is loaded after construction of main
 window</li>
 </ul>
-<p id="text">The default is PI_AUTO_INIT_LATE, so you only have to define anything if the plugin needs to be loaded early: then use mDefODPluginEarlyLoad(YourPluginName).
+The default is PI_AUTO_INIT_LATE, so you only have to define anything if the plugin needs to be loaded early: then use mDefODPluginEarlyLoad(YourPluginName).
 </p>
 
-<h3 id="heading3">Installing plugins for auto-load</h3>
+<h3>Installing plugins for auto-load</h3>
 
-<p id="text"> The auto-load tool of OpendTect looks for plugins to load in two
+<p> The auto-load tool of OpendTect looks for plugins to load in two
 places: </p>
 
-<ul><li>The plugins/platform_dir of the installation directory
+<li>The plugins/platform_dir of the installation directory
 (<code>$DTECT_APPL/plugins/$HDIR</code>)</li>
 
 <li>The '.od' directory in your 'Personal directory'
-<code>($HOME/.od/plugins/$HDIR</code> on Unix)</li></ul>
+<code>($HOME/.od/plugins/$HDIR</code> on Unix)</li>
 
-<p id="text"> On Windows, your 'Personal directory' is located at $HOME if this
+<p> On Windows, your 'Personal directory' is located at $HOME if this
 is defined. Otherwise, $USERPROFILE is used. Also see the specific
 notes in the <a href="windows.html#installplugins"> windows</a>
 documentation. </p>
 
 
-<h3 id="heading3">Using .alo files</h3>
+<h4>Using .alo files</h4>
 
-<p id="text">Auto LOad files are simple text files that tell a program which
+<p>Auto LOad files are simple text files that tell a program which
 plugins it is supposed to load from the 'libs' directory. Since
 OpendTect contains multiple programs, each program has its own set of
 .alo files '&lt;program name&gt;.*.alo', while the plugins can be
 shared between multiple programs. OpendTect will scan for any file
-with this naming convention. So od_main.john.alo is perfectly OK.</p>
+with this naming convention. So odmain.john.alo is perfectly OK.</p>
 
-<p id="text">Since there are multiple vendors and/or plugin sets, each vendor
-can make his own .alo files. od_main, for example, will look at any
-file named od_main.*.alo. For this example, the default plugins are
-specified by od_main.base.alo, while dgb's plugins are specified by
-od_main.dgb.alo. This way, each vendor can make his own .alo files,
+<p>Since there are multiple vendors and/or plugin sets, each vendor
+can make his own .alo files. odmain, for example, will look at any
+file named odmain.*.alo. For this example, the default plugins are
+specified by odmain.base.alo, while dgb's plugins are specified by
+odmain.dgb.alo. This way, each vendor can make his own .alo files,
 without interfering with others.</p>
 
-<p id="text">A .alo file is nothing more then a simple list of plugins, without
-extensions. For example, this could be in an od_main.base.alo file:
+<p>A .alo file is nothing more then a simple list of plugins, without
+extensions. For example, this could be in an odmain.base.alo file:
 </p>
 
-<pre id="code"><code>
+<pre><code>
 Annotations
 Madagascar
 uiMadagascar
@@ -843,42 +821,42 @@ GMT
 uiGMT
 </code></pre>
 
-<p id="text"> Note that for each platform, a specific .alo file must be created.
+<p> Note that for each platform, a specific .alo file must be created.
 Usually, they will be the same, but some plugins might not be relevant or
 supported on all platforms. </p>
 
-<p id="text">The plugins in the .alo files are loaded in the order as specified in the file. The alo files themselves are handled in alphabetical order. </p>
+<p>The plugins in the .alo files are loaded in the order as specified in the file. The alo files themselves are handled in alphabetical order. </p>
 
 
 <br>
-<h2 id="heading2">Distributing your plugins</h2>
+<a name=dist><h2>Distributing your plugins</h2>
 
-<p id="text"> The publishing and distribution of OpendTect plugins is pretty
+<p> The publishing and distribution of OpendTect plugins is pretty
 straightforward. The .alo files can be installed in the plugins/platform
 (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual
 plugins (the .DLL, .so or .dylib files) go in the normal bin sub-directory. </p>
 
-<p id="text"> On Unix, this means that you can make a tar.gz or zip file containing
+<p> On Unix, this means that you can make a tar.gz or zip file containing
 the plugins in a directory structure as described above, which can be
 extracted into the existing OpendTect installation directory. </p>
 
-<p id="text"> On Windows this is also possible, but it is more common to use an
+<p> On Windows this is also possible, but it is more common to use an
 auto-extracting installer to do this. For more info on this, see the
 <a href="windows.html#dist">windows</a> documentation.</p>
 
-<p id="text">If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
+<p>If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
 
-<h3 id="heading3">Preparing for the intstallation manager</h3>
-<p id="text">
-It is important that you make the packages nicely modular. Even if you have only two platforms yet, still it's a good idea to split the stuff in platform-independent and platform-dependent stuff. And separate documentation. In that case there would be 4 packages:</p>
+<a name=instmgr><h3>Preparing for the intstallation manager</h3>
+<p>
+It is important that you make the packages nicely modular. Even if you have only two platforms yet, still it's a good idea to split the stuff in platform-independent and platform-dependent stuff. And separate documentation. In that case there would be 4 packages:
 <ul>
 <li>The platform-independent part (hidden for the user)
 <li>Part for platform 1
 <li>Part for platform 2
 <li>Documentation
 </ul>
-<p id="text">The user will see only two: the plugin itself and the documentation.
-</p><p id="text">
+The user will see only two: the plugin itself and the documentation.
+</p><p>
 Then the naming of the packages. Let's not make a big specification document; you can guess this by looking at what is now already on the <a href="ftp://ftp.opendtect.org/pub/relman">relman part of the ftp site</a>. Specifics:
 <ul>
 <li>In the directory 'defs' you'll see the definition files. That is the sort of info we need. Don't worry about the codes you see in there, just the basic info like descriptions and dependencies. That would allow us to make a defs/your_name.txt. You can deliver the whole file if you want to, but we can also maintain it.
@@ -889,37 +867,25 @@ Like:<br>
 <code>4.3.1/relinfo/ver.jimsinversion_lux64.txt</code><br>
 <code>4.4.0/relinfo/ver.pppraytrace.txt</code><br>
 </ul>
-<p id="text">You can have your own version numbering, but it has to have this form:<br>
+You can have your own version numbering, but it has to have this form:<br>
 <code>number.number.number[optional_free_text_without_dots_starting_with_non_digit]</code><br>
 You are completely free in your numbering, and the optional text. The installer uses the '<code>&gt;</code>' operator for every part. The numbers have to be integer numbers, and will be compared as integers.
-</p><p id="text">
+</p><p>
 Users cannot update a packages without also updating the packages that these are dependent on. This circumvents the need to specify exactly the dependencies on which versions on what other packages. 
 </p>
 
 <br>
+<img src="hr.png" border=0>
 
 <p>
 <center>
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
 | <a href="unix.html">UNIX</a>
-| <a href="windows.html">MS Windows</a>
+| <a href="windows.html">M$ Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
 </p>
-  
-										
-</td></tr>
 
-			 </font>
-						 </tbody>
-			 </table>
-				 </div>
-			 <div id="footer">
-			 </div>
-			 </div>
-		 </div>
-	 </div>
- </div>
- </body>
- </html>
+</body>
+</html>

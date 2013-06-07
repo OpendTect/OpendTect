@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackimpevent.h"
 
@@ -63,11 +63,11 @@ bool uiEventImport::acceptOK( CallBacker* )
     mgr->setStorageID( outputfld_->key(), false );
     EventImporter importer( filefld_->fileName(), fd_, *mgr );
     uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, importer ) )
+    if ( !tr.execute(importer) )
 	return false;
 
     EventWriter writer( outputfld_->getIOObj(), *mgr );
-    return TaskRunner::execute( &tr, writer );
+    return tr.execute( writer );
 }
 
 }; //namespace

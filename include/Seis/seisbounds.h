@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "ranges.h"
 #include "position.h"
 class CubeSampling;
@@ -28,7 +27,7 @@ namespace Seis
  
  */
 
-mExpClass(Seis) Bounds
+mClass Bounds
 {
 public:
 
@@ -50,7 +49,7 @@ public:
 };
 
 
-mExpClass(Seis) Bounds3D : public Bounds
+mClass Bounds3D : public Bounds
 {
 public:
 
@@ -71,7 +70,7 @@ public:
 };
 
 
-mExpClass(Seis) Bounds2D : public Bounds
+mClass Bounds2D : public Bounds
 {
 public:
 
@@ -100,4 +99,3 @@ public:
 } // namespace Seis
 
 #endif
-

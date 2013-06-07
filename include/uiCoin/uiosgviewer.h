@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "general.h"
 
 namespace osgViewer { class CompositeViewer; class View; }
 
+
 class uiOsgViewer;
 
-/*!
-\brief All OSG based views must be coordinated by a viewer. That is arranged by
-storing the osgViewer::View in this class, which takes care of the rest.
-*/
+/*! All OSG based views must be coordinated by a viewer. That is
+    arranged by storing the osgViewer::View in this class, which
+    takes care of the rest. */
 
-mExpClass(uiCoin) uiOsgViewHandle
+mClass uiOsgViewHandle
 {
 public:
 				uiOsgViewHandle();
@@ -37,11 +36,9 @@ public:
 
 protected:
     uiOsgViewer*			viewer_;
-
 private:
     osgViewer::View*			osgview_;
 };
 
 
 #endif
-

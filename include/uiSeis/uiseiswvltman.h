@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiobjfileman.h"
 
 class uiWaveletExtraction;
@@ -19,7 +18,7 @@ class uiWaveletDispPropDlg;
 class uiSeisSingleTraceDisplay;
 
 
-mExpClass(uiSeis) uiSeisWvltMan : public uiObjFileMan
+mClass uiSeisWvltMan : public uiObjFileMan
 {
 public:
 			uiSeisWvltMan(uiParent*);
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

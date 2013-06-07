@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -37,7 +36,7 @@ class DrawStyle;
 Display a beachball-type object.
 */
 
-mExpClass(visBase) BeachBall : public VisualObjectImpl
+mClass BeachBall : public VisualObjectImpl
 {
 public:
 
@@ -87,4 +86,3 @@ protected:
 };
 
 #endif
-

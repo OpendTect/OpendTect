@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "cubesampling.h"
@@ -38,11 +37,7 @@ namespace EM
 {
 class EMManager;
 
-/*!
-\brief EM object callback data.
-*/
-
-mExpClass(EarthModel) EMObjectCallbackData
+mClass EMObjectCallbackData
 {
 public:
     		EMObjectCallbackData() 
@@ -63,13 +58,12 @@ public:
 };
 
 
-/*!
-\brief Iterator that iterates a number of positions (normally all) on an
-EMObject. The object is created by EMObject::createIterator, and the next()
-function is called until no more positions can be found.
-*/
+/*! Iterator that iterates a number of positions (normally all) on an EMObject.
+The object is created by EMObject::createIterator, and the next() function is
+called until no more positions can be found. */
 
-mExpClass(EarthModel) EMObjectIterator
+
+mClass EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
@@ -82,11 +76,7 @@ public:
 };
 
 
-/*!
-\brief Position attribute
-*/
-
-mExpClass(EarthModel) PosAttrib
+mClass PosAttrib
 {
 public:
     			PosAttrib()
@@ -104,11 +94,10 @@ public:
 };
 
 
-/*!
-\brief Base class for all EarthModel objects.
-*/
 
-mExpClass(EarthModel) EMObject : public CallBacker
+/*!\brief Earth Model Object */
+
+mClass EMObject : public CallBacker
 {
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );
@@ -225,9 +214,9 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual void		lock(bool yn)		{ locked_=yn;}
 
-    bool			isInsideSelRemoval() const
+    const bool			isInsideSelRemoval() const
 				{ return insideselremoval_; }
-    bool			isSelRemoving() const	{ return selremoving_; }
+    const bool			isSelRemoving() const	{ return selremoving_; }
 
     const char*			errMsg() const;
     void			setErrMsg(const char* m) { errmsg_ = m; }
@@ -279,7 +268,8 @@ protected:
     static const char*		markerstylestr();
 };
 
-} // namespace EM
+
+}; // Namespace
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
@@ -287,7 +277,7 @@ public: \
     static void			initClass(); \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
-    static FixedString		typeStr(); \
+    static const char*		typeStr(); \
     const char*			getTypeStr() const; \
     void			setNewName(); \
 protected: \
@@ -318,7 +308,7 @@ clss* clss::create( const char* nm ) \
     return newobj; \
 } \
 \
-FixedString clss::typeStr() { return typenm; } \
+const char* clss::typeStr() { return typenm; } \
 const char* clss::getTypeStr() const { return typeStr(); } \
 void clss::setNewName() \
 {\
@@ -328,5 +318,23 @@ void clss::setNewName() \
     setName( nm ); \
 }
 
-#endif
+/*!\page EarthModel Earth Model objects
 
+  Objects like horizons, well tracks and bodies are all earth model objects.
+  Such objects can be described in various ways, and the EM way is the
+  way we have chosen for OpendTect.
+
+  A big part of this module deals with surfaces of some kind. Horizons, faults,
+  and sets of (fault-)sticks each have their own peculiarities.
+
+  Most interesting classes:
+
+  - EM::EMObject, base class for the EarthModel objects
+  - EM::EMManager, responsible for the loading and deleting of the objects
+
+  Earth models have the nasty habit of changing over time. Therefore, edit
+  history matters are handled by the Undo objects.
+
+*/
+
+#endif

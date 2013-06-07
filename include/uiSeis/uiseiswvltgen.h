@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -26,7 +25,7 @@ class uiIOObjSel;
 class uiFuncSelDraw;
 
 
-mExpClass(uiSeis) uiSeisWvltCreate : public uiDialog
+mClass uiSeisWvltCreate : public uiDialog
 {
 public:
 			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
@@ -43,7 +42,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
+mClass uiSeisWvltGen : public uiSeisWvltCreate
 {
 public:
 			uiSeisWvltGen(uiParent*);
@@ -60,11 +59,11 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
+mClass uiSeisWvltMerge : public uiSeisWvltCreate
 {
 public:
 
-    mExpClass(uiSeis) WvltMathFunction : public FloatMathFunction
+    mClass WvltMathFunction : public FloatMathFunction
     {
     public:
 			WvltMathFunction(const Wavelet*);
@@ -113,4 +112,3 @@ protected:
 
 
 #endif
-

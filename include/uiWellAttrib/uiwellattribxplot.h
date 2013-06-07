@@ -13,35 +13,56 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
-
+class IOObj;
+class uiListBox;
+class uiGenInput;
+class DataPointSet;
 class DataPointSetDisplayMgr;
-
-class uiWellLogExtractGrp;
+class BufferStringSet;
+class uiDataPointSet;
+class uiMultiWellLogSel;
+class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
 
 
-mExpClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
+mClass uiWellAttribCrossPlot : public uiDialog
 {
 public:
 					uiWellAttribCrossPlot(uiParent*,
-						const Attrib::DescSet*);
+						const Attrib::DescSet&);
 					~uiWellAttribCrossPlot();
 
-    void				setDescSet(const Attrib::DescSet*);
+    void				setDescSet(const Attrib::DescSet&);
+
+    const DataPointSet&			getDPS() const;
     void				setDisplayMgr(
 	    					DataPointSetDisplayMgr* mgr)
 					{ dpsdispmgr_ = mgr; }
 
 protected:
 
-    uiWellLogExtractGrp*		wellextractgrp_;
-    DataPointSetDisplayMgr* 		dpsdispmgr_;
+    const Attrib::DescSet& ads_;
+    ObjectSet<IOObj>	wellobjs_;
+    ObjectSet<uiDataPointSet>	dpsset_;
 
-    bool				acceptOK(CallBacker*);
+    uiListBox*		attrsfld_;
+    uiGenInput*		radiusfld_;
+    uiGenInput*		logresamplfld_;
+    uiMultiWellLogSel*	welllogselfld_;
+    uiPosFilterSetSel*	posfiltfld_;
+    DataPointSet*	curdps_;
+    DataPointSetDisplayMgr* dpsdispmgr_;
+
+    void		adsChg();
+    bool		extractWellData(const BufferStringSet&,
+	    				const BufferStringSet&,
+					ObjectSet<DataPointSet>&);
+    bool		extractAttribData(DataPointSet&,int);
+
+    bool		acceptOK(CallBacker*);
+    void		initWin(CallBacker*);
 };
 
 
 #endif
-

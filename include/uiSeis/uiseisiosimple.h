@@ -4,10 +4,8 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2003
- * SVN      : $Id$
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "samplingdata.h"
 #include "seisiosimple.h"
@@ -24,7 +22,7 @@ class uiSeisSubSel;
 class uiSeis2DLineNameSel;
 
  
-mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
+mClass uiSeisIOSimple : public uiDialog
 {
 public:
 
@@ -93,4 +91,3 @@ private:
 
 
 #endif
-

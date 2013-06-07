@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 #include "bufstringset.h"
@@ -22,11 +21,7 @@ namespace EM { class Horizon3D; class Horizon2D; };
 namespace MPE
 {
 
-/*!
-\brief ObjectEditor to edit EM::Horizon3D.
-*/
-
-mExpClass(MPEEngine) HorizonEditor : public ObjectEditor
+mClass HorizonEditor : public ObjectEditor
 {
 public:
     				HorizonEditor(EM::Horizon3D&);
@@ -64,11 +59,7 @@ protected:
 };
 
 
-/*!
-\brief ObjectEditor to edit EM::Horizon2D.
-*/
-
-mExpClass(MPEEngine) Horizon2DEditor : public ObjectEditor
+mClass Horizon2DEditor : public ObjectEditor
 {
 public:
 				Horizon2DEditor(EM::Horizon2D&);
@@ -83,5 +74,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

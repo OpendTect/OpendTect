@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 class SurfaceInfo;
 class uiListBox;
@@ -24,7 +23,7 @@ class uiFileInput;
 
 /*! \brief Dialog for 2D horizon export */
 
-mExpClass(uiEarthModel) uiExport2DHorizon : public uiDialog
+mClass uiExport2DHorizon : public uiDialog
 {
 public:
 			uiExport2DHorizon(uiParent*,
@@ -51,4 +50,3 @@ protected:
 
 
 #endif
-

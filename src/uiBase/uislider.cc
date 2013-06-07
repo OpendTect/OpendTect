@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
-mUseQtnamespace
+
 
 //------------------------------------------------------------------------------
 
@@ -60,14 +60,13 @@ uiSliderBody::uiSliderBody( uiSlider& hndl, uiParent* p, const char* nm )
 uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
 		    bool vert )
     : uiObject(p,nm,mkbody(p,nm))
-    , logscale_(logsc)
+    , logscale(logsc)
     , valueChanged(this)
     , sliderMoved(this)
     , sliderPressed(this)
     , sliderReleased(this)
 {
-    body_->setOrientation( vert ? Qt::Vertical
-	    			: Qt::Horizontal );
+    body_->setOrientation( vert ? Qt::Vertical : Qt::Horizontal );
     body_->setStretch( vert ? 0 : 1, vert ? 1 : 0 );
     
     if ( dec < 0 ) dec = 0;
@@ -120,28 +119,29 @@ void uiSlider::setScale( float fact, float constant )
 
 int uiSlider::sliderValue( float fval ) const
 {
-    if ( logscale_ )
+    if ( logscale )
     {
 	if ( fval <= 0 ) return 0;
 	fval = log10( fval );
     }
 
-    return mNINT32( scaler_ ? scaler_->unScale(fval) : fval ); 
+    return mNINT32( scaler_->unScale(fval) );
 }
 
 
 float uiSlider::userValue( int ival ) const
 {
     double res = scaler_->scale( (double)ival );
-    return logscale_ ? pow( 10, res ) : res;
+
+    return logscale ? pow( 10, res ) : res;
 }
 
 
 void uiSlider::setText( const char* txt )
-{ setValue( toFloat(txt) ); }
+{
+    setValue( toFloat(txt) );
+}
 
-void uiSlider::setValue( int ival )
-{ body_->setValue( ival ); }
 
 void uiSlider::setValue( float fval )
 {
@@ -153,8 +153,8 @@ void uiSlider::setValue( float fval )
 
 const char* uiSlider::text() const
 {
-    result_ = userValue( body_->value() );
-    return (const char*)result_;
+    result = userValue( body_->value() );
+    return (const char*)result;
 }
 
 
@@ -180,7 +180,8 @@ uiSlider::TickPosition uiSlider::tickMarks() const
 
 void uiSlider::setOrientation( Orientation orient )
 {
-    body_->setOrientation( orient == Vertical ? Qt::Vertical : Qt::Horizontal );
+    body_->setOrientation( orient == Vertical ?  
+	  Qt::Vertical : Qt::Horizontal );
 }
 
 
@@ -249,25 +250,11 @@ float uiSlider::step() const
 }
 
 
-void uiSlider::setInterval( const StepInterval<int>& intv )
-{ setInterval( intv.start, intv.stop, intv.step ); }
-
-void uiSlider::setInterval( int start, int stop, int stp )
-{
-    body_->setRange( start, stop );
-    body_->setSingleStep( stp );
-    body_->setPageStep( stp );
-}
-
-
 void uiSlider::setInterval( const StepInterval<float>& intv )
-{ setInterval( intv.start, intv.stop, intv.step ); }
-
-void uiSlider::setInterval( float start, float stop, float stp )
 {
-    setMinValue( start );
-    setMaxValue( stop );
-    setStep( stp );
+    setMinValue( intv.start );
+    setMaxValue( intv.stop );
+    setStep( intv.step );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisaveimagedlg.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uispinbox.h"
 
 #include "file.h"
@@ -24,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "pixmap.h"
 #include "settings.h"
 #include <math.h>
 
@@ -71,13 +71,9 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd )
 
     setSaveButtonChecked( true );
     
+    uiParent* fldabove = 0;
+
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
-}
-
-
-void uiSaveImageDlg::setDirName( const char* nm )
-{
-    dirname_ = nm;
 }
 
 
@@ -128,16 +124,16 @@ void uiSaveImageDlg::sInch2Pixels( const Geom::Size2D<float>& from,
 void uiSaveImageDlg::sCm2Inch( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() / 2.54f );
-    to.setHeight( from.height() / 2.54f );
+    to.setWidth( from.width() / 2.54 );
+    to.setHeight( from.height() / 2.54 );
 }
 
 
 void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 			       Geom::Size2D<float>& to )
 {
-    to.setWidth( from.width() * 2.54f );
-    to.setHeight( from.height() * 2.54f );
+    to.setWidth( from.width() * 2.54 );
+    to.setHeight( from.height() * 2.54 );
 }
 
 
@@ -306,7 +302,7 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 void uiSaveImageDlg::dpiChg( CallBacker* )
 {
     setNotifiers( false );
-    screendpi_ = mCast( float, dpifld_->box()->getValue() );
+    screendpi_ = dpifld_->box()->getValue();
     updateSizes();
     setNotifiers( true );
 }
@@ -479,11 +475,11 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
     {
-	screendpi_ = mCast( float, dpi );
+	screendpi_ = dpi;
 	dpifld_->box()->setValue( dpi );
     }
 
-    res.setEmpty();
+    res == "";
     par.get( sKeyFileType(), res );
 
     int idx = 0;
@@ -511,8 +507,8 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
 void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
-    sizepix_.setWidth( mCast(float,width) );
-    sizepix_.setHeight( mCast(float,height) );
+    sizepix_.setWidth( width );
+    sizepix_.setHeight( height );
     sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
@@ -520,27 +516,15 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 
 
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
-    : uiSaveImageDlg(p,false)
+    : uiSaveImageDlg(p)
 {
     enableSaveButton( 0 );
     screendpi_ = 90;
-    mDynamicCastGet(uiMainWin*,mw,p);
-    aspectratio_ = 1.0f;
-    if ( mw )
-	aspectratio_ = mCast(float,mw->geometry().width())/
-	    	       mCast(float,mw->geometry().height());
     createGeomInpFlds( 0 );
     useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );
-    setFldVals( 0 );
-    uiSeparator* sep = new uiSeparator( this );
-    sep->attach( ensureBelow, fileinputfld_ );
-    uiLabel* warninglbl =
-	new uiLabel( this, "Do not place this dialog over the window \n"
-			   "for which snapshot has to be taken" );
-    warninglbl->attach( alignedBelow, fileinputfld_ );
-    warninglbl->attach( ensureBelow, sep );
     updateFilter();
+    setFldVals( 0 );
 }
 
 
@@ -569,8 +553,9 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
 	if ( idx>=0 )
 	{
 	    if ( !filters.isEmpty() ) filters += ";;";
-	    filters += frmtdesc[idy++];
+	    filters += frmtdesc[idy];
 	}
+
 	idy++;
     }
 }

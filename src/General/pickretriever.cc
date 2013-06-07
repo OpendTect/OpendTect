@@ -4,21 +4,28 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "pickretriever.h"
 
 RefMan<PickRetriever> PickRetriever::instance_ = 0;
 
-PickRetriever::PickRetriever()	
-    : buttonstate_(OD::NoButton)
+
+PickRetriever::PickRetriever()
 {}
 
-PickRetriever::~PickRetriever()	{}
+
+PickRetriever::~PickRetriever()
+{}
+
 
 void PickRetriever::setInstance( PickRetriever* npr )
-{ instance_ = npr; }
+{
+    instance_ = npr;
+}
+
 
 PickRetriever* PickRetriever::getInstance()
-{ return instance_; }
-
+{
+    return instance_;
+}

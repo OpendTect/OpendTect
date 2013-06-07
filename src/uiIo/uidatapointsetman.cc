@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$";
+static const char* rcsID = "$";
 
 #include "uidatapointsetman.h"
 
@@ -27,17 +27,18 @@ static const char* rcsID mUsedVar = "$";
 static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Cross-plot Data",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup("CrossPlot data file management",
+				     "Manage cross plots",
 				     "103.1.17").nrstatusflds(1),
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis", "Merge CrossPlot",
+    manipgrp->addButton( "mergeseis.png", "Merge CrossPlot",
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
-    selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
+    selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );
     selChg( this );
 }
@@ -51,9 +52,8 @@ uiDataPointSetMan::~uiDataPointSetMan()
 #define mGetDPS(dps) \
     PosVecDataSet pvds; \
     DataPointSet* dps = 0; \
-    mDynamicCast(PosVecDataSetTranslator*, \
-		 PtrMan<PosVecDataSetTranslator> pvdstr, \
-		 curioobj_ ? curioobj_->createTranslator() : 0); \
+    Translator* tr = curioobj_ ? curioobj_->getTranslator() : 0; \
+    mDynamicCastGet(PosVecDataSetTranslator*,pvdstr,tr); \
     if ( pvdstr ) \
     { \
 	pvdstr->read( *curioobj_, pvds ); \

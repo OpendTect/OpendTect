@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uinlamod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
-
 class IOPar;
 class DataPointSet;
 class DataPointSetDisplayMgr;
@@ -25,14 +23,15 @@ class uiDataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
 
-/*!
-\brief Service provider for application level - Non-Linear Analysis.
 
-  Will pop up the an NLA manage window on go(). If go() returns true, the user
-  will expect that go() to be called again.
-*/
+/*! \brief Service provider for application level - Non-Linear Analysis
 
-mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
+Will pop up the an NLA manage window on go(). If go() returns true, the user
+will expect that go() to be called again.
+
+ */
+
+mClass uiNLAPartServer : public uiApplPartServer
 {
 public:
 			uiNLAPartServer(uiApplService&);
@@ -56,23 +55,23 @@ public:
     bool		willDoExtraction() const;
     const BufferStringSet& modelInputs() const;
 
-    static int		evPrepareWrite();
+    static const int	evPrepareWrite();
     			//!< need to fill modelPars()
-    static int		evPrepareRead();
+    static const int	evPrepareRead();
     			//!< is FYI
-    static int		evReadFinished();
+    static const int	evReadFinished();
     			//!< is FYI
-    static int		evGetInputNames();
+    static const int	evGetInputNames();
     			//!< need to fill inputNames()
-    static int		evGetStoredInput();
+    static const int	evGetStoredInput();
 			//!< need to put stored data into attrset
-    static int		evGetData();
+    static const int	evGetData();
     			//!< need to fill vdsTrain() and vdsTest()
-    static int		evSaveMisclass();
+    static const int	evSaveMisclass();
     			//!< use misclass analysis VDS; user wants it.
-    static int		evCreateAttrSet();
+    static const int	evCreateAttrSet();
     			//!< create attributeset from GDI NN
-    static int		evCr2DRandomSet();
+    static const int	evCr2DRandomSet();
     			//!< create 2D random pick set
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
@@ -129,5 +128,19 @@ protected:
 
 };
 
-#endif
 
+/*!\page uiNLA Non-Linear Analysis User Interface
+
+  This class was designed in such a way that the existing dGB Neural network
+  module could be put in a plugin in an easy way. In that way we kept the
+  possibility to make some money by selling our neural network stuff and
+  still make OpendTect (almost) free software.
+
+  Without this small sacrifice I don't think OpendTect would have ever started.
+  We tried to keep the interface as general as possible, though. So it's very
+  well possible and feasible to make your own special analysis module.
+
+  */
+
+
+#endif

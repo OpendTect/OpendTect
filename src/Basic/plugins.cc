@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "plugins.h"
@@ -33,7 +33,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char* sPluginDir = "plugins";
-static const char* sPluginBinDir = "bin";
+#ifndef __cmake__
+
+#ifndef __win__
+    static const char* sPluginBinDir = sPluginDir;
+#else
+    static const char* sPluginBinDir = "bin";
+#endif
+
+#else
+
+    static const char* sPluginBinDir = "bin";
+
+#endif
 
 static const char* sKeyNoDispName = "??";
 
@@ -43,8 +55,14 @@ extern "C" {
     typedef const char* (*ArgcArgvCCRetFn)(int,char**);
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
-    void LoadAutoPlugins( int inittype )
+    void LoadAutoPlugins( int argc, char** argv, int inittype )
     {
+	static int first_time = 1;
+	if ( first_time )
+	{
+	    first_time = 0;
+	    PIM().setArgs( argc, argv );
+	}
 	PIM().loadAuto( inittype == PI_AUTO_INIT_LATE );
     }
 
@@ -142,15 +160,20 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 }
 
 
+static const char* errargv[] = { "<not set>", 0 };
+
 PluginManager::PluginManager()
+    : argc_(1)
+    , argv_(const_cast<char**>(errargv))
 {
-    if ( !AreProgramArgsSet() )
-    {
-	pErrMsg("Program arguments are not set!");
-	DBG::forceCrash(false);
-    }
-    
     getDefDirs();
+}
+
+
+void PluginManager::setArgs( int argc, char** argv )
+{
+    argc_ = argc, argv_ = argv;
+    // poss todo: get new defdirs from argv
     mkALOList();
 }
 
@@ -165,7 +188,7 @@ static BufferString getProgNm( const char* argv0 )
 }
 
 
-static const char* getFnName( const char* libnm, const char* fnbeg,
+static const char* getFnNm( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {
     static StaticStringManager stm;
@@ -189,27 +212,49 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 
 void PluginManager::getDefDirs()
 {
+    bool fromenv = false;
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
 	dnm = GetSoftwareDir(0);
+    else
+	fromenv = true;
 
     FilePath fp( dnm );
     appdir_ = fp.fullPath();
-    fp.add( sPluginBinDir );
+    if ( !fromenv )
+	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-    fp.add( GetBinSubDir() );
+#ifdef __win__ 
+# ifdef __debug__
+    fp.add( "debug" );
+# endif
+#endif
+    
+#ifdef __mac__
+# ifdef __debug__
+    fp.add( "Debug" );
+# endif
+#endif
 
     applibdir_ = fp.fullPath();
 
+    fromenv = false;
     dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
+    else
+	fromenv = true;
 
     fp.set( dnm );
     userdir_ = fp.fullPath();
-    fp.add( sPluginBinDir );
+    if ( !fromenv )
+	fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
-    fp.add( GetBinSubDir() );
+#ifdef __win__
+#ifdef __debug__
+    fp.add( "debug" );
+#endif
+#endif
     userlibdir_ = fp.fullPath();
 
     if( DBG::isOn(DBG_PROGSTART) )
@@ -240,7 +285,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     {
 	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
-	if ( piinf && piinf->dispname && FixedString(piinf->dispname)==nm)
+	if ( piinf && piinf->dispname && !strcmp(piinf->dispname,nm) )
 	    return data;
     }
     return 0;
@@ -254,9 +299,18 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else
-	ret = FilePath(
-		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
-		data.name_ ).fullPath();
+    {
+	FilePath fp;
+	fp.setWithLink(
+		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_ );
+#ifndef __cmake__
+#ifndef __win__
+		"libs",
+#endif
+#endif
+	fp.addWithLink( data.name_ );
+	ret = fp.fullPath();
+    }
     return ret.buf();
 }
 
@@ -284,17 +338,19 @@ const char* PluginManager::userName( const char* nm ) const
     const Data* data = findData( nm );
     const PluginInfo* piinf = data ? data->info_ : 0;
     if ( !piinf )
-	return moduleName( nm );
+    {
+	FilePath fp( nm );
+	return getFnNm( fp.fileName(), "", "" );
+    }
 
     return piinf->dispname;
 }
 
 
-const char* PluginManager::moduleName( const char* nm )
+const char* PluginManager::moduleName( const char* libnm )
 {
-    return getFnName( nm, "", "" );
+    return getFnNm( libnm, "", "" );
 }
-
 
 static PluginInfo* mkEmptyInfo()
 {
@@ -308,7 +364,7 @@ static PluginInfo* mkEmptyInfo()
 
 
 #define mGetFn(typ,sla,nm1,nm2,libnm) \
-	typ fn = sla ? (typ)sla->getFunction( getFnName(libnm,nm1,nm2) ) : 0
+	typ fn = sla ? (typ)sla->getFunction( getFnNm(libnm,nm1,nm2) ) : 0
 
 
 static PluginInfo* getPluginInfo( SharedLibAccess* sla, const char* libnm )
@@ -370,7 +426,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
-    const BufferString prognm = getProgNm( GetArgV()[0] );
+    const BufferString prognm = getProgNm( argv_[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);
@@ -382,13 +438,13 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	StreamData sd = StreamProvider( dl.fullPath(idx) ).makeIStream(false);
 	if ( !sd.usable() ) { sd.close(); continue; }
 
-	char buf[128];
+	char name[128];
 	while ( *sd.istrm )
 	{
-	    sd.istrm->getline( buf, 128 );
-	    if ( buf[0] == '\0' ) continue;
+	    sd.istrm->getline( name, 128 );
+	    if ( name[0] == '\0' ) continue;
 
-	    char libnm[256]; SharedLibAccess::getLibName( buf, libnm );
+	    char libnm[256]; SharedLibAccess::getLibName( name, libnm );
 	    Data* data = findData( libnm );
 	    if ( !data )
 	    {
@@ -460,7 +516,7 @@ bool PluginManager::load( const char* libnm )
 	if ( existing->isloaded_ )
 	    return false;
 
-	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly) )
+	if ( !loadPlugin(existing->sla_,argc_,argv_,libnmonly) )
 	{
 	    existing->info_ = 0;
 	    existing->sla_->close();
@@ -472,7 +528,7 @@ bool PluginManager::load( const char* libnm )
     }
     else
     {
-	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly) )
+	if ( !loadPlugin(data->sla_,argc_,argv_,libnmonly) )
 	{
 	    data->sla_->close();
 	    delete data;
@@ -505,7 +561,7 @@ void PluginManager::loadAuto( bool late )
 	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname )!=-1 )
 	    continue;
 
-	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )
+	if ( !loadPlugin(data.sla_,argc_,argv_,data.name_) )
 	{
 	    data.info_ = 0;
 	    data.sla_->close();

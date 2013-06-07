@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #ifdef __win__
 #   include "windows.h"
@@ -21,11 +20,12 @@ ________________________________________________________________________
 #endif
 
 
-/*!
-\brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
-*/
+/* Gives access to shared libs on runtime.
+   Plugins should be loaded via the Plugin Manager (see plugins.h).
+   */
 
-mExpClass(Basic) SharedLibAccess
+
+mClass SharedLibAccess
 {
 public:
 
@@ -51,4 +51,3 @@ protected:
 
 
 #endif
-

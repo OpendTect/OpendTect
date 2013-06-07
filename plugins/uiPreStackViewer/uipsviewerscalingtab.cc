@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewerscalingtab.cc,v 1.3 2011/02/10 06:29:54 cvssatyaki Exp $";
 
 #include "uipsviewerscalingtab.h"
 
@@ -21,13 +21,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "visflatviewer.h"
-#include "visprestackdisplay.h"
+#include "visprestackviewer.h"
 
 
 namespace PreStackView
 {
 uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p, 
-	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
+	PreStackView::Viewer3D& psv, uiViewer3DMgr& mgr )
     : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), "Scaling", false)
     , applyall_( false )
     , savedefault_( false )
@@ -96,7 +96,7 @@ bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
     ddpars_.fillPar( par );
 
     vwr_.appearance().ddpars_.usePar( par );
-    vwr_.handleChange( FlatView::Viewer::DisplayPars );
+    vwr_.handleChange( FlatView::Viewer::VDPars );
 
     if ( !applyall_ )
 	return true;
@@ -108,7 +108,7 @@ bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.usePar( par );
-	fvwr->handleChange( FlatView::Viewer::DisplayPars );
+	fvwr->handleChange( FlatView::Viewer::VDPars );
     }
 
     return true;

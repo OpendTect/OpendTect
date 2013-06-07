@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "transform.h"
 
 #include "factory.h"
@@ -23,11 +22,10 @@ namespace Fourier
 
 class FFTCC1D;
 
-/*!
-\brief Does Fourier Transforms of any size.
-*/
+/*!\brief Does Fourier Transforms of any size */
 
-mExpClass(Algo) CC : public GenericTransformND
+
+mClass CC : public GenericTransformND
 {
 public:
     mDefaultFactoryInstantiation( CC, CC, "PFAFFT", "FFT" );
@@ -68,7 +66,7 @@ protected:
     bool		normalize_;
 
     Transform1D*	createTransform() const;
-    mClass(Algo) CC1D : public GenericTransformND::Transform1D, public ParallelTask
+    class CC1D : public GenericTransformND::Transform1D, public ParallelTask
     {
 	public:
 			CC1D();
@@ -94,11 +92,8 @@ protected:
 };
 
 
-/*!
-\brief Computes FFT for any size of data.
-*/
-
-mExpClass(Algo) FFTCC1D
+/*!Computes FFT for any size of data. */
+mClass FFTCC1D
 {
 public:
     			FFTCC1D();
@@ -158,4 +153,3 @@ protected:
 
 
 #endif
-

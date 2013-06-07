@@ -1,4 +1,4 @@
-static const char* rcsID_ mUnusedVar = "$Id$";
+static const char* _rcsID = "$Id$";
 
 /**************************************************************************\
  *

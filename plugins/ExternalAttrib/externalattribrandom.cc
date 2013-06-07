@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.8 2011/11/04 08:20:16 cvskris Exp $";
 
 #include "externalattribrandom.h"
 
@@ -228,7 +228,7 @@ uiODDataTreeItem* uiRandomTreeItem::create( const Attrib::SelSpec& as,
 }
 
 
-bool uiRandomTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiRandomTreeItem::anyButtonClick( uiListViewItem* item )
 {
     if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );

@@ -7,15 +7,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2010
- RCS:		$Id: iosubdir.h,v 1.5 2012-08-03 13:01:35 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */
  
 #include "ioobj.h"
-#include "keystrs.h"
 
-mClass( General )  IOSubDir : public IOObj
+
+mClass IOSubDir : public IOObj
 {
 public:
 		IOSubDir(const char* subdirnm);
@@ -35,7 +35,7 @@ public:
     bool        implSetReadOnly(bool) const { return false; }
     bool	removeQuery() const	{ return true; }
 
-    FixedString	connType() const	{ return sKey::EmptyString(); }
+    const char*	connType() const	{ return ""; }
     Conn*	getConn( Conn::State s ) const { return 0; }
 
     void	genDefaultImpl()	{}

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "callback.h"
 #include "visdata.h"
 
@@ -28,7 +27,7 @@ ColorSequence describes a basic sequence of colors on a scale ranging from zero
 to one.
 */
 
-mExpClass(visBase) ColorSequence : public DataObject
+mClass ColorSequence : public DataObject
 {
 public:
     static ColorSequence*	create()
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

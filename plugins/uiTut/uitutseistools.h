@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id$
+ * ID       : $Id: uitutseistools.h,v 1.10 2010/02/18 10:37:48 cvsbert Exp $
 -*/
 
-#include "uitutmod.h"
 #include "uidialog.h"
 #include "seistype.h"
 class uiSeisSel;
@@ -17,7 +16,7 @@ class CtxtIOObj;
 namespace Tut { class SeisTools; }
 
 
-mExpClass(uiTut) uiTutSeisTools : public uiDialog
+class uiTutSeisTools : public uiDialog
 {
 public:
 

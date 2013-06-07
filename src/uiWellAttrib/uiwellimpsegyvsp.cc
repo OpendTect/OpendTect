@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -81,7 +81,7 @@ void selPush( CallBacker* )
     delete defdlg;
     if ( !dlgok ) return;
 
-    FilePath fp( imp_.sgypars_.find(sKey::FileName()) );
+    FilePath fp( imp_.sgypars_.find(sKey::FileName) );
     fnm_ = fp.fileName();
     uiSEGYExamine::Setup exsu( nrexam );
     exsu.modal( false ); exsu.usePar( imp_.sgypars_ );
@@ -248,11 +248,11 @@ static void setInpSamp( uiGenInput* fld, SamplingData<float>& sd, float fac )
 void uiWellImportSEGYVSP::use( const SeisTrc& trc )
 {
     dispinpsamp_ = trc.info().sampling;
-    setInpSamp( inpsampfld_, dispinpsamp_, mCast(float,isdpth_ ? 1 : 1000) );
+    setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 1 : 1000 );
     if ( isdpth_ )
     {
 	outzrgfld_->setValue( dispinpsamp_.start, 0 );
-	outzrgfld_->setValue( trc.endPos(), 1 );
+	outzrgfld_->setValue( trc.samplePos(trc.size()-1), 1 );
     }
 }
 
@@ -263,7 +263,7 @@ void uiWellImportSEGYVSP::isTimeChg( CallBacker* )
     isdpth_ = !istimefld_ || !istimefld_->getBoolValue();
 
     if ( oldisdpth != isdpth_ )
-	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001f : 1000 );
+	setInpSamp( inpsampfld_, dispinpsamp_, isdpth_ ? 0.001 : 1000 );
     inpistvdfld_->display( isdpth_ );
     inpinftfld_->display( isdpth_ );
     outSampChk( 0 );
@@ -299,15 +299,15 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 	if ( !isdpth_ )
 	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
 	else if ( inpinftfld_->isChecked() )
-	    { mScaleVal(inpsamp.start,mFromFeetFactorF);
-		mScaleVal(inpsamp.step,mFromFeetFactorF); }
+	    { mScaleVal(inpsamp.start,mFromFeetFactor);
+		mScaleVal(inpsamp.step,mFromFeetFactor); }
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	    { mScaleVal(outzrg.start,mFromFeetFactorF);
-		mScaleVal(outzrg.stop,mFromFeetFactorF); }
+	    { mScaleVal(outzrg.start,mFromFeetFactor);
+		mScaleVal(outzrg.stop,mFromFeetFactor); }
     }
 
     SeisTrc trc;
@@ -352,12 +352,11 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( !isdpth_ && !wd->d2TModel() )
 	mErrRet("Selected well has no Depth vs Time model")
 
-    const Well::Track& track = wd->track();
     int wlidx = wd->logs().indexOf( lognm );
     if ( wlidx >= 0 )
 	delete wd->logs().remove( wlidx );
     Well::Log* wl = new Well::Log( lognm );
-    wl->pars().set( sKey::FileName(), sgypars_.find(sKey::FileName()) );
+    wl->pars().set( sKey::FileName, sgypars_.find(sKey::FileName) );
 
     Interval<float> outzrg( ozr ); outzrg.sort();
     const bool havestartout = !mIsUdf(outzrg.start);
@@ -365,9 +364,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( outistvdfld_->isChecked() )
     {
 	if ( havestartout )
-	    outzrg.start = track.getDahForTVD( outzrg.start );
+	    outzrg.start = wd->track().getDahForTVD( outzrg.start );
 	if ( havestopout )
-	    outzrg.start = track.getDahForTVD( outzrg.stop );
+	    outzrg.start = wd->track().getDahForTVD( outzrg.stop );
     }
 
     const bool inptvd = inpistvdfld_->isChecked();
@@ -377,9 +376,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth_ )
-	    z = wd->d2TModel()->getDah( z, track );
+	    z = wd->d2TModel()->getDah( z );
 	else if ( inptvd )
-	    prevdah = z = track.getDahForTVD( z, prevdah );
+	    prevdah = z = wd->track().getDahForTVD( z, prevdah );
 
 	if ( havestartout && z>outzrg.start-zeps )
 	    continue;

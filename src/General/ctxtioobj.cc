@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -20,6 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "keystrs.h"
 
+static const char* sKeySelConstr = "Selection.Constraints";
+
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 
 	"Seismic data",
@@ -31,7 +33,6 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 	"Miscellaneous data",
 	"Attribute definitions",
 	"Model data",
-	"Survey Geometries",
 	"None",
 	0
 
@@ -47,12 +48,11 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames()[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] },
 	{ "100090", "Models", IOObjContext::StdSelTypeNames()[8] },
-	{ "100100", "Geometry", IOObjContext::StdSelTypeNames()[9] },
-	{ "", "None", IOObjContext::StdSelTypeNames()[10] },
+	{ "", "None", IOObjContext::StdSelTypeNames()[9] },
 	{ 0, 0, 0 }
 };
 
-int IOObjContext::totalNrStdDirs() { return 10; }
+int IOObjContext::totalNrStdDirs() { return 9; }
 const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 	IOObjContext::StdSelType sst )
 { return stddirdata + (int)sst; }
@@ -336,12 +336,27 @@ void CtxtIOObj::fillDefault( bool oone2 )
 {
     ctxt.fillTrGroup();
 
-    BufferString keystr( ctxt.trgroup->getSurveyDefaultKey( 0 ) );
-    
-    const FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
-    if ( !typestr.isEmpty() )
+    BufferString keystr( ctxt.trgroup->userName() );
+    if ( keystr == "Seismic Data" )
+    {
+	bool is3d = SI().survDataType() != SurveyInfo::Only2D;
+	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
+		&& ctxt.deftransl == "2D" )
+	    is3d = false;
+	keystr = is3d ? sKey::DefCube : sKey::DefLineSet;
+	FixedString typestr = ctxt.toselect.require_.find( sKey::Type );
+	if ( is3d && !typestr.isEmpty() )
 	    keystr = IOPar::compKey(keystr,typestr);
+    }
+    else
+    {
+	if ( keystr == "Pre-Stack Seismics"
+		&& SI().survDataType() != SurveyInfo::Only2D )
+	    keystr = "PS3D Data Store";
 	
+	keystr = IOPar::compKey(sKey::Default,keystr);
+    }
+
     return fillDefaultWithKey( keystr, oone2 );
 }
 

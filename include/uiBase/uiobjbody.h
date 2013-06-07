@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uibasemod.h"
 #include "uibody.h"
 #include "uifont.h"
 #include "uiobj.h"
@@ -27,13 +26,13 @@ class i_LayoutMngr;
 class ioPixmap;
 class Timer;
 
-mFDQtclass(QCloseEvent)
-mFDQtclass(QFontMetrics)
-mFDQtclass(QWidget)
+class QCloseEvent;
+class QFontMetrics;
+class QWidget;
 
 #define USE_DISPLAY_TIMER 1
 
-mExpClass(uiBase) uiObjectBody : public uiBody, public NamedObject
+mClass uiObjectBody : public uiBody, public NamedObject
 {
 friend class 		i_uiLayoutItem; 
 
@@ -133,7 +132,7 @@ protected:
     int			hStretch;
     int			vStretch;
 
-    virtual const mQtclass(QWidget*) managewidg_() const { return qwidget_(); }
+    virtual const QWidget* managewidg_() const	{ return qwidget_(); }
 
     virtual i_LayoutItem* mkLayoutItem_(i_LayoutMngr& mngr);
 
@@ -173,7 +172,7 @@ private:
     int			fnt_hgt;
     int			fnt_wdt;
     int			fnt_maxwdt;
-    mQtclass(QFontMetrics*)	fm;
+    QFontMetrics*	fm;
 
     uiObject::SzPolicy	hszpol;
     uiObject::SzPolicy	vszpol;
@@ -232,7 +231,7 @@ private:
 */
 
 template <class C, class T>
-mClass(uiBase) uiObjBodyImpl : public uiObjectBody, public T
+class uiObjBodyImpl : public uiObjectBody, public T
 {
 public:
 
@@ -251,4 +250,3 @@ public:
 };
 
 #endif
-

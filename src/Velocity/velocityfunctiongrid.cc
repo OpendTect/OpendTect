@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctiongrid.h"
 
@@ -47,6 +47,7 @@ bool GriddedFunction::fetchSources()
 	return false;
 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
+    ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
@@ -55,7 +56,7 @@ bool GriddedFunction::fetchSources()
     if ( gvs.sourcepos_.valid(bid_) )
     {
 	int funcsource;
-	ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
+	RefMan<const Function> velfunc = getInputFunction( bid_, funcsource );
 	if  ( velfunc )
 	{
 	    velfunc->ref();
@@ -78,7 +79,7 @@ bool GriddedFunction::fetchSources()
 	    const BinID curbid = binids[gridinput[idx]];
 
 	    int funcsource;
-	    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
+	    RefMan<const Function> velfunc = getInputFunction(curbid,funcsource);
 	    if ( !velfunc )
 	    {
 		pErrMsg("Error");
@@ -145,13 +146,13 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 }
 
 
-ConstRefMan<Function>
+RefMan<const Function>
 GriddedFunction::getInputFunction( const BinID& bid, int& funcsource ) 
 { 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    ConstRefMan<Function> velfunc = 0;
+    RefMan<const Function> velfunc = 0;
     for ( funcsource=0; funcsource<velfuncsources.size();
 	  funcsource++ )
     {
@@ -185,6 +186,7 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
     const bool nogridding = velocityfunctions_.size()==1;
 
     const bool doinverse = getDesc().isVelocity();
@@ -221,7 +223,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		continue;
 	    }
 
-	    const float gridvalue = doinverse ? 1.0f/value : value;
+	    const float gridvalue = doinverse ? 1.0/value : value;
 
 	    gridvalues_[usedpoints[idy]] = gridvalue;
 	    gridvaluesum += gridvalue;
@@ -242,7 +244,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		continue;
 	    }
 
-	    const float averageval = (float) (gridvaluesum/nrgridvalues);
+	    const float averageval = gridvaluesum/nrgridvalues;
 	    for ( int idy=undefpos.size()-1; idy>=0; idy-- )
 		gridvalues_[undefpos[idy]] = averageval;
 	}
@@ -250,7 +252,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	gridder_->setValues( gridvalues_, false );
 	const float val = gridder_->getValue();
 	if ( doinverse )
-	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0f/val;
+	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0/val;
 	else
 	    res[idx] = val;
     }
@@ -390,21 +392,21 @@ bool GriddedSource::initGridder()
     const Interval<int> crlrg = SI().crlRange( true );
     Interval<float> xrg, yrg;
     Coord c = SI().transform( BinID(inlrg.start,crlrg.start) );
-    xrg.start = xrg.stop = (float) c.x;
-    yrg.start = yrg.stop = (float) c.y;
+    xrg.start = xrg.stop = c.x;
+    yrg.start = yrg.stop = c.y;
 
     c = SI().transform( BinID(inlrg.start,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( c.x ); yrg.include( c.y );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.start) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( c.x ); yrg.include( c.y );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( c.x ); yrg.include( c.y );
 
     gridder_->setGridArea( xrg, yrg );
 
-    sourcepos_.setEmpty();
+    sourcepos_.empty();
     gridsourcecoords_.erase();
     gridsourcebids_.erase();
 
@@ -585,7 +587,7 @@ void GriddedSource::fillPar( IOPar& par ) const
 
     IOPar gridpar;
     gridder_->fillPar( gridpar );
-    gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
+    gridpar.set( sKey::Name, gridder_->factoryKeyword() );
     par.mergeComp( gridpar, sKeyGridder() );
 }
 
@@ -597,7 +599,7 @@ bool GriddedSource::usePar( const IOPar& par )
 	return true; //For now. Change later.
 
     BufferString nm;
-    gridpar->get( sKey::Name(), nm );
+    gridpar->get( sKey::Name, nm );
     Gridder2D* gridder = Gridder2D::factory().create( nm.buf() );
     if ( !gridder )
 	return false;

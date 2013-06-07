@@ -13,18 +13,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "posfilter.h"
 
 
 namespace Pos
 {
 
-/*!
-\brief Passes a percentage of the positions.
-*/
+/*!\brief Passes a percentage of the positions */
 
-mExpClass(Algo) RandomFilter : public virtual Filter
+mClass RandomFilter : public virtual Filter
 {
 public:
 
@@ -74,11 +71,9 @@ static Filter2D* create()	{ return new clssnm##Filter2D; } \
 mSimpPosFilterDefFnsBase
 
 
-/*!
-\brief Passes a percentage of the positions (3D).
-*/
+/*!\brief Passes a percentage of the positions (3D) */
 
-mExpClass(Algo) RandomFilter3D : public Filter3D
+mClass RandomFilter3D : public Filter3D
 		     , public RandomFilter
 {
 public:
@@ -88,11 +83,9 @@ public:
 };
 
 
-/*!
-\brief Passes a percentage of the positions (2D).
-*/
+/*!\brief Passes a percentage of the positions (2D) */
 
-mExpClass(Algo) RandomFilter2D : public Filter2D
+mClass RandomFilter2D : public Filter2D
 		     , public RandomFilter
 {
 public:
@@ -101,12 +94,9 @@ public:
 
 };
 
+/*!\brief Passes each nth position */
 
-/*!
-\brief Passes each nth position.
-*/
-
-mExpClass(Algo) SubsampFilter : public virtual Filter
+mClass SubsampFilter : public virtual Filter
 {
 public:
 
@@ -120,7 +110,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const	{ return 1.f/each_; }
+    virtual float	estRatio(const Provider&) const	{ return 1./each_; }
 
     int			each_;
 
@@ -135,11 +125,9 @@ protected:
 };
 
 
-/*!
-\brief Passes each nth position (3D).
-*/
+/*!\brief Passes each nth position (3D) */
 
-mExpClass(Algo) SubsampFilter3D : public Filter3D
+mClass SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
 {
 public:
@@ -149,11 +137,9 @@ public:
 };
 
 
-/*!
-\brief Passes each nth position (2D).
-*/
+/*!\brief Passes each nth position (2D) */
 
-mExpClass(Algo) SubsampFilter2D : public Filter2D
+mClass SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
 {
 public:
@@ -165,4 +151,3 @@ public:
 } // namespace
 
 #endif
-

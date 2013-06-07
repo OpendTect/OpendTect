@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "uigroup.h"
@@ -20,11 +19,11 @@ class uiHorizonAuxDataDlg;
 class uiGenInput;
 class uiPushButton;
 
-mExpClass(uiEarthModel) uiHorizonAuxDataSel : public uiGroup
+mClass uiHorizonAuxDataSel : public uiGroup
 {
 public:
 
-    mExpClass(uiEarthModel) HorizonAuxDataInfo
+    mClass HorizonAuxDataInfo
     {
     public:
 			HorizonAuxDataInfo(bool load);
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

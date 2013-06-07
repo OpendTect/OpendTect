@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 @$*/
 
-#include "algomod.h"
 #include "transform.h"
 #include "enums.h"
 #include "arraynd.h"
@@ -20,16 +19,15 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "ranges.h"
 
-/*!
-\brief WaveletTransform is a ND wavelet transform.
-
-  \par
-  Specify wavelet at creation, and use in the same way as any TransformND.
-  The algorithm is based on the one from NumericalRecipies, and additional 
-  kernel support comes from the Matlab library "WaveLab" (Stanford University).
+/*!\brief
+WaveletTransform is a ND wavelet transform.
+\par
+Specify wavelet at creation, and use in the same way as any TransformND.
+The algorithm is based on the one from NumericalRecipies, and additional 
+kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
-mExpClass(Algo) WaveletTransform
+mClass WaveletTransform
 {
 public:
     enum		WaveletType { Haar, Daubechies4, Daubechies6,
@@ -80,11 +78,7 @@ public:
 };
 
 
-/*!
-\brief Discrete Wavelet Transform
-*/
-
-mExpClass(Algo) DWT : public GenericTransformND
+mClass DWT : public GenericTransformND
 {
 public:
 			DWT( WaveletTransform::WaveletType );
@@ -92,7 +86,7 @@ public:
 
 protected:
 
-    mExpClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
+    mClass FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
 	
@@ -127,11 +121,7 @@ protected:
 };
 
 
-/*!
-\brief Continuous Wavelet Transform
-*/
-
-mExpClass(Algo) CWT 
+mClass CWT 
 {
 public:
 			CWT();
@@ -218,4 +208,3 @@ protected:
 };
 
 #endif
-

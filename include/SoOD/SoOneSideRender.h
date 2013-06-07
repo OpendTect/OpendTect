@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-//#include "soodmod.h"
-#include "Inventor/nodes/SoShape.h"
+//#include "Inventor/nodes/SoShape.h"
 //#include "Inventor/fields/SoSFShort.h"
 #include "Inventor/fields/SoMFNode.h"
 #include "Inventor/fields/SoMFVec3f.h"
@@ -32,7 +31,7 @@ A class that renders its sub-nodes if light comes from one side. */
 
 
 
-mSoODClass SoOneSideRender : public SoNode
+mClass SoOneSideRender : public SoNode
 {
     SO_NODE_HEADER(SoOneSideRender);
 public:
@@ -58,4 +57,3 @@ protected:
 
 #endif
     
-

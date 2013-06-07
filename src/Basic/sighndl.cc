@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -31,26 +31,13 @@ static const char* rcsID mUsedVar = "$Id$";
 # define SIGCLD SIGCHLD
 #endif
 
-
-
-SignalHandling& SignalHandling::SH()
-{
-    static SignalHandling theinst;
-    return theinst;
-}
-
-
-void SignalHandling::initClass()
-{
-    SH();
-}
+SignalHandling SignalHandling::theinst_;
 
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
-    
-    CallBackSet& cbs = SH().getCBL( et );
-    if ( !cbs.isPresent(cb) ) cbs += cb;
+    CallBackSet& cbs = theinst_.getCBL( et );
+    if ( cbs.indexOf(cb) < 0 ) cbs += cb;
 #ifndef __win__
     if ( et == SignalHandling::Alarm )
     {
@@ -70,8 +57,7 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 
 void SignalHandling::stopNotify( SignalHandling::EvType et, const CallBack& cb )
 {
-    CallBackSet& cbs = SH().getCBL( et );
-
+    CallBackSet& cbs = theinst_.getCBL( et );
     cbs -= cb;
 }
 
@@ -80,13 +66,13 @@ CallBackSet& SignalHandling::getCBL( SignalHandling::EvType et )
 {
     switch ( et )
     {
-    case ConnClose:	return conncbs_;
-    case ChldStop:	return chldcbs_;
-    case ReInit:	return reinitcbs_;
-    case Stop:		return stopcbs_;
-    case Cont:		return contcbs_;
-    case Alarm:		return alarmcbs_;
-    default:		return killcbs_;
+    case ConnClose:	return conncbs;
+    case ChldStop:	return chldcbs;
+    case ReInit:	return reinitcbs;
+    case Stop:		return stopcbs;
+    case Cont:		return contcbs;
+    case Alarm:		return alarmcbs;
+    default:		return killcbs;
     }
 }
 
@@ -158,7 +144,6 @@ void SignalHandling::initFatalSignalHandling()
 }
 
 
-
 void SignalHandling::handle( int signalnr )
 {
     switch( signalnr )
@@ -173,16 +158,16 @@ void SignalHandling::handle( int signalnr )
 #ifdef sun5
     case SIGEMT: case SIGSYS:
 #endif
-					SH().doKill( signalnr );	break;
+					theinst_.doKill( signalnr );	break;
 
 #ifndef __win__
-    case SIGSTOP: case SIGTSTP:		SH().doStop( signalnr );	return;
-    case SIGCONT:			SH().doCont();		return;
+    case SIGSTOP: case SIGTSTP:		theinst_.doStop( signalnr );	return; 
+    case SIGCONT:			theinst_.doCont();		return;
 
-    case SIGALRM:			SH().handleAlarm();	break;
-    case SIGPIPE:			SH().handleConn();		break;
-    case SIGCLD:			SH().handleChld();		break;
-    case SIGHUP:			SH().handleReInit();	break;
+    case SIGALRM:			theinst_.handleAlarm();		break;
+    case SIGPIPE:			theinst_.handleConn();		break;
+    case SIGCLD:			theinst_.handleChld();		break;
+    case SIGHUP:			theinst_.handleReInit();	break;
 #endif
     }
 
@@ -253,7 +238,7 @@ void SignalHandling::doKill( int signalnr )
 #endif
 	ErrMsg( msg );
     }
-    killcbs_.doCall( this, 0 );
+    killcbs.doCall( this, 0 );
     ExitProgram( 1 );
 }
 
@@ -263,7 +248,7 @@ void SignalHandling::doStop( int signalnr, bool withcbs )
     mReleaseSignal( signalnr );
 
     if ( withcbs )
-	stopcbs_.doCall( this, 0 );
+	stopcbs.doCall( this, 0 );
 
 #ifdef __win__
     raise( signalnr );
@@ -308,29 +293,29 @@ void SignalHandling::doCont()
 #ifndef __win__
     mCatchSignal( SIGSTOP );
 #endif
-    contcbs_.doCall( this, 0 );
+    contcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleConn()
 {
-    conncbs_.doCall( this, 0 );
+    conncbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleChld()
 {
-    chldcbs_.doCall( this, 0 );
+    chldcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleReInit()
 {
-    reinitcbs_.doCall( this, 0 );
+    reinitcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleAlarm()
 {
-    alarmcbs_.doCall( this, 0 );
+    alarmcbs.doCall( this, 0 );
 }

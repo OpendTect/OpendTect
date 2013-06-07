@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "ranges.h"
 #include "color.h"
 #include "bufstring.h"
@@ -21,11 +20,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!
-\brief Log display parameters.
-*/
-
-mExpClass(Well) LogDisplayPars
+mClass LogDisplayPars
 {
 public:
 			LogDisplayPars( const char* nm=0 )
@@ -61,11 +56,7 @@ public:
 };
 
 
-/*!
-\brief Log display parameter set.
-*/
-
-mExpClass(Well) LogDisplayParSet
+mClass LogDisplayParSet
 {
 public:
 			LogDisplayParSet ()
@@ -96,4 +87,3 @@ protected:
 }; // namespace Well
 
 #endif
-

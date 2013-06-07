@@ -12,17 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "compoundkey.h"
 #include "string2.h"
 #include "fixedstring.h"
 
 
-/*!
-\brief Compound key consisting of ints.
-*/
+/*!\brief Compound key consisting of ints */
 
-mExpClass(Basic) MultiID : public CompoundKey
+mClass MultiID : public CompoundKey
 {
 public:
 			MultiID(const FixedString& s)
@@ -68,4 +65,3 @@ public:
 
 
 #endif
-

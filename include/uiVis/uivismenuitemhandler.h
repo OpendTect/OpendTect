@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "menuhandler.h"
 
 class uiVisPartServer;
@@ -29,7 +28,7 @@ Usage example:
 */
 
 
-mExpClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
+mClass uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

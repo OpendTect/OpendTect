@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
  
 
-#include "generalmod.h"
 #include "namedobj.h"
 #include "multiid.h"
 
@@ -24,15 +23,15 @@ class CtxtIOObj;
 class Translator;
 class IOObjContext;
 
-/*!
-\brief manages the 'Meta-'data store for the IOObj's.
-This info is read from the .omf files.
+/*!\brief manages the 'Meta-'data store for the IOObj's. This info
+is read from the .omf files.
 
 There will be one IOMan available through the global function IOM(). Creating
 more instances is probably not a good idea.
+
 */
 
-mExpClass(General) IOMan : public NamedObject
+mClass IOMan : public NamedObject
 {
 public:
 
@@ -49,12 +48,11 @@ public:
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
 
-    IODir*		dirPtr()		{ return dirptr_; }
-    const IODir*	dirPtr() const		{ return dirptr_; }
+    IODir*		dirPtr()		{ return dirptr; }
+    const IODir*	dirPtr() const		{ return dirptr; }
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
-    const char*		rootDir() const		{ return rootdir_; }
-    bool		isKey(const char* keystr) const;
+    const char*		rootDir() const		{ return rootdir; }
     const char*		nameOf(const char* keystr) const;
     			//!< if keystr is not an IOObj key, will return keystr
 
@@ -70,7 +68,7 @@ public:
 
     const char*		surveyName() const;
 
-    mExpClass(General) CustomDirData
+    mClass CustomDirData
     {
     public:
 			CustomDirData( const char* selkey, const char* dirnm,
@@ -105,9 +103,9 @@ private:
 
     enum State		{ Bad, NeedInit, Good };
     State		state_;
-    IODir*		dirptr_;
-    int			curlvl_;
-    FileNameString	rootdir_;
+    IODir*		dirptr;
+    int			curlvl;
+    FileNameString	rootdir;
     bool		canchangesurvey_;
 
     void		init();
@@ -119,13 +117,13 @@ private:
 
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
-    int			curLevel() const	{ return curlvl_; }
+    int			curLevel() const	{ return curlvl; }
     const char*		generateFileName(Translator*,const char*);
     bool		to(const IOSubDir*,bool);
 
     friend class	IOObj;
     friend class	IODir;
-    friend mGlobal(General)	IOMan&	IOM();
+    friend mGlobal	IOMan&	IOM();
 
 public:
 
@@ -153,7 +151,63 @@ public:
 
 };
 
-mGlobal(General) IOMan&	IOM();
+mGlobal IOMan&	IOM();
+
+
+/*!\page General General Utilities
+  \section Introduction Introduction
+
+  This module uses the services from the Basic module and adds services that
+  are (in general) more or less OpendTect specific. Just like the Basic module
+  the services are used by all other modules.
+
+
+  \section Content Content
+  Some of the groups of services are:
+
+<ul>
+ <li>I/O management system
+  <ul>
+   <li>ioman.h : the IOM() object of the IOMan class provides a lookup of
+       objects in the data store
+   <li>ioobj.h : Subclasses of IOObj hold all data necessary to access a stored
+       object.
+   <li>iostrm.h : IOStream is the most common subclass of IOObj because
+       OpendTect stores its data in files.
+   <li>ctxtioobj.h : The context of an IOObj selection: what type of object,
+       is it for read or write, should the user be able to create a new entry,
+       etc.
+  </ul>
+ <li>Translators
+  <ul>
+   <li>transl.h : Translators are the objects that know file and database
+       formats. All normal data will be put into and written from in-memory
+       objects via subclasses of Translator.
+  </ul>
+ <li>ArrayND utils
+  <ul>
+   <li>array2dxxx.h : 2-D arrays have a couple of specific things inmplemented
+   <li>arrayndxxx.h : slices, subselection and other utilities
+  </ul>
+ <li>CBVS
+  <ul>
+   <li>cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
+   <li>cbvswritemgr.h : writes CBSV format.
+  </ul>
+ <li>Tables
+  <ul>
+   <li>tabledef.h : Specifying the information content of tabular data
+   <li>tableascio.h : Utiltities to read/write table-formatted data
+   <li>tableconv.h : Utilities for converting table data
+  </ul>
+ <li>Properties and units
+  <ul>
+   <li>property.h : handling properties like Density, Velocity, ...
+   <li>uniofmeasure.h : handling units of measure
+  </ul>
+</ul>
+
+*/
+
 
 #endif
-

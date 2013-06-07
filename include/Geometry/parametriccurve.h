@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geomelement.h"
 
 class Plane3;
@@ -29,7 +28,7 @@ namespace Geometry
   parameterRange().stop and parameterRange().start.
 */
 
-mExpClass(Geometry) ParametricCurve : public Element
+mClass ParametricCurve : public Element
 {
 public:
     virtual Coord3 	computePosition( float ) const	= 0;
@@ -71,4 +70,3 @@ public:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uibatchlaunch.h"
 #include "attribdescid.h"
 
@@ -29,7 +28,7 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-mExpClass(uiEMAttrib) uiAttrEMOut : public uiFullBatchDialog
+mClass uiAttrEMOut : public uiFullBatchDialog
 {
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
@@ -54,4 +53,3 @@ protected:
 };
 
 #endif
-

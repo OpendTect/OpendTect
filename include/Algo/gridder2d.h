@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "algomod.h"
 #include "mathfunc.h"
 #include "factory.h"
 #include "position.h"
@@ -24,12 +23,9 @@ class IOPar;
 class DAGTriangleTree;
 class Triangle2DInterpolator;
 
+/*! Generic interface for 2D gridding. */
 
-/*!
-\brief Generic interface for 2D gridding.
-*/
-
-mExpClass(Algo) Gridder2D
+mClass Gridder2D
 {
 public:
 			mDefineFactoryInClass(Gridder2D,factory);
@@ -106,11 +102,7 @@ protected:
 };
 
 
-/*!
-\brief Uses inverse distance method for 2D gridding.
-*/
-
-mExpClass(Algo) InverseDistanceGridder2D : public Gridder2D 
+mClass InverseDistanceGridder2D : public Gridder2D 
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,
@@ -142,12 +134,10 @@ protected:
 };
 
 
-/*!
-\brief Uses Delaunay triangulation to find a points neighbors and does
-inverse distance between the neighbors.
-*/
+/*!Uses Delaunay triangulation to find a points neighbors and does inverse
+   distance between the neighbors. */
 
-mExpClass(Algo) TriangulatedGridder2D: public Gridder2D
+mClass TriangulatedGridder2D: public Gridder2D
 {
 public:
     mDefaultFactoryInstantiation( Gridder2D,
@@ -179,4 +169,3 @@ protected:
 
 
 #endif
-

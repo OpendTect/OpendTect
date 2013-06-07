@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "volumeprocessingmod.h"
 #include "multiid.h"
 #include "samplingdata.h"
 #include "volprocchain.h"
@@ -22,12 +21,8 @@ template <class T> class Smoother3D;
 
 namespace VolProc
 {
-
-/*!
-\brief Lateral smoother. Subclass of Step.
-*/
-  
-mExpClass(VolumeProcessing) LateralSmoother : public Step
+    
+mClass LateralSmoother : public Step
 {
 public:
     mDefaultFactoryInstantiation( VolProc::Step,
@@ -75,4 +70,3 @@ protected:
 
 
 #endif
-

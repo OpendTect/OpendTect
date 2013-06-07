@@ -4,7 +4,7 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "tracedata.h"
@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "odmemory.h"
 #ifdef __mac__
-#include <malloc/malloc.h>
+# include <malloc/malloc.h>
 #else
-#include <malloc.h>
+# include <malloc.h>
 #endif
 
 
@@ -261,7 +261,7 @@ void TraceData::scale( const Scaler& sclr, int compnr )
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    float val = getValue( isamp, icomp );
-	    setValue( isamp, ( float ) sclr.scale(val), icomp );
+	    setValue( isamp, sclr.scale(val), icomp );
 	}
     }
 }

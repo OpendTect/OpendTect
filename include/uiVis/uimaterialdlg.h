@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 #include "uidlggroup.h"
 #include "draw.h"
@@ -26,7 +25,7 @@ namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
 
 
-mExpClass(uiVis) uiMaterialGrp : public uiDlgGroup
+mClass uiMaterialGrp : public uiDlgGroup
 {
 public:
 				uiMaterialGrp(uiParent*,
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
+mClass uiLineStyleGrp : public uiDlgGroup
 {
 public:
     				uiLineStyleGrp(uiParent*,
@@ -78,7 +77,7 @@ protected:
 };
 
 
-mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
+mClass uiTextureInterpolateGrp : public uiDlgGroup
 {
 public:
 				uiTextureInterpolateGrp(uiParent*,
@@ -91,7 +90,7 @@ protected:
 };
 
 
-mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
+mClass uiPropertiesDlg : public uiTabStackDlg
 {
 public:
 				uiPropertiesDlg(uiParent*,
@@ -103,4 +102,3 @@ protected:
 };
 
 #endif
-

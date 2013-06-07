@@ -2,19 +2,14 @@
 #
 #	Makefile : 	visBase
 # 	May 2012 :	Nageswara
-#	RCS :		$Id$
+#	RCS :		$Id: CMakeLists.txt,v 1.1 2012/05/07 03:37:40 cvsnageswara Exp $
 #_______________________________________________________________________________
 
-if ( UNIX )
-    if ( APPLE )
-    else()
-	find_package( X11 )
-	set( EXTRA_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${X11_LIBRARIES} )
-	set( OD_MODULE_PROGS od_glxinfo.c )
-    endif( APPLE )
-else()
-	set( EXTRA_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
-	set( OD_MODULE_PROGS od_glxinfo.c ) 
-endif( UNIX )
+IF ( UNIX )
+    SET( EXTRA_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
+    SET( OD_MODULE_PROGS od_glxinfo )
+ELSE()
+    SET( OD_MODULE_EXECS w32glxinfo.c )
+ENDIF( UNIX )
 
 OD_INIT_MODULE()

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "sets.h"
 
 class uiODMenuMgr;
@@ -21,7 +20,7 @@ class uiODHelpDocInfo;
 
 /*!\brief The OpendTect help menu manager */
 
-mExpClass(uiODMain) uiODHelpMenuMgr
+mClass uiODHelpMenuMgr
 {
 public:
     				uiODHelpMenuMgr(uiODMenuMgr*);
@@ -47,4 +46,3 @@ protected:
 };
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiamplspectrum.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "cubesampling.h"
@@ -123,7 +123,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const FlatDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);	    
+	    setup_.nyqvistspspace_ = dp->posData().range(false).step;	    
 	    setData( dp->data() );
 	}
     }
@@ -252,7 +252,7 @@ void uiAmplSpectrum::putDispData()
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
     if ( SI().zIsTime() )
-	maxfreq = mCast( float, mNINT32( maxfreq ) );
+	maxfreq = mNINT32( maxfreq );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop, 
@@ -324,7 +324,7 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 	return;
 
     const float ratio = (rg.start-posrange_.start)/posrange_.width();
-    const float specsize = mCast( float, specvals_->info().getSize(0) );
+    const float specsize = specvals_->info().getSize(0);
     const int specidx = mNINT32( ratio * specsize );
     if ( !specvals_->info().validPos(specidx) )
 	return;

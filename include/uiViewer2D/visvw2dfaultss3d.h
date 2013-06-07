@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 #include "emposid.h"
@@ -24,7 +23,7 @@ class uiFlatViewAuxDataEditor;
 namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 
 
-mExpClass(uiViewer2D) VW2DFaultSS3D : public Vw2DEMDataObject
+mClass VW2DFaultSS3D : public Vw2DEMDataObject
 {
 public:
     static VW2DFaultSS3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

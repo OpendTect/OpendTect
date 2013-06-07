@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
 
@@ -20,14 +19,14 @@ class uiColorTableCanvas;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
-class uiTreeView;
+class uiListView;
 class uiPushButton;
 class uiSpinBox;
 class uiWorld2Ui;
 
 namespace ColTab { class Sequence; }
 
-mExpClass(uiTools) uiColorTableMan : public uiDialog
+mClass uiColorTableMan : public uiDialog
 {
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&,
@@ -46,7 +45,7 @@ protected:
     uiFunctionDisplay*		cttranscanvas_;
     uiColorTableCanvas*		ctabcanvas_;
     uiColTabMarkerCanvas*	markercanvas_;
-    uiTreeView*			coltablistfld_;
+    uiListView*			coltablistfld_;
     uiPushButton*       	removebut_;
     uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;
@@ -95,4 +94,3 @@ protected:
 };
 
 #endif
-

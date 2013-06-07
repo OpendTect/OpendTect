@@ -4,14 +4,18 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiodvolrentreeitem.h"
 
 #include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
+#include "mousecursor.h"
+#include "settings.h"
+#include "oddirs.h"
 #include "uifiledlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -23,23 +27,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uiobjdisposer.h"
-#include "uitreeview.h"
-#include "uiviscoltabed.h"
-#include "uivisisosurface.h"
-#include "uivispartserv.h"
-#include "uivisslicepos3d.h"
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
+#include "uiviscoltabed.h"
+#include "uivisisosurface.h"
+#include "uivisslicepos3d.h"
+#include "uivispartserv.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
 #include "visvolumedisplay.h"
-
 #include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "mousecursor.h"
-#include "oddirs.h"
-#include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -57,6 +56,9 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
     const int mnuid = mnu.exec();
@@ -114,17 +116,12 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
     , savevolumemnuitem_( "Save volume file" )
-{
-    statisticsmnuitem_.iconfnm = "histogram";
-    amplspectrummnuitem_.iconfnm = "amplspectrum";
-    positionmnuitem_.iconfnm = "orientation64";
-    displayid_ = displayid;
-}
+{ displayid_ = displayid; }
 
 
 uiODVolrenTreeItem::~uiODVolrenTreeItem()
 {
-    uitreeviewitem_->stateChanged.remove(
+    uilistviewitem_->stateChanged.remove(
 				mCB(this,uiODVolrenTreeItem,checkCB) );
     while( children_.size() )
 	removeChild(children_[0]);
@@ -178,49 +175,42 @@ uiODDataTreeItem* uiODVolrenTreeItem::createAttribItem(
 { return 0; }
 
 
-void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() ) return;
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( !menu || menu->menuID() != displayID() ) return;
 
     const bool islocked = visserv_->isLocked( displayID() );
-    if ( !istb )
-    {
-	selattrmnuitem_.removeItems();
-	uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
-	    				    0, sceneID() );
-	if ( selattrmnuitem_.nrItems() )
-	    mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
-    }
+    selattrmnuitem_.removeItems();
+    uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
+	    				0, sceneID() );
+    if ( selattrmnuitem_.nrItems() )
+	mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
     if ( attrserv->getIOObj(*as) )
-	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
+	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
 
-    if ( !istb )
-    {
-	mAddMenuItem( menu, &displaymnuitem_, true, false );
-	mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
-	mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
-    }
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
-		      true, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &statisticsmnuitem_,
-		      true, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
-		      !islocked, false );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
+    mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &statisticsmnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &positionmnuitem_, !islocked, false );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn ); 
     if ( yn )
-	mAddMenuOrTBItem( istb, 0, menu, &savevolumemnuitem_, true, false )
+	mAddMenuItem( menu, &savevolumemnuitem_, true, false )
     else
 	mResetMenuItem( &savevolumemnuitem_ );
+
 }
 
 
@@ -248,7 +238,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString fnm = fp.fullPath();
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
-	iop.write( fnm, sKey::Pars() );
+	iop.write( fnm, sKey::Pars );
     }
     else if ( mnuid==positionmnuitem_.id )
     {
@@ -353,9 +343,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODVolrenTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiODVolrenTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uitreeviewitem_ )
+    if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -389,6 +379,9 @@ uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
 
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 {
+    visserv_->getUiSlicePos()->positionChg.remove( 
+	mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
+    
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 	    	     visserv_->getObject(parent_->selectionKey() ));
 
@@ -399,6 +392,15 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
     else
 	vd->removeChild( displayid_ );
 
+    mDynamicCastGet(visBase::OrthogonalSlice*,slice,
+	    	    visserv_->getObject(displayid_));
+    if ( slice )
+    {
+	slice->selection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
+	slice->deSelection()->remove( mCB(this,uiODVolrenSubTreeItem,selChgCB));
+    }
+    
+        
     visserv_->getUiSlicePos()->setDisplay( -1 );
 }
 
@@ -438,21 +440,20 @@ bool uiODVolrenSubTreeItem::init()
     if ( slice )
     {
 	slice->setSelectable( true );
+	slice->selection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB) );
 	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
-	
-	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem, selChgCB );
-	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem, selChgCB);
-	mAttachCB( visserv_->getUiSlicePos()->positionChg,
-		   uiODVolrenSubTreeItem, posChangeCB);
+	visserv_->getUiSlicePos()->setDisplay( parent_->selectionKey() );
+	visserv_->getUiSlicePos()->positionChg.notify( 
+	    		mCB(this,uiODVolrenSubTreeItem,posChangeCB) );
     }
 
     return uiODDisplayTreeItem::init();
 }
 
 
-bool uiODVolrenSubTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiODVolrenSubTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uitreeviewitem_ )
+    if ( item!=uilistviewitem_ )
 	return uiODTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -489,7 +490,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	    dispval *= scene->zDomainUserFactor();
 	}
 
-        uitreeviewitem_->setText( toString(mNINT32(dispval)), col );
+	uilistviewitem_->setText( toString(mNINT32(dispval)), col );
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
@@ -501,16 +502,16 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
         if ( mIsUdf(isoval) )
 	    coltext = "";
 	else coltext = isoval;
-	uitreeviewitem_->setText( coltext.buf(), col );
+	uilistviewitem_->setText( coltext.buf(), col );
     }
 }
 
 
-void uiODVolrenSubTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODVolrenSubTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb ) return;
-
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( !menu || menu->menuID() != displayID() ) return;
     if ( !isIsoSurface() )
     {
 	mResetMenuItem( &resetisosurfacemnuitem_ );

@@ -4,7 +4,7 @@
 /*+
 ________________________________________________________________________
 
- (C)		dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2002
 
@@ -17,137 +17,136 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "fixedstring.h"
 
-/*!
-\brief is used for defining key strings that are 'global'.
 
-The idea is also that we get some uniformity in how we read/write things
-from/to file. Thus, if you suspect a string is rather common, try to find
-something similar here first.
+#ifndef OD_EXT_KEYSTR_EXPAND
+# define mKeyStrsNameSpace(ns) namespace ns
+# define mKeyStrsDecl(nm,str) mBasicExtern FixedString nm
+#endif
 
-Also, some standard key strings are shared between otherwise unrelated modules.
+
+
+/*!\brief is used for defining key strings that are 'global'.
+
+Some standard key strings are shared between otherwise unrelated modules.
 To make sure no artificial dependencies are created, such a key can be added
 to this namespace.
 
 */
 
-namespace sKey
+mKeyStrsNameSpace(sKey)
 {
 
-    inline FixedString All()		{ return "All"; }
-    inline FixedString Ascii()		{ return "Ascii"; }
-    inline FixedString Attribute()	{ return "Attribute"; }
-    inline FixedString Attributes()	{ return "Attributes"; }
-    inline FixedString Azimuth()	{ return "Azimuth"; }
-    inline FixedString Binary()		{ return "Binary"; }
-    inline FixedString Body()		{ return "Body"; }
-    inline FixedString Color()		{ return "Color"; }
-    inline FixedString Component()	{ return "Component"; }
-    inline FixedString Content()	{ return "Content"; }
-    inline FixedString Crossline()	{ return "Cross-line"; }
-    inline FixedString Cube()		{ return "Cube"; }
-    inline FixedString DataRoot()	{ return "Data Root"; }
-    inline FixedString DataStorage()	{ return "Data storage"; }
-    inline FixedString DataType()	{ return "DataType"; }
-    inline FixedString Date()		{ return "Date"; }
-    inline FixedString Default()	{ return "Default"; }
-    inline FixedString Depth()		{ return "Depth"; }
-    inline FixedString Desc()		{ return "Description"; }
-    inline FixedString EmptyString()	{ return ""; }
-    inline FixedString Factor()		{ return "Factor"; }
-    inline FixedString Fault()		{ return "Fault"; }
-    inline FixedString FileName()	{ return "File name"; }
-    inline FixedString Filter()		{ return "Filter"; }
-    inline FixedString FloatUdf()	{ return "1e30"; }
-    inline FixedString Geometry()	{ return "Geometry"; }
-    inline FixedString GeomID()		{ return "GeomID"; }
-    inline FixedString Horizon()	{ return "Horizon"; }
-    inline FixedString ID()		{ return "ID"; }
-    inline FixedString IOSelection()	{ return "I/O Selection"; }
-    inline FixedString Inline()		{ return "In-line"; }
-    inline FixedString Keys()		{ return "Keys"; }
-    inline FixedString Level()		{ return "Level"; }
-    inline FixedString Line()		{ return "Line"; }
-    inline FixedString LineKey()	{ return "Line key"; }
-    inline FixedString LineName()	{ return "Line name"; }
-    inline FixedString LineNames()	{ return "Line names"; }
-    inline FixedString Log()		{ return "Log"; }
-    inline FixedString LogFile()	{ return "Log file"; }
-    inline FixedString Name()		{ return "Name"; }
-    inline FixedString NewLine()	{ return "\n"; }
-    inline FixedString No()		{ return "No"; }
-    inline FixedString None()		{ return "None"; }
-    inline FixedString Offset()		{ return "Offset"; }
-    inline FixedString Output()		{ return "Output"; }
-    inline FixedString Pars()		{ return "Parameters"; }
-    inline FixedString Polygon()	{ return "Polygon"; }
-    inline FixedString Position()	{ return "Position"; }
-    inline FixedString Property()	{ return "Property"; }
-    inline FixedString Quiet()		{ return "quiet"; }
-    inline FixedString Random()		{ return "Random"; }
-    inline FixedString Range()		{ return "Range"; }
-    inline FixedString Sampling()	{ return "Sampling"; }
-    inline FixedString Scale()		{ return "Scale"; }
-    inline FixedString Selection()	{ return "Selection"; }
-    inline FixedString Subsample()	{ return "Subsample"; }
-    inline FixedString Shortcuts()	{ return "Shortcuts"; }
-    inline FixedString Size()		{ return "Size"; }
-    inline FixedString SpaceString()	{ return " "; }
-    inline FixedString Steering()	{ return "Steering"; }
-    inline FixedString Stored()		{ return "Stored"; }
-    inline FixedString StratRef()	{ return "Strat Level"; }
-    inline FixedString Subsel()		{ return "Subsel"; }
-    inline FixedString Surface()	{ return "Surface"; }
-    inline FixedString Survey()		{ return "Survey"; }
-    inline FixedString Table()		{ return "Table"; }
-    inline FixedString Target()		{ return "Target"; }
-    inline FixedString Time()		{ return "Time"; }
-    inline FixedString Title()		{ return "Title"; }
-    inline FixedString TmpStor()	{ return "Temporary storage location"; }
-    inline FixedString TraceNr()	{ return "Trace number"; }
-    inline FixedString Type()		{ return "Type"; }
-    inline FixedString TwoD()		{ return "2D"; }
-    inline FixedString Thickness()	{ return "Thickness"; }
-    inline FixedString ThreeD()		{ return "3D"; }
-    inline FixedString Undef()		{ return "Undefined"; }
-    inline FixedString Unit()		{ return "Unit"; }
-    inline FixedString User()		{ return "User"; }
-    inline FixedString Value()		{ return "Value"; }
-    inline FixedString Version()	{ return "Version"; }
-    inline FixedString Well()		{ return "Well"; }
-    inline FixedString XCoord()		{ return "X-Coord"; }
-    inline FixedString YCoord()		{ return "Y-Coord"; }
-    inline FixedString Yes()		{ return "Yes"; }
-    inline FixedString ZRange()		{ return "Z range"; }
+    mKeyStrsDecl(Ascii,		"Ascii");
+    mKeyStrsDecl(Attribute, 	"Attribute");
+    mKeyStrsDecl(Attributes,	"Attributes");
+    mKeyStrsDecl(Azimuth,	"Azimuth");
+    mKeyStrsDecl(Binary,	"Binary");
+    mKeyStrsDecl(Body,		"Body");
+    mKeyStrsDecl(Color,		"Color");
+    mKeyStrsDecl(Component,	"Component");
+    mKeyStrsDecl(Content,	"Content");
+    mKeyStrsDecl(Crossline,	"Cross-line");
+    mKeyStrsDecl(Cube,		"Cube");
+    mKeyStrsDecl(DataRoot,	"Data Root");
+    mKeyStrsDecl(DataStorage,	"Data storage");
+    mKeyStrsDecl(DataType,	"DataType");
+    mKeyStrsDecl(Date,		"Date");
+    mKeyStrsDecl(Depth,		"Depth");
+    mKeyStrsDecl(Desc,		"Description");
+    mKeyStrsDecl(EmptyString,	"");
+    mKeyStrsDecl(Factor,	"Factor");
+    mKeyStrsDecl(FileName,	"File name");
+    mKeyStrsDecl(Filter,	"Filter");
+    mKeyStrsDecl(FloatUdf,	"1e30");
+    mKeyStrsDecl(Geometry,	"Geometry");
+    mKeyStrsDecl(ID,		"ID");
+    mKeyStrsDecl(IOSelection,	"I/O Selection");
+    mKeyStrsDecl(Inline,	"In-line");
+    mKeyStrsDecl(Keys,		"Keys");
+    mKeyStrsDecl(LineKey,	"Line key");
+    mKeyStrsDecl(LineName,	"Line name");
+    mKeyStrsDecl(Log,		"Log");
+    mKeyStrsDecl(LogFile,	"Log file");
+    mKeyStrsDecl(Name,		"Name");
+    mKeyStrsDecl(No,		"No");
+    mKeyStrsDecl(None,		"None");
+    mKeyStrsDecl(Offset,	"Offset");
+    mKeyStrsDecl(Output,	"Output");
+    mKeyStrsDecl(Pars,		"Parameters");
+    mKeyStrsDecl(Polygon,	"Polygon");
+    mKeyStrsDecl(Position,	"Position");
+    mKeyStrsDecl(Property,	"Property");
+    mKeyStrsDecl(Random,	"Random");
+    mKeyStrsDecl(Range,		"Range");
+    mKeyStrsDecl(Sampling,	"Sampling");
+    mKeyStrsDecl(Scale,		"Scale");
+    mKeyStrsDecl(Selection,	"Selection");
+    mKeyStrsDecl(Subsample,	"Subsample");
+    mKeyStrsDecl(Shortcuts,	"Shortcuts");
+    mKeyStrsDecl(Size,		"Size");
+    mKeyStrsDecl(SpaceString,	" ");
+    mKeyStrsDecl(Steering,	"Steering");
+    mKeyStrsDecl(Stored,	"Stored");
+    mKeyStrsDecl(StratRef,	"Strat Level");
+    mKeyStrsDecl(Subsel,	"Subsel");
+    mKeyStrsDecl(Surface,	"Surface");
+    mKeyStrsDecl(Survey,	"Survey");
+    mKeyStrsDecl(Table,		"Table");
+    mKeyStrsDecl(Target,	"Target");
+    mKeyStrsDecl(Time,		"Time");
+    mKeyStrsDecl(Title,		"Title");
+    mKeyStrsDecl(TraceNr,	"Trace number");
+    mKeyStrsDecl(Type,		"Type");
+    mKeyStrsDecl(Undef,		"Undefined");
+    mKeyStrsDecl(Unit,		"Unit");
+    mKeyStrsDecl(Value,		"Value");
+    mKeyStrsDecl(Version,	"Version");
+    mKeyStrsDecl(Well,		"Well");
+    mKeyStrsDecl(XCoord,	"X-Coord");
+    mKeyStrsDecl(YCoord,	"Y-Coord");
+    mKeyStrsDecl(Yes,		"Yes");
 
-    // Stats
-    inline FixedString Average()	{ return "Average"; }
-    inline FixedString Maximum()	{ return "Maximum"; }
-    inline FixedString Median()		{ return "Median"; }
-    inline FixedString Minimum()	{ return "Minimum"; }
-    inline FixedString StdDev()		{ return "StdDev"; }
-    inline FixedString Sum()		{ return "Sum"; }
-    inline FixedString Variance()	{ return "Variance"; }
+    mKeyStrsDecl(Average,	"Average");
+    mKeyStrsDecl(Maximum,	"Maximum");
+    mKeyStrsDecl(Median,	"Median");
+    mKeyStrsDecl(Minimum,	"Minimum");
+    mKeyStrsDecl(StdDev,	"StdDev");
+    mKeyStrsDecl(Sum,		"Sum");
 
-    // (Horizontal) position selection in the survey
-    inline FixedString InlRange()	{ return "In-line range"; }
-    inline FixedString FirstInl()	{ return "First In-line"; }
-    inline FixedString LastInl()	{ return "Last In-line"; }
-    inline FixedString StepInl()	{ return "Step In-line"; }
-    inline FixedString StepOutInl()	{ return "Stepout In-line"; }
-    inline FixedString CrlRange()	{ return "Cross-line range"; }
-    inline FixedString FirstCrl()	{ return "First Cross-line"; }
-    inline FixedString LastCrl()	{ return "Last Cross-line"; }
-    inline FixedString StepCrl()	{ return "Step Cross-line"; }
-    inline FixedString StepOutCrl()	{ return "Stepout Cross-line"; }
-    inline FixedString FirstTrc()	{ return "First Trace"; }
-    inline FixedString LastTrc()	{ return "Last Trace"; }
-    inline FixedString TrcRange()	{ return "Trace Range"; }
+    mKeyStrsDecl(BinIDSel,	"BinID selection");
+    mKeyStrsDecl(InlRange,	"In-line range");
+    mKeyStrsDecl(FirstInl,	"First In-line");
+    mKeyStrsDecl(LastInl,	"Last In-line");
+    mKeyStrsDecl(StepInl,	"Step In-line");
+    mKeyStrsDecl(StepOutInl,	"Stepout In-line");
+    mKeyStrsDecl(CrlRange,	"Cross-line range");
+    mKeyStrsDecl(FirstCrl,	"First Cross-line");
+    mKeyStrsDecl(LastCrl,	"Last Cross-line");
+    mKeyStrsDecl(StepCrl,	"Step Cross-line");
+    mKeyStrsDecl(StepOutCrl,	"Stepout Cross-line");
+    mKeyStrsDecl(ZRange,	"Z range");
+    mKeyStrsDecl(FirstTrc,	"First Trace");
+    mKeyStrsDecl(LastTrc,	"Last Trace");
+    mKeyStrsDecl(TrcRange,	"Trace Range");
+
+    mKeyStrsDecl(TmpStor,	"Temporary storage location");
+
+    mKeyStrsDecl(Default,	"Default");
+    mKeyStrsDecl(DefCube,	"Default.Cube");
+    mKeyStrsDecl(DefLineSet,	"Default.LineSet");
+    mKeyStrsDecl(DefLine,	"Default.Line");
+    mKeyStrsDecl(DefAttribute,	"Default.Attribute");
+    mKeyStrsDecl(DefPS3D,	"Default.PS3D Data Store");
+    mKeyStrsDecl(DefPS2D,	"Default.PS2D Data Store");
+    mKeyStrsDecl(DefWavelet,	"Default.Wavelet");
 
 };
 
+#undef mKeyStrsNameSpace
+#undef mKeyStrsDecl
 
 // Makes compat with 4.4 easier
-#define mGetKeyStr(id)	sKey::id()
+#define mGetKeyStr(id)  sKey::id
 
 
 #endif

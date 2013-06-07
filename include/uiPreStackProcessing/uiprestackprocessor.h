@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "uidialog.h"
@@ -30,7 +29,7 @@ namespace PreStack
 class ProcessManager;
 class Processor;
 /*! An editor for a PreStackManager, with save/load possibilities. */
-mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
+mClass uiProcessorManager : public uiGroup
 {
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);
@@ -86,11 +85,9 @@ protected:
 };
 
 
-mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
-		      uiPSPD );
+mDefineFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD );
 
 
 }; //namespace
 
 #endif
-

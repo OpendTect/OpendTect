@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -35,11 +34,9 @@ class EventManager;
 class EventPatchReader;
 class EventPatchWriter;
 
-/*!
-\brief Reader for PreStack events.
-*/
+/*! Reader for prestack events. */
 
-mExpClass(PreStackProcessing) EventReader : public Executor
+mClass EventReader : public Executor
 {
 public:
     			EventReader(IOObj*,EventManager*,bool trigger);
@@ -103,11 +100,7 @@ protected:
 };
 
 
-/*!
-\brief Writer for PreStack events.
-*/
-
-mExpClass(PreStackProcessing) EventWriter : public Executor
+mClass EventWriter : public Executor
 {
 public:
     			EventWriter(IOObj*,EventManager&);
@@ -130,11 +123,7 @@ protected:
 };
 
 
-/*!
-\brief Duplicator for PreStack events.
-*/
-
-mExpClass(PreStackProcessing) EventDuplicator : public Executor
+mClass EventDuplicator : public Executor
 {
 public:
     			EventDuplicator(IOObj* from,IOObj* to);
@@ -164,4 +153,3 @@ protected:
 }; //namespace
 
 #endif
-

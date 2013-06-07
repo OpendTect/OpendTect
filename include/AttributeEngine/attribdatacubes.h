@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
@@ -24,12 +23,11 @@ template <class T> class Array3DImpl;
 namespace Attrib
 {
 
-/*!
-\brief A class for holding cubes with attribute data. All the cubes have
+/*!\brief A class for holding cubes with attribute data. All the cubes have
 the same sampling and size.
-*/
+ */
 
-mExpClass(AttributeEngine) DataCubes
+mClass DataCubes
 { mRefCountImpl(DataCubes);
 public:
     				DataCubes();
@@ -101,4 +99,3 @@ protected:
 }; //namespace
 
 #endif
-

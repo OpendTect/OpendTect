@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
@@ -27,12 +26,7 @@ namespace MPE
 
 class SectionExtender;
 
-/*!
-\brief SequentialTask to adjust the section of an EM object with ID
-EM::SectionID.
-*/
-
-mExpClass(MPEEngine) SectionAdjuster : public SequentialTask
+mClass SectionAdjuster : public SequentialTask
 {
 public:
 				SectionAdjuster( const EM::SectionID& sid=-1);
@@ -95,4 +89,3 @@ protected:
 }; // namespace MPE
 
 #endif
-

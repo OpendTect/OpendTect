@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vispicksetdisplay.h"
 
@@ -43,6 +43,7 @@ PickSetDisplay::~PickSetDisplay()
 {
     if ( bodydisplay_ ) 
 	bodydisplay_->unRef();
+
     if ( scene_ )
 	scene_->zstretchchange.remove(
 		mCB(this,PickSetDisplay,sceneZChangeCB) );
@@ -131,7 +132,7 @@ bool PickSetDisplay::setBodyDisplay()
     TypeSet<Coord3> picks;
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	picks += (*set_)[idx].pos_;
+	picks += (*set_)[idx].pos;
     	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
@@ -145,7 +146,7 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 {
     visBase::Marker* marker = visBase::Marker::create();
     marker->setType( (MarkerStyle3D::Type) set_->disp_.markertype_ );
-    marker->setScreenSize( mCast(float,set_->disp_.pixsize_) );
+    marker->setScreenSize( set_->disp_.pixsize_ );
     marker->setMaterial( 0 );
     if ( scene_ )
 	marker->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
@@ -156,8 +157,8 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
-    marker->setCenterPos( loc.pos_ );
-    marker->setDirection( loc.dir_ );
+    marker->setCenterPos( loc.pos );
+    marker->setDirection( loc.dir );
     BufferString dipvaluetext;
     loc.getText( "Dip", dipvaluetext );
     SeparString dipstr( dipvaluetext );
@@ -214,7 +215,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 		mDynamicCastGet(visBase::Marker*,marker,
 				group_->getObject(idx));
 		if ( marker )
-		    marker->setScreenSize( mCast(float,set_->disp_.pixsize_) );
+		    marker->setScreenSize( set_->disp_.pixsize_ );
 	    }
 	}
 
@@ -304,8 +305,8 @@ int PickSetDisplay::usePar( const IOPar& par )
 	    Coord3 pos( toDouble(fms[0]), toDouble(fms[1]), toDouble(fms[2]) );
 	    Sphere dir;
 	    if ( fms.size() > 3 )
-		dir = Sphere( (float) toDouble(fms[3]),
-			(float) toDouble(fms[4]), (float) toDouble(fms[5]) );
+		dir = Sphere( toDouble(fms[3]), toDouble(fms[4]),
+				toDouble(fms[5]) );
 
 	    *newps += Pick::Location( pos, dir );
 	}
@@ -324,7 +325,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 	newps->disp_.color_ = getMaterial()->getColor();
 
 	BufferString psname;
-	par.get( sKey::Name(), psname );
+	par.get( sKey::Name, psname );
 	newps->setName( psname );
 	setSet( newps );
 

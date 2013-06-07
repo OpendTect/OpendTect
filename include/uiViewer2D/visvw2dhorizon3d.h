@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 class CubeSampling;
@@ -21,7 +20,7 @@ namespace Attrib { class SelSpec; }
 namespace MPE { class HorizonFlatViewEditor3D; }
 
 
-mExpClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
+mClass Vw2DHorizon3D : public Vw2DEMDataObject
 {
 public:
    static Vw2DHorizon3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

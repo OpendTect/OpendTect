@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "ranges.h"
 
@@ -26,7 +25,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) VisColTabMod : public DataObject
+mClass VisColTabMod : public DataObject
 {
 public:
     static VisColTabMod*	create()
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

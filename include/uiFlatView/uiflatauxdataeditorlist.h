@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "uimenuhandler.h"
 
@@ -21,12 +20,11 @@ class uiListBox;
 
 namespace FlatView { class AuxDataEditor; }
 
-/*!
-\brief A list with all auxdata in a FlatView::AuxDataEditor where the user can
-select which one should be active for new points.
-*/
 
-mExpClass(uiFlatView) uiFlatViewAuxDataEditorList : public uiGroup
+/*!A list with all auxdata in a FlatView::AuxDataEditor where the user
+   can select which one should be active for new points. */
+
+mClass uiFlatViewAuxDataEditorList : public uiGroup
 {
 public:
 			uiFlatViewAuxDataEditorList(uiParent*);
@@ -78,4 +76,3 @@ protected:
 };
 
 #endif
-

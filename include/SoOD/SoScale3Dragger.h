@@ -18,7 +18,6 @@ Box shaped dragger with draggable markers in the corners and on the middle
 of each face.
 */
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 
 #include "soodbasic.h"
@@ -29,7 +28,7 @@ class SoFieldSensor;
 
 class SbLineProjector;
 
-mSoODClass SoScale3Dragger : public SoDragger
+mClass SoScale3Dragger : public SoDragger
 {
     SO_KIT_HEADER( SoScale3Dragger );
 
@@ -119,4 +118,3 @@ private:
 };
 
 #endif
-

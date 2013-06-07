@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -199,7 +199,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-#define mGetZFac SI().zIsTime() ? 0.001f : 1
+#define mGetZFac SI().zIsTime() ? 0.001 : 1
 	
 bool HorizonScanner::analyzeData()
 {
@@ -340,9 +340,6 @@ int HorizonScanner::nextStep()
 	bid.inl = mNINT32( crd.x );
 	bid.crl = mNINT32( crd.y );
     }
-
-    if ( !SI().isReasonable(bid) )
-	return Executor::MoreToDo();
 
     bool validpos = true;
     int validx = 0;

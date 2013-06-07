@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -188,7 +188,7 @@ bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 
 void ColTab::MapperSetup::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type(), TypeNames()[(int)type_] );
+    par.set( sKey::Type, TypeNames()[(int)type_] );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );
@@ -199,7 +199,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
-    const char* typestr = par.find( sKey::Type() );
+    const char* typestr = par.find( sKey::Type );
     if ( !parseEnumType( typestr, type_ ) )
 	return false;
 
@@ -276,13 +276,13 @@ float ColTab::Mapper::position( float val ) const
     if ( setup_.nrsegs_ > 0 )
     {
 	ret *= setup_.nrsegs_;
-	ret = (0.5f + ((int)ret)) / setup_.nrsegs_;
+	ret = (0.5 + ((int)ret)) / setup_.nrsegs_;
     }
 
     if ( ret > 1 ) ret = 1;
     else if ( ret < 0 ) ret = 0;
 
-    if ( setup_.flipseq_ ) return 1.0f - ret;
+    if ( setup_.flipseq_ ) return 1.0-ret;
     return ret;
 }
 
@@ -294,7 +294,7 @@ int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 
     float ret = mapper ? mapper->position( v ) : v;
     ret *= nrsteps;
-    if ( ret > nrsteps - 0.9f ) ret = nrsteps - 0.9f;
+    if ( ret > nrsteps- 0.9 ) ret = nrsteps- 0.9;
     else if ( ret < 0 ) ret = 0;
     return (int)ret;
 }
@@ -343,7 +343,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	else if ( vs_[idx] > 0 ) above0++;
     }
 
-    Threads::SpinLockLocker lock( lock_ );
+    Threads::MutexLocker lock( lock_ );
     above0_ += above0;
     below0_ += below0;
 
@@ -363,7 +363,8 @@ bool isSymmAroundZero() const
     od_int64			sz_;
     od_int64			above0_;
     od_int64			below0_;
-    Threads::SpinLock		lock_;
+
+    Threads::Mutex		lock_;
     const ValueSeries<float>&	vs_;
 };
 
@@ -391,13 +392,17 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 	if ( setup_.autosym0_ )
 	{
 	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    TaskRunner::execute( tr, symmcalc );
+	    if ( tr )
+		tr->execute( symmcalc );
+	    else
+		symmcalc.execute();
+
 	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
 	}
     }
 
     Interval<float> intv( -1, 1 );
-    mIsUdf(setup_.symmidval_) ?
+    bool res = mIsUdf(setup_.symmidval_) ?
 	       clipper_.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
 		       		  intv )
 	     : clipper_.getSymmetricRange( setup_.cliprate_.start,

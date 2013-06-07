@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "position.h"
 
@@ -25,7 +24,7 @@ namespace Geometry
     IndexedShape and one ore many planes. */
 
 
-mExpClass(Geometry) ExplPlaneIntersection: public Geometry::IndexedShape,
+mClass ExplPlaneIntersection: public Geometry::IndexedShape,
 			      public CallBacker
 {
 public:
@@ -85,4 +84,3 @@ protected:
 };
 
 #endif
-

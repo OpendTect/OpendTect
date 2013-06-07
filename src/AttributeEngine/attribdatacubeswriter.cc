@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdatacubeswriter.h"
 
@@ -27,10 +27,10 @@ DataCubesWriter::DataCubesWriter( const MultiID& mid,
     , nrdone_( 0 )
     , hrg_( dc.cubeSampling().hrg )
     , zrg_( dc.z0_, dc.z0_+dc.getZSz()-1 )
-    , totalnr_( (int) dc.cubeSampling().hrg.totalNr() )
+    , totalnr_( dc.cubeSampling().hrg.totalNr() )
     , cube_( dc )
     , iterator_( dc.cubeSampling().hrg )
-    , currentpos_( 0, 0 )
+    , currentpos_( 0 )
     , mid_( mid )
     , writer_( 0 )
     , trc_( 0 )
@@ -59,7 +59,7 @@ void DataCubesWriter::setSelection( const HorSampling& hrg,
     hrg_ = hrg;
 
     iterator_.setSampling( hrg );
-    totalnr_ = (int) hrg.totalNr();
+    totalnr_ = hrg.totalNr();
 }
 
 
@@ -84,8 +84,8 @@ int DataCubesWriter::nextStep()
 	const int trcsz = zrg_.width()+1;
 	trc_ = new SeisTrc( trcsz );
 
-	trc_->info().sampling.start = (float) (zrg_.start * cube_.zstep_);
-	trc_->info().sampling.step = (float) cube_.zstep_;
+	trc_->info().sampling.start = zrg_.start * cube_.zstep_;
+	trc_->info().sampling.step = cube_.zstep_;
 	trc_->info().nr = 0;
 
 	for ( int idx=1; idx<cubeindices_.size(); idx++ )
@@ -95,6 +95,8 @@ int DataCubesWriter::nextStep()
 
     if ( !iterator_.next( currentpos_ ) )
 	return Finished();
+
+    const int trcsz = zrg_.width()+1;
 
     trc_->info().binid = currentpos_;
     trc_->info().coord = SI().transform( currentpos_ );

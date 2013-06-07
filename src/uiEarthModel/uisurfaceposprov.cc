@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -31,7 +31,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
-    , zfac_(mCast(float,SI().zDomain().userFactor()))
+    , zfac_(SI().zFactor())
     , zstepfld_(0)
     , extrazfld_(0)
 {
@@ -100,7 +100,7 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 #define mGetSurfKey(k) \
-    IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider3D::k##Key())
+    IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider3D::k##Key())
 
 
 void uiSurfacePosProvGroup::usePar( const IOPar& iop )
@@ -138,7 +138,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     if ( !surf1fld_ ) return false;
 
     if ( !surf1fld_->commitInput() )
-	mErrRet("Please select the surface")
+	mErrRet("Please select the Horizon")
     iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
 
     Interval<float> ez( 0, 0 );
@@ -147,7 +147,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     else
     {
 	if ( !surf2fld_->commitInput() )
-	    mErrRet("Please select the bottom horizon")
+	    mErrRet("Please select the bottom Horizon")
 	 if (  ctio2_.ioobj->key() ==  ctio1_.ioobj->key() )
 	     mErrRet("Please select two different horizons")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
@@ -162,7 +162,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 
     if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
     iop.set( mGetSurfKey(extraZ), ez );
-    iop.set( sKey::Type(), sKey::Surface() );
+    iop.set( sKey::Type, sKey::Surface );
     return true;
 }
 
@@ -176,5 +176,5 @@ void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 
 void uiSurfacePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Surface() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Surface );
 }

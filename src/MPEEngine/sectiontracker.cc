@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "sectiontracker.h"
 
@@ -133,11 +133,11 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 	change = false;
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
-	    if ( !gesurf->hasSupport(RowCol::fromInt64(subids[idx])) )
+	    if ( !gesurf->hasSupport(RowCol(subids[idx])) )
 	    {
 		const EM::PosID pid( emobject.id(), sid, subids[idx] );
 		emobject.unSetPos(pid,false);
-		subids.removeSingle(idx);
+		subids.remove(idx);
 		idx--;
 		change = true;
 	    }
@@ -160,10 +160,10 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
 	    pid.setSubID(subids[idx]);
-	    if ( excludedpos.isPresent(subids[idx]) || 
+	    if ( excludedpos.indexOf(subids[idx])!=-1 || 
 		 emobject.unSetPos(pid,addtoundo) )
 	    {
-		subids.removeSingle(idx--);
+		subids.remove(idx--);
 		change = true;
 	    }
 	}

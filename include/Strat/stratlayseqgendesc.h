@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
@@ -34,19 +33,15 @@ class LayerGenerator;
 
  */
 
-mExpClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
+mClass LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 			LayerSequenceGenDesc(const RefTree&);
 			~LayerSequenceGenDesc();
 
-    const RefTree&	refTree() const		{ return rt_; }
-    IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
-
     const PropertyRefSelection& propSelection() const	{ return propsel_; }
     void		setPropSelection(const PropertyRefSelection&);
-    float		startDepth() const	{ return startdepth_; }
-    void		setStartDepth( float z)	{ startdepth_ = z; }
+
     const MultiID& 	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
@@ -61,17 +56,19 @@ public:
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
 
+    const RefTree&	refTree() const			{ return rt_; }
+
 protected:
 
-    IOPar		workbenchparams_;
+    const RefTree&		rt_;
+    PropertyRefSelection	propsel_;
+    MultiID			elasticpropselmid_;
 
-    const RefTree&	rt_;
-    PropertyRefSelection propsel_;
-    MultiID		elasticpropselmid_;
-    float		startdepth_;
+    mutable BufferString	errmsg_;
+    static const char*		sKeyWorkBenchParams();
 
-    static const char*	sKeyWorkBenchParams();
-    mutable BufferString errmsg_;
+public:
+    IOPar*			getWorkBenchParams();
 
 };
 
@@ -79,4 +76,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

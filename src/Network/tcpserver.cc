@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tcpserver.h"
 
@@ -63,7 +63,7 @@ void TcpServer::close()
 
 const char* TcpServer::errorMsg() const
 {
-    errmsg_ = qtcpserver_->errorString().toLatin1().constData();
+    errmsg_ = qtcpserver_->errorString().toAscii().constData();
     return errmsg_.buf();
 }
 

@@ -5,12 +5,10 @@
  * DATE     : Sep 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: textureattribpi.cc 27530 2012-11-19 09:49:13Z kristofer.tingdahl@dgbes.com $";
 
 #include "textureattrib.h"
 #include "odplugin.h"
-#include "textureattribmod.h"
-
 
 
 mDefODPluginEarlyLoad(TextureAttrib)

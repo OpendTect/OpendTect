@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		uibatchtime2depthsetup.cc
 		uiclusterproc.cc	
 		uielasticpropsel.cc	
-		uifkspectrum.cc
 		uifreqtaper.cc		
 		uimergeseis.cc		
 		uimultcomputils.cc	
@@ -65,6 +64,7 @@ SET(OD_MODULE_SOURCES
 		uiwaveletextraction.cc	
 )
 
-SET( OD_MODULE_PROGS od_SeisMMBatch.cc  od_SEGYExaminer.cc  od_ClusterProc.cc  )
+SET( OD_MODULE_GUI_PROGS od_SeisMMBatch )
+SET( OD_MODULE_PROGS od_SEGYExaminer od_ClusterProc )
 
 OD_INIT_MODULE()

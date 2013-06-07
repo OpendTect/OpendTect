@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseiswvltimpexp.h"
@@ -108,7 +108,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	msg += "\n\nDo you want to reposition the center sample,"
 	       "\nSo it will be at the highest amplitude position?";
 	if ( uiMSG().askGoOn( msg ) )
-	    wvlt->setCenterSample( maxsamp );
+	    wvlt->set( maxsamp, wvlt->sampleRate() );
     }
 
     const float fac = scalefld_->getfValue();
@@ -166,7 +166,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( "Cannot open output file" )
 
     const bool addz = addzfld_->getBoolValue();
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac = SI().zFactor();
     const StepInterval<float> zpos( wvlt->samplePositions() );
     for ( int idx=0; idx<wvlt->size(); idx++ )
     {

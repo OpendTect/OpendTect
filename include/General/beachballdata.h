@@ -7,7 +7,6 @@
  * ID       : $Id$
 -*/
 
-#include "generalmod.h"
 #include "color.h"
 #include "namedobj.h"
 #include "position.h"
@@ -17,7 +16,7 @@ namespace visBeachBall
 
 //!\brief basic properties of the ball
 
-mExpClass(General) BallProperties: public ::NamedObject
+mClass BallProperties: public ::NamedObject
 {
 public:
 
@@ -67,7 +66,7 @@ protected:
 
 //!\brief dynamic properties of the ball
 
-mExpClass(General) BallDynamics: public ::NamedObject
+mClass BallDynamics: public ::NamedObject
 {
 public:
 			
@@ -105,4 +104,3 @@ protected:
 
 
 #endif
-

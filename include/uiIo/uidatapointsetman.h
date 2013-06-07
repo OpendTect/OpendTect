@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiobjfileman.h"
 
 /*! \brief
 CrossPlot manager
 */
 
-mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
+mClass uiDataPointSetMan : public uiObjFileMan
 {
 public:
     				uiDataPointSetMan(uiParent*);
@@ -34,4 +33,3 @@ protected:
 };
 
 #endif
-

@@ -32,7 +32,7 @@ SET(OD_MODULE_SOURCES
 		volstatsattrib.cc
 )
 
-SET(OD_MODULE_BATCHPROGS od_process_attrib.cc  )
+SET(OD_MODULE_BATCHPROGS od_process_attrib  )
 
 OD_INIT_MODULE()
 

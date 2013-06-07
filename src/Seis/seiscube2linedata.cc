@@ -4,10 +4,9 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seiscube2linedata.h"
-#include "keystrs.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seis2dline.h"
@@ -19,16 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 
 
-class Cube2LineDataLineKeyProvider : public LineKeyProvider
+struct Cube2LineDataLineKeyProvider : public LineKeyProvider
 {
-public:
 Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
 
 LineKey lineKey() const
 {
-    return LineKey( lde_.usedlinenames_.isEmpty() ?
-		    sKey::EmptyString().str() : lde_.usedlinenames_[0]->str(),
-		    lde_.attrnm_ );
+    return LineKey( lde_.lidx_ >= 0 && lde_.lidx_ < lde_.ls_.nrLines() ?
+	    	    lde_.ls_.lineName(lde_.lidx_) : "", lde_.attrnm_ );
 }
 
     SeisCube2LineDataExtracter&	lde_;
@@ -45,11 +42,24 @@ SeisCube2LineDataExtracter::SeisCube2LineDataExtracter(
     , rdr_(*new SeisTrcReader(&cubein))
     , ls_(*new Seis2DLineSet(lsout))
     , wrr_(*new SeisTrcWriter(&lsout))
+    , fetcher_(0)
     , nrdone_(0)
-    , totalnr_( 0 )
+    , lidx_(-1)
     , c2ldlkp_(0)
 {
     if ( lnms ) lnms_ = *lnms;
+
+    if ( !rdr_.prepareWork() )
+	msg_ = rdr_.errMsg();
+    else if ( ls_.nrLines() < 1 )
+	msg_ = "Empty or invalid Line Set";
+    else
+    {
+	c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
+	wrr_.setLineKeyProvider( c2ldlkp_ );
+	lidx_ = 0;
+	msg_ = "Handling traces";
+    }
 }
 
 
@@ -64,8 +74,7 @@ void SeisCube2LineDataExtracter::closeDown()
 {
     tbuf_.deepErase();
     rdr_.close(); wrr_.close();
-    deepErase( fetchers_ );
-    usedlinenames_.erase();
+    delete fetcher_; fetcher_ = 0;
     delete c2ldlkp_; c2ldlkp_ = 0;
     wrr_.setLineKeyProvider(0);
 }
@@ -73,65 +82,55 @@ void SeisCube2LineDataExtracter::closeDown()
 
 int SeisCube2LineDataExtracter::nextStep()
 {
-    if ( fetchers_.isEmpty() )
-    {
-	if ( !rdr_.prepareWork() )
-	    msg_ = rdr_.errMsg();
-	else if ( ls_.nrLines() < 1 )
-	    msg_ = "Empty or invalid Line Set";
-	else
-	{
-	    c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
-	    wrr_.setLineKeyProvider( c2ldlkp_ );
-	    msg_ = "Handling traces";
-	}
+    if ( lidx_ < 0 )
+	return ErrorOccurred();
+    else if ( lidx_ >= ls_.nrLines() )
+	{ closeDown(); return Finished(); }
+    else if ( !fetcher_ )
+	return getNextFetcher() ? MoreToDo() : ErrorOccurred();
 
-	return getFetchers()
-	    ? MoreToDo()
-	    : ErrorOccurred();
-    }
-
-    int res = fetchers_[0]->doStep();
+    int res = fetcher_->doStep();
     if ( res != 1 )
     {
 	if ( res > 1 )
 	    return res;
 	else if ( res == 0 )
 	{
-	    delete fetchers_.removeSingle( 0 );
-	    usedlinenames_.removeSingle( 0 );
-	    return fetchers_.isEmpty() ? Finished() : MoreToDo();
+	    delete fetcher_; fetcher_ = 0;
+	    lidx_++;
+	    
+	    if ( getNextFetcher() )
+		return MoreToDo();
+	    
+	    return Finished();
 	}
 	else
 	{
-	    msg_ = fetchers_[0]->message();
+	    msg_ = fetcher_->message();
 	    return ErrorOccurred();
 	}
     }
 
     res = handleTrace();
-    msg_ = fetchers_[0]->message();
+    msg_ = fetcher_->message();
     return res;
 }
 
 
-bool SeisCube2LineDataExtracter::getFetchers()
+bool SeisCube2LineDataExtracter::getNextFetcher()
 {
-    totalnr_ = 0;
-    usedlinenames_.erase();
-    
-    for ( int lidx=0; lidx<ls_.nrLines(); lidx++ )
+    for ( ; lidx_<ls_.nrLines(); lidx_++ )
     {
-	const BufferString lnm = ls_.lineName( lidx );
-	if ( usedlinenames_.isPresent( lnm ) )
+	const BufferString lnm = ls_.lineName( lidx_ );
+	if ( lineshandled_.isPresent( lnm ) )
 	    continue;
 	if ( !lnms_.isEmpty() && !lnms_.isPresent(lnm) )
 	    continue;
 
 	int inplidx = -1;
 	const LineKey deflk( lnm );
-	if ( ls_.lineKey(lidx) == deflk )
-	    inplidx = lidx;
+	if ( ls_.lineKey(lidx_) == deflk )
+	    inplidx = lidx_;
 	else
 	{
 	    for ( int iln=0; iln<ls_.nrLines(); iln++ )
@@ -141,28 +140,23 @@ bool SeisCube2LineDataExtracter::getFetchers()
 	    }
 	}
 	if ( inplidx < 0 )
-	    inplidx = lidx;
+	    inplidx = lidx_;
 
-	Executor* fetcher = ls_.lineFetcher( inplidx, tbuf_, 1 );
-	if ( fetcher )
-	{
-	    totalnr_ += fetcher->totalNr();
-	    fetchers_ += fetcher;
-	    usedlinenames_.add( lnm );
-	}
+	fetcher_ = ls_.lineFetcher( inplidx, tbuf_, 1 );
+	lineshandled_.add( lnm );
+	return true;
     }
 
-    return !fetchers_.isEmpty();
+    return false;
 }
 
 
 int SeisCube2LineDataExtracter::handleTrace()
 {
-    SeisTrc* trc = tbuf_.remove( 0 );
+    PtrMan<SeisTrc> trc = tbuf_.remove( 0 );
     SeisTrcInfo ti( trc->info() );
-    delete trc;
 
-    if ( !rdr_.seisTranslator()->goTo( SI().transform(ti.coord) ) )
+    if ( !rdr_.seisTranslator()->goTo( SI().transform(trc->info().coord) ) )
 	return MoreToDo();
 
     SeisTrc trc3d;

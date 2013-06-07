@@ -14,22 +14,22 @@ ________________________________________________________________________
 
 
 #ifndef general_h
-#include "basicmod.h"
 #include "general.h"
 #endif
 #include <stdlib.h>
 #include <iostream>
 
-/*!
-\brief Concatenated short keys separated by dots.
-  
-  Usage is for Object identifiers in the Object Manager, or UnitIDs.
-  
-  A Compound Key Glob Expression is a string used for matching.
-  It is similar to a UNIX-type glob expression.
+/*!\brief Concatenated short keys separated by dots.
+
+ Usage is for Object identifiers in the Object Manager, or UnitIDs.
+
+ A Compound Key Glob Expression is a string used for matching.
+ It is similar to a UNIX-type glob expression.
+
 */
 
-mExpClass(Basic) CompoundKey
+
+mClass CompoundKey
 {
 public:
 
@@ -56,6 +56,8 @@ public:
     CompoundKey		upLevel() const;
     bool		isUpLevelOf(const CompoundKey&) const;
 
+    virtual bool	matchGE(const char*) const;
+
 protected:
 
     BufferString	id_;
@@ -72,8 +74,7 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
     return *this;
 }
 
-mGlobal(Basic) std::ostream& operator<<(std::ostream&,const CompoundKey&);
+mGlobal std::ostream& operator<<(std::ostream&,const CompoundKey&);
 
 
 #endif
-

@@ -13,20 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiobjbody.h"
-#include "uiosgviewer.h"
+//#include "uiosgviewer.h"
 #include "refcount.h"
 
 namespace visBase { class Camera; class Scene; }
-
-/*!\brief 'GA' stands for 'GUI ( Graphical user interface ) Abstraction'.
-Provides facilities to help developers write the glue to allow the osg to work
-with varying window systems.
-*/
-
 namespace osgGA { class GUIActionAdapter; }
-
 class ui3DViewer;
-
 namespace osg
 {
     class GraphicsContext;
@@ -36,11 +28,9 @@ namespace osg
 }
 
 
-/*!
-\brief Base class for different body implementation (direct & indirect) of OSG.
-*/
+//!Baseclass for different body implementation (direct & indirect) of OSG
 
-mClass(uiCoin) ui3DViewerBody : public uiObjectBody
+class ui3DViewerBody : public uiObjectBody
 {
 public:
     			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
@@ -94,7 +84,7 @@ protected:
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&, bool);
 
-    uiOsgViewHandle			view_;
+   // uiOsgViewHandle			view_;
     ui3DViewer&				handle_;
     IOPar&				printpar_;
 

@@ -36,7 +36,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , pickset_(0) 					  
-    , picks_( 0 )
+    , picks_(new FlatView::Annotation::AuxData( "Picks" ))
     , editor_(const_cast<uiFlatViewAuxDataEditor*>(editors[0]))
     , viewer_(editor_->getFlatViewer())
     , deselected_(this)
@@ -45,8 +45,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
     if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
 	pickset_ = &Pick::Mgr().get( picksetidx );
 
-    picks_ = viewer_.createAuxData( "Picks" );
-    viewer_.addAuxData( picks_ );
+    viewer_.appearance().annot_.auxdata_ += picks_;
     viewer_.appearance().annot_.editable_ = false; 
     viewer_.dataChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
     viewer_.viewChanged.notify( mCB(this,VW2DPickSet,dataChangedCB) );
@@ -64,7 +63,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 
 VW2DPickSet::~VW2DPickSet()
 {
-    viewer_.removeAuxData( picks_ );
+    viewer_.appearance().annot_.auxdata_ -= picks_;
     editor_->removeAuxData( auxid_ );
     delete picks_;
 
@@ -111,10 +110,10 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	    continue;
         
 	const int pickidx = picksetidxs_[locidx];
-	picksetidxs_.removeSingle( locidx );
+	picksetidxs_.remove( locidx );
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				     pickset_, pickidx );
-	pickset_->removeSingle( pickidx );
+	pickset_->remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
     
@@ -170,12 +169,12 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	if ( dp3d->dataDir() == CubeSampling::Inl )
 	{
 	    bid = BinID( cs.hrg.start.inl, (int)pt.x );
-	    z = (float) pt.y;
+	    z = pt.y;
 	}
 	else if ( dp3d->dataDir() == CubeSampling::Crl )
 	{
 	    bid = BinID( (int)pt.x, cs.hrg.start.crl );
-	    z = (float) pt.y;
+	    z = pt.y;
 	}
 	else
 	{
@@ -197,23 +196,9 @@ void VW2DPickSet::updateSetIdx( const CubeSampling& cs )
     picksetidxs_.erase();
     for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Coord3& pos = (*pickset_)[idx].pos_;
-	const BinID bid = SI().transform( pos );
+	const Coord3& pos = (*pickset_)[idx].pos;
+	const BinID bid = SI().transform(pos);
 	if ( cs.hrg.includes(bid) )
-	    picksetidxs_ += idx;
-    }
-}
-
-
-void VW2DPickSet::updateSetIdx( const TypeSet<BinID>& bids )
-{
-    if ( !pickset_ ) return;
-    picksetidxs_.erase();
-    for ( int idx=0; idx<pickset_->size(); idx++ )
-    {
-	const Coord3& pos = (*pickset_)[idx].pos_;
-	const BinID bid = SI().transform( pos );
-	if ( bids.isPresent(bid) )
 	    picksetidxs_ += idx;
     }
 }
@@ -225,21 +210,21 @@ void VW2DPickSet::drawAll()
     if ( !fdp )	fdp = viewer_.pack( false );
 
     mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp);
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp);
-    if ( !dp3d && !dprdm ) return;
-    
-    const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;
-    dp3d ? updateSetIdx( dp3d->cube().cubeSampling() )
-	 : updateSetIdx( *dprdm->pathBIDs() );
+    if ( !dp3d ) return;
+
+    const bool oninl = dp3d->dataDir() == CubeSampling::Inl;
+    const CubeSampling& cs = dp3d->cube().cubeSampling();
+    updateSetIdx( cs );
+
     if ( isownremove_ ) return;
 
     const uiWorldRect& curvw = viewer_.curView();
-    const float zdiff = (float) curvw.height();
-    const float nrzpixels = mCast( float, viewer_.getViewRect().vNrPics() );
+    const float zdiff = curvw.height();
+    const float nrzpixels = viewer_.rgbCanvas().arrArea().vNrPics();
     const float zfac = nrzpixels / zdiff;
-    const float xdiff = (float) ( curvw.width() *
-	( oninl ? SI().crlDistance() : SI().inlDistance() ) );
-    const float nrxpixels = mCast( float, viewer_.getViewRect().hNrPics() );
+    const float xdiff = curvw.width() *
+	( oninl ? SI().crlDistance() : SI().inlDistance() );
+    const float nrxpixels = viewer_.rgbCanvas().arrArea().hNrPics();
     const float xfac = nrxpixels / xdiff;
 
     picks_->poly_.erase();
@@ -250,29 +235,18 @@ void VW2DPickSet::drawAll()
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	const int pickidx = picksetidxs_[idx];
-	const Coord3& pos = (*pickset_)[pickidx].pos_;
+	const Coord3& pos = (*pickset_)[pickidx].pos;
 	const BinID bid = SI().transform(pos);
-	if ( dp3d )
-	{
-	    BufferString dipval;
-	    (*pickset_)[pickidx].getText( "Dip" , dipval );
-	    SeparString dipstr( dipval );
-	    const float dip = oninl ? dipstr.getFValue( 1 )
-				    : dipstr.getFValue( 0 );
-	    const float depth =  (dip/1000000) * zfac;
-	    markerstyle.rotation_ =
-		mIsUdf(dip) ? 0 : Math::toDegrees( atan2f(2*depth,xfac) ); 
-	    FlatView::Point point( (oninl ? bid.crl : bid.inl), pos.z );
-	    picks_->poly_ += point;
-	}
-	else if ( dprdm )
-	{
-	    const FlatPosData& flatposdata = dprdm->posData();
-	    const int bidindex = dprdm->pathBIDs()->indexOf(bid);
-	    const double bidpos = flatposdata.position( true, bidindex );
-	    FlatView::Point point( bidpos, pos.z );
-	    picks_->poly_ += point;
-	}
+	FlatView::Point point( oninl ? bid.crl : bid.inl, pos.z );
+	picks_->poly_ += point;
+
+	BufferString dipval;
+	(*pickset_)[pickidx].getText( "Dip" , dipval );
+	SeparString dipstr( dipval );
+	const float dip = oninl ? dipstr.getFValue( 1 ) : dipstr.getFValue( 0 );
+	const float depth = (dip/1000000) * zfac;
+	markerstyle.rotation_ =
+	    mIsUdf(dip) ? 0 : ( atan2(2*depth,xfac) * (180/M_PI) );
 	picks_->markerstyles_ += markerstyle;
     }
     

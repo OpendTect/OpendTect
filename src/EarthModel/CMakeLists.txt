@@ -14,7 +14,6 @@ SET(OD_MODULE_SOURCES
 		emfault.cc
 		emfault3d.cc
 		emfault3dpainter.cc
-		emfaultauxdata.cc
 		emfaultstickset.cc
 		emfaultsticksetflatvieweditor.cc
 		emfaultstickpainter.cc
@@ -50,8 +49,7 @@ SET(OD_MODULE_SOURCES
 		emsurfaceposprov.cc
 		emsurfacetr.cc
 		emsurfauxdataio.cc
-		faulttrace.cc
-		horizongridder.cc
+		flthortools.cc
 		horizonmerger.cc
 		horizonmodifier.cc
 		horizonrelation.cc

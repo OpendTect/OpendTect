@@ -13,13 +13,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-
 #include "color.h"
-#include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "sets.h"
+#include "enums.h"
 #include "tableascio.h"
 #include "trigonometry.h"
 
@@ -30,31 +28,38 @@ namespace Pick
 
 /*!\brief Pick location in space */
 
-mExpClass(General) Location
+mClass Location
 {
 public:
-			Location(double x=0,double y=0,double z=0);
-			Location(const Coord&,float z=0);
-			Location(const Coord3&);
-			Location(const Coord3& pos,const Coord3& dir);
-			Location(const Coord3& pos,const Sphere& dir);
-			Location(const Location&);
+			Location( double x=0, double y=0, double z=0 )
+			: pos(x,y,z), text(0)			{}
+			Location( const Coord& c, float f=0 )
+			: pos(c,f), text(0)			{}
+			Location( const Coord3& c )
+			: pos(c), text(0)			{}
+			Location( const Coord3& c, const Coord3& d )
+			: pos(c), dir(d), text(0)		{}
+			Location( const Coord3& c, const Sphere& d )
+			: pos(c), dir(d), text(0)		{}
+			Location( const Location& pl )
+			: text(0)				{ *this = pl; }
+
 			~Location();
 
     inline bool		operator ==( const Location& pl ) const
-			{ return pos_ == pl.pos_ && dir_ == pl.dir_; }
+			{ return pos == pl.pos && dir == pl.dir; }
     inline bool		operator !=( const Location& pl ) const
 			{ return !(*this == pl); }
     void		operator =(const Location&);
 
     bool		fromString(const char*,bool doxy=true,
-	    			   bool checkdir=true);
+	    			  bool checkdir=true);
     			/*!<If checkdir is true, a more rigourous test is done
 			    on dir. */
     void		toString(BufferString&,bool forexport=false) const;
 
-    Coord3		pos_;
-    Sphere		dir_;/*!< Optional direction at location.
+    Coord3		pos;
+    Sphere		dir; /*!< Optional direction at location.
 			          phi is defined as the direction's
 				  counter-clockwise angle from the x-axis in
 				  the x-y plane.
@@ -64,24 +69,25 @@ public:
 			     \note theta and the radius are defined after thes
 			    	  SI().zFactor is applied to the z-coordinate.
 			     */
-
-    BufferString*	text_; //!<Optional text at location
+			          
+    BufferString*	text; //!<Optional text at location
 
     void		setText(const char* key,const char* txt);
     void		unSetText(const char* key);
     bool		getText(const char* key,BufferString&) const;
 
     inline bool		hasDir() const
-    			{ return !mIsZero(dir_.radius,mDefEps)
-			      || !mIsZero(dir_.theta,mDefEps)
-			      || !mIsZero(dir_.phi,mDefEps); }
+    			{ return !mIsZero(dir.radius,mDefEps)
+			      || !mIsZero(dir.theta,mDefEps)
+			      || !mIsZero(dir.phi,mDefEps); }
 	
 };
 
 
 /*!\brief Set of picks with something in common */
 
-mExpClass(General) Set : public NamedObject, public TypeSet<Location>
+mClass Set : public NamedObject
+	  , public TypeSet<Location>
 {
 public:
 
@@ -129,7 +135,7 @@ public:
  
  */
 
-mExpClass(General) SetMgr : public NamedObject
+mClass SetMgr : public NamedObject
 {
 public:
 
@@ -180,7 +186,7 @@ public:
     void		removeCBs(CallBacker*);
 
     bool		isChanged( int idx ) const
-			{ return idx < changed_.size() ? (bool) changed_[idx] : false;}
+			{ return idx < changed_.size() ? changed_[idx] : false;}
     void		setUnChanged( int idx, bool yn=true )
 			{ if ( idx < changed_.size() ) changed_[idx] = !yn; }
 
@@ -214,7 +220,7 @@ inline SetMgr& Mgr()
 }; // namespace Pick
 
 
-mExpClass(General) PickSetAscIO : public Table::AscIO
+mClass PickSetAscIO : public Table::AscIO
 {
 public:
     				PickSetAscIO( const Table::FormatDesc& fd )
@@ -231,4 +237,3 @@ public:
 };
 
 #endif
-

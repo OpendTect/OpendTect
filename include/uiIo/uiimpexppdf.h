@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class uiFileInput;
 class uiGenInput;
@@ -23,7 +22,7 @@ class Sampled2DProbDenFunc;
     Imports Probability density functions in RokDoc ASCII format
 */
 
-mExpClass(uiIo) uiImpRokDocPDF : public uiDialog
+mClass uiImpRokDocPDF : public uiDialog
 {
 public:
 			uiImpRokDocPDF(uiParent*);
@@ -51,7 +50,7 @@ protected:
     Exports Probability density functions in RokDoc ASCII format
 */
 
-mExpClass(uiIo) uiExpRokDocPDF : public uiDialog
+mClass uiExpRokDocPDF : public uiDialog
 {
 public:
 			uiExpRokDocPDF(uiParent*);
@@ -67,4 +66,3 @@ protected:
 
 
 #endif
-

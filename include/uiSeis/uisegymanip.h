@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "strmdata.h"
 #include "segyhdr.h"
@@ -29,7 +28,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
 
 /*!\brief UI for SEG-Y file manipulation */
 
-mExpClass(uiSeis) uiSEGYFileManip : public uiDialog
+mClass uiSEGYFileManip : public uiDialog
 {
 public:
 
@@ -95,4 +94,3 @@ protected:
 
 
 #endif
-

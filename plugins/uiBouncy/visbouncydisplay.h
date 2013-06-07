@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id$
+ RCS:           $Id: visbouncydisplay.h,v 1.5 2012/04/19 13:56:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uibouncymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -42,7 +41,7 @@ Space - pause/resume
 Mouse move - move paddle
 +/- - increase/decrease speed of ball
 */
-mExpClass(uiBouncy) BouncyDisplay : public visBase::VisualObjectImpl,
+mClass BouncyDisplay : public visBase::VisualObjectImpl,
 		       public visSurvey::SurveyObject
 {
 public:
@@ -104,4 +103,3 @@ protected:
 };
 
 #endif
-

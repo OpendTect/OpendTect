@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "position.h"
 #include "rowcol.h"
@@ -25,7 +24,7 @@ class uiSpinBox;
  
  */
 
-mExpClass(uiTools) uiStepOutSel : public uiGroup
+mClass uiStepOutSel : public uiGroup
 {
 public:
 
@@ -88,7 +87,7 @@ private:
 
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
-mExpClass(uiTools) uiStepout3DSel : public uiStepOutSel                                      
+mClass uiStepout3DSel : public uiStepOutSel                                      
 {                                                                               
 public:                                                                         
 
@@ -114,4 +113,3 @@ protected:
 
 
 #endif
-

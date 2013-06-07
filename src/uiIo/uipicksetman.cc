@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -28,12 +28,13 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage PickSets/Polygons",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
+				     "Manage picksets",
 				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp_->getManipGroup()->addButton( "mergepicksets", "Merge pick sets",
+    selgrp_->getManipGroup()->addButton( "mergepicksets.png", "Merge pick sets",
 					 mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
@@ -61,8 +62,8 @@ void uiPickSetMan::mkFileInfo()
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	FixedString typ = curioobj_->pars().find( sKey::Type() );
-	const bool ispoly = typ==sKey::Polygon();
+	const char* typ = curioobj_->pars().find( sKey::Type );
+	const bool ispoly = typ && !strcmp( typ, sKey::Polygon ); 
 	const bool havetype = typ && *typ;
 	if ( havetype )
 	    txt.add( "Type: " ).add( typ );
@@ -88,7 +89,7 @@ void uiPickSetMan::mkFileInfo()
 		ODPolygon<double> odpoly;
 		for ( int idx=0; idx<sz; idx++ )
 		{
-		    const Coord c( ps[idx].pos_ );
+		    const Coord c( ps[idx].pos );
 		    odpoly.add( Geom::Point2D<double>( c.x, c.y ) );
 		}
 		txt.add( ", area=" ).add( odpoly.area() );
@@ -126,6 +127,6 @@ void uiPickSetMan::mergeSets( CallBacker* )
     MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
     mgr.mergeSets( curkey );
 
-    if ( !curkey.isEmpty() )
+    if ( curkey != "" )
 	selgrp_->fullUpdate( curkey );
 }

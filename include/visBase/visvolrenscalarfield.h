@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "color.h"
 #include "ranges.h"
 #include "visdata.h"
@@ -32,7 +31,7 @@ template <class T> class ValueSeries;
 namespace visBase
 {
 
-mExpClass(visBase) VolumeRenderScalarField : public DataObject
+mClass VolumeRenderScalarField : public DataObject
 {
 public:
 
@@ -102,4 +101,3 @@ protected:
 }
 
 #endif
-

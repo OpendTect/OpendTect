@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "statdirdata.h"
 #include "draw.h"
@@ -38,11 +36,11 @@ namespace ColTab { class Sequence; }
 
  */
 
-mExpClass(uiTools) uiDirectionalPlot : public uiGraphicsView
+mClass uiDirectionalPlot : public uiGraphicsView
 {
 public:
 
-    mStruct(uiTools) Setup
+    mStruct Setup
     {
 	enum Type		{ Rose, Scatter, Vals };
 				Setup( Type t=Rose )
@@ -152,5 +150,3 @@ protected:
 
 
 #endif
-
-

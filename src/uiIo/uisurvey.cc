@@ -7,50 +7,54 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurvey.h"
 
+#include "survinfo.h"
+#include "uitoolbutton.h"
+#include "uicanvas.h"
 #include "uiconvpos.h"
-#include "uifileinput.h"
-#include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uilatlong2coord.h"
 #include "uilistbox.h"
-#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
-#include "uisetdatadir.h"
-#include "uisip.h"
-#include "uisplitter.h"
-#include "uisurveyselect.h"
 #include "uisurvinfoed.h"
+#include "uisurveyselect.h"
 #include "uisurvmap.h"
+#include "uilatlong2coord.h"
+#include "uisetdatadir.h"
 #include "uitextedit.h"
-#include "uitoolbutton.h"
-
-#include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "uifileinput.h"
+#include "mousecursor.h"
+#include "uimain.h"
+#include "uifont.h"
+#include "uisip.h"
+#include "iodrawtool.h"
 #include "dirlist.h"
-#include "envvars.h"
+#include "ioman.h"
+#include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
-#include "iopar.h"
+#include "oddirs.h"
 #include "iostrm.h"
 #include "latlong.h"
-#include "mousecursor.h"
-#include "oddirs.h"
-#include "odver.h"
 #include "strmprov.h"
-#include "survinfo.h"
+#include "envvars.h"
+#include "cubesampling.h"
+#include "odver.h"
+#include "iopar.h"
 
 #include <iostream>
 #include <math.h>
 
 #define mMapWidth	300
 #define mMapHeight	300
+extern "C" const char* GetSurveyName();
+extern "C" const char* GetSurveyFileName();
+extern "C" void SetSurveyName(const char*);
+
 
 
 static ObjectSet<uiSurvey::Util>& getUtils()
@@ -59,9 +63,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
     if ( !utils )
     {
 	utils = new ObjectSet<uiSurvey::Util>;
-	*utils += new uiSurvey::Util( "xy2ic", "Convert (X,Y) to/from I/C",
+	*utils += new uiSurvey::Util( "xy2ic.png", "Convert (X,Y) to/from I/C",
 				      CallBack() );
-	*utils += new uiSurvey::Util( "spherewire",
+	*utils += new uiSurvey::Util( "spherewire.png",
 				"Setup geographical coordinates",
 				      CallBack() );
     }
@@ -152,14 +156,14 @@ uiSurvey::uiSurvey( uiParent* p )
 
     mkDirList();
 
-    uiGroup* topgrp = new uiGroup( this, "TopGroup" );
-    uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
+    uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
 
     survmap_ = new uiSurveyMap( rightgrp );
+    survmap_->setStretch( 0, 0 );
     survmap_->setPrefWidth( mMapWidth );
     survmap_->setPrefHeight( mMapHeight );
 
-    uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
+    uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
     listbox_ = new uiListBox( leftgrp, dirlist_, "Surveys" );
     listbox_->setCurrentItem( GetSurveyName() );
     listbox_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
@@ -185,11 +189,6 @@ uiSurvey::uiSurvey( uiParent* p )
     copybut_->attach( alignedBelow, editbut_ );
     copybut_->setPrefWidthInChar( 12 );
 
-    archbut_ = new uiPushButton( leftgrp, "&Archive",
-				 mCB(this,uiSurvey,archButPushed), false );
-    archbut_->attach( alignedBelow, copybut_ );
-    archbut_->setPrefWidthInChar( 12 );
-
     ObjectSet<uiSurvey::Util>& utils = getUtils();
     uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
     const CallBack cb( mCB(this,uiSurvey,utilButPush) );
@@ -209,13 +208,13 @@ uiSurvey::uiSurvey( uiParent* p )
 	    			mCB(this,uiSurvey,dataRootPushed), false );
     datarootbut_->attach( centeredBelow, listbox_ );
 
-    uiSeparator* horsep1 = new uiSeparator( topgrp );
+    uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->setPrefWidth( totwdth );
     horsep1->attach( stretchedBelow, rightgrp, -2 );
     horsep1->attach( ensureBelow, leftgrp );
 
-    uiGroup* infoleft = new uiGroup( topgrp, "Survey info left" );
-    uiGroup* inforight = new uiGroup( topgrp, "Survey info right" );
+    uiGroup* infoleft = new uiGroup( this, "Survey info left" );
+    uiGroup* inforight = new uiGroup( this, "Survey info right" );
     infoleft->attach( alignedBelow, leftgrp );
     infoleft->attach( ensureBelow, horsep1 );
     inforight->attach( alignedBelow, rightgrp );
@@ -250,17 +249,16 @@ uiSurvey::uiSurvey( uiParent* p )
     binlbl_->attach( alignedBelow, zlbl_ );
     typelbl_->attach( alignedBelow, binlbl_ );
 
-    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
-    uiLabel* notelbl = new uiLabel( botgrp, "Notes:" );
-    notes_ = new uiTextEdit( botgrp, "Notes" );
-    notes_->attach( alignedBelow, notelbl );
+    uiSeparator* horsep2 = new uiSeparator( this );
+    horsep2->attach( stretchedBelow, infoleft, -2 );
+    horsep2->setPrefWidth( totwdth );
+
+    uiLabel* notelbl = new uiLabel( this, "Notes:" );
+    notelbl->attach( alignedBelow, horsep2 );
+    notes_ = new uiTextEdit( this, "Notes" );
+    notes_->attach( alignedBelow, notelbl);
     notes_->setPrefHeightInChar( noteshght );
     notes_->setPrefWidth( totwdth );
-    notes_->setStretch( 2, 2 );
-
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
-    splitter->addGroup( topgrp );
-    splitter->addGroup( botgrp );
 
     getSurvInfo(); 
     mkInfo();
@@ -427,10 +425,11 @@ void uiSurvey::rmButPushed( CallBacker* )
 					    .add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    BufferString msg( "This will remove the entire survey directory:\n\t" );
+    BufferString msg( "This will remove the entire survey:\n\t" );
     msg += selnm;
     msg += "\nFull path: "; msg += truedirnm;
     if ( !uiMSG().askRemove( msg ) ) return;
+
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     bool rmres = File::remove( truedirnm );
@@ -452,19 +451,6 @@ void uiSurvey::rmButPushed( CallBacker* )
         writeSurveyName( newsel );
 	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
     }
-}
-
-
-void uiSurvey::archButPushed( CallBacker* )
-{
-    uiDialog dlg( this,
-	uiDialog::Setup("Archive survey",mNoDlgTitle,mTODOHelpID) );
-    (void)new uiFileInput( &dlg, "Destination",
-			    uiFileInput::Setup().directories(true) );
-    if ( !dlg.go() )
-	return;
-
-    uiMSG().error( "Not implemented yet" );
 }
 
 
@@ -580,7 +566,7 @@ void uiSurvey::mkInfo()
 	int nr, rest;    
 	bininfo += "inl: "; mkString(inldist);
 	bininfo += "  crl: "; mkString(crldist);
-	float area = (float) ( si.computeArea(false) * 1e-6 ); //in km2
+	float area = si.computeArea(false) * 1e-6; //in km2
 	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
 
@@ -649,14 +635,14 @@ bool uiSurvey::rejectOK( CallBacker* )
 {
     if ( initialdatadir_ != GetBaseDataDir() )
     {
-	if ( !uiSetDataDir::setRootDataDir( this, initialdatadir_ ) )
+	if ( !uiSetDataDir::setRootDataDir( initialdatadir_ ) )
 	{
 	    uiMSG().error( "As we cannot reset to the old Data Root,\n"
 		    	   "You *have to* select a survey now!" );
 	    return false;
 	}
     }
-
+    
     return true;
 }
 

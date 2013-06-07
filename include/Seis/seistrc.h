@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisinfo.h"
 #include "tracedata.h"
 #include "datachar.h"
@@ -22,15 +21,15 @@ ________________________________________________________________________
 class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
 
-/*!
-\ingroup Seis
-\brief Seismic traces
+/*!\brief Seismic traces
+
 A seismic trace is composed of trace info and trace data. The trace data
 consists of one or more components. These are represented by a set of buffers,
 interpreted by DataInterpreters.
+
 */
 
-mExpClass(Seis) SeisTrc
+mClass SeisTrc
 {
 public:
 
@@ -130,7 +129,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 
 */
 
-mExpClass(Seis) SeisTrcValueSeries : public ValueSeries<float>
+mClass SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
@@ -139,9 +138,9 @@ public:
 		    , icomp_(c)			{}
 
     void	setComponent( int idx )		{ icomp_ = idx; }
-    float	value( od_int64 idx ) const;
+    float	value( od_int64 idx ) const	{ return trc_.get(idx,icomp_); }
     bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx,float v);
+    void	setValue( od_int64 idx,float v)	{ trc_.set(idx,v,icomp_); }
     float*	arr();
     const float* arr() const;
 
@@ -160,7 +159,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 */
 
 
-mExpClass(Seis) SeisTrcFunction : public FloatMathFunction
+mClass SeisTrcFunction : public FloatMathFunction
 {
 public:
 
@@ -179,5 +178,29 @@ protected:
 inline ValueSeries<float>* SeisTrcValueSeries::clone() const
 { return new SeisTrcValueSeries( trc_, icomp_ ); }
 
-#endif
 
+/*!\page Seis Seismics
+
+Seismic data is sampled data along a vertical axis. Many 'traces' will usually
+occupy a volume (3D seismics) or separate lines (2D data).
+
+There's always lots of data, so it has to be stored efficiently. A consequence
+is that storage on disk versus usage in memory are - contrary to most other data
+types - closely linked. Instead of just loading the data in one go, we always
+need to prepare a subcube of data before the work starts.
+
+Although this model may have its flaws and may be outdated in the light of ever
+increaing computer memory, it will probalbly satisfy our needs for some time
+at the start of the 21st century.
+
+The SeisTrc class is designed to be able to even have 1, 2 or 4-byte data in
+the data() - the access functions get() and set() will know how to unpack and
+pack this from/to float. SeisTrc objects can also hold more than one component.
+
+To keep the SeisTrc object small, a lot of operations and processing options
+have been moved to specialised objects - see seistrcprop.h and
+seissingtrcproc.h .
+
+*/
+
+#endif

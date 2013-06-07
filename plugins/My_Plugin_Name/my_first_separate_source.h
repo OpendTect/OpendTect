@@ -4,14 +4,13 @@
  * (C) Your_copyright
  * AUTHOR   : You!
  * DATE     : Apr 2012
- * ID       : $Id$
+ * ID       : $Id: my_first_separate_source.h,v 1.1 2012/04/17 09:55:24 cvsbert Exp $
 -*/
 
-#include "my_plugin_namemod.h"
 #include "gendefs.h"
 
 
-mExpClass(My_Plugin_Name) My_Class
+mClass My_Class
 {
 public:
 
@@ -24,4 +23,3 @@ protected:
 };
 
 #endif
-

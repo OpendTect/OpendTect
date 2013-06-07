@@ -14,7 +14,6 @@ Translators for SEGY files traces.
 
 -*/
 
-#include "seismod.h"
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"
@@ -26,7 +25,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 #define mSEGYTraceHeaderBytes	240
 
 
-mExpClass(Seis) SEGYSeisTrcTranslator : public SeisTrcTranslator
+mClass SEGYSeisTrcTranslator : public SeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 
@@ -58,7 +57,6 @@ public:
     bool		rev0Forced() const	{ return forcerev0_; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
-    const unsigned char* blockBuf() const	{ return blockbuf_; }
 
     bool		implShouldRemove(const IOObj*) const { return false; }
     void		cleanUp();
@@ -125,4 +123,3 @@ protected:
 
 
 #endif
-

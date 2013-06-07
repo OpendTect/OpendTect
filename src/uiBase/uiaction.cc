@@ -7,15 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiaction.h"
 #include "i_qaction.h"
 
 #include "menuhandler.h"
 #include "pixmap.h"
-
-mUseQtnamespace
 
 #define mInit toggled(this), triggered(this), msgr_(0)
 
@@ -81,7 +79,7 @@ void uiAction::setText( const char* txt )
 const char* uiAction::text() const
 {
     BufferString str;
-    str = qaction_->text().toLatin1().data();
+    str = qaction_->text().toAscii().data();
     return str;
 }
 
@@ -92,7 +90,7 @@ void uiAction::setIconText( const char* txt )
 const char* uiAction::iconText() const
 {
     QString qstr = qaction_->iconText();
-    return qstr.toLatin1().data();
+    return qstr.toAscii().data();
 }
 
 void uiAction::setToolTip( const char* txt )
@@ -101,7 +99,7 @@ void uiAction::setToolTip( const char* txt )
 const char* uiAction::toolTip() const
 {
     static BufferString str;
-    str = qaction_->toolTip().toLatin1().data();
+    str = qaction_->toolTip().toAscii().data();
     return str;
 }
 

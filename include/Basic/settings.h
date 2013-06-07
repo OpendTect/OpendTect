@@ -13,12 +13,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "iopar.h"
 
 
-/*!
-\brief Settings class holds the user settings. It is an IOPar.
+/*!\brief Settings hold the user settings. It is an IOPar.
 
   The common() settings are basic, global user settings.
   For a specific subject or from a plugin, just call fetch( yourkey ),
@@ -29,9 +27,11 @@ ________________________________________________________________________
   The data is stored in ~/.od/settings (common) and ~/.od/settings_yourkey
   for other keys. If $DTECT_USER is set, '.$DTECT_USER' is appended to the
   filename.
+
 */
 
-mExpClass(Basic) Settings : public IOPar
+
+mClass Settings : public IOPar
 {
 public:
 
@@ -67,9 +67,6 @@ protected:
 };
 
 
-mExternC( Basic ) const char* GetSettingsDataDir(void);
-
-
 //!> macro for easy set to Settings::common()
 #define mSettUse(fn,basekey,key,value) \
 	Settings::common().fn( IOPar::compKey(basekey,key), value )
@@ -81,4 +78,3 @@ mExternC( Basic ) const char* GetSettingsDataDir(void);
 	Settings::common().write();
 
 #endif
-

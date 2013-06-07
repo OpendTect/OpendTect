@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -72,15 +72,15 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     const int nrlines = geoms.size();
     while ( rangesset->totalSize() < cNrRandPicks )
     {
-	const int lineidx = Stats::randGen().getIndex( nrlines );
+	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.positions().size();
-	const int crdidx = Stats::randGen().getIndex( nrcoords );
+	const int crdidx = Stats::RandGen::getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = (float) (geometry.zRange().start +
-			    Stats::randGen().get()*geometry.zRange().width());
+	const float zpos = geometry.zRange().start +
+			    Stats::RandGen::get()*geometry.zRange().width();
 	rangesset->add( bid, zpos );
     }
 }
@@ -93,11 +93,11 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT32( irg.start + Stats::randGen().get() * irg.nrSteps() );
-	bid.crl = mNINT32( crg.start + Stats::randGen().get() * crg.nrSteps() );
+	bid.inl = mNINT32( irg.start + Stats::RandGen::get() * irg.nrSteps() );
+	bid.crl = mNINT32( crg.start + Stats::RandGen::get() * crg.nrSteps() );
 	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
-	    	      + Stats::randGen().get() * SI().zRange(true).width());
+	const float z = SI().zRange(true).start
+	    	      + Stats::RandGen::get() * SI().zRange(true).width();
 	rangesset->add( bid, z );
     }
 }
@@ -202,7 +202,7 @@ bool calcFingParsObject::computeValsAndRanges()
 
     proc->setName( "Compute reference values" );
     uiTaskRunner taskrunner( parent_ );
-    if ( !TaskRunner::execute( &taskrunner, *proc ) )
+    if ( !taskrunner.execute(*proc) )
 	return false;
 
     extractAndSaveValsAndRanges();
@@ -235,7 +235,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 	fillInStats( valueset, statsset, styp );
 	
 	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = (float) statsset[idx]->getValue(styp);
+	    vals[idx] = statsset[idx]->getValue(styp);
 
 	deepErase( statsset );
     }

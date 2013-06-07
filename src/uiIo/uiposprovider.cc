@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -41,16 +41,20 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
     {
-	reqnms.add( sKey::Range() );
+	reqnms.add( sKey::Range );
 	if ( setup_.choicetype_ == Setup::OnlySeisTypes )
 	{
-	    reqnms.add( sKey::Table() );
-	    reqnms.add( sKey::Polygon() );
-	    reqnms.add( sKey::Well() );
-	    reqnms.add( sKey::Body() );
+	    reqnms.add( sKey::Table );
+	    reqnms.add( sKey::Polygon );
+	}
+	else if ( setup_.choicetype_ == Setup::SeisTypeswithBody )
+	{
+	    reqnms.add( sKey::Table );
+	    reqnms.add( sKey::Polygon );
+	    reqnms.add( sKey::Body );
 	}
 	else if ( setup_.choicetype_ == Setup::RangewithPolygon )
-	    reqnms.add( sKey::Polygon() );
+	    reqnms.add( sKey::Polygon );
     }
 
     for ( int idx=0; idx<factnms.size(); idx++ )
@@ -85,7 +89,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	selfld_->valuechanged.notify( selcb );
 	if ( !setup_.is2d_ )
 	{
-	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
+	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv.png",
 		    		"Set ranges to full survey",
 				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
@@ -105,7 +109,7 @@ void uiPosProvider::selChg( CallBacker* )
 	grps_[idx]->display( idx == selidx );
 
     if ( fullsurvbut_ )
-	fullsurvbut_->display( BufferString(selfld_->text()) == sKey::Range() );
+	fullsurvbut_->display( BufferString(selfld_->text()) == sKey::Range );
 }
 
 
@@ -132,7 +136,7 @@ uiPosProvGroup* uiPosProvider::curGrp() const
 void uiPosProvider::usePar( const IOPar& iop )
 {
     BufferString typ;
-    iop.get( sKey::Type(), typ );
+    iop.get( sKey::Type, typ );
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
 	if ( typ == grps_[idx]->name() )
@@ -160,7 +164,7 @@ bool uiPosProvider::fillPar( IOPar& iop ) const
 	return curgrp ? curgrp->fillPar(iop) : true;
     }
 
-    iop.set( sKey::Type(), sKey::None() );
+    iop.set( sKey::Type, sKey::None );
     return true;
 }
 
@@ -191,7 +195,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     , prov_(0)
     , cs_(*new CubeSampling(false))
 {
-    iop_.set( sKey::Type(), sKey::None() );
+    iop_.set( sKey::Type, sKey::None );
     mkNewProv(false);
     butPush.notify( mCB(this,uiPosProvSel,doDlg) );
 }
@@ -244,7 +248,7 @@ void uiPosProvSel::setProvFromCS()
 	prov_ = rp3d;
     }
     prov_->fillPar( iop_ );
-    iop_.set( sKey::Type(), prov_->type() );
+    iop_.set( sKey::Type, prov_->type() );
     updateSummary();
 }
 
@@ -287,7 +291,7 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 
 void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
 {
-    if ( chgtyp || (prov_ && prov_->type()==sKey::Range()) )
+    if ( chgtyp || (prov_ && !strcmp(prov_->type(),sKey::Range)) )
     {
 	cs_ = cs;
 	setProvFromCS();
@@ -326,7 +330,7 @@ void uiPosProvSel::setToAll()
 {
     if ( !setup_.allownone_ )
     {
-	iop_.set( sKey::Type(), sKey::None() );
+	iop_.set( sKey::Type, sKey::None );
 	mkNewProv( true );
     }
     else
@@ -360,7 +364,7 @@ void uiPosProvSel::usePar( const IOPar& iop )
     if ( prov_ )
     {
 	prov_->fillPar( iop_ );
-	iop_.set(sKey::Type(),prov_->type());
+	iop_.set(sKey::Type,prov_->type());
     }
 }
 

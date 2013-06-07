@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -55,12 +55,7 @@ static BufferString getUsrInfo()
     return bs;
 }
 
-
-BufferString SeisPacketInfo::defaultusrinfo;
-
-
-void SeisPacketInfo::initClass()
-{ defaultusrinfo = getUsrInfo(); }
+BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
 
 class SeisEnum
 {
@@ -77,9 +72,9 @@ public:
 
 DefineEnumNames(SeisEnum,SelType,0,"Selection type")
 {
-	sKey::Range(),
-	sKey::Table(),
-	sKey::Polygon(),
+	sKey::Range,
+	sKey::Table,
+	sKey::Polygon,
 	0
 };
 
@@ -134,7 +129,7 @@ Seis::GeomType Seis::geomTypeOf( const char* s )
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
-    if ( s && s==sKey::Steering() )
+    if ( s && !strcmp(s,sKey::Steering) )
 	return Seis::Dip;
     SeisEnum::DataType res; SeisEnum::parseEnumDataType(s,res); return res;
 }
@@ -159,12 +154,12 @@ bool Seis::isAngle( Seis::DataType dt )
 
 void Seis::putInPar( Seis::GeomType gt, IOPar& iop )
 {
-    iop.set( sKey::Geometry(), Seis::nameOf(gt) );
+    iop.set( sKey::Geometry, Seis::nameOf(gt) );
 }
 
 bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
 {
-    const char* res = iop.find( sKey::Geometry() );
+    const char* res = iop.find( sKey::Geometry );
     if ( !res || !*res ) return false;
     gt = geomTypeOf( res );
     return true;
@@ -205,7 +200,7 @@ float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 
     defsr /= SI().zInFeet() ? 5000 : 2000; // div by velocity
     int ival = (int)(defsr * 1000 + .5);
-    return ival * 0.001f;
+    return ival * 0.001;
 }
 
 
@@ -289,7 +284,7 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 	mIOIOPar( set, BinIDInl, binid.inl );
 	mIOIOPar( set, BinIDCrl, binid.crl );
 	BufferString str( 120, false ); binid.fill( str.buf() );
-	iopar.set( sKey::Position(), str );
+	iopar.set( sKey::Position, str );
     }
 
     mIOIOPar( set, CoordX, coord.x );
@@ -304,8 +299,8 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
-    offset = (float) rcv.distTo( src );
-    azimuth = (float) atan2( rcv.y - src.y, rcv.x - src.x );
+    offset = rcv.distTo( src );
+    azimuth = atan2( rcv.y - src.y, rcv.x - src.x );
     if ( setpos )
     {
 	coord.x = .5 * (rcv.x + src.x);
@@ -445,7 +440,7 @@ void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
       || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
 	return;
 
-    const float fac = conv_back ? mToFeetFactorF : mFromFeetFactorF;
+    const float fac = conv_back ? mToFeetFactor : mFromFeetFactor;
 
     sampling.scale( fac );
     if ( !mIsUdf(pick) ) pick *= fac;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "welltiecshot.h"
 
@@ -32,7 +32,7 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
     for ( int idx=0; idx<cs.size(); idx++ )
     {
 	if ( !dahrg.includes( cs.dah( idx ), true ) )
-	    d2t.insertAtDah( cs.dah(idx), cs.value( idx ) );
+	    d2t.insertAtDah( cs.dah(idx), cs.value( idx ), false );
     }
 
     TypeSet<int> ctrlsamples;

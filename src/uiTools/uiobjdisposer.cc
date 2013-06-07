@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiobjdisposer.h"
 #include "timer.h"
@@ -51,8 +51,8 @@ void uiObjDisposer::doDel( CallBacker* in )
     if ( idxof < 0 ) return; // Huh?
 
     CallBacker* obj = objs_[idxof];
-    objs_.removeSingle( idxof );
-    timers_.removeSingle( idxof );
+    objs_.remove( idxof );
+    timers_.remove( idxof );
 
     delete obj;
     todeltimers += tim;

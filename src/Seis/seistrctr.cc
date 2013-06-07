@@ -5,10 +5,9 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seistrctr.h"
-#include "keystrs.h"
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -46,39 +45,29 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 }
 
 
-const char*
-SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
-{
-    if ( ioobj && SeisTrcTranslator::is2D( *ioobj ) )
-	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
-    
-    if ( SI().survDataType()==SurveyInfo::Only2D )
-	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
-
-    return IOPar::compKey( sKey::Default(), sKeyDefault3D() );
-}
-
+static bool defnowrreg = GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION");
+static bool defsurvinfwr = GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE");
 
 SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
-    : Translator(nm,unm)
-    , conn(0)
-    , errmsg(0)
-    , inpfor_(0)
-    , nrout_(0)
-    , inpcds(0)
-    , outcds(0)
-    , seldata(0)
-    , prevnr_(mUdf(int))
-    , pinfo(*new SeisPacketInfo)
-    , trcblock_(*new SeisTrcBuf(false))
-    , lastinlwritten(SI().sampling(false).hrg.start.inl)
-    , read_mode(Seis::Prod)
-    , is_prestack(false)
-    , is_2d(false)
-    , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
-    , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
-    , compnms_(0)
-    , warnings_(*new BufferStringSet)
+	: Translator(nm,unm)
+	, conn(0)
+	, errmsg(0)
+	, inpfor_(0)
+	, nrout_(0)
+	, inpcds(0)
+	, outcds(0)
+	, seldata(0)
+    	, prevnr_(mUdf(int))
+    	, pinfo(*new SeisPacketInfo)
+    	, trcblock_(*new SeisTrcBuf(false))
+    	, lastinlwritten(SI().sampling(false).hrg.start.inl)
+    	, read_mode(Seis::Prod)
+    	, is_prestack(false)
+    	, is_2d(false)
+    	, enforce_regular_write(!defnowrreg) // default true
+    	, enforce_survinfo_write(defsurvinfwr)// default false
+	, compnms_(0)
+	, warnings_(*new BufferStringSet)
 {
 }
 
@@ -525,7 +514,7 @@ bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
 bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 				   const char* lk )
 {
-    PtrMan<Translator> transl = ioobj.createTranslator();
+    PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
     PtrMan<Seis::SelData> sd = 0;
@@ -563,7 +552,7 @@ bool SeisTrcTranslator::haveWarnings() const
 
 void SeisTrcTranslator::addWarn( int nr, const char* msg )
 {
-    if ( !msg || !*msg || warnnrs_.isPresent(nr) ) return;
+    if ( !msg || !*msg || warnnrs_.indexOf(nr) >= 0 ) return;
     warnnrs_ += nr;
     warnings_.add( msg );
 }

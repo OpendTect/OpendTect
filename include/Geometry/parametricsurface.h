@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "rowcol.h"
 #include "rowcolsurface.h"
 
@@ -21,7 +20,7 @@ namespace Geometry
 
 class ParametricCurve;
 
-mExpClass(Geometry) ParametricSurface : public RowColSurface
+mClass ParametricSurface : public RowColSurface
 {
 public:
     			ParametricSurface(const RowCol& origin=RowCol(0,0),
@@ -38,7 +37,6 @@ public:
     virtual bool	removeCol(int startcol,int stoprcol) { return false; }
 
     virtual StepInterval<int>	rowRange() const;
-    virtual StepInterval<int>	rowRange(int col) const;
     virtual StepInterval<int>	colRange(int row) const;
     virtual StepInterval<int>	colRange() const;
 
@@ -104,4 +102,3 @@ protected:
 };
 
 #endif
-

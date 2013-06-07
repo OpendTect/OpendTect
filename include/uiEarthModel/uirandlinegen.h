@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -27,7 +26,7 @@ class uiLabel;
 
 /*! \brief Generate random lines from contours of a horizon */
 
-mExpClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
+mClass uiGenRanLinesByContour : public uiDialog
 {
 public:
 			uiGenRanLinesByContour(uiParent*);
@@ -65,7 +64,7 @@ protected:
 
 /*! \brief Generate random lines by shifting an existing */
 
-mExpClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
+mClass uiGenRanLinesByShift : public uiDialog
 {
 public:
 			uiGenRanLinesByShift(uiParent*);
@@ -92,7 +91,7 @@ protected:
 
 /*! \brief Generate random line from polygon */
 
-mExpClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
+mClass uiGenRanLineFromPolygon : public uiDialog
 {
 public:
 			uiGenRanLineFromPolygon(uiParent*);
@@ -117,4 +116,3 @@ protected:
 
 
 #endif
-

@@ -12,11 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
+#include "uigroup.h"
 
-namespace Attrib { class Desc; }
-
+namespace Attrib { class Desc; };
+class StringListInpSpec;
 class uiGenInput;
 class uiAttrSel;
 class uiCheckBox;
@@ -27,7 +27,7 @@ class uiStepOutSel;
 
 /*! \brief VolumeStatistics Attribute description editor */
 
-mExpClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
+mClass uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
 			uiVolumeStatisticsAttrib(uiParent*,bool);
@@ -49,8 +49,9 @@ protected:
     uiGenInput*		stackdirfld_;
 
     void		stackstepChg(CallBacker*);
-    void		stepoutChg(CallBacker*);
+     void		stepoutChg(CallBacker*);
     void		shapeChg(CallBacker*);
+    void		steerTypeSel(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -62,5 +63,6 @@ protected:
 
     			mDeclReqAttribUIFns
 };
+
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uilabel.h"
@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <qlabel.h> 
 
-mUseQtnamespace
 
 class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
@@ -24,7 +23,7 @@ public:
 
                         uiLabelBody( uiLabel& hndle, uiParent* parnt,
 				     const char* txt )
-			    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,txt)
+			    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt)
 			{}
 
     virtual int 	nrTxtLines() const		

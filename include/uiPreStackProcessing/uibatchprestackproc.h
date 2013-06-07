@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uibatchlaunch.h"
 
 
@@ -26,7 +25,7 @@ class uiProcSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
-mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiFullBatchDialog
+mClass uiBatchProcSetup : public uiFullBatchDialog
 {
 public:
     		uiBatchProcSetup(uiParent*,bool is2d );
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

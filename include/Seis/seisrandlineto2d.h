@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "binidvalset.h"
 #include "randomlinegeom.h"
@@ -27,7 +26,7 @@ class SeisTrcBuf;
 namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
-mExpClass(Seis) SeisRandLineTo2D : public Executor
+mClass SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
@@ -63,7 +62,7 @@ private:
 };
 
 
-mExpClass(Seis) SeisRandLineTo2DGrid
+mClass SeisRandLineTo2DGrid
 {
 public:
     			SeisRandLineTo2DGrid(const IOPar&,std::ostream&);
@@ -100,4 +99,3 @@ protected:
 
 
 #endif
-

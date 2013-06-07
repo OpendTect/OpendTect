@@ -13,24 +13,23 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
-#include "fixedstring.h"
 #include "convert.h"
 
 class BufferStringSet;
 
-/*!
-\brief %List encoded in a string.
 
-  SeparString is a list encoded in a string where the items are separated by
-  a user chosen separator. The separator in the input is escaped with a
-  backslash. A `\' is encoded as `\\' . Elements can have any size.  Input and
-  output of elements is done unescaped. Input and output of whole (sub)strings
-  is done escaped.
+/*!\brief list encoded in a string.
+
+SeparString is a list encoded in a string where the items are separated by
+a user chosen separator. The separator in the input is escaped with a backslash.
+A `\' is encoded as `\\' . Elements can have any size.  Input and output of
+elements is done unescaped. Input and output of whole (sub)strings is done
+escaped.
+
 */
 
-mExpClass(Basic) SeparString
+mClass SeparString
 {
 public:
 			SeparString( const SeparString& ss )
@@ -46,8 +45,8 @@ public:
     inline void		setEmpty()		{ rep_.setEmpty(); }
 
     int			size() const;
-    FixedString		operator[](int) const;		//!< Output unescaped
-    FixedString		from(int) const;		//!< Output escaped
+    const char*		operator[](int) const;		//!< Output unescaped
+    const char*		from(int) const;		//!< Output escaped
 
     int			getIValue(int) const;
     od_uint32		getUIValue(int) const;
@@ -105,15 +104,14 @@ private:
     const char*		findSeparator(const char*) const;
 };
 
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const SeparString&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,SeparString&);
+mGlobal std::ostream& operator <<(std::ostream&,const SeparString&);
+mGlobal std::istream& operator >>(std::istream&,SeparString&);
 
 
-/*!
-\brief SeparString with backquotes as separators, use in most ascii files.
-*/
 
-mExpClass(Basic) FileMultiString : public SeparString
+/*!\brief SeparString with backquotes as separators, use in most ascii files */
+
+mClass FileMultiString : public SeparString
 {
 public:
 
@@ -139,4 +137,3 @@ public:
 };
 
 #endif
-

@@ -23,11 +23,7 @@ namespace Vel { class Picks; }
 namespace PreStack
 {
 
-/*!
-\brief API Manager for PreStack Events.
-*/
-
-mClass(PreStackProcessing) EventsAPIMgr
+class EventsAPIMgr
 {
 public:
     		EventsAPIMgr();

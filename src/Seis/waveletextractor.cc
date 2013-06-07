@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "waveletextractor.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -37,11 +37,9 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
-    , wvlt_(*new Wavelet)
+    , wvlt_(*new Wavelet("",-wvltsize/2))
     , lineidx_(-1)
-    , paramval_( mUdf(float) )
 {
-    wvlt_.setCenterSample( wvltsize/2 );
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
     
@@ -63,9 +61,8 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     CubeSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
+    wvlt_.set( mNINT32(wvltsize_/2), cs.zrg.step );
     wvlt_.reSize( wvltsize_ );
-    wvlt_.setSampleRate( cs.zrg.step );
-    wvlt_.setCenterSample( mNINT32((float) wvltsize_/2) );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
 }
@@ -265,7 +262,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     for ( int idx=0; idx<wvltsize_; idx++ )
 	temp.set( idx, acarr.get( startidx+idx ) );
 
-    removeBias<float,float>( &temp );
+    removeBias( &temp );
     normalisation( temp );
    
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
@@ -310,7 +307,7 @@ bool WaveletExtractor::finish( int nrusedtrcs )
     float * stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
-	stackedarr[i] = Math::Sqrt( stackedarr[i] / nrusedtrcs );
+	stackedarr[i] = sqrt( stackedarr[i] / nrusedtrcs );
 
     if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
     { msg_ = "Failed to generate wavelet"; return false; }
@@ -360,12 +357,12 @@ bool WaveletExtractor::rotateWavelet()
     WaveletAttrib wvltattr( wvlt_ );
     wvltattr.getHilbert( rotatewvlt );
 
-    double angle = phase_ * M_PI/180;
+    float angle = (float)phase_ * M_PI/180;
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float realval = wvlt_.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle) - imagval*sin(angle));
+	wvlt_.samples()[idx] = realval*cos( angle ) - imagval*sin( angle );
     }
 
     return true;

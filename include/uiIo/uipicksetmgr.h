@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "callback.h"
 
 class IOObj;
@@ -23,7 +22,7 @@ namespace Pick { class Set; class SetMgr; };
 
 /*! \brief base class for management of a Pick::SetMgr */
 
-mExpClass(uiIo) uiPickSetMgr : public CallBacker
+mClass uiPickSetMgr : public CallBacker
 {
 public:
 			uiPickSetMgr(Pick::SetMgr&);
@@ -48,4 +47,3 @@ protected:
 
 
 #endif
-

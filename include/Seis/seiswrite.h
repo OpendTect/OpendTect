@@ -22,18 +22,17 @@ is done.
 
 */
 
-#include "seismod.h"
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
-#include "surv2dgeom.h"
+#include "posinfo2d.h"
 #include "thread.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
 
 
-mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
+mClass SeisTrcWriter : public SeisStoreAccess
 {
 public:
 
@@ -101,7 +100,7 @@ protected:
     // 2D only
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
-    Survey::Geometry2D&	geom2d_;
+    PosInfo::Line2DData	geom_;
     IOPar&		lineauxiopar_;
     LineKey		prevlk_;
     const LineKeyProvider* lkp_;
@@ -116,7 +115,7 @@ protected:
 
 
 
-mExpClass(Seis) SeisSequentialWriter
+mClass SeisSequentialWriter
 {
 public:
     			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
@@ -165,4 +164,3 @@ protected:
     			
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistratdisplay.h"
 
@@ -34,13 +34,13 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     : uiGraphicsView(p,"Stratigraphy viewer")
     , drawer_(uiStratDrawer(scene(),data_))
-    , uidatawriter_(uiStratDispToTree(uitree ))
+    , uidatawriter_(uiStratDispToTreeTransl(uitree ))
     , uidatagather_(0)
     , uicontrol_(0)
-    , islocked_(false)
     , maxrg_(Interval<float>(0,2e3))
+    , islocked_(false)
 {
-    uidatagather_ = new uiStratTreeToDisp( data_ );
+    uidatagather_ = new uiStratTreeToDispTransl( data_ );
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
@@ -60,13 +60,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 uiStratDisplay::~uiStratDisplay()
 {
     delete uidatagather_;
-}
-
-
-void uiStratDisplay::setTree()
-{
-    uidatagather_->setTree();
-    setRange();
 }
 
 
@@ -163,8 +156,9 @@ public :
     void selChg( CallBacker* cb )
     {
 	mDynamicCastGet(uiCheckBox*,box,cb)
-	if ( !box ) return;
+	if ( !cb ) return;
 
+	int idsel = colboxflds_.indexOf( box );
 	for ( int idbox=0; idbox<colboxflds_.size(); idbox++ )
 	{
 	    NotifyStopper ns( colboxflds_[idbox]->activated );
@@ -277,6 +271,13 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	return true;
     }
     return false;
+}
+
+
+void uiStratDisplay::setTree( Strat::RefTree& )
+{
+    uidatagather_->setTree();
+    setRange();
 }
 
 
@@ -462,8 +463,8 @@ void uiStratDrawer::eraseAll()
 
 void uiStratDrawer::drawBorders( ColumnItem& colitm )
 {
-    int x1 = xax_->getPix( mCast( float, (colitm.pos_)*colitm.size_ ) );
-    int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
+    int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+    int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
     int y1 = yax_->getPix( yax_->range().stop );
     int y2 = yax_->getPix( yax_->range().start );
 	
@@ -479,7 +480,7 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( colitm.name_ ) );
     ti->setTextColor( Color::Black() );
-    ti->setPos( mCast(float,x1), mCast(float,y1 - 18) );
+    ti->setPos( x1, y1 - 18 );
     ti->setZValue( 2 );
     colitm.bordertxtitm_ = ti;
 }
@@ -495,19 +496,16 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
     {
 	const StratDispData::Level& lvl = *data_.getCol(colidx)->levels_[idx];
 
-	int x1 = xax_->getPix( mCast( float, (colitm.pos_)*colitm.size_ ) );
-	int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
+	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
 	int y = yax_->getPix( lvl.zpos_ );
 
-	uiLineItem* li = scene_.addItem( new uiLineItem(
-				mCast(float,x1), mCast(float,y), 
-				mCast(float,x2), mCast(float,y), true) );
-
+	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y,true) );
 	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot 
 	    					  : LineStyle::Solid;
 	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem( lvl.name_.buf() ) );
-	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) ); 
+	ti->setPos( x1 + (x2-x1)/2, y ); 
 	ti->setZValue( 2 );
 	ti->setTextColor( lvl.color_ );
     
@@ -521,13 +519,14 @@ void uiStratDrawer::drawEmptyText()
 {
     delete emptyitm_; emptyitm_ =0;
 
-    const int x = xax_->getPix( 0 );
-    const int y1 = yax_->getPix( yax_->range().stop );
-    const int y2 = yax_->getPix( yax_->range().start );
+    int x1 = xax_->getPix( 0 );
+    int x2 = xax_->getPix( 1 );
+    int y1 = yax_->getPix( yax_->range().stop );
+    int y2 = yax_->getPix( yax_->range().start );
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
     ti->setTextColor( Color::Black() );
-    ti->setPos( mCast(float,x), mCast(float,y2 - abs((y2-y1)/2) -10) );
+    ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
     ti->setZValue( 2 );
     emptyitm_ = ti;
 }
@@ -550,8 +549,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 
-	int x1 = xax_->getPix( mCast(float,(colitm.pos_)*colitm.size_) );
-	int x2 = xax_->getPix( mCast(float,(colitm.pos_+1)*colitm.size_) );
+	int x1 = xax_->getPix( (colitm.pos_)*colitm.size_ );
+	int x2 = xax_->getPix( (colitm.pos_+1)*colitm.size_ );
 	bool ztop = ( unitrg.start < rg.stop );
 	bool zbase = ( unitrg.stop > rg.start );
 	int y1 = yax_->getPix( ztop ? rg.stop : unitrg.start );
@@ -578,7 +577,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 	uiTextItem* ti = scene_.addItem( new uiTextItem( unm ) );
 	ti->setTextColor( Color::Black() );
-	ti->setPos( mCast(float,x1), mCast(float,y2 - abs((y2-y1)/2) -10) );
+	ti->setPos( x1, y2 - abs((y2-y1)/2) -10 );
 	ti->setZValue( 2 );
 	colitm.txtitms_ += ti;
 	colitm.unititms_ += pli;
@@ -609,9 +608,9 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	if ( mw )
 	    mw->addToolBar( tb_ );
     }
-    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode")
+    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode")
 
     viewer_.getKeyboardEventHandler().keyPressed.notify(
 				mCB(this,uiStratViewControl,keyPressed) );
@@ -648,11 +647,11 @@ void uiStratViewControl::zoomCB( CallBacker* but )
 	{
 	    const Geom::Point2D<int> pos = meh.event().pos();
 	    const uiRect& allarea = viewer_.getSceneRect();
-	    Interval<float> allrg( mCast(float,allarea.topLeft().y), 
-				   mCast(float,allarea.bottomRight().y) );
+	    Interval<float> allrg( allarea.topLeft().y, 
+				   allarea.bottomRight().y );
 	    LinScaler scaler( allrg.start, range_.start, 
 			      allrg.stop, range_.stop );
-	    const float rgpos = (float) scaler.scale( pos.y );
+	    const float rgpos = scaler.scale( pos.y );
 	    range_.set( rgpos -margin, rgpos + margin );
 	}
 	else
@@ -689,7 +688,7 @@ void uiStratViewControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
     viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 			         : uiGraphicsViewBase::ScrollHandDrag);
     viewer_.scene().setMouseEventActive( true );
@@ -709,7 +708,7 @@ void uiStratViewControl::handDragStarted( CallBacker* )
     if ( mouseEventHandler().event().rightButton() )
 	return;
     mousepressed_ = true;
-    startdragpos_ = mCast( float, mouseEventHandler().event().pos().y );
+    startdragpos_ = mouseEventHandler().event().pos().y;
 }
 
 
@@ -719,12 +718,12 @@ void uiStratViewControl::handDragging( CallBacker* )
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag 
 	|| !mousepressed_ || !manip_ ) return;
     viewdragged_ = true;
-    const float newpos = mCast( float, mouseEventHandler().event().pos().y );
-    const float fac = mCast( float, ( startdragpos_ > newpos )? -1 : 1 );
+    const float newpos = mouseEventHandler().event().pos().y;
+    const float fac = ( startdragpos_ > newpos )? -1 : 1;
     startdragpos_ = newpos;
     Interval<float> rg( range_ );
     const float width = rg.width();
-    const float shift = mHandDragFac < 0.0005f ? 0.0005f : mHandDragFac;
+    const float shift = mHandDragFac < 0.0005 ? 0.0005 : mHandDragFac;
     const float center = rg.start + width/2 - fac*shift;
     rg.set( center - width/2, center + width/2 );
     if ( rg.start < boundingrange_.start )
@@ -759,19 +758,17 @@ void uiStratViewControl::rubBandCB( CallBacker* )
 	return;
     const uiRect& allarea = viewer_.getSceneRect();
 
-    Interval<float> selrg( mCast(float,selarea->topLeft().y), 
-			   mCast(float,selarea->bottomRight().y) );
+    Interval<float> selrg( selarea->topLeft().y, selarea->bottomRight().y );
     selrg.sort();
     const uiFont& font = FontList().get();
     const int border = 2*font.height();
 
-    Interval<float> allrg( mCast(float,allarea.topLeft().y + border),
-			    mCast(float,allarea.bottomRight().y - border) );
+    Interval<float> allrg( allarea.topLeft().y + border,
+			    allarea.bottomRight().y - border );
     allrg.sort();
 
     LinScaler scaler( allrg.start, range_.start, allrg.stop, range_.stop );
-    range_.set( (float) scaler.scale( selrg.start ), 
-				    (float) scaler.scale( selrg.stop ) );
+    range_.set( scaler.scale( selrg.start ), scaler.scale( selrg.stop ) );
     range_.limitTo( boundingrange_ );
     rangeChanged.trigger();
 }

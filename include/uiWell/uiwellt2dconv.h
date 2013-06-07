@@ -12,11 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uit2dconvsel.h"
 
 
-mExpClass(uiWell) uiT2DWellConvSelGroup : public uiT2DConvSelGroup
+mClass uiT2DWellConvSelGroup : public uiT2DConvSelGroup
 {
 public:
 
@@ -36,4 +35,3 @@ protected:
 };
 
 #endif
-

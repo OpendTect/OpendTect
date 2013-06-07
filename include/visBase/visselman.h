@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "callback.h"
 #include "sets.h"
 
@@ -41,7 +40,7 @@ will associate him with when they want to add their CB to detect his selection.
 Secondly it has to give the DataObject that actually is selected.
 */
 
-mExpClass(visBase) SelectionManager : public CallBacker
+mClass SelectionManager : public CallBacker
 {
 public:
 				SelectionManager();
@@ -79,4 +78,3 @@ protected:
 };
 
 #endif
-

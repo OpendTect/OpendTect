@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vismultiattribsurvobj.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "envvars.h"
 #include "settings.h"
-#include "vismaterial.h"
+
 
 namespace visSurvey {
 
@@ -158,8 +158,8 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
     return res;
 }
-    
-    
+
+
 visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 {
     return channels_ ? channels_->getChannels2RGBA() : 0;
@@ -266,8 +266,8 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
 	channels_->removeChannel( attrib );
 
     delete as_[attrib];
-    as_.removeSingle( attrib );
-    userrefs_.removeSingle( attrib );
+    as_.remove( attrib );
+    userrefs_.remove( attrib );
 
     removeCache( attrib );
 
@@ -613,7 +613,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 	    IOPar seqpar;
 	    const ColTab::Sequence* seq = getColTabSequence( attrib );
 	    if ( seq->isSys() )
-		seqpar.set( sKey::Name(), seq->name() );
+		seqpar.set( sKey::Name, seq->name() );
 	    else
 		seq->fillPar( seqpar );
 
@@ -652,13 +652,11 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 
 int MultiTextureSurveyObject::usePar( const IOPar& par )
 {
-    // TODO: Replace following lines by outcommented one when OD-version>4.6
     int matid = -1; int res = 0;
     if ( !par.get(visBase::VisualObjectImpl::sKeyMaterialID(),matid) )
 	res = visBase::VisualObject::usePar( par );
     else
 	res = visBase::VisualObjectImpl::usePar( par );
-    // const int res = visBase::VisualObjectImpl::usePar( par );
 
     if ( res!=1 ) return res;
 
@@ -682,7 +680,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
 
     Coord3 attribpos = pos;
-    ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();
+    RefMan<const ZAxisTransform> datatrans = getZAxisTransform();
     if ( datatrans ) //TODO check for allready transformed data.
     {
 	attribpos.z = datatrans->transformBack( pos );

@@ -7,19 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2010
- RCS:		$Id$
+ RCS:		$Id: googletranslator.h,v 1.8 2012/01/24 21:25:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "googletranslatemod.h"
 #include "texttranslator.h"
 
 #include "bufstring.h"
 
 class ODHttp;
 
-mClass(GoogleTranslate) GoogleTranslator : public TextTranslator
+class GoogleTranslator : public TextTranslator
 {
 public:
 			GoogleTranslator();
@@ -58,7 +57,7 @@ protected:
     ODHttp&		odhttp_;
     mutable wchar_t*	translation_;
 
-	mStruct(GoogleTranslate) LanguageInfo
+	mStruct LanguageInfo
 	{
 				LanguageInfo( const wchar_t* unm,
 					      const char* nm, const char* code )
@@ -83,4 +82,3 @@ protected:
 };
 
 #endif
-

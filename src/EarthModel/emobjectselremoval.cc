@@ -96,8 +96,8 @@ bool EMObjectRowColSelRemoval::doWork( od_int64, od_int64, int threadid )
 	RowCol start = starts_[sz-1];
 	RowCol stop = stops_[sz-1];
 
-	starts_.removeSingle( sz-1 );
-	stops_.removeSingle( sz-1 );
+	starts_.remove( sz-1 );
+	stops_.remove( sz-1 );
 
 	lock_.unLock();
 

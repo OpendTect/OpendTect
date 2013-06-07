@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "faulttrace.h"
+#include "flthortools.h"
 #include "horizonadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
@@ -38,7 +38,6 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , selspec_(0)
     , sowermode_( false )
     , lastseedpid_( EM::PosID::udf() )
-    , lastsowseedpid_( EM::PosID::udf() )
     , lastseedkey_( Coord3::udf() )
     , seedpickarea_(false)
     , fltdataprov_(0)
@@ -90,17 +89,18 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return false;
     
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    BinID lastsowseedbid = BinID::fromInt64( lastsowseedpid_.subID() );
+    BinID lastseedbid;
+    lastseedbid.fromInt64( lastseedpid_.subID() );
     
-    if ( fltdataprov_ && hrg.includes(lastsowseedbid) )
+    bool iscuttingflt = false;
+    if ( fltdataprov_ && hrg.includes(lastseedbid) )
     {
-	Coord3 lastseedcrd = emobj->getPos( lastsowseedpid_ );
-	if ( sowermode_ &&
-	     fltdataprov_->isCrossingFault(seedbid,(float)seedcrd.z,lastsowseedbid,
-		    			   (float) (lastseedcrd.z) ))
+	Coord3 lastseedcrd = emobj->getPos( lastseedpid_ );
+	if ( fltdataprov_->isCrossingFault(seedbid,seedcrd.z,lastseedbid,
+		    			   lastseedcrd.z) )
 	{
-	    lastseedkey_ = seedkey;
-	    return false;
+	    iscuttingflt = true;
+	    drop = true;
 	}
     }
 
@@ -109,7 +109,6 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 
     if ( sowermode_ )
     {
-	lastsowseedpid_ = pid;
 	// Duplicate promotes hidden seed to visual seed in sower mode
 	const bool isvisualseed = lastseedkey_==seedkey;
 
@@ -132,7 +131,6 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
     }
     else
     {
-	lastsowseedpid_ = EM::PosID::udf();
 	propagatelist_.erase();
 	propagatelist_ += pid;
 
@@ -178,13 +176,13 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
     const Coord3 oldpos = emobj->getPos(pid);
     BinID seedbid = SI().transform( oldpos );
 
-//  const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
+    const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
     emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 
     if ( environment || nrLineNeighbors(pid)+nrLateralNeighbors(pid)==0 )
 	emobj->unSetPos( pid, true );
 
-//    const bool repairbridge = retrack || nrLineNeighbors(pid); 
+    const bool repairbridge = retrack || nrLineNeighbors(pid); 
     int res = true;
 
     if ( environment )
@@ -284,7 +282,7 @@ void Horizon3DSeedPicker::processJunctions()
 	tracker_.snapPositions( curpidlisted );
 	const Coord3 snappednewpos = emobj->getPos( curpid );
 	
-	if ( snappednewpos==snappedoldpos && !propagatelist_.isPresent(curpid) )
+	if ( snappednewpos==snappedoldpos && propagatelist_.indexOf(curpid)<0 )
 	    propagatelist_ += curpid;
 
 	emobj->setPos( curpid, oldcurpos , true );
@@ -431,7 +429,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{
 	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
-		addedpos.removeSingle(idx);
+		addedpos.remove(idx);
 	}
     }
 
@@ -616,10 +614,10 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    BinID seed1bid = SI().transform( seed1 );
 	    BinID seed2bid = SI().transform( seed2 );
 	    if ( seed1bid!=seed2bid && (
-		 fltdataprov_->isOnFault(seed1bid,(float) seed1.z,1.0f) ||
-		 fltdataprov_->isOnFault(seed2bid,(float) seed2.z,1.0f) ||
-		 fltdataprov_->isCrossingFault(seed1bid,(float) seed1.z,
-					       seed2bid,(float) seed2.z) ) )
+		 fltdataprov_->isOnFault(seed1bid,seed1.z,1.0) ||
+		 fltdataprov_->isOnFault(seed2bid,seed2.z,1.0) ||
+		 fltdataprov_->isCrossingFault(seed1bid,seed1.z,
+					       seed2bid,seed2.z) ) )
 		continue;
 	}
 	for ( int idx=step; idx<diff; idx+=step ) 
@@ -627,8 +625,8 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    const double frac = (double) idx / diff; 
 	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] + 
 				       frac  * seedpos_[ sortidx[vtx+1] ];
-	    const EM::PosID interpid( emobj->id(), sectionid_,
-				      SI().transform(interpos).toInt64() ); 
+	    const EM::PosID interpid( emobj->id(), sectionid_, 
+				SI().transform(interpos).toInt64() ); 
 	    emobj->setPos( interpid, interpos, true ); 
 	    emobj->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "ui2dgeomman.h"
@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* remmsg = "All the related 2D lines & horizons will become invalid. Do you want to go ahead?";
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage 2D Geometry",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup("2D Geometry management", "Manage 2D lines",
 				 "103.1.14"))
 {
     setCtrlStyle( LeaveOnly );
@@ -47,7 +47,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linesetfld_->setPrefWidth( 200 );
     
 	uiToolButton* removelsgeombut =
-	new uiToolButton( this, "trashcan", "Reemove LineSet Geometry",
+	new uiToolButton( this, "trashcan.png", "Reemove LineSet Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineSetGeom) );
     removelsgeombut->attach( centeredRightOf, lslb );
 	
@@ -62,12 +62,12 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     linenamefld_->setPrefWidth( 200 );
     
     uiToolButton* mangeombut =
-	new uiToolButton( this, "browse2dgeom", "Manage Line Geometry",
+	new uiToolButton( this, "browse2dgeom.png", "Manage Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,manLineGeom) );
     mangeombut->attach( centeredRightOf, lnlb );
 
 	uiToolButton* remgeombut =
-	new uiToolButton( this, "trashcan", "Remove Line Geometry",
+	new uiToolButton( this, "trashcan.png", "Remove Line Geometry",
 			  mCB(this,ui2DGeomManageDlg,removeLineGeom) );
     remgeombut->attach( alignedBelow, mangeombut );
 
@@ -113,7 +113,7 @@ void ui2DGeomManageDlg::removeLineSetGeom( CallBacker* )
 //-----------Manage Line Geometry-----------------
 
 
-class uiManageLineGeomDlg : public uiDialog
+mClass uiManageLineGeomDlg : public uiDialog
 {
     public:
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
@@ -152,7 +152,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 }
 
 //---------- Import New Geomtery ----------------
-class uiGeom2DImpDlg : public uiDialog
+mClass uiGeom2DImpDlg : public uiDialog
 {
 
 public:

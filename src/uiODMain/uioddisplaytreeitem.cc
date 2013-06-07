@@ -7,13 +7,14 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
 #include "attribsel.h"
 #include "pixmap.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -21,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
-#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
@@ -77,9 +77,9 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_("&Hide",cHideIdx )
     , removemnuitem_("&Remove",cRemoveIdx)
 {
-    removemnuitem_.iconfnm = "stop";
-    histogrammnuitem_.iconfnm = "histogram";
-    lockmnuitem_.iconfnm = "lock_small";
+    removemnuitem_.iconfnm = "stop.png";
+    histogrammnuitem_.iconfnm = "histogram.png";
+    lockmnuitem_.iconfnm = "lock_small.png";
 }
 
 
@@ -188,14 +188,14 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
     PtrMan<ioPixmap> pixmap = 0;
     if ( islocked )
-	pixmap = new ioPixmap( "lock_small" );
+	pixmap = new ioPixmap( "lock_small.png" );
     else
 	pixmap = new ioPixmap();
 
-    uitreeviewitem_->setPixmap( 0, *pixmap );
+    uilistviewitem_->setPixmap( 0, *pixmap );
 
     lockmnuitem_.text = getLockMenuText(); 
-    lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
+    lockmnuitem_.iconfnm = islocked ? "unlock.png" : "lock_small.png";
 }
 
 
@@ -225,7 +225,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    pixmap->fill( so->getColor() );
 	}
 
-	if ( pixmap ) uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
+	if ( pixmap ) uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
 						 *pixmap );
     }
 
@@ -246,9 +246,9 @@ void uiODDisplayTreeItem::checkCB( CallBacker* )
 }
 
 
-int uiODDisplayTreeItem::uiTreeViewItemType() const
+int uiODDisplayTreeItem::uiListViewItemType() const
 {
-    return uiTreeViewItem::CheckBox;
+    return uiListViewItem::CheckBox;
 }
 
 
@@ -272,7 +272,16 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    createMenu( tb, true );
+    if ( visserv_->hasAttrib(displayid_) &&
+	 visserv_->canHaveMultipleAttribs(displayid_) )
+    {
+	mAddMenuItem( tb, &histogrammnuitem_, true, false );
+    }
+    else
+	mResetMenuItem( &histogrammnuitem_ );
+
+    mAddMenuItem( tb, &lockmnuitem_, true, false );
+    mAddMenuItem( tb, &removemnuitem_, !visserv_->isLocked(displayid_),false);
 }
 
 
@@ -282,42 +291,15 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     if ( !menu || menu->menuID() != displayID() )
 	return;
 
-    createMenu( menu, false );
-}
-
-
-void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
-{
-    if ( istb )
-    {
-	if ( visserv_->hasAttrib(displayid_) &&
-	     visserv_->canHaveMultipleAttribs(displayid_) )
-	{
-	    mAddMenuItem( menu, &histogrammnuitem_, true, false );
-	}
-	else
-	    mResetMenuItem( &histogrammnuitem_ );
-
-	mAddMenuItem( menu, &lockmnuitem_, true, false );
-	mAddMenuItem( menu, &removemnuitem_,
-		      !visserv_->isLocked(displayid_),false);
-	return;
-    }
-
-    const bool hasmultiattribs = visserv_->hasAttrib(displayid_) &&
-				 visserv_->canHaveMultipleAttribs(displayid_);
-    if ( visserv_->hasMaterial(displayid_) || hasmultiattribs )
-    {
-        mAddMenuItem( menu, &displaymnuitem_, true, false );
-        displaymnuitem_.removeItems();
-    }
-
-    if ( hasmultiattribs )
+    if ( visserv_->hasAttrib(displayid_) &&
+	 visserv_->canHaveMultipleAttribs(displayid_) )
     {
 	mAddMenuItem( menu, &addmnuitem_, true, false );
 	mAddMenuItem( &addmnuitem_, &addattribmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
+	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	displaymnuitem_.removeItems();
 	mAddMenuItem( &displaymnuitem_, &histogrammnuitem_, true, false );
 	mAddMenuItem( &addmnuitem_, &addvolprocmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
@@ -335,10 +317,8 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
 
-    mDynamicCastGet(uiMenuHandler*,uimenu,menu)
-    const bool usehide = uimenu &&
-	uimenu->getMenuType()==uiMenuHandler::fromScene() &&
-	!visserv_->isSoloMode();
+    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene() && 
+			!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);
@@ -379,13 +359,13 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addattribmnuitem_.id )
     {
 	uiODDataTreeItem* newitem = addAttribItem();
-	newitem->select();
+	newitem->select(); // to get attrib
 	const int id = newitem->displayID();
 	const int attrib = newitem->attribNr();
 	const bool selok = applMgr()->selectAttrib( id, attrib );
 	if ( selok )
 	    applMgr()->getNewData( id, attrib );
-	newitem->select();
+	newitem->select(); // to update name in tree
 	applMgr()->updateColorTable( id, attrib );
 	menu->setIsHandled(true);
     }

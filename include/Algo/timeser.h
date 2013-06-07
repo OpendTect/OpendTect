@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 -*/
  
-#include "algomod.h"
 #include "gendefs.h"
 
 #ifdef __cpp__
 extern "C" {
 #endif
 
-mGlobal(Algo) void BFhighpass(int npoles,float f3db,int n,const float* arrin,float* arrout);
-mGlobal(Algo) void BFlowpass (int npoles,float f3db,int n,const float* arrin,float* arrout);
-mGlobal(Algo) void AntiAlias(float frac,int n,const float* arrin,float* arrout);
-mGlobal(Algo) void Convolve(int lx,int ifx,const float* x,int ly,int ify,const float* y,
+mGlobal void BFhighpass(int npoles,float f3db,int n,const float* arrin,float* arrout);
+mGlobal void BFlowpass (int npoles,float f3db,int n,const float* arrin,float* arrout);
+mGlobal void AntiAlias(float frac,int n,const float* arrin,float* arrout);
+mGlobal void Convolve(int lx,int ifx,const float* x,int ly,int ify,const float* y,
                int lz,int ifz,float* z);
-mGlobal(Algo) void Resample(int stepsize,int ns,const float* arrin,float* arrout);
-mGlobal(Algo) void Hilbert(int n,float* x,float* y);
+mGlobal void Resample(int stepsize,int ns,const float* arrin,float* arrout);
+mGlobal void Hilbert(int n,float* x,float* y);
 
 
 #define mHalfHilbertLength 30
@@ -36,4 +35,3 @@ mGlobal(Algo) void Hilbert(int n,float* x,float* y);
 
 
 #endif
-

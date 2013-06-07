@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicreatepicks.h"
 
@@ -40,9 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "datapointset.h"
 
-FixedString selstr( "Select" );
-
 static int defnrpicks = 500;
+static const char* sGeoms3D[] = { "Volume", "On Horizon",
+    				  "Between Horizons", 0};
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
     				  "Between Horizons", 0 };
 
@@ -156,8 +156,6 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 	}
     }
 
-    dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );
-    mRestorCursor();
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
 
@@ -192,18 +190,18 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 {
     setTitleText( "Create new pickset with random positions" );
     nrfld_ = new uiGenInput( this, "Number of picks to generate",
-		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
+					 IntInpSpec(defnrpicks) );
     nrfld_->attach( alignedBelow, colsel_);
 
     if ( hornms_.size() )
     {
 	horselfld_ = new uiLabeledComboBox( this, "Horizon selection" );
-	horselfld_->box()->addItem( selstr );
+	horselfld_->box()->addItem( "Select" );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
 		    				    uiGenRandPicks2D,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
-	horsel2fld_->addItem( selstr );
+	horsel2fld_->addItem( "Select" );
 	horsel2fld_->addItems( hornms_ );
 	horsel2fld_->selectionChanged.notify( mCB(this,
 		    				 uiGenRandPicks2D,hor2Sel) );
@@ -231,7 +229,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     zlbl += SI().getZUnitString();
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
-    inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    inpzrg.scale( SI().zFactor() );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
@@ -258,13 +256,14 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     const char* curnm = tosel->text();
     const int idx = hornms_.indexOf( nm );
     BufferStringSet hornms( hornms_ );
-    
-    if ( idx >= 0 ) hornms.removeSingle( idx );
+    BufferString* bs = 0;
+    if ( idx >= 0 ) bs = hornms.remove( idx );
 
     tosel->setEmpty();
-    tosel->addItem( selstr );
+    tosel->addItem( "Select" );
     tosel->addItems( hornms );
     tosel->setCurrentItem( curnm );
+    if ( bs ) delete bs;
 }
 
 
@@ -307,7 +306,7 @@ void uiGenRandPicks2D::mkRandPars()
     else
     {
 	randpars_.zrg_ = zfld_->getFInterval();
-	randpars_.zrg_.scale( 1.f / SI().zDomain().userFactor() );
+	randpars_.zrg_.scale( 1. / SI().zFactor() );
     }
 }
 
@@ -320,16 +319,16 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
     if ( choice )
     {
-	if ( selstr==horselfld_->box()->text() )
+	if ( !strcmp(horselfld_->box()->text(),"Select") )
 	    mErrRet( "Please Select a valid horizon" );
-	if ( choice==2 && selstr==horsel2fld_->text() )
+	if ( choice==2 && !strcmp(horsel2fld_->text(),"Select") )
 	    mErrRet( "Please Select a valid second horizon" );
     }
     else
     {
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
-	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
+	survzrg.scale( SI().zFactor() );
 	if ( !survzrg.includes(zrg.start,false) || !survzrg.includes(zrg.stop,false) )
 		mErrRet( "Please Enter a valid Z Range" );
     }

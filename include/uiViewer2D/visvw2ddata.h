@@ -1,3 +1,4 @@
+
 #ifndef visvw2ddata_h
 #define visvw2ddata_h
 
@@ -12,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "callback.h"
 #include "refcount.h"
 
@@ -22,7 +22,7 @@ class IOPar;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mExpClass(uiViewer2D) Vw2DDataObject : public CallBacker
+mClass Vw2DDataObject : public CallBacker
 { mRefCountImpl(Vw2DDataObject)
 public:
 
@@ -53,7 +53,7 @@ protected:
 };
 
 
-mExpClass(uiViewer2D) Vw2DEMDataObject : public Vw2DDataObject
+mClass Vw2DEMDataObject : public Vw2DDataObject
 { 
 public:
 
@@ -125,4 +125,3 @@ mCreateVw2DFactoryEntryNoInitClass( clss );
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -16,22 +16,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
 #include "attribparam.h"
-
-#include "binidvalset.h"
-#include "convmemvalseries.h"
+#include "hiddenparam.h"
+#include "task.h"
 #include "cubesampling.h"
 #include "errh.h"
-#include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
+#include "ioman.h"
+#include "linesetposinfo.h"
+#include "seis2dline.h"
 #include "seiscubeprov.h"
 #include "seisinfo.h"
+#include "seistrc.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-#include "task.h"
 #include "valseriesinterpol.h"
-
+#include "convmemvalseries.h"
+#include "binidvalset.h"
 
 namespace Attrib
 {
@@ -64,8 +66,8 @@ od_int64 nrIterations() const { return nrsamples_; }
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !res_ ) return true;
-    return provider_.computeData( *res_, relpos_, mCast(int,start+z0_), 
-					 mCast(int,stop-start+1), threadid );
+    return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1,
+	    			  threadid );
 }
 
 
@@ -85,6 +87,11 @@ protected:
     int				nrsamples_;
 };
 
+
+HiddenParam<Provider,MyMainHackingClass*>	mymainhackingclassmanager( 0 );
+HiddenParam<Provider,BufferString>		linesetname_("");
+HiddenParam<Provider,TypeSet<Attrib::Provider::LineTrcDistStats>* > 
+							trcdiststatsperlines(0);
 
 Provider* Provider::create( Desc& desc, BufferString& errstr )
 {
@@ -123,10 +130,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* newprov = PF().create( desc );
     if ( !newprov )
     {
-	FixedString errmsg = desc.errMsg();
-	if ( errmsg )
+	if ( desc.errMsg() )
 	{
-	    if ( errmsg=="Parameter 'id' is not correct" &&
+	    if ( !strcmp( desc.errMsg(), "Parameter 'id' is not correct") &&
 		 desc.isStored() )
 	    {
 		errstr = "Impossible to find stored data '";          
@@ -170,7 +176,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    		internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
-	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
+	    existing.remove(existing.indexOf(newprov), existing.size()-1 );
 	    newprov->unRef();
 	    return 0;
 	}
@@ -182,7 +188,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     if ( !newprov->checkInpAndParsAtStart() )
     {
-	existing.removeRange( existing.indexOf(newprov), existing.size()-1 );
+	existing.remove( existing.indexOf(newprov), existing.size()-1 );
 	BufferString attribnm = newprov->desc_.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
@@ -231,9 +237,11 @@ Provider::Provider( Desc& nd )
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
 
-
-    if ( !desc_.descSet() )
-	errmsg_ = "No attribute set specified";
+    mymainhackingclassmanager.setParam( this, 0 );
+/*
+    TypeSet<Attrib::Provider::LineTrcDistStats> ltdsset;
+    trcdiststatsperlines.setParam( this, &ltdsset );*/
+    linesetname_.setParam( this, "" );
 }
 
 
@@ -252,11 +260,18 @@ Provider::~Provider()
     delete linebuffer_;
     delete possiblevolume_;
     delete desiredvolume_;
+
+    if ( mymainhackingclassmanager.getParam(this) )
+	delete mymainhackingclassmanager.getParam( this );
+
+    mymainhackingclassmanager.removeParam(this);
+
+/*    if ( trcdiststatsperlines.getParam(this) )
+	delete trcdiststatsperlines.getParam( this );*/
+
+    trcdiststatsperlines.removeParam(this);
+
 }
-
-
-bool Provider::is2D() const
-{ return getDesc().descSet() ? getDesc().descSet()->is2D() : getDesc().is2D(); }
 
 
 bool Provider::isOK() const
@@ -370,7 +385,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	    desiredvolume_->hrg.start.crl =
 		desiredvolume_->hrg.start.crl < ndv.hrg.start.crl ?
 		desiredvolume_->hrg.start.crl : ndv.hrg.start.crl;
-	    desiredvolume_->zrg.start = desiredvolume_->zrg.start < ndv.zrg.start?
+	    desiredvolume_->zrg.start =
+		desiredvolume_->zrg.start < ndv.zrg.start?
 		desiredvolume_->zrg.start : ndv.zrg.start;
 	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zrg.stop ?
 		desiredvolume_->zrg.stop : ndv.zrg.stop;
@@ -385,7 +401,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	{
 	    if ( outputinterest_[idy]<1 ) continue;
 
-	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() : false;
+	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored()
+					 : false;
 	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
 		inputs_[idx]->setDesiredVolume( inputcs );
 	}
@@ -406,17 +423,15 @@ mGetMargin( type, var, req##var, req##funcPost )
 
 bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
-    if ( !getDesc().descSet() )
-	return false;
-
     CubeSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
-	if ( !is2D() ) res.init(true);
+	const bool is2d = getDesc().descSet()->is2D();
+	if ( !is2d ) res.init(true);
 	if ( !possiblevolume_ )
 	    possiblevolume_ = new CubeSampling;
 
-	if ( is2D() ) *possiblevolume_ = res;
+	if ( is2d ) *possiblevolume_ = res;
 	return true;
     }
 
@@ -530,10 +545,10 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     
     bool docheck = pos == BinID(-1,-1);
     
-    if ( is2D() )
+    if ( getDesc().descSet()->is2D() )
 	prevtrcnr_ = currentbid_.crl;
 
-    bool needmove = false;
+    bool needmove;
     bool docontinue = true;
     ObjectSet<Provider> movinginputs;
     while ( docontinue )
@@ -557,7 +572,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( !inputs_[idx]->getMSCProvider( needmscprov ) && needmscprov )
 		continue;
 
-	    if ( !movinginputs.isPresent( inputs_[idx] ) )
+	    if ( movinginputs.indexOf( inputs_[idx] ) < 0 )
 		movinginputs += inputs_[idx];
 	}
 	if ( !needmove || docheck ) 
@@ -595,7 +610,8 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	{
 	    if ( currentbid_.inl == -1 && currentbid_.crl == -1 )
 	    {
-		currentbid_.inl = is2D() ? 0 : desiredvolume_->hrg.start.inl;
+		const bool is2d = getDesc().descSet()->is2D();
+		currentbid_.inl = is2d ? 0 : desiredvolume_->hrg.start.inl;
 		currentbid_.crl = desiredvolume_->hrg.start.crl;
 	    }
 	    else
@@ -677,7 +693,7 @@ void Provider::computeNewStartPos( BinID& newstart )
 	}
 	else
 	{
-	    if ( is2D() )
+	    if ( desc_.descSet()->is2D() )
 		newstart = newstart.crl<inputbid.crl ? inputbid : newstart; 
 	    else
 	    {
@@ -699,16 +715,15 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 
     bool inp1_is_on_newline = false;
     bool inp2_is_on_newline = false;
+    const bool is2d = getDesc().descSet()->is2D();
     for ( int inp1=0; inp1<movinginputs.size()-1; inp1++ )
     {
-	if ( is2D() )
-	    inp1_is_on_newline = movinginputs[inp1]->isNew2DLine();
+	if ( is2d ) inp1_is_on_newline = movinginputs[inp1]->isNew2DLine();
 
 	for ( int inp2=inp1+1; inp2<movinginputs.size(); inp2++ )
 	{
 	    bool inp1moved = false;
-	    if ( is2D() )
-		inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
+	    if ( is2d ) inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
 	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
 		      	    		 movinginputs[inp2], inp2_is_on_newline,
@@ -739,24 +754,11 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	bool needmscp2 = true;
 	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
 	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
-	int compres = -1;
-	
-	if ( seismscprov1 && seismscprov2 )
-	    compres = seismscprov1->comparePos( *seismscprov2 );
-	else if ( !needmscp1 || !needmscp2 )
-	{
-	    const BinID inp1pos = input1->getCurrentPosition();
-	    const BinID inp2pos = input2->getCurrentPosition();
-	    if ( inp1pos == inp2pos )
-		compres = 0;
-	    else if ( !is2D() )
-	    {
-		if ( inp1pos.inl != inp2pos.inl )
-		    compres = inp1pos.inl > inp2pos.inl ? 1 : -1;
-		else
-		    compres = inp1pos.crl > inp2pos.crl ? 1 : -1;
-	    }
-	}
+	int compres = seismscprov1 && seismscprov2
+	    		? seismscprov1->comparePos( *seismscprov2 )
+			: (!needmscp1 || !needmscp2) &&
+			  input1->getCurrentPosition() ==
+			  input2->getCurrentPosition() ? 0 : -1;
 
 	if ( compres == 0 )
 	    break;
@@ -848,10 +850,10 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     const Interval<int> possintv( mNINT32(possiblevolume_->zrg.start/dz),
 	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
 
-    Array2DImpl< BasicInterval<int> > inputranges( inputs_.size(), intvs.size() );
+    Array2DImpl< Interval<int> > inputranges( inputs_.size(), intvs.size() );
     for ( int idx=0; idx<intvs.size(); idx++ )
     {
-	BasicInterval<int> reqintv = intvs[idx];
+	Interval<int> reqintv = intvs[idx];
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
 	    for ( int inp=0; inp<inputs_.size(); inp++ )
@@ -885,7 +887,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	TypeSet<Interval<int> > inpranges;
 	for ( int idx=0; idx<intvs.size(); idx++ )
 	{
-	    const BasicInterval<int> rg = inputranges.get( inp, idx );
+	    const Interval<int> rg = inputranges.get( inp, idx );
 	    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 		continue;
 	    inpranges += rg;
@@ -901,9 +903,8 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	const Interval<type>* des##ts = desZ##Ts##Margin( inp, out );\
 	if ( des##ts ) zrg##ts.include( *des##ts );\
 
-void Provider::fillInputRangesArray(
-				Array2DImpl< BasicInterval<int> >& inputranges,
-				int idx, const BasicInterval<int>& reqintv )
+void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges, 
+				     int idx, const Interval<int>& reqintv )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     for ( int out=0; out<outputinterest_.size(); out++ )
@@ -915,11 +916,11 @@ void Provider::fillInputRangesArray(
 	    if ( !inputs_[inp] )
 		continue;
 
-	    BasicInterval<int> inputrange( reqintv );
-	    BasicInterval<float> zrg( 0, 0 );
+	    Interval<int> inputrange( reqintv );
+	    Interval<float> zrg( 0, 0 );
 	    mUseMargins(float,,);
 
-	    BasicInterval<int> zrgsamp( 0, 0 );
+	    Interval<int> zrgsamp( 0, 0 );
 	    mUseMargins(int,Samp,samp);
 
 	    inputrange.start += mNINT32(zrg.start/dz);
@@ -946,7 +947,7 @@ void Provider::resetZIntervals()
 	    inputs_[idx]->resetZIntervals();
 
     for ( int idx=localcomputezintervals_.size(); idx>0; idx-- )
-	localcomputezintervals_.removeSingle(idx-1);
+	localcomputezintervals_.remove(idx-1);
 }
     
 
@@ -1119,7 +1120,7 @@ void Provider::setOutputInterestSize( bool preserve )
 	    outputinterest_.append( addon );
 	}
 	else
-	    outputinterest_.removeRange( desc_.nrOutputs()-1, outintsz-1 );
+	    outputinterest_.remove( desc_.nrOutputs()-1, outintsz-1 );
     }
     else
 	outputinterest_ = TypeSet<int>(desc_.nrOutputs(),0);
@@ -1194,7 +1195,7 @@ void Provider::setInput( int inp, Provider* np )
     if ( inputs_[inp]->desc_.isSteering() )
     {
 	inputs_[inp]->updateInputReqs(-1);
-	inputs_[inp]->updateStorageReqs( true );
+	inputs_[inp]->updateStorageReqs(-1);
     }
 }
 
@@ -1267,7 +1268,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_, zrgsamp.stop*refstep_ ));
+    zrg.include( Interval<float>( zrgsamp.start*refstep_,
+				  zrgsamp.stop*refstep_ ) );
     
     res.zrg.start += zrg.start;
     res.zrg.stop += zrg.stop;
@@ -1327,7 +1329,7 @@ int Provider::getTotalNrPos( bool is2d )
     if ( seldata_ && seldata_->type() == Seis::Table )
     {
 	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
-	return mCast( int, tsd->binidValueSet().totalSize() );
+	return tsd->binidValueSet().totalSize();
     }
     if ( !possiblevolume_ || !desiredvolume_ )
 	return false;
@@ -1348,17 +1350,7 @@ int Provider::getTotalNrPos( bool is2d )
 	    desiredvolume_->hrg.start.crl < cs.hrg.start.crl ?
 	    cs.hrg.start.crl : desiredvolume_->hrg.start.crl;
     }
-
-    if ( is2d )
-    {
-	const PosInfo::GeomID geomid = getGeomID();
-	PosInfo::Line2DData l2dd;
-	cs.hrg.step.crl = S2DPOS().getGeometry(geomid,l2dd) ?
-	    l2dd.trcNrRange().step : 1;
-	return cs.nrCrl();
-    }
-
-    return cs.nrInl() * cs.nrCrl();
+    return is2d ? cs.nrCrl() : cs.nrInl() * cs.nrCrl();
 }
 
 
@@ -1383,7 +1375,7 @@ void Provider::setRefStep( float step )
 }
 
 
-void Provider::setCurLineName( const char* linename )
+void Provider::setCurLineKey( const char* linename )
 {
     BufferString attrname;
     if ( !desc_.isStored() )
@@ -1400,7 +1392,7 @@ void Provider::setCurLineName( const char* linename )
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {   
 	if ( !inputs_[idx] ) continue;
-	inputs_[idx]->setCurLineName( curlinekey_.lineName() );
+	inputs_[idx]->setCurLineKey( curlinekey_.lineName() );
     }
 }
 
@@ -1410,23 +1402,6 @@ void Provider::adjust2DLineStoredVolume()
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] )
 	    inputs_[idx]->adjust2DLineStoredVolume();
-}
-
-
-PosInfo::GeomID Provider::getGeomID() const
-{
-    PosInfo::GeomID geomid;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-        if ( !inputs_[idx] )
-            continue;
-
-        geomid = inputs_[idx]->getGeomID();
-        if ( geomid.lsid_ >= 0 )
-            return geomid;
-    }
-
-    return geomid;
 }
 
 
@@ -1463,21 +1438,20 @@ float Provider::getRefStep() const
 
 
 bool Provider::zIsTime() const 
-{ return SI().zIsTime(); }
-
-float Provider::inlDist() const
-{ return SI().inlDistance(); }
-
-float Provider::crlDist() const
-{ return SI().crlDistance(); }
-
-float Provider::lineDist() const
-{ return SI().inlDistance(); }
-
-float Provider::trcDist() const
 {
-    return is2D() && useInterTrcDist() ?
-	getDistBetwTrcs( false, curlinekey_.lineName() ) : SI().crlDistance();
+    return SI().zIsTime();
+}
+
+
+float Provider::inldist() const
+{
+    return SI().inlDistance();
+}
+
+
+float Provider::crldist() const
+{
+    return SI().crlDistance();
 }
 
 
@@ -1630,28 +1604,128 @@ void Provider::getCompNames( BufferStringSet& nms ) const
 }
 
 
-float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+float Provider::getMaxDistBetwTrcs() const
 {
+    //tmp keep old implementation for 4.4.0e
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( !inputs_[idx] ) continue; 
-	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
-	if ( !mIsUdf(distval) )
-	    return distval;
-    }
+	if ( inputs_[idx] )
+	{
+	    float tmp = inputs_[idx]->getMaxDistBetwTrcs();
+	    if ( !mIsUdf(tmp) ) return tmp;
+	}
 
     return mUdf(float);
 }
 
 
-bool Provider::compDistBetwTrcsStats( bool force )
+float Provider::getMaxDistBetwTrcs( const char* linenm ) const
 {
-    bool allright = false;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] && inputs_[idx]->compDistBetwTrcsStats() )
-	    allright = true;
+    return getDistBetwTrcs( true, linenm );
+}
 
-    return allright;
+
+void Provider::compDistBetwTrcsStats( TypeSet< LineTrcDistStats >& ltds )
+{
+    mDynamicCastGet( Attrib::StorageProvider*, storprov, this );
+    if ( storprov )
+    {
+	if ( !storprov->getMSCProv() ) return;
+
+	const SeisTrcReader& reader = storprov->getMSCProv()->reader();
+	if ( !reader.is2D() ) return;
+
+	const Seis2DLineSet* lset = reader.lineSet();
+	if ( !lset ) return;
+
+	S2DPOS().setCurLineSet( lset->name() );
+	PosInfo::LineSet2DData ls2ddata;
+	BufferStringSet linenms;
+	for ( int idx=0; idx<lset->nrLines(); idx++ )
+	{
+	    PosInfo::Line2DData& linegeom =
+					ls2ddata.addLine(lset->lineName(idx));
+	    S2DPOS().getGeometry( linegeom );
+	    if ( linegeom.positions().isEmpty() )
+	    {
+		ls2ddata.removeLine( lset->lineName(idx) );
+		return;
+	    }
+	    else
+		linenms.add( lset->lineName( idx ) );
+	}
+
+	Stats::CalcSetup rcsetup;
+	rcsetup.require( Stats::Max );
+	rcsetup.require( Stats::Median );
+	for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
+	{
+	    Stats::RunCalc<float> stats( rcsetup );
+	    const TypeSet<PosInfo::Line2DPos>& posns
+					= ls2ddata.lineData(lidx).positions();
+	    for ( int pidx=1; pidx<posns.size(); pidx++ )
+	    {
+		const double distsq =
+			    posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
+
+		stats += (float)Math::Sqrt(distsq);
+	    }
+
+	    LineTrcDistStats ltrcdiststats( linenms.get( lidx ), stats.median(),
+					    stats.max() );
+
+	    ltds += ltrcdiststats;
+	}
+	return;
+    }
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	{
+	    inputs_[idx]->compDistBetwTrcsStats( ltds );
+	    if ( ltds.size() ) 
+		return;
+	}
+}
+
+
+void Provider::compAndSpreadDistBetwTrcsStats()
+{
+    TypeSet<LineTrcDistStats>* ltdiststatsset =
+					trcdiststatsperlines.getParam(this);
+    if ( !ltdiststatsset ) return;
+
+    compDistBetwTrcsStats( *ltdiststatsset );
+    setLineTrcDistStatsSet( ltdiststatsset );
+
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+    {
+	const_cast<Provider*>(allexistingprov_[idx])->setLineTrcDistStatsSet(
+					trcdiststatsperlines.getParam(this) );
+    }
+}
+
+
+float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
+{
+    Stats::CalcSetup rcsetup;
+    if ( ismax )
+	rcsetup.require( Stats::Max );
+    else
+	rcsetup.require( Stats::Median );
+
+    Stats::RunCalc<float> stats( rcsetup );
+    TypeSet<LineTrcDistStats> linetrcdiststats = getLineTrcDistStatsSet();
+    for ( int idx=0; idx<linetrcdiststats.size(); idx++ )
+    {
+	if ( BufferString(linenm) == linetrcdiststats[idx].linename_ )
+	    return ismax ? linetrcdiststats[idx].maxdist_
+			 : linetrcdiststats[idx].mediandist_;
+	else
+	    stats += ismax ? linetrcdiststats[idx].maxdist_
+			   : linetrcdiststats[idx].mediandist_;
+    }
+
+    return ismax ? stats.max() : stats.median();
 }
 
 
@@ -1717,17 +1791,93 @@ void Provider::stdPrepSteering( const BinID& so )
 
 
 float Provider::zFactor() const
-{
-    return (float) ( zIsTime() ?  ZDomain::Time() : ZDomain::Depth() ).userFactor();
-}
+{ return SI().zFactor(zIsTime()); }
 
 
 float Provider::dipFactor() const
-{ return zIsTime() ? 1e6f: 1e3f; }
+{ return zIsTime() ? 1e6: 1e3; }
+
+
+void Provider::setLineSet( const char* nm )
+{ linesetname_.setParam( this, nm ); }
+
+BufferString Provider::getLineSet() const
+{
+    BufferString lsetnm = linesetname_.getParam( this );
+    if ( !lsetnm.isEmpty() )
+	return lsetnm;
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	lsetnm = inputs_[idx]->getLineSet();
+	if ( !lsetnm.isEmpty() )
+	    return lsetnm;
+    }
+
+    return 0;
+}
+
+
+PosInfo::GeomID Provider::getGeomID() const
+{
+    PosInfo::GeomID geomid;
+    if ( linesetname_.getParam(this).isEmpty() )
+	return geomid;
+
+    geomid = S2DPOS().getGeomID(
+		linesetname_.getParam(this), curlinekey_.lineName() );
+    if ( geomid.isOK() )
+	return geomid;
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	geomid = inputs_[idx]->getGeomID();
+	if ( geomid.lsid_ >= 0 )
+	    return geomid;
+    }
+
+    return geomid;
+}
 
 
 bool Provider::useInterTrcDist() const
 {
+    mDynamicCastGet( Attrib::StorageProvider*,
+	    	     storprov, const_cast<Attrib::Provider*>(this) );
+    if ( storprov )
+    {
+	if ( getDesc().is2D() && storprov->getMSCProv() )
+	{                                                                           
+	    const LineKey lk( desc_.getValParam(
+				storprov->keyStr())->getStringValue(0) );
+	    const BufferString attrnm = lk.attrName();
+	    const MultiID key( lk.lineName() );
+	    PtrMan<IOObj> ioobj = IOM().get( key );
+	    SeisTrcReader rdr( ioobj );
+	    if ( rdr.ioObj() && rdr.lineSet() )
+	    {
+		BufferStringSet steernms;
+		rdr.lineSet()->getAvailableAttributes( steernms,
+						       sKey::Steering );
+		const bool issteering = steernms.indexOf( attrnm ) >= 0;
+		if ( issteering )
+		{
+		    const SeisTrc* trc = storprov->getMSCProv()->get(0,0);
+		    if ( trc && mIsEqual(trc->info().pick, 0, 1e-3) )
+			return true;
+		}
+	    }
+	}                                                                           
+
+	return false;
+    }
+
     if ( inputs_.size() && inputs_[0] && inputs_[0]->getDesc().isStored() )
 	return inputs_[0]->useInterTrcDist();
 
@@ -1737,11 +1887,47 @@ bool Provider::useInterTrcDist() const
 
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
-    if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
+/*    if ( getDesc().is2D() && ( !dependoninput || useInterTrcDist() ) )
 	return getDistBetwTrcs( false, curlinekey_.lineName() );
-
-    return crlDist();
+*/		//tmp disabled for patch 4.4.0e
+    return crldist();
 }
 
 
-} // namespace Attrib
+MyMainHackingClass* Provider::getMyMainHackingClass() const
+{
+    return mymainhackingclassmanager.getParam( this );
+}
+
+
+void Provider::setMyMainHackingClass( MyMainHackingClass* mmhc )
+{
+    mymainhackingclassmanager.setParam( this, mmhc );
+}
+
+
+TypeSet< Attrib::Provider::LineTrcDistStats > 
+	Provider::getLineTrcDistStatsSet() const
+{
+    if ( trcdiststatsperlines.getParam(this) )
+	const_cast<Provider*>(this)->setLineTrcDistStatsSet( 
+					new TypeSet<LineTrcDistStats>() );
+
+    return *trcdiststatsperlines.getParam(this);
+}
+
+
+void Provider::setLineTrcDistStatsSet(
+			TypeSet<Attrib::Provider::LineTrcDistStats>* set )
+{
+    if ( trcdiststatsperlines.getParam(this) )
+	delete trcdiststatsperlines.getParam(this);
+
+    TypeSet<Attrib::Provider::LineTrcDistStats>* newset = set ?
+		  new TypeSet<Attrib::Provider::LineTrcDistStats>( *set )
+		: new TypeSet<Attrib::Provider::LineTrcDistStats>();
+    trcdiststatsperlines.setParam( this, set );
+}
+
+
+}; // namespace Attrib

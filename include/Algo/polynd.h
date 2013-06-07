@@ -10,21 +10,20 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
+PolynomialND is a N-dimensional polynomial with arbitary orders in each
+dimension. It can be fitted any ArrayND. To access the polynomial's data
+use getValue. getValue3D is optimized for third order, tree-dimensional
+cases.
+
 @$*/
 
 #include <linsolv.h>
 #include <arrayndimpl.h>
-#include <arrayndalgo.h>
+#include <arrayndutils.h>
 #include <simpnumer.h>
 
-/*!
-\brief PolynomialND is a N-dimensional polynomial with arbitary orders in each
-dimension. It can be fitted any ArrayND. To access the polynomial's data
-use getValue. getValue3D is optimized for third order, tree-dimensional cases.
-*/
-
 template <class T>
-mClass(Algo) PolynomialND
+class PolynomialND
 {
 public:
     			PolynomialND( const ArrayNDInfo& );
@@ -74,7 +73,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 	
 	for ( int idx=0; idx<ndim; idx++ )
 	{
-	    posproduct *= intpow( pos[idx], mCast(char,coeffiter[idx]) );
+	    posproduct *= intpow( pos[idx], coeffiter[idx] );
 	}
      
 	res += posproduct * coeffs.getND( coeffiter.getPos() );
@@ -202,7 +201,7 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 template<class T>
 bool PolynomialND<T>::fit( const ArrayND<T>& input )
 {
-    const int totalsz = mCast( int, input.info().getTotalSz() );
+    const int totalsz = input.info().getTotalSz();
 
     if ( !solver || solver->size() != totalsz )
     {
@@ -223,10 +222,10 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 		int coeff = 1;
 		for ( int idx=0; idx<ndim; idx++ )
 		{
-		    coeff *= intpow( positer[idx], mCast(char,powiter[idx]) );
+		    coeff *= intpow( positer[idx], powiter[idx] );
 		}
 	    
-		poscoeffs.set( row, col, (T)coeff );
+		poscoeffs.set(row,col, coeff);
 		col++;
 	    } while ( powiter.next() );
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class BufferStringSet;
 class uiListBox;
@@ -24,7 +23,7 @@ class uiButtonGroup;
 /*!\brief Base class for element allowing maintenance of lists of
 		(usually small) objects. */
 
-mExpClass(uiTools) uiEditObjectList : public uiGroup
+mClass uiEditObjectList : public uiGroup
 {
 public:
 

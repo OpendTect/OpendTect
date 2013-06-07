@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "odhttp.h"
 #include <QHttp>
 
-QT_BEGIN_NAMESPACE
 
 class QHttpConnector : public QObject
 {
@@ -89,7 +88,7 @@ void requestFinished( int id, bool error )
     receiver_->requestid_ = id;
     receiver_->error_ = error;
     if ( error )
-	receiver_->setMessage( sender_->errorString().toLatin1().data() );
+	receiver_->setMessage( sender_->errorString().toAscii().data() );
 
     receiver_->requestFinished.trigger( *receiver_ );
 }
@@ -98,7 +97,7 @@ void requestFinished( int id, bool error )
 void done( bool error )
 {
     receiver_->error_ = error;
-    receiver_->message_ = error ? sender_->errorString().toLatin1().data()
+    receiver_->message_ = error ? sender_->errorString().toAscii().data()
 				: "Sucessfully finished";
     receiver_->done.trigger( *receiver_ );
 }
@@ -108,7 +107,5 @@ private:
     QHttp*	sender_;
     ODHttp*	receiver_;
 };
-
-QT_END_NAMESPACE
 
 #endif

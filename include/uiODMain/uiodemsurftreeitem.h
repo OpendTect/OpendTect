@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "emposid.h"
@@ -23,7 +22,7 @@ class uiVisEMObject;
 class uiODDataTreeItem;
 
 
-mExpClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
+mClass uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 {
 public:
 
@@ -33,8 +32,7 @@ public:
 protected:
     			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
     			~uiODEarthModelSurfaceTreeItem();
-
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
@@ -58,8 +56,8 @@ protected:
     virtual void	checkCB(CallBacker*);
     void		selChg(CallBacker*);
 
-    void		updateTrackingState();
     bool		istrackingallowed_;
+    bool		prevtrackstatus_;	// obsolete
 
     MenuItem		savemnuitem_;
     MenuItem		saveasmnuitem_;
@@ -68,10 +66,12 @@ protected:
     MenuItem		reloadmnuitem_;
     MenuItem		trackmenuitem_;
     MenuItem		starttrackmnuitem_;
+
+    void		updateTrackingState();
 };
 
 
-mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
+mClass uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
@@ -100,4 +100,3 @@ protected:
 
 
 #endif
-

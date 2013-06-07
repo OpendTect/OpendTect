@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -125,7 +125,6 @@ mImplInitVar
 void uiAttrSelDlg::initAndBuild( const char* seltxt, Attrib::DescID ignoreid,
 				 bool isinp4otherattrib )
 {
-    //TODO: steering will never be displayed: on purpose?
     attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
 	    		    is2D(), ignoreid );
     if ( dpfids_.size() )
@@ -372,7 +371,7 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
     attrinf_->fillStored( issteersel, filtfld_->text() );
     outfld->setEmpty();
     if ( nms.isEmpty() ) return;
-
+    
     outfld->addItems( nms );
     outfld->setCurrentItem( 0 );
     cubeSel( c );
@@ -394,7 +393,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( seltyp==0 )
     {
 	if ( !attrinf_->ioobjids_.isEmpty() )
-    	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
+	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
     }
     else if ( seltyp==1 )
     {

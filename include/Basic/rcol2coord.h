@@ -13,17 +13,15 @@ ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
 #include "position.h"
 #include "rowcol.h"
 
 template <class T> class StepInterval;
 
-/*!
-\brief Encapsulates linear transform from (i,j) index to (x,y) coordinates.
-*/
 
-mExpClass(Basic) RCol2Coord
+/*!\brief Encapsulates linear tranform from (i,j) index to (x,y) coordinates. */
+
+mClass RCol2Coord
 {
 public:
 
@@ -92,4 +90,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -73,7 +73,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 			    mCB(this,uiFileInput,examineFile), false );
 
 	examinebut_->setName(
-	    BufferString(examstyle_==Setup::Edit ? "Edit " : "Examine ",txt) );
+	    BufferString(examstyle_==Setup::Edit ? "Edit" : "Examine ",txt) );
     }
     if ( setup.directories_ )
     {

@@ -4,7 +4,7 @@
  * DATE     : August 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "odimage.h"
 
@@ -75,52 +75,6 @@ bool RGBImage::put( unsigned char const* source )
 
     return true;
 }
-    
-    
-bool RGBImage::putFromBitmap(const unsigned char* bitmap,
-			     const unsigned char* maskptr )
-{
-    const int xsize = getSize( true );
-    const int ysize = getSize( false );
-    
-    Color col;
-    char bytecount = 0;
-    
-    for ( int idx=0; idx<xsize; idx++ )
-    {
-	for ( int idy=0; idy<ysize; idy++ )
-	{
-	    unsigned char byte = *bitmap;
-	    unsigned char mask = maskptr ? *maskptr : 255;
-	    
-	    byte >>= bytecount;
-	    mask >>= bytecount;
-	    
-	    byte &= 1;
-	    mask &= 1;
-	    
-	    byte *=255;
-	    mask = 255*mask;
-	    
-	    col.set( byte, byte, byte );
-	    col.setTransparency( 255-mask );
-	    
-	    if ( !set( idx, idy, col ) )
-		return false;
-	    
-	    bytecount++;
-	    if ( bytecount == 8 )
-	    {
-		bytecount = 0;
-		bitmap++;
-		maskptr++;
-	    }
-	}
-    }
-    
-    return true;
-}
-
 
 
 int RGBImage::bufferSize() const

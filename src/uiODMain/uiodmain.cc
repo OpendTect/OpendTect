@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodmain.h"
 
@@ -85,24 +85,17 @@ int ODMain( int argc, char** argv )
 
     char** myargv = argv;
     int myargc = argc;
-    for ( int iarg=1; iarg<myargc; iarg++ )
-    {
-	if ( !strcmp(myargv[iarg],"--osg") )
-	{
-	    visBase::DataObject::setOsg();
-	    break;
-	}
-    }
 
+    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
     uiDialog::setTitlePos( -1 );
 
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
-    ioPixmap pm( mGetSetupFileName("splash") );
-  //  uiSplashScreen splash( pm );
-  //  splash.show();
-  //  splash.showMessage( "Loading plugins ..." );
+    ioPixmap pm( mGetSetupFileName("splash.png") );
+    uiSplashScreen splash( pm );
+    splash.show();
+    splash.showMessage( "Loading plugins ..." );
     manODMainWin( odmain );
 
     bool dodlg = true;
@@ -120,18 +113,17 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
- //   splash.showMessage( "Initializing Scene ..." );
+    splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
-   // splash.finish( odmain );
+    splash.finish( odmain );
 
     odmain->go();
     delete odmain;
     return 0;
 }
 
-
 #define mMemStatusFld 4
-static BufferString cputxt_;
+
 
 uiODMain::uiODMain( uicMain& a )
     : uiMainWin(0,"OpendTect Main Window",5,true)
@@ -172,14 +164,10 @@ uiODMain::uiODMain( uicMain& a )
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
 
     statusBar()->setToolTip( mMemStatusFld,
-		     "System memory: Free/Available | CPU: Used/Available" );
+			     "System memory: Free/Available" );
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
     memtimer_.start( 1000 );
-
-    cputxt_ = "[cpu] ";
-    cputxt_.add( Threads::getNrProcessors() ).add( "/" )
-	   .add( Threads::getSystemNrProcessors() );
 }
 
 
@@ -411,7 +399,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	    		      BoolInpSpec(douse,"Enabled","Disabled") );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, "Use one for this survey",
-	    		      BoolInpSpec( !id.isEmpty() ) );
+	    		      BoolInpSpec(id != "") );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
@@ -601,16 +589,16 @@ void uiODMain::memTimerCB( CallBacker* )
 
     float tot, av;
     OD::getSystemMemory( tot, av );
+    const float ratiofree = av / tot;
 
     BufferString txt( "[mem] " );
     const bool ingb = tot > 1070000000;
-    const float fac = mCast( float, ingb ? 1073741824 : 1048576 );
+    const float fac = ingb ? 1073741824 : 1048576;
     tot /= fac; av /=fac;
     int itot = mNINT32(tot*10); int iav = mNINT32(av*10);
     txt			.add( iav/10 ).add( "." ).add( iav%10 )
 	.add( "/" )	.add( itot/10 ).add( "." ).add( itot%10 )
 	.add( ingb ? "G" : "M" );
-    txt.add( " | " ).add( cputxt_ );
     statusBar()->message( txt, mMemStatusFld );
 
     multiple_access = false;

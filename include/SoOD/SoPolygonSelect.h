@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/lists/SbList.h>
@@ -37,7 +36,7 @@ class SoSceneManager;
 */
 
 
-mSoODClass SoPolygonSelect : public SoNode
+mClass SoPolygonSelect : public SoNode
 {
     friend class		SoTabletEventFilter;
     friend class		uiSoViewerBody;
@@ -91,4 +90,3 @@ protected:
 };
 
 #endif
-

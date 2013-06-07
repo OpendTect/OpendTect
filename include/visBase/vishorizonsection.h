@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "arrayndimpl.h"
 #include "rowcol.h"
 #include "thread.h"
@@ -49,7 +48,7 @@ namespace visBase
   would only turn on wireframe or lines and points depends if you use wireframe
   or not. */
 
-mExpClass(visBase) HorizonSection : public VisualObjectImpl
+mClass HorizonSection : public VisualObjectImpl
 {
 public:
     static HorizonSection*	create() mCreateDataObj(HorizonSection);
@@ -178,7 +177,7 @@ protected:
     int 			mTileSideSize;
     int 			mTileLastIdx;
     int 			mTotalNormalSize;
-    unsigned char 		mLowestResIdx;
+    int 			mLowestResIdx;
     int 			mHorSectNrRes;
 
     int*			spacing_;
@@ -197,4 +196,3 @@ protected:
 
 
 #endif
-

@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "posauxinfo.h"
 #include "rcol2coord.h"
 #include "basiccompinfo.h"
@@ -31,18 +29,18 @@ If the SurvGeom has full rectangularity, cubedata can be ignored.
 
 */
 
-mExpClass(General) CBVSInfo
+mClass CBVSInfo
 {
 public:
 
 				CBVSInfo()
-				: seqnr_(0), nrtrcsperposn_(1)	{}
-				~CBVSInfo()	{ deepErase(compinfo_); }
+				: seqnr(0), nrtrcsperposn(1)	{}
+				~CBVSInfo()	{ deepErase(compinfo); }
 				CBVSInfo( const CBVSInfo& ci )
 				{ *this = ci; }
     CBVSInfo&			operator =(const CBVSInfo&);
 
-    mStruct(General) SurvGeom
+    mStruct SurvGeom
     {
 				SurvGeom()
 				: fullyrectandreg(false)	{}
@@ -73,26 +71,24 @@ protected:
 
     };
 
-    int				seqnr_;
-    int				nrtrcsperposn_;
+    int				seqnr;
+    int				nrtrcsperposn;
 
-    PosAuxInfoSelection		auxinfosel_;
-    ObjectSet<BasicComponentInfo> compinfo_;
-    SamplingData<float>		sd_;
-    int				nrsamples_;
-    SurvGeom			geom_;
+    PosAuxInfoSelection		auxinfosel;
+    ObjectSet<BasicComponentInfo> compinfo;
+    SamplingData<float>		sd;
+    int				nrsamples;
+    SurvGeom			geom;
 
-    BufferString		stdtext_;
-    BufferString		usertext_;
+    BufferString		stdtext;
+    BufferString		usertext;
 
     bool			contributesTo(const CubeSampling&) const;
     void			clean()
-				{ deepErase(compinfo_); geom_.clean();
-				  usertext_ = ""; }
+				{ deepErase(compinfo); geom.clean();
+				  usertext = ""; }
 
 };
 
 
 #endif
-
-

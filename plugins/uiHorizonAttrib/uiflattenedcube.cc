@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.11 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -46,7 +46,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     	, seisselin_(0)
 {
     IOPar iop;
-    iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
+    iop.set( IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider::id1Key()),
 	     hormid_ );
     pp_.usePar( iop );
     uiTaskRunner tr( p );
@@ -63,8 +63,8 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     pp_.getZRange( horzrg_ );
     MouseCursorManager::restoreOverride();
-    defzval_ = horzrg_.center() * SI().zDomain().userFactor();
-    defzval_ = (float) mNINT32(defzval_);
+    defzval_ = horzrg_.center() * SI().zFactor();
+    defzval_ = mNINT32(defzval_);
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
 
@@ -100,7 +100,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 
     float zval = zvalfld_->getfValue();
     if ( mIsUdf(zval) ) zval = defzval_;
-    zval /= SI().zDomain().userFactor();
+    zval /= SI().zFactor();
     if ( !SI().zRange(false).includes(zval,false) )
 	mErrRet("Please provide a Z value inside the survey Z Range")
 
@@ -124,7 +124,7 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
     , pp_(pp)
     , msg_("Creating cube")
     , nrdone_(0)
-    , totnr_(mCast(int,pp.estNrPos()))
+    , totnr_(pp.estNrPos())
     , horzrg_(hz)
     , zval_(zval)
 {
@@ -146,7 +146,8 @@ int nextStep()
     if ( outtrc_.size() < 1 )
     {
 	outtrc_ = intrc_; // get all components + info
-	const Interval<float> inzrg( intrc_.zRange() );
+	const Interval<float> inzrg( intrc_.samplePos( 0 ),
+					intrc_.samplePos( intrc_.size() - 1 ) );
 	const StepInterval<float> outzrg( zval_ + inzrg.start - horzrg_.stop,
 					  zval_ + inzrg.stop - horzrg_.start,
 					  intrc_.info().sampling.step );
@@ -202,5 +203,5 @@ bool uiWriteFlattenedCube::doWork( float zval )
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
     uiTaskRunner tr( this );
     MouseCursorManager::restoreOverride();
-    return TaskRunner::execute( &tr, cm );
+    return tr.execute( cm );
 }

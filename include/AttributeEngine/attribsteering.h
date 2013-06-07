@@ -12,19 +12,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "position.h"
 #include "seistype.h"
 //#include "commondefs.h"
+
+#define mStd2DTrcSpacing 12.5			//tmp fix for od4.4
+
 namespace Attrib
 {
 
-mGlobal(AttributeEngine) BinID getSteeringPosition( int );
-mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
+mGlobal BinID getSteeringPosition( int );
+mGlobal int getSteeringIndex( const BinID& );
 
 
 }; //Namespace
 
 
 #endif
-

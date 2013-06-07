@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uibasemap.h"
 
 class SurveyInfo;
@@ -22,7 +21,7 @@ class uiMarkerItem;
 class uiTextItem;
 class BaseMapObject;
 
-mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
+mClass uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
     			uiSurveyBoxObject(BaseMapObject*,bool);
@@ -43,7 +42,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
+mClass uiNorthArrowObject : public uiBaseMapObject
 {
 public:
     			uiNorthArrowObject(BaseMapObject*,bool);
@@ -64,7 +63,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiSurveyMap : public uiBaseMap
+mClass uiSurveyMap : public uiBaseMap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
@@ -83,4 +82,3 @@ protected:
 };
 
 #endif
-

@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
 #include "multiid.h"
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-mClass(General) SurfaceInfo
+mClass SurfaceInfo
 {
 public:
 		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
@@ -34,4 +33,3 @@ public:
 
 
 #endif
-

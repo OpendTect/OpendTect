@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.23 2011/04/08 12:37:10 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -191,7 +191,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	const Coord prevxy = points[idx-1].coord();
 	const BinID bid = SI().transform( xy );
 	const BinID prevbid = SI().transform( prevxy );
-	double zdist = fabs( points[idx-1].z - points[idx].z );
+	float zdist = fabs( points[idx-1].z - points[idx].z );
 
 	totinldist += abs( bid.inl - prevbid.inl );
 	totcrldist += abs( bid.crl - prevbid.crl );
@@ -219,7 +219,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 				      : uom->getUserValueFromSI( totrealdist );
 
     hdistfld_->setValue( tothdist );
-    zdistfld_->setValue( totzdist*SI().zDomain().userFactor() );
+    zdistfld_->setValue( totzdist*SI().zFactor() );
     if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
     distfld_->setValue( totrealdist );
     if ( dist2fld_ ) dist2fld_->setValue( convdist );

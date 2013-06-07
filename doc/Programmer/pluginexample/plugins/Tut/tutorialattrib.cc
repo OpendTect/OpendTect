@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.1 2012/03/26 14:33:17 cvsdgb Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"

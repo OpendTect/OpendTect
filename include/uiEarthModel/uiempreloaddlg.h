@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class uiListBox;
@@ -22,7 +21,7 @@ class uiToolButton;
 class BufferString;
 class MultiID;
 
-mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
+mClass uiEMPreLoadDlg : public uiDialog
 {
 public:
 			uiEMPreLoadDlg( uiParent* p )
@@ -39,7 +38,7 @@ protected:
     uiToolButton*	savebut_;
 };
 
-mExpClass(uiEarthModel) uiHorizonPreLoadDlg : public uiEMPreLoadDlg
+mClass uiHorizonPreLoadDlg : public uiEMPreLoadDlg
 {
 public:
 			uiHorizonPreLoadDlg(uiParent*);
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

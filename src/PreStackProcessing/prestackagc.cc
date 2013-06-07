@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackagc.h"
 
@@ -27,7 +27,7 @@ PreStack::AGC::AGC()
 
 bool PreStack::AGC::prepareWork()
 {
-    totalnr_ = mCast( int, inputs_.size()*nrIterations() );
+    totalnr_ = inputs_.size()*nrIterations();
 
     if ( !Processor::prepareWork() )
 	return false;
@@ -36,7 +36,7 @@ bool PreStack::AGC::prepareWork()
     {
 	if ( !inputs_[idx] ) continue;
 
-	float zstep = (float) inputs_[idx]->posData().range(false).step;
+	float zstep = inputs_[idx]->posData().range(false).step;
 	zstep *= SI().zIsTime() ? 1000 : 1;
 
 	samplewindow_.start = mNINT32( window_.start/zstep );
@@ -91,7 +91,7 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow_ );
 
-    const int incr = mCast( int, stop-start+1 );
+    const int incr = stop-start+1;
     for ( int idx=outputs_.size()-1; idx>=0; idx--, addToNrDone(incr) )
     {
 	Gather* output = outputs_[idx];
@@ -107,8 +107,8 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
 
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) -1;
 
-	const int curstop = mCast( int, mMIN(lastoffset,stop) );
-	for ( int offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
+	const int curstop = mMIN(lastoffset,stop);
+	for ( int offsetidx=start; offsetidx<=curstop; offsetidx++ )
 	{
 	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
 	    outputtrace.setPos( Gather::offsetDim(), offsetidx );

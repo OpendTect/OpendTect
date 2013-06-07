@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiobjectstack.h"
@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QStackedWidget>
 
-mUseQtnamespace
 
 class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,QStackedWidget>
 {

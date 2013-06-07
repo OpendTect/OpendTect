@@ -5,7 +5,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bert Bril & Kris Tingdahl
+ Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
  RCS:		$Id$
@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "undefval.h"
 #include "math2.h"
 #include <math.h>
@@ -130,14 +129,14 @@ int nrBlocks( int totalsamples, int basesize, int overlapsize )
 }
 
 
-/*!
-\brief Taper an indexable array from 1 to taperfactor. If lowpos is less 
-than highpos, the samples array[0] to array[lowpos] will be set to zero. 
-If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
-will be set to zero. The taper can be either cosine or linear.
+/*!>
+ Taper an indexable array from 1 to taperfactor. If lowpos is less 
+ than highpos, the samples array[0] to array[lowpos] will be set to zero. 
+ If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
+ will be set to zero. The taper can be either cosine or linear.
 */
 
-mExpClass(Algo) Taper
+mClass Taper
 {
 public:
     enum Type { Cosine, Linear };
@@ -319,8 +318,8 @@ inline int solve3DPoly( double a, double b, double c,
 template <class T>
 inline bool holdsClassValue( const T val, const unsigned int maxclss=50 )
 {
-    if ( mIsUdf(val) ) return true;
     if ( val < -mDefEps ) return false;
+    if ( mIsUdf(val) ) return true;
     const int ival = (int)(val + .5);
     return ival <= maxclss && mIsEqual(val,ival,mDefEps);
 }
@@ -347,10 +346,7 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 ) 
-	    arridx = -arridx;
-
+	const od_int64 arridx = ((1+idx) * seed) % samplesz;
 	if ( !holdsClassValue(vals[arridx],maxclss) )
 	    return false;
     }
@@ -358,48 +354,5 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 }
 
 
-template <class T>
-inline bool isSigned8BitesValue( const T val )
-{
-    if ( val>127 || val<-128 )
-	return false;
-
-    const int ival = (int)(val>0 ? val+.5 : val-.5);
-    return mIsEqual(val,ival,mDefEps);
-}
-
-
-template <class T>
-inline bool is8BitesData( const T* vals, od_int64 sz,
-	const unsigned int samplesz=100 )
-{
-    if ( holdsClassValues(vals,sz,255,samplesz) )
-	return true;
-
-    if ( sz <= samplesz )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    if ( !isSigned8BitesValue(vals[idx]) )
-		return false;
-	}
-	return true;
-    }
-
-    static od_int64 seed = mUdf(od_int64);
-    seed *= seed + 1; // Clumsy but cheap sort-of random generation
-
-    for ( int idx=0; idx<samplesz; idx++ )
-    {
-	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 ) 
-	    arridx = -arridx;
-	
-	if ( !isSigned8BitesValue(vals[arridx]) )
-	    return false;
-    }
-    return true;
-}
 
 #endif
-

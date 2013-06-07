@@ -523,7 +523,7 @@ void HorizonFlatViewEditor3D::horRepaintedCB( CallBacker* )
 }
 
 
-FlatView::AuxData* HorizonFlatViewEditor3D::getAuxData( int markid )
+FlatView::Annotation::AuxData* HorizonFlatViewEditor3D::getAuxData( int markid )
 {
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
     {

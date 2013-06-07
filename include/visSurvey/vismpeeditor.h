@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "emposid.h"
 #include "visobject.h"
 #include "vissower.h"
@@ -43,7 +42,7 @@ class Sower;
 */
 
 
-mExpClass(visSurvey) MPEEditor : public visBase::VisualObjectImpl
+mClass MPEEditor : public visBase::VisualObjectImpl
 {
 public:
     static MPEEditor*	create()
@@ -141,4 +140,3 @@ protected:
 };
 
 #endif
-

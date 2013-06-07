@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "zaxistransform.h"
 
@@ -19,7 +19,7 @@ mImplFactory( ZAxisTransform, ZAxisTransform::factory );
 
 ZAxisTransform* ZAxisTransform::create( const IOPar& par )
 {
-    const FixedString str = par.find( sKey::Name() );
+    const FixedString str = par.find( sKey::Name );
     if ( !str )
 	return 0;
 
@@ -75,7 +75,7 @@ bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
-{ return transform( BinIDValue(SI().transform(pos),(float) pos.z) ); }
+{ return transform( BinIDValue( SI().transform(pos), pos.z ) ); }
 
 
 float ZAxisTransform::transform( const BinIDValue& pos ) const
@@ -87,7 +87,7 @@ float ZAxisTransform::transform( const BinIDValue& pos ) const
 
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
-{ return transformBack( BinIDValue(SI().transform(pos),(float) pos.z) ); }
+{ return transformBack( BinIDValue( SI().transform(pos), pos.z ) ); }
 
 
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const
@@ -160,33 +160,15 @@ const char* ZAxisTransform::toZDomainKey() const
 
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), factoryKeyword() );
+    par.set( sKey::Name, factoryKeyword() );
 }
-
-
-float ZAxisTransform::toZScale() const
-{
-    if ( toZDomainInfo().def_.isDepth() )
-    {
-	return SI().defaultXYtoZScale(
-				      SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter,
-				      SI().xyUnit() );
-    }
-    else if (  toZDomainInfo().def_.isTime() )
-    {
-	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
-    }
-    
-    return SI().zScale();
-}
-
 
 
 bool ZAxisTransform::usePar( const IOPar& par )
 {
-    const char* res = par.find( sKey::ID() );
+    const char* res = par.find( sKey::ID );
     if ( !res || !*res )
-	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID()) );
+	res = par.find( IOPar::compKey(ZDomain::sKey(),sKey::ID) );
     if ( !res || !*res )
 	res = par.find( "ZDomain ID" );
 
@@ -234,7 +216,7 @@ float ZAxisTransformSampler::operator[](int idx) const
 	    return cache_[cacheidx];
     }
 
-    const BinIDValue bidval( BinIDValue(bid_,(float) sd_.atIndex(idx)) );
+    const BinIDValue bidval( BinIDValue(bid_,sd_.atIndex(idx)) );
     return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl,
 						      bidval.value)
 			   : transform_.transformBack(bidval) )
@@ -248,8 +230,7 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 {
     const int sz = range.width()+1;
     cache_.setSize( sz );
-    const SamplingData<float> cachesd( (float)sd_.atIndex(range.start),
-					(float)sd_.step );
+    const SamplingData<float> cachesd( sd_.atIndex(range.start), sd_.step );
     if ( back_ )
     {
 	if ( is2d_ )

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class IOPar;
@@ -24,7 +23,7 @@ class uiLabeledComboBox;
 struct LooknFeelSettings;
 
 
-mExpClass(uiTools) uiSettings : public uiDialog
+mClass uiSettings : public uiDialog
 {
 public:
 			uiSettings(uiParent*,const char* titl,
@@ -56,7 +55,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiLooknFeelSettings : public uiDialog
+mClass uiLooknFeelSettings : public uiDialog
 {
 public:
 			uiLooknFeelSettings(uiParent*,const char* titl);
@@ -87,4 +86,3 @@ protected:
 };
 
 #endif
-

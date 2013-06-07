@@ -74,13 +74,13 @@ if ( $status == 0 ) then
     endif
     
     set mainapp=od_main
-    if ( ! -e ${bindir}/$mainapp ) then
+    if ( ! -e $DTECT_APPL/bin/$binsubdir/$mainapp ) then
 	set mainapp=odmain
     endif
 
     if ( $?DTECT_START_DEBUGGER ) then
 	echo "Original cmd: $CSHCMD $DTECT_APPL/bin/od_exec $mainapp $*"
-	$DTECT_START_DEBUGGER ${bindir}/$mainapp
+	$DTECT_START_DEBUGGER $DTECT_APPL/bin/$binsubdir/$mainapp
     else
 	$CSHCMD "$DTECT_APPL/bin/od_exec" $mainapp $*
     endif
@@ -98,13 +98,13 @@ if ( $status == 0 ) then
 	    endif
 	endif
 
-	set sendapp="${bindir}/od_uiReportIssue"
+	set sendapp="$DTECT_APPL/bin/$binsubdir/od_uiReportIssue"
 	if ( ("$corefile" != "") && ( -e "${sendapp}") ) then
 	 
 	    set cmdfil="$odrundir/gdb.$$"
 
 	    set outfil="/tmp/od_crash_analysis_$$.txt"
-	    set execfile="${bindir}/$mainapp"
+	    set execfile="$DTECT_APPL/bin/$binsubdir/$mainapp"
 
 	    echo "echo \n-> Threads:\n" > $cmdfil
 	    echo "info thread" >> $cmdfil

@@ -177,7 +177,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 		    BufferString bstring = lk.lineName();
 		    const char* linenm = bstring.buf();
 		    const MultiID mid( linenm+1 );
-		    if ( psdpfids_.isPresent( mid ) )
+		    if ( psdpfids_.indexOf( mid ) >=0 )
 			descset_.removeDesc( tmpdesc->id() );
 		}
 	    }
@@ -293,7 +293,7 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	    if ( isdescanyd )
 	    {
 		IOPar par; descset.fillPar( par );
-		par.set( sKey::Type(), is2d ? "2D" : "3D" );
+		par.set( sKey::Type, is2d ? "2D" : "3D" );
 		descset.usePar( par );
 	    }
 	    descset_ = descset;
@@ -316,9 +316,9 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	    Attrib::ValParam* vp = desc.getValParam(
 		    		Attrib::StorageProvider::keyStr() );
 	    const MultiID descid( vp->getStringValue(0) + 1 );
-	    if ( ( !desc.isPS() && !dpfids_.isPresent(descid) 
+	    if ( ( !desc.isPS() && dpfids_.indexOf(descid) < 0 
 			        && !psdpfids_.isEmpty() )
-		|| ( desc.isPS() && !psdpfids_.isPresent( descid ) 
+		|| ( desc.isPS() && psdpfids_.indexOf( descid ) < 0 
 				     && !dpfids_.size() ) )
 	    {
 		BufferString fidstr = "#";

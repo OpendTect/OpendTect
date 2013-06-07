@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseiseventsnapper.h"
@@ -56,14 +56,14 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     seisfld_->attach( alignedBelow, horinfld_ );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.removeSingle(0);
+    eventnms.remove(0);
     eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
     eventfld_->attach( alignedBelow, seisfld_ );
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
-    gatefld_->setValues( -SI().zStep() * SI().zDomain().userFactor(), 
-	    		  SI().zStep() * SI().zDomain().userFactor() );
+    gatefld_->setValues( -SI().zStep() * SI().zFactor(), 
+	    		  SI().zStep() * SI().zFactor() );
     gatefld_->attach( alignedBelow, eventfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
@@ -120,7 +120,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     usedhor->setBurstAlert( true );
     
     Interval<float> rg = gatefld_->getFInterval();
-    rg.scale( 1.f / SI().zDomain().userFactor() );
+    rg.scale( 1. / SI().zFactor() );
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
@@ -135,14 +135,15 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    if ( !newhor3d )
 		return false;
 
+	    EM::SectionID sid0 = hor3d->sectionID( 0 );
 	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
+	    hor3d->geometry().fillBinIDValueSet( sid0, bivs );
 	    
 	    SeisEventSnapper3D snapper( *seisctio_.ioobj, bivs, rg );
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
 	   
 	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute( &dlg, snapper ) )
+	    if ( !dlg.execute(snapper) )
 		return false;
 
 	    hor3d->setBurstAlert( true );
@@ -152,7 +153,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
+		newhor3d->setPos( sid0, bid.toInt64(), Coord3(0,0,z),
 				  false );
 	    }
 
@@ -175,7 +176,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 						     rg) );
 	   
 	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute( &dlg, snapper ) )
+	    if ( !dlg.execute(snapper) )
 		return false;
 	}
 

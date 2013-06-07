@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class uiLineEdit;
 class uiComboBox;
@@ -21,11 +20,11 @@ class uiToolButton;
 class uiToolButtonSetup;
 
 
-mExpClass(uiTools) uiMathExpression : public uiGroup
+mClass uiMathExpression : public uiGroup
 {
 public:
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* lbl=0 )
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

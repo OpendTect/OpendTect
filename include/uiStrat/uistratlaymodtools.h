@@ -12,10 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
-#include "uidialog.h"
 #include "uigroup.h"
-class uiLabel;
 class uiSpinBox;
 class uiGenInput;
 class uiComboBox;
@@ -23,7 +20,7 @@ class uiToolButton;
 namespace Strat { class Level; }
 
 
-mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
+mClass uiStratGenDescTools : public uiGroup
 {
 public:
 
@@ -36,28 +33,25 @@ public:
     Notifier<uiStratGenDescTools>	saveReq;
     Notifier<uiStratGenDescTools>	propEdReq;
     Notifier<uiStratGenDescTools>	genReq;
-    
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
 
 protected:
 
-    static const char*		sKeyNrModels();
-    
     uiGenInput*	nrmodlsfld_;
     uiToolButton* savetb_;
-    int		nrmodels_;
 
     void	openCB(CallBacker*)	{ openReq.trigger(); }
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
     void	genCB(CallBacker*)	{ genReq.trigger(); }
-    void	nrModelsChangedCB(CallBacker*);
+    static const char*		sKeyNrModels();
 
+public:
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
 };
 
 
-mExpClass(uiStrat) uiStratLayModEditTools : public uiGroup
+mClass uiStratLayModEditTools : public uiGroup
 {
 public:
 
@@ -82,9 +76,6 @@ public:
     void	setDispZoomed(bool);
     void	setDispLith(bool);
     void	setShowFlattened(bool);
-    void	setFlatTBSensitive(bool);
-
-    void	setNoDispEachFld();
 
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
@@ -100,28 +91,13 @@ public:
     Color	selLevelColor() const;		//!< May return NoColor
 
     uiToolButton* lithButton() 		{ return lithtb_; }
-    uiToolButton* zoomButton() 		{ return zoomtb_; }
-    
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
-
-    bool	allownoprop_;
 
 protected:
-    
-    static const char*		sKeyDisplayedProp();
-    static const char*		sKeyDecimation();
-    static const char*		sKeySelectedLevel();
-    static const char*		sKeySelectedContent();
-    static const char*		sKeyZoomToggle();
-    static const char*		sKeyDispLith();
-    static const char*		sKeyShowFlattened();
 
     uiComboBox*	propfld_;
     uiComboBox*	lvlfld_;
     uiComboBox*	contfld_;
     uiSpinBox*	eachfld_;
-    uiLabel*	eachlbl_;
     uiToolButton* zoomtb_;
     uiToolButton* lithtb_;
     uiToolButton* flattenedtb_;
@@ -134,31 +110,19 @@ protected:
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
 
-};
+    static const char*		sKeyDisplayedProp();
+    static const char*		sKeyDecimation();
+    static const char*		sKeySelectedLevel();
+    static const char*		sKeySelectedContent();
+    static const char*		sKeyZoomToggle();
+    static const char*		sKeyDispLith();
+    static const char*		sKeyShowFlattened();
 
-
-class PropertyRefSelection;
-
-mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
-{
 public:
-
-			uiStratLayModFRPropSelector(uiParent*,
-						  const PropertyRefSelection&);
-
-    bool		needsDisplay() const;
-    const char*		getSelVPName() const;
-    const char*		getSelVSName() const;
-    const char*		getSelDenName() const;
-
-protected:
-
-    uiComboBox*		vpfld_;
-    uiComboBox*		vsfld_;
-    uiComboBox*		denfld_;
-
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&);
+    void	setFlatTBSensitive(bool);
 };
 
 
 #endif
-

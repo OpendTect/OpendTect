@@ -26,6 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
 
+static uiGenInput* interpoltypefld_;
+
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 	: uiDialog( p, Setup( "create 3D cube from to 2D LineSet",
 			      "Specify process parameters",
@@ -101,7 +103,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 	uiMSG().error( seis2dto3d_.errMsg() );
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
+    if ( !taskrunner.execute( seis2dto3d_ ) )
 	return seis2dto3d_.errMsg();
 
     return true;

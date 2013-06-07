@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "batchprog.h"
 
@@ -36,7 +36,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mDestroyWorkers \
-{ delete procman; procman = 0; writer = 0; }
+	{ delete procman; procman = 0; writer = 0; }
+
+
+#define mRetError(s) \
+{ errorMsg(s); mDestroyWorkers; return false; }
+
+#define mRetHostErr(s) \
+	{  \
+	    if ( comm ) comm->setState( JobCommunic::HostError ); \
+	    mRetError(s) \
+	}
+
+#define mStrmWithProcID(s) \
+    strm << "\n[" << process_id << "]: " << s << "." << std::endl
+
+#define mSetCommState(State) \
+	if ( comm ) \
+	{ \
+	    comm->setState( JobCommunic::State ); \
+	    if ( !comm->updateState() ) \
+		mRetHostErr( comm->errMsg() ) \
+	}
 
 
 bool BatchProgram::go( std::ostream& strm )
@@ -341,8 +362,8 @@ bool BatchProgram::go( std::ostream& strm )
 		const StepInterval<double> zrg =
 		    gather->posData().range( PreStack::Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
-		trc.info().sampling.start = (float) zrg.start;
-		trc.info().sampling.step = (float) zrg.step;
+		trc.info().sampling.start = zrg.start;
+		trc.info().sampling.step = zrg.step;
 
 		if ( reader2d )
 		{
@@ -392,9 +413,9 @@ bool BatchProgram::go( std::ostream& strm )
 		{
 		    if ( bids[idx].inl<=obsoleteline )
 		    {
-			bids.removeSingle( idx ); 
+			bids.remove( idx ); 
 			DPM( DataPackMgr::FlatID() ).release(
-			    gathers.removeSingle(idx) );
+			gathers.remove(idx) );
 		    }
 		}
 	    }
@@ -409,9 +430,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    {
 		if ( bids[idx].crl<=obsoletetrace )
 		{
-		    bids.removeSingle( idx );
-		    DPM( DataPackMgr::FlatID() ).release(
-			gathers.removeSingle(idx) );
+		    bids.remove( idx );
+		    DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
 		}
 	    }
 	}
@@ -423,16 +443,16 @@ bool BatchProgram::go( std::ostream& strm )
     mStrmWithProcID( "Threads closed; Writing finish status" );
 
     for ( int idx=gathers.size()-1;  idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
+	DPM( DataPackMgr::FlatID() ).release( gathers.remove(idx) );
 
-    if ( !comm_ )
+    if ( !comm )
     {
 	delete procman;
 	return true;
     }
 
-    comm_->setState( JobCommunic::Finished );
-    bool ret = comm_->sendState();
+    comm->setState( JobCommunic::Finished );
+    bool ret = comm->sendState();
 
     if ( ret )
 	mStrmWithProcID( "Successfully wrote finish status" );

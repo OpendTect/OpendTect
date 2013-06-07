@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "gridcreator.h"
@@ -166,56 +166,62 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 					const CubeSampling& bbox )
 {
     BufferString attribname;
-    par.get( sKey::Attribute(), attribname );
+    par.get( sKey::Attribute, attribname );
 
     TypeSet<int> inlines;
     BufferString mode;
     par.get( Seis2DGridCreator::sKeyInlSelType(), mode );
-    if ( mode == sKey::Range() )
+    if ( mode == sKey::Range )
     {
 	StepInterval<int> range;
-	par.get( sKey::InlRange(), range );
+	par.get( sKey::InlRange, range );
 	for ( int idx=0; idx<=range.nrSteps(); idx++ )
 	    inlines += range.atIndex( idx );
     }
     else
     {
-	SeparString str( par.find(sKey::InlRange()).str() );
+	SeparString str( par.find(sKey::InlRange).str() );
 	for ( int idx=0; idx<str.size(); idx++ )
 	    inlines += str.getIValue(idx);
     }
 
-    FixedString inlstr = par.find( sKeyInlPrefix() );
-    for ( int idx=0; idx<inlines.size(); idx++ )
-    {
-	CubeSampling cs = bbox;
-	cs.hrg.start.inl = cs.hrg.stop.inl = inlines[idx];
-	LineKey lk( BufferString(inlstr.str(),inlines[idx]), attribname );
-	add( new Seis2DLineCreator(input,cs,output,lk) );
-    }
-
     TypeSet<int> crosslines;
     par.get( Seis2DGridCreator::sKeyCrlSelType(), mode );
-    if ( mode == sKey::Range() )
+    if ( mode == sKey::Range )
     {
 	StepInterval<int> range;
-	par.get( sKey::CrlRange(), range );
+	par.get( sKey::CrlRange, range );
 	for ( int idx=0; idx<=range.nrSteps(); idx++ )
 	    crosslines += range.atIndex( idx );
     }
     else
     {
-	SeparString str( par.find(sKey::CrlRange()).str() );
+	SeparString str( par.find(sKey::CrlRange).str() );
 	for ( int idx=0; idx<str.size(); idx++ )
 	    crosslines += str.getIValue(idx);
     }
 
-    FixedString crlstr = par.find( sKeyCrlPrefix() );
-    for ( int idx=0; idx<crosslines.size(); idx++ )
+    Grid2D grid;
+    grid.set( inlines, crosslines, bbox.hrg );
+    FixedString inlstr = par.find( sKeyInlPrefix() );
+    for ( int idx=0; idx<grid.size(true); idx++ )
     {
 	CubeSampling cs = bbox;
-	cs.hrg.start.crl = cs.hrg.stop.crl = crosslines[idx];
-	LineKey lk( BufferString(crlstr.str(),crosslines[idx]), attribname );
+	const Grid2D::Line* line = grid.getLine( idx, true );
+	cs.hrg.start = line->start_;
+	cs.hrg.stop = line->stop_;
+	LineKey lk( BufferString(inlstr.str(),line->start_.inl), attribname );
+	add( new Seis2DLineCreator(input,cs,output,lk) );
+    }
+
+    FixedString crlstr = par.find( sKeyCrlPrefix() );
+    for ( int idx=0; idx<grid.size(false); idx++ )
+    {
+	CubeSampling cs = bbox;
+	const Grid2D::Line* line = grid.getLine( idx, false );
+	cs.hrg.start = line->start_;
+	cs.hrg.stop = line->stop_;
+	LineKey lk( BufferString(crlstr.str(),line->start_.crl), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }
 
@@ -248,7 +254,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	return false;
 
     BufferString attribname;
-    par.get( sKey::Attribute(), attribname );
+    par.get( sKey::Attribute, attribname );
 
     FixedString parstr = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<grid.size(true); idx++ )
@@ -358,7 +364,10 @@ bool Horizon2DGridCreator::finish( TaskRunner* tr )
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons_[idx]->saver();
-	TaskRunner::execute( tr, *saver );
+	if ( tr )
+	    tr->execute( *saver );
+	else
+	    saver->execute();
     }
 
     return true;

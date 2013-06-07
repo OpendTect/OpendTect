@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
@@ -21,7 +20,7 @@ class QFile;
 class QFtp;
 class QFtpConnector;
 
-mExpClass(Network) ODFtp : public CallBacker
+mClass ODFtp : public CallBacker
 {
 friend class QFtpConnector;
 
@@ -52,7 +51,7 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     const BufferStringSet& files() const	{ return files_; }
 
-    bool		isOK() const		{ return !error_; }
+    const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
     int			commandID() const	{ return commandid_; }
@@ -90,4 +89,3 @@ protected:
 };
 
 #endif
-

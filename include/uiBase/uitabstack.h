@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 
 class uiTabBar;
@@ -30,7 +29,7 @@ class uiTabBar;
     child-of-child."
    
 */
-mExpClass(uiBase) uiTabStack : public uiGroup
+mClass uiTabStack : public uiGroup
 {
 public:
 			uiTabStack(uiParent*,const char* nm,
@@ -67,4 +66,3 @@ protected:
 
 
 #endif
-

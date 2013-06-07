@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunctionstored.h"
 
@@ -46,7 +46,7 @@ IOObjContext& StoredFunctionSource::ioContext()
     {
 	ret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ret->setName( "RMO picks" );
-	ret->toselect.require_.set( sKey::Type(), sKeyVelocityFunction() );
+	ret->toselect.require_.set( sKey::Type, sKeyVelocityFunction() );
     }
 
     return *ret;
@@ -158,7 +158,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::Type(), sKeyVelocityFunction() );
+    par.set( sKey::Type, sKeyVelocityFunction() );
     par.set( sKeyVelocityType(), VelocityDesc::TypeNames()[(int)desc_.type_] );
 }
 
@@ -177,17 +177,17 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	 !desc_.usePar( pickset.pars_ ) )
 	return false;
 
-    veldata_.setEmpty();
+    veldata_.empty();
     veldata_.setNrVals( 2, false );
     float vals[2];
     
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
+	const BinID bid = SI().transform( pspick.pos );
 
-	vals[0] = (float) pspick.pos_.z;
-	vals[1] = pspick.dir_.radius;
+	vals[0] = pspick.pos.z;
+	vals[1] = pspick.dir.radius;
 
 	veldata_.add( bid, vals );
     }
@@ -200,7 +200,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
 void StoredFunctionSource::getAvailablePositions( BinIDValueSet& binvals) const
 {
-    binvals.setEmpty();
+    binvals.empty();
     BinIDValueSet::Pos pos;
     while ( veldata_.next(pos, true) )
 	binvals.add( veldata_.getBinID(pos) );

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 class BufferStringSet;
@@ -42,7 +41,7 @@ class ODHttp;
 
  */
 
-mExpClass(Network) ODDLSite : public CallBacker
+mClass ODDLSite : public CallBacker
 {
 public:
 
@@ -99,4 +98,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "namedobj.h"
 
 #include "enums.h"
@@ -27,7 +26,7 @@ class IOPar;
 namespace WellTie
 {
 
-mExpClass(WellAttrib) Setup
+mClass Setup
 {
 public:
     			enum CorrType { None, Automatic, UserDefined };
@@ -42,6 +41,7 @@ public:
 			    , useexistingd2tm_(true) 
 			    , corrtype_(Automatic)    
 			    , is2d_(false)				 
+			    , replacevel_(2000) 
 			    {}
 
 
@@ -57,6 +57,9 @@ public:
 				    , is2d_(setup.is2d_)
 				    , useexistingd2tm_(setup.useexistingd2tm_)
 				    , corrtype_(setup.corrtype_) 
+				    , replacevel_(setup.replacevel_) 
+				    , veluom_(setup.veluom_)
+				    , denuom_(setup.denuom_)
 				    {}	
 		
     MultiID			wellid_;
@@ -66,10 +69,13 @@ public:
     BufferString        	seisnm_;
     BufferString        	vellognm_;
     BufferString          	denlognm_;
+    BufferString        	veluom_;
+    BufferString          	denuom_;
     bool                	issonic_;
     bool                	is2d_;
     bool 			useexistingd2tm_;
     CorrType			corrtype_;
+    float			replacevel_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;
@@ -84,7 +90,7 @@ public:
 };
 
 
-mExpClass(WellAttrib) IO : public Well::IO
+mClass IO : public Well::IO
 {
 public:
     				IO(const char* f,bool isrd)
@@ -94,7 +100,7 @@ public:
 };
 
 
-mExpClass(WellAttrib) Writer : public IO
+mClass Writer : public IO
 {
 public:
 				Writer(const char* f)
@@ -105,12 +111,12 @@ public:
     bool          	        putIOPar(const IOPar&,const char*) const; 
 protected:
 
-    bool          	        putIOPar(const IOPar&,const char*,
+    bool          	        ptIOPar(const IOPar&,const char*,
 	    					std::ostream&) const; 
     bool                	wrHdr(std::ostream&,const char*) const;
 };
 
-mExpClass(WellAttrib) Reader : public IO
+mClass Reader : public IO
 {
 public:
 				Reader(const char* f)
@@ -121,9 +127,8 @@ public:
     IOPar* 			getIOPar(const char*) const;
 
 protected:
-    IOPar* 			getIOPar(const char*,std::istream&) const;	
+    IOPar* 			gtIOPar(const char*,std::istream&) const;	
 };
 
 }; //namespace WellTie
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visgeomindexedshape.h"
 
@@ -249,6 +249,7 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 	    ctab_->coltab_->setColor( col, idx+1 );
 	}
 
+	const Color col = seq.undefColor();
 	ctab_->coltab_->setColor( seq.undefColor(), mUndefMaterial+1 );
     }
 }
@@ -311,8 +312,8 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
     else \
     { \
 	shape = list##s_[idy]; \
-	list##s_.removeSingle( idy ); \
-	list##geoms_.removeSingle( idy ); \
+	list##s_.remove( idy ); \
+	list##geoms_.remove( idy ); \
     } \
  \
     new##list##s += shape; \
@@ -323,7 +324,7 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
 #define mRemoveOld( list ) \
     while ( list##s_.size() ) \
     { \
-	SoIndexedShape* shape = list##s_.removeSingle(0); \
+	SoIndexedShape* shape = list##s_.remove(0); \
  \
 	const int idx = childIndex( shape ); \
 	mDynamicCastGet(SoNormalBinding*, nb, idx>0 ? getChild(idx-1) : 0); \
@@ -338,15 +339,14 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
 
 void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 {
-    isupdateok_ = false;
     if ( !tryWriteLock() )
     {
 	pErrMsg("Could not lock");
 	return;
     }
 
-    if ( shape_ && shape_->needsUpdate() && !shape_->update( forall, tr ) )
-	return;
+    if ( shape_ && shape_->needsUpdate() )
+	shape_->update( forall, tr );
 
     ObjectSet<SoIndexedShape> newstrips;
     ObjectSet<const Geometry::IndexedGeometry> newstripgeoms;
@@ -465,7 +465,6 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
     mRemoveOld( line );
 
     writeUnLock();
-    isupdateok_ = true;
 }
 
 
@@ -486,8 +485,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,TaskRunner*) const
 	    break;
 
 	const Coord3 pos = coords_->getPos( coordid );
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
-							    (float) pos.z );
+	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "propertyref.h"
 #include "factory.h"
 
@@ -29,7 +28,7 @@ class IOPar;
 
  */
 
-mExpClass(General) Property
+mClass Property
 {
 public:
 
@@ -60,7 +59,7 @@ public:
 
     mDefineFactory1ParamInClass(Property,const PropertyRef&,factory);
 
-    mExpClass(General) EvalOpts
+    mClass EvalOpts
     {
     public:
 
@@ -99,7 +98,7 @@ protected:
 };
 
 
-mExpClass(General) PropertySet
+mClass PropertySet
 {
 public:
 
@@ -127,8 +126,6 @@ public:
     int			indexOf( const PropertyRef& pr ) const
 						{ return indexOf(pr.name()); }
     int			indexOf(PropertyRef::StdType,int occ=0) const;
-    void		getPropertiesOfRefType(PropertyRef::StdType,
-	    				       ObjectSet<Property>&) const;
 
     bool		add(Property*); //!< refuses to add with identical name
     int			set(Property*); //!< add or change into. returns index.
@@ -169,7 +166,7 @@ public: \
 
 /*!\brief Simple, single-value property */
 
-mExpClass(General) ValueProperty : public Property
+mClass ValueProperty : public Property
 {
 public:
 
@@ -183,13 +180,12 @@ public:
     float		val_;
 
     mDefPropertyFns(ValueProperty,"Value");
-    void		setValue( float v )	{ val_ = v; }
 
 };
 
 /*!\brief Range of values.  pos_ is usually in [0,1]. */
 
-mExpClass(General) RangeProperty : public Property
+mClass RangeProperty : public Property
 {
 public:
 
@@ -209,4 +205,3 @@ public:
 
 
 #endif
-

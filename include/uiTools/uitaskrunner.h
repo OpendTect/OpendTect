@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "thread.h"
 #include "task.h"
@@ -21,7 +20,7 @@ class uiProgressBar;
 class uiLabel;
 class Timer;
 
-mExpClass(uiTools) uiTaskRunner : public uiDialog
+mClass uiTaskRunner : public uiDialog
 		   , public TaskRunner
 { 	
 public:
@@ -71,4 +70,3 @@ protected:
 };
 
 #endif
-

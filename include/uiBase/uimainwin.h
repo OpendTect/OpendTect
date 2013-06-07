@@ -12,11 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiparent.h"
 #include "mousecursor.h"
 
-mFDQtclass(QWidget)
 class uiDockWin;
 class uiGroup;
 class uiMainWinBody;
@@ -25,17 +23,14 @@ class uiObject;
 class uiPopupMenu;
 class uiStatusBar;
 class uiToolBar;
+class QWidget;
 class BufferStringSet;
 
-/*!
-\brief User interface main window.
-*/
-
-mExpClass(uiBase) uiMainWin : public uiParent
+mClass uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
 public:
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* capt )
@@ -133,7 +128,7 @@ public:
     static void		showCredits(const char* winid=0);
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
-    static uiMainWin*	gtUiWinIfIsBdy(mQtclass(QWidget*) mwimpl);
+    static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
     enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight,
 			  Middle, Auto };
@@ -147,7 +142,7 @@ public:
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
     virtual uiMainWin*	mainwin()			{ return this; }
-    mQtclass(QWidget*)		qWidget() const;
+    QWidget*		qWidget() const;
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
@@ -162,8 +157,7 @@ public:
     static void		getModalSignatures(BufferStringSet&);
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
 					   bool visibleonly=true);
-    static const char*	uniqueWinTitle(const char* txt,
-	    			       mQtclass(QWidget*) forwindow=0);
+    static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
 
     void		translate();
 
@@ -177,9 +171,7 @@ public:
 			     quality = 0...100: small compressed to large
 			     uncompressed file, quality=-1: use default    */
 
-    void		activateInGUIThread(const CallBack&,
-	    				    bool busywait=true);
-    void		saveImage(const char* fnm,int w,int h,int res);
+    void		activateInGUIThread(const CallBack&,bool busywait=true);
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
 
@@ -206,7 +198,7 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+    void		saveImage(const char* fnm,int w,int h,int res);
 };
 
 #endif
-

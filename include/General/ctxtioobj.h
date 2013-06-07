@@ -1,5 +1,5 @@
-#ifndef ctxtioobj_h
-#define ctxtioobj_h
+#ifndef ctxtioobj_H
+#define ctxtioobj_H
 
 /*+
 ________________________________________________________________________
@@ -12,21 +12,18 @@ ________________________________________________________________________
 
 -*/
  
-#include "generalmod.h"
+ 
 #include "namedobj.h"
 #include "multiid.h"
 #include "enums.h"
 #include "ioobj.h"
 #include "iopar.h"
-
 class IOPar;
 class TranslatorGroup;
 
-/*!
-\brief Holds constraints on IOObj selection.
-*/
+/*!\brief Holds constraints on IOObj selection */
 
-mExpClass(General) IOObjSelConstraints
+mClass IOObjSelConstraints
 {
 public:
     
@@ -46,22 +43,22 @@ public:
 };
 
 
-/*!
-\brief Holds the context for selecting and/or creating IOObjs.
+/*!\brief Holds the context for selecting and/or creating IOObjs.
 
-  Usually, this object is obtained by calling the ioContext() method of a
-  certain TranslatorGroup.
-  
-  Note, that if the StdSelType is set to None, you must provide the selkey or
-  we'll be blobbing stuff in the root of the survey.
+Usually, this objects is obtained by calling the ioContext() method of
+a certain TranslatorGroup.
+
+Note, that if the StdSelType is set to None, you must provide the selkey or
+we'll be blobbing stuff in the root of the survey.
+
 */
 
-mExpClass(General) IOObjContext : public NamedObject
+mClass IOObjContext : public NamedObject
 {
 public:
 
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
-			  Geom, None };
+			  None };
 			DeclareEnumUtils(StdSelType)
 
 			IOObjContext(const TranslatorGroup*,
@@ -104,15 +101,15 @@ public:
 };
 
 
-/*!
-\brief Holds an IOObjCtxt plus a pointer to an IOObj and/or an IOPar.
+/*!\brief Holds an IOObjCtxt plus a pointer to an IOObj and/or an IOPar.
 
-  Neither the IOObj nor the IOPar are managed by this object. But, when you
-  use setObj or setPar, the old object pointed to will be deleted. If you don't
-  want that, you'll have to just assign.
+Neither the IOObj nor the IOPar are managed by this object. But, when you
+use setObj or setPar, the old object pointed to will be deleted. If you
+don't want that, you'll have to just assign.
+
 */
 
-mExpClass(General) CtxtIOObj : public NamedObject
+mClass CtxtIOObj : public NamedObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
@@ -147,4 +144,3 @@ public:
 
 
 #endif
-

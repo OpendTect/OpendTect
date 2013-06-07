@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visvolrenscalarfield.h"
 
@@ -88,6 +88,7 @@ bool VolumeRenderScalarField::isOn() const
     SbVec3s size;
     void* ptr;
     SoVolumeData::DataType dt;
+    
     return voldata_->getVolumeData(size,ptr,dt) && ptr==indexcache_;
 }
 
@@ -202,9 +203,9 @@ const TypeSet<float>& VolumeRenderScalarField::getHistogram() const
 { return histogram_; }
 
 
-void VolumeRenderScalarField::setVolumeSize( const Interval<float>& x,
-					     const Interval<float>& y,
-					     const Interval<float>& z )
+void VolumeRenderScalarField::setVolumeSize(  const Interval<float>& x,
+						  const Interval<float>& y,
+						  const Interval<float>& z )
 {
     if ( !voldata_ )
 	return;
@@ -216,10 +217,8 @@ void VolumeRenderScalarField::setVolumeSize( const Interval<float>& x,
 
 Interval<float> VolumeRenderScalarField::getVolumeSize( int dim ) const
 {
-    if ( !voldata_ ) return Interval<float>();
-
-    const SbBox3f size = voldata_->getVolumeSize();
-    return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
+     const SbBox3f size = voldata_->getVolumeSize();
+     return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
 }
 
 
@@ -283,7 +282,7 @@ void VolumeRenderScalarField::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
     const ::Color col = sequence_.undefColor();
@@ -293,7 +292,7 @@ void VolumeRenderScalarField::makeColorTables()
         transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
@@ -319,7 +318,7 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
     ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
 	mNrColors-2, *datacache_, indexcache_ );
 
-    if ( !TaskRunner::execute( tr, indexer ) )
+    if ( (tr&&!tr->execute( indexer ) ) || !indexer.execute() )
 	return;
 
     int max = 0;

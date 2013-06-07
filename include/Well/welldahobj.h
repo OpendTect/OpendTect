@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "sets.h"
 #include "namedobj.h"
 #include "ranges.h"
@@ -21,11 +20,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!
-\brief Depth/Distance along hole object.
-*/
-
-mExpClass(Well) DahObj : public ::NamedObject
+mClass DahObj : public ::NamedObject
 {
 public:
 
@@ -38,11 +33,10 @@ public:
     inline int		size() const			{ return dah_.size(); }
     inline float	dah(int idx) const		{ return dah_[idx]; }
     virtual float	value(int idx) const		= 0;
-    virtual bool	insertAtDah(float dah, float val) = 0;
     int			indexOf(float dah) const;	
     virtual void	remove( int idx )
-			{ dah_.removeSingle(idx); removeAux(idx); }
-    virtual void	setEmpty()
+			{ dah_.remove(idx); removeAux(idx); }
+    virtual void	erase()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
     Interval<float>	dahRange() const
@@ -67,31 +61,6 @@ protected:
 };
 
 
-#define mWellDahObjInsertAtDah(dh,v,vals,ascendingvalonly)\
-{\
-    if ( mIsUdf(v) ) return false;\
-    if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )\
-    {\
-	if ( ascendingvalonly && v <= vals[dah_.size()-1] )\
-	    return false;\
-	dah_ += dh; vals += val;\
-    }\
-    if ( dh < dah_[0] )\
-    {\
-	if ( ascendingvalonly && v >= vals[0] )\
-	    return false;\
-	dah_.insert( 0, dh ); vals.insert( 0, v );\
-    }\
-    const int insertidx = indexOf( dh );\
-    if ( insertidx<0 ) return false;\
-    if ( ascendingvalonly && (v <= vals[insertidx] || v >= vals[insertidx+1]) )\
-	return false;\
-    dah_.insert( insertidx+1, dh ); vals.insert( insertidx+1, v );\
-}
-
-
-
 }; // namespace Well
 
 #endif
-

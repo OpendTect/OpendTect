@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -104,23 +104,19 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
 
-    /*
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr)
     if ( uivwr )
 	uivwr->dispParsChanged.notify( 
 	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
-	    */
 }
 
 
 uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
 {
-    /*
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_)
     if ( uivwr )
 	uivwr->dispParsChanged.remove( 
 	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
-	    */
 }
 
 
@@ -317,8 +313,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     }
     else if ( clip==1 )
     {
-	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01f,
-				  symclipratiofld_->getfValue()*0.01f );
+	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01,
+				  symclipratiofld_->getfValue()*0.01 );
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
 				symmidvalfld_->getfValue() : mUdf(float);
@@ -427,6 +423,7 @@ void uiFVWVAPropTab::putToScreen()
 #undef mSetCol
 
     putCommonToScreen();
+    const FlatView::DataDispPars::Common& pars = commonPars();
 }
 
 
@@ -598,9 +595,9 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     x2_->attach( alignedBelow, x1_ );
 
     BufferStringSet auxnames;
-    for ( int idx=0; idx<vwr_.nrAuxData(); idx++ )
+    for ( int idx=0; idx<annot_.auxdata_.size(); idx++ )
     {
-	const FlatView::AuxData& auxdata = *vwr_.getAuxData(idx);
+	const FlatView::Annotation::AuxData& auxdata = *annot_.auxdata_[idx];
 	if ( auxdata.name_.isEmpty() || !auxdata.editpermissions_ )
 	    continue;
 
@@ -656,18 +653,18 @@ void uiFVAnnotPropTab::putToScreen()
 
     for ( int idx=0; idx<indices_.size(); idx++ )
     {
-	*permissions_[idx] = *vwr_.getAuxData(indices_[idx])->editpermissions_;
-	enabled_[idx] = vwr_.getAuxData(indices_[idx])->enabled_;
-	linestyles_[idx] = vwr_.getAuxData(indices_[idx])->linestyle_;
-	fillcolors_[idx] = vwr_.getAuxData(indices_[idx])->fillcolor_;
-	markerstyles_[idx] = vwr_.getAuxData(indices_[idx])->markerstyles_.size()
-	    ? vwr_.getAuxData(indices_[idx])->markerstyles_[0]
+	*permissions_[idx] = *annot_.auxdata_[indices_[idx]]->editpermissions_;
+	enabled_[idx] = annot_.auxdata_[indices_[idx]]->enabled_;
+	linestyles_[idx] = annot_.auxdata_[indices_[idx]]->linestyle_;
+	fillcolors_[idx] = annot_.auxdata_[indices_[idx]]->fillcolor_;
+	markerstyles_[idx] = annot_.auxdata_[indices_[idx]]->markerstyles_.size()
+	    ? annot_.auxdata_[indices_[idx]]->markerstyles_[0]
 	    : MarkerStyle2D();
-	x1rgs_[idx] = vwr_.getAuxData(indices_[idx])->x1rg_
-	    ? *vwr_.getAuxData(indices_[idx])->x1rg_
+	x1rgs_[idx] = annot_.auxdata_[indices_[idx]]->x1rg_
+	    ? *annot_.auxdata_[indices_[idx]]->x1rg_
 	    : Interval<double>( 0, 1 );
-	x2rgs_[idx] = vwr_.getAuxData(indices_[idx])->x2rg_
-	    ? *vwr_.getAuxData(indices_[idx])->x2rg_
+	x2rgs_[idx] = annot_.auxdata_[indices_[idx]]->x2rg_
+	    ? *annot_.auxdata_[indices_[idx]]->x2rg_
 	    : Interval<double>( 0, 1 );
     }
 
@@ -689,15 +686,15 @@ bool uiFVAnnotPropTab::acceptOK()
 
     for ( int idx=0; idx<indices_.size(); idx++ )
     {
-	vwr_.getAuxData(indices_[idx])->linestyle_ = linestyles_[idx];
-	vwr_.getAuxData(indices_[idx])->fillcolor_ = fillcolors_[idx];
-	if ( vwr_.getAuxData(indices_[idx])->markerstyles_.size() )
-	    vwr_.getAuxData(indices_[idx])->markerstyles_[0]=markerstyles_[idx];
-	vwr_.getAuxData(indices_[idx])->enabled_ = enabled_[idx];
-	if ( vwr_.getAuxData(indices_[idx])->x1rg_ )
-	    *vwr_.getAuxData(indices_[idx])->x1rg_ = x1rgs_[idx];
-	if ( vwr_.getAuxData(indices_[idx])->x2rg_ )
-	    *vwr_.getAuxData(indices_[idx])->x2rg_ = x2rgs_[idx];
+	annot_.auxdata_[indices_[idx]]->linestyle_ = linestyles_[idx];
+	annot_.auxdata_[indices_[idx]]->fillcolor_ = fillcolors_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->markerstyles_.size() )
+	    annot_.auxdata_[indices_[idx]]->markerstyles_[0]=markerstyles_[idx];
+	annot_.auxdata_[indices_[idx]]->enabled_ = enabled_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->x1rg_ )
+	    *annot_.auxdata_[indices_[idx]]->x1rg_ = x1rgs_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->x2rg_ )
+	    *annot_.auxdata_[indices_[idx]]->x2rg_ = x2rgs_[idx];
     }
 
     return true;
@@ -746,7 +743,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     }
 
     if ( permissions_[idx]->fillcolor_ &&
-	 vwr_.getAuxData(indices_[idx])->close_)
+	 annot_.auxdata_[indices_[idx]]->close_)
     {
 	fillcolorfld_->setColor( fillcolors_[idx] );
 	fillcolorfld_->display( true );
@@ -754,7 +751,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     else
 	fillcolorfld_->display( false );
 
-    if ( permissions_[idx]->x1rg_ && vwr_.getAuxData(indices_[idx])->x1rg_ )
+    if ( permissions_[idx]->x1rg_ && annot_.auxdata_[indices_[idx]]->x1rg_ )
     {
 	x1rgfld_->setValue( x1rgs_[idx] );
 	x1rgfld_->display( true );
@@ -762,7 +759,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     else
 	x1rgfld_->display( false );
 
-    if ( permissions_[idx]->x2rg_ && vwr_.getAuxData(indices_[idx])->x2rg_ )
+    if ( permissions_[idx]->x2rg_ && annot_.auxdata_[indices_[idx]]->x2rg_ )
     {
 	x2rgfld_->setValue( x2rgs_[idx] );
 	x2rgfld_->display( true );
@@ -861,7 +858,7 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
     mDynamicCastGet(uiFlatViewer&,uivwr,vwr_);
     if ( !&uivwr )
 	return false;
-    //NotifyStopper notifystop( uivwr.dispParsChanged );
+    NotifyStopper notifystop( uivwr.dispParsChanged );
 
     if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
     {

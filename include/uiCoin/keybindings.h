@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 */
 
-#include "uicoinmod.h"
 #include "bufstringset.h"
-
 class SoMouseButtonEvent;
 class SoEvent;
 
-/*!
-\brief Class for setting keybindings.
+/*! \brief Class for setting keybindings.
 
-  Each binding is a BufferString. This string contains the several keys 
-  separated by a `.  e.g. zoom = "Left`Control"
+Each binding is a BufferString. This string contains the several keys 
+separated by a `.  e.g. zoom = "Left`Control"
+
 */
 
-mExpClass(uiCoin) KeyBindings
+
+mClass KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
@@ -38,25 +37,21 @@ public:
     BufferString		pan;
 
 
-    static FixedString		sName();
-    static FixedString		sRotate();
-    static FixedString		sPan();
-    static FixedString		sZoom();
+    static const char*		sName();
+    static const char*		sRotate();
+    static const char*		sPan();
+    static const char*		sZoom();
 
-    static FixedString		sControl();
-    static FixedString		sShift();
-    static FixedString		sRight();
-    static FixedString		sLeft();
-    static FixedString		sMiddle();
-    static FixedString		sNone();
+    static const char*		sControl();
+    static const char*		sShift();
+    static const char*		sRight();
+    static const char*		sLeft();
+    static const char*		sMiddle();
+    static const char*		sNone();
 };
 
 
-/*!
-\brief Event button.
-*/
-
-mExpClass(uiCoin) EventButton
+mClass EventButton
 {
 public:
                                 EventButton() {}
@@ -66,11 +61,7 @@ public:
 };
 
 
-/*!
-\brief Manages keybindings.
-*/
-
-mExpClass(uiCoin) KeyBindMan
+mClass KeyBindMan
 {
 public:
                                 KeyBindMan();
@@ -104,4 +95,3 @@ protected:
 };
 
 #endif
-

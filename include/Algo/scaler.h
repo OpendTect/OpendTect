@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "gendefs.h"
 #include "undefval.h"
 
@@ -23,14 +22,14 @@ ________________________________________________________________________
 #define sAsymptScaler	"Asymptotic"
 
 
-/*!
-\brief Scaling of floating point numbers.
-  
-  Scaler is an interface for scaling and scaling back numbers. Also, string I/O
-  is defined, as well as a factory (Scaler::get).
+/*!\brief Scaling of floating point numbers.
+
+Scaler is an interface for scaling and scaling back numbers. Also, string I/O
+is defined, aswell as a factory (Scaler::get).
+
 */
 
-mExpClass(Algo) Scaler
+mClass Scaler
 {
 public:
     static Scaler*	get(const char*);
@@ -48,11 +47,10 @@ public:
 };
 
 
-/*!
-\brief Linear scaling
+/*!\brief Linear scaling
 */
 
-mExpClass(Algo) LinScaler : public Scaler
+mClass LinScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
@@ -89,11 +87,10 @@ inline bool LinScaler::isEmpty() const
 }
 
 
-/*!
-\brief Logarithmic scaling, base e or ten.
+/*!\brief Logarithmic scaling, base e or ten.
 */
 
-mExpClass(Algo) LogScaler : public Scaler
+mClass LogScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
@@ -115,11 +112,10 @@ public:
 };
 
 
-/*!
-\brief Exponential scaling, base e or ten.
+/*!\brief Exponential scaling, base e or ten.
 */
 
-mExpClass(Algo) ExpScaler : public Scaler
+mClass ExpScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
@@ -142,19 +138,19 @@ public:
 };
 
 
-/*!
-\brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
-  
-  This scaler scales between -1 and 1. Between center()-width()
-  and center()+width() this will happen linearly. The value at width() will be
-  linedge(). Therefore, linedge should be set to a value near 1, like the
-  default 0.95.
-  Outside the width() boundaries, a 1 / (1 + x^2) function will make
-  sure the output will be between -1 and 1. Thus, this scaler acts as a
-  reversible squeeze function, with a non-deforming (linear), fast central part.
+/*!\brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
+
+This scaler scales between -1 and 1. Between center()-width()
+and center()+width() this will happen linearly. The value at width() will be
+linedge(). Therefore, linedge should be set to a value near 1, like the
+default 0.95.
+Outside the width() boundaries, a 1 / (1 + x^2) function will make
+sure the output will be between -1 and 1. Thus, this scaler acts as a
+reversible squeeze function, with a non-deforming (linear), fast central part.
+
 */
 
-mExpClass(Algo) AsymptScaler : public Scaler
+mClass AsymptScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:
@@ -192,4 +188,3 @@ protected:
 
 
 #endif
-

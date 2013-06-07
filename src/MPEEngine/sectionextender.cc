@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -61,7 +61,7 @@ void SectionExtender::excludePositions( const TypeSet<EM::SubID>* exclpos )
 
 bool SectionExtender::isExcludedPos( const EM::SubID& pos ) const
 {
-    return excludedpos_ && excludedpos_->isPresent(pos);
+    return excludedpos_ && excludedpos_->indexOf(pos)!=-1;
 }
 
 

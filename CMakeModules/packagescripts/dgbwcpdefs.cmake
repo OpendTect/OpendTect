@@ -2,7 +2,7 @@
 # Description:  CMake script to define dgbwcp package variables
 # Author:       Nageswara
 # Date:         August 2012
-#RCS:           $Id$
+#RCS:           $Id: dgbwcpdefs.cmake,v 1.3 2012/09/05 12:23:52 cvsnageswara Exp $
 
 SET( LIBLIST WellCorr uiWellCorr )
 SET( EXECLIST "" )

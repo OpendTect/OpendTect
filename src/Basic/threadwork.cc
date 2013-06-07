@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "threadwork.h"
 #include "task.h"
@@ -24,35 +24,13 @@ Threads::WorkManager& WorkManager::twm()
 }
 
 
-class SimpleWorker : public CallBacker
-{
-public:
-    			SimpleWorker() : retval_( false )	{}
-    virtual		~SimpleWorker()				{}
-
-    void		runWork(Work& w,CallBack* cb)
-    			{
-			    retval_ = w.doRun();
-			    if ( cb ) cb->doCall( this );
-			}
-
-    bool		getRetVal() const 	{ return retval_; }
-    			/*!< Do only call when task is finished,
-			     i.e. from the cb or
-			     Threads::WorkManager::imFinished()
-			*/
-protected:
-    bool		retval_;
-};
-
-
 
 /*!\brief
 is the worker that actually does the job and is the link between the manager
 and the tasks to be performed.
 */
 
-class WorkThread : public SimpleWorker
+class WorkThread : public CallBacker
 {
 public:
     			WorkThread( WorkManager& );
@@ -62,6 +40,11 @@ public:
     void		assignTask(const ::Threads::Work&,
 	    			   const CallBack& finishedcb, int queueid );
 
+    bool		getRetVal() const 	{ return retval_; }
+    			/*!< Do only call when task is finished,
+			     i.e. from the cb or
+			     Threads::WorkManager::imFinished()
+			*/
 
     void		cancelWork( const ::Threads::Work* );
     			//!< If working on this task, cancel it and continue.
@@ -79,6 +62,7 @@ protected:
     WorkManager&	manager_;
 
     ConditionVar&	controlcond_;	//Dont change this order!
+    bool		retval_;	//Lock before reading or writing
 
     bool		exitflag_;	//Set only from destructor
     bool		cancelflag_;	//Cancel current work and continue
@@ -103,7 +87,6 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     , exitflag_( false )
     , cancelflag_( false )
 {
-    spacefiller_[0] = 0; //to avoid warning of unused
     controlcond_.lock();
     thread_ = new Thread( mCB( this, WorkThread, doWork));
     controlcond_.unLock();
@@ -183,11 +166,11 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    else
 	    {
 		task_ = manager_.workload_[idx];
-		manager_.workload_.removeSingle( idx );
+		manager_.workload_.remove( idx );
 		finishedcb_ = manager_.callbacks_[idx];
-		manager_.callbacks_.removeSingle( idx );
+		manager_.callbacks_.remove( idx );
 		queueid_ = manager_.workqueueid_[idx];
-		manager_.workqueueid_.removeSingle( idx );
+		manager_.workqueueid_.remove( idx );
 	    }
 
 	    manager_.workloadcond_.unLock();
@@ -289,34 +272,34 @@ int Threads::WorkManager::addQueue( QueueType type )
 }
 
 
-bool Threads::WorkManager::executeQueue( int queueid )
+void Threads::WorkManager::executeQueue( int queueid )
 {
     Threads::MutexLocker lock( workloadcond_ );
     int queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 )
-	return false;
+	return;
 
     if ( queuetypes_[queueidx]!=Manual )
     {
 	pErrMsg("Only manual queues can be executed" );
-	return false;
+	return;
     }
 
-    bool success = true;
     while ( true )
     {
 	::Threads::Work task;
 	CallBack cb(0,0);
+	bool manage = false;
 	for ( int idx=0; idx<workload_.size(); idx++ )
 	{
 	    if ( workqueueid_[idx]==queueid )
 	    {
 		task = workload_[idx];
-		workload_.removeSingle( idx );
+		workload_.remove( idx );
 
 		cb = callbacks_[idx];
-		callbacks_.removeSingle( idx );
-		workqueueid_.removeSingle( idx );
+		callbacks_.remove( idx );
+		workqueueid_.remove( idx );
 		break;
 	    }
 	}
@@ -327,9 +310,7 @@ bool Threads::WorkManager::executeQueue( int queueid )
 	queueworkload_[queueidx]++;
 	lock.unLock();
 
-	if ( !task.doRun() )
-	    success = false;
-
+	task.doRun();
 	cb.doCall( 0 );
 
 	lock.lock();
@@ -339,8 +320,6 @@ bool Threads::WorkManager::executeQueue( int queueid )
 
 	reduceWorkload( queueidx );
     }
-
-    return success;
 }
 
 
@@ -352,7 +331,7 @@ inline void Threads::WorkManager::reduceWorkload( int queueidx )
 	workloadcond_.signal( true );
 	return;
     }
-
+    
     queueworkload_[queueidx]--;
     if ( !queueworkload_[queueidx] )
 	workloadcond_.signal( true );
@@ -378,10 +357,10 @@ void Threads::WorkManager::emptyQueue( int queueid, bool finishall )
 	    {
 		::Threads::Work& task = workload_[idx];
 		task.destroy();
-		workload_.removeSingle( idx );
+		workload_.remove( idx );
 		
-		workqueueid_.removeSingle( idx );
-		callbacks_.removeSingle( idx );
+		workqueueid_.remove( idx );
+		callbacks_.remove( idx );
 	    }
 	}
 
@@ -406,10 +385,10 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
 	workloadcond_.wait();
 
     queueidx = queueids_.indexOf( queueid );
-    queueworkload_.removeSingle( queueidx );
-    queuetypes_.removeSingle( queueidx );
-    queueids_.removeSingle( queueidx );
-    queueisclosing_.removeSingle( queueidx );
+    queueworkload_.remove( queueidx );
+    queuetypes_.remove( queueidx );
+    queueids_.remove( queueidx );
+    queueisclosing_.remove( queueidx );
 }
 
 
@@ -432,30 +411,27 @@ int Threads::WorkManager::queueSizeNoLock( int queueid ) const
     return res;
 }
 
-#define mRunTask \
-    ::Threads::Work taskcopy = newtask; \
-    SimpleWorker sw; \
-    sw.runWork( taskcopy, cb )
 
 void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
-	CallBack* cb, int queueid, bool firstinline,
-	bool ignoreduplicates )
+	CallBack* cb, int queueid, bool firstinline )
        					  
 {
-    if ( queueid<0 )
-	queueid = cDefaultQueueID();
-    
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
-	mRunTask;
-	return;
+	while ( true )
+	{
+	    ::Threads::Work taskcopy = newtask;
+	    taskcopy.doRun();
+	    if ( cb ) cb->doCall( 0 );
+	    return;
+	}
     }
 
     const CallBack thecb( cb ? *cb : CallBack(0,0) );
 
     Threads::MutexLocker lock(workloadcond_);
-    int queueidx = queueids_.indexOf( queueid );
+    int const queueidx = queueids_.indexOf( queueid );
     if ( queueidx==-1 || queueisclosing_[queueidx] )
     {
 	pErrMsg("Queue does not exist or is closing. Task rejected." );
@@ -464,37 +440,18 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
-    if ( ignoreduplicates && workload_.isPresent( newtask ) )
-	return;
- 
     const int nrfreethreads = freethreads_.size();
-    if ( queuetypes_[queueidx]!=Manual )
+    if ( queuetypes_[queueidx]!=Manual && nrfreethreads )
     {
-	if ( queuetypes_[queueidx]==MultiThread ||
-	     !queueworkload_[queueidx] )
+	if ( queuetypes_[queueidx]==MultiThread || !queueworkload_[queueidx] )
 	{
-	    if ( nrfreethreads )
-	    {
-		WorkThread* thread =
-		    freethreads_.removeSingle( nrfreethreads-1 );
-		queueworkload_[queueidx]++;
+	    const int threadidx = nrfreethreads-1;
+	    WorkThread* thread = freethreads_.remove( nrfreethreads-1 );
+	    queueworkload_[queueidx]++;
 
-		lock.unLock();
-		thread->assignTask( newtask, thecb, queueid );
-		return;
-	    }
-	    else if ( isWorkThread() )
-	    {
-		queueworkload_[queueidx]++;
-		lock.unLock();
-
-		mRunTask;
-
-		lock.lock();
-		queueidx = queueids_.indexOf( queueid );
-		queueworkload_[queueidx]--;
-		return;
-	    }
+	    lock.unLock();
+	    thread->assignTask( newtask, thecb, queueid );
+	    return;
 	}
     }
 
@@ -524,11 +481,12 @@ bool Threads::WorkManager::removeWork( const ::Threads::Work& task )
 	return false;
     }
 
+
     workload_[idx].destroy();
 
-    workqueueid_.removeSingle( idx );
-    workload_.removeSingle( idx );
-    callbacks_.removeSingle( idx );
+    workqueueid_.remove( idx );
+    workload_.remove( idx );
+    callbacks_.remove( idx );
 
     workloadcond_.unLock();
     return true;
@@ -567,8 +525,8 @@ public:
 
     void	    imFinished(CallBacker* cb )
 		    {
-			Threads::SimpleWorker* worker =
-				    dynamic_cast<Threads::SimpleWorker*>( cb );
+			Threads::WorkThread* worker =
+				    dynamic_cast<Threads::WorkThread*>( cb );
 			rescond_.lock();
 			if ( error_ || !worker->getRetVal() )
 			    error_ = true;
@@ -590,25 +548,17 @@ protected:
 bool Threads::WorkManager::addWork( TypeSet<Threads::Work>& work,
 				    int queueid, bool firstinline )
 {
-    return executeWork( work.arr(), work.size(), queueid, firstinline );
-}
-
-
-bool Threads::WorkManager::executeWork( Threads::Work* workload,
-				    int workloadsize,
-				    int queueid, bool firstinline )
-{
-
-    if ( !workloadsize )
+    if ( work.isEmpty() )
 	return true;
 
+    const int nrwork = work.size();
     const int nrthreads = threads_.size();
     bool res = true;
     if ( nrthreads==1 )
     {
-	for ( int idx=0; idx<workloadsize; idx++ )
+	for ( int idx=0; idx<nrwork; idx++ )
 	{
-	    if ( workload[idx].doRun() )
+	    if ( work[idx].doRun() )
 		continue;
 
 	    res = false;
@@ -617,14 +567,14 @@ bool Threads::WorkManager::executeWork( Threads::Work* workload,
     }
     else
     {
-	WorkResultManager resultman( workloadsize-1 );
+	WorkResultManager resultman( nrwork-1 );
 
 	CallBack cb( mCB( &resultman, WorkResultManager, imFinished ));
 
-	for ( int idx=1; idx<workloadsize; idx++ )
-	    addWork( workload[idx], &cb, queueid, firstinline );
+	for ( int idx=1; idx<nrwork; idx++ )
+	    addWork( work[idx], &cb, queueid, firstinline );
 
-	res = workload[0].doRun();
+	res = work[0].doRun();
 
 	resultman.rescond_.lock();
 	while ( !resultman.isFinished() )
@@ -675,7 +625,7 @@ int Threads::WorkManager::nrFreeThreads() const
 
 bool Threads::WorkManager::isWorkThread() const
 {
-    return threadids_.isPresent( Threads::currentThread() );
+    return threadids_.indexOf( Threads::Thread::currentThread() )!=-1;
 }
 
 
@@ -690,5 +640,5 @@ void ::Threads::Work::destroy()
 
 bool ::Threads::Work::operator==(const ::Threads::Work& t ) const
 {
-    return obj_==t.obj_ && cbf_==t.cbf_ && tf_==t.tf_ && stf_==t.stf_;
+    return obj_==t.obj_ && tf_==t.tf_ && stf_==t.stf_;
 }

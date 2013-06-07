@@ -4,7 +4,7 @@
  * DATE     : July 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
@@ -32,16 +32,16 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
     , processor_(new AngleMuteComputer) 
 {
-    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
+    anglemutegrp_ = new uiAngleMuteGrp( this, processor_->params(), true );
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
-    sep->attach( stretchedBelow, anglecompgrp_ );
+    sep->attach( stretchedBelow, anglemutegrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
     HorSampling hs; subsel_->getSampling( hs );
     hs.step = BinID( SI().inlStep()*20, SI().crlStep()*20 );
     subsel_->setInput( hs );
-    subsel_->attach( alignedBelow, anglecompgrp_ );
+    subsel_->attach( alignedBelow, anglemutegrp_ );
     subsel_->attach( ensureBelow, sep );
 
     outctio_.ctxt.forread = false;
@@ -59,7 +59,7 @@ uiAngleMuteComputer::~uiAngleMuteComputer()
 
 bool uiAngleMuteComputer::acceptOK(CallBacker*)
 {
-    if ( !anglecompgrp_->acceptOK() )
+    if ( !anglemutegrp_->acceptOK() )
 	return false;
 
     if ( !mutedeffld_->commitInput() || !outctio_.ioobj )
@@ -70,12 +70,11 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     HorSampling hrg;
     if ( !subsel_->isAll() )
 	subsel_->getSampling( hrg );
-
     processor_->params().hrg_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
 
     uiTaskRunner tr(this);
-    if ( !TaskRunner::execute( &tr, *processor_ ) )
+    if ( !tr.execute( *processor_ ) )
     {
 	uiMSG().error( processor_->errMsg() );
 	return false;

@@ -121,6 +121,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     editbut_->attach( alignedBelow, addbut_ );
     rembut_ = new uiToolButton(toolgrp_, "trashcan", "Remove Marker", butcb);
     rembut_->attach( alignedBelow, editbut_ );
+
 }
 
 
@@ -142,6 +143,10 @@ void uiDispEditMarkerDlg::allowMarkersManagement( bool yn )
 }
 
 
+void uiDispEditMarkerDlg::editDlgClosedCB( CallBacker* )
+{}
+
+
 void uiDispEditMarkerDlg::modeChg( CallBacker* )
 {
     if ( ispicking_ != pickbut_->isOn() )
@@ -155,7 +160,8 @@ void uiDispEditMarkerDlg::modeChg( CallBacker* )
 
 void uiDispEditMarkerDlg::addMarkerSet( Well::MarkerSet& mrks ) 
 {
-    Well::MarkerSet* orgmrks = new Well::MarkerSet( mrks );
+    Well::MarkerSet* orgmrks = new Well::MarkerSet();
+    deepCopy( *orgmrks, mrks );
     orgmarkerssets_ += orgmrks;
     markerssets_ += &mrks;
     fillMarkerList( 0 );
@@ -188,7 +194,7 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( nm, tmplist_[idx]->name() ) )
-	    delete tmplist_.removeSingle( idx );
+	    delete tmplist_.remove( idx );
     }
 }
 
@@ -197,7 +203,7 @@ void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 {
     Well::MarkerSet& mrkset = *markerssets_[idset];
     if ( mrkset.isPresent( nm ) ) 
-	delete mrkset.removeSingle( mrkset.indexOf( nm ),true );
+	delete mrkset.remove( mrkset.indexOf( nm ),true );
 }
 
 
@@ -218,7 +224,10 @@ bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
 	if ( !uiMSG().askContinue( msg ) )
 	{
 	    for ( int idx=0; idx<markerssets_.size(); idx++ )
-		*markerssets_[idx] = *orgmarkerssets_[idx];
+	    {
+		deepErase( *markerssets_[idx] );
+		deepCopy( *markerssets_[idx], *orgmarkerssets_[idx] );
+	    }
 	    return true;
 	}
 	else
@@ -315,7 +324,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.removeSingle( idx );
+	    delete tmplist_.remove( idx );
 	fillMarkerList(0);
 	return true;
     }
@@ -331,7 +340,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 	    Well::MarkerSet& mrkset = *markerssets_[idx];
 	    if ( mrkset.isPresent( mrknm ) )
 	    {
-		delete mrkset.removeSingle( mrkset.indexOf( mrknm ),true );
+		delete mrkset.remove( mrkset.indexOf( mrknm ),true );
 	    }
 	}
 	hasedited_ = true; 

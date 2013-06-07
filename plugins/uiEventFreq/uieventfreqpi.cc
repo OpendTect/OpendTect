@@ -2,8 +2,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert Bril
  * DATE     : Jul 2007
- * SVN      : $Id$
 -*/
+
+static const char* rcsID = "$Id";
 
 #include "uieventfreqattrib.h"
 #include "odplugin.h"

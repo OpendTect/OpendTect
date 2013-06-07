@@ -23,7 +23,7 @@ position in a N dimenstional space. */
 
 
 template <class T>
-mClass(General) MultiDimStorage
+class MultiDimStorage
 {
 public:
 				MultiDimStorage(int ndims,int nvals);
@@ -191,6 +191,7 @@ bool MultiDimStorage<T>::append( const MultiDimStorage<T>& b )
     for ( int idx=0; idx<b.size(); idx++ )
     {
 	const int pos = b.getPos( idx );
+	const int targetidx = indexOf( pos );
 	int index = findFirstPos( pos );
 
 	const bool match = positions_.validIdx(index) && positions_[index]==pos;
@@ -410,7 +411,7 @@ bool MultiDimStorage<T>::add( const V& vals, const POS& posarr,
 			      IDX* indexarr )
 {
     const int dim = nrdims_-1;
-    const int pos = mCast( int, posarr[dim] );
+    const int pos = posarr[dim];
     int index = findFirstPos( pos );
 
     const bool match = positions_.validIdx(index) && positions_[index]==pos;
@@ -494,13 +495,13 @@ void MultiDimStorage<T>::remove( const IDX& indexarr )
 	    return;
 
 	delete lowerdimstorage_[index];
-	lowerdimstorage_.removeSingle( index );
-	positions_.removeSingle( index );
+	lowerdimstorage_.remove( index );
+	positions_.remove( index );
 	return;
     }
 
-    onedimstorage_.removeRange( index*nrvals_, index*nrvals_+nrvals_-1 );
-    positions_.removeSingle( index );
+    onedimstorage_.remove( index*nrvals_, index*nrvals_+nrvals_-1 );
+    positions_.remove( index );
 }
 
 
@@ -741,9 +742,9 @@ void MultiDimStorage<T>::removeDuplicates()
     {
 	if ( positions_[idx-1]==positions_[idx] )
 	{
-	    positions_.removeSingle( idx );
+	    positions_.remove( idx );
 	    for ( int idy=0; idy<nrvals_; idy++ )
-		onedimstorage_.removeSingle( idx );
+		onedimstorage_.remove( idx );
 
 	    idx--;
 	}
@@ -826,8 +827,8 @@ bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
     sort_coupled( sortkeys.arr(), idxs.arr(), idxs.size() );
 
     TypeSet<IDXS> copy = indices;
-    for ( int idx=mCast(int,idxs.size()-1); idx>=0; idx-- )
-	indices[idx] = copy[(int)idxs[idx]];
+    for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	indices[idx] = copy[idxs[idx]];
 
     return true;
 }

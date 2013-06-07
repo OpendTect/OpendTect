@@ -13,18 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurfacetr.h"
 #include "rowcol.h"
 #include "executor.h"
 
 namespace EM { class Fault3D; };
 
-/*!
-\brief Landmark EM::Fault3D EMSurfaceTranslator.
-*/
-
-mExpClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
+mClass lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)
 public:
     			lmkEMFault3DTranslator(const char* nm,
@@ -56,11 +51,7 @@ public:
 };
 
 
-/*!
-\brief Landmark EM::Fault3D reader.
-*/
-
-mExpClass(EarthModel) lmkEMFault3DReader : public Executor
+mClass lmkEMFault3DReader : public Executor
 {
 public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
@@ -95,11 +86,7 @@ protected:
 };
 
 
-/*!
-\brief Landmark EM::Fault3D writer. 
-*/
-
-mClass(EarthModel) lmkEMFault3DWriter : public Executor
+class lmkEMFault3DWriter : public Executor
 {
 public:
 			lmkEMFault3DWriter(const EM::Fault3D&,
@@ -136,4 +123,3 @@ protected:
 #define mLMK_CONTROL_PT		4
 
 #endif
-

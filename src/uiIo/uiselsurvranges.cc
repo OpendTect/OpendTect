@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiselsurvranges.h"
 
@@ -57,10 +57,10 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 				 const StepInterval<float>* inplimitrg )
 {
-    const float zfac = mCast( float, zddef_.userFactor() );
+    const float zfac = zddef_.userFactor();
     const StepInterval<float>& sizrg( SI().zRange(false) );
 
-    StepInterval<float> limitrg( -mCast(float,cUnLim), mCast(float,cUnLim), 1 );
+    StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
     if ( inplimitrg )
 	limitrg = *inplimitrg;
     if ( !othdom_ && limitrg.step > sizrg.step )
@@ -110,9 +110,10 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
 StepInterval<float> uiSelZRange::getRange() const
 {
+    const float zfac = zddef_.userFactor();
     StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(), 
 	    		     stepfld_ ? stepfld_->getFValue() : 1 );
-    zrg.scale( 1.f / zddef_.userFactor() );
+    zrg.scale( 1. / zddef_.userFactor() );
     if ( !stepfld_ )
 	zrg.step = SI().zRange(true).step;
     return zrg;
@@ -151,7 +152,7 @@ StepInterval<float> uiSelZRange::getRange() const
 void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 {
     StepInterval<float> zrg( inpzrg );
-    zrg.scale( mCast(float,zddef_.userFactor()) );
+    zrg.scale( zddef_.userFactor() );
 
     const StepInterval<float> limitrg = startfld_->getFInterval();
     StepInterval<float> newzrg;
@@ -191,7 +192,7 @@ void uiSelZRange::valChg( CallBacker* cb )
 void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
 {
     StepInterval<float> zrg( zlimits );
-    zrg.scale( mCast(float,zddef_.userFactor()) );
+    zrg.scale( zddef_.userFactor() );
     startfld_->setInterval( zrg );
     stopfld_->setInterval( zrg );
     if ( stepfld_ )

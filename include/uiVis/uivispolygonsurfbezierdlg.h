@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 class uiGenInput;
@@ -22,7 +21,7 @@ namespace Geometry { class PolygonSurface; }
 namespace visSurvey { class PolygonBodyDisplay; };
 
 
-mExpClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
+mClass uiVisPolygonSurfBezierDlg : public uiDlgGroup
 {
 public:
     					uiVisPolygonSurfBezierDlg(uiParent*,
@@ -40,4 +39,3 @@ protected:
 
 
 #endif
-

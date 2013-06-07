@@ -11,19 +11,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ranges.h"
 #include "indexinfo.h"
 
-/*!
-\brief Positioning of flat 'bulk' data. Only the 'x1' axis can be irregular.
+/*!\brief Positioning of flat 'bulk' data.
+  	  Only the 'x1' axis can be irregular.
 
-  Even if the X1 range is irregular, the x1rg_ is kept in sync with the start,
-  stop and average step. Uncomplicated programmers may get away with using
-  nothing else but the range().
-*/
+    Even if the X1 range is irergular, the x1rg_ is kept in sync with the
+    start, stop and average step. Uncomplicated programmers may get away
+    with using nothing else but the range().
+ 
+ */
 
-mExpClass(General) FlatPosData
+mClass FlatPosData
 {
 public:
 				FlatPosData()
@@ -49,7 +49,7 @@ public:
     inline int			nrPts( bool forx1 ) const
 				{ return range(forx1).nrSteps() + 1; }
     float			width( bool forx1 ) const
-				{ return ( float )( range(forx1).width() ); }
+				{ return range(forx1).width(); }
     IndexInfo			indexInfo(bool forx1,double pos) const;
 
     double			position(bool forx1,int) const;
@@ -82,4 +82,3 @@ protected:
 
 
 #endif
-

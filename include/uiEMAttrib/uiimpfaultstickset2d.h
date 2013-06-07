@@ -11,7 +11,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
-#include "uiemattribmod.h"
 #include "uiimpfault.h"
 
 class BufferStringSet;
@@ -20,7 +19,7 @@ class uiComboBox;
 
 /*Brief Dialog for 2D FaultStickSet*/
 
-mExpClass(uiEMAttrib) uiImportFaultStickSet2D : public uiImportFault
+mClass uiImportFaultStickSet2D : public uiImportFault
 {
 public:
     			uiImportFaultStickSet2D(uiParent*,const char*);
@@ -35,4 +34,3 @@ protected:
 };
 
 #endif
-

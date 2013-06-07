@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "separstr.h"
 #include "bufstringset.h"
 #include "mousecursor.h"
@@ -24,7 +23,7 @@ namespace CmdDrive
 {
 
 #define mAddCharToBufStr( bufstr, chr ) \
-{ char str[2]; str[0] = mCast(char,chr); str[1] = '\0'; bufstr += str; }
+{ char str[2]; str[0] = chr; str[1] = '\0'; bufstr += str; }
 
 #define mSepStrSize(fms) ( fms.isEmpty() ? 1 : fms.size() )
 
@@ -81,7 +80,7 @@ namespace CmdDrive
     const char* unscopedstr = *identstr=='@' ? identstr+1 : identstr;
 
 
-mExpClass(uiCmdDriver) StringProcessor	// Parsing toolkit 
+mClass StringProcessor	// Parsing toolkit 
 {
 public:
 			StringProcessor(BufferString& bs)
@@ -162,14 +161,14 @@ protected:
 };
 
 
-mGlobal(uiCmdDriver) const char* windowTitle(const uiMainWin* applwin,
-					     const uiMainWin* uimw,
-					     int aliasnr=0);
-mGlobal(uiCmdDriver) bool isCmdDriverWindow(const uiMainWin*);
-mGlobal(uiCmdDriver) const char* controllerTitle();
+mGlobal const char* windowTitle(const uiMainWin* applwin,
+				const uiMainWin* uimw,
+				int aliasnr=0);
+mGlobal bool isCmdDriverWindow(const uiMainWin*);
+mGlobal const char* controllerTitle();
 
 
-mExpClass(uiCmdDriver) WindowStack
+mClass WindowStack
 {
 public:
 			WindowStack()			{}
@@ -188,7 +187,7 @@ protected:
 };
 
 
-mExpClass(uiCmdDriver) InteractSpec
+mClass InteractSpec
 {
 public:
 			InteractSpec(bool wait=true)

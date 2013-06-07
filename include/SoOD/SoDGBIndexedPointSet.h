@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoIndexedShape.h"
 
 #include "soodbasic.h"
@@ -26,7 +25,7 @@ UPDATE: Coin has a SoIndexedPointSet class, which should be used when
 it comes to the stable repository.
 */
 
-mSoODClass SoDGBIndexedPointSet : public SoIndexedShape
+mClass SoDGBIndexedPointSet : public SoIndexedShape
 {
     SO_NODE_HEADER(SoDGBIndexedPointSet);
 public:
@@ -55,5 +54,4 @@ private:
 };
 
 #endif
-
 

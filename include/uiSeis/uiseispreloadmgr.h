@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 class uiListBox;
@@ -21,7 +20,7 @@ class uiTextEdit;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
+mClass uiSeisPreLoadMgr : public uiDialog
 { 	
 public:
 			uiSeisPreLoadMgr(uiParent*);
@@ -50,4 +49,3 @@ protected:
 
 
 #endif
-

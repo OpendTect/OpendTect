@@ -11,30 +11,29 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 #include "valseriesevent.h"
 
 namespace Attrib
 {
 
-/*!
-\brief %Event attribute
+/*!\brief Event attribute
   
-  EventAttrib  singleevent = 
-	       eventtype = extremum, max, min, zerocrossing...
-  	       tonext = 
-  	       gate =
-  	       outamp = 
-	       
-  Calculates properties of events ( peakedness, steepness, asymmetry)
-  Calculates the distance between the sample and the next or previous eventtype
-  Calculates the distance between the sample and the sample of max or min 
-  amplitude withing a time gate.
-  Can optionally return the amplitude value at event exact position.
+EventAttrib  singleevent = 
+	     eventtype = extremum, max, min, zerocrossing...
+	     tonext = 
+	     gate =
+	     outamp = 
+
+Calculates properties of events ( peakedness, steepness, asymmetry)
+Calculates the distance between the sample and the next or previous eventtype
+Calculates the distance between the sample and the sample of max or min 
+amplitude withing a time gate.
+Can optionally return the amplitude value at event exact position
+
 */
 
-mExpClass(Attributes) Event : public Provider
+mClass Event : public Provider
 {
 public:
     static void			initClass();
@@ -91,4 +90,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

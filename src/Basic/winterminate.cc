@@ -4,7 +4,7 @@
  * SOURCE   : http://support.microsoft.com/kb/178893
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 #include "commondefs.h"
 #ifdef __win__
 #include "winterminate.h"

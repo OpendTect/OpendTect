@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "ranges.h"
@@ -33,7 +32,7 @@ class VisColorTab;
 
 */
 
-mExpClass(visBase) RandomTrack : public VisualObjectImpl
+mClass RandomTrack : public VisualObjectImpl
 {
 public:
     static RandomTrack*		create()
@@ -129,5 +128,4 @@ protected:
 };
 
 #endif
-
 

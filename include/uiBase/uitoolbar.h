@@ -12,23 +12,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiparent.h"
-
-mFDQtclass(QAction)
-mFDQtclass(QToolBar)
-
 class ioPixmap;
 class MenuItem;
 class uiObject;
 class uiPopupMenu;
 class uiToolBarBody;
+class QAction;
+class QToolBar;
 class uiToolButton;
 class uiToolButtonSetup;
 class i_ToolBarMessenger;
 
 
-mExpClass(uiBase) uiToolBar : public uiParent
+mClass uiToolBar : public uiParent
 {
 friend class i_ToolBarMessenger;
 public:
@@ -92,7 +89,7 @@ public:
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
-    mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }
+    QToolBar*		qwidget()		{ return qtoolbar_; }
 
     const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
@@ -101,17 +98,16 @@ public:
 
 protected:
 
-    mQtclass(QToolBar*)		qtoolbar_;
+    QToolBar*		qtoolbar_;
     i_ToolBarMessenger*	msgr_;
     uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*,mQtclass(QToolBar&));
+    uiToolBarBody&	mkbody(const char*,QToolBar&);
 
     uiParent*		parent_;
     ToolBarArea		tbarea_;
 
-    int			getButtonID(mQtclass(QAction*));
+    int			getButtonID(QAction*);
 
 };
 
 #endif
-

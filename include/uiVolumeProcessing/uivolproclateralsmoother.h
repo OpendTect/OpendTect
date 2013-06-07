@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocchain.h"
 #include "volproclateralsmoother.h"
 
@@ -25,7 +24,7 @@ namespace VolProc
 class LateralSmoother;
 
 
-mExpClass(uiVolumeProcessing) uiLateralSmoother : public uiStepDialog
+mClass uiLateralSmoother : public uiStepDialog
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -61,4 +60,3 @@ protected:
 }; //namespace
 
 #endif
-

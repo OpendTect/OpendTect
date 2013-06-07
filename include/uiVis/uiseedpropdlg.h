@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uimarkerstyledlg.h"
 #include "emobject.h"
 
@@ -19,7 +18,7 @@ class uiColorInput;
 class uiGenInput;
 class uiSliderExtra;
 
-mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
+mClass uiSeedPropDlg : public uiMarkerStyleDlg
 {
 public:
     			uiSeedPropDlg(uiParent*,EM::EMObject*);
@@ -38,4 +37,3 @@ protected:
 };
 
 #endif
-

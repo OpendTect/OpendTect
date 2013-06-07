@@ -11,17 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include "uidialog.h"
-
 class uiSliderExtra;
 class ui3DViewer;
 
-/*!
-\brief Dialog for stereo.
-*/
-
-mExpClass(uiCoin) uiStereoDlg : public uiDialog
+mClass uiStereoDlg : public uiDialog
 {
 public:
 			uiStereoDlg(uiParent*,ObjectSet<ui3DViewer>&);
@@ -38,4 +32,3 @@ protected:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "objectset.h"
 #include "separstr.h"
 
@@ -20,7 +19,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mExpClass(uiCmdDriver) IdentifierManager
+mClass IdentifierManager
 {
 public:
     			IdentifierManager();
@@ -49,7 +48,7 @@ public:
 
 protected:
 
-    mClass(uiCmdDriver) Identifier
+    class Identifier
     {
 	public:
 			Identifier(const char* name,const char* val="",

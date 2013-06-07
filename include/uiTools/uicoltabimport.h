@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "sets.h"
 
@@ -22,7 +21,7 @@ class uiGenInput;
 class uiLabeledListBox;
 
 
-mExpClass(uiTools) uiColTabImport : public uiDialog
+mClass uiColTabImport : public uiDialog
 {
 public:
 				uiColTabImport(uiParent*);
@@ -43,4 +42,3 @@ protected:
 };
 
 #endif
-

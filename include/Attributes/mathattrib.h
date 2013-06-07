@@ -12,7 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
+/*! \brief
+#### Short description
+\par
+#### Detailed description.
+
+*/
+
 #include "attribprovider.h"
 
 class MathExpression;
@@ -20,11 +26,7 @@ class MathExpression;
 namespace Attrib
 {
 
-/*!
-\brief %Math Attribute
-*/
-
-mExpClass(Attributes) Math : public Provider
+mClass Math : public Provider
 {
 public:
     static void			initClass();
@@ -130,4 +132,3 @@ private:
 }; // namespace Attrib
 
 #endif
-

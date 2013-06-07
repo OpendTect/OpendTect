@@ -13,12 +13,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
 
-class Wavelet;
 class uiGroup;
 class uiToolBar;
 class uiGenInput;
@@ -43,14 +41,14 @@ namespace WellTie
     class uiTieView;
     class uiWaveletView;
 
-mExpClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
+mClass uiTieWin : public uiFlatViewMainWin
 {
 public:
 
 				uiTieWin(uiParent*,WellTie::Server&);
 				~uiTieWin();
 
-    const WellTie::Setup&	Setup() const;
+    const WellTie::Setup&	Setup() const;	
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
@@ -112,7 +110,7 @@ protected:
     bool 			matchHorMrks(CallBacker*);
     void 			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
-    void			reDrawAuxDatas(CallBacker*);
+    void			reDrawSeisViewerAnnot(CallBacker*);
     void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
@@ -120,12 +118,11 @@ protected:
     void 			timeChanged(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
-    void			snapshotCB(CallBacker*);
 };
 
 
 
-mExpClass(uiWellAttrib) uiInfoDlg : public uiDialog
+mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
@@ -136,12 +133,12 @@ public:
 
     void 			drawData();
     bool 			getMarkerDepths(Interval<float>& zrg );
-    void 			dtmodelChanged(CallBacker*);
-    const Wavelet&		getWavelet() const;
-    bool			isInitWvltActive() const;
+    void 			propChanged(CallBacker*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
+    uiLabel*			getScalerFld() const;
+    void			setScalerFld(uiLabel*);
 
 protected:
    
@@ -152,12 +149,10 @@ protected:
     uiGenInput*                 estwvltlengthfld_;
     uiCrossCorrView*      	crosscorr_;
     uiWaveletView*     		wvltdraw_;
-    uiLabel*			wvltscaler_;
 
     BufferStringSet             markernames_;
 
     Interval<float>		zrg_;
-    bool			zrginft_;
     int				selidx_;
     BufferString		startmrknm_;
     BufferString		stopmrknm_;
@@ -165,20 +160,13 @@ protected:
     const Data& 		data_;
 
     void			putToScreen();
-    bool			updateZrg();
-    bool			computeNewWavelet();
+    void    			computeData();
 
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);
-    void 			needNewEstimatedWvlt(CallBacker*);
-    void 			zrgChanged(CallBacker*);
-    void 			synthChanged(CallBacker*);
-    void			crossCorrelationChanged(CallBacker*);
-    void 			crossAttribsParsChanged(CallBacker*);
 };
 
 }; //namespace WellTie
 
 #endif
-
 

@@ -4,10 +4,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id$
+ * ID       : $Id: madprocflow.h,v 1.6 2009/07/22 16:01:27 cvsbert Exp $
 -*/
 
-#include "madagascarmod.h"
 #include "iopar.h"
 #include "madproc.h"
 #include "namedobj.h"
@@ -17,7 +16,7 @@
 namespace ODMad
 {
 
-mExpClass(Madagascar) ProcFlow : public ::NamedObject
+mClass ProcFlow : public ::NamedObject
 	       , public ObjectSet<Proc>
 {
 public:
@@ -58,4 +57,3 @@ protected:
 } // namespace ODMad
 
 #endif
-

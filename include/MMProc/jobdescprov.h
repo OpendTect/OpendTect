@@ -12,18 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "ranges.h"
 #include "bufstringset.h"
 
 class IOPar;
 
-/*!
-\brief Interface for providing parameter files for jobs (job descriptions). Two
-implementations are pre-cooked: KeyReplace-JDP and InlineSplit-JDP.
-*/
 
-mExpClass(MMProc) JobDescProv
+/*!\brief Interface for providing parameter files for jobs (job descriptions).
+ 
+  Two implementations are pre-coocked: KeyReplace-JDP and InlineSplit-JDP.
+
+ */
+
+mClass JobDescProv
 {
 public:
 
@@ -46,12 +47,12 @@ protected:
 };
 
 
-/*!
-\brief Simple implementation of JobDescProv based upon replacing a value
+/*!\brief Simple implementation of JobDescProv based upon replacing a value
 in the IOPar for one of the strings from a BufferStringSet.
-*/
 
-mExpClass(MMProc) KeyReplaceJobDescProv : public JobDescProv
+ */
+
+mClass KeyReplaceJobDescProv : public JobDescProv
 {
 public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
@@ -74,16 +75,16 @@ protected:
 };
 
 
-/*!
-\brief Implementation of JobDescProv based upon splitting the inlines in the
-IOPar.
+/*!\brief Implementation of JobDescProv based upon splitting the
+inlines in the IOPar.
 
 The keying is either:
-1) Standard style with the keys in keystrs.h sKey::FirstInl() etc.
+1) Standard style with the keys in keystrs.h sKey::FirstInl etc.
 2) Single key FileMultiString type first`last`step
-*/
 
-mExpClass(MMProc) InlineSplitJobDescProv : public JobDescProv
+ */
+
+mClass InlineSplitJobDescProv : public JobDescProv
 {
 public:
     			InlineSplitJobDescProv(const IOPar&,
@@ -121,4 +122,3 @@ protected:
 
 
 #endif
-

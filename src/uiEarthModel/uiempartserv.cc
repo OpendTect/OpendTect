@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiempartserv.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
-#include "emfaultauxdata.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
@@ -52,7 +51,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
-#include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uiempreloaddlg.h"
 #include "uiexpfault.h"
@@ -81,11 +79,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-int uiEMPartServer::evDisplayHorizon()	    { return 0; }
-int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
+const int uiEMPartServer::evDisplayHorizon()	    { return 0; }
+const int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
+
+#define mDynamicCastAll(objid) \
+    EM::EMObject* object = em_.getObject(objid); \
+    mDynamicCastGet(EM::Surface*,surface,object) \
+    mDynamicCastGet(EM::Horizon2D*,hor2d,object) \
+    mDynamicCastGet(EM::Horizon3D*,hor3d,object) \
+    mDynamicCastGet(EM::Fault*,fault,object) \
+    mDynamicCastGet(EM::RandomPosBody*,randpos,object) \
+    mDynamicCastGet(EM::PolygonBody*,polygon,object) \
+    mDynamicCastGet(EM::MarchingCubesSurface*,mcsurface,object) \
 
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
@@ -108,7 +116,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 
 uiEMPartServer::~uiEMPartServer()
 {
-    em_.setEmpty();
+    em_.empty();
     deepErase( variodlgs_ );
 }
 
@@ -158,14 +166,8 @@ bool uiEMPartServer::import3DHorAttr()
 }
 
 
-bool uiEMPartServer::import3DHorGeom( bool bulk )
+bool uiEMPartServer::import3DHorGeom()
 {
-    if ( bulk )
-    {
-	uiBulkHorizonImport dlg( parent() );
-	return dlg.go();
-    }
-
     if ( imphorgeomdlg_ )
 	imphorgeomdlg_->raise();
     else
@@ -268,11 +270,10 @@ bool uiEMPartServer::exportFaultStickSet()
 
 
 
-BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
+BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
 {
-    const EM::EMObject* emobj = em_.getObject( emid );
-    if ( emobj && !emobj->name().isEmpty() )
-	return emobj->name();
+    if ( !em_.getObject( id )->name().isEmpty() )
+	return em_.getObject( id )->name();
     
     BufferString bs;
     return bs;
@@ -281,14 +282,13 @@ BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
 
 const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
-    const EM::EMObject* emobj = em_.getObject( emid );
-    return emobj ? emobj->getTypeStr() : 0;
+    return em_.getObject( emid )->getTypeStr();
 }
 
 
 bool uiEMPartServer::isChanged( const EM::ObjectID& emid ) const
 {
-    const EM::EMObject* emobj = em_.getObject( emid );
+    EM::EMObject* emobj = em_.getObject( emid );
     return emobj && emobj->isChanged();
 }
 
@@ -394,7 +394,7 @@ void uiEMPartServer::removeUnsavedEMObjectFromTree()
 }
 
 
-EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
+const EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
 {
     for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
     {
@@ -493,7 +493,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
-	const BufferString& translator = ioobj->translator();
+	FixedString translator = ioobj->translator();
 
 	BufferString typestr;
 	if ( translator==polygonEMBodyTranslator::sKeyUserName() )
@@ -516,7 +516,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     }
 
     uiTaskRunner execdlg( parent() );
-    if ( !TaskRunner::execute( &execdlg, loaders ) )
+    if ( !execdlg.execute(loaders) )
     {
 	deepUnRef( objs );
 	return;
@@ -538,6 +538,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
+    const bool hor2d = typ==EMHorizon2DTranslatorGroup::keyword();
 
     if ( hor3d )
       	selectedrg_ = sel.rg; 
@@ -571,7 +572,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( exec )
     {
     	uiTaskRunner execdlg( parent() );
-    	if ( !TaskRunner::execute( &execdlg, *exec ) )
+    	if ( !execdlg.execute(*exec) )
     	    deepUnRef( objs );
     }
 
@@ -587,8 +588,7 @@ void uiEMPartServer::setHorizon3DDisplayRange( const HorSampling& hs )
 bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 			    const TypeSet<int>& selattribs, bool removeold )
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(id);
     if ( !hor3d ) return false;
 
     if ( removeold )
@@ -600,7 +600,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
     uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, exgrp );
+    return exdlg.execute( exgrp );
 }
 
 
@@ -608,8 +608,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
 				 bool removeold )
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(id);
     if ( !hor3d ) return -1;
     
     const MultiID mid = em_.getMultiID( id );
@@ -634,8 +633,7 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
 
 bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(id);
     if ( !hor3d ) return false;
 
     const MultiID mid = em_.getMultiID( id );
@@ -664,7 +662,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
     uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, exgrp );
+    return exdlg.execute( exgrp );
 }
 
 
@@ -679,8 +677,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 				  MultiID& storagekey,
        				  float shift ) const
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Surface*, surface, object );
+    mDynamicCastAll(id);
     if ( !object ) return false;
 
     PtrMan<Executor> exec = 0;
@@ -735,9 +732,9 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj->pars().find( sKey::Type() ) )
+    if ( !ioobj->pars().find( sKey::Type ) )
     {
-	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
+	ioobj->pars().set( sKey::Type, object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	{
 	    uiMSG().error( "Could not write to database" );
@@ -747,62 +744,37 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 
     storagekey = key;
     uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, *exec );
+    return exdlg.execute( *exec );
 }
 
 
 bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 				   BufferString& auxdatanm, bool storeas ) const
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
-    mDynamicCastGet( EM::Fault3D*, flt3d, object );
-    if ( !hor3d && !flt3d )
-	return false;
-    
-    uiTaskRunner exdlg( parent() );
-    if ( hor3d )
+    mDynamicCastAll(id);
+    if ( !hor3d ) return false;
+
+    int dataidx = -1;
+    bool overwrite = false;
+    if ( storeas )
     {
-	int dataidx = -1;
-	bool overwrite = false;
-	if ( storeas )
-	{
-	    if ( hor3d )
-	    {
-		uiStoreAuxData dlg( parent(), *hor3d );
-		if ( !dlg.go() ) return false;
-
-		dataidx = 0;
-		overwrite = dlg.doOverWrite();
-		auxdatanm = dlg.auxdataName();
-	    }
-	}
-
-	PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
-	if ( !saver )
-	{
-	    uiMSG().error( "Cannot save attribute" );
-	    return false;
-	}
-
-	return TaskRunner::execute( &exdlg, *saver );
-    }
-    else if ( flt3d )
-    {
-	uiStoreFaultData dlg( parent(), *flt3d );
+	uiStoreAuxData dlg( parent(), *hor3d );
 	if ( !dlg.go() ) return false;
 
-	PtrMan<Executor> saver = dlg.dataSaver();
-	if ( !saver )
-	{
-	    uiMSG().error( "Cannot save attribute" );
-    	    return false;
-	}
-
-	return TaskRunner::execute( &exdlg, *saver );
+	dataidx = 0;
+	overwrite = dlg.doOverWrite();
+	auxdatanm = dlg.auxdataName();
     }
 
-    return true;
+    PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver( dataidx, overwrite );
+    if ( !saver )
+    {
+	uiMSG().error( "Cannot save attribute" );
+	return false;
+    }
+
+    uiTaskRunner exdlg( parent() );
+    return exdlg.execute( *saver );
 }
 
 
@@ -810,8 +782,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 				DataPointSet& data, 
 				const char* attribnm, int idx, float shift )
 {
-    EM::EMObject* object = em_.getObject( id ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(id);
     if ( !hor3d ) { uiMSG().error( "Cannot find horizon" ); return -1; }
 
     if ( !data.size() ) { uiMSG().error( "No data calculated" ); return -1; }
@@ -856,8 +827,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 				 DataPointSet& data, float& shift ) const
 {
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(oid);
     const char* nm = hor3d->auxdata.auxDataName( auxdatanr );
     if ( !hor3d || !nm )
 	return false;
@@ -875,6 +845,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
 	auxvals[1] = sid;
 
+	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	while ( true )
 	{
@@ -882,9 +853,9 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	    if ( pid.objectID()==-1 )
 		break;
 
-	    auxvals[0] = (float) hor3d->getPos( pid ).z;
+	    auxvals[0] = hor3d->getPos( pid ).z;
 	    auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
-	    BinID bid = BinID::fromInt64( pid.subID() );
+	    bid.fromInt64( pid.subID() );
 	    data.bivSet().add( bid, auxvals );
 	}
     }
@@ -895,11 +866,17 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
 
 bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
-	DataPointSet& data, TypeSet<float>* shifts, 
-	const CubeSampling* cs ) const
+				    DataPointSet& data,
+				    TypeSet<float>* shifts ) const
 {
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    return getAllAuxData( oid, data, shifts, 0 );
+}
+
+
+bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid, DataPointSet& data,
+       TypeSet<float>* shifts, const CubeSampling* cs ) const
+{
+    mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
     data.dataSet().add( new DataColDef(sKeySectionID()) );
@@ -926,26 +903,26 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 
 	auxvals[0] = 0;
 	auxvals[1] = sid;
+	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator(sid,cs);
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
 	    if ( pid.objectID()==-1 )
 		break;
-	    
-	    BinID bid = BinID::fromInt64( pid.subID() );
+
+	    bid.fromInt64( pid.subID() );
 	    if ( cs )
 	    {
-    		if ( !cs->hrg.includes(bid) )
-    		    continue;
-    
+		if ( !cs->hrg.includes(bid) )
+		    continue;
+		
 		BinID diff = bid - cs->hrg.start;
-		if ( diff.inl % cs->hrg.step.inl ||
-		     diff.crl % cs->hrg.step.crl )	
-    		    continue;
+		if ( diff.inl % cs->hrg.step.inl || diff.crl % cs->hrg.step.crl)
+		    continue;
 	    }
 
-	    auxvals[0] = (float) hor3d->getPos( pid ).z;
+	    auxvals[0] = hor3d->getPos( pid ).z;
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
@@ -989,8 +966,7 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 					      const char* nm,
 					      DataPointSet& dpset )
 {
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
     BinIDValueSet& bivs = dpset.bivSet();
@@ -1042,8 +1018,7 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	const char* nm, bool interpolate, DataPointSet& dpset )
 {
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
     BinIDValueSet& bivs = dpset.bivSet();
@@ -1065,7 +1040,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( "Interpolate horizon Data",
+		uiDialog::Setup( "Interpolate Horizon Data",
 				 "Interpolation parameters",
 				  (const char*) 0 ) );
 
@@ -1094,8 +1069,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    bool* maskptr = mask->getData();
 	    if ( maskptr )
 	    {
-		for ( int idx=mCast(int,mask->info().getTotalSz()-1); idx>=0; 
-									idx-- )
+		for ( int idx=mask->info().getTotalSz()-1; idx>=0; idx-- )
 		{
 		    *maskptr = !mIsUdf(*arrptr);
 		    maskptr++;
@@ -1119,7 +1093,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	changer = filter;
     }
 
-    if ( !TaskRunner::execute( &execdlg, *changer ) )
+    if ( !execdlg.execute(*changer) )
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
@@ -1137,9 +1111,7 @@ bool uiEMPartServer::attr2Geom( const EM::ObjectID& oid,
     const int cid = getColID( dpset, nm );
     if ( cid < 0 )
 	return false;
-
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(oid);
     if ( !hor3d )
 	return false;
 
@@ -1150,8 +1122,7 @@ bool uiEMPartServer::attr2Geom( const EM::ObjectID& oid,
 
 bool uiEMPartServer::geom2Attr( const EM::ObjectID& oid )
 {
-    EM::EMObject* object = em_.getObject( oid ); 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastAll(oid);
     if ( !hor3d )
 	return false;
 
@@ -1184,7 +1155,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );
     obj->ref();
     uiTaskRunner exdlg( parent() );
-    if ( !TaskRunner::execute( &exdlg, *exec ) )
+    if ( exdlg.execute(*exec) <= 0 )
     {
 	obj->unRef();
 	return false;
@@ -1246,9 +1217,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    FixedString groupstr = is2d
-    	? EMHorizon2DTranslatorGroup::keyword()
-        : EMHorizon3DTranslatorGroup::keyword();
+    FixedString groupstr = is2d ? "2D Horizon" : "Horizon";
     ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -1264,7 +1233,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
 				    const HorSampling& hs ) const
 {
-    bivs.setEmpty(); bivs.setNrVals( 2, false );
+    bivs.empty(); bivs.setNrVals( 2, false );
 
     const EM::ObjectID& id = selhorids[0]; 
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(id))
@@ -1297,7 +1266,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	    if ( !hor3d2 )
 	    {
 		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		    bivs.add( bid, (float) z1pos[posidx].z, (float) z1pos[posidx].z );
+		    bivs.add( bid, z1pos[posidx].z, z1pos[posidx].z );
 	    }
 	    else
 	    {
@@ -1316,11 +1285,11 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 		{
 		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
 		    {
-			float dist_ = (float) ( z2pos[z2idx].z - z1pos[z1idx].z );
+			float dist_ = z2pos[z2idx].z - z1pos[z1idx].z;
 			if ( fabs(dist_) < dist )
 			{
-			    zintv.start = (float) z1pos[z1idx].z;
-			    zintv.stop = (float) z2pos[z2idx].z;
+			    zintv.start = z1pos[z1idx].z;
+			    zintv.stop = z2pos[z2idx].z;
 			}
 		    }
 		}
@@ -1386,11 +1355,11 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	for ( int trcidx=0; trcidx<posns.size(); trcidx++ )
 	{
 	    const PosInfo::Line2DPos& l2dp = posns[trcidx];
-	    const float z1 = (float) hor2d1->getPos( 0, geomid, l2dp.nr_ ).z;
+	    const float z1 = hor2d1->getPos( 0, geomid, l2dp.nr_ ).z;
 	    float z2 = mUdf(float);
 	 
 	    if ( issecondhor )
-		z2 = (float) hor2d2->getPos( 0, geomid, l2dp.nr_ ).z;
+		z2 = hor2d2->getPos( 0, geomid, l2dp.nr_ ).z;
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
@@ -1422,23 +1391,23 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     int idx = 0;
     while ( idx < ps.size() )
     {
-	const BinID bid = SI().transform( ps[idx].pos_ );
+	const Coord pos( ps[idx].pos.x, ps[idx].pos.y );
+	const BinID bid = SI().transform( pos );
 	const EM::SubID subid = bid.toInt64();
-	double zval = hor->getPos( hor->sectionID(0), subid ).z;
-	if ( mIsUdf(zval) )
+	float z = hor->getPos( hor->sectionID(0), subid ).z;
+	if ( mIsUdf(z) )
 	{
 	    const Geometry::BinIDSurface* geom = 
 		hor->geometry().sectionGeometry( hor->sectionID(0) );
-	    if ( geom )
-		zval = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
-	    if ( mIsUdf(zval) )
+	    if ( geom ) z = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	    if ( mIsUdf(z) )
 	    {
-		ps.removeSingle(idx);
+		ps.remove( idx );
 		continue;
 	    }
 	}
 
-	ps[idx].pos_.z = zval;
+	ps[idx].pos.z = z;
 	idx++;
     }
 

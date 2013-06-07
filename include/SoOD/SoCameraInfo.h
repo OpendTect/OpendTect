@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoSubNode.h"
 
@@ -25,7 +24,7 @@ ________________________________________________________________________
 Puts information about the camera/rendertype into the state.
 */
 
-mSoODClass SoCameraInfo : public SoNode
+mClass SoCameraInfo : public SoNode
 {
     SO_NODE_HEADER(SoCameraInfo);
     typedef SoNode inherited;
@@ -52,5 +51,4 @@ protected:
 };
 
 #endif
-
 

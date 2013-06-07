@@ -13,13 +13,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uidialog.h"
 
 class uiColorTable;
 class uiTreeItem;
 
-mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
+mClass uiODEditAttribColorDlg : public uiDialog
 {
 public:
     				uiODEditAttribColorDlg(uiParent*,
@@ -36,4 +35,3 @@ protected:
 };
 
 #endif
-

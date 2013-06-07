@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "wellhorpos.h"
@@ -52,7 +52,7 @@ float WellHorIntersectFinder::findZIntersection() const
 
     while ( zval < zstop )
     {
-	const float dah = d2t_ ? d2t_->getDah( zval, track_ ) : zval;
+	const float dah = d2t_ ? d2t_->getDah( zval ) : zval;
 	const Coord3& crd = track_.getPos( dah );
 	const float horz = intersectPosHor( crd );
 
@@ -89,7 +89,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 	const Coord3& horpos = hor3d_->getPos( hor3d_->sectionID(0), subid ); 
 	const BinID horbid = SI().transform( horpos );
 	if ( bid == horbid )
-	    return (float)horpos.z;
+	    return horpos.z;
     }
     else if ( hor2d_ )
     {
@@ -108,7 +108,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 					hor2d_->sectionID(0), rc.toInt64() );
 		const BinID horbid = SI().transform( horpos );
 		if ( bid == horbid )
-		    return (float) pos.z;
+		    return pos.z;
 	    }
 	}
     }

@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "surv2dgeom.h"
 
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
@@ -29,15 +28,7 @@ static PosInfo::Survey2D* theinst = 0;
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
-static const char* sKeyTrcDist = "Inter-trace Distance";
-static bool cWriteAscii = false;
-
-
-
-void PosInfo::Survey2D::initClass()
-{
-    cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
-}
+static bool cWriteAscii = Settings::common().isTrue("2DGeometry.Write Ascii");
 
 
 namespace PosInfo {
@@ -48,12 +39,6 @@ void doDel( CallBacker* ) { delete theinst; theinst = 0; }
 
 bool PosInfo::GeomID::isOK() const
 { return S2DPOS().hasLine( lineid_, lsid_ ); }
-
-void PosInfo::GeomID::setUndef()
-{ lineid_ = lsid_ = -1; }
-
-bool PosInfo::GeomID::isUndef() const
-{ return lineid_==-1 || lsid_==-1; }
 
 BufferString PosInfo::GeomID::toString() const
 {
@@ -94,7 +79,7 @@ PosInfo::Survey2D& PosInfo::POS2DAdmin()
 { \
     BufferString cmd("od_DispMsg --err ",BufferString(s1 " '",s2, "' " s3)); \
     StreamProvider prov( cmd ); \
-    prov.executeCommand( false ); \
+    prov.executeCommand( false, true ); \
     return; \
 }
 
@@ -170,7 +155,7 @@ struct IdxFileData
     IOPar		iopar_;
 };
 
-static ManagedObjectSet<IdxFileData> idxfilecache;
+static ObjectSet<IdxFileData> idxfilecache;
 static Threads::ReadWriteLock idxfilecachelock;
 
 static int getIdxFileCacheIdx( const char* fnm )
@@ -208,7 +193,7 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 
     idx = getIdxFileCacheIdx( fnm );
     if ( idx >= 0 )
-	delete idxfilecache.removeSingle( idx );
+	delete idxfilecache.remove( idx );
 
     IdxFileData* idxfiledata = new IdxFileData();
     idxfiledata->filename_ = fnm;
@@ -293,16 +278,14 @@ int PosInfo::Survey2D::curLineSetID() const
 }
 
 
-int PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
+int PosInfo::Survey2D::getLineSetID( const char* lsnm ) const
 {
-    if ( !lsnmstr ) return -1;
-
-    FixedString lsnm = lsnmstr;
+    if ( !lsnm ) return -1;
 
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
 	FileMultiString info( lsindex_.getValue(idx) );
-	if ( info.size()>0 && lsnm==lsindex_.getKey(idx) )
+	if ( info.size()>0 && !strcmp(lsnm,lsindex_.getKey(idx)) )
 	    return info.getIValue( 1 );
     }
 
@@ -317,7 +300,7 @@ int PosInfo::Survey2D::getLineID( const char* linenm ) const
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
 	FileMultiString info( lineindex_.getValue(idx) );
-	if ( info.size()>0 && linenm==lineindex_.getKey(idx) )
+	if ( info.size()>0 && !strcmp(linenm,lineindex_.getKey(idx)) )
 	    return info.getIValue( 1 );
     }
 
@@ -375,7 +358,7 @@ const char* PosInfo::Survey2D::getLineName( int lineid ) const
 
 bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 {
-    if ( !lsnm || lsnm_==lsnm )
+    if ( (!lsnm || !strcmp(lsnm_.buf(),lsnm)) && !lineindex_.isEmpty() )
 	return lineindex_.hasKey( lnm );
 
     BufferStringSet nms; getLines( nms, lsnm );
@@ -412,7 +395,7 @@ int PosInfo::Survey2D::getLineSetIdx( int lsid ) const
 
 void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 {
-    if ( !lsnm || lsnm_==lsnm )
+    if ( !lsnm || !strcmp(lsnm_.buf(),lsnm) )
     {
 	getKeys(lineindex_,nms);
 	return;
@@ -427,16 +410,6 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
     fp.setFileName( fms[0] ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), iop );
     getKeys( iop, nms );
-}
-
-
-void PosInfo::Survey2D::getLines( BufferStringSet& nms, int lsid ) const
-{
-    if ( lsid == -1 )
-	return getLines( nms, 0 );
-
-    BufferString lsnm = getLineSet( lsid );
-    getLines( nms, lsnm );
 }
 
 
@@ -465,19 +438,19 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
     getIDs( iop, ids );
 }
 
-
 int PosInfo::Survey2D::getNewID( IOPar& iop ) 
 {
     int savedmeaxid = -mUdf(int);
     iop.get( sKeyMaxID, savedmeaxid );
     int newlineidx = 0;
+    bool parisok = false;
     
     if ( !iop.size() )
 	return 0;
 
     for ( int idx=0; idx<iop.size(); idx++ )
     {
-	if ( iop.getKey(idx)==sKeyMaxID )
+	if ( !strcmp(iop.getKey(idx),sKeyMaxID) )
 	    continue;
 
 	FileMultiString fms( iop.getValue(idx) );
@@ -520,6 +493,7 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 }
 
 
+
 void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 {
     if ( !hasLineSet(lsid) )
@@ -537,7 +511,6 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
-    Threads::MutexLocker lock( mutex_ );
     if ( !lsnm || !*lsnm )
     {
 	lineindex_.setEmpty();
@@ -629,7 +602,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
     bool isascii = cWriteAscii;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( FixedString(astrm.keyWord())==sKeyStor )
+	if ( !strcmp(astrm.keyWord(),sKeyStor) )
 	    isascii = *astrm.value() != 'B';
     }
     if ( !l2dd.read(sfio.istrm(),isascii) )
@@ -666,12 +639,7 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader( "Line2D Geometry" );
-
-    float max, median;
-    l2dd.compDistBetwTrcsStats( max, median );
-    astrm.put( sKeyTrcDist, max, median );
-
-    astrm.put( sKeyStor, cWriteAscii ? sKey::Ascii() : sKey::Binary() );
+    astrm.put( sKeyStor, cWriteAscii ? "Ascii" : "Binary" );
     astrm.newParagraph();
     if ( l2dd.write(sfio.ostrm(),cWriteAscii,true) )
     {
@@ -844,6 +812,10 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
 					      const char* linenm ) const
 {
+    FixedString lsnm = linesetnm;
+    if ( lsnm.isEmpty() )
+	return GeomID();
+
     if ( lsnm_ != linesetnm )
 	setCurLineSet( linesetnm );
     PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineID(linenm) );
@@ -875,7 +847,7 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
     if ( !geomid.isOK() )
 	return 0;
-    return fnm = FilePath(basefp_,cllsnm,cllnm).fullPath();
+    return FilePath(basefp_,cllsnm,cllnm).fullPath();
 }
 
 
@@ -895,84 +867,3 @@ BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
     BufferString timestamp( File::timeLastModified(fp.fullPath()) );
     return timestamp;
 }
-
-
-bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
-					       float& max, float& median ) const
-{
-    if ( !linenm )
-	return false;
-
-    SafeFileIO sfio( FilePath(lsfp_,linenm).fullPath() );
-    if ( !sfio.open(true) )
-	return false;
-		    
-    ascistream astrm( sfio.istrm() ); // read header
-    while ( !atEndOfSection(astrm.next()) )
-    {   
-	if ( FixedString(astrm.keyWord()) == sKeyTrcDist )
-	{
-	    FileMultiString statsstr(astrm.value());
-	    max = statsstr.getFValue(0);
-	    median = statsstr.getFValue(1);
-	    sfio.closeSuccess();
-	    return true;
-	}
-    }   
-    sfio.closeSuccess();
-    return false;
-}
-
-
-// New Stuff
-
-Survey::Geometry2D::Geometry2D()
-    : data_(*new PosInfo::Line2DData)
-{
-}
-
-
-Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
-    : data_( *l2d )
-{}
-
-
-Survey::Geometry2D::~Geometry2D()
-{ delete &data_; }
-
-
-Coord Survey::Geometry2D::toCoord( int, int trcnr ) const
-{
-    PosInfo::Line2DPos pos;
-    return data_.getPos(trcnr,pos) ? pos.coord_ : Coord::udf();
-}
-
-
-TraceID Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
-{
-    PosInfo::Line2DPos pos;
-    return data_.getPos(crd,pos,dist) ? TraceID( geomid_, geomid_, pos.nr_) 
-				      : TraceID::udf();
-}
-
-
-StepInterval<float> Survey::Geometry2D::zRange() const
-{
-    return data_.zRange();
-}
-
-
-bool Survey::Geometry2D::includes( int line, int tracenr ) const
-{ return data_.indexOf(tracenr) >= 0; }
-
-
-BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
-						     const char* lnm )
-{
-    BufferString newlnm( lsnm );
-    newlnm.add( "-" );
-    newlnm.add( lnm );
-    return newlnm;
-}
-
-

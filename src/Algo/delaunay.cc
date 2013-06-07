@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -68,9 +68,9 @@ bool DelaunayTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const od_int64 scopeidx = permutation_ ? permutation_[idx] : idx;
-	const od_int64 coordid = calcscope_.atIndex( mCast(int, scopeidx), 1 );
+	const od_int64 coordid = calcscope_.atIndex( scopeidx, 1 );
 	int dupid;
-       	if ( !tree_.insertPoint( mCast(int, coordid), dupid ) )
+       	if ( !tree_.insertPoint( coordid, dupid ) )
 	    return false;
 
 	addToNrDone(1);
@@ -204,7 +204,6 @@ bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
     return setBBox( xrg, yrg );
 }
 
-const double sq3 = Math::Sqrt( 3.0 );
 
 bool DAGTriangleTree::setBBox( const Interval<double>& xrg,
 			       const Interval<double>& yrg)
@@ -216,11 +215,11 @@ bool DAGTriangleTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     const Coord center( xrg.center(), yrg.center() );
-    double radius = Math::Sqrt( xlength*xlength+ylength*ylength )/2;
+    double radius = sqrt( xlength*xlength+ylength*ylength )/2;
     radius += mDefEps;	// assures no point can be on edge of initial triangle
 
-    initialcoords_[0] = Coord( center.x-radius*sq3, center.y-radius );
-    initialcoords_[1] = Coord( center.x+radius*sq3, center.y-radius );
+    initialcoords_[0] = Coord( center.x-radius*sqrt(3.0), center.y-radius );
+    initialcoords_[1] = Coord( center.x+radius*sqrt(3.0), center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
 
     DAGTriangle initnode;
@@ -274,7 +273,7 @@ int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid )
 	mMultiThread( coordlock_.writeLock() );
 
 	if ( coordlist_->size()==ci+1 )
-	    coordlist_->removeSingle( ci );
+	    coordlist_->remove( ci );
 
 	mMultiThread( coordlock_.writeUnLock() );
 	return cNoVertex();
@@ -290,7 +289,7 @@ bool DAGTriangleTree::getTriangle( const Coord& pt, int& dupid,
     dupid = cNoVertex();
     vertices.erase();
     int ti0;
-    searchTriangle( pt, 0, ti0, dupid );
+    const char res = searchTriangle( pt, 0, ti0, dupid );
     if ( dupid!=cNoVertex() )
 	return true;
 
@@ -358,12 +357,16 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
     }
     else if ( res==cIsDuplicate() )
 	return true;
+    else  
+    {
+	BufferString msg = "\nInsert point ";
+	msg += ci;
+	msg += " failed!";
+	pErrMsg( msg );
+	return false;
+    }
 
-    BufferString msg = "\nInsert point ";
-    msg += ci;
-    msg += " failed!";
-    pErrMsg( msg );
-    return false;
+    return true;
 }
 
 
@@ -600,15 +603,10 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
     
     if ( (id0==0 && id1==1) || (id0==1 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[0] );
-    else if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
+    if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[2] );
     else if ( (id0==1 && id1==2) || (id0==2 && id1==1) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[1] );
-    else
-    {
-	pErrMsg("Should never happen");
-	return mUdf(int);
-    }
 
     return res;
 }
@@ -627,16 +625,16 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	
 	if ( start>10000 )
 	{
-	    v0s.removeRange( 0, start );
-	    v1s.removeRange( 0, start );
-	    tis.removeRange( 0, start );
+	    v0s.remove( 0, start );
+	    v1s.remove( 0, start );
+	    tis.remove( 0, start );
 	    start = 0;
 	}
 	else
   	    start++;
 
 
-	int shared0=mUdf(int), shared1=mUdf(int), crdci=mUdf(int);
+	int shared0, shared1, crdci;
 	int checkti = cNoTriangle();
 	if ( (v0==0 && v1==1) || (v0==1 && v1==0) )
 	{
@@ -788,7 +786,7 @@ bool DAGTriangleTree::getSurroundingIndices( TypeSet<int>& result ) const
 	    continue;
 
 	for ( int idy=0; idy<3; idy++ )
-	    if ( c[idy]>=0 && !result.isPresent(c[idy]) ) result += c[idy];
+	    if ( c[idy]>=0 && result.indexOf(c[idy])==-1 ) result += c[idy];
     }
 
     return result.size();
@@ -809,7 +807,7 @@ bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 
 	for ( int idy=0; idy<3; idy++ )
 	{
-	    if ( c[idy]<0 || c[idy]==vertex || result.isPresent(c[idy]) )
+	    if ( c[idy]<0 || c[idy]==vertex || result.indexOf(c[idy])!=-1 )
 		continue;
 
 	    result += c[idy];
@@ -1005,7 +1003,7 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
 	perimeterazimuth_ += initcenter_.angle( startpt,
 		triangles_.coordList()[perimeter_[idx]] );
 
-    sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimeter_.size());
+    sort_coupled(perimeterazimuth_.arr(),perimeter_.arr(),perimeter_.size());
 }
 
 
@@ -1162,9 +1160,9 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	if ( tmpvertices[idx]<0 )
 	{
 	    if ( usedinit[0]==-1 )
-		usedinit[0] = mCast( char, tmpvertices[idx] );
+		usedinit[0] = tmpvertices[idx];
 	    else
-		usedinit[1] = mCast( char, tmpvertices[idx] );
+		usedinit[1] = tmpvertices[idx];
 	}
     }
 
@@ -1176,7 +1174,7 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	{
 	    if ( initidx==usedinit[0] ) continue;
 
-	    usedinit[1] = mCast( char, initidx );
+	    usedinit[1] = initidx;
 	    initb = triangles_.getInitCoord( usedinit[1] );
 	    if ( pointInTriangle2D(pt,initcenter_,inita,initb,0) )
 		break;
@@ -1215,9 +1213,9 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 
     //Inverse distance weighting.
     vertices += preidx;
-    weights += (float)((f/(e+f))*(d/(c+d)));
+    weights += (f/(e+f))*(d/(c+d));
     vertices += aftidx;
-    weights += (float)((f/(e+f))*(c/(c+d)));
+    weights += (f/(e+f))*(c/(c+d));
 
     for ( int idx=0; idx<2; idx++ )
     {
@@ -1231,11 +1229,11 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	{ conns = &corner2_; ws = &cornerweights2_; }
 	
 	const double useddist = idx ? x : y;
-	const float factor = (float)((e/(e+f))*(useddist/(x+y)));
+	const float factor = (e/(e+f))*(useddist/(x+y));
 	for ( int idz=0; idz<conns->size(); idz++ )
 	{
 	    vertices += (*conns)[idz];
-	    weights += (float)((*ws)[idz] * factor);
+	    weights += (*ws)[idz] * factor;
 	}
     }
     

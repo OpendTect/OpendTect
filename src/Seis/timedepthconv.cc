@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "timedepthconv.h"
 
@@ -106,8 +106,8 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
     Interval<float> res( 1350, 4500 );
     if ( SI().depthsInFeetByDefault() )
     {
-	res.start *= mToFeetFactorF;
-	res.stop *= mToFeetFactorF;
+	res.start *= mToFeetFactor;
+	res.stop *= mToFeetFactor;
     }
 
     return res;
@@ -139,7 +139,7 @@ int Time2DepthStretcher::addVolumeOfInterest(const CubeSampling& cs,
 					     bool depth )
 {
     int id = 0;
-    while ( voiids_.isPresent(id) ) id++;
+    while ( voiids_.indexOf(id)!=-1 ) id++;
 
     voidata_ += 0;
     voivols_ += cs;
@@ -173,10 +173,11 @@ void Time2DepthStretcher::removeVolumeOfInterest( int id )
     if ( idx<0 )
 	return;
 
-    delete voidata_.removeSingle( idx );
-    voivols_.removeSingle( idx );
-    voiintime_.removeSingle( idx );
-    voiids_.removeSingle( idx );
+    delete voidata_[idx];
+    voidata_.remove( idx );
+    voivols_.remove( idx );
+    voiintime_.remove( idx );
+    voiids_.remove( idx );
 }
 
 
@@ -324,7 +325,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
 	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
-    if ( !TaskRunner::execute( tr, loader ) )
+    if ( (tr && !tr->execute( loader ) ) || !loader.execute() )
 	return false;
 
     return true;
@@ -351,13 +352,12 @@ Time2DepthStretcherProcessor( FloatMathFunction& func,
 bool doWork( od_int64 start, od_int64 stop, int )
 {
     float depth = zrg_.center();
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const float t = sd_.atIndex( idx );
 	res_[idx] = trg_.includes(t,false) &&
 		findValue( samplfunc_, zrg_.start, zrg_.stop, depth, t )
-	    ? depth
-	    : mUdf(float);
+	? res_[idx] = depth : mUdf(float);
     }
 
     return true;
@@ -382,7 +382,7 @@ void Time2DepthStretcher::transform(const BinID& bid,
 {
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
-    float largestwidth = mUdf(float);
+    float largestwidth;
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
 	if ( !voidata_[idx] )
@@ -452,7 +452,7 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 {
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
-    float largestwidth = mUdf(float);
+    float largestwidth;
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
 	if ( !voidata_[idx] )
@@ -466,7 +466,7 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 	    continue;
 
 	Interval<float> tmp( resrg );
-	if ( !voirg.overlaps( resrg, false ) )
+	if ( !voirg.overlaps( resrg ), false )
 	    continue;
 
 	tmp.limitTo( voirg );
@@ -578,7 +578,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25f;
+	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25;
 
     return SI().zRange(true).step;
 }
@@ -602,14 +602,6 @@ void Time2DepthStretcher::releaseData()
 	delete voidata_[idx];
 	voidata_.replace( idx, 0 );
     }
-}
-
-
-float Time2DepthStretcher::zScale() const
-{
-    const SurveyInfo::Unit zscaleunit = SI().depthsInFeet() ? SurveyInfo::Feet 
-							    : SurveyInfo::Meter;
-    return SurveyInfo::defaultXYtoZScale( zscaleunit, SI().xyUnit() ); 
 }
 
 
@@ -713,10 +705,6 @@ const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
 
 
-float Depth2TimeStretcher::zScale() const
-{ return SurveyInfo::defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() ); }
-
-
 VelocityModelScanner::VelocityModelScanner( const IOObj& input, 
 					    const VelocityDesc& vd )
     : obj_( input )
@@ -818,7 +806,7 @@ int VelocityModelScanner::nextStep()
 
     if ( first!=-1 && last!=-1 && first!=last )
     {
-	const float firsttime = (float) sd.atIndex(first);
+	const float firsttime = sd.atIndex(first);
 	float v0 = -1;
     	if ( firsttime>0 )
     	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
@@ -828,9 +816,9 @@ int VelocityModelScanner::nextStep()
     	else
     	{
 	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
-	    v0 = (float) (zistime_
-						? 2 * diff0 / sd.step
-						: 2 * sd.step / diff0);
+	    v0 = zistime_
+		? 2 * diff0 / sd.step
+		: 2 * sd.step / diff0;
     	}
 
 	if ( v0 > 0 )
@@ -844,9 +832,9 @@ int VelocityModelScanner::nextStep()
 		startavgvel_.include( v0 );
 	}
 
-	const float v1 = (float) (zistime_
-									? 2 * resvs.value(last) / sd.atIndex(last)
-									: 2 * sd.atIndex(last) / resvs.value(last));
+	const float v1 = zistime_
+	    ? 2 * resvs.value(last) / sd.atIndex(last)
+	    : 2 * sd.atIndex(last) / resvs.value(last);
 
 	if ( !definedv1_ )
 	{
@@ -861,71 +849,34 @@ int VelocityModelScanner::nextStep()
 }
 
 
-const char* lineartranskey = "V0,dV";
-
-
-LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
-				       const ZDomain::Def& to,
-				       float v0, float dv)
-    : ZAxisTransform( from, to )
-    , startvel_( v0 )
-    , dv_( dv )
-{}
-
-
-
-bool LinearVelTransform::usePar( const IOPar& iop )
+//LinearT2DTransform
+LinearT2DTransform::LinearT2DTransform()
+    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
 {
-    iop.get( lineartranskey, startvel_, dv_ );
+    startvel_ = 0;
+    dv_ = 0;
+}
+
+
+bool LinearT2DTransform::usePar( const IOPar& iop )
+{
+    iop.get( "V0,dV", startvel_, dv_ );
     return true;
 }
-
-
-void LinearVelTransform::fillPar( IOPar& par ) const
-{
-    par.set( lineartranskey, startvel_, dv_ );
-}
-
-
-void LinearVelTransform::transformT2D( const BinID& bid,
-				       const SamplingData<float>& sd,
-				       int sz, float* res ) const
-{
-    if ( !computeLinearT2D( startvel_, dv_, -SI().seismicReferenceDatum(),
-			    sd, sz, res) )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    res[idx] = mUdf(float);
-    }
-}
-
-
-void LinearVelTransform::transformD2T( const BinID& bid,
-				      const SamplingData<float>& sd,
-				      int sz, float* res ) const
-{
-    if ( !computeLinearD2T( startvel_, dv_, -SI().seismicReferenceDatum(),
-			   sd, sz, res) )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    res[idx] = mUdf(float);
-    }
-}
-
-
-//LinearT2DTransform
-LinearT2DTransform::LinearT2DTransform( float startvel, float dv )
-: LinearVelTransform(ZDomain::Time(),ZDomain::Depth(), startvel, dv )
-
-{}
-
 
 
 void LinearT2DTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformT2D( bid, sd, sz, res );
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float time = sd.start + idx*sd.step;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
+    }
 }
 
 
@@ -933,7 +884,15 @@ void LinearT2DTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    transformD2T( bid, sd, sz, res );
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float depth = sd.start + idx*sd.step;
+	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	res[idx] = (val - startvel_) / (dv_);
+    }
 }
 
 
@@ -962,16 +921,44 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 
 //LinearD2TTransform
 
-LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
-    : LinearVelTransform(ZDomain::Depth(),ZDomain::Time(), startvel, dv)
-{}
+LinearD2TTransform::LinearD2TTransform()
+    : ZAxisTransform(ZDomain::Depth(),ZDomain::Time())
+{
+    startvel_ = 0;
+    dv_ = 0;
+}
+
+
+bool LinearD2TTransform::usePar( const IOPar& iop )
+{
+    iop.get( "V0,dV", startvel_, dv_ );
+    return true;
+}
 
 
 void LinearD2TTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformD2T( bid, sd, sz, res );
+    if ( sz < 0 )
+	return;
+
+    bool constvel = mIsZero( dv_, 1e-6 );
+    if ( constvel && mIsZero(startvel_,1e-6) )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float depth = sd.start + idx*sd.step;
+	if ( constvel )
+	{
+	    res[idx] = depth / startvel_;
+	    continue;
+	}
+
+	const float val = sqrt( startvel_*startvel_ + 2*dv_*depth );
+	res[idx] = (val - startvel_) / (dv_);
+    }
 }
 
 
@@ -979,7 +966,14 @@ void LinearD2TTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    transformT2D( bid, sd, sz, res );
+    if ( sz < 0 )
+	return;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float time = sd.start + idx*sd.step;
+	res[idx] = ( startvel_*time/2 ) + ( 0.5*dv_*time*time )/4;
+    }
 }
 
 

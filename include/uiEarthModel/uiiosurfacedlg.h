@@ -12,32 +12,23 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uiiosurface.h"
 
 class CtxtIOObj;
-class Executor;
 class IOObj;
 class MultiID;
 class uiGenInput;
 class uiIOObjSel;
-class uiPushButton;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
-namespace EM 
-{ 
-    class Fault3D;
-    class Horizon3D; 
-    class Surface; 
-    class SurfaceIODataSelection; 
-}
+namespace EM { class Surface; class SurfaceIODataSelection; class Horizon3D; }
 
 
 /*! \brief Dialog for horizon export */
 
-mExpClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
+mClass uiWriteSurfaceDlg : public uiDialog
 {
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
@@ -55,7 +46,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
+mClass uiReadSurfaceDlg : public uiDialog
 {
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
@@ -69,7 +60,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiStoreAuxData : public uiDialog
+mClass uiStoreAuxData : public uiDialog
 {
 public:
     			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
@@ -87,7 +78,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiCopySurface : public uiDialog
+mClass uiCopySurface : public uiDialog
 {
 public:
     			uiCopySurface(uiParent*,const IOObj&,
@@ -105,30 +96,4 @@ protected:
     bool		acceptOK(CallBacker*);
 };
 
-/*Brief dialog for saving fault aux-data. */
-mExpClass(uiEarthModel) uiStoreFaultData : public uiDialog
-{
-public:
-    			uiStoreFaultData(uiParent*,const EM::Fault3D&);
-    			~uiStoreFaultData();
-
-    Executor*		dataSaver(); 			
-    bool		doOverWrite() const	{ return dooverwrite_; }
-    const char*		surfaceDataName() const;
-    int			surfaceDataIdx() const;
-
-protected:
-
-    void		selButPushedCB(CallBacker*);
-
-    uiPushButton*	selbut_;
-    uiGenInput*		attrnmfld_;
-    const EM::Fault3D&	surface_;
-
-    bool		dooverwrite_;
-    bool		acceptOK(CallBacker*);
-};
-
-
 #endif
-

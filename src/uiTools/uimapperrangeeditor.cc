@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include <math.h>
 
 
-uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
+uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
     : uiGroup( p, "Mapper with color slider group" )
     , id_(id)
     , ctmapper_(new ColTab::MapperSetup)
@@ -36,7 +36,6 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 {
     uiHistogramDisplay::Setup hsu;
     hsu.border( uiBorder(20,20,20,40) );
-    hsu.fixdrawrg(fixdrawrg);
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
 	    		     mCB(this,uiMapperRangeEditor,mousePressed) );
@@ -46,8 +45,6 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 	    		     mCB(this,uiMapperRangeEditor,mouseMoved) );
     histogramdisp_->reSize.notify(
 	    		     mCB(this,uiMapperRangeEditor,histogramResized));
-    histogramdisp_->drawRangeChanged.notify(
-	    		     mCB(this,uiMapperRangeEditor,histDRChanged));
     xax_ = histogramdisp_->xAxis();
 
     init();
@@ -178,8 +175,7 @@ void uiMapperRangeEditor::drawPixmaps()
     const int datastoppix = xax_->getPix( datarg_.stop );
 
     ioPixmap leftpixmap( startpix_-datastartpix, pmh );
-    leftpixmap.fill( ctseq_->color(
-			    mCast(float,ctmapper_->range_.width()>0 ? 0:1)) );
+    leftpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 0:1) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
@@ -192,8 +188,7 @@ void uiMapperRangeEditor::drawPixmaps()
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 
     ioPixmap rightpixmap( datastoppix-stoppix_, pmh );
-    rightpixmap.fill( ctseq_->color(
-			     mCast(float,ctmapper_->range_.width()>0 ? 1:0)) );
+    rightpixmap.fill( ctseq_->color(ctmapper_->range_.width()>0 ? 1:0) );
     rightcoltab_->setPixmap( rightpixmap );
     rightcoltab_->setOffset( stoppix_, disph-pmh-1 );
 }
@@ -320,28 +315,3 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     rangeChanged.trigger();
     meh.setHandled( true );
 }
-
-
-void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
-{
-    const Interval<float>& drg = histogramdisp_->getDrawRange();
-    if ( cliprg_.start<drg.start ) 
-	cliprg_.start = drg.start;
-    if ( cliprg_.stop>drg.stop ) 
-	cliprg_.stop = drg.stop;
-
-    startpix_ = xax_->getPix( cliprg_.start );
-    stoppix_ = xax_->getPix( cliprg_.stop );
-
-    const int height = histogramdisp_->height();
-    minline_->setLine( startpix_, 0, startpix_, height );
-    maxline_->setLine( stoppix_, 0, stoppix_, height );
-
-    ctmapper_->range_.start = ctmapper_->range_.isRev() ? cliprg_.stop
-						       : cliprg_.start;
-    ctmapper_->range_.stop = ctmapper_->range_.isRev() ? cliprg_.start
-						      : cliprg_.stop;
-    rangeChanged.trigger();
-}
-
-

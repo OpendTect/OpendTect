@@ -13,15 +13,12 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "probdenfunc.h"
 
 
-/*!
-\brief Stores one draw of a probability density function.
-*/
+/* Stores one draw of a Probability Density Function. */
 
-mExpClass(Algo) ProbDenFuncDraw
+mClass ProbDenFuncDraw
 {
 public:
 
@@ -48,4 +45,3 @@ protected:
 
 
 #endif
-

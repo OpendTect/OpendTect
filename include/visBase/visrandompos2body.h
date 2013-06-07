@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -34,7 +33,7 @@ class Transformation;
    will do the display work after add nb to your scene! 
 */
 
-mExpClass(visBase) RandomPos2Body : public VisualObjectImpl
+mClass RandomPos2Body : public VisualObjectImpl
 {
 public:
     static RandomPos2Body*	create()
@@ -53,6 +52,9 @@ public:
 
 protected:
     				~RandomPos2Body();
+    void			polygonTriangulate(const TypeSet<Coord>& knots,
+					TypeSet<int>& res);
+
 
     TypeSet<Coord3>		picks_;			
     TriangleStripSet*		triset_;
@@ -65,4 +67,3 @@ protected:
 
 
 #endif
-

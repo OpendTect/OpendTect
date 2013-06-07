@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 
 /*!Stores offset and azimuth as an int, wich makes it easy to compare them
@@ -23,7 +22,7 @@ The offset has a precision of 0.1 meter and have the range of -419430 and
 circle).
 */
 
-mExpClass(Seis) OffsetAzimuth
+mClass OffsetAzimuth
 {
 public:
 			OffsetAzimuth() : offsetazi_( 0 ) 		{}
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

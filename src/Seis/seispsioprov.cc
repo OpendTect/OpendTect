@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -42,7 +42,7 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
     else if ( !t )		return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )
-	if ( provs_[idx]->type()==t )
+	if ( !strcmp(t,provs_[idx]->type()) )
 	    return provs_[idx];
 
     return 0;
@@ -305,6 +305,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 	    const int trcsz = newtrc->size();
 	    const DataCharacteristics dc(
 		    newtrc->data().getInterpreter(0)->dataChar() );
+
 	    for ( int itrc=1; itrc<nrtrcnrs; itrc++ )
 	    {
 		PtrMan<SeisTrc> rdtrc = psrdr_->getTrace( curbinid_, trcnrs_[itrc] );

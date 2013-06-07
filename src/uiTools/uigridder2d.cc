@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigridder2d.h"
 
@@ -34,8 +34,8 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
 	if ( !gridder )
 	{
-	    griddernames.removeSingle( idx-- );
-	    gridderusernames.removeSingle( idx-- );
+	    griddernames.remove( idx-- );
+	    gridderusernames.remove( idx-- );
 	    continue;
 	}
 

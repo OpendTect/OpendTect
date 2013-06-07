@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiFileInput;
 
 
-mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
+mClass uiSeisDump2DGeom : public uiDialog
 {
 public:
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
@@ -30,6 +29,8 @@ protected:
 
     uiSeisSel*		seisfld;
     uiGenInput*		lnmsfld;
+    uiGenInput*		incnrfld;
+    uiGenInput*		zfld;
     uiFileInput*	outfld;
 
     CtxtIOObj&		ctio;
@@ -40,4 +41,3 @@ protected:
 };
 
 #endif
-

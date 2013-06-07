@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "namedobj.h"
 #include "ranges.h"
 
@@ -21,16 +20,16 @@ template <class T> class TypeSet;
 class IOPar;
 
 
-/*!
-\brief Base class for Probability Density Functions.
-  
-  The values may not be normalized; if you need them to be: multiply with
-  'normFac()'. What you are getting can for example be the values from a
-  histogram. All we require is that the value() implementation always returns
-  positive values.
+/* Probability Density Function
+
+   The values may not be normalized; if you need them to be: multiply with
+   'normFac()'. What you are getting can for example be the values from a
+   histogram. All we require is that the value() implementation always returns
+   positive values.
+
 */
 
-mExpClass(Algo) ProbDenFunc : public NamedObject
+mClass ProbDenFunc : public NamedObject
 {
 public:
 
@@ -71,11 +70,7 @@ protected:
 };
 
 
-/*!
-\brief Probability Density Function for one dimensional datasets.
-*/
-
-mExpClass(Algo) ProbDenFunc1D : public ProbDenFunc
+mClass ProbDenFunc1D : public ProbDenFunc
 {
 public:
 
@@ -117,11 +112,7 @@ protected:
 };
 
 
-/*!
-\brief Probability Density Function for two dimensional datasets.
-*/
-
-mExpClass(Algo) ProbDenFunc2D : public ProbDenFunc
+mClass ProbDenFunc2D : public ProbDenFunc
 {
 public:
 
@@ -164,4 +155,3 @@ protected:
 
 
 #endif
-

@@ -177,7 +177,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     rddlg->updatePars();
     fillPar( ctio->ioobj->pars() );
     ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
-    ctio->ioobj->pars().removeWithKey( sKey::Geometry() );
+    ctio->ioobj->pars().removeWithKey( sKey::Geometry );
     SEGY::FileSpec::ensureWellDefined( *ctio->ioobj );
     IOM().commitChanges( *ctio->ioobj );
     delete ctio->ioobj;
@@ -257,7 +257,7 @@ bool acceptOK( CallBacker* )
     scanner_->setRichInfo( true );
     scanner_->setMaxNrtraces( nrtrcs );
     uiTaskRunner uitr( this );
-    TaskRunner::execute( &uitr, *scanner_ );
+    uitr.execute( *scanner_ );
     res_ = true;
     if ( scanner_->fileDataSet().isEmpty() )
     {

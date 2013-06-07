@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dto3d.h"
 
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "bufstring.h"
 #include "fftfilter.h"
 #include "scaler.h"
@@ -29,6 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "seiswrite.h"
 
+
+static bool nearesttrace_;
 
 Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating 3D cube from LineSet")
@@ -53,7 +55,7 @@ void Seis2DTo3D::setIsNearestTrace( bool yn )
 {
     nearesttrace_ = yn;
     if ( yn )
-    cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 }
 
 
@@ -122,8 +124,8 @@ bool Seis2DTo3D::read()
 	mErrRet("No trace could be read")
 
     CubeSampling linecs( false );
-    Interval<int> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
-    Interval<int> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
+    Interval<float> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
+    Interval<float> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
     for ( int idx=0; idx<seisbuf_.size(); idx++ )
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
@@ -179,7 +181,7 @@ int Seis2DTo3D::nextStep()
 	prevbid_ = curbid_;
     }
 
-    od_int64 mindist = mUdf(od_int64);
+    float mindist = mUdf(float);
     if ( nearesttrace_ )
     {
 	const SeisTrc* nearesttrc = 0;
@@ -431,7 +433,7 @@ int SeisInterpol::nextStep()
     mDoTransform( fft_, true, trcarr_ );
     const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
     const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
-    const float fmax = (float) (maxvel_ / ( 2*mindist*sin( M_PI/6 ) ));
+    const float fmax = maxvel_ / ( 2*mindist*sin( M_PI/6 ) );
     const int poscutfreq = (int)(fmax/df);
 
 #define mDoLoopWork( docomputemax )\
@@ -594,13 +596,14 @@ SeisScaler::SeisScaler( const SeisTrcBuf& trcs )
 
 void SeisScaler::scaleTrace( SeisTrc& trc )
 {
+    const Coord& crd = trc.info().coord;
     float trcmaxval, trcminval;
     mGetTrcRMSVal( trc, trcmaxval, trcminval )
     LinScaler sc( trcminval, avgminval_, trcmaxval, avgmaxval_ );
     for ( int idz=0; idz<trc.size(); idz++ )
     {
-	float val = (float) trc.get( idz, 0 );
-	val = (float) sc.scale( val );
+	float val = trc.get( idz, 0 );
+	val = sc.scale( val );
 	trc.set( idz, val, 0 );
     }
 }

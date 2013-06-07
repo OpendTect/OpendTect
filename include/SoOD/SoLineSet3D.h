@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoNonIndexedShape.h>
 
 #include <Inventor/fields/SoSFFloat.h>
@@ -29,7 +28,7 @@ ________________________________________________________________________
 class SbBox3f;
 class SbVec3f;
 
-mSoODClass SoLineSet3D : public SoNonIndexedShape
+mClass SoLineSet3D : public SoNonIndexedShape
 {
     SO_NODE_HEADER(SoLineSet3D);
 public:
@@ -63,4 +62,3 @@ private:
 
 
 #endif
-

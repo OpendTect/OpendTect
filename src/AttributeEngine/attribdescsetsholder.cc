@@ -4,7 +4,7 @@
  * DATE     : Mar 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdescsetsholder.h"
 #include "attribdescset.h"

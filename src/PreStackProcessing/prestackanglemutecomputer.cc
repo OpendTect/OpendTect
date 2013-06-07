@@ -4,7 +4,7 @@
  * DATE     : June 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackanglemutecomputer.h"
 
@@ -82,18 +82,14 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
     BinID curbid;
-    for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
+    for ( int pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
-	ElasticModel layers;
-	SamplingData<float> sd;
+	TypeSet<ElasticLayer> layers; SamplingData<float> sd;
 	if ( !getLayers( curbid, layers, sd ) )
 	    continue;
 
 	rtrunner->addModel( layers, true );
-	if ( !rtrunner->prepareRayTracers() )
-	    continue;
-
 	if ( !rtrunner->execute( false ) )
 	    { errmsg_ = rtrunner->errMsg(); continue; }
 
@@ -134,13 +130,9 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
 	    const float lastsinangle = 
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
-
-	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
-	    if ( cosangle > 0 )
-	    {
-		const float doff = thk*lastsinangle/cosangle;
-		mutefunc->add( lastzpos, offsets[lastioff]+doff );
-	    }
+	    const float cosangle = sqrt(1-lastsinangle*lastsinangle);
+	    const float doff = thk*lastsinangle/cosangle;
+	    mutefunc->add( offsets[lastioff]+doff, lastzpos );
 	}
 
 	mutefuncs += mutefunc;
@@ -166,10 +158,7 @@ bool AngleMuteComputer::doFinish( bool sucess )
 	return false;
 
     PtrMan<IOObj> obj = IOM().get( params().outputmutemid_ );
-    PtrMan<MuteDefTranslator> tr = obj
-    	? (MuteDefTranslator*)obj->createTranslator()
-    	: 0;
-    
+    MuteDefTranslator* tr = obj ? (MuteDefTranslator*)obj->getTranslator() : 0;
     BufferString bs;
     return tr ? tr->store( outputmute_, obj, bs ) : false;
 }

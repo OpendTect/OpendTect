@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "multiid.h"
 #include "globexpr.h"
@@ -49,14 +49,7 @@ int CompoundKey::nrKeys() const
 
     int nrkeys = 1;
     const char* ptr = id_;
-    while ( true )
-    {
-	ptr = strchr(ptr,'.');
-	if ( !ptr )
-	    break;
-	nrkeys++;
-	ptr++;
-    }
+    while ( ( ptr=strchr(ptr,'.') ) ) { nrkeys++; ptr++; }
 
     return nrkeys;
 }
@@ -102,6 +95,12 @@ CompoundKey CompoundKey::upLevel() const
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
     return nrKeys() < ky.nrKeys() && matchString( id_, ky.id_ );
+}
+
+
+bool CompoundKey::matchGE( const char* cre ) const
+{
+    return GlobExpr(id_).matches(cre);
 }
 
 

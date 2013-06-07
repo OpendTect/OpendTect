@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -32,7 +31,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-mExpClass(visBase) Cube : public Shape
+mClass Cube : public Shape
 {
 public:
     static Cube*	create()
@@ -62,4 +61,3 @@ protected:
 
 
 #endif
-

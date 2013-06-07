@@ -26,9 +26,6 @@ ________________________________________________________________________
     slot to the corresponging QMenuItem when calling 'insertItem' on a 
     QMenuData object.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_MenuMessenger : public QObject 
 {
 
@@ -72,7 +69,5 @@ void hovered( QAction* qaction )
 }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

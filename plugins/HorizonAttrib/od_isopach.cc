@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		June 2011
- SVN:		$Id$
+ static const char* rcsID = "$Id $";
 ________________________________________________________________________
 
 -*/

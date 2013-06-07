@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 #include "posinfo.h"
 #include "bufstringset.h"
@@ -26,7 +25,7 @@ supported.
 
 */
 
-mExpClass(General) CBVSIO
+mClass CBVSIO
 {
 public:
 
@@ -69,7 +68,7 @@ protected:
 
 */
 
-mExpClass(General) CBVSIOMgr
+mClass CBVSIOMgr
 {
 public:
 
@@ -105,7 +104,7 @@ protected:
 
     virtual const char*	errMsg_() const		= 0;
 
-    mClass(General) AuxInlInf
+    class AuxInlInf
     {
     public:
 			AuxInlInf( int i ) : inl(i), cumnrxlines(0)	{}
@@ -119,4 +118,3 @@ protected:
 
 
 #endif
-

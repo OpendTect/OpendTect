@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 
@@ -23,7 +22,7 @@ class uiGenInput;
 
 /*! \brief Dialog for creating volume output */
 
-mExpClass(uiAttributes) uiSingleAttribEd : public uiDialog
+mClass uiSingleAttribEd : public uiDialog
 {
 public:
 
@@ -50,4 +49,3 @@ protected:
 };
 
 #endif
-

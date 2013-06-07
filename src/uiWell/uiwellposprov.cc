@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellposprov.h"
 
@@ -52,7 +52,7 @@ uiWellPosProvGroup::~uiWellPosProvGroup()
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define mGetWellKey(k) IOPar::compKey(sKey::Well(),Pos::WellProvider3D::k)
+#define mGetWellKey(k) IOPar::compKey(sKey::Well,Pos::WellProvider3D::k)
 
 
 void uiWellPosProvGroup::usePar( const IOPar& iop )
@@ -70,7 +70,7 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
 
 bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Type(), sKey::Well() );
+    iop.set( sKey::Type, sKey::Well );
     if ( !wellfld_->nrSel() )
 	mErrRet("Please select at least one well")
 
@@ -109,5 +109,5 @@ void uiWellPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 
 void uiWellPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Well() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Well );
 }

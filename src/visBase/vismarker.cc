@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vismarker.h"
 
@@ -88,8 +88,7 @@ void Marker::setCenterPos( const Coord3& pos_ )
 	pos.x = 0; pos.y = 0;
     }
 
-    translation->translation.setValue( (float) pos.x, 
-				    (float) pos.y, (float) pos.z );
+    translation->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
@@ -135,8 +134,8 @@ MarkerStyle3D::Type Marker::getType() const
 static float getSurveyRotation()
 {
     const RCol2Coord& b2c = SI().binID2Coord();
-    const float xcrd = (float) b2c.getTransform(true).c;
-    const float ycrd = (float) b2c.getTransform(false).c;
+    const float xcrd = b2c.getTransform(true).c;
+    const float ycrd = b2c.getTransform(false).c;
     const float angle = atan2( ycrd, xcrd );
     return angle;
 }
@@ -146,7 +145,9 @@ void Marker::setType( MarkerStyle3D::Type type )
 {
     switch ( type )
     {
-    
+    case MarkerStyle3D::None: {
+	removeChild(shape);
+	} break;
     case MarkerStyle3D::Cube: {
 	setMarkerShape(new SoCube);
 	setRotation( Coord3(0,0,1), 0 );
@@ -194,10 +195,6 @@ void Marker::setType( MarkerStyle3D::Type type )
 	plane->setWidth( Coord3(6,5,1) );
 	setMarkerShape( plane->getInventorNode() ); 
 	setDip( inldip_, crldip_ );
-	} break;
-    case MarkerStyle3D::None:
-    default:{
-	    removeChild(shape);
 	} break;
     }
 
@@ -258,8 +255,7 @@ void Marker::setRotation( const Coord3& vec, float angle )
 	insertChild( childIndex( shape ), rotation );
     }
 
-    rotation->rotation.setValue( SbVec3f((float) vec[0],
-				    (float) vec[1],(float) vec[2]), angle );
+    rotation->rotation.setValue( SbVec3f(vec[0],vec[1],vec[2]), angle );
 }
 
 
@@ -272,8 +268,7 @@ void Marker::setArrowDir( const ::Sphere& dir )
     newcrd /= dir.radius;
 
     SbVec3f orgvec(1,0,0);
-    SbRotation newrot( orgvec, SbVec3f((float) newcrd.x,
-				    (float) newcrd.y,(float) -newcrd.z) );
+    SbRotation newrot( orgvec, SbVec3f(newcrd.x,newcrd.y,-newcrd.z) );
     if ( !rotation )
     {
 	rotation = new SoRotation;
@@ -300,7 +295,7 @@ void Marker::setDip( float inldip, float crldip )
     
     const float inldepth = (inldip*cDipFactor()) * zstretch_;
     const float crldepth = (crldip*cDipFactor()) * zstretch_;
-    const float inlangle = atan( 2 * (SI().isClockWise() ? -inldepth : inldepth) );
+    const float inlangle = atan( 2 * SI().isClockWise() ? -inldepth : inldepth );
     const float crlangle = atan( 2 * crldepth ); 
 
     SbRotation inlrot( SbVec3f(1,0,0), inlangle );

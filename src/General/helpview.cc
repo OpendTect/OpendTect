@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "helpview.h"
 
@@ -31,15 +31,8 @@ static const char* sNotInstHtml = "docnotinst.html";
 static const char* sToDoHtml = "todo.html";
 static const char* sWebSite = "http://opendtect.org";
 
-static bool showhelpstuff = false;
-
-
-
-void HelpViewer::init()
-{
-    showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
-		|| GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
-}
+static bool showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
+			 || GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
 
 
 static StreamData getStreamData( const char* fnm )
@@ -106,14 +99,14 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
     const char* ptr = 0;
     while ( 1 )
     {
-	char c = mCast( char, strm.peek() );
-	while ( c == '\n' ) { strm.ignore( 1 ); c = mCast(char,strm.peek()); }
+	char c = strm.peek();
+	while ( c == '\n' ) { strm.ignore( 1 ); c = strm.peek(); }
 	lvl = 0;
 	if ( c == '\t' )
 	{
 	    lvl++;
 	    strm.ignore( 1 );
-	    c = mCast( char, strm.peek() );
+	    c = strm.peek();
 	    if ( c == '\t' ) lvl++;
 	}
 	astream.next();
@@ -129,7 +122,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 	    if ( !code[2].isEmpty() )
 		wid += code[2];
 	}
-	if ( wid != MultiID(winid) ) continue;
+	if ( wid != winid.buf() ) continue;
 
 	ptr = astream.value();
 	mSkipBlanks(ptr);
@@ -323,8 +316,9 @@ BufferString HelpViewer::getWebUrlFromLocal( const char* localfnm )
     return url;
 }
 
+
 #include "texttranslator.h"
-mGlobal( General )  TextTranslateMgr& TrMgr()
+mGlobal TextTranslateMgr& TrMgr()
 {
     static TextTranslateMgr* trmgr = 0;
     if ( !trmgr ) trmgr = new TextTranslateMgr();

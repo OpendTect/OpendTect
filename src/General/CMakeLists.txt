@@ -5,11 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set ( OD_MODULE_DEPS Algo )
-if ( NOT DEFINED WIN32 )
-    set ( OD_TEST_PROGS ibmformat.cc )
-endif()
-set ( OD_MODULE_SOURCES array2dbitmap.cc
+SET(OD_MODULE_DEPS Algo )
+SET(OD_MODULE_SOURCES arrayndutils.cc
+	    array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc
 	    bidvsetarrayadapter.cc
@@ -29,7 +27,6 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    flatauxdataeditor.cc
 	    flatview.cc
 	    geom2dascio.cc
-		geometryio.cc
 	    googlexmlwriter.cc
 	    grid2d.cc
 	    helpview.cc
@@ -61,23 +58,25 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    raytracerrunner.cc
 	    rockphysics.cc
 	    stratlevel.cc
-		survgeometrytransl.cc
 	    tableascio.cc
 	    tableconv.cc
 	    transl.cc
 	    unitofmeasure.cc
-	    usrinputobj.cc
 	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 
 if ( CMAKE_COMPILER_IS_GNUCC )
-    if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
-	message( "Turning down optimizations on ibmformat.cc to avoid "
-		 "compiler problems." )
-	set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS -O )
-    endif()
+    if ( NOT OD_DEBUG )
+        if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
+            message( "Turning down optimizations on ibmformat.cc to avoid "
+                     "compiler problems." )
+            set_source_files_properties( ibmformat.cc PROPERTIES COMPILE_FLAGS
+-O )
+        endif()
+    endif ( NOT OD_DEBUG )
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
 OD_INIT_MODULE()
+
 
 

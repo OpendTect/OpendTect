@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 
@@ -20,7 +19,7 @@ class BufferString;
 class BufferStringSet;
 class DataPointSet;
 
-mExpClass(General) HorVariogramComputer
+mClass HorVariogramComputer
 {
 public:
 
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mExpClass(General) VertVariogramComputer
+mClass VertVariogramComputer
 {
 public:
 
@@ -101,4 +100,3 @@ protected:
 };
 
 #endif
-

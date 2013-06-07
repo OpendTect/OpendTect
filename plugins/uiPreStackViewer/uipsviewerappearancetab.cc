@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.6 2009/08/18 18:10:40 cvsyuancheng Exp $";
 
 #include "uipsviewerappearancetab.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipsviewermanager.h"
 #include "visflatviewer.h"
-#include "visprestackdisplay.h"
+#include "visprestackviewer.h"
 #include "survinfo.h"
 #include "samplingdata.h"
 
@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
-		visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
+			    PreStackView::Viewer3D& psv, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Appearance" )
     , applyall_( false )
     , savedefault_( false )
@@ -132,8 +132,8 @@ void uiViewer3DAppearanceTab::updateFlds( uiGenInput* gridfld,
 				     : (x1 ? manuoffssampl_ : manuzsampl_);
     if ( !x1 )
     {
-	sd.start *= SI().zDomain().userFactor();
-	sd.step *= SI().zDomain().userFactor();
+	sd.start *= SI().zFactor();
+	sd.step *= SI().zFactor();
     }
 
     rgfld->setValues( sd.start, sd.step );
@@ -171,7 +171,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	return;
 
     vwr_->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-    vwr_->handleChange( FlatView::Viewer::DisplayPars );
+    vwr_->handleChange( FlatView::Viewer::VDPars );
 
     const bool showzgridlines = zgridfld_->getBoolValue();
     vwr_->appearance().annot_.x2_.showgridlines_ = showzgridlines;
@@ -192,7 +192,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 		return;
 	    }
 
-	    const float zfac = mCast( float, SI().zDomain().userFactor() );
+	    const float zfac = SI().zFactor();
 	    zsmp.start /= zfac;
 	    zsmp.step /= zfac;
 	    manuzsampl_ = zsmp;
@@ -238,7 +238,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-	fvwr->handleChange( FlatView::Viewer::DisplayPars );
+	fvwr->handleChange( FlatView::Viewer::VDPars );
 	
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;

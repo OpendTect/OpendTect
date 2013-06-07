@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vismpeseedcatcher.h"
 
@@ -91,7 +91,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
-    if ( typestr==EM##typekey##TranslatorGroup::keyword() ) \
+    if ( typestr && !strcmp(typestr,EM##typekey##TranslatorGroup::keyword()) ) \
 	legalclick = legalclick || (condition); 
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
@@ -314,7 +314,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
-    const int lineidx = nodepid.getRowCol().row;
+    const int lineidx = RowCol( nodepid.subID() ).row;
     const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
     S2DPOS().setCurLineSet( geomid.lsid_ );
     BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );

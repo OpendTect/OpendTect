@@ -7,11 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: expattribspi.cc,v 1.6 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "odplugin.h"
-
-#include "expattribsmod.h"
 
 #include "semblanceattrib.h"
 #include "grubbsfilterattrib.h"
@@ -21,8 +19,8 @@ mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
     static PluginInfo retpi = {
-	"Experimental Attributes (Base)",
-	"dGB Earth Sciences (Nanne)",
+	"Experimental Attributes (Non-UI)",
+	"dGB (Nanne)",
 	"=od",
     	"" };
     return &retpi;

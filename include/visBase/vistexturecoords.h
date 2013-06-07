@@ -13,10 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
-#include "viscoord.h"
 
 class SoTextureCoordinate2;
 class SoTextureCoordinate3;
@@ -31,7 +29,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) TextureCoords : public DataObject
+mClass TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
@@ -47,16 +45,12 @@ public:
 
     int				nextID(int previd) const;
 
-    osg::Array*			osgArray() { return osgcoords_; }
-    const osg::Array*		osgArray() const { return osgcoords_; }
-
 protected:
     				~TextureCoords();
     int				getFreeIdx();
     				/*!< Object should be locked before calling */
 
     SoTextureCoordinate3*	coords_;
-    osg::Array*			osgcoords_;
     TypeSet<int>		unusedcoords_;
     Threads::Mutex&		mutex_;
 
@@ -65,23 +59,7 @@ protected:
 };
 
 
-mExpClass(visBase) TextureCoords2 : public DataObject
-{
-public:
-    static TextureCoords2*	create()
-				mCreateDataObj(TextureCoords2);
-
-    void			setCoord( int,  const Coord& );
-
-protected:
-    				~TextureCoords2();
-    SoTextureCoordinate2*	coords_;
-    virtual SoNode*		gtInvntrNode();
-    Threads::Mutex&		mutex_;
-};
-
-
-mExpClass(visBase) TextureCoordListAdapter : public Coord3List
+mClass TextureCoordListAdapter : public Coord3List
 {
 public:
     			TextureCoordListAdapter(TextureCoords&);
@@ -101,7 +79,23 @@ protected:
     TextureCoords&	texturecoords_;
 };
 
+
+mClass TextureCoords2 : public DataObject
+{
+public:
+    static TextureCoords2*	create()
+				mCreateDataObj(TextureCoords2);
+    
+    void			setCoord(int,const Coord&);
+    
+protected:
+				~TextureCoords2();
+    SoTextureCoordinate2*	coords_;
+    virtual SoNode*		gtInvntrNode();
+    Threads::Mutex&		mutex_;
+};
+
+
 }; //namespace
 
 #endif
-

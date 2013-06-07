@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "enums.h"
@@ -27,17 +26,12 @@ class mQSqlQuery;
 class BufferStringSet;
 class IOPar;
 
-/*!\brief SQL Database*/
 
 namespace SqlDB
 {
 class Access;
 
-/*!
-\brief Execution of SQL Query.
-*/
-
-mExpClass(Database) Query
+mClass Query
 {
 public:
 
@@ -92,24 +86,16 @@ protected:
 };
 
 
-/*!
-\brief Helper class that creates conditions that can be put after WHERE in a
-query.
-*/
-
-mExpClass(Database) Condition
+/*! Helper class that creates conditions that can be put after WHERE
+    in a query. */
+mClass Condition
 {
 public:
     virtual			~Condition() {}
     virtual BufferString	getStr() const			= 0;
 };
 
-
-/*!
-\brief Condition to check for a value in a Query.
-*/
-
-mExpClass(Database) ValueCondition : public Condition
+mClass ValueCondition : public Condition
 {
 public:
 			enum Operator { Equals, Less, Greater, LessOrEqual,
@@ -130,11 +116,7 @@ protected:
 };
 
 
-/*!
-\brief Condition with multiple logics in a Query.
-*/
-
-mExpClass(Database) MultipleLogicCondition : public Condition
+mClass MultipleLogicCondition : public Condition
 {
 public:
     			MultipleLogicCondition(bool isand)
@@ -150,11 +132,7 @@ protected:
 };
 
 
-/*!
-\brief Condition to string check in a Query.
-*/
-
-mExpClass(Database) StringCondition : public Condition
+mClass StringCondition : public Condition
 {
 public:
     			StringCondition( const char* col,
@@ -169,11 +147,7 @@ protected:
 };
 
 
-/*!
-\brief Condition to check for fulltext in a Query.
-*/
-
-mExpClass(Database) FullTextCondition : public Condition
+mClass FullTextCondition : public Condition
 {
 public:
 			FullTextCondition( BufferStringSet& cols,
@@ -192,4 +166,3 @@ protected:
 } // namespace
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "SoLineSet3D.h"
 
@@ -208,8 +208,7 @@ void SoLineSet3D::rayPick( SoRayPickAction* action )
 	    SbVec3f c2 = celem->get3(curc++);
 	    if ( action->intersect( c1, c2, dummy ) )
 	    {
-		SoPickedPoint* pickedpoint mUnusedVar =
-		    action->addIntersection(dummy);
+		SoPickedPoint* pickedpoint = action->addIntersection(dummy);
 		//Todo: Fill out pickedpoint
 	    }
 	    c1 = c2;

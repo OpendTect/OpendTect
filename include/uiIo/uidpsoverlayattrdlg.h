@@ -6,23 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Feb 2010
- SVN:           $Id$
+ RCS:           $Id: uidpsoverlayattrdlg.h,
 ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiColorTable;
 class uiComboBox;
 class uiDataPointSetCrossPlotter;
-
-/*!
-\brief Dialog box to display properties within points in crossplot.
-*/
-
-mExpClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
+		     
+mClass uiDPSOverlayPropDlg : public uiDialog
 {
 public:
 			uiDPSOverlayPropDlg(uiParent*,
@@ -46,4 +41,3 @@ protected:
 };
 
 #endif
-

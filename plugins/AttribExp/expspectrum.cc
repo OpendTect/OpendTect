@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: expspectrum.cc,v 1.6 2009/07/22 16:01:26 cvsbert Exp $";
 
 #include "expspectrum.h"
 #include "attribprovider.h"
@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 #include "samplfunc.h"
 #include "genericnumer.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 
 #include <stdio.h>
 

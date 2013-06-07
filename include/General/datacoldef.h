@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
 class UnitOfMeasure;
 
@@ -26,7 +25,7 @@ class UnitOfMeasure;
 
 */
 
-mExpClass(General) DataColDef
+mClass DataColDef
 {
 public:
 				DataColDef( const char* nm, const char* ref=0,
@@ -54,4 +53,3 @@ public:
 
 
 #endif
-

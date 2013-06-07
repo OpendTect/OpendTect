@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geeditor.h"
 
 namespace Geometry
 {
 class PolygonSurface;
 
-mExpClass(Geometry) PolygonSurfEditor : public ElementEditor
+mClass PolygonSurfEditor : public ElementEditor
 {
 public:
     		PolygonSurfEditor( Geometry::PolygonSurface& );
@@ -37,5 +36,4 @@ protected:
 };
 
 #endif
-
 

@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "polygonsurface.h"
 
@@ -64,8 +64,7 @@ char PolygonSurface::bodyDimension() const
 	return 0;
     
     if ( plygsz==1 )
-	return mCast( char, polygons_[0]->size() >= 3 ? 
-					 2 : polygons_[0]->size()-1 );
+	return polygons_[0]->size() >= 3 ? 2 : polygons_[0]->size()-1;
     
     int totalpts = 0;
     for ( int idx=0; idx<plygsz; idx++ )
@@ -73,7 +72,7 @@ char PolygonSurface::bodyDimension() const
     
     if ( !totalpts ) return 0;
     
-    return mCast( char, totalpts>3 ? 3 : totalpts-1 );
+    return totalpts>3 ? 3 : totalpts-1;
 }
 
 
@@ -122,10 +121,10 @@ bool PolygonSurface::removePolygon( int polygonnr )
 {
     mGetValidPolygonIdx( polygonidx, polygonnr, 0, false );
 
-    polygons_.removeSingle( polygonidx );
-    polygonnormals_.removeSingle( polygonidx );
-    firstknots_.removeSingle( polygonidx );
-    concavedirs_.removeSingle( polygonidx );
+    polygons_.remove( polygonidx );
+    polygonnormals_.remove( polygonidx );
+    firstknots_.remove( polygonidx );
+    concavedirs_.remove( polygonidx );
 
     triggerNrPosCh( RowCol(polygonidx,PolygonRemove).toInt64() );
     if ( blocksCallBacks() )
@@ -175,7 +174,7 @@ bool PolygonSurface::removeKnot( const RowCol& rc )
     if ( polygons_[polygonidx]->size() <= 1 )
 	return removePolygon( rc.row );
 
-    polygons_[polygonidx]->removeSingle( knotidx );
+    polygons_[polygonidx]->remove( knotidx );
     triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
     
     return true;
@@ -244,12 +243,12 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     {
 	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
 	const Coord3 nextpos = knots[knot==nrknots-1 ? 0 : knot+1];
-	curve.setTangentInfluence( (float) ((prvpos-nextpos).abs())/5.0f );
+	curve.setTangentInfluence( ((prvpos-nextpos).abs())/5.0 );
 
 	for ( int nr=0; nr<beziernrpts_+1; nr++ )
 	{
 	    Coord3 pt = curve.computePosition(
-		    knot+nr*1.0f/(float)(beziernrpts_+1) );
+		    knot+nr*1.0/(float)(beziernrpts_+1) );
 	    
 	    pt.z /= zscale;
 	    pts += pt;

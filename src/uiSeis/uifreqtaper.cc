@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "ioman.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -195,8 +195,8 @@ static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? td1_ : td2_;
 #define mGetDrawerData() isminactive_ ? drawer_->leftTaperData()\
 				      : drawer_->rightTaperData();
-#define mMaxRg Interval<float>( td2_.refrg_.start+0.05f, (float) datasz_ )
-#define mMinRg Interval<float>( 0.05f, td1_.refrg_.stop )
+#define mMaxRg Interval<float>( td2_.refrg_.start+0.05, datasz_ )
+#define mMinRg Interval<float>( 0.05, td1_.refrg_.stop )
 #define mCheckLimitRanges()\
     td1_.rg_.limitTo( mMinRg ); 	td2_.rg_.limitTo( mMaxRg );\
     td1_.rg_.stop = td1_.refrg_.stop;   td2_.rg_.start = td2_.refrg_.start;
@@ -324,12 +324,12 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 {\
     int ifr = mNINT32( val  );\
     if ( mIsZero(val-ifr,1e-2) )\
-	val = mCast(float,ifr);\
+	val = ifr;\
 }
 #define setTo1Decimal(val)\
 {\
     val*=10;\
-    val = mCast( float, (int)val );\
+    val = (int)val;\
     val = (float)val/10;\
 }
 void uiFreqTaperGrp::putToScreen( CallBacker* )
@@ -382,7 +382,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, 1.f/slopeindecade );
+    const float slopeinhertz = pow( 10, 1./slopeindecade );
     TaperData& td = mGetData();
 
     if ( isminactive_ )
@@ -397,8 +397,8 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    float slope = fabs( 1.f/Math::Log10( d.rg_.stop / d.rg_.start ) );
-    d.slope_ = (float) ( slope*mDec2Oct );
+    float slope = fabs( 1./Math::Log10( d.rg_.stop / d.rg_.start ) );
+    d.slope_ = slope*mDec2Oct;
 }
 
 
@@ -467,13 +467,13 @@ void uiFuncTaperDisp::adaptFreqRangesToDataSize( bool isleft, bool isright )
     LinScaler scaler( 0, 0, orgdatasz_, datasz_ );
     if ( isleft )
     {
-	leftd_.rg_.stop = (float) ( scaler.scale( leftd_.rg_.stop ) );
+	leftd_.rg_.stop = scaler.scale( leftd_.rg_.stop );
 	leftd_.refrg_.stop = leftd_.rg_.stop; 
     }
 
     if ( isright )
     {
-	rightd_.rg_.start = (float) ( scaler.scale( rightd_.rg_.start ) );
+	rightd_.rg_.start = scaler.scale( rightd_.rg_.start );
 	rightd_.refrg_.start = rightd_.rg_.start;
     }
 }
@@ -544,7 +544,7 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 
 	    window_->setValue( idx,  val );
 	    
-	    xvals += mCast( float, idx );
+	    xvals += idx;
 	}
     }
 

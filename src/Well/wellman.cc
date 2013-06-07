@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "welldata.h"
 #include "wellman.h"
@@ -31,6 +31,9 @@ Well::Man::~Man()
 
 void Well::Man::removeAll()
 {
+    //Note: Don't change this order, as it may cause a key to be found
+    //While the well is just about to be deleted.
+    deepErase( keys_ );
     ObjectSet<Well::Data> wellcopy = wells_;
     wells_.erase();
     deepErase( wellcopy );
@@ -39,25 +42,31 @@ void Well::Man::removeAll()
 
 void Well::Man::add( const MultiID& key, Well::Data* wll )
 {
-    wll->setMultiID( key );
     wells_ += wll;
+    keys_ += new MultiID( key );
 }
 
 
 Well::Data* Well::Man::release( const MultiID& key )
 {
-    const int idx = gtByKey( key );
-    return idx < 0 ? 0 : wells_.removeSingle( idx );
+    const int idx = indexOf( keys_, key );
+    if ( idx < 0 ) return 0;
+
+    delete keys_[idx];
+    keys_.remove( idx );
+    Well::Data* w = wells_[idx];
+    wells_.remove( idx );
+    return w;
 }
 
 
-#define mErrRet(s) { delete wd; msg_ = s; return 0; }
+#define mErrRet(s) { delete tr; delete wd; msg_ = s; return 0; }
 
 
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
     msg_ = "";
-    int wllidx = gtByKey( key );
+    int wllidx = indexOf( keys_, key );
     bool mustreplace = false;
     if ( wllidx >= 0 )
     {
@@ -66,15 +75,15 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 	mustreplace = true;
     }
 
-    PtrMan<Translator> tr = 0; Well::Data* wd = 0;
+    Translator* tr = 0; Well::Data* wd = 0;
 
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
 	mErrRet("Cannot find well key in data store")
-    tr = ioobj->createTranslator();
+    tr = ioobj->getTranslator();
     if ( !tr )
 	mErrRet("Well translator not found")
-    mDynamicCastGet(WellTranslator*,wtr,tr.ptr() )
+    mDynamicCastGet(WellTranslator*,wtr,tr)
     if ( !wtr )
 	mErrRet("Translator produced is not a Well Transator")
 
@@ -87,28 +96,22 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
     else
 	add( key, wd );
 
+    delete tr;
     return wd;
 }
 
 
 bool Well::Man::isLoaded( const MultiID& key ) const
 {
-    return gtByKey( key ) >= 0;
+    const int wllidx = indexOf( keys_, key );
+    return wllidx >= 0;
 }
 
 
 bool Well::Man::reload( const MultiID& key )
 {
-    return get( key, true );
-}
-
-
-int Well::Man::gtByKey( const MultiID& key ) const
-{
-    for ( int idx=0; idx<wells_.size(); idx++ )
-    {
-	if ( wells_[idx]->multiID() == key )
-	    return idx;
-    }
-    return -1;
+    Well::Data* wd = 0;
+    if ( isLoaded(key) )
+	wd = get( key, true );
+    return wd;
 }

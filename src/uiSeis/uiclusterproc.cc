@@ -101,7 +101,7 @@ od_int64 nrIterations() const
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	BufferString jobcmd( cmd_ );
 	jobcmd += " \'";
@@ -132,12 +132,13 @@ class ClusterProc : public NamedObject
 public:
 ClusterProc( const IOPar& pars )
     : pars_(pars)
+    , jobs_(false)
 {
 }
 
 bool init()
 {
-    FixedString res = pars_.find( sKey::Survey() );
+    FixedString res = pars_.find( sKey::Survey );
     if ( !res.isEmpty() && SI().getDirName() != res )
 	IOMan::setSurvey( res.str() );
 
@@ -151,10 +152,10 @@ bool init()
 	FilePath fp( scriptfiles.fullPath(idx) );
 	fp.setExtension( ".par" );
 	IOPar iop;
-	if ( !iop.read(fp.fullPath(),sKey::Pars()) )
+	if ( !iop.read(fp.fullPath(),sKey::Pars) )
 	    continue;
 
-	FixedString desc = iop.find( sKey::Desc() );
+	FixedString desc = iop.find( sKey::Desc );
 	fp.setExtension( ".log" );
 	jobs_ += new ClusterJobInfo( fp.fullPath(), desc.str() );
     }
@@ -202,7 +203,7 @@ bool submitJobs( TaskRunner* tr )
 	return false;
 
     ClusterJobSubmitter jobsubmitter( jobs_, submitcmd.str() );
-    if ( !TaskRunner::execute( tr, jobsubmitter ) )
+    if ( !tr->execute(jobsubmitter) )
 	return false;
 
     return true;
@@ -316,7 +317,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
     if ( !exec )
 	return false;
 
-    if ( !TaskRunner::execute( tr, *exec ) )
+    if ( !tr->execute(*exec) )
 	mErrRet("Failed to merge output data")
     else
 	msg = "Finished merging output data";
@@ -331,7 +332,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
 	IOM().permRemove( tempid );
     }
 
-    FixedString tmpdir = pars.find( sKey::TmpStor() );
+    FixedString tmpdir = pars.find( sKey::TmpStor );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
 	File::removeDir( tmpdir.str() );
 

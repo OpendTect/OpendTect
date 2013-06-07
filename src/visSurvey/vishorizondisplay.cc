@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vishorizondisplay.h"
 
@@ -78,7 +78,7 @@ HorizonDisplay::HorizonDisplay()
     , enabletextureinterp_( true )    
 {
     setLockable();
-    maxintersectionlinethickness_ = 0.02f *
+    maxintersectionlinethickness_ = 0.02 *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
 	      SI().crlDistance() * SI().crlRange(true).width() );
 
@@ -263,7 +263,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	const Coord3 displaypos = ztrans->transform(
 		transformation_ ? transformation_->transform(coord) : coord );
 
-	const float dist = (float) displaypos.distTo( pickedpos );
+	const float dist = displaypos.distTo( pickedpos );
 	if ( !idx || dist<mindist )
 	{
 	    closestnode = closestnodes[idx];
@@ -292,12 +292,15 @@ void HorizonDisplay::removeEMStuff()
 
     while ( intersectionlines_.size() )
     {
-	intersectionlines_.removeSingle(0)->unRef();
-	intersectionpointsets_.removeSingle(0)->unRef();
-	intersectionlineids_.removeSingle(0);
+	intersectionlines_[0]->unRef();
+	intersectionpointsets_[0]->unRef();
+
+	intersectionlines_.remove(0);
+	intersectionpointsets_.remove(0);
+	intersectionlineids_.remove(0);
 	if ( zaxistransform_ )
 	    zaxistransform_->removeVolumeOfInterest( intersectionlinevoi_[0] );
-	intersectionlinevoi_.removeSingle(0);
+	intersectionlinevoi_.remove(0);
 
     }
 
@@ -483,7 +486,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 	 userrefs_[channel]->isEmpty() )
 	return;
 
-    if ( userrefs_[channel]->get(0)=="Section ID" )
+    if ( !strcmp("Section ID",userrefs_[channel]->get(0)) )
 	textureidx++;
 
     BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
@@ -577,15 +580,16 @@ bool HorizonDisplay::removeAttrib( int channel )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->removeChannel( channel );
 
-    curshiftidx_.removeSingle( channel );
-    userrefs_.removeSingle( channel );
-    enabled_.removeSingle( channel );
-    delete shifts_.removeSingle( channel );
+    curshiftidx_.remove( channel );
+    userrefs_.remove( channel );
+    enabled_.remove( channel );
+    delete shifts_.remove( channel );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[channel] );
-    datapackids_.removeSingle( channel );
-    coltabmappersetups_.removeSingle( channel );
-    coltabsequences_.removeSingle( channel );
-    delete as_.removeSingle( channel );
+    datapackids_.remove( channel );
+    coltabmappersetups_.remove( channel );
+    coltabsequences_.remove( channel );
+    delete as_[channel];
+    as_.remove( channel );
 
     for ( int chan=channel; chan<nrAttribs(); chan++ )
     {
@@ -721,8 +725,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 					    const DataPointSet* positions,
 					    TaskRunner* tr )
 {
-    if ( !positions || sections_.isEmpty() ) 
-	return;
+    if ( !positions || sections_.isEmpty() ) return;
 
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
@@ -730,9 +733,9 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     userrefs_.replace( channel, attrnms );
 
     setRandomPosData( channel, positions, tr );
-    const BinIDValueSet* cache =
-	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
-    const bool isz = attrnms->size()>=1 && attrnms->get(0)=="Depth";
+    const BinIDValueSet* cache =sections_[0]->getCache( channel );
+    const bool isz = attrnms->size()>=1 &&
+		     !strcmp(attrnms->get(0).buf(),"Depth");
 
     StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
     StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
@@ -774,7 +777,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
-    data.clearData();
+    data.bivSet().empty();
     for ( int idx=0; idx<userrefs_[channel]->size(); idx++ )
 	data.dataSet().add( new DataColDef(userrefs_[channel]->get(idx)) );
 
@@ -908,8 +911,9 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     if ( idx<0 ) return;
 
     removeChild( sections_[idx]->getInventorNode() );
-    sections_.removeSingle( idx )->unRef();
-    sids_.removeSingle( idx );
+    sections_[idx]->unRef();
+    sections_.remove( idx );
+    sids_.remove( idx );
 };
 
 
@@ -1204,9 +1208,9 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const float zfactor = scene_ ? scene_->getZScale(): inlcrlsystem_->zScale();
+	    const float zfactor = scene_ ? scene_->getZScale(): inlCrlSystem()->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
-	    const float dist = (float) fabs(xytpos.z-pos.z);
+	    const float dist = fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
 	}
 
@@ -1219,7 +1223,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 
 float HorizonDisplay::maxDist() const
 {
-    return inlcrlsystem_->zStep();
+    return inlCrlSystem()->zRange().step;
 }
 
 
@@ -1312,13 +1316,11 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    const TypeSet<float>& attribshifts = *shifts_[idx];
 	    const int version = selectedTexture( idx );
 	    if ( attribshifts.validIdx(version) )
-	    {
 		attribshift =
-		  attribshifts[version] * inlcrlsystem_->zDomain().userFactor();
-	    }
-	    
-	    const float zshift = 
-	      (float) getTranslation().z*inlcrlsystem_->zDomain().userFactor();
+		    attribshifts[version] * inlCrlSystem()->zDomain().userFactor();
+
+	    const float zshift =
+		getTranslation().z*inlCrlSystem()->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1357,7 +1359,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	visBase::Marker* marker = visBase::Marker::create(); \
 	marker->setDisplayTransformation(transformation_); \
 	marker->setMaterial( 0 ); \
-	marker->setScreenSize( mCast(float,lineStyle()->width_) ); \
+	marker->setScreenSize( lineStyle()->width_ ); \
 	marker->setType( MarkerStyle3D::Sphere ); \
 	marker->setCenterPos( curline[0] ); \
 	points->addObject( marker ); \
@@ -1446,8 +1448,7 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
 		bool hasseed = false;
 		for ( int idx=0; seedposids && idx<seedposids->size(); idx++ )
 		{
-		    const BinID seedbid = BinID::fromInt64( 
-						(*seedposids)[idx].subID() );
+		    const BinID seedbid( (*seedposids)[idx].subID() );
 		    if ( seedbid[fastdim] == curlinebid[fastdim] )
 		    {
 			hasseed = true;
@@ -1538,8 +1539,8 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		Coord3 pos = (1-frac) * Coord3(startcrd,0) +
 		    		frac  * Coord3(stopcrd, 0);
 	    
-		const float ifrac = (float) (trclist[cidx].x - inl0) / inlrg.step;
-		const float cfrac = (float) (trclist[cidx].y - crl0) / crlrg.step;
+		const float ifrac = (trclist[cidx].x - inl0) / inlrg.step;
+		const float cfrac = (trclist[cidx].y - crl0) / crlrg.step;
 		pos.z = (1-ifrac)*( (1-cfrac)*p00.z + cfrac*p01.z ) +
 			   ifrac *( (1-cfrac)*p10.z + cfrac*p11.z );
 
@@ -1656,26 +1657,29 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 
-    visBase::VisualWriteLockLocker writelock( *this );
-
+    visBase::VisualWriteLockLocker writelocker( *this );
+    
     for ( int idx=0; idx<intersectionlineids_.size(); idx++ )
     {
 	if ( !lineshouldexist[idx] )
 	{
 	    removeChild( intersectionlines_[idx]->getInventorNode() );
-	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
+	    intersectionlines_[idx]->unRef();
 
-	    lineshouldexist.removeSingle(idx);
-	    intersectionlines_.removeSingle(idx)->unRef();
-	    intersectionpointsets_.removeSingle(idx)->unRef();
-	    intersectionlineids_.removeSingle(idx);
+	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
+	    intersectionpointsets_[idx]->unRef();
+
+	    lineshouldexist.remove(idx);
+	    intersectionlines_.remove(idx);
+	    intersectionpointsets_.remove(idx);
+	    intersectionlineids_.remove(idx);
 	    if ( zaxistransform_ )
 	    {
 		zaxistransform_->removeVolumeOfInterest(
 			intersectionlinevoi_[idx] );
 	    }
 
-	    intersectionlinevoi_.removeSingle(idx);
+	    intersectionlinevoi_.remove(idx);
 	    idx--;
 	}
     }
@@ -1699,7 +1703,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( rtdisplay )
 	{
 	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
-	    cs.zrg.step = inlcrlsystem_->zStep();
+	    cs.zrg.step = inlCrlSystem()->zStep();
 	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
@@ -1714,7 +1718,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( seis2ddisplay )
 	{
 	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
-	    cs.zrg.step = inlcrlsystem_->zStep();
+	    cs.zrg.step = inlCrlSystem()->zStep();
 	    const Interval<int>& trcnrrg = seis2ddisplay->getTraceNrRange();
 	    for ( int trcnr=trcnrrg.start; trcnr<=trcnrrg.stop; trcnr++ )
 	    {
@@ -1817,8 +1821,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnZSlice( cs, (float) getTranslation().z, horizon, 
-					    sid, zaxistransform_, line, cii );
+		drawHorizonOnZSlice( cs, getTranslation().z, horizon, sid,  
+				        zaxistransform_, line, cii );
 	    }
 	}
 

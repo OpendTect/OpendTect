@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
 
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( uiCmdDriver, ColorOk, Command )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, FileOk, Command )		mEndDeclCmdClass
+mStartDeclCmdClass( ColorOk, Command )		mEndDeclCmdClass
+mStartDeclCmdClass( FileOk, Command )		mEndDeclCmdClass
 
 
-mStartDeclCmdClass( uiCmdDriver, Snapshot, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Snapshot, StealthCmd )	mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) SnapshotActivator: public Activator
+mClass SnapshotActivator: public Activator
 {
 public:
 		SnapshotActivator(const uiMainWin&,const char* filenm,int zoom);
@@ -37,10 +36,9 @@ protected:
 };
 
 
-mStartDeclComposerClass( uiCmdDriver, QColorDlg,CmdComposer,uiMainWin )
-    mEndDeclComposerClass
+mStartDeclComposerClass( QColorDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
 
-mExpClass(uiCmdDriver) SetColorActivator: public Activator
+mClass SetColorActivator: public Activator
 {
 public:
 		SetColorActivator(const Color&);
@@ -50,8 +48,7 @@ protected:
     Color	color_;
 };
 
-mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )
-    mEndDeclComposerClass
+mStartDeclComposerClass( QFileDlg,CmdComposer,uiMainWin ) mEndDeclComposerClass
 
 
 }; // namespace CmdDrive

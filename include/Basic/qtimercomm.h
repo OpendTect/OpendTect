@@ -15,10 +15,7 @@ ________________________________________________________________________
 #include <QTimer>
 #include "timer.h"
 
-QT_BEGIN_NAMESPACE
-
-/*!
-\brief QTimer communication class
+/*\brief QTimer communication class
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -26,7 +23,7 @@ QT_BEGIN_NAMESPACE
 class QTimerComm : public QObject 
 {
     Q_OBJECT
-    friend class	::Timer;
+    friend class	Timer;
 
 protected:
 
@@ -69,7 +66,5 @@ private:
     unsigned int 	magic_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

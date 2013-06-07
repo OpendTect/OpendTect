@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "Inventor/nodekits/SoBaseKit.h"
 #include "Inventor/fields/SoMFVec2f.h"
 #include "Inventor/fields/SoSFFloat.h"
@@ -34,7 +33,7 @@ typedef void SoRandomTrackLineDraggerCB(void * data,
 
 */
 
-mSoODClass SoRandomTrackLineDragger : public SoBaseKit
+mClass SoRandomTrackLineDragger : public SoBaseKit
 {
     SO_KIT_HEADER(SoRandomTrackLineDragger);
     SO_KIT_CATALOG_ENTRY_HEADER(subDraggerSep);
@@ -101,5 +100,4 @@ private:
 };
 
 #endif
-
 

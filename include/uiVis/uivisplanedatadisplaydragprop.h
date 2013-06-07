@@ -11,14 +11,13 @@ ________________________________________________________________________
 
 */
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 namespace visSurvey { class PlaneDataDisplay; }
 
 class uiButtonStateEdit;
 
-mExpClass(uiVis) uiVisPlaneDataDisplayDragProp : public uiDlgGroup
+mClass uiVisPlaneDataDisplayDragProp : public uiDlgGroup
 {
 public:
     			uiVisPlaneDataDisplayDragProp(uiParent*,
@@ -36,4 +35,3 @@ protected:
 };
 
 #endif
-

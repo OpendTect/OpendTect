@@ -47,7 +47,7 @@ using namespace Attrib;
 uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	const uiWellLogExtractGrp::Setup& setup, const Attrib::DescSet* d )
 	: uiGroup(p)
-	, ads_( d )
+	, ads_( !d ? 0 : new Attrib::DescSet(d->is2D()))
     	, attrsfld_(0)
     	, posfiltfld_(0)
     	, radiusfld_(0)
@@ -56,34 +56,37 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 {
     welllogselfld_ =
 	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
-					.withsampling(true).withzstep(true)
-					.withextractintime(SI().zIsTime())
+					.withsampling(ads_).withzstep(ads_)
+					.withextractintime(ads_)
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
-    uiLabeledListBox* llba = 0;
-    llba = new uiLabeledListBox( this, "Attributes", true );
-    attrsfld_ = llba->box();
-    llba->display( setup.withattrib_, true );
-    welllogselfld_->attach( ensureBelow, llba );
-    const float inldist = SI().inlDistance();
-    const char* distunit =  SI().getXYUnitString();
-    BufferString radiusbuf( "  Radius around wells "); 
-    radiusbuf += distunit;
-    radiusfld_ = new uiGenInput( this, radiusbuf,
-				 FloatInpSpec((float)((int)(inldist+.5))) );
-    if ( llba )
-	radiusfld_->attach( alignedBelow, llba );
-    else
-	radiusfld_->attach( alignedBelow, welllogselfld_ );
-    radiusfld_->attach( ensureBelow, welllogselfld_ );
-
-    if ( ads_ && !ads_->is2D() )
+    if ( ads_ )
     {
-	uiPosFilterSet::Setup fsu( false );
-	fsu.seltxt( "Filter positions" ).incprovs( true );
-	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-	posfiltfld_->attach( alignedBelow, radiusfld_ );
+	uiLabeledListBox* llba = 0;
+	llba = new uiLabeledListBox( this, "Attributes", true );
+	attrsfld_ = llba->box();
+	llba->display( ads_, true );
+	welllogselfld_->attach( ensureBelow, llba );
+	const float inldist = SI().inlDistance();
+	const char* distunit =  SI().getXYUnitString();
+	BufferString radiusbuf( "  Radius around wells "); 
+	radiusbuf += distunit;
+	radiusfld_ = new uiGenInput( this, radiusbuf,
+				     FloatInpSpec((float)((int)(inldist+.5))) );
+	if ( llba )
+	    radiusfld_->attach( alignedBelow, llba );
+	else
+	    radiusfld_->attach( alignedBelow, welllogselfld_ );
+	radiusfld_->attach( ensureBelow, welllogselfld_ );
+
+	if ( !ads_->is2D() )
+	{
+	    uiPosFilterSet::Setup fsu( false );
+	    fsu.seltxt( "Filter positions" ).incprovs( true );
+	    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+	    posfiltfld_->attach( alignedBelow, radiusfld_ );
+	}
     }
 
     setDescSet( d );
@@ -93,6 +96,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 
 uiWellLogExtractGrp::~uiWellLogExtractGrp()
 {
+    delete const_cast<Attrib::DescSet*>(ads_);
     releaseDPS();
 }
 
@@ -112,7 +116,6 @@ void uiWellLogExtractGrp::setDescSet( const Attrib::DescSet* newads )
 {
     ads_  = newads;
     adsChg();
-    welllogselfld_->update();
 }
 
 
@@ -169,7 +172,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
     uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, wts ) )
+    if ( !tr.execute(wts) )
 	return false;
     if ( dpss.isEmpty() )
 	mErrRet("No wells found")
@@ -194,7 +197,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
 	wlde.samppol_ = welllogselfld_->params().samppol_; 
-	if ( !TaskRunner::execute( &tr, wlde ) )
+	if ( !tr.execute(wlde) )
 	    return false;
     }
 
@@ -215,7 +218,7 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg)
     uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, *tabextr );
+    return tr.execute( *tabextr );
 }
 
 
@@ -268,7 +271,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     if ( curdps_ )
-	releaseDPS();
+	mDPM.release( curdps_ );
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.addAndObtain( curdps_ );

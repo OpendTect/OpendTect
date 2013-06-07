@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 class uiAxisHandler;
@@ -31,7 +30,7 @@ template <class T> class TypeSet;
 
 /*!\brief Dialog to set isovalue of an isosurface.  */
 
-mExpClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
+mClass uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 {
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

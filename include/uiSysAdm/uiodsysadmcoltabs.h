@@ -11,17 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisysadmmod.h"
 #include "uidialog.h"
 #include "sets.h"
 
 class uiListBox;
 
-/*!
-\brief User interface for OpendTect System Administration color tabs.
-*/
 
-mExpClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
+mClass uiODSysAdmColorTabs : public uiDialog
 {
 public:
 
@@ -41,4 +37,3 @@ protected:
 
 
 #endif
-

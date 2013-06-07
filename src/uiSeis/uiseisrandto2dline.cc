@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseisrandto2dline.h"
 
@@ -145,7 +145,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	    		   *basegrp_->getOutputIOObj(),
 	    		   lk, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
-    if ( !TaskRunner::execute( &dlg, exec ) )
+    if ( !dlg.execute(exec) )
 	return false;
     
     if ( !SI().has2D() )

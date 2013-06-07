@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiunitsel.h"
 
@@ -22,8 +22,8 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
     : uiGroup(p,"UnitSel")
     , proptype_(typ)
     , symbolsdisp_(symb)
+    , withempty_(withempty)
     , selChange(this)
-    , withempty_(withempty)		     
 {
     inpfld_ = new uiComboBox( this, "Units" );
     if ( symbolsdisp_ )
@@ -74,7 +74,7 @@ void uiUnitSel::setUnit( const char* unitnm )
 const UnitOfMeasure* uiUnitSel::getUnit() const
 {
     int selidx = inpfld_->currentItem();
-    if ( withempty_ ) selidx -= 1;
+    if ( withempty_ ) selidx -= 1; 
     return units_.validIdx( selidx ) ? units_[selidx] : 0;
 }
 
@@ -104,6 +104,7 @@ void uiUnitSel::update()
     inpfld_->setEmpty();
     if ( withempty_ )
 	inpfld_->addItem( "-" );
+
     units_.erase();
     UoMR().getRelevant( proptype_, units_ );
     for ( int idx=0; idx<units_.size(); idx++ )

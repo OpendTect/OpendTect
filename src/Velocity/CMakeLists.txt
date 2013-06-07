@@ -19,6 +19,6 @@ SET(OD_MODULE_SOURCES
 		velocityvolumeconversion.cc
      )
 
-SET(OD_MODULE_BATCHPROGS od_process_velocityconv.cc )
+SET(OD_MODULE_BATCHPROGS od_process_velocityconv )
 OD_INIT_MODULE()
 

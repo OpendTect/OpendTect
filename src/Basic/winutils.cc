@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "winutils.h"
@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "staticstring.h"
 #include "strmprov.h"
-#ifdef __win_
+#ifdef __win__
 # include <windows.h>
 # include <shlobj.h>
 # include <process.h>
@@ -52,7 +52,7 @@ const char* getCleanUnxPath( const char* path )
     *drivesep = '\0';
 
     res = drvstr;
-    *ptr = (char) tolower(*ptr);
+    *ptr = tolower(*ptr);
     res += ptr;
     res += ++drivesep;
 
@@ -188,7 +188,22 @@ const char* GetSpecialFolderLocation(int nFolder)
 }
 
 
-bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
+
+static int initialise_Co( void )
+{
+    static int initialised = 0;
+    if ( !initialised )
+    {
+	if ( !SUCCEEDED( CoInitialize(NULL) ) )
+	    return 0;
+
+	initialised = 1;
+    }
+    return initialised;
+}
+
+
+bool winCopy( const char* from, const char* to, bool isfile )
 {
     if ( isfile && File::getKbSize(from) < 1024 )
     {
@@ -208,12 +223,31 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
     frm[sz+1] = '\0';
      
     ZeroMemory( &fileop, sizeof(fileop) );
-    fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
+    fileop.hwnd = NULL; fileop.wFunc = FO_COPY;
     fileop.pFrom = frm; fileop.pTo = to; 
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
 			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
-			     //  | FOF_SILENT;
 
+    int res = SHFileOperation( &fileop );
+    return !res;
+}
+
+bool winMove( const char* from, const char* to, bool isfile )
+{
+    SHFILEOPSTRUCT fileop;
+    BufferString frm( from );
+    if ( !isfile )
+	frm += "\\*";
+
+    const int sz = frm.size();
+    frm[sz+1] = '\0';
+     
+    ZeroMemory( &fileop, sizeof(fileop) );
+    fileop.hwnd = NULL; fileop.wFunc = FO_MOVE;
+    fileop.pFrom = frm; fileop.pTo = to; 
+    fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
+			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
+			      
     int res = SHFileOperation( &fileop );
     return !res;
 }
@@ -318,6 +352,7 @@ bool executeWinProg( const char* comm, const char* parm, const char* runin )
 	     com += parm;
 	     return execProc( com, true, true, runin );
 	 }
+
 	 return execShellCmd( comm, parm, runin );
 }
 

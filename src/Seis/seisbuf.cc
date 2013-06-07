@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -21,29 +21,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "bufstringset.h"
 #include "strmprov.h"
-#include "arrayndimpl.h"
 #include <iostream>
 
 
 void SeisTrcBuf::deepErase()
 {
-    ::deepErase(trcs_);
+    ::deepErase(trcs);
 }
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 {
-    for ( int idx=insidx; idx<trcs_.size(); idx++ )
-	t = trcs_.replace( idx, t );
-    trcs_ += t;
+    for ( int idx=insidx; idx<trcs.size(); idx++ )
+	t = trcs.replace( idx, t );
+    trcs += t;
 }
 
 
 void SeisTrcBuf::copyInto( SeisTrcBuf& buf ) const
 {
-    for ( int idx=0; idx<trcs_.size(); idx++ )
+    for ( int idx=0; idx<trcs.size(); idx++ )
     {
-	const SeisTrc* trc = trcs_[idx];
+	const SeisTrc* trc = trcs[idx];
 	buf.add( buf.owner_ ? new SeisTrc(*trc) : const_cast<SeisTrc*>(trc) );
     }
 }
@@ -55,12 +54,11 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     if ( sz < 1 ) return;
     const SeisTrc* trc = first();
     BinID bid = trc->info().binid;
+    bool doneinl = false, donecrl = false;
     const BinID pbid = bid;
     spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step );
-
-    bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
     {
 	trc = get( idx ); bid = trc->info().binid;
@@ -68,7 +66,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	if ( !trc->isNull() )
 	{
 	    StepInterval<float> zrg(trc->info().sampling.start,
-		    		    trc->info().sampling.atIndex(trc->size()-1),
+				    trc->info().sampling.atIndex(trc->size()-1),
 				    trc->info().sampling.step );
 	    spi.zrg.include( zrg, false );
 	}
@@ -101,7 +99,7 @@ void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
 	SeisTrc* trc = tb.get( idx );
 	add( trc );
     }
-    tb.trcs_.erase();
+    tb.trcs.erase();
 }
 
 
@@ -110,10 +108,10 @@ bool SeisTrcBuf::isSorted( bool ascending, SeisTrcInfo::Fld fld ) const
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = (float) first()->info().getValue(fld);
+    float prevval = first()->info().getValue(fld);
     for ( int idx=1; idx<sz; idx++ )
     {
-	float val = (float) get(idx)->info().getValue(fld);
+	float val = get(idx)->info().getValue(fld);
 	float diff = val - prevval;
 	if ( !mIsZero(diff,mDefEps) )
 	{
@@ -135,21 +133,21 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 
     mAllocVarLenArr( int, idxs, sz );
     mAllocVarLenArr( float, vals, sz );
-    const double offs = trcs_[0]->info().getValue( fld );
+    const double offs = trcs[0]->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = (float)(trcs_[idx]->info().getValue( fld ) - offs);
+	vals[idx] = (float)(trcs[idx]->info().getValue( fld ) - offs);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
     for ( int idx=0; idx<sz; idx++ )
-	tmp += trcs_[idxs[idx]];
+	tmp += trcs[idxs[idx]];
 
-    trcs_.erase();
+    trcs.erase();
 
     for ( int idx=0; idx<sz; idx++ )
-	trcs_ += tmp[ascending ? idx : sz - idx - 1];
+	trcs += tmp[ascending ? idx : sz - idx - 1];
 }
 
 
@@ -159,12 +157,12 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
     SeisTrc* prevtrc = first();
     if ( !prevtrc ) return;
 
-    float prevval = (float) prevtrc->info().getValue( fld );
+    float prevval = prevtrc->info().getValue( fld );
     int nrwithprevval = 1;
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = (float) (trc ? trc->info().getValue( fld ) : 0);
+	float val = trc ? trc->info().getValue( fld ) : 0;
 
 	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{
@@ -173,7 +171,7 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
 	    {
 		if ( dostack )
 		{
-		    float wt = mCast(float,nrrequired); wt /= nrwithprevval - 1;
+		    float wt = nrrequired; wt /= nrwithprevval - 1;
 		    SeisTrcPropChg( *get(idx-1) ).stack(*trc,false,wt);
 		}
 		remove(trc); idx--; delete trc;
@@ -212,10 +210,10 @@ float* SeisTrcBuf::getHdrVals( SeisTrcInfo::Fld fld, double& offs )
 
 void SeisTrcBuf::revert()
 {
-    int sz = trcs_.size();
+    int sz = trcs.size();
     int hsz = sz / 2;
     for ( int idx=0; idx<hsz; idx++ )
-	trcs_.swap( sz-idx-1, idx );
+	trcs.swap( sz-idx-1, idx );
 }
 
 
@@ -245,7 +243,7 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
     if ( !trc ) return -1;
 
     int tryidx = probableIdx( trc->info().binid, is2d );
-    if ( trcs_[tryidx] == trc ) return tryidx;
+    if ( trcs[tryidx] == trc ) return tryidx;
 
     // Bugger. brute force then
     for ( int idx=0; idx<size(); idx++ )
@@ -261,13 +259,13 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    BinID start = trcs_[0]->info().binid;
-    BinID stop = trcs_[sz-1]->info().binid;
+    BinID start = trcs[0]->info().binid;
+    BinID stop = trcs[sz-1]->info().binid;
     if ( is2d )
     {
 	start.inl = stop.inl = 0;
-	start.crl = trcs_[0]->info().nr;
-	stop.crl = trcs_[sz-1]->info().nr;
+	start.crl = trcs[0]->info().nr;
+	stop.crl = trcs[sz-1]->info().nr;
     }
 
     BinID dist( start.inl - stop.inl, start.crl - stop.crl );
@@ -278,7 +276,7 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int n2  = dist.inl ? stop.inl  : stop.crl;
     int pos = dist.inl ? bid.inl   : bid.crl;
  
-    float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
+    float fidx = ((sz-1.) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
     if ( idx < 0 ) idx = 0;
     if ( idx >= sz ) idx = sz-1;
@@ -355,7 +353,7 @@ int getSize( int dim ) const
 bool setSize( int, int ) { return false; }
 // Are these really necessary?
 od_uint64 getMemPos( const int* ) const { return 0; }
-bool validPos( const int* pos ) const { return Array2DInfo::validPos(pos); }
+bool validPos( const int* iarr ) const { return ArrayNDInfo::validPos( iarr ); }
 od_uint64 getMemPos( int ) const { return 0; }
 bool validPos( int ) const { return false; }
 od_uint64 getMemPos( int, int ) const { return 0; }
@@ -366,39 +364,9 @@ bool validPos( int p0, int p1 ) const { return Array2DInfo::validPos(p0,p1); }
 };
 
 
-SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf* tbuf, bool mine, int icomp )
-    : buf_(tbuf)
-    , comp_(icomp)
-    , bufmine_(mine)
-{
-    if ( !buf_ )
-    {
-	buf_ = new SeisTrcBuf(true);
-	bufmine_ = true;
-    }
-
-    info_ = new SeisTrcBufArray2DInfo(*buf_);
-}
-
-
-SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf* tbuf, int icomp )
-    : buf_(const_cast<SeisTrcBuf*>(tbuf))
-    , comp_(icomp)
-    , bufmine_(false)
-{
-    if ( !buf_ )
-    {
-	buf_ = new SeisTrcBuf(true);
-	bufmine_ = true;
-    }
-
-    info_ = new SeisTrcBufArray2DInfo(*buf_);
-}
-
-
 SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
-    : buf_(&tbuf)
-    , info_(new SeisTrcBufArray2DInfo(tbuf))
+    : buf_(tbuf)
+    , info_(*new SeisTrcBufArray2DInfo(tbuf))
     , comp_(icomp)
     , bufmine_(mine)
 {
@@ -406,8 +374,8 @@ SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
 
 
 SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
-    : buf_(const_cast<SeisTrcBuf*>(&tbuf))
-    , info_(new SeisTrcBufArray2DInfo(tbuf))
+    : buf_(const_cast<SeisTrcBuf&>(tbuf))
+    , info_(*new SeisTrcBufArray2DInfo(tbuf))
     , comp_(icomp)
     , bufmine_(false)
 {
@@ -417,21 +385,21 @@ SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
 SeisTrcBufArray2D::~SeisTrcBufArray2D()
 {
     if ( bufmine_ )
-	delete buf_;
-    delete info_;
+	delete &buf_;
+    delete &info_;
 }
 
 
 float SeisTrcBufArray2D::get( int itrc, int isamp ) const
 {
-    const SeisTrc* trc = buf_->get( itrc );
+    const SeisTrc* trc = buf_.get( itrc );
     return trc && trc->size() > isamp ? trc->get(isamp,comp_) : mUdf(float);
 }
 
 
 void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
 {
-    SeisTrc* trc = buf_->get( itrc );
+    SeisTrc* trc = buf_.get( itrc );
     if ( trc && trc->size() > isamp )
 	trc->set( isamp, val, comp_ );
 }
@@ -440,7 +408,7 @@ void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
 void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
 				    IOPar& iop ) const
 {
-    SeisTrc* trc = buf_->get( itrc );
+    SeisTrc* trc = buf_.get( itrc );
     if ( trc )
 	trc->info().getInterestingFlds( gt, iop );
 }
@@ -476,7 +444,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     const bool bufisours =
 		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
     SeisTrcBuf* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
-    if ( buf && bufisours )
+    if ( bufisours )
 	buf = buf->clone();
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
@@ -487,23 +455,26 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
     delete arr2d_; arr2d_ = 0;
+    if ( !tbuf )
+	return;
+
+    arr2d_ = new SeisTrcBufArray2D( *tbuf, mine, icomp );
+    const int tbufsz = tbuf->size();
     posfld_ = fld;
     gt_ = gt;
-    const int tbufsz = tbuf ? tbuf->size() : 0;
+
+    if ( tbufsz<1 ) return;
+
+    SeisTrcInfo::getAxisCandidates( gt, flds_ );
+
     FlatPosData& pd = posData();
-
-    arr2d_ = new SeisTrcBufArray2D( tbuf, mine, icomp );
-
-    if ( tbuf )
-    {
-	SeisTrcInfo::getAxisCandidates( gt_, flds_ );
-	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
-	pd.setX1Pos( hdrvals, tbufsz, ofv );
-	SeisPacketInfo pinf; tbuf->fill( pinf );
-	StepInterval<double> zrg; assign( zrg, pinf.zrg );
-	pd.setRange( false, zrg );
-    }
+    double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+    pd.setX1Pos( hdrvals, tbufsz, ofv );
+    SeisPacketInfo pinf; tbuf->fill( pinf );
+    StepInterval<double> zrg; assign( zrg, pinf.zrg );
+    pd.setRange( false, zrg );
 }
+
 
 
 void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
@@ -534,7 +505,7 @@ void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
 
     float z = trc->info().samplePos(isamp);
     if ( SI().zIsTime() ) z *= 1000;
-    int z100 = mNINT32(z*100); z = mCast( float, z100 / 100 );
+    int z100 = mNINT32(z*100); z = z100 / 100;
     iop.set( "Z", z );
 }
 

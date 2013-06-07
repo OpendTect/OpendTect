@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class Fault3D; };
@@ -23,11 +22,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-/*!
-\brief ObjectEditor to edit EM::Fault3D.
-*/
-
-mExpClass(MPEEngine) FaultEditor : public ObjectEditor
+mClass FaultEditor : public ObjectEditor
 {
 public:
     				FaultEditor(EM::Fault3D&);
@@ -81,4 +76,3 @@ protected:
 }  // namespace MPE
 
 #endif
-

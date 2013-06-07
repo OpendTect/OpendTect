@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include <iostream>
 
 //! Helper class for uiAction to relay Qt's messages.
-
-QT_BEGIN_NAMESPACE
-
-class i_ActionMessenger : public QObject
+/*!
+    Internal object, to hide Qt's signal/slot mechanism.
+*/
+class i_ActionMessenger : public QObject 
 {
     Q_OBJECT
     friend class	uiAction;
@@ -64,7 +64,5 @@ void hovered()
 }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

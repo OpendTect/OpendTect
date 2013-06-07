@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisselection.h"
 #include "position.h"
 
@@ -27,7 +26,7 @@ namespace Seis
 
 /*!\brief selection data in simple ranges */
 
-mExpClass(Seis) RangeSelData : public SelData
+mClass RangeSelData : public SelData
 {
 public:
 
@@ -73,7 +72,7 @@ protected:
 
 /*!\brief selection data in a table */
 
-mExpClass(Seis) TableSelData : public SelData
+mClass TableSelData : public SelData
 {
 public:
 
@@ -127,7 +126,7 @@ protected:
 
  */
 
-mExpClass(Seis) PolySelData : public SelData
+mClass PolySelData : public SelData
 {
 public:
 
@@ -181,4 +180,3 @@ protected:
 } // namespace
 
 #endif
-

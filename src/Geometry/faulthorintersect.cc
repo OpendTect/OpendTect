@@ -4,7 +4,7 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "faulthorintersect.h"
 
@@ -47,7 +47,7 @@ bool doPrepare( int )
 	return false;
 
     bool found = false;
-    const int totalsz = mCast( int, depths->info().getTotalSz() );
+    const int totalsz = depths->info().getTotalSz();
     for ( int idx=0; idx<totalsz; idx++ )
     {
 	if ( mIsUdf(data[idx]) )
@@ -81,9 +81,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
     const float zscale = SI().zScale();
     const StepInterval<int>& surfrrg = surf_.rowRange();
     const StepInterval<int>& surfcrg = surf_.colRange();
-    ConstRefMan<Coord3List> coordlist = shape_.coordList();
+    RefMan<const Coord3List> coordlist = shape_.coordList();
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {	
     	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;
@@ -105,7 +105,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		BinID bid = SI().transform( v[k] );
 		RowCol rc(surfrrg.snap(bid.inl),surfcrg.snap(bid.crl));
 
-		const double pz = surf_.getKnot(rc, false).z + zshift_;
+		const float pz = surf_.getKnot(rc, false).z + zshift_;
 		rcz[k] = Coord3( rc.row, rc.col, pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
@@ -163,7 +163,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			pos.z += zshift_;
 			pos -= center;
 			pos.z *= zscale;
-			dist = (float) triangle.distanceToPoint(pos,true);
+			dist = triangle.distanceToPoint(pos,true);
 		    }
 
 		    field.set( ridx, cidx, dist );
@@ -193,7 +193,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    if ( !getSurfacePos(vertex,intersect) )
 			continue;
 
-		    if ( tmp.isPresent(intersect) )
+		    if ( tmp.indexOf(intersect)!=-1 )
 			continue;
 
 		    Coord3 temp = intersect - center;
@@ -247,7 +247,7 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 		return true;
 	    }
 	    else
-		dist = 1.f/dist;
+		dist = 1./dist;
 	    
 	    weights += dist;
 	    weightsum += dist;
@@ -281,8 +281,8 @@ void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
     }
     else if ( !lastidx )
     {
-	const float d0 = (float) res[0].sqDistTo( ni[0] );
-	const float d1 = (float) res[0].sqDistTo( ni[nilastidx] );
+	const float d0 = res[0].sqDistTo( ni[0] );
+	const float d1 = res[0].sqDistTo( ni[nilastidx] );
 	const Coord3 pos = res[0];
 	res.erase();
 
@@ -296,10 +296,10 @@ void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
     }
     else
     {
-	const float d00 = (float) res[0].sqDistTo( ni[0] );
-	const float d01 = (float) res[0].sqDistTo( ni[nilastidx] );
-	const float d10 = (float) res[lastidx].sqDistTo( ni[0] );
-	const float d11 = (float) res[lastidx].sqDistTo( ni[nilastidx] );
+	const float d00 = res[0].sqDistTo( ni[0] );
+	const float d01 = res[0].sqDistTo( ni[nilastidx] );
+	const float d10 = res[lastidx].sqDistTo( ni[0] );
+	const float d11 = res[lastidx].sqDistTo( ni[nilastidx] );
 	if ( d10 <= d00 && d10 <= d11 && d10 <= d01 )
 	{
 	    for ( int k=0; k<=nilastidx; k++ )

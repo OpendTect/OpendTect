@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "attribsel.h"
 #include "emposid.h"
 #include "visobject.h"
@@ -29,7 +28,7 @@ namespace visSurvey
 {
 
 
-mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
+mClass MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 {
 public:
@@ -51,6 +50,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
     void			setRightHandSystem(bool);
+
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
     				//!<Creates an EMObject for it.
@@ -74,8 +74,6 @@ public:
 	    				TaskRunner*);
     void                   	setSelSpec(int,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
-    void			setDepthAsAttrib(int);
-    void			setIsoPatch(int);
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,
@@ -86,7 +84,6 @@ public:
 
     bool			canRemoveSelection() const	{ return true; }    void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);    
-    EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
 
 protected:
 
@@ -114,7 +111,7 @@ protected:
     visBase::MarchingCubesSurface*		displaysurface_;
     EM::MarchingCubesSurface*			emsurface_;
     Attrib::SelSpec				selspec_;
-    ObjectSet<DataPointSet>			cache_;
+    const DataPointSet*				cache_;
 
     EM::ImplicitBody*				impbody_;
     bool					displayintersections_;
@@ -134,11 +131,9 @@ protected:
     };
 
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
-    bool					isupdateok_;
 };
 
 };
 
 
 #endif
-

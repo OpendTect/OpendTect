@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "position.h"
 
 class Coord3List;
@@ -24,7 +23,7 @@ class IndexedShape;
 class ExplFaultStickSurface;
 
 
-mExpClass(Geometry) FaultBinIDSurfaceIntersector
+mClass FaultBinIDSurfaceIntersector
 {
 public:
 				FaultBinIDSurfaceIntersector(float horshift,
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

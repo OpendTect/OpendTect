@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class ArrayNDProbDenFunc;
@@ -26,49 +25,51 @@ class uiIOObjSel;
 class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
 
-/*!
-\brief Dialog for creating Probability Density Function of DataPointSet.
-*/
-
-mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
+mClass uiCreateDPSPDF : public uiDialog
 {
 public:
 			uiCreateDPSPDF(uiParent*,
-				       const uiDataPointSetCrossPlotter*);
-			uiCreateDPSPDF(uiParent*,const DataPointSet&,
-				       bool restricted=false);
+				       uiDataPointSetCrossPlotter&,
+				       const BufferStringSet&);
+			// Implementation removed, Do not use TODO remove
 			~uiCreateDPSPDF();
-    const ProbDenFunc*	probDensFunc() const			{ return pdf_; }
-    void		setPrefDefNames(const BufferStringSet&);
 
 protected:
 
     ObjectSet<uiPrDenFunVarSel>	probflds_;
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
-    ProbDenFunc*		pdf_;
     int				nrdisp_;
-    bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;
     uiComboBox*			createfrmfld_;
     uiComboBox*			createoffld_;
     uiGenInput*			nrbinfld_;
     const uiDataPointSetCrossPlotter* plotter_;
-    const DataPointSet&		dps_;
 
-    void			createDefaultUI();
-    bool 			createPDF();
-    void 			viewPDF();
-    
-    float			getVal(int rid,int cid) const;
     void 			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);
     bool			acceptOK(CallBacker*);
+
+    ProbDenFunc*		pdf_;
+    bool			restrictedmode_;
+    const DataPointSet&		dps_;
+
+    void			createDefaultUI();
+    bool			createPDF();
+    void			viewPDF();
+    float 			getVal(int rid,int cid) const;
+
+public:
+				uiCreateDPSPDF(uiParent*,
+					const uiDataPointSetCrossPlotter*);
+    				uiCreateDPSPDF(uiParent*,const DataPointSet&,
+					bool restricted=false);
+    const ProbDenFunc*		probDensFunc() const	{ return pdf_; }
+    void			setPrefDefNames(const BufferStringSet&);
 };
 
 
 #endif
-

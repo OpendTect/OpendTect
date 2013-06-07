@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id$
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.8 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,18 +19,18 @@ class uiGenInput;
 class uiPushButton;
 
 namespace PreStack { class ProcessManager; class uiProcessorManager; }
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
+class Viewer3D;
 class uiViewer3DMgr;
 
-mClass(uiPreStackViewer) uiViewer3DPreProcTab :  public uiDlgGroup
+class uiViewer3DPreProcTab :  public uiDlgGroup
 {
 public:
 				uiViewer3DPreProcTab(uiParent*,
-					visSurvey::PreStackDisplay&,
+					PreStackView::Viewer3D&,
 					uiViewer3DMgr&,
 					PreStack::ProcessManager&);
 				~uiViewer3DPreProcTab();
@@ -44,7 +44,7 @@ protected:
     bool				applyButPushedCB(CallBacker*);
     void				processorChangeCB(CallBacker*);
 
-    visSurvey::PreStackDisplay&		vwr_;
+    PreStackView::Viewer3D&		vwr_;
     uiViewer3DMgr&			mgr_;
     PreStack::ProcessManager*		preprocmgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;

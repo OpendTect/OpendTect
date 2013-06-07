@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -24,7 +23,7 @@ class MathExpression;
 
 /*! \brief Math Attribute description editor */
 
-mExpClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
+mClass uiMathAttrib : public uiAttrDescEd
 {
 public:
 
@@ -64,4 +63,3 @@ protected:
 };
 
 #endif
-

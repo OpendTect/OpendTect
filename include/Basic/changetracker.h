@@ -11,20 +11,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
-#include "fixedstring.h"
 #include <string.h>
 
-/*!
-\brief Updates a variable when changes occur.
-  
-  Use if you need to keep track of whether a variable changes when it is
-  assigned to another variable. Example: a 'not saved' flag in a UI. Also 
-  facilitates giving unique change stamps.
+/*!\brief updates a variable when changes occur.
+
+Use if you need to keep track of whether a variable changes when it is assigned
+to another variable. Example: a 'not saved' flag in a UI. Also facilitates
+Giving unique change stamps.
+
 */
 
-mClass(Basic) ChangeTracker
+
+mClass ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
@@ -78,16 +77,15 @@ protected:
 };
 
 
-/*!
-\ingroup Basic
-\brief Macro to use when there is no direct access to data members.
-  
-  chtr = the change tracker
-  obj = object instance
-  getfn = get function
-  setfn - set function
-  newval = new value
+/*!\brief macro to use when there is no direct access to data members.
+
+chtr = the change tracker
+obj = object instance
+getfn = get function
+setfn - set function
+newval = new value
 */
+
 
 #define mChgTrackGetSet(chtr,obj,getfn,setfn,newval) { \
     if ( chtr.set( obj->getfn(), newval ) ) \
@@ -118,7 +116,7 @@ inline bool ChangeTracker::set( const char*& val, const char*& newval )
     if ( !ret ) { setChanged(true); return true; }
     if ( !val ) return false;
 
-    ret = FixedString(val)!=newval;
+    ret = strcmp( val, newval );
     setChanged( ret );
     return ret;
 }
@@ -142,4 +140,3 @@ inline bool ChangeTracker::update( char*& val, const char*& newval )
 
 
 #endif
-

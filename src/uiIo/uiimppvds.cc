@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiimppvds.h"
 
@@ -111,7 +111,7 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, std::istream& strm )
     crlgen_.step = SI().crlRange(true).stop - crlgen_.start;
     zgen_.start = SI().zRange(true).start;
     zgen_.step = SI().zRange(true).stop - zgen_.start;
-    Stats::randGen().init();
+    Stats::RandGen::init();
 }
 
 bool getLine()
@@ -152,14 +152,14 @@ bool getLine()
     }
     else
     {
-	double finl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
-	double fcrl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
+	double finl = inlgen_.start + Stats::RandGen::get() * inlgen_.step;
+	double fcrl = inlgen_.start + Stats::RandGen::get() * inlgen_.step;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getfValue( 2 );
     else
-	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
+	z_ = zgen_.start + Stats::RandGen::get() * zgen_.step;
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
     else

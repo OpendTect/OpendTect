@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
+#include "uilistview.h"
 #include "uirgbarraycanvas.h"
 #include "uimenu.h"
 #include "uimpepartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "attribdatapack.h"
@@ -212,8 +212,8 @@ bool uiODVw2DHor3DTreeItem::init()
     displayMiniCtab();
 
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uitreeviewitem_->setCheckable(true);
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setCheckable(true);
+    uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor3DTreeItem,checkCB) );
 
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
@@ -261,7 +261,7 @@ void uiODVw2DHor3DTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -288,7 +288,7 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DHor3DTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true );
+    uilistviewitem_->setSelected( true );
 
     if ( !trackerefed_ )
     {
@@ -382,8 +382,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
 	if ( emobj )
 	{
-	    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
-	    applMgr()->mpeServer()->showSetupDlg( emid_, sid );
+	    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
 	}
     }
     else if ( mnuid == 3 )
@@ -434,7 +434,7 @@ void uiODVw2DHor3DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 
 void uiODVw2DHor3DTreeItem::mousePressInVwrCB( CallBacker* )
 {
-    if ( !uitreeviewitem_->isSelected() || !horview_ )
+    if ( !uilistviewitem_->isSelected() || !horview_ )
 	return;
 
     if ( !viewer2D()->viewwin()->nrViewers() )
@@ -448,7 +448,7 @@ void uiODVw2DHor3DTreeItem::mousePressInVwrCB( CallBacker* )
 
 void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
-    if ( !uitreeviewitem_->isSelected() || !horview_ )
+    if ( !uilistviewitem_->isSelected() || !horview_ )
 	return;
 
     if ( !viewer2D()->viewwin()->nrViewers() )
@@ -478,7 +478,7 @@ void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 
 void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 {
-    if ( !uitreeviewitem_->isSelected() || !horview_ ||
+    if ( !uilistviewitem_->isSelected() || !horview_ ||
 	 !viewer2D()->viewwin()->nrViewers() )
 	return;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		3-28-2007
- RCS:		$Id$
+ RCS:		$Id: volumereader.h,v 1.2 2009/07/22 16:01:27 cvsbert Exp $
 ________________________________________________________________________
     
 -*/
@@ -25,7 +25,7 @@ namespace VolProc
 {
 
 
-mClass(VolProcTest) VolumeReader : public ProcessingStep
+class VolumeReader : public ProcessingStep
 {
 public:
     static void			initClass();

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "position.h"
 #include "visobject.h"
 
@@ -29,7 +28,7 @@ class Coordinates;
 /*!Splitting a surface along random line into smaller blocks, where the random 
    line is a set of binids with some knots. Before having the shape, you have to   at least set the knots and depth range. */
 
-mExpClass(visBase) SplitTextureRandomLine : public VisualObjectImpl
+mClass SplitTextureRandomLine : public VisualObjectImpl
 {
 public:
     static SplitTextureRandomLine* create()
@@ -68,4 +67,3 @@ protected:
 
 
 #endif
-

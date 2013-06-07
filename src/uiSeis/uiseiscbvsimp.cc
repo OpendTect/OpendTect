@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseiscbvsimp.h"
 
@@ -325,8 +325,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	if ( !seltyp )
 	    outctio_.ioobj->pars().removeWithKey( "Type" );
 	else
-	    outctio_.ioobj->pars().set( sKey::Type(), seltyp == 1
-		    			? sKey::Attribute() : sKey::Steering() );
+	    outctio_.ioobj->pars().set( sKey::Type, seltyp == 1
+		    			? sKey::Attribute : sKey::Steering );
 
 	outctio_.ioobj->setTranslator( CBVSSeisTrcTranslator::translKey() );
 	if ( !dolink )
@@ -371,8 +371,9 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     }
 
     uiTaskRunner dlg( this );
-    const bool rv mUnusedVar = TaskRunner::execute( &dlg, *stp ) &&
-			!ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
+    const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
+		    ioobjinfo.provideUserInfo();
+
     rmTmpIOObj();
     return false;
 }
@@ -427,7 +428,7 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
     , rdr_(0),wrr_(0)
     , doscale_(false)
 {
-    inattrnm_ = par.find( sKey::Attribute() );
+    inattrnm_ = par.find( sKey::Attribute );
     PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
@@ -437,16 +438,16 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
 	if ( !linepar )
 	    break;
 
-	FixedString lnm = linepar->find( sKey::Name() );
+	FixedString lnm = linepar->find( sKey::Name );
 	StepInterval<int> trcrg;
-	if ( !lnm || !linepar->get(sKey::TrcRange(),trcrg) )
+	if ( !lnm || !linepar->get(sKey::TrcRange,trcrg) )
 	    continue;
 
 	sellines_.add( lnm );
 	trcrgs_ += trcrg;
     }
 
-    FixedString scalestr = par.find( sKey::Scale() );
+    FixedString scalestr = par.find( sKey::Scale );
     if ( scalestr )
     {
 	doscale_ = true;
@@ -454,10 +455,10 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
     }
 
     StepInterval<float> zrg;
-    if ( !par.get(sKey::ZRange(),zrg) )
+    if ( !par.get(sKey::ZRange,zrg) )
 	zrg = SI().zRange( false );
 
-    outattrnm_ = par.find( IOPar::compKey(sKey::Output(),sKey::Attribute()) );
+    outattrnm_ = par.find( IOPar::compKey(sKey::Output,sKey::Attribute) );
     sd_.cubeSampling().zrg = zrg;
     sd_.lineKey().setAttrName( inattrnm_.buf() );
 }
@@ -547,7 +548,7 @@ int nextStep()
     if ( doscale_ )
     {
 	SeisTrcPropChg stpc( trc );
-	stpc.scale( (float) scaler_.factor, (float) scaler_.constant );
+	stpc.scale( scaler_.factor, scaler_.constant );
     }
 
     if ( !wrr_->put(trc) )
@@ -590,12 +591,11 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
     inpfld_->fillPar( par );
     Scaler* scaler = scalefld_->getScaler();
     if ( scaler )
-	par.set( sKey::Scale(), scaler->toString() );
+	par.set( sKey::Scale, scaler->toString() );
 
-    par.set( IOPar::compKey( sKey::Output(), sKey::Attribute() ),
-	    				outpfld_->attrNm() );
+    par.set( IOPar::compKey(sKey::Output,sKey::Attribute), outpfld_->attrNm() );
     Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
     uiTaskRunner dlg( this );
 
-    return TaskRunner::execute( &dlg, exec );
+    return dlg.execute( exec );
 }

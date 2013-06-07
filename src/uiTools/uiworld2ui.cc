@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiworld2ui.h"
 
@@ -132,11 +132,11 @@ void uiWorld2Ui::setRemap( const uiSize& sz, const uiWorldRect& wrdrc )
     uiWorldRect wr = wrdrc;
     // Recalculate a 'good' left/right boundary
     float left, right;
-    getAppropriateRange((float) wr.left(),(float) wr.right(), left, right);
+    getAppopriateRange(wr.left(), wr.right(), left, right);
     wr.setRight( right ); wr.setLeft( left );
     // recalculate a 'good' top/bottom boundary
     float top, bot;
-    getAppropriateRange((float) wr.bottom(), (float) wr.top(), bot, top);
+    getAppopriateRange(wr.bottom(), wr.top(), bot, top);
     wr.setTop( top ); wr.setBottom( bot );
 
     set( sz, wr );
@@ -190,7 +190,7 @@ uiWorldRect uiWorld2Ui::transform( uiRect area ) const
 
 uiPoint uiWorld2Ui::transform( uiWorldPoint p ) const
 {
-    return uiPoint( toUiX( (float) p.x ), toUiY( (float) p.y ) );
+    return uiPoint( toUiX( p.x ), toUiY( p.y ) );
 }
 
 
@@ -223,11 +223,11 @@ int uiWorld2Ui::toUiY ( float wrdy ) const
 
 
 float uiWorld2Ui::toWorldX ( int uix ) const
-{ return (float) ( p0.x + (uix-uiorigin.x)*fac.x ); }
+{ return p0.x + (uix-uiorigin.x)*fac.x; }
 
 
 float uiWorld2Ui::toWorldY ( int uiy ) const
-{ return (float) ( p0.y + (uiy-uiorigin.y)*fac.y ); }
+{ return p0.y + (uiy-uiorigin.y)*fac.y; }
 
 
 uiWorldPoint uiWorld2Ui::origin() const
@@ -240,19 +240,19 @@ uiWorldPoint uiWorld2Ui::worldPerPixel() const
 
 void uiWorld2Ui::getWorldXRange( float& xmin, float& xmax ) const
 {
-    xmax=(float) wrdrect_.right();  xmin=(float) wrdrect_.left();
+    xmax=wrdrect_.right();  xmin=wrdrect_.left();
     if ( xmin > xmax ) Swap( xmax, xmin ); 
 }
 
 
 void uiWorld2Ui::getWorldYRange( float& ymin, float& ymax ) const
 {
-    ymax=(float) wrdrect_.top();  ymin=(float) wrdrect_.bottom();
+    ymax=wrdrect_.top();  ymin=wrdrect_.bottom();
     if ( ymin > ymax ) Swap( ymax, ymin ); 
 }
 
 
-void uiWorld2Ui::getAppropriateRange( float min, float max,
+void uiWorld2Ui::getAppopriateRange( float min, float max,
 				     float& newmin, float& newmax )
 {
     bool rev = min > max;

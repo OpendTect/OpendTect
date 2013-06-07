@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include "soodbasic.h"
 
 
@@ -35,7 +34,7 @@ class SbPlaneProjector;
 class SoCylinder;
 class SoCube;
 
-mSoODClass SoDGBDragPointDragger : public SoDragger {
+mClass SoDGBDragPointDragger : public SoDragger {
 
     SO_KIT_HEADER(SoDGBDragPointDragger);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslator);
@@ -82,5 +81,4 @@ private:
 };
 
 #endif
-
 

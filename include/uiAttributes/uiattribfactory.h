@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "bufstringset.h"
 
 class uiAttrDescEd;
@@ -23,7 +22,7 @@ class uiParent;
 
 typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
-mExpClass(uiAttributes) uiAttributeFactory
+mClass uiAttributeFactory
 {
 public:
     virtual		~uiAttributeFactory();
@@ -79,12 +78,11 @@ protected:
 
     Entry*		getEntry(const char*,bool) const;
 
-    friend mGlobal(uiAttributes) uiAttributeFactory&	uiAF();
+    friend mGlobal uiAttributeFactory&	uiAF();
     void			fillStd();
 };
 
-mGlobal(uiAttributes) uiAttributeFactory& uiAF();
+mGlobal uiAttributeFactory& uiAF();
 
 
 #endif
-

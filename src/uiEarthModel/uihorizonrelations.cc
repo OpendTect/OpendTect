@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorizonrelations.h"
 
@@ -80,7 +80,7 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
     {
 	PtrMan<IOObj> ioobj = IOM().get( horids_[idx] );
 	if ( !ioobj )
-	    horids_.removeSingle( idx-- );
+	    horids_.remove( idx-- );
 
 	hornames_.add( ioobj->name() );
     }
@@ -173,7 +173,7 @@ bool acceptOK( CallBacker* )
 		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     MultiID outmid;
-    EM::EMObject* outemobj = 0;
+    EM::EMObject* outemobj;
     
     if ( saveas )
     {
@@ -232,7 +232,7 @@ bool acceptOK( CallBacker* )
     if ( !exec ) mErrRet("Cannot save horizon")
 
     uiTaskRunner taskrunner( this );
-    return TaskRunner::execute( &taskrunner, *exec );
+    return taskrunner.execute( *exec );
 }
 
 protected:
@@ -256,7 +256,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
     HorizonSorter sorter( horids_,is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, sorter ) ) return;
+    if ( !taskrunner.execute(sorter) ) return;
     MouseCursorManager::restoreOverride();
 
     int count = 0;

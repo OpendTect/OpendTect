@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivirtualkeyboard.h"
 
@@ -56,7 +56,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     wintitle += inputobj_.name(); wintitle += "]";
     setCaption( wintitle );
 
-    ioPixmap pixmap( mGetSetupFileName("virtualkeyboard") );
+    ioPixmap pixmap( mGetSetupFileName("virtualkeyboard.png") );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
 
@@ -67,7 +67,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     textline_->selectionChanged.notify( mCB(this,uiVirtualKeyboard,selChg) );
 
     uiPixmapItem* pixmapitm = new uiPixmapItem( pixmap );
-    pixmapitm->setScale( keyboardscale_, keyboardscale_ );
+    pixmapitm->scale( keyboardscale_, keyboardscale_ );
     pixmapitm->setZValue( 0 );
 
     uiGraphicsScene* scene = new uiGraphicsScene( "Virtual keyboard scene" );

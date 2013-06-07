@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "enums.h"
 
 namespace OD
@@ -356,16 +355,15 @@ namespace OD
 	Cancel		= 0x01020001
     };
 
-    mGlobal(General) const char*		nameOf(ButtonState);
-    mGlobal(General) ButtonState		stateOf(const char*);
+    mGlobal const char*		nameOf(ButtonState);
+    mGlobal ButtonState		stateOf(const char*);
 
-    mGlobal(General) bool    leftMouseButton(ButtonState);
-    mGlobal(General) bool    middleMouseButton(ButtonState);
-    mGlobal(General) bool    rightMouseButton(ButtonState);
-    mGlobal(General) bool    shiftKeyboardButton(ButtonState);
-    mGlobal(General) bool    ctrlKeyboardButton(ButtonState);
-    mGlobal(General) bool    altKeyboardButton(ButtonState);
+    mGlobal bool    leftMouseButton(ButtonState);
+    mGlobal bool    middleMouseButton(ButtonState);
+    mGlobal bool    rightMouseButton(ButtonState);
+    mGlobal bool    shiftKeyboardButton(ButtonState);
+    mGlobal bool    ctrlKeyboardButton(ButtonState);
+    mGlobal bool    altKeyboardButton(ButtonState);
 };
 
 #endif
-

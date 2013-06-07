@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiGroup;
@@ -34,7 +33,7 @@ Example:
 
 */
 
-mExpClass(uiBase) uiSplitter : public uiObject
+mClass uiSplitter : public uiObject
 {
 public:
                         uiSplitter(uiParent*,const char* nm="Splitter", 
@@ -50,4 +49,3 @@ private:
 };
 
 #endif
-

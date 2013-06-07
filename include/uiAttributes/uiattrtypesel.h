@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 
@@ -24,7 +23,7 @@ class uiComboBox;
 
   */
 
-mExpClass(uiAttributes) uiAttrTypeSel : public uiGroup
+mClass uiAttrTypeSel : public uiGroup
 {
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);
@@ -47,8 +46,8 @@ public:
 
 protected:
 
-    uiComboBox*			grpfld_;
-    uiComboBox*			attrfld_;
+    uiComboBox*			grpfld;
+    uiComboBox*			attrfld;
 
     BufferStringSet		grpnms_;
     BufferStringSet		attrnms_;
@@ -67,4 +66,3 @@ protected:
 
 
 #endif
-

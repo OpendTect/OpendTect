@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: dztimporter.cc,v 1.4 2010/03/29 09:13:14 cvsbert Exp $";
 
 #include "dztimporter.h"
 #include "seistrc.h"
@@ -43,7 +43,7 @@ bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
     // From 54, floats:
     mRdVal(epsr); mRdVal(top); mRdVal(depth);
     // From 66, 1 byte dtype and 31 bytes reserved
-    char buf[32]; strm.read( buf, 32 ); dtype = buf[31];
+    char buf[32]; strm.read( buf, 32 ); dtype = buf[32];
     // From 98, 14 bytes antenna
     strm.read( antname, 14 );
     // From 112, the rest
@@ -164,7 +164,7 @@ int DZT::Importer::nextStep()
     if ( mStrm.gcount() != trcbytes )
 	return closeAll();
 
-    fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
+    fh_.fillInfo( trc_.info(), nrdone_ );
     trc_.info().sampling.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )

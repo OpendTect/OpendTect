@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include <iostream>
 
-extern Export_Basic std::ostream& logMsgStrm();
+mBasicExtern std::ostream& logMsgStrm();
 
 namespace Table
 {
@@ -127,11 +127,11 @@ void FileFormatRepository::set( const char* grp, const char* nm,
 {
     const int idx = gtIdx( grp, nm );
     if ( idx >= 0 )
-	{ delete entries_.removeSingle( idx );  }
+	{ Entry* entry = entries_[idx]; entries_.remove( idx ); delete entry; }
     if ( !iop ) return;
 
-    if ( iop->find(sKey::Name()) )
-	iop->removeWithKey(sKey::Name());
+    if ( iop->find(sKey::Name) )
+	iop->removeWithKey(sKey::Name);
     iop->setName( nm );
     iop->set( sKeyGroup, grp );
     entries_ += new Entry( src, iop );
@@ -239,11 +239,9 @@ void TargetInfo::usePar( const IOPar& iopar )
 
     for ( int idx=0; idx<nrelems; idx++ )
     {
-	FixedString typestring = fms[curfmsidx];
-	const char typc = typestring.isEmpty() ? 0 : *typestring.str();
+	const char typc = *fms[curfmsidx];
 	const int typ = typc == 'P' ? 2 : (typc == 'K' ? 1 : 0);
-	curfmsidx++;
-	res = fms[curfmsidx];
+	curfmsidx++; res = fms[curfmsidx];
 	TargetInfo::Selection::Elem elem;
 	if ( typ == 0 )
 	    elem.val_ = res;
@@ -262,8 +260,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 }
 
 
-Table::TargetInfo*
-	TargetInfo::mkPos( bool ishor, bool isreq, bool wu, int zopt )
+Table::TargetInfo* Table::TargetInfo::mkPos( bool ishor, bool isreq, bool wu,
+       					     int zopt )
 {
     Table::TargetInfo* ti;
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
@@ -565,7 +563,7 @@ const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 	errmsg_ += hdrinf.form_.name();
     }
     if ( hdrinf.form_.specs_.size() > 1 )
-	{ errmsg_ += " (field "; errmsg_ += hdrinf.specnr_; errmsg_ += ")"; }
+	{ errmsg_ += " (field "; hdrinf.specnr_; errmsg_ += ")"; }
     if ( diffnms )
 	errmsg_ += "]";
 
@@ -786,12 +784,12 @@ float Table::AscIO::getfValue( int ifld, float udf ) const
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(float);
-    const double val = toDouble( sval );
+    float val = toFloat( sval );
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
-    return mCast(float,unit ? unit->internalValue( val ) : val);
+    return unit ? unit->internalValue( val ) : val;
 }
 
 

@@ -12,18 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "factory.h"
 #include "position.h"
 
 class Array2DInterpol;
+class InverseDistanceArray2DInterpol;
 class uiCheckBox;
 class uiGenInput;
 class uiArray2DInterpol;
 
 
-mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
+mClass uiArray2DInterpolSel : public uiDlgGroup
 {
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
@@ -64,7 +64,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiArray2DInterpol : public uiDlgGroup
+mClass uiArray2DInterpol : public uiDlgGroup
 {
 public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
@@ -78,14 +78,11 @@ public:
 protected:
     			uiArray2DInterpol(uiParent*,const char* nm);
     			~uiArray2DInterpol();
-
-    virtual Array2DInterpol*	createResult() const	{ return 0; }
-
     Array2DInterpol*	result_;
 };
 
 
-mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
+mClass uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -111,14 +108,13 @@ protected:
 
     void			useRadiusCB(CallBacker*);
     void			doParamDlg(CallBacker*);
-    virtual Array2DInterpol*	createResult() const;
 
     friend class		uiInvDistA2DInterpolPars;
 
 };
 
 
-mExpClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
+mClass uiTriangulationArray2DInterpol : public uiArray2DInterpol
 {
 public:
 
@@ -135,18 +131,16 @@ public:
 protected:
 
     void			intCB(CallBacker*);
-    virtual Array2DInterpol*	createResult() const;
-
     uiGenInput*			maxdistfld_;
     uiCheckBox*			useneighborfld_;
 };
 
 
-mExpClass(uiTools) uiExtensionArray2DInterpol : public uiArray2DInterpol
+mClass uiArray2DInterpolExtension : public uiArray2DInterpol
 {
 public:
 
-    				uiExtensionArray2DInterpol(uiParent*);
+    				uiArray2DInterpolExtension(uiParent*);
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
@@ -157,9 +151,6 @@ public:
 
 protected:
 
-    virtual Array2DInterpol*	createResult() const;
-
     uiGenInput*                 nrstepsfld_;
 };
 #endif
-

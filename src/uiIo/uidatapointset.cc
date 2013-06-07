@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidatapointset.h"
 #include "uidatapointsetman.h"
@@ -61,82 +61,6 @@ static const char* sKeyGroups = "Groups";
 
 mDefineInstanceCreatedNotifierAccess(uiDataPointSet)
 
-class uiDPSDispPropDlg : public uiDialog
-{
-public:
-uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
-		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup("Display Properties","","").modal(false))
-    , plotter_(plotter)
-{
-    BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
-	    	      "Selected Points","All points with attribute" );
-    typefld_ = new uiGenInput( this, "Display",binp );
-    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
-
-    BufferStringSet colnms;
-    const DataPointSet& dps = plotter.dps();
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-	colnms.add( dps.colName(colidx) );
-
-    uiLabeledComboBox* llb = new uiLabeledComboBox(
-	    			this, colnms, "Attribute to display" );
-    llb->attach( alignedBelow, typefld_ );
-    selfld_ = llb->box();
-    if ( prevdispprop && !prevdispprop->showSelected() )
-    {
-	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
-	selfld_->setCurrentItem( attrnm );
-    }
-
-    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
-
-    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
-    coltabfld_->attach( leftAlignedBelow, llb );
-    if ( prevdispprop && !prevdispprop->showSelected() )
-    {
-	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
-	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
-    }
-
-    attribChanged( 0 );
-    typeChangedCB( 0 );
-}
-
-void attribChanged( CallBacker* )
-{
-    const DataPointSet& dps = plotter_.dps();
-    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
-    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
-    coltabfld_->setInterval( valrange );
-}
-
-
-void typeChangedCB( CallBacker* )
-{
-    selfld_->display( !typefld_->getBoolValue(), true );
-    coltabfld_->display( !typefld_->getBoolValue(), true );
-}
-
-bool type() const
-{ return typefld_->getBoolValue(); }
-
-const char* colName() const
-{ return selfld_->text(); }
-
-const ColTab::Sequence& ctSeq() const
-{ return coltabfld_->colTabSeq(); }
-
-const ColTab::MapperSetup& ctMapperSetup() const
-{ return coltabfld_->colTabMapperSetup(); }
-
-    uiGenInput*				typefld_;
-    uiComboBox*				selfld_;
-    uiColorTable*			coltabfld_;
-    const uiDataPointSetCrossPlotter&	plotter_;
-};
-
-
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"111.0.0")
@@ -159,7 +83,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
     	, setup_(su)
-    	, zfac_(mCast(float,SI().zDomain().userFactor()))
+    	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnitString(false))
 	, tbl_(0)
     	, unsavedchgs_(false)
@@ -170,7 +94,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, rowToBeRemoved(this)
     	, rowRemoved(this)
 	, xplotwin_(0)
-	, dpsdisppropdlg_(0)
 	, statswin_(0)
 	, dpsdispmgr_(dpsmgr)
 	, iotb_(0)
@@ -233,7 +156,7 @@ int uiDataPointSet::initVars()
 
     mCleanRunCalcs;
 
-    eachrow_ = mCast( float, dps_.nrActive() / setup_.initialmaxnrlines_ );
+    eachrow_ = dps_.nrActive() / setup_.initialmaxnrlines_;
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
     percentage_ = (float)100/eachrow_;
 
@@ -248,9 +171,6 @@ uiDataPointSet::~uiDataPointSet()
 {
     deepErase( variodlgs_ );
     removeSelPts( 0 );
-    if ( dpsdisppropdlg_ )
-	dpsdisppropdlg_->windowClosed.remove(
-		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
 }
 
 
@@ -272,7 +192,7 @@ void uiDataPointSet::mkToolBars()
 	    iotb_ = new uiToolBar( this, "I/O Tool bar" );
 	mAddButton( "saveset.png", save, "Save data" );
 	if ( setup_.allowretrieve_ )
-	    mAddButton( "openset", retrieve, "Retrieve stored data" );
+	    mAddButton( "openset.png", retrieve, "Retrieve stored data" );
     }
 #undef mAddButton
 
@@ -280,15 +200,15 @@ void uiDataPointSet::mkToolBars()
 	maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
-    mAddButton( "axis-x", selXCol, "Set data for X" );
-    mAddButton( "axis-add-y", selYCol, "Select as Y data" );
-    mAddButton( "axis-rm-y", unSelCol, "UnSelect as Y data" );
-    mAddButton( "delselrows", delSelRows, "Remove selected rows" );
-    mAddButton( "axis-prev", colStepL, "Set Y one column left" );
-    mAddButton( "axis-next", colStepR, "Set Y one column right" );
-    mAddButton( "sortcol", setSortCol, "Set sorted column to current" );
-    mAddButton( "plus", addColumn, "Add column.." );
-    mAddButton( "minus", removeColumn, "Remove column" );
+    mAddButton( "axis-x.png", selXCol, "Set data for X" );
+    mAddButton( "axis-add-y.png", selYCol, "Select as Y data" );
+    mAddButton( "axis-rm-y.png", unSelCol, "UnSelect as Y data" );
+    mAddButton( "delselrows.png", delSelRows, "Remove selected rows" );
+    mAddButton( "axis-prev.png", colStepL, "Set Y one column left" );
+    mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
+    mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
+    mAddButton( "plus.png", addColumn, "Add column.." );
+    mAddButton( "minus.png", removeColumn, "Remove column" );
 #undef mAddButton
 
     if ( !disptb_ )
@@ -296,26 +216,26 @@ void uiDataPointSet::mkToolBars()
 
     uiGroup* grp = new uiGroup( disptb_, "Each grp" );
     percfld_ = new uiSpinBox( grp, 1, "Each" );
+    new uiLabel( grp, "Show", percfld_ );
+    percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
     percfld_->setSuffix( "%" );
     percfld_->setValue( percentage_ );
     percfld_->setInterval( (float)0.1, mUdf(float),(float)0.1 );
-    percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    new uiLabel( grp, "Show", percfld_ );
     disptb_->addObject( grp->attachObj() );
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
-    dispxytbid_ = mAddButton( "toggxy", toggleXYZ,
+    dispxytbid_ = mAddButton( "toggxy.png", toggleXYZ,
 			      "Toggle show X and Y columns", true );
-    dispztbid_ = mAddButton( "toggz", toggleXYZ,
+    dispztbid_ = mAddButton( "toggz.png", toggleXYZ,
 			     "Toggle show Z column", true );
-    mAddButton( "statsinfo", showStatsWin,
+    mAddButton( "statsinfo.png", showStatsWin,
 			     "Show histogram and stats for column", false );
     if ( dps_.group(0) < mUdf(od_uint16) && SI().zIsTime() )
-	mAddButton( "variogram", compVertVariogram,
+	mAddButton( "variogram.png", compVertVariogram,
 		    "Compute variogram for column", false );
-    xplottbid_ = mAddButton( "xplot", showCrossPlot,
-	    		     "Show Cross-plot", false );
+    xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
+	    		     "Show crossplot", false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
 }
@@ -381,6 +301,7 @@ void uiDataPointSet::calcIdxs()
     int dcountidx = 0;
     for ( int did=0; did<dpssz; did++ )
     {
+	const int eachcount = 0;
 	const bool inact = dps_.isInactive(did);
 	if ( inact || (dcountidx < mNINT32(calcidx * eachrow_)) )
 	{
@@ -544,7 +465,7 @@ void uiDataPointSet::selYCol( CallBacker* )
 
     if ( minptsfordensity <= 0 || mIsUdf(minptsfordensity) )
     {
-	setts.set( sKeyMinDPPts(), cMinPtsForDensity ); setts.write();
+	setts.set( sKeyMinDPPts(), cMinPtsForDensity );	setts.write();
 	minptsfordensity = cMinPtsForDensity;
     }
 
@@ -653,7 +574,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, "Position type",
-			BoolInpSpec(true,"X/Y","In-line/Cross-Line") );
+			BoolInpSpec(true,"X/Y","Inline/CrossLine") );
     seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
 
     posinpfld_ = new uiGenInput( this, "Input Position",
@@ -699,8 +620,7 @@ bool acceptOK( CallBacker* )
     pos.z_ = zinpfld_->getfValue();
     
     datarow_ =
-	DataPointSet::DataRow( pos, mCast( unsigned short, 
-				 !grpfld_ ? 1 : grpfld_->currentItem() +1 ) );
+	DataPointSet::DataRow( pos, !grpfld_ ? 1 : grpfld_->currentItem() +1 );
     return true;
 }
 
@@ -722,10 +642,9 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
 	{
-	    Coord3 coord(
-	      tbl_->getdValue(RowCol(rownr,0)),
-	      tbl_->getdValue(RowCol(rownr,1)),
-	      tbl_->getdValue(RowCol(rownr,2))/SI().zDomain().userFactor() );
+	    Coord3 coord( tbl_->getdValue(RowCol(rownr,0)),
+		    	  tbl_->getdValue(RowCol(rownr,1)),
+			  tbl_->getdValue(RowCol(rownr,2))/SI().zFactor() );
 	    if ( mIsEqual(coord.x,newcoord.x,2) &&
 	    	 mIsEqual(coord.y,newcoord.y,2) &&
 	    	 mIsEqual(coord.z,newcoord.z,1e-4) )
@@ -1050,7 +969,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 	return val * zfac_;
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 
@@ -1224,8 +1143,8 @@ void uiDataPointSet::retrieve( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
-    seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-	    	"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
+    seldlg.selGrp()->getManipGroup()->addButton( "manxplot.png",
+	    	"Manage cross-plot data", mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
     curseldlg_ = 0;
@@ -1275,7 +1194,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 {
     ctio_.ctxt.forread = false;
     if ( !type_.isEmpty() )
-	ctio_.ctxt.toselect.require_.set( sKey::Type(), typ );
+	ctio_.ctxt.toselect.require_.set( sKey::Type, typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
@@ -1320,7 +1239,7 @@ bool acceptOK( CallBacker* )
 	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
 	if ( !type_.isEmpty() )
 	{
-	    ctio_.ioobj->pars().set( sKey::Type(), type_ );
+	    ctio_.ioobj->pars().set( sKey::Type, type_ );
 	    IOM().commitChanges( *ctio_.ioobj );
 	}
 	fname_ = ctio_.ioobj->fullUserExpr(false);
@@ -1349,7 +1268,7 @@ bool uiDataPointSet::doSave()
 {
     if ( dps_.nrActive() < 1 ) return true;
 
-    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
+    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type) );
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -1382,29 +1301,104 @@ void uiDataPointSet::manage( CallBacker* )
 }
 
 
-void uiDataPointSet::showSelPts( CallBacker* )
+mClass uiDPSDispPropDlg : public uiDialog
 {
-    if ( !dpsdisppropdlg_ )
+public:
+uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
+		  const DataPointSetDisplayProp* prevdispprop )
+    : uiDialog(this,uiDialog::Setup("Display Properties","",""))
+    , plotter_(plotter)
+{
+    BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
+	    	      "Selected Points","All points with attribute" );
+    typefld_ = new uiGenInput( this, "Display",binp );
+    typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
+    typefld_->setValue( false );
+
+    BufferStringSet colnms;
+    const DataPointSet& dps = plotter.dps();
+    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
+	colnms.add( dps.colName(colidx) );
+
+    uiLabeledComboBox* llb = new uiLabeledComboBox(
+	    			this, colnms, "Attribute to display" );
+    llb->attach( alignedBelow, typefld_ );
+    selfld_ = llb->box();
+    if ( prevdispprop && !prevdispprop->showSelected() )
     {
-	dpsdisppropdlg_ =
-	    new uiDPSDispPropDlg( xplotwin_, xplotwin_->plotter(),
-				  dpsdispmgr_->dispProp() );
-	dpsdisppropdlg_->windowClosed.notify(
-		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
+	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
+	selfld_->setCurrentItem( attrnm );
     }
 
-    dpsdisppropdlg_->go();
+    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
+
+    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
+    coltabfld_->attach( leftAlignedBelow, llb );
+    if ( prevdispprop && !prevdispprop->showSelected() )
+    {
+	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
+	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
+    }
+
+    attribChanged( 0 );
+    typeChangedCB( 0 );
+}
+
+void attribChanged( CallBacker* )
+{
+    const DataPointSet& dps = plotter_.dps();
+    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
+    Interval<float> valrange = dps.bivSet().valRange( bivsidx );
+    coltabfld_->setInterval( valrange );
 }
 
 
-void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
+void typeChangedCB( CallBacker* )
 {
-    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() ) return;
+    selfld_->display( !typefld_->getBoolValue(), true );
+    coltabfld_->display( !typefld_->getBoolValue(), true );
+}
+
+bool type() const
+{ return typefld_->getBoolValue(); }
+
+const char* colName() const
+{ return selfld_->text(); }
+
+const ColTab::Sequence& ctSeq() const
+{ return coltabfld_->colTabSeq(); }
+
+const ColTab::MapperSetup& ctMapperSetup() const
+{ return coltabfld_->colTabMapperSetup(); }
+
+    uiGenInput*				typefld_;
+    uiComboBox*				selfld_;
+    uiColorTable*			coltabfld_;
+    const uiDataPointSetCrossPlotter&	plotter_;
+};
+
+
+void uiDataPointSet::showSelPts( CallBacker* )
+{
+    xplotwin_->setShowPtsInWSBut( false );
+    uiDPSDispPropDlg dlg( xplotwin_, xplotwin_->plotter(),
+	    		  dpsdispmgr_->dispProp() );
+    if ( !dlg.go() )
+    {
+	xplotwin_->setShowPtsInWSBut( true );
+	return;
+    }
+
+    if ( !dpsdispmgr_ )
+    {
+	xplotwin_->setShowPtsInWSBut( true );
+	return;
+    }
 
     const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
 
     DataPointSetDisplayProp* dispprop;
-    if ( dpsdisppropdlg_->type() )
+    if ( dlg.type() )
     {
 	ObjectSet<SelectionGrp> selgrps = plotter.selectionGrps();
 	BufferStringSet selgrpnms;
@@ -1419,11 +1413,10 @@ void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
 	dispprop = new DataPointSetDisplayProp( selgrpnms, selgrpcols );
     }
     else
-	dispprop = new DataPointSetDisplayProp(
-		dpsdisppropdlg_->ctSeq(), dpsdisppropdlg_->ctMapperSetup(),
-		dps_.indexOf(dpsdisppropdlg_->colName()) );
-
+	dispprop = new DataPointSetDisplayProp( dlg.ctSeq(),dlg.ctMapperSetup(),
+						dps_.indexOf(dlg.colName()) );
     setDisp( dispprop );
+    xplotwin_->setShowPtsInWSBut( true );
 }
 
 
@@ -1536,9 +1529,9 @@ void uiDataPointSet::removeHiddenRows()
 	if ( sortcol_ == 2 )
 	    val = dps_.z( drowid );
 	else if ( sortcol_ == 1 )
-	    val = (float) poscoord.y;
+	    val = poscoord.y;
 	else if ( sortcol_ == 0 )
-	    val = (float) poscoord.x;
+	    val = poscoord.x;
 	else
 	    val = dps_.value( dColID(sortcol_), drowid );
 	

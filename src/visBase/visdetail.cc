@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>
@@ -30,13 +30,12 @@ int FaceDetail::getClosestIdx( const Coordinates* coordinates,
 	    
     const SoPointDetail* pointdetail = facedetail->getPoint(0);
 
-    float mindist = mUdf(float);
-    int closestidx = mUdf(int);
+    float mindist;
+    int closestidx;
     for ( int idx=0; idx<nrpoints; idx++ )
     {
         const int coordidx = pointdetail[idx].getCoordinateIndex();
-        float dist = (float) pickedpoint.sqDistTo( 
-				    coordinates->getPos(coordidx,true) );
+        float dist = pickedpoint.sqDistTo( coordinates->getPos(coordidx,true) );
         if ( !idx || dist < mindist )
         {
            mindist = dist;

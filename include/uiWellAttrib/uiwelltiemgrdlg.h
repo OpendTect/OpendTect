@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 namespace Well { class Data; }
@@ -33,13 +32,12 @@ class uiSeisWaveletSel;
 class uiWaveletExtraction;
 class uiWellElasticPropSel;
 
-
 namespace WellTie
 {
     class Setup;
     class uiTieWin;
 
-mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
+mClass uiTieWinMGRDlg : public uiDialog
 {
 
 public:    
@@ -57,9 +55,9 @@ protected:
     CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
     bool		is2d_;
+    float		replacevel_;
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
-    uiWellElasticPropSel* logsfld_;
 
     Well::Data*		wd_;
 
@@ -70,11 +68,20 @@ protected:
     uiSeisSel* 		seis2dfld_;
     uiSeisSel* 		seis3dfld_;
     uiSeis2DLineNameSel* seislinefld_;
+    uiComboBox*		vellogfld_;
+    uiComboBox*		denlogfld_;
+    uiComboBox*		unfld_;
+    uiCheckBox*		isvelbox_;
+    uiGenInput*		veluomfld_;
+    uiGenInput*		denuomfld_;
+    uiWellElasticPropSel* logsfld_;
     uiCheckBox*		used2tmbox_;
     uiLabeledComboBox*	cscorrfld_;
     uiWaveletExtraction* extractwvltdlg_;
 
-    void		getSetup( const char* wllnm );
+    bool		getDefaults();
+    // do not use, will be removed
+    void		getSetup(const char* wllnm );
     bool		getSeismicInSetup();
     bool		getVelLogInSetup() const;
     bool		getDenLogInSetup() const;
@@ -94,6 +101,8 @@ protected:
     void		setLine() const;
     void		setTypeFld();
     bool		seisIDIs3D(MultiID) const;
+    int			getSetupWasUsed() const;
+    void		setSetupWasUsed(int);
 };
 
 }; //namespace WellTie

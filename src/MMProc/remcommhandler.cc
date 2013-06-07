@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "remcommhandler.h"
 
-#include "debug.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
@@ -43,13 +42,7 @@ RemCommHandler::~RemCommHandler()
 
 void RemCommHandler::listen() const
 {   
-    if ( server_.listen( System::localAddress(), port_ ) )
-	 DBG::message( BufferString("Listenning on: ",System::localAddress()) );
-    else
-    {
-	DBG::message( BufferString("Failed to Listenning on: ",
-			System::localAddress()) );
-    }
+    server_.listen( System::localAddress(), port_ );
 }
 
 
@@ -62,7 +55,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 	mErrRet( "Could not read any parameters from server" );
 
     BufferString tmpcmd;
-    mkCommand( par, tmpcmd );
+    bool res = mkCommand( par, tmpcmd );
     BufferString cmd( "@", tmpcmd );
     StreamProvider sp( cmd );
     if ( !sp.executeCommand( true ) )

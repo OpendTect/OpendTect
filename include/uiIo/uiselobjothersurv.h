@@ -17,12 +17,11 @@ ________________________________________________________________________
   belonging to that survey !*/
 
 
-#include "uiiomod.h"
 #include "uiselsimple.h"
 
 class CtxtIOObj;
 
-mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiSelectFromList
+mClass uiSelObjFromOtherSurvey : public uiSelectFromList
 {
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

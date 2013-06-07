@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "callback.h"
 #include "uigeom.h"
 #include "manobjectset.h"
@@ -23,17 +22,17 @@ class FillPattern;
 class MouseCursor;
 class uiGraphicsScene;
 
-mFDQtclass(QGraphicsItem)
-mFDQtclass(QGraphicsItemGroup)
+class QGraphicsItem;
+class QGraphicsItemGroup;
 
-mExpClass(uiBase) uiGraphicsItem : public CallBacker
+
+mClass uiGraphicsItem : public CallBacker
 {
 public:
 			~uiGraphicsItem();
 
-    mQtclass(QGraphicsItem*)	qGraphicsItem()	{ return qgraphicsitem_; }
-    const mQtclass(QGraphicsItem*) qGraphicsItem()
-				   const { return qgraphicsitem_; }
+    QGraphicsItem*	qGraphicsItem()		{ return qgraphicsitem_; }
+    const QGraphicsItem* qGraphicsItem() const	{ return qgraphicsitem_; }
 
     void		show();
     void		hide();
@@ -45,13 +44,12 @@ public:
     bool		isSelected() const		{ return selected_; }
 
     uiPoint		getPos() const;
-    void		setPos( const uiWorldPoint&);
-    void		setPos( const uiPoint& p );
-    void		setPos( const Geom::Point2D<float>& );
-    void		setPos( float x, float y );
+    void		setPos( const uiPoint& p )	{ stPos(p.x,p.y); }
+    void		setPos( int x, int y )		{ stPos(x,y); }
     void		moveBy(float x,float y);
-    void		setRotation(float angle);
-    void		setScale(float sx,float sy);
+    void		rotate(float angle);
+    void		scale(float sx,float sy);
+    void		scaleAroundXY(float sx,float sy,int x,int y);
     void		setZValue(int); //<! z value decides the stacking order
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
@@ -64,47 +62,40 @@ public:
     virtual void	setFillPattern(const FillPattern&);
 
     void		setCursor(const MouseCursor&);
-    void		setToolTip(const char*);
 
-    virtual void	setScene(uiGraphicsScene*);
+    void		setScene(uiGraphicsScene*);
     void		setParent(uiGraphicsItem*);
+    uiGraphicsItem*	addToScene(uiGraphicsScene*);
 
     int			id() const			{ return id_; }
-    int			getZValue() const;
 
-    			//Old, will be remove once all dep code is changed
-    void		rotate(float angle) { setRotation(angle); }
-    void		scale(float sx,float sy) { setScale( sx, sy ); }
 protected:
 
     			uiGraphicsItem(QGraphicsItem*);
 
-    mQtclass(QGraphicsItem*) qgraphicsitem_;
+    QGraphicsItem*	qgraphicsitem_;
 
-    virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
+    virtual QGraphicsItem* mkQtObj()			{ return 0; }
     bool		selected_; // Remove when things in Qt works
-    mQtclass(uiGraphicsScene*)	scene_;
+    uiGraphicsScene*	scene_;
 
 private:
 
     			uiGraphicsItem() : id_(0)	{}
-    void		updateTransform();
 
     static int		getNewID();
     const int		id_;
 
-    virtual void	stPos(float,float);
+    virtual void	stPos(int,int);
 
-    uiWorldPoint	translation_;
-    uiWorldPoint	scale_;
-    double		angle_;
 };
 
 
-mExpClass(uiBase) uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
+mClass uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
 {
 public:
-			uiGraphicsItemSet()		{}
+			uiGraphicsItemSet()
+			    : ManagedObjectSet<uiGraphicsItem>(false)	{}
 
     void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
     uiGraphicsItem*	get( int idx )			{ return (*this)[idx]; }
@@ -115,7 +106,7 @@ public:
 
 
 
-mExpClass(uiBase) uiGraphicsItemGroup : public uiGraphicsItem
+mClass uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
     			uiGraphicsItemGroup(bool owner=false);
@@ -123,13 +114,11 @@ public:
 			~uiGraphicsItemGroup();
 			//!<If owner, it deletes all items
 
-    void		setScene(uiGraphicsScene*);
-
     void		setIsOwner( bool own )	{ owner_ = own; }
     bool		isOwner() const		{ return owner_; }
 
     void		add(uiGraphicsItem*);
-    void		remove(uiGraphicsItem*,bool withdelete);
+    void		remove(uiGraphicsItem*,bool);
     void		removeAll(bool);
     bool		isEmpty() const		{ return items_.isEmpty(); }
     int			size() const		{ return items_.size(); }
@@ -139,16 +128,15 @@ public:
     virtual bool	isVisible() const;
     virtual void	setVisible(bool);
     virtual uiRect	boundingRect() const;
-    mQtclass(QGraphicsItemGroup*)	qGraphicsItemGroup()
-    					{ return qgraphicsitemgrp_; }
+    QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
 
 protected:
 
-    mQtclass(QGraphicsItem*)	mkQtObj();
+    QGraphicsItem*	mkQtObj();
 
     bool		owner_;
     bool		isvisible_;
-    mQtclass(QGraphicsItemGroup*)	qgraphicsitemgrp_;
+    QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
     ObjectSet<uiGraphicsItem>	items2bdel_;
 
@@ -159,4 +147,3 @@ protected:
 
 
 #endif
-

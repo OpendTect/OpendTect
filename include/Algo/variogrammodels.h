@@ -21,25 +21,16 @@ template <class T> class ObjectSet;
 inline void getVariogramModel( const char* typestr, float nugget, float sill,
 			      float range, int size, float* in, float* out )
 {
-    const FixedString type( typestr );
-    if ( type=="exponential" )
-    {
+    if ( !strcmp( typestr, "exponential" ) )
 	for ( int idx=0; idx<size; idx++ )
 	    out[idx] = (sill-nugget)*(1-exp(-3*in[idx]/range))+nugget;
-    }
-    else if ( type=="gaussian" )
-    {
+    else if ( !strcmp( typestr, "gaussian" ) )
 	for ( int idx=0; idx<size; idx++ )
-	{
 	    out[idx] = (sill-nugget)*
 		    	   (1-exp(-3*((in[idx]*in[idx])/(range*range))))+
 			   nugget;
-	}
-    }
-    else if ( type=="spherical" )
-    {
+    else if ( !strcmp( typestr, "spherical" ) )
 	for ( int idx=0; idx<size; idx++ )
-	{
 	    if ( in[idx] < range )
 	    {
 		out[idx] = (sill-nugget)*(((3*in[idx])/(2*range))-
@@ -48,8 +39,6 @@ inline void getVariogramModel( const char* typestr, float nugget, float sill,
 	    }
     	    else
 		out[idx] = sill;
-	}
-    }
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "faultstickset.h"
 
@@ -104,10 +104,10 @@ bool FaultStickSet::removeStick( int sticknr )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
 
-    sticks_.removeSingle( stickidx );
-    editplanenormals_.removeSingle( stickidx );
-    stickstatus_.removeSingle( stickidx );
-    firstcols_.removeSingle( stickidx );
+    sticks_.remove( stickidx );
+    editplanenormals_.remove( stickidx );
+    stickstatus_.remove( stickidx );
+    firstcols_.remove( stickidx );
 
     if ( !stickidx )
 	firstrow_++;
@@ -152,7 +152,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( sticks_[stickidx]->size() <= 1 )
 	return removeStick( rc.row );
 
-    sticks_[stickidx]->removeSingle( knotidx );
+    sticks_[stickidx]->remove( knotidx );
 
     if ( !knotidx )
 	firstcols_[stickidx]++;
@@ -248,6 +248,13 @@ const Coord3& FaultStickSet::getEditPlaneNormal( int sticknr ) const
 void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal )
 {
     editplanenormals_ += editnormal;
+
+    if ( editplanenormals_.size() > 1 )
+	return;
+    if ( !editnormal.isDefined() || mIsZero(editnormal.sqAbs(),mDefEps) )
+	return;
+
+    const Coord3 normvec = editnormal.normalize();
 }
 
 
@@ -276,7 +283,7 @@ static double pointToSegmentDist( const Coord3& point,
 	return d02;
 
     double sp = 0.5 *( d01+d02+d12 );
-    double area = Math::Sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
+    double area = sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
     return 2.0*area/d12;
 }
 
@@ -354,7 +361,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	for ( int idx=sticknrs.size()-1; idx>=0; idx-- )
 	{
 	    if ( !rowrg.includes(sticknrs[idx],false) )
-		sticknrs.removeSingle( idx );
+		sticknrs.remove( idx );
 	}
     }
 
@@ -362,7 +369,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	return;
 
     double mindist = MAXDOUBLE;
-    int minidx0 = -1, minidx1 = -1;
+    int minidx0, minidx1;
 
     for ( int idx=0; idx<sticknrs.size()-1; idx++ )
     {

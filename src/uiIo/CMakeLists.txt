@@ -54,7 +54,6 @@ SET(OD_MODULE_SOURCES
 	    uisrchprocfiles.cc
 	    uisurvey.cc
 	    uisurveyselect.cc
-	    uisurveyzip.cc
 	    uisurvinfoed.cc
 	    uisurvmap.cc
 	    uit2dconvsel.cc

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include <iosfwd>
@@ -28,7 +27,7 @@ class ExportHandler;
 class Converter;
 class FileFormatRepository;
 
-mGlobal(General) FileFormatRepository& FFR();
+mGlobal FileFormatRepository& FFR();
 
 
 /*!\brief Ascii I/O using Format Description.
@@ -39,7 +38,7 @@ mGlobal(General) FileFormatRepository& FFR();
  
  */
 
-mExpClass(General) AscIO
+mClass AscIO
 {
 public:
 
@@ -94,7 +93,7 @@ protected:
 /*!\brief Holds system- and user-defined formats for different data types
   ('groups') */
 
-mExpClass(General) FileFormatRepository
+mClass FileFormatRepository
 {
 public:
 
@@ -127,7 +126,7 @@ protected:
 
     ObjectSet<Entry>	entries_;
 
-    mGlobal(General) friend FileFormatRepository& FFR();
+    mGlobal friend FileFormatRepository& FFR();
 
 };
 
@@ -136,4 +135,3 @@ protected:
 
 
 #endif
-

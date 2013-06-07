@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -61,7 +61,7 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     , outdlg_(0)
 {
     prepUsgStart( "Definition" ); sendUsgInfo();
-    pars_.set( sKey::Type(), is2d_ ? "2D" : "3D" );
+    pars_.set( sKey::Type, is2d_ ? "2D" : "3D" );
 
     state_ = mInpPDFs;
     nextAction();
@@ -167,7 +167,7 @@ void handleDisp( CallBacker* )
     for ( int idx=0; idx<flds_.size(); idx++ )
     {
 	const bool dodisp = idx < nrdisp_;
-	flds_[idx]->display( dodisp );
+	flds_[idx]->display( idx < nrdisp_ );
 	if ( addbuts_[idx] ) addbuts_[idx]->display( idx == nrdisp_-1 );
 	if ( rmbuts_[idx] ) rmbuts_[idx]->display( idx == nrdisp_-1 );
     }
@@ -242,7 +242,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 			"[2] Normalization/Scaling",
 			 mGetNormHelpID), pars,Middle)
-    , is2d_(*pars[sKey::Type()] == '2')
+    , is2d_(*pars[sKey::Type] == '2')
     , prenormfld_(0)
     , nrpdfs_(0)
 {
@@ -409,7 +409,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 			"[3] Specify Seismic input",
 			 mInpSeisHelpID), pars,Middle)
     , lsfld_(0)
-    , is2d_(*pars[sKey::Type()] == '2')
+    , is2d_(*pars[sKey::Type] == '2')
 {
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
@@ -502,7 +502,7 @@ public:
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 		    "[4] Select and specify output",mOutputHelpID), pars,End)
-    , is2d_(*pars[sKey::Type()] == '2')
+    , is2d_(*pars[sKey::Type] == '2')
     , haveclass_(true)
 {
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
@@ -512,6 +512,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
+    int nrpdfs = 0;
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
@@ -578,7 +579,7 @@ bool getFromScreen( bool permissive )
 {
     if ( is2d_ ) return false;
 
-    int nrout = 0;
+    int nrout = 0; int curiopidx = 0;
     for ( int idx=0; idx<flds3d_.size(); idx++ )
     {
 	uiSeisSel* sel = flds3d_[idx];
@@ -632,7 +633,7 @@ void uiSeisBayesClass::outputDone( CallBacker* )
 
     SeisBayesClass exec( pars_ );
     uiTaskRunner tr( outdlg_ );
-    const bool isok = TaskRunner::execute( &tr, exec );
+    const bool isok = tr.execute( exec );
 
     mSetState( isok ? cFinished() : mOutput );
 }

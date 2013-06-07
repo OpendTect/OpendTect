@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackexpevent.h"
 
@@ -80,7 +80,7 @@ bool uiEventExport::acceptOK( CallBacker* )
     EventExporter exporter( strm, *events );
     exporter.setHRange( hrg );
     uiTaskRunner runner( this );
-    if ( !TaskRunner::execute( &runner, exporter ) )
+    if ( !runner.execute( exporter ) )
     {
 	uiMSG().error("Could not export prestack events");
 	return false;

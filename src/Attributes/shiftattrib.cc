@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -67,6 +67,13 @@ Shift::Shift( Desc& desc )
 }
 
 
+void Shift::set( const BinID& bid, float z, bool dosteer )
+{
+    pos_ = bid; time_ = z; dosteer_ = dosteer;
+    init();
+}
+
+
 void Shift::init()
 {
     stepout_ = BinID( abs(pos_.inl), abs(pos_.crl) );
@@ -76,7 +83,7 @@ void Shift::init()
 
     if ( dosteer_ )
     {
-	float maxso = mMAX(stepout_.inl*inlDist(),stepout_.crl*crlDist());
+	float maxso = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist());
 	const float maxsecdip = maxSecureDip();
 	desinterval_ = Interval<float>( -maxso*maxsecdip, maxso*maxsecdip );
 	steeridx_ = getSteeringIndex( pos_ );

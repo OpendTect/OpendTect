@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -25,7 +24,7 @@ class uiStepOutSel;
 
 /*! \brief Coherency attribute description editor */
 
-mExpClass(uiAttributes) uiCoherencyAttrib : public uiAttrDescEd
+mClass uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "cubesampling.h"
 #include "datapack.h"
 #include "menuhandler.h"
@@ -52,12 +51,9 @@ namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
 
 
-/*!
-\ingroup uiVis
-\brief The Visualisation Part Server
-*/
+/*! \brief The Visualisation Part Server */
 
-mExpClass(uiVis) uiVisPartServer : public uiApplPartServer
+mClass uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;
@@ -131,8 +127,6 @@ public:
     int			addAttrib(int id);
     void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;
-    void		getAttribPosName(int id,int attrib,BufferString&) const;
-    			//!<Gets the name of the attrib position
     bool		swapAttribs(int id,int attrib0,int attrib1);
     void		showAttribTransparencyDlg(int id,int attrib);
     unsigned char	getAttribTransparency(int id,int attrib) const;
@@ -178,11 +172,6 @@ public:
     void		setRandomPosData(int visid, int attrib,
 					 const DataPointSet*);
 
-    bool		hasMaterial(int id) const;
-    void		setMaterial(int id);
-    bool		hasColor(int id) const;
-    void		setColor(int id,const Color&);
-
     bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */
 
@@ -221,16 +210,16 @@ public:
     int			getEventAttrib() const;
     			/*<\returns the attrib that triggered the event */
 
-    static int		evUpdateTree();
+    static const int	evUpdateTree();
     void		triggerTreeUpdate();
 
-    static int		evSelection();
+    static const int	evSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static int		evDeSelection();
+    static const int	evDeSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static int		evGetNewData();
+    static const int	evGetNewData();
     			/*!< Get the id with getEventObjId() */
     			/*!< Get the attrib with getEventAttrib() */
     			/*!< Get selSpec with getSelSpec */
@@ -243,7 +232,7 @@ public:
     void		selectTexture(int id,int attrib,int texture);
     int			selectedTexture(int id,int attrib) const;
 
-    static int		evMouseMove();
+    static const int	evMouseMove();
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
     int			zFactor() const			{ return zfactor_; }
@@ -252,16 +241,16 @@ public:
     void		getObjectInfo(int id,BufferString&) const;
 
 
-    static int		evSelectAttrib();
+    static const int	evSelectAttrib();
 
-    static int		evInteraction();
+    static const int	evInteraction();
     			/*<! Get the id with getEventObjId() */
     BufferString	getInteractionMsg(int id) const;
     			/*!< Returns dragger position or
 			     Nr positions in picksets */
 
-    static int		evViewAll();
-    static int		evToHomePos();
+    static const int	evViewAll();
+    static const int	evToHomePos();
 
     				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
@@ -280,7 +269,7 @@ public:
 
     void			displayMapperRangeEditForAttrbs(int id);
 
-    static int			evColorTableChange();
+    static const int		evColorTableChange();
     void			displaySceneColorbar(bool);
     void			manageSceneColorbar(int);
     bool			sceneColorbarDisplayed();
@@ -292,7 +281,7 @@ public:
     void			setZStretch();
     void			setDirectionalLight();
     bool			setWorkingArea();
-    static int			evViewModeChange();
+    static const int		evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
@@ -308,7 +297,7 @@ public:
     Notifier<uiVisPartServer>	selectionmodechange;
     void			setZAxisTransform(int sceneid,ZAxisTransform*,
 						  TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform(int sceneid) const;
+    ZAxisTransform*		getZAxisTransform(int sceneid);
     visBase::EventCatcher*	getEventCatcher(int sceneid);
 
     const Selector<Coord3>*	getCoordSelector(int scene) const;
@@ -327,14 +316,14 @@ public:
 	    						    float val);
     float			getHeadOnIntensity() const;
     void			setHeadOnIntensity(float val);
-    static int			evGetHeadOnIntensity();
-    static int			evSetHeadOnIntensity();
+    static const int		evGetHeadOnIntensity();
+    static const int		evSetHeadOnIntensity();
 
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
-    static int			evPickingStatusChange();
+    static const int		evPickingStatusChange();
     bool			sendPickingStatusChangeEvent(); 
-    static int			evDisableSelTracker();
+    static const int		evDisableSelTracker();
     bool			sendDisableSelTrackerEvent();
     void			trackInVolume(); 
 
@@ -349,16 +338,16 @@ public:
     void			turnQCPlaneOff();
     void			getPickingMessage(BufferString&) const;
 
-    static int			evLoadPostponedData();
+    static const int		evLoadPostponedData();
     void 			loadPostponedData() const;
 
-    static int			evPostponedLoadingData();
+    static const int		evPostponedLoadingData();
     void			postponedLoadingData() const;
     
-    static int			evToggleBlockDataLoad();
+    static const int		evToggleBlockDataLoad();
     void 			toggleBlockDataLoad() const;
 
-    static int			evShowSetupDlg();
+    static const int		evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
     
     void			showMPEToolbar(bool yn=true);
@@ -368,10 +357,10 @@ public:
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
     void			fireLoadAttribDataInMPEServ();
-    static int		        evLoadAttribDataInMPEServ();
+    static const int            evLoadAttribDataInMPEServ();
     void			updateOldActiVolInuiMPEMan();
     void			restoreActiveVolInuiMPEMan();
-    static int			evFromMPEManStoreEMObject();
+    static const int		evFromMPEManStoreEMObject();
     void			fireFromMPEManStoreEMObject();
 
     uiSlicePos3DDisp*		getUiSlicePos() const
@@ -394,7 +383,6 @@ public:
 protected:
 
     void			createMenuCB(CallBacker*);
-    void			addToToolBarCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 
     visSurvey::Scene*		getScene(int);
@@ -408,11 +396,16 @@ protected:
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
 
+    bool			hasMaterial(int id) const;
+    bool			setMaterial(int id);
+
+    bool			hasColor(int id) const;
+
     void			setUpConnections(int id);
     				/*!< Should set all cbs for the object */
     void			removeConnections(int id);
 
-    void			updateDraggers();
+    void			toggleDraggers();
     int				getTypeSetIdx(int);
 
     ObjectSet<visSurvey::Scene>	scenes_;
@@ -475,10 +468,27 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
+
+    void			addToToolBarCB(CallBacker*);
 };
 
 
-mClass(uiVis) uiVisModeMgr 
+/*!\page uiVis Visualisation User Interface
+
+  This module provides the plain user interface classes necessary to do the
+  3D visualisation in the way that the user wants.
+
+  Main task of this server is adding and removing scene objects and 
+  transfer of data to be displayed. All supported scene objects are inheriting
+  visSurvey::SurveyObject.
+
+  A lot of user interaction is done via popupmenus, and all objects share
+  one uiMenuHandler that is accessed via getMenuHandler. To add items or
+  manipulate the menus, please refer to the uiMenuHandler documentation.
+*/
+
+
+class uiVisModeMgr 
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);
@@ -492,4 +502,3 @@ protected:
 };
 
 #endif
-

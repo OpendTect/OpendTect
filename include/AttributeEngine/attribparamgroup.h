@@ -11,6 +11,25 @@ ________________________________________________________________________
 ________________________________________________________________________
 */
 
+/*!\brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
+
+ It's made for parameters where you don't know how many are required. 
+ An example can be positions, where the number of positions are unknown at 
+ the beginning of parsing.
+
+The Attrib::ParamGroup have a prefix and constructs parameter names on the form
+prefix + figure:
+
+pos0, pos1, ..., posN.
+
+The Attrib::ParamGroup is constructed by:
+Attrib::ParamGroup( int startsz, const char* prefix, const PT& templ ),
+
+where startsz is the number of instances at the beginning, templ is a
+a template for the parameters that should be constructed.
+
+-*/
+
 #include "attribparam.h"
 #include "datainpspec.h"
 #include "bufstringset.h"
@@ -19,27 +38,8 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-/*!
-\brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
-  
-  It's made for parameters where you don't know how many are required. 
-  An example can be positions, where the number of positions are unknown at 
-  the beginning of parsing.
-  
-  The Attrib::ParamGroup have a prefix and constructs parameter names on the
-  form  prefix + figure:
-  
-  pos0, pos1, ..., posN.
-  
-  The Attrib::ParamGroup is constructed by:
-  Attrib::ParamGroup( int startsz, const char* prefix, const PT& templ ),
-  
-  where startsz is the number of instances at the beginning, templ is a
-  a template for the parameters that should be constructed. 
--*/
-
 template <class PT>
-mClass(AttributeEngine) ParamGroup : public Param
+class ParamGroup : public Param
 {
 public:
 
@@ -55,13 +55,12 @@ public:
     bool                getCompositeValue(BufferString&) const;
     void                fillDefStr(BufferString&) const;
 
-    Param&		operator[]( int idx )		{ return *params_[idx];}
-    const Param&	operator[]( int idx ) const	{ return *params_[idx];}
+    Param&		operator[]( int idx )		{ return *params_[idx]; }
+    const Param&	operator[]( int idx ) const	{ return *params_[idx]; }
 
-    void		setSize(int);
-    int			size() const			{ return sz_; }
-    int			isEmpty() const			{ return sz_==0; }
-    const char*		getPrefix() const		{ return prefix_; }
+    void		setSize( int );
+    int			size() const { return sz_; }
+    const char*		getPrefix() const { return prefix_; }
 
 protected:
     int				getSize() const;

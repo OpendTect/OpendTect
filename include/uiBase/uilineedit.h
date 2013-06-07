@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "userinputobj.h"
 
 class uiLineEditBody;
 
-mExpClass(uiBase) uiIntValidator
+mClass uiIntValidator
 {
 public:
     		uiIntValidator()
@@ -31,7 +30,7 @@ public:
 };
 
 
-mExpClass(uiBase) uiFloatValidator
+mClass uiFloatValidator
 {
 public:
     		uiFloatValidator()
@@ -48,7 +47,7 @@ public:
 };
 
 
-mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
+mClass uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value
@@ -124,4 +123,3 @@ private:
 
 };
 #endif
-

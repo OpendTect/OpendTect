@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uifiledlg.h"
 
@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QFileDialog>
 #include <QPushButton>
 
-mUseQtnamespace
 
 const char* uiFileDialog::filesep_ = ";";
 
@@ -209,7 +208,7 @@ int uiFileDialog::go()
     if ( !selfiles.isEmpty() )
 	fn = mQStringToConstChar( selfiles[0] );
 
-    selectedfilter_ = fd->selectedFilter().toLatin1().constData();
+    selectedfilter_ = fd->selectedFilter().toAscii().constData();
 
 #ifdef __win__
     replaceCharacter( fn.buf(), '/', '\\' );
@@ -242,7 +241,7 @@ void uiFileDialog::list2String( const BufferStringSet& list,
     for ( int idx=0; idx<list.size(); idx++ )
 	qlist.append( (QString)list[idx]->buf() );
 
-    string = qlist.join( (QString)filesep_ ).toLatin1().constData();
+    string = qlist.join( (QString)filesep_ ).toAscii().constData();
 }
 
 

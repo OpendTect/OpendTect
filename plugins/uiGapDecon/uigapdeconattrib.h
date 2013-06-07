@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id$
+ RCS:           $Id: uigapdeconattrib.h,v 1.16 2011/06/17 07:17:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigapdeconmod.h"
 #include "uiattrdesced.h"
 #include "attribdescid.h"
 #include "position.h"
@@ -29,7 +28,7 @@ class GapDeconACorrView;
 
 /*! \brief GapDecon Attribute description editor */
 
-mClass(uiGapDecon) uiGapDeconAttrib : public uiAttrDescEd
+class uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "identifierman.h"
 
@@ -62,7 +62,7 @@ void IdentifierManager::raiseScopeLevel( bool up )
     else if ( !identifiers_.isEmpty() )
     {
 	deepErase( *identifiers_[identifiers_.size()-1] );
-	delete identifiers_.removeSingle( identifiers_.size()-1 );
+	delete identifiers_.remove( identifiers_.size()-1 );
 	curident_ = 0;
 	curlevel_ = -1;
     }
@@ -122,7 +122,7 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 	    if ( SearchKey(unscopedname,false).isMatching(curident_->name_) )
 	    {
 		identifiers_[curlevel_]->insertAt( curident_, 0 );
-		identifiers_[curlevel_]->removeSingle( idx+1 );
+		identifiers_[curlevel_]->remove( idx+1 );
 
 		if ( !followlinks || !curident_->islink_ )
 		    return true; 
@@ -179,7 +179,7 @@ void IdentifierManager::unset( const char* name, bool followlinks )
 {
     if ( findCurIdent(name, followlinks) )
     {
-	delete identifiers_[curlevel_]->removeSingle( 0 );
+	delete identifiers_[curlevel_]->remove( 0 );
 	curident_ = 0;
     }
 }

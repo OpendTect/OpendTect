@@ -12,7 +12,6 @@ ______________________________________________________________________
                        
 */   
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 #include "survinfo.h"
@@ -30,7 +29,7 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
+mClass uiAmplSpectrum : public uiMainWin
 {
 public:
     struct Setup
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

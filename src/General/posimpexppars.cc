@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "posimpexppars.h"
 #include "survinfo.h"
@@ -14,9 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 
 
-const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }
-const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale(); }
-const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr(); }
+const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset; }
+const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale; }
+const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr; }
 
 
 const PosImpExpPars& PosImpExpPars::SVY()

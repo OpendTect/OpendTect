@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vissplittextureseis2d.h"
 
@@ -239,6 +239,7 @@ void SplitTextureSeis2D::updateDisplay( )
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
+    const float inithorpos = (*horblocktrcindices_[0])[0];
     for ( int horidx=0; horidx<horblocktrcindices_.size(); horidx++ )
     {
 	const int starthorpixel = horidx * (maxtexturesz_-1) * horscale_;
@@ -251,7 +252,7 @@ void SplitTextureSeis2D::updateDisplay( )
 	    SoIndexedTriangleStripSet* tristrip = 0;
 
 	    if ( unusedseparators.size() )
-		sep = unusedseparators.removeSingle( 0 );
+		sep = unusedseparators.remove( 0 );
 	    else
 	    {
 		sep = new SoSeparator;
@@ -282,13 +283,13 @@ void SplitTextureSeis2D::updateDisplay( )
 	 
 	    if ( tc )
 	    {
-		const float tcstart = 0.5f/textureversz;
-		const float tcstop = (versz-0.5f)/textureversz;
+		const float tcstart = 0.5/textureversz;
+		const float tcstop = (versz-0.5)/textureversz;
 		int tcidx = 0;
 		for ( int idx=0; idx<bpsz; idx++ )
 		{
 		    const float dist = (*horblockrg)[idx]-(*horblockrg)[0];
-		    const float tcrd = (0.5f+dist*horscale_)/texturehorsz;
+		    const float tcrd = (0.5+dist*horscale_)/texturehorsz;
 	
 		    tc->point.set1Value( tcidx, SbVec2f(tcstart,tcrd) );
 		    tcidx++;
@@ -338,7 +339,7 @@ void SplitTextureSeis2D::updateDisplay( )
     	separators_ -= unusedseparators[idx]; 
     	removeChild( unusedseparators[idx] );
     	unusedseparators[idx]->unref();
-    	unusedseparators.removeSingle( idx ); 
+    	unusedseparators.remove( idx ); 
     }
 }
 

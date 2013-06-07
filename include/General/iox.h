@@ -13,13 +13,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ioobj.h"
 
 
 /*\brief is a X-Group entry in the omf, e.g. PS data based on 3D cubes.  */
 
-mExpClass(General) IOX : public IOObj
+mClass IOX : public IOObj
 {
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
@@ -34,7 +33,7 @@ public:
     bool		implExists(bool) const;
     bool		implShouldRemove() const	{ return false; }
 
-    FixedString		connType() const;
+    const char*		connType() const;
     Conn*		getConn(Conn::State) const;
     IOObj*		getIOObj() const;
 
@@ -53,4 +52,3 @@ protected:
 
 
 #endif
-

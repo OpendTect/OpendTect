@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiapplserv.h"
 #include "bufstringset.h"
 
@@ -25,16 +24,12 @@ namespace Well { class Data; class LogDisplayParSet; }
 
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
-class uiWellImportAsc;
 class uiD2TModelGen;
 class uiD2TMLogSelDlg;
 
-/*!
-\ingroup uiWell
-\brief Part Server for Wells
-*/
+/*! \brief Part Server for Wells */
 
-mExpClass(uiWell) uiWellPartServer : public uiApplPartServer
+mClass uiWellPartServer : public uiApplPartServer
 {
 public:
 				uiWellPartServer(uiApplService&);
@@ -46,12 +41,8 @@ public:
     bool			importTrack();
     bool			importLogs();
     bool			importMarkers();
-    bool			bulkImportTrack();
-    bool			bulkImportLogs();
-    bool			bulkImportMarkers();
 
     void			manageWells();
-    void			launchRockPhysics();
     bool			selectWells(ObjectSet<MultiID>&);
 
     bool			hasLogs(const MultiID&) const;
@@ -67,6 +58,8 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
+    void			rdmlnDlgClosed(CallBacker*);
+    void			wellPropDlgClosed(CallBacker*);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -76,8 +69,6 @@ public:
     void			createSimpleWells();
     const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
     
-    void			doLogTools();
-
     void			createWellFromPicks();
     const char*			askWellName();
     bool			setupNewWell(BufferString&, Color&);
@@ -88,13 +79,12 @@ public:
     void			setSceneID( int id )	{ cursceneid_ = id; }
     int				getSceneID() const	{ return cursceneid_; }
 
-    static int		        evPreviewRdmLine();
-    static int			evCleanPreview();
-    static int			evDisplayWell();
+    static const int            evPreviewRdmLine();
+    static const int		evCleanPreview();
+    static const int		evDisplayWell();
     
 protected:
 
-    uiWellImportAsc*		uiwellimpdlg_;
     uiWell2RandomLineDlg*	rdmlinedlg_;
     uiWellDispPropDlg*		uiwellpropdlg_;
     uiD2TModelGen*		uid2tmgen_;
@@ -109,15 +99,20 @@ protected:
     bool			allapplied_;
     bool			isdisppropopened_;
 
-    void			importReadyCB(CallBacker*);
-    void			rdmlnDlgClosed(CallBacker*);
-    void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveWellDispProps(const Well::Data&,
 						  const MultiID&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
+
+public:
+    void			doLogTools();
 };
 
-#endif
+/*!\page uiWell Well User Interface
 
+  Apart from nice visualisation, import and management of well data must be
+  done. The uiWellPartServer delivers the services needed.
+*/
+
+#endif

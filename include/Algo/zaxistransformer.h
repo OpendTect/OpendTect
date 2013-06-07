@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "task.h"
 #include "cubesampling.h"
 
@@ -20,13 +19,13 @@ class ZAxisTransform;
 
 template <class T> class Array3D;
 
-/*!
-\brief Transforms an Array3D with a ZAxisTransform. It is assumed that the
-first dimension in the array is inline, the second is crossline and that the
-third is z.
+/*!Transforms an Array3D with a zaxistransform. It is assumed that the first
+   dimension in the array is inline, the second is crossline and that the third
+   is z.
 */
 
-mExpClass(Algo) ZAxisTransformer : public ParallelTask
+
+mClass ZAxisTransformer : public ParallelTask
 {
 public:
     			ZAxisTransformer(ZAxisTransform&,bool forward = true);
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

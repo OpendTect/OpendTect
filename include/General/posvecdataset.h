@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
 class IOPar;
@@ -28,7 +27,7 @@ class DataColDef;
 
 */
 
-mExpClass(General) PosVecDataSet
+mClass PosVecDataSet
 {
 public:
     			PosVecDataSet(const char* nm=0);
@@ -40,7 +39,6 @@ public:
     bool		isEmpty() const		{ return data_.isEmpty(); }
     void		setEmpty();
     int			add(DataColDef*);
-    bool		insert(int idx,DataColDef*);
     			//!<\returns index
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };
@@ -84,6 +82,8 @@ protected:
 
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
     friend class	DataPointSet;
+public:
+    bool		insert(int idx,DataColDef*);
 
 };
 
@@ -91,4 +91,3 @@ protected:
 
 
 #endif
-

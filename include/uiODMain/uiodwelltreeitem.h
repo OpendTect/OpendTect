@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "multiid.h"
@@ -23,7 +22,7 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 class uiMenuItem;
 
-mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
+mClass uiODWellParentTreeItem : public uiODTreeItem
 {
     typedef uiODTreeItem	inheritedClass;
 public:
@@ -40,7 +39,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
+mClass uiODWellTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -49,7 +48,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
+mClass uiODWellTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODWellTreeItem( int );
@@ -60,7 +59,7 @@ protected:
     void		initMenuItems();
     bool		init();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }
@@ -86,4 +85,3 @@ protected:
 
 
 #endif
-

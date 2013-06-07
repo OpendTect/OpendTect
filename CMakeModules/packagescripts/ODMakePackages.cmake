@@ -2,58 +2,68 @@
 # Description:  CMake script to build a release
 # Author:       K. Tingdahl
 # Date:		August 2012		
-#RCS:           $Id$
+#RCS:           $Id: ODMakePackages.cmake,v 1.9 2012/09/11 12:25:44 cvsnageswara Exp $
 
-set( BASEPACKAGES basedatadefs dgbbasedatadefs)
-set( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
+#TODO Get version name from keyboard. 
+
+SET( BASEPACKAGES basedatadefs dgbbasedatadefs)
+SET( PACKAGELIST basedefs dgbbasedefs dgbccbdefs dgbdsdefs dgbhcdefs
 		 dgbnndefs dgbssisdefs dgbstratdefs dgbvmbdefs dgbwcpdefs
 		 odgmtdefs odgprdefs odmadagascardefs develdefs ) 
 
-include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+INCLUDE( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-if( APPLE )
-	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/Release ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release 
+IF( APPLE )
+    execute_process( COMMAND ${PSD}/data/install_files/macscripts/chfwscript ${PSD}/bin/mac ${CMAKE_INSTALL_PREFIX}/bin/mac 
 		     RESULT_VARIABLE STATUS )
-    if( NOT ${STATUS} EQUAL "0" )
-	message( FATAL_ERROR "changing dependency Failed" )
-    endif()
-endif()
+    IF( NOT ${STATUS} EQUAL "0" )
+	MESSAGE( FATAL_ERROR "changing dependency Failed" )
+    ENDIF()
+    execute_process( COMMAND ${PSD}/data/install_files/macscripts/chfwscript ${CMAKE_INSTALL_PREFIX}/bin/mac/Release ${CMAKE_INSTALL_PREFIX}/bin/mac/Release
+		     RESULT_VARIABLE STATUS )
+    IF( NOT ${STATUS} EQUAL "0" )
+	MESSAGE( FATAL_ERROR "changing thired party dependency Failed" )
+    ENDIF()
 
-if( APPLE OR WIN32 )
+ENDIF()
+
+IF( APPLE OR WIN32 )
     od_sign_libs()
-endif()
+ENDIF()
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    include( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
+    INCLUDE( ${PSD}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
     init_destinationdir( ${PACK} )
     create_basepackages( ${PACK} )
 endforeach()
 
 foreach ( PACKAGE ${PACKAGELIST} )
-    include(CMakeModules/packagescripts/${PACKAGE}.cmake)
-    if( NOT DEFINED OpendTect_VERSION_MAJOR )
-	message( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
-    endif()
+    INCLUDE(CMakeModules/packagescripts/${PACKAGE}.cmake)
+    MESSAGE( "Preparing package ${PACK}.zip ......" )
+    IF( NOT DEFINED OpendTect_VERSION_MAJOR )
+	MESSAGE( FATAL_ERROR "OpendTect_VERSION_MAJOR not defined" )
+    ENDIF()
 
-    if( NOT DEFINED OD_PLFSUBDIR )
-	message( FATAL_ERROR "OD_PLFSUBDIR not defined" )
-    endif()
+    IF( NOT DEFINED OD_PLFSUBDIR )
+	MESSAGE( FATAL_ERROR "OD_PLFSUBDIR not defined" )
+    ENDIF()
 
-    if( NOT DEFINED CMAKE_INSTALL_PREFIX )
-	message( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
-    endif()
+    IF( NOT DEFINED CMAKE_INSTALL_PREFIX )
+	MESSAGE( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
+    ENDIF()
 
-    if( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	if( NOT EXISTS "${PSD}/bin/win64/zip.exe" )
-	    message( FATAL_ERROR "${PSD}/bin/win64/zip.exe is not existed. Unable to create packages." )
-	endif()
-    endif()
+    IF( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
+	IF( NOT EXISTS "${PSD}/bin/win/zip.exe" )
+	    MESSAGE( FATAL_ERROR "${PSD}/bin/win/zip.exe is not existed.
+		     Unable to create packages.Please do an update" )
+	ENDIF()
+    ENDIF()
 
     init_destinationdir( ${PACK} )
-    if( ${PACK} STREQUAL "devel" )
+    IF( ${PACK} STREQUAL "devel" )
         create_develpackages()
-    else()
+    ELSE()
 	create_package( ${PACK} )
-    endif()
+    ENDIF()
 endforeach()
-message( "\n Created packages are available under ${PSD}/packages" )
+MESSAGE( "\n Created packages are available under ${PSD}/packages" )

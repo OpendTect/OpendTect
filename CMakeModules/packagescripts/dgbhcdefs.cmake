@@ -2,9 +2,9 @@
 # Description:  CMake script to define dgbhc package variables
 # Author:       Nageswara
 # Date:         August 2012
-#RCS:           $Id$
+#RCS:           $Id: dgbhcdefs.cmake,v 1.4 2012/09/06 05:50:52 cvsnageswara Exp $
 
-set( LIBLIST HorizonCube uiHorizonCube uiHorizonCubeSlider )
-set( EXECLIST od_convert_chronostrat od_filter_horizoncube od_process_horizoncube
-	      od_trim_hor_atfaults od_grid_horizoncube od_process_attrib_hc )
-set( PACK "dgbhc" )
+SET( LIBLIST HorizonCube uiHorizonCube uiHorizonCubeSlider )
+SET( EXECLIST od_convert_chronostrat od_filter_horizoncube od_hc2steer
+	      od_process_horizoncube od_trim_hor_atfaults )
+SET( PACK "dgbhc" )

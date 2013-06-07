@@ -14,13 +14,11 @@ ________________________________________________________________________
 
 
 #include "arraynd.h"
+/*! Makes a subselection of an Array2D cube. */
 
-/*!
-\brief Makes a subselection of an Array2D cube.
-*/
 
 template <class T>
-mClass(General) Array2DSubSelection : public Array2D<T>
+class Array2DSubSelection : public Array2D<T>
 {
 public:
     		Array2DSubSelection( int start0, int start1,
@@ -46,13 +44,11 @@ protected:
     Array2D<T>&		src_;
 };
 
+/*! Makes a subselection of an Array3D cube. */
 
-/*!
-Makes a subselection of an Array3D cube.
-*/
 
 template <class T>
-mClass(General) Array3DSubSelection : public Array3D<T>
+class Array3DSubSelection : public Array3D<T>
 {
 public:
     		Array3DSubSelection( int start0, int start1, int start2,

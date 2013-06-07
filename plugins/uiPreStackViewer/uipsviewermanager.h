@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id$
+ RCS:		$Id: uipsviewermanager.h,v 1.21 2011/05/04 15:20:02 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,25 +21,24 @@ class uiFlatViewMainWin;
 class uiMenuHandler;
 class uiViewer3DPositionDlg;
 namespace PreStack { class ProcessManager; }
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
-class uiStoredViewer2DMainWin;
+class Viewer3D;
+class uiViewer2DMainWin;
 class uiViewer3DPositionDlg;
 
 /*!Manages pre-stack data displays in 2D (panel) and 3D (visualization). The 
    data itself can be from either lines or volumes. */
 
-mClass(uiPreStackViewer) uiViewer3DMgr : public CallBacker
+class uiViewer3DMgr : public CallBacker
 {
 public:
 				uiViewer3DMgr();
 				~uiViewer3DMgr();
 
-    ObjectSet<visSurvey::PreStackDisplay>
-				get3DViewers()  { return viewers3d_; }
+    ObjectSet<PreStackView::Viewer3D>   get3DViewers()  { return viewers3d_; }
 
     //For session
     static const char*		sKeyViewerPrefix()  { return "Viewer "; } 
@@ -57,8 +56,7 @@ public:
 
 protected:
     
-    uiStoredViewer2DMainWin*	createMultiGather2DViewer(
-					const visSurvey::PreStackDisplay&);
+    uiViewer2DMainWin*	createMultiGather2DViewer(const Viewer3D&);
     uiFlatViewMainWin*	create2DViewer(const BufferString&,int dpid);
 
     int			getSceneID(int mnid);
@@ -68,8 +66,7 @@ protected:
     void		removeViewWin(int dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
-    uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,
-					  visSurvey::PreStackDisplay&);
+    uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,Viewer3D&);
 
     void		removeAllCB(CallBacker*);
     void		sceneChangeCB(CallBacker*);
@@ -91,12 +88,12 @@ protected:
 
     uiVisPartServer*			visserv_;
     PreStack::ProcessManager*		preprocmgr_;    
-    ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
+    ObjectSet<PreStackView::Viewer3D>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;
-    ObjectSet<uiStoredViewer2DMainWin>	multiviewers2d_;
+    ObjectSet<uiViewer2DMainWin>	multiviewers2d_;
 };
 
-} // namespace
+}; //namespace
 
 #endif

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivelocitymod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -26,7 +25,7 @@ namespace Table { class FormatDesc; }
 namespace Vel
 {
 
-mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
+mClass uiImportVelFunc : public uiDialog
 {
 public:
     			uiImportVelFunc(uiParent*);
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

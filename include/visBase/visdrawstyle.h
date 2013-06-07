@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "draw.h"
 
@@ -24,7 +23,7 @@ namespace visBase
 */
 
 
-mExpClass(visBase) DrawStyle : public DataObject
+mClass DrawStyle : public DataObject
 {
 public:
     static DrawStyle*	create()
@@ -71,4 +70,3 @@ private:
 
 
 #endif
-

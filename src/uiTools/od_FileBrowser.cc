@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitextfile.h"
 #include "uimain.h"
@@ -19,10 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "file.h"
 #endif
 
-int main( int argc, char** argv )
+int main( int argc, char ** argv )
 {
-    SetProgramArgs( argc, argv );
-
     int argidx = 1;
     bool edit = false, table = false, dofork = true, logview = false;
     int maxlines = mUdf(int);
@@ -54,8 +52,7 @@ int main( int argc, char** argv )
 	forkProcess();
 
     BufferString fnm = argidx > 0 ? argv[argidx] : "";
-    //replaceCharacter( fnm.buf(), (char)128, ' ' );
-    //ToDo : Is it Needed. 'char' takes values upto 127 ?
+    replaceCharacter( fnm.buf(), (char)128, ' ' );
 
     uiMain app( argc, argv );
 

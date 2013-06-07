@@ -1,10 +1,10 @@
-	/*/+
+/*/+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "task.h"
 
@@ -13,9 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
-#include "errh.h"
-
-#include <limits.h>
 
 
 Task::Task( const char* nm )
@@ -45,6 +42,10 @@ void Task::enableWorkControl( bool yn )
 }
 
 
+void ParallelTask::reportNrDone( int nr )
+{ addToNrDone( nr ); }
+
+
 void Task::controlWork( Task::Control c )
 {
     if ( !workcontrolcondvar_ )
@@ -69,6 +70,7 @@ Task::Control Task::getState() const
     workcontrolcondvar_->lock();
     Task::Control res = control_;
     workcontrolcondvar_->unLock();
+
     return res;
 }
 
@@ -100,11 +102,6 @@ bool Task::shouldContinue()
 }
 
 
-TaskGroup::TaskGroup()
-    : curtask_(-1)
-{}
-
-
 void TaskGroup::addTask( Task* t )
 { tasks_ += t; }
 
@@ -116,31 +113,38 @@ void TaskGroup::setProgressMeter( ProgressMeter* p )
 }
 
 
+void TaskGroup::enableNrDoneCounting( bool yn )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	tasks_[idx]->enableNrDoneCounting( yn );
+}
+
+
 od_int64 TaskGroup::nrDone() const
 {
     Threads::MutexLocker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
+    return tasks_[curtask_]->nrDone();
 }
 
 
 od_int64 TaskGroup::totalNr() const
 {
     Threads::MutexLocker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
+    return tasks_[curtask_]->totalNr();
 }
 
 
 const char* TaskGroup::message() const
 {
     Threads::MutexLocker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->message() : 0;
+    return tasks_[curtask_]->message();
 }
 
 
 const char* TaskGroup::nrDoneText() const
 {
     Threads::MutexLocker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDoneText() : 0;
+    return tasks_[curtask_]->nrDoneText();
 }
 
 
@@ -170,20 +174,14 @@ void TaskGroup::enableWorkControl( bool yn )
 void TaskGroup::controlWork( Task::Control t )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( tasks_.validIdx(curtask_) ) tasks_[curtask_]->controlWork( t );
+    tasks_[curtask_]->controlWork( t );
 }
 
 
 Task::Control TaskGroup::getState() const
 {
     Threads::MutexLocker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->getState()
-				     : Task::Stop;
-}
-
-void TaskGroup::setParallel(bool)
-{
-    pErrMsg("Not implemented. Perhaps you should do it?");
+    return tasks_[curtask_]->getState();
 }
 
 
@@ -278,14 +276,6 @@ ParallelTask::ParallelTask( const char* nm )
 { }
 
 
-ParallelTask::ParallelTask( const ParallelTask& t )
-    : Task( t.name() )
-    , progressmeter_( 0 )
-    , nrdone_( -1 )
-    , totalnrcache_( -1 )
-{ }
-
-
 ParallelTask::~ParallelTask()
 {}
 
@@ -297,13 +287,14 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
     {
 	progressmeter_->setName( name() );
 	progressmeter_->setMessage( message() );
+	enableNrDoneCounting( true );
     }
 }
 
 
 void ParallelTask::addToNrDone( int nr )
 {
-    if ( !nrdone_.strongSetIfEqual( nr, -1 ) )
+    if ( !nrdone_.setIfEqual( nr, -1 ) )
 	nrdone_ += nr;
 
     if ( progressmeter_ )
@@ -354,7 +345,7 @@ bool ParallelTask::execute( bool parallel )
 
     const int minthreadsize = minThreadSize();
     int maxnrthreads = parallel
-	? mMIN( (int)(nriterations/minthreadsize), maxNrThreads() )
+	? mMIN( nriterations/minthreadsize, maxNrThreads() )
 	: 1;
 
     if ( maxnrthreads<1 )
@@ -374,10 +365,9 @@ bool ParallelTask::execute( bool parallel )
     if ( !size ) return true;
 
     ArrPtrMan<ParallelTaskRunner> runners = new ParallelTaskRunner[nrthreads];
-    mAllocVarLenArr( Threads::Work, tasks, nrthreads );
 
     od_int64 start = 0;
-    int nrtasks = 0;
+    TypeSet<Threads::Work> tasks;
     for ( int idx=nrthreads-1; idx>=0; idx-- )
     {
 	if ( start>=size )
@@ -388,25 +378,23 @@ bool ParallelTask::execute( bool parallel )
 	    continue;
 
 	const od_int64 stop = start + threadsize-1;
-	runners[nrtasks].set( this, start, stop, idx );
-	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
-	
-	nrtasks++;
+	runners[idx].set( this, start, stop, idx );
+	tasks += mWMT(&runners[idx],ParallelTaskRunner,doRun);
 	start = stop+1;
     }
 
-    if ( !doPrepare( nrtasks ) )
+    if ( !doPrepare( tasks.size() ) )
 	return false;
 
     bool res;
-    if ( nrtasks<2 )
+    if ( tasks.size()<2 )
 	res = doWork( 0, nriterations-1, 0 );
     else
     {
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm.executeWork( tasks, nrtasks );
+	res = twm.addWork( tasks, twm.cDefaultQueueID() );
     }
 
     res = doFinish( res );
@@ -415,23 +403,12 @@ bool ParallelTask::execute( bool parallel )
 }
 
 
-int ParallelTask::maxNrThreads() const
-{
-    const od_int64 res = nrIterations();
-    if ( res>INT_MAX )
-        return INT_MAX;
-    
-    return (int) res;
-}
-
-
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 				            int idx ) const
 {
     if ( nrthreads==1 ) return totalnr;
 
-    const od_int64 idealnrperthread =
-    	mNINT64((float) (totalnr/(od_int64) nrthreads));
+    const od_int64 idealnrperthread = mNINT64((float) totalnr/nrthreads);
     const od_int64 nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;

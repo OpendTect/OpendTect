@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id$
+ RCS:           $Id: horizonattrib.h,v 1.10 2009/07/22 16:01:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
 #include "attribprovider.h"
 #include "bufstring.h"
 #include "multiid.h"
@@ -24,7 +23,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(HorizonAttrib) Horizon : public Provider
+class Horizon : public Provider
 {
 public:
     static void		initClass();

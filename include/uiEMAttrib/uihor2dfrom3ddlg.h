@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uidialog.h"
 #include "emposid.h"
 
@@ -21,7 +20,7 @@ class uiSurfaceRead;
 class uiSurfaceWrite;
 class uiCheckBox;
 
-mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
+mClass uiHor2DFrom3DDlg : public uiDialog
 {
 public:
     				uiHor2DFrom3DDlg(uiParent*);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

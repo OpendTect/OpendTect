@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "binidvalset.h"
 
@@ -25,7 +24,7 @@ namespace Well { class Data; };
 
 /*! \brief Dialog for marker specifications */
 
-mExpClass(uiWellAttrib) uiWellAttribSel : public uiDialog
+mClass uiWellAttribSel : public uiDialog
 {
 public:
 				uiWellAttribSel(uiParent*,Well::Data&,
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

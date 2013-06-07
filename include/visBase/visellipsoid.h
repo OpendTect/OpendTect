@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -34,7 +33,7 @@ streching a sphere from a scale vector "getWidth()".
 */
 
 
-mExpClass(visBase) Ellipsoid : public Shape
+mClass Ellipsoid : public Shape
 {
 public:
     static Ellipsoid*	create()
@@ -65,4 +64,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "ranges.h"
 #include "bufstringset.h"
 #include "tableascio.h"
@@ -29,19 +28,15 @@ class Track;
 class D2TModel;
 class MarkerSet;
 
-/*!
-\brief Imports files in LAS ( Log Ascii Standard ) format.
-*/
 
-mExpClass(Well) LASImporter
+mClass LASImporter
 {
 public:
 
-			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
-			LASImporter()	       : wd_(0), useconvs_(false)   {}
+			LASImporter( Data& d ) : wd(d), useconvs_(false) {}
 			~LASImporter();
 
-    mExpClass(Well) FileInfo
+    mClass FileInfo
     {
     public:
 			FileInfo()
@@ -59,10 +54,8 @@ public:
 	BufferString	zunitstr;
 
 	BufferString	wellnm; //!< only info; not used by getLogs
-	BufferString	uwi; //!< only info, not used by getLogs
     };
 
-    void		setData( Data* wd )	    { wd_ = wd; }
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(std::istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
@@ -77,7 +70,7 @@ public:
 
 protected:
 
-    Data*		wd_;
+    Data&		wd;
 
     mutable BufferStringSet	unitmeasstrs_;
     mutable ObjectSet<const UnitOfMeasure>	convs_;
@@ -90,11 +83,7 @@ protected:
 };
 
 
-/*!
-\brief Track Ascii I/O.
-*/
-
-mExpClass(Well) TrackAscIO : public Table::AscIO
+mClass TrackAscIO : public Table::AscIO
 {
 public:
     				TrackAscIO( const Table::FormatDesc& fd,
@@ -112,11 +101,7 @@ protected:
 };
 
 
-/*!
-\brief D2TModel Ascii I/O.
-*/
-
-mExpClass(Well) D2TModelAscIO : public Table::AscIO
+mClass D2TModelAscIO : public Table::AscIO
 {   
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
@@ -131,11 +116,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 };
 
 
-/*!
-\brief MarkerSet Ascii I/O.
-*/
-
-mExpClass(Well) MarkerSetAscIO : public Table::AscIO
+mClass MarkerSetAscIO : public Table::AscIO
 {
 public:
     			MarkerSetAscIO( const Table::FormatDesc& fd )
@@ -151,4 +132,3 @@ public:
 }; // namespace Well
 
 #endif
-

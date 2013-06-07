@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "callback.h"
 
 class BufferString;
 class IOPar;
 class TcpServer;
 
-/*!
-\brief Handles commands to be executed remotely on a different machine.
-*/
-
-mExpClass(MMProc) RemCommHandler : public CallBacker
+mClass RemCommHandler : public CallBacker
 {
 public:
 			RemCommHandler(int port);
@@ -45,4 +40,3 @@ protected:
 };
 
 #endif
-

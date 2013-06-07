@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 #include "bufstringset.h"
@@ -22,7 +21,7 @@ class uiLabeledListBox;
 class uiPushButton;
 class BufferStringSet;
 
-mExpClass(uiEarthModel) uiHorizonRelationsDlg : public uiDialog
+mClass uiHorizonRelationsDlg : public uiDialog
 {
 public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);
@@ -44,4 +43,3 @@ protected:
 };
 
 #endif
-

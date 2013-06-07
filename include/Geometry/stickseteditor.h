@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "geeditor.h"
 
 namespace Geometry
 {
 class FaultStickSet;
 
-mExpClass(Geometry) StickSetEditor : public ElementEditor
+mClass StickSetEditor : public ElementEditor
 {
 public:
     		StickSetEditor( Geometry::FaultStickSet& );
@@ -36,5 +35,4 @@ protected:
 };
 
 #endif
-
 

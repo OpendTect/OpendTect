@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "transl.h"
 
 class Executor;
@@ -23,11 +22,8 @@ class HorSampling;
 
 namespace PreStack { class EventManager; }
 
-/*!
-\brief TranslatorGroup for PreStack Event.
-*/
 
-mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
+mClass PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
@@ -37,11 +33,7 @@ public:
 };
 
 
-/*!
-\brief Translator for PreStack Event.
-*/
-
-mExpClass(PreStackProcessing) PSEventTranslator : public Translator
+mClass PSEventTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PSEvent);
@@ -60,11 +52,7 @@ public:
 };
 
 
-/*!
-\brief dgb PSEventTranslator.
-*/
-
-mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
+mClass dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)
 public:
     			mDefEmptyTranslatorConstructor(dgb,PSEvent);
@@ -79,4 +67,3 @@ public:
 
 
 #endif
-

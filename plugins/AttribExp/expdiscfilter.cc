@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: expdiscfilter.cc,v 1.10 2012/07/10 13:05:57 cvskris Exp $";
 
 
 #include "expdiscfilter.h"
@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribprovider.h"
 #include "seistrc.h"
 #include "ptrman.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "attribdescsetproc.h"
 
 

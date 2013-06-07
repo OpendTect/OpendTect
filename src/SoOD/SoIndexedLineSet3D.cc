@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -145,6 +145,7 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 
     if ( !isvalid )
     {
+	const int32_t* cindices = coordIndex.getValues(0);
 	data_.generateCoordinates( this, radius.getValue(),
 		screenSize.getValue(), maxRadius.getValue(),
 		coordIndex.getValues(0), coordIndex.getNum(), state );
@@ -387,8 +388,7 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 
 	    if ( action->intersect( c1, c2, dummy ) )
 	    {
-		SoPickedPoint* pickedpoint mUnusedVar =
-		    action->addIntersection(dummy);
+		SoPickedPoint* pickedpoint = action->addIntersection(dummy);
 		//Todo: Fill out pickedpoint
 	    }
 
@@ -402,7 +402,7 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 
 
 void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
-	float theradius, bool doscreensize, float maxradius, 
+	float radius, bool doscreensize, float maxradius, 
 	const int* cindices, int nrindex, SoState* state )
 {
     corner1_.truncate( 0, 0 );
@@ -435,10 +435,10 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
     const SbMatrix& mat = SoModelMatrixElement::get(state);
 
     const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-    const float nsize = theradius/ float(vp.getViewportSizePixels()[1]);
+    const float nsize = radius/ float(vp.getViewportSizePixels()[1]);
     const SbViewVolume& vv = SoViewVolumeElement::get(state);
 
-    float scaleby = theradius;
+    float scaleby = radius;
 
     int nrjoints = 0;
     int index1 = cindices>=stopptr ? -1 : *cindices++;
@@ -458,7 +458,7 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
 	if ( doscreensize )
 	{
-	    scaleby  = theradius * vv.getWorldToScreenScale(c1, nsize );
+	    scaleby  = radius * vv.getWorldToScreenScale(c1, nsize );
 	    if ( maxradius>=0 && scaleby>maxradius )
 	       scaleby = maxradius; 
 	}
@@ -498,7 +498,7 @@ void SoIndexedLineSet3D::LineSet3DData::generateCoordinates( SoNode* node,
 
 	    if ( doscreensize )
 	    {
-		scaleby  = theradius * vv.getWorldToScreenScale(c2, nsize );
+		scaleby  = radius * vv.getWorldToScreenScale(c2, nsize );
 		if ( maxradius>=0 && scaleby>maxradius )
 		   scaleby = maxradius; 
 	    }

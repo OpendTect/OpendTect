@@ -13,17 +13,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emseedpicker.h"
 
 namespace MPE
 {
 
-/*!
-\brief EMSeedPicker to pick faults.
-*/
-
-mExpClass(MPEEngine) FaultSeedPicker : public EMSeedPicker
+mClass FaultSeedPicker : public EMSeedPicker
 {
 public:
     			FaultSeedPicker(MPE::EMTracker&);
@@ -81,4 +76,3 @@ protected:
 } // namespace MPE
 
 #endif
-

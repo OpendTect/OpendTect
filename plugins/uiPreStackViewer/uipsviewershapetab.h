@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id$
+ RCS:           $Id: uipsviewershapetab.h,v 1.5 2011/04/28 11:30:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,17 +18,17 @@ ________________________________________________________________________
 class uiGenInput;
 class uiPushButton;
 class uiSlider;
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
+
+class Viewer3D;
 class uiViewer3DMgr;
 
-mClass(uiPreStackViewer) uiViewer3DShapeTab : public uiDlgGroup
+class uiViewer3DShapeTab : public uiDlgGroup
 {
 public:
-			uiViewer3DShapeTab(uiParent*,
-					   visSurvey::PreStackDisplay&,
+			uiViewer3DShapeTab(uiParent*,PreStackView::Viewer3D&, 
 					   uiViewer3DMgr&);
 			~uiViewer3DShapeTab();
     bool		acceptOK();
@@ -52,7 +52,7 @@ protected:
     uiSlider*		widthslider_;
     uiPushButton*	switchsidebutton_;
     
-    visSurvey::PreStackDisplay& viewer_;
+    PreStackView::Viewer3D& viewer_;
     uiViewer3DMgr&	mgr_;
     
     float		initialfactor_;
@@ -63,6 +63,8 @@ protected:
     bool		savedefault_;
 };
 
-} // namespace
+
+}; //namespace
 
 #endif
+

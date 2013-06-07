@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
 class Conn;
@@ -22,7 +21,7 @@ namespace Pick { class Set; }
 template <class T> class ODPolygon;
 
 
-mExpClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
+mClass PickSetTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(PickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
@@ -32,7 +31,7 @@ public:
 };
 
 
-mExpClass(Geometry) PickSetTranslator : public Translator
+mClass PickSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
@@ -60,7 +59,7 @@ public:
 };
 
 
-mExpClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
+mClass dgbPickSetTranslator : public PickSetTranslator
 {			     isTranslator(dgb,PickSet)
 public:
 
@@ -73,4 +72,3 @@ public:
 
 
 #endif
-

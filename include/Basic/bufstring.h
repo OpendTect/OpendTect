@@ -13,14 +13,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "convert.h"
 #include <iosfwd>
 
-class FixedString;
-
-/*!
-\brief String with variable length but guaranteed minimum buffer size.
+/*!\brief String with variable length but guaranteed minimum buffer size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.
 Overhead is 4 extra bytes for variable length and 4 bytes for minimum length.
@@ -31,19 +27,16 @@ Don't try to add constructors with a single basic type - this leads to nasty
 hidden bugs because the compiler will try to convert all kinds of things into
 BufferStrings. If you just need a string from an int, float, ..., just
 use str = toString( var ). If you need the BufferString later, use:
-\code
 BufferString istr( "", intvar );
-\endcode
 
 */
 
-mExpClass(Basic) BufferString
+mClass BufferString
 {
 public:
 
     inline		BufferString();
     inline		BufferString(const char*);
-			BufferString(const FixedString&);
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString& bs);
     template <class T>
@@ -125,19 +118,8 @@ private:
 
 };
 
-/*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to 
-   BufferStrings if not needed. */
-mGlobal(Basic) bool operator==(const char*,const BufferString&);
-
-/*!Not implemented. Only here to cause link-errors if used. The reason
-   of not implementing is that we want to avoid promotions to 
-   BufferStrings if not needed. */
-mGlobal(Basic) bool operator!=(const char*,const BufferString&);
-
-
-mGlobal(Basic) std::ostream& operator <<(std::ostream&,const BufferString&);
-mGlobal(Basic) std::istream& operator >>(std::istream&,BufferString&);
+mGlobal std::ostream& operator <<(std::ostream&,const BufferString&);
+mGlobal std::istream& operator >>(std::istream&,BufferString&);
 
 
 #define mBufferStringSimpConstrInitList \
@@ -187,4 +169,3 @@ template <class T> inline bool BufferString::operator <( const T& t ) const
 
 
 #endif
-

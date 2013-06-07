@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "ranges.h"
@@ -23,11 +22,7 @@ namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
 
-/*!
-\brief Executor to scan horizons.
-*/
-
-mExpClass(EarthModel) HorizonScanner : public Executor
+mClass HorizonScanner : public Executor
 {
 public:
 
@@ -86,4 +81,3 @@ protected:
 
 
 #endif
-

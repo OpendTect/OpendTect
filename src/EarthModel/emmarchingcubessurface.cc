@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emmarchingcubessurface.h"
 
@@ -85,7 +85,7 @@ public:
 	surface.setZSampling( zsampling );
 
 	Color col;
-	if ( par.get( sKey::Color(), col ) )
+	if ( par.get( sKey::Color, col ) )
 	    surface.setPreferredColor( col );
 
 	exec_ = surface.surface().readFrom(strm,int32interpreter_);
@@ -176,7 +176,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     par.set( MarchingCubesSurfaceReader::sKeyZSampling(),
 	     surface.zSampling().start,surface.zSampling().step );
 
-    par.set( sKey::Color(), surface.preferredColor() );
+    par.set( sKey::Color, surface.preferredColor() );
 
     par.putTo( astream );
 
@@ -233,7 +233,7 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 }
 
 
-FixedString MarchingCubesSurface::typeStr()
+const char* MarchingCubesSurface::typeStr()
 { return mcEMBodyTranslator::sKeyUserName(); }
 
 
@@ -467,7 +467,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     { 
     	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 		inlrg.start, crlrg.start, zrg.start, !smooth );
-	const bool execres = TaskRunner::execute( t, m2i );
+	const bool execres = t ? t->execute(m2i) : m2i.execute();
     	if ( !execres )
     	{
     	    delete res;

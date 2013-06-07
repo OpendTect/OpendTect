@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          July 2011
- RCS:           $Id$
+ RCS:           $Id: isopachmaker.cc,v 1.4 2011/07/18 22:26:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,8 +97,8 @@ int IsopachMaker::nextStep()
 
 	const EM::SubID subid = posid.subID();
 	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
-	const float z1 = (float) pos1.z;
-	const float z2 = (float) hor2_.getPos( sectid2_, subid ).z;
+	const float z1 = pos1.z;
+	const float z2 = hor2_.getPos( sectid2_, subid ).z;
 	if ( mIsUdf(z1) || mIsUdf(z2) )
 	{
 	    if ( dataidx_ != -1 )

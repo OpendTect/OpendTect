@@ -13,22 +13,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "task.h"
-
 #include "enums.h"
 #include "factory.h"
 #include "odmemory.h"
-#include "rowcol.h"
 
 template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
 
-/*!
-\brief Base class for two dimensional array interpolators.
-*/
 
-mExpClass(Algo) Array2DInterpol : public ParallelTask
+mClass Array2DInterpol : public ParallelTask
 {
 public:
     virtual			~Array2DInterpol();
@@ -41,7 +35,6 @@ public:
     FillType			getFillType() const;
     void			setRowStep(float r);
     void			setColStep(float r);
-    void			setOrigin(const RowCol&);
 
     void			setMaxHoleSize(float);
     float			getMaxHoleSize() const;
@@ -63,14 +56,14 @@ public:
 
     virtual const char*		infoMsg() const		{ return 0; }
 
-    mExpClass(Algo) ArrayAccess 
+    mClass ArrayAccess 
     {
     public:
 	virtual			~ArrayAccess()				{}
-	virtual void		set(od_int64 target, const od_int64* sources,
+	virtual void		set(int target, const int* sources,
 				    const float* weights, int nrsrc,
 				    bool isclassification)		= 0;
-	virtual bool		isDefined(od_int64) const		= 0;
+	virtual bool		isDefined(int) const			= 0;
 	virtual int		getSize(char dim) const			= 0;
     };
 
@@ -100,7 +93,7 @@ protected:
     bool	isDefined(int idx) const;
     		/*!<idx refers to positions on the grid by
 		    row=idx/nrcols_,col=idx%nrcols_ */
-    virtual void setFrom(od_int64 target, const od_int64* sources,
+    virtual void setFrom(int target, const int* sources,
 			const float* weights, int nrsrc);
     		/*!<For convenience, inheriting obj may set arr_ directly. */
     void	floodFillArrFrom(int seed, const bool* isdef,
@@ -120,7 +113,6 @@ protected:
     int			nrrows_;
     int			nrcols_;
     int			nrcells_;
-    RowCol		origin_;
 
     FillType		filltype_;
     float		maxholesize_;
@@ -133,4 +125,3 @@ protected:
 
 
 #endif
-

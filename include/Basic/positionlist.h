@@ -12,42 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "refcount.h"
 #include "position.h"
 
-/*!
-\brief Base class for vertex attribute list.
-*/
-
-mExpClass(Basic) FloatVertexAttribList
-{ mRefCountImpl(FloatVertexAttribList)
-public:
-    
-    
-    virtual int		size() const				= 0;
-    virtual bool	setSize(int,bool cpdata)		= 0;
-    
-    virtual void	setCoord(int,const float*)		= 0;
-    virtual void	getCoord(int,float*) const		= 0;
-    
-    virtual void	setNormal(int,const float*)		= 0;
-    virtual void	getNormal(int,float*) const		= 0;
-    
-    virtual void	setTCoord(int,const float*)		= 0;
-    virtual void	getTCoord(int,float*) const		= 0;
-    
-protected:
-};
-
 
 class Coord3;
+/*! Basic interface to an list of Coord3 where each coord has a unique id. */
 
-/*!
-\brief Use Coord3ListImpl instead.
-*/
-
-mExpClass(Basic) Coord3List
+mClass Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -63,12 +35,9 @@ public:
     virtual void	remove(int id)					= 0;
 };
 
+/*! Basic interface to an list of Coord where each coord has a unique id. */
 
-/*!
-\brief Use Coord2ListImpl instead.
-*/
-
-mExpClass(Basic) Coord2List
+mClass Coord2List
 { mRefCountImplNoDestructor(Coord2List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -84,11 +53,7 @@ public:
 };
 
 
-/*!
-\brief A list of Coord where each coord has a unique id.
-*/
-
-mExpClass(Basic) Coord2ListImpl : public Coord2List
+mClass Coord2ListImpl : public Coord2List
 { 
 public:			
     			Coord2ListImpl();
@@ -107,11 +72,7 @@ protected:
 };
 
 
-/*!
-\brief A list of Coord3 where each coord has a unique id. 
-*/
-
-mExpClass(Basic) Coord3ListImpl : public Coord3List
+mClass Coord3ListImpl : public Coord3List
 {
 public:
     			Coord3ListImpl();
@@ -132,4 +93,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiapplserv.h"
 
 #include "attribdescid.h"
@@ -58,12 +57,9 @@ template <class T> class Interval;
 template <class T> class Array3D;
 
 
-/*!
-\ingroup uiAttributes
-\brief Service provider for application level - Attributes
-*/
+/*! \brief Service provider for application level - Attributes */
 
-mExpClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
+mClass uiAttribPartServer : public uiApplPartServer
 {
 public:
 			uiAttribPartServer(uiApplService&);
@@ -71,26 +67,26 @@ public:
 
     const char*		name() const			{ return "Attributes"; }
 
-    static int		evDirectShowAttr();
+    static const int	evDirectShowAttr();
     			//!< User requested direct redisplay of curAttrDesc()
-    static int		evNewAttrSet();
+    static const int	evNewAttrSet();
     			//!< FYI
-    static int		evAttrSetDlgClosed();
+    static const int	evAttrSetDlgClosed();
     			//!< AttributeSet window closes
-    static int		evEvalAttrInit();
+    static const int	evEvalAttrInit();
     			//!< Initialization of evaluation dialog
-    static int		evEvalCalcAttr();
+    static const int	evEvalCalcAttr();
     			//!< User wants to evaluate current attribute
-    static int		evEvalShowSlice();
+    static const int	evEvalShowSlice();
     			//!< Display slice
-    static int		evEvalStoreSlices();
+    static const int	evEvalStoreSlices();
     			//!< Store slices
-    static int		evEvalRestore();
+    static const int	evEvalRestore();
     			//!< Update name in tree after evaluation dlg closed
 			//!< And restore mapper
-    static int		objNLAModel2D();
+    static const int	objNLAModel2D();
     			//!< Request current 2D NLAModel* via getObject()
-    static int		objNLAModel3D();
+    static const int	objNLAModel3D();
     			//!< Request current 3D NLAModel* via getObject()
 
     void		manageAttribSets();
@@ -105,7 +101,7 @@ public:
     void		setAttrsNeedUpdt()		{ attrsneedupdt_ =true;}
 
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
-	    			     bool is2d, const char* seltxt="View Data");
+	    			     bool is2d);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(MultiID&,bool);
     bool		replaceSet(const IOPar&,bool,float);
@@ -223,12 +219,10 @@ protected:
     void		directShowAttr(CallBacker*);
 
     void		showEvalDlg(CallBacker*);
-    void		showCrossEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
     void		evalDlgClosed(CallBacker*);
     void		xplotClosedCB(CallBacker*);
-    void		processEvalDlg(bool iscrossevaluate);
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
@@ -263,5 +257,33 @@ protected:
     ColTab::MapperSetup*	evalmapperbackup_;
 };
 
-#endif
 
+/*!\page uiAttributes Attribute User Interface
+
+ The main thing here is handling the attribute set editor. Other
+ services of the uiAttribPartServer are selection and volume output.
+
+ The Attribute set editor is a pretty complex piece of user interface. The left
+ and top part of the window are fixed. They handle the 'common' things in
+ attribute set editing. The right part is defined via the uiAttribFactory .
+
+ The problem that was facing us was that we needed a user interface that could
+ be dynamically extended. Further more,much of the needed functionality is
+ common to all attributes. Thus, we defined:
+
+ - A base class for all attribute editors (uiAttrDescEd)
+ - A factory of uiAttrDescEdCreater, creating uiAttrDescEd instances from
+   the name of the attribute
+
+ The uiAttrDescEd itself already has a lot of implemented functionality,
+ leaving only things specific for that particular attribute to be defined.
+ Once such a subclass is fully defined, a uiAttrDescEdCreater instance must be
+ added to the factory to make it active.
+
+ To see how such a new attribute can be created aswell as a user interface for
+ it, take a look at the uiTut seismic 'attribute style' example.
+
+*/
+
+
+#endif

@@ -4,7 +4,7 @@
  * DATE     : Jan 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: qtclss.cc,v 1.2 2009/07/22 16:01:28 cvsbert Exp $";
 
 #include "qtclss.h"
 #include <QMainWindow>

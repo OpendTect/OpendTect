@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
-namespace Attrib
-{
 
-/*!
-\brief %Reference Attribute
+/*!\brief Reference Attribute
 
 Provides the reference indication at every position :
 
-<pre>
 Outputs 3D:
 0		X position
 1		Y position
@@ -44,10 +39,13 @@ Outputs 2D:
 4		absolute sample number
 5		Trace index 		( taken from the first trace / 
 6		z index			z sample of the desired volume chosen )
-</pre>
 */
 
-mExpClass(Attributes) Reference: public Provider
+
+namespace Attrib
+{
+
+mClass Reference: public Provider
 {
 public:
     static void		initClass();
@@ -75,4 +73,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

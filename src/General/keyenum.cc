@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "keyenum.h"
@@ -49,21 +49,19 @@ mImplButtonStateFunc( ctrlKeyboardButton, ControlButton );
 mImplButtonStateFunc( altKeyboardButton, AltButton );
 
 
-OD::ButtonState OD::stateOf( const char* nmstr )
+OD::ButtonState OD::stateOf( const char* nm )
 {
-    FixedString nm( nmstr );
-   
-    if ( nm.isEmpty() ) return OD::NoButton;
+    if ( !nm || !*nm ) return OD::NoButton;
 
     for ( int idx=0; nms[idx]; idx++ )
     {
-	if ( nms[idx]==nm )
+	if ( !strcmp(nms[idx],nm) )
 	    return (OD::ButtonState)(transtbl[idx]);
     }
 
     for ( int idx=0; nms[idx]; idx++ )
     {
-	if ( *nms[idx] == *nm.str() )
+	if ( *nms[idx] == *nm )
 	    return (OD::ButtonState)(transtbl[idx]);
     }
 

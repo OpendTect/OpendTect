@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "qtcommands.h"
 
@@ -47,7 +47,7 @@ void SetColorActivator::actCB( CallBacker* )
 		      << "between 0 and 255" << std::endl; \
 	return false; \
     } \
-    const unsigned char val( mCast(unsigned char,int(num##val+0.5)) );
+    const unsigned char val( int(num##val+0.5) );
 
 
 bool ColorOkCmd::act( const char* parstr )

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
@@ -22,7 +21,7 @@ class QTcpSocketComm;
 class IOPar;
 
 
-mExpClass(Network) TcpSocket : public CallBacker
+mClass TcpSocket : public CallBacker
 {
 friend class QTcpSocketComm;
 
@@ -45,7 +44,7 @@ public:
     void			read(int&) const;
     void			read(bool&) const;
     void			readdata(char*& data, int sz) const;
-    int 			getID() const { return id_; }
+    const int			getID() const { return id_; }
 
     const char*			errorMsg() const;
 
@@ -71,4 +70,3 @@ protected:
 };
 
 #endif
-

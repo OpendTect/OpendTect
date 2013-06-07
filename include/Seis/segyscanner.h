@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "seistype.h"
 #include "bufstringset.h"
@@ -32,7 +31,7 @@ class FileDataSet;
 
 /*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
-mExpClass(Seis) Scanner : public Executor
+mClass Scanner : public Executor
 {
 public:
 
@@ -105,4 +104,3 @@ protected:
 } // namespace
 
 #endif
-

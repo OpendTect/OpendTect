@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "faultseedpicker.h"
 
@@ -84,6 +84,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
     {
 	const Coord3 existingpos = fault->getPos( sectionid_, 0 );
 	bool newstick = false; //TODO
+	EM::FaultGeometry& geom = fault->geometry();
 	const RowCol newseedrc = stickstep_ = newstick
 	    ? RowCol( 0, 1 )
 	    : RowCol( existingpos.z<pos.z?1:-1, 0);
@@ -190,10 +191,9 @@ bool FaultSeedPicker::sectionIsEmpty() const
 RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 {
     return RowCol(-1,-1);
-/*
     const EM::ObjectID emobjid = tracker_.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-
+/*
     if ( !isrowstick_ )
     {
 	const int inc = stickstep_.row>0 ? 1 : -1;

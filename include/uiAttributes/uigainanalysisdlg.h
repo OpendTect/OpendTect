@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiattributesmod.h"
 #include "arraynd.h"
 #include "uidialog.h"
 
@@ -23,7 +22,7 @@ class uiFunctionDisplay;
 class uiGenInput;
 class uiLabeledSpinBox;
 
-mExpClass(uiAttributes) uiGainAnalysisDlg : public uiDialog
+mClass uiGainAnalysisDlg : public uiDialog
 {
 public:
 				uiGainAnalysisDlg(uiParent*,const SeisTrcBuf&,
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

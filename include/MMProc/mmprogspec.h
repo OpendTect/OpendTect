@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "datainpspec.h"
 #include "namedobj.h"
 class IOPar;
@@ -20,11 +19,9 @@ class IOPar;
 namespace MMProc
 {
 
-/*!
-\brief Distributed computing specification.
-*/
+/*!\brief Distributed computing specification */
 
-mExpClass(MMProc) ProgSpec : public NamedObject
+mClass ProgSpec : public NamedObject
 {
 public:
 
@@ -39,7 +36,7 @@ public:
     const char*			programName() const
 				{ return programname_; }
 
-    mClass(MMProc) Option : public NamedObject
+    class Option : public NamedObject
     {
 				Option(const char* usrtxt)
 				    : NamedObject(usrtxt)
@@ -65,11 +62,10 @@ protected:
 
 };
 
-mGlobal(MMProc) ObjectSet<ProgSpec>& PRSPS();
+mGlobal ObjectSet<ProgSpec>& PRSPS();
 
 
 }; // namespace MMProc
 
 
 #endif
-

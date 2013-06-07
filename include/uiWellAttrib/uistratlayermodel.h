@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uimainwin.h"
 class CtxtIOObj;
 class Wavelet;
@@ -34,7 +33,7 @@ class uiStratLayerModelLMProvider;
 namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
-mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
+mClass uiStratLayerModel : public uiMainWin
 {
 public:
 
@@ -67,23 +66,8 @@ public:
     Notifier<uiStratLayerModel>	newModels;
     Notifier<uiStratLayerModel>	levelChanged;
     Notifier<uiStratLayerModel>	waveletChanged;
-    Notifier<uiStratLayerModel> saveRequired;   // CallBacker: CBCapsule<IOPar>
-    Notifier<uiStratLayerModel> retrieveRequired;// CallBacker: CBCapsule<IOPar>
 
     bool			checkUnscaledWavelet();
-
-    static void			doBasicLayerModel();
-    static void			doLayerModel(const char* modnm);
-
-    uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult(bool usefr,bool parschanged,bool fwd);
-    void			prepareFluidRepl();
-
-    //Utility
-    //SyntheticData*		getCurrentSyntheticData() const;
-
-    void			setSynthView(const uiWorldRect& wr);
-    const uiWorldRect&		curSynthView() const; 
 
 protected:
 
@@ -93,13 +77,12 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_;
-    uiWorldRect			zoomwr_;
 
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
-    bool			mostlyfilledwithbrine_;
+    bool			usepostfrmodl_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
@@ -107,46 +90,59 @@ protected:
     void			seqSel(CallBacker*);
     void			modEd(CallBacker*);
     void			modDispRangeChanged(CallBacker*);
-    void			syntheticsChangedCB(CallBacker*);
     void			zoomChg(CallBacker*);
     void			wvltChg(CallBacker*);
     void			modSelChg(CallBacker*);
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
-    void			helpCB(CallBacker*);
 
-    bool			canShowFlattened() const;
     void			setWinTitle();
     void			setModelProps();
     void			setElasticProps();
-    void			infoChanged(CallBacker*);
     void			selElasticPropsCB(CallBacker*);
     bool			selElasticProps(ElasticPropSelection&);
     void			openGenDescCB(CallBacker*) { openGenDesc(); }
     bool			openGenDesc();
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
-    bool			saveGenDesc() const;
-    bool			saveGenDescIfNecessary(
-	    				bool allowcancel=true) const;
-    void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
+    bool			saveGenDesc() const;
+    bool			saveGenDescIfNecessary() const;
+    void			manPropsCB(CallBacker*);
 
     bool			closeOK();
-    
-    void			fillDisplayPars(IOPar&) const;
-    void			fillWorkBenchPars(IOPar&) const;
-    void			fillSyntheticsPars(IOPar&) const;
-    bool			useDisplayPars(const IOPar&);
-    bool			useSyntheticsPars(const IOPar&);
-    bool			exportLayerModelGDI(BufferString) const;
 
 public:
 
     static void			initClass();
-    friend class		uiStratLayerModelManager;
+    static void			doBasicLayerModel();
+    static void			doLayerModel(const char* modnm);
 
+    uiStratLayerModelDisp*      getLayModelDisp() const { return moddisp_; }
+    void                        displayFRResult( SyntheticData* );
+    void			prepareFluidRepl();
+//Utility
+    SyntheticData*		getCurrentSyntheticData() const;
+
+    // CallBacker: CBCapsule<IOPar>
+    Notifier<uiStratLayerModel>* saveRequiredNotif();
+    Notifier<uiStratLayerModel>* retrieveRequiredNotif();
+
+protected:
+    void			fillDisplayPars(IOPar&) const;
+    void			fillWorkBenchPars(IOPar&) const;
+    bool			useDisplayPars(const IOPar&);
+    void			helpCB(CallBacker*);
+    void			infoChanged(CallBacker*);
+    bool			exportLayerModelGDI(BufferString) const;
+public:
+    bool			useSyntheticsPars(const IOPar&);
+    void			fillSyntheticsPars(IOPar&) const;
+    void			displayFRResult(bool usefr,bool parschanged,
+	    					bool fwd);
+protected:
+    void			syntheticsChangedCB(CallBacker*);
+    bool			canShowFlatten() const;
 };
 
 
 #endif
-

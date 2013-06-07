@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
 #include "ctxtioobj.h"
@@ -26,14 +25,12 @@ class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
 class uiListBox;
-class uiToolButton;
 
-/*!
-\brief Dialog letting the user select an object. It returns an IOObj* after
-successful go().
-*/
 
-mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
+/*! \brief Dialog letting the user select an object.
+           It returns an IOObj* after successful go(). */
+
+mClass uiIOObjRetDlg : public uiDialog
 {
 public:
 
@@ -46,19 +43,16 @@ public:
 };
 
 
-/*!
-\brief Basic group for letting the user select an object. It can be used
-standalone in a dialog, or as a part of dialogs.
-*/
+/*! \brief Basic group for letting the user select an object. It 
+	   can be used standalone in a dialog, or as a part of dialogs. */
 
-mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
+mClass uiIOObjSelGrp : public uiGroup
 {
 public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
 					      const char* seltxt=0,
 					      bool multisel=false,
-					      bool needreloc=false,
-					      bool setdefaultbut=false);
+					      bool needreloc=false);
 				~uiIOObjSelGrp();
 
     void			fullUpdate(const MultiID& kpselected);
@@ -79,8 +73,6 @@ public:
     Notifier<uiIOObjSelGrp>	newStatusMsg;
     				/*!< Triggers when there is a new message for
 				     statusbars and similar */
-
-    void			setSurveyDefaultSubsel(const char* subsel);
 
     void			setContext(const IOObjContext&);
     const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
@@ -105,7 +97,6 @@ protected:
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
-    BufferString	surveydefaultsubsel_;
     bool		ismultisel_;
     bool		confirmoverwrite_;
     bool		asked2overwrite_;
@@ -118,8 +109,6 @@ protected:
     uiGenInput*		filtfld_;
     uiGroup*		topgrp_;
 
-    uiToolButton*	mkdefbut_;
-
     void		fullUpdate(int);
     void		newList();
     void		fillListBox();
@@ -131,21 +120,16 @@ protected:
     void		selChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
-    void		makeDefaultCB(CallBacker*);
     IOObj*		getIOObj(int);
 };
 
+/*! \brief Dialog for selection of IOObjs */
 
-/*!
-\brief Dialog for selection of IOObjs.
-*/
-
-mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
+mClass uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* seltxt=0,bool multisel=false,
-				      bool allowsetsurvdefault=false);
+				      const char* seltxt=0,bool multisel=false);
 
     int			nrSel() const		{ return selgrp_->nrSel(); }
     const MultiID&	selected( int i ) const	{ return selgrp_->selected(i); }
@@ -153,8 +137,6 @@ public:
     uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
-
-    void		setSurveyDefaultSubsel(const char*);
 
 protected:
 
@@ -165,22 +147,23 @@ protected:
 };
 
 
-/*!
-\brief User Interface (UI) element for selection of IOObjs.
 
-  User gets the possibility to select an object of a certain type.
-  
-  If nothing is selected, an error will be generated if setup.mandatory_ is
-  true. This is the default. Thus, you can simply do, in acceptOK():
-  const IOObj* theobj = theselfld_->ioobj();
-  if ( !theobj ) return false;
+/*! \brief UI element for selection of IOObjs
+
+User gets the possibility to select an object of a certain type.
+
+If nothing is selected, an error will be generated if setup.mandatory_ is
+true. This is the default. Thus, you can simply do, in acceptOK():
+    const IOObj* theobj = theselfld_->ioobj();
+    if ( !theobj ) return false;
+
 */
 
-mExpClass(uiIo) uiIOObjSel : public uiIOSelect
+mClass uiIOObjSel : public uiIOSelect
 {
 public:
 
-    mExpClass(uiIo) Setup : public uiIOSelect::Setup
+    mClass Setup : public uiIOSelect::Setup
     {
     public:
 			Setup( const char* seltext=0 )
@@ -271,4 +254,3 @@ default).
 
 
 #endif
-

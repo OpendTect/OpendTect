@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackmutedeftransl.h"
 
@@ -39,10 +39,9 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false; }
-    
+    mDynamicCastGet(MuteDefTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Mute Definition"; return false; }
+    PtrMan<MuteDefTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -55,8 +54,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 				BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
-		 ioobj->createTranslator());
+    mDynamicCastGet(MuteDefTranslator*,tr,ioobj->getTranslator())
     if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false;}
 
     bs = "";
@@ -68,6 +66,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 	bs = tr->write( md, *conn );
     }
 
+    delete tr;
     return bs.isEmpty();
 }
 
@@ -87,8 +86,6 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
 				    astrm.minorVersion() );
 
-    const double version = (double)astrm.majorVersion() +
-			   ((double)astrm.minorVersion()/(double)10);
     if ( hasiopar )
     {
 	IOPar pars( astrm );
@@ -118,7 +115,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	bool rejectpt = false;
 	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
 
-	if ( astrm.hasKeyword(sKey::Position()) )
+	if ( astrm.hasKeyword(sKey::Position) )
 	{
 	    bid.use( astrm.value() );
 	    if ( !bid.inl || !bid.crl )
@@ -139,32 +136,24 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    astrm.next();
 	}
 
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
-	PointBasedMathFunction* fn = new PointBasedMathFunction( it, et );
+	PointBasedMathFunction* fn = new PointBasedMathFunction( it, extrapol );
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
-	    char* ptrz = val.buf();
-	    mSkipBlanks(ptrz);
-	    char* ptrx = ptrz;
-	    mSkipNonBlanks( ptrx );
-	    if ( !*ptrx )
-		{ astrm.next(); continue; }
-	    *ptrx = '\0'; ptrx++;
+	    char* ptrx = val.buf();
 	    mSkipBlanks(ptrx);
-	    if ( !*ptrx )
+	    char* ptrz = ptrx;
+	    mSkipNonBlanks( ptrz );
+	    if ( !*ptrz )
+		{ astrm.next(); continue; }
+	    *ptrz = '\0'; ptrz++;
+	    mSkipBlanks(ptrz);
+	    if ( !*ptrz )
 		{ astrm.next(); continue; }
 
-	    float z = toFloat( ptrz ); float x = toFloat( ptrx );
+	    float x = toFloat( ptrx ); float z = toFloat( ptrz );
 	    if ( !mIsUdf(x) && !mIsUdf(z) )
-	    {
-		if ( version < 4.5 )
-		    fn->add( z, x );
-		else
-		    fn->add( x, z );
-	    }
+		fn->add( x, z );
 
 	    astrm.next();
 	}
@@ -226,7 +215,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
 
 	char buf[80]; md.getPos(imd).fill( buf );
-	astrm.put( sKey::Position(), buf );
+	astrm.put( sKey::Position, buf );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap
 	 ? 'S' : (pbmf.interpolType() == PointBasedMathFunction::Poly

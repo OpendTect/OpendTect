@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cmdrecorder.h"
 
@@ -203,22 +203,22 @@ static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
 	const BufferString objkey = CmdComposer::factoryKey( newobj );
 	bool yn = srckey && objkey==srckey;
 
-	if ( FixedString(srckey) == "UILINEEDIT" )
+	if ( !strcmp(srckey, "UILINEEDIT") )
 	    yn = yn || objkey=="UISPINBOX" || objkey=="UICOMBOBOX";
 
-	if ( FixedString(srckey) == "UILABEL" )
+	if ( !strcmp(srckey, "UILABEL") )
 	    yn = yn || dynamic_cast<const uiLabel*>(newobj);
-	if ( FixedString(srckey) == "UIGROUPOBJ" )
+	if ( !strcmp(srckey, "UIGROUPOBJ") )
 	    yn = yn || dynamic_cast<const uiGroupObj*>(newobj);
-	if ( FixedString(srckey) == "UISEPARATOR" )
+	if ( !strcmp(srckey, "UISEPARATOR") )
 	    yn = yn || dynamic_cast<const uiSeparator*>(newobj);
 
 	if ( tofront!=yn && toback!=yn )
-	    objects.removeSingle( idx );
+	    objects.remove( idx );
 	else if ( toback && yn )
-	    objects += objects.removeSingle( idx );
+	    objects += objects.remove( idx );
 	else if ( tofront && yn )
-	    objects.insertAt( objects.removeSingle(idx++), offset++ );
+	    objects.insertAt( objects.remove(idx++), offset++ );
 	else
 	    idx++;
 
@@ -250,7 +250,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     const BufferString srckey = CmdComposer::factoryKey( event.object_ );
     takeSimilarObjs( objsfound, srckey, true, true );
 
-    if ( !objsfound.isPresent(event.object_) )
+    if ( objsfound.indexOf(event.object_) < 0 )
 	return deepFindKeyStr( srcwin, event, localenv );
 
     ObjectSet<const uiObject> curobjset = objsfound;
@@ -265,7 +265,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 
 	for ( int idx=0; idx<curobjset.size(); idx++ )
 	{
-	    allobjsrelative = relatives.isPresent(curobjset[idx]);
+	    allobjsrelative = relatives.indexOf(curobjset[idx]) >= 0;
 	    if ( !allobjsrelative )
 		break;
 	}
@@ -284,16 +284,16 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 	    if ( aliases.isEmpty() )
 	    {
 		csobjfinder.getAliases( *relatives[0], aliases );
-		relatives.removeSingle( 0 );
+		relatives.remove( 0 );
 	    }
 
 	    ObjectSet<const uiObject> newobjset = curobjset;
 	    FileMultiString newkeystr;
 	    newkeystr += aliases[0]->buf(); 
-	    aliases.removeSingle( 0 );
+	    aliases.remove( 0 );
 
 	    csobjfinder.selectNodes( newobjset, newkeystr );
-	    if ( !newobjset.isPresent(event.object_) )
+	    if ( newobjset.indexOf(event.object_) < 0 )
 		continue;
 
 	    if ( minobjset.isEmpty() || newobjset.size()<minobjset.size() )
@@ -325,7 +325,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 		shorterkeystr += curkeystr[idy];
 	}
 	csobjfinder.selectNodes( newobjset, shorterkeystr );
-	if ( !newobjset.isPresent(event.object_) )
+	if ( newobjset.indexOf(event.object_) < 0 )
 	    continue;
 	if ( newobjset.size() == curobjset.size() )
 	    curkeystr = shorterkeystr;
@@ -394,7 +394,7 @@ bool CmdRecorder::findKeyString( const uiMainWin& srcwin, CmdRecEvent& event )
 	lastobjsearched_ = event.object_;
 	lastobjfreewins_.erase();
     }
-    else if ( lastobjfreewins_.isPresent( &srcwin ) )
+    else if ( lastobjfreewins_.indexOf( &srcwin ) >= 0 )
 	return false;
 
     bool res = doFindKeyStr( srcwin, event );
@@ -410,7 +410,7 @@ static bool findMenuPath( const uiMenuItemContainer& mnu,
 			  FileMultiString& menupath, bool& casedep )
 {
     bool itemfound = false;
-    const uiMenuItem* curitem = 0;
+    const uiMenuItem* curitem;
     FileMultiString pathtail;
 
     for ( int idx=0; idx<mnu.items().size(); idx++ )
@@ -572,7 +572,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	{
 	    const int idx = popuprefnrs_.indexOf( ev.refnr_ );
 	    if ( idx >= 0 )
-		popuprefnrs_.removeSingle( idx );
+		popuprefnrs_.remove( idx );
 	}
 	return;
     }
@@ -637,7 +637,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
             if ( candidates[idx]->accept(ev) )
 		ev.nraccepts_++;
 
-	    candidates.removeSingle( idx );
+	    candidates.remove( idx );
 	}
     }
 
@@ -673,7 +673,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	    updatecomposers = true;
 
 	if ( composers_[idx]->done() )
-	    delete composers_.removeSingle( idx );
+	    delete composers_.remove( idx );
     }
 
     if ( updatecomposers )
@@ -764,7 +764,7 @@ void CmdRecorder::flush()
 	while ( *ptr && (*ptr!='\n' || *(ptr+1)!='\n') )
 	    ptr++;
 
-	const int newnrvoidchars = mCast( int, ptr + 2 - bufstr_.buf() );
+	const int newnrvoidchars = ptr + 2 - bufstr_.buf();
 	if ( !*ptr || bufsize_>=sz-newnrvoidchars )
 	    break;
 

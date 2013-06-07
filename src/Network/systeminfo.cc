@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "systeminfo.h"
@@ -43,7 +43,7 @@ namespace System
 const char* localHostName()
 {
     static BufferString str;
-    str = QHostInfo::localHostName().toLatin1().constData();
+    str = QHostInfo::localHostName().toAscii().constData();
     return str.buf();
 }
 
@@ -56,7 +56,7 @@ const char* hostName( const char* ip )
 {
     static BufferString str;
     QHostInfo qhi = QHostInfo::fromName( ip );
-    str = qhi.hostName().toLatin1().constData();
+    str = qhi.hostName().toAscii().constData();
     return str.buf();
 }
 
@@ -70,7 +70,7 @@ const char* hostAddress( const char* hostname )
     {
 	if ( addresses[idx] == QHostAddress::LocalHost ||
 	     addresses[idx].toString().contains(':') ) continue;
-	str = addresses[idx].toString().toLatin1().constData();
+	str = addresses[idx].toString().toAscii().constData();
     }
 
     return str.buf();
@@ -87,8 +87,8 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	if ( !flags.testFlag(QNetworkInterface::CanBroadcast) )
 	    continue;
 
-	names.add( qni.name().toLatin1().constData() );
-	addresses.add( qni.hardwareAddress().toLatin1().constData() );
+	names.add( qni.name().toAscii().constData() );
+	addresses.add( qni.hardwareAddress().toAscii().constData() );
     }
 }
 

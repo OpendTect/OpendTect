@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 
 
-#include "prestackprocessingmod.h"
 #include "tableascio.h"
 #include "mathfunc.h"
 
@@ -25,11 +24,7 @@ namespace PreStack
 
 class MuteDef;
 
-/*!
-\brief Ascii I/O for PreStack mute.
-*/
-
-mExpClass(PreStackProcessing) MuteAscIO : public Table::AscIO
+mClass MuteAscIO : public Table::AscIO
 {
 public:
 				MuteAscIO( const Table::FormatDesc& fd,
@@ -57,4 +52,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

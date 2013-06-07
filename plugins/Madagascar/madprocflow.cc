@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.7 2010/11/09 16:01:18 cvsbert Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -40,8 +40,8 @@ ODMad::ProcFlow::~ProcFlow()
 
 ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
-    if ( !res || !*res || *res == *sKey::None() )
+    const char* res = iop.find( sKey::Type );
+    if ( !res || !*res || *res == *sKey::None )
 	return ODMad::ProcFlow::None;
 
     if ( *res == *ODMad::sKeyMadagascar() || *res == 'm' )
@@ -58,13 +58,13 @@ ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
 void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 {
     if ( iot < ODMad::ProcFlow::Madagascar )
-	iop.set( sKey::Type(), Seis::nameOf((Seis::GeomType)iot) );
+	iop.set( sKey::Type, Seis::nameOf((Seis::GeomType)iot) );
     else if ( iot == ODMad::ProcFlow::Madagascar )
-	iop.set( sKey::Type(), ODMad::sKeyMadagascar() );
+	iop.set( sKey::Type, ODMad::sKeyMadagascar() );
     else if ( iot == ODMad::ProcFlow::SU )
-	iop.set( sKey::Type(), "SU" );
+	iop.set( sKey::Type, "SU" );
     else
-	iop.set( sKey::Type(), sKey::None() );
+	iop.set( sKey::Type, sKey::None );
 }
 
 #define mRetFalse(s) { errmsg = s; return false; }
@@ -167,9 +167,9 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
 					BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a processing flow"; return false; }
+    mDynamicCastGet(ODMadProcFlowTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a processing flow"; return false; }
+    PtrMan<ODMadProcFlowTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -182,8 +182,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 				     const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
-		 ioobj->createTranslator());
+    mDynamicCastGet(ODMadProcFlowTranslator*,tr,ioobj->getTranslator())
     if ( !tr ) { bs = "Selected object is not a Processing flow"; return false;}
 
     bs = "";
@@ -192,7 +191,7 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( pf, *conn );
-    
+    delete tr;
     return bs.isEmpty();
 }
 

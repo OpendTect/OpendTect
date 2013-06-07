@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -18,11 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdlib.h>
 #include "string2.h"
 #include <string.h>
-
-
-BufferString::BufferString( const FixedString& s )
-    : mBufferStringSimpConstrInitList
-{ assignTo( s.str() ); }
 
 
 BufferString::BufferString( int sz, bool mknull )
@@ -265,7 +260,12 @@ bool BufferString::operator <( const char* s ) const
 
 const BufferString& BufferString::empty()
 {
-    static PtrMan<BufferString> ret = new BufferString( 1, true );
+    static BufferString* ret = 0;
+    if ( !ret )
+    {
+	ret = new BufferString( "0" );
+	*ret->buf_ = '\0';
+    }
     return *ret;
 }
 
@@ -310,22 +310,16 @@ std::istream& operator >>( std::istream& s, BufferString& bs )
 }
 
 
-std::ostream& operator <<( std::ostream& s, const FixedString& fs )
-{
-    s << fs.str();
-    return s;
-}
 
-
-BufferStringSet::BufferStringSet( int nelem, const char* s )
+BufferStringSet::BufferStringSet()
+    : ManagedObjectSet<BufferString>(false)
 {
-    for ( int idx=0; idx<nelem; idx++ )
-	add( s );
 }
 
 
 
 BufferStringSet::BufferStringSet( const char* arr[], int len )
+    : ManagedObjectSet<BufferString>(false)
 {
     if ( len < 0 )
 	for ( int idx=0; arr[idx]; idx++ )
@@ -333,6 +327,13 @@ BufferStringSet::BufferStringSet( const char* arr[], int len )
     else
 	for ( int idx=0; idx<len; idx++ )
 	    add( arr[idx] );
+}
+
+
+BufferStringSet& BufferStringSet::operator =( const BufferStringSet& bss )
+{
+    ManagedObjectSet<BufferString>::operator =( bss );
+    return *this;
 }
 
 
@@ -376,6 +377,7 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
     const int len2 = strlen( s2 );
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
+    int ret = 0;
 
     Array2DImpl<int> d( len1+1, len2+1 );
 
@@ -415,7 +417,7 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
     if ( sz < 2 ) return 0;
     if ( !s ) s = "";
 
-    int mindist = -1; int minidx = -1;
+    int mindist; int minidx;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int curdist = getMatchDist( get(idx), s, !caseinsens );
@@ -446,12 +448,6 @@ BufferStringSet& BufferStringSet::add( const char* s )
 }
 
 
-BufferStringSet& BufferStringSet::add( const FixedString& s )
-{
-    return add( s.str() );
-}
-
-
 BufferStringSet& BufferStringSet::add( const BufferString& s )
 {
     *this += new BufferString(s);
@@ -465,7 +461,7 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
     for ( int idx=0; idx<bss.size(); idx++ )
     {
 	const char* s = bss.get( idx );
-	if ( allowdup || !isPresent(s) )
+	if ( allowdup || indexOf(s) < 0 )
 	    add( s );
     }
     return *this;
@@ -474,7 +470,7 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
 
 bool BufferStringSet::addIfNew( const char* s )
 {
-    if ( !isPresent(s) )
+    if ( indexOf(s) < 0 )
 	{ add( s ); return true; }
     return false;
 }
@@ -507,7 +503,7 @@ void BufferStringSet::sort( bool caseinsens, bool asc )
 }
 
 
-void BufferStringSet::useIndexes( const int* idxs )
+void BufferStringSet::useIndexes( int* idxs )
 {
     const int sz = size();
     if ( !idxs || sz < 2 ) return;
@@ -542,7 +538,7 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 	    const int len = newbs->size();
 	    char* buf = newbs->buf();
 	    for ( int ich=0; ich<len; ich++ )
-		buf[ich] = (char) toupper(buf[ich]);
+		buf[ich] = toupper(buf[ich]);
 	    uppcasebss += newbs;
 	}
     }
@@ -620,10 +616,6 @@ void BufferStringSet::unCat( const char* inpstr, char sepchar )
 }
 
 
-FixedString& FixedString::operator=( const BufferString& b )
-{ptr_=b.buf();return *this;}
-
-
 bool FixedString::operator==( const char* s ) const
 {
     if ( ptr_==s )
@@ -633,18 +625,6 @@ bool FixedString::operator==( const char* s ) const
 	return false;
 
     return !strcmp(ptr_,s);
-}
-
-
-bool FixedString::operator==( const BufferString& s ) const
-{
-    return FixedString::operator==( s.buf() );
-}
-
-
-bool FixedString::operator!=( const BufferString& s ) const
-{
-    return FixedString::operator!=( s.buf() );
 }
 
 

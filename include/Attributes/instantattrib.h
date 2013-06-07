@@ -12,17 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
+/*! \brief
+#### Short description
+\par
+#### Detailed description.
+
+*/
+
 #include "attribprovider.h"
 
 namespace Attrib
 {
 
-/*!
-\brief %Instantaneous Attribute
-*/
-
-mExpClass(Attributes) Instantaneous : public Provider
+mClass Instantaneous : public Provider
 {
 public:
     static void			initClass();
@@ -74,4 +76,3 @@ private:
 }; // namespace Attrib
 
 #endif
-

@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class uiGenInput;
 class uiHorizon3DSel;
 class uiSurfaceWrite;
 
-mExpClass(uiEarthModel) uiHorizonMergeDlg : public uiDialog
+mClass uiHorizonMergeDlg : public uiDialog
 {
 public:
 			uiHorizonMergeDlg(uiParent*,bool is2d);
@@ -35,5 +34,4 @@ protected:
 };
 
 #endif
-
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "property.h"
 class MathExpression;
 class UnitOfMeasure;
@@ -28,7 +27,7 @@ class UnitOfMeasure;
 
  */
 
-mExpClass(General) MathProperty : public Property
+mClass MathProperty : public Property
 {
 public:
     			MathProperty(const PropertyRef&,const char* def=0);
@@ -37,11 +36,8 @@ public:
 
     int			nrInputs() const;
     const char*		inputName(int) const;
-    PropertyRef::StdType inputType(int) const;
     const UnitOfMeasure* inputUnit(int) const;
-    const UnitOfMeasure* formulaOutputUnit() const;
     void		setInputUnit(int idx,const UnitOfMeasure*);
-    void		setFormulaOutputUnit(const UnitOfMeasure*);
     int			nrConsts() const;
     const char*		constName(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
@@ -65,7 +61,6 @@ protected:
 
     BufferString		def_;
     const UnitOfMeasure*	uom_;
-    const UnitOfMeasure*	formulauom_;
 
     mutable MathExpression*	expr_;
     mutable ObjectSet<const Property> inps_;
@@ -78,6 +73,10 @@ protected:
 	    				  bool) const;
     void			addDefInpUnit() const;
 
+public:
+    PropertyRef::StdType	inputType(int) const;
+    const UnitOfMeasure*	formulaOutputUnit() const;
+    void			setFormulaOutputUnit(const UnitOfMeasure*);  
 };
 
 

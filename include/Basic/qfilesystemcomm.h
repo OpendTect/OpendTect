@@ -15,10 +15,7 @@ ________________________________________________________________________
 #include <QFileSystemWatcher>
 #include "filesystemwatcher.h"
 
-QT_BEGIN_NAMESPACE
-
-/*!
-\brief QFileSystemWatcher communication class
+/*\brief QFileSystemWatcher communication class
 
   Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -26,7 +23,7 @@ QT_BEGIN_NAMESPACE
 class QFileSystemWComm : public QObject 
 {
     Q_OBJECT
-    friend class	::FileSystemWatcher;
+    friend class	FileSystemWatcher;
 
 protected:
 
@@ -44,13 +41,13 @@ private slots:
 
 void directoryChanged( const QString& path )
 {
-    fswatcher_->chgddir_ = path.toLatin1().constData();
+    fswatcher_->chgddir_ = path.toAscii().constData();
     fswatcher_->directoryChanged.trigger( *fswatcher_ );
 }
 
 void fileChanged( const QString& fnm )
 {
-    fswatcher_->chgdfile_ = fnm.toLatin1().constData();
+    fswatcher_->chgdfile_ = fnm.toAscii().constData();
     fswatcher_->fileChanged.trigger( *fswatcher_ );
 }
 
@@ -60,7 +57,5 @@ private:
     FileSystemWatcher*		fswatcher_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "emposid.h"
 #include "keyenum.h"
 #include "visobject.h"
@@ -31,7 +30,7 @@ namespace visSurvey
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
-mExpClass(visSurvey) Sower : public visBase::VisualObjectImpl
+mClass Sower : public visBase::VisualObjectImpl
 {
 
 public:
@@ -123,4 +122,3 @@ protected:
 }; // namespace visSurvey
 
 #endif
-

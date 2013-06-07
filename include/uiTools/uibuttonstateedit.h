@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiGenInput;
 
 /*!Simple field to edit OD::ButtonState. */
 
-mExpClass(uiTools) uiButtonStateEdit : public uiGroup
+mClass uiButtonStateEdit : public uiGroup
 {
 public:
     		uiButtonStateEdit(uiParent*,const char* label,int initialstate);
@@ -31,4 +30,3 @@ protected:
 };
 
 #endif
-

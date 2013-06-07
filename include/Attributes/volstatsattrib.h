@@ -12,17 +12,43 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
+
+/*!\brief Volume Statistics Attribute
+
+VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
+		 steering=
+
+VolumeStatistics collects all samples within the timegate from all traces
+within the stepout.
+
+If steering is enabled, the timegate is taken relative to the steering.
+
+If the OpticalStack shape is chosen, the positions used are defined by a step 
+and a direction: the line direction or its normal.
+
+Inputs:
+0-(nrvolumes-1)         The data
+nrvolumes  -            Steerings (only if steering is enabled)
+
+Outputs:
+0       Avg
+1       Med
+2       Variance
+3       Min
+4       Max
+5       Sum
+6       Normalized Variance
+7	Most Frequent
+8	RMS
+9	Extreme
+
+*/
 
 namespace Attrib
 {
 
-/*!
-\brief Use VolStats instead.
-*/
-
-mExpClass(Attributes) VolStatsBase : public Provider
+mClass VolStatsBase : public Provider
 {
 public:
     static void			initDesc(Desc&);
@@ -78,39 +104,8 @@ protected:
 };
 
 
-/*!
-\brief Volume Statistics Attribute
 
-  VolumeStatistics collects all samples within the timegate from all traces
-  within the stepout.
-  
-  If steering is enabled, the timegate is taken relative to the steering.
-  
-  If the OpticalStack shape is chosen, the positions used are defined by a step 
-  and a direction: the line direction or its normal.
- 
-<pre> 
-  VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
-  		   steering=
-  Inputs:
-  0-(nrvolumes-1)         The data
-  nrvolumes  -            Steerings (only if steering is enabled)
-  
-  Outputs:
-  0       Avg
-  1       Med
-  2       Variance
-  3       Min
-  4       Max
-  5       Sum
-  6       Normalized Variance
-  7       Most Frequent
-  8       RMS
-  9       Extreme  
-</pre> 
-*/
-
-mExpClass(Attributes) VolStats : public VolStatsBase
+mClass VolStats : public VolStatsBase
 {
 public:
     static void			initClass();
@@ -156,6 +151,7 @@ protected:
 
     bool			dosteer_;
     bool			allowedgeeffects_;
+    Interval<float>             unuseddesgate_;
 
     TypeSet<int>		steerindexes_;
     TypeSet<BinID>*		linepath_;
@@ -168,4 +164,3 @@ protected:
 
 
 #endif
-

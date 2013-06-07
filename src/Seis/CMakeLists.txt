@@ -20,7 +20,6 @@ SET(OD_MODULE_SOURCES
 	    segyscanner.cc
 	    segytr.cc
 	    seis2dline.cc
-		seis2ddata.cc
 	    seis2dlineio.cc
 	    seis2dto3d.cc
 	    seisbayesclass.cc
@@ -47,7 +46,6 @@ SET(OD_MODULE_SOURCES
 	    seispsioprov.cc
 	    seispsmerge.cc
 	    seisrandlineto2d.cc
-	    seisrandomprovider.cc
 	    seisread.cc
 	    seisresampler.cc
 	    seisscanner.cc
@@ -65,6 +63,6 @@ SET(OD_MODULE_SOURCES
 	    waveletattrib.cc
 	    waveletextractor.cc
 	     )
-SET(OD_MODULE_BATCHPROGS od_process_time2depth.cc  od_process_segyio.cc  )
+SET(OD_MODULE_BATCHPROGS od_process_time2depth od_process_segyio )
 OD_INIT_MODULE()
 

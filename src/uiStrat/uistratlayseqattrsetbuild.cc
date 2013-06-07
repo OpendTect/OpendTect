@@ -172,7 +172,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 		for ( int idx=0; idx<attrset_.size(); idx++ )
 		{
 		    if ( attrset_[idx]->islocal_ != needlocal )
-			{ attrset_.removeSingle( idx ); idx--; }
+			{ attrset_.remove( idx ); idx--; }
 		}
 	    }
 	    for ( int idx=0; idx<attrset_.size(); idx++ )

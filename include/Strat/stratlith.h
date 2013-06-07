@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "color.h"
@@ -30,7 +29,7 @@ namespace Strat
 
 */
 
-mExpClass(Strat) Lithology : public ::NamedObject
+mClass Lithology : public ::NamedObject
 {
 public:
 
@@ -70,11 +69,11 @@ public:
 };
 
 
-mExpClass(Strat) LithologySet : public CallBacker
+mClass LithologySet : public CallBacker
 {
 public:
     			LithologySet()
-			    : anyChange(this)	{}
+			    : lths_(false), anyChange(this)	{}
 
     int			size() const		{ return lths_.size(); }
     bool		isEmpty() const		{ return lths_.isEmpty(); }
@@ -121,4 +120,3 @@ public:
 }; // namespace Strat
 
 #endif
-

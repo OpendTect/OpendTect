@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellman.h"
 
@@ -46,7 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogcalc.h"
 #include "uiwelllogtools.h"
 #include "uiwellmarkerdlg.h"
-#include "uiwelllogdisplay.h"
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
@@ -74,26 +73,24 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
-    butgrp->addButton( "view_log", "View selected log",
-	    		mCB(this,uiWellMan,viewLogPush) );
     butgrp->addButton( uiManipButGrp::Rename, "Rename selected log",
 			mCB(this,uiWellMan,renameLogPush) );
     butgrp->addButton( uiManipButGrp::Remove, "Remove selected log",
 			mCB(this,uiWellMan,removeLogPush) );
-    butgrp->addButton( "export", "Export log",
+    butgrp->addButton( "export.png", "Export log",
 	    		mCB(this,uiWellMan,exportLogs) );
-    butgrp->addButton( "unitsofmeasure", "View/edit unit of measure",
+    butgrp->addButton( "unitsofmeasure.png", "View/edit unit of measure",
 	    		mCB(this,uiWellMan,logUOMPush) );
-    logupbut_ = butgrp->addButton( "uparrow", "Move up",
+    logupbut_ = butgrp->addButton( "uparrow.png", "Move up",
 	    		mCB(this,uiWellMan,moveLogsPush) );
-    logdownbut_ = butgrp->addButton( "downarrow", "Move down",
+    logdownbut_ = butgrp->addButton( "downarrow.png", "Move down",
 	    		mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,checkMoveLogs) );
     selGroup()->getListField()->setMultiSelect(true);
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
+    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack.png",
 	    	"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
@@ -102,20 +99,20 @@ uiWellMan::uiWellMan( uiParent* p )
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot",
+	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot.png",
 			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
+	d2tbut = new uiToolButton( listgrp_, "z2t.png", "Edit Depth/Time Model",
 				   mCB(this,uiWellMan, edD2T));
 	d2tbut->attach( rightOf, csbut );
     }
 
-    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
+    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers.png",
 	    		"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 
-    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
+    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools.png",
 	    		"Log tools", mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
@@ -176,22 +173,33 @@ void uiWellMan::fillLogsFld()
     logsfld_->setEmpty();
     if ( currdrs_.isEmpty() ) return;
 
-    availablelognms_.erase();
-    currdrs_[0]->getLogInfo( availablelognms_ );
+    BufferStringSet lognms;
+    for ( int idx=0; idx<currdrs_.size(); idx++ )
+    {
+	availablelognms_.erase();
+	currdrs_[idx]->getLogInfo( availablelognms_ );
+	lognms.add( availablelognms_, true );
+    }
+
     if ( currdrs_.size() > 1 )
     {
-	for ( int idx=1; idx<currdrs_.size(); idx++ )
+	BufferStringSet alllognms;
+	while ( !lognms.isEmpty() )
 	{
-	    BufferStringSet lognms;
-	    currdrs_[idx]->getLogInfo( lognms );
-	    for ( int idy=0; idy<availablelognms_.size(); )
+	    BufferString lognm = *lognms.remove(0);
+	    bool ispresent = true;
+	    for ( int idx=0; idx<currdrs_.size(); idx++ )
 	    {
-		if ( !lognms.isPresent(availablelognms_.get(idy)) )
-		    availablelognms_.removeSingle( idy );
-		else
-		    idy++;
+		availablelognms_.erase();
+		currdrs_[idx]->getLogInfo( availablelognms_ );
+		if ( !availablelognms_.isPresent( lognm ) )
+		    { ispresent = false; break; }
 	    }
+	    if ( ispresent )
+		alllognms.addIfNew( lognm );
 	}
+	availablelognms_.erase();
+	availablelognms_.add( alllognms, true );
     }
 
     for ( int idx=0; idx<availablelognms_.size(); idx++)
@@ -428,74 +436,32 @@ void uiWellMan::wellsChgd()
 }
 
 
-#define mEnsureLogSelected() \
-    if ( logsfld_->isEmpty() ) return; \
-    if ( logsfld_->nrSelected() < 1 ) \
-	mErrRet("No log selected")
-
-#define mGetWL() \
-    currdrs_[0]->getLogs(); \
-    const Well::LogSet& wls = curwds_[0]->logs(); \
-    const char* lognm = logsfld_->getText(); \
-    const Well::Log* wl = wls.getLog( lognm ); \
-    if ( !wl ) \
-	mErrRet( "Cannot read selected log" )
-
-
-void uiWellMan::viewLogPush( CallBacker* )
+void uiWellMan::exportLogs( CallBacker* )
 {
-    mEnsureLogSelected();
-    mGetWL();
+    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
 
-    BufferString lognm1(lognm), lognm2;
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
-    {
-	if ( !logsfld_->isSelected(idx) )
-	    continue;
-	const char* nm2 = logsfld_->textOfItem( idx );
-	if ( lognm1 != nm2 )
-	    { lognm2 = nm2; break; }
-    }
-
-    uiWellLogDisplay::Setup wldsu;
-    wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
-    dlg->setLog( wl, true );
-    if ( !lognm2.isEmpty() )
-	dlg->setLog( wls.getLog(lognm2), false );
-
-    dlg->show();
-}
-
-
-void uiWellMan::renameLogPush( CallBacker* )
-{
-    mEnsureLogSelected();
-    mGetWL();
-
-    BufferString titl( "Rename '" );
-    titl += lognm; titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
-    if ( !dlg.go() ) 
-	return;
-
-    BufferString newnm = dlg.text();
-    if ( logsfld_->isPresent(newnm) )
-	mErrRet("Name already in use")
+    BufferStringSet sellogs;
+    logsfld_->getSelectedItems( sellogs );
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
-	if ( log ) log->setName( newnm );
+	currdrs_[idwell]->getD2T();
+	const IOObj* obj = IOM().get( curmultiids_[idwell] );
+	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
     }
-    writeLogs();
+
+    uiExportLogs dlg( this, curwds_, sellogs );
+    dlg.go();
+
+    for ( int idw=0; idw<curwds_.size(); idw++ )
+	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
 }
 
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    mEnsureLogSelected();
+    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
 
     BufferString msg;
     msg = logsfld_->nrSelected() == 1 ? "This log " : "These logs ";
@@ -523,26 +489,34 @@ void uiWellMan::removeLogPush( CallBacker* )
 }
 
 
-void uiWellMan::exportLogs( CallBacker* )
+void uiWellMan::renameLogPush( CallBacker* )
 {
-    mEnsureLogSelected();
+    if ( !logsfld_->size() || !logsfld_->nrSelected() )
+	mErrRet("No log selected")
 
-    BufferStringSet sellogs;
-    logsfld_->getSelectedItems( sellogs );
+    currdrs_[0]->getLogs();
+    Well::LogSet& wls = curwds_[0]->logs();
+    const char* lognm = logsfld_->getText();
+    if ( !wls.getLog( lognm ) ) 
+	mErrRet( "Cannot read selected log" )
+
+    BufferString titl( "Rename '" );
+    titl += lognm; titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
+    if ( !dlg.go() ) 
+	return;
+
+    BufferString newnm = dlg.text();
+    if ( logsfld_->isPresent(newnm) )
+	mErrRet("Name already in use")
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	currdrs_[idwell]->getD2T();
-	const IOObj* obj = IOM().get( curmultiids_[idwell] );
-	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
+	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
+	if ( log ) log->setName( newnm );
     }
-
-    uiExportLogs dlg( this, curwds_, sellogs );
-    dlg.go();
-
-    for ( int idw=0; idw<curwds_.size(); idw++ )
-	{ mDeleteLogs(idw); currdrs_[idw]->getInfo(); } 
+    writeLogs();
 }
 
 
@@ -577,33 +551,33 @@ void uiWellMan::mkFileInfo()
 	{
 	    txt += "Reference Datum Elevation (KB)"; txt += ": ";
 	    txt += zun ? zun->userValue(rdelev) : rdelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
 
-	const float srdelev = info.srdelev;
-	if ( !mIsZero(srdelev,1e-4) && !mIsUdf(srdelev) )
+	const float surfelev = -1. * info.surfaceelev;
+	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
 	    txt += "Seismic Reference Datum (SRD)"; txt += ": ";
-	    txt += zun ? zun->userValue(srdelev) : srdelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->userValue(surfelev) : surfelev;
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
 
-	const float replvel = info.replvel;
+	const float replvel = info.getReplVel();
 	if ( !mIsUdf(replvel) )
 	{
-	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	     txt += ( SI().depthsInFeetByDefault() && !SI().zInFeet() ) ?
-		    mToFeetFactorF * replvel : replvel;
-	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
-	     txt += "/s\n";
+	    txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
+	    txt += ( SI().depthsInFeetByDefault() && !SI().zInFeet() ) ?
+		   mToFeetFactorF * replvel : replvel;
+	    txt += UnitOfMeasure::zUnitAnnot( false, true, false );
+	    txt += "/s\n";
 	}
 
-	const float groundelev = info.groundelev;
+	const float groundelev = info.getGroundElev();
 	if ( !mIsUdf(groundelev) )
 	{
 	    txt += "Ground level elevation (GL)"; txt += ": ";
 	    txt += zun ? zun->userValue(groundelev) : groundelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt += zun ? zun->symbol() : ""; txt += "\n";
 	}
     }
 

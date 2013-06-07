@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uivoxelconnectivityfilter.cc,v 1.7 2012/01/12 09:02:59 cvsbruno Exp $";
 
 #include "uivoxelconnectivityfilter.h"
 
@@ -88,7 +88,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     connectivityfld_->attach( ensureBelow, sep );
 
     minbodysizefld_ = new uiGenInput( this, "Keep bodies larger than [voxels]",
-	    IntInpSpec( mCast(int,step->getMinimumBodySize()) ) );
+	    IntInpSpec( step->getMinimumBodySize() ) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
 
     acceptoutputfld_ = new uiGenInput( this, "Kept output",

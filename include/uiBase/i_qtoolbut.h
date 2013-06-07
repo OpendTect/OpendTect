@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include <QToolButton>
 #include "callback.h"
 
-QT_BEGIN_NAMESPACE
 
 class i_QToolButReceiver : public QObject, public CallBacker
 {
@@ -35,6 +34,6 @@ public slots:
 
 };
 
-QT_END_NAMESPACE
+
 
 #endif

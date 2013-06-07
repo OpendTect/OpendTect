@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "callback.h"
 #include "sets.h"
 #include "multiid.h"
@@ -26,11 +25,7 @@ namespace Attrib
 {
 class Desc; class DescSetup; class SelSpec;
 
-/*!
-\brief Set of attribute descriptions.
-*/
-
-mExpClass(AttributeEngine) DescSet : public CallBacker
+mClass DescSet : public CallBacker
 {
 public:
     			DescSet(bool is2d);
@@ -126,8 +121,7 @@ public:
     void		fillInAttribColRefs(BufferStringSet&) const;
 
     			//!<will create an empty DataPointSet
-    DataPointSet*	createDataPointSet(Attrib::DescSetup,
-	    				   bool withstored=true) const;
+    DataPointSet*	createDataPointSet(Attrib::DescSetup) const;
     void		fillInSelSpecs(Attrib::DescSetup,
 	    			       TypeSet<Attrib::SelSpec>&) const;
 
@@ -147,7 +141,6 @@ public:
     static const char*	userRefStr()		{ return "UserRef"; }
     static const char*	inputPrefixStr()	{ return "Input"; }
     static const char*	hiddenStr()		{ return "Hidden"; }
-    static const char*	indexStr()		{ return "Index"; }
 
     CNotifier<DescSet,DescID>	descToBeRemoved;
 
@@ -171,11 +164,12 @@ private:
 public:
 
     DescID		ensureDefStoredPresent() const;
+    DataPointSet*	createDataPointSet(Attrib::DescSetup,
+	    				   bool withstored) const;
 
 };
 
 } // namespace Attrib
 
 #endif
-
 

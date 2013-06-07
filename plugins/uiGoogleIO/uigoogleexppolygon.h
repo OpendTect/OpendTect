@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2009
- * ID       : $Id$
+ * ID       : $Id: uigoogleexppolygon.h,v 1.1 2009/11/16 15:45:52 cvsbert Exp $
 -*/
 
 #include "uigoogleexpdlg.h"
@@ -13,7 +13,7 @@ class uiSelLineStyle;
 namespace Pick { class Set; }
 
 
-mClass(uiGoogleIO) uiGoogleExportPolygon : public uiDialog
+class uiGoogleExportPolygon : public uiDialog
 {
 public:
 

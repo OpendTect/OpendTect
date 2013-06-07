@@ -13,14 +13,13 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
 class MyHttp;
 class QHttpConnector;
 
-mExpClass(Network) ODHttp : public CallBacker
+mClass ODHttp : public CallBacker
 {
 friend class QHttpConnector;
 
@@ -53,8 +52,6 @@ public:
     int			post( const char* cmd,
 			      const IOPar& postvars );
     			//!<Returns -1 on error
-    int			postFile( const char* cmd, const char* filename,
-				  const IOPar& postvars );
     BufferString	readBuffer() const;
     wchar_t*		readWCharBuffer() const; //!< Buffer becomes yours
     const char*		readCharBuffer() const;
@@ -64,7 +61,7 @@ public:
     int			nrDone() const          { return nrdone_; }
     int			totalNr() const         { return totalnr_; }
 
-    bool		isOK() const		{ return !error_; }
+    const bool		isOK() const		{ return !error_; }
     void		setMessage(const char*);
     const char*		message() const		{ return message_.buf(); }
 
@@ -100,4 +97,3 @@ protected:
 };
 
 #endif
-

@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 #include "cubesampling.h"
 #include "draw.h"
@@ -30,11 +28,7 @@ namespace EM
 
 class Fault3D;
 
-/*!
-\brief 3D fault painter.
-*/
-
-mExpClass(EarthModel) Fault3DPainter : public CallBacker
+mClass Fault3DPainter : public CallBacker
 {
 public:
     			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
@@ -49,15 +43,15 @@ public:
     void		enableKnots(bool);
 
     void		setActiveStick(EM::PosID&);
-    int			getActiveStickId() const      { return activestickid_; }
+    const int		getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*) const;
-    FlatView::AuxData*	getAuxData(const EM::PosID*) const;
+    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*) const;
 
-	mStruct(EarthModel) StkMarkerInfo
+	mStruct StkMarkerInfo
 	{
-	    FlatView::AuxData*	marker_;
-	    int			stickid_;
+	    FlatView::Annotation::AuxData*	marker_;
+	    int					stickid_;
 	};
 
     EM::ObjectID&       getFaultID()			{ return emid_; }
@@ -71,7 +65,7 @@ public:
 protected:
     bool		addPolyLine();
 
-	mStruct(EarthModel) Fault3DMarker
+	mStruct Fault3DMarker
 	{
 	    				Fault3DMarker(){}
 					~Fault3DMarker()
@@ -79,18 +73,20 @@ protected:
 					    deepErase(stickmarker_);
 					    deepErase(intsecmarker_);
 					}
-	    ObjectSet<StkMarkerInfo>		stickmarker_;
-	    ObjectSet<FlatView::AuxData>	intsecmarker_;
+	    ObjectSet<StkMarkerInfo>			stickmarker_;
+	    ObjectSet<FlatView::Annotation::AuxData>	intsecmarker_;
 	};
 
     bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
 				    Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
-					  const Coord3&, FlatView::AuxData&);
+					  const Coord3&,
+					  FlatView::Annotation::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
 	    				  RowCol&,const StepInterval<int>&,
-					  const Coord3&, FlatView::AuxData&);
+					  const Coord3&,
+					  FlatView::Annotation::AuxData&);
     bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
 	    				  Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
@@ -127,5 +123,3 @@ protected:
 } //namespace EM
 
 #endif
-
-

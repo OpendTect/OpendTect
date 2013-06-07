@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -23,7 +22,7 @@ class uiLabeledSpinBox;
 
 /*! \brief Instantaneous Attribute description editor */
 
-mExpClass(uiAttributes) uiInstantaneousAttrib : public uiAttrDescEd
+mClass uiInstantaneousAttrib : public uiAttrDescEd
 {
 public:
 
@@ -46,10 +45,10 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		outputSelCB(CallBacker*);
-    void		getEvalParams( TypeSet<EvalParam>& params ) const;
 
     			mDeclReqAttribUIFns
+
+    void		getEvalParams( TypeSet<EvalParam>& params ) const;
 };
 
 #endif
-

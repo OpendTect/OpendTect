@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "sets.h"
 
@@ -30,7 +29,7 @@ namespace visBase
 {
 class Texture3;
 
-mExpClass(visBase) Texture3ViewerObject : public VisualObjectImpl
+mClass Texture3ViewerObject : public VisualObjectImpl
 {
 public:
     				Texture3ViewerObject( bool sel=true )
@@ -49,7 +48,7 @@ direction can be cut through the texture. The positions of the object in
 in front of it.
 */
 
-mExpClass(visBase) Texture3Viewer : public VisualObjectImpl
+mClass Texture3Viewer : public VisualObjectImpl
 {
 public:
     static Texture3Viewer*	create()
@@ -80,7 +79,7 @@ protected:
 };
 
 
-mExpClass(visBase) Texture3Slice : public Texture3ViewerObject
+mClass Texture3Slice : public Texture3ViewerObject
 {
 public:
     static Texture3Slice*	create()
@@ -105,7 +104,7 @@ protected:
 };
 
 
-mExpClass(visBase) MovableTextureSlice : public Texture3ViewerObject
+mClass MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()
@@ -140,4 +139,3 @@ protected:
 };
 	
 #endif
-

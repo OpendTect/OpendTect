@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "gridder2d.h"
@@ -22,9 +22,13 @@ mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
 
-    Stats::randGen().init();
+    Stats::RandGen::init();
 
-    WindowFunction::addAllStdClasses();
+    BartlettWindow::initClass();
+    BoxWindow::initClass();
+    CosTaperWindow::initClass();
+    HammingWindow::initClass();
+    HanningWindow::initClass();
 
     InverseDistanceGridder2D::initClass();
     TriangulatedGridder2D::initClass();
@@ -36,7 +40,7 @@ mDefModInitFn(Algo)
 
     InverseDistanceArray2DInterpol::initClass();
     TriangulationArray2DInterpol::initClass();
-    ExtensionArray2DInterpol::initClass();
+    Array2DInterpolExtension::initClass();
 
     Fourier::CC::initClass();
 

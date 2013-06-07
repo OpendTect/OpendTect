@@ -12,7 +12,6 @@ ________________________________________________________________________
 */
 
 
-#include "algomod.h"
 #include "thread.h"
 #include "arrayndimpl.h"
 #include "ranges.h"
@@ -27,25 +26,24 @@ class Plane3;
 class Coord3;
 namespace Threads { class Mutex; };
 
-/*!
-\brief Finds planes in Array3D<float>'s regions with high values. All
-positions in the array above a threshold (defined by cliprate) are used to
-find the planes.
-  
-  The planes are defined with three parameters: dip (0-90), azi(0-360) and the
-  normal's distance to origo. Depending on your application, you might need
-  different resolution, which is set with setParamSpaceSize.
+/*!\brief
+Finds planes in Array3D<float>'s regions with high values. All positions
+in the array above a threshold (defined by cliprate) is used to find the planes.
 
-  Usage:
-  1) Create
-  2) Set setParamSpaceSize, cliprate and data
-  3) Get the tasks and run them
-  4) call sortParamSpace
-  5) get your planes and their scores.
-  
+The planes are defined with three parameters: dip (0-90), azi(0-360) and the
+normal's distance to origo. Depending on your application, you might need
+different resolution, which is set with setParamSpaceSize.
+
+Usage:
+1) Create
+2) Set setParamSpaceSize, cliprate and data
+3) Get the tasks and run them
+4) call sortParamSpace
+5) get your planes and their scores.
+
 */
 
-mExpClass(Algo) PlaneFrom3DSpaceHoughTransform
+mClass PlaneFrom3DSpaceHoughTransform
 {
 public:
     				PlaneFrom3DSpaceHoughTransform();
@@ -109,11 +107,7 @@ protected:
 };
 
 
-/*!
-\brief Finds lines in Array2D<float>'s regions with high values.
-*/
-
-mExpClass(Algo) LineFrom2DSpaceHoughTransform
+mClass LineFrom2DSpaceHoughTransform
 {
 public:
     				LineFrom2DSpaceHoughTransform(
@@ -148,4 +142,3 @@ public:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "binidvalset.h"
 #include "task.h"
 #include "horsampling.h"
@@ -24,26 +23,25 @@ namespace Table { class FormatDesc; }
 
 namespace PreStack
 {
-
 class EventManager;
 
-/*!
-\brief Outputs an ascii string with all PreStack event, each pick on one row.
-The columns are as follows:
+/*!Outputs an ascii string with all prestack event, each pick on one row. The
+columns are as follows:
 
-  Inline
-  Crossline
-  Event index (0-N).
-  Dip, going to increasing inlines, If not dip is available, 0 is written
-  Dip, going to increasing crosslines, If not dip is available, 0 is written
-  Event quality, 0-255
-  Azimuth (0-2PI)
-  Offset
-  Depth
-  Pick quality, 0-255
+     Inline
+     Crossline
+     Event index (0-N).
+     Dip, going to increasing inlines, If not dip is available, 0 is written
+     Dip, going to increasing crosslines, If not dip is available, 0 is written
+     Event quality, 0-255
+     Azimuth (0-2PI)
+     Offset
+     Depth
+     Pick quality, 0-255
 */
 
-mExpClass(PreStackProcessing) EventExporter : public SequentialTask
+
+mClass EventExporter : public SequentialTask
 {
 public:
     			EventExporter(std::ostream& strm,EventManager&);
@@ -72,11 +70,7 @@ protected:
 };
 
 
-/*!
-\brief Ascii I/O for PreStack event. 
-*/
-
-mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
+mClass EventAscIO : public Table::AscIO
 {
 public:
     				EventAscIO( const Table::FormatDesc& fd,
@@ -103,11 +97,7 @@ protected:
 };
 
 
-/*!
-\brief PreStack event importer.
-*/
-
-mExpClass(PreStackProcessing) EventImporter : public SequentialTask
+mClass EventImporter : public SequentialTask
 {
 public:
     			EventImporter(const char*,const Table::FormatDesc&,
@@ -138,4 +128,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

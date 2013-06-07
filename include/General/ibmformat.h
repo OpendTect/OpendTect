@@ -12,14 +12,10 @@ ________________________________________________________________________
 
 -*/
  
-#include "generalmod.h"
 #include "gendefs.h"
 
-/*!
-\brief IBM Format.
-*/
 
-mExpClass(General) IbmFormat
+mClass IbmFormat
 {
 public:
 
@@ -37,4 +33,3 @@ public:
 
 
 #endif
-

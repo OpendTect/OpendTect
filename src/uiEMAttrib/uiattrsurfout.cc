@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiattrsurfout.h"
@@ -39,7 +39,6 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     , interpol_(0)
 {
     setHelpID( "104.4.0" );
-    setCtrlStyle( DoAndStay );
 
     attrnmfld_ = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, attrfld_ );
@@ -99,7 +98,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 
     IOPar iop;
     interpolsel->fillPar( iop );
-    iop.get( sKey::Name(), methodname_ );
+    iop.get( sKey::Name, methodname_ );
 
     if ( interpol_ ) delete interpol_;
 
@@ -156,7 +155,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
     if ( !attrfnm.isEmpty() )
     {
-	const int val = uiMSG().askOverwrite("Horizon data with this attribute"
+	const int val = uiMSG().askOverwrite("Horizon Data with this attribute"
 		" name already exists. Do you want to overwrite?");
 	if ( val==0 )
 	    return false;
@@ -168,12 +167,12 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	    EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, attrnm );
 	if ( !res )
 	{
-	    uiMSG().error( "Cannot save Horizon data to: ", attrfnm );
+	    uiMSG().error( "Cannot save Horizon Data to: ", attrfnm );
 	    return false;
 	}
     }
 
-    iopar.set( sKey::Target(), attrnm );
+    iopar.set( sKey::Target, attrnm );
     return true;
 }
 
@@ -183,7 +182,7 @@ void uiAttrSurfaceOut::fillGridPar( IOPar& par ) const
     IOPar gridpar, iopar;
     if ( interpol_ )
     {
-	gridpar.set( sKey::Name(), methodname_ );
+	gridpar.set( sKey::Name, methodname_ );
 	interpol_->fillPar( gridpar );
     }
 

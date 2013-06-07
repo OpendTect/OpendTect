@@ -11,7 +11,6 @@ ________________________________________________________________________
                  
 -*/   
 
-#include "seismod.h"
 #include "executor.h"
 
 namespace Fourier { class CC; }
@@ -22,7 +21,7 @@ class SeisTrcReader;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-mExpClass(Seis) WaveletExtractor : public Executor
+mClass WaveletExtractor : public Executor
 {
 public:
 				WaveletExtractor(const IOObj&,int wvltsize);
@@ -74,4 +73,3 @@ protected:
 };
 
 #endif
-

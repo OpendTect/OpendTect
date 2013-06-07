@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "horizonmodifier.h"
@@ -126,7 +126,7 @@ void HorizonModifier::getLines( const EM::Horizon* hor )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return;
 
-    const EM::SectionID sid = hor2d->sectionID( 0 );
+    const int sid = hor2d->sectionID( 0 );
     for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
     {
 	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( ldx );
@@ -160,8 +160,8 @@ void HorizonModifier::doWork()
 	else
 	{
 	    const EM::SubID subid = binid.toInt64();
-	    topz = (float) tophor_->getPos( tophor_->sectionID(0), subid ).z;
-	    botz = (float) bothor_->getPos( bothor_->sectionID(0), subid ).z;
+	    topz = tophor_->getPos( tophor_->sectionID(0), subid ).z;
+	    botz = bothor_->getPos( bothor_->sectionID(0), subid ).z;
 	}
 
 	if ( botz >= topz || mIsUdf(topz) || mIsUdf(botz) ) continue;
@@ -182,7 +182,7 @@ float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return mUdf(float);
 
-    return (float) hor2d->getPos( sid, geomids_[bid.inl], bid.crl ).z;
+    return hor2d->getPos( sid, geomids_[bid.inl], bid.crl ).z;
 }
 
 
@@ -191,12 +191,12 @@ void HorizonModifier::shiftNode( const BinID& bid )
     const EM::Horizon* statichor = topisstatic_ ? tophor_ : bothor_;
     EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
 
-    const double extrashift = topisstatic_ ? 0.001 : -0.001;
+    const float extrashift = topisstatic_ ? 0.001 : -0.001;
     EM::SubID staticsubid, dynamicsubid;
     if ( !is2d_ )
     {
 	staticsubid = dynamicsubid = bid.toInt64();
-	double newz = statichor->getPos( statichor->sectionID(0), staticsubid).z;
+	float newz = statichor->getPos( statichor->sectionID(0), staticsubid).z;
 	if ( !mIsUdf(newz) )
 	    newz += extrashift;
 
@@ -212,10 +212,10 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
-	float newz = (float) statichor2d->getPos( statichor->sectionID(0),
+	float newz = statichor2d->getPos( statichor->sectionID(0),
 					  geomids_[bid.inl], bid.crl ).z;
 	if ( !mIsUdf(newz) )
-	    newz += (float) extrashift;
+	    newz += extrashift;
 
 	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl],
 			      bid.crl, newz, false);

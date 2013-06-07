@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
@@ -35,12 +34,10 @@ namespace EM
 class Body;    
 class ImplicitBody;    
 
-/*!
-\brief Operators for implicit body. Each BodyOperator has two children, either
-a Body or a BodyOperator.
-*/
+/*!Operators for implicit body. Each BodyOperator has two children, either a
+   Body or a BodyOperator. */
 
-mExpClass(EarthModel) BodyOperator
+mClass BodyOperator
 { 
 public:
     			BodyOperator();
@@ -98,16 +95,11 @@ protected:
 };
 
 
-/*
-\brief Converts an explicit body to implicit.
-
-   Given a triangulated body, extract position value on each trace based on 
+/*<Given a triangulated body, extract position value on each trace based on 
    threshhold value. The arr's size is based on inlrg, crlrg, zrg. The value at
    each point is the min distance to the body, inside to be negative, and 
-   outside to be positive.
-*/
-
-mExpClass(EarthModel) Expl2ImplBodyExtracter : public ParallelTask
+   outside to be positive. */
+mClass Expl2ImplBodyExtracter : public ParallelTask
 {
 public:
 			Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree, 
@@ -132,7 +124,7 @@ private:
     TypeSet<Plane3>		planes_;
 };
 
-} // namespace EM
+
+}; // Namespace
 
 #endif
-

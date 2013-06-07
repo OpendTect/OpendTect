@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "gridder2d.h"
 
@@ -104,15 +104,15 @@ float Gridder2D::getValue() const
 	return mUdf(float);
 
     if ( nrvals==usedvalues_.size() )
-	return (float) valweightsum;
+	return valweightsum;
 
-    return (float) ( valweightsum/weightsum );
+    return valweightsum/weightsum;
 }
 
 
 bool Gridder2D::isPointUsed( int idx ) const
 {
-    return usedvalues_.isPresent(idx);
+    return usedvalues_.indexOf(idx) != -1;
 }
 
 
@@ -177,6 +177,7 @@ bool InverseDistanceGridder2D::init()
     const bool useradius = !mIsUdf(radius_);
     const double radius2 = radius_*radius_;
 
+
     double weightsum = 0;
     for ( int idx=points_->size()-1; idx>=0; idx-- )
     {
@@ -202,12 +203,12 @@ bool InverseDistanceGridder2D::init()
 	const double weight = useradius ? 1-dist/radius_ : 1./dist;
 
 	weightsum += weight;
-	weights_ += (float) weight;
+	weights_ += weight;
 	usedvalues_ += idx;
     }
 
     for ( int idx=weights_.size()-1; idx>=0; idx-- )
-	weights_[idx] /= (float) weightsum;
+	weights_[idx] /= weightsum;
 
     inited_ = true;
     return true;
@@ -283,12 +284,12 @@ bool TriangulatedGridder2D::init()
     inited_ = false;
 
     if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
-	return true;
-
+	return false;
+    
     Interval<double> xrg, yrg;
     if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
 	return false;
-    
+
     if ( !triangles_ || !xrg.includes(gridpoint_.x,false) ||
 			!yrg.includes(gridpoint_.y,false) )
     {
@@ -314,10 +315,10 @@ bool TriangulatedGridder2D::init()
 	    weights_ += weight;
 	    usedvalues_ += idx;
 	}
-
-	if ( !weights_.size() )
-	    return false;
 	
+	if ( !weights_.size() )	
+	    return false;
+
 	for ( int idx=weights_.size()-1; idx>=0; idx-- )
 	    weights_[idx] /= weightsum;
     }

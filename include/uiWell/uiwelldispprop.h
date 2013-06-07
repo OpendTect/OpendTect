@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -38,15 +37,11 @@ namespace Well
     class LogSet;
 }
 
-/*!
-\brief Well display properties.
-*/
-
-mExpClass(uiWell) uiWellDispProperties : public uiGroup
+mClass uiWellDispProperties : public uiGroup
 {
 public:
 
-    mExpClass(uiWell) Setup
+    mClass Setup
     {
     public:
 			Setup( const char* sztxt=0, const char* coltxt=0 )
@@ -82,11 +77,7 @@ protected:
 };
 
 
-/*!
-\brief Well Track display properties.
-*/
-
-mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
+mClass uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellTrackDispProperties(uiParent*,const Setup&,
@@ -109,11 +100,7 @@ protected:
 };
 
 
-/*!
-\biref Well Markers display properties.
-*/
-
-mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
+mClass uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
@@ -140,19 +127,15 @@ protected:
     uiLabeledSpinBox*	nmsizefld_;
     uiComboBox*		nmstylefld_;
     uiCheckBox*		samecolasmarkerfld_;
-    uiCheckBox*		checkallfld_;
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
+    BufferStringSet&	selmarkernms_;
     bool		is2d_;
 };
 
 
-/*!
-\brief Well Log display properties.
-*/
-
-mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
+mClass uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,
@@ -165,7 +148,6 @@ public:
     void 		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
     void		disableSeisStyle(bool);
-    void		disableLogWidth(bool);
 
 protected:
 
@@ -212,7 +194,9 @@ protected:
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
     const Well::LogSet*  wl_;
+
+public:
+    void		disableLogWidth(bool yn);
 };
 
 #endif
-

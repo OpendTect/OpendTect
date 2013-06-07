@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -27,7 +27,9 @@ bool PosID::isUdf() const { return objectID()==-1; }
 
 
 RowCol PosID::getRowCol() const
-{ return RowCol::fromInt64( subID() ); }
+{
+    return RowCol( subID() );
+}
 
 
 void PosID::fillPar( IOPar& par ) const
@@ -40,14 +42,14 @@ void PosID::fillPar( IOPar& par ) const
 
 bool PosID::usePar( const IOPar& par )
 {
-    int tmpsection = mUdf(int);
-    SubID tmpsubid = mUdf(od_int64);
+    int tmpsection;
+    SubID tmpsubid;
     const bool res = par.get( emobjStr(), emobjid_ ) &&
 		     par.get( sectionStr(), tmpsection ) &&
 		     par.get( subidStr(), tmpsubid );
     if ( res )
     {
-	sectionid_ = mCast( EM::SectionID, tmpsection );
+	sectionid_ = tmpsection;
 	subid_ = tmpsubid;
     }
 

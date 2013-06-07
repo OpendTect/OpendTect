@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "timer.h"
 #include "qtimercomm.h" 
 
-mUseQtnamespace
 
 Timer::Timer( const char* nm )
     : NamedObject(nm)

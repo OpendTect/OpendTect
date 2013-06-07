@@ -12,18 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "bufstring.h"
 
 
-/*!
-\brief BinID sorting parameters
+/*!\brief BinID sorting parameters
 
-  Note that in 2D, inl == line number, crl == trace number.
-*/
+  Note that in 2D, inl == line number, crl == trace number
+ 
+ */
 
-mExpClass(Algo) BinIDSorting
+mClass BinIDSorting
 {
 public:
     			BinIDSorting( bool is2d )
@@ -60,18 +59,14 @@ protected:
 };
 
 
-/*!
-\brief Analyses whether input BinIDs are sorted.
-*/
-
-mExpClass(Algo) BinIDSortingAnalyser
+mClass BinIDSortingAnalyser
 {
 public:
     			BinIDSortingAnalyser(bool is2d);
 
     bool		add(const BinID&);
     			//!< returns whether analysis phase is finished
-    			//!< Check errMsg() to see whether a valid sorting found
+    			//!< Check errMsg() to see whether a vaild sorting found
     BinIDSorting	getSorting() const;
     			//!< Can be used after add() returns true
     const char*		errMsg() const		{ return errmsg_.str(); }
@@ -87,4 +82,3 @@ protected:
 
 
 #endif
-

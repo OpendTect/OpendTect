@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -25,11 +23,7 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief 3D horizon painter
-*/
-
-mExpClass(EarthModel) HorizonPainter3D : public CallBacker
+mClass HorizonPainter3D : public CallBacker
 {
 public:
     			HorizonPainter3D(FlatView::Viewer&,const EM::ObjectID&);
@@ -44,7 +38,7 @@ public:
 
     void		paint();
 
-    	mStruct(EarthModel) Marker3D
+    	mStruct Marker3D
 	{
 	    			Marker3D()
 				    : marker_(0)
@@ -53,8 +47,8 @@ public:
 				~Marker3D()
 				{ delete marker_; }
 	     
-	    FlatView::AuxData*	marker_;
-	    EM::SectionID	sectionid_;	    
+	    FlatView::Annotation::AuxData*	marker_;
+	    EM::SectionID                       sectionid_;	    
 	};
 
     void		getDisplayedHor(ObjectSet<Marker3D>&);
@@ -99,5 +93,3 @@ protected:
 } //namespace EM
 
 #endif
-
-

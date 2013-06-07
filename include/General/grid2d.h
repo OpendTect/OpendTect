@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "namedobj.h"
 #include "position.h"
 
@@ -21,17 +20,13 @@ class HorSampling;
 class IOPar;
 class Line2;
 
-/*!
-\brief Represents a grid of 2D lines in an Inl-Crl plane.
-*/
+/* Represents a grid of 2D lines in Inl-Crl plane */
 
-mExpClass(General) Grid2D
+mClass Grid2D
 {
 public:
 
-    /*!\brief Line in an Inl-Crl plane.*/
-
-    mExpClass(General) Line
+    mClass Line
     {
     public:
 			Line(const BinID&,const BinID&);
@@ -71,4 +66,3 @@ protected:
 
 
 #endif
-

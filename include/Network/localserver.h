@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
@@ -21,7 +20,7 @@ class QLocalServer;
 class QLocalServerComm;
 class QLocalSocket;
 
-mExpClass(Network) LocalServer : public CallBacker
+mClass LocalServer : public CallBacker
 {
 public:
 			LocalServer();
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

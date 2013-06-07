@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivelocitymod.h"
 #include "uiselectvelocityfunction.h"
 #include "velocityfunctionstored.h"
 
@@ -24,7 +23,7 @@ namespace Vel
 {
 class StoredFunctionSource;
 
-mExpClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
+mClass uiStoredFunction : public uiFunctionSettings
 {
 public:
     mDefaultFactoryInstanciationBase(
@@ -49,4 +48,3 @@ protected:
 }; //namespace
 
 #endif
-

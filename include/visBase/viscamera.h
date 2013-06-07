@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "position.h"
 
@@ -21,7 +20,6 @@ class SoCamera;
 class SoGroup;
 class UTMCamera;
 
-namespace osg { class Camera; }
 
 namespace visBase
 {
@@ -32,7 +30,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) Camera : public DataObject
+mClass Camera : public DataObject
 {
 public:
 
@@ -89,8 +87,6 @@ protected:
     SoCamera*		getCamera();
     const SoCamera*	getCamera() const;
 
-    osg::Camera*	camera_;
-
     static const char*	sKeyPosition();
     static const char*	sKeyOrientation();
     static const char*	sKeyAspectRatio();
@@ -99,7 +95,6 @@ protected:
     static const char*	sKeyFocalDistance();
 
     SoNode*		gtInvntrNode();
-    osg::Node*		gtOsgNode();
 };
 
 
@@ -107,4 +102,3 @@ protected:
 
 
 #endif
-

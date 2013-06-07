@@ -12,17 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "namedobj.h"
 
-mFDQtclass(QTimer)
-mFDQtclass(QTimerComm)
+class QTimer;
+class QTimerComm;
 
-/*!
-\brief Timer class.
-*/
-
-mExpClass(Basic) Timer : public NamedObject
+mClass Timer : public NamedObject
 {
 public :
 			Timer(const char* nm="Timer");
@@ -42,8 +37,8 @@ public :
     void		setScriptPolicy(ScriptPolicy);
 
 protected:
-    mQtclass(QTimer*)		timer_;
-    mQtclass(QTimerComm*)		comm_;
+    QTimer*		timer_;
+    QTimerComm*		comm_;
     ScriptPolicy	scriptpolicy_;		
 
 public:	
@@ -61,4 +56,3 @@ public:
 
 
 #endif
-

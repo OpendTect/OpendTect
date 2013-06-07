@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vissplittexturerandomline.h"
 
@@ -199,7 +199,7 @@ void SplitTextureRandomLine::updateDisplay( )
 	    SoIndexedTriangleStripSet* triangle = 0;
 
 	    if ( unusedseparators.size() )
-		sep = unusedseparators.removeSingle( 0 );
+		sep = unusedseparators.remove( 0 );
 	    else
 	    {
 		sep =new SoSeparator;
@@ -229,14 +229,14 @@ void SplitTextureRandomLine::updateDisplay( )
 
 	    if ( tc )
 	    {
-    		const float tcstart = 0.5f/texturezsz;
-    		const float tcstop = (versz-0.5f)/texturezsz;
+    		const float tcstart = 0.5/texturezsz;
+    		const float tcstop = (versz-0.5)/texturezsz;
 		int textureidx=0;
 		for ( int idx=0; idx<knots.size(); idx++ )
     		{
 		    const int posid = path_.indexOf(knots[idx]);
 		    const float tcrd = ((posid-startpathidx) * pathpixelscale_
-			    		+ 0.5f)/texturepathsz;
+			    		+ 0.5)/texturepathsz;
 		    tc->point.set1Value( textureidx, SbVec2f(tcstart,tcrd) );
 		    textureidx++;
 
@@ -314,7 +314,7 @@ void SplitTextureRandomLine::updateDisplay( )
     	separators_ -= unusedseparators[idx]; 
     	removeChild( unusedseparators[idx] ); 
     	unusedseparators[idx]->unref(); 
-    	unusedseparators.removeSingle( idx ); 
+    	unusedseparators.remove( idx ); 
     }
 }
 

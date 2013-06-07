@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "parametricsurface.h"
 
 template <class T> class TypeSet;
@@ -20,7 +19,7 @@ class Line3;
 namespace Geometry
 {
 
-mExpClass(Geometry) CubicBezierSurfacePatch
+mClass CubicBezierSurfacePatch
 {
 public:
 			CubicBezierSurfacePatch(
@@ -51,7 +50,7 @@ public:
 
 
 
-mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
+mClass CubicBezierSurface : public ParametricSurface
 {
 public:
     			CubicBezierSurface( const RowCol& step=RowCol(1,1));
@@ -113,4 +112,3 @@ protected:
 };
 
 #endif
-

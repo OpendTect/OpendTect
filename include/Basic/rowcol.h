@@ -12,23 +12,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "rcol.h"
 
 template <class T> class TypeSet;
 class BinID;
 
-/*!
-\brief Object with row and col. RowCol has most functions in common with
-BinID, so template-based functions can be based on both classes.
-*/
+/*!\brief Object with row and col. RowCol has most functions in common with
+          BinID, so template-based functions can be based on both classes. */
 
-mExpClass(Basic) RowCol
+mClass RowCol
 {
 public:
     inline			RowCol(int r,int c);
     inline			RowCol(const RowCol&);
 				RowCol(const BinID&);
+    inline			RowCol(const od_int64&);
     inline			RowCol();
 
     inline bool			operator==(const RowCol&) const;
@@ -51,9 +49,9 @@ public:
     void			fill(char*) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
-    static inline RowCol	fromInt64(od_int64);
+    inline void			fromInt64(od_int64);
     inline int			toInt32() const;
-    static inline RowCol	fromInt32(int);
+    inline void			fromInt32(int);
     int				sqDistTo(const RowCol&) const;
     bool			isNeighborTo(const RowCol&,const RowCol&,
 					     bool eightconnectivity=true) const;
@@ -91,4 +89,3 @@ public:
 mImplInlineRowColFunctions(RowCol, row, col);
 
 #endif
-

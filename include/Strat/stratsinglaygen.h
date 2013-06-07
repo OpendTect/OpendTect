@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stratlaygen.h"
 
 
@@ -23,7 +22,7 @@ class Content;
 
 /*!\brief Layer generator based on Leaf Unit */
 
-mExpClass(Strat) SingleLayerGenerator : public LayerGenerator
+mClass SingleLayerGenerator : public LayerGenerator
 {
 public:
 
@@ -57,4 +56,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "dipfilterattrib.h"
@@ -165,10 +165,10 @@ DipFilter::DipFilter( Desc& ds )
     mGetFloat( taperlen_, taperlenStr() );
     taperlen_ = taperlen_/100;
 
-    kernel_.setSize( is2D() ? 1 : size_, size_, size_ );
+    kernel_.setSize( desc_.is2D() ? 1 : size_, size_, size_ );
     valrange_ = Interval<float>(minvel_,maxvel_);
     valrange_.sort();
-    stepout_ = is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
+    stepout_ = desc_.is2D() ? BinID( 0, hsz ) : BinID( hsz, hsz );
     zmargin_ = Interval<int>( -hsz, hsz );
 }
 
@@ -187,17 +187,18 @@ bool DipFilter::initKernel()
 	return false;
     }
 
+    const bool is2d = desc_.is2D();
     const int hsz = size_/2;
-    const int hszinl = is2D() ? 0 : hsz;
+    const int hszinl = is2d ? 0 : hsz;
 
     for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
-	const float ki = kii * inlDist();
+	const float ki = kii * inldist();
 	const float ki2 = ki*ki;
 
 	for ( int kci=-hsz; kci<=hsz; kci++ )
 	{
-	    const float kc = kci * crlDist();
+	    const float kc = kci * crldist();
 	    const float kc2 = kc*kc;
 
 	    const float spatialdist = Math::Sqrt(ki2+kc2);
@@ -314,7 +315,7 @@ float DipFilter::taper( float pos ) const
     if ( pos < 0 ) return 0;
     else if ( pos > 1 ) return 1;
 
-    return (float)( ( 1 - cos(pos * M_PI) ) / 2 );
+    return (1-cos(pos*M_PI))/2;
 }
 
 
@@ -351,7 +352,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
     if ( outputinterest_.isEmpty() ) return false;
 
     const int hsz = size_/2;
-    const int sizeinl = is2D() ? 1 : size_;
+    const int sizeinl = desc_.is2D() ? 1 : size_;
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 template <class T> class Array2D;
@@ -22,7 +21,7 @@ class uiFunctionDisplay;
 class uiSliderExtra;
 class uiSpinBox;
 
-mExpClass(uiTools) uiVariogramDlg : public uiDialog
+mClass uiVariogramDlg : public uiDialog
 {
 public:
 
@@ -42,7 +41,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiVariogramDisplay: public uiDialog
+mClass uiVariogramDisplay: public uiDialog
 {
 public:
      				uiVariogramDisplay(uiParent*,Array2D<float>*,
@@ -72,4 +71,3 @@ protected:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "executor.h"
 
 #include "cubesampling.h"
@@ -26,11 +25,8 @@ template <class T> class Array3D;
 class HorSamplingIterator;
 class BufferStringSet;
 
-/*!
-\brief Executor to sort horizons.
-*/
 
-mExpClass(EarthModel) HorizonSorter : public Executor
+mClass HorizonSorter : public Executor
 {
 public:
 
@@ -75,4 +71,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 class IOPar;
 class SeisTrc;
@@ -28,7 +27,7 @@ namespace PosInfo { class CubeData; class Line2DData; }
 
 */
 
-mExpClass(Seis) SeisPSReader
+mClass SeisPSReader
 {
 public:
 
@@ -48,7 +47,7 @@ public:
 
 /*!\brief reads from a 3D pre-stack seismic data store. */
 
-mExpClass(Seis) SeisPS3DReader : public SeisPSReader
+mClass SeisPS3DReader : public SeisPSReader
 {
 public:
 
@@ -61,7 +60,7 @@ public:
 
 /*!\brief reads from a 2D pre-stack seismic data store. */
 
-mExpClass(Seis) SeisPS2DReader : public SeisPSReader
+mClass SeisPS2DReader : public SeisPSReader
 {
 public:
     			SeisPS2DReader( const char* lnm )
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

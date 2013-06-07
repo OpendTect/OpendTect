@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "posinfo2d.h"
@@ -25,7 +24,7 @@ namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
-mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
+mClass Horizon2DScanner : public Executor
 {
 public:
 
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

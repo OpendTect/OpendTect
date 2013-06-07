@@ -13,14 +13,13 @@ ________________________________________________________________________
 -*/
  
  
-#include "geometrymod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include <iosfwd>
 class PosVecDataSet;
 
 
-mExpClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
+mClass PosVecDataSetTranslatorGroup : public TranslatorGroup
 {			     isTranslatorGroup(PosVecDataSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
@@ -29,7 +28,7 @@ public:
 };
 
 
-mExpClass(Geometry) PosVecDataSetTranslator : public Translator
+mClass PosVecDataSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(PosVecDataSet)
@@ -45,7 +44,7 @@ protected:
 };
 
 
-mExpClass(Geometry) odPosVecDataSetTranslator : public PosVecDataSetTranslator
+mClass odPosVecDataSetTranslator : public PosVecDataSetTranslator
 {			  isTranslator(od,PosVecDataSet)
 public:
 			mDefEmptyTranslatorConstructor(od,PosVecDataSet)
@@ -57,4 +56,3 @@ public:
 
 
 #endif
-

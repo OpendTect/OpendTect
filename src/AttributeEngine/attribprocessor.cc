@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribprocessor.h"
 
@@ -41,9 +41,9 @@ Processor::Processor( Desc& desc , const char* lk, BufferString& err )
     provider_->ref();
     desc_.ref();
 
-    is2d_ = desc_.is2D();
+    is2d_ = desc_.descSet()->is2D();
     if ( is2d_ )
-	provider_->setCurLineName( lk );
+	provider_->setCurLineKey( lk );
 }
 
 
@@ -64,13 +64,6 @@ void Processor::addOutput( Output* output )
     if ( !output ) return;
     output->ref();
     outputs_ += output;
-}
-
-
-void Processor::setLineName( const char* lnm )
-{
-    if ( provider_ && is2d_ )
-	provider_->setCurLineName( lnm );
 }
 
 
@@ -248,16 +241,15 @@ void Processor::init()
     if ( is2d_ )
     {
 	provider_->adjust2DLineStoredVolume();
-	provider_->compDistBetwTrcsStats();
+//	provider_->compAndSpreadDistBetwTrcsStats(); //4.4.0e
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( trcvarzoutp || taboutp )
 	{
-	    float maxdist = provider_->getDistBetwTrcs(true);
+	    float maxdist = provider_->getMaxDistBetwTrcs();
 	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
 	    if ( taboutp ) taboutp->setMaxDistBetwTrcs( maxdist );
 	}
-
     }
     computeAndSetRefZStep();
     provider_->prepPriorToBoundsCalc();    
@@ -269,7 +261,9 @@ void Processor::init()
 
     //Special case for attributes (like PreStack) which inputs are not treated
     //as normal input cubes and thus not delivering adequate cs automaticly
-    provider_->updateCSIfNeeded(globalcs);
+    if ( provider_->getMyMainHackingClass() &&
+	    provider_->getMyMainHackingClass()->isTheOne() )
+	provider_->getMyMainHackingClass()->updateCSIfNeeded( globalcs );
 
     computeAndSetPosAndDesVol( globalcs );
     for ( int idx=0; idx<outputs_.size(); idx++ )
@@ -303,7 +297,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
 	    outputs_[idx]->unRef();
-	    outputs_.removeSingle(idx);
+	    outputs_.remove(idx);
 	    idx--;
 	    continue;
 	}
@@ -319,7 +313,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 
 	for ( int idy=0; idy<outpinterest_.size(); idy++ )
 	{
-	    if ( !globaloutputinterest.isPresent(outpinterest_[idy]) )
+	    if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
 		globaloutputinterest += outpinterest_[idy];
 	}
 	outputs_[idx]->setDesiredOutputs( outpinterest_ );

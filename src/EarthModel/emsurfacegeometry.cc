@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emsurfacegeometry.h"
 
@@ -32,6 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM {
 
 
+static const char* sDbInfo = "DB Info";
+static const char* sRange = "Range";
+static const char* sValnms = "Value Names";
+static const char* sSections = "Patches";
+
+
 class SurfaceSectionUndoEvent : public UndoEvent
 {
 public:
@@ -47,10 +53,10 @@ public:
 protected:
     bool				action(bool add) const;
 
-    bool				add_;
-    ObjectID				object_;
-    SectionID				sid_;
-    BufferString			name_;
+    bool				add;
+    ObjectID				object;
+    SectionID				sid;
+    BufferString			name;
 
     static const char*  		addKey();
     static const char*  		objKey();
@@ -62,10 +68,10 @@ protected:
 SurfaceSectionUndoEvent::SurfaceSectionUndoEvent(
 	bool doadd, ObjectID oid,
         const SectionID& sectionid, const char* nm)
-    : object_( oid )
-    , sid_( sectionid )
-    , name_( nm )
-    , add_( doadd )
+    : object( oid )
+    , sid( sid )
+    , name( nm )
+    , add( doadd )
 {}
 
 
@@ -77,13 +83,13 @@ const char* SurfaceSectionUndoEvent::getStandardDesc() const
 
 bool SurfaceSectionUndoEvent::unDo()
 {
-    return action( !add_ );
+    return action( !add );
 }
 
 
 bool SurfaceSectionUndoEvent::reDo()
 {
-    return action( add_ );
+    return action( add );
 }
 
 
@@ -95,25 +101,25 @@ const char* SurfaceSectionUndoEvent::nameKey() { return "Name"; }
 
 void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
 {
-    iopar.setYN( addKey(), add_ );
-    iopar.set( objKey(), object_ );
-    iopar.set( sectionKey(), (int) sid_ );
-    if ( add_ ) iopar.set( nameKey(), name_ );
+    iopar.setYN( addKey(), add );
+    iopar.set( objKey(), object );
+    iopar.set( sectionKey(), (int) sid );
+    if ( add ) iopar.set( nameKey(), name );
 }
 
 
 bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 {
-    int tmpsection = mUdf(int);
-    bool res = iopar.getYN( addKey(), add_ ) && iopar.get( objKey(), object_ )
+    int tmpsection;
+    bool res = iopar.getYN( addKey(), add ) && iopar.get( objKey(), object )
 	    && iopar.get( sectionKey(), tmpsection );
     if ( res )
     {
-	if ( add_ )
-	    res = iopar.get( nameKey(), name_ );
+	if ( add )
+	    res = iopar.get( nameKey(), name );
 
 	if ( res )
-	    sid_ = mCast( EM::SectionID, tmpsection );
+	    sid = tmpsection;
     }
 
     return res;
@@ -123,13 +129,13 @@ bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 bool SurfaceSectionUndoEvent::action( bool doadd ) const
 {
     EMManager& manager = EMM();
-    EMObject* objectptr = manager.getObject(object_);
+    EMObject* objectptr = manager.getObject(object);
     Surface* emsurface = dynamic_cast<Surface*>(objectptr);
 
     if ( doadd )
-	return emsurface->geometry().addSection( name_.buf(), sid_, false );
+	return emsurface->geometry().addSection( name.buf(), sid, false );
 
-    emsurface->geometry().removeSection( sid_, false );
+    emsurface->geometry().removeSection( sid, false );
     return true;
 }
 
@@ -287,10 +293,10 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     }
 
     //Keep the section in mem until everyone is notified
-    ConstPtrMan<Geometry::Element> removedelem = sections_[idx];
-    sections_.removeSingle( idx );
-    sids_.removeSingle( idx );
-    sectionnames_.removeSingle( idx );
+    PtrMan<const Geometry::Element> removedelem = sections_[idx];
+    sections_.remove( idx );
+    sids_.remove( idx );
+    sectionnames_.remove( idx );
 
     if ( addtoundo )
     {
@@ -898,20 +904,20 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hrg.start);
-    Interval<float> xinterval( (float) xypos.x, (float) xypos.x );
-    Interval<float> yinterval( (float) xypos.y, (float) xypos.y );
+    Interval<float> xinterval( xypos.x, xypos.x );
+    Interval<float> yinterval( xypos.y, xypos.y );
 
     xypos = SI().transform(cs.hrg.stop);
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     xypos = SI().transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     xypos = SI().transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
 
     TypeSet<PosID> posids;
     findPos( xinterval, yinterval, cs.zrg, &posids );
@@ -924,7 +930,7 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 	{
-	    posids.removeSingle( idx--, false );
+	    posids.remove( idx--, false );
 	    continue;
 	}
     }
@@ -958,7 +964,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
 	{ surface_.errmsg_ = tr ? tr->errMsg() :
 	    "Cannot find Translator"; return 0; }
@@ -1006,7 +1012,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startWrite(surface_) )
 	{ surface_.errmsg_ = tr ? tr->errMsg() : "No Translator"; return 0; }
 
@@ -1047,7 +1053,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     if ( sid==-1 )
     {
 	sid = 0;
-	while ( sids_.isPresent(sid) ) sid++;
+	while ( sids_.indexOf(sid)!=-1 ) sid++;
     }
     
     BufferString name; 

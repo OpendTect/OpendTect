@@ -13,17 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+
 #include "sets.h"
 #include "visdatagroup.h"
 
 class SoEnvironment;
 class SoAction;
 class SoCallback;
-
-/*!\brief Open Scene Graph*/
-
-namespace osg { class Group; }
 
 namespace visBase
 {
@@ -38,7 +34,7 @@ namespace visBase
     be common for the whole scene.
 */
 
-mExpClass(visBase) Scene : public DataObjectGroup
+mClass Scene : public DataObjectGroup
 {
 public:
     static Scene*	create()
@@ -80,7 +76,6 @@ protected:
     void		fillOffsetPar( IOPar& ) const;
 
     virtual SoNode*	gtInvntrNode();
-    virtual osg::Node*	gtOsgNode();
 
     static void		firstRender(void*,SoAction*);
 
@@ -96,10 +91,8 @@ private:
     SoGroup*		selroot_;
     SoCallback*		callback_;
     bool		blockmousesel_;
-    osg::Group*		osgsceneroot_;
 };
 
 }
 
 #endif
-

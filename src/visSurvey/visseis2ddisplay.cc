@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visseis2ddisplay.h"
 
@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
-#include "survgeom.h"
+#include "seisinfo.h"
 #include "survinfo.h"
 #include "task.h"
 #include "zaxistransform.h"
@@ -121,14 +121,7 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
     if ( !seis2dobj )
 	return;
 
-#ifdef mNew2DGeometryImpl
-    geomid_ = Survey::GM().getGeomID( lnm );
-    if ( geomid_ < 0 )
-	geomid_ = Survey::GM().getGeomID( Survey::Geometry2D::makeUniqueLineName
-					(seis2dobj->name(),lnm) );
-#else
-    oldgeomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
-#endif
+    geomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
     setName( lnm );
     if ( linename_ )
     {
@@ -141,23 +134,15 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 
 const char* Seis2DDisplay::getLineName() const
 {
-#ifdef mNew2DGeometryImpl
-    return Survey::GM().getName( geomid_ );
-#else
-    if ( !oldgeomid_.isOK() )
+    if ( !geomid_.isOK() )
 	return name();
 
-    S2DPOS().setCurLineSet( oldgeomid_.lsid_ );
-    return S2DPOS().getLineName( oldgeomid_.lineid_ );
-#endif
+    S2DPOS().setCurLineSet( geomid_.lsid_ );
+    return S2DPOS().getLineName( geomid_.lineid_ );
 }
 
 
 PosInfo::GeomID Seis2DDisplay::getGeomID() const
-{ return oldgeomid_; }
-
-
-TraceID::GeomID Seis2DDisplay::geomID() const
 { return geomid_; }
 
 
@@ -373,7 +358,7 @@ void Seis2DDisplay::setData( int attrib,
     slice2d.setDimMap( 0, 1 );
     slice2d.setDimMap( 1, 2 );
 
-    int sz0=mUdf(int), sz1=mUdf(int);
+    int sz0, sz1;
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
@@ -446,19 +431,19 @@ void Seis2DDisplay::setData( int attrib,
 	{
 	    CubeSampling cs;
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	    cs.hrg.start.crl =
+	    cs.hrg.start.crl = 
 		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start];
-	    cs.hrg.stop.crl =
+	    cs.hrg.stop.crl = 
 		trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop];
 	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, trcdisplayinfo_.zrg );
 	    // use survey step here?
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest2D(
-						getLineName(), cs, true );
+			getLineName(), cs, true );
 	    else
 		datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
-						     cs, true );
+			cs, true );
 	    datatransform_->loadDataIfMissing( voiidx_ );
 
 	    ZAxisTransformSampler outpsampler( *datatransform_, true,
@@ -468,6 +453,7 @@ void Seis2DDisplay::setData( int attrib,
 	    const int zsz = cs.nrZ();
 	    mTryAlloc( tmparr, Array2DImpl<float>(trcdisplayinfo_.size,zsz) );
 	    usedarr = tmparr;
+
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
@@ -480,12 +466,12 @@ void Seis2DDisplay::setData( int attrib,
 		    continue; 
 		}
 
-		const int startidx = trcdisplayinfo_.rg.start + crlidx;
+		const int startidx = trcdisplayinfo_.rg.start+crlidx;
 		outpsampler.setTrcNr( trcdisplayinfo_.alltrcnrs[startidx] );
 		outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		SampledFunctionImpl<float,ValueSeries<float> >
-		    inputfunc( traceslice, slice2d.info().getSize(1), 
+		    inputfunc( traceslice, slice2d.info().getSize(1),
 			    sd.start, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
@@ -509,7 +495,7 @@ void Seis2DDisplay::setData( int attrib,
 		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor =
+	ValueSeries<float>* stor = 
 	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
@@ -557,7 +543,7 @@ void Seis2DDisplay::setData( int attrib,
 		Array2DReSampler<float,float> 
 			resampler( sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
-		TaskRunner::execute( tr, resampler );
+		resampler.execute();
 	    }
 	}
 
@@ -597,7 +583,9 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg );
     s2dd->setTraceNrRange( getTraceNrRange() );
+
     s2dd->setResolution( getResolution(), tr );
+
     s2dd->setLineInfo( linesetid_, getLineName() );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -629,7 +617,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     float zdif = 0;
     if ( !zrg.includes(xytpos.z,false) )
     {
-	zdif = (float) mMIN(fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop));
+	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getZStretch()
 	    : SI().zScale();
@@ -706,10 +694,10 @@ void Seis2DDisplay::addCache()
 void Seis2DDisplay::removeCache( int attrib )
 {
     if ( cache_[attrib] ) cache_[attrib]->unRef();
-    cache_.removeSingle( attrib );
+    cache_.remove( attrib );
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
+    datapackids_.remove( attrib );
 }
 
 
@@ -748,14 +736,14 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 				     IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::XCoord(), evinfo.worldpickedpos.x );
-    par.set( sKey::YCoord(), evinfo.worldpickedpos.y );
-    par.set( sKey::LineKey(), name() );
+    par.set( sKey::XCoord, evinfo.worldpickedpos.x );
+    par.set( sKey::YCoord, evinfo.worldpickedpos.y );
+    par.set( sKey::LineKey, name() );
 
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
-	par.set( sKey::TraceNr(), geometry_.positions()[dataidx].nr_ );
+	par.set( sKey::TraceNr, geometry_.positions()[dataidx].nr_ );
 
 }
 
@@ -776,7 +764,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 {
-    info = "Line: "; info.add( getLineName() );
+    info = "Line: "; info += getLineName();
 }
 
 
@@ -866,9 +854,9 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    posb = posa;
 	}
 
-	const float dist2a = (float) posa.sqDistTo( pos );
-	const float dist2b = (float) posb.sqDistTo( pos );
-	const float dist2c = (float) posa.sqDistTo( posb );
+	const float dist2a = posa.sqDistTo( pos );
+	const float dist2b = posb.sqDistTo( pos );
+	const float dist2c = posa.sqDistTo( posb );
 
 	if ( dist2b >= dist2a+dist2c )
 	{
@@ -894,9 +882,9 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    continue;
 	}
 
-	const float dista = Math::Sqrt( dist2a );
-	const float distb = Math::Sqrt( dist2b );
-	const float distc = Math::Sqrt( dist2c );
+	const float dista = sqrt( dist2a );
+	const float distb = sqrt( dist2b );
+	const float distc = sqrt( dist2c );
 	const float sp = (dista + distb + distc) / 2;
 	const float height2 = 4*sp*(sp-dista)*(sp-distb)*(sp-distc) / dist2c;
 
@@ -905,10 +893,10 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    mindist2 = height2;
 	    trcnr1st = posns[aidx].nr_;
 	    trcnr2nd = posns[bidx].nr_;
-	    frac = Math::Sqrt( dist2a - height2 ) / distc;
+	    frac = sqrt( dist2a - height2 ) / distc;
 	}
     }
-    return mindist2!=MAXFLOAT ? Math::Sqrt(mindist2) : -1.0f;
+    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0;
 }
 
 
@@ -941,7 +929,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.start],
 	    trcdisplayinfo_.alltrcnrs[trcdisplayinfo_.rg.stop]);
     const int nidx = geometry_.nearestIdx( pos, trcnrrg );
-    mindist = (float) geometry_.positions()[nidx].coord_.distTo( pos );
+    mindist = geometry_.positions()[nidx].coord_.distTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
 }
@@ -1054,9 +1042,8 @@ Color Seis2DDisplay::getAnnotColor() const
 
 
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
-						const char* linenmptr )
+						const char* linenm )
 {
-    FixedString linenm = linenmptr;
     TypeSet<int> ids;
     visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), ids );
 
@@ -1065,7 +1052,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	if (s2dd && lineset==s2dd->lineSetID() && linenm &&
-	    linenm==s2dd->getLineName() )
+	    !strcmp(linenm,s2dd->getLineName()) )
 	    return s2dd;
     }
 
@@ -1077,12 +1064,8 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
 
-#ifdef mNew2DGeometryImpl
-    par.set( "GeomID", geomid_ );
-#else
-    par.set( "GeomID", oldgeomid_.toString() );
+    par.set( "GeomID", geomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
-#endif
     par.setYN( sKeyShowLineName(), lineNameShown() );
     if ( !trcdisplayinfo_.alltrcnrs.isEmpty() )
     {
@@ -1112,9 +1095,9 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	    reinterpret_cast<visBase::Texture2*>(text);
 
 	channels_->setColTabMapperSetup( 0,
-	    texture->getColorTab().colorMapper().setup_ );
+		texture->getColorTab().colorMapper().setup_ );
 	channels_->getChannels2RGBA()->setSequence( 0,
-	    texture->getColorTab().colorSeq().colors() );
+		texture->getColorTab().colorSeq().colors() );
 
 	Attrib::SelSpec as;
 	as.usePar( par );
@@ -1146,7 +1129,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 		}
 	    }
 	}
-
+	
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );
@@ -1155,30 +1138,18 @@ int Seis2DDisplay::usePar( const IOPar& par )
     par.get( sKeyZRange(), trcdisplayinfo_.zrg );
 
     BufferString linename( name() );
-    if ( !par.get(sKeyLineSetID(), linesetid_) )
+    par.get( sKeyLineSetID(), linesetid_ );
+    BufferString geomidstr;
+    if ( par.get("GeomID",geomidstr) )
     {
-	if ( par.get("GeomID",geomid_) )
-	{
-	    if ( geomid_ < 0 )
-		return -1;
-
-	    linename = Survey::GM().getName( geomid_ );
-	}
+	geomid_.fromString( geomidstr.buf() );
+	PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
+	if ( !seis2dobj )
+	    return -1;
+	S2DPOS().setCurLineSet( seis2dobj->name() );
+	linename = S2DPOS().getLineName( geomid_.lineid_ );
     }
-    else
-    {
-	BufferString geomidstr;
-	if ( par.get("GeomID",geomidstr) )
-	{
-	    oldgeomid_.fromString( geomidstr.buf() );
-	    PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
-	    if ( !seis2dobj )
-		return -1;
-	    S2DPOS().setCurLineSet( seis2dobj->name() );
-	    linename = S2DPOS().getLineName( oldgeomid_.lineid_ );
-	}
-    }
-
+    
     setName( linename );
     if ( linename_ )
     {

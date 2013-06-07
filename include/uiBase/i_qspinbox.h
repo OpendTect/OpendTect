@@ -15,14 +15,13 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include <QDoubleSpinBox>
 
+class QString;
+
 //! Helper class for uiSpinBox to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
-
-class QString;
 
 class i_SpinBoxMessenger : public QObject 
 {
@@ -55,7 +54,5 @@ private slots:
     void 		valueChanged(double)
 			{ receiver_->notifyHandler( false ); }
 };
-
-QT_END_NAMESPACE
 
 #endif

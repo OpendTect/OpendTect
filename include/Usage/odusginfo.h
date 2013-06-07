@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "bufstring.h"
 #include <iosfwd>
 
@@ -22,13 +21,13 @@ namespace Usage
 
 /*!\brief Info going to and coming from server. */
 
-mExpClass(Usage) Info
+mClass Info
 {
 public:
 
     enum Delim		{ Start, Stop, Cont };
 
-    mExpClass(Usage) ID
+    mClass ID
     {
     public:
 			ID();					//!< client
@@ -85,4 +84,3 @@ protected:
 
 
 #endif
-

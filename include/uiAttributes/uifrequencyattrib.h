@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -22,7 +21,7 @@ class uiWindowFunctionSel;
 
 /*! \brief Frequency Attribute description editor */
 
-mExpClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
+mClass uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidatapointsetcrossplot.h"
 #include "uiprogressbar.h"
 #include "uimainwin.h"
@@ -26,7 +25,7 @@ class uiToolBar;
 
 /*!\brief Data Point Set Cross Plotter Main window */
 
-mExpClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
+mClass uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 
@@ -103,8 +102,9 @@ protected:
     void			coltabRgChangedCB(CallBacker*);
     void			setMultiColorCB(CallBacker*);
     void			changeColCB(CallBacker*);
+public:
+    void			setShowPtsInWSBut( bool yn );
 };
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseiswvltattr.h"
@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "fftfilter.h"
 #include "survinfo.h"
 #include "wavelet.h"
@@ -83,8 +83,8 @@ void uiSeisWvltRotDlg::act( CallBacker* )
     wvltattr_->getHilbert( hilsamps );
 
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvltsamps[idx] = (float) ( orgwvltsamps[idx]*cos( dphase*M_PI/180 ) 
-		       - hilsamps.get(idx)*sin( dphase*M_PI/180 ) );
+	wvltsamps[idx] = orgwvltsamps[idx]*cos( dphase*M_PI/180 ) 
+		       - hilsamps.get(idx)*sin( dphase*M_PI/180 );
     acting.trigger();
 }
 
@@ -126,9 +126,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.yaxnm_ = "Taper Apmplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
-    s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
-    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1), 
-				   mCast(float,s.datasz_) );
+    s.leftrg_ = Interval<float> ( 0, s.datasz_/6 );
+    s.rightrg_ = Interval<float> ( s.datasz_-1, s.datasz_ );
     s.is2sided_ = true;
     s.xaxnm_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
     s.yaxnm_ = "Gain (dB)";
@@ -148,8 +147,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 		    wvlt_->samplePositions().stop );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
     
-    float maxfreq = 0.5f/zstep;
-    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
+    float maxfreq = 0.5/zstep;
+    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
     
     FreqTaperSetup ftsu; ftsu.hasmin_ = true, 
@@ -264,8 +263,8 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    , wvltsz_(wvlt.size())
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
-    float maxfreq = 0.5f/wvlt.sampleRate();
-    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
+    float maxfreq = 0.5/wvlt.sampleRate();
+    if ( SI().zIsTime() ) maxfreq = mNINT32( maxfreq );
     freqrange_.set( 0, maxfreq );
 
     for ( int iattr=0; iattr<3; iattr++ )

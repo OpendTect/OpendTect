@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -104,9 +104,9 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
     int temp = 2;
     while ( temp  < ns ) temp *= 2;
     nrsamples_ = temp;
-    nyqfreq_ = 0.5f / ds_;
+    nyqfreq_ = 0.5 / ds_;
 
-    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const float freqscale = zIsTime() ? 1 : 1000;
     const float scalednyqfreq = nyqfreq_ * freqscale;
     stepfld_->box()->setInterval( (float)0.5, scalednyqfreq/2 );
     stepfld_->box()->setStep( (float)0.5, true );
@@ -163,7 +163,7 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
     mIfGetEnum( SpecDecomp::cwtwaveletStr(), cwtwavelet,
 	        waveletfld_->setValue(cwtwavelet) );
 
-    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const float freqscale = zIsTime() ? 1 : 1000;
     mIfGetFloat( SpecDecomp::deltafreqStr(), deltafreq,
 		 stepfld_->box()->setValue(deltafreq*freqscale) );
 
@@ -198,7 +198,7 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
     mSetFloatInterval( SpecDecomp::gateStr(), gatefld_->getFInterval() );
     mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld_->getIntValue() );
 
-    const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const float freqscale = zIsTime() ? 1 : 1000;
     mSetFloat( SpecDecomp::deltafreqStr(), 
 	       stepfld_->box()->getFValue()/freqscale );
 
@@ -277,6 +277,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 
     getPrevSel();
     DescSet* dset = new DescSet( *ads_ ); 
+    DescID inpid = inpfld_->attribID();
     DescID specdecompid = createSpecDecompDesc( dset ); 
 
     LineKey lk;
@@ -405,8 +406,8 @@ void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
     mSetParam(ZGate,gate,SpecDecomp::gateStr(), gatefld_->getFInterval())
 
     //show Frequencies with a step of 1 in Time and 1000 in Depth,
-    //independently of what the user can have specified previously   
-    //in the output/step fields                                         
+    //independently of what the user can have specified previously
+    //in the output/step fields
     //little trick to have correct axes annotation (at least in time )
     mSetParam(Float,dfreq,SpecDecomp::deltafreqStr(), zIsTime() ? 1.f : 1000.f )
 }

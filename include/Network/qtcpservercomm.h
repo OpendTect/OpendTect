@@ -20,8 +20,6 @@ ________________________________________________________________________
   Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
-
 class QTcpServerComm : public QObject 
 {
     Q_OBJECT
@@ -49,7 +47,5 @@ private:
     TcpServer*		tcpserver_;
 
 };
-
-QT_END_NAMESPACE
 
 #endif

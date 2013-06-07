@@ -4,77 +4,9 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "callback.h"
-
-#include "errh.h"
-
-
-CallBacker::CallBacker()
-{}
-
-
-CallBacker::CallBacker( const CallBacker& )
-{}
-
-
-CallBacker::~CallBacker()
-{
-    Threads::SpinLockLocker lock( cblock_ );
-    
-    for ( int idx=0; idx<listeners_.size(); idx++ )
-	listeners_[idx]->removeListener( this );
-    
-    for ( int idx=0; idx<attachednotifiers_.size(); idx++ )
-	attachednotifiers_[idx]->removeWith( this );
-}
-
-
-void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
-{
-    notif.notify( cb );
- 
-    if ( cb.cbObj()!=this )
-	return;
-    
-    if ( notif.cber_==this )
-	return;
-
-    notif.cber_->addListener( this );
-    
-    Threads::SpinLockLocker lock( cblock_ );
-    if ( !attachednotifiers_.isPresent( &notif ) )
-	attachednotifiers_ += &notif;
- 
-    listeners_ += notif.cber_;
-}
-
-
-void CallBacker::addListener( CallBacker* cb )
-{
-    if ( cb==this )
-    {
-	pErrMsg("Cannot listen to yourself");
-	return;
-    }
-    
-    Threads::SpinLockLocker lock( cblock_ );
-    listeners_ += cb;
-}
-
-
-void CallBacker::removeListener( CallBacker* cb )
-{
-    Threads::SpinLockLocker lock( cblock_ ); 
-    listeners_ -= cb;
-    
-    for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
-    {
-	if ( attachednotifiers_[idx]->cber_==cb )
-	    attachednotifiers_.removeSingle( idx );
-    }
-}
 
 
 void CallBack::doCall( CallBacker* cber )
@@ -96,7 +28,7 @@ void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
     for ( int idx=0; idx<cbscopy.size(); idx++ )
     {
 	CallBack& cb = cbscopy[idx];
-	if ( !isPresent(cb) )
+	if ( indexOf(cb)==-1 )
 	    continue;
 
 	if ( !exclude || cb.cbObj()!=exclude )
@@ -111,7 +43,7 @@ void CallBackSet::removeWith( CallBacker* cbrm )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.cbObj() == cbrm )
-	    { removeSingle( idx ); idx--; }
+	    { remove( idx ); idx--; }
     }
 }
 
@@ -122,7 +54,7 @@ void CallBackSet::removeWith( CallBackFunction cbfn )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.cbFn() == cbfn )
-	    { removeSingle( idx ); idx--; }
+	    { remove( idx ); idx--; }
     }
 }
 
@@ -133,34 +65,12 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
     {
 	CallBack& cb = (*this)[idx];
 	if ( cb.scbFn() == cbfn )
-	    { removeSingle( idx ); idx--; }
+	    { remove( idx ); idx--; }
     }
 }
 
 
-NotifierAccess::NotifierAccess()
-    : enabled_(true)		
-{}
-
-
-void NotifierAccess::notify( const CallBack& cb, bool first )	
-{ 
-    if ( first ) 
-	cbs_.insert(0,cb); 
-    else
-	cbs_ += cb; 
-}
-
-
-void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
-{ if ( !cbs_.isPresent(cb) ) notify(cb); }
-
-
-void NotifierAccess::remove( const CallBack& cb )
-{ cbs_ -= cb; }
-
-
-void NotifierAccess::removeWith( CallBacker* cb )
+void i_Notifier::removeWith( CallBacker* cb )
 {
     if ( cber_ == cb )
 	{ cbs_.erase(); cber_ = 0; return; }

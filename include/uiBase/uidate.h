@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uigroup.h"
 #include "dateinfo.h"
@@ -24,7 +23,7 @@ class uiLabel;
 class uiPushButton;
 
 /* Displays a calendar where the uses can select a date. */
-mExpClass(uiBase) uiCalendar : public uiObject
+mClass uiCalendar : public uiObject
 {
 public:
                         uiCalendar(uiParent*);
@@ -41,7 +40,7 @@ private:
 
 /*! A field where the user either can enter a date, or select a date
     in a popup-calendar. */
-mExpClass(uiBase) uiDateSel : public uiGroup
+mClass uiDateSel : public uiGroup
 {
 public:
 			uiDateSel(uiParent*,const char* label,
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

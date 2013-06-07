@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uivolprocchain.h"
 #include "volprocsmoother.h"
 
@@ -23,7 +22,7 @@ namespace VolProc
 {
 
 
-mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
+mClass uiSmoother : public uiStepDialog
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 }; //namespace
 
 #endif
-

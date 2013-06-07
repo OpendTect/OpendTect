@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vissurvscene.h"
 
@@ -137,12 +137,10 @@ void Scene::init()
     scenecoltab_->doSaveInSessions( false );
 
     topimg_ = visBase::TopBotImage::create();
-    topimg_->setName( "TopImage");
     addUTMObject( topimg_ );
     topimg_->turnOn( false );
 
     botimg_ = visBase::TopBotImage::create();
-    botimg_->setName( "BottomImage");
     addUTMObject( botimg_ );
     botimg_->turnOn( false );
 
@@ -317,7 +315,7 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
     {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
+	so->setInlCrlSystem( SI() );
     }
 
     inlcrl2disptransform_->addObject( obj );
@@ -331,7 +329,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
+	so->setInlCrlSystem( SI() );
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 
@@ -645,7 +643,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* Scene::getZAxisTransform() const
+ZAxisTransform* Scene::getZAxisTransform()
 { return datatransform_; }
 
 
@@ -660,13 +658,13 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     if ( datatransform_ && coord.isDefined() )
     {
 	BufferString linenm; int trcnr = -1;
-	infopar_.get( sKey::LineKey(), linenm );
-	infopar_.get( sKey::TraceNr(), trcnr );
+	infopar_.get( sKey::LineKey, linenm );
+	infopar_.get( sKey::TraceNr, trcnr );
 	if ( !linenm.isEmpty() && trcnr>=0 )
 	{
 	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
 	    displaypos.z = datatransform_->transform(
-		    BinIDValue(bid,(float) coord.z) );
+		    BinIDValue(bid,coord.z) );
 	}
 	else
 	    displaypos.z = datatransform_->transform( coord );
@@ -702,7 +700,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
     {
 	basemapcursor_ = new BaseMapMarkers;
 	basemapcursor_->setMarkerStyle(
-		MarkerStyle2D(MarkerStyle2D::Target,5) );
+		MarkerStyle2D(MarkerStyle2D::Target) );
     }
 
     if ( basemapcursor_ && basemapcursor_->lock_.tryLock() )
@@ -829,7 +827,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( datatransform_ )
     {
 	IOPar transpar;
-	transpar.set( sKey::Name(), datatransform_->factoryKeyword() );
+	transpar.set( sKey::Name, datatransform_->factoryKeyword() );
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
@@ -838,9 +836,9 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	zdomaininfo_->def_.set( par );
 	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
 	cs_.fillPar( par );
+	par.set( sKey::Scale, zscale_ );
     }
 
-    par.set( sKey::Scale(), zscale_ );
     par.set( sKeyTopImageID(), topimg_->id() );
     par.set( sKeyBotImageID(), botimg_->id() );
 }
@@ -873,23 +871,33 @@ int Scene::usePar( const IOPar& par )
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
-	const char* nm = transpar->find( sKey::Name() );
+	const char* nm = transpar->find( sKey::Name );
 	RefMan<ZAxisTransform> transform =
 	    ZAxisTransform::factory().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
 	{
-	    float zscale;
 	    setZAxisTransform( transform,0 );
-	    if ( !par.get(sKey::Scale(),zscale) )
-		zscale = transform->zScale();
+	    if ( transform->toZDomainInfo().def_.isDepth() )
+	    {
+		const SurveyInfo::Unit zunit = SI().depthsInFeet() 
+					? SurveyInfo::Feet : SurveyInfo::Meter;
+		const float zscale = SurveyInfo::defaultXYtoZScale( zunit, 
+								SI().xyUnit() );
+		setZScale( zscale );
+	    }
+	    else if ( transform->toZDomainInfo().def_.isTime() )
+	    {
+		const float zscale = SurveyInfo::defaultXYtoZScale
+					    (SurveyInfo::Second, SI().xyUnit());
+		setZScale( zscale );
+	    }
 
-	    setZScale( zscale );
 	}
     }
     else
     {
 	CubeSampling cs; float zscale;
-	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
+	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
 	{
 	    setCubeSampling( cs );
 	    setZScale( zscale );
@@ -926,7 +934,6 @@ int Scene::usePar( const IOPar& par )
 
     if ( zstretch != curzstretch_ )
 	setZStretch( zstretch );
-
 
     res = getImageFromPar( par,sKeyTopImageID(), topimg_ );
     if ( res != 1 ) return res;

@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		annotbuffill.cc	
 		drawaxis2d.cc	
 		uiamplspectrum.cc
-		uiapplserv.cc
 		uiarray2dchg.cc	
 		uiarray1dinterpol.cc
 		uiarray2dinterpol.cc
@@ -32,7 +31,6 @@ SET(OD_MODULE_SOURCES
 		uidlggroup.cc	
 		uifileinput.cc	
 		uifillpattern.cc	
-		uifreqfilter.cc
 		uifunctiondisplay.cc
 		uigeninput.cc	
 		uigeninput_impl.cc
@@ -44,7 +42,6 @@ SET(OD_MODULE_SOURCES
 		uihistogramdisplay.cc   
 		uiiosel.cc	
 		uiissuereporter.cc
-		uistratlvlsel.cc
 		uimapperrangeeditor.cc  
 		uimenuhandler.cc
 		uimapperrangeeditordlg.cc 
@@ -74,6 +71,7 @@ SET(OD_MODULE_SOURCES
 		uislicesel.cc	
 		uistatsdisplay.cc
 		uistepoutsel.cc	
+		uistratlvlsel.cc
 		uitblimpexpdatasel.cc
 		uitaskrunner.cc	
 		uitextfile.cc	
@@ -88,9 +86,7 @@ SET(OD_MODULE_SOURCES
 		uiwizard.cc	
 		uiworld2ui.cc	
 		uizaxistransform.cc
-		uizrangeinput.cc
                 uipolardiagram.cc)
 
-SET(OD_MODULE_GUI_PROGS od_FileBrowser.cc  od_ProgressViewer.cc
-			od_uiReportIssue.cc )
+SET(OD_MODULE_GUI_PROGS od_FileBrowser od_ProgressViewer od_uiReportIssue )
 OD_INIT_MODULE()

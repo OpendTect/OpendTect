@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 class IOObj;
@@ -34,7 +33,7 @@ taken.
 
 */
 
-mExpClass(Seis) SeisSingleTraceProc : public Executor
+mClass SeisSingleTraceProc : public Executor
 {
 public:
 
@@ -52,7 +51,7 @@ public:
     			//!< will also be checked after processing CB
 
     const SeisTrcReader* reader(int idx=0) const
-    			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
+			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
     const SeisTrcWriter* writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
@@ -123,4 +122,3 @@ protected:
 
 
 #endif
-

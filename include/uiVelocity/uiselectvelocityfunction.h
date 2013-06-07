@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivelocitymod.h"
 #include "factory.h"
 #include "uidialog.h"
 #include "uigroup.h"
@@ -30,7 +29,7 @@ class FunctionSource;
 
 //!uiGroup to select a velocity function type
 
-mExpClass(uiVelocity) uiFunctionSel : public uiGroup
+mClass uiFunctionSel : public uiGroup
 {
 public:
 
@@ -64,7 +63,7 @@ protected:
 
 
 //!Base class for velocity function settings
-mExpClass(uiVelocity) uiFunctionSettings : public uiGroup
+mClass uiFunctionSettings : public uiGroup
 {
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
@@ -79,7 +78,7 @@ public:
 
 
 
-mExpClass(uiVelocity) uiAddFunction : public uiDialog
+mClass uiAddFunction : public uiDialog
 {
 public:
     				uiAddFunction( uiParent* );
@@ -93,7 +92,7 @@ public:
 };
 
 
-mExpClass(uiVelocity) uiEditFunction : public uiDialog
+mClass uiEditFunction : public uiDialog
 {
 public:
     				uiEditFunction( uiParent*,
@@ -109,4 +108,3 @@ public:
 
 
 #endif
-

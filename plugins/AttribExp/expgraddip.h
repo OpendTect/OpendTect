@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id$
+ RCS:           $Id: expgraddip.h,v 1.6 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 GradientDip size= 
@@ -28,7 +28,7 @@ Outputs:
 #include <attribparamimpl.h>
 
 
-mClass(AttribExp) GradientDipAttrib : public AttribCalc
+class GradientDipAttrib : public AttribCalc
 {
 public:
     mAttrib1Param( GradientDipAttrib
@@ -83,10 +83,10 @@ protected:
     int 			sz;
     const AttribProcessCommonInfo*	common;
 
-    mClass(AttribExp) Task : public AttribCalc::Task
+    class Task : public AttribCalc::Task
     {
     public:
-	mClass(AttribExp) Input : public AttribCalc::Task::Input
+	class Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const GradientDipAttrib& calculator_ )

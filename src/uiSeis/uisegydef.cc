@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -283,7 +283,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     }
     else
     {
-	if ( !mIsUdf(val) && isz ) val *= SI().zDomain().userFactor();
+	if ( !mIsUdf(val) && isz ) val *= SI().zFactor();
 	FloatInpSpec fis( val );
 	BufferString fldtxt( txt );
 	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnitString(); }
@@ -301,7 +301,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "openset", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+      "openset.png", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep )
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
@@ -459,15 +459,14 @@ bool fillPar( IOPar& iop ) const
 	he_.removeFromPar( iop, key_ );
     else if ( !const_cast<uiSEGYFOByteSpec*>(this)->getVals() )
 	return false;
-    else
-	he_.fillPar( iop, key_ );
+    he_.fillPar( iop, key_ );
     return true;
 }
 
 void usePar( const IOPar& iop )
 {
     he_.usePar( iop, key_ );
-    if ( he_.isUdf() || (isselbox_ && !iop.find(key_)) )
+    if ( he_.isUdf() )
     {
 	if ( isselbox_ )
 	    isselbox_->setChecked( false );
@@ -567,7 +566,7 @@ bool getVals()
     mDefRetrTB(uiSEGYFileOpts,grp); \
 \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-			     "prescan","Pre-scan the file(s)", \
+			     "prescan.png","Pre-scan the file(s)", \
 				    mCB(this,uiSEGYFileOpts,preScanPush) );\
     stb->attach( alignedBelow, rtb ); \
 \
@@ -590,7 +589,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 	, azimdeffld_(0)
 	, psposfld_(0)
 	, posfld_(0)
-	, havecoordsinhdrfld_(0)
+	, readcoordsfld_(0)
         , timeshiftfld_(0)
 	, sampleratefld_(0)
 	, ensurepsxylbl_(0)
@@ -670,19 +669,15 @@ void uiSEGYFileOpts::preScanPush( CallBacker* )
 
 void uiSEGYFileOpts::crdChk( CallBacker* )
 {
-    if ( !havecoordsinhdrfld_ ) return;
-    const bool havecoords = havecoordsinhdrfld_->getBoolValue();
+    if ( !readcoordsfld_ ) return;
+    const bool ischckd = xcoorddeffld_->isChecked();
     const bool isfile = readcoordsfld_->getBoolValue();
-    const bool isextonly = isfile && !coordsspecfnmbox_->isChecked();
 
-    xcoorddeffld_->display( havecoords );
-    ycoorddeffld_->display( havecoords );
-    readcoordsfld_->display( !havecoords );
-    coordsspecfnmbox_->display( !havecoords && isfile );
-    coordsstartfld_->display( !havecoords && !isfile );
-    coordsstepfld_->display( !havecoords && !isfile );
-    coordsfnmfld_->display( !havecoords && isfile && !isextonly );
-    coordsextfld_->display( !havecoords && isfile && isextonly );
+    ycoorddeffld_->display( ischckd );
+    readcoordsfld_->display( !ischckd );
+    coordsfnmfld_->display( !ischckd && isfile );
+    coordsstartfld_->display( !ischckd && !isfile );
+    coordsstepfld_->display( !ischckd && !isfile );
 }
 
 
@@ -757,40 +752,25 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 
 void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 {
-    mMkDefFld( grp, xcoord, XCoord, false, false, true );
+    const bool isreadpost2d = forread_ && !isps_ && is2d_;
+    mMkDefFld( grp, xcoord, XCoord, false, isreadpost2d, true );
     mMkDefFld( grp, ycoord, YCoord, false, false, true );
     ycoorddeffld_->attach( alignedBelow, xcoorddeffld_ );
     if ( is2d_ )
     {
-	const bool isreadpost2d = forread_ && !isps_ && is2d_;
-	if ( !isreadpost2d )
-	    xcoorddeffld_->attach( alignedBelow, trnrdeffld_ );
-	else
+	xcoorddeffld_->attach( alignedBelow, trnrdeffld_ );
+	if ( isreadpost2d )
 	{
-	    havecoordsinhdrfld_ = new uiGenInput( grp,
-		    "Header contains coordinates", BoolInpSpec(true) );
-	    havecoordsinhdrfld_->attach( alignedBelow, trnrdeffld_ );
-	    havecoordsinhdrfld_->valuechanged.notify(
-		    			mCB(this,uiSEGYFileOpts,crdChk) );
-	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
+	    xcoorddeffld_->checked.notify( mCB(this,uiSEGYFileOpts,crdChk) );
 	    readcoordsfld_ = new uiGenInput( grp, "Coordinate source",
 			     BoolInpSpec(false,"'Nr X Y' file","Generate") );
-	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
+	    readcoordsfld_->attach( alignedBelow, xcoorddeffld_ );
 	    readcoordsfld_->valuechanged.notify(
 		    			mCB(this,uiSEGYFileOpts,crdChk) );
-	    coordsfnmfld_ = new uiFileInput( grp, "Name",
+	    coordsfnmfld_ = new uiFileInput( grp, "File name",
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(forread_) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
-	    coordsextfld_ = new uiGenInput( grp, "Extension",
-		    			    StringInpSpec("crd") );
-	    coordsextfld_->attach( alignedBelow, readcoordsfld_ );
-	    coordsspecfnmbox_ = new uiCheckBox( grp, "Specify file" );
-	    coordsspecfnmbox_->setChecked( true );
-	    coordsspecfnmbox_->attach( leftOf, coordsextfld_ );
-	    coordsspecfnmbox_->activated.notify(
-		    			mCB(this,uiSEGYFileOpts,crdChk) );
-
 	    coordsstartfld_ = new uiGenInput( grp, "Start coordinate",
 		    			DoubleInpSpec(), DoubleInpSpec() );
 	    coordsstartfld_->attach( alignedBelow, readcoordsfld_ );
@@ -801,7 +781,6 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    coordsstepfld_->setElemSzPol( uiObject::Small );
 	}
     }
-
 }
 
 
@@ -826,9 +805,9 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar& iop )
 	mMkDefFld( grp, trnr, TrNr, true, false, true );
 	if ( setup_.revtype_ == uiSEGYRead::Rev0 )
 	{
-	    mMkDefFld( grp, refnr, RefNr, true, true, false );
-	    refnrdeffld_->attach( rightOf, trnrdeffld_ );
 	    mkCoordFlds( grp, iop );
+	    mMkDefFld( grp, refnr, RefNr, true, true, false );
+	    refnrdeffld_->attach( rightOf, xcoorddeffld_ );
 	}
 	grp->setHAlignObj( trnrdeffld_ );
     }
@@ -922,14 +901,10 @@ void uiSEGYFileOpts::toggledFldFillPar( uiGenInput* inp, const IOPar& iop,
     if ( ispresent )
     {
 	if ( !mIsUdf(val) && isz )
-	    val *= SI().zDomain().userFactor();
+	    val *= SI().zFactor();
 	inp->setValue( val );
     }
 }
-
-
-#define mCoordOptVal (havecoordsinhdrfld_->getBoolValue() \
-		? 0 : (readcoordsfld_->getBoolValue() ? 1 : 2))
 
 
 void uiSEGYFileOpts::usePar( const IOPar& iop )
@@ -986,11 +961,15 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
     if ( psgrp_ )
 	psPosChg(0);
 
-    if ( havecoordsinhdrfld_ )
+    if ( readcoordsfld_ )
     {
+#define mCoordOptVal (xcoorddeffld_->isChecked() \
+		? 0 : (readcoordsfld_->getBoolValue() ? 1 : 2))
 	const char* res = iop.find( SEGY::FileReadOpts::sKeyCoordOpt() );
-	const int coordopt = res && *res ? toInt(res) : mCoordOptVal;
-	havecoordsinhdrfld_->setValue( coordopt < 1 || coordopt > 2 );
+	int coordopt = res && *res ? toInt(res) : mCoordOptVal;
+	if ( res && *res )
+	    coordopt = toInt( res );
+	xcoorddeffld_->setChecked( coordopt < 1 || coordopt > 2 );
 	readcoordsfld_->setValue( coordopt == 1 );
 
 	Coord crd( coordsstartfld_->getCoord() );
@@ -1000,18 +979,10 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	iop.get( SEGY::FileReadOpts::sKeyCoordStep(), crd );
 	coordsstepfld_->setValue( crd );
 	BufferString fnm( coordsfnmfld_->fileName() );
-	if ( !coordsspecfnmbox_->isChecked() )
-	    { fnm = "ext="; fnm.add( coordsextfld_->text() ); }
 	iop.get( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
-	const bool isext = matchString( "ext=", fnm );
-	coordsspecfnmbox_->setChecked( !isext );
-	if ( isext )
-	    coordsextfld_->setText( fnm.buf() + 4 );
-	else
-	    coordsfnmfld_->setFileName( fnm );
+	coordsfnmfld_->setFileName( fnm );
+	crdChk( 0 );
     }
-
-    crdChk(0);
 }
 
 
@@ -1052,7 +1023,7 @@ void uiSEGYFileOpts::setToggled( IOPar& iop, const char* key,
 	if ( !isz )
 	    iop.set( key, inp->text() );
 	else
-	    iop.set( key, inp->getfValue() / SI().zDomain().userFactor() );
+	    iop.set( key, inp->getfValue() / SI().zFactor() );
     }
 }
 
@@ -1110,27 +1081,29 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStart() );
     iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStep() );
     iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordFileName() );
-    const int opt = havecoordsinhdrfld_ ? mCoordOptVal : 0;
-    if ( opt == 0 )
+    if ( !readcoordsfld_ )
 	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordOpt() );
     else
     {
+	const int opt = mCoordOptVal;
 	iop.set( SEGY::FileReadOpts::sKeyCoordOpt(), opt );
-	iop.removeWithKey( SEGY::TrcHeaderDef::sXCoordByte() );
-	iop.removeWithKey( SEGY::TrcHeaderDef::sYCoordByte() );
-	if ( opt == 1 )
-	{
-	    BufferString fnm( coordsfnmfld_->fileName() );
-	    if ( !coordsspecfnmbox_->isChecked() )
-		{ fnm = "ext="; fnm.add( coordsextfld_->text() ); }
-	    iop.set( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
-	}
-	else if ( opt == 2 )
+	if ( opt == 2 )
 	{
 	    iop.set( SEGY::FileReadOpts::sKeyCoordStart(),
 		     coordsstartfld_->getCoord() );
 	    iop.set( SEGY::FileReadOpts::sKeyCoordStep(),
 		     coordsstepfld_->getCoord() );
+	}
+	else if ( opt == 1 )
+	{
+	    BufferString fnm;
+	    BufferString fldtxt( coordsfnmfld_->text() );
+	    const char* ptr = fldtxt.buf(); mSkipBlanks(ptr);
+	    if ( matchString( "ext=", ptr ) )
+		fnm = ptr;
+	    else
+		fnm = coordsfnmfld_->fileName();
+	    iop.set( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
 	}
     }
 

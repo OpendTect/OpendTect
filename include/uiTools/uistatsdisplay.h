@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "datapack.h"
 class uiHistogramDisplay;
@@ -22,7 +21,7 @@ template <class T> class Array2D;
 namespace Stats { template <class T> class ParallelCalc; }
 
 
-mExpClass(uiTools) uiStatsDisplay : public uiGroup
+mClass uiStatsDisplay : public uiGroup
 {
 public:
 
@@ -69,4 +68,3 @@ protected:
 
 
 #endif
-

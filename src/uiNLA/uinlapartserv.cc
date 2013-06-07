@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uinlapartserv.h"
 
@@ -43,16 +43,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 
-int uiNLAPartServer::evPrepareWrite()		{ return 0; }
-int uiNLAPartServer::evPrepareRead()		{ return 1; }
-int uiNLAPartServer::evReadFinished()		{ return 2; }
-int uiNLAPartServer::evGetInputNames()		{ return 3; }
-int uiNLAPartServer::evGetStoredInput()		{ return 4; }
-int uiNLAPartServer::evGetData()		{ return 5; }
-int uiNLAPartServer::evSaveMisclass()		{ return 6; }
-int uiNLAPartServer::evCreateAttrSet()		{ return 7; }
-int uiNLAPartServer::evCr2DRandomSet()		{ return 8; }
-const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
+const int uiNLAPartServer::evPrepareWrite()	{ return 0; }
+const int uiNLAPartServer::evPrepareRead()	{ return 1; }
+const int uiNLAPartServer::evReadFinished()	{ return 2; }
+const int uiNLAPartServer::evGetInputNames()	{ return 3; }
+const int uiNLAPartServer::evGetStoredInput()	{ return 4; }
+const int uiNLAPartServer::evGetData()		{ return 5; }
+const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
+const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
+const int uiNLAPartServer::evCr2DRandomSet()	{ return 8; }
+const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel"; }
 
 #define mDPM DPM(DataPackMgr::PointID())
 
@@ -103,7 +103,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	       			SI().zIsTime() );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
-	if ( !TaskRunner::execute( &uiex, *ex ) )
+	if ( !uiex.execute(*ex) )
 	    deepErase( dpss );
     }
 
@@ -145,7 +145,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     bsetup_.nrptsperclss = statsfld_->funcDisp()->nrClasses() > 0
 		? statsfld_->funcDisp()->nrInpVals() / 
 		  statsfld_->funcDisp()->nrClasses() : 1;
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec(true) );
@@ -186,13 +186,13 @@ void doBalChg( CallBacker* )
     nrptspclssfld->display( dobal );
     percnoisefld->display( dobal );
     bsetup_.nrptsperclss = dobal ? nrptspclssfld->getIntValue() : -1;
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 }
 
 void cutoffChg( CallBacker* )
 {
     bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 }
 
 void valrgChg( CallBacker* )
@@ -261,7 +261,7 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
     Well::LogDataExtracter lde( crdesc.outids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
-    return TaskRunner::execute( &uiex, lde );
+    return uiex.execute(lde);
 }
 
 
@@ -480,7 +480,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 	    { pErrMsg("Logic error somewhere"); continue; }
 
 	for ( int icode=0; icode<usedcodes.size(); icode++ )
-	    vals[valnr+icode+1] = mCast( float, icode == codeidx ? 1 : 0 );
+	    vals[valnr+icode+1] = icode == codeidx ? 1 : 0;
     }
 }
 

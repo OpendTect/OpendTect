@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "multiid.h"
 #include "elasticpropsel.h"
 
@@ -32,7 +31,7 @@ class uiIOObjSel;
 class uiTabStack;
 
 
-mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
+mClass uiElasticPropSelGrp : public uiGroup
 {
 public:
     				uiElasticPropSelGrp(uiParent*,
@@ -40,7 +39,7 @@ public:
 					 ElasticPropertyRef&,
 					 const TypeSet<ElasticFormula>&);
 
-    void			setPropRef(const ElasticPropertyRef& pr)
+    void                        setPropRef(const ElasticPropertyRef& pr)
 				{ elpropref_ = pr; }
 
     void			getFromScreen();
@@ -63,7 +62,7 @@ protected:
 
     MathExpression*	   	expr_;
 
-    mExpClass(uiSeis) uiSelInpGrp : public uiGroup
+    mClass uiSelInpGrp : public uiGroup
     {
     public:
 			uiSelInpGrp(uiParent*,const BufferStringSet&,int);
@@ -99,7 +98,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiElasticPropSelDlg : public uiDialog
+mClass uiElasticPropSelDlg : public uiDialog
 {
 public:
 				uiElasticPropSelDlg(uiParent*,
@@ -142,4 +141,3 @@ protected:
 
 
 #endif
-

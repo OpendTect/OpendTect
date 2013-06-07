@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uivarwizarddlg.h"
 #include "uisegyread.h"
 class IOObj;
@@ -22,11 +21,11 @@ class uiSEGYFileOpts;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiSEGYReadDlg : public uiVarWizardDlg
+mClass uiSEGYReadDlg : public uiVarWizardDlg
 {
 public :
 
-    mExpClass(uiSeis) Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 
@@ -72,4 +71,3 @@ protected:
 
 
 #endif
-

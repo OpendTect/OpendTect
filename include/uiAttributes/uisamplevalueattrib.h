@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 
 /*! \brief SampleValue Attribute description editor */
 
-mExpClass(uiAttributes) uiSampleValueAttrib : public uiAttrDescEd
+mClass uiSampleValueAttrib : public uiAttrDescEd
 {
 public:
 

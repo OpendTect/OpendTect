@@ -24,7 +24,8 @@ The SoMFImagei32 class is a container for SbImagei32 values.
 
 This field is used where nodes, engines or other field containers needs to store
 multiple, large 2d or 3d images. */ 
-mSoODClass SoMFImagei32 : public SoMField
+
+mExportClass( SoOD ) SoMFImagei32 : public SoMField
 {
     SO_MFIELD_HEADER( SoMFImagei32, SbImagei32, const SbImagei32& );
 

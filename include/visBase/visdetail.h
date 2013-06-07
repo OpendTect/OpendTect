@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "bufstring.h"
 #include "position.h"
 
@@ -33,7 +32,7 @@ class Coordinates;
 
 enum DetailType { Face };
 
-mExpClass(visBase) Detail
+mClass Detail
 {
 public:
 			Detail( DetailType dt )
@@ -47,7 +46,7 @@ protected:
 };  
    
 
-mExpClass(visBase) FaceDetail : public Detail
+mClass FaceDetail : public Detail
 {
 public:
 			FaceDetail( SoFaceDetail* d )
@@ -64,4 +63,3 @@ protected:
 
 
 #endif
-

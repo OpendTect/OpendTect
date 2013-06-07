@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -96,7 +96,7 @@ Event::Event( Desc& desc )
 	if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
 	{
 	    mGetFloatInterval( gate_, gateStr() );
-	    gate_.scale( 1.f/zFactor() );
+	    gate_.scale( 1./zFactor() );
 	    gate_.stop += SI().zStep();
 	}
 
@@ -204,7 +204,7 @@ void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
     ValueSeriesEvent<float,float> nextev = vsevfinder.find( zc, sg, 1 );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float cursample = mCast( float, firstsample + idx );
+	const float cursample = firstsample + idx;
 	if ( cursample < ev.pos )
 	{
 	    if ( outputinterest_[0] ) setOutputValue( output, 0, idx, z0, 0 );

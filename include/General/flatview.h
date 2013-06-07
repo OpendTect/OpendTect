@@ -3,7 +3,7 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ (C) iGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
  RCS:           $Id$
@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "bufstring.h"
 #include "coltabmapper.h"
 #include "geometry.h"
@@ -31,82 +29,68 @@ namespace FlatView
 typedef Geom::Point2D<double> Point;
 typedef Geom::PosRectangle<double> Rect;
 
-/*!
-\brief Class that represents non-bitmap data to be displayed in a flatviewer,
-such as markers, lines and more.
-*/
 
-mExpClass(General) AuxData
+/*!\brief Annotation data for flat views */
+
+mClass Annotation
 {
 public:
-    
-    /*!\brief Explains what part of an AuxData's appearance may be edited by
-    the user.*/
 
-    mExpClass(General) EditPermissions
+
+    //!\brief Things like well tracks, cultural data, 2-D line positions
+    mClass AuxData
     {
-    public:			EditPermissions();
-	bool		onoff_;
-	bool		namepos_;
-	bool		linestyle_;
-	bool		linecolor_;
-	bool		fillcolor_;
-	bool		markerstyle_;
-	bool		markercolor_;
-	bool		x1rg_;
-	bool		x2rg_;
-    };
-
-
-    virtual			~AuxData();
-    virtual AuxData*		clone() const { return new AuxData(*this); }
-    virtual void		touch()					{}
-
-    EditPermissions*		editpermissions_;//!<If null no editing allowed
-
-    bool			enabled_; 	//!<Turns on/off everything
-    BufferString		name_;
-    Alignment			namealignment_;
-    int				namepos_;	//!<nodraw=udf, before first=-1,
-					    //!< center=0, after last=1
-    Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
-    Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
-
-    TypeSet<Point>		poly_;
-    TypeSet<MarkerStyle2D>	markerstyles_;
-
-    LineStyle			linestyle_;
-    Color			fillcolor_;
-    FillPattern			fillpattern_;
-    int				zvalue_; 	//overlay zvalue ( max=on top )
-
-    bool			displayed_;
-    bool			close_;
-
-    void			setFillPattern( const FillPattern& fp )
-						{ fillpattern_ = fp; }
-    bool			isEmpty() const;
-    void			empty();
-
-    // should be protected, don't use.
+    public:
+	//!\brief explains what part of the an auxdata's appearance that may be
+	//!	  edited by the user
+	mClass EditPermissions
+	{
+	public:			EditPermissions();
+	    bool		onoff_;
+	    bool		namepos_;
+	    bool		linestyle_;
+	    bool		linecolor_;
+	    bool		fillcolor_;
+	    bool		markerstyle_;
+	    bool		markercolor_;
+	    bool		x1rg_;
+	    bool		x2rg_;
+	};
 				AuxData( const char* nm );
 				AuxData( const AuxData& );
-				friend class Viewer;
-};
+				~AuxData();
 
+	EditPermissions*	editpermissions_;//!<If null no editing allowed
 
-/*!
-\brief Annotation data for flatviewers.
-*/
+	bool			enabled_; 	//!<Turns on/off everything
+	BufferString		name_;
+	Alignment		namealignment_;
+	int			namepos_;	//!<nodraw=udf, before first=-1,
+						//!< center=0, after last=1
+	LineStyle		linestyle_;
+	Color			fillcolor_;
+	TypeSet<MarkerStyle2D>	markerstyles_;
+	int			zvalue_; 	//overlay zvalue ( max=on top )
+	bool			areMarkersVisible() const;
 
-mExpClass(General) Annotation
-{
-public:
+	Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
+	Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom
 
+	TypeSet<Point>		poly_;
 
-    /*!\brief Things like well tracks, cultural data, 2-D line positions.*/
+	TypeSet<int>		dispids_;	//!<ids of corresponding displed						//!<object
+	bool			displayed_;
 
-    mStruct(General) AxisData
+	bool			close_;
+
+	bool			isEmpty() const;
+	void			empty();
+
+	void			setFillPattern(const FillPattern&)	{}
+				//!< planned for 5.0
+    };
+
+    mStruct AxisData
     {
 				AxisData();
 
@@ -115,7 +99,7 @@ public:
 	bool			showannot_;
 	bool			showgridlines_;
 	bool			reversed_;
-	int			factor_;
+	float			factor_;
 
 	void			showAll(bool yn);
     };
@@ -128,7 +112,7 @@ public:
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
-
+    ObjectSet<AuxData>		auxdata_;
     bool			showaux_;
     bool			editable_;
     bool			allowuserchange_;
@@ -146,7 +130,7 @@ public:
 			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showgridlines_)
 				|| (!x1dir && x2_.showgridlines_)); }
-    //bool		haveAux() const;
+    bool		haveAux() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -159,24 +143,25 @@ public:
     static const char*	sKeyIsRev();
     static const char*	sKeyShwAux();
     static const char*	sKeyAllowUserChangeAxis();
+
 };
 
 
-/*!
-\brief Data display parameters.
+/*!\brief Data display paramters
 
-  When data needs to be displayed, there is a load of parameters and options
-  for display. The two main display modes are:
+  When data needs to be displayed, there is a load of parameters and
+  options for display. The two main display modes are:
   Variable Density = display according to color table
   Wiggle/Variable Area = wiggles with (possibly) filled amplitude
-*/
 
-mExpClass(General) DataDispPars
+  */
+
+mClass DataDispPars
 {
 public:
 
     //!\brief Common to VD and WVA
-    mExpClass(General) Common
+    mClass Common
     {
     public:
 			Common();
@@ -188,7 +173,7 @@ public:
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
-    mExpClass(General) VD : public Common
+    mClass VD : public Common
     {
     public:
 
@@ -199,7 +184,7 @@ public:
 	bool		lininterp_; // Use bi-linear interpol, not poly
     };
     //!\brief Wiggle/Variable Area parameters
-    mExpClass(General) WVA : public Common
+    mClass WVA : public Common
     {
     public:
 
@@ -247,11 +232,9 @@ public:
 };
 
 
-/*!
-\brief Flatviewer appearance.
-*/
+/*!\brief Flat views: Appearance  */
 
-mExpClass(General) Appearance
+mClass Appearance
 {
 public:
     			Appearance( bool drkbg=true )
@@ -281,11 +264,12 @@ protected:
     bool		darkbg_;	//!< Two styles: dark (=black)
 					//!< and lite (=white) background
     					//!< Impacts a lot of display choices
+
 };
 
 
-/*!
-\brief Flat Viewer using FlatView::Data and FlatView::Appearance.
+
+/*!\brief Flat Viewer using FlatView::Data and FlatView::Appearance
 
   Interface for displaying data and related annotations where at least one of
   the directions is sampled regularly.
@@ -304,9 +288,10 @@ protected:
   setPack() -> Combination of addPack and usePack.
   removePack() -> removes this pack from the available packs, if necessary
   		  it also clears the wva or vd display to no display.
-*/
 
-mExpClass(General) Viewer
+  */
+
+mClass Viewer
 {
 public:
 
@@ -342,7 +327,7 @@ public:
     			//!< Will also handleChange.
     			//!< So, do not use unless you want both.
 
-    enum DataChangeType	{ All, BitmapData, DisplayPars, Annot, Auxdata };
+    enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
     virtual void	handleChange(DataChangeType,bool dofill=true)	= 0;
 
     			//!Does not store any data, just how data is displayed
@@ -357,24 +342,15 @@ public:
     void		useStoredDefaults(const char* key);
 
     void		getAuxInfo(const Point&,IOPar&) const;
-    virtual void	showAuxDataObjects(AuxData&,bool)	{}
-    virtual void	updateProperties(const AuxData&)	{}
-    virtual void	reGenerate(AuxData&)		{}
-    virtual void	remove(const AuxData&)		{}
+    virtual void	showAuxDataObjects(Annotation::AuxData&,bool)	{}
+    virtual void	updateProperties(const Annotation::AuxData&)	{}
+    virtual void	reGenerate(Annotation::AuxData&)		{}
+    virtual void	remove(const Annotation::AuxData&)		{}
     
-    StepInterval<double> getDataPackRange(bool forx1) const;
-    virtual Interval<float> getDataRange(bool wva) const;
+    const StepInterval<double> getDataPackRange( bool forx1 ) const;
 
-    virtual AuxData*		createAuxData(const char* nm) const	= 0;
-
-    virtual int			nrAuxData() const			= 0;
-    virtual AuxData* 		getAuxData(int idx)			= 0;
-    virtual const AuxData* 	getAuxData(int idx) const		= 0;
-    virtual void		addAuxData(AuxData* a)			= 0;
-    virtual AuxData*		removeAuxData(AuxData* a)		= 0;
-    virtual AuxData*		removeAuxData(int idx)			= 0;
-    void			removeAuxDatas(ObjectSet<AuxData>&);
-    void			removeAllAuxData();
+    virtual Interval<float> getDataRange(bool wva) const
+    			{ return Interval<float>(mUdf(float),mUdf(float)); }
 
 protected:
 
@@ -387,12 +363,32 @@ protected:
     FlatView_CB_Rcvr*		cbrcvr_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
+
+public:
+    Annotation::AuxData* 	removeAuxData(Annotation::AuxData* a)
+				{
+				   ObjectSet<Annotation::AuxData>& ads =
+				      appearance().annot_.auxdata_; 
+				    if ( ads.isPresent(a) )
+					{ ads -= a; return a; }
+				    return 0;
+				}
+    Annotation::AuxData*	createAuxData(const char* nm) 
+    				{ return new Annotation::AuxData( nm ); } 
+    void			addAuxData(Annotation::AuxData* a)
+				{ appearance().annot_.auxdata_ += a; }
+    void                        removeAuxDatas(ObjectSet<Annotation::AuxData>&,
+						 bool deleteaux=false);
+    void                        removeAllAuxData(bool deleteaux=false);
+    
 };
 
-    mGlobal(General) const char*	sKeyAllowUserChange();
+    static const char*	sKeyAllowUserChange();
+
+    typedef Annotation::AuxData AuxData;
 
 } // namespace FlatView
 
+
+
 #endif
-
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uidialog.h"
 
 namespace EM { class Horizon; }
@@ -26,7 +25,7 @@ class uiSeisSel;
 
 /*! \brief Part Server for Wells */
 
-mExpClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
+mClass uiSeisEventSnapper : public uiDialog
 {
 public:
 			uiSeisEventSnapper(uiParent*,const IOObj*,
@@ -51,4 +50,3 @@ protected:
 };
 
 #endif
-

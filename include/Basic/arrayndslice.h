@@ -12,24 +12,10 @@ ________________________________________________________________________
 
 @$*/
 
-#include "basicmod.h"
 #include "arraynd.h"
 #include "varlenarray.h"
 
-/*!
-\brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
-ArrayND with higher dimensionality.
-
-  ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
-  higher dimensionality. It can be used to get Array1D through a Array3D cube.
-  Use setPos(int,int) to set the fixed positions and leave out the positions
-  that should vary. When all positions are set, call init().
-  
-  To unset a position, set it to -1. If positions are unset, init has to be
-  called prior to dataaccesing functions.
-*/
-
-mExpClass(Basic) ArrayNDSliceBase
+mClass ArrayNDSliceBase
 {
 public:				
     virtual			~ArrayNDSliceBase();
@@ -48,16 +34,21 @@ protected:
 
     TypeSet<int>		vardim_;
     TypeSet<int>		position_;
-    od_int64			offset_;
+    long			offset_;
 };
 
 
-/*!
-\brief Subclass of Array1D and ArrayNDSliceBase.
-*/
+/*! \brief access-tool to another ArrayND with higher dimensionality.
 
+ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
+higher dimensionality. It can be used to get Array1D through a Array3D cube.
+Use setPos(int,int) to set the fixed positions and leave out the positions that should vary. When all positions are set, call init(). 
+
+To unset a position, set it to -1. If positions are unset, init has to be
+called prior to dataaccesing functions.
+*/
 template <class T>
-mClass(Basic) Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
+class Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
 {
 public:
 				Array1DSlice(ArrayND<T>&);
@@ -80,12 +71,17 @@ protected:
 };
 
 
-/*!
-\brief Subclass of Array2D and ArrayNDSliceBase.
-*/
+/*! \brief access-tool to another ArrayND with higher dimensionality.
 
+ArrayXDSlice is an ArrayND that is an access-tool to another ArrayND with
+higher dimensionality. It can be used to get Array1D through a Array3D cube.
+Use setPos(int,int) to set the fixed positions and leave out the positions that should vary. When all positions are set, call init(). 
+
+To unset a position, set it to -1. If positions are unset, init has to be
+called prior to dataaccesing functions.
+*/
 template <class T>
-mClass(Basic) Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
+class Array2DSlice : public Array2D<T>, public ArrayNDSliceBase
 {
 public:
 				Array2DSlice(ArrayND<T>&);
@@ -286,4 +282,3 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 
 
 #endif
-

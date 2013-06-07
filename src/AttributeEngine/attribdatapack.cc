@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdatapack.h"
 
@@ -35,8 +35,8 @@ static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {
     static BufferString vret;
-    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute(),"V" );
-    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute();
+    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute,"V" );
+    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute;
 }
 
 
@@ -44,7 +44,7 @@ void DataPackCommon::dumpInfo( IOPar& iop ) const
 {
     iop.set( "Source type", sourceType() );
     iop.set( "Attribute.ID", descID().asInt() );
-    BufferString isstoredstr = IOPar::compKey( sKey::Attribute(), sKey::Stored() );
+    BufferString isstoredstr = IOPar::compKey( sKey::Attribute, sKey::Stored );
     iop.set( isstoredstr.buf(), descID().isStored() );
     iop.set( "Vertical", isVertical() );
 }
@@ -334,7 +334,7 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     iop.set( mKeyY, c.y );
     iop.set( "Inline", bid.inl );
     iop.set( "Crossline", bid.crl );
-    iop.set( "Z", c.z*SI().zDomain().userFactor() );
+    iop.set( "Z", c.z*SI().zFactor() );
 
     if ( usemultcubes_ )
 	iop.set( mKeyCube, cube_.cubeSampling().nrZ() > 1 ? i0 : i1 );
@@ -376,7 +376,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     , dataholderarr_( 0 )
     , array2dslice_( 0 )
 {
-    ConstRefMan<Data2DHolder> dataref( &dh );
+    RefMan<const Data2DHolder> dataref( &dh );
     mTryAlloc( dataholderarr_, Data2DArray( dh ) );
     if ( !dataholderarr_ )
 	return;
@@ -419,7 +419,6 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 Flat2DDHDataPack::~Flat2DDHDataPack()
 {
     dataholderarr_->unRef();
-    delete array2dslice_;
 }
 
 
@@ -434,7 +433,7 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
     {
 	trcnrs[idx] = dataholderarr_->trcinfoset_[idx]->nr;
 	if ( posdata_.width(true)/posdata_.range(true).step > idx )
-	    dist[idx] = (float) posdata_.position( true, idx );
+	    dist[idx] = posdata_.position( true, idx );
 	else
 	    trcnrs[idx] = -1;
     }
@@ -490,8 +489,8 @@ void Flat2DDHDataPack::setPosData()
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
 	    Coord crd = dataholderarr_->trcinfoset_[idx]->coord;
-	    pos[idx] = (float) (pos[idx-1] +
-				   dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd ));
+	    pos[idx] = pos[idx-1] +
+		dataholderarr_->trcinfoset_[idx-1]->coord.distTo( crd );
 	    prevcrd = crd;
 	}
 
@@ -529,7 +528,7 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     
     const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
-    iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zDomain().userFactor() );
+    iop.set( "Z-Coord", ti.sampling.atIndex(i1)*SI().zFactor() );
 }
 
 
@@ -624,7 +623,7 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 	Coord crd = seisbuf_->get(trcidx)->info().coord;
 	if ( x0arridx > 0 )
 	{
-	    float distnnm1 = (float) prevcrd.distTo(crd);
+	    float distnnm1 = prevcrd.distTo(crd);
 	    pos[x0arridx] = pos[x0arridx-1] + fabs( distnnm1 );
 	}
 	prevcrd = crd;
@@ -652,7 +651,7 @@ void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 	return;
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
-    iop.set( "Z-Coord", ti.samplePos(i1)*SI().zDomain().userFactor() );
+    iop.set( "Z-Coord", ti.samplePos(i1)*SI().zFactor() );
 }
 
 

@@ -5,15 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET( OD_USECOIN 1 )
-OD_SETUP_COIN() #Gets name of SIMVoleon (needed below)
-SET( OD_USECOIN )
-
-if ( WIN32 )
-     ADD_DEFINITIONS( /wd4244 ) # conversions
-endif()
-
-SET(OD_USEQT OpenGL )
+SET(OD_USECOIN 1)
+OD_SETUP_COIN()
+SET(OD_USECOIN)
 SET(OD_MODULE_SOURCES
 		initsood.cc
 		SbImagei32.cc
@@ -66,6 +60,4 @@ IF ( WIN32 )
 ELSE()
     SET( OD_MODULE_STATIC_LIBS ${OD_SIMVOLEON_LIBRARY} )
 ENDIF()
-
-OD_ADD_SOURCE_FILES( bitmapfont.cc )
 OD_INIT_MODULE()

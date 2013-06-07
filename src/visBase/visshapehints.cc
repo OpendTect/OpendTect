@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visshapehints.h"
 
@@ -69,7 +69,7 @@ SoNode* ShapeHints::gtInvntrNode()
 { return shapehints_; }
 
 
-void ShapeHints::touch()        
+void ShapeHints::touch()
 { shapehints_->touch(); }
 
 

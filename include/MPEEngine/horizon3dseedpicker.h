@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emseedpicker.h"
 
 class FaultTrcDataProvider;
@@ -22,11 +21,7 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
-/*!
-\brief EMSeedPicker to pick seeds in EM::Horizon3D.
-*/
-
-mExpClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
+mClass Horizon3DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon3DSeedPicker(MPE::EMTracker&);
@@ -102,7 +97,6 @@ protected:
     TypeSet<EM::PosID>	eraselist_;
 
     EM::PosID		lastseedpid_;
-    EM::PosID		lastsowseedpid_;
     Coord3		lastseedkey_;
     bool		sowermode_;
     HorSampling		seedpickarea_;
@@ -129,4 +123,3 @@ private:
 };
 
 #endif
-

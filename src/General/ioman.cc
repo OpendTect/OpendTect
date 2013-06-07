@@ -4,33 +4,34 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "ioman.h"
-
-#include "ascstream.h"
-#include "envvars.h"
-#include "ctxtioobj.h"
-#include "errh.h"
-#include "file.h"
-#include "filepath.h"
 #include "iodir.h"
+#include "iosubdir.h"
+#include "oddirs.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "iosubdir.h"
-#include "oddatadirmanip.h"
-#include "oddirs.h"
-#include "separstr.h"
-#include "settings.h"
-#include "staticstring.h"
+#include "transl.h"
+#include "ctxtioobj.h"
+#include "file.h"
+#include "filepath.h"
+#include "errh.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "ascstream.h"
 #include "timefun.h"
-#include "transl.h"
+#include "oddatadirmanip.h"
+#include "envvars.h"
+#include "settings.h"
+#include "staticstring.h"
 
 #include <stdlib.h>
 
 IOMan*	IOMan::theinst_	= 0;
+extern "C" void SetSurveyName(const char*);
+extern "C" const char* GetSurveyName();
+extern "C" void SetSurveyNameDirty();
 
 static bool survchg_triggers = false;
 static const MultiID emptykey( "" );
@@ -45,7 +46,7 @@ IOMan& IOM()
 
 IOMan::IOMan( const char* rd )
 	: NamedObject("IO Manager")
-	, dirptr_(0)
+	, dirptr(0)
 	, canchangesurvey_(true)
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
@@ -55,9 +56,9 @@ IOMan::IOMan( const char* rd )
     	, afterSurveyChange(this)
     	, applicationClosing(this)
 {
-    rootdir_ = rd && *rd ? rd : GetDataDir();
-    if ( !File::isDirectory(rootdir_) )
-	rootdir_ = GetBaseDataDir();
+    rootdir = rd && *rd ? rd : GetDataDir();
+    if ( !File::isDirectory(rootdir) )
+	rootdir = GetBaseDataDir();
 }
 
 
@@ -67,7 +68,7 @@ void IOMan::init()
     if ( !to( emptykey, true ) ) return;
 
     state_ = Good;
-    curlvl_ = 0;
+    curlvl = 0;
 
     if ( dirPtr()->key() == MultiID("-1") ) return;
 
@@ -76,7 +77,7 @@ void IOMan::init()
     const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
     bool needwrite = false;
     FilePath basicfp( mGetSetupFileName("BasicSurvey"), "X" );
-    FilePath rootfp( rootdir_, "X" );
+    FilePath rootfp( rootdir, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
@@ -147,7 +148,7 @@ void IOMan::init()
 	// Now create an entry in the root omf
 	IOSubDir* iosd = new IOSubDir( dd->dirnm );
 	iosd->key_ = dd->id;
-	iosd->dirnm_ = rootdir_;
+	iosd->dirnm_ = rootdir;
 	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
 					: dirPtr()->main();
 	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
@@ -167,13 +168,13 @@ void IOMan::init()
 
 IOMan::~IOMan()
 {
-    delete dirptr_;
+    delete dirptr;
 }
 
 
 bool IOMan::isReady() const
 {
-    return bad() || !dirptr_ ? false : dirptr_->key() != MultiID("-1");
+    return bad() || !dirptr ? false : dirptr->key() != MultiID("-1");
 }
 
 
@@ -217,6 +218,7 @@ bool IOMan::isReady() const
 static void clearSelHists()
 {
     const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
+    const int sz = grps.size();
     for ( int idx=0; idx<grps.size(); idx++ )
 	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
 }
@@ -264,6 +266,8 @@ static bool validOmf( const char* dir )
     return true;
 }
 
+
+extern "C" const char* GetSurveyFileName();
 
 #define mErrRet(str) \
     { errmsg = str; return false; }
@@ -335,10 +339,10 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
 bool IOMan::setRootDir( const char* dirnm )
 {
-    if ( !dirnm || rootdir_==dirnm ) return true;
+    if ( !dirnm || !strcmp(rootdir,dirnm) ) return true;
     if ( !File::isDirectory(dirnm) ) return false;
-    rootdir_ = dirnm;
-    return setDir( rootdir_ );
+    rootdir = dirnm;
+    return setDir( rootdir );
 }
 
 
@@ -351,13 +355,13 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
     }
     else if ( !forcereread )
     {
-	if ( !sd && curlvl_ == 0 )
+	if ( !sd && curlvl == 0 )
 	    return true;
-	else if ( dirptr_ && sd && sd->key() == dirptr_->key() )
+	else if ( dirptr && sd && sd->key() == dirptr->key() )
 	    return true;
     }
 
-    const char* dirnm = sd ? sd->dirName() : rootdir_.buf();
+    const char* dirnm = sd ? sd->dirName() : rootdir.buf();
     if ( !File::isDirectory(dirnm) )
 	return false;
 
@@ -367,7 +371,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
-    const bool issamedir = dirptr_ && ky == dirptr_->key();
+    const bool issamedir = dirptr && ky == dirptr->key();
     if ( !forcereread && issamedir )
 	return true;
 
@@ -384,15 +388,15 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     }
     delete refioobj;
 
-    IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
+    IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir) : new IODir(dirkey);
     if ( !newdir || newdir->bad() )
 	return false;
 
-    bool needtrigger = dirptr_;
-    if ( dirptr_ )
-	delete dirptr_;
-    dirptr_ = newdir;
-    curlvl_ = levelOf( curDirName() );
+    bool needtrigger = dirptr;
+    if ( dirptr )
+	delete dirptr;
+    dirptr = newdir;
+    curlvl = levelOf( curDirName() );
     if ( needtrigger )
 	newIODir.trigger();
 
@@ -411,9 +415,9 @@ IOObj* IOMan::get( const MultiID& k ) const
     ptr = strchr( ky.buf(), ' ' );
     if ( ptr ) *ptr = '\0';
 
-    if ( dirptr_ )
+    if ( dirptr )
     {
-	const IOObj* ioobj = (*dirptr_)[ky];
+	const IOObj* ioobj = (*dirptr)[ky];
 	if ( ioobj ) return ioobj->clone();
     }
 
@@ -427,13 +431,13 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
     if ( bad() || !tgname ) return 0;
 
     const IOObj* ioobj = 0;
-    for ( int idx=0; idx<dirptr_->size(); idx++ )
+    for ( int idx=0; idx<dirptr->size(); idx++ )
     {
-	if ( (*dirptr_)[idx]->group()==tgname )
+	if ( !strcmp((*dirptr)[idx]->group(),tgname) )
 	{
 	    if ( onlyifsingle && ioobj ) return 0;
 
-	    ioobj = (*dirptr_)[idx];
+	    ioobj = (*dirptr)[idx];
 	    if ( first && !onlyifsingle ) break;
 	}
     }
@@ -455,9 +459,9 @@ IOObj* IOMan::getLocal( const char* objname ) const
 	return get( MultiID((const char*)oky) );
     }
 
-    if ( dirptr_ )
+    if ( dirptr )
     {
-	const IOObj* ioobj = (*dirptr_)[objname];
+	const IOObj* ioobj = (*dirptr)[objname];
 	if ( ioobj ) return ioobj->clone();
     }
 
@@ -474,7 +478,7 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 
     IOM().to( ctxt.getSelKey() );
 
-    const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
+    const ObjectSet<IOObj>& ioobjs = dirptr->getObjs();
     IOObj* ret = 0; if ( nrfound ) *nrfound = 0;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -491,26 +495,6 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
     }
 
     return ret;
-}
-
-
-bool IOMan::isKey( const char* ky ) const
-{
-    if ( !ky || !*ky || !isdigit(*ky) ) return false;
-
-    bool digitseen = false;
-    while ( *ky )
-    {
-	if ( isdigit(*ky) )
-	    digitseen = true;
-	else if ( *ky == '|' )
-	    return digitseen;
-	else if ( *ky != '.' )
-	    return false;
-	ky++;
-    }
-
-    return true;
 }
 
 
@@ -538,19 +522,19 @@ const char* IOMan::nameOf( const char* id ) const
 
 const char* IOMan::curDirName() const
 {
-    return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;
+    return dirptr ? dirptr->dirName() : (const char*)rootdir;
 }
 
 
 const MultiID& IOMan::key() const
 {
-    return dirptr_ ? dirptr_->key() : emptykey;
+    return dirptr ? dirptr->key() : emptykey;
 }
 
 
 bool IOMan::setDir( const char* dirname )
 {
-    if ( !dirname ) dirname = rootdir_;
+    if ( !dirname ) dirname = rootdir;
 
     IODir* newdirptr = new IODir( dirname );
     if ( !newdirptr ) return false;
@@ -560,10 +544,10 @@ bool IOMan::setDir( const char* dirname )
 	return false;
     }
 
-    bool needtrigger = dirptr_;
-    delete dirptr_;
-    dirptr_ = newdirptr;
-    curlvl_ = levelOf( curDirName() );
+    bool needtrigger = dirptr;
+    delete dirptr;
+    dirptr = newdirptr;
+    curlvl = levelOf( curDirName() );
     if ( needtrigger )
 	newIODir.trigger();
     return true;
@@ -593,31 +577,25 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
     if ( !ioobj )
     {
-	// Make new key and generate name
-	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr_->newKey() );
+	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr->newKey() );
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
-
-	// Get default translator with dir
-	const Translator* tr = 0;
-	if ( !ctio.ctxt.trgroup->templates().isEmpty() )
-	{
-	    const int trnr = ctio.ctxt.trgroup->defTranslIdx();
-	    tr = ctio.ctxt.trgroup->templates()[trnr];
-	}
+	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
+	    			ctio.ctxt.trgroup->templates()[0] : 0;
 	BufferString trnm( ctio.ctxt.deftransl.isEmpty()
 			 ? (tr ? tr->userName().buf() : "")
 			 : ctio.ctxt.deftransl.buf() );
-	if ( trnm.isEmpty() ) trnm = "OD"; // shouldn't happen
+	if ( trnm.isEmpty() )
+	    trnm = ctio.ctxt.stdseltype == IOObjContext::Seis ? "CBVS" : "dGB";
 	iostrm->setTranslator( trnm );
 	const char* dirnm = getTranslDirNm( tr );
 	if ( dirnm )
 	    iostrm->setDirName( dirnm );
 
-	// Now generate the 'right' filename
+	// Generate the right filename
 	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
 	BufferString fnm = generateFileName( tmptr, iostrm->name() );
 	int ifnm = 1;
@@ -631,11 +609,6 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	delete tmptr;
 
 	ioobj = iostrm;
-	const char* odusrnm = GetSoftwareUser();
-	FileMultiString fms; fms.add( GetUserNm() );
-	if ( odusrnm ) fms.add( odusrnm );
-	ioobj->pars().set( sKey::User(), fms.buf() );
-
 	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	dirPtr()->addObj( (IOObj*)ioobj );
     }
@@ -663,7 +636,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 	const char* dirnm = getTranslDirNm( tr );
 	if ( !dirnm ) break;
 
-	FilePath fp( rootdir_ ); fp.add( dirnm ).add( fnm );
+	FilePath fp( rootdir ); fp.add( dirnm ).add( fnm );
 	if ( !File::exists(fp.fullPath()) ) break;
     }
 
@@ -676,7 +649,7 @@ int IOMan::levelOf( const char* dirnm ) const
     if ( !dirnm ) return 0;
 
     int lendir = strlen(dirnm);
-    int lenrootdir = strlen(rootdir_);
+    int lenrootdir = strlen(rootdir);
     if ( lendir <= lenrootdir ) return 0;
 
     int lvl = 0;

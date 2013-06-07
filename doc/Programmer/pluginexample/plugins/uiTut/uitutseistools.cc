@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.1 2012/03/26 14:32:59 cvsdgb Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -143,7 +143,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     {
 	SamplingData<float> sd( newsdfld_->getfValue(0),
 				newsdfld_->getfValue(1) );
-	const float fac = 1. / SI().zDomain().userFactor();
+	const float fac = 1. / SI().zFactor();
 	sd.start *= fac; sd.step *= fac;
 	tst_.setSampling( sd );
     }

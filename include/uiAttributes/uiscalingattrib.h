@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "attribdescid.h"
 
@@ -26,7 +25,7 @@ class uiTable;
 
 /*! \brief Scaling Attribute description editor */
 
-mExpClass(uiAttributes) uiScalingAttrib : public uiAttrDescEd
+mClass uiScalingAttrib : public uiAttrDescEd
 {
 public:
 
@@ -67,4 +66,3 @@ protected:
 };
 
 #endif
-

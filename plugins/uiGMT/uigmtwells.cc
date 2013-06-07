@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.12 2011/04/01 09:44:21 cvsbert Exp $";
 
 #include "uigmtwells.h"
 
@@ -119,24 +119,24 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     const char* namestr = namefld_->text();
     if ( !namestr || !*namestr )
 	mErrRet(" Please enter name")
-    par.set( sKey::Name(), namefld_->text() );
+    par.set( sKey::Name, namefld_->text() );
 
     BufferStringSet selnames;
     welllistfld_->getSelectedItems( selnames );
-    par.set( ODGMT::sKeyWellNames(), selnames );
+    par.set( ODGMT::sKeyWellNames, selnames );
     symbfld_->fillPar( par );
-    par.setYN( ODGMT::sKeyPostLabel(), lebelfld_->isChecked() );
-    par.set( ODGMT::sKeyLabelAlignment(), lebelalignfld_->text() );
-    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getValue() );
+    par.setYN( ODGMT::sKeyPostLabel, lebelfld_->isChecked() );
+    par.set( ODGMT::sKeyLabelAlignment, lebelalignfld_->text() );
+    par.set( ODGMT::sKeyFontSize, labelfontszfld_->getValue() );
     return true;
 }
 
 
 bool uiGMTWellsGrp::usePar( const IOPar& par )
 {
-    namefld_->setText( par.find(sKey::Name()) );
+    namefld_->setText( par.find(sKey::Name) );
     BufferStringSet selnames;
-    par.get( ODGMT::sKeyWellNames(), selnames );
+    par.get( ODGMT::sKeyWellNames, selnames );
     welllistfld_->clearSelection();
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
@@ -149,11 +149,11 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
 
     symbfld_->usePar( par );
     bool postlabel = false;
-    par.getYN( ODGMT::sKeyPostLabel(), postlabel );
+    par.getYN( ODGMT::sKeyPostLabel, postlabel );
     lebelfld_->setChecked( postlabel );
-    lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment()) );
+    lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment) );
     int fontsize = 10;
-    par.get( ODGMT::sKeyFontSize(), fontsize );
+    par.get( ODGMT::sKeyFontSize, fontsize );
     labelfontszfld_->setValue( fontsize );
     choiceSel( 0 );
     return true;

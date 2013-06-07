@@ -1,3 +1,4 @@
+
 #ifndef uiautoattrdescset_h
 #define uiautoattrdescset_h
 
@@ -12,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -28,11 +28,10 @@ class CtxtIOObj;
 class IOObj;
 
 
-/*!
-\brief Class for selecting Auto-load Attribute Set.
-*/
+/*! \brief class for selecting Auto-load Attribute Set  */
 
-mExpClass(uiAttributes) uiAutoAttrSelDlg : public uiDialog
+
+mClass uiAutoAttrSelDlg : public uiDialog
 {
 public:
     				uiAutoAttrSelDlg(uiParent* p,bool);
@@ -58,7 +57,7 @@ protected:
 };
 
 
-mExpClass(uiAttributes) uiAutoAttrSetOpen : public uiDialog
+mClass uiAutoAttrSetOpen : public uiDialog
 {
 public:
 				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
@@ -93,4 +92,3 @@ protected:
 
 
 #endif
-

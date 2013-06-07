@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.19 2011/08/23 14:51:33 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"

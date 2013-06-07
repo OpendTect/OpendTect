@@ -12,20 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "draw.h"
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
-
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
 class uiLineItem;
 class uiTextItem;
 template <class T> class LineParameters;
 
-/*!
-\brief Handles an axis on a plot.
+/*!\brief Handles an axis on a plot
 
   Manages the positions in a 2D plot. The axis can be logarithmic. getRelPos
   returns the relative position on the axis. If the point is between the
@@ -44,9 +41,10 @@ template <class T> class LineParameters;
   Use AxisLayout (linear.h) to find 'nice' ranges, like:
   AxisLayout al( Interval<float>(start,stop) );
   ahndlr.setRange( StepInterval<float>(al.sd.start,al.stop,al.sd.step) );
-*/
+ 
+ */
 
-mExpClass(uiTools) uiAxisHandler : public NamedObject
+mClass uiAxisHandler : public NamedObject
 {
 public:
 
@@ -57,7 +55,7 @@ public:
 			    , noaxisline_(false)
 			    , noaxisannot_(false)
 			    , nogridline_(false)
-			    , noannotpos_(false)
+			    , noannotpos_(false)			
 			    , annotinside_(false)
 			    , ticsz_(2)	
 			    , width_(w)
@@ -73,10 +71,10 @@ public:
 	mDefSetupMemb(int,width)
 	mDefSetupMemb(int,height)
 	mDefSetupMemb(bool,islog)
-	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,noaxisline)
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)
+	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
@@ -110,8 +108,6 @@ public:
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
     int			getPix(float absval) const;
-    int			getPix(double abvsval) const;
-    int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
 
     void		plotAxis(); //!< draws gridlines if appropriate
@@ -133,7 +129,8 @@ public:
 
     void		createAnnotItems();
     void		createGridLines();
-    uiLineItem*		getFullLine(int pix);
+    void		drawGridLine(int); // Will be protected in 5.0
+    uiLineItem*		getFullLine(int); // Add to scene yourself
 
 protected:
 
@@ -169,17 +166,15 @@ protected:
 
     int			ticSz() const;
     void		drawAxisLine();
-    void		drawGridLine(int);
     void		annotPos(int,const char*,const LineStyle&);
     void		drawName();
 
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal(uiTools) void drawLine(uiLineItem&,const LineParameters<float>&,
+mGlobal void drawLine(uiLineItem&,const LineParameters<float>&,
 			const uiAxisHandler& xah,const uiAxisHandler& yah,
 			const Interval<float>* xvalrg = 0);
 
 
 #endif
-

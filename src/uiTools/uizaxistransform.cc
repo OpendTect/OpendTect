@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uizaxistransform.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uidialog.h"
 #include "zaxistransform.h"
-#include "uimsg.h"
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*, const char*,
 		    uiZAxisTransform::factory );
@@ -28,20 +27,12 @@ uiZAxisTransform::uiZAxisTransform( uiParent* p )
 {}
 
 
-void uiZAxisTransform::enableTargetSampling()
-{}
-
-
-bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
-{ return false; }
-
-
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
-	const char* fromdomain, const char* todomain, bool withsampling )
-    : uiDlgGroup( p, 0 )
-    , selfld_( 0 )
+	const char* fromdomain, const char* todomain )
+    : uiGroup( p )
 {
     transflds_.allowNull( true );
+    transdlgs_.allowNull( true );
     TypeSet<const char*> names;
 
     const BufferStringSet& factorynames =
@@ -50,77 +41,60 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     const BufferStringSet& usernames =
 	uiZAxisTransform::factory().getNames(true);
 
+    uiDialog::Setup settings( 0, 0, mNoHelpID );
+    uiDialog* dlg = new uiDialog( this, settings );
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
 	uiZAxisTransform* uizat = uiZAxisTransform::factory().create(
-		factorynames[idx]->buf(), this, fromdomain, todomain );
+		factorynames[idx]->buf(), dlg, fromdomain, todomain );
 	if ( !uizat )
 	    continue;
-	
-	if ( withsampling )
-	    uizat->enableTargetSampling();
 
 	transflds_ += uizat;
+	transdlgs_ += dlg;
 	names += usernames[idx]->buf();
+
+	if ( idx==factorynames.size()-1 )
+	    dlg = 0;
+	else
+	    dlg = new uiDialog( this, settings );
     }
-    
-    const bool hastransforms = names.size();
+
+    delete dlg;
 
     const char* nonestr = "None";
 
-    if ( hastransforms && withnone )
+    if ( !names.size() )
+    {
+	transflds_ += 0;
+	transdlgs_ += 0;
+	names +=  nonestr;
+    }
+    else if ( withnone )
     {
 	transflds_.insertAt( 0, 0 );
+	transdlgs_.insertAt( 0, 0 );
 	names.insert( 0, nonestr );
     }
 
-    if ( names.size()>1 )
-    {
-    	names += 0;
-    
-	selfld_ = new uiGenInput( this, "Z transform",
-		StringListInpSpec(names.arr()) );
-	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
+    names += 0;
+    selfld_ = new uiGenInput( this, "Z transform",
+	    StringListInpSpec(names.arr()) );
+    selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
 
-	setHAlignObj( selfld_ );
-	
-    
-	for ( int idx=0; idx<transflds_.size(); idx++ )
-	{
-	    if ( transflds_[idx] )
-		transflds_[idx]->attach( alignedBelow, selfld_ );
-	}
-    }
-    else if ( hastransforms )
-    {
-	setHAlignObj( transflds_[0] );
-    }
+    settingsbut_ = new uiPushButton( this, "Settings", 
+	    mCB( this, uiZAxisTransformSel, settingsCB), false );
+    settingsbut_->attach( rightOf, selfld_ );
+
+    setHAlignObj( selfld_ );
 
     selCB( 0 );
-}
-
-
-bool uiZAxisTransformSel::isOK() const
-{
-    return nrTransforms();
 }
 
 
 NotifierAccess* uiZAxisTransformSel::selectionDone()
 {
     return &selfld_->valuechanged;
-}
-
-#define mGetSel		( selfld_ ? selfld_->getIntValue() : 0 )
-
-bool uiZAxisTransformSel::getTargetSampling( StepInterval<float>& zrg ) const
-{
-    const int idx = mGetSel;
-    if ( !transflds_[idx] )
-	return false;
-    
-    return transflds_[idx]->getTargetSampling( zrg );
-    
 }
 
 
@@ -133,9 +107,19 @@ int uiZAxisTransformSel::nrTransforms() const
 }
 
 
+void uiZAxisTransformSel::settingsCB( CallBacker* )
+{
+    const int idx = selfld_->getIntValue();
+    if ( !transdlgs_[idx] )
+	return;
+
+    transdlgs_[idx]->go();
+}
+
+
 ZAxisTransform* uiZAxisTransformSel::getSelection()
 {
-    const int idx = mGetSel;
+    const int idx = selfld_->getIntValue();
     return transflds_[idx] ? transflds_[idx]->getSelection() : 0;
 }
 
@@ -151,49 +135,28 @@ bool uiZAxisTransformSel::fillPar( IOPar& par )
 }
 
 
+FixedString uiZAxisTransformSel::getZDomain() const
+{
+    const int idx = selfld_->getIntValue();
+    if ( !transflds_[idx] )
+	return FixedString( 0 );
+
+    return transflds_[idx]->getZDomain();
+}
+
+
 bool uiZAxisTransformSel::acceptOK()
 {
-    const int idx = mGetSel;
+    const int idx = selfld_->getIntValue();
     if ( !transflds_[idx] )
-	return true;    
-
-    if ( !transflds_[idx]->acceptOK() )
-	return false;
-    
-    StepInterval<float> zrg;
-    if ( !getTargetSampling( zrg ) )
 	return true;
-    
-    if ( zrg.isUdf() )
-    {
-	uiMSG().error("Sampling is not set");
-	return false;
-    }
-    
-    if ( zrg.isRev() )
-    {
-	uiMSG().error("Sampling is reversed.");
-	return false;
-    }
-    
-    if ( zrg.step<=0 )
-    {
-	uiMSG().error("Sampling step is zero or negative");
-	return false;
-    }
-    
-    return true;
+
+    return transflds_[idx]->acceptOK();
 }
 
 
 void uiZAxisTransformSel::selCB( CallBacker* )
 {
-    const int selidx = mGetSel;
-    for ( int idx=0; idx<transflds_.size(); idx++ )
-    {
-	if ( !transflds_[idx] )
-	    continue;
-	
-	transflds_[idx]->display( idx==selidx );
-    }
+    const int selidx = selfld_->getIntValue();
+    settingsbut_->display( transdlgs_[selidx] );
 }

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -62,7 +61,7 @@ Notes:
 
 */
 
-mExpClass(Seis) SeisImpBPSIF : public Executor
+mClass SeisImpBPSIF : public Executor
 {
 public:
 
@@ -118,4 +117,3 @@ protected:
 
 
 #endif
-

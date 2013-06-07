@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "draw.h"
 #include "coltabsequence.h"
@@ -22,11 +21,11 @@ class uiTextItem;
 namespace ColTab { class MapperSetup; }
 
 
-mExpClass(uiBase) uiColTabItem : public uiGraphicsItemGroup
+mClass uiColTabItem : public uiGraphicsItemGroup
 {
 public:
 
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
     public:
 			Setup( bool h ) //!< horizontal?
@@ -69,11 +68,10 @@ protected:
     uiTextItem*		minvalitm_;
     uiTextItem*		maxvalitm_;
 
-    virtual void	stPos(float,float);
+    virtual void	stPos(int,int);
     void		setPixmap();
     void		setPixmapPos();
 
 };
 
 #endif
-

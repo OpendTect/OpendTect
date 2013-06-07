@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewmainwin.h"
 #include "uigeninputdlg.h"
 #include "uilabel.h"
+#include "uilistview.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -37,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uithumbwheel.h"
 #include "uitoolbar.h"
 #include "uitreeitemmanager.h"
-#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uiwindowgrabber.h"
 
@@ -53,17 +53,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 
 // For factories
-#include "uiodbodydisplaytreeitem.h"
-#include "uioddatatreeitem.h"
-#include "uiodemsurftreeitem.h"
-#include "uiodfaulttreeitem.h"
 #include "uiodhortreeitem.h"
+#include "uiodfaulttreeitem.h"
+#include "uiodscenetreeitem.h"
+#include "uioddatatreeitem.h"
 #include "uiodpicksettreeitem.h"
+#include "uiodseis2dtreeitem.h"
 #include "uiodplanedatatreeitem.h"
-#include "uiodpseventstreeitem.h"
+#include "uiodbodydisplaytreeitem.h"
+#include "uiodemsurftreeitem.h"
 #include "uiodrandlinetreeitem.h"
 #include "uiodseis2dtreeitem.h"
-#include "uiodscenetreeitem.h"
 #include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
@@ -127,55 +127,49 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 	    	       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
-		       SurveyInfo::Both2DAnd3D );
 
     mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
-    if ( !visBase::DataObject::doOsg() )
-    {
-	uiGroup* leftgrp = new uiGroup( &appl_, "Left group" );
+    uiGroup* leftgrp = new uiGroup( &appl_, "Left group" );
 
-	dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
-	dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
-	dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-	dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-	dollylbl = new uiLabel( leftgrp, "Mov" );
-	dollylbl->attach( centeredBelow, dollywheel );
+    dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
+    dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
+    dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+    dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+    dollylbl = new uiLabel( leftgrp, "Mov" );
+    dollylbl->attach( centeredBelow, dollywheel );
 
-	dummylbl = new uiLabel( leftgrp, "" );
-	dummylbl->attach( centeredBelow, dollylbl );
-	dummylbl->setStretch( 0, 2 );
-	vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
-	vwheel->wheelMoved.notify( mWSMCB(vWheelMoved) );
-	vwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-	vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-	vwheel->attach( centeredBelow, dummylbl );
+    dummylbl = new uiLabel( leftgrp, "" );
+    dummylbl->attach( centeredBelow, dollylbl );
+    dummylbl->setStretch( 0, 2 );
+    vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
+    vwheel->wheelMoved.notify( mWSMCB(vWheelMoved) );
+    vwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+    vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+    vwheel->attach( centeredBelow, dummylbl );
 
-	rotlbl = new uiLabel( &appl_, "Rot" );
-	rotlbl->attach( centeredBelow, leftgrp );
+    rotlbl = new uiLabel( &appl_, "Rot" );
+    rotlbl->attach( centeredBelow, leftgrp );
 
-	hwheel = new uiThumbWheel( &appl_, "hRotate", true );
-	hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
-	hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
-	hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-	hwheel->attach( leftAlignedBelow, mdiarea_ );
+    hwheel = new uiThumbWheel( &appl_, "hRotate", true );
+    hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
+    hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
+    hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
+    hwheel->attach( leftAlignedBelow, mdiarea_ );
 
-	zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
-	zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
-	zoomslider_->sldr()->setInterval( cMinZoom, cMaxZoom );
-	zoomslider_->setStretch( 0, 0 );
-	zoomslider_->attach( rightAlignedBelow, mdiarea_ );
+    zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
+    zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
+    zoomslider_->sldr()->setMinValue( cMinZoom );
+    zoomslider_->sldr()->setMaxValue( cMaxZoom );
+    zoomslider_->setStretch( 0, 0 );
+    zoomslider_->attach( rightAlignedBelow, mdiarea_ );
 
-	leftgrp->attach( leftOf, mdiarea_ );
-	appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
-    }
+    leftgrp->attach( leftOf, mdiarea_ );
+    appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
 
     scenetimer_->tick.notify( mCB(this,uiODSceneMgr,sceneTimerCB) );
-
-
 }
 
 
@@ -489,10 +483,10 @@ void uiODSceneMgr::updateStatusBar()
 	msg += "   (";
 	msg += mNINT32(xytpos.x); msg += ", ";
 	msg += mNINT32(xytpos.y); msg += ", ";
-
-	const float zfact = mCast(float,visServ().zFactor());
-	float zval = (float) (zfact * xytpos.z);
-	if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
+//	msg += SI().zIsTime() ? mNINT32(xytpos.z * 1000) : xytpos.z;
+	const float zfact = visServ().zFactor();
+	float zval = zfact * xytpos.z;
+	if ( zfact>100 || zval>10 ) zval = mNINT32(zval);
 	msg += zval; msg += ")";
     }
 
@@ -643,9 +637,9 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
 {
     butgrp_ = new uiButtonGroup( this, "Area type" );
     butgrp_->setExclusive( true );
-    new uiRadioButton( butgrp_, "Scene" );
-    new uiRadioButton( butgrp_, "Window" );
-    new uiRadioButton( butgrp_, "Desktop" );
+    uiRadioButton* but0 = new uiRadioButton( butgrp_, "Scene" );
+    uiRadioButton* but1 = new uiRadioButton( butgrp_, "Window" );
+    uiRadioButton* but2 = new uiRadioButton( butgrp_, "Desktop" );
     butgrp_->selectButton( 0 );
 }
 
@@ -682,7 +676,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 void uiODSceneMgr::soloMode( CallBacker* )
 {
     TypeSet< TypeSet<int> > dispids;
-    int selectedid = -1;
+    int selectedid;
     const bool issolomodeon = menuMgr().isSoloModeOn();
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,  
@@ -800,7 +794,7 @@ ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid )
 }
 
 
-uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
+uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiListView* lv ) const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
@@ -841,9 +835,9 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
-//    const bool wasparalysed = mdiarea_->paralyse( true );
+    const bool wasparalysed = mdiarea_->paralyse( true );
     menuMgr().updateSceneMenu();
-//    mdiarea_->paralyse( wasparalysed );
+    mdiarea_->paralyse( wasparalysed );
     activeSceneChanged.trigger();
 }
 
@@ -860,7 +854,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
-    scn.lv_ = new uiTreeView( scn.dw_, capt );
+    scn.lv_ = new uiListView( scn.dw_, capt );
     scn.dw_->setObject( scn.lv_ );
     BufferStringSet labels;
     labels.add( "Elements" );
@@ -934,7 +928,7 @@ void uiODSceneMgr::rebuildTrees()
 }
 
 
-uiTreeView* uiODSceneMgr::getTree( int sceneid )
+uiListView* uiODSceneMgr::getTree( int sceneid )
 {
     Scene* scene = getScene( sceneid );
     return scene ? scene->lv_ : 0;

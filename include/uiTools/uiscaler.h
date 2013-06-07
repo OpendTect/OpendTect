@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 class Scaler;
 class uiGenInput;
 class uiCheckBox;
 
 
-mExpClass(uiTools) uiScaler : public uiGroup
+mClass uiScaler : public uiGroup
 {
 public:
 
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

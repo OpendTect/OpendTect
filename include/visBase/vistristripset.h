@@ -13,13 +13,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 
 namespace visBase
 {
 
-mExpClass(visBase) TriangleStripSet : public IndexedShape
+mClass TriangleStripSet : public IndexedShape
 {
 public:
     static TriangleStripSet*	create()
@@ -29,4 +28,3 @@ public:
 
 
 #endif
-

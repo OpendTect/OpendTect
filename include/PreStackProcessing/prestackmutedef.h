@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "namedobj.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -21,14 +20,11 @@ ________________________________________________________________________
 
 class PointBasedMathFunction;
 
+
 namespace PreStack
 {
 
-/*!
-\brief NamedObject for definition of a mute function.
-*/
-
-mExpClass(PreStackProcessing) MuteDef : public NamedObject
+mClass MuteDef : public NamedObject
 {
 public:
 					MuteDef(const char* nm=0);
@@ -50,12 +46,6 @@ public:
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
 					//!< positions
-    void				computeIntervals(float offs,
-					    const BinID&,
-					    TypeSet<Interval<float> >&) const;
-					/*!<Interpolates between 
-					  defined positions. */
-
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
@@ -70,12 +60,9 @@ protected:
     MultiID				refhor_;
 
     bool				ischanged_;
-
-    void				getAllZVals(TypeSet<float>&) const;
 };
 
 
 }; //namespace
 
 #endif
-

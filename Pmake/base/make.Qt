@@ -1,0 +1,96 @@
+ifndef __make.Qt__
+__make.Qt__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Qt variables/rules/targets
+#	April 2000	Arend Lammertink
+#	$Id: make.Qt,v 1.30 2012/02/07 10:29:22 cvsbert Exp $
+#_______________________________________________________________________________
+#
+# Qt make file: included when USEQT is defined
+
+include make.Site
+
+ifeq ($(USEQT),debug)
+    QTDEBUG = yes
+endif
+
+ifndef OD_QTDIR
+    OD_QTDIR := $(OD_QTDIR_DEFAULT)
+endif
+
+ifeq ($(HDIR),win)
+    # OD_QTDIR should be set before ...
+    QTMOC = $(PMAKE)/bin/moc-wrap
+else
+    QTMOC = $(OD_QTDIR)/bin/moc
+endif
+
+LDLINKDIRS += -L$(OD_QTDIR)/lib
+
+ifndef QTLIBS
+
+    ifeq ($(HDIR),win)
+	QTLIBS += -lQtCore4 -lQtNetwork4
+        ifdef USEQTUILIBS
+            QTLIBS += -lQtGui4
+        endif
+    else
+	ifdef QTDEBUG
+	    QTLIBS += -lQtCore_debug -lQtNetwork_debug
+	else
+	    QTLIBS += -lQtCore -lQtNetwork
+	endif
+        ifdef USEQTUILIBS
+	    ifdef QTDEBUG
+		QTLIBS += -lQtGui_debug -lQtOpenGL_debug
+	    else
+		QTLIBS += -lQtGui -lQtOpenGL
+	    endif
+		
+        endif
+	ifeq ($(HAVE_SQL),yes)
+	    ifdef QTDEBUG
+		QTLIBS += -lQtSql_debug
+	    else
+		QTLIBS += -lQtSql
+	    endif
+	endif
+    endif
+
+endif
+
+EXTRALDLIBS += $(QTLIBS) 
+
+ifeq ($(HDIR),sun5)
+    EXTRALDLIBS += -lXext
+endif
+
+ifdef USEQTBASELIBS
+
+    SRCFILES += $(SRC.moc)
+    SRC.moc.cc := $(SRC.moc:.h=.moc.cc)
+    INTERMEDFILES += $(SRC.moc.cc)
+    SRC.cc += $(SRC.moc.cc)
+    EXTRAHTMLDEPS += $(OD_QTDIR)/qt.tag=$(OD_QTDIR)/html
+
+    OWNINC += -I$(OD_QTDIR)/include -I$(OD_QTDIR)/include/Qt \
+	      -I$(OD_QTDIR)/include/QtCore -I$(OD_QTDIR)/include/QtNetwork
+
+ifdef USEQTUILIBS
+        OWNINC += -I$(OD_QTDIR)/include/QtGui
+endif
+ifdef HAVE_SQL
+	OWNINC += -I$(OD_QTDIR)/include/QtSql
+endif
+
+%.moc.cc : $(WORK)/include/$(MODULENAME)/%.h
+	@echo "Moc-ing $*.h ..." $(TEE)
+	@$(QTMOC) $< -o $@ $(OUT)
+
+endif
+
+# -- multiple inclusion protection --
+endif

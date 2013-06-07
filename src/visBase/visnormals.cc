@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visnormals.h"
 
@@ -18,49 +18,32 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <Inventor/nodes/SoNormal.h>
 
-#include <osg/Array>
-
 mCreateFactoryEntry( visBase::Normals );
 
 namespace visBase
 {
 
 Normals::Normals()
-    : normals_( doOsg() ? 0 : new SoNormal )
+    : normals_( new SoNormal )
     , mutex_( *new Threads::Mutex )
     , transformation_( 0 )
-    , osgnormals_( doOsg() ? new osg::Vec3Array : 0 )
 {
-    if ( !osgnormals_ )
+    normals_->ref();
+    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
     {
-	normals_->ref();
-	for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
-	{
-	    unusednormals_ += 0;
-	    normals_->vector.set1Value( 0,
-		    SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
-	}
-	
-	return;
+	unusednormals_ += 0;
+	normals_->vector.set1Value( 0,
+		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
     }
-    
-    mGetOsgVec3Arr(osgnormals_)->ref();
 }
 
 
 Normals::~Normals()
 {
+    normals_->unref();
     delete &mutex_;
+
     if ( transformation_ ) transformation_->unRef();
-    
-    if ( normals_ )
-    {
-	normals_->unref();
-	return;
-    }
-    
-    
-    mGetOsgVec3Arr(osgnormals_)->unref();
 }
 
 
@@ -77,8 +60,7 @@ void Normals::setNormal( int idx, const Vector3& n )
 		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
     }
 
-    normals_->vector.set1Value( idx, SbVec3f( (float) normal.x, 
-				    (float) normal.y, (float) normal.z ));
+    normals_->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
 }
 
 
@@ -125,8 +107,7 @@ int Normals::addNormal( const Vector3& n )
 
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    normals_->vector.set1Value( res, SbVec3f( (float) normal.x, 
-				    (float) normal.y, (float) normal.z ));
+    normals_->vector.set1Value( res, SbVec3f( normal.x, normal.y, normal.z ));
 
     return res;
 }
@@ -148,17 +129,17 @@ void Normals::addNormalValue( int idx, const Vector3& n )
 	    set = true;
 	else
 	{
-	    newnormal[0] += (float) normal.x;
-	    newnormal[1] += (float) normal.y;
-	    newnormal[2] += (float) normal.z;
+	    newnormal[0] += normal.x;
+	    newnormal[1] += normal.y;
+	    newnormal[2] += normal.z;
 	}
     }
 
     if ( set )
     {
-	newnormal[0] = (float) normal.x;
-	newnormal[1] = (float) normal.y;
-	newnormal[2] = (float) normal.z;
+	newnormal[0] = normal.x;
+	newnormal[1] = normal.y;
+	newnormal[2] = normal.z;
     }
 
     normals_->vector.set1Value( idx, newnormal );
@@ -241,7 +222,7 @@ int  Normals::getFreeIdx()
     if ( unusednormals_.size() )
     {
 	const int res = unusednormals_[unusednormals_.size()-1];
-	unusednormals_.removeSingle(unusednormals_.size()-1);
+	unusednormals_.remove(unusednormals_.size()-1);
 	return res;
     }
 
@@ -266,8 +247,7 @@ void Normals::setDisplayTransformation( const mVisTrans* nt )
 	transformNormal( transformation_, res, false );
 	transformNormal( nt, res, true );
 
-	normals_->vector.set1Value( idx, SbVec3f((float) res.x,
-					    (float) res.y,(float) res.z) );
+	normals_->vector.set1Value( idx, SbVec3f(res.x,res.y,res.z) );
     }
 
     normals_->vector.enableNotify( oldstatus );

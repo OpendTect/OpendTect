@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stratunitref.h"
 #include "stratlith.h"
 #include "stratcontent.h"
@@ -20,12 +19,11 @@ ________________________________________________________________________
 
 namespace Strat
 {
-class LevelSet;
 
 
 /*!\brief Tree of UnitRef's  */
 
-mExpClass(Strat) RefTree : public NodeOnlyUnitRef
+mClass RefTree : public NodeOnlyUnitRef
 {
 public:
 
@@ -52,10 +50,6 @@ public:
 
     static void		getStdNames(BufferStringSet&);
     static RefTree*	createStd(const char*);
-
-    void		createFromLevelSet(const LevelSet&);
-    			//!< keep contents and lithologies
-    const LeavedUnitRef* getLevelSetUnit(const char* lvlnm) const;
 
     Notifier<RefTree>	deleteNotif;
 
@@ -89,15 +83,15 @@ public:
 
 };
 
-mGlobal(Strat) const RefTree& RT();
+mGlobal const RefTree& RT();
 inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 
 // Needless to say that if you push, make sure you pop (so afterwards the real
 // default RefTree is restored
-mGlobal(Strat) void pushRefTree(RefTree*);
-mGlobal(Strat) void popRefTree();
+mGlobal void pushRefTree(RefTree*);
+mGlobal void popRefTree();
 
-mGlobal(Strat) void setRT(RefTree*);
+mGlobal void setRT(RefTree*);
 //!< replaces (and deletes) the current RT. No write.
 //!< Used by tree manager, and not by *you*. Very very likely not.
 
@@ -106,4 +100,3 @@ mGlobal(Strat) void setRT(RefTree*);
 
 
 #endif
-

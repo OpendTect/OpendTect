@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
+
 
 class SoLight;
 class SoLightModel;
@@ -22,11 +22,12 @@ class SoLightModel;
 namespace visBase
 {
 
-/*!
-\brief Base class for all lights.
+/*!\brief
+Base class for all lights
+
 */
 
-mExpClass(visBase) Light : public DataObject
+mClass Light : public DataObject
 {
 public:
 
@@ -54,12 +55,12 @@ protected:
 
 };
 
+/*!\brief
+A point that illuminates light
 
-/*!
-\brief A point that illuminates light.
 */
 
-mExpClass(visBase) PointLight : public Light
+mClass PointLight : public Light
 {
 public:
     static PointLight*	create() mCreateDataObj( PointLight );
@@ -76,11 +77,13 @@ protected:
 };
 
 
-/*!
-\brief A light in a certain direction from a position at an infinite distance.
+/*!\brief
+A light in a certain direction from a position at an infinite distance
+
 */
 
-mExpClass(visBase) DirectionalLight : public Light
+
+mClass DirectionalLight : public Light
 {
 public:
     static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
@@ -96,12 +99,13 @@ protected:
 
 };
 
+/*!\brief
 
-/*!
-\brief Spot light.
+
 */
 
-mExpClass(visBase) SpotLight : public Light
+
+mClass SpotLight : public Light
 {
 public:
     static SpotLight*	create() mCreateDataObj( SpotLight );
@@ -131,11 +135,7 @@ protected:
 };
 
 
-/*!
-\brief Light model.
-*/
-
-mExpClass(visBase) LightModel : public DataObject
+mClass LightModel : public DataObject
 {
 public:
 
@@ -158,4 +158,3 @@ protected:
 } //visBase
 
 #endif
-

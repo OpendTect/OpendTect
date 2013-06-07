@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cmddriver.h"
 
@@ -108,7 +108,6 @@ static int getNrActiveCmdDrivers( int nrextra )
 
 const char* CmdDriver::defaultLogFilename()
 { return "odcmdlog.txt"; }
-
 
 CmdDriver::CmdDriver( uiMainWin& aw )
 	: drv_(*this)
@@ -323,10 +322,10 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	{ \
 	    actionlist[*actidxptr]->gotoidx_ = actionlist.size()-1; \
 	    *actidxptr = actionlist.size()-1; \
-	    if ( backward ) actidxstack.removeSingle( 0 ); \
-	    if ( backward ) flowstack.removeSingle( 0 ); \
+	    if ( backward ) actidxstack.remove( 0 ); \
+	    if ( backward ) flowstack.remove( 0 ); \
 	} \
-	if ( FixedString(#cmd) == "Else" ) \
+	if ( !strcmp(#cmd, "Else") ) \
 	    flowstack[0] = ElseTag; \
     }
 
@@ -984,7 +983,7 @@ bool CmdDriver::tryAction( const char* identname, const char* actstr )
     wcm_->flush( res );
     idm_->set( tryoutstack_[0], tryoutval_ );
     tryoutval_ = 1;
-    tryoutstack_.removeSingle( 0 );
+    tryoutstack_.remove( 0 );
     return res;
 }
 
@@ -1064,7 +1063,7 @@ void CmdDriver::activateDone( CallBacker* activator )
 
     const int idx = activatorlist_.indexOf( activator );
     if ( idx >= 0 )
-	delete activatorlist_.removeSingle( idx );
+	delete activatorlist_.remove( idx );
 
     cmddrvmutex_.unLock();
 }
@@ -1101,7 +1100,7 @@ void CmdDriver::timerShootsCB( CallBacker* cb )
     cmddrvmutex_.lock();
     mTimerListUpdate( timer );
 
-    if ( timerlist_.isPresent(timer) )
+    if ( timerlist_.indexOf(timer) >= 0 )
 	timeoutlist_ += timer;
 
     if ( timer->isSingleShot() )
@@ -1138,7 +1137,7 @@ void CmdDriver::storeModalStatus()
 	const char* wildmodalsig = wildmodalsignatures_[idx]->buf();
 	if ( !curmodalstat_.signatures_.isPresent(wildmodalsig) )
 	{
-	    wildmodalsignatures_.removeSingle( idx );
+	    wildmodalsignatures_.remove( idx );
 	    wildmodalclosed = true;
 	}
     }
@@ -1216,7 +1215,7 @@ void CmdDriver::forceQtToCatchUp()
     for ( int idx=windowlist.size()-1; idx>=0; idx-- )
     {
 	if ( !mMatchCI(windowlist[idx]->name(), controllerTitle()) )
-	    windowlist.removeSingle( idx );
+	    windowlist.remove( idx );
     }
 
     if ( windowlist.isEmpty() )
@@ -1401,7 +1400,7 @@ bool CmdDriver::verifyWinState( const char* newwinstr, WinStateType newwinstate)
 	for ( int idx=windowlist.size()-1; idx>=0; idx-- )
 	{
 	    if ( !switchCurWin(windowlist[idx]) )
-		windowlist.removeSingle( idx );
+		windowlist.remove( idx );
 	}
 	switchCurWin( oldcurwin );
     }
@@ -1560,7 +1559,7 @@ void CmdDriver::moveActionIdx( int nrlines )
 	{
 	    const int sz = actionidx_ - insertidx;
 	    for ( int idx=0; idx<sz; idx++ )
-		delete actions_.removeSingle( insertidx );
+		delete actions_.remove( insertidx );
 
 	    actionidx_ -= sz;
 	    winassertsafe_ = false;

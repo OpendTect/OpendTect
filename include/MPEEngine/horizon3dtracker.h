@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emtracker.h"
 #include "emposid.h"
 
@@ -24,11 +23,10 @@ namespace MPE
 
 class Horizon3DSeedPicker;
 
-/*!
-\brief EMTracker to track EM::Horizon3D.
+/*!\brief Horizon tracker
 */
 
-mExpClass(MPEEngine) Horizon3DTracker : public EMTracker
+mClass Horizon3DTracker : public EMTracker
 {
 public:
     				Horizon3DTracker(EM::Horizon3D* =0);
@@ -55,4 +53,3 @@ protected:
 } // namespace MPE
 
 #endif
-

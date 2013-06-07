@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "vistransform.h"
@@ -22,16 +21,15 @@ class Coord3;
 
 namespace visBase { class PolyLine; }
 
+
+/*!\brief Used for displaying a polyline, preview for a random line created 
+  throught well path*/
+
 namespace visSurvey
 {
 
-/*!
-\brief Used for displaying a visBase::PolyLine, preview for a random line
-created throughout well path.
-*/
-
-mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
-				    public visSurvey::SurveyObject
+mClass PolyLineDisplay :     public visBase::VisualObjectImpl,
+                            public visSurvey::SurveyObject
 {
 public:
     static PolyLineDisplay*	create()
@@ -47,10 +45,9 @@ public:
 
 protected:
 
-    visBase::PolyLine*		polyline_;
+    visBase::PolyLine*			polyline_;
 };
     
 };//namespace
 
 #endif
-

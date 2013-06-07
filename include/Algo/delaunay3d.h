@@ -12,17 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "sets.h"
 #include "task.h"
 
-/*!
-\brief Delaunay triangulation for 3D points. Should make sure all the points
-are defined.
-*/
+/*<Delaunay triangulation for 3D points. Should make sure all the points are 
+   defined. */
 
-mExpClass(Algo) DAGTetrahedraTree
+mClass DAGTetrahedraTree
 {
 public:
     			DAGTetrahedraTree();
@@ -70,7 +67,7 @@ public:
 			   ci[0], ci[1], ci[2] is the first triangle
 			   ci[3], ci[4], ci[5] is the second triangle. */
     void		setEpsilon(double err)	{ epsilon_ = err; }
-    static char		cNoVertex()	{ return -1; }
+    static int		cNoVertex()	{ return -1; }
 
 protected:
 
@@ -88,12 +85,12 @@ protected:
     static char		cNotOnPlane() 	{ return 6; }
     static char		cError()	{ return -1; }
 
-    static char		cNoTetrahedra()	{ return -1; }
-    static char		cNoFace()	{ return -1; }
-    static char		cInitVertex0()	{ return -2; }
-    static char		cInitVertex1()	{ return -3; }
-    static char		cInitVertex2()	{ return -4; }
-    static char		cInitVertex3()	{ return -5; }
+    static int		cNoTetrahedra()	{ return -1; }
+    static int		cNoFace()	{ return -1; }
+    static int		cInitVertex0()	{ return -2; }
+    static int		cInitVertex1()	{ return -3; }
+    static int		cInitVertex2()	{ return -4; }
+    static int		cInitVertex3()	{ return -5; }
 
     void	splitInitialBox(int ci);
     void	splitTetrahedraInside(int ci,int ti);
@@ -146,11 +143,7 @@ protected:
 };
 
 
-/*!
-\brief Delaunay triangulation for 3D points.
-*/
-
-mExpClass(Algo) ParallelDTetrahedralator : public ParallelTask
+mClass ParallelDTetrahedralator : public ParallelTask
 {
 public:
 			ParallelDTetrahedralator(DAGTetrahedraTree&);
@@ -171,5 +164,4 @@ protected:
 
 
 #endif
-
 

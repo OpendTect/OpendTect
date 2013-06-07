@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -29,25 +27,23 @@ namespace Vel { class VolumeFunctionSource; }
 namespace PreStack
 {
 
-/*!
-\brief Base class for AngleMute and AngleMuteComputer.
-*/
 
-mExpClass(PreStackProcessing) AngleCompParams
+mClass AngleMuteBase 
 {
 public:
-				AngleCompParams();
-					
-    float 			mutecutoff_;
-    Interval<int>		anglerange_;
-    MultiID			velvolmid_;   
-    IOPar			raypar_;
-    IOPar			smoothingpar_;
-};
+    mStruct Params
+    {
+			    Params()
+				: mutecutoff_(30)
+				, dovelblock_(true)
+				, velvolmid_(MultiID::udf())
+				{}	
 
-mExpClass(PreStackProcessing) AngleMuteBase 
-{
-public:
+	float 			mutecutoff_;
+	bool			dovelblock_;
+	MultiID			velvolmid_;   
+	IOPar			raypar_;
+    };
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -55,30 +51,27 @@ public:
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
+    static const char*  sKeyVelBlock()		{ return "Block velocities"; }
 
 protected:
     			AngleMuteBase();
     			~AngleMuteBase();
 
-    AngleCompParams*		params_;
+    Params*		params_;
 
     Vel::VolumeFunctionSource*	velsource_;
 
     bool	setVelocityFunction();
     bool	getLayers(const BinID&,TypeSet<ElasticLayer>&,
 	    			SamplingData<float>&,int resamplesz=-1);
-    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
-				int startlayer=0,bool belowcutoff=true) const;
+    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool) const;
 
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
 
 
-/*!
-\brief Angle mute
-*/
 
-mExpClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
+mClass AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,
@@ -87,7 +80,7 @@ public:
 			AngleMute();
 			~AngleMute();
 
-    mStruct(PreStackProcessing) AngleMutePars : public AngleCompParams
+    mStruct AngleMutePars : public AngleMuteBase::Params
     {
 			AngleMutePars()
 			    : tail_(false)
@@ -114,16 +107,14 @@ public:
 protected:
 
     od_int64 		nrIterations() const	{ return outputs_.size(); }
-    virtual bool	doWork(od_int64,od_int64,int);
+    bool		doWork(od_int64,od_int64,int);
 
     BufferString	errmsg_;
     bool		raytraceparallel_;
-    ObjectSet<Muter>	muters_;
+    Muter*		muter_;
 };
 
 
 }; //namespace
 
 #endif
-
-

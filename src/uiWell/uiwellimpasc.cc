@@ -7,17 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellimpasc.h"
 
+#include "commondefs.h"
+#include "ctxtioobj.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "strmprov.h"
 #include "survinfo.h"
+#include "strmprov.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
@@ -25,42 +26,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltransl.h"
 
-#include "uibutton.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uilabel.h"
+#include "uiioobjsel.h"
+#include "uibutton.h"
 #include "uimsg.h"
+#include "uilabel.h"
 #include "uiseparator.h"
 #include "uiselsurvranges.h"
 #include "uitblimpexpdatasel.h"
-#include "uiwellsel.h"
-
 
 static const char* sHelpID = "107.0.0";
 static const char* nHelpID = "107.0.4";
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Well Track",mNoDlgTitle,
-				 sHelpID).modal(false))
+    : uiDialog(p,uiDialog::Setup("Import Well Track",
+				 "Import Well Track",sHelpID))
+    , ctio_(*mMkCtxtIOObj(Well))
     , fd_(*Well::TrackAscIO::getDesc())
-    , wd_(*new Well::Data)
-    , zun_(UnitOfMeasure::surveyDefDepthUnit())
-    , importReady(this)
+    , trckinpfld_(0)
 {
-    enableSaveButton( "Display after import" );
     setCtrlStyle( DoAndStay );
 
     havetrckbox_ = new uiCheckBox( this, "" );
-    havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
-
+    havetrckbox_->setChecked( true );
     trckinpfld_ = new uiFileInput( this, "Well Track File",
 	    			   uiFileInput::Setup().withexamine(true) );
-    trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
-
     vertwelllbl_ = new uiLabel( this, "-> Vertical well" );
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
@@ -87,13 +82,12 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    float dispval = wd_.info().srdelev;
+    float dispval = wd_.info().surfaceelev;
     if ( !mIsZero(dispval, 0.01) )
-	wd_.info().srdelev = dispval;
+	wd_.info().surfaceelev = dispval;
 
-    dispval = wd_.info().replvel;
-    if ( !mIsUdf(dispval) )
-	wd_.info().replvel = dispval;
+    wd_.info().setReplVel(mUdf(float));
+    wd_.info().setGroundElev(mUdf(float));
 
     const bool zistime = SI().zIsTime();
     if ( zistime )
@@ -113,7 +107,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	    			       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
-    outfld_ = new uiWellSel( this, false );
+    ctio_.ctxt.forread = false;
+    outfld_ = new uiIOObjSel( this, ctio_, "Output Well" );
     outfld_->attach( alignedBelow, but );
 
     postFinalise().notify( mCB(this,uiWellImportAsc,haveTrckSel) );
@@ -122,17 +117,14 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
 uiWellImportAsc::~uiWellImportAsc()
 {
+    delete ctio_.ioobj; delete &ctio_;
     delete &fd_;
-    delete &wd_;
 }
-
-
-MultiID uiWellImportAsc::getWellID() const
-{ return outfld_->key(); }
 
 
 void uiWellImportAsc::haveTrckSel( CallBacker* )
 {
+    if ( !trckinpfld_ ) return;
     const bool havetrck = havetrckbox_->isChecked();
     trckinpfld_->display( havetrck );
     dataselfld_->display( havetrck );
@@ -143,34 +135,25 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
 }
 
 
-void uiWellImportAsc::inputChgd( CallBacker* )
-{
-    FilePath fnmfp( trckinpfld_->fileName() );
-    outfld_->setInputText( fnmfp.baseName() );
-}
-
-
 void uiWellImportAsc::trckFmtChg( CallBacker* )
 {
     const Table::FormatDesc& fd = dataselfld_->desc();
-    if ( !fd.isGood() )
-	return;
-
-    for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
+    if ( fd.isGood() )
     {
-	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	if ( ti.name() == "Z" || ti.name() == "MD" )
+	for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
 	{
-	    if ( ti.selection_.isInFile(0) )
-		return;
+	    const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
+	    if ( ti.name() == "Z" || ti.name() == "MD" )
+	    {
+		if ( ti.selection_.isInFile(0) )
+		    return;
+	    }
 	}
+	uiMSG().error( "The format you defined has neither Z nor MD."
+			"\nYou should define at least one."
+			"\nAs it is now, the track will not load." );
     }
-
-    uiMSG().error( "The format you defined has neither Z nor MD."
-		   "\nYou should define at least one."
-		   "\nAs it is now, the track will not load." );
 }
-
 
 
 class uiWellImportAscOptDlg : public uiDialog
@@ -181,7 +164,6 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
 				 "Advanced and Optional",nHelpID))
     , uwia_(p)
-    , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {
     const Well::Info& info = uwia_->wd_.info();
 
@@ -192,33 +174,34 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	"Surface coordinate (if different from first coordinate in track file)",
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
-    float dispval = info.srdelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.srdelev) && zun_ ) 
-	dispval = zun_->userValue( info.srdelev );
+    float dispval = -1. * info.surfaceelev;
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) && zun ) 
+	dispval = zun->userValue( -1. * info.surfaceelev );
     if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this, "Seismic Reference Datum",
-	    			     FloatInpSpec(dispval) );
+	   			     FloatInpSpec(dispval) );
     elevfld->attach( alignedBelow, coordfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, elevfld );
     zinftbox->setChecked( SI().depthsInFeetByDefault() );
 
-    dispval = info.replvel;
-    if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
+    dispval = info.getReplVel();
+    if ( mIsUdf( info.getReplVel()) ) dispval = mUdf(float);
     else if ( SI().depthsInFeetByDefault() && !SI().zInFeet() )
-	dispval = mToFeetFactorF * info.replvel;
+	dispval = mToFeetFactorF * info.getReplVel();
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
     replvelfld = new uiGenInput( this, str, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, elevfld );
 
-    dispval = info.groundelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.groundelev) && zun_ )
-	dispval = zun_->userValue( info.groundelev );
-    if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
+    dispval = info.getGroundElev();
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.getGroundElev()) && zun )
+	dispval = zun->userValue( info.getGroundElev() );
+    if ( mIsUdf(info.getGroundElev()) ) dispval = mUdf(float);
     gdelevfld = new uiGenInput( this, "Ground level elevation",
-       				       FloatInpSpec(dispval) );
+	    			       FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, gdelevfld );
@@ -247,26 +230,27 @@ bool acceptOK( CallBacker* )
 
     if ( *coordfld->text() )
 	info.surfacecoord = coordfld->getCoord();
+    
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     if ( *elevfld->text() )
     {
-	info.srdelev = elevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.srdelev) && zun_ ) 
-	    info.srdelev = zun_->internalValue( info.srdelev );
+	info.surfaceelev = -elevfld->getfValue();
+	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) && zun ) 
+	    info.surfaceelev = zun->internalValue( info.surfaceelev );
     }
 
     if ( SI().depthsInFeetByDefault() && !SI().zInFeet()
 	 && !mIsUdf(replvelfld->getfValue()) )
-	info.replvel = replvelfld->getfValue() * mFromFeetFactorF;
+	info.setReplVel( replvelfld->getfValue() * mFromFeetFactorF );
     else
-	info.replvel = replvelfld->getfValue();
+	info.setReplVel( replvelfld->getfValue() );
 
     if ( *gdelevfld->text() )
     {
-	info.groundelev = gdelevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.groundelev) && zun_ )
-	    info.groundelev = zun_->internalValue( info.groundelev );
+	info.setGroundElev(gdelevfld->getfValue());
+	if ( zinftbox->isChecked() && !mIsUdf(info.getGroundElev()) && zun )
+	    info.setGroundElev(zun->internalValue( info.getGroundElev() ));
     }
-
 
     info.uwid = idfld->text();
     info.oper = operfld->text();
@@ -276,7 +260,6 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    const UnitOfMeasure* zun_; 
     uiWellImportAsc*	uwia_;
     uiGenInput*		coordfld;
     uiGenInput*		elevfld;
@@ -303,7 +286,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
     {
 	doWork();
 	wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
-	wd_.info().groundelev = mUdf(float);
+	wd_.info().setGroundElev( mUdf(float) );
     }
     return false;
 }
@@ -337,14 +320,15 @@ bool uiWellImportAsc::doWork()
     }
     else
     {
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	float kbelev = kbelevfld_->getfValue();
 	if ( mIsUdf(kbelev) ) kbelev = 0;
-	else if ( SI().depthsInFeetByDefault() && zun_ ) 
-	    kbelev = zun_->internalValue( kbelev );
+	else if ( SI().depthsInFeetByDefault() && zun ) 
+	    kbelev = zun->internalValue( kbelev );
 
 	float td = tdfld_->getfValue();
-	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() && zun_ )
-	    td = zun_->internalValue( td ) ;
+	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() && zun )
+	    td = zun->internalValue( td ) ;
 	if ( mIsUdf(td) || td < 1e-6 )
 	{
 	    float survzstop = SI().zRange(false).stop;
@@ -367,18 +351,14 @@ bool uiWellImportAsc::doWork()
 	    d2tgrp_->getD2T( wd_, true );
     }
 
-    const IOObj* ioobj = outfld_->ioobj();
-    PtrMan<Translator> t = ioobj ? ioobj->createTranslator() : 0;
+    PtrMan<Translator> t = ctio_.ioobj->getTranslator();
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 	    		 "Another type object with this name already exists." );
 
-    if ( !wtr->write(wd_,*ioobj) ) mErrRet( "Cannot write well" );
+    if ( !wtr->write(wd_,*ctio_.ioobj) ) mErrRet( "Cannot write well" );
 
-    uiMSG().message( "Well import successful" );
-    if ( saveButtonChecked() )
-	importReady.trigger();
-
+    uiMSG().message( "Well successfully created" );
     return false;
 }
 

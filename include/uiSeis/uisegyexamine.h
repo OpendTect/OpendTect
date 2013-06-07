@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
 class Timer;
@@ -27,11 +25,11 @@ class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
 
 
-mExpClass(uiSeis) uiSEGYExamine : public uiDialog
+mClass uiSEGYExamine : public uiDialog
 {
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 				Setup(int nrtraces=100);
 
@@ -87,5 +85,3 @@ protected:
 
 
 #endif
-
-

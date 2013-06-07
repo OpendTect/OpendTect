@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 
@@ -33,7 +32,7 @@ class DrawStyle;
 
 */
 
-mExpClass(visBase) PolyLineBase : public VertexShape
+mClass PolyLineBase : public VertexShape
 {
 public:
     int 		size() const;
@@ -42,7 +41,6 @@ public:
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
     virtual void	setLineStyle(const LineStyle&) = 0;
-    virtual const LineStyle& lineStyle() const = 0;
 protected:
     			PolyLineBase(SoVertexShape*);
     SoMFInt32*		numvertices_;
@@ -50,14 +48,13 @@ protected:
 
 
 
-mExpClass(visBase) PolyLine	: public PolyLineBase
+mClass PolyLine	: public PolyLineBase
 {
 public:
     static PolyLine*	create()
 			mCreateDataObj(PolyLine);
 
     void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet*		lineset_;
@@ -65,21 +62,20 @@ protected:
 };
 
 
-mExpClass(visBase) PolyLine3D : public PolyLineBase
+mClass PolyLine3D : public PolyLineBase
 {
 public:
     static PolyLine3D*	create()
 			mCreateDataObj(PolyLine3D);
 
     void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
 
 protected:
     SoLineSet3D*	lineset_;
 };
 
 
-mExpClass(visBase) IndexedPolyLine	: public IndexedShape
+mClass IndexedPolyLine	: public IndexedShape
 {
 public:
     static IndexedPolyLine*	create()
@@ -87,7 +83,7 @@ public:
 };
 
 
-mExpClass(visBase) IndexedPolyLine3D	: public IndexedShape
+mClass IndexedPolyLine3D	: public IndexedShape
 {
 public:
     static IndexedPolyLine3D*	create()
@@ -105,4 +101,3 @@ public:
 
 
 #endif
-

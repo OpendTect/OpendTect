@@ -14,19 +14,19 @@ ________________________________________________________________________
 -*/
 
 
-#include "basicmod.h"
 #include "enums.h"
 class IOObj;
 
-/*!
-\brief Data connection.
-  
-  Data can be found in files and data stores. To access these data sources,
-  some kind of connection must be set up. This class defines a simple
-  interface common to these connections.
+
+/*!\brief Data connection.
+
+Data can be found in files and data stores. To access these data sources,
+some kind of connection must be set up. This class defines a simple
+interface common to these connections.
+
 */
 
-mExpClass(Basic) Conn
+mClass Conn
 {
 public:
 
@@ -58,11 +58,9 @@ protected:
 };
 
 
-/*!
-\brief Connection implemented in terms of another Conn object.
-*/
+/*!\brief Connection implemented in terms of another Conn object. */
 
-mExpClass(Basic) XConn  : public Conn
+mClass XConn  : public Conn
 {
 
     friend class	IOX;
@@ -96,4 +94,3 @@ protected:
 
 
 #endif
-

@@ -51,7 +51,7 @@
 
   \sa SoText2
 */
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "SoText2Set.h"
 #include <Inventor/nodes/SoSubNode.h>

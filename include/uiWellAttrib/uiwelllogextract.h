@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 class IOObj;
 class uiListBox;
@@ -27,20 +26,21 @@ class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
 
 
-mExpClass(uiWellAttrib) uiWellLogExtractGrp : public uiGroup
+mClass uiWellLogExtractGrp : public uiGroup
 {
 public:
-
-    struct Setup
+	struct Setup
     {
-			Setup(bool wa=true,bool singlog =false,
-			      const char* prop =0)
+			Setup(bool singlog =false ,const char* prop =0)
 			    : singlelog_(singlog)
-			    , withattrib_(wa)
 			    , prefpropnm_(prop)	{}
 	mDefSetupMemb(bool,singlelog);
-	mDefSetupMemb(bool,withattrib);
 	mDefSetupMemb(BufferString,prefpropnm);
+
+			Setup(bool,bool singlog,const char* prop)
+			    : singlelog_(singlog)
+			    , prefpropnm_(prop)	{}
+			//!< New constructor in 5.0
     };
 				uiWellLogExtractGrp(uiParent*,
 					const uiWellLogExtractGrp::Setup&,

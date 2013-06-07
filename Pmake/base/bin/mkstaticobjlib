@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id$
+# $Id: mkstaticobjlib,v 1.1 2007/04/12 15:49:54 cvsbert Exp $
 # This script creates a static object lib from a number of input libraries
 #_______________________________________________________________________________
 

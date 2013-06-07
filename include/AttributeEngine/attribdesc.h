@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "refcount.h"
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -32,11 +31,7 @@ class ValParam;
 typedef void(*DescStatusUpdater)(Desc&);
 typedef void(*DescDefaultsUpdater)(Desc&);
 
-/*!
-\brief Setup class for Attrib::Desc.
-*/
-
-mExpClass(AttributeEngine) DescSetup
+mClass DescSetup
 {
     public:
 				    DescSetup();
@@ -52,11 +47,7 @@ mExpClass(AttributeEngine) DescSetup
 };
 
 
-/*!
-\brief Specification of input data of an attribute.
-*/
-
-mExpClass(AttributeEngine) InputSpec
+mClass InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled )
@@ -74,19 +65,18 @@ public:
 };
 
 
-/*!
-\brief Description of an attribute in an Attrib::DescSet. Each attribute has
-a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
-least one output. In addition, it may have parameters and inputs. If it has
-multiple outputs, only one of the outputs are selected.
-  
-The attrib name, the parameters and the selected output number together form
-a definition string that defines what the attribute calculates.
-  
-Each Desc has DescID that is unique within it's DescSet.
-*/
+/*!Description of an attribute in an Attrib::DescSet. Each attribute has
+   a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
+   least one output. In addition, it may have parameters and inputs. If it has
+   multiple outputs, only one of the outputs are selected.
 
-mExpClass(AttributeEngine) Desc
+   The attrib name, the parameters and the selected output number together form
+   a definition string that define what the attribute calculates.
+
+   Each Desc has DescID that is unique within it's DescSet.
+ */
+
+mClass Desc
 { mRefCountImpl(Desc);
 public:
 
@@ -97,15 +87,11 @@ public:
 				     DescStatusUpdater updater=0,
 				     DescDefaultsUpdater defupdater=0);
 
-    const BufferString&		attribName() const;
+    const char*			attribName() const;
 
     void			setDescSet(DescSet*);
     DescSet*			descSet() const;
     DescID			id() const;
-    bool			getParentID(DescID cid,DescID& pid,int&) const;
-    void			getAncestorIDs(DescID cid,
-				TypeSet<Attrib::DescID>&,TypeSet<int>&) const;
-    				/*ordered from parent to oldest original*/
 
     bool			getDefStr(BufferString&) const;
     bool			parseDefStr(const char*);
@@ -199,7 +185,6 @@ public:
     
     static const char*		sKeyInlDipComp();
     static const char*		sKeyCrlDipComp();
-    static const char*		sKeyLineDipComp();
     
 protected:
 
@@ -328,6 +313,5 @@ protected:
     mGetFloatIntervalFromDesc( desc_, var, varstring )
 
 #endif
-
 
 

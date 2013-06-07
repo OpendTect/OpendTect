@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -45,6 +45,7 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 
 uiGroup* uiCalcHorVol::mkStdGrp()
 {
+    const CallBack chgcb( mCB(this,uiCalcHorVol,haveChg) );
     const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
 
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
@@ -56,8 +57,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     if ( SI().zIsTime() )
     {
 	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
-	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(
-					    mCast(float,zinft_?10000:3000)) );
+	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(zinft_?10000:3000) );
 	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
@@ -119,7 +119,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
 	if ( zinft_ )
-	    vel *= mFromFeetFactorF;
+	    vel *= mFromFeetFactor;
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
@@ -193,7 +193,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	{ new uiLabel( this, "Invalid horizon" ); return; }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 
@@ -209,6 +209,7 @@ uiCalcHorPolyVol::~uiCalcHorPolyVol()
 
 void uiCalcHorPolyVol::psSel( CallBacker* cb )
 {
+    bool havenew = ps_;
     if ( ps_ ) delete ps_;
     ps_ = 0;
 

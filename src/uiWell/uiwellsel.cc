@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwellsel.h"
 
@@ -72,23 +72,23 @@ void uiWellParSel::doDlg( CallBacker* )
 
 
 void uiWellParSel::fillPar( IOPar& iop ) const
-{ iop.mergeComp( iopar_, sKey::Well() ); }
+{ iop.mergeComp( iopar_, sKey::Well ); }
 
 bool uiWellParSel::usePar( const IOPar& iop )
 {
     selids_.erase();
     iopar_.setEmpty();
-    PtrMan<IOPar> subsel = iop.subselect( sKey::Well() );
+    PtrMan<IOPar> subsel = iop.subselect( sKey::Well );
     if ( !subsel ) return false;
 
     iopar_ = *subsel;
 
     int nrids;
-    iopar_.get( sKey::Size(), nrids );
+    iopar_.get( sKey::Size, nrids );
     for ( int idx=0; idx<nrids; idx++ )
     {
 	MultiID mid;
-	if ( iopar_.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	if ( iopar_.get(IOPar::compKey(sKey::ID,idx),mid) )
 	    selids_ += mid;
     }
 

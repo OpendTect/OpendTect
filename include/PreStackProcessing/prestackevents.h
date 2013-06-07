@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
 #include "bufstringset.h"
 #include "callback.h"
 #include "color.h"
@@ -43,11 +41,9 @@ class CDPGeometrySet;
 class GatherEvents;
 class VelocityPicks;
 
-/*!
-\brief A Event is a set of picks on an event on a single PreStack gather.
-*/
+/*!A Event is a set of picks on an event on a single prestack gather. */
 
-mExpClass(PreStackProcessing) Event
+mClass Event
 {
 public:
     			Event(int sz,bool quality);
@@ -77,11 +73,8 @@ public:
 };
 
 
-/*!
-\brief A EventSet is a set of Events on a single PreStack gather.
-*/
-
-mExpClass(PreStackProcessing) EventSet
+/*!A EventSet is a set of Events on a single prestack gather. */
+mClass EventSet
 { mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
 public:
     			EventSet();
@@ -97,15 +90,13 @@ public:
 };
 
 
-/*!
-\brief A EventManager is a set of EventsSet on multiple PreStack gathers, and
-are identified under the same MultiID.
-*/
+/*!A EventManager is a set of EventsSet on multiple prestack
+   gathers, and are identified under the same MultiID. */
 
-mExpClass(PreStackProcessing) EventManager : public CallBacker
+mClass EventManager : public CallBacker
 { mRefCountImpl(EventManager);
 public:
-    mStruct(PreStackProcessing) DipSource
+    mStruct DipSource
     {
 			DipSource();
 	enum Type	{ None, Horizon, SteeringVolume };
@@ -241,11 +232,7 @@ protected:
 };
 
 
-/*!
-\brief BinIDUndoEvent for PreStack pick.
-*/
-
-mExpClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
+mClass SetPickUndo : public BinIDUndoEvent
 {
 public:
     			SetPickUndo(EventManager&,const BinID&,int horidx,
@@ -272,11 +259,7 @@ protected:
 };
 
 
-/*!
-\brief UndoEvent for PreStack pick.
-*/
-
-mExpClass(PreStackProcessing) SetEventUndo : public UndoEvent
+mClass SetEventUndo : public UndoEvent
 {
 public:
     			SetEventUndo(EventManager&,const BinID&,int horidx,
@@ -309,5 +292,3 @@ protected:
 }; //namespace
 
 #endif
-
-

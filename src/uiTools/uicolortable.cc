@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicolortable.h"
 
@@ -39,131 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-class uiAutoRangeClipDlg : public uiDialog
-{
-public:
-
-uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
-		    Notifier<uiColorTable>& nf )
-    : uiDialog(p,uiDialog::Setup("Ranges/Clipping",mNoDlgTitle,
-				 "50.1.3").modal(false))
-    , ms_(ms)
-    , scaleChanged(nf)
-{
-    setCtrlStyle( DoAndStay );
-    setButtonText( OK, "Apply" );
-
-    doclipfld = new uiGenInput( this, "Auto-set scale ranges",
-				BoolInpSpec(true) );
-    doclipfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,clipPush) );
-
-    clipfld = new uiGenInput( this, "Percentage clipped",
-			      FloatInpIntervalSpec() );
-    clipfld->setElemSzPol( uiObject::Small );
-    clipfld->attach( alignedBelow, doclipfld );
-
-    autosymfld = new uiGenInput( this, "Auto detect symmetry",
-				 BoolInpSpec(true) );
-    autosymfld->attach( alignedBelow, clipfld );
-    autosymfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,autoSymPush));
-
-    symfld = new uiGenInput( this, "Set symmetrical", BoolInpSpec(true) );
-    symfld->attach( alignedBelow, autosymfld );
-    symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
-
-    midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
-				FloatInpSpec() );
-    midvalfld->setElemSzPol( uiObject::Small );
-    midvalfld->attach( alignedBelow, symfld );
-
-    storfld = new uiCheckBox( this, "Save as default" );
-    storfld->attach( alignedBelow, midvalfld );
-
-    updateFields();
-}
-
-
-void updateFields()
-{
-    doclipfld->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
-
-    Interval<float> cliprate( ms_.cliprate_.start*100, ms_.cliprate_.stop*100 );
-    clipfld->setValue( cliprate );
-    autosymfld->setValue( ms_.autosym0_ );
-    symfld->setValue( !mIsUdf(ms_.symmidval_) );
-    midvalfld->setValue( mIsUdf(ms_.symmidval_) ? 0 : ms_.symmidval_ );
-
-    clipPush(0);
-    autoSymPush(0);
-    symPush(0);
-}
-
-
-void clipPush( CallBacker* )
-{
-    const bool doclip = doclipfld->getBoolValue();
-    clipfld->display( doclip );
-    autosymfld->display( doclip );
-    autoSymPush( 0 );
-}
-
-void symPush( CallBacker* )
-{
-    midvalfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue()
-	   		&& symfld->getBoolValue() );
-}
-
-void autoSymPush( CallBacker* )
-{
-    symfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue() );
-    symPush( 0 );
-}
-
-bool saveDef()
-{ return doclipfld->getBoolValue() && storfld->isChecked(); }
-
-bool acceptOK( CallBacker* )
-{
-    doApply();
-    scaleChanged.trigger();
-
-    if ( saveDef() )
-	ColTab::setMapperDefaults( ms_.cliprate_, ms_.symmidval_,
-				   ms_.autosym0_ );
-    return false;
-}
-
-
-void doApply()
-{
-    ms_.type_ = doclipfld->getBoolValue()
-	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
-
-    Interval<float> cliprate = clipfld->getFInterval();
-    cliprate.start *= 0.01;
-    cliprate.stop *= 0.01;
-    ms_.cliprate_ = cliprate;
-    const bool autosym = autosymfld->getBoolValue();
-    const bool symmetry = !autosym && symfld->getBoolValue();
-    ms_.autosym0_ = autosym;
-    ms_.symmidval_ = symmetry && !autosym ? midvalfld->getfValue()
-						: mUdf(float);
-}
-
-protected:
-    uiGenInput*		doclipfld;
-    uiGenInput*		clipfld;
-    uiGenInput*		autosymfld;
-    uiGenInput*		symfld;
-    uiGenInput*		midvalfld;
-    uiCheckBox*		storfld;
-
-    Notifier<uiColorTable>&	scaleChanged;
-    ColTab::MapperSetup&	ms_;
-};
-
-
-// uiColorTableSel
 uiColorTableSel::uiColorTableSel( uiParent* p, const char* nm )
     : uiComboBox(p,nm)
 {
@@ -198,13 +73,9 @@ const char* uiColorTableSel::getCurrent() const
 { return textOfItem( currentItem() ); }
 
 
-
-// uiColorTable
-
 #define mStdInitList \
 	  seqChanged(this) \
 	, scaleChanged(this) \
-	, scalingdlg_(0) \
 	, minfld_(0) \
 	, maxfld_(0) \
 	, enabmanage_(true)
@@ -314,7 +185,6 @@ uiColorTable::~uiColorTable()
 void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
 {
     mapsetup_ = disppar.mappersetup_;
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
 }
 
 
@@ -328,7 +198,6 @@ void uiColorTable::setInterval( const Interval<float>& range )
 {
     mapsetup_.range_ =  range;
     updateRgFld();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
 }
 
 
@@ -385,7 +254,6 @@ void uiColorTable::setMapperSetup( const ColTab::MapperSetup* ms,
     {
 	mapsetup_ = *ms;
 	updateRgFld();
-	if ( scalingdlg_ ) scalingdlg_->updateFields();
 
 	if ( !emitnotif )
 	    scaleChanged.trigger();
@@ -469,7 +337,6 @@ void uiColorTable::commitInput()
     mapsetup_.range_.stop = maxfld_->getfValue();
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
 }
 
 
@@ -479,13 +346,106 @@ void uiColorTable::rangeEntered( CallBacker* )
 }
 
 
+class uiAutoRangeClipDlg : public uiDialog
+{
+public:
+
+uiAutoRangeClipDlg( uiParent* p, const ColTab::MapperSetup& ms )
+    : uiDialog(p,uiDialog::Setup("Ranges/Clipping","Auto-range and clipping",
+				 "50.1.3"))
+{
+    doclipfld = new uiGenInput( this, "Auto-set scale ranges",
+				BoolInpSpec(true) );
+    doclipfld->setValue( ms.type_!=ColTab::MapperSetup::Fixed );
+    doclipfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,clipPush) );
+
+    Interval<float> cliprate( ms.cliprate_.start*100, ms.cliprate_.stop*100 );
+    clipfld = new uiGenInput( this, "Percentage clipped",
+			      FloatInpIntervalSpec(cliprate) );
+    clipfld->setElemSzPol( uiObject::Small );
+    clipfld->attach( alignedBelow, doclipfld );
+
+    autosymfld = new uiGenInput( this, "Auto detect symmetry",
+				 BoolInpSpec(ms.autosym0_) );
+    autosymfld->attach( alignedBelow, clipfld );
+    autosymfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,autoSymPush));
+
+    symfld = new uiGenInput( this, "Set symmetrical",
+	    		     BoolInpSpec(!mIsUdf(ms.symmidval_)) );
+    symfld->attach( alignedBelow, autosymfld );
+    symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
+
+    midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
+		    FloatInpSpec(mIsUdf(ms.symmidval_) ? 0 : ms.symmidval_) );
+    midvalfld->setElemSzPol( uiObject::Small );
+    midvalfld->attach( alignedBelow, symfld );
+
+    storfld = new uiCheckBox( this, "Save as default" );
+    storfld->attach( alignedBelow, midvalfld );
+
+    clipPush(0);
+    autoSymPush(0);
+    symPush(0);
+}
+
+void clipPush( CallBacker* )
+{
+    const bool doclip = doclipfld->getBoolValue();
+    clipfld->display( doclip );
+    autosymfld->display( doclip );
+    autoSymPush( 0 );
+}
+
+void symPush( CallBacker* )
+{
+    midvalfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue()
+	   		&& symfld->getBoolValue() );
+}
+
+void autoSymPush( CallBacker* )
+{
+    symfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue() );
+    symPush( 0 );
+}
+
+bool saveDef()
+{
+    return doclipfld->getBoolValue() && storfld->isChecked();
+}
+
+
+    uiGenInput*		doclipfld;
+    uiGenInput*		clipfld;
+    uiGenInput*		autosymfld;
+    uiGenInput*		symfld;
+    uiGenInput*		midvalfld;
+    uiCheckBox*		storfld;
+};
+
+
+
 void uiColorTable::editScaling( CallBacker* )
 {
-    if ( !scalingdlg_ )
-	scalingdlg_ = new uiAutoRangeClipDlg( this, mapsetup_, scaleChanged );
+    uiAutoRangeClipDlg dlg( this, mapsetup_ );
+    if ( !dlg.go() ) return;
 
-    scalingdlg_->show();
-    scalingdlg_->raise();
+    mapsetup_.type_ = dlg.doclipfld->getBoolValue()
+	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
+
+    Interval<float> cliprate = dlg.clipfld->getFInterval();
+    cliprate.start *= 0.01;
+    cliprate.stop *= 0.01;
+    mapsetup_.cliprate_ = cliprate;
+    const bool autosym = dlg.autosymfld->getBoolValue();
+    const bool symmetry = !autosym && dlg.symfld->getBoolValue();
+    mapsetup_.autosym0_ = autosym;
+    mapsetup_.symmidval_ = symmetry && !autosym ? dlg.midvalfld->getfValue()
+						: mUdf(float);
+    if ( dlg.saveDef() )
+	ColTab::setMapperDefaults( mapsetup_.cliprate_, mapsetup_.symmidval_,
+	       			   mapsetup_.autosym0_ );
+
+    scaleChanged.trigger();
 }
 
 
@@ -509,8 +469,8 @@ void uiColorTable::makeSymmetrical( CallBacker* )
 
     mapsetup_.range_ =  rg;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
+
     updateRgFld();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
 
     scaleChanged.trigger();
 }

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uigroup.h"
 
 class uiIOObjSel;
@@ -23,7 +22,7 @@ class MultiID;
 namespace PreStack
 {
 
-mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
+mClass uiProcSel : public uiGroup
 {
 public:
     			uiProcSel(uiParent*,const char* label,
@@ -45,4 +44,3 @@ protected:
 }; //namespace
 
 #endif
-

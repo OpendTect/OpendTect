@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "polygonsurfeditor.h"
 
@@ -174,6 +174,7 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 	for ( int polygonidx=rowrange.nrSteps(); polygonidx>=0; polygonidx-- )
 	{
 	    Coord3 avgpos( 0, 0, 0 );
+	    int count = 0;
 	    const int curpolygon = rowrange.atIndex(polygonidx);
 	    const StepInterval<int> colrange = surface->colRange( curpolygon );
 	    if ( colrange.isUdf() )
@@ -213,8 +214,8 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
     if ( !mousepos.isDefined() )
 	return mUdf(float);
 
-    int selsectionidx = -1, selpolygon = mUdf(int);
-    float mindist = mUdf(float);
+    int selsectionidx = -1, selpolygon;
+    float mindist;
 
     for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -255,7 +256,7 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 
 	    const Plane3 plane( surface->getPolygonNormal(curpolygon),
 		    		avgpos, false );
-	    const float disttoplane = (float) 
+	    const float disttoplane =
 		plane.distanceToPoint( mCompareCoord(mousepos), true );
 
 	    if ( selsectionidx==-1 || fabs(disttoplane)<fabs(mindist) )
@@ -313,7 +314,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( colrg.nrSteps()<3 )
 	return emobject.setPos( pid, mpos, addtoundo );
 
-    const int zscale =  SI().zDomain().userFactor();   
+    const int zscale =  SI().zFactor();   
     const int previdx = rc.col==colrg.start ? colrg.stop : rc.col-colrg.step;
     const int nextidx = rc.col<colrg.stop ? rc.col+colrg.step : colrg.start;
     
@@ -378,7 +379,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     TypeSet<int> knots;
     int nearknotidx = -1;
     Coord3 nearpos;
-    float minsqptdist = mUdf(float);
+    float minsqptdist;
     for ( int knotidx=0; knotidx<colrange.nrSteps()+1; knotidx++ )
     {
 	const Coord3 pt = 
@@ -389,7 +390,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
 	{
-	    sqdist = (float) mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
 	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
 		return;
 	}
@@ -418,7 +419,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     }
 
     double minsqedgedist = -1;
-    int nearedgeidx = mUdf(int);
+    int nearedgeidx;
     Coord3 v0, v1;
     for ( int knotidx=0; knotidx<knots.size(); knotidx++ )
     {

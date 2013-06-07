@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "ranges.h"
 #include "namedobj.h"
 #include "enums.h"
@@ -36,7 +34,7 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 
  */
 
-mExpClass(General) PropertyRef : public NamedObject
+mClass PropertyRef : public NamedObject
 {
 public:
 
@@ -73,7 +71,7 @@ public:
     static const PropertyRef& undef();
 
     // Defaults for display
-    mStruct(General) DispDefs
+    mStruct DispDefs
     {
 			DispDefs()
 			: color_(Color::Black())
@@ -104,10 +102,16 @@ protected:
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
+public:
+
+    // Deprecated: is not sound, theoretically. Will go away in 4.5
+    inline bool		isHCAffected() const		{ return true; }
+    inline static bool	isHCAffected( StdType t )	{ return true; }
+
 };
 
 
-mExpClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
+mClass PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
@@ -150,16 +154,15 @@ public:
 
 };
 
-mGlobal(General) const PropertyRefSet& PROPS();
+mGlobal const PropertyRefSet& PROPS();
 inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
 
 
-mExpClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
+mClass PropertyRefSelection : public ObjectSet<const PropertyRef>
 {
 public:
 
     			PropertyRefSelection();
-    bool		operator ==(const PropertyRefSelection&) const;
 
     int			indexOf(const char*) const;
     int			find(const char*) const; // also uses 'isKnownAs'
@@ -175,10 +178,7 @@ public:
 			{ const int idx = indexOf(nm);
 			  return idx < 0 ? 0 : (*this)[idx]; }
 
-    PropertyRefSelection subselect(PropertyRef::StdType) const;
 };
 
 
 #endif
-
-

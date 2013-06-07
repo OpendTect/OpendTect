@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "inputcommands.h"
 #include "cmddriverbasics.h"
@@ -55,7 +55,7 @@ bool InputCmd::act( const char* parstr )
     {
 	mDynamicCastGet( const uiComboBox*, uicombo, objsfound[idx] );
 	if ( uicombo && uicombo->isReadOnly() )
-	    objsfound.removeSingle( idx );
+	    objsfound.remove( idx );
     }
 
     mParKeyStrPre( "input field", objsfound, nrgrey, keys, selnr );
@@ -117,7 +117,7 @@ bool GetInputCmd::act( const char* parstr )
     {
 	mDynamicCastGet( const uiComboBox*, uicombo, objsfound[idx] );
 	if ( uicombo && uicombo->isReadOnly() )
-	    objsfound.removeSingle( idx );
+	    objsfound.remove( idx );
     }
 
     mParKeyStrPre( "input field", objsfound, nrgrey, keys, selnr );

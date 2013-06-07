@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiattribtransdlg.h"
 
@@ -26,7 +26,7 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
     slider_->sldr()->setMinValue( 0 );
     slider_->sldr()->setMaxValue( 100 );
     slider_->sldr()->setStep( 1 );
-    slider_->sldr()->setValue( 100*initaltrans_/255.f ); 
+    slider_->sldr()->setValue( 100*initaltrans_/255. );
 
     slider_->sldr()->valueChanged.notify( mCB(this,uiAttribTransDlg,changeCB) );
 }
@@ -35,7 +35,7 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
     const int val = 255*slider_->sldr()->getIntValue()/100;
-    so_.setAttribTransparency( attrib_, mCast(unsigned char,val) );
+    so_.setAttribTransparency( attrib_, val );
 }
 
 
@@ -45,9 +45,3 @@ bool uiAttribTransDlg::rejectOK( CallBacker* )
     return true;
 }
 
-
-bool uiAttribTransDlg::acceptOK( CallBacker* )
-{
-    slider_->processInput();
-    return true;
-}

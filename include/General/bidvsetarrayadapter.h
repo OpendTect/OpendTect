@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "arraynd.h"
 #include "arrayndinfo.h"
 #include "binidvalset.h"
@@ -21,7 +20,7 @@ ________________________________________________________________________
 
 //!\brief an adapter between Array2D and a BinIDValueSet
 
-mExpClass(General) BIDValSetArrAdapter : public Array2D<float>
+mClass BIDValSetArrAdapter : public Array2D<float>
 {
 public:			
     				BIDValSetArrAdapter(const BinIDValueSet&,
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

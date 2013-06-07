@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "scaler.h"
 
@@ -44,7 +43,7 @@ If ThreadWorker is set, it utilizes mt processing.
 
 */
 
-mExpClass(visBase) Texture : public DataObject
+mClass Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,
@@ -150,4 +149,3 @@ protected:
 };
 
 #endif
-

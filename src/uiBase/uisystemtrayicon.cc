@@ -8,14 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisystemtrayicon.h"
 #include "i_qsystemtrayicon.h"
 
 #include "pixmap.h"
 
-mUseQtnamespace
 
 uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
     : action_(-1)
@@ -26,8 +25,7 @@ uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
     , doubleClicked(this)
 {
     qsystemtrayicon_ = new QSystemTrayIcon();
-    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_,
-	    						 this );
+    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_, this );
     setPixmap( pm );
 }
 

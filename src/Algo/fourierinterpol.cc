@@ -83,10 +83,11 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 	return false;
 
     const float df = Fourier::CC::getDf( sampling_.step, sz_ );
+    const float nyqfreq = Fourier::CC::getNyqvist( sampling_.step  );
 
     Array1D<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=(int) start; idpt<=stop; idpt++ )
+    for ( int idpt=start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
@@ -97,7 +98,7 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<sz_; idx++ )
 	{
-	    const float angle = (float) ( 2*M_PI *anglesampling*idx );
+	    const float angle = 2*M_PI *anglesampling*idx;
 	    const float_complex cexp = float_complex( cos(angle), sin(angle) );
 	    const float_complex cplxref = cexp*cplxval;
 	    float_complex outpval = interpvals.get( idx );
@@ -117,7 +118,7 @@ bool FourierInterpol1D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array1D<float_complex>& arr = *arrs_.removeSingle(1);
+	Array1D<float_complex>& arr = *arrs_.remove(1);
 	for ( int idx=0; idx<sz_; idx++ )
 	{
 	    float_complex val = arrs_[0]->get( idx );
@@ -170,9 +171,12 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
     const float dfx = Fourier::CC::getDf( xsampling_.step, szx_ );
     const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
 
+    const float nyqxfreq = Fourier::CC::getNyqvist( xsampling_.step  );
+    const float nyqyfreq = Fourier::CC::getNyqvist( ysampling_.step );
+
     Array2D<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=(int) start; idpt<=stop; idpt++ )
+    for ( int idpt=start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
@@ -186,11 +190,12 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<szx_; idx++ )
 	{
-	    const float anglex = (float) ( 2*M_PI *xanglesampling*idx );
+	    const float anglex = 2*M_PI *xanglesampling*idx;
+	    const float_complex cxexp = float_complex(cos(anglex),sin(anglex));
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
-		const float angley = (float) ( 2*M_PI *yanglesampling*idy );
+		const float angley = 2*M_PI *yanglesampling*idy;
 		const float angle = anglex + angley;
 		const float_complex cexp = float_complex( cos(angle), 
 							    sin(angle) );
@@ -213,7 +218,7 @@ bool FourierInterpol2D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array2D<float_complex>& arr = *arrs_.removeSingle(1);
+	Array2D<float_complex>& arr = *arrs_.remove(1);
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    for ( int idy=0; idy<szy_; idy++ )
@@ -273,9 +278,13 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
     const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
     const float dfz = Fourier::CC::getDf( zsampling_.step, szz_ );
 
+    const float nyqxfreq = Fourier::CC::getNyqvist( xsampling_.step  );
+    const float nyqyfreq = Fourier::CC::getNyqvist( ysampling_.step );
+    const float nyqzfreq = Fourier::CC::getNyqvist( zsampling_.step );
+
     Array3DImpl<float_complex>& interpvals = *arrs_[thread];
 
-    for ( int idpt=(int) start; idpt<=stop; idpt++ )
+    for ( int idpt=start; idpt<=stop; idpt++ )
     {
 	float_complex cplxval = pts_[idpt].val_;
 	if ( mIsUdf( cplxval ) ) 
@@ -291,15 +300,15 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 
 	for ( int idx=0; idx<szx_; idx++ )
 	{
-	    const float anglex = (float) ( 2*M_PI *xanglesampling*idx );
+	    const float anglex = 2*M_PI *xanglesampling*idx;
 
 	    for ( int idy=0; idy<szy_; idy++ )
 	    {
-		const float angley = (float) ( 2*M_PI *yanglesampling*idy );
+		const float angley = 2*M_PI *yanglesampling*idy;
 
 		for ( int idz=0; idz<szz_; idz++ )
 		{
-		    const float anglez = (float) ( 2*M_PI *zanglesampling*idz );
+		    const float anglez = 2*M_PI *zanglesampling*idz;
 
 		    const float angle = anglex+angley+anglez;
 
@@ -326,7 +335,7 @@ bool FourierInterpol3D::doFinish( bool success )
 
     while ( arrs_.size() > 1 )
     {
-	Array3DImpl<float_complex>& arr = *arrs_.removeSingle(1);
+	Array3DImpl<float_complex>& arr = *arrs_.remove(1);
 	for ( int idx=0; idx<szx_; idx++ )
 	{
 	    for ( int idy=0; idy<szy_; idy++ )

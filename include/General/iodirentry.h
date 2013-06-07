@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "generalmod.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "objectset.h"
@@ -23,7 +22,7 @@ class TranslatorGroup;
 
 /*!\brief needed for manipulation. Used by user interface IOObj management. */
 
-mExpClass(General) IODirEntry : public NamedObject
+mClass IODirEntry : public NamedObject
 {
 public:
 			IODirEntry(IOObj*);
@@ -34,7 +33,7 @@ public:
 
 /*!\brief list of dir entries. */
 
-mExpClass(General) IODirEntryList : public ObjectSet<IODirEntry>
+mClass IODirEntryList : public ObjectSet<IODirEntry>
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -22,11 +21,7 @@ class uiTable;
 
 class MathExpression;
 
-/*!
-\brief Dialog box to add columns in datapointset.
-*/
-
-mExpClass(uiIo) uiDPSAddColumnDlg : public uiDialog
+mClass uiDPSAddColumnDlg : public uiDialog
 {
 public:
     				uiDPSAddColumnDlg(uiParent*,bool withmathop);
@@ -56,4 +51,3 @@ protected:
 };
 
 #endif
-

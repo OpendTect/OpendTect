@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink / Bert
  Date:          21/2/2002 / Sep 2011
- RCS:           $Id: uigeninput_impl.h,v 1.2 2012-08-03 13:01:36 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-#include "uispinbox.h"
 #include "userinputobj.h"
 class uiCheckBox;
 class uiRadioButton;
@@ -89,7 +88,7 @@ protected:
 };
 
 
-class uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
+mClass uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
 {
 public:
 
@@ -106,8 +105,8 @@ public:
     virtual const char*	text() const{ return yn ? truetxt : falsetxt; }
     virtual void        setText( const char* t )	
 			    {  
-				if ( truetxt == t ) yn = true;
-				else if ( falsetxt==t ) yn = false;
+				if ( t == truetxt ) yn = true;
+				else if ( t == falsetxt ) yn = false;
 				else yn = toBool(t);
 
 				setvalue_(yn);
@@ -151,28 +150,5 @@ protected:
     uiRadioButton*	rb2;
 };
 
-
-class uiGenInputIntFld : public UserInputObjImpl<int>, public uiSpinBox
-{
-public:
-			uiGenInputIntFld(uiParent*,int val=0,
-					 const char* nm="Int Input");
-			uiGenInputIntFld(uiParent*,const DataInpSpec&,
-					 const char* nm="Int Input");
-    virtual void	setReadOnly(bool);
-    virtual bool	isReadOnly() const;
-
-    virtual bool	update_(const DataInpSpec&);
-    virtual void	setToolTip(const char*);
-
-protected:
-
-    virtual int		getvalue_() const;
-    virtual void	setvalue_(int);
-
-    virtual bool	notifyValueChanging_(const CallBack&);
-    virtual bool	notifyValueChanged_(const CallBack&);
-    virtual bool	notifyUpdateRequested_(const CallBack&);
-};
 
 #endif

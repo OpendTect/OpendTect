@@ -15,12 +15,10 @@ ________________________________________________________________________
 #include "dataclipper.h"
 #include "thread.h"
 
-/*!
-\brief Finds all local maximas/minimas in an ArrayND.
-*/
+//!Finds all local maximas/minimas in an ArrayND
 
 template <class T>
-mClass(Algo) SampledExtremeFinderND : public ParallelTask
+class SampledExtremeFinderND : public ParallelTask
 {
 public:
 		SampledExtremeFinderND(const ArrayND<T>& arr, bool minima)
@@ -78,7 +76,7 @@ bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
     iter.setPos<int*>( pos );
 			    
     mAllocVarLenArr( int, currentextreme, ndim );
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
+    for ( int idx=start; idx<=stop && shouldContinue();
 	  idx++, addToNrDone(1), iter.next() ) 
     {
 	memcpy( currentextreme, iter.getPos(), ndim*sizeof(int) );

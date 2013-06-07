@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uisegyreaddlg.h"
 class uiSeisSel;
 class CtxtIOObj;
@@ -22,7 +21,7 @@ class uiSeisTransfer;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
+mClass uiSEGYImpDlg : public uiSEGYReadDlg
 {
 public :
 
@@ -50,4 +49,3 @@ protected:
 
 
 #endif
-

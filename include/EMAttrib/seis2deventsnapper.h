@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "emattribmod.h"
 #include "executor.h"
 #include "seiseventsnapper.h"
 #include "seistrc.h"
@@ -24,15 +23,12 @@ namespace Seis { class Horizon2D; }
 class SeisTrcReader;
 class IOObj;
 
-/*!
-\brief SeisEventSnapper for 2D.
-*/
 
-mExpClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
+mClass Seis2DEventSnapper : public SeisEventSnapper
 {
 public:
 
-    mExpClass(EMAttrib) Setup
+    mClass Setup
     {
     public:
 				Setup(const IOObj* seisobj,const LineKey& l,
@@ -60,15 +56,11 @@ protected:
 };
 
 
-/*!
-\brief ExecutorGroup to snap 2D seismic line set event.
-*/
-
-mExpClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
+mClass Seis2DLineSetEventSnapper : public ExecutorGroup
 {
 public:
 
-    mExpClass(EMAttrib) Setup
+    mClass Setup
     {
     public:
 				Setup(const BufferString& atrnm,int typ,
@@ -93,4 +85,3 @@ protected:
 };
 
 #endif
-

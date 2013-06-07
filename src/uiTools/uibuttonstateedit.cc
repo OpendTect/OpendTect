@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uibuttonstateedit.h"
 #include "uigeninput.h"
@@ -47,7 +47,7 @@ BufferString uiButtonStateEdit::createName( int status )
 {
     BufferString res;
     if ( !status )
-	res = sKey::None();
+	res = sKey::None;
     else
     {
 	bool first = true;

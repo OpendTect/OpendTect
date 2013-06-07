@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -397,7 +397,8 @@ SbBool SoRandomTrackLineDragger::setUpConnections( SbBool onOff,
 
 	SoBaseKit::setUpConnections( onOff, doItAlways );
     }
-
-    connectionsSetUp = onOff;
-    return !connectionsSetUp;
+    
+    return !(connectionsSetUp = onOff);
 }
+
+

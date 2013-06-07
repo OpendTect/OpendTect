@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoTransformation.h>
 #include <Inventor/SbLinear.h>
 
@@ -25,7 +24,7 @@ ________________________________________________________________________
 
 */
 
-mSoODClass SoCameraFacingZAxisRotation : public SoTransformation
+mClass SoCameraFacingZAxisRotation : public SoTransformation
 {
     typedef SoTransformation inherited;
     SO_NODE_HEADER(SoCameraFacingZAxisRotation);
@@ -50,5 +49,4 @@ protected:
 };
 
 #endif
-
 

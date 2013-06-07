@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class IOObj;
 class uiIOObjSel;
@@ -23,7 +22,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mExpClass(uiIo) uiImpPVDS : public uiDialog 
+mClass uiImpPVDS : public uiDialog 
 {
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);
@@ -48,4 +47,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 #include "emposid.h"
@@ -26,7 +25,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE { class HorizonFlatViewEditor2D; }
 
 
-mExpClass(uiViewer2D) Vw2DHorizon2D : public Vw2DEMDataObject
+mClass Vw2DHorizon2D : public Vw2DEMDataObject
 {
 public:
     static Vw2DHorizon2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
@@ -69,4 +68,3 @@ protected:
 };
 
 #endif
-

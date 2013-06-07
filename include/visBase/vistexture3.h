@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexture.h"
 
 class SoTexture3;
@@ -27,7 +26,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) Texture3 : public Texture
+mClass Texture3 : public Texture
 {
 public:
     static Texture3*	create()
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

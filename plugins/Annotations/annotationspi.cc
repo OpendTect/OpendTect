@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.13 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "measuretoolman.h"
 #include "odplugin.h"
@@ -18,16 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visannotimage.h"
 #include "visarrow.h"
 #include "viscallout.h"
-#include "visscalebar.h"
-
-#include "annotationsmod.h"
 
 
 mDefODPluginInfo(Annotations)
 {
     static PluginInfo retpii = {
 	"Annotations",
-	"dGB Earth Sciences (Nanne)",
+	"dGB (Nanne Hemstra)",
 	"=od",
 	"Annotation display utilities."
 	    "\nThis delivers the 'Annotations' item in the tree." };
@@ -40,15 +37,14 @@ mDefODInitPlugin(Annotations)
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	    			new Annotations::TreeItemFactory, 10000 );
 
-    new Annotations::MeasureToolMan( *ODMainWin() );
+    Annotations::MeasureToolMan* mgr =
+	new Annotations::MeasureToolMan( *ODMainWin() );
 
     Annotations::ImageDisplay::initClass();
     Annotations::Image::initClass();
     Annotations::ArrowDisplay::initClass();
     Annotations::CalloutDisplay::initClass();
     Annotations::Callout::initClass();
-    Annotations::ScaleBar::initClass();
-    Annotations::ScaleBarDisplay::initClass();
 
     return 0;
 }

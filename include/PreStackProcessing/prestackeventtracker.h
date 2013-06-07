@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "factory.h"
 #include "odmemory.h"
 #include "multiid.h"
@@ -26,11 +25,9 @@ class Gather;
 class Event;
 class MuteDef;
 
-/*!
-\brief Base class for algorithms that track PreStack events on a gather.
-*/
+/*!Baseclass for algorithms that track pre-stack events on a gather. */
 
-mExpClass(PreStackProcessing) EventTracker
+mClass EventTracker
 {
 public:
 			mDefineFactoryInClass(EventTracker,factory);
@@ -70,4 +67,3 @@ protected:
 }; //namespace
 
 #endif
-

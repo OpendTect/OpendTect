@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiobjfileman.h"
 #include "bufstringset.h"
 
@@ -23,7 +22,7 @@ class uiPushButton;
 namespace Well { class Data; class Reader; };
 
 
-mExpClass(uiWell) uiWellMan : public uiObjFileMan
+mClass uiWellMan : public uiObjFileMan
 {
 public:
     				uiWellMan(uiParent*);
@@ -59,9 +58,8 @@ protected:
     void			writeLogs();
     void			fillLogsFld();
     void			wellsChgd();
-    void			viewLogPush(CallBacker*);
-    void			renameLogPush(CallBacker*);
     void			removeLogPush(CallBacker*);
+    void			renameLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
     void			checkMoveLogs(CallBacker*);
     void			logUOMPush(CallBacker*);
@@ -81,4 +79,3 @@ protected:
 };
 
 #endif
-

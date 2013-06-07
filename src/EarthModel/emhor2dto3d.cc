@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emhor2dto3d.h"
 
@@ -23,9 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-class Hor2DTo3DSectionData
+struct Hor2DTo3DSectionData
 {
-public:
+
 Hor2DTo3DSectionData( EM::SectionID sid,
 		      const BinID& minbid, const BinID& maxbid,
 		      const BinID& step )
@@ -34,6 +34,7 @@ Hor2DTo3DSectionData( EM::SectionID sid,
     , count_( getSz(minbid.inl,maxbid.inl,step.inl),
 	      getSz(minbid.crl,maxbid.crl,step.crl) )
     , sid_(sid)
+    , curpos_(0)
 {
     inlsz_ = count_.info().getSize( 0 );
     crlsz_ = count_.info().getSize( 1 );
@@ -83,6 +84,7 @@ void add( const BinID& bid, float z )
     EM::SectionID	sid_;
     int			inlsz_;
     int			crlsz_;
+    int 		curpos_;
 };
 
 
@@ -108,7 +110,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );
 
-	curinterp_->setMaxHoleSize( mUdf(float) );
+	curinterp_->setMaxHoleSize(mUdf(int));
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
   	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
 					      : Array2DInterpol::ConvexHull );
@@ -184,7 +186,7 @@ void Hor2DTo3D::fillSections()
 	    const Coord3 coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord );
 
-	    sd.add( bid, (float) coord.z );
+	    sd.add( bid, coord.z );
 	}
     }
 }
@@ -205,13 +207,14 @@ const char* Hor2DTo3D::nrDoneText() const
 
 od_int64 Hor2DTo3D::nrDone() const
 {
-    return curinterp_ ? curinterp_->nrDone() : -1;
+    return curinterp_ ? curinterp_->nrDone()+sd_[0]->curpos_ : -1;
 }
 
 
 od_int64 Hor2DTo3D::totalNr() const
 {
-    return curinterp_ ? curinterp_->totalNr() : sd_.size();
+    return curinterp_ ? curinterp_->totalNr()+sd_[0]->hs_.totalNr()
+		      : sd_.size();
 }
 
 
@@ -222,10 +225,11 @@ int Hor2DTo3D::nextStep()
 
     if ( curinterp_ )
     {
+	curinterp_->enableNrDoneCounting( true );
 	curinterp_->execute();
     }
 
-    const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
+    Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
 
     const bool geowaschecked = hor3d_.enableGeometryChecks( false );
 
@@ -241,6 +245,7 @@ int Hor2DTo3D::nextStep()
 			     sd.hs_.crlRange().atIndex(crlidx) );
 	    const Coord3 pos( SI().transform(bid), sd.arr_.get(inlidx,crlidx) );
 
+	    sd.curpos_++;
 	    if ( pos.isDefined() ) 
 		hor3d_.setPos( sid, bid.toInt64(), pos, false );
 	}
@@ -260,4 +265,4 @@ int Hor2DTo3D::nextStep()
     return Executor::MoreToDo();
 }
 
-} // namespace OD
+}

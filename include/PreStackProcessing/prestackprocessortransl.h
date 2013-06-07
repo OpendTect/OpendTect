@@ -13,16 +13,11 @@ ________________________________________________________________________
 
 -*/
  
-#include "prestackprocessingmod.h"
 #include "transl.h"
-
 namespace PreStack { class ProcessManager; }
 
-/*!
-\brief TranslatorGroup for PreStack processing.
-*/
 
-mExpClass(PreStackProcessing) PreStackProcTranslatorGroup : public TranslatorGroup
+mClass PreStackProcTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
 public:
     			mDefEmptyTranslatorGroupConstructor(PreStackProc)
@@ -31,11 +26,7 @@ public:
 };
 
 
-/*!
-\brief Translator for PreStack processing.
-*/
-
-mExpClass(PreStackProcessing) PreStackProcTranslator : public Translator
+mClass PreStackProcTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PreStackProc)
@@ -52,11 +43,7 @@ public:
 };
 
 
-/*!
-\brief dgb PreStackProcTranslator
-*/
-
-mExpClass(PreStackProcessing) dgbPreStackProcTranslator : public PreStackProcTranslator
+mClass dgbPreStackProcTranslator : public PreStackProcTranslator
 {			     isTranslator(dgb,PreStackProc)
 public:
 
@@ -69,4 +56,3 @@ public:
 
 
 #endif
-

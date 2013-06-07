@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiscalingattrib.h"
@@ -271,7 +271,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
 	
-	tgs += ZGate( mCast(float,start), mCast(float,stop) );
+	tgs += ZGate( start, stop );
 
 	if ( statsfld->getIntValue() == 3 )
 	{
@@ -294,6 +294,8 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	    if ( scalefactors_.validIdx(idx) )
 		factors += scalefactors_[idx];
 	}
+
+	factors += scalefactors_[scalefactors_.size()-1];
     }
 
     mDescGetParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
@@ -354,7 +356,7 @@ bool uiScalingAttrib::areUIParsOK()
 }
 
 
-class uiSelectPositionDlg : public uiDialog
+mClass uiSelectPositionDlg : public uiDialog
 {
 public:
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
@@ -498,7 +500,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     }
 
     uiTaskRunner dlg( parent_ );
-    if ( !TaskRunner::execute( &dlg, *proc ) )
+    if ( !dlg.execute(*proc) )
 	return;
 
     uiGainAnalysisDlg analdlg( this, bufs, zvals_, scalefactors_);

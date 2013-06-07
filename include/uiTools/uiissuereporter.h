@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 #include "issuereporter.h"
@@ -26,7 +25,7 @@ class uiPushButton;
 */
 
 
-mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
+mClass uiIssueReporterDlg : public uiDialog
 { 	
 public:
     
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-mClass(uiBase) uiParentBody : public uiBody, public NamedObject
+class uiParentBody : public uiBody, public NamedObject
 {
 friend class uiObjectBody;
 public:
@@ -60,10 +60,10 @@ public:
     void      		clearChildren();	// body: uiobj.cc
 
 			//! widget to be used as parent for QWidgets
-    inline const mQtclass(QWidget*) managewidg() const	{ return managewidg_();}
+    inline const QWidget* managewidg() const	{ return managewidg_();}
 			//! widget to be used as parent for QWidgets
-    inline mQtclass(QWidget*)	managewidg()
-    		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
+    inline QWidget*	managewidg()
+    			{ return const_cast<QWidget*>( managewidg_() ); }
 
 protected:
     void	deleteAllChildren()
@@ -81,7 +81,7 @@ protected:
 		    if ( obj ) children_ -= obj;
 		}
 
-    virtual const mQtclass(QWidget*)	managewidg_() const = 0;
+    virtual const QWidget*	managewidg_() const			= 0;
     virtual void		manageChld_(uiBaseObject&,uiObjectBody&) {}
 
     ObjectSet<uiBaseObject>	children_;

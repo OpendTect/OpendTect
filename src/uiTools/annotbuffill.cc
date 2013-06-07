@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "annotbuffill.h"
 #include "uirgbarray.h"
@@ -163,7 +163,7 @@ void AnnotBufferFiller::eraseGridLines( bool hor )
 	for ( int idx=sz-1; idx>=0; idx-- )
 	{
 	    delete horgdlines_[idx];
-	    horgdlines_.removeSingle(idx);
+	    horgdlines_.remove(idx);
 	}
     }
     else
@@ -172,7 +172,7 @@ void AnnotBufferFiller::eraseGridLines( bool hor )
 	for ( int idx=sz-1; idx>=0; idx-- )
 	{
 	    delete vertgdlines_[idx];
-	    vertgdlines_.removeSingle(idx);
+	    vertgdlines_.remove(idx);
 	}
     }
 }

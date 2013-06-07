@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -81,8 +81,8 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 	}
 	else
 	{
-	    FixedString res = iop.find( getKey(idx) );
-	    if ( !res || res!=getValue(idx) )
+	    const char* res = iop.find( getKey(idx) );
+	    if ( !res || strcmp(res,getValue(idx)) )
 		return false;
 	}
     }
@@ -111,17 +111,17 @@ int IOPar::indexOf( const char* key ) const
 }
 
 
-FixedString IOPar::getKey( int nr ) const
+const char* IOPar::getKey( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return FixedString(keys_.get( nr ).buf() );
+    return keys_.get( nr ).buf();
 }
 
 
-FixedString IOPar::getValue( int nr ) const
+const char* IOPar::getValue( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return FixedString(vals_.get( nr ).buf() );
+    return vals_.get( nr ).buf();
 }
 
 
@@ -151,7 +151,7 @@ void IOPar::setEmpty()
 void IOPar::remove( int idx )
 {
     if ( idx >= size() ) return;
-    keys_.removeSingle( idx ); vals_.removeSingle( idx );
+    keys_.remove( idx ); vals_.remove( idx );
 }
 
 
@@ -299,7 +299,7 @@ FixedString IOPar::operator[]( const char* keyw ) const
     if ( res )
 	return res;
 
-    return sKey::EmptyString();
+    return sKey::EmptyString;
 }
 
 
@@ -626,16 +626,16 @@ template <class T>
 static bool iopget_scaled( const IOPar& iop, const char* s,
 			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    FixedString ptr = iop.find( s );
+    const char* ptr = iop.find( s );
     bool havedata = false;
-    if ( setudf || !ptr.isEmpty() )
+    if ( setudf || (ptr && *ptr) )
     {
 	FileMultiString fms = ptr;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    ptr = fms[idx];
 	    T& f( *(vptrs[idx]) );
-	    if ( !ptr.isEmpty() )
+	    if ( *ptr )
 	    {
 		havedata = true;
 		Conv::udfset( f, ptr );
@@ -1090,7 +1090,7 @@ bool IOPar::write( const char* fnm, const char* typ ) const
 bool IOPar::write( std::ostream& strm, const char* typ ) const
 {
 
-    if ( typ && FixedString(typ)==sKeyDumpPretty() )
+    if ( typ && !strcmp(typ,sKeyDumpPretty()) )
 	dumpPretty( strm );
     else
     {

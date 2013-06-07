@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -89,32 +89,32 @@ Well::DisplayProperties::~DisplayProperties()
 
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
 {
-    iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
-    iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Color), color_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Size), size_ );
     doUsePar( iop );
 }
 
 
 void Well::DisplayProperties::BasicProps::useLeftPar( const IOPar& iop )
 {
-    iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
-    iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Color), color_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Size), size_ );
     doUseLeftPar( iop ); 
 }
 
 
 void Well::DisplayProperties::BasicProps::useRightPar( const IOPar& iop )
 {
-    iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
-    iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Color), color_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Size), size_ );
     doUseRightPar( iop ); 
 }
 
 
 void Well::DisplayProperties::BasicProps::fillPar( IOPar& iop ) const
 {
-    iop.set( IOPar::compKey(subjectName(),sKey::Color()), color_ );
-    iop.set( IOPar::compKey(subjectName(),sKey::Size()), size_ );
+    iop.set( IOPar::compKey(subjectName(),sKey::Color), color_ );
+    iop.set( IOPar::compKey(subjectName(),sKey::Size), size_ );
     doFillPar( iop );
 }
 

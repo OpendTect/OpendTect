@@ -11,16 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "flatauxdataeditor.h"
 
 class uiFlatViewer;
 
-/*!
-\brief Flatview auxiliary data editor.
-*/
-
-mExpClass(uiFlatView) uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
+mClass uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
 {
 public:
 		uiFlatViewAuxDataEditor(uiFlatViewer&);
@@ -35,4 +30,3 @@ protected:
 };
 
 #endif
-

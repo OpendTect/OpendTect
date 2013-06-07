@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uistratseisevent.h"
 #include "uistratlvlsel.h"
@@ -29,7 +29,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	levelfld_ = new uiStratLevelSel( this, false, "Reference level" );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.removeSingle(0);
+    eventnms.remove(0);
     evfld_ = new uiGenInput( this, "Snap synthetics to event",
 	    			StringListInpSpec(eventnms) );
     evfld_->setWithCheck( true );
@@ -46,8 +46,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     if ( setup_.withextrwin_ )
     {
 	const float defstep = SI().zIsTime() ? SI().zStep() * 1000 : 4;
-	extrwinfld_ = new uiGenInput( this, BufferString("Extraction window ",
-		    SI().getZUnitString()),
+	extrwinfld_ = new uiGenInput( this,
+		BufferString("Extraction window ",SI().getZUnitString()),
 	      FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
     }
@@ -94,7 +94,7 @@ bool uiStratSeisEvent::getFromScreen()
     ev_.evtype_ = !evfld_->isChecked() ? VSEvent::None
 		: (VSEvent::Type)(evfld_->getIntValue()+1);
     if ( ev_.evtype_ != VSEvent::None )
-	ev_.offs_ = snapoffsfld_->getfValue() *.001f;
+	ev_.offs_ = snapoffsfld_->getfValue() *.001;
 
     if ( extrwinfld_ )
     {

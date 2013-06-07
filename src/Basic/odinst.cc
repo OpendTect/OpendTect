@@ -24,21 +24,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
 #define mRelRootDir GetSoftwareDir(1)
 
+#include <QProcess>
+
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
-#include <string.h>
 #include "winutils.h"
 static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
-    char* termchar = 0;
-    termchar = strstr( dirnm.buf(), "\\bin\\win" ); 
-    if ( !termchar )
-	termchar = strstr( dirnm.buf(), "\\bin\\Win" );
-
-    if ( termchar )
-	*termchar = '\0';
+    const int len = dirnm.size() - 10;
+    if ( len > 0 )
+	dirnm[len] = '\0';
     return dirnm;
 }
 #undef mRelRootDir
@@ -94,6 +91,8 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
     if ( !ret )
     {
 	ret = new BufferStringSet;
+#ifndef __win__
+	
 	ret->add( "[&Manager] Start the Installation Manager "
 		    "when updates are available" );
 	ret->add( "[&Inform] When new updates are present, "
@@ -101,6 +100,11 @@ const BufferStringSet& ODInst::autoInstTypeUserMsgs()
 	ret->add( "[&Auto] Automatically download and install new updates "
 		    "(requires sufficient administrator rights)" );
 	ret->add( "[&None] Never check for updates" );
+#else
+	ret->add( "[&Inform] When new updates are present, "
+		    "show this in OpendTect's title bar" );
+	ret->add( "[&None] Never check for updates" );
+#endif
     };
     return *ret;
 }
@@ -114,38 +118,29 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( GetInstallerDir() ); \
+    FilePath installerdir( GetSoftwareDir(0) ); \
+    installerdir.setFileName( "Installer" ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
-    if ( __iswin__ ) \
-	installerdir.add( "od_instmgr" ); \
-    else if ( __islinux__ ) \
-	installerdir.add( "run_installer" ); \
-    BufferString cmd( installerdir.fullPath() ); \
+    installerdir.add( __iswin__ ? "od_instmgr" : "run_installer" ); \
+    cmd.add( installerdir.fullPath() ); \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
-
-BufferString ODInst::GetInstallerDir()
-{
-    BufferString appldir( GetSoftwareDir(0) );
-    if ( File::isLink(appldir) )
-	appldir = File::linkTarget( appldir );
-
-    FilePath installerdir( appldir );
-    installerdir.setFileName( mInstallerDirNm );
-    return installerdir.fullPath();
-}
 
 
 void ODInst::startInstManagement()
 {
 #ifndef __win__
+    BufferString cmd( "@" );
     mDefCmd();
     chdir( installerdir.pathOnly() );
     StreamProvider( cmd ).executeCommand( true, true );
     chdir( GetSoftwareDir(0) );
 #else
-    FilePath installerdir( GetInstallerDir() ); 
+    FilePath installerdir( GetSoftwareDir(0) ); 
+    BufferString dir = installerdir.fullPath();
+    installerdir.setFileName( "Installer" );
+    dir = installerdir.fullPath();
     if ( !File::isDirectory(installerdir.fullPath()) )
 	return;
     installerdir.add( "od_instmgr" );
@@ -160,6 +155,7 @@ void ODInst::startInstManagement()
 
 bool ODInst::runInstMgrForUpdt()
 {
+    BufferString cmd;
     mDefCmd(false); cmd.add( " --updcheck_report" );
     return ExecOSCmd( cmd, false, true );
 }
@@ -167,16 +163,14 @@ bool ODInst::runInstMgrForUpdt()
 
 bool ODInst::updatesAvailable()
 {
-
+    BufferString cmd;
     mDefCmd(false); cmd.add( " --updcheck_report" );
 #ifndef __win__
-
     chdir( installerdir.pathOnly() );
-    const int ret = system( cmd );
+    const int res = QProcess::execute( QString(cmd.buf()) );
     chdir( GetSoftwareDir(0) );
-    return ret == 1;
+    return res == 1;
 #else
-    ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
     bool ret = File::exists( tmp.fullPath() );
     if ( ret )

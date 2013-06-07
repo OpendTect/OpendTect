@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprice.h"
 
@@ -45,7 +45,7 @@ uiPrice::uiPrice( uiParent* p, const char* label, const Price* price )
 void uiPrice::setPrice( const Price& price )
 {
     currencyselfld_->setText( price.currency_->abrevation_ );
-    valuefld_->setValue( ((double) price.amount_)/price.currency_->devisor_ );
+    valuefld_->setValue( ((float) price.amount_)/price.currency_->devisor_ );
 }
 
 
@@ -61,12 +61,6 @@ bool uiPrice::getPrice( Price& price ) const
     if ( mIsUdf(valuefld_->getIntValue()) )
 	return false;
 
-    price.amount_ = mNINT32(valuefld_->getdValue()*currency->devisor_);
+    price.amount_ = valuefld_->getIntValue()*currency->devisor_;
     return true;
-}
-
-
-void uiPrice::allowCurrencyEdit( bool yn )
-{
-    currencyselfld_->setSensitive( yn );
 }

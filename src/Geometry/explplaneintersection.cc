@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "explplaneintersection.h"
@@ -141,7 +141,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     if ( !explsurf_.nrPlanes() )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const IndexedGeometry* inputgeom =
 	    explsurf_.getShape()->getGeometry()[idx];
@@ -235,7 +235,7 @@ bool addNewPos( const Coord3& point, int& residx )
 
 void intersectTriangle( int lci0, int lci1, int lci2 ) 
 {
-    ConstRefMan<Coord3List> coordlist = explsurf_.getShape()->coordList();
+    RefMan<const Coord3List> coordlist = explsurf_.getShape()->coordList();
     const float zscale = explsurf_.getZScale();
 
     Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;
@@ -291,15 +291,15 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 
 	if ( nrintersections==3 )//Round error case handle
 	{
-	    const float d01 = (float) plane.distanceToPoint(edge01.getPoint(edget01));
-    	    const float d12 = (float) plane.distanceToPoint(edge12.getPoint(edget12));
-    	    const float d20 = (float) plane.distanceToPoint(edge20.getPoint(edget20));
+	    const float d01 = plane.distanceToPoint(edge01.getPoint(edget01));
+    	    const float d12 = plane.distanceToPoint(edge12.getPoint(edget12));
+    	    const float d20 = plane.distanceToPoint(edge20.getPoint(edget20));
 
 	    if ( mIsZero(d01,1e-5) && mIsZero(d12,1e-5) && mIsZero(d20,1e-5) )
 	    {
-		const float d0 = (float) (plane.getProjection(c0)-c0).sqAbs();
-		const float d1 = (float) (plane.getProjection(c1)-c1).sqAbs();
-		const float d2 = (float) (plane.getProjection(c2)-c2).sqAbs();
+		const float d0 = (plane.getProjection(c0)-c0).sqAbs();
+		const float d1 = (plane.getProjection(c1)-c1).sqAbs();
+		const float d2 = (plane.getProjection(c2)-c2).sqAbs();
 		if ( d0>d1 && d0>d2 )
 		    edgeok12 = false;
 		else if ( d1>d0 && d1>d2 )
@@ -508,7 +508,7 @@ ExplPlaneIntersection::ExplPlaneIntersection()
     , intersection_( 0 )
     , shape_( 0 )
     , shapeversion_( -1 )
-    , zscale_( mCast( float, SI().zDomain().userFactor() ) )
+    , zscale_( SI().zFactor() )
 { }
 
 
@@ -548,7 +548,7 @@ int ExplPlaneIntersection::addPlane( const Coord3& normal,
 	return -1;
 
     int id = 0;
-    while ( planeids_.isPresent(id) ) id++;
+    while ( planeids_.indexOf(id)!=-1 ) id++;
 
     planeids_ += id;
     planenormals_ += normal;
@@ -587,9 +587,9 @@ void ExplPlaneIntersection::removePlane( int id )
 {
     const int idx = planeids_.indexOf( id );
 
-    planeids_.removeSingle( idx, false );
-    delete planepts_.removeSingle( idx, false );
-    planenormals_.removeSingle( idx, false );
+    planeids_.remove( idx, false );
+    delete planepts_.remove( idx, false );
+    planenormals_.remove( idx, false );
 
     needsupdate_ = true;
 }
@@ -635,7 +635,7 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 
     PtrMan<Task> updater = new ExplPlaneIntersectionExtractor( *this );
 
-    if ( !TaskRunner::execute( tr, *updater ) )
+    if ( (tr && !tr->execute( *updater ) ) || (!tr && !updater->execute()) )
 	return false;
 
     shapeversion_ = shape_->getVersion();

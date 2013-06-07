@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "uislider.h"
 
@@ -27,7 +26,7 @@ class WaveletAttrib;
 
 template <class T> class Array1DImpl;
 
-mExpClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog 
+mClass uiSeisWvltSliderDlg : public uiDialog 
 {
 public:
 				~uiSeisWvltSliderDlg();
@@ -49,7 +48,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
+mClass uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
+mClass uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
 {
 public:
 				uiSeisWvltTaperDlg(uiParent*,Wavelet&);
@@ -90,7 +89,7 @@ protected:
 
 
 
-mExpClass(uiSeis) uiWaveletDispProp : public uiGroup
+mClass uiWaveletDispProp : public uiGroup
 {
 public:
 
@@ -116,7 +115,7 @@ private:
 };
 
 
-mExpClass(uiSeis) uiWaveletDispPropDlg : public uiDialog
+mClass uiWaveletDispPropDlg : public uiDialog
 {
 public:
 				uiWaveletDispPropDlg(uiParent*,const Wavelet&);
@@ -127,4 +126,3 @@ protected:
 };
 
 #endif
-

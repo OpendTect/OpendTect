@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <QCoreApplication>
 
@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
     QCoreApplication app( argc, argv );
 
     const bool dofork = argc > 1 && !strcmp(argv[1],"--bg");

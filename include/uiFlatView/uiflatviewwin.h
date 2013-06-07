@@ -11,23 +11,23 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "sets.h"
 #include <iostream>
-
 class uiParent;
 class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
 class IOPar;
 
+
 /*!\brief Base class for windows containing one or more uiFlatViewer(s).
 
-  Will clean up the mess when it's destroyed, in particular releases all
+  will clean up the mess when it's destroyed, in particular release all
   datapacks attached to the viewers.
+
 */
 
-mExpClass(uiFlatView) uiFlatViewWin
+mClass uiFlatViewWin
 {
 public:
 
@@ -48,13 +48,13 @@ public:
     virtual void	setInitialSize(int w,int h);
     virtual void	fillPar(IOPar&) const		{}
     virtual void	usePar(const IOPar&) 		{}
-    static void		makeInfoMsg(BufferString&,IOPar&);
 
 protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
 
-    void			createViewers(int);
+    void			makeInfoMsg(BufferString&,IOPar&) const;
+    void			createViewers(int,bool withhanddrag = false);
     void			cleanUp();
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}
@@ -62,4 +62,3 @@ protected:
 
 
 #endif
-

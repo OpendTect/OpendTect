@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 #include "ranges.h"
 #include "bufstring.h"
@@ -39,11 +38,9 @@ class DataCubes;
 class Processor;
 class Data2DHolder;
 
-/*!
-\brief The attribute engine manager.
-*/
+/*!\brief The Attribute engine Manager. */
 
-mExpClass(AttributeEngine) EngineMan
+mClass EngineMan
 {
 public:
 			EngineMan();
@@ -146,4 +143,3 @@ private:
 
 
 #endif
-

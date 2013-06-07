@@ -8,6 +8,6 @@
 SET(OD_MODULE_DEPS uiIo )
 SET(OD_MODULE_SOURCES uiodsysadm.cc uiodsysadmcoltabs.cc )
 
-SET( OD_MODULE_PROGS od_sysadmmain.cc  )
+SET( OD_MODULE_PROGS od_sysadmmain )
 
 OD_INIT_MODULE()

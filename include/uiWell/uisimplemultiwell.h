@@ -7,20 +7,19 @@
  * ID       : $Id$
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
-
+#include "multiid.h"
 class IOObj;
-class UnitOfMeasure;
+class uiTable;
 class uiGenInput;
 class uiSMWCData;
-class uiTable;
 
 
-mExpClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
+mClass uiSimpleMultiWellCreate : public uiDialog
 {
 public:
+
 			uiSimpleMultiWellCreate(uiParent*);
 
     bool		wantDisplay() const;
@@ -35,7 +34,6 @@ protected:
     float		vel_;
     Interval<float>	defzrg_;
     BufferStringSet	crwellids_;
-    const UnitOfMeasure* zun_;
 
     bool		acceptOK(CallBacker*);
 
@@ -49,5 +47,5 @@ protected:
 
 };
 
-#endif
 
+#endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiveldesc.h"
 
@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 #include "uibutton.h"
-#include "uizrangeinput.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -47,7 +46,11 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     vigrp->setHAlignObj( hasstaticsfld_ );
     vigrp->attach( alignedBelow, typefld_ );
 
+    setdefbox_ = new uiCheckBox( this, "Set as default" );
+    setdefbox_->attach( alignedBelow, vigrp );
+
     setHAlignObj( typefld_ );
+
     set( vsu ? vsu->desc_ : VelocityDesc() );
 }
 
@@ -94,6 +97,7 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
 	if ( !staticsfld_->get( res.statics_, disperr ) )
 	    return false;
     }
+
     return true;
 }
 
@@ -114,6 +118,13 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 	if ( disperr ) uiMSG().error("Cannot write velocity information");
 	return false;
     }
+
+    if ( setdefbox_->isChecked() )
+    {
+	SI().getPars().set( sKeyDefVelCube, ioobj.key() );
+	SI().savePars();
+    }
+
     return true;
 }
 
@@ -121,19 +132,33 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
     : uiDialog( p, uiDialog::Setup("Specify velocity information",0,"103.6.7") )
-    , toprange_( mUdf(float), mUdf(float ) )
-    , bottomrange_( mUdf(float), mUdf(float ) )
 {
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
 	    			ssu );
-    if ( sel )
-	volselfld_->setInput( *sel );  
-
+    if ( sel ) volselfld_->setInput( *sel );
     volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
 
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
+
+    BufferString str( "Vavg range at top " );
+    str += VelocityDesc::getVelUnit( true );
+
+    topavgvelfld_ =
+	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
+    topavgvelfld_->attach( alignedBelow, veldescfld_ );
+
+    scanavgvel_ = new uiPushButton( this, "Scan",
+			    mCB(this,uiVelocityDescDlg, scanAvgVelCB ), false );
+    scanavgvel_->attach( rightOf, topavgvelfld_ );
+
+    str = "Vavg range at bottom ";
+    str += VelocityDesc::getVelUnit( true );
+
+    botavgvelfld_ =
+	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
+    botavgvelfld_->attach( alignedBelow, topavgvelfld_ );
 
     volSelChange( 0 );
 }
@@ -152,40 +177,42 @@ IOObj* uiVelocityDescDlg::getSelection() const
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
     const IOObj* ioobj = volselfld_->ioobj( true );
+    scanavgvel_->setSensitive( ioobj );
+
+    VelocityDesc vd;
+    Interval<float> topavgvel = Time2DepthStretcher::getDefaultVAvg();
+    Interval<float> botavgvel = Time2DepthStretcher::getDefaultVAvg();
+
     if ( ioobj )
     {
-	if ( !ioobj->pars().get( VelocityStretcher::sKeyTopVavg(),toprange_ ) ||
-	     !ioobj->pars().get( VelocityStretcher::sKeyBotVavg(),bottomrange_))
-	{
-	    toprange_.start = mUdf(float);
-	    toprange_.stop = mUdf(float);
-	    bottomrange_.start = mUdf(float);
-	    bottomrange_.stop = mUdf(float);
-	}
-
-	if ( !oldveldesc_.usePar( ioobj->pars() ) )
-	    oldveldesc_.type_ = VelocityDesc::Unknown;
+	vd.usePar( ioobj->pars() );
+	ioobj->pars().get( VelocityStretcher::sKeyTopVavg(), topavgvel );
+	ioobj->pars().get( VelocityStretcher::sKeyBotVavg(), botavgvel );
     }
 
-    veldescfld_->set( oldveldesc_ );
+    veldescfld_->set( vd );
+    topavgvelfld_->setValue( topavgvel );
+    botavgvelfld_->setValue( botavgvel );
 }
 
 
-bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj, 
-				    const VelocityDesc& desc )
+void uiVelocityDescDlg::scanAvgVelCB( CallBacker* )
 {
-    VelocityModelScanner scanner( ioobj, desc );
+    const IOObj* ioobj = volselfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    VelocityDesc desc;
+    if ( !veldescfld_->get( desc, true ) )
+	return;
+
+    VelocityModelScanner scanner( *ioobj, desc );
     uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, scanner ) )
-	return false;
-     
-    toprange_ = scanner.getTopVAvg(); 
-    bottomrange_ = scanner.getBotVAvg();
-
-    toprange_.sort();
-    bottomrange_.sort();
-
-    return true;
+    if ( tr.execute( scanner ) )
+    {
+	topavgvelfld_->setValue( scanner.getTopVAvg() );
+	botavgvelfld_->setValue( scanner.getBotVAvg() );
+    }
 }
 
 
@@ -194,34 +221,15 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     volselfld_->commitInput();
     PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
     if ( !ioobj )
-    {
-	uiMSG().error("Please select a valid volume cube.");
 	return false;
-    }
 
-    VelocityDesc desc;
-    if ( !veldescfld_->get( desc, true ) ) 
-    {
-	uiMSG().error("Please provide valid velocity type");
-	return false;
-    }
+    Interval<float> range = topavgvelfld_->getFInterval(0);
+    range.sort();
+    ioobj->pars().set( VelocityStretcher::sKeyTopVavg(), range );
 
-    if ( oldveldesc_==desc )
-	return true;
-
-    if ( desc.isVelocity() )
-    {
-	if ( !scanAvgVel(*ioobj,desc) )
-	    return false;
-
-	ioobj->pars().set( VelocityStretcher::sKeyTopVavg(), toprange_ );
-	ioobj->pars().set( VelocityStretcher::sKeyBotVavg(), bottomrange_ );
-    }
-    else
-    {
-	ioobj->pars().remove( VelocityStretcher::sKeyTopVavg() );
-	ioobj->pars().remove( VelocityStretcher::sKeyBotVavg() );
-    }
+    range = botavgvelfld_->getFInterval(0);
+    range.sort();
+    ioobj->pars().set( VelocityStretcher::sKeyBotVavg(), range );
 
     return veldescfld_->updateAndCommit( *ioobj, true );
 }
@@ -233,8 +241,6 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     , velrgchanged( this )
     , editcubebutt_(0)
 {
-    seissetup_.allowsetsurvdefault_ = true;
-    seissetup_.survdefsubsel_ = "Velocity";
     if ( iseditbutton )
     {
 	editcubebutt_ = new uiPushButton( this, "",
@@ -333,7 +339,12 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     velsel_->selectionDone.notify(
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );
 	
-    rangefld_ = new uiZRangeInput(this,t2d,true);
+    BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
+    str += " range ";
+    str += UnitOfMeasure::zUnitAnnot( !t2d, true, true );
+
+    rangefld_ = new uiGenInput(this, str.buf(),
+	    		       FloatInpIntervalSpec(true) );
     rangefld_->attach( alignedBelow, velsel_ );
 
     setHAlignObj( rangefld_ );
@@ -356,16 +367,15 @@ ZAxisTransform* uiTimeDepthBase::getSelection()
 
 StepInterval<float> uiTimeDepthBase::getZRange() const
 {
-    StepInterval<float> res;
-    getTargetSampling( res );
+    StepInterval<float> res = rangefld_->getFStepInterval();
+    if ( !t2d_ )
+    {
+	res.start /= 1000;
+	res.stop /= 1000;
+	res.step /= 1000;
+    }
+
     return res;
-}
-
-
-bool uiTimeDepthBase::getTargetSampling( StepInterval<float>& res ) const
-{
-    res = rangefld_->getFZRange();
-    return true;
 } 
 
 
@@ -391,7 +401,10 @@ void uiTimeDepthBase::setZRangeCB( CallBacker* )
     else
 	rg = SI().zRange( true );
 
-    rangefld_->setZRange( rg );
+    if ( !t2d_ )
+	rg.scale( SI().zFactor(true) );
+
+    rangefld_->setValue( rg );
 }
 
 
@@ -462,7 +475,7 @@ FixedString uiTimeDepthBase::getZDomain() const
 void uiTime2Depth::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		Time2DepthStretcher::sFactoryKeyword(), "Velocity volume" );
+		Time2DepthStretcher::sFactoryKeyword(), "Time to depth" );
 }
 
 
@@ -487,7 +500,7 @@ uiTime2Depth::uiTime2Depth( uiParent* p )
 void uiDepth2Time::initClass()
 {
     uiZAxisTransform::factory().addCreator( create,
-		Depth2TimeStretcher::sFactoryKeyword(), "Velocity Model" );
+		Depth2TimeStretcher::sFactoryKeyword(), "Depth to Time" );
 }
 
 

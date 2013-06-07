@@ -10,6 +10,9 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
+LinSolver - Solves linear systems of equations on the form A*x=B. A is
+a matrix of the size N*N, x is a column vector of the size N and B is a column
+vector of the size N.
 @$
 */
 
@@ -19,14 +22,8 @@ ________________________________________________________________________
 #include "sets.h"
 #define TINY 1.0e-20
 
-/*!
-\brief LinSolver - Solves linear systems of equations on the form A*x=B. A is
-a matrix of the size N*N, x is a column vector of the size N and B is a column
-vector of the size N.
-*/
-
 template <class T>
-mClass(Algo) LinSolver
+class LinSolver
 {
 public:
     				LinSolver( const Array2D<T>& A );
@@ -58,7 +55,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
     if ( A.info().getSize(0) != A.info().getSize(1) )
 	return;
 
-    int imax = mUdf(int);
+    int imax;
 
     TypeSet<T> vv( n, 0 );
 
@@ -78,7 +75,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 	    return;
 	}
 
-	vv[i]=1.0f/big;
+	vv[i]=1.0/big;
     }
 
     for ( int j=0; j<n; j++)
@@ -133,7 +130,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 	if ( j != n-1 )
 	{
-	    T dum=1.0f/(croutsmatrix.get(j,j));
+	    T dum=1.0/(croutsmatrix.get(j,j));
 
 	    for ( int i=j+1; i<n; i++ )
 		croutsmatrix.set(i,j,dum * croutsmatrix.get(i,j));

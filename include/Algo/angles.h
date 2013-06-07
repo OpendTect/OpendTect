@@ -35,60 +35,60 @@ enum Type { Rad, Deg, UsrDeg };
 // Generic conversion function see bottom: Angle::convert
 
 template <class T>
-T cPI() { return (T)M_PIl; }
+T cPI( T ) { return (T)M_PIl; }
 
 template <class T>
 inline void getFullCircle( Type typ, T& t )
 {
-    t = typ == Rad ? 2 * cPI<T>() : 360;
+    t = typ == Rad ? 2 * cPI(t) : 360;
 }
 
 
 inline double deg2rad( int deg )
 {
-    static const double deg2radconst = cPI<double>() / 180;
+    static double deg2radconst = cPI(deg2radconst) / 180;
     return deg * deg2radconst;
 }
 
 
 inline float deg2rad( float deg )
 {
-    static const float deg2radconst = cPI<float>() / 180;
+    static float deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline double deg2rad( double deg )
 {
-    static const double deg2radconst = cPI<double>() / 180;
+    static double deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline long double deg2rad( long double deg )
 {
-    static const long double deg2radconst = cPI<long double>() / 180;
+    static long double deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline float rad2deg( float rad )
 {
-    static const float rad2degconst = 180 / cPI<float>();
+    static float rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
 
 inline double rad2deg( double rad )
 {
-    static const double rad2degconst = 180 / cPI<double>();
+    static double rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
 
 inline long double rad2deg( long double rad )
 {
-    static const long double rad2degconst = 180 / cPI<long double>();
+    static long double rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
@@ -136,18 +136,12 @@ inline T convert( Type inptyp, T val, Type outtyp )
 
     switch ( inptyp )
     {
-        case Rad:
-            val = outtyp == Deg ? rad2deg(val) : rad2usrdeg(val);
-            break;
-        case Deg:
-            val = outtyp == Rad ? deg2rad(val) : deg2usrdeg(val);
-            break;
-        case UsrDeg:
-            val = outtyp == Deg ? usrdeg2deg(val) : usrdeg2rad(val);
-            break;
+    case Rad: return outtyp == Deg ? rad2deg(val) : rad2usrdeg(val);
+    case Deg: return outtyp == Rad ? deg2rad(val) : deg2usrdeg(val);
+    case UsrDeg: return outtyp == Deg ? usrdeg2deg(val) : usrdeg2rad(val);
     }
 
-    return val;
+    return val; // not reached, keep compiler happy
 }
 
 

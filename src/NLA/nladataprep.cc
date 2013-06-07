@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 void NLADataPreparer::limitRange( const Interval<float>& r )
 {
     Interval<float> rg( r ); rg.sort(true);
-    const float ext = rg.width() * mDefEpsF;
+    const float ext = rg.width() * mDefEps;
     rg.widen( ext, false );
     bvs_.removeRange( targetcol_, rg, false );
 }
@@ -87,12 +87,12 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	bvss[clss]->add( bid, vals );
     }
 
-    Stats::randGen().init();
-    bvs_.setEmpty();
+    Stats::RandGen::init();
+    bvs_.empty();
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
 	BinIDValueSet& bvs = *bvss[idx];
-	const int totsz = mCast( int, bvs.totalSize() );
+	const int totsz = bvs.totalSize();
 	if ( totsz < setup.nrptsperclss )
 	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgs );
 	else
@@ -106,7 +106,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 				const Interval<float>* rgs )
 {
-    const int orgsz = mCast( int, bvs.totalSize() );
+    const int orgsz = bvs.totalSize();
     if ( orgsz == 0 ) return;
 
     bvs.allowDuplicateBids( true );
@@ -116,7 +116,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
-	const int dupidx = Stats::randGen().getIndex( orgsz );
+	const int dupidx = Stats::RandGen::getIndex( orgsz );
 	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
@@ -129,8 +129,8 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    {
 		float wdth = rgs[validx].stop - rgs[validx].start;
 		wdth *= noiselvl;
-		newvals[validx] = (float) (vals[validx] +
-		    		  ((Stats::randGen().get()-0.5) * wdth));
+		newvals[validx] = vals[validx] +
+		    		  ((Stats::RandGen::get()-.5) * wdth);
 	    }
 	    bvsnew.add( bid, newvals );
 	}

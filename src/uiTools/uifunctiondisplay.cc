@@ -255,9 +255,6 @@ void uiFunctionDisplay::getRanges(
 	}
     }
 
-    if ( !setup_.fixdrawrg_ ) 
-	return;
-
     if ( !mIsUdf(setupxrg.start) ) xrg.start = setupxrg.start;
     if ( !mIsUdf(setupyrg.start) ) yrg.start = setupyrg.start;
     if ( !mIsUdf(setupxrg.stop) ) xrg.stop = setupxrg.stop;
@@ -431,7 +428,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    curitmgrp->add( markeritem );
 	}
 	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
-	itm->setPos( mCast(float,ptlist[idx].x), mCast(float,ptlist[idx].y) );
+	itm->setPos( ptlist[idx].x, ptlist[idx].y );
 	itm->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
     }
 
@@ -455,10 +452,8 @@ void uiFunctionDisplay::drawBorder()
 		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );
 
 	if ( !borderrectitem_ )
-	    borderrectitem_ = scene().addRect( mCast(float,r.left()), 
-					       mCast(float,r.top()), 
-					       mCast(float,r.right()), 
-					       mCast(float,r.bottom()) ); 
+	    borderrectitem_ = scene().addRect( r.left(), r.top(), 
+					       r.right(), r.bottom() ); 
 	else
 	    borderrectitem_->setRect( r.left(), r.top(), 
 				      r.right(), r.bottom() );
@@ -527,7 +522,7 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
         return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
-    const bool isnorm mUnusedVar = !isctrl && !isoth;
+    const bool isnorm = !isctrl && !isoth
 
 
 bool uiFunctionDisplay::setSelPt()
@@ -580,8 +575,8 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
     if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
 
-    xvals_.removeSingle( selpt_ );
-    yvals_.removeSingle( selpt_ );
+    xvals_.remove( selpt_ );
+    yvals_.remove( selpt_ );
 
     selpt_ = -1;
     pointChanged.trigger();

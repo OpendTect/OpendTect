@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "datapack.h"
 #include "multiid.h"
 #include "uidialog.h"
@@ -22,7 +21,7 @@ class uiIOSelect;
 class uiListBox;
 class uiSeisSel;
 
-mExpClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
+mClass uiPreStackDataPackSelDlg : public uiDialog
 {
 public:
     			uiPreStackDataPackSelDlg(uiParent*,
@@ -40,7 +39,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiPreStackSel : public uiGroup
+mClass uiPreStackSel : public uiGroup
 {
 public:
 
@@ -72,4 +71,3 @@ protected:
 
 
 #endif
-

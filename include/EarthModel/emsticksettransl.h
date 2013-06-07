@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "transl.h"
 #include "emstickset.h"
 
@@ -22,11 +21,8 @@ ________________________________________________________________________
 
 typedef EM::StickSet EMStickSet;
 
-/*!
-\brief EM::StickSet TranslatorGroup.
-*/
 
-mExpClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
+mClass EMStickSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(EMStickSet)
 public:
     				mDefEmptyTranslatorGroupConstructor(EMStickSet)
@@ -37,11 +33,7 @@ public:
 };
 
 
-/*!
-\brief EM::StickSet Translator.
-*/
-
-mExpClass(EarthModel) EMStickSetTranslator : public Translator
+mClass EMStickSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(EMStickSet)
@@ -62,11 +54,7 @@ public:
 };
 
 
-/*!
-\brief Landmark EM::StickSet Translator.
-*/
-
-mExpClass(EarthModel) lmkEMStickSetTranslator : public EMStickSetTranslator
+mClass lmkEMStickSetTranslator : public EMStickSetTranslator
 {				isTranslator(lmk,EMStickSet)
 public:
     			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
@@ -93,11 +81,7 @@ public:
 };
 
 
-/*!
-\brief Landmark EM::StickSet reader.
-*/
-
-mExpClass(EarthModel) lmkEMStickSetReader : public Executor
+mClass lmkEMStickSetReader : public Executor
 {
 public:
 			lmkEMStickSetReader(EM::StickSet&, Conn*,
@@ -134,11 +118,7 @@ protected:
 };
 
 
-/*!
-\brief Landmark EM::StickSet writer.
-*/
-
-mExpClass(EarthModel) lmkEMStickSetWriter : public Executor
+mClass lmkEMStickSetWriter : public Executor
 {
 public:
 			lmkEMStickSetWriter(const EM::StickSet&,
@@ -176,4 +156,3 @@ protected:
 #define mLMK_CONTROL_PT		4
 
 #endif
-

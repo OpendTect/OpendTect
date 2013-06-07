@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -114,20 +114,17 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     if ( id < 0 ) return false;
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
-    
+
     if ( as->id()==Attrib::SelSpec::cAttribNotSel() &&
-	 !am_.visserv_->isAttribEnabled( id, attrib ) )
+	!am_.visserv_->isAttribEnabled( id, attrib ) )
 	return false;
-    
-    BufferString attribposname;
-    am_.visserv_->getAttribPosName( id, attrib, attribposname );
     
     const ZDomain::Info* zdinf =
 	am_.visserv_->zDomainInfo( am_.visserv_->getSceneID(id) );
     const bool issi = !zdinf || zdinf->def_.isSI();
     Attrib::SelSpec myas( *as );
     const bool selok = am_.attrserv_->selectAttrib( myas, issi ? 0 : zdinf,
-	    					    myas.is2D(), attribposname);
+	    					    myas.is2D() );
     if ( selok )
 	am_.visserv_->setSelSpec( id, attrib, myas );
     return selok;
@@ -247,27 +244,22 @@ NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 }
 
 
-bool uiODApplMgrAttrVisHandler::set2DDataFileName(
-		    int visid, const Attrib::SelSpec* as,
-		    const IOObj& ioobj, FilePath& fp )
-{
-    mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, 
-		     am_.visserv_->getObject( visid ) ); 
-    if ( !s2d ) 
-	return false;
-
-    const char* linenm = s2d->getLineName();
-    LineKey lk( linenm, as->userRef() ); 
-    Seis2DLineSet seis2dlnset( ioobj ); 
-    const int lineidx = seis2dlnset.indexOf( lk ); 
-    if ( lineidx < 0 ) 
-	return false; 
-    const IOPar par2d = seis2dlnset.getInfo( lineidx ); 
-    BufferString fnm; 
-    par2d.get( "File name", fnm );
-    fp.setFileName( fnm );
-    return true;
-}
+#define mGet2DDataFile { \
+    mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, \
+		     am_.visserv_->getObject( visid ) ); \
+    if ( !s2d ) \
+	return; \
+    const char* linenm = s2d->getLineName(); \
+    LineKey lk( linenm, as->userRef() ); \
+    Seis2DLineSet seis2dlnset( *ioobj ); \
+    const int lineidx = seis2dlnset.indexOf( lk ); \
+    if ( lineidx < 0 ) \
+	return; \
+    const IOPar par2d = seis2dlnset.getInfo( lineidx ); \
+    BufferString fnm; \
+    par2d.get( "File name", fnm ); \
+    fp.setFileName( fnm ); \
+} 
 
  
 void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
@@ -275,7 +267,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().asInt() < 0 ) return;
+    if ( !as || as->id().asInt()<0 ) return;
 
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
 
@@ -292,19 +284,19 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     IOPar iop;
     if ( ioobj )
     {
-    	FilePath fp( ioobj->fullUserExpr(true) );
-    	if ( as->is2D() && !set2DDataFileName(visid,as,*ioobj,fp) )
-    	    return;
-
-    	fp.setExtension( "par" );
-    	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
+	FilePath fp( ioobj->fullUserExpr(true) );
+    	if ( as->is2D() )
+    	    mGet2DDataFile
+		
+	fp.setExtension( "par" );
+    	if ( iop.read( fp.fullPath(), sKey::Pars) && !iop.isEmpty() )
     	{
-    	    const char* ctname = iop.find( sKey::Name() );
+    	    const char* ctname = iop.find( sKey::Name );
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
-    	}    
+    	}
     }
-    const bool isempt = iop.isEmpty();    
+    const bool isempt = iop.isEmpty();
 
     am_.visserv_->setColTabMapperSetup( visid, attrib,!isempt? mapper:mapper1 );
     am_.visserv_->setColTabSequence( visid, attrib, seq );
@@ -313,13 +305,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     updateColorTable( visid, attrib );
 }
 
-#define mSetPar \
-IOPar iop; \
-if ( ctseq ) \
-    iop.set( sKey::Name(), ctseq->name() ); \
-if ( mapper ) \
-    mapper->fillPar( iop ); \
-iop.write( fp.fullPath(), sKey::Pars() );
 
 void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 {
@@ -327,34 +312,21 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
     if ( !ioobj ) return;
 
+    TypeSet<int> visids;
     const ColTab::Sequence* ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
     const ColTab::MapperSetup* mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
-    if ( !as->is2D() )
-    {
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	mSetPar;
-    }
-    else
-    {
-	Seis2DLineSet seis2dlnset( *ioobj ); 
-	BufferStringSet linenames;
-        seis2dlnset.getLineNamesWithAttrib( linenames, as->userRef() );	
-	for ( int lidx=0; lidx<linenames.size(); lidx++ )
-	{
-	    LineKey lk( linenames.get(lidx), as->userRef() ); 
-	    const int lineidx = seis2dlnset.indexOf( lk ); 
-	    if ( lineidx < 0 ) 
-		continue; 
-	    const IOPar par2d = seis2dlnset.getInfo( lineidx ); 
-	    BufferString fnm; 
-	    par2d.get( "File name", fnm );
-	    FilePath fp( ioobj->fullUserExpr(true) );
-	    fp.setFileName( fnm );
-	    fp.setExtension( "par" );
-	    mSetPar;
-	}
-    }
+    FilePath fp( ioobj->fullUserExpr(true) );
+    IOPar iop;
+    if ( as->is2D() )
+	mGet2DDataFile
+
+    fp.setExtension( "par" );
+
+    if ( ctseq )
+	iop.set( sKey::Name, ctseq->name() );
+    if ( mapper )
+	mapper->fillPar( iop );
+    iop.write( fp.fullPath(), sKey::Pars );
 }

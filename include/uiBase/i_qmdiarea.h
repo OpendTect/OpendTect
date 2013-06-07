@@ -24,7 +24,6 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
 
 class i_MdiAreaMessenger : public QObject 
 {
@@ -52,7 +51,5 @@ void subWindowActivated( QMdiSubWindow* )
 { receiver_->windowActivated.trigger( *receiver_ ); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

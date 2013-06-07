@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -43,7 +43,7 @@ extern "C" const char* GetProjectVersionName()
 }
 
 
-mExternC( Basic)  void SetProjectVersionName(const char*);
+mExternC void SetProjectVersionName(const char*);
 extern "C" void SetProjectVersionName( const char* s )
 {
     getPVN() = s;
@@ -80,7 +80,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
     while ( ptr )
     {
 	// Need to escape mAscStrmKeyValSep in keyword
-	const od_int64 offs = ptr - towrite.buf();
+	const int offs = ptr - towrite.buf();
 	BufferString tmp( ptr + 1 );
 	char escbuf[3];
 	escbuf[0] = '\\'; escbuf[1] = mAscStrmKeyValSep; escbuf[2] = '\0';
@@ -259,6 +259,8 @@ ascistream& ascistream::next()
     if ( linebuf[0] == mAscStrmParagraphMarker[0] )
 	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
+    bool found_separ = linebuf[0] == mAscStrmKeyValSep;
+    bool found_unescaped_separ = found_separ;
     const int sz = lineread.size();
     char* separptr = 0;
     for ( int ich=1; ich<sz; ich++ )

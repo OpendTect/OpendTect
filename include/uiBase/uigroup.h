@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 #include "uiparent.h"
 #include "callback.h"
@@ -26,10 +25,10 @@ class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-mFDQtclass(QWidget)
+class QWidget;
 
 
-mClass(uiBase) uiGroupObj : public uiObject
+class uiGroupObj : public uiObject
 { 	
 friend class uiGroup;
 protected:
@@ -52,7 +51,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiGroup : public uiParent
+mClass uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
@@ -83,11 +82,11 @@ public:
     void		setNoBackGround();
 
     uiObject*		hAlignObj();
-    void		setHAlignObj( uiObject* o );
+    void		setHAlignObj(uiObject*);
     void		setHAlignObj( uiGroup* o )
 			    { setHAlignObj(o->mainObject()); }
     uiObject*		hCenterObj();
-    void		setHCenterObj( uiObject* o );
+    void		setHCenterObj(uiObject*);
     void		setHCenterObj( uiGroup* o )
 			    { setHCenterObj(o->mainObject()); }
 
@@ -96,7 +95,7 @@ public:
     virtual uiMainWin*	mainwin()
 			    { return mainObject() ? mainObject()->mainwin() :0;}
 
-    static uiGroup*	gtDynamicCastToGrp( mQtclass(QWidget*) );
+    static uiGroup*	gtDynamicCastToGrp( QWidget* );
 
     void		setChildrenSensitive(bool);
 
@@ -127,10 +126,10 @@ protected:
     void		reSizeChildren(const uiObject*,float,float);
 
 public:
+
     virtual void	setSize(const uiSize&);
 
 };
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: gravhorcalc.cc,v 1.5 2011/05/04 14:39:15 cvsbert Exp $";
 
 #include "gravhorcalc.h"
 #include "timedepthconv.h"
@@ -58,9 +58,9 @@ int Grav::HorCalc::doLoadStep()
     {
 	// ztransf_ = ZATF().create( xxx );
 	msg_ = "TODO";
-	nrdone_ = 0;
 	return ErrorOccurred();
-	
+
+	nrdone_ = 0;
     }
     return MoreToDo();
 }

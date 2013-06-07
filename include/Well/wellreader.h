@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "wellio.h"
 #include "sets.h"
 #include "ranges.h"
@@ -26,11 +25,7 @@ namespace Well
 class Data;
 class Log;
 
-/*!
-\brief Reads Well::Data.
-*/
-
-mExpClass(Well) Reader : public IO
+mClass Reader : public IO
 {
 public:
 
@@ -57,7 +52,7 @@ public:
     Interval<float>	getLogDahRange(const char*) const;
     			//!< If no log with this name, returns [undef,undef]
     Interval<float>	getAllLogsDahRange() const;
-    			//!< If no log returns [undef,undef]
+			//!< If no log returns [undef,undef]
 
 protected:
 
@@ -76,4 +71,3 @@ protected:
 }; // namespace Well
 
 #endif
-

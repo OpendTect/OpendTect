@@ -21,9 +21,6 @@ ________________________________________________________________________
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
 class i_listMessenger : public QObject 
 {
     Q_OBJECT
@@ -111,7 +108,5 @@ void itemChanged( QListWidgetItem* itm )
 }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

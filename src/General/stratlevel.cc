@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
@@ -32,7 +32,7 @@ const Level& Level::undef()
     {
 	lvl = new Level( "Undefined", 0 );
 	lvl->id_ = -1;
-	lvl->color_ = Color::Black();
+	lvl->color_ = Color::LightGrey();
     }
     return *lvl;
 }
@@ -89,6 +89,7 @@ LevelSet& curSet()
 }
 
     ObjectSet<LevelSet>	lss_;
+
 };
 
 } // namespace
@@ -101,9 +102,7 @@ const Strat::LevelSet& Strat::LVLS()
 void Strat::pushLevelSet( Strat::LevelSet* ls )
 { lvlSetMgr().lss_ += ls; }
 void Strat::popLevelSet()
-{ delete lvlSetMgr().lss_.removeSingle( lvlSetMgr().lss_.size()-1 ); }
-const Strat::LevelSet& Strat::unpushedLVLS()
-{ return *lvlSetMgr().lss_[0]; }
+{ delete lvlSetMgr().lss_.remove( lvlSetMgr().lss_.size()-1 ); }
 
 
 void Strat::setLVLS( LevelSet* ls )
@@ -113,10 +112,7 @@ void Strat::setLVLS( LevelSet* ls )
     if ( lvlSetMgr().lss_.isEmpty() )
 	lvlSetMgr().lss_ += ls;
     else
-    {
-	const int currentidx =  lvlSetMgr().lss_.indexOf( &LVLS() );
-	delete lvlSetMgr().lss_.replace( currentidx < 0 ? 0 : currentidx, ls );
-    }
+	delete lvlSetMgr().lss_.replace( 0, ls );
 }
 
 
@@ -201,23 +197,23 @@ void Strat::Level::setPars( const IOPar& iop )
 
 void Strat::Level::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::ID(), id_ );
-    iop.set( sKey::Name(), name() );
-    iop.set( sKey::Color(), color_ );
+    iop.set( sKey::ID, id_ );
+    iop.set( sKey::Name, name() );
+    iop.set( sKey::Color, color_ );
     iop.merge( pars_ );
 }
 
 
 void Strat::Level::usePar( const IOPar& iop )
 {
-    iop.get( sKey::ID(), id_ );
-    BufferString nm; iop.get( sKey::Name(), nm ); setName( nm );
-    iop.get( sKey::Color(), color_ );
+    iop.get( sKey::ID, id_ );
+    BufferString nm; iop.get( sKey::Name, nm ); setName( nm );
+    iop.get( sKey::Color, color_ );
 
     pars_.merge( iop );
-    pars_.removeWithKey( sKey::Name() );
-    pars_.removeWithKey( sKey::Color() );
-    pars_.removeWithKey( sKey::ID() );
+    pars_.removeWithKey( sKey::Name );
+    pars_.removeWithKey( sKey::Color );
+    pars_.removeWithKey( sKey::ID );
 }
 
 
@@ -341,7 +337,7 @@ void Strat::LevelSet::remove( Level::ID id )
     if ( idx >=0 )
     {
 	delete lvls_[idx];
-	lvls_.removeSingle( idx );
+	lvls_.remove( idx );
     }
 }
 
@@ -474,7 +470,7 @@ Repos::Source Strat::LevelSet::readOldRepos()
 {
     Repos::FileProvider rfp( "StratUnits" );
     BufferString bestfile;
-    Repos::Source rsrc = Repos::Temp;
+    Repos::Source rsrc;
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );

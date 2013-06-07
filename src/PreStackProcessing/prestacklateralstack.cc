@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestacklateralstack.h"
 
@@ -171,7 +171,7 @@ bool LateralStack::usePar( const IOPar& par )
 
 bool LateralStack::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int ioffs=mCast(int,start); ioffs<=stop; ioffs++, addToNrDone(1) )
+    for ( int ioffs=start; ioffs<=stop; ioffs++, addToNrDone(1) )
     {
 	for ( int oinl=-outputstepout_.inl; oinl<=outputstepout_.inl; oinl++ )
 	{

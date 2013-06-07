@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivolprocchain.h"
 
@@ -87,8 +87,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     , chain_(chn)
 {
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
-    tb->addButton( "open", "Read stored setup", mCB(this,uiChain,readPush));
-    tb->addButton( "save", "Save setup now", mCB(this,uiChain,savePush) );
+    tb->addButton( "open.png", "Read stored setup", mCB(this,uiChain,readPush));
+    tb->addButton( "save.png", "Save setup now", mCB(this,uiChain,savePush) );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
@@ -124,13 +124,13 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 			    "Move step down", mCB(this,uiChain,moveDownCB) );
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiToolButton( flowgrp, "settings",
+    propertiesbutton_ = new uiToolButton( flowgrp, "settings.png",
 	    				  "Edit this step",
 					  mCB(this,uiChain,propertiesCB) );
     propertiesbutton_->setName( "Settings" );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    removestepbutton_ = new uiToolButton( flowgrp, "trashcan",
+    removestepbutton_ = new uiToolButton( flowgrp, "trashcan.png",
 	    	"Remove step from flow", mCB(this,uiChain,removeStepPush) );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
 

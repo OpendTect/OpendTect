@@ -12,23 +12,22 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "position.h"
 #include "typeset.h"
 #include <iosfwd>
 
 
-/*!
-\brief Inter/Extra-polate bendpoints to get the coordinates.
+/*! Inter/Extra-polate bendpoints to get the coordinates.
 
   Input is a set of coordinates and optionally ID numbers (if you don't pass
   IDs they will be generated 0, 1, ....). Then you can give an ID (usually in
   between the bend point IDs) and get the interpolated coordinate.
 
   The bend points will be sorted on ID.
-*/
 
-mExpClass(Algo) BendPoints2Coords
+ */
+
+mClass BendPoints2Coords
 {
 public:
 
@@ -54,4 +53,3 @@ protected:
 
 
 #endif
-

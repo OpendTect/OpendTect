@@ -8,7 +8,7 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"
@@ -137,8 +137,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
 		    
-   PtrMan<MuteDefTranslator> tr =
-	    (MuteDefTranslator*)ctio_.ioobj->createTranslator();
+    MuteDefTranslator* tr = (MuteDefTranslator*)ctio_.ioobj->getTranslator();
     if ( !tr ) return false;
 
     BufferString bs;

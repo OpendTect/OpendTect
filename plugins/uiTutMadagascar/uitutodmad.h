@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          June 2009
- RCS:           $Id$
+ RCS:           $Id: uitutodmad.h,v 1.3 2009/07/22 16:01:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitutmadagascarmod.h"
 #include "uidialog.h"
 #include "iopar.h"
 
@@ -22,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Madagascar tutorial plugin interface */
 
-mClass(uiTutMadagascar) uiTutODMad : public uiDialog
+class uiTutODMad : public uiDialog
 {
 public:
 

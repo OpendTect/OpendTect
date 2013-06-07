@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiposfiltgroup.h"
 #include "cubesampling.h"
 #include "factory.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-mExpClass(uiIo) uiPosProvGroup : public uiPosFiltGroup
+mClass uiPosProvGroup : public uiPosFiltGroup
 {
 public:
 
@@ -51,4 +50,3 @@ public:
 };
 
 #endif
-

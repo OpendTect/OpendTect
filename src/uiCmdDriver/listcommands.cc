@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "listcommands.h"
 #include "cmddriverbasics.h"
@@ -185,7 +185,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
-	if ( actlist_.isSelected(idx) == (!oldselitems.isPresent(idx)) ) \
+	if ( actlist_.isSelected(idx) == (oldselitems.indexOf(idx)<0) ) \
 	{ \
 	    actlist_.selectionChanged.trigger(); \
 	    break; \
@@ -214,7 +214,7 @@ void ListActivator::actCB( CallBacker* cb )
 	{
 	    mHandleSelectionChangedBegin( oldselitems );
 	    mInitListSelection( oldselitems, actitmidx_ );
-	    const bool wasselected = oldselitems.isPresent(actitmidx_);
+	    const bool wasselected = oldselitems.indexOf(actitmidx_) >= 0;
 
 	    if ( actclicktags_.isPresent("Ctrl") )
 		actlist_.setSelected( actitmidx_, !wasselected );
@@ -277,7 +277,7 @@ static bool selectionEquals( const uiListBox& uilist,
 {
     for ( int idx=0; idx<uilist.size(); idx++ )
     {
-	const bool tobeselected = selset.isPresent(idx);
+	const bool tobeselected = selset.indexOf(idx)>=0;
 	if ( uilist.isSelected(idx) != tobeselected )
 	    return false;
     }
@@ -310,7 +310,7 @@ bool ListSelectCmd::act( const char* parstr )
     TypeSet<int> selset;
     for ( int idx=0; idx<nritems; idx++ )
     {
-	bool specified = itemidxs1.isPresent(idx);
+	bool specified = itemidxs1.indexOf(idx)>=0;
 	if ( !itemidxs2.isEmpty() )
 	{
 	    const int firstidx = itemidxs1[0];
@@ -605,8 +605,8 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
     if ( ignoreflag_ || quitflag_ )
 	return accepted;
 
-    char* msgnext; char* msgnexxt = 0;
-    int oldnritems = mUdf(int); int oldcuritem = mUdf(int);
+    char* msgnext; char* msgnexxt;
+    int oldnritems; int oldcuritem;
 
     if ( accepted )
     {
@@ -732,7 +732,8 @@ void ListCmdComposer::labelStoredStateNew()
 
 
 #define mIsSet( iswasselectedchecked, itemidx ) \
-    ( iswasselectedchecked##items_.isPresent(itemidx) ? 1 : 0 )
+    ( iswasselectedchecked##items_.indexOf(itemidx) >= 0 )
+
 
 void ListCmdComposer::writeListSelect()
 {
@@ -764,8 +765,8 @@ int ListCmdComposer::writeListSelect( bool differential, bool virtually )
     mGetListBox( uilist, -1 );
     int nrlistselects = 0;
     int firstidx = mUdf(int);
-    int lastidx = mUdf(int);
-    int blockstate = mUdf(int);
+    int lastidx;
+    int blockstate;
 
     for ( int idx=0; idx<=uilist->size(); idx++ )
     {

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigraphicsview.h"
 
@@ -23,7 +22,7 @@ class uiParent;
 class uiWorld2Ui;
 
 
-mExpClass(uiTools) uiColTabMarkerDlg : public uiDialog
+mClass uiColTabMarkerDlg : public uiDialog
 {
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
@@ -46,7 +45,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
+mClass uiColTabMarkerCanvas : public uiGraphicsView
 {
 public:
 				uiColTabMarkerCanvas(uiParent*,
@@ -77,4 +76,3 @@ protected:
 };
 
 #endif
-

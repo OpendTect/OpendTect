@@ -13,18 +13,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "transl.h"
 
 class IOPar;
 
+
+/*!\brief MPE Setup read/save */
+
 namespace MPE {
 
-/*!
-\brief MPE Setup read/save.
-*/
-
-mExpClass(MPEEngine) Setup
+mClass Setup
 {
 public:
     				Setup();
@@ -45,11 +43,7 @@ protected:
 
 typedef MPE::Setup MPESetup;
 
-/*!
-\brief TranslatorGroup for MPE::Setup.
-*/
-
-mExpClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
+mClass MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
@@ -57,11 +51,7 @@ public:
 };
 
 
-/*!
-\brief Translator for MPE::Setup.
-*/
-
-mExpClass(MPEEngine) MPESetupTranslator : public Translator
+mClass MPESetupTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
@@ -84,11 +74,7 @@ public:
 };
     
 
-/*!
-\brief MPESetupTranslator for dgbMPESetup.
-*/
-
-mExpClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
+mClass dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)
 public:
     			mDefEmptyTranslatorConstructor(dgb,MPESetup)
@@ -104,4 +90,3 @@ public:
 };
 
 #endif
-

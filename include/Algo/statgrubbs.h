@@ -11,18 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "gendefs.h"
 #include <math.h>
 
 namespace Stats
 {
 
-/*!
-\brief Grubbs' test to detect outliers in a univariate data set assumed to come from a normally distributed population.
-*/
-
-mExpClass(Algo) Grubbs
+mClass Grubbs
 {
 public:
 
@@ -69,7 +64,7 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 	const T delta = avg - arr[idx];
 	sum += delta * delta;
     }
-    const T stdev = Math::Sqrt( sum / nonudfsz );
+    const T stdev = sqrt( sum / nonudfsz );
 
     const T diffmin = avg - minval;
     const T diffmax = maxval - avg;
@@ -80,4 +75,3 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 } // namespace Stats
 
 #endif
-

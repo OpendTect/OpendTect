@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "position.h"
 
@@ -26,15 +25,11 @@ namespace EM
 class FaultStickSet;
 class Fault3D;
 
-/*!
-\brief FaultStickSet to Fault3D converter.
-*/
-
-mExpClass(EarthModel) FSStoFault3DConverter
+mClass FSStoFault3DConverter
 {
 public:
 
-    mExpClass(EarthModel) Setup
+    mClass Setup
     {
     public:
 				Setup();
@@ -55,11 +50,11 @@ public:
 				FSStoFault3DConverter(const Setup&,
 						      const FaultStickSet&,
 						      Fault3D&);  
-    bool			convert(bool forimport);
+    bool			convert();		//obsolete
 
 protected:
 
-    mExpClass(EarthModel) FaultStick
+    mClass FaultStick
     {
     public:
 				FaultStick(int sticknr);
@@ -85,17 +80,21 @@ protected:
     const Geometry::FaultStickSet* curfssg_;
 
     bool			readSection(const SectionID&);
-    bool			readSectionForImport(const SectionID&);
     bool			preferHorPicked() const;
     void			selectSticks( bool selhorpicked );
-    void			geometricSort(double zscale,bool forimport);
+    void			geometricSort(double zscale); // obsolete
     void			untwistSticks(double zscale);
     void			resolveUdfNormals();
     bool			writeSection(const SectionID&) const;
+
+    bool			readSectionForImport(const SectionID&);
+    void			geometricSort(double zscale,bool forimport);
+
+public:
+    bool			convert(bool forimport);
 };
 
 
 } // namespace EM
 
 #endif
-

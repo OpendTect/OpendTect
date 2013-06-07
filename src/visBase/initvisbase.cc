@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 
@@ -66,7 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexture3.h"
 #include "vistexture3viewer.h"
 #include "vistexturecoords.h"
-#include "vistexturerect.h"
 #include "vistexturechannel2rgba.h"
 #include "vistexturechannels.h"
 #include "vistopbotimage.h"
@@ -77,7 +76,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visvolren.h"
 #include "visvolrenscalarfield.h"
 #include "viswell.h"
-#include "indexedshape.h"
 
 
 mDefModInitFn(visBase)
@@ -153,7 +151,6 @@ mDefModInitFn(visBase)
     visBase::TextureChannels::initClass();
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::TextureChannel2VolData::initClass();
-    visBase::TextureRectangle::initClass();
     visBase::Transformation::initClass();
     visBase::Rotation::initClass();
     visBase::TriangleStripSet::initClass();
@@ -164,7 +161,4 @@ mDefModInitFn(visBase)
     visBase::VolumeRenderScalarField::initClass();
     visBase::Well::initClass();
     visBase::TopBotImage::initClass();
-    
-    Geometry::PrimitiveSetCreator::setCreator(
-				    new visBase::PrimitiveSetCreator );
 }

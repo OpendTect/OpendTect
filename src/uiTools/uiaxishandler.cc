@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -74,7 +74,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
     if ( fsteps < 0 )
 	rg_.step = -rg_.step;
     if ( mIsZero(fsteps,1e-6) )
-	{ rg_.start -= rg_.step * 1.5f; rg_.stop += rg_.step * 1.5f; }
+	{ rg_.start -= rg_.step * 1.5; rg_.stop += rg_.step * 1.5; }
     fsteps = (rg_.stop - rg_.start) / rg_.step;
     if ( fsteps > 50 )
     	rg_.step /= (fsteps / 50);
@@ -170,9 +170,9 @@ float uiAxisHandler::getVal( int pix ) const
 {
     float relpix;
     if ( isHor() )
-	{ pix -= pixBefore(); relpix = mCast( float, pix ); }
+	{ pix -= pixBefore(); relpix = pix; }
     else
-	{ pix -= pixAfter(); relpix = mCast( float, axsz_-pix ); }
+	{ pix -= pixAfter(); relpix = axsz_-pix; }
     relpix /= axsz_;
 
     if ( setup_.islog_ )
@@ -204,19 +204,6 @@ int uiAxisHandler::getPix( float pos ) const
 {
     return getRelPosPix( getRelPos(pos) );
 }
-
-
-int uiAxisHandler::getPix( double pos ) const
-{
-    return getRelPosPix( getRelPos( (float) pos) );
-}
-
-
-int uiAxisHandler::getPix( int pos ) const
-{
-    return getRelPosPix( getRelPos( (float) pos) );
-}
-
 
 
 int uiAxisHandler::pixToEdge( bool withborder ) const
@@ -284,6 +271,16 @@ void uiAxisHandler::createAnnotItems()
 
 void uiAxisHandler::createGridLines()
 {
+    if ( gridlineitmgrp_ && !setup_.nogridline_ )
+    {
+	for ( int idx=0; idx<gridlineitmgrp_->size(); idx++ )
+	{
+	    mDynamicCastGet(uiLineItem*,
+			    lineitm,gridlineitmgrp_->getUiItem(idx))
+	    uiRect linerect = lineitm->lineRect();
+	}
+    }
+
     if ( setup_.style_.isVisible() )
     {
 	if ( !gridlineitmgrp_ && !setup_.nogridline_ )
@@ -304,10 +301,6 @@ void uiAxisHandler::createGridLines()
 	    if ( relpos>0.01 && relpos<1.01 && (!endhndlr_ || relpos<0.99) )
 		drawGridLine( getRelPosPix(relpos) );
 	}
-    }
-    else if ( gridlineitmgrp_ )
-    {
-	gridlineitmgrp_->removeAll( true );
     }
 }
 
@@ -352,8 +345,7 @@ void uiAxisHandler::drawAxisLine()
 	    		 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(mCast(float,startpix),mCast(float,pixpos),
-				mCast(float,endpix),mCast(float,pixpos),true) );
+		    new uiLineItem(startpix,pixpos,endpix,pixpos,true) );
 	else
 	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos, true );
 	axislineitm_->setPenStyle( ls );
@@ -368,8 +360,7 @@ void uiAxisHandler::drawAxisLine()
 
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
-		    new uiLineItem(mCast(float,pixpos),mCast(float,startpix),
-			        mCast(float,pixpos),mCast(float,endpix),true) );
+		    new uiLineItem(pixpos,startpix,pixpos,endpix,true) );
 	else
 	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix, true );
 	axislineitm_->setPenStyle( ls );
@@ -461,6 +452,7 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 {
     const int edgepix = pixToEdge();
     int xpix, ypix; Alignment al;
+    const bool isinside = setup_.annotinside_;
     if ( isHor() )
     {
 	xpix = devsz_ - pixAfter() - 2;
@@ -572,41 +564,46 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
 
 void uiAxisHandler::drawName() 
 {
+    uiPoint pt;
     if ( !nameitm_ )
 	nameitm_ = scene_->addItem( new uiTextItem(name()) );
     else
 	nameitm_->setText( name() );
-
-    Alignment al( Alignment::HCenter, Alignment::VCenter );
-    float namepos = mCast( float, pixToEdge() - ticSz() - calcwdth_ );
-    uiPoint pt;
+    nameitm_->setZValue( setup_.zval_ );
+    Color& col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
+						     : setup_.nmcolor_;
+    nameitm_->setTextColor( col );
+    const int fontheight = FontList().get().height();
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	pt.x = pixBefore() + axsz_ / 2;
-	pt.y = (int) (istop ? namepos : height_ - namepos);
-	al.set( istop ? Alignment::Top : Alignment::Bottom );
+	const int x = pixBefore() + axsz_ / 2;
+	const int yshift = pixToEdge() - ticSz() - calcwdth_ + fontheight;
+	const int y = istop ? yshift : height_ - yshift;
+	const Alignment al( Alignment::HCenter,
+			    istop ? Alignment::Bottom : Alignment::Top );
+	nameitm_->setPos( uiPoint(x,y) );
+	nameitm_->setAlignment( al );
     }
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	namepos -= FontList().get().height()/2; //shift due to rotation
-	pt.x = (int) (isleft ? namepos : width_ - namepos);
-	pt.y = ( height_+nameitm_->getTextSize().width() ) / 2;
-	al.set( isleft ? Alignment::Left : Alignment::Left );
-
+	const int xshift = pixToEdge() - ticSz() - calcwdth_ - fontheight;
+	const int x = isleft ? xshift : width_ - xshift;
+	const int y = ( height_+nameitm_->getTextSize().width() ) / 2;
+	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
+			    Alignment::VCenter );
+	nameitm_->setPos( uiPoint(x,y) );
+	nameitm_->setAlignment( al );
 	if ( !ynmtxtvertical_ )
-	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
+	    nameitm_->rotate( isleft ? -90 : 90 );
+	if ( nameitm_->getPos().x < 1 )
+	    nameitm_->moveBy( -nameitm_->getPos().x, 0 );
 	ynmtxtvertical_ = true;
     }
-    nameitm_->setPos( pt );
-    nameitm_->setAlignment( al );
-    nameitm_->setZValue( setup_.zval_ );
-    Color col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_ 
-						    : setup_.nmcolor_;
-    nameitm_->setTextColor( col );
 }
 
-
 int uiAxisHandler::ticSz() const
-{ return setup_.noaxisannot_ ? 0 : ticsz_; }
+{
+    return setup_.noaxisannot_ ? 0 : ticsz_;
+}

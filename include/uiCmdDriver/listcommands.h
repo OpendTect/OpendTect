@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
 
@@ -23,9 +22,9 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( uiCmdDriver, Combo, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Combo, UiObjectCmd )		mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) ComboActivator: public Activator
+mClass ComboActivator: public Activator
 {
 public:
     			ComboActivator(const uiComboBox&,int itmidx);
@@ -36,11 +35,11 @@ protected:
 };
 
 
-mStartDeclCmdClass( uiCmdDriver, ListButton, UiObjectCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, ListClick, UiObjectCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, ListMenu, UiObjectCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( ListButton, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( ListClick, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( ListMenu, UiObjectCmd )		mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) ListActivator: public Activator
+mClass ListActivator: public Activator
 {
 public:
     			ListActivator(const uiListBox&,int itmidx,
@@ -53,9 +52,9 @@ protected:
     BufferStringSet	actclicktags_;
 };
 
-mStartDeclCmdClass( uiCmdDriver, ListSelect, UiObjectCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( ListSelect, UiObjectCmd )		mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) ListSelectActivator: public Activator
+mClass ListSelectActivator: public Activator
 {
 public:
     			ListSelectActivator(const uiListBox&,
@@ -67,40 +66,28 @@ protected:
 };
 
 
-mStartDeclCmdClass( uiCmdDriver, GetComboItem, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, CurComboItem, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, NrComboItems, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsComboItemOn, UiObjQuestionCmd )
-    mEndDeclCmdClass
+mStartDeclCmdClass( GetComboItem, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( CurComboItem, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( NrComboItems, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( IsComboItemOn, UiObjQuestionCmd )		mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, NrListItems, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsListItemOn, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsListButtonOn, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, CurListItem, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetListItem, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, NrListMenuItems, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsListMenuItemOn, UiObjQuestionCmd )
-    mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetListMenuItem, UiObjQuestionCmd )
-    mEndDeclCmdClass
+mStartDeclCmdClass( NrListItems, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( IsListItemOn, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( IsListButtonOn, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( CurListItem, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( GetListItem, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( NrListMenuItems, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( IsListMenuItemOn, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( GetListMenuItem, UiObjQuestionCmd )		mEndDeclCmdClass
 
 
-mStartDeclComposerClassWithInit( uiCmdDriver, Combo, CmdComposer, uiComboBox )
+mStartDeclComposerClassWithInit( Combo, CmdComposer, uiComboBox )
 protected:
     bool		itemedited_;
     BufferString	edittext_;
 mEndDeclComposerClass
 
-mStartDeclComposerClassWithInit( uiCmdDriver, List, CmdComposer, uiListBox )
+mStartDeclComposerClassWithInit( List, CmdComposer, uiListBox )
 public:
     virtual void	updateInternalState();
 

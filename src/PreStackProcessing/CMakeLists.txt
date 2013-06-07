@@ -6,7 +6,6 @@
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Velocity)
-SET(OD_NIGHTLY_TEST_PROGS angle_computer.cc)
 SET(OD_MODULE_SOURCES
 		initprestackprocessing.cc
 		prestackagc.cc
@@ -19,7 +18,6 @@ SET(OD_MODULE_SOURCES
 		prestackgather.cc
 		prestackprocessor.cc
 		prestackprocessortransl.cc
-		prestackanglecomputer.cc
 		prestackanglemute.cc
 		prestackanglemutecomputer.cc
 		prestackmute.cc
@@ -31,6 +29,6 @@ SET(OD_MODULE_SOURCES
 		prestacklateralstack.cc
 		semblancealgo.cc
 	 )
-SET(OD_MODULE_BATCHPROGS od_process_prestack.cc )
+SET(OD_MODULE_BATCHPROGS od_process_prestack)
 OD_INIT_MODULE()
 

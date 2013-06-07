@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -171,8 +171,8 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 
     newtrc->info_ = info_;
     newtrc->info_.sampling.start = zgate.start;
-    const float z0 = startPos() - snapdist * info_.sampling.step;
-    const float z1 = endPos() + snapdist * info_.sampling.step;
+    const float z0 = info_.sampling.start - snapdist * info_.sampling.step;
+    const float z1 = samplePos( size() - 1 ) + snapdist * info_.sampling.step;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {
@@ -265,14 +265,6 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 		sz * (int)dc.nrBytes() );
     }
 }
-
-
-float SeisTrcValueSeries::value( od_int64 idx ) const
-{ return trc_.get((int) idx,icomp_); }
-
-
-void SeisTrcValueSeries::setValue( od_int64 idx,float v )
-{ trc_.set((int) idx,v,icomp_); }
 
 
 float* SeisTrcValueSeries::arr()

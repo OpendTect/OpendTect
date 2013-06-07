@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "prog.h"
@@ -19,7 +19,7 @@ extern int ODSysAdmMain(int,char**);
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
+    od_putProgInfo( argc, argv );
 
     int ret = ODSysAdmMain( argc, argv );
     ExitProgram( ret );

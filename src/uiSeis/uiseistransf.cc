@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
@@ -90,6 +90,7 @@ int uiSeisTransfer::maxBytesPerSample() const
 
 SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 {
+    const int ntr = selfld->expectedNrTraces();
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
 	    	selfld->expectedNrTraces(), maxBytesPerSample() );
 
@@ -160,7 +161,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     else if ( setup_.is2d_ )
     {
 	LineKey lk( linenm2d, attrnm2d );
-	iop.set( sKey::LineKey(), lk );
+	iop.set( sKey::LineKey, lk );
     }
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,

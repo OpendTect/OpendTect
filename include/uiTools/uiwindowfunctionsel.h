@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "multiid.h"
 
@@ -25,11 +23,11 @@ class uiFreqTaperDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
-mExpClass(uiTools) uiWindowFunctionSel : public uiGroup
+mClass uiWindowFunctionSel : public uiGroup
 {
 public:
 
-    mStruct(uiTools) Setup
+    mStruct Setup
     {
 			Setup() 
 			    : onlytaper_(false)		      	
@@ -80,5 +78,3 @@ protected:
 
 
 #endif
-
-

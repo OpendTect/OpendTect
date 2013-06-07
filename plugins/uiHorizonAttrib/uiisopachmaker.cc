@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.19 2012/06/28 15:35:39 cvshelene Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -244,7 +244,7 @@ bool uiIsopachMakerDlg::doWork()
 	ipmaker.setUnits( isinmsec );
     }
 
-    bool rv = TaskRunner::execute( &tr, ipmaker );
+    bool rv = tr.execute( ipmaker );
     h1->unRef(); h2->unRef();
     return rv;
 }

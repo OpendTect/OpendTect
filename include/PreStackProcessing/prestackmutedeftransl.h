@@ -13,16 +13,11 @@ ________________________________________________________________________
 
 -*/
  
-#include "prestackprocessingmod.h"
 #include "transl.h"
-
 namespace PreStack { class MuteDef; }
 
-/*!
-\brief TranslatorGroup for mute definition.
-*/
 
-mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
+mClass MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
 public:
     			mDefEmptyTranslatorGroupConstructor(MuteDef)
@@ -31,11 +26,7 @@ public:
 };
 
 
-/*!
-\brief Translator for mute definition.
-*/
-
-mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
+mClass MuteDefTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MuteDef)
@@ -51,11 +42,7 @@ public:
 };
 
 
-/*!
-\brief dgb MuteDefTranslator
-*/
-
-mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
+mClass dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 
@@ -70,4 +57,3 @@ public:
 
 
 #endif
-

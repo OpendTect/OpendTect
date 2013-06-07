@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.34 2011/04/21 13:09:13 cvsbert Exp $";
 
 #include "uimenu.h"
 #include "uiodmain.h"

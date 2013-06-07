@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uicompoundparsel.h"
 #include "multiid.h"
 
 
 /*! \brief Dialog for surface aux data selection. */
 
-mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
+mClass uiEMAuxDataSel : public uiCompoundParSel
 {
 public:
 			uiEMAuxDataSel(uiParent*,const char* label,
@@ -38,4 +37,3 @@ protected:
 };
 
 #endif
-

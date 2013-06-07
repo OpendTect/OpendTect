@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivolproclateralsmoother.h"
 
@@ -54,7 +54,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
 
     stepoutgroup->setHAlignObj( crllenfld_ );
 
-    ismedianfld_ = new uiGenInput( this, sKey::Type(),
+    ismedianfld_ = new uiGenInput( this, sKey::Type,
 	    BoolInpSpec( pars && pars->type_==Stats::Median,
 			 Stats::TypeNames()[(int)Stats::Median],
 			 Stats::TypeNames()[(int)Stats::Average]) );

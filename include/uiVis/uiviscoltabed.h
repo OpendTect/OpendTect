@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
@@ -23,7 +22,7 @@ class uiGroup;
 class IOPar;
 
 
-mExpClass(uiVis) uiVisColTabEd : public CallBacker
+mClass uiVisColTabEd : public CallBacker
 {
 public:
     				uiVisColTabEd(uiParent*,bool vert=true);
@@ -77,7 +76,7 @@ protected:
 };
 
 
-mExpClass(uiVis) uiColorBarDialog :  public uiDialog
+mClass uiColorBarDialog :  public uiDialog
 {
 public:
     				uiColorBarDialog(uiParent*,const char* title);
@@ -93,4 +92,3 @@ protected:
 
 
 #endif
-

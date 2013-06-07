@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "enums.h"
@@ -37,7 +36,7 @@ class LeafUnitRef;
 
  */
 
-mExpClass(Strat) UnitRef : public CallBacker
+mClass UnitRef : public CallBacker
 {
 public:
 
@@ -49,12 +48,10 @@ public:
 
     virtual Type	type() const		= 0;
     virtual bool	isEmpty() const		{ return false; }
-    virtual bool	isUndef() const		{ return false; }
     virtual bool	hasChildren() const	= 0;
     bool		isLeaf() const		{ return type()==Leaf; }
     bool		isLeaved() const	{ return type()==Leaved; }
     CompoundKey		fullCode() const;
-    CompoundKey		parentCode() const;
 
     virtual const BufferString&	code() const	= 0;
     virtual void	setCode(const char*)	{}
@@ -109,19 +106,19 @@ public:
 
     static const char*	sKeyPropsFor()		{ return "Properties for "; }
     static const char*	sKeyTreeProps()		{ return "entire tree"; }
+    CompoundKey		parentCode() const;
 
 };
 
 
 /*!\brief UnitRef for units containing other units only */
 
-mExpClass(Strat) NodeUnitRef : public UnitRef
+mClass NodeUnitRef : public UnitRef
 {
 public:
 
 			NodeUnitRef(NodeUnitRef*,const char*,const char* d=0);
 			~NodeUnitRef();
-    void		setEmpty();
 
     virtual bool	isEmpty() const		{ return refs_.isEmpty(); }
     virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }
@@ -164,21 +161,22 @@ public:
     virtual UnitRef*	replace(int uridx,UnitRef*);
     void		swapChildren(int,int);
     void		remove( int uridx ) 
-    			{ delete refs_.removeSingle(uridx); }
+    			{ delete refs_.remove(uridx); }
     void		remove( const UnitRef* ur )
     			{ remove( indexOf( ur ) ); }
-    void		removeAllChildren()
-			{ deepErase( refs_ ); }
 
     virtual void	getPropsFrom(const IOPar&);
     virtual void	putPropsTo(IOPar&) const;
+    void                removeAllChildren()
+			{ deepErase( refs_ ); }
+
 
 };
 
 
 /*!\brief UnitRef for units containing non-Leaf units only */
 
-mExpClass(Strat) NodeOnlyUnitRef : public NodeUnitRef
+mClass NodeOnlyUnitRef : public NodeUnitRef
 {
 public:
 			NodeOnlyUnitRef( NodeUnitRef* up, const char* c,
@@ -194,7 +192,7 @@ public:
 
 /*!\brief UnitRef for units containing Leaf units only */
 
-mExpClass(Strat) LeavedUnitRef : public NodeUnitRef
+mClass LeavedUnitRef : public NodeUnitRef
 {
 public:
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
@@ -224,13 +222,12 @@ protected:
 
 /*!\brief UnitRef for layers */
 
-mExpClass(Strat) LeafUnitRef : public UnitRef
+mClass LeafUnitRef : public UnitRef
 {
 public:
 
 			LeafUnitRef(NodeUnitRef*,int lithidx=-1,
 				    const char* desc=0);
-    virtual bool	isUndef() const;
 
     virtual Type	type() const		{ return Leaf; }
     virtual bool	hasChildren() const	{ return false; }
@@ -267,4 +264,3 @@ inline const NodeUnitRef* UnitRef::topNode() const
 }; // namespace Strat
 
 #endif
-

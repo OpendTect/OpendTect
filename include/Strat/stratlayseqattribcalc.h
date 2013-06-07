@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "stattype.h"
 #include "ranges.h"
 #include "executor.h"
@@ -31,7 +30,7 @@ class LayerSequence;
   Note that if the attribute is global, then the zrange is not used.
  */
 
-mExpClass(Strat) LaySeqAttribCalc
+mClass LaySeqAttribCalc
 {
 public:
 
@@ -39,9 +38,6 @@ public:
 
     float		getValue(const LayerSequence&,
 	    			 const Interval<float>& zrange) const;
-    
-    void		setExtrGates(const TypeSet<Interval<float> >& extrgates)
-						 { extrgates_ = extrgates; }
 
 protected:
 
@@ -52,7 +48,6 @@ protected:
     int					validx_;
     ObjectSet<const Strat::UnitRef>	units_;
     ObjectSet<const Strat::Lithology>	liths_;
-    TypeSet<Interval<float> >&		extrgates_;
 
     float		getLocalValue(const LayerSequence&,
 	    			      const Interval<float>&) const;
@@ -62,7 +57,7 @@ protected:
 };
 
 
-mExpClass(Strat) LayModAttribCalc : public Executor
+mClass LayModAttribCalc : public Executor
 {
 public:
     			LayModAttribCalc(const LayerModel&,
@@ -70,17 +65,12 @@ public:
 					 DataPointSet&);
 			~LayModAttribCalc();
 
-    			// point-specific extraction gates have precedence over
-    			// global calczwdth_
     void		setCalcZWidth( float w ) { calczwdth_ = w; }
-    void		setExtrGates(
-			const TypeSet<TypeSet<Interval<float> > >& extrgates )
-						   { extrgates_ = extrgates; }
 
     const char*		message() const		{ return msg_.buf(); }
     const char*		nrDoneText() const	{ return "Models handled";}
     od_int64		nrDone() const		{ return seqidx_; }
-    od_int64		totalNr() const;
+    od_int64		totalNr() const		{ return calcs_.size(); }
     int			nextStep();
 
     static const char*	sKeyModelIdx()		{ return "Model Index"; }
@@ -91,14 +81,14 @@ protected:
     ObjectSet<LaySeqAttribCalc>	calcs_;
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
+    int				dpsdepthcidx_;
+    int				dpsmodnrcidx_;
     DataPointSet&		dps_;
     BufferString		msg_;
     float			calczwdth_;
-    TypeSet<TypeSet<Interval<float> > >&	extrgates_;
 
 };
 
 }; // namespace Strat
 
 #endif
-

@@ -1,4 +1,4 @@
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: w32glxinfo.c,v 1.1 2009/05/21 10:54:04 cvsnanne Exp $";
 
 /*
 
@@ -412,7 +412,7 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-    return (LONG)DefWindowProc(hWnd, uMsg, wParam, lParam); 
+    return DefWindowProc(hWnd, uMsg, wParam, lParam); 
 
 } 
 
@@ -554,7 +554,7 @@ CreateOpenGLWindow(char* title, int x, int y, int width, int height,
 
 
 
-    ReleaseDC(hWnd,hDC);
+    ReleaseDC(hDC, hWnd);
 
 
 
@@ -742,7 +742,7 @@ main(int argc, char** argv)
 
     wglMakeCurrent(NULL, NULL);
 
-    ReleaseDC(hWnd,hDC);
+    ReleaseDC(hDC, hWnd);
 
     wglDeleteContext(hRC);
 

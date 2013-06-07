@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "volproclateralsmoother.h"
 
@@ -70,7 +70,7 @@ void reportRowDone(CallBacker*)
 bool doWork( od_int64 start, od_int64 stop, int thread )
 {
     if ( pars_.type_==Stats::Average ) //&& !mIsUdf(pars_.rowdist_) )
-	return processKernel( mCast(int,start), mCast(int,stop), thread );
+	return processKernel( start, stop, thread );
     return processFilter( start, stop, thread );
 }
 
@@ -89,7 +89,7 @@ bool processFilter( od_int64 start, od_int64 stop, int thread )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int depthindex = mCast( int, i2samples_.start+idx );
+	const int depthindex = i2samples_.start+idx;
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 	inputslice.setPos( 2, inputdepth );
@@ -197,7 +197,7 @@ bool processKernel( int start, int stop, int thread )
     {
 	double sum = 0;
 	od_int64 nrvals = 0;
-	const int depthindex = mCast( int, i2samples_.start+depthidx );
+	const int depthindex = i2samples_.start+depthidx;
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 
@@ -215,7 +215,7 @@ bool processKernel( int start, int stop, int thread )
 		int inputpos1 = kernelorigin1+idx1;
 		mFixEdges( 1 );
 
-		const int offset = mCast(int,slice.info().getOffset(idx0,idx1));
+		const int offset = slice.info().getOffset( idx0, idx1 );
 		const float val = input_.get(inputpos0,inputpos1,inputdepth);
 		if ( mIsUdf(val) )
 		    missingdata = true;
@@ -246,15 +246,14 @@ bool processKernel( int start, int stop, int thread )
 		if ( mIsUdf(fixedval_) )
 		{
 		    if ( nrvals )
-			val = (float) sum/nrvals;
+			val = sum/nrvals;
 		}
 		else
 		{
 		    val = fixedval_;
 		}
 
-		for ( int idx=mCast(int,slice.info().getTotalSz()-1); idx>=0; 
-									idx-- )
+		for ( int idx=slice.info().getTotalSz()-1; idx>=0; idx-- )
 		{
 		    if ( wasudfptr[idx] )
 			sliceptr[idx] = val;
@@ -279,7 +278,7 @@ bool processKernel( int start, int stop, int thread )
 		const int outputpos1 = globalpos1-o1_;
 
 		const int offset =
-		   mCast( int, slice.info().getOffset(kernelpos0, kernelpos1) );
+		    slice.info().getOffset( kernelpos0, kernelpos1 );
 
 		if ( dontfilludf && wasudfptr[offset] )
 		    continue;
@@ -357,8 +356,8 @@ void LateralSmoother::fillPar( IOPar& pars ) const
     pars.setYN( sKeyIsMedian(), pars_.type_==Stats::Median );
     pars.setYN( sKeyIsWeighted(),
 	    pars_.type_!=Stats::Median && !mIsUdf(pars_.rowdist_) );
-    pars.set( sKey::StepOutInl(), pars_.stepout_.row );
-    pars.set( sKey::StepOutCrl(), pars_.stepout_.col );
+    pars.set( sKey::StepOutInl, pars_.stepout_.row );
+    pars.set( sKey::StepOutCrl, pars_.stepout_.col );
 }
 
 
@@ -373,8 +372,8 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
     bool ismedian, isweighted;
     if ( !pars.getYN( sKeyIsMedian(), ismedian ) || 
-	 !pars.get( sKey::StepOutInl(), pars_.stepout_.row ) ||
-	 !pars.get( sKey::StepOutCrl(), pars_.stepout_.col ) ||
+	 !pars.get( sKey::StepOutInl, pars_.stepout_.row ) ||
+	 !pars.get( sKey::StepOutCrl, pars_.stepout_.col ) ||
 	 !pars.getYN( sKeyIsWeighted(), isweighted ) )
     {
 	return false;
@@ -436,7 +435,7 @@ Task* LateralSmoother::createTask()
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 
-    //return 0;
+    return 0;
 }
 
 

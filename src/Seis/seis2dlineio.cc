@@ -4,11 +4,10 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
-#include "seis2ddata.h"
 #include "seis2dlinemerge.h"
 #include "seisselection.h"
 #include "seisioobjinfo.h"
@@ -98,79 +97,6 @@ bool TwoDSeisTrcTranslator::initRead_()
 	{ errmsg = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
     errmsg = lset.getCubeSampling( cs, curlinekey );
-
-    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
-    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl; pinfo.inlrg.stop = cs.hrg.stop.inl;
-    pinfo.inlrg.step = cs.hrg.step.inl; pinfo.crlrg.step = cs.hrg.step.crl;
-    pinfo.crlrg.start = cs.hrg.start.crl; pinfo.crlrg.stop = cs.hrg.stop.crl;
-    return true;
-}
-
-
-bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
-{
-    if ( !ioobj ) return true;
-    BufferString fnm( ioobj->fullUserExpr(true) );
-    Seis2DDataSet ds( fnm );
-    const int nrlines = ds.nrLines();
-    TypeSet<int> geomids;
-    for ( int iln=0; iln<nrlines; iln++ )
-	geomids.add( ds.geomID(iln) );
-
-    for ( int iln=0; iln<nrlines; iln++ )
-	ds.remove( geomids[iln] );
-
-    BufferString bakfnm( fnm ); bakfnm += ".bak";
-    if ( File::exists(bakfnm) )
-	File::remove( bakfnm );
-
-    return File::remove( fnm );
-}
-
-
-bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj, 
-				    const char* newnm,const CallBack* cb ) const
-{
-    if ( !ioobj )
-	return false;
-
-    PtrMan<IOObj> oldioobj = IOM().get( ioobj->key() );
-    if ( !oldioobj ) return false;
-
-    const bool isro = implReadOnly( ioobj );
-    BufferString oldname( oldioobj->name() );
-    Seis2DDataSet ds( *ioobj );
-    if ( !ds.renameFiles(ioobj->name()) )
-	return false;
-
-    implSetReadOnly( ioobj, isro );
-    
-    return Translator::implRename( ioobj, newnm, cb );
-}
-
-
-bool TwoDDataSeisTrcTranslator::initRead_()
-{
-    errmsg = 0;
-    if ( !conn->ioobj )
-	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
-    if ( !File::exists(fnm) ) return false;
-
-    Seis2DDataSet dset( fnm );
-    if ( dset.nrLines() < 1 )
-	{ errmsg = "Data set is empty"; return false; }
-    dset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
-    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
-
-    if ( seldata )
-	geomid = seldata->geomID();
-
-    if ( dset.indexOf(geomid) < 0 )
-	{ errmsg = "Cannot find GeomID in data set"; return false; }
-    CubeSampling cs( true );
-    errmsg = dset.getCubeSampling( cs, geomid );
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
@@ -281,8 +207,8 @@ bool Seis2DLineMerger::nextFetcher()
 
     const int lid = currentlyreading_ == 1 ? lid1_ : lid2_;
     PosInfo::Line2DData& l2dd( currentlyreading_==1 ? l2dd1_ : l2dd2_ );
-    l2dd.setLineName( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
-    const char* lnm = l2dd.lineName().buf();
+    const char* lnm = currentlyreading_ == 1 ? lnm1_.buf() : lnm2_.buf();
+    l2dd.setLineName( lnm );
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
@@ -368,11 +294,11 @@ int Seis2DLineMerger::doWork()
 		    PosInfo::POS2DAdmin().setGeometry( outl2dd_ ); \
 		    return Executor::Finished(); \
 		} \
-	    }	
+	    }
 	    mRetNextAttr;
 	}
 
-	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
+	const SeisTrc& trc = *outbuf_.get( nrdone_ );
 	if ( !putter_->put(trc) )
 	    mErrRet(putter_->errMsg())
 
@@ -548,7 +474,7 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
 	    nrsnapped++;
 	    if ( stckdupl_ )
 		SeisTrcPropChg( *prvtrc )
-		    .stack( *curtrc, false, 1.f / ((float)nrsnapped) );
+		    .stack( *curtrc, false, 1. / ((float)nrsnapped) );
 
 	    delete outbuf_.remove( itrc );
 	    itrc--;

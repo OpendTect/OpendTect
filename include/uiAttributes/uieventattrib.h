@@ -12,7 +12,6 @@
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; }
@@ -23,7 +22,7 @@ class uiLabel;
 
 /*! \brief Event Attributes description editor */
 
-mExpClass(uiAttributes) uiEventAttrib : public uiAttrDescEd
+mClass uiEventAttrib : public uiAttrDescEd
 {
 public:
 
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

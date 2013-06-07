@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiodfaulttoolman.h"
@@ -222,8 +222,6 @@ mDefineKey( sKeyReplaceExisting,   "Replace existing" );
 
 #define mCurItem( combo, key ) ( !strcmp(combo->text(), key()) )
 
-// shortcut to avoid interface change (OD has only one active uiODFaultToolMan)
-static Color colorbutcolor_;
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     : appl_( appl )
@@ -235,10 +233,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , flashcolor_( Color(0,0,0) )
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control", uiToolBar::Bottom);
-    editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
+    editbutidx_ = toolbar_->addButton( "editsticks.png", "Edit sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
-    selbutidx_ = toolbar_->addButton( "selectsticks", "Select sticks",
+    selbutidx_ = toolbar_->addButton( "selectsticks.png", "Select sticks",
 	    			mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     toolbar_->addSeparator();
@@ -296,34 +294,38 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputselbut_->setToolTip( "Select output" );
     toolbar_->addObject( outputselbut_ );
 
-    colorbutcolor_ = Color(0,0,0);
+    auxcolorinput_ = new uiColorInput( 0, uiColorInput::Setup(Color(0,0,0)),
+				       "Output color" );
+    auxcolorinput_->colorChanged.notify(
+	    			mCB(this,uiODFaultToolMan,outputColorChg) );
 
     colorbut_ = new uiToolButton( toolbar_, uiIcon::None(), "Output color",
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
 
-    settingsbutidx_ = toolbar_->addButton( "tools", "More transfer settings",
+    settingsbutidx_ = toolbar_->addButton( "tools.png",
+	    			"More transfer settings",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
-    gobutidx_ = toolbar_->addButton( "gobutton", "Transfer selected sticks",
+    gobutidx_ = toolbar_->addButton( "gobutton.png", "Transfer selected sticks",
 	    			mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
-    removalbutidx_ = toolbar_->addButton( "removesticks",
+    removalbutidx_ = toolbar_->addButton( "removesticks.png",
 	    			"Remove selected sticks",
 	    			mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
     toolbar_->addSeparator();
 
 
-    undobutidx_ = toolbar_->addButton( "undo", "Undo",
+    undobutidx_ = toolbar_->addButton( "undo.png", "Undo",
 	    			mCB(this,uiODFaultToolMan,undoCB), false );
 
-    redobutidx_ = toolbar_->addButton( "redo", "Redo",
+    redobutidx_ = toolbar_->addButton( "redo.png", "Redo",
 	    			mCB(this,uiODFaultToolMan,redoCB), false );
 
     toolbar_->addSeparator();
@@ -367,6 +369,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 
     delete toolbar_;
+    delete auxcolorinput_;
 
     if ( settingsdlg_ )
 	delete settingsdlg_;
@@ -455,10 +458,7 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 
 void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* cb )
 {
-    if ( curemid_ == -1 )
-	return;
-
-    if ( !EM::EMM().getObject(curemid_) )
+    if ( curemid_>-1 && !EM::EMM().getObject(curemid_) )
 	deseltimer_.start( 100, true );
 }
 
@@ -725,12 +725,12 @@ static void addOutputItem( const char* newitem, BufferStringSet& items )
     for ( int idx=items.size()-1; idx>=0; idx-- )
     {
 	if ( items.get(idx) == newitem )
-	    items.removeSingle( idx );
+	    items.remove( idx );
     }
     items.insertAt( new BufferString(newitem), 0 );
 
     for ( int idx=items.size()-1; idx>=maxnritems; idx-- )
-	items.removeSingle( idx );
+	items.remove( idx );
 }
 
 
@@ -790,10 +790,7 @@ void uiODFaultToolMan::publishOutputItems()
 
 
 void uiODFaultToolMan::colorPressedCB( CallBacker* cb )
-{
-    if ( selectColor(colorbutcolor_) )
-	outputColorChg( cb );
-}
+{ auxcolorinput_->getButton()->click(); }
 
 
 void uiODFaultToolMan::outputColorChg( CallBacker* cb )
@@ -802,18 +799,18 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
     if ( cb )
     {
-	usercolor_ = colorbutcolor_;
+	usercolor_ = auxcolorinput_->color();
 	usercolorlink_ = getObjSel()->inpBox()->text();
 	updateColorMode();
     }
     else if ( randomColor() )
     {
-	colorbutcolor_ = randomcolor_;
+	auxcolorinput_->setColor( randomcolor_ );
 	colorbut_->setToolTip( "Output color [random]" );
     }
     else
     {
-	colorbutcolor_ = usercolor_;
+	auxcolorinput_->setColor( usercolor_ );
 
 	if ( currentColor() || inheritColor() )
 	{
@@ -833,9 +830,9 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		else
 		    EM::EMM().readPars( mid, iopar );
 
-		if ( emobj || iopar.get(sKey::Color(),curcolor) )
+		if ( emobj || iopar.get(sKey::Color,curcolor) )
 		{
-		    colorbutcolor_ = curcolor;
+		    auxcolorinput_->setColor( curcolor );
 		    colorbut_->setToolTip( currentColor() ?
 					   "Output color [current]" :
 					   "Output color [predecessor]" );
@@ -845,7 +842,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
     }
 
     ioPixmap colorpm( 20, 20 );
-    colorpm.fill( colorbutcolor_ );
+    colorpm.fill( auxcolorinput_->color() );
     colorbut_->setPixmap( colorpm );
 }
 
@@ -1035,7 +1032,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	srcfault->setChangedFlag();
 
     destfault->setFullyLoaded( true );
-    destfault->setPreferredColor( colorbutcolor_, true );
+    destfault->setPreferredColor( auxcolorinput_->color(), true );
     displayUpdate();
 
     bool saved = false;

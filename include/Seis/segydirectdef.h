@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "segyfiledata.h"
 #include "bufstringset.h"
 #include "executor.h"
@@ -31,7 +30,7 @@ class FileDataSet;
 class PosKeyList;
 
 
-mExpClass(Seis) DirectDef
+mClass DirectDef
 {
 public:
 
@@ -99,7 +98,7 @@ protected:
 
 
 /*!Scans a file and creates an index file that can be read by OD. */
-mExpClass(Seis) FileIndexer : public Executor
+mClass FileIndexer : public Executor
 {
 public:
     			FileIndexer(const MultiID& mid,bool isvol,
@@ -132,4 +131,3 @@ protected:
 }; //Namespace
 
 #endif
-

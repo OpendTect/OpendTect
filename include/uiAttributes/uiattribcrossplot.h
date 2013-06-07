@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiattributesmod.h"
 #include "bufstringset.h"
 #include "ioobj.h"
 
@@ -29,7 +28,7 @@ class uiListBox;
 namespace Attrib { class DescSet; class SelInfo; }
 
 
-mExpClass(uiAttributes) uiAttribCrossPlot : public uiDialog
+mClass uiAttribCrossPlot : public uiDialog
 {
 public:
 					uiAttribCrossPlot(uiParent*,
@@ -71,4 +70,3 @@ protected:
 
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "executor.h"
 class HorSampling;
@@ -25,11 +24,9 @@ namespace EM
 
 class Horizon3D;
 
-/*!
-\brief Writes auxdata to file.
-*/
+/*!\brief  Writes auxdata to file */
 
-mExpClass(EarthModel) dgbSurfDataWriter : public Executor
+mClass dgbSurfDataWriter : public Executor
 {
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
@@ -89,11 +86,9 @@ protected:
 };
 
 
-/*!
-\brief Reads auxdata from file.
-*/
+/*!\brief Reads auxdata from file */
 
-mExpClass(EarthModel) dgbSurfDataReader : public Executor
+mClass dgbSurfDataReader : public Executor
 {
 public:
     				dgbSurfDataReader(const char* filename);
@@ -142,4 +137,3 @@ protected:
 };
 
 #endif
-

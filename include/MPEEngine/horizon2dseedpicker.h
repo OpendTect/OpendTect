@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emseedpicker.h"
 #include "surv2dgeom.h"
 
@@ -22,11 +21,7 @@ namespace Attrib { class Data2DHolder; class SelSpec; }
 namespace MPE
 {
 
-/*!
-\brief EMSeedPicker to pick seeds in EM::Horizon2D.
-*/
-
-mExpClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
+mClass Horizon2DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
@@ -124,4 +119,3 @@ protected:
 };
 
 #endif
-

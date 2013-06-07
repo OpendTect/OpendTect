@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -25,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
 #include "visseis2ddisplay.h"
@@ -158,8 +158,8 @@ uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
 }
 
 
-int uiOD2DLineSetTreeItem::uiTreeViewItemType() const
-{ return uiTreeViewItem::CheckBox; }
+int uiOD2DLineSetTreeItem::uiListViewItemType() const
+{ return uiListViewItem::CheckBox; }
 
 
 void uiOD2DLineSetTreeItem::checkCB( CallBacker* )
@@ -293,7 +293,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
 	else
 	    mResetMenuItem( &removeattritm_ )
 
-	if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
+	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
 
 	if ( displayedattribs.size() )
 	{
@@ -388,7 +388,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	selcomps.erase();
 	menu->setIsHandled( true );
-	const int itmidx = storeditm_.itemIndex( mnuid );
+	const char itmidx = storeditm_.itemIndex( mnuid );
 	const char* attribnm = storeditm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -400,7 +400,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	selcomps.erase();
 	menu->setIsHandled( true );
-	const int itmidx = steeringitm_.itemIndex( mnuid );
+	const char itmidx = steeringitm_.itemIndex( mnuid );
 	const char* attribnm = steeringitm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -496,15 +496,15 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zDomain().userFactor()), 
-			      mNINT32(curzrg_.stop*SI().zDomain().userFactor()) );
+	Interval<int> intzrg( mNINT32(curzrg_.start*SI().zFactor()), 
+			      mNINT32(curzrg_.stop*SI().zFactor()) );
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
 	if ( !dlg.go() ) return;
 
 	intzrg = dlg.getFld()->getIInterval();
-	curzrg_.start = float(intzrg.start) / SI().zDomain().userFactor();
-	curzrg_.stop = float(intzrg.stop) / SI().zDomain().userFactor();
+	curzrg_.start = float(intzrg.start) / SI().zFactor();
+	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
 	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
     }
     else if ( mnuid == expanditm_.id )
@@ -590,7 +590,7 @@ uiOD2DLineSetSubItem::uiOD2DLineSetSubItem( const char* nm, int displayid )
     name_ = nm;
     displayid_ = displayid;
 
-    positionitm_.iconfnm = "orientation64";
+    positionitm_.iconfnm = "orientation64.png";
     linenmitm_.checkable = true;
 }
 
@@ -690,15 +690,16 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 }
 
 
-void uiOD2DLineSetSubItem::createMenu( MenuHandler* menu, bool istb )
+void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet(MenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
+    if ( !menu || menu->menuID() != displayID() || !s2d ) return;
 
-    mAddMenuOrTBItem( istb, 0, menu, &linenmitm_, true, s2d->lineNameShown() );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false );
+    mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
+    mAddMenuItem( &displaymnuitem_, &positionitm_, true, false );
 }
 
 
@@ -931,7 +932,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
-    if ( !menu || !s2d || istb ) return;
+    if ( !menu || !s2d ) return;
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();

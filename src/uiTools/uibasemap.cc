@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uibasemap.h"
 #include "uigraphicsitemimpl.h"
@@ -208,8 +208,10 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 	pErrMsg( "Base map object not found" );
     }
 
+    const uiBaseMapObject* uiobj = objects_[index];
+
     view_.scene().removeItem( objects_[index]->itemGrp() );
-    delete objects_.removeSingle( index );
+    delete objects_.remove( index );
 }
 
 

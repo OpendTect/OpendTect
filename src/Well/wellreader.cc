@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "wellreader.h"
 
@@ -45,7 +45,6 @@ const char* Well::IO::sExtD2T()		{ return ".wlt"; }
 const char* Well::IO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::IO::sExtDispProps()	{ return ".disp"; }
 const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
-
 
 Well::IO::IO( const char* f, bool fr )
     	: basenm(f)
@@ -185,6 +184,8 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	{ ErrMsg("Bad file header for main well file"); return false; }
 
     ascistream astrm( strm, false );
+    bool replvelisset = false;
+    bool groundelevisset = false;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(Well::Info::sKeyuwid()) )
@@ -197,19 +198,28 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	    wd.info().county = astrm.value();
 	else if ( astrm.hasKeyword(Well::Info::sKeycoord()) )
 	    wd.info().surfacecoord.use( astrm.value() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyOldelev()) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyelev()) )
 	{
 	    const float readsurfelev = astrm.getFValue(); //needed for old files
-	    wd.info().srdelev = mIsUdf(readsurfelev ) ? 0  :
-	       			    -1.f * readsurfelev;
+	    wd.info().surfaceelev = mIsUdf(readsurfelev ) ? 0  : readsurfelev;
 	}
-	else if ( astrm.hasKeyword(Well::Info::sKeySRD()) )
-	    wd.info().srdelev = astrm.getFValue();
-	else if ( astrm.hasKeyword(Well::Info::sKeyreplvel()) )
-	    wd.info().replvel = astrm.getFValue();
-	else if ( astrm.hasKeyword(Well::Info::sKeygroundelev()) )
-	    wd.info().groundelev = astrm.getFValue();
+	else if ( astrm.hasKeyword(wd.info().getsKeyreplvel()) )
+	{
+	    wd.info().setReplVel(astrm.getFValue());
+	    replvelisset = true;
+	}
+	else if ( astrm.hasKeyword(wd.info().getsKeygroundelev()) )
+	{
+	    wd.info().setGroundElev(astrm.getFValue());
+	    groundelevisset = true;
+	}
     }
+
+    if ( !replvelisset )
+	wd.info().setReplVel( mUdf(float) );
+
+    if ( !groundelevisset )
+	wd.info().setGroundElev( mUdf(float) );
 
     if ( !getTrack(strm) )
 	return false;
@@ -237,6 +247,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 
     // get track
     Coord3 c3, prevc, c0;
+    float z;
     float dah = 0;
     while ( strm )
     {
@@ -402,7 +413,7 @@ Interval<float> Well::Reader::getAllLogsDahRange() const
 bool Well::Reader::getLogs() const
 {
     bool rv = false;
-    wd.logs().setEmpty();
+    wd.logs().empty();
     for ( int idx=1;  ; idx++ )
     {
 	StreamData sd = mkSD( sExtLog(), idx );
@@ -434,7 +445,7 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
     bintype = 0;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
+	if ( astrm.hasKeyword(sKey::Name) )
 	    newlog->setName( astrm.value() );
 	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl()) )
 	    newlog->setUnitMeasLabel( astrm.value() );
@@ -476,19 +487,7 @@ bool Well::Reader::addLog( std::istream& strm ) const
 	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
     }
 
-    if ( !wd.track().dahRange().width() )
-	getTrack();
-
-    const float stopz = wd.track().dahRange().stop;
-    for ( int idx=newlog->size()-1; idx>=0; idx-- )
-    {
-	if ( newlog->dahArr()[idx] > stopz )
-	    newlog->valArr()[idx] = mUdf(float);
-    }
-
-    newlog->removeTopBottomUdfs();
     wd.logs().add( newlog );
-
     return true;
 }
 
@@ -540,13 +539,12 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
-    const float stopz = wd.track().dahRange().stop;
-    wd.markers().erase();
+    deepErase( wd.markers() );
     BufferString bs;
     for ( int idx=1;  ; idx++ )
     {
 	BufferString basekey; basekey += idx;
-	BufferString key = IOPar::compKey( basekey, sKey::Name() );
+	BufferString key = IOPar::compKey( basekey, sKey::Name );
 	if ( !iopar.get(key,bs) ) break;
 
 	Well::Marker* wm = new Well::Marker( bs );
@@ -557,11 +555,11 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	float val = toFloat( bs.buf() );
 	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val ); 
-	key = IOPar::compKey( basekey, sKey::StratRef() );
+	key = IOPar::compKey( basekey, sKey::StratRef );
 	int lvlid = -1; iopar.get( key, lvlid );
 	wm->setLevelID( lvlid );
 
-	key = IOPar::compKey( basekey, sKey::Color() );
+	key = IOPar::compKey( basekey, sKey::Color );
 	if ( iopar.get(key,bs) )
 	{
 	    Color col( wm->color() );
@@ -569,10 +567,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	    wm->setColor( col );
 	}
 
-	if ( wm->dah() > stopz )
-	    delete wm;
-	else
-	    wd.markers().insertNew( wm );
+	wd.markers() += wm;
     }
 
     return wd.markers().size();
@@ -606,9 +601,9 @@ bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
     Well::D2TModel* d2t = new Well::D2TModel;
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(sKey::Name()) )
+	if ( astrm.hasKeyword(sKey::Name) )
 	    d2t->setName( astrm.value() );
-	else if ( astrm.hasKeyword(sKey::Desc()) )
+	else if ( astrm.hasKeyword(sKey::Desc) )
 	    d2t->desc = astrm.value();
 	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
 	    d2t->datasource = astrm.value();

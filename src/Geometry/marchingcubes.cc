@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "marchingcubes.h"
 
@@ -218,7 +218,7 @@ bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
 	if ( axispos<0 ) axispos=0; \
 	else if ( axispos>cMaxAxisPos ) \
 	    axispos = cMaxAxisPos; \
-	axispos_[axis] = mCast( unsigned char, axispos ); \
+	axispos_[axis] = axispos; \
     } \
     else \
 	axispos_[axis] = cUdfAxisPos; \
@@ -346,11 +346,11 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
     else
     {
 	int res;
-	strm >> res; model_ = mCast( unsigned char, res );
-	strm >> res; submodel_ = mCast( unsigned char, res );
-	strm >> res; axispos_[mX] = mCast( unsigned char, res );
-	strm >> res; axispos_[mY] = mCast( unsigned char, res );
-	strm >> res; axispos_[mZ] = mCast( unsigned char, res );
+	strm >> res; model_ = res;
+	strm >> res; submodel_ = res;
+	strm >> res; axispos_[mX] = res;
+	strm >> res; axispos_[mY] = res;
+	strm >> res; axispos_[mZ] = res;
     }
 
     return strm;
@@ -386,7 +386,7 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 	    			      *this );
-    const bool res = TaskRunner::execute( tr, converter );
+    const bool res = tr ? tr->execute( converter ) : converter.execute();
 
     if ( wasempty )
 	allchanged_ = true;
@@ -479,7 +479,7 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
     ArrayNDIter iterator( array_.info() );
     iterator.setPos( arraypos );
 
-    const int nriters = mCast( int, stop-start+1 );
+    const int nriters = stop-start+1;
     for ( int idx=0; idx<nriters && shouldContinue();
 	  idx++, iterator.next(), addToNrDone(1) )
     {
@@ -540,9 +540,9 @@ public:
 protected:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
-	const int nrtimes = mCast( int, stop-start+1 );
+	const int nrtimes = stop-start+1;
 	int surfaceidxs[3];
-	if ( !mc2i_.surface_.models_.getIndex( mCast(int,start), surfaceidxs ) )
+	if ( !mc2i_.surface_.models_.getIndex( start, surfaceidxs ) )
 	    return false;
 
 	if ( !mc2i_.surface_.models_.isValidPos( surfaceidxs ) )
@@ -733,7 +733,7 @@ bool MarchingCubes2Implicit::doWork( od_int64 start, od_int64 stop,
     {
 	//Get seeds from newfloodfillers_ and polulate activefloodfillers_
 	TypeSet<od_int64> newfloodfillers;
-	for ( int idx=mCast(int,start); idx<=stop; idx++ )
+	for ( int idx=start; idx<=stop; idx++ )
 	{
 	    if ( newfloodfillers_[idx] )
 	    {

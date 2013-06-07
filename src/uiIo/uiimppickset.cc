@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -21,18 +21,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
-#include "file.h"
-#include "filepath.h"
-#include "ioman.h"
 #include "ioobj.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "ioman.h"
 #include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "file.h"
+#include "pickset.h"
+#include "picksettr.h"
 
 #include <math.h>
 
@@ -63,8 +62,6 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
 					    .forread(import_) );
-    if ( import_ )
-	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread = !import_;
@@ -119,14 +116,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 }
 
 
-void uiImpExpPickSet::inputChgd( CallBacker* )
-{
-    FilePath fnmfp( filefld_->fileName() );
-    objfld_->setInputText( fnmfp.baseName() );
-}
-
-
-void uiImpExpPickSet::formatSel( CallBacker* )
+void uiImpExpPickSet::formatSel( CallBacker* cb )
 {
     const int zchoice = zfld_->box()->currentItem(); 
     const bool iszreq = zchoice == 0;
@@ -172,12 +162,12 @@ bool uiImpExpPickSet::doImport()
     if ( ispolygon )
     {
 	ps.disp_.connect_ = Pick::Set::Disp::Close;
-	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
+	ioobj->pars().set( sKey::Type, sKey::Polygon );
     }
     else
     {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
-	ioobj->pars().set( sKey::Type(), PickSetTranslatorGroup::sKeyPickSet() );
+	ioobj->pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
     }
 
     IOM().commitChanges( *ioobj );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "mathattrib.h"
 
@@ -84,8 +84,6 @@ void Math::updateDesc( Desc& desc )
 	    }
 	    case MathExpression::Constant :
 		nrconsts++;
-		break;
-	    default:
 		break;
 	}
     }
@@ -287,12 +285,12 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	
 	for ( int specidx=0; specidx<nrspecvars; specidx++ )
 	{
-	    float val = mUdf(float);
+	    float val;
 	    switch ( specstable_[specidx].specidx_ )
 	    {
 		case 0 :	val = refstep_; break;
-		case 1 :	val = mCast( float, currentbid_.inl ); break;
-		case 2 :	val = mCast( float, currentbid_.crl ); break;
+		case 1 :	val = currentbid_.inl; break;
+		case 2 :	val = currentbid_.crl; break;
 	    }
 	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
 	}

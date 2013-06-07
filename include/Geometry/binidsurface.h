@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "parametricsurface.h"
 
 class BinIDValue;
@@ -25,7 +24,7 @@ namespace Geometry
 {
 
 
-mExpClass(Geometry) BinIDSurface : public ParametricSurface
+mClass BinIDSurface : public ParametricSurface
 {
 public:
     			BinIDSurface(const BinID& step);
@@ -51,8 +50,6 @@ public:
     bool		removeRow(int,int);
     bool		removeCol(int,int);
 
-    StepInterval<int>	rowRange() const;
-    StepInterval<int>	rowRange(int col) const;
     StepInterval<int>	colRange() const;
     StepInterval<int>	colRange(int row) const;
 
@@ -76,4 +73,3 @@ protected:
 };
 
 #endif
-

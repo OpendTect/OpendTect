@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiexpfault.h"
 
@@ -151,7 +151,7 @@ bool uiExportFault::writeAscii()
     if ( !loader ) mErrRet("Cannot read fault")
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
+    if ( !taskrunner.execute(*loader) ) return false;
 
     const BufferString fname = outfld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
@@ -163,7 +163,7 @@ bool uiExportFault::writeAscii()
 
     BufferString str;
     const float zfac = !zbox_->isChecked() ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
+		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );

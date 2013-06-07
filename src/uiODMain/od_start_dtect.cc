@@ -7,16 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prog.h"
 
+#include "envvars.h"
 #include "odinst.h"
 #include "strmprov.h"
 
 #ifdef __win__
 # include <direct.h>
 #endif
+
+static BufferString getInstDir()
+{
+    BufferString dirnm( _getcwd(NULL,0) );
+    const int len = dirnm.size() - 10;
+    if ( len > 0 )
+	dirnm[len] = '\0';
+    return dirnm;
+}
+
 
 static BufferString getCmdLine( int argc, char** argv )
 {
@@ -29,7 +40,7 @@ static BufferString getCmdLine( int argc, char** argv )
 
 static bool ExecODMain( int argc, char** argv )
 {
-    BufferString cmd( "od_main " );
+    BufferString cmd( "od_main" );
     cmd += getCmdLine( argc, argv );
     return ExecOSCmd( cmd, true, true );
 }
@@ -37,7 +48,6 @@ static bool ExecODMain( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
     ODInst::runInstMgrForUpdt();
     ExecODMain( argc, argv );
 }

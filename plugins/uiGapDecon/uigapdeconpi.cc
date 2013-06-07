@@ -4,7 +4,7 @@
  * DATE     : Aug 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id";
+static const char* rcsID = "$Id";
 
 #include "uigapdeconattrib.h"
 #include "odplugin.h"

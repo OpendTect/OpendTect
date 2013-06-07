@@ -12,19 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "ranges.h"
 #include "samplingdata.h"
 
 #include <math.h>
 
 
-/*!
-\brief Helps making nice axes for graphs.
-*/
+/*!\brief helps making nice axes for graphs */
 
 template <class T>
-mClass(Algo) AxisLayout
+mClass AxisLayout
 {
 public:
 			// Have layout calculated
@@ -82,12 +79,12 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     else if ( scwdth < 50 )     scstep = 10;
     else                        scstep = 20;
 
-    sd_.step = (T) ( scstep / stepfac );
+    sd_.step = scstep / stepfac;
     if ( wdth > 1e-30 )
     {
-	const T fidx = (T) ( rev
+	const T fidx = rev
 	    ? ceil( intv.stop / sd_.step + 1e-6 )
-	    : floor( intv.start / sd_.step + 1e-6 ) );
+	    : floor( intv.start / sd_.step + 1e-6 );
 	sd_.start = mNINT32( fidx ) * sd_.step;
     }
     if ( rev ) sd_.step = -sd_.step;
@@ -111,7 +108,7 @@ T AxisLayout<T>::findEnd( T datastop ) const
     if ( worksd.start + 10000 * worksd.step < datastop )
 	return datastop;
 
-    T pos = (T) ( ceil( (datastop-worksd.start) / worksd.step - 1e-6 ) );
+    T pos = ceil( (datastop-worksd.start) / worksd.step - 1e-6 );
     if ( pos < .5 ) pos = 1;
     T wdth = mNINT32(pos) * worksd.step;
 
@@ -120,4 +117,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
 
 
 #endif
-

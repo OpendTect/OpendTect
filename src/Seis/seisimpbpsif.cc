@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -96,7 +96,7 @@ bool SeisImpBPSIF::readFileHeader()
 {
     char buf[10];
     cursd_.istrm->getline( buf, 10 ); removeTrailingBlanks(buf);
-    if ( FixedString(buf)!="#BPSIF#" )
+    if ( strcmp(buf,"#BPSIF#") )
 	mErrRet(" is not a BPSIF file")
     if ( cursd_.istrm->peek() == '\n' ) cursd_.istrm->ignore( 1 );
 
@@ -128,8 +128,8 @@ bool SeisImpBPSIF::readFileHeader()
 	    *attrstr++ = '\0';
 	    char* subnrstr = ln.buf() + 9;
 	    removeTrailingBlanks( subnrstr );
-	    if ( FixedString(subnrstr)=="0" || FixedString(subnrstr)=="1"
-	      || FixedString(subnrstr)=="2" )
+	    if ( !strcmp(subnrstr,"0") || !strcmp(subnrstr,"1")
+	      || !strcmp(subnrstr,"2") )
 		continue; // coordinates
 
 	    addAttr( *nrstr == '1' ? shotattrs_ : rcvattrs_, attrstr );

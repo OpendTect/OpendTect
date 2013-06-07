@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "manobjectset.h"
 #include "typeset.h"
 #include "cubesampling.h"
@@ -40,12 +39,10 @@ numbers.
 namespace PosInfo
 {
 
-/*!
-\brief Position info for a line - in a 3D cube, that would be an inline.
-Stored as (crossline-)number segments.
-*/
+/*!\brief Position info for a line - in a 3D cube, that would be an inline.
+	  Stored as (crossline-)number segments. */
 
-mExpClass(Basic) LineData
+mClass LineData
 {
 public:
     typedef StepInterval<int>	Segment;
@@ -67,11 +64,9 @@ public:
 };
 
 
-/*!
-\brief Position in a CubeData.
-*/
+/*!\brief Position in a CubeData */
 
-mExpClass(Basic) CubeDataPos
+mClass CubeDataPos
 {
 public:
     		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
@@ -88,20 +83,22 @@ public:
 };
 
 
-/*!
-\brief Position info for an entire 3D cube.
-The LineData's are not sorted.
-*/
+/*!\brief Position info for an entire 3D cube.
 
-mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
+  The LineData's are not sorted.
+ */
+
+mClass CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
-    			CubeData()		{}
+    			CubeData()
+			    : ManagedObjectSet<LineData>(false)	{}
     			CubeData( BinID start, BinID stop, BinID step )
+			    : ManagedObjectSet<LineData>(false)
 						{ generate(start,stop,step); }
     			CubeData( const CubeData& cd )
-						{ *this = cd; }
+			    : ManagedObjectSet<LineData>(false)	{ *this = cd; }
     CubeData&		operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
@@ -144,12 +141,12 @@ protected:
 };
 
 
-/*!
-\brief Position info for an entire 3D cube.
-The LineData's are sorted.
-*/
+/*!\brief Position info for an entire 3D cube.
 
-mExpClass(Basic) SortedCubeData : public CubeData
+  The LineData's are sorted.
+ */
+
+mClass SortedCubeData : public CubeData
 {
 public:
     			SortedCubeData()				{}
@@ -157,7 +154,6 @@ public:
 				  const BinID& step )
 			    : CubeData(start,stop,step)		{}
     			SortedCubeData( const SortedCubeData& cd )
-			    : CubeData( cd )
 								{ *this = cd; }
     			SortedCubeData( const CubeData& cd )	{ *this = cd; }
     SortedCubeData&	operator =( const SortedCubeData& scd )
@@ -177,11 +173,9 @@ public:
 };
 
 
-/*!
-\brief Fills CubeData object. Requires inline- and crossline-sorting.
-*/
+/*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
 
-mExpClass(Basic) CubeDataFiller
+mClass CubeDataFiller
 {
 public:
     			CubeDataFiller(CubeData&);
@@ -204,11 +198,7 @@ protected:
 };
 
 
-/*!
-\brief Iterates through CubeData. 
-*/
-
-mExpClass(Basic) CubeDataIterator
+mClass CubeDataIterator
 {
 public:
 
@@ -232,4 +222,3 @@ public:
 } // namespace PosInfo
 
 #endif
-

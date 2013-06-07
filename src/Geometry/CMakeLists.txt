@@ -42,6 +42,6 @@ SET(OD_MODULE_SOURCES
 		survgeometry.cc
 		tableposprovider.cc
 )
-
-OD_ADD_SOURCE_FILES( marchingcubeslist.cc )
 OD_INIT_MODULE()
+
+

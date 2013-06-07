@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdesc.h"
 
@@ -21,15 +21,15 @@ namespace Attrib
 {
 
 DescSetup::DescSetup()
-    : is2d_(false)
-    , ps_(false)
-    , singletraceonly_(true)
-    , usingtrcpos_(true)
-    , depthonly_(!SI().zIsTime())
-    , timeonly_(SI().zIsTime())
-    , hidden_(false)
-    , steering_(false)
-    , stored_(false)
+	: is2d_(false)
+	      , ps_(false)
+	      , singletraceonly_(true)
+	      , usingtrcpos_(true)
+	      , depthonly_(!SI().zIsTime())
+	      , timeonly_(SI().zIsTime())
+	      , hidden_(false)
+	      , steering_(false)
+	      , stored_(false)
 {
 }
 
@@ -41,13 +41,13 @@ bool InputSpec::operator==(const InputSpec& b) const
 
     for ( int idx=0; idx<forbiddenDts_.size(); idx++ )
     {
-	if ( !b.forbiddenDts_.isPresent(forbiddenDts_[idx]) )
+	if ( b.forbiddenDts_.indexOf(forbiddenDts_[idx])==-1 )
 	    return false;
     }
 
     for ( int idx=0; idx<b.forbiddenDts_.size(); idx++ )
     {
-	if ( !forbiddenDts_.isPresent(b.forbiddenDts_[idx]) )
+	if ( forbiddenDts_.indexOf(b.forbiddenDts_[idx])==-1 )
 	    return false;
     }
 
@@ -57,7 +57,6 @@ bool InputSpec::operator==(const InputSpec& b) const
 
 const char* Desc::sKeyInlDipComp() { return "Inline dip"; }
 const char* Desc::sKeyCrlDipComp() { return "Crossline dip"; }
-const char* Desc::sKeyLineDipComp() { return "Line dip"; }
 
 
 Desc::Desc( const char* attribname, DescStatusUpdater updater,
@@ -120,7 +119,7 @@ Desc::~Desc()
 }
 
 
-const BufferString& Desc::attribName() const		{ return attribname_; }
+const char* Desc::attribName() const		{ return attribname_; }
 
 void Desc::setDescSet( DescSet* nds )
 {
@@ -253,58 +252,12 @@ void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 	if ( !inputs_[idx] )
 	    continue;
 
-	if ( deps.isPresent(inputs_[idx]->id()) )
+	if ( deps.indexOf(inputs_[idx]->id())!=-1 )
 	    continue;
 
 	deps += inputs_[idx]->id();
 	inputs_[idx]->getDependencies(deps);
     }
-}
-
-
-bool Desc::getParentID( DescID did, DescID& pid, int& dididx ) const
-{
-    TypeSet<DescID> tmp;
-    getDependencies( tmp );
-    if ( !tmp.isPresent(did) )
-	return false; 
-
-    for ( int idx=nrInputs()-1; idx>=0; idx-- )
-    {
-	if ( inputs_[idx] && inputs_[idx]->id()==did )
-	{
-	    pid = id();
-	    dididx = idx;
-	    return true;
-	}
-    }
-
-    for ( int idx=nrInputs()-1; idx>=0; idx-- )
-    {
-	if ( !inputs_[idx] )
-	    continue;
-
-	if ( inputs_[idx]->getParentID(did,pid,dididx) )
-	    return true;
-    }
-
-    return true;
-}
-
-
-void Desc::getAncestorIDs( DescID cid, TypeSet<Attrib::DescID>& aids,
-       TypeSet<int>& pindices ) const
-{
-    int cidx;
-    DescID pid;
-    if ( !getParentID(cid,pid,cidx) )
-	return;
-
-    aids += pid;
-    pindices += cidx;
-
-    if ( pid!=id() )
-	getAncestorIDs( pid, aids, pindices );
 }
 
 
@@ -333,7 +286,7 @@ bool Desc::setInput( int inp, const Desc* nd )
 
 bool Desc::setInput_( int input, Desc* nd )
 {
-    if ( nd && (inputspecs_[input].forbiddenDts_.isPresent(nd->dataType()) ||
+    if ( nd && (inputspecs_[input].forbiddenDts_.indexOf(nd->dataType())!=-1 ||
 		inputspecs_[input].issteering_!=nd->isSteering()) )
 	return false;
 
@@ -392,7 +345,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	    TypeSet<Attrib::DescID> deps( 1, inputs_[idx]->id() );
 	    inputs_[idx]->getDependencies( deps );
 
-	    if ( deps.isPresent( id() ) )
+	    if ( deps.indexOf( id() )!=-1 )
 	    {
 		BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
 		msg += "' is dependent on itself";
@@ -540,8 +493,8 @@ void Desc::addInput( const InputSpec& is )
 
 bool Desc::removeInput( int idx )
 {
-    inputspecs_.removeSingle(idx);
-    inputs_.removeSingle(idx);
+    inputspecs_.remove(idx);
+    inputs_.remove(idx);
     return true;
 }
 
@@ -676,7 +629,7 @@ Param* Desc::findParam( const char* key )
 {
     for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( params_[idx]->getKey()==key )
+	if ( !strcmp(params_[idx]->getKey(),key) )
 	    return params_[idx];
     }
 
@@ -686,7 +639,7 @@ Param* Desc::findParam( const char* key )
 
 bool Desc::isStored() const
 {
-    return attribName()==StorageProvider::attribName();
+    return !strcmp( attribName(), StorageProvider::attribName() );
 }
 
 
@@ -737,7 +690,8 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	    return false;
 
 	const bool is2ddefstr = 
-	    parstr == lk.lineName() && lk.attrName()==LineKey::sKeyDefAttrib();
+	    parstr == lk.lineName() &&
+	    	      !strcmp(lk.attrName().buf(),LineKey::sKeyDefAttrib());
 	if ( parstr == str || is2ddefstr )
 	    return true;
     }
@@ -751,11 +705,13 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 {
     const int len = strlen(defstr);
     int spacepos = 0;
+    int equalpos = 0;
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( defstr[idx] != '=')
 	    continue;
 
+	equalpos = idx;
 	spacepos = idx-1;
 	while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
 	if ( spacepos < 0 ) continue;

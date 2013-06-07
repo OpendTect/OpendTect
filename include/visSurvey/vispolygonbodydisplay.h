@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -42,11 +41,12 @@ namespace visSurvey
 {
 class MPEEditor;
 
-/*!
-\brief EM::PolygonBody display.
+/*!\brief 
+
+
 */
 
-mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
+mClass PolygonBodyDisplay : public visBase::VisualObjectImpl,
 			    public SurveyObject
 {
 public:
@@ -64,7 +64,6 @@ public:
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
-    void			getLineWidthBounds(int& min,int& max);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -157,10 +156,12 @@ protected:
     bool				displaypolygons_;
     visBase::DrawStyle*			drawstyle_;
     visBase::TriangleStripSet*		intsurf_;
+
+public:
+    void				getLineWidthBounds(int& min,int& max);
 };
 
 };
 
 
 #endif
-

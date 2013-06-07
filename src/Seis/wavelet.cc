@@ -5,26 +5,26 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "wavelet.h"
-#include "wvltfact.h"
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "fourier.h"
 #include "hilberttransform.h"
-#include "ascstream.h"
-#include "errh.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "keystrs.h"
-#include "ptrman.h"
 #include "seisinfo.h"
+#include "wvltfact.h"
+#include "ascstream.h"
 #include "seistrc.h"
-#include "separstr.h"
 #include "statruncalc.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "keystrs.h"
+#include "errh.h"
+#include "ptrman.h"
+#include "separstr.h"
 #include "tabledef.h"
 
 #include <math.h>
@@ -32,57 +32,57 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyScaled = "Scaled";
 
 
-Wavelet::Wavelet( const char* nm )
+Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	: NamedObject(nm)
-	, cidx_(0)
-	, dpos_(SeisTrcInfo::defaultSampleInterval(true))
-	, sz_(0)
-	, samps_(0)
+	, iw(idxfsamp)
+	, dpos(mIsUdf(sr)?SeisTrcInfo::defaultSampleInterval(true):sr)
+	, sz(0)
+	, samps(0)
 {
 }
 
 
 Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
-    	: dpos_(sr)
-    	, sz_(0)
-	, samps_(0)
+    	: dpos(sr)
+    	, sz(0)
+	, samps(0)
 {
-    if ( mIsUdf(dpos_) )
-	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+    if ( mIsUdf(dpos) )
+	dpos = SeisTrcInfo::defaultSampleInterval(true);
     if ( mIsUdf(scale) )
 	scale = 1;
     if ( mIsUdf(fpeak) || fpeak <= 0 )
 	fpeak = 25;
-    cidx_ = (int)( ( 1 + 1. / (fpeak*dpos_) ) );
+    iw = (int)( -( 1 + 1. / (fpeak*dpos) ) );
 
     BufferString nm( isricker ? "Ricker " : "Sinc " );
     nm += " (Central freq="; nm += fpeak; nm += ")";
     setName( nm );
 
-    int lw = 1 + 2*cidx_;
+    int lw = 1 - 2*iw;
     reSize( lw );
-    float pos = -cidx_ * dpos_;
+    float pos = iw * dpos;
     for ( int idx=0; idx<lw; idx++ )
     {
-	double x = M_PI * fpeak * pos;
-	double x2 = x * x;
-	if ( idx == cidx_ )
-	    samps_[idx] = scale;
+	float x = M_PI * fpeak * pos;
+	float x2 = x * x;
+	if ( idx == -iw )
+	    samps[idx] = scale;
 	else if ( isricker )
-	    samps_[idx] = (float) (scale * exp(-x2) * (1-2*x2));
+	    samps[idx] = scale * exp(-x2) * (1-2*x2);
 	else
 	{
-	    samps_[idx] = (float) (scale * exp(-x2) * sin(x)/x);
-	    if ( samps_[idx] < 0 ) samps_[idx] = 0;
+	    samps[idx] = scale * exp(-x2) * sin(x)/x;
+	    if ( samps[idx] < 0 ) samps[idx] = 0;
 	}
-	pos += dpos_;
+	pos += dpos;
     }
 }
 
 
 Wavelet::Wavelet( const Wavelet& wv )
-	: sz_(0)
-	, samps_(0)
+	: sz(0)
+	, samps(0)
 {
     *this = wv;
 }
@@ -90,24 +90,24 @@ Wavelet::Wavelet( const Wavelet& wv )
 
 Wavelet& Wavelet::operator =( const Wavelet& wv )
 {
-    cidx_ = wv.cidx_;
-    dpos_ = wv.dpos_;
+    iw = wv.iw;
+    dpos = wv.dpos;
     reSize( wv.size() );
-    if ( sz_ ) memcpy( samps_, wv.samps_, sz_*sizeof(float) );
+    if ( sz ) memcpy( samps, wv.samps, sz*sizeof(float) );
     return *this;
 }
 
 
 Wavelet::~Wavelet()
 {
-    delete [] samps_;
+    delete [] samps;
 }
 
 
 Wavelet* Wavelet::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    PtrMan<WaveletTranslator> tr = (WaveletTranslator*)ioobj->createTranslator();
+    WaveletTranslator* tr = (WaveletTranslator*)ioobj->getTranslator();
     if ( !tr ) return 0;
     Wavelet* newwv = 0;
 
@@ -127,7 +127,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 	}
     }
 
-    delete connptr;
+    delete connptr; delete tr;
     return newwv;
 }
 
@@ -135,8 +135,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 bool Wavelet::put( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    PtrMan<WaveletTranslator> tr =
-        (WaveletTranslator*)ioobj->createTranslator();
+    WaveletTranslator* tr = (WaveletTranslator*)ioobj->getTranslator();
     if ( !tr ) return false;
     bool retval = false;
 
@@ -151,21 +150,21 @@ bool Wavelet::put( const IOObj* ioobj ) const
     else
 	ErrMsg( "Cannot open Wavelet file for write" );
 
-    delete connptr;
+    delete connptr; delete tr;
     return retval;
 }
 
 
 void Wavelet::reSize( int newsz )
 {
-    if ( newsz < 1 ) { delete [] samps_; samps_ = 0; sz_ = 0; return; }
+    if ( newsz < 1 ) { delete [] samps; samps = 0; sz = 0; return; }
 
     float* newsamps = new float [newsz];
     if ( !newsamps ) return;
 
-    delete [] samps_;
-    samps_ = newsamps;
-    sz_ = newsz;
+    delete [] samps;
+    samps = newsamps;
+    sz = newsz;
 }
 
 
@@ -184,8 +183,11 @@ WaveletFFTData( int sz, float sr )
     , freqstep_(2 * nyqfreq_ / sz_)
 {
     const float_complex cnullval = float_complex( 0, 0 );
-    ctwtwvlt_.setAll( cnullval );
-    cfreqwvlt_.setAll( cnullval );
+    for ( int idx=0; idx<sz_; idx++ )
+    {
+	ctwtwvlt_.set( idx, cnullval );
+	cfreqwvlt_.set( idx, cnullval );
+    }
 }
 
 ~WaveletFFTData()
@@ -229,12 +231,12 @@ bool Wavelet::reSample( float newsr )
 {
     const int outsz = mNINT32( samplePositions().width() / newsr ) + 1;
 
-    WaveletFFTData inp(sz_,dpos_), out(outsz,newsr);
+    WaveletFFTData inp(sz,dpos), out(outsz,newsr);
 
-    const int fwdfirstidx = inp.halfsz_ - cidx_;
-    for ( int idx=0; idx<sz_; idx++ )
+    const int fwdfirstidx = inp.halfsz_ + iw;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	const float_complex val( samps_[idx], 0 );
+	const float_complex val( samps[idx], 0 );
 	inp.ctwtwvlt_.set( idx + fwdfirstidx, val );
     }
     if ( !inp.doFFT(true) )
@@ -242,7 +244,7 @@ bool Wavelet::reSample( float newsr )
 
     // Interpolate Frequency Wavelet
     PointBasedMathFunction spectrumreal( PointBasedMathFunction::Poly,
-					 PointBasedMathFunction::None );
+	    				 PointBasedMathFunction::None );
     PointBasedMathFunction spectrumimag( PointBasedMathFunction::Poly,
 	    				 PointBasedMathFunction::None );
     for ( int idx=0; idx<inp.sz_; idx++ )
@@ -273,12 +275,12 @@ bool Wavelet::reSample( float newsr )
 
     reSize( outsz );
     const float starttwtinp = samplePositions().start;
-    dpos_ = newsr;
-    cidx_ = mNINT32( -starttwtinp / dpos_ );
-    const int revfirstidx = out.halfsz_ - cidx_;
+    dpos = newsr;
+    iw = mNINT32( starttwtinp / dpos );
+    const int revfirstidx = out.halfsz_ + iw;
     const float normfact = ((float)out.sz_) / inp.sz_;
-    for ( int idx=0; idx<sz_; idx++ )
-	samps_[idx] = normfact * out.ctwtwvlt_.get( idx + revfirstidx ).real();
+    for ( int idx=0; idx<sz; idx++ )
+	samps[idx] = normfact * out.ctwtwvlt_.get( idx + revfirstidx ).real();
 
     return true;
 }
@@ -288,72 +290,49 @@ bool Wavelet::reSampleTime( float newsr )
 {
     if ( newsr < 1e-6 )
 	return false;
-    float fnewsz = (sz_-1) * dpos_ / newsr + 1.f - 1e-5f;
+    float fnewsz = (sz-1) * dpos / newsr + 1 - 1e-5;
     const int newsz = mNINT32( ceil(fnewsz) );
     float* newsamps = new float [newsz];
     if ( !newsamps )
 	return false;
 
     StepInterval<float> twtrg = samplePositions();
-    twtrg.step = dpos_;
-    SeisTrc wvlttrc( sz_ );
+    twtrg.step = dpos;
+    SeisTrc wvlttrc( sz );
     wvlttrc.info().sampling.start = twtrg.start;
     wvlttrc.info().sampling.step = twtrg.step;
-    for ( int idx=0; idx<sz_; idx++ )
-	wvlttrc.set( idx, samps_[idx], 0 );
+    for ( int idx=0; idx<sz; idx++ )
+	wvlttrc.set( idx, samps[idx], 0 );
 
-    sz_ = newsz;
+    sz = newsz;
     twtrg.step = newsr;
-    delete [] samps_; samps_ = newsamps;
-    for ( int idx=0; idx<sz_; idx++ )
-	samps_[idx] = wvlttrc.getValue( twtrg.atIndex(idx), 0 );
-    cidx_ = twtrg.getIndex( 0.f );
-    dpos_ = newsr;
+    delete [] samps; samps = newsamps;
+    for ( int idx=0; idx<sz; idx++ )
+	samps[idx] = wvlttrc.getValue( twtrg.atIndex(idx), 0 );
+    iw = -1 * twtrg.getIndex( 0.f );
+    dpos =  newsr;
+
     return true;
 }
 
 
-void Wavelet::ensureSymmetricalSamples()
+void Wavelet::set( int center, float samplerate )
 {
-    if ( hasSymmetricalSamples() )
-	return;
-
-    const float halftwtwvltsz = mMAX( -samplePositions().start,
-				       samplePositions().stop );
-    const int newcidx = mNINT32( halftwtwvltsz / dpos_ );
-    const int outsz = 2 * newcidx + 1;
-
-    float* newsamps = new float [outsz];
-    if ( !newsamps )
-	return;
-
-    for ( int idx=0; idx<outsz; idx++ )
-	newsamps[idx] = 0.f;
-
-    StepInterval<float> newsamplepos( -halftwtwvltsz, halftwtwvltsz, dpos_ );
-    for ( int idx=0; idx<sz_; idx++ )
-    {
-	const float twt = samplePositions().atIndex(idx);
-	const int idy = newsamplepos.getIndex(twt);
-	newsamps[idy] = samps_[idx];
-    }
-
-    reSize( outsz );
-    samps_ = newsamps;
-    cidx_ = newcidx;
+    iw = -center;
+    dpos = samplerate;
 }
 
 
 void Wavelet::transform( float constant, float factor )
 {
-    for ( int idx=0; idx<sz_; idx++ )
-	samps_[idx] = constant + samps_[idx] * factor;
+    for ( int idx=0; idx<sz; idx++ )
+	samps[idx] = constant + samps[idx] * factor;
 }
 
 
 void Wavelet::normalize()
 {
-    transform( 0, 1.f/mMAX( fabs(getExtrValue(true)),
+    transform( 0, 1./mMAX( fabs(getExtrValue(true)),
 		  fabs(getExtrValue(false))) );
 }
 
@@ -361,7 +340,7 @@ void Wavelet::normalize()
 float Wavelet::getExtrValue( bool ismax ) const
 {
     Stats::RunCalc<float> rc( Stats::CalcSetup().require(Stats::Max) );
-    rc.addValues( sz_, samps_ );
+    rc.addValues( sz, samps );
     return ismax ? rc.max() : rc.min();
 }
 
@@ -415,8 +394,8 @@ bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
     BufferString val( waveletScaleStr(id) );
     if ( val.isEmpty() ) return false;
     FileMultiString fms( val );
-    const int fmssz = fms.size();
-    if ( fmssz < 3 )
+    const int sz = fms.size();
+    if ( sz < 3 )
 	{ orgid = "0"; return true; }
 
     orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
@@ -451,20 +430,19 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 	return false;
 
     const float scfac = 1000;
-    int cidx = 0; float sr = scfac * SI().zStep();
+    int iw = 0; float sr = scfac * SI().zStep();
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )
 	    wv->reSize( astream.getIValue() );
         else if ( astream.hasKeyword( sIndex ) )
-	    cidx = -1 * astream.getIValue();
-        else if ( astream.hasKeyword(sKey::Name()) )
+	    iw = astream.getIValue();
+        else if ( astream.hasKeyword(sKey::Name) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
 	    sr = astream.getFValue();
     }
-    wv->setSampleRate( sr / scfac );
-    wv->setCenterSample( cidx );
+    wv->set( -iw, sr / scfac );
 
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() >> wv->samples()[idx];
@@ -481,10 +459,10 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) ) return false;
 
-    if ( *(const char*)wv->name() ) astream.put( sKey::Name(), wv->name() );
+    if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
+    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';
@@ -521,8 +499,8 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     else if ( sr < 0 )
 	sr = -sr;
 
-    int centersmp = -1 * getIntValue( 1 );
-    if ( !mIsUdf(centersmp) && centersmp < 0 )
+    int centersmp = getIntValue( 1 );
+    if ( !mIsUdf(centersmp) && centersmp > 0 )
 	centersmp = -centersmp + 1; // Users start at 1
 
     TypeSet<float> samps;
@@ -539,12 +517,10 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     if ( samps.isEmpty() )
 	mErrRet( "No valid data samples found" )
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
-	centersmp = samps.size() / 2;
+	centersmp = -samps.size() / 2;
 
-    Wavelet* ret = new Wavelet( "" );
+    Wavelet* ret = new Wavelet( "", centersmp, sr );
     ret->reSize( samps.size() );
-    ret->setCenterSample( centersmp  );
-    ret->setSampleRate( sr );
     memcpy( ret->samples(), samps.arr(), ret->size() * sizeof(float) );
     return ret;
 }

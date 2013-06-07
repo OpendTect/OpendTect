@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "datachar.h"
 class IOPar;
 class SeisTrc;
@@ -33,7 +32,7 @@ class BufferStringSet;
 
 */
 
-mExpClass(Seis) SeisPSWriter
+mClass SeisPSWriter
 {
 public:
 
@@ -54,4 +53,3 @@ public:
 
 
 #endif
-

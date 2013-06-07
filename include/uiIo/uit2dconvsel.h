@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
 
@@ -25,14 +24,17 @@ class uiT2DConvSelGroup;
 
 /*! \brief single-line object for selecting T to depth conversion. */
 
-mExpClass(uiIo) uiT2DConvSel : public uiGroup
+mClass uiT2DConvSel : public uiGroup
 {
 public:
 
-    mExpClass(uiIo) Setup
+    mClass Setup
     {
     public:
-			Setup(uiIOObjSel* tiedto,bool opt=true);
+			Setup( uiIOObjSel* tied, bool opt=true )
+			    : tiedto_(tied)
+			    , optional_(opt)
+			    , fldtext_( "" ) {}
 
 	mDefSetupMemb(BufferString,fldtext)
 	mDefSetupMemb(bool,optional)
@@ -57,7 +59,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiT2DConvSelGroup : public uiGroup
+mClass uiT2DConvSelGroup : public uiGroup
 {
 public:
    			uiT2DConvSelGroup( uiParent* p, const char* gnm )
@@ -70,7 +72,7 @@ public:
 };
 
 
-mExpClass(uiIo) uiT2DLinConvSelGroup : public uiT2DConvSelGroup
+mClass uiT2DLinConvSelGroup : public uiT2DConvSelGroup
 {
 public:
     				uiT2DLinConvSelGroup(uiParent*);
@@ -88,4 +90,3 @@ protected:
 };
 
 #endif
-

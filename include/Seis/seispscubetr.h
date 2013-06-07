@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "position.h"
 class IOObj;
@@ -20,7 +19,7 @@ class SeisPS3DReader;
 namespace PosInfo { class CubeData; }
 
 
-mExpClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
+mClass SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
 {				    isTranslator(SeisPSCube,SeisTrc)
 public:
 
@@ -66,4 +65,3 @@ protected:
 
 
 #endif
-

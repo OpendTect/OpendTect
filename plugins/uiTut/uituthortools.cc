@@ -5,9 +5,9 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.15 2011/11/23 11:35:55 cvsbert Exp $";
 
-#include "uituthortools.h" 
+#include "uituthortools.h"
 #include "tuthortools.h"
 
 #include "ctxtioobj.h"
@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "ioobj.h"
 #include "transl.h"
-#include "keystrs.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -48,7 +47,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     selfld_->attach( alignedBelow, inpfld2_ );
 
     attribnamefld_ = new uiGenInput( this, "Attribute name",
-	    		StringInpSpec( sKey::Thickness() ) );
+	    		StringInpSpec( "Thickness" ) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing

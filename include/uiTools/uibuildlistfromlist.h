@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 
@@ -47,11 +46,11 @@ class uiToolButton;
 
   */
 
-mExpClass(uiTools) uiBuildListFromList : public uiGroup
+mClass uiBuildListFromList : public uiGroup
 {
 public:
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 			Setup(bool itemsmovable,const char* avitmtyp,
@@ -122,4 +121,3 @@ protected:
 
 
 #endif
-

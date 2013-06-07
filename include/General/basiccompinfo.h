@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "namedobj.h"
 #include "datachar.h"
 
 
 /*!\brief Info on one component */
 
-mExpClass(General) BasicComponentInfo : public NamedObject
+mClass BasicComponentInfo : public NamedObject
 {
 public:
 			BasicComponentInfo( const char* nm=0 )
@@ -52,4 +51,3 @@ public:
 
 
 #endif
-

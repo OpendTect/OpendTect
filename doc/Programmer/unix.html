@@ -1,163 +1,142 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
+<html>
 <!--
   - CopyRight:  (C) dGB Earth Sciences
   - Author:     Bert
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id$
+  - RCS:        $Id: unix.html,v 1.24 2012/06/05 19:35:13 cvsbert Exp $
  -->
-		
-	<head>
-	<title>Getting started with OpendTect development [OpendTect Programmer's manual V4.4]</title>
-  <base href="unix.html" />
-    <link rel="stylesheet" href="style.css" type="text/css" />
-  </head>
 
-<body id="page_bg" class="width_fmax">
-		
-<div id="all">
-        <div id="wrapper">
-                <div id="wrapper_r">
-<div id="header">
-                                <div id="header_l">
-                                
-                                        <div id="header_r">
-						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
-						<div id="topmenu">
-						</div>
-			<div id="leftcolumn">	
-						<table id="greenborder"><tbody>
-								<tr><td valign="top">
+<body background="backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V4.4]</title>
 <center>
 <h1>Getting started with OpendTect development</h1>
-
-<a href=#intro>Intro</a>
+  <a href=#intro>Intro</a>
 | <a href=#prereq>Prerequisites</a>
 | <a href=#setup>Setup</a>
 | <a href=#buildod>Building OpendTect</a>
 </center>
 <br>
+<img src="hr.png" border=0>
 
-
-<a name="intro"><h2 id="heading2">Intro</h2></a>
-<p id="text">
-In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod>here</a>. Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development.
-</p><p id="text">
+<a name=intro><h2>Intro</h2></a>
+<p>
+In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>. Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development.
+</p><p>
 For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
-</p><p id="text">
+</p><p>
 MS Windows-based developers should not be here: instead, go to the <a href="windows.html">windows development section</a>.
 </p>
 
-<a name="prereq"><h2 id="heading2">Prerequisites</h2></a>
-<p id="text">
+<a name=prereq><h2>Prerequisites</h2></a>
+<p>
 Before you can start developing, there are a few external programs that need
 to be installed.
-</p><p id="text">
+</p><p>
 The following programs should be available:
 </p>
 <ul>
-<li><a href="http://cmake.org">CMake</a></li>
-<li><a href="http://gcc.gnu.org">GNU gcc/g++ >= 4.1.x</a></li>
-<li>csh (just make sure you have one installed).</li>
+<li><a href="http://cmake.org">CMake</a>
+<li><a href="http://gcc.gnu.org">GNU gcc/g++ >= 4.1.x</a>
+<li>csh (just make sure you have one installed)
 </ul>
 
-<a name="setup"><h2 id="heading2">Setting up the environment</h2></a>
+<a name=setup><h2>Setting up the environment</h2></a>
 
-<p id="text">
+<p>
 <a href="http://cmake.org">CMake</a> is used to build both the entire system aswell as plugins.
 </p>
 
 
-<h3 id="heading3">Setup ODWork dir</h3>
+<h3>Setup ODWork dir</h3>
 
-<p id="text">
-First of all, we strongly recommended no to have no spaces in the path to your ODWork directory. A good place for your ODWork directory may be your home directory. 
+<p>
+First of all, we strongly recommended no to have no spaces in the path
+to your ODWork directory. A good place for your ODWork directory may be your home directory. 
 </p>
 
-<p id="text">
+<p>
 The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
-</p><p id="text">
-As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:</p>
-<pre id="code"><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
-<p id="text">Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:</p>
-<pre id="code"><code>ln -s /apps/qt/inst_453 $WORK/qt
+</p><p>
+As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:
+<pre><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
+Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:
+<pre><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin
 </code></pre>
+</p>
 
+<h3>Building your own plugins</h3>
 
-<a name="buildod"><h3 id="heading3">Building your own plugins</h3></a>
+<h4>Testing the installation</h4>
 
-<h3 id="heading3">Testing the installation</h3>
-
-<p id="text">
+<p>
 After "<code>cmake .</code>" (ceemake dot) in the root of your development environment you can simply use <code>make</code> in each plugin directory. As a test try to make plugins/Tut. The result is libTut.so in bin/platfor_dir of your WORK. You can load this into OpendTect (menu Utilities-Plugins). You'll see it goes by default to the bin/platform_dir of the installation. The libTut.so there is the one we pre-cooked. You'll need to go to bin/platfom_dir of your own WORK, and load that plugin. After that, you can make and load uiTut (libuiTut.so). You should now see these plugins in the list of the plugin manager, and there should be a new submenu in Utilities-Tools.
 </p>
-<h3 id="heading3">Your own plugin</h3>
-<p id="text">
-To create your very own plugin, we added a directory 'My_Plugin_Name'. Change that directory name to how you want to name your plugin. No spaces please. Example: 'PsychicFreqEst'. You want to get this name in all details now. So:</p>
-<pre id="code"><code>
+<h4>Your own plugin</h4>
+<p>
+To create your very own plugin, we added a directory 'My_Plugin_Name'. Change that directory name to how you want to name your plugin. No spaces please. Example: 'PsychicFreqEst'. You want to get this name in all details now. So:
+<pre><code>
 mv My_Plugin_Name PsychicFreqEst
 cd PsychicFreqEst
 mv my_plugin_name_pi.cc psychicfreqest_pi.cc
 </code></pre><br>
-<p id="text">Now edit both the CMakeLists.txt and psychicfreqest_pi.cc, as in:</p>
-<pre id="code"><code>vi CMakeLists.txt psychicfreqest_pi.cc</code></pre>
-<p id="text">
+Now edit both the CMakeLists.txt and psychicfreqest_pi.cc, as in:
+<pre><code>vi CMakeLists.txt psychicfreqest_pi.cc</code></pre>
+</p><p>
 CMakelists will need the changed file name, 'psychicfreqest_pi' instead of 'my_plugin_name_pi'. Then go through the psychicfreqest_pi.cc file and change everything appropriate, at least 'My_Plugin_Name' to 'PsychicFreqEst'. Then .. first go back to $WORK to change CMakeLists.txt there, change 'My_Plugin_Name' to 'PsychicFreqEst'. Because you have changed a directory name ... Then run <code>cmake .</code>  ... or just 'make' (nice tool, cmake). You can imagine having to add other plugins, there, later.</p>
-<p id="text">After that 'global' cmake reconfiguration, you can go to your plugin directory (i.c. plugins/PsychicFreqEst) and do 'make'. Again you can load the plugin (libPsychicFreqEst.so), and a message 'Hello world' should be the result.
-</p><p id="text">
+After that 'global' cmake reconfiguration, you can go to your plugin directory (i.c. plugins/PsychicFreqEst) and do 'make'. Again you can load the plugin (libPsychicFreqEst.so), and a message 'Hello world' should be the result.
+</p><p>
 To change the implementation, you would want to change some more stuff, like the message. Look in my_first_separate_source.cc and change "Hello world!" to "I sense your frequencies!". And so forth. For useful changes, take a peek at the Tut plugins and <a href="plugins.html">the documentation</a>.
 </p><br>
 
-<h3 id="heading3">Unloading plugins (NOT)</h3>
+<a name=installplugins><h4>Unloading plugins (NOT)</h4>
 
-<p id="text">There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile). It's nice to have auto-load in place, therefore (read on). Also interesting may be the usage of the <a href=http://opendtect.org/links/command_driver.html>Command Driver</a>.
+There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile). It's nice to have auto-load in place, therefore (read on). Also interesting may be the usage of the <a href=http://opendtect.org/links/command_driver.html>Command Driver</a>.
 </p>
 
-<h3 id="heading3">Installing your plugins</h3>
+<a name=installplugins><h4>Installing your plugins</h4>
 
-<p id="text">Installing a plugin means: making it auto-loaded. This removes the nuisance of having to load the plugin each time you start OpendTect. On the other hand, when you're still developing you may not want the plugin to be loaded all the time. Anyway, the plugins are installed by linking or copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file.<br> 
-This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.</p>
+<p> Installing a plugin means: making it auto-loaded. This removes the nuisance of having to load the plugin each time you start OpendTect. On the other hand, when you're still developing you may not want the plugin to be loaded all the time. Anyway, the plugins are installed by linking or copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
+This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
 
-<h2 id="heading2">Distributing your plugins</h2>
+<a name=dist><h2>Distributing your plugins</h2>
 
-<p id="text">
-The distribution of plugins is basically the same for Unix and windows, see the <a href="plugins.html#dist">plugins page</a>.<br> 
+<p>
+The distribution of plugins is basically the same for Unix and windows, see the <a href="plugins.html#dist">plugins page</a>. 
 Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the <code>bin/$DIR</code> subdirectory, where all shared libs reside.
 </p>
-<p id="text">
+<p>
 For distribution to the outside world, you'll need to package your plugins, documentation, etc. into zip files. If you're in the mood for really going public, you'd want to be in the installation manager. Then read the <a href="plugins.html#dist">plugins page</a> and then contact support at opendtect.org.
 </p>
 
 
-<h2 id="heading2">Building from source</h2>
-<p id="text">
-If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.</p>
+<a name=buildod><h2>Building from source</h2>
+<p>
+If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.
 
-<h3 id="heading3">Qt</h3>
-<p id="text"><a href="http://qt-project.org">Qt from Digia</a> is used for the GUI. Use the latest Qt release. We configured with:</p>
-<pre id="code"><code>
-./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql<br> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
+<h4>Qt</h4>
+<a href="http://qt-project.org">Qt from Digia</a> is used for the GUI. Use the latest Qt release. We configured with:<br>
+<pre><code>
+./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
 </code></pre>
 
-<h3 id="heading3">COIN</h3>
-<p id="text">You need the main <a href="http://www.coin3d.org">COIN</a> library ('Coin-3') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:</p>
-<pre id="code"><code>
-./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe<br> --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2<br> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"<br> LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
+<h4>COIN</h4>
+You need the main <a href="http://www.coin3d.org">COIN</a> library ('Coin-3') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:<br>
+<pre><code>
+./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
 </code></pre>
-<p id="text">
-Once this is done, link your Qt and Coin installation directories to $WORK, as in:</p>
-<pre id="code"><code>
+</p><p>
+Once this is done, link your Qt and Coin installation directories to $WORK, as in:
+<pre><code>
 cd $WORK
 ln -s /apps/qt/inst_dir ./qt
 ln -s /apps/coin/inst_dir ./coin
 </code></pre>
-<p id="text">Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
-</p>
+Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
+<p>
 
 <br>
-
+<img src="hr.png" border=0>
 
 <p>
 <center>
@@ -168,21 +147,5 @@ ln -s /apps/coin/inst_dir ./coin
 </center>
 </p>
 
-
-
-
-										
-</td></tr>
-
-			 </font>
-						 </tbody>
-			 </table>
-				 </div>
-			 <div id="footer">
-			 </div>
-			 </div>
-		 </div>
-	 </div>
- </div>
- </body>
- </html>
+</body>
+</html>

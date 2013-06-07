@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 class uiIOObjSel;
 class uiGenInput;
@@ -23,7 +22,7 @@ namespace EM	{ class Horizon3D; }
 
 /*! \brief UI for calculation of volume at horizons */
 
-mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
+mClass uiCalcHorVol : public uiDialog
 {
 protected:
 
@@ -48,7 +47,7 @@ protected:
 
 /*! \brief using polygon to calculate to different horizons */
 
-mExpClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
+mClass uiCalcPolyHorVol : public uiCalcHorVol
 {
 public:
 
@@ -74,7 +73,7 @@ protected:
 
 /*! \brief using horizon to calculate from different levels by polygon */
 
-mExpClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
+mClass uiCalcHorPolyVol : public uiCalcHorVol
 {
 public:
 
@@ -99,4 +98,3 @@ protected:
 
 
 #endif
-

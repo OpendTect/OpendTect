@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uidate.h"
@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QCalendarWidget>
 
-mUseQtnamespace
 
 class uiCalendarBody : public uiObjBodyImpl<uiCalendar,QCalendarWidget>
 {
@@ -76,7 +75,7 @@ uiDateSel::uiDateSel( uiParent* p,const char* label, const DateInfo* di )
     yearfld_->attach( rightOf, monthfld_ );
 
     showcalendarbut_ = new uiPushButton( this, "Select",
-	    mCB(this,uiDateSel,showCalendarCB), false );
+	    mCB(this,uiDateSel,showCalendarCB), true );
     showcalendarbut_->attach( rightOf, yearfld_ );
 
     setHAlignObj( dayfld_ );

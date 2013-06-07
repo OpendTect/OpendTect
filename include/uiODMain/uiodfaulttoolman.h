@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiodmainmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "timer.h"
@@ -40,14 +39,14 @@ namespace visSurvey		{ class FaultDisplay;
     				  class FaultStickSetDisplay; }
 
 
-mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
+mClass uiFaultStickTransferDlg : public uiDialog
 {
 public:
 
     enum ColorMode		{ Inherit=0, Random, SerialUserDef,
 				  Current, ExistsUserDef,
 				  SingleUserDef };
-    mExpClass(uiODMain) Setup
+    mClass Setup
     {
     public:			Setup()
 				    : displayifnot_( true )
@@ -88,7 +87,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODFaultToolMan : public CallBacker
+mClass uiODFaultToolMan : public CallBacker
 {
 public:
     				uiODFaultToolMan(uiODMain&);
@@ -197,7 +196,7 @@ protected:
 
     uiSurfaceWrite*		auxfaultwrite_;
     uiSurfaceWrite*		auxfsswrite_;
-    uiColorInput*		auxcolorinput_;		// obsolete
+    uiColorInput*		auxcolorinput_;
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
@@ -233,4 +232,3 @@ protected:
 
 
 #endif
-

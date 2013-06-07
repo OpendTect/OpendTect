@@ -13,12 +13,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "sets.h"
 #include "factory.h"
 #include "callback.h"
-
-namespace osg { class Node; }
 
 class IOPar;
 
@@ -37,7 +34,7 @@ class Factory;
 
 */
 
-mExpClass(visBase) DataManager : public CallBacker
+mClass DataManager : public CallBacker
 {
 public:
     			DataManager();
@@ -96,10 +93,9 @@ protected:
     static const char*		sKeySelManPrefix();
 };
 
-mGlobal(visBase) DataManager& DM();
+mGlobal DataManager& DM();
 
 };
 
 
 #endif
-

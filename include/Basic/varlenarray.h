@@ -12,15 +12,8 @@ ________________________________________________________________________
 
 -*/
 
+
 #ifdef __msvc__
-# define __varlenwithptr__
-#endif
-
-#ifdef __mac__
-# define __varlenwithptr__
-#endif
-
-#ifdef __varlenwithptr__ 
 # include "ptrman.h"
 
 # define mAllocVarLenArr( type, varnm, __size ) \
@@ -48,6 +41,5 @@ ________________________________________________________________________
 	    var[idx] = idx;
 	
 
-#undef __varlenwithptr__
 
 #endif

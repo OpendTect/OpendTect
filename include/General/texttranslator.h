@@ -13,11 +13,10 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "callback.h"
 
 
-mExpClass(General) TextTranslator : public CallBacker
+mClass TextTranslator : public CallBacker
 {
 public:
 
@@ -49,7 +48,7 @@ protected:
 };
 
 
-mExpClass(General) TextTranslateMgr
+mClass TextTranslateMgr
 {
 public:
 				TextTranslateMgr()
@@ -67,7 +66,6 @@ protected:
 };
 
 
-mGlobal(General) TextTranslateMgr& TrMgr();
+mGlobal TextTranslateMgr& TrMgr();
 
 #endif
-

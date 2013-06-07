@@ -13,21 +13,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #include "rcol.h"
 #include "geometry.h"
-#include "undefval.h"
 
 class BufferString;
 class RowCol;
 
 
-/*!
-\brief A cartesian coordinate in 2D space.
-*/
+/*!\brief a cartesian coordinate in 2D space. */
 
-mExpClass(Basic) Coord : public Geom::Point2D<double>
+mClass Coord : public Geom::Point2D<double>
 {
 public:
 		Coord( const Geom::Point2D<double>& p )
@@ -66,11 +62,9 @@ bool getDirectionStr( const Coord&, BufferString& );
 */
 
 
-/*!
-\brief A cartesian coordinate in 3D space.
-*/
+/*!\brief a cartesian coordinate in 3D space. */
 
-mExpClass(Basic) Coord3 : public Coord
+mClass Coord3 : public Coord
 {
 public:
 
@@ -135,11 +129,9 @@ inline Coord3 operator*( double f, const Coord3& b )
 { return Coord3(b.x*f, b.y*f, b.z*f ); }
 
 
-/*!
-\brief 2D coordinate and a value.
-*/
+/*!\brief 2D coordinate and a value. */
 
-mExpClass(Basic) CoordValue
+mClass CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUdf(float) )
@@ -156,18 +148,16 @@ public:
 };
 
 
-/*!
-\brief 3D coordinate and a value.
-*/
+/*!\brief 3D coordinate and a value. */
 
-mExpClass(Basic) Coord3Value
+mClass Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
 			     float v=mUdf(float) )
-		    : coord(x,y,z), value(v) 	{}
+		: coord(x,y,z), value(v) 	{}
 		Coord3Value( const Coord3& c, float v=mUdf(float) )
-		    : coord(c), value(v)		{}
+		: coord(c), value(v)		{}
     bool	operator==( const Coord3Value& cv ) const
 		{ return cv.coord == coord; }
     bool	operator!=( const Coord3Value& cv ) const
@@ -178,17 +168,16 @@ public:
 };
 
 
-/*!
-\brief Positioning in a seismic survey: inline/crossline. Most functions are
-identical to RowCol.
-*/
+/*!\brief positioning in a seismic survey: inline/crossline. Most functions are
+          identical to RowCol */
 
-mExpClass(Basic) BinID
+mClass BinID
 {
 public:
     inline			BinID(int r,int c);
     				BinID(const RowCol&);
     inline			BinID(const BinID&);
+    inline			BinID(const od_int64&);
     inline			BinID();
 
     inline bool			operator==(const BinID&) const;
@@ -208,15 +197,13 @@ public:
     inline const BinID&		operator/=(const BinID&);
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
-    inline int			toInt32() const;
-    
-    inline static BinID		fromInt64(od_int64);
-    inline static BinID		fromInt32(int);
-    inline int			sqDistTo(const BinID&) const;
-
     void			fill(char*) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
+    inline int			toInt32() const;
+    inline void			fromInt64(od_int64);
+    inline void			fromInt32(int);
+    inline int			sqDistTo(const BinID&) const;
     bool                        isNeighborTo(const BinID&,const BinID&,
 					     bool eightconnectivity=true) const;
 
@@ -224,12 +211,6 @@ public:
     int				crl;
 
     static const BinID&		udf();
-    
-    int&			trcNr()		{ return crl; }
-    int				trcNr() const	{ return crl; }
-    int&			lineNr()	{ return inl; }
-    int				lineNr() const	{ return inl; }
-
 
     od_int64			getSerialized() const;
     				//!<Legacy. Use toInt64 instead.
@@ -238,54 +219,14 @@ public:
 };
 
 
-
 mImplInlineRowColFunctions(BinID, inl, crl);
 
-/*!
-\brief Represents a trace position, with the geometry (2D or 3D) and position in
-the geometry.
-*/
-
-mExpClass(Basic) TraceID
-{
-public:
-				typedef int GeomID;
-    
-				TraceID(const BinID& bid);
-				TraceID(GeomID geomid,int linenr,int trcnr);
-
-    static GeomID		std3DGeomID();
-    static GeomID		cUndefGeomID();
-    
-    bool			is2D() const
-    				{ return geomid_!=std3DGeomID(); }
-    int&			trcNr()		{ return pos_.trcNr(); }
-    int				trcNr() const	{ return pos_.trcNr(); }
-    int&			lineNr()	{ return pos_.lineNr(); }
-    int				lineNr() const	{ return pos_.lineNr(); }
-    
-    bool			operator ==( const TraceID& a ) const
-    				{ return a.geomid_==geomid_ && a.pos_==pos_; }
-
-    static const TraceID&	udf();
-    
-    bool			isUdf() const { return mIsUdf(pos_.trcNr()); }
-    
-    GeomID			geomid_;
-				/*!<std3DGeomID refers to the default 3d survey
-				    setup. Any other value refers to the
-				    geometry.*/
-    BinID			pos_;
-};
 
 class BinIDValues;
 
+/*!\brief BinID and a value. */
 
-/*!
-\brief BinID and a value.
-*/
-
-mClass(Basic) BinIDValue
+class BinIDValue
 {
 public:
 		BinIDValue( int inl=0, int crl=0, float v=mUdf(float) )
@@ -307,11 +248,9 @@ public:
 };
 
 
-/*!
-\brief BinID and values. If one of the values is Z, make it the first one.
-*/
+/*!\brief BinID and values. If one of the values is Z, make it the first one. */
 
-mExpClass(Basic) BinIDValues
+mClass BinIDValues
 {
 public:
 			BinIDValues( int inl=0, int crl=0, int n=2 )
@@ -349,39 +288,6 @@ protected:
     static float	udf;
 
 };
-
-namespace Values {
-
-/*!
-\brief Undefined Coord.
-*/
-
-template<>
-mClass(Basic) Undef<Coord>
-{
-public:
-    static Coord	val()			{ return Coord::udf(); }
-    static bool		hasUdf()		{ return true; }
-    static bool		isUdf( Coord crd )	{ return !crd.isDefined(); }
-    static void		setUdf( Coord& crd )	{ crd = Coord::udf(); }
-};
-
-
-/*!
-\brief Undefined Coord3.
-*/
-
-template<>
-mClass(Basic) Undef<Coord3>
-{
-public:
-    static Coord3	val()			{ return Coord3::udf(); }
-    static bool		hasUdf()		{ return true; }
-    static bool		isUdf( Coord3 crd )	{ return !crd.isDefined(); }
-    static void		setUdf( Coord3& crd )	{ crd = Coord3::udf(); }
-};
-
-} // namespace Values
 
 
 inline bool Coord3::operator==( const Coord3& b ) const
@@ -479,4 +385,3 @@ inline Coord3 Coord3::normalize() const
 }
 
 #endif
-

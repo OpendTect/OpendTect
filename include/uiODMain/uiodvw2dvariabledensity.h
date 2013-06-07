@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "datapack.h"
@@ -23,7 +22,7 @@ class VW2DSeis;
 namespace ColTab { class Sequence; };
 
 
-mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
+mClass uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVW2DVariableDensityTreeItem();
@@ -32,8 +31,8 @@ public:
     bool                	select();
     bool                        showSubMenu();
 
-    static int			cPixmapWidth()			{ return 16; }
-    static int			cPixmapHeight()			{ return 10; }
+    static const int		cPixmapWidth()			{ return 16; }
+    static const int		cPixmapHeight()			{ return 10; }
 
 protected:
 
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVW2DVariableDensityTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
@@ -70,4 +69,3 @@ public:
 
 
 #endif
-

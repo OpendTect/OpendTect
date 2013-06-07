@@ -12,15 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "samplingdata.h"
 
 
-/*!
-\brief %Info on (floating-point) position in an array or StepInterval.
-*/
+//! Info on (floating-point) position in an array or StepInterval
 
-mExpClass(Basic) IndexInfo
+mClass IndexInfo
 {
 public:
 			IndexInfo( int i, bool r=true, bool u=false )
@@ -72,7 +69,7 @@ IndexInfo::IndexInfo( const T* arr, int sz, T val )
 	    return;
 	if ( (!isrev && val < arr[nearest_]) || (isrev && val > arr[nearest_]) )
 	{
-	    T halfway = (arr[nearest_] + arr[nearest_-1]) * .5f;
+	    T halfway = (arr[nearest_] + arr[nearest_-1]) * .5;
 	    roundedtolow_ = isrev ? val > halfway : val < halfway;
 	    if ( (!isrev && roundedtolow_) || (isrev && !roundedtolow_) )
 		nearest_ -= 1;
@@ -111,4 +108,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 
 
 #endif
-

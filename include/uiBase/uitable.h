@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 #include "color.h"
@@ -27,7 +26,7 @@ class uiLabel;
 class uiTableBody;
 
 
-mExpClass(uiBase) uiTable : public uiObject
+mClass uiTable : public uiObject
 {
 friend class		i_tableMessenger;
 friend class		uiTableBody;
@@ -51,7 +50,7 @@ public:
 	Interactive, Fixed, Stretch, ResizeToContents
     };
 
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
     public:
 
@@ -67,19 +66,19 @@ public:
 			, colgrow_(false) //!< can extra cols be added by user?
 			, fillrow_(false) //!< adjust cell height to avail space
 			, fillcol_(false) //!< adjust cell width to avail space
-			, minrowhgt_(1.f) //!< units of font height
-			, maxrowhgt_(3.f) //!< units of font height
-			, mincolwdt_(1.f*uiObject::baseFldSize())
+			, minrowhgt_( 1 ) //!< units of font height
+			, maxrowhgt_( 3 ) //!< units of font height
+			, mincolwdt_(uiObject::baseFldSize())
 					  //!< units of font
-			, maxcolwdt_(2.3f*uiObject::baseFldSize())
+			, maxcolwdt_(2.3*uiObject::baseFldSize())
 					  //!< units of font
-			, selmode_(NoSelection)
-			, snglclkedit_(true)
+			, selmode_( NoSelection )
+			, snglclkedit_( true )
 			, defcollbl_(false)
 			, defrowlbl_(false)
 			, manualresize_(false)
 					//!< if not, adapt size of cells auto
-			, defrowstartidx_(1)
+			, defrowstartidx_( 1 )
 				    //!< default row label: start counting at 1
 			, rightclickdisabled_(false)
 		       		   //!<default enables right click popup	
@@ -188,8 +187,6 @@ public:
 
     bool		isTopHeaderHidden() const;
     bool		isLeftHeaderHidden() const;
-    void		setTopHeaderHidden(bool);
-    void		setLeftHeaderHidden(bool);
 
     void		insertRows(int row,int count);
     inline void		insertRows( const RowCol& rc, int count )
@@ -284,7 +281,7 @@ public:
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
-    mExpClass(uiBase) SelectionRange
+    mClass SelectionRange
     {
     public:
 			SelectionRange()
@@ -340,4 +337,3 @@ private:
 };
 
 #endif
-

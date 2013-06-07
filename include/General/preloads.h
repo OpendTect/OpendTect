@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 #include "transl.h"
 
-mDeclEmptyTranslatorBundle(General,PreLoads,dgb,"preloads")
-mDeclEmptyTranslatorBundle(General,PreLoadSurfaces,dgb,"preloads")
+mDeclEmptyTranslatorBundle(PreLoads,dgb,"preloads")
+mDeclEmptyTranslatorBundle(PreLoadSurfaces,dgb,"preloads")
 
 
 #endif

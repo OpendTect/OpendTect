@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.13 2011/04/01 09:44:21 cvsbert Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -45,7 +45,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Polyline")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctio_.ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     inpfld_ = new uiIOObjSel( this, ctio_,"Polygon" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
@@ -90,12 +90,12 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select a polygon")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name(), namefld_->text() );
+    par.set( sKey::Name, namefld_->text() );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
-    par.set( ODGMT::sKeyLineStyle(), lskey );
-    par.setYN( ODGMT::sKeyFill(), fillcolfld_->doDraw() );
-    par.set( ODGMT::sKeyFillColor(), fillcolfld_->color() );
+    par.set( ODGMT::sKeyLineStyle, lskey );
+    par.setYN( ODGMT::sKeyFill, fillcolfld_->doDraw() );
+    par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
     return true;
 }
 
@@ -103,10 +103,10 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 bool uiGMTPolylineGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    FixedString nm = par.find( sKey::Name() );
+    FixedString nm = par.find( sKey::Name );
     if ( nm ) namefld_->setText( nm );
 
-    FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
     if ( !lskey.isEmpty() )
     {
 	LineStyle ls; ls.fromString( lskey.str() );
@@ -114,11 +114,11 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
     }
 
     bool dofill = false;
-    par.getYN( ODGMT::sKeyFill(), dofill );
+    par.getYN( ODGMT::sKeyFill, dofill );
     fillcolfld_->setDoDraw( dofill );
     if ( dofill )
     {
-	Color fillcol; par.get( ODGMT::sKeyFillColor(), fillcol );
+	Color fillcol; par.get( ODGMT::sKeyFillColor, fillcol );
 	fillcolfld_->setColor( fillcol );
     }
 

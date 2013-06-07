@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "ranges.h"
@@ -38,7 +37,7 @@ class uiDialog;
  
  */
 
-mExpClass(uiIo) uiSurvInfoProvider
+mClass uiSurvInfoProvider
 {
 public:
 
@@ -62,4 +61,3 @@ public:
 
 
 #endif
-

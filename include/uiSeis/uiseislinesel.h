@@ -12,15 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
-
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "multiid.h"
 #include "ranges.h"
-#include "surv2dgeom.h"
+#include "multiid.h"
 
 class uiComboBox;
 class uiLabeledSpinBox;
@@ -33,7 +30,7 @@ class CtxtIOObj;
 class IOObj;
 
 
-mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
+mClass uiSeis2DLineSel : public uiCompoundParSel
 {
 public:
 
@@ -44,15 +41,11 @@ public:
     MultiID		lineSetID() const;
     void		set(const char* lsnm,const char* lnm=0);
 
-    const PosInfo::GeomID& getGeomID() const;
-    void		set(const PosInfo::GeomID&);
-
 protected:
 
     BufferString	lnm_;
     BufferString	lsnm_;
     bool		fixedlsname_;
-    PosInfo::GeomID	geomid_;
 
     BufferString	getSummary() const;
 
@@ -60,7 +53,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
+mClass uiSeis2DLineNameSel : public uiGroup
 {
 public:
 
@@ -88,7 +81,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiCompoundParSel
+mClass uiSeis2DMultiLineSel : public uiCompoundParSel
 {
 public:
 
@@ -151,7 +144,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeis2DMultiLineSelDlg : public uiDialog
+mClass uiSeis2DMultiLineSelDlg : public uiDialog
 {
 public:
     				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
@@ -195,4 +188,3 @@ protected:
 };
 
 #endif
-

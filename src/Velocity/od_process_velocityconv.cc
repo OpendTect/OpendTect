@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
@@ -13,8 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "moddepmgr.h"
 #include "progressmeter.h"
+#include "moddepmgr.h"
 
 #include "prog.h"
 
@@ -25,9 +25,9 @@ static const char* rcsID mUsedVar = "$Id$";
 }
 
 bool BatchProgram::go( std::ostream& strm )
-{
+{ 
     OD::ModDeps().ensureLoaded("Velocity");
-    
+
     HorSampling hrg;
     if ( !hrg.usePar( pars() ) )
 	hrg.init( true );

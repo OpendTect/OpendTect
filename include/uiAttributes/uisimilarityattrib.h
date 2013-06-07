@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "uisteeringsel.h"
 
@@ -23,7 +22,7 @@ class uiStepOutSel;
 
 /*! \brief Similarity Attribute description editor */
 
-mExpClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
+mClass uiSimilarityAttrib : public uiAttrDescEd
 {
 public:
 
@@ -59,7 +58,7 @@ protected:
 
     			mDeclReqAttribUIFns
 
-    mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
+    mClass uiSimiSteeringSel : public uiSteeringSel
     {                                                                           
 	public:                                                                     
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
@@ -80,4 +79,3 @@ protected:
 
 
 #endif
-

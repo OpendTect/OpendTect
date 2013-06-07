@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "cubesampling.h"
 #include "mathfunc.h"
 #include "enums.h"
@@ -24,11 +23,11 @@ class Plane3;
 namespace MPE
 {
 
-/*!
-\brief
+/*!\brief
+
 */
 
-mExpClass(MPEEngine) TrackPlane
+mClass TrackPlane
 {
 public:
     enum TrackMode	{ None, Extend, ReTrack, Erase, Move };
@@ -76,4 +75,3 @@ protected:
 }; // Namespace
 
 #endif
-

@@ -40,8 +40,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft" : " (m";
 		     zlbl += "/s)";
 	BufferString velllbl( "Temporary model velocity"); velllbl += zlbl;
-	const float vel = mCast( float, 
-			       SI().depthsInFeetByDefault() ? 8000 : 2000 );
+	const float vel = SI().depthsInFeetByDefault() ? 8000 : 2000;
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
@@ -97,19 +96,20 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
 	
-	d2t.setEmpty();
+	d2t.erase();
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
-	float srd = wd.info().srdelev;
+	float srd = -1. * wd.info().surfaceelev;
 	float kb  = wd.track().getKbElev();
 	if ( SI().depthsInFeetByDefault() && zun_ )
 	{
-	    srd = zun_->userValue( wd.info().srdelev );
+	    srd = zun_->userValue( -1. * wd.info().surfaceelev );
 	    kb  = zun_->userValue( wd.track().getKbElev() );
 	}
 	if ( mIsZero(srd,0.01) ) srd = 0;
 	const float twtvel = velfld_->getfValue() * .5f;
-	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
-				( (1 / twtvel) - (2 / wd.info().replvel) );
+	const float bulkshift = mIsUdf( wd.info().getReplVel() ) ? 0
+	   			: ( kb - srd ) *
+	    			( (1 / twtvel) - (2 / wd.info().getReplVel()) );
 	int idahofminz = 0;
 	int idahofmaxz = wd.track().size()-1;
 	float tvdmin = 1e10;
@@ -122,7 +122,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 		tvdmax = zpostrack;
 		idahofmaxz = idx;
 	    }
-
+	    
 	    if ( zpostrack < tvdmin )
 	    {
 		tvdmin = zpostrack;

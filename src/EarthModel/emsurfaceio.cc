@@ -37,8 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "strmoper.h"
-#include "strmprov.h"
-#include "filepath.h"
 
 #include <fstream>
 
@@ -158,11 +156,33 @@ void dgbSurfaceReader::setOutput( Array3D<float>& cube )
     cube_ = &cube;
 }
 
-
-bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
-					const char* horfnm )
+bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
-    if ( version_ == 3 )
+    std::istream& strm = ((StreamConn*)conn_)->iStream();
+    ascistream astream( strm );
+    if ( !astream.isOfFileType( filetype ))
+    {
+	msg_ = "Invalid filetype";
+	return false;
+    }
+
+    astream.next();
+
+    IOPar par( astream );
+    version_ = 1;
+    par.get( sKeyVersion(), version_ );
+
+    BufferString dc;
+#define mGetDataChar( type, str, interpr ) \
+    delete interpr; \
+    interpr = DataInterpreter<type>::create( par, str, true )
+
+    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
+    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
+    mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
+    mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
+
+    if ( version_==3 )
     {
 	const od_int64 nrsectionsoffset = readInt64( strm );
 	if ( !strm || !nrsectionsoffset )
@@ -180,7 +200,7 @@ bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
 	}
 
 	for ( int idx=0; idx<nrsections; idx++ )
-	    sectionids_ += mCast(EM::SectionID,readInt32(strm));
+	    sectionids_ += readInt32( strm );
 
 	if ( !strm ) { msg_ = sMsgReadError(); return false; }
 
@@ -191,8 +211,8 @@ bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
     else
     {
 	int nrsections;
-	if ( !toppar.get( sKeyNrSections() , nrsections ) &&
-	     !toppar.get( sKeyNrSectionsV1(), nrsections ) )
+	if ( !par.get( sKeyNrSections() , nrsections ) &&
+	     !par.get( sKeyNrSectionsV1(), nrsections ) )
 	{
 	    msg_ = sMsgParseError();
 	    return false;
@@ -202,36 +222,32 @@ bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
 	{
 	    int sectionid = idx;
 	    BufferString key = sSectionIDKey( idx );
-	    toppar.get(key.buf(), sectionid);
-	    sectionids_ += (EM::SectionID)sectionid;
+	    par.get(key.buf(), sectionid);
+	    sectionids_+= sectionid;
 
 	}
 
-	par_ = new IOPar( toppar );
+	par_ = new IOPar( par );
     }
 
-    mergeExternalPar( horfnm );
-    return true;
-}
+    for ( int idx=0; idx<sectionids_.size(); idx++ )
+    {
+	const BufferString key = sSectionNameKey( idx );
+	BufferString sectionname;
+	par_->get(key.buf(),sectionname);
+		    
+	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
+    }
 
+    par_->get( sKeyRowRange(), rowrange_ );
+    par_->get( sKeyColRange(), colrange_ );
+    par_->get( sKeyZRange(), zrange_ );
+    par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-void dgbSurfaceReader::mergeExternalPar( const char* horfnm )
-{
-    FilePath fp( horfnm ); fp.setExtension( "par" );
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() ) return;
-    IOPar par;
-    if ( par.read(*sd.istrm,"Surface parameters") )
-	const_cast<IOPar*>(par_)->merge( par );
-    sd.close();
-}
-
-
-int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
-{
-    TypeSet<int> lineids; bool is2d = false;
-
-    if ( par_->find(sKey::GeomID()) )
+    TypeSet<int> lineids;
+    TypeSet< StepInterval<int> > trcranges;
+    bool is2d = false;
+    if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
     {
 	is2d = true;
 	int nrlines = 0;
@@ -239,47 +255,6 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
-	    int geomid;
-	    BufferString key = IOPar::compKey( sKey::GeomID(),idx );
-	    par_->get( key, geomid );
-	    geomids_.add( geomid );
-	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
-	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()), 
-								    trcrange);
-	    trcranges += trcrange;
-	}
-    }
-    else if ( par_->find( Horizon2DGeometry::sKeyNrLines()) )
-    {
-	is2d = true;
-	int nrlines = 0;
-	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
-	
-	for ( int idx=0; idx<nrlines; idx++ )
-	{
-#ifdef mNew2DGeometryImpl
-
-	    BufferString key = IOPar::compKey( "Line", idx );
-
-	    BufferString idstr;
-	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
-	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
-	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
-	    int geomid = Survey::GM().getGeomID( lnm.buf() );
-	    if ( geomid < 0 )
-	    {
-		lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().
-			curLineSet(),S2DPOS().getLineName(oldgeomid.lineid_) );
-		geomid = Survey::GM().getGeomID( lnm.buf() );
-	    }
-
-	    geomids_ += geomid;
-	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
-	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
-								    trcrange );
-	    trcranges += trcrange;
-#else
 	    SeparString linekey( "Line", '.' );
 	    linekey.add( idx );
 
@@ -294,23 +269,28 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    S2DPOS().setCurLineSet( geomid.lsid_ );
 	    linesets_.add(
 		    S2DPOS().hasLineSet(geomid.lsid_)
-		    ? S2DPOS().getLineSet(geomid.lsid_) : sKeyUndefLineSet() );
-	    linenames_.add(S2DPOS().hasLine(geomid.lineid_,geomid.lsid_)
-		    ? S2DPOS().getLineName(geomid.lineid_) : sKeyUndefLine() );
+			? S2DPOS().getLineSet(geomid.lsid_)
+			: sKeyUndefLineSet() );
+	    linenames_.add(
+		    S2DPOS().hasLine(geomid.lineid_,geomid.lsid_)
+			? S2DPOS().getLineName(geomid.lineid_)
+			: sKeyUndefLine() );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
 	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
 	    par_->get( linetrcrgkey, trcrange );
 	    trcranges += trcrange;
-#endif
 	}
     }
     else if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
     {
 	is2d = true;
 	if ( linenames_.size() != lineids.size() )
-	    { msg_ = "Inconsistency in horizon file header"; return -1; }
+	{
+	    msg_ = "Inconsistency in file header";
+	    return false;
+	}
 
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
@@ -335,64 +315,19 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	{
 	    if ( mIsUdf(lineids[idx]) )
 	    {
-		lineids.removeSingle( idx );
-		linenames_.removeSingle( idx );
+		lineids.remove( idx );
+		linenames_.remove( idx );
 		continue;
 	    }
 	    idx++;
 	}
     }
-    return is2d ? 1 : 0;
-}
 
-
-bool dgbSurfaceReader::readHeaders( const char* filetype )
-{
-    StreamConn& sconn( *((StreamConn*)conn_) );
-    std::istream& strm = sconn.iStream();
-    ascistream astream( strm );
-    if ( !astream.isOfFileType( filetype ))
-	{ msg_ = "Invalid filetype"; return false; }
-
-    version_ = 1;
-    astream.next();
-    IOPar toppar( astream );
-    toppar.get( sKeyVersion(), version_ );
-
-    BufferString dc;
-#define mGetDataChar( type, str, interpr ) \
-    delete interpr; \
-    interpr = DataInterpreter<type>::create( toppar, str, true )
-    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
-    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
-    mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
-    mGetDataChar( double, sKeyFloatDataChar(), floatinterpreter_ );
-
-    if ( !readParData(strm,toppar,sconn.fileName()) )
-	return false;
-
-    for ( int idx=0; idx<sectionids_.size(); idx++ )
-    {
-	const BufferString key = sSectionNameKey( idx );
-	BufferString sectionname;
-	par_->get(key.buf(),sectionname);
-		    
-	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
-    }
-
-    par_->get( sKeyRowRange(), rowrange_ );
-    par_->get( sKeyColRange(), colrange_ );
-    par_->get( sKeyZRange(), zrange_ );
-    par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
-
-    TypeSet< StepInterval<int> > trcranges;
-    const int res = scanFor2DGeom( trcranges );
-    if ( res < 0 ) return false;
-    const bool is2d = res;
     setLinesTrcRngs( trcranges );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
+
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel_ += idx;
 
@@ -401,11 +336,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( version_==1 )
 	return parseVersion1( *par_ );
 
-#ifdef mNew2DGeometryImpl
-    if ( is2d && geomids_.isEmpty() )
-#else
     if ( is2d && linesets_.isEmpty() )
-#endif
     {
 	msg_ = "No geometry found for this horizon";
 	return false;
@@ -497,7 +428,7 @@ int dgbSurfaceReader::stratLevelID() const
 {
     int ret = -1;
     if ( pars() )
-	pars()->get( sKey::StratRef(), ret );
+	pars()->get( sKey::StratRef, ret );
     return ret;
 }
 
@@ -517,13 +448,7 @@ BufferString dgbSurfaceReader::sectionName( int idx ) const
 
 
 int dgbSurfaceReader::nrLines() const
-{ 
-#ifdef mNew2DGeometryImpl
-    return geomids_.size();
-#else
-    return linenames_.size(); 
-#endif
-}
+{ return linenames_.size(); }
 
 
 BufferString dgbSurfaceReader::lineName( int idx ) const
@@ -532,11 +457,6 @@ BufferString dgbSurfaceReader::lineName( int idx ) const
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
 { return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
-
-
-TraceID::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
-{ return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
-
 
 
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
@@ -743,7 +663,7 @@ bool dgbSurfaceReader::shouldSkipRow( int row ) const
     if ( version_==1 || (version_==2 && !isBinary()) )
 	return false;
 
-    if ( !sectionsel_.isPresent(sectionids_[sectionindex_]) )
+    if ( sectionsel_.indexOf(sectionids_[sectionindex_])==-1 )
 	return true;
 
     if ( !readrowrange_ )
@@ -838,22 +758,6 @@ int dgbSurfaceReader::nextStep()
     BufferStringSet lines;
     if ( par_->hasKey(Horizon2DGeometry::sKeyLineNames()) )
 	par_->get( Horizon2DGeometry::sKeyLineNames(),lines );
-    else if ( par_->find(sKey::GeomID()) )
-    {
-	int nrlines = 0;
-	par_->get( Horizon2DGeometry::sKeyNrLines(), nrlines );
-	for ( int idx=0; idx<nrlines; idx++ )
-	{
-	    BufferString key = IOPar::compKey( sKey::GeomID(), idx );
-	    int geomid;
-	    par_->get( key, geomid );
-	    BufferString lnm = Survey::GM().getName( geomid );
-	    if ( lnm.isEmpty() )
-		sKeyUndefLine();
-	    else
-		lines.add( lnm );
-	}
-    }
     else if ( par_->find(Horizon2DGeometry::sKeyNrLines()) )
     {
 	int nrlines = 0;
@@ -902,29 +806,20 @@ int dgbSurfaceReader::nextStep()
 
     if ( hor2d )
     {
-#ifdef mNew2DGeometryImpl
-	if ( (!geomids_.validIdx(rowindex_)) || (geomids_[rowindex_]<0) )
-#else
 	if ( (!linesets_.validIdx(rowindex_) || !linenames_.validIdx(rowindex_))
-	  || (linesets_.get(rowindex_)==sKeyUndefLineSet() ||
-	      linenames_.get(rowindex_)==sKeyUndefLine()) )
-#endif
+		|| (linesets_.get(rowindex_)==sKeyUndefLineSet()
+		    || linenames_.get(rowindex_)==sKeyUndefLine()) )
 	{
-	    const int res = skipRow( strm );
+	    const int res = skipRow( strm ); 
 	    if ( res==ErrorOccurred() )
 		return res;
-	    else if ( res==Finished() ) 
+	    else if ( res==Finished() ) //Section change
 		return MoreToDo();
 	}
 
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-#ifdef mNew2DGeometryImpl
-	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow
-				(geomids_[rowindex_],firstcol+noofcoltoskip,
-				    firstcol+nrcols+noofcoltoskip-1, colstep );
-#else
 	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
 	    					 linenames_[rowindex_]->buf() );
 	if ( !geomid.isOK() )
@@ -933,7 +828,6 @@ int dgbSurfaceReader::nextStep()
 	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
 		geomid, firstcol+noofcoltoskip,
 		firstcol+nrcols+noofcoltoskip-1, colstep );
-#endif
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);
@@ -983,7 +877,7 @@ int dgbSurfaceReader::nextStep()
 int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 {
     const SectionID sectionid = sectionids_[sectionindex_];
-    if ( version_==3 && !sectionsel_.isPresent(sectionid) )
+    if ( version_==3 && sectionsel_.indexOf(sectionid)==-1 )
     {
 	sectionindex_++;
 	return MoreToDo();
@@ -1320,7 +1214,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	{
 	    cube_->set( readrowrange_->nearestIndex(rc.row),
 			readcolrange_->nearestIndex(rc.col),
-			cubezidx, (float) pos.z );
+			cubezidx, pos.z );
 	}
 
 	didread = true;
@@ -1346,9 +1240,14 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
     inlrg.sort(); crlrg.sort();
 
-    Array2D<float>* arr =
-	new Array2DImpl<float>( inlrg.nrSteps()+1, crlrg.nrSteps()+1 );
-    arr->setAll( mUdf(float) );
+    Array2D<float>* arr = new Array2DImpl<float>( inlrg.nrSteps()+1,
+	    					  crlrg.nrSteps()+1 );
+    float* ptr = arr->getData();
+    for ( int idx=arr->info().getTotalSz()-1; idx>=0; idx-- )
+    {
+	*ptr = mUdf(float);
+	ptr++;
+    }
 
     bidsurf->setArray( RowCol( inlrg.start, crlrg.start),
 	    	       RowCol( inlrg.step, crlrg.step ), arr, true );
@@ -1608,7 +1507,7 @@ void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
     {
 	for ( int idx=0; idx<sel.size(); idx++ )
 	{
-	    if ( !sectionsel_.isPresent(sel[idx]) )
+	    if ( sectionsel_.indexOf(sel[idx]) == -1 )
 		sectionsel_ += sel[idx];
 	}
     }
@@ -2003,7 +1902,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	    continue;
 
 	if ( !mIsUdf(pos.z) )
-	    zrange_.include( (float) pos.z, false );
+	    zrange_.include( pos.z, false );
 
 	if ( colcoords.isEmpty() )
 	    firstcol = col;
@@ -2016,7 +1915,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	if ( colcoords[idx].isDefined() )
 	    break;
 
-	colcoords.removeSingle(idx);
+	colcoords.remove(idx);
     }
 
     if ( !writeInt32(strm,colcoords.size(),colcoords.size()?sTab():sEOL()) )
@@ -2072,7 +1971,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 		const int index = mIsUdf(pos.z)
 		    ? 0xFFFF : sd.nearestIndex(pos.z);
 
-		if ( !writeInt16( strm, mCast(unsigned short,index), 
+		if ( !writeInt16( strm, index, 
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();

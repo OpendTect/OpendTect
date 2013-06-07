@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/SbVec2i32.h>
 #include <Inventor/SbVec3i32.h>
 
@@ -27,7 +26,7 @@ class SbImagei32;
 // This class is a clone of SbImage, which allows images of large size (upto 
 // 2^31 per dimension) to be handled.
 
-mSoODClass SbImagei32
+mClass SbImagei32
 {
 public:
 
@@ -80,5 +79,4 @@ private:
 };
 
 #endif
-
 

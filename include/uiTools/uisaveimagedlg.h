@@ -11,11 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "geometry.h"
-#include "pixmap.h"
 #include "ptrman.h"
 
 class IOPar;
@@ -27,7 +25,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-mExpClass(uiTools) uiSaveImageDlg : public uiDialog
+mClass uiSaveImageDlg : public uiDialog
 {
 public:
 			uiSaveImageDlg(uiParent*,bool withclipbrd = true);
@@ -47,7 +45,6 @@ public:
     bool                usePar(const IOPar&);
 
 protected:
-    void		setDirName(const char*);
 
     uiLabeledSpinBox*	pixheightfld_;
     uiLabeledSpinBox*	pixwidthfld_;
@@ -107,7 +104,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiSaveWinImageDlg : public uiSaveImageDlg
+mClass uiSaveWinImageDlg : public uiSaveImageDlg
 {
 public:
 			uiSaveWinImageDlg(uiParent*);
@@ -118,7 +115,4 @@ protected:
     void		setFldVals(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
-
-
 #endif
-

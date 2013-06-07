@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class FaultStickSet; };
@@ -21,11 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-/*!
-\brief ObjectEditor to edit EM::FaultStickSet.
-*/
-
-mExpClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
+mClass FaultStickSetEditor : public ObjectEditor
 {
 public:
     				FaultStickSetEditor(EM::FaultStickSet&);
@@ -80,4 +75,3 @@ protected:
 }  // namespace MPE
 
 #endif
-

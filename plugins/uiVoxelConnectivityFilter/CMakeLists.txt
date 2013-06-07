@@ -2,7 +2,7 @@
 #
 #	Makefile : 	uiVoxelConnectivityFilter plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id$
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/29 11:33:26 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain VoxelConnectivityFilter)

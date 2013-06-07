@@ -17,11 +17,7 @@ ________________________________________________________________________
 namespace OD { class RGBImage; };
 
 
-/*!
-\brief Resizes Image.
-*/
-
-mClass(Algo) ImageResizer : public ParallelTask
+class ImageResizer : public ParallelTask
 {
 public:
 		ImageResizer( const OD::RGBImage&, OD::RGBImage& );

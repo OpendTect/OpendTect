@@ -17,15 +17,12 @@ ________________________________________________________________________
 #include <QObject>
 #include <QSlider> 
 
+class QString;
+
 //! Helper class for uislider to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-
-QT_BEGIN_NAMESPACE
-
-class QString;
-
 class i_SliderMessenger : public QObject 
 {
     Q_OBJECT
@@ -62,7 +59,5 @@ void sliderReleased()	{ mTrigger(sliderReleased); }
 void valueChanged(int)	{ mTrigger(valueChanged); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

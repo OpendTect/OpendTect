@@ -12,11 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uistratlayseqgendesc.h"
 #include "uigraphicsview.h"
 #include "property.h"
-class uiGenInput;
 class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
@@ -25,7 +23,7 @@ namespace Strat { class LayerSequenceGenDesc; }
 /*!\brief Base class for external LayerSequenceGenDesc editors, i.e.
   editors that are not also Layer Model displayers. */
 
-mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
+mClass uiExtLayerSequenceGenDesc : public uiGraphicsView
 				 , public uiLayerSequenceGenDesc
 {
 public:
@@ -35,20 +33,15 @@ public:
 
     virtual uiObject*			outerObj()	{ return this; }
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-					    Strat::LayerModelProvider&);
-    virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
+	    				Strat::LayerModelProvider&);
 
 protected:
 
-    uiGenInput*		topdepthfld_;
     uiRectItem*		outeritm_;
     uiTextItem*		emptyitm_;
     uiBorder		border_;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
-    bool		zinft_;		//!< From SI()
 
-    void		getTopDepthFromScreen();
-    void		putTopDepthToScreen();
     void		reDraw(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
     void		dblClckCB( CallBacker* cb )	{ hndlClick(cb,true); }
@@ -76,4 +69,3 @@ public: \
     
 
 #endif
-

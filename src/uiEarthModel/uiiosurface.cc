@@ -7,25 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiiosurface.h"
 
 #include "uipossubsel.h"
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
-#include "uitable.h"
 
 #include "ctxtioobj.h"
 #include "emmanager.h"
 #include "embodytr.h"
-#include "emfaultstickset.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
@@ -36,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "randcolor.h"
 #include "survinfo.h"
+
 
 const int cListHeight = 5;
 
@@ -84,7 +82,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
     sectionfld_ = new uiLabeledListBox( this, "Available patches", true,
 				     labelabove ? uiLabeledListBox::AboveMid 
 				     		: uiLabeledListBox::LeftTop );
-    sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
+    sectionfld_->setPrefHeightInChar( cListHeight );
     sectionfld_->setStretch( 2, 2 );
     sectionfld_->box()->selectionChanged.notify( 
 	    				mCB(this,uiIOSurface,ioDataSelChg) );
@@ -426,10 +424,6 @@ int uiSurfaceWrite::getStratLevelID() const
 }
 
 
-void uiSurfaceWrite::setColor( const Color& col )
-{ if ( colbut_ ) colbut_->setColor( col ); }
-
-
 Color uiSurfaceWrite::getColor() const
 {
     return colbut_ ? colbut_->color() : getRandStdDrawColor();
@@ -527,334 +521,3 @@ bool uiSurfaceRead::processInput()
 
     return true;
 }
-
-
-// uiFaultParSel
-class uiFSS2DLineSelDlg : public uiDialog
-{
-public:
-    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<PosInfo::GeomID>& geoids )    
-    	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
-		    "Available for 2D lines",mNoHelpID))
-    {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
-	IOM().to( ctio->ctxt.getSelKey() );
-	IODirEntryList entlst( IOM().dirPtr(), ctio->ctxt );
-
-	for ( int idx=0; idx<entlst.size(); idx++ )
-	{
-	    const IOObj* obj = entlst[idx]->ioobj;
-	    if ( !obj ) continue;
-
-	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj->key());
-	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
-	    if ( !fss ) continue;
-
-	    EM::SectionID sid = fss->sectionID(0);
-	    const int nrsticks = fss->geometry().nrSticks( sid );
-	
-	    bool fssvalid = false;
-	    for ( int gidx=0; gidx<geoids.size(); gidx++ )
-	    {
-		if ( fssvalid ) break;
-
-    		S2DPOS().setCurLineSet(geoids[gidx].lsid_);
-    		PosInfo::Line2DData linegeom;
-    		if ( !S2DPOS().getGeometry(geoids[gidx].lineid_,linegeom) )
-    		    return;
-
-		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
-		{
-		    const Geometry::FaultStickSet* fltgeom =
-			fss->geometry().sectionGeometry( sid );
-		    if ( !fltgeom ) continue;
-		    
-		    const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-		    if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
-			continue;
-	    
-		    const MultiID* lsid =
-			fss->geometry().pickedMultiID(sid,sticknr);
-		    if ( !lsid ) continue;
-		    
-		    PtrMan<IOObj> lsobj = IOM().get( *lsid );
-		    if ( !lsobj ) continue;
-		    
-		    const char* lnnm = fss->geometry().pickedName(sid,sticknr);
-		    if ( !lnnm ) continue;
-
-		    if ( geoids[gidx]==S2DPOS().getGeomID(lsobj->name(),lnnm) )
-		    {
-			fssvalid = true;
-			break;
-		    }
-		}
-	    }
-
-	    if ( fssvalid )
-	    {
-		validfss_.add( fss->name() );
-		validmids_ += obj->key();
-	    }
-	}
-
-	fsslistfld_ = new uiListBox(this,"",true,validmids_.size()+1,20);
-	fsslistfld_->addItems( validfss_ );
-    }
-
-    void getSelected( BufferStringSet& nms, TypeSet<MultiID>& mids ) 
-    {
-	TypeSet<int> selids;
-	fsslistfld_->getSelectedItems( selids );
-	for ( int idx=0; idx<selids.size(); idx++ )
-	{
-	    nms.add( *validfss_[selids[idx]] );
-	    mids += validmids_[selids[idx]];
-	}
-    }
-
-    void setSelectedItems( BufferStringSet sel )
-    { fsslistfld_->setSelectedItems(sel); }
-
-
-    uiListBox*		fsslistfld_;
-    BufferStringSet	validfss_;
-    TypeSet<MultiID>	validmids_;
-};
-
-
-class uiFaultOptSel: public uiDialog
-{
-public:
-    uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
-	: uiDialog(p,uiDialog::Setup( 
-		    fltpar.is2d_ ? "FaultStickSet selection":"Fault selection",
-		    "Selected", mNoHelpID) )
-	, fltpar_(fltpar)
-    {
-	table_ = new uiTable( this, uiTable::Setup(4).rowgrow(true).fillrow(
-		    true).rightclickdisabled(true).selmode(uiTable::Single),"");
-	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
-    	const char* collbls[] = { fltnm, "Act option", 0 };
-    	table_->setColumnLabels( collbls );
-    	table_->setLeftMargin( 0 );
-    	table_->setSelectionBehavior( uiTable::SelectRows );
-    	table_->setColumnResizeMode( uiTable::ResizeToContents );
-    	table_->setRowResizeMode( uiTable::Interactive );
-    	table_->setColumnStretchable( 0, true );
-    	table_->setColumnStretchable( 1, true );
-	
-    	uiPushButton* addbut = new uiPushButton( this, "&Add", 
-		mCB(this,uiFaultOptSel,addCB), true );
-	addbut->attach( rightOf, table_ );
-	
-    	removebut_ = new uiPushButton( this, "&Remove", 
-		mCB(this,uiFaultOptSel,removeCB), true );
-	removebut_->attach( alignedBelow, addbut );
-
-	for ( int idx=0; idx<fltpar_.selfaultids_.size(); idx++ )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( fltpar_.selfaultids_[idx] );
-	    addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
-	}
-    }
-
-    void addCB( CallBacker* )
-    {
-	PtrMan<CtxtIOObj> objio = fltpar_.is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
-						: mMkCtxtIOObj(EMFault3D);
-	uiIOObjSelDlg dlg( this, *objio, 0, true );
-	if ( !dlg.go() )
-	    return;
-
-	for ( int idx=0; idx<dlg.nrSel(); idx++ )
-	{
-	    const MultiID& mid = dlg.selected( idx );
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
-    	    if ( !ioobj ) continue;
-
-	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj, 0 );
-	    
-	}
-	
-	removebut_->setSensitive( fltpar_.selfaultids_.size() );
-    }
-    
-    void addObjEntry( int row, const IOObj& ioobj, int optidx )
-    {
-	if ( row==table_->nrRows() )
-	    table_->insertRows( row, 1 );
-
-	uiComboBox* actopts = new uiComboBox( 0, fltpar_.optnms_, 0 );
-	actopts->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB) );
-	actopts->setCurrentItem( optidx );
-	table_->setCellObject( RowCol(row,1), actopts );
-	
-	const char * fltnm = ioobj.name();
-	table_->setText( RowCol(row,0), fltnm );
-	table_->setCellReadOnly( RowCol(row,0), true );
-
-	if ( fltpar_.selfaultnms_.isPresent(fltnm) )
-	    return;	  
-
-	fltpar_.selfaultids_ += ioobj.key();
-	fltpar_.selfaultnms_.add( fltnm );
-	fltpar_.optids_ += optidx;
-    }
-
-    void removeCB( CallBacker* )
-    {
-	const int currow = table_->currentRow();
-	if ( currow==-1 ) return;
-
-	if ( currow<fltpar_.selfaultids_.size() )
-	{
-	    fltpar_.selfaultids_.removeSingle( currow );
-	    fltpar_.selfaultnms_.removeSingle( currow );
-	    fltpar_.optids_.removeSingle( currow );
-	}
-
-	table_->removeRow( currow );
-	removebut_->setSensitive( fltpar_.selfaultids_.size() );
-    }
-
-    void optCB( CallBacker* cb )
-    {
-    	for ( int idx=0; idx<fltpar_.optids_.size(); idx++ )
-    	{
-	    mDynamicCastGet(uiComboBox*, selbox,
-		    table_->getCellObject(RowCol(idx,1)) );
-	    if ( selbox==cb )
-	    {
-    		fltpar_.optids_[idx] = selbox->currentItem();
-		return;
-	    }
-    	}
-    }
-
-    uiFaultParSel&	fltpar_;
-    uiTable*		table_;
-    uiPushButton*	removebut_;
-};
-
-
-
-uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,"Faults","Select")
-    , is2d_(is2d)
-    , selChange(this)
-    , useoptions_(useoptions)  
-{
-    butPush.notify( mCB(this,uiFaultParSel,doDlg) );
-    uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
-    clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
-    clearbut->attach( rightOf, selbut_ );
-}
-
-
-void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
-       				       const TypeSet<FaultTrace::Act>* act )
-{
-    selfaultids_.erase();
-    selfaultnms_.erase();
-    optids_.erase();
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
-	if ( !ioobj ) continue;
-
-	selfaultnms_.add( ioobj->name() );
-	selfaultids_ += ids[idx];
-	optids_ += act && act->validIdx(idx) ? (*act)[idx] 
-	    				     : FaultTrace::AllowCrossing;
-    }
-    updSummary(0);
-    selChange.trigger();
-}
-
-
-void uiFaultParSel::clearPush( CallBacker* )
-{
-    selfaultnms_.erase();
-    selfaultids_.erase();
-    optids_.erase();
-
-    updSummary(0);
-    selChange.trigger();
-}
-
-
-void uiFaultParSel::set2DGeomIds( const TypeSet<PosInfo::GeomID>& nids )
-{
-    geomids_.erase();
-    geomids_ = nids;
-}
-
-
-void uiFaultParSel::doDlg( CallBacker* )
-{
-    if ( useoptions_ && !optnms_.isEmpty() )
-    {
-	uiFaultOptSel dlg( this, *this );
-	if ( !dlg.go() ) return;
-    }
-    else if ( is2d_ && geomids_.size() )
-    {
-    	uiFSS2DLineSelDlg dlg( this, geomids_ );
-    	dlg.setSelectedItems( selfaultnms_ );
-    	if ( !dlg.go() ) return;
-    	
-	selfaultnms_.erase();
-    	selfaultids_.erase();
-    	dlg.getSelected( selfaultnms_, selfaultids_ );
-    }
-    else
-    {
-	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
-				       : mMkCtxtIOObj(EMFault3D);
-	uiIOObjSelDlg dlg( this, *ctio, "Select Faults", true );
-	dlg.selGrp()->getListField()->setSelectedItems( selfaultnms_ );
-	if ( !dlg.go() ) return;
-
-	selfaultnms_.erase();
-	selfaultids_.erase();
-	uiIOObjSelGrp* selgrp = dlg.selGrp();
-	selgrp->processInput();
-	selgrp->getListField()->getSelectedItems( selfaultnms_ );
-	for ( int idx=0; idx<selfaultnms_.size(); idx++ )
-	    selfaultids_ += selgrp->selected(idx);
-    }
-
-    selChange.trigger();
-}
-
-
-BufferString uiFaultParSel::getSummary() const
-{
-    const bool addopt = useoptions_ && !optnms_.isEmpty();
-    BufferString summ;
-    for ( int idx=0; idx<selfaultnms_.size(); idx++ )
-    {
-	summ += selfaultnms_.get(idx);
-	if ( addopt )
-	{
-    	    summ += " (";
-    	    summ += optnms_[optids_[idx]]->buf();
-	    summ += ")";
-	}
-
-	summ += idx == selfaultnms_.size()-1 ? "." : ", ";
-    }
-    return summ.isEmpty() ? BufferString(" - ") : summ;
-}
-
-
-void uiFaultParSel::setActOptions( const BufferStringSet& opts )
-{
-    optnms_.erase();
-    optnms_ = opts;
-}
-
-
-
-

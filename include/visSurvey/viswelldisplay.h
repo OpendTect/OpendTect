@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "viswell.h"
@@ -46,11 +45,12 @@ namespace visSurvey
 {
 class Scene;
 
-/*!
-\brief Used for displaying welltracks, markers and logs.
+/*!\brief Used for displaying welltracks, markers and logs
+
+
 */
 
-mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
+mClass WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
 {
 public:
@@ -147,7 +147,7 @@ protected:
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
-    void			getTrackPos(const Well::Data*,TypeSet<Coord3>&);
+    TypeSet<Coord3>		getTrackPos(const Well::Data*);
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
     void                        pickCB(CallBacker* cb=0);
@@ -187,4 +187,3 @@ protected:
 
 
 #endif
-

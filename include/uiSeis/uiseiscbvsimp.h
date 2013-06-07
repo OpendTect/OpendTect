@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -28,7 +27,7 @@ class uiLabeledComboBox;
 
 /*!\brief Actually imports or just transfers data through selection */
 
-mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
+mClass uiSeisImpCBVS : public uiDialog
 {
 public:
 
@@ -74,7 +73,7 @@ private:
 };
 
 
-mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
+mClass uiSeisCopyLineSet : public uiDialog
 {
 public:
 
@@ -95,4 +94,3 @@ protected:
 
 
 #endif
-

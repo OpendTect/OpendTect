@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
-#include "uiwellattribmod.h"
 #include "uiflatviewstdcontrol.h"
 
 class uiFlatViewer;
@@ -27,14 +25,14 @@ namespace WellTie
     class uiMrkDispDlg;
     class Server;
 
-mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
+mClass uiControlView : public uiFlatViewStdControl
 {
 public:
 			uiControlView(uiParent*,uiToolBar*,
 					uiFlatViewer*,Server&);
 			~uiControlView(){};
    
-    bool 		isZoomAtStart() const;
+    const bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 
@@ -54,10 +52,11 @@ protected:
     uiIOObjSelDlg*	selhordlg_;
     uiWorldRect		curview_;
    
-    uiMrkDispDlg*	mrkrdlg_;
+    uiMrkDispDlg*	hormrkdispdlg_;
     Server&		server_;
 
     bool 		checkIfInside(double,double);
+    void 		finalPrepare();
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
@@ -66,14 +65,13 @@ protected:
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);
     void		rubBandCB(CallBacker*);
-    void		reDrawNeeded(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
 
     friend class	uiTieWin;
 };
 
 /*
-mExpClass(uiWellAttrib) uiTieClippingDlg : public uiDialog
+mClass uiTieClippingDlg : public uiDialog
 {
 public:
 				uiTieClippingDlg(uiParent*);
@@ -81,7 +79,7 @@ public:
 
 protected :
 
-    mStruct(uiWellAttrib) ClipData
+    mStruct ClipData
     {
 	float			cliprate_;			
 	bool			issynthetic_;			
@@ -103,5 +101,3 @@ protected :
 }; //namespace WellTie
 
 #endif
-
-

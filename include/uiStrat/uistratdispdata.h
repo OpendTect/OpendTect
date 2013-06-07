@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
-#include "uistratmod.h"
 #include "callback.h"
 #include "color.h"
 #include "ranges.h"
@@ -31,15 +29,15 @@ namespace Strat
 }
 
 class uiStratRefTree;
-class uiTreeViewItem;
+class uiListViewItem;
 
-mExpClass(uiStrat) StratDispData
+mClass StratDispData
 {
 public:
 			StratDispData() {};
 			~StratDispData() { eraseData(); }
 
-    mStruct(uiStrat) Unit
+    mStruct Unit
     {
 			Unit(const char* nm, const char* fullcode=0,
 				    const Color& col = Color::White() )
@@ -65,7 +63,7 @@ public:
     };
 
 
-    mStruct(uiStrat) Level
+    mStruct Level
     {
 			Level(const char* nm,const char* unitcode)
 				: unitcode_(unitcode)
@@ -79,7 +77,7 @@ public:
     };
 
 
-    mStruct(uiStrat) Column 
+    mStruct Column 
     {
 			Column( const char* nm )
 			    : name_(nm)
@@ -150,16 +148,15 @@ protected :
 
 /*!\brief used to gather all units and tied levels from a tree for display*/
 
-mExpClass(uiStrat) uiStratTreeToDisp : public CallBacker
+mClass uiStratTreeToDispTransl : public CallBacker
 {
 public:
-    			uiStratTreeToDisp(StratDispData&,
+    			uiStratTreeToDispTransl(StratDispData&,
 					bool withaux=true,
 					bool withlvls=true);
-			~uiStratTreeToDisp();
+			~uiStratTreeToDispTransl();
 
-    void		setTree();
-    Notifier<uiStratTreeToDisp> newtreeRead;
+    Notifier<uiStratTreeToDispTransl> newtreeRead;
     
     int			levelColIdx() const 	{ return levelcolidx_; }
 
@@ -184,18 +181,21 @@ protected:
 
     void		triggerDataChange(CallBacker*);
     void		treeDel(CallBacker*);
+
+public:
+     void		setTree();
 };
 
 
-/*!brief used to write directly in the treeView of the uiStratRefTree as if we were handling the uiTree directly*/
+/*!brief used to write directly in the listView of the uiStratRefTree as if we were handling the uiTree directly*/
 
-mExpClass(uiStrat) uiStratDispToTree : public CallBacker
+mClass uiStratDispToTreeTransl : public CallBacker
 {
 public:
-    			uiStratDispToTree(uiStratRefTree&);
-	                ~uiStratDispToTree(){};
+    			uiStratDispToTreeTransl(uiStratRefTree&);
+	                ~uiStratDispToTreeTransl(){};
 
-    uiTreeViewItem*	getItemFromTree(const char*);
+    uiListViewItem*	getItemFromTree(const char*);
 
     void		handleUnitMenu(const char*);
     void		setUnitLvl(const char*);
@@ -207,5 +207,3 @@ protected:
 };
 
 #endif
-
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-mUseQtnamespace
+
 
 class i_uiGroupLayoutItem : public i_uiLayoutItem
 {
@@ -57,7 +57,7 @@ class uiGroupObjBody  : public uiObjectBody, public QFrame
     friend class 		uiDialog;
     friend class 		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
-    friend			uiGroup* gtDynamicCastToGrp(QWidget*);
+    friend			uiGroup* gtDynamicCastToGrp( QWidget*);
 public:
     				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
@@ -158,10 +158,8 @@ protected:
 				reciprocal );
 			}
 
-    virtual const QWidget* qwidget_() const
-    						{ return objbody_.qwidget(); }
-    virtual const QWidget* managewidg_() const
-    						{ return objbody_.qwidget();}
+    virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }
+    virtual const QWidget* managewidg_() const { return objbody_.qwidget();}
 
     void		mngrDel( CallBacker* cb ) 
 			{
@@ -425,17 +423,17 @@ int i_uiGroupLayoutItem::centre(LayoutMode m, bool hor) const
 }
 
 
+static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
+
 uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )
 {
-    static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
-    if ( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box |
-	    				     QFrame::Plain );
+    if ( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box | QFrame::Plain );
 
 #ifdef __debug__
     if( !grpbdy ) { pErrMsg("Huh") ; return; }
@@ -526,7 +524,7 @@ void uiGroup::setFrame( bool yn )
 	setFrameStyle( QFrame::NoFrame );
     else
     {
-	setFrameStyle(QFrame::StyledPanel | QFrame::Raised); 
+	setFrameStyle( QFrame::StyledPanel | QFrame::Raised ); 
 	grpobj_->body_->setLineWidth( 1 );
 	grpobj_->body_->setMidLineWidth( 0 );
     }

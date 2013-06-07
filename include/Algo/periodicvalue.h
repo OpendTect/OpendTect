@@ -31,13 +31,14 @@ inline T dePeriodize( T val, T period )
     return n ? val - n * period : val; 
 }
 
-
-/*!
-\brief PeriodicValue handles periodic data through mathematical operations.
+/*!>
+  \brief
+  PeriodicValue handles periodic data through mathematical operations.
 */
 
+
 template <class T,int P>
-mClass(Algo) PeriodicValue
+class PeriodicValue
 {
 public:
     T				val(bool positive=true) const

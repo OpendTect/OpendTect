@@ -141,7 +141,7 @@ void uiSEGYDefDlg::fillPar( IOPar& iop ) const
     filespecfld_->fillPar( iop );
     fileparsfld_->fillPar( iop );
     iop.set( uiSEGYExamine::Setup::sKeyNrTrcs, nrTrcExamine() );
-    iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
+    iop.set( sKey::Geometry, Seis::nameOf(geomType()) );
 }
 
 
@@ -163,7 +163,7 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
     int nrex = nrTrcExamine();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
     nrtrcexfld_->setValue( nrex );   
-    const char* res = iop.find( sKey::Geometry() );
+    const char* res = iop.find( sKey::Geometry );
     if ( res && *res && geomfld_ )
     {
 	geomfld_->setCurrentItem( res );

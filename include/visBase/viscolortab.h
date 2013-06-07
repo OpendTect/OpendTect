@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "viscolorseq.h"
 #include "color.h"
 #include "ranges.h"
@@ -35,7 +34,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) VisColorTab : public DataObject
+mClass VisColorTab : public DataObject
 {
 public:
     static VisColorTab*		create()
@@ -43,8 +42,8 @@ public:
 
     bool			autoScale() const;
     void			setAutoScale(bool yn);
-    const Interval<float>&	clipRate() const;
-    void			setClipRate(const Interval<float>&);
+    Interval<float>		clipRate() const;
+    void			setClipRate(Interval<float>);
     float			symMidval() const;
     void			setSymMidval(float);
     void			scaleTo(const Interval<float>& rg);
@@ -53,7 +52,7 @@ public:
     void			scaleTo(const ValueSeries<float>* values,
 	    				od_int64 nrvalues);
     				/*!< Does only work if autoscale is true */
-    const Interval<float>&	getInterval() const;
+    Interval<float>		getInterval() const;
 
     void			setNrSteps(int);
     int				nrSteps() const;
@@ -101,4 +100,3 @@ protected:
 
 
 #endif
-

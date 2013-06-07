@@ -12,19 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "valseriesevent.h"
 
 class IOPar;
 template <class T> class ValueSeries;
 
+/*!Base class for a tracker that tracks something (e.g. min, max, a certain
+   value)++ from one ValueSeries<float> to another. */
 
-/*!
-\brief Base class for a tracker that tracks something (e.g. min, max,
-a certain value)++ from one ValueSeries<float> to another.
-*/
-
-mExpClass(Algo) ValSeriesTracker
+mClass ValSeriesTracker
 {
 public:
     			ValSeriesTracker();
@@ -58,11 +54,10 @@ protected:
 };
 
 
-/*!
-\brief Tracker that tracks Min/Max & Zero crossings between valueseries.
-*/
+/*!Tracker that tracks Min/Max & Zero crossings between valueseries. */
 
-mExpClass(Algo) EventTracker : public ValSeriesTracker
+
+mClass EventTracker : public ValSeriesTracker
 {
 public:
     				EventTracker();
@@ -153,7 +148,6 @@ public:
 
     void			fillPar(IOPar& par) const;
     bool			usePar(const IOPar& par);
-
 protected:
 
     ValueSeriesEvent<float,float>
@@ -196,4 +190,3 @@ protected:
 
 
 #endif
-

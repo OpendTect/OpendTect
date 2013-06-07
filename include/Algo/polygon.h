@@ -16,15 +16,13 @@ ________________________________________________________________________
 #include "sets.h"
 #include "iopar.h"
 #include "bufstring.h"
-#include "bendpointfinder.h"
+
 #include <math.h>
 
-/*!
-\brief (Closed) sequence of connected 2-D coordinates.
-*/
+/*!\brief (Closed) sequence of connected 2-D coordinates */
 
 template <class T>
-mClass(Algo) ODPolygon
+class ODPolygon
 {
 public:
 		ODPolygon()
@@ -145,9 +143,6 @@ protected:
 
     mutable Interval<T>		xrg_;
     mutable Interval<T>		yrg_;
-
-public:
-    void			keepBendPoints(float eps);
 };
 
 
@@ -237,7 +232,7 @@ template <class T> inline
 void ODPolygon<T>::remove( int idx )
 {
     if ( poly_.validIdx(idx) )
-	poly_.removeSingle( idx );
+	poly_.remove( idx );
     xrg_.set( mUdf(T), mUdf(T) );
     yrg_.set( mUdf(T), mUdf(T) );
 }
@@ -543,11 +538,10 @@ float ODPolygon<T>::sgnArea() const
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (float) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
-					(pt2.x-pt0.x) * (pt1.y-pt0.y) );
+	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
     }
 
-    return 0.5f * area2;
+    return 0.5*area2;
 }
 
 
@@ -573,8 +567,7 @@ void ODPolygon<T>::convexHull()
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	if ( pivot == poly_[idx] )
-	    //poly_.removeSingle( idx, false );
-	    poly_.removeSingle( idx );
+	    poly_.remove( idx, false );
     }
 
     // Angular sort of all pivot-to-point segments
@@ -594,7 +587,7 @@ void ODPolygon<T>::convexHull()
 	    else if ( pivot.sqDistTo(vtx) > pivot.sqDistTo(vty) )
 		poly_[idy] = vtx;
 
-	    poly_.removeSingle( idx );
+	    poly_.remove( idx );
 	    break;
 	}
     }
@@ -610,7 +603,7 @@ void ODPolygon<T>::convexHull()
 	    if ( isRightOfLine(vtz, vty-vtx, vtx) )
 		break;
 
-	    poly_.removeSingle( idx+1 );
+	    poly_.remove( idx+1 );
 	}
     }
 
@@ -675,6 +668,8 @@ double ODPolygon<T>::distTo( const Geom::Point2D<T>& refpt,
 	return mUdf(double);
 
     double mindist = MAXDOUBLE;
+    int mindistidx;
+    double mindistfrac;
 
     for ( int idx=(isClosed() ? sz-1 : sz-2); idx>=0; idx-- )
     {
@@ -768,39 +763,6 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
 	}
     }	
     return maxdist;
-}
-
-
-template <class T> inline
-void ODPolygon<T>::keepBendPoints( float eps )
-{
-    removeZeroLengths();
-
-    const int sz = size();
-    if ( sz < 3 )
-	return;
-
-    const int extra = closed_ ? 1 : 0;
-
-    TypeSet<Coord> coords;
-    for ( int idx=-extra; idx<sz+extra; idx++ )
-    {
-	const Geom::Point2D<T>& vtx = getVertex( (sz+idx)%sz );
-	coords += Coord( vtx.x, vtx.y );
-    }
-
-    BendPointFinder2D finder( coords, eps );
-    finder.execute();
-    const TypeSet<int>& bendpoints = finder.bendPoints();
-
-    int bpidx = bendpoints.size()-extra-1;
-    for ( int vtxidx=sz-1; vtxidx>=0; vtxidx-- )
-    {
-	if ( bpidx>=0 && vtxidx==bendpoints[bpidx]-extra )
-	    bpidx--;
-	else
-	    remove( vtxidx );
-    }
 }
 
 

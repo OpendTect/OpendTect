@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "localserver.h"
 #include "qlocalservercomm.h"
@@ -43,7 +43,7 @@ void LocalServer::close()
 
 const char* LocalServer::errorMsg() const
 {
-    errmsg_ = qlocalserver_->errorString().toLatin1().constData();
+    errmsg_ = qlocalserver_->errorString().toAscii().constData();
     return errmsg_.buf();
 }
 

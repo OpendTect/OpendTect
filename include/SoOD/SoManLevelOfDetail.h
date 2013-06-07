@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoMFFloat.h>
@@ -31,7 +30,7 @@ to SO_MANLEVELOFDETAIL_AUTO
 */
 
 
-mSoODClass SoManLevelOfDetail : public SoGroup {
+mClass SoManLevelOfDetail : public SoGroup {
     typedef SoGroup inherited;
 
     SO_NODE_HEADER(SoManLevelOfDetail);
@@ -61,4 +60,3 @@ private:
 };
 
 #endif
-

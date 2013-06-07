@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "prestackeventsapi.h"
 
@@ -163,7 +163,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     if ( !ioobj ) return -1;
 
     int res = 0;
-    while ( ids_.isPresent(res) ) res++;
+    while ( ids_.indexOf(res)!=-1 ) res++;
 
     if ( !strcmp(ioobj->group(),PSEventTranslatorGroup::sKeyword() ) )
     {
@@ -202,16 +202,19 @@ void PreStack::EventsAPIMgr::closeReader( int handle )
     if ( events_[idx] )
     {
 	events_[idx]->getEvents( curpos_[idx], false, false )->unRef();
-	events_.removeSingle( idx )->unRef();
+
+	events_[idx]->unRef();
+	events_.remove( idx );
     }
     else if ( velpicks_[idx] )
     {
-	velpicks_.removeSingle( idx )->unRef();
+	velpicks_[idx]->unRef();
+	velpicks_.remove( idx );
     }
 
-    ids_.removeSingle( idx );
-    curpos_.removeSingle( idx );
-    delete locations_.removeSingle( idx );
+    ids_.remove( idx );
+    curpos_.remove( idx );
+    delete locations_.remove( idx );
 }
 
 
@@ -373,7 +376,7 @@ void PreStack::EventsAPIMgr::getEvent( int handle, int index, float* offsets,
 	    if ( azimuths ) azimuths[idy] = pick->offsetazimuth_[idy].azimuth();
 	    if ( depths ) depths[idy] = pick->pick_[idy];
 	    if ( quality ) quality[idy] = pick->pickquality_
-					    ? pick->pickquality_[idy] : 1.f;
+					    ? pick->pickquality_[idy] : 1;
 	}
     }
     else

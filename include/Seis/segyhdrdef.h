@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "objectset.h"
 class IOPar;
  
@@ -21,7 +20,7 @@ namespace SEGY
 
 /*!\brief describes one tape or trace header field */
 
-mExpClass(Seis) HdrEntry
+mClass HdrEntry
 {
 public:
 
@@ -65,12 +64,12 @@ protected:
     char*		desc_;
     char*		name_;
 
-    inline static 	BytePos udfBP()		{ return -32768; }
+    inline static const BytePos udfBP()		{ return -32768; }
 
 };
 
 
-mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
+mClass HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
 
@@ -99,4 +98,3 @@ protected:
 } // namespace
 
 #endif
-

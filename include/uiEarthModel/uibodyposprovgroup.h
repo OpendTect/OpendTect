@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
 class MultiID;
 class CtxtIOObj;
@@ -22,7 +21,7 @@ class uiPosSubSel;
 
 
 /*! \brief UI for BodyPosProvider */
-mExpClass(uiEarthModel) uiBodyPosProvGroup : public uiPosProvGroup
+mClass uiBodyPosProvGroup : public uiPosProvGroup
 {
 public:
 				uiBodyPosProvGroup(uiParent*,
@@ -48,4 +47,3 @@ protected:
 };
 
 #endif
-

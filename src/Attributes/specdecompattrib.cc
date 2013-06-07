@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -99,7 +99,7 @@ void SpecDecomp::updateDesc( Desc& desc )
     //HERE see what to do when SI().zStep() != refstep_ !!!
     float dfreq;
     mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
-    const float nyqfreq = 0.5f / SI().zStep();
+    const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = (int)( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
 }
@@ -109,9 +109,9 @@ void SpecDecomp::updateDefaults( Desc& desc )
 {
     ValParam* paramgate = desc.getValParam(gateStr());
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
-    float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
+    float roundedzstep = SI().zStep()*SI().zFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor ( roundedzstep );
+	roundedzstep = (int)( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 
@@ -138,7 +138,7 @@ SpecDecomp::SpecDecomp( Desc& desc )
 
     if ( transformtype_ == mTransformTypeFourier )
     {
-	int wtype = mUdf(int);
+	int wtype;
 	mGetEnum( wtype, windowStr() );
 	windowtype_ = (ArrayNDWindow::WindowType)wtype;
 	
@@ -148,13 +148,13 @@ SpecDecomp::SpecDecomp( Desc& desc )
     }
     else if ( transformtype_ == mTransformTypeDiscrete )
     {
-	int dwave = mUdf(int);
+	int dwave;
 	mGetEnum( dwave, dwtwaveletStr() );
 	dwtwavelet_ = (WaveletTransform::WaveletType) dwave;
     }
     else 
     {
-	int cwave = mUdf(int);
+	int cwave;
 	mGetEnum( cwave, cwtwaveletStr() );
 	cwtwavelet_ = (CWT::WaveletType) cwave;
     }
@@ -203,7 +203,7 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 				   mNINT32(gate_.stop/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
-	    const float fnyq = 0.5f / refstep_;
+	    const float fnyq = 0.5 / refstep_;
 	    const int minsz = mNINT32( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
@@ -259,7 +259,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    samp++;
 	}
 
-	removeBias<float_complex,float>( &signal );
+	removeBias( &signal );
 	window_->apply( &signal );
 
 	const int diff = (int)(fftsz_ - sz_)/2;
@@ -322,8 +322,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     {
         for ( int scale=2; scale<nrscales; scale++ )
         {
-            int scalepos = intpow( 2,mCast(char,scale-1) ) + 
-					( (idx+off) >> (nrscales-scale) );
+            int scalepos = intpow(2,scale-1) + ((idx+off) >> (nrscales-scale));
             spectrum[scale] = fabs(transformed.get(scalepos));
 
 	    if ( !outputinterest_[scale] ) continue;
@@ -373,7 +372,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.setWavelet( cwtwavelet_ );
     cwt.setDeltaT( refstep_ );
 
-    const float nyqfreq = 0.5f / SI().zStep();
+    const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = (int)( nyqfreq / deltafreq_ );
     const float freqstop = deltafreq_*nrattribs;
     TypeSet<int> freqidxs;
@@ -427,7 +426,7 @@ const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    const float fnyq = 0.5f / refstep_;
+    const float fnyq = 0.5 / refstep_;
     const char* basestr = "frequency = ";
     BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )

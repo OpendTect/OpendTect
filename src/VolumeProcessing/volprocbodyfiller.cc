@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "volprocbodyfiller.h"
 
@@ -141,7 +141,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     const int inputzsz = useinput && input_
 	? input_->getCube(0).info().getSize(2) : 0;
  
-    int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
+    int bodyinlidx, bodycrlidx;
     bool alloutside;
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
@@ -171,7 +171,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    val = outsideval_;
 	else
 	{
-	    const float z = (float) ( (output_->z0_+idx) * output_->zstep_ );
+	    const float z = (output_->z0_+idx)*output_->zstep_;
 	    if ( flatbody )
 		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
 							   : outsideval_;
@@ -291,12 +291,12 @@ Task* BodyFiller::createTask()
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
-	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = (float) plgknots_[idx].z;
+	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = plgknots_[idx].z;
 	}
 	else
 	{
 	    flatpolygon_.hrg.include( bid );
-	    flatpolygon_.zrg.include( (float) plgknots_[idx].z );
+	    flatpolygon_.zrg.include( plgknots_[idx].z );
 	}
     }
     

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "bufstringset.h"
@@ -24,11 +23,7 @@ class TaskRunner;
 namespace EM
 {
 
-/*!
-\brief %Horizon preloader
-*/
-
-mExpClass(EarthModel) HorizonPreLoader : public CallBacker
+mClass HorizonPreLoader : public CallBacker
 {
 public:
 				HorizonPreLoader();
@@ -50,9 +45,8 @@ protected:
 };
 
 
-mGlobal(EarthModel) HorizonPreLoader& HPreL();
+mGlobal HorizonPreLoader& HPreL();
 
 } //namespace EM
 
 #endif
-

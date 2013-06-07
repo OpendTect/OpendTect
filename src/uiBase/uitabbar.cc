@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
 
 #include "i_qtabbar.h"
 
-mUseQtnamespace
 
 uiTab::uiTab( uiGroup& grp )
     : NamedObject( grp.name() )
@@ -27,8 +26,7 @@ class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
 public:
 			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
-			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,
-				    					nm)
+			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,nm)
 			    , messenger_(*new i_tabbarMessenger(this,&hndl))
 			    {
 				setHSzPol( uiObject::MedVar );

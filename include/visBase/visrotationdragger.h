@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 #include "trigonometry.h"
@@ -32,7 +31,7 @@ namespace visBase
 /*! Dragger for rotations. Rotation can either be free (i.e. a trackball type),
     or bound to be around the z axis. */
 
-mExpClass(visBase) RotationDragger : public DataObject
+mClass RotationDragger : public DataObject
 {
 public:
     static RotationDragger*	create()
@@ -83,4 +82,3 @@ protected:
 } // namespace
 	
 #endif
-

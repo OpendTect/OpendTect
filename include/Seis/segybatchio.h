@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "gendefs.h"
 
 
@@ -28,10 +27,10 @@ namespace SEGY
 
 namespace IO
 {
-    inline const char* sKeyTask()	{ return "Task"; }
-    inline const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
-    inline const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
-    inline const char* sKeyIs2D()	{ return "Is 2D"; }
+    inline mGlobal const char* sKeyTask()	{ return "Task"; }
+    inline mGlobal const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }
+    inline mGlobal const char* sKeyIndex3DVol() { return "Index 3D Volume"; }
+    inline mGlobal const char* sKeyIs2D()	{ return "Is 2D"; }
 
 }; //namespace IO
 
@@ -39,4 +38,3 @@ namespace IO
 
 
 #endif
-

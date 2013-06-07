@@ -12,16 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoinmod.h"
 #include <uiobj.h>
 
 class uiThumbWheelBody;
 
-/*!
-\brief Thumb wheel
-*/
-
-mExpClass(uiCoin) uiThumbWheel : public uiObject
+mClass uiThumbWheel : public uiObject
 {
 friend class		i_ThumbWheelMessenger;
 public:
@@ -46,7 +41,6 @@ public:
     Notifier<uiThumbWheel> wheelReleased;
 
 protected:
-
     float               lastmv;
 
 private:
@@ -58,4 +52,3 @@ private:
 };
 
 #endif
-

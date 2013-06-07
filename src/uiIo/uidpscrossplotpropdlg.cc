@@ -7,12 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
-
-#include "mathexpression.h"
 
 #include "linear.h"
 #include "settings.h"
@@ -63,29 +61,21 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	flds->doclipfld_ = new uiGenInput( this, "Use clipping",
-				BoolInpSpec(asp.doautoscale_) );
+				    BoolInpSpec(asp.doautoscale_) );
 	flds->doclipfld_->valuechanged.notify(
-				mCB(this,uiDPSCPScalingTab,useClipSel) );
+			    mCB(this,uiDPSCPScalingTab,useClipSel) );
 	flds->percclipfld_ = new uiGenInput( this, "Clipping percentage",
-				FloatInpSpec(asp.clipratio_*100) );
+					FloatInpSpec(asp.clipratio_*100) );
 	flds->doclipfld_->attach( alignedBelow, axlcb );
 	flds->percclipfld_->attach( alignedBelow, flds->doclipfld_ );
 
 	flds->rgfld_ = new uiGenInput( this, "Axis range/step",
-				FloatInpIntervalSpec(axhndlr->range()) );
+		FloatInpIntervalSpec(axhndlr->range()) );
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
 
-    plotter_.dataChgd.notify( mCB(this,uiDPSCPScalingTab,updateFlds) );
     p->postFinalise().notify( axselcb );
 }
-
-
-~uiDPSCPScalingTab()
-{
-    plotter_.dataChgd.remove( mCB(this,uiDPSCPScalingTab,updateFlds) );
-}
-
 
 void axSel( CallBacker* )
 {
@@ -96,10 +86,6 @@ void axSel( CallBacker* )
     {
 	uiDPSCPScalingTabAxFlds& axflds = *axflds_[idx];
 	if ( !axflds.doclipfld_ ) continue;
-	
-	uiAxisHandler* axhndlr = plotter_.axisHandler( idx );
-	if ( !axhndlr ) continue;
-
 	axflds.doclipfld_->display( idx == axnr );
 	axflds.percclipfld_->display( idx == axnr );
 	axflds.rgfld_->display( idx == axnr );
@@ -122,23 +108,6 @@ void useClipSel( CallBacker* )
 }
 
 
-void updateFlds( CallBacker* )
-{
-    for ( int idx=0; idx<3; idx++ )
-    {
-	uiAxisHandler* axh = plotter_.axisHandler( idx );
-	if ( !axh ) continue;
-	
-	uiDPSCPScalingTabAxFlds& axflds = *axflds_[idx];
-	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
-
-	axflds.doclipfld_->setValue(asp.doautoscale_);
-	axflds.rgfld_->setValue(axh->range());
-	useClipSel( 0 );
-    }
-}
-
-
 bool acceptOK()
 {
     for ( int idx=0; idx<3; idx++ )
@@ -147,13 +116,13 @@ bool acceptOK()
 	if ( !axh ) continue;
 
 	uiDPSCPScalingTabAxFlds& axflds = *axflds_[idx];
-	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );	
+	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
 	const bool doas = axflds.doclipfld_->getBoolValue();
 	if ( !doas )
-	    axh->setBounds( axflds.rgfld_->getFStepInterval() );
+	    axh->setRange( axflds.rgfld_->getFStepInterval() );
 	else
 	{
-	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
+	    float cr = axflds.percclipfld_->getfValue() * 0.01;
 	    if ( cr < 0 || cr > 1 )
 	    {
 		uiMSG().error("Clipping percentage must be between 0 and 100");
@@ -161,14 +130,17 @@ bool acceptOK()
 	    }
 	    asp.clipratio_ = cr;
 	}
+
 	asp.doautoscale_ = plotter_.axisData(idx).needautoscale_ = doas;
     }
+
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
     uiComboBox*				axselfld_;
     ObjectSet<uiDPSCPScalingTabAxFlds>	axflds_;
+
 };
 
 
@@ -218,6 +190,8 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 void initFlds( CallBacker* )
 {
+    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
+    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
 
     const LinStats2D& ls = plotter_.linStats();
@@ -257,177 +231,111 @@ public:
 uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),"User Defined")
     , plotter_(p->plotter())
-    , dps_(p->plotter().dps())
     , hasy2_(plotter_.axisHandler(2))
-    , shwy1userdefpolyline_(0)
-    , shwy2userdefpolyline_(0)
-    , mathobj_(0)
-    , mathobj1_(0)
-    , exp1plotted_(false)
-    , exp2plotted_(false)
-    , line1drawn_(false)
-    , line2drawn_(false)
-    , err1bfrplot_(false)
-    , err2bfrplot_(false)
+    , shwy2userdefline_(0)
     , selaxisfld_(0)
     , dragmode_(0)
 {
-    inpfld_ = new uiGenInput( this, "Equation Y1=" );
-    inpfld_->setElemSzPol( uiObject::Wide );
-    inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
-    inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
+    uiLabel* y1lbl = new uiLabel( this, "Y1 =" );
+    y1a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
+    y1a0fld_->attach( rightOf, y1lbl );
+    uiLabel* y1pluslbl = new uiLabel( this, "+ " );
+    y1pluslbl->attach( rightOf, y1a0fld_ );
 
-    rmsfld_ = new uiGenInput( this, "rms error" );
-    rmsfld_->setElemSzPol( uiObject::Small );
-    rmsfld_->attach( rightOf, inpfld_);
-    rmsfld_->setReadOnly( true );
+    y1a1fld_ = new uiGenInput( this, "", FloatInpSpec(1) );
+    y1a1fld_->attach( rightOf, y1pluslbl );
+    uiLabel* y1xlbl = new uiLabel( this, "* X" );
+    y1xlbl->attach( rightOf, y1a1fld_ );
 
-    shwy1userdefpolyline_ = new uiCheckBox( this,"Show Y1 User Defined Curve" );
-    shwy1userdefpolyline_->activated.notify(mCB(this,uiDPSUserDefTab,parseExp));
-    shwy1userdefpolyline_->attach( alignedBelow, inpfld_ );
+    shwy1userdefline_ = new uiCheckBox( this, "Show Y1 User Defined line" );
+    shwy1userdefline_->attach( alignedBelow, y1a0fld_ );
     
     if ( hasy2_ )
     {
-	inpfld1_ = new uiGenInput( this, "Equation Y2=" );
-	inpfld1_->setElemSzPol( uiObject::Wide );
-	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
-	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
-	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );        
+	uiLabel* y2lbl = new uiLabel( this, "Y2 =" );
+	y2lbl->attach( alignedBelow, y1lbl );
+	y2lbl->attach( ensureBelow, shwy1userdefline_ );
+	y2a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
+	y2a0fld_->attach( rightOf, y2lbl );
+	uiLabel* y2pluslbl = new uiLabel( this, "+ " );
+	y2pluslbl->attach( rightOf, y2a0fld_ );
 
-	rmsfld1_ = new uiGenInput( this, "rms error" );
-	rmsfld1_->setElemSzPol( uiObject::Small );
-	rmsfld1_->attach( rightOf, inpfld1_);
-	rmsfld1_->setReadOnly( true );
+	y2a1fld_ = new uiGenInput( this, "", FloatInpSpec(1) );
+	y2a1fld_->attach( rightOf, y2pluslbl );
+	uiLabel* y2xlbl = new uiLabel( this, "* X" );
+	y2xlbl->attach( rightOf, y2a1fld_ );
 
-	shwy2userdefpolyline_ =
-	    new uiCheckBox( this, "Show Y2 User Defined Curve" );
-	shwy2userdefpolyline_->activated.notify(
-		mCB(this,uiDPSUserDefTab,parseExp) );
-
-	shwy2userdefpolyline_->attach( alignedBelow, inpfld1_ );
+	shwy2userdefline_ = new uiCheckBox( this, "Show Y2 User Defined line" );
+	shwy2userdefline_->attach( alignedBelow, y2a0fld_ );
     }
 
     drawlinefld_ = new uiCheckBox( this, "Draw Line" );
-    drawlinefld_->attach( alignedBelow, hasy2_ ? shwy2userdefpolyline_
-	    : shwy1userdefpolyline_ );
-    drawlinefld_->activated.notify( mCB(this,uiDPSUserDefTab,checkedCB) );
-    
+    drawlinefld_->attach( alignedBelow, hasy2_ ? shwy2userdefline_
+	    				       : shwy1userdefline_ );
+    drawlinefld_->activated.notify( mCB(this,uiDPSUserDefTab,ckeckedCB) );
+
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, "", BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
+	    new uiGenInput( this, "", BoolInpSpec(true,"Draw Y1","Draw Y2") );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
 	selaxisfld_->display( false );
     }
 
-    checkedCB( 0 );
+    ckeckedCB( 0 );
     plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.notify( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
     p->postFinalise().notify( mCB(this,uiDPSUserDefTab,initFlds) );
-    p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setPolyLines) );
+    p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setLines) );
 }
 
 
 ~uiDPSUserDefTab()
 {
     plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    delete mathobj_; delete mathobj1_;
 }
 
 
-void checkMathExpr( CallBacker* cb )
+void setLines( CallBacker* cb )
 {
-    mDynamicCastGet(uiGenInput*,yinp,cb);
-    const bool isy1 = (yinp && yinp==inpfld_);
-    const BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
-    const BufferString& inptxt = isy1 ? inpfld_->text() : inpfld1_->text();
-    const bool& errbfrplot = isy1 ? err1bfrplot_ : err2bfrplot_;
-    bool& expplotted = isy1 ? exp1plotted_ : exp2plotted_;
-
-    if ( mathexpr != inptxt )
+    uiPoint pos( 0, 0 );
+    mDynamicCastGet(uiDialog*,dlg,cb);
+    if ( dlg && dlg->uiResult() == 1 )
+	return;
+    else if ( dlg->uiResult() == 0 )
     {
-	expplotted = false;
-	isy1 ? rmsfld_->setText(0) : rmsfld1_->setText(0);
-    }
-    else
-    {
-	if ( !errbfrplot ) expplotted = true;
-	isy1 ? rmsfld_->setText(plotter_.y1rmserr_)
-	    : rmsfld1_->setText(plotter_.y2rmserr_);
-    }
-}
-
-
-bool parseExp( CallBacker* cb )
-{
-    mDynamicCastGet(uiGenInput*,yinp,cb);
-    mDynamicCastGet(uiCheckBox*,ycb,cb);
-    if ( !yinp && !ycb ) return false;
-    if ( ycb && !ycb->isChecked() ) return false;
-
-    const bool isy1 =
-	(yinp && yinp==inpfld_) || (ycb && ycb==shwy1userdefpolyline_);
-    const BufferString& rmsstr = isy1 ? rmsfld_->text() : rmsfld1_->text();
-    if ( !rmsstr.isEmpty() ) return false;
-    
-    BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
-    mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
-    isy1 ? plotter_.y1rmserr_.setEmpty() : plotter_.y2rmserr_.setEmpty();;
-    MathExpressionParser mep( mathexpr );
-    MathExpression*& mathobj = isy1 ? mathobj_ : mathobj1_;
-    delete mathobj; mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
-    uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
-
-    if ( !mathobj )
-    {
-	if ( mep.errMsg() )
-	{
-	    uiMSG().error( mep.errMsg() );
-	    chkbox->setChecked( false );
-	}
-	else if ( !mathexpr.isEmpty() )
-	{
-	    msg_ = "Expression for Y";
-	    msg_ += isy1 ? "1" : "2";
-	    msg_ += " is invalid.";
-	    uiMSG().error( msg() );
-	    chkbox->setChecked( false );
-	}
-	return false;
+	shwy1userdefline_->setChecked( false );
+	if ( shwy2userdefline_ )
+	    shwy2userdefline_->setChecked( false );
+	plotter_.setUserDefDrawType( false, true );
+	plotter_.setUserDefLine( pos, pos );
+	plotter_.setUserDefDrawType( false, false );
+	plotter_.setUserDefLine( pos, pos );
     }
 
-    if ( mathobj->nrVariables() > 1 )
-    {
-	msg_ = "Expression for Y";
-	msg_ += isy1 ? "1" : "2";
-	msg_ += " contains more than one variable.";
-	uiMSG().error( msg() );
-	chkbox->setChecked( false );
-	return false;
-    }
-
-    return true;
+    drawlinefld_->setChecked( false );
+    if ( !shwy1userdefline_->isChecked() ||
+	 (shwy2userdefline_ && !shwy2userdefline_->isChecked()) )
+	plotter_.setUserDefLine( pos, pos );
+    plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
 }
 
 
 void drawAxisChanged( CallBacker* )
 {
     plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
-	    !selaxisfld_->getBoolValue(),true );
+	    			 !selaxisfld_->getBoolValue() );
 }
 
 
-void checkedCB( CallBacker* )
+void ckeckedCB( CallBacker* )
 {
     if ( selaxisfld_ )
 	selaxisfld_->display( drawlinefld_->isChecked() );
-    
-    plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
-	    selaxisfld_ && !selaxisfld_->getBoolValue(),true );
 
+    plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
+	    			 selaxisfld_ && !selaxisfld_->getBoolValue() );
     MouseCursor cursor;
     if ( drawlinefld_->isChecked() )
     {
@@ -437,196 +345,42 @@ void checkedCB( CallBacker* )
     }
     else
 	plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
-    
+
     plotter_.setCursor( cursor );
 }
 
 
 void initFlds( CallBacker* )
 {
-    inpfld_->setText( plotter_.userdefy1str_ );
-    rmsfld_->setText( plotter_.y1rmserr_);
-    
-    if ( hasy2_ )
+    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
+    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
+
+    if ( !mIsUdf(plotter_.userdefy1lp_.ax) )
     {
-	inpfld1_->setText( plotter_.userdefy2str_ );
-	rmsfld1_->setText( plotter_.y2rmserr_);
-	shwy2userdefpolyline_->setChecked( plotter_.setup().showy2userdefpolyline_ );
-    }
-    shwy1userdefpolyline_->setChecked( plotter_.setup().showy1userdefpolyline_ );
-}
-
-
-void setPolyLines( CallBacker* cb )
-{
-    TypeSet<uiWorldPoint> pos;
-    pos += uiWorldPoint(0,0);
-    mDynamicCastGet(uiDialog*,dlg,cb);
-    if ( dlg && dlg->uiResult() == 1 )
-	return;
-    else if ( dlg->uiResult() == 0 )
-    {
-	if ( line1drawn_ || err1bfrplot_ )
-	{
-	    plotter_.setup().showy1userdefpolyline_ = false;
-    	    plotter_.setUserDefPolyLine( pos, false );
-	    plotter_.drawUserDefPolyLine( true );
-	}
-	if ( shwy2userdefpolyline_ && ( line2drawn_ || err2bfrplot_ ) )
-	{
-    	    plotter_.setup().showy2userdefpolyline_ = false;
-    	    plotter_.setUserDefPolyLine( pos, true );
-	    plotter_.drawUserDefPolyLine( false );
-	}
-    }
-
-    drawlinefld_->setChecked( false );
-    if ( !shwy1userdefpolyline_->isChecked() )
-	plotter_.setUserDefPolyLine( pos, false );
-    if ( shwy2userdefpolyline_ && !shwy2userdefpolyline_->isChecked() )
-	plotter_.setUserDefPolyLine( pos, true );
-    plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
-}
-
-
-void drawPolyLines()
-{
-    uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
-    const bool shwy1 = shwy1userdefpolyline_->isChecked();
-
-    if ( shwy1 && !exp1plotted_ )
-    {
-	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
-	computePts( false ); exp1plotted_ = true;
-	line1drawn_ = err1bfrplot_ = false;
-    }
-    else if ( !exp1plotted_ && mathexprstring_.isEmpty() )
-    {
-	yax.autoscalepars_.doautoscale_ = yax.needautoscale_ = true;
-    }
-    plotter_.setUserDefDrawType( shwy1,false );
-
-    if ( hasy2_ )
-    {
-	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
-	const bool shwy2 = shwy2userdefpolyline_->isChecked();
-
-    	if ( shwy2 && !exp2plotted_ )
-    	{
-	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;
-	    computePts( true ); exp2plotted_ = true;
-	    line2drawn_ = err2bfrplot_= false;
-	}
-	else if ( !exp2plotted_ && mathexprstring1_.isEmpty() )
-	{
-   	    y2ax.autoscalepars_.doautoscale_ = y2ax.needautoscale_ = true;   
-	}
-	plotter_.setUserDefDrawType( shwy2,true );
-    }
-}
-
-
-void computePts( bool isy2 )
-{
-    TypeSet<uiWorldPoint> pts;
-    uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
-    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
-    vert.handleAutoScale( plotter_.uidps().getRunCalc( vert.colid_ ) );
-
-    StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
-	    vert.axis_->range().step );
-    MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
-    Interval<float> xrge = horz.rg_;
-    const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
-
-    for ( int idx = 0; idx < 1000; idx++ )
-    {
-	float curvxval = xrge.start + ((float)idx)*step;
-	mathobj->setVariableValue( 0, curvxval );	
-	float curvyval = mathobj->getValue();
-	if ( !Math::IsNormalNumber(curvyval) ) break;
-	if ( mIsUdf(curvyval) || mIsUdf(curvxval) ) continue;
-
-	curvyvalrg.include( curvyval, false );
-	pts += uiWorldPoint( curvxval, curvyval );
-    }
-    
-    if ( pts.size() == 0 )
-    {
-	msg_ = "Y"; msg_ += isy2 ? 2 : 1;
-	msg_ += " cannot be plotted.";
-	uiMSG().error( msg() );
-	return;
-    }
-
-    if ( !vert.axis_->range().includes(curvyvalrg) )
-    {
-	msg_ = "Y"; msg_ += isy2 ? 2 : 1;
-	msg_ += " goes beyond the autoscaled range. ";
-	msg_ += "Do you want to rescale?";
-
-	if ( uiMSG().askGoOn(msg_) )
-	{
-	    curvyvalrg.include( vert.axis_->range(), false );
-	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
-	    vert.autoscalepars_.doautoscale_ = vert.needautoscale_ = false;
-	    vert.axis_->setBounds( curvyvalrg );
-	}
-    }
-    plotter_.setUserDefPolyLine( pts,isy2 );
-}
-
-
-void getRmsError( bool isy2 )
-{
-    uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
-    uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2? 2:1);
-
-    MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
-    const BinIDValueSet& bvs = dps_.bivSet();
-    BinIDValueSet::Pos pos;
-    bool shwrmserr = true;
-    double sqsumerr = 0.0;
-    int count = 0;
-    while ( bvs.next(pos,false) )
-    {
-	DataPointSet::RowID rid = dps_.getRowID( pos );
-	const float xval = plotter_.getVal( horz.colid_, rid );
-	const float yval = plotter_.getVal( vert.colid_, rid );	
-	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
-
-	mathobj->setVariableValue( 0, xval );	
-	float expyval = mathobj->getValue();	
-	if ( !Math::IsNormalNumber(expyval) || mIsUdf(expyval) ) 
-	{ shwrmserr = false; break; }
-	
-	const float sqerr = (expyval-yval)*(expyval-yval);
-	if ( !Math::IsNormalNumber(sqerr) ) { shwrmserr = false; break; }
-	sqsumerr += sqerr;
-	if ( !Math::IsNormalNumber(sqsumerr) ) { shwrmserr = false; break; }
-	count += 1;
-    }
-
-    if ( count != 0 && shwrmserr )
-    {
-	const double rmserr = Math::Sqrt(sqsumerr/count);
-	isy2 ? rmsfld1_->setValue( rmserr ) : rmsfld_->setValue( rmserr );
-	( isy2 ? plotter_.y2rmserr_ : plotter_.y1rmserr_ ) = rmserr;
-	( isy2 ? err2bfrplot_ : err1bfrplot_ ) = true;
+	y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
+    	y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
     }
     else
     {
-	isy2 ? rmsfld1_->setText(0) : rmsfld_->setText(0);
-	isy2 ? plotter_.y2rmserr_.setEmpty() : plotter_.y1rmserr_.setEmpty();
+	y1a0fld_->setValue(0); y1a1fld_->setValue(0);
     }
-}
+    
+    if ( hasy2_ )
+    {
+	if ( !mIsUdf(plotter_.userdefy2lp_.ax) )
+	{
+	    y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
+    	    y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	}
+	else
+	{
+	    y2a0fld_->setValue(0); y2a1fld_->setValue(0);
+	}
 
-
-void getRmsErrorCB( CallBacker* )
-{
-    const bool drawy2 = selaxisfld_ && !selaxisfld_->getBoolValue();
-    uiGenInput* inpfld = drawy2 ? inpfld1_ : inpfld_;
-    if ( parseExp( inpfld ) ) getRmsError( drawy2 );
+	shwy2userdefline_->setChecked( plotter_.setup().showy2userdefline_ );
+    }
+    shwy1userdefline_->setChecked( plotter_.setup().showy1userdefline_ );
 }
 
 
@@ -634,75 +388,53 @@ void setFlds( CallBacker* )
 {
     if ( drawlinefld_->isChecked() )
     {
-	const bool drawy2 = selaxisfld_ && !selaxisfld_->getBoolValue();
-	bool& linedrawn = drawy2 ? line2drawn_ : line1drawn_;
-	uiGenInput* inpfld = drawy2 ? inpfld1_ : inpfld_;
-	const BufferString& userdefstr = drawy2 ? plotter_.userdefy2str_
-	  					: plotter_.userdefy1str_;
-	inpfld->setText( userdefstr );
-	linedrawn = true;
+	if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
+	{
+	    y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
+	    y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	}
+	else
+	{
+	    y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
+	    y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
+	}
     }
 }
 
 
 bool acceptOK()
 {
-    plotter_.userdefy1str_ = inpfld_->text();
+    plotter_.userdefy1lp_.a0 = y1a0fld_->getfValue();
+    plotter_.userdefy1lp_.ax = y1a1fld_->getfValue();
     drawlinefld_->setChecked( false );
-
-    if ( plotter_.userdefy1str_.isEmpty() )
-    {
-	mathexprstring_.setEmpty(); plotter_.y1rmserr_.setEmpty();
-	shwy1userdefpolyline_->setChecked( false );
-    }
-
-    if ( hasy2_ )
-    {
-	plotter_.userdefy2str_ = inpfld1_->text();
-	if ( plotter_.userdefy2str_.isEmpty() )
-	{
-	    mathexprstring1_.setEmpty(); plotter_.y2rmserr_.setEmpty();
-	    shwy2userdefpolyline_->setChecked( false );
-	}
-
-	plotter_.setup().showy2userdefpolyline_
-	    = shwy2userdefpolyline_->isChecked();
-	if ( parseExp( inpfld1_ ) ) getRmsError( true );
-    }
-    plotter_.setup().showy1userdefpolyline_=shwy1userdefpolyline_->isChecked();
-    if ( parseExp( inpfld_ ) ) getRmsError( false );    
     
-    drawPolyLines();
+    if ( !hasy2_ )
+	plotter_.setup().showy2userdefline_ = false;
+    else
+    {
+	plotter_.userdefy2lp_.a0 = y2a0fld_->getfValue();
+	plotter_.userdefy2lp_.ax = y2a1fld_->getfValue();
+	plotter_.setup().showy2userdefline_ = shwy2userdefline_->isChecked();
+    }
+
+    plotter_.setup().showy1userdefline_ = shwy1userdefline_->isChecked();
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
-    const DataPointSet&                 dps_;
 
-    bool		 		hasy2_;
-    bool				exp1plotted_;
-    bool				exp2plotted_;
-    bool				line1drawn_;
-    bool				line2drawn_;
-    bool				err1bfrplot_;
-    bool				err2bfrplot_;
-    int  				dragmode_;
-    uiGenInput*                         inpfld_;
-    uiGenInput*                         inpfld1_;
-    uiGenInput*				rmsfld_;
-    uiGenInput*				rmsfld1_;
-    uiGenInput*				selaxisfld_;
-    uiCheckBox*				shwy1userdefpolyline_;
-    uiCheckBox*				shwy2userdefpolyline_;
-    uiCheckBox*				drawlinefld_;
-    BufferString			mathexprstring_;
-    BufferString       			mathexprstring1_;
-    MathExpression*			mathobj_;
-    MathExpression*			mathobj1_;
-    const char*	                 	msg() const  { return msg_.str(); }
-    mutable BufferString        	msg_;
+    bool 		hasy2_;	
+    int  		dragmode_;	
+    uiGenInput*		y1a0fld_;
+    uiGenInput*		y1a1fld_;
+    uiGenInput*		y2a0fld_;
+    uiGenInput*		y2a1fld_;
+    uiGenInput*		selaxisfld_;
+    uiCheckBox*		shwy1userdefline_;
+    uiCheckBox*		shwy2userdefline_;
+    uiCheckBox*		drawlinefld_;
+
 };
-
 
 class uiDPSCPDisplayPropTab : public uiDlgGroup
 {
@@ -791,7 +523,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-	IntInpSpec(minptsfordensity_).setLimits(StepInterval<int>(1,mCast(int,1e6),100)) );
+			IntInpSpec(minptsfordensity_) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
@@ -826,8 +558,8 @@ void cellSzChanged( CallBacker* )
 	cellsz = cellsizefld_->getIntValue();
     }
 
-    wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea().width()/cellsz) );
-    hcellszfld_->setValue( mNINT32( (float) plotter_.arrArea().height()/cellsz) );
+    wcellszfld_->setValue( mNINT32( plotter_.arrArea().width()/cellsz) );
+    hcellszfld_->setValue( mNINT32( plotter_.arrArea().height()/cellsz) );
 }
 
 void wCellNrChanged( CallBacker* )
@@ -837,7 +569,7 @@ void wCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     hcellszfld_->setValue( wcellszfld_->getIntValue()/aspectratio );
     cellsizefld_->setValue(
-	    mNINT32((float) plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
+	    mNINT32(plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );
@@ -851,7 +583,7 @@ void hCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     wcellszfld_->setValue( hcellszfld_->getIntValue()*aspectratio );
     cellsizefld_->setValue(
-	    mNINT32((float) plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
+	    mNINT32(plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );
@@ -861,6 +593,13 @@ void hCellNrChanged( CallBacker* )
 bool acceptOK()
 {
     minptsfordensity_ = minptinpfld_->getIntValue();
+
+    if ( minptsfordensity_ <= 0 )
+    {
+	uiMSG().error( "Minimum points for density plot should "
+			"be an integer greater than zero." );
+	return false;
+    }
 
     if ( cellsizefld_->getIntValue() <= 0 )
     {

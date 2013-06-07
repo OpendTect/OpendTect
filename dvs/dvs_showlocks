@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# SVN: $Id$
 
 use XML::Simple;
 

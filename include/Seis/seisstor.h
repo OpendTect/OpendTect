@@ -15,13 +15,11 @@ Trace storage objects handle seismic data storage.
 -*/
 
 
-#include "seismod.h"
 #include "seisinfo.h"
 class Conn;
 class IOObj;
 class Translator;
 class SeisTrcBuf;
-class Seis2DDataSet;
 class Seis2DLineSet;
 class SeisPSIOProvider;
 class SeisTrcTranslator;
@@ -30,28 +28,28 @@ namespace Seis		{ class SelData; }
 
 /*!\brief base class for seis reader and writer. */
 
-mExpClass(Seis) SeisStoreAccess
+mClass SeisStoreAccess
 {
 public:
 
     virtual		~SeisStoreAccess();
     virtual bool	close();
 
-    bool		is2D() const		{ return is2d_; }
-    bool		isPS() const		{ return psioprov_; }
+    bool		is2D() const		{ return is2d; }
+    bool		isPS() const		{ return psioprov; }
     Seis::GeomType	geomType() const
     			{ return Seis::geomTypeOf(is2D(),isPS()); }
 
     const char*		errMsg() const
 			{ return errmsg_.str(); }
     int			tracesHandled() const
-			{ return nrtrcs_; }
+			{ return nrtrcs; }
 
     const IOObj*	ioObj() const
-			{ return ioobj_; }
+			{ return ioobj; }
     void		setIOObj(const IOObj*);
     const Seis::SelData* selData() const
-			{ return seldata_; }
+			{ return seldata; }
     void		setSelData(Seis::SelData*);
 			//!< The Seis::SelData becomes mine
 
@@ -62,24 +60,29 @@ public:
     static const char*	sNrTrcs;
 
     // Note that the Translator is always created, but only actually used for 3D
-    Translator*		translator()			{ return trl_; }
-    Translator*		translator() const		{ return trl_; }
+    Translator*		translator()
+			{ return trl; }
+    Translator*		translator() const
+			{ return trl; }
 
     // 3D only
     Conn*		curConn3D();
     const Conn*		curConn3D() const;
 
     // 3D and 2D
-    SeisTrcTranslator*	seisTranslator()		{ return strl(); }
-    const SeisTrcTranslator* seisTranslator() const	{ return strl(); }
+    SeisTrcTranslator*	seisTranslator()
+			{ return strl(); }
+    const SeisTrcTranslator* seisTranslator() const
+			{ return strl(); }
     // 2D only
-    Seis2DLineSet*	lineSet()			{ return lset_; }
-    const Seis2DLineSet* lineSet() const		{ return lset_; }
-    Seis2DDataSet*	dataSet()				{ return dataset_; }
-    const Seis2DDataSet* dataSet() const		{ return dataset_; }
+    Seis2DLineSet*	lineSet()
+			{ return lset; }
+    const Seis2DLineSet* lineSet() const
+			{ return lset; }
 
     // Pre-Stack only
-    const SeisPSIOProvider* psIOProv() const		{ return psioprov_; }
+    const SeisPSIOProvider* psIOProv() const
+			{ return psioprov; }
 
 protected:
 
@@ -88,20 +91,18 @@ protected:
     virtual void	init()			{}
     bool		cleanUp(bool alsoioobj=true);
 
-    IOObj*			ioobj_;
-    bool			is2d_;
-    int				nrtrcs_;
-    Translator*			trl_;
-    Seis2DLineSet*		lset_;
-    Seis2DDataSet*		dataset_;
-    Seis::SelData*		seldata_;
-    const SeisPSIOProvider*	psioprov_;
-    BufferString		errmsg_;
+    IOObj*		ioobj;
+    bool		is2d;
+    int			nrtrcs;
+    Translator*		trl;
+    Seis2DLineSet*	lset;
+    Seis::SelData*	seldata;
+    const SeisPSIOProvider* psioprov;
+    BufferString	errmsg_;
 
-    SeisTrcTranslator*		strl() const;
+    SeisTrcTranslator*	strl() const;
 
 };
 
 
 #endif
-

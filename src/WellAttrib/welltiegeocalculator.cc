@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "welltiegeocalculator.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "fourier.h"
 #include "fftfilter.h"
 #include "hilberttransform.h"
@@ -84,8 +84,9 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     TypeSet<float> dahs, times;
     mAllocVarLenArr( int, zidxs, sz );
 
-    const float replvel = wd.info().replvel;
-    const float replveldz = wd.info().srdelev - wd.track().getKbElev();
+    const float replvel = wd.info().getReplVel();
+    const float replveldz = -1.*wd.info().surfaceelev - wd.track().getKbElev();
+
     const float replvelshift = 2.f * replveldz / replvel;
     const float srddah = -1.f * replveldz; //dz; should use its dah instead
     const bool srdbelowkb = replveldz < 0;
@@ -103,7 +104,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	else initialt = replvelshift;
     }
     sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
-    d2t.setEmpty();
+    d2t.erase();
 
     d2t.add( 0, replvelshift ); //set KB
     if ( srdbelowkb )
@@ -135,7 +136,7 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	    d2t.add( dahs[idx1], times[idx1] + bulkshift );
     }
     if ( d2t.size() < 2 )
-	d2t.setEmpty();
+	d2t.erase();
 }
 
 
@@ -214,11 +215,11 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 
     const Well::Track& track = wd.track();
 
-    const float srddepth = -1.f * wd.info().srdelev;
+    const float srddepth = wd.info().surfaceelev;
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.dah(0);
-    const float replvel = wd.info().replvel;
+    const float replvel = wd.info().getReplVel();
     const float bulkshift = replveldz > 0 ? 2.f * replveldz / replvel : 0.f;
 
     TypeSet<float> dpts, vals;
@@ -284,7 +285,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 		    				  sz, sdpts[idx] );
     }
 
-    log.setEmpty();
+    log.erase();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float outdah = track.getDahForTVD( sdpts[idx] );
@@ -321,7 +322,7 @@ void GeoCalculator::removeSpikes( float* inp, int sz, int gate, int fac ) const
 class DeconvolveData
 {
 public:
-    
+
 DeconvolveData( int sz )
     : fft_(*Fourier::CC::createDefault())
     , sz_(getPower2Size(sz))
@@ -330,8 +331,11 @@ DeconvolveData( int sz )
     , cfreqvals_(sz_)
 {
     const float_complex cnullval = float_complex( 0, 0 );
-    ctwtvals_.setAll( cnullval );
-    cfreqvals_.setAll( cnullval );
+    for ( int idx=0; idx<sz_; idx++ )
+    {
+	ctwtvals_.set( idx, cnullval );
+	cfreqvals_.set( idx, cnullval );
+    }
 }
 
 
@@ -381,12 +385,12 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     Array1DImpl<float> inputvals( inpsz );
     memcpy( inputvals.getData(), inp, inpsz*sizeof(float) );
     window.apply( &inputvals );
-    removeBias<float,float>( &inputvals );
+    removeBias( &inputvals );
 
     Array1DImpl<float_complex> cfiltervals( inpsz );
     memcpy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
-    removeBias<float_complex,float>( &cfiltervals );
+    removeBias( &cfiltervals );
 
     DeconvolveData dcinp( inpsz ), dcfilter( inpsz );
     const int cidx = mCast(int, inpsz/2 );
@@ -439,8 +443,8 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
 }
 
 
-double GeoCalculator::crossCorr( const float* seis, const float* synth,
-				 float* outp, int sz ) const
+double GeoCalculator::crossCorr( const float* seis, const float* synth, 
+				float* outp, int sz ) const
 {
     genericCrossCorrelation( sz, 0, seis, sz, 0, synth, sz, -sz/2, outp );
     LinStats2D ls2d; ls2d.use( seis, synth, sz );
@@ -451,7 +455,7 @@ double GeoCalculator::crossCorr( const float* seis, const float* synth,
 void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t, 
 					Well::Log& log ) const
 {
-    log.setEmpty();
+    log.erase();
     for ( int idx=0; idx<d2t.size(); idx++ )
 	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
 
@@ -459,4 +463,366 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
 }
 
+
+// will be removed
+float GeoCalculator::getSRDElevation( const Well::Data& wd ) const
+{
+    const Well::Track& track = wd.track();
+    float rdelev = track.dah( 0 ) - track.value( 0 );
+    if ( mIsUdf( rdelev ) ) rdelev = 0;
+
+    const Well::Info& info = wd.info();
+    float surfelev = mIsUdf( info.surfaceelev ) ? 0 : -info.surfaceelev;
+
+    float srdel = fabs( rdelev - surfelev );
+    if ( mIsUdf( srdel ) || srdel < 0 ) 
+	srdel = 0;
+
+    return srdel;
+}
+
+
+// will be removed
+Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
+				    const char* sonlog, bool issonic ) const
+{
+    const Well::Log* log = wd.logs().getLog( sonlog );
+    if ( !log ) return 0;
+
+    Well::Log proclog = Well::Log( *log );
+
+    const float replveldz = -1.*wd.info().surfaceelev - wd.track().getKbElev();
+
+    const float startdah = replveldz < 0 ?
+       			   -1. * replveldz : 0;
+    const float defvelrepl = !SI().zInFeet() ? 2000 : 8000;
+    const float replvel = mIsUdf(wd.info().getReplVel()) ? defvelrepl :
+       				 wd.info().getReplVel();
+    const float bulkshift = replveldz > 0 ?
+			    2. * replveldz / replvel : 0;
+
+    if ( issonic )
+	son2TWT( proclog, wd.track(), true, startdah );
+    else
+	vel2TWT( proclog, wd.track(), true, startdah );
+
+    TypeSet<float> dpt, vals;
+    for ( int idx=0; idx<proclog.size(); idx++ )
+    {
+	float dah = proclog.dah( idx );
+	if ( mIsUdf( dah ) ) continue;
+	dpt += dah;
+	vals += proclog.getValue( dah, true ) + bulkshift;
+    }
+
+    Well::D2TModel* d2tnew = new Well::D2TModel;
+    for ( int idx=0; idx<dpt.size(); idx++ )
+	d2tnew->add( dpt[idx], vals[idx] );
+
+    d2tnew->setName( "Integrated Depth/Time Model");
+    return d2tnew;
+}
+
+
+// will be removed
+Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd, 
+					    const char* sonlog, bool issonic, 
+					    float replacevel ) const
+{
+    const Well::Log* log = wd.logs().getLog( sonlog );
+    if ( !log ) return 0;
+
+    Well::Log proclog = Well::Log( *log );
+
+    const float srdel = getSRDElevation( wd );
+    if ( issonic )
+	son2TWT( proclog, true, srdel );
+    else
+	vel2TWT( proclog, true, srdel );
+
+    TypeSet<float> dpt, vals;
+    for ( int idx=0; idx<proclog.size(); idx++ )
+    {
+	float dah = proclog.dah( idx );
+	if ( mIsUdf( dah ) ) continue;
+	dpt += dah;
+	vals += proclog.getValue( dah, true );
+    }
+
+    Well::D2TModel* d2tnew = new Well::D2TModel;
+    for ( int idx=0; idx<dpt.size(); idx++ )
+	d2tnew->add( dpt[idx], vals[idx] );
+
+    d2tnew->setName( "Integrated Depth/Time Model");
+    return d2tnew;
+}
+
+
+// will be removed
+void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t, 
+					const Well::Data& wd, 
+					float replacevel ) const
+{
+    const int sz = d2t.size();
+    TypeSet<float> dahs, times;
+    mAllocVarLenArr( int, zidxs, sz );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	dahs += d2t.dah( idx ); 
+	times += d2t.value( idx ); 
+	zidxs[idx] = idx;
+    }
+    sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
+    d2t.erase();
+
+    const float srdel = getSRDElevation( wd );
+    const float kbtime = 2.f * srdel / replacevel;
+    d2t.add( 0, -kbtime ); //set KB 
+    d2t.add( srdel, 0 ); // set SRD
+    if ( dahs[zidxs[0]] > srdel && times[zidxs[0]] > 0 )
+	d2t.add( dahs[zidxs[0]], times[zidxs[0]] );
+
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	int idx0 = zidxs[idx-1]; 
+	int idx1 = zidxs[idx];
+	const float dh = dahs[idx1] - dahs[idx0];
+	const float dt = times[idx1] - times[idx0];
+	if ( dh > 0 && dh > 1e-1f && dahs[idx1] > dahs[0] && dahs[idx0] > srdel
+	    && dt > 0 && dt > 1e-6f && times[idx1] > times[0] &&
+	    times[idx1] > 0)
+	    d2t.add( dahs[idx1], times[idx1] );
+    }
+}
+
+// will be removed
+#define mMicroSFactor 10e5f
+void GeoCalculator::son2Vel( Well::Log& log, bool straight ) const
+{
+    UnitFactors uf; double velfac = uf.getVelFactor( log, straight );
+    if ( !velfac || mIsUdf(velfac) ) 
+	velfac = 1;
+
+    for ( int idx=0; idx<log.size(); idx++ )
+    {
+	float& val = log.valArr()[idx];
+	val = val ? velfac/val : val;
+	val *= straight ? 1 : mMicroSFactor;
+    }
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdVelLabel() 
+				   : UnitFactors::getStdSonLabel() );
+}
+
+
+// will be removed
+void GeoCalculator::son2TWT(Well::Log& log, const Well::Track& track,
+			    bool straight, float startdah) const
+{
+    if ( straight )
+    {
+	son2Vel( log, straight );
+	vel2TWT( log, track, straight, startdah );
+    }
+    else
+    {
+	vel2TWT( log, track, straight, startdah );
+	son2Vel( log, straight );
+    }
+}
+
+
+// will be removed
+void GeoCalculator::son2TWT(Well::Log& log, bool straight, float startdah) const
+{
+    if ( straight ) 
+    {
+	son2Vel(log,straight); 
+	vel2TWT(log,straight,startdah); 
+    }
+    else
+    { 
+	vel2TWT( log, straight, startdah ); 
+	son2Vel( log, straight);
+    }
+}
+
+
+// will be removed
+void GeoCalculator::vel2TWT(Well::Log& log, const Well::Track& track,
+			    bool straight, float startdah) const
+{
+    const int sz = log.size(); 
+    if ( sz < 2 ) return;
+
+    UnitFactors uf; double velfac = uf.getVelFactor( log, false );
+    if ( !velfac || mIsUdf(velfac) ) 
+	velfac = 1;
+
+    TypeSet<float> dpts, vals;
+    dpts += startdah; vals += straight ? log.value( 0 ) : 0; 
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float dah = log.dah( idx );
+	if ( dah >= startdah )
+	    { dpts += dah; vals += log.value( idx ); }
+    }
+
+    log.erase();
+    float prevval, newval; newval = prevval = 0;
+    for ( int idx=1; idx<dpts.size(); idx++ )
+    {
+	if ( straight )
+	{
+	    float v = vals[idx];
+	    if ( !v ) continue; 
+	    newval = 2. * ( track.getPos(dpts[idx]).z -
+		    	    track.getPos(dpts[idx-1]).z )
+			    / (v*velfac);
+	    newval += prevval;
+	    prevval = newval;
+	}
+	else 
+	{
+	    if ( vals[idx] != vals[idx-1] )
+		newval = 2. * ( track.getPos(dpts[idx]).z -
+			        track.getPos(dpts[idx-1]).z )
+		    	        / fabs(vals[idx]-vals[idx-1]);
+	}
+	log.addValue( dpts[idx], newval );
+    }
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdTimeLabel() 
+	    			   : UnitFactors::getStdVelLabel() ); 
+}
+
+
+// will be removed
+void GeoCalculator::vel2TWT(Well::Log& log, bool straight, float startdah) const
+{
+    const int sz = log.size(); 
+    if ( sz < 2 ) return;
+
+    UnitFactors uf; double velfac = uf.getVelFactor( log, false );
+    if ( !velfac || mIsUdf(velfac) ) 
+	velfac = 1;
+
+    TypeSet<float> dpts, vals;
+    dpts += startdah; vals += straight ? log.value( 0 ) : 0; 
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float dah = log.dah( idx );
+	if ( dah >= startdah )
+	    { dpts += dah; vals += log.value( idx ); }
+    }
+
+    log.erase();
+    float prevval, newval; newval = prevval = 0;
+    for ( int idx=1; idx<dpts.size(); idx++ )
+    {
+	if ( straight )
+	{
+	    float v = vals[idx];
+	    if ( !v ) continue; 
+	    newval = 2*( dpts[idx] - dpts[idx-1] )/(v*velfac);
+	    newval += prevval;
+	    prevval = newval;
+	}
+	else 
+	{
+	    if ( vals[idx] != vals[idx-1] )
+		newval = 2*( dpts[idx] - dpts[idx-1] )
+		    		/ fabs(vals[idx]-vals[idx-1]);
+	}
+	log.addValue( dpts[idx], newval );
+    }
+    log.setUnitMeasLabel( straight ? UnitFactors::getStdTimeLabel() 
+	    			   : UnitFactors::getStdVelLabel() ); 
+}
+
+
+// will be removed
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{\
+    tf.setInputInfo(Array1DInfoImpl(sz));\
+    tf.setDir(isstraight);\
+    tf.init();\
+    tf.transform(inp,outp);\
+}
+#define mDoFourierTransform(tf,isstraight,inp,outp,sz) \
+{\
+    tf->setInputInfo(Array1DInfoImpl(sz));\
+    tf->setDir(isstraight);\
+    tf->setNormalization(!isstraight); \
+    tf->setInput(inp.getData());\
+    tf->setOutput(outp.getData());\
+    tf->run(true); \
+}
+void GeoCalculator::deconvolve( const float* inp, const float* filter,
+			        float* deconvals, int inpsz ) const
+{
+    ArrayNDWindow window( Array1DInfoImpl(inpsz), false, "CosTaper", 0.1 );
+    Array1DImpl<float> inputvals( inpsz );
+    Array1DImpl<float> filtervals( inpsz );
+    memcpy(inputvals.getData(),inp,inpsz*sizeof(float));
+    memcpy(filtervals.getData(),filter,inpsz*sizeof(float));
+    window.apply( &inputvals );		removeBias( &inputvals );
+    window.apply( &filtervals );	removeBias( &filtervals );
+
+    Array1DImpl<float_complex> cinputvals( inpsz );
+    Array1DImpl<float_complex> cfiltervals( inpsz );
+    for ( int idx=0; idx<inpsz; idx++ )
+    {
+	cinputvals.set( idx, inputvals.get( idx ) );
+	cfiltervals.set( idx, filtervals.get( idx ) );
+    }
+   
+    Spectrogram spec;
+    Array1DImpl<float_complex> cspecfiltervals( inpsz );
+    mDoTransform( spec, true, cfiltervals, cspecfiltervals, inpsz );
+
+    float_complex wholespec = 0;
+    float_complex noise = mNoise/inpsz;
+    for ( int idx=0; idx<inpsz; idx++ )
+	wholespec += cspecfiltervals.get( idx );  
+    float_complex cnoiseshift = noise*wholespec;
+
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+    mDoFourierTransform( fft, true, cinputvals, cinputvals, inpsz );
+    mDoFourierTransform( fft, true, cfiltervals, cfiltervals, inpsz );
+
+    Array1DImpl<float_complex> cdeconvvals( inpsz ); 
+    for ( int idx=0; idx<inpsz; idx++ )
+    {
+	float_complex inputval = cinputvals.get(idx);
+	float_complex filterval = cfiltervals.get(idx);
+
+	double rfilterval = filterval.real();
+	double ifilterval = filterval.imag();
+	float_complex conjfilterval = float_complex( rfilterval ,-ifilterval ); 
+
+	float_complex num = inputval * conjfilterval;
+	float_complex denom = filterval * conjfilterval + cnoiseshift;
+	float_complex res = num / denom;
+
+	cdeconvvals.setValue( idx, res );
+    }
+
+    float avg = 0;
+    for ( int idx=0; idx<inpsz; idx++ )
+	avg += abs( cdeconvvals.get( idx ) )/inpsz;
+    for ( int idx=0; idx<inpsz; idx++ )
+    {
+	if ( abs( cdeconvvals.get( idx ) ) < avg/4 )
+	    cdeconvvals.set( idx, 0 );
+    }
+
+    mDoFourierTransform( fft, false, cdeconvvals, cdeconvvals, inpsz );
+
+    int mid = (int)(inpsz)/2;
+    for ( int idx=0; idx<=mid; idx++ )
+	deconvals[idx] = cdeconvvals.get( mid-idx ).real();;
+    for ( int idx=mid+1; idx<inpsz; idx++ )
+	deconvals[idx] = cdeconvvals.get( inpsz-idx+mid ).real();
+}
+
 }; //namespace WellTie
+

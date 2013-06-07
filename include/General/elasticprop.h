@@ -12,17 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
+/*! brief elastic formula def to generate elastic layers !*/
+
 #include "enums.h"
 #include "bufstringset.h"
 #include "repos.h"
 #include "propertyref.h"
 
-/*!
-\brief Elastic formula def to generate elastic layers.
-*/
 
-mExpClass(General) ElasticFormula : public NamedObject
+mClass ElasticFormula : public NamedObject
 {
 public:
 			enum Type 	{ Den, PVel, SVel };
@@ -53,9 +51,10 @@ public:
 
     BufferStringSet&	variables() 			{ return variables_; }
     const BufferStringSet& variables() const 		{ return variables_; }
+    const char*		parseVariable(int idx,float&) const;
+
     BufferStringSet&	units() 			{ return units_; }
     const BufferStringSet& units() const 		{ return units_; }
-    const char*		parseVariable(int idx,float&) const;
 
     void 		fillPar(IOPar&) const;
     void 		usePar(const IOPar&);
@@ -65,16 +64,12 @@ protected:
     BufferString 	expression_; 
     BufferStringSet	variables_;
     BufferStringSet	units_;
-    
     Type		type_;
 };
 
 
-/*!
-\brief ElasticFormula repository.
-*/
 
-mExpClass(General) ElasticFormulaRepository 
+mClass ElasticFormulaRepository 
 {
 public:
     void			addFormula(const ElasticFormula&); 
@@ -96,17 +91,14 @@ protected:
     void 			addRockPhysicsFormulas();
     void 			addPreDefinedFormulas();
 
-    mGlobal(General) friend ElasticFormulaRepository& ElFR();
+    mGlobal friend ElasticFormulaRepository& ElFR();
 };
 
-mGlobal(General) ElasticFormulaRepository& ElFR();
+mGlobal ElasticFormulaRepository& ElFR();
 
 
-/*!
-\brief Elastic property reference data.
-*/
 
-mExpClass(General) ElasticPropertyRef : public PropertyRef
+mClass ElasticPropertyRef : public PropertyRef
 {
 public:
 			ElasticPropertyRef(const char* nm,
@@ -118,13 +110,13 @@ public:
 			    }
 
 
-    static PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
+    static const PropertyRef::StdType elasticToStdType(ElasticFormula::Type); 
 
     ElasticFormula& formula() 			{ return formula_; }
     const ElasticFormula& formula() const 	{ return formula_; }
 
     ElasticFormula::Type elasticType()  	{ return formula_.type(); }
-    ElasticFormula::Type elasticType() const	{ return formula_.type(); }
+    const ElasticFormula::Type elasticType() const { return formula_.type(); }
 
 protected:
     ElasticFormula      formula_;
@@ -132,5 +124,4 @@ protected:
 
 
 #endif
-
 

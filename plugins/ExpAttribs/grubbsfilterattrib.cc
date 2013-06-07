@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: grubbsfilterattrib.cc,v 1.7 2012/07/10 13:05:57 cvskris Exp $";
 
 #include "grubbsfilterattrib.h"
 
@@ -76,7 +76,7 @@ GrubbsFilter::GrubbsFilter( Desc& desc )
     mGetFloat( cogrubbsval_, grubbsvalStr() );
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBinID( stepout_, stepoutStr() )
     getTrcPos();
@@ -163,6 +163,13 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
 
+    const int gatesz = samplegate.width() + 1;
+    const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
+
+    float extrazfspos = mUdf(float);
+    if ( needinterp_ )
+	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
+
     const int nrtraces = inputdata_.size();
 
     Stats::CalcSetup setup( true );
@@ -181,7 +188,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	    const DataHolder* data = inputdata_[trcidx];
 	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
 	    {
-		float sampleidx = mCast( float, idx + zidx );
+		float sampleidx = idx + zidx;
 
 		float traceval = mUdf(float);
 		if ( data )
@@ -205,7 +212,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 	const DataHolder* data = inputdata_[nrtraces/2];
 	const float traceval = getInputValue(*data,dataidx_,(int)idx,z0);
-	float grubbsval = (float) ( (traceval - rc.average())/rc.stdDev() );
+	float grubbsval = (traceval - rc.average())/rc.stdDev();
 	const bool positive = grubbsval > 0;
 	grubbsval = fabs( grubbsval );
 	float newval = traceval;
@@ -215,17 +222,17 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    switch ( type_ ) 
 	    { 
-		case GrubbsFilter::Average:	newval = (float) rc.average(); break;
+		case GrubbsFilter::Average:	newval = rc.average(); break;
 		case GrubbsFilter::Median:	newval = rc.median(); break;
 		case GrubbsFilter::Threshold: 
-		    newval = (float) ((cogrubbsval_ * rc.stdDev())+rc.average()); 
+		    newval = (cogrubbsval_ * rc.stdDev())+rc.average(); 
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
 		case GrubbsFilter::Interpolate:
 		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
 		    {
 			float arrval = vals.get( arridx );
-			grubbsval = (float) fabs((arrval - rc.average())/rc.stdDev());
+			grubbsval = fabs((arrval - rc.average())/rc.stdDev());
 			if ( grubbsval > cogrubbsval_ )
 			    vals.set( arridx, mUdf(float) );
 		    }

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/SbColor.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoMFInt32.h>
@@ -22,7 +21,7 @@ ________________________________________________________________________
 // This class stores all info about a level of detail of the beachball, except
 // the coordinate info (which is stored by res2coords_).
 // 
-mSoODClass LODInfo
+mClass LODInfo
 {
 public:
     
@@ -41,7 +40,7 @@ public:
 
 // SoBeachBall class for drawing a sphere with 4 stripes colored according to 
 // 2 materials. Varying levels of detail of the beachball are supported.
-mSoODClass SoBeachBall : public SoShape 
+mClass SoBeachBall : public SoShape 
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoBeachBall);
@@ -119,4 +118,3 @@ protected:
 };
 
 #endif
-

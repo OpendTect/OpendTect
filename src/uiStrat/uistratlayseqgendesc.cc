@@ -124,10 +124,7 @@ bool uiLayerSequenceGenDesc::selProps()
     uiSelectPropRefs dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
-    {
 	desc_.setPropSelection( prs );
-	descHasChanged();
-    }
     return ret;
 }
 
@@ -139,23 +136,16 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)
-    , zinft_(SI().depthsInFeetByDefault())
 {
-    border_.setTop( border_.top() + 25 );
-    setPrefWidth( 180 );
+    setPrefWidth( 200 );
     setPrefHeight( 500 );
     reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
     reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
 
     getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
+	    			mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
     getMouseEventHandler().doubleClick.notify(
-			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
-
-    const BufferString lbltxt( "top (", zinft_?"ft":"m", ")" );
-    topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
-    topdepthfld_->setElemSzPol( uiObject::Small );
-    topdepthfld_->attach( rightBorder );
+	    			mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
 }
 
 
@@ -182,7 +172,6 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 	    		workrect_.width(), workrect_.height() );
-    putTopDepthToScreen();
 
     if ( desc_.isEmpty() )
     {
@@ -199,22 +188,6 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 	delete emptyitm_; emptyitm_ = 0;
 	doDraw();
     }
-}
-
-
-void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
-{
-    float topz = desc_.startDepth();
-    if ( zinft_ ) topz *= mToFeetFactorF;
-    topdepthfld_->setValue( topz );
-}
-
-
-void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
-{
-    float topz = topdepthfld_->getfValue();
-    if ( zinft_ ) topz *= mFromFeetFactorF;
-    desc_.setStartDepth( topz );
 }
 
 
@@ -374,14 +347,13 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
     disp.nm_->setText( getLimitedDisplayString(dispnm,25,false) );
     midpt.y = (disp.topy_ + disp.boty_) / 2;
-    disp.nm_->setPos( mCast(float,midpt.x), mCast(float,midpt.y-2) );
+    disp.nm_->setPos( midpt.x, midpt.y-2 );
 	    // the 'y-2' makes the text more nicely centered in the box
 
     const uiSize txtsz( disp.nm_->getTextSize() );
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
-    disp.lithcol_->setPos( mCast(float,midpt.x - txtsz.width()/2 - radius), 
-			   mCast(float,midpt.y) );
+    disp.lithcol_->setPos( midpt.x - txtsz.width()/2 - radius, midpt.y );
 
     leftpt.y = rightpt.y = disp.topy_;
     disp.top_->setLine( leftpt, rightpt );
@@ -436,7 +408,6 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
 void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
-    putTopDepthToScreen();
     rebuildDispUnits();
     reDraw(0);
 }
@@ -754,7 +725,7 @@ bool uiBasicLayerSequenceGenDesc::laygenRemoveReq()
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
 
-    delete desc_.removeSingle( curidx );
-    delete disps_.removeSingle( curidx );
+    delete desc_.remove( curidx );
+    delete disps_.remove( curidx );
     return true;
 }

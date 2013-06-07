@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -12,13 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include <iostream>
 
-DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
-DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
-DataPackMgr::ID DataPackMgr::CubeID()		{ return 3; }
-DataPackMgr::ID DataPackMgr::FlatID()		{ return 4; }
-DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
+const DataPackMgr::ID DataPackMgr::BufID()	{ return 1; }
+const DataPackMgr::ID DataPackMgr::PointID()	{ return 2; }
+const DataPackMgr::ID DataPackMgr::CubeID()	{ return 3; }
+const DataPackMgr::ID DataPackMgr::FlatID()	{ return 4; }
+const DataPackMgr::ID DataPackMgr::SurfID()	{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
-float DataPack::sKb2MbFac()			{ return 0.0009765625; }
+const float DataPack::sKb2MbFac()		{ return 0.0009765625; }
 
 
 DataPack::ID DataPack::getNewID()
@@ -31,7 +31,7 @@ DataPack::ID DataPack::getNewID()
 }
 
 
-ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
+ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_( false );
 Threads::Mutex DataPackMgr::mgrlistlock_;
 
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
@@ -248,9 +248,10 @@ void DataPackMgr::release( DataPack::ID dpid )
     lock_.writeLock();
 
     //We lost our lock, so idx may have changed.
-    if ( !packs_.isPresent( pack ) ) pErrMsg("Double delete detected");
+    idx = packs_.indexOf( pack );
+    if ( idx==-1 ) pErrMsg("Double delete detected");
 
-    packs_.removeSingle( idx );
+    packs_.remove( idx );
     lock_.writeUnLock();
     delete pack;
 }
@@ -293,7 +294,7 @@ void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 void DataPack::dumpInfo( IOPar& iop ) const
 {
     iop.set( sKeyCategory(), category() );
-    iop.set( sKey::Name(), name() );
+    iop.set( sKey::Name, name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrusers_ );
     iop.set( "Memory consumption (KB)", nrKBytes() );

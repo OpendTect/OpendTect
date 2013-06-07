@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 class uiAttrSel;
@@ -22,7 +21,7 @@ class uiIOObjSel;
 
 /*! \brief Convolve Attribute description editor */
 
-mExpClass(uiAttributes) uiConvolveAttrib : public uiAttrDescEd
+mClass uiConvolveAttrib : public uiAttrDescEd
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

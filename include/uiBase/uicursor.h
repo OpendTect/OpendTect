@@ -12,22 +12,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigeom.h"
 #include "mousecursor.h"
 #include "thread.h"
 
 class ioPixmap;
-mFDQtclass(QCursor)
+class QCursor;
 
-mExpClass(uiBase) uiCursorManager : public MouseCursorManager
+mClass uiCursorManager : public MouseCursorManager
 {
 public:
     static void	initClass();
 
     static uiPoint cursorPos();
 
-    static void	fillQCursor(const MouseCursor&,mQtclass(QCursor&));
+    static void	fillQCursor(const MouseCursor&,QCursor&);
 
     static void setPriorityCursor(MouseCursor::Shape);
     static void unsetPriorityCursor();
@@ -46,4 +45,3 @@ protected:
 };
 
 #endif
-

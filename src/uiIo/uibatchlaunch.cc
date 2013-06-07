@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uibatchlaunch.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uispinbox.h"
 
-#include "ascstream.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -30,51 +29,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "settings.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "survinfo.h"
-
+#include "ascstream.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
-static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
-static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
-static const char* sKeyNrInlJob = "MultiMachine.Nr inline per job";
-
-static bool enabClusterProc()
-{
-    bool enabclusterproc = false;
-    const bool hassetting =
-	Settings::common().getYN( sKeyClusterProc, enabclusterproc );
-    if ( !hassetting )
-	enabclusterproc = GetEnvVarYN( sKeyClusterProcEnv );
-    return enabclusterproc;
-}
-
-
-uiProcSettings::uiProcSettings( uiParent* p )
-    : uiDialog(p,Setup("Processing settings",mNoDlgTitle,mTODOHelpID))
-{
-    int nrinl = 3;
-    Settings::common().get( sKeyNrInlJob, nrinl );
-    nrinlfld_ = new uiGenInput( this, "Nr inlines per job", IntInpSpec() );
-
-    const bool enabclusterproc = enabClusterProc();
-    clusterfld_ = new uiGenInput( this, "Enable cluster processing",
-				  BoolInpSpec(enabclusterproc) );
-    clusterfld_->attach( alignedBelow, nrinlfld_ );
-}
-
-
-bool uiProcSettings::acceptOK( CallBacker* )
-{
-    Settings::common().set( sKeyNrInlJob, nrinlfld_->getIntValue() );
-    Settings::common().setYN( sKeyClusterProc, clusterfld_->getBoolValue() );
-    Settings::common().write( false );
-    return true;
-}
-
 
 
 static void getProcFilename( const char* basnm, const char* altbasnm,
@@ -90,9 +50,9 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 
 static bool writeProcFile( IOPar& iop, const char* tfname )
 {
-    const_cast<IOPar&>(iop).set( sKey::DataRoot(), GetBaseDataDir() );
-    const_cast<IOPar&>(iop).set( sKey::Survey(), IOM().surveyName() );
-    if ( !iop.write(tfname,sKey::Pars()) )
+    const_cast<IOPar&>(iop).set( sKey::DataRoot, GetBaseDataDir() );
+    const_cast<IOPar&>(iop).set( sKey::Survey, IOM().surveyName() );
+    if ( !iop.write(tfname,sKey::Pars) )
     {
 	BufferString msg = "Cannot write to:\n"; msg += tfname;
 	uiMSG().error( msg );
@@ -209,6 +169,8 @@ int uiBatchLaunch::selected()
 }
 
 
+extern "C" const char* GetSurveyName();
+
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
     const bool dormt = execRemote();
@@ -226,13 +188,13 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     BufferString fname = sel == 0 ? "window"
 		       : (sel == 2 ? "stdout" : filefld_->fileName());
     if ( fname.isEmpty() ) fname = "/dev/null";
-    iop_.set( sKey::LogFile(), fname );
-    iop_.set( sKey::Survey(), IOM().surveyName() );
+    iop_.set( sKey::LogFile, fname );
+    iop_.set( sKey::Survey, IOM().surveyName() );
 
     if ( selected() == 3 )
     {
-	iop_.set( sKey::LogFile(), "stdout" );
-	if ( !iop_.write(fname,sKey::Pars()) )
+	iop_.set( sKey::LogFile, "stdout" );
+	if ( !iop_.write(fname,sKey::Pars) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
@@ -254,13 +216,13 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	const HostData* hd = hdl.find( hostname_.buf() );
 	FilePath remfp = hd->prefixFilePath( HostData::Data );
 	FilePath temppath( parfname_ );
-	iop_.set( sKey::DataRoot(), remfp.fullPath() );
+	iop_.set( sKey::DataRoot, remfp.fullPath() );
 	remfp.add(  GetSurveyName() ).add( "Proc" )
 	     .add( temppath.fileName() );
 	FilePath logfp( remfp );
 	logfp.setExtension( ".log", true );
-	iop_.set( sKey::LogFile(), logfp.fullPath(hd->pathStyle()) );
-	if ( !iop_.write(parfname_,sKey::Pars()) )
+	iop_.set( sKey::LogFile, logfp.fullPath(hd->pathStyle()) );
+	if ( !iop_.write(parfname_,sKey::Pars) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
@@ -334,8 +296,11 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 	dogrp->attach( ensureBelow, sep );
     }
 
-    const bool enabclusterproc = enabClusterProc();
-    hascluster_ = !onlysinglemachine && clusterproc && enabclusterproc;
+#ifndef __win__ 
+    hascluster_ = !onlysinglemachine && clusterproc
+				    && GetEnvVarYN("DTECT_CLUSTER_PROC");
+#endif
+
     if ( !onlysinglemachine )
     {
 	BufferStringSet opts;
@@ -350,7 +315,6 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 	singmachfld_->valuechanged.notify( 
 		mCB(this,uiFullBatchDialog,singTogg) );
     }
-
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld_ = new uiFileInput( dogrp,txt, uiFileInput::Setup(singparfname_)
@@ -467,7 +431,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
 	    ascistream aistrm( *sd.istrm, true );
-	    if ( aistrm.fileType()!=sKey::Pars() )
+	    if ( aistrm.fileType()!=sKey::Pars )
 	    {
 		sd.close();
 		uiMSG().error(BufferString(fnm," is not a parameter file"));
@@ -565,7 +529,7 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
     comm.add( multiprognm_ ).add( " " ).add( procprognm_ )
 	.add( " \"" ).add( fnm ).add( "\"" );
 
-    if ( !ExecOSCmd(comm,true,true) )
+    if ( !ExecOSCmd( comm, true, true ) )
 	{ uiMSG().error( "Cannot start multi-machine program" ); return false; }
 
     return true;

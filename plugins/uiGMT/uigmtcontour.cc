@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.24 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -175,7 +175,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     cs.hrg = emhs;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
-    attribfld_->addItem( ODGMT::sKeyZVals() );
+    attribfld_->addItem( ODGMT::sKeyZVals );
 
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
@@ -281,7 +281,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
 	return;
 
     BufferString attrnm = attribfld_->textOfItem( attribfld_->currentItem() );
-    const bool isz = attrnm == ODGMT::sKeyZVals();
+    const bool isz = attrnm == ODGMT::sKeyZVals;
     int dataidx = -1;
     if ( !isz )
     {
@@ -299,7 +299,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     while ( iter.next(bid) )
     {
 	const EM::PosID posid( hor_->id(), sid, bid.toInt64() );
-	const float val = isz ? (float) hor_->getPos( posid ).z
+	const float val = isz ? hor_->getPos( posid ).z
 	    		      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )
 	    rg.include( val, false );
@@ -307,8 +307,8 @@ void uiGMTContourGrp::readCB( CallBacker* )
 
     if ( isz )
     {
-	rg.scale( mCast(float,SI().zDomain().userFactor()) );
-	const float samp = SI().zStep() * SI().zDomain().userFactor();
+	rg.scale( SI().zFactor() );
+	const float samp = SI().zStep() * SI().zFactor();
 	rg.start = samp * mNINT32(rg.start/samp);
 	rg.stop = samp * mNINT32(rg.stop/samp);
     }
@@ -337,7 +337,7 @@ bool uiGMTContourGrp::loadHor()
 	    return false;
 
 	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *exec ) )
+	if ( !dlg.execute(*exec) )
 	    return false;
 
 	id = EM::EMM().getObjectID( ioobj->key() );
@@ -365,33 +365,33 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 	mErrRet("Please select a Horizon")
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name(), ctio_.ioobj->name() );
+    par.set( sKey::Name, ctio_.ioobj->name() );
     const int attribidx = attribfld_->currentItem();
-    par.set( ODGMT::sKeyAttribName(), attribfld_->textOfItem(attribidx) );
+    par.set( ODGMT::sKeyAttribName, attribfld_->textOfItem(attribidx) );
     IOPar subpar;
     subselfld_->fillPar( subpar );
-    par.mergeComp( subpar, sKey::Selection() );
+    par.mergeComp( subpar, sKey::Selection );
     StepInterval<float> rg = rgfld_->getFStepInterval();
     if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
 	mErrRet("Invalid data range")
 
-    par.set( ODGMT::sKeyDataRange(), rg );
+    par.set( ODGMT::sKeyDataRange, rg );
     const bool drawcontour = linefld_->isChecked();
     const bool dofill = fillfld_->isChecked();
     if ( !drawcontour && !dofill )
 	mErrRet("Check at least one of the drawing options")
 
-    par.setYN( ODGMT::sKeyDrawContour(), drawcontour );
+    par.setYN( ODGMT::sKeyDrawContour, drawcontour );
     if ( drawcontour )
     {
 	BufferString lskey;
 	lsfld_->getStyle().toString( lskey );
-	par.set( ODGMT::sKeyLineStyle(), lskey );
+	par.set( ODGMT::sKeyLineStyle, lskey );
     }
 
-    par.setYN( ODGMT::sKeyFill(), dofill );
-    par.set( ODGMT::sKeyColSeq(), colseqfld_->text() );
-    par.setYN( ODGMT::sKeyFlipColTab(), flipfld_->isChecked() );
+    par.setYN( ODGMT::sKeyFill, dofill );
+    par.set( ODGMT::sKeyColSeq, colseqfld_->text() );
+    par.setYN( ODGMT::sKeyFlipColTab, flipfld_->isChecked() );
 
     return true;
 }
@@ -400,26 +400,26 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 bool uiGMTContourGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* attribname = par.find( ODGMT::sKeyAttribName() );
+    const char* attribname = par.find( ODGMT::sKeyAttribName );
     if ( attribname && *attribname )
 	attribfld_->setCurrentItem( attribname );
 
-    PtrMan<IOPar> subpar = par.subselect( sKey::Selection() );
+    PtrMan<IOPar> subpar = par.subselect( sKey::Selection );
     if ( !subpar )
 	return false;
 
     subselfld_->usePar( *subpar );
     StepInterval<float> rg;
-    par.get( ODGMT::sKeyDataRange(), rg );
+    par.get( ODGMT::sKeyDataRange, rg );
     rgfld_->setValue( rg );
     nrcontourfld_->setValue( rg.nrSteps() + 1 );
     bool drawcontour=false, dofill=false;
-    par.getYN( ODGMT::sKeyDrawContour(), drawcontour );
-    par.getYN( ODGMT::sKeyFill(), dofill );
+    par.getYN( ODGMT::sKeyDrawContour, drawcontour );
+    par.getYN( ODGMT::sKeyFill, dofill );
     linefld_->setChecked( drawcontour );
     if ( drawcontour )
     {
-	FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
+	FixedString lskey = par.find( ODGMT::sKeyLineStyle );
 	LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
@@ -427,9 +427,9 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     fillfld_->setChecked( dofill );
     if ( dofill )
     {
-	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq()) );
+	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq) );
 	bool doflip = false;
-	par.getYN( ODGMT::sKeyFlipColTab(), doflip );
+	par.getYN( ODGMT::sKeyFlipColTab, doflip );
 	flipfld_->setChecked( doflip );
     }
 

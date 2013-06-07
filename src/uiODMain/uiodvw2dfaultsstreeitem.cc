@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uitreeview.h"
 #include "pixmap.h"
 
 #include "emfaultstickset.h"
@@ -160,8 +160,8 @@ bool uiODVw2DFaultSSTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
     displayMiniCtab();
     name_ = applMgr()->EMServer()->getName( emid_ );
-    uitreeviewitem_->setCheckable(true);
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setCheckable(true);
+    uilistviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
 
     fssview_->draw();
@@ -187,7 +187,7 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
 
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
@@ -214,7 +214,7 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DFaultSSTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true );
+    uilistviewitem_->setSelected( true );
 
     viewer2D()->dataMgr()->setSelected( fssview_ );
     fssview_->selected();

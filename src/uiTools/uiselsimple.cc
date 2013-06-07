@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
@@ -45,12 +45,6 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
-}
-
-
-uiObject* uiSelectFromList::bottomFld()
-{
-    return selfld_;
 }
 
 
@@ -128,12 +122,6 @@ const char* uiGetObjectName::text() const
 }
 
 
-uiGroup* uiGetObjectName::bottomFld()
-{
-    return inpfld_;
-}
-
-
 bool uiGetObjectName::acceptOK( CallBacker* )
 {
     const char* txt = text();
@@ -163,12 +151,6 @@ uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
 void uiGetChoice::setDefaultChoice( int nr )
 {
     inpfld_->setChecked( nr, true );
-}
-
-
-uiGroup* uiGetChoice::bottomFld()
-{
-    return inpfld_;
 }
 
 

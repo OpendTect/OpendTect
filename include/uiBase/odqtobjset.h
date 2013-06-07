@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 template<class OD,class QT>
-mClass(uiBase) ODQtObjectSet
+class ODQtObjectSet
 {
 public:
     			ODQtObjectSet()		{}
@@ -48,8 +48,8 @@ void ODQtObjectSet<OD,QT>::remove( const OD& obj )
     const int idx = odobjs_.indexOf( &obj );
     if ( idx<0 ) return;
 
-    odobjs_.removeSingle( idx );
-    qtobjs_.removeSingle( idx );
+    odobjs_.remove( idx );
+    qtobjs_.remove( idx );
 }
 
 template<class OD,class QT>

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
 
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiListBox;
 class uiFileInput;
 
-mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
+mClass uiSurveySelectDlg : public uiDialog
 {
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
@@ -47,7 +46,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiSurveySelect : public uiIOSelect
+mClass uiSurveySelect : public uiIOSelect
 {
 public:
 			uiSurveySelect(uiParent*,const char* label=0);
@@ -66,4 +65,3 @@ protected:
 };
 
 #endif
-

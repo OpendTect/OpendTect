@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "emposid.h"
 #include "namedobj.h"
 #include "position.h"
@@ -22,7 +21,7 @@ ________________________________________________________________________
 namespace Well { class Track; class D2TModel; }
 namespace EM { class Horizon2D; class Horizon3D; }
 
-mExpClass(WellAttrib) WellHorIntersectFinder
+mClass WellHorIntersectFinder
 {
 public:
     				WellHorIntersectFinder(const Well::Track&,
@@ -32,7 +31,8 @@ public:
     void			setHorizon(const EM::ObjectID& emid);
 
     float			findZIntersection() const;
-   				//return undef if not found
+   				//return undef if not found else z pos (in s)
+    				//of the intersect.
 
 protected:
 
@@ -45,4 +45,3 @@ protected:
 };
 
 #endif
-

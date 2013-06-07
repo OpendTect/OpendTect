@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "sets.h"
 #include "iopar.h"
 #include "callback.h"
@@ -22,16 +21,16 @@ ________________________________________________________________________
 #include "thread.h"
 
 /*!\brief
-are helping classes for uiTreeViews, wich makes it easy to bundle inteligence
+are helping classes for uiListViews, wich makes it easy to bundle inteligence
 and data to treeitems. Usage is normally to create the uiTreeTopItem, run the
 its init() and add Childrens.
 */
 
-class uiTreeViewItem;
-class uiTreeView;
+class uiListViewItem;
+class uiListView;
 class uiParent;
 
-mExpClass(uiTools) uiTreeItem	: public CallBacker
+mClass uiTreeItem	: public CallBacker
 {
 public:
     				uiTreeItem(const char* nm);
@@ -138,8 +137,8 @@ public:
 
 protected:
 
-    virtual int			uiTreeViewItemType() const;
-                                /*!<\returns the uiTreeViewItem::Type that
+    virtual int			uiListViewItemType() const;
+    				/*!<\returns the uiListViewItem::Type that
 				    should be created */
     virtual uiParent*		getUiParent() const;
 
@@ -159,11 +158,11 @@ protected:
     				/*!<\returns typeid(parentclass).name() */
     virtual bool		init() { return true; }
 
-    virtual bool		rightClick(uiTreeViewItem* item);
-    virtual bool		anyButtonClick(uiTreeViewItem* item);
-    virtual void		setTreeViewItem( uiTreeViewItem* );
-    uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
-    const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
+    virtual bool		rightClick(uiListViewItem* item);
+    virtual bool		anyButtonClick(uiListViewItem* item);
+    virtual void		setListViewItem( uiListViewItem* );
+    uiListViewItem*		getItem()	{ return uilistviewitem_; }
+    const uiListViewItem*	getItem() const { return uilistviewitem_; }
 
     virtual bool		showSubMenu() { return true; }
     virtual bool		selectWithKey(int selkey);
@@ -183,7 +182,7 @@ protected:
     uiTreeItem*			parent_;
     BufferString		name_;
 
-    uiTreeViewItem*		uitreeviewitem_;
+    uiListViewItem*		uilistviewitem_;
     ObjectSet<uiTreeItem>	children_;
     friend			class uiTreeTopItem;
     friend			class uiODTreeTop;
@@ -194,7 +193,7 @@ private:
 
 };
 
-mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
+mClass uiTreeItemRemover : public SequentialTask
 {
 public:
     uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
@@ -207,10 +206,10 @@ protected:
 
 
 
-mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
+mClass uiTreeTopItem : public uiTreeItem
 {
 public:
-                        uiTreeTopItem(uiTreeView*, bool=false );
+    			uiTreeTopItem(uiListView*, bool=false );
     virtual bool	addChild(uiTreeItem*,bool below);
     virtual void	updateSelection(int selectionkey, bool=false );
     			/*!< Does only update the display */
@@ -232,7 +231,7 @@ protected:
     virtual const char*	parentType() const { return 0; } 
     virtual uiParent*	getUiParent() const;
 
-    uiTreeView*		listview_;
+    uiListView*		listview_;
     bool		disabrightclick_;
     bool		disabanyclick_;
     bool		disabselcngresp_;
@@ -240,7 +239,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiTreeItemFactory
+mClass uiTreeItemFactory
 {
 public:
     virtual		~uiTreeItemFactory()		{}
@@ -249,7 +248,7 @@ public:
 };
 
 
-mExpClass(uiTools) uiTreeFactorySet : public CallBacker
+mClass uiTreeFactorySet : public CallBacker
 {
 public:
 					uiTreeFactorySet();
@@ -319,4 +318,3 @@ void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
 }
 
 #endif
-

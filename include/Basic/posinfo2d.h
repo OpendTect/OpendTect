@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "typeset.h"
 #include "position.h"
 class BinID;
@@ -21,21 +20,19 @@ class BinID;
 namespace PosInfo
 {
 
-/*!
-\brief One position on a 2D line.
-*/
+/*!\brief One position on a 2D line */
 
-mExpClass(Basic) Line2DPos
+mClass Line2DPos
 {
 public:
 
-		Line2DPos( int n=0 ) : nr_(n)		{}
-    bool	operator ==( const Line2DPos& p ) const	{ return nr_ == p.nr_; }
-    bool	operator !=( const Line2DPos& p ) const	{ return nr_ != p.nr_; }
-    bool	operator >( const Line2DPos& p ) const	{ return nr_ > p.nr_; }
-    bool	operator <( const Line2DPos& p ) const	{ return nr_ < p.nr_; }
-    bool	operator >=( const Line2DPos& p ) const	{ return nr_>=p.nr_; }
-    bool	operator <=( const Line2DPos& p ) const	{ return nr_<=p.nr_; }
+		Line2DPos( int n=0 ) : nr_(n)            {}
+    bool	operator ==( const Line2DPos& p ) const { return nr_ == p.nr_; }
+    bool	operator !=( const Line2DPos& p ) const { return nr_ != p.nr_; }
+    bool	operator >( const Line2DPos& p ) const  { return nr_ > p.nr_; }
+    bool	operator <( const Line2DPos& p ) const  { return nr_ < p.nr_; }
+    bool	operator >=( const Line2DPos& p ) const  { return nr_>=p.nr_; }
+    bool	operator <=( const Line2DPos& p ) const  { return nr_<=p.nr_; }
 
     int		nr_;
     Coord	coord_;
@@ -43,33 +40,12 @@ public:
 };
 
 
-/*!
-\brief Line2DPos with a z value.
-*/
+/*!\brief Position info for a 2D line */
 
-mExpClass(Basic) Line2DPos3D : public Line2DPos
-{
-public:
-		Line2DPos3D( int n=0, float z=mUdf(float) )
-		    : Line2DPos(n), z_(z)		{}
-
-    float	z_;
-};
-
-
-/*!
-\brief Position info for a 2D line.
-*/
-
-mExpClass(Basic) Line2DData
+mClass Line2DData
 {
 public:
 			Line2DData(const char* lnm=0);
-
-			Line2DData(const Line2DData& l2d)
-			: zrg_(l2d.zRange())
-			, lnm_(l2d.lineName())
-			, posns_(l2d.positions()){}
 
     const StepInterval<float>& zRange() const		{ return zrg_; }
     const BufferString&	lineName() const		{ return lnm_; }
@@ -92,9 +68,7 @@ public:
 	    			   const Interval<int>& trcnrrg) const;
 
     bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       float* dist=0) const;
-    bool		getPos(const Coord& crd,Line2DPos& l2p,
-	    		       float threshold_distance) const;
+	    		       double threshold_distance) const;
     bool		getPos(int trcnr,Line2DPos&) const;
 
     void                dump(std::ostream&,bool pretty=true) const;
@@ -103,7 +77,6 @@ public:
 
     StepInterval<int>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
-    void		compDistBetwTrcsStats(float& max, float& median) const;
 
 protected:
 
@@ -119,4 +92,3 @@ protected:
 } // namespace PosInfo
 
 #endif
-

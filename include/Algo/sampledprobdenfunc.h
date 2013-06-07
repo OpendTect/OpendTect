@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "probdenfunc.h"
 #include "samplingdata.h"
 #include "arrayndimpl.h"
@@ -21,13 +20,13 @@ ________________________________________________________________________
 
 class IOPar;
 
-/*!
-\brief PDF based on ArrayND implementation.
-  
+/*!\brief PDF based on ArrayND implementation.
+
   This interface should allow read/write generalized from disk.
+
 */
 
-mExpClass(Algo) ArrayNDProbDenFunc
+mClass ArrayNDProbDenFunc
 {
 public:
 
@@ -94,16 +93,11 @@ protected:
     virtual void		prepareRandDrawing() const { prepRndDrw(); }
 
 
-/*!
-\brief One dimensional PDF based on binned data.
-*/
-
-mExpClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
+mClass Sampled1DProbDenFunc : public ProbDenFunc1D
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-			Sampled1DProbDenFunc();
     			Sampled1DProbDenFunc(const Array1D<float>&);
     			Sampled1DProbDenFunc(const TypeSet<float>&);
     			Sampled1DProbDenFunc(const float*,int);
@@ -134,16 +128,11 @@ protected:
 };
 
 
-/*!
-\brief Two dimensional PDF based on binned data.
-*/
-
-mExpClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
+mClass Sampled2DProbDenFunc : public ProbDenFunc2D
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-			Sampled2DProbDenFunc();
     			Sampled2DProbDenFunc(const Array2D<float>&);
     			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
     Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
@@ -175,18 +164,18 @@ protected:
 };
 
 
-/*!
-\brief Multi-dimensional PDF based on binned data.
-  
-  If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
-*/
+/*!\brief Multi-dimensional PDF based on binned data.
 
-mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
+  If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
+
+ */
+
+
+mClass SampledNDProbDenFunc : public ProbDenFunc
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-			SampledNDProbDenFunc(int nrdims);
     			SampledNDProbDenFunc(const ArrayND<float>&);
     			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
@@ -227,4 +216,3 @@ public:
 
 
 #endif
-

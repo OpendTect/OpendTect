@@ -20,7 +20,7 @@ namespace PreStack
 DefineEnumNames(PropCalc,CalcType,1,"Calculation type")
 {
 	"Statistics",
-	"AVO Attributes",
+	"Least-Square",
 	0
 };
 
@@ -52,7 +52,6 @@ PropCalc::PropCalc( const Setup& s )
     , gather_( 0 )
     , innermutes_( 0 )
     , outermutes_( 0 )
-    , angledata_( 0 )
 {}
 
 
@@ -68,12 +67,6 @@ void PropCalc::removeGather()
     {
 	DPM(DataPackMgr::FlatID()).release( gather_->id() );
 	gather_ = 0;
-    }
-
-    if ( angledata_ )
-    {
-	DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-	angledata_ = 0;
     }
 
     delete [] innermutes_;
@@ -105,56 +98,72 @@ void PropCalc::setGather( DataPack::ID id )
 }
 
 
-void PropCalc::setAngleData( DataPack::ID id )
-{
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, angledata, dp );
-
-    if ( angledata )
-	angledata_ = angledata;
-    else
-	DPM(DataPackMgr::FlatID()).release( id );
-}
-
-
 float PropCalc::getVal( int sampnr ) const
 {
-    if ( !gather_ )
+    if ( !gather_  || gather_->isOffsetAngle() )
 	return mUdf(float);
 
-    const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
-    return getVal( (float) si.atIndex(sampnr) );
+    const float eps = 1e-3;
+    Interval<float> offsrg( setup_.offsrg_ );
+    offsrg.start -= eps; offsrg.stop += eps;
+    offsrg.sort();
+
+    const int nroffsets = gather_->size( !gather_->offsetDim() );
+    const int nrz = gather_->size( gather_->offsetDim() );
+
+    TypeSet<float> offs, vals;
+    for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
+    {
+	for ( int itrc=0; itrc<nroffsets; itrc++ )
+	{
+	    const float offset = gather_->getOffset(itrc);
+	    if ( !offsrg.includes( offset, true ) )
+		continue;
+
+	    const int cursamp = sampnr + ishft;
+	    if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
+		continue;
+
+	    if ( cursamp<0 || cursamp>=nrz )
+		continue;
+
+	    const float val = gather_->data().get( itrc, cursamp );
+
+	    vals += val;
+	    if ( setup_.calctype_ != Stats )
+		offs += setup_.useazim_ ? gather_->getAzimuth(itrc) : offset;
+	}
+    }
+
+    return getVal( setup_, vals, offs );
 }
 
 
 float PropCalc::getVal( float z ) const
 {
-    if ( !gather_ )
+    if ( !gather_  || gather_->isOffsetAngle() )
 	return mUdf(float);
 
-    const bool useangle = setup_.useangle_ && angledata_;
-    Interval<float> axisvalrg( setup_.offsrg_ );
-    if ( useangle )
-    {
-	axisvalrg.start = setup_.anglerg_.start*M_PIf/180; 
-	axisvalrg.stop = setup_.anglerg_.stop*M_PIf/180;
-    }
-   
     const float eps = 1e-3;
-    axisvalrg.start -= eps; axisvalrg.stop += eps;
-    axisvalrg.sort();
+    Interval<float> offsrg( setup_.offsrg_ );
+    offsrg.start -= eps; offsrg.stop += eps;
+    offsrg.sort();
 
     const int nroffsets = gather_->size( !gather_->offsetDim() );
     const int nrz = gather_->size( !gather_->zDim() );
 
-    TypeSet<float> axisvals, vals;
+    TypeSet<float> offs, vals;
     vals.setCapacity( nroffsets );
     if ( setup_.calctype_ != Stats )
-	axisvals.setCapacity( nroffsets );
+	offs.setCapacity( nroffsets );
 
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
     for ( int itrc=0; itrc<nroffsets; itrc++ )
     {
+	const float offset = gather_->getOffset(itrc);
+	if ( !offsrg.includes( offset, true ) )
+	    continue;
+
 	const float* seisdata = gather_->data().getData() +
 	    gather_->data().info().getOffset(itrc,0);
 
@@ -167,23 +176,16 @@ float PropCalc::getVal( float z ) const
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float axisval = 
-			useangle ? angledata_->data().get( itrc, (int)cursamp ) 
-				 : gather_->getOffset(itrc);
-
-	    if ( !axisvalrg.includes( axisval, true ) )
-		continue;
-
-	    if ( setup_.calctype_ != Stats )
-		axisvals += axisval;
-	   
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
+
 	    vals += val;
+	    if ( setup_.calctype_ != Stats )
+		offs += setup_.useazim_ ? gather_->getAzimuth(itrc) : offset;
 	}
     }
 
-    return getVal( setup_, vals, axisvals );
+    return getVal( setup_, vals, offs );
 }
 
 
@@ -210,7 +212,7 @@ static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 
 
 float PropCalc::getVal( const PropCalc::Setup& su,
-			      TypeSet<float>& vals, TypeSet<float>& axisvals )
+			      TypeSet<float>& vals, TypeSet<float>& offs )
 {
     transformAxis( vals, su.valaxis_ );
 
@@ -231,7 +233,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	return (float) rc.getValue( su.stattype_ );
     }
 
-    rc.addValues( axisvals.size(), axisvals.arr() );
+    rc.addValues( offs.size(), offs.arr() );
 
     if ( vals.size()>0 && mIsZero( rc.getValue( Stats::StdDev ), 1e-3 ) )
     {
@@ -252,16 +254,9 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 	}
     }
 
-    if ( su.useangle_ )
-	transformAxis( axisvals, PropCalc::Sinsq );
-    else
-	transformAxis( axisvals, su.offsaxis_ );
-
-    if ( !axisvals.size() )
-	return 0;
-
+    transformAxis( offs, su.offsaxis_ );
     LinStats2D ls2d;
-    ls2d.use( axisvals.arr(), vals.arr(), vals.size() );
+    ls2d.use( offs.arr(), vals.arr(), vals.size() );
     switch ( su.lsqtype_ )
     {
     case A0:		return ls2d.lp.a0;

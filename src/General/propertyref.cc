@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "propertyref.h"
 #include "property.h"
@@ -56,7 +56,7 @@ struct PropRef_ThickRef_Man : public CallBacker
 
 PropRef_ThickRef_Man()
 {
-    ref_ = new PropertyRef( sKey::Thickness(), PropertyRef::Dist );
+    ref_ = new PropertyRef( "Thickness", PropertyRef::Dist );
     ref_->aliases().add( "thick" );
     const PropertyRef* thref = PROPS().find( "thickness" );
     if ( thref )
@@ -170,7 +170,7 @@ void PropertyRef::usePar( const IOPar& iop )
     for ( int ifms=0; ifms<sz; ifms++ )
 	aliases_.add( fms[ifms] );
 
-    fms = iop.find( sKey::Range() );
+    fms = iop.find( sKey::Range );
     sz = fms.size();
     if ( sz > 1 )
     {
@@ -190,7 +190,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	}
     }
 
-    iop.get( sKey::Color(), disp_.color_ );
+    iop.get( sKey::Color, disp_.color_ );
 
     fms = iop.find( sKeyDefaultValue );
     sz = fms.size();
@@ -220,7 +220,7 @@ void PropertyRef::fillPar( IOPar& iop ) const
 	iop.set( sKeyAliases, fms );
     }
 
-    iop.set( sKey::Color(), disp_.color_ );
+    iop.set( sKey::Color, disp_.color_ );
 
     Interval<float> vintv( disp_.range_ );
     const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
@@ -236,7 +236,7 @@ void PropertyRef::fillPar( IOPar& iop ) const
     fms += ::toString( vintv.stop );
     if ( !disp_.unit_.isEmpty() )
 	fms += disp_.unit_;
-    iop.set( sKey::Range(), fms );
+    iop.set( sKey::Range, fms );
 
     if ( !disp_.defval_ )
 	iop.removeWithKey( sKeyDefaultValue );
@@ -366,7 +366,8 @@ int PropertyRefSet::add( PropertyRef* pr )
 {
     if ( !pr ) return -1;
 
-    if ( !isPresent( pr->name() ) )
+    const int idx = indexOf( pr->name() );
+    if ( idx < 0 )
 	{ ObjectSet<PropertyRef>::operator+=( pr ); return size()-1; }
 
     return -1;
@@ -464,20 +465,6 @@ PropertyRefSelection::PropertyRefSelection()
 }
 
 
-bool PropertyRefSelection::operator ==( const PropertyRefSelection& oth ) const
-{
-    if ( size() != oth.size() )
-	return false;
-
-    for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx] != oth[idx] )
-	    return false;
-
-    return true;
-}
-
-
-
 int PropertyRefSelection::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -504,17 +491,4 @@ int PropertyRefSelection::find( const char* nm ) const
     }
 
     return -1;
-}
-
-
-PropertyRefSelection PropertyRefSelection::subselect(                           
-					PropertyRef::StdType type ) const       
-{                                                                               
-    PropertyRefSelection subsel;
-    subsel.erase();
-    for ( int idx=0; idx<size(); idx++ )                                        
-	if ( (*this)[idx] && (*this)[idx]->hasType( type ) )                    
-	    subsel += (*this) [idx];
-
-    return subsel; 
 }

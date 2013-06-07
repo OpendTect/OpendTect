@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "seistype.h"
 class uiIOObjSel;
@@ -24,7 +23,7 @@ class uiComboBox;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiResortSEGYDlg : public uiDialog
+mClass uiResortSEGYDlg : public uiDialog
 {
 public :
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

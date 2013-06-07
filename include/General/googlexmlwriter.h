@@ -7,9 +7,7 @@
  * ID       : $Id$
 -*/
 
-#include "generalmod.h"
 #include "bufstring.h"
-
 class StreamData;
 class Coord;
 class LatLong;
@@ -22,11 +20,7 @@ namespace ODGoogle
 {
 class XMLItem;
 
-/*!
-\brief XML Writer.
-*/
-
-mExpClass(General) XMLWriter
+mClass XMLWriter
 {
 public:
 
@@ -79,4 +73,3 @@ protected:
 } // namespace ODGoogle
 
 #endif
-

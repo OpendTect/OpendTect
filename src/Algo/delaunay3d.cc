@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "delaunay3d.h"
 
@@ -25,7 +25,7 @@ od_int64 ParallelDTetrahedralator::nrIterations() const
 
 bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 {
-    const od_int64 nrcoords = nrIterations();
+    const int nrcoords = nrIterations();
     if ( israndom_ )
 	permutation_.erase();
     else
@@ -47,7 +47,7 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
     TypeSet<int> delayedpts;
-    for ( int idx=(int) start; idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	int dupid;
 	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
@@ -171,7 +171,6 @@ bool DAGTetrahedraTree::setCoordList( const TypeSet<Coord3>& coordlist,
     return true;
 }
 
-const double sq6 = Math::Sqrt( 6. );
 
 bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg, 
 	const Interval<double>& yrg, const Interval<double>& zrg )
@@ -203,8 +202,8 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 
 	if ( narrow[2] )
 	{
-	    center_.z = SI().zRange(true).center()*SI().zDomain().userFactor();
-	    zlength = SI().zRange(true).width()*SI().zDomain().userFactor();
+	    center_.z = SI().zRange(true).center()*SI().zFactor();
+	    zlength = SI().zRange(true).width()*SI().zFactor();
 	}
     }
 
@@ -212,7 +211,8 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
     epsilon_ = k*(1e-5);
 
-    const double sq2 = M_SQRT2;
+    const double sq2 = sqrt( 2. );
+    const double sq6 = sqrt( 6. );
     initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
     initialcoords_[1] = center_ + Coord3( 0, 6*sq2*k, -6*k );
     initialcoords_[2] = center_ + Coord3( -3*sq6*k, -3*sq2*k, -6*k );
@@ -236,7 +236,8 @@ void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
 
     if ( initialcoords_[0].isDefined() )
     {
-	const double sq2 = M_SQRT2;
+	const double sq2 = sqrt( 2. );
+	const double sq6 = sqrt( 6. );
 	double k = (initialcoords_[0].z-center_.z)/6;
 	k = k * newfactor/initsizefactor_;
 	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
@@ -275,7 +276,7 @@ int DAGTetrahedraTree::insertPoint( const Coord3& coord, int& dupid )
     if ( !insertPoint( ci, dupid ) )
     {
 	if ( coordlist_->size()==ci+1 )
-	    coordlist_->removeSingle( ci );
+	    coordlist_->remove( ci );
 
 	return cNoVertex();
     }
@@ -333,7 +334,7 @@ char DAGTetrahedraTree::searchTetrahedra( const Coord3& pt )
     mode = searchTetrahedra( ci, 0, tis, firstface, v0, v1, dupid );
     const int* crds = tetrahedras_[tis[0]].coordindices_;
     
-    char res = cError();
+    char res;
     if ( mode==cError() )
     {
 	pErrMsg("where");
@@ -513,7 +514,7 @@ char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a,
     double edgesqdist[3];
     closestedgedist = mUdf(float);
     
-    for ( char idx=0; idx<3; idx++ )
+    for ( int idx=0; idx<3; idx++ )
     {
 	const Coord3& v0 = idx==0 ? a : (idx==1 ? b : c);
 	const Coord3& v1 = idx==0 ? b : (idx==1 ? c : a);
@@ -657,7 +658,7 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 
     double minedgedist;
     face = cNoFace();
-    for ( char idx=0; idx<4; idx++ )
+    for ( int idx=0; idx<4; idx++ )
     {
 	if ( res[idx]!=cIsInside() )
 	    continue;
@@ -677,7 +678,7 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 	  signeddist[2]<0 && signeddist[3]<0) )
 	return cIsInside();
 
-    for ( char idx=0; idx<4; idx++ )
+    for ( int idx=0; idx<4; idx++ )
     {
 	const double dist = fabs(signeddist[idx]);
 	if ( face==cNoFace() || (!mIsZero(dist,epsilon_) && mindist>dist) )
@@ -933,7 +934,7 @@ void DAGTetrahedraTree::splitTetrahedraOnEdge( int ci, const TypeSet<int>& tis,
 			     tetrahedras_[tis[idx]].coordindices_[2],
        			     tetrahedras_[tis[idx]].coordindices_[3] };
 	unsigned char s0, s1, s2, s3;
-	for ( char idy=0; idy<4; idy++ )
+	for( int idy=0; idy<4; idy++ )
 	{
 	    if ( crds[idy]==sharedv0 )
 		s0 = idy;
@@ -1023,9 +1024,9 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	const int ti = tis[start];
 	if ( start>10000 )
 	{
-	    v0s.removeRange( 0, start );
-	    v1s.removeRange( 0, start );
-	    tis.removeRange( 0, start );
+	    v0s.remove( 0, start );
+	    v1s.remove( 0, start );
+	    tis.remove( 0, start );
 	    start = 0;
 	}
 	else 
@@ -1234,6 +1235,10 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	}
 	else if ( pq_intersect_abc==cIsOnEdge() )
 	{ 
+	    const int checknbs[] = { tetrahedras_[checkti].neighbors_[0],
+				     tetrahedras_[checkti].neighbors_[1],
+				     tetrahedras_[checkti].neighbors_[2],
+				     tetrahedras_[checkti].neighbors_[3] };
 	    int s0 = cNoVertex(), s1 = cNoVertex(), s2 = cNoVertex();
 	    int nbti = cNoTetrahedra();
 	    if ( onedge==cEdge01() )
@@ -1486,7 +1491,7 @@ bool DAGTetrahedraTree::getConnections( int vertex, TypeSet<int>& result ) const
 
 	for ( int idy=0; idy<4; idy++ )
 	{
-	    if ( c[idy]<0 || c[idy]==vertex || result.isPresent(c[idy]) )
+	    if ( c[idy]<0 || c[idy]==vertex || result.indexOf(c[idy])!=-1 )
 		continue;
 
 	    result += c[idy];
@@ -1572,10 +1577,10 @@ bool DAGTetrahedraTree::DAGTetrahedra::operator==(const DAGTetrahedra& d) const
     vertices += coordindices_[2];
     vertices += coordindices_[3];
 
-    return vertices.isPresent( d.coordindices_[0] ) && 
-	   vertices.isPresent( d.coordindices_[1] ) &&
-	   vertices.isPresent( d.coordindices_[2] ) && 
-	   vertices.isPresent( d.coordindices_[3] );
+    return vertices.indexOf( d.coordindices_[0] )!=-1 && 
+	   vertices.indexOf( d.coordindices_[1] )!=-1 &&
+	   vertices.indexOf( d.coordindices_[2] )!=-1 && 
+	   vertices.indexOf( d.coordindices_[3] )!=-1;
 }	
 
 

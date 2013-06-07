@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodhortreeitem.h"
 
@@ -15,9 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
+#include "selector.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -171,7 +171,7 @@ void uiODHorizonParentTreeItem::sort()
 	mids += EM::EMM().getMultiID( emid );
     }
 
-    EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
+    EM::EMM().sortHorizonsList( mids, sortedmids, false );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
@@ -204,7 +204,7 @@ uiTreeItem*
     if ( !objtype ) return 0;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-	ODMainWin()->applMgr().visServer()->getObject(visid));
+          ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( hd )
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
@@ -267,7 +267,7 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
 	res += " (";
-	res += uivisemobj_->getShift() * SI().zDomain().userFactor();
+	res += uivisemobj_->getShift() * SI().zFactor();
 	res += ")";
     }
 
@@ -360,15 +360,18 @@ bool uiODHorizonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
+    mDynamicCastGet(MenuHandler*,menu,cb);
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
+
     const bool hastransform = scene && scene->getZAxisTransform();
 
-    if ( !menu || menu->menuID()!=displayID() || hastransform )
+    const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
+
+    if ( menu->menuID()!=displayID() || hastransform )
     {
 	mResetMenuItem( &positionmnuitem_ );
 	mResetMenuItem( &shiftmnuitem_ );
@@ -519,7 +522,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx ); 
 
-	float curshift = (float) visserv_->getTranslation( visid ).z;
+	float curshift = visserv_->getTranslation( visid ).z;
 	if ( mIsUdf( curshift ) ) curshift = 0;
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
@@ -626,7 +629,7 @@ void uiODHorizon2DParentTreeItem::sort()
 	mids += EM::EMM().getMultiID( emid );
     }
 
-    EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
+    EM::EMM().sortHorizonsList( mids, sortedmids, true );
     uiTreeItem* previtm = 0;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
@@ -678,10 +681,8 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 
 void uiODHorizon2DTreeItem::initMenuItems()
 {
-    algomnuitem_.text = "&Tools";
-    workflowsmnuitem_.text = "Workflows";
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
-    snapeventmnuitem_.text = "Snapping ...";
+    snapeventmnuitem_.text = "Snap to &event ...";
     interpolatemnuitem_.text = "&Interpolate ...";
 }
 
@@ -707,12 +708,12 @@ bool uiODHorizon2DTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
+    mDynamicCastGet(MenuHandler*,menu,cb)
 
-    if ( !menu || menu->menuID()!=displayID() )
+    if ( menu->menuID()!=displayID() )
     {
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
@@ -721,17 +722,13 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
     else
     {
-	const bool islocked = visserv_->isLocked( displayID() );
-	const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
-	const bool enab = !islocked && !isempty;
-	mAddMenuItem( menu, &algomnuitem_, true, false );
-	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
-	mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
-
-	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
-	mAddMenuItem( &workflowsmnuitem_, &derive3dhormnuitem_, enab, false );
-	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, enab,false);
+	const bool isempty = applMgr()->EMServer()->isEmpty(emid_);
+	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
+	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
+	mAddMenuItem( menu, &snapeventmnuitem_, !isempty, false );
+	mAddMenuItem( menu, &interpolatemnuitem_, !isempty, false );
     }
+	
 }
 
 
@@ -748,8 +745,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
-	if ( isoverwrite )
-	    mUpdateTexture();
+	mUpdateTexture();
     }
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );

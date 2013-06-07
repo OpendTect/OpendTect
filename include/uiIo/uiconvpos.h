@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class uiGenInput;
 class uiFileInput;
 class SurveyInfo;
 
 
-mExpClass(uiIo) uiConvertPos : public uiDialog
+mClass uiConvertPos : public uiDialog
 {
 
 public:
@@ -48,4 +47,3 @@ private:
 };
 
 #endif
-

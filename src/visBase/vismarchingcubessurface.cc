@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vismarchingcubessurface.h"
 
@@ -34,7 +34,6 @@ MarchingCubesSurface::MarchingCubesSurface()
     , xrg_( mUdf(float), mUdf(float), 0 )
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
-    , isupdateok_(false)  
 {
     SoMaterialBinding* materialbinding = new SoMaterialBinding;
     addChild( materialbinding );
@@ -69,8 +68,8 @@ void MarchingCubesSurface::renderOneSide( int side )
 }
 
 
-void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns, 
-				       TaskRunner* tr )
+void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
+       TaskRunner* tr	)
 {
     surface_->setSurface( &ns );
     touch( true, tr );
@@ -78,14 +77,7 @@ void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
 
 
 void MarchingCubesSurface::touch( bool forall, TaskRunner* tr )
-{  
-    shape_->touch( forall, tr ); 
-    isupdateok_ = shape_->isUpdateOk();
-}
-
-
-bool MarchingCubesSurface::isUpdateOk() const
-{ return isupdateok_; }
+{ shape_->touch( forall, tr ); }
 
 
 ::MarchingCubesSurface* MarchingCubesSurface::getSurface()

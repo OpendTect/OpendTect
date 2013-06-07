@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visemobjdisplay.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
@@ -33,7 +32,7 @@ namespace visSurvey
 {
 
 
-mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
+mClass HorizonDisplay : public EMObjectDisplay
 {
 public:
     static HorizonDisplay*	create()
@@ -268,6 +267,5 @@ protected:
 };
 
 #endif
-
 
 

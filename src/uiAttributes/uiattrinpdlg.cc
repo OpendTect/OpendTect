@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiattrinpdlg.h"
 
@@ -23,6 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 
+
+static const char* seislbl[] = { "Select Seismics", 0 };
+static const char* steerlbl[] = { "Select Steering cube", 0 };
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
 			    bool issteer, bool is2d, const char* prevrefnm )
@@ -157,6 +160,7 @@ const char* uiAttrInpDlg::getSeisKey() const
     static LineKey lk;
     if ( !ctio_.ioobj )
 	return 0;
+
     lk.setLineName( ctio_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( seisinpfld_->attrNm() );
@@ -176,6 +180,7 @@ const char* uiAttrInpDlg::getSteerKey() const
     static LineKey lk;
     if ( !ctiosteer_.ioobj )
 	return 0;
+
     lk.setLineName( ctiosteer_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( steerinpfld_->attrNm() );

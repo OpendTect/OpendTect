@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "multiid.h"
 #include "offsetazimuth.h"
 #include "prestackprocessor.h"
@@ -21,11 +20,7 @@ ________________________________________________________________________
 namespace PreStack
 {
 
-/*!
-\brief Lateral stack
-*/
-
-mExpClass(PreStackProcessing) LateralStack : public Processor
+mClass LateralStack : public Processor
 {
 public:
     			mDefaultFactoryInstanciationBase(
@@ -73,4 +68,3 @@ protected:
 }; //namespace
 
 #endif
-

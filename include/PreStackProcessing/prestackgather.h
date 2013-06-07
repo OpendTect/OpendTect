@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "arrayndimpl.h"
 #include "multiid.h"
 #include "position.h"
@@ -29,19 +28,15 @@ class SeisTrc;
 namespace PreStack
 {
 
-/*!
-\brief PreStack gather.
-*/
-
-mExpClass(PreStackProcessing) Gather : public FlatDataPack
+mClass Gather : public FlatDataPack
 {
 public:
-				Gather();
-				Gather(const Gather&);
-				Gather(const FlatPosData&);
+    				Gather();
+    				Gather(const Gather&);
     				~Gather();
 
     bool			is3D() const { return linename_.isEmpty(); }				
+    bool			setSize( int nroff, int nrz );
 
     bool			readFrom(const MultiID&, const BinID&,
 	    				 int component=0,
@@ -68,9 +63,6 @@ public:
 
     				//for 3d only
     const BinID&		getBinID() const 	{ return binid_; }
-    const StepInterval<float>&	zRange() const 		{ return zrg_; }
-    void			setZRange( const StepInterval<float>& zrg )
-    				{ zrg_ = zrg; }
 
 				//for 2D only.
     bool			readFrom(const MultiID&, const int tracenr, 
@@ -114,11 +106,6 @@ public:
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyVelocityCubeID();
     static const char*		sKeyStaticsID();
-    
-    void			getAzimuths(TypeSet<float>& azimuths ) const
-				{ azimuths = azimuths_; }
-    void			setAzimuths( const TypeSet<float>& azimuths )
-				{ azimuths_ = azimuths; }
 
 protected:
 
@@ -132,21 +119,21 @@ protected:
     BinID			binid_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
-    StepInterval<float>		zrg_;
 
     BufferString		linename_;
 
 public:
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp) 
+    				{ return false; } //4.3
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
-					    bool snapzrangetosi=false);
+	    					bool snap2si=false);
 };
 
 
-/*!
-\brief A DataPack containing an objectset of gathers.
-*/
 
-mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
+/*! brief a datapack containing an objectset of gathers !*/
+
+mClass GatherSetDataPack : public DataPack
 {
 public:
     				GatherSetDataPack(const char* ctgery,
@@ -173,4 +160,3 @@ protected:
 }; //namespace
 
 #endif
-

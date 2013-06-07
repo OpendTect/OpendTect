@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 class IOPar;
@@ -36,7 +35,7 @@ class CBVSSeisTrcTranslator;
 
  */
 
-mExpClass(Seis) SeisCBVSPSIO
+mClass SeisCBVSPSIO
 {
 public:
     			SeisCBVSPSIO(const char* dirnm);
@@ -79,7 +78,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mExpClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
+mClass SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -113,7 +112,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
+mClass SeisCBVSPS2DReader : public SeisPS2DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -145,7 +144,7 @@ protected:
 
  */
 
-mExpClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
+mClass SeisCBVSPS3DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -177,7 +176,7 @@ protected:
 
  */
 
-mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
+mClass SeisCBVSPS2DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -203,4 +202,3 @@ protected:
 
 
 #endif
-

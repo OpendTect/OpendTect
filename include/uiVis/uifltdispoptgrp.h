@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidlggroup.h"
 
 
@@ -21,7 +20,7 @@ class uiGenInput;
 class uiPushButton;
 namespace visSurvey { class FaultDisplay; }
 
-mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
+mClass uiFaultDisplayOptGrp : public uiDlgGroup
 {
 public: 
     		 		uiFaultDisplayOptGrp(uiParent*,
@@ -40,4 +39,3 @@ protected:
 
 
 #endif
-

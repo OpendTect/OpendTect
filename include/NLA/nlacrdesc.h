@@ -12,21 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "nlamod.h"
 #include "nladesign.h"
 #include "multiid.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "enums.h"
-
 class BinIDValueSet;
 class DataPointSet;
 
-/*!
-\brief Description of how a NLA analysis Feature set is to be created.
-*/
+/*\brief Description of how an NLA analysis Feature set is to be created */
 
-mExpClass(NLA) NLACreationDesc
+mClass NLACreationDesc
 {
 public:
     			NLACreationDesc()	{ clear(); }
@@ -67,4 +63,3 @@ public:
 
 
 #endif
-

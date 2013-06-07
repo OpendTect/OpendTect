@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "callback.h"
 #include "bufstringset.h"
 
@@ -30,7 +29,7 @@ class CmdRecorder;
 class uiCmdDriverDlg;
 
 
-mExpClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
+mClass uiCmdDriverMgr : public CallBacker
 {
 public:
 				uiCmdDriverMgr(bool fullodmode=false);

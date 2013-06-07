@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		September 2008
- RCS:		$Id$
+ RCS:		$Id: uigmtadv.h,v 1.3 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiLineEdit;
 
-mClass(uiGMT) uiGMTAdvGrp : public uiGMTOverlayGrp
+class uiGMTAdvGrp : public uiGMTOverlayGrp
 {
 public:
 

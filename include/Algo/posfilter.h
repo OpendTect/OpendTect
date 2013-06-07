@@ -13,23 +13,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "position.h"
 #include "factory.h"
 #include "surv2dgeom.h"
-
 class IOPar;
 class Executor;
 class TaskRunner;
 
-/*!\brief Position*/
 
 namespace Pos
 {
 class Provider;
 
-/*!
-\brief Decides whether a given position should be included.
+/*!\brief decideds whether a given position should be included
 
   Some Filters require initialization. There are two levels of initialization:
 
@@ -41,10 +37,11 @@ class Provider;
 
   Filter2D and Filter3D have factories. Providers too. Standard providers
   are not added to the Filter factory. Non-standard should in general be added
-  to both. 
-*/
+  to both.
+ 
+ */
 
-mExpClass(Algo) Filter
+mClass Filter
 {
 public:
 
@@ -74,11 +71,9 @@ public:
 };
 
 
-/*!
-\brief Provides a filter related to 3D data.
-*/
+/*!\brief provides a filter related to 3D data */
 
-mExpClass(Algo) Filter3D : public virtual Filter
+mClass Filter3D : public virtual Filter
 {
 public:
 
@@ -93,33 +88,34 @@ public:
 };
 
 
-/*!
-\brief Provides a filter related to 2D seismic data.
-*/
+/*!\brief provides a filter related to 2D seismic data */
 
-mExpClass(Algo) Filter2D : public virtual Filter
+mClass Filter2D : public virtual Filter
 {
 public:
     			Filter2D()				{}
 			~Filter2D();
 
     virtual bool	is2D() const				{ return true; }
+    virtual bool	worksWithCoords() const
+    			{ return geomids_.size(); }
+
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const = 0;
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
 
+    mDefineFactoryInClass(Filter2D,factory);
+    static Filter2D*	make(const IOPar&);
+
     void		addLineID(const PosInfo::GeomID&);
     void		removeLineID(int lidx);
     PosInfo::GeomID	lineID(int) const;
-    int			indexOf(const PosInfo::GeomID&) const;
     int			nrLines() const;
-
-    mDefineFactoryInClass(Filter2D,factory);
-    static Filter2D*	make(const IOPar&);
 
 protected:
 
     TypeSet<PosInfo::GeomID>	geomids_;
+
 };
 
 

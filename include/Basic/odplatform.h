@@ -12,17 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "enums.h"
 
 namespace OD
 {
 
-/*!
-\brief Platform or Operating System
-*/
-
-mExpClass(Basic) Platform
+mClass Platform
 {
 public:
 
@@ -80,4 +75,3 @@ protected:
 
 
 #endif
-

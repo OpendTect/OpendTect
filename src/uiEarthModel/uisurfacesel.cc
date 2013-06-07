@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurfacesel.h"
 
@@ -70,7 +70,7 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 	    continue;
 
 	listfld_->removeItem( surfidx );
-	mids_.removeSingle( surfidx );
+	mids_.remove( surfidx );
     }
 }
 

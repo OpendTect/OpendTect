@@ -13,15 +13,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "posprovider.h"
+
 
 namespace Pos
 {
 
 /*!\brief 3D provider based on CubeSampling */
 
-mExpClass(General) RangeProvider3D : public Provider3D
+mClass RangeProvider3D : public Provider3D
 {
 public:
 
@@ -29,7 +29,7 @@ public:
 			RangeProvider3D(const RangeProvider3D&);
 			~RangeProvider3D();
     RangeProvider3D&	operator =(const RangeProvider3D&);
-    const char*		type() const;	//!< sKey::Range()
+    const char*		type() const;	//!< sKey::Range
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
 
@@ -76,14 +76,14 @@ Can only be used if Line2DData is filled.
 
  */
 
-mExpClass(General) RangeProvider2D : public Provider2D
+mClass RangeProvider2D : public Provider2D
 {
 public:
 
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
     RangeProvider2D&	operator =(const RangeProvider2D&);
-    const char*		type() const;	//!< sKey::Range()
+    const char*		type() const;	//!< sKey::Range
     const char*		factoryKeyword() const { return type(); }
     virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
 
@@ -109,14 +109,14 @@ public:
     StepInterval<int>&		trcRange(int lidx)	{ return trcrgs_[lidx];}
     const StepInterval<int>&	trcRange(int lidx) const {return trcrgs_[lidx];}
     
-    StepInterval<float>&	zRange(int lidx=0) 	{ return zrgs_[lidx]; }
-    const StepInterval<float>&	zRange(int lidx=0) const {return zrgs_[lidx];}
+    StepInterval<float>&	zRange() 		{ return zrg_; }
+    const StepInterval<float>&	zRange() const		{ return zrg_; };
 
 protected:
 
     TypeSet< StepInterval<int> > trcrgs_;
-    TypeSet< StepInterval<float> > zrgs_;
-    int			curtrcidx_;
+    StepInterval<float>	zrg_;
+    int			curidx_;
     int			curlineidx_;
     float		curz_;
 
@@ -126,6 +126,7 @@ public:
     static Provider2D*	create()	{ return new RangeProvider2D; }
 
 };
+
 
 } // namespace
 

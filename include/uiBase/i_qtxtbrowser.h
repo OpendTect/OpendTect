@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include <QWidget>
 
 
-QT_BEGIN_NAMESPACE
-
 class QString;
 
 //! Helper class for uiTextBrowser to relay Qt's messages.
@@ -72,17 +70,15 @@ private slots:
 
     void 		highlighted( const QString& lnk )
 			{ 
-			    receiver_->lastlink_ = lnk.toLatin1().data();
+			    receiver_->lastlink_ = lnk.toAscii().data();
 			    receiver_->linkHighlighted.trigger(*receiver_); 
 			}
 
     void		anchorClicked( const QUrl& lnk )
 			{
-			    receiver_->lastlink_ = lnk.toString().toLatin1().data();
+			    receiver_->lastlink_ = lnk.toString().toAscii().data();
 			    receiver_->linkClicked.trigger(*receiver_);
 			}
 };
-
-QT_END_NAMESPACE
 
 #endif

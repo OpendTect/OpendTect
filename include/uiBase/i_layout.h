@@ -67,33 +67,32 @@ widget already present).
 
 
 */
-class i_LayoutMngr : public mQtclass(QLayout), public NamedObject
+class i_LayoutMngr : public QLayout, public NamedObject
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;
 
 public:
-			i_LayoutMngr(mQtclass(QWidget*) prnt,
+			i_LayoutMngr(QWidget* prnt,
 				     const char* name,uiObjectBody& mngbdy);
 
     virtual		~i_LayoutMngr();
  
-    virtual void 	addItem(mQtclass(QLayoutItem*));
+    virtual void 	addItem(QLayoutItem*);
     void	 	addItem(i_LayoutItem*);
 
-    virtual mQtclass(QSize) 	sizeHint() const;
-    virtual mQtclass(QSize) 	minimumSize() const;
+    virtual QSize 	sizeHint() const;
+    virtual QSize 	minimumSize() const;
 
-    virtual mQtclass(QLayoutItem*) itemAt(int idx) const;
-    virtual mQtclass(QLayoutItem*) takeAt(int idx);
+    virtual QLayoutItem* itemAt(int idx) const;
+    virtual QLayoutItem* takeAt(int idx);
     virtual int		 count() const;
 
     virtual void       	invalidate();
     virtual void       	updatedAlignment(LayoutMode);
     virtual void       	initChildLayout(LayoutMode);
 
-    bool 		attach(constraintType,mQtclass(QWidget&),
-	    		       mQtclass(QWidget*),int,
+    bool 		attach(constraintType,QWidget&,QWidget*,int,
 			       bool reciprocal=true);
 
     const uiRect&	curpos(LayoutMode) const;
@@ -119,19 +118,19 @@ public:
 
 private:
 
-    void 		setGeometry( const mQtclass(QRect&) );
+    void 		setGeometry( const QRect& );
  
-    inline void 	doLayout( LayoutMode m, const mQtclass(QRect&) r ) const 
+    inline void 	doLayout( LayoutMode m, const QRect& r ) const 
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
-    void 		doLayout( LayoutMode m, const mQtclass(QRect&) );
+    void 		doLayout( LayoutMode m, const QRect& );
 
     void	 	itemDel( CallBacker* );
 
     void 		moveChildrenTo( int , int, LayoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
     bool		tryToGrowItem( resizeItem&, const int, const int, 
-				       int, int, const mQtclass(QRect&), int);
-    void		resizeTo( const mQtclass(QRect&) );
+				       int, int, const QRect&, int);
+    void		resizeTo( const QRect& );
     void		childrenCommitGeometrySet(bool);
 
     uiRect 		childrenRect(LayoutMode);
@@ -139,7 +138,7 @@ private:
     ObjectSet<i_LayoutItem> childrenlist;
 
     uiRect		layoutpos[ nLayoutMode ];
-    mQtclass(QRect)	prefGeometry;
+    QRect		prefGeometry;
 
     bool		minimumDone;
     bool		preferredDone;

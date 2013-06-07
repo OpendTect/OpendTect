@@ -12,18 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "stratseisevent.h"
 class uiGenInput;
 class uiStratLevelSel;
 
 
-mExpClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
+mClass uiStratSeisEvent : public uiGroup
 {
 public:
 
-    mExpClass(uiWellAttrib) Setup
+    mClass Setup
     {
     public:
 			Setup( bool wew=false )
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

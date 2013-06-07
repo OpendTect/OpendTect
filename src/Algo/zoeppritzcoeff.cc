@@ -8,8 +8,6 @@
 #include "zoeppritzcoeff.h"
 #include "ailayer.h"
 
-#include "math2.h"
-
 
 ZoeppritzCoeff::ZoeppritzCoeff()
     : pdn_pdn_( 0, 0 )
@@ -34,42 +32,42 @@ ZoeppritzCoeff::ZoeppritzCoeff()
 void ZoeppritzCoeff::setInterface( float p, const ElasticLayer& el1, 
 					    const ElasticLayer& el2 ) 
 {
-    const float p2 = p * p; 
-    const float pvel1 = el1.vel_;
-    const float pvel2 = el2.vel_;
+    float p2 = p * p; 
+    float pvel1 = el1.vel_;
+    float pvel2 = el2.vel_;
     float svel1 = el1.svel_;
     float svel2 = el2.svel_;
     
-    const bool waterabove = mIsZero(svel1,mDefEps);	//Detect water
-    const bool waterbelow = mIsZero(svel2,mDefEps);
+    bool waterabove = mIsZero(svel1,mDefEps);	//Detect water
+    bool waterbelow = mIsZero(svel2,mDefEps);
 
     if ( waterabove ) svel1 = 0.1;	// Set small values to make eqns work
     if ( waterbelow ) svel2 = 0.1;
 
-    const float l1s2 = svel1 * svel1;
-    const float l2s2 = svel2 * svel2;
-    const float l1p2 = pvel1 * pvel1;
-    const float l2p2 = pvel2 * pvel2;
+    float l1s2 = svel1 * svel1;
+    float l2s2 = svel2 * svel2;
+    float l1p2 = pvel1 * pvel1;
+    float l2p2 = pvel2 * pvel2;
 
-    const float_complex a = el2.den_ * (1 -  2 * l2s2 * p2) -
+    float_complex a = el2.den_ * (1 -  2 * l2s2 * p2) -
 	      el1.den_ * (1 -  2 * l1s2 * p2);	
-    const float_complex b = el2.den_ * (1 -  2 * l2s2 * p2) +
+    float_complex b = el2.den_ * (1 -  2 * l2s2 * p2) +
 	      el1.den_ * 2 * l1s2 * p2;	
-    const float_complex c = el1.den_ * (1 -  2 * l1s2 * p2) +
+    float_complex c = el1.den_ * (1 -  2 * l1s2 * p2) +
 	      el2.den_ * 2 * l2s2 * p2;	
-    const float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
+    float_complex d = 2 * (el2.den_ * l2s2 - el1.den_ * l1s2);
 
-    const float_complex pzi1 = Math::Sqrt( float_complex( 1.f/l1p2 - p2, 0) );
-    const float_complex pzi2 = Math::Sqrt( float_complex( 1.f/l2p2 - p2, 0) );
+    float_complex pzi1 = sqrt( float_complex( 1./l1p2 - p2, 0) );
+    float_complex pzi2 = sqrt( float_complex( 1./l2p2 - p2, 0) );
 
-    const float_complex pzj1 = Math::Sqrt( float_complex( 1.f/l1s2 - p2, 0) );
-    const float_complex pzj2 = Math::Sqrt( float_complex( 1.f/l2s2 - p2, 0) );
+    float_complex pzj1 = sqrt( float_complex( 1./l1s2 - p2, 0) );
+    float_complex pzj2 = sqrt( float_complex( 1./l2s2 - p2, 0) );
 
-    const float_complex ee = b * pzi1 + c * pzi2;
-    const float_complex ff = b * pzj1 + c * pzj2;
-    const float_complex gg = a - d * pzi1 * pzj2;
-    const float_complex hh = a - d * pzi2 * pzj1;
-    const float_complex dd = ee*ff + gg*hh * p2;
+    float_complex ee = b * pzi1 + c * pzi2;
+    float_complex ff = b * pzj1 + c * pzj2;
+    float_complex gg = a - d * pzi1 * pzj2;
+    float_complex hh = a - d * pzi2 * pzj1;
+    float_complex dd = ee*ff + gg*hh * p2;
 
     const float f2 = (float)2;
 
@@ -204,14 +202,29 @@ float_complex getFastCoeff( float par, const ElasticLayer& el1,
 
     const float vs1 = el1.svel_; 
     const float vs2 = el2.svel_;
+    const float ds1 = el1.den_; 
+    const float ds2 = el2.den_;
+
+    const float s1 = 0.5*( vp1*vp1 - 2*vs1*vs1 ) / ( vp1*vp1 - vs1*vs1 );
+    const float s2 = 0.5*( vp2*vp2 - 2*vs2*vs2 ) / ( vp2*vp2 - vs2*vs2 );
+
+    const float AIp1 = vp1*dp1;
+    const float AIp2 = vp2*dp2;
+    const float AIs1 = vs1*ds1;
+    const float AIs2 = vs2*ds2;
+
+    const float Rp = ( AIp2 - AIp1 )/ ( AIp1 + AIp2 );
+    const float Rs = ( AIs2 - AIs1 )/ ( AIs1 + AIs2 );
 
     const float Vp = ( vp2 + vp1 ) / 2;
     const float Vs = ( vs1 + vs2 ) / 2;
     const float P = ( dp1 + dp2 ) / 2;
+    const float S = ( s1 + s2 ) / 2;
 
     const float DVp = vp2 - vp1;
     const float DVs = vs2 - vs1;
     const float Dp = dp2 - dp1;
+    const float Ds = s2 - s1;
 
     if ( ( DVs == 0 &&  Dp == 0 )  || Vp == 0 || Vs == 0  || P == 0 )
 	return float_complex( 0, 0 );
@@ -219,9 +232,12 @@ float_complex getFastCoeff( float par, const ElasticLayer& el1,
     const float sinangle = par * vp1;
     const float angle = asin( sinangle );
     const float cos2i = cos( angle) * cos( angle );
+    const float sin2i = sinangle * sinangle;
+    const float tan2i = tan( angle )*tan( angle );
 
-    const float A = 0.5f * ( ( 1 - 4*Vs*Vs*par*par )*Dp/P );
-    const float B = 0.5f / cos2i*DVp/Vp;
+    const float PR = Ds / (1- S);
+    const float A = 0.5 * ( ( 1 - 4*Vs*Vs*par*par )*Dp/P );
+    const float B = 0.5 / cos2i*DVp/Vp;
     const float C = -4*Vs*Vs*par*par*DVs/Vs;
 
     return float_complex( A + B + C , 0 );

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"
@@ -29,7 +28,7 @@ class uiTable;
 CrossPlot manager
 */
 
-mExpClass(uiIo) DPSMergerProp 
+mClass DPSMergerProp 
 {
 public:
     				DPSMergerProp( const MultiID& id, int mid,
@@ -87,7 +86,7 @@ protected:
 };
 
 
-mExpClass(uiIo) DPSMerger : public Executor
+mClass DPSMerger : public Executor
 {
 public:
     				DPSMerger(const DPSMergerProp&);
@@ -114,7 +113,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiDataPointSetMerger : public uiDialog
+mClass uiDataPointSetMerger : public uiDialog
 {
 public:
     				uiDataPointSetMerger(uiParent*,DataPointSet*,
@@ -144,4 +143,3 @@ protected:
 };
 
 #endif
-

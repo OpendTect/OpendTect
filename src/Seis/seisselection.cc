@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -24,14 +24,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "polyposprovider.h"
 #include "strmprov.h"
 
-#define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
-static const char* sKeyBinIDSel = "BinID selection";
+#define mGetSpecKey(s,k) IOPar::compKey(sKey::s,k)
 
 
 Seis::SelData::SelData()
     : linekey_(*new LineKey)
     , isall_(false)
-    , geomid_(-1)
 {
 }
 
@@ -46,14 +44,13 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 {
     isall_ = sd.isall_;
     linekey_ = sd.linekey_;
-    geomid_ = sd.geomID();
 }
 
 
 void Seis::SelData::removeFromPar( IOPar& iop )
 {
-    iop.removeWithKey( sKeyBinIDSel );
-    iop.set( sKey::Type(), sKey::None() );
+    iop.removeWithKey( sKey::BinIDSel );
+    iop.set( sKey::Type, sKey::None );
 }
 
 
@@ -79,7 +76,7 @@ Seis::SelData* Seis::SelData::get( Type t )
 
 Seis::SelData* Seis::SelData::get( const IOPar& iop )
 {
-    const Type t = Seis::selTypeOf( iop.find(sKey::Type()) );
+    const Type t = Seis::selTypeOf( iop.find(sKey::Type) );
     Seis::SelData* sd = get( t );
     sd->usePar( iop );
     return sd;
@@ -118,29 +115,23 @@ Interval<float> Seis::SelData::zRange() const
 void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
-    iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
-    if ( geomid_ == -1 )
-	iop.removeWithKey( sKey::GeomID() );
-    else
-	iop.set( sKey::GeomID(), geomid_ );
-
+    iop.set( sKey::Type, isall_ ? (const char*) sKey::None : typstr );
     if ( linekey_.isEmpty() )
-	iop.removeWithKey( sKey::LineKey() );
+	iop.removeWithKey( sKey::LineKey );
     else
-	iop.set( sKey::LineKey(), linekey_ );
+	iop.set( sKey::LineKey, linekey_ );
 }
 
 
 void Seis::SelData::usePar( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::Type() );
+    const char* res = iop.find( sKey::Type );
     if ( !res )
-	res = iop.find( sKeyBinIDSel );
-    isall_ = !res || !*res || *res == *sKey::None();
+	res = iop.find( sKey::BinIDSel );
+    isall_ = !res || !*res || *res == *sKey::None;
 
-    iop.get( sKey::GeomID(), geomid_ );
-    iop.get( sKey::LineKey(), linekey_ );
-    res = iop.find( sKey::Attribute() );
+    iop.get( sKey::LineKey, linekey_ );
+    res = iop.find( sKey::Attribute );
     if ( res && *res )
 	linekey_.setAttrName( res );
 }
@@ -148,7 +139,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 
 int Seis::SelData::tracesInSI() const
 {
-    return mCast( int, HorSampling(true).totalNr() );
+    return HorSampling(true).totalNr();
 }
 
 
@@ -304,8 +295,8 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     if ( cs_.hrg.start.crl > rg.start ) cs_.hrg.start.crl = rg.start;
     if ( cs_.hrg.stop.crl < rg.stop ) cs_.hrg.stop.crl = rg.stop;
     const Interval<float> zrg( sd.zRange() );
-    if ( cs_.zrg.start > rg.start ) cs_.zrg.start = mCast(float,rg.start);
-    if ( cs_.zrg.stop < rg.stop ) cs_.zrg.stop = mCast(float,rg.stop);
+    if ( cs_.zrg.start > rg.start ) cs_.zrg.start = rg.start;
+    if ( cs_.zrg.stop < rg.stop ) cs_.zrg.stop = rg.stop;
 }
 
 
@@ -444,7 +435,7 @@ void Seis::TableSelData::fillPar( IOPar& iop ) const
 
 void Seis::TableSelData::usePar( const IOPar& iop )
 {
-    bvs_.setEmpty();
+    bvs_.empty();
     Seis::SelData::usePar( iop );
     if ( isall_ ) return;
 
@@ -504,7 +495,7 @@ int Seis::TableSelData::selRes( const BinID& bid ) const
 
 int Seis::TableSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    return mCast( int, isall_ ? tracesInSI() : bvs_.totalSize() );
+    return isall_ ? tracesInSI() : bvs_.totalSize();
 }
 
 
@@ -536,8 +527,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
     for ( int idx=0; idx<poly.size(); idx++ )
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
-	polys_[0]->add( Geom::Point2D<float>( 
-				 mCast(float,pt.x), mCast(float,pt.y) ) );
+	polys_[0]->add( Geom::Point2D<float>( pt.x, pt.y ) );
     }
     initZrg( zrg );
 }
@@ -588,14 +578,10 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	if ( !rsd ) pErrMsg( "Huh" );
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const CubeSampling& cs = rsd->cubeSampling();
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl, (float) cs.hrg.start.crl) );
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.stop.inl, (float) cs.hrg.start.crl) );
-	poly->add( Geom::Point2D<float>(
-	              (float) cs.hrg.stop.inl, (float) cs.hrg.stop.crl) );
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl, (float) cs.hrg.stop.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.stop.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.stop.crl) );
 	deepErase( polys_ );
 	polys_ += poly;
     }
@@ -654,7 +640,7 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
 
-    iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
+    iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
@@ -670,7 +656,7 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 
     const bool wasfilled = !polys_.isEmpty();
 
-    iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
+    iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     int nrpolys = 0;
@@ -741,15 +727,14 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    // PolySelData will add it again on-the-fly. Equality is assumed.
 	    
 	    ODPolygon<float>* rect = new ODPolygon<float>();
-	    Geom::Point2D<float> point( 
-			mCast(float,inlrg.start + stepoutreach_.inl),
-			mCast(float,crlrg.start + stepoutreach_.crl) );
+	    Geom::Point2D<float> point( inlrg.start + stepoutreach_.inl,
+		    			crlrg.start + stepoutreach_.crl );
 	    rect->add( point );
-	    point.y = mCast( float, crlrg.stop - stepoutreach_.crl );
+	    point.y = crlrg.stop - stepoutreach_.crl;
 	    rect->add( point );
-	    point.x = mCast( float, inlrg.stop - stepoutreach_.inl );
+	    point.x = inlrg.stop - stepoutreach_.inl;
 	    rect->add( point );
-	    point.y = mCast( float, crlrg.start + stepoutreach_.crl );
+	    point.y = crlrg.start + stepoutreach_.crl;
 	    rect->add( point );
 
 	    polys_ += rect;
@@ -771,10 +756,10 @@ int Seis::PolySelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
     
-    Interval<float> inlrg( mCast(float,bid.inl), mCast(float,bid.inl) );
-    inlrg.widen( mCast(float,stepoutreach_.inl) );
-    Interval<float> crlrg( mCast(float,bid.crl), mCast(float,bid.crl) );
-    crlrg.widen( mCast(float,stepoutreach_.crl) );
+    Interval<float> inlrg( bid.inl, bid.inl);
+    inlrg.widen( stepoutreach_.inl );
+    Interval<float> crlrg( bid.crl, bid.crl);
+    crlrg.widen( stepoutreach_.crl );
 
     for ( int idx=0; idx<polys_.size(); idx++ )
     {
@@ -799,7 +784,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
 	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
-    const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0f;
+    	const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0;
 	
 	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop) );
 	inlrg.widen( stepoutreach_.inl );

@@ -4,7 +4,7 @@
  * DATE     : Jan 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "enums.h"
 

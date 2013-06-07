@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "dpsdispmgr.h"
 #include "menuhandler.h"
 #include "thread.h"
@@ -22,12 +21,10 @@ class uiVisPartServer;
 namespace visSurvey { class PointSetDisplay; }
 
 
-/*!
-\brief Implementation of DataPointSetDisplayMgr that enables display of
-datapointsets in 3d visualization scenes.
-*/
+/*Implementation of DataPointSetDisplayMgr that enables display of
+  datapointsets in 3d visualization scenes. */
 
-mExpClass(uiVis) uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
+mClass uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
 {
 public:
     		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
@@ -54,7 +51,7 @@ public:
     void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
 
     CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
-    mClass(uiVis) DisplayInfo
+    class DisplayInfo
     {
     public:
 	TypeSet<int>		sceneids_;
@@ -68,7 +65,7 @@ protected:
     MenuItem			createbodymnuitem_;
     MenuItem			storepsmnuitem_;
     MenuItem			removemnuitem_;
-    MenuItem			propmenuitem_;
+    MenuItem			sizemnuitem_;
     TypeSet<int>		ids_;	
     ObjectSet<DisplayInfo>	displayinfos_; //linked with ids_
     
@@ -81,4 +78,3 @@ protected:
 };
 
 #endif
-

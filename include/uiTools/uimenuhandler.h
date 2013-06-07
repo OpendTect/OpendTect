@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uiparent.h"
 #include "menuhandler.h"
 #include "position.h"
@@ -25,7 +24,7 @@ Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-mExpClass(uiTools) uiMenuHandler : public MenuHandler
+mClass uiMenuHandler : public MenuHandler
 {
 public:
     				uiMenuHandler( uiParent*, int id );
@@ -71,8 +70,8 @@ public:
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
 					{ positionxy_=pos; }
     
-    static int			fromTree();
-    static int			fromScene();
+    static const int		fromTree();
+    static const int		fromScene();
 
 protected:
     bool			executeMenuInternal();
@@ -87,7 +86,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiTreeItemTBHandler : public MenuHandler
+mClass uiTreeItemTBHandler : public MenuHandler
 {
 public:
     				uiTreeItemTBHandler(uiParent*);
@@ -105,4 +104,3 @@ protected:
 };
 
 #endif
-

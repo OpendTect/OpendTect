@@ -13,13 +13,11 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "gendefs.h"
 
-mGlobal(General) bool OD_isValidRootDataDir(const char*);
-mGlobal(General) const char* OD_SetRootDataDir(const char*);
+mGlobal bool OD_isValidRootDataDir(const char*);
+mGlobal const char* OD_SetRootDataDir(const char*);
 	    //!< return err msg (or null on success)
 
 
 #endif
-

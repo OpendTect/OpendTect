@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiattribcrossplot.h"
 
@@ -216,12 +216,12 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
 	if ( selitem >= 0 )
 	{
-	    selidxs_.removeSingle( selitem );
-	    selids_.removeSingle( selitem );
+	    selidxs_.remove( selitem );
+	    selids_.remove( selitem );
 	    for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
 		lnmfld_->setSelected( lidx, false );
 
-	    linenmsset_.removeSingle( selitem );
+	    linenmsset_.remove( selitem );
 	}
     }
 }
@@ -368,7 +368,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 	    
-    if ( !TaskRunner::execute( &tr, *tabextr ) )
+    if ( !tr.execute(*tabextr) )
     {
 	mDPM.release( dps->id() );
 	return false;

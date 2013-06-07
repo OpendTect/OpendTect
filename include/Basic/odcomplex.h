@@ -17,43 +17,50 @@ ________________________________________________________________________
 
 typedef std::complex<float> float_complex;
 
+
+#ifdef __win__
+# define mSetComplexReal(compl_numb,val) compl_numb.real(val)
+# define mSetComplexImag(compl_numb,val) compl_numb.imag(val)
+#else
+# define mSetComplexReal(compl_numb,val) compl_numb.real() = val
+# define mSetComplexImag(compl_numb,val) compl_numb.imag() = val
+#endif
+
 namespace Values
 {
 
-/*!
-\brief Undefined float_complex.
-*/
-
 template<>
-mClass(Basic) Undef<float_complex>
+class Undef<float_complex>
 {
 public:
 
     static bool			hasUdf() 		{ return true; }
     static float_complex	val()
 				{
-				    return float_complex( __mUndefFValue,
-					    		  __mUndefFValue);
+				    return float_complex( (float)__mUndefValue,
+					    		  (float)__mUndefValue);
 				}
     static bool			isUdf( float_complex f )
 				{
 				    const float r = f.real();
 				    const float i = f.imag();
-				    return __mIsUndefinedF(r)
-					|| __mIsUndefinedF(i);
+				    return __mIsUndefined(r)
+					|| __mIsUndefined(i);
 				}
     static void			setUdf( float_complex& f )
 				{
-				    f = float_complex(__mUndefFValue,
-					    	      __mUndefFValue );
+#ifdef __msvc__
+				    f.real( (float)__mUndefValue );
+				    f.imag( (float)__mUndefValue );
+#else
+				    f.real() = f.imag() = (float)__mUndefValue;
+#endif
 				}
 
 };
 
 
 };//namespace Values
-
-mGlobal(Basic) bool dbgIsUdf(float_complex);
 
 #endif
 

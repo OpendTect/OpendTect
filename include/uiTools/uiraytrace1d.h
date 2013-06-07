@@ -13,30 +13,31 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "callback.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
+#include "uigeninput.h"
 
-class uiGenInput;
-class uiCheckBox;
 class uiLabeledComboBox;
 
 
-mExpClass(uiTools) uiRayTracer1D : public uiGroup
+mClass uiRayTracer1D : public uiGroup
 {
 public:
 
-    mExpClass(uiTools) Setup 		
+    mClass Setup 		
     {
 	public:	
 			Setup()
 			    : convertedwaves_(false)
+			    , dosourcereceiverdepth_(true)
 			    , doreflectivity_(true)
 			    , dooffsets_(false)
 			    , offsetrg_(0,6000,100)
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
+	mDefSetupMemb(bool,dosourcereceiverdepth);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(bool,doreflectivity);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
@@ -47,26 +48,28 @@ public:
     virtual bool 	usePar(const IOPar&);
     virtual void  	fillPar(IOPar&) const;
 
-    void		displayOffsetFlds(bool yn); 
-    void		setOffsetRange(StepInterval<float>);
-    bool		doOffsets() const	{ return offsetfld_; }
-    Notifier<uiGenInput>& offsetChanged();
-
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
 
-    bool 		doreflectivity_;
-
+    uiGenInput*		srcdepthfld_;
     uiGenInput*		downwavefld_;
     uiGenInput*		upwavefld_;
 
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
+
     uiGenInput*		lastfld_;
+    bool		doreflectivity_;
+
+public:
+    void		displayOffsetFlds(bool yn); 
+    void		setOffsetRange(StepInterval<float>);
+    Notifier<uiGenInput>& offsetChanged();
+    bool		doOffsets() const	{ return offsetfld_; }
 };
 
 
-mExpClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
+mClass uiVrmsRayTracer1D : public uiRayTracer1D
 {
 public:
 			uiVrmsRayTracer1D(uiParent*,
@@ -79,18 +82,13 @@ public:
 };
 
 
-mExpClass(uiTools) uiRayTracerSel : public uiGroup
+mClass uiRayTracerSel : public uiGroup
 {
 public:
     			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 
     void                usePar(const IOPar&);
     void                fillPar(IOPar&) const;
-
-    uiRayTracer1D*	current();
-    const uiRayTracer1D* current() const;
-    bool		setCurrent(int);
-    Notifier<uiRayTracerSel> offsetChanged;
 
 protected:
 
@@ -99,9 +97,13 @@ protected:
     ObjectSet<uiRayTracer1D> grps_;
 
     void		selRayTraceCB(CallBacker*);
+
+public:
+    uiRayTracer1D*	current();
+    const uiRayTracer1D* current() const;
     void		offsChangedCB(CallBacker*);
+    Notifier<uiRayTracerSel>* offsetChanged();
 };
 
 
 #endif
-

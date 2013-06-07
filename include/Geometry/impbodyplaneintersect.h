@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "arraynd.h"
 #include "cubesampling.h"
 #include "position.h"
@@ -24,7 +23,7 @@ namespace Geometry
 class IndexedShape;
 
 
-mExpClass(Geometry) ImplicitBodyPlaneIntersector
+mClass ImplicitBodyPlaneIntersector
 {
 public:
 				ImplicitBodyPlaneIntersector(
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

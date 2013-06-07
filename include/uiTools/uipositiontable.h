@@ -12,7 +12,6 @@
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "position.h"
 
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiTable;
 template <class T> class Interval;
 
-mExpClass(uiTools) uiPositionTable : public uiGroup
+mClass uiPositionTable : public uiGroup
 {
 public:
 			uiPositionTable(uiParent*,bool withxy,bool withic,
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

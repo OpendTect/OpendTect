@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 */
 
-#include "generalmod.h"
 #include "posinfo.h"
 class IOPar;
 class HorSampling;
@@ -24,7 +23,7 @@ namespace PosInfo
 
 /*!\brief Just hold inl, crl, x, y and offs. For 2D, crl=nr. */
 
-mExpClass(General) CrdBidOffs
+mClass CrdBidOffs
 {
 public:
 		CrdBidOffs()
@@ -47,7 +46,7 @@ public:
     corresponding BinID or trace numbers and offsets if pre-stack. */
 
 
-mExpClass(General) Detector
+mClass Detector
 {
 public:
 
@@ -88,7 +87,6 @@ public:
     BinID		start() const		{ return start_; }
     BinID		stop() const		{ return stop_; }
     BinID		step() const		{ return step_; }
-    void		getHorSampling(HorSampling&) const;
     Interval<float>	offsRg() const		{ return offsrg_; }
     float		avgDist() const		{ return avgdist_; }
     CrdBidOffs		firstPosition() const	{ return userCBO(firstcbo_); }
@@ -163,4 +161,3 @@ protected:
 } // namespace
 
 #endif
-

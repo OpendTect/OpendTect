@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uimpemod.h"
 #include "uiwizard.h"
 
 #include "cubesampling.h"
@@ -39,7 +38,7 @@ namespace MPE {
 
 class uiSetupGroup;
 
-mExpClass(uiMPE) Wizard : public uiWizard
+mClass Wizard : public uiWizard
 {
 public:
 			Wizard( uiParent*, uiMPEPartServer* );
@@ -130,4 +129,3 @@ private:
 }; // namespace MPE
 
 #endif
-

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vispolylinedisplay.h"
 #include "survinfo.h"
@@ -34,16 +34,22 @@ PolyLineDisplay::~PolyLineDisplay()
 void PolyLineDisplay::fillPolyLine( const TypeSet<Coord>& coords )
 {
     for ( int idx=0; idx<coords.size(); idx++ )
+    {
 	fillPolyLine( Coord3(coords[idx], SI().sampling(0).zrg.start) );
+    }
 }
 
 
 void PolyLineDisplay::fillPolyLine( const Coord3& pos )
-{ polyline_->addPoint( pos ); }
+{
+	polyline_->addPoint( pos );
+}
 
 
 void PolyLineDisplay::setDisplayTransformation( const mVisTrans* nt )
-{ polyline_->setDisplayTransformation( nt ); }
+{
+    polyline_->setDisplayTransformation( nt );
+}
 
 
 const mVisTrans* PolyLineDisplay::getDisplayTransformation() const

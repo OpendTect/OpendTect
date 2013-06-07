@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uifreqfilterattrib.h"
@@ -19,12 +19,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
-#include "uifreqfilter.h"
 #include "uigeninput.h"
+#include "uispinbox.h"
 #include "uiwindowfunctionsel.h"
 #include "uifreqtaper.h"
 
 using namespace Attrib;
+
+
+static const char* typestrs[] =
+{
+    "LowPass",
+    "HighPass",
+    "BandPass",
+    0
+};
+
 
 mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp())
 
@@ -39,17 +49,24 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 			       BoolInpSpec(true,"FFT","ButterWorth") );
     isfftfld->attach( alignedBelow, inpfld );
     isfftfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
+		    
+    typefld = new uiGenInput( this, "Filter type", 
+	    		      StringListInpSpec(typestrs) );
+    typefld->attach( alignedBelow, isfftfld );
+    typefld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,typeSel) );
 
-    freqfld = new uiFreqFilterSelFreq( this );    
-    freqfld->parchanged.notify( mCB(this,uiFreqFilterAttrib,typeSel) );
-    freqfld->parchanged.notify(mCB(this,uiFreqFilterAttrib,freqChanged) );
-    freqfld->parchanged.notify(mCB(this,uiFreqFilterAttrib,updateTaperFreqs));
-    freqfld->attach( alignedBelow, isfftfld );
+    const char* minmaxtxt = "Min/max frequency(Hz)";
+    freqfld = new uiGenInput( this, minmaxtxt, 
+	    FloatInpSpec().setName("Min frequency"),
+	    FloatInpSpec().setName("Max frequency") );
+    freqfld->setElemSzPol( uiObject::Small );
+    freqfld->attach( alignedBelow, typefld );
+    freqfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,freqChanged) );
+    freqfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,updateTaperFreqs) );
 
-    polesfld = new uiGenInput( this, "Nr of poles",
-		IntInpSpec(2).setLimits(Interval<int>(2,99)) );
-    polesfld->attach( ensureBelow, freqfld );
-    polesfld->attach( alignedBelow, isfftfld );
+    polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
+    polesfld->box()->setMinValue( 2 );
+    polesfld->attach( alignedBelow, freqfld );
 
     uiWindowFunctionSel::Setup su; 
     su.label_ = "Window/Taper"; 
@@ -62,7 +79,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    su.label_ = "Taper"; 
 	    su.onlytaper_ = true;
 	    su.with2fldsinput_ = true;
-	    su.inpfldtxt_ = "Min/max frequency(Hz)";
+	    su.inpfldtxt_ = minmaxtxt;
 
 	    FreqTaperSetup freqsu;
 	    freqsu.seisnm_ = inpfld->getInput(); 
@@ -98,9 +115,11 @@ void uiFreqFilterAttrib::finaliseCB( CallBacker* )
 
 void uiFreqFilterAttrib::typeSel( CallBacker* )
 {
-    const int type = (int)freqfld->filterType();
+    const int type = typefld->getIntValue();
     const bool hasmin = type==1 || type==2;
     const bool hasmax = !type || type==2;
+    freqfld->setSensitive( hasmin, 0, 0 );
+    freqfld->setSensitive( hasmax, 0, 1 );
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
     if ( tap ) tap->setIsMinMaxFreq( hasmin, hasmax );
 }
@@ -121,7 +140,8 @@ void uiFreqFilterAttrib::freqChanged( CallBacker* )
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
     if ( tap )
     {	
-	tap->setRefFreqs( freqfld->freqRange() );
+	Interval<float> frg( freqfld->getFInterval() );
+	tap->setRefFreqs( frg ); 
     }
 }
 
@@ -132,7 +152,7 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
     if ( tap )
     {
 	bool costaper = !strcmp(tap->windowName(),"CosTaper");
-	Interval<float> frg( freqfld->freqRange() );
+	Interval<float> frg( freqfld->getFInterval() );
 	if ( costaper ) { frg.start-=5; frg.stop+=5; }
 	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
 	tap->setInputFreqValue( frg.stop , 1 );
@@ -155,20 +175,20 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetEnum( FreqFilter::filtertypeStr(), filtertype, 
-	        freqfld->setFilterType((FFTFilter::Type)filtertype) );
+	    	typefld->setValue(filtertype) );
     mIfGetFloat( FreqFilter::minfreqStr(), minfreq,
-	    	 freqfld->setMinFreq(minfreq) );
+	    	 freqfld->setValue(minfreq,0) );
     mIfGetFloat( FreqFilter::maxfreqStr(), maxfreq,
-	    	 freqfld->setMaxFreq(maxfreq) );
+	    	 freqfld->setValue(maxfreq,1) );
     mIfGetInt( FreqFilter::nrpolesStr(), nrpoles,
-	       polesfld->setValue(nrpoles) )
+	       polesfld->box()->setValue(nrpoles) )
 
     mIfGetString( FreqFilter::windowStr(), window,
 			    winflds[0]->setWindowName(window) );
     mIfGetString( FreqFilter::fwindowStr(), fwindow,
 			    winflds[1]->setWindowName(fwindow) );
     mIfGetFloat( FreqFilter::paramvalStr(), variable,
-	    const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
+	    const float resvar = float( mNINT32((1-variable)*1000) )/1000.0;
 	    winflds[0]->setWindowParamValue(resvar) );
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
@@ -202,24 +222,25 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),FreqFilter::attribName()) )
 	return false;
 
-    const Interval<float> freqrg = freqfld->freqRange();
-    mSetEnum( FreqFilter::filtertypeStr(), freqfld->filterType() );
-    mSetFloat( FreqFilter::minfreqStr(), freqrg.start );
-    mSetFloat( FreqFilter::maxfreqStr(), freqrg.stop );
-    mSetInt( FreqFilter::nrpolesStr(), polesfld->getIntValue() );
+    mSetEnum( FreqFilter::filtertypeStr(), typefld->getIntValue() );
+    mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(0) );
+    mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
+    mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
     mSetString( FreqFilter::windowStr(), winflds[0]->windowName() );
     mSetString( FreqFilter::fwindowStr(), winflds[1]->windowName() );
 
     const float resvar =
-	float( mNINT32((1-winflds[0]->windowParamValue())*1000) )/1000.0f;
+		float( mNINT32((1-winflds[0]->windowParamValue())*1000) )/1000.0;
     mSetFloat( FreqFilter::paramvalStr(), resvar );
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
     {
 	Interval<float> freqresvar = taper->freqValues();
 	const bool istaper = !strcmp(winflds[1]->windowName(),"CosTaper");
-	freqresvar.start = istaper ? (freqresvar.start) : freqrg.start; 
-	freqresvar.stop = istaper ? (freqresvar.stop) : freqrg.stop; 
+	freqresvar.start = istaper ? (freqresvar.start) 
+				   : freqfld->getfValue(0);
+	freqresvar.stop = istaper ? (freqresvar.stop) 
+				  : freqfld->getfValue(1);
 	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
 	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );
     }
@@ -241,7 +262,7 @@ bool uiFreqFilterAttrib::getInput( Desc& desc )
 
 void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    const int passtype = (int)freqfld->filterType();
+    const int passtype = typefld->getIntValue();
     if ( passtype != 0 )
 	params += EvalParam( "Min frequency", FreqFilter::minfreqStr() );
     if ( passtype != 1 )
@@ -270,15 +291,16 @@ bool uiFreqFilterAttrib::areUIParsOK()
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
     {
+	bool minsuccess = true, maxsuccess = true;
 	Interval<float> freqresvar = taper->freqValues();
 	BufferString endmsg, msg;
 	if ( freqresvar.start < 0 )
 	{  msg += "min frequency cannot be negative"; mErrWinFreqMsg(msg) }
 	endmsg += " than this of the filter frequency.\n";
 	endmsg += "Please select a different frequency.";
-	if ( freqresvar.start > freqfld->freqRange().start )
+	if ( freqresvar.start > freqfld->getfValue(0) )
 	{  msg += "Taper min frequency must be lower"; mErrWinFreqMsg(msg) }
-	if ( freqresvar.stop < freqfld->freqRange().stop )
+	if ( freqresvar.stop < freqfld->getfValue(1) )
 	{  msg += "Taper max frequency must be higher"; mErrWinFreqMsg(msg) }
     }
     return true;

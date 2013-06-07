@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -23,7 +22,7 @@ class uiSeisSel;
 class uiGenInput;
 
 
-mExpClass(uiSeis) uiMergeSeis : public uiDialog
+mClass uiMergeSeis : public uiDialog
 {
 public:
                         uiMergeSeis(uiParent*);
@@ -43,4 +42,3 @@ protected:
 };
 
 #endif
-

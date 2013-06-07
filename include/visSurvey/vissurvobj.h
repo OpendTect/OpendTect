@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "color.h"
 #include "cubesampling.h"
 #include "datapack.h"
@@ -24,8 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "vissurvscene.h"
 
-
-class InlCrlSystem;
+class SurveyInfo;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
@@ -34,6 +32,7 @@ class LineStyle;
 class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
+class InlCrlSystem;
 class TaskRunner;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
@@ -50,16 +49,22 @@ namespace Attrib  { class SelSpec; class DataCubes; }
 namespace visSurvey
 {
 
-/*!
-\brief Base class for all 'Display' objects.
+/*!\brief Base class for all 'Display' objects
 */
 
-mExpClass(visSurvey) SurveyObject
+mClass SurveyObject
 {
 public:
-    virtual void		setInlCrlSystem(const InlCrlSystem*);
-    const InlCrlSystem*		getInlCrlSystem() const { return inlcrlsystem_;}
+			    
+    virtual void		setInlCrlSystem(const SurveyInfo& si);
+    				/*!<Don't use in new code. */
+    const SurveyInfo*		getInlCrlSystem() const { return &SI(); }
+    				/*!<Don't use in new code. */
+    
     virtual const char*		getInlCrlSystemName() const;
+    
+    void			setInlCrlSystem(const InlCrlSystem&);
+    const InlCrlSystem*		inlCrlSystem() const;
 
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
@@ -156,7 +161,6 @@ public:
     virtual void		setResolution(int,TaskRunner*)	{}
 
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA()	{ return 0; }
-    const visBase::TextureChannel2RGBA*   getChannels2RGBA() const;
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*)
 				{ return false; }
 
@@ -190,8 +194,6 @@ public:
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 	    						   int version=0) const;
-    void			getChannelName(int,BufferString&) const;
-    				//!<\returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
@@ -320,8 +322,7 @@ public:
 
 protected:
     				SurveyObject();
-				~SurveyObject();
-
+				~SurveyObject();	
     static int			cValNameOffset()	{ return 12; }
 
     mutable BufferString	errmsg_;
@@ -332,11 +333,25 @@ protected:
     virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
 
-    const InlCrlSystem*		inlcrlsystem_;
+    const SurveyInfo*		survinfo_;
     BufferString		survname_; //Only from IOPar
 };
 
-} // namespace visSurvey
+
+}; // namespace visSurvey
+
+
+/*!\page visSurvey 3D Visualisation - OpendTect specific
+
+  This module contains front-end classes for displaying 3D objects. Most 
+  functions in these classes deal with the geometry or position of the object, 
+  as well as handling new data and information about the attribute 
+  displayed.
+
+
+
+*/
+
 
 #endif
 

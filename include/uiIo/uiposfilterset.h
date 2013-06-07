@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uicompoundparsel.h"
 #include "uiposfiltgroup.h"
 #include "iopar.h"
@@ -21,7 +20,7 @@ class uiListBox;
 
 /*! \brief lets user choose a way to provide positions */
 
-mExpClass(uiIo) uiPosFilterSet : public uiGroup
+mClass uiPosFilterSet : public uiGroup
 {
 public:
 
@@ -56,7 +55,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiPosFilterSetSel : public uiCompoundParSel
+mClass uiPosFilterSetSel : public uiCompoundParSel
 {
 public:
 
@@ -79,4 +78,3 @@ protected:
 
 
 #endif
-

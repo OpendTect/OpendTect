@@ -22,7 +22,6 @@ ________________________________________________________________________
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
-QT_BEGIN_NAMESPACE
 
 class i_TextEditMessenger : public QObject 
 {
@@ -49,7 +48,5 @@ void textChanged()
 { receiver_->textChanged.trigger( *receiver_ ); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/lists/SbList.h>
@@ -24,7 +23,7 @@ class SbImagei32;
 
 /*!  Element that holds one image per texture unit.  */
 
-mSoODClass SoTextureChannelSetElement : public SoReplacedElement
+mClass SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:
@@ -55,5 +54,4 @@ private:
 };
 
 #endif
-
 

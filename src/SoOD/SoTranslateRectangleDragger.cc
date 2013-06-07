@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 
@@ -89,8 +89,7 @@ SbBool SoTranslateRectangleDragger::setUpConnections( SbBool onoff,
 	SoDragger::setUpConnections( onoff, doitalways );
     }
 
-    connectionsSetUp = onoff;
-    return !connectionsSetUp;
+    return !(connectionsSetUp=onoff);
 }
 
 

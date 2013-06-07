@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 !
 
-# $Id$
+# $Id: AttributeWellCrossplot.cmd,v 1.6 2010/10/13 09:06:08 cvsnageswara Exp $
 
 [OpendTect Main Window]
 Menu "Analysis`Attributes"

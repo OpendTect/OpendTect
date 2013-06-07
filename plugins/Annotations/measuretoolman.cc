@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.16 2011/12/15 22:54:52 cvsnanne Exp $";
 
 
 #include "measuretoolman.h"
@@ -33,7 +33,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
 {
-    butidx_ = appl.menuMgr().coinTB()->addButton( "measure",
+    butidx_ = appl.menuMgr().coinTB()->addButton( "measure.png",
 	    "Display Distance", mCB(this,MeasureToolMan,buttonClicked), true );
 
     TypeSet<int> sceneids;
@@ -170,8 +170,9 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
 	return;
 
     appl_.applMgr().visServer()->removeObject( displayobjs_[sceneidx], sceneid);
-    displayobjs_.removeSingle( sceneidx )->unRef();
-    sceneids_.removeSingle( sceneidx );
+    displayobjs_[sceneidx]->unRef();
+    displayobjs_.remove( sceneidx );
+    sceneids_.remove( sceneidx );
 }
 
 
@@ -193,7 +194,7 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
     for ( int idx=0; idx<set.size(); idx++ )
-	crds += set[idx].pos_;
+	crds += set[idx].pos;
 
     dlg.fill( crds );
 }

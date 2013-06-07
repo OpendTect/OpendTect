@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
@@ -34,7 +33,7 @@ namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
-mExpClass(uiIo) RandLocGenPars
+mClass RandLocGenPars
 {
 public:
 
@@ -53,7 +52,7 @@ public:
 };
 
 
-mExpClass(uiIo) uiCreatePicks : public uiDialog 
+mClass uiCreatePicks : public uiDialog 
 {
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false);
@@ -73,7 +72,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiGenPosPicks : public uiCreatePicks
+mClass uiGenPosPicks : public uiCreatePicks
 {
 public:
     			uiGenPosPicks(uiParent*);
@@ -91,7 +90,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
+mClass uiGenRandPicks2D : public uiCreatePicks
 {
 public:
 
@@ -129,4 +128,3 @@ protected:
 
 
 #endif
-

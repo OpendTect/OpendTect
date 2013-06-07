@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id$
+ RCS:		$Id: viscallout.h,v 1.13 2011/12/16 15:57:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ namespace Annotations
   Callout
 */
 
-mClass(Annotations) CalloutDisplay : public visSurvey::LocationDisplay
+class CalloutDisplay : public visSurvey::LocationDisplay
 {
 public:
     static CalloutDisplay*	create()
@@ -75,7 +75,7 @@ protected:
 };
 
 
-mClass(Annotations) Callout : public visBase::VisualObjectImpl
+class Callout : public visBase::VisualObjectImpl
 {
 public:
     static Callout*		create()

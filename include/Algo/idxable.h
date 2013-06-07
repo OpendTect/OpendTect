@@ -336,7 +336,8 @@ void callibrateArray( const T* input, int sz,
 	       bool usefactor, T* output,
 	       float* callibrationcurve = 0 )
 {
-    int firstsample = mUdf(int), lastsample = -mUdf(int);
+    int firstsample, lastsample;
+
     PointBasedMathFunction func( PointBasedMathFunction::Linear );
     for ( int idx=0; idx<nrcontrols; idx++ )
     {
@@ -353,7 +354,7 @@ void callibrateArray( const T* input, int sz,
 	    ? controlpts[idx]/input[sample]
 	    : controlpts[idx]-input[sample];
 
-	func.add( mCast(float,sample), value );
+	func.add( sample, value );
     }
 
     if ( !func.size()  )
@@ -370,7 +371,7 @@ void callibrateArray( const T* input, int sz,
 	else if ( idx>=lastsample )
 	   callibration = func.yVals()[func.size()-1];
 	else
-	   callibration = func.getValue( mCast(float,idx) );
+	   callibration = func.getValue( idx );
 
 	output[idx] = usefactor
 	    ? input[idx]*callibration 

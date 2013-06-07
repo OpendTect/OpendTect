@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimarkerstyle.h"
 
@@ -50,8 +50,10 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     typefld_ = new uiGenInput( this, "Marker Shape", str );
 
     sliderfld_ = new uiSliderExtra( this, 
-	uiSliderExtra::Setup("Size").withedit(true), "Slider Size" );
-    sliderfld_->sldr()->setInterval( rg );
+	    			   uiSliderExtra::Setup("Size").withedit(true)
+				   ,"Slider Size");
+    sliderfld_->sldr()->setMinValue( rg.start );
+    sliderfld_->sldr()->setMaxValue( rg.stop );
     sliderfld_->attach( alignedBelow, typefld_ );
 
     if ( withcolor )

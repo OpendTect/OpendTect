@@ -1,0 +1,67 @@
+ifndef __make.osg_
+__make.osg_ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile:	Include determining default variables and rules
+#	May 1992	Bert Bril
+#	$Id: make.osg,v 1.6 2012/01/31 22:54:47 cvsnanne Exp $
+#_______________________________________________________________________________
+#
+
+ifndef OD_OSGDIR
+    OD_OSGDIR := $(OSGDIR_DEFAULT)
+endif
+
+C++OPTS := $(filter-out -Woverloaded-virtual,$(C++OPTS))
+C++OPTS := $(filter-out -Wshadow,$(C++OPTS))
+
+OWNINC += -I$(OD_OSGDIR)/include
+OWNC++FLAGS += -D__have_osg__
+
+ifeq ($(USEOSG),debug)
+    OSGLIBS := -losgDBd -losgd -losgTextd -losgUtild -losgViewerd -lOpenThreadsd -losgGAd -losgQtd -losgGeod
+else
+    OSGLIBS := -losgDB -losg -losgText -losgUtil -losgViewer -lOpenThreads -losgGA -losgQt -losgGeo
+endif
+
+#osgAnimation
+#osgFX
+#osgManipulator
+#osgParticle
+#osgPresentation
+#osgShadow
+#osgSim
+#osgTerrain
+#osgVolume
+#osgWidget
+
+OSGLDLINKDIRS := -L$(OD_OSGDIR)/lib
+
+ifeq ($(HDIR),win)
+    C++OPTS	+= -DOSG_DLL -DSOQT_DLL -DSIMVOLEON_DLL
+    COPTS	+= -DOSG_DLL -DSOQT_DLL -DSIMVOLEON_DLL
+    OSGLIBS += -lopengl32
+endif
+
+ifeq ($(HDIR),mac)
+    OWNLDFLAGS += -framework OpenGL
+endif
+
+#ifneq ($(HDIR),win)
+#    COINLIBS += -lQtOpenGL
+#endif
+
+#ifeq ($(HDIR),lux)
+    #ifdef OSGDEBUG
+       #OSGLIBS += -lXi
+    #endif
+#endif
+
+EXTRALDLIBS += $(OSGLIBS)
+LDLINKDIRS += $(OSGLDLINKDIRS)
+
+
+# -- multiple inclusion protection --
+endif

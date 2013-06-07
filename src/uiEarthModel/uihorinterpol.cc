@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorinterpol.h"
 
@@ -37,17 +37,14 @@ static const char* rcsID mUsedVar = "$Id$";
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
     : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   "104.0.16").modal(true) )
+				   "104.0.16") )
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
     , interpol2dsel_( 0 )
     , interpol1dsel_( 0 )
-    , savefldgrp_( 0 )
-    , finished(this)
+    , savefldgrp_( 0 )		       
 {
-    setCtrlStyle( DoAndStay );
-
     if ( horizon_ )
 	horizon_->ref();
     else
@@ -60,11 +57,11 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     if ( !is2d )
     {
-	const char* scopes[] = { "Full survey", "Bounding box",
+	const char* geometries[] = { "Full survey", "Bounding box",
 				     "Convex hull", "Only holes", 0 };
-	geometrysel_ = new uiGenInput( this, "Scope",
-				       StringListInpSpec(scopes) );
-	geometrysel_->setText( scopes[2] );
+	geometrysel_ = new uiGenInput( this, "Geometry",
+				       StringListInpSpec( geometries ) );
+	geometrysel_->setText( geometries[2] );
 
 	if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
 	interpol2dsel_ =
@@ -176,7 +173,6 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	
 	HorSampling hs( false );
 	hs.set( rowrg, colrg );
-	interpolator->setOrigin( hs.start );
 
 	Array2DImpl<float>* arr =
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
@@ -198,11 +194,11 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    EM::PosID posid = iterator->next();
 	    if ( posid.objectID() == -1 )
 		break;
-	    BinID bid = posid.getRowCol();
+	    BinID bid( posid.subID() );
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), (float) pos.z );
+		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), pos.z );
 	    }
 	}
 
@@ -213,7 +209,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    ErrMsg( msg ); continue;
 	}
 
-	if ( !TaskRunner::execute( &tr, *interpolator ) )
+	if ( !tr.execute(*interpolator) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -263,7 +259,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    execgrp.add( interpol1dsel_->getResult(idx) );
 
-	if ( !TaskRunner::execute( &tr, execgrp ) )
+	if ( !tr.execute( execgrp ) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -315,12 +311,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 	    return false;
     }
 
-    const bool res = savefldgrp_->saveHorizon();
-    if ( res )
-    {
-	finished.trigger();
-	uiMSG().message( "Horizon successfully gridded/interpolated" );
-    }
-
-    return false;
+    return savefldgrp_->saveHorizon();
 }
+
+

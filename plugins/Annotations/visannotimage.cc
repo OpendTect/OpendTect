@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: visannotimage.cc,v 1.13 2011/12/16 15:57:20 cvskris Exp $";
 
 #include "visannotimage.h"
 
@@ -92,13 +92,12 @@ void Image::setDisplayTransformation( const mVisTrans* trans )
 void Image::setPick( const Pick::Location& loc )
 {
     const Coord3 displaypos =
-	transform_ ? transform_->transform(loc.pos_) : loc.pos_;
+	transform_ ? transform_->transform(loc.pos) : loc.pos;
     position_->setTranslation( displaypos );
-    position_->setRotation( Coord3(0,0,1), loc.dir_.phi );
+    position_->setRotation( Coord3(0,0,1), loc.dir.phi );
 }
 
 
-// ImageDisplay
 ImageDisplay::ImageDisplay()
     : shape_( visBase::FaceSet::create() )
     , image_( visBase::Image::create() )

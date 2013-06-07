@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include <QObject>
 #include <QDialog> 
 
-QT_BEGIN_NAMESPACE
 
 class QDialogMessenger : public QObject 
 {
@@ -55,7 +54,5 @@ private:
     QDialog*		qdialog_;
     uiDialog*		uidialog_;
 };
-
-QT_END_NAMESPACE
 
 #endif

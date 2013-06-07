@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "volprocchain.h"
 
@@ -31,12 +31,12 @@ protected:
 		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
 
-		    const int nrinls = mCast( int, start/hrg.nrCrl() );
-		    const int nrcrls = mCast( int, start - nrinls*hrg.nrCrl() );
+		    const int nrinls = start/hrg.nrCrl();
+		    const int nrcrls = start - nrinls*hrg.nrCrl();
 		    curbid.inl += nrinls*hrg.step.inl;
 		    curbid.crl += nrcrls*hrg.step.crl;
 
-		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+		    for ( int idx=start; idx<=stop; idx++ )
 		    {
 			if ( !step_.computeBinID( curbid, threadid ) )
 			    return false;
@@ -263,6 +263,7 @@ bool ChainExecutor::prepareNewStep()
     }
 
     curtask_->setProgressMeter( progressmeter_ );
+    curtask_->enableNrDoneCounting( true );
     curtask_->enableWorkControl( true );
 
     return true;
@@ -312,10 +313,9 @@ const char* ChainExecutor::message() const
 }
 
 
-// Chain
 Chain::Chain()
     : zstep_( SI().zRange(true).step )
-    , zist_( SI().zIsTime() )
+    , zit_( SI().zIsTime() )
 {}
 
 
@@ -327,11 +327,11 @@ int Chain::nrSteps() const
 { return steps_.size(); }
 
 
-Step* Chain::getStep( int idx )
+Step* Chain::getStep(int idx)
 { return steps_[idx]; }
 
 
-int Chain::indexOf( const Step* r ) const
+int Chain::indexOf(const Step* r) const
 { return steps_.indexOf( r ); }
 
 
@@ -354,7 +354,7 @@ void Chain::swapSteps( int o1, int o2 )
 
 void Chain::removeStep( int idx )
 {
-    delete steps_.removeSingle( idx );
+    delete steps_.remove( idx );
 }
 
 
@@ -382,19 +382,7 @@ bool Chain::areSamplesIndependent() const
 }
 
 
-bool Chain::needsFullVolume() const
-{
-    for ( int idx=steps_.size()-1; idx>=0; idx-- )
-    {
-	if ( steps_[idx]->needsFullVolume() )
-	    return true;
-    }
-
-    return false;
-}
-
-
-void Chain::fillPar( IOPar& par ) const
+void Chain::fillPar(IOPar& par) const
 {
     par.set( sKeyNrSteps(), steps_.size() );
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -415,11 +403,12 @@ bool Chain::usePar( const IOPar& par )
     const char* parseerror = "Parsing error";
 
     int nrsteps;
-    if ( !par.get(sKeyNrSteps(),nrsteps) )
+    if ( !par.get( sKeyNrSteps(), nrsteps ) )
     {
 	errmsg_ = parseerror;
 	return false;
     }
+
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -462,13 +451,13 @@ bool Chain::usePar( const IOPar& par )
 
 
 void Chain::setStorageID( const MultiID& mid )
-{ storageid_ = mid; }
+{ storageid_=mid; }
+
 
 const char* Chain::errMsg() const
 { return errmsg_.str(); }
 
 
-// Step
 Step::Step()
     : chain_( 0 )
     , output_( 0 )
@@ -508,32 +497,32 @@ void Step::setUserName( const char* nm )
 { username_ = nm; }
 
 
-HorSampling Step::getInputHRg( const HorSampling& hr ) const
+HorSampling Step::getInputHRg(const HorSampling& hr) const
 { return hr; }
 
 
 StepInterval<int>
-    Step::getInputZRg( const StepInterval<int>& si ) const
+Step::getInputZRg(const StepInterval<int>& si) const
 { return si; }
 
 
-bool Step::setInput( const Attrib::DataCubes* dc )
+bool Step::setInput( const Attrib::DataCubes* ni )
 {
     if ( input_ ) input_->unRef();
-    input_ = dc;
+    input_ = ni;
     if ( input_ ) input_->ref();
 
     return false;
 }
 
 
-void Step::setOutput( Attrib::DataCubes* dc,
-		      const StepInterval<int>& inlrg,
-		      const StepInterval<int>& crlrg,
-		      const StepInterval<int>& zrg ) 
+ void Step::setOutput( Attrib::DataCubes* ni,
+ 	const StepInterval<int>& inlrg,
+ 	const StepInterval<int>& crlrg,
+ 	const StepInterval<int>& zrg) 
 {
     if ( output_ ) output_->unRef();
-    output_ = dc;
+    output_ = ni;
     if ( output_ ) output_->ref();
 
     hrg_.set( inlrg, crlrg );
@@ -545,7 +534,7 @@ void Step::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyEnabled(), enabled_ );
     if ( !username_.isEmpty() )
-	par.set( sKey::Name(), username_.buf() );
+	par.set( sKey::Name, username_.buf() );
 }
 
 
@@ -553,7 +542,7 @@ bool Step::usePar( const IOPar& par )
 {
     par.getYN( sKeyEnabled(), enabled_ );
     username_.empty();
-    par.get( sKey::Name(), username_ );
+    par.get( sKey::Name, username_ );
     return true;
 }
 
@@ -566,4 +555,5 @@ Task* Step::createTask()
     return 0;
 }
 
-} // namespace VolProc
+
+}; //namespace

@@ -4,17 +4,10 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "fourier.h"
 #include "odmemory.h"
-#include "odcomplex.h"
-
-
-
-#define mFloatOrDouble( val ) val##f
-#define mType		      float
-#define mCplxType	      float_complex
 
 namespace Fourier
 {
@@ -58,12 +51,12 @@ void CC::setNormalization( bool yn )
 { curdim_ = -1; normalize_ = yn; }
 
 
-mType CC::getNyqvist( mType samplespacing )
-{ return mFloatOrDouble(0.5) / samplespacing; }
+float CC::getNyqvist( float samplespacing )
+{ return 0.5 / samplespacing; }
 
 
-mType CC::getDf( mType samplespacing, int nrsamples )
-{ return 1.f / (samplespacing * nrsamples); }
+float CC::getDf( float samplespacing, int nrsamples )
+{ return 1. / (samplespacing * nrsamples); }
 
 
 bool CC::isFast( int sz ) const 
@@ -124,7 +117,7 @@ bool CC::CC1D::doPrepare( int nrthreads )
 	}
 
 	const int lastsample = higheststart_ + ( sz_ - 1 ) * sampling_;
-	MemCopier<mCplxType> copier( coutput_, cinput_, lastsample+1 );
+	MemCopier<float_complex> copier( coutput_, cinput_, lastsample+1 );
 	copier.execute();
     }
 
@@ -149,7 +142,7 @@ bool CC::CC1D::doWork( od_int64 start, od_int64 stop, int threadidx )
 {
     if ( dopfa_ && start!=stop )
     {
-	const int nr = (int) (stop-start+1);
+	const int nr = stop-start+1;
 	if ( batchstarts_ )
 	{
 	    const int* offsets = batchstarts_ + start;
@@ -163,25 +156,25 @@ bool CC::CC1D::doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( !normalize_ || direction_!=1 )
 	    return true;
 
-	for ( int idx=(int) start; idx<=stop; idx++ )
+	for ( int idx=start; idx<=stop; idx++ )
 	{
 	    const int offset = batchstarts_[idx];
 
-	    mCplxType* output = coutput_ + offset;
+	    float_complex* output = coutput_ + offset;
 	
 	    for ( int idy=0; idy<sz_; idy++, output += sampling_ )
-		*output /= (mType) sz_;
+		*output /= sz_;
 	}
 
 	return true;
     }
 
-    for ( int idx=(int) start; idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const int offset = batchstarts_
 	    ? batchstarts_[idx] : idx*batchsampling_;
 
-	mCplxType* output = coutput_ + offset;
+	float_complex* output = coutput_ + offset;
 
 	if ( dopfa_ )
 	{
@@ -198,7 +191,7 @@ bool CC::CC1D::doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( normalize_ && direction_==1 )
 	{
 	    for ( int idy=0; idy<sz_; idy++, output += sampling_ )
-		*output /= (mType) sz_;
+		*output /= sz_;
 	}
     }
 
@@ -211,9 +204,9 @@ GenericTransformND::Transform1D* CC::createTransform() const
 }
 
 
-# define mSin60	mFloatOrDouble(0.86602540378443865)	
-# define mCos72	mFloatOrDouble(0.30901699437494742)
-# define mSin72	mFloatOrDouble(0.95105651629515357)
+# define mSin60	0.86602540378443865	
+# define mCos72	0.30901699437494742
+# define mSin72	0.95105651629515357
 
 FFTCC1D::FFTCC1D()
     : forward_( true )
@@ -259,17 +252,17 @@ bool FFTCC1D::setSize( int sz )
     size_ = sz;
     totalsmp_ = size_ * sample_;
     mTryAlloc( permutation0_, int[sz] );
-    mTryAlloc( rtmp_,  mType[sz] );
-    mTryAlloc( itmp_,  mType[sz] );
-    mTryAlloc( cosv_,  mType[sz] );
-    mTryAlloc( sinv_,  mType[sz] );
+    mTryAlloc( rtmp_,  float[sz] );
+    mTryAlloc( itmp_,  float[sz] );
+    mTryAlloc( cosv_,  float[sz] );
+    mTryAlloc( sinv_,  float[sz] );
 
     return permutation0_ && rtmp_ && itmp_ && cosv_ && sinv_ && getSizeFactors()
 	&& setupPermutation();
 }
 
 
-bool FFTCC1D::run( mCplxType* data ) 
+bool FFTCC1D::run( float_complex* data ) 
 {
     if ( !data ) 
 	return false;
@@ -278,7 +271,7 @@ bool FFTCC1D::run( mCplxType* data )
 	return true;
 
     data_ = data-1;
-    rdata_ = (mType*) data_;
+    rdata_ = (float*) data_;
     idata_ = rdata_+1;
 
     totalsmp_ = size_ * sample_;
@@ -289,7 +282,7 @@ bool FFTCC1D::run( mCplxType* data )
     
     for ( int fidx=0; fidx<nrfactors; fidx++ )
     {
- 	exp_ = (mType)( smppi / extsz_ ); 
+ 	exp_ = smppi / extsz_; 
  	sin2_ = 2 * sin(exp_) * sin(exp_);
  	exp_ = sin(2*exp_);
 	
@@ -403,8 +396,8 @@ bool FFTCC1D::doFactor2() const
 	{
 	    const int cidx2 = 2 * cidx;
 	    const int idx = cidx2 + extsz2;
-	    const mType ar = rdata_[idx];
-	    const mType ai = idata_[idx];
+	    const float ar = rdata_[idx];
+	    const float ai = idata_[idx];
 	    rdata_[idx] = rdata_[cidx2] - ar;
 	    idata_[idx] = idata_[cidx2] - ai;
 	    rdata_[cidx2] += ar;
@@ -423,21 +416,21 @@ bool FFTCC1D::doFactor2() const
 
     do 
     {
-	mType c1 = mFloatOrDouble(1.0) - sin2_;
-	mType s1 = exp_;
+	float c1 = 1.0 - sin2_;
+	float s1 = exp_;
 	int idx;
 	do 
 	{	       
 	    do 
 	    {
-		const mCplxType c1s1( c1, s1 );
+		const float_complex c1s1( c1, s1 );
 		do 
 		{
 		    idx = cidx + extsz_;
 		    const int cidx2 = cidx * 2;
 		    const int idx2 = idx *2;
-		    const mType ar = rdata_[cidx2] - rdata_[idx2];
-		    const mType ai = idata_[cidx2] - idata_[idx2];
+		    const float ar = rdata_[cidx2] - rdata_[idx2];
+		    const float ai = idata_[cidx2] - idata_[idx2];
 		    rdata_[cidx2] += rdata_[idx2];
 		    idata_[cidx2] += idata_[idx2];
 		    rdata_[idx2] = ar * c1 - ai * s1;
@@ -450,9 +443,9 @@ bool FFTCC1D::doFactor2() const
 		cidx = cnt - idx;
 	    } while ( cidx > idx );
 	    
-	    const mType val = c1 - ( sin2_ * c1 + exp_ * s1 );
+	    const float val = c1 - ( sin2_ * c1 + exp_ * s1 );
 	    s1 = exp_ * c1 - sin2_ * s1 + s1;
-	    c1 = mFloatOrDouble(2.0) - ( val * val + s1 * s1 );
+	    c1 = 2.0 - ( val * val + s1 * s1 );
 	    s1 *= c1;
 	    c1 *= val;
 	    cidx += sample_;
@@ -469,7 +462,7 @@ bool FFTCC1D::doFactor2() const
 void FFTCC1D::doFactor3() const
 {
     int cidx = 2;
-    const mType s60 = forward_ ? (mType) -mSin60 : (mType) mSin60;   
+    const float s60 = forward_ ? -mSin60 : mSin60;   
     const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
 
@@ -480,14 +473,14 @@ void FFTCC1D::doFactor3() const
  	    const int idx0 = cidx + extsz2;
  	    const int idx1 = idx0 + extsz2;
 
-	    mType ar = rdata_[cidx];
-	    mType ai = idata_[cidx];
-	    mType br = rdata_[idx0] + rdata_[idx1];
-	    mType bi = idata_[idx0] + idata_[idx1];
+	    float ar = rdata_[cidx];
+	    float ai = idata_[cidx];
+	    float br = rdata_[idx0] + rdata_[idx1];
+	    float bi = idata_[idx0] + idata_[idx1];
 	    rdata_[cidx] = ar + br;
 	    idata_[cidx] = ai + bi;
-	    ar -= mFloatOrDouble(0.5) * br;
-	    ai -= mFloatOrDouble(0.5) * bi;
+	    ar -= 0.5 * br;
+	    ai -= 0.5 * bi;
 	    br = (rdata_[idx0] - rdata_[idx1]) * s60;
 	    bi = (idata_[idx0] - idata_[idx1]) * s60;
 	    rdata_[idx0] = ar - bi;
@@ -514,12 +507,12 @@ bool FFTCC1D::doFactor4() const
     
     do 
     {
- 	mType c0 = 1;
- 	mType c1 = 0;
-	mType c2 = 0;
-	mType s0 = 0;
-	mType s1 = 0;
-	mType s2 = 0;
+ 	float c0 = 1;
+ 	float c1 = 0;
+	float c2 = 0;
+	float s0 = 0;
+	float s1 = 0;
+	float s2 = 0;
  	do 
  	{
  	    do 
@@ -528,14 +521,14 @@ bool FFTCC1D::doFactor4() const
  		const int idx0 = cidx2 + extsz2;
  		const int idx1 = cidx2 + extsz4;
  		const int idx2 = cidx2 + extsz6;
- 		mType a0r = rdata_[cidx2] + rdata_[idx1];
- 		mType a1r = rdata_[cidx2] - rdata_[idx1];
- 		mType a2r = rdata_[idx0] + rdata_[idx2];
- 		mType a3r = rdata_[idx0] - rdata_[idx2];
- 		mType a0i = idata_[cidx2] + idata_[idx1];
- 		mType a1i = idata_[cidx2] - idata_[idx1];
- 		mType a2i = idata_[idx0] + idata_[idx2];
- 		mType a3i = idata_[idx0] - idata_[idx2];
+ 		float a0r = rdata_[cidx2] + rdata_[idx1];
+ 		float a1r = rdata_[cidx2] - rdata_[idx1];
+ 		float a2r = rdata_[idx0] + rdata_[idx2];
+ 		float a3r = rdata_[idx0] - rdata_[idx2];
+ 		float a0i = idata_[cidx2] + idata_[idx1];
+ 		float a1i = idata_[cidx2] - idata_[idx1];
+ 		float a2i = idata_[idx0] + idata_[idx2];
+ 		float a3i = idata_[idx0] - idata_[idx2];
  		rdata_[cidx2] = a0r + a2r;
  		idata_[cidx2] = a0i + a2i;
  		a2r = a0r - a2r;
@@ -579,11 +572,11 @@ bool FFTCC1D::doFactor4() const
  	    
  	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
  	    s0 = exp_ * c0 - sin2_ * s0 + s0;
- 	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
+ 	    c0 = 2.0 - (c1 * c1 + s0 * s0);
  	    s0 *= c0;
  	    c0 *= c1;
  	    c1 = c0 * c0 - s0 * s0;
- 	    s1 = mFloatOrDouble(2.0) * c0 * s0;
+ 	    s1 = 2.0 * c0 * s0;
  	    c2 = c1 * c0 - s1 * s0;
  	    s2 = c1 * s0 + s1 * c0;
  	    cidx += smpdiffsz;
@@ -603,9 +596,9 @@ void FFTCC1D::doFactor5() const
 {
     const int lastsmp = sample_ * (size_-1) * 2;
     const int extsz2 = extsz_ * 2;
-    const mType s72 = forward_ ? (mType) -mSin72 : (mType) mSin72;
-    const mType c2 = (mType)( mCos72 * mCos72 - s72 * s72 );
-    const mType s2 = (mType)( mFloatOrDouble(2.0) * mCos72 * s72 );
+    const float s72 = forward_ ? -mSin72 : mSin72;
+    const float c2 = mCos72 * mCos72 - s72 * s72;
+    const float s2 = 2.0 * mCos72 * s72;
     
     int cidx = 2;
     
@@ -617,32 +610,32 @@ void FFTCC1D::doFactor5() const
  	    const int idx1 = idx0 + extsz2;
  	    const int idx2 = idx1 + extsz2;
  	    const int idx3 = idx2 + extsz2;
- 	    const mType ar0 = rdata_[idx0] + rdata_[idx3];
- 	    const mType ai0 = idata_[idx0] + idata_[idx3];
- 	    const mType ar1 = rdata_[idx0] - rdata_[idx3];
- 	    const mType ai1 = idata_[idx0] - idata_[idx3];
- 	    const mType ar2 = rdata_[idx1] + rdata_[idx2];
- 	    const mType ai2 = idata_[idx1] + idata_[idx2];
- 	    const mType ar3 = rdata_[idx1] - rdata_[idx2];
- 	    const mType ai3 = idata_[idx1] - idata_[idx2];
- 	    const mType ar4 = rdata_[cidx];
- 	    const mType ai4 = idata_[cidx];
+ 	    const float ar0 = rdata_[idx0] + rdata_[idx3];
+ 	    const float ai0 = idata_[idx0] + idata_[idx3];
+ 	    const float ar1 = rdata_[idx0] - rdata_[idx3];
+ 	    const float ai1 = idata_[idx0] - idata_[idx3];
+ 	    const float ar2 = rdata_[idx1] + rdata_[idx2];
+ 	    const float ai2 = idata_[idx1] + idata_[idx2];
+ 	    const float ar3 = rdata_[idx1] - rdata_[idx2];
+ 	    const float ai3 = idata_[idx1] - idata_[idx2];
+ 	    const float ar4 = rdata_[cidx];
+ 	    const float ai4 = idata_[cidx];
 	    
  	    rdata_[cidx] = ar0 + ar2 +ar4; 
  	    idata_[cidx] = ai0 + ai2 +ai4; 
  	    
-	    mType ar5 = (mType) ( ar0 * mCos72 + ar2 * c2 + ar4 );	
-	    mType ai5 = (mType) ( ai0 * mCos72 + ai2 * c2 + ai4 );	
- 	    mType ar6 = ar1 * s72 + ar3 * s2;
- 	    mType ai6 = ai1 * s72 + ai3 * s2;
+	    float ar5 = ar0 * mCos72 + ar2 * c2 + ar4;	
+	    float ai5 = ai0 * mCos72 + ai2 * c2 + ai4;	
+ 	    float ar6 = ar1 * s72 + ar3 * s2;
+ 	    float ai6 = ai1 * s72 + ai3 * s2;
  	    
 	    rdata_[idx0] = ar5 - ai6;
 	    idata_[idx0] = ai5 + ar6;
  	    rdata_[idx3] = ar5 + ai6;
  	    idata_[idx3] = ai5 - ar6;
  	    
-	    ar5 = (mType) (ar0 * c2 + ar2 * mCos72 + ar4 );	
-	    ai5 = (mType) (ai0 * c2 + ai2 * mCos72 + ai4 );	
+	    ar5 = ar0 * c2 + ar2 * mCos72 + ar4;	
+	    ai5 = ai0 * c2 + ai2 * mCos72 + ai4;	
  	    ar6 = ar1 * s2 - ar3 * s72;
  	    ai6 = ai1 * s2 - ai3 * s72;
  	    
@@ -663,8 +656,8 @@ void FFTCC1D::doOtherFactor( int factor, int psz )
     if ( factor != curf_ ) 
     {
  	curf_ = factor;
- 	mType s1 = (mType) ( 2*M_PI / (double) factor );
- 	const mType c1 = cos(s1);
+ 	float s1 = 2*M_PI / (double) factor;
+ 	const float c1 = cos(s1);
  	s1 = forward_ ? -sin(s1) : sin(s1);
  	if ( curf_ > size_ )
  	    return;
@@ -692,10 +685,10 @@ void FFTCC1D::doOtherFactor( int factor, int psz )
     {
  	do 
  	{
-	    mType ar0 = rdata_[cidx];
-	    mType ai0 = idata_[cidx];
-	    mType ar1 = ar0;
-	    mType ai1 = ai0;
+	    float ar0 = rdata_[cidx];
+	    float ai0 = idata_[cidx];
+	    float ar1 = ar0;
+	    float ai1 = ai0;
  	    int idx0 = 1;
  	    int idx1 = cidx;
  	    int idx2 = cidx + localpsz;
@@ -727,7 +720,7 @@ void FFTCC1D::doOtherFactor( int factor, int psz )
  		idx2 -= extsz2;
  		ar0 = ar1;
  		ai0 = ai1;
- 		mType ra = 0, ia = 0;
+ 		float ra = 0, ia = 0;
  		fidx = 1;
  		do 
  		{
@@ -766,27 +759,27 @@ void FFTCC1D::doRotation( int psz ) const
     const int sizediff = extsz_ - totalsmp_;
     const int sampleminuspsz = sample_ - psz;
     const int smp2minusextsz = smp2 - extsz_;
-    const mType startc1 = mFloatOrDouble(1.0) - sin2_;
+    const float startc1 = 1.0 - sin2_;
     
     do 
     {
- 	mType c1 = startc1;
- 	mType s0 = exp_;
+ 	float c1 = startc1;
+ 	float s0 = exp_;
  	do 
  	{
- 	    mType c0 = c1;
- 	    mType s1 = s0;
+ 	    float c0 = c1;
+ 	    float s1 = s0;
  	    cidx += extsz_;
  	    do 
  	    {
-		const mCplxType cs1(c1, s1);
+		const float_complex cs1(c1, s1);
  		do 
  		{
  		    data_[cidx] *= cs1;
  		    cidx += psz;
  		} while ( cidx <= totalsmp_ );
 		
- 		const mType tt = s0 * s1;
+ 		const float tt = s0 * s1;
  		s1 = s0 * c1 + c0 * s1;
  		c1 = c0 * c1 - tt;
  		cidx += sizediff;
@@ -794,7 +787,7 @@ void FFTCC1D::doRotation( int psz ) const
  
 	    c1 = c0 - (sin2_ * c0 + exp_ * s0);
  	    s0 += exp_ * c0 - sin2_ * s0;
- 	    c0 = mFloatOrDouble(2.0) - (c1 * c1 + s0 * s0);
+ 	    c0 = 2.0 - (c1 * c1 + s0 * s0);
  	    s0 *= c0;
  	    c1 *= c0;
  	    cidx += sampleminuspsz;
@@ -898,7 +891,7 @@ bool FFTCC1D::setupPermutation()
 { \
     if (  !forward_ & normalize_ ) \
     { \
-	const mType scaling = mFloatOrDouble(1.0) / size_; \
+	const float scaling = 1.0 / size_; \
 	for ( int idy = 0; idy < size_; idy++ ) \
 	    data_[idy] *= scaling; \
     } \
@@ -1018,7 +1011,13 @@ bool FFTCC1D::doFinish()
 		idx1 = 0;
  		do 
  		{
-		    data_[kidx] = float_complex(rtmp_[idx1],itmp_[idx1]);
+#ifdef __win__
+		    data_[kidx].real( rtmp_[idx1] );
+		    data_[kidx].imag( itmp_[idx1] );
+#else
+ 		    data_[kidx].real() = rtmp_[idx1];
+ 		    data_[kidx].imag() = itmp_[idx1];
+#endif
  		    idx1++;
  		    kidx -= sample_;		    
  		} while ( kidx != tidx );
@@ -1083,56 +1082,55 @@ bool FFTCC1D::doFinish()
     Center for Wave Phenomena, Colorado School of Mines.
 */
 
-
-#define P120 mFloatOrDouble(0.120536680)
-#define P142 mFloatOrDouble(0.142314838)
-#define P173 mFloatOrDouble(0.173648178)
-#define P222 mFloatOrDouble(0.222520934)
-#define P239 mFloatOrDouble(0.239315664)
-#define P281 mFloatOrDouble(0.281732557)
-#define P342 mFloatOrDouble(0.342020143)
-#define P354 mFloatOrDouble(0.354604887)
-#define P382 mFloatOrDouble(0.382683432)
-#define P415 mFloatOrDouble(0.415415013)
-#define P433 mFloatOrDouble(0.433883739)
-#define P464 mFloatOrDouble(0.464723172)
-#define P540 mFloatOrDouble(0.540640817)
-#define P559 mFloatOrDouble(0.559016994)
-#define P568 mFloatOrDouble(0.568064747)
-#define P587 mFloatOrDouble(0.587785252)
-#define P623 mFloatOrDouble(0.623489802)
-#define P642 mFloatOrDouble(0.642787610)
-#define P654 mFloatOrDouble(0.654860734)
-#define P663 mFloatOrDouble(0.663122658)
-#define P707 mFloatOrDouble(0.707106781)
-#define P748 mFloatOrDouble(0.748510748)
-#define P755 mFloatOrDouble(0.755749574)
-#define P766 mFloatOrDouble(0.766044443)
-#define P781 mFloatOrDouble(0.781831482)
-#define P822 mFloatOrDouble(0.822983866)
-#define P841 mFloatOrDouble(0.841253533)
-#define P866 mFloatOrDouble(0.866025404)
-#define P885 mFloatOrDouble(0.885456026)
-#define P900 mFloatOrDouble(0.900968868)
-#define P909 mFloatOrDouble(0.909631995)
-#define P923 mFloatOrDouble(0.923879533)
-#define P935 mFloatOrDouble(0.935016243)
-#define P939 mFloatOrDouble(0.939692621)
-#define P951 mFloatOrDouble(0.951056516)
-#define P959 mFloatOrDouble(0.959492974)
-#define P970 mFloatOrDouble(0.970941817)
-#define P974 mFloatOrDouble(0.974927912)
-#define P984 mFloatOrDouble(0.984807753)
-#define P989 mFloatOrDouble(0.989821442)
-#define P992 mFloatOrDouble(0.992708874)
+#define P120 0.120536680
+#define P142 0.142314838
+#define P173 0.173648178
+#define P222 0.222520934
+#define P239 0.239315664
+#define P281 0.281732557
+#define P342 0.342020143
+#define P354 0.354604887
+#define P382 0.382683432
+#define P415 0.415415013
+#define P433 0.433883739
+#define P464 0.464723172
+#define P540 0.540640817
+#define P559 0.559016994
+#define P568 0.568064747
+#define P587 0.587785252
+#define P623 0.623489802
+#define P642 0.642787610
+#define P654 0.654860734
+#define P663 0.663122658
+#define P707 0.707106781
+#define P748 0.748510748
+#define P755 0.755749574
+#define P766 0.766044443
+#define P781 0.781831482
+#define P822 0.822983866
+#define P841 0.841253533
+#define P866 0.866025404
+#define P885 0.885456026
+#define P900 0.900968868
+#define P909 0.909631995
+#define P923 0.923879533
+#define P935 0.935016243
+#define P939 0.939692621
+#define P951 0.951056516
+#define P959 0.959492974
+#define P970 0.970941817
+#define P974 0.974927912
+#define P984 0.984807753
+#define P989 0.989821442
+#define P992 0.992708874
 #define NFAX 10
 
 
 #define mPFACCIMPL( nextsampleinc ) \
-    register mType *z=(mType*)cz; \
+    register float *z=(float*)cz; \
     register int j00,j01,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
     int nleft,jfax,ifac,jfac,jinc,jmax,ndiv,m,mm=0,mu=0,l; \
-    mType t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
+    float t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
 	    t6r,t6i,t7r,t7i,t8r,t8i,t9r,t9i,t10r,t10i, \
 	    t11r,t11i,t12r,t12i,t13r,t13i,t14r,t14i,t15r,t15i, \
 	    t16r,t16i,t17r,t17i,t18r,t18i,t19r,t19i,t20r,t20i, \
@@ -1209,8 +1207,8 @@ bool FFTCC1D::doFinish()
 			    const int j2i = j2+1; \
 			    t1r = z[j01]+z[j2]; \
 			    t1i = z[j01i]+z[j2i]; \
-			    y1r = z[j00]-mFloatOrDouble(0.5)*t1r; \
-			    y1i = z[j00i]-mFloatOrDouble(0.5)*t1i; \
+			    y1r = z[j00]-0.5*t1r; \
+			    y1i = z[j00i]-0.5*t1i; \
 			    y2r = c1*(z[j01]-z[j2]); \
 			    y2i = c1*(z[j01i]-z[j2i]); \
 			    z[j00] = z[j00]+t1r; \
@@ -1232,9 +1230,9 @@ bool FFTCC1D::doFinish()
 	    /* if factor is 4 */ \
 	    if (ifac==4) { \
 		    if (mu==1) \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 		    else \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 		    for (l=0; l<m; l++) { \
 			    const int j00i = j00+1; \
 			    const int j01i = j01+1; \
@@ -1304,8 +1302,8 @@ bool FFTCC1D::doFinish()
 			    t5i = t1i+t2i; \
 			    t6r = c1*(t1r-t2r); \
 			    t6i = c1*(t1i-t2i); \
-			    t7r = z[j00]-mFloatOrDouble(0.25)*t5r; \
-			    t7i = z[j00i]-mFloatOrDouble(0.25)*t5i; \
+			    t7r = z[j00]-0.25*t5r; \
+			    t7i = z[j00i]-0.25*t5i; \
 			    y1r = t7r+t6r; \
 			    y1i = t7i+t6i; \
 			    y2r = t7r-t6r; \
@@ -1403,8 +1401,8 @@ bool FFTCC1D::doFinish()
 			    t5i = z[j2i]-z[j5i]; \
 			    t6r = z[j3]-z[j4]; \
 			    t6i = z[j3i]-z[j4i]; \
-			    t7r = z[j00]-mFloatOrDouble(0.5)*t3r; \
-			    t7i = z[j00i]-mFloatOrDouble(0.5)*t3i; \
+			    t7r = z[j00]-0.5*t3r; \
+			    t7i = z[j00i]-0.5*t3i; \
 			    t8r = t1r-t3r; \
 			    t8i = t1i-t3i; \
 			    t9r = t2r-t3r; \
@@ -1452,16 +1450,16 @@ bool FFTCC1D::doFinish()
 	    /* if factor is 8 */ \
 	    if (ifac==8) { \
 		    if (mu==1) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = P707; \
 		    } else if (mu==3) { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = -P707; \
 		    } else if (mu==5) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = -P707; \
 		    } else { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = P707; \
 		    } \
 		    c3 = c1*c2; \
@@ -1596,24 +1594,24 @@ bool FFTCC1D::doFinish()
 			    const int j8i = j8+1; \
 			    t1r = z[j3]+z[j6]; \
 			    t1i = z[j3i]+z[j6i]; \
-			    t2r = z[j00]-mFloatOrDouble(0.5)*t1r; \
-			    t2i = z[j00i]-mFloatOrDouble(0.5)*t1i; \
+			    t2r = z[j00]-0.5*t1r; \
+			    t2i = z[j00i]-0.5*t1i; \
 			    t3r = c1*(z[j3]-z[j6]); \
 			    t3i = c1*(z[j3i]-z[j6i]); \
 			    t4r = z[j00]+t1r; \
 			    t4i = z[j00i]+t1i; \
 			    t5r = z[j4]+z[j7]; \
 			    t5i = z[j4i]+z[j7i]; \
-			    t6r = z[j01]-mFloatOrDouble(0.5)*t5r; \
-			    t6i = z[j01i]-mFloatOrDouble(0.5)*t5i; \
+			    t6r = z[j01]-0.5*t5r; \
+			    t6i = z[j01i]-0.5*t5i; \
 			    t7r = z[j4]-z[j7]; \
 			    t7i = z[j4i]-z[j7i]; \
 			    t8r = z[j01]+t5r; \
 			    t8i = z[j01i]+t5i; \
 			    t9r = z[j2]+z[j5]; \
 			    t9i = z[j2i]+z[j5i]; \
-			    t10r = z[j8]-mFloatOrDouble(0.5)*t9r; \
-			    t10i = z[j8i]-mFloatOrDouble(0.5)*t9i; \
+			    t10r = z[j8]-0.5*t9r; \
+			    t10i = z[j8i]-0.5*t9i; \
 			    t11r = z[j2]-z[j5]; \
 			    t11i = z[j2i]-z[j5i]; \
 			    t12r = z[j8]+t9r; \
@@ -1644,8 +1642,8 @@ bool FFTCC1D::doFinish()
 			    y1i = t2i+t18i; \
 			    y2r = t2r+t19r; \
 			    y2i = t2i+t19i; \
-			    y3r = t4r-mFloatOrDouble(0.5)*t13r; \
-			    y3i = t4i-mFloatOrDouble(0.5)*t13i; \
+			    y3r = t4r-0.5*t13r; \
+			    y3i = t4i-0.5*t13i; \
 			    y4r = t2r-t22r; \
 			    y4i = t2i-t22i; \
 			    y5r = t3r-t23r; \
@@ -1837,8 +1835,8 @@ bool FFTCC1D::doFinish()
 			    t9i = z[j4i]-z[j7i]; \
 			    t10r = z[j5]-z[j6]; \
 			    t10i = z[j5i]-z[j6i]; \
-			    t11r = z[j00]-mFloatOrDouble(0.5)*t5r; \
-			    t11i = z[j00i]-mFloatOrDouble(0.5)*t5i; \
+			    t11r = z[j00]-0.5*t5r; \
+			    t11i = z[j00i]-0.5*t5i; \
 			    t12r = t1r-t5r; \
 			    t12i = t1i-t5i; \
 			    t13r = t2r-t5r; \
@@ -2106,8 +2104,8 @@ bool FFTCC1D::doFinish()
 			    t11i = z[j5i]-z[j8i]; \
 			    t12r = z[j6]-z[j7]; \
 			    t12i = z[j6i]-z[j7i]; \
-			    t13r = z[j00]-mFloatOrDouble(0.5)*t6r; \
-			    t13i = z[j00i]-mFloatOrDouble(0.5)*t6i; \
+			    t13r = z[j00]-0.5*t6r; \
+			    t13i = z[j00i]-0.5*t6i; \
 			    t14r = t1r-t6r; \
 			    t14i = t1i-t6i; \
 			    t15r = t2r-t6r; \
@@ -2195,42 +2193,42 @@ bool FFTCC1D::doFinish()
 	    /* if factor is 16 */ \
 	    if (ifac==16) { \
 		    if (mu==1) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = P923; \
 			    c3 = P382; \
 			    c4 = P707; \
 		    } else if (mu==3) { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = P382; \
 			    c3 = P923; \
 			    c4 = -P707; \
 		    } else if (mu==5) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = -P382; \
 			    c3 = P923; \
 			    c4 = -P707; \
 		    } else if (mu==7) { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = -P923; \
 			    c3 = P382; \
 			    c4 = P707; \
 		    } else if (mu==9) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = -P923; \
 			    c3 = -P382; \
 			    c4 = P707; \
 		    } else if (mu==11) { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = -P382; \
 			    c3 = -P923; \
 			    c4 = -P707; \
 		    } else if (mu==13) { \
-			    c1 = mFloatOrDouble(1.0); \
+			    c1 = 1.0; \
 			    c2 = P382; \
 			    c3 = -P923; \
 			    c4 = -P707; \
 		    } else { \
-			    c1 = -mFloatOrDouble(1.0); \
+			    c1 = -1.0; \
 			    c2 = P923; \
 			    c3 = -P382; \
 			    c4 = P707; \
@@ -2424,11 +2422,11 @@ bool FFTCC1D::doFinish()
 
 
 #define mPFACCND( istep, loopinit, loopstart, loopend ) \
-    register mType *z=(mType*)cz; \
+    register float *z=(float*)cz; \
     register int j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
     int nleft,jfax,ifac,jfac,iinc,imax,ndiv,m,mm=0,mu=0,l, \
             jt,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15; \
-    mType t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
+    float t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
               t6r,t6i,t7r,t7i,t8r,t8i,t9r,t9i,t10r,t10i, \
             t11r,t11i,t12r,t12i,t13r,t13i,t14r,t14i,t15r,t15i, \
         t16r,t16i,t17r,t17i,t18r,t18i,t19r,t19i,t20r,t20i, \
@@ -2513,8 +2511,8 @@ bool FFTCC1D::doFinish()
 		    const int j2i = j2+1; \
 		    t1r = z[j1]+z[j2]; \
 		    t1i = z[j1i]+z[j2i]; \
-		    y1r = z[j0]-mFloatOrDouble(0.5)*t1r; \
-		    y1i = z[j0i]-mFloatOrDouble(0.5)*t1i; \
+		    y1r = z[j0]-0.5*t1r; \
+		    y1i = z[j0i]-0.5*t1i; \
 		    y2r = c1*(z[j1]-z[j2]); \
 		    y2i = c1*(z[j1i]-z[j2i]); \
 		    z[j0] = z[j0]+t1r; \
@@ -2537,9 +2535,9 @@ bool FFTCC1D::doFinish()
 	 \
         if (ifac==4) { \
                 if (mu==1) \
-	                c1 = mFloatOrDouble(1.0); \
+	                c1 = 1.0; \
                 else \
-                    c1 = -mFloatOrDouble(1.0); \
+                    c1 = -1.0; \
             for (l=0; l<m; l++) { \
 		loopinit; \
                 for (jt=0; jt<nt; jt++) { \
@@ -2625,8 +2623,8 @@ bool FFTCC1D::doFinish()
                     t5i = t1i+t2i; \
                     t6r = c1*(t1r-t2r); \
                     t6i = c1*(t1i-t2i); \
-                    t7r = z[j0]-mFloatOrDouble(0.25)*t5r; \
-                    t7i = z[j0i]-mFloatOrDouble(0.25)*t5i; \
+                    t7r = z[j0]-0.25*t5r; \
+                    t7i = z[j0i]-0.25*t5i; \
                     y1r = t7r+t6r; \
                     y1i = t7i+t6i; \
                     y2r = t7r-t6r; \
@@ -2735,8 +2733,8 @@ bool FFTCC1D::doFinish()
                     t5i = z[j2i]-z[j5i]; \
                     t6r = z[j3]-z[j4]; \
                     t6i = z[j3i]-z[j4i]; \
-                    t7r = z[j0]-mFloatOrDouble(0.5)*t3r; \
-                    t7i = z[j0i]-mFloatOrDouble(0.5)*t3i; \
+                    t7r = z[j0]-0.5*t3r; \
+                    t7i = z[j0i]-0.5*t3i; \
                     t8r = t1r-t3r; \
                     t8i = t1i-t3i; \
                     t9r = t2r-t3r; \
@@ -2787,16 +2785,16 @@ bool FFTCC1D::doFinish()
         /* if factor is 8 */  \
         if (ifac==8) { \
                 if (mu==1) { \
-	                c1 = mFloatOrDouble(1.0); \
+	                c1 = 1.0; \
 	                    c2 = P707; \
 	                } else if (mu==3) { \
-	                c1 = -mFloatOrDouble(1.0);  \
+	                c1 = -1.0;  \
                     c2 = -P707; \
             } else if (mu==5) { \
-                c1 = mFloatOrDouble(1.0); \
+                c1 = 1.0; \
                 c2 = -P707; \
             } else { \
-                c1 = -mFloatOrDouble(1.0); \
+                c1 = -1.0; \
                 c2 = P707; \
             } \
             c3 = c1*c2; \
@@ -2956,24 +2954,24 @@ bool FFTCC1D::doFinish()
 		    const int j8i = j8+1; \
 		    t1r = z[j3]+z[j6]; \
 		    t1i = z[j3i]+z[j6i]; \
-                    t2r = z[j0]-mFloatOrDouble(0.5)*t1r; \
-                    t2i = z[j0i]-mFloatOrDouble(0.5)*t1i; \
+                    t2r = z[j0]-0.5*t1r; \
+                    t2i = z[j0i]-0.5*t1i; \
                     t3r = c1*(z[j3]-z[j6]); \
                     t3i = c1*(z[j3i]-z[j6i]);  \
                     t4r = z[j0]+t1r; \
                     t4i = z[j0i]+t1i; \
                     t5r = z[j4]+z[j7]; \
                     t5i = z[j4i]+z[j7i]; \
-                    t6r = z[j1]-mFloatOrDouble(0.5)*t5r;  \
-                    t6i = z[j1i]-mFloatOrDouble(0.5)*t5i; \
+                    t6r = z[j1]-0.5*t5r;  \
+                    t6i = z[j1i]-0.5*t5i; \
                     t7r = z[j4]-z[j7]; \
                     t7i = z[j4i]-z[j7i]; \
                     t8r = z[j1]+t5r;  \
                     t8i = z[j1i]+t5i; \
                     t9r = z[j2]+z[j5]; \
                     t9i = z[j2i]+z[j5i];  \
-                    t10r = z[j8]-mFloatOrDouble(0.5)*t9r; \
-                    t10i = z[j8i]-mFloatOrDouble(0.5)*t9i; \
+                    t10r = z[j8]-0.5*t9r; \
+                    t10i = z[j8i]-0.5*t9i; \
                     t11r = z[j2]-z[j5]; \
                     t11i = z[j2i]-z[j5i]; \
                     t12r = z[j8]+t9r; \
@@ -3004,8 +3002,8 @@ bool FFTCC1D::doFinish()
                     y1i = t2i+t18i;  \
                     y2r = t2r+t19r; \
                     y2i = t2i+t19i; \
-                    y3r = t4r-mFloatOrDouble(0.5)*t13r; \
-                    y3i = t4i-mFloatOrDouble(0.5)*t13i; \
+                    y3r = t4r-0.5*t13r; \
+                    y3i = t4i-0.5*t13i; \
                     y4r = t2r-t22r; \
                     y4i = t2i-t22i; \
                     y5r = t3r-t23r; \
@@ -3213,8 +3211,8 @@ bool FFTCC1D::doFinish()
                     t9i = z[j4i]-z[j7i]; \
                     t10r = z[j5]-z[j6];  \
                     t10i = z[j5i]-z[j6i]; \
-                    t11r = z[j0]-mFloatOrDouble(0.5)*t5r; \
-                    t11i = z[j0i]-mFloatOrDouble(0.5)*t5i; \
+                    t11r = z[j0]-0.5*t5r; \
+                    t11i = z[j0i]-0.5*t5i; \
                     t12r = t1r-t5r;  \
                     t12i = t1i-t5i; \
                     t13r = t2r-t5r; \
@@ -3500,8 +3498,8 @@ bool FFTCC1D::doFinish()
                     t11i = z[j5i]-z[j8i]; \
                     t12r = z[j6]-z[j7]; \
                     t12i = z[j6i]-z[j7i]; \
-                    t13r = z[j0]-mFloatOrDouble(0.5)*t6r; \
-                    t13i = z[j0i]-mFloatOrDouble(0.5)*t6i; \
+                    t13r = z[j0]-0.5*t6r; \
+                    t13i = z[j0i]-0.5*t6i; \
                     t14r = t1r-t6r; \
                     t14i = t1i-t6i; \
                     t15r = t2r-t6r; \
@@ -3589,42 +3587,42 @@ bool FFTCC1D::doFinish()
         if (i15>=imax) i15 = i15-imax; \
         if (ifac==16) { \
                 if (mu==1) { \
-	                c1 = mFloatOrDouble(1.0); \
+	                c1 = 1.0; \
 	                    c2 = P923; \
 	                    c3 = P382; \
 	                c4 = P707; \
                 } else if (mu==3) { \
-                c1 = -mFloatOrDouble(1.0); \
+                c1 = -1.0; \
                 c2 = P382; \
                 c3 = P923; \
                 c4 = -P707; \
             } else if (mu==5) { \
-                c1 = mFloatOrDouble(1.0); \
+                c1 = 1.0; \
                 c2 = -P382; \
                 c3 = P923; \
                 c4 = -P707; \
             } else if (mu==7) { \
-                c1 = -mFloatOrDouble(1.0); \
+                c1 = -1.0; \
                 c2 = -P923; \
                 c3 = P382; \
                 c4 = P707; \
             } else if (mu==9) { \
-                c1 = mFloatOrDouble(1.0); \
+                c1 = 1.0; \
                 c2 = -P923; \
                 c3 = -P382; \
                 c4 = P707; \
             } else if (mu==11) { \
-                c1 = -mFloatOrDouble(1.0); \
+                c1 = -1.0; \
                 c2 = -P382; \
                 c3 = -P923; \
                 c4 = -P707; \
             } else if (mu==13) { \
-                c1 = mFloatOrDouble(1.0); \
+                c1 = 1.0; \
                 c2 = P382; \
                 c3 = -P923; \
                 c4 = -P707; \
             } else { \
-                c1 = -mFloatOrDouble(1.0); \
+                c1 = -1.0; \
                 c2 = P923; \
                 c3 = -P382; \
                 c4 = P707; \
@@ -3840,258 +3838,258 @@ bool FFTCC1D::doFinish()
 static int kfax[] = { 16,13,11,9,8,7,5,4,3,2 };
 #define NTAB 240
 static struct {
-int n;  mType c;
+int n;  float c;
 } nctab[NTAB] = {
-{       1, mFloatOrDouble(0.000052) },
-{       2, mFloatOrDouble(0.000061) },
-{       3, mFloatOrDouble(0.000030) },
-{       4, mFloatOrDouble(0.000053) },
-{       5, mFloatOrDouble(0.000066) },
-{       6, mFloatOrDouble(0.000067) },
-{       7, mFloatOrDouble(0.000071) },
-{       8, mFloatOrDouble(0.000062) },
-{       9, mFloatOrDouble(0.000079) },
-{      10, mFloatOrDouble(0.000080) },
-{      11, mFloatOrDouble(0.000052) },
-{      12, mFloatOrDouble(0.000069) },
-{      13, mFloatOrDouble(0.000103) },
-{      14, mFloatOrDouble(0.000123) },
-{      15, mFloatOrDouble(0.000050) },
-{      16, mFloatOrDouble(0.000086) },
-{      18, mFloatOrDouble(0.000108) },
-{      20, mFloatOrDouble(0.000101) },
-{      21, mFloatOrDouble(0.000098) },
-{      22, mFloatOrDouble(0.000135) },
-{      24, mFloatOrDouble(0.000090) },
-{      26, mFloatOrDouble(0.000165) },
-{      28, mFloatOrDouble(0.000084) },
-{      30, mFloatOrDouble(0.000132) },
-{      33, mFloatOrDouble(0.000158) },
-{      35, mFloatOrDouble(0.000138) },
-{      36, mFloatOrDouble(0.000147) },
-{      39, mFloatOrDouble(0.000207) },
-{      40, mFloatOrDouble(0.000156) },
-{      42, mFloatOrDouble(0.000158) },
-{      44, mFloatOrDouble(0.000176) },
-{      45, mFloatOrDouble(0.000171) },
-{      48, mFloatOrDouble(0.000185) },
-{      52, mFloatOrDouble(0.000227) },
-{      55, mFloatOrDouble(0.000242) },
-{      56, mFloatOrDouble(0.000194) },
-{      60, mFloatOrDouble(0.000215) },
-{      63, mFloatOrDouble(0.000233) },
-{      65, mFloatOrDouble(0.000288) },
-{      66, mFloatOrDouble(0.000271) },
-{      70, mFloatOrDouble(0.000248) },
-{      72, mFloatOrDouble(0.000247) },
-{      77, mFloatOrDouble(0.000285) },
-{      78, mFloatOrDouble(0.000395) },
-{      80, mFloatOrDouble(0.000285) },
-{      84, mFloatOrDouble(0.000209) },
-{      88, mFloatOrDouble(0.000332) },
-{      90, mFloatOrDouble(0.000321) },
-{      91, mFloatOrDouble(0.000372) },
-{      99, mFloatOrDouble(0.000400) },
-{     104, mFloatOrDouble(0.000391) },
-{     105, mFloatOrDouble(0.000358) },
-{     110, mFloatOrDouble(0.000440) },
-{     112, mFloatOrDouble(0.000367) },
-{     117, mFloatOrDouble(0.000494) },
-{     120, mFloatOrDouble(0.000413) },
-{     126, mFloatOrDouble(0.000424) },
-{     130, mFloatOrDouble(0.000549) },
-{     132, mFloatOrDouble(0.000480) },
-{     140, mFloatOrDouble(0.000450) },
-{     143, mFloatOrDouble(0.000637) },
-{     144, mFloatOrDouble(0.000497) },
-{     154, mFloatOrDouble(0.000590) },
-{     156, mFloatOrDouble(0.000626) },
-{     165, mFloatOrDouble(0.000654) },
-{     168, mFloatOrDouble(0.000536) },
-{     176, mFloatOrDouble(0.000656) },
-{     180, mFloatOrDouble(0.000611) },
-{     182, mFloatOrDouble(0.000730) },
-{     195, mFloatOrDouble(0.000839) },
-{     198, mFloatOrDouble(0.000786) },
-{     208, mFloatOrDouble(0.000835) },
-{     210, mFloatOrDouble(0.000751) },
-{     220, mFloatOrDouble(0.000826) },
-{     231, mFloatOrDouble(0.000926) },
-{     234, mFloatOrDouble(0.000991) },
-{     240, mFloatOrDouble(0.000852) },
-{     252, mFloatOrDouble(0.000820) },
-{     260, mFloatOrDouble(0.001053) },
-{     264, mFloatOrDouble(0.000987) },
-{     273, mFloatOrDouble(0.001152) },
-{     280, mFloatOrDouble(0.000952) },
-{     286, mFloatOrDouble(0.001299) },
-{     308, mFloatOrDouble(0.001155) },
-{     312, mFloatOrDouble(0.001270) },
-{     315, mFloatOrDouble(0.001156) },
-{     330, mFloatOrDouble(0.001397) },
-{     336, mFloatOrDouble(0.001173) },
-{     360, mFloatOrDouble(0.001259) },
-{     364, mFloatOrDouble(0.001471) },
-{     385, mFloatOrDouble(0.001569) },
-{     390, mFloatOrDouble(0.001767) },
-{     396, mFloatOrDouble(0.001552) },
-{     420, mFloatOrDouble(0.001516) },
-{     429, mFloatOrDouble(0.002015) },
-{     440, mFloatOrDouble(0.001748) },
-{     455, mFloatOrDouble(0.001988) },
-{     462, mFloatOrDouble(0.001921) },
-{     468, mFloatOrDouble(0.001956) },
-{     495, mFloatOrDouble(0.002106) },
-{     504, mFloatOrDouble(0.001769) },
-{     520, mFloatOrDouble(0.002196) },
-{     528, mFloatOrDouble(0.002127) },
-{     546, mFloatOrDouble(0.002454) },
-{     560, mFloatOrDouble(0.002099) },
-{     572, mFloatOrDouble(0.002632) },
-{     585, mFloatOrDouble(0.002665) },
-{     616, mFloatOrDouble(0.002397) },
-{     624, mFloatOrDouble(0.002711) },
-{     630, mFloatOrDouble(0.002496) },
-{     660, mFloatOrDouble(0.002812) },
-{     693, mFloatOrDouble(0.002949) },
-{     715, mFloatOrDouble(0.003571) },
-{     720, mFloatOrDouble(0.002783) },
-{     728, mFloatOrDouble(0.003060) },
-{     770, mFloatOrDouble(0.003392) },
-{     780, mFloatOrDouble(0.003553) },
-{     792, mFloatOrDouble(0.003198) },
-{     819, mFloatOrDouble(0.003726) },
-{     840, mFloatOrDouble(0.003234) },
-{     858, mFloatOrDouble(0.004354) },
-{     880, mFloatOrDouble(0.003800) },
-{     910, mFloatOrDouble(0.004304) },
-{     924, mFloatOrDouble(0.003975) },
-{     936, mFloatOrDouble(0.004123) },
-{     990, mFloatOrDouble(0.004517) },
-{    1001, mFloatOrDouble(0.005066) },
-{    1008, mFloatOrDouble(0.003902) },
-{    1040, mFloatOrDouble(0.004785) },
-{    1092, mFloatOrDouble(0.005017) },
-{    1144, mFloatOrDouble(0.005599) },
-{    1155, mFloatOrDouble(0.005380) },
-{    1170, mFloatOrDouble(0.005730) },
-{    1232, mFloatOrDouble(0.005323) },
-{    1260, mFloatOrDouble(0.005112) },
-{    1287, mFloatOrDouble(0.006658) },
-{    1320, mFloatOrDouble(0.005974) },
-{    1365, mFloatOrDouble(0.006781) },
-{    1386, mFloatOrDouble(0.006413) },
-{    1430, mFloatOrDouble(0.007622) },
-{    1456, mFloatOrDouble(0.006679) },
-{    1540, mFloatOrDouble(0.007032) },
-{    1560, mFloatOrDouble(0.007538) },
-{    1584, mFloatOrDouble(0.007126) },
-{    1638, mFloatOrDouble(0.007979) },
-{    1680, mFloatOrDouble(0.007225) },
-{    1716, mFloatOrDouble(0.008961) },
-{    1820, mFloatOrDouble(0.008818) },
-{    1848, mFloatOrDouble(0.008427) },
-{    1872, mFloatOrDouble(0.009004) },
-{    1980, mFloatOrDouble(0.009398) },
-{    2002, mFloatOrDouble(0.010830) },
-{    2145, mFloatOrDouble(0.012010) },
-{    2184, mFloatOrDouble(0.010586) },
-{    2288, mFloatOrDouble(0.012058) },
-{    2310, mFloatOrDouble(0.011673) },
-{    2340, mFloatOrDouble(0.011700) },
-{    2520, mFloatOrDouble(0.011062) },
-{    2574, mFloatOrDouble(0.014313) },
-{    2640, mFloatOrDouble(0.013021) },
-{    2730, mFloatOrDouble(0.014606) },
-{    2772, mFloatOrDouble(0.013216) },
-{    2860, mFloatOrDouble(0.015789) },
-{    3003, mFloatOrDouble(0.016988) },
-{    3080, mFloatOrDouble(0.014911) },
-{    3120, mFloatOrDouble(0.016393) },
-{    3276, mFloatOrDouble(0.016741) },
-{    3432, mFloatOrDouble(0.018821) },
-{    3465, mFloatOrDouble(0.018138) },
-{    3640, mFloatOrDouble(0.018892) },
-{    3696, mFloatOrDouble(0.018634) },
-{    3960, mFloatOrDouble(0.020216) },
-{    4004, mFloatOrDouble(0.022455) },
-{    4095, mFloatOrDouble(0.022523) },
-{    4290, mFloatOrDouble(0.026087) },
-{    4368, mFloatOrDouble(0.023474) },
-{    4620, mFloatOrDouble(0.024590) },
-{    4680, mFloatOrDouble(0.025641) },
-{    5005, mFloatOrDouble(0.030303) },
-{    5040, mFloatOrDouble(0.025253) },
-{    5148, mFloatOrDouble(0.030364) },
-{    5460, mFloatOrDouble(0.031250) },
-{    5544, mFloatOrDouble(0.029412) },
-{    5720, mFloatOrDouble(0.034404) },
-{    6006, mFloatOrDouble(0.037500) },
-{    6160, mFloatOrDouble(0.034091) },
-{    6435, mFloatOrDouble(0.040214) },
-{    6552, mFloatOrDouble(0.037221) },
-{    6864, mFloatOrDouble(0.042735) },
-{    6930, mFloatOrDouble(0.040214) },
-{    7280, mFloatOrDouble(0.042980) },
-{    7920, mFloatOrDouble(0.045872) },
-{    8008, mFloatOrDouble(0.049505) },
-{    8190, mFloatOrDouble(0.049834) },
-{    8580, mFloatOrDouble(0.055762) },
-{    9009, mFloatOrDouble(0.057034) },
-{    9240, mFloatOrDouble(0.054945) },
-{    9360, mFloatOrDouble(0.056818) },
-{   10010, mFloatOrDouble(0.066667) },
-{   10296, mFloatOrDouble(0.065502) },
-{   10920, mFloatOrDouble(0.068182) },
-{   11088, mFloatOrDouble(0.065217) },
-{   11440, mFloatOrDouble(0.075000) },
-{   12012, mFloatOrDouble(0.078534) },
-{   12870, mFloatOrDouble(0.087719) },
-{   13104, mFloatOrDouble(0.081081) },
-{   13860, mFloatOrDouble(0.084270) },
-{   15015, mFloatOrDouble(0.102740) },
-{   16016, mFloatOrDouble(0.106383) },
-{   16380, mFloatOrDouble(0.105634) },
-{   17160, mFloatOrDouble(0.119048) },
-{   18018, mFloatOrDouble(0.123967) },
-{   18480, mFloatOrDouble(0.119048) },
-{   20020, mFloatOrDouble(0.137615) },
-{   20592, mFloatOrDouble(0.140187) },
-{   21840, mFloatOrDouble(0.154639) },
-{   24024, mFloatOrDouble(0.168539) },
-{   25740, mFloatOrDouble(0.180723) },
-{   27720, mFloatOrDouble(0.180723) },
-{   30030, mFloatOrDouble(0.220588) },
-{   32760, mFloatOrDouble(0.241935) },
-{   34320, mFloatOrDouble(0.254237) },
-{   36036, mFloatOrDouble(0.254237) },
-{   40040, mFloatOrDouble(0.288462) },
-{   45045, mFloatOrDouble(0.357143) },
-{   48048, mFloatOrDouble(0.357143) },
-{   51480, mFloatOrDouble(0.384615) },
-{   55440, mFloatOrDouble(0.384615) },
-{   60060, mFloatOrDouble(0.454545) },
-{   65520, mFloatOrDouble(0.517241) },
-{   72072, mFloatOrDouble(0.576923) },
-{   80080, mFloatOrDouble(0.625000) },
-{   90090, mFloatOrDouble(0.833333) },
-{  102960, mFloatOrDouble(0.789474) },
-{  120120, mFloatOrDouble(1.153846) },
-{  144144, mFloatOrDouble(1.153846) },
-{  180180, mFloatOrDouble(1.875000) },
-{  240240, mFloatOrDouble(2.500000) },
-{  360360, mFloatOrDouble(3.750000) },
-{  720720, mFloatOrDouble(7.500000) }
+{       1, 0.000052 },
+{       2, 0.000061 },
+{       3, 0.000030 },
+{       4, 0.000053 },
+{       5, 0.000066 },
+{       6, 0.000067 },
+{       7, 0.000071 },
+{       8, 0.000062 },
+{       9, 0.000079 },
+{      10, 0.000080 },
+{      11, 0.000052 },
+{      12, 0.000069 },
+{      13, 0.000103 },
+{      14, 0.000123 },
+{      15, 0.000050 },
+{      16, 0.000086 },
+{      18, 0.000108 },
+{      20, 0.000101 },
+{      21, 0.000098 },
+{      22, 0.000135 },
+{      24, 0.000090 },
+{      26, 0.000165 },
+{      28, 0.000084 },
+{      30, 0.000132 },
+{      33, 0.000158 },
+{      35, 0.000138 },
+{      36, 0.000147 },
+{      39, 0.000207 },
+{      40, 0.000156 },
+{      42, 0.000158 },
+{      44, 0.000176 },
+{      45, 0.000171 },
+{      48, 0.000185 },
+{      52, 0.000227 },
+{      55, 0.000242 },
+{      56, 0.000194 },
+{      60, 0.000215 },
+{      63, 0.000233 },
+{      65, 0.000288 },
+{      66, 0.000271 },
+{      70, 0.000248 },
+{      72, 0.000247 },
+{      77, 0.000285 },
+{      78, 0.000395 },
+{      80, 0.000285 },
+{      84, 0.000209 },
+{      88, 0.000332 },
+{      90, 0.000321 },
+{      91, 0.000372 },
+{      99, 0.000400 },
+{     104, 0.000391 },
+{     105, 0.000358 },
+{     110, 0.000440 },
+{     112, 0.000367 },
+{     117, 0.000494 },
+{     120, 0.000413 },
+{     126, 0.000424 },
+{     130, 0.000549 },
+{     132, 0.000480 },
+{     140, 0.000450 },
+{     143, 0.000637 },
+{     144, 0.000497 },
+{     154, 0.000590 },
+{     156, 0.000626 },
+{     165, 0.000654 },
+{     168, 0.000536 },
+{     176, 0.000656 },
+{     180, 0.000611 },
+{     182, 0.000730 },
+{     195, 0.000839 },
+{     198, 0.000786 },
+{     208, 0.000835 },
+{     210, 0.000751 },
+{     220, 0.000826 },
+{     231, 0.000926 },
+{     234, 0.000991 },
+{     240, 0.000852 },
+{     252, 0.000820 },
+{     260, 0.001053 },
+{     264, 0.000987 },
+{     273, 0.001152 },
+{     280, 0.000952 },
+{     286, 0.001299 },
+{     308, 0.001155 },
+{     312, 0.001270 },
+{     315, 0.001156 },
+{     330, 0.001397 },
+{     336, 0.001173 },
+{     360, 0.001259 },
+{     364, 0.001471 },
+{     385, 0.001569 },
+{     390, 0.001767 },
+{     396, 0.001552 },
+{     420, 0.001516 },
+{     429, 0.002015 },
+{     440, 0.001748 },
+{     455, 0.001988 },
+{     462, 0.001921 },
+{     468, 0.001956 },
+{     495, 0.002106 },
+{     504, 0.001769 },
+{     520, 0.002196 },
+{     528, 0.002127 },
+{     546, 0.002454 },
+{     560, 0.002099 },
+{     572, 0.002632 },
+{     585, 0.002665 },
+{     616, 0.002397 },
+{     624, 0.002711 },
+{     630, 0.002496 },
+{     660, 0.002812 },
+{     693, 0.002949 },
+{     715, 0.003571 },
+{     720, 0.002783 },
+{     728, 0.003060 },
+{     770, 0.003392 },
+{     780, 0.003553 },
+{     792, 0.003198 },
+{     819, 0.003726 },
+{     840, 0.003234 },
+{     858, 0.004354 },
+{     880, 0.003800 },
+{     910, 0.004304 },
+{     924, 0.003975 },
+{     936, 0.004123 },
+{     990, 0.004517 },
+{    1001, 0.005066 },
+{    1008, 0.003902 },
+{    1040, 0.004785 },
+{    1092, 0.005017 },
+{    1144, 0.005599 },
+{    1155, 0.005380 },
+{    1170, 0.005730 },
+{    1232, 0.005323 },
+{    1260, 0.005112 },
+{    1287, 0.006658 },
+{    1320, 0.005974 },
+{    1365, 0.006781 },
+{    1386, 0.006413 },
+{    1430, 0.007622 },
+{    1456, 0.006679 },
+{    1540, 0.007032 },
+{    1560, 0.007538 },
+{    1584, 0.007126 },
+{    1638, 0.007979 },
+{    1680, 0.007225 },
+{    1716, 0.008961 },
+{    1820, 0.008818 },
+{    1848, 0.008427 },
+{    1872, 0.009004 },
+{    1980, 0.009398 },
+{    2002, 0.010830 },
+{    2145, 0.012010 },
+{    2184, 0.010586 },
+{    2288, 0.012058 },
+{    2310, 0.011673 },
+{    2340, 0.011700 },
+{    2520, 0.011062 },
+{    2574, 0.014313 },
+{    2640, 0.013021 },
+{    2730, 0.014606 },
+{    2772, 0.013216 },
+{    2860, 0.015789 },
+{    3003, 0.016988 },
+{    3080, 0.014911 },
+{    3120, 0.016393 },
+{    3276, 0.016741 },
+{    3432, 0.018821 },
+{    3465, 0.018138 },
+{    3640, 0.018892 },
+{    3696, 0.018634 },
+{    3960, 0.020216 },
+{    4004, 0.022455 },
+{    4095, 0.022523 },
+{    4290, 0.026087 },
+{    4368, 0.023474 },
+{    4620, 0.024590 },
+{    4680, 0.025641 },
+{    5005, 0.030303 },
+{    5040, 0.025253 },
+{    5148, 0.030364 },
+{    5460, 0.031250 },
+{    5544, 0.029412 },
+{    5720, 0.034404 },
+{    6006, 0.037500 },
+{    6160, 0.034091 },
+{    6435, 0.040214 },
+{    6552, 0.037221 },
+{    6864, 0.042735 },
+{    6930, 0.040214 },
+{    7280, 0.042980 },
+{    7920, 0.045872 },
+{    8008, 0.049505 },
+{    8190, 0.049834 },
+{    8580, 0.055762 },
+{    9009, 0.057034 },
+{    9240, 0.054945 },
+{    9360, 0.056818 },
+{   10010, 0.066667 },
+{   10296, 0.065502 },
+{   10920, 0.068182 },
+{   11088, 0.065217 },
+{   11440, 0.075000 },
+{   12012, 0.078534 },
+{   12870, 0.087719 },
+{   13104, 0.081081 },
+{   13860, 0.084270 },
+{   15015, 0.102740 },
+{   16016, 0.106383 },
+{   16380, 0.105634 },
+{   17160, 0.119048 },
+{   18018, 0.123967 },
+{   18480, 0.119048 },
+{   20020, 0.137615 },
+{   20592, 0.140187 },
+{   21840, 0.154639 },
+{   24024, 0.168539 },
+{   25740, 0.180723 },
+{   27720, 0.180723 },
+{   30030, 0.220588 },
+{   32760, 0.241935 },
+{   34320, 0.254237 },
+{   36036, 0.254237 },
+{   40040, 0.288462 },
+{   45045, 0.357143 },
+{   48048, 0.357143 },
+{   51480, 0.384615 },
+{   55440, 0.384615 },
+{   60060, 0.454545 },
+{   65520, 0.517241 },
+{   72072, 0.576923 },
+{   80080, 0.625000 },
+{   90090, 0.833333 },
+{  102960, 0.789474 },
+{  120120, 1.153846 },
+{  144144, 1.153846 },
+{  180180, 1.875000 },
+{  240240, 2.500000 },
+{  360360, 3.750000 },
+{  720720, 7.500000 },
 };
 
 
-void CC::pfacc( char isign, int n, mCplxType* cz )
+void CC::pfacc( char isign, int n, float_complex* cz )
 {
     mPFACCIMPL( 2 );
 }
 
 
-void CC::pfacc( char isign, int n, int step, mCplxType* cz )
+void CC::pfacc( char isign, int n, int step, float_complex* cz )
 {
     const int samplestep = 2 * step;
     mPFACCIMPL( samplestep );
@@ -4099,7 +4097,7 @@ void CC::pfacc( char isign, int n, int step, mCplxType* cz )
 
 
 void CC::pfacc( char isign, int n, int step, int nt, const int* starts,
-	    mCplxType* cz )
+	    float_complex* cz )
 {
   const int istep = 2*step;
   mPFACCND( istep, , const int offset = 2*starts[jt], );
@@ -4107,7 +4105,7 @@ void CC::pfacc( char isign, int n, int step, int nt, const int* starts,
 
 
 void CC::pfacc( char isign, int n, int step, int nt, int batchstep,
-	    mCplxType* cz )
+	    float_complex* cz )
 {
     const int istep = 2*step;
     const int batchincr = 2*batchstep;
@@ -4115,23 +4113,23 @@ void CC::pfacc( char isign, int n, int step, int nt, int batchstep,
 }
 
 
-void CC::pfarc( int isign, int n, const mType* rz, mCplxType* cz )
+void CC::pfarc( int isign, int n, const float* rz, float_complex* cz )
 {
     int i,ir,ii,jr,ji,no2;
-    mType *z,tempr,tempi,sumr,sumi,difr,difi;
+    float *z,tempr,tempi,sumr,sumi,difr,difi;
     double wr,wi,wpr,wpi,wtemp,theta;
 
     /* copy input to output while scaling */
-    z = (mType*)cz;
+    z = (float*)cz;
     for (i=0; i<n; i++)
-	z[i] = mFloatOrDouble(0.5)*rz[i];
+	z[i] = 0.5*rz[i];
 
     /* do complex to complex transform */
-    pfacc( (char) isign,n/2,cz);
+    pfacc(isign,n/2,cz);
 
     /* fix dc and nyquist */
-    z[n] = mFloatOrDouble(2.0)*(z[0]-z[1]);
-    z[0] = mFloatOrDouble(2.0)*(z[0]+z[1]);
+    z[n] = 2.0*(z[0]-z[1]);
+    z[0] = 2.0*(z[0]+z[1]);
     z[n+1] = 0.0;
     z[1] = 0.0;
 
@@ -4141,7 +4139,7 @@ void CC::pfarc( int isign, int n, const mType* rz, mCplxType* cz )
 	wtemp = sin(0.5*theta);
     wpr = -2.0*wtemp*wtemp;
     wpi = sin(theta);
-    wr = mFloatOrDouble(1.0)+wpr;
+    wr = 1.0+wpr;
     wi = wpi;
 
     /* twiddle */
@@ -4151,8 +4149,8 @@ void CC::pfarc( int isign, int n, const mType* rz, mCplxType* cz )
 	sumi = z[ii]+z[ji];
 	difr = z[ir]-z[jr];
 	difi = z[ii]-z[ji];
-	tempr = (mType) ( wi*difr+wr*sumi );
-	tempi = (mType) ( wi*sumi-wr*difr );
+	tempr = wi*difr+wr*sumi;
+	tempi = wi*sumi-wr*difr;
 	z[ir] = sumr+tempr;
 	z[ii] = difi+tempi;
 	z[jr] = sumr-tempr;
@@ -4164,14 +4162,14 @@ void CC::pfarc( int isign, int n, const mType* rz, mCplxType* cz )
 }
 
 
-void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
+void CC::pfacr(int isign, int n, const float_complex* cz, float* rz )
 {
     int i,ir,ii,jr,ji,no2;
-    mType *z,tempr,tempi,sumr,sumi,difr,difi;
+    float *z,tempr,tempi,sumr,sumi,difr,difi;
     double wr,wi,wpr,wpi,wtemp,theta;
 
     /* copy input to output and fix dc and nyquist */
-    z = (mType*)cz;
+    z = (float*)cz;
     for (i=2; i<n; i++)
 	rz[i] = z[i];
     rz[1] = z[0]-z[n];
@@ -4184,7 +4182,7 @@ void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
     wtemp = sin(0.5*theta);
     wpr = -2.0*wtemp*wtemp;
     wpi = sin(theta);
-    wr = mFloatOrDouble(1.0)+wpr;
+    wr = 1.0+wpr;
     wi = wpi;
     no2 = n/2;
     for (ir=2,ii=3,jr=n-2,ji=n-1; ir<=no2; ir+=2,ii+=2,jr-=2,ji-=2) {
@@ -4192,8 +4190,8 @@ void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
 	sumi = z[ii]+z[ji];
 	difr = z[ir]-z[jr];
 	difi = z[ii]-z[ji];
-	tempr = (mType) ( wi*difr-wr*sumi );
-	tempi = (mType) ( wi*sumi+wr*difr );
+	tempr = wi*difr-wr*sumi;
+	tempi = wi*sumi+wr*difr;
 	z[ir] = sumr+tempr;
 	z[ii] = difi+tempi;
 	z[jr] = sumr-tempr;
@@ -4204,25 +4202,15 @@ void CC::pfacr(int isign, int n, const mCplxType* cz, mType* rz )
     }
 
     /* do complex to complex transform */
-    pfacc( (char) isign,n/2,(mCplxType*)z);
+    pfacc(isign,n/2,(float_complex*)z);
 }
 
 
 int CC::CC1D::getFastSize( int nmin )
 {
-    for ( int idx=0; idx<NTAB; idx++ )
-    {
-	if ( nctab[idx].n >= nmin )
-	    return nctab[idx].n;
-    }
-
-#ifdef __debug__
-    BufferString msg( "\n\tFFT size above largest fast size asked: ", nmin,
-	    	      "\n\tLargest fast is: " );
-    msg.add( nctab[NTAB-1].n ).add( "\n\t--> Consider extending nctab ..." );
-    pFreeFnErrMsg( msg, "CC::CC1D::getFastSize" );
-#endif
-    return nmin;
+    int i;
+    for ( i=0; i<NTAB-1 && nctab[i].n<nmin; ++i );
+    return nctab[i].n;
 }
 
 
@@ -4230,8 +4218,8 @@ int CC::npfao( int nmin, int nmax )
 {
     int i,j;
     for (i=0; i<NTAB-1 && nctab[i].n<nmin; ++i);
-	for (j=i+1; j<NTAB-1 && nctab[j].n<=nmax; ++j)
-	    if (nctab[j].c<nctab[i].c) i = j;
+    for (j=i+1; j<NTAB-1 && nctab[j].n<=nmax; ++j)
+	if (nctab[j].c<nctab[i].c) i = j;
 
     return nctab[i].n;
 }

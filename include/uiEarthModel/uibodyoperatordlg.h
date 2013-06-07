@@ -13,29 +13,27 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
-#include "uiearthmodelmod.h"
 #include "multiid.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
 
 class uiGenInput;
 class uiLabeledComboBox;
-class uiTreeView;
-class uiTreeViewItem;
+class uiListView;
+class uiListViewItem;
 class uiPushButton;
 class uiToolButton;
 
 namespace EM { class BodyOperator; }
 
 
-mExpClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
+mClass uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();  
 
-    MultiID		getBodyMid() const { return outputfld_->key(); }			
+    const MultiID	getBodyMid() const { return outputfld_->key(); }			
 protected:
 
     bool		acceptOK(CallBacker*);
@@ -44,15 +42,15 @@ protected:
     void		oprSel(CallBacker*);
     void		typeSel(CallBacker*);
     void		turnOffAll();
-    void		deleteAllChildInfo(uiTreeViewItem*);
-    void		setOprator(uiTreeViewItem* lv,EM::BodyOperator& opt);
+    void		deleteAllChildInfo(uiListViewItem*);
+    void		setOprator(uiListViewItem* lv,EM::BodyOperator& opt);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
     static char		sKeyMinus()	{ return 2; }
     static char		sKeyUdf()	{ return -1; }
 
-    mStruct(uiEarthModel) bodyOprand
+    mStruct bodyOprand
     {
 			bodyOprand();
 	bool		operator==(const bodyOprand&) const;
@@ -70,29 +68,12 @@ protected:
     uiGenInput*			bodyselfld_;
     uiPushButton*		bodyselbut_;
 
-    uiTreeView*			tree_;
+    uiListView*			tree_;
     TypeSet<bodyOprand>		listinfo_;
-    ObjectSet<uiTreeViewItem>	listsaved_;
+    ObjectSet<uiListViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
 };
 
 
-mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
-{
-public:
-    			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
-
-    MultiID		getBodyMid() const { return outputfld_->key(); }			
-protected:
-
-    bool		acceptOK(CallBacker*);
-
-    uiIOObjSel*		inputfld_;
-    uiIOObjSel*		outputfld_;
-};
-
-
 #endif
-
-

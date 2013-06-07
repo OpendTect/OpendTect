@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "bufstring.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -47,7 +46,7 @@ template <class T> class TypeSet;
 
  */
 
-mExpClass(Seis) SeisJobExecProv
+mClass SeisJobExecProv
 {
 public:
 
@@ -100,4 +99,3 @@ protected:
 
 
 #endif
-

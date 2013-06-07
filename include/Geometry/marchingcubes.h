@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "task.h"
 #include "callback.h"
 #include "multidimstorage.h"
@@ -45,7 +44,7 @@ class SeedBasedFloodFiller;
    volume's coordinates.
 */
 
-mExpClass(Geometry) MarchingCubesModel
+mClass MarchingCubesModel
 {
 public:
 				MarchingCubesModel();
@@ -77,7 +76,7 @@ public:
 };
 
 
-mExpClass(Geometry) MarchingCubesSurface : public CallBacker
+mClass MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
@@ -112,7 +111,7 @@ public:
 };
 
 
-mExpClass(Geometry) Implicit2MarchingCubes : public ParallelTask
+mClass Implicit2MarchingCubes : public ParallelTask
 {
 public:
     		Implicit2MarchingCubes(int posx, int posy, int posz,
@@ -144,7 +143,7 @@ protected:
    (in doPrepare() ) 2) the array is flood filled from there.
 */
 
-mExpClass(Geometry) MarchingCubes2Implicit : public ParallelTask
+mClass MarchingCubes2Implicit : public ParallelTask
 {
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
@@ -193,4 +192,3 @@ protected:
 
 
 #endif
-

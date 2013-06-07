@@ -12,7 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimpemod.h"
+/*!\page uiMPE MPE User Interface
+uiMPE contains user interface for the MPE-engines trackers and editors. The
+class uiMPEPartServer provides tracking services for higher hierarchies 
+(i.e. the application manager).
+
+There are two factories avaliable for Trackning and Editing UI from
+the MPE::uiMPEEngine object, which is available through the static function
+MPE::uiMPE(). */
+
+
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
@@ -34,11 +43,9 @@ namespace MPE
 class ObjectEditor;
 class SectionTracker;
 
-/*!
-\ingroup uiMPE
-\brief Interface for the ui interaction with MPE::ObjectEditor.
-Object is implemented in separate classes inheriting uiEMEditor that
-can be created by:
+/*! Interface for the ui interaction with MPE::ObjectEditor. Object is
+    implemented in separate classes inheriting uiEMEditor that can be created
+    by:
 
 \code
     PtrMan<uiEMEditor> uieditor =
@@ -46,7 +53,7 @@ can be created by:
 \endcode
 */
 
-mExpClass(uiMPE) uiEMEditor : public CallBacker
+mClass uiEMEditor : public CallBacker
 {
 public:
     			uiEMEditor(uiParent*);
@@ -74,7 +81,7 @@ typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
     and a MPE::ObjectEditor*. Each class that wants to be able to procuce
     instances of itself must register itself with the addFactory startup. */
 
-mExpClass(uiMPE) uiEMEditorFactory
+mClass uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
@@ -92,14 +99,14 @@ protected:
     MPE::uiSetupGroupFactory. */
 
 
-mExpClass(uiMPE) uiSetupGroup : public uiGroup
+mClass uiSetupGroup : public uiGroup
 {
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setAttribSet(const Attrib::DescSet*)	{}
     virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
-    virtual int		getMode()				=0;
+    virtual const int	getMode()				=0;
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
@@ -131,7 +138,7 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-mExpClass(uiMPE) uiSetupGroupFactory
+mClass uiSetupGroupFactory
 {
 public:
     void		addFactory(uiSetupGrpCreationFunc f, const char* name);
@@ -147,14 +154,11 @@ protected:
 };
 
 
-/*!
-\ingroup uiMPE
-\brief Holder class for MPE ui-factories.
-  Is normally only retrieved by MPE::uiMPE().
-*/
+/*! Holder class for MPE ui-factories. Is normally only retrieved by
+    MPE::uiMPE(). */
 
 
-mExpClass(uiMPE) uiMPEEngine 
+mClass uiMPEEngine 
 {
 public:
     uiEMEditorFactory		editorfact;
@@ -163,13 +167,11 @@ public:
 
 
 
-/*!
-\brief Access function for an instance (and normally the only instance) of
-  MPE::uiMPEEngine.
-*/
-mGlobal(uiMPE) uiMPEEngine& uiMPE();
+/*! Access function for an instance (and normally the only instance) of
+  MPE::uiMPEEngine. */
+mGlobal uiMPEEngine& uiMPE();
 
 };
 
-#endif
 
+#endif

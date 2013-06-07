@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -147,8 +147,7 @@ void BeachBall::setCenterPosition( const Coord3& c )
 	xyTranslation_->utmposition.setValue( pos.x, pos.y, 0 );
 	pos.x = 0; pos.y = 0;
     }
-    translation_->translation.setValue( (float) pos.x, 
-				    (float) pos.y, (float) pos.z );
+    translation_->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
@@ -190,9 +189,9 @@ float BeachBall::getRadius() const
 void BeachBall::setColor1( Color col )
 {
     float r, g, b;
-    r = col.r()/255.0f;
-    g = col.g()/255.0f;
-    b = col.b()/255.0f;
+    r = col.r()/255.0;
+    g = col.g()/255.0;
+    b = col.b()/255.0;
     material_->diffuseColor.set1Value( 0, r, g, b );
 }
 
@@ -208,9 +207,9 @@ Color BeachBall::getColor1() const
 void BeachBall::setColor2( Color col )
 {
     float r, g, b;
-    r = col.r()/255.0f;
-    g = col.g()/255.0f;
-    b = col.b()/255.0f;
+    r = col.r()/255.0;
+    g = col.g()/255.0;
+    b = col.b()/255.0;
     material_->diffuseColor.set1Value( 1, r, g, b );
 }
 

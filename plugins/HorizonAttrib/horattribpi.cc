@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: horattribpi.cc,v 1.10 2012/03/13 08:18:36 cvsbert Exp $";
 
 
 #include "horizonattrib.h"

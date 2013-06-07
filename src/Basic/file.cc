@@ -127,7 +127,7 @@ int RecursiveCopier::nextStep()
 	    mErrRet("Cannot create directory ",destfile.fullPath())
     }
     else if ( !File::copy(srcfile.fullPath(),destfile.fullPath()) )
-	    mErrRet("Cannot create file ", destfile.fullPath())
+	mErrRet("Cannot create file ", destfile.fullPath())
 
     fileidx_++;
     return MoreToDo();
@@ -291,8 +291,16 @@ bool isWritable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    QFile qfile( fnm );
-    return qfile.isOpen();
+    HANDLE handle = CreateFileA( fnm, 
+				 GENERIC_READ | GENERIC_WRITE,
+				 0,
+				 0,
+				 OPEN_EXISTING,
+				 0,
+				 0 );
+    const bool ret = handle == INVALID_HANDLE_VALUE;
+    CloseHandle( handle );
+    return ret;
 #else
     return false;
 #endif
@@ -376,6 +384,15 @@ bool copy( const char* from, const char* to )
 }
 
 
+bool move( const char* from, const char* to )
+{
+#ifdef __win__
+    return winMove( from, to, isFile(from) );
+#endif
+    return true;
+}
+
+
 bool copyDir( const char* from, const char* to )
 {
     if ( !from || !exists(from) || !to || !*to || exists(to) )
@@ -395,7 +412,7 @@ bool copyDir( const char* from, const char* to )
     cmd.add(" '").add(from).add("' '").add(to).add("'");
 #endif
 
-    bool res = !system( cmd );
+    bool res = system( cmd ) != -1;
     if ( res ) res = exists( to );
 #endif
     return res;
@@ -442,6 +459,24 @@ bool changeDir( const char* dir )
     return _chdir( dir );
 #else
     return chdir( dir );
+#endif
+}
+
+
+bool getCurWorkDir( char* dir, int pathlen )
+{
+#ifdef __win__
+    _getcwd( dir, pathlen );
+    if ( !dir || !*dir )
+	return false;
+    else
+	return true;
+#else
+    getcwd( dir, pathlen );
+    if ( !dir || !*dir )
+	return false;
+    else
+	return true;
 #endif
 }
 
@@ -601,11 +636,7 @@ const char* getCurrentPath()
 #ifndef OD_NO_QT
     pathstr = QDir::currentPath().toAscii().constData();
 #else
-# ifdef __win__
-    _getcwd( pathstr.buf(), pathstr.minBufSize() );
-# else
-    getcwd( pathstr.buf(), pathstr.minBufSize() );
-# endif
+    pFreeFnErrMsg(not_implemented_str,"getCurrentPath");
 #endif
     return pathstr.buf();
 }

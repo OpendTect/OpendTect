@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emobject.h"
 
@@ -176,7 +176,8 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	    if ( !&nodes ) continue;
 
-	    if ( nodes.isPresent(pid) )
+	    const int idy = nodes.indexOf(pid);
+	    if ( idy!=-1 )
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
     }
@@ -371,7 +372,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( idy==-1 && yn )
 	posids += pid;
     else if ( idy!=-1 && !yn )
-	posids.removeSingle( idy, false );
+	posids.remove( idy, false );
     else 
 	return;
 
@@ -389,7 +390,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
     const int idx = attribs_.indexOf( attr );
-    return idx != -1 && posattribs_[idx]->posids_.isPresent( pid );
+    return idx != -1 && posattribs_[idx]->posids_.indexOf( pid ) != -1;
 }
 
 
@@ -487,19 +488,20 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	{
 	    unSetPos( sectionID(idx), removallist[sididx], true );
 
-	    BinID bid = BinID::fromInt64( removallist[sididx] );
+	    BinID bid;
+	    bid.fromInt64( removallist[sididx] );
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 		    			      = bid;
 		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
-		    			      = (float) pos.z;
+		    			      = pos.z;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hrg.include(bid);
-		removebypolyposbox_.zrg.include((float) pos.z);
+		removebypolyposbox_.zrg.include(pos.z);
 	    }
 
 	    if ( ++poscount >= 10000 )
@@ -648,10 +650,9 @@ bool EMObject::usePar( const IOPar& par )
 	const int minsz = mMIN( sections.size(), subids.size() );
 	for ( int idy=0; idy<minsz; idy++ )
 	{
-	    if ( !isDefined(mCast(EM::SectionID,sections[idy]),subids[idy]) )
+	    if ( !isDefined(sections[idy],subids[idy]) )
 		continue;
-	    const PosID pid = PosID( id(),
-		mCast(EM::SectionID,sections[idy]), subids[idy] );
+	    const PosID pid = PosID( id(), sections[idy], subids[idy] );
 	    setPosAttrib( pid, attrib, true, false );
 	}
 

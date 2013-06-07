@@ -12,19 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uicombobox.h"
 #include "uigroup.h"
 #include "flatview.h"
 
-class uiAutoRangeClipDlg;
 class uiColorTableCanvas;
 class uiLineEdit;
 
 
 namespace ColTab { class Sequence; class MapperSetup; }
 
-mExpClass(uiTools) uiColorTableSel : public uiComboBox
+mClass uiColorTableSel : public uiComboBox
 {
 public:
     			uiColorTableSel(uiParent*,const char* nm);
@@ -38,7 +36,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiColorTable : public uiGroup
+mClass uiColorTable : public uiGroup
 {
 public:
 
@@ -84,7 +82,6 @@ protected:
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
     uiColorTableSel*	selfld_;
-    uiAutoRangeClipDlg*	scalingdlg_;
 
     bool		enabletrans_;
 
@@ -108,4 +105,3 @@ protected:
 
 
 #endif
-

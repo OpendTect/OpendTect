@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "transform.h"
 #include "bufstring.h"
 
@@ -22,12 +21,7 @@ template <class T> class ArrayND;
 
 typedef std::complex<float> float_complex;
 
-
-/*!
-\brief Class to compute Hilbert Transform.
-*/
-
-mExpClass(Algo) HilbertTransform
+mClass HilbertTransform
 {
 public:
     			HilbertTransform();
@@ -79,4 +73,3 @@ protected:
 
 
 #endif
-

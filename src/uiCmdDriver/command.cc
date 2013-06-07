@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "command.h"
 
@@ -354,11 +354,11 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 		{
 		    nrgrey++;
 		    if ( greyOutsSkipped() )
-			items.removeSingle( itmidx );
+			items.remove( itmidx );
 		}
 	    }
 	    else
-		items.removeSingle( itmidx );
+		items.remove( itmidx );
 	}
 	FileMultiString tmpstr( pathstr ); tmpstr += itemstr;
 	mParStrPreRet( "menu item", items, nrgrey, tmpstr.unescapedStr(),
@@ -387,7 +387,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	for ( int idx=items.size()-1; idx>=0; idx-- )
 	{
 	    if ( greyOutsSkipped() && !items[idx]->isEnabled() )
-		items.removeSingle( idx );
+		items.remove( idx );
 	}
 	*curitmidx = items.indexOf( curitem );
     }

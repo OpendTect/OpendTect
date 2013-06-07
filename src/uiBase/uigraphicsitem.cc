@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 
 #include "uicursor.h"
-#include "uimain.h"
 #include "bufstringset.h"
 
 #include "draw.h"
@@ -27,17 +26,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTransform>
 
 
-mUseQtnamespace
-
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     : qgraphicsitem_(itm)
     , scene_(0)
     , id_(getNewID())
     , selected_(false)
-    , translation_( 0, 0 )
-    , scale_( 1, 1 )
-    , angle_( 0 )
 {
 }
 
@@ -90,72 +84,23 @@ uiRect uiGraphicsItem::boundingRect() const
 }
 
 
-void uiGraphicsItem::setPos( float x, float y )
-{ stPos( x, y ); }
-
-
-void uiGraphicsItem::setPos( const uiPoint& p )
-{ stPos( p.x, p.y ); }
-
-
-void uiGraphicsItem::setPos( const uiWorldPoint& p )
-{ stPos( p.x, p.y ); }
-
-
-void uiGraphicsItem::setPos( const Geom::Point2D<float>& p )
-{ stPos(p.x, p.y); }
-
-
-
-void uiGraphicsItem::stPos( float x, float y )
-{
-    translation_.x = x;
-    translation_.y = y;
-
-    updateTransform();
-}
-
+void uiGraphicsItem::stPos( int x, int y )
+{ qgraphicsitem_->setPos( x, y ); }
 
 void uiGraphicsItem::moveBy( float x, float y )
-{
-    translation_.x += x;
-    translation_.y += y;
-    updateTransform();
-}
+{ qgraphicsitem_->moveBy( x, y ); }
 
-void uiGraphicsItem::setRotation( float angle )
-{
-    angle_ = angle;
-    updateTransform();
-}
+void uiGraphicsItem::rotate( float angle )
+{ qgraphicsitem_->rotate( angle ); }
 
+void uiGraphicsItem::scale( float sx, float sy )
+{ qgraphicsitem_->scale( sx, sy ); }
 
-void uiGraphicsItem::setScale( float sx, float sy )
-{
-    scale_.x = sx;
-    scale_.y = sy;
-
-    updateTransform();
-}
-
-
-void uiGraphicsItem::updateTransform()
-{
-    QTransform transform;
-    transform.translate( translation_.x, translation_.y );
-    transform.scale( scale_.x, scale_.y );
-    transform.rotate( angle_ );
-
-    qgraphicsitem_->setTransform( transform );
-}
-
-/*
- * void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
+void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 {
     qgraphicsitem_->setTransform( QTransform().translate(x,y)
 	   			  .scale(sx,sy).translate(-x,-y) );
 }
-*/
 
 void uiGraphicsItem::setZValue( int zval )
 { qgraphicsitem_->setZValue( zval ); }
@@ -180,7 +125,6 @@ void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
     if ( withalpha ) color.setAlpha( col.t() );
 
     QPen qpen( color );
-    qpen.setCosmetic( true );
     agsitm->setPen( qpen );
 }
 
@@ -209,6 +153,13 @@ void uiGraphicsItem::setParent( uiGraphicsItem* item )
 }
 
 
+uiGraphicsItem* uiGraphicsItem::addToScene( uiGraphicsScene* sc )
+{
+    if ( sc ) sc->doAddItem( this );
+    return this;
+}
+
+
 void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
@@ -218,7 +169,6 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
     if ( colorwithalpha ) color.setAlpha( ls.color_.t() );
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
-    qpen.setCosmetic( true );
     agsitm->setPen( qpen );
 }
 
@@ -276,10 +226,6 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 }
 
 
-void uiGraphicsItem::setToolTip( const char* tt )
-{ qgraphicsitem_->setToolTip( tt ); }
-
-
 void uiGraphicsItemSet::setZValue( int zval )
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -287,12 +233,6 @@ void uiGraphicsItemSet::setZValue( int zval )
 	if ( (*this)[idx] )
 	    (*this)[idx]->setZValue( zval );
     }
-}
-
-
-int uiGraphicsItem::getZValue() const
-{
-    return mNINT32(qgraphicsitem_->zValue());
 }
 
 
@@ -304,15 +244,6 @@ uiGraphicsItemGroup::uiGraphicsItemGroup( bool owner )
     , isvisible_(true)
     , owner_(owner)
 {}
-
-
-void uiGraphicsItemGroup::setScene( uiGraphicsScene* scene )
-{
-    uiGraphicsItem::setScene( scene );
-    for ( int idx=0; idx<items_.size(); idx++ )
-	items_[idx]->setScene( scene );
-
-}
 
 
 uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
@@ -343,18 +274,8 @@ QGraphicsItem* uiGraphicsItemGroup::mkQtObj()
 
 void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 {
-    if ( !isMainThreadCurrent() )
-    {
-	scene_->addUpdateToQueue(
-		new uiGraphicsSceneChanger(*this,*itm,false) );
-    }
-    else
-    {
-	items_ += itm;
-	itm->setScene( scene_ );
-	itm->setParent( this );
-	qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
-    }
+    items_ += itm;
+    qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
 }
 
 
@@ -363,9 +284,6 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
     if ( !itm ) return;
 
     items_ -= itm;
-    itm->setScene( 0 );
-    itm->setParent( 0 );
-
     QGraphicsItem* qitm = itm->qGraphicsItem();
     qgraphicsitemgrp_->removeFromGroup( qitm );
     if ( withdelete )

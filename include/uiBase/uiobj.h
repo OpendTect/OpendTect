@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
@@ -20,7 +19,6 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
-mFDQtclass(QWidget)
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
@@ -28,15 +26,13 @@ class uiParent;
 class uiMainWin;
 class i_LayoutItem;
 class ioPixmap;
+class QWidget;
 class uiObjEventFilter;
 
 
-/*!
-\ingroup uiBase
-\brief The base class for most UI elements.
-*/
+/*!\ The base class for most UI elements. */
 
-mExpClass(uiBase) uiObject : public uiBaseObject
+mClass uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;
@@ -95,13 +91,11 @@ public:
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);
-    void		setPrefWidthInChar(int);
-    void		setPrefWidthInChar(float);
+    void                setPrefWidthInChar(float);
     void		setMinimumWidth(int);
     void		setMaximumWidth(int);
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
-    void		setPrefHeightInChar(int);
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
@@ -143,11 +137,9 @@ public:
     void		reParent(uiParent*);
     
     uiMainWin*		mainwin();
-    
-    mQtclass(QWidget*)	getWidget() { return qwidget(); }
-    mQtclass(QWidget*)	qwidget();
-    const mQtclass(QWidget*)	qwidget() const
-			      { return const_cast<uiObject*>(this)->qwidget(); }
+    QWidget*		qwidget();
+    const QWidget*	qwidget() const
+			{ return const_cast<uiObject*>(this)->qwidget(); }
 
     virtual bool	handleLongTabletPress();
 
@@ -191,7 +183,7 @@ private:
 
 
 #define mQStringToConstChar( str ) \
-    str.toLatin1().constData()
+    str.toAscii().constData()
 
 
 #define mTemplTypeDef(fromclass,templ_arg,toclass) \
@@ -200,9 +192,83 @@ private:
 	mTemplTypeDef(fromclass,templ_arg,toclass)
 
 
-#define mUsrEvGuiThread	   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 0 )
-#define mUsrEvPopUpReady   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 1 )
-#define mUsrEvLongTabletPress  mQtclass(QEvent)::Type(mQtclass(QEvent)::User+2)
+#define mUsrEvGuiThread			QEvent::Type( QEvent::User + 0 )
+#define mUsrEvPopUpReady		QEvent::Type( QEvent::User + 1 )
+#define mUsrEvLongTabletPress		QEvent::Type( QEvent::User + 2 )
+
+
+/*! \page uiBase Basic User Interface (uiBase)
+
+  \section intro Introduction
+
+This module is a set of cooperating classes that enable creating User
+Interfaces. This layer on top of the already wonderful Qt package was created
+because of the following problems:
+
+- Qt provides an enormous set of tools, of which we need only a fraction
+- On the other hand, Qt does not offer things like:
+   - Selection of widget on basis of data characteristics
+   - Automated 'black-box' layouting (enabling full grouping into new classes)
+   - Integration with our data types
+   - Generalised Callback/Notifier support (instead of Qt's Signal/Slot)
+- If we use Qt directly, no isolation is present.
+
+Therefore, as with most external libraries, we chose to make a new layer to
+combine the power of Qt with the flexibility of more generalised design
+principles.
+
+
+\section usage Usage
+
+The basic principles are:
+- Objects are linked to each other in the window by attaching. This determines
+  the layout of the window.
+- Events are notified by specifically asking a Notifier in the class.
+- All objects can be grouped; every group must be prepared to be attached to
+  other UI elements; this is done by assigning one of the objects as being
+  the 'align object'.
+- 'Simple' data input should preferably be done through the uiGenInput
+  class (see uiTools module).
+
+The Qt window painting facilities are only used for quick sketching, the
+code generation capacity is not used. Example:
+
+<code>
+    IntInpSpec spec( lastnrclasses );<br>
+    spec.setLimits( Interval<int>( 0, 100 ) );<br>
+    nrclassfld = new uiGenInput( this, "Number of classes", spec );<br>
+<br>
+    FloatInpSpec inpspec( lastratiotst*100 );<br>
+    inpspec.setLimits( Interval<float>( 0, 100 ) );<br>
+    perctstfld = new uiGenInput( this, "Percentage used for test set",
+	    				inpspec );<br>
+    perctstfld->attach( alignedBelow, nrclassfld );<br>
+    <br>
+    defbut = new uiPushButton( this, "Default" ); <br>
+    defbut->activated.notify( mCB(this,ThisClass,setPercToDefault) ); <br>
+    defbut->attach( rightOf, perctstfld );
+</code>
+
+Note that all objects could have been made:
+- Conditional (only if a condition is met)
+- Iterative (any number that may be necessary)
+- As part of a group (e.g. to later treat as one uiObject)
+- From a Factory (for example an object transforming a string into a uiObject).
+
+
+\section design Design
+
+In the uiBase directory, you'll find classes that directly communicate with Qt
+to implement (parts of) this strategy. To keep the header files uncoupled
+from the Qt header files, there is a mechanism where the 'ui' class has a
+'ui'-Body class that is a subclass of a Qt class.
+
+Almost every 'visible' object is a uiObject. Besides the different subclasses,
+there is also the uiGroup which is just another uiObject. The windows holding
+these are (like uiObjects) uiBaseObject's. The uiMainWin is a subclass, and
+the ubiquitous uiDialog.
+
+*/
+
 
 #endif
-

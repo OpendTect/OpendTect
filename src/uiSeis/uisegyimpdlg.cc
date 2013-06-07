@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegyimpdlg.h"
 
@@ -83,7 +83,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     if ( !optsgrp_ )
     {
-	uiToolButton* tb = new uiToolButton( this, "prescan",
+	uiToolButton* tb = new uiToolButton( this, "prescan.png",
 				"Pre-scan file(s)",
 				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );
@@ -196,8 +196,7 @@ bool doImp( const FilePath& fp )
     }
 
     BufferString fullmaskfnm( maskfp.fullPath() );
-    int lnmoffs = mCast( int, strstr( fullmaskfnm.buf(), "*" ) - 
-	                                   fullmaskfnm.buf() );
+    int lnmoffs = strstr( fullmaskfnm.buf(), "*" ) - fullmaskfnm.buf();
     const int orglen = fullmaskfnm.size();
     bool nofails = true;
 
@@ -337,7 +336,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     uiTaskRunner dlg( this );
-    rv = TaskRunner::execute( &dlg, *imp );
+    rv = dlg.execute( *imp );
     BufferStringSet warns;
     if ( imp && imp->nrSkipped() > 0 )
 	warns += new BufferString("During import, ", imp->nrSkipped(),

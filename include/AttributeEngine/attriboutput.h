@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "ranges.h"
@@ -37,11 +36,7 @@ class DataHolder;
 class DataCubes;
 class Data2DHolder;
 
-/*!
-\brief Base class for attribute Output.
-*/
-
-mExpClass(AttributeEngine) Output
+mClass Output
 { mRefCountImpl(Output);
 public:
     				Output();
@@ -71,7 +66,6 @@ public:
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
-    virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
     static const char*          cubekey();
@@ -86,6 +80,10 @@ protected:
     TypeSet<int>		desoutputs_;
     void			doSetGeometry(const CubeSampling&);
     void			ensureSelType(Seis::SelType);
+
+public:
+    virtual bool                finishWrite()           { return false; }
+    void			setMainAttrName(const BufferString&);
 };
 
 
@@ -96,11 +94,8 @@ protected:
 	    					    TypeSet<float>& ts ) const \
     				{ return Output::getLocalZRanges(t,f,ts); }
 
-/*!
-\brief Attribute DataCubes Output.
-*/
 
-mExpClass(AttributeEngine) DataCubesOutput : public Output
+mClass DataCubesOutput : public Output
 {
 public:
 				DataCubesOutput(const CubeSampling&);
@@ -135,11 +130,7 @@ protected:
 };
 
 
-/*!
-\brief Seismic trace storage Output.
-*/
-
-mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
+mClass SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
@@ -159,7 +150,6 @@ public:
 				{ doSetGeometry(cs); }
 
     bool			doUsePar(const IOPar&);
-    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
@@ -170,6 +160,7 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
+    bool 			isDataType(const char*) const;
     const char*			errMsg() const	{ return errmsg_.str(); }
 
     static const char*		seisidkey();
@@ -200,15 +191,11 @@ protected:
 
 public:
     void			deleteTrc(); //only if you do not use writeTrc
-    
+    virtual bool                finishWrite();
 };
 
 
-/*!
-\brief 2D trace Output with variable Z range. 
-*/
-
-mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
+mClass Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
@@ -224,7 +211,6 @@ public:
     				mImplDefAttribOutputFns(BinID)
     void			setTrcsBounds(Interval<float>);
 
-    virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			setMaxDistBetwTrcs( float maxdist )
@@ -238,14 +224,13 @@ protected:
     float			stdstarttime_;
     float			outval_;
     float			maxdisttrcs_;
+
+public:
+    virtual bool                finishWrite();
 };
 
 
-/*!
-\brief Simple 2D Output
-*/
-
-mExpClass(AttributeEngine) TwoDOutput : public Output
+mClass TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
@@ -276,11 +261,7 @@ protected:
 };
 
 
-/*!
-\brief Output at discrete locations ( For example a pickset. )
-*/
-
-mExpClass(AttributeEngine) LocationOutput : public Output
+mClass LocationOutput : public Output
 {
 public:
     				LocationOutput(BinIDValueSet&);
@@ -313,18 +294,15 @@ protected:
 };
 
 
-/*!
-\brief Output at an assorted selection of traces.
-*/
-
-mExpClass(AttributeEngine) TrcSelectionOutput : public Output
+mClass TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
-    bool			getDesiredVolume(CubeSampling&) const;
+    bool			getDesiredVolume(CubeSampling&) const
+				{ return true;}
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
@@ -344,11 +322,7 @@ protected:
 };
 
 
-/*!
-\brief Output at a selection of locations.
-*/
-
-mExpClass(AttributeEngine) TableOutput : public Output
+mClass TableOutput : public Output
 {
 public:
     				TableOutput(DataPointSet&,int);
@@ -391,4 +365,3 @@ protected:
 
 
 #endif
-

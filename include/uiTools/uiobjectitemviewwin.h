@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 /*! brief A uiMainWin that holds embedded uiObjects and controls !*/
 
-#include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uigroup.h"
 #include "uiobjectitemview.h"
@@ -33,11 +32,11 @@ class uiGraphicsObjectScene;
 class uiAxisHandler;
 class uiBorder;
 
-mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
+mClass uiObjectItemViewWin : public uiMainWin
 {
 public:    
 
-    mExpClass(uiTools) Setup
+    mClass Setup
     {
     public:
 
@@ -114,7 +113,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
+mClass uiObjectItemViewInfoBar : public uiObjectItemView
 {
 public:    
 
@@ -139,7 +138,7 @@ protected:
 
 
 
-mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
+mClass uiObjectItemViewControl : public uiGroup
 {
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
@@ -161,7 +160,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
+mClass uiObjectItemViewAxisPainter : public CallBacker
 {
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);
@@ -182,4 +181,3 @@ protected:
 
 
 #endif
-

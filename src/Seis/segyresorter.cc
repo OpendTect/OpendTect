@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"
@@ -85,17 +85,17 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	{
 	    case Seis::Vol:
 	    {
-		Translator* tr = ioobj->createTranslator();
+		Translator* tr = ioobj->getTranslator();
 		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,tr)
 		if ( !str )
 		    { msg_ = "Input must be scanned SEG-Y cube"; delete tr; }
 		else
 		{
-		    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+		    Conn* conn = ioobj->getConn( Conn::Read );
 		    if ( !conn )
 			{ msg_ = "Cannot open SEG-Y scan file"; delete str; }
 		    else if ( !str->initRead(conn) )
-			{ msg_ = str->errMsg(); delete str; }
+			{ msg_ = str->errMsg(); delete str; delete conn; }
 		    else
 			drdr_ = str;
 		}
@@ -265,6 +265,7 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
 bool SEGY::ReSorter::createOutput( const BinID& bid )
 {
     const bool is2d = Seis::is2D( setup_.geom_ );
+    const bool isps = Seis::isPS( setup_.geom_ );
 
     if ( nrdone_ < 1 )
     {
@@ -292,7 +293,7 @@ bool SEGY::ReSorter::createOutput( const BinID& bid )
 	const int fidx = ensureFileOpen( fdstidx.filenr_ );
 	if ( fidx < 0 )
 	    return false;
-	else if ( !readData(fidx,mCast(int,fdstidx.trcidx_)) )
+	else if ( !readData(fidx,fdstidx.trcidx_) )
 	    return false;
 	else if ( !writeData() )
 	    return false;

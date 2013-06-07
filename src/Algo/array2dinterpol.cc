@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "array2dinterpolimpl.h"
 
@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyFillType()		{ return "Fill Type"; }
 static const char* sKeyRowStep() 		{ return "Row Step"; }
 static const char* sKeyColStep() 		{ return "Col Step"; }
-static const char* sKeyOrigin() 		{ return "Origin"; }
 static const char* sKeyNrRows() 		{ return "Nr of Rows"; }
 static const char* sKeyNrCols() 		{ return "Nr of Cols"; }
 static const char* sKeyNrCells() 		{ return "Nr of Cells"; }
@@ -40,11 +39,11 @@ DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 
 mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 
-class Extension2DInterpolExecutor : public Executor
+class A2DIntExtenExecutor : public Executor
 {
 public:
-    		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
-		~Extension2DInterpolExecutor()  { deleteStateArr(); }
+    				A2DIntExtenExecutor(Array2DInterpolExtension&);
+				~A2DIntExtenExecutor()  { deleteStateArr(); }
 			
     int		nextStep();
     const char*	message() const		{ return curmsg_; }
@@ -69,25 +68,24 @@ protected:
     float	diagdist_;
     const char*	curmsg_;
     
-    ExtensionArray2DInterpol&	aie_;
+    Array2DInterpolExtension&	aie_;
 };
 
 									    
 Array2DInterpol::Array2DInterpol()
-    : arr_(0)
-    , arrsetter_(0)
-    , nrcells_(-1)
-    , nrrows_(-1)
-    , nrcols_(-1)
-    , filltype_(Full)
-    , maxholesize_(mUdf(float))
-    , rowstep_(1)
-    , colstep_(1)
-    , origin_(-1,-1)
-    , mask_(0)
-    , maskismine_(false)
-    , isclassification_(false)
-    , statsetup_(0)
+    : arr_( 0 )
+    , arrsetter_( 0 )
+    , nrcells_( -1 )
+    , nrrows_( -1 )
+    , nrcols_( -1 )
+    , filltype_( Full )
+    , maxholesize_( mUdf(float) )
+    , rowstep_( 1 )
+    , colstep_( 1 )
+    , mask_( 0 )
+    , maskismine_( false )
+    , isclassification_( false )
+    , statsetup_( 0 )
 {}
 
 
@@ -117,14 +115,14 @@ void Array2DInterpol::setRowStep( float rs )
 void Array2DInterpol::setColStep( float cs )
 { colstep_ = cs; arr_ = 0; arrsetter_ = 0; }
 
-void Array2DInterpol::setOrigin( const RowCol& rc )
-{ origin_ = rc; }
 
 Array2DInterpol::FillType Array2DInterpol::getFillType() const
 { return filltype_; }
 
+
 void Array2DInterpol::setMaxHoleSize( float maxholesize )
 { maxholesize_ = maxholesize; arr_ = 0; arrsetter_=0; }
+
 
 float Array2DInterpol::getMaxHoleSize() const
 { return maxholesize_; }
@@ -214,10 +212,11 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	def = owndef.ptr();
     }
 
+    bool initialstate = true;
+
     MemSetter<bool> setter( shouldinterpol, filltype_!=ConvexHull,
 	    		    nrcells_ );
-    
-    TaskRunner::execute( tr, setter );
+    const bool res = tr ? tr->execute(setter) : setter.execute();
 
     if ( filltype_==ConvexHull )
     {
@@ -474,7 +473,7 @@ bool Array2DInterpol::doPrepare( int )
 }
 
 
-void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
+void Array2DInterpol::setFrom( int target, const int* sources,
 			       const float* weights, int nrsrc)
 {
     if ( !nrsrc )
@@ -494,8 +493,8 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
     {
 	mDoLoop( const float val = ptr[sources[idx]] );
 	ptr[target] = isclassification_
-	    ? (float) calc.mostFreq() 
-	    : (float) calc.average();
+	    ? calc.mostFreq()
+	    : calc.average();
     }
     else
     {
@@ -504,19 +503,14 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 	{
 	    mDoLoop( const float val = storage->value(sources[idx]) );
 	    storage->setValue(target,
-		isclassification_
-		    ? (float) calc.mostFreq()
-		    : (float) calc.average());
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
 	else
 	{
-	    mDoLoop( const od_int64 src = sources[idx];
-	        const float val =
-		  arr_->get(mCast(int,src/nrcols_),mCast(int,src%nrcols_) ) );
-	    arr_->set( mCast(int,target/nrcols_), mCast(int,target%nrcols_),
-		isclassification_
-		? (float) calc.mostFreq()
-		: (float) calc.average());
+	    mDoLoop( const int src = sources[idx];
+		     const float val = arr_->get(src/nrcols_,src%nrcols_ ) );
+	    arr_->set( target/nrcols_, target%nrcols_,
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
     }
 }
@@ -534,7 +528,8 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
     {
 	const int curseedidx = seeds.size()-1;
 	const int curseed = seeds[curseedidx];
-	seeds.removeSingle( curseedidx, false );
+	seeds.remove( curseedidx, false );
+
 	mGoToNeighbor( curseed-nrcols_ ); //Prev row
 	mGoToNeighbor( curseed+nrcols_ ); //Next row
 
@@ -598,7 +593,6 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyFillType(), filltype_ );
     par.set( sKeyRowStep(), rowstep_ );
     par.set( sKeyColStep(), colstep_ );
-    par.set( sKeyOrigin(), origin_.row, origin_.col );
     par.set( sKeyNrRows(), nrrows_ );
     par.set( sKeyNrCols(), nrcols_ );
     par.set( sKeyNrCells(), nrcells_ );
@@ -615,7 +609,6 @@ bool Array2DInterpol::usePar( const IOPar& par )
 
     par.get( sKeyRowStep(), rowstep_ );
     par.get( sKeyColStep(), colstep_ );
-    par.get( sKeyOrigin(), origin_.row, origin_.col );
     par.get( sKeyNrRows(), nrrows_ );
     par.get( sKeyNrCols(), nrcols_ );
     par.get( sKeyNrCells(), nrcells_ );
@@ -741,9 +734,10 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
     }
     else
     {
-	const int rowradius = mNINT32( searchradius_/rowstep_ );
-	const int colradius = mNINT32( searchradius_/colstep_ );
-	const float radius2 = searchradius_*searchradius_;
+	const int rowradius = (int) ceil( searchradius_/rowstep_ );
+	const int colradius = (int) ceil( searchradius_/colstep_ );
+
+	float radius2 = searchradius_*searchradius_;
 	neighbors_.erase();
 	neighborweights_.erase();
 
@@ -763,7 +757,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		if ( dist2>radius2 )
 		    continue;
 
-		const float weight = 1.0f/Math::Sqrt( dist2 );
+		const float weight = 1.0/Math::Sqrt( dist2 );
 
 		neighbors_ += RowCol(relrow,relcol);
 		neighborweights_ += weight;
@@ -795,7 +789,7 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 {
     ArrPtrMan<float> weights = 0;
-    ArrPtrMan<od_int64> sources = 0;
+    ArrPtrMan<int> sources = 0;
 
     int rowradius,colradius;
 
@@ -813,7 +807,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	const int maxnr = (rowradius*2+1)*(colradius*2+1)-1;
 
 	mTryAllocPtrMan( weights, float[maxnr] );
-	mTryAllocPtrMan( sources, od_int64[maxnr] );
+	mTryAllocPtrMan( sources, int[maxnr] );
 	if ( !weights )
 	    return false;
     }
@@ -824,21 +818,21 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	if ( idx<0 )
 	    break;
 
-	int targetrow = (int) idx/nrcols_, targetcol = (int) idx%nrcols_;
+	int targetrow = idx/nrcols_, targetcol = idx%nrcols_;
 
 	if ( definedidxs_.size() ) //No search radius, do all pts
 	{
 	    for ( int idy=definedidxs_.size()-1; idy>=0; idy-- )
 	    {
-		const od_int64 source = definedidxs_[idy];
-		const float sourcerow = mCast(float,source/nrcols_);
-		const float sourcecol = mCast(float,source%nrcols_);
+		const int source = definedidxs_[idy];
+		const float sourcerow = source/nrcols_;
+		const float sourcecol = source%nrcols_;
 
 		const float rowdist = (targetrow-sourcerow)*rowstep_;
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = mNINT32(coldist*coldist);
-		const float weight = 1.f/Math::Sqrt( coldist2+rowdist2 );
+		const float weight = 1./Math::Sqrt( coldist2+rowdist2 );
 
 		weights[idy] = weight;
 	    }
@@ -910,8 +904,7 @@ class InvDistArr2DGridFindSources : public ParallelTask
 public:
     InvDistArr2DGridFindSources( const bool* def, const bool* nodestofill,
 	    			 int nrrows, int nrcols,
-				 TypeSet<od_int64>& res,
-				 TypeSet<od_int64>& nrs,
+				 TypeSet<int>& res, TypeSet<int>& nrs,
 				 int stepsize, bool cornersfirst )
 	    : nrcells_( nrrows * nrcols )
 	    , nrrows_( nrrows )
@@ -936,16 +929,16 @@ public:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	int maxnrsources = 0;
-	TypeSet<od_int64> localres;
-	TypeSet<od_int64> nrsourceslist;
+	TypeSet<int> localres;
+	TypeSet<int> nrsourceslist;
 
-	for ( od_int64 idx=start; idx<=stop; idx++ )
+	for ( int idx=start; idx<=stop; idx++ )
 	{
 	    if ( curdefined_[idx] || !nodestofill_[idx] )
 		continue;
 
-	    const int col = mCast(int,idx%nrcols_);
-	    const int row = mCast(int,idx/nrcols_);
+	    const int col = idx%nrcols_;
+	    const int row = idx/nrcols_;
 
 	    int nrsources = 0;
 
@@ -963,7 +956,7 @@ public:
 
 		for ( int idz=-stepsize_; idz<=stepsize_; idz++ )
 		{
-		    const od_int64 offset = idx+idy+idz*nrcols_;
+		    const int offset = idx+idy+idz*nrcols_;
 
 		    if ( offset<0 )
 		    {
@@ -1046,8 +1039,8 @@ protected:
     int				nrcols_;
     const bool*			curdefined_;
     const bool*			nodestofill_;
-    TypeSet<od_int64>&		res_;
-    TypeSet<od_int64>&		nrsourceslist_;
+    TypeSet<int>&		res_;
+    TypeSet<int>&		nrsourceslist_;
     int				stepsize_;
     int				maxnrsources_;
     bool			cornersfirst_;
@@ -1150,8 +1143,8 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
     }
 
     //Take the last item from list
-    const od_int64 res = todothisstep_[nrleft-1];
-    todothisstep_.removeSingle( nrleft-1 );
+    const int res = todothisstep_[nrleft-1];
+    todothisstep_.remove( nrleft-1 );
     if ( nrsources_.size() )
     {
 	//If nr of node support changed since last pos, update list
@@ -1169,7 +1162,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 	}
 
 	prevsupportsize_ = nrsources_[nrleft-1];
-	nrsources_.removeSingle( nrleft-1 );
+	nrsources_.remove( nrleft-1 );
     }
 
     mRet( res );
@@ -1356,7 +1349,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     DelaunayTriangulator triangulator( *triangulation_ );
     triangulator.dataIsRandom( false );
 
-    if ( !TaskRunner::execute( tr, triangulator ) )
+    if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
 	return false;
     
     if ( triangleinterpolator_ )
@@ -1401,6 +1394,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
     if ( !triangleinterpolator_ )
 	return false;
 
+    int dupid = -1;
     TypeSet<od_int64> currenttask;
     TypeSet<od_int64> definedidices;
 
@@ -1413,13 +1407,13 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	for ( int idx=0; idx<currenttask.size(); idx++, addToNrDone(1) )
 	{
 	    const od_int64 curnode = currenttask[idx];
-	    const int row = mCast(int,curnode/nrcols_);
-	    const int col = mCast(int,curnode%nrcols_);
+	    const int row = curnode/nrcols_;
+	    const int col = curnode%nrcols_;
 	    const Coord crd(rowstep_*row, colstep_*col);
 
 	    TypeSet<int> vertices;
 	    TypeSet<float> weights;
-	    TypeSet<od_int64> usedindices;
+	    TypeSet<int> usedindices;
 	    if ( !triangleinterpolator_->computeWeights( crd, vertices,
 			weights, maxdistance_, dointerpolation_ ) )
 		return false;
@@ -1463,28 +1457,28 @@ bool TriangulationArray2DInterpol::usePar( const IOPar& par )
 //!< The higher the state, the further the node is away from 'defined space'
 
 
-ExtensionArray2DInterpol::ExtensionArray2DInterpol()
+Array2DInterpolExtension::Array2DInterpolExtension()
     : executor_( 0 )
     , nrsteps_( 0 )
 {}
 
 
-ExtensionArray2DInterpol::~ExtensionArray2DInterpol()
+Array2DInterpolExtension::~Array2DInterpolExtension()
 {
     delete executor_;
 }
 
 
-bool ExtensionArray2DInterpol::doWork( od_int64, od_int64, int thread )
+bool Array2DInterpolExtension::doWork( od_int64, od_int64, int thread )
 {
     if ( !executor_ )
-	executor_ = new Extension2DInterpolExecutor( *this );
+	executor_ = new A2DIntExtenExecutor( *this );
 
     return executor_->execute();
 }
 
 
-bool ExtensionArray2DInterpol::fillPar( IOPar& par ) const
+bool Array2DInterpolExtension::fillPar( IOPar& par ) const
 {
     Array2DInterpol::fillPar( par );
     par.set( sKeyNrSteps(), nrsteps_ );
@@ -1492,7 +1486,7 @@ bool ExtensionArray2DInterpol::fillPar( IOPar& par ) const
 }
 
 
-bool ExtensionArray2DInterpol::usePar( const IOPar& par )
+bool Array2DInterpolExtension::usePar( const IOPar& par )
 {
     Array2DInterpol::usePar( par );
     par.get( sKeyNrSteps(), nrsteps_ );
@@ -1500,7 +1494,7 @@ bool ExtensionArray2DInterpol::usePar( const IOPar& par )
 }
 
 
-Extension2DInterpolExecutor::Extension2DInterpolExecutor( ExtensionArray2DInterpol& aie )
+A2DIntExtenExecutor::A2DIntExtenExecutor( Array2DInterpolExtension& aie )
     : Executor("2D Interpolation")
     , aie_(aie)
     , state_(0)
@@ -1512,7 +1506,7 @@ Extension2DInterpolExecutor::Extension2DInterpolExecutor( ExtensionArray2DInterp
 }
 
 
-void Extension2DInterpolExecutor::createStateArr()
+void A2DIntExtenExecutor::createStateArr()
 {
     state_ = new short* [aie_.nrrows_];
     for ( int idx=0; idx<aie_.nrrows_; idx++ )
@@ -1524,6 +1518,7 @@ void Extension2DInterpolExecutor::createStateArr()
     
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
     {
+	bool havedef = false;
 	for ( int icol=0; icol<aie_.nrcols_; icol++ )
 	{
 	    const float val = aie_.arr_->get( irow, icol );
@@ -1533,7 +1528,7 @@ void Extension2DInterpolExecutor::createStateArr()
 }
 
 
-void Extension2DInterpolExecutor::deleteStateArr()
+void A2DIntExtenExecutor::deleteStateArr()
 {
     if ( !state_ ) return;
     
@@ -1545,12 +1540,12 @@ void Extension2DInterpolExecutor::deleteStateArr()
 }
 
 
-bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
+bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
 {
     float val;
     if ( interpExtension(irow,icol,val) )
     {
-	state_[irow][icol] = mCast(short,curlvl_ + 1);
+	state_[irow][icol] = curlvl_ + 1;
 	aie_.arr_->set( irow, icol, val );
 	return true;
     }
@@ -1573,8 +1568,9 @@ bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
 }
 
 
-bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, float& val )
+bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
 {
+    static const float sqrt2 = Math::Sqrt( 2.0 );
     float defs[12]; float wts[12]; int nrdefs = 0;
     if ( irow )
     {
@@ -1618,7 +1614,7 @@ bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, float& va
     float sumval = 0, sumwt = 0;
     for ( int idx=0; idx<nrdefs; idx++ )
     {
-	float wt = 1.f / wts[idx];
+	float wt = 1. / wts[idx];
 	sumval += defs[idx] * wt;
 	sumwt += wt;
     }
@@ -1628,7 +1624,7 @@ bool Extension2DInterpolExecutor::interpExtension( int irow, int icol, float& va
 }
 
 
-void Extension2DInterpolExecutor::adjustInitialStates()
+void A2DIntExtenExecutor::adjustInitialStates()
 {
     if ( aie_.filltype_ != Array2DInterpol::Full )
     {
@@ -1649,8 +1645,6 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 	}
     }
 
-#define mGeomPoint( i, j ) Geom::Point2D<float>((float) i,(float) j)
-
     if ( aie_.filltype_ == Array2DInterpol::ConvexHull )
     {
 	ODPolygon<float> poly;
@@ -1661,14 +1655,14 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 	    {
 		if ( state_[irow][icol] == cA2DStateDefined )
 		{
-		    poly.add( mGeomPoint(irow,icol) );
+		    poly.add( Geom::Point2D<float>(irow,icol) );
 		    inside[icol] = irow;
 		    
 		    for ( int jrow=aie_.nrrows_-1; jrow>irow; jrow-- )
 		    {
 			if ( state_[jrow][icol] == cA2DStateDefined )
 			{
-			    poly.add( mGeomPoint(jrow,icol) );
+			    poly.add( Geom::Point2D<float>(jrow,icol) );
 			    break;
 			}
 		    }
@@ -1691,7 +1685,7 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 		{
 		    if ( state_[irow][icol] == cA2DStateKeepUdf )
 		    {
-			if ( !poly.isInside( mGeomPoint(irow,icol),
+			if ( !poly.isInside( Geom::Point2D<float>(irow,icol),
 				    true, 0 ) )
 			    break;			
 			
@@ -1704,7 +1698,7 @@ void Extension2DInterpolExecutor::adjustInitialStates()
 }
 
 
-bool Extension2DInterpolExecutor::markBigHoles()
+bool A2DIntExtenExecutor::markBigHoles()
 {
     bool havebighole = false;
     for ( int irow=0; irow<aie_.nrrows_; irow++ )
@@ -1756,7 +1750,7 @@ bool Extension2DInterpolExecutor::markBigHoles()
      || state_[r][c] == cA2DStateMarkedForKeepUdf)
 
 
-void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
+void A2DIntExtenExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 {
     for ( int irow = seedrow; 
 	    irow < aie_.nrrows_ && mA2DInterpNeedsReplace(irow,seedcol); 
@@ -1775,7 +1769,7 @@ void Extension2DInterpolExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
 }
 
 
-void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, int step)
+void A2DIntExtenExecutor::handleAdjCol( int seedrow, int seedcol, int step)
 {
     for ( int irow = seedrow;
 	    irow < aie_.nrrows_ && state_[irow][seedcol] == cA2DStateKeepUdf;
@@ -1795,7 +1789,7 @@ void Extension2DInterpolExecutor::handleAdjCol( int seedrow, int seedcol, int st
 }
 
 
-int Extension2DInterpolExecutor::nextStep()
+int A2DIntExtenExecutor::nextStep()
 {
     if ( !state_ )
     {

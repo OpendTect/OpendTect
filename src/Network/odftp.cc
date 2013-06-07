@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "odftp.h"
 #include "qftpconn.h"
@@ -88,8 +88,8 @@ void ODFtp::transferDoneCB( CallBacker* )
 	QFile* qfile = qfiles_[cmdidx];
 	if ( qfile )
 	    qfile->close();
-	delete qfiles_.removeSingle( cmdidx );
-	getids_.removeSingle( cmdidx );
+	delete qfiles_.remove( cmdidx );
+	getids_.remove( cmdidx );
     }
 }
 
@@ -125,7 +125,7 @@ od_int64 ODFtp::bytesAvailable() const
 BufferString ODFtp::readBuffer() const
 {
     QString result = qftp_->readAll();
-    return result.toLatin1().data();
+    return result.toAscii().data();
 }
 
 

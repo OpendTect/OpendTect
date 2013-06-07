@@ -4,12 +4,12 @@
  * DATE     : Mar 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "variogramcomputers.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "datapointset.h"
@@ -94,7 +94,7 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	    if ( icomp == 0 )
 		dx *= SI().crlDistance();
 	    else if ( icomp == 1 )
-		dx *= Math::Sqrt(SI().inlDistance()*SI().inlDistance()+
+		dx *= sqrt(SI().inlDistance()*SI().inlDistance()+
 		    SI().crlDistance()*SI().crlDistance());
 	    else if ( icomp == 2)
 		dx *= SI().inlDistance();
@@ -111,9 +111,9 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
     //              computer.add(itested);
 		if ( itested > fold*100 ) break;
 		int posinl1 = mininl +
-			    mNINT32((maxinl-mininl)*Stats::randGen().get());
+			    mNINT32((maxinl-mininl)*Stats::RandGen::get());
 		int poscrl1 = mincrl +
-			    mNINT32((maxcrl-mincrl)*Stats::randGen().get());
+			    mNINT32((maxcrl-mincrl)*Stats::RandGen::get());
 		BinID pos1 = BinID( posinl1, poscrl1 );
 		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
 		if ( posval1<0 ) continue;
@@ -211,7 +211,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
     Stats::RunCalc<double> statstot( rcsetuptot );
     int nrwells = 0;
     int nrcontribwells = 0;
-    float zstep = SI().zIsTime() ? 1000.f : 1.f;
+    float zstep = SI().zIsTime() ? 1000 : 1;
 
     variogramvals_->set( 0, 0, 0 );
     axes_->set( 0, 0, 0);
@@ -307,8 +307,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 		continue;
 	    }
 
-	    float reldist = ( float ) 
-			    ( depth_out-dpset.z(disorder[previdx].rowid_) )/
+	    float reldist = ( depth_out-dpset.z(disorder[previdx].rowid_) )/
 			    ( dpset.z(disorder[previdx+1].rowid_)-
 			      dpset.z(disorder[previdx].rowid_) );
 	    double val_out = Interpolate::linearReg1D(
@@ -319,7 +318,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    depth_out += (double)(step/zstep);
 	}
 
-	removeBias<double,double>( &interpolatedvals, &interpolatedvals, false );
+	removeBias( &interpolatedvals, &interpolatedvals, false );
 	variogramvals_->set( nrcontribwells, 0, 0 );
 	axes_->set( nrcontribwells, 0, 0);
 	variogramnms_->add(grpnames.get( igroup-1 ));

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodattribtreeitem.h"
 
@@ -23,11 +23,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 #include "uiattribpartserv.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
@@ -54,9 +54,9 @@ uiODAttribTreeItem::~uiODAttribTreeItem()
 {}
 
 
-bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uitreeviewitem_ )
+    if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -144,16 +144,15 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     if ( selattrmnuitem_.nrItems() || isonly2d )
     {
-	mAddMenuOrTBItem( istb, 0, menu, &selattrmnuitem_,
+	mAddMenuOrTBItem( istb, menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
     }
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    PtrMan<IOObj> ioobj = attrserv->getIOObj(*as);
-    if ( as && ioobj )
+    if ( as && attrserv->getIOObj(*as) )
     {
-	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &colsettingsmnuitem_, true, false );
     }
     
     uiODDataTreeItem::createMenu( menu, istb );

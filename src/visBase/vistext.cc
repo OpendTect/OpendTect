@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vistext.h"
 
@@ -32,7 +32,7 @@ namespace visBase
 const char* Text::sKeyString() 		{ return "Text"; }
 const char* Text::sKeyFontData() 	{ return "Font data"; }
 const char* Text::sKeyJustification() 	{ return "Justification"; }
-const char* Text::sKeyPosition() 	{ return sKey::Position(); }
+const char* Text::sKeyPosition() 	{ return sKey::Position; }
 
 
 Text::Text()
@@ -65,7 +65,7 @@ void Text::setPosition( const Coord3& lpos )
 {
     const Coord3 pos = transformation_
 	? transformation_->transform( lpos ) : lpos;
-    textpos_->translation.setValue( (float) pos.x, (float) pos.y, (float) pos.z );
+    textpos_->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
@@ -245,7 +245,7 @@ void TextBox::setText( const char* newtext )
     SeparString sepstr( newtext, '\n' );
     text_->string.deleteValues( sepstr.size() );
     for ( int idx=0; idx<sepstr.size(); idx++ )
-	text_->string.set1Value( idx, SbString(sepstr[idx]) );
+	text_->string.set1Value( idx, sepstr[idx] );
 }
 
 

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigroup.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
@@ -27,11 +26,11 @@ class uiSeisFmtScale;
 namespace Seis { class SelData; }
 
 
-mExpClass(uiSeis) uiSeisTransfer : public uiGroup
+mClass uiSeisTransfer : public uiGroup
 {
 public:
 
-    mExpClass(uiSeis) Setup : public Seis::SelSetup
+    mClass Setup : public Seis::SelSetup
     {
     public:
 			Setup( Seis::GeomType gt )
@@ -83,4 +82,3 @@ protected:
 
 
 #endif
-

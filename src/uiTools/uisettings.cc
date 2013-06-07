@@ -235,7 +235,7 @@ bool uiSettings::acceptOK( CallBacker* )
 	{
 	    IOPar* iop = chgdsetts_[idx];
 	    if ( commitSetts(*iop) )
-		{ chgdsetts_.removeSingle( idx ); delete iop; idx--; }
+		{ chgdsetts_.remove( idx ); delete iop; idx--; }
 	}
 	if ( !chgdsetts_.isEmpty() )
 	    return false;

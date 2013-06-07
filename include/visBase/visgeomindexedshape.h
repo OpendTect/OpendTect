@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "valseries.h"
 #include "visobject.h"
 #include "coltabsequence.h"
@@ -38,7 +37,7 @@ class ForegroundLifter;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
-mExpClass(visBase) GeomIndexedShape : public VisualObjectImpl
+mClass GeomIndexedShape : public VisualObjectImpl
 {
 public:
     static GeomIndexedShape*	create()
@@ -54,7 +53,6 @@ public:
     void			setRightHandSystem(bool);
 
     void			touch(bool forall,TaskRunner* =0);
-    bool			isUpdateOk() const { return isupdateok_; }
 
     void			set3DLineRadius(float radius,
 	    					bool constantonscreen=true,
@@ -91,7 +89,7 @@ protected:
     void			reMap(TaskRunner*);
     void			matChangeCB(CallBacker*);
 
-    mExpClass(visBase)			ColTabMaterial
+    mClass			ColTabMaterial
     {
     public:
 					ColTabMaterial();
@@ -130,11 +128,8 @@ protected:
     
     ForegroundLifter*				lifter_;
     SoSwitch*					lifterswitch_;   
-
-    bool					isupdateok_;
 };
 
 };
 	
 #endif
-

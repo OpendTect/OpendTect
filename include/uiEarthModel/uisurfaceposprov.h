@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
 class CtxtIOObj;
 class uiGenInput;
@@ -23,7 +22,7 @@ class uiLabel;
 
 /*! \brief UI for SurfacePosProvider */
 
-mExpClass(uiEarthModel) uiSurfacePosProvGroup : public uiPosProvGroup
+mClass uiSurfacePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiSurfacePosProvGroup(uiParent*,
@@ -56,4 +55,3 @@ protected:
 
 
 #endif
-

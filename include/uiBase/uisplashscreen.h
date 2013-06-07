@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "commondefs.h"
 
 class ioPixmap;
 class uiMainWin;
-mFDQtclass(QSplashScreen)
+class QSplashScreen;
 
-mExpClass(uiBase) uiSplashScreen
+mClass uiSplashScreen
 {
 public:
     				uiSplashScreen(const ioPixmap&);
@@ -30,8 +29,7 @@ public:
     void			showMessage(const char*);
 
 protected:
-    mQtclass(QSplashScreen*)	qsplashscreen_;
+    QSplashScreen*		qsplashscreen_;
 };
 
 #endif
-

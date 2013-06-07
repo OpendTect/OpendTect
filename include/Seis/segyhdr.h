@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "segythdef.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -33,7 +32,7 @@ class Hdrdef;
  
 */
 
-mExpClass(Seis) TxtHeader
+mClass TxtHeader
 {
 public:
 
@@ -74,7 +73,7 @@ protected:
 
 class X;
 
-mExpClass(Seis) BinHeader
+mClass BinHeader
 {
 public:
 
@@ -96,7 +95,7 @@ public:
     inline void	setEntryVal( int idx, int val )
 		{ return hdrDef()[idx]->putValue(buf_,val); }
 
-    short	format() const		{ return (short) entryVal(EntryFmt()); }
+    short	format() const		{ return entryVal(EntryFmt()); }
     int		nrSamples() const	{ return entryVal(EntryNs()); }
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
@@ -138,7 +137,7 @@ public:
 };
 
 
-mExpClass(Seis) TrcHeader
+mClass TrcHeader
 {
 public:
 
@@ -216,4 +215,3 @@ public:
 
 
 #endif
-

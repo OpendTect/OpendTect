@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "sets.h"
 #include "visdata.h"
 
@@ -28,7 +27,7 @@ class Transformation;
     scene.
 */
 
-mExpClass(visBase) SceneObject : public DataObject
+mClass SceneObject : public DataObject
 {
 public:
     virtual SoNode*	getData()		= 0;
@@ -50,4 +49,3 @@ protected:
 
 
 #endif
-

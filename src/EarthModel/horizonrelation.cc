@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
@@ -51,7 +51,7 @@ void RelationTree::Node::fillPar( IOPar& par ) const
     for ( int idx=0; idx<children_.size(); idx++ )
 	childids.addIfNew( children_[idx]->id_.buf() );
 
-    par.set( sKey::ID(), id_ );
+    par.set( sKey::ID, id_ );
     par.set( sKeyChildIDs(), childids );
     PtrMan<IOObj> ioobj = IOM().get( id_ );
     if ( !ioobj )
@@ -124,7 +124,7 @@ void RelationTree::getParents( int index, TypeSet<int>& parents ) const
     const RelationTree::Node* node = nodes_[index];
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
-	if ( nodes_[idx]->children_.isPresent(node) )
+	if ( nodes_[idx]->children_.indexOf(node) >= 0 )
 	    parents += idx;
     }
 }
@@ -158,7 +158,7 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RelationTree::Node* parentnode = nodes_[parents[idx]];
-	parentnode->children_.removeSingle( parentnode->children_.indexOf(node) );
+	parentnode->children_.remove( parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
@@ -167,7 +167,7 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
 	}
     }
 
-    delete nodes_.removeSingle( index );
+    delete nodes_.remove( index );
     if ( dowrite )
 	write();
 }
@@ -253,7 +253,7 @@ bool RelationTree::read()
     {
 	MultiID id;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
-	if ( !nodepar || !nodepar->get(sKey::ID(),id) )
+	if ( !nodepar || !nodepar->get(sKey::ID,id) )
 	    break;
 
 	RelationTree::Node* node = new RelationTree::Node( id );

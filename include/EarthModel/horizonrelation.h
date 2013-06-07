@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "earthmodelmod.h"
 #include "multiid.h"
 #include "objectset.h"
 
@@ -21,19 +20,18 @@ class FileMultiString;
 class IOPar;
 template <class T> class TypeSet;
 
+
+
+/* A Relation tree where a parent-child relationship means a top-bottom relationship for the horizons */
+
 namespace EM
 {
 
-/*!
-\brief A Relation tree where a parent-child relationship means a top-bottom
-relationship for the horizons.
-*/
-
-mExpClass(EarthModel) RelationTree
+mClass RelationTree
 {
 public:
 
-    mExpClass(EarthModel) Node
+    mClass Node
     {
     public:
 				Node(const MultiID&);
@@ -86,4 +84,3 @@ protected:
 } // namespace EM
 
 #endif
-

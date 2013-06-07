@@ -17,8 +17,7 @@ ________________________________________________________________________
 namespace std
 {
 
-/*!
-\brief Adapter to use a fixed buffer as a stream.
+/*!\brief Adapter to use a fixed buffer as a stream.
 
   Usage like:
 
@@ -26,9 +25,10 @@ namespace std
   std::istream strm( &fsb );
 
   Tested for istream with char* only.
+
 */
 
-mClass(Basic) fixedstreambuf : public streambuf
+class fixedstreambuf : public streambuf
 {
 public:
 
@@ -81,12 +81,12 @@ virtual pos_type seekpos( pos_type newpos, ios_base::openmode which )
 virtual streamsize xsgetn( char_type* s, streamsize n )
 {
     streamsize toget = n;
-    const od_int64 memsz = epptr() - pptr();
+    const int memsz = epptr() - pptr();
     if ( toget > memsz && memsz >= 0  )
 	toget = memsz;
 
-    memcpy( s, gptr(), (size_t)toget );
-    gbump( (int) toget );
+    memcpy( s, gptr(), toget );
+    gbump( toget );
 
     return toget;
 }
@@ -94,12 +94,12 @@ virtual streamsize xsgetn( char_type* s, streamsize n )
 virtual streamsize xsputn( const char_type* s, streamsize n )
 {
     streamsize toput = n;
-    const od_int64 memsz = epptr() - pptr();
+    const int memsz = epptr() - pptr();
     if ( toput > memsz && memsz >= 0  )
 	toput = memsz;
 
-    memcpy( pptr(), s, (size_t)toput );
-    pbump( (int)toput );
+    memcpy( pptr(), s, toput );
+    pbump( toput );
 
     return toput;
 }

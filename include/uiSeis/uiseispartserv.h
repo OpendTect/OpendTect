@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "iodir.h"
@@ -31,12 +30,9 @@ class uiFlatViewWin;
 namespace PosInfo { class Line2DData; }
 namespace Geometry { class RandomLine; }
 
-/*!
-\ingroup uiSeis
-\brief Seismic User Interface Part Server
-*/
+/*! \brief Seismic User Interface Part Server */
 
-mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
+mClass uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);
@@ -81,5 +77,16 @@ protected:
     bool		ioSeis(int,bool);
 };
 
-#endif
 
+/*!\page uiSeis Seismics User Interface
+
+  Most of the tools in this module enable import and export of seismic
+  data into/from the OpendTect data store. The merge and manage tools manipulate
+  seismic data already in the data store.
+
+  A standalone 'application' is the uiSeisMMProc class, which handles the
+  distribution of processing on multiple machines.
+
+*/
+
+#endif

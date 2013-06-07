@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFVec4f.h>
@@ -23,7 +22,7 @@ ________________________________________________________________________
 class SbLineProjector;
 
 
-mSoODClass SoGridSurfaceDragger : public SoDragger 
+mClass SoGridSurfaceDragger : public SoDragger 
 {
     SO_KIT_HEADER( SoGridSurfaceDragger );
     SO_KIT_CATALOG_ENTRY_HEADER( rotator );
@@ -68,4 +67,3 @@ private:
 
 
 #endif
-

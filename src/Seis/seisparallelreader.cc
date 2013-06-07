@@ -4,7 +4,7 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seisparallelreader.h"
 
@@ -180,9 +180,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		if ( !mIsUdf(z) && trczrg.includes( z, false ) )
 		{
 		    for ( int idc=components_.size()-1; idc>=0; idc-- )
-		    {
 			vals[idc+1] = trc.getValue( z, components_[idc] );
-		    }
 		}
             }
             else
@@ -192,13 +190,14 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 
 		for ( int idz=(*arrays_)[0]->info().getSize(2)-1; idz>=0; idz--)
 		{
+		    bool dobg;
 		    float val;
 		    const double z = cs_.zrg.atIndex( idz );
 		    if ( trczrg.includes( z, false ) )
 		    {
 			for ( int idc=arrays_->size()-1; idc>=0; idc-- )
 			{
-			    val = trc.getValue( (float) z, components_[idc] );
+			    val = trc.getValue( z, components_[idc] );
 			    if ( !mIsUdf(val) )
 			    {
 				(*arrays_)[idc]->set( inlidx, crlidx, idz, val);

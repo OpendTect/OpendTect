@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visrgbatexturechannel2rgba.h"
 
@@ -22,6 +22,7 @@ namespace visBase
 {
 
 ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
+
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
     : converter_( new SoRGBATextureChannel2RGBA )
@@ -88,30 +89,6 @@ bool RGBATextureChannel2RGBA::createRGBA( SbImagei32& res ) const
     return false;
 }
 
-    
-void RGBATextureChannel2RGBA::getChannelName( int channel,
-					      BufferString& res ) const
-{
-    switch ( channel ) {
-	case 0:
-	    res = "Red";
-	    break;
-	case 1:
-	    res = "Green";
-	    break;
-	case 2:
-	    res = "Blue";
-	    break;
-	case 3:
-	    res = "Transparency";
-	    break;
-	default:
-	    res.setEmpty();
-	    break;
-    }
-    
-    if ( !res.isEmpty() )
-	res += " layer";
-}
-    
-} // namespace visBase
+
+
+}; // namespace visBase

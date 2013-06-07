@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "odusginfo.h"
@@ -26,7 +25,7 @@ static std::ostream* logstrm_ = 0;
 
 
 
-mExpClass(Usage) Administrator : public ::NamedObject
+mClass Administrator : public ::NamedObject
 {
 public:
 
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

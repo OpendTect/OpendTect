@@ -4,11 +4,12 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "linekey.h"
-#include "iopar.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "surv2dgeom.h"
 
@@ -59,18 +60,18 @@ BufferString LineKey::attrName() const
 void LineKey::fillPar( IOPar& iop, bool iopnm ) const
 {
     if ( !iopnm )
-	iop.set( sKey::LineKey(), *this );
+	iop.set( sKey::LineKey, *this );
     else
     {
 	iop.setName( lineName() );
-	iop.set( sKey::Attribute(), attrName() );
+	iop.set( sKey::Attribute, attrName() );
     }
 }
 
 
 bool LineKey::usePar( const IOPar& iop, bool iopnm )
 {
-    const char* res = iop.find( iopnm ? sKey::Attribute() : sKey::LineKey() );
+    const char* res = iop.find( iopnm ? sKey::Attribute : sKey::LineKey );
     if ( (!iopnm && !res) || (iopnm && iop.name().isEmpty() ) )
 	return false;
 
@@ -86,7 +87,7 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm,
 					bool embed )
 {
-    if ( !IOM().isKey(defkey) )
+    if ( !IOObj::isKey(defkey) )
 	return BufferString( defkey );
 
     const BufferString keynm = IOM().nameOf( defkey );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          June 2008
- RCS:           $Id$
+ RCS:           $Id: uiisopachmaker.h,v 1.5 2011/07/07 11:52:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class IOPar;
 
 /*! \brief Create isopach as attribute of horizon */
 
-mClass(uiHorizonAttrib) uiIsopachMakerGrp : public uiGroup
+class uiIsopachMakerGrp : public uiGroup
 {
 public:
 			uiIsopachMakerGrp(uiParent*,EM::ObjectID);
@@ -51,7 +51,7 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiFullBatchDialog
+class uiIsopachMakerBatch : public uiFullBatchDialog
 {
 public:
 
@@ -65,7 +65,7 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsopachMakerDlg : public uiDialog
+class uiIsopachMakerDlg : public uiDialog
 {
 public:
 			uiIsopachMakerDlg(uiParent*,EM::ObjectID);
@@ -81,5 +81,4 @@ protected:
     uiIsopachMakerGrp*	grp_;
     DataPointSet*	dps_;
 };
-
 #endif

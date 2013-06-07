@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "position.h"
 #include "visobject.h"
 
@@ -30,7 +29,7 @@ class Coordinates;
    Object must be notified of MultiTexture2's size, splitting status and 
    used texture units. */
 
-mExpClass(visBase) SplitTexture2Rectangle : public VisualObjectImpl
+mClass SplitTexture2Rectangle : public VisualObjectImpl
 {
 public:
     static SplitTexture2Rectangle* create()
@@ -76,4 +75,3 @@ protected:
 
 
 #endif
-

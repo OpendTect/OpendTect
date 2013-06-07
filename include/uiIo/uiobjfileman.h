@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class IOObj;
@@ -23,7 +22,7 @@ class uiToolButton;
 class uiTextEdit;
 
 
-mExpClass(uiIo) uiObjFileMan : public uiDialog
+mClass uiObjFileMan : public uiDialog
 {
 public:
 				~uiObjFileMan();
@@ -43,8 +42,8 @@ protected:
 					     const IOObjContext&);
 
     uiTextEdit*			infofld_;
-    uiTextEdit*			notesfld_;
     uiIOObjSelGrp*		selgrp_;
+    uiToolButton*		mkdefbut_;
     uiGroup*			listgrp_;
     uiGroup*			infogrp_;
     uiButton*			lastexternal_;
@@ -53,22 +52,19 @@ protected:
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
-    void			saveNotes(CallBacker*);
-    void			readNotes();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false);
-    void			getTimeStamp(const char*,BufferString&);
-    void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
     virtual double		getFileSize(const char*,int&) const;
+    virtual const char*		getDefKey() const;
 
     void			selChg(CallBacker*);
     virtual void		ownSelChg()		{}
+    void			makeDefault(CallBacker*);
 
 };
 
 
 #endif
-

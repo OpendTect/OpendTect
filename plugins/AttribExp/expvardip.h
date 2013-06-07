@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id$
+ RCS:           $Id: expvardip.h,v 1.6 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 MinVarianceDip size= [resolution=32] [velocity=] [fast=]
@@ -33,7 +33,7 @@ Outputs:
 #include <arrayndimpl.h>
 #include <attribparamimpl.h>
 
-mClass(AttribExp) MinVarianceDipAttrib : public AttribCalc
+class MinVarianceDipAttrib : public AttribCalc
 {
 public:
     mAttrib5Param(MinVarianceDipAttrib
@@ -119,10 +119,10 @@ protected:
     bool 			fast;
     const AttribProcessCommonInfo*	common;
 
-    mClass(AttribExp) Task : public AttribCalc::Task
+    class Task : public AttribCalc::Task
     {
     public:
-	mClass(AttribExp) Input : public AttribCalc::Task::Input
+	class Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const MinVarianceDipAttrib& calculator_ )

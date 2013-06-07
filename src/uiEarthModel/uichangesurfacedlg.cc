@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uichangesurfacedlg.h"
 
@@ -138,7 +138,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	if ( !worker ) return false;
 
 	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *worker ) )
+	if ( !dlg.execute(*worker) )
 	    return false;
 
 	if ( !usedhor3d )

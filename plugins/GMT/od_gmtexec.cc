@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ (C) dGB Beheer B.V.
  Author:	Raman K Singh
  Date:		July 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.14 2012/03/19 13:24:34 cvsnageswara Exp $";
 
 #include "batchprog.h"
 #include "file.h"
@@ -44,10 +44,10 @@ bool BatchProgram::go( std::ostream& strm )
     OD::ModDeps().ensureLoaded( "EarthModel" );
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
-    const char* psfilenm = pars().find( sKey::FileName() );
+    const char* psfilenm = pars().find( sKey::FileName );
     FilePath outputfp( psfilenm );
-    const BufferString cwd = File::getCurrentPath();
-    if ( cwd.size() > 255 )
+    BufferString cwd;
+    if ( !File::getCurWorkDir( cwd.buf(), 255 ) )
 	mErrStrmRet("Error: Current working directory path length too big")
 
     File::changeDir( outputfp.pathOnly() );
@@ -58,20 +58,20 @@ bool BatchProgram::go( std::ostream& strm )
     tmpfp.setExtension( "tmp" );
     IOPar legendspar;
     int legendidx = 0;
-    legendspar.set( ODGMT::sKeyGroupName(), "Legend" );
+    legendspar.set( ODGMT::sKeyGroupName, "Legend" );
     for ( int idx=0; ; idx++ )
     {
 	IOPar* iop = pars().subselect( idx );
 	if ( !iop ) break;
 
 	PtrMan<GMTPar> par = GMTPF().create( *iop );
-	if ( !idx && ( !par || par->find(ODGMT::sKeyGroupName()) != "Basemap" ) )
+	if ( !idx && ( !par || par->find(ODGMT::sKeyGroupName) != "Basemap" ) )
 	    mErrFatalRet("Basemap parameters missing")
 
 	if ( !par->execute(strm,psfilenm) )
 	{
 	    BufferString msg = "Failed to post ";
-	    msg += iop->find( ODGMT::sKeyGroupName() );
+	    msg += iop->find( ODGMT::sKeyGroupName );
 	    strm << msg << std::endl;
 	    if ( idx )
 		continue;
@@ -89,12 +89,12 @@ bool BatchProgram::go( std::ostream& strm )
 	{
 	    Interval<int> xrg, yrg;
 	    Interval<float> mapdim;
-	    par->get( ODGMT::sKeyXRange(), xrg );
-	    par->get( ODGMT::sKeyYRange(), yrg );
-	    par->get( ODGMT::sKeyMapDim(), mapdim );
-	    legendspar.set( ODGMT::sKeyMapDim(), mapdim );
-	    legendspar.set( ODGMT::sKeyXRange(), xrg );
-	    legendspar.set( ODGMT::sKeyYRange(), yrg );
+	    par->get( ODGMT::sKeyXRange, xrg );
+	    par->get( ODGMT::sKeyYRange, yrg );
+	    par->get( ODGMT::sKeyMapDim, mapdim );
+	    legendspar.set( ODGMT::sKeyMapDim, mapdim );
+	    legendspar.set( ODGMT::sKeyXRange, xrg );
+	    legendspar.set( ODGMT::sKeyYRange, yrg );
 	}
     }
 

@@ -21,12 +21,8 @@ template <class T>
 bool makeLine(const T& start,const T& stop, TypeSet<T>& output,const T& step);
 
 
-/*!
-\brief Creates a line in RowCol space.
-*/
-
 template <class T>
-mClass(Algo) RColLineBuilder
+class RColLineBuilder
 {
 public:
     			RColLineBuilder(const T& start,const T& dir,

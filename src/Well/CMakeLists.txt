@@ -7,10 +7,10 @@
 
 SET(OD_MODULE_DEPS General)
 SET(OD_MODULE_SOURCES
-	well.cc welltrack.cc welld2tmodel.cc wellmarker.cc welllog.cc
-	wellman.cc wellreader.cc wellwriter.cc welltransl.cc
+	well.cc wellman.cc welldisp.cc
+	wellreader.cc wellwriter.cc welltransl.cc
 	wellimpasc.cc wellextractdata.cc wellposprovider.cc
-	initwell.cc wellt2dtransform.cc welldisp.cc wellelasticmodelcomputer.cc
+	initwell.cc wellt2dtransform.cc
 	     )
 OD_INIT_MODULE()
 

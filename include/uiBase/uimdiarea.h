@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -20,10 +19,10 @@ class BufferStringSet;
 class IOPar;
 class uiMdiAreaBody;
 
-mFDQtclass(QMdiArea)
-mFDQtclass(QMdiSubWindow)
+class QMdiArea;
+class QMdiSubWindow;
 
-mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
+mClass uiMdiAreaWindow : public uiGroup
 {
 public:
     			uiMdiAreaWindow(const char* nm=0);
@@ -42,17 +41,17 @@ public:
     bool		isMaximized() const;
 
     NotifierAccess&	closed();
-    mQtclass(QMdiSubWindow*)	qWidget();
+    QMdiSubWindow*	qWidget();
 
     Notifier<uiMdiAreaWindow> changed;
 
 protected:
-    mQtclass(QMdiSubWindow*)	qmdisubwindow_;
+    QMdiSubWindow*	qmdisubwindow_;
 
 };
 
 
-mExpClass(uiBase) uiMdiArea : public uiObject
+mClass uiMdiArea : public uiObject
 { 	
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;
@@ -95,4 +94,3 @@ public:
 };
 
 #endif
-

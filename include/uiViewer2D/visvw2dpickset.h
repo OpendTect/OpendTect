@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "multiid.h"
 #include "flatview.h"
 #include "flatauxdataeditor.h"
@@ -25,7 +24,7 @@ class CubeSampling;
 namespace Pick { class Set; }
 
 
-mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
+mClass VW2DPickSet : public Vw2DDataObject
 {
 public:
     static VW2DPickSet* create(int id,uiFlatViewWin* win,
@@ -51,18 +50,16 @@ protected:
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
     void		updateSetIdx(const CubeSampling&);
-    void                updateSetIdx(const TypeSet<BinID>& bids);
 
-    Pick::Set*			pickset_;
-    FlatView::AuxData*  	picks_;
-    uiFlatViewAuxDataEditor*	editor_;
-    uiFlatViewer&		viewer_;
-    int				auxid_;
-    bool			isselected_;
-    Notifier<VW2DPickSet>	deselected_;
-    bool			isownremove_;
-    TypeSet<int>		picksetidxs_;
+    Pick::Set*			    pickset_;
+    FlatView::Annotation::AuxData*  picks_;
+    uiFlatViewAuxDataEditor*	    editor_;
+    uiFlatViewer&		    viewer_;
+    int				    auxid_;
+    bool			    isselected_;
+    Notifier<VW2DPickSet>	    deselected_;
+    bool			    isownremove_;
+    TypeSet<int>		    picksetidxs_;
 };
 
 #endif
-

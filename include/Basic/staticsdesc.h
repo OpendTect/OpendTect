@@ -12,17 +12,14 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "multiid.h"
 
 class IOPar;
 
-/*!
-\brief Specifies Statics as a horizon and either a horizon attribute or a
-constant velocity. Velocity is always in m/s.
-*/
+/*!Specifies Statics as a horizon and either a horizon attribute or 
+   a constant velocity. Velocity is always in m/s. */
 
-mExpClass(Basic) StaticsDesc
+mClass StaticsDesc
 {
 public:
 			StaticsDesc();
@@ -46,4 +43,3 @@ public:
 
 
 #endif
-

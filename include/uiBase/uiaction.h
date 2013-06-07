@@ -12,15 +12,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "callback.h"
 
 class ioPixmap;
 class MenuItem;
 class i_ActionMessenger;
-mFDQtclass(QAction)
+class QAction;
 
-mExpClass(uiBase) uiAction : public CallBacker
+mClass uiAction : public CallBacker
 {
 friend class		i_ActionMessenger;
 public:
@@ -28,7 +27,7 @@ public:
                         uiAction(const char*,const CallBack&);
                         uiAction(const char*,const CallBack&,const ioPixmap&);
 			uiAction(const MenuItem&);
-			uiAction(mQtclass(QAction*));
+			uiAction(QAction*);
 			~uiAction();
 
     void		setText(const char*);
@@ -49,7 +48,7 @@ public:
     void		setVisible(bool);
     bool		isVisible() const;
 
-    mQtclass(QAction*)	qaction()		{ return qaction_; }
+    QAction*		qaction()		{ return qaction_; }
 
     Notifier<uiAction>	toggled;
     Notifier<uiAction>	triggered;
@@ -57,7 +56,7 @@ public:
 private:
 
     i_ActionMessenger*	msgr_;
-    mQtclass(QAction*)	qaction_;
+    QAction*		qaction_;
     CallBack		cb_;
     bool		checked_;
 
@@ -65,4 +64,3 @@ private:
 };
 
 #endif
-

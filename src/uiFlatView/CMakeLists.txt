@@ -12,8 +12,7 @@ SET(OD_MODULE_SOURCES
 	uiflatviewcontrol.cc uiflatviewpropdlg.cc uiflatviewstdcontrol.cc
 	uiflatauxdataeditorlist.cc uiflatviewthumbnail.cc
 	uiflatviewcoltabed.cc uiflatviewslicepos.cc
-	uimultiflatviewcontrol.cc uiflatbitmapdisplay.cc
-	uiflatauxdatadisplay.cc
+	uimultiflatviewcontrol.cc
 )
 
 OD_INIT_MODULE()

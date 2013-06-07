@@ -11,25 +11,26 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "enums.h"
 #include "undefval.h"
 class BufferString;
 
-/*!
-\brief A date info class.
-  
-  Class does not work before 1900. Non-default constructors are for dates
-  other than today. Constructors accept numbers as in normal usage.
-  
-  Parsing: toString/fromString format is [n]n-xxx-nnnn, like 14-nov-2008.
-  fromStdDateString() reads the 'file' standard,like 'Wed Nov 14 12:50:15 2008'.  fromNumString() reads '2008-11-14' or '14-11-2008' or the same with slashes,
-  dots or colons.
-  
-  The class has some kewl 'relative' printouts.
+/*!\brief A date info class.
+
+Class does not work before 1900. Non-default constructors are for dates
+other than today. Constructors accept numbers as in normal usage.
+
+Parsing: toString/fromString format is [n]n-xxx-nnnn, like 14-nov-2008.
+fromStdDateString() reads the 'file' standard, like 'Wed Nov 14 12:50:15 2008'.
+fromNumString() reads '2008-11-14' or '14-11-2008' or the same with slashes,
+dots or colons.
+
+The class has some kewl 'relative' printouts.
+
 */
 
-mExpClass(Basic) DateInfo
+
+mClass DateInfo
 {
 public:
     enum DayOfWeek	{ Su=0, Mo, Tu, We, Th, Fr, Sa };
@@ -132,4 +133,3 @@ inline int operator -( const DateInfo& di1, const DateInfo& di2 )
 
 
 #endif
-

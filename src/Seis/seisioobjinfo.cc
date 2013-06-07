@@ -100,7 +100,7 @@ void SeisIOObjInfo::setType()
 	isps = true;
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
 
-    if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) )
+    if ( !isps && strcmp(ioobj_->group(),mTranslGroupName(SeisTrc)) )
 	{ bad_ = true; return; }
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
@@ -117,7 +117,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( expectednrsamps < 0 )
 	expectednrsamps = SI().zRange(false).nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = mCast( int, SI().sampling(false).hrg.totalNr() );
+	expectednrtrcs = SI().sampling(false).hrg.totalNr();
 }
 
 
@@ -156,7 +156,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	return false;
 
     spinf.expectednrsamps = cs.zrg.nrSteps() + 1;
-    spinf.expectednrtrcs = mCast( int, cs.hrg.totalNr() );
+    spinf.expectednrtrcs = cs.hrg.totalNr();
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
@@ -195,8 +195,8 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
     }
 
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		    ioobj_->createTranslator() );
+    Translator* tr = ioobj_->getTranslator();
+    mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return -1; }
 
@@ -204,7 +204,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
 
     int overhead = sttr->bytesOverheadPerTrace();
-
+    delete tr;
     double sz = si.expectednrsamps;
     sz *= si.maxbytespsamp;
     sz = (sz + overhead) * si.expectednrtrcs;
@@ -256,8 +256,8 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	return false;
     }
 
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
+    Translator* tr = ioobj_->getTranslator();
+    mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return false; }
 
@@ -316,8 +316,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     { \
 	const char* lndt = lset->datatype(idx); \
 	const char* attrnm = lset->attribute(idx); \
-	const bool issteer = (lndt && lndt==sKey::Steering()) || \
-				(!lndt && attrnm==sKey::Steering()); \
+	const bool issteer = (lndt && !strcmp(lndt,sKey::Steering)) || \
+				(!lndt && !strcmp(attrnm,sKey::Steering)); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
@@ -345,12 +345,12 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
     for ( int idx=0; idx<lset->nrLines(); idx++ )
     {
 	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
-	if ( bss.isPresent(nm) )
+	if ( bss.indexOf(nm) >= 0 )
 	    continue;
 
 	if ( o2d.bvs_ )
 	{
-	    if ( rejected.isPresent(nm) )
+	    if ( rejected.indexOf(nm) >= 0 )
 		continue;
 	    if ( !lset->haveMatch(idx,*o2d.bvs_) )
 	    {
@@ -459,10 +459,12 @@ static TypeSet<MultiID>& getIDs()
 void SeisIOObjInfo::initDefault( const char* typ )
 {
     BufferStringSet& typs = getTypes();
-    if ( typs.isPresent(typ) ) return;
+    const int typidx = typs.indexOf( typ );
+    if ( typidx > -1 )
+	return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    ctxt.toselect.require_.set( sKey::Type(), typ );
+    ctxt.toselect.require_.set( sKey::Type, typ );
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
@@ -527,8 +529,8 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 
     if ( !is2D() )
     {
-	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		     ioobj_->createTranslator() );
+	Translator* tr = ioobj_->getTranslator();
+	mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
 	if ( !sttr )
 	    { pErrMsg("No Translator!"); return 0; }
 	Conn* conn = ioobj_->getConn( Conn::Read );
@@ -541,6 +543,7 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 		    nms->add( sttr->componentInfo()[icomp]->name() );
 	    }
 	}
+	delete tr;
     }
     else
     {
@@ -574,11 +577,11 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	    }
 	    else
 	    {
-		ret = lg->tr_ ? lg->tr_->componentInfo().size() : 0;
+		ret = lg->tr ? lg->tr->componentInfo().size() : 0;
 		if ( nms )
 		{
 		    for ( int icomp=0; icomp<ret; icomp++ )
-			nms->add( lg->tr_->componentInfo()[icomp]->name() );
+			nms->add( lg->tr->componentInfo()[icomp]->name() );
 		}
 	    }
 	}

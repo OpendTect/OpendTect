@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uihorizonsortdlg.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "executor.h"
 #include "horizonrelation.h"
 #include "horizonsorter.h"
@@ -109,7 +108,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	}
 
 	horreader = EM::EMM().objectLoader( loadids );
-	if ( horreader && !TaskRunner::execute( &taskrunner, *horreader ) )
+	if ( horreader && !taskrunner.execute(*horreader) )
 	    return false;
     }
 
@@ -118,10 +117,9 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     {
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
-	    EM::IOObjInfo oi( horids[idx] ); EM::SurfaceIOData sd;
-	    const char* res = oi.getSurfaceData( sd );
-	    if ( res )
-		{ uiMSG().error(res); return false; }
+	    EM::SurfaceIOData sd;
+	    if ( EM::EMM().getSurfaceData(horids[idx],sd) )
+		return false;
 
 	    if ( !idx )
 		bbox_.hrg = sd.rg;
@@ -135,7 +133,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     else
     {
 	horsorter = new HorizonSorter( horids, is2d_ );
-	if ( !TaskRunner::execute( &taskrunner, *horsorter ) ) return false;
+	if ( !taskrunner.execute(*horsorter) ) return false;
 
 	horsorter->getSortedList( horids_ );
 	updateRelationTree( horids_ );

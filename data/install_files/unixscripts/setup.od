@@ -131,7 +131,7 @@ endif
 if ( -e ${instdir}/start_dtect ) rm ${instdir}/start_dtect
 if ( -e ${instdir}/exec_prog ) rm ${instdir}/exec_prog
 
-foreach fil ( init_dtect start_dtect init_dtect_user exec_prog )
+foreach fil ( init_dtect start_dtect init_dtect_user exec_prog setappl.sh )
     sed -e "s/__INST_DIR__/$replaceinstdir/" \
 	-e "s/__DATA_DIR__/$replacedatadir/" \
 	${instdir}/.$fil > ${instdir}/bin/$fil

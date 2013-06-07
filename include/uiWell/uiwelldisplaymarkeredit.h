@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellmod.h"
 #include "menuhandler.h"
 #include "uidialog.h"
 
@@ -29,7 +28,7 @@ class uiWellDisplayControl;
 namespace Well { class Marker; class MarkerSet; class Data; }
 
 
-mExpClass(uiWell) uiAddEditMrkrDlg : public uiDialog
+mClass uiAddEditMrkrDlg : public uiDialog
 {
 public :
     				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
@@ -50,7 +49,7 @@ protected :
 
 
 
-mExpClass(uiWell) uiDispEditMarkerDlg : public uiDialog
+mClass uiDispEditMarkerDlg : public uiDialog
 {
 public:
 				uiDispEditMarkerDlg(uiParent*);
@@ -86,8 +85,7 @@ protected:
     bool 			hasedited_;
     bool 			ismarkerhit_;
     bool 			ispressed_;
-    
-    void			allowMarkersManagement(bool yn);
+   
     virtual void		addNewMrkrList();
     virtual void		editMrkrList();
     virtual bool		removeMrkrFromList();
@@ -99,19 +97,22 @@ protected:
 	    					const char* nm); 
     virtual Well::Marker*	getMarkerFromTmpList(const char* nm); 
 
-
     virtual bool		acceptOK(CallBacker*);
     void			buttonPushedCB(CallBacker*);
+    virtual void		editDlgClosedCB(CallBacker*);
     virtual void		fillMarkerList(CallBacker*);
     virtual void		handleUsrClickCB(CallBacker*) =0;
     virtual void		modeChg(CallBacker*);
     virtual void		listRClickCB(CallBacker*);
     virtual bool		rejectOK(CallBacker*);
+
+public:
+    void			allowMarkersManagement(bool yn);
 };
 
 
 
-mExpClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
+mClass uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);

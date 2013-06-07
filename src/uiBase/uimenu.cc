@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -26,8 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QMenuBar>
 #include <QMouseEvent>
 
-mUseQtnamespace
-
 class uiMenuItemContainerBody
 {
 public:
@@ -41,8 +39,8 @@ public:
     virtual int			addItem(uiPopupMenu*,int id) =0;
     virtual int			insertMenu(uiPopupMenu*,uiPopupMenu* before) =0;
 
-    virtual QMenuBar*	bar()			{ return 0; }
-    virtual QMenu*	popup()			{ return 0; }
+    virtual QMenuBar*		bar()			{ return 0; }
+    virtual QMenu*		popup()			{ return 0; }
 
     void			setIcon( const QPixmap& pm )
 				{
@@ -59,7 +57,7 @@ public:
 
     ObjectSet<uiMenuItem>	itms_;
     ObjectSet<uiAction>		uiactions_;
-    ObjectSet<QAction> qactions_;
+    ObjectSet<QAction>		qactions_;
 
 protected:
 				uiMenuItemContainerBody()	{}
@@ -102,7 +100,7 @@ int addItem( uiMenuItem* it, int id )
 {
     QString nm( it->name() );
     i_MenuMessenger* msgr = it->messenger();
-    QAction* action = qmenu_->addAction( nm, msgr, SLOT(activated()));
+    QAction* action = qmenu_->addAction( nm, msgr, SLOT(activated()) );
     init( it, action, id, -1 );
     return id;
 }
@@ -302,6 +300,8 @@ void uiMenuItem::setShortcut( const char* sctxt )
 }
 
 
+CallBack* uiMenuItem::cmdrecorder_ = 0;
+
 static CallBackSet cmdrecorders_;
 
 int uiMenuItem::beginCmdRecEvent( const char* msg )
@@ -328,6 +328,21 @@ void uiMenuItem::endCmdRecEvent( int refnr, const char* msg )
 	CBCapsule<const char*> caps( actstr, this );
 	cmdrecorders_.doCall( &caps );
     }
+}
+
+
+void uiMenuItem::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiMenuItem::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
 }
 
 
@@ -481,8 +496,8 @@ void uiMenuItemContainer::removeItem( uiMenuItem* itm )
 	if ( body_->popup() )
 	    body_->popup()->removeAction( body_->qactions_[idx] );
 
-	body_->itms_.removeSingle( idx );
-	body_->qactions_.removeSingle( idx );
+	body_->itms_.remove( idx );
+	body_->qactions_.remove( idx );
 	return;
     }
 }
@@ -498,9 +513,9 @@ void uiMenuItemContainer::removeItem( int id, bool withdelete )
 	if ( body_->popup() )
 	    body_->popup()->removeAction( body_->qactions_[idx] );
 
-	uiMenuItem* itm = body_->itms_.removeSingle( idx );
+	uiMenuItem* itm = body_->itms_.remove( idx );
 	if ( withdelete ) delete itm;
-	body_->qactions_.removeSingle( idx );
+	body_->qactions_.remove( idx );
 	return;
     }
 }
@@ -525,11 +540,10 @@ void uiMenuItemContainer::translate()
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( nm, 0, 0 )
 {
-    QMenuBar* qmenubar =
-			     new QMenuBar( parnt->body()->qwidget() );
+    QMenuBar* qmenubar = new QMenuBar( parnt->body()->qwidget() );
     qmenubar->setObjectName( nm );
     uiMenuItemContainerBodyImpl<QMenuBar>* bd =
-	new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt,								     *qmenubar );
+	new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, *qmenubar );
     body_ = bd;
     setBody( bd );
 }
@@ -539,8 +553,7 @@ uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm, QMenuBar& qThing )
     : uiMenuItemContainer( nm, 0, 0 )
 { 
     uiMenuItemContainerBodyImpl<QMenuBar>* bd =
-	    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt,
-		    						 qThing );
+	    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, qThing );
     body_ = bd;
     setBody( bd );
 }
@@ -560,6 +573,8 @@ bool uiMenuBar::isSensitive() const
 
 // -----------------------------------------------------------------------
 
+CallBack* uiPopupMenu::interceptor_ = 0;
+
 static CallBackSet interceptors_;
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
@@ -569,8 +584,7 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
 {
     QMenu* qmenu = new QMenu( parnt->body()->qwidget() );
     uiMenuItemContainerBodyImpl<QMenu>* bd =
-	new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt,
-							  *qmenu );
+	new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, *qmenu );
     body_ = bd;
     setBody( bd );
 
@@ -638,7 +652,7 @@ int uiPopupMenu::exec()
 	}
     }
 
-    QAction* qaction = body_->popup()->exec(QCursor::pos());
+    QAction* qaction = body_->popup()->exec( QCursor::pos() );
     return findIdForAction( qaction );
 }
 
@@ -658,14 +672,28 @@ void uiPopupMenu::doIntercept( bool yn, uiMenuItem* interceptitm )
 }
 
 
-void uiPopupMenu::removeInterceptor( const CallBack& cb )
+void uiPopupMenu::unsetInterceptor()
 { 
+    if ( interceptor_ )
+	delete interceptor_;
+    interceptor_ = 0;
+}
+
+
+void uiPopupMenu::setInterceptor( const CallBack& cb )
+{ 
+    unsetInterceptor();
+    interceptor_ = new CallBack( cb );
+}
+
+
+void uiPopupMenu::removeInterceptor( const CallBack& cb )
+{
     interceptors_ -= cb;
 }
 
 
 void uiPopupMenu::addInterceptor( const CallBack& cb )
-{ 
+{
     interceptors_ += cb;
 }
-

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"
@@ -21,8 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "vispolylinedisplay.h"
-#include "visprestackdisplay.h"
-#include "vispseventdisplay.h"
 #include "visrandomposbodydisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
@@ -49,8 +47,6 @@ mDefModInitFn(visSurvey)
     visSurvey::PlaneDataDisplay::initClass();
     visSurvey::PolygonBodyDisplay::initClass();
     visSurvey::PolyLineDisplay::initClass();
-    visSurvey::PreStackDisplay::initClass();
-    visSurvey::PSEventDisplay::initClass();
     visSurvey::RandomTrackDisplay::initClass();
     visSurvey::Seis2DDisplay::initClass();
     visSurvey::Scene::initClass();

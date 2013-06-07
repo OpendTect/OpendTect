@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "positionattrib.h"
@@ -92,7 +92,7 @@ Position::Position( Desc& desc )
 
     mGetBinID( stepout_, stepoutStr() );
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetEnum( oper_, operStr() );
     mGetBool( dosteer_, steeringStr() );
@@ -110,7 +110,7 @@ Position::Position( Desc& desc )
     outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl*2+1,
 						   stepout_.crl*2+1 );
 
-    const float maxso = mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() );
+    const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
 	    			gate_.stop+maxso*maxsecdip );
@@ -138,6 +138,8 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 bool Position::getInputData( const BinID& relpos, int zintv )
 {
     const int nrpos = positions_.size();
+    const int inlsz = stepout_.inl * 2 + 1;
+    const int crlsz = stepout_.crl * 2 + 1;
     BinID bidstep = inputs_[0]->getStepoutStep();
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
@@ -170,6 +172,9 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
     
+    const int nrpos = positions_.size();
+    const int cposnr = (int)(nrpos/2);
+
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
 
@@ -179,7 +184,6 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     Stats::RunCalc<float> stats( Stats::CalcSetup().require(statstype) );
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
-    const int nrpos = positions_.size();
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	TypeSet<BinIDValue> bidv;

@@ -11,24 +11,22 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "refcount.h"
 
+/*!\brief Slice containing attribute values.
+ 
+  The sliceidx determines the position of the slice in the requested cube,
+  see AttribSliceSet for details.
+ 
+ */
+
 namespace Attrib
 {
 
-/*!
-\brief Slice containing attribute values.
-  
-  The sliceidx determines the position of the slice in the requested cube,
-  see AttribSliceSet for details.    
-*/
-
-
-mExpClass(AttributeEngine) Slice : public Array2DImpl<float>
+mClass Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
@@ -43,16 +41,16 @@ protected:
 };
 
 
-/*!
-\brief Set of attrib slices.
-  
-  The two array2d directions shall be filled following the CubeSampling
-  convention. The slices will be in order of increasing inl, crl or Z.
-  
-  Slices can be null!
-*/
+/*!\brief Set of attrib slices.
 
-mExpClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
+ The two array2d directions shall be filled following the CubeSampling
+ convention. The slices will be in order of increasing inl, crl or Z.
+ 
+ Slices can be null!
+ 
+ */
+
+mClass SliceSet : public ObjectSet<Slice>
 { mRefCountImpl(SliceSet);
 public:
 
@@ -75,4 +73,3 @@ public:
 }; //namespace
 
 #endif
-

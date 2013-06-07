@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -23,7 +22,7 @@ class IOObj;
 namespace Seis
 {
 
-mExpClass(Seis) PreLoader
+mClass PreLoader
 {
 public:
 
@@ -53,7 +52,7 @@ public:
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]
     static void		loadObj(const IOPar&,TaskRunner* tr=0);
-    			//!< sKey::ID() and optional subselections
+    			//!< sKey::ID and optional subselections
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
@@ -74,4 +73,3 @@ protected:
 } // namespace
 
 #endif
-

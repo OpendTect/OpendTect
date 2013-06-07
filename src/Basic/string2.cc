@@ -5,7 +5,7 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "string2.h"
 #include "staticstring.h"
@@ -105,7 +105,7 @@ static void mkUIntStr( char* buf, od_uint64 val, int isneg )
     {
 	int restval = val % 10;
 	val /= 10;
-	*pbuf++ = '0' + (char) restval;
+	*pbuf++ = '0' + restval;
     }
     if ( isneg ) *pbuf++ = '-';
     *pbuf = '\0';
@@ -155,7 +155,7 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
     {
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? "%.15f" : "%.15g";
+	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? "%lf" : "%lg";
 	sprintf( bufptr, fmt, val );
 	prettyNumber( ret, 1 );
     }
@@ -223,7 +223,7 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
     {
 	char* bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%.7g";
+	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%g";
 	sprintf( bufptr, fmt, val );
 	if ( fmt == normalfmt )
 	    truncFloatStr( actualval, ret );
@@ -670,7 +670,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 {
     BufferString val;
 
-    const float km2 = m2* float(1e-6);
+    const float km2 = m2*1e-6;
 
     FixedString unit;
 
@@ -691,7 +691,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
     {
 	if ( SI().xyInFeet() )
 	{
-	    val = m2*mToFeetFactorF*mToFeetFactorF;
+	    val = m2*mToFeetFactor*mToFeetFactor;
 	    unit =  "sq ft";
 	}
 	else
@@ -777,10 +777,3 @@ const char* toString( signed char c )
 
 const char* toString( bool b )
 { const char* res = getYesNoString(b); return res; }
-
-
-bool getFromString( BufferString& res, const char* s )
-{
-    res = s;
-    return true;
-}

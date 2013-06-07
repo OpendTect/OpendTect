@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.8 2009/07/22 16:01:28 cvsbert Exp $";
 
 #include "uipsviewerpreproctab.h"
 
@@ -13,14 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiprestackprocessor.h"
 #include "uipsviewermanager.h"
-#include "visprestackdisplay.h"
+#include "visprestackviewer.h"
 
 namespace PreStackView
 {
 
 
 uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p, 
-	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr, 
+	PreStackView::Viewer3D& vwr, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& preprocmgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
@@ -74,7 +74,7 @@ bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
-	visSurvey::PreStackDisplay* vwr = mgr_.get3DViewers()[idx];
+	PreStackView::Viewer3D* vwr = mgr_.get3DViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 

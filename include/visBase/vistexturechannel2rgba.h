@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoColTabTextureChannel2RGBA;
@@ -31,7 +30,6 @@ class SoRGBATextureChannel2RGBA;
 class SoTextureComposerInfo;
 
 namespace ColTab { class Sequence; }
-namespace osgGeo { class ColorSequence; }
 
 namespace visBase
 { 
@@ -40,20 +38,18 @@ class TextureChannels;
 class MappedTextureDataSet;
 
 /*!
-\brief Interface for classes that can take one or more texture channels in an
+Interface for classes that can take one or more texture channels in an
 TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
 
-mExpClass(visBase) TextureChannel2RGBA : public DataObject
+mClass TextureChannel2RGBA : public DataObject
 {
 public:
     virtual MappedTextureDataSet* createMappedDataSet() const;
 
     virtual void		setChannels(TextureChannels*);
     virtual void		notifyChannelChange()			{}
-    virtual void		notifyChannelInsert(int ch)		{}
-    virtual void		notifyChannelRemove(int ch)		{}
     virtual void		enableInterpolation(bool);
     virtual bool		interpolationEnabled() const;
     virtual bool		createRGBA(SbImagei32&) const		= 0;
@@ -73,7 +69,6 @@ public:
     virtual bool		usesShading() const		= 0;
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
-    virtual void		getChannelName(int,BufferString&) const;
 
 protected:
     			TextureChannel2RGBA();
@@ -81,15 +76,17 @@ protected:
     TextureChannels*	channels_;
     bool		shadingallowed_;
     bool		enableinterpolation_;
+
+public:
+    virtual void		notifyChannelInsert(int ch)	{}
+    virtual void		notifyChannelRemove(int ch)	{}
 };
 
 
-/*!
-\brief A destination where the texturechannels can put the mapped data. The
-class instantiation is provided by the TextureChannel2RGBA.
-*/
+/*!A destination where the texturechannels can put the mapped data. The class
+   instanciation is provided by the TextureChannel2RGBA. */
 
-mExpClass(visBase) MappedTextureDataSet : public DataObject
+mClass MappedTextureDataSet : public DataObject
 {
 public:
     virtual int		nrChannels() const			= 0;
@@ -108,12 +105,12 @@ public:
 };
 
 
-/*!
-\brief Implementation of TextureChannel2RGBA that takes a ColorSequence for each
-channel and blends it into an RGBA image.
-*/
 
-mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
+/*! Implementation of TextureChannel2RGBA that takes a ColorSequence for each
+channel and blends it into an RGBA image. */
+
+
+mClass ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()
@@ -141,12 +138,8 @@ public:
     bool			canUseShading() const;
 protected:
     void			notifyChannelChange()	{ update(); }
-    void			notifyChannelInsert(int ch);
-    void			notifyChannelRemove(int ch);
-
     void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
-    void			updateOsgTexture() const;
 
     					~ColTabTextureChannel2RGBA();
 
@@ -157,9 +150,6 @@ protected:
     mutable ObjectSet<ColTab::Sequence>	coltabs_;
     mutable BoolTypeSet			enabled_;
     mutable TypeSet<unsigned char>	opacity_;
-
-    mutable ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
-    mutable ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
 
     SoSwitch*				shaderswitch_;
 
@@ -188,9 +178,10 @@ protected:
 
     virtual SoNode*			gtInvntrNode();
 
+    void				notifyChannelInsert(int ch);
+    void				notifyChannelRemove(int ch);
 };
 
 } //namespace
 
 #endif
-

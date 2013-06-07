@@ -37,6 +37,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     const BufferStringSet& usrfiltnms( setup_.is2d_
 				   ? Pos::Filter2D::factory().getNames(true)
 				   : Pos::Filter3D::factory().getNames(true) );
+
     for ( int idx=0; idx<filtnms.size(); idx++ )
     {
 	const BufferString& nm( filtnms.get(idx) );
@@ -87,10 +88,10 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 
     if ( nms.size() == 1 )
     {
-	uiLabel* nmlbl = new uiLabel( this, nms.get(0) );
-	new uiLabel( this, "Filter: ", nmlbl );
+	uiLabel* lbl2 = new uiLabel( this, nms.get(0) );
+	uiLabel* lbl1 = new uiLabel( this, "Filter: ", lbl2 );
 	ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
-	ynfld_->attach( alignedBelow, nmlbl );
+	ynfld_->attach( alignedBelow, lbl2 );
 	attobj = ynfld_->attachObj();
     }
     else
@@ -136,9 +137,9 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
     for ( int ipar=0; ; ipar++ )
     {
-	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter(),ipar));
+	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter,ipar));
 	if ( !subiop || !subiop->size() ) break;
-	const char* typ = subiop->find( sKey::Type() );
+	const char* typ = subiop->find( sKey::Type );
 	if ( !typ ) continue;
 
 	for ( int igrp=0; igrp<grps_.size(); igrp++ )
@@ -164,10 +165,10 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 
 bool uiPosFilterSet::fillPar( IOPar& iop ) const
 {
-    iop.removeWithKey( IOPar::compKey(sKey::Filter(),"*") );
+    iop.removeWithKey( IOPar::compKey(sKey::Filter,"*") );
     if ( grps_.isEmpty() ) return true;
 
-    iop.set( sKey::Type(), Pos::FilterSet::typeStr() );
+    iop.set( sKey::Type, Pos::FilterSet::typeStr() );
     int ipar = 0;
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
@@ -175,9 +176,9 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
 	     (selfld_ && !selfld_->isItemChecked(igrp) ) )
 	    continue;
 
-	const BufferString keybase( IOPar::compKey(sKey::Filter(),ipar) );
+	const BufferString keybase( IOPar::compKey(sKey::Filter,ipar) );
 	IOPar subiop;
-	subiop.set( sKey::Type(), grps_[igrp]->name() );
+	subiop.set( sKey::Type, grps_[igrp]->name() );
 	grps_[igrp]->fillPar( subiop );
 	iop.mergeComp( subiop, keybase );
 

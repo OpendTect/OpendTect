@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "usagemod.h"
 #include "odusginfo.h"
 
 
@@ -20,7 +19,7 @@ namespace Usage
 {
 class Info;
 
-mExpClass(Usage) Client
+mClass Client
 {
 public:
 
@@ -49,4 +48,3 @@ protected:
 
 
 #endif
-

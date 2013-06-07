@@ -83,9 +83,8 @@ void SqlDB::BugTextTableEntry::setReporter( BufferString& reporter )
 }
 
 
-void SqlDB::BugTextTableEntry::addToHistory( const char* fldnmptr )
+void SqlDB::BugTextTableEntry::addToHistory( const char* fldnm )
 {
-    FixedString fldnm( fldnmptr );
     for ( int idx=0; idx<btthistoryset_.size(); idx++ )
     {
 	BufferString fieldnm = btthistoryset_[idx]->fieldnm_;
@@ -94,9 +93,9 @@ void SqlDB::BugTextTableEntry::addToHistory( const char* fldnmptr )
     }
 
     BugHistoryTableEntry* history = new BugHistoryTableEntry();
-    if ( fldnm=="description" )
+    if ( strcmp(fldnm, "description") == 0 )
 	history->type_ = 6;
-    else if ( fldnm=="steps_to_reproduce" )
+    else if ( strcmp(fldnm, "steps_to_reproduce" ) == 0 )
 	history->type_ = 8;
     else 
     {
@@ -120,22 +119,22 @@ const char* SqlDB::BugTableEntry::sKeySevere()
 { return "Severe"; }
 const char* SqlDB::BugTableEntry::sKeyMinor()
 { return "Minor"; }
-int	    SqlDB::BugTableEntry::cStatusNew() { return 10; }
-int 	    SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
-int 	    SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
-int 	    SqlDB::BugTableEntry::cStatusResolved() { return 80; }
-int	    SqlDB::BugTableEntry::cStatusClosed() { return 90; }
-int	    SqlDB::BugTableEntry::cResolutionOpen() { return 10; }
-int	    SqlDB::BugTableEntry::cResolutionFixed() { return 20; }
-int	    SqlDB::BugTableEntry::cResolutionWillNotFixed() { return 90; }
-int	    SqlDB::BugTableEntry::cSeverityFeature() { return 10; }
-int	    SqlDB::BugTableEntry::cSeverityTrivial() { return 20; }
-int	    SqlDB::BugTableEntry::cSeverityText() { return 30; }
-int	    SqlDB::BugTableEntry::cSeverityTweak() { return 40; }
-int	    SqlDB::BugTableEntry::cSeverityMinor() { return 50; }
-int	    SqlDB::BugTableEntry::cSeverityMajor() { return 60; }
-int	    SqlDB::BugTableEntry::cSeverityCrash() { return 70; }
-int	    SqlDB::BugTableEntry::cSeverityBlock() { return 80; }
+const int SqlDB::BugTableEntry::cStatusNew() { return 10; }
+const int SqlDB::BugTableEntry::cStatusAssigned() { return 50; }
+const int SqlDB::BugTableEntry::cStatusFeedback() { return 20; }
+const int SqlDB::BugTableEntry::cStatusResolved() { return 80; }
+const int SqlDB::BugTableEntry::cStatusClosed() { return 90; }
+const int SqlDB::BugTableEntry::cResolutionOpen() { return 10; }
+const int SqlDB::BugTableEntry::cResolutionFixed() { return 20; }
+const int SqlDB::BugTableEntry::cResolutionWillNotFixed() { return 90; }
+const int SqlDB::BugTableEntry::cSeverityFeature() { return 10; }
+const int SqlDB::BugTableEntry::cSeverityTrivial() { return 20; }
+const int SqlDB::BugTableEntry::cSeverityText() { return 30; }
+const int SqlDB::BugTableEntry::cSeverityTweak() { return 40; }
+const int SqlDB::BugTableEntry::cSeverityMinor() { return 50; }
+const int SqlDB::BugTableEntry::cSeverityMajor() { return 60; }
+const int SqlDB::BugTableEntry::cSeverityCrash() { return 70; }
+const int SqlDB::BugTableEntry::cSeverityBlock() { return 80; }
 
 
 SqlDB::BugTableEntry::BugTableEntry()
@@ -195,8 +194,8 @@ void SqlDB::BugTableEntry::addToHistory( const char* fldnm, const char* oldval,
     bool isexisted = false;
     for ( int idx=0; idx<historyset_.size(); idx++ )
     {
-	const BufferString& fieldnm = historyset_[idx]->fieldnm_;
-	if ( fieldnm==fldnm )
+	BufferString fieldnm = historyset_[idx]->fieldnm_;
+	if ( strcmp(fldnm,fieldnm.buf()) == 0 )
 	{
 	    historyset_[idx]->newvalue_ = newval;
 	    isexisted = true;

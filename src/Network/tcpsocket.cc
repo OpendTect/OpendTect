@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
@@ -48,7 +48,7 @@ TcpSocket::~TcpSocket()
 
 const char* TcpSocket::errorMsg() const
 {
-    errmsg_ = qtcpsocket_->errorString().toLatin1().constData();
+    errmsg_ = qtcpsocket_->errorString().toAscii().constData();
     return errmsg_.buf();
 }
 

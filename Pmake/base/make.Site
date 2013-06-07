@@ -1,0 +1,73 @@
+ifndef __make.Site__
+__make.Site__ := 1
+
+#_______________________Pmake___________________________________________________
+#
+#	CopyRight:	dGB Beheer B.V.
+#	Makefile :	Pmake include for site specific things
+#	July 1992	Bert Bril (dGB)
+#	$Id: make.Site,v 1.13 2010/10/27 09:47:33 cvsbert Exp $
+#_______________________________________________________________________________
+#
+# make.Site sets all variables that may be specific for the particular site.
+
+ifndef PMAKE
+    PMAKE := $(WORK)/Pmake/base
+endif
+
+# HDIR is the 'main platform'.
+# PLFSUBDIR determines where libs and executables are put.
+# Both must have been set before make.Site is included.
+# Sourcing PMinit will set them in your environment, and therefore also
+# for make.
+
+PLFARCH := PC
+PLFSUBDIR := $(HDIR)
+
+ifeq ($(HDIR),lux)
+    ifeq ($(strip $(shell uname -a | grep _64 | wc -w)),0)
+        PLFSUBDIR := lux32
+    else
+        PLFSUBDIR := lux64
+    endif
+endif
+ifeq ($(HDIR),mac)
+    ifndef MACARCH
+        MACARCH := $(strip $(shell uname -m))
+    endif
+    ifeq ($(findstring Power,$(MACARCH)),Power)
+	PLFARCH := PowerPC
+    endif
+    ifeq ($(PLFARCH),PowerPC)
+        PLFSUBDIR := macppc
+    endif
+endif
+ifeq ($(HDIR),sun5)
+    PLFARCH := Workstation
+    PLFSUBDIR := sol32
+endif
+
+# The variables `XLIB', `XINC' and 'XLDLINKDIRS' for X-windows
+# `XLIB' Is the full library expression for linking for X.
+# `XINC' Is the full compiler include expression, e.g. -I/usr/include .
+
+ifeq ($(HDIR),sun5)
+    XDIR := /opt/motif
+    XLIBDIR := $(XDIR)/lib
+    XINC := -I$(XDIR)/include
+    XLIB := -lXt -lX11 -lgen
+    XLDLINKDIRS := -L$(XLIBDIR)
+endif
+ifeq ($(HDIR),lux)
+    XDIR := /usr/X11R6
+    ifeq ($(PLFSUBDIR),lux64)
+        XLIBDIR := $(XDIR)/lib64
+    else
+        XLIBDIR := $(XDIR)/lib
+    endif
+    XLIB := -lXext -lXt -lX11
+    XLDLINKDIRS := -L$(XLIBDIR)
+endif
+
+# -- multiple inclusion protection --
+endif

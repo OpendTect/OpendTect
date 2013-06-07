@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "createlogcube.h"
 
@@ -24,9 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stattype.h"
 
 
+static Well::ExtractParams* extractparams_;
+
+
 LogCubeCreator::LogCubeData::~LogCubeData()
 {
     delete seisctio_.ioobj;
+    delete &lognm_;
 }
 
 
@@ -35,24 +39,26 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
     , hrg_(false)
     , nrduplicatetrcs_(0)		 
 {
+    extractparams_ = new Well::ExtractParams();
     Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
 	pErrMsg( "unable to extract position" );
     wtextr.getBIDs( binids_ );
-    extractparams_.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
+    extractparams_->setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
 }
 
 
 LogCubeCreator::~LogCubeCreator()
 {
     deepErase( logdatas_ );
+    delete extractparams_;
 }
 
 
 void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
 {
     while ( !lcds.isEmpty() )
-	logdatas_ += lcds.removeSingle(0);
+	logdatas_ += lcds.remove(0);
 
     nrduplicatetrcs_ = nrdupltrcs;
 }
@@ -62,18 +68,21 @@ void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
 			const Well::ExtractParams& pars )
 {
     setInput( lcds, nrdupltrcs );
-    extractparams_ = pars;
+    *extractparams_ = pars;
 }
 
 
 #define mErrRet(msg,withwellname)\
 { \
     if ( !errmsg_.isEmpty() ) \
-    	errmsg_.add( "\n" ); \
+    	const_cast<LogCubeCreator*>(this)->errmsg_.add( "\n" ); \
     \
-    errmsg_.add( msg ); \
+    const_cast<LogCubeCreator*>(this)->errmsg_.add( msg ); \
     if ( withwellname ) \
-	errmsg_.add( " for " ).add( wd_.name() ); \
+    { \
+	const_cast<LogCubeCreator*>(this)->errmsg_.add( " for " ); \
+	const_cast<LogCubeCreator*>(this)->errmsg_.add( wd_.name() ); \
+    } \
     return false; \
 }
 bool LogCubeCreator::doPrepare( int )
@@ -90,9 +99,8 @@ bool LogCubeCreator::doPrepare( int )
     hrg_.start -= bidvar;
     hrg_.snapToSurvey();
 
-    extractparams_.zstep_ = SI().zRange( true ).step;
-    extractparams_.extractzintime_ = SI().zIsTime();
-    extractparams_.snapZRangeToSurvey( true );
+    extractparams_->zstep_ = SI().zRange( true ).step;
+    extractparams_->extractzintime_ = SI().zIsTime();
     
     return true;
 }
@@ -109,7 +117,7 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 	mErrRet( errmsg, true )
     }
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=(int)start; idx<=stop; idx++ )
     {
 	if ( !shouldContinue() )
 	    return false;
@@ -133,12 +141,12 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 	return false;
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler logsamp( wd_, extractparams_, lognms );
+    Well::LogSampler logsamp( wd_, *extractparams_, lognms );
     if ( !logsamp.execute(false) )
 	mErrRet( logsamp.errMsg(), true )
 
     StepInterval<float> zrg = logsamp.zRange();
-    zrg.step = extractparams_.zstep_;
+    zrg.step = extractparams_->zstep_;
     SeisTrc trc( SI().zRange(true).nrSteps() + 1 );
     trc.info().sampling = SI().zRange(true);
     for ( int idztrc=0; idztrc<trc.size(); idztrc++ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id$
+ RCS:		$Id: gmt2dlines.h,v 1.3 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-mClass(GMT) GMT2DLines : public GMTPar
+class GMT2DLines : public GMTPar
 {
 public:
 
@@ -37,7 +37,7 @@ protected:
 };
 
 
-mClass(GMT) GMTRandLines : public GMTPar
+class GMTRandLines : public GMTPar
 {
 public:
 

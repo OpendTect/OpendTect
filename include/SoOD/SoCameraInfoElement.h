@@ -16,14 +16,13 @@ ________________________________________________________________________
 #include <Inventor/elements/SoInt32Element.h>
 
 #include "soodbasic.h"
-#include "soodmod.h"
 
 
 /*!\brief
 The means to transfer information about the camera to the scene.
 */
 
-mSoODClass SoCameraInfoElement : public SoInt32Element
+mExportClass( SoOD ) SoCameraInfoElement : public SoInt32Element
 {
     SO_ELEMENT_HEADER(SoCameraInfoElement);
 

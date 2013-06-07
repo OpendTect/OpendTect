@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "";
+static const char* rcsID = "";
 
 
 #include "uidpsaddcolumndlg.h"
@@ -51,8 +51,8 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 
 	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3.0f*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -103,9 +103,6 @@ bool xyInFeet() const { return inft_; }
 };
 
 
-static const char* sKeySRDMeter = "Seismic Reference Datum (m) ";
-static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
-
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
 				     "Specify survey parameters","0.3.2")
@@ -121,7 +118,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, impiop_(0)
 	, topgrp_( 0 )
 {
-    static int sipidx mUnusedVar = addInfoProvider( new uiCopySurveySIP );
+    static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
     orgstorepath_ = si_.datadir_.buf();
     isnew_ = orgdirname_.isEmpty();
@@ -243,6 +240,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     xyinftfld_->attach( rightTo, applybut );
     xyinftfld_->attach( rightBorder );
     xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
+    zinftfld_ = new uiCheckBox( this, "Display depths in feet" );
+    zinftfld_->attach( leftTo, applybut );
+    zinftfld_->attach( leftBorder );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
@@ -309,19 +309,6 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
-
-    const bool depthinft = si_.depthsInFeet();
-
-    depthdispfld_ = new uiGenInput( rangegrp_, "Display depths in",
-                                   BoolInpSpec(!depthinft,"meter","feet") );
-    depthdispfld_->valuechanged.notify( 
-	    		mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
-    depthdispfld_->attach( alignedBelow, zfld_ );
-
-    refdatumfld_ = new uiGenInput( rangegrp_,
-	    		depthinft ? sKeySRDFeet : sKeySRDMeter,
-	    		DoubleInpSpec(si_.seismicReferenceDatum()) );
-    refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
 }
@@ -397,7 +384,7 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
     if ( mIsUdf(val) )
 	{ zfld->setText( "", nr ); return; }
 
-    val *= fac; int ival = mNINT32(val); float fival = mCast(float,ival);
+    val *= fac; int ival = mNINT32(val); float fival = ival;
     if ( mIsEqual(val,fival,0.01) )
 	zfld->setValue( ival, nr );
     else
@@ -415,7 +402,7 @@ void uiSurveyInfoEditor::setValues()
     crlfld_->setValue( crlrg );
 
     const StepInterval<float>& zrg = si_.zRange( false );
-    const float zfac = mCast( float, si_.zDomain().userFactor() );
+    const float zfac = si_.zFactor();
     setZValFld( zfld_, 0, zrg.start, zfac );
     setZValFld( zfld_, 1, zrg.stop, zfac );
     setZValFld( zfld_, 2, zrg.step, zfac );
@@ -448,7 +435,7 @@ void uiSurveyInfoEditor::setValues()
     }
 
     xyinftfld_->setChecked( si_.xyInFeet() );
-    depthdispfld_->setValue( !si_.depthsInFeetByDefault() );
+    zinftfld_->setChecked( si_.depthsInFeetByDefault() );
     updZUnit( 0 );
 }
 
@@ -468,8 +455,8 @@ const char* uiSurveyInfoEditor::newSurvTempDirName()
     if ( usr )
 	{ nm += usr; nm += "_"; }
     nm += GetPID();
-    Stats::randGen().init();
-    nm += Stats::randGen().getIndex(1000000);
+    Stats::RandGen::init();
+    nm += Stats::RandGen::getIndex(1000000);
     return nm.buf();
 }
 
@@ -542,13 +529,12 @@ bool uiSurveyInfoEditor::doApply()
 {
     if ( !setSurvName() || !setRanges() )
 	return false;
-    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
 
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
     const bool zdepthft = zunitfld_->currentItem() == 2;
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-            xyinft || zdepthft || !depthdispfld_->getBoolValue() );
+	    xyinft || zdepthft || zinftfld_->isChecked() );
 
     if ( !mUseAdvanced() )
     {
@@ -734,11 +720,11 @@ bool uiSurveyInfoEditor::setRanges()
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
-    const float zfac = 1.f / si_.zDomain().userFactor();
+    const float zfac = 1. / si_.zFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )
-	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
+	cs.zrg.step = si_.zIsTime() ? 0.004 : 1;
     cs.normalise();
     if ( !hs.totalNr() )
 	mErrRet("Please specify inline/crossline ranges")
@@ -823,7 +809,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-                        xyinft || !depthdispfld_->getBoolValue() );
+	    		xyinft || zinftfld_->isChecked() );
 
     si_.setWSProjName( SI().getWSProjName() );
     si_.setWSPwd( SI().getWSPwd() );
@@ -900,32 +886,15 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 }
 
 
-void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
+void uiSurveyInfoEditor::updZUnit( CallBacker* )
 {
-    const FixedString labeltext = refdatumfld_->titleText();
-    const bool showdepthinft = !depthdispfld_->getBoolValue();
-    const bool needsupdate = 
-	labeltext != ( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
-    if ( !needsupdate ) return;
-    
-    refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
-    double refdatum = refdatumfld_->getdValue( 0.0 );
-    refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
-    refdatumfld_->setValue( refdatum );
-}
-
-
-void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
-{
-    const bool zintime = zunitfld_->currentItem() == 0;
-    const bool zinft = zunitfld_->currentItem() == 2;
     const bool xyinft = xyinftfld_->isChecked();
-    depthdispfld_->setSensitive( zintime && !xyinft );    
+    zinftfld_->setSensitive( !xyinft );
+    zinftfld_->display( zunitfld_->currentItem() == 0 );
 
-    if ( cb==zunitfld_ )
-	depthdispfld_->setValue( zintime ? !xyinft : !zinft );
-    else if ( cb==xyinftfld_ && zintime )
-        depthdispfld_->setValue( !xyinft );
-
-    depthDisplayUnitSel( 0 );
+    if ( xyinft )
+    {
+	NotifyStopper ns( zinftfld_->activated );
+	zinftfld_->setChecked( true );
+    }
 }

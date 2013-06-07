@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+/*! \brief
+AttribDesc ID: each Desc has a unique ID in a set; the boolean isstored allows
+us to know whether this Desc is to be found in the DescSet dedicated for stored
+Attributes.
+*/
+
 #include "commondefs.h"
 
 namespace Attrib
 {
 
-/*!
-\brief AttribDesc ID: each Desc has a unique ID in a set; the boolean
-isstored allows us to know whether this Desc is to be found in the DescSet
-dedicated for stored Attributes.
-*/
-
-mExpClass(AttributeEngine) DescID
+mClass DescID
 {
 public:
 			DescID()
@@ -71,4 +70,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

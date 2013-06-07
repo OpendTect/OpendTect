@@ -7,11 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiarray2dchg.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
+
+static const char* extrapolstrs[] =
+{ "To outer border", "To convex hull", "No", 0 };
 
 uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
 				      const Array2DFilterPars* prs )

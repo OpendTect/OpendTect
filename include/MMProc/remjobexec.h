@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "callback.h"
 #include "gendefs.h"
 
@@ -20,11 +19,7 @@ class BufferString;
 class IOPar;
 class TcpSocket;
 
-/*!
-\brief Remote job executor
-*/
-
-mExpClass(MMProc) RemoteJobExec : public CallBacker
+mClass RemoteJobExec : public CallBacker
 {
 public:
 			RemoteJobExec(const char*,const int);
@@ -44,4 +39,3 @@ protected:
 };
 
 #endif
-

@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : Sep 2000
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <SoPerspectiveSel.h>
 
@@ -186,7 +186,7 @@ int SoPerspectiveSel::whichToTraverse(SoAction *action)
 
   int n = this->perspectives.getNum();
   float maxangle=-1;
-  int mini=-1;
+  int mini;
 
   for ( int i=0; i<n; i++)
   {

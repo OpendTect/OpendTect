@@ -13,18 +13,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "ranges.h"
 #include "prestackprocessor.h"
 
 namespace PreStack
 {
 
-/*!
-\brief %AGC
-*/
 
-mExpClass(PreStackProcessing) AGC : public Processor
+mClass AGC : public Processor
 {
 public:
     				mDefaultFactoryInstantiation( Processor, AGC,
@@ -61,4 +57,3 @@ protected:
 }; //namespace
 
 #endif
-

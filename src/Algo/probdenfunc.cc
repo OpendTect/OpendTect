@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "sampledprobdenfunc.h"
@@ -25,7 +25,7 @@ static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
 
 #define mRandSDPos(sd,indx) \
-    (sd).atIndex( (float)(indx) + Stats::randGen().get() - 0.5 );
+    (sd).atIndex( (float)(indx) + Stats::RandGen::get() - 0.5 );
 
 
 void ProbDenFuncDraw::reset()
@@ -65,11 +65,11 @@ ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
 
 void ProbDenFunc::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type(), getTypeStr() );
+    par.set( sKey::Type, getTypeStr() );
     const int nrdim = nrDims();
     par.set( sKeyNrDim(), nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
-	par.set( IOPar::compKey(sKey::Name(),idx), dimName(idx) );
+	par.set( IOPar::compKey(sKey::Name,idx), dimName(idx) );
 }
 
 
@@ -154,8 +154,8 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     const int nrdim = getData().info().getNDim();
     for ( int idx=0; idx<nrdim; idx++ )
     {
-	par.set( IOPar::compKey(sKey::Size(),idx), size(idx) );
-	par.set( IOPar::compKey(sKey::Sampling(),idx), sampling(idx) );
+	par.set( IOPar::compKey(sKey::Size,idx), size(idx) );
+	par.set( IOPar::compKey(sKey::Sampling,idx), sampling(idx) );
     }
 }
 
@@ -232,7 +232,7 @@ void ArrayNDProbDenFunc::doScale( float fac )
 void ArrayNDProbDenFunc::prepRndDrw() const
 {
     fillCumBins();
-    Stats::randGen().init();
+    Stats::RandGen::init();
 }
 
 
@@ -253,7 +253,7 @@ void ArrayNDProbDenFunc::fillCumBins() const
 od_uint64 ArrayNDProbDenFunc::getRandBin() const
 {
     if ( !cumbins_ ) fillCumBins();
-    return getBinPos( (float) ( Stats::randGen().get() ) );
+    return getBinPos( Stats::RandGen::get() );
 }
 
 
@@ -319,12 +319,6 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 
 
 // 1D
-Sampled1DProbDenFunc::Sampled1DProbDenFunc()
-    : ProbDenFunc1D("")
-    , sd_(0,1)
-    , bins_(1)
-{}
-
 
 Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
     : ProbDenFunc1D("")
@@ -442,11 +436,11 @@ void Sampled1DProbDenFunc::fillPar( IOPar& par ) const
 bool Sampled1DProbDenFunc::usePar( const IOPar& par )
 {
     int sz = -1;
-    par.get( IOPar::compKey(sKey::Size(),0), sz );
+    par.get( IOPar::compKey(sKey::Size,0), sz );
     bins_.setSize( sz );
 
-    par.get( IOPar::compKey(sKey::Sampling(),0), sd_ );
-    par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
+    par.get( IOPar::compKey(sKey::Sampling,0), sd_ );
+    par.get( IOPar::compKey(sKey::Name,0), varnm_ );
     return sz>0;
 }
 
@@ -459,14 +453,6 @@ bool Sampled1DProbDenFunc::obtain( std::istream& strm, bool binary )
 
 
 // 2D
-
-Sampled2DProbDenFunc::Sampled2DProbDenFunc()
-    : ProbDenFunc2D("","")
-    , sd0_(0,1)
-    , sd1_(0,1)
-    , bins_(1,1)
-{
-}
 
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
@@ -562,15 +548,15 @@ void Sampled2DProbDenFunc::fillPar( IOPar& par ) const
 bool Sampled2DProbDenFunc::usePar( const IOPar& par )
 {
     int sz0 = -1; int sz1 = -1;
-    par.get( IOPar::compKey(sKey::Size(),0), sz0 );
-    par.get( IOPar::compKey(sKey::Size(),1), sz1 );
+    par.get( IOPar::compKey(sKey::Size,0), sz0 );
+    par.get( IOPar::compKey(sKey::Size,1), sz1 );
     bins_.setSize( sz0, sz1 );
 
-    par.get( IOPar::compKey(sKey::Sampling(),0), sd0_ );
-    par.get( IOPar::compKey(sKey::Sampling(),1), sd1_ );
+    par.get( IOPar::compKey(sKey::Sampling,0), sd0_ );
+    par.get( IOPar::compKey(sKey::Sampling,1), sd1_ );
 
-    par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
-    par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
+    par.get( IOPar::compKey(sKey::Name,0), dim0nm_ );
+    par.get( IOPar::compKey(sKey::Name,1), dim1nm_ );
 
     return sz0>0 && sz1>0;
 }
@@ -584,17 +570,6 @@ bool Sampled2DProbDenFunc::obtain( std::istream& strm, bool binary )
 
 
 // ND
-
-SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
-    : bins_( ArrayNDInfoImpl(nrdims) )
-{
-    for ( int idx=0; idx<nrdims; idx++ )
-    {
-	sds_ += SamplingData<float>(0,1);
-	dimnms_.add( BufferString("Dim ",idx) );
-    }
-}
-
 
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)
@@ -744,9 +719,9 @@ void SampledNDProbDenFunc::fillPar( IOPar& par ) const
 {
     ProbDenFunc::fillPar( par );
     if ( nrDims() == 1 )
-	par.set( sKey::Type(), Sampled1DProbDenFunc::typeStr() );
+	par.set( sKey::Type, Sampled1DProbDenFunc::typeStr() );
     else if ( nrDims() == 2 )
-	par.set( sKey::Type(), Sampled2DProbDenFunc::typeStr() );
+	par.set( sKey::Type, Sampled2DProbDenFunc::typeStr() );
 
     ArrayNDProbDenFunc::fillPar( par );
 }
@@ -767,14 +742,14 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
     TypeSet<int> szs( nrdims, 0 );
     for ( int idx=0; idx<nrdims; idx++ )
     {
-	par.get( IOPar::compKey(sKey::Size(),idx), szs[idx] );
+	par.get( IOPar::compKey(sKey::Size,idx), szs[idx] );
 
 	SamplingData<float> sd;
-	par.get( IOPar::compKey(sKey::Sampling(),idx), sd );
+	par.get( IOPar::compKey(sKey::Sampling,idx), sd );
 	sds_ += sd;
 
 	BufferString dimnm;
-	par.get( IOPar::compKey(sKey::Name(),idx), dimnm );
+	par.get( IOPar::compKey(sKey::Name,idx), dimnm );
 	dimnms_.add( dimnm );
     }
 

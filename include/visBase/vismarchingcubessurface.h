@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "samplingdata.h"
 
@@ -29,7 +28,7 @@ class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface or body sections. */
 
-mExpClass(visBase) MarchingCubesSurface : public VisualObjectImpl
+mClass MarchingCubesSurface : public VisualObjectImpl
 {
 public:
     static MarchingCubesSurface*	create()
@@ -37,7 +36,6 @@ public:
 
     void				setSurface(::MarchingCubesSurface&,
 	    					   TaskRunner*);
-    bool				isUpdateOk() const;
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
 
@@ -82,10 +80,8 @@ protected:
     GeomIndexedShape*			shape_;
 
     ExplicitMarchingCubesSurface*	surface_;
-    bool				isupdateok_;
 };
 
 };
 	
 #endif
-

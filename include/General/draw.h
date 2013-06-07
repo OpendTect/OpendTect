@@ -11,13 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "enums.h"
 #include "color.h"
 #include "geometry.h"
 
 
-mExpClass(General) Alignment
+mClass Alignment
 {
 public:
 
@@ -56,7 +55,7 @@ protected:
 #define mDeclAlignment(nm,h,v) Alignment nm( Alignment::h, Alignment::v )
 
 
-mExpClass(General) MarkerStyle2D
+mClass MarkerStyle2D
 {
 public:
 
@@ -84,7 +83,7 @@ public:
 };
 
 
-mExpClass(General) MarkerStyle3D
+mClass MarkerStyle3D
 {
 public:
 
@@ -110,7 +109,7 @@ public:
 };
 
 
-mExpClass(General) LineStyle
+mClass LineStyle
 {
 public:
 
@@ -136,7 +135,7 @@ public:
 };
 
 
-mExpClass(General) FillPattern
+mClass FillPattern
 {
 public:
 
@@ -153,7 +152,7 @@ public:
 
 
 
-mExpClass(General) ArrowHeadStyle
+mClass ArrowHeadStyle
 {
 public:
     enum Type		{ Line, Triangle, Square, Cross };
@@ -170,7 +169,7 @@ public:
 };
 
 
-mExpClass(General) ArrowStyle
+mClass ArrowStyle
 {
 public:
 
@@ -191,4 +190,3 @@ public:
 
 
 #endif
-

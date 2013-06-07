@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "position.h"
 #include "samplingdata.h"
 #include "executor.h"
@@ -29,7 +28,7 @@ namespace PosInfo { class Detector; }
 #define mSeisScanMaxNrDistribVals 50000
 
 
-mExpClass(Seis) SeisScanner : public Executor
+mClass SeisScanner : public Executor
 {
 public:
 
@@ -83,4 +82,3 @@ protected:
 
 
 #endif
-

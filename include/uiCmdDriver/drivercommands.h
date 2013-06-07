@@ -17,49 +17,49 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( uiCmdDriver, Assign, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Case, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Comment, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GreyOuts, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsMatch, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, IsWindow, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, LogMode, StealthCmd ) 		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, OnError, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, OnOffCheck, StealthCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Sleep, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Try, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Wait, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, WinAssert, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Assign, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Case, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Comment, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( GreyOuts, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( IsMatch, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( IsWindow, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( LogMode, StealthCmd ) 	mEndDeclCmdClass
+mStartDeclCmdClass( OnError, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( OnOffCheck, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Sleep, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Try, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Wait, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( WinAssert, StealthCmd )	mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, Pause, Command )
+mStartDeclCmdClass( Pause, Command )
     bool	isOpenQDlgCommand() const 	{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, Guide, Command )
+mStartDeclCmdClass( Guide, Command )
     bool	isOpenQDlgCommand() const 	{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, Window, StealthCmd )
+mStartDeclCmdClass( Window, StealthCmd )
     bool	isOpenQDlgCommand() const 	{ return false; }
 mEndDeclCmdClass
 
-mStartDeclCmdClass( uiCmdDriver, If, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, ElseIf, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Else, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Fi, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Do, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, OdUntil, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, DoWhile, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Od, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, For, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Rof, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Break, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Continue, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Def, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Fed, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Return, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, Call, StealthCmd )		mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, End, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( If, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( ElseIf, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Else, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Fi, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Do, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( OdUntil, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( DoWhile, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Od, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( For, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Rof, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Break, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Continue, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Def, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Fed, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Return, StealthCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( Call, StealthCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( End, StealthCmd )		mEndDeclCmdClass
 
 }; // namespace CmdDrive
 

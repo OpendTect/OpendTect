@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -20,10 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QContextMenuEvent>
 #include <QLineEdit>
 #include <QValidator>
-#include <limits.h>
 #include <math.h>
-
-mUseQtnamespace
 
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
 {
@@ -36,17 +33,15 @@ public:
     void		setAlpha(bool yn);
     bool		isAlpha() const		{ return isalpha_; }
 
-    QValidator::State	validate( QString& input,
-	    			          int& posn ) const
+    QValidator::State	validate( QString& input, int& posn ) const
 			{
 			    const double val = input.toDouble();
 			    if ( val > maximum() )
 				input.setNum( maximum() );
-			    return QDoubleSpinBox::validate( input,
-				    				       posn );
+			    return QDoubleSpinBox::validate( input, posn );
 			}
 
-    virtual double		valueFromText(const QString&) const;
+    virtual double	valueFromText(const QString&) const;
     virtual QString	textFromValue(double value) const;
 
 protected:
@@ -158,8 +153,6 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     setKeyboardTracking( false );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
     oldvalue_ = getFValue();
-
-    setMaxValue( INT_MAX );
 }
 
 
@@ -211,7 +204,7 @@ void uiSpinBox::setInterval( const StepInterval<int>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step );
+    setStep( intv.step ? intv.step : 1 );
 }
 
 
@@ -219,15 +212,7 @@ void uiSpinBox::setInterval( const StepInterval<float>& intv )
 {
     setMinValue( intv.start );
     setMaxValue( intv.stop );
-    setStep( intv.step );
-}
-
-
-void uiSpinBox::setInterval( const StepInterval<double>& intv )
-{
-    setMinValue( (float)intv.start );
-    setMaxValue( (float)intv.stop );
-    setStep( (float)intv.step );
+    setStep( intv.step ? intv.step : 1 );
 }
 
 
@@ -328,14 +313,14 @@ void uiSpinBox::stepBy( int nrsteps )
     body_->stepBy( nrsteps );
 }
 
-void uiSpinBox::setStep( int stp, bool snapcur )		
-{ setStep( (float)stp, snapcur ); }
+void uiSpinBox::setStep( int step_, bool snapcur )		
+{ setStep( (double)step_, snapcur ); }
 
-void uiSpinBox::setStep( float stp, bool snapcur )
+void uiSpinBox::setStep( float step_, bool snapcur )
 {
     mBlockCmdRec;
-    if ( mIsZero(stp,mDefEps) ) stp = 1;
-    body_->setSingleStep( stp );
+    if ( !step_ ) step_ = 1;
+    body_->setSingleStep( step_ );
     dosnap_ = snapcur;
     snapToStep(0);
 }

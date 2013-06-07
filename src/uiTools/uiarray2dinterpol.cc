@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiarray2dinterpol.h"
 
@@ -206,7 +206,7 @@ void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
     if ( !result_ )
 	return;
 
-    iopar.set( sKey::Name(), methodsel_->text() );
+    iopar.set( sKey::Name, methodsel_->text() );
     result_->fillPar( iopar );
 }
 
@@ -427,10 +427,6 @@ void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
 }
 
 
-Array2DInterpol* uiTriangulationArray2DInterpol::createResult() const
-{ return new TriangulationArray2DInterpol; }
-
-
 bool uiTriangulationArray2DInterpol::acceptOK()
 {
     bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
@@ -447,7 +443,7 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 	result_ = 0; 
     }
     
-    mDynamicCastGet( TriangulationArray2DInterpol*, res, createResult() )
+    TriangulationArray2DInterpol* res = new TriangulationArray2DInterpol;
     res->doInterpolation( !useneighborfld_->isChecked() );
     if ( usemax )
     	res->setMaxDistance( maxdist );
@@ -457,18 +453,18 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 }
 
 
-void uiExtensionArray2DInterpol::initClass()
+void uiArray2DInterpolExtension::initClass()
 {
     uiArray2DInterpolSel::factory().addCreator( create,
-	    ExtensionArray2DInterpol::sFactoryKeyword() );
+	    Array2DInterpolExtension::sFactoryKeyword() );
 }
 
 
-uiArray2DInterpol* uiExtensionArray2DInterpol::create( uiParent* p )
-{ return new uiExtensionArray2DInterpol( p ); }
+uiArray2DInterpol* uiArray2DInterpolExtension::create( uiParent* p )
+{ return new uiArray2DInterpolExtension( p ); }
 
 
-uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
+uiArray2DInterpolExtension::uiArray2DInterpolExtension(uiParent* p)
     : uiArray2DInterpol( p, "Extension" )
 {
     nrstepsfld_ = new  uiGenInput( this, "Number of steps", IntInpSpec() );
@@ -477,11 +473,7 @@ uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
 }
 
 
-Array2DInterpol* uiExtensionArray2DInterpol::createResult() const
-{ return new ExtensionArray2DInterpol; }
-
-
-bool uiExtensionArray2DInterpol::acceptOK()
+bool uiArray2DInterpolExtension::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
@@ -492,7 +484,7 @@ bool uiExtensionArray2DInterpol::acceptOK()
     if ( result_ )
 	{ delete result_; result_ = 0; }
     
-    mDynamicCastGet( ExtensionArray2DInterpol*, res, createResult() )
+    Array2DInterpolExtension* res = new Array2DInterpolExtension;
     res->setNrSteps( nrstepsfld_->getIntValue() );
 
     result_ = res;    
@@ -558,10 +550,6 @@ void uiInverseDistanceArray2DInterpol::doParamDlg( CallBacker* )
 }
 
 
-Array2DInterpol* uiInverseDistanceArray2DInterpol::createResult() const
-{ return new InverseDistanceArray2DInterpol; }
-
-
 bool uiInverseDistanceArray2DInterpol::acceptOK()
 {
     if ( result_ )
@@ -578,7 +566,9 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 	return false;
     }
 
-    mDynamicCastGet( InverseDistanceArray2DInterpol*, res, createResult() )
+    InverseDistanceArray2DInterpol* res = new
+	InverseDistanceArray2DInterpol;
+
     res->setSearchRadius( radius );
     if ( hasradius )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "flatviewzoommgr.h"
 
@@ -64,7 +64,7 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
 	const Size zoom = zooms_[idx];
 	if ( newzoom.width() > zoom.width() + eps.width()
 	  || newzoom.height() > zoom.height() + eps.height() )
-	    zooms_.removeSingle( idx );
+	    zooms_.remove( idx );
     }
 
     zooms_ += newzoom;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -138,9 +138,9 @@ int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
     mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )                              
-    if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hrg.totalNr());
+    if ( !pp ) return ss2d ? 0 : SI().sampling(false).hrg.totalNr();
 
-    return mCast( int, pp->estNrPos() );
+    return pp->estNrPos();
 }
 
 
@@ -270,10 +270,10 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	if ( !multiln_ )
 	    { uiMSG().error("Please enter a line name"); return false; }
 
-	iopar.removeWithKey( sKey::LineKey() );
+	iopar.removeWithKey( sKey::LineKey );
     }
     else
-	iopar.set( sKey::LineKey(), lnm );
+	iopar.set( sKey::LineKey, lnm );
 
     return true;
 }

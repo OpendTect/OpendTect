@@ -7,12 +7,13 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "iodrawtool.h"
 #include "pixmap.h"
 
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )

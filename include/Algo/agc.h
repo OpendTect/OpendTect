@@ -17,12 +17,10 @@ ________________________________________________________________________
 #include "thread.h"
 #include "valseries.h"
 
-/*!
-\brief Computes an AGC over a ValueSeries.
-*/
+/*!Computes an AGC over a ValueSeries. */
 
 template <class T>
-mClass(Algo) AGC : public ParallelTask
+class AGC : public ParallelTask
 {
 public:
     			AGC();
@@ -98,11 +96,11 @@ const Interval<int>& AGC<T>::getSampleGate() const
 template <class T> inline
 bool AGC<T>::doPrepare( int nrthreads )
 {
-    if ( !input_ || !output_ ||
+    if ( !input_ || !output_ || 
 	 (output_->reSizeable() && !output_->setSize(size_)) )
 	return false;
 
-    energies_.setSize( mCast(int,size_), mUdf(T) );
+    energies_.setSize( size_, mUdf(T) );
 
     if ( nrthreads )
     {
@@ -124,7 +122,7 @@ void AGC<T>::computeEnergyMute()
 	 mIsZero(mutefraction_,1e-5) )
 	return;
 
-    const od_int64 sample = mNINT64(size_*mutefraction_);
+    const int sample = mNINT32(size_*mutefraction_);
     if ( sample<0 || sample>=size_ )
 	return;
 
@@ -169,7 +167,7 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 	computeEnergyMute();
     }
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	int nrenergies = 0;
 	float energysum = 0;

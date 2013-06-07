@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "flatview.h"
 #include "array2dbitmap.h"
 
@@ -19,11 +18,7 @@ ________________________________________________________________________
 namespace FlatView
 {
 
-/*!
-\brief Manages bitmaps of flatviewers.
-*/
-
-mExpClass(uiFlatView) BitMapMgr
+mClass BitMapMgr
 {
 public:
 
@@ -57,32 +52,7 @@ protected:
     void			clearAll();
 };
 
-
-/*!
-\brief Flatview bitmap generation Task.
-*/
-
-mExpClass(uiFlatView) BitMapGenTask : public Task
-{
-public:
-    		BitMapGenTask(BitMapMgr& mgr,
-			const Geom::PosRectangle<double>& wr,
-			const Geom::Size2D<int>& bufwrsz,
-			const Geom::Size2D<int>& pix )
-		    : mgr_(mgr), wr_(wr), bufwrsz_(bufwrsz), availpixels_(pix){}
-
-    bool	execute() { return mgr_.generate(wr_,bufwrsz_,availpixels_); }
-
-protected:
-
-    BitMapMgr& 				mgr_;
-    const Geom::PosRectangle<double>& 	wr_;
-    const Geom::Size2D<int>& 		bufwrsz_;
-    const Geom::Size2D<int>& 		availpixels_;
-};
-
 } // namespace FlatView
 
 
 #endif
-

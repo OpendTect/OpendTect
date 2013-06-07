@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "multidimstorage.h"
 #include "callback.h"
 #include "color.h"
@@ -38,7 +37,7 @@ namespace Vel
 
 class PicksMgr;
 
-mExpClass(Velocity) Pick
+mClass Pick
 {
 public:
     			Pick(float depth=mUdf(float),
@@ -55,7 +54,7 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-mExpClass(Velocity) Picks : public CallBacker
+mClass Picks : public CallBacker
 { mRefCountImpl(Picks);
 public:
     			Picks();
@@ -202,7 +201,7 @@ protected:
 };
 
 
-mExpClass(Velocity) PicksMgr : public CallBacker
+mClass PicksMgr : public CallBacker
 {
 public:
     				PicksMgr();
@@ -222,9 +221,8 @@ protected:
 };
 
 
-mGlobal(Velocity) PicksMgr& VPM();
+mGlobal PicksMgr& VPM();
 
 }; //namespace
 
 #endif
-

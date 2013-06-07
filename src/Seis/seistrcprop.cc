@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -36,7 +36,7 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 #define mEndCompLoop }
 
 
-#define mSetStackTrcVal() mtrc().set( idx, val / (wght + 1.f), icomp )
+#define mSetStackTrcVal() mtrc().set( idx, val / (wght + 1.), icomp )
 
 void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 {
@@ -154,7 +154,7 @@ mStartCompLoop
 	{
 	    float maxval = -rg.start;
 	    if ( rg.stop > maxval ) maxval = rg.stop;
-	    const float sc = 1.0f / maxval;
+	    const float sc = 1. / maxval;
 	    for ( int idx=0; idx<sz; idx++ )
 		mtrc().set( idx, trc.get(idx,icomp) * sc, icomp );
 	}
@@ -194,7 +194,7 @@ mStartCompLoop
     else
     {
 	for ( int idx=0; idx<sz; idx++ )
-	    mtrc().set( idx, (float) (trc.get( idx, icomp ) / sqrtacorr), icomp );
+	    mtrc().set( idx, trc.get( idx, icomp ) / sqrtacorr, icomp );
     }
 
 mEndCompLoop
@@ -230,9 +230,9 @@ mStartCompLoop
     while ( pos < pp + mDefEps )
     {
 	int idx = trc.nearestSample( pos );
-	double x = ((pos - mpos) / taperlen) * M_PI;
-	double taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * (float) taper, icomp );
+	float x = ((pos - mpos) / taperlen) * M_PI;
+	float taper = 0.5 * ( 1 - cos(x) );
+	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
 	pos += trc.info().sampling.step;
     }
 
@@ -271,9 +271,9 @@ mStartCompLoop
     while ( pos <= mpos )
     {
 	int idx = trc.nearestSample( pos );
-	double x = ((mpos - pos) / taperlen) * M_PI;
-	double taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * (float) taper, icomp );
+	float x = ((mpos - pos) / taperlen) * M_PI;
+	float taper = 0.5 * ( 1 - cos(x) );
+	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
 	pos += trc.info().sampling.step;
     }
 
@@ -309,7 +309,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     if ( (myval > val0 && myval > val1) || (myval < val0 && myval < val1) )
     {
 	float wvpos = ev2.pos - ev1.pos;
-	return wvpos > 1e-6 ? 1.0f / wvpos : mUdf(float);
+	return wvpos > 1e-6 ? 1. / wvpos : mUdf(float);
     }
 
     // Now find next events ...
@@ -329,7 +329,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     float d1 = (mypos - ev1.pos) / dpos;
     float d2 = (ev2.pos - mypos) / dpos;
     float wvpos = dpos + d1*(ev3.pos-ev2.pos) + d2*(ev1.pos-ev0.pos);
-    return wvpos > 1e-6 ? 1.f / wvpos : mUdf(float);
+    return wvpos > 1e-6 ? 1. / wvpos : mUdf(float);
 }
 
 

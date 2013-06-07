@@ -11,16 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 
 //! Undefined value. IEEE gives NaN but that's not exactly what we want
-#define __mUndefDValue            1e30
-#define __mUndefFValue            1e30f
+#define __mUndefValue             1e30
 //! Check on undefined. Also works when double converted to float and vv
-#define __mIsUndefinedD(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
-#define __mIsUndefinedF(x)         (((x)>9.99999e29f)&&((x)<1.00001e30f))
+#define __mIsUndefined(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
 //! Almost MAXINT so unlikely, but not MAXINT to avoid that
 #define __mUndefIntVal            2109876543
 //! Almost MAXINT64 therefore unlikely.
@@ -46,12 +43,9 @@ Use like:
 namespace Values
 {
 
-/*!
-\brief Templatized undefined values.
-*/
-
+/*!  \brief Templatized undefined values.  */
 template<class T>
-mClass(Basic) Undef
+class Undef
 {
 public:
     static T		val();
@@ -61,12 +55,8 @@ public:
 };
 
 
-/*!
-\brief Undefined od_int16.
-*/
-
 template<>
-mClass(Basic) Undef<od_int16>
+class Undef<od_int16>
 {
 public:
     static od_int16	val()			{ return -32767; }
@@ -75,13 +65,8 @@ public:
     static void		setUdf( od_int32& i )	{ i = -32767; }
 };
 
-
-/*!
-\brief Undefined od_uint16.
-*/
-
 template<>
-mClass(Basic) Undef<od_uint16>
+class Undef<od_uint16>
 {
 public:
     static od_uint16	val()			{ return 65534; }
@@ -90,13 +75,8 @@ public:
     static void		setUdf( od_uint32& i )	{ i = 65534; }
 };
 
-
-/*!
-\brief Undefined od_int32.
-*/
-
 template<>
-mClass(Basic) Undef<od_int32>
+class Undef<od_int32>
 {
 public:
     static od_int32	val()			{ return __mUndefIntVal; }
@@ -105,13 +85,8 @@ public:
     static void		setUdf( od_int32& i )	{ i = __mUndefIntVal; }
 };
 
-
-/*!
-\brief Undefined od_uint32.
-*/
-
 template<>
-mClass(Basic) Undef<od_uint32>
+class Undef<od_uint32>
 {
 public:
     static od_uint32	val()			{ return __mUndefIntVal; }
@@ -121,12 +96,8 @@ public:
 };
 
 
-/*!
-\brief Undefined od_int64.
-*/
-
 template<>
-mClass(Basic) Undef<od_int64>
+class Undef<od_int64>
 {
 public:
     static od_int64	val()			{ return __mUndefIntVal64; }
@@ -135,13 +106,8 @@ public:
     static void		setUdf( od_int64& i )	{ i = __mUndefIntVal64; }
 };
 
-
-/*!
-\brief Undefined od_uint64.
-*/
-
 template<>
-mClass(Basic) Undef<od_uint64>
+class Undef<od_uint64>
 {
 public:
     static od_uint64	val()			{ return __mUndefIntVal64; }
@@ -151,12 +117,8 @@ public:
 };
 
 
-/*!
-\brief Undefined bool.
-*/
-
 template<>
-mClass(Basic) Undef<bool>
+class Undef<bool>
 {
 public:
     static bool		val()			{ return false; }
@@ -166,42 +128,30 @@ public:
 };
 
 
-/*!
-\brief Undefined float.
-*/
-
 template<>
-mClass(Basic) Undef<float>
+class Undef<float>
 {
 public:
-    static float	val()			{ return __mUndefFValue; }
+    static float	val()			{ return (float)__mUndefValue; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( float f )	{ return __mIsUndefinedF(f); }
-    static void		setUdf( float& f )	{ f = __mUndefFValue; }
+    static bool		isUdf( float f )	{ return __mIsUndefined(f); }
+    static void		setUdf( float& f )	{ f = (float)__mUndefValue; }
 };
 
 
-/*!
-\brief Undefined double.
-*/
-
 template<>
-mClass(Basic) Undef<double>
+class Undef<double>
 {
 public:
-    static double	val()			{ return __mUndefDValue; }
+    static double	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( double d )	{ return __mIsUndefinedD(d); }
-    static void		setUdf( double& d )	{ d = __mUndefDValue; }
+    static bool		isUdf( double d )	{ return __mIsUndefined(d); }
+    static void		setUdf( double& d )	{ d = __mUndefValue; }
 };
 
 
-/*!
-\brief Undefined const char*.
-*/
-
 template<>
-mClass(Basic) Undef<const char*>
+class Undef<const char*>
 {
 public:
     static const char*	val()			{ return ""; }
@@ -211,12 +161,8 @@ public:
 };
 
 
-/*!
-\brief Undefined char*.
-*/
-
 template<>
-mClass(Basic) Undef<char*>
+class Undef<char*>
 {
 public:
     static const char*	val()			{ return ""; }
@@ -264,8 +210,8 @@ T& setUdf( T& u )
 template <class T>
 inline bool dbgIsUdf( T val )
     { return Values::isUdf( val ); }
-mGlobal(Basic) bool dbgIsUdf(float);
-mGlobal(Basic) bool dbgIsUdf(double);
+mGlobal bool dbgIsUdf(float);
+mGlobal bool dbgIsUdf(double);
 
 #ifdef __debug__
 # define mIsUdf(val) dbgIsUdf(val)
@@ -281,12 +227,11 @@ mGlobal(Basic) bool dbgIsUdf(double);
    ensure explicit thinking about the situation. */
 
 # define scUndefValue		 "1e30"
-# define mcUndefValue             __mUndefDValue
-# define mcIsUndefined(x)         __mIsUndefinedD(x)
+# define mcUndefValue             __mUndefValue
+# define mcIsUndefined(x)         __mIsUndefined(x)
 
 
 #endif 
 
 
 #endif
-

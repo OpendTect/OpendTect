@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoShapeHints;
@@ -23,7 +22,7 @@ namespace visBase
 
 /*!Controls the culling and rendering of an object. See Coin for details. */
 
-mExpClass(visBase) ShapeHints : public DataObject
+mClass ShapeHints : public DataObject
 {
 public:
 
@@ -50,4 +49,3 @@ protected:
 }
 
 #endif
-

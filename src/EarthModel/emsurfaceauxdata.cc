@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emsurfaceauxdata.h"
 
@@ -140,7 +140,7 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
     if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
 	return mUdf(float);
 
-    const BinID geomrc( posid.getRowCol() );
+    const BinID geomrc( RowCol(posid.subID()) );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
 	return mUdf(float);
@@ -166,7 +166,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
     if ( !auxdata_[sectionidx] )
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
-    const BinID geomrc( posid.getRowCol() );
+    const BinID geomrc( RowCol(posid.subID()) );
     const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
     if ( !pos.valid() )
     {
@@ -203,7 +203,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
     { horizon_.errmsg_ = tr ? tr->errMsg() : "Cannot find Translator";return 0;}
 
@@ -243,7 +243,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	    return fnm;
     }
 
-    //return 0;
+    return 0;
 }
 
 
@@ -285,23 +285,22 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
     if ( !auxdata_.validIdx( sectionidx ) )
 	return;
 
-    delete auxdata_.removeSingle( sectionidx );
+    delete auxdata_.remove( sectionidx );
 }
 
 
-bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
-{ return getFileName(ioobj,attrnm).isEmpty(); }
-
-BufferString
-    SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
-
-
-BufferString
-    SurfaceAuxData::getFileName( const char* fulluserexp, const char* attrnmptr)
+BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
+					  const char* attrnm )
 {
-    FixedString attrnm( attrnmptr );
+    return getFileName( ioobj.fullUserExpr(true), attrnm );
+}
+
+
+BufferString SurfaceAuxData::getFileName( const char* fulluserexp,
+					  const char* attrnm )
+{
     const BufferString basefnm( fulluserexp );
+
     BufferString fnm; int gap = 0;
     for ( int idx=0; ; idx++ )
     {
@@ -312,7 +311,7 @@ BufferString
 	    { gap++; continue; }
 
 	EM::dgbSurfDataReader rdr( fnm.buf() );
-	if ( rdr.dataName()==attrnm )
+	if ( !strcmp(rdr.dataName(),attrnm) )
 	    break;
     }
 

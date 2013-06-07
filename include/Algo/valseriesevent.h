@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "enums.h"
 #include "mathfunc.h"
 #include "ptrman.h"
@@ -20,7 +19,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseries.h"
 
-mExpClass(Algo) VSEvent
+mClass VSEvent
 {
 public:
     enum Type	{ None, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,
@@ -29,15 +28,15 @@ public:
 };
 
 
-/*!
-\brief Event in value series.
-  
+/*!\brief Event in value series
+
   Template args are: Value Type, Position Type.
   Usually float,float
-*/
+
+  */
 
 template <class VT,class PT>
-mClass(Algo) ValueSeriesEvent : public VSEvent
+class ValueSeriesEvent : public VSEvent
 {
 public:
 
@@ -50,8 +49,7 @@ public:
 };
 
 
-/*!
-\brief Event finder in gate.
+/*!\brief Event finder in gate.
 
   The gate is absolute. The finder will start at the 'start' and stop at the
   'stop'. This is important because the event finding has a direction! Thus,
@@ -59,10 +57,11 @@ public:
 
   The 'occ' parameter is specifies the occurrence of the event; it is ignored
   for GateMin and Max.
-*/
+ 
+ */
 
 template <class VT,class PT>
-mClass(Algo) ValueSeriesEvFinder
+class ValueSeriesEvFinder
 {
 public:
 				ValueSeriesEvFinder( const ValueSeries<VT>& v,
@@ -377,7 +376,7 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 					Interval<PT> pg, VSEvent::Type evtype )
 {
     Interval<PT> curg( pg );
-    VSEvent::Type revtype = VSEvent::Min;
+    VSEvent::Type revtype;
     if ( evtype == VSEvent::Max )
 	revtype = VSEvent::Min;
     else if ( evtype == VSEvent::Min )
@@ -395,11 +394,11 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 	if ( mIsUdf(reqev.pos) ) break;
 
 	posset += reqev.pos;
-	curg.start = reqev.pos + mCast(PT,1e-5);
+	curg.start = reqev.pos + 1e-5;
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
 	if ( mIsUdf(revev.pos) ) break;
 
-	curg.start = revev.pos + mCast(PT,1e-5);
+	curg.start = revev.pos + 1e-5;
     }
 
     if ( !posset.size() ) return false;
@@ -412,4 +411,3 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 #undef mDecrOccAtZero
 
 #endif
-

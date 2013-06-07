@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "callback.h"
 #include "emposid.h"
 #include "menuhandler.h"
@@ -27,7 +26,7 @@ class uiVisPartServer;
 class MultiID;
 
 
-mExpClass(uiVis) uiVisEMObject : public CallBacker
+mClass uiVisEMObject : public CallBacker
 {
 public:
     			uiVisEMObject(uiParent*,int displayid,
@@ -110,4 +109,3 @@ protected:
 };
 
 #endif
-

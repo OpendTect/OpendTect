@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiselsimple.h"
 #include "multiid.h"
 #include "ranges.h"
@@ -39,7 +38,7 @@ namespace Well { class Data; class Track; class D2TModel; class Log; }
 
 /*! \brief Dialog for D2T Model editing. */
 
-mExpClass(uiWell) uiWellTrackDlg : public uiDialog
+mClass uiWellTrackDlg : public uiDialog
 {
 public:
 				uiWellTrackDlg(uiParent*,Well::Data&);
@@ -64,7 +63,7 @@ protected:
 };
 
 
-mExpClass(uiWell) uiD2TModelDlg : public uiDialog
+mClass uiD2TModelDlg : public uiDialog
 {
 public:
 				uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
@@ -94,7 +93,7 @@ protected:
 Dialog for loading logs from las file
 */
 
-mExpClass(uiWell) uiLoadLogsDlg : public uiDialog
+mClass uiLoadLogsDlg : public uiDialog
 {
 public:
     				uiLoadLogsDlg(uiParent*,Well::Data&);
@@ -117,7 +116,7 @@ protected:
 
 
 
-mExpClass(uiWell) uiExportLogs : public uiDialog
+mClass uiExportLogs : public uiDialog
 {
 public:
     				uiExportLogs(uiParent*,
@@ -146,7 +145,7 @@ protected:
 
 class uiColorInput;
 
-mExpClass(uiWell) uiNewWellDlg : public uiGetObjectName
+mClass uiNewWellDlg : public uiGetObjectName
 {
 public:
     				uiNewWellDlg(uiParent*);
@@ -167,7 +166,7 @@ protected:
 
 
 /* brief some editable uom for the logs */
-mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
+mClass uiWellLogUOMDlg : public uiDialog
 {
 public:
 				uiWellLogUOMDlg(uiParent*,Well::Log&);
@@ -182,4 +181,3 @@ protected:
 
 
 #endif
-

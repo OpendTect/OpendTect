@@ -12,34 +12,31 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
+
+/*!\brief FingerPrint Attribute
+
+FingerPrint vector= nrattrib= 
+
+Calculates the match with a definite vector.
+
+Input:
+0		Data 0
+1		Data 1
+.		.
+.		.
+nrattrib-1	Data nrattrib-1
+
+
+Output:
+0       Match
+
+*/
 
 namespace Attrib
 {
 
-/*!
-\brief %FingerPrint Attribute
-  Calculates the match with a definite vector.
- 
-<pre>
-  FingerPrint vector= nrattrib= 
-  
-  
-  Input:
-  0		Data 0
-  1		Data 1
-  .		.
-  .		.
-  nrattrib-1	Data nrattrib-1
-  
-  
-  Output:
-  0       Match
-</pre>
-*/
-
-mExpClass(Attributes) FingerPrint : public Provider
+mClass FingerPrint : public Provider
 {
 public:
     static void			initClass();
@@ -89,4 +86,3 @@ protected:
 
 
 #endif
-

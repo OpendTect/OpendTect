@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "errh.h"
 #include "odplatform.h"
-#include "odcomplex.h"
 
 #include <iostream>
 #include <fstream>
@@ -32,23 +31,16 @@ static const char* rcsID mUsedVar = "$Id$";
 static std::ostream* dbglogstrm = 0;
 
 
-mExternC(Basic) void od_debug_init(void)
-{
-}
-
 
 bool dbgIsUdf( float val )
 {
     if ( !Math::IsNormalNumber(val) )
     {
-	if ( DBG::crashOnNaN() )
-	{
+	if ( !DBG::hideNaNMessage() )
 	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
-	    DBG::forceCrash(false);
-	    return true;
-	}
+	return true;
     }
-
+    
     return Values::isUdf( val );
 }
 
@@ -57,41 +49,22 @@ bool dbgIsUdf( double val )
 {
     if ( !Math::IsNormalNumber(val) )
     {
-	if ( DBG::crashOnNaN() )
-	{
+	if ( !DBG::hideNaNMessage() )
 	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
-	    DBG::forceCrash(false);
-	    return true;
-	}
+	return true;
     }
-
+    
     return Values::isUdf( val );
 }
 
-
-bool dbgIsUdf( float_complex val )
-{
-    if ( !Math::IsNormalNumber(val.real()) || !Math::IsNormalNumber(val.imag()))
-    {
-	if ( DBG::crashOnNaN() )
-	{
-	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(fc)");
-	    DBG::forceCrash(false);
-	    return true;
-	}
-    }
-
-    return Values::isUdf( val );
-}
 
 namespace DBG
 {
-
-
-bool crashOnNaN()
+    
+bool hideNaNMessage()
 {
-    static bool dohide = GetEnvVarYN( "OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER" );
-    return !dohide;
+    static bool hidenanmsgs = GetEnvVarYN( "OD_HIDE_NOT_NORMAL_NUMBER_MSGS" );
+    return hidenanmsgs;
 }
 
 
@@ -105,7 +78,7 @@ static int getMask()
     BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
     const char* buf = envmask.buf();
     themask = toInt( buf );
-    if ( toBool(buf,false) ) themask = 0xffff;
+    if ( buf[0] == 'y' || buf[0] == 'Y' ) themask = 0xffff;
 
     const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );
     if ( dbglogfnm && !themask )
@@ -121,8 +94,7 @@ static int getMask()
 	    {
 		delete dbglogstrm; dbglogstrm = 0;
 		msg = "Cannot open debug log file '";
-		msg += dbglogfnm;
-		msg += "': reverting to stdout";
+		msg += dbglogfnm; msg == "': reverting to stdout";
 		message( msg );
 	    }
 	}
@@ -149,7 +121,7 @@ bool isOn( int flag )
 void forceCrash( bool withdump )
 {
     if ( withdump )
-	SignalHandling::SH().doStop( 6, false ); // 6 = SIGABRT
+	SignalHandling::theinst_.doStop( 6, false ); // 6 = SIGABRT
     else
 	{ char* ptr = 0; *ptr = 0; }
 }
@@ -235,6 +207,5 @@ extern "C" void od_debug_messagef( int flag, const char* msg )
     { DBG::message(flag,msg); }
 extern "C" void od_debug_putProgInfo( int argc, char** argv )
     { DBG::putProgInfo(argc,argv); }
-
 extern "C" void od_putProgInfo( int argc, char** argv )
-{ od_debug_putProgInfo(argc,argv); }
+    { od_debug_putProgInfo(argc,argv); }

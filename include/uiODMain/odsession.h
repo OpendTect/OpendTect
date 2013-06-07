@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "sets.h"
 #include "transl.h"
 #include "iopar.h"
 
 /*!\brief dTect session save/restore */
 
-mExpClass(uiODMain) ODSession
+mClass ODSession
 {
 public:
     			ODSession();
@@ -79,7 +78,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
+mClass ODSessionTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODSession)
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
@@ -87,7 +86,7 @@ public:
 };
 
 
-mExpClass(uiODMain) ODSessionTranslator : public Translator
+mClass ODSessionTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODSession)
@@ -110,7 +109,7 @@ public:
 };
     
 
-mExpClass(uiODMain) dgbODSessionTranslator : public ODSessionTranslator
+mClass dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
 public:
     			mDefEmptyTranslatorConstructor(dgb,ODSession)
@@ -134,7 +133,7 @@ class uiButton;
 Session manager
 */
 
-mExpClass(uiODMain) uiSessionMan : public uiObjFileMan
+mClass uiSessionMan : public uiObjFileMan
 {
 public:
     				uiSessionMan(uiParent*);
@@ -148,4 +147,3 @@ protected:
 };
 
 #endif
-

@@ -12,16 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "odcomplex.h"
 #include "sets.h"
 
 
-/*!
-\brief A reflectivity spike.
-*/
-
-mClass(Basic) ReflectivitySpike
+mClass ReflectivitySpike
 {
 public:
     			ReflectivitySpike()
@@ -70,4 +65,3 @@ inline bool ReflectivitySpike::isDefined() const
 }
 
 #endif
-

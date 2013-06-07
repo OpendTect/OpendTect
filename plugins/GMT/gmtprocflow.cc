@@ -4,7 +4,7 @@
  * DATE     : Sept 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: gmtprocflow.cc,v 1.2 2009/07/22 16:01:27 cvsbert Exp $";
 
 #include "gmtdef.h"
 #include "gmtprocflow.h"
@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
-					ctxt->selkey = ODGMT::sKeyGMTSelKey())
+					ctxt->selkey = ODGMT::sKeyGMTSelKey)
 
 
 ODGMT::ProcFlow::ProcFlow( const char* nm )
@@ -40,10 +40,9 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
 					BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a GMT flow"; return false; }
-    
+    mDynamicCastGet(ODGMTProcFlowTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a GMT flow"; return false; }
+    PtrMan<ODGMTProcFlowTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -56,9 +55,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 				     const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store flow in data base"; return false; }
-    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
-		 ioobj->createTranslator());
-
+    mDynamicCastGet(ODGMTProcFlowTranslator*,tr,ioobj->getTranslator())
     if ( !tr ) { bs = "Selected object is not a GMT flow"; return false;}
 
     bs = "";
@@ -67,7 +64,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( pf, *conn );
-
+    delete tr;
     return bs.isEmpty();
 }
 

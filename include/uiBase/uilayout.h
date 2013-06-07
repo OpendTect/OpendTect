@@ -11,7 +11,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-#include "uibasemod.h"
 #include "commondefs.h"
 
 class i_LayoutItem;
@@ -35,7 +34,7 @@ enum constraintType
 };
 
 
-mExpClass(uiBase) uiConstraint
+mClass uiConstraint
 {
 friend class i_LayoutItem;
 public:
@@ -55,4 +54,3 @@ protected:
 };
 
 #endif
-

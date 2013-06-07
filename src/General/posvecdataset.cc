@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "posvecdataset.h"
 
@@ -159,7 +159,7 @@ void PosVecDataSet::removeColumn( int colidx )
     if ( colidx > 0 && colidx < coldefs_.size() )
     {
 	DataColDef* cd = coldefs_[colidx];
-	coldefs_.removeSingle( colidx );
+	coldefs_.remove( colidx );
 	delete cd;
 	data_.removeVal( colidx );
     }
@@ -272,6 +272,7 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
 	mErrRet("Cannot open input file")
     std::string buf; *sd.istrm >> buf;
     sd.istrm->seekg( 0, std::ios::beg );
+    char c = sd.istrm->peek();
     tabstyle = buf != "dTect" && buf != "dGB-GDI"; // For legacy data
     if ( !tabstyle )
     {
@@ -405,7 +406,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 		    delete cd;
 		}
 	    }
-	    else if ( strm.hasKeyword( sKey::Name() ) )
+	    else if ( strm.hasKeyword( sKey::Name ) )
 		setName( strm.value() );
 	}
 	if ( !atEndOfSection(strm.next()) )
@@ -474,7 +475,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	    mErrRet("Cannot write header to output file")
 
 	if ( *name() )
-	    strm.put( sKey::Name(), name() );
+	    strm.put( sKey::Name, name() );
 	strm.put( "--\n-- Column definitions:" );
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -83,7 +83,7 @@ void HostData::init( const char* nm )
     { \
 	char* ptr=bs.buf(); \
 	for ( unsigned int idx=0; idx<bs.size(); idx++, ptr++ ) \
-	    { *ptr = (char) tolower(*ptr); } \
+	    { *ptr = tolower(*ptr); } \
     }
 
 static FilePath getReplacePrefix( const FilePath& dir_,
@@ -139,7 +139,8 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 HostDataList::HostDataList( bool readhostfile )
-    	: realaliases_(false)
+    	: ManagedObjectSet<HostData>(false)
+	, realaliases_(false)
     	, rshcomm_("rsh")
     	, defnicelvl_(19)
     	, portnr_(1963)
@@ -244,7 +245,7 @@ bool HostDataList::readHostFile( const char* fname )
 		newhd->aliases_.add( bufptr );
 
 	    mGetVStr(1);
-	    newhd->iswin_ = FixedString(bufptr)== "win";
+	    newhd->iswin_ = !strcmp( bufptr, "win" );
 
 	    mGetVStr(2);
 	    if ( *bufptr )

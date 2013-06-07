@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidlggroup.h"
 #include "iopar.h"
 #include "samplingdata.h"
@@ -23,7 +22,7 @@ class uiGenInput;
 /*!User interface for EventTracker. */
 
 
-mExpClass(uiTools) uiEventTracker : public uiDlgGroup
+mClass uiEventTracker : public uiDlgGroup
 {
 public:
     			uiEventTracker(uiParent*,EventTracker&,
@@ -56,4 +55,3 @@ protected:
 };
 			       
 #endif
-

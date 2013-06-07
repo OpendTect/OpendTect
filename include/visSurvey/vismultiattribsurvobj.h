@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -29,12 +28,12 @@ namespace ColTab  { class MapperSetup; class Sequence; }
 namespace visSurvey
 {
 
-/*!
-\brief Base class for objects with multitextures. Class handles all texture
-handling for inheriting classes, which avoids code duplication.
+/*!Base class for objects with multitextures. Class handles all texture handling
+   for inheriting classes, which avoids code duplication.
 */
 
-mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl,
+
+mClass MultiTextureSurveyObject : public visBase::VisualObjectImpl,
 				  public SurveyObject
 {
 public:
@@ -141,4 +140,3 @@ private:
 } // namespace visSurvey
 
 #endif
-

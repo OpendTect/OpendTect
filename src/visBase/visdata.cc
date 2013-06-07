@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visdata.h"
 
@@ -18,40 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/SoOutput.h>
 
-#include <osg/Node>
-#include <osg/ValueObject>
-#include <osgDB/WriteFile>
-
 namespace visBase
 {
 
 
-bool DataObject::doosg_ = false;
-
-void DataObject::setOsg()
-{ doosg_ = true; }
-
-bool DataObject::doOsg()
-{ return doosg_; }
-
-
-void DataObject::enableTraversal( TraversalType tt, bool yn )
-{
-    if ( osgNode() )
-    {
-	unsigned int mask = osgNode()->getNodeMask();
-	osgNode()->setNodeMask( yn ? (mask | tt) : (mask & ~tt) );
-    }
-}
-
-
-bool DataObject::isTraversalEnabled( TraversalType tt ) const
-{
-    return osgNode() && (osgNode()->getNodeMask() & tt);
-}
-
-
-FixedString DataObject::name() const
+const char* DataObject::name() const
 {
     return !name_ || name_->isEmpty() ? 0 : name_->buf();
 }
@@ -65,8 +36,6 @@ void DataObject::setName( const char* nm )
 
     if ( !name_ ) name_ = new BufferString;
     (*name_) = nm;
-
-    updateOsgNodeData();
 }
 
 
@@ -81,29 +50,6 @@ DataObject::~DataObject()
 {
     DM().removeObject( this );
     delete name_;
-}
-
-
-void DataObject::setID( int nid )
-{
-    id_ = nid;
-    updateOsgNodeData();
-}
-
-
-void DataObject::updateOsgNodeData()
-{
-    if ( !doOsg() )
-	return;
-
-    osg::Node* osgnode = gtOsgNode();
-    if ( !osgnode )
-	return;
-
-    osgnode->setName( name_ ? name_->buf() : "" );
-
-    static std::string idstr( sKey::ID() );
-    osgnode->setUserValue( idstr, id() );
 }
 
 
@@ -128,21 +74,16 @@ void DataObject::setDisplayTransformation( const mVisTrans* trans )
 
 void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
-    par.set( sKey::Type(), getClassName() );
+    par.set( sKey::Type, getClassName() );
 
     const char* nm = name();
     if ( nm )
-	par.set( sKey::Name(), nm );
+	par.set( sKey::Name, nm );
 }
 
 
 bool DataObject::serialize( const char* filename, bool binary )
 {
-    if ( doOsg() && osgNode() )
-    {
-	return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
-    }
-
     SoNode* node = getInventorNode();
     if ( !node ) return false;
 
@@ -159,7 +100,7 @@ bool DataObject::serialize( const char* filename, bool binary )
 
 int DataObject::usePar( const IOPar& par )
 {
-    const char* nm = par.find( sKey::Name() );
+    const char* nm = par.find( sKey::Name );
     if ( nm )
 	setName( nm );
 

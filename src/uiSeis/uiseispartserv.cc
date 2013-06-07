@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiseispartserv.h"
 
@@ -66,7 +66,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    SeisIOObjInfo::initDefault( sKey::Steering() );
+    SeisIOObjInfo::initDefault( sKey::Steering );
 }
 
 
@@ -174,7 +174,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
 					 BufferString& setname )
 {
-    mGet2DLineSet(;)
+    mGet2DLineSet()
     setname = lineset.name();
 }
 
@@ -294,7 +294,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
     lineset.getCubeSampling( cs, lidx );
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
     uiTaskRunner dlg( appserv().parent() );
-    return TaskRunner::execute( &dlg, *exec );
+    return dlg.execute( *exec );
 }
 
 
@@ -347,6 +347,6 @@ void uiSeisPartServer::processVelConv() const
 void uiSeisPartServer::get2DZdomainAttribs( const MultiID& mid,
 	const char* linenm, const char* zdomainstr, BufferStringSet& attribs )
 {
-    mGet2DLineSet(;)
+    mGet2DLineSet()
     lineset.getZDomainAttrib( attribs, linenm, zdomainstr );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "moddepmgr.h"
@@ -18,15 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocsmoother.h"
 #include "volprocbodyfiller.h"
 #include "volprocvolreader.h"
-#include "volproctrans.h"
 
 
 mDefModInitFn(VolumeProcessing)
 {
     mIfNotFirstTime( return );
-    
-    VolProcessingTranslatorGroup::initClass();
-    dgbVolProcessingTranslator::initClass();
 
     VolProc::HorInterFiller::initClass();
     VolProc::LateralSmoother::initClass();

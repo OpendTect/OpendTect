@@ -13,16 +13,13 @@ ________________________________________________________________________
 -*/
 
 
-#include "basicmod.h"
 #include "conn.h"
 #include "strmdata.h"
 
 
-/*!
-\brief Connection with an underlying iostream.
-*/
+/*!\brief Connection with an underlying iostream. */
 
-mExpClass(Basic) StreamConn : public Conn
+mClass StreamConn : public Conn
 {
 public:
 			StreamConn();
@@ -75,4 +72,3 @@ private:
 
 
 #endif
-

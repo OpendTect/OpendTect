@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "color.h"
 #include "uigroup.h"
 
@@ -26,11 +25,12 @@ class uiSpinBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-mGlobal(uiBase) bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
+mGlobal bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
 		    bool withtransp=false); 
 
 // To be used by cmddriver to select a color while closing the QColorDialog
-mGlobal(uiBase) void		setExternalColor( const Color& );
+mGlobal void		setExternalColor( const Color& );
+static Color*	externalcolor = 0;
 
 
 /*! \brief small element for color selection. Has no text label.
@@ -40,10 +40,10 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
  
  */
 
-mExpClass(uiBase) uiColorInput : public uiGroup
+mClass uiColorInput : public uiGroup
 {
 public:
-    mExpClass(uiBase) Setup
+    mClass Setup
     {
     public:
 
@@ -102,4 +102,3 @@ protected:
 };
 
 #endif
-

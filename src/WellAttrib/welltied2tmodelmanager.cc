@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "welltied2tmodelmanager.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
-#include "welltiegeocalculator.h"
 #include "welltiesetup.h"
 
 #include <math.h>
@@ -26,9 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts,
+       			  const Data& data )
 	: orgd2t_(0)
 	, prvd2t_(0)
+	, data_(data)
 	, datawriter_(dwr)
 	, wd_(&wd)
 	, emptyoninit_(false)
@@ -39,6 +40,33 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
     WellTie::GeoCalculator gc;
     Well::D2TModel* d2t = wts.useexistingd2tm_
 			? wd.d2TModel()
+			: gc.getModelFromVelLog( wd, wts.vellognm_ );
+    if ( !d2t )
+	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
+
+    if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
+	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );
+
+    setAsCurrent( d2t );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
+}
+
+
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Data& data )
+	: orgd2t_(0)
+	, prvd2t_(0)
+	, data_(data)
+	, datawriter_(dwr)
+	, wd_(&wd)
+	, emptyoninit_(false)
+{
+    const WellTie::Setup& wts = data.setup();
+    if ( mIsUnvalidD2TM( wd ) )
+	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
+
+    WellTie::GeoCalculator gc;
+    Well::D2TModel* d2t = wts.useexistingd2tm_
+       			? wd.d2TModel()
 			: gc.getModelFromVelLog( wd, wts.vellognm_ );
     if ( !d2t )
 	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
@@ -162,3 +190,4 @@ void D2TModelMgr::setFromData( float* dahs, float* times, int sz )
 }
 
 }; //namespace WellTie
+

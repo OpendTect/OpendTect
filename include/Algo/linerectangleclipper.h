@@ -15,14 +15,13 @@ ________________________________________________________________________
 #include "geometry.h"
 #include <math.h>
 
-/*!
-\brief Clips a line between two points by a rectangle. The line may be
-completely outside, completely inside or partially inside. If partially
-inside, new endpoints are calculated.
+/*!Clips a line between two points by a rectangle. The line may be completely
+   outside, completely inside or partially inside. If partially inside, new
+   endpoints are calculated.
 */
 
 template <class T>
-mClass(Algo) LineRectangleClipper
+class LineRectangleClipper
 {
 public:
     inline			LineRectangleClipper(const Geom::Rectangle<T>&);

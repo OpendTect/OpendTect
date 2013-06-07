@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "namedobj.h"
 #include "segyhdrdef.h"
 #include "typeset.h"
@@ -26,7 +25,7 @@ namespace SEGY
 class BinHeader;
 class TxtHeader;
 
-mExpClass(Seis) HdrCalc
+mClass HdrCalc
 {
 public:
 
@@ -42,7 +41,7 @@ public:
 };
 
 
-mExpClass(Seis) HdrCalcSet : public ObjectSet<HdrCalc>
+mClass HdrCalcSet : public ObjectSet<HdrCalc>
 		  , public NamedObject
 {
 public:
@@ -90,4 +89,3 @@ protected:
 } // namespace
 
 #endif
-

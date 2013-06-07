@@ -12,15 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 
 
-/*!
-\brief Provides file and directory names in a certain directory.
-*/
+/*!\brief provides file and directory names in a certain directory.  */
 
-mExpClass(Basic) DirList : public BufferStringSet
+mClass DirList : public BufferStringSet
 {
 public:
 
@@ -47,4 +44,3 @@ private:
 
 
 #endif
-

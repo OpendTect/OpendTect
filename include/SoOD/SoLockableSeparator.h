@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/threads/SbRWMutex.h>
@@ -33,7 +32,7 @@ func( action* a )				\
 
 /*!A separator with a lock, that is readlocked during all traversals. */
 
-mSoODClass SoLockableSeparator : public SoSeparator
+mClass SoLockableSeparator : public SoSeparator
 {
     SO_NODE_HEADER(SoLockableSeparor);
 
@@ -66,4 +65,3 @@ protected:
 };
 
 #endif
-

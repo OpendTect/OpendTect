@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: gmtclip.cc,v 1.1 2011/05/10 03:51:28 cvsraman Exp $";
 
 #include "gmtclip.h"
 
@@ -39,7 +39,7 @@ GMTPar* GMTClip::createInstance( const IOPar& iop )
 bool GMTClip::isStart() const
 {
     bool ret = false;
-    getYN( ODGMT::sKeyStartClipping(), ret );
+    getYN( ODGMT::sKeyStartClipping, ret );
     return ret;
 }
 
@@ -48,8 +48,8 @@ const char* GMTClip::userRef() const
 {
     BufferString* str = new BufferString( "Clipping " );
     bool isstartofclipping = false, clipoutside = false;
-    getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
-    getYN( ODGMT::sKeyClipOutside(), clipoutside );
+    getYN( ODGMT::sKeyStartClipping, isstartofclipping );
+    getYN( ODGMT::sKeyClipOutside, clipoutside );
     *str += isstartofclipping ? "Start: " : "Stop";
     if ( isstartofclipping ) *str += clipoutside ? "Outside" : "Inside";
     return str->buf();
@@ -65,7 +65,7 @@ bool GMTClip::fillLegendPar( IOPar& par ) const
 bool GMTClip::execute( std::ostream& strm, const char* fnm )
 {
     bool isstartofclipping = false;
-    getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
+    getYN( ODGMT::sKeyStartClipping, isstartofclipping );
     BufferString comm( "psclip " );
     if ( !isstartofclipping )
     {
@@ -80,7 +80,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
     }
 
     MultiID id;
-    get( sKey::ID(), id );
+    get( sKey::ID, id );
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find polygon")
 
@@ -91,7 +91,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet( errmsg )
 
     bool clipoutside = false;
-    getYN( ODGMT::sKeyClipOutside(), clipoutside );
+    getYN( ODGMT::sKeyClipOutside, clipoutside );
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
     comm += rangestr;
     if ( !clipoutside ) comm += " -N";
@@ -101,7 +101,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Failed")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
+	*sd.ostrm << ps[idx].pos.x << " " << ps[idx].pos.y << std::endl;
 
     sd.close();
     strm << "Done" << std::endl;

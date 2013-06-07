@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cubicbeziercurve.h"
 
@@ -23,7 +23,7 @@ CubicBezierCurve::CubicBezierCurve( const Coord3& c0, const Coord3& c1,
 				    int fp, int step_ )
     : firstparam( fp )
     , paramstep( step_ )
-    , directioninfluence ( step_/4.0f )
+    , directioninfluence ( step_/4.0 )
     , iscircular(false)
 {
     if ( !c0.isDefined() || !c1.isDefined() )
@@ -151,7 +151,7 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
     {
 	positions.insert( 0, np );
 	directions.insert( 0, Coord3::udf() );
-	firstparam = mCast( int, param );
+	firstparam = param;
 	triggerNrPosCh( param );
     }
     else if ( idx==positions.size() )
@@ -201,8 +201,8 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
     if ( idx==0 || idx==positions.size()-1 )
 	return unsetPosition(param);
 
-    positions.removeSingle( idx );
-    directions.removeSingle( idx );
+    positions.remove( idx );
+    directions.remove( idx );
 
     TypeSet<GeomPosID> changedpids;
     for ( int idy=idx; idy<positions.size(); idy ++ )
@@ -225,8 +225,8 @@ bool CubicBezierCurve::unsetPosition( GeomPosID param )
     if ( !idx || idx==positions.size()-1)
     {
 	if ( !idx ) firstparam += paramstep;
-	positions.removeSingle(idx);
-	directions.removeSingle(idx);
+	positions.remove(idx);
+	directions.remove(idx);
 	triggerNrPosCh( param );
 	return true;
     }

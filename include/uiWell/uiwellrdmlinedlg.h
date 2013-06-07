@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
@@ -31,7 +30,7 @@ class uiPushButton;
 class uiWellPartServer;
 
 
-mExpClass(uiWell) uiWellSelGrp : public uiGroup
+mClass uiWellSelGrp : public uiGroup
 {
 public:
     			uiWellSelGrp(uiParent*,bool withpos=true);
@@ -81,7 +80,7 @@ protected:
 
 */
 
-mExpClass(uiWell) uiWell2RandomLineDlg : public uiDialog
+mClass uiWell2RandomLineDlg : public uiDialog
 {
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
@@ -112,4 +111,3 @@ protected:
 };
 
 #endif
-

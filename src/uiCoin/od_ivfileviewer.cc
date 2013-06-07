@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* _rcsID mUsedVar = "$Id$";
+static const char* _rcsID = "$Id$";
 
 #define USESOODCLASSES
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "odusgclient.h"
 #include "uivarwizard.h"
 class uiSeisBayesPDFInp;
@@ -23,7 +22,7 @@ class uiSeisBayesOut;
 
 /*!\brief 'Server' for Seismic Bayesian Inversion. */
 
-mExpClass(uiSeis) uiSeisBayesClass : public uiVarWizard
+mClass uiSeisBayesClass : public uiVarWizard
 			, public Usage::Client
 {
 public:
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

@@ -14,7 +14,6 @@ Translators for seismic traces.
 
 -*/
 
-#include "seismod.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include "samplingdata.h"
@@ -75,19 +74,14 @@ SeisTrcReader and SeisTrcWriter do support it.
 */
 
 
-mExpClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
+mClass SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
-    
-    static const char*	sKeyDefault3D() { return "Cube"; }
-    static const char*	sKeyDefault2D()	{ return "LineSet"; }
-    static const char*	sKeyDefaultAttrib() { return "Attribute"; }
-    const char*		getSurveyDefaultKey(const IOObj*) const;
 };
 
 
-mExpClass(Seis) SeisTrcTranslator : public Translator
+mClass SeisTrcTranslator : public Translator
 {
 public:
 
@@ -98,7 +92,7 @@ public:
 
     */
 
-    mExpClass(Seis) ComponentData : public BasicComponentInfo
+    mClass ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
 
@@ -122,7 +116,7 @@ public:
 
     */
 
-    mExpClass(Seis) TargetComponentData : public ComponentData
+    mClass TargetComponentData : public ComponentData
     {
 	friend class	SeisTrcTranslator;
 
@@ -229,9 +223,6 @@ public:
     void		setCurLineKey( const LineKey& lk )
     			{ curlinekey = lk; }
 
-    TraceID::GeomID	curGeomID() const		{ return geomid; }
-    void		setCurGeomID(TraceID::GeomID gid) { geomid = gid; }
-
     virtual bool	isReadDefault() const		{ return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
 
@@ -263,7 +254,6 @@ protected:
     int					outnrsamples;
     Interval<int>			samps;
     LineKey				curlinekey;
-    TraceID::GeomID			geomid;
 
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);
@@ -312,4 +302,3 @@ public:
 
 
 #endif
-

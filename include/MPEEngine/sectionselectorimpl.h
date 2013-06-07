@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionselector.h"
 
 #include "position.h"
@@ -26,11 +25,7 @@ namespace EM { class Horizon3D; }
 namespace MPE
 {
 
-/*!
-\brief BinID SectionSourceSelector.
-*/
-
-mExpClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
+mClass BinIDSurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
@@ -43,11 +38,8 @@ protected:
 };
 
 
-/*!
-\brief Surface SectionSourceSelector
-*/
 
-mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
+mClass SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
     		SurfaceSourceSelector(const EM::EMObject&,
@@ -63,5 +55,4 @@ protected:
 };
 
 #endif
-
 

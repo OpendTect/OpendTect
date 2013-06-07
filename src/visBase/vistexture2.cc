@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -137,7 +137,7 @@ void Texture2::polyInterp( const Array2DInfoImpl& newsize,
     const float x0step = (datax0size-1)/(float)(x0sz-1);
     const float x1step = (datax1size-1)/(float)(x1sz-1);
 
-    const float udf = mUdf(float);
+    float val; const float udf = mUdf(float);
     for ( int x0=0; x0<x0sz; x0++ )
     {
 	const float x0pos=x0*x0step;
@@ -300,7 +300,7 @@ void Texture2Set::removeAll( bool keepfirst )
 	text->getColorTab().autoscalechange.remove( mColTabCB );
         textureswitch->removeChild( text->getInventorNode() );
         text->unRef();
-        textureset.removeSingle( idx );
+        textureset.remove( idx );
     }
 
     if ( keepfirst )

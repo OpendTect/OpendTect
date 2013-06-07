@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "datapack.h"
@@ -22,7 +21,7 @@ class uiMenuHandler;
 class VW2DSeis;
 
 
-mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
+mClass uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVW2DWiggleVarAreaTreeItem();
@@ -54,7 +53,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVW2DWiggleVarAreaTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }
@@ -65,4 +64,3 @@ public:
 
 
 #endif
-

@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "houghtransform.h"
@@ -101,7 +101,7 @@ void PlaneFrom3DSpaceHoughTransform::setResolution( double dangle,
 
 
 int PlaneFrom3DSpaceHoughTransform::getParamSpaceSize() const
-{ return mCast(int, paramspace_->info().getTotalSz()); }
+{ return paramspace_->info().getTotalSz(); }
 
 
 int PlaneFrom3DSpaceHoughTransform::getNrDistVals() const
@@ -119,7 +119,7 @@ float PlaneFrom3DSpaceHoughTransform::clipRate() const
 void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
 {
     const float* dataptr = data->getData();
-    const int datasize = mCast(int, data->info().getTotalSz());
+    const int datasize = data->info().getTotalSz();
     
     ArrPtrMan<float> datacopy = new float[datasize];
     ArrPtrMan<unsigned int> indexes = new unsigned int[datasize];
@@ -149,11 +149,11 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     unsigned int* paramptr = paramspace_->getData();
     memset( paramptr, 0, sizeof(unsigned int)*getParamSpaceSize());
 
-    const double maxx = datainfo_->getSize( 0 );
-    const double maxy = datainfo_->getSize( 1 );
-    const double maxz = datainfo_->getSize( 2 );
+    const float maxx = datainfo_->getSize( 0 );
+    const float maxy = datainfo_->getSize( 1 );
+    const float maxz = datainfo_->getSize( 2 );
 
-    const double maxdist = Math::Sqrt( maxx*maxx + maxy*maxy + maxz*maxz ); 
+    const float maxdist = Math::Sqrt( maxx*maxx + maxy*maxy + maxz*maxz ); 
     deltadist_ = maxdist / (getNrDistVals()-1);
 }
 
@@ -177,13 +177,13 @@ PlaneFrom3DSpaceHoughTransform::sortParamSpace(int size) const
 
     unsigned int* paramptr = paramspace_->getData();
 
-    unsigned int lowest = 0;
+    unsigned int lowest = res->getBottomValue();
     for ( unsigned int idx=0; idx<paramsize; idx++ )
     {
 	if ( paramptr[idx]>lowest )
 	{
 	    res->addValue( paramptr[idx], idx );
-	    res->getLowestValue( lowest );
+	    lowest = res->getBottomValue();
 	}
     }
 
@@ -196,7 +196,7 @@ Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int planenr ) const
     int pos[2];
     paramspace_->info().getArrayPos( planenr, pos );
     Coord3 normal = (*normals_)[pos[0]];
-    const float dist = (float) ( pos[1] * deltadist_ );
+    const float dist = pos[1] * deltadist_;
 
     return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist),
 	    	   false );
@@ -210,9 +210,8 @@ int PlaneFrom3DSpaceHoughTransform::getNrPointsAfterClip() const
 void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
     const int distid = mNINT32( dist/deltadist_ );
-    unsigned int memoffset = mCast( unsigned int, 
-			    reinterpret_cast<const Array2DInfo&>
-			    (paramspace_->info()).getOffset(normalidx,distid) );
+    unsigned int memoffset = reinterpret_cast<const Array2DInfo&>
+			    (paramspace_->info()).getOffset(normalidx,distid);
     unsigned int* dataptr = paramspace_->getData();
 
     paramspacemutex_.lock();
@@ -272,7 +271,7 @@ LineFrom2DSpaceHoughTransform::~LineFrom2DSpaceHoughTransform()
 
 
 void LineFrom2DSpaceHoughTransform::setLineAngleRange( Interval<float> rg )
-{ anglerg_ = Interval<float>( mMAX(rg.start,0), mMIN(rg.stop,(float) M_PI) ); }
+{ anglerg_ = Interval<float>( mMAX(rg.start,0), mMIN(rg.stop,M_PI) ); }
 
 
 void LineFrom2DSpaceHoughTransform::setThreshold( float val, bool above )
@@ -288,7 +287,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 
     const int rsz = input_.info().getSize(0);
     const int csz = input_.info().getSize(1);
-    const float maxrho = (float) Math::Sqrt((double)(rsz*rsz+csz*csz));
+    const float maxrho = sqrt((double)(rsz*rsz+csz*csz));
     
     TypeSet<float> sintable, costable;
     const float factor = 2*M_PI/(float)(mThetaSize);
@@ -311,7 +310,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
 		continue;
 
 	    result_->set( idx, idy, 1 );
-	    int lastidx = mUdf(int);		
+	    int lastidx;		
 	    for ( int tidx=0; tidx<mHalfThetaSize; tidx++ )
 	    {
 		const float radius = (idy-csz/2)*costable[tidx] + 
@@ -411,12 +410,11 @@ bool LineFrom2DSpaceHoughTransform::compute()
     for ( int idx=localmaxsz-1; idx>=0 && nrdone<toplistnr_; idx-- )
     {
        int tidx = tis[topids[idx]];
-       const float theta = (float) (((float)tidx/(float)(mThetaSize)-0.5)
-							*2*M_PI);
+       const float theta = ((float)tidx/(float)(mThetaSize)-0.5)*2*M_PI;
        if ( angledefined && !anglerg_.includes(fabs(theta),false) )
 	   continue;
 
-       float radius = ((float)ris[topids[idx]]/(float)(mRhoSize)-0.5f)*maxrho;
+       float radius = ((float)ris[topids[idx]]/(float)(mRhoSize)-0.5)*maxrho;
        if ( setLineFlag(radius,theta) )
 	   nrdone++;
     }
@@ -490,7 +488,7 @@ bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 
     const int rsz = input_.info().getSize(0);
     const int csz = input_.info().getSize(1);
-    const float maxrho = Math::Sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
+    const float maxrho = sqrt((double)((rsz-1)*(rsz-1)+(csz-1)*(csz-1)));
     
     TypeSet<float> sintable, costable;
     const float factor = M_PI/(float)(mThetaSize-1);

@@ -12,22 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uigroup.h"
-
 class PropertyRef;
-class uiGraphicsScene;
 class uiStratLayModEditTools;
-class uiTextItem;
-namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
+namespace Strat { class LayerModelProvider; class Layer; }
 
-/*!
-\brief Strat Layer Model Displayer
 
-  The world rect boundaries are [1,nrmodels+1] vs zrg_.
-*/
+/*!\brief Strat: Layer Model Displayer
 
-mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
+ The world rect boundaries are [1,nrmodels+1] vs zrg_.
+
+  */
+
+mClass uiStratLayerModelDisp : public uiGroup
 {
 public:
 
@@ -35,55 +32,47 @@ public:
 					    const Strat::LayerModelProvider&);
 			~uiStratLayerModelDisp();
 
-    virtual void	modelChanged()			= 0;
-    virtual uiWorldRect	zoomBox() const			= 0;
-    virtual void	setZoomBox(const uiWorldRect&)	= 0;
-    virtual float	getDisplayZSkip() const		= 0;
+    virtual void		modelChanged()			= 0;
+    virtual void		setZoomBox(const uiWorldRect&)	= 0;
 
-    const Strat::LayerModel& layerModel() const;
-    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
-    int			selectedSequence() const	{ return selseqidx_; }
-    void		selectSequence(int seqidx);
+    const TypeSet<float>&	levelDepths() const	{ return lvldpths_; }
+    int				selectedSequence() const { return selseqidx_; }
+    void			selectSequence(int seqidx);
 
     virtual uiBaseObject* getViewer() { return 0; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn);
-    bool		isFluidReplOn() const		{ return fluidreplon_; }
-    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    bool		isBrineFilled() const		{return isbrinefilled_; }
-    void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-
-    float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
-    CNotifier<uiStratLayerModelDisp,IOPar> infoChanged;
 
 protected:
 
     const Strat::LayerModelProvider& lmp_;
     uiStratLayModEditTools& tools_;
-    uiTextItem*		frtxtitm_;
+    uiWorldRect		zoomwr_;
     int			selseqidx_;
-    Interval<float>	zrg_;
     bool		flattened_;
-    bool		fluidreplon_;
-    bool		isbrinefilled_;
+    Interval<float>	zrg_;
     TypeSet<float>	lvldpths_;
 
     bool		haveAnyZoom() const;
-    virtual uiGraphicsScene& scene() const		= 0;		
-    void		displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
-    bool		doLayerModelIO(bool);
-    				//!< returns whether layermodel has changed
+    bool		fluidreplon_;
+    IOPar		frpars_;
+
+public:
+    bool		isFluidReplOn() const		{ return fluidreplon_; }
+    void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
+    void		setFRPars( const IOPar& pars )	{ frpars_ = pars; }
+    float		getLayerPropValue(const Strat::Layer&,
+					    const PropertyRef*,int) const;
+    CNotifier<uiStratLayerModelDisp,IOPar>& infoChanged();
 
 };
 
 
 #endif
-

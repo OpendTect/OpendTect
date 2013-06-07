@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewer2dposdlg.cc,v 1.7 2012/06/28 10:52:17 cvsbruno Exp $";
 
 #include "uipsviewer2dposdlg.h"
 
@@ -38,8 +38,8 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     , okpushed_(this)
     , is2d_(is2d)		     
 {
-    uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()==CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
+    uiSliceSel::Type tp = cs.defaultDir() == is2d ? uiSliceSel::TwoD :
+	cs.defaultDir()== CubeSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
     setCtrlStyle( DoAndStay );
     
     sliceselfld_ = new uiGatherPosSliceSel( this, tp );
@@ -90,7 +90,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp )
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
     stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ ); 
-    stepfld_->box()->setInterval( 1, mCast(int,cs_.hrg.totalNr()) );
+    stepfld_->box()->setInterval( 1, cs_.hrg.totalNr() );
 
     uiSeparator* sep = new uiSeparator( this, "pos/nr viewer sep" );
     sep->attach( stretchedBelow, z0fld_ );
@@ -201,13 +201,11 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 
     uiLabel* sellbl = new uiLabel( this, "Select" );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
-    toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
-				"Move right", cb );
+    toselect_ = new uiToolButton( this, "rightarrow.png", "Move right", cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->attach( centeredRightOf, allgatherfld_ );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
-	    			"Move left", cb );
+    fromselect_ = new uiToolButton( this, "leftarrow.png", "Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );
@@ -219,6 +217,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( but == toselect_ )
     {
+	int lastusedidx = 0;
 	for ( int idx=allgatherfld_->size()-1; idx>=0; idx-- )
 	{
 	    if ( !allgatherfld_->isSelected(idx) ) continue;

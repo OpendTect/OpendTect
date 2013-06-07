@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "keybindings.h"
 #include "settings.h"
@@ -23,16 +23,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
 
-FixedString KeyBindings::sName()    { return "Name"; }
-FixedString KeyBindings::sRotate()  { return "Rotate"; }
-FixedString KeyBindings::sPan()	    { return "Pan"; }
-FixedString KeyBindings::sZoom()    { return "Zoom"; }
-FixedString KeyBindings::sControl() { return "Control"; }
-FixedString KeyBindings::sShift()   { return "Shift"; }
-FixedString KeyBindings::sLeft()    { return "Left"; }
-FixedString KeyBindings::sRight()   { return "Right"; }
-FixedString KeyBindings::sMiddle()  { return "Middle"; }
-FixedString KeyBindings::sNone()    { return "None"; }
+const char* KeyBindings::sName()    { return "Name"; }
+const char* KeyBindings::sRotate()  { return "Rotate"; }
+const char* KeyBindings::sPan()	    { return "Pan"; }
+const char* KeyBindings::sZoom()    { return "Zoom"; }
+const char* KeyBindings::sControl() { return "Control"; }
+const char* KeyBindings::sShift()   { return "Shift"; }
+const char* KeyBindings::sLeft()    { return "Left"; }
+const char* KeyBindings::sRight()   { return "Right"; }
+const char* KeyBindings::sMiddle()  { return "Middle"; }
+const char* KeyBindings::sNone()    { return "None"; }
 
 
 KeyBindMan::KeyBindMan()
@@ -150,8 +150,6 @@ const SoEvent* KeyBindMan::processSoEvent( const SoEvent* const event,
             {
                 ctrlpress = keyevent->getState() == SoButtonEvent::DOWN;
             } break;
-	    default:
-	    	break;
         }
     }
 

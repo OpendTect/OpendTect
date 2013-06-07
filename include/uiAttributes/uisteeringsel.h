@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiseissel.h"
 #include "uiattrsel.h"
 #include "attribdescid.h"
@@ -22,7 +21,7 @@ class uiLabel;
 namespace Attrib { class Desc; class DescSet; class SelSpec; };
 
 
-mExpClass(uiAttributes) uiSteerCubeSel : public uiSeisSel
+mClass uiSteerCubeSel : public uiSeisSel
 {
 public:
 
@@ -57,7 +56,7 @@ protected:
 
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
-mExpClass(uiAttributes) uiSteeringSel : public uiGroup
+mClass uiSteeringSel : public uiGroup
 {
 public:
 				uiSteeringSel(uiParent*,
@@ -101,4 +100,3 @@ protected:
 };
 
 #endif
-

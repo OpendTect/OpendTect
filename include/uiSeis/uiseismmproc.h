@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 
 class IOPar;
@@ -33,7 +32,7 @@ class SeisJobExecProv;
 class uiLabeledListBox;
 
 
-mExpClass(uiSeis) uiSeisMMProc : public uiDialog
+mClass uiSeisMMProc : public uiDialog
 {
 public:
                         uiSeisMMProc(uiParent*,const IOPar&,
@@ -100,4 +99,3 @@ protected:
 };
 
 #endif
-

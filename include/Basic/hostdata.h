@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 #include "filepath.h"
 #include "manobjectset.h"
@@ -24,11 +23,8 @@ class ShareData;
     if ( bs.isEmpty() ) return "_none_"; \
     return bs;
 
-/*!
-\brief Host name and aliases.
-*/
-
-mExpClass(Basic) HostData
+/*\brief Host name and aliases */
+mClass HostData
 {
 public:
 
@@ -112,11 +108,8 @@ protected:
 };
 
 
-/*!
-\brief Describes shared drive and host. Mostly win32.
-*/
-
-mExpClass(Basic) ShareData
+/*\brief Describes shared drive and host. Mostly win32. */
+mClass ShareData
 {
 public:
 			ShareData( const HostData* hst=0 ) : host_(hst) {}
@@ -150,12 +143,12 @@ protected:
 
 
 
-/*!
-\brief List of host names in the system.
-  The first entry will be the local host.
-*/
+/*\brief List of host names in the system
 
-mExpClass(Basic) HostDataList : public ManagedObjectSet<HostData>
+  The first entry will be the local host.
+ 
+ */
+mClass HostDataList : public ManagedObjectSet<HostData>
 {
 public:
 			HostDataList(bool readhostfile=true);
@@ -192,4 +185,3 @@ public:
 #undef mRetNoneIfEmpty
 
 #endif
-

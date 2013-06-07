@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uislicesel.h"
 
@@ -24,8 +24,8 @@ static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
 
 
-uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
-			bool dogeomcheck )
+uiSliceSel::uiSliceSel( uiParent* p, Type type,
+			const ZDomain::Info& zi )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
     , updatemutex_(*new Threads::Mutex)
@@ -34,7 +34,6 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
     , scrollbut_(0)
     , applybut_(0)
     , zdominfo_(zi)
-    , dogeomcheck_(dogeomcheck)
 {
     isinl_ = type == Inl;
     iscrl_ = type == Crl;
@@ -82,6 +81,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 void uiSliceSel::createInlFld()
 {
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
+    const char* nm = label;
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -135,7 +135,7 @@ uiSliceScroll( uiSliceSel* ss )
 	, slcsel_(ss)
 	, inauto_(false)
 	, paused_(false)
-	, zfact_(mCast(float,ss->zdominfo_.userFactor()))
+	, zfact_(ss->zdominfo_.userFactor())
 {
     setCtrlStyle( LeaveOnly );
     timer = new Timer( "uiSliceScroll timer" );
@@ -158,10 +158,10 @@ uiSliceScroll( uiSliceSel* ss )
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
     stepfld_ = new uiLabeledSpinBox( this, "Scroll step" );
-    stepfld_->box()->setMinValue( !ss->dogeomcheck_ ? -1 : -maxstep );
-    stepfld_->box()->setMaxValue( !ss->dogeomcheck_ ? 1 : maxstep );
-    stepfld_->box()->setStep( !ss->dogeomcheck_ ? 1 : step );
-    stepfld_->box()->setValue( !ss->dogeomcheck_ ? 1 : step );
+    stepfld_->box()->setMinValue( -maxstep );
+    stepfld_->box()->setMaxValue( maxstep );
+    stepfld_->box()->setStep( step );
+    stepfld_->box()->setValue( step );
 
     typfld_ = new uiLabeledComboBox( this, "Control" );
     typfld_->box()->addItem( "Manual" );
@@ -248,7 +248,7 @@ void doAdvance( bool reversed )
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->cs_.hrg.start.inl + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
+	if ( !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -256,7 +256,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->cs_.hrg.start.crl + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
+	if ( !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -264,8 +264,7 @@ void doAdvance( bool reversed )
     else
     {
 	float newval = slcsel_->cs_.zrg.start + step / zfact_;
-	if ( slcsel_->dogeomcheck_ &&
-	     !SI().sampling(true).zrg.includes(newval,false) )
+	if ( !SI().sampling(true).zrg.includes(newval,false) )
 	    stopAuto( true );
 	else
 	{
@@ -388,7 +387,7 @@ void uiSliceSel::readInput()
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step.crl;
 
-    const float zfac = mCast( float, zdominfo_.userFactor() );
+    const float zfac = zdominfo_.userFactor();
     Interval<float> zrg;
     zrg.start = z0fld_->box()->getFValue() / zfac;
     zrg.start = maxcs_.zrg.snap( zrg.start );
@@ -406,11 +405,8 @@ void uiSliceSel::readInput()
     cs_.hrg.set( inlrg, crlrg );
     cs_.zrg.setFrom( zrg );
 
-    if ( dogeomcheck_ )
-    {
-	SI().snap( cs_.hrg.start, BinID(0,0) );
-	SI().snap( cs_.hrg.stop, BinID(0,0) );
-    }
+    SI().snap( cs_.hrg.start, BinID(0,0) );
+    SI().snap( cs_.hrg.stop, BinID(0,0) );
 }
 
 
@@ -432,7 +428,7 @@ void uiSliceSel::updateUI()
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
     int nrdec = 0;
-    const float zfac = mCast( float, zdominfo_.userFactor() );
+    const float zfac = zdominfo_.userFactor();
     float step = maxcs_.zrg.step * zfac;
     while ( true )
     {
@@ -524,9 +520,9 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hrg.stop.crl = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
     
-    cs.zrg.start = mCast( float, z0fld_->box()->getValue() );
-    cs.zrg.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
-			 : z1fld_->getValue() );
+    cs.zrg.start = z0fld_->box()->getValue();
+    cs.zrg.stop = istsl_ ? z0fld_->box()->getValue()
+			 : z1fld_->getValue();
     
     cs.fillPar( iop );
 }
@@ -536,20 +532,20 @@ void uiSliceSel::usePar( const IOPar& par )
 {
     if ( !is2d_ )
     {
-	int inlnr; par.get( sKey::FirstInl(), inlnr );
+	int inlnr; par.get( sKey::FirstInl, inlnr );
 	inl0fld_->box()->setValue( inlnr );
 
-	int inl1; par.get( sKey::LastInl(), inl1 );
+	int inl1; par.get( sKey::LastInl, inl1 );
 	if ( inl1fld_->isDisplayed() ) inl1fld_->setValue( inl1 );
     }
 
-    int crl0; par.get( sKey::FirstCrl(), crl0 );
+    int crl0; par.get( sKey::FirstCrl, crl0 );
     crl0fld_->box()->setValue( crl0 );
-    int crl1; par.get( sKey::LastCrl(), crl1 );
+    int crl1; par.get( sKey::LastCrl, crl1 );
     if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
 
     StepInterval<float> zrg;
-    par.get( sKey::ZRange(), zrg ); 
+    par.get( sKey::ZRange, zrg ); 
     z0fld_->box()->setValue( zrg.start );
     if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
 }

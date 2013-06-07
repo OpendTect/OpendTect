@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
-#include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
 #include "emposid.h"
@@ -27,7 +25,7 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
+mClass uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -37,7 +35,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
+mClass uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODBodyDisplayTreeItem(int,bool dummy);
@@ -49,45 +47,25 @@ public:
 protected:
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
-    bool		createUiVisObj();
 
     bool		init();
     const char*		parentType() const
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
     EM::ObjectID			emid_;
-    visSurvey::MarchingCubesDisplay*	mcd_;
-    visSurvey::PolygonBodyDisplay*	plg_;
-    visSurvey::RandomPosBodyDisplay*	rpb_;
-    
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
     MenuItem				displaybodymnuitem_;
     MenuItem				displaypolygonmnuitem_;
     MenuItem				displayintersectionmnuitem_;
     MenuItem				singlecolormnuitem_;
-    MenuItem				volcalmnuitem_;
+    visSurvey::MarchingCubesDisplay*	mcd_;
+    visSurvey::PolygonBodyDisplay*	plg_;
+    visSurvey::RandomPosBodyDisplay*	rpb_;
 };
-
-
-mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
-{
-public:
-    			uiODBodyDisplayDataTreeItem(const char* parenttype);
-protected:
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    BufferString	createDisplayName() const;
-    
-    MenuItem		depthattribmnuitem_;
-    MenuItem		isopachmnuitem_;
-};
-
 
 
 #endif
-

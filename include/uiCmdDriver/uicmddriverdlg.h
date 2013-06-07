@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
@@ -31,7 +30,7 @@ class CmdRecorder;
 class InteractSpec;
 
 
-mExpClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
+mClass uiCmdInteractDlg : public uiDialog
 {
 public:
 				uiCmdInteractDlg(uiParent*,const InteractSpec&);
@@ -46,7 +45,7 @@ protected:
 };
 
 
-mExpClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
+mClass uiCmdDriverDlg : public uiDialog
 {
 public:
 				uiCmdDriverDlg(uiParent*,

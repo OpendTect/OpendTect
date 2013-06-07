@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
@@ -32,7 +31,7 @@ class VolumeFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Volume. */
 
-mExpClass(Velocity) VolumeFunction : public Function
+mClass VolumeFunction : public Function
 {
 public:
 			VolumeFunction(VolumeFunctionSource&);
@@ -59,7 +58,7 @@ protected:
 };
 
 
-mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
+mClass VolumeFunctionSource : public FunctionSource
 {
 public:
     mDefaultFactoryInstanciationBase( "Velocity volume", sFactoryKeyword() );
@@ -95,4 +94,3 @@ protected:
 }; //namespace
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          July 2009
- RCS:           $Id: seiscbvs2dlinegetter.h,v 1.2 2012-08-03 13:01:35 cvskris Exp $
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class CBVSSeisTrcTranslator;
 namespace Seis { class SelData; }
 
 
-class SeisCBVS2DLineGetter : public Executor
+mClass SeisCBVS2DLineGetter : public Executor
 {
 public:
 
@@ -30,21 +30,21 @@ public:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    const char*		message() const		{ return msg_; }
+    const char*		message() const		{ return msg; }
     const char*		nrDoneText() const	{ return "Traces read"; }
-    od_int64		nrDone() const		{ return curnr_; }
-    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const		{ return curnr; }
+    od_int64		totalNr() const		{ return totnr; }
 
-    int				curnr_;
-    int				totnr_;
-    SeisTrcBuf&			tbuf_;
-    BufferString		fname_;
-    BufferString		msg_;
-    CBVSSeisTrcTranslator*	tr_;
-    Seis::SelData*		seldata_;
-    int				trcstep_;
-    const int			linenr_;
-    const int			trcsperstep_;
+    int			curnr;
+    int			totnr;
+    SeisTrcBuf&		tbuf;
+    BufferString	fname;
+    BufferString	msg;
+    CBVSSeisTrcTranslator* tr;
+    Seis::SelData*	seldata;
+    int			trcstep;
+    const int		linenr;
+    const int		trcsperstep;
 
 };
 

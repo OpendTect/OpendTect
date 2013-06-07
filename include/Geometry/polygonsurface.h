@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "refcount.h"
 #include "rowcolsurface.h"
 
@@ -23,7 +22,7 @@ namespace Geometry
     For Rcol variable rc, rc.r() represents polygonidx, rc.c() represents the 
     knots on the corresponding polygon. */
  
-mExpClass(Geometry) PolygonSurface : public RowColSurface
+mClass PolygonSurface : public RowColSurface
 {
 public:
     			PolygonSurface();
@@ -96,4 +95,3 @@ protected:
 };
 
 #endif
-

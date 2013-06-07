@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -46,7 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 #include "moddepmgr.h"
-#include "commandlineparser.h"
 
 
 using namespace Attrib;
@@ -72,8 +71,8 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     if ( !initialset.usePar( *attribs, vnr ) )
 	mErrRet( initialset.errMsg() )
 
-    const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
-    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
+    const BufferString tmpoutstr( IOPar::compKey( sKey::Output, 0 ) );
+    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes, 0 ) );
     const char* res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
 						  tmpattribstr.buf() ) );
     if ( !res )
@@ -124,7 +123,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 		     bool iscubeoutp, MultiID& outpid  )
 {
     strm << "Preparing processing\n"; strm.flush();
-    BufferString lpartstr = IOPar::compKey( sKey::Output(), 0 );
+    BufferString lpartstr = IOPar::compKey( sKey::Output, 0 );
     BufferString outstr( IOPar::compKey( lpartstr.buf(), idstr ) );
 
     BufferString objidstr;
@@ -135,7 +134,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	MultiID* mid = new MultiID(objidstr.buf());
 	midset += mid;
 	BufferString newattrnm;
-	iopar.get( sKey::Target(), newattrnm );
+	iopar.get( sKey::Target, newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << std::endl;
 	strm.flush();
     }
@@ -148,7 +147,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	strm << "Calculating '" << ioobj->name() << "'." << std::endl;
 	strm.flush();
 	BufferString basehorstr(
-	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
+	    IOPar::compKey(sKey::Geometry,LocationOutput::surfidkey()) );
 	BufferString hor1str = IOPar::compKey(basehorstr,0);
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
 	    return false;
@@ -179,12 +178,21 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
+#define mSetCommState(State) \
+    if ( comm ) \
+    { \
+	comm->setState( MMSockCommunic::State ); \
+	if ( !comm->updateState() ) \
+	    mRetHostErr( comm->errMsg() ) \
+    }
+
 
 static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc, 
 		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
 
+    bool cont = true;
     bool loading = true;
     int nriter = 0;
     int nrdone = 0;
@@ -290,7 +298,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	return;
 
     BufferString gridmethodnm;
-    gridpar->get( sKey::Name(), gridmethodnm );
+    gridpar->get( sKey::Name, gridmethodnm );
     PtrMan<Array2DInterpol> arr2dint =
 	Array2DInterpol::factory().create( gridmethodnm );
     arr2dint->usePar( *gridpar );
@@ -319,11 +327,11 @@ bool BatchProgram::go( std::ostream& strm )
     OD::ModDeps().ensureLoaded( "Attributes" );
 
     const float vnr = parversion_.isEmpty() ? 0 : toFloat( parversion_.buf() );
-    
-    if ( clParser().nrArgs() )
+    if ( cmdLineOpts().size() )
     {
-	const bool ismaxstepout = clParser().isPresent( "maxstepout" );
-	if ( ismaxstepout || clParser().isPresent( "validate" ) )
+	BufferString opt = *cmdLineOpts()[0];
+	bool ismaxstepout = opt == "maxstepout";
+	if ( ismaxstepout || opt == "validate" )
 	    return attribSetQuery( strm, pars(), ismaxstepout, vnr );
     }
 
@@ -332,7 +340,7 @@ bool BatchProgram::go( std::ostream& strm )
 				  SeisJobExecProv::sKeyWorkLS() );
 
     BufferString type;
-    pars().get( IOPar::compKey( sKey::Output(), sKey::Type() ), type );
+    pars().get( IOPar::compKey( sKey::Output, sKey::Type ), type );
    
     const bool iscubeoutp = !strcmp( type, Output::tskey() );
 
@@ -345,17 +353,17 @@ bool BatchProgram::go( std::ostream& strm )
 		   midset, errmsg, iscubeoutp, outpid ) )
 	mErrRetNoProc(errmsg);
 
-    PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
+    PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling hsamp;
     BufferString linename;
     if ( iscubeoutp && geompar )
     {
-	geompar->get( sKey::LineKey(), linename );
+	geompar->get( sKey::LineKey, linename );
 	hsamp = getHorSamp( *geompar );
     }
 
     PtrMan<IOPar> mmprocrange =
-	pars().subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+	pars().subselect( IOPar::compKey(sKey::Output,sKey::Subsel) );
     if ( iscubeoutp && mmprocrange )
     {
 	HorSampling mmrange;
@@ -407,14 +415,14 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     DescSet attribset( false );
-    PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes() );
+    PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
     if ( !attribset.usePar(*attribs,vnr) )
 	mErrRetNoProc( attribset.errMsg() )
 
-    PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
+    PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output,0) );
     if ( !output ) mErrRetNoProc( "No output specified" );
     
-    PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes() );
+    PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes );
     if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
@@ -441,7 +449,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     BufferString newattrnm;
-    pars().get( sKey::Target(), newattrnm );
+    pars().get( sKey::Target, newattrnm );
     if ( newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 
@@ -477,7 +485,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	Interval<float> extraz;
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
-	extraz.scale(1.f/SI().zDomain().userFactor());
+	extraz.scale(1./SI().zFactor());
 
 	int nrinterpsamp = 0;
 	geompar->get( "Interpolation Stepout", nrinterpsamp );
@@ -487,14 +495,14 @@ bool BatchProgram::go( std::ostream& strm )
 
 	float extrawidth = 0;
 	geompar->get( "Artificial Width", extrawidth );
-	extrawidth /= SI().zDomain().userFactor();
+	extrawidth /= SI().zFactor();
 
 	bool zboundsset = false;
 	Interval<float> zbounds;
 	if ( geompar->get("Z Boundaries",zbounds.start,zbounds.stop) )
 	{
 	    zboundsset = true;
-	    zbounds.scale( 1.f/SI().zDomain().userFactor() );
+	    zbounds.scale( 1./SI().zFactor() );
 	}
 
 	const bool is2d = attribset.is2D();

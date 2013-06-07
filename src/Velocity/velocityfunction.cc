@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "velocityfunction.h"
 
@@ -82,7 +82,7 @@ float Function::getVelocity( float z )const
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
 	if ( !cache_ ) return mUdf(float);
 
-	if ( !computeVelocity( (float) cachesd_.start, (float) cachesd_.step,
+	if ( !computeVelocity( cachesd_.start, cachesd_.step,
 		    	       cache_->size(), cache_->arr() ) )
 	{
 	    delete cache_;
@@ -171,8 +171,8 @@ bool FunctionSource::unRefFunction( const Function* func )
 
 	if ( remove )
 	{
-	    refcounts_.removeSingle( idx );
-	    functions_.removeSingle( idx );
+	    refcounts_.remove( idx );
+	    functions_.remove( idx );
 	}
     }
 
@@ -206,7 +206,7 @@ int FunctionSource::findFunction( const BinID& bid ) const
 }
 
 
-ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
+RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
 {
     if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
 	return 0;
@@ -231,7 +231,7 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
     
     lock.unLock();
     
-    ConstRefMan<Function> res = tmpfunc;
+    RefMan<const Function> res = tmpfunc;
     tmpfunc->unRef();
     
     return res;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "visrandomtrackdragger.h"
@@ -102,7 +102,7 @@ void RandomTrackDragger::setSize( const Coord3& nz )
 {
     SoScale* size =
 	    dynamic_cast<SoScale*>(dragger_->getPart(sKeyDraggerScale(), true));
-    size->scaleFactor.setValue( (float) nz.x, (float) nz.y, (float) nz.z );
+    size->scaleFactor.setValue( nz.x, nz.y, nz.z );
     dragger_->knots.touch();
 }
 
@@ -134,7 +134,7 @@ void RandomTrackDragger::setKnot( int idx, const Coord& knotpos )
 {
     Coord3 pos( knotpos, 0 );
     if ( displaytrans_ ) displaytrans_->transform( pos );
-    dragger_->knots.set1Value( idx, SbVec2f((float) pos.x, (float) pos.y) );
+    dragger_->knots.set1Value( idx, SbVec2f(pos.x, pos.y) );
 }
 
 
@@ -143,7 +143,7 @@ void RandomTrackDragger::insertKnot( int idx, const Coord& knotpos )
     Coord3 pos( knotpos, 0 );
     if ( displaytrans_ ) displaytrans_->transform( pos );
     dragger_->knots.insertSpace( idx, 1 );
-    dragger_->knots.set1Value( idx, SbVec2f((float) pos.x, (float) pos.y) );
+    dragger_->knots.set1Value( idx, SbVec2f(pos.x, pos.y) );
 }
 
 
@@ -162,12 +162,9 @@ void RandomTrackDragger::removeKnot( int idx )
 void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
 				    const Coord3& step )
 {
-    dragger_->xyzStart.setValue( SbVec3f((float) start.x,
-					   (float) start.y,(float) start.z) );
-    dragger_->xyzStop.setValue( SbVec3f((float) stop.x,
-					   (float) stop.y,(float) stop.z) );
-    dragger_->xyzStep.setValue( SbVec3f((float) step.x,
-					   (float) step.y,(float) step.z) );
+    dragger_->xyzStart.setValue( SbVec3f(start.x,start.y,start.z) );
+    dragger_->xyzStop.setValue( SbVec3f(stop.x,stop.y,stop.z) );
+    dragger_->xyzStep.setValue( SbVec3f(step.x,step.y,step.z) );
 }
 
 
@@ -188,8 +185,8 @@ void RandomTrackDragger::setDepthRange( const Interval<float>& rg )
 	stop = displaytrans_->transform( stop );
     }
 
-    dragger_->z0 = (float) start.z;
-    dragger_->z1 = (float) stop.z;
+    dragger_->z0 = start.z;
+    dragger_->z1 = stop.z;
 }
 
 
@@ -204,7 +201,7 @@ Interval<float> RandomTrackDragger::getDepthRange() const
 	stop = displaytrans_->transformBack( stop );
     }
 
-    return Interval<float>( (float) start.z, (float) stop.z );
+    return Interval<float>( start.z, stop.z );
 }
 
 

@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emrandomposbody.h"
 
@@ -157,7 +157,7 @@ public:
 	BufferString str;
 	rdposbody_.getPositions()[nrdone_].fill( str.buf(),""," ","" );
 	str += " ";
-	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
+	const int idx = rdposbody_.posIDs()[nrdone_];
 	if ( !idx ) 
 	    str += "0";
 	else
@@ -215,7 +215,7 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	locations_ += ps[idx].pos_;
+	locations_ += ps[idx].pos;
 	ids_ += idx;
     }
 }
@@ -270,7 +270,7 @@ void RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 
 bool RandomPosBody::addPos( const Coord3& np )
 {
-    if ( locations_.isPresent(np) )
+    if ( locations_.indexOf(np)!=-1 )
 	return false;
 
     locations_ += np;
@@ -308,10 +308,11 @@ bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
     if ( sub==ids_.size() )
 	return addPos( pos );
 
-    if ( !ids_.isPresent(sub) && sub==ids_.size() )
+    const int posidx = ids_.indexOf( sub );
+    if ( posidx==-1 && sub==ids_.size() )
 	return addPos( pos );
     else
-	locations_[mCast(int,sub)] = pos;
+	locations_[sub] = pos;
 
     return true;
 }
@@ -390,9 +391,9 @@ bool RandomPosBody::getBodyRange( CubeSampling& cs )
 	cs.hrg.include( SI().transform(locations_[idx]) );
 
 	if ( idx )
-    	    cs.zrg.include( (float) locations_[idx].z );
+    	    cs.zrg.include( locations_[idx].z );
 	else
-	    cs.zrg.start = cs.zrg.stop = (float) locations_[idx].z;
+	    cs.zrg.start = cs.zrg.stop = locations_[idx].z;
     }
     
     return locations_.size();

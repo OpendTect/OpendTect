@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Well Attributes Strat )
+SET(OD_MODULE_DEPS Well AttributeEngine PreStackProcessing Strat )
 SET(OD_MODULE_SOURCES
 		createattriblog.cc
 		createlogcube.cc

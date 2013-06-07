@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiseisfileman.h"
@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zdomain.h"
 #include "separstr.h"
-#include "timedepthconv.h"
 
 #include "ui2dgeomman.h"
 #include "uitoolbutton.h"
@@ -45,10 +44,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
-#define mCapt is2d ? "Manage 2D Seismics" : "Manage 3D Seismics"
-#define mHelpID is2d ? "103.1.11" : "103.1.0"
+
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID).nrstatusflds(1),
+    : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
+				 mNoDlgTitle,
+				 is2d ? "103.1.11" : "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
@@ -68,27 +68,27 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj", is2d ? "Copy lineset" : "Copy cube",
+    manipgrp->addButton( "copyobj.png", is2d ? "Copy lineset" : "Copy cube",
 			 mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
-	manipgrp->addButton( "man2d", "Manage lines",
+	manipgrp->addButton( "man2d.png", "Manage lines",
 				mCB(this,uiSeisFileMan,man2DPush) );
-	manipgrp->addButton( "dumpgeom", "Dump geometry",
+	manipgrp->addButton( "dumpgeom.png", "Dump geometry",
 				mCB(this,uiSeisFileMan,dump2DPush) );
 	manipgrp->addButton( "man2dgeom.png", "Manage 2D geometry",
 				mCB(this,uiSeisFileMan,man2DGeom) );
     }
     else
     {
-	manipgrp->addButton( "mergeseis", "Merge cube parts into one cube",
+	manipgrp->addButton( "mergeseis.png", "Merge cube parts into one cube",
 				mCB(this,uiSeisFileMan,mergePush) );
-	browsebut_ = manipgrp->addButton( "browseseis",
+	browsebut_ = manipgrp->addButton( "browseseis.png",
 				"Browse/edit this cube",
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    manipgrp->addButton( "man_ps", "Manage Pre-Stack data",
+    manipgrp->addButton( "man_ps.png", "Manage Pre-Stack data",
 			 mCB(this,uiSeisFileMan,manPS) );
 
     mTriggerInstanceCreatedNotifier();
@@ -101,12 +101,20 @@ uiSeisFileMan::~uiSeisFileMan()
 }
 
 
+const char* uiSeisFileMan::getDefKey() const
+{
+    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
+    return is2d ? sKey::DefLineSet : sKey::DefCube;
+}
+
+
 void uiSeisFileMan::ownSelChg()
 {
     if ( !browsebut_ || !curioobj_ ) return;
-    
-    browsebut_->setSensitive( curimplexists_ && strcmp(curioobj_->translator(),
-		SEGYDirectSeisTrcTranslator::translKey() ) );
+
+    browsebut_->setSensitive( curimplexists_
+			&& strcmp(curioobj_->translator(),
+				  SEGYDirectSeisTrcTranslator::translKey() ) );
 }
 
 
@@ -167,41 +175,9 @@ void uiSeisFileMan::mkFileInfo()
 	    txt += curioobj_->pars().find(optstr); }
 	if ( curioobj_->pars().isTrue("Is Velocity") )
 	{
-	    Interval<float> topvavg, botvavg;
 	    txt += "\nVelocity Type: ";
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
-
-	    if ( curioobj_->pars().get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	    && curioobj_->pars().get(VelocityStretcher::sKeyBotVavg(),botvavg) )
-	    {
-		StepInterval<float> rg;
-		StepInterval<float> zrg = SI().zRange(true);
-
-		if ( SI().zIsTime() )
-		{
-		    rg.start = zrg.start * topvavg.start / 2;
-		    rg.stop = zrg.stop * botvavg.stop / 2;
-		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-		    txt += "\nDepth Range ";
-		    txt += ZDomain::Depth().unitStr(true);
-		}
-
-		else 
-		{
-		    rg.start = 2 * zrg.start / topvavg.stop;
-		    rg.stop = 2 * zrg.stop / botvavg.start;
-		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-		    rg.scale( mCast( float, ZDomain::Time().userFactor() ) );
-		    txt += "\nTime Range ";
-		    txt += ZDomain::Time().unitStr(true);  
-		}
-
-		txt += ": ";
-		txt += rg.start;
-		txt += " - ";
-		txt += rg.stop;
-	    }
 	}
     }
 
@@ -211,7 +187,7 @@ void uiSeisFileMan::mkFileInfo()
 	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
 				Conn::Read) ) )
 	{
-	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo_[0];
+	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
 	    BufferString etxt = DataCharacteristics::getUserTypeString(ut);
 	    txt += "\nStorage: "; txt += etxt.buf() + 4;

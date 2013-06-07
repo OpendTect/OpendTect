@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionadjuster.h"
 #include "ranges.h"
 #include "trackplane.h"
@@ -29,11 +28,7 @@ namespace MPE
 class DataHolder;
 class SectionExtender;
 
-/*!
-\brief SectionAdjuster to adjust EM::Horizon.
-*/
-
-mExpClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
+mClass HorizonAdjuster : public SectionAdjuster
 {
 public:
 			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
@@ -101,4 +96,3 @@ private:
 }; // namespace MPE
 
 #endif
-

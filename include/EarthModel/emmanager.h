@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "sets.h"
 #include "bufstring.h"
 #include "callback.h"
@@ -39,35 +38,56 @@ class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
-/*!
-\brief Manages the loaded/half loaded EM objects in OpendTect.
-*/
+/*!\brief Manages the loaded/half loaded EM objects in OpendTect. */
 
-mExpClass(EarthModel) EMManager : public CallBacker
+
+mClass EMManager : public CallBacker
 {
 public:
 			EMManager();
 			~EMManager();
 
-    inline int		nrLoadedObjects() const	{ return objects_.size(); }
+    void		empty();
+
+    Undo&		undo();
+    const Undo&		undo() const;
+
+    bool		objectExists( const EMObject* obj ) const;
+
+    int			nrLoadedObjects() const	{ return objects_.size(); }
     inline int		size() const		{ return nrLoadedObjects(); }
     EM::ObjectID	objectID(int idx) const;
-    bool		objectExists(const EMObject*) const;
-
+    Executor*		objectLoader(const MultiID&,
+	    			     const SurfaceIODataSelection* =0);
+    Executor*		objectLoader(const TypeSet<MultiID>&,
+	    			     const SurfaceIODataSelection* =0);
     EMObject*		loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
+    EM::ObjectID	createObject(const char* type,const char* name);
+    			/*!< Creates a new object, saves it and loads it.
+			Removes any loaded object with the same name!  */
 
-    EMObject*		getObject(const ObjectID&);
-    const EMObject*	getObject(const ObjectID&) const;
-    EMObject*		createTempObject(const char* type);
+    Notifier<EMManager>				addRemove;
 
     BufferString	objectName(const MultiID&) const;
     			/*!<\returns the name of the object */
     const char*		objectType(const MultiID&) const;
     			/*!<\returns the type of the object */
+
+    EMObject*		getObject(const ObjectID&);
+    const EMObject*	getObject(const ObjectID&) const;
+
+    EMObject*		createTempObject(const char* type);
+
+    const char*		getSurfaceData(const MultiID&,SurfaceIOData&);
+    			//!<\returns err msg or null if OK
+
+    			/*Interface from EMObject to report themselves */
+    void		addObject(EMObject*);
+    void		removeObject(const EMObject*);
 
     ObjectID		getObjectID(const MultiID&) const;
     			/*!<\note that the relationship between storage id 
@@ -80,51 +100,31 @@ public:
 
     void		burstAlertToAll(bool yn);
 
+    bool		sortHorizonsList(const TypeSet<MultiID>&,
+	    				 TypeSet<MultiID>&,bool is2d) const;
+
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
 	    			       TaskRunner*);
+    
+    IOPar*		getSurfacePars(const IOObj&) const;
+
     bool		readPars(const MultiID&,IOPar&) const;
     bool		writePars(const MultiID&,const IOPar&) const;
-    void		getSurfaceData(const MultiID&,SurfaceIOData&) const;
-
-    Notifier<EMManager>	addRemove;
-
-protected:
-
-    Undo&			undo_;
-
-    ObjectSet<EMObject>		objects_;
 
     void		levelToBeRemoved(CallBacker*);
 
-public:
+protected:
+    Undo&			undo_;
 
-    // Don't use unless you know what you are doing
-
-    void		setEmpty();
-
-    Executor*		objectLoader(const MultiID&,
-	    			     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const TypeSet<MultiID>&,
-	    			     const SurfaceIODataSelection* =0);
-
-    EM::ObjectID	createObject(const char* type,const char* name);
-    			/*!< Creates a new object, saves it and loads it.
-			     Removes any loaded object with the same name!  */
-
-    			/*Interface from EMObject to report themselves */
-    void		addObject(EMObject*);
-    void		removeObject(const EMObject*);
-
-    Undo&		undo();
-    const Undo&		undo() const;
-
+    ObjectSet<EMObject>		objects_;
 };
 
 
-mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
+mDefineFactory1Param( EMObject, EMManager&, EMOF );
 
-mGlobal(EarthModel) EMManager& EMM();
+mGlobal EMManager& EMM();
 
-} // namespace EM
+}; // Namespace
+
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiprintscenedlg.h"
 
@@ -32,7 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/SoOutput.h>
 
+static const char* sKeySnapshot = "snapshot";
 static bool prevsavestate = true;
+BufferString uiSaveImageDlg::dirname_ = "";
 static StepInterval<float> pixelsize_range(1,9999,1);
 
 #define mAttachToAbove( fld ) \
@@ -56,7 +58,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
     if ( nrfiletypes==0 && !showvrml )
     {
-	uiLabel* label mUnusedVar = new uiLabel( this,
+	uiLabel* label = new uiLabel( this,
 	    "No output file types found.\n"
 	    "Probably, 'libsimage.so' is not installed or invalid." );
 	setCtrlStyle( LeaveOnly );
@@ -74,7 +76,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	    scenenms.add( viewers_[idx]->getScene()->name() );
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
-	scenefld_->box()->selectionChanged.notify(
+	scenefld_->box()->selectionChanged.notify( 
 					mCB(this,uiPrintSceneDlg,sceneSel) );
 	mAttachToAbove( scenefld_->attachObj() );
     }
@@ -102,7 +104,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     sceneSel(0);
     PtrMan<IOPar> ctiopar;
     getSettingsPar( ctiopar, BufferString("3D") );
-
+    
     if ( ctiopar.ptr() )
     {
 	if ( !usePar(*ctiopar) )
@@ -115,7 +117,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     }
 
     updateFilter();
-
+    
     if ( nrfiletypes>0 )
 	unitChg( 0 );
 }
@@ -125,6 +127,7 @@ void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
 					   const char** frmtdesc,
 					   BufferString& filters )
 {
+    const bool vrml = dovrmlfld_ && dovrmlfld_->getBoolValue();
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
 	filters = "VRML (*.wrl)";
     else
@@ -153,7 +156,7 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 	lockfld_->setSensitive( true );
 	PtrMan<IOPar> ctiopar;
 	getSettingsPar( ctiopar, BufferString("3D") );
-
+	
 	if ( ctiopar.ptr() )
 	{
 	    if ( !usePar(*ctiopar) )
@@ -188,7 +191,7 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
     const ui3DViewer* vwr = viewers_[vwridx];
     const Geom::Size2D<int> winsz = vwr->getViewportSizePixels();
     aspectratio_ = (float)winsz.width() / winsz.height();
-
+    
     if ( useparsfld_->getBoolValue() )
 	return;
 
@@ -203,14 +206,14 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     const ui3DViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
-    setDirName( filepath.pathOnly() );
+    dirname_ = filepath.pathOnly();
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
     {
 	if ( !uiMSG().askContinue("The VRML output in in pre apha testing "
-		  	      "status,\nis not officially supported and is \n"
+		    	      "status,\nis not officially supported and is \n"
 			      "known to be very unstable.\n\n"
 			      "Do you want to continue?") )
 	{
@@ -231,7 +234,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	    BufferString msg =  "Cannot open file ";
 	    msg += filepath.fullPath();
 	    msg += ".";
-
+	    
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -239,7 +242,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	out.setHeaderString("#VRML V2.0 utf8");
 	SoWriteAction wra(&out);
 	wra.apply(newroot);
-	out.closeFile();
+        out.closeFile();
 
 	newroot->unref();
 	return true;
@@ -249,14 +252,13 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !widthfld_ ) return true;
 
     SbViewportRegion viewport;
-    viewport.setWindowSize( mNINT32(sizepix_.width()),
-			    mNINT32(sizepix_.height()) );
+    viewport.setWindowSize( mNINT32(sizepix_.width()), mNINT32(sizepix_.height()) );
     viewport.setPixelsPerInch( dpifld_->box()->getValue() );
 
     prevsavestate = saveButtonChecked();
     if ( prevsavestate )
 	writeToSettings();
-
+	
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
 
 #define col2f(rgb) float(col.rgb())/255

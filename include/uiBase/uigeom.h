@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "geometry.h"
 #include "enums.h"
 
@@ -21,7 +20,7 @@ typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
 
 
-mExpClass(uiBase) uiSize : public Geom::Size2D<int>
+mClass uiSize : public Geom::Size2D<int>
 {
 public:
     			uiSize( const Geom::Size2D<int>& a )
@@ -38,7 +37,7 @@ public:
 };
 
 
-mExpClass(uiBase) uiRect  : public Geom::PixRectangle<int>
+mClass uiRect  : public Geom::PixRectangle<int>
 {
 public:
 
@@ -74,7 +73,7 @@ public:
 };
 
 
-mExpClass(uiBase) uiBorder
+mClass uiBorder
 {
 public:
     			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
@@ -297,21 +296,20 @@ inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
 		   rect.bottom()-rb_.height()-2*extr );
 }
 
-#define mGoldenRatio 1.618034f
+#define mGoldenRatio 1.618034
 
 inline int GetGoldenMajor( int inp )
 {
     const float val = inp * mGoldenRatio;
-    return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
+    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
 }
 
-static const float cGoldenRatio = 1.618034f;
+static const float cGoldenRatio = 1.618034;
 inline int GetGoldenMinor( int inp )
 {
     const float val = inp / mGoldenRatio;
-    return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
+    return inp > 0 ? (int)(val+.5) : (int)(val - .5);
 }
 
 
 #endif
-

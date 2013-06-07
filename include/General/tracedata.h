@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "databuf.h"
 #include "datainterp.h"
 
@@ -29,7 +28,7 @@ constraints etc.).
 */
 
 
-mExpClass(General) TraceData
+mClass TraceData
 {
 public:
 
@@ -105,4 +104,3 @@ inline int clippedVal( float val, int lim )
 
 
 #endif
-

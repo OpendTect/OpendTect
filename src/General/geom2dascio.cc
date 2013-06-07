@@ -4,7 +4,7 @@
  * DATE     : September 2010
 -*/
 
-static const char* rcsID mUsedVar = " $";
+static const char* rcsID = " $";
 
 #include "geom2dascio.h"
 #include "posinfo2d.h"

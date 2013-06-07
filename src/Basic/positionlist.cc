@@ -4,13 +4,9 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "positionlist.h"
-
-
-FloatVertexAttribList::~FloatVertexAttribList()
-{}
 
 
 Coord2ListImpl::Coord2ListImpl()
@@ -23,7 +19,7 @@ int Coord2ListImpl::nextID( int previd ) const
     int res = previd + 1;
     while ( res<sz )
     {
-	if ( !removedids_.isPresent(res) )
+	if ( removedids_.indexOf(res)==-1 )
 	    return res;
 
 	res++;
@@ -35,7 +31,7 @@ int Coord2ListImpl::nextID( int previd ) const
 
 Coord Coord2ListImpl::get( int id ) const
 {
-    if ( id<0 || id>=points_.size() || removedids_.isPresent( id ) )
+    if ( id<0 || id>=points_.size() || removedids_.indexOf( id )!=-1 )
 	return Coord::udf();
     else
 	return points_[id];
@@ -61,7 +57,7 @@ int Coord2ListImpl::add( const Coord& co )
     if ( nrremoved )
     {
 	const int res = removedids_[nrremoved-1];
-	removedids_.removeSingle( nrremoved-1 );
+	removedids_.remove( nrremoved-1 );
 	points_[res] = co;
 	return res;
     }
@@ -73,7 +69,7 @@ int Coord2ListImpl::add( const Coord& co )
 
 void Coord2ListImpl::addValue( int idx, const Coord& co )
 {
-    if ( idx>=points_.size() || removedids_.isPresent(idx) )
+    if ( idx>=points_.size() || removedids_.indexOf(idx)!=-1 )
 	add( co );
     else
 	points_[idx] += co;
@@ -96,7 +92,7 @@ int Coord3ListImpl::nextID( int previd ) const
     int res = previd + 1;
     while ( res<sz )
     {
-	if ( !removedids_.isPresent(res) )
+	if ( removedids_.indexOf(res)==-1 )
 	    return res;
 
 	res++;
@@ -108,7 +104,7 @@ int Coord3ListImpl::nextID( int previd ) const
 
 Coord3 Coord3ListImpl::get( int id ) const
 {
-    if ( id<0 || id>=coords_.size() || removedids_.isPresent( id ) )
+    if ( id<0 || id>=coords_.size() || removedids_.indexOf( id )!=-1 )
 	return Coord3::udf();
     else
 	return coords_[id];
@@ -134,7 +130,7 @@ int Coord3ListImpl::add( const Coord3& coord3 )
     if ( nrremoved )
     {
 	const int res = removedids_[nrremoved-1];
-	removedids_.removeSingle( nrremoved-1 );
+	removedids_.remove( nrremoved-1 );
 	coords_[res] = coord3;
 	return res;
     }
@@ -146,7 +142,7 @@ int Coord3ListImpl::add( const Coord3& coord3 )
 
 void Coord3ListImpl::addValue( int idx, const Coord3& co )
 {
-    if ( idx>=coords_.size() || removedids_.isPresent(idx) )
+    if ( idx>=coords_.size() || removedids_.indexOf(idx)!=-1 )
 	add( co );
     else
 	coords_[idx] += co;

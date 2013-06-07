@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
@@ -51,7 +50,7 @@ class HorizonDisplay;
 
 */
 
-mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
+mClass FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()
@@ -66,7 +65,6 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
-    void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*,
 	    					 TaskRunner*); 
 
@@ -147,12 +145,7 @@ public:
     DataPackMgr::ID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
 
-    void			doOtherObjectsMoved( 
-				    const ObjectSet<const SurveyObject>& objs,
-				    int whichobj)
-				{ otherObjectsMoved( objs, whichobj ); }
-
-    EM::Fault3D*		emFault()	{ return emfault_; }
+    static const char*		sKeyTriProjection();
 
 protected:
 
@@ -180,6 +173,8 @@ protected:
     virtual void		swapCache(int,int);
     virtual void		emptyCache(int);
     virtual bool		hasCache(int) const;
+
+    static const char*		sKeyEarthModelID();
 
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
@@ -254,7 +249,7 @@ protected:
     struct StickIntersectPoint
     {
 	Coord3				pos_;
-	EM::SectionID		sid_;
+	int				sid_;
 	int				sticknr_;
     };
 
@@ -262,8 +257,13 @@ protected:
 
     visBase::DrawStyle*			drawstyle_;
 
-    static const char*			sKeyTriProjection();
-    static const char*			sKeyEarthModelID();
+public:
+
+    void                                doOtherObjectsMoved(
+				    const ObjectSet<const SurveyObject>& objs,
+				    int whichobj)
+				    { otherObjectsMoved( objs, whichobj ); }
+protected:
     static const char*			sKeyDisplayPanels();
     static const char*			sKeyDisplaySticks();
     static const char*			sKeyDisplayIntersections();
@@ -276,4 +276,3 @@ protected:
 
 
 #endif
-

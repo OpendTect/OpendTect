@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 
 class IOObj;
 class uiRandomLinePolyLineDlg;
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
-    bool load(const IOObj&,int); \
+    bool load(const IOObj&); \
     const IOObj* selRandomLine(); \
     void genRandLine(int); \
     void genRandLineFromWell();\
@@ -35,7 +34,7 @@ mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
 namespace visSurvey { class RandomTrackDisplay; };
 
 
-mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -45,16 +44,15 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
+mClass uiODRandomLineTreeItem : public uiODDisplayTreeItem
 {
 public:
-    enum Type		{ Default, Empty, RGBA };
-    			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
+    			uiODRandomLineTreeItem( int );
     bool		init();
 
 protected:
 
-    virtual void	createMenu(MenuHandler*,bool istb);
+    void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void                changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);
@@ -69,7 +67,6 @@ protected:
     MenuItem		saveasmnuitem_;
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
-    Type		type_;
 };
 
 

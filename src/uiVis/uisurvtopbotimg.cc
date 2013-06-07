@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
@@ -92,6 +92,7 @@ void onOff( CallBacker* cb  )
 
 void coordChg( CallBacker* cb )
 {
+    const bool istl = cb == tlfld_;
     dlg_->setCoord( istop_, tlfld_->getCoord(), brfld_->getCoord() );
 }
 

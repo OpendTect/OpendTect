@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "bufstringset.h"
 #include <iostream>
 #include "separstr.h"
@@ -60,7 +59,7 @@ namespace CmdDrive
 #define mWinWarnStrm    mWinStrm( true )
 
 
-mExpClass(uiCmdDriver) ModalStatus
+mClass ModalStatus
 {
 public:
     bool			operator==(const ModalStatus&) const;
@@ -74,7 +73,7 @@ public:
 };
 
 
-mExpClass(uiCmdDriver) Action
+mClass Action
 {
 public:
     				Action(const char* line)
@@ -87,7 +86,7 @@ public:
 };
 
 
-mExpClass(uiCmdDriver) MenuInfo
+mClass MenuInfo
 {
 public:
     int				nrchildren_;
@@ -100,7 +99,7 @@ public:
 enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 
 
-mExpClass(uiCmdDriver) CmdDriver : public CallBacker
+mClass CmdDriver : public CallBacker
 {
 public:
     friend class 	Command;

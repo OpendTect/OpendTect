@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "coherencyattrib.h"
@@ -93,11 +93,11 @@ Coherency::Coherency( Desc& desc )
     ddip_ = ddip_/dipFactor();
 
     mGetBinID( stepout_, sKeyStepout() );
-    stepout_.inl = is2D() ? 0 : abs( stepout_.inl );
+    stepout_.inl = desc_.is2D() ? 0 : abs( stepout_.inl );
     stepout_.crl = abs( stepout_.crl );
 
     const float extraz = 
-		    (stepout_.inl*inlDist()+stepout_.crl*crlDist()) * maxdip_;
+		    (stepout_.inl*inldist()+stepout_.crl*crldist()) * maxdip_;
     desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
 
@@ -224,8 +224,8 @@ void Coherency::prepareForComputeData()
 {
     BinID step = inputs_[0]->getStepoutStep();
 	
-    distinl_ = fabs(inlDist()*step.inl);
-    distcrl_ = fabs(crlDist()*step.crl);
+    distinl_ = fabs(inldist()*step.inl);
+    distcrl_ = fabs(crldist()*step.crl);
 }
 
 
@@ -249,7 +249,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	float dipatmax = 0;
 
 	float curdip = -maxdip_;
-	const bool is2d = is2D();
+	const bool is2d = desc_.is2D();
 
 	float extras0 = 0;
 	float extras1 = 0;
@@ -310,7 +310,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 bool Coherency::computeData2( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    const bool is2d = is2D();
+    const bool is2d = desc_.is2D();
     Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				mNINT32(gate_.stop/refstep_) );
 
@@ -368,7 +368,7 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
-    const bool is2d = is2D();
+    const bool is2d = desc_.is2D();
     const BinID bidstep = inputs_[0]->getStepoutStep();
     if ( type_==1 )
     {

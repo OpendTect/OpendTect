@@ -4,11 +4,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id$
+ * ID       : $Id: madproc.h,v 1.4 2009/07/22 16:01:27 cvsbert Exp $
 -*/
 
 
-#include "madagascarmod.h"
 #include "bufstringset.h"
 
 class IOPar;
@@ -16,7 +15,7 @@ class IOPar;
 namespace ODMad
 {
 
-mExpClass(Madagascar) Proc
+mClass Proc
 {
 public:
 
@@ -61,4 +60,3 @@ protected:
 } // namespace ODMad
 
 #endif
-

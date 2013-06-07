@@ -11,7 +11,6 @@
 
 -*/
 
-#include "wellattribmod.h"
 #include "binidvalset.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
@@ -19,7 +18,7 @@ namespace Well { class Data; class ExtractParams; }
 class NLAModel;
 class TaskRunner;
 
-mExpClass(WellAttrib) AttribLogExtractor
+mClass AttribLogExtractor
 {
 public:
 				AttribLogExtractor(const Well::Data& wd)
@@ -45,11 +44,11 @@ protected:
 };
 
 
-mExpClass(WellAttrib) AttribLogCreator
+mClass AttribLogCreator
 {
 public:
 
-    mExpClass(WellAttrib) Setup
+    mClass Setup
     {
     public:
 				Setup(const Attrib::DescSet* attr,
@@ -92,4 +91,3 @@ protected:
 
 
 #endif
-

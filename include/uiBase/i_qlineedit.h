@@ -16,8 +16,6 @@ ________________________________________________________________________
 
 #include <QLineEdit> 
 
-QT_BEGIN_NAMESPACE
-
 class QString;
 
 //! Helper class for uilineedit to relay Qt's messages.
@@ -72,7 +70,5 @@ private slots:
     void		selectionChanged()
     			{ receiver_->selectionChanged.trigger(*receiver_); }
 };
-
-QT_END_NAMESPACE
 
 #endif

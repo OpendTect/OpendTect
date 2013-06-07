@@ -12,23 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "executor.h"
 #include "jobinfo.h"
 
-class BufferStringSet;
-class FilePath;
-class HostData;
 class IOPar;
+class HostData;
 class JobDescProv;
 class JobIOMgr;
 class StatusInfo;
+class BufferStringSet;
+class FilePath;
 
-/*!
-\brief Holds host-specific status information.
-*/
 
-mExpClass(MMProc) HostNFailInfo
+mClass HostNFailInfo
 {
 public:
     			HostNFailInfo( const HostData& hd )
@@ -48,11 +44,9 @@ public:
 };
 
 
-/*!
-\brief Runs all jobs defined by JobDescProv.
-*/
+/*!\brief Runs all jobs defined by JobDescProv. */
 
-mExpClass(MMProc) JobRunner : public Executor
+mClass JobRunner : public Executor
 {
 public:
 
@@ -112,8 +106,7 @@ public:
     const FilePath&		curJobFilePath()	{ return curjobfp_; }
 
     const char*			procDir() const	{ return procdir_.buf(); }
-				// processing directory on local machine
-    const char*			errorMsg() const;
+    				// processing directory on local machine
 
 protected:
 
@@ -128,7 +121,7 @@ protected:
     JobInfo*			curjobinfo_;
 
     JobIOMgr&			iomgr();
-    JobIOMgr*			iomgr_;
+    JobIOMgr*			iomgr__;
 
     int				niceval_;
     int				firstport_;
@@ -139,9 +132,8 @@ protected:
     int				starttimeout_;
     int				failtimeout_;
     int				wrapuptimeout_;
-    int				hosttimeout_;
+    int				hosttimeout_; 
     int				startwaittime_;  //!< wait B4 next client start
-    BufferString		errmsg_;
 
     int				doCycle();
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;
@@ -164,7 +156,8 @@ protected:
     enum HostStat		{ OK = 0, SomeFailed = 1, HostFailed = 2 };
     HostStat			hostStatus(const HostNFailInfo*) const;
 
+public:
+    const char*			errorMsg() const;
 };
 
 #endif
-

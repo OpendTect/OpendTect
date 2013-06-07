@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "position.h"
 #include "callback.h"
 class IOPar;
@@ -31,7 +30,7 @@ class IOPar;
 #define mPIEPAdj(what,v,inw) PosImpExpPars::SVY().adjust##what(v,inw)
 
 
-mExpClass(General) PosImpExpPars : public CallBacker
+mClass PosImpExpPars : public CallBacker
 {
 public:
 
@@ -102,10 +101,10 @@ public:
     void		survChg( CallBacker* )	{ getFromSI(); }
 
     static const char*	sKeyBase()		{ return "ImpExp"; }
-    static const char*	sKeyOffset();		// sKey::Offset()
-    static const char*	sKeyScale();		// sKey::Scale()
+    static const char*	sKeyOffset();		// sKey::Offset
+    static const char*	sKeyScale();		// sKey::Scale
     static const char*	sKeyBinID()		{ return "BinID"; }
-    static const char*	sKeyTrcNr();		//!< sKey::TraceNr()
+    static const char*	sKeyTrcNr();		//!< sKey::TraceNr
     static const char*	sKeyCoord()		{ return "Coord"; }
     static const char*	sKeyZ()			{ return "Z"; }
 
@@ -115,4 +114,3 @@ public:
 
 
 #endif
-

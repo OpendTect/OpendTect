@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "faulteditor.h"
@@ -19,15 +19,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon2dextender.h"
 #include "horizon3dextender.h"
 #include "polygonsurfeditor.h"
-#include "mpesetup.h"
 
 mDefModInitFn(MPEEngine)
 {
     mIfNotFirstTime( return );
 
-    MPESetupTranslatorGroup::initClass();
-    dgbMPESetupTranslator::initClass();
-    
     MPE::FaultEditor::initClass();
     MPE::FaultStickSetEditor::initClass();
     MPE::HorizonEditor::initClass();

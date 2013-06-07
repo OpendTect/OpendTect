@@ -12,18 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "math.h"
 #include "position.h"
 #include "typeset.h"
 
 
-/*!
-\brief (Closed) sequence(s) of connected n-D coordinates.
-Undefined coordinates separate consecutive sequences.
-*/
+/*!\brief (Closed) sequence(s) of connected n-D coordinates.
+          Undefined coordinates separate consecutive sequences. */
 
 template <class T>
-mClass(Algo) PolyLineND : public TypeSet<T>
+class PolyLineND : public TypeSet<T>
 {
 public:
 		PolyLineND(bool closed=false)
@@ -76,8 +73,7 @@ int PolyLineND<T>::nextIdx( int idx ) const
 }
 
 
-/*!
-\brief Point-to-segment distance:
+/* Point-to-segment distance:
 
 	     . pt
 	    /|\
@@ -116,19 +112,19 @@ double PolyLineND<T>::distTo( const T& pt, int* segmentidxptr,
 
 	if ( c2<=0.0 || b2>=a2+c2 )
 	{
-	    const double a = Math::Sqrt( a2 );
+	    const double a = sqrt( a2 );
 	    mUpdateMinDist( a, idx, 0.0 );
 	}
 	else if ( a2 >= b2+c2 )
 	{
-	    const double b = Math::Sqrt( b2 );
+	    const double b = sqrt( b2 );
 	    mUpdateMinDist( b, idx, 1.0 );
 	}
 	else
 	{
-	    const double c = Math::Sqrt( c2 );
+	    const double c = sqrt( c2 );
 	    const double d = (a2+c2-b2) / (2*c);
-	    const double h = (a2-d*d)>0 ? Math::Sqrt(a2-d*d) : 0.0;
+	    const double h = (a2-d*d)>0 ? sqrt(a2-d*d) : 0.0;
 	    mUpdateMinDist( h, idx, d/c );
 	}
     }

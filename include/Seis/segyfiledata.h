@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "iopar.h"
@@ -37,19 +36,19 @@ namespace SEGY
 /*!<Stores scanned data from SEGY-files. */
 
 
-mExpClass(Seis) FileDataSet
+mClass FileDataSet
 {
 public:
 
     struct TrcIdx
     {
-			TrcIdx( int fnr=-1, od_int64 tnr=0 )
+			TrcIdx( int fnr=-1, int tnr=0 )
 			    : filenr_(fnr), trcidx_(tnr)	{}
 	bool		isValid() const		{ return filenr_>=0; }
 	void		toNextFile()		{ filenr_++; trcidx_ = 0; }
 
 	int		filenr_;
-	od_int64	trcidx_;
+	int		trcidx_;
     };
 
     			FileDataSet(const IOPar& iop, ascistream& );
@@ -147,7 +146,7 @@ protected:
     int				nrstanzas_;
     BufferStringSet		filenames_;
     TypeSet<od_int64>		cumsizes_;
-    od_int64			totalsz_;
+    int				totalsz_;
     int				nrusable_;
 
     				//TraceData
@@ -163,4 +162,3 @@ protected:
 
 
 #endif
-

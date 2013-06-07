@@ -11,22 +11,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "uidlggroup.h"
 #include "flatview.h"
 #include "iopar.h"
-
 class uiFVWVAPropTab;
 class uiFVVDPropTab;
 class uiFVAnnotPropTab;
 class BufferStringSet;
 class uiGenInput;
 
-/*!
-\brief FlatView properties dialog box.
-*/
-
-mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
+		     
+mClass uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
@@ -60,4 +55,3 @@ protected:
 };
 
 #endif
-

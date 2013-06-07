@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"
@@ -48,7 +48,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 				Geometry::RandomLineSet& rls ) const
 {
     BinID bid, prevbid;
-    const int zfac = SI().zDomain().userFactor(); // for line name
+    const int zfac = SI().zFactor(); // for line name
 
     for ( int isect=0; isect<geom_.nrSections(); isect++ )
     {
@@ -67,7 +67,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	ict.selectPolyROI( setup_.selpoly_ );
 	ict.setMinNrVertices( setup_.minnrvertices_ );
 	ict.setNrLargestOnly( setup_.nrlargestonly_ );
-	const float zeps = 0.0001f * setup_.contzrg_.step;
+	const float zeps = 0.0001 * setup_.contzrg_.step;
 
 	for ( float z = setup_.contzrg_.start;
 	      z - zeps < setup_.contzrg_.stop;
@@ -201,8 +201,8 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		    // weighted fusion based on adjacent triangle areas
 		    const Coord prevec = c0 - basecoords[preprevidx];
 		    const Coord nxtvec = c1 - c2;
-		    const double w0 = fabs(prevec.x*dirvec.y-prevec.y*dirvec.x);
-		    const double w1 = fabs(nxtvec.x*dirvec.y-nxtvec.y*dirvec.x);
+		    const float w0 = fabs(prevec.x*dirvec.y-prevec.y*dirvec.x);
+		    const float w1 = fabs(nxtvec.x*dirvec.y-nxtvec.y*dirvec.x);
 		    fusioncrds += w0+w1>0 ? (c0*w0+c1*w1)/(w0+w1) : (c0+c1)/2;
 		}
 	    }
@@ -237,11 +237,11 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		continue;
 	    }
 	    basecoords += fusioncrds[0];
-	    dirflips.removeSingle( 0 );
-	    fusioncrds.removeSingle( 0 );
+	    dirflips.remove( 0 );
+	    fusioncrds.remove( 0 );
 	}
 
-	basecoords.removeRange( 0, nrbasecoords-1 );
+	basecoords.remove( 0, nrbasecoords-1 );
 	delete outrl;
     }
 }

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uibuildlistfromlist.h"
 #include "propertyref.h"
 class CtxtIOObj;
@@ -21,7 +20,7 @@ namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
 /*!\brief allows user to define (or read) a set of layer sequence attributes */
 
-mExpClass(uiStrat) uiStratLaySeqAttribSetBuild : public uiBuildListFromList
+mClass uiStratLaySeqAttribSetBuild : public uiBuildListFromList
 {
 public:
 
@@ -59,4 +58,3 @@ protected:
 
 
 #endif
-

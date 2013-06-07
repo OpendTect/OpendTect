@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uicoltabman.h"
 
@@ -28,11 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uispinbox.h"
 #include "uisplitter.h"
-#include "uitreeview.h"
 #include "uiworld2ui.h"
 
 #define mTransHeight	150
@@ -59,14 +59,14 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiGroup* leftgrp = new uiGroup( this, "Left" );
 
-    coltablistfld_ = new uiTreeView( leftgrp, "Colortable Manager" );
+    coltablistfld_ = new uiListView( leftgrp, "Colortable Manager" );
     BufferStringSet labels;
     labels.add( "Color table" ).add( "Status" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
-    coltablistfld_->setHScrollBarMode( uiTreeView::AlwaysOff );
+    coltablistfld_->setHScrollBarMode( uiListView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );
-    coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
+    coltablistfld_->setSelectionBehavior( uiListView::SelectRows );
     coltablistfld_->selectionChanged.notify( mCB(this,uiColorTableMan,selChg) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right" );
@@ -96,11 +96,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
     ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
-    ctabcanvas_->getMouseEventHandler().buttonPressed.notify(
-			mCB(this,uiColorTableMan,rightClick) );
+    ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
+        	    mCB(this,uiColorTableMan,rightClick) );
     ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDrawCB) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
-				      uiSize(mTransWidth,mTransWidth/10) );
+	         uiSize(mTransWidth,mTransWidth/10) );
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
     ctabcanvas_->setPrefWidth( mTransWidth );
     ctabcanvas_->setPrefHeight( mTransWidth/10 );
@@ -124,13 +124,13 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     undefcolfld_->colorChanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, segmentfld_ );
 
-    uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
-    ctsu.withdesc( false );
+    uiColorInput::Setup ctsu( ctab_.markColor(),
+	    		      uiColorInput::Setup::InSelector );
     markercolfld_ = new uiColorInput( rightgrp, ctsu.lbltxt("Marker color") );
     markercolfld_->colorChanged.notify(
-			mCB(this,uiColorTableMan,markerColChgd) );
+	    mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );
-
+    
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
@@ -141,15 +141,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     importbut_ = new uiPushButton( this, "&From other user", false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
-    importbut_->attach( centeredRightOf, removebut_ );
-
+    importbut_->attach( centeredRightOf, removebut_ ); 
+    
     uiPushButton* savebut = new uiPushButton( this, "&Save as", false );
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
-    savebut->attach( rightTo, importbut_ );
+    savebut->attach( rightTo, importbut_ ); 
     savebut->attach( rightBorder, 0 );
 
-    markercanvas_->markerChanged.notify(
-			mCB(this,uiColorTableMan,markerChange) );
+    markercanvas_->markerChanged.notify( mCB(this,
+					     uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
     postFinalise().notify( mCB(this,uiColorTableMan,doFinalise) );
@@ -169,7 +169,7 @@ uiColorTableMan::~uiColorTableMan()
 void uiColorTableMan::doFinalise( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
-    sequenceChange( 0 );
+    sequenceChange(0);
     toStatusBar( "", 1 );
 }
 
@@ -187,18 +187,18 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
 
 	BufferString status;
-	if ( seq->type() == ColTab::Sequence::System )
+        if ( seq->type() == ColTab::Sequence::System )
 	    status = sKeyDefault;
 	else if ( seq->type() == ColTab::Sequence::Edited )
 	    status = sKeyEdited;
 	else
 	    status = sKeyOwn;
 
-	uiTreeViewItem* itm mUnusedVar = new uiTreeViewItem( coltablistfld_,
-		uiTreeViewItem::Setup().label(seq->name()).label(status) );
+	uiListViewItem* itm = new uiListViewItem( coltablistfld_,
+		uiListViewItem::Setup().label(seq->name()).label(status) );
     }
 
-    uiTreeViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
+    uiListViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
     if ( !itm ) return;
 
     coltablistfld_->setCurrentItem( itm );
@@ -209,7 +209,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 
 void uiColorTableMan::selChg( CallBacker* cb )
 {
-    const uiTreeViewItem* itm = coltablistfld_->selectedItem();
+    const uiListViewItem* itm = coltablistfld_->selectedItem();
     if ( !itm || !ColTab::SM().get(itm->text(0),ctab_) )
 	return;
 
@@ -249,8 +249,8 @@ void uiColorTableMan::removeCB( CallBacker* )
     }
 
     const char* ctnm = ctab_.name();
-    BufferString msg( selstatus_ == sKeyEdited ? "Edited colortable '"
-					       : "Own made colortable '" );
+    BufferString msg( selstatus_ == sKeyEdited ? "Edited colortable '" 
+	    				       : "Own made colortable '" );
     msg += ctnm; msg += "' will be removed";
     if ( selstatus_ == sKeyEdited )
 	msg += "\nand replaced by the default";
@@ -276,9 +276,9 @@ void uiColorTableMan::removeCB( CallBacker* )
 
 void uiColorTableMan::saveCB( CallBacker* )
 {
-    if ( saveColTab(true) )
+    if (  saveColTab( true ) )
     {
-	ColTab::SM().write();
+        ColTab::SM().write();
 	ColTab::SM().refresh();
     }
     tableAddRem.trigger();
@@ -327,7 +327,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	}
     }
 
-    if ( !msg.isEmpty() && !uiMSG().askContinue( msg ) )
+    if ( !msg.isEmpty() && !uiMSG().askContinue( msg ) ) 
 	return false;
 
     newctab.setUndefColor( undefcolfld_->color() );
@@ -398,7 +398,7 @@ void uiColorTableMan::markerColChgd( CallBacker* )
 void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 {
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
-    myhist.removeSingle( 0 ); myhist.removeSingle( hist.size()-1 );
+    myhist.remove( 0 ); myhist.remove( hist.size()-1 );
     TypeSet<float> x2vals;
     const float step = (float)1/(float)myhist.size();
     for ( int idx=0; idx<myhist.size(); idx++ )
@@ -483,7 +483,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     if ( selidx_<0 ) return;
-    Color col = ctab_.color( (float) wpt.x );
+    Color col = ctab_.color( wpt.x );
     if ( selectColor(col,this,"Color selection",false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
@@ -577,7 +577,7 @@ void uiColorTableMan::transptSel( CallBacker* )
 	return;
 
     Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
-			     cttranscanvas_->yVals()[ptidx] );
+	    		     cttranscanvas_->yVals()[ptidx] );
     ctab_.setTransparency( pt );
     tableChanged.trigger();
 }

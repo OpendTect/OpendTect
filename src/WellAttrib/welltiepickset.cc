@@ -7,19 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "arrayndimpl.h"
 #include "sorting.h"
 #include "seistrc.h"
 #include "welltiepickset.h"
-#include "bufstringset.h"
 #include "welltiedata.h"
-
 
 namespace WellTie
 {
-
 
 PickSetMgr::PickSetMgr( PickData& pd )
     : evtype_ (VSEvent::Extr)
@@ -29,28 +26,39 @@ PickSetMgr::PickSetMgr( PickData& pd )
 {}
 
 
-void PickSetMgr::setEventType( const char* ev )
+void PickSetMgr::setEventType( int seltype )
 {
-    if ( !VSEvent::parseEnum(ev, evtype_) )
-        evtype_ = VSEvent::None;
-}
-    
-    
-const char* PickSetMgr::getEventType() const
-{
-    return VSEvent::toString( evtype_ );
+    if ( seltype==1 )
+	evtype_ = VSEvent::Extr;
+    else if ( seltype==2 )
+	evtype_ = VSEvent::Max;
+    else if ( seltype==3 )
+	evtype_ = VSEvent::Min;
+    else if ( seltype==4 )
+	evtype_ = VSEvent::ZC;
+    else 
+	evtype_ = VSEvent::None;
 }
 
-
-void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
-{
-    bss.erase();
     
-    bss.add( VSEvent::toString(VSEvent::None) );
-    bss.add( VSEvent::toString(VSEvent::Extr) );
-    bss.add( VSEvent::toString(VSEvent::Max) );
-    bss.add( VSEvent::toString(VSEvent::Min) );
-    bss.add( VSEvent::toString(VSEvent::ZC) );
+int PickSetMgr::getEventType() const
+{
+    switch ( evtype_ )
+    {
+        case VSEvent::Extr:
+            return 1;
+        case VSEvent::Max:
+            return 2;
+        case VSEvent::Min:
+            return 3;
+        case VSEvent::ZC:
+            return 4;
+            
+        default:
+            break;
+    }
+    
+    return 0;
 }
     
     
@@ -64,7 +72,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
     {
 	if ( (issynth==lastpicksynth_) && curpicksetsz-altpicksetsz>0 )
 	    if ( curpicksetsz )
-		curpickset.pop();
+		curpickset.remove( curpicksetsz - 1 );
 
 	Marker marker( trc ? findEvent( *trc, zpos ) : zpos );
 	marker.color_ = Color::DgbColor();
@@ -77,7 +85,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 
 
 
-#define mTimeGate 0.02f
+#define mTimeGate 0.02
 float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
     zpos *= 0.001;
@@ -118,14 +126,14 @@ void PickSetMgr::clearLastPicks()
     if ( isSynthSeisSameSize() )
     {
 	if ( lastpicksynth_ )
-	    synthpickset_.removeSingle( synthpickset_.size()-1 );
+	    synthpickset_.remove( synthpickset_.size()-1 );
 	else
-	    seispickset_.removeSingle( seispickset_.size()-1 );
+	    seispickset_.remove( seispickset_.size()-1 );
     }
     else if ( seispickset_.size() > synthpickset_.size() )
-	seispickset_.removeSingle( seispickset_.size()-1 );
+	seispickset_.remove( seispickset_.size()-1 );
     else if ( seispickset_.size() < synthpickset_.size() )
-	synthpickset_.removeSingle( synthpickset_.size()-1 );
+	synthpickset_.remove( synthpickset_.size()-1 );
     lastpicksynth_ = !lastpicksynth_;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "createattriblog.h"
 
@@ -76,7 +76,7 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     else
     {
 	Well::Log& log = wd.logs().getLog( sellogidx_ );
-	log.setEmpty();
+	log.erase();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
 	delete newlog;
@@ -89,7 +89,7 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
 
 bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 {
-    bidset_.setEmpty(); positions_.erase(); depths_.erase();
+    bidset_.empty(); positions_.erase(); depths_.erase();
     const int nrsteps = dahintv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -100,7 +100,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 
 	if ( SI().zIsTime() && wd_->d2TModel() )
 	    pos.z = wd_->d2TModel()->getTime( md, wd_->track() );
-	bidset_.add( bid, (float) pos.z, (float)idx );
+	bidset_.add( bid, pos.z, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::Pos(0,0);
     }
@@ -126,6 +126,6 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem, TaskRunner* tr )
 	    aem.createLocationOutput( errmsg, bivsset );
     if ( !process ) 
 	return false;
-    return TaskRunner::execute( tr, *process );
+    return tr ? tr->execute( *process ) : process->execute();
 }
 

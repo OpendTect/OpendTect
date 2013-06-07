@@ -4,11 +4,10 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "linesetposinfo.h"
 #include "survinfo.h"
-#include "statruncalc.h"
 #include "binidvalset.h"
 
 
@@ -107,41 +106,5 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 	}
 	else
 	    delete newbivset;
-    }
-}
-
-
-float PosInfo::LineSet2DData::getDistBetwTrcs( bool ismax,
-					       const char* linenm ) const
-{
-    Stats::CalcSetup rcsetup;
-    if ( ismax )
-	rcsetup.require( Stats::Max );
-    else
-	rcsetup.require( Stats::Median );
-
-    Stats::RunCalc<float> stats( rcsetup );
-    for ( int idx=0; idx<trcdiststatsperlines_.size(); idx++ )
-    {
-	if ( BufferString(linenm) == trcdiststatsperlines_[idx].linename_ )
-	    return ismax ? trcdiststatsperlines_[idx].maxdist_
-			 : trcdiststatsperlines_[idx].mediandist_;
-	else
-	    stats += ismax ? trcdiststatsperlines_[idx].maxdist_
-			   : trcdiststatsperlines_[idx].mediandist_;
-    }
-
-    return ismax ? stats.max() : stats.median();
-}
-
-
-void PosInfo::LineSet2DData::compDistBetwTrcsStats()
-{
-    for ( int lidx=0; lidx<nrLines(); lidx++ )
-    {
-	float median, max;
-	lineData( lidx ).compDistBetwTrcsStats( max, median );
-	LineTrcDistStats ltrcdiststats( lineName( lidx ), median, max );
-	trcdiststatsperlines_ += ltrcdiststats;
     }
 }

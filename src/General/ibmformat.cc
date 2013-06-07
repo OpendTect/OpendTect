@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "ibmformat.h"
 #include <string.h>
@@ -32,7 +32,7 @@ int IbmFormat::asInt( const void* buf )
 void IbmFormat::putInt( int value, void* buf )
 {
     if (value >= 0) {
-	mBuf[0] = mCast( unsigned char, value / (256 * 256 * 256) );
+	mBuf[0] = value / (256 * 256 * 256)        ;
 	mBuf[1] = value / (256 * 256       )  % 256;
 	mBuf[2] = value /  256                % 256;
 	mBuf[3] = value                       % 256;
@@ -40,7 +40,7 @@ void IbmFormat::putInt( int value, void* buf )
 	value = (-value);
 	value--;
 
-	mBuf[0] = mCast( unsigned char, 255 - value / (256 * 256 * 256) );
+	mBuf[0] = 255 - value / (256 * 256 * 256)        ;
 	mBuf[1] = 255 - value / (256 * 256       )  % 256;
 	mBuf[2] = 255 - value /  256                % 256;
 	mBuf[3] = 255 - value                       % 256;
@@ -63,13 +63,13 @@ short IbmFormat::asShort( const void* buf )
 void IbmFormat::putShort( short value, void* buf )
 {
     if (value >= 0) {
-	mBuf[0] = mCast( unsigned char, value / 256 );
+	mBuf[0] = value / 256;
 	mBuf[1] = value % 256;
     } else {
 	value = (-value);
 	value--;
 
-	mBuf[0] = mCast( unsigned char, 255 - value / 256 );
+	mBuf[0] = 255 - value / 256;
 	mBuf[1] = 255 - value % 256;
     }
 }
@@ -83,16 +83,28 @@ unsigned short IbmFormat::asUnsignedShort( const void* buf )
 
 void IbmFormat::putUnsignedShort( unsigned short value, void* buf )
 {
-    mBuf[0] = mCast( unsigned char, value / 256 );
+    mBuf[0] = value / 256;
     mBuf[1] = value % 256;
 }
+
+
+#if __GNUC__ == 4 && __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 2
+#define mUseDummyFunc
+#endif
+
+#ifdef mUseDummyFunc
+int dummyfunc( int v )
+{
+    return 0;
+}
+#endif
 
 
 
 float IbmFormat::asFloat( const void* buf )
 {
-    register int fconv;
-    register int fmant, t;
+    int fconv;
+    int fmant, t;
     fconv = *((int*)buf);
 
 #ifdef __little__
@@ -115,6 +127,10 @@ float IbmFormat::asFloat( const void* buf )
     }
 
 
+#ifdef mUseDummyFunc
+    dummyfunc( fconv );
+#endif
+
     return *((float*)(&fconv));
 }
 
@@ -135,6 +151,11 @@ void IbmFormat::putFloat( float value, void* buf )
     fconv = (fconv<<24) | ((fconv>>24)&0xff) |
 	    ((fconv&0xff00)<<8) | ((fconv&0xff0000)>>8);
 #endif
+
+#ifdef mUseDummyFunc
+    dummyfunc( fconv );
+#endif
+
 
     memcpy( buf, &fconv, 4 );
 }

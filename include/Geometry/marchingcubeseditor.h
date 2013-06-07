@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "task.h"
 #include "callback.h"
 #include "position.h"
@@ -37,7 +36,7 @@ the movement, and the factor is set by from the outside.
 */
 
 
-mExpClass(Geometry) MarchingCubesSurfaceEditor : public ParallelTask
+mClass MarchingCubesSurfaceEditor : public ParallelTask
 {
 public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
@@ -86,4 +85,3 @@ private:
 };
 
 #endif
-

@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "seisioobjinfo.h"
 
 
-mExpClass(uiSeis) uiSeisIOObjInfo
+mClass uiSeisIOObjInfo
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

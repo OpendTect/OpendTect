@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
@@ -54,7 +53,7 @@ only if the uiGenInput has not been finalised yet.
 
 */
 
-mExpClass(uiTools) uiGenInput : public uiGroup
+mClass uiGenInput : public uiGroup
 {
 public:
 			uiGenInput( uiParent* p, const char* disptxt
@@ -274,4 +273,3 @@ private:
 
 
 #endif
-

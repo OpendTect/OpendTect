@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include <iosfwd>
@@ -23,9 +21,8 @@ class CBVSWriter;
 
 /*!\brief Vertical bricking specification */
 
-mExpClass(General) VBrickSpec
+mStruct VBrickSpec
 {
-public:
 		VBrickSpec()		{ setStd(false); }
 
     void	setStd(bool yn_bricking=false);
@@ -37,7 +34,7 @@ public:
 
 /*!\brief Writer for CBVS file packs */
 
-mExpClass(General) CBVSWriteMgr : public CBVSIOMgr
+mClass CBVSWriteMgr : public CBVSIOMgr
 {
 public:
 
@@ -83,5 +80,3 @@ protected:
 
 
 #endif
-
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uihorizonmergedlg.h"
@@ -68,7 +68,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 	return false;
 
     PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
-    if ( loader && !TaskRunner::execute( &uitr, *loader ) )
+    if ( loader && !uitr.execute(*loader) )
     {
 	uiMSG().error( "Cannot load selected input horizons" );
 	return false;
@@ -84,7 +84,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 
     EM::Horizon3DMerger merger( objids );
     merger.setMode( (EM::HorizonMerger::Mode)duplicatefld_->getIntValue() );
-    if ( !TaskRunner::execute( &uitr, merger ) )
+    if ( !uitr.execute(merger) )
     {
 	uiMSG().error( "Cannot merge horizons" );
 	return false;
@@ -101,7 +101,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     hor3d->setStratLevelID( outfld_->getStratLevelID() );
     hor3d->setMultiID( ioobj->key() );
     PtrMan<Executor> saver = hor3d->saver();
-    if ( !saver || !TaskRunner::execute( &uitr, *saver ) )
+    if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( "Cannot save output horizon" );
 	return false;

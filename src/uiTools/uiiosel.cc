@@ -118,7 +118,8 @@ void uiIOSelect::updateFromEntries()
 	    inp_->addItem( usrnm );
 	else
 	{
-	    entries_.removeSingle( idx );
+	    delete entries_[idx];
+	    entries_.remove( idx );
 	    idx--;
 	}
     }
@@ -147,7 +148,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
-	if ( !iopar.find( IOPar::compKey(sKey::IOSelection(),lastidx+1)) )
+	if ( !iopar.find( IOPar::compKey(sKey::IOSelection,lastidx+1)) )
 	    break;
     }
 
@@ -159,7 +160,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
-	iopar.set( IOPar::compKey(sKey::IOSelection(),lastidx), key );
+	iopar.set( IOPar::compKey(sKey::IOSelection,lastidx), key );
     }
 }
 
@@ -171,7 +172,7 @@ void uiIOSelect::getHistory( const IOPar& iopar )
     for ( int idx=1; ; idx++ )
     {
 	BufferString bs;
-	if ( iopar.get( IOPar::compKey(sKey::IOSelection(),idx), bs ) )
+	if ( iopar.get( IOPar::compKey(sKey::IOSelection,idx), bs ) )
 	    bss.add( bs );
 	else
 	    break;
@@ -321,7 +322,7 @@ const char* uiIOSelect::getItem( int idx ) const
     const int nrspec = specialitems.size();
     const int nrentries = entries_.size();
     return idx < nrspec
-	 ? (idx < 0 ? "" : specialitems.getValue(idx).str())
+	 ? (idx < 0 ? "" : specialitems.getValue(idx))
 	 : (idx < nrentries + nrspec ? entries_.get(idx-nrspec).buf() : "");
 }
 
@@ -394,7 +395,7 @@ void uiIOSelect::setLabelText( const char* s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar( int(strlen(s)+1) );
+	lbl_->setPrefWidthInChar( strlen(s)+1 );
 	return lbl_->setText( s );
     }
     else if ( optbox_ )

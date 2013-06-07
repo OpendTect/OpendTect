@@ -17,12 +17,14 @@ ________________________________________________________________________
 #include "sortedlist.h"
 
 
-/*!
-\brief A SortedTable keeps track of ids and their corresponding values. Each id can only be present once.
+/*!\brief
+A SortedTable keeps track of ids and their corresponding values. Each id can
+only be present once.
+
 */
 
 template <class IDT, class T>
-mClass(Algo) SortedTable
+class SortedTable
 {
 public:
     			SortedTable();
@@ -92,20 +94,21 @@ bool  SortedTable<IDT,T>::remove(IDT theid)
 
     if ( pos==-1 ) return false;
 
-    vals_.removeSingle( pos );
+    vals_.remove( pos );
     ids_.remove( pos );
 
     return true;
 }
 
 
-/*!
-\brief A SortedPointers keeps track of ids and their corresponding pointer.
-Each id can only be present once.
+/*!\brief
+A SortedPointers keeps track of ids and their corresponding pointer. Each id can
+only be present once.
+
 */
 
 template <class T>
-mClass(Algo) SortedPointers
+class SortedPointers
 {
 public:
     			SortedPointers( );
@@ -195,7 +198,7 @@ bool  SortedPointers<T>::remove(int id_)
 
     if ( pos==-1 ) return false;
 
-    vals.removeSingle( pos );
+    vals.remove( pos );
     ids.remove( pos );
 
     return true;

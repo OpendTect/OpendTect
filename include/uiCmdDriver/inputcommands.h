@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "command.h"
 #include "cmdcomposer.h"
 
@@ -27,11 +26,11 @@ class uiComboBox;
 namespace CmdDrive
 {
 
-mStartDeclCmdClass( uiCmdDriver, Input, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Input, UiObjectCmd )		mEndDeclCmdClass
 
 #define mDeclInputActivator( typ, objclass ) \
 \
-    mExpClass(uiCmdDriver) typ##Activator: public Activator \
+    mClass typ##Activator: public Activator \
     { \
     public: \
 			typ##Activator(const objclass& obj,const char* txt=0, \
@@ -53,9 +52,9 @@ mDeclInputActivator( SpinInput, uiSpinBox )
 mDeclInputActivator( ComboInput, uiComboBox )
 
 
-mStartDeclCmdClass( uiCmdDriver, Spin, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Spin, UiObjectCmd )			mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) SpinActivator: public Activator
+mClass SpinActivator: public Activator
 {
 public:
 			SpinActivator(const uiSpinBox&,int nrsteps);
@@ -66,9 +65,9 @@ protected:
 };
 
 
-mStartDeclCmdClass( uiCmdDriver, Slider, UiObjectCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( Slider, UiObjectCmd )		mEndDeclCmdClass
 
-mExpClass(uiCmdDriver) SliderActivator: public Activator
+mClass SliderActivator: public Activator
 {
 public:
 			SliderActivator(const uiSlider&,float fraction);
@@ -79,20 +78,19 @@ protected:
 };
 
 
-mStartDeclCmdClass( uiCmdDriver, GetInput, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetSpin, UiObjQuestionCmd )	mEndDeclCmdClass
-mStartDeclCmdClass( uiCmdDriver, GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( GetInput, UiObjQuestionCmd )	mEndDeclCmdClass
+mStartDeclCmdClass( GetSpin, UiObjQuestionCmd )		mEndDeclCmdClass
+mStartDeclCmdClass( GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClass( uiCmdDriver, Slider, CmdComposer, uiSlider )
-    mEndDeclComposerClass
+mStartDeclComposerClass( Slider, CmdComposer, uiSlider ) mEndDeclComposerClass 
 
-mStartDeclComposerClassWithInit( uiCmdDriver, Input, CmdComposer, uiLineEdit )
+mStartDeclComposerClassWithInit( Input, CmdComposer, uiLineEdit )
 protected:
     float textchanged_;
 mEndDeclComposerClass 
 
-mStartDeclComposerClassWithInit( uiCmdDriver, Spin, CmdComposer, uiSpinBox )
+mStartDeclComposerClassWithInit( Spin, CmdComposer, uiSpinBox )
 protected:
     int pendingsteps_;
     float pendinginput_;

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 
 class SoForegroundTranslation;
@@ -23,7 +22,7 @@ namespace visBase
 
 /*!Moves the following objects towards the camera. */
 
-mExpClass(visBase) ForegroundLifter : public DataObject
+mClass ForegroundLifter : public DataObject
 {
 public:
 
@@ -44,5 +43,4 @@ protected:
 };
 
 #endif
-
 

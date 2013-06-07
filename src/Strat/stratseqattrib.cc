@@ -50,8 +50,8 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LaySeqAttrib& lsa = attr( idx );
-	mDoIOPar( set, sKey::Name(), lsa.name() );
-	mDoIOPar( set, sKey::Property(), lsa.prop_.name() );
+	mDoIOPar( set, sKey::Name, lsa.name() );
+	mDoIOPar( set, sKey::Property, lsa.prop_.name() );
 	mDoIOPar( setYN, LaySeqAttrib::sKeyIsLocal(), lsa.islocal_ );
 	mDoIOPar( set, LaySeqAttrib::sKeyStats(), lsa.stat_ );
 	if ( !lsa.islocal_ )
@@ -61,7 +61,7 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 	}
 	FileMultiString fms( LaySeqAttrib::TransformNames()[lsa.transform_] );
 	if ( mIsUdf(lsa.transformval_) )
-	    fms += sKey::FloatUdf();
+	    fms += sKey::FloatUdf;
 	else
 	    fms += lsa.transformval_;
 	mDoIOPar( set, LaySeqAttrib::sKeyTransform(), fms );
@@ -75,7 +75,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 
     for ( int idx=0; ; idx++ )
     {
-	const char* res = iop.find( IOPar::compKey(sKey::Property(),idx) );
+	const char* res = iop.find( IOPar::compKey(sKey::Property,idx) );
 	if ( !res || !*res ) break;
 
 	const PropertyRef* pr = PROPS().find( res );
@@ -83,7 +83,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	    pr = &Strat::Layer::thicknessRef();
 	if ( !pr )
 	    continue;
-	BufferString nm; mDoIOPar( get, sKey::Name(), nm );
+	BufferString nm; mDoIOPar( get, sKey::Name, nm );
 	if ( nm.isEmpty() || attr(nm) ) continue;
 
 	LaySeqAttrib* lsa = new LaySeqAttrib( *this, *pr, nm );
@@ -138,7 +138,6 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 					   const Strat::LayerModel& lm )
     : attr_(desc)
     , validx_(-1)
-    , extrgates_(*new TypeSet<Interval<float> >)
 {
     if ( attr_.islocal_ )
     {
@@ -244,7 +243,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 }
 
 
-static bool allLithAreUndef( const Strat::LayerSequence& seq )
+static bool isProfileMode( const Strat::LayerSequence& seq )
 {
     for ( int ilay=0; ilay<seq.size(); ilay++ )
     {
@@ -265,14 +264,14 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
     const int nrlays = seq.size();
 
     ObjectSet<const Strat::Layer> layers;
-    const bool isallundef = allLithAreUndef( seq );
+    const bool isprofilemode = isProfileMode( seq );
     for ( int ilay=0; ilay<nrlays; ilay++ )
     {
 	const Strat::Layer* lay = lays[ilay];
 	for ( int iun=0; iun<units_.size(); iun++ )
 	{
 	    if ( units_[iun]->isParentOf( lay->unitRef() ) &&
-		 ( isallundef || liths_.isPresent(&lay->lithology())) )
+		 (isprofilemode || liths_.isPresent(&lay->lithology())) )
 		layers += lay;
 	}
     }
@@ -353,12 +352,12 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     : Executor("Attribute extraction")
     , lm_(lm)
     , dps_(res)
-    , extrgates_(*new TypeSet<TypeSet<Interval<float> > >)
     , seqidx_(0)
     , msg_("Extracting layer attributes")
     , calczwdth_(SI().zRange(false).step / 2)
 {
-    // calczwdth_ default only used if no valid extrgates_ is provided
+    //TODO: should be the step from the user-defined extraction window,
+    // converted to time using the time-depth model of the sequence
     if ( SI().zIsTime() )
 	calczwdth_ *= 2000;
 
@@ -370,9 +369,6 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
 	    continue;
 
 	LaySeqAttribCalc* calc = new LaySeqAttribCalc( lsa, lm );
-	if ( extrgates_.validIdx(idx) )
-	    calc->setExtrGates( extrgates_[idx] );
-
 	calcs_ += calc;
 	dpscidxs_ += dpsidx;
     }
@@ -388,10 +384,6 @@ Strat::LayModAttribCalc::~LayModAttribCalc()
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 
-od_int64 Strat::LayModAttribCalc::totalNr() const
-{ return lm_.size(); }
-
-
 int Strat::LayModAttribCalc::nextStep()
 {
     const int dpssz = dps_.size();
@@ -400,56 +392,19 @@ int Strat::LayModAttribCalc::nextStep()
     if ( seqidx_ >= lm_.size() )
 	return Finished();
 
-    const int dpsdepthidx = dps_.indexOf( sKey::Depth() );
-    if ( dpsdepthidx<0 )
-	mErrRet( "No depth data found" )
-    const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
-    BufferString errmsg = "No extraction interval specified ";
-    errmsg.add( "for pseudo-well number " );
+    const LayerSequence& seq = lm_.sequence( seqidx_ );
     DataPointSet::RowID dpsrid = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
 
-    const int dpthidx = dps_.indexOf( sKey::Depth() );
-    if ( dpthidx < 0 )
-	mErrRet("No 'Depth' column in input data")
-
     const bool zinft = SI().depthsInFeet();
-    int pointidx = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
     {
 	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
 	float* dpsvals = dps_.getValues( dpsrid );
-	float z = dpsvals[dpthidx];
-	if ( zinft )
-	   z *= mFromFeetFactorF;
-
-	Interval<float> zrg;
-	const int seqnb = mCast( int, seqidx_ );
-	if ( extrgates_.isEmpty() )
-	{
-	    if( mIsUdf(calczwdth_) )
-		mErrRet( "Neither calculation width nor extraction gate set" )
-
-	    zrg.setFrom( Interval<float>(z-calczwdth_, z+calczwdth_) );
-	}
-	else
-	{
-	    if ( !extrgates_.validIdx(seqnb) )
-	    {
-		errmsg.add( seqnb+1 );
-		mErrRet( errmsg )
-	    }
-
-	    if ( !extrgates_[seqnb].validIdx(pointidx) )
-	    {
-		errmsg.add( seqnb+1 );
-		mErrRet( errmsg )
-	    }
-
-	    zrg.setFrom( extrgates_[seqnb][pointidx] );
-	}
-
+	float z = dps_.z( dpsrid );
+	if ( zinft ) z *= mFromFeetFactorF;
+	const Interval<float> zrg( z-calczwdth_, z+calczwdth_ );
 	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
 	{
 	    const float val = calcs_[idx]->getValue( seq, zrg );
@@ -457,7 +412,6 @@ int Strat::LayModAttribCalc::nextStep()
 	}
 
 	dpsrid++;
-	pointidx++;
     }
 
     seqidx_++;

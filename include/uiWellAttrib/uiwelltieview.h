@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "welltiedata.h"
@@ -38,7 +37,7 @@ namespace WellTie
 {
     class Setup; 
 
-mExpClass(uiWellAttrib) uiTieView : public CallBacker
+mClass uiTieView : public CallBacker
 {
 public:
 			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
@@ -47,8 +46,7 @@ public:
     void        		fullRedraw();
     void        		drawUserPicks();
     void 			redrawViewer();
-    void 			redrawViewerAuxDatas();
-    void 			redrawLogsAuxDatas();
+    void 			redrawViewerAnnots();
 
     void			enableCtrlNotifiers(bool);
 
@@ -65,15 +63,15 @@ protected:
 
     const DispParams&		params_;
     const Data&			data_;
-    const StepInterval<float>	zrange_;
+    const StepInterval<float>&	zrange_;
     const TypeSet<Marker>&	seispickset_;
     const TypeSet<Marker>&	synthpickset_;
     SeisTrcBuf&			trcbuf_;
     SeisTrcBufDataPack*		seisdp_;
 
-    ObjectSet<FlatView::AuxData> userpickauxdatas_;
-    ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;
-    ObjectSet<FlatView::AuxData> horauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> horauxdatas_;
     ObjectSet<uiTextItem> 	hortxtnms_;
     ObjectSet<uiTextItem> 	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
@@ -81,7 +79,7 @@ protected:
     void        		drawLog(const char*,bool,int,bool);
     void        		drawTraces();
     void			drawUserPicks(const TypeSet<Marker>&,bool);
-    void        		drawMarker(FlatView::AuxData*,
+    void        		drawMarker(FlatView::Annotation::AuxData*,
 					    bool,float);
     void        		drawViewerWellMarkers();
     void        		drawLogDispWellMarkers();
@@ -100,7 +98,7 @@ protected:
 
 
 
-mExpClass(uiWellAttrib) uiCrossCorrView : uiGroup
+mClass uiCrossCorrView : uiGroup
 {
 public:
 
@@ -121,5 +119,4 @@ protected:
 
 }; //namespace WellTie
 #endif
-
 

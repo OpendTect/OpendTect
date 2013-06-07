@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "stratunitrepos.h"
 #include "stratreftree.h"
@@ -68,20 +68,13 @@ const Strat::RefTree& Strat::RT()
 void Strat::pushRefTree( Strat::RefTree* rt )
 { refTreeMgr().rts_ += rt; }
 void Strat::popRefTree()
-{ delete refTreeMgr().rts_.removeSingle( refTreeMgr().rts_.size()-1 ); }
+{ delete refTreeMgr().rts_.remove( refTreeMgr().rts_.size()-1 ); }
 
 
 void Strat::setRT( RefTree* rt )
 {
-    if ( !rt ) return;
-
-    if ( refTreeMgr().rts_.isEmpty() )
-	refTreeMgr().rts_ += rt;
-    else
-    {
-	const int currentidx = refTreeMgr().rts_.indexOf( &Strat::RT() );
-	delete refTreeMgr().rts_.replace( currentidx < 0 ? 0 : currentidx, rt );
-    }
+    if ( rt )
+	delete refTreeMgr().rts_.replace( 0, rt );
 }
 
 

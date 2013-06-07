@@ -7,7 +7,7 @@ ___________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu 
  Date:		03-28-2007
- RCS:		$Id$
+ RCS:		$Id: volprocmgr.h,v 1.2 2009/07/22 16:01:27 cvsbert Exp $
 __________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace VolProc
 
 class ProcessingChain;
 
-mClass(VolProcTest) Manager : public CallBacker
+class Manager : public CallBacker
 {
 public:
     static Manager&	get(uiParent*);

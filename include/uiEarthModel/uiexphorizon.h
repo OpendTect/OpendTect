@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "fixedstring.h"
 
@@ -25,7 +24,7 @@ class uiT2DConvSel;
 
 /*! \brief Dialog for horizon export */
 
-mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
+mClass uiExportHorizon : public uiDialog
 {
 public:
 			uiExportHorizon(uiParent*);
@@ -61,4 +60,3 @@ protected:
 
 
 #endif
-

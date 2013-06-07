@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "iopar.h"
 #include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
-mFDQtclass(QKeyEvent)
+class QKeyEvent;
 
 
 class uiShortcutsMgr;
-mGlobal(uiBase) uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
+mGlobal uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
-mExpClass(uiBase) uiKeyDesc
+mClass uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
@@ -33,7 +32,6 @@ public:
 			{ return key_==ev.key_ && state_==ev.state_; }
 
     bool		set(const char* statestr,const char* keystr);
-    BufferString	getKeySequenceStr() const;
     
     OD::ButtonState	state() const 		{ return state_; }
     void		setState( OD::ButtonState bs )	{ state_ = bs; }
@@ -48,7 +46,7 @@ public:
     const char*		stateStr() const;
     const char*		keyStr() const;
 
-    			uiKeyDesc(mQtclass(QKeyEvent*));
+    			uiKeyDesc(QKeyEvent*);
 
 protected:
 
@@ -60,7 +58,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiShortcutsList
+mClass uiShortcutsList
 {
 public:
 
@@ -99,7 +97,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiShortcutsMgr : public CallBacker
+mClass uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
@@ -121,7 +119,7 @@ protected:
 };
 
 
-mExpClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
+mClass uiExtraIntKeyDesc : public uiKeyDesc
 {
 public:			
 			uiExtraIntKeyDesc(const char* statestr=0,
@@ -146,4 +144,3 @@ protected:
 };
 
 #endif
-

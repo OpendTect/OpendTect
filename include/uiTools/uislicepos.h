@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uiparent.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -24,7 +23,7 @@ class uiToolButton;
 
 /*! \brief Toolbar for setting slice position _ base class */
 
-mExpClass(uiTools) uiSlicePos : public CallBacker
+mClass uiSlicePos : public CallBacker
 {
 public:		
 			uiSlicePos(uiParent*);
@@ -72,4 +71,3 @@ protected:
 };
 
 #endif
-

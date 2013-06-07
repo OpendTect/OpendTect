@@ -13,11 +13,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emposid.h"
 #include "emobject.h"
 #include "sets.h"
 #include "position.h"
+
+/*!
+*/
 
 class BinID;
 class RowCol;
@@ -34,11 +36,7 @@ typedef SubID KnotID;
 
 class EMManager;
 
-/*!
-\brief Stick set
-*/
-
-mExpClass(EarthModel) StickSet : public EMObject
+mClass StickSet : public EMObject
 {
 public:
     static const char*	typeStr();
@@ -91,4 +89,3 @@ protected:
 
 
 #endif
-

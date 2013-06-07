@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiCheckBox;
@@ -21,7 +20,7 @@ class uiLabel;
 class uiLabeledSpinBox;
 class uiLineEdit;
 
-mExpClass(uiTools) uiProxyDlg : public uiDialog
+mClass uiProxyDlg : public uiDialog
 {
 public:
 			uiProxyDlg(uiParent*);
@@ -49,4 +48,3 @@ protected:
 };
 
 #endif
-

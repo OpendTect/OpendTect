@@ -17,15 +17,12 @@ ________________________________________________________________________
 #include <qobject.h>
 #include <Inventor/Qt/widgets/SoQtThumbWheel.h>
 
-QT_BEGIN_NAMESPACE
-
 class QString;
 
-/*! 
-\brief Helper class for uiThumbWheel to relay Qt's messages. Internal object,
-to hide Qt's signal/slot mechanism.
+//! Helper class for uiThumbWheel to relay Qt's messages.
+/*!
+    Internal object, to hide Qt's signal/slot mechanism.
 */
-
 class i_ThumbWheelMessenger : public QObject 
 {
     Q_OBJECT
@@ -70,7 +67,5 @@ private slots:
 			{ mTrigger( wheelReleased ); }
 
 };
-
-QT_END_NAMESPACE
 
 #endif

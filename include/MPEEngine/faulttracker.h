@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emtracker.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
@@ -24,11 +23,7 @@ namespace MPE
 
 class FaultSeedPicker;
 
-/*!
-\brief EMTracker to track EM::Fault3D.
-*/
-
-mExpClass(MPEEngine) FaultTracker : public EMTracker
+mClass FaultTracker : public EMTracker
 {
 public:
 			FaultTracker(EM::Fault3D* =0);
@@ -53,5 +48,4 @@ protected:
 } // namespace MPE
 
 #endif
-
 

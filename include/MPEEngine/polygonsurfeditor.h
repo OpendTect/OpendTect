@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "emeditor.h"
 
 namespace EM { class PolygonBody; };
@@ -21,11 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-/*!
-\brief ObjectEditor to edit EM::PolygonBody.
-*/
-
-mExpClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
+mClass PolygonBodyEditor : public ObjectEditor
 {
 public:
     				PolygonBodyEditor(EM::PolygonBody&);
@@ -67,5 +62,4 @@ protected:
 };  // namespace MPE
 
 #endif
-
 

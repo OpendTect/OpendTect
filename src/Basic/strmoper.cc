@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -18,14 +18,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <limits.h>
+#include <stdio.h>
 
 static const unsigned int nrretries = 4;
 static const float retrydelay = 1;
 
 
-bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
+bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 {
-    if ( strm.bad() || strm.eof() || !ptr ) return false;
+    if ( strm.bad() || strm.eof() || !ptr )
+	return false;
+    
     strm.clear();
 
     strm.read( (char*)ptr, nrbytes );
@@ -34,7 +37,10 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
     nrbytes -= strm.gcount();
     if ( nrbytes > 0 )
     {
-	if ( strm.eof() ) return false;
+	if ( strm.eof() )
+	{
+	    return false;
+	}
 
 	char* cp = (char*)ptr + strm.gcount();
 	for ( unsigned int idx=0; idx<nrretries; idx++ )
@@ -57,7 +63,7 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 
 
 bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
-			   od_uint64 nrbytes )
+			   unsigned int nrbytes )
 {
     if ( strm.bad() || !ptr ) return false;
 
@@ -89,7 +95,7 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
     {
 	Threads::sleep( retrydelay );
 	strm.clear();
-	ch = (char) strm.peek();
+	ch = strm.peek();
 	strm.ignore( 1 );
 	return strm.good();
     }
@@ -130,7 +136,7 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
     if ( !getres ) return false;
 
     char bsbuf[1024+1];
-    while ( ch != '\n' )
+    while ( ch != '\n' && ch != EOF )
     {
 	if ( bs )
 	{

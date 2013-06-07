@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "task.h"
 #include "namedobj.h"
 #include "progressmeter.h"
@@ -21,25 +20,25 @@ ________________________________________________________________________
 
 template <class T> class ObjectSet;
 
-/*!
-\brief Specification to enable chunkwise execution of a process.
-  
-  Interface enabling separation of the control of execution of any process from
-  what actually is going on. The work is done by calling the doStep() method
-  until either ErrorOccurred or Finished is returned. To enable logging and/or
-  communication with the user, two types of info can be made available (the
-  methods will be called before the step is executed). Firstly, a message.
-  Secondly, info on the progress.
-  It is common that Executors are combined to a new Executor object. This is
-  the most common reason why totalNr() can change.
-  
-  If doStep returns -1 (Failure) the error message should be in message().
-  
-  The execute() utility executes the process while logging message() etc. to
-  a stream. Useful in batch situations.  
+/*!\brief specification to enable chunkwise execution a process.
+
+Interface enabling separation of the control of execution of any process from
+what actually is going on. The work is done by calling the doStep() method
+until either ErrorOccurred or Finished is returned. To enable logging and/or
+communication with the user, two types of info can be made available (the
+methods will be called before the step is executed). Firstly, a message.
+Secondly, info on the progress.
+It is common that Executors are combined to a new Executor object. This is
+the most common reason why totalNr() can change.
+
+If doStep returns -1 (Failure) the error message should be in message().
+
+The execute() utility executes the process while logging message() etc. to
+a stream. Useful in batch situations.
+
 */
 
-mExpClass(Basic) Executor : public SequentialTask
+mClass Executor : public SequentialTask
 {
 public:
 			Executor( const char* nm )
@@ -59,15 +58,16 @@ public:
 };
 
 
-/*!
-\brief Executor consisting of other executors.
-  
-  Executors may be added on the fly while processing. Depending on the
-  parallel flag, the executors are executed in the order in which they were
-  added or in parallel (but still single-threaded).
+/*!\brief Executor consisting of other executors.
+
+Executors may be added on the fly while processing. Depending on the
+parallel flag, the executors are executed in the order in which they were added
+or in parallel (but still single-threaded).
+
 */
 
-mExpClass(Basic) ExecutorGroup : public Executor
+
+mClass ExecutorGroup : public Executor
 {
 public:
     			ExecutorGroup( const char* nm, bool parallel=false,
@@ -105,11 +105,7 @@ protected:
 };
 
 
-/*!
-\brief TaskRunner to show progress of a Task in text format.
-*/
-
-mExpClass(Basic) TextTaskRunner : public TaskRunner
+mClass TextTaskRunner : public TaskRunner
 {
 public:
 			TextTaskRunner( std::ostream& strm )
@@ -137,4 +133,3 @@ protected:
 
 
 #endif
-

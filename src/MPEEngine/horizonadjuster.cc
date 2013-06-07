@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizonadjuster.h"
 
@@ -155,14 +155,17 @@ int HorizonAdjuster::nextStep()
     if ( !attrdata_ || !attrdata_->nrCubes() )
 	return ErrorOccurred();
 
+    int count = 0;
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
-	BinID targetbid = BinID::fromInt64( pids_[idx] );
+	BinID targetbid;
+	targetbid.fromInt64( pids_[idx] );
 	float targetz;
 	bool res;
 	if ( pidsrc_.size() > idx )
 	{
-	    BinID refbid = BinID::fromInt64( pidsrc_[idx] );
+	    BinID refbid;
+	    refbid.fromInt64( pidsrc_[idx] );
 	    res = track( refbid, targetbid, targetz );
 	}
 	else
@@ -227,8 +230,8 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
 	return false;
-    const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
-    tracker_->setRangeStep( (float) sd.step );
+    const float startz = horizon_.getPos( sectionid_, to.toInt64() ).z;
+    tracker_->setRangeStep( sd.step );
 
     tracker_->setTarget( &toarr, zsz, sd.getfIndex(startz) );
 
@@ -244,7 +247,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
 
-	od_int64 fromoffset = mUdf(od_int64);
+	od_int64 fromoffset;
 	if ( !attrdata_->is2D() )
 	    fromoffset = attrdata_->get3DData()->getCube(0).info().getOffset(
 						frominlidx, fromcrlidx, 0 );
@@ -264,14 +267,14 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 		    const_cast<ValueSeries<float>&>(*storage), fromoffset ); 
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
-	const float fromz = (float) horizon_.getPos(sectionid_,from.toInt64()).z;
+	const float fromz = horizon_.getPos(sectionid_,from.toInt64()).z;
 	tracker_->setSource( &fromarr, zsz, sd.getfIndex(fromz) );
 
 	if ( !tracker_->isOK() )
 	    return false;
 
 	const bool res = tracker_->track();
-	const float resz = (float) sd.atIndex( tracker_->targetDepth() );
+	const float resz = sd.atIndex( tracker_->targetDepth() );
 
 	if ( !permittedZRange().includes(resz-startz,false) )
 	    return false;
@@ -286,7 +289,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return false;
 
     const bool res = tracker_->track();
-    const float resz = (float) sd.atIndex( tracker_->targetDepth() );
+    const float resz = sd.atIndex( tracker_->targetDepth() );
 
     if ( !permittedZRange().includes(resz-startz,false) )
 	return false;

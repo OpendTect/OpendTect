@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "randomlinegeom.h"
 
@@ -47,7 +47,7 @@ void RandomLine::setNodePosition( int idx, const BinID& bid )
 { nodes_[idx] = bid; }
 
 void RandomLine::removeNode( int idx )
-{ nodes_.removeSingle( idx ); nodeRemoved.trigger(); }
+{ nodes_.remove( idx ); nodeRemoved.trigger(); }
 
 void RandomLine::removeNode( const BinID& bid )
 { nodes_ -= bid; nodeRemoved.trigger(); }

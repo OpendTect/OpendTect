@@ -4,12 +4,11 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uivelocityfunctionvolume.h"
 #include "uivelocityfunctionstored.h"
-#include "uilinearveltrans.h"
 
 
 mDefModInitFn(uiVelocity)
@@ -18,6 +17,4 @@ mDefModInitFn(uiVelocity)
 
     Vel::uiVolumeFunction::initClass();
     Vel::uiStoredFunction::initClass();
-
-    Vel::uiLinearVelTransform::initClass();
 }

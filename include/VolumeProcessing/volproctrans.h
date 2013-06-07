@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 -*/
  
-#include "volumeprocessingmod.h"
 #include "transl.h"
-
-/*!\brief Volume Processing*/
 
 namespace VolProc { class Chain; }
 
-/*!
-\brief Translator implementation for Volume Processing Setups.
-*/
+/*! Translator implementation for Volume Processing Setups. */
 
-mExpClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
+mClass VolProcessingTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
@@ -37,11 +32,7 @@ public:
 };
 
 
-/*!
-\brief Volume Processing Translator
-*/
-
-mExpClass(VolumeProcessing) VolProcessingTranslator : public Translator
+mClass VolProcessingTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(VolProcessing)
@@ -58,11 +49,7 @@ public:
 };
 
 
-/*!
-\brief dgb Volume Processing Translator
-*/
-
-mExpClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
+mClass dgbVolProcessingTranslator : public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 
@@ -75,4 +62,3 @@ public:
 
 
 #endif
-

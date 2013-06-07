@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwelllogcalc.h"
@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uiwelllogcalcinpdata.h"
 
+#include "hiddenparam.h"
 #include "welllogset.h"
 #include "wellreader.h"
 #include "welldata.h"
@@ -39,6 +40,10 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int cMaxNrInps = 6;
 static const char* specvararr[] = { "MD", "DZ", 0 };
 static const BufferStringSet specvars( specvararr );
+
+HiddenParam<uiWellLogCalc,uiLabeledComboBox*>    fufldmanager( 0 );
+
+HiddenParam<uiWellLogCalc,TypeSet<PropertyRef::StdType>* > inputtypesparam( 0 );
 
 static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
@@ -76,6 +81,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 	return;
     }
 
+    inputtypesparam.setParam( this, new TypeSet<PropertyRef::StdType> );
+
     setCtrlStyle( DoAndStay );
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
@@ -84,7 +91,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     mesu.withsetbut( true ).fnsbelow( false );
     formfld_ = new uiMathExpression( inpgrp, mesu );
     formfld_->formSet.notify( formsetcb );
-    uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
+    uiToolButtonSetup tbsu( "rockphys.png", "Choose rockphysics formula",
 	    		    mCB(this,uiWellLogCalc,rockPhysReq), "RockPhysics");
     formfld_->addButton( tbsu );
     inpgrp->setHAlignObj( formfld_ );
@@ -100,14 +107,14 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     }
 
     const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
-
-    formulaunfld_ = new uiLabeledComboBox(inpgrp, "Formula provides result in");
-    formulaunfld_->box()->addItem( "-" );
+    uiLabeledComboBox* formulaunfld =
+		new uiLabeledComboBox(inpgrp, "Formula provides result in");
+    formulaunfld->box()->addItem( "-" );
     for ( int idx=0; idx<uns.size(); idx++ )
-	formulaunfld_->box()->addItem( uns[idx]->name() );
-    formulaunfld_->attach( alignedBelow,
-	  	    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
-    formulaunfld_->box()->setHSzPol( uiObject::Wide );
+	formulaunfld->box()->addItem( uns[idx]->name() );
+    formulaunfld->attach( alignedBelow,
+			    inpdataflds_[inpdataflds_.size()-1]->attachObj() );
+    fufldmanager.setParam( this, formulaunfld );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, inpgrp );
@@ -129,11 +136,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    					"Output unit of measure" );
-    outunfld_ = lcb->box();
-    outunfld_->setHSzPol( uiObject::Wide );
-    outunfld_->addItem( "-" );
+    unfld_ = lcb->box();
+    unfld_->addItem( "-" );
     for ( int idx=0; idx<uns.size(); idx++ )
-	outunfld_->addItem( uns[idx]->name() );
+	unfld_->addItem( uns[idx]->name() );
     lcb->attach( alignedBelow, nmfld_ );
 
     postFinalise().notify( formsetcb );
@@ -143,6 +149,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
 uiWellLogCalc::~uiWellLogCalc()
 {
     delete expr_;
+    delete inputtypesparam.getParam(this);
+    inputtypesparam.removeParam(this);
 }
 
 
@@ -205,17 +213,19 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
     BufferString formula;
     BufferString formulaunit;
     BufferString outunit;
-    if ( dlg.go() && dlg.getFormulaInfo( formula, formulaunit, outunit, 
-					 inputunits_, inputtypes_ ) )
+    TypeSet<PropertyRef::StdType>* tmptypes = inputtypesparam.getParam(this);
+    if ( dlg.go() && dlg.getFormulaInfo( formula, formulaunit,
+					 outunit, inputunits_, *tmptypes ) )
     {
+	inputtypesparam.setParam( this, tmptypes );
 	formfld_->setText( formula.buf() );
 	BufferString formunstr = formulaunit.isEmpty() && !outunit.isEmpty() ? 
-	    				outunit : formulaunit;
+				    outunit : formulaunit;
 	BufferString outunitstr = outunit.isEmpty() && !formulaunit.isEmpty() ? 
-	    				formulaunit : outunit;
-	formulaunfld_->box()->setText( formunstr.buf() );
-	formulaunfld_->display( false );
-	outunfld_->setText( outunitstr.buf() );
+				    formulaunit : outunit;
+	fufldmanager.getParam(this)->box()->setText( formunstr.buf() );
+	fufldmanager.getParam(this)->display( false );
+	unfld_->setText( outunitstr.buf() );
 	formSet( 0 );
     }
 }
@@ -226,13 +236,13 @@ void uiWellLogCalc::feetSel( CallBacker* )
     zsampintv_ = srfld_->getfValue();
     if ( !mIsUdf(zsampintv_) )
     {
-	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactorF : mFromFeetFactorF;
+	zsampintv_ *= ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
 	srfld_->setValue( zsampintv_ );
     }
 }
 
 
-void uiWellLogCalc::formSet( CallBacker* c )
+void uiWellLogCalc::formSet( CallBacker*  c )
 {
     getMathExpr();
     nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;
@@ -240,8 +250,9 @@ void uiWellLogCalc::formSet( CallBacker* c )
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
     {
 	const bool isinpcst = inpdataflds_[idx]->isCst();
-	if ( inputtypes_.size()>truevaridx && !isinpcst )
-	    inpdataflds_[idx]->restrictLogChoice( inputtypes_[truevaridx] );
+	TypeSet<PropertyRef::StdType>* inptypes =inputtypesparam.getParam(this);
+	if ( inptypes->size()>truevaridx && !isinpcst )
+	    inpdataflds_[idx]->restrictLogChoice( (*inptypes)[truevaridx] );
 	inpdataflds_[idx]->use( expr_ );
 	if ( inputunits_.size()>truevaridx && !isinpcst )
 	{
@@ -249,11 +260,12 @@ void uiWellLogCalc::formSet( CallBacker* c )
 	    truevaridx++;
 	}
     }
-
+   
     if ( c )
-	formulaunfld_->display( true );
+	fufldmanager.getParam(this)->display( true );
 
-    inpSel( 0 );
+	inpSel( 0 );
+
 }
 
 
@@ -278,7 +290,7 @@ void uiWellLogCalc::inpSel( CallBacker* )
     if ( mIsUdf(sr) ) return;
 
     if ( ftbox_->isChecked() )
-	sr *= mToFeetFactorF;
+	sr *= mToFeetFactor;
     srfld_->setValue( sr );
 }
 
@@ -286,7 +298,6 @@ void uiWellLogCalc::inpSel( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 #define mErrContinue(s) { uiMSG().error(s); continue; }
-
 
 bool uiWellLogCalc::acceptOK( CallBacker* )
 {
@@ -305,7 +316,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( mIsUdf(zsampintv_) )
 	mErrRet("Please provide the Z dample rate for the  output log")
     if ( ftbox_->isChecked() )
-    	zsampintv_ *= mFromFeetFactorF;
+    	zsampintv_ *= mFromFeetFactor;
 
 
     bool successfulonce = false;
@@ -343,27 +354,26 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    msg += newnm; msg += "'";
 	    mErrContinue( msg.buf());
 	} 
-	const int unselidx = outunfld_->currentItem();
-	const UnitOfMeasure* outun = 0;
+	const int unselidx = unfld_->currentItem();
 	if ( unselidx > 0 )
 	{
-	    const char* formulaunittxt = formulaunfld_->box()->text();
-	    const char* desunittxt = outunfld_->text();
+	    const char* formulaunittxt =
+			fufldmanager.getParam(this)->box()->text();
+	    const char* desunittxt = unfld_->text();
+	    newwl->setUnitMeasLabel( desunittxt );
 	    const UnitOfMeasure* logun = UoMR().get( formulaunittxt );
-	    outun = UoMR().get( desunittxt );
+	    const UnitOfMeasure* convertun = UoMR().get( desunittxt );
 	    for ( int idx=0; idx<newwl->size(); idx++ )
 	    {
 		const float initialval = newwl->value( idx );
-		const float valinsi = !logun ? initialval
-				    : logun->getSIValue( initialval );
-		const float convertedval = !outun ? valinsi
-				    : outun->getUserValueFromSI( valinsi );
+		const float valinsi = logun ? logun->getSIValue( initialval )
+		    			    : initialval;
+		const float convertedval = convertun ?
+			    convertun->getUserValueFromSI( valinsi ) : valinsi;
 		newwl->valArr()[idx] = convertedval;
 	    }
 	}
 
-	if ( outun )
-	    newwl->setUnitMeasLabel( outun->name() );
 	wls.add( newwl );
 
 	Well::Writer wtr( fnm, wd );
@@ -451,6 +461,7 @@ bool uiWellLogCalc::getInpData( TypeSet<uiWellLogCalc::InpData>& inpdata )
 
 bool uiWellLogCalc::getRecInfo()
 {
+    float startval = 0;
     const int nrrec = recvaridxs_.size();
     if ( nrrec < 1 ) return true;
 
@@ -485,9 +496,7 @@ bool uiWellLogCalc::getRecInfo()
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdata )
 {
-    if ( inpdata.isEmpty() || !inpdata[0].wl_ )
-	{ pErrMsg("Missing log"); return false; }
-
+    //TODO inpdata[0].wl_ can be 0 ? check + make it safer
     TypeSet<float> vals; int rgidx = 0;
     int nrstart = startvals_.size();
     if ( nrstart > 0 )

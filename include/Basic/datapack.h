@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "multiid.h"
@@ -23,16 +22,17 @@ class DataPackMgr;
 class IOPar;
 
 
-/*!
-\brief A data packet: data+positioning and more that needs to be shared.
+/*!\brief A data packet: data+positioning and more that needs to be shared.
 
   The 'category' is meant like:
   'Pre-Stack gather'
   'Wavelet'
   'Fault surface'
-*/
 
-mExpClass(Basic) DataPack : public NamedObject
+ */ 
+
+
+mClass DataPack : public NamedObject
 {
 public:
 
@@ -60,7 +60,7 @@ public:
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static ID		cNoID()		    { return 0; }
+    static const ID	cNoID()		    { return 0; }
 
     virtual bool	isOK() const 		{ return true; }
 
@@ -72,7 +72,7 @@ protected:
     mutable Threads::Mutex	nruserslock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
-    static float	sKb2MbFac();	//!< 1 / 1024
+    static const float	sKb2MbFac();	//!< 1 / 1024
 
     void		setCategory( const char* c )
     			{ *const_cast<BufferString*>(&category_) = c; }
@@ -80,12 +80,9 @@ protected:
     friend class	DataPackMgr;
 };
 
+/*!\brief Simple DataPack based on an unstructured char array buffer. */
 
-/*!
-\brief Simple DataPack based on an unstructured char array buffer.
-*/
-
-mExpClass(Basic) BufferDataPack : public DataPack
+mClass BufferDataPack : public DataPack
 {
 public:
 
@@ -112,24 +109,24 @@ protected:
 };
 
 
-/*!
-\brief Manages DataPacks.
-  
-  DataPacks will be managed with everything in it. If you add a Pack, you
+/*!\brief Manages DataPacks
+
+  Data Packs will be managed with everything in it. If you add a Pack, you
   will get the ID of the pack.
-  
+
   When you obtain the data for looking at it, you can choose to 'only observe'.
   In that case, you'd better use the packToBeRemoved notifier, as the data may
   be deleted at any time. Normally, you want to obtain a reference whilst
   making sure the data is not thrown away.
-  
-  This means you *must* release the data pack once you no longer use it, but
- *NEVER* release a pack when you used the 'observing_only' option.
- 
- You can get an appropriate DataPackMgr from the DPM() function.
-*/
 
-mExpClass(Basic) DataPackMgr : public CallBacker
+  This means you *must* release the data pack once you no longer use it, but
+  *NEVER* release a pack when you used the 'observing_only' option.
+
+  You can get an appropriate DataPackMgr from the DPM() function.
+
+   */
+
+mClass DataPackMgr : public CallBacker
 {
 public:
 			// You can, but normally should not, construct
@@ -163,11 +160,11 @@ public:
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
 
 			// Standard mgr IDs take the low integer numbers
-    static ID		BufID();	//!< Simple data buffer: 1
-    static ID		PointID();	//!< Sets of 'unconnected' points: 2
-    static ID		CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
-    static ID		FlatID();	//!< Flat (N1xN2) data: 4
-    static ID		SurfID();	//!< Surface (triangulated) data: 5
+    static const ID	BufID();	//!< Simple data buffer: 1
+    static const ID	PointID();	//!< Sets of 'unconnected' points: 2
+    static const ID	CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static const ID	FlatID();	//!< Flat (N1xN2) data: 4
+    static const ID	SurfID();	//!< Surface (triangulated) data: 5
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;
@@ -212,9 +209,9 @@ public:
 };
 
 
-mGlobal(Basic) DataPackMgr& DPM(DataPackMgr::ID);
+mGlobal DataPackMgr& DPM(DataPackMgr::ID);
 		//!< will create a new mgr if needed
-mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
+mGlobal DataPackMgr& DPM(const DataPack::FullID&);
 		//!< will return empty dummy mgr if mgr ID not found
 
 
@@ -240,4 +237,3 @@ type var = 0; \
 mObtainDataPack( var, type, mgrid, newid ); \
 
 #endif
-

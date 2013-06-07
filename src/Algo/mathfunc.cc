@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "mathfunc.h"
@@ -68,18 +68,18 @@ void PointBasedMathFunction::remove( int idx )
     if ( idx<0 || idx>=size() )
 	return;
 
-    x_.removeSingle( idx );
-    y_.removeSingle( idx );
+    x_.remove( idx );
+    y_.remove( idx );
 }
 
 
 float PointBasedMathFunction::outsideVal( float x ) const
 {
-    if ( extrapol_==None ) return mUdf(float);
+    if ( extrapol_==cNone() ) return mUdf(float);
     
     const int sz = x_.size();
     
-    if ( extrapol_==EndVal || sz<2 )
+    if ( extrapol_==cEdgeVal() || sz<2 )
     {
     	return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
     }

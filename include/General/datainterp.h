@@ -13,25 +13,27 @@ ________________________________________________________________________
 
 */
 
+
 #include "datachar.h"
 #include "general.h"
 
 class IOPar;
+
+
+/*!\brief Byte-level data interpreter.
+
+Efficient (one function call overhead) get and set of data, usually in a data
+buffer. Facility to swap bytes in advance. The interpretation is into/from
+the template parameter. At present, float, double, int and long long
+are supported and instantiated.
+
+*/
 
 #if defined(__msvc__) && (defined(GENERAL_EXPORTS) || defined(General_EXPORTS) )
 # define mGenClass	class dll_export
 #else
 # define mGenClass	class
 #endif
-
-/*!
-\brief Byte-level data interpreter.
-
-  Efficient (one function call overhead) get and set of data, usually in a data
-  buffer. Facility to swap bytes in advance. The interpretation is into/from the
-  template parameter. At present, float, double, int and long long are supported
-  and instantiated.
-*/
 
 template<class T>
 mGenClass DataInterpreter

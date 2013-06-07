@@ -13,16 +13,18 @@ ______________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "enums.h"
 #include "bufstring.h"
 
-/*!
-\brief Data needed to make an actual font.
-*/
+//#ifdef BASIC_EXPORTS
+//# define mBasic __declspec(dllexport)
+//#else
+//# define mBasic __declspec(dllimport)
+//#endif
 
-mExpClass(Basic) FontData
-{			
+//class mBasic FontData
+mClass FontData
+{			//!< Data needed to make an actual font
 public:    
 
     enum Weight		{ Light, Normal, DemiBold, Bold, Black };
@@ -47,7 +49,7 @@ public:
 			{ getFrom(s); }
 
 			//! Store/retrieve (in FileMultiString format).
-    bool		getFrom(const char*);
+    void		getFrom(const char*);
     void		putTo(BufferString&) const;
 
     const char*		family() const		{ return family_; }
@@ -93,4 +95,3 @@ protected:
 
 
 #endif
-

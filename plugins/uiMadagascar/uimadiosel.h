@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id$
+ * ID       : $Id: uimadiosel.h,v 1.9 2009/07/22 16:01:28 cvsbert Exp $
 -*/
 
 #include "uicompoundparsel.h"
@@ -15,6 +15,7 @@
 
 class uiCheckBox;
 class uiGenInput;
+class CtxtIOObj;
 class uiSeisSel;
 class uiIOObjSel;
 class uiFileInput;
@@ -23,7 +24,7 @@ class uiSeis2DSubSel;
 class uiSeis3DSubSel;
 
 
-mClass(uiMadagascar) uiMadIOSel : public uiCompoundParSel
+class uiMadIOSel : public uiCompoundParSel
 {
 public:
 			uiMadIOSel(uiParent*,bool isinp);
@@ -45,11 +46,12 @@ protected:
 };
 
 
-mClass(uiMadagascar) uiMadIOSelDlg : public uiDialog
+class uiMadIOSelDlg : public uiDialog
 {
 public:
 
 			uiMadIOSelDlg(uiParent*,IOPar&,bool isinp);
+			~uiMadIOSelDlg();
 
     inline bool		isInp() const
     			{ return isinp_; }
@@ -66,6 +68,7 @@ public:
 
     			// Functions only valid if isOD()
     Seis::GeomType	geomType() const;
+    CtxtIOObj&		ctxtIOObj(Seis::GeomType);
     uiSeisSel*		seisSel(Seis::GeomType);
     uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
@@ -74,6 +77,10 @@ public:
 
 protected:
 
+    CtxtIOObj&		ctio3d_;
+    CtxtIOObj&		ctio2d_;
+    CtxtIOObj&		ctiops3d_;
+    CtxtIOObj&		ctiops2d_;
     int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_,
 			idxsu_, idxnone_;
     IOPar&		iop_;

@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "fourier.h"
 
 
-/*!
-\brief Spectrogram calculates the spectrogram of a N-dimensional signal.
-The spectrogram is the square of the absolute values of the FourierTransform,
+/*!\brief
+Spectrogram calculates the spectrogram of a N-dimensional signal. The
+spectrogram is the square of the absolute values of the FourierTransform,
 and is the 'traditional' way to view a signal's frequency distribution.
-  
-  Spectrogram is not reversible.
+
+Spectrogram is not reversible.
 */
 
-mExpClass(Algo) Spectrogram 
+mClass Spectrogram 
 {
 public:
 			Spectrogram();
@@ -57,4 +56,3 @@ protected:
 
 
 #endif
-

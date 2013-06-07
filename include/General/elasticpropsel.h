@@ -12,30 +12,33 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
+/*! brief assigns values to an elastic layer depending on user defined parameters !*/
+
 #include "elasticprop.h"
 
 class IOObj;
 class MultiID;
 
-/*!
-\brief User parameters to compute values for an elastic layer (den,p/s-waves).
-*/
 
-mExpClass(General) ElasticPropSelection : public PropertyRefSelection
+mClass ElasticPropSelection : public NamedObject
 {
 public:
-				ElasticPropSelection();
+				ElasticPropSelection(const char* nm=0);
 				ElasticPropSelection(
 					const ElasticPropSelection& elp)
 				{ *this = elp; }
 
-    ElasticPropertyRef&		get(int idx) 		{ return gt(idx); }
-    const ElasticPropertyRef&	get(int idx) const	{ return gt(idx); }
-    ElasticPropertyRef&		get(ElasticFormula::Type tp) 
-    							{ return gt(tp); }
-    const ElasticPropertyRef&	get(ElasticFormula::Type tp) const
-    							{ return gt(tp); }
+    ElasticPropSelection&     	operator =(const ElasticPropSelection&);
+    inline bool         	operator ==(const ElasticPropSelection& e) const
+   				{ return name() == e.name(); }
+    inline bool         	operator !=(const ElasticPropSelection& e) const
+    				{ return name() != e.name(); }
+
+    bool			isPresent(const char*) const;
+    int				indexOf(const char*) const;
+
+    ElasticPropertyRef&		getPropertyRef(ElasticFormula::Type);
+    const ElasticPropertyRef&	getPropertyRef(ElasticFormula::Type) const;
 
     static ElasticPropSelection* get(const MultiID&);
     static ElasticPropSelection* get(const IOObj*);
@@ -44,20 +47,17 @@ public:
     bool			isValidInput(BufferString* errmsg=0) const;
 
     void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			usePar(const IOPar&);
 
-protected:
-    ElasticPropertyRef&		gt(ElasticFormula::Type) const;
-    ElasticPropertyRef&		gt(int idx) const;
+    const TypeSet<ElasticPropertyRef>& getPropertyRefs() const 
+    				{ return elasticprops_; }
+
+protected :
+    TypeSet<ElasticPropertyRef>	elasticprops_;
 };
 
 
-/*!
-\brief Computes elastic properties using parameters in ElasticPropSelection and
-PropertyRefSelection.
-*/
-
-mExpClass(General) ElasticPropGen
+mClass ElasticPropGen
 {
 public:
     			ElasticPropGen(const ElasticPropSelection& eps,
@@ -68,10 +68,6 @@ public:
 	    			const float* proprefvals,
 				int proprefsz) const
     			{ return getVal(ef.formula(),proprefvals, proprefsz); }
-
-    void 		getVals(float& den,float& pbel,float& svel,
-	    			const float* proprefvals,int proprefsz) const;
-
 protected:
 
     ElasticPropSelection elasticprops_;
@@ -83,26 +79,21 @@ protected:
 };
 
 
-/*!
-\brief Guesses elastic properties using parameters in ElasticPropSelection and
-PropertyRefSelection.
-*/
 
-mExpClass(General) ElasticPropGuess
+mClass ElasticPropGuess
 {
 public:
     			ElasticPropGuess(const PropertyRefSelection&,
 						ElasticPropSelection&);
 protected:
-
     void		guessQuantity(const PropertyRefSelection&,
 					ElasticFormula::Type);
-    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
 
     ElasticPropSelection& elasticprops_; 
+
+    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
 };
 
 
 #endif
-
 

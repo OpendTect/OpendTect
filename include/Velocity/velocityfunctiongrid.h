@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
@@ -32,7 +31,7 @@ class GriddedSource;
 /*!A velocity funcion where the velocity is computed from
    Residual Moveout picks. */
 
-mExpClass(Velocity) GriddedFunction : public Function
+mClass GriddedFunction : public Function
 {
 public:
 			GriddedFunction(GriddedSource&);
@@ -52,7 +51,7 @@ protected:
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
-    ConstRefMan<Function> getInputFunction(const BinID& bid,int& source);
+    RefMan<const Function> getInputFunction(const BinID& bid,int& source);
 
     ObjectSet<const Function>		velocityfunctions_;
     TypeSet<int>			sources_;
@@ -63,7 +62,7 @@ protected:
 };
 
 
-mExpClass(Velocity) GriddedSource : public FunctionSource
+mClass GriddedSource : public FunctionSource
 {
 public:
     			GriddedSource();
@@ -114,4 +113,3 @@ protected:
 }; //namespace
 
 #endif
-

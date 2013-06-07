@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uigridlinesdlg.h"
 
@@ -66,18 +66,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     }
     else
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
-
-    BufferString allmsg("Apply to all loaded ");
-    if ( visSurvey::PlaneDataDisplay::Inline == pdd_->getOrientation() )
-	allmsg += "inlines";
-    else if ( visSurvey::PlaneDataDisplay::Crossline == pdd_->getOrientation() )
-	allmsg += "crosslines";
-    else
-	allmsg += "z slices";
-    applyallfld_ = new uiCheckBox( this, allmsg.buf() );
-    applyallfld_->setChecked( true );
-    applyallfld_->attach( alignedBelow, lsfld_ );
-        
+    
     setParameters();
 }
 
@@ -114,7 +103,7 @@ static float getDefaultStep( float width )
 
 static void getDefaultHorSampling( int& start, int& stop, int& step )
 {
-    const float width = mCast( float, stop - start );
+    const float width = stop - start;
     step = mNINT32( getDefaultStep(width) );
 
     start = step * (int)( ceil( (float)start/(float)step ) );
@@ -124,12 +113,12 @@ static void getDefaultHorSampling( int& start, int& stop, int& step )
 
 static void getDefaultZSampling( StepInterval<float>& zrg )
 {
-    const float width = (zrg.stop-zrg.start) * SI().zDomain().userFactor();
+    const float width = (zrg.stop-zrg.start) * SI().zFactor();
     zrg.step = getDefaultStep( width );
     zrg.start = zrg.step * 
-	ceil( (float)zrg.start * SI().zDomain().userFactor() /(float)zrg.step );
+	ceil( (float)zrg.start * SI().zFactor() / (float)zrg.step );
     zrg.stop = zrg.step * 
-	floor( (float)zrg.stop * SI().zDomain().userFactor() /(float)zrg.step );
+	floor( (float)zrg.stop * SI().zFactor() / (float)zrg.step );
 }
 
 
@@ -140,7 +129,7 @@ void uiGridLinesDlg::setParameters()
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
-	cs.zrg.scale( mCast(float,SI().zDomain().userFactor()) );
+	cs.zrg.scale( SI().zFactor() );
     }
     else
     {
@@ -184,13 +173,14 @@ void uiGridLinesDlg::setParameters()
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
 {
+    visBase::GridLines& gl = *pdd_->gridlines();
     CubeSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
     if ( zfld_ )
     {
 	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
-	cs.zrg.scale( 1.f/SI().zDomain().userFactor() );
+	cs.zrg.scale( 1./SI().zFactor() );
     }
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||
@@ -201,26 +191,16 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    visSurvey::Scene* scene = pdd_->getScene();
-    const bool applyall = applyallfld_->isChecked();
-    for ( int idx=scene->size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet(visBase::VisualObject*,so,scene->getObject(idx));
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
-	if ( !pdd || pdd->getOrientation()!=pdd_->getOrientation() )
-	    continue;
+    gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
+    gl.setGridCubeSampling( cs );
+    if ( inlfld_ )
+	gl.showInlines( inlfld_->isChecked() );
+    if ( crlfld_ )
+	gl.showCrosslines( crlfld_->isChecked() );
+    if ( zfld_ )
+	gl.showZlines( zfld_->isChecked() );
 
-	if ( !applyall && pdd!=pdd_ )
-	    continue;
-	
-	visBase::GridLines& gl = *pdd->gridlines();
-	gl.setPlaneCubeSampling( pdd->getCubeSampling(true,true) );
-	gl.setGridCubeSampling( cs );
-	gl.showInlines( inlfld_ ? inlfld_->isChecked() : false );
-	gl.showCrosslines( crlfld_ ? crlfld_->isChecked(): false );
-	gl.showZlines( zfld_ ? zfld_->isChecked(): false );
-	gl.setLineStyle( lsfld_->getStyle() );
-    }
+    gl.setLineStyle( lsfld_->getStyle() );
 
     return true;
 }

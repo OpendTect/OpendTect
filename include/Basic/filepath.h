@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 
 
-/*!
-\brief File pathname tools.
+/*!\brief File pathname tools.
 
   This class splits a full filename (with path) into the separate parts:
   directories and possibly a filename (the last part does not have to be a
@@ -29,9 +27,10 @@ ________________________________________________________________________
   fileName() returns the last part, pathOnly() returns all but the last part.
   setFileName() replaces the last part, setPath() replaces all but the last
   part.
-*/
+ 
+ */
 
-mExpClass(Basic) FilePath
+mClass FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };
@@ -73,7 +72,6 @@ public:
     const char*		extension() const;	//!< may return null
 
     const BufferString& fileName() const;
-    BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
 
@@ -98,8 +96,14 @@ protected:
     void		addPart(const char*);
     void		compress(int sl=0);
     void		trueDirIfLink();
+
+public:
+
+    FilePath&		setWithLink(const char* fullinp);
+    FilePath&		addWithLink(const char*);	
+    void		addPartWithLink(const char*);
+    void		setPathWithLink(const char*);
 };
 
 
 #endif
-

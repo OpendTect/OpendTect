@@ -12,22 +12,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uigroup.h"
 #include "stratunitrefiter.h"
 class uiStratSelUnitsListItem;
-class uiTreeView;
+class uiListView;
 class uiComboBox;
 
 
 
-mExpClass(uiStrat) uiStratSelUnits : public uiGroup
+mClass uiStratSelUnits : public uiGroup
 {
 public:
 
     enum Type	{ Simple, Single, Multi };
 
-    mExpClass(uiStrat) Setup
+    mClass Setup
     {
     public:
 
@@ -69,7 +68,7 @@ public:
 protected:
 
     uiComboBox*			combo_;
-    uiTreeView*			tree_;
+    uiListView*			tree_;
     ObjectSet<uiStratSelUnitsListItem>	lvitms_;
     
     const Strat::NodeUnitRef&	topnode_;
@@ -96,4 +95,3 @@ protected:
 
 
 #endif
-

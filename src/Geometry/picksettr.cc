@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	ctxt->toselect.require_.set( sKey::Type(), "PickSet``Polygon" )	)
+	ctxt->toselect.require_.set( sKey::Type, "PickSet``Polygon" )	)
 
 int PickSetTranslatorGroup::selector( const char* key )
 {
@@ -43,9 +43,9 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  bool checkdir, BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<PickSetTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -58,8 +58,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 				BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
-		 ioobj->createTranslator());
+    mDynamicCastGet(PickSetTranslator*,tr,ioobj->getTranslator())
     if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
 
     bs = "";
@@ -68,7 +67,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( ps, *conn );
-
+    delete tr;
     return bs.isEmpty();
 }
 
@@ -100,12 +99,12 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	for ( int ips=0; !atEndOfSection(astrm); ips++ )
 	{
 	    astrm.next();
-	    if ( astrm.hasKeyword(sKey::Color()) )
+	    if ( astrm.hasKeyword(sKey::Color) )
 	    {
 		ps.disp_.color_.use( astrm.value() );
 		astrm.next();
 	    }
-	    if ( astrm.hasKeyword(sKey::Size()) )
+	    if ( astrm.hasKeyword(sKey::Size) )
 	    {
 		ps.disp_.pixsize_ = astrm.getIValue();
 		astrm.next();
@@ -189,7 +188,7 @@ void PickSetTranslator::createBinIDValueSets(
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[idx] );
-	    bs->add( SI().transform(crd), (float) crd.z );
+	    bs->add( SI().transform(crd), crd.z );
 	}
     }
 }
@@ -241,7 +240,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
-	crds += ((*ps)[ipck]).pos_;
+	crds += ((*ps)[ipck]).pos;
 
     delete createdps;
     return true;
@@ -269,8 +268,8 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Pick::Location& pl = ps[idx];
-	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
-	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
+	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
+	ret->add( Geom::Point2D<float>(fbid.x,fbid.y) );
     }
 
     return ret;

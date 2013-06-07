@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -68,7 +68,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     gradientfld_ = new uiGenInput( this, gradientlabel.buf(), FloatInpSpec() );
     const float gradient = hf->getGradient();
     if ( !mIsUdf(gradient) )
-	gradientfld_->setValue( gradient/SI().zDomain().userFactor() );
+	gradientfld_->setValue( gradient/SI().zFactor() );
     gradientfld_->attach( alignedBelow, usegradientfld_ );
 
     bottomvalfld_ = new uiGenInput( this, "Bottom Value",
@@ -155,8 +155,7 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 
     horinterfiller_->setTopValue( topvalfld_->getfValue() );
     horinterfiller_->setBottomValue( bottomvalfld_->getfValue() );
-    horinterfiller_->setGradient(
-	    gradientfld_->getfValue()*SI().zDomain().userFactor() );
+    horinterfiller_->setGradient( gradientfld_->getfValue()*SI().zFactor() );
     horinterfiller_->useGradient( usegradientfld_->getBoolValue() );
 
     return true;

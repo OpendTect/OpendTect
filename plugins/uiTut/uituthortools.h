@@ -4,17 +4,16 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
  * DATE     : Mar 2007
- * ID       : $Id$
+ * ID       : $Id: uituthortools.h,v 1.8 2010/02/09 05:15:28 cvsnanne Exp $
 -*/
 
-#include "uitutmod.h"
 #include "uidialog.h"
 
 class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 
-mExpClass(uiTut) uiTutHorTools : public uiDialog
+class uiTutHorTools : public uiDialog
 {
 public:
 

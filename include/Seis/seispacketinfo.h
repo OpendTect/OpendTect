@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "bufstring.h"
 #include "ranges.h"
 class PosAuxInfo;
@@ -22,11 +21,10 @@ namespace PosInfo { class CubeData; }
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
 
-mExpClass(Seis) SeisPacketInfo
+mClass SeisPacketInfo
 {
 public:
-    static void		initClass();
-    
+
 			SeisPacketInfo()	{ clear(); }
 
     BufferString	usrinfo;
@@ -53,4 +51,3 @@ public:
 
 
 #endif
-

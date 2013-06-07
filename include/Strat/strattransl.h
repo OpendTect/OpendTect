@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "transl.h"
 
-mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
-mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
+mDeclEmptyTranslatorBundle(StratLayerSequenceGenDesc,od,"sgd")
+mDeclEmptyTranslatorBundle(StratLayerSequenceAttribSet,od,"lsa")
 
 
 #endif

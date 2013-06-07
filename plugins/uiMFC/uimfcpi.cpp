@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id$";
+static const char* rcsID = "$Id: uimfcpi.cpp,v 1.1 2010/05/05 11:56:58 cvsranojay Exp $";
 
 #include "uimfcdialog.h"
 #include "uimenu.h"

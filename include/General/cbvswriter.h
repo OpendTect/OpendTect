@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "posinfo.h"
@@ -34,7 +33,7 @@ For the inline/xline info, you have two choices:
 
 */
 
-mExpClass(General) CBVSWriter : public CBVSIO
+mClass CBVSWriter : public CBVSIO
 {
 public:
 
@@ -110,4 +109,3 @@ private:
 
 
 #endif
-

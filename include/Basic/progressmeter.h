@@ -12,19 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"
 #include "thread.h"
-#include "callback.h"
-
 
 class Task;
 
-/*!
-\brief Is an interface where processes can report their progress.
-*/
-
-mExpClass(Basic) ProgressMeter
+/*!Is an interface where processes can report their progress. */
+mClass ProgressMeter
 {
 public:
     virtual		~ProgressMeter()		{}
@@ -42,18 +36,16 @@ public:
 };
 
 
-/*!
-\brief Textual progress indicator for batch programs.
-*/
+/*!\brief Textual progress indicator for batch programs. */
 
-mExpClass(Basic) TextStreamProgressMeter : public ProgressMeter
+mClass TextStreamProgressMeter : public ProgressMeter
 {
 public:
 			TextStreamProgressMeter(std::ostream&,
 					unsigned short rowlen=cDefaultRowLen());
 			~TextStreamProgressMeter();
-    static int		cDefaultRowLen() { return 50; }
-    static int		cNrCharsPerRow() { return 80; }
+    static const int	cDefaultRowLen() { return 50; }
+    static const int	cNrCharsPerRow() { return 80; }
 
     void		setName(const char*);
     void		setStarted();
@@ -89,4 +81,3 @@ protected:
 
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "ranges.h"
 
@@ -22,11 +21,7 @@ namespace Geometry { class RowColSurface; }
 namespace EM
 {
 
-/*!
-\brief RowCol iterator
-*/
-
-mExpClass(EarthModel) RowColIterator : public EMObjectIterator
+mClass RowColIterator : public EMObjectIterator
 {
 public:
     			RowColIterator(const Surface&,const SectionID&,
@@ -58,8 +53,10 @@ protected:
     BinID				bid_;
 };
 
+
+
+
 }; // Namespace
 
 
 #endif
-

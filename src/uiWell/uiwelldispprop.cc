@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelldispprop.h"
 
@@ -160,6 +160,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				Well::DisplayProperties::Markers& mp,
 				const BufferStringSet& allmarkernms, bool is2d )
     : uiWellDispProperties(p,su,mp)
+    , selmarkernms_(mp.selmarkernms_)
     , is2d_(is2d)				     
 {
     shapefld_ = new uiLabeledComboBox( this, "Shape" );
@@ -191,24 +192,20 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
     samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
-   
-    checkallfld_ = new uiCheckBox( this, "All" );
-    checkallfld_->attach( alignedBelow, nmcolfld_ );
-    checkallfld_->setChecked( true );
-
-    uiLabel* lbl = new uiLabel( this, "Display markers" );
-    lbl->attach( leftOf, checkallfld_  );
-
-    displaymarkersfld_ = new uiListBox( this, lbl->text() );
+    
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Display markers" );
+    displaymarkersfld_ = llb->box();
     displaymarkersfld_->addItems( allmarkernms );
     displaymarkersfld_->setItemsCheckable( true );
-    displaymarkersfld_->attach( alignedBelow, checkallfld_ ); 
+    displaymarkersfld_->itemChecked.notify(
+	    		mCB(this,uiWellMarkersDispProperties,propChg) );
+    llb->attach( alignedBelow, nmcolfld_ );
 
     doPutToScreen();
     markerFldsChged(0);
 
     cylinderheightfld_->box()->valueChanging.notify(
-		mCB(this,uiWellMarkersDispProperties,propChg) );
+    mCB(this,uiWellMarkersDispProperties,propChg) );
     nmcolfld_->colorChanged.notify( 
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     nmsizefld_->box()->valueChanging.notify(
@@ -227,14 +224,6 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     shapefld_->box()->selectionChanged.notify(
 		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
-    checkallfld_->activated.notify(
-		    mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
-    checkallfld_->activated.notify(
-		    mCB(this,uiWellMarkersDispProperties,propChg) );
-    displaymarkersfld_->itemChecked.notify(
-	    		mCB(this,uiWellMarkersDispProperties,propChg) );
-    displaymarkersfld_->itemChecked.notify(
-	    		mCB(this,uiWellMarkersDispProperties,markerFldsChged) );
 }
 
 
@@ -278,38 +267,11 @@ void uiWellMarkersDispProperties::resetProps(
 }
 
 
-void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
+void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
     cylinderheightfld_->display( !shapefld_->box()->currentItem() && !is2d_ );
-
-    mDynamicCastGet(uiCheckBox*,allfld,cb)
-    if ( allfld )
-    {
-	displaymarkersfld_->itemChecked.disable();
-	const bool ischecked = checkallfld_->isChecked();
-	for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
-	{
-	    if ( displaymarkersfld_->isItemChecked(idx) != ischecked )
-	    displaymarkersfld_->setItemChecked( idx, ischecked );
-	}
-	displaymarkersfld_->itemChecked.enable();
-	return;
-    }
-
-    bool chkall = true;
-    for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
-    {
-	if ( !displaymarkersfld_->isItemChecked(idx) )
-	    { chkall = false; break; }
-    }
-
-    checkallfld_->activated.disable();
-    checkallfld_->setChecked( chkall );
-    checkallfld_->activated.enable();
-
-    displaymarkersfld_->itemChecked.enable();
 }
 
 
@@ -569,7 +531,7 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().seqname_ = coltablistfld_->text();
     logprops().iscoltabflipped_ = flipcoltabfld_->isChecked();
     logprops().repeat_ = stylefld_->getBoolValue() ? 1 : repeatfld_->getValue();
-    logprops().repeatovlap_ = mCast( float, ovlapfld_->getValue() );
+    logprops().repeatovlap_ = ovlapfld_->getValue();
     logprops().seiscolor_ = logprops().iswelllog_ ? fillcolorfld_->color() 
 						  : seiscolorfld_->color();
     logprops().name_ = logsfld_->box()->text();
@@ -598,6 +560,7 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
 
 void uiWellLogDispProperties::isRepeatSel( CallBacker* )
 {
+    const bool isrepeat =  repeatfld_->getValue();
     const bool iswelllog = stylefld_->getBoolValue();
     if ( iswelllog )
 	repeatfld_-> setValue( 1 );

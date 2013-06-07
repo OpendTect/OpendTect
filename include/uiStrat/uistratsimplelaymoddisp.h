@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "uistratlaymoddisp.h"
 class uiLineItem;
 class uiTextItem;
@@ -24,7 +23,7 @@ class uiGraphicsItemSet;
 namespace Strat { class LayerSequence; class Content; }
 
 
-mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
+mClass uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 {
 public:
 
@@ -33,9 +32,7 @@ public:
     			~uiStratSimpleLayerModelDisp();
 
     virtual void	modelChanged();
-    virtual uiWorldRect	zoomBox() const			{ return zoomwr_; }
     virtual void	setZoomBox(const uiWorldRect&);
-    virtual float	getDisplayZSkip() const;
 
     Color		levelColor() const		{ return lvlcol_; }
     bool&		fillLayerBoxes()		{ return fillmdls_; }
@@ -53,7 +50,6 @@ protected:
     uiGraphicsItemSet&	contitms_;
     uiLineItem*		selseqitm_;
 
-    uiWorldRect		zoomwr_;
     Color		lvlcol_;
     int			dispprop_;
     int			dispeach_;
@@ -62,15 +58,13 @@ protected:
     bool		uselithcols_;
     bool		showzoomed_;
     const Strat::Content* selectedcontent_;
-    bool		allcontents_;
     Interval<float>	vrg_;
 
-    uiGraphicsScene&	scene() const;
+    uiGraphicsScene&	scene();
     void		doDraw();
     void		eraseAll();
     void		reDrawCB(CallBacker*);
     void		usrClicked(CallBacker*);
-    void		mouseMoved(CallBacker*);
     void		doubleClicked(CallBacker*);
     void		colsToggled(CallBacker*);
     void		showZoomedToggled(CallBacker*);
@@ -82,13 +76,12 @@ protected:
     virtual void	drawSelectedSequence();
     void		updZoomBox();
     int			getXPix(int,float) const;
-    void		doLayModIO(bool);
     bool		isDisplayedModel(int) const;
     void		removeLayers(Strat::LayerSequence&,int,bool);
     void		forceRedispAll(bool modeledited=false);
 
+    void		mouseMoved(CallBacker*);
 };
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "dirlist.h"
 
@@ -48,7 +48,7 @@ void DirList::update()
     
     for ( int idx=0; idx<qlist.size(); idx++ )
     {	
-	BufferString dirnm = qlist[idx].toLatin1().constData();
+	BufferString dirnm = qlist[idx].toAscii().constData();
 	add( dirnm );
     }
 

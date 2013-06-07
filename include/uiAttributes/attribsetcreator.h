@@ -9,18 +9,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
 
 namespace Attrib { class Desc; class DescSet; };
 class uiParent;
 
-/*!
-\brief Creates attribute set.
-*/
 
-mExpClass(uiAttributes) AttributeSetCreator
+mClass AttributeSetCreator
 {
 public:
 			AttributeSetCreator(uiParent*,
@@ -40,4 +36,3 @@ protected:
     BufferStringSet	directs;
 
 };
-

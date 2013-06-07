@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "coltab.h"
 #include "typeset.h"
 
@@ -28,7 +27,7 @@ class Sequence;
  
  */
 
-mExpClass(General) IndexedLookUpTable
+mClass IndexedLookUpTable
 {
 public:
 
@@ -61,4 +60,3 @@ protected:
 } // namespace ColTab
 
 #endif
-

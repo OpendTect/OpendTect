@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 Tue 28 Sep 2010, 15:04:26
 !
-# $Id$
+# $Id: WellCorrelation.odcmd,v 1.1 2010/10/08 08:59:38 cvsnageswara Exp $
 
 Comment "Please load Well Correlation plugin before running this script"
 

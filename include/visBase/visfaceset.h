@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 
 namespace visBase
@@ -28,7 +27,7 @@ the first one.
 */
 
 
-mExpClass(visBase) FaceSet : public IndexedShape
+mClass FaceSet : public IndexedShape
 {
 public:
     static FaceSet*	create()
@@ -38,4 +37,3 @@ public:
 };
 
 #endif
-

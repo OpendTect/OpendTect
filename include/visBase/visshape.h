@@ -10,11 +10,10 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 
+
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
-#include "indexedshape.h"
 
 class SoIndexedShape;
 class SoMaterialBinding;
@@ -24,8 +23,6 @@ class SoShape;
 class SoShapeHints;
 class SoSwitch;
 class SoVertexShape;
-
-namespace osg { class Geometry; class Geode; class Switch; }
 
 namespace visBase
 {
@@ -50,12 +47,17 @@ public: \
     void		   set##clssname(clssname*)
 
 
-mExpClass(visBase) Shape : public VisualObject
+mClass Shape : public VisualObject
 {
 public:
     void			turnOn(bool);
     bool			isOn() const;
-   
+    void			removeSwitch();
+    				/*!<Will turn the object permanently on.
+				    \note Must be done before giving away the
+				    SoNode with getInventorNode() to take
+				    effect. */
+
     void			setRenderCache(int mode);
 				    //!<\param mode=0 off, 1=on, 2=auto (deflt)
     int				getRenderCache() const;
@@ -82,8 +84,6 @@ public:
     SoNode*			getShape() { return shape_; }
 
     void			turnOnForegroundLifter(bool);
-    
-    void			removeSwitch();
 
 protected:
 
@@ -96,11 +96,10 @@ protected:
     Texture2*			texture2_;
     Texture3*			texture3_;
     Material*			material_;
-    
-    osg::Switch*		osgswitch_;
 
     virtual SoNode*		gtInvntrNode();
-    osg::Node*			gtOsgNode();
+
+private:
 
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
@@ -114,19 +113,14 @@ protected:
 };
 
 
-mExpClass(visBase) VertexShape : public Shape
+mClass VertexShape : public Shape
 {
 public:
 
     mDeclSetGetItem( VertexShape, Coordinates, coords_ );
     mDeclSetGetItem( VertexShape, Normals, normals_ );
     mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
-    
-    void		removeSwitch();
-			/*!<Will turn the object permanently on.
-			 \note Must be done before giving away the
-			 SoNode with getInventorNode() to take
-			 effect. */
+
 
     void		setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the
@@ -155,22 +149,14 @@ public:
     int			getShapeType() const;
     static int		cUnknownShapeType()			{ return 0; }
     static int		cSolidShapeType()			{ return 1; }
-    
-    
-    void		dirtyCoordinates();
 
 protected:
     			VertexShape( SoVertexShape* );
     			~VertexShape();
-    
-    osg::Node*		gtOsgNode();
 
     Normals*		normals_;
     Coordinates*	coords_;
     TextureCoords*	texturecoords_;
-
-    osg::Geode*		geode_;
-    osg::Geometry*	osggeom_;
 
 private:
     SoNormalBinding*	normalbinding_;
@@ -178,17 +164,11 @@ private:
 };
 
 #undef mDeclSetGetItem
-    
-    
-mExpClass(visBase) IndexedShape : public VertexShape
+
+
+mClass IndexedShape : public VertexShape
 {
 public:
-    
-    void	addPrimitiveSet(Geometry::IndexedPrimitiveSet*);
-    void	removePrimitiveSet(const Geometry::IndexedPrimitiveSet*);
-    
-    int		nrPrimitiveSets() const;
-    
     int		nrCoordIndex() const;
     void	setCoordIndex(int pos,int idx);
     void	setCoordIndices(const int* idxs, int sz);
@@ -235,28 +215,12 @@ public:
 
 protected:
     		IndexedShape( SoIndexedShape* );
-		IndexedShape( Geometry::PrimitiveSet::PrimitiveType );
-    
-    void	updateFromPrimitives();
 
-    
-    ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
-    Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 private:
-
 
     SoIndexedShape*	indexedshape_;
 };
-    
-    
-mClass(visBase) PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
-{
-    Geometry::PrimitiveSet* doCreate( bool, bool );
-};
-    
-
 
 }
 
 #endif
-

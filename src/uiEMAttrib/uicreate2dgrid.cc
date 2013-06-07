@@ -40,7 +40,6 @@ ________________________________________________________________________
 #include "randomlinetr.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
-#include "seiscbvs.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
@@ -296,24 +295,24 @@ bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 {
     if ( inlmodefld_->getBoolValue() )
     {
-	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Range() );
-	par.set( sKey::InlRange(), inlrgfld_->getRange() );
+	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Range );
+	par.set( sKey::InlRange, inlrgfld_->getRange() );
     }
     else
     {
-	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Selection() );
-	par.set( sKey::InlRange(), inlsfld_->text() );
+	par.set( Seis2DGridCreator::sKeyInlSelType(), sKey::Selection );
+	par.set( sKey::InlRange, inlsfld_->text() );
     }
 
     if ( crlmodefld_->getBoolValue() )
     {
-	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Range() );
-	par.set( sKey::CrlRange(), crlrgfld_->getRange() );
+	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Range );
+	par.set( sKey::CrlRange, crlrgfld_->getRange() );
     }
     else
     {
-	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Selection() );
-	par.set( sKey::CrlRange(), crlsfld_->text() );
+	par.set( Seis2DGridCreator::sKeyCrlSelType(), sKey::Selection );
+	par.set( sKey::CrlRange, crlsfld_->text() );
     }
 
     return ui2DGridLines::fillPar( par );
@@ -331,9 +330,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     baseline_ = new Grid2D::Line( startnode, stopnode );
     BufferString lbltxt( "Parallel line spacing " );
     lbltxt += SI().getXYUnitString();
-    const StepInterval<int> spacinglimits( 500, 1000000, 500 );
-    pardistfld_ = new uiGenInput( this, lbltxt.buf(), IntInpSpec()
-	    					.setLimits(spacinglimits) );
+    pardistfld_ = new uiGenInput( this, lbltxt.buf(), IntInpSpec() );
     pardistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );	
     if ( !rdl || rdl->nrNodes() != 2 )
@@ -347,15 +344,14 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 
     lbltxt = "Perpendicular line spacing ";
     lbltxt += SI().getXYUnitString();
-    perdistfld_ = new uiGenInput( this, lbltxt.buf(), IntInpSpec()
-	    					.setLimits(spacinglimits) );
+    perdistfld_ = new uiGenInput( this, lbltxt.buf(), IntInpSpec() );
     perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );	
     perdistfld_->attach( alignedBelow, pardistfld_ );
 
     const Coord maxcoord = SI().maxCoord(false);
     const Coord mincoord = SI().minCoord(false);
-    const float maxdim = (float) mMAX( maxcoord.x-mincoord.x, maxcoord.y-mincoord.y );
+    const float maxdim = mMAX( maxcoord.x-mincoord.x, maxcoord.y-mincoord.y );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
     pardistfld_->setValue( mNINT32(axl.sd_.step/2) );
     perdistfld_->setValue( mNINT32(axl.sd_.step/2) );
@@ -496,8 +492,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     uiGroup* grp = new uiGroup( uppgrp_, "Seis group" );
 
     IOObjContext ctxt = mIOObjContext( SeisTrc );
-    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     ctxt.forread = true;
     infld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Vol) );
     infld_->selectionDone.notify( mCB(this,uiCreate2DGrid,inpSelCB) );
@@ -649,7 +644,7 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 {
     par.set( Seis2DGridCreator::sKeyInput(), infld_->key() );
     par.set( Seis2DGridCreator::sKeyOutput(), outfld_->key() );
-    par.set( sKey::Attribute(), outfld_->attrNm() );
+    par.set( sKey::Attribute, outfld_->attrNm() );
 
     const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
 					  : false;
@@ -673,7 +668,7 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 
     par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );
-    par.set( sKey::Attribute(), outfld_->attrNm() );
+    par.set( sKey::Attribute, outfld_->attrNm() );
     par.set( Horizon2DGridCreator::sKeyPrefix(), hornmfld_->text() );
 }
 
@@ -722,8 +717,8 @@ bool uiCreate2DGrid::checkInput() const
     {
 	int lineidx = ovwrlinenms.indexOf( linestoremove.get(0) );
 	if ( lineidx >= 0 )
-	    ovwrlinenms.removeSingle( lineidx );
-	linestoremove.removeSingle( 0 );
+	    ovwrlinenms.remove( lineidx );
+	linestoremove.remove( 0 );
     }
 
 

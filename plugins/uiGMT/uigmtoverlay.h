@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id$
+ RCS:		$Id: uigmtoverlay.h,v 1.3 2009/07/22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiPushButton;
 class GMTPar;
 
-mClass(uiGMT) uiGMTOverlayGrp : public uiDlgGroup
+class uiGMTOverlayGrp : public uiDlgGroup
 {
 public:
 
@@ -36,7 +36,7 @@ protected:
 
 typedef uiGMTOverlayGrp* (*uiGMTOverlayGrpCreateFunc)(uiParent*);
 
-mClass(uiGMT) uiGMTOverlayGrpFactory
+class uiGMTOverlayGrpFactory
 {
 public:
 

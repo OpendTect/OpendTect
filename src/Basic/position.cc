@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "position.h"
 
@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rowcol.h"
 #include "string2.h"
 #include "undefval.h"
-#include "survgeom.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -275,31 +274,3 @@ void BinIDValues::setVals( const float* vs )
 {
     if ( sz ) memcpy( vals, vs, sz * sizeof(float) );
 }
-
-
-TraceID::TraceID( const BinID& bid )
-    : geomid_( std3DGeomID() )
-    , pos_( bid )
-{}
-
-
-TraceID::TraceID( GeomID geomid, int linenr, int trcnr )
-    : geomid_( geomid )
-    , pos_( linenr, trcnr )
-{}
-
-
-const TraceID& TraceID::udf()
-{
-    static TraceID trcid( -1, -1, -1 );
-    return trcid;
-}
-
-
-TraceID::GeomID TraceID::std3DGeomID()
-{ return Survey::GeometryManager::cDefault3DGeom(); }
-
-
-TraceID::GeomID TraceID::cUndefGeomID()
-{ return Survey::GeometryManager::cUndefGeomID(); }
-

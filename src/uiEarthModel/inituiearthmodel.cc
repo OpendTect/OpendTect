@@ -7,18 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"
 #include "uisurfaceposprov.h"
-#include "uiimphorizon.h"
 
 mDefModInitFn(uiEarthModel)
 {
     mIfNotFirstTime( return );
-    
-    uiImportHorizon::initClass();
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();

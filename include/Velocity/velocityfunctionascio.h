@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "tableascio.h"
 #include "task.h"
 
@@ -23,7 +22,7 @@ class TaskRunner;
 namespace Vel
 {
 
-mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
+mClass FunctionAscIO : public Table::AscIO, public SequentialTask
 {
 public:
     				FunctionAscIO( const Table::FormatDesc& fd,
@@ -55,4 +54,3 @@ protected:
 
 
 #endif
-

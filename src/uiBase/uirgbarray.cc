@@ -7,17 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uirgbarray.h"
-
-#include "errh.h"
 
 #include <QImage>
 #include <QColor>
 #include <QColormap>
 
-mUseQtnamespace
 
 uiRGBArray::uiRGBArray( bool walpha )
     : qimg_(new QImage)
@@ -26,17 +23,14 @@ uiRGBArray::uiRGBArray( bool walpha )
 }
 
 
-uiRGBArray::uiRGBArray( const OD::RGBImage& image )
+uiRGBArray::uiRGBArray( const uiRGBArray& rgbarr )
 {
-    mDynamicCastGet( const uiRGBArray*, input, &image );
-    if ( !input )
-	pErrMsg( "Not supported. Go ahead and implement");
-    
-    qimg_ = new QImage( input->qImage() );
+    qimg_ = new QImage( rgbarr.qImage() );
     qimg_->detach();
 }
 
-uiRGBArray::~uiRGBArray()
+
+uiRGBArray::~uiRGBArray() 
 { 
     delete qimg_;
 }
@@ -48,8 +42,8 @@ bool uiRGBArray::setSize( int d0, int d1 )
 	return true;
 
     delete qimg_;
-    qimg_ = new QImage( d0, d1,withalpha_ ? QImage::Format_ARGB32 
-	    				  : QImage::Format_RGB32 );
+    qimg_ = new QImage( d0, d1, withalpha_ ? QImage::Format_ARGB32 
+	    				   : QImage::Format_RGB32 );
 
     return true;
 }

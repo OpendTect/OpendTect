@@ -13,15 +13,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "color.h"
 
 class SoMaterial;
-namespace osg {
-    class Material;
-    class Array;
-};
 
 namespace visBase
 {
@@ -31,7 +26,7 @@ namespace visBase
 
 */
 
-mExpClass(visBase) Material : public DataObject
+mClass Material : public DataObject
 {
 public:
     static Material*	create()
@@ -73,15 +68,11 @@ public:
     void		fillPar(IOPar&,TypeSet<int>&) const;
 
     int			nrOfMaterial() const;
-    
-    const osg::Array*	getColorArray() const;
-    osg::Material*	getMaterial();
 
 protected:
 			~Material();
     void		setMinNrOfMaterials(int);
     void		updateMaterial(int);
-    void		createArray();
 
     TypeSet<Color>	color_;
     TypeSet<float>	diffuseintencity_;
@@ -92,10 +83,7 @@ protected:
     float		emmissiveintensity_;
     float		shininess_;
 
-    SoMaterial*		coinmaterial_;
-    
-    osg::Material*	material_;
-    osg::Array*		colorarray_;
+    SoMaterial*		material_;
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -113,4 +101,3 @@ protected:
 
 
 #endif
-

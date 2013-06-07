@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "vishingeline.h"
@@ -60,7 +60,7 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
     {
 	removeChild( polylines[idx]->getInventorNode() );
 	polylines[idx]->unRef();
-	polylines.removeSingle(idx--);
+	polylines.remove(idx--);
     }
 
     deepErase( polylinesegments );
@@ -280,12 +280,12 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
     {
 	removeChild( polylines[idx]->getInventorNode() );
 	polylines[idx]->unRef();
-	polylines.removeSingle( idx );
+	polylines.remove( idx );
 
 	delete polylinesegments[idx];
-	polylinesegments.removeSingle(idx);
+	polylinesegments.remove(idx);
 	delete polylinesegmentpos[idx];
-	polylinesegmentpos.removeSingle(idx);
+	polylinesegmentpos.remove(idx);
     }
 }
 

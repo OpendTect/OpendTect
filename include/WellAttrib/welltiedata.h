@@ -12,14 +12,12 @@ $
 ________________________________________________________________________
 -*/
 
-#include "wellattribmod.h"
 #include "callback.h"
 #include "color.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "welldisp.h"
 #include "welltied2tmodelmanager.h"
-#include "welltiesetup.h"
 
 class BinID;
 class CtxtIOObj;
@@ -37,9 +35,8 @@ namespace WellTie
     class Setup;
     class PickSetMgr;
 
-mExpClass(WellAttrib) DispParams
+mStruct DispParams
 {
-public:
 			    DispParams()
 			    : ismarkerdisp_(true)
 			    , isvwrmarkerdisp_(true)
@@ -60,27 +57,13 @@ public:
     Well::DisplayProperties::Markers mrkdisp_;
     BufferStringSet	    allmarkernms_;
 
-    static const char*		sKeyIsMarkerDisp()	{ return
-					   "Display Markers on Well Display"; }
-    static const char*		sKeyVwrMarkerDisp()	{ return
-					      "Display Markers on 2D Viewer"; }
-    static const char*		sKeyVwrHorizonDisp()	{ return
-					      "Display Horizon on 2D Viewer"; }
-    static const char*		sKeyZInFeet()		{ return "Z in Feet"; }
-    static const char*		sKeyZInTime()		{ return "Z in Time"; }
-    static const char*		sKeyMarkerFullName()	{ return
-						 "Display markers full name"; }
-    static const char*		sKeyHorizonFullName()	{ return
-						 "Display horizon full name"; }	
-
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&); 
 };
 
 
-mExpClass(WellAttrib) Marker
+mStruct Marker
 {
-public:
 			    Marker(float z)
 				: zpos_(z)
 				, size_(2)  
@@ -96,16 +79,9 @@ public:
 					{ return m.zpos_ == zpos_; }
 };
 
-    
-mExpClass(WellAttrib) PickData
-{
-public:
-    TypeSet<Marker>		synthpicks_;
-    TypeSet<Marker>		seispicks_;
-};
+mStruct PickData		{ TypeSet<Marker> synthpicks_, seispicks_; };
 
-    
-mExpClass(WellAttrib) Data
+mClass Data
 {
 public :
     				Data(const Setup&,Well::Data& wd);
@@ -119,22 +95,27 @@ public :
     Wavelet&			initwvlt_;
     Wavelet&			estimatedwvlt_;
     const Well::Log*		cslog_;
-
-    const StepInterval<float>&	getTraceRange() const	{ return tracerg_; }
-    const Interval<float>&	getDahRange() const	{ return dahrg_; }
-    const StepInterval<float>&	getModelRange() const	{ return modelrg_; }
-    const StepInterval<float>&	getReflRange() const	{ return reflrg_; }
+    bool			isinitwvltactive_;
+    const StepInterval<float>& 	timeintv_;
+	// do not use, will be deleted
+    Interval<float>		dahrg_;
+    const Setup&		setup() const	{ return setup_; }
+    const float			getScaler() const;
+    void			setScaler(const float);
+    
+    const StepInterval<float>&	getTraceRange() const;
+    const Interval<float>&	getDahRange() const { return dahrg_; }
+    const StepInterval<float>&	getModelRange() const;
+    const StepInterval<float>&	getReflRange() const;
     void			computeExtractionRange();
 
-    const Setup&		setup() const	{ return setup_; }
-    const char* 		density() const	{ return setup_.denlognm_; }
-    const char* 		sonic() const	{ return setup_.vellognm_; }
-    bool			isSonic() const	{ return setup_.issonic_; }
-
-    static const char* 		ai()		{ return "AI"; }
-    static const char* 		reflectivity()	{ return "Reflectivity"; }
-    static const char* 		synthetic()	{ return "Synthetic"; }
-    static const char* 		seismic()	{ return "Seismic"; }
+    const char*  		sonic() 	const;
+    const char*  		density() 	const;
+    const char*  		ai() 		const;
+    const char*  		reflectivity() 	const;
+    const char*  		synthetic() 	const;
+    const char*  		seismic() 	const;
+    bool			isSonic() 	const;
     static float		cDefSeisSr();
 
     TypeSet<Marker>		horizons_;
@@ -142,28 +123,26 @@ public :
     DispParams			dispparams_;
     TaskRunner*			trunner_;
 
-    mStruct(WellAttrib) CorrelData
+    mStruct CorrelData
     {
 				CorrelData() : lag_(200), coeff_(0) {}
 
 	TypeSet<float>		vals_;
 	int			lag_;
 	double			coeff_;
-	float			scaler_;
     };
     CorrelData			correl_;
 
 protected:
 
-    StepInterval<float>		tracerg_;
-    Interval<float>		dahrg_;
-    StepInterval<float>		modelrg_;
-    StepInterval<float>		reflrg_;
     const Setup&		setup_;
+    void			setTraceRange(const StepInterval<float>);
+    void			setModelRange(const StepInterval<float>);
+    void			setRelfRange(const StepInterval<float>);
 };
 
 
-mExpClass(WellAttrib) WellDataMgr : public CallBacker
+mClass WellDataMgr : public CallBacker
 {
 public:
     				WellDataMgr(const MultiID&);
@@ -182,13 +161,13 @@ protected:
 };
 
 
-mExpClass(WellAttrib) DataWriter 
+mClass DataWriter 
 {	
 public:    
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
-    mStruct(WellAttrib) LogData
+    mStruct LogData
     {
 				LogData( const Well::LogSet& logset )
 				    : logset_(logset)
@@ -206,27 +185,26 @@ public:
 
     bool 			writeD2TM() const;		
     bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
+    bool                        writeLogs2Cube(LogData&) const { return false;};
 
     void			setWD(Well::Data* wd)
     				{ wd_ = wd; setWellWriter(); }
-
-    const char*			errMsg() const 
-    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
 protected:
 
     Well::Writer* 		wtr_;
     Well::Data*			wd_;
     const MultiID&		wellid_;
-    BufferString		errmsg_;
 
     void 			setWellWriter();
     bool                        writeLog2Cube(LogData&) const;
+
+public:
+    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
 };
 
 
-mExpClass(WellAttrib) HorizonMgr
+mClass HorizonMgr
 {
 public:
     				HorizonMgr(TypeSet<Marker>& hor)
@@ -234,9 +212,9 @@ public:
 				   , horizons_(hor)  
 				   {}
 
-    mStruct(WellAttrib) PosCouple 		
+    mStruct PosCouple 		
     { 
-	float 			z1_, z2_; 
+	float z1_, z2_; 
 	bool 			operator == ( const PosCouple& pc ) const
 				{ return z1_ == pc.z1_ && z2_ == pc.z2_; }
     };
@@ -255,7 +233,7 @@ protected:
 };
 
 
-mExpClass(WellAttrib) Server : public CallBacker
+mClass Server : public CallBacker
 {
 public :
     				Server(const WellTie::Setup&);
@@ -278,18 +256,19 @@ public :
 
     bool			is2D() const	{ return is2d_; }
 
-    bool			computeSynthetics(const Wavelet&);
+    bool			computeAll();
+    // do not use, will be deleted
+    bool			computeSynthetics();
     bool			extractSeismics();
-    bool			updateSynthetics(const Wavelet&);
+    bool			updateSynthetics();
     bool			computeAdditionalInfo(const Interval<float>&);
-    bool			computeCrossCorrelation();
-    bool			computeEstimatedWavelet(int newsz);
-    void			setCrossCorrZrg(const Interval<float>&);
     bool			hasSynthetic() const;
     bool			hasSeismic() const;
     bool			doSeismic() const;
     void			updateExtractionRange();
 
+    void			setInitWvltActive(bool yn)
+				{ data_->isinitwvltactive_ = yn; }
     void			setTaskRunner( TaskRunner* tr )
 				{ data_->trunner_ = tr; }
 protected :
@@ -312,5 +291,4 @@ protected :
 
 
 #endif
-
 

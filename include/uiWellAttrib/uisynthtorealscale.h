@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uidialog.h"
 
 #include "horsampling.h"
@@ -38,7 +37,7 @@ namespace Strat { class SeisEvent; }
 
  */
 
-mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
+mClass uiSynthToRealScale : public uiDialog
 { 	
 public:
 
@@ -91,4 +90,3 @@ protected:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.21 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uispinbox.h"
 #include "uimsg.h"
-#include "visprestackdisplay.h"
+#include "visprestackviewer.h"
 #include "visseis2ddisplay.h"
 
 
@@ -24,7 +24,7 @@ namespace PreStackView
 
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
-					      visSurvey::PreStackDisplay& vwr )
+					      PreStackView::Viewer3D& vwr )
     : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,"50.2.1")
 	    		.modal(false) )
     , viewer_(vwr)  

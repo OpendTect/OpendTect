@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiattrtrcselout.h"
@@ -59,7 +59,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , nrsampfld_(0)
     , xparsdlg_(0)
 {
-    setCtrlStyle( DoAndStay );
     setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     if ( usesinglehor_ )
@@ -176,9 +175,10 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 {
-    extraztopfld_ = new uiGenInput( prnt, "plus", FloatInpSpec(0) );
+    extraztopfld_ = new uiGenInput( prnt, "plus", IntInpSpec() );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
+    extraztopfld_->setValue(0);
     uiLabel* toplbl = new uiLabel( prnt, SI().getZUnitString() );
     toplbl->attach( rightOf, extraztopfld_ );
 }
@@ -186,9 +186,10 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 {
-    extrazbotfld_ = new uiGenInput( prnt, "plus", FloatInpSpec(0) );
+    extrazbotfld_ = new uiGenInput( prnt, "plus", IntInpSpec() );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
+    extrazbotfld_->setValue(0);
     uiLabel* botlbl = new uiLabel( prnt, SI().getZUnitString() );
     botlbl->attach( rightOf, extrazbotfld_ );
 }
@@ -292,7 +293,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type, sKey::Steering );
     outpfld_ = new uiSeisSel( prnt, ctioout_,
 	    		      uiSeisSel::Setup(ads_.is2D(),false)
 			      .selattr(true).allowlinesetsel(false) );
@@ -363,13 +364,16 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	IOObj* lineobj = IOM().get( mid );
 	Seis2DLineSet s2d( *lineobj );
 
-	BufferString msg = "The selected horizon does not share the geometry"
-	" of the selected lineset. Please choose other input data or horizon.";
+	BufferString msg = "The selected horizon does not share the geometry ";
+			   " of the selected lineset. ";
+			   "Choose other input data or horizon.";
 	if ( data.linesets.isEmpty() || *data.linesets[0] != s2d.name() ) 
 	{
 	    uiMSG().error( msg );
 	    return false;
 	}
+
+	s2d.invalidateCache();
     }
 
     return true;
@@ -398,16 +402,16 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	const char* outputnm = outpfld_->getInput();
 	outnm = LineKey( outputnm ).attrName();
     }
-    iopar.set( sKey::Target(), outnm );
+    iopar.set( sKey::Target, outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
-    BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
+    BufferString key = IOPar::compKey( sKey::Geometry, tmpkey );
     iopar.set( key, ctio_.ioobj->key() );
 
     if ( !usesinglehor_ )
     {
 	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
-	key = IOPar::compKey( sKey::Geometry(), tmpkey );
+	key = IOPar::compKey( sKey::Geometry, tmpkey );
 	iopar.set( key, ctio2_.ioobj->key() );
     }
 
@@ -419,29 +423,27 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	getComputableSurf( horsamp );
 
     BufferString typestr;
-    subselpar->get( sKey::Type(), typestr );
-    const bool issubsel = strcmp( typestr.buf(), sKey::None() );
+    subselpar->get( sKey::Type, typestr );
+    const bool issubsel = strcmp( typestr.buf(), sKey::None );
     const bool usesamp = !is2d || issubsel;
     if ( !issubsel && !is2d )
-	subselpar->set( sKey::Type(), sKey::Range() );
+	subselpar->set( sKey::Type, sKey::Range );
     
     if ( usesamp )
     {
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
 	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
 	{
-	    key = IOPar::compKey( sKey::Geometry(),
-				  SeisTrcStorOutput::inlrangekey() );
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey());
 	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	    key = IOPar::compKey( sKey::Geometry(),
-				  SeisTrcStorOutput::crlrangekey() );
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey());
 	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
 	}
     }
 
     CubeSampling::removeInfo( *subselpar );
-    iopar.mergeComp( *subselpar, sKey::Geometry() );
+    iopar.mergeComp( *subselpar, sKey::Geometry );
 
     Interval<float> zinterval;
     if ( gatefld_ )
@@ -452,10 +454,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	zinterval.stop = extrazbotfld_->getfValue();
     }
 
-    key = IOPar::compKey( sKey::Geometry(), "ExtraZInterval" );
+    key = IOPar::compKey( sKey::Geometry, "ExtraZInterval" );
     iopar.set( key, zinterval );
 
-    key = IOPar::compKey( sKey::Geometry(), "Outside Value" );
+    key = IOPar::compKey( sKey::Geometry, "Outside Value" );
     iopar.set( key, outsidevalfld_->getfValue() );
 
     int nrsamp = 0;
@@ -463,15 +465,15 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	nrsamp = interpfld_->getBoolValue() ? mUdf(int) 
 	    				   : nrsampfld_->getIntValue();
     
-    key = IOPar::compKey( sKey::Geometry(), "Interpolation Stepout" );
+    key = IOPar::compKey( sKey::Geometry, "Interpolation Stepout" );
     iopar.set( key, nrsamp );
 
     if ( !usesinglehor_ && addwidthfld_ && addwidthfld_->getBoolValue() )
     {
-	key = IOPar::compKey( sKey::Geometry(), "Artificial Width" );
+	key = IOPar::compKey( sKey::Geometry, "Artificial Width" );
 	iopar.set( key, widthfld_->getfValue() );
 	
-	key = IOPar::compKey( sKey::Geometry(), "Leading Horizon" );
+	key = IOPar::compKey( sKey::Geometry, "Leading Horizon" );
 	iopar.set( key, mainhorfld_->getBoolValue()? 1 : 2 );
     }
     
@@ -481,12 +483,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 				: Interval<float>( mUdf(float), mUdf(float) );
     if ( !mIsUdf(cubezbounds.start) )
     {
-	key = IOPar::compKey( sKey::Geometry(), "Z Boundaries" );
+	key = IOPar::compKey( sKey::Geometry, "Z Boundaries" );
 	iopar.set( key, cubezbounds );
     }
-
-    if ( is2d )
-        Seis2DLineSet::invalidateCache();
     
     return true;
 }
@@ -529,7 +528,7 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 }
 
 
-void uiAttrTrcSelOut::attribSel( CallBacker* )
+void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 {
     setParFileNmDef( attrfld_->getInput() );
     if ( ads_.is2D() )

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicmddrivermod.h"
 #include "bufstringset.h"
 #include "factory.h"
 
@@ -25,7 +24,7 @@ namespace CmdDrive
 class CmdDriver;
 class WildcardManager;
 
-mExpClass(uiCmdDriver) Function
+mClass Function
 {
 public:
 
@@ -36,7 +35,6 @@ public:
     			Function(const CmdDriver& cmddrv)
 			    : drv_(cmddrv)
 			{}
-    virtual		~Function()					{}
 
     virtual const char*	name() const					=0;
     virtual bool	eval(const BufferStringSet& args,
@@ -59,14 +57,14 @@ protected:
 
 #define mStartDeclFunClassNoEval(funkey,parentclass) \
 \
-mExpClass(uiCmdDriver) funkey##Func : public parentclass \
+mClass funkey##Func : public parentclass \
 { \
 public: \
 			funkey##Func(const CmdDriver& cmddrv) \
     			    : parentclass(cmddrv) \
     			{ \
 			    name_ = keyWord(); \
-			    *name_.buf() = mCast(char,tolower(*name_.buf())); \
+			    *name_.buf() = tolower( *name_.buf() ); \
 			} \
 \
     static const char*	keyWord()			{ return #funkey; } \

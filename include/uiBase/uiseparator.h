@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 //class QFrame;
 
 class uiSeparatorBody;
 
-mExpClass(uiBase) uiSeparator : public uiObject
+mClass uiSeparator : public uiObject
 {
 public:
 
@@ -37,4 +36,3 @@ private:
 };
 
 #endif
-

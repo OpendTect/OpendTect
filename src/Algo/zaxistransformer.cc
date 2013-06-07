@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "zaxistransformer.h"
 
@@ -120,7 +120,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( inputzsz==0 || outputzsz==0 || inlsz==0 || crlsz==0 )
 	return false;
 
-    for ( int idx=(int) start; idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;

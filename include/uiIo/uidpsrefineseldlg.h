@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -24,7 +23,7 @@ class uiTable;
 
 class MathExpression;
 
-mExpClass(uiIo) uiDPSRefineSelDlg : public uiDialog
+mClass uiDPSRefineSelDlg : public uiDialog
 {
 public:
 
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

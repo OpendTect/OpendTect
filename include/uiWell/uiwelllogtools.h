@@ -12,38 +12,33 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiwellmod.h"
-#include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
 
-class uiCheckBox;
+class uiListBox;
 class uiComboBox;
-class uiFreqFilterSelFreq;
 class uiGenInput;
-class uiMultiWellLogSel;
+class uiCheckBox;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
-class uiListBox;
+class uiMultiWellLogSel;
 class uiPushButton;
 class uiSpinBox;
 class uiWellLogDisplay;
 
 
-namespace Well { class Data; class Log; class LogSet; class D2TModel; class Track; }
+namespace Well { class Data; class Log; class LogSet; }
 
 
-mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
+mClass uiWellLogToolWin : public uiMainWin
 {
 public:	
 
-    mStruct(uiWell) LogData
+    mStruct LogData
     {
-				LogData(const Well::LogSet&,
-					const Well::D2TModel*,
-					const Well::Track*);
+				LogData(const Well::LogSet&);
 				~LogData();
 
 	MultiID			wellid_;
@@ -57,11 +52,8 @@ public:
 
 	Well::LogSet&		logs_;
 
-	ObjectSet<const Well::Log> inplogs_;
+	ObjectSet<Well::Log>	inplogs_;
 	ObjectSet<Well::Log>	outplogs_;
-
-	const Well::D2TModel* 	d2t_;
-	const Well::Track*	track_;
 
 	friend class		uiWellLogToolWin;
     };
@@ -84,7 +76,6 @@ protected:
     uiLabeledSpinBox*		thresholdfld_;
     uiLabeledComboBox*		replacespikefld_;
     uiGenInput*			replacespikevalfld_;
-    uiFreqFilterSelFreq*	freqfld_;
     uiPushButton*		applybut_;
     uiPushButton*               okbut_;
     uiPushButton*               cancelbut_;
@@ -105,7 +96,7 @@ protected:
 };
 
 
-mExpClass(uiWell) uiWellLogToolWinMgr : public uiDialog
+mClass uiWellLogToolWinMgr : public uiDialog
 {
 public:
 			uiWellLogToolWinMgr(uiParent*);
@@ -113,12 +104,11 @@ protected:
 
     uiMultiWellLogSel*	welllogselfld_;
 
-    bool		acceptOK(CallBacker*);
     void		winClosed(CallBacker*);
+    bool		acceptOK(CallBacker*);
+    void		initWin(CallBacker*);
 };
 
 
 
 #endif
-
-

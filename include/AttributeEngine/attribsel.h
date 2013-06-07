@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "ranges.h"
 #include "multiid.h"
 #include "bufstringset.h"
@@ -20,6 +19,17 @@ ________________________________________________________________________
 
 class IOPar;
 class NLAModel;
+
+/*!\brief specifies an attribute selection (ID or output number of NN).
+
+  When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
+  user reference is stored, so you can try to get a valid ID in that situation.
+
+  Object reference holds the NLA or attribute set name.
+  discrSpec() specifies whether (if (0,0) interval not) and how a discrete
+  output is to be expected.
+ 
+ */
 
 namespace ZDomain { class Info; }
 
@@ -29,18 +39,7 @@ namespace Attrib
 class Desc;
 class DescSet;
 
-/*!
-\brief Specifies an attribute selection (ID or output number of NN).
-
-  When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
-  user reference is stored, so you can try to get a valid ID in that situation.
-
-  Object reference holds the NLA or attribute set name.
-  discrSpec() specifies whether (if (0,0) interval not) and how a discrete
-  output is to be expected.
-*/
-
-mExpClass(AttributeEngine) SelSpec
+mClass SelSpec
 {
 public:
 			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
@@ -121,11 +120,9 @@ protected:
 };
 
 
-/*
-\brief Specifies current attribute choices (ID or output nr of NLA model).
-*/
+/*!\brief specifies current attribute choices (ID or output nr of NLA model). */
 
-mExpClass(AttributeEngine) CurrentSel
+mClass CurrentSel
 {
 public:
 			CurrentSel()
@@ -138,11 +135,9 @@ public:
 };
 
 
-/*!
-\brief Supplies lists of available attribute input.
-*/
+/*!\brief supplies lists of available attribute input */
 
-mExpClass(AttributeEngine) SelInfo
+mClass SelInfo
 {
 public:
 
@@ -184,4 +179,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

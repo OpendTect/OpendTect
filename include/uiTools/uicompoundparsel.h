@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 class uiGenInput;
@@ -26,7 +25,7 @@ class uiPushButton;
  
  */
 
-mExpClass(uiTools) uiCompoundParSel : public uiGroup
+mClass uiCompoundParSel : public uiGroup
 {
 public:
 
@@ -52,4 +51,3 @@ protected:
 
 
 #endif
-

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 class LatLong;
 class uiLineEdit;
@@ -19,7 +18,7 @@ class uiRadioButton;
 class uiLatLongDMSInp;
 
 
-mExpClass(uiIo) uiLatLongInp : public uiGroup
+mClass uiLatLongInp : public uiGroup
 {
 public:
 
@@ -44,4 +43,3 @@ protected:
 
 
 #endif
-

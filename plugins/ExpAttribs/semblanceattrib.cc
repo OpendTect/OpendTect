@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: semblanceattrib.cc,v 1.9 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "semblanceattrib.h"
 
@@ -104,7 +104,7 @@ Semblance::Semblance( Desc& desc )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.scale( 1.f/zFactor() );
+    gate_.scale( 1./zFactor() );
 
     mGetBool( dosteer_, steeringStr() );
     mGetEnum( extension_, extensionStr() );
@@ -130,7 +130,7 @@ Semblance::Semblance( Desc& desc )
     getTrcPos();
 
     const float maxdist = dosteer_ ? 
-	mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
+	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
     
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 
@@ -220,6 +220,12 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT32(gate_.stop/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
+    const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
+
+    float extrazfspos = mUdf(float);
+    if ( needinterp_ )
+	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
+
     const int nrtraces = inputdata_.size();
 
     mAllocVarLenArr( float, cache, nrtraces*gatesz );
@@ -241,7 +247,7 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 	    const DataHolder* data = inputdata_[trcidx];
 	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
 	    {
-		float sampleidx = mCast( float, idx + zidx );
+		float sampleidx = idx + zidx;
 		if ( serie )
 		    sampleidx += serie->value(z0+idx-steeringdata_->z0_);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -23,11 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
-				bool rub, bool withhanddrag )
+				    bool wrubb )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
-    , haverubber_(rub)
-    , withhanddrag_(withhanddrag)
+    , haverubber_(wrubb)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
@@ -44,22 +43,24 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 
 uiFlatViewControl::~uiFlatViewControl()
 {
-    delete &zoommgr_;
     if ( propdlg_ )
     {
 	delete propdlg_;
 	propdlg_ = 0;
     }
+
+
+    delete &zoommgr_;
 }
 
 
 void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 {
     vwrs_ += &vwr;
-    vwr.control_ = this;
     vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
+    vwr.control_ = this;
 
-    uiGraphicsView& cnvs = vwr.rgbCanvas();
+    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
 	cnvs.rubberBandUsed.notify( mCB(this,uiFlatViewControl,rubBandCB));
 
@@ -76,12 +77,12 @@ void uiFlatViewControl::removeViewer( uiFlatViewer& vwr )
     vwrs_ -= &vwr;
     vwr.dataChanged.remove( mCB(this,uiFlatViewControl,dataChangeCB) );
 
-    uiGraphicsView& cnvs = vwr.rgbCanvas();
+    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
 	cnvs.rubberBandUsed.remove( mCB(this,uiFlatViewControl,rubBandCB));
 
     MouseEventHandler& mevh = cnvs.scene().getMouseEventHandler();
-    mevh.movement.remove( mCB(this,uiFlatViewControl,mouseMoveCB) );
+    mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
 }
 
 
@@ -224,17 +225,17 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
 
 void uiFlatViewControl::flip( bool hor )
 {
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    const uiWorldRect newview(	hor ? cv.right()  : cv.left(),
-				hor ? cv.top()    : cv.bottom(),
-				hor ? cv.left()   : cv.right(),
-				hor ? cv.bottom() : cv.top() );
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
+        for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	FlatView::Annotation::AxisData& ad
 			    = hor ? vwrs_[idx]->appearance().annot_.x1_
 				  : vwrs_[idx]->appearance().annot_.x2_;
+	const uiWorldRect cv( vwrs_[idx]->curView() );
+	const uiWorldRect newview(	hor ? cv.right()  : cv.left(),
+				    hor ? cv.top()    : cv.bottom(),
+				    hor ? cv.left()   : cv.right(),
+				    hor ? cv.bottom() : cv.top() );
+
 	ad.reversed_ = !ad.reversed_;
 	vwrs_[idx]->setView( newview );
     }
@@ -255,6 +256,7 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
+    const uiWorldRect oldview( vwrs_[0]->curView() );
     setNewView( centre, newsz );
 }
 
@@ -293,9 +295,20 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->viewer() );
     if ( !vwr ) return;
 
+    const uiWorldRect cv( vwr->curView() );
+    FlatView::Annotation& annot = vwr->appearance().annot_;
+    if ( (cv.right() > cv.left()) == annot.x1_.reversed_ )
+	{ annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
+    if ( (cv.top() > cv.bottom()) == annot.x2_.reversed_ )
+	{ annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
+
     const int selannot = propdlg_->selectedAnnot();
+
     vwr->setAnnotChoice( selannot );
-    vwr->handleChange( FlatView::Viewer::All );
+    //Don't send FlatView::Viewer::All, since that triggers a viewchange
+    vwr->handleChange( FlatView::Viewer::Annot, false );
+    vwr->handleChange( FlatView::Viewer::WVAPars, false );
+    vwr->handleChange( FlatView::Viewer::VDPars );
 }
 
 
@@ -323,15 +336,29 @@ MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
 }
 
 
-uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
-{ return vwr->getViewRect(); }
+uiRect uiFlatViewControl::getViewRect( uiFlatViewer* vwr )
+{
+    const uiRGBArrayCanvas& canvas = vwr->rgbCanvas();
+    uiBorder annotborder = vwr->annotBorder();
+    uiRect viewarea = canvas.getViewArea();
+    uiRect scenearea = canvas.getSceneRect();
+
+    uiBorder viewborder( viewarea.left() - scenearea.left(),
+			 viewarea.top() - scenearea.top(),
+			 scenearea.right() - viewarea.right(),
+			 scenearea.bottom() - viewarea.bottom() );
+
+    vwr->setViewBorder( viewborder );
+    viewarea = annotborder.getRect( viewarea );
+    return viewarea;
+}
 
 
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	if ( !mouseEventHandler(idx).hasEvent() )
+	if ( !mouseEventHandler( idx ).hasEvent() )
 	    continue;
 
 	const MouseEvent& ev = mouseEventHandler(idx).event();

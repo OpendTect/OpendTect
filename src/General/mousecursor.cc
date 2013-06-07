@@ -4,30 +4,9 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "mousecursor.h"
-
-
-#include "odimage.h"
-
-MouseCursor::MouseCursor()
-    : shape_(NotSet)
-    , image_(0)
-    , hotx_( 0 )
-    , hoty_( 0 )
-{}
-
-
-MouseCursor::MouseCursor( Shape s )
-    : shape_(s)
-    , image_( 0 )
-    , hotx_( 0 )
-    , hoty_( 0 )
-{}
-
-MouseCursor::~MouseCursor()
-{ delete image_; }
 
 
 bool MouseCursor::operator==( const MouseCursor& mc ) const

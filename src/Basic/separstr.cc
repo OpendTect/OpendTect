@@ -5,15 +5,13 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
 #include "convert.h"
 #include "string2.h"
-#include "keystrs.h"
-#include "fixedstring.h"
 #include "bufstringset.h"
 
 #ifdef __msvc__
@@ -164,10 +162,11 @@ int SeparString::size() const
 }
 
 
-FixedString SeparString::operator[]( int elemnr ) const
+const char* SeparString::operator[]( int elemnr ) const
 {
+    static const char* emptystr = "";
     if ( elemnr < 0 )
-	return sKey::EmptyString();
+	return emptystr;
 
     const char* startptr = rep_.buf();
     while ( *startptr )
@@ -178,17 +177,17 @@ FixedString SeparString::operator[]( int elemnr ) const
 	    return getUnescaped( startptr, nextsep );
 
 	if ( !nextsep )
-	    return sKey::EmptyString();
+	    return emptystr;
 
 	elemnr--;
 	startptr = nextsep+1;
     }
 
-    return sKey::EmptyString();
+    return emptystr;
 }
 
 
-FixedString SeparString::from( int idx ) const
+const char* SeparString::from( int idx ) const
 {
     const char* ptr = rep_.buf();
     for ( ; idx!=0; idx-- )
@@ -247,10 +246,10 @@ int SeparString::indexOf( const char* str ) const
     int elemnr = 0;
     while ( *startptr )
     {
-	FixedString nextsep = findSeparator( startptr );
-	FixedString elemstr = getUnescaped( startptr, nextsep );
+	const char* nextsep = findSeparator( startptr );
+	const char* elemstr = getUnescaped( startptr, nextsep );
 
-	if ( elemstr==str )
+	if ( !strcmp(elemstr, str) )
 	    return elemnr;
 
 	if ( !nextsep )

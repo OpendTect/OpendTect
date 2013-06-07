@@ -11,13 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiGenInput;
 class uiFileInput;
 
-mExpClass(uiIo) uiCrDevEnv : public uiDialog
+mClass uiCrDevEnv : public uiDialog
 {
 public:
 
@@ -34,4 +33,3 @@ protected:
 };
 
 #endif
-

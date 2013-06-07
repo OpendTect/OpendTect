@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "basicmod.h"
 #include "strmdata.h"
 #include "bufstring.h"
 class CallBack;
@@ -21,24 +20,24 @@ class TaskRunner;
 class BufferStringSet;
 
 
-/*!
-\brief Provides I/O stream for file or system command.
+/*!\brief provides I/O stream for file or system command.
 
-  StreamProvider provides a stream with requested source attached:
-   - starting with '@' --> OS command that produces the data on stdin/stdout
-   - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
-  
-  Thus:
-   - dgb1:@handle_data
-        Executable handle_data on remote host dgb1 will get/put on stdin/stdout.   - \\winserv\foo\bar
-	File \foo\bar on remote host winserv.
-   - foo.bar
-	File foo.bar in current directory.
+StreamProvider provides a stream with requested source attached:
+ - starting with '@' --> OS command that produces the data on stdin/stdout
+ - Hostname may preceed before a ':' (UNIX variants) or '\\' (Windows).
 
-  A null string or StreamProvider::sStdIO will select std input and output.
+Thus:
+ - dgb1:@handle_data
+	Executable handle_data on remote host dgb1 will get/put on stdin/stdout
+ - \\winserv\foo\bar
+	File \foo\bar on remote host winserv
+ - foo.bar
+	file foo.bar in current directory
+
+ A null string or StreamProvider::sStdIO will select std input and output.
 */
 
-mExpClass(Basic) StreamProvider
+mClass StreamProvider
 {
 public:
 		StreamProvider(const char* nm=0);
@@ -118,10 +117,12 @@ protected:
 };
 
 //! Execute command in OS
-mGlobal(Basic) bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
+mGlobal bool ExecOSCmd(const char*,bool inconsloe=false,bool inbg=false);
+
+//! Create Execute command
+mGlobal const char* GetExecCommand(const char* prognm,const char* filenm);
 
 //! Execute command
-mGlobal(Basic) bool ExecuteScriptCommand(const char* prognm,const char* filenm);
+mGlobal bool ExecuteScriptCommand(const char* prognm,const char* filenm);
 
 #endif
-

@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id$
+# $Id: PMinit.csh,v 1.13 2010/12/15 15:49:32 cvsbert Exp $
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then
@@ -58,16 +58,16 @@ alias wdir		'setenv WORK `pwd`'
 alias wdir		'setenv WORK `pwd`;setenv PMAKE $WORK/Pmake/base; setenv OD_WORKDIR `$PMAKE/bin/print_od_workdir`'
 alias cdw		'cd $WORK'
 
-setenv DEBUG_SUBDIR Debug
+setenv DEBUG_SUBDIR G
 if ( $?DEBUG ) then
     if ( $DEBUG == no ) then
-	setenv DEBUG_SUBDIR Release
+	setenv DEBUG_SUBDIR O
     else if ( $DEBUG == optyes ) then
-	setenv DEBUG_SUBDIR RelWithDebInfo
+	setenv DEBUG_SUBDIR OG
     endif
 else
-    setenv DEBUG_SUBDIR Release
+    setenv DEBUG_SUBDIR O
 endif
 
-alias cdb		'cd $WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR'
-alias cdl		'cd $WORK/lib/$PLFSUBDIR/$DEBUG_SUBDIR'
+alias cdb		'cd $WORK/bin/$PLFSUBDIR/'$DEBUG_SUBDIR
+alias cdl		'cd $WORK/lib/$PLFSUBDIR/'$DEBUG_SUBDIR

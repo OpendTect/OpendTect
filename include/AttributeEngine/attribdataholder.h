@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "refcount.h"
@@ -26,22 +25,22 @@ namespace Attrib
 {
 class DataCubes;
 
-/*!
-\brief Holds the attribute data.
-  
-  Basically, this is a set of ValueSeries<float> objects, the size of
-  each of these, and the start Z in the AE Z-Axis definition:
-  N = N times the Z step. z0_ is therefore the amount of steps away from 0.
-  
-  The AE will work with any type of ValueSeries<float>. Internally,
-  ArrayValueSeries<float,float> objects are always allocated.
-  
-  The class variable extrazfromsamppos_ is to keep track of an eventual 
-  exact position which would not be exactly on a sample ( in the case of 
-  horizons, picksets... )  
-*/
+    /*!\brief Holds the data used in the attribute data
 
-mExpClass(AttributeEngine) DataHolder
+      Basically, this is a set of ValueSeries<float> objects, the size of
+      each of these, and the start Z in the AE Z-Axis definition:
+      N = N times the Z step. z0_ is therefore the amount of steps away from 0.
+
+      The AE will work with any type of ValueSeries<float>. Internally,
+      ArrayValueSeries<float,float> objects are always allocated.
+
+      The class variable extrazfromsamppos_ is to keep track of an eventual 
+      exact position which would not be exactly on a sample ( in the case of 
+      horizons, picksets... )
+
+      */
+
+mClass DataHolder
 {
 public:
 			DataHolder( int z0, int nrsamples );
@@ -65,10 +64,10 @@ public:
     int			z0_;	//!< See class comments
     int			nrsamples_;
     float		extrazfromsamppos_;	//!< See class comments
-    TypeSet<int>	classstatus_;  //each series can have a different status
-				       // -1 Unknown
-				       //  0 Interpolate
-				       //  1 Classification
+    TypeSet<int>	classstatus_;	//each serie can have a different status
+	    			 	// -1 Unknown
+    					//  0 Interpolate
+    					//  1 Classification
 
 protected:
 
@@ -79,11 +78,9 @@ protected:
 };
 
 
-/*!
-\brief Class that holds 2d seismic data or attribute data.
-*/
+/*!Class that holds 2d data seismic or attribute data. */
 
-mExpClass(AttributeEngine) Data2DHolder
+mClass Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
 
@@ -102,12 +99,7 @@ public:
 
 };
 
-
-/*!
-\brief Class that holds 2d seismic data or attribute data in an array.
-*/
-
-mExpClass(AttributeEngine) Data2DArray
+mClass Data2DArray
 { mRefCountImpl(Data2DArray);
 public:
     				Data2DArray(const Data2DHolder&);
@@ -129,4 +121,3 @@ public:
 
 
 #endif
-

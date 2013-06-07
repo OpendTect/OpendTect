@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
 
@@ -28,7 +27,7 @@ class uiToolButton;
 /*! \brief: setup a dialog where the user can select a set of Pre-stack volumes and merge them into one. The priority order decides which volume to use in case of an overlap.
 */
 
-mExpClass(uiSeis) uiPreStackMergeDlg : public uiDialog
+mClass uiPreStackMergeDlg : public uiDialog
 {
 public:
 
@@ -71,7 +70,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
+mClass uiPreStackCopyDlg : public uiDialog
 {
 public:
 
@@ -94,4 +93,3 @@ protected:
 };
 
 #endif
-

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uisimilarityattrib.h"
@@ -388,7 +388,9 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 {
     if ( !typfld_ ) return false;
 
-    const int typ = typfld_->getIntValue();
+    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
+    int typ = typfld_->getIntValue();
+
     return typ == browseDipIdxInList();
 }
 

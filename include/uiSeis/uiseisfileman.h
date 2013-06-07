@@ -11,12 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiobjfileman.h"
 class uiToolButton;
 
 
-mExpClass(uiSeis) uiSeisFileMan : public uiObjFileMan
+mClass uiSeisFileMan : public uiObjFileMan
 {
 public:
 			uiSeisFileMan(uiParent*,bool);
@@ -33,9 +32,9 @@ protected:
 
     void		mergePush(CallBacker*);
     void		dump2DPush(CallBacker*);
+    void		man2DPush(CallBacker*);
     void		browsePush(CallBacker*);
     void		copyPush(CallBacker*);
-    void		man2DPush(CallBacker*);
     void		manPS(CallBacker*);
     void		makeDefault(CallBacker*);
 
@@ -43,9 +42,9 @@ protected:
     virtual void	ownSelChg();
     double		getFileSize(const char*,int&) const;
 
+    const char*		getDefKey() const;
     void		man2DGeom(CallBacker*);
 
 };
 
 #endif
-

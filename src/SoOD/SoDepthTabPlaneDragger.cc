@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -217,8 +217,7 @@ SbBool SoDepthTabPlaneDragger::setUpConnections(SbBool onoff, SbBool doitalways)
 	inherited::setUpConnections(onoff, doitalways);
     }
 
-    connectionsSetUp = onoff;
-    return !connectionsSetUp;
+    return !( connectionsSetUp = onoff);
 }
 
 
@@ -236,6 +235,9 @@ void SoDepthTabPlaneDragger::fieldSensorCB(void* d, SoSensor*)
     SbMatrix matrix = thisp->getMotionMatrix();
     thisp->workFieldsIntoTransform(matrix);
     thisp->setMotionMatrix(matrix);
+
+    const SbVec3f scale = thisp->scaleFactor.getValue();
+    float avgscale = (scale[0]+scale[1])/2;
 }
 
 
@@ -362,8 +364,10 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 
 void SoDepthTabPlaneDragger::dragStart(void)
 {
+    const SoPath* pickpath = getPickPath();
     const SoEvent* event = getEvent();
 
+    SbBool found = FALSE;
     SbVec3f startpt = getLocalStartingPoint();
 
     bool scale = false;
@@ -401,6 +405,7 @@ void SoDepthTabPlaneDragger::dragStart(void)
 
     if ( !scale  )
     {
+	const Key depthkey = (Key) depthKey.getValue();
 	if ( shouldDrag( event, (Key) depthKey.getValue() ) )
 	{
 	    whatkind_ = WHATKIND_LINETRANSLATE;

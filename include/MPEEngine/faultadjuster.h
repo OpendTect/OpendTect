@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionadjuster.h"
 
 namespace EM { class Fault3D; };
@@ -20,11 +19,7 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
-/*!
-\brief SectionAdjuster to adjust EM::Fault3D.
-*/
-
-mExpClass(MPEEngine) FaultAdjuster : public SectionAdjuster
+mClass FaultAdjuster : public SectionAdjuster
 {
 public:
     				FaultAdjuster(EM::Fault3D&,
@@ -66,5 +61,4 @@ protected:
 }; // namespace MPE
 
 #endif
-
 

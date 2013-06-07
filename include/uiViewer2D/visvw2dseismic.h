@@ -12,11 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "visvw2ddata.h"
 
 
-mExpClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
+mClass VW2DSeis : public Vw2DDataObject
 {
 public:
     			VW2DSeis();
@@ -31,4 +30,3 @@ protected:
 
 
 #endif
-

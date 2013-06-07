@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 class uiCheckBox;
 class uiColorInput;
@@ -26,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for pickset selection */
 
-mExpClass(uiIo) uiImpExpPickSet : public uiDialog
+mClass uiImpExpPickSet : public uiDialog
 {
 public:
 			uiImpExpPickSet(uiPickPartServer*,bool);
@@ -46,7 +45,6 @@ protected:
     uiPickPartServer*	serv_;
 
     virtual bool	acceptOK(CallBacker*);
-    void		inputChgd(CallBacker*);
     void		formatSel(CallBacker*);
     bool		checkInpFlds();
     bool		doImport();
@@ -58,4 +56,3 @@ protected:
 
 
 #endif
-

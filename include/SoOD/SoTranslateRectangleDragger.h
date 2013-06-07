@@ -20,7 +20,6 @@ along the rectangle's normal. If certain properties should be set on the plane
 inserted in the prefixgroup.
 */
 
-#include "soodmod.h"
 #include <Inventor/draggers/SoDragger.h>
 #include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/fields/SoSFFloat.h>
@@ -30,7 +29,7 @@ inserted in the prefixgroup.
 
 class SbLineProjector;
 
-mSoODClass SoTranslateRectangleDragger : public SoDragger
+mClass SoTranslateRectangleDragger : public SoDragger
 {
     SO_KIT_HEADER( SoTranslateRectangleDragger );
     
@@ -67,4 +66,3 @@ private:
 };
 
 #endif
-

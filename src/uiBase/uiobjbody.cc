@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiobjbody.h"
@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QPixmap>
 #include <QToolTip>
 
-mUseQtnamespace
 
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
@@ -111,6 +110,8 @@ void uiObjectBody::doDisplay( CallBacker* )
     {
 	if ( !is_hidden )
 	{
+	    int sz = prefHNrPics();
+	    sz = prefVNrPics();
 	    is_hidden = true;
 	    qwidget()->hide();
 	}
@@ -299,8 +300,6 @@ int uiObjectBody::prefHNrPics() const
 
 		case uiObject::WideMax:
 		case uiObject::WideVar:  pwc=4*baseFldSz+3; var=true; break;
-		default:
-		    break;
 	    }
 
 	    if ( !pwc )
@@ -413,8 +412,6 @@ int uiObjectBody::prefVNrPics() const
 		    case uiObject::WideMax:
 		    case uiObject::WideVar:
 			    lines=4*baseFldSz+3; var=true; break;
-		    default:
-			break;
 		}
 
 

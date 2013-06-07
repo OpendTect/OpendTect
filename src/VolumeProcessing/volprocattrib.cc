@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "volprocattrib.h"
 
@@ -121,7 +121,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	return DataPack::cNoID();
     }
 
-    if ( !TaskRunner::execute( tr, executor ) )
+    if ( (tr && !tr->execute(executor)) || (!tr && !executor.execute() ) )
     {
 	if ( executor.errMsg() )
 	    errmsg_ = executor.errMsg();
@@ -129,7 +129,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	    errmsg_ = "Error while calculating.";
     }
 
-    ConstRefMan<Attrib::DataCubes> datacubes = executor.getOutput();
+    RefMan<const Attrib::DataCubes> datacubes = executor.getOutput();
     if ( !datacubes->nrCubes() )
     {
 	errmsg_ = "No output produced";

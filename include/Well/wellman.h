@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "sets.h"
 #include "bufstring.h"
 
@@ -24,11 +23,7 @@ namespace Well
 
 class Data;
 
-/*!
-\brief Well manager
-*/
-
-mExpClass(Well) Man
+mClass Man
 {
 public:
 
@@ -46,23 +41,25 @@ public:
 
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
+    ObjectSet<MultiID>&	keys()			{ return keys_; }
 
 protected:
 
 			Man()				{}
     static Man*		mgr_;
-    mGlobal(Well) friend Man&	MGR();
+    mGlobal friend Man&	MGR();
 
     ObjectSet<Data>	wells_;
+    ObjectSet<MultiID>	keys_;
     BufferString	msg_;
 
-    int			gtByKey(const MultiID&) const;
 };
 
-mGlobal(Well) Man& MGR();
+mGlobal Man& MGR();
 
 }; // namespace Well
 
 
-#endif
 
+
+#endif

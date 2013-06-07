@@ -13,17 +13,14 @@ ________________________________________________________________________
 -*/
 
 
-#include "algomod.h"
 #include "mathfunc.h"
 namespace Geom { template <class T> class Point2D; }
 
 
-/*!
-\brief Steepness and intercept.
-*/
+/*!\brief steepness and intercept. */
 
 template <class T>
-mClass(Algo) LineParameters : public MathFunction<T,T>
+class LineParameters : public MathFunction<T,T>
 {
 public:
 		LineParameters( T i0=0, T i1=0 )
@@ -44,12 +41,10 @@ public:
 typedef LineParameters<float> LinePars;
 
 
-/*!
-\brief Steepnesses and intercept.
-*/
+/*!\brief steepnesses and intercept. */
 
 template <class T>
-mClass(Algo) PlaneParameters : public MathXYFunction<T,T>
+class PlaneParameters : public MathXYFunction<T,T>
 {
 public:
 		PlaneParameters( T i0=0, T i1=0, T i2=0 )
@@ -67,11 +62,9 @@ public:
 typedef PlaneParameters<float> PlanePars;
 
 
-/*!
-\brief linear stats in 2D.
-*/
+/*!\brief linear stats in 2D. */
 
-mExpClass(Algo) LinStats2D
+mClass LinStats2D
 {
 public:
 		LinStats2D() : corrcoeff(0)	{}
@@ -85,11 +78,9 @@ public:
 };
 
 
-/*!
-\brief linear stats in 3D.
-*/
+/*!\brief linear stats in 3D. */
 
-mExpClass(Algo) LinStats3D
+mClass LinStats3D
 {
 public:
 		LinStats3D() : corrcoeff(0)	{}
@@ -102,4 +93,3 @@ public:
 
 
 #endif
-

@@ -11,26 +11,23 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uizaxistransform.h"
 #include "veldesc.h"
-#include "timedepthconv.h"
 
 class uiSeisSel;
 class uiCheckBox;
 class uiStaticsDesc;
-class uiZRangeInput;
 class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
-mExpClass(uiSeis) uiVelocityDesc : public uiGroup
+mClass uiVelocityDesc : public uiGroup
 {
 public:
 
-    mExpClass(uiSeis) Setup
+    mClass Setup
     {
     public:
 				Setup( const VelocityDesc* vd=0 )
@@ -54,43 +51,44 @@ protected:
     uiGenInput*			typefld_;
     uiGenInput*			hasstaticsfld_;
     uiStaticsDesc*		staticsfld_;
+    uiCheckBox*			setdefbox_;
+
 };
 
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
-mExpClass(uiSeis) uiVelocityDescDlg : public uiDialog
+mClass uiVelocityDescDlg : public uiDialog
 {
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
 					  const uiVelocityDesc::Setup* s=0);
 			~uiVelocityDescDlg();
 
-    IOObj*		getSelection() const;
+   IOObj*		getSelection() const;
    			//!<returned object must be managed by caller
     Interval<float>	getVelocityTopRange() const	
-    			{ return toprange_; }
+    			{ return topavgvelfld_->getFInterval(0); }
     Interval<float>	getVelocityBottomRange() const	
-    			{ return bottomrange_; }
+    			{ return botavgvelfld_->getFInterval(0); }
 
 protected:
 
    bool			acceptOK(CallBacker*);
    void			volSelChange(CallBacker*);
-   bool			scanAvgVel(const IOObj&, const VelocityDesc&);
+   void			scanAvgVelCB(CallBacker*);
 
-   Interval<float>	toprange_;
-   Interval<float>	bottomrange_;
-
-   VelocityDesc		oldveldesc_;
    uiSeisSel*		volselfld_;
    uiVelocityDesc*	veldescfld_;
+   uiGenInput*		topavgvelfld_;
+   uiGenInput*		botavgvelfld_;
+   uiPushButton*	scanavgvel_;
 };
 
 
 //!Field that selects a velocity volume, and edit it's properties/velocity tag
 
 
-mExpClass(uiSeis) uiVelSel : public uiSeisSel
+mClass uiVelSel : public uiSeisSel
 {
 public:
     				uiVelSel(uiParent*,IOObjContext&,
@@ -115,16 +113,14 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiTimeDepthBase : public uiZAxisTransform
+mClass uiTimeDepthBase : public uiZAxisTransform
 {
 public:
     bool			acceptOK();
 
     ZAxisTransform*		getSelection();
-    bool			getTargetSampling(StepInterval<float>&) const;
     StepInterval<float>		getZRange() const;
-				//!use getTargetSampling instead
-
+    				//!Only if no ZAxisTransform
     const char*			selName() const;
     const MultiID&		selID() const { return selkey_; }
 protected:
@@ -138,14 +134,14 @@ protected:
     BufferString		selname_;
     MultiID			selkey_;
 
-    uiZRangeInput*		rangefld_;
+    uiGenInput*			rangefld_;
 
     uiVelSel*			velsel_;
     bool 			t2d_;
 };
 
 
-mExpClass(uiSeis) uiTime2Depth : public uiTimeDepthBase
+mClass uiTime2Depth : public uiTimeDepthBase
 {
 public:
     static void			initClass();
@@ -155,7 +151,7 @@ public:
 };
 
 
-mExpClass(uiSeis) uiDepth2Time : public uiTimeDepthBase
+mClass uiDepth2Time : public uiTimeDepthBase
 {
 public:
     static void			initClass();
@@ -165,8 +161,4 @@ public:
 };
 
 
-
-
-
 #endif
-

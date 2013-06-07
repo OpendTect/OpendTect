@@ -270,12 +270,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     uiColorInput::Setup csu( Color::White() );
     csu.dlgtitle( "Default color for this lithology" );
     colfld_ = new uiColorInput( toprightgrp, csu );
-    colfld_->attach( alignedBelow, nmfld_ );
     colfld_->colorChanged.notify( selchgcb );
+    colfld_->attach( alignedBelow, nmfld_ );
 
     const int butsz = 20;
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
-	    ioPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
+	    ioPixmap("addnew.png"), mCB(this,uiStratLithoDlg,newLith), true );
     newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
 
@@ -285,12 +285,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     rightgrp->attach( rightTo, sep );
 
     uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
-	    ioPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
+	ioPixmap("renameobj.png"), mCB(this,uiStratLithoDlg,renameCB), true );
     renamebut->setPrefWidthInChar( butsz );
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
-	    ioPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
+	    ioPixmap("trashcan.png"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 
@@ -349,7 +349,6 @@ void uiStratLithoDlg::selChg( CallBacker* )
 	return; // can only happen when no lithologies defined at all
 
     nmfld_->setText( lith->name() );
-
     NotifyStopper nspor( isporbox_->activated );
     isporbox_->setChecked( lith->porous() );
     NotifyStopper nscol( colfld_->colorChanged );
@@ -382,7 +381,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     const Strat::Lithology* lith = lithos.get( selfld_->textOfItem(selidx) );
     if ( !lith || lith->isUdf() ) return;
 
-    delete lithos.lithologies().removeSingle( lithos.indexOf( lith->id() ) );
+    delete lithos.lithologies().remove( lithos.indexOf( lith->id() ) );
     lithos.reportAnyChange();
 
     prevlith_ = 0;
@@ -411,7 +410,7 @@ class uiStratSingleContentDlg : public uiDialog
 {
 public:
 
-uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
+uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg )
     : uiDialog(p,uiDialog::Setup(isadd?"Add content":"Edit Content",
 		isadd?"Add content":"Edit content properties","110.0.5"))
     , cont_(c)
@@ -451,7 +450,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		nmfld_;
     uiFillPattern*	fillfld_;
     uiColorInput*	colfld_;
-    bool& 		anychg_;
+    bool&		anychg_;
 
 };
 
@@ -510,7 +509,7 @@ void removeReq()
     if ( selidx < 0 ) return;
 
     anychg_ = true;
-    delete conts.removeSingle( selidx );
+    delete conts.remove( selidx );
     fillList( selidx );
 }
 
@@ -679,7 +678,7 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units )
     }
 }
 
-//will be removed shortly
+
 bool uiStratUnitDivideDlg::areTimesOK( 
 				ObjectSet<Strat::LeavedUnitRef>& units ) const
 {
@@ -691,36 +690,6 @@ bool uiStratUnitDivideDlg::areTimesOK(
 	    return false;
 	if ( curunit.timeRange().stop > nextunit.timeRange().start )
 	    return false;
-    }
-    return ( units[0]->timeRange().width() >= 0 );
-}
-
-
-
-bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
-       				       BufferString& errmsg ) const
-{
-    for ( int idx=0; idx<units.size()-1; idx++ )
-    {
-	const Strat::LeavedUnitRef& curunit = *units[idx];
-	const Strat::LeavedUnitRef& nextunit = *units[idx+1];
-	const bool iscurunitrgok = curunit.timeRange().width();
-	if ( !iscurunitrgok || !nextunit.timeRange().width() )
-	{
-	    errmsg = BufferString("Time-span for unit '",
-		    	!iscurunitrgok ? curunit.code() : nextunit.code(),
-		   	"' is equal to 0. \nPlease correct it." );
-	    return false;
-	}
-	if ( curunit.timeRange().stop > nextunit.timeRange().start )
-	{
-	    errmsg = BufferString("Time overlap detected between units '")
-		    		.add(  curunit.code() )
-	   			.add( "' and '" )
-				.add( nextunit.code() )
-				.add( "'. \nPlease correct it." );
-	    return false;
-	}
     }
     return ( units[0]->timeRange().width() >= 0 );
 }
@@ -770,13 +739,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    mErrRet( errmsg, deepErase( units); return false )	
 	}
     }
-    BufferString errmsg;
-    if ( !areTimesOK( units, errmsg ) )
-    { 
-	if ( errmsg.isEmpty() )
-	    errmsg = "No valid times specified";
-
-	mErrRet( errmsg, deepErase(units); return false;) }
+    if ( !areTimesOK( units) )
+	{ mErrRet("No valid times specified", deepErase(units); return false;) }
 
     deepErase( units );
     return true;
@@ -836,6 +800,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
     }
 
     unit_.setLevelID( lvlid_ );
+
     Strat::eLVLS().levelChanged.trigger();
     return true;
 }

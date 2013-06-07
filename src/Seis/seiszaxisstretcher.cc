@@ -122,11 +122,11 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	if ( packetinfo.cubedata )
 	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hrg );
 	else
-	    totalnr_ = mCast( int, cs.hrg.totalNr() );
+	    totalnr_ = cs.hrg.totalNr();
     }
     else
     {
-	totalnr_ = mCast( int, cs.hrg.totalNr() );
+	totalnr_ = cs.hrg.totalNr();
     }
 
     seiswriter_ = new SeisTrcWriter( &out );
@@ -196,19 +196,17 @@ void SeisZAxisStretcher::setLineKey( const char* lk )
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
 {
     StepInterval<float> trcrg = outcs_.zrg;
-    SamplingData<float> sd( trcrg );
+    SamplingData<double> sd( trcrg );
     ArrPtrMan<float> outputptr = new float[trcrg.nrSteps()+1];
 
     SeisTrc intrc;
     SeisTrc modeltrc;
     PtrMan<FloatMathFunction> intrcfunc = 0;
     PtrMan<ZAxisTransformSampler> sampler = 0;
-
+    
     if ( !stretchz_ )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
-	if ( is2d_ && seisreader_ && seisreader_->selData() )
-	    sampler->setLineName( seisreader_->selData()->lineKey().lineName() );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
@@ -246,7 +244,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    mAllocVarLenArr(float, twt, insz);
 	    mAllocVarLenArr(float, depths, insz);
 	    
-	    SamplingData<float> inputsd( intrc.info().sampling );
+	    SamplingData<double> inputsd( intrc.info().sampling );
 	    SeisTrcValueSeries inputvs( intrc, 0 );
 	    
 	    
@@ -338,6 +336,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 			    depths[idx] = twt[idx] * inputvs[idx]/2;
 		    }
 		}
+
 	    }
 	    
 	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,
@@ -442,7 +441,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
 	    return false;
 
-	addToNrDone( 1 );
+	reportNrDone( 1 );
     }
 
     return true;
@@ -504,7 +503,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 		continue;
 	}
 
-	sequentialwriter_->announceTrace( curbid );
+	sequentialwriter_->announceTrace( trc.info().binid );
 
 	return true;
     }

@@ -2,7 +2,7 @@ dTect V4.2.0
 OpendTect commands
 Fri 01 Oct 2010, 10:09:23
 !
-# $Id$
+# $Id: GMT.odcmd,v 1.1 2010/10/08 08:54:02 cvsnageswara Exp $
 
 Comment "Please load GMT plugin before running this script"
 

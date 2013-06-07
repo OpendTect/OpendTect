@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "faultsticksurface.h"
@@ -25,11 +24,9 @@ namespace EM
 class Fault;
 class FaultStickSetGeometry;
 
-/*!
-\brief FaultGeometry base class.
-*/
+/*!\brief FaultGeometry base class */
 
-mExpClass(EarthModel) FaultGeometry : public SurfaceGeometry
+mClass FaultGeometry : public SurfaceGeometry
 {
 public:
     virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
@@ -77,11 +74,9 @@ protected:
 
 
 
-/*!
-\brief Fault Surface base class.
-*/
+/*!\brief Fault base class */
 
-mExpClass(EarthModel) Fault : public Surface
+mClass Fault : public Surface
 {
 public:
     virtual void		removeAll();
@@ -97,11 +92,7 @@ protected:
 };
 
 
-/*!
-\brief Fault stick UndoEvent.
-*/
-
-mExpClass(EarthModel) FaultStickUndoEvent : public UndoEvent
+mClass FaultStickUndoEvent : public UndoEvent
 {
 public:
 			//Interface for insert
@@ -122,11 +113,7 @@ protected:
 };
 
 
-/*!
-\brief Fault knot UndoEvent.
-*/
-
-mExpClass(EarthModel) FaultKnotUndoEvent : public UndoEvent
+mClass FaultKnotUndoEvent : public UndoEvent
 {
 public:
 			//Interface for insert
@@ -151,4 +138,3 @@ protected:
 
 
 #endif
-

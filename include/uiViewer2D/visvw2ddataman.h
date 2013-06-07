@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiviewer2dmod.h"
 #include "callback.h"
 #include "factory.h"
 #include "emposid.h"
@@ -26,7 +25,7 @@ class uiFlatViewAuxDataEditor;
 
 
 
-mExpClass(uiViewer2D) Vw2DDataManager : public CallBacker
+mClass Vw2DDataManager : public CallBacker
 {
 public:
     				Vw2DDataManager();
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

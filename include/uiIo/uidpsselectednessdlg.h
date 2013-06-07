@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidpsaddcolumndlg.h"
 #include "bufstringset.h"
 
@@ -24,7 +23,7 @@ class uiTable;
 
 class MathExpression;
 
-mExpClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
+mClass uiDPSSelectednessDlg : public uiDPSAddColumnDlg
 {
 public:
     				uiDPSSelectednessDlg(uiParent*,
@@ -48,4 +47,3 @@ protected:
 };
 
 #endif
-

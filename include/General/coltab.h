@@ -13,23 +13,20 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
 #include "color.h"
 #include "ranges.h"
-
-/*!\brief %Color %Table */
 
 namespace ColTab
 {
 
-    mGlobal(General) const char*    defSeqName();
-    mGlobal(General) Interval<float>defClipRate();
-    mGlobal(General) float	    defSymMidval();
-    mGlobal(General) bool	    defAutoSymmetry();
-    mGlobal(General) void	    setMapperDefaults(Interval<float>cr,float sm					,bool autosym,bool histeq=false);
-    mGlobal(General) bool	    defHistEq();
+    mGlobal const char*	    defSeqName();
+    mGlobal Interval<float> defClipRate();
+    mGlobal float	    defSymMidval();
+    mGlobal bool	    defAutoSymmetry();
+    mGlobal void	    setMapperDefaults(Interval<float> cr,float sm,
+	    				      bool autosym,bool histeq=false);
+    mGlobal bool	    defHistEq();
 }
 
 
 #endif
-

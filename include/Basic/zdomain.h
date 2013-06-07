@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstring.h"
 class IOPar;
 
@@ -22,23 +21,19 @@ namespace ZDomain
 
 class Def;
 
-mGlobal(Basic) const Def&	SI();
-mGlobal(Basic) const Def&	Depth();
-mGlobal(Basic) const Def&	Time();
+mGlobal const Def&	SI();
+mGlobal const Def&	Depth();
+mGlobal const Def&	Time();
 
-mGlobal(Basic) bool		isSI(const IOPar&);
-mGlobal(Basic) bool		isDepth(const IOPar&);
-mGlobal(Basic) bool		isTime(const IOPar&);
-mGlobal(Basic) void		setSI(IOPar&);
-mGlobal(Basic) void		setDepth(IOPar&);
-mGlobal(Basic) void		setTime(IOPar&);
+mGlobal bool		isSI(const IOPar&);
+mGlobal bool		isDepth(const IOPar&);
+mGlobal bool		isTime(const IOPar&);
+mGlobal void		setSI(IOPar&);
+mGlobal void		setDepth(IOPar&);
+mGlobal void		setTime(IOPar&);
 
 
-/*!
-\brief Definition of z-domain.
-*/
-
-mExpClass(Basic) Def
+mClass Def
 {
 public:
 
@@ -78,11 +73,7 @@ protected:
 };
 
 
-/*!
-\brief Information of z-domain.
-*/
-
-mExpClass(Basic) Info
+mClass Info
 {
 public:
     			Info(const Def&);
@@ -108,11 +99,10 @@ public:
 
 };
 
-mGlobal(Basic) const char*	sKey();
-mGlobal(Basic) const char*	sKeyTime();
-mGlobal(Basic) const char*	sKeyDepth();
+mGlobal const char*	sKey();
+mGlobal const char*	sKeyTime();
+mGlobal const char*	sKeyDepth();
 
 } // namespace ZDomain
 
 #endif
-

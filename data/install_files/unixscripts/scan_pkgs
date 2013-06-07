@@ -1,9 +1,4 @@
 #!/bin/csh -f
-# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
-# Description:  Script to scan zip files
-# Author:       Nageswara
-# Date:         April 2013
-# RCS:          $Id: $
 
 if ( $#argv != 3 ) then
     echo "Usage $0 <directory to scan zip file(s)> <instdir like 4.4.0 or 4.5.0> <all/single zipfile name>"

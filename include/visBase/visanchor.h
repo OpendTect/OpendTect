@@ -12,19 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdatagroup.h"
 
 class SbString;
 class SoWWWAnchor;
 
-/*!\brief Visualisation - Open Inventor based tools.*/
-
 namespace visBase
 {
 
 
-mExpClass(visBase) Anchor : public DataObjectGroup
+mClass Anchor : public DataObjectGroup
 {
 public:
     static Anchor*	create()
@@ -45,4 +42,3 @@ protected:
 }; //namespace
 
 #endif
-

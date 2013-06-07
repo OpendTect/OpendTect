@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "parametriccurve.h"
 #include "sets.h"
 
 namespace Geometry
 {
 
-mExpClass(Geometry) CubicBezierCurve : public ParametricCurve
+mClass CubicBezierCurve : public ParametricCurve
 {
 public:
 			CubicBezierCurve( const Coord3&, const Coord3&,
@@ -55,7 +54,7 @@ public:
 
 protected:
     int		getIndex( GeomPosID param ) const
-    		{ return mCast(int,(param-firstparam)/paramstep); }
+    		{ return (param-firstparam)/paramstep; }
 
     Coord3	computeTangent( GeomPosID ) const;
 
@@ -112,4 +111,3 @@ inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
 };
 
 #endif
-

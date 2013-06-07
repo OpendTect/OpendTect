@@ -12,19 +12,16 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "task.h"
 #include "thread.h"
 #include "ranges.h"
 #include "position.h"
 
 
-/*!
-\brief Base class that does the majority of the work finding bendpoints.
-Adaptions to different data-types are done in subclasses.
-*/
+/*!Base class that does the majority of the work finding bendpoints. Adaptions 
+   to different data-types are done in subclasses. */
 
-mExpClass(Algo) BendPointFinderBase : public ParallelTask
+mClass BendPointFinderBase : public ParallelTask
 {
 public:
 
@@ -56,11 +53,7 @@ protected:
 };
 
 
-/*!
-\brief Used to find bendpoints in two dimensional datasets.
-*/
-
-mExpClass(Algo) BendPointFinder2D : public BendPointFinderBase
+mClass BendPointFinder2D : public BendPointFinderBase
 {
 public:
     		BendPointFinder2D(const TypeSet<Coord>&, float eps);
@@ -72,11 +65,7 @@ protected:
 };
 
 
-/*!
-\brief Used to find bendpoints in three dimensional datasets.
-*/
-
-mExpClass(Algo) BendPointFinder3D : public BendPointFinderBase
+mClass BendPointFinder3D : public BendPointFinderBase
 {
 public:
     		BendPointFinder3D(const TypeSet<Coord3>&,
@@ -88,4 +77,3 @@ protected:
     const Coord3	scale_;
 };
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "seisinfo.h"
 #include "executor.h"
 class SeisTrc;
@@ -27,7 +26,7 @@ By default, the traces are not managed, but can be destroyed with deepErase().
 buffer in which the traces are somehow related.
 */
 
-mExpClass(Seis) SeisTrcBuf
+mClass SeisTrcBuf
 {
 public:
 
@@ -36,39 +35,42 @@ public:
 			SeisTrcBuf( const SeisTrcBuf& b )
 			    	: owner_(b.owner_) { b.copyInto( *this ); }
     virtual		~SeisTrcBuf()		{ if ( owner_ ) deepErase(); }
-    inline void		setIsOwner( bool yn )	{ owner_ = yn; }
-    inline bool		isOwner() const		{ return owner_; }
+    void		setIsOwner( bool yn )	{ owner_ = yn; }
+    bool		isOwner() const		{ return owner_; }
 
     void		copyInto(SeisTrcBuf&) const;
     void		stealTracesFrom(SeisTrcBuf&);
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase();
-    inline void		erase()
-    			{ if ( owner_ ) deepErase(); else trcs_.erase(); }
+    void		erase()
+    			{
+			    if ( owner_ ) deepErase();
+			    else trcs.erase();
+			}
 
-    inline int		size() const		{ return trcs_.size(); }
-    inline bool		isEmpty() const		{ return trcs_.isEmpty(); }
+    inline int		size() const		{ return trcs.size(); }
+    inline bool		isEmpty() const		{ return trcs.isEmpty(); }
     void		insert(SeisTrc*,int atidx=0);
     inline SeisTrc*	replace( int idx, SeisTrc* t )
-    						{ return trcs_.replace(idx,t); }
-    inline void		add( SeisTrc* t )	{ trcs_ += t; }
+						{ return trcs.replace(idx,t); }
+    void		add( SeisTrc* t )	{ trcs += t; }
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;
-    inline SeisTrc*	get( int idx )		{ return trcs_[idx]; }
-    inline const SeisTrc* get( int idx ) const	{ return trcs_[idx]; }
-    inline void		remove( SeisTrc* t )	{ if ( t ) trcs_ -= t;  }
-    inline SeisTrc*	remove( int idx )
-			{ SeisTrc* t = trcs_[idx]; if (t) trcs_-=t; return t;}
+    SeisTrc*		get( int idx )		{ return trcs[idx]; }
+    const SeisTrc*	get( int idx ) const	{ return trcs[idx]; }
+    void		remove( SeisTrc* t )	{ if ( t ) trcs -= t;  }
+    SeisTrc*		remove( int idx )
+			{ SeisTrc* t = trcs[idx]; if ( t ) trcs -= t; return t;}
 
     SeisTrc*		first()		{ return isEmpty()?0:get(0); }
     const SeisTrc*	first() const	{ return isEmpty()?0:get(0); }
     SeisTrc*		last()		{ return isEmpty()?0:get(size()-1); }
     const SeisTrc*	last() const	{ return isEmpty()?0:get(size()-1); }
 
-    void		revert(); // last becomes first
+    void		revert();
     void		fill(SeisPacketInfo&) const;
 
     bool		isSorted(bool ascending,SeisTrcInfo::Fld) const;
@@ -86,7 +88,7 @@ public:
 
 protected:
 
-    ObjectSet<SeisTrc>	trcs_;
+    ObjectSet<SeisTrc>	trcs;
     bool		owner_;
 
     int			probableIdx(const BinID&,bool is2d) const;
@@ -94,7 +96,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisBufReader : public Executor
+mClass SeisBufReader : public Executor
 {
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
@@ -116,4 +118,3 @@ protected:
 
 
 #endif
-

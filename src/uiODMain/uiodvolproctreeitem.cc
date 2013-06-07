@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodvolproctreeitem.h"
 
@@ -39,7 +39,7 @@ uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     , editmenuitem_( "Edit", true )
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
-    reloadmenuitem_.iconfnm = "refresh";
+    reloadmenuitem_.iconfnm = "refresh.png";
 }
 
 
@@ -47,9 +47,9 @@ uiDataTreeItem::~uiDataTreeItem()
 {}
 
 
-bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiDataTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uitreeviewitem_ )
+    if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
     
     if ( !select() ) return false;
@@ -77,14 +77,14 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 #define mCreateMenu( func ) \
     mDynamicCastGet(MenuHandler*,menu,cb); \
 
-void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istb )
+void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istoolbar)
 {
-    uiODDataTreeItem::createMenu( menu, istb );
+    uiODDataTreeItem::createMenu( menu, istoolbar );
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    mAddMenuOrTBItem( istb, 0, menu, &selmenuitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &reloadmenuitem_, ioobj, false );
-    mAddMenuOrTBItem( istb, 0, menu, &editmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istoolbar, menu, &selmenuitem_, true, false );
+    mAddMenuOrTBItem( istoolbar, menu, &reloadmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istoolbar, menu, &editmenuitem_, ioobj, false );
 }
 
 

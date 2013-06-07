@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "velocitymod.h"
 #include "cubesampling.h"
 #include "task.h"
 #include "thread.h"
@@ -31,7 +30,7 @@ namespace Vel
 /*!Reads in a volume with eather Vrms or Vint, and writes out a volume
    with eather Vrms or Vint. */
 
-mExpClass(Velocity) VolumeConverter : public ParallelTask
+mClass VolumeConverter : public ParallelTask
 {
 public:
 			VolumeConverter( const IOObj& input,
@@ -73,4 +72,3 @@ protected:
 }; //namespace
 
 #endif
-

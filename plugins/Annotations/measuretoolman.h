@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id$
+ RCS:		$Id: measuretoolman.h,v 1.9 2011/12/15 22:54:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace visSurvey { class PickSetDisplay; }
 namespace Annotations
 {
 
-mClass(Annotations) MeasureToolMan : public CallBacker
+class MeasureToolMan : public CallBacker
 {
 public:
 			MeasureToolMan(uiODMain&);

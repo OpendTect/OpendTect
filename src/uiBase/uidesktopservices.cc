@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidesktopservices.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QDesktopServices>
 #include <QUrl>
 
-mUseQtnamespace
 
 bool uiDesktopServices::openUrl( const char* url )
 {
@@ -42,7 +41,7 @@ bool uiDesktopServices::openUrl( const char* url )
     if ( DBG::isOn(DBG_IO) )
     {
 	BufferString msg( "Open url: " );
-	msg += qurl.toString().toLatin1().data();
+	msg += qurl.toString().toAscii().data();
 	DBG::message( msg );
     }
     return QDesktopServices::openUrl( qurl );

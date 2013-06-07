@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "filesystemwatcher.h"
 #include "qfilesystemcomm.h"
 #include "bufstringset.h"
 
-mUseQtnamespace
 
 FileSystemWatcher::FileSystemWatcher()
     : directoryChanged(this)

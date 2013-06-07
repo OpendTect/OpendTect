@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "transl.h"
 #include "bufstring.h"
 #include "seispsread.h"
@@ -48,7 +47,7 @@ class IOObj;
 
  */
 
-mExpClass(Seis) SeisPSIOProvider
+mClass SeisPSIOProvider
 {
 public:
 
@@ -63,7 +62,7 @@ public:
     virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
 				{ return 0; }
 
-    FixedString			type() const		{ return type_.buf(); }
+    const char*			type() const		{ return type_.buf(); }
     virtual bool		getLineNames(const char*,BufferStringSet&) const
     				{ return false; }
 
@@ -80,7 +79,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisPSIOProviderFactory
+mClass SeisPSIOProviderFactory
 {
 public:
 
@@ -107,27 +106,27 @@ protected:
 
 };
 
-mGlobal(Seis) SeisPSIOProviderFactory& SPSIOPF();
+mGlobal SeisPSIOProviderFactory& SPSIOPF();
 
 
 //------
 //! Translator mechanism is only used for selection etc.
 
-mExpClass(Seis) SeisPS3DTranslatorGroup : public TranslatorGroup
+mClass SeisPS3DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS3D)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS3D)
 };
 
 
-mExpClass(Seis) SeisPS3DTranslator : public Translator
+mClass SeisPS3DTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 };
 
 
-mExpClass(Seis) CBVSSeisPS3DTranslator : public SeisPS3DTranslator
+mClass CBVSSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(CBVS,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
@@ -136,21 +135,21 @@ public:
 };
 
 
-mExpClass(Seis) SeisPS2DTranslatorGroup : public TranslatorGroup
+mClass SeisPS2DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS2D)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS2D)
 };
 
 
-mExpClass(Seis) SeisPS2DTranslator : public Translator
+mClass SeisPS2DTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
 };
 
 
-mExpClass(Seis) CBVSSeisPS2DTranslator : public SeisPS2DTranslator
+mClass CBVSSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(CBVS,SeisPS2D)
 public:
     			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)
@@ -160,4 +159,3 @@ public:
 
 
 #endif
-

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class uiIOObjSel;
@@ -25,7 +24,7 @@ namespace PreStack
 {
 
 
-mExpClass(uiPreStackProcessing) uiEventExport : public uiDialog
+mClass uiEventExport : public uiDialog
 {
 public:
     			uiEventExport(uiParent*, const MultiID*);
@@ -42,4 +41,3 @@ protected:
 }; //namespace
 
 #endif
-

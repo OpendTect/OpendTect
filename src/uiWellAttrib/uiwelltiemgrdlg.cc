@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelltiemgrdlg.h"
 
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
-#include "seistrctr.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -49,8 +49,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelltiecheckshotedit.h"
 
 
+static const char* sKeyPlsSel = "Please select";
+
 namespace WellTie
 {
+
+HiddenParam<uiTieWinMGRDlg,int> setupwasusedmanager( 0 );
+
+
+int uiTieWinMGRDlg::getSetupWasUsed() const
+{
+    return setupwasusedmanager.getParam( this );
+}
+
+
+void uiTieWinMGRDlg::setSetupWasUsed( int setupwasused )
+{
+    setupwasusedmanager.setParam( this, setupwasused );
+}
+
 
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
@@ -71,6 +88,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, typefld_(0)
 	, extractwvltdlg_(0)
 	, wd_(0)
+	, replacevel_(2000)
 {
     setCtrlStyle( DoAndStay );
 
@@ -197,8 +215,8 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     Well::Reader wr( nm, *wd_ );
     wr.get();
 
-    logsfld_->wellid_ = wllctio_.ioobj->key();
-    if ( !logsfld_->setLogs(wd_->logs()) )
+    logsfld_->setWellIDMain( wllctio_.ioobj->key() );
+    if ( !logsfld_->setLogsBool(wd_->logs()) )
     {
 	BufferString errmsg = "This well has no valid log to use as input";
 	errmsg += "\n";
@@ -380,6 +398,63 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 }
 
 
+// will be removed
+bool uiTieWinMGRDlg::getDefaults()
+{
+    PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
+    if ( !ioobj ) return false;
+    const BufferString fname( ioobj->fullUserExpr(true) );
+    wd_ = Well::MGR().get( wtsetup_.wellid_, false );
+    if ( !wd_ ) return false;
+    WellTie::Reader wtr( fname );
+    wtr.getWellTieSetup( wtsetup_ );
+    logsfld_->setWellIDMain(wtsetup_.wellid_);
+
+    WellTie::UnitFactors units;
+
+    if ( !wtsetup_.denlognm_.isEmpty() )
+    {
+	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
+	const PropertyRef::StdType tp = PropertyRef::Den;
+	bool reverted = false;
+	if ( !den ) mErrRet( "No valid density log selected" );
+	const BufferString denuomlbl = den->unitMeasLabel();
+	const UnitOfMeasure* denuom = !units.getDenFactor(*den)
+	    			    ? UoMR().getInternalFor(tp)
+				    : UnitOfMeasure::getGuessed(denuomlbl);
+
+	logsfld_->setLog( tp, wtsetup_.denlognm_, reverted, denuom, 0 );
+    }
+
+    if ( !wtsetup_.vellognm_.isEmpty() )
+    {
+	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
+	const PropertyRef::StdType tp = PropertyRef::Vel;
+	if ( !vp ) mErrRet( "No valid velocity log selected" );
+	const BufferString velpuomlbl = vp->unitMeasLabel();
+	const UnitOfMeasure* velpuom = !units.getVelFactor( *vp,
+		    					    wtsetup_.issonic_)
+	    			     ? UoMR().getInternalFor(tp)
+				     : UnitOfMeasure::getGuessed(velpuomlbl);
+
+	logsfld_->setLog( tp, wtsetup_.vellognm_, wtsetup_.issonic_, velpuom,1);
+    }
+
+    if ( !wtsetup_.wvltid_.isEmpty() )
+	wvltfld_->setInput( wtsetup_.wvltid_ );
+
+    setSetupWasUsed(0);
+    mDynamicCastGet( uiSeisSel*, seisfld, is2d_ ? seis2dfld_ : seis3dfld_ );
+    if ( seisfld )
+	seisfld->setEmpty();
+
+    seisSelChg(0);
+    d2TSelChg(0);
+
+    return true;
+}
+
+
 void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 				      const WellTie::Setup& wts ) const
 {
@@ -437,9 +512,8 @@ bool uiTieWinMGRDlg::initSetup()
 
     if ( !logsfld_->isOK() )
 	mErrRet( "Cannot select appropriate logs" )
-
-    uiPropSelFromList* psflden = logsfld_->
-				 getPropSelFromListByIndex( mDensityIdx );
+	
+    uiPropSelFromList* psflden = logsfld_->getPropSelFromListByName("Density");
     if ( !psflden )
 	mErrRet( "Cannot find the density in the log selection list" )
 
@@ -453,8 +527,7 @@ bool uiTieWinMGRDlg::initSetup()
     den->setUnitMeasLabel( psflden->uom()->symbol() );
     wtsetup_.denlognm_ = psflden->text();
 
-    uiPropSelFromList* psflvp = logsfld_->
-				getPropSelFromListByIndex( mPwaveIdx );
+    uiPropSelFromList* psflvp = logsfld_->getPropSelFromListByName("Velocity");
     if ( !psflvp )
 	mErrRet( "Cannot find the Pwave in the log selection list" )
 
@@ -530,7 +603,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     {
 	if ( welltiedlgset_[idx] == win )
 	{
-	    welltiedlgset_.removeSingle(idx);
+	    welltiedlgset_.remove(idx);
 	    WellTie::Writer wtr( 
 		    	Well::IO::getMainFileName( win->Setup().wellid_) );
 	    IOPar par; win->fillPar( par );
@@ -539,16 +612,13 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     }
 }
 
-#define mGetPar(key) \
-    defpars->find(SeisTrcTranslatorGroup::key())
 
 void uiTieWinMGRDlg::set3DSeis() const
 {
     if ( !seis3dfld_->isEmpty() )
 	return;
 
-    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
-    const FixedString seisidstr = defpars ? mGetPar( sKeyDefault3D ) : 0;
+    const FixedString seisidstr = SI().pars().find( sKey::DefCube );
     const MultiID defaultid = seisidstr;
     seis3dfld_->setInput( defaultid );
 }
@@ -556,8 +626,7 @@ void uiTieWinMGRDlg::set3DSeis() const
 
 void uiTieWinMGRDlg::set2DSeis() const
 {
-    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
-    const FixedString lsid = defpars ? mGetPar( sKeyDefault2D ) : 0;
+    const FixedString lsid = SI().pars().find( sKey::DefLineSet );
     const LineKey curlk( seis2dfld_->getKey() );
     const MultiID curid = curlk.lineName().buf();
     const MultiID outid = seis2dfld_->isEmpty() ? lsid : curlk.lineName().buf();
@@ -567,7 +636,7 @@ void uiTieWinMGRDlg::set2DSeis() const
     if ( !lsobj )
 	return;
 
-    BufferString attrnm = mGetPar( sKeyDefaultAttrib );
+    BufferString attrnm = SI().pars().find( sKey::DefAttribute ).str();
     if ( lsobj && attrnm.isEmpty() )
     {
 	SeisIOObjInfo seisinfo( lsobj );
@@ -607,3 +676,4 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 }
 
 }; //namespace
+

@@ -12,38 +12,36 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uigeom.h"
 
-mFDQtclass(QMouseEvent)
-mFDQtclass(QRubberBand)
-mFDQtclass(QWidget)
+class QMouseEvent;
+class QRubberBand;
+class QWidget;
 
-mExpClass(uiBase) uiRubberBand
+mClass uiRubberBand
 {
 public:
-    			uiRubberBand(mQtclass(QWidget*) p)
+    			uiRubberBand(QWidget* p)
 			    : parent_(p)
 			    , qrubberband_(0)	{}
 			~uiRubberBand();
 
-    void		start(mQtclass(QMouseEvent*));
-    void		extend(mQtclass(QMouseEvent*));
-    void		stop(mQtclass(QMouseEvent*));
+    void		start(QMouseEvent*);
+    void		extend(QMouseEvent*);
+    void		stop(QMouseEvent*);
 
     uiPoint		origin() const		{ return origin_; }
     uiRect		area() const		{ return area_; }
 
 protected:
 
-    mQtclass(QRubberBand*)	qrubberband_;
-    mQtclass(QWidget*)		parent_;
+    QRubberBand*	qrubberband_;
+    QWidget*		parent_;
 
     uiPoint		origin_;
     uiRect		area_;
 
-    void		handleEv(mQtclass(QMouseEvent*),bool);
+    void		handleEv(QMouseEvent*,bool);
 };
 
 #endif
-

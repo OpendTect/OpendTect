@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodmenumgr.h"
 #include "uitoolbutton.h"
@@ -172,7 +172,7 @@ void uiODMenuMgr::enableActButton( bool yn )
 { \
     while ( !set.isEmpty() ) \
     { \
-	uiPopupMenu* pmnu = set.removeSingle(0); \
+	uiPopupMenu* pmnu = set.remove(0); \
 	if ( pmnu ) delete pmnu; \
     } \
 }
@@ -264,7 +264,6 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
     mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
     mInsertItem( imphorasc, "&Geometry 2D ...", mImpHor2DAsciiMnuItm );
-    mInsertItem( imphorasc, "&Bulk 3D ...", mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
     mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
@@ -278,12 +277,6 @@ void uiODMenuMgr::fillImportMenu()
     impwell->insertItem( impwellasc );
     mInsertItem( impwell, "&VSP (SEG-Y) ...", mImpWellSEGYVSPMnuItm );
     mInsertItem( impwell, "Simple &Multi-Well ...", mImpWellSimpleMnuItm );
-
-    uiPopupMenu* impwellbulk = new uiPopupMenu( &appl_, "&Bulk" );
-    mInsertItem( impwellbulk, "Track ... ", mImpBulkWellTrackItm );
-    mInsertItem( impwellbulk, "Logs ...", mImpBulkWellLogsItm );
-    mInsertItem( impwellbulk, "Markers ...", mImpBulkWellMarkersItm );
-    impwell->insertItem( impwellbulk );
 
     impmnus_.erase();
     impmnus_.allowNull();
@@ -450,7 +443,6 @@ void uiODMenuMgr::fillProcMenu()
     mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
     csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
-    mInsertItem( csoitm, "&Settings ...", mProcSettingsItm );
 
     procmnu_->insertItem( csoitm );
 
@@ -460,6 +452,9 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( grditm );
 
 }
+
+
+static const char* layermodelingmnunm = "&Layer Modeling";
 
 
 void uiODMenuMgr::fillAnalMenu()
@@ -492,25 +487,31 @@ void uiODMenuMgr::fillAnalMenu()
     uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", "xplot");
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
-    mInsertItem( crsplot, "&Open Cross-plot ...", mOpenXplotMnuItm );
+    mInsertItem( crsplot, "&Open Crossplot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( crsplot );
 
-    analwellmnu_ = new uiPopupMenu( &appl_, "&Wells", "well" );
-    analwellmnu_->insertItem( new uiMenuItem( "&Edit logs ...", 
-	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
+    uiPopupMenu* wellmnu = new uiPopupMenu( &appl_, "&Wells", "well" );
+    wellmnu->insertItem( new uiMenuItem( "&Edit logs ...", 
+	    mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...", 
-	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
-    analwellmnu_->insertItem( new uiMenuItem( "&Rock Physics ...",
-		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
-    analmnu_->insertItem( analwellmnu_ );
+	wellmnu->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
+	    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
+    analmnu_->insertItem( wellmnu );
 
-    layermodelmnu_ = new uiPopupMenu( 
-	    		&appl_, "&Layer Modeling", "stratlayermodeling" ); 
-    layermodelmnu_->insertItem( new uiMenuItem( "&Basic ...", 
-	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
-    analmnu_->insertItem( layermodelmnu_ );
+    uiPopupMenu* layermodelmnu = new uiPopupMenu(
+		    &appl_, layermodelingmnunm, "stratlayermodeling" );
+    layermodelmnu->insertItem( new uiMenuItem( "&Basic ...",
+		    mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
+    analmnu_->insertItem( layermodelmnu );
 }
+
+
+uiPopupMenu* uiODMenuMgr::layerModelMnu()
+{
+    mDynamicCastGet( uiPopupItem*, itm, analmnu_->find( layermodelingmnunm ) );
+    return itm ? &itm->menu() : analmnu_;
+}
+
 
 
 void uiODMenuMgr::fillSceneMenu()
@@ -644,7 +645,7 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
-extern Export_Basic const char* logMsgFileName();
+mBasicExtern const char* logMsgFileName();
 
 void uiODMenuMgr::fillUtilMenu()
 {
@@ -667,7 +668,8 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( toolsmnu_, "&Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
 
-    FilePath installerdir( ODInst::GetInstallerDir() );
+    FilePath installerdir( GetSoftwareDir(0) );
+    installerdir.setFileName( "Installer" );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller && !__ismac__ )
     {
@@ -736,12 +738,10 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		"Volume Builder",false,doVolProcCB);
     }
-    mAddTB(dtecttb_,"xplot_wells","Cross-plot Attribute vs Well data",
+    mAddTB(dtecttb_,"xplot_wells","Crossplot Attribute vs Well data",
 	   false,doWellXPlot);
-    mAddTB(dtecttb_,"xplot_attribs","Cross-plot Attribute vs Attribute data",
+    mAddTB(dtecttb_,"xplot_attribs","Crossplot Attribute vs Attribute data",
 	   false,doAttribXPlot);
-
-    mAddTB(dtecttb_,"rockphys","Rock Physics",false,launchRockPhysics);
 
     dTectTBChanged.trigger();
 }
@@ -994,7 +994,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpHorAsciiMnuItm:		mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
-    case mImpBulkHorAsciiMnuIm:		mDoOp(Imp,Hor,3); break;
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
@@ -1004,9 +1003,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
     case mImpWellSEGYVSPMnuItm:		mDoOp(Imp,Wll,3); break;
     case mImpWellSimpleMnuItm:		mDoOp(Imp,Wll,4); break;
-    case mImpBulkWellTrackItm:		mDoOp(Imp,Wll,5); break;
-    case mImpBulkWellLogsItm:		mDoOp(Imp,Wll,6); break;
-    case mImpBulkWellMarkersItm:	mDoOp(Imp,Wll,7); break;
     case mImpPickAsciiMnuItm:		mDoOp(Imp,Pick,0); break;
     case mExpPickAsciiMnuItm:		mDoOp(Exp,Pick,0); break;
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
@@ -1057,7 +1053,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
     case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
-    case mProcSettingsItm:	applMgr().setProcSettings(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;

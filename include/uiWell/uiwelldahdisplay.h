@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
@@ -31,11 +30,13 @@ class uiPolygonItem;
 class uiGraphicsScene;
 class UnitOfMeasure;
 
+
+
 #define mDefZPos(zpos)\
 if ( zdata_.zistime_ && zdata_.d2T() )\
-    zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
+    zpos = d2T()->getTime( zpos, *track() )*SI().zFactor();\
 else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0;
+    zpos = track() ? zdata_.track()->getPos( zpos ).z : 0;
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
@@ -43,14 +44,10 @@ else if ( !zdata_.zistime_ && track() )\
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
-/*!
-\brief Well depth/distance along hole display.
-*/
-
-mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
+mClass uiWellDahDisplay : public uiGraphicsView
 {
 public:	
-    mStruct(uiWell) Setup
+    mStruct Setup
     {
 			    Setup()
 			    : nrmarkerchars_(2)
@@ -61,8 +58,8 @@ public:
 			    , annotinside_(false)
 			    , samexaxisrange_(false)
 			    , symetricalxaxis_(false) 
-			    , drawcurvenames_(false)
-			    , xannotinpercents_(false)			   
+			    , drawcurvenames_(false) 
+			    , xannotinpercents_(false)    
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -81,9 +78,9 @@ public:
 				    uiWellDahDisplay(uiParent*,const Setup&);
 				    ~uiWellDahDisplay();
 
-    mStruct(uiWell) DahObjData : public CallBacker
+    mStruct DahObjData
     {
-	virtual			~DahObjData() { delete xaxprcts_; }
+	virtual			~DahObjData() { delete  xaxprcts_; }
 
 	//Set these	
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
@@ -92,16 +89,14 @@ public:
 	float			cliprate_;
 	Color			col_;
 	bool			drawascurve_;
-	int		 	curvesz_;	
 	bool			drawaspoints_;
-	int		 	pointsz_;	
 
 	//Get these
 	Interval<float>         zrg_;
 	Interval<float>         valrg_;
 	uiAxisHandler           xax_;
-	uiAxisHandler*          xaxprcts_;
 	uiAxisHandler           yax_;
+	uiAxisHandler*          xaxprcts_;
 
 	virtual void		getInfoForDah(float dah,BufferString&) const;
 	void			plotAxis();
@@ -117,7 +112,7 @@ public:
 	friend class            uiWellDahDisplay;
     };
 
-    mStruct(uiWell) Data
+    mStruct Data
     {
 				    Data()
 				    : zrg_(mUdf(float),mUdf(float))
@@ -143,7 +138,7 @@ public:
 	const Well::Data*	wd_;
     };
 
-    mStruct(uiWell) PickData
+    mStruct PickData
     {
 				PickData( float dah, Color c=Color::NoColor() )
 				    : dah_(dah), color_(c), val_(mUdf(float)) {}
@@ -181,7 +176,7 @@ protected:
     TypeSet<PickData>           zpicks_;
     uiGraphicsItemSet       	zpickitms_;
 
-    mStruct(uiWell) MarkerDraw
+    mStruct MarkerDraw
     {
 			    MarkerDraw( const Well::Marker& mrk )
 				: mrk_(mrk)
@@ -221,4 +216,3 @@ protected:
 
 
 #endif
-

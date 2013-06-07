@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uitaskrunner.h"
 
@@ -104,6 +104,8 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
+    const int totalnr = task_->totalNr();
+
     tim_.start( 100, true );
 
     Threads::MutexLocker lock( uitaskrunnerthreadmutex_ );
@@ -113,6 +115,7 @@ void uiTaskRunner::onFinalise( CallBacker* )
 
 void uiTaskRunner::doWork( CallBacker* )
 {
+    task_->enableNrDoneCounting( true );
     task_->enableWorkControl( true );
     bool res = task_->execute();
 
@@ -129,8 +132,8 @@ void uiTaskRunner::updateFields()
     uiStatusBar& sb = *statusBar();
 
     dispinfomutex_.lock();
-    const int totalnr = mCast( int, task_->totalNr() );
-    const int nrdone = mCast( int, task_->nrDone() );
+    const int totalnr = task_->totalNr();
+    const int nrdone = task_->nrDone();
     const BufferString nrdonetext = task_->nrDoneText();
     const BufferString message = task_->message();
 
@@ -165,7 +168,7 @@ void uiTaskRunner::updateFields()
 	if ( nrdonechg )
 	    progbar_->setProgress( nrdone );
 
-	const float fpercentage = 100.f * ((float)nrdone) / totalnr;
+	const float fpercentage = 100. * ((float)nrdone) / totalnr;
 	int percentage = (int)fpercentage;
 	if ( percentage > 100 ) percentage = 100;
 	if ( percentage!=prevpercentage_ )

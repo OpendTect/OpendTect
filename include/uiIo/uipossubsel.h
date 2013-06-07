@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uigroup.h"
 namespace Pos { class Provider; }
 class CubeSampling;
@@ -30,13 +29,14 @@ class uiPosProvSel;
  */
 
 
-mExpClass(uiIo) uiPosSubSel : public uiGroup
+mClass uiPosSubSel : public uiGroup
 {
 public:
 
     struct Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon };
+	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, SeisTypeswithBody,
+       			  RangewithPolygon };
 			Setup( bool is_2d, bool with_z )
 			    : seltxt_( is_2d	? "Trace subselection"
 				   : ( with_z	? "Volume subselection"
@@ -85,4 +85,3 @@ protected:
 
 
 #endif
-

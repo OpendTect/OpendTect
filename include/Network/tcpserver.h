@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
 
@@ -24,7 +23,7 @@ class TcpSocket;
 class IOPar;
 
 
-mExpClass(Network) TcpServer : public CallBacker
+mClass TcpServer : public CallBacker
 {
 friend class QTcpServerComm;
 
@@ -67,4 +66,3 @@ protected:
 };
 
 #endif
-

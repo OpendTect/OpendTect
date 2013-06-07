@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiseissel.h"
 #include "veldesc.h"
 
@@ -21,7 +20,7 @@ class uiLabeledComboBox;
 
 /*!Group that allows the user to edit StaticsDesc information. */
 
-mExpClass(uiSeis) uiStaticsDesc : public uiGroup
+mClass uiStaticsDesc : public uiGroup
 {
 public:
 
@@ -43,4 +42,3 @@ protected:
 
 
 #endif
-

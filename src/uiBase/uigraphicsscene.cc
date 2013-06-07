@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uigraphicsscene.h"
 
 #include "draw.h"
-#include "threadwork.h"
-#include "uimain.h"
 #include "uigraphicsitemimpl.h"
 
 #include <QApplication>
@@ -40,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QX11Info>
 #endif
 
-mUseQtnamespace
+
 
 class ODGraphicsScene : public QGraphicsScene
 {
@@ -72,7 +70,6 @@ private:
 
 void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 {
-    uiscene_.executePendingUpdates();
     painter->setBackgroundMode( bgopaque_ ? Qt::OpaqueMode 
 	    				  : Qt::TransparentMode );
     QGraphicsScene::drawBackground( painter, rect );
@@ -140,6 +137,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 }
 
 
+
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
@@ -151,9 +149,6 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     odgraphicsscene_->setObjectName( nm );
     odgraphicsscene_->setBackgroundBrush( Qt::white );
     ctrlCPressed.notify( mCB(this,uiGraphicsScene,CtrlCPressedCB) );
-
-    queueid_ = Threads::WorkManager::twm().addQueue(
-	    Threads::WorkManager::Manual );
 }
 
 
@@ -161,7 +156,6 @@ uiGraphicsScene::~uiGraphicsScene()
 {
     removeAllItems();
     delete odgraphicsscene_;
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -171,77 +165,13 @@ int uiGraphicsScene::nrItems() const
 }
 
 
-uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsScene& scene,
-	uiGraphicsItem& itm, bool remove )
-    : scene_( &scene )
-    , group_( 0 )
-    , itm_( itm )
-    , remove_( remove )
-{}
-
-
-uiGraphicsSceneChanger::uiGraphicsSceneChanger( uiGraphicsItemGroup& group,
-	uiGraphicsItem& itm, bool remove )
-    : group_( &group )
-    , itm_( itm )
-    , scene_( 0 )
-    , remove_( remove )
-{}
-
-
-bool uiGraphicsSceneChanger::execute()
-{
-    if ( !isMainThreadCurrent() )
-    {
-	pErrMsg("Violating QT threading");
-	return false;
-    }
-
-    if ( remove_ )
-    {
-	if ( scene_ ) scene_->removeItem( &itm_ );
-	else group_->remove( &itm_, false );
-    }
-    else
-    {
-	if ( scene_ ) scene_->addItem( &itm_ );
-	else group_->add( &itm_ );
-    }
-
-    return true;
-}
-
-
-bool uiGraphicsScene::executePendingUpdates()
-{
-    return Threads::WorkManager::twm().executeQueue( queueid_ );
-}
-
-
-void uiGraphicsScene::addUpdateToQueue( Task* t )
-{
-    Threads::WorkManager::twm().addWork( 
-	Threads::Work( *t, true ), 0, queueid_, false );
-
-    odgraphicsscene_->update();
-}
-
-
 uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 {
     if ( !itm ) return 0;
 
-    if ( !isMainThreadCurrent() )
-    {
-	addUpdateToQueue( new uiGraphicsSceneChanger(*this,*itm,false) );
-    }
-    else
-    {
-	itm->setScene( this );
-	odgraphicsscene_->addItem( itm->qGraphicsItem() );
-	items_ += itm;
-    }
-
+    itm->setScene( this );
+    odgraphicsscene_->addItem( itm->qGraphicsItem() );
+    items_ += itm;
     return itm;
 }
 
@@ -259,7 +189,8 @@ uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 
 uiGraphicsItem* uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 {
-    if ( !items_.isPresent(itm) || !itm )
+    const int idx = items_.indexOf( itm );
+    if ( idx<0 || !itm )
 	return 0;
 
     odgraphicsscene_->removeItem( itm->qGraphicsItem() );
@@ -290,13 +221,19 @@ uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 					    bool fill )
 {
-    uiPolygonItem* uipolyitem = new uiPolygonItem;
-    uipolyitem->setPolygon( pts );
+    QVector<QPointF> qpts;
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	QPointF pt( QPoint(pts[idx].x,pts[idx].y) );
+	qpts += pt;
+    }
+
+    uiPolygonItem* uipolyitem = new uiPolygonItem(
+	odgraphicsscene_->addPolygon(QPolygonF(qpts)) );
     if ( fill )
 	uipolyitem->fill();
-
-    addItem( uipolyitem );
-    
+    uipolyitem->setScene( this );
+    items_ += uipolyitem;
     return uipolyitem;
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "";
+static const char* rcsID = "";
 
 
 #include "uidpsselectednessdlg.h"

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 
 #include "emposid.h"
@@ -21,7 +20,7 @@ class VW2DFaultSS3D;
 class uiODViewer2D;
 
 
-mExpClass(uiODMain) uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
 {
 public:
     				uiODVw2DFaultSSParentTreeItem();
@@ -39,7 +38,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSSTreeItemFactory : public uiODVw2DTreeItemFactory
+mClass uiODVw2DFaultSSTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
     const char*         name() const            { return typeid(*this).name(); }
@@ -49,7 +48,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSSTreeItem : public uiODVw2DTreeItem
+mClass uiODVw2DFaultSSTreeItem : public uiODVw2DTreeItem
 {
 public:
     			uiODVw2DFaultSSTreeItem(const EM::ObjectID&);
@@ -72,8 +71,8 @@ protected:
     void		emobjAbtToDelCB(CallBacker*);
     void		displayMiniCtab();
 
-    int			cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
+    const int		cPixmapWidth()				{ return 16; }
+    const int		cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID	emid_;
@@ -81,4 +80,3 @@ protected:
 };
 
 #endif
-

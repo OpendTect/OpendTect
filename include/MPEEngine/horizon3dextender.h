@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "position.h"
 
@@ -22,11 +21,7 @@ namespace EM { class Horizon3D; };
 namespace MPE
 {
 
-/*!
-\brief Sub class of SectionExtender. Use Horizon3DExtender instead.
-*/
-
-mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
+mClass BaseHorizon3DExtender : public SectionExtender
 {
 public:
     //static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
@@ -55,11 +50,7 @@ protected:
 };
 
 
-/*!
-\brief Used to extend EM::Horizon3D.
-*/
-
-mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
+mClass Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();
@@ -72,5 +63,4 @@ public:
 }; // namespace MPE
 
 #endif
-
 

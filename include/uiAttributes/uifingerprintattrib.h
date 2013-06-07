@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "position.h"
 #include "multiid.h"
@@ -37,7 +36,7 @@ class calcFingParsObject;
 
 /*! \brief FingerPrint Attribute description editor */
 
-mExpClass(uiAttributes) uiFingerPrintAttrib : public uiAttrDescEd
+mClass uiFingerPrintAttrib : public uiAttrDescEd
 {
 public:
 
@@ -93,4 +92,3 @@ protected:
 
 
 #endif
-

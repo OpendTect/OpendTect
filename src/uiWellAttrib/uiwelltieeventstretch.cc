@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiwelltieeventstretch.h"
 
@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
-#include "welltrack.h"
 
 namespace WellTie
 {
@@ -30,7 +29,6 @@ EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
 	, seispickset_(pmgr_.seisPickSet())
 	, d2tmgr_(d2tmgr)
 	, d2t_(0)
-	, track_(0)
 {} 
 
 
@@ -43,7 +41,7 @@ void EventStretch::doWork( CallBacker* )
 
 void EventStretch::doStretchWork()
 {
-    if ( !d2t_ && d2t_->size() < 2  && !track_ && track_->size() < 2 )
+    if ( !d2t_ && d2t_->size() < 2 ) 
 	return;
 
     if ( synthpickset_.size() == 1 && seispickset_.size() == 1 )
@@ -79,7 +77,7 @@ void EventStretch::doStretchSqueeze()
 	    {
 		time += mGapSize;
 		d2tarr += time;
-		daharr += d2t_->getDah( time, *track_ );
+		daharr += d2t_->getDah( time );
 	    }
 	}
     }
@@ -106,3 +104,4 @@ void EventStretch::doStretchSqueeze()
 }
 
 }; //namespace WellTie
+

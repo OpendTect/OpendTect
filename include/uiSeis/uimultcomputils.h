@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "bufstringset.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
@@ -24,7 +23,7 @@ class uiListBox;
 
 /*!\brief dialog to select (multiple) component(s) of stored data */
 
-mExpClass(uiSeis) uiMultCompDlg : public uiDialog
+mClass uiMultCompDlg : public uiDialog
 {
 public:
 			uiMultCompDlg(uiParent*,const BufferStringSet&);
@@ -40,7 +39,7 @@ protected:
 
 /*!\brief CompoundParSel to capture and sum up the user-selected components */
 
-mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
+mClass uiMultCompSel : public uiCompoundParSel
 {
     public:
 			uiMultCompSel(uiParent*);
@@ -56,7 +55,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     void                doDlg(CallBacker*);
     void		prepareDlg();
 
-    mExpClass(uiSeis) MCompDlg : public uiDialog
+    mClass MCompDlg : public uiDialog
     {
 	public:
 	    			MCompDlg(uiParent*,const BufferStringSet&);
@@ -72,4 +71,3 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 
 
 #endif
-

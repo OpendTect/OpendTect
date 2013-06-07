@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "prestackprocessingmod.h"
 #include "stattype.h"
 #include "enums.h"
 #include "ranges.h"
@@ -27,11 +26,9 @@ namespace PreStack
 
 class Gather;
 
-/*!
-\brief Calculates 'post-stack' properties of a PreStack data store.
-*/
+/*!\brief calculates 'post-stack' properties of a Pre-Stack data store */
 
-mExpClass(PreStackProcessing) PropCalc
+mClass PropCalc
 {
 public:
 
@@ -39,11 +36,10 @@ public:
     			DeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
     			DeclareEnumUtils(AxisType)
-    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, 
-		          CorrCoeff };
+    enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff, CorrCoeff };
     			DeclareEnumUtils(LSQType)
 
-    mExpClass(PreStackProcessing) Setup
+    mClass Setup
     {
     public:
 			Setup()
@@ -53,9 +49,8 @@ public:
 			    , offsaxis_(Norm)
 			    , valaxis_(Norm)
 			    , offsrg_(0,mUdf(float))
-			    , anglerg_(0,30)
-			    , useangle_(false)
-			    , aperture_(0)  {}
+			    , useazim_(false)
+			    , aperture_(0)	{}
 
 	mDefSetupMemb(CalcType,calctype)
 	mDefSetupMemb(Stats::Type,stattype)
@@ -63,8 +58,7 @@ public:
 	mDefSetupMemb(AxisType,offsaxis)
 	mDefSetupMemb(AxisType,valaxis)
 	mDefSetupMemb(Interval<float>,offsrg)
-	mDefSetupMemb(Interval<int>,anglerg)
-	mDefSetupMemb(bool,useangle)
+	mDefSetupMemb(bool,useazim)
 	mDefSetupMemb(int,aperture)
     };
 			PropCalc(const Setup&);
@@ -72,13 +66,8 @@ public:
 
     Setup&		setup()				{ return setup_; }
     const Setup&	setup() const			{ return setup_; }
-    const Gather*	getGather() const               { return gather_; }
 
     void		setGather(DataPack::ID);
-    void		setAngleData(DataPack::ID);
-			/*!< Only used if AngleA0 or AngleCoeff. If not set,
-			     offset values from traces will be assumed to 
-			     contain angles. */
     float		getVal(int sampnr) const;
     float		getVal(float z) const;
 
@@ -93,7 +82,6 @@ protected:
     Gather*		gather_;
     int*		innermutes_;
     int*		outermutes_;
-    Gather*		angledata_;
 
     Setup		setup_;
 };
@@ -102,4 +90,3 @@ protected:
 
 
 #endif
-

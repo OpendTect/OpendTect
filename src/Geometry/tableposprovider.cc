@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include <math.h>
 
-#define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
+#define mGetTableKey(k) IOPar::compKey(sKey::Table,k)
 
 
 Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
@@ -31,7 +31,7 @@ Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
 Pos::TableProvider3D::TableProvider3D( const char* fnm )
     : bvs_(1,true)
 {
-    IOPar iop; iop.set( mGetTableKey(sKey::FileName()), fnm );
+    IOPar iop; iop.set( mGetTableKey(sKey::FileName), fnm );
     usePar( iop );
 }
 
@@ -50,7 +50,7 @@ Pos::TableProvider3D& Pos::TableProvider3D::operator =(
 
 const char* Pos::TableProvider3D::type() const
 {
-    return sKey::Table();
+    return sKey::Table;
 }
 
 
@@ -90,7 +90,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		for ( int idx=0; idx<ps.size(); idx++ )
 		{
 		    const Pick::Location& pl = ps[idx];
-		    bvs.add( SI().transform(pl.pos_), mCast(float,pl.pos_.z) );
+		    bvs.add( SI().transform(pl.pos), pl.pos.z );
 		}
 	    }
 	}
@@ -98,7 +98,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 
     if ( bvs.isEmpty() )
     {
-	res = iop.find( mGetTableKey(sKey::FileName()) );
+	res = iop.find( mGetTableKey(sKey::FileName) );
 	if ( res && *res )
 	{
 	    StreamData sd( StreamProvider(res).makeIStream() );
@@ -111,7 +111,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    {
 		float zfac = -1;
 		if ( !SI().zIsTime() )
-		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactorF : -1;
+		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactor : -1;
 		else if ( bvs.nrVals() > 0 )
 		{
 		    const Interval<float> zrg( bvs.valRange(0) );
@@ -158,7 +158,7 @@ void Pos::TableProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::TableProvider3D::getSummary( BufferString& txt ) const
 {
-    const int sz = mCast( int, bvs_.totalSize() );
+    const int sz = bvs_.totalSize();
     if ( sz < 1 ) return;
     txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
     BinID start, stop;
@@ -215,5 +215,5 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 
 void Pos::TableProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Table() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Table );
 }

@@ -12,16 +12,11 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "odcomplex.h"
 
 class ElasticLayer;
 
-/*!
-\brief Zoeppritz Coefficients.
-*/
-
-mExpClass(Algo) ZoeppritzCoeff 
+mClass ZoeppritzCoeff 
 {
 public:
 			ZoeppritzCoeff();
@@ -31,8 +26,7 @@ public:
 					const ElasticLayer& el_layer1,
 					const ElasticLayer& el_layer2 );
 
-    float_complex       getCoeff(bool down_in,bool down_out,
-	    			 bool p_in,bool p_out) const;
+    float_complex       getCoeff(bool din,bool dout,bool pin,bool pout) const;
 
 protected:
 
@@ -59,8 +53,7 @@ protected:
 
 
 /*! Aki-Richard approx !*/
-mGlobal(Algo) float_complex getFastCoeff(float p, const ElasticLayer& el_layer1,
+mGlobal float_complex getFastCoeff(float p, const ElasticLayer& el_layer1,
 					    const ElasticLayer& el_layer2 );
 
 #endif
-

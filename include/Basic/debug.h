@@ -12,10 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "gendefs.h"  
  
-/*!\brief Defines a generic interface for supplying debug/runtime info.
+/*!\brief defines a generic interface for supplying debug/runtime info
 
     The isOn() is controlled by the environment variable DTECT_DEBUG.
     If DTECT_DEBUG starts with a "Y" or "y" then the mask is set to 0xffff.
@@ -37,27 +36,26 @@ ________________________________________________________________________
 # ifdef __cpp__
 namespace DBG
 {
-    mGlobal(Basic) bool isOn( int flag=0xffff ); 
+    mGlobal bool isOn( int flag=0xffff ); 
 
-    mGlobal(Basic) void message( const char* ); 		    // default: to stderr
-    mGlobal(Basic) void message( int flag, const char* msg ); 
+    mGlobal void message( const char* ); 		    // default: to stderr
+    mGlobal void message( int flag, const char* msg ); 
 // { if ( isOn(flag) ) message(msg); }
-    mGlobal(Basic) void putProgInfo(int,char**); 		    //!< one line; more if isOn()
-    mGlobal(Basic) void forceCrash(bool withdump); 
-    mGlobal(Basic) bool crashOnNaN(); 
+    mGlobal void putProgInfo(int,char**); 		    //!< one line; more if isOn()
+    mGlobal void forceCrash(bool withdump);
+    mGlobal bool hideNaNMessage();
 };
 
 extern "C" {
 # endif
 
-    mGlobal(Basic) int od_debug_isOn( int flag );
-    mGlobal(Basic) void od_debug_message( const char* msg );
-    mGlobal(Basic) void od_debug_messagef( int flag, const char* msg );
-    mGlobal(Basic) void od_debug_putProgInfo(int,char**);
-    mGlobal(Basic) void od_putProgInfo(int,char**);
+    mGlobal int od_debug_isOn( int flag );
+    mGlobal void od_debug_message( const char* msg );
+    mGlobal void od_debug_messagef( int flag, const char* msg );
+    mGlobal void od_debug_putProgInfo(int,char**);
+    mGlobal void od_putProgInfo(int,char**);
 
 # ifdef __cpp__
 }
 # endif
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "searchkey.h"
 
@@ -149,7 +149,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
 			    windowTitle( applwin, windowlist[idx], aliasnr );
 		if ( !alias )
 		{
-		    windowlist.removeSingle( idx );
+		    windowlist.remove( idx );
 		    break;
 		}
 		if ( isMatching(alias) )
@@ -161,7 +161,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
 	    }
 	}
 	else
-	    windowlist.removeSingle( idx );
+	    windowlist.remove( idx );
     }
 }
 

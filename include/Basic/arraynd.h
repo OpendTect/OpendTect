@@ -9,9 +9,16 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 
+An ArrayND is an array with a given number of dimensions and a size. The
+ArrayND can be accessed via set() and get().
+
+The ArrayND can give away a pointer to it's storage, but there is no
+guarantee that it will. If no pointer is given, the user can copy the
+ArrayND by constructing an ArrayNDImpl with the original array as an argument
+to the constructor.
+
 */
 
-#include "basicmod.h"
 #include "valseries.h"
 #include "arrayndinfo.h"
 #include "varlenarray.h"
@@ -23,26 +30,14 @@ ________________________________________________________________________
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
 #define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
 
-/*!
-\brief An ArrayND is an array with a given number of dimensions and a size.
-
-  The ArrayND can be accessed via set() and get().
-  
-  The ArrayND can give away a pointer to its storage, but there is no
-  guarantee that it will. If no pointer is given, the user can copy the
-  ArrayND by constructing an ArrayNDImpl with the original array as an argument
-  to the constructor.
-*/
-
 template <class T>
-mClass(Basic) ArrayND 
+class ArrayND 
 {
 public:
 
     virtual				~ArrayND()	{}
 
     virtual inline bool			isOK() const;
-    virtual inline bool			isEmpty() const;
 
     virtual T	                	getND(const int*) const	= 0;
     virtual bool			isSettable() const	{ return true; }
@@ -73,13 +68,13 @@ public:
     virtual bool			setInfo( const ArrayNDInfo& )
 					{ return false; }
 
-    virtual void			setAll(T);
-    virtual void			getAll(T* ptr) const;
+    void				setAll(const T&);
+    virtual void		getAll(T* ptr) const;
     					/*!<Fills ptr with values from array.
 					    ptr is assumed to be allocated
 					    with info().getTotalSz() number
 					    of values. */
-    virtual void			getAll(ValueSeries<T>& vs) const;
+    virtual void		getAll(ValueSeries<T>& vs) const;
     					/*!<Fills vs with values from array.
 					    ptr is assumed to be allocated
 					    with info().getTotalSz() number
@@ -99,13 +94,9 @@ protected:
 };
 
 
-/*!
-\brief Array1D ( Subclass of ArrayND ) is a one dimensional array.
-*/
-
 template <class T>
-mClass(Basic) Array1D : public ArrayND<T>
-		      , public ValueSeries<T>
+class Array1D : public ArrayND<T>
+	      , public ValueSeries<T>
 {
 public: 
 
@@ -115,10 +106,9 @@ public:
     T	                	getND(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
-    T				value(od_int64 i) const	{ return get( (int) i); }
+    T				value(od_int64 i) const	{ return get(i); }
     bool			writable() const	{ return true; }
-    void			setValue(od_int64 i,T t){ set( (int) i,t); }
-    virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
+    void			setValue(od_int64 i,T t){ set(i,t); }
 
     virtual const Array1DInfo&	info() const = 0;
 
@@ -128,12 +118,8 @@ public:
 };
 
 
-/*!
-\brief Array2D ( Subclass of ArrayND ) is a two dimensional array.
-*/
-
 template <class T>
-mClass(Basic) Array2D : public ArrayND<T>
+class Array2D : public ArrayND<T>
 {
 public: 
     virtual void		set( int, int, T ) 			= 0;
@@ -147,12 +133,7 @@ public:
 };
 
 
-/*!
-\brief Array3D ( Subclass of ArrayND ) is a three dimensional array.
-*/
-
-template <class T>
-mClass(Basic) Array3D : public ArrayND<T>
+template <class T> class Array3D : public ArrayND<T>
 {
 public: 
 
@@ -167,15 +148,14 @@ public:
 };
 
 
-/*!
-\brief Iterates through all samples in an ArrayND.
-  
-  ArrayNDIter will be on the first position when initiated, and move to
-  the second at the first call to next(). next() will return false when
-  no more positions are available.
+/*!\brief iterates through all samples in an ArrayND.
+
+   ArrayNDIter will be on the first position when initiated, and move to
+   the second at the fist call to next(). next() will return false when
+   no more positions are avaliable.
 */
 
-mExpClass(Basic) ArrayNDIter
+mClass ArrayNDIter
 {
 public:
 				ArrayNDIter( const ArrayNDInfo& );
@@ -200,14 +180,11 @@ protected:
 #define mArrayNDVSAdapterNrDim 20
 
 
-/*!
-\brief Adapter that makes any ArrayND to a (slow) value series.
-
-  Try using other methods (like getting the storage) as this is slow.
-*/
+/*! Adapter that makes any ArrayND to a (slow) value series. Try using 
+    other methods (like getting the storage) as this is slow. */
 
 template <class T>
-mClass(Basic) ArrayNDValseriesAdapter : public ValueSeries<T>
+mClass ArrayNDValseriesAdapter : public ValueSeries<T>
 {
 public:
 			ArrayNDValseriesAdapter( const ArrayND<T>& a )
@@ -257,6 +234,8 @@ template <class T> inline void ArrayNDIter::setPos( const T& idxable )
 }
 
 
+/*! Converter classes from one type to another. */
+
 #define mDefArrayNDConverter(nd) \
 template <class T, class TT> \
 class Array##nd##Conv : public Array##nd<T> \
@@ -274,7 +253,6 @@ protected: \
     Array##nd<TT>*	arr_; \
  \
 public:
-
 
 mDefArrayNDConverter(1D)
 
@@ -314,13 +292,6 @@ bool ArrayND<T>::isOK() const
 
 
 template <class T> inline
-bool ArrayND<T>::isEmpty() const
-{
-    return !isOK() || info().getTotalSz() == 0;
-}
-
-
-template <class T> inline
 const T* ArrayND<T>::get1D( const int* i ) const
 {
     const T* ptr = getData();
@@ -329,7 +300,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
     int ndim = info().getNDim();
 
     ArrPtrMan<int> pos = new int[ndim];
-    memcpy(pos,i, (int) sizeof(int)*(ndim-1));
+    memcpy(pos,i,sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
     
@@ -366,7 +337,7 @@ T* ArrayND<T>::get1D( const int* i )
 
 
 template <class T> inline
-void ArrayND<T>::setAll( T val )
+void ArrayND<T>::setAll( const T& val )
 {
     ValueSeries<T>* stor = getStorage();
     if ( stor )
@@ -389,12 +360,9 @@ void ArrayND<T>::setAll( T val )
     } while ( iterator.next() );
 }
 
-/*!
-\brief Gets a one dimensional array from an ArrayND.
-*/
 
 template <class T>
-mClass(Basic) ArrayNDGetAll : public ParallelTask
+mClass ArrayNDGetAll : public ParallelTask
 {
 public:
     		ArrayNDGetAll( T* ptr, const ArrayND<T>& arr )
@@ -514,4 +482,3 @@ void ArrayND<T>::getAll( T* ptr ) const
 
 
 #endif
-

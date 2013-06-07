@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uigroup.h"
 #include "uiattribfactory.h"
 #include "changetracker.h"
@@ -30,11 +29,9 @@ class uiSteerCubeSel;
 
 using namespace Attrib;
 
-/*!
-\brief Description of attribute parameters to evaluate.
-*/
+/*! \brief Description of attribute parameters to evaluate */
 
-mExpClass(uiAttributes) EvalParam
+mClass EvalParam
 {
 public:
     			EvalParam( const char* lbl, const char* par1=0,
@@ -57,11 +54,9 @@ public:
 };
 
 
-/*!
-\brief Attribute description editor creator.
-*/
+/*! \brief Attribute description editor creater */
 
-mExpClass(uiAttributes) uiAttrDescEdCreater
+mClass uiAttrDescEdCreater
 {
 public:
     virtual			~uiAttrDescEdCreater()		{}
@@ -70,15 +65,16 @@ public:
 };
 
 
-/*!
-\brief Attribute description editor.
- 
-  Required functions are declared in the macro mDeclReqAttribUIFns. Two of
-  those, attribName() and createInstance() are implemented by the mInitAttribUI
-  macro.
-*/
 
-mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
+/*! \brief Attribute description editor
+ 
+ Required functions are declared in the macro mDeclReqAttribUIFns. Two of
+ those, attribName() and createInstance() are implemented by the mInitAttribUI
+ macro.
+
+ */
+
+mClass uiAttrDescEd : public uiGroup
 {
 public:
 
@@ -232,4 +228,3 @@ const char* clss::attribName() const \
 	    	      uiAttrDescEd::AnyDim)
 
 #endif
-

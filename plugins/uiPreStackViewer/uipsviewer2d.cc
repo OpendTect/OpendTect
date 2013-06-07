@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uipsviewer2d.cc,v 1.10 2011/10/07 14:41:04 cvsbruno Exp $";
 
 #include "uipsviewer2d.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-uiGatherDisplay::uiGatherDisplay( uiParent* p  )
+uiGatherDisplay::uiGatherDisplay( uiParent* p, bool havehandpan )
     : uiGroup(p, "Pre-stack gather Display" )
     , bid_(-1,-1)
     , zrg_(0)
@@ -32,7 +32,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     , offsetrange_( mUdf(float), mUdf(float) )
     , displayannotation_(true)					      
 {
-    viewer_ = new uiFlatViewer( this );
+    viewer_ = new uiFlatViewer( this, havehandpan );
     viewer_->appearance().setGeoDefaults( true );
     viewer_->appearance().setDarkBG( false );
     viewer_->appearance().annot_.color_ = Color::Black();
@@ -77,10 +77,8 @@ void uiGatherDisplay::setGather( int id )
     if ( !dp ) dp = viewer_->pack( false );
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
-    offsetrange_.set( (float)pd.range(true).start,
-		      (float)pd.range(false).stop );
-    zdatarange_.set( (float)pd.range(false).start,
-		     (float)pd.range(false).stop );
+    offsetrange_.set( pd.range(true).start, pd.range(false).stop );
+    zdatarange_.set( pd.range(false).start, pd.range(false).stop );
 }
 
 
@@ -136,7 +134,7 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
     const uiWorldRect& newbbox = viewer_->boundingBox();
     updateViewRange( newbbox );
 
-    if ( viewer_->control() )
+    if (  viewer_->control() )
     {
 	Geom::Point2D<double> centre = newbbox.centre();
 	Geom::Size2D<double> newsz = newbbox.size();

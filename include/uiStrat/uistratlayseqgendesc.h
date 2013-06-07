@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratmod.h"
 #include "factory.h"
 class uiParent;
 class uiObject;
@@ -31,7 +30,7 @@ namespace Strat { class LayerSequenceGenDesc; class LayerModelProvider; }
  
  */
 
-mExpClass(uiStrat) uiLayerSequenceGenDesc
+mClass uiLayerSequenceGenDesc
 {
 public:
 
@@ -46,7 +45,6 @@ public:
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 				    Strat::LayerModelProvider&)	= 0;
 
-    virtual void	prepareDesc()			{}
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
@@ -72,4 +70,3 @@ public: \
 
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -19,8 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <Inventor/SoPath.h>
 #include <Inventor/SoDB.h>
-
-#include <osg/Node>
 
 namespace visBase
 {
@@ -130,15 +128,15 @@ int DataManager::usePar( const IOPar& par )
 		PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
 		if ( !iopar )
 		{
-		    lefttodo.removeSingle( idx );
+		    lefttodo.remove( idx );
 		    idx--;
 		    change = true;
 		    continue;
 		}
 
-		const char* type = iopar->find( sKey::Type() );
+		const char* type = iopar->find( sKey::Type );
 		RefMan<DataObject> obj = factory().create( type );
-		if ( !obj ) { lefttodo.removeSingle(idx); idx--; continue; }
+		if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
 		obj->setID( lefttodo[idx] );
 		const int res = obj->usePar( *iopar );
@@ -158,7 +156,7 @@ int DataManager::usePar( const IOPar& par )
 			    BufferString( toString( lefttodo[idx]), ": ", type);
 		    }
 		    warnings.add( errmsg );
-		    lefttodo.removeSingle(idx);
+		    lefttodo.remove(idx);
 		    idx--;
 		    continue;
 		}
@@ -169,7 +167,7 @@ int DataManager::usePar( const IOPar& par )
 		    createdobj += obj;
 		    obj->ref();
 
-		    lefttodo.removeSingle( idx );
+		    lefttodo.remove( idx );
 		    idx--;
 		    change = true;
 		}

@@ -11,19 +11,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
 #include "geometry.h"
 #include "sets.h"
+
 
 namespace FlatView
 {
 
-/*!
-\brief Manages zoom factors. Will always provide a new zoom when forward()
-called, using fwdFac(). For back, will stop at initial.
-*/
+/*!\brief Manages zoom factors. Will always provide a new zoom when forward()
+          called, using fwdFac(). For back, will stop at initial. */
 
-mExpClass(uiFlatView) ZoomMgr
+mClass ZoomMgr
 {
 public:
 
@@ -70,4 +68,3 @@ protected:
 
 
 #endif
-

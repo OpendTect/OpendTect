@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "interpretexpr.h"
 
@@ -256,11 +256,11 @@ enum InfixOperator {
 
 #define mRemoveArg( argidx ) \
 { \
-    vals.removeSingle( opidx+argidx ); \
-    breakprefixes.removeSingle( opidx+argidx ); \
-    errmsgs.removeSingle( opidx+argidx ); \
-    ops.removeSingle( opidx ); \
-    opptrs.removeSingle( opidx ); \
+    vals.remove( opidx+argidx ); \
+    breakprefixes.remove( opidx+argidx ); \
+    errmsgs.remove( opidx+argidx ); \
+    ops.remove( opidx ); \
+    opptrs.remove( opidx ); \
 }
 
 #define mIfErrArgCont( argidx ) \
@@ -497,7 +497,7 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
 				      BufferString& breakprefix ) const
 {
     breakprefix.setEmpty();
-    const int sz = mCast( int, endptr - exprstr_ ); 
+    const int sz = endptr - exprstr_; 
     if ( sz > 0 )
     {
 	breakprefix.setBufSize( sz+1 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -81,9 +81,9 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     topGroup()->setSpacing(0);
 
     tb_ = new uiToolBar( this, "ToolBar" );
-    quitid_ = mAddButton( "stop", "Stop process and Quit", quitFn );
-    mAddButton( "saveflow", "Save log", saveFn );
-    mAddButton( "contexthelp", "Help", helpFn );
+    quitid_ = mAddButton( "stop.png", "Stop process and Quit", quitFn );
+    mAddButton( "saveflow.png", "Save log", saveFn );
+    mAddButton( "contexthelp.png", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
     uiFont& fnt = FontList().add( "Non-prop",
@@ -127,6 +127,7 @@ void uiProgressViewer::appendToText()
 
 void uiProgressViewer::doWork( CallBacker* )
 {
+    bool ateof = strm.eof();
     if ( strm.eof() || strm.fail() )
     {
 	appendToText();
@@ -229,8 +230,6 @@ void uiProgressViewer::saveFn( CallBacker* )
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
-
     uiMain app( argc, argv );
     int ppid = argc > 1 ? toInt(argv[1]) : 0;
     uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );

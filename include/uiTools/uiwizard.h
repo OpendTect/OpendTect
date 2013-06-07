@@ -13,12 +13,11 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiGroup;
 
-mExpClass(uiTools) uiWizard : public uiDialog
+mClass uiWizard : public uiDialog
 {
 public:
 			uiWizard(uiParent*,uiDialog::Setup&);
@@ -60,4 +59,3 @@ private:
 };
 
 #endif
-

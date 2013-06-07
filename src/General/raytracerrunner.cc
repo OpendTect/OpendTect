@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "raytracerrunner.h"
@@ -29,9 +29,7 @@ RayTracerRunner::~RayTracerRunner()
 
 
 od_int64 RayTracerRunner::nrIterations() const
-{
-    return totalnr_;
-}
+{ return aimodels_.size(); }
 
 
 void RayTracerRunner::setOffsets( TypeSet<float> offsets )
@@ -48,8 +46,7 @@ void RayTracerRunner::addModel( const ElasticModel& aim, bool dosingle )
 
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
-
-bool RayTracerRunner::prepareRayTracers()
+bool RayTracerRunner::doPrepare( int nrthreads )
 {
     deepErase( raytracers_ );
 
@@ -60,7 +57,6 @@ bool RayTracerRunner::prepareRayTracers()
 	return false;
 
     BufferString errmsg;
-    totalnr_ = 0;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
 	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
@@ -70,9 +66,6 @@ bool RayTracerRunner::prepareRayTracers()
 		    *RayTracer1D::factory().getNames(false)[0] );
 	    rt1d->usePar( raypar_ );
 	}
-
-	rt1d->setModel( aimodels_[idx] );
-	totalnr_ += rt1d->totalNr();
 	raytracers_ += rt1d;
     }
 
@@ -83,46 +76,16 @@ bool RayTracerRunner::prepareRayTracers()
 }
 
 
-od_int64 RayTracerRunner::nrDone() const
-{
-    od_int64 nrdone = 0;
-    for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
-	nrdone += raytracers_[modelidx]->nrDone();
-    return nrdone;
-}
-
-
-int RayTracerRunner::modelIdx( od_int64 idx, bool& startlayer ) const
-{
-    od_int64 stopidx = -1;
-    startlayer = false;
-    for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
-    {
-	if ( idx == (stopidx + 1) )
-	    startlayer = true;
-
-	stopidx += raytracers_[modelidx]->totalNr();
-	if ( stopidx>=idx )
-	    return modelidx;
-    }
-
-    return -1;
-}
-
-
 bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    bool startlayer = false;
-    int startmdlidx = modelIdx( start, startlayer );
-    if ( !startlayer ) startmdlidx++;
-    const int stopmdlidx = modelIdx( stop, startlayer );
-    for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const ElasticModel& aim = aimodels_[idx];
 	if ( aim.isEmpty() ) 
 	    continue;
 
 	RayTracer1D* rt1d = raytracers_[idx];
+	rt1d->setModel( aim );
 	const bool parallel = maxNrThreads() > 1;
 	if ( !rt1d->execute( parallel ) )
 	    mErrRet( rt1d->errMsg() );

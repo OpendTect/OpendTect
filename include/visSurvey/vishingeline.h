@@ -13,7 +13,6 @@ ________________________________________________________________________
           
 -*/
 
-#include "vissurveymod.h"
 #include "visobject.h"
 
 #include "emposid.h"
@@ -26,7 +25,7 @@ namespace EM { class EdgeLineSet; };
 namespace visSurvey
 {
 
-mExpClass(visSurvey) EdgeLineSetDisplay : public visBase::VisualObjectImpl
+mClass EdgeLineSetDisplay : public visBase::VisualObjectImpl
 {
 public:
     static EdgeLineSetDisplay*	create()
@@ -85,4 +84,3 @@ protected:
 }; // namespace visSurvey
 
 #endif
-

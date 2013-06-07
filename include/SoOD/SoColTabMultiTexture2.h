@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "soodmod.h"
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/fields/SoSFColor.h>
 #include <Inventor/fields/SoMFBool.h>
@@ -35,7 +34,7 @@ class SoGLImage;
 All textures are put in a sequence in SoColTabMultiTexture2::image, and the sequence
 is processed from the start to the end to create one texture. */
 
-mSoODClass SoColTabMultiTexture2 : public SoNode
+mClass SoColTabMultiTexture2 : public SoNode
 {
     SO_NODE_HEADER( SoColTabMultiTexture2 );
 public:
@@ -136,4 +135,3 @@ protected:
 
 #endif
     
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "enums.h"
 #include "coltab.h"
 #include "thread.h"
@@ -28,11 +27,13 @@ class TaskRunner;
 namespace ColTab
 {
 
-/*!
-\brief Setup class for colortable Mapper.
-*/
+/*!\brief Maps data values to color table positions: [0,1]
 
-mExpClass(General) MapperSetup : public CallBacker
+  If nrsegs_ > 0, the mapper will return the centers of the segments only. For
+  example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
+ 
+ */
+mClass MapperSetup : public CallBacker
 {
 public:
 			MapperSetup();
@@ -61,6 +62,7 @@ public:
     static const char*		sKeyClipRate()	{ return "Clip Rate"; }
     static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
     static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
+    static const char*		sKeyMaxPts()	{ return "Max Pts"; }
     static const char*		sKeyStarWidth()	{ return "Start_Width"; }
     static const char*		sKeyRange()	{ return "Range"; }
     static const char*		sKeyFlipSeq()	{ return "Flip seq"; }
@@ -72,14 +74,7 @@ public:
 };
 
 
-/*!
-\brief Maps data values to colortable positions: [0,1].
-
-  If nrsegs_ > 0, the mapper will return the centers of the segments only. For
-  example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
-*/
-
-mExpClass(General) Mapper
+mClass Mapper
 {
 public:
 
@@ -95,7 +90,7 @@ public:
     bool		isFlipped() const { return setup_.flipseq_; }
     const ValueSeries<float>* data() const
 			{ return vs_; }
-    od_int64		dataSize() const
+    int			dataSize() const
 			{ return vssz_; }
 
     void		setFlipped(bool yn) { setup_.flipseq_ = yn; }
@@ -120,12 +115,9 @@ protected:
 };
 
 
-/*!
-\brief Takes a Mapper, unmapped data and maps it.
-*/
-
+/*!Takes a Mapper, unmapped data and maps it.*/
 template <class T>
-mClass(General) MapperTask : public ParallelTask
+mClass MapperTask : public ParallelTask
 {
 public:    
     			MapperTask(const ColTab::Mapper& map,
@@ -280,4 +272,3 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 } // namespace ColTab
 
 #endif
-

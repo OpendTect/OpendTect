@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -207,7 +207,7 @@ void Table::WSExportHandler::addVal( int col, const char* val )
     const bool isquotecand = !*val || strcspn( val, " \t" );
     const char quotechar = colwshanld_ == SingQuot ? '\'' : '"';
 
-    if ( colwshanld_ != None && isquotecand )
+    if ( colwshanld_ != None && (!*val || strcspn(val," \t")) )
     {
        if ( colwshanld_ >= SingQuot )
        {

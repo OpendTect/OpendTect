@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "executor.h"
 
 namespace Strat
@@ -24,7 +23,7 @@ class LayerSequenceGenDesc;
 
 /*!\brief Generates LayerSequences.  */
 
-mExpClass(Strat) LayerModelGenerator : public Executor
+mClass LayerModelGenerator : public Executor
 {
 public:
 
@@ -55,4 +54,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

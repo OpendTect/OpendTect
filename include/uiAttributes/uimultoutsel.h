@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uidialog.h"
 
 class BufferStringSet;
@@ -22,7 +21,7 @@ namespace Attrib { class Desc; };
 
 /*! \brief Dialog used to determine which outputs of an attribute will be computed at once and stored as multiple components when creating a volume output */
 
-mExpClass(uiAttributes) uiMultOutSel : public uiDialog
+mClass uiMultOutSel : public uiDialog
 {
 public:
 			uiMultOutSel(uiParent*,const Attrib::Desc&);
@@ -45,4 +44,3 @@ protected:
 };
 
 #endif
-

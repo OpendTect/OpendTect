@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.7 2011/11/23 11:35:55 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -43,7 +43,6 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     topfld_ = new uiIOObjSel( inpgrp, ctxt, su );
     topfld_->setInput( horid );
     topfld_->selectionDone.notify( mCB(this,uiGravHorCalc,topSel) );
-    topfld_->setChecked( (bool)topfld_->ioobj(true) );
 
     denvarfld_ = new uiGenInput( inpgrp, "Density (contrast)",
 	    			   BoolInpSpec(false,"Variable","Constant") );

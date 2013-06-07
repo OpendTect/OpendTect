@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "flatauxdataeditor.h"
 
@@ -56,8 +56,8 @@ AuxDataEditor::~AuxDataEditor()
 
     if ( feedback_ )
     {
-	delete viewer_.removeAuxData( feedback_ );
-	feedback_ = 0;
+	viewer_.appearance().annot_.auxdata_ -= feedback_;
+	delete feedback_;
     }
 
     delete sower_;
@@ -75,7 +75,7 @@ bool AuxDataEditor::removeSelectionPolygon()
 	return false;
 
     for ( int idx=0; idx<polygonsel_.size(); idx++ )
-	viewer_.removeAuxData( polygonsel_[idx] );
+	viewer_.appearance().annot_.auxdata_ -= polygonsel_[idx];
 
     deepErase( polygonsel_ );
 
@@ -83,26 +83,16 @@ bool AuxDataEditor::removeSelectionPolygon()
 }
 
 
-int AuxDataEditor::addAuxData( FlatView::AuxData* nd, bool doedit )
+int AuxDataEditor::addAuxData( FlatView::Annotation::AuxData* nd, bool doedit )
 {
-    bool found = false;
-    for ( int idx=viewer_.nrAuxData()-1; idx>=0; idx-- )
-    {
-	if ( viewer_.getAuxData(idx)==nd )
-	{
-	    found = true;
-	    break;
-	}
-    }
-
-    if ( !found ) 
+    if ( viewer_.appearance().annot_.auxdata_.indexOf( nd )==-1 )
     {
 	pErrMsg("Auxdata not present in viewer");
 	return -1;
     }
 
     int res = 0;
-    while ( ids_.isPresent( res ) )
+    while ( ids_.indexOf( res )!=-1 )
 	res++;
 
     ids_ += res;
@@ -123,15 +113,15 @@ void AuxDataEditor::removeAuxData( int id )
     if ( idx<0 )
 	return;
 
-    ids_.removeSingle( idx );
-    auxdata_.removeSingle( idx );
+    ids_.remove( idx );
+    auxdata_.remove( idx );
     if ( auxdata_.size() == 0 )
 	seldatasetidx_ = -1;
-    allowadd_.removeSingle( idx );
-    allowmove_.removeSingle( idx );
-    allowremove_.removeSingle( idx );
-    doedit_.removeSingle( idx );
-    allowpolysel_.removeSingle( idx );
+    allowadd_.remove( idx );
+    allowmove_.remove( idx );
+    allowremove_.remove( idx );
+    doedit_.remove( idx );
+    allowpolysel_.remove( idx );
 }
 
 
@@ -236,7 +226,7 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 
 
 void AuxDataEditor::getPointSelections(
-	const ObjectSet<AuxData>& polygonsel,
+	const ObjectSet<Annotation::AuxData>& polygonsel,
 	TypeSet<int>& ids, TypeSet<int>& idxs) const
 {
     ids.erase();
@@ -287,7 +277,8 @@ const TypeSet<int>& AuxDataEditor::getIds() const
 { return ids_; }
 
 
-const ObjectSet<AuxData>& AuxDataEditor::getAuxData() const
+const ObjectSet<Annotation::AuxData>&
+AuxDataEditor::getAuxData() const
 { return auxdata_; }
 
 
@@ -297,8 +288,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
     TypeSet<int> idxs;
 
 
-    ObjectSet<AuxData> polygonsel;
-    deepCopyClone( polygonsel, polygonsel_ );
+    ObjectSet<Annotation::AuxData> polygonsel;
+    deepCopy( polygonsel, polygonsel_ );
 
     getPointSelections( polygonsel, ids, idxs );
 
@@ -313,8 +304,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 		if ( ids[idy]==curdataid )
 		{
 		    selptidx_ += idxs[idy];
-		    ids.removeSingle( idy );
-		    idxs.removeSingle( idy );
+		    ids.remove( idy );
+		    idxs.remove( idy );
 		}
 	    }
 
@@ -329,8 +320,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 	}
 	else
 	{
-	    ids.removeSingle( 0 );
-	    idxs.removeSingle( 0 );
+	    ids.remove( 0 );
+	    idxs.remove( 0 );
 	}
     }
 }
@@ -458,8 +449,8 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( seldatasetidx_<doedit_.size() && doedit_[seldatasetidx_] )
 	{
 	    const int selidx = selptidx_[0];
-	    auxdata_[seldatasetidx_]->poly_.removeSingle( selidx ); 
-	    auxdata_[seldatasetidx_]->markerstyles_.removeSingle( selidx );
+	    auxdata_[seldatasetidx_]->poly_.remove( selidx ); 
+	    auxdata_[seldatasetidx_]->markerstyles_.remove( selidx );
 	    viewer_.handleChange( Viewer::Annot );
 	}
 
@@ -470,11 +461,12 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( feedback_ )
     {
-	delete viewer_.removeAuxData( feedback_ );
+	viewer_.appearance().annot_.auxdata_ -= feedback_;
+	delete feedback_;
 	feedback_ = 0;
 
 	if ( selptidx_.size() )
-	    viewer_.addAuxData( auxdata_[seldatasetidx_] );
+	    viewer_.appearance().annot_.auxdata_ += auxdata_[seldatasetidx_];
 
 	viewer_.handleChange( Viewer::Annot );
     }
@@ -538,15 +530,16 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    auxdata_[seldatasetidx_]->poly_[selptidx_[0]] = selptcoord_;
 	else if ( !feedback_ )
 	{
-	    feedback_ = auxdata_[seldatasetidx_]->clone();
-	    viewer_.addAuxData( feedback_ );
+	    feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
+	    viewer_.appearance().annot_.auxdata_ += feedback_;
 	    if ( !selptidx_.size() )
 	    {
 		feedback_->poly_.erase();
 		feedback_->poly_ += selptcoord_;
 	    }
 	    else
-		viewer_.removeAuxData( auxdata_[seldatasetidx_] );
+		viewer_.appearance().annot_.auxdata_ -=
+		    		     auxdata_[seldatasetidx_];
 	}
 	else if ( !selptidx_.size() )
 	    feedback_->poly_[0] = selptcoord_;
@@ -562,12 +555,12 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 
 	if ( (!hasmoved_ && !ev.shiftStatus()) || !polygonsel_.size() )
 	{
-	    AuxData* polysel = viewer_.createAuxData( 0 );
+	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
 	    //polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
 	    polygonsel_ += polysel;
-	    viewer_.addAuxData( polysel );
+	    viewer_.appearance().annot_.auxdata_ += polysel;
 	}
 
 	const int polyidx = polygonsel_.size()-1;
@@ -581,7 +574,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		polygonsel_[polyidx]->poly_ += pt;
 		if ( polygonsel_[polyidx]->poly_.size()>1 )
 		{
-		    polygonsel_[polyidx]->poly_.removeRange( 1,
+		    polygonsel_[polyidx]->poly_.remove( 1,
 			    polygonsel_[polyidx]->poly_.size()-1 );
 		}
 
@@ -618,7 +611,7 @@ void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
     if ( selptidxlist )
 	selptidxlist->erase();
 
-    int minsqdist = mUdf(int);
+    int minsqdist;
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
 	if ( !auxdata_[idx] )
@@ -729,8 +722,8 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
 {
-    sowingline_ = editor_.viewer().createAuxData( 0 );
-    editor_.viewer().addAuxData( sowingline_ );
+    sowingline_ = new Annotation::AuxData( 0 );
+    editor_.viewer().appearance().annot_.auxdata_ += sowingline_;
     reInitSettings();
 }
 
@@ -738,7 +731,12 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
 Sower::~Sower()
 {
     deepErase( eventlist_ );
-    delete editor_.viewer().removeAuxData( sowingline_ );
+
+    ObjectSet<FlatView::Annotation::AuxData>& vwrauxs = 
+				editor_.viewer().appearance().annot_.auxdata_;
+    const int idx = vwrauxs.indexOf( sowingline_ );
+    if ( vwrauxs.validIdx( idx ) )
+	delete vwrauxs.remove( idx );
 }
 
 
@@ -911,8 +909,8 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     {
 	if ( singleseeded_ )
 	{
-	    eventlist_.removeSingle( idx );
-	    mousecoords_.removeSingle( idx );
+	    eventlist_.remove( idx );
+	    mousecoords_.remove( idx );
 	}
 	else
 	    eventlist_[idx]->setButtonState( (OD::ButtonState) butstate );
@@ -942,7 +940,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	    eventidx = idx%2 ? last-idx/2 : idx/2;
 
 	bendpoints_ += intersowing ? eventidx : bpfinder.bendPoints()[eventidx];
-	if ( intersowing && bpfinder.bendPoints().isPresent(eventidx) )
+	if ( intersowing && bpfinder.bendPoints().indexOf(eventidx)>=0 )
 	    bendpoints_ += eventidx;
     }
 
@@ -962,7 +960,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Press, Pressed );
 	mRehandle( mouseeventhandler_, *eventlist_[idx], Release, Released );
 
-	bendpoints_.removeSingle( 0 );
+	bendpoints_.remove( 0 );
 
 	count++;
 	if ( !intersowing || count>2 )

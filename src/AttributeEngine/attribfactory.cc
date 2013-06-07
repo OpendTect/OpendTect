@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribfactory.h"
 
@@ -71,7 +71,7 @@ int ProviderFactory::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	if ( descs_[idx]->attribName()==nm )
+	if ( !strcmp( descs_[idx]->attribName(), nm ) )
 	    return idx;
     }
 

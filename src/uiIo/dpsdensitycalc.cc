@@ -15,6 +15,22 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "uidatapointset.h"
+
+
+DPSDensityCalcND::DPSDensityCalcND( const uiDataPointSet& dps,
+				    const ObjectSet<AxisParam>& axisdatas,
+       				    ArrayND<float>& freqdata )
+    : ParallelTask( "Calclulating Density" )
+    , dps_( dps.pointSet() )
+    , freqdata_( freqdata )
+    , axisdatas_( axisdatas )
+    , nrdims_( axisdatas_.size() )
+    , nrdone_( 0 )
+{
+    freqdata_.setAll( (float)0 );
+}
+
 
 DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
@@ -59,7 +75,7 @@ float DPSDensityCalcND::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 
@@ -82,12 +98,12 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(mCast(DataPointSet::RowID,rid)) )
+	if ( dps_.isInactive(rid) )
 	    continue;
 
 	TypeSet<int> indexs;
 	
-	if ( !getPositions(indexs,mCast(int,rid)) ) continue;
+	if ( !getPositions(indexs,rid) ) continue;
 
 	if ( !setFreqValue(indexs.arr()) ) continue;
     }

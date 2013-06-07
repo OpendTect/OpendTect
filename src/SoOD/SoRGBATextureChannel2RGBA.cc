@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "SoRGBATextureChannel2RGBA.h"
@@ -71,7 +71,7 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 		: false;
 
 	    SbVec3i32 size;
-	    int nc=4;
+	    int nc;
 	    unsigned const char* data = idx<nrinputchannels
 		? inputchannels[idx].getValue( size, nc )
 		: 0;

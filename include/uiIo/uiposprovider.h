@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uicompoundparsel.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"
@@ -24,13 +23,14 @@ class CubeSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
-mExpClass(uiIo) uiPosProvider : public uiGroup
+mClass uiPosProvider : public uiGroup
 {
 public:
 
     struct Setup : public uiPosProvGroup::Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon };
+	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, SeisTypeswithBody,
+       			  RangewithPolygon };
 
 			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
@@ -70,7 +70,7 @@ protected:
 /*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
 
 
-mExpClass(uiIo) uiPosProvSel : public uiCompoundParSel
+mClass uiPosProvSel : public uiCompoundParSel
 {
 public:
 
@@ -111,4 +111,3 @@ protected:
 
 
 #endif
-

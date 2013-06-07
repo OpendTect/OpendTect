@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id$
+ RCS:		$Id: gmtcoastline.h,v 1.3 2010/02/09 06:30:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-mClass(GMT) GMTCoastline : public GMTPar
+class GMTCoastline : public GMTPar
 {
 public:
 

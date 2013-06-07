@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visgridlines.h"
 
@@ -51,7 +51,7 @@ GridLines::~GridLines()
     {
 	removeChild( polylineset_[idx]->getInventorNode() );
 	polylineset_[idx]->unRef();
-	polylineset_.removeSingle(idx--);
+	polylineset_.remove(idx--);
     }
 }
 

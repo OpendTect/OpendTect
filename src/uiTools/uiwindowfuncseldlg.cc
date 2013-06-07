@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwindowfuncseldlg.h"
 #include "uiaxishandler.h"
+#include "uicanvas.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
@@ -20,7 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
+#include "iodraw.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "windowfunction.h"
@@ -90,8 +92,8 @@ void uiFunctionDrawer::setFrame()
 		       yax_->getPix( yax_->range().start ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
-	    mCast(float,borderrect.left()), mCast(float,borderrect.top()), 
-	    mCast(float,borderrect.width()), mCast(float,borderrect.height()) );
+		borderrect.left(), borderrect.top(), borderrect.width(),
+		borderrect.height() );
     else
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
 				  borderrect.width(), borderrect.height() );
@@ -149,7 +151,9 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
     {
 	float x = xrg.atIndex( idx );
 	const float y = func->mathfunc_->getValue( x );
-	x = (float) ( scaler.scale( x ) );
+	x = scaler.scale( x );
+	const int xpix = xax_->getPix( x );
+	const int ypix = yax_->getPix( y );
 	pointlist += uiPoint( transform_->transform( uiWorldPoint(x,y) ) );
     }
 }
@@ -192,7 +196,7 @@ int uiFuncSelDraw::removeLastItem()
 {
     const int curidx = funclistfld_->size()-1;
     funclistfld_->removeItem( curidx );
-    mathfunc_.removeSingle( curidx );
+    mathfunc_.remove( curidx );
     view_->clearFunction( curidx );
     return curidx;
 }
@@ -201,7 +205,7 @@ int uiFuncSelDraw::removeLastItem()
 void uiFuncSelDraw::removeItem( int idx )
 {
     funclistfld_->removeItem( idx );
-    mathfunc_.removeSingle( idx );
+    mathfunc_.remove( idx );
     view_->clearFunction( idx );
 }
 
@@ -273,11 +277,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
   
     uiFunctionDrawer::Setup su;
     funcdrawer_ = new uiFuncSelDraw( this, su );
-    funcnames_ = WINFUNCS().getNames();
+    funcnames_ = WinFuncs().getNames();
 
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	winfunc_ += WINFUNCS().create( funcnames_[idx]->buf() );
+	winfunc_ += WinFuncs().create( funcnames_[idx]->buf() );
 	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 
@@ -308,10 +312,10 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 	{
 	    isvartappresent = true;
 	    float prevvariable = variable_;
-	    variable_ = mIsUdf(variable_) ? 0.05f : varinpfld_->getfValue(0)/100;
+	    variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
 		variable_ = prevvariable; 
-	    wf->setVariable( 1.0f - variable_ );
+	    wf->setVariable( 1.0 - variable_ );
 	    varinpfld_->setValue( variable_ *100 );
 	}
     }

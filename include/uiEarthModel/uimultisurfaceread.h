@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uiiosurface.h"
 #include "uidialog.h"
 
@@ -21,7 +20,7 @@ class uiDialog;
 
 /*! \brief ui for multiple surface read */
 
-mExpClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
+mClass uiMultiSurfaceRead : public uiIOSurface
 {
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
@@ -43,7 +42,7 @@ protected:
 };
 
 
-mExpClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
+mClass uiMultiSurfaceReadDlg : public uiDialog
 {
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);
@@ -59,4 +58,3 @@ protected:
 };
 
 #endif
-

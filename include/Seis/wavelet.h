@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "seismod.h"
 #include "namedobj.h"
 #include "ranges.h"
 #include "transl.h"
@@ -21,10 +20,11 @@ class Conn;
 class IOObj;
 
 
-mExpClass(Seis) Wavelet : public NamedObject
+mClass Wavelet : public NamedObject
 {
 public:
-			Wavelet(const char* nm=0);
+			Wavelet(const char* nm=0,int idxfsamp=0,
+				float sr=mUdf(float));
 			Wavelet(bool ricker_else_sinc,float fpeak,
 				float sample_intv=mUdf(float),float scale=1);
 			Wavelet(const Wavelet&);
@@ -34,26 +34,18 @@ public:
     static Wavelet*	get(const IOObj*);
     bool		put(const IOObj*) const;
 
-    int			size() const		{ return sz_; }
-    float*		samples()		{ return samps_; }
-    const float*	samples() const		{ return samps_; }
-    float		sampleRate() const	{ return dpos_; }
-    int			centerSample() const	{ return cidx_; }
+    int			size() const		{ return sz; }
+    float*		samples()		{ return samps; }
+    const float*	samples() const		{ return samps; }
+    float		sampleRate() const	{ return dpos; }
+    int			centerSample() const	{ return -iw; }
     StepInterval<float>	samplePositions() const
-    			{ return StepInterval<float>(
-				-cidx_*dpos_, (sz_-cidx_-1)*dpos_, dpos_ ); }
-    bool		hasSymmetricalSamples()	{ return cidx_ * 2 + 1 == sz_; }
+    			{ return StepInterval<float>( iw*dpos, (sz+iw-1)*dpos,
+						      dpos ); }
 
-    void		setSampleRate(float sr)	{ dpos_ = sr; }
-    void		setCenterSample(int cidx)	{ cidx_ = cidx; }
-    			//!< positive for starttwt < 0
     void		reSize(int); // destroys current sample data!
+    void		set(int center,float samplerate);
 
-    bool		reSample(float newsr);
-    bool		reSampleTime(float newsr);
-    void		ensureSymmetricalSamples();
-    			//!< pads with zeros - use with and before reSample
-   			//  for better results
     void		transform(float,float);
     void		normalize();
     float		getExtrValue(bool ismax = true) const;
@@ -70,15 +62,19 @@ public:
 
 protected:
 
-    float		dpos_;
-    float*		samps_;
-    int			sz_;
-    int			cidx_;		//!< The index of the center sample
+    int			iw;		// The index of the first sample
+					// where the center is 0
+    float		dpos;
+    float*		samps;
+    int			sz;
 
+public:
+    bool		reSampleTime(float newsr);
+    bool		reSample(float newsr);
 };
 
 
-mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
+mClass WaveletTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(Wavelet)
 public:
     			mDefEmptyTranslatorGroupConstructor(Wavelet)
@@ -86,7 +82,7 @@ public:
     const char*		 defExtension() const		{ return "wvlt"; }
 };
 
-mExpClass(Seis) WaveletTranslator : public Translator
+mClass WaveletTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
@@ -98,7 +94,7 @@ public:
 
 
 
-mExpClass(Seis) dgbWaveletTranslator : public WaveletTranslator
+mClass dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Wavelet)
@@ -109,7 +105,7 @@ public:
 };
 
 
-mExpClass(Seis) WaveletAscIO : public Table::AscIO
+mClass WaveletAscIO : public Table::AscIO
 {
 public:
     				WaveletAscIO( const Table::FormatDesc& fd )
@@ -124,4 +120,3 @@ public:
 
 
 #endif
-

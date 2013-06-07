@@ -13,9 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "posprovider.h"
-#include "multiid.h"
 class HorSampling;
 template <class T> class ODPolygon;
 
@@ -24,7 +22,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Polygon */
 
-mExpClass(Geometry) PolyProvider3D : public Provider3D
+mClass PolyProvider3D : public Provider3D
 {
 public:
 
@@ -32,7 +30,7 @@ public:
 			PolyProvider3D(const PolyProvider3D&);
 			~PolyProvider3D();
     PolyProvider3D&	operator =(const PolyProvider3D&);
-    const char*		type() const;	//!< sKey::Polygon()
+    const char*		type() const;	//!< sKey::Polygon
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const	{ return new PolyProvider3D(*this); }
 
@@ -54,9 +52,6 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
 
-    const MultiID&	getMultiID() const	{ return mid_; }
-    void		setMultiID(const MultiID& mid)	{ mid_ = mid; }
-
     ODPolygon<float>&	polygon()		{ return poly_; }
     const ODPolygon<float>& polygon() const	{ return poly_; }
     StepInterval<float>& zRange()		{ return zrg_; }
@@ -74,7 +69,6 @@ protected:
     ODPolygon<float>&	poly_;
     StepInterval<float>	zrg_;
     HorSampling&	hs_;
-    MultiID		mid_;
 
     BinID		curbid_;
     float		curz_;
@@ -90,4 +84,3 @@ public:
 } // namespace
 
 #endif
-

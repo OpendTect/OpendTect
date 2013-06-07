@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "callback.h"
 
-mFDQtclass(QSystemTrayIcon)
-mFDQtclass(QSystemTrayIconMessenger)
 class ioPixmap;
+class QSystemTrayIcon;
+class QSystemTrayIconMessenger;
 
-mExpClass(uiBase) uiSystemTrayIcon : public CallBacker
+mClass uiSystemTrayIcon : public CallBacker
 {
 public:
 
@@ -39,11 +38,10 @@ public:
 
 protected:
 
-    mQtclass(QSystemTrayIcon*)		qsystemtrayicon_;
-    mQtclass(QSystemTrayIconMessenger*) messenger_;
+    QSystemTrayIcon*	qsystemtrayicon_;
+    QSystemTrayIconMessenger* messenger_;
 
-    int					action_;
+    int			action_;
 };
 
 #endif
-

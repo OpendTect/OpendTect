@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "datachar.h"
@@ -20,18 +19,12 @@ class BufferStringSet;
 class SeisMSCProvider;
 class SeisTrc;
 
-namespace PosInfo{ class LineSet2DData; }
-
 namespace Attrib
 {
 
 class DataHolder;
 
-/*!
-\brief Attribute storage provider.
-*/
-
-mExpClass(AttributeEngine) StorageProvider : public Provider
+mClass StorageProvider : public Provider
 {
 public:
 
@@ -43,15 +36,11 @@ public:
 	    				bool firstcheck=false);
     bool		getPossibleVolume(int outp,CubeSampling&);
     BinID		getStepoutStep() const;
+    float		getMaxDistBetwTrcs() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
-    PosInfo::GeomID	getGeomID() const;
-
     void		fillDataCubesWithTrc(DataCubes*) const;
     bool		needStoredInput() const	{ return true; }
-    virtual void	getCompNames(BufferStringSet&) const;
-    virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
-    virtual bool	compDistBetwTrcsStats(bool force=false);
 
 protected:
 
@@ -60,7 +49,6 @@ protected:
 
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
-    static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
@@ -94,20 +82,23 @@ protected:
     bool		set2DRangeSelData();
 
     void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
-    bool                useInterTrcDist() const;
 
     TypeSet<BinDataDesc> datachar_;
     SeisMSCProvider*	mscprov_;
     BinID		stepoutstep_;
     CubeSampling	storedvolume_;
     bool		isondisc_;
-    bool		useintertrcdist_;
-    PosInfo::LineSet2DData*  ls2ddata_;
 
     enum Status        { Nada, StorageOpened, Ready } status_;
+
+    static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
+
+public:
+    void		getCompNamesFakeToKeepHeadersOK(BufferStringSet&) const;
+    SeisMSCProvider*	getMSCProv() const;
+
 };
 
 }; // namespace Attrib
 
 #endif
-

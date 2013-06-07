@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id$
+ RCS:		$Id: gmtbasemap.h,v 1.4 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 
-mClass(GMT) GMTBaseMap : public GMTPar
+class GMTBaseMap : public GMTPar
 {
 public:
 
@@ -36,7 +36,7 @@ protected:
 };
 
 
-mClass(GMT) GMTLegend : public GMTPar
+class GMTLegend : public GMTPar
 {
 public:
 
@@ -57,7 +57,7 @@ protected:
 };
 
 
-mClass(GMT) GMTCommand : public GMTPar
+class GMTCommand : public GMTPar
 {
 public:
 

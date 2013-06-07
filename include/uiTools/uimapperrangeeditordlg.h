@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 
 #include "datapack.h"
@@ -22,7 +21,7 @@ class uiPushButton;
 class uiMapperRangeEditor;
 namespace ColTab { class MapperSetup; class Sequence; };
 
-mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
+mClass uiMultiMapperRangeEditWin : public uiDialog
 {
 public:
     					uiMultiMapperRangeEditWin(uiParent*,
@@ -56,4 +55,3 @@ protected:
 };
 
 #endif
-

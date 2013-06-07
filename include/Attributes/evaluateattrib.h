@@ -13,21 +13,21 @@ ________________________________________________________________________
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
+
+/*!\brief Evaluate Attribute
+
+Attribute built for convenience purpose; only there to allow the computation of
+a set of attributes in one go;
+
+*/
+    
 
 namespace Attrib
 {
 
-/*!
-\brief %Evaluate Attribute
-  
-  Attribute built for convenience purpose; only there to allow the computation
-  of a set of attributes in one go;
-*/
-    
-mExpClass(Attributes) Evaluate: public Provider
+mClass Evaluate: public Provider
 {
 public:
     static void			initClass();
@@ -57,4 +57,3 @@ protected:
 
 
 #endif
-

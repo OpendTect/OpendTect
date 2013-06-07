@@ -5,27 +5,22 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS Basic )
-set( OD_TEST_PROGS velocitycalc.cc )
+SET(OD_MODULE_DEPS Basic )
 
-set(OD_MODULE_SOURCES timeser.c
+SET(OD_MODULE_SOURCES timeser.c
 	    array1dinterpol.cc
 	    array2dinterpol.cc
-            arrayndalgo.cc
 	    bendpointfinder.cc
 	    bendpoints2coords.cc
 	    binidsorting.cc
-	    bodyvolumecalc.cc
-	    conncomponents.cc
 	    convolve2d.cc
+	    costrans.cc
 	    curvature.cc
 	    dataclipper.cc
 	    delaunay.cc
 	    delaunay3d.cc
 	    extremefinder.cc
-	    dippca.cc
 	    fftfilter.cc
-	    fingervein.cc
 	    fourier.cc
 	    fourierinterpol.cc
 	    genericnumer.cc

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uisegyscandlg.h"
 
@@ -60,7 +60,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	if ( !optsgrp_ )
 	    attobj = new uiLabel( this,
-		    		  "Press Go or hit enter to start SEG-Y scan" );
+		    		  "Press OK or hit enter to start SEG-Y scan" );
     }
     else
     {
@@ -90,7 +90,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
     if ( attobj )
     {
-	uiToolButton* tb = new uiToolButton( this, "prescan",
+	uiToolButton* tb = new uiToolButton( this, "prescan.png",
 					"Limited Pre-scan",
 				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
@@ -191,8 +191,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pars_.set( SEGY::IO::sKeyTask(), isps ? SEGY::IO::sKeyIndexPS()
 					      : SEGY::IO::sKeyIndex3DVol() );
 	pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
-	pars_.set( sKey::Output(), outfld_->key(true) );
-	pars_.set( sKey::LineName(), lnm );
+	pars_.set( sKey::Output, outfld_->key(true) );
+	pars_.set( sKey::LineName, lnm );
 	uiBatchLaunch launcher( this, pars_, 0, "od_process_segyio", false );
 	launcher.setParFileName( parfilefld_->text() );
 
@@ -209,7 +209,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     }
 
     uiTaskRunner tr( parent_ );
-    bool rv = TaskRunner::execute( &tr, *exec );
+    bool rv = tr.execute(*exec);
     if ( !rv )
     {
 	if ( outfld_ )

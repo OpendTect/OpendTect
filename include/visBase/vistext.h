@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "fontdata.h"
 #include "visobject.h"
 #include "position.h"
@@ -27,7 +26,7 @@ namespace visBase
 {
 class PickStyle;
 
-mExpClass(visBase) Text : public VisualObjectImpl
+mClass Text : public VisualObjectImpl
 {
 public:
     enum			Justification { Left, Right, Center };
@@ -73,7 +72,7 @@ on the screen. It is advisable to turn off the text when doing a viewAll,
 since their sizes will corrupt the bounding box calculation.
 */
 
-mExpClass(visBase) Text2 : public Text
+mClass Text2 : public Text
 {
 public:
     static Text2*		create()
@@ -94,7 +93,7 @@ protected:
 
 /*!Text that is not rotated to face text. */
 
-mExpClass(visBase) TextBox : public Text
+mClass TextBox : public Text
 {
 public:
     static TextBox*		create()
@@ -115,4 +114,3 @@ protected:
 }; // Namespace
 
 #endif
-

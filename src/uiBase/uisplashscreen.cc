@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uisplashscreen.h"
@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QDesktopWidget>
 #include <QSplashScreen>
 
-mUseQtnamespace
 
 uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
 {

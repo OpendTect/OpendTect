@@ -12,19 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "gendefs.h"
 class uiMainWin;
 class uiStatusBar;
-mFDQtclass(QWidget)
+class QWidget;
 class BufferStringSet;
 class FileMultiString;
 
 
-mExpClass(uiBase) uiMsg
+mClass uiMsg
 {
     friend class uiMain;
-    mGlobal(uiBase) friend uiMsg& uiMSG();
+    mGlobal friend uiMsg& uiMSG();
 
 public:
 
@@ -77,7 +76,7 @@ protected:
 
 			uiMsg();
 
-    mQtclass(QWidget*)	popParnt();
+    QWidget*		popParnt();
 
     static uiMsg*	theinst_;
 
@@ -90,11 +89,11 @@ private:
     uiMainWin*		uimainwin_;
 };
 
-mGlobal(uiBase) uiMsg& uiMSG();
+mGlobal uiMsg& uiMSG();
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
-mExpClass(uiBase) uiMsgMainWinSetter
+mClass uiMsgMainWinSetter
 {
 public:
     			uiMsgMainWinSetter( uiMainWin* np )
@@ -113,4 +112,3 @@ protected:
 
 
 #endif
-

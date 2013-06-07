@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
  
-#include "generalmod.h"
 #include "ioobj.h"
 #include "streamconn.h"
 #include "ranges.h"
@@ -22,14 +21,14 @@ class StreamProvider;
 /*\brief An IOStream is a file (default) or command entry in the omf. */
 
 
-mExpClass(General) IOStream : public IOObj
+mClass IOStream : public IOObj
 {
 public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
     virtual		~IOStream();
     bool		bad() const;
-    bool		isCommand() const		{ return iscomm_; }
+    bool		isCommand() const		{ return iscomm; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool forread=true) const;
@@ -37,7 +36,7 @@ public:
 	    				bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
 
-    FixedString		connType() const;
+    const char*		connType() const;
     Conn*		getConn(Conn::State) const;
 
     bool		implExists(bool forread) const;
@@ -48,71 +47,70 @@ public:
     bool		implRename(const char*,const CallBack* cb=0);
 
     bool		multiConn() const
-			{ return isMulti() && curfnr_ <= fnrs_.stop; }
+			{ return isMulti() && curfnr <= fnrs.stop; }
     int			connNr() const
-			{ return curfnr_; }
+			{ return curfnr; }
     bool		toNextConnNr()
-			{ curfnr_ += fnrs_.step; return validNr(); }
+			{ curfnr += fnrs.step; return validNr(); }
     int			lastConnNr() const
-			{ return fnrs_.stop; }
+			{ return fnrs.stop; }
     int			nextConnNr() const
-			{ return curfnr_+fnrs_.step; }
+			{ return curfnr+fnrs.step; }
     void		resetConnNr()
-			{ curfnr_ = fnrs_.start; }
+			{ curfnr = fnrs.start; }
     void		setConnNr( int nr )
-			{ curfnr_ = nr; }
+			{ curfnr = nr; }
 
-    const char*		hostName() const		{ return hostname_; }
-    void		setHostName( const char* hn )	{ hostname_ = hn; }
-    FixedString		fileName() const		{ return fname_.buf(); }
+    const char*		hostName() const		{ return hostname; }
+    void		setHostName( const char* hn )	{ hostname = hn; }
+    const char*		fileName() const		{ return fname; }
     const char*		subDirName() const		{ return dirName(); }
     const char*		fullDirName() const;
     void		setFileName(const char*);
-    void		setExt( const char* ext )	{ extension_ = ext; }
+    void		setExt( const char* ext )	{ extension = ext; }
     void		genFileName();
 
-    const char*		reader() const			{ return fname_; }
+    const char*		reader() const			{ return fname; }
     const char*		writer() const
-			{ return writecmd_ ? (const char*)(*writecmd_) : 0; }
+			{ return writecmd ? (const char*)(*writecmd) : 0; }
     void		setReader(const char*);
     void		setWriter(const char*);
 
-    int			zeroPadding() const		{ return padzeros_; }
-    void		setZeroPadding( int zp )	{ padzeros_ = zp; }
-    StepInterval<int>&	fileNumbers()			{ return fnrs_; }
-    const StepInterval<int>& fileNumbers() const	{ return fnrs_; }
+    int			zeroPadding() const		{ return padzeros; }
+    void		setZeroPadding( int zp )	{ padzeros = zp; }
+    StepInterval<int>&	fileNumbers()			{ return fnrs; }
+    const StepInterval<int>& fileNumbers() const	{ return fnrs; }
 
     StreamProvider*	streamProvider(bool,bool fillwc=true) const;
     bool		isMulti() const
-			{ return fnrs_.start != fnrs_.stop; }
+			{ return fnrs.start != fnrs.stop; }
 
 protected:
 
     bool		getFrom(ascistream&);
     bool		putTo(ascostream&) const;
 
-    BufferString	hostname_;
-    int			nrfiles_;
-    FileNameString	fname_;
+    BufferString	hostname;
+    int			nrfiles;
+    FileNameString	fname;
 
-    BufferString	extension_;
-    FileNameString*	readcmd_;
-    FileNameString*	writecmd_;
-    bool		iscomm_;
-    int			padzeros_;
-    StepInterval<int>	fnrs_;
-    int			curfnr_;
-    int			nrretries_;
-    int			retrydelay_;
+    BufferString	extension;
+    FileNameString*	readcmd;
+    FileNameString*	writecmd;
+    bool		iscomm;
+    int			padzeros;
+    StepInterval<int>	fnrs;
+    int			curfnr;
+    int			nrretries;
+    int			retrydelay;
 
     void		getDev(ascistream&);
     bool		validNr() const
-			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }
+			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
     bool		implDo(bool,bool) const;
 
-    static int		prodid_; //!< for factory implementation
+    static int		prodid; //!< for factory implementation
 };
 
 
 #endif
-

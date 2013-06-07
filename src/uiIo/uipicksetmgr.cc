@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -38,10 +38,10 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj;
 	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
-	    ioobj->pars().set( sKey::Type(),
+	    ioobj->pars().set( sKey::Type,
 			       PickSetTranslatorGroup::sKeyPickSet() );
 	else
-	    ioobj->pars().set( sKey::Type(), sKey::Polygon() );
+	    ioobj->pars().set( sKey::Type, sKey::Polygon );
 
 	if ( !doStore( *ps, *ioobj ) )
 	    { delete ps; ps = 0; return false; }
@@ -116,7 +116,7 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     ctio->ctxt.forread = false;
 
     if ( ispoly )
-	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+	ctio->ctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
@@ -237,7 +237,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid )
     if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj,msg) )
 	uiMSG().error( msg );
 
-    dlg.ctioout_.ioobj->pars().set( sKey::Type(),
+    dlg.ctioout_.ioobj->pars().set( sKey::Type,
 	    PickSetTranslatorGroup::sKeyPickSet() );
     IOM().commitChanges( *dlg.ctioout_.ioobj );
     deepErase( pssread );

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
 #include "bufstring.h"
 class IOPar;
 
@@ -29,11 +28,7 @@ class BufferStringSet;
 namespace SqlDB
 {
 
-/*!
-\brief Credentials to connect to a Database.
-*/
-
-mExpClass(Database) ConnectionData
+mClass ConnectionData
 {
 public:
 
@@ -61,11 +56,7 @@ public:
 };
 
 
-/*!
-\brief To access a connected Database.
-*/
-
-mExpClass(Database) Access
+mClass Access
 {
 public:
 
@@ -97,11 +88,7 @@ public:
 };
 
 
-/*!
-\brief Access to a connected MySql Database.
-*/
-
-mExpClass(Database) MySqlAccess : public Access
+mClass MySqlAccess : public Access
 {
 public:
     			MySqlAccess( const char* dbtype )
@@ -111,4 +98,3 @@ public:
 } // namespace
 
 #endif
-

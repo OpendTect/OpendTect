@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "ailayer.h"
 #include "iopar.h"
 #include "task.h"
 #include "ranges.h"
 #include "raytrace1d.h"
 
-mExpClass(General) RayTracerRunner : public ParallelTask
+mClass RayTracerRunner : public ParallelTask
 {
 public:
     				RayTracerRunner(const TypeSet<ElasticModel>&,
@@ -32,26 +31,22 @@ public:
     //before exectution only
     void			setOffsets(TypeSet<float> offsets);
     void			addModel(const ElasticModel&,bool dosingle); 
-    bool                        prepareRayTracers();
 
     //available after excution
     ObjectSet<RayTracer1D>& 	rayTracers() 	{ return raytracers_; }
-    od_int64			nrDone() const;
 
 protected:
 
     IOPar			raypar_;
 
+    bool                        doPrepare(int);
     bool                	doWork(od_int64,od_int64,int);
     od_int64                    nrIterations() const;
-    int 			modelIdx(od_int64,bool&) const;
 
     BufferString		errmsg_;
 
     TypeSet<ElasticModel> aimodels_;
     ObjectSet<RayTracer1D> 	raytracers_;
-    od_int64			totalnr_;
 };
 
 #endif
-

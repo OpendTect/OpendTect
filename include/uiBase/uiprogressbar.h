@@ -12,12 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "uiobj.h"
 
 class uiProgressBarBody;
 
-mExpClass(uiBase) uiProgressBar : public uiObject
+mClass uiProgressBar : public uiObject
 {
 public:
 
@@ -36,4 +35,3 @@ private:
 };
 
 #endif
-

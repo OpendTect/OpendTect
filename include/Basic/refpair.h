@@ -13,9 +13,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-/*!
-\brief Defines a class holding a pair of references of different classes.
-*/
+/* Defines a class holding a pair of references of different classes */
 
 #define mDefRefPairClass(clssnm,T1,membnm1,T2,membnm2) \
 class clssnm \
@@ -48,9 +46,7 @@ public: \
 }
 
 
-/*!
-\brief Defines a class holding a pair of references of the same class.
-*/
+/* Defines a class holding a pair of references of the same class */
 
 #define mDefRefPairSameClass(clssnm,T) \
 class clssnm \

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "cubesampling.h"
@@ -28,19 +27,18 @@ class uiSliceScroll;
 namespace Threads { class Mutex; };
 
 
-mExpClass(uiTools) uiSliceSel : public uiGroup
+mClass uiSliceSel : public uiGroup
 {
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
-				uiSliceSel(uiParent*,Type,const ZDomain::Info&,
-					   bool dogeomcheck=true);
+				uiSliceSel(uiParent*,Type,const ZDomain::Info&);
 				~uiSliceSel();
 
     void			setApplyCB(const CallBack&);
 
     const CubeSampling&		getCubeSampling() const	{ return cs_; }
-    virtual void		setCubeSampling(const CubeSampling&);
+    void			setCubeSampling(const CubeSampling&);
     void			setMaxCubeSampling(const CubeSampling&);
     void			enableApplyButton(bool);
     void			enableScrollButton(bool);
@@ -78,15 +76,14 @@ protected:
     CubeSampling		maxcs_;
     CubeSampling		cs_;
     CallBack*			applycb_;
-    bool			isinl_, iscrl_, istsl_, isvol_, is2d_,
-				dogeomcheck_;
+    bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
     ZDomain::Info		zdominfo_;
 
     Threads::Mutex&		updatemutex_;
 };
 
 
-mExpClass(uiTools) uiSliceSelDlg : public uiDialog
+mClass uiSliceSelDlg : public uiDialog
 {
 public:
     				uiSliceSelDlg(uiParent*,
@@ -111,4 +108,3 @@ protected:
 };
 
 #endif
-

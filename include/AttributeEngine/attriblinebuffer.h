@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "sets.h"
 
 class BinID;
@@ -23,11 +22,7 @@ namespace Attrib
 
 class DataHolder;
 
-/*!
-\brief Attribute DataHolder Line Buffer.
-*/
-
-mExpClass(AttributeEngine) DataHolderLineBuffer
+mClass DataHolderLineBuffer
 {
 public:
     			DataHolderLineBuffer();
@@ -56,4 +51,3 @@ protected:
 
 
 #endif
-

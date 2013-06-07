@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "explicitmarchingcubes.h"
 
@@ -83,14 +83,14 @@ protected:
 	const MultiDimStorage<MarchingCubesModel>& models = 
 	    surface_.getSurface()->models_;
 
-	for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
+	for ( int idx=start; idx<=stop && shouldContinue();
 	      idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
 	    else if ( idx==start )
 	    {
-		if ( !models.getIndex(mCast(int,start),idxs) )
+		if ( !models.getIndex(start,idxs) )
 		    return false;
 	    }
 	    else
@@ -281,12 +281,12 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
 
-    if ( !TaskRunner::execute( tr, updater ) )
+    if ( tr ? !tr->execute( updater ) : !updater.execute() )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    if ( TaskRunner::execute( tr, updater ) )
+    if ( tr ? tr->execute( updater ) : updater.execute() )
     {
 	mRemoveBucketRanges;
 	lastversionupdate_ = getVersion();
@@ -315,12 +315,12 @@ bool ExplicitMarchingCubesSurface::update(
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
     updater.setLimits( xrg, yrg, zrg ); 
 
-    if ( !TaskRunner::execute( tr, updater ) )
+    if ( tr ? !tr->execute( updater ) : !updater.execute() )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    return TaskRunner::execute( tr, updater );
+    return tr ? tr->execute( updater ) : updater.execute();
 }
 
 
@@ -400,11 +400,11 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
     else if ( coordindices[bsz-1]!=-1 ) \
     { \
 	if ( coordindices[bsz-2]==-1 ) \
-	    coordindices.removeSingle( bsz-1 ); \
+	    coordindices.remove( bsz-1 ); \
 	else if ( coordindices[bsz-3]==-1 ) \
 	{ \
-	    coordindices.removeSingle( bsz-1 ); \
-	    coordindices.removeSingle( bsz-2 ); \
+	    coordindices.remove( bsz-1 ); \
+	    coordindices.remove( bsz-2 ); \
 	} \
 	else \
 	    coordindices += -1; \

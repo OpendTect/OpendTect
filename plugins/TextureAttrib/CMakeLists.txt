@@ -2,7 +2,7 @@
 #
 #	Makefile : 	Texture plugin (base)
 # 	Sep 2012	Paul
-#	RCS :		$Id$
+#	RCS :		$Id: CMakeLists.txt 26287 2012-09-20 14:30:37Z bert.bril@dgbes.com $
 #_______________________________________________________________________________
 
 #Setup the module

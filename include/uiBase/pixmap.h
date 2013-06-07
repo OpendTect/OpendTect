@@ -12,12 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
 #include "namedobj.h"
+#include "iodrawimpl.h"
 
-mFDQtclass(QBitmap)
-mFDQtclass(QPaintDevice)
-mFDQtclass(QPixmap)
+class QBitmap;
+class QPaintDevice;
+class QPixmap;
 
 class BufferStringSet;
 class Color;
@@ -32,14 +32,14 @@ class uiRGBArray;
 
 */
 
-mExpClass(uiBase) ioPixmap : public NamedObject
+mClass ioPixmap : public NamedObject, public ioDrawAreaImpl
 {
 public:
 			ioPixmap() : qpixmap_(0)		{}
 			ioPixmap(const uiRGBArray&);
 			ioPixmap(const char* xpm[]);
 			ioPixmap(int w,int h);
-			ioPixmap(const mQtclass(QPixmap&));
+			ioPixmap(const QPixmap&);
 			ioPixmap(const ioPixmap&);
 			ioPixmap(const char* filename,const char* fmt=0);
 			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
@@ -47,8 +47,8 @@ public:
 
     void		convertFromRGBArray(const uiRGBArray&);
 
-    mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
-    const mQtclass(QPixmap*)	qpixmap() const		{ return qpixmap_; }
+    QPixmap* 		qpixmap()		{ return qpixmap_; }
+    const QPixmap*  	qpixmap() const		{ return qpixmap_; }
 
     void		fill(const Color&);
 
@@ -64,8 +64,11 @@ public:
 
 protected:
     
-    mQtclass(QPixmap*)	qpixmap_;
+    QPixmap*		qpixmap_; 
     BufferString	srcname_;
+
+    virtual QPaintDevice* qPaintDevice();         
+
 };
 
 
@@ -81,15 +84,17 @@ header to guess the file format.
 
 */
 
-mExpClass(uiBase) ioBitmap : public ioPixmap
+mClass ioBitmap : public ioPixmap
 {
 public:
 			ioBitmap(const char* filename,const char* fmt=0); 
-    mQtclass(QBitmap*)	Bitmap();
-    const mQtclass(QBitmap*)  	Bitmap() const;
+    QBitmap* 		Bitmap();
+    const QBitmap*  	Bitmap() const;
 
 };
 
-mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
+
+mGlobal void supportedImageFormats(BufferStringSet&);
+
 
 #endif

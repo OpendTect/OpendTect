@@ -7,31 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
-#include "prog.h"
-
-#include "uimain.h"
 #include "uiseismmproc.h"
-
-#include "filepath.h"
-#include "ioman.h"
-#include "iopar.h"
-#include "keystrs.h"
-#include "moddepmgr.h"
+#include "uimain.h"
 #include "plugins.h"
-#include "strmprov.h"
-#include "strmdata.h"
+#include "ioman.h"
 #include "survinfo.h"
 
+#include "prog.h"
+#include "strmprov.h"
+#include "strmdata.h"
+#include "iopar.h"
+#include "filepath.h"
+#include "keystrs.h"
 #include <iostream>
 
 
 int main( int argc, char ** argv )
 {
-    SetProgramArgs( argc, argv );
+    od_putProgInfo( argc, argv );
 
-    OD::ModDeps().ensureLoaded( "uiSeis" );
     const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
     if ( argc+bgadd < 3 )
     {
@@ -48,7 +44,7 @@ int main( int argc, char ** argv )
 	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    IOPar iop; iop.read( *sdin.istrm, sKey::Pars() );
+    IOPar iop; iop.read( *sdin.istrm, sKey::Pars );
     if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
@@ -59,12 +55,12 @@ int main( int argc, char ** argv )
     if ( bgadd )
 	forkProcess();
 
-    const char* res = iop.find( sKey::Survey() );
+    const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 
+    PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( "Seis" );
 
     uiMain app( argc, argv );
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, iop, argv[1+bgadd], parfnm );

@@ -26,7 +26,6 @@ SET(OD_MODULE_SOURCES
 		oddlsite.cc
 		odftp.cc
 		odhttp.cc
-		svnaccess.cc
 		systeminfo.cc
 		tcpserver.cc
 		tcpsocket.cc)

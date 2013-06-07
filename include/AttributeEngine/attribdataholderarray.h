@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "arraynd.h"
 
 
@@ -21,17 +20,11 @@ namespace Attrib
 
 class DataHolder;
 
-/*!
-\brief An array of attribute data holders.
-*/
-mExpClass(AttributeEngine) DataHolderArray : public Array3D<float>
+mClass DataHolderArray : public Array3D<float>
 {
 public:
 			DataHolderArray(const ObjectSet<DataHolder>&,
-					bool manageset);//type_ 0
-			DataHolderArray(const ObjectSet<DataHolder>& dh, 
-				int sidx,int dim0sz,int dim1sz,bool manageset);
-
+					bool manageset);
 			~DataHolderArray();
 
     void		set(int,int,int,float);
@@ -43,11 +36,8 @@ protected:
     Array3DInfoImpl	info_;
     ObjectSet<DataHolder> dh_;
     bool		manageset_;
-    char		type_;
-    int			seriesidx_;	
 };
 
 }
 
 #endif
-

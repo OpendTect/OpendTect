@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uivelocityfunctionimp.h"
 
@@ -120,7 +120,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( filesize>2 )
     {
     	uiTaskRunner tr( this );
-	success = TaskRunner::execute( &tr, velascio );
+	success = tr.execute( velascio );
     }
     else
         success = velascio.execute();

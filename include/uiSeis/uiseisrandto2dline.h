@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 
@@ -23,7 +22,7 @@ class uiSeisSel;
 
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
-mExpClass(uiSeis) uiSeisRandTo2DBase : public uiGroup
+mClass uiSeisRandTo2DBase : public uiGroup
 {
 public:
     			uiSeisRandTo2DBase(uiParent*,bool rdlsel);
@@ -50,7 +49,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
+mClass uiSeisRandTo2DLineDlg : public uiDialog
 {
 public:
     			uiSeisRandTo2DLineDlg(uiParent*,
@@ -67,4 +66,3 @@ protected:
 };
 
 #endif
-

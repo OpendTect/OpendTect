@@ -35,8 +35,8 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     commentfld_ = new uiTextEdit( this );
     commentfld_->attach( alignedBelow, label );
     
-    uiLabel* commentlabel mUnusedVar = new uiLabel( this, "Details (voluntary)",
-						    commentfld_);
+    uiLabel* commentlabel = new uiLabel( this, "Details (voluntary)",
+					commentfld_);
     
     viewreportbut_ = new uiPushButton( this, "View report",
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
@@ -65,8 +65,8 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 {
     res.setEmpty();
     
-    res.add( "\n\nDetails:\n\n" ).add( commentfld_->text() );
-    res.add( "\n\nReport:\n\n" ).add( reporter_.getReport() );
+    res.add( "Details:\n" ).add( commentfld_->text() );
+    res.add( "\nReport:\n" ).add( reporter_.getReport() );
 }
 
 
@@ -112,3 +112,4 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     
     return true;
 }
+

@@ -4,7 +4,7 @@
  * DATE     : Mar 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "segyhdrcalc.h"
@@ -154,9 +154,9 @@ bool SEGY::HdrCalcSet::set( int heidx, const char* def, BufferString* emsg )
 
 void SEGY::HdrCalcSet::discard( int idx )
 {
-    delete removeSingle( idx );
-    delete exprs_.removeSingle( idx );
-    delete heidxs_.removeSingle( idx );
+    delete remove( idx );
+    delete exprs_.remove( idx );
+    delete heidxs_.remove( idx );
 }
 
 
@@ -171,10 +171,10 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 	const TypeSet<int>& heidxs = *heidxs_[iexpr];
 	for ( int ivar=0; ivar<heidxs.size(); ivar++ )
 	{
-	    float val = mCast( float, seqnr_ );
+	    float val = seqnr_;
 	    const int heidx = heidxs[ivar];
 	    if ( heidx >= 0 )
-		val = mCast( float, hdef_[heidx]->getValue( buf ) );
+		val = hdef_[heidx]->getValue( buf );
 	    me.setVariableValue( ivar, val );
 	}
 

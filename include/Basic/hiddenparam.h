@@ -17,45 +17,41 @@ ________________________________________________________________________
 #include "sets.h"
 
 
-/*!
-\brief Workaround manager when you cannot add class members to a class due to
-binary compability issues.
+/*!\brief Workaround manager when you cannot add class members to a class
+          due to binary compability issues.
 
-  If you want to add the variable of type V to class O, do the following
-  in the source-file:
-  
-  \code
-  HiddenParam<O,V>	myparammanager( undef_val );
-  \endcode
-  
-  You can then access the variable in the source-file by:
-  
-  \code
-  myparammanager.setParam( this, new_value );
-  \endcode
-  
-  and retrieve it by 
-  
-  \code
-  V value = myparammanager.getParam( this );
-  \endcode
-  
-  \note V cannot be boolean. Use char instead. V must be 'simple' enough to be
-  stored in a type-set. Also note you may not be able to call the
-  removeParam (if the class does not already have a destructor), so
-  so don't use with objects that are created millions of times in those
-  cases, as you will leak memory.
-  Finally, note that you MUST set the parameter in the constructor. The
-  undef value is not ment to be returned, it's merely to keep the compiler
-  happy.
+	  If you want to add the variable of type V to class O, do the following
+	  in the source-file:
+
+\code
+    HiddenParam<O,V>	myparammanager( default_value_of_V );
+\endcode
+
+You can then access the variable in the source-file by:
+
+\code
+myparammanager.setParam( this, new_value );
+\endcode
+
+and retrieve it by 
+
+\code
+V value = myparammanager.getParam( this );
+\endcode
+
+\note V cannot be boolean. Use char instead. V must be 'simple' enough to be
+      stored in a type-set. Also note you may not be able to call the
+      removeParam (if the class does not already have a destructor), so
+      so don't use with objects that are created millions of times in those
+      cases, as you will leak memory.
 */
 
 template <class O, class V>
-mClass(Basic) HiddenParam 
+class HiddenParam 
 {
 public:
-    		HiddenParam( const V& undefval )
-		    : undef_( undefval ) 	{}
+    		HiddenParam( const V& def )
+		    : default_( def ) 	{}
     void	setParam( O* obj, const V& val );
     const V&	getParam( const O* obj ) const;
 
@@ -67,7 +63,7 @@ protected:
     ObjectSet<O>		objects_;
     TypeSet<V>			params_;
     mutable Threads::Mutex	lock_;
-    V				undef_;
+    V				default_;
 };
 
 
@@ -92,10 +88,10 @@ const V& HiddenParam<O,V>::getParam( const O* obj ) const
 {
     Threads::MutexLocker lock( lock_ );
     const int idx = objects_.indexOf( obj );
-    if ( !objects_.validIdx(idx) )
+    if ( idx==-1 )
     {
 	pErrMsg("Object not found");
-	return undef_;
+	return default_;
     }
 
     return params_[idx];
@@ -119,8 +115,8 @@ void HiddenParam<O,V>::removeParam( O* obj )
     if ( idx==-1 )
 	return;
 
-    params_.removeSingle( idx );
-    objects_.removeSingle( idx );
+    params_.remove( idx );
+    objects_.remove( idx );
 }
 
 

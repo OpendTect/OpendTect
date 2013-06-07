@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -25,7 +24,7 @@ class uiIOObjSel;
 
 /*! \brief Dialog for horizon export */
 
-mExpClass(uiEarthModel) uiExportFault : public uiDialog
+mClass uiExportFault : public uiDialog
 {
 public:
 			uiExportFault(uiParent*,const char* type);
@@ -47,4 +46,3 @@ protected:
 };
 
 #endif
-

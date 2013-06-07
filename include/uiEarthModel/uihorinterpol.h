@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "factory.h"
 #include "uidialog.h"
 
@@ -24,7 +23,7 @@ class uiArray2DInterpolSel;
 class uiIOObjSel;
 
 
-mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
+mClass uiHorizonInterpolDlg : public uiDialog
 {
 public:
     			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
@@ -33,8 +32,6 @@ public:
 
     const char*		helpID() const;
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
-
-    Notifier<uiHorizonInterpolDlg> finished;
 
 protected:
 
@@ -54,4 +51,3 @@ protected:
 
 
 #endif
-

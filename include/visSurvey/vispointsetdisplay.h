@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "dpsdispmgr.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -27,7 +26,7 @@ namespace visSurvey
 {
 
 
-mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
+mClass PointSetDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
 {
 public:
@@ -64,12 +63,9 @@ protected:
     DataPointSet*		data_;
     const mVisTrans*		transformation_;
     visBase::EventCatcher*	eventcatcher_;
-
-    //void			eventCB(CallBacker*);
 };
 
 };
 
 
 #endif
-

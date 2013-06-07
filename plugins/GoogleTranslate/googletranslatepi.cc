@@ -2,8 +2,9 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nanne Hemstra
  * DATE     : August 2010
- * SVN      : $Id$
 -*/
+
+static const char* rcsID = "$Id Exp $";
 
 #include "uiodmain.h"
 #include "uiodapplmgr.h"

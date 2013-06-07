@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -145,7 +145,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	{ setEmpty(); return; }
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
-    Stats::randGen().subselect( idxs, orgsz, maxsz );
+    Stats::RandGen::subselect( idxs, orgsz, maxsz );
     TypeSet<Pos> poss;
     if ( buildnew )
     {
@@ -167,7 +167,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	BinIDValues bidvals;
 	for ( od_int64 idx=0; idx<poss.size(); idx++ )
 	{
-	    get( poss[mCast(int,idx)], bidvals );
+	    get( poss[idx], bidvals );
 	    newbvs.add( bidvals );
 	}
 	*this = newbvs;
@@ -442,7 +442,7 @@ bool BinIDValueSet::valid( const BinID& bid ) const
 {
     Pos pos = findFirst( bid );
     return pos.valid()
-	&& inls_.isPresent(bid.inl)
+	&& inls_.indexOf(bid.inl) >= 0
 	&& getCrlSet(pos).size() > pos.j;
 }
 
@@ -587,7 +587,7 @@ od_int64 nrIterations() const { return cubedata_.size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
 	const int inl = line.linenr_;
@@ -646,7 +646,7 @@ od_int64 BinIDValueSet::totalSize() const
 
 bool BinIDValueSet::hasInl( int inl ) const
 {
-    return inls_.isPresent(inl);
+    return inls_.indexOf(inl) >= 0;
 }
 
 
@@ -679,11 +679,11 @@ void BinIDValueSet::remove( const Pos& pos )
     if ( pos.j < 0 || pos.j >= crls.size() )
 	return;
 
-    crls.removeSingle( pos.j );
+    crls.remove( pos.j );
     if ( crls.size() )
     {
 	if ( nrvals_ )
-	    getValSet(pos).removeRange( pos.j*nrvals_, (pos.j+1)*nrvals_ - 1 );
+	    getValSet(pos).remove( pos.j*nrvals_, (pos.j+1)*nrvals_ - 1 );
     }
     else
     {
@@ -754,7 +754,7 @@ void BinIDValueSet::removeVal( int validx )
 	TypeSet<float>& vals = getValSet(iinl);
 	TypeSet<int>& crls = getCrlSet(iinl);
 	for ( int icrl=crls.size()-1; icrl>=0; icrl-- )
-	    vals.removeSingle( nrvals_*icrl+validx );
+	    vals.remove( nrvals_*icrl+validx );
     }
     const_cast<int&>(nrvals_)--;
 }
@@ -972,8 +972,8 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
 		isin = crlrg.includes(crl,false) && crlrg.snap( crl )==crl;
 		if ( isin==removeinside )
 		{
-		    crls.removeSingle( idy );
-		    vals.removeRange( idy*nrvals_, idy*nrvals_+nrvals_-1 );
+		    crls.remove( idy );
+		    vals.remove( idy*nrvals_, idy*nrvals_+nrvals_-1 );
 		}
 	    }
 	}
@@ -983,9 +983,11 @@ void BinIDValueSet::remove( const HorSampling& hrg, bool removeinside )
 
 void BinIDValueSet::removeLine( int idx )
 {
-    inls_.removeSingle( idx );
-    delete crlsets_.removeSingle( idx );
-    delete valsets_.removeSingle( idx );
+    inls_.remove( idx );
+    delete crlsets_[idx];
+    crlsets_.remove( idx );
+    delete valsets_[idx];
+    valsets_.remove( idx );
 }
 
 
@@ -993,10 +995,6 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinIDValue& biv )
 {
     return nrvals_ < 2 ? add(biv.binid,&biv.value)  : add(BinIDValues(biv));
 }
-
-
-BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, double v )
-{ return add( bid, mCast(float,v) ); }
 
 
 BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, float v )

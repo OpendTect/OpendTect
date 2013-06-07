@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "emobject.h"
 #include "position.h"
 
@@ -32,12 +31,13 @@ class EdgeLineManager;
 class SurfaceAuxData;
 class SurfaceGeometry;
 
-/*!
-\brief Base class for surfaces like horizons and faults. A surface is made up
-of one or more segments or patches, so they can overlap.
+/*!\brief Base class for surfaces
+  This is the base class for surfaces like horizons and faults. A surface is
+  made up by one or more segments or patches, so they can overlap. 
 */
 
-mExpClass(EarthModel) Surface : public EMObject
+
+mClass Surface : public EMObject
 {
 public:
     int				nrSections() const;
@@ -93,4 +93,3 @@ protected:
 
 
 #endif
-

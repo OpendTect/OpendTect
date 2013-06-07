@@ -13,21 +13,18 @@ ________________________________________________________________________
 -*/
 
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 
 namespace Attrib
 {
 
-/*!
-\brief %Energy Attribute
+/*!\brief "Energy Attribute"
+
+Energy gate= dograd=
 
 Calculates the squared sum of the gate's samples divided by the number of
 samples in the gate.
-
-<pre>
-Energy gate= dograd=
 
 Input:
 0		Data
@@ -37,11 +34,11 @@ Outputs:
 1		Square root of the energy
 2		Ln of the energy
 
-if Gradient is selected outputs will be : grad(Energy), grad(SQRT(Energy)), ...
-</pre>
+if Gradient is selected outputs will be : grad(Energy), grad(sqrt(Energy)), ...
 */
+    
 
-mExpClass(Attributes) Energy: public Provider
+mClass Energy: public Provider
 {
 public:
     static void		initClass();
@@ -74,8 +71,23 @@ protected:
     const DataHolder*	inputdata_;
 };
 
-} // namespace Attrib
+}; // namespace Attrib
+
+
+/*!\page Attributes Standard Attributes
+
+  This module contains the definition of the 'standard' OpendTect attributes.
+  Contained are attributes like Energy, Similarity, Volume Statistics, etc.
+  The base class for all attributes is the Provider class.
+
+  The Attribute factories are defined in the Attribute Engine module
+  (AttributeEngine).
+
+  If you want to make your own attributes, please consult the Programmer's
+  manual, section 'Plugins'. You'll find an annotated example of the Coherency
+  attribute implementation.
+
+*/
 
 
 #endif
-

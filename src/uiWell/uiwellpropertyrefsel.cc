@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwellpropertyrefsel.h"
@@ -26,6 +26,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "welllog.h"
 #include "wellman.h"
+#include "hiddenparam.h"
+
+HiddenParam<uiPropSelFromList,Notifier<uiPropSelFromList>* >
+				combochgmanager( 0 );
+
+
+Notifier<uiPropSelFromList>* uiPropSelFromList::comboChg()
+{
+    return combochgmanager.getParam(this);
+}
 
 
 uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
@@ -34,11 +44,14 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
     , propref_(pr)
     , altpropref_(0)
     , checkboxfld_(0)
-    , comboChg_(this)
 {
+    Notifier<uiPropSelFromList>* combochg_ =
+       new Notifier<uiPropSelFromList>(this);
+    combochgmanager.setParam( this, combochg_ );
+
     typefld_ = new uiComboBox( this, BufferString(pr.name()," type") );
     typefld_->selectionChanged.notify(
-	   		       mCB( this, uiPropSelFromList, updateSelCB ) );
+	    		       mCB( this, uiPropSelFromList, updateSelCB ) );
     typelbl_ = new uiLabel( this, pr.name(), typefld_ );
 
     unfld_ = new uiUnitSel( this, propref_.stdType(), 0, false, true );
@@ -51,7 +64,7 @@ uiPropSelFromList::uiPropSelFromList( uiParent* p, const PropertyRef& pr,
 	checkboxfld_ = new uiCheckBox( this, alternatepr->name() );
 	checkboxfld_->attach( rightOf, unfld_ );
 	checkboxfld_->activated.notify(
-				mCB( this, uiPropSelFromList,switchPropCB ) );
+				mCB( this, uiPropSelFromList, switchPropCB ) );
     }
     setHAlignObj( typefld_ );
 }
@@ -65,7 +78,9 @@ uiPropSelFromList::~uiPropSelFromList()
 
 void uiPropSelFromList::updateSelCB( CallBacker* )
 {
-    comboChg_.trigger();
+    if ( const_cast<uiPropSelFromList*>(this)->comboChg() )
+	const_cast<uiPropSelFromList*>(this)->
+	    	comboChg()->trigger();
 }
 
 
@@ -160,6 +175,20 @@ const PropertyRef& uiPropSelFromList::propRef() const
 }
 
 
+HiddenParam<uiWellPropSel,MultiID> wellidmainmanager( 0 );
+
+
+MultiID uiWellPropSel::getWellIDMain()
+{
+    return wellidmainmanager.getParam( this );
+}
+
+
+void uiWellPropSel::setWellIDMain(const MultiID& wid)
+{
+    wellidmainmanager.setParam( this, wid );
+}
+
 
 uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     : uiGroup(p," property selection from well logs")
@@ -174,7 +203,7 @@ void uiWellPropSel::initFlds()
     for ( int idx=0; idx<proprefsel_.size(); idx ++ )
     {
 	const PropertyRef& pr = *proprefsel_[idx];
-	if ( pr.isThickness() )
+	if ( pr == PropertyRef::thickness() )
 	    continue;
 
 	const PropertyRef* altpr = 0;
@@ -186,7 +215,8 @@ void uiWellPropSel::initFlds()
 			    : new PropertyRef( "Sonic", PropertyRef::Son );
 
 	uiPropSelFromList* fld = new uiPropSelFromList( this, pr, altpr );
-	fld->comboChg_.notify( mCB( this, uiWellPropSel, updateSelCB) );
+	if ( fld->comboChg() )
+	    fld->comboChg()->notify(mCB( this, uiWellPropSel, updateSelCB));
 	if ( propflds_.size() > 0 )
 	    fld->attach( alignedBelow, propflds_[propflds_.size()-1] );
 	else
@@ -204,7 +234,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 
     mDynamicCastGet(uiPropSelFromList*, fld, c);
     if ( !fld ) return;
-    const Well::Data* wd = Well::MGR().get( wellid_, false );
+    const Well::Data* wd = Well::MGR().get( getWellIDMain(), false );
     if  ( !wd ) return;
 
     const Well::Log* log = wd->logs().getLog( fld->text() );
@@ -229,7 +259,14 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 }
 
 
-bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
+void uiWellPropSel::setLogs( const Well::LogSet& logs  )
+{
+    if ( !setLogsBool(logs) )
+	return;
+}
+
+
+bool uiWellPropSel::setLogsBool( const Well::LogSet& logs  )
 {
     bool propertyhasnoinput = false;
     for ( int iprop=0; iprop<propflds_.size(); iprop++ )
@@ -261,7 +298,6 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
 	{
 	    BufferString lognm = logs.getLog(propidx[ipropidx]).name();
-//	    bufferString firstletter = (BufferString)lognm.buf()[0];
 	    const char* uomlbl = logs.getLog(propidx[ipropidx]).unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
 	    if ( uom && uom->propType() == propref.stdType() )
@@ -329,6 +365,14 @@ bool uiWellPropSel::isOK() const
 }
 
 
+bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
+			      const char* nm, bool usealt,
+			      const UnitOfMeasure* uom )
+{
+    return setLog( tp, nm, usealt, uom, 0 );
+}
+
+
 bool uiWellPropSel::setLog( const PropertyRef::StdType tp, 
 				const char* nm, bool usealt,
 				const UnitOfMeasure* uom, int idx )
@@ -336,6 +380,13 @@ bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
     if ( propflds_[idx]->propRef().hasType( tp ) )
 	propflds_[idx]->set( nm, usealt, uom );
     return false;
+}
+
+
+bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs,
+			    bool& check, BufferString& uom ) const
+{
+    return getLog( tp, bs, check, uom, 0 );
 }
 
 
@@ -377,15 +428,6 @@ uiPropSelFromList*  uiWellPropSel::getPropSelFromListByName(
 		return propflds_[idx];
 	}
     }
-
-    return 0;
-}
-
-
-uiPropSelFromList* uiWellPropSel::getPropSelFromListByIndex( int idx )
-{
-    if ( propflds_.validIdx(idx) )
-	return propflds_[idx];
 
     return 0;
 }
@@ -443,10 +485,17 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 } 
 
 
+
+
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
-    : uiWellPropSel(p,*new ElasticPropSelection())
+    : uiWellPropSel(p,*new PropertyRefSelection)
 {
-    propflds_[propflds_.size()-1]->display( withswaves );
+    PropertyRefSelection& eps = const_cast<PropertyRefSelection&>(proprefsel_);
+
+    eps += new PropertyRef( "Density", PropertyRef::Den );
+    eps += new PropertyRef( "Velocity", PropertyRef::Vel );
+
+    initFlds();
 }
 
 
@@ -455,4 +504,40 @@ uiWellElasticPropSel::~uiWellElasticPropSel()
     delete &proprefsel_;
 }
 
+
+bool uiWellElasticPropSel::setDenLog( const char* nm, const UnitOfMeasure* uom )
+{
+    const PropertyRef::StdType tp = 
+	ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
+
+    return setLog( tp, nm, false, uom, 0 );
+}
+
+
+bool uiWellElasticPropSel::setVelLog( const char* nm, const UnitOfMeasure* uom,
+				    bool rev )
+{
+    const PropertyRef::StdType tp = 
+	ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
+
+    return setLog( tp, nm, rev, uom, 1 );
+}
+
+
+bool uiWellElasticPropSel::getDenLog( BufferString& nm, BufferString& uom) const
+{
+    const PropertyRef::StdType tp =
+	        ElasticPropertyRef::elasticToStdType(ElasticFormula::Den);
+    bool dummy;
+    return getLog( tp, nm, dummy, uom, 0 );
+}
+
+
+bool uiWellElasticPropSel::getVelLog( BufferString& nm, BufferString& um,
+					bool& isrev ) const
+{
+    const PropertyRef::StdType tp =
+		ElasticPropertyRef::elasticToStdType(ElasticFormula::PVel);
+    return getLog( tp, nm, isrev, um, 1 );
+}
 

@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdescsettr.h"
 #include "ascstream.h"
@@ -28,7 +28,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     PtrMan<AttribDescSetTranslator> tr
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
+	= dynamic_cast<AttribDescSetTranslator*>(ioobj->getTranslator());
     if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -45,12 +45,12 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
     PtrMan<AttribDescSetTranslator> tr
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
+	= dynamic_cast<AttribDescSetTranslator*>(ioobj->getTranslator());
     if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
-    ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
+    ioobj->pars().set( sKey::Type, ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
     bs = tr->write( ads, *conn );
     return bs.isEmpty();
@@ -65,7 +65,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     const float versionnr = toFloat( astream.version() );
-    if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
+    if ( strcmp(astream.fileType(),mTranslGroupName(AttribDescSet)) )
 	return "File has wrong file type";
 
     IOPar iopar( astream );

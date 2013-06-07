@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 
 #include "cubesampling.h"
@@ -26,12 +24,8 @@ ________________________________________________________________________
 
 namespace EM
 {
-
-/*!
-\brief EM object painter callback data.
-*/
-  
-mExpClass(EarthModel) EMObjPainterCallbackData
+    
+mClass EMObjPainterCallbackData
 {
 public:
     		    EMObjPainterCallbackData() 
@@ -42,18 +36,14 @@ public:
     bool	    enabled_;
 };
     
-
-/*!
-\brief %Horizon painter
-*/
-
-mExpClass(EarthModel) HorizonPainter : public CallBacker
+    
+mClass HorizonPainter : public CallBacker
 {
 public:
     			HorizonPainter(FlatView::Viewer&);
 			~HorizonPainter();
 
-	mStruct(EarthModel) HorizonInfo
+	mStruct HorizonInfo
     	{
 	    EM::ObjectID	id_;
 	    BufferString	name_;
@@ -112,10 +102,10 @@ protected:
     
     ObjectSet<HorizonInfo>  horizoninfos_;
 
-    typedef ObjectSet<FlatView::AuxData> SectionMarkerLine;
+    typedef ObjectSet<FlatView::Annotation::AuxData> SectionMarkerLine;
     ObjectSet< ObjectSet<SectionMarkerLine> > hormarkerlines_;
 
-    ObjectSet<FlatView::AuxData> horsmarkerseeds_;
+    ObjectSet<FlatView::Annotation::AuxData> horsmarkerseeds_;
     MarkerStyle2D	markerstyle_;
 
     bool		is2d_;
@@ -128,5 +118,3 @@ protected:
 }// namespace EM
 
 #endif
-
-

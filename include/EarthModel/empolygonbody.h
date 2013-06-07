@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "earthmodelmod.h"
 #include "embody.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
@@ -28,11 +27,7 @@ namespace EM
 {
 class PolygonBody;
 
-/*!
-\brief PolygonBody SurfaceGeometry
-*/
-
-mExpClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
+mClass PolygonBodyGeometry : public SurfaceGeometry
 {
 public:
     			PolygonBodyGeometry(PolygonBody&);
@@ -72,11 +67,7 @@ protected:
 };
 
 
-/*!
-\brief A Surface polygon Body.
-*/
-
-mExpClass(EarthModel) PolygonBody : public Surface, public Body
+mClass PolygonBody : public Surface, public Body
 { mDefineEMObjFuncs( PolygonBody );
 public:
     PolygonBodyGeometry&	geometry();
@@ -112,4 +103,3 @@ protected:
 
 
 #endif
-

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
 #include "executor.h"
 #include "bufstringset.h"
 class IOPar;
@@ -39,7 +38,7 @@ class SeisTrcWriter;
 
   */
 
-mExpClass(Seis) SeisBayesClass : public Executor
+mClass SeisBayesClass : public Executor
 {
 public:
 
@@ -124,4 +123,3 @@ protected:
 
 
 #endif
-

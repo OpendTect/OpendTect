@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -31,8 +31,8 @@ uiDataPointSetCrossPlotter::Setup::Setup()
     , minborder_(10,20,20,5)
     , showcc_(true)
     , showregrline_(false)
-    , showy1userdefpolyline_(false)
-    , showy2userdefpolyline_(false)
+    , showy1userdefline_(false)
+    , showy2userdefline_(false)
 {
 }
 
@@ -132,7 +132,7 @@ float SelectionArea::selectedness( uiPoint pt ) const
     if ( distobrder > maxdistest_ )
 	return mUdf(float);
 
-    return (float) ( distobrder/maxdistest_ );
+    return distobrder/maxdistest_;
 }
 
 
@@ -230,10 +230,10 @@ BufferStringSet SelectionArea::getAxisNames() const
 
 void SelectionGrp::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), name().buf() );
+    par.set( sKey::Name, name().buf() );
     BufferString color;
     col_.fill( color.buf() );
-    par.set( sKey::Color(), color.buf() );
+    par.set( sKey::Color, color.buf() );
     par.set( sKeyNrAreas, selareas_.size() );
 
     for ( int selidx=0; selidx < selareas_.size(); selidx++ )
@@ -247,7 +247,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 	attributes.add(  selarea.yaxisnm_ );
 	if ( selarea.axistype_ == SelectionArea::Both )
 	    attributes.add( selarea.altyaxisnm_ );
-	par.set( IOPar::compKey(selkey,sKey::Attributes()), attributes );
+	par.set( IOPar::compKey(selkey,sKey::Attributes), attributes );
 	
 	if ( selarea.isrectangle_ )
 	{
@@ -297,7 +297,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 
 void SelectionGrp::usePar( const IOPar& par )
 {
-    if ( !par.get(sKey::Name(),*name_) || !par.get(sKey::Color(),col_) )
+    if ( !par.get(sKey::Name,*name_) || !par.get(sKey::Color,col_) )
 	return;
 
     int nrselareas = 0;
@@ -308,7 +308,7 @@ void SelectionGrp::usePar( const IOPar& par )
 	BufferString selkey;
 	selkey.add( selidx );
 	BufferStringSet nms;
-	par.get( IOPar::compKey(selkey,sKey::Attributes()), nms );
+	par.get( IOPar::compKey(selkey,sKey::Attributes), nms );
 
 	BufferString rectstr = IOPar::compKey( selkey.str(), sKeyRect );
 	BufferString polygonstr = IOPar::compKey( selkey.str(), sKeyPoly );
@@ -384,7 +384,7 @@ void SelectionGrp::addSelection( const SelectionArea& selarea )
 void SelectionGrp::removeSelection( int idx )
 {
     if ( selareas_.validIdx(idx) )
-	selareas_.removeSingle( idx );
+	selareas_.remove( idx );
 }
 
 

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiodmainmod.h"
 #include "uiodmain.h"
 
 class MouseCursorExchange;
@@ -56,7 +55,7 @@ namespace Pick { class Set; }
  
  */
 
-mExpClass(uiODMain) uiODApplMgr : public CallBacker
+mClass uiODApplMgr : public CallBacker
 {
 public:
 
@@ -97,7 +96,6 @@ public:
     void			openCrossPlot(CallBacker* = 0 ); // Crate XPlot from file
     void			createHorOutput(int,bool);
     void			reStartProc();
-    void			setProcSettings();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
     void			processVelConv(CallBacker* =0);
@@ -105,9 +103,6 @@ public:
     void			bayesClass2D(CallBacker* =0);
     void			bayesClass3D(CallBacker* =0);
     void			resortSEGY(CallBacker* =0);
-    void			createCubeFromWells(CallBacker* =0);
-    void			create2Dfrom3D();
-    void			create3Dfrom2D();
 
     // View menu operations
     void			showBaseMap();
@@ -171,14 +166,9 @@ public:
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
 				    { editAttribSet(false);}
-    Notifier<uiODApplMgr>	attribSetChg;
-
     void			doVolProcCB(CallBacker*);
     void			doVolProc(const MultiID&);
     void			tieWellToSeismic(CallBacker*);
-    void			doWellLogTools(CallBacker*);
-    void			launchRockPhysics(CallBacker*);
-    void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
 
@@ -282,8 +272,14 @@ protected:
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;
     friend class		uiODApplMgrAttrVisHandler;
+
+public:
+    void			create2Dfrom3D();
+    void			create3Dfrom2D();
+    void			createCubeFromWells(CallBacker* =0);
+    void			doWellLogTools(CallBacker*);
+    void			doLayerModeling(CallBacker*);
 };
 
 
 #endif
-

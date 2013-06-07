@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "geometrymod.h"
 #include "indexedshape.h"
 #include "enums.h"
 #include "position.h"
@@ -33,12 +32,12 @@ class ExplFaultStickTexturePositionExtracter;
 #define mFltTriProj Geometry::ExplFaultStickSurface::TriProjection
 
 
-mExpClass(Geometry) ExplFaultStickSurface: public Geometry::IndexedShape,
+mClass ExplFaultStickSurface: public Geometry::IndexedShape,
        			      public CallBacker
 {
 public:
-			ExplFaultStickSurface(FaultStickSurface*,float zscale=mUdf(float));
-			~ExplFaultStickSurface();
+			ExplFaultStickSurface(FaultStickSurface*,float zscale);
+    			~ExplFaultStickSurface();
 
     bool		needsUpdate() const 		{ return needsupdate_; }
 
@@ -141,4 +140,3 @@ protected:
 };
 
 #endif
-

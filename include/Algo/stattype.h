@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "enums.h"
-#include "algomod.h"
 
 namespace Stats
 {
@@ -27,7 +26,7 @@ enum Type
 	Sum, SqSum,
 	MostFreq
 };
-DeclareNameSpaceEnumUtils(Algo,Type)
+DeclareNameSpaceEnumUtils(Type)
 
     /* When resampling a denser sampling */
 enum UpscaleType
@@ -35,7 +34,7 @@ enum UpscaleType
 	TakeNearest,
 	UseAvg, UseMed, UseRMS, UseMostFreq
 };
-DeclareNameSpaceEnumUtils(Algo,UpscaleType)
+DeclareNameSpaceEnumUtils(UpscaleType)
 
 inline Type typeFor( UpscaleType ut )
 {

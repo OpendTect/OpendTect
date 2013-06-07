@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id$
+ RCS:           $Id: exppcadip.h,v 1.6 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 PCADip [stepout=4,4] [samplegate=[-4,4]] [fraction=25]
@@ -32,7 +32,7 @@ Outputs:
 #include <arrayndimpl.h>
 #include <attribparamimpl.h>
 
-mClass(AttribExp) PCADipAttrib : public AttribCalc
+class PCADipAttrib : public AttribCalc
 {
 public:
     mAttrib3Param( PCADipAttrib
@@ -103,10 +103,10 @@ protected:
     int 			fraction;
     const AttribProcessCommonInfo*	common;
 
-    mClass(AttribExp) Task : public AttribCalc::Task
+    class Task : public AttribCalc::Task
     {
     public:
-	mClass(AttribExp) Input : public AttribCalc::Task::Input
+	class Input : public AttribCalc::Task::Input
 	{
 	public:
 				Input( const PCADipAttrib& calculator_ )

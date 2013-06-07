@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uimarkerstyledlg.h"
 
 class uiCheckBox;
@@ -21,7 +20,7 @@ namespace Pick { class Set; };
 namespace visSurvey { class PickSetDisplay; };
 
 
-mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
+mClass uiPickPropDlg : public uiMarkerStyleDlg
 {
 public:
 				uiPickPropDlg(uiParent* p,
@@ -46,4 +45,3 @@ protected:
 };
 
 #endif
-

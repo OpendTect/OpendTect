@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
@@ -39,7 +38,7 @@ class Seis2DDisplay;
 /*!\brief Display class for FaultStickSets
 */
 
-mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl,
+mClass FaultStickSetDisplay : public visBase::VisualObjectImpl,
 			     public SurveyObject
 {
 public:
@@ -108,6 +107,8 @@ protected:
 
     void			setActiveStick(const EM::PosID&);
 
+    static const char*		sKeyEarthModelID();
+
     void			mouseCB(CallBacker*);
     void			stickSelectCB(CallBacker*);
     void			emChangeCB(CallBacker*);
@@ -163,7 +164,6 @@ protected:
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
-    static const char*		sKeyEarthModelID();
     static const char*		sKeyDisplayOnlyAtSections();
 };
 
@@ -171,4 +171,3 @@ protected:
 
 
 #endif
-

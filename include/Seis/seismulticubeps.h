@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seispsread.h"
 #include "seispsioprov.h"
 class SeisTrcReader;
@@ -21,7 +20,7 @@ class MultiID;
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
 
-mExpClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
+mClass MultiCubeSeisPSReader : public SeisPS3DReader
 {
 public:
 
@@ -63,7 +62,7 @@ protected:
 };
 
 
-mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
+mClass MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
@@ -74,4 +73,3 @@ public:
 
 
 #endif
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emhorizon3d.h"
 
@@ -179,7 +179,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	if ( bvs.nrVals() != nrvals_ )
 	    { msg_ = "Incompatible sections"; return; }
 
-	totalnr_ += mCast( int, bvs.totalSize() );
+	totalnr_ += bvs.totalSize();
 	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
 
 	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
@@ -315,8 +315,7 @@ bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
 
 float Horizon3D::getZ( const BinID& bid ) const
-{ return (float) getPos( sectionID(0), bid.toInt64() ).z; }
-
+{ return getPos( sectionID(0), bid.toInt64() ).z; }
 
 float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
@@ -353,9 +352,10 @@ Array2D<float>* Horizon3D::createArray2D(
 	    {
 		for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 		{
-		    const Coord3 pos = geom->getKnot( RowCol(row,col), false );
-		    const float zval = zaxistransform->transform( pos );
-		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), zval );
+		    Coord3 pos = geom->getKnot( RowCol(row,col), false );
+		    pos.z = zaxistransform->transform( pos );
+
+		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
 		}
 	    }
 	}
@@ -524,7 +524,8 @@ bool Horizon3DGeometry::isFullResolution() const
 
 bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
-    if ( !sids_.isPresent(sid) ) return false;
+    int idx=sids_.indexOf(sid);
+    if ( idx==-1 ) return false;
 
     ((Horizon3D&) surface_).edgelinesets.removeSection( sid );
     ((Horizon3D&) surface_).auxdata.removeSection( sid );
@@ -563,7 +564,7 @@ bool Horizon3DGeometry::isChecksEnabled() const
 bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const
 {
     const Geometry::BinIDSurface* surf = sectionGeometry( pid.sectionID() );
-    return surf ? surf->hasSupport( pid.getRowCol() ) : false;
+    return surf ? surf->hasSupport( RowCol(pid.subID()) ) : false;
 }
 
 
@@ -582,7 +583,7 @@ bool Horizon3DGeometry::isAtEdge( const PosID& pid ) const
 PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 				      const RowCol& dir ) const
 {
-    const RowCol rc = posid.getRowCol();
+    const RowCol rc( posid.subID() );
     const SectionID sid = posid.sectionID();
 
     const StepInterval<int> rowrg = rowRange( sid );
@@ -602,7 +603,7 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
     const int nraliases = aliases.size();
     for ( int idx=0; idx<nraliases; idx++ )
     {
-	const RowCol ownrc = aliases[idx].getRowCol();
+	const RowCol ownrc(aliases[idx].subID());
 	const RowCol neigborrc = ownrc+diff;
 	if ( surface_.isDefined(aliases[idx].sectionID(),
 	     neigborrc.toInt64()) )
@@ -612,7 +613,7 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 	}
     }
 
-    const RowCol ownrc = posid.getRowCol();
+    const RowCol ownrc(posid.subID());
     const RowCol neigborrc = ownrc+diff;
 
     return PosID( surface_.id(), posid.sectionID(), neigborrc.toInt64());
@@ -657,7 +658,7 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
     {
 	const RowCol bid = sectionGeometry( sid )->getKnotRowCol( idx );
 	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
-	bidvalset.add( bid, (float) coord.z + shift );
+	bidvalset.add( bid, coord.z + shift );
     }
     dps.dataChanged();
 }
@@ -695,7 +696,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
     const PosID firstposid = posid;
     while ( true )
     {
-	Coord3 pos = surf->getKnot( posid.getRowCol(), false );
+	Coord3 pos = surf->getKnot( RowCol(posid.subID()), false );
 	set += Pick::Location( pos );
 
 	nodefound = false;
@@ -706,7 +707,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	{
 	    PosID curposid, leftposid, rightposid;
 	    curposid = leftposid = rightposid = posid;
-	    RowCol rcol = curposid.getRowCol();
+	    RowCol rcol( curposid.subID() );
 	    RowCol currcol = rcol + dirs[idx];
 	    int leftidx = idx ? idx - 1 : 7;
 	    int rightidx = idx < 7 ? idx + 1 : 0;
@@ -745,6 +746,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
     PtrMan<EMObjectIterator> it = createIterator( sid );
     if ( !it ) return;
 
+    BinID bid;
     while ( true )
     {
 	const PosID pid = it->next();
@@ -754,10 +756,10 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	const Coord3 crd = surface_.getPos( pid );
 	if ( crd.isDefined() )
 	{
-	    BinID bid = BinID::fromInt64( pid.subID() );
+	    bid.fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
-		bivs.add( bid, (float) crd.z );
+		bivs.add( bid, crd.z );
 	}
     }
 }
@@ -775,17 +777,11 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
 }
 
 
-const char* Horizon3DAscIO::sKeyFormatStr()
-{ return "Horizon3D"; }
-
-const char* Horizon3DAscIO::sKeyAttribFormatStr()
-{ return "Horizon3DAttributes"; }
-
 Table::FormatDesc* Horizon3DAscIO::getDesc() 
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf()), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     BufferStringSet attrnms;
     createDescBody( fd, attrnms );
     return fd;

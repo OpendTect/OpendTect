@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uibuttongroup.h"
 #include "uibutton.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QButtonGroup>
 #include <QAbstractButton>
 
-mUseQtnamespace
 
 uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
     : uiGroup( p ,nm )

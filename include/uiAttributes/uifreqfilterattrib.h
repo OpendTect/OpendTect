@@ -12,20 +12,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 #include "uiwindowfunctionsel.h"
 
 namespace Attrib { class Desc; };
 
-class uiFreqFilterSelFreq;
 class uiImagAttrSel;
 class uiGenInput;
 class uiCheckBox;
+class uiLabeledSpinBox;
 
 /*! \brief ** Attribute description editor */
 
-mExpClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
+mClass uiFreqFilterAttrib : public uiAttrDescEd
 {
 public:
 
@@ -37,8 +36,9 @@ protected:
 
     uiImagAttrSel*      inpfld;
     uiGenInput*         isfftfld;
-    uiFreqFilterSelFreq* freqfld;
-    uiGenInput*		polesfld;
+    uiGenInput*		typefld;
+    uiGenInput*		freqfld;
+    uiLabeledSpinBox*	polesfld;
     uiCheckBox*		freqwinselfld;
     ObjectSet<uiWindowFunctionSel> winflds;
     uiWindowFunctionSel::Setup* viewsetup_;
@@ -62,4 +62,3 @@ protected:
 };
 
 #endif
-

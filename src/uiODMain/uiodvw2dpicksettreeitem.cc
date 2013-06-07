@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "pickset.h"
 #include "pixmap.h"
+#include "uilistview.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodpicksettreeitem.h"
@@ -21,7 +22,6 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
 #include "uisetpickdirs.h"
-#include "uitreeview.h"
 #include "visvw2ddataman.h"
 #include "visvw2dpickset.h"
 
@@ -115,8 +115,8 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 bool uiODVw2DPickSetTreeItem::init()
 {
     name_ = pickset_.name();
-    uitreeviewitem_->setCheckable(true);
-    uitreeviewitem_->setChecked( true );
+    uilistviewitem_->setCheckable(true);
+    uilistviewitem_->setChecked( true );
     displayMiniCtab();
     checkStatusChange()->notify( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
     if ( !vw2dpickset_ )
@@ -144,13 +144,13 @@ void uiODVw2DPickSetTreeItem::displayMiniCtab()
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( pickset_.disp_.color_ );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uilistviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
 
 bool uiODVw2DPickSetTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
+    if ( !uilistviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( vw2dpickset_ );

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -27,7 +26,7 @@ class DepthTabPlaneDragger; class PickStyle;
 Slice that cuts orthogonal through a VolumeData.
 */
 
-mExpClass(visBase) OrthogonalSlice : public visBase::VisualObjectImpl
+mClass OrthogonalSlice : public visBase::VisualObjectImpl
 {
 public:
     static OrthogonalSlice*	create()
@@ -77,4 +76,3 @@ protected:
 };
 	
 #endif
-

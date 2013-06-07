@@ -11,21 +11,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
 #include "uidialog.h"
 
 namespace visSurvey { class SurveyObject; }
 class uiSliderExtra;
 
 
-mExpClass(uiVis) uiAttribTransDlg : public uiDialog
+mClass uiAttribTransDlg : public uiDialog
 {
 public:
     				uiAttribTransDlg( uiParent*,
 						  visSurvey::SurveyObject&,
 				       		  int attrib	);
 protected:
-    bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			changeCB(CallBacker*);
 
@@ -37,4 +35,3 @@ protected:
 
 
 #endif
-

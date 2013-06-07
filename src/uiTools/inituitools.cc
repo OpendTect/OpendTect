@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "moddepmgr.h"
 #include "uigridder2d.h"
@@ -21,6 +21,6 @@ mDefModInitFn(uiTools)
     uiInverseDistanceGridder2D::initClass();
     uiInverseDistanceArray2DInterpol::initClass();
     uiTriangulationArray2DInterpol::initClass();
-    uiExtensionArray2DInterpol::initClass();
+    uiArray2DInterpolExtension::initClass();
     uiVrmsRayTracer1D::initClass();
 }

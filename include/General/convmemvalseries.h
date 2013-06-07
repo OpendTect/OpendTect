@@ -24,7 +24,7 @@ chars. */
 
 
 template <class T>
-mClass(General) ConvMemValueSeries : public ValueSeries<T>
+class ConvMemValueSeries : public ValueSeries<T>
 {
 public:
 
@@ -135,7 +135,7 @@ bool ConvMemValueSeries<T>::setSize( od_int64 sz )
     if ( sz==size_ ) return true;
 
     delete [] ptr_;
-    ptr_ = new char[(int) sz*interpreter_.nrBytes()];
+    ptr_ = new char[sz*interpreter_.nrBytes()];
     return ptr_;
 }
 

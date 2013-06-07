@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uiattremout.h"
 
 class CtxtIOObj;
@@ -34,7 +33,7 @@ interval around a surface
 */
 
 
-mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
+mClass uiAttrTrcSelOut : public uiAttrEMOut
 {
 public:
     			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
@@ -101,4 +100,3 @@ private:
 };
 
 #endif
-

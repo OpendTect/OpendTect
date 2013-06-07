@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 #include "multiid.h"
 #include "iopar.h"
@@ -33,7 +32,7 @@ namespace Table { class FormatDesc; }
  
  */
 
-mExpClass(uiTools) uiTableImpDataSel : public uiGroup
+mClass uiTableImpDataSel : public uiGroup
 {
 public:
 
@@ -72,4 +71,3 @@ protected:
 
 
 #endif
-

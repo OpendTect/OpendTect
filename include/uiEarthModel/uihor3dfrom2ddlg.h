@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiearthmodelmod.h"
 #include "multiid.h"
 
 #include "uidialog.h"
@@ -27,7 +26,7 @@ namespace EM { class Horizon2D; class Horizon3D; };
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
 
-mExpClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
+mClass uiHor3DFrom2DDlg : public uiDialog
 {
 public:    
 				uiHor3DFrom2DDlg(uiParent*,
@@ -56,4 +55,3 @@ protected:
 };
 
 #endif
-

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attriblinebuffer.h"
 
@@ -81,8 +81,8 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
     if ( traceidx==-1 ) return;
 
     delete (*inlinedata_[lineidx])[traceidx];
-    inlinedata_[lineidx]->removeSingle( traceidx );
-    crossliness_[lineidx]->removeSingle(traceidx);
+    inlinedata_[lineidx]->remove( traceidx );
+    crossliness_[lineidx]->remove(traceidx);
 
     if ( !inlinedata_[lineidx]->size() )
 	removeInline( lineidx );
@@ -102,9 +102,10 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )\
 	    {\
 		if ( direction.crl*crosslines[idy] op direction.crl*bid.crl )\
-		{ \
-		    delete inlinedata_[idx]->removeSingle(idy);\
-		    crosslines.removeSingle(idy);\
+		{\
+		    delete (*inlinedata_[idx])[idy];\
+		    inlinedata_[idx]->remove(idy);\
+		    crosslines.remove(idy);\
 		}\
 	    }\
 \
@@ -137,10 +138,13 @@ void DataHolderLineBuffer::removeAllExcept( const BinID& bid )
 void DataHolderLineBuffer::removeInline( int lineidx )
 {
     deepErase( *inlinedata_[lineidx] );
-    delete inlinedata_.removeSingle( lineidx );
-    delete crossliness_.removeSingle( lineidx );
+    delete inlinedata_[lineidx];
+    inlinedata_.remove( lineidx );
 
-    inlines_.removeSingle(lineidx);
+    delete crossliness_[lineidx];
+    crossliness_.remove( lineidx );
+
+    inlines_.remove(lineidx);
 }
 
 

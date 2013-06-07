@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "menubutcommands.h"
 #include "cmddriverbasics.h"
@@ -223,7 +223,7 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     nrmatches += key.isMatching("Maximize"); \
     nrmatches += key.isMatching("Restore Down") || key.isMatching("Restore"); \
 \
-    if ( objsfound.isEmpty() && !nrgrey && nrmatches!=0 ) \
+    if ( objsfound.isEmpty() && !nrgrey && nrmatches==true ) \
     { \
 	if ( key.isMatching("Menu") ) \
 	    mTitleBarButWarn( "Menu", true, 0 ); \
@@ -535,7 +535,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
 	if ( !mSearchKey(winstr).isMatching(*subwinnames[idx]) ) \
-	    subwinnames.removeSingle(idx); \
+	    subwinnames.remove(idx); \
     } \
     mParStrPre( "subwindow", subwinnames, 0, winstr, selnr, "string", true ); \
     wildcardMan().check( mSearchKey(winstr), subwinnames.get(0) );

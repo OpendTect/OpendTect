@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivolumeprocessingmod.h"
 #include "uidialog.h"
 #include "factory.h"
 
@@ -26,7 +25,7 @@ namespace VolProc
 
 class Step;
 
-mExpClass(uiVolumeProcessing) uiStepDialog : public uiDialog
+mClass uiStepDialog : public uiDialog
 {
 public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
@@ -50,4 +49,3 @@ protected:
 }; //namespace
 
 #endif
-

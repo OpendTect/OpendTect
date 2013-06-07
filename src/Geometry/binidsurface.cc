@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "binidsurface.h"
 
@@ -140,7 +140,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	}
     }
 
-    return Coord3(SI().binID2Coord().transform(param), depth );
+    return Coord3(surveyinfo_->binID2Coord().transform(param), depth );
 }
 
 
@@ -278,52 +278,9 @@ bool BinIDSurface::removeCol( int start, int stop )
 }
 
 
-StepInterval<int> BinIDSurface::rowRange() const
-{
-    return ParametricSurface::rowRange();
-}
-
-
 StepInterval<int> BinIDSurface::colRange() const
 {
     return ParametricSurface::colRange();
-}
-
-
-StepInterval<int> BinIDSurface::rowRange( int col ) const
-{
-    StepInterval<int> ret( mUdf(int), mUdf(int), step_.row );
-    const int colidx = colIndex( col );
-    if ( colidx < 0  || !depths_ || colidx >= depths_->info().getSize(1) )
-	return ret;
-
-    int startidx = -1, stopidx = -1;
-    for ( int idx=0; idx<depths_->info().getSize(0); idx++ )
-    {
-	if ( !mIsUdf(depths_->get(idx,colidx)) )
-	{
-	    startidx = idx;
-	    break;
-	}
-
-    }
-
-    if ( startidx < 0 )
-	return ret;
-
-    for ( int idx=depths_->info().getSize(0)-1; idx>=0; idx-- )
-    {
-	if ( !mIsUdf(depths_->get(idx,colidx)) )
-	{
-	    stopidx = idx;
-	    break;
-	}
-
-    }
-
-    ret.start = origin_.row + startidx * step_.row;
-    ret.stop = origin_.row + stopidx * step_.row;
-    return ret;
 }
 
 
@@ -421,7 +378,7 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 
 
 Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
-{ return SI().transform(BinID(rc)); }
+{ return surveyinfo_->transform(BinID(rc)); }
 
 
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
@@ -434,7 +391,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 	return res;
     
     //interpolate
-    double diagsum = 0, lateralsum = 0;
+    float diagsum = 0, lateralsum = 0;
     int diagnr = 0, lateralnr = 0;
     for ( int idx=-1; idx<2; idx++ )
     {
@@ -481,7 +438,7 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
 	idx = 0;
     }
 
-    depths_->getData()[idx] = (float) np.z;
+    depths_->getData()[idx] = np.z;
 }
 
 

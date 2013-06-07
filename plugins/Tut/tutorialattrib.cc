@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.12 2012/07/10 13:05:58 cvskris Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -243,4 +243,3 @@ const Interval<int>* Tutorial::desZSampMargin(int,int) const
 
 
 } // namespace Attrib
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "oddlsite.h"
 #include "odhttp.h"
@@ -110,7 +110,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	odhttp_->get( getFileName(relfnm), outfnm );
 	HttpTask task( *odhttp_ );
 	task.setName( nicename );
-	if ( !TaskRunner::execute( tr, task ) )
+	if ( !(tr ? tr->execute( task ) : task.execute() ) )
 	{
 	    errmsg_ = task.message();
 	    if ( odhttp_->isForcedAbort() )
@@ -123,6 +123,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	
 	    return false;
 	}
+	 
     }
     else
     {
@@ -135,7 +136,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
 	return false;
 
     const od_int64 nrbytes = odhttp_->bytesAvailable();
-    databuf_ = new DataBuffer( mCast(int,nrbytes), 1, true );
+    databuf_ = new DataBuffer( nrbytes, 1, true );
     const char* buffer = odhttp_->readCharBuffer();
     const char* hdptr = strstr( buffer, "<HEAD>" );
     const char* errptr = strstr( buffer, "error" );
@@ -280,14 +281,13 @@ bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
     errmsg_.setEmpty();
 
     ODDLSiteMultiFileGetter mfg( *this, fnms, outputdir );
-    if ( !TaskRunner::execute( &tr, mfg ) )
+    if ( !tr.execute(mfg) )
     {
 	errmsg_ = mfg.curidx_ < 0 ? mfg.msg_.buf() : "";
 	return false;
     }
 
-    const bool res = mfg.httptask_ ?
-	TaskRunner::execute( &tr, *mfg.httptask_ ) : true;
+    const bool res = mfg.httptask_ ? tr.execute( *mfg.httptask_ ) : true;
     if ( !res && !mfg.httptask_->userStop() )
 	errmsg_ = mfg.httptask_->message();
 

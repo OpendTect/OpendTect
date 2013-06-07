@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "objectfinder.h"
 
@@ -310,9 +310,9 @@ bool ObjectFinder::selectNodes( ObjectSet<const uiObject>& nodesfound,
 		    if ( commonancestortag[idy]==curtag &&
 			 commonancestorobj[idy]==curnode )
 		    {
-			nodesfound.removeSingle( idy );
-			commonancestortag.removeSingle( idy );
-			commonancestorobj.removeSingle( idy );
+			nodesfound.remove( idy );
+			commonancestortag.remove( idy );
+			commonancestorobj.remove( idy );
 			if ( idx >= idy )
 			    idx--;
 		    }
@@ -334,7 +334,7 @@ int ObjectFinder::deleteGreys( ObjectSet<const uiObject>& objsfound, bool yn )
 	{
 	    nrgreyfound++;
 	    if ( yn )
-		objsfound.removeSingle( idx );
+		objsfound.remove( idx );
 	}
     }
 

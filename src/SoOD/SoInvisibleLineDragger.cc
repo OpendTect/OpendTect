@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "SoInvisibleLineDragger.h"
@@ -96,6 +96,9 @@ void SoInvisibleLineDragger::setDirection( const SbVec3f& dir )
 
 void SoInvisibleLineDragger::dragStart(void)
 {
+    const SoPath* pickpath = getPickPath();
+    const SoEvent* event = getEvent();
+
     startPos = getLocalStartingPoint();
     translation = SbVec3f( 0, 0, 0 );
     needsDirection.invokeCallbacks( this );

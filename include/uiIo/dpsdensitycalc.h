@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "ranges.h"
 
-mClass(uiIo) DPSDensityCalcND : public ParallelTask
+class uiDataPointSet;
+
+class DPSDensityCalcND : public ParallelTask
 {
 public:
 
@@ -24,7 +26,7 @@ public:
 	StepInterval<float>	valrange_;
     };
 
-				DPSDensityCalcND(const DataPointSet&,
+				DPSDensityCalcND(const uiDataPointSet& uidps,
 						 const ObjectSet<AxisParam>&,
 						 ArrayND<float>&);
 
@@ -36,12 +38,17 @@ public:
     bool			doWork(od_int64 start,od_int64 stop,int);
 
 protected:
-    const DataPointSet&			dps_;
-    ArrayND<float>&			freqdata_;
-    ObjectSet<AxisParam>		axisdatas_;
-    int					nrdims_;
-    int					nrdone_;
+    const DataPointSet&		dps_;
+    ArrayND<float>&		freqdata_;
+    ObjectSet<AxisParam>	axisdatas_;
+    int				nrdims_;
+    int				nrdone_;
 
-    float				getVal(int colid,int rowid) const;
+    float			getVal(int colid,int rowid) const;
+public:
+				DPSDensityCalcND(const DataPointSet& uidps,
+						 const ObjectSet<AxisParam>&,
+						 ArrayND<float>&);
+
 };
 

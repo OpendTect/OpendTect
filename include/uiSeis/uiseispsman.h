@@ -11,11 +11,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uiobjfileman.h"
 
 
-mExpClass(uiSeis) uiSeisPreStackMan : public uiObjFileMan
+mClass uiSeisPreStackMan : public uiObjFileMan
 {
 public:
 			uiSeisPreStackMan(uiParent*,bool for2d);
@@ -36,4 +35,3 @@ protected:
 
 
 #endif
-

@@ -16,30 +16,27 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "math2.h"
 
+
 namespace Geom
 {
 
-/*!
-\brief %Basic point class.
-*/
-
+/*!\brief basic point class */
 template <class T>
-mClass(Basic) Point2D
+class Point2D
 {
 public:
 				Point2D(T xx=0,T yy=0);
+    virtual			~Point2D()				{}
 
     template <class TT>
     Point2D<T>&			setFrom(const Point2D<TT>&);
 
-    template <class TT>
-    inline void			setXY(TT xx,TT yy);
     inline void			setXY(T xx,T yy);
     inline Point2D<T>&		zero();
     inline Point2D<T>		operator-();
 
-    inline T&			operator[](int idx);
-    inline T			operator[](int idx) const;
+    virtual inline T&		operator[](int idx);
+    virtual inline T		operator[](int idx) const;
 
     inline bool			operator==(const Point2D<T>&) const;
     inline bool			operator!=(const Point2D<T>&) const;
@@ -55,11 +52,11 @@ public:
     
     inline void			swapXY();
 
-    inline bool			isDefined() const;
-    inline double		abs() const;
-    inline T			sqAbs() const;
-    inline double		distTo(const Point2D<T>&) const;
-    inline T			sqDistTo(const Point2D<T>&) const;
+    virtual inline bool		isDefined() const;
+    virtual inline double	abs() const;
+    virtual inline T		sqAbs() const;
+    virtual inline double	distTo(const Point2D<T>&) const;
+    virtual inline T		sqDistTo(const Point2D<T>&) const;
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
     
@@ -68,12 +65,10 @@ public:
 };
 
 
-/*!
-\brief %Basic 2D sizes (width/height) class.
-*/
+/*!\brief basic 2D sizes (width/height) class */
 
 template <class T>
-mClass(Basic) Size2D
+class Size2D
 {
 public:
 			Size2D( T w = 0 , T h = 0 );
@@ -99,18 +94,18 @@ protected:
 };
 
 
-/*!
-\brief %Basic 2D rectangle class.
+/*!\brief basic 2D rectangle class
 
-  This class is a bit more complicated than would be expected at first sight.
-  This is caused by the problem of coordinate system sign. For example, in
-  user interfaces, top is a lower number than bottom. But for normal
-  coordinates, this is (of course) not the case. Still, also for floating point
-  types, reverse axes are common.
+This class is a bit more complicated than would be expected at first sight.
+This is caused by the problem of coordinate system sign. For example, in
+user interfaces, top is a lower number than bottom. But for normal
+coordinates, this is (of course) not the case. Still, also for floating point
+types, reverse axes are common.
+
 */
 
 template <class T>
-mClass(Basic) Rectangle
+class Rectangle
 {
 public:
 			Rectangle(T l=0,T t=0,T r=0,T b=0) ;
@@ -134,9 +129,9 @@ public:
 
     inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
+    inline void		translate(const Point2D<T>&);
     inline void		include(const Rectangle<T>&);
     inline void		limitTo(const Rectangle<T>&);
-    inline void		translate(const Point2D<T>&);
 
     inline bool		operator >(const Rectangle<T>&) const;
 
@@ -175,16 +170,17 @@ protected:
 };
 
 
-/*!
-\brief Integer rectangle class.
+/*!\brief Integer rectangle class.
 
   The difference with the floating point type rectangle is in range handling.
   In the float world, everything must be epsiloned. Integer rectangles are
   more straightforward.
+
 */
 
+
 template <class T>
-mClass(Basic) PixRectangle : public Rectangle<T>
+class PixRectangle : public Rectangle<T>
 {
 public:
 			PixRectangle(T l=0 , T t=0, T r=0 , T b=0 ) ;
@@ -208,16 +204,16 @@ protected:
 };
 
 
-/*!
-\brief Floating-point rectangle class.
+/*!\brief Floating-point rectangle class.
 
   The difference with the integer type rectangle is in range handling. In the
   float world, everything must be epsiloned.
   with inside and outside.
+
 */
 
 template <class T>
-mClass(Basic) PosRectangle : public Rectangle<T>
+class PosRectangle : public Rectangle<T>
 {
 public:
 			PosRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
@@ -261,18 +257,16 @@ Point2D<T>::Point2D ( T xx , T yy )
 template <class T> template <class TT> inline
 Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
 { x=a.x; y=a.y; return *this;}
-
+    				
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
 { x = xx ; y = yy; }  
 
-template <class T> template <class TT> inline
-void Point2D<T>::setXY( TT xx, TT yy )
-{ x = (T)xx; y = (T)yy; }
 
 template <class T> inline
 Point2D<T>& Point2D<T>::zero()
 { x = y = 0; return *this; }
+
 
 template <class T> inline
 Point2D<T> Point2D<T>::operator -()
@@ -846,14 +840,14 @@ inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
     }
 }
 
-    
+
 template <class T>
-inline void Rectangle<T>::translate(const Point2D<T> & trans )
+inline void Rectangle<T>::translate( const Point2D<T> & trans )
 {
     topleft_ += trans;
     bottomright_ += trans;
 }
-    
+
 
 template <class T>
 inline void Rectangle<T>::include( const Rectangle<T>& r )

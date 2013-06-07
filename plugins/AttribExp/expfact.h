@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id$
+ RCS:           $Id: expfact.h,v 1.3 2009/07/22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "expwavelet1d.h"
 #include "expinstdip.h"
 
-mClass(AttribExp) ExperimentalAttribFactory
+class ExperimentalAttribFactory
 {
 public:
 

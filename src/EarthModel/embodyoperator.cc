@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "embodyoperator.h"
 
@@ -58,7 +58,7 @@ protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )    
 {
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     { 
  	int p[3];	
 	arr_.info().getArrayPos( idx, p );
@@ -134,7 +134,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? 0.01f : mOutsideVal;
+		res = useval ? 0.01 : mOutsideVal;
 	    }
 	}
 	else
@@ -182,7 +182,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? 0.01f : mOutsideVal;
+		res = useval ? 0.01 : mOutsideVal;
 	    }
 	}
 	else
@@ -301,9 +301,9 @@ od_int64 Expl2ImplBodyExtracter::nrIterations() const
 
 #define mSetSegment() \
 if ( !nrintersections ) \
-    segment.start = segment.stop = (float) pos.z; \
+    segment.start = segment.stop = pos.z; \
 else \
-    segment.include( (float) pos.z ); \
+    segment.include( pos.z ); \
 nrintersections++
 
 
@@ -314,7 +314,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
     const int zsz = arr_.info().getSize(2);
     const int planesize = planes_.size();
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
@@ -330,7 +330,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int pidx=0; pidx<3; pidx++ )
 		v[pidx] = crds[tri_[3*pl+pidx]];
 
-	    const double fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
+	    const float fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
 		planes_[pl].D_;
 	    if ( mIsZero(planes_[pl].C_,1e-3) ) 
 	    {
@@ -623,15 +623,15 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
 	const char* translt = IOM().get( mid )->translator();
 	EM::EMObject* obj = 0;
-	if ( translt==polygonEMBodyTranslator::sKeyUserName() )
+	if ( !strcmp( translt, polygonEMBodyTranslator::sKeyUserName() ) )
 	{
 	    obj = EMM().createTempObject(EM::PolygonBody::typeStr());
 	}
-	else if ( translt==randposEMBodyTranslator::sKeyUserName() )
+	else if ( !strcmp( translt, randposEMBodyTranslator::sKeyUserName() ) )
 	{
 	    obj = EMM().createTempObject(EM::RandomPosBody::typeStr());
 	}
-	else if ( translt==mcEMBodyTranslator::sKeyUserName() )
+	else if ( !strcmp( translt, mcEMBodyTranslator::sKeyUserName() ) )
 	{
 	    obj = EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
 	}
@@ -803,13 +803,13 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    inlrg.start = inlrg.stop = bid.inl;
 	    crlrg.start = crlrg.stop = bid.crl;
-	    zrg.start = zrg.stop = (float) bodypts[idx].z;
+	    zrg.start = zrg.stop = bodypts[idx].z;
 	}
 	else
 	{
 	    inlrg.include( bid.inl );
 	    crlrg.include( bid.crl );
-	    zrg.include( (float) bodypts[idx].z );
+	    zrg.include( bodypts[idx].z );
 	}
     }
     
@@ -839,8 +839,8 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     
     TypeSet<Coord3> pts = bodypts;
-    const int zscale = SI().zDomain().userFactor();
-    if ( zscale != 1 )
+    const int zscale = SI().zFactor();
+    if ( zscale!=1 )
     {
     	for ( int idx=0; idx<bodypts.size(); idx++ )
     	    pts[idx].z *= zscale;
@@ -851,12 +851,12 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
     
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( TaskRunner::execute( tr, triangulator ) )
+    if ( (tr && tr->execute(triangulator)) || triangulator.execute(true) )
     {
-	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
+	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( zscale );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
     	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-    	if ( TaskRunner::execute( tr, *extract ) )
+    	if ( (tr && tr->execute( *extract )) || extract->execute() )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;

@@ -12,17 +12,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributesmod.h"
 #include "attribprovider.h"
 
 namespace Attrib
 {
 
-/*!
-\brief Calculates %Hilbert transform.
+/*!\brief Hilbert attribute.
+
+  Calculates Hilbert transform
 */
 
-mExpClass(Attributes) Hilbert : public Provider
+
+mClass Hilbert : public Provider
 {
 public:
     static void			initClass();
@@ -57,4 +58,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-

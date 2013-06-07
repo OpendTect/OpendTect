@@ -174,7 +174,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
     horfld_->attach( alignedBelow, seisfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctxt.toselect.require_.set( sKey::Type, sKey::Polygon );
     uiIOObjSel::Setup polysu( "Within Polygon" ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, horfld_ );
@@ -313,7 +313,7 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 	if ( calcrms ) val *= val;
 	sumsq += val;
     }
-    return calcrms ? Math::Sqrt( sumsq / nrtms ) : sumsq;
+    return calcrms ? sqrt( sumsq / nrtms ) : sumsq;
 }
 
 
@@ -469,7 +469,7 @@ void uiSynthToRealScale::updRealStats()
 	mErrRet( "Error opening input seismic data" );
 
     uiSynthToRealScaleRealStatCollector coll( *this, rdr );
-    if ( !TaskRunner::execute( &tr, coll ) )
+    if ( !tr.execute(coll) )
 	return;
 
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;

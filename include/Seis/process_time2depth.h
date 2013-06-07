@@ -13,12 +13,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "seismod.h"
-
 //!Keys for od_process_time2depth.cc
 
-struct ProcessTime2Depth
+mClass ProcessTime2Depth
 {
+public:
+
     static const char*	sKeyInputVolume()	{ return "Input volume"; }
     static const char*	sKeyOutputVolume()	{ return "Output volume"; }
     static const char*	sKeyVelocityModel()	{ return "Velocity model"; }
@@ -27,4 +27,3 @@ struct ProcessTime2Depth
 
 
 #endif
-

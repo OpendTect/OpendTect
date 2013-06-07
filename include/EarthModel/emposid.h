@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "earthmodelmod.h"
 #include "multiid.h"
 #include "rowcol.h"
 
@@ -27,16 +26,17 @@ typedef od_int32 ObjectID;
 typedef od_int16 SectionID;
 typedef od_int64 SubID;
 
-/*!
-\brief Is an identifier for each position in the earthmodel.
+
+/*!\brief
+Is an identifier for each position in the earthmodel.
 
 It has three parts,
-- an ObjectID, which identifies wich object is belongs to.
-- a SectionID, which identifies which section of the object it belongs to.
-- a SubID, which identifies the position on the section. 
+- an ObjectID, wich identifies wich object is belongs to.
+- a SectionID, wich identifies which section of the object it belongs to.
+- a SubID, wich identifies the position on the section. 
 */
 
-mExpClass(EarthModel) PosID
+mClass PosID
 {
 public:
     				PosID( ObjectID emobjid=0,
@@ -52,7 +52,12 @@ public:
     void			setObjectID(const ObjectID&);
     void			setSectionID(SectionID);
     void			setSubID(SubID);
+
     RowCol			getRowCol() const;
+    				/*!< Should not be used, only for db
+				     purposes (it makes it possible to db
+				     SubID
+				 */
 
     bool			operator==(const PosID& b) const;
     bool			operator!=(const PosID& b) const;
@@ -109,4 +114,3 @@ inline void PosID::setSubID( SubID id )
 
 
 #endif
-

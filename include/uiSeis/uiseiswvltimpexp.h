@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -23,7 +22,7 @@ class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mExpClass(uiSeis) uiSeisWvltImp : public uiDialog
+mClass uiSeisWvltImp : public uiDialog
 {
 public:
 			uiSeisWvltImp(uiParent*);
@@ -46,7 +45,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSeisWvltExp : public uiDialog
+mClass uiSeisWvltExp : public uiDialog
 {
 public:
 			uiSeisWvltExp(uiParent*);
@@ -63,4 +62,3 @@ protected:
 
 
 #endif
-

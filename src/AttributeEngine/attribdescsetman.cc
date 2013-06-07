@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "attribdescsetman.h"
 #include "attribdescset.h"
@@ -89,7 +89,7 @@ void DescSetMan::fillHist()
     inpselhist_.setEmpty();
 
     // First add one empty
-    inpselhist_.set( IOPar::compKey(sKey::IOSelection(),1), -1 );
+    inpselhist_.set( IOPar::compKey(sKey::IOSelection,1), -1 );
 
     int nr = 1;
     TypeSet<DescID> attribids;
@@ -103,7 +103,7 @@ void DescSetMan::fillHist()
 	if ( inpselhist_.findKeyFor(key) ) continue;
 
 	nr++;
-	inpselhist_.set( IOPar::compKey(sKey::IOSelection(),nr), key );
+	inpselhist_.set( IOPar::compKey(sKey::IOSelection,nr), key );
     }
 }
 

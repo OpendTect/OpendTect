@@ -11,18 +11,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uidialog.h"
 
 class uiFileInput;
 
-mExpClass(uiIo) uiSetDataDir : public uiDialog
+mClass uiSetDataDir : public uiDialog
 {
 public:
 			uiSetDataDir(uiParent*);
 
     static bool		isOK(const char* dirnm=0); // if null, std data dir
-    static bool		setRootDataDir(uiParent*,const char*);
+    static bool		setRootDataDir(const char*);
 
 protected:
 
@@ -30,10 +29,6 @@ protected:
     uiFileInput*	basedirfld;
 
     bool		acceptOK(CallBacker*);
-
-    static void		offerUnzipSurv(uiParent*,const char*);
-
 };
 
 #endif
-

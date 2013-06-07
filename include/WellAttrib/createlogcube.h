@@ -12,35 +12,34 @@ $
 ________________________________________________________________________
 -*/
 
-#include "wellattribmod.h"
 #include "task.h"
 #include "horsampling.h"
-#include "wellextractdata.h"
 
 class BinID;
 class CtxtIOObj;
 
-namespace Well { class Data;  }
+namespace Well { class Data; class ExtractParams; }
 
-mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
+mClass LogCubeCreator : public ParallelTask
 {
 public:
 				LogCubeCreator(const Well::Data&);
 				~LogCubeCreator();
-    mStruct(WellAttrib) LogCubeData
-    {
-				LogCubeData(const char* log,CtxtIOObj& c)
-				    : seisctio_(c), lognm_(log) {}
-			        ~LogCubeData();	
 
-	CtxtIOObj& 		seisctio_;  
-	BufferString		lognm_;
+
+    mStruct LogCubeData
+    {
+				LogCubeData(const BufferString& l,CtxtIOObj& c)
+				    	    : seisctio_(c),
+					    lognm_(*new BufferString(l)) {}
+			        ~LogCubeData();
+
+	CtxtIOObj& 		seisctio_;
+	const BufferString&	lognm_;
     };
 
-				//LogCubeDatas become mine
     void			setInput(ObjectSet<LogCubeData>&,int nrtrcs);
-    void			setInput(ObjectSet<LogCubeData>&,int nrtrcs,
-	    				const Well::ExtractParams&);
+    				//LogCubeDatas become mine
 
     const char* 		errMsg() const;
 
@@ -49,12 +48,11 @@ public:
 protected:
 
     const Well::Data&		wd_;
-    mutable BufferString	errmsg_;
+    BufferString 		errmsg_;
     TypeSet<BinID>		binids_;
     HorSampling			hrg_;
     int				nrduplicatetrcs_;
     ObjectSet<LogCubeData>	logdatas_;
-    Well::ExtractParams		extractparams_;
 
     od_int64                    nrIterations() const { return logdatas_.size();}
     od_int64            	nrdone_;
@@ -63,8 +61,11 @@ protected:
     bool 			doWork(od_int64,od_int64,int);
 
     bool                        writeLog2Cube(const LogCubeData&) const;
+
+public:
+    void			setInput(ObjectSet<LogCubeData>&,int nrtrcs,
+	    				const Well::ExtractParams&);
+    				//LogCubeDatas become mine
 };
 
 #endif
-
-

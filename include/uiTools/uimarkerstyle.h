@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "uigroup.h"
 
 #include "draw.h"
@@ -21,7 +20,7 @@ class uiGenInput;
 class uiSliderExtra;
 
 
-mExpClass(uiTools) uiMarkerStyle3D : public uiGroup
+mClass uiMarkerStyle3D : public uiGroup
 {
 public:
 			uiMarkerStyle3D(uiParent*,bool withcolor,
@@ -48,4 +47,3 @@ protected:
 };
 
 #endif
-

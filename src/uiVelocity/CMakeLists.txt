@@ -8,7 +8,6 @@
 SET(OD_MODULE_DEPS uiSeis Velocity )
 SET(OD_MODULE_SOURCES
 		inituivelocity.cc
-		uilinearveltrans.cc
 		uiselectvelocityfunction.cc
 		uivelocityfunctionvolume.cc
 		uivelocityfunctionstored.cc

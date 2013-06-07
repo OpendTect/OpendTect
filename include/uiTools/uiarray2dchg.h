@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
 #include "array2dfilter.h"
 #include "uigroup.h"
 #include "uidialog.h"
@@ -20,7 +19,7 @@ class uiGenInput;
 class uiStepOutSel;
 
 
-mExpClass(uiTools) uiArr2DFilterPars : public uiGroup
+mClass uiArr2DFilterPars : public uiGroup
 {
 public:
 
@@ -37,7 +36,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
+mClass uiArr2DFilterParsDlg : public uiDialog
 {
 public:
 
@@ -54,4 +53,3 @@ public:
 
 
 #endif
-

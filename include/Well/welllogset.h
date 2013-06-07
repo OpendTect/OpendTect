@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "sets.h"
 #include "position.h"
 #include "ranges.h"
@@ -23,16 +22,12 @@ namespace Well
 
 class Log;
 
-/*!
-\brief Log set
-*/
-
-mExpClass(Well) LogSet
+mClass LogSet
 {
 public:
 
 			LogSet()		{ init(); }
-    virtual		~LogSet()		{ setEmpty(); }
+    virtual		~LogSet()		{ empty(); }
 
     int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
@@ -53,7 +48,7 @@ public:
     bool		validIdx(int idx) const	{ return logs.validIdx(idx); }
 
     bool		isEmpty() const		{ return size() == 0; }
-    void		setEmpty();
+    void		empty();
 
 protected:
 
@@ -75,4 +70,3 @@ protected:
 }; // namespace Well
 
 #endif
-

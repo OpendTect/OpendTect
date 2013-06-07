@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 class IOObj;
@@ -31,7 +30,7 @@ namespace Seis { class SelData; }
 
 */
 
-mExpClass(Seis) SeisPSMerger : public Executor
+mClass SeisPSMerger : public Executor
 {
 public:
 			SeisPSMerger(const ObjectSet<IOObj>& in,
@@ -70,4 +69,3 @@ protected:
 
 
 #endif
-

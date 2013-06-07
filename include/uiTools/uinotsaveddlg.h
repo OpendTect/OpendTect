@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
 #include "bufstring.h"
 #include "callback.h"
 
@@ -69,7 +68,7 @@ void MyClass::saveCB( CallBacker* )
 */
 
    
-mExpClass(uiTools) NotSavedPrompter : public CallBacker
+mClass NotSavedPrompter : public CallBacker
 {
 public:
     static NotSavedPrompter&	NSP(); //gives instance
@@ -128,4 +127,3 @@ protected:
 
 
 #endif
-

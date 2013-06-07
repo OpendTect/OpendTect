@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "sectionselectorimpl.h"
 
@@ -103,7 +103,7 @@ void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 
     for ( int idx=0; idx<allnodes.size(); idx++ )
     {
-	const RowCol node = RowCol::fromInt64(allnodes[idx]);
+	const RowCol node(allnodes[idx]);
 	const Coord3 pos = surface->getKnot(node);
 	const BinID bid = SI().transform(pos);
 	if ( !inlrange.includes(bid.inl,true) ||

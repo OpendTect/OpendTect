@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -33,7 +32,7 @@ class SeisPSImpLineBuf;
  */
 
 
-mExpClass(Seis) SeisPSImpDataMgr
+mClass SeisPSImpDataMgr
 {
 public:
 
@@ -73,4 +72,3 @@ protected:
 
 
 #endif
-

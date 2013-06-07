@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
 #include "callback.h"
 #include "bufstringset.h"
 #include "color.h"
@@ -22,19 +20,17 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-/*!
-\brief Interface for DataPointSet Displays.
+/*!Interface for DataPointSet Displays. Object must be locked before
+   accessing any of the other functions, and should be unlocked when
+   done.
 
-  Object must be locked before accessing any of the other functions, and should
-  be unlocked when done.
-  
-  The datapointset can be displayed in a number of viewers.
-  
-  DispID not to be confused with Visid. It is used to keep an account for the
-  DataPointSetDisplayMgr only.
+   The datapointset can be displayed in a number of viewers.
+
+   DispID not to be confused with Visid. Its used to keep an account for the
+   DataPointSetDisplayMgr only.
 */
 
-mClass(General) DataPointSetDisplayProp
+mStruct DataPointSetDisplayProp
 {
 public:
 				DataPointSetDisplayProp( 
@@ -49,13 +45,13 @@ public:
 				    : selgrpnms_(nms), selgrpcols_(cols)
 				    , showsel_(true), dpscolid_(-1)	{}
 
-    DataPointSetDisplayProp* clone() const
-    {
-        if ( showsel_ )
-	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
-        else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
-    }
+DataPointSetDisplayProp* clone() const
+{
+    if ( showsel_ )
+	return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
+    else
+	return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+}
 
    int				dpsColID() const	{ return dpscolid_; }
    bool				showSelected() const	{ return showsel_; }
@@ -80,7 +76,7 @@ Color getColor( float val ) const
     mapper.setup_ = coltabmappersu_;
     const float pos = mapper.position( val );
     Color col = coltab_.color( pos );
-    col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
+    col.setTransparency( mNINT32(coltab_.transparencyAt(pos)) );
     return col;
 }    
 
@@ -95,11 +91,7 @@ protected:
 };
 
 
-/*!
-\brief DataPointSet display manager.
-*/
-
-mClass(General) DataPointSetDisplayMgr : public CallBacker
+mClass DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
@@ -140,9 +132,7 @@ protected:
 				    : dispprop_( 0 )	{}
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
-};
 
+};
 	    				   
 #endif
-
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "visscenecoltab.h"
 
@@ -136,7 +136,7 @@ void SceneColTab::updateVis()
     for ( int idx=0; idx<=upto; idx++ )
     {
 	const float val = al.sd_.start + idx*al.sd_.step;
-	const float normval = (float) scaler.scale( val );
+	const float normval = scaler.scale( val );
 	if ( normval>=0 && normval<=1 )
 	    legendkit_->addBigTick( normval, val );
     }

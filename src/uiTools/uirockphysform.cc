@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uirockphysform.h"
 #include "rockphysics.h"
@@ -31,7 +31,6 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    			PropertyRef::StdTypeNames(), "Property Type" );
     typfld_ = lcb->box();
-    typfld_->setHSzPol( uiObject::Medium);
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
 
     createFlds( lcb->attachObj() );
@@ -193,6 +192,12 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 }
 
 
+const char* uiRockPhysForm::getText() const
+{
+    return "Please use 'getText(bool)' function instead";
+}
+
+
 BufferString uiRockPhysForm::getText( bool usecstvals ) const
 {
     BufferString formula;
@@ -208,11 +213,24 @@ BufferString uiRockPhysForm::getText( bool usecstvals ) const
 }
 
 
+//Will be removed shortly, please do not use.
+bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
+				     BufferString& outputunit,
+				     BufferStringSet& varsunits,
+				     bool usecstvals ) const
+{
+    BufferString formulaunit;
+    TypeSet<PropertyRef::StdType> varstypes;
+    return getFormulaInfo( cleanformula, formulaunit, outputunit, varsunits,
+	    		   varstypes, usecstvals );
+}
+
+
 bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
 				     BufferString& formulaunit,
 				     BufferString& outputunit,
 				     BufferStringSet& varsunits,
-				     TypeSet<PropertyRef::StdType>& varstypes,
+					 TypeSet<PropertyRef::StdType>& varstypes,
 				     bool usecstvals ) const
 {
     varsunits.setEmpty();
@@ -260,8 +278,8 @@ bool uiRockPhysForm::getFormulaInfo( BufferString& cleanformula,
     }
 
     cleanformula = ret;
-    formulaunit = fm->formulaunit_;
-    outputunit = fm->outputunit_;
+    formulaunit = fm->getFormulaUnit();
+    outputunit = fm->unit_;
     return true;
 }
 
@@ -299,7 +317,7 @@ uiRockPhysCstFld::uiRockPhysCstFld( uiParent* p )
     rangelbl_->attach( rightOf, valfld_ );
 
     CallBack cb = mCB(this,uiRockPhysCstFld,descPush);
-    descbutton_ = new uiPushButton( this, "", ioPixmap("info"), cb, true );
+    descbutton_ = new uiPushButton( this, "", ioPixmap("info.png"), cb, true );
     descbutton_->setPrefWidthInChar( 5 );
     descbutton_->attach( rightOf, rangelbl_ );
 }

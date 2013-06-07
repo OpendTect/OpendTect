@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
 #include "valseriesevent.h"
 #include "ranges.h"
 class SeisTrc;
@@ -24,7 +23,7 @@ class Level;
 
 /*!\brief Event tied to a stratigraphic level. */
 
-mExpClass(WellAttrib) SeisEvent
+mClass SeisEvent
 {
 public:
     			SeisEvent(const Level* l=0,
@@ -43,4 +42,3 @@ public:
 } // namespace
 
 #endif
-

@@ -13,33 +13,32 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "bufstringset.h"
 #include "callback.h"
 
 class UndoEvent;
 class BinID;
 
-/*!
-\brief Class to handle undo/redo information. Events that can be undone/redone
-are added to the Undo. One user operation may involve thousands of changes
-added to the history, but the user does not want to press undo a thousand times.This is managed by setting a UserInteractionEnd flag on the last event in a
-chain that the user started. When doing undo, one undo step is consists of all
-events from the current event until the next event with the UserInteraction
-flag set. 
+/*! Class to handle undo/redo information. Events that can be undone/redone
+    are added to the Undo. One user operation may involve thouthands
+    of changes added to the history, but the user does not want to press undo a
+    thousand times. This is managed by setting a UserInteractionEnd flag on the
+    last event in a chain that the user started. When doing undo, one undo step
+    is consists of all events from the current event until the next event with
+    the UserInteraction flag set. 
 
-  This means that after all user-driven events, the UserInteractionEnd should
-  be set:
-  \code
-  void MyClass::userPushedAButtonCB( CallBacker* )
-  {
-      doSomethingsThatAddThingsOnTheHistory();
-      history.setUserInteractionEnd( currentEventID() );
-  }
-  \endcode
+    This means that after all user-driven events, the UserInteractionEnd should
+    be set:
+\code
+void MyClass::userPushedAButtonCB( CallBacker* )
+{
+    doSomethingsThatAddThingsOnTheHistory();
+    history.setUserInteractionEnd( currentEventID() );
+}
+\endcode
 */
 
-mExpClass(Basic) Undo : public CallBacker
+mClass Undo : public CallBacker
 {
 public:
 	    			Undo();
@@ -96,12 +95,9 @@ protected:
     int				userendscount_;
 };
 
+/*! Holds the information how to undo/redo something. */
 
-/*!
-\brief Holds the information on how to undo/redo something.
-*/
-
-mExpClass(Basic) UndoEvent
+mClass UndoEvent
 {
 public:
     				UndoEvent();
@@ -123,15 +119,10 @@ protected:
 };
 
 
-/*!
-\brief BinID UndoEvent.
-*/
-
-mExpClass(Basic) BinIDUndoEvent : public UndoEvent
+mClass BinIDUndoEvent : public UndoEvent
 {
 public:
     virtual const BinID&	getBinID() const;
 };
 
 #endif
-

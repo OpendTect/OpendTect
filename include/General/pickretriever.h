@@ -12,19 +12,15 @@ ________________________________________________________________________
 -*/
 
 #include "callback.h"
-#include "generalmod.h"
-#include "keyenum.h"
 #include "refcount.h"
-#include "zaxistransform.h"
 
 class Coord3;
-namespace PosInfo { class GeomID; }
 
 /*!Interface to when an application wants a pick somewere in a 3D environment.
    There should normally only be one instance in memory, and that should
    be accessed via PickRetriever::getInstance(). */
 
-mExpClass(General) PickRetriever : public CallBacker
+mClass PickRetriever : public CallBacker
 { mRefCountImpl(PickRetriever);
 public:
     				PickRetriever();
@@ -42,8 +38,6 @@ public:
     virtual bool		success() const				= 0;
     virtual bool		waiting() const				= 0;
     virtual const Coord3&	getPos() const				= 0;
-    virtual const PosInfo::GeomID& getGeomID() const			= 0;
-    virtual int			getTrcNr() const			= 0;
     virtual int			getSceneID() const			= 0;
     virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;
 
@@ -53,14 +47,9 @@ public:
     static void			setInstance(PickRetriever*);
     				/*!<Should normally only be called from
 				    application initiation. */
-    OD::ButtonState		buttonstate_;
-    virtual int			unTransformedSceneID() const		= 0;
-    virtual const ZAxisTransform* getZAxisTransform() const		= 0;
-
 protected:
     static RefMan<PickRetriever> instance_;
 };
 
 
 #endif
-

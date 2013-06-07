@@ -11,7 +11,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-#include "uibasemod.h"
 #include "uigroup.h"
 #include "userinputobj.h"
 
@@ -30,7 +29,7 @@ template <class T> class ObjectSet;
 
   */
 
-mExpClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
+mClass uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
@@ -115,7 +114,7 @@ public:
 
 
 
-mExpClass(uiBase) uiLabeledComboBox : public uiGroup
+mClass uiLabeledComboBox : public uiGroup
 {
 public:
 		uiLabeledComboBox(uiParent*,const char* lbl,
@@ -137,4 +136,3 @@ protected:
 };
 
 #endif
-

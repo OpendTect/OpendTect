@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
 #include "uidialog.h"
 class uiGenInput;
 class uiListBox;
@@ -24,7 +23,7 @@ class uiComboBox;
 class uiSeisMultiCubePSEntry;
 
 
-mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
+mClass uiSeisMultiCubePS : public uiDialog
 {
 
 public:
@@ -59,4 +58,3 @@ protected:
 };
 
 #endif
-

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 
 
-int SeisCBVS2DLineIOProvider::factid_
+int SeisCBVS2DLineIOProvider::factid
 	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
 
 
@@ -36,9 +36,10 @@ static const BufferString& gtFileName( const char* fnm )
     ret = fnm;
     if ( ret.isEmpty() ) return ret;
 
-    FilePath fp( ret );
+    FilePath fp;
+    fp.setWithLink( ret );
     if ( !fp.isAbsolute() )
-	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	fp.setPathWithLink( IOObjContext::getDataDirName(IOObjContext::Seis) );
     ret = fp.fullPath();
 
     return ret;
@@ -46,7 +47,7 @@ static const BufferString& gtFileName( const char* fnm )
 
 static const BufferString& gtFileName( const IOPar& iop )
 {
-    return gtFileName( iop.find( sKey::FileName() ).str() );
+    return gtFileName( iop.find( sKey::FileName ).str() );
 }
 
 const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
@@ -63,7 +64,7 @@ SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
 
 bool SeisCBVS2DLineIOProvider::isUsable( const IOPar& iop ) const
 {
-    return Seis2DLineIOProvider::isUsable(iop) && iop.find( sKey::FileName() );
+    return Seis2DLineIOProvider::isUsable(iop) && iop.find( sKey::FileName );
 }
 
 
@@ -124,91 +125,90 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 
 
 #undef mErrRet
-#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
+#define mErrRet(s) { msg = s; return -1; }
 
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 					    int ntps, const Seis::SelData& sd )
     	: Executor("Load 2D line")
-	, tbuf_(b)
-	, curnr_(0)
-	, totnr_(0)
-	, fname_(fnm)
-	, msg_("Reading traces")
-	, seldata_(0)
-	, trcstep_(1)
-	, linenr_(CBVSIOMgr::getFileNr(fnm))
-	, trcsperstep_(ntps)
+	, tbuf(b)
+	, curnr(0)
+	, totnr(0)
+	, fname(fnm)
+	, msg("Reading traces")
+	, seldata(0)
+	, trcstep(1)
+	, linenr(CBVSIOMgr::getFileNr(fnm))
+	, trcsperstep(ntps)
 {
-    tr_ = gtTransl( fname_, false, &msg_ );
-    if ( !tr_ ) return;
+    tr = gtTransl( fname, false, &msg );
+    if ( !tr ) return;
 
     if ( !sd.isAll() && sd.type() == Seis::Range )
     {
-	seldata_ = sd.clone();
-	tr_->setSelData( seldata_ );
+	seldata = sd.clone();
+	tr->setSelData( seldata );
     }
-    
-    totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
 }
 
 
 SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
 {
-    delete tr_;
-    delete seldata_;
+    delete tr;
+    delete seldata;
 }
 
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
     const int tnr = trc->info().binid.crl;
-    if ( !isEmpty(seldata_) )
+    if ( !isEmpty(seldata) )
     {
-	if ( seldata_->type() == Seis::Range )
+	if ( seldata->type() == Seis::Range )
 	{
-	    const BinID bid( seldata_->inlRange().start, tnr );
-	    if ( !seldata_->isOK(bid) )
+	    const BinID bid( seldata->inlRange().start, tnr );
+	    if ( !seldata->isOK(bid) )
 		{ delete trc; return; }
 	}
     }
 
     trc->info().nr = tnr;
     trc->info().binid = SI().transform( trc->info().coord );
-    tbuf_.add( trc );
+    tbuf.add( trc );
 }
 
 
 int SeisCBVS2DLineGetter::nextStep()
 {
-    if ( !tr_ ) return -1;
+    if ( !tr ) return -1;
 
-    if ( curnr_ == 0 )
+    if ( curnr == 0 )
     {
-	if ( !isEmpty(seldata_) )
+	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
+	if ( !isEmpty(seldata) )
 	{
-	    const BinID tstepbid( 1, trcstep_ );
-	    const int nrsel = seldata_->expectedNrTraces( true, &tstepbid );
-	    if ( nrsel < totnr_ ) totnr_ = nrsel;
+	    const BinID tstepbid( 1, trcstep );
+	    const int nrsel = seldata->expectedNrTraces( true, &tstepbid );
+	    if ( nrsel < totnr ) totnr = nrsel;
 	}
     }
 
-    int lastnr = curnr_ + trcsperstep_;
-    for ( ; curnr_<lastnr; curnr_++ )
+    int lastnr = curnr + trcsperstep;
+    for ( ; curnr<lastnr; curnr++ )
     {
 	SeisTrc* trc = new SeisTrc;
-	if ( !tr_->read(*trc) )
+	if ( !tr->read(*trc) )
 	{
 	    delete trc;
-	    const char* emsg = tr_->errMsg();
+	    const char* emsg = tr->errMsg();
 	    if ( emsg && *emsg )
 		mErrRet(emsg)
 	    return 0;
 	}
 	addTrc( trc );
 
-	for ( int idx=1; idx<trcstep_; idx++ )
+	for ( int idx=1; idx<trcstep; idx++ )
 	{
-	    if ( !tr_->skip() )
+	    if ( !tr->skip() )
 		return 0;
 	}
     }
@@ -247,8 +247,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     tr->readMgr()->getPositions( coords );
     tr->readMgr()->getPositions( binids );
 
-    StepInterval<float> zrg( cbvsinf.sd_.start, 0, cbvsinf.sd_.step );
-    zrg.stop = cbvsinf.sd_.start + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step;
+    StepInterval<float> zrg( cbvsinf.sd.start, 0, cbvsinf.sd.step );
+    zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
     geom.setZRange( zrg );
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )
@@ -275,15 +275,8 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 	return 0;
     }
 
-    const Seis::SelData* usedsd = sd;
-    PtrMan<Seis::SelData> tmpsd = 0;
-    if ( !usedsd )
-    {
-	tmpsd = Seis::SelData::get(Seis::Range);
-	usedsd = tmpsd;
-    }
-
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps,
+	    		sd ? *sd : *Seis::SelData::get(Seis::Range));
 }
 
 
@@ -295,7 +288,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    const char* res = iop.find( sKey::FileName() );
+    const char* res = iop.find( sKey::FileName );
     if ( !res )
 	mErrRet("Knurft")
 
@@ -309,11 +302,11 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    BufferString fnm = iop.find( sKey::FileName() ).str();
+    BufferString fnm = iop.find( sKey::FileName ).str();
     if ( fnm.isEmpty() )
     {
 	if ( previop )
-	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName())).buf();
+	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName)).buf();
 	else
 	{
 	    if ( lsetnm && *lsetnm )
@@ -323,10 +316,10 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    fnm += ".cbvs";
 	    cleanupString( fnm.buf(), false, true, true );
 	}
-	const char* prevfnm = previop ? previop->find(sKey::FileName()) : 0;
+	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
 	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );
 	fnm = CBVSIOMgr::getFileName( fnm, previop ? prevlnr+1 : 0 );
-	iop.set( sKey::FileName(), fnm );
+	iop.set( sKey::FileName, fnm );
     }
 
     return new SeisCBVS2DLinePutter( fnm.buf(), iop );
@@ -336,47 +329,47 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 //-------------------SeisCBVS2DLinePutter-----------------
 
 SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
-    	: nrwr_(0)
-	, fname_(gtFileName(fnm))
-	, tr_(CBVSSeisTrcTranslator::getInstance())
-	, preseldt_(DataCharacteristics::Auto)
+    	: nrwr(0)
+	, fname(gtFileName(fnm))
+	, tr(CBVSSeisTrcTranslator::getInstance())
+	, preseldt(DataCharacteristics::Auto)
 {
-    tr_->set2D( true );
-    bid_.inl = CBVSIOMgr::getFileNr( fnm );
+    tr->set2D( true );
+    bid.inl = CBVSIOMgr::getFileNr( fnm );
     DataCharacteristics::parseEnumUserType(
-	    iop.find(sKey::DataStorage()), preseldt_ );
+	    iop.find(sKey::DataStorage), preseldt );
 }
 
 
 SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 {
-    delete tr_;
+    delete tr;
 }
 
 
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl = info.nr;
+    bid.crl = info.nr;
     const BinID oldbid = info.binid;
-    info.binid = bid_;
+    info.binid = bid;
 
-    if ( nrwr_ == 0 )
+    if ( nrwr == 0 )
     {
-	tr_->setIs2D( true );
-	bool res = tr_->initWrite(new StreamConn(fname_.buf(),Conn::Write),trc);
+	tr->setIs2D( true );
+	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),trc);
 	if ( !res )
 	{
 	    info.binid = oldbid;
 	    errmsg_ = "Cannot open 2D line file:\n";
-	    errmsg_ += tr_->errMsg();
+	    errmsg_ += tr->errMsg();
 	    return false;
 	}
-	if ( preseldt_ != DataCharacteristics::Auto )
+	if ( preseldt != DataCharacteristics::Auto )
 	{
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-				= tr_->componentInfo();
-	    DataCharacteristics dc( preseldt_ );
+				= tr->componentInfo();
+	    DataCharacteristics dc( preseldt );
 	    for ( int idx=0; idx<ci.size(); idx++ )
 	    {
 		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
@@ -385,17 +378,17 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	}
     }
 
-    tr_->setIs2D( true );
-    bool res = tr_->write(trc);
+    tr->setIs2D( true );
+    bool res = tr->write(trc);
     info.binid = oldbid;
     if ( res )
-	nrwr_++;
+	nrwr++;
     else
     {
-	errmsg_ = "Cannot write "; errmsg_ += nrwr_ + 1;
-	errmsg_ += getRankPostFix( nrwr_ + 1 );
+	errmsg_ = "Cannot write "; errmsg_ += nrwr + 1;
+	errmsg_ += getRankPostFix( nrwr + 1 );
 	errmsg_ += " trace to 2D line file:\n";
-	errmsg_ += tr_->errMsg();
+	errmsg_ += tr->errMsg();
 	return false;
     }
     return true;
@@ -403,10 +396,10 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 
 bool SeisCBVS2DLinePutter::close()
 {
-    if ( !tr_ ) return true;
-    tr_->setIs2D( true );
-    bool ret = tr_->close();
-    if ( ret ) errmsg_ = tr_->errMsg();
+    if ( !tr ) return true;
+    tr->setIs2D( true );
+    bool ret = tr->close();
+    if ( ret ) errmsg_ = tr->errMsg();
     return ret; 
 }
 

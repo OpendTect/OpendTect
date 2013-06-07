@@ -13,18 +13,17 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "callback.h"
 
 
-/*!
-\brief Class to encapsulate a message to the user.
+/*!\brief class to encapsulate a message to the user.
 
-  Along with the message there's also a type. In any case, there's a handler
-  for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
+Along with the message there's also a type. In any case, there's a handler
+for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
+
 */
 
-mExpClass(Basic) MsgClass : public CallBacker
+mClass MsgClass : public CallBacker
 {
 public:
 
@@ -43,10 +42,9 @@ public:
 };
 
 
-mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
+mGlobal  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
 
 
 
 #endif
-

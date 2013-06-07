@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
 #include "uiposprovgroup.h"
 class MultiID;
 class CtxtIOObj;
@@ -28,7 +27,7 @@ class uiIOFileSelect;
 
 /*! \brief UI for RangePosProvider */
 
-mExpClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
+mClass uiRangePosProvGroup : public uiPosProvGroup
 {
 public:
 
@@ -51,7 +50,6 @@ protected:
 
     uiSelHRange*	hrgfld_;
     uiSelZRange*	zrgfld_;
-    uiSelNrRange*	nrrgfld_;
 
     uiPosProvGroup::Setup setup_;
 
@@ -60,7 +58,7 @@ protected:
 
 /*! \brief UI for PolyPosProvider */
 
-mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
+mClass uiPolyPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiPolyPosProvGroup(uiParent*,
@@ -93,7 +91,7 @@ protected:
 
 /*! \brief UI for TablePosProvider */
 
-mExpClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
+mClass uiTablePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiTablePosProvGroup(uiParent*,
@@ -124,4 +122,3 @@ protected:
 
 
 #endif
-

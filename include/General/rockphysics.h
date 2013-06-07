@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "propertyref.h"
 #include "repos.h"
 class MathProperty;
@@ -34,18 +33,17 @@ Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 namespace RockPhysics
 {
 
-mExpClass(General) Formula : public NamedObject
+mClass Formula : public NamedObject
 {
 public:
 
     typedef PropertyRef::StdType PropType;
 
 			Formula( PropType t, const char* nm=0 )
-			    : NamedObject(nm)
-			    , type_(t)		{}
-    
+			: NamedObject(nm)
+			, type_(t)		{}
     static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
-			~Formula();		
+			~Formula()		{ deepErase(constdefs_); }
 			Formula( const Formula& f ) { *this = f; }
     Formula&		operator =(const Formula&);
     inline bool		operator ==( const Formula& pr ) const
@@ -56,7 +54,7 @@ public:
     inline bool		hasPropType( PropType t ) const
 						{ return type_ == t; }
 
-    mExpClass(General) ConstDef : public NamedObject
+    mClass ConstDef : public NamedObject
     {
     public:
 			ConstDef( const char* nm )
@@ -65,9 +63,9 @@ public:
 			    , defaultval_(mUdf(float))	{}
 	BufferString	desc_;
 	Interval<float>	typicalrg_;
-	float defaultval_;
+	float		defaultval_;
     };
-    mExpClass(General) VarDef : public NamedObject
+    mClass VarDef : public NamedObject
     {
     public:
 			VarDef( const char* nm, PropType t )
@@ -84,8 +82,7 @@ public:
     ObjectSet<ConstDef>	constdefs_;
     ObjectSet<VarDef>	vardefs_;
     Repos::Source	src_;
-    BufferString	formulaunit_;
-    BufferString	outputunit_;
+    BufferString	unit_;
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -93,10 +90,12 @@ public:
     bool		setDef(const char*); // Will add var- and constdefs
     MathProperty*	getProperty(const PropertyRef* pr=0) const;
 
+    BufferString	getFormulaUnit() const;
+    void		setFormulaUnit(BufferString);
 };
 
 
-mExpClass(General) FormulaSet : public ObjectSet<const Formula>
+mClass FormulaSet : public ObjectSet<const Formula>
 {
 public:
     			~FormulaSet()
@@ -122,10 +121,9 @@ public:
 
 } // namespace RockPhysics
 
-mGlobal(General) const RockPhysics::FormulaSet& ROCKPHYSFORMS();
-mGlobal(General) inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
+mGlobal const RockPhysics::FormulaSet& ROCKPHYSFORMS();
+mGlobal inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 { return const_cast<RockPhysics::FormulaSet&>( ROCKPHYSFORMS() ); }
 
 
 #endif
-

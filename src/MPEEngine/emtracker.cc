@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "emtracker.h"
 
@@ -68,6 +68,7 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	return true;
 
 
+    const int initialhistnr = EM::EMM().undo().currentEventID();
     bool success = true;
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {

@@ -2,7 +2,7 @@
 #
 #	Makefile : 	GapDecon-related UI
 # 	March 2012	Nageswara
-#	RCS :		$Id$
+#	RCS :		$Id: CMakeLists.txt,v 1.3 2012/03/29 11:33:25 cvskris Exp $
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiAttributes uiFlatView GapDecon)

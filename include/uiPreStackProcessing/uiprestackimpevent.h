@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
 class uiFileInput;
@@ -25,7 +24,7 @@ namespace PreStack
 {
 
 
-mExpClass(uiPreStackProcessing) uiEventImport : public uiDialog
+mClass uiEventImport : public uiDialog
 {
 public:
     			uiEventImport(uiParent*);
@@ -44,4 +43,3 @@ protected:
 }; //namespace
 
 #endif
-

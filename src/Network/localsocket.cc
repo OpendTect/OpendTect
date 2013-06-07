@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "localsocket.h"
 #include "qlocalsocketcomm.h"
@@ -34,7 +34,7 @@ LocalSocket::~LocalSocket()
 
 const char* LocalSocket::errorMsg() const
 {
-    errmsg_ = qlocalsocket_->errorString().toLatin1().constData();
+    errmsg_ = qlocalsocket_->errorString().toAscii().constData();
     return errmsg_.buf();
 }
 

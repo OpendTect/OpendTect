@@ -6,11 +6,6 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "sorting.h"
-#include "strmprov.h"
-#include "tabledef.h"
-#include "unitofmeasure.h"
-#include "varlenarray.h"
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
@@ -19,7 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "idxable.h"
-
+#include "strmprov.h"
+#include "unitofmeasure.h"
+#include "tabledef.h"
+#include "varlenarray.h"
+#include "sorting.h"
 #include <iostream>
 #include <math.h>
 
@@ -180,8 +179,6 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 		lfi.wellnm = val1;
 		if ( val2 && *val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
 	    }
-	    if ( mIsKey("UWI") || mIsKey("API") )
-		lfi.uwi = val1;
 	break;
 	default:
 	break;
@@ -266,7 +263,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 
     if ( lfi.depthcolnr < 0 )
 	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
-    const int addstartidx = wd_->logs().size();
+    const int addstartidx = wd.logs().size();
     BoolTypeSet issel( inplfi.lognms.size(), false );
 
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
@@ -276,7 +273,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
-	if ( wd_->logs().getLog( lognm ) )
+	if ( wd.logs().getLog( lognm ) )
 	{
 	    BufferString msg( lognm );
 	    msg += " already exists, will be ignored.";
@@ -294,7 +291,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
 	newlog->setUnitMeasLabel( unlbl );
-	wd_->logs().add( newlog );
+	wd.logs().add( newlog );
     }
 
     return getLogData( strm, issel, lfi, istvd, addstartidx,
@@ -361,12 +358,12 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	if ( selvals.isEmpty() ) continue;
 
 	float dah = dpth;
-	if ( istvd && !convToDah(wd_->track(),dah,prevdah) )
+	if ( istvd && !convToDah(wd.track(),dah,prevdah) )
 	    continue;
 	prevdah = dah;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    wd_->logs().getLog(addstartidx+idx).addValue( dah, selvals[idx] );
+	    wd.logs().getLog(addstartidx+idx).addValue( dah, selvals[idx] );
 
 	nradded++;
     }
@@ -374,8 +371,8 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
     if ( nradded == 0 )
 	return "No matching log data found";
 
-    wd_->logs().updateDahIntvs();
-    wd_->logs().removeTopBottomUdfs();
+    wd.logs().updateDahIntvs();
+    wd.logs().removeTopBottomUdfs();
     return 0;
 }
 
@@ -404,6 +401,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
     Coord3 surfcoord;
     float dah = 0;
     
+    char buf[1024]; char valbuf[256];
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
 
     while ( true )
@@ -421,7 +419,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( mIsUdf(c.x) || mIsUdf(c.y) )
 	    continue;
 
-	c.z = getdValue(2);
+	c.z = getfValue(2);
 	const float newdah = getfValue( 3 );
 	const bool havez = !mIsUdf(c.z);
 	const bool havedah = !mIsUdf(newdah);
@@ -432,7 +430,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	{
 	    if ( !SI().isReasonable(wd.info().surfacecoord) )
 		wd.info().surfacecoord = c;
-//		wd.info().SRDelev = 0;  user input required
+//	wd.info().surfaceelev = 0;  user input required to set this
 
 	    surfcoord.x = wd.info().surfacecoord.x;
 	    surfcoord.y = wd.info().surfacecoord.y;
@@ -442,7 +440,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	}
 
 	if ( mIsUdf(newdah) )
-	    dah += (float) c.distTo( prevc );
+	    dah += c.distTo( prevc );
 	else
 	{
 	    if ( mIsUdf(c.z) )
@@ -451,7 +449,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 		const float hdist = (float)Coord(c).distTo( Coord(prevc) );
 		c.z = prevc.z;
 		if ( d > hdist )
-		    c.z += Math::Sqrt( d*d - hdist*hdist );
+		    c.z += sqrt( d*d - hdist*hdist );
 	    }
 	    dah = newdah;
 	}
@@ -459,7 +457,7 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( c.distTo(c000) < 1 )
 	    break;
 
-	wd.track().addPoint( c, (float) c.z, dah );
+	wd.track().addPoint( c, c.z, dah );
 	prevc = c;
     }
 
@@ -514,10 +512,10 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 	{
 	    if ( fd_.bodyinfos_[icol+1]->selection_.elems_.isEmpty() )
 		fd_.bodyinfos_[icol+1]->selection_.elems_ +=
-		  Table::TargetInfo::Selection::Elem( RowCol(0,nmcol+icol), 0 );
+		    Table::TargetInfo::Selection::Elem( RowCol(0,nmcol+icol), 0 );
 	    else
 		fd_.bodyinfos_[icol+1]->selection_.elems_[0].pos_.col
-		    = icol + nmcol;
+		    = nmcol + icol;
 	}
     }
 
@@ -527,7 +525,7 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float dah = mCast( float, getdValue( 0 ) );
+	float dah = getfValue( 0 );
 	BufferString namepart = text( 1 );
 	if ( mIsUdf(dah) || namepart.isEmpty() )
 	    continue;
@@ -543,7 +541,6 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 
 	    fullnm += " "; fullnm += namepart;
 	}
-
 	ms += new Well::Marker( fullnm, dah );
     }
 
@@ -555,7 +552,7 @@ Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf()),
+	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf),
 				Table::Required );
     createDescBody( fd, withunitfld );
     return fd;
@@ -587,7 +584,7 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 
 
 static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
-       			    TypeSet<double>& rawtvals, const Well::Data& wll )
+			    TypeSet<double>& rawtvals, const Well::Data& wll )
 {
     const Well::Track& trck = wll.track();
     int inputsz = rawzvals.size();
@@ -614,16 +611,16 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     }
 
     inputsz = zvals.size();
-    if ( inputsz < 2 ) 
+    if ( inputsz < 2 )
 	return false;
 
     TypeSet<float> mds;
     TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
-    const double srd = wll.info().srdelev;
+    const double srd = -1.f * (double)wll.info().surfaceelev;
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
-    // velocity above is controled by info().replvel
+    // velocity above is controled by info().getReplVel()
 
     int istartz = IdxAble::getLowIdx( zvals, inputsz, firstz );
     if ( istartz < 0  )
@@ -632,30 +629,30 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 	istartz--;
 
     double curvel = ( zvals[istartz+1] - zvals[istartz] ) /
-       		    ( tvals[istartz+1] - tvals[istartz] );
-    mds += trck.getDahForTVD(mCast(float,firstz));
+		    ( tvals[istartz+1] - tvals[istartz] );
+    mds += trck.getDahForTVD(firstz);
     ts  += -1.f * srd > zwllhead ? 0 : 2.f * ( zwllhead + srd ) /
-       				       mCast( double, wll.info().replvel );
-    // one SHOULD check here if this time corresponds to the time at the 
+				       (double)wll.info().getReplVel();
+    // one SHOULD check here if this time corresponds to the time at the
     // same depth in the input file, i.e. is the computed replacement velocity
     // in line with the one stored in info() or input in the advanced import
     // settings window
-    
+
     int prevvelidx = istartz;
     istartz++;
     for ( int idz=istartz; idz<inputsz; idz++ )
     {
 	const double newvel = ( zvals[idz] - zvals[prevvelidx] ) /
-	   		      ( tvals[idz] - tvals[prevvelidx] );
+	    		      ( tvals[idz] - tvals[prevvelidx] );
 	if ( mIsEqual(curvel,newvel,1e-2) && (idz<inputsz-1) )
-	   continue;
+	    continue;
 
-	const float dah = trck.getDahForTVD( mCast(float,zvals[idz]) );
+	const float dah = trck.getDahForTVD( zvals[idz] );
 	if ( !mIsUdf(dah) )
 	{
 	    prevvelidx = idz;
 	    curvel = newvel;
-	    mds += trck.getDahForTVD( mCast(float,zvals[idz]) );
+	    mds += trck.getDahForTVD( zvals[idz] );
 	    ts += tvals[idz];
 	}
     }
@@ -672,10 +669,18 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
 }
 
 
+static bool getTVDD2TModel( Well::D2TModel& d2t,
+		const TypeSet<float>& zvals, const TypeSet<float>& tvals,
+		const Well::Track& trck )
+{
+    return false;
+}
+
+
 bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
        				const Well::Data& wll ) const
 {
-    d2t.setEmpty();
+    d2t.erase();
     if ( wll.track().isEmpty() ) return true;
 
     const int dpthopt = formOf( false, 0 );
@@ -693,19 +698,19 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval -= wll.info().srdelev;
+	    zval += wll.info().surfaceelev;
 	if ( dpthopt == 3 )
 	    zval -= wll.track().getKbElev();
 	if ( dpthopt == 4 )
-	    zval -= wll.info().groundelev;
+	    zval -= wll.info().getGroundElev();
 	if ( tmopt == 1 )
-	    tval *= 2;
+	    tval *= 2.f;
 
 	if ( !istvd )
-	    zvals += wll.track().getPos(mCast(float,zval)).z;
+	    zvals += wll.track().getPos(zval).z;
 	else
 	    zvals += zval;
-
+	
 	tvals += tval;
     }
 

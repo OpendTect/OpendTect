@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
 #include "manobjectset.h"
 #include "angles.h"
 #include "ranges.h"
@@ -19,11 +18,7 @@ ________________________________________________________________________
 namespace Stats
 {
 
-/*!
-\brief Part of a data sector. 
-*/
-
-mClass(Algo) SectorPartData
+mClass SectorPartData
 {
 public:
 
@@ -42,21 +37,21 @@ public:
 typedef TypeSet<SectorPartData> SectorData;
 
 
-/*!
-\brief A circle of data.
+/*!\brief A circle of data.
  
   The circle is subdivided in sectors, which are subdivided in sector parts.
   The relative 'pos_' from the sector part can be scaled with usrposrg_ to get
   user positions.
 
   Angles are implicit: we always expect 360 degrees of data.
-*/
 
-mClass(Algo) DirectionalData : public ManagedObjectSet<SectorData>
+ */
+
+mClass DirectionalData : public ManagedObjectSet<SectorData>
 {
 public:
 
-    mClass(Algo) Setup
+    mClass Setup
     {
     public:
     			Setup()
@@ -69,7 +64,9 @@ public:
 	Angle::Type	angletype_;
     };
 
-			DirectionalData(int nrsectors=0,int nrparts=0);
+    			DirectionalData()
+			    : ManagedObjectSet<SectorData>(false)	{}
+			DirectionalData(int nrsectors,int nrparts=0);
 
     SectorPartData&	get( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
@@ -95,7 +92,7 @@ inline float DirectionalData::angle( int isect, int bound ) const
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
     const float centerang = setup_.angle0_ + angstep * isect;
-    return centerang + bound * angstep * .5f;
+    return centerang + bound * angstep * .5;
 }
 
 
@@ -124,13 +121,14 @@ inline int DirectionalData::sector( float ang ) const
 
 
 inline DirectionalData::DirectionalData( int nrsect, int nrparts )
+    : ManagedObjectSet<SectorData>(false)
 {
     for ( int isect=0; isect<nrsect; isect++ )
     {
 	SectorData* sd = new SectorData;
 	*this += sd;
 	for ( int ipart=0; ipart<nrparts; ipart++ )
-	    *sd += SectorPartData( 0, (ipart + .5f) / nrparts, 0 );
+	    *sd += SectorPartData( 0, (ipart + .5) / nrparts, 0 );
     }
 }
 
@@ -138,4 +136,3 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 }; // namespace Stats
 
 #endif
-

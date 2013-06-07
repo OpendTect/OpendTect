@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiselectvelocityfunction.h"
 
@@ -140,8 +140,8 @@ void uiFunctionSel::removePushedCB(CallBacker*)
 
     if ( sel<0 ) return;
 
-    velsources_.removeSingle(sel)->unRef();
-    if ( colorfld_ ) colors_.removeSingle( sel );
+    velsources_.remove(sel)->unRef();
+    if ( colorfld_ ) colors_.remove( sel );
     updateList();
     listChange.trigger();
 }

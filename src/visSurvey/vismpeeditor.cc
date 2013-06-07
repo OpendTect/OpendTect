@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "vismpeeditor.h"
 
@@ -231,11 +231,12 @@ void MPEEditor::removeDragger( int idx )
     draggers[idx]->motion.remove(mCB(this,MPEEditor,dragMotion));
     draggers[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
     removeChild( draggers[idx]->getInventorNode() );
-  
-    draggers.removeSingle(idx,false)->unRef();
-    posids.removeSingle(idx,false);
-    draggersshapesep.removeSingle(idx,false)->unRef();
-    draggermarkers.removeSingle(idx,false);
+    draggers[idx]->unRef();
+    draggersshapesep[idx]->unRef();
+    draggers.remove(idx,false);
+    posids.remove(idx,false);
+    draggersshapesep.remove(idx,false);
+    draggermarkers.remove(idx,false);
 }
 
 
@@ -272,13 +273,13 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	dragger->setDraggerType( visBase::Dragger::Translate2D );
 	const Coord3 defnormal( 0, 0, 1 );
 	const Coord3 desnormal = emeditor->translation2DNormal(pid).normalize();
-	const float dotproduct = (float) defnormal.dot(desnormal);
+	const float dotproduct = defnormal.dot(desnormal);
 	
 	Coord3 rotationaxis( 0, 0, 1 );
 	float angle = 0;
 	if ( !mIsEqual( dotproduct, 1, 1e-3 ) )
 	{
-	    const float zaxisangle = (float) atan2( desnormal.y, desnormal.x ); 
+	    const float zaxisangle = atan2( desnormal.y, desnormal.x ); 
 	    Quaternion rotation( defnormal, zaxisangle );
 	    rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
 	    rotation.getRotation( rotationaxis, angle );
@@ -294,7 +295,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	const Coord3 defori( 1, 0, 0 );
 	const Coord3 desori =
 	    emeditor->translation1DDirection( pid ).normalize().normalize();
-	const float angle = (float) Math::ACos( defori.dot(desori) );
+	const float angle = Math::ACos( defori.dot(desori) );
 	const Coord3 axis = defori.cross(desori);
 	dragger->setRotation( axis, angle );
     }

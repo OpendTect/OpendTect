@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "horizonmerger.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidsurface.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "statruncalc.h"
 
@@ -32,16 +31,16 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     , ownsarray_(true)
     , hs_(false)
 {
+    SurfaceIOData sd;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	const ObjectID& objid( ids[idx] );
-	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(objid))
-	if ( !hor ) continue;
+	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(ids[idx]))
 	inputhors_ += hor;
-	IOObjInfo oi( EMM().getMultiID(objid) );
-	SurfaceIOData sd;
-	if ( oi.getSurfaceData(sd) )
-	    { hs_.include( sd.rg ); hs_.step = sd.rg.step; }
+	if ( hor && !EM::EMM().getSurfaceData(hor->multiID(),sd) )
+	{
+	    hs_.include( sd.rg );
+	    hs_.step = sd.rg.step;
+	}
     }
 
     deepRef( inputhors_ );
@@ -99,7 +98,7 @@ bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 	    continue;
 
 	if ( mode_ == Average )
-	    depths_->getData()[idx] = (float) rc.average();
+	    depths_->getData()[idx] = rc.average();
 	else if ( mode_ == Top )
 	    depths_->getData()[idx] = rc.min();
 	else if ( mode_ == Base )

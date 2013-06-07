@@ -13,8 +13,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "uitoolsmod.h"
-#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uifunctiondisplay.h"
 #include "uigroup.h"
@@ -23,7 +21,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "mathfunc.h"
 #include "multiid.h"
-#include "arrayndalgo.h"
+#include "arrayndutils.h"
 #include "arrayndimpl.h"
 
 class uiAxisHandler;
@@ -40,11 +38,11 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-mExpClass(uiTools) uiFunctionDrawer : public uiGraphicsView
+mClass uiFunctionDrawer : public uiGraphicsView
 {
 
 public:
-    mStruct(uiTools) Setup
+    mStruct Setup
     {
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
@@ -62,7 +60,7 @@ public:
 	mDefSetupMemb(Interval<float>,funcrg)	
     };
 
-    mStruct(uiTools) DrawFunction
+    mStruct DrawFunction
     {
 		DrawFunction( const FloatMathFunction* f )
 		    : color_(Color::DgbColor())
@@ -79,7 +77,7 @@ public:
     
     void		addFunction(DrawFunction* f) { functions_ += f; }
     void		clearFunctions(){ deepErase( functions_ ); }
-    void		clearFunction(int idx) {delete functions_.removeSingle(idx);}
+    void		clearFunction(int idx) {delete functions_.remove(idx);}
     void		draw(CallBacker*);
     Interval<float>& 	getFunctionRange() { return funcrg_; }
     void 		setSelItems(TypeSet<int> s) { selitemsidx_ = s; }
@@ -104,7 +102,7 @@ protected:
 };
 
 
-mExpClass(uiTools) uiFuncSelDraw : public uiGroup
+mClass uiFuncSelDraw : public uiGroup
 {
 public:
 
@@ -138,7 +136,7 @@ protected:
 
 
 /*!brief Displays a windowfunction. */
-mExpClass(uiTools) uiWindowFuncSelDlg : public uiDialog
+mClass uiWindowFuncSelDlg : public uiDialog
 {
 public:
 
@@ -163,5 +161,3 @@ protected:
 };
 
 #endif
-
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "uiwellmarkerdlg.h"
@@ -88,7 +88,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
     
-    uiToolButton* stratbut = new uiToolButton( this, "man_strat",
+    uiToolButton* stratbut = new uiToolButton( this, "man_strat.png",
 	    			"Edit Stratigraphy to define Levels",
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
@@ -123,7 +123,7 @@ int uiMarkerDlg::getNrRows() const
 void uiMarkerDlg::markerRemovedCB( CallBacker* )
 {
     const int currow = table_->currentRow();
-    depths_.removeSingle( currow<0 ? table_->nrRows() : currow );
+    depths_.remove( currow<0 ? table_->nrRows() : currow );
 }
 
 
@@ -178,13 +178,13 @@ float uiMarkerDlg::zFactor() const
     const bool unitval = !unitfld_->isChecked();
     
     if ( SI().zIsTime() )
-	return unitval ? 1 : mToFeetFactorF;
+	return unitval ? 1 : mToFeetFactor;
 
     return ((SI().zInFeet() && !unitval) ||
 	    (SI().zInMeter() && unitval)) ? 1
 					  : ( SI().zInFeet() && unitval )
-					      ? mFromFeetFactorF
-					      : mToFeetFactorF;
+					      ? mFromFeetFactor
+					      : mToFeetFactor;
 }
 
 
@@ -656,7 +656,7 @@ bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
     {
 	uiMSG().error( "Please enter a valid number" );
 	const float oldval = md2tvdss ? depths_[rowidx] :
-				(float)( track_.getPos(depths_[rowidx]).z );
+					(float)track_.getPos(depths_[rowidx]).z;
 	table_->setValue( rcin, oldval * zFactor() );
 	return false;
     }

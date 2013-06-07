@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
 #include "uiposprovgroup.h"
 #include "multiid.h"
 
@@ -24,7 +23,7 @@ class uiWellParSel;
 
 /*! \brief UI for WellPosProvider */
 
-mExpClass(uiWell) uiWellPosProvGroup : public uiPosProvGroup
+mClass uiWellPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiWellPosProvGroup(uiParent*,
@@ -53,4 +52,3 @@ protected:
 };
 
 #endif
-

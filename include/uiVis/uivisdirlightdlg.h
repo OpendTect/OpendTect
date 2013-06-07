@@ -11,8 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivismod.h"
-#include "uivismod.h"
 #include "uidialog.h"
 #include "uipolardiagram.h"
 
@@ -25,7 +23,7 @@ class uiVisPartServer;
 
 namespace visBase { class DirectionalLight; }
 
-mExpClass(uiVis) uiDirLightDlg : public uiDialog
+mClass uiDirLightDlg : public uiDialog
 {
 public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);
@@ -82,7 +80,7 @@ protected:
     uiGenInput*			lighttypefld_;
     uiGenInput*			switchfld_;
 
-    typedef mStruct(uiVis) InitInfo
+    typedef mStruct InitInfo
     {
 		int		sceneid_;
         	
@@ -117,5 +115,3 @@ protected:
 };
 
 #endif
-
-

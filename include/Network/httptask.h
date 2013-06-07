@@ -12,12 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "executor.h"
 
 class ODHttp;
 
-mExpClass(Network) HttpTask : public Executor
+mClass HttpTask : public Executor
 {
 public:
     			HttpTask(ODHttp&);
@@ -50,4 +49,3 @@ protected:
 
 
 #endif
-

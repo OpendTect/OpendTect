@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "cmdcomposer.h"
 
@@ -66,12 +66,11 @@ BufferString CmdComposer::factoryKey( const CallBacker* caller,
 BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
 					    const char* keyword )
 {
-    FixedString classifiername = classifier->name();
     classifiers.insertAt( classifier, 0 );
     for ( int idx=classifiers.size()-1; idx>0; idx-- )
     {
-	if ( classifiers[idx]->name()==classifiername )
-	    delete classifiers.removeSingle( idx );
+	if ( !strcmp(classifiers[idx]->name(), classifier->name()) )
+	    delete classifiers.remove( idx );
     }
 
     BufferString fackey;
@@ -167,7 +166,7 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 	if ( !refnrstack_.isEmpty() && ev.refnr_==refnrstack_[0] )
 	{
-	    refnrstack_.removeSingle( 0 );
+	    refnrstack_.remove( 0 );
 
 	    if ( ev.begin_ )
 		// in case accept(ev) was called tail-recursively
@@ -203,10 +202,9 @@ bool CmdComposer::accept( const CmdRecEvent& ev )
 
 bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
 {
-    FixedString evidstr( ev.idstr_ );
     for ( int idx=0; idx<eventlist_.size(); idx++ )
     {
-	if ( eventlist_[idx]->idstr_==evidstr )
+	if ( !strcmp(eventlist_[idx]->idstr_, ev.idstr_) )
 	{
 	    ev.srcwin_ = eventlist_[idx]->srcwin_;
 	    ev.openqdlg_ = eventlist_[idx]->openqdlg_;
@@ -239,15 +237,14 @@ void CmdComposer::addToEventList( const CmdRecEvent& ev )
 
     for ( int idx=sz-2; idx>=sz-5; idx-- )
     {
-	bool isbegin = ((sz-idx)%2)==1;
-	if ( eventlist_[idx]->begin_ != isbegin )
+	if ( eventlist_[idx]->begin_ != ((sz-idx)%2) )
 	    return;
 	if ( burstevnameidx != eventNameIdx(bursteventnames_,*eventlist_[idx]) )
 	    return;
     }
 
-    delete eventlist_.removeSingle( sz-2 );
-    delete eventlist_.removeSingle( sz-3 );
+    delete eventlist_.remove( sz-2 );
+    delete eventlist_.remove( sz-3 );
 }
 
 
@@ -264,7 +261,7 @@ void CmdComposer::shrinkEventList( int firstnr, int lastnr )
     for ( int idx=sz-1; idx>=0; idx-- )
     {
 	if ( idx>=firstidx && idx<=lastidx )
-	    delete eventlist_.removeSingle( idx );
+	    delete eventlist_.remove( idx );
     }
 }
 

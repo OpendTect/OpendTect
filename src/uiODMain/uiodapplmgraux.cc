@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
-#include "keystrs.h"
 #include "separstr.h"
 #include "odinst.h"
 #include "string2.h"
@@ -40,8 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "ui2dgeomman.h"
-#include "uibatchlaunch.h"
 #include "uidatapointsetman.h"
+#include "uimanprops.h"
 #include "uimsg.h"
 #include "uiconvpos.h"
 #include "uidatapointset.h"
@@ -56,7 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestackimpmute.h"
 #include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
-#include "uimanprops.h"
+#include "uicreatelogcubedlg.h"
 #include "uiprestackanglemutecomputer.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
@@ -69,7 +68,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicreate2dgrid.h"
 
 #include "uiattribpartserv.h"
-#include "uicreatelogcubedlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uinlapartserv.h"
@@ -145,8 +143,6 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->import3DHorAttr();
 	    else if ( opt == 2 )
 		am_.emattrserv_->import2DHorizon();
-	    else if ( opt == 3 )
-		am_.emserv_->import3DHorGeom( true );
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )
@@ -210,16 +206,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellattrserv_->importSEGYVSP();
 	    else if ( opt == 4 )
 		am_.wellserv_->createSimpleWells();
-	    else if ( opt == 5 )
-		am_.wellserv_->bulkImportTrack();
-	    else if ( opt == 6 )
-		am_.wellserv_->bulkImportLogs();
-	    else if ( opt == 7 )
-		am_.wellserv_->bulkImportMarkers();
 
 	break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;
-	default:					break;
 	}
     break;
     mCase(Attr):
@@ -262,7 +251,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
     break;
     mCase(Strat):
-	StratTWin().popUp();
+	switch ( at )
+	{
+	default:	StratTWin().popUp();	break;
+	}
     break;
     mCase(PDF):
         if ( at == uiODApplMgr::Imp )
@@ -317,9 +309,6 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiSessionMan mandlg( par_ );
     	    mandlg.go();
 	}
-    mCase(NLA):
-	    pErrMsg("NLA event occurred");
-    break;
     }
 }
 
@@ -405,8 +394,7 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
     BinID step( SI().inlStep(), SI().crlStep() );
     BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(*cache, colnr, step);
 
-    MapDataPack* newpack = new MapDataPack( sKey::Attribute(), data.name(),
-	    				    bvsarr );
+    MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
     StepInterval<int> tempinlrg = bvsarr->hrg_.inlRange();
     StepInterval<int> tempcrlrg = bvsarr->hrg_.crlRange();
     StepInterval<double> inlrg( (double)tempinlrg.start, (double)tempinlrg.stop,
@@ -455,25 +443,54 @@ void uiODApplMgrDispatcher::openXPlot()
 
 void uiODApplMgrDispatcher::startInstMgr()
 {
-    uiMSG().message( "If you make changes to the application,"
+#ifndef __win__
+    BufferString msg( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
+#else
+    BufferString msg( "Please close OpendTect application and all other " 
+		      "OpendTect processes after the "
+		      "installation manager starts" );
+#endif
+    uiMSG().message( msg );
     ODInst::startInstManagement();
 }
 
 
 void uiODApplMgrDispatcher::setAutoUpdatePol()
 {
-    const ODInst::AutoInstType curait = ODInst::getAutoInstType();
+    ODInst::AutoInstType curait = ODInst::getAutoInstType();
+#ifdef __win__
+    ODInst::AutoInstType tmpait = ODInst::getAutoInstType();
+    if ( tmpait == ODInst::InformOnly )
+	curait = ODInst::UseManager;
+    else if ( tmpait == ODInst::NoAuto )
+	curait = ODInst::InformOnly;
+#endif
+     
     uiGetChoice dlg( par_, ODInst::autoInstTypeUserMsgs(),
 	    		"Select policy for auto-update", true, "0.4.5" );
     dlg.setDefaultChoice( (int)curait );
     if ( !dlg.go() )
 	return;
+    
+#ifdef __win__
+    ODInst::AutoInstType newait = (ODInst::AutoInstType)dlg.choice();
+    tmpait = (ODInst::AutoInstType)dlg.choice();
+    if ( tmpait == ODInst::UseManager )
+	newait = ODInst::InformOnly;
+    else if ( tmpait == ODInst::InformOnly )
+	newait = ODInst::NoAuto;
+    ODInst::setAutoInstType( newait );
+     if ( newait == ODInst::InformOnly )
+	am_.appl_.updateCaption();
+    return;
+#else
     ODInst::AutoInstType newait = (ODInst::AutoInstType)dlg.choice();
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
     if ( newait == ODInst::InformOnly )
 	am_.appl_.updateCaption();
+#endif
 }
 
 
@@ -496,7 +513,7 @@ void uiODApplMgrDispatcher::setFonts()
 void uiODApplMgrDispatcher::resortSEGY()
 { am_.seisserv_->resortSEGY(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
-{ uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
+{ uiMultiWellCreateLogCubeDlg dlg( par_ ); dlg.go(); }
 
 void uiODApplMgrDispatcher::process2D3D( bool to2d )
 {
@@ -505,7 +522,3 @@ void uiODApplMgrDispatcher::process2D3D( bool to2d )
     else
     { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
 }
-
-
-void uiODApplMgrDispatcher::setProcSettings()
-{ uiProcSettings dlg( par_ ); dlg.go(); }

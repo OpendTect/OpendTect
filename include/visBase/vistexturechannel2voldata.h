@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 #include "coltabsequence.h"
 
@@ -28,7 +27,7 @@ namespace visBase
  the texture channel(s) into a volume data object. 
 */
 
-mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
+mClass TextureChannel2VolData : public TextureChannel2RGBA
 {
 public:
     static TextureChannel2VolData*	create()
@@ -69,4 +68,3 @@ protected:
 
 
 #endif
-

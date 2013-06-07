@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "stratmod.h"
 #include "namedobj.h"
 #include "enums.h"
 #include "bufstringset.h"
@@ -33,7 +32,7 @@ class LaySeqAttribSet;
  
  */
 
-mExpClass(Strat) LaySeqAttrib : public NamedObject
+mClass LaySeqAttrib : public NamedObject
 {
 public:
 
@@ -87,13 +86,14 @@ protected:
  */
 
 
-mExpClass(Strat) LaySeqAttribSet : public NamedObject
+mClass LaySeqAttribSet : public NamedObject
 		       , public ManagedObjectSet<LaySeqAttrib>
 {
 public:
 
     			LaySeqAttribSet( const char* nm=0 )
-			    : NamedObject(nm)	{}
+			    : NamedObject(nm)
+			    , ManagedObjectSet<LaySeqAttrib>(false)	{}
 
     LaySeqAttrib&	attr( int idx )		{ return *(*this)[idx]; }
     const LaySeqAttrib&	attr( int idx ) const	{ return *(*this)[idx]; }
@@ -115,4 +115,3 @@ protected:
 }; // namespace Strat
 
 #endif
-

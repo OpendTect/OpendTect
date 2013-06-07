@@ -12,22 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "mmprocmod.h"
 #include "namedobj.h"
 #include "bufstring.h"
-
 class BufferStringSet;
-
-/*!\brief Multi Machine Processing*/
 
 namespace MMProc
 {
 
-/*!
-\brief Knows available nodes and decides which to use.
-*/
+/*!\brief Knows available nodes and decides which to use. */
 
-mExpClass(MMProc) AssetMgr : public NamedObject
+mClass AssetMgr : public NamedObject
 {
 public:
     			AssetMgr( const char* nm )
@@ -40,10 +34,9 @@ public:
     static int		add(AssetMgr*);
 };
 
-mGlobal(MMProc) const ObjectSet<MMProc::AssetMgr>& ASMGRS();
+mGlobal const ObjectSet<MMProc::AssetMgr>& ASMGRS();
 
 
 }; // namespace MMProc
 
 #endif
-

@@ -35,6 +35,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static int cMaxNrPDFs = 3;
 
+
+// TODO have to remove the constrcutor
+uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
+				uiDataPointSetCrossPlotter& plotter,
+       				const BufferStringSet& )
+    : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
+				 "Specify parameters","111.0.3"))
+    , plotter_(0)
+    , dps_(plotter_->dps())
+    , createfrmfld_(0)
+    , nrdisp_(1)
+    , pdf_(0)
+    , restrictedmode_(false)
+{
+}
+
+
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
@@ -163,7 +180,7 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 
@@ -278,18 +295,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 
     DPSDensityCalcND denscalc( dps_, axisparams,pdf.getData());
     uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, denscalc );
-}
-
-
-void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
-{
-    for ( int idx=0; idx<probflds_.size(); idx++ )
-    {
-	if ( !prefdefnms.validIdx(idx) )
-	    continue;
-	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
-    }
+    tr.execute( denscalc );
 }
 
 
@@ -309,11 +315,11 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 }
 
 
-#define mSavePDF( retstatement ) \
+#define mSavePDF( rettype ) \
 BufferString errmsg; \
 const IOObj* ioobj = outputfld_->ioobj(); \
 if ( !ProbDenFuncTranslator::write(*pdf_,*ioobj,&errmsg) ) \
-{ uiMSG().error(errmsg); retstatement; } \
+{ uiMSG().error(errmsg); return rettype; } \
 pdf_->setName( ioobj->name() );
 
 
@@ -329,7 +335,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( return false );
+	mSavePDF( false );
     }
     else if ( nrdisp_ == 2 )
     {
@@ -338,7 +344,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( return false );
+	mSavePDF( false );
     }
     else
     {
@@ -348,7 +354,7 @@ bool uiCreateDPSPDF::createPDF()
 	fillPDF( pdf );
 	
 	pdf_ = pdf.clone();
-	mSavePDF( return false );
+	mSavePDF( false );
     }
 
 
@@ -360,5 +366,17 @@ void uiCreateDPSPDF::viewPDF()
 {
     uiEditProbDenFunc editdlg( this, *pdf_, true );
     editdlg.go();
-    mSavePDF( return );
+    mSavePDF();
 }
+
+
+void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
+{
+    for ( int idx=0; idx<probflds_.size(); idx++ )
+    {
+	if ( !prefdefnms.validIdx(idx) )
+	    continue;
+	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
+    }
+}
+

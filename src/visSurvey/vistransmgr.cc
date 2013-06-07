@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID = "$Id$";
 
 
 #include "vistransmgr.h"
@@ -57,6 +57,7 @@ SceneTransformManager::createUTM2DisplayTransform( const HorSampling& hs ) const
     mVisTrans* tf = mVisTrans::create();
 
     const Coord startpos = SI().transform( hs.start );
+    const Coord stoppos = SI().transform( hs.stop );
 
     tf->setA(	1,	0,	0,	-startpos.x,
 	    	0,	1,	0,	-startpos.y,

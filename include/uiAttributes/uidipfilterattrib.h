@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiattributesmod.h"
 #include "uiattrdesced.h"
 
 class uiAttrSel;
@@ -21,7 +20,7 @@ class uiLabeledSpinBox;
 
 /*! \brief DipFilter Attribute description editor */
 
-mExpClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
+mClass uiDipFilterAttrib : public uiAttrDescEd
 {
 public:
 
@@ -53,4 +52,3 @@ protected:
 
 
 #endif
-

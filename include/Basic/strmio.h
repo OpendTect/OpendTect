@@ -12,18 +12,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
 #include <iostream>
 
 class IOPar;
 
-/*!
-\brief Class for simple ascii/binary stream read/write.
-*/
+/*!\brief Class for simple ascii/binary stream read/write */
 
-mExpClass(Basic) StreamIO
+mClass StreamIO
 {
 public:
     				StreamIO( std::ostream& s,bool binary )
@@ -64,4 +61,3 @@ protected:
 };
 
 #endif
-

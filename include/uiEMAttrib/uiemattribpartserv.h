@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
 #include "uiapplserv.h"
 #include "attribdescid.h"
 #include "datacoldef.h"
@@ -28,12 +27,9 @@ class NLAModel;
 class TaskRunner;
 class uiHorizonShiftDialog;
 
-/*!
-\ingroup uiEMAttrib
-\brief Part Server for Attribute handling on EarthModel objects
-*/
+/*! \brief Part Server for Attribute handling on EarthModel objects */
 
-mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
+mClass uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);
@@ -41,12 +37,12 @@ public:
 
     const char*			name() const		{ return "EMAttribs"; }
 
-    static int			evCalcShiftAttribute()		{ return 0; }
-    static int			evHorizonShift()		{ return 1; }
-    static int			evStoreShiftHorizons()		{ return 2; }
-    static int			evShiftDlgOpened()		{ return 3; }
-    static int			evShiftDlgClosedCancel()	{ return 4; }
-    static int			evShiftDlgClosedOK()		{ return 5; }
+    static const int		evCalcShiftAttribute()		{ return 0; }
+    static const int		evHorizonShift()		{ return 1; }
+    static const int		evStoreShiftHorizons()		{ return 2; }
+    static const int		evShiftDlgOpened()		{ return 3; }
+    static const int		evShiftDlgClosedCancel()	{ return 4; }
+    static const int		evShiftDlgClosedOK()		{ return 5; }
 
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
@@ -105,5 +101,12 @@ protected:
     void			shiftDlgClosed(CallBacker*);
 };
 
-#endif
+/*!\page uiEMAttrib EarthModel Attributes User Interface
 
+  Here you will find all attribute handling regarding EarthModel objects.
+  The uiEMAttribPartServer delivers the services needed.
+
+*/
+
+
+#endif

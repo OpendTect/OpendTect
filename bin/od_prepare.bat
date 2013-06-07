@@ -12,7 +12,7 @@
 :: set in the BatchHosts file and are basically just strings.
 :: 
 ::
-:: $Id$
+:: $Id: od_prepare.bat,v 1.3 2004/11/10 15:57:28 dgb Exp $
 ::______________________________________________________________________________
 
 

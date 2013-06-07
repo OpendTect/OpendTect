@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "soodmod.h"
 #include "SoMFImage.h"
 #include <Inventor/fields/SoMFBool.h>
 #include <Inventor/fields/SoMFShort.h>
@@ -34,7 +33,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-mSoODClass SoRGBATextureChannel2RGBA : public SoNode
+mClass SoRGBATextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoRGBATextureChannel2RGBA);
 public:
     static		void initClass();
@@ -65,4 +64,3 @@ protected:
 };
 
 #endif
-

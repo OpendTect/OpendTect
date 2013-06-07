@@ -12,17 +12,15 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
 #include "enums.h"
 #include "multiid.h"
 #include "staticsdesc.h"
 
 
-/*!
-\brief Specifies velocity type and statics for a velocity.
-*/
+/*!Specifies velocity type and statics for a velocity.   */
 
-mExpClass(Basic) VelocityDesc
+
+mClass VelocityDesc
 {
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
@@ -59,4 +57,3 @@ public:
 
 
 #endif
-

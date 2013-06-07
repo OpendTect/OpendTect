@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
 #include "seistype.h"
 #include "position.h"
 
@@ -20,7 +19,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-mExpClass(Seis) PosKey
+mClass PosKey
 {
 public:
 
@@ -116,4 +115,3 @@ inline bool PosKey::operator ==( const PosKey& pk ) const
 
 
 #endif
-

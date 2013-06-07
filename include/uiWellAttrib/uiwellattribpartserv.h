@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellattribmod.h"
 #include "uiapplserv.h"
 
 class DataPointSet;
@@ -24,12 +23,9 @@ class uiWellAttribCrossPlot;
 namespace Attrib { class DescSet; }
 namespace WellTie { class uiTieWinMGRDlg; }
 
-/*!
-\ingroup uiWellAttrib
-\brief Part Server for Wellsi
-*/
+/*! \brief Part Server for Wells */
 
-mExpClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
+mClass uiWellAttribPartServer : public uiApplPartServer
 {
 public:
 				uiWellAttribPartServer(uiApplService&);
@@ -66,5 +62,12 @@ protected:
     void                        surveyChangedCB(CallBacker*);
 };
 
-#endif
+/*!\page uiWellAttrib Well Attributes User Interface
 
+  Here you will find all attribute handling regarding wells.
+  The uiAttribWellPartServer delivers the services needed.
+
+*/
+
+
+#endif

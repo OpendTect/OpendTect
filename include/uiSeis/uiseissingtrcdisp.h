@@ -12,14 +12,13 @@ ______________________________________________________________________
                        
 */
 
-#include "uiseismod.h"
 #include "uiflatviewer.h"
 #include "datapack.h"
 class Wavelet;
 class SeisTrc;
 
 
-mExpClass(uiSeis) uiSeisSingleTraceDisplay : public uiFlatViewer
+mClass uiSeisSingleTraceDisplay : public uiFlatViewer
 {
 public:
 
@@ -45,4 +44,3 @@ protected:
 
 
 #endif
-
