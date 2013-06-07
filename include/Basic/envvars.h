@@ -25,8 +25,8 @@ mGlobal(Basic) const char* GetEnvVar(const char*);
 		/*!< getenv or other source. Cannot be called before
 		     SetProgramArgs is called. Use GetOSEnvVar if you wish
 		     to use before SetProgramArgs */
-mGlobal(Basic) int GetEnvVarYN(const char*);
-		/*!< Returns 0=NO if not set or explicitly on 0 or "no". */
+mGlobal(Basic) int GetEnvVarYN(const char*, int defltval=0);
+/*!< Returns defltval if not set, 0 if set to 0 or "no", otherwise 1 */
 mGlobal(Basic) int GetEnvVarIVal(const char*,int defltval);
 mGlobal(Basic) double GetEnvVarDVal(const char*,double defltval);
 

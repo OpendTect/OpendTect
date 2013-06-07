@@ -90,7 +90,12 @@ namespace DBG
 
 bool crashOnNaN()
 {
-    static bool dohide = GetEnvVarYN( "OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER" );
+#ifdef __debug__
+    static bool dohide = GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 0);
+#else
+    static bool dohide = GetEnvVarYN("OD_DONT_CRASH_ON_NOT_NORMAL_NUMBER", 1);
+#endif
+
     return !dohide;
 }
 

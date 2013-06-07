@@ -277,10 +277,13 @@ mExternC(Basic) const char* GetEnvVar( const char* env )
 }
 
 
-mExternC(Basic) int GetEnvVarYN( const char* env )
+mExternC(Basic) int GetEnvVarYN( const char* env, int defaultval )
 {
     const char* s = GetEnvVar( env );
-    return !s || *s == '0' || *s == 'n' || *s == 'N' ? 0 : 1;
+    if ( !s )
+	return defaultval;
+
+    return *s == '0' || *s == 'n' || *s == 'N' ? 0 : 1;
 }
 
 
