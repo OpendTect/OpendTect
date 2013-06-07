@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "matlabstep.h"
+#include "matlablibmgr.h"
 
 namespace VolProc
 {
@@ -65,6 +66,26 @@ void uiMatlabStep::loadCB( CallBacker* )
     const char* fnm = filefld_->fileName();
     const bool isok = File::exists( fnm );
     if ( !isok ) return;
+
+    MLM().initApplication();
+    MatlabLibAccess mla( fnm );
+    if ( !mla.init() )
+    {
+	uiMSG().error( mla.errMsg() );
+	return;
+    }
+
+    BufferStringSet parameters;
+    BufferStringSet values;
+    mla.getParameters( parameters, values );
+    for ( int idx=0; idx<parameters.size(); idx++ )
+    {
+	partable_->setText( RowCol(idx,0), parameters.get(idx) );
+	partable_->setText( RowCol(idx,1), values.get(idx) );
+    }
+
+    mla.terminate();
+    MLM().terminateApplication();
 }
 
 

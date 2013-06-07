@@ -24,12 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "matlablibmgr.h"
 
 extern "C" {
-    void mclmcrInitialize();
-    bool mclInitializeApplication(const char **a0, size_t a1);
-    void mclTerminateApplication();
     typedef void (*odfn)(int,mxArray**,const mxArray*);
-    typedef bool (*initfn)();
-    typedef void (*termfn)();
 };
 #endif
 
@@ -61,59 +56,34 @@ protected:
 
 #ifdef HAS_MATLAB
 
-static BufferString getFnm( const char* libfnm, bool init )
-{
-    FilePath fp( libfnm );
-    fp.setExtension( "" );
-    return BufferString ( fp.fileName(), init ? "Initialize" : "Terminate" );
-}
-
 #define mErrRet(msg) { message_ = msg; return false; }
 
 bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
 {
-    // TODO: Create object for this workflow
-    mclmcrInitialize();
-    if( !mclInitializeApplication(NULL,0) )
-	mErrRet( "Cannot initialize MATLAB application" );
+    if ( !MLM().initApplication() )
+	mErrRet( MLM().errMsg() );
+
+    MatlabLibAccess mla( step_.sharedLibFileName() );
+    if ( !mla.init() )
+	mErrRet( mla.errMsg() );
+
+    const char* odfnm = "mlfOd_doprocess";
+    odfn fn = (odfn)mla.getFunction( odfnm );
+    if ( !fn )
+	mErrRet( mla.errMsg() );
 
     ArrayNDCopier arrndcopier( input_ );
     arrndcopier.execute();
-
     const mxArray* mxarrin = arrndcopier.getMxArray();
     mxArray* mxarrout = NULL;
-
-    const char* shlibfnm = step_.sharedLibFileName();
-    if ( !MLM().isLoaded(shlibfnm) && !MLM().load(shlibfnm) )
-	mErrRet( "Cannot load shared library" );
-
-    const SharedLibAccess* sla =
-	MLM().getSharedLibAccess( step_.sharedLibFileName() );
-    if ( !sla ) return false;
-
-    const BufferString initfnm = getFnm( step_.sharedLibFileName(), true );
-    initfn ifn = (initfn)sla->getFunction( initfnm.buf() );
-    if ( !ifn )
-	mErrRet( BufferString("Cannot find function ",initfnm) );
-
-    if ( !(*ifn)() )
-	mErrRet( "Cannot initialize shared library" );
-
-    const char* odfnm = "mlfOd";
-    odfn fn = (odfn)sla->getFunction( odfnm );
-    if ( !fn )
-	mErrRet( BufferString("Cannot find function ",odfnm) );
 
     (*fn)( 1, &mxarrout, mxarrin );
 
     mxArrayCopier mxarrcopier( *mxarrout, output_ );
     mxarrcopier.execute();
 
-    const BufferString termfnm = getFnm( step_.sharedLibFileName(), false );
-    termfn tfn = (termfn)sla->getFunction( termfnm.buf() );
-    (*tfn)();
-
-    mclTerminateApplication();
+    mla.terminate();
+    MLM().terminateApplication();
 
     return true;
 }
