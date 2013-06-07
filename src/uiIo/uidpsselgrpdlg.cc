@@ -37,6 +37,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
     tbl_ = new uiTable( this, su, "Selection Groups" );
+    tbl_->setPrefHeight( 200 );
     tbl_->setColumnReadOnly( 1, true );
     tbl_->doubleClicked.notify( mCB(this,uiDPSSelGrpDlg,changeColCB) );
     tbl_->rowInserted.notify( mCB(this,uiDPSSelGrpDlg,addSelGrp) );
@@ -156,7 +157,7 @@ void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 
 void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 {
-    if ( tbl_->nrRows() <= 1 ) return;
+    if ( tbl_->currentRow()<0 || tbl_->nrRows() <= 1 ) return;
 
     selgrps_.remove( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
