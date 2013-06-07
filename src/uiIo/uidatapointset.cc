@@ -474,9 +474,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	tbl_->setText( rc, "" );
     else
     {
-	float fz = zfac_ * pos.z_ * 100;
-	int iz = mNINT32(fz);
-	tbl_->setValue( rc, iz * 0.01 );
+	tbl_->setValue( rc, zfac_ * pos.z_);
     }
     BufferString rownm;
     if ( is2D() )
