@@ -27,14 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 
-
-#define mDefaultWindowLength	    125.0f
-#define mDefaultWindowParam	    0.95f
-#define mDefaultFreqF3		    50.0f
-#define mDefaultFreqF4		    60.0f
-#define mDefaultBlockthreshold	    0.01f
-
-
 namespace Attrib
 {
 
@@ -85,13 +77,13 @@ void PSAttrib::initClass()
     desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "", 
 				     false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(), 
-				    mDefaultWindowParam, false ) );
+				    mUdf(float), false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinLen(), 
-				    mDefaultWindowLength, false ) );
+				    mUdf(float), false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF3(), 
-				    mDefaultFreqF3, false ) );
+				    mUdf(float), false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyFreqF4(), 
-				    mDefaultFreqF4, false ) );
+				    mUdf(float), false ) );
     desc->addParam( new BoolParam( useangleStr(), true, false ) );
     desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
 
