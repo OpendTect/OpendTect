@@ -130,7 +130,6 @@ protected:
     od_int64			getCumulativeFileCount() const 
 					{ return cumulativefilecounts_.last(); }
     int				getCumulativeFileCount(int) const;
-    StreamData			makeOStreamForAppend(const char*) const;
     void			setCompLevel(CompLevel);
 
     od_int64			getTotalSize()const  { return totalsize_; }

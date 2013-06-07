@@ -803,7 +803,7 @@ bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
     else
     { mErrRet( fnm, " does not exist", "") }
 
-    osd_ = makeOStreamForAppend( srcfnm );
+    osd_ = StreamProvider( srcfnm ).makeOStream( true, true );
     if ( !osd_.usable() )
     { mWriteErr( srcfnm ) }
 
@@ -980,9 +980,9 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	    readXtraFldForZIP64(headerbuff + mCentralHeaderSize, xtrafldlength);
 
 	if ( zfileinfo )
-	    *zfileinfo += new ZipFileInfo( srcfile_, compfilesize_,
+	    *zfileinfo += new ZipFileInfo( headerfnm, compfilesize_,
 					   uncompfilesize_, 
-offsetoflocalheader_ );
+                                           offsetoflocalheader_ );
 
 	totalsize_ += uncompfilesize_;
 	ptrlocation = ptrlocation
@@ -1572,17 +1572,6 @@ bool ZipHandler::setTimeDateModified( const char* fnm, od_uint16 timeindos,
 	return false;
 #endif
     return true;
-}
-
-
-StreamData ZipHandler::makeOStreamForAppend( const char* fnm ) const
-{
-    StreamData sd;
-    std::fstream* os = new std::fstream( fnm, std::ios::ios_base::in 
-					    | std::ios::ios_base::out 
-					    | std::ios::ios_base::binary);
-    sd.ostrm = os;
-    return sd;
 }
 
 

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ziputils.h"
 
 #include "bufstring.h"
+#include "manobjectset.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -145,20 +146,16 @@ bool ZipUtils::makeZip( const char* zipfnm, const char* src,
 }
 
 
-#define mErrRet { errmsg = ziphdler.errorMsg(); return false; }
-
 bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
        			BufferString& errmsg, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
-    ZipHandler ziphdler;
-    ziphdler.setCompLevel( cl );
-    if ( !ziphdler.initMakeZip(zipfnm,src) )
-	mErrRet
-
-    Zipper exec( ziphdler );
-    if ( !(TaskRunner::execute( tr, exec )) )
-	mErrRet
+    Zipper exec( zipfnm, src, cl );
+    if ( !TaskRunner::execute(tr,exec) )
+    {
+        errmsg = exec.message();
+        return false;
+    }
 
     return true;
 }
@@ -168,22 +165,40 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
 				BufferString& errmsg, TaskRunner* tr,
 				ZipHandler::CompLevel cl )
 {
-    ZipHandler ziphdler;
-    ziphdler.setCompLevel( cl );
-    if ( !ziphdler.initAppend(srcfnm,fnm) )
-	mErrRet
-
-    Zipper exec( ziphdler );
-    if ( !(TaskRunner::execute( tr, exec )) )
-	mErrRet
+    Zipper exec( srcfnm, fnm, cl );
+    if ( !TaskRunner::execute(tr,exec) )
+    {
+        errmsg = exec.message();
+        return false;
+    }
 
     return true;
 }
 
 
+Zipper::Zipper( const char* zipfnm, const BufferStringSet& srcfnms,
+                ZipHandler::CompLevel cl )
+    : Executor( "Making Zip Archive" )
+    , nrdone_(0)	    
+{ 
+    ziphd_.setCompLevel( cl );
+    isok_ = ziphd_.initMakeZip( zipfnm, srcfnms );
+}
+
+
+Zipper::Zipper( const char* zipfnm, const char* srcfnm,
+                ZipHandler::CompLevel cl )
+    : Executor( "Making Zip Archive" )
+    , nrdone_(0)	    
+{ 
+    ziphd_.setCompLevel( cl );
+    isok_ = ziphd_.initAppend( zipfnm, srcfnm );
+}
+
+
 int Zipper::nextStep()
 {
-    if ( !ziphd_.compressNextFile() ) 
+    if ( !isok_ || !ziphd_.compressNextFile() ) 
 	return ErrorOccurred();
 
     nrdone_++;
@@ -212,20 +227,19 @@ const char* Zipper::message() const
     if ( errmsg.isEmpty() )
 	return "Archiving files";
     else
-	return "Archiving of files fail";
+	return errmsg;
 }
 
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 			     BufferString& errmsg, TaskRunner* tr )
 {
-    ZipHandler ziphdler;
-    if ( !ziphdler.initUnZipArchive(srcfnm,basepath) )
-	mErrRet
-
-    UnZipper exec( ziphdler );
-    if ( !(TaskRunner::execute( tr, exec )) )
-	mErrRet
+    UnZipper exec( srcfnm, basepath );
+    if ( !TaskRunner::execute(tr,exec) )
+    {
+        errmsg = exec.message();
+        return false;
+    }
 
     return true;
 }
@@ -237,18 +251,10 @@ bool ZipUtils::unZipArchives( const BufferStringSet& archvs,const char* basepath
     ExecutorGroup execgrp( "Archive unpacker" );
     for ( int idx=0; idx<archvs.size(); idx++ )
     {
-	ZipHandler* ziphdler = new ZipHandler;
 	const BufferString& archvnm = archvs.get( idx );
-	if ( !ziphdler->initUnZipArchive(archvnm,basepath) )
-	{
-	    errmsg = ziphdler->errorMsg();
-	    return false;
-	}
-
-	UnZipper* exec = new UnZipper( *ziphdler );
+	UnZipper* exec = new UnZipper( archvnm, basepath );
 	execgrp.add( exec );
     }
-
 
     if ( !(TaskRunner::execute(tr,execgrp)) )
     {
@@ -265,15 +271,24 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 {
     ZipHandler ziphdler;
     if ( !ziphdler.unZipFile(srcfnm,fnm,path) )
-	mErrRet
+    {
+        errmsg = ziphdler.errorMsg();
+        return false;
+    }
 
     return true;
 }
 
 
+UnZipper::UnZipper( const char* zipfnm,const char* destination )
+    : Executor("Unpacking Files")
+    , nrdone_(0)	    
+{ isok_ = ziphd_.initUnZipArchive( zipfnm, destination ); }
+
+
 int UnZipper::nextStep()
 {
-    if ( !ziphd_.extractNextFile() )
+    if ( !isok_ || !ziphd_.extractNextFile() )
 	return ErrorOccurred();
 
     nrdone_++;
@@ -299,5 +314,6 @@ const char* UnZipper::message() const
     if ( errmsg.isEmpty() )
 	return "Unpacking files";
     else
-	return "Unpacking of files fail";
+	return errmsg;
 }
+

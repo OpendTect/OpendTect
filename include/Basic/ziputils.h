@@ -85,21 +85,24 @@ should not use it directly instead use ZipUtils::makeZip.
 mExpClass(Basic) Zipper : public Executor
 {
 public:
-				Zipper(ZipHandler& zh)
-				: Executor( "Making Zip Archive" )
-				, ziphd_(zh)
-				, nrdone_(0)	    {}
+				Zipper(const char*,const BufferStringSet&, 
+                                       ZipHandler::CompLevel);
+
+                                Zipper(const char*,const char*, 
+                                       ZipHandler::CompLevel);
 
     const char*			message() const;
     od_int64			nrDone() const;
     const char*			nrDoneText() const;
     od_int64			totalNr() const;
+    bool                        isOk() const { return isok_; }
 
 protected:
 
     int				nextStep();
-    ZipHandler&			ziphd_;
+    ZipHandler			ziphd_;
     int				nrdone_;
+    bool                        isok_;
 };
 
 
@@ -112,21 +115,20 @@ ZipUtils::UnZipFile() to take one file out of zip archive.
 mExpClass(Basic) UnZipper : public Executor
 {
 public:
-				UnZipper(ZipHandler& zh)
-				: Executor("Unpacking Files")
-				, ziphd_(zh)
-				, nrdone_(0)	    {}
+				UnZipper(const char*,const char*);
 
     const char*			message() const;
     od_int64			nrDone() const;
     const char*			nrDoneText() const;
     od_int64			totalNr() const;
+    bool                        isOk() const { return isok_; }
 
 protected:
 
     int				nextStep();
-    ZipHandler&			ziphd_;
+    ZipHandler			ziphd_;
     int				nrdone_;
+    bool                        isok_;
 };
 
 
