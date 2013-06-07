@@ -150,11 +150,7 @@ if(WIN32)
     add_definitions( /wd4512 ) # class' : assignment operator could not be generated (not important)
     add_definitions( /wd4127 ) # conditional expression is constant, e.g. while ( true )
     add_definitions( /wd4189 ) # local variable is initialized but not referenced
-
-    #These two should be enabled when someone will go over the code and clean up.
     add_definitions( /wd4305 ) # truncation from dowble to float
-    #add_definitions( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
-
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
@@ -162,6 +158,7 @@ if(WIN32)
         set  ( OD_PLFSUBDIR "win64" )
     else()
         set  ( OD_PLFSUBDIR "win32" )
+	add_definitions( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
 
     set  ( OD_GUI_SYSTEM "WIN32" )
