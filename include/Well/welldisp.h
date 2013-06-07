@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "wellmod.h"
 #include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
