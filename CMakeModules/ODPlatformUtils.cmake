@@ -121,7 +121,8 @@ if(WIN32)
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
     set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-    set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
+    set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
+    
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
     add_definitions("/Ob1 /vmg /Zc:wchar_t- /EHsc")
     add_definitions("/MP")
