@@ -806,7 +806,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 }
 
 
-StreamData StreamProvider::makeOStream( bool binary ) const
+StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 {
     StreamData sd;
     sd.setFileName( mkUnLinked(fname_) );
@@ -826,13 +826,19 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 
     if ( !iscomm_ && hostname_.isEmpty() )
     {
+        std::ios_base::openmode openmode = std::ios_base::out;
+        if ( binary )
+            openmode = openmode | std::ios_base::binary;
+
+        if ( editmode )
+            openmode = openmode | std::ios_base::in;
+
 #ifdef __msvc__
-	sd.ostrm = new std::winofstream
+	sd.ostrm = new std::winofstream( sd.fileName(), openmode );
 #else
-	sd.ostrm = new std::ofstream
+	sd.ostrm = new std::ofstream( sd.fileName(), openmode );
 #endif
-	  ( sd.fileName(), binary ? std::ios_base::out | std::ios_base::binary
-				  : std::ios_base::out );
+
 	if ( !sd.ostrm->good() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
 	return sd;

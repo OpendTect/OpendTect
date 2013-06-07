@@ -54,7 +54,7 @@ public:
     bool	setReadOnly(bool yn) const;
     bool	isReadOnly() const;
 
-    StreamData	makeOStream(bool binary=true) const;
+    StreamData	makeOStream(bool binary=true,bool editmode=false) const;
 		/*!< On win32, binary mode differs from text mode. 
 		    Use binary=false when explicitly reading txt files. */
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
