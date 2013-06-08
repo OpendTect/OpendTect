@@ -108,7 +108,9 @@ void uiStratLayerModelDisp::displayFRText()
 				 mAlignment(HCenter,VCenter) ) );
     frtxtitm_->setText( isbrinefilled_ ? "Brine filled" : "Hydrocarbon filled");
     frtxtitm_->setPenColor( Color::Black() );
-    frtxtitm_->setPos( uiPoint( scene().width()/2, scene().height() -10 ) );
+    const int xpos = mNINT32( scene().width()/2 );
+    const int ypos = mNINT32( scene().height()-10 );
+    frtxtitm_->setPos( uiPoint(xpos,ypos) );
     frtxtitm_->setZValue( 999999 );
     frtxtitm_->setVisible( fluidreplon_ );
 }
