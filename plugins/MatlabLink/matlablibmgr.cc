@@ -20,20 +20,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "matlabarray.h"
 
+#ifdef HAS_MATLAB
 extern "C" {
     void mclmcrInitialize();
     bool mclInitializeApplication(const char**,size_t);
     void mclTerminateApplication();
 
-#ifdef HAS_MATLAB
     typedef bool (*initfn)();		// XX_cInitialize(void)
     typedef void (*termfn)();		// XX_cTerminate(void)
 
     // mlfOd_getparameters
     typedef bool (*getparfn)(int,mxArray**,mxArray**);
-#endif
 };
-
+#endif
 
 // MatlabLibAccess
 MatlabLibAccess::MatlabLibAccess( const char* libfnm )
@@ -213,6 +212,7 @@ const SharedLibAccess*
 }
 
 
+#ifdef HAS_MATLAB
 bool MatlabLibMgr::initApplication()
 {
     if ( inited_ ) return true;
@@ -236,7 +236,12 @@ void MatlabLibMgr::terminateApplication()
     mclTerminateApplication();
     inited_ = false;
 }
+#else
 
+bool MatlabLibMgr::initApplication()		{ return false; }
+void MatlabLibMgr::terminateApplication()	{}
+
+#endif
 
 MatlabLibMgr& MLM()
 {
