@@ -170,7 +170,7 @@ static int testObjSetFind()
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 
     int res = testTypeSetFind();
     res += testTypeSetSetFns();

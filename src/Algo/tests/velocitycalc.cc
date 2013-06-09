@@ -63,7 +63,7 @@ bool testLinearD2T( double v0, double dv, double v0depth, float depth,
 
 int main( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
+    od_init_test_program( argc, argv );
     if ( !testLinearT2D( 2000, 0, 0, 0, 0) ||
 	    !testLinearT2D( 2000, 0, 0, 6, 6000) ||
 	    !testLinearT2D( 2000, 0, -200, 0, -200) ||

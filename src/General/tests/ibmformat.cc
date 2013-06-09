@@ -88,7 +88,7 @@ public:
     
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 #define mComp( v1, v2 ) ( v1==v2 )
     int buf;
     int resbuf;

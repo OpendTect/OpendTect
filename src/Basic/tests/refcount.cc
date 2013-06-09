@@ -50,7 +50,7 @@ std::cerr << "Test " << #voiddo << " " << #test << " - SUCCESS\n"; \
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 
     CommandLineParser clparser;
     const bool quiet = clparser.hasKey( sKey::Quiet() );

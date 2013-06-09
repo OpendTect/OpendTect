@@ -150,7 +150,7 @@ bool testAtomic( const char* valtype, bool quiet )
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 
     CommandLineParser parser;
     const bool quiet = parser.hasKey( sKey::Quiet() );

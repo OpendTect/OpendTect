@@ -9,12 +9,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 
+#include "debug.h"
+
 #include <iostream>
 
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 
     const int svnversion = GetSubversionRevision();
     const char* svnurl = GetSubversionUrl();

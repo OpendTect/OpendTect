@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "fixedstring.h"
 
 
-
 namespace google_breakpad { class ExceptionHandler; }
 
 /*!
@@ -42,6 +41,8 @@ public:
 
 
 mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
+mGlobal(Basic) void SetCrashOnProgrammerError(int yn);
+//!<Default is off. Normally only turned on in test-programs.
 
 
 inline void programmerErrMsg( const char* msg, const char* cname,

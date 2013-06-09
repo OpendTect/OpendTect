@@ -32,6 +32,9 @@ static BufferString logmsgfnm;
 Export_Basic int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
 
+
+static bool crashonprogerror = false;
+
 Export_Basic const char* logMsgFileName()
 {
     return logmsgfnm.buf();
@@ -110,6 +113,12 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 }
 
 
+void SetCrashOnProgrammerError( int yn )
+{
+    crashonprogerror = yn;
+}
+
+
 void ErrMsg( const char* msg, bool progr )
 {
     if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
@@ -128,6 +137,11 @@ void ErrMsg( const char* msg, bool progr )
     {
 	ErrMsgClass obj( msg, progr );
 	MsgClass::theCB().doCall( &obj );
+    }
+    
+    if ( progr && crashonprogerror )
+    {
+	DBG::forceCrash( false );
     }
 }
 

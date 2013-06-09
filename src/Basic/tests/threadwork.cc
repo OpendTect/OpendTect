@@ -221,7 +221,7 @@ public:
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
     WorkManagerTester tester;
     return tester.runCallBackTests(quiet) && tester.testWorkResults(quiet)

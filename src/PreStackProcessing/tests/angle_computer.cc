@@ -41,6 +41,7 @@ bool isAngleOK(PreStack::Gather* angles)
 
 bool BatchProgram::go( std::ostream &strm )
 {
+    od_init_test_program( GetArgC(), GetArgV() );
     OD::ModDeps().ensureLoaded( "Velocity" );
     RefMan<PreStack::VelocityBasedAngleComputer> computer = 
 				    new PreStack::VelocityBasedAngleComputer;
