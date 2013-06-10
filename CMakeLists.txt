@@ -112,4 +112,4 @@ endif()
 OD_ADD_PACKAGES_TARGET()
 
 #Avoid warnings if specified on command line
-set ( DUMMY ${ISTAG} ${BRANCH} )
+set ( DUMMY ${ISTAG} ${BRANCH} ${CMAKE_PDB_OUTPUT_DIRECTORY} )
