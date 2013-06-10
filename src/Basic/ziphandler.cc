@@ -1079,7 +1079,6 @@ bool ZipHandler::readZIP64EndOfCentralDirRecord()
     char sig[mSizeFourBytes];
     mZIP64EndOfDirRecordHeaderSig( sig );
     StrmOper::seek( *isd_.istrm, offsetofcentraldir_ );
-    od_int64 ptrlocation mUnusedVar = StrmOper::tell( *isd_.istrm );
     isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
     headerbuff[mSizeFourBytes] = 0;
     if ( *mCast(od_uint32*,headerbuff) != *mCast(od_uint32*,sig) )
@@ -1366,11 +1365,7 @@ bool ZipHandler::doZUnCompress()
     do
     {
 	if ( count <= compfilesize_ )
-	{
-	    od_int64 ptr1 mUnusedVar = StrmOper::tell( *isd_.istrm );
 	    isd_.istrm->read( in, chunksize );
-	    ptr1 = StrmOper::tell( *isd_.istrm );
-	}
 	else
 	{
 	    isd_.istrm->read( in, compfilesize_ % chunksize);
