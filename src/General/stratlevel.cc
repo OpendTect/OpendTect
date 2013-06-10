@@ -303,6 +303,13 @@ Strat::Level* Strat::LevelSet::gtLvl( const char* nm, Level::ID id ) const
 }
 
 
+void Strat::LevelSet::getNames( BufferStringSet& nms ) const
+{
+    for ( int ilvl=0; ilvl<size(); ilvl++ )
+	nms.add( lvls_[ilvl]->name().buf() );
+}
+
+
 Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
 {
     Level* newlvl = 0;

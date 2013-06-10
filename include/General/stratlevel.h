@@ -154,6 +154,7 @@ public:
 			{ return getLevel(idx).id(); }
     Color		color( int idx ) const
 			{ return getLevel(idx).color(); }
+    void		getNames(BufferStringSet&) const;
 
 protected:
 
