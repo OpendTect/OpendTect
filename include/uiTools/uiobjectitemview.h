@@ -13,15 +13,16 @@ ________________________________________________________________________
 
 -*/
 
-
-/*! brief embeds some uiObjects in a graphicsview following a horizontal layout.
-    Objects can be dynamically removed and added from the graphicsview !*/
-
 #include "uitoolsmod.h"
 #include "uigraphicsview.h"
 
 class uiParent;
 class uiObjectItem;
+
+/*!
+\brief Embeds some uiObjects in a uiGraphicsView following a horizontal layout.
+Objects can be dynamically removed and added from the graphicsview.
+*/
 
 mExpClass(uiTools) uiObjectItemView : public uiGraphicsView
 {
