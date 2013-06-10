@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
 #include "bufstring.h"
 #include "coltabmapper.h"
 #include "geometry.h"
