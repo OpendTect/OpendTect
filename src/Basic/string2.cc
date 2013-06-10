@@ -258,7 +258,7 @@ const char* getStringFromFloat( float actualval, char* str, int nrdigits )
     static StaticStringManager stm;
     char* ret = str ? str : stm.getString().buf();
     const bool isneg = actualval < 0;
-    const double val = isneg ? -actualval : actualval;
+    const float val = isneg ? -actualval : actualval;
     char* bufptr;
 
     if ( mIsUdf(val) )
@@ -307,7 +307,7 @@ const char* getStringFromFloat( const char* fmt, float actualval, char* str )
     static StaticStringManager stm;
     char* ret = str ? str : stm.getString().buf();
     const bool isneg = actualval < 0;
-    const double val = isneg ? -actualval : actualval;
+    const float val = isneg ? -actualval : actualval;
     char* bufptr;
 
     if ( mIsUdf(val) )
