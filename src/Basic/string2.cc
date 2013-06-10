@@ -143,6 +143,9 @@ const char* getStringFromUInt64( od_uint64 val, char* str )
 
 const char* getStringFromDouble( const char* fmt, double actualval, char* str )
 {
+    if ( !fmt )
+	return getStringFromDouble( actualval, str );
+
     static StaticStringManager stm;
     char* ret = str ? str : stm.getString().buf();
     const bool isneg = actualval < 0;
@@ -155,13 +158,53 @@ const char* getStringFromDouble( const char* fmt, double actualval, char* str )
     {
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? "%.15f" : "%.15g";
+	
 	sprintf( bufptr, fmt, val );
-	prettyNumber( ret, 1 );
+	prettyNumber( ret, true );
     }
     return ret;
 }
 
+
+const char* getStringFromDouble( double actualval, char* str, int nrdigits )
+{
+    if ( nrdigits<=0 || nrdigits>15 ) nrdigits = 15;
+
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
+    const bool isneg = actualval < 0;
+    const double val = isneg ? -actualval : actualval;
+    char* bufptr;
+
+    if ( mIsUdf(val) )
+	strcpy( ret, "1e30" );
+    else
+    {
+	bufptr = ret;
+	if ( isneg ) *bufptr++ = '-';
+	BufferString usedformat =  "%.";
+
+	if ( val > 1e-3 && val < 1e8 )
+	{
+	    const int nonfractionsize = ((int) log10( val ))+1;
+	    int fractionsize = nrdigits-nonfractionsize;
+	    if ( fractionsize<0 ) fractionsize = 0;
+
+	    usedformat += fractionsize;
+	    usedformat += "f";
+	}
+	else
+	{
+	    usedformat += nrdigits;
+	    usedformat += "g";
+	}
+
+	sprintf( bufptr, usedformat.buf(), val );
+	prettyNumber( ret, true );
+    }
+
+    return ret;
+}
 
 const char* getBytesString( od_uint64 sz )
 {
@@ -189,7 +232,7 @@ static void truncFloatStr( float val, char* str )
     {
 	char c = str[pos];
 	str[pos--] = '\0';
-	while ( 1 )
+	while ( true )
 	{
 	    if ( pos < 0 )
 	    {
@@ -208,26 +251,74 @@ static void truncFloatStr( float val, char* str )
     }
 }
 
+const char* getStringFromFloat( float actualval, char* str, int nrdigits )
+{
+    if ( nrdigits<=0 || nrdigits>7 ) nrdigits = 7;
+
+    static StaticStringManager stm;
+    char* ret = str ? str : stm.getString().buf();
+    const bool isneg = actualval < 0;
+    const float val = isneg ? -actualval : actualval;
+    char* bufptr;
+
+    if ( mIsUdf(val) )
+	strcpy( ret, "1e30" );
+    else
+    {
+	bufptr = ret;
+	if ( isneg ) *bufptr++ = '-';
+	BufferString usedformat =  "%.";
+	bool decimalformat = val > 1e-3 && val < 1e8;
+
+	if ( decimalformat )
+	{
+	    const int nonfractionsize = ((int) log10( val ))+1;
+	    int fractionsize = nrdigits-nonfractionsize;
+	    if ( fractionsize<0 ) fractionsize = 0;
+
+	    usedformat += fractionsize;
+	    usedformat += "f";
+	}
+	else
+	{
+	    usedformat += nrdigits;
+	    usedformat += "g";
+	}
+
+	sprintf( bufptr, usedformat.buf(), val );
+
+	if ( decimalformat )
+	    truncFloatStr( actualval, ret );
+
+	prettyNumber( ret, true );
+    }
+
+    return ret;
+
+}
+
+
 
 const char* getStringFromFloat( const char* fmt, float actualval, char* str )
 {
+    if ( !fmt )
+	return getStringFromFloat( actualval, str );
+
     static StaticStringManager stm;
     char* ret = str ? str : stm.getString().buf();
-    static const char* normalfmt = "%f";
     const bool isneg = actualval < 0;
     const float val = isneg ? -actualval : actualval;
+    char* bufptr;
 
     if ( mIsUdf(val) )
-	strcpy( ret, "1e30" ); /* Also for -1e30 therefore */
+	strcpy( ret, "1e30" );
     else
     {
-	char* bufptr = ret;
+	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
-	if ( !fmt ) fmt = val > 1e-3 && val < 1e8 ? normalfmt : "%.7g";
+
 	sprintf( bufptr, fmt, val );
-	if ( fmt == normalfmt )
-	    truncFloatStr( actualval, ret );
-	prettyNumber( ret, 0 );
+	prettyNumber( ret, true );
     }
     return ret;
 }
@@ -734,11 +825,11 @@ const char* toString( od_uint64 i )
 
 
 const char* toString( float f )
-{ return getStringFromFloat(0,f, 0); }
+{ return getStringFromFloat( f ); }
 
 
 const char* toString( double d )
-{ return getStringFromDouble(0,d, 0); }
+{ return getStringFromDouble( d ); }
 
 
 const char* toString( short i )

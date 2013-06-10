@@ -70,7 +70,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     zinftfld_ = new uiCheckBox( this, "Z in Feet" );
     zinftfld_->setChecked( SI().depthsInFeetByDefault() );
-    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillTable) );
+    zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTable ) );
     zinftfld_->attach( ensureBelow, tbl_ );
     zinftfld_->attach( rightBorder );
 
@@ -123,7 +123,7 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 	const Coord3& c( track_.pos(idx) );
 	tbl_->setValue( RowCol(idx,0), c.x );
 	tbl_->setValue( RowCol(idx,1), c.y );
-	tbl_->setValue( RowCol(idx,2), c.z*fac );
+	tbl_->setValue( RowCol(idx,2), (float)c.z*fac );
 	tbl_->setValue( RowCol(idx,3), track_.dah(idx)*fac );
     }
 
@@ -335,13 +335,13 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 	return;
     }
 
-    char buf[70];
     for ( int idx=0; idx<track_.size(); idx++ )
     {
 	const Coord3 coord( track_.pos(idx) );
-	sprintf( buf, "%16.4lf%16.4lf%10.3lf%10.3f\n", coord.x, coord.y,
-		 coord.z, track_.dah( idx ) );
-	*sd.ostrm << buf;
+	*sd.ostrm << Conv::to<const char*>( coord.x ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( coord.y ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( (float)coord.z ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( track_.dah( idx ) ) << '\n';
     }
 
     sd.close();
@@ -480,7 +480,10 @@ void uiD2TModelDlg::expData( CallBacker* )
 
     const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
     for ( int idx=0; idx<d2t.size(); idx++ )
-	*sd.ostrm << d2t.dah(idx)*zfac << '\t' << d2t.t(idx)*1000 << '\n';
+    {
+	*sd.ostrm << Conv::to<const char*>( d2t.dah(idx)*zfac ) << '\t'; 
+	*sd.ostrm << Conv::to<const char*>( d2t.t(idx)*1000 ) << '\n';
+    }
 
     sd.close();
 }
