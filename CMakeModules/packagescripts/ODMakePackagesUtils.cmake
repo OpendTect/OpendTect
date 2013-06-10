@@ -362,13 +362,18 @@ macro( od_sign_libs )
 	    endif()
 	endforeach()
     elseif( WIN32 )
-	execute_process( COMMAND
-		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/sign.bat
-		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release
-	        RESULT_VARIABLE STATUS )
-	if( NOT STATUS EQUAL "0" )
-	    message("Failed while signing windows libs")
-	endif()
+	file( GLOB DLLFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/*.dll )
+	file( GLOB EXEFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/*.exe )
+	set( FILESTOSIGN ${DLLFILES} ${EXEFILES} )
+	set( TIMESTAMPDLL "http://timestamp.verisign.com/scripts/timestamp.dll" )
+	foreach( SIGNFILE ${FILESTOSIGN} )
+	    execute_process( COMMAND
+		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/signtool.exe sign /f ${OD_CODESIGN_CERTIFICATE} /p ${OD_CODESIGN_KEY} /t ${TIMESTAMPDLL} /v ${SIGNFILE} 
+		    RESULT_VARIABLE STATUS )
+	    if( NOT STATUS EQUAL "0" )
+		message("Failed while signing ${SIGNFILE}")
+	    endif()
+	endforeach()
     endif()
     message( "Done" )
 endmacro( od_sign_libs )

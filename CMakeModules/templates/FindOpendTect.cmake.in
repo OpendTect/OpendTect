@@ -9,6 +9,7 @@
 set( OpendTect_VERSION_MAJOR @OpendTect_VERSION_MAJOR@ )
 set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
 set( OpendTect_VERSION_DETAIL @OpendTect_VERSION_DETAIL@ )
+set( OpendTect_VERSION_PATCH "@OpendTect_VERSION_PATCH@" )
 
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
@@ -36,3 +37,6 @@ set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
 
 #Dependencies of all modules
 @MODULE_DEPS@
+
+#Third party libs
+set( OD_THIRD_PARTY_LIBS @OD_THIRD_PARTY_LIBS@ )
