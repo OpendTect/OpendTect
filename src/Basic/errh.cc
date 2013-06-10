@@ -7,6 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "errh.h"
+
+#include "debug.h"
 #include "strmprov.h"
 #include "file.h"
 #include "filepath.h"
