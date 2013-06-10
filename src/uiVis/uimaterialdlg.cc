@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "visemobjdisplay.h"
+#include "vismarchingcubessurfacedisplay.h"
+
 
 
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
@@ -169,6 +171,10 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
 	colinp_->setSensitive( color );
 	prevobj_ = colinp_;
     }
+
+    mDynamicCastGet( visSurvey::MarchingCubesDisplay*,mcube,so );
+    if ( mcube )
+	colinp_->setSensitive( !mcube->usesTexture() );
 
     createSlider( ambience, ambslider_, "Ambient reflectivity" );
     createSlider( diffusecolor, diffslider_, "Diffuse reflectivity" );
