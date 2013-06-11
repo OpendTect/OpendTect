@@ -58,7 +58,7 @@ Fault3DPainter::~Fault3DPainter()
     }
 
     removePolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -123,7 +123,7 @@ void Fault3DPainter::paint()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -486,7 +486,7 @@ void Fault3DPainter::enableLine( bool yn )
     }
 
     linenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -510,7 +510,7 @@ void Fault3DPainter::enableKnots( bool yn )
     }
 
     knotenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -532,7 +532,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
     }
 
     activestickid_ = pid.getRowCol().row;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -587,7 +587,7 @@ void Fault3DPainter::repaintFault3D()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )

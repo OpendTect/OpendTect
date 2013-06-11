@@ -276,7 +276,7 @@ void VW2DPickSet::drawAll()
 	picks_->markerstyles_ += markerstyle;
     }
     
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -291,7 +291,7 @@ void VW2DPickSet::clearPicks()
 void VW2DPickSet::enablePainting( bool yn )
 {
     picks_->enabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 

@@ -550,7 +550,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     else
 	pt = FlatView::Point( bid.inl, bid.crl );
 
-    vwr.handleChange( FlatView::Viewer::Annot );
+    vwr.handleChange( FlatView::Viewer::Auxdata );
 }
 
 

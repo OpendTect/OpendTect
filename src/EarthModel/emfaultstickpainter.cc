@@ -59,7 +59,7 @@ FaultStickPainter::~FaultStickPainter()
     }
 
     removePolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -86,7 +86,7 @@ void FaultStickPainter::paint()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -297,7 +297,7 @@ void FaultStickPainter::enableLine( bool yn )
     }
 
     linenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -319,7 +319,7 @@ void FaultStickPainter::enableKnots( bool yn )
     }
 
     knotenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -327,7 +327,7 @@ void FaultStickPainter::repaintFSS()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -454,7 +454,7 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
     }
 
     activestickid_ = pid.getRowCol().row;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 

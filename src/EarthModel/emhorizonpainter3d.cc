@@ -51,7 +51,7 @@ HorizonPainter3D::~HorizonPainter3D()
     }
 
     removePolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -78,7 +78,7 @@ void HorizonPainter3D::paint()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -254,7 +254,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		if ( cs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
-		    viewer_.handleChange( FlatView::Viewer::Annot );
+		    viewer_.handleChange( FlatView::Viewer::Auxdata );
 		}
 		
 		break;
@@ -288,7 +288,7 @@ void HorizonPainter3D::repaintHorizon()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -307,7 +307,7 @@ void HorizonPainter3D::changePolyLineColor()
 	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
     }
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -417,7 +417,7 @@ void HorizonPainter3D::enableLine( bool yn )
     }
 
     linenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 
 }
 
@@ -430,7 +430,7 @@ void HorizonPainter3D::enableSeed( bool yn )
     if ( !markerseeds_ ) return;
     markerseeds_->marker_->enabled_ = yn;
     seedenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 } // namespace EM

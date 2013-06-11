@@ -85,7 +85,7 @@ void HorizonPainter::addHorizon( const EM::ObjectID& oid )
 	return;
     }
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 
     EMObjPainterCallbackData cbdata;
     cbdata.objid_ = horinfo->id_;
@@ -294,7 +294,7 @@ void HorizonPainter::changePolyLineColor( const EM::ObjectID& oid )
 	    auxdata->linestyle_.color_ = hor->preferredColor();
 	}
     }
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -323,7 +323,7 @@ void HorizonPainter::enableHorizonLine( const EM::ObjectID& oid, bool enabled )
 	}
     }
     horizoninfos_[horpos]->lineenabled_ = enabled;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -341,7 +341,7 @@ void HorizonPainter::enableHorizonSeed( const EM::ObjectID& oid, bool enabled )
     horsmarkerseeds_[horpos]->enabled_ = enabled;
     horizoninfos_[horpos]->seedenabled_ = enabled;
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -410,7 +410,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 	}
     }
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -426,7 +426,7 @@ void HorizonPainter::updateDisplay()
 		continue;
     }
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
     isupdating_ = false;
 }
 
@@ -513,7 +513,7 @@ void HorizonPainter::removeHorizon( int idx )
 
     delete horizoninfos_[idx];
     horizoninfos_.removeSingle( idx );
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 
     horizonRemoved.trigger( cbdata );
 }
@@ -585,7 +585,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 		if ( !emobject->isInsideSelRemoval() )
 		{
 		    changePolyLinePosition( emobject->id(), cbdata.pid0 );
-		    viewer_.handleChange( FlatView::Viewer::Annot );
+		    viewer_.handleChange( FlatView::Viewer::Auxdata );
 		}
 		else
 		{
