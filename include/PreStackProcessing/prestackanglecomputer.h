@@ -50,8 +50,6 @@ public:
     virtual bool		isOK() const = 0;
     void			setTraceID(const TraceID& trcid)
 				{ trcid_ = trcid; }
-    virtual const ElasticModel&	curElasticModel() const = 0;
-    virtual const RayTracer1D*	curRayTracer() const = 0;
 
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracer(const IOPar& raypar);
@@ -74,6 +72,9 @@ protected:
 					      Array2D<float>& angledata);
     void			fftDepthSmooth(::FFTFilter& fftfilter,
 					       Array2D<float>& angledata);
+
+    virtual const ElasticModel&	curElasticModel() const = 0;
+    virtual const RayTracer1D*	curRayTracer() const = 0;
     
     IOPar			iopar_;
     FlatPosData			outputsampling_;
@@ -96,8 +97,6 @@ public:
 
     bool			setMultiID(const MultiID&);
     bool			isOK() const { return velsource_; }
-    const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
-    const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
     Gather*			computeAngles();
 
@@ -111,6 +110,9 @@ protected:
     bool			createElasticModel(
 					    const StepInterval<float>& zrange,
 					    const float* pvel);
+
+    const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
+    const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
     Vel::FunctionSource*	velsource_;
 };
@@ -151,13 +153,16 @@ public:
 	   					ElasticModel& em);
     void			setRayTracer(const RayTracer1D* rt,
 	    				     const TraceID&);
-    const ElasticModel&		curElasticModel() const;
-    const RayTracer1D*		curRayTracer() const;
+
     bool			isOK() const
 				{ return curElasticModel().size(); }
 
     Gather*			computeAngles();
 protected:
+
+    const ElasticModel&		curElasticModel() const;
+    const RayTracer1D*		curRayTracer() const;
+
     ObjectSet<ModelTool>	tools_;
 };
 
