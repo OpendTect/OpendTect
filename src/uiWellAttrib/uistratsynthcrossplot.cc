@@ -93,16 +93,17 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 
 uiStratSynthCrossplot::~uiStratSynthCrossplot()
 {
-    extrgates_.erase();
+    deepErase( extrgates_ );
 }
 
 
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
 					const Strat::Level& lvl,
-					const StepInterval<float>& extrwin )
+					const StepInterval<float>& extrwin,
+					const Strat::Level* stoplvl )
 {
-    //If default Desc(s) present remove it
+    //If default Desc(s) present remove them
     for ( int idx=seisattrs.size()-1; idx>=0; idx-- )
     {
 	const Attrib::Desc* tmpdesc = seisattrs.desc(idx);
@@ -163,7 +164,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    {
 		const SeisTrc& trc = *tbuf.get( itrc );
 		const float starttwt = lvltms[itrc];
-		TypeSet<Interval<float> > extrgate;
+		TypeSet<Interval<float> >* extrgate
+		    		= new TypeSet<Interval<float> >;
 		for ( int iextr=0; iextr<nrextr; iextr++ )
 		{
 		    const float twt = starttwt + extrwin.atIndex( iextr );
@@ -187,7 +189,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		    Interval<float> depthrg;
 		    depthrg.start = d2tmodels[itrc]->getDepth( timerg.start );
 		    depthrg.stop = d2tmodels[itrc]->getDepth( timerg.stop );
-		    extrgate += depthrg;
+		    *extrgate += depthrg;
 		}
 		extrgates_ += extrgate;
 	    }
@@ -202,7 +204,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	delete dps; dps = 0;
     }
     else if ( !extractSeisAttribs(*dps,seisattrs)
-	    || !extractLayerAttribs(*dps,seqattrs) )
+	    || !extractLayerAttribs(*dps,seqattrs,stoplvl) )
 	{ delete dps; dps = 0; }
 
     extractModelNr( *dps );
@@ -250,13 +252,14 @@ bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 
 
 bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
-				     const Strat::LaySeqAttribSet& seqattrs )
+				     const Strat::LaySeqAttribSet& seqattrs,
+       				     const Strat::Level* stoplvl )
 {
     if ( seqattrs.isEmpty() )
 	return true;
 
     Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
-    lmac.setExtrGates( extrgates_ );
+    lmac.setExtrGates( extrgates_, stoplvl );
     uiTaskRunner tr( this );
     return TaskRunner::execute( &tr, lmac );
 }
@@ -325,7 +328,8 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 
     const StepInterval<float>& extrwin = evfld_->event().extrwin_;
     const Strat::Level& lvl = *evfld_->event().level_;
-    DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin );
+    const Strat::Level* stoplvl = evfld_->event().downtolevel_;
+    DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin, stoplvl );
     const bool res = dps ? launchCrossPlot( *dps, lvl, extrwin ) : false;
 
     if ( res && !handleUnsaved() )

@@ -20,6 +20,7 @@ Strat::SeisEvent::SeisEvent( const Strat::Level* lvl, VSEvent::Type evtyp )
     , evtype_(evtyp)
     , offs_(0)
     , extrwin_(0,0,4)
+    , downtolevel_(0)
 {
     if ( SI().zIsTime() )
 	extrwin_.step = SI().zStep();

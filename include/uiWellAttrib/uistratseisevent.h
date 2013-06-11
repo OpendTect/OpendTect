@@ -52,6 +52,7 @@ protected:
     uiGenInput*		evfld_;
     uiGenInput*		snapoffsfld_;
     uiGenInput*		extrwinfld_;
+    uiGenInput*		uptolvlfld_;
 
     void		evSnapCheck(CallBacker*);
 

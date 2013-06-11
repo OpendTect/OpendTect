@@ -24,6 +24,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     , setup_(su)
     , extrwinfld_(0)
     , levelfld_(0)
+    , uptolvlfld_(0)
 {
     if ( !setup_.fixedlevel_ )
 	levelfld_ = new uiStratLevelSel( this, false, "Reference level" );
@@ -50,6 +51,16 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 		    SI().getZUnitString()),
 	      FloatInpIntervalSpec(StepInterval<float>(0,0,defstep)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
+	BufferStringSet lvlnms; Strat::LVLS().getNames( lvlnms );
+	if ( !lvlnms.isEmpty() )
+	{
+	    uptolvlfld_ = new uiGenInput( this, "Stop at",
+		    			  StringListInpSpec(lvlnms) );
+	    uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1).buf() );
+	    uptolvlfld_->setWithCheck( true );
+	    uptolvlfld_->setChecked( false );
+	    uptolvlfld_->attach( alignedBelow, extrwinfld_ );
+	}
     }
 }
 
@@ -96,6 +107,7 @@ bool uiStratSeisEvent::getFromScreen()
     if ( ev_.evtype_ != VSEvent::None )
 	ev_.offs_ = snapoffsfld_->getfValue() *.001f;
 
+    ev_.downtolevel_ = 0;
     if ( extrwinfld_ )
     {
 	ev_.extrwin_ = extrwinfld_->getFStepInterval();
@@ -104,6 +116,8 @@ bool uiStratSeisEvent::getFromScreen()
 	    mErrRet("Please enter all extraction window parameters")
 	ev_.extrwin_.start *= 0.001; ev_.extrwin_.stop *= 0.001;
 	ev_.extrwin_.step *= 0.001;
+	if ( uptolvlfld_ && uptolvlfld_->isChecked() )
+	    ev_.downtolevel_ = Strat::LVLS().get( uptolvlfld_->text() );
     }
 
     return true;
@@ -119,5 +133,13 @@ void uiStratSeisEvent::putToScreen()
 	evfld_->setValue( ((int)ev_.evtype_)-1 );
     snapoffsfld_->setValue( ev_.offs_ );
     if ( extrwinfld_ )
+    {
 	extrwinfld_->setValue( ev_.extrwin_ );
+	if ( uptolvlfld_ )
+	{
+	    uptolvlfld_->setChecked( (bool)ev_.downtolevel_ );
+	    if ( ev_.downtolevel_ )
+		uptolvlfld_->setText( ev_.downtolevel_->name() );
+	}
+    }
 }

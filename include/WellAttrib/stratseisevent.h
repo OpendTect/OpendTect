@@ -37,6 +37,7 @@ public:
     VSEvent::Type	evtype_;
     float		offs_;
     StepInterval<float>	extrwin_;
+    const Strat::Level*	downtolevel_;
 
 };
 

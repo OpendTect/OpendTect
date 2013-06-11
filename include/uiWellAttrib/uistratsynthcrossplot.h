@@ -51,7 +51,7 @@ protected:
     const Strat::LayerModel&	lm_;
 
     const ObjectSet<SyntheticData>& synthdatas_;
-    TypeSet<TypeSet<Interval<float> > > extrgates_;
+    ObjectSet<TypeSet<Interval<float> > > extrgates_;
 
     uiAttribDescSetBuild*	seisattrfld_;
     uiStratLaySeqAttribSetBuild* layseqattrfld_;
@@ -62,11 +62,13 @@ protected:
     DataPointSet*		getData(const Attrib::DescSet&,
 	    				const Strat::LaySeqAttribSet&,
 					const Strat::Level&,
-					const StepInterval<float>&);
+					const StepInterval<float>&,
+					const Strat::Level*);
     bool			extractSeisAttribs(DataPointSet&,
 	    					   const Attrib::DescSet&);
     bool			extractLayerAttribs(DataPointSet&,
-						const Strat::LaySeqAttribSet&);
+						const Strat::LaySeqAttribSet&,
+						const Strat::Level*);
     bool			extractModelNr(DataPointSet&) const;
     bool			launchCrossPlot(const DataPointSet&,
 					const Strat::Level&,
