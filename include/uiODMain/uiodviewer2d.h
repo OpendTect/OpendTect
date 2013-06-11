@@ -77,7 +77,7 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void 		setWinTitle(int visid);
+    virtual void 		setWinTitle(bool fromcs=false);
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
