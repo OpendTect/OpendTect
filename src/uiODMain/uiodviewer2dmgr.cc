@@ -76,7 +76,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     }
     else
     {
-	curvwr->setWinTitle( visid );
+	curvwr->setWinTitle();
 	visServ().fillDispPars( visid, attribid,
 		curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
     }
@@ -103,13 +103,15 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setUpView( dtpackid, dowva );
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
-    if ( !isnewvwr ) return;
-    
+
     FlatView::DataDispPars& ddp =
 	curvwr->viewwin()->viewer().appearance().ddpars_;
-    visServ().fillDispPars( visid, attribid, ddp, dowva );
-    visServ().fillDispPars( visid, attribid, ddp, !dowva );
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+    if ( isnewvwr ) 
+    {
+    	visServ().fillDispPars( visid, attribid, ddp, dowva );
+    	visServ().fillDispPars( visid, attribid, ddp, !dowva );
+    	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+    }
 
     curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
 }

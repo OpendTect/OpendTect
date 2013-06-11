@@ -59,7 +59,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , mousecursorexchange_(0)
     , marker_(0)
 {
-    setWinTitle( visid );
+    setWinTitle();
     linesetid_.setEmpty();
 
     initSelSpec( vdselspec_ );
@@ -365,6 +365,7 @@ void uiODViewer2D::posChg( CallBacker* )
     if ( !slicepos_ ) return;
 
     cs_ = slicepos_->getCubeSampling();
+    setWinTitle( true );
     setPos( cs_ );
 }
 
@@ -434,15 +435,31 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 }
 
 
-void uiODViewer2D::setWinTitle( int visid )
+void uiODViewer2D::setWinTitle( bool fromcs )
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
-    appl_.applMgr().visServer()->getObjectInfo( visid, info );
-    if ( info.isEmpty() )
-	info = appl_.applMgr().visServer()->getObjectName( visid );
-    basetxt_ += info;
-    if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
+    if ( !fromcs )
+    {
+    	appl_.applMgr().visServer()->getObjectInfo( visid_, info );
+    	if ( info.isEmpty() )
+    	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
+    }
+    else
+    {
+	if ( cs_.defaultDir() == CubeSampling::Z )
+	{
+	    const ZDomain::Def& zdef = SI().zDomain();
+	    info = zdef.userName(); info += ": ";
+	    info += cs_.zrg.start * zdef.userFactor();
+	}
+	else if ( cs_.defaultDir() == CubeSampling::Crl )
+	{ info = "Crossline: "; info += cs_.hrg.start.crl; }
+	else
+	{ info = "Inline: "; info += cs_.hrg.start.inl; }
+    }
+
+    basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
 }
 
 
