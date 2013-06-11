@@ -799,17 +799,17 @@ plugins it is supposed to load from the 'libs' directory. Since
 OpendTect contains multiple programs, each program has its own set of
 .alo files '&lt;program name&gt;.*.alo', while the plugins can be
 shared between multiple programs. OpendTect will scan for any file
-with this naming convention. So odmain.john.alo is perfectly OK.</p>
+with this naming convention. So od_main.john.alo is perfectly OK.</p>
 
 <p>Since there are multiple vendors and/or plugin sets, each vendor
-can make his own .alo files. odmain, for example, will look at any
-file named odmain.*.alo. For this example, the default plugins are
-specified by odmain.base.alo, while dgb's plugins are specified by
-odmain.dgb.alo. This way, each vendor can make his own .alo files,
+can make his own .alo files. od_main, for example, will look at any
+file named od_main.*.alo. For this example, the default plugins are
+specified by od_main.base.alo, while dgb's plugins are specified by
+od_main.dgb.alo. This way, each vendor can make his own .alo files,
 without interfering with others.</p>
 
 <p>A .alo file is nothing more then a simple list of plugins, without
-extensions. For example, this could be in an odmain.base.alo file:
+extensions. For example, this could be in an od_main.base.alo file:
 </p>
 
 <pre><code>
