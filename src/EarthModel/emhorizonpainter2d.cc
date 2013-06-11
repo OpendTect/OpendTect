@@ -49,7 +49,7 @@ HorizonPainter2D::~HorizonPainter2D()
     }
 
     removePolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -69,7 +69,7 @@ void HorizonPainter2D::paint()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -213,7 +213,7 @@ void HorizonPainter2D::repaintHorizon()
 {
     removePolyLine();
     addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -233,7 +233,7 @@ void HorizonPainter2D::changePolyLineColor()
 	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
     }
 
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -274,7 +274,7 @@ void HorizonPainter2D::enableLine( bool yn )
     }
 
     linenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -286,7 +286,7 @@ void HorizonPainter2D::enableSeed( bool yn )
     if ( !markerseeds_ ) return;
     markerseeds_->marker_->enabled_ = yn;
     seedenabled_ = yn;
-    viewer_.handleChange( FlatView::Viewer::Annot );
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 }; //namespace EM

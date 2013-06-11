@@ -62,7 +62,7 @@ AuxDataEditor::~AuxDataEditor()
 
     delete sower_;
     removeSelectionPolygon();
-    viewer_.handleChange( Viewer::Annot );
+    viewer_.handleChange( Viewer::Auxdata );
     limitMovement( 0 );
 
     setMenuHandler( 0 );
@@ -159,7 +159,7 @@ void AuxDataEditor::setAddAuxData( int id )
     bool change = addauxdataid_!=id;
     
     addauxdataid_ = id;
-    if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Annot );
+    if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Auxdata );
 
     if ( change )
 	addAuxDataChange.trigger();
@@ -210,7 +210,7 @@ void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
 	polygonsel_[idx]->linestyle_ = lst;
 
     if ( polygonsel_.size() )
-	viewer_.handleChange( Viewer::Annot );
+	viewer_.handleChange( Viewer::Auxdata );
 }
 
 
@@ -402,7 +402,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
     if ( seldatasetidx_!=-1 || !(ev.ctrlStatus() || ev.shiftStatus()) ||
 	 ev.altStatus() )
     {
-	if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Annot );
+	if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Auxdata );
     }
 
     if ( seldatasetidx_!=-1 || addauxdataid_!=-1 )
@@ -460,7 +460,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	    const int selidx = selptidx_[0];
 	    auxdata_[seldatasetidx_]->poly_.removeSingle( selidx ); 
 	    auxdata_[seldatasetidx_]->markerstyles_.removeSingle( selidx );
-	    viewer_.handleChange( Viewer::Annot );
+	    viewer_.handleChange( Viewer::Auxdata );
 	}
 
 	mousehandler_.setHandled( true );
@@ -476,7 +476,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( selptidx_.size() )
 	    viewer_.addAuxData( auxdata_[seldatasetidx_] );
 
-	viewer_.handleChange( Viewer::Annot );
+	viewer_.handleChange( Viewer::Auxdata );
     }
     
     //Movement of existing position
@@ -553,7 +553,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	else 
 	    feedback_->poly_[selptidx_[0]] = selptcoord_;
 
-	viewer_.handleChange( Viewer::Annot );
+	viewer_.handleChange( Viewer::Auxdata );
 	mousehandler_.setHandled( true );
     }
     else if ( addauxdataid_!=-1 )
@@ -591,14 +591,14 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		polygonsel_[polyidx]->poly_ += pt;
 		polygonsel_[polyidx]->poly_ += Point(startpt.x,pt.y);
 		polygonsel_[polyidx]->close_ = true;
-		viewer_.handleChange( Viewer::Annot );
+		viewer_.handleChange( Viewer::Auxdata );
 	    }
 	    else
 	    {
 		polygonsel_[polyidx]->poly_ += pt;
 		if ( polygonsel_[polyidx]->poly_.size()==3 )
 		    polygonsel_[polyidx]->close_ = true;
-		viewer_.handleChange( Viewer::Annot );
+		viewer_.handleChange( Viewer::Auxdata );
 	    }
 	}
 
@@ -871,7 +871,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker  
 	    sowingline_->poly_ += pt;		    // from one-point polyline
 
-	editor_.viewer().handleChange( Viewer::Annot );
+	editor_.viewer().handleChange( Viewer::Auxdata );
 
 	const Coord mousepos( mouseevent.x(), mouseevent.y() );
 
@@ -978,7 +978,7 @@ void Sower::reset()
 {
     sowingline_->enabled_ = false;
     sowingline_->poly_.erase();
-    editor_.viewer().handleChange( Viewer::Annot );
+    editor_.viewer().handleChange( Viewer::Auxdata );
     deepErase( eventlist_ );
     mousecoords_.erase();
 
