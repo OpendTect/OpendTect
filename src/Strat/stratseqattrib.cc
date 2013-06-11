@@ -412,6 +412,9 @@ int Strat::LayModAttribCalc::nextStep()
 
     const bool zinft = SI().depthsInFeet();
     int pointidx = 0;
+    const float stoplvldpth = stoplvl_ ? seq.depthPositionOf( *stoplvl_ )
+					: mUdf(float);
+
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) == seqidx_ + 1 )
     {
 	DataPointSet::DataRow dr( dps_.dataRow(dpsrid) );
@@ -446,17 +449,25 @@ int Strat::LayModAttribCalc::nextStep()
 
 	    zrg.setFrom( gateset[pointidx] );
 	}
-	if ( stoplvl_ )
+
+	bool paststop = false;
+	if ( !mIsUdf(stoplvldpth) )
 	{
-	    const float lvldpth = seq.depthPositionOf( *stoplvl_ );
-	    if ( !mIsUdf(lvldpth) && lvldpth < zrg.stop )
-		zrg.stop = lvldpth;
+	    if ( stoplvldpth < zrg.center() )
+		paststop = true;
+	    else
+		zrg.stop = stoplvldpth;
 	}
 
-	for ( int idx=0; idx<dpscidxs_.size(); idx++ )
+	if ( paststop )
+	    dps_.setInactive( dpsrid, true );
+	else
 	{
-	    const float val = calcs_[idx]->getValue( seq, zrg );
-	    dpsvals[ dpscidxs_[idx] ] = val;
+	    for ( int idx=0; idx<dpscidxs_.size(); idx++ )
+	    {
+		const float val = calcs_[idx]->getValue( seq, zrg );
+		dpsvals[ dpscidxs_[idx] ] = val;
+	    }
 	}
 
 	dpsrid++;
@@ -464,7 +475,7 @@ int Strat::LayModAttribCalc::nextStep()
     }
 
     seqidx_++;
-    return seqidx_ >= lm_.size() ? Finished() : MoreToDo();
+    return seqidx_ >= lm_.size() ? doFinish() : MoreToDo();
 }
 
 
@@ -475,4 +486,11 @@ void Strat::LayModAttribCalc::setExtrGates(
     stoplvl_ = stoplvl;
     deepErase( extrgates_ );
     deepCopy( extrgates_, extrgts );
+}
+
+
+int Strat::LayModAttribCalc::doFinish()
+{
+    dps_.purgeInactive();
+    return Finished();
 }
