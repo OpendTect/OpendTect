@@ -621,8 +621,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 	scene_->getUTM2DisplayTransform()->transformBack( pos ) : pos;
     
     int trcidx; float mindist;
-    getNearestTrace( xytpos, trcidx, mindist );
-    if ( mindist<0 || mIsUdf(mindist) )
+    if ( !getNearestTrace( xytpos, trcidx, mindist ) || mIsUdf(mindist) )
 	return mUdf(float);
 
     StepInterval<float> zrg = getZRange( true );
@@ -797,8 +796,9 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	if ( cache_[attrib]->trcinfoset_[idx]->nr != trcnr )
 	    continue;
 	
-	const int sampidx = cache_[attrib]->trcinfoset_[idx]->sampling.nearestIndex( pos.z );
-	if ( cache_[attrib]->dataset_->info().validPos( version, idx, sampidx ) )
+	const int sampidx = 
+	    cache_[attrib]->trcinfoset_[idx]->sampling.nearestIndex( pos.z );
+	if ( cache_[attrib]->dataset_->info().validPos(version, idx, sampidx) )
 	{
 	    res = cache_[attrib]->dataset_->get( version, idx, sampidx );
 
@@ -815,7 +815,8 @@ int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
 {
     int trcidx = -1;
     float mindist;
-    getNearestTrace( pos, trcidx, mindist );
+    if ( !getNearestTrace( pos, trcidx, mindist ) )
+	return -1;
 
     return  geometry_.positions()[trcidx].nr_;
 }
@@ -916,9 +917,8 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 {
     int trcidx = -1;
     float mindist;
-    getNearestTrace( pos, trcidx, mindist );
-
-    if ( trcidx<0 ) return;
+    if ( !getNearestTrace( pos, trcidx, mindist ) ) 
+	return;
 
     const Coord& crd = geometry_.positions()[trcidx].coord_;
     pos.x = crd.x; pos.y = crd.y; 
