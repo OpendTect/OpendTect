@@ -60,10 +60,9 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Add"), 0 );
     if ( SI().has3D() )
-    {
 	mnu.insertItem( new uiMenuItem("&Create from 3D ..."), 1 );
-	mnu.insertItem( new uiMenuItem("&Generate 3D cube..."), 2 );
-    }
+    
+    mnu.insertItem( new uiMenuItem("&Generate 3D cube..."), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )

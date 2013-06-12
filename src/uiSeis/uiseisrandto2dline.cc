@@ -150,7 +150,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     
     if ( !SI().has2D() )
 	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
-	       		 " to display the 2D line" );
+	       		 " in survey setup to display the 2D line" );
 
     return true;
 }

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dto3d.h"
 #include "seisselection.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -104,6 +105,10 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
 	return seis2dto3d_.errMsg();
 
+    if ( !SI().has3D() )
+	uiMSG().warning( "3D cube created successfully. "
+			 "You need to change survey type to 'Both 2D and 3D' "
+			 "in survey setup to display/use the cube" );
     return true;
 }
 
