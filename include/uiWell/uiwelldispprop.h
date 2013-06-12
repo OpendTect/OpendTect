@@ -110,7 +110,7 @@ protected:
 
 
 /*!
-\biref Well Markers display properties.
+\brief Well Markers display properties.
 */
 
 mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
