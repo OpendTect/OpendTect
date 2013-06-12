@@ -416,6 +416,7 @@ bool acceptOk( CallBacker* )
 uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
 {
     delete refineseldlg_;
+    delete propdlg_;
     delete selgrpdlg_;
 }
 
