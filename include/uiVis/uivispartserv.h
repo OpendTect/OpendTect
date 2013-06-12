@@ -53,7 +53,6 @@ namespace ZDomain   { class Info; }
 
 
 /*!
-\ingroup uiVis
 \brief The Visualisation Part Server
 */
 
