@@ -56,7 +56,9 @@ public:
 
     StreamData	makeOStream(bool binary=true,bool editmode=false) const;
 		/*!< On win32, binary mode differs from text mode. 
-		    Use binary=false when explicitly reading txt files. */
+		    Use binary=false when explicitly reading txt files. 
+                    Use editmode=true when want to edit/modify existing data 
+                    in a file.*/
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		//!< see makeOStream remark
     bool	executeCommand(bool inbg=false,bool inconsole=false) const;
