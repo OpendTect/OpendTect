@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "commandlineparser.h"
 #include "keystrs.h"
+#include "debug.h"
 
 #include <iostream>
 
