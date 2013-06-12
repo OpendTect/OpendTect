@@ -49,6 +49,7 @@ endif
 
 set tmpfile=${tmpdir}/cksvnprop.$$
 set tmperrfile=${tmpdir}/cksvnprop_err.$$
+set exitcode = 0
 
 nextfile:
 
@@ -56,7 +57,12 @@ set filename = ${1}
 
 if ( "${filename}" == "" ) then
     rm -rf ${tmpfile} ${tmperrfile}
-    exit 0
+
+    if ( ${exitcode} == 1 ) then
+	echo "Fails test."
+    endif
+
+    exit ${exitcode}
 endif
 
 shift 
@@ -64,23 +70,25 @@ shift
 (svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
 set errsize=`ls -la ${tmperrfile} | awk '{ print $5 }'`
 if ( ${errsize} == 0 ) then
+    set localfail = 0
     cat ${tmpfile} | grep -q "svn:eol-style"
     if ( ${status} == 1 ) then
-	echo File ${filename} misses svn:eol-style.
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
+	echo ${filename}
+	set localfail=1
     endif
     cat ${tmpfile} | grep -q "svn:keyword"
-    if ( ${status} == 1 ) then
-	echo File ${filename} misses keyword.
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
+    if ( ${localfail} == 0 && ${status} == 1 ) then
+	echo ${filename}
+	set localfail=1
     endif
     cat ${tmpfile} | grep -q "svn:needs-lock"
-    if ( ${status} == 0 ) then
-	echo File ${filename} has lock property set.
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
+    if ( ${localfail} == 0 && ${status} == 0 ) then
+	echo ${filename}
+	set localfail=1
+    endif
+
+    if ( ${localfail} == 1 ) then
+	set exitcode=1
     endif
 endif
 

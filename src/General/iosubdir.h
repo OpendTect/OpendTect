@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2010
- RCS:		$Id: iosubdir.h,v 1.5 2012-08-03 13:01:35 cvskris Exp $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */
