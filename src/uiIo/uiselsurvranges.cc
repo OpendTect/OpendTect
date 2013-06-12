@@ -121,6 +121,9 @@ StepInterval<float> uiSelZRange::getRange() const
 
 
 #define mAdaptRangeToLimits( rg, limit, newrg ) \
+if ( mIsUdf(rg.start) || mIsUdf(rg.stop) ) \
+    newrg = rg; \
+else \
 { \
     const double realstartdif = double(rg.start) - double(limit.start); \
     const double realstartidx = realstartdif / double(limit.step); \
