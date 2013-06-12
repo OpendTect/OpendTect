@@ -245,6 +245,9 @@ bool Pos::RangeProvider2D::toNextPos()
 bool Pos::RangeProvider2D::toNextZ()
 {
     PosInfo::Line2DData l2d;
+    if ( zrgs_.isEmpty() || geomids_.isEmpty() )
+	return false;
+
     StepInterval<float> zrg = 
 			zrgs_.validIdx(curlineidx_) ? zrgs_[curlineidx_] 
 						    : zrgs_[0];
