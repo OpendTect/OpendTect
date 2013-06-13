@@ -802,11 +802,19 @@ window</li>
 <p id="text"> The auto-load tool of OpendTect looks for plugins to load in two
 places: </p>
 
-<ul><li>The plugins/platform_dir of the installation directory
-(<code>$DTECT_APPL/plugins/$HDIR</code>)</li>
+<p id="text">1) Where are the .ALO files stored? The two locations searched are (in this order):</p>
+ <ul><li><code>&lt;userdir&gt;/plugins/&lt;platform_dir&gt;</code></li>
+ <li><code>&lt;systemdir&gt;/plugins/&lt;platform_dir&gt;</code></li>
+</ul>
+<p id="text">2) Where are the plugin libraries? Locations are:</p>
+<ul><li><code>&lt;userdir&gt;/bin/&lt;platform_dir&gt;/[Release|Debug]</code></li>
+<li><code>&lt;systemdir&gt;/bin/&lt;platform_dir&gt;/[Release|Debug]</code></li>
+</ul>
+<p id="text">The &lt;userdir&gt; is determined as follows:</p>
 
-<li>The '.od' directory in your 'Personal directory'
-<code>($HOME/.od/plugins/$HDIR</code> on Unix)</li></ul>
+<ul><li>If it is set, <code>$OD_USER_PLUGIN_DIR</code></li>
+<li>Else, the user settings directory is used: <code>~/.od</code></li>
+</ul>
 
 <p id="text"> On Windows, your 'Personal directory' is located at $HOME if this
 is defined. Otherwise, $USERPROFILE is used. Also see the specific
@@ -816,7 +824,7 @@ documentation. </p>
 
 <h3 id="heading3">Using .alo files</h3>
 
-<p id="text">Auto LOad files are simple text files that tell a program which
+<p id="text">Auto Load files are simple text files that tell a program which
 plugins it is supposed to load from the 'libs' directory. Since
 OpendTect contains multiple programs, each program has its own set of
 .alo files '&lt;program name&gt;.*.alo', while the plugins can be
@@ -868,7 +876,7 @@ auto-extracting installer to do this. For more info on this, see the
 
 <p id="text">If you want your plugins to be used around the world, then you may want to contact support@opendtect.org to get your plugin(s) distributed via the OpendTect installation Manager. Be prepared to have the opendtect.org people take a look at your code and test the stability. Then make the packages along the lines described below. You'll also have to provide information about yourself and the plugin - and a picture of a certain size.</p>
 
-<h3 id="heading3">Preparing for the intstallation manager</h3>
+<h3 id="heading3">Preparing for the installation manager</h3>
 <p id="text">
 It is important that you make the packages nicely modular. Even if you have only two platforms yet, still it's a good idea to split the stuff in platform-independent and platform-dependent stuff. And separate documentation. In that case there would be 4 packages:</p>
 <ul>
