@@ -125,7 +125,6 @@ protected:
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
-    uiToolButton*	addeditbut_;
     uiComboBox*		wvadatalist_;
     uiComboBox*		vddatalist_;
     uiComboBox*		levelsnapselfld_;
@@ -149,6 +148,7 @@ protected:
 	    					  bool wva=true);
 
     void		addEditSynth(CallBacker*);
+    void		exportSynth(CallBacker*);
     void		wvDataSetSel(CallBacker*);
     void		vdDataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);

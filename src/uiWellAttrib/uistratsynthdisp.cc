@@ -95,11 +95,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm,
 	    mCB(this,uiStratSynthDisp,wvDataSetSel) );
     wvadatalist_->setHSzPol( uiObject::Wide );
 
-    addeditbut_ = new uiToolButton( topgrp_, "edit", 
+    uiToolButton* edbut = new uiToolButton( topgrp_, "edit", 
 	    			"Add/Edit Synthetic DataSet",
 				mCB(this,uiStratSynthDisp,addEditSynth) );
 
-    addeditbut_->attach( leftOf, datalblcbx );
+    edbut->attach( leftOf, datalblcbx );
 
     uiGroup* dataselgrp = new uiGroup( this, "Data Selection" );
     dataselgrp->attach( rightBorder );
@@ -112,6 +112,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm,
 	    mCB(this,uiStratSynthDisp,vdDataSetSel) );
     vddatalist_->setHSzPol( uiObject::Wide );
     prdatalblcbx->attach( leftBorder );
+
+    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export", 
+	    			"Export Synthetic DataSet",
+				mCB(this,uiStratSynthDisp,exportSynth) );
+    expbut->attach( rightOf, vddatalist_ );
 
     datagrp_ = new uiGroup( this, "DataSet group" );
     datagrp_->attach( ensureBelow, topgrp_ );
@@ -912,6 +917,13 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
     synthgendlg_->updateSynthNames();
     synthgendlg_->putToScreen();
     synthgendlg_->go();
+}
+
+
+void uiStratSynthDisp::exportSynth( CallBacker* )
+{
+    uiMsgMainWinSetter mws( mainwin() );
+    uiMSG().error( "TODO: implement" );
 }
 
 
