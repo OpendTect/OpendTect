@@ -44,6 +44,7 @@ protected:
     uiRectItem*         rectitem_;
     uiTextItem*         axis1nm_;
     uiTextItem*         axis2nm_;
+    uiTextItem*		titletxt_;
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
