@@ -291,9 +291,9 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const float layerz = mCast( float, outputzrg.atIndex(zidx) );
-	    const float depth = SI().zDomain().isTime() ? td.getDepth( layerz )
+	    const float layerdepth = SI().zDomain().isTime() ? td.getDepth( layerz )
 							: layerz;
-	    const float angle = anglevals[ofsidx]->getValue( depth );
+	    const float angle = anglevals[ofsidx]->getValue( layerdepth );
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }
