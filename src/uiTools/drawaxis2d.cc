@@ -292,7 +292,7 @@ void uiGraphicsSceneAxisMgr::setViewRect( const uiRect& viewrect )
     bottommask_->setRect( fullrect.left(), viewrect.bottom(),
 			 fullrect.width(), fullrect.bottom()-viewrect.bottom()+1);
     leftmask_->setRect( fullrect.left(), fullrect.top(),
-		       viewrect.left()-fullrect.left(), fullrect.width() );
+		       viewrect.left()-fullrect.left(), fullrect.height() );
     rightmask_->setRect( viewrect.right(), fullrect.top(),
 			fullrect.right()-viewrect.right(), fullrect.height());
 }
