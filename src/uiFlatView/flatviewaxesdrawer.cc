@@ -27,6 +27,7 @@ FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
     , axis2nm_(0)
     , arrowitem1_(0)
     , arrowitem2_(0)
+    , titletxt_(0)
 {}
 
 
@@ -37,6 +38,7 @@ FlatView::AxesDrawer::~AxesDrawer()
     mRemoveAnnotItem( axis1nm_ );
     mRemoveAnnotItem( arrowitem2_ );
     mRemoveAnnotItem( axis2nm_ );
+    mRemoveAnnotItem( titletxt_ );
 }
 
 
@@ -77,6 +79,7 @@ void FlatView::AxesDrawer::setZvalue( int z )
     if ( arrowitem1_ ) arrowitem1_->setZValue( z+1 );
     if ( axis2nm_ ) axis2nm_->setZValue( z+1 );
     if ( arrowitem2_ ) arrowitem2_->setZValue( z+1 );
+    if ( titletxt_ ) titletxt_->setZValue( z+1 );
 }
 
 
@@ -89,13 +92,14 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     const bool showx1annot = ad1.showannot_ || ad1.showgridlines_;
     const bool showx2annot = ad2.showannot_ || ad2.showgridlines_;
 
-    if ( (!showx1annot && !showx2annot) )
+    if ( !showx1annot && !showx2annot && annot.title_.isEmpty() )
     {
 	mRemoveAnnotItem( rectitem_ );
 	mRemoveAnnotItem( arrowitem1_ );
 	mRemoveAnnotItem( axis1nm_ );
 	mRemoveAnnotItem( arrowitem2_ );
 	mRemoveAnnotItem( axis2nm_ );
+	mRemoveAnnotItem( titletxt_ );
 	return;
     }
 
@@ -171,6 +175,25 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
 	if ( arrowitem2_ ) arrowitem1_->setVisible( false );
 	if ( axis2nm_ ) axis1nm_->setVisible( false );
     }
+
+    if ( !annot.title_.isEmpty() && annot.title_ != " " )
+    {
+	if ( !titletxt_ )
+	{
+	    titletxt_ = view_.scene().addItem(
+		    new uiTextItem(annot.title_,mAlignment(HCenter,Top)) );
+	    titletxt_->setTextColor( annot.color_ );
+	}
+	else
+	    titletxt_->setText( annot.title_ );
+	
+	titletxt_->setVisible( true );
+	const uiRect scenerect = view_.getViewArea();
+	titletxt_->setPos( uiPoint(rect.centre().x,scenerect.top()) );
+    }
+    else if ( titletxt_ )
+	titletxt_->setVisible( false );
+
     setZvalue( uiGraphicsSceneAxisMgr::getZvalue() );
 }
 
