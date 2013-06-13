@@ -15,6 +15,7 @@ ________________________________________________________________________
 -*/
 
 #include "bufstringset.h"
+#include "debug.h" // easier for test programs, declares od_init_test_program
 
 /*!Parser that takes the argc and argv and makes them parsable. An argument
    starting with -- is considered a key, as well as arguments starting with "-",
