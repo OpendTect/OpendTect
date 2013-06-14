@@ -120,7 +120,6 @@ private:
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
-    const char*		generateFileName(Translator*,const char*);
     bool		to(const IOSubDir*,bool);
 
     friend class	IOObj;

@@ -598,7 +598,6 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
-	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 
 	// Get default translator with dir
@@ -619,16 +618,24 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
 	// Now generate the 'right' filename
 	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
-	BufferString fnm = generateFileName( tmptr, iostrm->name() );
-	int ifnm = 1;
-	while ( tmptr && File::exists(fnm) )
+	if ( tmptr )
 	{
-	    BufferString altfnm( iostrm->name() );
-	    altfnm += ifnm; fnm = generateFileName( tmptr, altfnm );
-	    ifnm++;
+	    iostrm->setExt( tmptr->defExtension() );
+	    delete tmptr;
 	}
-	iostrm->setFileName( fnm );
-	delete tmptr;
+
+	dirPtr()->mkUniqueName( iostrm );
+	const BufferString uniqnm( iostrm->name() );
+	int ifnm = 0;
+	while ( true )
+	{
+	    iostrm->genDefaultImpl();
+	    if ( !File::exists(iostrm->fileName()) )
+		break;
+	    ifnm++;
+	    iostrm->setName( BufferString(uniqnm,ifnm) );
+	    dirPtr()->mkUniqueName( iostrm );
+	}
 
 	ioobj = iostrm;
 	const char* odusrnm = GetSoftwareUser();
@@ -641,33 +648,6 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
     }
 
     ctio.setObj( ioobj->clone() );
-}
-
-
-const char* IOMan::generateFileName( Translator* tr, const char* fname )
-{
-    BufferString cleanname( fname );
-    char* ptr = cleanname.buf();
-    cleanupString( ptr, false, false, true );
-    static StaticStringManager stm;
-    BufferString& fnm = stm.getString();
-    for ( int subnr=0; ; subnr++ )
-    {
-	fnm = cleanname;
-	if ( subnr ) fnm += subnr;
-	if ( !tr ) break;
-
-	if ( tr->defExtension() )
-	    { fnm += "."; fnm += tr->defExtension(); }
-
-	const char* dirnm = getTranslDirNm( tr );
-	if ( !dirnm ) break;
-
-	FilePath fp( rootdir_ ); fp.add( dirnm ).add( fnm );
-	if ( !File::exists(fp.fullPath()) ) break;
-    }
-
-    return fnm;
 }
 
 

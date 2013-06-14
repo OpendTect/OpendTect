@@ -215,7 +215,18 @@ void IOStream::genFileName()
     FilePath fp( fname_ );
     const bool isabs = fp.isAbsolute();
     cleanupString( fname_.buf(), false, isabs, true );
-    if ( !extension_.isEmpty() )
+    const int extsz = extension_.size();
+    const int neededsz = fname_.size() + extsz;
+    if ( neededsz >= mMaxFilePathLength )
+    {
+	const BufferString uniqstr( "_",
+			FilePath(FilePath::getTempName()).fileName() );
+	const int len = uniqstr.size();
+	fname_[ mMaxFilePathLength - len - extsz - 1 ] = '\0';
+	fname_.add( uniqstr );
+    }
+
+    if ( extsz > 0 )
     {
         fname_ += ".";
         fname_ += extension_;
