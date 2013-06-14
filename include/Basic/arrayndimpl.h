@@ -207,11 +207,7 @@ protected:
     , stor_(0) \
     , ptr_(0) \
 { \
-    if ( !info().isOK() ) \
-    { \
-	pErrMsg( "Invalid size" ); \
-	return; \
-    } \
+    if ( !info().isOK() ) return; \
     mArrNDImplCreateStor; \
 }
 

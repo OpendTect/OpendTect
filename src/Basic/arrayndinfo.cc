@@ -224,8 +224,8 @@ ArrayNDInfo* ArrayNDInfoImpl::create( int ndim )
 
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
-	: dimsz_( new int[ndim_] )  
-	, ndim_( ndim )
+	: ndim_( ndim )
+	, dimsz_( ndim<1 ? 0 : new int[ndim_] )  
 {
     cachedtotalsz_ = 0;
     for ( int idx = 0; idx<ndim_; idx++ )
@@ -235,8 +235,8 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim )
 
 ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 	: ArrayNDInfo( nsz )
-        , dimsz_(new int[nsz.getNDim()]) 
 	, ndim_(nsz.getNDim())
+	, dimsz_( ndim_<1 ? 0 : new int[ndim_] )  
 {
     for ( int idx=0; idx<ndim_; idx++ )
 	setSize( idx, nsz.getSize(idx) ); 

@@ -394,8 +394,9 @@ void FilePath::addPart( const char* fnm )
     if ( !fnm || !*fnm ) return;
 
     mSkipBlanks( fnm );
+    const int maxlen = strlen( fnm );
     char prev = ' ';
-    char buf[mMaxFilePathLength];
+    char* buf = new char [maxlen+1]; *buf = '\0';
     char* bufptr = buf;
     bool remdblsep = false;
 
@@ -424,6 +425,7 @@ void FilePath::addPart( const char* fnm )
     }
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
+    delete [] buf;
     trueDirIfLink();
 }
 
