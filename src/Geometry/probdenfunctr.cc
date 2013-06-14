@@ -101,11 +101,14 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
     else if ( type == SampledNDProbDenFunc::typeStr() )
 	pdf = new SampledNDProbDenFunc();
 
-    pdf->usePar( par );
+    if ( !pdf->usePar(par) )
+	{ delete pdf; return 0; }
+
     binary_ = false;
     par.getYN( sKey::Binary(), binary_ );
+    if ( !pdf->obtain(strm,binary_) )
+	{ delete pdf; pdf = 0; }
 
-    pdf->obtain( strm, binary_ );
     return pdf;
 }
 

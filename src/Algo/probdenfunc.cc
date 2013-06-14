@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "sampledprobdenfunc.h"
-#include "sampledprobdenfunc.h"
 #include "probdenfuncdraw.h"
 #include "interpol1d.h"
 #include "interpol2d.h"
@@ -468,6 +467,7 @@ Sampled2DProbDenFunc::Sampled2DProbDenFunc()
 {
 }
 
+
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
     , sd0_(0,1)
@@ -755,13 +755,14 @@ void SampledNDProbDenFunc::fillPar( IOPar& par ) const
 bool SampledNDProbDenFunc::usePar( const IOPar& par )
 {
     int nrdims = nrDims();
-    if ( nrdims < 1 )
+    int newnrdims = nrdims;
+    par.get( sKeyNrDim(), newnrdims );
+    if ( newnrdims < 1 )
+	return false;
+    else if ( newnrdims != nrdims )
     {
-	par.get( sKeyNrDim(), nrdims );
-	if ( nrdims < 1 )
-	    return false;
-
-	bins_.copyFrom( ArrayNDImpl<float>( ArrayNDInfoImpl(nrdims) ) );
+	bins_.copyFrom( ArrayNDImpl<float>( ArrayNDInfoImpl(newnrdims) ) );
+        nrdims = newnrdims;
     }
 
     TypeSet<int> szs( nrdims, 0 );
