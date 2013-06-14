@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "typeset.h"
 #include "objectset.h"
+#include "commandlineparser.h"
 
 #include <iostream>
 

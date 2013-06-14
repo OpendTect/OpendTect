@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "velocitycalc.h"
+#include "commandlineparser.h"
 
 #include <iostream>
 

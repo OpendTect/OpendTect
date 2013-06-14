@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "task.h"
 #include "limits.h"
+#include "commandlineparser.h"
 
 #include <iostream>
 
