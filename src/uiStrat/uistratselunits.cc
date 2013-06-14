@@ -321,6 +321,7 @@ void uiStratSelUnits::curChg( CallBacker* )
     else
     {
         uiTreeViewItem* li = tree_->currentItem();
+	if ( !li ) return;
 	mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,li)
 	if ( !sslvi ) { pErrMsg("Huh"); return; }
 	curunit_ = sslvi->unit_;
