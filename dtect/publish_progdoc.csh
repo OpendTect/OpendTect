@@ -77,7 +77,7 @@ cd ${prevdir}
 ${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*" --s3arg --include --s3arg "*.svg" --s3arg -m --s3arg "image/svg+xml" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 
 #SecondlySecond, run to upload new stuff, keep removed files
-${sendappl} --s3arg --add-header --s3arg --exclude --s3arg "*.svg" --s3arg "Content-Encoding: gzip" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
+${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*.svg" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 
 #Third, delete removed files
 ${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
