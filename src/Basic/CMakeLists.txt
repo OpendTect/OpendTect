@@ -89,4 +89,9 @@ set( OD_MODULE_SOURCES
 	    ziputils.cc
 	    ziparchiveinfo.cc 
 	    ziphandler.cc )
+
+if ( ITTNOTIFY_FOUND )
+    set ( OD_MODULE_STATIC_LIBS ${ITTNOTIFY_LIBRARY} )
+    list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
+endif()
 OD_INIT_MODULE()
