@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "settings.h"
 
-DefineNameSpaceEnumNames(Stats,Type,0,"Statistic type")
+DefineNameSpaceEnumNames(Stats,Type,3,"Statistic type")
 {
 	"Count",
 	"Average", "Median", "RMS",
