@@ -20,6 +20,7 @@ macro(OD_SETUP_QT)
 	set( CMAKE_AUTOMOC ON )
     else()
 	set( ENV{QTDIR} ${QTDIR} )
+	set( OD_QT_LIBS "" )
 	set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
 	find_package(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
 
