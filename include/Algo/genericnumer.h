@@ -42,7 +42,10 @@ inline void GenericConvolve( int lx, int ifx, const A& x,
 	if ( jhigh > ilx ) jhigh = ilx;
 
 	for ( j=jlow,sum=0.0; j<=jhigh; ++j )
-	    sum += x[j-ifx]*y[i-j-ify];
+	{
+	    if( !mIsUdf(x[j-ifx]) && !mIsUdf(y[i-j-ify]) )
+		sum += x[j-ifx]*y[i-j-ify];
+	}
 
 	z[i-ifz] = sum;
     }
