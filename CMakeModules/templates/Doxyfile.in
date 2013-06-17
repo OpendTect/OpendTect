@@ -18,13 +18,15 @@
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = @CMAKE_PROJECT_NAME@
+PROJECT_NAME           = OpendTect
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 
+PROJECT_NUMBER         = @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@
+
+PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/data/od_small.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
