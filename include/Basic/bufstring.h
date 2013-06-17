@@ -172,12 +172,10 @@ inline  bool BufferString::operator!=( const char* s ) const
 { return ! (*this == s); }
 
 template <class T> inline BufferString& BufferString::operator=( const T& t )
-{ char* s = buf(); strcpy(s,toString( t )); return *this; }
+{ setEmpty(); add( t ); return *this; }
 
 template <class T> inline BufferString& BufferString::add( const T& t )
-{
-    return add( toString( t ) );
-}
+{ return add( toString( t ) ); }
 
 template <class T> inline bool BufferString::operator >( const T& t ) const
 { return *this > ( Conv::to<const char*>( t ) ); }

@@ -847,13 +847,9 @@ const char* toString( unsigned char c )
 const char* toString( const char* str )
 {
     static StaticStringManager stm;
-    char* ret = stm.getString().buf();
-    if ( str )
-	strcpy( ret, str );
-    else
-	ret[0] = 0;
-
-    return ret;
+    BufferString& res = stm.getString();
+    res = str;
+    return res.buf();
 }
 
 
