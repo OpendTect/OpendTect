@@ -778,15 +778,13 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
     int idx_prev = -1; \
     double t_above = -first_t; \
     double v2t_prev = t_above*first_v*first_v;; \
-    bool hasvals = false; \
+    double vlayer = mUdf(double);\
  \
     for ( int idx=0; idx<nrvels; idx++ ) \
     { \
 	const double v = Vrms[idx]; \
 	if ( mIsUdf(v) ) \
 	    continue; \
-\
-	hasvals = true; \
  \
 	double t_below = timefetch-first_t; \
  \
@@ -798,7 +796,7 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
 	if ( t_below<t_above || mIsEqual(t_below,t_above,1e-5) ) \
 	    continue; \
  \
-	const double vlayer = Math::Sqrt( numerator/(t_below-t_above) ); \
+	vlayer = Math::Sqrt( numerator/(t_below-t_above) ); \
  \
 	for ( int idy=idx_prev+1; idy<=idx; idy++ ) \
 	    Vint[idy] = (float) vlayer; \
@@ -808,11 +806,8 @@ bool NormalMoveout::computeMoveout( float t0, float Vrms,
 	idx_prev = idx; \
     } \
  \
-    if ( !hasvals ) \
-    { \
-	for ( int idx=0; idx<nrvels; idx++ ) \
-	    Vint[idx] = mUdf(float); \
-    } \
+    for ( int idx=idx_prev+1; idx<nrvels; idx++ ) \
+	Vint[idx] = mCast(float,vlayer); \
  \
     return true
 
