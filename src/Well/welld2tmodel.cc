@@ -72,6 +72,9 @@ float Well::D2TModel::getDepth( float time, const Track& track ) const
 float Well::D2TModel::getDah( float time, const Track& track ) const
 {
     const float depth = getDepth( time, track );
+    if ( mIsUdf(depth) )
+        return mUdf(float);
+
     return track.getDahForTVD( depth );
 }
 
@@ -131,6 +134,9 @@ bool Well::D2TModel::getVelocityBoundsForDah( float dh, const Track& track,
     times.start = t_[idah];
     times.stop = t_[idah+1];
 
+    if ( depths.isUdf() )
+        return false;
+
     bool reversedz = times.isRev() || depths.isRev();
     bool sametwt = mIsZero(times.width(),1e-6f) || mIsZero(depths.width(),1e-6);
 
@@ -154,8 +160,8 @@ bool Well::D2TModel::getVelocityBoundsForTwt( float time, const Track& track,			
 		
     depths.start = track.getPos(dah_[idah]).z;
     depths.stop = track.getPos(dah_[idah+1]).z;
-    if ( mIsUdf(depths.start) || mIsUdf(depths.stop) )
-	return mUdf(float);
+    if ( depths.isUdf() )
+	return false;
 
     times.start = t_[idah];
     times.stop = t_[idah+1];
