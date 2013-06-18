@@ -331,17 +331,44 @@ macro( create_develpackages )
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-	file ( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release
-	       DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/
-	       FILES_MATCHING PATTERN "*.lib" )
-
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-	    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug
-	    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
-
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${PSD}/bin/od_cr_dev_env.bat
 				 ${DESTINATION_DIR}/bin )
+
+	set( DEVELLIBS ${ODLIBLIST} ${ODPLUGINS} ${SPECSOURCES} )
+	#Copying dll, pdb and lib files.
+	foreach( DLIB ${DEVELLIBS} )
+	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${DLIB}.* )
+	    string( TOLOWER ${DLIB} PDBLIB )
+	    file( GLOB PDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${PDBLIB}.* )
+	    set( FILES ${FILES} ${PDBFILES} )
+	    foreach( FIL ${FILES} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${FIL} ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+	    endforeach()
+
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib
+			${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	endforeach()
+	#Copying executables and pdb files
+	foreach( EXELIB ${EXECLIST} )
+	    file( GLOB EXEFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${EXELIB}.* )
+	    string( TOLOWER ${EXELIB} EXEPDBLIB )
+	    file( GLOB EXEPDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${EXEPDBLIB}.* )
+	    set( EXEILES ${EXEFILES} ${EXEPDBFILES} )
+	    foreach( ELIB ${EXEILES} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    ${ELIB} ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+	    endforeach()
+	endforeach()
+
+	#Copying third party debug libraries
+	foreach( TLIB ${OD_THIRD_PARTY_LIBS_DEBUG} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${TLIB}
+			    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+	endforeach()
     endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
