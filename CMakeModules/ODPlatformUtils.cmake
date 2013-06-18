@@ -74,17 +74,12 @@ if(UNIX) #Apple an Linux
 	    endif()
 
 	    if ( GCC_VERSION VERSION_LESS 4.2 )
-		message( "Turning down gcc optimization to -O2" )
-		set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
+		message( "Turning down gcc optimization to -O1" )
+		set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1" )
+		set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O1" )
 	    endif()
 
 	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
-
-	    if ( (CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4") OR
-		 (CMAKE_C_COMPILER STREQUAL "/usr/bin/gcc4") )
-		set( CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )
-		set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O2" )
-	    endif()
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
     endif()
