@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	June 2013	K. Tingdahl
-#	RCS :		$Id: ODZlibUtils.cmake 29376 2013-04-19 14:21:04Z kristofer.tingdahl@dgbes.com $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( ITTNOTIFY_DIR )
