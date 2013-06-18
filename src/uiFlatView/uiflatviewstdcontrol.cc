@@ -280,6 +280,12 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt);
+
+    uiWorldRect bb = vwrs_[0]->boundingBox();
+    uiWorldRect oldwr = vwrs_[0]->curView();
+    Geom::Point2D<double> newcentre = newwr.centre();
+    Geom::Size2D<double> cursize = oldwr.size();
+    newwr = getNewWorldRect( newcentre, cursize, oldwr, bb );
     
     vwrs_[0]->setView( newwr );    
 }
