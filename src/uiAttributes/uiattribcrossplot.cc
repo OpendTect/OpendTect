@@ -312,9 +312,6 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	    BufferStringSet lnms = linenmsset_[lsidx];
 	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
 	    {
-		BufferString lsobjname = lsobj->name();
-		BufferString linenames = lnms.get( lidx );
-
 		PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),
 							     lnms.get(lidx) );
 		if ( geomid.isOK() )
@@ -363,32 +360,15 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
     mDPM.addAndObtain( dps );
 
-    ExecutorGroup exgroup( "Cross-Plot Executor", true, false );
-    if ( lnmfld_ )
-    {
-	for ( int lsidx=0; lsidx<selids_.size(); lsidx++ )
-	{
-	    BufferStringSet lnms = linenmsset_[lsidx];
-	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
-	    {
-		BufferString errmsg; Attrib::EngineMan aem;
-		const char* linename = lnms.get( lidx );
-		aem.setLineKey( linename );
-
-		MouseCursorManager::setOverride( MouseCursor::Wait );
-		PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
-		MouseCursorManager::restoreOverride();
-
-		if ( !errmsg.isEmpty() ) mErrRet(errmsg)
-		
-		exgroup.add( tabextr );
-	    }
-	}
-    }
-
-
+    BufferString errmsg; Attrib::EngineMan aem;
+    //if ( lnmfld_ )
+	//aem.setLineKey( lnmfld_->getInput() );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
+    MouseCursorManager::restoreOverride();
+    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 	    
-    if ( !tr.execute(exgroup) )
+    if ( !tr.execute(*tabextr) )
     {
 	mDPM.release( dps->id() );
 	return false;
