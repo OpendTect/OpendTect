@@ -3,6 +3,23 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0k: June 14, 2013
+  * Fix for crash when saving well tie data as a volume.
+  * Fix for crash when displaying intersecting inline / horizon
+  * Fixed for wiggle and variable density not read from the parameter file
+    when a stored attribute is added from the treeitem of the 2D Viewer.
+  * Fix for updating marker names when well is changed
+  * Fix for random line display in 2D viewer when the line is partly outside
+    the data range
+  * Fix for selecting dfault seiemic cube
+  * Fix for creating a randomline in a z-axis transformed scene
+  * Fix for crash in crossplot selection settings dialog when remove group
+    button is clicked without selecting any row 
+  * Fix for crash while closing crossplot window on windows platform
+  * Fix for displaying Time/Frequency Panel in Spectral Decomposition attribute
+  * Fix for displaying imported well data
+  * Fix for calculating Hilbert transform in Instantaneous attribute
+
 v4.4.0j: May 8, 2013
   * Fix for multicomponent display in histogram & amplitude spectrum
   * Improvement in multi machine processing:
