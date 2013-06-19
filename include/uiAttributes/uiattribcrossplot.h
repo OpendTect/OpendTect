@@ -61,6 +61,7 @@ protected:
 
     void				adsChg();
     MultiID				getSelectedID() const;
+    void				getLineNames(BufferStringSet&);
     void				initWin(CallBacker*);
     void				lineChecked(CallBacker*);
     void				attrChecked(CallBacker*);
