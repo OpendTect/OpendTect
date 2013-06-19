@@ -81,7 +81,6 @@ uiFlatViewer::~uiFlatViewer()
     delete view_->scene().removeItem( worldgroup_ );
 
     deepErase( auxdata_ );
-
 }
 
 

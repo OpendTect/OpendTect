@@ -254,6 +254,8 @@ Threads::WorkManager::WorkManager( int nrthreads )
     if ( nrthreads == -1 )
 	nrthreads = Threads::getNrProcessors();
 
+    workloadcond_.lock();
+
     for ( int idx=0; idx<nrthreads; idx++ )
     {
 	WorkThread* wt = new WorkThread( *this );
@@ -261,6 +263,8 @@ Threads::WorkManager::WorkManager( int nrthreads )
 	threadids_ += wt->threadID();
 	freethreads_ += wt;
     }
+    
+    workloadcond_.unLock();
 }
 
 

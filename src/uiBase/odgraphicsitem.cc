@@ -550,9 +550,9 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     if ( updateResolution( painter ) )
 	wantsData.trigger();
 
+    dynamiclock_.lock();
     if ( updatedynpixmap_ )
     {
-	dynamiclock_.lock();
 
 	if ( !dynamicpixmap_ ) dynamicpixmap_ = new QPixmap;
 
@@ -565,10 +565,9 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
        
 	dynamicpixmapbbox_ = dynamicimagebbox_; 
 	updatedynpixmap_ = false;
-
-	dynamiclock_.unlock();
-
     }
+
+    dynamiclock_.unlock();
 
     const QTransform worldtrans = painter->worldTransform();
 

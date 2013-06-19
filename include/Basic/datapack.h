@@ -60,9 +60,13 @@ public:
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static ID		cNoID()		    { return 0; }
+    static ID		cNoID()			{ return 0; }
 
     virtual bool	isOK() const 		{ return true; }
+
+    void		prepareUpdate()		{ updatelock_.lock(); }
+    void		updateFinished()	{ updatelock_.unLock(); }
+    Threads::Mutex&	getUpdateLock()		{ return updatelock_; }
 
 protected:
 
@@ -70,6 +74,7 @@ protected:
     const BufferString		category_;
     mutable int			nrusers_;
     mutable Threads::Mutex	nruserslock_;
+    Threads::Mutex		updatelock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
     static float	sKb2MbFac();	//!< 1 / 1024
