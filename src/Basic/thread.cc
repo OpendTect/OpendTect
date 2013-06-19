@@ -15,6 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "errh.h"
 
+#ifdef __ittnotify__
+# include <ittnotify.h>
+#endif
+
 #include "qatomic.h"
 #include <QThread>
 #include <QMutex>
@@ -76,20 +80,38 @@ bool Threads::Mutex::tryLock()
 
 Threads::SpinLock::SpinLock()
     : spinlock_( 0 )
-{}
+{
+#ifdef __ittnotify__
+    __itt_sync_create( &spinlock_, 0, "Threads::SpinLock",  __itt_attr_mutex );
+#endif
+}
 
 Threads::SpinLock::~SpinLock()
-{}
+{
+#ifdef __ittnotify__
+    __itt_sync_destroy( &spinlock_ );
+#endif
+}
 
 void Threads::SpinLock::lock()
 {
+#ifdef __ittnotify__
+    __itt_sync_prepare( &spinlock_ );
+#endif
     while ( !spinlock_.strongSetIfEqual( 1, 0 ) )
 	;
+#ifdef __ittnotify__
+    __itt_sync_acquired( &spinlock_ );
+#endif
 }
 
 
 void Threads::SpinLock::unLock()
 {
+#ifdef __ittnotify__
+    __itt_sync_releasing( &spinlock_ );
+#endif
+
 #ifdef __debug__
     if ( !spinlock_.strongSetIfEqual( 0, 1 ) )
 	pErrMsg( "Unlocking unlocked spinlock" );
@@ -101,7 +123,19 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
+#ifdef __ittnotify__
+    __itt_sync_prepare( &spinlock_ );
+    if ( spinlock_.strongSetIfEqual( 1, 0 ) )
+    {
+	__itt_sync_acquired( &spinlock_ );
+	return true;
+    }
+
+    __itt_sync_cancel( &spinlock_ );
+    return false;
+#else
     return spinlock_.strongSetIfEqual( 1, 0 );
+#endif
 }
 
 #define mUnLocked	0
