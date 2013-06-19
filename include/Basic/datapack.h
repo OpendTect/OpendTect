@@ -66,7 +66,7 @@ public:
 
     void		prepareUpdate()		{ updatelock_.lock(); }
     void		updateFinished()	{ updatelock_.unLock(); }
-    Threads::Mutex&	getUpdateLock()		{ return updatelock_; }
+    Threads::Mutex&	getUpdateLock() const	{ return updatelock_; }
 
 protected:
 
@@ -74,7 +74,7 @@ protected:
     const BufferString		category_;
     mutable int			nrusers_;
     mutable Threads::Mutex	nruserslock_;
-    Threads::Mutex		updatelock_;
+    mutable Threads::Mutex	updatelock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
     static float	sKb2MbFac();	//!< 1 / 1024
