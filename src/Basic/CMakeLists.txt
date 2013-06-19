@@ -12,6 +12,7 @@ set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
 set( OD_TEST_PROGS svnversion.cc
 		sets.cc
 		threads.cc
+		threadwork.cc
 		commandlineparser.cc
 		refcount.cc )
 set( OD_MODULE_SOURCES
