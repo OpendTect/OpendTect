@@ -49,6 +49,8 @@ void FlatView::BitMapMgr::setupChg()
     if ( !vwr_.isVisible(wva_) ) return;
 
     const FlatDataPack& dp = *vwr_.pack( wva_ );
+    Threads::MutexLocker updatepreventer( dp.getUpdateLock() );
+
     const FlatPosData& pd = dp.posData();
     const FlatView::Appearance& app = vwr_.appearance();
     const Array2D<float>& arr = dp.data();
@@ -142,8 +144,9 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     mObtainDataPackToLocalVar( pack, const FlatDataPack*, DataPackMgr::FlatID(),
 	                                   vwr_.packID(wva_) );
 
-
     if ( !pack ) return true;
+
+    Threads::MutexLocker updatepreventer( pack->getUpdateLock() );
 
     const FlatPosData& pd = pack->posData();
     pos_->setDimRange( 0, Interval<float>((float) (wr.left()-pd.offset(true)),
