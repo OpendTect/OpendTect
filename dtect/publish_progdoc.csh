@@ -49,7 +49,7 @@ find . -name "*.tag" | xargs -P ${nrcpus} rm -f
 find . -name "*.dot" | xargs -P ${nrcpus} rm -f
 find . -name "*.dot" | xargs rm -f
 
-set files = `find . ! -path "*.svn*"`
+set files = `find . ! -path "*.svn*" ! -path "*.html.in"`
 
 echo "Compressing Documentation"
 foreach file ( ${files} )

@@ -7,6 +7,14 @@
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 
+file ( GLOB DOCUMENTATION_FILES "${CMAKE_SOURCE_DIR}/doc/Programmer/*.html.in" )
+
+foreach( DOCFILE ${DOCUMENTATION_FILES} ) 
+    get_filename_component( OUTPUT ${DOCFILE} NAME_WE )
+    configure_file( ${DOCFILE} ${PROJECT_BINARY_DIR}/doc/Programmer/${OUTPUT}.html @ONLY )
+endforeach()
+
+
 # OD_BUILD_DOCUMENTATION - Make target "doc" to make documentation
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )

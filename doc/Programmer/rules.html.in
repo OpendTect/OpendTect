@@ -1,0 +1,545 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
+<!--
+  - CopyRight:	(C) dGB Earth Sciences
+  - Author:	A.H. Bril
+  - Date:	Sep 2005
+  - Contents:	Development rules & standards
+  - RCS:	$Id$
+ -->
+		
+	<head>
+	<title>Rules [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
+  <base href="rules.html" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+
+<body id="page_bg" class="width_fmax">
+		
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                                
+                                        <div id="header_r">
+						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+						<div id="topmenu">
+						</div>
+			<div id="leftcolumn">	
+						<table id="greenborder"><tbody>
+								<tr><td valign="top">
+<center>
+<h1>OpendTect software development rules</h1>
+<a href=#intro>Intro</a>
+| <a href=#reqs>Requirements</a>
+| <a href=#explrules>Explicit rules</a>
+| <a href=#fromhere>Where to go from here</a>
+</center>
+<br>
+
+<a name="intro"><h2 id="heading2">Intro</h2></a>
+
+<p id="text">
+Software engineering is a game of trade-offs. Performance vs generality,
+flexibility vs stability, priorities vs general goals, and so on,
+and so on. A good software engineer weighs all pros and cons and comes up
+with (near-)optimal solutions, often trying to get the best of everything.
+Of course, in fact, sometimes things can be completely ignored (e.g. in dialog-UI's performance is seldomly an issue).
+</p>
+
+<h3 id="heading3">Goals</h3>
+<p id="text">
+When creating and maintaining software code, invariably one wonders what
+choice will come out optimally. To define 'optimal', we have to define the
+goals we want to maximise. The most obvious is:
+<br>
+<b>(1) Total time spent (man-hours)</b>
+<br>
+Less obvious, but also very important is:
+<br>
+<b>(2) Total programming pleasure</b>
+<br>
+The issue is that we software developers have to 'live' in the code, for many
+hours each day. Nothing is more dissatisfying than to have to go through code
+that looks like crap, even though the code may be working. Not being able to
+find what you need, is another issue. Too complex code, too.
+
+Finally, maybe an item not really fitting in the list, but still:
+<br>
+<b>(3) Team-readyness</b>
+<br>
+If you find pleasure in typing 15-level '?'-statements - so be it. If your
+entire team likes it there is no problem either. But chances are you will be
+crucified by your team members when they have to do anything with your code.
+</p>
+
+<br>
+<a name="reqs"><h2 id="heading2">Requirements</h2></a>
+<h3 id="heading3">Nice and neat</h3>
+<p id="text">
+Good code should look good. You have to find joy in making the things you
+deliver look as good as (reasonably) possible, and as easy to understand
+as possible.
+
+Compare these two class definitions:
+
+<code><pre id="code">
+class SizeKeeper
+{
+public:
+		SizeKeeper() : sz_(0)		{}
+
+    int		size() const			{ return sz_; }
+    void	setSize( int n )		{ sz_ = n; }
+
+protected:
+
+    int		sz_;
+};
+</code></pre>
+<p id="text">and:
+<code><pre id="code">
+class X { public: X() : n(0) {}
+protected: int n;
+public: int N() const { return n; } void sn(int p) { n = p; } };
+</code></pre>
+</p>
+<p id="text">
+The second class definition looks like crap, and is difficult to understand,
+especially when you imagine the code where the class is used. Maybe the first
+definition isn't that clear for everybody immediately at the start, but it's
+easy to see that once you get used to the style, it will be easy and fun to
+work with this kind of code.
+</p>
+<p id="text">
+For this to work, a team must agree on a style. The style characteristics are
+chosen so they match the requirements of esthetics/pleasure and time
+minimisation.
+</p>
+<p id="text">
+It may look like the second class definition has an advantage over the first
+in the time spent creating it. Nothing is more true. Time in software
+development is spent on many things, and actually typing the code is just a
+tiny component:
+<ul id="bullets">
+<li>Time spent typing</li>
+<li>Time spent thinking/designing/creating
+<li>Time spent changing</li>
+<li>Time spent understanding</li>
+<li>Time spent reworking</li>
+<li>Time spent debugging</li>
+</ul>
+<p id="text">For most practical purposes, the influence of typing time on the total time
+spent can be neglected.
+</p>
+<p id="text">
+That leads to an important principle:
+<br>
+<b>Rule (1): Make your code look good right from the start.</b>
+<br>
+Waiting for a clean-up stage is a serious mistake. Already during creation of
+the software, from the very start, the effects of sloppy code will hit you
+where it hurts. Even if you have to re-type sections 10 times, it is better to
+have the code really neat at all times. Only then you can see that the
+re-working is necessary. The earlier you detect that constructions are not
+intuitive, logical, and easy to understand the earlier you detect that your
+code is actually <b>bad</b>.
+</p>
+
+
+<h3 id="heading3">Uniform</h3>
+<p id="text">
+This is not a point to be taken lightly. Other team members <b>will</b> at
+some point have to change your code, other team members <b>will</b> at some
+point have to debug your code.
+Uniformity makes sure this is as easy as possible. Remember
+this: changing code you haven't made yourself is never easy, so do everything
+you can to help your team members. Moreover, changing code you've made some
+time ago is never easy, so you're even doing it for yourself.
+</p>
+<p id="text">
+The implications are simple although a lot of programmers have a lot of
+problems with it:
+<br>
+<b>Rule (2): Make your code look just like all the other code.</b>
+<br>
+Combining (1) and (2) could casually be described as: make sure all team
+members feel at home in your code at all times.
+</p>
+
+<h3 id="heading3">Simple &amp; Easy</h3>
+<p id="text">
+Any complex process can be broken up into simple steps, any complex object can
+be broken up into simple objects. Always consider yourself as publishing
+something that needs to be read by others. Take them by the hand and make it
+easy to understand what you are doing, and why you are doing it. Avoid
+repetitions, complex constructions or long lines. Make things compact if that
+will make things clearer, or uncompact if needed.
+</p>
+<p id="text">
+The best code you will ever make will invariably look as if it has cost hardly
+any time to make. Like good dancers make it look like there is no effort
+involved, an excellent solution always looks simple, compact and easy to use.
+</p>
+
+<br>
+<a name="explrules"><h2 id="heading2">Explicit rules</h2></a>
+
+<p id="text">
+The way we do things in OpendTect is not a 100% fixed body of rules. Moreover,
+we tend to say 'rather do this than that', or sometimes we change our point of
+view. Still, we almost unanimously agree on almost every issue. To lower the
+time to discover how we do things, next to going through lots of code, you can
+make use of the rules that follow.
+</p>
+
+
+<h3 id="heading3">OO and general rules</h3>
+
+<p id="text">
+<ul id="bullets">
+<li>Try to avoid pure implementation inheritance. Inheritance of 'mainly
+interface' is usually OK. In all cases, ask yourself whether there really is a
+'isA' relation between the classes. Prefer delegation in any doubt.
+</li>
+<li>Be very aware of dependency management. Avoid using services from classes
+that were designed for something else. In doubt, split that class into the
+common part and the part that you are not interested in.
+</li>
+<li>Anything adding to the complexity has to be justified. Don't use patterns
+or other nifty tricks without a <b>good</b> reason. Certainly, there are often
+good reasons. Factories for example are almost always there for a good reason.
+But, always ask yourself: is it worth the extra effort? The simple alternative
+may not be as flexible, but do I really need that extra flexibility?
+</li>
+<li>Do not implement anything that isn't used (yet). Don't go for 'complete
+classes' or that kind of mumbo-jumbo. Figure out which methods are indispensible
+(like copy constructors) and then add functions when they are needed. Things
+that seem to be sure to be used tend to never be used, instead they add to the
+burden of the maintainer. Sometimes pre-cooked stuff is removed in a re-work
+without ever being used. On the other hand, if you think something is needed
+later, you need to design the interface in such a way that if necessary, it
+is not unnecessarily hard to add. 'Prepare, don't implement'.
+</li>
+<li>Jokes and surprises are <b>not</b> funny. They may seem
+to you at the time but they are not. A mildly ironic comment once a year should be enough.
+</li>
+</ul>
+</p>
+
+
+<h3 id="heading3">C++ rules</h3>
+
+<p id="text">
+<ul id="bullets">
+<li>We do not use exceptions. Exceptions are the horror story of C++, try
+looking at C++ report, November-December 1994, Tom Cargill: "Exception
+handling: A false sense of security". There are more reasons, for example that
+you have to use a certain paradigm throughout: RAII (Not a bad principle but
+not always easy to do and never enforcable). If you want to I can explain a
+lot of those reasons by e-mail. The bottom line is: don't use exceptions.
+External software using exceptions must be isolated with
+<code>try { } catch (...) {}</code>.
+</li>
+<li>We are not using the STL stuff and the std::string class. This is not
+because we don't like it, but more because we don't see the need. Using this
+is not a problem but will not work well with the rest of the system so in
+general the classes are not used. For external software try moving to our own
+classes as quickly as possible and beware of problems with exceptions.
+</li>
+<li>All code must be const-correct except in specific areas where that would not
+give any gain: there it's optional. Learn the subtleties of const in various
+places. Don't cast away const unless you are certain about it, consider the
+possibility you need to use 'mutable'. Caching variables etc. should always
+be declared mutable. In OD, GUI classes and classes working with legacy stuff
+can be non-const correct. We do make them const-aware, which means they
+smoothly work together with classes that are const-correct.
+</li>
+<li>Operator overloading can be used very sparingly, in situations of simple
+classes with absolutely trivial usage. In any doubt, don't use it. It does
+more harm (sometimes a lot more) than it returns benefit. Even the ubiquitous
+examples like matrix calcutations are almost surely better made with good
+old-fashioned method calls.
+</li>
+<li>In cases that you don't know whether a language feature can be used,
+do <b>not</b> give the feature the benefit of the doubt. You can always ask your
+team members first. A C++ language feature should only be used if you can prove that it is useful, clear, fitting in our style and not easily possible with other means.
+</li>
+<li>We increasingly try to use name spaces. In many places namespaces should
+have been used and this is a legacy problem which we want to gradually get
+rid of.
+</li>
+<li>Do not pollute with things that are not C++, like M$-windows directives. If
+absolutely unavoidable design a strategy to minimise the impact of these
+horrible things.
+</li>
+<li>Consider implementing in a header file only if unavoidable (templates), or:
+  <li>Is the implementation stable? If not, dependencies will trigger each time the implementation is changed.
+ </li>
+ <li>The implementation must be completely trivial or useful for a reader. In the latter case, it replaces comments with something that is fundamentally up-to-date.
+ </li>
+ <li>The space taken may not be huge - then implement in the .cc file anyway.
+ </li>
+ </ul>
+</p>
+
+<h3 id="heading3">Semantical/typographical rules</h3>
+<p id="text">
+First of all: the naming of classes, variables, namespaces, etc. is
+<b>extremely</b> important. You want to optimise understandability and
+compactness, in doubt always go for understandability. Naming should be as
+intuitive as possible. If you cannot find an intuitive name, consider the
+possibility that your design is not right. Well designed classes and methods
+hardly ever have non-intuitive names. If you are really convinced you're right
+but still you can't find anything intuitive, make sure you explain the meaning
+in comments.
+
+<ul id="bullets">
+<li>Classes and name spaces have a well-chosen name. Very well chosen. Do not
+rest before you have a name that really suits the class well. Name spaces tend
+to have short names, classes tend to be longer. If you cannot find a good
+name you probably have to split up or redefine the class. Typographically,
+every syllable of the class/namespace name starts with an upper case character.
+</li>
+<li>Class methods also need carefully designed names. First of all, we have
+adopted the early Smalltalk rules:
+* First syllable: all lower case
+* further syllables: start with upper case.
+Then, how the method is named is dependent on what it does. The rule is that
+the resulting code must read as if it is English text, and that it does what it
+says. most often verbNoun is OK. Bad are:
+<ul id="bullets">
+<li>bool moderator() - bool functions must be usable directly in 'if' or '?'
+statements. Imagine 'if ( moderator() )'. Depending on what it does, consider
+'isModerator()' or 'moderate()'.
+<li> void wordChanger() - a word changer could be an object but not a function.
+Consider 'changeWord()' or 'changeWords()' or a re-design.
+<li>int applesAndPears() - what does this thing do? Make sure there is at least
+one verb.
+</ul>
+</li>
+<li>Variables are in lowercase. Class members should get an underscore at the
+end, further variables should generally be free of underscores. Special cases
+are Keys, 'hard' constants and Notifier names. There is a namespace 'sKey' and
+there are variables 'sKeyXxx' for key strings. Examples are 'sKey::Yes' and
+'sKeyTraceLength'. Hard constants are like 'cMaxNrPatches'. Notifiers are
+defined in Basic/callback.h.
+</li>
+<li>Macros are like constants but with prefix 'm': 'mErrRet(msg)'. As usual,
+inline funtions, constants and templates are preferred but macros are still
+indispensible in real C++.
+</li>
+</ul>
+</p>
+
+<h3 id="heading3">Layout</h3>
+<p id="text">
+No other subject brings up this many discussions. While it's simple: choose
+a policy and stick to it. The end result is what counts: readability,
+compactness, understandability. Thus all rules can be broken if it really helps
+those properties, but they rarely are.
+</p>
+<p id="text">
+
+<ul id="bullets">
+<li><b>Indentation:</b><br>
+
+	4 spaces per level, 8 spaces = one tab.
+	Use tabs whenever possible, also inside a line.
+</li>
+<li><b>Alignment:</b><br>
+
+	The maximum number of characters on one line is 80. So when you exceed
+	this number, start on the new line with a couple of tabs. Align
+	function arguments as much as possible.
+	<code><pre>
+		MyClass::functionWithLongName( const char* arg1,
+					       const char* arg2 ) const
+	</pre></code>
+
+	When implementing functions in header files, align the
+	implementations.
+	<code><pre>
+		getPtr() const		{ return ptr; }
+		getValue() const	{ return val; }
+	</pre></code>
+</li>
+<li><b>Braces '{ }':</b><br>
+
+	On a line by themselves.
+	<code><pre>
+		if ( b )
+		{
+		    stmt1();
+		    stmt2();
+		}
+	</pre></code>
+	Single statements need not be braced.
+	<code><pre>
+		if ( b )
+		    stmt1();
+	</pre></code>
+	Two or three small statements may be packed on one line with braces.
+	<code><pre>
+		if ( b )
+		    { stmt(); return; }
+	</pre></code>
+</li>
+<li><b>Parentheses:</b><br>
+
+	Pad with a space on both sides, except when this would make things
+	unclear because it would become too spacy.
+	<code><pre>
+		if ( x )
+		if ( (x && y) || (z1 && z2) )
+	</pre></code>
+</li>
+<li><b>Array brackets:</b><br>
+	No space between array and first bracket. Pad index if that makes
+	things more clear.
+	<code><pre>
+		x = arr[0];
+	</pre></code>
+</li>
+<li><b>Equality-type operators:</b><br>
+	Pad with spaces, unless it really helps seeing the grouping.
+	<code><pre>
+		if ( a == b )
+		x = 15;
+	</pre></code>
+	If more clear, use:
+	<code><pre>
+		if ( c&lt;d && e&gt;f )
+	</pre></code>
+	rather than:
+	<code><pre>
+		if ( c &lt; d && e &gt; f )
+	</pre></code>
+</li>
+<li><b>Semicolons:</b><br>
+	Attach to last character of statement:
+	<code><pre>
+		doIt();
+		for ( int idx=0; idx<10; idx++ )
+	</pre></code>
+</li>
+<li><b>'?'-statements:</b><br>
+	Use only and always if the same thing must be done or used depending
+	on a condition:
+	<code><pre>
+		return isOK() ? 10 : 20;
+		x = a > 10 ? 10 : a;
+		prTxt( isOK() ? "Yes" : "No" );
+	</pre></code>
+</li>
+<li><b>Class declarations:</b><br>
+	Just look at examples, but a nice template may be:
+
+	<code><pre>
+class Y;
+class Z;
+
+namespace X
+{
+
+class A : public B
+{
+public:
+			A( const C& c )
+			: B(c)
+			, var_(0)		{}
+
+    enum Type		{ T1, T2 };
+    void		setType(Type);
+
+    bool		isNice() const		{ return true; }
+    bool		isOK(float) const;
+    			//!< will not handle values < 0 well!
+
+    void		doIt(int base_count,const Y&);
+
+protected:
+
+    float		var_;
+
+private:
+
+    void		init();
+    friend class	Z;
+
+};
+	</pre></code>
+Remarks:
+<ul id="bullets">
+<li>The tab alignment can be 2, 3 or 4 tabs, dependent on the length of things.
+</li>
+<li>functions implemented immediately get a normal space padding for the
+arguments. Functions only declared get no padding for the arguments.
+Put variable names only if it adds to the understanding.
+</li>
+<li>Comments can help but can also make things a mess. Use them sparingly, only to clearly specify what a method does, or to indicate pre-conditions etc.
+</li>
+</li>
+</ul>
+</ul>
+</p>
+
+<br>
+<a name="fromhere"><h2 id="heading2">Where to go from here</h2></a>
+<p id="text">
+From now on, new code will be as described above. What to do if the code
+you're changing is not good according to these standards? That depends on the
+amount of work vs the amount of time vs the importance of the deviation.
+</p>
+
+<h3 id="heading3">Adapting code</h3>
+<p id="text">
+The rules are:
+<ul id="bullets">
+<li>Make sure the code is, after you're done with it, 'internally consistent'.
+For example, when adding a member to a class with already 20 members without
+an underscore you will likely add a member without an underscore, rather than
+changing all the other members. In no case make your new member the only one
+with an underscore. That is even more confusing to the reader of the .cc code.
+</li>
+<li>If you doubt whether to re-do parts, give changing it the benefit of the
+doubt unless it's really horribly dangerous to do so. But the rule is:
+In doubt =&gt; Change.
+</li>
+<li>Functions or members that seem to be unused but non-trivial: always try
+removing them or flagging them with messages (e.g. copy constructors and the
+like will be made by the compiler after you remove them and then you still
+don't know whether they are used). An unused non-trivial fuction must be
+considered 'unbearable' (see next item).
+</li>
+<li>Some things are 'unbearable'. Unbearably bad naming. Spaces instead of tabs. Unused code. Replace this kind of stuff where you see it. If these things happen too much, consider asking the producer of the crap to remove it him/herself.
+</li>
+</ul>
+</p>
+
+<br>
+
+<p>
+<center>
+  <a href="index.html">Index</a>
+| <a href="overview.html">Overview</a>
+| <a href="http://www.opendtect.org">opendtect.org</a>
+</center>
+</p>
+ 
+										
+</td></tr>
+
+			 </font>
+						 </tbody>
+			 </table>
+				 </div>
+			 <div id="footer">
+			 </div>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+ </body>
+ </html>

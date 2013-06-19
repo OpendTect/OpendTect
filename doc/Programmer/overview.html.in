@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb" dir="ltr" >
+<!--
+  - CopyRight:	(C) dGB Earth Sciences
+  - Author:	A.H. Bril
+  - Date:	Oct 2003
+  - Contents:	Overview of programmer doc
+  - RCS:	$Id$
+ -->
+		
+	<head>
+		<base href="overview.html" />
+		<title>Overview [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+
+<body id="page_bg" class="width_fmax">
+		
+<div id="all">
+        <div id="wrapper">
+                <div id="wrapper_r">
+<div id="header">
+                                <div id="header_l">
+                                
+                                        <div id="header_r">
+						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+						<div id="topmenu">
+						</div>
+			<div id="leftcolumn">	
+						<table id="greenborder"><tbody>
+								<tr><td valign="top">
+<center>
+<h1>OpendTect overview</h1>
+  <a href=#intro>Intro</a>
+| <a href=#modules>Modules</a>
+| <a href=#starting>Starting</a>
+</center>
+<br>
+
+
+<a name="intro"><h2 id="heading2">Intro</h2></a>
+
+<h3 id="heading3">Very short</h3>
+<p id="text">OpendTect:</p>
+<ul id="bullets">
+<li>Is <a href=#why_cpp>in C++</a> and a tiny bit of C
+<li>Uses <a href=http://cmake.org>CMake</a>, which makes it easy to port across platforms
+<li>Is built with <a href=#design_principles>design principles</a> and strict <a href=#separation>separations</a> of functionality
+<li>Uses exclusively <a href=#opensrc>open source tools</a>
+<li>Can be extended using <a href="plugins.html">plugins</a>
+</ul>
+
+<a name="why_cpp"><h3 id="heading3">C++</h3></a>
+<p id="text">
+OpendTect is a C++-based environement. A couple of years ago, C++ was declared dead by many as a result of the Java hype. In some areas, Java is indeed far better suited. In our part of the world (geosciences, in particular geophysics-related), we don't think Java can match the advantages of C++: Fast yet flexible, Low-level yet supporting high-level OO constructs. And, we would be terrified having to program without templates.
+</p><p id="text">
+That doesn't mean that programming in C++ automagically delivers good software, and neither that performance comes easy. Those are some of the things that can be reached by a good design.
+</p>
+
+<a name="design_principles"><h3 id="heading3">Design principles</h3></a>
+<p id="text">
+There are many aspects of software that can be categorised as 'good'. These include robustness, flexibility, high performance, compactness, maintainability, understandability. Software engineering is all about making choices - every aspect costs resources and there's always a limit to that. So, even if one tries to optimise all 'good' aspects, there will be different degrees of emphasis on each of them.</p><p id="text">
+As OpendTect was developed in a research-minded environment, flexibility is a high priority. The Object-Oriented toolkit delivers many tricks to make software more flexible. Some of these tricks nowadays have labels - 'Design patterns' - like the ones in the 'Design Patterns' book (Factories,Singletons,etc.). Many constructs in the software are fit to match the problem though, always with a number of design principles in mind:</p>
+<ul id="bullets">
+<li><a href=http://en.wikipedia.org/wiki/Open_Closed_Principle>OCP</a> <i>Open/Closed</i>: classes and modules should be open for extension, but closed for modification.
+<li><a href=http://en.wikipedia.org/wiki/Single_responsibility_principle>SRP</a> <i>Single responsibility</i>: only one class or module does one thing well and complete.
+<li><a href=http://en.wikipedia.org/wiki/Liskov_Substitution_Principle>LSP</a> <i>Substititutability</i>: inheritance for interfaces makes classes substitutable.
+<li><a href=http://en.wikipedia.org/wiki/Dependency_inversion_principle>DIP</a> <i>Dependency inversion</i>: depending on abstract base classes inverts dependencies from high-level on low-level into dependency on stable high-level abstractions.
+<li><a href=#dif>DIF</a> <i>Don't Implement the Future</i>: All source code present should actually be used now.
+<li><a href=#nbs>NBS</a> <i>No BullShit</i>: Create constructs if needed, not because they're cool or anything.
+</ul>
+<p id="text">The last two are, [cough] of our own making. <a name=dif>DIF</a> ensures that there are no large amounts of unused code lying around to be maintained, <a name="nbs">NBS</a> delivers a system that is as simple as possible given the constraints.</p>
+</p>
+<p id="text">You may also want to look at the <a href="rules.html">design/coding rules</a>.</p>
+<a name="isolation"><h3 id="heading3">Isolation of external services</h3></a>
+<p id="text">
+When services from another package (Qt, COIN, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
+</p><p id="text">
+There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. And, we may not like the form in which the services are presented; moreover, the data structures used in the external package seldomly fit nicely with ours.
+</p><p id="text">
+To overcome all this, and get a nice insulation at the same time, all external services are embedded in service layers that:</p>
+<ul id="bullets">
+<li>Do exactly what we need
+<li>Don't expose the external package's header files
+<li>Use data structures that are common in OpendTect
+</ul><p id="text">
+Isolation like this is present for a variety of subjects, from threads, sockets, file handling to User Interface building and Data loading.
+</p>
+<a name="opensrc"><h3 id="heading3">Open source</h3></a>
+<p id="text">
+OpendTect is based on a couple of external packages, which are mostly open source. These include:</p>
+<ul id="bullets">
+<li>Qt from <a href="http://www.digia.com">Digia</a>
+<li>Coin from <a href="http://www.sim.no">SIM</a>
+<li>GNU tools (gmake, gcc) from <a href="http://www.fsf.org">FSF</a>
+<li>CMake from <a href="http://cmake.org">CMake.org</a>
+<li>Doxygen from <a href="http://www.doxygen.org">Doxygen</a>
+</ul>
+
+
+<br><br>
+<a name="modules"><h2 id="heading2">Modules</h2></a>
+<h3 id="heading3">Intro</h3>
+<p id="text">
+A group of classes that handle a certain area of our domain is what could be called a module. Sometimes these modules have their own namespace, most often not (sometimes because the code pre-dates good support of namespaces by gcc). In any case, it does correspond with two physical directories in the source tree: include/module_name and src/module_name. Thus earth model related classes go in the <code>EarthModel</code> directories.</p>
+</p><p id="text">
+<a name="separation"><h3 id="heading3">The separation</h3></a>
+<p id="text">The separation of <code>include</code> and <code>src</code> is first of all a visibility issue. The <code>include</code> files can be 'seen' by other modules, the <code>src</code> files not. Conceptually, the separation is roughly interface versus implementation. Roughly, because small functions are often implemented in the header file.
+</p><p id="text">
+Another separation that is very important is between <a href=#uimodules>UI-</a> and <a href=#rwmodules>'Real Work'</a> modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user interface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (COIN/OpenInventor-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
+</p><p id="text">
+Making all these modules as opposed to just dumping everything in one big directory does have the effect that it becomes necessary to precisely know what's dependent on what. That's exactly what's described in the <code>data/ModDeps.od</code> file. This file is used by OpendTect to automatically load module libraries.
+</p>
+<a name="rwmodules"><h3 id="heading3">RW modules</h3></a>
+<p id="text">
+First of all, there are the <code>Basic</code>, <code>Algo</code> and <code>General</code> modules. <code>General</code> depends on <code>Algo</code>, which in turn depends on <code>Basic</code>. The separation is a bit arbitrary, and the idea was that <code>Basic</code> would be tools also usable outside OpendTect. It's easy to find a counterexample like survinfo which was placed there to provide other <code>Basic</code> classes with good defaults.
+</p><p id="text">
+In any case, <code>Basic</code> handles basic stuff like file-related, extra string utils, Ascii keyword-value files, positions (coords, inline/crossline), our own 'string' class the <code>BufferString</code> (not just a relict: it works better with C environments), sets: <code>TypeSet</code>, <code>ObjectSet</code> and <code>BufferStringSet</code>, OS dependent things like threads, stream opening, and a variety of basic algorithms.
+</p><p id="text">
+<code>Algo</code> is for, well, Algorithmic stuff. <code>General</code> handles all sorts of things, like fast dynamic large N-D arrays (<code>ArrayND</code> etc.), the CBVS format for volumestorage, the <code>IOObj</code>, <code>IOMan</code> and other data store related classes, <code>Translators</code> enabling different formats, transforms and a few more things.
+</p><p id="text">
+The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Seis</code> etc. will be recognised by a geoscientist. There's also the <code>Attribute</code> and <code>AttributeEngine</code>, the seismic attribute modules, and the engine that does the work.
+</p>
+
+<a name="uimodules"><h3 id="heading3">UI modules</h3></a>
+<p id="text">
+For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules <code>uiBase</code>, <code>uiTools</code> and <code>uiIo</code>, the basic 3D visualisation module visBase and the basic combined stuff in <code>uiCoin</code>. On top of everything is the UI application logic in <code>uiODMain</code>.
+</p><p id="text">
+The <code>uiBase</code> module is one of the two modules that access Qt services. Where <code>uiCoin</code> specifically handles the bridge bewteen Qt and COIN, <code>uiBase</code> is Qt only. These two are therefore <a href=#isolation>isolation layers</a>. <code>uiBase</code>'s main task is to provide access to Qt widgets and implement the dynamic layout concept. In short, the OpendTect user interface was not painted with a paint tool, but rather programmed by attaching elements to each other. See the <a href="Generated/uiBase/index.html">uiBase class documentation</a>.
+</p><p id="text">
+The <code>uiTools</code> module depends on <code>uiBase</code> only. It provides some general UI elements from the <code>uiBase</code> basic objects. Most notably, the <a href="Generated/uiTools/classuiGenInput.html#_details">uiGenInput</a> class, providing generalised data input.
+</p><p id="text">
+The <code>uiIo</code> module is intended mainly for object selection (in the data store).
+</p><p id="text">
+The COIN-based visualisation services are made available in the <code>visBase</code> layer. Based on that, <code>visSurvey</code> delivers OpendTect-specific functionality.
+</p><p id="text">
+It all comes together in the <code>uiODMain</code> module. Being the top level module it is dependent on all other modules. To keep the amount of knowledge contained in this module low, much of the functionality is obtained from the 'UI Part servers'. For example, the <code>uiSeisPartServer</code> is the isolation class for all seismic-related user interface work. The <code>uiODApplMgr</code> object is only coordinating the flow of information between the various part servers.
+</p>
+
+<br><br>
+<a name="starting"><h2 id="heading2">Starting the programming</h2></a>
+
+<h3 id="heading3">Precondictions</h3>
+<p id="text">
+Before you start, get a good development environment by using the 'Utilities-Create Devel. Env.' menu. When that's finished, you must run CMake. Then you should be able to start developing right away.
+</p>
+
+<h3 id="heading3">Making it happen</h3>
+<p id="text">
+Along the way, you'll have to do some digging in the include directory or the class documentation to figure out what services are available. You probably won't want to miss the info from the <a href="unix.html">UNIX</a> or <a href="windows.html">windows</a> instruction documentation. The <a href="plugins.html">plugin manual</a>, well, see for yourself. If all you want to do is make batch programs, try <a href="batchprogexample/index.html">batch program doc</a>. And if all else fails, you may even consider sending an e-mail to support@opendtect.org .
+</p>
+
+<br>
+
+<p>
+<center>
+  <a href="index.html">Index</a>
+| <a href="rules.html">Rules</a>
+| <a href="plugins.html">Plugins</a>
+| <a href="unix.html">UNIX</a>
+| <a href="windows.html">MS Windows</a>
+| <a href="http://opendtect.org">opendtect.org</a>
+</center>
+</p>
+										
+</td></tr>
+
+			 </font>
+						 </tbody>
+			 </table>
+				 </div>
+			 <div id="footer">
+			 </div>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+ </body>
+ </html>
