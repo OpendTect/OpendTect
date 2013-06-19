@@ -33,7 +33,7 @@ DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 };
 
 
-static const float deftimestep = 0.004f;
+static const float deftimestep = 0.004;
 
 
 AngleComputer::AngleComputer()
@@ -43,32 +43,16 @@ AngleComputer::AngleComputer()
     , trcid_(trcid_.std3DGeomID(),0,0)
 {
     maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
-//    setDefaultWindowedSmoother();
-    setFFTSmoother( 30.f, 40.f );
+    iopar_.set( sKeySmoothType(), TimeAverage );
+    iopar_.set( sKeyWinFunc(), HanningWindow::sName() );
+    iopar_.set( sKeyWinParam(), 0.95f );
+    iopar_.set( sKeyWinLen(), 125 );
 }
 
 
 AngleComputer::~AngleComputer()
 {
     delete raytracer_;
-}
-
-
-void AngleComputer::setDefaultWindowedSmoother()
-{
-    iopar_.set( sKeySmoothType(), WindowedAverage );
-    iopar_.set( sKeyWinFunc(), HanningWindow::sName() );
-    iopar_.set( sKeyWinParam(), 0.95f );
-    iopar_.set( sKeyWinLen(), 125 );
-
-}
-
-
-void AngleComputer::setFFTSmoother( float freqf3, float freqf4 )
-{
-    iopar_.set( sKeySmoothType(), FFTFilter );
-    iopar_.set( sKeyFreqF3(), freqf3 );
-    iopar_.set( sKeyFreqF4(), freqf4 );
 }
 
 
@@ -315,7 +299,7 @@ Gather* AngleComputer::computeAngleData()
     int smtype;
     iopar_.get( sKeySmoothType(), smtype );
 
-    if ( smtype == WindowedAverage )
+    if ( smtype == TimeAverage )
 	averageSmooth( angledata );
     else if ( smtype == FFTFilter )
 	fftSmooth( angledata );
