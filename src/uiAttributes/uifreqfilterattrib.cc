@@ -133,7 +133,7 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
     {
 	bool costaper = !strcmp(tap->windowName(),"CosTaper");
 	Interval<float> frg( freqfld->freqRange() );
-	if ( costaper ) { frg.start-=5; frg.stop+=5; }
+	if ( costaper ) { frg.start-=5; frg.stop+=10; }
 	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
 	tap->setInputFreqValue( frg.stop , 1 );
     }
@@ -173,11 +173,11 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
     {
-	mIfGetFloat( FreqFilter::highfreqparamvalStr(), highfreqvalue,
-	    const float res = float( highfreqvalue) ;
+	mIfGetFloat( FreqFilter::freqf1Str(), freqf1,
+	    const float res = float( freqf1) ;
 	    taper->setInputFreqValue( res, 0 ) ); 
-	mIfGetFloat( FreqFilter::lowfreqparamvalStr(), lowfreqvalue,
-	    const float res = float( lowfreqvalue );
+	mIfGetFloat( FreqFilter::freqf4Str(), freqf4,
+	    const float res = float( freqf4 );
 	    taper->setInputFreqValue( res, 1 ) ); 
     }
     mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
@@ -220,8 +220,8 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
 	const bool istaper = !strcmp(winflds[1]->windowName(),"CosTaper");
 	freqresvar.start = istaper ? (freqresvar.start) : freqrg.start; 
 	freqresvar.stop = istaper ? (freqresvar.stop) : freqrg.stop; 
-	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
-	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );
+	mSetFloat( FreqFilter::freqf1Str(), freqresvar.start );
+	mSetFloat( FreqFilter::freqf4Str(), freqresvar.stop );
     }
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
     mSetBool( FreqFilter::isfreqtaperStr(), freqwinselfld->isChecked() );

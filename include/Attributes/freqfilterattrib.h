@@ -53,10 +53,10 @@ public:
     static const char*  isfftfilterStr()        { return "isfftfilter"; }
     static const char*  isfreqtaperStr()        { return "isfreqtaper"; }
     static const char*  windowStr()             { return "window"; }
-    static const char*  fwindowStr()             { return "fwindow"; }
+    static const char*  fwindowStr()            { return "fwindow"; }
     static const char*  paramvalStr()           { return "paramval"; }
-    static const char*  highfreqparamvalStr()   { return "highfreqparamval"; }
-    static const char*  lowfreqparamvalStr()    { return "lowfreqparamval"; }
+    static const char*  freqf1Str()		{ return "highfreqparamval"; }
+    static const char*  freqf4Str()		{ return "lowfreqparamval"; }
     static const char*  filterTypeNamesStr(int);
 
 protected:
@@ -85,14 +85,12 @@ protected:
     ArrayNDWindow*              window_;
     BufferString                windowtype_;
     float                       variable_;
-    float                       highfreqvariable_;
-    float                       lowfreqvariable_;
+    float                       freqf1_;
+    float                       freqf4_;
 
     Interval<int>		zmargin_;
 
     Array1DImpl<float_complex>  signal_;
-    Array1DImpl<float_complex>  timedomain_;
-    Array1DImpl<float_complex>  timecplxoutp_;
     
     const DataHolder*		redata_;
     const DataHolder*		imdata_;

@@ -63,39 +63,39 @@ void FreqFilter::initClass()
     desc->addParam( nrpoles_ );
 
     BoolParam* isfftfilter_ = new BoolParam( isfftfilterStr() );
-    isfftfilter_->setDefaultValue( false );
+    isfftfilter_->setDefaultValue( true );
     desc->addParam( isfftfilter_ );
 
     StringParam* window_ = new StringParam( windowStr() );
     window_->setDefaultValue( "CosTaper" );
     desc->addParam( window_ );
 
-    StringParam* fwindow_ = new StringParam( fwindowStr() );
-    fwindow_->setDefaultValue( "CosTaper" );
-    fwindow_->setRequired( false );
-    desc->addParam( fwindow_ );
-
     FloatParam* variable_ = new FloatParam( paramvalStr() );
-    const float defval = 0.95;
+    const float defval = 0.95f;
     variable_->setDefaultValue( defval );
     variable_->setRequired( false );
     desc->addParam(variable_);
     
     BoolParam* isfreqtaper = new BoolParam( isfreqtaperStr() );
-    isfreqtaper->setDefaultValue( false );
+    isfreqtaper->setDefaultValue( true );
     desc->addParam( isfreqtaper );
+
+    StringParam* fwindow_ = new StringParam( fwindowStr() );
+    fwindow_->setDefaultValue( "CosTaper" );
+    fwindow_->setRequired( false );
+    desc->addParam( fwindow_ );
     
-    FloatParam* highfreqval = new FloatParam( highfreqparamvalStr() );
-    const float hdefval = 10;
-    highfreqval->setDefaultValue( hdefval );
-    highfreqval->setRequired( false );
-    desc->addParam(highfreqval);
+    FloatParam* freqf1_ = new FloatParam( freqf1Str() );
+    freqf1_->setLimits( Interval<float>(0,mUdf(float)) );
+    freqf1_->setDefaultValue( 10 );
+    freqf1_->setRequired( false );
+    desc->addParam( freqf1_ );
     
-    FloatParam* lowfreqval = new FloatParam( lowfreqparamvalStr() );
-    const float lfreqval = 55;
-    lowfreqval->setDefaultValue( lfreqval );
-    lowfreqval->setRequired( false );
-    desc->addParam(lowfreqval);
+    FloatParam* freqf4_ = new FloatParam( freqf4Str() );
+    freqf4_->setLimits( Interval<float>(0,mUdf(float)) );
+    freqf4_->setDefaultValue( 60 );
+    freqf4_->setRequired( false );
+    desc->addParam( freqf4_ );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -139,50 +139,40 @@ void FreqFilter::updateDesc( Desc& desc )
 FreqFilter::FreqFilter( Desc& ds )
     : Provider( ds )
     , fftsz_(-1)
-    , minfreq_(0)		   
-    , maxfreq_(0)		   
+    , minfreq_(mUdf(float))
+    , maxfreq_(mUdf(float))
+    , nrpoles_(mUdf(float))
     , signal_(0)
-    , timedomain_(0)
-    , timecplxoutp_(0)
     , window_(0)
     , windowtype_(0)
-    , variable_(0)
-    , highfreqvariable_(0)
-    , lowfreqvariable_(0)
+    , variable_(mUdf(float))
+    , freqf1_(mUdf(float))
+    , freqf4_(mUdf(float))
 {
     if ( !isOK() ) return;
 
     mGetEnum( filtertype_, filtertypeStr() );
-    
-    if ( filtertype_ == FFTFilter::LowPass )
-    {
-	mGetFloat( maxfreq_, maxfreqStr() );
-    }
-    else if ( filtertype_ == FFTFilter::HighPass )
-    {
+    if ( filtertype_ != FFTFilter::LowPass )
 	mGetFloat( minfreq_, minfreqStr() );
+
+    if ( filtertype_ != FFTFilter::HighPass )
+	mGetFloat( maxfreq_, maxfreqStr() );
+
+    mGetBool( isfftfilter_, isfftfilterStr() );
+    if ( isfftfilter_ )
+    {
+	if ( filtertype_ != FFTFilter::LowPass )
+	    mGetFloat( freqf1_, freqf1Str() );
+
+	if ( filtertype_ != FFTFilter::HighPass )
+	    mGetFloat( freqf4_, freqf4Str() );
+
+	mGetString( windowtype_, windowStr() );
+	mGetFloat( variable_, paramvalStr() );
     }
     else
-    {
-	mGetFloat( maxfreq_, maxfreqStr() );
-	mGetFloat( minfreq_, minfreqStr() );
-    }
+	mGetInt( nrpoles_, nrpolesStr() );
 
-    mGetInt( nrpoles_, nrpolesStr() );
-    mGetBool( isfftfilter_, isfftfilterStr() );
-
-    mGetString( windowtype_, windowStr() );
-    mGetFloat( variable_, paramvalStr() );
-    mGetFloat( highfreqvariable_, highfreqparamvalStr() );
-    mGetFloat( lowfreqvariable_, lowfreqparamvalStr() );
-
-    if ( isfftfilter_ && strcmp(windowtype_,"None") )
-    {
-	delete window_;
-	window_ = new ArrayNDWindow( Array1DInfoImpl(100),
-				    false, windowtype_, variable_ );
-    }
-	
     zmargin_ = Interval<int>( -mNINT32((float) mMINNRSAMPLES/2),
 	    		       mNINT32((float) mMINNRSAMPLES/2) );
 }
@@ -296,119 +286,50 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 }
 
 
-void FreqFilter::fftFilter( const DataHolder& output,
-			    int z0, int nrsamples )
+void FreqFilter::fftFilter( const DataHolder& output, int z0, int nrsamples )
 {
-    int nrsamp = nrsamples;
-    int z0safe = z0;
-    FFTFilter filter;
-    fftsz_ = filter.getFFTFastSize(nrsamp*3);
-    if ( nrsamples < mMINNRSAMPLES )
-    {
-	nrsamp = mMINNRSAMPLES;
-	z0safe = z0 - mNINT32((float) nrsamp/2) + mNINT32((float) nrsamples/2);
-    }
-    
-    if ( nrsamp>signal_.info().getSize(0) )
-    {
-	setSz(nrsamp);
-
-	if ( strcmp(windowtype_,"None") )
-	{
-	    delete window_;
-	    window_ = new ArrayNDWindow( Array1DInfoImpl(nrsamp),
-					 false, windowtype_, variable_ );
-	}
-    }
-
-    for ( int idx=0; idx<fftsz_; idx++ )
-        timedomain_.set( idx, 0 );
-
-    const float df = Fourier::CC::getDf( refstep_, fftsz_);
-    const int sz = fftsz_/2 - nrsamp/2;
-    for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	int csamp = idx + z0safe;
-	int cidx = csamp - z0;
-	int remaxidx = redata_->nrsamples_-1;
-	int checkridx = csamp - redata_->z0_;
-	float real = checkridx<0 
-			 ? getInputValue( *redata_, realidx_, 0, z0 )
-			 : checkridx>remaxidx 
-			    ? getInputValue( *redata_, realidx_, remaxidx, z0 )
-			    : getInputValue( *redata_, realidx_, cidx, z0 );
-	int immaxidx = imdata_->nrsamples_-1;
-	int checkiidx = csamp - imdata_->z0_;
-	int useidx = checkiidx<0 ? 0 : (checkiidx>immaxidx ? immaxidx : cidx);
-	float imag = getInputValue( *imdata_, imagidx_, useidx, z0 );
-	signal_.set( idx, float_complex(real,-imag) );
-    }
-
-    if ( window_ ) window_->apply( &signal_ );
-    float avg = 0; TypeSet<int> undefvalidxs;
-    for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	float_complex val = signal_.get( idx );
-	if ( mIsUdf( val ) )
-	    undefvalidxs += idx;
-	else
-	    avg += val.real(); 
-    }
-    if ( undefvalidxs.size() != nrsamp )
-	avg /= ( nrsamp-undefvalidxs.size() );
-    for ( int idx=0; idx<undefvalidxs.size(); idx++ )
-	signal_.set( undefvalidxs[idx], avg );
-    removeBias<float_complex,float>( &signal_ );
-    for ( int idy=0; idy<nrsamp; idy++ )
-	timedomain_.set( sz+idy, signal_.get(idy) );
-
-    const int datasz = (int)( Fourier::CC::getNyqvist( SI().zStep()) ); 
-    int winsz1 = 2*( (int)minfreq_ );
-    if ( mIsZero( minfreq_ - highfreqvariable_, 0.5 ) )
-	winsz1 = 0;
-    int winsz2 = 2*( datasz-(int)maxfreq_ );
-    if ( datasz<=0 || datasz<=(int)maxfreq_ || 
-	    mIsZero( maxfreq_ - lowfreqvariable_, 0.5 ) )
-	winsz2 = 0;
-
-#define mSetFilterFreqWin( winsz, islow, win )\
-    if ( winsz > 0 )\
-    {\
-	float var = islow ? 1-(lowfreqvariable_-maxfreq_) / (datasz - maxfreq_)\
-			  : highfreqvariable_ / minfreq_;\
-	if ( var >=0 && var <= 1 )\
-	{\
-	    ArrayNDWindow window(Array1DInfoImpl(winsz), false,"CosTaper",var);\
-	    float* winvals = window.getValues();\
-	    for ( int idx=0; idx<winsz/2 && winvals; idx++ )\
-		win.set(idx, islow ? 1-winvals[idx] : 1-winvals[winsz/2+idx]);\
-	    filter.setFreqBorderWindow( win.getData(), winsz/2, islow );\
-	}\
-    }
-
-    Array1DImpl<float> lwin( winsz2/2 ), hwin( winsz1/2 );
-    mSetFilterFreqWin( winsz2, true, lwin )
-    mSetFilterFreqWin( winsz1, false, hwin )
-    filter.set( df, minfreq_, maxfreq_, FFTFilter::Type( filtertype_ ), false );
-    filter.apply( timedomain_.getData(), timecplxoutp_.getData(), fftsz_ ); 
-
-    const int firstidx = nrsamples < mMINNRSAMPLES ? fftsz_/2 - nrsamples/2: sz;
-    bool needrestorebias = filtertype_==FFTFilter::LowPass
-			|| ( filtertype_==FFTFilter::BandPass && minfreq_==0 );
-    const float correctbias = needrestorebias ? avg : 0;
-    for ( int idx=0; idx<undefvalidxs.size(); idx++ )
-	timecplxoutp_.set( firstidx + undefvalidxs[idx], mUdf(float) );
+    signal_.setInfo( Array1DInfoImpl( nrsamples ) );
+    bool isimagudf = false;
+    Array1DImpl<float> realsignal( nrsamples );
     for ( int idx=0; idx<nrsamples; idx++ )
-	setOutputValue( output, 0, idx, z0, 
-		    timecplxoutp_.get( firstidx + idx ).real() + correctbias );
-}
+    {
+	const float real = getInputValue( *redata_, realidx_, idx, z0 );
+	const float imag = getInputValue( *imdata_, imagidx_, idx, z0 );
+	signal_.set( idx, float_complex(real,-imag) );
+	if ( imag > 1e20 )
+	    isimagudf = true;
 
+	realsignal.set( idx, real );
+    }
 
-void FreqFilter::setSz( int sz )
-{
-    signal_.setInfo( Array1DInfoImpl( sz ) );
-    timedomain_.setInfo( Array1DInfoImpl( fftsz_ ) );
-    timecplxoutp_.setInfo( Array1DInfoImpl( fftsz_ ) );
+    FFTFilter filter( nrsamples, refstep_);
+    if ( strcmp(windowtype_,"None") )
+	if ( !filter.setTimeTaperWindow(nrsamples,windowtype_,variable_) )
+	    return;
+
+    if ( filtertype_ == FFTFilter::HighPass )
+	filter.setHighPass( freqf1_, minfreq_ );
+    else if ( filtertype_ == FFTFilter::LowPass )
+	filter.setLowPass( maxfreq_, freqf4_ );
+    else if ( filtertype_ == FFTFilter::BandPass )
+	filter.setBandPass( freqf1_, minfreq_, maxfreq_, freqf4_ );
+
+    if ( isimagudf )
+    {
+	if ( !filter.apply(realsignal) )
+	    return;
+    }
+    else
+	if ( !filter.apply(signal_) )
+	    return;
+
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	if ( isimagudf )
+	    setOutputValue( output, 0, idx, z0, realsignal.get( idx ) );
+	else
+	    setOutputValue( output, 0, idx, z0, signal_.get( idx ).real() );
+    }
 }
 
 
