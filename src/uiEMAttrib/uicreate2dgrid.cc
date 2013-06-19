@@ -772,6 +772,10 @@ bool uiCreate2DGrid::fillPar( IOPar& batchpar )
 	batchpar.mergeComp( par, "Horizon" );
     }
 
+    if ( !SI().has2D() )
+	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
+			 " in survey setup to display the 2D lines" );
+
     return true;
 }
 
