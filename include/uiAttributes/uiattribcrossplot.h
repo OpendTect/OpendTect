@@ -66,6 +66,7 @@ protected:
     void				attrChanged(CallBacker*);
 
     bool				acceptOK(CallBacker*);
+    void				getLineNames(BufferStringSet&);
 };
 
 

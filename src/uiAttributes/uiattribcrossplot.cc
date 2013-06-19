@@ -181,6 +181,29 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 }
 
 
+void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
+{
+    const MultiID mid = getSelectedID();
+    const SeisIOObjInfo seisinfo( mid );
+
+    const char* curattrnm = attrsfld_->getText();
+    const bool isstored = !attrinfo_->attrnms_.isPresent( curattrnm );
+    if ( isstored )
+    {
+	BufferString attrnm( attrsfld_->getText() );
+	removeCharacter( attrnm.buf(), '[' );
+	removeCharacter( attrnm.buf(), ']' );
+	const LineKey lk( attrnm );
+	seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
+    }
+    else
+    {
+	const LineKey lk( mid );
+	seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
+    }
+}
+
+
 void uiAttribCrossPlot::lineChecked( CallBacker* )
 {
     MultiID selid = getSelectedID();
@@ -231,19 +254,12 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 {
     if ( !lnmfld_ ) return;
 
-    MultiID mid = getSelectedID();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
     const int idxof = selidxs_.indexOf( attrsfld_->currentItem() );
     NotifyStopper notifystop( lnmfld_->selectionChanged );
-
     lnmfld_->setEmpty();
-    SeisIOObjInfo seisinfo( mid );
-    BufferStringSet linenames;
-    BufferString attrnm( attrsfld_->getText() );
-    removeCharacter( attrnm.buf(), '[' );
-    removeCharacter( attrnm.buf(), ']' );
-    LineKey lk( attrnm );
-    seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
+
+    BufferStringSet linenames; getLineNames( linenames );
+    
     for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
 	lnmfld_->addItem( linenames.get(lidx) );
