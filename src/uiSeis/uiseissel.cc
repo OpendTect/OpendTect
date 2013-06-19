@@ -630,10 +630,12 @@ void uiSeisSel::commitSucceeded()
 void uiSeisSel::processInput()
 {
     obtainIOObj();
+    if ( !workctio_.ioobj && !workctio_.ctxt.forread )
+	return;
+    
     setAttrNm( workctio_.ioobj ? LineKey( getInput() ).attrName() : "" );
     uiIOObjSel::fillPar( dlgiopar_ );
-    if ( workctio_.ioobj || workctio_.ctxt.forread )
-	updateInput();
+    updateInput();
 }
 
 
