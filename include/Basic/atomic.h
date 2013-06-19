@@ -39,7 +39,7 @@ public:
     		Atomic(T val=0);
 			~Atomic();
 
-			operator T() const { return get(); }
+		operator T() const { return get(); }
     T		get() const;
     
     T		operator=(T v);
