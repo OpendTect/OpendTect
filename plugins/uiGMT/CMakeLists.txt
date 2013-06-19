@@ -7,7 +7,6 @@
 
 SET(OD_MODULE_DEPS uiODMain GMT )
 SET(OD_IS_PLUGIN yes)
-SET(OD_USEQT 1)
 SET(OD_MODULE_SOURCES
           uigmtadv.cc
 	  uigmtarray2dinterpol.cc
