@@ -298,11 +298,7 @@ bool Atomic<T>::weakSetIfEqual( T newval, T& expected )
 template <class T> inline
 T Atomic<T>::exchange( T newval )
 {
-    T expected = val_;
-    while ( !weakSetIfEqual( newval, expected ) )
-    {}
-    
-    return expected;
+    return __sync_lock_test_and_set( &val_, newval );
 }
 #endif //__GCCATOMICS__
 
@@ -316,22 +312,23 @@ Atomic<T>::Atomic( T val )
     : lock_( new Mutex )
     , valptr_( values_ )
 {
-	*valptr_ = val;
+    *valptr_ = val;
 }
 
 
 template <class T> inline
 Atomic<T>::~Atomic()
 {
-	delete lock_;
+    delete lock_;
 }
 
 
 template <class T> inline
 T Atomic<T>::get() const
 {
-	return *valptr_;
+    return *valptr_;
 }
+
 
 template <class T> inline
 T Atomic<T>::exchange( T newval )
@@ -347,10 +344,9 @@ T Atomic<T>::exchange( T newval )
 template <class T> inline
 T Atomic<T>::operator=(T val)
 {
-	*valptr_ = val;
-	return *valptr_;
+    *valptr_ = val;
+    return *valptr_;
 }
-
 
 
 template <class T> inline
