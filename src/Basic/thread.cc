@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # define mSetupIttNotify( var, name ) \
 	__itt_sync_create( &var, 0, name,  __itt_attr_mutex )
 # define mDestroyIttNotify( var ) __itt_sync_destroy( &var )
-# define mPrepareIttNotify( var ) __itt_sync_destroy( &var )
+# define mPrepareIttNotify( var ) __itt_sync_prepare( &var )
 # define mIttNotifyAcquired( var ) __itt_sync_acquired( &var )
 # define mIttNotifyReleasing( var ) __itt_sync_releasing( &var )
 # define mIttNotifyCancel( var ) __itt_sync_cancel( &var )
@@ -161,8 +161,15 @@ void Threads::SpinLock::unLock()
     count_--;
     if ( !count_ )
     {
+#ifdef __debug__
 	mIttNotifyReleasing( lockingthread_ );
-	lockingthread_ = 0;
+	if ( lockingthread_.exchange( 0 ) != currentThread() )
+	{
+	    pErrMsg("Unlocked by wrong thread");
+	}
+#else
+	lockingthread_.exchange( 0 );
+#endif 
     }
 }
 

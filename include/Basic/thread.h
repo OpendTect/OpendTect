@@ -94,10 +94,12 @@ public:
 		SpinLock(const SpinLock&);
 		~SpinLock();
 
+    SpinLock&	operator=(const SpinLock& b)
+		{ recursive_ = b.recursive_; return *this; }
+
     void	lock();
     void	unLock();
     bool	tryLock();
-
 
 protected:
     AtomicPointer<const void>	lockingthread_;
