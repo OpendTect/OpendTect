@@ -106,7 +106,7 @@ protected:
     				/*!<0 if unlocked, otherwise set to locking
 				      thread */
     int				count_;
-    const bool			recursive_;
+    bool			recursive_;
 
 public:
     int				count() const 	{ return count_; }
