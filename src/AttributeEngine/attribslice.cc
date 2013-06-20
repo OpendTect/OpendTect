@@ -77,7 +77,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 					 int depthdim) const
 {
     int size0=-1, size1=-1;
-    float udefval;
+    float udefval ( mUdf(float) );
 
     for ( int idx=0; idx<size(); idx++ )
     {

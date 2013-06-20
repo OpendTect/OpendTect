@@ -584,7 +584,7 @@ main(int argc, char** argv)
 
     char  t[80];
 
-    char* p;
+    char* p = 0;
 
     int verbose = 0;
 

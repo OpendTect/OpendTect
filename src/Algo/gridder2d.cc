@@ -309,7 +309,7 @@ bool TriangulatedGridder2D::init()
 		return true;
 	    }
 	    
-	    const float weight = 1./dist;
+	    const float weight = mCast( float, 1./dist );
 	    weightsum += weight;
 	    weights_ += weight;
 	    usedvalues_ += idx;

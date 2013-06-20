@@ -412,7 +412,7 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
    	    tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
    	    tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
     {
-	double mindist;
+	double mindist = 0;
 	int child = -1;
 	firstface = cNoFace();
 	for ( int idx=0; idx<4; idx++ )
@@ -509,7 +509,7 @@ char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a,
 	return cNotOnPlane();
     
     char bestedge = -1;
-    double nearestedgedist;
+    double nearestedgedist = 0;
     double edgesqdist[3];
     closestedgedist = mUdf(float);
     
@@ -655,7 +655,7 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 	return cIsOnEdge();
     }
 
-    double minedgedist;
+    double minedgedist = 0;
     face = cNoFace();
     for ( char idx=0; idx<4; idx++ )
     {
@@ -809,7 +809,7 @@ void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1,
    			  tetrahedras_[ti0].coordindices_[2],
    			  tetrahedras_[ti0].coordindices_[3] };
     const int v0 = crds0[face];
-    int s0, s1, s2; 
+    int s0=0, s1=0, s2=0; 
     if ( face==0 ) { s0 = crds0[1]; s1 = crds0[2]; s2 = crds0[3]; }
     else if ( face==1 ) { s0 = crds0[0]; s1 = crds0[3]; s2 = crds0[2]; }
     else if ( face==2 ) { s0 = crds0[0]; s1 = crds0[1]; s2 = crds0[3]; }
@@ -819,7 +819,7 @@ void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1,
       			  tetrahedras_[ti1].coordindices_[1],
    			  tetrahedras_[ti1].coordindices_[2],
    			  tetrahedras_[ti1].coordindices_[3] };
-    int v1; 
+    int v1 = 0; 
     for ( int idx=0; idx<4; idx++ )
     {
 	if ( crds1[idx]!= s0 && crds1[idx]!= s1 && crds1[idx]!= s2 )
@@ -932,7 +932,7 @@ void DAGTetrahedraTree::splitTetrahedraOnEdge( int ci, const TypeSet<int>& tis,
 			     tetrahedras_[tis[idx]].coordindices_[1],
 			     tetrahedras_[tis[idx]].coordindices_[2],
        			     tetrahedras_[tis[idx]].coordindices_[3] };
-	unsigned char s0, s1, s2, s3;
+	unsigned char s0=0, s1=0, s2=0, s3=0;
 	for ( char idy=0; idy<4; idy++ )
 	{
 	    if ( crds[idy]==sharedv0 )
@@ -1289,7 +1289,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	    }							
 	    else if ( nbti!=cNoTetrahedra() && checknbti!=cNoTetrahedra() )
 	    {								
-		int nbpt;					
+		int nbpt = 0;					
 		const int nbcrds[] = { tetrahedras_[nbti].coordindices_[0],
 				       tetrahedras_[nbti].coordindices_[1],
 				       tetrahedras_[nbti].coordindices_[2],
