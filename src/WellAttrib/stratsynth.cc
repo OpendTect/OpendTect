@@ -862,7 +862,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
     infomsg_.setEmpty();
     for ( int midx=0; midx<aimodels.size(); midx++ )
     {
-	const Strat::LayerSequence& seq = lm.sequence( midx ); 
+	const Strat::LayerSequence& seq = lm.sequence( midx );
 	ElasticModel& aimodel = aimodels[midx];
 	Array1DImpl<float> densvals( aimodel.size() );
 	Array1DImpl<float> velvals( aimodel.size() );
@@ -974,6 +974,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	    layer.vel_ = velvals.get( idx );
 	    layer.svel_ = svelvals.get( idx );
 	}
+	aimodel.upscale( 5.0f );
     }
 
     return true;
