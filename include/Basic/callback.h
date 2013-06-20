@@ -91,16 +91,25 @@ protected:
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
 public:
+		CallBackSet() {}
+		CallBackSet( const CallBackSet& cbs )
+		    : TypeSet<CallBack>( cbs )
+		{}
 
     void	doCall(CallBacker*,const bool* enabledflag=0,
 	    		CallBacker* exclude=0);
     		/*!<\param enabledflag: if non-null, content will be checked
-		  between each call, caling will stop if false. */
+		  between each call, caling will stop if false.
+		     \note Will lock in the apropriate moment. */
 
     void	removeWith(CallBacker*);
+		//!<\note Should be locked before calling
     void	removeWith(CallBackFunction);
+		//!<\note Should be locked before calling
     void	removeWith(StaticCallBackFunction);
-
+		//!<\note Should be locked before calling
+    
+    mutable Threads::SpinLock   lock_;
 };
 
 
@@ -112,34 +121,56 @@ mExpClass(Basic) NotifierAccess
 {
 
     friend class	NotifyStopper;
+    friend class	CallBacker;
 
 public:
 
+			NotifierAccess(const NotifierAccess&);
 			NotifierAccess();
+    virtual 		~NotifierAccess();
     
-    virtual void	notify(const CallBack&,bool first=false);
-    virtual void	notifyIfNotNotified(const CallBack&);
-    virtual void	remove(const CallBack&);
-    virtual void	removeWith(CallBacker*);
+    void		notify(const CallBack&,bool first=false);
+    void		notifyIfNotNotified(const CallBack&);
+    void		remove(const CallBack&);
+    bool		removeWith(CallBacker*,bool wait=true);
+			//!<\returns false if wait was false, and trylock failed
 
     bool		isEnabled() const	{ return enabled_; }
     bool		enable( bool yn=true )	{ return doEnable(yn); }
     bool		disable()		{ return doEnable(false); }
     
+    bool        	willCall(CallBacker*) const;
+    			/*!<\returns true if the callback list contains
+			     CallBacker. */
+
+    
     CallBackSet		cbs_;
     CallBacker*		cber_;
 
+    bool		isShutdownSubscribed(CallBacker*) const;
+    			//!<Only for debugging purposes, don't use
 protected:
-
-    bool		enabled_;
+    void		addShutdownSubscription(CallBacker*);
+    bool		removeShutdownSubscription(CallBacker*, bool wait);
+    			//!<\returns false if wait was false, and trylock failed
+    
+			/*!\returns previous status */
     inline bool		doEnable( bool yn=true )
-    			{ bool ret = enabled_; enabled_ = yn; return ret; }
-    			/*!< returns previous status */
+			{
+			    bool ret = enabled_;
+			    enabled_ = yn;
+			    return ret;
+			}
+    
+    ObjectSet<CallBacker>	shutdownsubscribers_;
+    mutable Threads::SpinLock	shutdownsubscriberlock_;
+
+    bool			enabled_;
 };
 
 
 /*!
-\brief Class to help setup a callback handling.
+  Class to help setup a callback handling.
   
   What we have discovered is that the two things:
   - providing a notification of an event to the outside world
@@ -160,9 +191,12 @@ protected:
   Then users of the class can issue:
   
   \code
-  amyclass.buttonClicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
+  mAttachCB( myclass.buttonClicked, TheClassOfThis,theMethodToBeCalle );
   \endcode
   
+  The notifier is then attached, the connection will be remove when either the 
+  notifier or the called object is deleted.
+ 
   The callback is issued when you call the trigger() method, like:
   \code
   buttonClicked.trigger();
@@ -171,7 +205,13 @@ protected:
   The notification can be temporary stopped using disable()/enable() pair,
   or by use of a NotifyStopper, which automatically restores the callback
   when going out of scope.  
+ 
+  The best practice is to remove the callbacks in the destructor, as otherwise,
+  you may get random crashes. Either, remove them one by one in the destructor,
+  or call detachAllNotifiers(), which will remove notifiers that are attached
+  using the mAttachCB macro.
 */
+
 
 template <class T>
 mClass(Basic) Notifier : public NotifierAccess
@@ -180,13 +220,11 @@ public:
 
     void		trigger( T& t )	{ trigger(&t); }
 
-// Following functions are usually used by T class only:
-
+			// Following functions are usually used by T class only:
 			Notifier( T* c ) 			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
 			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
-
 };
 
 
@@ -196,26 +234,33 @@ public:
 
 mExpClass(Basic) CallBacker
 {
+    friend class	NotifierAccess;
 public:
-				CallBacker();
-				CallBacker(const CallBacker&);
-    virtual 			~CallBacker();
+			CallBacker();
+			CallBacker(const CallBacker&);
+    virtual 		~CallBacker();
     
-    void			attachCB(NotifierAccess&,const CallBack&);
-    				/*!<Adds cb to notifier, and makes sure
-				    it is removed later when object is
-				    deleted. */
-    void			detachCB(NotifierAccess&,const CallBack&);
-    				/*!<\note Normally not needed if you don't
-				          Want this explicitly. */
+    void		attachCB(NotifierAccess&,const CallBack&);
+    			/*!<Adds cb to notifier, and makes sure
+			    it is removed later when object is
+			    deleted. */
+    void		detachCB(NotifierAccess&,const CallBack&);
+    			/*!<\note Normally not needed if you don't
+			          want this explicitly. */
     
+    bool		isNotifierAttached(NotifierAccess*) const;
+    			//!<Only for debugging purposes, don't use
+    
+protected:
+    void		detachAllNotifiers();
+			//!<Call from the destructor of your inherited object
 private:
-    void			removeListener(CallBacker*);
-    void			addListener(CallBacker*);
-    ObjectSet<CallBacker>	listeners_;
     
+    bool		notifyShutdown(NotifierAccess*,bool wait);
+			//!<\returns false if wait was false, and trylock failed
+
     ObjectSet<NotifierAccess>	attachednotifiers_;
-    Threads::SpinLock		cblock_;
+    mutable Threads::SpinLock	attachednotifierslock_;
 };
 
 
@@ -223,7 +268,7 @@ private:
 attachCB( notifier, mCB(this,clss,func) )
 
 #define mDetachCB( notifier, clss, func ) \
-detachCB( notifier, clss, func )
+detachCB( notifier, mCB(this,clss, func) )
 
 
 /*!
