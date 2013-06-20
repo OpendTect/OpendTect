@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelllogtools.h"
 
+#include "arrayndimpl.h"
 #include "color.h"
 #include "dataclipper.h"
 #include "fftfilter.h"
@@ -182,7 +183,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 	{
 	    uiWellLogDisplay::Setup su; su.samexaxisrange_ = true;
 	    uiWellLogDisplay* ld = new uiWellLogDisplay( wellgrp, su );
-	    ld->setPrefWidth( 150 ); ld->setPrefHeight( 650 );
+	    ld->setPrefWidth( 150 ); ld->setPrefHeight( 450 );
 	    zdisplayrg_.include( logdata.dahrg_ );
 	    if ( idlog ) ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	    ld->attach( ensureBelow, wellnm );
@@ -358,16 +359,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    ld.outplogs_ += outplog;
 	    const float* inp = inplog.valArr();
 	    float* outp = outplog->valArr();
-	    if ( act == 2 )
-	    {
-		Smoother1D<float> sm;
-		sm.setInput( inp, sz );
-		sm.setOutput( outp );
-		const int winsz = gatefld_->getValue();
-		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
-		sm.execute();
-	    }
-	    else if ( act == 0 )
+	    if ( act == 0 )
 	    { 
 		Stats::Grubbs sgb;
 		const float cutoff_grups = mCast( float, 
@@ -408,6 +400,64 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    }
 		}
 	    }
+	    else if ( act == 1)
+	    {
+		const Well::Track& track = *ld.track_;
+		const float startdah = outplog->dahRange().start;
+		const float stopdah = outplog->dahRange().stop;
+		const float zstart = mCast( float, track.getPos( startdah ).z );
+		const float zstop = mCast( float, track.getPos( stopdah ).z );
+		const Interval<float> zrg( zstart, zstop );
+		ObjectSet<const Well::Log> reslogs;
+		reslogs += outplog;
+		Stats::UpscaleType ut = Stats::UseAvg;
+		const float deftimestep = 0.001f;
+		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
+				     SI().zIsTime(), ut, reslogs );
+		ls.execute();
+		const int size = ls.nrZSamples();
+		Array1DImpl<float> logvals( size );
+		for ( int idz=0; idz<size; idz++ )
+		    logvals.set( idz, ls.getLogVal( idlog, idz ) );
+
+		const Interval<float>& freqrg = freqfld_->freqRange();
+		FFTFilter filter( size, deftimestep );
+		if ( freqfld_->filterType() == FFTFilter::HighPass )
+		    filter.setHighPass( freqrg.start );
+		else if ( freqfld_->filterType() == FFTFilter::LowPass )
+		    filter.setLowPass( freqrg.stop );
+		else
+		    filter.setBandPass( freqrg.start, freqrg.stop );
+		
+		if ( !filter.apply(logvals) )
+		    continue;
+
+		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
+						PointBasedMathFunction::EndVal);
+		for ( int idz=0; idz<size; idz++ )
+		{
+		    const float val = logvals.get( idz );
+		    if ( mIsUdf(val) )
+			continue;
+
+		    filtvals.add( ls.getDah( idz ), logvals.get( idz ) );
+		}
+
+		for ( int idz=0; idz<sz; idz++ )
+		{
+		    const float dah = outplog->dah( idz );
+		    outp[idz] = filtvals.getValue( dah );
+		}
+	    }
+	    else if ( act == 2 )
+	    {
+		Smoother1D<float> sm;
+		sm.setInput( inp, sz );
+		sm.setOutput( outp );
+		const int winsz = gatefld_->getValue();
+		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
+		sm.execute();
+	    }
 	    else if ( act == 3 )
 	    {
 		Interval<float> rg;
@@ -420,36 +470,6 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    if ( outp[idx] < rg.start ) outp[idx] = rg.start;
 		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
 		}
-	    }
-	    else if ( act == 1)
-	    {
-		const float step = SI().zStep(); //TODO take user step ...
-		const Interval<float> dahrg = outplog->dahRange();
-		ObjectSet<const Well::Log> reslogs;
-		reslogs += outplog;
-		Stats::UpscaleType ut = Stats::TakeNearest;
-		Well::LogSampler ls( ld.d2t_, ld.track_, dahrg, false, 
-					step, SI().zIsTime(), 
-					ut, reslogs );
-		ls.execute();
-		const int size = ls.nrZSamples();
-		const float df = Fourier::CC::getDf( step, size );
-
-		const Interval<float>& freqrg = freqfld_->freqRange();
-		FFTFilter filter; 
-		filter.set( df, freqrg.start, freqrg.stop, 
-			    freqfld_->filterType(), false );
-		mAllocVarLenArr( float, outplogarr, size );
-		mAllocVarLenArr( float, inplogarr, size );
-
-		for ( int idz=0; idz<size; idz++ )
-		    inplogarr[idz] = ls.getLogVal( idlog, idz );
-
-		filter.apply( inplogarr, outplogarr, size );
-
-		outplog->setEmpty();
-		for ( int idz=0; idz<size; idz++ )
-		    outplog->addValue( ls.getDah(idz), outplogarr[idz] );
 	    }
 	}
 	succeed = true;

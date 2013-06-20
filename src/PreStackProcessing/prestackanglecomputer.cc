@@ -95,10 +95,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
     const int zsize = zrange.nrSteps() + 1;
     const int offsetsize = outputsampling_.nrPts( true );
 
-    float freqf3;
-    iopar_.get( sKeyFreqF3(), freqf3 );
     TimeDepthModel td;
-
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	PointBasedMathFunction anglevals( PointBasedMathFunction::Linear,
@@ -118,16 +115,11 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	}
 
 	const int zsizeintime = mCast( int, layertwt/deftimestep );
-	const float df = Fourier::CC::getDf( deftimestep, zsizeintime );
-	filter.setLowPass( df, freqf3, false );
-
-	mAllocVarLenArr( float, inputarray, zsizeintime );
-	mAllocVarLenArr( float, outputarray, zsizeintime );
+	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
-	    inputarray[zidx] = anglevals.getValue( zidx*deftimestep );
+	    angles.set( zidx, anglevals.getValue( zidx*deftimestep ) );
 	
-	filter.apply( inputarray, outputarray, zsizeintime );
-
+	filter.apply( angles );
 	PointBasedMathFunction anglevalsindepth( PointBasedMathFunction::Linear,
 					    PointBasedMathFunction::EndVal );
 
@@ -139,7 +131,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    if ( mIsEqual(layerdepth,prevlayerdepth,1e-3) )
 		continue;
 
-	    anglevalsindepth.add( layerdepth, outputarray[zidx] );
+	    anglevalsindepth.add( layerdepth, angles.get( zidx ) );
 	    prevlayerdepth = layerdepth;
 	}
 
@@ -160,22 +152,28 @@ void AngleComputer::fftTimeSmooth(::FFTFilter& filter,
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
     const int offsetsize = outputsampling_.nrPts( true );
-    float freqf3;
-    iopar_.get( sKeyFreqF3(), freqf3 );
 
-    const float df = Fourier::CC::getDf( mCast(float,zrange.step), zsize );
-    filter.setLowPass( df, freqf3, false );
-
-    mAllocVarLenArr( float, arr1dinput, zsize );
     float* arr1doutput = angledata.getData();
     if ( !arr1doutput )
 	return;
 
+    int startidx = 0;
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	memcpy( arr1dinput, arr1doutput, zsize*sizeof(float) );
-	filter.apply( arr1dinput, arr1doutput, zsize );
-	arr1doutput = arr1doutput + zsize;
+	Array1DImpl<float> angles( zsize );
+	for ( int idx=0; idx<zsize; idx++ )
+	    angles.set( idx, arr1doutput[startidx+idx] );
+
+	if ( !filter.apply(angles) )
+	{
+	    startidx += zsize;
+	    continue;
+	}
+
+	for ( int idx=0; idx<zsize; idx++ )
+	    arr1doutput[startidx+idx] = angles.get( idx );
+
+	startidx += zsize;
     }
 }
 
@@ -189,31 +187,14 @@ void AngleComputer::fftSmoothing( Array2D<float>& angledata )
     if ( mIsUdf(freqf3) || mIsUdf(freqf4) )
 	return;
 
-    ::FFTFilter filter;
-    const int nyquistfreq = (int)( Fourier::CC::getNyqvist( 
-			SI().zDomain().isTime() ? SI().zStep() : deftimestep) ); 
-    int winsz = 2*( nyquistfreq-(int)freqf3 );
-    if ( nyquistfreq<=(int)freqf3 || mIsEqual( freqf3, freqf4, 0.5 ) )
-	winsz = 0;
+    const StepInterval<double> zrange = outputsampling_.range( false );
+    const int zsize = zrange.nrSteps() + 1;
+    const bool survintime = SI().zDomain().isTime();
 
-    Array1DImpl<float> lwin( winsz/2 );
-    if ( winsz > 0 )
-    {
-	float taperwinrelsz = 1-(freqf4-freqf3) / (nyquistfreq - freqf3);
-			  
-	if ( taperwinrelsz >=0 && taperwinrelsz <= 1 )
-	{
-	    ArrayNDWindow window( Array1DInfoImpl(winsz), false,
-				  CosTaperWindow().sName(), taperwinrelsz );
-	    float* winvals = window.getValues();
-	    for ( int idx=0; idx<winsz/2 && winvals; idx++ )
-		lwin.set( idx, 1-winvals[idx] );
-	    filter.setFreqBorderWindow( lwin.getData(), winsz/2, true );
-	}
-    }
-
-    SI().zDomain().isTime() ? fftTimeSmooth( filter, angledata )
-			    : fftDepthSmooth( filter, angledata );
+    ::FFTFilter filter( zsize, survintime ? SI().zStep() : deftimestep );
+    filter.setLowPass( freqf3, freqf4 );
+    survintime ? fftTimeSmooth( filter, angledata )
+	       : fftDepthSmooth( filter, angledata );
 }
 
 
@@ -291,9 +272,9 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const float layerz = mCast( float, outputzrg.atIndex(zidx) );
-	    const float layerdepth = SI().zDomain().isTime() ? td.getDepth( layerz )
-							: layerz;
-	    const float angle = anglevals[ofsidx]->getValue( layerdepth );
+	    const float zval = SI().zDomain().isTime() ? td.getDepth( layerz )
+						       : layerz;
+	    const float angle = anglevals[ofsidx]->getValue( zval );
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }

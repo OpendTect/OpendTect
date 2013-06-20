@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "datapackbase.h"
 #include "elasticpropsel.h"
+#include "fourier.h"
+#include "fftfilter.h"
 #include "flatposdata.h"
 #include "ioman.h"
 #include "mathfunc.h"
@@ -467,8 +469,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	addToNrDone(1);
 	ElasticModel& curem = aimodels_[idm];
 	const Strat::LayerSequence& seq = lm_.sequence( idm ); 
-	const int sz = seq.size();
-	if ( sz < 1 )
+	if ( seq.isEmpty() )
 	    continue;
 
 	if ( !fillElasticModel(seq,curem) )
@@ -539,16 +540,16 @@ bool StratSynth::createElasticModels()
 {
     clearElasticModels();
     
-    if ( !lm_.size() )
-	return false;
-
+    if ( lm_.isEmpty() )
+    	return false;
+    
     ElasticModelCreator emcr( lm_, aimodels_ );
     if ( !TaskRunner::execute(tr_,emcr) )
 	return false;
     bool modelsvalid = false;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
-	if ( aimodels_[idx].size() )
+	if ( !aimodels_[idx].isEmpty() )
 	{
 	    modelsvalid = true;
 	    break;
@@ -557,8 +558,8 @@ bool StratSynth::createElasticModels()
 
     errmsg_.setEmpty();
     if ( !modelsvalid )
-	return false;
-
+    	return false;
+    
     return adjustElasticModel( lm_, aimodels_ );
 }
 
@@ -698,7 +699,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 
 void StratSynth::generateOtherQuantities()
 {
-    if ( !synthetics_.size() ) return;
+    if ( synthetics_.isEmpty() ) return;
 
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
@@ -719,7 +720,8 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 
     TypeSet<Interval<float> > seqtimergs;
     ManagedObjectSet<Strat::LayerModel> layermodels;
-    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+    const int sz = zrg.nrSteps() + 1;
+    for ( int idz=0; idz<sz; idz++ )
 	layermodels += new Strat::LayerModel();
 
     for ( int iseq=0; iseq<lm.size(); iseq ++ )
@@ -730,7 +732,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 	const float seqstarttime = t2d.getTime( seqdepthrg.start );
 	const float seqstoptime = t2d.getTime( seqdepthrg.stop );
 	seqtimergs += Interval<float> ( seqstarttime, seqstoptime );
-	for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	for ( int idz=0; idz<sz; idz++ )
 	{
 	    Strat::LayerModel* lmsamp = layermodels[idz];
 	    if ( !lmsamp )
@@ -763,7 +765,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 
 	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
 		    			     PointBasedMathFunction::EndVal );
-	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+	    for ( int idz=0; idz<sz; idz++ )
 	    {
 		const float time = mCast( float, zrg.atIndex(idz) );
 		if ( !seqtimergs[iseq].includes(time,false) )
@@ -796,12 +798,23 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 
 		propvals.add( time, propisvel ? 1.f / val : val );
 	    }
-	    for ( int idz=0; idz<zrg.nrSteps()+1; idz++ )
+
+	    Array1DImpl<float> proptr( sz );
+	    for ( int idz=0; idz<sz; idz++ )
 	    {
 		const float time = mCast( float, zrg.atIndex(idz) );
-		rawtrc->set( idz, propvals.getValue( time ), 0 );
+		proptr.set( idz, propvals.getValue( time ) );
 	    }
-	    // TODO: add Anti-Alias frequency filter
+
+	    const float step = mCast( float, zrg.step );
+	    ::FFTFilter filter( sz, step );
+	    const float f4 = 1.f / (2.f * step );
+	    filter.setLowPass( f4 );
+	    if ( !filter.apply(proptr) )
+		continue;
+
+	    for ( int idz=0; idz<sz; idz++ )
+		rawtrc->set( idz, proptr.get( idz ), 0 );
 	}
 
 	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
