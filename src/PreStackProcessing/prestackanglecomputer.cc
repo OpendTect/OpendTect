@@ -150,16 +150,23 @@ void AngleComputer::fftTimeSmooth(::FFTFilter& filter,
     if ( !arr1doutput )
 	return;
 
+    int startidx = 0;
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	Array1DImpl<float> angles( zsize );
 	for ( int idx=0; idx<zsize; idx++ )
-	    angles.set( idx, arr1doutput[idx] );
+	    angles.set( idx, arr1doutput[startidx+idx] );
 
 	if ( !filter.apply(angles) )
+	{
+	    startidx += zsize;
 	    continue;
+	}
 
-	arr1doutput = angles.arr() + zsize;
+	for ( int idx=0; idx<zsize; idx++ )
+	    arr1doutput[startidx+idx] = angles.get( idx );
+
+	startidx += zsize;
     }
 }
 
