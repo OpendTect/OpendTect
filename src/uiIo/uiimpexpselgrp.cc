@@ -169,13 +169,16 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 
 bool getSelGrpSetNames( BufferStringSet& nms )
 {
-    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
-    if ( !sfio.open(true) )
+    FilePath fp( basefp_,sKeyIdxFileName() );
+    if ( !File::exists(fp.fullPath()) )
     {
-	uiMSG().error("Index file for Cross-plot Selection group not present");
-	return false;
+	BufferStringSet emptynms;
+	if ( !setSelGrpSetNames(emptynms) )
+	    return false;
     }
 
+    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
+    sfio.open( true );
     ascistream astrm( sfio.istrm() );
     if ( atEndOfSection(astrm) )
 	astrm.next();
