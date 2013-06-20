@@ -904,7 +904,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     indices += -1;
     flttrc->setIndices( indices );
     flttrc->computeRange();
-    holder_.traces_ += flttrc;
+    holder_.traces_.replace( stickidx, flttrc );
     return true;
 }
 
