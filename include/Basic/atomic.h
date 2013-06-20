@@ -81,7 +81,7 @@ private:
 
 
 #ifdef __win__
-#define mAtomicPointerType od_uint64
+#define mAtomicPointerType long long
 #else
 #define mAtomicPointerType T*
 #endif
