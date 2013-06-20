@@ -9,7 +9,7 @@
  -->
 		
 	<head>
-	<title>Getting started with OpendTect development [OpendTect Programmer's manual V4.4]</title>
+	<title>Getting started with OpendTect development [OpendTect Programmer's manual V4.6]</title>
   <base href="unix.html" />
     <link rel="stylesheet" href="style.css" type="text/css" />
   </head>
@@ -79,7 +79,7 @@ First of all, we strongly recommended no to have no spaces in the path to your O
 The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
 </p><p id="text">
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:</p>
-<pre id="code"><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
+<pre id="code"><code>ln -s /apps/OpendTect/4.6.0/include .</code></pre>
 <p id="text">Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:</p>
 <pre id="code"><code>ln -s /apps/qt/inst_453 $WORK/qt
 ln -s /apps/coin/inst_rel $WORK/coin
