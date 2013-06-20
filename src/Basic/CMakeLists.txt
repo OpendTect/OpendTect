@@ -11,6 +11,7 @@ set( OD_USEZLIB Yes)
 set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
 set( OD_TEST_PROGS svnversion.cc
 		sets.cc
+		callback.cc
 		threads.cc
 		threadwork.cc
 		commandlineparser.cc
@@ -88,4 +89,9 @@ set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    ziputils.cc
 	    ziparchiveinfo.cc 
 	    ziphandler.cc )
+
+if ( ITTNOTIFY_FOUND )
+    set ( OD_MODULE_STATIC_LIBS ${ITTNOTIFY_LIBRARY} )
+    list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
+endif()
 OD_INIT_MODULE()
