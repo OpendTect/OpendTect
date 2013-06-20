@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 #include "flatviewzoommgr.h"
+#include "flatposdata.h"
 #include "ptrman.h"
 #include "propertyref.h"
 #include "prestackgather.h"
@@ -422,20 +423,21 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = mStratSynth->getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = mStratSynth->getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
+    FixedString wvasynthnm( wvasd->name() );
+    FixedString vdsynthnm( vdsd->name() );
 
     if ( wvasd )
     {
 	wvasd->setWavelet( wvltfld_->getName() );
 	currentwvasynthetic_ = wvasd;
-
-	wvltChanged.trigger();
 	if ( synthgendlg_ )
 	    synthgendlg_->updateWaveletName();
 	currentwvasynthetic_->fillGenParams( mStratSynth->genParams() );
-	updateSynthetic( currentwvasynthetic_->name(), true );
+	wvltChanged.trigger();
+	updateSynthetic( wvasynthnm, true );
     }
 
-    if ( vdsd == wvasd )
+    if ( vdsynthnm == wvasynthnm )
     {
 	setCurrentSynthetic( false );
 	return;
@@ -446,11 +448,10 @@ void uiStratSynthDisp::setCurrentWavelet()
     {
 	vdsd->setWavelet( wvltfld_->getName() );
 	currentvdsynthetic_ = vdsd;
-	FixedString vdsynthnm( currentvdsynthetic_->name() );
-	if ( vdsynthnm != currentwvasynthetic_->name() )
+	if ( vdsynthnm != wvasynthnm )
 	{
 	    currentvdsynthetic_->fillGenParams( mStratSynth->genParams() );
-	    updateSynthetic( currentvdsynthetic_->name(), false );
+	    updateSynthetic( vdsynthnm, false );
 	}
     }
 }
@@ -622,6 +623,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
 	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
 					SeisTrcInfo::TrcNr, "Forward Modeling");
+	dp->posData().setRange( true, StepInterval<double>(1.0,1.0,1.0) );
 	DPM( DataPackMgr::FlatID() ).add( dp );
 	vwr_->setPack( wva, dp->id(), false, !hadpack );
 	return;
@@ -839,18 +841,12 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) )
 	return;
-    SyntheticData* cursd = mStratSynth->getSynthetic( synthnm );
-    SynthGenParams curgp;
-    cursd->fillGenParams( curgp );
-    if ( !(curgp == mStratSynth->genParams()) )
-    {
-	mStratSynth->removeSynthetic( syntheticnm );
-	SyntheticData* sd = mStratSynth->addSynthetic();
-	if ( !sd )
-	    mErrRet(mStratSynth->errMsg(), return );
-	updateSyntheticList( wva );
-	synthsChanged.trigger();
-    }
+    mStratSynth->removeSynthetic( syntheticnm );
+    SyntheticData* sd = mStratSynth->addSynthetic();
+    if ( !sd )
+	mErrRet(mStratSynth->errMsg(), return );
+    updateSyntheticList( wva );
+    synthsChanged.trigger();
 
     datalist->setCurrentItem( syntheticnm );
     setCurrentSynthetic( wva );
@@ -868,12 +864,26 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     else
 	syntheticnm = wvadatalist_->text();
 
-    FixedString curvdsynthnm( currentvdsynthetic_->name().buf() );
-    updateSynthetic( syntheticnm, true );
-    updateSyntheticList( false );
-    displaySynthetic( currentwvasynthetic_ );
-    if ( syntheticnm == curvdsynthnm )
+    const BufferString curvdsynthnm( currentvdsynthetic_->name().buf() );
+    const BufferString curwvasynthnm( currentwvasynthetic_->name().buf() );
+    SyntheticData* cursd = mStratSynth->getSynthetic( syntheticnm );
+    SynthGenParams curgp;
+    cursd->fillGenParams( curgp );
+    if ( !(curgp == mStratSynth->genParams()) )
     {
+	updateSynthetic( syntheticnm, true );
+	updateSyntheticList( false );
+    }
+    else
+    {
+	wvadatalist_->setCurrentItem( syntheticnm );
+	setCurrentSynthetic( true );
+    }
+
+    displaySynthetic( currentwvasynthetic_ );
+    if ( curwvasynthnm == curvdsynthnm )
+    {
+	vddatalist_->setCurrentItem( syntheticnm );
 	setCurrentSynthetic( false );
 	displayPostStackSynthetic( currentvdsynthetic_, false );
     }
@@ -1068,6 +1078,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	currentvdsynthetic_ = 0;
 	currentwvasynthetic_ = 0;
 	wvadatalist_->setEmpty();
+	vddatalist_->setEmpty();
 	for ( int idx=0; idx<nrsynths; idx++ )
 	{
 	    PtrMan<IOPar> synthpar =
