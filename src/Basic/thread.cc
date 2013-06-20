@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # define mDestroyIttNotify( var )
 # define mPrepareIttNotify( var )
 # define mIttNotifyAcquired( var )
-# define mIttNotifyCancel( var )
+# define mIttNotifyReleasing( var )
 # define mIttNotifyCancel( var )
 #endif
 
