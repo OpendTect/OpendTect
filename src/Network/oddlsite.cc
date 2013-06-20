@@ -80,7 +80,10 @@ void ODDLSite::setTimeOut( float t, bool sett )
 bool ODDLSite::reConnect()
 {
     if ( islocal_ )
-	return !(isfailed_ = !File::isDirectory(host_));
+    {
+	isfailed_ = !File::isDirectory(host_);
+	return !isfailed_;
+    }
     else if ( issecure_ )
 	{ errmsg_ = "TODO secure access not implemented."; return false; }
 

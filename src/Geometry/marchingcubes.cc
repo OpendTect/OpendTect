@@ -570,7 +570,7 @@ protected:
 	    const bool originsign = model.getCornerSign( model.model_, 0 );
 	    const bool neighborsign = !originsign;
 
-	    int mindist;
+	    int mindist = 0;
 	    bool isset = false;
 	    for ( int dim=0; dim<3; dim++ )
 	    {
