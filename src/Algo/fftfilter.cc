@@ -194,7 +194,7 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
 	return false;
 
     const bool needresize = sz < mMINNRSAMPLES;
-    Array1DImpl<float_complex> signal( sz );
+    Array1DImpl<float_complex> signal( sz_ );
     if ( dopreproc )
     {
 	if ( !deTrend(outp) || !interpUdf(outp) )
