@@ -34,13 +34,13 @@ public:
 
     inline void			set(T* p, bool doerase=true);
     inline void			erase() { set( 0, true ); }
+    inline bool			setIfNull(T* p);
 
 protected:
 
     typedef void		(*PtrFunc)(T*);
     inline			PtrManBase(PtrFunc setfunc,PtrFunc deletor,T*);
     virtual			~PtrManBase()		{ set(0,true); }
-    
 
     Threads::AtomicPointer<T>	ptr_;
 
@@ -184,6 +184,20 @@ void PtrManBase<T>::set( T* p, bool doerase )
     T* oldptr = ptr_.exchange(p);
     if ( doerase )
 	deletefunc_( oldptr );
+}
+
+
+template <class T> inline
+bool PtrManBase<T>::setIfNull( T* p )
+{
+    if ( ptr_.setIfEqual( p, 0 ) )
+    {
+	if ( setfunc_ && p )
+	    setfunc_(p);
+	return true;
+    }
+
+    return false;
 }
 
 
