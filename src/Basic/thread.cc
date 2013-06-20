@@ -15,6 +15,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "errh.h"
 
+#ifdef __ittnotify__
+# include <ittnotify.h>
+# define mSetupIttNotify( var, name ) \
+	__itt_sync_create( &var, 0, name,  __itt_attr_mutex )
+# define mDestroyIttNotify( var ) __itt_sync_destroy( &var )
+# define mPrepareIttNotify( var ) __itt_sync_prepare( &var )
+# define mIttNotifyAcquired( var ) __itt_sync_acquired( &var )
+# define mIttNotifyReleasing( var ) __itt_sync_releasing( &var )
+# define mIttNotifyCancel( var ) __itt_sync_cancel( &var )
+#else
+# define mSetupIttNotify( var, name ) 
+# define mDestroyIttNotify( var )
+# define mPrepareIttNotify( var )
+# define mIttNotifyAcquired( var )
+# define mIttNotifyReleasing( var )
+# define mIttNotifyCancel( var )
+#endif
+
+#include "qatomic.h"
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
@@ -27,7 +46,8 @@ mUseQtnamespace
 
 Threads::Mutex::Mutex( bool recursive )
 #ifndef OD_NO_QT
-    : qmutex_( new QMutex(QMutex::NonRecursive) )
+    : qmutex_( new QMutex( recursive
+		? QMutex::Recursive : QMutex::NonRecursive) )
 #endif
 {}
 
@@ -37,7 +57,12 @@ Threads::Mutex::Mutex( const Mutex& m )
 #ifndef OD_NO_QT
     : qmutex_( new QMutex )
 #endif
-{ }
+{
+#ifdef __debug__
+    lockingthread_ = 0;
+    count_ = 0;
+#endif
+}
 
 
 Threads::Mutex::~Mutex()
@@ -53,12 +78,28 @@ void Threads::Mutex::lock()
 #ifndef OD_NO_QT
     qmutex_->lock();
 #endif
+
+#ifdef __debug__
+    count_++;
+    lockingthread_ = currentThread();
+#endif
 }
 
 
 void Threads::Mutex::unLock()
 {
 #ifndef OD_NO_QT
+# ifdef __debug__
+    count_--;
+    if ( lockingthread_ !=currentThread() )
+    {
+	pErrMsg("Unlocked from the wrong thead");
+	DBG::forceCrash( false );
+    }
+
+    if ( !count_ )
+	lockingthread_ = 0;
+# endif
     qmutex_->unlock();
 #endif
 }
@@ -67,41 +108,92 @@ void Threads::Mutex::unLock()
 bool Threads::Mutex::tryLock()
 {
 #ifndef OD_NO_QT
-    return qmutex_->tryLock();
+    if ( qmutex_->tryLock() )
+    {
+# ifdef __debug__
+	lockingthread_ = currentThread();
+# endif
+	return true;
+    }
+    return false;
 #else
+# ifdef __debug__
+    lockingthread_ = currentThread();
+# endif
     return true;
 #endif
 }
 
-
-Threads::SpinLock::SpinLock()
-    : spinlock_( 0 )
-{}
+Threads::SpinLock::SpinLock( bool recursive )
+    : count_( 0 )
+    , recursive_( recursive )
+    , lockingthread_( 0 )
+{
+    mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
+}
 
 Threads::SpinLock::~SpinLock()
-{}
+{
+    mDestroyIttNotify( lockingthread_ );
+}
 
 void Threads::SpinLock::lock()
 {
-    while ( !spinlock_.strongSetIfEqual( 1, 0 ) )
+    const void* currentthread = currentThread();
+    if ( recursive_ && lockingthread_ == currentthread )
+    {
+	count_ ++;
+	return;
+    }
+
+    mPrepareIttNotify( lockingthread_ );
+    while ( !lockingthread_.setIfEqual( currentthread, 0 ) )
 	;
+
+    mIttNotifyAcquired( lockingthread_ );
+
+    count_ = 1;
 }
 
 
 void Threads::SpinLock::unLock()
 {
+    count_--;
+    if ( !count_ )
+    {
+	mIttNotifyReleasing( lockingthread_ );
 #ifdef __debug__
-    if ( !spinlock_.strongSetIfEqual( 0, 1 ) )
-	pErrMsg( "Unlocking unlocked spinlock" );
+	if ( lockingthread_.exchange( 0 ) != currentThread() )
+	{
+	    pErrMsg("Unlocked by wrong thread");
+	}
 #else
-    spinlock_ = 0;
+	lockingthread_.exchange( 0 );
 #endif
+    }
 }
 
 
 bool Threads::SpinLock::tryLock()
 {
-    return spinlock_.strongSetIfEqual( 1, 0 );
+    const void* currentthread = currentThread();
+    if ( recursive_ && lockingthread_ == currentthread )
+    {
+	count_ ++;
+	return true;
+    }
+
+    mPrepareIttNotify( lockingthread_ );
+    if ( lockingthread_.setIfEqual( currentthread, 0 ) )
+    {
+	mIttNotifyAcquired( lockingthread_ );
+	count_ ++;
+
+	return true;
+    }
+
+    mIttNotifyCancel( lockingthread_ );
+    return false;
 }
 
 #define mUnLocked	0
@@ -403,7 +495,21 @@ Threads::ConditionVar::~ConditionVar()
 void Threads::ConditionVar::wait()
 {
 #ifndef OD_NO_QT
+# ifdef __debug__
+    if ( lockingthread_ !=currentThread() )
+    {
+	pErrMsg("Waiting from the wrong thead");
+	DBG::forceCrash( false );
+    }
+    count_ --;
+    lockingthread_ = 0;
+# endif
     cond_->wait( qmutex_ );
+
+#ifdef __debug__
+    lockingthread_ = currentThread();
+    count_++;
+# endif
 #endif
 }
 
