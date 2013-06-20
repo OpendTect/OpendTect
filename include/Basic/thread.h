@@ -46,24 +46,33 @@ namespace Threads
 mExpClass(Basic) Mutex
 {
 public:
-			Mutex( bool recursive=false );
-			Mutex(const Mutex&);
-    virtual		~Mutex();	
+		Mutex( bool recursive=false );
+		/*\If recursive, mutex can be locked
+		   multiple times from the same thread without deadlock.
+		   It will be unlock when unLock has been called the same
+		   number of times as lock(). */
+		Mutex(const Mutex&);
+    virtual	~Mutex();	
 
-    void		lock();
-    void		unLock();
+    void	lock();
+    void	unLock();
 
-    bool		tryLock();
-    			/*!< Returns true if mutex is locked.
-			     If it is locked, it you must unLock it when
-			     you are finished. If it returns false, 
-			     carry on with your life.
-			 */
+    bool	tryLock();
+    		/*!< Returns true if mutex is locked.
+		     If it is locked, it you must unLock it when
+		     you are finished. If it returns false, 
+		     carry on with your life.
+		*/
 
 protected:
 
 #ifndef OD_NO_QT
     mQtclass(QMutex*)		qmutex_;
+#endif
+
+#if __debug__
+    const void*			lockingthread_;
+    int				count_;
 #endif
 };
 
@@ -77,16 +86,29 @@ re-scheduling or context switching, spinlocks are efficient if threads are only 
 mExpClass(Basic) SpinLock
 {
 public:
-			SpinLock();
-			SpinLock(const SpinLock&);
-			~SpinLock();
+		SpinLock(bool recursive = false);
+		/*\If recursive, mutex can be locked
+		   multiple times from the same thread without deadlock.
+		   It will be unlock when unLock has been called the same
+		   number of times as lock(). */
+		SpinLock(const SpinLock&);
+		~SpinLock();
 
-    void		lock();
-    void		unLock();
-    bool		tryLock();
+    void	lock();
+    void	unLock();
+    bool	tryLock();
+
 
 protected:
-    Atomic<long>	spinlock_;
+    AtomicPointer<const void>	lockingthread_;
+    				/*!<0 if unlocked, otherwise set to locking
+				      thread */
+    int				count_;
+    const bool			recursive_;
+
+public:
+    int				count() const 	{ return count_; }
+				/*!<Only for debugging.  */
 };
 
 
