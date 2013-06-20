@@ -189,6 +189,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	else
 	    item = markeritems_[idx];
 
+	item->setMarkerStyle( style );
 	item->setRotation( style.rotation_ );
 	item->setPenColor( style.color_ );
 	item->setFillColor( style.color_ );
