@@ -26,8 +26,8 @@ int main( int narg, char** argv )
 	std::cerr << "Invalid svn revision. "
 		"Cmake could probably not find svn command-client. "
 		"Take a look in CMakeModules/ODSubversion.cmake.\n";
-	return 1;
+	ExitProgram( 1 );
     }
 
-    return 0;
+    ExitProgram( 0 );
 }

@@ -48,7 +48,7 @@ public:
 
 #define mRetAllOK() \
     std::cerr << "All OK.\n" << std::endl; \
-    return 0;
+    return 0; 
 
 #define mPrintFunc des[idx].print()
 	
@@ -177,5 +177,5 @@ int main( int narg, char** argv )
     res += testTypeSetSetFns();
     res += testObjSetFind();
 
-    return res;
+    ExitProgram( res );
 }

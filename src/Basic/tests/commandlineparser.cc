@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 if ( !(testparser.test) ) \
 { \
     std::cerr << "Test " << #test << " FAILED\n"; \
-    return 1; \
+    ExitProgram( 1 ); \
 } \
 else if ( !quiet ) \
 { \
@@ -94,7 +94,7 @@ int main( int narg, char** argv )
     if ( normalargs.size()!=8 )
     {
 	std::cerr << "getNormalArguments() - FAILED\n";
-	return 1;
+	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
@@ -108,12 +108,12 @@ int main( int narg, char** argv )
     if ( normalargs.size()!=7 )
     {
 	std::cerr << "getNormalArguments() with 1 key with value - FAILED\n";
-	return 1;
+	ExitProgram( 1 );
     }
     else if ( !quiet )
     {
 	std::cerr << "getNormalArguments() with 1 key with value - SUCCESS\n";
     }
 
-    return 0;
+    ExitProgram( 0 );
 }

@@ -73,7 +73,7 @@ public:
     { \
 	std::cerr << "Failed test with IbmFormat::as##func( " \
 		  << bufval << " )\n"; \
-	return 1; \
+	ExitProgram( 1 ); \
     } \
  \
     IbmFormat::put##func( correctval, &resbuf ); \
@@ -81,7 +81,7 @@ public:
     { \
 	std::cerr << "Failed test with IbmFormat::put##func( " \
 		  << bufval << " )\n"; \
-	return 1; \
+	ExitProgram( 1 ); \
     } \
 } 
 
@@ -107,9 +107,9 @@ int main( int narg, char** argv )
     //Test two known problem-spots
     if ( !testFloatIndex( 0, 0) ||
 	 !testFloatIndex( 152776, -1409417216.000000f ) )
-	return 1;
+	ExitProgram( 1 );
 
-    return 0;
+    ExitProgram( 0 );
 
     //Optional, run entire number-space.
     //IbmFormatTester tester;
