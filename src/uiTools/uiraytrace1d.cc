@@ -30,6 +30,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     if ( facnms.size() > 1 )
     {
 	raytracerselfld_ = new uiLabeledComboBox( this, "Ray-Tracer" );
+	raytracerselfld_->box()->setHSzPol( uiObject::Wide );
 	raytracerselfld_->box()->selectionChanged.notify( 
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
 
