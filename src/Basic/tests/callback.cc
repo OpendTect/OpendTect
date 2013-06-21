@@ -61,39 +61,48 @@ bool testNormalOp( bool quiet )
 {
     NotifiedClass notified;
     ClassWithNotifier notifier;
+    
+    notifier.notifier.notifyIfNotNotified(
+				mCB(&notified, NotifiedClass,callbackA) );
+    notifier.notifier.trigger();
+    mCheckTest( "Normal callback after notifyIfNotNotified",
+	        notified.nrhits_==1 );
+    
+    notifier.notifier.notifyIfNotNotified(
+			  mCB(&notified, NotifiedClass,callbackA) );
     notifier.notifier.notify( mCB(&notified, NotifiedClass,callbackA) );
     
     notifier.notifier.trigger();
-    mCheckTest( "Normal callback", notified.nrhits_==1 );
+    mCheckTest( "Normal callback", notified.nrhits_==3 );
     
     mCheckTest( "Return value of disable call", notifier.notifier.disable() );
     mCheckTest( "Return value of disable call on disabled notifier",
 	       	!notifier.notifier.disable() );
     notifier.notifier.trigger();
-    mCheckTest( "Trigger disabled notifier", notified.nrhits_==1 );
+    mCheckTest( "Trigger disabled notifier", notified.nrhits_==3 );
     
     mCheckTest( "Return value of enable call on disabled notifier",
 	       !notifier.notifier.enable() );
     
     NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
-    mCheckTest( "Notify-stopper on enabled notifier", notified.nrhits_==1 );
+    mCheckTest( "Notify-stopper on enabled notifier", notified.nrhits_==3 );
     delete stopper;
     
     notifier.notifier.trigger();
     mCheckTest( "Removed notify-stopper on enabled notifier",
-	        notified.nrhits_==2 );
+	        notified.nrhits_==5 );
     
     notifier.notifier.disable();
     
     stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
-    mCheckTest( "Notify-stopper on disabled notifier", notified.nrhits_==2 );
+    mCheckTest( "Notify-stopper on disabled notifier", notified.nrhits_==5 );
     delete stopper;
     
     notifier.notifier.trigger();
     mCheckTest( "Removed notify-stopper on disabled notifier",
-	       notified.nrhits_==2 );
+	       notified.nrhits_==5 );
     
     return true;
 }
