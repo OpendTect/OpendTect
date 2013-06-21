@@ -267,9 +267,7 @@ void NotifierAccess::notify( const CallBack& cb, bool first )
 void NotifierAccess::notifyIfNotNotified( const CallBack& cb )
 {
     Threads::Locker lckr( cbs_.lock_ );
-
-    if ( !cbs_.isPresent(cb) )
-	notify(cb);
+    cbs_.addIfNew( cb );
 }
 
 
