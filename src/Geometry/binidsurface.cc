@@ -427,7 +427,11 @@ Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 {
     const int index = getKnotIndex( rc );
-    float posz = index<0 || !depths_ ? mUdf(float) : depths_->getData()[index];
+    const int rowsz = depths_->info().getSize(0);
+    const int colsz = depths_->info().getSize(1);
+    const int row = index / colsz;
+    const int col = index % colsz;
+    float posz = index<0 || !depths_ ? mUdf(float) : depths_->get( row, col );
     Coord3 res = Coord3( getKnotCoord( rc ) , posz );
 
     if ( !depths_ || !mIsUdf(posz) || !interpolifudf )
@@ -443,11 +447,12 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 	    if ( !idx && !idy )
 		continue;
 
-	    const int curindex = getKnotIndex( RowCol(rc.row+idx,rc.col+idy) );
-	    if ( curindex<0 )
+	    const int currow = row+idx;
+	    const int curcol = col+idy;
+	    if ( currow<0 || currow>=rowsz || curcol<0 || curcol>=colsz )
 		continue;
 
-	    const double curz = depths_->getData()[curindex];
+	    const double curz = depths_->get( currow, curcol );
 	    if ( mIsUdf(curz) )
 		continue;
 
@@ -481,7 +486,9 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
 	idx = 0;
     }
 
-    depths_->getData()[idx] = (float) np.z;
+    const int row = idx / depths_->info().getSize(1);
+    const int col = idx / depths_->info().getSize(1);
+    depths_->set( row, col, (float) np.z );
 }
 
 
