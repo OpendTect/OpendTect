@@ -65,7 +65,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
-    mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer, reSizeCB );
+    mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer::reSizeCB );
 }
 
 

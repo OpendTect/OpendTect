@@ -54,12 +54,12 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 
     velfld_ = new uiGenInput( this, velfldlbl.buf(),
 			     FloatInpSpec(SI().zInFeet() ? 6000.f : 2000.f ) );
-    mAttachCB( velfld_->valuechanging, uiLinearVelTransform, velChangedCB );
+    mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
     
    
     gradientfld_ = new uiGenInput( this, "Gradient (1/s)", FloatInpSpec(0) );
     gradientfld_->attach( alignedBelow, velfld_ );
-    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform, velChangedCB);
+    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
     setHAlignObj( gradientfld_ );
 }
 
@@ -77,7 +77,7 @@ void uiLinearVelTransform::enableTargetSampling()
     
     rangefld_ = new uiZRangeInput( this, t2d_, true );
     rangefld_->attach( alignedBelow, gradientfld_ );
-    mAttachCB( finaliseDone, uiLinearVelTransform, finalizeDoneCB );
+    mAttachCB( finaliseDone, uiLinearVelTransform::finalizeDoneCB );
     
     velChangedCB( 0 );
 }
@@ -85,7 +85,7 @@ void uiLinearVelTransform::enableTargetSampling()
 
 void uiLinearVelTransform::finalizeDoneCB(CallBacker*)
 {
-    mAttachCB( rangefld_->valuechanging, uiLinearVelTransform, rangeChangedCB );   
+    mAttachCB( rangefld_->valuechanging, uiLinearVelTransform::rangeChangedCB );
 }
 
 

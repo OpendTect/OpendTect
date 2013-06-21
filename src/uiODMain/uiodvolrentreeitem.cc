@@ -440,10 +440,10 @@ bool uiODVolrenSubTreeItem::init()
 	slice->setSelectable( true );
 	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
 	
-	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem, selChgCB );
-	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem, selChgCB);
+	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem::selChgCB );
+	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem::selChgCB);
 	mAttachCB( visserv_->getUiSlicePos()->positionChg,
-		   uiODVolrenSubTreeItem, posChangeCB);
+		  uiODVolrenSubTreeItem::posChangeCB);
     }
 
     return uiODDisplayTreeItem::init();

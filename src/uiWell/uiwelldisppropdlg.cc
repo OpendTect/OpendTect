@@ -103,13 +103,13 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
 
     if ( yn )
     {
-	mDispNot.notify( mCB(this,uiWellDispPropDlg,wdChg) );
-	mDelNot.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
+	mAttachCB( mDelNot, uiWellDispPropDlg::welldataDelNotify );
     }
     else
     {
-	mDispNot.remove( mCB(this,uiWellDispPropDlg,wdChg) );
-	mDelNot.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
+	mDetachCB( mDelNot, uiWellDispPropDlg::welldataDelNotify );
     }
 }
 
@@ -159,7 +159,6 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 
 void uiWellDispPropDlg::onClose( CallBacker* )
 {
-    setWDNotifiers( false );
 }
 
 
@@ -242,13 +241,13 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 	wd_ = wds_[idx];
 	if ( yn )
 	{
-	    mDispNot.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-	    mDelNot.notify( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    mAttachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mAttachCB( mDelNot, uiMultiWellDispPropDlg::welldataDelNotify);
 	}
 	else
 	{
-	    mDispNot.remove( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-	    mDelNot.remove( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+	    mDetachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mDetachCB( mDelNot, uiMultiWellDispPropDlg::welldataDelNotify);
 	}
     }
     wd_ = curwd;
@@ -257,8 +256,6 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 
 void uiMultiWellDispPropDlg::onClose( CallBacker* )
 {
-    setWDNotifiers( false );
-    wds_.erase();
 }
 
 

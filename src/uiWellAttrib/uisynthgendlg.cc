@@ -78,7 +78,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     
     nmofld_ = new uiGenInput( pargrp, "Apply NMO corrections",
 			      BoolInpSpec(true) );
-    mAttachCB( nmofld_->valuechanged, uiSynthGenDlg, parsChanged);
+    mAttachCB( nmofld_->valuechanged, uiSynthGenDlg::parsChanged);
     nmofld_->attach( alignedBelow, wvltfld_ );
     
     FloatInpSpec inpspec;
