@@ -339,16 +339,13 @@ bool testMulthThreadChaos( bool quiet )
 	NotifierOwner notifierlist;
 	ReceiversOwner receiverslist( notifierlist );
 
-	timespec waitingtime;
-	waitingtime.tv_sec = 1;
-
-	nanosleep ( &waitingtime, 0 );
+	Threads::sleep( 1 );
 	for ( od_int64 idx=0; idx<1000; idx++ )
 	{
 	    notifierlist.trigger();
 	}
 
-	nanosleep ( &waitingtime, 0 );
+	Threads::sleep( 1 );
 
 	receiverslist.stop();
     } //All variables out of scope here
