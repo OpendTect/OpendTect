@@ -529,7 +529,7 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
-    Threads::Locker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( !lsnm || !*lsnm )
     {
 	lineindex_.setEmpty();
@@ -584,19 +584,19 @@ bool PosInfo::Survey2D::getGeometry( const GeomID& geomid,
 {
     if ( !geomid.isOK() ) return false;
 
-    Threads::Locker* locker = 0;
+    Threads::Locker* lckr = 0;
     if ( geomid.lsid_ != S2DPOS().curLineSetID() )
     {
-	locker = new Threads::Locker( lock_ );
+	lckr = new Threads::Locker( lock_ );
 	S2DPOS().setCurLineSet( geomid.lsid_ );
     }
 
     const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
     if ( !linenm )
-	{ delete locker; return false; }
+	{ delete lckr; return false; }
     
     const bool ret = S2DPOS().getGeometry( geomid.lineid_, l2dd );
-    delete locker;
+    delete lckr;
     return ret;
 }
 
