@@ -65,7 +65,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     angleinpfld_ = new uiGenInput( pargrp, "Angle Range", finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
 
-    uiRayTracer1D::Setup rsu; rsu.dooffsets_ = true;
+    uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
     rtsel_ = new uiRayTracerSel( pargrp, rsu );
     rtsel_->usePar( stratsynth_.genParams().raypars_ ); 
     rtsel_->attach( alignedBelow, angleinpfld_ );
@@ -378,6 +378,8 @@ void uiSynthGenDlg::updateWaveletName()
 
 bool uiSynthGenDlg::acceptOK( CallBacker* )
 {
+    if ( !synthnmlb_->nrSelected() ) return true;
+
     if ( !getFromScreen() ) return false;
     BufferString synthname( synthnmlb_->getText() );
     synthChanged.trigger( synthname );
