@@ -26,11 +26,44 @@ Threads::Lock::Lock( Threads::Lock::Type lt )
 {
 }
 
+
 Threads::Lock::Lock( const Threads::Lock& oth )
     : mutex_(oth.mutex_ ? new Mutex(*oth.mutex_) : 0)
     , splock_(oth.splock_ ? new SpinLock(*oth.splock_) : 0)
     , rwlock_(oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0)
 {
+}
+
+
+Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
+{
+    if ( this == &oth ) return *this;
+
+    // Hopefully we can stay the same type:
+    if ( mutex_ )
+    {
+	if ( oth.mutex_ )
+	    { *mutex_ = *oth.mutex_; return *this; }
+	delete mutex_;
+    }
+    else if ( splock_ )
+    {
+	if ( oth.splock_ )
+	    { *splock_ = *oth.splock_; return *this; }
+	delete splock_;
+    }
+    else
+    {
+	if ( oth.rwlock_ )
+	    { *rwlock_ = *oth.rwlock_; return *this; }
+	delete rwlock_;
+    }
+
+    mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
+    splock_ = oth.splock_ ? new SpinLock(*oth.splock_) : 0;
+    rwlock_ = oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0;
+
+    return *this;
 }
 
 

@@ -59,6 +59,7 @@ public:
     				Lock(bool for_just_a_few_operations=false);
     				Lock(Type);
     				Lock(const Lock&);
+    Lock&			operator =(const Lock&);
     virtual			~Lock();
 
 
