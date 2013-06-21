@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "posprovider.h"
 
+namespace PosInfo { class Line2DData; }
+
 namespace Pos
 {
 
@@ -106,11 +108,15 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
-    StepInterval<int>&		trcRange(int lidx)	{ return trcrgs_[lidx];}
-    const StepInterval<int>&	trcRange(int lidx) const {return trcrgs_[lidx];}
+    StepInterval<int>&		trcRange(int lidx)
+    				{ return trcrgs_[lidx];}
+    const StepInterval<int>&	trcRange(int lidx) const
+    				{return trcrgs_[lidx];}
     
-    StepInterval<float>&	zRange(int lidx=0) 	{ return zrgs_[lidx]; }
-    const StepInterval<float>&	zRange(int lidx=0) const {return zrgs_[lidx];}
+    StepInterval<float>&	zRange(int lidx=0)
+    				{ return zrgs_[lidx]; }
+    const StepInterval<float>&	zRange(int lidx=0) const
+    				{return zrgs_[lidx];}
 
 protected:
 
@@ -119,6 +125,12 @@ protected:
     int			curtrcidx_;
     int			curlineidx_;
     float		curz_;
+
+    PosInfo::Line2DData*	curlinegeom_;
+
+    const PosInfo::Line2DData*	curGeom() const;
+    StepInterval<float>		curZRange() const;
+    StepInterval<int>		curTrcRange() const;
 
 public:
 
