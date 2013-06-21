@@ -17,10 +17,33 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Threads
 {
 
+const Threads::WorkManager* thetwm = 0;
+
+static void shutdownTWM()
+{
+   WorkManager::twm().shutdown();
+}
+
+
 Threads::WorkManager& WorkManager::twm()
 {
-    static Threads::WorkManager twm_( Threads::getNrProcessors()*2 );
-    return twm_;
+    static PtrMan<Threads::WorkManager> twm_= 0;
+    if ( !twm_ )
+    {
+	Threads::WorkManager* newtwm =
+	    new Threads::WorkManager( Threads::getNrProcessors()*2 );
+	if ( !twm_.setIfNull( newtwm ) )
+	{
+	    delete newtwm;
+	}
+	else
+	{
+	    thetwm = newtwm;
+	    NotifyExitProgram( &shutdownTWM );
+	}
+    }
+
+    return *twm_;
 }
 
 
@@ -266,11 +289,25 @@ Threads::WorkManager::WorkManager( int nrthreads )
 
 Threads::WorkManager::~WorkManager()
 {
+    if ( this==thetwm && queueids_.size() )
+    {
+	pErrMsg("Default queue is not empty. "
+	        "Please call twm().shutdown() before exiting main program,"
+		"or exit with ExitProgram()");
+    }
+
+    shutdown();
+
+    delete &workloadcond_;
+}
+
+
+void Threads::WorkManager::shutdown()
+{
     while ( queueids_.size() )
 	removeQueue( queueids_[0], false );
 
     deepErase( threads_ );
-    delete &workloadcond_;
 }
 
 
@@ -362,13 +399,16 @@ inline void Threads::WorkManager::reduceWorkload( int queueidx )
 void Threads::WorkManager::emptyQueue( int queueid, bool finishall )
 {
     Threads::MutexLocker lock(workloadcond_);
-    const int queueidx = queueids_.indexOf( queueid );
+    int queueidx = queueids_.indexOf( queueid );
 
     if ( finishall )
     {
 	//Wait for all threads to exit
 	while ( queueworkload_[queueidx] || queueSizeNoLock( queueid ) )
+	{
 	    workloadcond_.wait();
+	    queueidx = queueids_.indexOf( queueid );
+	}
     }
     else
     {
@@ -403,7 +443,10 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
     Threads::MutexLocker lock(workloadcond_);
 
     while ( queueworkload_[queueidx] )
+    {
 	workloadcond_.wait();
+	queueidx = queueids_.indexOf( queueid );
+    }
 
     queueidx = queueids_.indexOf( queueid );
     queueworkload_.removeSingle( queueidx );

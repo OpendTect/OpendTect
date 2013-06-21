@@ -334,7 +334,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " ", quiet ) ) \
-	return 1
+	ExitProgram( 1 );
 
 
 int main( int narg, char** argv )
@@ -360,10 +360,10 @@ int main( int narg, char** argv )
     mRunTestWithType(unsigned short);
 
     if ( !testLock<Threads::Mutex>( quiet, false, "Mutex" ) )
-	return 1;
+	ExitProgram( 1 );
 
     if ( !testLock<Threads::SpinLock>( quiet, true, "SpinLock" ) )
-	return 1;
+	ExitProgram( 1 );
 
-    return 0;
+    ExitProgram( 0 );
 }

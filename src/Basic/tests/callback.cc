@@ -358,7 +358,7 @@ int main( int narg, char** argv )
     
     if ( !testNormalOp( quiet ) || !testAttach( quiet ) ||
 	 !testDetach( quiet ) || !testMulthThreadChaos( quiet ) )
-	return 1;
+	ExitProgram( 1 );
     
-    return 0;
+    ExitProgram( 0 );
 }

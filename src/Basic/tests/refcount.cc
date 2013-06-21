@@ -40,7 +40,7 @@ voiddo; \
 if ( !(test) || delstatus!=deleted || (rc>=0 && rc!=refclass->nrRefs() )) \
 { \
 std::cerr << "Test " << #voiddo << " " << #test << " FAILED\n"; \
-return 1; \
+ExitProgram( 1 ); \
 } \
 else if ( !quiet ) \
 { \
@@ -77,5 +77,5 @@ int main( int narg, char** argv )
     mRunTest( unRefPtr(refclass), true, false, 2 );
     mRunTest( unRefPtr(refclass), true, false, 1 );
     
-    return 0;
+    ExitProgram( 0 );
 }
