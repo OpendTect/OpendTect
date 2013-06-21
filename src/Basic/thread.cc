@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Threads::Lock::Lock( bool sp )
     : mutex_(sp ? 0 : new Mutex(true))
-    , splock_(sp ? new SpinLock : 0)
+    , splock_(sp ? new SpinLock(true) : 0)
     , rwlock_(0)
 {
 }
@@ -21,7 +21,7 @@ Threads::Lock::Lock( bool sp )
 
 Threads::Lock::Lock( Threads::Lock::Type lt )
     : mutex_(lt == BigWork ? new Mutex(true) : 0)
-    , splock_(lt == SmallWork ? new SpinLock : 0)
+    , splock_(lt == SmallWork ? new SpinLock(true) : 0)
     , rwlock_(lt == MultiRead ? new ReadWriteLock : 0)
 {
 }
