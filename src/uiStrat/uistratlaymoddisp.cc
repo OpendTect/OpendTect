@@ -455,6 +455,8 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 {
     if ( zoomwr_.width() < 0.001 || !zoomboxitm_ || !xax_ )
 	{ if ( zoomboxitm_ ) zoomboxitm_->setVisible( false ); return; }
+    if ( mIsUdf(zoomwr_.left()) )
+	getBounds();
 
     const int xpix = xax_->getPix( (float)zoomwr_.left() );
     const int ypix = yax_->getPix( (float)zoomwr_.top() );
