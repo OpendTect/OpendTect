@@ -193,6 +193,8 @@ public:
 				"No pending work left after removeQueue." );
 	}
 
+	//workmanager.emptyQueue( workmanager.cDefaultQueueID(), true );
+
 	return true;
     }
 
@@ -224,8 +226,9 @@ int main( int narg, char** argv )
     od_init_test_program( narg, argv );
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
     WorkManagerTester tester;
-    return tester.runCallBackTests(quiet) && tester.testWorkResults(quiet)
-	? 0
-	: 1;
+    if ( tester.runCallBackTests(quiet) && tester.testWorkResults(quiet) )
+	ExitProgram( 0 );
+
+    ExitProgram( 1 );
 }
 

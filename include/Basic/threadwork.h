@@ -42,6 +42,8 @@ public:
     				WorkManager(int nrthreads=-1);
 				~WorkManager();
 
+    void			shutdown();
+
     enum QueueType 		{ MultiThread, SingleThread, Manual };
     int				addQueue(QueueType type);
     				/*!<Manual queues will not be executed
