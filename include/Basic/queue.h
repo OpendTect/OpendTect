@@ -12,7 +12,7 @@ ________________*_______________________________________________________
 
 -*/
 
-#include "thread.h"
+#include "threadlock.h"
 
 
 /*!
@@ -39,12 +39,12 @@ template <class T>
 mClass(Basic) ObjQueue
 {
 public:
-			ObjQueue() : head(0), tail(0) {}
+			ObjQueue() : head(0), tail(0), lock_(true)	{}
 
 			//! item becomes MINE!
     void		add( T* item ) 
 			{
-			    mutex.lock();
+			    Threads::Locker lckr( lock_ );
 			    if ( !tail )
 				head = tail = new QueueEntry<T*>( item );
 			    else
@@ -52,15 +52,13 @@ public:
 				tail->next = new QueueEntry<T*>( item );
 				tail = tail->next;
 			    }
-			    mutex.unLock();
 			}
 
 			//! becomes YOURS!
     T*			next() 
 			{
 			    if ( !head ) return 0;
-
-			    mutex.lock();
+			    Threads::Locker lckr( lock_ );
 
 			    T* value = head->value;
 
@@ -69,14 +67,11 @@ public:
 			    delete old;
 
 			    if ( !head ) tail = 0;
-
-			    mutex.unLock();
-
 			    return value;
 			}
 protected:
 
-    Threads::Mutex	mutex;
+    Threads::Lock	lock_;
 
     QueueEntry<T*>*	head;
     QueueEntry<T*>*	tail;
@@ -92,11 +87,11 @@ template <class T>
 mClass(Basic) TypeQueue
 {
 public:
-			TypeQueue() : head(0), tail(0) {}
+			TypeQueue() : head(0), tail(0), lock_(true)	{}
 
     void		add( T item ) 
 			{
-			    mutex.lock();
+			    Threads::Locker lckr( lock_ );
 			    if ( !tail )
 				head = tail = new QueueEntry<T>( item );
 			    else
@@ -104,7 +99,6 @@ public:
 				tail->next = new QueueEntry<T>( item );
 				tail = tail->next;
 			    }
-			    mutex.unLock();
 			}
 
     bool		empty()		{ return !head; }
@@ -112,8 +106,7 @@ public:
     T			next() 
 			{
 			    if ( empty() ) return 0;
-
-			    mutex.lock();
+			    Threads::Locker lckr( lock_ );
 
 			    T value = head->value;
 
@@ -123,17 +116,16 @@ public:
 
 			    if ( !head ) tail = 0;
 
-			    mutex.unLock();
-
 			    return value;
 			}
 protected:
 
-    Threads::Mutex	mutex;
+    Threads::Lock	lock_;
 
     QueueEntry<T>*	head;
     QueueEntry<T>*	tail;
 
 };
+
 
 #endif

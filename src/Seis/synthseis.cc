@@ -542,12 +542,10 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
 	
-	lock_.lock();
-
+	Threads::Locker lckr( lock_ );
 	trcs_ += new SeisTrc( synthgen.result() );
 	trcidxs_ += idx;
-
-	lock_.unLock();
+	lckr.unlockNow();
 
 	addToNrDone( mCast(int,synthgen.currentProgress()) );
     }

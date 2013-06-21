@@ -148,13 +148,10 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	addToNrDone( 1 );
     }
 
+    Threads::Locker lckr( lock_ );
     //add the mutes
-    lock_.lock();
-
     for ( int idx=0; idx<mutefuncs.size(); idx++ )
 	outputmute_.add( mutefuncs[idx], bids[idx] );
-
-    lock_.unLock();
 
     return true;
 }

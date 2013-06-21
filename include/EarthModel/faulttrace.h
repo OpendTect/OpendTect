@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "surv2dgeom.h"
 #include "trigonometry.h"
+#include "threadlock.h"
 
 namespace EM { class Fault; class Horizon; }
 namespace Geometry { class ExplFaultStickSurface; }
@@ -110,7 +111,7 @@ protected:
     Interval<float>	zrange_;
     TypeSet<Line2>	tracesegs_;
 
-    Threads::Mutex	mutex_;
+    Threads::Lock	lock_;
 public:
 
 };

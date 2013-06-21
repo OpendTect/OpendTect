@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "thread.h"
+#include "atomic.h"
 #include "objectset.h"
 #include "errh.h"
 

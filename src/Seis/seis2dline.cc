@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "binidvalset.h"
+#include "threadlock.h"
 #include "survinfo.h"
 #include "file.h"
 #include "filepath.h"
@@ -28,11 +29,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 struct Seis2DLineSetCache
 {
-    Threads::Mutex	lock_;
     BufferString	name_;
     BufferString	fname_;
     BufferString	typestr_;
     ObjectSet<IOPar>	pars_;
+    Threads::Lock	lock_;
 
 			~Seis2DLineSetCache()
 			{ deepErase( pars_ ); }
@@ -88,7 +89,7 @@ void Seis2DLineSet::init( const char* fnm )
     fname_ = fnm;
     BufferString typestr = "CBVS";
 
-    cache.lock_.lock();
+    Threads::Locker lckr( cache.lock_ );
 
     if ( fname_ == cache.fname_ )
     {
@@ -105,7 +106,7 @@ void Seis2DLineSet::init( const char* fnm )
 	cache.typestr_ = typestr;
     }
 
-    cache.lock_.unLock();
+    lckr.unlockNow();
 
     liop_ = 0;
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
@@ -272,10 +273,10 @@ void Seis2DLineSet::writeFile() const
 
 void Seis2DLineSet::putTo( std::ostream& strm ) const
 {
-    cache.lock_.lock();
+    Threads::Locker lckr( cache.lock_ );
     if ( cache.fname_==fname_ || cache.name_==name() )
 	cache.fname_.setEmpty();			/* Invalidate cache */
-    cache.lock_.unLock();
+    lckr.unlockNow();
 
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
@@ -1014,7 +1015,6 @@ Executor* Seis2DLineSet::geometryDumper( std::ostream& strm, bool incnr,
 
 void Seis2DLineSet::invalidateCache()
 {
-    cache.lock_.lock();
+    Threads::Locker lckr( cache.lock_ );
     cache.fname_.setEmpty();
-    cache.lock_.unLock();
 }

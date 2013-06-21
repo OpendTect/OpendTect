@@ -146,7 +146,7 @@ protected:
     FlatPosData&		xyrotposdata_;
     bool			isposcoord_;
     TypeSet<BufferString>	axeslbls_;
-    Threads::Mutex		initlock_;
+    Threads::Lock		initlock_;
 };
 
 

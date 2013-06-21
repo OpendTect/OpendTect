@@ -468,7 +468,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
-    prepareUpdate();
+    Threads::Locker lckr( updateLock() );
 
     delete arr2d_; arr2d_ = 0;
     posfld_ = fld;
@@ -487,8 +487,6 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 	StepInterval<double> zrg; assign( zrg, pinf.zrg );
 	pd.setRange( false, zrg );
     }
-
-    updateFinished();
 }
 
 

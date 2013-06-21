@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "zdomain.h"
 #include "refcount.h"
-#include "thread.h"
+#include "atomic.h"
 #include "cubesampling.h"
 #include "survgeom.h"
 

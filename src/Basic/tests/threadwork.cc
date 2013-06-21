@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
+#include "thread.h"
 #include "keystrs.h"
 #include "commandlineparser.h"
 #include "bufstring.h"

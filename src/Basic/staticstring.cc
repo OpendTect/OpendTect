@@ -8,13 +8,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "staticstring.h"
+#include "thread.h"
 
 #include "keystrs.h"
 
 BufferString& StaticStringManager::getString()
 {
     const void* threadid = Threads::currentThread();
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     int idx = threadids_.indexOf( threadid );
     if ( idx<0 )
     {

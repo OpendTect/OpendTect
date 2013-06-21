@@ -39,7 +39,7 @@ const TypeSet<int>& FaultTrace::getIndices() const
 
 int FaultTrace::add( const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex_ );
+    Threads::Locker locker( lock_ );
     coords_ += pos;
     return coords_.size() - 1;
 }
@@ -47,7 +47,7 @@ int FaultTrace::add( const Coord3& pos )
 
 int FaultTrace::add( const Coord3& pos, float trcnr )
 {
-    Threads::MutexLocker lock( mutex_ );
+    Threads::Locker locker( lock_ );
     coords_ += pos;
     trcnrs_ += trcnr;
     return coords_.size() - 1;
@@ -80,7 +80,7 @@ void FaultTrace::set( int idx, const Coord3& pos, float trcnr )
 
 void FaultTrace::remove( int idx )
 {
-    Threads::MutexLocker lock( mutex_ );
+    Threads::Locker locker( lock_ );
     coords_.removeSingle( idx );
 }
 
@@ -91,7 +91,7 @@ bool FaultTrace::isDefined( int idx ) const
 
 FaultTrace* FaultTrace::clone()
 {
-    Threads::MutexLocker lock( mutex_ );
+    Threads::Locker locker( lock_ );
     FaultTrace* newobj = new FaultTrace;
     newobj->coords_ = coords_;
     newobj->trcnrs_ = trcnrs_;

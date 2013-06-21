@@ -102,7 +102,9 @@ bool Task::shouldContinue()
 
 TaskGroup::TaskGroup()
     : curtask_(-1)
-{}
+    , lock_(true)
+{
+}
 
 
 void TaskGroup::addTask( Task* t )
@@ -118,42 +120,43 @@ void TaskGroup::setProgressMeter( ProgressMeter* p )
 
 od_int64 TaskGroup::nrDone() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
 }
 
 
 od_int64 TaskGroup::totalNr() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
 }
 
 
 const char* TaskGroup::message() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->message() : 0;
 }
 
 
 const char* TaskGroup::nrDoneText() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDoneText() : 0;
 }
 
 
 bool TaskGroup::execute()
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     for ( curtask_=0; curtask_<tasks_.size(); curtask_++ )
     {
-	lock.unLock();
-	if ( !tasks_[curtask_]->execute() )
-	    return false;
+	Task* toexec = tasks_[curtask_];
 
-	lock.lock();
+	locker.unlockNow();
+	if ( !toexec->execute() )
+	    return false;
+	locker.reLock();
     }
 
     return true;
@@ -169,14 +172,14 @@ void TaskGroup::enableWorkControl( bool yn )
 
 void TaskGroup::controlWork( Task::Control t )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     if ( tasks_.validIdx(curtask_) ) tasks_[curtask_]->controlWork( t );
 }
 
 
 Task::Control TaskGroup::getState() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     return tasks_.validIdx(curtask_) ? tasks_[curtask_]->getState()
 				     : Task::Stop;
 }
@@ -184,6 +187,7 @@ Task::Control TaskGroup::getState() const
 void TaskGroup::setParallel(bool)
 {
     pErrMsg("Not implemented. Perhaps you should do it?");
+    pErrMsg("'No No, Not Me!'");
 }
 
 

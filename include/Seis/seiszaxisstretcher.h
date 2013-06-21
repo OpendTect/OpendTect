@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "cubesampling.h"
 #include "task.h"
+#include "thread.h"
 
 class IOObj;
 class MultiID;

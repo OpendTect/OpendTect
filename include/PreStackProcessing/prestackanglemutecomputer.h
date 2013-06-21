@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "horsampling.h"
 #include "prestackanglemute.h"
+#include "threadlock.h"
 
 class HorSampling;
 class IOObj;
@@ -65,10 +66,9 @@ public:
 protected:
 
     BufferString		errmsg_;
+    MuteDef&			outputmute_;
+    Threads::Lock		lock_;
 
-    MuteDef&                    outputmute_;
-
-    Threads::Mutex              lock_;
 };
 
 }

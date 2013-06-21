@@ -15,10 +15,11 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 #include "objectset.h"
-#include "thread.h"
+#include "threadlock.h"
+#include "atomic.h"
 
 
-namespace Threads { class ThreadWorkManager; }
+namespace Threads { class ThreadWorkManager; class ConditionVar; }
 
 class ProgressMeter;
 
@@ -95,7 +96,7 @@ protected:
     ObjectSet<Task>		tasks_;
     int				curtask_;
 
-    mutable Threads::Mutex	lock_;
+    mutable Threads::Lock	lock_;
 };
 
 

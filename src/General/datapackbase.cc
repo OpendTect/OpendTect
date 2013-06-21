@@ -313,7 +313,7 @@ void MapDataPack::initXYRotArray( TaskRunner* tr )
 
 Array2D<float>& MapDataPack::data()
 {
-    Threads::MutexLocker lock( initlock_ );
+    Threads::Locker lck( initlock_ );
     if ( isposcoord_ && !xyrotarr2d_ )
 	initXYRotArray( 0 );
     

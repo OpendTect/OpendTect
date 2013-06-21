@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "callback.h"
 
 
@@ -82,7 +82,7 @@ protected:
     int 		nrdotsonline_; 
     bool		inited_;
     bool		finished_;
-    Threads::Mutex	lock_;
+    Threads::Lock	lock_;
 
     void		annotate(bool);
 }; 

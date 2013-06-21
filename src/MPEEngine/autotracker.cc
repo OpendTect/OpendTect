@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sectiontracker.h"
 #include "survinfo.h"
 #include "timefun.h"
+#include "thread.h"
 
 namespace MPE 
 {

@@ -25,6 +25,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
     , arr_(arr)
     , threshold_(threshold)
     , volsum_(0)  
+    , lock_(true)  
 {
     const float zfactor = SI().zIsTime() ? velocityinmeter : 
 	(SI().zInFeet() ? mFromFeetFactorF : 1);
@@ -183,11 +184,8 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 	}
     }
     
-    lock_.lock();
+    Threads::Locker lckr( lock_ );
     volsum_ += unitvol_*nrunits;
-    lock_.unLock();   
-   
     return true;
 }
-
 

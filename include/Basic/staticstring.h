@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "sets.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "bufstringset.h"
 
 
@@ -33,8 +33,9 @@ protected:
 
     BufferStringSet     	strings_;
     ObjectSet<const void>     	threadids_;
-    Threads::Mutex		lock_;
+    Threads::Lock		lock_;
 };
+
 
 #endif
 

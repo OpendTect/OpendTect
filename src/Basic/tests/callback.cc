@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "signal.h"
 #include "debug.h"
+#include "thread.h"
 
 #include <iostream>
 #include <time.h>

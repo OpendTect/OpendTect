@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "general.h"
 #include "errh.h"
-#include "thread.h"
+#include "atomic.h"
 
 #define mImpPtrManPointerAccess( type ) \
     inline type*		ptr() const		{ return this->ptr_; } \

@@ -171,7 +171,7 @@ struct IdxFileData
 };
 
 static ManagedObjectSet<IdxFileData> idxfilecache;
-static Threads::ReadWriteLock idxfilecachelock;
+static Threads::Lock idxfilecachelock( Threads::Lock::MultiRead );
 
 static int getIdxFileCacheIdx( const char* fnm )
 {
@@ -184,19 +184,17 @@ static int getIdxFileCacheIdx( const char* fnm )
 }
 
 
+#define mGetWriteLocker(var) \
+    Threads::Locker var( idxfilecachelock, Threads::Locker::WriteLock )
+
+
 void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 {
-    idxfilecachelock.readLock();
-
+    Threads::Locker rdlocker( idxfilecachelock );
     int idx = getIdxFileCacheIdx( fnm );
     if ( idx>=0 && File::getTimeInSeconds(fnm)<=idxfilecache[idx]->timestamp_ )
-    {
-	iop = idxfilecache[idx]->iopar_;
-	idxfilecachelock.readUnLock();
-	return;
-    }
-
-    idxfilecachelock.readUnLock();
+	{ iop = idxfilecache[idx]->iopar_; return; }
+    rdlocker.unlockNow();
 
     iop.setEmpty();
     SafeFileIO sfio( fnm, true );
@@ -204,8 +202,7 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
     ascistream astrm( sfio.istrm() );
     iop.getFrom( astrm );
 
-    idxfilecachelock.writeLock();
-
+    mGetWriteLocker( wrlocker );
     idx = getIdxFileCacheIdx( fnm );
     if ( idx >= 0 )
 	delete idxfilecache.removeSingle( idx );
@@ -215,8 +212,6 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
     idxfiledata->timestamp_ = File::getTimeInSeconds( fnm );
     idxfiledata->iopar_ = iop;
     idxfilecache += idxfiledata;
-
-    idxfilecachelock.writeUnLock();
 
     sfio.closeSuccess();
 }
@@ -235,13 +230,10 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
     (lines ? lineindex_ : lsindex_).putTo( astrm );
     if ( sfio.ostrm().good() )
     {
-	idxfilecachelock.writeLock();
-
+	mGetWriteLocker( wrlocker );
 	int idx = getIdxFileCacheIdx( fp.fullPath() );
 	if ( idx >= 0 )
 	    idxfilecache[idx]->timestamp_ = -1;
-
-	idxfilecachelock.writeUnLock();
 
 	sfio.closeSuccess();
     }
@@ -537,7 +529,7 @@ void PosInfo::Survey2D::setCurLineSet( int lsid ) const
 
 void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 {
-    Threads::MutexLocker lock( mutex_ );
+    Threads::Locker lock( lock_ );
     if ( !lsnm || !*lsnm )
     {
 	lineindex_.setEmpty();
@@ -592,23 +584,19 @@ bool PosInfo::Survey2D::getGeometry( const GeomID& geomid,
 {
     if ( !geomid.isOK() ) return false;
 
-    Threads::MutexLocker* locker = 0;
+    Threads::Locker* locker = 0;
     if ( geomid.lsid_ != S2DPOS().curLineSetID() )
     {
-	locker = new Threads::MutexLocker( mutex_ );
+	locker = new Threads::Locker( lock_ );
 	S2DPOS().setCurLineSet( geomid.lsid_ );
     }
 
     const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
     if ( !linenm )
-    {
-	delete locker;
-	return false;
-    }
+	{ delete locker; return false; }
     
     const bool ret = S2DPOS().getGeometry( geomid.lineid_, l2dd );
     delete locker;
-    
     return ret;
 }
 

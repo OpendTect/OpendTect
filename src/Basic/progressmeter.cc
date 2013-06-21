@@ -45,7 +45,7 @@ void TextStreamProgressMeter::setTask( const Task& task )
 
 void TextStreamProgressMeter::setFinished()
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     if ( finished_ )
 	return;
 
@@ -53,14 +53,14 @@ void TextStreamProgressMeter::setFinished()
     finished_ = true;
 
     strm_ << "\nFinished: "  << Time::getDateTimeString() << std::endl;
-    lock.unLock();
+    lock.unlockNow();
     reset();
 }
 
 
 void TextStreamProgressMeter::reset()
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     nrdone_ = 0;
     oldtime_ = Time::getMilliSeconds();
     inited_ = false;
@@ -111,14 +111,14 @@ void TextStreamProgressMeter::addProgress( int nr )
 
 void TextStreamProgressMeter::operator++()
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     addProgress( 1 );
 }
 	
 
 void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     if ( nrdone<=nrdone_ )
     	return;
 

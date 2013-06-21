@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "separstr.h"
 #include "survgeom.h"
-#include "thread.h"
+#include "threadlock.h"
 
 class IOPar;
 class FilePath;
@@ -123,7 +123,7 @@ private:
     IOPar&		lsindex_;
     IOPar&		lineindex_;
     mutable BufferString curlstimestr_;
-    mutable Threads::Mutex mutex_;
+    mutable Threads::Lock lock_;
 
     void		readIdxFiles();
     bool		isIdxFileNew(const char* lsnm=0) const;

@@ -15,10 +15,10 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "task.h"
+#include "threadlock.h"
 
 class CubeSampling;
 template <class T> class Array3D;
-namespace Threads { class Mutex; }
 
 
 /*!
@@ -32,20 +32,20 @@ public:
 					     const Array3D<float>& arr,
    					     float threshold,
    					     float velocityinmeter);
-float 			getVolume() const	{ return volsum_; }
+    float		getVolume() const	{ return volsum_; }
 			//unit in meter^3
 
 protected:
 
-od_int64		nrIterations() const;
-bool			doWork(od_int64 start,od_int64 stop,int threadid);
+    od_int64		nrIterations() const;
+    bool		doWork(od_int64 start,od_int64 stop,int threadid);
 
-const CubeSampling&	cs_;
-const Array3D<float>&	arr_;
-float			threshold_;
-float			unitvol_;
-float			volsum_;
-Threads::Mutex		lock_;
+    const CubeSampling&	cs_;
+    const Array3D<float>& arr_;
+    float		threshold_;
+    float		unitvol_;
+    float		volsum_;
+    Threads::Lock	lock_;
 };
 
 

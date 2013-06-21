@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "odmemory.h"
 #include "task.h"
+#include "threadlock.h"
 
 #include "complex"
 
@@ -178,8 +179,8 @@ protected:
     ObjectSet<SynthGenerator>	synthgens_;
     ObjectSet<SeisTrc>		trcs_;
     TypeSet<int>		trcidxs_;
-    od_int64                    totalnr_;
-    Threads::Mutex              lock_;
+    od_int64			totalnr_;
+    Threads::Lock		lock_;
 };
 
 

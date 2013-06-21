@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "errh.h"
-#include "thread.h"
 #include "sets.h"
+#include "threadlock.h"
 
 
 /*!
@@ -55,26 +55,28 @@ mClass(Basic) HiddenParam
 {
 public:
     		HiddenParam( const V& undefval )
-		    : undef_( undefval ) 	{}
+		    : undef_( undefval )		{}
     void	setParam( O* obj, const V& val );
     const V&	getParam( const O* obj ) const;
 
     bool	hasParam( const O* ) const;
 
     void	removeParam( O* );
+
 protected:
 
     ObjectSet<O>		objects_;
     TypeSet<V>			params_;
-    mutable Threads::Mutex	lock_;
+    mutable Threads::Lock	lock_;
     V				undef_;
+
 };
 
 
 template <class O, class V>
 void HiddenParam<O,V>::setParam( O* obj, const V& val )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     const int idx = objects_.indexOf( obj );
     if ( idx==-1 )
     {
@@ -90,7 +92,7 @@ void HiddenParam<O,V>::setParam( O* obj, const V& val )
 template <class O, class V>
 const V& HiddenParam<O,V>::getParam( const O* obj ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     const int idx = objects_.indexOf( obj );
     if ( !objects_.validIdx(idx) )
     {
@@ -105,7 +107,7 @@ const V& HiddenParam<O,V>::getParam( const O* obj ) const
 template <class O, class V>
 bool HiddenParam<O,V>::hasParam( const O* obj ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     return objects_.isPresent( obj );
 }
 
@@ -114,7 +116,7 @@ bool HiddenParam<O,V>::hasParam( const O* obj ) const
 template <class O, class V>
 void HiddenParam<O,V>::removeParam( O* obj )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker locker( lock_ );
     const int idx = objects_.indexOf( obj );
     if ( idx==-1 )
 	return;

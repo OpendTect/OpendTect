@@ -49,7 +49,7 @@ void FlatView::BitMapMgr::setupChg()
     if ( !vwr_.isVisible(wva_) ) return;
 
     const FlatDataPack& dp = *vwr_.pack( wva_ );
-    Threads::MutexLocker updatepreventer( dp.getUpdateLock() );
+    Threads::Locker updlckr( dp.updateLock() );
 
     const FlatPosData& pd = dp.posData();
     const FlatView::Appearance& app = vwr_.appearance();
@@ -146,7 +146,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 
     if ( !pack ) return true;
 
-    Threads::MutexLocker updatepreventer( pack->getUpdateLock() );
+    Threads::Locker updlckr( pack->updateLock() );
 
     const FlatPosData& pd = pack->posData();
     pos_->setDimRange( 0, Interval<float>((float) (wr.left()-pd.offset(true)),
@@ -158,6 +158,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
     {
 	delete bmp_; bmp_ = 0;
+	updlckr.unlockNow();
 	DPM(DataPackMgr::FlatID()).release(pack);
 	return false;
     }
@@ -168,6 +169,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setPixSizes( availsz.width(), availsz.height() );
     gen_->fill();
 
+    updlckr.unlockNow();
     DPM(DataPackMgr::FlatID()).release(pack);
     return true;
 }

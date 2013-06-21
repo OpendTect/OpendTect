@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "sets.h"
-#include "thread.h"
+#include "threadlock.h"
 #include <string>
 
 /*!
@@ -91,7 +91,7 @@ protected:
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
 public:
-		CallBackSet() {}
+		CallBackSet() : lock_(true)	{}
 		CallBackSet( const CallBackSet& cbs )
 		    : TypeSet<CallBack>( cbs )
 		{}
@@ -109,7 +109,7 @@ public:
     void	removeWith(StaticCallBackFunction);
 		//!<\note Should be locked before calling
     
-    mutable Threads::SpinLock   lock_;
+    mutable Threads::Lock   lock_;
 };
 
 
@@ -133,7 +133,7 @@ public:
     void		notifyIfNotNotified(const CallBack&);
     void		remove(const CallBack&);
     bool		removeWith(CallBacker*,bool wait=true);
-			//!<\returns false if wait was false, and trylock failed
+			//!<\returns false only if wait and no lock could be got
 
     bool		isEnabled() const	{ return enabled_; }
     bool		enable( bool yn=true )	{ return doEnable(yn); }
@@ -152,7 +152,7 @@ public:
 protected:
     void		addShutdownSubscription(CallBacker*);
     bool		removeShutdownSubscription(CallBacker*, bool wait);
-    			//!<\returns false if wait was false, and trylock failed
+			//!<\returns false only if wait and no lock could be got
     
 			/*!\returns previous status */
     inline bool		doEnable( bool yn=true )
@@ -163,7 +163,7 @@ protected:
 			}
     
     ObjectSet<CallBacker>	shutdownsubscribers_;
-    mutable Threads::SpinLock	shutdownsubscriberlock_;
+    mutable Threads::Lock	shutdownsubscriberlock_;
 
     bool			enabled_;
 };
@@ -257,10 +257,10 @@ protected:
 private:
     
     bool		notifyShutdown(NotifierAccess*,bool wait);
-			//!<\returns false if wait was false, and trylock failed
+			//!<\returns false only if wait and no lock could be got
 
     ObjectSet<NotifierAccess>	attachednotifiers_;
-    mutable Threads::SpinLock	attachednotifierslock_;
+    mutable Threads::Lock	attachednotifierslock_;
 };
 
 

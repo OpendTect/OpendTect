@@ -70,10 +70,8 @@ protected:
     mQtclass(QMutex*)		qmutex_;
 #endif
 
-#ifdef __debug__
     const void*			lockingthread_;
     int				count_;
-#endif
 };
 
 
