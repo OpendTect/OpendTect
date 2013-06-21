@@ -27,10 +27,10 @@ is done.
 #include "fixedstring.h"
 #include "linekey.h"
 #include "surv2dgeom.h"
-#include "thread.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
+namespace Threads { class ConditionVar; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
@@ -153,7 +153,7 @@ protected:
 
     SeisTrcWriter*		writer_;
     TypeSet<BinID>		announcedtraces_;
-    Threads::ConditionVar	lock_;
+    Threads::ConditionVar&	lock_;
     ObjectSet<SeisTrc>		outputs_;
     const int			maxbuffersize_;
 

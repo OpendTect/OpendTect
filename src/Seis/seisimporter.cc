@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seiswrite.h"
 
+#include "thread.h"
 #include "threadwork.h"
 #include "binidsorting.h"
 #include "cbvsreadmgr.h"

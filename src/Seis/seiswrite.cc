@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "surv2dgeom.h"
 #include "survgeom.h"
+#include "thread.h"
 #include "threadwork.h"
 #include "iopar.h"
 
@@ -387,6 +388,7 @@ bool SeisTrcWriter::isMultiConn() const
 SeisSequentialWriter::SeisSequentialWriter( SeisTrcWriter* writer,
 					    int buffsize )
     : writer_( writer )
+    , lock_(*new Threads::ConditionVar)
     , maxbuffersize_( buffsize<1 ? Threads::getNrProcessors()*2 : buffsize )
     , latestbid_( -1, -1 )
 {
@@ -412,17 +414,12 @@ bool SeisSequentialWriter::finishWrite()
 SeisSequentialWriter::~SeisSequentialWriter()
 {
     if ( outputs_.size() )
-    {
-	pErrMsg( "Buffer is not empty" );
-	deepErase( outputs_ );
-    }
-
+	{ pErrMsg( "Buffer is not empty" ); deepErase( outputs_ ); }
     if ( Threads::WorkManager::twm().queueSize( queueid_ ) )
-    {
-	pErrMsg("finishWrite is not called");
-    }
-
+	pErrMsg("finishWrite was not called");
     Threads::WorkManager::twm().removeQueue( queueid_, false );
+
+    delete &lock_;
 }
 
 

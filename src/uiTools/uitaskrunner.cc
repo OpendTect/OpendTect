@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "uimsg.h"
 #include "thread.h"
+#include "threadlock.h"
 #include "timefun.h"
 
 #include <math.h>
@@ -46,7 +47,9 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     , thread_(0)
     , tim_(*new Timer("") )
     , execnm_("")
-    , statemutex_( *new Threads::Mutex )
+    , statelock_(true)
+    , dispinfolock_(false)
+    , uitaskrunnerthreadlock_(false)
     , dispmsgonerr_( dispmsgonerr )
     , symbidx_( 0 )
 {
@@ -71,12 +74,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
 uiTaskRunner::~uiTaskRunner()
 {
     if ( thread_ )
-    {
-	thread_->waitForFinish();
-	delete thread_;
-	thread_ = 0;
-    }
-    delete &statemutex_;
+	{ thread_->waitForFinish(); delete thread_; thread_ = 0; }
     delete &tim_;
 }
 
@@ -88,13 +86,9 @@ bool uiTaskRunner::execute( Task& t )
 
     MouseCursorChanger mousecursor( MouseCursor::Arrow );
 
-    task_ = &t;
-    state_ = 1;
-    prevtotalnr_ = -1;
-    prevnrdone_ = -1;
-    prevpercentage_ = -1;
-    prevmessage_ = "";
-    prevnrdonetext_ = prevmessage_;
+    task_ = &t; state_ = 1;
+    prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
+    prevmessage_ = ""; prevnrdonetext_ = prevmessage_;
     execnm_ = task_->name();
 
     updateFields();
@@ -106,7 +100,7 @@ void uiTaskRunner::onFinalise( CallBacker* )
 {
     tim_.start( 100, true );
 
-    Threads::MutexLocker lock( uitaskrunnerthreadmutex_ );
+    Threads::Locker lckr( uitaskrunnerthreadlock_ );
     thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork) );
 }
 
@@ -116,9 +110,8 @@ void uiTaskRunner::doWork( CallBacker* )
     task_->enableWorkControl( true );
     bool res = task_->execute();
 
-    statemutex_.lock();
+    Threads::Locker lckr( statelock_ );
     state_ = res ? 0 : -1;
-    statemutex_.unLock();
 }
 
 
@@ -128,7 +121,7 @@ void uiTaskRunner::updateFields()
 
     uiStatusBar& sb = *statusBar();
 
-    dispinfomutex_.lock();
+    Threads::Locker lckr( dispinfolock_ );
     const int totalnr = mCast( int, task_->totalNr() );
     const int nrdone = mCast( int, task_->nrDone() );
     const BufferString nrdonetext = task_->nrDoneText();
@@ -190,24 +183,15 @@ void uiTaskRunner::updateFields()
     }
     proglbl_->display( !disppb );
     progbar_->display( disppb );
-
-    dispinfomutex_.unLock();
 }
 
 
 bool uiTaskRunner::acceptOK( CallBacker* )
 {
-    uitaskrunnerthreadmutex_.lock();
-    Task::Control state;
-    if ( task_ )
-	state = task_->getState();
-    else
-    {
-	uitaskrunnerthreadmutex_.unLock();
-	return false;
-    }
-
-    uitaskrunnerthreadmutex_.unLock();
+    Threads::Locker lckr( uitaskrunnerthreadlock_ );
+    if ( !task_ ) return false;
+    Task::Control state = task_->getState();
+    lckr.unlockNow();
 
     if ( state==Task::Pause )
     {
@@ -226,17 +210,20 @@ bool uiTaskRunner::acceptOK( CallBacker* )
 
 void uiTaskRunner::timerTick( CallBacker* )
 {
-    statemutex_.lock();
+    Threads::Locker stlckr( statelock_ );
     const int state = state_;
-    statemutex_.unLock();
+    stlckr.unlockNow();
 
     if ( state<1 )
     {
 	BufferString message;
-	if ( uitaskrunnerthreadmutex_.tryLock() )
+
+	Threads::Locker trlckr( uitaskrunnerthreadlock_,
+				Threads::Locker::DontWaitForLock );
+	if ( trlckr.isLocked() )
 	{
 	    message = finalizeTask();
-	    uitaskrunnerthreadmutex_.unLock();
+	    trlckr.unlockNow();
 	}
 
 	if ( state<0 && dispmsgonerr_ )
@@ -270,12 +257,12 @@ BufferString uiTaskRunner::finalizeTask()
 
 bool uiTaskRunner::rejectOK( CallBacker* )
 {
-    uitaskrunnerthreadmutex_.lock();
+    Threads::Locker lckr( uitaskrunnerthreadlock_ );
     if ( task_ ) task_->controlWork( Task::Stop );
     finalizeTask();
-    uitaskrunnerthreadmutex_.unLock();
+    lckr.unlockNow();
 
-    state_ = (int) Task::Stop;
+    state_ = (int)Task::Stop;
     execres_ = false;
     return true;
 }

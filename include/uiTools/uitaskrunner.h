@@ -14,12 +14,14 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "task.h"
 
 class uiProgressBar;
 class uiLabel;
 class Timer;
+namespace Threads { class Thread; }
+
 
 mExpClass(uiTools) uiTaskRunner : public uiDialog
 		   , public TaskRunner
@@ -43,7 +45,7 @@ protected:
     int			symbidx_;
 
     Task*		task_;
-    Threads::Mutex	dispinfomutex_;
+    Threads::Lock	dispinfolock_;
     int			prevtotalnr_;
     int			prevnrdone_;
     int			prevpercentage_;
@@ -51,12 +53,12 @@ protected:
     BufferString	prevnrdonetext_;
     bool		dispmsgonerr_;
 
-    Threads::Mutex&	statemutex_;	
+    Threads::Lock	statelock_;	
     int			state_; //-1 finished in error
     				// 0 finished without error
 				// 1 running
     Threads::Thread*	thread_;
-    Threads::Mutex	uitaskrunnerthreadmutex_;
+    Threads::Lock	uitaskrunnerthreadlock_;
     void		doWork(CallBacker*);	//!< Method with work thread
 
     BufferString	finalizeTask();
