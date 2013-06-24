@@ -49,7 +49,7 @@ void uiBaseMapObject::update()
 {
     if ( !bmobject_ ) return;
 
-    Threads::MutexLocker( bmobject_->lock_ );
+    Threads::Locker( bmobject_->lock_ );
 
     TypeSet<Coord> crds;
     int itemnr = 0;

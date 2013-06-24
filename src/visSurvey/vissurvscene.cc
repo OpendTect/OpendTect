@@ -709,26 +709,26 @@ void Scene::updateBaseMapCursor( const Coord& coord )
 		MarkerStyle2D(MarkerStyle2D::Target,5) );
     }
 
-    if ( basemapcursor_ && basemapcursor_->lock_.tryLock() )
-    {
-	if ( defined )
-	{
-	    if ( basemapcursor_->positions().size() )
-		basemapcursor_->positions()[0] = coord;
-	    else
-		basemapcursor_->positions() += coord;
-	}
-	else
-	{
-	    basemapcursor_->positions().erase();
-	}
+    if ( !basemapcursor_ )
+	return;
 
-	basemapcursor_->lock_.unLock();
+    Threads::Locker lckr( basemapcursor_->lock_,
+	    		  Threads::Locker::DontWaitForLock );
+
+    if ( lckr.isLocked() )
+    {
+	if ( !defined )
+	    basemapcursor_->positions().erase();
+	else if ( basemapcursor_->positions().isEmpty() )
+	    basemapcursor_->positions() += coord;
+	else
+	    basemapcursor_->positions()[0] = coord;
+
+	lckr.unlockNow();
 	basemapcursor_->updateGeometry();
     }
 
-    if ( basemapcursor_ )
-	basemap_->addObject( basemapcursor_ );
+    basemap_->addObject( basemapcursor_ );
 }
 
 

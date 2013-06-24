@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "namedobj.h"
-#include "thread.h"
+#include "threadlock.h"
 
 namespace OD { class RGBImage; }
 
@@ -28,12 +28,12 @@ class LineStyle;
 mExpClass(General) BaseMapObject : public NamedObject
 {
 public:
-				BaseMapObject(const char* nm);
 
-    Threads::Mutex		lock_;
+				BaseMapObject(const char* nm);
 
     virtual const char*		getType() const				= 0;
 
+    Threads::Lock		lock_;
     virtual void		updateGeometry()			{}
 
     virtual void		setDepth(int val)	{ depth_ = val; }
@@ -73,11 +73,13 @@ protected:
 mExpClass(General) BaseMap
 {
 public:
+
     virtual void		addObject(BaseMapObject*) 		= 0;
     				/*!<Object maintained by caller. Adding an
 				    existing will trigger update */
 
     virtual void		removeObject(const BaseMapObject*) 	= 0;
+
 };
 
 
