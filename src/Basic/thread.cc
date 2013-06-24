@@ -7,6 +7,158 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
+#include "threadlock.h"
+
+// Thread::Lock interface
+
+Threads::Lock::Lock( bool sp )
+    : mutex_(sp ? 0 : new Mutex(true))
+    , splock_(sp ? new SpinLock(true) : 0)
+    , rwlock_(0)
+{
+}
+
+
+Threads::Lock::Lock( Threads::Lock::Type lt )
+    : mutex_(lt == BigWork ? new Mutex(true) : 0)
+    , splock_(lt == SmallWork ? new SpinLock(true) : 0)
+    , rwlock_(lt == MultiRead ? new ReadWriteLock : 0)
+{
+}
+
+
+Threads::Lock::Lock( const Threads::Lock& oth )
+    : mutex_(oth.mutex_ ? new Mutex(*oth.mutex_) : 0)
+    , splock_(oth.splock_ ? new SpinLock(*oth.splock_) : 0)
+    , rwlock_(oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0)
+{
+}
+
+
+Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
+{
+    if ( this == &oth ) return *this;
+
+    // Hopefully we can stay the same type:
+    if ( mutex_ )
+    {
+	if ( oth.mutex_ )
+	    { *mutex_ = *oth.mutex_; return *this; }
+	delete mutex_;
+    }
+    else if ( splock_ )
+    {
+	if ( oth.splock_ )
+	    { *splock_ = *oth.splock_; return *this; }
+	delete splock_;
+    }
+    else
+    {
+	if ( oth.rwlock_ )
+	    { *rwlock_ = *oth.rwlock_; return *this; }
+	delete rwlock_;
+    }
+
+    mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
+    splock_ = oth.splock_ ? new SpinLock(*oth.splock_) : 0;
+    rwlock_ = oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0;
+
+    return *this;
+}
+
+
+Threads::Lock::~Lock()
+{
+    delete mutex_; delete splock_; delete rwlock_;
+}
+
+
+Threads::Locker::Locker( Threads::Lock& lck )
+    : lock_(lck), needunlock_(false), isread_(true)
+{ reLock( WaitIfLocked ); }
+
+Threads::Locker::Locker( Threads::Lock& lck, Threads::Locker::WaitType wt )
+    : lock_(lck), needunlock_(false), isread_(true)
+{ reLock( wt ); }
+
+Threads::Locker::Locker( Threads::Lock& lck, Threads::Locker::RWType rt )
+    : lock_(lck), needunlock_(false), isread_(rt == ReadLock)
+{ reLock( WaitIfLocked ); }
+
+Threads::Locker::Locker( Threads::Lock& lck, Threads::Locker::RWType rt,
+			    Threads::Locker::WaitType wt )
+    : lock_(lck), needunlock_(false), isread_(rt == ReadLock)
+{ reLock( wt ); }
+
+Threads::Locker::Locker( Threads::Lock& lck, Threads::Locker::WaitType wt,
+			    Threads::Locker::RWType rt )
+    : lock_(lck), needunlock_(false), isread_(rt == ReadLock)
+{ reLock( wt ); }
+
+
+void Threads::Locker::reLock( Threads::Locker::WaitType wt )
+{
+    if ( needunlock_ )
+	return;
+
+    needunlock_ = true;
+    if ( wt == WaitIfLocked )
+    {
+	if ( lock_.isSpinLock() )
+	    lock_.spinLock().lock();
+	else if ( lock_.isMutex() )
+	    lock_.mutex().lock();
+	else if ( isread_ )
+	    lock_.readWriteLock().readLock();
+	else
+	    lock_.readWriteLock().writeLock();
+    }
+    else
+    {
+	if ( lock_.isSpinLock() )
+	    needunlock_ = lock_.spinLock().tryLock();
+	else if ( lock_.isMutex() )
+	    needunlock_ = lock_.mutex().tryLock();
+	else if ( isread_ )
+	    needunlock_ = lock_.readWriteLock().tryReadLock();
+	else
+	    needunlock_ = lock_.readWriteLock().tryWriteLock();
+    }
+}
+
+
+void Threads::Locker::unlockNow()
+{
+    if ( !needunlock_ )
+	return;
+
+    if ( lock_.isSpinLock() )
+	lock_.spinLock().unLock();
+    else if ( lock_.isMutex() )
+	lock_.mutex().unLock();
+    else if ( isread_ )
+	lock_.readWriteLock().readUnLock();
+    else
+	lock_.readWriteLock().writeUnLock();
+
+    needunlock_ = false;
+}
+
+
+bool Threads::Locker::convertToWriteLock()
+{
+    if ( isread_ || !lock_.isRWLock() ) return true;
+
+    const bool isok = lock_.readWriteLock().convReadToWriteLock();
+    if ( isok )
+	isread_ = false;
+    return isok;
+}
+
+
+
+// Thread::General interface
+
 #include "callback.h"
 #include "debug.h"
 #include "settings.h"
@@ -132,6 +284,15 @@ Threads::SpinLock::SpinLock( bool recursive )
     mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
 }
 
+Threads::SpinLock::SpinLock( const Threads::SpinLock& oth )
+    : count_( 0 )
+    , recursive_( oth.recursive_ )
+    , lockingthread_( 0 )
+{
+    mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
+}
+
+
 Threads::SpinLock::~SpinLock()
 {
     mDestroyIttNotify( lockingthread_ );
@@ -161,15 +322,15 @@ void Threads::SpinLock::unLock()
     count_--;
     if ( !count_ )
     {
-	mIttNotifyReleasing( lockingthread_ );
 #ifdef __debug__
+	mIttNotifyReleasing( lockingthread_ );
 	if ( lockingthread_.exchange( 0 ) != currentThread() )
 	{
 	    pErrMsg("Unlocked by wrong thread");
 	}
 #else
 	lockingthread_.exchange( 0 );
-#endif
+#endif 
     }
 }
 

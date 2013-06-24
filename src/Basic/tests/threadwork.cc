@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
+#include "thread.h"
 #include "keystrs.h"
 #include "commandlineparser.h"
 #include "bufstring.h"
@@ -223,7 +224,7 @@ public:
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
     WorkManagerTester tester;
     if ( tester.runCallBackTests(quiet) && tester.testWorkResults(quiet) )

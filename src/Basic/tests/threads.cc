@@ -91,7 +91,6 @@ bool testAtomic( const char* valtype, bool quiet )
     if ( atomic.get()!=1 )
 	mPrintResult( "weakSetIfEqual" )
 
-
     //Let's do some stress-test
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
@@ -116,7 +115,7 @@ bool testAtomic( const char* valtype, bool quiet )
     if ( !successfound || !failurefound )
 	mPrintResult( "weakSetIfEqual stresstest");
     
-    count = 10000000;
+    count = 1000000000;
     successfound = false;
     failurefound = false;
     int idx;
@@ -180,14 +179,14 @@ bool testAtomic( const char* valtype, bool quiet )
 */
 
 template <class T>
-struct Locker : public CallBacker
+struct LockerTester : public CallBacker
 {
-    Locker( T& thelock )
+    LockerTester( T& thelock )
 	: lock_( thelock )
 	, res_( false )
 	, hastried_( false )
 	, canunlock_( false )
-	, thread_( mCB( this, Locker, tryLock ) )
+	, thread_( mCB( this, LockerTester, tryLock ) )
     {
 	hastriedlock_.lock();
 	while ( !hastried_ )
@@ -263,7 +262,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 	lock.unLock();
 
 	//No lock
-	Locker<T> otherthreadlocker( lock );
+	LockerTester<T> otherthreadlocker( lock );
 	mRunTest( "tryLock on unlocked lock from other thread",
 		  otherthreadlocker.res_ );
 	mRunTest( "tryLock on lock that is locked in other thread",
@@ -276,7 +275,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 	lock.unLock();
 
 	lock.lock();
-	Locker<T> otherthreadlocker2( lock );
+	LockerTester<T> otherthreadlocker2( lock );
 	mRunTest( "tryLock on locked lock from other thread",
 		  !otherthreadlocker2.res_ );
 	otherthreadlocker2.unLockIfLocked();
@@ -307,7 +306,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 	rlock.unLock();
 
 	//No lock
-	Locker<T> otherthreadlocker( rlock );
+	LockerTester<T> otherthreadlocker( rlock );
 	mRunTest( "tryLock on unlocked lock from other thread",
 		  otherthreadlocker.res_ );
 	mRunTest( "tryLock on lock that is locked in other thread",
@@ -321,7 +320,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 	rlock.unLock();
 
 	rlock.lock();
-	Locker<T> otherthreadlocker2( rlock );
+	LockerTester<T> otherthreadlocker2( rlock );
 	mRunTest( "tryLock on locked lock from other thread",
 		  !otherthreadlocker2.res_ );
 	otherthreadlocker2.unLockIfLocked();
@@ -339,7 +338,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 
     CommandLineParser parser;
     const bool quiet = parser.hasKey( sKey::Quiet() );

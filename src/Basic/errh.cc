@@ -7,6 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "errh.h"
+
+#include "debug.h"
 #include "strmprov.h"
 #include "file.h"
 #include "filepath.h"
@@ -31,6 +33,9 @@ bool ErrMsgClass::printProgrammerErrs =
 static BufferString logmsgfnm;
 Export_Basic int gLogFilesRedirectCode = -1;
 // Not set. 0 = stderr, 1 = log file
+
+
+static bool crashonprogerror = false;
 
 Export_Basic const char* logMsgFileName()
 {
@@ -110,6 +115,12 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 }
 
 
+void SetCrashOnProgrammerError( int yn )
+{
+    crashonprogerror = yn;
+}
+
+
 void ErrMsg( const char* msg, bool progr )
 {
     if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
@@ -128,6 +139,11 @@ void ErrMsg( const char* msg, bool progr )
     {
 	ErrMsgClass obj( msg, progr );
 	MsgClass::theCB().doCall( &obj );
+    }
+    
+    if ( progr && crashonprogerror )
+    {
+	DBG::forceCrash( false );
     }
 }
 
