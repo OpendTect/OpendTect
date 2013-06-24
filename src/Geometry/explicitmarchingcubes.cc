@@ -227,10 +227,9 @@ void ExplicitMarchingCubesSurface::removeAll( bool deep )
     coordindices_.empty();
     coordindiceslock_.writeUnLock();
 
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     ibuckets_.empty();
     deepErase( geometries_ );
-    geometrieslock_.writeUnLock();
 }
 
 
@@ -435,19 +434,14 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
     Geometry::IndexedGeometry* bucket = 0;
     int bucketidx[3];
-    geometrieslock_.readLock();
+    Threads::Locker lckr( geometrieslock_ );
     if ( ibuckets_.findFirst( indicesbucket, bucketidx ) )
-    {
 	bucket = ibuckets_.getRef( bucketidx, 0 );
-	geometrieslock_.readUnLock();
-    }
     else
     {
-	if ( !geometrieslock_.convReadToWriteLock() &&
+	if ( !lckr.convertToWriteLock() &&
 	      ibuckets_.findFirst( indicesbucket, bucketidx ) )
-	{
 	    bucket = ibuckets_.getRef( bucketidx, 0 );
-	}
 	else
 	{
 	    bucket = new Geometry::IndexedGeometry(
@@ -457,9 +451,8 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    ibuckets_.add( &bucket, indicesbucket );
 	    geometries_ += bucket;
 	}
-
-	geometrieslock_.writeUnLock();
     }
+    lckr.unlockNow();
 
     const char* tableindices = table.indices_[submodel];
 
@@ -588,7 +581,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
     mEndTriangleStrip;
 
-    Threads::MutexLocker lock( bucket->lock_ );
+    Threads::Locker lock( bucket->lock_ );
     bucket->coordindices_.append( coordindices );
     bucket->normalindices_.append( coordindices );
 

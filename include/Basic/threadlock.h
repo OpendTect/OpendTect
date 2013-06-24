@@ -105,6 +105,8 @@ public:
      				//<! to explicitly release earlier than the
      				//!< Locker goes out of scope
     void			reLock(WaitType wt=WaitIfLocked);
+    bool			convertToWriteLock();
+    				//<! only interesting for MultiRead
 
 protected:
 
@@ -115,6 +117,8 @@ protected:
 private:
 
      				Locker(const Locker&);
+					//!< intentionally not implemented
+    Locker&			operator =(const Locker&);
 					//!< intentionally not implemented
 
 };

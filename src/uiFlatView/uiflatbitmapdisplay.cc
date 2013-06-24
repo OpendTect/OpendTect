@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatviewbmp2rgb.h"
 #include "pixmap.h"
 #include "threadwork.h"
+#include "threadlock.h"
 #include "uigraphicsitemimpl.h"
 #include "uirgbarray.h"
 
@@ -52,7 +53,7 @@ public:
 
     void reset()
     {
-	Threads::MutexLocker lock( lock_ );
+	Threads::Locker lckr( lock_ );
 	if ( wvabmpmgr_ ) wvabmpmgr_->setupChg();
 	if ( vdbmpmgr_ ) vdbmpmgr_->setupChg();
     }
@@ -61,7 +62,7 @@ public:
     {
 	image_->setSize( sz_.width(), sz_.height() );
 
-	Threads::MutexLocker lock( lock_ );
+	Threads::Locker lckr( lock_ );
 
 	if ( !wvabmpmgr_ )
 	    wvabmpmgr_ = new FlatView::BitMapMgr( viewer_, true );
@@ -120,7 +121,7 @@ public:
     uiSize			sz_;
     uiWorldRect			wr_;
     uiDynamicImageItem*		display_;
-    Threads::Mutex		lock_;
+    Threads::Lock		lock_;
 };
 
 

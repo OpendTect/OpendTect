@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "polygon.h"
 #include "rowcol.h"
 #include "task.h"
-#include "thread.h"
+#include "threadlock.h"
 #include <iostream>
 
 mClass(uiIo) DensityCalc : public ParallelTask
@@ -140,7 +140,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 		    if ( selarea.isInside(pos) )
 		    {
-			Threads::MutexLocker lock( mutex_ );
+			Threads::Locker lckr( lock_ );
 			if ( !isSelectionValid(rid) )
 			    continue;
 			if ( removesel_ )
@@ -254,7 +254,7 @@ protected:
     Interval<int>			xpixrg_;
     Interval<int>			usedxpixrg_;
     Interval<int>			ypixrg_;
-    Threads::Mutex			mutex_;
+    Threads::Lock			lock_;
     bool				changedps_;
     bool				removesel_;
     int					curgrp_;

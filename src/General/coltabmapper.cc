@@ -327,6 +327,7 @@ SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
     , vs_(vs)
     , above0_(0)
     , below0_(0)
+    , lock_(true)
 {}
 
 od_int64 nrIterations() const { return sz_; }
@@ -343,7 +344,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	else if ( vs_[idx] > 0 ) above0++;
     }
 
-    Threads::SpinLockLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     above0_ += above0;
     below0_ += below0;
 
@@ -363,7 +364,7 @@ bool isSymmAroundZero() const
     od_int64			sz_;
     od_int64			above0_;
     od_int64			below0_;
-    Threads::SpinLock		lock_;
+    Threads::Lock		lock_;
     const ValueSeries<float>&	vs_;
 };
 

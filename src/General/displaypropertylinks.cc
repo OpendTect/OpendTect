@@ -110,7 +110,7 @@ DisplayLinkManager& DisplayLinkManager::getImpl()
 
 int DisplayLinkManager::addHolder( DisplayPropertyHolder* hldr )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( !holders_.isPresent( hldr ) )
     {
 	hldr->propertyholderid_ = freeholderid_++;
@@ -131,7 +131,7 @@ const DisplayPropertyHolder* DisplayLinkManager::getHolder( int idx ) const
 void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 				    ObjectSet<DisplayPropertyLink>& links )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     ObjectSet<DisplayPropertyHolder> tmpholders;
     tmpholders += hldr;
     for ( int idx=holders_.size()-1; idx>=0; idx-- )
@@ -160,14 +160,14 @@ void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 
 int DisplayLinkManager::nrDisplayPropertyLinks() const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     return propertylinks_.size();
 }
 
 
 int DisplayLinkManager::getDisplayPropertyLinkID( int idx ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( !propertylinkids_.validIdx(idx) )
 	return -1;
 
@@ -178,7 +178,7 @@ int DisplayLinkManager::getDisplayPropertyLinkID( int idx ) const
 int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 {
     FixedString lnktype = lnk->type();
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     for ( int idx=propertylinks_.size()-1; idx>=0; idx-- )
     {
 	if ( propertylinks_[idx]->type()!=lnktype )
@@ -226,7 +226,7 @@ int DisplayLinkManager::addDisplayPropertyLink( DisplayPropertyLink* lnk )
 
 void DisplayLinkManager::removeDisplayPropertyLink( int id )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     const int idx = propertylinkids_.indexOf( id );
     if ( idx<0 )
 	return;
@@ -243,7 +243,7 @@ const DisplayPropertyLink*
 
 DisplayPropertyLink* DisplayLinkManager::getDisplayPropertyLink( int id )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     const int idx = propertylinkids_.indexOf( id );
     if ( idx<0 )
         return 0;
@@ -254,7 +254,7 @@ DisplayPropertyLink* DisplayLinkManager::getDisplayPropertyLink( int id )
 
 void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( !holders_.isPresent( hldr ) )
 	return;
 

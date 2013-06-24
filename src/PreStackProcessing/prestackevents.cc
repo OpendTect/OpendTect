@@ -217,8 +217,6 @@ EventManager::EventManager()
     , resetChangeStatus( this )
     , reloadbids_( new BinIDValueSet( 0, false ) )
     , notificationqueue_( new BinIDValueSet( 0, false ) )
-    , changebidmutex_( *new Threads::Mutex(true) )
-    , eventmutex_( *new Threads::Mutex(true) )
     , nexthorid_( 0 )
     , auxdatachanged_( false )
     , primarydipreader_( 0 )
@@ -238,8 +236,6 @@ EventManager::~EventManager()
 
     delete reloadbids_;
     delete notificationqueue_;
-    delete &changebidmutex_;
-    delete &eventmutex_;
     delete primarydipreader_;
     delete secondarydipreader_;
 
@@ -530,7 +526,7 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 
     int arrpos[2];
 
-    Threads::MutexLocker lock( eventmutex_ );
+    Threads::Locker lckr( eventlock_ );
     if ( !events_.findFirst( bid, arrpos ) )
     {
 	if ( doload )
@@ -540,12 +536,12 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 	    PtrMan<Executor> loader = load( bidvalset, false );
 	    if ( loader )
 	    {
-		lock.unLock();
+		lckr.unlockNow();
 
 		if ( loader->execute() )
 		    return getEvents( bid, false, create );
 
-		lock.lock();
+		lckr.reLock();
 	    }
 
 	}
@@ -571,7 +567,7 @@ void EventManager::cleanUp( bool keepchanged )
 {
     RowCol pos( -1, -1 );
     RowCol prevkeptpos( -1, -1 );
-    Threads::MutexLocker lock( eventmutex_ );
+    Threads::Locker lckr( eventlock_ );
     while ( events_.next( pos, false ) )
     {
 	EventSet* ge = events_.getRef( pos, 0 );
@@ -616,7 +612,7 @@ void EventManager::blockChange( bool yn, bool sendnow )
 
 void EventManager::reportChange( const BinID& bid )
 {
-    Threads::MutexLocker lock( changebidmutex_ );
+    Threads::Locker lckr( changebidlock_ );
     if ( !change.isEnabled() )
 	notificationqueue_->add( bid );
     else

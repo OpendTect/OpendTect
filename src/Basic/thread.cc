@@ -145,6 +145,17 @@ void Threads::Locker::unlockNow()
 }
 
 
+bool Threads::Locker::convertToWriteLock()
+{
+    if ( isread_ || !lock_.isRWLock() ) return true;
+
+    const bool isok = lock_.readWriteLock().convReadToWriteLock();
+    if ( isok )
+	isread_ = false;
+    return isok;
+}
+
+
 
 // Thread::General interface
 

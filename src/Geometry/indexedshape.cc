@@ -85,7 +85,7 @@ IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 IndexedGeometry::~IndexedGeometry()
 {
     removeAll( true );
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( coordlist_ ) coordlist_->unRef(); coordlist_ = 0;
     if ( normallist_ ) normallist_->unRef(); normallist_ = 0;
     if ( texturecoordlist_ ) texturecoordlist_->unRef(); texturecoordlist_=0;
@@ -93,7 +93,7 @@ IndexedGeometry::~IndexedGeometry()
 
 void IndexedGeometry::removeAll( bool deep )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     if ( deep && coordlist_ )
     {
 	for ( int idx=coordindices_.size()-1; idx>=0; idx-- )
@@ -187,6 +187,7 @@ IndexedShape::IndexedShape()
     , texturecoordlist_( 0 )
     , righthandednormals_( true )
     , version_( 0 )
+    , geometrieslock_(Threads::Lock::MultiRead)
 {}
 
 
@@ -217,14 +218,16 @@ void IndexedShape::setRightHandedNormals( bool yn )
 { righthandednormals_ = yn; }
 
 
+#define mGetIndexedShapeWriteLocker4Geometries() \
+    Threads::Locker lckr( geometrieslock_, Threads::Locker::WriteLock )
+
 void IndexedShape::removeAll( bool deep )
 {
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     for ( int idx=geometries_.size()-1; idx>=0; idx-- )
 	geometries_[idx]->removeAll( deep );
 
     deepErase( geometries_ );
-    geometrieslock_.writeUnLock();
 }
 
 
@@ -242,7 +245,7 @@ int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
 {
     if ( !ig ) return -1;
     
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     int res = geometries_.indexOf( ig );
     if ( res==-1 ) 
     {
@@ -250,7 +253,6 @@ int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
 	res = geometries_.size()-1;
     }
 
-    geometrieslock_.writeUnLock();
     return res;
 }
 
@@ -258,11 +260,10 @@ void ExplicitIndexedShape::removeFromGeometries( const IndexedGeometry* ig )
 {
     if ( !ig ) return;
     
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     const int idx = geometries_.indexOf( ig );
     if ( idx!=-1 )
 	geometries_.removeSingle( idx, false );
-    geometrieslock_.writeUnLock();
 }
 
 

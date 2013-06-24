@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "color.h"
 #include "multiid.h"
+#include "threadlock.h"
 #include "multidimstorage.h"
 #include "offsetazimuth.h"
 #include "position.h"
@@ -35,7 +36,6 @@ class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
 
-namespace Threads { class Mutex; }
 namespace PreStack
 {
 
@@ -213,7 +213,7 @@ protected:
 						float& inldip, float& crldip );
 
     MultiDimStorage<EventSet*>	events_;
-    Threads::Mutex&		eventmutex_;
+    Threads::Lock		eventlock_;
     MultiID			storageid_;
     VelocityPicks*		velpicks_;
 
@@ -224,7 +224,7 @@ protected:
     ObjectSet<EM::Horizon3D>	emhorizons_;
 
     BinID			changebid_;
-    Threads::Mutex&		changebidmutex_;
+    Threads::Lock		changebidlock_;
     BinIDValueSet*		notificationqueue_;
     BinIDValueSet*		reloadbids_;
 

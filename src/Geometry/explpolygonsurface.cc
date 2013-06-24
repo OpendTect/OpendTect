@@ -301,26 +301,25 @@ void ExplPolygonSurface::display( bool polygons, bool body )
 void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 {
     if ( !ig ) return;
-    geometrieslock_.writeLock();
+
+    mGetIndexedShapeWriteLocker4Geometries();
     if ( geometries_.isPresent( ig ) )
 	pErrMsg("Adding more than once");
 
     ig->ischanged_ = true;
     geometries_ += ig;
-    geometrieslock_.writeUnLock();
 }
 
 
 void ExplPolygonSurface::removeFromGeometries( const IndexedGeometry* ig )
 {
     if ( !ig ) return;
-    geometrieslock_.writeLock();
+
+    mGetIndexedShapeWriteLocker4Geometries();
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
 	geometries_.removeSingle( idx, false );
-
-    geometrieslock_.writeUnLock();
 }
 
 

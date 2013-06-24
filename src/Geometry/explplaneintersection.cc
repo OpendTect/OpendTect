@@ -146,7 +146,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	const IndexedGeometry* inputgeom =
 	    explsurf_.getShape()->getGeometry()[idx];
 
-	Threads::MutexLocker inputlock( inputgeom->lock_ );
+	Threads::Locker inputlock( inputgeom->lock_ );
 
 	if ( inputgeom->type_==IndexedGeometry::Triangles )
 	{
@@ -385,7 +385,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	if ( ci0==ci1 || ci0<0 || ci1<0 )
 	    continue;
 
-	Threads::MutexLocker reslock( output_->lock_ );
+	Threads::Locker reslock( output_->lock_ );
 
 	if ( output_->coordindices_.size() )
 	    output_->coordindices_ += -1;
@@ -628,9 +628,8 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 	intersection_ = new IndexedGeometry( IndexedGeometry::Lines,
 					     IndexedGeometry::PerFace,
 					     coordlist_ );
-	geometrieslock_.writeLock();
+	mGetIndexedShapeWriteLocker4Geometries();
 	geometries_ += intersection_;
-	geometrieslock_.writeUnLock();
     }
 
     PtrMan<Task> updater = new ExplPlaneIntersectionExtractor( *this );

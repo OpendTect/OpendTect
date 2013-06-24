@@ -1277,28 +1277,23 @@ void ExplFaultStickSurface::addToGeometries( IndexedGeometry* ig )
     if ( !ig || ig->isHidden() )
 	return;
 
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     if ( geometries_.isPresent( ig ) )
-    {
-	pErrMsg("Adding more than once");
-    }
+	{ pErrMsg("Adding more than once"); }
 
     ig->ischanged_ = true;
     geometries_ += ig;
-    geometrieslock_.writeUnLock();
 }
 
 
 void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* ig )
 {
     if ( !ig ) return;
-    geometrieslock_.writeLock();
+    mGetIndexedShapeWriteLocker4Geometries();
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
 	geometries_.removeSingle( idx, false );
-
-    geometrieslock_.writeUnLock();
 }
 
 

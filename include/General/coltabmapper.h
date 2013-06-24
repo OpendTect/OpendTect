@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "enums.h"
 #include "coltab.h"
-#include "thread.h"
 #include "valseries.h"
+#include "threadlock.h"
 #include "varlenarray.h"
 
 #define mUndefColIdx    (nrsteps_)
@@ -153,7 +153,6 @@ public:
 private:    
     bool			doWork(od_int64 start,od_int64 stop,int);
 
-    Threads::Mutex		lock_;
     const ColTab::Mapper&	mapper_;
     od_int64			totalsz_;
     const float*		unmapped_;
@@ -164,6 +163,7 @@ private:
     int				mappedudfspacing_;
     int				nrsteps_;
     unsigned int*		histogram_;
+    Threads::Lock		lock_;
 };
 
 
@@ -267,12 +267,10 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	nrdone = 0;
     }
 
-    lock_.lock();
+    Threads::Locker lckr( lock_ );
     for ( int idx=0; idx<=mUndefColIdx; idx++ )
 	histogram_[idx] += histogram[idx];
 
-    lock_.unLock();
-    
     return true;
 }
 

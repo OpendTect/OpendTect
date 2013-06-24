@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "factory.h"
 #include "namedobj.h"
-#include "thread.h"
+#include "threadlock.h"
 
 class IOPar;
 class DisplayPropertyHolder;
@@ -78,7 +78,7 @@ protected:
 
     ObjectSet<DisplayPropertyHolder> holders_;
     int				freeholderid_;
-    mutable Threads::Mutex	lock_;
+    mutable Threads::Lock	lock_;
 
     ObjectSet<DisplayPropertyLink> propertylinks_;
     TypeSet<int>		propertylinkids_;

@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "sets.h"
-#include "thread.h"
 #include "callback.h"
+#include "threadlock.h"
 #include "ptrman.h"
 #include "refcount.h"
 #include "geometry.h"
@@ -115,7 +115,7 @@ public:
     void	hide(bool yn)				{ ishidden_ = yn; }
 
 
-    mutable Threads::Mutex		lock_;
+    mutable Threads::Lock		lock_;
 
     Type				type_;
     NormalBinding			normalbinding_;
@@ -171,7 +171,7 @@ public:
 protected:
     				IndexedShape();
 
-    Threads::ReadWriteLock	geometrieslock_;
+    Threads::Lock		geometrieslock_;
     ObjectSet<IndexedGeometry>	geometries_;
 
     Coord3List*			coordlist_;
@@ -186,6 +186,10 @@ private:
 
     int				version_;
 };
+
+
+#define mGetIndexedShapeWriteLocker4Geometries() \
+        Threads::Locker lckr( geometrieslock_, Threads::Locker::WriteLock )
 
 
 mExpClass(Geometry) ExplicitIndexedShape : public IndexedShape, public CallBacker
