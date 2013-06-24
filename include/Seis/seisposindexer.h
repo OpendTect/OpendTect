@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seisposkey.h"
 #include "sets.h"
-#include "thread.h"
+#include "threadlock.h"
 
 
 template <class T> class DataInterpreter;
@@ -108,7 +108,7 @@ protected:
     DataInterpreter<od_int64>*	int64interp_;
     TypeSet<od_int64>		inlfileoffsets_;
 
-    mutable Threads::Mutex	lock_;
+    mutable Threads::Lock	lock_;
     TypeSet<od_int64>		curidxset_;
     TypeSet<int>		curcrlset_;
     int				curinl_;

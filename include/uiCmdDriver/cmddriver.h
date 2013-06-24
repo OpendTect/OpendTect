@@ -269,7 +269,7 @@ protected:
     bool		openqdialog_; 
     bool		openQDlg() const		{ return openqdialog_; }
     
-    Threads::Mutex	cmddrvmutex_;
+    Threads::Lock	cmddrvlock_;
     bool		activityStopped(bool checkprocessing=true,
 					bool checktimers=true);
 

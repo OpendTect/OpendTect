@@ -393,7 +393,7 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 
 void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
 
     if ( inls_.isEmpty() )
 	return;
@@ -425,7 +425,7 @@ void Seis::PosIndexer::getCrls( int inl, TypeSet<int>& crls ) const
 
 od_int64 Seis::PosIndexer::findFirst( const BinID& bid ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     int inlidx, crlidx;
     const int res =
 	const_cast<Seis::PosIndexer*>(this)->getFirstIdxs( bid, inlidx, crlidx);
@@ -446,7 +446,7 @@ od_int64 Seis::PosIndexer::findFirst( int trcnr ) const
 
 od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     int inlidx, crlidx;
     const int res =
 	const_cast<Seis::PosIndexer*>(this)->getFirstIdxs( pk.binID(),
@@ -476,7 +476,7 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 
 od_int64 Seis::PosIndexer::findOcc( const Seis::PosKey& pk, int occ ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     int inlidx, crlidx;
     const int res =
 	const_cast<Seis::PosIndexer*>(this)->getFirstIdxs( pk.binID(),
@@ -508,7 +508,7 @@ od_int64 Seis::PosIndexer::findOcc( const Seis::PosKey& pk, int occ ) const
 
 TypeSet<od_int64> Seis::PosIndexer::findAll( const Seis::PosKey& pk ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     TypeSet<od_int64> retidxs;
     int inlidx, crlidx;
     int res =

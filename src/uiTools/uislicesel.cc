@@ -28,7 +28,6 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 			bool dogeomcheck )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
-    , updatemutex_(*new Threads::Mutex)
     , applycb_(0)
     , scrolldlg_(0)
     , scrollbut_(0)
@@ -346,7 +345,6 @@ const char* getTitle( uiSliceSel* ss )
 uiSliceSel::~uiSliceSel()
 {
     delete applycb_;
-    delete &updatemutex_;
     delete scrolldlg_;
 }
 
@@ -361,12 +359,13 @@ void uiSliceSel::scrollPush( CallBacker* )
 
 void uiSliceSel::applyPush( CallBacker* )
 {
-    if ( !updatemutex_.tryLock() )
+    Threads::Locker lckr( updatelock_, Threads::Locker::DontWaitForLock );
+    if ( !lckr.isLocked() )
 	return;
+
     readInput();
     if ( applycb_ )
 	applycb_->doCall(this);
-    updatemutex_.unLock();
 }
 
 

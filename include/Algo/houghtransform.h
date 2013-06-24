@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "arrayndimpl.h"
 #include "ranges.h"
 
@@ -25,7 +25,6 @@ template <class T, class B> class TopList;
 class PlaneFrom3DSpaceHoughTransformTask;
 class Plane3;
 class Coord3;
-namespace Threads { class Mutex; };
 
 /*!
 \brief Finds planes in Array3D<float>'s regions with high values. All
@@ -105,7 +104,7 @@ protected:
     TypeSet<Coord3>*		normals_;
     friend			class ::PlaneFrom3DSpaceHoughTransformTask;
 
-    Threads::Mutex&		paramspacemutex_;
+    Threads::Lock		paramspacelock_;
 };
 
 

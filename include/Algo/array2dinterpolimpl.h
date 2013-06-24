@@ -15,9 +15,9 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "array2dinterpol.h"
-#include "thread.h"
 #include "rowcol.h"
 #include "position.h"
+#include "threadlock.h"
 
 template <class T> class Array2DImpl;
 class RowCol;
@@ -100,7 +100,7 @@ protected:
     int				nrthreads_;
     int				nrthreadswaiting_;
     bool			waitforall_;
-    Threads::ConditionVar	condvar_;
+    Threads::ConditionVar&	condvar_;
     bool			shouldend_;
     int				stepidx_;
 
@@ -174,7 +174,7 @@ protected:
     bool*			curdefined_;
     bool*			nodestofill_;
     od_int64			curnode_;
-    Threads::Mutex		curnodelock_;
+    Threads::Lock		curnodelock_;
 
     				//Work control
     od_int64			totalnr_;

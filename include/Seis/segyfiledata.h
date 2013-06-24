@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seisposkey.h"
 #include "sortedtable.h"
-#include "thread.h"
+#include "threadlock.h"
 
 class ascostream;
 class DataCharacteristics;
@@ -33,9 +33,7 @@ namespace Seis { class PosIndexer; }
 namespace SEGY
 {
 
-
 /*!<Stores scanned data from SEGY-files. */
-
 
 mExpClass(Seis) FileDataSet
 {
@@ -115,6 +113,7 @@ public:
     				//!<Write auxdata
 
 protected:
+
     struct		StoredData
     {
 			StoredData(const char* filename,od_int64 start,
@@ -128,7 +127,7 @@ protected:
     protected:
 	DataInterpreter<int>*		int32di_;
 
-	mutable Threads::Mutex		lock_;
+	mutable Threads::Lock		lock_;
 	std::istream*			istrm_;
 	od_int64			start_;
 

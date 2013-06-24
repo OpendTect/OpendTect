@@ -241,7 +241,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 
     newactions[newactions.size()-1]->insertidx_ = actionidx_ + 1;
 
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     for ( int idx=newactions.size()-1; idx>=0; idx-- )
     {
 	if ( newactions[idx]->gotoidx_ >= 0 )
@@ -249,7 +249,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 
 	actions_.insertAt( newactions[idx], actionidx_+1 );
     }
-    cmddrvmutex_.unLock();
+    lckr.unlockNow();
 
     winassertsafe_ = false;
     return true;
@@ -519,9 +519,8 @@ public:
 
 bool CmdDriver::waitForTimers()
 {
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     const int sz = timerlist_.size();
-    cmddrvmutex_.unLock();
     return sz;
 }
 
@@ -689,9 +688,9 @@ void CmdDriver::mkThread( CallBacker* )
 	if ( abort_ || actionidx_>=actions_.size() )
 	    break;
 
-	cmddrvmutex_.lock();
+	Threads::Locker lckr( cmddrvlock_ );
 	const char* actstr = actions_[actionidx_]->line_;
-	cmddrvmutex_.unLock();
+	lckr.unlockNow();
 
 	if ( actionidx_ && actstr[0]=='[' )
 	    mLogStrm << std::endl;
@@ -997,9 +996,9 @@ const char* CmdDriver::curWinTitle( int aliasnr ) const
 
 bool CmdDriver::waitForProcessing()
 {
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     const int curnrproc = activatorlist_.size() + timeoutlist_.size();
-    cmddrvmutex_.unLock();
+    lckr.unlockNow();
 
     const int prevmodalbalance = prevmodalstat_.nrmodalwins_ - prevnrproc_;
     const int curmodalbalance = curmodalstat_.nrmodalwins_ - curnrproc;
@@ -1060,13 +1059,11 @@ bool CmdDriver::activityStopped( bool checkprocessing, bool checktimers )
 
 void CmdDriver::activateDone( CallBacker* activator )
 {
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
 
     const int idx = activatorlist_.indexOf( activator );
     if ( idx >= 0 )
 	delete activatorlist_.removeSingle( idx );
-
-    cmddrvmutex_.unLock();
 }
 
 
@@ -1081,24 +1078,22 @@ void CmdDriver::activateDone( CallBacker* activator )
 void CmdDriver::timerStartsCB( CallBacker* cb )
 {
     mDynamicCastGet( const Timer*, timer, cb );
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     mTimerListUpdate( timer );
-    cmddrvmutex_.unLock();
 }
 
 
 void CmdDriver::timerStoppedCB( CallBacker* timer )
 {
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     timerlist_ -= timer;
-    cmddrvmutex_.unLock();
 }
 
 
 void CmdDriver::timerShootsCB( CallBacker* cb )
 {
     mDynamicCastGet( const Timer*, timer, cb );
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     mTimerListUpdate( timer );
 
     if ( timerlist_.isPresent(timer) )
@@ -1106,16 +1101,13 @@ void CmdDriver::timerShootsCB( CallBacker* cb )
 
     if ( timer->isSingleShot() )
 	timerlist_ -= timer;
-
-    cmddrvmutex_.unLock();
 }
 
 
 void CmdDriver::timerShotCB( CallBacker* timer )
 {
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     timeoutlist_ -= timer;
-    cmddrvmutex_.unLock();
 }
 
 
@@ -1165,10 +1157,10 @@ bool CmdDriver::prepareActivate( Activator* activator )
 
     storeModalStatus();
 
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
     prevnrproc_ = activatorlist_.size() + timeoutlist_.size();
     activatorlist_ += activator;
-    cmddrvmutex_.unLock();
+    lckr.unlockNow();
 
     wildmodalclosedstamp_ = mUdf(int);
 
@@ -1641,7 +1633,7 @@ bool CmdDriver::insertProcedure( int defidx )
 
     const int offset = actionidx_ + 1 - defidx;
 
-    cmddrvmutex_.lock();
+    Threads::Locker lckr( cmddrvlock_ );
 
     for ( int idx=actions_[defidx]->gotoidx_; idx>=defidx; idx-- )
     {
@@ -1656,7 +1648,7 @@ bool CmdDriver::insertProcedure( int defidx )
     actions_[returnidx]->line_ = "Return";
     actions_[returnidx]->insertidx_ = actionidx_ + 1;
 
-    cmddrvmutex_.unLock();
+    lckr.unlockNow();
 
     moveActionIdx( 1 );
     return true;

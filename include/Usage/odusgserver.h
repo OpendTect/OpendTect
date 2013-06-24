@@ -13,12 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "usagemod.h"
-#include "thread.h"
 #include "callback.h"
+#include "threadlock.h"
 
 #include <iosfwd>
 
 class IOPar;
+namespace Threads { class Thread; }
 
 
 namespace Usage
@@ -51,7 +52,8 @@ protected:
     const IOPar&	pars_;
     int			port_;
     std::ostream&	logstrm_;
-    mThreadDeclareMutexedVar(Threads::Thread*,thread_);
+    Threads::Thread*	thread_;
+    Threads::Lock	threadlock_;
     ObjectSet<Info>	infos_;
 
     void		usePar();

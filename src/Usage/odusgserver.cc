@@ -111,19 +111,21 @@ bool Usage::Server::go( bool inthr )
     if ( !inthr )
 	return doWork( 0 );
 
-    mThreadMutexedSet(thread_,
-	    new Threads::Thread( mCB(this,Usage::Server,doWork) ) );
+    Threads::Locker lckr( threadlock_ );
+    thread_ = new Threads::Thread( mCB(this,Usage::Server,doWork) );
     return true;
 }
 
 
 void Usage::Server::addInfo( Usage::Info& inf )
 {
-    if ( thread_ )
-	thread_mutex.lock();
-    infos_ += &inf;
-    if ( thread_ )
-	thread_mutex.unLock();
+    if ( !thread_ )
+	infos_ += &inf;
+    else
+    {
+	Threads::Locker lckr( threadlock_ );
+	infos_ += &inf;
+    }
 }
 
 
@@ -135,10 +137,11 @@ void Usage::Server::getRemoteInfos()
 
 bool Usage::Server::doWork( CallBacker* )
 {
+    Threads::Locker* lckr = 0;
     while ( true )
     {
 	if ( thread_ )
-	    thread_mutex.lock();
+	    lckr = new Threads::Locker( threadlock_ );
 	else
 	    getRemoteInfos();
 
@@ -153,8 +156,10 @@ bool Usage::Server::doWork( CallBacker* )
 	    if ( inf->withreply_ )
 		sendReply( *inf );
 	}
-	if ( thread_ )
-	    thread_mutex.unLock();
+
+	if ( lckr )
+	    { delete lckr; lckr = 0; }
+
 	Threads::sleep( 0.1 );
     }
 }

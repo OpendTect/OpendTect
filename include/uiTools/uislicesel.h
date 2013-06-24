@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "ranges.h"
 #include "zdomain.h"
+#include "threadlock.h"
 
 class uiCheckBox;
 class uiLabeledSpinBox;
@@ -25,12 +26,11 @@ class uiScrollDialog;
 class uiSpinBox;
 class uiSliceScroll;
 
-namespace Threads { class Mutex; };
-
 
 mExpClass(uiTools) uiSliceSel : public uiGroup
 {
 public:
+
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
 				uiSliceSel(uiParent*,Type,const ZDomain::Info&,
@@ -82,7 +82,7 @@ protected:
 				dogeomcheck_;
     ZDomain::Info		zdominfo_;
 
-    Threads::Mutex&		updatemutex_;
+    Threads::Lock		updatelock_;
 };
 
 

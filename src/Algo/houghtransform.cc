@@ -73,19 +73,22 @@ int PlaneFrom3DSpaceHoughTransformTask::nextStep()
 
     
 PlaneFrom3DSpaceHoughTransform::PlaneFrom3DSpaceHoughTransform()
-    : paramspacemutex_( *new Threads::Mutex )
-    , paramspace_( 0 )
+    : paramspace_( 0 )
+    , paramspacelock_( true )
     , normals_( 0 )
     , datainfo_( 0 )
     , cliprate_( 0.7 )
-{}
+{
+}
 		
 		
 PlaneFrom3DSpaceHoughTransform::~PlaneFrom3DSpaceHoughTransform()
 {
     delete datainfo_;
     if ( normals_ ) delete normals_;
+    Threads::Locker lckr( paramspacelock_ );
     delete paramspace_;
+    lckr.unlockNow();
 }
 
 
@@ -215,9 +218,8 @@ void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 			    (paramspace_->info()).getOffset(normalidx,distid) );
     unsigned int* dataptr = paramspace_->getData();
 
-    paramspacemutex_.lock();
+    Threads::Locker lckr( paramspacelock_ );
     dataptr[memoffset]++;
-    paramspacemutex_.unLock();
 }
 
 

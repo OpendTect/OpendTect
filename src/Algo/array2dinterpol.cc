@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
+#include "thread.h"
 #include "statruncalc.h"
 #include "trigonometry.h"
 
@@ -639,6 +640,7 @@ InverseDistanceArray2DInterpol::InverseDistanceArray2DInterpol()
     , nrthreadswaiting_( 0 )
     , waitforall_( false )
     , curdefined_( 0 )
+    , condvar_( *new Threads::ConditionVar )
     , totalnr_( -1 )
     , nrthreads_( mUdf(int) )
     , nraddedthisstep_( mUdf(int) )
@@ -650,6 +652,7 @@ InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 {
     delete [] nodestofill_;
     delete [] curdefined_;
+    delete &condvar_;
 }
 
 
@@ -1000,14 +1003,11 @@ public:
 	    localres += idx;
 	}
 
-	lock_.lock();
+	Threads::Locker lckr( lock_ );
 	if ( cornersfirst_ )
 	{
 	    if ( maxnrsources<maxnrsources_ )
-	    {
-		lock_.unLock();
 		return true;
-	    }
 
 	    if ( maxnrsources>maxnrsources_ )
 	    {
@@ -1019,8 +1019,6 @@ public:
 
 	nrsourceslist_.append( nrsourceslist );
 	res_.append( localres );
-
-	lock_.unLock();
 	return true;
     }
 
@@ -1052,7 +1050,7 @@ protected:
     int				maxnrsources_;
     bool			cornersfirst_;
 
-    Threads::Mutex		lock_;
+    Threads::Lock		lock_;
 };
 
 #define mRet( retval ) \
@@ -1067,7 +1065,7 @@ protected:
 
 od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 {
-    Threads::MutexLocker lock( condvar_ );
+    Threads::MutexLocker lckr( condvar_ );
 
     //Is someone else updating the step? If so, wait
     if ( waitforall_ )
@@ -1181,7 +1179,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 void InverseDistanceArray2DInterpol::reportDone( od_int64 idx )
 {
     addToNrDone( 1 );
-    Threads::MutexLocker lock( condvar_ );
+    Threads::MutexLocker lckr( condvar_ );
     addedwithcursuport_ += idx;
     nraddedthisstep_++;
 }
@@ -1383,7 +1381,7 @@ bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
 
 void TriangulationArray2DInterpol::getNextNodes( TypeSet<od_int64>& res )
 {
-    Threads::MutexLocker lock( curnodelock_ );
+    Threads::Locker lckr( curnodelock_ );
     res.erase();
 
     while ( curnode_<nrcells_ && res.size()<mBatchSize )

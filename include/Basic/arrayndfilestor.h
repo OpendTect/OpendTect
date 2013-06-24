@@ -54,7 +54,7 @@ protected:
     od_int64			sz_;
     bool			openfailed_;
     bool			streamfail_;
-    mutable Threads::Mutex	mutex_;
+    mutable Threads::Lock	lock_;
 
 };
 
@@ -75,7 +75,7 @@ bool ArrayNDFileStor<T>::isOK() const
 template <class T> inline
 T ArrayNDFileStor<T>::value( od_int64 pos ) const
 {
-    Threads::MutexLocker mlock( mutex_ );
+    Threads::Locker lckr( lock_ );
     if ( !strm_ ) const_cast<ArrayNDFileStor*>(this)->open();
     if ( !strm_ ) return T();
 
@@ -96,7 +96,7 @@ T ArrayNDFileStor<T>::value( od_int64 pos ) const
 template <class T> inline
 void ArrayNDFileStor<T>::setValue( od_int64 pos, T val ) 
 {
-    Threads::MutexLocker mlock( mutex_ );
+    Threads::Locker lckr( lock_ );
     if ( !strm_ ) open();
     if ( !strm_ ) return;
 
@@ -111,7 +111,7 @@ void ArrayNDFileStor<T>::setValue( od_int64 pos, T val )
 template <class T> inline
 bool ArrayNDFileStor<T>::setSize( od_int64 nsz )
 {
-    Threads::MutexLocker mlock( mutex_ );
+    Threads::Locker lckr( lock_ );
     if ( strm_ ) close();
     sz_ = nsz;
     openfailed_ = streamfail_ = false;
@@ -137,9 +137,10 @@ ArrayNDFileStor<T>::ArrayNDFileStor( od_int64 nsz )
 template <class T> inline
 ArrayNDFileStor<T>::~ArrayNDFileStor()
 {
-    Threads::MutexLocker mlock( mutex_ );
+    Threads::Locker lckr( lock_ );
     if ( strm_ ) close();
     File_remove( name_.buf(), mFile_NotRecursive );
+    lckr.unlockNow();
 }
 
 

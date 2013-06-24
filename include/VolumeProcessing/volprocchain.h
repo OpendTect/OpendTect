@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "refcount.h"
 #include "samplingdata.h"
-#include "thread.h"
+#include "threadlock.h"
 
 namespace Attrib { class DataCubes; }
 
@@ -183,14 +183,15 @@ public:
     int				nextStep();
 
 protected:
+
     bool			prepareNewStep();
     void			controlWork(Task::Control);
     od_int64			nrDone() const;
     od_int64			totalNr() const;
     const char*			message() const;
 
-    mutable Threads::Mutex	curtasklock_;
     Task*			curtask_;
+    mutable Threads::Lock	curtasklock_;
     ObjectSet<Step>		steps_;
     int				currentstep_;
 

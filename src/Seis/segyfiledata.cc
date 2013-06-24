@@ -66,7 +66,7 @@ SEGY::FileDataSet::StoredData::~StoredData()
 bool SEGY::FileDataSet::StoredData::getKey( od_int64 pos, Seis::PosKey& pk,
 					    bool& usable ) const
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
 
     if ( !istrm_ || pos<0 )
 	return false;

@@ -245,7 +245,7 @@ bool ChainExecutor::prepareNewStep()
     if ( steps_[currentstep_]->setInput( curinput_ ) )
 	curinput_ = 0;
 
-    Threads::MutexLocker lock( curtasklock_ );
+    Threads::Locker lckr( curtasklock_ );
     if ( curtask_ ) delete curtask_;
     curtask_ = steps_[currentstep_]->createTask();
     if ( !curtask_ )
@@ -273,8 +273,7 @@ bool ChainExecutor::prepareNewStep()
 void ChainExecutor::controlWork( Task::Control ctrl )
 {
     Task::controlWork( ctrl );
-
-    Threads::MutexLocker lock( curtasklock_ );
+    Threads::Locker lckr( curtasklock_ );
     if ( curtask_ )
 	curtask_->controlWork( ctrl );
 }
@@ -282,20 +281,18 @@ void ChainExecutor::controlWork( Task::Control ctrl )
 
 od_int64 ChainExecutor::nrDone() const
 {
-    Threads::MutexLocker lock( curtasklock_ );
+    Threads::Locker lckr( curtasklock_ );
     if ( curtask_ )
 	return curtask_->nrDone();
-
     return -1;
 }
 
 
 od_int64 ChainExecutor::totalNr() const
 {
-    Threads::MutexLocker lock( curtasklock_ );
+    Threads::Locker lckr( curtasklock_ );
     if ( curtask_ )
 	return curtask_->totalNr();
-
     return -1;
 }
 
@@ -305,10 +302,9 @@ const char* ChainExecutor::message() const
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
 
-    Threads::MutexLocker lock( curtasklock_ );
+    Threads::Locker lckr( curtasklock_ );
     if ( curtask_ )
 	return curtask_->message();
-
     return 0;
 }
 
