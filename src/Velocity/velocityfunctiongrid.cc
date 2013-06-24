@@ -312,7 +312,7 @@ bool doWork(od_int64 start, od_int64 stop, int )
     while ( true )
     {
 	TypeSet<BinIDValueSet::Pos> positions;
-	lock_.lock();
+	Threads::Locker lckr( lock_ );
 	if ( moretodo_ )
 	{
 	    for ( int idx=0; idx<10000; idx++ )
@@ -326,8 +326,8 @@ bool doWork(od_int64 start, od_int64 stop, int )
 		positions += pos_;
 	    }
 	}
+	lckr.unlockNow();
 
-	lock_.unLock();
 	if ( !positions.size() )
 	    break;
 
@@ -362,7 +362,7 @@ bool doWork(od_int64 start, od_int64 stop, int )
     for ( int idx=0; idx<sourcebids.size(); idx++ )
 	coords += SI().transform( sourcebids[idx] );
 
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr2( lock_ );
     bids_.append( sourcebids );
     coords_.append( coords );
 
@@ -377,7 +377,7 @@ protected:
     TypeSet<Coord>&     coords_;
     bool                moretodo_;
 
-    Threads::Mutex      lock_;
+    Threads::Lock      lock_;
 };
 
 
@@ -456,7 +456,7 @@ void GriddedSource::setGridder( Gridder2D* ng )
 
     initGridder();
 
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
@@ -560,7 +560,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
     mDynamicCastGet( FunctionSource*, src, cb );
     const BinID bid = src->changeBinID();
 
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
@@ -570,8 +570,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
 	func->removeCache();
 	func->fetchSources();
     }
-
-    lock.unLock();
+    lckr.unlockNow();
 
     changebid_ = BinID(-1,-1);
     notifier_.trigger();

@@ -86,7 +86,7 @@ protected:
     ObjectSet<SeisTrcReader>	velreader_;
     ObjectSet<const void>	threads_;
 
-    Threads::Mutex		readerlock_;
+    Threads::Lock		readerlock_;
     bool			zit_;
     VelocityDesc		desc_;
 };

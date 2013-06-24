@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <callback.h>
-#include <thread.h>
+#include <threadlock.h>
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -30,7 +30,7 @@ class Export_Basic i_QPtrImpl : public QObject, public CallBacker
 public:
 
     Notifier<i_QPtrImpl> notifier_;
-    Threads::Mutex	lock_;
+    Threads::Lock	lock_;
 
     QObject*		ptr()				{ return sender_; }
     const QObject*	ptr() const			{ return sender_; }
@@ -42,7 +42,7 @@ public:
     QObject*		operator->() const		{ return sender_; }
     QObject*		operator=(QObject* qo)		{ set( qo ); return qo;}
     
-    Threads::Mutex&	mutex()				{ return lock_; }
+    Threads::Lock&	objLock()			{ return lock_; }
 
     
     void		set(QObject* qo);
@@ -58,7 +58,7 @@ private slots:
     void		destroyed( QObject* )
 			{
 			    notifier_.trigger();
-			    Threads::MutexLocker lock( lock_ );
+			    Threads::Locker lckr( lock_ );
 			    sender_ = 0;
 			}
 

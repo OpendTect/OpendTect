@@ -72,7 +72,7 @@ void Function::setDesiredZRange( const StepInterval<float>& n )
 
 float Function::getVelocity( float z )const
 {
-    Threads::MutexLocker lock( cachelock_ );
+    Threads::Locker cachelckr( cachelock_ );
     if ( !cache_ )
     {
 	const StepInterval<float> sampling = getDesiredZ();
@@ -90,8 +90,7 @@ float Function::getVelocity( float z )const
 	    return mUdf( float );
 	}
     }
-
-    lock.unLock();
+    cachelckr.unlockNow();
 
     const float fsample = cachesd_.getfIndex( z );
     const int isample = (int) fsample;
@@ -122,7 +121,7 @@ bool Function::moveTo( const BinID& bid )
 
 void Function::removeCache()
 {
-    Threads::MutexLocker lock( cachelock_ );
+    Threads::Locker lckr( cachelock_ );
     delete cache_; cache_ = 0;
 }
 
@@ -142,7 +141,7 @@ BufferString FunctionSource::userName() const
 
 void FunctionSource::refFunction( const Function* func )
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     int idx = functions_.indexOf( func );
     if ( idx==-1 )
     {
@@ -158,7 +157,7 @@ void FunctionSource::refFunction( const Function* func )
 bool FunctionSource::unRefFunction( const Function* func )
 {
     bool remove = false;
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     int idx = functions_.indexOf( func );
     if ( idx==-1 )
     {
@@ -211,7 +210,7 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
     if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
 	return 0;
 
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lckr( lock_ );
     Function* tmpfunc = 0;
     int idx = findFunction( bid );  
     if ( idx==-1 )
@@ -228,8 +227,7 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
        	tmpfunc = functions_[idx];
        	refcounts_[idx]++;
     }
-    
-    lock.unLock();
+    lckr.unlockNow();
     
     ConstRefMan<Function> res = tmpfunc;
     tmpfunc->unRef();

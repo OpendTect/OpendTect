@@ -46,7 +46,7 @@ QObject* QObjPtr::operator=( QObject* qo )
 
 Threads::Mutex& QObjPtr::mutex()
 {
-    return impl_->lock_;
+    return impl_->lock_.mutex();
 }
 
 
@@ -71,13 +71,13 @@ i_QPtrImpl::i_QPtrImpl( QObject* sndr )
     : sender_(0)
     , notifier_(this)
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     set( sndr );
 }
 
 i_QPtrImpl::~i_QPtrImpl()
 {
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
     set( 0 );
 }
 

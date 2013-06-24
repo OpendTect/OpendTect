@@ -14,9 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "basemap.h"
-
 #include "draw.h"
-#include "thread.h"
 
 /*!Object that draws markers on a basemap */
 
@@ -42,8 +40,10 @@ public:
     char			connectPoints(int shapeidx) const{ return false; }
 
 protected:
+
     MarkerStyle2D		markerstyle_;
     TypeSet<Coord>		positions_;
+
 };
 
 

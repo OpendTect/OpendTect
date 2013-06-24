@@ -143,7 +143,7 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
     mDynamicCastGet( FunctionSource*, src, cb );
     const BinID bid = src->changeBinID();
 
-    Threads::MutexLocker lock( lock_ );
+    Threads::Locker lock( lock_ );
 
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {

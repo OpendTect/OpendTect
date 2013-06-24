@@ -73,7 +73,7 @@ public:
     					/*!<Adds values to stucture. */
     bool				append(const MultiDimStorage<T>&);
     template <class IDX> void		remove(const IDX& index);
-    void				empty();
+    void				setEmpty();
     					/*!<removes everything. */
 
     template <class POS,class IDX> bool	findFirst(const POS&,IDX&) const;
@@ -148,7 +148,7 @@ MultiDimStorage<T>::operator=( const MultiDimStorage<T>& templ )
 template <class T> inline
 MultiDimStorage<T>::~MultiDimStorage()
 {
-    empty();
+    setEmpty();
 }
 
 
@@ -174,7 +174,7 @@ bool MultiDimStorage<T>::isOK() const
 
 	
 template <class T> inline
-void MultiDimStorage<T>::empty()
+void MultiDimStorage<T>::setEmpty()
 {
     deepErase( lowerdimstorage_ );
     onedimstorage_.erase();

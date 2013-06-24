@@ -346,30 +346,8 @@ mGlobal(Basic) int getSystemNrProcessors();
 mGlobal(Basic) int getNrProcessors();
 mGlobal(Basic) const void* currentThread();
 
-
-
 /*! Causes the current thread to sleep */
 mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
-
-
-#define mThreadDeclareMutexedVar(T,var) \
-    T			var; \
-    Threads::Mutex	var##mutex
-
-#define mThreadMutexedSet(var,newval) \
-    var##mutex.lock(); \
-    var = newval; \
-    var##mutex.unLock()
-
-#define mThreadMutexedGet(retvar,var) \
-    var##mutex.lock(); \
-    retvar = var; \
-    var##mutex.unLock()
-
-#define mThreadMutexedGetVar(T,retvar,var) \
-    var##mutex.lock(); \
-    T retvar = var; \
-    var##mutex.unLock()
 
 
 } //namespace

@@ -423,15 +423,12 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 	return 0;
     }
 
-    mcsurface_->modelslock_.readLock();
+    Threads::Locker lckr( mcsurface_->modelslock_ );
     Interval<int> inlrg, crlrg, zrg;
     if ( !mcsurface_->models_.getRange( 0, inlrg ) ||
 	!mcsurface_->models_.getRange( 1, crlrg ) ||
 	!mcsurface_->models_.getRange( 2, zrg ) )
-    {
-	mcsurface_->modelslock_.readUnLock();
 	return 0;
-    }
 
     const int inlsz = inlrg.width()+1;
     const int crlsz = crlrg.width()+1;
@@ -440,27 +437,15 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 
     mDeclareAndTryAlloc(Array3D<int>*,intarr,Array3DImpl<int>(inlsz,crlsz,zsz));
     if ( !intarr )
-    {
-	mcsurface_->modelslock_.readUnLock();
 	return 0;
-    }
 
     mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
     if ( !res )
-    {
-	mcsurface_->modelslock_.readUnLock();
-	delete intarr;
-	return 0;
-    }
+	{ delete intarr; return 0; }
 
     Array3D<float>* arr = new Array3DConv<float,int>(intarr);
     if ( !arr )
-    {
-	mcsurface_->modelslock_.readUnLock();
-	delete intarr;
-	delete res;
-	return 0;
-    }
+	{ delete intarr; delete res; return 0; }
 
     const Array3D<float>* vd = mcsurface_->impvoldata_;
     if ( !vd )
@@ -469,11 +454,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 		inlrg.start, crlrg.start, zrg.start, !smooth );
 	const bool execres = TaskRunner::execute( t, m2i );
     	if ( !execres )
-    	{
-    	    delete res;
-    	    mcsurface_->modelslock_.readUnLock();
-    	    return 0;
-    	}
+	    { delete res; return 0; }
     
 	res->arr_ = arr;
 	res->threshold_ = m2i.threshold();
@@ -496,8 +477,6 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     res->cs_.zrg.start = zsampling_.atIndex( zrg.start );
     res->cs_.zrg.stop = zsampling_.atIndex( zrg.stop );
     res->cs_.zrg.step = zsampling_.step;
-
-    mcsurface_->modelslock_.readUnLock();
 
     return res;
 }

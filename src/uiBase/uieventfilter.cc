@@ -119,7 +119,7 @@ void uiEventFilterImpl::attachFilter( QObject* obj )
 
 void uiEventFilterImpl::detachFilter()
 {
-    Threads::MutexLocker lock( qobj_.lock_ );
+    Threads::Locker lckr( qobj_.lock_ );
     
     if ( qobj_ ) qobj_->removeEventFilter( this );
     qobj_ = 0;
@@ -128,7 +128,7 @@ void uiEventFilterImpl::detachFilter()
 
 bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
 {
-    Threads::MutexLocker lock( qobj_.lock_ );
+    Threads::Locker lckr( qobj_.lock_ );
 
     if ( !qobj_ )
 	return false;
@@ -136,7 +136,7 @@ bool uiEventFilterImpl::eventFilter( QObject* obj, QEvent* ev )
     if ( qobj_!=obj )
 	return false;
 
-    lock.unLock(); //We only protect qobj_.
+    lckr.unlockNow(); //We only protect qobj_.
 
     if ( !eventtypes_.isPresent( ev->type() ) )
 	return false;

@@ -79,7 +79,7 @@ protected:
     int				lastversionupdate_;
 
     MultiDimStorage<int>	coordindices_;
-    Threads::ReadWriteLock	coordindiceslock_;
+    Threads::Lock		coordindiceslock_;
 
     MultiDimStorage<Geometry::IndexedGeometry*>	ibuckets_;
 };

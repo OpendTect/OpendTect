@@ -772,7 +772,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 
 bool Picks::load( const IOObj* ioobj )
 {
-    picks_.empty();
+    picks_.setEmpty();
 
     if ( !useIOObjPar( ioobj->pars() ) )
     {

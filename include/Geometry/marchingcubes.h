@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "multidimstorage.h"
 #include "ranges.h"
 #include "refcount.h"
-#include "thread.h"
+#include "threadlock.h"
 
 template <class T> class Array3D;
 template <class T> class DataInterpreter;
@@ -102,7 +102,7 @@ public:
 	    			 const DataInterpreter<od_int32>*);
 
     MultiDimStorage<MarchingCubesModel>		models_;
-    mutable Threads::ReadWriteLock		modelslock_;
+    mutable Threads::Lock			modelslock_;
 
     Notifier<MarchingCubesSurface>		change;
     bool					allchanged_;

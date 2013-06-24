@@ -135,10 +135,10 @@ int nextStep()
 	if ( !model.readFrom( strm_, dt_ ) )
 	    return ErrorOccurred();
 
-	surface_.modelslock_.writeLock();
+	Threads::Locker lckr( surface_.modelslock_, Threads::Locker::WriteLock);
 	surface_.models_.add<MarchingCubesModel*,const int*, int*>
 	    ( &model, pos, 0 );
-	surface_.modelslock_.writeUnLock();
+	lckr.unlockNow();
 	nrdone_++;
 	if ( nrdone_==totalnr_ )
 	    return Finished();
@@ -411,9 +411,8 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 
 void MarchingCubesSurface::removeAll()
 {
-    modelslock_.writeLock();
-    models_.empty();
-    modelslock_.writeUnLock();
+    Threads::Locker lckr( modelslock_, Threads::Locker::WriteLock );
+    models_.setEmpty();
 }
 
 
@@ -490,28 +489,21 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    if ( !model.isEmpty() )
 	    {
-		surface_.modelslock_.writeLock();
+		Threads::Locker lckr( surface_.modelslock_,
+					Threads::Locker::WriteLock );
 		surface_.models_.add<MarchingCubesModel*,const int*, int*>
 		    ( &model, pos, 0 );
-		surface_.modelslock_.writeUnLock();
 	    }
 	    else
 	    {
-		surface_.modelslock_.readLock();
+		Threads::Locker lckr( surface_.modelslock_ );
 		int idxs[3];
 		if ( !surface_.models_.findFirst( pos, idxs ) )
-		{
-		    surface_.modelslock_.readUnLock();
 		    continue;
-		}
 
-		if ( surface_.modelslock_.convReadToWriteLock() ||
-		     surface_.models_.findFirst( pos, idxs ) )
-		{
+		if ( lckr.convertToWriteLock() || surface_.models_.findFirst(
+			    				pos, idxs ) )
 		    surface_.models_.remove( idxs );
-		}
-
-		surface_.modelslock_.writeUnLock();
 	    }
 	}
     }

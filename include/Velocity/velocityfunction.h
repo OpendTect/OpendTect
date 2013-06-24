@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "samplingdata.h"
-#include "thread.h"
+#include "threadlock.h"
 #include "veldesc.h"
 
 namespace Attrib { class DataHolder; };
@@ -73,7 +73,7 @@ protected:
 private:
     friend			class FunctionSource;
 
-    mutable Threads::Mutex	cachelock_;
+    mutable Threads::Lock	cachelock_;
     mutable TypeSet<float>*	cache_;
     mutable SamplingData<double> cachesd_;
 };
@@ -121,7 +121,7 @@ protected:
 
     ObjectSet<Function>			functions_;
     TypeSet<int>			refcounts_;
-    Threads::Mutex			lock_;
+    Threads::Lock			lock_;
 };
 
 }; //namespace
