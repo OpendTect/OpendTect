@@ -1240,14 +1240,9 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
     inlrg.sort(); crlrg.sort();
 
-    Array2D<float>* arr = new Array2DImpl<float>( inlrg.nrSteps()+1,
-	    					  crlrg.nrSteps()+1 );
-    float* ptr = arr->getData();
-    for ( int idx=arr->info().getTotalSz()-1; idx>=0; idx-- )
-    {
-	*ptr = mUdf(float);
-	ptr++;
-    }
+    mDeclareAndTryAlloc( Array2D<float>*, arr,
+	    Array2DImpl<float>(inlrg.nrSteps()+1, crlrg.nrSteps()+1) );
+    arr->setAll( mUdf(float) );
 
     bidsurf->setArray( RowCol( inlrg.start, crlrg.start),
 	    	       RowCol( inlrg.step, crlrg.step ), arr, true );
