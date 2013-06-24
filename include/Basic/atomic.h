@@ -23,6 +23,7 @@ ________________________________________________________________________
 # ifdef __win__
 #  define __WINATOMICS__
 #  include <Windows.h>
+#  include <thread.h>
 # else
 #  define __GCCATOMICS__
 # endif
