@@ -8,7 +8,7 @@
 cmake_minimum_required (VERSION 2.8)
 
 set( OpendTect_VERSION_MAJOR 4 )
-set( OpendTect_VERSION_MINOR 5 )
+set( OpendTect_VERSION_MINOR 7 )
 set( OpendTect_VERSION_DETAIL 0 )
 set( OpendTect_VERSION_PATCH a )
 
