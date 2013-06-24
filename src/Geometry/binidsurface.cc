@@ -487,7 +487,7 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
     }
 
     const int row = idx / depths_->info().getSize(1);
-    const int col = idx / depths_->info().getSize(1);
+    const int col = idx % depths_->info().getSize(1);
     depths_->set( row, col, (float) np.z );
 }
 
