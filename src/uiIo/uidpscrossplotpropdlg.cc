@@ -536,6 +536,7 @@ void computePts( bool isy2 )
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
 	    vert.axis_->range().step );
     MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
+    if ( !mathobj ) return;
     Interval<float> xrge = horz.rg_;
     const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
 
