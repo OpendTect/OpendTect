@@ -256,7 +256,9 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
     IOPar statusbarmsg;
     statusbarmsg.set( "Model Number", getClickedModelNr() );
     const MouseEvent& mev = gv_->getMouseEventHandler().event();
-    const float depth = yax_->getVal( mev.pos().y );
+    float depth = yax_->getVal( mev.pos().y );
+    if ( !Math::IsNormalNumber(depth) )
+	depth = 0;
     statusbarmsg.set( "Depth", depth );
     infoChanged.trigger( statusbarmsg, this );
 }
