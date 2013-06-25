@@ -258,7 +258,12 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
     const MouseEvent& mev = gv_->getMouseEventHandler().event();
     float depth = yax_->getVal( mev.pos().y );
     if ( !Math::IsNormalNumber(depth) )
+    {
+	static bool havewarned = false;
+	if ( !havewarned )
+	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
 	depth = 0;
+    }
     statusbarmsg.set( "Depth", depth );
     infoChanged.trigger( statusbarmsg, this );
 }
