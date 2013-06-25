@@ -168,6 +168,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->create3DGenSet() )
 	    return false;
+	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	addPickSet( &ps );
 	display_on_add = false;
     }
     else if ( mnuid==mRandom2DIdx )
@@ -175,6 +177,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->createRandom2DSet() )
 	    return false;
+	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	addPickSet( &ps );
 	display_on_add = false;
     }
     else if ( mnuid==mEmptyIdx || mnuid==mPolygonIdx )
@@ -182,6 +186,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	display_on_add = true;
 	if ( !applMgr()->pickServer()->createEmptySet(mnuid==mPolygonIdx) )
 	    return false;
+	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	addPickSet( &ps );
 	display_on_add = false;
     }
     else if ( mnuid==mSaveIdx )

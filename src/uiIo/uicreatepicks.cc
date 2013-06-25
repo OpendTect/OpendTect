@@ -156,8 +156,6 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 	}
     }
 
-    dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );
-    mRestorCursor();
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
 
