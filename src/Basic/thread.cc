@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
 #include "threadlock.h"
+#include "atomic.h"
 
 // Thread::Lock interface
 
