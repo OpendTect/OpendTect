@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "prestackprocessingmod.h"
 #include "refcount.h"
+#include "windowfunction.h"
 
 template <class T> class Array2D;
 class FFTFilter;
@@ -43,7 +44,7 @@ mExpClass(PreStackProcessing) AngleComputer
 public:
 				AngleComputer();
 
-    enum smoothingType		{ TimeAverage, FFTFilter };
+    enum smoothingType		{ None, MovingAverage, FFTFilter };
 				DeclareEnumUtils(smoothingType);
 
     virtual Gather*		computeAngles() = 0;
@@ -53,7 +54,12 @@ public:
 
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracer(const IOPar& raypar);
-    void			setSmoothingPars(const IOPar& iopar);
+    void			setNoSmoother();
+			    /*!<\param length Filter length in survey Z unit*/
+    void			setMovingAverageSmoother(float length,
+				        BufferString win=HanningWindow::sName(),
+					float param=0.95);
+    void			setFFTSmoother(float freqf3,float freqf4);
 
     static const char*		sKeySmoothType() { return "Smoothing type"; }
     static const char*		sKeyWinFunc() { return "Window function"; }

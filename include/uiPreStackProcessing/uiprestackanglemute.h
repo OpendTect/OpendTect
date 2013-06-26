@@ -73,7 +73,8 @@ public:
 protected :
 
     bool		acceptOK(CallBacker*);
-    bool		isSmoothTypeTimeAverage();
+    bool		isSmoothTypeMovingAverage();
+    bool		isSmoothTypeFFTFilter();
     void		smoothTypeSel(CallBacker*);
     void		smoothWindowSel(CallBacker*);
     void		finaliseCB(CallBacker*);

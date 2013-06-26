@@ -17,12 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
 #include "prestackgather.h"
-
 #include "prestackprop.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "survinfo.h"
 #include "raytrace1d.h"
+#include "windowfunction.h"
 
 #include "ioman.h"
 #include "ioobj.h"
@@ -70,11 +70,11 @@ void PSAttrib::initClass()
     EnumParam* smoothtype = new EnumParam( 
 				PreStack::AngleComputer::sKeySmoothType() );
     smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
-    smoothtype->setDefaultValue( 0 );
+    smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
     smoothtype->setRequired( false );
     desc->addParam( smoothtype );
 
-    desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "", 
+    desc->addParam( new StringParam( PreStack::AngleComputer::sKeyWinFunc(), "",
 				     false ) );
     desc->addParam( new FloatParam( PreStack::AngleComputer::sKeyWinParam(), 
 				    mUdf(float), false ) );
@@ -155,10 +155,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	    IOPar raypar;
 	    raypar.getParsFrom( raytracerparam );
 	    anglecomp_->setRayTracer( raypar );
-
-	    IOPar smoothingpar;
-	    fillSmootheningPar( smoothingpar );
-	    anglecomp_->setSmoothingPars( smoothingpar );
+	    setSmootheningPar();
 	}
     }
 
@@ -191,13 +188,15 @@ PSAttrib::~PSAttrib()
 }
 
 
-void PSAttrib::fillSmootheningPar( IOPar& iopar )
+void PSAttrib::setSmootheningPar()
 {
     int smoothtype = 0;
     mGetEnum( smoothtype , PreStack::AngleComputer::sKeySmoothType() );
-
-    iopar.set( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
-    if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+    if ( smoothtype == PreStack::AngleComputer::None )
+    {
+	anglecomp_->setNoSmoother();
+    }
+    else if ( smoothtype == PreStack::AngleComputer::MovingAverage )
     {  
 	BufferString smwindow;
 	float windowparam, windowlength;
@@ -205,9 +204,11 @@ void PSAttrib::fillSmootheningPar( IOPar& iopar )
 	mGetFloat( windowparam, PreStack::AngleComputer::sKeyWinParam() );
 	mGetFloat( windowlength, PreStack::AngleComputer::sKeyWinLen() );
 
-	iopar.set( PreStack::AngleComputer::sKeyWinFunc(), smwindow );
-	iopar.set( PreStack::AngleComputer::sKeyWinParam(), windowparam );
-	iopar.set( PreStack::AngleComputer::sKeyWinLen(), windowlength );
+	if ( smwindow == CosTaperWindow::sName() )
+	    anglecomp_->setMovingAverageSmoother( windowlength, smwindow,
+		   				  windowparam );
+	else
+	    anglecomp_->setMovingAverageSmoother( windowlength, smwindow );
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
@@ -215,8 +216,7 @@ void PSAttrib::fillSmootheningPar( IOPar& iopar )
 	mGetFloat( f3freq, PreStack::AngleComputer::sKeyFreqF3() );
 	mGetFloat( f4freq, PreStack::AngleComputer::sKeyFreqF4() );
 
-	iopar.set( PreStack::AngleComputer::sKeyFreqF3(), f3freq );
-	iopar.set( PreStack::AngleComputer::sKeyFreqF4(), f4freq );
+	anglecomp_->setFFTSmoother( f3freq, f4freq );
     }
 }
 
@@ -227,10 +227,7 @@ void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
     if ( !ac ) return;
     anglecomp_ = ac;
     anglecomp_->ref();
-    
-    IOPar par;
-    fillSmootheningPar( par );
-    anglecomp_->setSmoothingPars( par );
+    setSmootheningPar();
 }
 
 

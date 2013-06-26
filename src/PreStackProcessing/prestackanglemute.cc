@@ -34,14 +34,15 @@ AngleCompParams::AngleCompParams()
     , velvolmid_(MultiID::udf())
 {
     smoothingpar_.set( PreStack::AngleComputer::sKeySmoothType(),
-		       PreStack::AngleComputer::TimeAverage );
+		       PreStack::AngleComputer::FFTFilter );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF3(), 10.0f );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 15.0f );
+    // defaults for other types:
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinFunc(),
-		       HanningWindow::sName() );
+	    	       HanningWindow::sName() );
+    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(),
+	    	       100.0f/SI().zDomain().userFactor() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(), 
-		       500.0f/SI().zDomain().userFactor() );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF3(), 50 );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 60 );
 }
 
 

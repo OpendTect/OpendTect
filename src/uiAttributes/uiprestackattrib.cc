@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackprop.h"
 #include "raytrace1d.h"
 #include "seispsioprov.h"
+#include "windowfunction.h"
 #include "uiattrsel.h"
 #include "uiattribfactory.h"
 #include "uibutton.h"
@@ -175,24 +176,28 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 		smoothtype=smtype )
     smpar.set( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
 
-    if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+    if ( smoothtype == PreStack::AngleComputer::MovingAverage )
     {
-	BufferString windowfunction;
-	mIfGetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc, 
-		      windowfunction=winfunc )
-	smpar.set( PreStack::AngleComputer::sKeyWinFunc(), windowfunction );
-
-	float windowparam = mUdf(float); 
-	mIfGetFloat( PreStack::AngleComputer::sKeyWinParam(), winpar,
-		     windowparam=winpar )
-	if ( !mIsUdf(windowparam) )
-	    smpar.set( PreStack::AngleComputer::sKeyWinParam(), windowparam );
-
 	float windowlength = mUdf(float);
 	mIfGetFloat( PreStack::AngleComputer::sKeyWinLen(), winlen,
 		     windowlength=winlen )
 	if ( !mIsUdf(windowlength) )
 	    smpar.set( PreStack::AngleComputer::sKeyWinLen(), windowlength );
+
+	BufferString windowfunction;
+	mIfGetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc, 
+		      windowfunction=winfunc )
+	smpar.set( PreStack::AngleComputer::sKeyWinFunc(), windowfunction );
+
+	if ( windowfunction == CosTaperWindow::sName() )
+	{
+	    float windowparam = mUdf(float);
+	    mIfGetFloat( PreStack::AngleComputer::sKeyWinParam(), winpar,
+		    	 windowparam=winpar )
+	    if ( !mIsUdf(windowparam) && windowparam >=0 && windowparam <= 1 )
+		smpar.set( PreStack::AngleComputer::sKeyWinParam(),
+			   windowparam );
+	}
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
@@ -260,17 +265,21 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
     mSetEnum( PreStack::AngleComputer::sKeySmoothType(), smoothtype )
 
-    if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+    if ( smoothtype == PreStack::AngleComputer::MovingAverage )
     {
-	BufferString winfunc;
-	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
-	mSetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc )
-	float winparam; 
-	smpar.get( PreStack::AngleComputer::sKeyWinParam(), winparam );
-	mSetFloat( PreStack::AngleComputer::sKeyWinParam(), winparam )
 	float winlength;
 	smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
 	mSetFloat( PreStack::AngleComputer::sKeyWinLen(), winlength )
+	BufferString winfunc;
+	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
+	mSetString( PreStack::AngleComputer::sKeyWinFunc(), winfunc )
+	if ( winfunc == CosTaperWindow::sName() )
+	{
+	    float winparam; 
+	    smpar.get( PreStack::AngleComputer::sKeyWinParam(), winparam );
+	    if ( winparam>=0 && winparam <= 1 )
+		mSetFloat( PreStack::AngleComputer::sKeyWinParam(), winparam )
+	}
     }
     else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
     {
