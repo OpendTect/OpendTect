@@ -346,7 +346,10 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
     }
 
     if ( shape_ && shape_->needsUpdate() && !shape_->update( forall, tr ) )
+    {
+	writeUnLock();
 	return;
+    }
 
     ObjectSet<SoIndexedShape> newstrips;
     ObjectSet<const Geometry::IndexedGeometry> newstripgeoms;
