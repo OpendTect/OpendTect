@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __lux__
 # include "strmoper.h" 
 # include <fstream>
-static float swapfree;
+static od_int64 swapfree;
 #endif
 
 #ifdef __mac__
@@ -34,14 +34,13 @@ void OD::dumpMemInfo( IOPar& res )
     od_int64 total, free;
     getSystemMemory( total, free );
     NrBytesToStringCreator converter;
-    
-    total /= 1024 * 1024; free /= 1024 * 1024;
 
-    res.set( "Total memory (MB)", total );
-    res.set( "Free memory (MB)", free );
+    converter.setUnitFrom( total );
+    
+    res.set( "Total memory", converter.getString(total) );
+    res.set( "Free memory", converter.getString( free ) );
 #ifdef __lux__
-    free = swapfree; free /= 1024 * 1024; ifree = mNINT32(free);
-    res.set( "Available swap space (MB)", ifree );
+    res.set( "Available swap space", converter.getString(swapfree) );
 #endif
 }
 
