@@ -895,7 +895,7 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
 	nrdecfactor *= 10;
     
     sz *= nrdecfactor;
-    unsigned char nrshifts = (int) unit_;
+    unsigned char nrshifts = (unsigned char) unit_;
     for ( int idx=0; idx<nrshifts; idx++ )
 	sz >>= 10;
     
