@@ -329,6 +329,8 @@ void uiStratSynthDisp::setZoomView( const uiWorldRect& wr )
 {
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
+    control_->zoomMgr().toStart();
+    control_->setActiveVwr( 0 );
     control_->setNewView( centre, newsz );
 }
 
@@ -569,33 +571,32 @@ float uiStratSynthDisp::centralTrcShift() const
 
 const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 {
-    static uiWorldRect wr; wr = vwr_->curView();
+    static uiWorldRect timewr; timewr = vwr_->curView();
     if ( !indpth )
-	return wr;
+	return timewr;
 
+    static uiWorldRect depthwr;
+    depthwr.setLeft( timewr.left() );
+    depthwr.setRight( timewr.right() );
     if ( d2tmodels_ && !d2tmodels_->isEmpty() )
     {
-	int mdlidx = longestaimdl_;
-	if ( mdlidx >= d2tmodels_->size() )
-	    mdlidx = d2tmodels_->size()-1;
-
 	const float flattenedshift = centralTrcShift();
 	for ( int idx=0; idx<d2tmodels_->size(); idx++ )
 	{
 	    const TimeDepthModel& d2t = *(*d2tmodels_)[idx];
-	    const double top = d2t.getDepth((float)wr.top()+flattenedshift)
+	    const double top = d2t.getDepth((float)timewr.top()+flattenedshift)
 			      - d2t.getDepth(flattenedshift)-dispskipz_;
 	    const double bottom =
-		d2t.getDepth((float)wr.bottom()+flattenedshift)
+		d2t.getDepth((float)timewr.bottom()+flattenedshift)
 		- d2t.getDepth(flattenedshift);
-	    if ( idx==0 || top<wr.top() )
-		wr.setTop( top );
-	    if ( idx==0 || bottom>wr.bottom() )
-		wr.setBottom( bottom );
+	    if ( idx==0 || top<depthwr.top() )
+		depthwr.setTop( top );
+	    if ( idx==0 || bottom>depthwr.bottom() )
+		depthwr.setBottom( bottom );
 	}
     }
 
-    return wr;
+    return depthwr;
 }
 
 

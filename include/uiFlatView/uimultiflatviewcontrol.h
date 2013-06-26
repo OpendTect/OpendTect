@@ -31,6 +31,7 @@ public:
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
 
     uiFlatViewer*	activeVwr() const   { return activevwr_; }
+    bool		setActiveVwr(int vwridx);
 
     void		setZoomCoupled( bool yn ) { iszoomcoupled_ = yn; }
     void		setDrawZoomBoxes( bool yn ) { drawzoomboxes_ = yn; }
