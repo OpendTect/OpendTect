@@ -595,25 +595,22 @@ void uiODMain::timerCB( CallBacker* )
 
 void uiODMain::memTimerCB( CallBacker* )
 {
-    static bool multiple_access = false;
-    if ( multiple_access ) return;
-    multiple_access = true;
+    static Threads::Lock memtimerlock( true );
+    Threads::Locker locker( memtimerlock, Threads::Locker::DontWaitForLock );
+    if ( !locker.isLocked() )
+	return;
+	
+    od_int64 tot, free;
+    OD::getSystemMemory( tot, free );
 
-    float tot, av;
-    OD::getSystemMemory( tot, av );
-
-    BufferString txt( "[mem] " );
-    const bool ingb = tot > 1070000000;
-    const float fac = mCast( float, ingb ? 1073741824 : 1048576 );
-    tot /= fac; av /=fac;
-    int itot = mNINT32(tot*10); int iav = mNINT32(av*10);
-    txt			.add( iav/10 ).add( "." ).add( iav%10 )
-	.add( "/" )	.add( itot/10 ).add( "." ).add( itot%10 )
-	.add( ingb ? "G" : "M" );
+    BufferString txt( "[free mem] " );
+    NrBytesToStringCreator converter;
+    converter.setUnitFrom( tot );
+    txt.add( converter.getString( free, 1, false ));
+    txt.add( "/" );
+    txt.add( converter.getString( tot,1,true ));
     txt.add( " | " ).add( cputxt_ );
     statusBar()->message( txt, mMemStatusFld );
-
-    multiple_access = false;
 }
 
 

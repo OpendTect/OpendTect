@@ -14,6 +14,7 @@ set( OD_TEST_PROGS
 		commandlineparser.cc
 		refcount.cc
 		sets.cc
+		string.cc
 		svnversion.cc
 		threads.cc
 		threadwork.cc

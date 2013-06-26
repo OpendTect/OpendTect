@@ -31,12 +31,14 @@ static float swapfree;
 
 void OD::dumpMemInfo( IOPar& res )
 {
-    float total, free;
+    od_int64 total, free;
     getSystemMemory( total, free );
+    NrBytesToStringCreator converter;
+    
     total /= 1024 * 1024; free /= 1024 * 1024;
-    int itot = mNINT32(total); int ifree = mNINT32(free);
-    res.set( "Total memory (MB)", itot );
-    res.set( "Free memory (MB)", ifree );
+
+    res.set( "Total memory (MB)", total );
+    res.set( "Free memory (MB)", free );
 #ifdef __lux__
     free = swapfree; free /= 1024 * 1024; ifree = mNINT32(free);
     res.set( "Available swap space (MB)", ifree );
@@ -45,7 +47,7 @@ void OD::dumpMemInfo( IOPar& res )
 
 
 #ifdef __lux__
-static float getMemFromStr( char* str, const char* ky )
+static od_int64 getMemFromStr( char* str, const char* ky )
 {
     char* ptr = strstr( str, ky );
     if ( !ptr ) return 0;
@@ -57,17 +59,17 @@ static float getMemFromStr( char* str, const char* ky )
     *endptr = '\n';
     ptr = endptr;
     mSkipBlanks(ptr);
-    const float fac = tolower(*ptr) == 'k' ? 1024
+    const od_int64 fac = tolower(*ptr) == 'k' ? 1024
 		   : (tolower(*ptr) == 'm' ? 1024*1024
 		   : (tolower(*ptr) == 'g' ? 1024*1024*1024 : 1) );
-    return ret * fac;
+    return mNINT64(ret * fac);
 }
 #endif
 
 
 #define mErrRet { total = free = 0; return; }
 
-void OD::getSystemMemory( float& total, float& free )
+void OD::getSystemMemory( od_int64& total, od_int64& free )
 {
 #ifdef __lux__
 
@@ -100,7 +102,7 @@ void OD::getSystemMemory( float& total, float& free )
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    total = (float) status.ullTotalPhys;
-    free = (float) status.ullAvailPhys;
+    total = status.ullTotalPhys;
+    free = status.ullAvailPhys;
 #endif
 }
