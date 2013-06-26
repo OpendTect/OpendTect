@@ -876,6 +876,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor(), modtools_->showFlattened() );
 
+    moddisp_->setBrineFilled( fwd );
+    moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
     if ( !mIsUdf(prevzoomwr.left()) )
 	synthdisp_->setZoomView( prevzoomwr );
