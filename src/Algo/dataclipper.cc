@@ -111,7 +111,7 @@ public:
 	    lock_.lock();
 	    append( samples_, localsamples );
 	    absoluterg_.include( localrg, false );
-	    lock_.unLock()();
+	    lock_.unLock();
 	}
 	
 	return true;
