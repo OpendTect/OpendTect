@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
-#include "thread.h"
 
 #ifdef __cpp11__
 # define __STDATOMICS__
@@ -24,6 +23,7 @@ ________________________________________________________________________
 # ifdef __win__
 #  define __WINATOMICS__
 #  include <Windows.h>
+#  include "thread.h"
 # else
 #  define __GCCATOMICS__
 # endif
@@ -164,7 +164,6 @@ public:
 				/*!<Only for debugging.  */
 };
 
-mLockerClassImpl( Basic, SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
 
 //Implementations
 

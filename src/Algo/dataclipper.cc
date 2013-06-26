@@ -108,10 +108,10 @@ public:
 	
 	if ( localsamples.size() )
 	{
-	    Threads::SpinLockLocker lock( lock_ );
-	   
+	    lock_.lock();
 	    append( samples_, localsamples );
 	    absoluterg_.include( localrg, false );
+	    lock_.unLock()();
 	}
 	
 	return true;
