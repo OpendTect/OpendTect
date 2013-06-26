@@ -324,6 +324,10 @@ macro( create_develpackages )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/${DIR}
 			 ${DESTINATION_DIR}/${DIR} )
+
+	if( ${DIR} STREQUAL "plugins" )
+	    file( REMOVE_RECURSE ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+	endif()
     endforeach()
 
     if( WIN32 )
