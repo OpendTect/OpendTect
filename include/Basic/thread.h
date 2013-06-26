@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
-#include "atomic.h"
 
 #ifndef OD_NO_QT
 mFDQtclass(QThread)
@@ -76,42 +75,6 @@ protected:
 #endif
 };
 
-
-/*!
-\brief Is an alternative to Mutex. It is a lock which causes a thread trying to acquire it to simply wait in a loop ("spin") while repeatedly checking if the
-lock is available. Because they avoid overhead from operating system process
-re-scheduling or context switching, spinlocks are efficient if threads are only likely to be blocked for a short period.
-*/
-
-mExpClass(Basic) SpinLock
-{
-public:
-		SpinLock(bool recursive = false);
-		/*\If recursive, mutex can be locked
-		   multiple times from the same thread without deadlock.
-		   It will be unlock when unLock has been called the same
-		   number of times as lock(). */
-		SpinLock(const SpinLock&);
-		~SpinLock();
-
-    SpinLock&	operator=(const SpinLock& b)
-		{ recursive_ = b.recursive_; return *this; }
-
-    void	lock();
-    void	unLock();
-    bool	tryLock();
-
-protected:
-    AtomicPointer<const void>	lockingthread_;
-    				/*!<0 if unlocked, otherwise set to locking
-				      thread */
-    int				count_;
-    bool			recursive_;
-
-public:
-    int				count() const 	{ return count_; }
-				/*!<Only for debugging.  */
-};
 
 
 /*!
@@ -261,7 +224,6 @@ protected: \
 };
 
 mLockerClassImpl( Basic, MutexLocker, Mutex, lock(), unLock(), tryLock() )
-mLockerClassImpl( Basic, SpinLockLocker, SpinLock, lock(), unLock(), tryLock() )
 mLockerClassImpl( Basic, ReadLockLocker, ReadWriteLock,
 		  readLock(), readUnLock(), tryReadLock() )
 mLockerClassImpl( Basic, WriteLockLocker, ReadWriteLock,
