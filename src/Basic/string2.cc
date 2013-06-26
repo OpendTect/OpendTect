@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
-
 extern "C" void C_removeTrailingBlanks(char*);
 extern "C" int C_caseInsensitiveEqual(const char*,const char*,int);
 extern "C" void C_replaceCharacter(char*,char,char);
@@ -206,20 +205,12 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
     return ret;
 }
 
+
 const char* getBytesString( od_uint64 sz )
 {
-    const char* postfix[] = { " bytes", " KB", " MB", " GB", " TB", "PB" };
-
-    unsigned char nrshifts;
-    for ( nrshifts=0; nrshifts<4 && sz>=1024; nrshifts++ )
-	sz >>= 10;
-
-    static StaticStringManager stm;
-    char* res = stm.getString().buf();
-    getStringFromUInt64( sz, res );
-    strcat( res, postfix[nrshifts] );
-
-    return res;
+    NrBytesToStringCreator converter;
+    converter.setUnitFrom( sz );
+    return converter.getString( sz, 0 );
 }
 
 
@@ -871,3 +862,75 @@ bool getFromString( BufferString& res, const char* s )
     res = s;
     return true;
 }
+
+
+NrBytesToStringCreator::NrBytesToStringCreator()
+    : unit_( Bytes )
+{}
+
+
+void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
+{
+    int nrshifts = 0;
+    for ( ; nrshifts<4 && number>=1024; nrshifts++ )
+	number >>= 10;
+    
+    const Unit newunit = (Unit) nrshifts;
+    if ( max )
+	unit_ = mMAX( newunit, unit_ );
+    else
+	unit_ = newunit;
+}
+
+
+FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
+					     bool withunit ) const
+{
+    if ( nrdecimals>5 ) nrdecimals = 5;
+    if ( nrdecimals<0 ) nrdecimals = 0;
+    
+    //Deliberatily make 10 times larger, so that rounding off will work
+    od_uint64 nrdecfactor = 10;
+    for ( int idx=0; idx<nrdecimals; idx++ )
+	nrdecfactor *= 10;
+    
+    sz *= nrdecfactor;
+    unsigned char nrshifts = (unsigned char) unit_;
+    for ( int idx=0; idx<nrshifts; idx++ )
+	sz >>= 10;
+    
+    float fsz = (float) sz;
+    fsz /= nrdecfactor;
+    
+    BufferString formatstr = "%.";
+    formatstr.add( nrdecimals );
+    formatstr.add( "f");
+    
+    static StaticStringManager stm;
+    BufferString& res = stm.getString();
+    
+    getStringFromFloat( formatstr, fsz, res.buf() );
+    
+    if ( withunit )
+    {
+	res.add( " " );
+	res.add( getUnitString() );
+    }
+    
+    return res.str();
+}
+
+
+
+FixedString NrBytesToStringCreator::getUnitString() const
+{
+    return toString( unit_ );
+}
+
+
+FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
+{
+    const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
+    return units[(int) unit];
+}
+

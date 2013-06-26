@@ -9,13 +9,15 @@ set( OD_USEQT Core)
 set( OD_USEBREAKPAD Yes)
 set( OD_USEZLIB Yes)
 set( QT_MOC_HEADERS qfilesystemcomm.h qtimercomm.h i_qptr.h)
-set( OD_TEST_PROGS svnversion.cc
-		sets.cc
-		callback.cc
-		threads.cc
-		threadwork.cc
+set( OD_TEST_PROGS 
 		commandlineparser.cc
-		refcount.cc )
+		callback.cc
+		refcount.cc
+		sets.cc
+		string.cc
+		svnversion.cc
+		threads.cc
+		threadwork.cc )
 set( OD_MODULE_SOURCES genc.cc oddirs.cc
 	    ailayer.cc
 	    arrayndinfo.cc

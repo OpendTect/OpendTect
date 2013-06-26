@@ -17,7 +17,7 @@ class IOPar;
 
 namespace OD
 {
-    mGlobal(Basic) void	getSystemMemory(float& total,float& free);
+    mGlobal(Basic) void	getSystemMemory(od_int64& total,od_int64& free);
     mGlobal(Basic) void	dumpMemInfo(IOPar&);
 }
 
