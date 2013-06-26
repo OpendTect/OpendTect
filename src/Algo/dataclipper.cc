@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dataclipper.h"
 
 #include "arraynd.h"
+#include "atomic.h"
 #include "math2.h"
 #include "iopar.h"
 #include "simpnumer.h"
