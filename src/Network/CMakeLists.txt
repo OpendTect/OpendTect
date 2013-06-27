@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_USEQT Core)
+SET(OD_USEQT Network)
 SET(OD_MODULE_DEPS General)
 
 SET(QT_MOC_HEADERS 
