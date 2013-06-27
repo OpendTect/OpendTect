@@ -1139,9 +1139,16 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 bool uiMainWin::grab( const char* filenm, int zoom,
 		      const char* format, int quality ) const
 {
-    const WId desktopwinid = QApplication::desktop()->winId();
-    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
+    const QDesktopWidget* desktop = QApplication::desktop();
+    if ( !desktop )
+	return false;
 
+    const WId desktopwinid = desktop->winId();
+    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid,
+							 desktop->x(),
+							 desktop->y(),
+							 desktop->width(),
+							 desktop->height() );
     QPixmap snapshot = desktopsnapshot;
     if ( zoom > 0 )
     {
@@ -1151,7 +1158,8 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 
 	const int width = qwin->frameGeometry().width();
 	const int height = qwin->frameGeometry().height();
-	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
+	const int qwiny = qwin->geometry().y(); //better image, tackling the task bar
+	snapshot = desktopsnapshot.copy( qwin->x(), qwiny, width, height );
     }
 
     return snapshot.save( QString(filenm), format, quality );
