@@ -29,7 +29,8 @@ namespace PreStack
 
 DefineEnumNames(uiAngleCompAdvParsDlg,smoothingType,1,"Smoothing Type")
 {
-	"Time-Average",
+	"None"
+	"Moving-Average",
 	"Frequency-Filter", 
 	0
 };
@@ -157,7 +158,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
     : uiDialog(p, uiDialog::Setup("Advanced Parameter",
-				  "Advanced angle parametrs", mTODOHelpID))
+				  "Advanced angle parameters", mTODOHelpID))
     , params_(pars)
     , isformute_(isformute)
     , smoothtypefld_(0)
@@ -177,22 +178,23 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     raytracerfld_ = new uiRayTracerSel( this, rsu );
 
     if ( isformute_ )
-	return;
+	return; //TODO: remove when anglemute computer uses angle computer
 
     smoothtypefld_ = new uiGenInput( this, "Smoothing Type",
 	StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
+    smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					     smoothTypeSel) );
 
     const BufferStringSet& windowfunctions = WINFUNCS().getNames();
-    smoothwindowfld_ = new uiGenInput( this, "Smoothing Window", 
+    smoothwindowfld_ = new uiGenInput( this, "Window/Taper", 
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
     smoothwindowfld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					       smoothWindowSel) );
 
-    smoothwinparamfld_ = new uiGenInput( this, "Smoothing Param",
+    smoothwinparamfld_ = new uiGenInput( this, "Taper length",
 					 FloatInpSpec() );
     smoothwinparamfld_->attach( rightOf, smoothwindowfld_ );
     smoothwinparamlbl_ = new uiLabel( this, "%" );
@@ -221,23 +223,26 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 {
     raytracerfld_->fillPar( params_.raypar_ );
     if ( isformute_ )
-	return true;
+	return true; //TODO: remove when anglemute computer uses angle computer
 
     IOPar& iopar = params_.smoothingpar_;
-    const bool istimeavg = isSmoothTypeTimeAverage();
     iopar.set( PreStack::AngleComputer::sKeySmoothType(),
 	       smoothtypefld_->getIntValue() );
-    if ( istimeavg )
+    if ( isSmoothTypeMovingAverage() )
     {
-	iopar.set( PreStack::AngleComputer::sKeyWinFunc(),
-		   smoothwindowfld_->text() );
-	const float uservalue = smoothwinparamfld_->getfValue();
-	iopar.set( PreStack::AngleComputer::sKeyWinParam(), 
-		   1-uservalue/100 );
 	iopar.set( PreStack::AngleComputer::sKeyWinLen(), 
 		smoothwinlengthfld_->getfValue()/SI().zDomain().userFactor() );
+	iopar.set( PreStack::AngleComputer::sKeyWinFunc(),
+		   smoothwindowfld_->text() );
+	if ( smoothwindowfld_->text() == CosTaperWindow::sName() )
+	{
+	    const float uservalue = smoothwinparamfld_->getfValue();
+	    if ( !mIsUdf(uservalue) )
+		iopar.set( PreStack::AngleComputer::sKeyWinParam(),
+			   1 - uservalue / 100 );
+	}
     }
-    else
+    else if ( isSmoothTypeFFTFilter() )
     {
 	iopar.set( PreStack::AngleComputer::sKeyFreqF3(), 
 		   freqf3fld_->getfValue() );
@@ -252,7 +257,7 @@ void uiAngleCompAdvParsDlg::updateFromParams()
 {
     raytracerfld_->usePar( params_.raypar_ );
     if ( isformute_ )
-	return;
+	return; //TODO: remove when anglemute computer uses angle computer
 
     const IOPar& iopar = params_.smoothingpar_;
     int smoothtype = 0;
@@ -288,16 +293,32 @@ bool uiAngleCompAdvParsDlg::isSmoothTypeTimeAverage()
 }
 
 
+bool uiAngleCompAdvParsDlg::isSmoothTypeMovingAverage()
+{
+	return isSmoothTypeTimeAverage();
+}
+
+
+bool uiAngleCompAdvParsDlg::isSmoothTypeFFTFilter()
+{
+    const char* smoothtype = smoothtypefld_->text();
+    PreStack::AngleComputer::smoothingType smtype;
+    PreStack::AngleComputer::parseEnum( smoothtype, smtype );
+    return smtype == PreStack::AngleComputer::FFTFilter;
+}
+
+
 void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
 {
-    const bool istimeavg = isSmoothTypeTimeAverage();
-    smoothwindowfld_->display( istimeavg );
-    smoothwinlengthfld_->display( istimeavg );
-    smoothwinlengthlbl_->display( istimeavg );
-    freqf3fld_->display( !istimeavg );
-    freqf4fld_->display( !istimeavg );
-    freqf3lbl_->display( !istimeavg );
-    freqf4lbl_->display( !istimeavg );
+    const bool ismovingavg = isSmoothTypeMovingAverage();
+    const bool isfftfilter = isSmoothTypeFFTFilter();
+    smoothwindowfld_->display( ismovingavg );
+    smoothwinlengthfld_->display( ismovingavg );
+    smoothwinlengthlbl_->display( ismovingavg );
+    freqf3fld_->display( isfftfilter );
+    freqf4fld_->display( isfftfilter );
+    freqf3lbl_->display( isfftfilter );
+    freqf4lbl_->display( isfftfilter );
     
     smoothWindowSel(0);
 }
@@ -305,11 +326,11 @@ void uiAngleCompAdvParsDlg::smoothTypeSel( CallBacker* )
 
 void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 {
-    const bool istimeavg = isSmoothTypeTimeAverage();
+    const bool ismovingavg = isSmoothTypeMovingAverage();
     FixedString smoothwindow = smoothwindowfld_->text();
     const bool iscostaper = smoothwindow==CosTaperWindow::sName();
-    smoothwinparamfld_->display( istimeavg && iscostaper );
-    smoothwinparamlbl_->display( istimeavg && iscostaper );
+    smoothwinparamfld_->display( ismovingavg && iscostaper );
+    smoothwinparamlbl_->display( ismovingavg && iscostaper );
 }
 
 

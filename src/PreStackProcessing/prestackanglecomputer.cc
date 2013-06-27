@@ -27,13 +27,14 @@ using namespace PreStack;
 
 DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 {
-	"Time-Average",
+	"None",
+	"Moving-Average",
 	"Low-pass frequency filter", 
 	0
 };
 
 
-static const float deftimestep = 0.004;
+static const float deftimestep = 0.004f;
 
 
 AngleComputer::AngleComputer()
@@ -43,10 +44,6 @@ AngleComputer::AngleComputer()
     , trcid_(trcid_.std3DGeomID(),0,0)
 {
     maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
-    iopar_.set( sKeySmoothType(), TimeAverage );
-    iopar_.set( sKeyWinFunc(), HanningWindow::sName() );
-    iopar_.set( sKeyWinParam(), 0.95f );
-    iopar_.set( sKeyWinLen(), 125 );
 }
 
 
@@ -77,6 +74,31 @@ void AngleComputer::setRayTracer( const IOPar& raypar )
 {
     BufferString errormsg;
     raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
+}
+
+
+void AngleComputer::setNoSmoother()
+{
+    iopar_.set( sKeySmoothType(), None );
+}
+
+
+void AngleComputer::setMovingAverageSmoother( float length, BufferString win,
+       					      float param )
+{
+    iopar_.set( sKeySmoothType(), TimeAverage );
+    iopar_.set( sKeyWinLen(), length );
+    iopar_.set( sKeyWinFunc(), win );
+    if ( win == CosTaperWindow::sName() && param >= 0 && param <= 1 )
+	iopar_.set( sKeyWinParam(), param );
+}
+
+
+void AngleComputer::setFFTSmoother( float freqf3, float freqf4 )
+{
+    iopar_.set( sKeySmoothType(), FFTFilter );
+    iopar_.set( sKeyFreqF3(), freqf3 );
+    iopar_.set( sKeyFreqF4(), freqf4 );
 }
 
 
@@ -191,7 +213,7 @@ void AngleComputer::fftSmoothing( Array2D<float>& angledata )
     const int zsize = zrange.nrSteps() + 1;
     const bool survintime = SI().zDomain().isTime();
 
-    ::FFTFilter filter( zsize, survintime ? SI().zStep() : deftimestep );
+    ::FFTFilter filter( zsize, (float)zrange.step );
     filter.setLowPass( freqf3, freqf4 );
     survintime ? fftTimeSmooth( filter, angledata )
 	       : fftDepthSmooth( filter, angledata );
@@ -201,7 +223,7 @@ void AngleComputer::fftSmoothing( Array2D<float>& angledata )
 void AngleComputer::averageSmoothing( Array2D<float>& angledata )
 {
     BufferString windowname;
-    float smoothingparam; int smoothinglength;
+    float smoothingparam( mUdf(float) ); float smoothinglength( mUdf(float) );
 
     iopar_.get( sKeyWinFunc(), windowname );
     iopar_.get( sKeyWinParam(), smoothingparam );
@@ -209,6 +231,10 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
 
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
+    const float zstep = mCast( float, outputsampling_.range( false ).step );
+    const int filtersz = !mIsUdf(smoothinglength)
+       		       ? mNINT32( smoothinglength/zstep )
+		       : mUdf(int);
 
     Smoother1D<float> sm;
     mAllocVarLenArr( float, arr1dinput, zsize );
@@ -218,7 +244,7 @@ void AngleComputer::averageSmoothing( Array2D<float>& angledata )
 	memcpy( arr1dinput, arr1doutput, zsize*sizeof(float) );
 	sm.setInput( arr1dinput, zsize );
 	sm.setOutput( arr1doutput );
-	sm.setWindow( windowname, smoothingparam, smoothinglength );
+	sm.setWindow( windowname, smoothingparam, filtersz );
 	sm.execute();
 
 	arr1doutput = arr1doutput + zsize;

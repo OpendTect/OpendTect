@@ -417,6 +417,7 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
 	mErrRet( proc->message(), delete sd; return 0 ) ;
     PreStack::ModelBasedAngleComputer* anglecomp =
 	new PreStack::ModelBasedAngleComputer;
+    anglecomp->setFFTSmoother( 10.f, 15.f );
     const ObjectSet<RayTracer1D>& rts = sg.rayTracers();
     for ( int idx=0; idx<rts.size(); idx++ )
     {
@@ -1201,6 +1202,7 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
     ObjectSet<PreStack::Gather> anglegathers;
     const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
     PreStack::ModelBasedAngleComputer anglecomp;
+    anglecomp.setFFTSmoother( 10.f, 15.f );
     for ( int idx=0; idx<rts.size(); idx++ )
     {
 	if ( !gathers.validIdx(idx) )

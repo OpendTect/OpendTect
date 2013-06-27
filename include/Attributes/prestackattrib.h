@@ -96,6 +96,9 @@ protected:
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
+    void		setSmootheningPar();
+
+	// DO not use, will be removed
     void		fillSmootheningPar(IOPar&);
 
     MultiID			psid_;

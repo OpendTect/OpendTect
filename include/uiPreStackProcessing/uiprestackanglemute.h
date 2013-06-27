@@ -70,7 +70,7 @@ public:
 					      bool dooffset=false,
 					      bool isformute=true);
 			
-	enum smoothingType		{ TimeAverage, FFTFilter };
+	enum smoothingType		{ None, TimeAverage, FFTFilter };
 					DeclareEnumUtils(smoothingType)
 	enum smoothingWindow		{ Box, Hamming, Hanning, Blackman, 
 					  Bartlet, Flattop };
@@ -81,10 +81,14 @@ public:
 protected :
 
     bool		acceptOK(CallBacker*);
-    bool		isSmoothTypeTimeAverage();
+    bool		isSmoothTypeMovingAverage();
+    bool		isSmoothTypeFFTFilter();
     void		smoothTypeSel(CallBacker*);
     void		smoothWindowSel(CallBacker*);
     void		finaliseCB(CallBacker*);
+
+	// DO not use, will be removed
+    bool		isSmoothTypeTimeAverage();
 
     uiRayTracerSel*	raytracerfld_;
     uiGenInput*		smoothtypefld_;
