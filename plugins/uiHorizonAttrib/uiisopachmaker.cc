@@ -102,7 +102,7 @@ bool uiIsopachMakerGrp::chkInputFlds()
     BufferString attrnm =  attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
-	uiMSG().message( "Please enter attrinute name" );
+	uiMSG().message( "Please enter attribute name" );
 	attrnm.add( "I: " ).add( horsel_->ioobj()->name() );
 	attrnmfld_->setText( attrnm );
 	return false;
