@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "oddirs.h"
 #include "odinst.h"
+#include "odplatform.h"
 
 
 System::IssueReporter::IssueReporter( const char* host, const char* path )
@@ -101,6 +102,8 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
 
     unfilteredreport.add( "\n\nOpendTect's Version Name is :  " );
     unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
+    unfilteredreport.add( "\nUser's platform is : " );
+    unfilteredreport.add( OD::Platform::local().longName() );
 
     SeparString sep( unfilteredreport.buf(), '\n' );
     
