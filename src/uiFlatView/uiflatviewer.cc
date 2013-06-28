@@ -49,7 +49,8 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , dispParsChanged(this)
 {
     updatequeueid_ =
-	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
+		 			      "FlatViewer");
 
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();

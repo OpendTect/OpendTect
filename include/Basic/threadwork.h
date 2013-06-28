@@ -42,13 +42,14 @@ public:
     				WorkManager(int nrthreads=-1);
 				~WorkManager();
 
-    void			shutdown();
-
     enum QueueType 		{ MultiThread, SingleThread, Manual };
-    int				addQueue(QueueType type);
+    int				addQueue(QueueType type,const char* name);
     				/*!<Manual queues will not be executed
 				    automaticall, only at executeQueue.
-				    \returns queid */
+				    \returns queid
+				    \param name is for debugging, and is
+				           assumed to be a static string,
+					   always alive.*/
     int				queueSize(int queueid) const;
     void			emptyQueue(int queueid,bool finishall);
     void			removeQueue(int queueid,bool finishall);
@@ -92,6 +93,10 @@ public:
     Notifier<WorkManager>	isidle;
     
     static Threads::WorkManager&	twm();
+
+    Notifier<WorkManager>	isShuttingDown;
+    void			shutdown();
+
 protected:
 
     int				queueSizeNoLock(int queueid) const;
@@ -115,6 +120,7 @@ protected:
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
     TypeSet<QueueType>		queuetypes_;
+    ObjectSet<const char>	queuenames_;
     BoolTypeSet			queueisclosing_;
 
     ConditionVar&		workloadcond_;

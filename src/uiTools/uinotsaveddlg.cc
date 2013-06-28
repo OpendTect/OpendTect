@@ -108,8 +108,19 @@ NotSavedPrompter::NotSavedPrompter()
     : promptSaving( this )
     , dlg_( 0 )
     , queueid_(
-	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual ) )
-{}
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
+	   					"NotSavedPrompter" ) )
+{
+    mAttachCB( Threads::WorkManager::twm().isShuttingDown,
+	       NotSavedPrompter::closeQueueCB );
+}
+
+
+void NotSavedPrompter::closeQueueCB( CallBacker* cb )
+{
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+    queueid_ = -1;
+}
 
 
 bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,

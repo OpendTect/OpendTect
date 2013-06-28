@@ -135,7 +135,8 @@ uiBitMapDisplay::uiBitMapDisplay( Viewer& viewer )
 {
     display_->wantsData().notify( mCB( this, uiBitMapDisplay, reGenerateCB) );
     workqueueid_ = Threads::WorkManager::twm().addQueue( 
-	    			Threads::WorkManager::MultiThread );
+	    			Threads::WorkManager::MultiThread,
+				"BitmapDisplay");
 }
 
 

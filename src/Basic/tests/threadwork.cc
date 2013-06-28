@@ -112,7 +112,7 @@ public:
 
 	for ( int idx=0; idx<queuetype.size(); idx++ )
 	{
-    	    int queueid = workmanager.addQueue( queuetype[idx] );	    
+    	    int queueid = workmanager.addQueue( queuetype[idx], "Test" );	    
 	    const char* queuetypename = typenames.get(idx).buf();
 	    CallBackTestClass testwork;
 	    
@@ -147,7 +147,7 @@ public:
 	    if ( queuetype[idx] == Threads::WorkManager::Manual )
 		continue;
 
-    	    queueid = workmanager.addQueue( queuetype[idx] );	    
+    	    queueid = workmanager.addQueue( queuetype[idx], "Test" );	    
 
 	    testwork.reset();
 	    mAddMultipleJobs( testwork, queueid );

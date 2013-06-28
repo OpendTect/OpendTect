@@ -393,7 +393,8 @@ SeisSequentialWriter::SeisSequentialWriter( SeisTrcWriter* writer,
     , latestbid_( -1, -1 )
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
-				    Threads::WorkManager::SingleThread );
+				    Threads::WorkManager::SingleThread,
+				    "SequentalWriter");
 }
 
 

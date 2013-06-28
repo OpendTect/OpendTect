@@ -270,9 +270,10 @@ void Threads::WorkThread::assignTask(const ::Threads::Work& newtask,
 Threads::WorkManager::WorkManager( int nrthreads )
     : workloadcond_( *new ConditionVar )
     , isidle( this )
+    , isShuttingDown( this )
     , freeid_( cDefaultQueueID() )
 {
-    addQueue( MultiThread );
+    addQueue( MultiThread, "Default queue" );
 
     if ( nrthreads == -1 )
 	nrthreads = Threads::getNrProcessors();
@@ -308,9 +309,19 @@ Threads::WorkManager::~WorkManager()
 
 void Threads::WorkManager::shutdown()
 {
+    isShuttingDown.trigger();
+
     if ( queueids_.size()>1 )
     {
-	pErrMsg("All queues are not removed");
+	BufferString msg("All queues are not removed. Remaining queues: ");
+	for ( int idx=1; idx<queueids_.size(); idx++ )
+	{
+	    if ( idx>1 )
+		msg.add( ", " );
+	    msg.add( queuenames_[idx] );
+	}
+	
+	pErrMsg( msg.buf() );
     }
 
     while ( queueids_.size() )
@@ -320,7 +331,7 @@ void Threads::WorkManager::shutdown()
 }
 
 
-int Threads::WorkManager::addQueue( QueueType type )
+int Threads::WorkManager::addQueue( QueueType type, const char* nm )
 {
     Threads::MutexLocker lock( workloadcond_ );
 
@@ -329,6 +340,7 @@ int Threads::WorkManager::addQueue( QueueType type )
     queueids_ += id;
     queuetypes_ += type;
     queueworkload_ += 0;
+    queuenames_ += nm;
     queueisclosing_ += false;
 
     return id;
@@ -462,6 +474,7 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
     queuetypes_.removeSingle( queueidx );
     queueids_.removeSingle( queueidx );
     queueisclosing_.removeSingle( queueidx );
+    queuenames_.removeSingle( queueidx );
 }
 
 

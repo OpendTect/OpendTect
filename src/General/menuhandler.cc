@@ -191,7 +191,8 @@ MenuHandler::MenuHandler( int id )
     , createnotifier(this)
     , handlenotifier(this)
     , queueid_(
-	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual ) )
+	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
+	    				      "MenuHandler" ) )
 {}
 
 

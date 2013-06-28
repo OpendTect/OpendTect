@@ -50,7 +50,8 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
         , maxqueuesize_( Threads::getNrProcessors()*100 )
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
-					Threads::WorkManager::SingleThread );
+					Threads::WorkManager::SingleThread,
+					"SeisImporter");
 }
 
 

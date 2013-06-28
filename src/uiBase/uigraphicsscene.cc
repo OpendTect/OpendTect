@@ -153,7 +153,7 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     ctrlCPressed.notify( mCB(this,uiGraphicsScene,CtrlCPressedCB) );
 
     queueid_ = Threads::WorkManager::twm().addQueue(
-	    Threads::WorkManager::Manual );
+	    Threads::WorkManager::Manual, "GraphicsScene" );
 }
 
 

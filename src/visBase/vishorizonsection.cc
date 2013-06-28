@@ -1665,7 +1665,7 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     , origin_( origin )
     , section_( section )
     , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
-		Threads::WorkManager::MultiThread ) )
+		Threads::WorkManager::MultiThread, "HorizonTile" ) )
 {
     coords_ = new SbVec3f[section_.mTotalNrCoordsPerTile];
     normals_ = new SbVec3f[section_.mTotalNormalSize];

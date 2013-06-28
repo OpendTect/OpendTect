@@ -38,7 +38,8 @@ bool BatchProgram::go( std::ostream& strm )
     
     ManagedObjectSet<MPE::HorizonAutoTracker> trackers( false );
     const int queueid =
-	Threads::WorkManager::twm().addQueue(Threads::WorkManager::MultiThread);
+	Threads::WorkManager::twm().addQueue(Threads::WorkManager::MultiThread,
+					     "od_track_horizons");
     
     for ( int idx=0; idx<nrhorizons; idx++ )
     {
