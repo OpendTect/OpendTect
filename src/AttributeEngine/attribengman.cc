@@ -394,7 +394,7 @@ void EngineMan::setCubeSampling( const CubeSampling& newcs )
 DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
-    if ( attrspecs_.isEmpty() ) return 0;
+    if ( !nlamodel_ || attrspecs_.isEmpty() ) return 0;
     DescSet* descset = addtoset ? new DescSet( *addtoset ) 
 				: new DescSet( attrspecs_[0].is2D() );
 
@@ -970,17 +970,18 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     {
 	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset_ = createNLAADS( nlaid, errmsg );
-	if ( *(const char*)errmsg )
+	if ( !procattrset_ )
 	    mErrRet(errmsg)
+
 	outid = nlaid;
     }
 
-    Processor* proc = 
-		createProcessor( *procattrset_, lineKey().buf(), outid, errmsg );
-    setExecutorName( proc );
+    Processor* proc = createProcessor( *procattrset_, lineKey().buf(),
+	    			       outid, errmsg );
     if ( !proc )
 	mErrRet( errmsg )
 
+    setExecutorName( proc );
     if ( doeval )
     {
 	for ( int idx=1; idx<attrspecs_.size(); idx++ )
