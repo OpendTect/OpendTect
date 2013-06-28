@@ -121,6 +121,8 @@ public:
 protected:
     friend class uiNotSavedDlg;
 
+    void  	closeQueueCB(CallBacker* cb);
+
     ObjectSet<NotSavedPrompterData>		objects_;
     uiNotSavedDlg*				dlg_;
     int						queueid_;
