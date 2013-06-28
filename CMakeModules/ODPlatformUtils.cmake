@@ -85,6 +85,8 @@ if(UNIX) #Apple an Linux
     endif()
 
     set ( OD_LINESEP "\n" )
+    set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
+    set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")

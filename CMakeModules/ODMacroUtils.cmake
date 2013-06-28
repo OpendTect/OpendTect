@@ -465,8 +465,6 @@ if( OD_USEBATCH )
 endif( OD_USEBATCH )
 
 #Set current include_path
-set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
-set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
