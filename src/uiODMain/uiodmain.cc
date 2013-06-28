@@ -98,7 +98,8 @@ int ODMain( int argc, char** argv )
 
     uiDialog::setTitlePos( -1 );
 
-    uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
+    uicMain* uimain = new uicMain(argc,argv);
+    uiODMain* odmain = new uiODMain( *uimain );
     ioPixmap pm( mGetSetupFileName("splash") );
   //  uiSplashScreen splash( pm );
   //  splash.show();
@@ -126,6 +127,7 @@ int ODMain( int argc, char** argv )
 
     odmain->go();
     delete odmain;
+    delete uimain;
     return 0;
 }
 
