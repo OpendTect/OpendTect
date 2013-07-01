@@ -22,7 +22,7 @@ macro ( OD_SETUP_TEST_FILTER )
 
     configure_file (
 	${OpendTect_DIR}/CMakeModules/templates/CTestCustom.cmake.in
-	 ${CMAKE_BINARY_DIR}/CTestCustom.cmake @ONLY )
+	 ${CMAKE_SOURCE_DIR}/CTestCustom.cmake @ONLY )
 endmacro()
 
 
@@ -59,4 +59,5 @@ macro ( OD_ADD_SVNPROP_TEST )
 	add_test( SVNPropertyTest ${CMD} )
     endif()
 endmacro()
+
 
