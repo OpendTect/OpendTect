@@ -88,17 +88,24 @@ void CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb )
  
 void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 {
+    if ( cb.cbObj()!=this || notif.cber_==this )
+    {
+	//Lets hope notif is still alive
+	notif.remove( cb );
+	return;
+    }
+
+    Threads::SpinLockLocker lckr( attachednotifierslock_ );
+    if ( !attachednotifiers_.isPresent( &notif ) )
+    {
+	//It may be deleted. Don't touch it
+	return;
+    }
+
     notif.remove( cb );
-    
-    if ( cb.cbObj()!=this )
-	return;
-    
-    if ( notif.cber_==this )
-	return;
-    
+
     if ( !notif.willCall( this ) )
     {
-	Threads::SpinLockLocker lock( attachednotifierslock_ );
 	attachednotifiers_ -= &notif;
     }
 }

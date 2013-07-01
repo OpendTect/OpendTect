@@ -142,7 +142,7 @@ bool testAttach( bool quiet )
 }
 
 
-bool testDetach( bool quiet )
+bool testEarlyDetach( bool quiet )
 {
     ClassWithNotifier* notifier = new ClassWithNotifier;
     NotifierAccess* naccess = &notifier->notifier;
@@ -159,9 +159,27 @@ bool testDetach( bool quiet )
 
     delete notifier;
     delete notified;
-    
+
     return true;
 }
+
+
+bool testLateDetach( bool quiet )
+{
+    ClassWithNotifier* notifier = new ClassWithNotifier;
+    NotifierAccess* naccess = &notifier->notifier;
+    NotifiedClass* notified = new NotifiedClass( naccess );
+
+    delete notifier;
+    notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+    delete notified;
+
+    if ( !quiet )
+	std::cout << "Detaching deleted notifier: Pass\n";
+
+    return true;
+}
+    
 
 
 #define mNrNotifiers 100
@@ -364,7 +382,8 @@ int main( int narg, char** argv )
     const bool quiet = clparser.hasKey( sKey::Quiet() );
     
     if ( !testNormalOp( quiet ) || !testAttach( quiet ) ||
-	 !testDetach( quiet ) || !testMulthThreadChaos( quiet ) )
+	 !testLateDetach( quiet ) || !testEarlyDetach( quiet ) ||
+	 !testMulthThreadChaos( quiet ) )
 	ExitProgram( 1 );
     
     ExitProgram( 0 );
