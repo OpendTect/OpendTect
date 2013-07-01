@@ -20,6 +20,11 @@ if ( ! -e ${sendappl} ) then
     exit 1
 endif
 
+if ( ! -e ${dtectdir}/doc/Programmer/Generated/html ) then
+    echo "${dtectdir}/doc/Programmer/Generated/html does not exist"
+    exit 1
+endif
+
 
 set serversubdir=progdoc/${1}
 set docdir=${2}
