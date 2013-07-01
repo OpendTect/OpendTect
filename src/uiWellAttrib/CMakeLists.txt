@@ -25,6 +25,7 @@ SET(OD_MODULE_SOURCES
 		uistratseisevent.cc
 		uistratsynthcrossplot.cc
 		uistratsynthdisp.cc
+		uistratsynthexport.cc
 		uisynthtorealscale.cc
 		uisynthgendlg.cc
 		inituiwellattrib.cc

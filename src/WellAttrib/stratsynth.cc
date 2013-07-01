@@ -983,7 +983,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 
 
 void StratSynth::snapLevelTimes( SeisTrcBuf& trcs, 
-			const ObjectSet<const TimeDepthModel>& d2ts ) 
+			const ObjectSet<const TimeDepthModel>& d2ts ) const
 {
     if ( !level_ ) return;
 

@@ -46,6 +46,8 @@ public:
     const char*		levelName() const;
     const MultiID&	waveletID() const;
     const Wavelet*	getWavelet() const;
+    inline const StratSynth& curSS() const
+    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
@@ -93,7 +95,7 @@ public:
 
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
-	void		setUseEdited( bool yn )	  { useed_ = yn; }
+    void		setUseEdited( bool yn )	  { useed_ = yn; }
 
 protected:
 
@@ -107,7 +109,7 @@ protected:
     bool		dispflattened_;
     bool		isbrinefilled_;
     bool		autoupdate_;
-	bool		useed_;
+    bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
     SyntheticData* 	currentwvasynthetic_;
@@ -140,6 +142,8 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
+    inline StratSynth&	curSS()
+    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
     void		displayFRText();
