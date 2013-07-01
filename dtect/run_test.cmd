@@ -17,6 +17,8 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--wdir" (
     set wdir=%2
     shift
+) ELSE IF "%1"=="--quiet" (
+    set args=%args% --quiet
 ) ELSE IF "%1"=="--parfile" (
     set args=%args% %2
     shift
