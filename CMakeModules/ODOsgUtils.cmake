@@ -9,9 +9,9 @@
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
 macro(OD_SETUP_OSG)
-    set(OSGGEO_DIR ${OSG_DIR})
+    set(osgGeo_DIR ${OSG_DIR})
 
-    list(APPEND CMAKE_MODULE_PATH ${OSGGEO_DIR}/share/CMakeModules )
+    list(APPEND CMAKE_MODULE_PATH ${osgGeo_DIR}/share/CMakeModules )
 
     #SET DEBUG POSTFIX
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
