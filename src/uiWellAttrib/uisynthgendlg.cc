@@ -80,6 +80,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 			      BoolInpSpec(true) );
     mAttachCB( nmofld_->valuechanged, uiSynthGenDlg::parsChanged);
     nmofld_->attach( alignedBelow, wvltfld_ );
+    nmofld_->setValue( true );
     
     FloatInpSpec inpspec;
     inpspec.setLimits( Interval<float>(1,500) );
@@ -102,6 +103,12 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     splitter->addGroup( syntlistgrp );
     splitter->addGroup( pargrp );
 
+    postFinalise().notify( mCB(this,uiSynthGenDlg,finaliseDone) );
+}
+
+
+void uiSynthGenDlg::finaliseDone( CallBacker* )
+{
     updateSynthNames();
     synthnmlb_->setSelected( 0, true );
     changeSyntheticsCB( 0 );
@@ -227,7 +234,6 @@ void uiSynthGenDlg::updateFieldSensitivity()
     nmofld_->display( isps );
     rtsel_->display( isps );
     rtsel_->current()->displayOffsetFlds( isps || psbased );
-    rtsel_->current()->setOffsetRange( uiRayTracer1D::Setup().offsetrg_ );
     psselfld_->display( psbased );
     wvltfld_->display( !psbased );
     mutelenfld_->display( isps );
@@ -279,7 +285,7 @@ void uiSynthGenDlg::putToScreen()
     TypeSet<float> offsets;
     genparams.raypars_.get( RayTracer1D::sKeyOffset(), offsets );
         
-    bool donmo = false;
+    bool donmo = true;
     genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
     nmofld_->setValue( donmo );
     
@@ -403,18 +409,6 @@ bool uiSynthGenDlg::isCurSynthChanged() const
 
 bool uiSynthGenDlg::rejectOK( CallBacker* )
 {
-    const char* nm = namefld_->text(); 
-    if ( !nm )
-	mErrRet("Please specify a valid name",return false);
-
-    if ( !getFromScreen() ) return false;
-    if ( !isCurSynthChanged() )
-	return true;
-    BufferString msg( "Selected synthetic has been changed. "
-	    	      "Do you want to Apply the changes?" );
-    if ( uiMSG().askGoOn(msg,"Apply","Do not Apply") )
-	acceptOK( 0 );
-
     return true;
 }
 

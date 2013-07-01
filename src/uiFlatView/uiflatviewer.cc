@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewer.h"
 
+#include <iostream>
+
 #include "uiflatauxdatadisplay.h"
 #include "uiflatbitmapdisplay.h"
 #include "uigraphicsscene.h"

@@ -692,11 +692,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     mapper.autosym0_ = true;
     mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
 
-    const Interval<double> xrg = vwr_->getDataPackRange( true );
-    const Interval<double> zrg = vwr_->getDataPackRange( false );
-    vwr_->setSelDataRanges( xrg, zrg );
-    uiWorldRect wr( xrg.start, zrg.stop, xrg.stop, zrg.start );
-    vwr_->setView( wr );
+    vwr_->setViewToBoundingBox();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
     displayFRText();
 

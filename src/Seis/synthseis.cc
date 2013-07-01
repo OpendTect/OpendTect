@@ -56,13 +56,13 @@ SynthGenBase::~SynthGenBase()
 
 bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
-    if ( waveletismine_ ) 
+    if ( waveletismine_ )
 	{ delete wavelet_; wavelet_ = 0; }
     if ( !wvlt )
 	mErrRet( "No valid wavelet given", false );
     if ( pol != OD::CopyPtr )
 	wavelet_ = wvlt;
-    else 
+    else
 	wavelet_ = new Wavelet( *wvlt );
 
     waveletismine_ = pol != OD::UsePtr;
@@ -191,7 +191,8 @@ int SynthGenerator::nextStep()
 	mErrRet( "Output sampling is too small", mErrOccRet );
     const int wvltsz = wavelet_->size();
     if ( wvltsz < 2 )
-	mErrRet( "Wavelet is too short", mErrOccRet );
+	mErrRet( "Wavelet is too short - at minimum 3 samples are required",
+		 mErrOccRet );
     if ( wvltsz > outtrc_.size() )
 	mErrRet( "Wavelet is longer than the output trace", mErrOccRet );
 
@@ -490,6 +491,7 @@ bool SynthGenerator::doWork()
 
 
 
+
 MultiTraceSynthGenerator::MultiTraceSynthGenerator()
     : totalnr_( -1 )
 {
@@ -610,6 +612,10 @@ bool RaySynthGenerator::doPrepare( int )
     if ( !wavelet_ )
 	mErrRet( "no wavelet found", false )
 
+/*    const float outputsr = outputsampling_.step;
+    if ( !mIsEqual(wavelet_->sampleRate(),outputsr,1e-4f) )
+	wavelet_->setSampleRate( outputsr );*/
+
     if ( aimodels_.isEmpty() )
 	mErrRet( "No AI model found", false );
 
@@ -631,31 +637,56 @@ bool RaySynthGenerator::doPrepare( int )
     {
 	const RayTracer1D* rt1d = rt1ds[idx];
 	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
-	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
-	{
-	    const TimeDepthModel& d2t = applynmo_ ? *rm->t2dmodels_[0]
-						  : *rm->t2dmodels_[idoff];
-	    if ( !mIsUdf( d2t.getLastTime() ) )
-		raysampling_.include( d2t.getLastTime() );
-	}
 	raymodels_.insertAt( rm, 0 );
 
 	if ( forcerefltimes_ )
 	    rm->forceReflTimes( forcedrefltimes_ );
     }
+
+    for ( int imod=0; imod<raymodels_.size(); imod++ )
+    {
+	ObjectSet<const ReflectivityModel> curraymodel;
+	raymodels_[imod]->getRefs( curraymodel, false );
+	for ( int iref=0; iref<curraymodel.size(); iref++ )
+	{
+	    Interval<int> validspike( mUdf(int), mUdf(int) );
+	    const ReflectivityModel& refmodel = *curraymodel[iref];
+	    for ( int idz=0; idz<refmodel.size(); idz++ )
+	    {
+		const ReflectivitySpike& spike = refmodel[idz];
+		if ( spike.isDefined() )
+		{
+		    if ( mIsUdf(validspike.start) )
+			validspike.start = idz;
+
+		    validspike.stop = idz;
+		}
+	    }
+	    if ( validspike.isUdf() )
+		continue;
+
+	    const ReflectivitySpike& firstspike = refmodel[validspike.start];
+	    const ReflectivitySpike& lastspike = refmodel[validspike.stop];
+	    raysampling_.include( applynmo_ ? firstspike.correctedtime_
+					    : firstspike.time_ );
+	    raysampling_.include( applynmo_ ? lastspike.correctedtime_
+					    : lastspike.time_ );
+	}
+    }
     
-    if ( !raysampling_.width() )
+    if ( !raysampling_.width(false) )
 	mErrRet( "no valid time generated from raytracing", false );
 
-    if ( mIsUdf( outputsampling_.start ) )
-    {
-	//TODO raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
-	outputsampling_ = raysampling_; 
-    }
     if ( mIsUdf( outputsampling_.step ) )
 	outputsampling_.step = wavelet_->sampleRate();
-    if ( outputsampling_.width()/(float)outputsampling_.step<wavelet_->size() )
-	mErrRet( "Time range can not be smaller than wavelet", false )
+
+    outputsampling_.start = mNINT32( raysampling_.start/outputsampling_.step ) *
+			    outputsampling_.step +
+			    wavelet_->samplePositions().start;
+    outputsampling_.stop = mNINT32( raysampling_.stop/outputsampling_.step ) *
+			   outputsampling_.step +
+			   wavelet_->samplePositions().stop;
+
     if ( outputsampling_.nrSteps() < 1 )
 	mErrRet( "Time interval is empty", false );
     

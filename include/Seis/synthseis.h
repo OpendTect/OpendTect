@@ -52,6 +52,7 @@ mExpClass(Seis) SynthGenBase
 public:
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    			/* will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
     
     void		setMuteLength(float n)	{ mutelength_ = n; }
@@ -109,6 +110,7 @@ public:
     			~SynthGenerator();
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    			/* will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
     bool		setModel(const ReflectivityModel&);
 

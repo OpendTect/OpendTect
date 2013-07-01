@@ -147,6 +147,7 @@ void uiGraphicsItem::updateTransform()
     transform.rotate( angle_ );
 
     qgraphicsitem_->setTransform( transform );
+    qgraphicsitem_->update();
 }
 
 /*

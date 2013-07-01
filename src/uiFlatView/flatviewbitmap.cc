@@ -46,14 +46,15 @@ void FlatView::BitMapMgr::clearAll()
 void FlatView::BitMapMgr::setupChg()
 {
     clearAll();
-    if ( !vwr_.isVisible(wva_) ) return;
+    const FlatDataPack* dp = vwr_.pack( wva_ );
+    if ( !vwr_.isVisible(wva_) || !dp ) return;
 
-    const FlatDataPack& dp = *vwr_.pack( wva_ );
-    Threads::Locker updlckr( dp.updateLock() );
+    DPM(DataPackMgr::FlatID()).obtain( dp->id() );
+    Threads::Locker updlckr( dp->updateLock() );
 
-    const FlatPosData& pd = dp.posData();
+    const FlatPosData& pd = dp->posData();
     const FlatView::Appearance& app = vwr_.appearance();
-    const Array2D<float>& arr = dp.data();
+    const Array2D<float>& arr = dp->data();
     if ( pd.nrPts(true) < arr.info().getSize(0) )
 	return;
 
