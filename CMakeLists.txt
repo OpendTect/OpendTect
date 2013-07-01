@@ -5,7 +5,7 @@
 #       SVN:		$Id$
 #_______________________________________________________________________________
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required ( VERSION 2.8.5 )
 
 set( OpendTect_VERSION_MAJOR 4 )
 set( OpendTect_VERSION_MINOR 7 )
