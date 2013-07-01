@@ -46,6 +46,8 @@ public:
     const char*		levelName() const;
     const MultiID&	waveletID() const;
     const Wavelet*	getWavelet() const;
+    inline const StratSynth& curSS() const
+    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
@@ -141,12 +143,15 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
+    inline StratSynth&	curSS()
+    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
     void		displayFRText();
     void		displayPreStackSynthetic(const SyntheticData*);
 
     void		addEditSynth(CallBacker*);
+    void		exportSynth(CallBacker*);
     void		wvDataSetSel(CallBacker*);
     void		vdDataSetSel(CallBacker*);
     void		levelSnapChanged(CallBacker*);

@@ -71,6 +71,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
 uiFlatViewer::~uiFlatViewer()
 {
+    detachAllNotifiers();
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
 
     delete &axesdrawer_;
