@@ -427,14 +427,20 @@ Coord BinIDSurface::getKnotCoord( const RowCol& rc) const
 Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 {
     const int index = getKnotIndex( rc );
+    const Coord knotcoord = getKnotCoord( rc );
+    float posz = mUdf(float);
+    Coord3 res = Coord3( knotcoord, posz );
+    if ( !depths_ || index<0 )
+	return res;
+
     const int rowsz = depths_->info().getSize(0);
     const int colsz = depths_->info().getSize(1);
     const int row = index / colsz;
     const int col = index % colsz;
-    float posz = index<0 || !depths_ ? mUdf(float) : depths_->get(row,col);
-    Coord3 res = Coord3( getKnotCoord( rc ) , posz );
+    posz = depths_->get(row,col);
+    res = Coord3( knotcoord, posz );
 
-    if ( !depths_ || !mIsUdf(posz) || !interpolifudf )
+    if ( !mIsUdf(posz) || !interpolifudf )
 	return res;
     
     //interpolate
