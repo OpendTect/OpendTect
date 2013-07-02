@@ -127,6 +127,8 @@ if(WIN32)
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "\"-DmUsedVar=\" ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_C_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_C_FLAGS}")
+    set ( CMAKE_C_FLAGS   "\"-DmUsedVar=\" ${CMAKE_C_FLAGS}")
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
     
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
