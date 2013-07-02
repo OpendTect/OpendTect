@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiPushButton;
+class uiCheckBox;
 
 
 /*!\brief Single-line element allowing multi-parameter to be set via a dialog.
@@ -47,6 +48,34 @@ protected:
 
     uiGenInput*			txtfld_;
     uiPushButton*		selbut_;
+
+};
+
+
+/*!\brief CompoundParSel providing something that is optional
+  
+  Basically, a CompoundParSel with a check box. 
+ */
+
+mExpClass(uiTools) uiCheckedCompoundParSel : public uiCompoundParSel
+{
+public:
+
+    			uiCheckedCompoundParSel(uiParent*,const char* seltxt,
+				 bool mkinvisible, // if not, makes insensitive
+				 const char* buttxt=0);
+
+    void		setChecked(bool);
+    bool		isChecked() const;
+
+    Notifier<uiCheckedCompoundParSel> checked;
+
+protected:
+
+    uiCheckBox*		cbox_;
+    bool		mkinvis_;
+
+    void		checkCB(CallBacker*);
 
 };
 

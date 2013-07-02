@@ -21,6 +21,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 
+class uiSSOutSel : public uiCheckedCompoundParSel
+{
+public:
+
+uiSSOutSel( uiParent* p, const char* seltxt )
+    : uiCheckedCompoundParSel( p, seltxt, false, "&Define" )
+{
+}
+
+
+
+};
+
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup("Export synthetic seismics and horizons",
 				 getWinTitle(ss), mTODOHelpID) )
@@ -36,8 +49,10 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     linesetsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
 	    			sssu );
     linesetsel_->attach( alignedBelow, crnewfld_ );
-    linenmsel_ = new uiSeis2DLineSel( this );
+    linenmsel_ = new uiSeis2DLineNameSel( this, false );
     linenmsel_->attach( alignedBelow, linesetsel_ );
+
+    // poststcksel_ = new uiSSOutSel( );
 
     postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );
 }

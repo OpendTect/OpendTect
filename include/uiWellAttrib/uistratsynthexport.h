@@ -14,10 +14,11 @@
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+class StratSynth;
 class uiGenInput;
 class uiSeisSel;
-class StratSynth;
-class uiSeis2DLineSel;
+class uiSSOutSel;
+class uiSeis2DLineNameSel;
 
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
@@ -31,7 +32,10 @@ protected:
 
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiSeis2DLineSel*	linenmsel_;
+    uiSeis2DLineNameSel* linenmsel_;
+    uiSSOutSel*		poststcksel_;
+    uiSSOutSel*		horsel_;
+    uiSSOutSel*		prestcksel_;
 
     const StratSynth&	ss_;
 

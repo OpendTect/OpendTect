@@ -52,3 +52,45 @@ void uiCompoundParSel::setSelText( const char* txt )
 {
     txtfld_->setTitleText( txt );
 }
+
+
+uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
+			    const char* seltxt, bool invis, const char* btxt )
+    : uiCompoundParSel(p,"",btxt)
+    , mkinvis_(invis)
+    , checked(this)
+{
+    cbox_ = new uiCheckBox( this, seltxt,
+	   		    mCB(this,uiCheckedCompoundParSel,checkCB) );
+    cbox_->attach( leftOf, txtfld_ );
+}
+
+
+void uiCheckedCompoundParSel::setChecked( bool yn )
+{
+    cbox_->setChecked( yn );
+}
+
+
+bool uiCheckedCompoundParSel::isChecked() const
+{
+    return cbox_->isChecked();
+}
+
+
+void uiCheckedCompoundParSel::checkCB( CallBacker* )
+{
+    const bool ischckd = cbox_->isChecked();
+    if ( mkinvis_ )
+    {
+	txtfld_->display( ischckd );
+	selbut_->display( ischckd );
+    }
+    else
+    {
+	txtfld_->setSensitive( ischckd );
+	selbut_->setSensitive( ischckd );
+    }
+
+    checked.trigger();
+}
