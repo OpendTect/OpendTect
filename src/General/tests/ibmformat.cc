@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "task.h"
 #include "limits.h"
+#include "commandlineparser.h"
 
 #include <iostream>
 
@@ -23,19 +24,25 @@ bool testFloatIndex( int origin, float target )
 
     if ( !mIsUdf(target) && fval!=target )
     {
-	std::cerr << "Failure at index " << origin << ": Should be "
+	std::cerr << "Conversion 1 failed for origin " << origin << ": Should be "
 		  << target << " but is " << fval <<"\n";
 	return false;
     }
     
     unsigned int buf;
     IbmFormat::putFloat( fval, &buf );
+    if ( buf!=origin )
+    {
+	std::cerr << "Conversion 2 failed for origin " << origin << ": Should be "
+		  << origin << " but is " << buf <<"\n";
+	return false;
+    }
 
     const float res = IbmFormat::asFloat( &buf );
     
     if ( fval != res )
     {
-	std::cerr << "Failure at index " << origin << ": Should be "
+	std::cerr << "Conversion 3 failed at origin " << origin << ": Should be "
 		  << fval << " but is " << res <<"\n";
 	return false;
     }
@@ -88,7 +95,7 @@ public:
     
 int main( int narg, char** argv )
 {
-    SetProgramArgs( narg, argv );
+    od_init_test_program( narg, argv );
 #define mComp( v1, v2 ) ( v1==v2 )
     int buf;
     int resbuf;
@@ -104,8 +111,10 @@ int main( int narg, char** argv )
     mTestVal( unsigned short, UnsignedShort, 0x010101FF, 65281 );
 
     //Test two known problem-spots
-    if ( !testFloatIndex( 0, 0) ||
-	 !testFloatIndex( 152776, -1409417216.000000f ) )
+     if ( !testFloatIndex( 152776, -1409417216.000000f ) )
+	 ExitProgram( 1 );
+
+    if ( !testFloatIndex( 0, 0) )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
