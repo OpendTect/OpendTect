@@ -60,8 +60,9 @@ uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
     , mkinvis_(invis)
     , checked(this)
 {
-    cbox_ = new uiCheckBox( this, seltxt,
-	   		    mCB(this,uiCheckedCompoundParSel,checkCB) );
+    cbox_ = new uiCheckBox( this, seltxt );
+    cbox_->setChecked( true );
+    cbox_->activated.notify( mCB(this,uiCheckedCompoundParSel,checkCB) );
     cbox_->attach( leftOf, txtfld_ );
 }
 

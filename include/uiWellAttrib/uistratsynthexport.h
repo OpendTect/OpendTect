@@ -41,6 +41,7 @@ protected:
 
     BufferString	getWinTitle(const StratSynth&) const;
     void		crNewChg(CallBacker*);
+    void		selOutputCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
