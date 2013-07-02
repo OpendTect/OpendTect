@@ -243,7 +243,7 @@ void RandomPosBody::copyFrom( const DataPointSet& data, int dpscolid,
     locations_.erase();
     ids_.erase();
 
-    if ( dpscolid<=0 || dpscolid>data.nrCols() )
+    if ( dpscolid<0 || dpscolid>data.nrCols() )
 	return;
 
     for ( int idx=0; idx<data.size(); idx++ )
