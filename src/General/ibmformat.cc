@@ -8,10 +8,12 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ibmformat.h"
-#include <string.h>
 
 #define mcBuf ((const unsigned char*)buf)
 #define mBuf ((unsigned char*)buf)
+
+typedef union { int i; float f; } IFUnion;
+
 
 int IbmFormat::asInt( const void* buf )
 {
@@ -88,53 +90,57 @@ void IbmFormat::putUnsignedShort( unsigned short value, void* buf )
 }
 
 
+static void handleEndianness( int& fconv )
+{
+#ifdef __little__
+    int tmp = fconv << 24;
+    tmp |= (fconv >> 24) & 0xff;
+    tmp |= (fconv & 0xff00) << 8;
+    tmp |= (fconv & 0xff0000) >> 8;
+    fconv = tmp;
+#endif
+}
+
 
 float IbmFormat::asFloat( const void* buf )
 {
-    register int fconv;
-    register int fmant, t;
-    fconv = *((int*)buf);
-
-#ifdef __little__
-    fconv = (fconv<<24) | ((fconv>>24)&0xff) |
-	    ((fconv&0xff00)<<8) | ((fconv&0xff0000)>>8);
-#endif
- 
+    int fconv = *( reinterpret_cast<const int*>(buf) );
     if ( fconv )
     {
-	fmant = 0x00ffffff & fconv;
-	t = (int) ((0x7f000000 & fconv) >> 22) - 130;
-	if ( t <= 0 ) fconv = 0;
+	handleEndianness( fconv );
+	int t = (int) ((0x7f000000 & fconv) >> 22) - 130;
+	if ( t <= 0 )
+	    fconv = 0;
 	else
 	{
+	    int fmant = 0x00ffffff & fconv;
 	    while ( !(fmant & 0x00800000) && t != -1 ) { --t; fmant <<= 1; }
-	    if (t > 254) fconv = (0x80000000 & fconv) | 0x7f7fffff;
+	    if ( t > 254 ) fconv = (0x80000000 & fconv) | 0x7f7fffff;
 	    else if (t <= 0) fconv = 0;
 	    else fconv = (0x80000000 & fconv) |(t << 23)|(0x007fffff & fmant);
 	}
     }
 
-
-    return *((float*)(&fconv));
+    IFUnion un; un.i = fconv;
+    return un.f;
 }
 
 
-void IbmFormat::putFloat( float value, void* buf )
+void IbmFormat::putFloat( float value, void* inpbuf )
 {
-    register int* iconv = (int*)(&value);
-    register int fmant, t, fconv = *iconv;
-
+    IFUnion un; un.f = value;
+    int fconv = un.i;
     if ( fconv )
     {
-	fmant = (0x007fffff & fconv) | 0x00800000;
-	t = (int) ((0x7f800000 & fconv) >> 23) - 126;
-	while (t & 0x3) { ++t; fmant >>= 1; }
+	int fmant = (0x007fffff & fconv) | 0x00800000;
+	int t = ((0x7f800000 & fconv) >> 23) - 126;
+	while ( t & 0x3 ) { ++t; fmant >>= 1; }
 	fconv = (0x80000000 & fconv) | (((t>>2) + 64) << 24) | fmant;
+	handleEndianness( fconv );
     }
-#ifdef __little__
-    fconv = (fconv<<24) | ((fconv>>24)&0xff) |
-	    ((fconv&0xff00)<<8) | ((fconv&0xff0000)>>8);
-#endif
 
-    memcpy( buf, &fconv, 4 );
+    const unsigned char* fbuf = reinterpret_cast<const unsigned char*>( &fconv );
+    unsigned char* outbuf = reinterpret_cast<unsigned char*>( inpbuf );
+    outbuf[0] = fbuf[0]; outbuf[1] = fbuf[1];
+    outbuf[2] = fbuf[2]; outbuf[3] = fbuf[3];
 }
