@@ -42,5 +42,9 @@ public:
 
 } // namespace
 
+#define mODSetApplyToAll( tp, os, op ) \
+    for ( tp idx=(tp) os.nrItems()-1; idx>=0; idx-- ) \
+        op
+
 #endif
 
