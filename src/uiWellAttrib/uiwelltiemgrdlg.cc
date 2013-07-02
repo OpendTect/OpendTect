@@ -392,6 +392,8 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 
 #undef mErrRet
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+
+
 bool uiTieWinMGRDlg::initSetup()
 {
     if ( !wellfld_->commitInput() )
@@ -493,7 +495,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     Server* server = new Server( wtsetup_ );
     if ( server->errMSG() ) 
-	{ mErrRet( server->errMSG() ); delete server; return false; }
+	{ uiMSG().error( server->errMSG() ); delete server; return false; }
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
     {
