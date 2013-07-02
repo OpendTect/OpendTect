@@ -40,7 +40,13 @@ const BinID& BinID::udf()
 
 
 Coord Coord::normalize() const
-{ return *this / abs(); }
+{
+    const double absval = abs();
+    if ( absval < 1e-10 )
+	return *this;
+
+    return *this / absval; 
+}
 
 
 double Coord::dot( const Coord& b ) const

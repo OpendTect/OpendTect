@@ -475,6 +475,9 @@ inline Coord3 Coord3::cross(const Coord3& b) const
 inline Coord3 Coord3::normalize() const
 {
     const double absval = abs();
+    if ( absval < 1e-10 )
+	return *this;
+
     return *this / absval;
 }
 
