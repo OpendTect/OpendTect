@@ -493,7 +493,8 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 				  const BinID& bid2, float z2,
 				  BinID& bid, float& z,
-				  const StepInterval<int>* intv ) const
+				  const StepInterval<int>* intv,
+                                  bool snappositive) const
 {
     const Coord intersection = getIntersection( bid1, z1, bid2, z2 );
     if ( !intersection.isDefined() )
@@ -501,7 +502,10 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 
     int trcnr = mNINT32( intersection.x );
     if ( intv )
-	trcnr = intv->snap( trcnr );
+    {
+        const float fidx = intv->getfIndex( intersection.x );
+	trcnr = mNINT32( snappositive ? ceil(fidx) : floor(fidx) );
+    }
 
     bid.inl = isinl_ ? nr_ : trcnr;
     bid.crl = isinl_ ? trcnr : nr_;

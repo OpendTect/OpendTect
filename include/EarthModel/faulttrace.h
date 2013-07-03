@@ -63,7 +63,8 @@ public:
     bool		isCrossing(const BinID&,float,const BinID&,float) const;
     bool		getIntersection(const BinID&,float,const BinID&,float,
 	    				BinID&,float&,
-					const StepInterval<int>* trcrg=0) const;
+					const StepInterval<int>* trcrg=0,
+                                        bool snappositive=true) const;
     bool		getHorCrossings(const BinIDValueSet&,
 	    				Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
