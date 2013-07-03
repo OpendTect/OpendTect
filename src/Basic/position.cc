@@ -41,11 +41,11 @@ const BinID& BinID::udf()
 
 Coord Coord::normalize() const
 {
-    const double absval = abs();
-    if ( absval < 1e-10 )
+    const double sqabsval = sqAbs();
+    if ( sqabsval < 1e-16 )
 	return *this;
 
-    return *this / absval; 
+    return *this / Math::Sqrt(sqabsval); 
 }
 
 
