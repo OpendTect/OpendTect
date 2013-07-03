@@ -43,6 +43,7 @@ setenv PATH "${binpath}:${PATH}"
 if ( $HDIR == mac ) then
 
     if ( $?DYLD_LIBRARY_PATH ) then
+	setenv OD_SYSTEM_LIBRARY_PATH "${DYLD_LIBRARY_PATH}"
 	setenv DYLD_LIBRARY_PATH "${bindir}:${DYLD_LIBRARY_PATH}"
     else
 	setenv DYLD_LIBRARY_PATH "${bindir}:/lib:/usr/lib"
@@ -51,6 +52,7 @@ if ( $HDIR == mac ) then
 else
 
     if ( $?LD_LIBRARY_PATH ) then
+	setenv OD_SYSTEM_LIBRARY_PATH "${LD_LIBRARY_PATH}"
 	setenv LD_LIBRARY_PATH "${bindir}:${LD_LIBRARY_PATH}"
     else if ( -d /usr/lib64 ) then
 	setenv LD_LIBRARY_PATH "${bindir}:/lib:/usr/lib64:/usr/lib"
