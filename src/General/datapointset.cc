@@ -480,7 +480,7 @@ bool DataPointSet::setValue( DataPointSet::ColID cid, DataPointSet::RowID rid,
     mChkColID(cid,false);
     mChkRowID(rid,false);
     float* vals = bivSet().getVals( bvsidxs_[rid] );
-    vals[cid + nrfixedcols_] = mUdf(float);
+    vals[cid + nrfixedcols_] = val;
     return true;
 }
 
