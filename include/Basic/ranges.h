@@ -123,6 +123,7 @@ public:
     virtual void	sort( bool asc=true );
 
     virtual bool	hasStep() const			{ return false; }
+    static Interval<T>	udf()      {return Interval<T>(mUdf(T),mUdf(T));}
 };
 
 
