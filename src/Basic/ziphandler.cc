@@ -1013,7 +1013,9 @@ bool ZipHandler::readEndOfCentralDirHeader()
     ptrlocation = StrmOper::tell( *isd_.istrm );
     isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
     headerbuff[mSizeFourBytes] = 0;
-    while (!( *mCast(od_uint32*,headerbuff) == *mCast(od_uint32*,sig) ))
+    const od_uint32* ihdrbuff = reinterpret_cast<od_uint32*>(headerbuff);
+    const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
+    while ( *ihdrbuff != *isig )
     {
 	StrmOper::seek( *isd_.istrm, ptrlocation - 1 );
 	ptrlocation = StrmOper::tell( *isd_.istrm );
@@ -1050,7 +1052,9 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     ptrlocation = StrmOper::tell( *isd_.istrm );
     isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
     headerbuff[mSizeFourBytes] = 0;
-    while (!( *mCast(od_uint32*,headerbuff) == *mCast(od_uint32*,sig) ))
+    const od_uint32* ihdrbuff = reinterpret_cast<od_uint32*>(headerbuff);
+    const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
+    while ( *ihdrbuff != *isig )
     {
 	StrmOper::seek( *isd_.istrm, ptrlocation - 1 );
 	ptrlocation = StrmOper::tell( *isd_.istrm );
@@ -1081,7 +1085,9 @@ bool ZipHandler::readZIP64EndOfCentralDirRecord()
     StrmOper::seek( *isd_.istrm, offsetofcentraldir_ );
     isd_.istrm->read( mCast(char*,headerbuff), mSizeFourBytes );
     headerbuff[mSizeFourBytes] = 0;
-    if ( *mCast(od_uint32*,headerbuff) != *mCast(od_uint32*,sig) )
+    const od_uint32* ihdrbuff = reinterpret_cast<od_uint32*>(headerbuff);
+    const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
+    if ( *ihdrbuff != *isig )
     { mErrRet( "Failed to unzip ", srcfile_, "\nZip archive is corrupt" ) }
 
     isd_.istrm->read( mCast(char*,headerbuff+mSizeFourBytes),
@@ -1467,9 +1473,8 @@ od_uint16 ZipHandler::timeInDosFormat( const char* fnm )const
     for ( idx=3; idx<8; idx++ )
 	setBitValue( bte[1], idx, getBitValue(hr,idx-3) );
 
-    od_uint16 dosformat;
-    dosformat = *mCast( od_uint16*, bte );
-    return dosformat;
+    const od_uint16* dosformat = reinterpret_cast<od_uint16*>(bte);
+    return *dosformat;
 }
 
 
@@ -1495,9 +1500,8 @@ od_uint16 ZipHandler::dateInDosFormat( const char* fnm )const
     for ( idx = 1; idx < 8; idx++ )
 	setBitValue( bte[1], idx, getBitValue(dosyear,idx-1) );
 
-    od_uint16 dosformat;
-    dosformat = *mCast( od_uint16*, bte );
-    return dosformat;
+    const od_uint16* dosformat = reinterpret_cast<od_uint16*>(bte);
+    return *dosformat;
 }
 
 
