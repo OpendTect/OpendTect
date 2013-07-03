@@ -45,6 +45,8 @@ protected:
     uiStratSynthOutSel*	poststcksel_;
     uiStratSynthOutSel*	horsel_;
     uiStratSynthOutSel*	prestcksel_;
+    uiGenInput*		prefxfld_;
+    uiGenInput*		postfxfld_;
 
     const StratSynth&	ss_;
 

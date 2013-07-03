@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseislinesel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uilabel.h"
+#include "uiseparator.h"
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
@@ -117,20 +119,40 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     existlinenmsel_ = new uiSeis2DLineNameSel( this, true );
     existlinenmsel_->attach( alignedBelow, linesetsel_ );
 
+    uiSeparator* sep = new uiSeparator( this, "Hsep 1" );
+    sep->attach( stretchedBelow, existlinenmsel_ );
+
     geomgrp_ = new uiGroup( this, "Geometry group" );
     fillGeomGroup();
     geomgrp_->attach( alignedBelow, existlinenmsel_ );
+    geomgrp_->attach( ensureBelow, sep );
 
+    sep = new uiSeparator( this, "Hsep 2" );
+    sep->attach( stretchedBelow, geomgrp_ );
+
+    uiGroup* selgrp = new uiGroup( this, "Export sel group" );
+    selgrp->attach( ensureBelow, sep );
     BufferStringSet nms;
     nms.add( "Post-stack 1" ); nms.add( "Post-stack 2" );
-    poststcksel_ = new uiStratSynthOutSel( this, "Post-stack line data", nms );
-    poststcksel_->attach( alignedBelow, geomgrp_ );
+    poststcksel_ = new uiStratSynthOutSel( selgrp, "Post-stack line data",nms );
     nms.erase(); nms.add( "Level 1" ); nms.add( "Level 2" ).add( "Level 3" );
-    horsel_ = new uiStratSynthOutSel( this, "2D horizons", nms );
+    horsel_ = new uiStratSynthOutSel( selgrp, "2D horizons", nms );
     horsel_->attach( alignedBelow, poststcksel_ );
     nms.erase(); nms.add( "Pre-stack 1" );
-    prestcksel_ = new uiStratSynthOutSel( this, "Pre-stack data", nms );
+    prestcksel_ = new uiStratSynthOutSel( selgrp, "Pre-stack data", nms );
     prestcksel_->attach( alignedBelow, horsel_ );
+    selgrp->setHAlignObj( poststcksel_ );
+    selgrp->attach( alignedBelow, geomgrp_ );
+
+    uiLabel* lbl = new uiLabel( this, "Output object names will be generated."
+		"\nYou can specify an optional prefix and postfix for each:" );
+    lbl->attach( ensureBelow, selgrp );
+    lbl->setAlignment( Alignment::Left );
+    prefxfld_ = new uiGenInput( this, "Prefix" );
+    prefxfld_->attach( alignedBelow, selgrp );
+    prefxfld_->attach( ensureBelow, lbl );
+    postfxfld_ = new uiGenInput( this, "Postfix" );
+    postfxfld_->attach( rightOf, prefxfld_ );
 
     postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );
 }
