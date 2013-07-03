@@ -15,10 +15,12 @@
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 class StratSynth;
+class uiGroup;
 class uiGenInput;
 class uiSeisSel;
-class uiSSOutSel;
+class uiIOObjSel;
 class uiSeis2DLineNameSel;
+class uiStratSynthOutSel;
 
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
@@ -32,16 +34,27 @@ protected:
 
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiSeis2DLineNameSel* linenmsel_;
-    uiSSOutSel*		poststcksel_;
-    uiSSOutSel*		horsel_;
-    uiSSOutSel*		prestcksel_;
+    uiSeis2DLineNameSel* newlinenmsel_;
+    uiSeis2DLineNameSel* existlinenmsel_;
+    uiGroup*		geomgrp_;
+    uiGenInput*		geomsel_;
+    uiGenInput*		coord0fld_;
+    uiGenInput*		coord1fld_;
+    uiIOObjSel*		picksetsel_;
+    uiIOObjSel*		randlinesel_;
+    uiStratSynthOutSel*	poststcksel_;
+    uiStratSynthOutSel*	horsel_;
+    uiStratSynthOutSel*	prestcksel_;
 
     const StratSynth&	ss_;
 
     BufferString	getWinTitle(const StratSynth&) const;
+    void		fillGeomGroup();
+
     void		crNewChg(CallBacker*);
-    void		selOutputCB(CallBacker*);
+    void		lsSel(CallBacker*);
+    void		geomSel(CallBacker*);
+
     bool		acceptOK(CallBacker*);
 
 };
