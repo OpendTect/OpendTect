@@ -592,8 +592,10 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
 	return cIsOutside();
 
     char edgeidx, dupidx;
-    double signeddist[4], closestedgedist[4];
     char res[4];
+    double signeddist[4], closestedgedist[4];
+    for ( int idx=0; idx<4; idx++ )
+	signeddist[idx] = closestedgedist[idx] = mUdf(double);
 
     res[0] = locationToTriangle( checkpt, v[1], v[3], v[2], signeddist[0],
 	    			 closestedgedist[0], dupidx, edgeidx );
@@ -680,7 +682,10 @@ char DAGTetrahedraTree::locationToTetrahedra( const Coord3& checkpt,
     for ( char idx=0; idx<4; idx++ )
     {
 	const double dist = fabs(signeddist[idx]);
-	if ( face==cNoFace() || (!mIsZero(dist,epsilon_) && mindist>dist) )
+	if ( mIsUdf(dist) || dist<epsilon_ )
+	    continue;
+
+	if ( mIsUdf(mindist) || mindist>dist )
 	{
 	    face = idx;
 	    mindist = dist;
