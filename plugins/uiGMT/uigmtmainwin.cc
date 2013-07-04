@@ -260,9 +260,10 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	const int newcur = curidx + (isup ? -1 : 1);
 	if ( newcur >= 0 && newcur < sz )
 	{
-	    BufferString tmp( flowfld_->textOfItem(newcur) );
-	    flowfld_->setItemText( newcur, flowfld_->getText() );
-	    flowfld_->setItemText( curidx, tmp );
+	    const BufferString curtxt( flowfld_->textOfItem(curidx) );
+	    const BufferString newcurtxt( flowfld_->textOfItem(newcur) );
+	    flowfld_->setItemText( newcur, curtxt );
+	    flowfld_->setItemText( curidx, newcurtxt );
 	    pars_.swap( curidx, newcur );
 	    curidx = newcur;
 	    needsave_ = true;
