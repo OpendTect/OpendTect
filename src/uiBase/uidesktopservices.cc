@@ -13,12 +13,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "debugmasks.h"
+#include "envvars.h"
 #include "uimsg.h"
 
 #include <QDesktopServices>
 #include <QUrl>
 
 mUseQtnamespace
+
+static const char* sKeySysLibPath = "OD_SYSTEM_LIBRARY_PATH";
+static const char* sKeyLDLibPath =
+#ifdef __lux__
+"LD_LIBRARY_PATH";
+#else
+# ifdef __mac__
+"DYLD_LIBRARY_PATH";
+# else
+0;
+# endif
+#endif
 
 bool uiDesktopServices::openUrl( const char* url )
 {
@@ -45,5 +58,15 @@ bool uiDesktopServices::openUrl( const char* url )
 	msg += qurl.toString().toLatin1().data();
 	DBG::message( msg );
     }
-    return QDesktopServices::openUrl( qurl );
+
+    const BufferString syslibpath( GetEnvVar(sKeySysLibPath) );
+    const BufferString odenvlibpath( sKeyLDLibPath ? GetEnvVar(sKeyLDLibPath)
+	    					   : 0 );
+    if ( odenvlibpath.isEmpty() )
+	return QDesktopServices::openUrl( qurl );
+
+    SetEnvVar( sKeyLDLibPath, syslibpath.buf() );
+    const bool res = QDesktopServices::openUrl( qurl );
+    SetEnvVar( sKeyLDLibPath, odenvlibpath.buf() );
+    return res;
 }
