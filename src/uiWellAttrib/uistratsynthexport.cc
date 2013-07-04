@@ -97,14 +97,6 @@ virtual BufferString getSummary() const
 };
 
 
-template <class WITHADD,class DECENTSET>
-inline void addTo( WITHADD& withadd, const DECENTSET& inp )
-{
-    const od_int64 sz = inp.size();
-    for ( od_int64 idx=0; idx<sz; idx++ )
-	withadd.add( inp[idx]->name() );
-}
-
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup("Save synthetic seismics and horizons",
