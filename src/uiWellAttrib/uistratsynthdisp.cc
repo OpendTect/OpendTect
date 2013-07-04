@@ -27,6 +27,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "stratsynth.h"
+#include "stratsynthlevel.h"
+#include "syntheticdataimpl.h"
 #include "flatviewzoommgr.h"
 #include "flatposdata.h"
 #include "ptrman.h"
@@ -307,7 +310,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 				     const TypeSet<float>& zvals, Color col,
        				     bool dispflattened )
 {
-    StratSynth::Level* lvl = new StratSynth::Level( lnm, zvals, col );
+    StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
     curSS().setLevel( lvl );
 
     const bool domodelchg = dispflattened_ || dispflattened;
@@ -354,9 +357,9 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 
 void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 {
-    const StratSynth::Level* lvl = curSS().getLevel();
+    const StratSynthLevel* lvl = curSS().getLevel();
     if ( !lvl )  return;
-    StratSynth::Level* edlvl = const_cast<StratSynth::Level*>( lvl );
+    StratSynthLevel* edlvl = const_cast<StratSynthLevel*>( lvl );
     VSEvent::Type tp;
     VSEvent::parseEnumType( levelsnapselfld_->text(), tp );
     edlvl->snapev_ = tp;
@@ -366,7 +369,7 @@ void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 
 const char* uiStratSynthDisp::levelName()  const
 {
-    const StratSynth::Level* lvl = curSS().getLevel();
+    const StratSynthLevel* lvl = curSS().getLevel();
     return lvl ? lvl->name() : 0;
 }
 
@@ -390,12 +393,12 @@ void uiStratSynthDisp::drawLevel()
 {
     delete vwr_->removeAuxData( levelaux_ );
 
-    const StratSynth::Level* lvl = curSS().getLevel();
+    const StratSynthLevel* lvl = curSS().getLevel();
     if ( d2tmodels_ && !d2tmodels_->isEmpty() && lvl )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	curSS().snapLevelTimes( tbuf, *d2tmodels_ );
+	curSS().getLevelTimes( tbuf, *d2tmodels_ );
 
 	auxd->linestyle_.type_ = LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
@@ -661,7 +664,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     curSS().decimateTraces( *disptbuf, dispeach_ );
     if ( dispflattened_ )
     {
-	curSS().snapLevelTimes( *disptbuf, sd->d2tmodels_ );
+	curSS().getLevelTimes( *disptbuf, sd->d2tmodels_ );
 	curSS().flattenTraces( *disptbuf );
     }
 
@@ -970,7 +973,7 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(
     if ( !sd->d2tmodels_.isEmpty() )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( stbp->trcBuf() );
-	curSS().snapLevelTimes( tbuf, sd->d2tmodels_ );
+	curSS().getLevelTimes( tbuf, sd->d2tmodels_ );
     }
     return stbp->trcBuf();
 }

@@ -15,10 +15,14 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uiflatviewslicepos.h"
-#include "stratsynth.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
+class StratSynth;
+class SyntheticData;
+class PropertyRef;
+class PropertyRefSelection;
+class TaskRunner;
 class Wavelet;
 class uiComboBox;
 class uiFlatViewer;

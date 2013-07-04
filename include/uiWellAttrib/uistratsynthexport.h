@@ -15,6 +15,8 @@
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 class StratSynth;
+class SyntheticData;
+class StratSynthLevel;
 class uiGroup;
 class uiGenInput;
 class uiSeisSel;
@@ -49,9 +51,13 @@ protected:
     uiGenInput*		postfxfld_;
 
     const StratSynth&	ss_;
+    ObjectSet<const SyntheticData> postsds_;
+    ObjectSet<const SyntheticData> presds_;
+    ObjectSet<StratSynthLevel> sslvls_;
 
     BufferString	getWinTitle(const StratSynth&) const;
     void		fillGeomGroup();
+    void		getExpObjs();
 
     void		crNewChg(CallBacker*);
     void		lsSel(CallBacker*);

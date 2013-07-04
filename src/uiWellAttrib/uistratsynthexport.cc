@@ -21,6 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "stratsynth.h"
+#include "stratsynthlevel.h"
+#include "stratlevel.h"
+#include "syntheticdata.h"
 #include "zdomain.h"
 #include "survinfo.h"
 #include "picksettr.h"
@@ -36,8 +39,6 @@ uiStratSynthOutSel( uiParent* p, const char* seltxt, const BufferStringSet& nms 
     , nms_(nms)
     , nm_(seltxt)
 {
-    for ( int idx=0; idx<nms_.size(); idx++ )
-	selidxs_ += idx;
     butPush.notify( mCB(this,uiStratSynthOutSel,selItems) );
 }
 
@@ -96,6 +97,15 @@ virtual BufferString getSummary() const
 };
 
 
+template <class WITHADD,class DECENTSET>
+inline void addTo( WITHADD& withadd, const DECENTSET& inp )
+{
+    const od_int64 sz = inp.size();
+    for ( od_int64 idx=0; idx<sz; idx++ )
+	withadd.add( inp[idx]->name() );
+}
+
+
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup("Save synthetic seismics and horizons",
 				 getWinTitle(ss), mTODOHelpID) )
@@ -132,13 +142,14 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
 
     uiGroup* selgrp = new uiGroup( this, "Export sel group" );
     selgrp->attach( ensureBelow, sep );
-    BufferStringSet nms;
-    nms.add( "Post-stack 1" ); nms.add( "Post-stack 2" );
+    getExpObjs();
+
+    BufferStringSet nms; addNames( postsds_, nms );
     poststcksel_ = new uiStratSynthOutSel( selgrp, "Post-stack line data",nms );
-    nms.erase(); nms.add( "Level 1" ); nms.add( "Level 2" ).add( "Level 3" );
+    nms.erase(); addNames( sslvls_, nms );
     horsel_ = new uiStratSynthOutSel( selgrp, "2D horizons", nms );
     horsel_->attach( alignedBelow, poststcksel_ );
-    nms.erase(); nms.add( "Pre-stack 1" );
+    nms.erase(); addNames( presds_, nms );
     prestcksel_ = new uiStratSynthOutSel( selgrp, "Pre-stack data", nms );
     prestcksel_->attach( alignedBelow, horsel_ );
     selgrp->setHAlignObj( poststcksel_ );
@@ -196,6 +207,25 @@ void uiStratSynthExport::fillGeomGroup()
     {
 	randlinesel_ = new uiIOObjSel( geomgrp_, mIOObjContext(RandomLineSet) );
 	randlinesel_->attach( alignedBelow, geomsel_ );
+    }
+}
+
+
+void uiStratSynthExport::getExpObjs()
+{
+    for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
+    {
+	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
+	(sd->isPS() ? presds_ : postsds_) += sd;
+    }
+
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    for ( int idx=0; idx<lvls.size(); idx++ )
+    {
+	const Strat::Level& lvl = lvls.getLevel( idx );
+	StratSynthLevel* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
+	ss_.getLevelDepths( lvl, ssl->zvals_ );
+	sslvls_ += ssl;
     }
 }
 

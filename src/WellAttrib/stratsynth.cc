@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "stratsynth.h"
+#include "syntheticdataimpl.h"
+#include "stratsynthlevel.h"
 
 #include "array1dinterpol.h"
 #include "angles.h"
@@ -982,15 +984,40 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 }
 
 
-void StratSynth::snapLevelTimes( SeisTrcBuf& trcs, 
+void StratSynth::getLevelDepths( const Strat::Level& lvl,
+				 TypeSet<float>& zvals ) const
+{
+    zvals.setEmpty();
+    for ( int iseq=0; iseq<lm_.size(); iseq++ )
+	zvals += lm_.sequence(iseq).depthPositionOf( lvl );
+}
+
+
+static void convD2T( TypeSet<float>& zvals,
+		     const ObjectSet<const TimeDepthModel>& d2ts )
+{
+    for ( int imdl=0; imdl<zvals.size(); imdl++ )
+	zvals[imdl] = d2ts.validIdx(imdl) && !mIsUdf(zvals[imdl]) ? 
+	    	d2ts[imdl]->getTime( zvals[imdl] ) : mUdf(float);
+}
+
+
+void StratSynth::getLevelTimes( const Strat::Level& lvl,
+				const ObjectSet<const TimeDepthModel>& d2ts,
+				TypeSet<float>& zvals ) const
+{
+    getLevelDepths( lvl, zvals );
+    convD2T( zvals, d2ts );
+}
+
+
+void StratSynth::getLevelTimes( SeisTrcBuf& trcs, 
 			const ObjectSet<const TimeDepthModel>& d2ts ) const
 {
     if ( !level_ ) return;
 
     TypeSet<float> times = level_->zvals_;
-    for ( int imdl=0; imdl<times.size(); imdl++ )
-	times[imdl] = d2ts.validIdx(imdl) && !mIsUdf(times[imdl]) ? 
-	    	d2ts[imdl]->getTime( times[imdl] ) : mUdf(float);
+    convD2T( times, d2ts );
 
     for ( int idx=0; idx<trcs.size(); idx++ )
     {
@@ -1021,7 +1048,7 @@ void StratSynth::snapLevelTimes( SeisTrcBuf& trcs,
 }
 
 
-void StratSynth::setLevel( const Level* lvl )
+void StratSynth::setLevel( const StratSynthLevel* lvl )
 { delete level_; level_ = lvl; }
 
 
@@ -1157,6 +1184,17 @@ const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
 { return postStackPack().trcBuf().get( seqnr ); }
 
 
+SeisTrcBufDataPack& PostStackSyntheticData::postStackPack()
+{
+    return static_cast<SeisTrcBufDataPack&>( datapack_ );
+}
+
+
+const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
+{
+    return static_cast<const SeisTrcBufDataPack&>( datapack_ );
+}
+
 
 PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 					     PreStack::GatherSetDataPack& dp)
@@ -1174,6 +1212,18 @@ PreStackSyntheticData::~PreStackSyntheticData()
 {
     if ( angledp_ )
 	DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+}
+
+
+PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
+{
+    return static_cast<PreStack::GatherSetDataPack&>( datapack_ );
+}
+
+
+const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
+{
+    return static_cast<const PreStack::GatherSetDataPack&>( datapack_ );
 }
 
 
