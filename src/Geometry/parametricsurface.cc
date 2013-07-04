@@ -206,6 +206,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
     triggerNrPosCh( rc.toInt64() );
     return true;
 
+    /*
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
 
     TypeSet<RowCol> edgepair0, edgepair1;
@@ -266,6 +267,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
 
     triggerNrPosCh(rc.toInt64());
     return true;
+    */
 }
 
 
