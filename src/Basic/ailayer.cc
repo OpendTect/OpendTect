@@ -44,7 +44,7 @@ void ElasticModel::upscale( float maxthickness, ElasticModel& oumdl )
     ElasticModel inmdl = oumdl;
     oumdl.setEmpty();
 
-    inmdl.setMaxThickness( maxthickness );
+    //inmdl.setMaxThickness( maxthickness ); TODO check with Arnaud
     float totthickness = 0.f;
     ElasticModel curmodel;
     ElasticLayer newlayer( mUdf(float), mUdf(float), mUdf(float), mUdf(float) );
@@ -55,6 +55,13 @@ void ElasticModel::upscale( float maxthickness, ElasticModel& oumdl )
 	const float pvel = curlay.vel_;
 	if ( !mIsValid(thickness) || !mIsValid(pvel) )
 	    continue;
+
+	if ( thickness > maxthickness-mDefEpsf )
+	{
+	    newlayer = curlay;
+	    oumdl += newlayer;
+	    continue;
+	}
 
 	const bool lastlay = totthickness+thickness > maxthickness-mDefEpsf;
 	const float thicknesstoadd = lastlay ? maxthickness - totthickness
