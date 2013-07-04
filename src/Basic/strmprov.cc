@@ -663,8 +663,15 @@ void StreamProvider::set( const char* inp )
     }
     if ( ptr ) 
     {
+	const BufferString fnamestr = fname_;
 	*ptr++ = '\0';
-	hostname_ = fname_;
+	if ( !strchr(fname_.buf(),' ') )
+	    hostname_ = fname_;
+	else	// ':' may just be a part of an argument in the command string.
+	{
+	    fname_ = fnamestr;
+	    ptr = fname_.buf();
+	}
     }
     if ( !ptr )
 	ptr = fname_.buf();
