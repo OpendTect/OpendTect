@@ -53,7 +53,7 @@ public:
 template <class ODSET,class WITHADD>
 inline void addNames( const ODSET& inp, WITHADD& withadd )
 {
-    const od_int64 sz = inp.size();
+    const od_int64 sz = (od_int64)(inp.size());
     for ( od_int64 idx=0; idx<sz; idx++ )
 	withadd.add( inp[idx]->name() );
 }
