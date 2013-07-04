@@ -206,7 +206,8 @@ protected:
     PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
     QRectF			dynamicpixmapbbox_; //Only access in paint
 
-    QPixmap			basepixmap_;
+    PtrMan<QPixmap>		basepixmap_;
+    QImage			baseimage_;
     QRectF			bbox_;
 };
 

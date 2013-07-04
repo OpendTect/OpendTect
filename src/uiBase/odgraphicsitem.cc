@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QRgb>
 #include <QStyleOption>
 #include <QTextDocument>
+#include <QMetaObject>
+#include <QGraphicsScene>
 
 mUseQtnamespace
 
@@ -504,8 +506,20 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 	dynamicimagebbox_ = rect;
 	updatedynpixmap_ = true;
 	dynamiclock_.unlock();
-
-	update( rect );
+	
+	if ( isMainThreadCurrent() )
+	{
+	    update();
+	}
+	else
+	{
+	    QObject* qobj = scene();
+	    if ( qobj && !QMetaObject::invokeMethod( qobj, "update",
+						 Qt::QueuedConnection ))
+	    {
+		pErrMsg("Cannot invoke method");
+	    }
+	}
     }
     else
     {
@@ -516,10 +530,17 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 	    return;
 	}
 	
-#if QT_VERSION>=0x040700
-	basepixmap_.convertFromImage( image );
+#ifdef __mac__ 
+	basepixmap_ = new QPixmap;
 #else
-	basepixmap_ = QPixmap::fromImage( image, Qt::OrderedAlphaDither );
+	if ( !basepixmap_ )
+	    basepixmap_ = new QPixmap;
+#endif
+	    	
+#if QT_VERSION>=0x040700
+	basepixmap_->convertFromImage( image );
+#else
+	*basepixmap_ = QPixmap::fromImage( image, Qt::OrderedAlphaDither );
 #endif
 	
     }
@@ -553,17 +574,27 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     dynamiclock_.lock();
     if ( updatedynpixmap_ )
     {
-
-	if ( !dynamicpixmap_ ) dynamicpixmap_ = new QPixmap;
+	if ( dynamicimagebbox_.isValid() )
+	{
+#ifdef __mac__
+	    dynamicpixmap_ = new QPixmap;
+#else
+	    if ( !dynamicpixmap_ ) dynamicpixmap_ = new QPixmap;
+#endif
 
 #if QT_VERSION>=0x040700
-	dynamicpixmap_->convertFromImage( dynamicimage_ );
+	    dynamicpixmap_->convertFromImage( dynamicimage_ );
 #else
-	*dynamicpixmap_ =
-	    QPixmap::fromImage( dynamicimage_, Qt::OrderedAlphaDither );
+	    *dynamicpixmap_ =
+		QPixmap::fromImage( dynamicimage_, Qt::OrderedAlphaDither );
 #endif
-       
-	dynamicpixmapbbox_ = dynamicimagebbox_; 
+	}
+	else
+	{
+	    dynamicpixmap_ = 0;
+	}
+	   
+	dynamicpixmapbbox_ = dynamicimagebbox_;
 	updatedynpixmap_ = false;
     }
 
@@ -587,7 +618,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     if ( paintbase )
     {
 	const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
-	painter->drawPixmap( scenerect, basepixmap_ );
+	painter->drawPixmap( scenerect, *basepixmap_ );
     }
 
     if ( dynamicpixmap_ )
@@ -606,23 +637,21 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
     const QRectF wantedwr = projectedwr.intersected( bbox_ );
     if ( !wantedwr.isValid() )
 	return false;
+    
+    const QSize wantedscreensz =
+    	painter->worldTransform().mapRect(wantedwr).toRect().size();
 
-    if ( wantedwr==bbox_ )
+    if ( !forceredraw_ )
     {
-	dynamicpixmap_ = 0;
-	return false;
+	if ( wantedwr==wantedwr_ && wantedscreensz==wantedscreensz_)
+	    return false;
     }
-
-    if ( wantedwr==wantedwr_ || forceredraw_ )
+    else
     {
-	if ( forceredraw_ ) { forceredraw_ = false; return true; }
-	return false;
+        forceredraw_ = false;
     }
 
     wantedwr_ = wantedwr;
-    const QRect wantedscenerect =
-	painter->worldTransform().mapRect(wantedwr).toRect();
-
-    wantedscreensz_ = wantedscenerect.size();
+    wantedscreensz_ = wantedscreensz;
     return true;
 }
