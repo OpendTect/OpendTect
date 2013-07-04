@@ -46,5 +46,18 @@ public:
     for ( tp idx=(tp) os.nrItems()-1; idx>=0; idx-- ) \
         op
 
+
+/*!\brief Adds all names from a set to another set with an add() function
+  	(typically a BufferStringSet) */
+
+template <class ODSET,class WITHADD>
+inline void addNames( const ODSET& inp, WITHADD& withadd )
+{
+    const od_int64 sz = inp.size();
+    for ( od_int64 idx=0; idx<sz; idx++ )
+	withadd.add( inp[idx]->name() );
+}
+
+
 #endif
 
