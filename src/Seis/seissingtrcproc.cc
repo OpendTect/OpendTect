@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "iostrm.h"
 #include "scaler.h"
 #include "ptrman.h"
 
@@ -169,7 +170,10 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	}
 	if ( is3d && !wrr_->isPS() && !szdone )
 	{
-	    CubeSampling cs;
+	    CubeSampling cs( false );
+	    mDynamicCastGet(IOStream*,iostrm,ioobjs[idx])
+	    if ( iostrm )
+		iostrm->setConnNr( iostrm->fileNumbers().start );
 	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],cs) )
 	    {
 		totnr_ += cs.nrInl() * cs.nrCrl();

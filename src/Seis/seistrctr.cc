@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
 #include "sorting.h"
 #include "separstr.h"
@@ -535,6 +536,10 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 	sd->lineKey() = lk;
 	tr->setSelData( sd );
     }
+
+    IOStream* iostrm = (IOStream*)&ioobj;
+    if ( !iostrm->multiConn() ) 
+    {
     Conn* cnn = ioobj.getConn( Conn::Read );
     if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
 	return false;
@@ -542,6 +547,26 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
     const SeisPacketInfo& pinf = tr->packetInfo();
     cs.hrg.set( pinf.inlrg, pinf.crlrg );
     cs.zrg = pinf.zrg;
+    }
+    else
+    {
+	iostrm->resetConnNr();
+	do
+	{
+	    PtrMan<Translator> translator = ioobj.createTranslator();
+	    mDynamicCastGet(SeisTrcTranslator*,seistr,translator.ptr());
+	    Conn* conn = iostrm->getConn( Conn::Read );
+	    if ( !seistr || !conn || !seistr->initRead(conn,Seis::PreScan) )
+		return false;
+
+	    const SeisPacketInfo& pinf = seistr->packetInfo();
+	    CubeSampling newcs( false );
+	    newcs.hrg.set( pinf.inlrg, pinf.crlrg );
+	    newcs.zrg = pinf.zrg;
+	    cs.include( newcs );
+	} while ( iostrm->toNextConnNr() );
+    } 
+
     return true;
 }
 
