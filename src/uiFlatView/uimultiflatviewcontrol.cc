@@ -48,6 +48,16 @@ uiMultiFlatViewControl::~uiMultiFlatViewControl()
 }
 
 
+bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
+{
+    if ( !vwrs_.validIdx(vwridx) )
+	return false;
+
+    activevwr_ = vwrs_[vwridx];
+    return true;
+}
+
+
 void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 					Geom::Size2D<double>& sz)
 {
