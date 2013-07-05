@@ -164,7 +164,7 @@ int isProcessAlive( int pid )
 }
 
 
-void ExitProgram( int ret )
+int ExitProgram( int ret )
 {
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
@@ -188,6 +188,7 @@ void ExitProgram( int ret )
 #else
     exit(ret);
 #endif
+    return ret;
 }
 
 

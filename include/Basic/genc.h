@@ -57,7 +57,7 @@ mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
 mGlobal(Basic) int isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 
-mGlobal(Basic) void ExitProgram( int ret );
+mGlobal(Basic) int ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
