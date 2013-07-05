@@ -50,7 +50,8 @@ public:
     			//!< Does not preserve order.
     			//!< Afterwards, the 'removed' values occupy
     			//!< the indexes targetsz - maxsz-1
-    void		subselect(OD::Set&,od_int64 targetsz);
+    template <class T>
+    void		subselect(T&,od_int64 targetsz);
     			//!< Does not preserve order
     			//!< The removed items will really be erased
 
@@ -76,19 +77,21 @@ inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz )
 }
 
 
-inline void Stats::RandGen::subselect( OD::Set& ods, od_int64 targetsz )
+template <class ODSET>
+inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz )
 {
-    const od_int64 sz = ods.nrItems();
+    typedef typename ODSET::size_type size_type;
+    const size_type sz = ods.size();
     if ( sz <= targetsz ) return;
 
-    for ( od_int64 idx=sz-1; idx>=targetsz; idx-- )
+    for ( size_type idx=sz-1; idx>=targetsz; idx-- )
     {
-	const od_int64 notselidx = getIndex( idx );
+	const size_type notselidx = getIndex( idx );
 	if ( notselidx != idx )
 	    ods.swap( notselidx, idx );
     }
 
-    ods.removeRange( targetsz, sz-1 );
+    removeRange( ods, (size_type)targetsz, sz-1 );
 }
 
 }; // namespace Stats

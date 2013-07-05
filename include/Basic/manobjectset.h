@@ -24,6 +24,9 @@ mClass(Basic) ManagedObjectSet : public ObjectSet<T>
 {
 public:
 
+    typedef int			size_type;
+    typedef T			object_type;
+
     inline			ManagedObjectSet()	{}
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
     inline virtual		~ManagedObjectSet();
@@ -35,7 +38,7 @@ public:
 
     inline virtual void		erase()			{ deepErase( *this ); }
     inline virtual void		append(const ObjectSet<T>&);
-    inline virtual void		removeRange(od_int64,od_int64);
+    inline virtual void		removeRange(size_type,size_type);
     inline virtual T*		removeSingle( int idx, bool kporder=true );
 				/*!<Deletes entry and returns 0 */
     inline virtual T*		removeAndTake(int idx, bool kporder=true );
@@ -107,7 +110,7 @@ T* ManagedObjectSet<T>::removeSingle( int idx, bool kporder )
 
 
 template <class T> inline
-void ManagedObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
+void ManagedObjectSet<T>::removeRange( size_type i1, size_type i2 )
 {
     for ( int idx=(int)i1; idx<=i2; idx++ )
 	delete (*this)[idx];

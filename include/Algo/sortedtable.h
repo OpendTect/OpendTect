@@ -25,9 +25,13 @@ template <class IDT, class T>
 mClass(Algo) SortedTable
 {
 public:
+
+    typedef int		size_type;
+    typedef T		object_type;
+
     			SortedTable();
 
-    int 		size() const { return vals_.size(); }
+    size_type 		size() const { return vals_.size(); }
     void		set( IDT id, T val );
     			/*<! If id is set twice, it the old value will
 			     be replaced by the new one */
@@ -37,15 +41,17 @@ public:
 			     and true is returned.
 			*/
 
-    const IDT&		id(int idx) const { return ids_[idx]; }
-    const T&		val(int idx) const { return vals_[idx]; }
+    const IDT&		id( size_type idx ) const	{ return ids_[idx]; }
+    const T&		val( size_type idx ) const	{ return vals_[idx]; }
 
     bool		remove(IDT id);
     void		erase()  { vals_.erase(); ids_.erase(); }
 
 private:
+
     TypeSet<T>		vals_;
     SortedList<IDT>	ids_;
+
 };
 
 
@@ -108,105 +114,99 @@ template <class T>
 mClass(Algo) SortedPointers
 {
 public:
-    			SortedPointers( );
-			~SortedPointers();
 
-    int 		size() const { return vals.size(); }
-    void		set( int id, T* val );
-    			/*<! If id is set twice, it the old value will
-			     be replaced by the new one 
-			*/
-    const T*		get( int id ) const;
-    T*			get( int id );
+    typedef int		size_type;
+    typedef int		id_type;
 
-    const T*		getByPos( int pos ) const { return vals[pos]; }
-    T*			getByPos( int pos ) { return vals[pos]; }
+    			SortedPointers() : ids_(false)	{}
+			~SortedPointers()		{}
+
+    size_type 		size() const			{ return vals_.size(); }
+    void		set(id_type,T*);
+			    /*<! If id is set twice, it the old value will
+				 be replaced by the new one */
+    const T*		get(id_type) const;
+    T*			get(id_type);
+
+    const T*		getByPos( size_type pos ) const { return vals_[pos]; }
+    T*			getByPos( size_type pos ) { return vals_[pos]; }
 
 
-    int			id( int pos ) const { return ids[pos]; }
+    id_type		id( size_type pos ) const { return ids_[pos]; }
 
-    bool		remove( int id );
-    bool		removePos( int pos );
+    bool		remove(id_type id);
+    void		removePos(size_type);
     void		erase();
 
 private:
-    ObjectSet<T>	vals;
 
-    SortedList<int>	ids;
+    ObjectSet<T>	vals_;
+    SortedList<size_type> ids_;
+
 };
 
 
-template <class T> inline
-SortedPointers<T>::SortedPointers()
-    : ids( false )
-{}
-
 
 template <class T> inline
-SortedPointers<T>::~SortedPointers()
-{ } 
-
-
-template <class T> inline
-void	SortedPointers<T>::set( int id_, T* val )
+void SortedPointers<T>::set( id_type iid, T* val )
 {
-    int newpos = ids.indexOf( id_ );
+    const size_type newpos = ids_.indexOf( iid );
 
     if ( newpos==-1 )
     {
-	ids += id_;
+	ids_ += iid;
 
-	newpos = ids.indexOf( id_ );
-	vals.insertAt( val, newpos );
+	newpos = ids_.indexOf( iid );
+	vals_.insertAt( val, newpos );
     }
 
-    vals.replace( newpos, val );
+    vals_.replace( newpos, val );
 }
 
 
 template <class T> inline
-const T* SortedPointers<T>::get( int id_ ) const
+const T* SortedPointers<T>::get( id_type iid ) const
 {
-    int pos = ids.indexOf( id_ );
-
-    if ( pos==-1 )
-	return 0;
-
-    return vals[pos];
+    const size_type pos = ids_.indexOf( iid );
+    return pos < 0 ? 0 : vals_[pos];
 }
 
 
 template <class T> inline
-T* SortedPointers<T>::get( int id_ )
+T* SortedPointers<T>::get( id_type iid )
 {
-    int pos = ids.indexOf( id_ );
-
-    if ( pos==-1 )
-	return 0;
-
-    return vals[pos];
+    const size_type pos = ids_.indexOf( iid );
+    return pos < 0 ? 0 : vals_[pos];
 }
 
 
 template <class T> inline
-bool  SortedPointers<T>::remove(int id_)
+bool SortedPointers<T>::remove( id_type iid )
 {
-    int pos = ids.indexOf( id_ );
-
+    const size_type pos = ids_.indexOf( iid );
     if ( pos==-1 ) return false;
 
-    vals.removeSingle( pos );
-    ids.remove( pos );
+    vals_.removeSingle( pos );
+    ids_.removeSingle( pos );
 
     return true;
 }
 
-template <class T> inline
-void  SortedPointers<T>::erase()
-{
-    vals.erase();
 
-    ids.erase();
+template <class T> inline
+void SortedPointers<T>::removePos( size_type pos )
+{
+    vals_.removeSingle( pos );
+    ids_.removeSingle( pos );
 }
+
+
+template <class T> inline
+void SortedPointers<T>::erase()
+{
+    vals_.erase();
+    ids_.erase();
+}
+
 
 #endif

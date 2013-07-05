@@ -35,7 +35,9 @@ template <class T>
 mClass(Basic) ObjectSet : public OD::Set
 {
 public:
-    				typedef int size_type;
+
+    typedef int			size_type;
+    typedef T			object_type;
 
     inline 			ObjectSet();
     inline			ObjectSet(const ObjectSet<T>&);
@@ -74,7 +76,7 @@ public:
     				
     virtual inline T*		removeSingle(size_type,bool keep_order=true);
     				/*!<\returns the removed pointer. */
-    virtual void		removeRange(od_int64 from,od_int64 to);
+    virtual void		removeRange(size_type from,size_type to);
 
     inline T*			first();
     inline const T*		first() const;
@@ -435,8 +437,8 @@ T* ObjectSet<T>::removeSingle( size_type idx, bool kporder )
 
 
 template <class T> inline
-void ObjectSet<T>::removeRange( od_int64 i1, od_int64 i2 )
-{ vec_.remove( (size_type)i1, (size_type)i2 ); }
+void ObjectSet<T>::removeRange( size_type i1, size_type i2 )
+{ vec_.remove( i1, i2 ); }
 template <class T> inline T* ObjectSet<T>::first()
 { return isEmpty() ? 0 : (*this)[0]; }
 template <class T> inline const T* ObjectSet<T>::first() const

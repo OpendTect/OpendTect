@@ -39,6 +39,9 @@ mClass(Basic) VectorAccess
 {
 public:
 
+    typedef I		size_type;
+    typedef T		object_type;
+
     inline		VectorAccess()			{}
     inline		VectorAccess( I n ) : v_(n)	{}
     inline		VectorAccess( I n, const T& t )

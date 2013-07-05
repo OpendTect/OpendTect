@@ -31,33 +31,38 @@ template <class T, class I>
 mClass(Basic) TypeSetBase : public OD::Set
 {
 public:
+
+    typedef I			size_type;
+    typedef T			object_type;
+
     inline virtual		~TypeSetBase();
     inline TypeSetBase<T,I>&	operator =(const TypeSetBase<T,I>&);
 
-    inline I			size() const	{ return vec_.size(); }
+    inline size_type		size() const	{ return vec_.size(); }
     inline virtual od_int64	nrItems() const	{ return size(); }
-    inline virtual bool		setSize(I,T val=T());
+    inline virtual bool		setSize(size_type,T val=T());
 				/*!<\param val value assigned to new items */
-    inline virtual bool		setCapacity( I sz );
+    inline virtual bool		setCapacity( size_type sz );
 				/*!<Allocates mem only, no size() change */
     inline void			setAll(T);
 
-    inline T&			operator[](I);
-    inline const T&		operator[](I) const;
+    inline T&			operator[](size_type);
+    inline const T&		operator[](size_type) const;
     inline T&			first();
     inline const T&		first() const;
     inline T&			last();
     inline const T&		last() const;
     inline virtual bool		validIdx(od_int64) const;
-    inline virtual I		indexOf(T,bool forward=true,I start=-1) const;
+    inline virtual size_type	indexOf(T,bool forward=true,
+	    				  size_type start=-1) const;
     inline bool			isPresent(const T&) const;
-    inline I			count(const T&) const;
+    inline size_type		count(const T&) const;
 
     inline TypeSetBase<T,I>&	operator +=(const T&);
     inline TypeSetBase<T,I>&	operator -=(const T&);
-    inline virtual TypeSetBase<T,I>& copy(const T*,I);
+    inline virtual TypeSetBase<T,I>& copy(const T*,size_type);
     inline virtual TypeSetBase<T,I>& copy(const TypeSetBase<T,I>&);
-    inline virtual bool		append(const T*,I);
+    inline virtual bool		append(const T*,size_type);
     inline virtual bool		append(const TypeSetBase<T,I>&);
     inline bool			add(const T&);
     inline bool			push(const T& t) { return add(t); }
@@ -76,10 +81,11 @@ public:
 
     inline virtual void		erase();
 
-    inline virtual void		removeSingle(I,bool preserver_order=true);
-    inline virtual void		removeRange(od_int64 from,od_int64 to);
+    inline virtual void		removeSingle(size_type,
+	    				     bool preserver_order=true);
+    inline virtual void		removeRange(size_type from,size_type to);
     
-    inline virtual void		insert(I,const T&);
+    inline virtual void		insert(size_type,const T&);
 
 				//! 3rd party access
     inline virtual T*		arr()		{ return gtArr(); }
@@ -90,9 +96,9 @@ public:
 protected:
     
     inline			TypeSetBase();
-    inline			TypeSetBase(I nr,T typ);
-    inline			TypeSetBase(const T*,I nr);
-    inline			TypeSetBase(const TypeSetBase<T,I>&);
+    inline			TypeSetBase(size_type nr,T typ);
+    inline			TypeSetBase(const T*,size_type nr);
+    inline			TypeSetBase(const TypeSetBase<T,size_type>&);
 
     VectorAccess<T,I>		vec_;
 
@@ -117,12 +123,17 @@ protected:
 template <class T>
 mClass(Basic) TypeSet : public TypeSetBase<T,int>
 {
-    	typedef int size_type;
 public:
-	TypeSet() : TypeSetBase<T,size_type>() 				{}
-	TypeSet(int nr,T typ) : TypeSetBase<T,size_type>( nr, typ )	{}
-	TypeSet(const T* t,int nr) : TypeSetBase<T,size_type>( t, nr )	{}
-	TypeSet(const TypeSet<T>& t) : TypeSetBase<T,size_type>( t )	{}
+
+	TypeSet()
+	    : TypeSetBase<T,int>() 		{}
+	TypeSet( int nr, T typ )
+	    : TypeSetBase<T,int>( nr, typ )	{}
+	TypeSet( const T* t, int nr )
+	    : TypeSetBase<T,int>( t, nr )	{}
+	TypeSet( const TypeSet<T>& t )
+	    : TypeSetBase<T,int>( t )		{}
+
 };
 
 
@@ -133,15 +144,19 @@ public:
 mClass(Basic) BoolTypeSetType
 {
 public:
-   BoolTypeSetType(bool v=false) : val_( v ){}
-       operator bool () const { return (bool) val_; }
-    bool  operator=(bool v) { val_ = v; return v; }
+
+			BoolTypeSetType( bool v=false )
+			    : val_( v )		{}
+    operator		bool() const		{ return (bool) val_; }
+    bool  		operator=( bool v )	{ val_ = v; return v; }
+
 protected:
+
     char  val_;
+
 };
 
 typedef TypeSet<BoolTypeSetType> BoolTypeSet;
-//!< This sux, BTW.
 
 
 /*!
@@ -151,14 +166,19 @@ typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 template <class T>
 mClass(Basic) LargeValVec : public TypeSetBase<T,od_int64>
 {
-	typedef od_int64 size_type;
 public:
-	LargeValVec() : TypeSetBase<T,size_type>() 			{}
-	LargeValVec(int nr,T typ) : TypeSetBase<T,size_type>( nr, typ )	{}
-	LargeValVec(const T* t,int nr) : TypeSetBase<T,size_type>( t, nr ){}
-	LargeValVec(const TypeSet<T>& t) : TypeSetBase<T,size_type>( t ){}
+
+	LargeValVec()
+	    : TypeSetBase<T,od_int64>() 		{}
+	LargeValVec( od_int64 nr, T typ )
+	    : TypeSetBase<T,od_int64>( nr, typ )	{}
+	LargeValVec( const T* t, od_int64 nr )
+	    : TypeSetBase<T,od_int64>( t, nr )		{}
+	LargeValVec( const TypeSet<T>& t )
+	    : TypeSetBase<T,od_int64>( t )		{}
 
 };
+
 
 template <class T, class I>
 inline bool operator ==( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
@@ -471,8 +491,8 @@ void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 
 
 template <class T, class I> inline
-void TypeSetBase<T,I>::removeRange( od_int64 i1, od_int64 i2 )
-{ vec_.remove( (I)i1, (I)i2 ); }
+void TypeSetBase<T,I>::removeRange( I i1, I i2 )
+{ vec_.remove( i1, i2 ); }
 
 
 template <class T, class I> inline

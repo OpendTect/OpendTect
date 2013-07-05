@@ -5,7 +5,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
+ Author:	Kris
  Date:		19-4-2000
  Contents:	Array sorting
  RCS:		$Id$
@@ -29,12 +29,16 @@ template <class T>
 mClass(Algo) SortedList
 {
 public:
+
+    typedef int		size_type;
+    typedef T		object_type;
+
     			SortedList( bool allowmultiples_ )
 			    : allowmultiples(allowmultiples_) {}
 
-    int 		size() const			{ return tvec.size(); }
-    const T&		operator[]( int idx ) const	{ return (T&)tvec[idx];}
-    int			indexOf(const T&) const;
+    size_type 		size() const			{ return tvec.size(); }
+    const T&		operator[](size_type idx) const { return (T&)tvec[idx];}
+    size_type		indexOf(const T&) const;
     			/*!< Returns -1 if not found */
 
     SortedList<T>&	operator +=(const T&);
@@ -52,7 +56,8 @@ public:
 					     in both lists. */
 
     void		erase();
-    void		remove( int idx );
+    void		removeSingle(size_type);
+    void		removeRange(size_type,size_type);
 
     std::vector<T>&	vec()		{ return tvec.vec(); }
     const std::vector<T>& vec() const	{ return tvec.vec(); }
@@ -61,30 +66,26 @@ public:
 
 protected:
 
-    int			getPos( const T& ) const;
+    size_type		getPos( const T& ) const;
     			/*!< If not found, it will return position of the
 			     item just above, and size() if val is higher than
 			     highest val
 			 */
 
     bool		allowmultiples;
-    VectorAccess<T,int>	tvec;
+    VectorAccess<T,size_type>	tvec;
 
 };
 
 
 template <class T> inline
-int SortedList<T>::getPos( const T& typ ) const
+typename SortedList<T>::size_type SortedList<T>::getPos( const T& typ ) const
 {
-    int sz = size();
+    const size_type sz = size();
     if ( !sz ) return 0;
 
-    int start = 0;
-    int stop = sz-1;
-
-    T startval = (*this)[start];
-    T stopval = (*this)[stop];
-
+    size_type start = 0; size_type stop = sz-1;
+    T startval = (*this)[start]; T stopval = (*this)[stop];
     if ( typ > stopval ) return sz;
 
     while ( stopval > startval )
@@ -92,7 +93,7 @@ int SortedList<T>::getPos( const T& typ ) const
 	if ( stop-start==1 )
 	    return typ>startval ? stop : start;
 
-	int middle = (start+stop)>>1;
+	size_type middle = (start+stop)>>1;
 	T middleval = (*this)[middle];
 
 	if ( middleval > typ )
@@ -112,11 +113,11 @@ int SortedList<T>::getPos( const T& typ ) const
 
 
 template <class T> inline
-int SortedList<T>::indexOf( const T& typ ) const
+typename SortedList<T>::size_type SortedList<T>::indexOf( const T& typ ) const
 {
     if ( !size() ) return -1;
 
-    int pos = getPos( typ );
+    size_type pos = getPos( typ );
 
     if ( pos>=size() || pos<0 || (*this)[pos]!=typ )
         return -1;
@@ -126,9 +127,9 @@ int SortedList<T>::indexOf( const T& typ ) const
 
 
 template <class T> inline
-SortedList<T>&	SortedList<T>::operator +=( const T& nv )
+SortedList<T>& SortedList<T>::operator +=( const T& nv )
 {
-    int newpos = getPos( nv );
+    size_type newpos = getPos( nv );
 
     if ( newpos == size() )
     {
@@ -145,28 +146,28 @@ SortedList<T>&	SortedList<T>::operator +=( const T& nv )
 
 
 template <class T> inline
-SortedList<T>&	SortedList<T>::operator -=( const T& nv )
+SortedList<T>& SortedList<T>::operator -=( const T& nv )
 {
-    int sz = size();
+    const size_type sz = size();
     if ( !sz ) return *this;
 
-    int pos = indexOf( nv );
+    const size_type pos = indexOf( nv );
 
     if ( pos == -1 ) return *this;
 
-    tvec.remove( pos );
+    tvec.removeSingle( pos );
     return *this;
 }
 
 
 template <class T> template <class U> inline
-void  SortedList<T>::intersect( const U& b )
+void SortedList<T>::intersect( const U& b )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
     {
 	if ( b.indexOf( (*this)[idx]) == -1 )
 	{
-	    remove( idx );
+	    removeSingle( idx );
 	    idx--;
 	}
     }
@@ -177,8 +178,8 @@ template <class T> template <class U> inline
 SortedList<T>& SortedList<T>::copy( const U& array )
 {
     erase();
-    int sz = array.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const size_type sz = array.size();
+    for ( size_type idx=0; idx<sz; idx++ )
 	(*this) += array[idx];
     return *this;
 }
@@ -192,8 +193,8 @@ SortedList<T>&	SortedList<T>::operator =( const U& array )
 template <class T> template <class U> inline
 SortedList<T>&  SortedList<T>::operator +=( const U& array )
 {
-    int sz = array.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const size_type sz = array.size();
+    for ( size_type idx=0; idx<sz; idx++ )
 	(*this) += array[idx];
     return *this;
 }
@@ -202,8 +203,8 @@ SortedList<T>&  SortedList<T>::operator +=( const U& array )
 template <class T> template <class U> inline
 SortedList<T>&  SortedList<T>::operator -=( const U& array )
 {
-    int sz = array.size();
-    for ( int idx=0; idx<sz; idx++ )
+    const size_type sz = array.size();
+    for ( size_type idx=0; idx<sz; idx++ )
 	(*this) -= array[idx];
     return *this;
 }
@@ -214,9 +215,16 @@ void SortedList<T>::erase() { tvec.erase(); }
 
 
 template <class T> inline
-void  SortedList<T>::remove( int pos )
+void SortedList<T>::removeSingle( size_type pos )
 {
     tvec.remove( pos );
 }
+
+template <class T> inline
+void SortedList<T>::removeRange( size_type p1, size_type p2 )
+{
+    tvec.remove( p1, p2 );
+}
+
 
 #endif
