@@ -46,14 +46,28 @@ void FlatView::BitMapMgr::clearAll()
 void FlatView::BitMapMgr::setupChg()
 {
     clearAll();
-    if ( !vwr_.isVisible(wva_) ) return;
-
-    const FlatDataPack& dp = *vwr_.pack( wva_ );
-    const FlatPosData& pd = dp.posData();
-    const FlatView::Appearance& app = vwr_.appearance();
-    const Array2D<float>& arr = dp.data();
-    if ( pd.nrPts(true) < arr.info().getSize(0) )
+    if ( !vwr_.isVisible(wva_) )
 	return;
+    
+    const DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( vwr_.packID(wva_) );
+    if ( !dp )
+	return;
+
+    mDynamicCastGet( const FlatDataPack*, fdp, dp );
+    if ( !fdp )
+    {
+	DPM(DataPackMgr::FlatID()).release( dp->id() );
+	return;
+    }
+    
+    const FlatPosData& pd = fdp->posData();
+    const FlatView::Appearance& app = vwr_.appearance();
+    const Array2D<float>& arr = fdp->data();
+    if ( pd.nrPts(true) < arr.info().getSize(0) )
+    {
+	DPM(DataPackMgr::FlatID()).release( fdp->id() );
+	return;
+    }
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
     pos_->setDim1Positions( (float) ( pd.range(false).start ), 
@@ -91,6 +105,7 @@ void FlatView::BitMapMgr::setupChg()
 	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
     if ( !gen_->pars().autoscale_ )
 	gen_->pars().scale_ = pars->mappersetup_.range_;
+    DPM(DataPackMgr::FlatID()).release( dp->id() );
 }
 
 
