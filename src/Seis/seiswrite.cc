@@ -491,12 +491,13 @@ bool SeisSequentialWriter::submitGather( ObjectSet<SeisTrc>& gather,
 {
     pErrMsg("Not implemented yet. Talk to Bruno" );
     return false;
-
+/*
     Threads::MutexLocker lock( lock_ );
     for ( int idx=0; idx<gather.size(); idx++ )
 	outputs_ += gather[idx];
 
     return iterateBuffer( waitforbuffer );
+*/
 }
 
 
