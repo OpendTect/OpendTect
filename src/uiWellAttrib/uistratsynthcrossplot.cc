@@ -204,7 +204,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     }
     else if ( !extractSeisAttribs(*dps,seisattrs)
 	    || !extractLayerAttribs(*dps,seqattrs) )
-	{ delete dps; dps = 0; }
+	{ delete dps; dps = 0; return dps; }
 
     extractModelNr( *dps );
     return dps;
@@ -286,7 +286,7 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
     Attrib::EngineMan* aem = new Attrib::EngineMan;
 
     TypeSet<Attrib::SelSpec> attribspecs;
-    attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
+    attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false).stored(false), attribspecs );
 
     aem->setAttribSet( &attrs ); 
     aem->setAttribSpecs( attribspecs );                                         
