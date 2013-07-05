@@ -66,7 +66,7 @@ uiStratLayerModelDisp::~uiStratLayerModelDisp()
 
 const Strat::LayerModel& uiStratLayerModelDisp::layerModel() const
 {
-    return lmp_.get();
+    return lmp_.getCurrent();
 }
 
 

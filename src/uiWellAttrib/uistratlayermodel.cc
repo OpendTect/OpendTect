@@ -230,29 +230,55 @@ class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
 public:
 
 uiStratLayerModelLMProvider()
-    : useed_(false)	{}
-
-Strat::LayerModel& get()
 {
-    return useed_ ? modled_ : modl_;
+    modl_ = new Strat::LayerModel;
+    setEmpty();
+}
+
+~uiStratLayerModelLMProvider()
+{
+    delete modl_;
+}
+
+Strat::LayerModel& getCurrent()
+{
+    return *curmodl_;
+}
+
+Strat::LayerModel& getEdited( bool yn )
+{
+    return yn ? modled_ : *modl_;
+}
+
+void setUseEdited( bool yn )
+{
+    curmodl_ = yn ? &modled_ : modl_;
 }
 
 void setEmpty()
 {
-    modl_.setEmpty();
+    modl_->setEmpty();
     modled_.setEmpty();
-    useed_ = false;
+    curmodl_ = modl_;
 }
 
-void copyToEdited()
+void setModel( Strat::LayerModel* newmdl )
 {
-    modled_ = modl_;
-    useed_ = true;
+    delete modl_;
+    modl_ = newmdl;
+    modled_ = *modl_;
+    curmodl_ = modl_;
 }
 
-    Strat::LayerModel		modl_;
+void initEditing()
+{
+    modled_ = *modl_;
+    curmodl_ = &modled_;
+}
+
+    Strat::LayerModel*		curmodl_;
+    Strat::LayerModel*		modl_;
     Strat::LayerModel		modled_;
-    bool			useed_;
 
 };
 
@@ -302,7 +328,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
     if ( !moddisp_ )
 	return;
 
-    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_.modl_, lmp_.modled_ );
+    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
 	   		    mCB(this,uiStratLayerModel,xPlotReq) );
@@ -760,19 +786,22 @@ void uiStratLayerModel::genModels( CallBacker* )
     if ( nrmods < 1 )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
-    lmp_.setEmpty();
-    lmp_.modl_.propertyRefs() = seqdisp_->desc().propSelection();
+    Strat::LayerModel* newmodl = new Strat::LayerModel;
+    newmodl->propertyRefs() = seqdisp_->desc().propSelection();
+    newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
 
     seqdisp_->prepareDesc();
-    Strat::LayerModelGenerator ex( desc_, lmp_.get(), nrmods );
+    Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
     uiTaskRunner tr( this );
-    tr.execute( ex );
+    if ( !tr.execute(ex) )
+	{ delete newmodl; return; }
+
+    // transaction succeeded, we move to the new model - period.
+    lmp_.setModel( newmodl );
 
     setModelProps();
     setElasticProps();
-
     useSyntheticsPars( desc_.getWorkBenchParams() );
-
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
 
     if ( needtoretrievefrpars_ )
@@ -795,15 +824,16 @@ void uiStratLayerModel::genModels( CallBacker* )
 void uiStratLayerModel::setModelProps()
 {
     BufferStringSet nms;
-    for ( int idx=1; idx<lmp_.modl_.propertyRefs().size(); idx++ )
-	nms.add( lmp_.modl_.propertyRefs()[idx]->name() );
+    const Strat::LayerModel& lm = lmp_.getCurrent();
+    for ( int idx=1; idx<lm.propertyRefs().size(); idx++ )
+	nms.add( lm.propertyRefs()[idx]->name() );
     modtools_->setProps( nms );
     nms.erase(); const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
 	nms.add( lvls.levels()[idx]->name() );
     modtools_->setLevelNames( nms );
     nms.erase();
-    const Strat::ContentSet& conts = lmp_.modl_.refTree().contents();
+    const Strat::ContentSet& conts = lm.refTree().contents();
     for ( int idx=0; idx<conts.size(); idx++ )
 	nms.add( conts[idx]->name() );
     modtools_->setContentNames( nms );
@@ -847,8 +877,8 @@ void uiStratLayerModel::setElasticProps()
 	    return;
     }
 
-    lmp_.modl_.setElasticPropSel( *elpropsel_ );
-    lmp_.modled_.setElasticPropSel( *elpropsel_ );
+    lmp_.getEdited(true).setElasticPropSel( *elpropsel_ );
+    lmp_.getEdited(false).setElasticPropSel( *elpropsel_ );
 }
 
 
@@ -860,7 +890,7 @@ bool uiStratLayerModel::closeOK()
 
 void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd )
 {
-    lmp_.useed_ = usefr;
+    lmp_.setUseEdited( usefr );
     mostlyfilledwithbrine_ = !fwd;
     if ( !usefr )
 	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
@@ -886,47 +916,47 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd 
 
 void uiStratLayerModel::prepareFluidRepl()
 {
-    lmp_.copyToEdited();
-    if ( lmp_.get().propertyRefs().find(Strat::LayerModel::defSVelStr()) == -1 )
-	lmp_.get().propertyRefs() +=
-			new PropertyRef( Strat::LayerModel::defSVelStr(),
+    lmp_.initEditing();
+    Strat::LayerModel& edlm = lmp_.getEdited( true );
+    if ( edlm.propertyRefs().find(Strat::LayerModel::defSVelStr()) == -1 )
+	edlm.propertyRefs() += new PropertyRef( Strat::LayerModel::defSVelStr(),
 					 PropertyRef::Vel );
 }
 
 
 const Strat::LayerModel& uiStratLayerModel::layerModelOriginal() const
 {
-    return lmp_.modl_;
+    return lmp_.getEdited( false );
 }
 
 
 Strat::LayerModel& uiStratLayerModel::layerModelOriginal()
 {
-    return lmp_.modl_;
+    return lmp_.getEdited( false );
 }
 
 
 const Strat::LayerModel& uiStratLayerModel::layerModelEdited() const
 {
-    return lmp_.modled_;
+    return lmp_.getEdited( true );
 }
 
 
 Strat::LayerModel& uiStratLayerModel::layerModelEdited()
 {
-    return lmp_.modled_;
+    return lmp_.getEdited( true );
 }
 
 
 const Strat::LayerModel& uiStratLayerModel::layerModel() const
 {
-    return lmp_.get();
+    return lmp_.getCurrent();
 }
 
 
 Strat::LayerModel& uiStratLayerModel::layerModel()
 {
-    return lmp_.get();
+    return lmp_.getCurrent();
 }
 
 
