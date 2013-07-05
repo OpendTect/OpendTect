@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "syntheticdata.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"

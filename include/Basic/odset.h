@@ -42,5 +42,26 @@ public:
 
 } // namespace
 
+#define mODSetApplyToAll( tp, os, op ) \
+    for ( tp idx=(tp) os.nrItems()-1; idx>=0; idx-- ) \
+        op
+
+
+/*!\brief Adds all names from a set to another set with an add() function
+  	(typically a BufferStringSet)
+
+Note: will only work for sets with int indexes. This will be fixed after od4.6.
+
+ */
+
+template <class ODSET,class WITHADD>
+inline void addNames( const ODSET& inp, WITHADD& withadd )
+{
+    const int sz = (int)(inp.size());
+    for ( int idx=0; idx<sz; idx++ )
+	withadd.add( inp[idx]->name() );
+}
+
+
 #endif
 

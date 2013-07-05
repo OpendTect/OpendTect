@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "synthseis.h"
 #include "stratsynth.h"
+#include "syntheticdataimpl.h"
 
 
 #define mErrRet(s,act) \

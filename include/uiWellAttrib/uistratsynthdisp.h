@@ -15,10 +15,14 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uiflatviewslicepos.h"
-#include "stratsynth.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
+class StratSynth;
+class SyntheticData;
+class PropertyRef;
+class PropertyRefSelection;
+class TaskRunner;
 class Wavelet;
 class uiComboBox;
 class uiFlatViewer;
@@ -81,8 +85,6 @@ public:
     void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
-    void		displayPostStackSynthetic(const SyntheticData*,
-	    					  bool wva=true);
     void		cleanSynthetics();
     float		centralTrcShift() const;
     void		setCurrentSynthetic(bool wva);
@@ -127,7 +129,6 @@ protected:
     uiPushButton*	scalebut_;
     uiToolButton*	lasttool_;
     uiToolButton*	prestackbut_;
-    uiToolButton*	addeditbut_;
     uiComboBox*		wvadatalist_;
     uiComboBox*		vddatalist_;
     uiComboBox*		levelsnapselfld_;
@@ -149,6 +150,8 @@ protected:
     void		drawLevel();
     void		displayFRText();
     void		displayPreStackSynthetic(const SyntheticData*);
+    void		displayPostStackSynthetic(const SyntheticData*,
+	    					  bool wva=true);
 
     void		addEditSynth(CallBacker*);
     void		exportSynth(CallBacker*);
