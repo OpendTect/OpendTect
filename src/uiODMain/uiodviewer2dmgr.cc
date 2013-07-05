@@ -83,6 +83,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
     curvwr->setSelSpec( as, dowva );
+    if ( isnewvwr ) curvwr->setSelSpec( as, !dowva );
 
     FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
     if ( as && dpname != as->userRef() )
@@ -110,7 +111,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
     	visServ().fillDispPars( visid, attribid, ddp, dowva );
     	visServ().fillDispPars( visid, attribid, ddp, !dowva );
-    	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     }
 
     curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );

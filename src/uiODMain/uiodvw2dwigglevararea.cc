@@ -80,7 +80,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     vwr.dataChanged.notify(
 	    mCB(this,uiODVW2DWiggleVarAreaTreeItem,dataChangedCB) );
 
-    uitreeviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
+    uitreeviewitem_->setCheckable( vwr.isVisible(false) &&
+	    			   viewer2D()->selSpec(true).id().isValid() );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
 
     checkStatusChange()->notify(
@@ -106,6 +107,15 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
 
 void uiODVW2DWiggleVarAreaTreeItem::checkCB( CallBacker* )
 {
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    if ( !vwr.pack(true) )
+    {
+	if ( !isChecked() ) return;
+	const DataPack::ID dpid = viewer2D()->getDataPackID( true );
+	if ( dpid != DataPack::cNoID() ) viewer2D()->setUpView( dpid, true );
+	return;
+    }
+
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
 	viewer2D()->viewwin()->viewer(ivwr).setVisible( true, isChecked() );
 }
@@ -116,10 +126,11 @@ void uiODVW2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return;
 
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const DataPack* fdpw = vwr.pack( true );
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    uitreeviewitem_->setCheckable( fdpw && ddp.vd_.show_ );
+    uitreeviewitem_->setCheckable( vwr.isVisible(false) &&
+				   viewer2D()->selSpec(true).id().isValid() );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
     if ( fdpw )	dpid_ = fdpw->id();
 }
