@@ -73,6 +73,7 @@ protected:
     void			parsChanged(CallBacker*);
     void			nameChanged(CallBacker*);
     bool			rejectOK(CallBacker*);
+    void			finaliseDone(CallBacker*);
 };
 
 #endif
