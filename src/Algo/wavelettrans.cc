@@ -260,7 +260,10 @@ const float WaveletTransform::vaidyanathan[25] =
 void WaveletTransform::getInfo( WaveletType wt, int& len, 
 				TypeSet<float>& wavelet )
 {
-    const float* wc;
+    const float* wc = 0;
+    len = 0;
+    wavelet.erase();
+    
     switch ( wt )
     {
 	case WaveletTransform::Haar:
