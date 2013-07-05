@@ -92,7 +92,10 @@ void uiRayTracerSel::usePar( const IOPar& par )
 	}
     }
     if ( raytracerselfld_ )
+    {
 	raytracerselfld_->box()->setCurrentItem( igrp );
+	selRayTraceCB( 0 );
+    }
 }
 
 
