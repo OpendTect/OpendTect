@@ -61,6 +61,11 @@ public:
     				{ return wva ? wvaselspec_ : vdselspec_; }
     const Attrib::SelSpec&	selSpec( bool wva ) const
     				{ return wva ? wvaselspec_ : vdselspec_; }
+    DataPack::ID                getDataPackID(bool wva) const;
+    				/*!Returns DataPack::ID of specified display if
+				it has a valid one. Returns DataPack::ID of
+				other display if both have same Attrib::SelSpec.
+				Else, returns uiODViewer2D::createDataPack.*/
 
     void			setLineSetID( const MultiID& lsetid )
 				{ linesetid_ = lsetid; }
@@ -78,6 +83,8 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     virtual void 		setWinTitle(bool fromcs=false);
+    				//!<If fromcs is true, window title is
+				//!<obtained from CubeSampling.
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
@@ -107,13 +114,19 @@ protected:
     int				polyseltbid_;
     bool			ispolyselect_;
 
-    virtual void		createViewWin(bool isvert);
+    DataPack::ID                createDataPack(bool wva) const;
+				//!<Creates DataPack by getting CubeSampling
+				//!<from uislicepos_ and corresponding
+				//!<Attrib::SelSpec.
+
+    virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
+    void			setDataPack(DataPack::ID,bool wva,bool isnew);
     virtual void		setPos(const CubeSampling&);
-    void			adjustOthrDisp(bool wva,const CubeSampling&);
-
+    void			adjustOthrDisp(bool wva,bool isnew);
+    void 			removeAvailablePacks();
     void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
