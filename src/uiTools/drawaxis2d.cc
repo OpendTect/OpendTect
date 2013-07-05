@@ -178,7 +178,7 @@ void uiGraphicsSceneAxis::update()
     
     BufferString txt;
     const float fnrsteps = (float) ( rg_.width(false)/axis.step );
-    const int nrsteps = mNINT32( fnrsteps )+1;
+    const int nrsteps = mNINT32( fnrsteps )+2;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
