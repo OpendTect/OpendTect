@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "elasticpropsel.h"
-#include "property.h"
+#include "propertyref.h"
 #include "stratlayersequence.h"
 
 
@@ -82,9 +82,16 @@ mExpClass(Strat) LayerModelProvider
 public:
 
     virtual 		~LayerModelProvider()	{}
-    virtual LayerModel&	get()	= 0;
-    const LayerModel&	get() const
-			{ return const_cast<LayerModelProvider*>(this)->get(); }
+
+    virtual LayerModel&	getCurrent()		= 0;
+    virtual LayerModel&	getEdited(bool)		= 0;
+
+    const LayerModel&	getCurrent() const
+			{ return const_cast<LayerModelProvider*>(this)
+			    			->getCurrent(); }
+    const LayerModel&	getEdited( bool yn ) const
+			{ return const_cast<LayerModelProvider*>(this)
+			    			->getEdited(yn); }
 };
 
 

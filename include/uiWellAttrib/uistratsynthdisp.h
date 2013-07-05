@@ -33,7 +33,7 @@ class uiSeisWaveletSel;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
-namespace Strat { class LayerModel; }
+namespace Strat { class LayerModel; class LayerModelProvider; }
 namespace FlatView { class AuxData; }
 namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 
@@ -42,8 +42,8 @@ mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 {
 public:
 
-    			uiStratSynthDisp(uiParent*,const Strat::LayerModel&,
-					 const Strat::LayerModel&);
+    			uiStratSynthDisp(uiParent*,
+					 const Strat::LayerModelProvider&);
     			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;	
@@ -105,7 +105,7 @@ protected:
     int			longestaimdl_;
     StratSynth*		stratsynth_;
     StratSynth*		edstratsynth_;
-    const Strat::LayerModel& lm_;
+    const Strat::LayerModelProvider& lmp_;
     int			selectedtrace_;
     int			dispeach_;
     float		dispskipz_;

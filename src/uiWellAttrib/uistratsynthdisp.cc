@@ -53,13 +53,13 @@ static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
 
 
-uiStratSynthDisp::uiStratSynthDisp( uiParent* p, const Strat::LayerModel& lm,
-			            const Strat::LayerModel& lmed )
+uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
+				    const Strat::LayerModelProvider& lmp )
     : uiGroup(p,"LayerModel synthetics display")
-    , lm_(lm)  
+    , lmp_(lmp)
     , d2tmodels_(0)	    
-    , stratsynth_(new StratSynth(lm))
-    , edstratsynth_(new StratSynth(lmed))
+    , stratsynth_(new StratSynth(lmp,false))
+    , edstratsynth_(new StratSynth(lmp,true))
     , useed_(false)	
     , dispeach_(1)	
     , dispskipz_(0)	
@@ -199,7 +199,7 @@ void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
 
 const Strat::LayerModel& uiStratSynthDisp::layerModel() const
 {
-    return lm_;
+    return lmp_.getCurrent();
 }
 
 

@@ -25,14 +25,19 @@ class CubeSampling;
 class StratSynthLevel;
 class PostStackSyntheticData;
 
-namespace Strat { class LayerModel; class LayerSequence; class Level; }
+namespace Strat
+{
+    class LayerModel; class LayerModelProvider; class LayerSequence;
+    class Level;
+}
 namespace Seis { class RaySynthGenerator; }
 
 
 mExpClass(WellAttrib) StratSynth
 {
 public:
-    				StratSynth(const Strat::LayerModel&);
+    				StratSynth(const Strat::LayerModelProvider&,
+					   bool useed);
     				~StratSynth();
 
     int			nrSynthetics() const; 
@@ -84,7 +89,8 @@ public:
 
 protected:
 
-    const Strat::LayerModel& 	lm_;
+    const Strat::LayerModelProvider& lmp_;
+    const bool			useed_;
     const StratSynthLevel* 	level_;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
@@ -97,6 +103,7 @@ protected:
     BufferString		infomsg_;
     TaskRunner*			tr_;
 
+    const Strat::LayerModel&	layMod() const;
     bool		fillElasticModel(const Strat::LayerModel&,
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
