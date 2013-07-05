@@ -352,9 +352,6 @@ public:
 
 			CNotifier( T* cb )	{ cber_ = cb; }
 
-    inline void		trigger( CallBacker* cb=0 )
-			    { if( !enabled_ ) return; C c; trigger(c,cb); }
-
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
 			    if ( enabled_ )
