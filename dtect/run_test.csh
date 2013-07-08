@@ -13,6 +13,7 @@ set config = ""
 set cmd = ""
 set args = ""
 set qtdir = ""
+set expret = 0
 
 parse_args:
 if ( "$1" == "--command" ) then
@@ -26,6 +27,9 @@ else if ( "$1" == "--plf" ) then
     shift
 else if ( "$1" == "--quiet" ) then
     set args="${args} --quiet"
+else if ( "$1" == "--expected-result" ) then
+    set expret=$2
+    shift
 else if ( "$1" == "--wdir" ) then
     set wdir=$2
     shift
@@ -86,3 +90,10 @@ if ( "$datadir" != "" ) then
 endif
 
 "${wdir}/bin/${plf}/${config}/${cmd}" ${args}
+set result = ${status}
+if ( "${result}" != "${expret}" ) then
+    echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
+    exit 1
+endif
+
+exit 0

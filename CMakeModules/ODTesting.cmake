@@ -61,3 +61,20 @@ macro ( OD_ADD_SVNPROP_TEST )
 endmacro()
 
 
+macro ( OD_ADD_EXIT_PROGRAM_TEST )
+    if ( WIN32 )
+	set( CMD "${OpendTect_DIR}/dtect/run_test.cmd" )
+	list ( APPEND CMD --command test_exit_program.exe )
+    else()
+	set( CMD "${OpendTect_DIR}/dtect/run_test.csh" )
+	list ( APPEND CMD --command test_exit_program )
+    endif()
+
+    list ( APPEND CMD --wdir ${CMAKE_BINARY_DIR}
+                    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+                    --qtdir ${QTDIR}
+		    --expected-result 1
+                    --quiet )
+
+    add_test( test_exit_program ${CMD} )
+endmacro()
