@@ -735,7 +735,7 @@ template <class T>
 inline int StepInterval<T>::nrSteps() const
 {
     if ( !step ) return 0;
-    int ret = (((int)this->start) - this->stop) / step;
+    int ret = (((int)this->start) - ((int) this->stop)) / ((int) step);
     return ret < 0 ? -ret : ret;
 }
 
