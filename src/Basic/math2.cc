@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <stdlib.h>
 
 #ifndef __win__
 # include <unistd.h>

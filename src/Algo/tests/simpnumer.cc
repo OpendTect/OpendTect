@@ -26,14 +26,19 @@ else \
 
 
 #define mTestCommonSI( si1, si2, expected ) \
-mTest( "computeCommonStepInterval( " #si1 ", " #si2 ")", \
+testname = "computeCommonStepInterval<"; \
+testname.add( tp ).add( ">(" #si1 "," #si2 ")" ); \
+mTest( testname.buf(),  \
        computeCommonStepInterval( si1, si2 )==expected ) \
-mTest( "computeCommonStepInterval( " #si2 ", " #si1 ")", \
+testname = "computeCommonStepInterval<"; \
+testname.add( tp ).add( ">(" #si2 "," #si1 ")" ); \
+mTest( testname.buf(),  \
       computeCommonStepInterval( si2, si1 )==expected )
     
 template <class T>
-bool testComputeCommonStepInterval( bool quiet )
+bool testComputeCommonStepInterval( const char* tp, bool quiet )
 {
+    BufferString testname;
     mTestCommonSI( StepInterval<T>( 2, 7, 2 ), StepInterval<T>( 3, 7, 2 ),
 	    	   StepInterval<T>( 2, 7, 1 ) );
 
@@ -70,12 +75,12 @@ int main( int argc, char** argv )
     if ( !testGCD<int>( quiet ) )
 	ExitProgram( 1 );
 
-    if ( !testComputeCommonStepInterval<short>( quiet ) ||
-         !testComputeCommonStepInterval<int>( quiet ) ||
-         !testComputeCommonStepInterval<od_int64>( quiet ) ||
-	 !testComputeCommonStepInterval<unsigned short>( quiet ) ||
-         !testComputeCommonStepInterval<unsigned int>( quiet ) ||
-         !testComputeCommonStepInterval<od_uint64>( quiet ) )
+    if ( !testComputeCommonStepInterval<short>("short", quiet ) ||
+         !testComputeCommonStepInterval<int>( "int", quiet ) ||
+         !testComputeCommonStepInterval<od_int64>( "od_int64", quiet ) ||
+	 !testComputeCommonStepInterval<unsigned short>( "unsigned short", quiet ) ||
+         !testComputeCommonStepInterval<unsigned int>("unsigned int",  quiet ) ||
+         !testComputeCommonStepInterval<od_uint64>( "ui_uint64", quiet ) )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
