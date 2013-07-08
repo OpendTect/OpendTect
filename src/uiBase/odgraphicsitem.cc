@@ -372,8 +372,9 @@ QRectF ODViewerTextItem::boundingRect() const
     const float movey = alignment.y() * txtheight;
 
     const QPointF paintpos = mapToScene( QPointF(0,0) );
-    const QRectF scenerect( paintpos.x()+movex, paintpos.y()+movey,
-			    txtwidth, txtheight );
+    const QRectF scenerect( paintpos.x()+movex-5, paintpos.y()+movey-5,
+			    txtwidth+10, txtheight+10 );//Extra space is added
+    //to avoid clipping on some platforms & the number 5 is arbitrarily chosen.
     return mapRectFromScene( scenerect );
 }
 
