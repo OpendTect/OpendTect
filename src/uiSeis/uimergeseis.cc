@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimergeseis.h"
 
 #include "bufstringset.h"
+#include "seiscbvs.h"
 #include "seismerge.h"
 #include "seistrctr.h"
 #include "ctxtioobj.h"
@@ -41,7 +42,9 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-	if ( ioobjs[idx]->isReadDefault() )
+	if ( ioobjs[idx]->isReadDefault() &&
+		ioobjs[idx]->group() == "Seismic Data" &&
+	        ioobjs[idx]->translator() == CBVSSeisTrcTranslator::translKey())
 	    ioobjnms.add( ioobjs[idx]->name() );
     }
 
