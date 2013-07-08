@@ -167,6 +167,40 @@ static int testObjSetFind()
     mRetAllOK()
 }
 
+static int testObjSetEqual()
+{
+    ObjectSet<DataElem> s1;
+    ObjectSet<DataElem> s2; s2.allowNull();
+    ObjectSet<DataElem>& des = s1;
+    mPrElems("testObjSetEqual")
+
+    if ( !equalContents(s1,s2) )
+	mErrRet("empty sets not equal");
+
+    s1 += new DataElem( 1, 0.1 );
+    if ( equalContents(s1,s2) )
+	mErrRet("different sizes equal");
+
+    s2 += 0;
+    if ( equalContents(s1,s2) )
+	mErrRet("null ptr equal real element");
+
+    delete s2.replace( 0, new DataElem( 1, 0.2 ) );
+    if ( !equalContents(s1,s2) )
+	mErrRet("Single-element sets not equal");
+
+    s1 += new DataElem( 2, 0.2 );
+    s2 += new DataElem( 2, 0.2 );
+    if ( !equalContents(s1,s2) )
+	mErrRet("Multi-element sets not equal");
+
+    delete s1.replace( 0, new DataElem( 3, 0.2 ) );
+    if ( equalContents(s1,s2) )
+	mErrRet("Multi-element sets equal");
+
+    mRetAllOK()
+}
+
 
 
 int main( int narg, char** argv )
@@ -176,6 +210,7 @@ int main( int narg, char** argv )
     int res = testTypeSetFind();
     res += testTypeSetSetFns();
     res += testObjSetFind();
+    res += testObjSetEqual();
 
     ExitProgram( res );
 }
