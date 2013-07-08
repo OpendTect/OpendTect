@@ -112,13 +112,12 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
 	createViewWin( (dp3d && dp3d->isVertical()) ||
 		       (dp2d && dp2d->isVertical()) );
+	if ( slicepos_ ) slicepos_->getToolBar()->display( dp3d );
     }
-
-    if ( slicepos_ )
-	slicepos_->getToolBar()->display( dp3d );
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
+	if ( packid == DataPack::cNoID() ) break;
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
 	viewwin()->viewer(ivwr).removePack( curpackid );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -135,6 +134,11 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	cs_ = dp3d->cube().cubeSampling();
 	if ( slicepos_ ) slicepos_->setCubeSampling( cs_ );
 	adjustOthrDisp( wva, cs_ );
+    }
+    else if ( slicepos_ )
+    {
+	adjustOthrDisp( wva, slicepos_->getCubeSampling() );
+	slicepos_->setCubeSampling( cs_ );
     }
     
     //updating stuff
@@ -164,9 +168,14 @@ void uiODViewer2D::adjustOthrDisp( bool wva, const CubeSampling& cs )
     if ( othrdp3d->cube().cubeSampling() == cs ) return;
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( wva ? wvaselspec_ : vdselspec_ );
+    attrserv->setTargetSelSpec( !wva ? wvaselspec_ : vdselspec_ );
     const DataPack::ID newid = attrserv->createOutput( cs, DataPack::cNoID() );
     if ( newid == DataPack::cNoID() ) return;
+
+    bool newpos = false;
+    DataPack* newdp = DPM(DataPackMgr::FlatID()).obtain( newid, true );
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,newdp);
+    if ( dp3d && (cs!=cs_) ) { newpos = true; cs_ = cs; }
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
@@ -174,6 +183,12 @@ void uiODViewer2D::adjustOthrDisp( bool wva, const CubeSampling& cs )
 	viewwin()->viewer(ivwr).removePack( othrcurpackid );
 	DPM(DataPackMgr::FlatID()).release( othrcurpackid );
 	viewwin()->viewer(ivwr).setPack( !wva, newid, false, false );
+	DPM(DataPackMgr::FlatID()).obtain( newid, false );
+	if ( !newpos ) continue;
+
+	DataPack::ID packid = viewwin()->viewer(ivwr).packID(wva);
+	viewwin()->viewer(ivwr).removePack( packid );
+	DPM(DataPackMgr::FlatID()).release( packid );
     }
 }
 
@@ -335,9 +350,7 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 void uiODViewer2D::posChg( CallBacker* )
 {
     if ( !slicepos_ ) return;
-
-    cs_ = slicepos_->getCubeSampling();
-    setPos( cs_ );
+    setPos( slicepos_->getCubeSampling() );
 }
 
 
