@@ -233,6 +233,24 @@ inline void sort( ObjectSet<T>& os )
     }
 }
 
+
+//! See if all objects are equal
+template <class T>
+inline bool equalObjects( const ObjectSet<T>& os1, const ObjectSet<T>& os2 )
+{
+    typedef typename ObjectSet<T>::size_type size_type;
+    const size_type sz = os1.size();
+    if ( os2.size() != sz )
+	return false;
+
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( os1[idx] != os2[idx] )
+	    return false;
+
+    return true;
+}
+
+
 //! See if all objects pointed to are equal
 template <class T>
 inline bool equalContents( const ObjectSet<T>& os1, const ObjectSet<T>& os2 )
