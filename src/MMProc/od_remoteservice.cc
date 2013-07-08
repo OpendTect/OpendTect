@@ -11,14 +11,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QCoreApplication>
 
-#include "prog.h"
 #include "remcommhandler.h"
+#include "commandlineparser.h"
+
+#include "prog.h"
+
 
 int main( int argc, char** argv )
 {
+    SetProgramArgs( argc, argv );
     QCoreApplication app( argc, argv );
 
-    const bool dofork = argc > 1 && !strcmp(argv[1],"--bg");
+    const bool dofork = CommandLineParser().hasKey( "bg" );
     if ( dofork )
 	forkProcess();
 
