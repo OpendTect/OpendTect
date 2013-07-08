@@ -83,7 +83,8 @@ StepInterval<T> computeCommonStepInterval( const StepInterval<T>& a,
     T step = greatestCommonDivisor( a.step, b.step );
     step = greatestCommonDivisor( step, (T) Math::Abs(a.start-b.start) );
 
-    const T stop = mMAX( a.start+a.nrSteps()*a.step, b.start+b.nrSteps()*b.step );
+    const T stop = mMAX( a.start+((T)a.nrSteps())*a.step,
+	    		 b.start+((T)b.nrSteps())*b.step );
     return StepInterval<T>( start, stop, step );
 }
 
