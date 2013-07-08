@@ -245,9 +245,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 
     {
 	T lock( false );
-	Threads::SpinLock* spinlock = testcount
-	    ? (Threads::SpinLock*) &lock
-	    : 0;
+	mDynamicCastGet( Threads::SpinLock*, spinlock, testcount ? &lock : 0 );
 
 	if ( spinlock )
 	    mRunTest( "Inital count", spinlock->count()==0 );
