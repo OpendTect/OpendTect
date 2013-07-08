@@ -722,6 +722,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
     uiMSG().message("Not complete yet");
     return;
+    /*
     
     const int visid = displayID();
     const int attribnr = attribNr();
@@ -780,6 +781,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else
     {
     }
+    */
 }
 
 
