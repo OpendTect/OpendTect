@@ -71,6 +71,9 @@ int main( int argc, char** argv )
     od_init_test_program( argc, argv );
 
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
+
+    std::cout << "Error return \n";
+    ExitProgram( 1 );
     
     if ( !testGCD<int>( quiet ) )
 	ExitProgram( 1 );
