@@ -65,6 +65,11 @@ int Table::Converter::nextStep()
     while ( true )
     {
 	char c = imphndlr_.readNewChar();
+	if ( !c )
+	{
+	    msg_ = "The input file is probably not ASCII";
+	    return ErrorOccurred();
+	}
 
 	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
