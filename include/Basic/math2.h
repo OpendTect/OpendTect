@@ -64,8 +64,8 @@ mGlobal(Basic) float toDB(float);
 
 mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
 mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
-mGlobal(Basic) inline unsigned int Abs( int i )		    { return abs(i); }
-mGlobal(Basic) inline od_uint64 Abs( od_int64 i )	    { return llabs(i); }
+mGlobal(Basic) unsigned int Abs(int i);
+mGlobal(Basic) od_uint64 Abs(od_int64 i);
 
 inline float	degFromNorth( float azimuth )
 		{

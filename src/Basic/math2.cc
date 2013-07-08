@@ -125,3 +125,7 @@ int Math::HCFOf( int num1, int num2 )
 
     return 1;
 }
+
+
+unsigned int Math::Abs( int i )		    { return abs(i); }
+od_uint64 Math::Abs( od_int64 i )	    { return llabs(i); }
