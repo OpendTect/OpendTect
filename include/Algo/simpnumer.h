@@ -14,10 +14,12 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
+#include "typeset.h"
 #include "undefval.h"
 #include "math2.h"
 #include <math.h>
 #include <limits.h>
+#include <ranges.h>
 
 
 /*!>Handles roundoff errors when looking for the previous sample in an array.*/
@@ -33,6 +35,56 @@ inline int getPrevSample( float target, int size, float& relpos )
     { sampl = size-2; relpos = 1; }
 
     return sampl;
+}
+
+
+/*!Computes the greatest common divisor from two intigers. Uses the algorithm
+ published by Josef Stein. */
+
+template <class T> inline
+T greatestCommonDivisor( T val0, T val1 )
+{
+    T shift = 0;
+    
+    if ( !val0 ) return val1;
+    if ( !val1 ) return val0;
+    
+    while ( (val0&1)==0  &&  (val1&1)==0 )
+    {
+	val0 >>= 1;
+	val1 >>= 1;
+	shift++;
+    }
+    
+    do
+    {
+	if ((val0 & 1) == 0)
+	    val0 >>= 1;
+	else if ((val1 & 1) == 0)
+	    val1 >>= 1;
+	else if (val0 >= val1)
+	    val0 = (val0-val1) >> 1;
+	else
+	    val1 = (val1-val0) >> 1;
+    } while ( val0 );
+    
+    return val1 << shift;
+}
+
+/*!Compute a StepInterval where all samples of both input StepInterval's 
+   are present. */
+
+template <class T> inline
+StepInterval<T> computeCommonStepInterval( const StepInterval<T>& a,
+				    const StepInterval<T>& b )
+{
+    const T start = mMIN( a.start, b.start );
+    
+    T step = greatestCommonDivisor( a.step, b.step );
+    step = greatestCommonDivisor( step, (T) Math::Abs(a.start-b.start) );
+
+    const T stop = mMAX( a.start+a.nrSteps()*a.step, b.start+b.nrSteps()*b.step );
+    return StepInterval<T>( start, stop, step );
 }
 
 

@@ -186,12 +186,6 @@ void reSample( const FloatMathFunction& input, const A& samplevals,
 }
 
 
-/*!Computes the greatest common divisor from two intigers. Uses the algorithm
-   published by Josef Stein. */
-
-mGlobal(Algo) unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
-
-
 /*!>
 Compute z = x cross-correlated with y; i.e.,
 

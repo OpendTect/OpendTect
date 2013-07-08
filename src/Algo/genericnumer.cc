@@ -327,32 +327,3 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 #undef CGOLD
 #undef ZEPS
 #undef SIGN
-
-unsigned int greatestCommonDivisor( unsigned int val0, unsigned int val1 )
-{
-    unsigned int shift = 0;
-
-    if ( !val0 ) return val1;
-    if ( !val1 ) return val0;
-
-    while ( (val0&1)==0  &&  (val1&1)==0 )
-    {
-	val0 >>= 1;   
-	val1 >>= 1;   
-	shift++;   
-    }
-
-    do
-    {
-	if ((val0 & 1) == 0)   
-	    val0 >>= 1;        
-	else if ((val1 & 1) == 0) 
-	    val1 >>= 1;         
-	else if (val0 >= val1)   
-	    val0 = (val0-val1) >> 1;
-	else                   
-	    val1 = (val1-val0) >> 1;
-    } while ( val0 );
-
-    return val1 << shift; 
-}

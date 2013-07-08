@@ -60,6 +60,12 @@ mGlobal(Basic) float Exp(float);
                 /*!<Checks the input range before calling exp, if too large
 		    value is given, mUdf(float) is returned. */
 mGlobal(Basic) float toDB(float);
+    
+
+mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
+mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
+mGlobal(Basic) inline unsigned int Abs( int i )		    { return abs(i); }
+mGlobal(Basic) inline od_uint64 Abs( od_int64 i )	    { return llabs(i); }
 
 inline float	degFromNorth( float azimuth )
 		{

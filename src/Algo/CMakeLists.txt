@@ -6,7 +6,7 @@
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Basic )
-set( OD_TEST_PROGS velocitycalc.cc )
+set( OD_TEST_PROGS velocitycalc.cc simpnumer.cc )
 
 set(OD_MODULE_SOURCES timeser.c
 	    array1dinterpol.cc
