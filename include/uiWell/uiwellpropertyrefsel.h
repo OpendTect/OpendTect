@@ -24,7 +24,7 @@ class UnitOfMeasure;
 class uiLabel;
 class uiComboBox;
 class uiCheckBox;
-class uiPushButton;
+class uiButton;
 class uiUnitSel;
 
 namespace Well { class LogSet; }
@@ -108,11 +108,15 @@ public:
 			uiWellPropSelWithCreate(uiParent*,
 				const PropertyRefSelection&);
 
+    uiButton*		getButton( int idx )	{ return createbuts_[idx]; }
+
     Notifier<uiWellPropSel> logscreated; 
 
 protected:
-    ObjectSet<uiPushButton> createbuts_;
+
+    ObjectSet<uiButton> createbuts_;
     void		createLogPushed(CallBacker*);
+
 };
 
 
