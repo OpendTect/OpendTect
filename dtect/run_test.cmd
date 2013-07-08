@@ -23,7 +23,7 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--parfile" (
     set args=%args% %2
     shift
-) ELSE IF "%1"=="--expected-return" (
+) ELSE IF "%1"=="--expected-result" (
     set expret=%2
     shift
 ) ELSE IF "%1"=="--plf" (
