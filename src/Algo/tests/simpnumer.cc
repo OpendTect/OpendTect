@@ -77,10 +77,7 @@ int main( int argc, char** argv )
 
     if ( !testComputeCommonStepInterval<short>("short", quiet ) ||
          !testComputeCommonStepInterval<int>( "int", quiet ) ||
-         !testComputeCommonStepInterval<od_int64>( "od_int64", quiet ) ||
-	 !testComputeCommonStepInterval<unsigned short>( "unsigned short", quiet ) ||
-         !testComputeCommonStepInterval<unsigned int>("unsigned int",  quiet ) ||
-         !testComputeCommonStepInterval<od_uint64>( "ui_uint64", quiet ) )
+         !testComputeCommonStepInterval<od_int64>( "od_int64", quiet ) )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
