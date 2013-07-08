@@ -184,7 +184,7 @@ int ExitProgram( int ret )
 #endif
 
 #ifdef __msvc__
-    exit( EXIT_SUCCESS );
+    exit( ret ? EXIT_FAILURE : EXIT_SUCCESS );
 #else
     exit(ret);
     return ret; // to satisfy (some) compilers
