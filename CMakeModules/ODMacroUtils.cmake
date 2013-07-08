@@ -293,10 +293,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 			${OD_${TARGET_NAME}_RESOURCE} )
 	
 	set ( OD_LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}" )
-	
-	if ( WIN32 AND OD_SET_LINKFLAGS_UAC )
-	    set ( OD_LINK_FLAGS "${OD_LINK_FLAGS} /MANIFESTUAC:level=requireAdministrator /MANIFESTUAC:uiAccess=false" )
-	endif()
+
 			
 	set( TARGET_PROPERTIES ${TARGET_NAME}
 	    PROPERTIES 
@@ -308,6 +305,10 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 	    list ( APPEND TARGET_PROPERTIES 
 		VERSION ${OD_BUILD_VERSION} )
 	endif( OD_SET_TARGET_PROPERTIES )
+	if ( WIN32 AND OD_SET_LINKFLAGS_UAC )
+	    list ( APPEND TARGET_PROPERTIES LINK_FLAGS_RELEASE
+		   "/MANIFESTUAC:level=requireAdministrator /MANIFESTUAC:uiAccess=false" )
+	endif()
 
 	set_target_properties( ${TARGET_PROPERTIES} )
 	target_link_libraries(
