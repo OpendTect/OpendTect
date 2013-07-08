@@ -6,6 +6,7 @@ REM
 
 setlocal
 set args=""
+set expret=0
 
 :parse_args
 IF "%1"=="--command" (
@@ -22,6 +23,9 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--parfile" (
     set args=%args% %2
     shift
+) ELSE IF "%1"=="--expected-return" (
+    set expret=%2
+    shift
 ) ELSE IF "%1"=="--plf" (
     set plf=%2
     shift
@@ -37,7 +41,7 @@ shift
 goto parse_args
 
 :syntax
-echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir --parfile parfile
+echo run_test --command cmd --wdir workdir --plf platform --config config --qtdir qtdir --datadir datadir --parfile parfile --expected-return expected-return
 exit 1
 
 :do_it
@@ -72,8 +76,8 @@ set PATH=%bindir%;%qtdir%/bin;%PATH%
 
 "%fullcommand%" %args%
 
-IF %errorlevel% NEQ 0 (
-   echo %fullcommand% returned %errorlevel%
-   exit /b %errorlevel%
+IF %errorlevel% NEQ %expret% (
+   echo %fullcommand% returned %errorlevel%, while expecting %expret%
+   exit /b 1
 )
 exit /b 0
