@@ -410,7 +410,7 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( datatransform_ )
     {
 	datatransform_->ref();
-	updateRanges( false, !haddatatransform );
+	updateRanges( false, !haddatatransform && !csfromsession_.isDefined() );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
 		    mCB(this,PlaneDataDisplay,dataTransformCB) );
