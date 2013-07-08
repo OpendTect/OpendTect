@@ -312,32 +312,32 @@ void uiDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
 bool uiDispEditMarkerDlg::removeMrkrFromList()
 {
     BufferString mrknm = mrklist_->getText();
-    for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
-    {
-	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
-	    delete tmplist_.removeSingle( idx );
-	fillMarkerList(0);
-	return true;
-    }
     BufferString msg = "This will remove "; 
 		 msg += mrknm; 
 		 msg += " from all the wells \n ";
 		 msg += "Do you want to continue ? ";
 
-    if ( uiMSG().askContinue( msg ) )
+    if ( !uiMSG().askContinue( msg ) )
+	return false;
+
+    for ( int idx=0; idx<markerssets_.size(); idx++ )
     {
-	for ( int idx=0; idx<markerssets_.size(); idx++ )
+	Well::MarkerSet& mrkset = *markerssets_[idx];
+	if ( mrkset.isPresent( mrknm ) )
 	{
-	    Well::MarkerSet& mrkset = *markerssets_[idx];
-	    if ( mrkset.isPresent( mrknm ) )
-	    {
-		delete mrkset.removeSingle( mrkset.indexOf( mrknm ),true );
-	    }
+	    delete mrkset.removeSingle( mrkset.indexOf( mrknm ),true );
+	    hasedited_ = true; 
 	}
-	hasedited_ = true; 
-	return true;
     }
-    return false;
+
+    if ( hasedited_ )
+    {
+	for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
+	    if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+		delete tmplist_.removeSingle( idx );
+	fillMarkerList(0);
+    }
+    return true;
 }
 
 
