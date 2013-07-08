@@ -60,6 +60,7 @@ public:
 				        BufferString win=HanningWindow::sName(),
 					float param=0.95);
     void			setFFTSmoother(float freqf3,float freqf4);
+    void			setSmoothingPars(const IOPar& iopar);
 
     static const char*		sKeySmoothType() { return "Smoothing type"; }
     static const char*		sKeyWinFunc() { return "Window function"; }
@@ -100,6 +101,7 @@ mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
 { 
 public:
 				VelocityBasedAngleComputer();
+				~VelocityBasedAngleComputer();
 
     bool			setMultiID(const MultiID&);
     bool			isOK() const { return velsource_; }
@@ -107,8 +109,7 @@ public:
     Gather*			computeAngles();
 
 protected:
-
-				~VelocityBasedAngleComputer();
+		
     bool			checkAndConvertVelocity(const float* inpvel,
 					const VelocityDesc& veldesc,
 					const StepInterval<float>& zrange,

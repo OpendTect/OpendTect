@@ -64,6 +64,41 @@ void AngleComputer::setRayTracer( const IOPar& raypar )
 }
 
 
+void AngleComputer::setSmoothingPars( const IOPar& smpar )
+{
+    int smoothtype = 0;
+    smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+
+    if ( smoothtype == PreStack::AngleComputer::None )
+	setNoSmoother();
+
+    else if ( smoothtype == PreStack::AngleComputer::MovingAverage )
+    {
+	float winlength;
+	smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
+	BufferString winfunc;
+	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
+	if ( winfunc == CosTaperWindow::sName() )
+	{
+	    float param;
+	    smpar.get( PreStack::AngleComputer::sKeyWinParam(), param );
+	    setMovingAverageSmoother( winlength, winfunc, param );
+	}
+	else
+	    setMovingAverageSmoother( winlength, winfunc );
+    }
+
+    else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
+    {
+	float freqf3; 
+	smpar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
+	float freqf4;
+	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
+	setFFTSmoother( freqf3, freqf4 );
+    }
+}
+
+
 void AngleComputer::setNoSmoother()
 {
     iopar_.set( sKeySmoothType(), None );
