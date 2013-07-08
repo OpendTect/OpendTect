@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiwellpropertyrefsel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uiunitsel.h"
@@ -398,18 +398,13 @@ uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 { 
     for ( int idx=0; idx<propflds_.size(); idx ++ )
     {
-	uiPushButton* createbut = new uiPushButton( this, "&Create", false );
-	createbut->activated.notify(
+	uiToolButton* createbut = new uiToolButton( this, "newlog",
+		"Create a log from other logs",
 		mCB(this,uiWellPropSelWithCreate,createLogPushed) );
 	if ( idx )
-	{
-	    createbut->attach( ensureBelow, propflds_[idx-1] );
 	    createbut->attach( ensureBelow, createbuts_[idx-1] );
-	}
 	for ( int idotherpr=0; idotherpr<propflds_.size(); idotherpr ++ )
-	{
 	    createbut->attach( ensureRightOf, propflds_[idotherpr] );
-	}
 	createbuts_ += createbut;
     }
 }
@@ -425,7 +420,7 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
     for ( int idx=0; idx<logs.size(); idx++ )
 	lognms.add( logs.getLog(idx).name() );
 
-    mDynamicCastGet(uiPushButton*,but,cb);
+    mDynamicCastGet(uiButton*,but,cb);
     const int idxofbut = createbuts_.indexOf( but );
     if ( !propflds_.validIdx( idxofbut ) )
 	return;
