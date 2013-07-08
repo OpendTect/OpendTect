@@ -295,7 +295,7 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS )
 	set ( OD_LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}" )
 	
 	if ( WIN32 AND OD_SET_LINKFLAGS_UAC )
-	    set ( OD_LINK_FLAGS "${OD_LINK_FLAGS} /level='requireAdministrator' /uiAccess='false'" )
+	    set ( OD_LINK_FLAGS "${OD_LINK_FLAGS} /MANIFESTUAC:level=requireAdministrator /MANIFESTUAC:uiAccess=false" )
 	endif()
 			
 	set( TARGET_PROPERTIES ${TARGET_NAME}
