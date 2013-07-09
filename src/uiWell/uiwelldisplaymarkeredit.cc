@@ -214,8 +214,8 @@ bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
     if ( hasedited_ )
     {
 	BufferString msg = "Some markers have been edited. \n";
-	msg += "Do you want to continue with marker editing ? ";
-	if ( !uiMSG().askContinue( msg ) )
+	msg += "Do you want to save those changes? ";
+	if ( !uiMSG().askGoOn( msg ) )
 	{
 	    for ( int idx=0; idx<markerssets_.size(); idx++ )
 		*markerssets_[idx] = *orgmarkerssets_[idx];
@@ -315,10 +315,13 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
     for ( int idx=tmplist_.size()-1; idx>=0; idx-- )
     {
 	if ( !strcmp( mrknm, tmplist_[idx]->name() ) )
+	{
 	    delete tmplist_.removeSingle( idx );
-	fillMarkerList(0);
-	return true;
+	    fillMarkerList(0);
+	    return true;
+	}
     }
+
     BufferString msg = "This will remove "; 
 		 msg += mrknm; 
 		 msg += " from all the wells \n ";
@@ -566,7 +569,7 @@ bool uiWellDispCtrlEditMarkerDlg::acceptOK( CallBacker* )
 bool uiWellDispCtrlEditMarkerDlg::rejectOK( CallBacker* cb )
 {
     needsave_ = false;
-    if ( hasedited_ && uiDispEditMarkerDlg::acceptOK( cb ) )
+    if ( hasedited_ && uiDispEditMarkerDlg::rejectOK( cb ) )
     {
 	triggerWDsMarkerChanged();
     }
