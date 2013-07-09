@@ -2,7 +2,7 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	June 2013	K. Tingdahl
-#	RCS :		$Id: ODIttNotifyUtils.cmake 30343 2013-06-18 06:54:22Z kristofer.tingdahl@dgbes.com $
+#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( ITTNOTIFY_DIR )

@@ -9,7 +9,7 @@
 #
 # Created by Kristofer Tingdahl, Copyright dGB Beheer B. V. 
 #
-# $Id: FindIttNotify.cmake 30343 2013-06-18 06:54:22Z kristofer.tingdahl@dgbes.com $
+# $Id$
 #
 
 find_path(ITTNOTIFY_INCLUDE_DIR ittnotify.h
