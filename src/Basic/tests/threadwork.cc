@@ -227,9 +227,10 @@ int main( int narg, char** argv )
     od_init_test_program( narg, argv );
     const bool quiet = CommandLineParser().hasKey( sKey::Quiet() );
     WorkManagerTester tester;
-    if ( tester.runCallBackTests(quiet) && tester.testWorkResults(quiet) )
-	ExitProgram( 0 );
+    const bool res = tester.runCallBackTests(quiet)
+		  && tester.testWorkResults(quiet);
 
-    ExitProgram( 1 );
+    Threads::WorkManager::twm().shutdown();
+    ExitProgram( res ? 0 : 1 );
 }
 
