@@ -43,7 +43,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "windowfunction.h"
 
-#define maxAngleVal 45
 
 static int sStartNrViewers = 10;
 
@@ -238,10 +237,11 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 
 PreStack::Gather* uiViewer2DMainWin::getAngleGather( 
 					    const PreStack::Gather& gather, 
-					    const PreStack::Gather& angledata )
+					    const PreStack::Gather& angledata,
+					    const Interval<int>& anglerange )
 {
     const FlatPosData& fp = gather.posData();
-    const StepInterval<double> x1rg( 0, maxAngleVal, 1 );
+    const StepInterval<double> x1rg( anglerange.start, anglerange.stop, 1 );
     const StepInterval<double> x2rg = fp.range( false );
     FlatPosData anglefp;
     anglefp.setRange( true, x1rg );
@@ -328,7 +328,8 @@ void uiViewer2DMainWin::angleGatherCB( CallBacker* )
 	    velangcomp.setOutputSampling( fp );
 	    velangcomp.setTraceID( gather.getBinID() );
 	    angledata = velangcomp.computeAngles();
-	    anglegather_ += getAngleGather( gather, *angledata );
+	    anglegather_ += getAngleGather( gather, *angledata, 
+					    params.anglerange_ );
 	    setAngleGather( idx );
 	}
 

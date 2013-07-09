@@ -80,7 +80,8 @@ protected:
     void		setGatherView(uiGatherDisplay*,
 	    			      uiGatherDisplayInfoHeader*);
     PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
-				       const PreStack::Gather& angledata);
+				       const PreStack::Gather& angledata,
+				       const Interval<int>& anglerange);
     void		setAngleGather(int idx);
 
     void 		setUpView();
