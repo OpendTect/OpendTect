@@ -71,6 +71,7 @@ protected:
     void		onStartUp(CallBacker*);
     void		saveHdr(CallBacker*);
     void		dispSeis(CallBacker*);
+    void		dispHist(CallBacker*);
     void		updateInput(CallBacker*);
     void		vwrClose(CallBacker*);
     void		rowClck(CallBacker*);
