@@ -61,13 +61,17 @@ Annotation::Annotation()
 
     if ( doOsg() )
     {
-	float pos[8][3] =
-	{
-	     { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 1 }, { 0, 1, 0 },
-	     { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 1 }, { 1, 1, 0 }
-	};
+	osg::Vec3f ptr[8];
+	
+	ptr[0] = osg::Vec3f( 0, 0, 0 );
+	ptr[1] = osg::Vec3f( 0, 0, 1 );
+	ptr[2] = osg::Vec3f( 0, 1, 1 );
+	ptr[3] = osg::Vec3f( 0, 1, 0 );
+	ptr[4] = osg::Vec3f( 1, 0, 0 );
+	ptr[5] = osg::Vec3f( 1, 0, 1 );
+	ptr[6] = osg::Vec3f( 1, 1, 1 );
+	ptr[7] = osg::Vec3f( 1, 1, 0 );
 
-	const osg::Vec3* ptr = (osg::Vec3*) pos;
 	osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
 	osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
 
