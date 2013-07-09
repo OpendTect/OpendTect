@@ -180,11 +180,11 @@ void ExitProgram( int ret )
 // dyld: odmain bad address of lazy symbol pointer passed to stub_binding_helper
 // _Exit does not call registered exit functions and prevents crash
 #ifdef __mac__
-    _Exit(0);
+    _Exit( ret );
 #endif
 
 #ifdef __msvc__
-    exit( EXIT_SUCCESS );
+    exit( ret ? EXIT_FAILURE : EXIT_SUCCESS );
 #else
     exit(ret);
 #endif
