@@ -11,12 +11,21 @@ if [ ! -f /bin/csh ]; then
     exit 1
 fi
 
+PLFNAME=`uname`
 curdir=`pwd`
-export DTECT_APPL=${curdir}
-if [ ! $?LD_LIBRARY_PATH ]; then
-    export LD_LIBRARY_PATH=${curdir}
+export DTECT_APPL="${curdir}"
+if [ "${PLFNAME}" == "Darwin" ]; then
+    if [ ! $?DYLD_LIBRARY_PATH ]; then
+	export DYLD_LIBRARY_PATH="${curdir}"
+    else
+	export DYLD_LIBRARY_PATH="${curdir}":${DYLD_LIBRARY_PATH}
+    fi
 else
-    export LD_LIBRARY_PATH=${curdir}:${LD_LIBRARY_PATH}
+    if [ ! $?LD_LIBRARY_PATH ]; then
+	export LD_LIBRARY_PATH="${curdir}"
+    else
+	export LD_LIBRARY_PATH="${curdir}":${LD_LIBRARY_PATH}
+    fi
 fi
 
 ./od_instmgr $*
