@@ -57,9 +57,38 @@ void AngleComputer::setOutputSampling( const FlatPosData& os )
 { outputsampling_  = os; }
 
 
-void AngleComputer::setSmoothingPars( const IOPar& iopar )
+void AngleComputer::setSmoothingPars( const IOPar& smpar )
 {
-    iopar_ = iopar;
+    int smoothtype = 0;
+    smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+
+    if ( smoothtype == PreStack::AngleComputer::None )
+	setNoSmoother();
+
+    else if ( smoothtype == PreStack::AngleComputer::TimeAverage )
+    {
+	float winlength;
+	smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
+	BufferString winfunc;
+	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
+	if ( winfunc == CosTaperWindow::sName() )
+	{
+	    float param;
+	    smpar.get( PreStack::AngleComputer::sKeyWinParam(), param );
+	    setMovingAverageSmoother( winlength, winfunc, param );
+	}
+	else
+	    setMovingAverageSmoother( winlength, winfunc );
+    }
+
+    else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
+    {
+	float freqf3; 
+	smpar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
+	float freqf4;
+	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
+	setFFTSmoother( freqf3, freqf4 );
+    }
 }
 
 

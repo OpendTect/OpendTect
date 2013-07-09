@@ -24,7 +24,8 @@ ________________________________________________________________________
 
 class uiSlicePos2DView;
 
-namespace PreStack { class Gather; class MuteDef; }
+namespace PreStack { class Gather; class MuteDef; 
+		     class VelocityBasedAngleComputer; }
 namespace FlatView { class AuxData; }
 namespace PreStackView
 {
@@ -67,6 +68,9 @@ protected:
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;
     Interval<float>	zrg_;
+    ObjectSet<PreStack::Gather> anglegather_;
+    ObjectSet<uiGatherDisplay>	gd_;
+    ObjectSet<uiGatherDisplayInfoHeader> gdi_;
 
     void		removeAllGathers();
     void		reSizeItems();
@@ -75,6 +79,11 @@ protected:
     virtual void	setGather(const GatherInfo& pos)	{} 
     void		setGatherView(uiGatherDisplay*,
 	    			      uiGatherDisplayInfoHeader*);
+    PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
+				       const PreStack::Gather& angledata,
+				       const Interval<int>& anglerange);
+    void		setAngleGather(int idx);
+
     void 		setUpView();
     void		clearAuxData();
     void		displayMutes();
@@ -87,6 +96,7 @@ protected:
     void 		dataDlgPushed(CallBacker*);
     void		showZAxis(CallBacker*);
     void		loadMuteCB(CallBacker*);
+    void		angleGatherCB(CallBacker*);
 };
 
 
