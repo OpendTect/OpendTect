@@ -20,13 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
+#include "uistatsdisplaywin.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "msgh.h"
 #include "seistrc.h"
 #include "seisread.h"
-#include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "segytr.h"
 #include "segyhdr.h"
 #include "iopar.h"
@@ -67,10 +68,10 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
-    uiToolButton* tb = new uiToolButton( txtgrp, "saveset",
+    uiToolButton* savesettb = new uiToolButton( txtgrp, "saveset",
 	    				 "Save text header to file",
 				         mCB(this,uiSEGYExamine,saveHdr) );
-    tb->attach( rightBorder );
+    savesettb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
     txtfld_->setPrefWidthInChar( 80 );
@@ -79,7 +80,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    tb = new uiToolButton( tblgrp, "vd", "Display traces",
+    uiToolButton* seistb = new uiToolButton( tblgrp, "vd", "Display traces",
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
@@ -88,7 +89,6 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     tbl_->setPrefHeightInChar( 14 );
     tbl_->setPrefWidthInChar( 40 );
     tbl_->attach( ensureBelow, lbl );
-    tb->attach( rightAlignedAbove, tbl_ );
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
@@ -99,6 +99,11 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	tbl_->setColumnReadOnly( icol, true );
     }
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
+    uiToolButton* histtb = new uiToolButton( tblgrp, "histogram",
+			    "Show histogram of sample values",
+			    mCB(this,uiSEGYExamine,dispHist) );
+    histtb->attach( rightAlignedAbove, tbl_ );
+    seistb->attach( leftOf, histtb );
 
     hvaldisp_ = new uiSEGYTrcHdrValPlot( this, true );
 
@@ -163,16 +168,32 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 }
 
 
+#define mGetWinTile() \
+    const BufferString fnm( FilePath(setup_.fs_.fname_).fileName() ); \
+    BufferString wintitle( "First ", tbuf_.size(), " traces from " ); \
+    wintitle.add( fnm )
+
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    const BufferString fnm( FilePath(setup_.fs_.fname_).fileName() );
-    BufferString wintitle( "First ", tbuf_.size(), " traces from " );
-    wintitle.add( fnm );
+    mGetWinTile();
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
 	    			uiSeisTrcBufViewer::Setup(wintitle) );
     vwr->selectDispTypes( true, true );
     vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "SEG-Y Examiner" );
     vwr->start(); vwr->handleBufChange();
+}
+
+
+void uiSEGYExamine::dispHist( CallBacker* )
+{
+    mGetWinTile();
+    SeisTrcBufArray2D a2d( &tbuf_, 0 );
+    uiStatsDisplay::Setup su; su.withname( false );
+    uiStatsDisplayWin* mw = new uiStatsDisplayWin( this, su, 1, false );
+    mw->statsDisplay(0)->setData( &a2d );
+    mw->setDeleteOnClose( true );
+    mw->setCaption( wintitle );
+    mw->show();
 }
 
 
