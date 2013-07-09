@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "task.h"
 #include "limits.h"
 #include "commandlineparser.h"
+#include "debug.h"
 
 #include <iostream>
 
