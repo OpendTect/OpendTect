@@ -291,6 +291,8 @@ public:
 
 protected:
 
+    bool			isOK() const;
+
     CubeSampling		cs_;
     Array3D<float>*		imparr_;
     float			threshold_;
@@ -300,6 +302,7 @@ protected:
     EM::Body*			embody_;
     BinID			curbid_;
     float			curz_;
+    bool			initializedbody_;
 };
 
 
