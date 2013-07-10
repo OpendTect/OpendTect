@@ -116,13 +116,8 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     static PtrAllVoidFn fns[100];
     int idx;
 
-#ifdef __lux32__
-# define ptr_cast od_int32
-#else
-# define ptr_cast od_int64
-#endif
 
-    if ( ((ptr_cast)fn) == ((ptr_cast)(-1)) )
+    if ( fn == ((PtrAllVoidFn)(-1)) )
     {
 	for ( idx=0; idx<nrfns; idx++ )
 	    (*(fns[idx]))();
