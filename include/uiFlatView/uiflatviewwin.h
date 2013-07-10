@@ -21,7 +21,8 @@ class uiFlatViewer;
 class uiFlatViewControl;
 class IOPar;
 
-/*!\brief Base class for windows containing one or more uiFlatViewer(s).
+/*!
+\brief Base class for windows containing one or more uiFlatViewer(s).
 
   Will clean up the mess when it's destroyed, in particular releases all
   datapacks attached to the viewers.
