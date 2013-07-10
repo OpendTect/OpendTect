@@ -863,7 +863,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	sd_.postStackPack().posData().range( false );
     const int sz = layermodels_.size();
     const PropertyRefSelection& props = lm_.propertyRefs();
-    for ( int iseq=start; iseq<=stop; iseq++ )
+    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
     {
 	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( iseq ); 
