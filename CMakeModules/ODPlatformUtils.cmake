@@ -123,7 +123,7 @@ if(WIN32)
     
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
     set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
-    set ( CMAKE_CXX_FLAGS "/MP")
+    set ( CMAKE_CXX_FLAGS "/MP" ${CMAKE_CXX_FLAGS} )
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS   "\"-DmUsedVar=\" ${CMAKE_CXX_FLAGS}")
