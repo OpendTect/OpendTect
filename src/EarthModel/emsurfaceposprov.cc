@@ -614,7 +614,7 @@ EMImplicitBodyProvider& EMImplicitBodyProvider::operator = (
 	bbox_ = ep.bbox_;
 	threshold_ = ep.threshold_;
 	mCopyImpArr( ep.imparr_ );
-	initializedbody_ = true;
+	initializedbody_ = ep.initializedbody_;
     }
 
     return *this;
