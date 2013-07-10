@@ -78,11 +78,13 @@ uiODViewer2D::~uiODViewer2D()
 
     deepErase( auxdataeditors_ );
     setMouseCursorExchange( 0 );
-    removeAvailablePacks();
     detachAllNotifiers();
 
     if ( viewwin() )
+    {
+	removeAvailablePacks();
 	viewwin()->viewer(0).removeAuxData( marker_ );
+    }
     delete marker_;
     delete viewwin();
 }
@@ -332,6 +334,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     datamgr_->removeAll();
 
     deepErase( auxdataeditors_ );
+    removeAvailablePacks();
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
