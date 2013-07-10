@@ -578,7 +578,7 @@ EMImplicitBodyProvider::EMImplicitBodyProvider(
     , embody_( ep.embody_ )						       
     , useinside_( ep.useinside_ )
     , bbox_( ep.bbox_ )			
-    , initializedbody_( true )      
+    , initializedbody_( ep.initializedbody_ )
 {}
 
 
