@@ -203,6 +203,8 @@ void uiBitMapDisplay::update()
     if ( !basetask_->execute() )
 	return;
 
+    viewer_.appearance().ddpars_.wva_.mappersetup_.range_ = getDataRange( true);
+    viewer_.appearance().ddpars_.vd_.mappersetup_.range_ = getDataRange( false);
     display_->setVisible( true );
 }
 
