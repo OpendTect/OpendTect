@@ -78,11 +78,13 @@ uiODViewer2D::~uiODViewer2D()
 
     deepErase( auxdataeditors_ );
     setMouseCursorExchange( 0 );
-    removeAvailablePacks();
     detachAllNotifiers();
 
     if ( viewwin() )
+    {
+	removeAvailablePacks();
 	viewwin()->viewer(0).removeAuxData( marker_ );
+    }
     delete marker_;
     delete viewwin();
 }
@@ -325,6 +327,12 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
+    delete treetp_; treetp_ = 0;
+    datamgr_->removeAll();
+
+    deepErase( auxdataeditors_ );
+    removeAvailablePacks();
+
     winClosed.trigger();
 }
 
