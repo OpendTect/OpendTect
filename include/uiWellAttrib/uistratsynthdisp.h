@@ -168,6 +168,7 @@ protected:
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
     void		viewChg(CallBacker*);
+    void		parsChangedCB(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);

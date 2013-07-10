@@ -166,6 +166,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
+    vwr_->dispParsChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -528,6 +529,14 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 }
 
 
+void uiStratSynthDisp::parsChangedCB( CallBacker* )
+{
+    if ( currentvdsynthetic_ && !vwr_->appearance().ddpars_.vd_.ctab_.isEmpty())
+	currentvdsynthetic_->dispPars().coltab_ =
+	    vwr_->appearance().ddpars_.vd_.ctab_;
+}
+
+
 void uiStratSynthDisp::viewChg( CallBacker* )
 {
     viewChanged.trigger();
@@ -685,18 +694,37 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
 
-    vwr_->setPack( wva, dp->id(), false, !hadpack );
+    vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().coltab_;
     
-    mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
-    mapper.cliprate_ = Interval<float>(0.0,0.0);
-    mapper.autosym0_ = true;
-    mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
+    mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+    const bool hasrgsaved = !mIsUdf(sd->dispPars().mapperrange_.start) &&
+			    !mIsUdf(sd->dispPars().mapperrange_.stop);
+    if ( hasrgsaved && !prsd )
+    {
+	mapper.range_ = sd->dispPars().mapperrange_;
+	mapper.autosym0_ = false;
+	mapper.type_ = ColTab::MapperSetup::Fixed;
+    }
+    else
+    {
+	mapper.cliprate_ = Interval<float>(0.0,0.0);
+	mapper.autosym0_ = true;
+	mapper.type_ = ColTab::MapperSetup::Auto;
+	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
+    }
 
+    vwr_->setPack( wva, dp->id(), false, !hadpack );
     vwr_->setViewToBoundingBox();
-    vwr_->handleChange( FlatView::Viewer::DisplayPars );
+    if ( !hasrgsaved && !prsd )
+    {
+	mapper.autosym0_ = false;
+	mapper.type_ = ColTab::MapperSetup::Fixed;
+	SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
+	dispsd->dispPars().mapperrange_ = vwr_->getDataRange( wva );
+    }
     displayFRText();
 
     levelSnapChanged( 0 );
@@ -1060,6 +1088,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	sd->fillGenParams( genparams );
 	IOPar synthpar;
 	genparams.fillPar( synthpar );
+	sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
 		    		 nr_nonproprefsynths-1) );
     }
@@ -1120,6 +1149,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		continue;
 	    }
 
+	    sd->useDispPar( *synthpar );
 	    wvadatalist_->addItem( sd->name() );
 	}
 

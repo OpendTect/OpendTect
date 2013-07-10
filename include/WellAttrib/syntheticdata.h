@@ -20,6 +20,17 @@ class SeisTrc;
 class TimeDepthModel;
 
 
+mStruct(WellAttrib) SynthDispParams
+{
+    			SynthDispParams()
+			: mapperrange_(mUdf(float),mUdf(float))	{}
+    Interval<float>	mapperrange_;
+    BufferString	coltab_;
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+};
+
+
 /*! brief the basic synthetic dataset. contains the data cubes*/
 mExpClass(WellAttrib) SyntheticData : public NamedObject 
 {
@@ -49,9 +60,14 @@ public:
 
     virtual void			useGenParams(const SynthGenParams&);
     virtual void			fillGenParams(SynthGenParams&) const;
+    void				useDispPar(const IOPar&);
+    void				fillDispPar(IOPar&) const;
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
+    SynthDispParams&			dispPars() 	{ return disppars_; }
+    const SynthDispParams&		dispPars() const
+							{ return disppars_; }
 
 protected:
 					SyntheticData(const SynthGenParams&,
@@ -59,6 +75,7 @@ protected:
 
     BufferString 			wvltnm_;
     IOPar				raypars_;
+    SynthDispParams			disppars_;
 
     void				removePack();
 
