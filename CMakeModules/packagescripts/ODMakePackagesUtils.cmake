@@ -21,15 +21,9 @@ macro ( create_package PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/Contents/Resources/qt_menu.nib
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/qt_menu.nib )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${CMAKE_INSTALL_PREFIX}/create_macos_link
-				     ${DESTINATION_DIR}/Contents )
-	    execute_process( COMMAND chmod 755 ${CMAKE_INSTALL_PREFIX}/create_macos_link
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E chdir ${DESTINATION_DIR}/Contents
+			     ln -s ../bin/mac/Release MacOS
 			     RESULT_VARIABLE STATUS )
-	    execute_process( COMMAND ${DESTINATION_DIR}/Contents/create_macos_link
-				     WORKING_DIRECTORY ${DESTINATION_DIR}/Contents
-				     RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents/create_macos_link )
 	    if( NOT ${STATUS} EQUAL "0" )
 		message( FATAL_ERROR "Failed to create MacOS link" )
 	    endif()
@@ -270,11 +264,11 @@ macro( init_destinationdir  PACKAGE_NAME )
 	file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     endif()
     set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_DETAIL}" )
+    set( FULLVER_NAME "${REL_DIR}${OpendTect_VERSION_PATCH}" )
     if( APPLE )
-	set( REL_DIR "OpendTect${REL_DIR}.app" )
+	set( REL_DIR "OpendTect\ ${REL_DIR}.app" )
     endif()
 
-    set( FULLVER_NAME "${REL_DIR}${OpendTect_VERSION_PATCH}" )
     set( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
     if( EXISTS ${DESTINATION_DIR} )
 	file( REMOVE_RECURSE ${DESTINATION_DIR} )
@@ -284,10 +278,6 @@ macro( init_destinationdir  PACKAGE_NAME )
     file( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
     file( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
     if( APPLE )
-	if( ${PACKAGE_NAME} STREQUAL "base" )
-	    file( WRITE ${CMAKE_INSTALL_PREFIX}/create_macos_link
-			"#!/bin/csh -f\nln -s ../bin/${OD_PLFSUBDIR}/Release MacOS\n" )
-	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/Contents
 			 ${DESTINATION_DIR}/Contents )

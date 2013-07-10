@@ -7,14 +7,6 @@
 include( CMakeModules/packagescripts/packages.cmake )
 include( ${PSD}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-if( APPLE )
-	execute_process( COMMAND ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/chfwscript ${PSD}/bin/${OD_PLFSUBDIR}/Release ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release 
-		     RESULT_VARIABLE STATUS )
-    if( NOT ${STATUS} EQUAL "0" )
-	message( FATAL_ERROR "changing dependency Failed" )
-    endif()
-endif()
-
 if( APPLE OR WIN32 )
     od_sign_libs()
 endif()
