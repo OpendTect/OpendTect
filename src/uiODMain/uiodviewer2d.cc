@@ -77,13 +77,7 @@ uiODViewer2D::~uiODViewer2D()
 
     if ( viewwin_ )
     {
-	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-	{
-	    DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
-	    DPM(DataPackMgr::FlatID()).release( packid );
-	    packid = viewwin()->viewer( ivwr ).packID( false );
-	    DPM(DataPackMgr::FlatID()).release( packid );
-	}		
+	removeAvailablePacks();
 	delete treetp_;
 	delete datamgr_;
     }
@@ -313,6 +307,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     datamgr_->removeAll();
 
     deepErase( auxdataeditors_ );
+    removeAvailablePacks();
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
@@ -320,6 +315,24 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
 
     viewstdcontrol_ = 0;
+}
+
+
+void uiODViewer2D::removeAvailablePacks()
+{
+    if ( !viewwin() ) { pErrMsg("No main window"); return; }
+
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    vwr.removePack( ids[idx] );
+	    dpm.release( ids[idx] );
+	}
+    }
 }
 
 

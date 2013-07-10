@@ -103,6 +103,7 @@ protected:
     void			createViewWinEditors();
     virtual void		setPos(const CubeSampling&);
     void			adjustOthrDisp(bool wva,const CubeSampling&);
+    void			removeAvailablePacks();
 
     void			rebuildTree();
 
