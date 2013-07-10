@@ -300,6 +300,9 @@ protected:
     EM::Body*			embody_;
     BinID			curbid_;
     float			curz_;
+    bool			initializedbody_;
+    
+    bool			isOK() const;
 };
 
 
