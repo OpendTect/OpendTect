@@ -33,6 +33,7 @@ if(UNIX) #Apple an Linux
 	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
 	endif()
 
+	set ( OD_SET_TARGET_PROPERTIES 1 )
 
 	#For some versions of XCode
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
@@ -77,6 +78,7 @@ if(UNIX) #Apple an Linux
 
     endif()
 
+    set ( OD_LINESEP "\n" )
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
     set ( CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
     add_definitions("'-DmUnusedVar=__attribute__ ((unused))'")
@@ -116,41 +118,39 @@ if(WIN32)
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
-    set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-    set  ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
+    set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+    set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
     
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
-    add_definitions("/Ob1 /vmg /Zc:wchar_t- /EHsc")
-    add_definitions("/MP")
+    set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
-    add_definitions(  "\"-DmUnusedVar=\"")
-    add_definitions(  "\"-DmUsedVar=\"")
-    add_definitions( /W4 )
+    set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS   "\"-DmUsedVar=\" ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_C_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_C_FLAGS}")
+    set ( CMAKE_C_FLAGS   "\"-DmUsedVar=\" ${CMAKE_C_FLAGS}")
+    set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
     
-    add_definitions( /wd4389 ) # unsigned/signed mismatch
-    add_definitions( /wd4018 ) # unsigned/signed compare
-    add_definitions( /wd4505 ) # unreferenced local function removed
-    add_definitions( /wd4121 ) # Alignmnent of variables
-    add_definitions( /wd4250 ) # Diamond inheritance problems
-    add_definitions( /wd4355 ) # The this pointer is valid only within nonstatic member functions.
-    add_definitions( /wd4100 ) # unreferenced formal parameter
-    #add_definitions( /wd4701 ) # local variable used without being initialized
-    add_definitions( /wd4800 ) # forcing value to bool 'true' or 'false' (performance warning)
-    add_definitions( /wd4251 ) # 'identifier' : dll-interface
-    add_definitions( /wd4275 ) # 'identifier' : dll-interface
-    add_definitions( /wd4273 ) # inconsistent dll linkage
-    add_definitions( /wd4996 ) # function': was declared deprecated
-    add_definitions( /wd4101 ) # The local variable is never used (disable only for Windows)
-    add_definitions( /wd4267 ) # conversion from 'size_t' to 'type', possible loss of data
-    add_definitions( /wd4267 ) # conversion from 'size_t' to 'type', possible loss of data
-    add_definitions( /wd4512 ) # class' : assignment operator could not be generated (not important)
-    add_definitions( /wd4127 ) # conditional expression is constant, e.g. while ( true )
-    add_definitions( /wd4189 ) # local variable is initialized but not referenced
-
-    #These two should be enabled when someone will go over the code and clean up.
-    add_definitions( /wd4305 ) # truncation from dowble to float
-    #add_definitions( /wd4244 ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
-
+    set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
+    set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
+    set ( CMAKE_CXX_FLAGS  "/wd4505 ${CMAKE_CXX_FLAGS}" ) # unreferenced local function removed
+    set ( CMAKE_CXX_FLAGS  "/wd4121 ${CMAKE_CXX_FLAGS}" ) # Alignmnent of variables
+    set ( CMAKE_CXX_FLAGS  "/wd4250 ${CMAKE_CXX_FLAGS}" ) # Diamond inheritance problems
+    set ( CMAKE_CXX_FLAGS  "/wd4355 ${CMAKE_CXX_FLAGS}" ) # The this pointer is valid only within nonstatic member functions.
+    set ( CMAKE_CXX_FLAGS  "/wd4100 ${CMAKE_CXX_FLAGS}" ) # unreferenced formal parameter
+    #set ( CMAKE_CXX_FLAGS " /wd4701 ${CMAKE_CXX_FLAGS}" ) # local variable used without being initialized
+    set ( CMAKE_CXX_FLAGS  "/wd4800 ${CMAKE_CXX_FLAGS}" ) # forcing value to bool 'true' or 'false' (performance warning)
+    set ( CMAKE_CXX_FLAGS  "/wd4251 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
+    set ( CMAKE_CXX_FLAGS  "/wd4275 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
+    set ( CMAKE_CXX_FLAGS  "/wd4273 ${CMAKE_CXX_FLAGS}" ) # inconsistent dll linkage
+    set ( CMAKE_CXX_FLAGS  "/wd4996 ${CMAKE_CXX_FLAGS}" ) # function': was declared deprecated
+    set ( CMAKE_CXX_FLAGS  "/wd4101 ${CMAKE_CXX_FLAGS}" ) # The local variable is never used (disable only for Windows)
+    set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data
+    set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data
+    set ( CMAKE_CXX_FLAGS  "/wd4512 ${CMAKE_CXX_FLAGS}" ) # class' : assignment operator could not be generated (not important)
+    set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
+    set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
+    set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
@@ -158,9 +158,11 @@ if(WIN32)
         set  ( OD_PLFSUBDIR "win64" )
     else()
         set  ( OD_PLFSUBDIR "win32" )
+	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
 
     set  ( OD_GUI_SYSTEM "WIN32" )
+    set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
 endif()
 
 add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
