@@ -706,9 +706,9 @@ main(int argc, char** argv)
 
 	    p++;
 
-	    i = strlen(p);
+	    i = (int)(strlen(p));
 
-	    strcpy(t, p);
+	    strcpy_s(t, 80, p);
 
 	}
 
