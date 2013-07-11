@@ -248,7 +248,7 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
 	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
 	if ( !sd ) continue;
 
-	mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( wva && prsd ) continue;
 	datalist->addItem( sd->name() );
     }
@@ -453,7 +453,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 	return;
     }
 
-    mDynamicCastGet(const PropertyRefSyntheticData*,prsd,vdsd);
+    mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd);
     if ( vdsd && !prsd )
     {
 	vdsd->setWavelet( wvltfld_->getName() );
@@ -699,7 +699,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
-    mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+    mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
     const bool hasrgsaved = !mIsUdf(sd->dispPars().mapperrange_.start) &&
 			    !mIsUdf(sd->dispPars().mapperrange_.stop);
     if ( hasrgsaved && !prsd )
@@ -1081,7 +1081,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
     {
 	const SyntheticData* sd = stratsynth->getSyntheticByIdx( idx );
 	if ( !sd ) continue;
-	mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( prsd ) continue;
 	nr_nonproprefsynths++;
 	SynthGenParams genparams;
