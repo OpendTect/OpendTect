@@ -348,6 +348,12 @@ void Marker::setZStretch( float stretch )
     zstretch_ = stretch;
     if ( markerstyle.type_ == MarkerStyle3D::Plane )
 	setDip( inldip_, crldip_ );
+    else if ( markerstyle.type_ == MarkerStyle3D::Arrow )
+    {
+	const float poldip = Math::Sqrt( inldip_*inldip_ + crldip_*crldip_ );
+	direction.theta = atanf( poldip * zstretch_ * cDipFactor() );
+	setArrowDir( direction );
+    }
 }
 
 }; // namespace visBase
