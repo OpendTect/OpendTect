@@ -190,13 +190,13 @@ mExpClass(Basic) ParallelTask : public Task
 public:
     virtual		~ParallelTask();
 
-    bool		execute() { return execute(true); }
+    bool		execute() { return executeParallel(true); }
     			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),
 			    and these static threads will be shared by all
 			    instances of ParallelTask::execute. */
-    virtual bool	execute(bool parallel);
+    virtual bool	executeParallel(bool parallel);
     			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),

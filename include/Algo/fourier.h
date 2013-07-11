@@ -74,7 +74,8 @@ protected:
 			CC1D();
 			~CC1D();
 	bool            init();
-	bool            run(bool parallel)	{ return execute( parallel ); }
+	bool            run(bool parallel)
+			{ return executeParallel( parallel ); }
 	od_int64        nrIterations() const	{ return nr_; }
 	bool            doPrepare(int);
 	bool            doWork(od_int64 start, od_int64 stop, int );

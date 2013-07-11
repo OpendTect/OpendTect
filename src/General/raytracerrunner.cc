@@ -125,7 +125,7 @@ bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 
 	RayTracer1D* rt1d = raytracers_[idx];
 	const bool parallel = maxNrThreads() > 1;
-	if ( !rt1d->execute( parallel ) )
+	if ( !rt1d->executeParallel( parallel ) )
 	    mErrRet( rt1d->errMsg() );
     }
     return true;

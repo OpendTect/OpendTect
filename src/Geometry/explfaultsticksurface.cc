@@ -525,7 +525,7 @@ bool ExplFaultStickSurface::reTriangulateSurface()
     DAGTriangleTree tt;
     tt.setCoordList( &knots, OD::UsePtr );
     DelaunayTriangulator triangulator( tt );
-    triangulator.execute( false );
+    triangulator.executeParallel( false );
     TypeSet<int> grid;
     tt.getCoordIndices( grid );
     IndexedGeometry* triangle = new IndexedGeometry(
@@ -1203,7 +1203,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     DAGTriangleTree tt;
     tt.setCoordList( &knots, OD::UsePtr );
     DelaunayTriangulator triangulator( tt );
-    triangulator.execute( false );
+    triangulator.executeParallel( false );
     
     const int inlsamples = inlrg.width()/texturesampling_.binid.inl;
     const int crlsamples = crlrg.width()/texturesampling_.binid.crl;

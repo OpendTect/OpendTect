@@ -118,7 +118,7 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
 
 	    agc.setInput( inputtrace, inputtrace.info().getSize(0) );
 	    agc.setOutput( outputtrace );
-	    agc.execute( false );
+	    agc.executeParallel( false );
 	}
     }
 

@@ -304,7 +304,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	rtrunners_[thread]->setOffsets( offsets );
 	rtrunners_[thread]->addModel( layers, true );
-	if ( !rtrunners_[thread]->execute(raytraceparallel_) )
+	if ( !rtrunners_[thread]->executeParallel(raytraceparallel_) )
 	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
 
 	Array1DSlice<float> trace( output->data() );

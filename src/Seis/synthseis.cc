@@ -434,7 +434,7 @@ bool SynthGenerator::computeReflectivities()
 	ReflectivitySampler sampler( *refmodel_, sampling,
 				 freqreflectivities_, false );
 	sampler.setTargetDomain( true );
-	bool isok = sampler.execute( true );
+	bool isok = sampler.execute();
 	if ( !isok )
 	    mErrRet( sampler.message(), false );
     }

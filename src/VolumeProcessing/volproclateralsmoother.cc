@@ -238,7 +238,7 @@ bool processKernel( int start, int stop, int thread )
 	    if ( interpolateundefs_ || !wasudfptr )
 	    {
 		interpol.setArray( slice, 0 );
-		interpol.execute( domt_ );
+		interpol.executeParallel( domt_ );
 	    }
 	    else
 	    {

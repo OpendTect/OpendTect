@@ -418,7 +418,8 @@ bool GriddedSource::initGridder()
     }
 
     GridderSourceFilter filter( sourcepos_, gridsourcebids_,gridsourcecoords_);
-    if ( !filter.execute( true ) || !gridder_->setPoints( gridsourcecoords_ ) )
+    if ( !filter.execute() ||
+	 !gridder_->setPoints( gridsourcecoords_ ) )
 	return false;
 
     for ( int idx=functions_.size()-1; idx>=0; idx-- )

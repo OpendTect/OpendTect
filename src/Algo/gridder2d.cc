@@ -384,7 +384,7 @@ bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
     
     DelaunayTriangulator triangulator( *triangles_ );
     triangulator.dataIsRandom( false );
-    if ( !triangulator.execute( false ) )
+    if ( !triangulator.executeParallel( false ) )
     {
 	delete triangles_;
 	triangles_ = 0;
