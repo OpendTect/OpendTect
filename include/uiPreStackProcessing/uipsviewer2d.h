@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "uiobjectitemview.h"
 #include "uigroup.h"
 
-/*! brief display multiple ps gathers side by side with dynamic redraw possibilities !*/
-
 class uiFlatViewer;
 class BinID;
 
@@ -25,6 +23,11 @@ namespace PreStackView
 {
     class Viewer2DGatherPainter;
     class uiViewer2DAxisPainter;
+
+/*!
+\brief Displays multiple PreStack Gathers side by side with dynamic redraw
+possibility.
+*/
 
 mExpClass(uiPreStackProcessing) uiGatherDisplay : public uiGroup
 {
