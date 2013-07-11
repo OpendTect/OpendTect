@@ -6,6 +6,9 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+
+#define _CRT_RAND_S
+
 #include "statruncalc.h"
 #include "statrand.h"
 #include "errh.h"
@@ -96,8 +99,10 @@ int Stats::CalcSetup::medianEvenHandling()
 double Stats::RandGen::get()
 {
 #ifdef __win__
-    static const int rmax_ = RAND_MAX;
-    double ret = rand();
+    static const unsigned int rmax_ = UINT_MAX;
+    unsigned int rand = 0;
+    rand_s( &rand );
+    double ret = rand;
     ret /= rmax_;
     return ret;
 #else
@@ -109,7 +114,9 @@ double Stats::RandGen::get()
 int Stats::RandGen::getInt()
 {
 #ifdef __win__
-    return rand();
+    unsigned int rand = 0;
+    rand_s( &rand );
+    return *((int*)(&rand));
 #else
     return (int) lrand48();
 #endif
@@ -129,9 +136,7 @@ void Stats::RandGen::init( int seed )
 
     seed_ = seed;
 
-#ifdef __win__
-    srand( (unsigned)seed_ );
-#else
+#ifndef __win__
     srand48( (long)seed_ );
 #endif
 }
