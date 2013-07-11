@@ -94,7 +94,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !rtrunner->prepareRayTracers() )
 	    continue;
 
-	if ( !rtrunner->execute( false ) )
+	if ( !rtrunner->executeParallel( false ) )
 	    { errmsg_ = rtrunner->errMsg(); continue; }
 
 	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
