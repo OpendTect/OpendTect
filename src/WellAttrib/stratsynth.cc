@@ -55,6 +55,8 @@ static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
 static const char* sKeyRayPar() 		{ return "Ray Parameter"; } 
+static const char* sKeyDispPar() 		{ return "Display Parameter"; } 
+static const char* sKeyColTab() 		{ return "Color Table"; } 
 static const char* sKeyInput()	 		{ return "Input Synthetic"; } 
 static const char* sKeyAngleRange()		{ return "Angle Range"; } 
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
@@ -147,6 +149,26 @@ void SynthGenParams::createName( BufferString& nm ) const
     }
 }
 
+
+
+void SynthDispParams::fillPar( IOPar& par ) const
+{
+    IOPar disppar;
+    disppar.set( sKey::Range(), mapperrange_ );
+    disppar.set( sKeyColTab(), coltab_ );
+    par.mergeComp( disppar, sKeyDispPar() );
+}
+
+
+void SynthDispParams::usePar( const IOPar& par ) 
+{
+    PtrMan<IOPar> disppar = par.subselect( sKeyDispPar() );
+    if ( !disppar ) 
+	return;
+
+    disppar->get( sKey::Range(), mapperrange_ );
+    disppar->get( sKeyColTab(), coltab_ );
+}
 
 
 
@@ -470,6 +492,7 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 
 
 const char* message() const	{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+const char* nrDoneText() const	{ return "Models done"; }
 
 protected :
 
@@ -723,36 +746,79 @@ void StratSynth::generateOtherQuantities()
 }
 
 
-void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd, 
-					  const Strat::LayerModel& lm ) 
+mClass(WellAttrib) StratPropSyntheticDataCreator : public ParallelTask
 {
-    const PropertyRefSelection& props = lm.propertyRefs();
-    const StepInterval<double>& zrg = sd.postStackPack().posData().range(false);
 
-    TypeSet<Interval<float> > seqtimergs;
+public:
+StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
+		    const PostStackSyntheticData& sd,
+		    const Strat::LayerModel& lm,
+       		    int& lastsynthid )
+    : ParallelTask( "Creating Synthetics for Properties" )
+    , synthetics_(synths)
+    , sd_(sd)
+    , lm_(lm)
+    , lastsyntheticid_(lastsynthid)
+    , isprepared_(false)
+{
+}
+
+od_int64 nrIterations() const
+{ return lm_.size(); }
+
+
+const char* message() const
+{
+    return !isprepared_ ? "Preparing Models" : "Calculating";
+}
+
+const char* nrDoneText() const
+{
+    return "Models done";
+}
+
+
+protected:
+
+bool doPrepare( int nrthreads )
+{
+    const StepInterval<double>& zrg =
+	sd_.postStackPack().posData().range( false );
+
+    layermodels_.setEmpty();
     ManagedObjectSet<Strat::LayerModel> layermodels;
     const int sz = zrg.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
-	layermodels += new Strat::LayerModel();
-
-    for ( int iseq=0; iseq<lm.size(); iseq ++ )
+	layermodels_ += new Strat::LayerModel();
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    for ( int iprop=1; iprop<props.size(); iprop++ )
     {
-	const Strat::LayerSequence& seq = lm.sequence( iseq ); 
-	const TimeDepthModel& t2d = *sd.d2tmodels_[iseq];
+	SeisTrcBufDataPack* seisbuf =
+	    new SeisTrcBufDataPack( sd_.postStackPack() );
+	SeisTrcBuf* trcbuf = new SeisTrcBuf( seisbuf->trcBuf() );
+	seisbuf->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
+	seisbufdps_ += seisbuf;
+    }
+
+    for ( int iseq=0; iseq<lm_.size(); iseq++ )
+    {
+	addToNrDone( 1 );
+	const Strat::LayerSequence& seq = lm_.sequence( iseq ); 
+	const TimeDepthModel& t2d = *sd_.d2tmodels_[iseq];
 	const Interval<float> seqdepthrg = seq.zRange();
 	const float seqstarttime = t2d.getTime( seqdepthrg.start );
 	const float seqstoptime = t2d.getTime( seqdepthrg.stop );
-	seqtimergs += Interval<float> ( seqstarttime, seqstoptime );
+	Interval<float> seqtimerg( seqstarttime, seqstoptime );
 	for ( int idz=0; idz<sz; idz++ )
 	{
-	    Strat::LayerModel* lmsamp = layermodels[idz];
+	    Strat::LayerModel* lmsamp = layermodels_[idz];
 	    if ( !lmsamp )
 		continue;
 
 	    lmsamp->addSequence();
 	    Strat::LayerSequence& curseq = lmsamp->sequence( iseq );
 	    const float time = mCast( float, zrg.atIndex(idz) );
-	    if ( !seqtimergs[iseq].includes(time,false) )
+	    if ( !seqtimerg.includes(time,false) )
 		continue;
 
 	    const float dptstart = t2d.getDepth( time - (float)zrg.step );
@@ -762,46 +828,88 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 	}
     }
 
-    for ( int iprop=1; iprop<props.size(); iprop++ )
+    isprepared_ = true;
+    resetNrDone();
+    return true;
+}
+
+
+bool doFinish( bool success )
+{
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    SynthGenParams sgp;
+    sd_.fillGenParams( sgp );
+    for ( int idx=0; idx<seisbufdps_.size(); idx++ )
     {
-	const bool propisvel = props[iprop]->stdType() == PropertyRef::Vel;
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( sd.postStackPack() );
-	SeisTrcBuf* trcbuf = new SeisTrcBuf( dp->trcBuf() );
-	const int bufsz = trcbuf->size();
-	for ( int iseq=0; iseq<lm.size(); iseq ++ )
+	SeisTrcBufDataPack* dp = seisbufdps_[idx];
+	BufferString nm( "[", props[idx+1]->name(), "]" );
+	dp->setName( nm );
+	PropertyRefSyntheticData* prsd = 
+	    	 new PropertyRefSyntheticData( sgp, *dp, *props[idx+1] );
+	prsd->id_ = ++lastsyntheticid_;
+	prsd->setName( nm );
+
+	deepCopy( prsd->d2tmodels_, sd_.d2tmodels_ );
+	synthetics_ += prsd;
+    }
+
+    return true;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const StepInterval<double>& zrg =
+	sd_.postStackPack().posData().range( false );
+    const int sz = layermodels_.size();
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
+    {
+	addToNrDone( 1 );
+	const Strat::LayerSequence& seq = lm_.sequence( iseq ); 
+	const TimeDepthModel& t2d = *sd_.d2tmodels_[iseq];
+	Interval<float> seqtimerg(  t2d.getTime(seq.zRange().start),
+				    t2d.getTime(seq.zRange().stop) );
+
+	for ( int iprop=1; iprop<props.size(); iprop++ )
 	{
-	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf->get( iseq ) : 0;
+	    const bool propisvel = props[iprop]->stdType() == PropertyRef::Vel;
+	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
+	    SeisTrcBuf& trcbuf = dp->trcBuf();
+	    const int bufsz = trcbuf.size();
+	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf.get( iseq ) : 0;
 	    if ( !rawtrc )
 		continue;
 
 	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
-		    			     PointBasedMathFunction::EndVal );
+					     PointBasedMathFunction::EndVal );
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
 		const float time = mCast( float, zrg.atIndex(idz) );
-		if ( !seqtimergs[iseq].includes(time,false) )
+		if ( !seqtimerg.includes(time,false) )
 		    continue;
 
-		if ( !layermodels.validIdx(idz) )
+		if ( !layermodels_.validIdx(idz) )
 		    continue;
 
-		Strat::LayerSequence& seq = layermodels[idz]->sequence(iseq);
-		if ( seq.isEmpty() )
+		const Strat::LayerSequence& curseq =
+		    layermodels_[idz]->sequence(iseq);
+		if ( curseq.isEmpty() )
 		    continue;
 
 		Stats::CalcSetup laypropcalc( true );
 		laypropcalc.require( Stats::Average );
 		Stats::RunCalc<double> propval( laypropcalc );
-		for ( int ilay=0; ilay<seq.size(); ilay++ )
+		for ( int ilay=0; ilay<curseq.size(); ilay++ )
 		{
-		    const Strat::Layer* lay = seq.layers()[ilay];
+		    const Strat::Layer* lay = curseq.layers()[ilay];
 		    if ( !lay ) continue;
 		    const float val = lay->value(iprop);
 		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 			continue;
 
 		    propval.addValue( propisvel ? 1.f / val : val,
-			   	      lay->thickness() );
+				      lay->thickness() );
 		}
 		const float val = mCast( float, propval.average() );
 		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
@@ -827,18 +935,29 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 	    for ( int idz=0; idz<sz; idz++ )
 		rawtrc->set( idz, proptr.get( idz ), 0 );
 	}
-
-	dp->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
-	BufferString nm( "[", props[iprop]->name(), "]" );
-	dp->setName( nm );
-	PropertyRefSyntheticData* prsd = 
-	    	 new PropertyRefSyntheticData( genparams_, *dp, *props[iprop] );
-	prsd->id_ = ++lastsyntheticid_;
-	prsd->setName( nm );
-
-	deepCopy( prsd->d2tmodels_, sd.d2tmodels_ );
-	synthetics_ += prsd;
     }
+
+    return true;
+}
+
+
+    const PostStackSyntheticData&	sd_;
+    const Strat::LayerModel&		lm_;
+    ManagedObjectSet<Strat::LayerModel> layermodels_;
+    ObjectSet<SyntheticData>&		synthetics_;
+    ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
+    int&				lastsyntheticid_;
+    bool				isprepared_;
+
+};
+
+
+void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd, 
+					  const Strat::LayerModel& lm ) 
+{
+    StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
+	    				       lastsyntheticid_ );
+    TaskRunner::execute( tr_, propcreator );
 }
 
 
@@ -852,8 +971,6 @@ const char* StratSynth::infoMsg() const
 {
     return infomsg_.isEmpty() ? 0 : infomsg_.buf();
 }
-
-
 
 
 #define mValidDensityRange( val ) \
@@ -1372,4 +1489,16 @@ void SyntheticData::useGenParams( const SynthGenParams& sgp )
     raypars_ = sgp.raypars_;
     wvltnm_ = sgp.wvltnm_;
     setName( sgp.name_ );
+}
+
+
+void SyntheticData::fillDispPar( IOPar& par ) const
+{
+    disppars_.fillPar( par );
+}
+
+
+void SyntheticData::useDispPar( const IOPar& par )
+{
+    disppars_.usePar( par );
 }
