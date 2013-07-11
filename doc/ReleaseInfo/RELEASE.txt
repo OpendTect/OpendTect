@@ -3,6 +3,19 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0l: July 11, 2013
+  * Fix for crash while adding new 3D horizon
+  * Fix for selection of items using up/down arrow keys in GMT
+  * Fix for snap scene using Snapshot tool
+  * Fix for crash while importing big horizons
+  * Fix for displaying line names while calculating attribute-attribute
+    crossplot
+  * Fix for progress diaplay in multi machine processing merge
+  * Fix for arrow orientation in PickSet display
+  * Fix for exporting horizon using 'Transform' calculation
+  * Fix for coastline plot in GMT on linux
+  * Fix for help file view on newer linux distributions
+
 v4.4.0k: June 14, 2013
   * Fix for crash when saving well tie data as a volume.
   * Fix for crash when displaying intersecting inline / horizon
