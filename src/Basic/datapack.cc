@@ -20,23 +20,23 @@ DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
+ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
+Threads::Lock DataPackMgr::mgrlistlock_;
+
 
 DataPack::ID DataPack::getNewID()
 {
-    static Threads::Mutex mutex;
-    Threads::MutexLocker lock( mutex );
-    static DataPack::ID curid = 1;
+    static Threads::Lock lock( true );
+    Threads::Locker lckr( lock );
 
+    static DataPack::ID curid = 1;
     return curid++;
 }
 
 
-ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
-Threads::Mutex DataPackMgr::mgrlistlock_;
-
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
 {
-    Threads::MutexLocker lock( mgrlistlock_ );
+    Threads::Locker lock( mgrlistlock_ );
 
     for ( int idx=0; idx<mgrs_.size(); idx++ )
     {
@@ -93,7 +93,7 @@ const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
 
 void DataPackMgr::dumpDPMs( std::ostream& strm )
 {
-    Threads::MutexLocker lock( mgrlistlock_ );
+    Threads::Locker lock( mgrlistlock_ );
     strm << "** Data Pack Manager dump **\n";
     if ( !mgrs_.size() )
 	{ strm << "No Data pack managers (yet)" << std::endl; return; }
@@ -151,13 +151,16 @@ void DataPackMgr::dumpInfo( std::ostream& strm ) const
 }
 
 
+#define mGetWriteLocker(lck,var) \
+    Threads::Locker var( lck, Threads::Locker::WriteLock )
+
 void DataPackMgr::add( DataPack* dp )
 {
     if ( !dp ) return;
 
-    lock_.writeLock();
+    mGetWriteLocker( rwlock_, lckr );
     packs_ += dp;
-    lock_.writeUnLock();
+    lckr.unlockNow();
     newPack.trigger( dp );
 }
 
@@ -166,15 +169,15 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 {
     if ( !dp ) return 0;
 
-    dp->nruserslock_.lock();
+    Threads::Locker lckr( dp->nruserslock_ );
     dp->nrusers_++;
-    dp->nruserslock_.unLock();
+    lckr.unlockNow();
 
-    lock_.writeLock();
+    mGetWriteLocker( rwlock_, rwlckr );
     const int idx = packs_.indexOf( dp );
     if ( idx==-1 )
 	packs_ += dp;
-    lock_.writeUnLock();
+    rwlckr.unlockNow();
 
     if ( idx==-1 )
 	newPack.trigger( dp );
@@ -185,7 +188,7 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 
 DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 {
-    lock_.readLock();
+    Threads::Locker lckr( rwlock_ );
     const int idx = indexOf( dpid );
 
     DataPack* res = 0;
@@ -194,13 +197,11 @@ DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 	res = const_cast<DataPack*>( packs_[idx] );
 	if ( !obs )
 	{
-	    res->nruserslock_.lock();
+	    Threads::Locker ulckr( res->nruserslock_ );
 	    res->nrusers_++;
-	    res->nruserslock_.unLock();
 	}
     }
 
-    lock_.readUnLock();
     return res;
 }
 
@@ -219,39 +220,30 @@ int DataPackMgr::indexOf( DataPack::ID dpid ) const
 
 void DataPackMgr::release( DataPack::ID dpid )
 {
-    lock_.readLock();
+    Threads::Locker lckr( rwlock_ );
     int idx = indexOf( dpid );
     if ( idx==-1 )
-    {
-	lock_.readUnLock();
 	return;
-    }
 
     DataPack* pack = const_cast<DataPack*>( packs_[idx] );
-    pack->nruserslock_.lock();
+    Threads::Locker usrslckr( pack->nruserslock_ );
     pack->nrusers_--;
+    usrslckr.unlockNow();
     if ( pack->nrusers_>0 )
-    {
-	pack->nruserslock_.unLock();
-	lock_.readUnLock();
 	return;
-    }
-
-    pack->nruserslock_.unLock();
 
     //We should be unlocked during callback
     //to avoid deadlocks
-    lock_.readUnLock();
+    lckr.unlockNow();
 
     packToBeRemoved.trigger( pack );
 
-    lock_.writeLock();
+    mGetWriteLocker( rwlock_, wrlckr );
 
     //We lost our lock, so idx may have changed.
     if ( !packs_.isPresent( pack ) ) pErrMsg("Double delete detected");
 
     packs_.removeSingle( idx );
-    lock_.writeUnLock();
     delete pack;
 }
 
@@ -260,9 +252,8 @@ void DataPackMgr::releaseAll( bool notif )
 {
     if ( !notif )
     {
-	lock_.writeLock();
+	mGetWriteLocker( rwlock_, wrlckr );
 	deepErase( packs_ );
-	lock_.writeUnLock();
     }
     else
     {
