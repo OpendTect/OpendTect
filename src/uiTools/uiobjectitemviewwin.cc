@@ -356,8 +356,6 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
 
 
 
-
-
 uiObjectItemViewInfoBar::uiObjectItemViewInfoBar( uiParent* p )
         : uiObjectItemView(p)
 {
