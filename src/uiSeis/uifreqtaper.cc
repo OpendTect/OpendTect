@@ -382,7 +382,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, 1.f/slopeindecade );
+    const float slopeinhertz = Math::PowerOf( 10, 1.f/slopeindecade );
     TaperData& td = mGetData();
 
     if ( isminactive_ )
@@ -397,7 +397,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 void uiFreqTaperGrp::setSlopeFromFreq()
 {
     TaperData& d = mGetData();
-    float slope = fabs( 1.f/Math::Log10( d.rg_.stop / d.rg_.start ) );
+    const float slope = fabs( 1.f/Math::Log10( d.rg_.stop / d.rg_.start ) );
     d.slope_ = (float) ( slope*mDec2Oct );
 }
 
