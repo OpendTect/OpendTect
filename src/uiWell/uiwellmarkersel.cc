@@ -219,7 +219,7 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 	    if ( selidx > sz-2 )
 		cb.setCurrentItem( sz-2 );
 	    else
-		othcb.setCurrentItem( selidx-1 );
+		othcb.setCurrentItem( selidx+1 );
 	}
 	else
 	{

@@ -188,11 +188,11 @@ float Strat::LaySeqAttribCalc::getValue( const LayerSequence& seq,
 float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 					  const Interval<float>& zrg ) const
 {
-    if ( validx_ < 0 || seq.isEmpty() || zrg.stop < zrg.start )
+    if ( validx_ < 0 || seq.isEmpty() )
 	return mUdf(float);
 
     const ObjectSet<Layer>& lays = seq.layers();
-    if ( statupscl_ == Stats::TakeNearest )
+    if ( statupscl_ == Stats::TakeNearest || zrg.stop < zrg.start )
     {
 	const float depth = zrg.center();
 	const int ilay = seq.layerIdxAtZ( depth );
