@@ -8,11 +8,13 @@
 SET(OD_MODULE_DEPS uiODMain HorizonAttrib)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
-	uihorizonattrib.cc
-	uihorattribpi.cc
-	uistratamp.cc
+	uicontourtreeitem.cc
+	uidatapointsetpickdlg.cc
 	uiflattenedcube.cc
+	uihorattribpi.cc
+	uihorizonattrib.cc
 	uiisopachmaker.cc
-	uicontourtreeitem.cc)
+	uistratamp.cc
+)
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()

@@ -10,23 +10,24 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uihorizonattrib.h"
+
+#include "uicalcpoly2horvol.h"
 #include "uicontourtreeitem.h"
+#include "uidatapointsetpickdlg.h"
 #include "uiempartserv.h"
-#include "uistratamp.h"
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
-#include "uicalcpoly2horvol.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodhortreeitem.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
-#include "uiodemsurftreeitem.h"
-#include "vishorizondisplay.h"
-#include "vispicksetdisplay.h"
+#include "uipickpartserv.h"
+#include "uistratamp.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
-#include "uipickpartserv.h"
+
 #include "attribsel.h"
 #include "emmanager.h"
 #include "emioobjinfo.h"
@@ -35,6 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "odplugin.h"
 #include "survinfo.h"
+
+#include "vishorizondisplay.h"
+#include "vispicksetdisplay.h"
 
 
 static const char* sKeyContours = "Contours";
@@ -68,13 +72,18 @@ public:
     void		doContours(CallBacker*);
     void		calcPolyVol(CallBacker*);
     void		calcHorVol(CallBacker*);
+    void		pickData(CallBacker*);
+    void		dataReadyCB(CallBacker*);
 
-    uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
     uiVisMenuItemHandler isopachmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
     uiVisMenuItemHandler horvolmnuitemhndlr_;
     uiVisMenuItemHandler polyvolmnuitemhndlr_;
+    uiVisMenuItemHandler pickdatamnuitemhndlr_;
+
+    uiODMain*			appl_;
+    uiEMDataPointSetPickDlg*	dpspickdlg_;
 };
 
 
@@ -84,6 +93,7 @@ public:
 
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
+	, dpspickdlg_(0)
 	, flattenmnuitemhndlr_(
 		mMkPars("Write &Flattened cube ...",doFlattened),"Workflows")
 	, isopachmnuitemhndlr_(
@@ -92,6 +102,8 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mMkPars("&Contour Display",doContours),"Add",995)
 	, horvolmnuitemhndlr_(
 		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
+	, pickdatamnuitemhndlr_(
+		mMkPars("Pick Horizon Data ...",pickData),"Workflows")
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
@@ -280,6 +292,37 @@ void uiHorAttribPIMgr::calcHorVol( CallBacker* )
     uiCalcHorPolyVol dlg( appl_, *hor );
     dlg.go();
 }
+
+
+void uiHorAttribPIMgr::pickData( CallBacker* )
+{
+    const int displayid = pickdatamnuitemhndlr_.getDisplayID();
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
+    if ( !hd ) return;
+
+    delete dpspickdlg_;
+    dpspickdlg_ = new uiEMDataPointSetPickDlg( appl_, hd->getScene()->id(),
+					       hd->getObjectID() );
+    dpspickdlg_->readyForDisplay.notify(
+				mCB(this,uiHorAttribPIMgr,dataReadyCB) );
+    dpspickdlg_->show();
+}
+
+
+void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
+{
+    const int displayid = pickdatamnuitemhndlr_.getDisplayID();
+    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    mDynamicCastGet(uiODHorizonTreeItem*,horitm,parent)
+    if ( !horitm )
+        return;
+
+    uiODDataTreeItem* itm = horitm->addAttribItem();
+    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+    if ( emitm ) emitm->setDataPointSet( dpspickdlg_->getData() );
+}
+
 
 
 mDefODInitPlugin(uiHorizonAttrib)
