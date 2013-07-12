@@ -44,7 +44,8 @@ public:
 			~IOObjInfo();
     IOObjInfo&		operator =(const IOObjInfo&);
 
-    enum ObjectType	{ Horizon3D, Horizon2D, FaultStickSet, Fault, Body };
+    enum ObjectType	{ Unknown, Horizon3D, Horizon2D,
+			  FaultStickSet, Fault, Body };
     static void		getIDs(ObjectType,TypeSet<MultiID>&);
 				//!< Does not erase the IDs at start
 
@@ -80,11 +81,9 @@ public:
     bool		getTrcRanges(TypeSet< StepInterval<int> >&) const;
 
     // Body
-
     bool		getBodyRange(CubeSampling&) const;
 
     // FaultStickSet
-
     int 		nrSticks() const;
 
 
