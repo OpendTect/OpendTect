@@ -147,7 +147,6 @@ protected:
 
 
 /*!
-\ingroup uiMPE
 \brief Holder class for MPE ui-factories.
   Is normally only retrieved by MPE::uiMPE().
 */
