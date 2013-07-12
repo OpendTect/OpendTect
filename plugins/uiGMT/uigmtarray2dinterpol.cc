@@ -86,7 +86,7 @@ bool uiGMTSurfaceGrid::acceptOK()
 {
     if ( !tensionfld_ )
     {
-	uiMSG().message( "No GMT instllation found" );
+	uiMSG().message( "No GMT installation found" );
 	return false;
     }
 
@@ -169,7 +169,7 @@ bool uiGMTNearNeighborGrid::acceptOK()
 {
     if ( !radiusfld_ )
     {
-	uiMSG().message( "No GMT instllation found" );
+	uiMSG().message( "No GMT installation found" );
 	return false;
     }
 
