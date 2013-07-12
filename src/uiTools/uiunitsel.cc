@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "unitofmeasure.h"
+#include "survinfo.h"
 
 
 uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
@@ -101,7 +102,9 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 
 void uiUnitSel::update()
 {
+    const BufferString olddef( inpfld_->isEmpty() ? "" : inpfld_->text() );
     inpfld_->setEmpty();
+
     if ( withempty_ )
 	inpfld_->addItem( "-" );
     units_.erase();
@@ -112,4 +115,9 @@ void uiUnitSel::update()
 	    				: units_[idx]->name().buf();
 	inpfld_->addItem( disp );
     }
+
+    if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
+	inpfld_->setText( olddef );
+    else if ( proptype_ == PropertyRef::Dist && SI().depthsInFeet() )
+	inpfld_->setText( symbolsdisp_ ? "ft" : "Feet" );
 }

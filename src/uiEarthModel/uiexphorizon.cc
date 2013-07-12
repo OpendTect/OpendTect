@@ -472,11 +472,7 @@ void uiExportHorizon::addZChg( CallBacker* )
     {
 	FixedString zdomain = getZDomain();
 	if ( zdomain==ZDomain::sKeyDepth() )
-	{
 	    unitsel_->setPropType( PropertyRef::Dist );
-	    if ( SI().zInFeet() || SI().depthsInFeetByDefault() )
-		unitsel_->setUnit( "Feet" );
-	}
 	else if ( zdomain==ZDomain::sKeyTime() )
 	{
 	    unitsel_->setPropType( PropertyRef::Time );

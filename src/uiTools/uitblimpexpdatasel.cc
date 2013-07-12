@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "survinfo.h"
 #include "tabledef.h"
 #include "tableascio.h"
 #include "unitofmeasure.h"
@@ -99,8 +98,6 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
-	else if ( proptyp == PropertyRef::Dist && SI().depthsInFeetByDefault() )
-	    unitfld_->setUnit( "Feet" );
     }
 
     postFinalise().notify( boxcb );
