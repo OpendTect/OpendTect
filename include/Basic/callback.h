@@ -352,9 +352,16 @@ public:
 // Following functions are usually used by T class only:
 
 			CNotifier( T* cb )	{ cber_ = cb; }
+# ifdef __msvc__
+#  pragma warning ( push )
+#  pragma warning( disable : 4700 )
+# endif			
 
     inline void		trigger( CallBacker* cb=0 )
 			    { if( !enabled_ ) return; C c; trigger(c,cb); }
+# ifdef __msvc__
+#  pragma warning ( pop )
+# endif
 
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
