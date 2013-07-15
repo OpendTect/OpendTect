@@ -193,7 +193,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	return mUdf(float);
 
     const ObjectSet<Layer>& lays = seq.layers();
-    if ( statupscl_ == Stats::TakeNearest )
+    if ( statupscl_ == Stats::TakeNearest || zrg.stop < zrg.start )
     {
 	const float depth = zrg.center();
 	const int ilay = seq.layerIdxAtZ( depth );
