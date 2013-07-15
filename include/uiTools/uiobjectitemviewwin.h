@@ -11,9 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-
-/*! brief A uiMainWin that holds embedded uiObjects and controls !*/
-
 #include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uigroup.h"
@@ -32,6 +29,10 @@ class uiToolButton;
 class uiGraphicsObjectScene;
 class uiAxisHandler;
 class uiBorder;
+
+/*!
+\brief A uiMainWin that holds embedded uiObjects and controls.
+*/
 
 mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
 {
