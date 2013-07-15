@@ -32,7 +32,10 @@ static const char* rcsID = "$Id$";
 
 namespace WellTie
 {
-#define mErrRet(msg) { errmsg_ = msg; return false; }
+#define mErrRet(msg) { \
+    if ( !errmsg_.isEmpty() ) errmsg_ += ". "; \
+    errmsg_ += msg; return false; }
+
 static const int cDefTimeResampFac = 20;
 
 #define mGetWD() { wd_ = data_.wd_; if ( !wd_ ) return false; }
