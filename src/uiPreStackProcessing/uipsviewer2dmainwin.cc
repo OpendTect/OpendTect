@@ -318,8 +318,10 @@ void uiViewer2DMainWin::angleGatherCB( CallBacker* )
     const int nrgathers = gatherinfos_.size();
     PreStack::Gather gather; PreStack::Gather* angledata = 0;
 
+    int gatheridx = 0;
     for ( int idx=0; idx<nrgathers; idx++ )
     {
+	if ( !gatherinfos_[idx].isselected_ ) continue;
 	const MultiID mid = gatherinfos_[idx].mid_;
 	const BinID bid = gatherinfos_[idx].bid_;
 	if ( gather.readFrom(mid,bid) ) 
@@ -330,9 +332,9 @@ void uiViewer2DMainWin::angleGatherCB( CallBacker* )
 	    angledata = velangcomp.computeAngles();
 	    anglegather_ += getAngleGather( gather, *angledata, 
 					    params.anglerange_ );
-	    setAngleGather( idx );
+	    setAngleGather( gatheridx );
 	}
-
+	gatheridx += 1;
 	delete angledata;
     }
 }
