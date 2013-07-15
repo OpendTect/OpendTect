@@ -34,7 +34,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace WellTie
 {
-#define mErrRet(msg) { errmsg_ = msg; return false; }
+#define mErrRet(msg) { \
+    if ( !errmsg_.isEmpty() ) errmsg_ += ". "; \
+    errmsg_ += msg; return false; }
+
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     : data_(data)		    
     , seisid_(seisid)
