@@ -313,7 +313,7 @@ void sendPositions( TypeSet<Coord3>& positions )
     else
     {
 	BendPointFinder3D finder( positions, scale_, eps_ );
-	finder.execute(nrthreads_<2);
+	finder.executeParallel(nrthreads_<2);
 	const TypeSet<int>& bendpoints = finder.bendPoints();
 	const int nrbendpoints = bendpoints.size();
 	if ( nrbendpoints )

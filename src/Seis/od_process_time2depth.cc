@@ -129,5 +129,5 @@ bool BatchProgram::go( std::ostream& strm )
     TextStreamProgressMeter progressmeter( strm );
     exec->setProgressMeter( &progressmeter );
 
-    return exec->execute( &strm );
+    return exec->execute();
 }

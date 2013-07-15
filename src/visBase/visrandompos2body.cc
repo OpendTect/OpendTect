@@ -122,7 +122,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	tree.setCoordList( picks, false );
 	
 	ParallelDTetrahedralator pdtri( tree );
-	if ( !pdtri.execute(true) )
+	if ( !pdtri.execute() )
 	    return false;
 
 	if ( !tree.getSurfaceTriangles(result) )

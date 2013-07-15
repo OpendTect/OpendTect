@@ -148,7 +148,7 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	return false;
 
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    if ( !triangulator.execute(true) )
+    if ( !triangulator.execute() )
 	return false;
 
     sampleindices_.erase();
@@ -215,7 +215,7 @@ bool ExplPolygonSurface::prepareBodyDAGTree()
 	return false;
     
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    return triangulator.execute(true);
+    return triangulator.execute();
 }
 
 

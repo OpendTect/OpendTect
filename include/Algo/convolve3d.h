@@ -41,8 +41,7 @@ public:
     void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
     			//!<Default is false
 
-    virtual bool	execute()	{ return execute( true ); }
-    virtual bool	execute(bool);
+    virtual bool	executeParallel(bool);
 
 protected:
     inline bool		shouldFFT() const;
@@ -232,12 +231,12 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 
 
 template <class T> inline
-bool Convolver3D<T>::execute( bool yn )
+bool Convolver3D<T>::executeParallel( bool yn )
 {
     if ( shouldFFT() )
 	return doFFT();
 
-    return ParallelTask::execute( yn );
+    return ParallelTask::executeParallel( yn );
 }
 
 

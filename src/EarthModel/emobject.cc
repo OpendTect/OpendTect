@@ -476,7 +476,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	EMObjectRowColSelRemoval selremoval( *this, sectionID(idx), selector,
 					     nrrows, nrcols, 
 					     startrow, startcol );
-	selremoval.execute( tr );
+	selremoval.executeParallel( tr );
 
 	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
 

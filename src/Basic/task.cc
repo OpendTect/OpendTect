@@ -330,7 +330,7 @@ od_int64 ParallelTask::nrDone() const
 }
 
 
-bool ParallelTask::execute( bool parallel )
+bool ParallelTask::executeParallel( bool parallel )
 {
     Threads::WorkManager& twm = Threads::WorkManager::twm();
     if ( parallel && twm.isWorkThread() && !twm.nrFreeThreads() )

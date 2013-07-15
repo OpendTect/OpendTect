@@ -134,7 +134,7 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
     Well::LogSampler logsamp( wd_, extractparams_, lognms );
-    if ( !logsamp.execute(false) )
+    if ( !logsamp.executeParallel(false) )
 	mErrRet( logsamp.errMsg(), true )
 
     StepInterval<float> zrg = logsamp.zRange();

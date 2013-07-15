@@ -493,7 +493,7 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
     agc.setInput( *inputdata_->series(dataidx_), inputdata_->nrsamples_ );
     Array1DImpl<float> outarr( inputdata_->nrsamples_ );
     agc.setOutput( outarr );
-    agc.execute( false );
+    agc.executeParallel( false );
 
     const int shift = output.z0_ - inputdata_->z0_;
     for ( int idx=0; idx<output.nrsamples_; idx++ )
