@@ -277,10 +277,11 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&mainviewer_->scene())
     const uiSize screensz( mainviewer_->width(), mainviewer_->height() );
-    if ( screensz.width()<=0 || screensz.height()<=0 ) 
+    if ( screensz.width()<=0 || screensz.height()<=0 )
 	return;
 
     const uiSize layoutsz(sc->layoutSize().width(),sc->layoutSize().height());
+    if ( layoutsz.width()<=0 || layoutsz.height()<=0 )	return;
     float xratio = screensz.width()/(float)layoutsz.width();
     float yratio = screensz.height()/(float)layoutsz.height();
     float newhslval = hslval_*xratio;
