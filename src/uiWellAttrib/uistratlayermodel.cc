@@ -521,8 +521,6 @@ void uiStratLayerModel::modSelChg( CallBacker* cb )
 
 void uiStratLayerModel::zoomChg( CallBacker* )
 {
-    if ( !automksynth_ )
-	return;
     uiWorldRect wr( mUdf(double), 0, 0, 0 );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     if ( synthdisp_->getSynthetics().size() )
@@ -786,6 +784,15 @@ void uiStratLayerModel::genModels( CallBacker* )
     if ( nrmods < 1 )
 	{ uiMSG().error("Please enter a valid number of models"); return; }
 
+    const int prevnrmods = lmp_.getCurrent().size();
+    bool autoupdatechged = false;
+    if ( prevnrmods != nrmods && !automksynth_ )
+    {
+	automksynth_ = true;
+	autoupdatechged = true;
+	synthdisp_->setAutoUpdate( automksynth_ );
+    }
+
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = seqdisp_->desc().propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
@@ -803,6 +810,8 @@ void uiStratLayerModel::genModels( CallBacker* )
     setElasticProps();
     useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
+    if ( !automksynth_ )
+	moddisp_->modelChanged();
 
     if ( needtoretrievefrpars_ )
     {
@@ -818,6 +827,12 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
+
+    if ( autoupdatechged )
+    {
+	automksynth_ = false;
+	synthdisp_->setAutoUpdate( automksynth_ );
+    }
 }
 
 
@@ -842,9 +857,6 @@ void uiStratLayerModel::setModelProps()
 
 void uiStratLayerModel::setElasticProps()
 {
-    if ( !automksynth_ )
-	return;
-
     if ( !elpropsel_ )
     {
 	elpropsel_ = new ElasticPropSelection;

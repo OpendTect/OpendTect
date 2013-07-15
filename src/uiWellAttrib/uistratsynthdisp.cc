@@ -316,7 +316,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 
     const bool domodelchg = dispflattened_ || dispflattened;
     dispflattened_ = dispflattened;
-    if ( domodelchg )
+    if ( domodelchg && !autoupdate_ )
     {
 	doModelChange();
 	control_->zoomMgr().toStart();

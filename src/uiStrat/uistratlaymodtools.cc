@@ -154,7 +154,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     mksynthtb_ = new uiToolButton( rightgrp, "autogensynth",
 			"Automatically create synthetics when on",
-			mCB(this,uiStratLayModEditTools,showFlatCB) );
+			mCB(this,uiStratLayModEditTools,mkSynthCB) );
     mksynthtb_->setToggleButton( true );
     mksynthtb_->setOn( true );
     flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
