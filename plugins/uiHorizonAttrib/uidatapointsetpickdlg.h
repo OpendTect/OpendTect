@@ -24,7 +24,7 @@ class DataPointSet;
 namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
 
-mExpClass(uiVis) uiDataPointSetPickDlg : public uiDialog
+mClass(uiHorizonAttrib) uiDataPointSetPickDlg : public uiDialog
 {
 public:
 			uiDataPointSetPickDlg(uiParent*,int sceneid);
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mExpClass(uiVis) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
+mClass(uiHorizonAttrib) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 {
 public:
 			uiEMDataPointSetPickDlg(uiParent*,int sceneid,
