@@ -382,7 +382,7 @@ void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
     mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, 1.f/slopeindecade );
+    const float slopeinhertz = Math::PowerOf( 10, 1.f/slopeindecade );
     TaperData& td = mGetData();
 
     if ( isminactive_ )
