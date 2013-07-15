@@ -121,8 +121,10 @@ void uiMPEMan::addButtons()
     trackwithseedonlyidx = mAddButton( "trackfromseeds", trackFromSeedsOnly,
 	    			       "Track From Seeds Only", false );
 
+#ifdef __DEBUG__
     retrackallinx = mAddButton( "retrackhorizon", retrackAllCB,
 	    			"Retrack All", false );
+#endif
     toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube", showCubeCB,
