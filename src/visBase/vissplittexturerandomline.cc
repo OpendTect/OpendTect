@@ -176,17 +176,23 @@ void SplitTextureRandomLine::updateDisplay( )
 	    lastpathidx = pathsz ? pathsz-1 : 0;
 
 	TypeSet<BinID> knots;
+	TypeSet<int> knotspathidxs;
 	if ( pathsz )
 	{
     	    knots += path_[startpathidx];
+	    knotspathidxs += startpathidx;
     	    for ( int idx=startpathidx+1; idx<lastpathidx; idx++ )
     	    {
     		const BinID bid = path_[idx];
     		if ( knots_.isPresent( bid ) && !knots.isPresent(bid) )
+		{
     		    knots += bid;
+		    knotspathidxs += idx;
+		}
     	    }
 	    
     	    knots += path_[lastpathidx];
+	    knotspathidxs += lastpathidx;
 	}
 	else
 	    knots = knots_;
@@ -234,7 +240,9 @@ void SplitTextureRandomLine::updateDisplay( )
 		int textureidx=0;
 		for ( int idx=0; idx<knots.size(); idx++ )
     		{
-		    const int posid = path_.indexOf(knots[idx]);
+		    const int posid = knotspathidxs.isEmpty() ?
+				path_.indexOf(knots[idx]) : knotspathidxs[idx];
+
 		    const float tcrd = ((posid-startpathidx) * pathpixelscale_
 			    		+ 0.5f)/texturepathsz;
 		    tc->point.set1Value( textureidx, SbVec2f(tcstart,tcrd) );
