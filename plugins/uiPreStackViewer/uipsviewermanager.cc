@@ -241,7 +241,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid == viewermenuitem_.id )
     {
 	menu->setIsHandled( true );
-	multiviewers2d_ += createMultiGather2DViewer( *psv );
+	createMultiGather2DViewer( *psv );
     }
     else if ( mnuid==amplspectrumitem_.id )
     {

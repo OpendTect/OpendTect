@@ -58,6 +58,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , axispainter_(0)
     , cs_(false)
 {
+    setDeleteOnClose( true );
     setPrefWidth( 800 );
 }
 
@@ -65,6 +66,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
 uiViewer2DMainWin::~uiViewer2DMainWin()
 {
     deepErase( mutes_ );
+    delete posdlg_;
 }
 
 
@@ -185,7 +187,7 @@ void uiViewer2DMainWin::displayMutes()
 		muteaux->poly_ +=  FlatView::Point( offset, val );
 	    }
 
-	    muteaux->namepos_ = 0;
+	    muteaux->namepos_ = sz/2;
 	    gd->getUiFlatViewer()->addAuxData( muteaux );
 	}
     }
@@ -213,6 +215,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     {
 	clearAuxData();
 	deepErase( mutes_ );
+	mutecolors_.erase();
 	for ( int idx=0; idx<mutesel.selGrp()->nrSel(); idx++ )
 	{
 	    const MultiID& muteid = mutesel.selGrp()->selected( idx );
@@ -227,7 +230,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	    }
 
 	    mutes_ += mutedef;
-	    mutecolors_ += getRandomColor();
+	    mutecolors_ += getRandStdDrawColor();
 	}
 
 	displayMutes();

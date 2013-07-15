@@ -76,7 +76,7 @@ void uiGatherDisplay::setVDGather( int vdid )
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
-		      (float)pd.range(false).stop );
+		      (float)pd.range(true).stop );
     zdatarange_.set( (float)pd.range(false).start,
 		     (float)pd.range(false).stop );
 }
@@ -89,7 +89,7 @@ void uiGatherDisplay::setWVAGather( int wvaid )
     if ( !dp ) return;
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
-		      (float)pd.range(false).stop );
+		      (float)pd.range(true).stop );
     zdatarange_.set( (float)pd.range(false).start,
 		     (float)pd.range(false).stop );
 }

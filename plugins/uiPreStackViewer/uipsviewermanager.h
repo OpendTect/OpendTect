@@ -94,7 +94,6 @@ protected:
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;
-    ObjectSet<uiStoredViewer2DMainWin>	multiviewers2d_;
 };
 
 } // namespace
