@@ -437,8 +437,8 @@ static const char* getShortPathName( const char* path )
 
 mExternC(Basic) const char* GetFullExecutablePath( void )
 {
-    static char* res = 0;
-    if ( !res )
+    static BufferString res;
+    if ( res.isEmpty() )
     {
 	FilePath executable = GetArgV()[0];
 	if ( !executable.isAbsolute() )
@@ -448,9 +448,7 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 	    executable = filepath;
 	}
 	
-	BufferString fullpath = getShortPathName( executable.fullPath() );
-	res = new char[fullpath.size()+1];
-	fullpath.fill( res );
+	res = getShortPathName( executable.fullPath() );
     }
     
     return res;
