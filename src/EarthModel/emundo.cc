@@ -22,6 +22,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* EM::SetPosUndoEvent::savedposstr = "Pos";
 
+EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
+{
+    const int curidx = indexOf( forredo ? currenteventid_ + 1 
+                                        : currenteventid_ );
+    if ( !events_.validIdx(curidx) )
+        return -1;
+
+    const UndoEvent* curev = events_[curidx];
+    mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
+    return emundoev ? emundoev->getObjectID() : -1;
+}
+
 
 EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos_,
 					    const EM::PosID& posid_ )
@@ -144,6 +156,10 @@ bool EM::SetAllHor3DPosUndoEvent::reDo()
 {
     return setArray( *newarr_, neworigin_ );
 }
+
+
+EM::ObjectID EM::SetAllHor3DPosUndoEvent::getObjectID() const
+{ return horizon_ ? horizon_->id() : -1; }
 
 
 bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,

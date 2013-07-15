@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emobject.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "emundo.h"
 #include "executor.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -25,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sectiontracker.h"
 #include "selector.h"
 #include "survinfo.h"
-#include "undo.h"
 
 #include "uicolortable.h"
 #include "uimenu.h"
@@ -922,10 +922,26 @@ void uiMPEMan::undoPush( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    EM::EMM().burstAlertToAll( true );
-    if ( !EM::EMM().undo().unDo( 1, true  ) )
-	uiMSG().error("Could not undo everything.");
-    EM::EMM().burstAlertToAll( false );
+    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo() );
+    if ( emundo )
+    {
+	EM::ObjectID curid = emundo->getCurrentEMObjectID( false );
+	EM::EMObject* emobj = EM::EMM().getObject( curid );
+	if ( emobj )
+        {
+            emobj->ref();
+	    emobj->setBurstAlert( true );
+        }
+        
+        if ( !emundo->unDo(1,true) )
+	    uiMSG().error( "Could not undo everything." );
+
+	if ( emobj )
+        {
+	    emobj->setBurstAlert( false );
+            emobj->unRef();
+        }
+    }
 
     updateButtonSensitivity(0);
 }
@@ -935,10 +951,26 @@ void uiMPEMan::redoPush( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    EM::EMM().burstAlertToAll( true );
-    if ( !EM::EMM().undo().reDo( 1, true ) )
-	uiMSG().error("Could not redo everything.");
-    EM::EMM().burstAlertToAll( false );
+    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo() );
+    if ( emundo )
+    {
+	EM::ObjectID curid = emundo->getCurrentEMObjectID( true );
+	EM::EMObject* emobj = EM::EMM().getObject( curid );
+        if ( emobj )
+        {
+            emobj->ref();
+	    emobj->setBurstAlert( true );
+        }
+
+	if ( !emundo->reDo(1,true) )
+	    uiMSG().error( "Could not redo everything." );
+
+	if ( emobj )
+        {
+       	    emobj->setBurstAlert( false );
+            emobj->unRef();
+        }
+    }
 
     updateButtonSensitivity(0);
 }

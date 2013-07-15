@@ -31,7 +31,23 @@ class Horizon3D;
 \brief Set position UndoEvent.
 */
 
-mExpClass(EarthModel) SetPosUndoEvent : public UndoEvent
+mExpClass(EarthModel) EMUndo : public Undo
+{
+public:
+
+    ObjectID		getCurrentEMObjectID(bool forredo) const;
+};
+
+
+mExpClass(EarthModel) EMUndoEvent : public UndoEvent
+{
+public:
+
+    virtual ObjectID		getObjectID() const =0;
+};
+
+
+mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
 {
 public:
 			SetPosUndoEvent( const Coord3& oldpos,
@@ -40,6 +56,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return posid.objectID(); }
 
 protected:
     EM::PosID		posid;
@@ -53,7 +70,7 @@ protected:
 \brief UndoEvent for setting all positions on a EM::Horizon3D section.
 */
 
-mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public UndoEvent
+mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public EMUndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
@@ -64,6 +81,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const;
 
 protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
@@ -82,7 +100,7 @@ protected:
 \brief UndoEvent for setting position attribute.
 */
 
-mExpClass(EarthModel) SetPosAttribUndoEvent : public UndoEvent
+mExpClass(EarthModel) SetPosAttribUndoEvent : public EMUndoEvent
 {
 public:
 			SetPosAttribUndoEvent( const EM::PosID&,
@@ -91,6 +109,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return posid.objectID(); }
 
 protected:
     EM::PosID		posid;
@@ -103,7 +122,7 @@ protected:
 \brief Saves information from a EMObject::changePosID call.
 */
 
-mExpClass(EarthModel) PosIDChangeEvent : public UndoEvent
+mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
 {
 public:
     			PosIDChangeEvent( const EM::PosID& from,
@@ -112,6 +131,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return to.objectID(); }
 
 protected:
     const EM::PosID	from;
@@ -124,7 +144,7 @@ protected:
 \brief UndoEvent to set preferred Color.
 */
 
-mExpClass(EarthModel) SetPrefColorEvent : public UndoEvent
+mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
     			SetPrefColorEvent(const EM::ObjectID&,
@@ -133,6 +153,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return objectid_; }
 
 protected:
     const EM::ObjectID	objectid_;
