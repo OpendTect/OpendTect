@@ -182,9 +182,8 @@ int ExitProgram( int ret )
     exit( ret ? EXIT_FAILURE : EXIT_SUCCESS );
 #else
     exit(ret);
-#endif
-    
     return ret; // to satisfy (some) compilers
+#endif
 }
 
 
