@@ -85,22 +85,6 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setSelSpec( as, dowva );
     if ( isnewvwr ) curvwr->setSelSpec( as, !dowva );
 
-    FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf(dtpackid);
-    if ( as && dpname != as->userRef() )
-    {
-	for ( int idx=0; idx<DPM(DataPackMgr::FlatID()).packs().size(); idx++ )
-	{
-	    const int tmpdtpackid = 
-			DPM(DataPackMgr::FlatID()).packs()[idx]->id();
-	    FixedString tmpnm = DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
-	    if ( tmpnm == as->userRef() )
-	    {
-		dtpackid = tmpdtpackid;
-		break;
-	    }
-	}
-    }
-
     curvwr->setUpView( dtpackid, dowva );
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
