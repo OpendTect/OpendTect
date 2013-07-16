@@ -330,7 +330,6 @@ uiAttribDescSetEd::~uiAttribDescSetEd()
 {
     delete &userattrnames_;
     delete &setctio_;
-    delete toolbar_;
     delete adsman_;
 }
 
