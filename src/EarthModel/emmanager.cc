@@ -14,13 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "emioobjinfo.h"
+#include "emundo.h"
 #include "errh.h"
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ptrman.h"
-#include "undo.h"
 #include "selector.h"
 #include "stratlevel.h"
 #include "keystrs.h"
@@ -42,7 +42,7 @@ namespace EM
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : undo_( *new Undo() )
+    : undo_( *new EMUndo() )
     , addRemove( this )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();

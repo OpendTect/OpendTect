@@ -31,6 +31,22 @@ class Horizon3D;
 \brief Set position UndoEvent.
 */
 
+mExpClass(EarthModel) EMUndo : public Undo
+{
+public:
+
+    ObjectID		getCurrentEMObjectID(bool forredo) const;
+};
+
+
+mExpClass(EarthModel) EMUndoEvent : public UndoEvent
+{
+public:
+
+    virtual ObjectID		getObjectID() const =0;
+};
+
+
 mExpClass(EarthModel) SetPosUndoEvent : public UndoEvent
 {
 public:
@@ -40,6 +56,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return posid.objectID(); }
 
 protected:
     EM::PosID		posid;
@@ -64,6 +81,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const;
 
 protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
@@ -91,6 +109,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return posid.objectID(); }
 
 protected:
     EM::PosID		posid;
@@ -112,6 +131,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return to.objectID(); }
 
 protected:
     const EM::PosID	from;
@@ -133,6 +153,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
+    ObjectID		getObjectID() const { return objectid_; }
 
 protected:
     const EM::ObjectID	objectid_;
