@@ -8,6 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 
+#include "ioman.h"
+#include "ioobj.h"
 #include "moddepmgr.h"
 #include "multiid.h"
 #include "prestackanglecomputer.h"
@@ -84,7 +86,14 @@ bool BatchProgram::go( std::ostream &strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer = 
 				    new PreStack::VelocityBasedAngleComputer;
 
-    computer->setMultiID( MultiID(100010,8) );
+    PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
+    if ( !velobj )
+    {
+	std::cerr<<" Input data is not available.\n";
+	return false;
+    }
+
+    computer->setMultiID( velobj->key() );
     StepInterval<double> zrange(0,1.1,0.004), offsetrange(0,2500,500);
     FlatPosData fp;
     fp.setRange( true, offsetrange );
