@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <QComboBox> 
 
-//! Helper class for uiComboBox to relay Qt's 'activated' messages to uiMenuItem.
+//! Helper class for uiComboBox to relay Qt's 'activated' messages to uiAction.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */

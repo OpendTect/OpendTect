@@ -1023,7 +1023,7 @@ void uiTable::popupMenu( CallBacker* )
 	return;
     }
 
-    uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
+    uiMenu* mnu = new uiMenu( parent(), "Action" );
     BufferString itmtxt;
 
     const RowCol cur = notifiedCell();
@@ -1035,15 +1035,15 @@ void uiTable::popupMenu( CallBacker* )
 	if ( setup_.insertcolallowed_ )
 	{
 	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " before" );
-	    inscolbef = mnu->insertItem( new uiMenuItem(itmtxt), 0 );
+	    inscolbef = mnu->insertItem( new uiAction(itmtxt), 0 );
 	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " after" );
-	    inscolaft = mnu->insertItem( new uiMenuItem(itmtxt), 2 );
+	    inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
 	}
 
 	if ( setup_.removecolallowed_ )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.coldesc_;
-	    delcol = mnu->insertItem( new uiMenuItem(itmtxt), 1 );
+	    delcol = mnu->insertItem( new uiAction(itmtxt), 1 );
 	}
     }
 
@@ -1055,15 +1055,15 @@ void uiTable::popupMenu( CallBacker* )
 	if ( setup_.insertrowallowed_ )
 	{
 	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " before" );
-	    insrowbef = mnu->insertItem( new uiMenuItem(itmtxt), 3 );
+	    insrowbef = mnu->insertItem( new uiAction(itmtxt), 3 );
 	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " after" );
-	    insrowaft = mnu->insertItem( new uiMenuItem(itmtxt), 5 );
+	    insrowaft = mnu->insertItem( new uiAction(itmtxt), 5 );
 	}
 
 	if ( setup_.removerowallowed_ )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
-	    delrow = mnu->insertItem( new uiMenuItem(itmtxt), 4 );
+	    delrow = mnu->insertItem( new uiAction(itmtxt), 4 );
 	}
     }
 
@@ -1071,7 +1071,7 @@ void uiTable::popupMenu( CallBacker* )
     if ( isTableReadOnly() && setup_.enablecopytext_ )
     {
 	itmtxt = "Copy text";
-	cptxt = mnu->insertItem( new uiMenuItem(itmtxt), 6 );
+	cptxt = mnu->insertItem( new uiAction(itmtxt), 6 );
     }
 
     int virkeyboardid = mUdf(int);
@@ -1079,7 +1079,7 @@ void uiTable::popupMenu( CallBacker* )
     {
 	mnu->insertSeparator();
 	itmtxt = "Virtual Keyboard";
-	virkeyboardid = mnu->insertItem( new uiMenuItem(itmtxt), 100 );
+	virkeyboardid = mnu->insertItem( new uiAction(itmtxt), 100 );
     }
 
     int ret = mnu->exec();

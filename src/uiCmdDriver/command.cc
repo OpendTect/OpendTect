@@ -320,7 +320,7 @@ bool MenuTracer::goingToChangeUiObj() const
 
 
 bool MenuTracer::findItem( const FileMultiString& menupath,
-			   const uiMenuItem*& curitem, int* curitmidx ) const
+			   const uiAction*& curitem, int* curitmidx ) const
 {
     const uiActionContainer* curmenu = &startmenu_;
     curitem = 0;
@@ -342,7 +342,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	    return false;
 	}
 
-	ObjectSet<uiMenuItem> items( curmenu->actions() );
+	ObjectSet<uiAction> items( curmenu->actions() );
 	int nrgrey = 0;
 	for ( int itmidx=items.size()-1; itmidx>=0; itmidx-- )
 	{
@@ -380,7 +380,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 
     if ( curitmidx )
     {
-	ObjectSet<uiMenuItem> items( curmenu->actions() );
+	ObjectSet<uiAction> items( curmenu->actions() );
 	*curitmidx = 0;
 	for ( int idx=items.size()-1; idx>=0; idx-- )
 	{
@@ -395,13 +395,13 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 
 int MenuTracer::nrItems( const FileMultiString& menupath ) const
 {
-    ObjectSet<uiMenuItem> items;
+    ObjectSet<uiAction> items;
 
     if ( menupath.isEmpty() )
 	items = startmenu_.actions();
     else
     {
-	const uiMenuItem* mnuitm;
+	const uiAction* mnuitm;
 	if ( !findItem(menupath, mnuitm) )
 	    return -1;
 
@@ -434,7 +434,7 @@ bool MenuTracer::getMenuInfo( const FileMultiString& menupath, bool allowroot,
     if ( allowroot && menupath.isEmpty() )
 	return true;
 
-    const uiMenuItem* mnuitm;
+    const uiAction* mnuitm;
     if ( !findItem(menupath, mnuitm, &menuinfo.siblingnr_) )
 	return false;
 

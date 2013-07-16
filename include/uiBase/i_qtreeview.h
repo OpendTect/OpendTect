@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include <QTreeWidget>
 
 
-//!brief Helper class for uiTreeView to relay Qt's 'activated' messages to uiMenuItem.
+//!brief Helper class for uiTreeView to relay Qt's 'activated' messages to uiAction.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */

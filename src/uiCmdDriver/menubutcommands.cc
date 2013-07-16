@@ -64,8 +64,8 @@ bool MenuCmd::act( const char* parstr )
 }
 
 
-MenuActivator::MenuActivator( const uiMenuItem& mnuitm )
-    : actmnuitm_( const_cast<uiMenuItem&>(mnuitm) )
+MenuActivator::MenuActivator( const uiAction& mnuitm )
+    : actmnuitm_( const_cast<uiAction&>(mnuitm) )
 {}
 
 

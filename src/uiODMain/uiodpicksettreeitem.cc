@@ -117,30 +117,30 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    	    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add PickSet ..."), mLoadIdx );
-    mnu.insertItem( new uiMenuItem("Add &Polygon..."), mLoadPolyIdx );
-    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New PickSet" );
-    newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
-    newmnu->insertItem( new uiMenuItem("Generate &3D..."), mGen3DIdx );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&Add PickSet ..."), mLoadIdx );
+    mnu.insertItem( new uiAction("Add &Polygon..."), mLoadPolyIdx );
+    uiMenu* newmnu = new uiMenu( getUiParent(), "&New PickSet" );
+    newmnu->insertItem( new uiAction("&Empty ..."), mEmptyIdx );
+    newmnu->insertItem( new uiAction("Generate &3D..."), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiMenuItem("Generate &2D ..."), mRandom2DIdx );
+	newmnu->insertItem( new uiAction("Generate &2D ..."), mRandom2DIdx );
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiMenuItem("Ne&w Polygon ..."), mPolygonIdx );
+    mnu.insertItem( new uiAction("Ne&w Polygon ..."), mPolygonIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
-	uiMenuItem* filteritem =
-	    new uiMenuItem( "&Display picks only at sections" );
+	uiAction* filteritem =
+	    new uiAction( "&Display picks only at sections" );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiMenuItem* shwallitem = new uiMenuItem( "Show &all picks" );
+	uiAction* shwallitem = new uiAction( "Show &all picks" );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Merge Sets ..."), mMergeIdx );
-	mnu.insertItem( new uiMenuItem("&Save changes"), mSaveIdx );
+	mnu.insertItem( new uiAction("&Merge Sets ..."), mMergeIdx );
+	mnu.insertItem( new uiAction("&Save changes"), mSaveIdx );
     }
 
     addStandardItems( mnu );

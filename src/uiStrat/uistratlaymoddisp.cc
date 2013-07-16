@@ -310,12 +310,12 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     if ( lays.isEmpty() || layidx < 0 )
 	return;
 
-    uiPopupMenu mnu( parent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Remove layer ..."), 1 );
-    mnu.insertItem( new uiMenuItem("Remove this &Well"), 2 );
-    mnu.insertItem( new uiMenuItem("&Dump all wells to file ..."), 3 );
-    mnu.insertItem( new uiMenuItem("&Add dumped wells from file ..."), 4 );
+    uiMenu mnu( parent(), "Action" );
+    mnu.insertItem( new uiAction("&Properties ..."), 0 );
+    mnu.insertItem( new uiAction("&Remove layer ..."), 1 );
+    mnu.insertItem( new uiAction("Remove this &Well"), 2 );
+    mnu.insertItem( new uiAction("&Dump all wells to file ..."), 3 );
+    mnu.insertItem( new uiAction("&Add dumped wells from file ..."), 4 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 

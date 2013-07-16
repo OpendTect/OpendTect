@@ -28,7 +28,7 @@ static const char* oddirnm = "base";
 
 #define mInsertItem(mnu,txt,id,sc) \
 { \
-    uiMenuItem* itm = new uiMenuItem(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
+    uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
     mnu->insertItem( itm, id ); \
     itm->setShortcut( sc ); \
 }
@@ -140,7 +140,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 }
 
 
-void uiODHelpMenuMgr::insertVarItem( uiPopupMenu* mnu, int eidx, bool withicon )
+void uiODHelpMenuMgr::insertVarItem( uiMenu* mnu, int eidx, bool withicon )
 {
     uiODHelpDocInfo& di = *varentries_[eidx];
     BufferString txt( di.nm );
@@ -163,7 +163,7 @@ void uiODHelpMenuMgr::mkVarMenu()
     }
     else
     {
-	uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&Index" );
+	uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&Index" );
 	for ( int idx=0; idx<varentries_.size(); idx++ )
 	    insertVarItem( submnu, idx, true );
 	helpmnu_->insertItem( submnu );
@@ -173,7 +173,7 @@ void uiODHelpMenuMgr::mkVarMenu()
 
 void uiODHelpMenuMgr::mkCreditsMenu()
 {
-    uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&Credits" );
+    uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&Credits" );
     helpmnu_->insertItem( submnu );
 
     DirList dl( GetDocFileDir("Credits"), DirList::DirsOnly );
@@ -207,7 +207,7 @@ void uiODHelpMenuMgr::mkCreditsMenu()
 
 void uiODHelpMenuMgr::mkAboutMenu()
 {
-    uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&About" );
+    uiMenu* submnu = new uiMenu( &mnumgr_->appl_, "&About" );
     helpmnu_->insertItem( submnu );
     mInsertItem( submnu, "&General ...", mHelpAboutMnuBase, 0 );
 

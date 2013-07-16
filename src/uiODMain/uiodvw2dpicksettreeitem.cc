@@ -48,9 +48,9 @@ bool uiODVw2DPickSetParentTreeItem::init()
 
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New"), 0 );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&New"), 0 );
+    mnu.insertItem( new uiAction("&Load ..."), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -164,14 +164,14 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const int setidx = Pick::Mgr().indexOf( pickset_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Properties ..."), 0 );
-    mnu.insertItem( new uiMenuItem("Set &direction ..."), 1 );
-    uiMenuItem* saveitm = new uiMenuItem( "&Save" );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&Properties ..."), 0 );
+    mnu.insertItem( new uiAction("Set &direction ..."), 1 );
+    uiAction* saveitm = new uiAction( "&Save" );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
-    mnu.insertItem( new uiMenuItem("&Save As ..."), 3 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 4 );
+    mnu.insertItem( new uiAction("&Save As ..."), 3 );
+    mnu.insertItem( new uiAction("&Remove"), 4 );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )

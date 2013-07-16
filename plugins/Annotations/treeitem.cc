@@ -230,8 +230,8 @@ bool AnnotTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), "Action" );
     BufferString addtxt = "&Add "; addtxt += typestr_; addtxt += " group ...";
-    mnu.insertItem( new uiMenuItem(addtxt), 0 );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
+    mnu.insertItem( new uiAction(addtxt), 0 );
+    mnu.insertItem( new uiAction("&Load ..."), 1 );
 
     const int mnusel = mnu.exec();
     if ( mnusel < 0 ) return false;

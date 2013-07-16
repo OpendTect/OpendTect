@@ -172,19 +172,19 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
     if ( !strcmp( lvit->text(), Strat::RefTree::sKeyNoCode() ) )
 	{ updateUnitProperties( lvit ); return; }
 
-    uiPopupMenu mnu( lv_->parent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
+    uiMenu mnu( lv_->parent(), "Action" );
+    mnu.insertItem( new uiAction("&Create sub-unit..."), 0 );
     if ( isLeaved( lvit ) )
-	mnu.insertItem( new uiMenuItem("&Subdivide unit..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Properties..."), 2 );
+	mnu.insertItem( new uiAction("&Subdivide unit..."), 1 );
+    mnu.insertItem( new uiAction("&Properties..."), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
-	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+	mnu.insertItem( new uiAction("&Remove"), 3 );
     if ( lv_->currentItem() == lv_->firstItem() ) 
-	 mnu.insertItem( new uiMenuItem("&Add Unit below"), 4 );
+	 mnu.insertItem( new uiAction("&Add Unit below"), 4 );
     if ( isLeaved( lvit ) )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Assign marker boundary"), 5 );
+	mnu.insertItem( new uiAction("&Assign marker boundary"), 5 );
     }
 
     const int mnuid = mnu.exec();

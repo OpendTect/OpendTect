@@ -689,10 +689,10 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 	true);
 /*
     removenodenodemnuitem_ = emobj->isDefined(*empid)
-        ? menu->addItem( new uiMenuItem("Remove &node") )
+        ? menu->addItem( new uiAction("Remove &node") )
 	: -1;
 
-    uiMenuItem* snapitem_ = new uiMenuItem("S&nap after edit");
+    uiAction* snapitem_ = new uiAction("S&nap after edit");
     tooglesnappingnodemnuitem_ = menu->addItem(snapitem_);
     snapitem_->setChecked(emod->getEditor()->snapAfterEdit());
 */

@@ -45,9 +45,9 @@ uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 
 bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New"), 0 );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&New"), 0 );
+    mnu.insertItem( new uiAction("&Load ..."), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -237,13 +237,13 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 
 bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
+    uiMenu mnu( getUiParent(), "Action" );
+    uiAction* savemnu = new uiAction("&Save ... ");
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 2 );
+    mnu.insertItem( new uiAction("&Save As ..."), 1 );
+    mnu.insertItem( new uiAction("&Remove"), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 || mnuid == 1 )

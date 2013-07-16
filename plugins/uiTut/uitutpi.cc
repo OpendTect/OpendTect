@@ -48,8 +48,8 @@ public:
 			uiTutMgr(uiODMain*);
 
     uiODMain*		appl_;
-    uiPopupMenu*	mnuhor_;
-    uiPopupMenu*	mnuseis_;
+    uiMenu*		mnuhor_;
+    uiMenu*		mnuseis_;
     uiVisMenuItemHandler wellmnuitmhandler_;
 
     void		doSeis(CallBacker*);
@@ -67,19 +67,19 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
 			      mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
-    uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
+    uiMenu* mnu = new uiMenu( appl_, "&Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 
     {
-	mnu->insertItem( new uiMenuItem("&Seismic 2D (Direct) ...",
+	mnu->insertItem( new uiAction("&Seismic 2D (Direct) ...",
 					mCB(this,uiTutMgr,do2DSeis)) );
-	mnu->insertItem( new uiMenuItem("&Seismic 3D (Direct) ...",
+	mnu->insertItem( new uiAction("&Seismic 3D (Direct) ...",
 					mCB(this,uiTutMgr,do3DSeis)) );
     }	
     else
-	mnu->insertItem( new uiMenuItem("&Seismic (Direct) ...",
+	mnu->insertItem( new uiAction("&Seismic (Direct) ...",
 					mCB(this,uiTutMgr,doSeis)) );
 
-    mnu->insertItem( new uiMenuItem("&Horizon ...",
+    mnu->insertItem( new uiAction("&Horizon ...",
 				    mCB(this,uiTutMgr,doHor)) );
 
     appl_->menuMgr().toolsMnu()->insertItem( mnu );

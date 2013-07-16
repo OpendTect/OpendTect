@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include <QWidget>
 
 
-//! Helper class for uiTable to relay Qt's 'activated' messages to uiMenuItem.
+//! Helper class for uiTable to relay Qt's 'activated' messages to uiAction.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */

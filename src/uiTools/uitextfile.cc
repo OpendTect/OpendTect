@@ -265,18 +265,18 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
     editor_ = new uiTextFile( this, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
 
-    uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
+    uiMenu* filemnu = new uiMenu( this, "&File" );
     if ( dlgsetup.allowopen_ )
-	filemnu->insertItem( new uiMenuItem("&Open ...",
+	filemnu->insertItem( new uiAction("&Open ...",
 		    	     mCB(this,uiTextFileDlg,open)) );
     if ( dlgsetup.allowsave_ )
     {
-	filemnu->insertItem( new uiMenuItem("&Save ...",
+	filemnu->insertItem( new uiAction("&Save ...",
 		    	     mCB(this,uiTextFileDlg,save)) );
-	filemnu->insertItem( new uiMenuItem("Save &As ...",
+	filemnu->insertItem( new uiAction("Save &As ...",
 		    	     mCB(this,uiTextFileDlg,saveAs)) );
     }
-    filemnu->insertItem( new uiMenuItem("&Quit",
+    filemnu->insertItem( new uiAction("&Quit",
 			 mCB(this,uiTextFileDlg,dismiss)) );
     menuBar()->insertItem( filemnu );
 }

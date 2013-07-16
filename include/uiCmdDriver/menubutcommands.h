@@ -32,11 +32,11 @@ mEndDeclCmdClass
 mExpClass(uiCmdDriver) MenuActivator : public Activator
 {
 public:	
-		MenuActivator(const uiMenuItem&);
+		MenuActivator(const uiAction&);
     void	actCB(CallBacker*);
 
 protected:
-    uiMenuItem&	actmnuitm_;
+    uiAction&	actmnuitm_;
 };
 
 
@@ -171,7 +171,7 @@ protected:
 mEndDeclCmdClass
 
 
-mStartDeclComposerClass( uiCmdDriver, Menu, CmdComposer, uiMenuItem )
+mStartDeclComposerClass( uiCmdDriver, Menu, CmdComposer, uiAction )
     mEndDeclComposerClass
 mStartDeclComposerClass( uiCmdDriver, Button, CmdComposer, uiButton )
     mEndDeclComposerClass

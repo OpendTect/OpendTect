@@ -174,11 +174,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
-	uiPopupMenu* mnu = new uiPopupMenu( &maniptb_, "View Menu" );
+	uiMenu* mnu = new uiMenu( &maniptb_, "View Menu" );
 	multicolcodtbid_ = maniptb_.addButton( "colorbar",
 		"Turn on multicolor coding",
 		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB), true );
-	uiMenuItem* itm = new uiMenuItem( "Change color",
+	uiAction* itm = new uiAction( "Change color",
 		mCB(this,uiDataPointSetCrossPlotWin,changeColCB) );
 	mnu->insertItem( itm, 0 );
 	maniptb_.setButtonMenu( multicolcodtbid_, mnu );

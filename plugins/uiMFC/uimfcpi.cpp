@@ -31,8 +31,8 @@ protected:
 MnuMgr::MnuMgr( uiODMain& a )
     : appl_(a)
 {
-    uiMenuItem* newitem =
-	new uiMenuItem( "Launch MFC Dialog", mCB(this,MnuMgr,Mnufnctn) );
+    uiAction* newitem =
+	new uiAction( "Launch MFC Dialog", mCB(this,MnuMgr,Mnufnctn) );
     appl_.menuMgr().utilMnu()->insertItem( newitem );
 }
 

@@ -119,7 +119,7 @@ uiMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	}
 	else
 	{
-	    uiMenuItem* mnuitem = new uiMenuItem(subitm.text);
+	    uiAction* mnuitem = new uiAction(subitm.text);
 	    menu->insertItem( mnuitem, subitm.id );
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );

@@ -110,10 +110,10 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
     if ( !itm || !itm->getMenu() ) return;
 
     if ( SI().has3D() )
-	itm->getMenu()->insertItem( new uiMenuItem("&Stratal Amplitude ...",
+	itm->getMenu()->insertItem( new uiAction("&Stratal Amplitude ...",
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    itm->getMenu()->insertItem( new uiMenuItem("&Isopach ...",
+    itm->getMenu()->insertItem( new uiAction("&Isopach ...",
 			    mCB(this,uiHorAttribPIMgr,doIsopachThruMenu)) );
 }
 

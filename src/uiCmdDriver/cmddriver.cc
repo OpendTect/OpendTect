@@ -1268,7 +1268,7 @@ bool CmdDriver::dispatchDynamicMenu( uiMenu* popupmenu )
 		      curitem->isCheckable() );
 
 	interceptstatus_ = InterceptReady;
-	popupmenu->doIntercept( true, const_cast<uiMenuItem*>(curitem) );
+	popupmenu->doIntercept( true, const_cast<uiAction*>(curitem) );
 	return true;
     }
 

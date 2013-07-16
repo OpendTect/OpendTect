@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include <QTabBar>
 
 
-//! Helper class for uitabbar to relay Qt's 'currentChanged' messages to uiMenuItem.
+//! Helper class for uitabbar to relay Qt's 'currentChanged' messages to uiAction.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */

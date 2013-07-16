@@ -92,7 +92,7 @@ bool CmdRecorder::start()
 	return false;
 
     uiBaseObject::addCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
-    uiMenuItem::addCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiAction::addCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
     uiMenu::addInterceptor( mCB(this,CmdRecorder,dynamicMenuInterceptor) );
     Timer::setUserWaitFlag( false );
 
@@ -172,7 +172,7 @@ void CmdRecorder::stop( bool fatal )
     }
 
     uiBaseObject::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
-    uiMenuItem::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
+    uiAction::removeCmdRecorder( mCB(this,CmdRecorder,handleEvent) );
     uiMenu::removeInterceptor(
 	    			mCB(this,CmdRecorder,dynamicMenuInterceptor) ); 
 
@@ -406,11 +406,11 @@ bool CmdRecorder::findKeyString( const uiMainWin& srcwin, CmdRecEvent& event )
 
 
 static bool findMenuPath( const uiActionContainer& mnu,
-			  const uiMenuItem& searchitem,
+			  const uiAction& searchitem,
 			  FileMultiString& menupath, bool& casedep )
 {
     bool itemfound = false;
-    const uiMenuItem* curitem = 0;
+    const uiAction* curitem = 0;
     FileMultiString pathtail;
 
     for ( int idx=0; idx<mnu.actions().size(); idx++ )
@@ -447,7 +447,7 @@ static bool findMenuPath( const uiActionContainer& mnu,
 
     for ( int idx=0; idx<mnu.actions().size(); idx++ )
     {
-	const uiMenuItem* mnuitm = mnu.actions()[idx];
+	const uiAction* mnuitm = mnu.actions()[idx];
 	if ( !mnuitm->isEnabled() )
 	    continue;
 
@@ -558,7 +558,7 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	if ( ev.begin_ || !mMatchCI(keyword,"Close") )
 	{
 	    mDynamicCast( uiObject*, ev.object_, caller );
-	    mDynamicCast( uiMenuItem*, ev.mnuitm_, caller );
+	    mDynamicCast( uiAction*, ev.mnuitm_, caller );
 	    mDynamicCast( const uiMainWin*, ev.srcwin_, caller );
 	}
     }

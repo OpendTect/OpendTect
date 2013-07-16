@@ -80,7 +80,7 @@ void uiDPSDemoMgr::insertMenuItem( CallBacker* )
 {
     if ( SI().has3D() )
 	appl_.menuMgr().analMnu()->insertItem(
-		new uiMenuItem("&DataPointSet demo ...",
+		new uiAction("&DataPointSet demo ...",
 		mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
 }
 

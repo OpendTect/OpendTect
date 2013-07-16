@@ -53,9 +53,9 @@ uiODVw2DHor2DParentTreeItem::~uiODVw2DHor2DParentTreeItem()
 
 bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&New ..."), 0 );
+    mnu.insertItem( new uiAction("&Load ..."), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -283,16 +283,16 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    uiMenuItem* savemnu = new uiMenuItem("&Save ... ");
+    uiMenu mnu( getUiParent(), "Action" );
+    uiAction* savemnu = new uiAction("&Save ... ");
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiMenuItem("&Save As ..."), 1 );
-    uiMenuItem* cngsetup = new uiMenuItem( "Change setup..." );
+    mnu.insertItem( new uiAction("&Save As ..."), 1 );
+    uiAction* cngsetup = new uiAction( "Change setup..." );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+    mnu.insertItem( new uiAction("&Remove"), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
 	    			applMgr()->attrServer()->curDescSet(false) );

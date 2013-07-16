@@ -53,7 +53,7 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 
 #define mInsertItm( menu, name, id, enable ) \
 { \
-    uiMenuItem* itm = new uiMenuItem( name ); \
+    uiAction* itm = new uiAction( name ); \
     menu->insertItem( itm, id ); \
     itm->setEnabled( enable ); \
 }
@@ -68,9 +68,9 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	//return false;
     }
 
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add ..."), mAddMnuID );
-    mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&Add ..."), mAddMnuID );
+    mnu.insertItem( new uiAction("&New ..."), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -89,7 +89,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	}
 
 	mnu.insertSeparator();
-	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
 
 	mInsertItm( dispmnu, "&In full", mDispInFull, true );
 	mInsertItm( dispmnu, "&Only at sections", mDispAtSect, candispatsect );
@@ -416,16 +416,16 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	return false;
     }
 
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add ..."), mAddMnuID );
-    mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
+    uiMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiAction("&Add ..."), mAddMnuID );
+    mnu.insertItem( new uiAction("&New ..."), mNewMnuID );
 
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiPopupMenu* dispmnu = new uiPopupMenu( getUiParent(), "&Display all" );
-	dispmnu->insertItem( new uiMenuItem("&In full"), mDispInFull );
-	dispmnu->insertItem( new uiMenuItem("&Only at sections"), mDispAtSect );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
+	dispmnu->insertItem( new uiAction("&In full"), mDispInFull );
+	dispmnu->insertItem( new uiAction("&Only at sections"), mDispAtSect );
 	mnu.insertItem( dispmnu );
     }
 

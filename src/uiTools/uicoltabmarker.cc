@@ -269,15 +269,15 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     if ( OD::RightButton != ev.buttonState() )
 	return;
 
-    uiPopupMenu mnu( parent_, "Action" );
+    uiMenu mnu( parent_, "Action" );
     if ( selidx_>=0 )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )
-	mnu.insertItem( new uiMenuItem("Remove color"), 0 );
-	mnu.insertItem( new uiMenuItem("Change color ..."), 1 );
+	mnu.insertItem( new uiAction("Remove color"), 0 );
+	mnu.insertItem( new uiAction("Change color ..."), 1 );
     }
     
-    mnu.insertItem( new uiMenuItem("Edit Markers ..."), 2 );
+    mnu.insertItem( new uiAction("Edit Markers ..."), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )

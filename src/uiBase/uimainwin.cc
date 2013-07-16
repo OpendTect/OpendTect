@@ -493,12 +493,12 @@ void uiMainWinBody::updateToolbarsMenu()
 {
     if ( !toolbarsmnu_ ) return;
 
-    const ObjectSet<uiMenuItem>& items = toolbarsmnu_->actions();
+    const ObjectSet<uiAction>& items = toolbarsmnu_->actions();
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	const uiToolBar& tb = *toolbars_[idx];
-	uiMenuItem& action = *const_cast<uiAction*>( items[idx] );
+	uiAction& action = *const_cast<uiAction*>( items[idx] );
 	if ( tb.name()==tb.name() )
 	    action.setChecked( !tb.isHidden() );
     }
@@ -536,7 +536,7 @@ void uiMainWinBody::renewToolbarsMenu()
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
-	uiMenuItem* itm =
+	uiAction* itm =
 	    new uiAction( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm ); 

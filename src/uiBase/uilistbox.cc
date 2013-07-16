@@ -254,7 +254,7 @@ int uiListBoxBody::maxNrOfSelections() const
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
     , itemChecked(this) \
-    , rightclickmnu_(*new uiPopupMenu(p)) \
+    , rightclickmnu_(*new uiMenu(p)) \
     , itemscheckable_(false) \
     , alignment_(Alignment::Left) \
     , allowduplicates_(true)
@@ -299,8 +299,8 @@ void uiListBox::menuCB( CallBacker* )
     if ( !itemscheckable_ ) return;
 
     rightclickmnu_.clear();
-    rightclickmnu_.insertItem( new uiMenuItem("Check all items"), 0 );
-    rightclickmnu_.insertItem( new uiMenuItem("Uncheck all items"), 1 );
+    rightclickmnu_.insertItem( new uiAction("Check all items"), 0 );
+    rightclickmnu_.insertItem( new uiAction("Uncheck all items"), 1 );
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
 	setAllItemsChecked( res==0 );

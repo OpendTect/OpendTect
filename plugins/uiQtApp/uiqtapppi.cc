@@ -44,7 +44,7 @@ uiQtAppMgr::uiQtAppMgr( uiODMain* a )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.utilMnu()->insertItem(
-	    new uiMenuItem( "&Qt Thing", mCB(this,uiQtAppMgr,doStuff) ) );
+	    new uiAction( "&Qt Thing", mCB(this,uiQtAppMgr,doStuff) ) );
 }
 
 

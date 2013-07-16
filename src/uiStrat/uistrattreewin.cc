@@ -159,26 +159,26 @@ void uiStratTreeWin::popUp() const
 void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
-    uiPopupMenu* mnu = new uiPopupMenu( this, "&Actions" );
-    expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
+    uiMenu* mnu = new uiMenu( this, "&Actions" );
+    expandmnuitem_ = new uiAction( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
     expandmnuitem_->setPixmap( ioPixmap("collapse_tree") );
     mnu->insertSeparator();
-    editmnuitem_ = new uiMenuItem( mEditTxt(true),
+    editmnuitem_ = new uiAction( mEditTxt(true),
 	    			   mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setPixmap( ioPixmap("unlock") );
-    savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
+    savemnuitem_ = new uiAction( "&Save", mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setPixmap( ioPixmap("save") );
-    resetmnuitem_ = new uiMenuItem( "&Reset to last saved",
+    resetmnuitem_ = new uiAction( "&Reset to last saved",
 	    			    mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
     resetmnuitem_->setPixmap( ioPixmap("undo") );
     mnu->insertSeparator();
     
-    saveasmnuitem_ = new uiMenuItem( "Save &As...",
+    saveasmnuitem_ = new uiAction( "Save &As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setPixmap( ioPixmap("saveas") );

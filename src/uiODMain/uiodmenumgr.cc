@@ -161,11 +161,11 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 #define mInsertItem(menu,txt,id) \
     menu->insertItem( \
-	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
+	new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
 #define mInsertPixmapItem(menu,txt,id,pmfnm) { \
     menu->insertItem( \
-	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick), \
+	new uiAction(txt,mCB(this,uiODMenuMgr,handleClick), \
 			pmfnm), id ); }
 
 #define mCleanUpImpExpSets(set) \
@@ -425,31 +425,31 @@ void uiODMenuMgr::fillProcMenu()
     if ( SI().has3D() )
     {
 	csoitm->insertItem(
-	    new uiMenuItem("Multi attribute ...",
+	    new uiAction("Multi attribute ...",
 			mCB(&applMgr(),uiODApplMgr,createMultiAttribVol)) );
 	csoitm->insertItem(
-	    new uiMenuItem("Volume &Builder ...",
+	    new uiAction("Volume &Builder ...",
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
 	csoitm->insertItem(
-	    new uiMenuItem("&Time - depth conversion ...",
+	    new uiAction("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	csoitm->insertItem(
-	    new uiMenuItem("&Velocity conversion ...",
+	    new uiAction("&Velocity conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 	csoitm->insertItem(
-	    new uiMenuItem("&Pre Stack processing ...",
+	    new uiAction("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
 	csoitm->insertItem(
-	    new uiMenuItem("&Create MultiCube DataStore ...",
+	    new uiAction("&Create MultiCube DataStore ...",
 			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
 	csoitm->insertItem(
-	    new uiMenuItem("Angle mute function ...",
+	    new uiAction("Angle mute function ...",
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
-	    new uiMenuItem("Bayesian &Classification ...",
+	    new uiAction("Bayesian &Classification ...",
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes"));
 	csoitm->insertItem(
-	    new uiMenuItem("Create from &wells ...",
+	    new uiAction("Create from &wells ...",
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
 	mInsertItem( csoitm, "Create 2D from 3D ...", m2DFrom3DMnuItem );
     }
@@ -463,7 +463,7 @@ void uiODMenuMgr::fillProcMenu()
     create2D3DMnu( csoitm, "&Along horizon", mCompAlongHor2DMnuItm,
 	    	   mCompAlongHor3DMnuItm, "alonghor" );
     mInsertItem( csoitm, "&Re-Start ...", mReStartMnuItm );
-    csoitm->insertItem( new uiMenuItem("SEG-&Y Scanned Re-sort ...",
+    csoitm->insertItem( new uiAction("SEG-&Y Scanned Re-sort ...",
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
     mInsertItem( csoitm, "&Settings ...", mProcSettingsItm );
 
@@ -499,7 +499,7 @@ void uiODMenuMgr::fillAnalMenu()
 
     if ( survtype!=SurveyInfo::Only2D )
     {
-	analmnu_->insertItem( new uiMenuItem( "Volume Builder ...",
+	analmnu_->insertItem( new uiAction( "Volume Builder ...",
 				mCB(&applMgr(),uiODApplMgr,doVolProcCB),
 				VolProc::uiChain::pixmapFileName() ) );
     }
@@ -511,18 +511,18 @@ void uiODMenuMgr::fillAnalMenu()
     analmnu_->insertItem( crsplot );
 
     analwellmnu_ = new uiMenu( &appl_, "&Wells", "well" );
-    analwellmnu_->insertItem( new uiMenuItem( "&Edit logs ...", 
+    analwellmnu_->insertItem( new uiAction( "&Edit logs ...", 
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...", 
+	analwellmnu_->insertItem( new uiAction( "&Tie Well to Seismic ...", 
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
-    analwellmnu_->insertItem( new uiMenuItem( "&Rock Physics ...",
+    analwellmnu_->insertItem( new uiAction( "&Rock Physics ...",
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
     analmnu_->insertItem( analwellmnu_ );
 
     layermodelmnu_ = new uiMenu( 
 	    		&appl_, "&Layer Modeling", "stratlayermodeling" ); 
-    layermodelmnu_->insertItem( new uiMenuItem( "&Basic ...", 
+    layermodelmnu_->insertItem( new uiAction( "&Basic ...", 
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
     analmnu_->insertItem( layermodelmnu_ );
 }
@@ -532,7 +532,7 @@ void uiODMenuMgr::fillSceneMenu()
 {
     mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
 
-    addtimedepthsceneitm_ = new uiMenuItem( "Dummy",
+    addtimedepthsceneitm_ = new uiAction( "Dummy",
 	    				    mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
 
@@ -561,7 +561,7 @@ void uiODMenuMgr::updateSceneMenu()
     for ( int idx=0; idx<=scenenms.size(); idx++ )
     {
 	const int id = mSceneSelMnuItm + idx;
-	uiMenuItem* itm = scenemnu_->findAction( id );
+	uiAction* itm = scenemnu_->findAction( id );
 
 	if ( idx >= scenenms.size() )
 	{
@@ -572,7 +572,7 @@ void uiODMenuMgr::updateSceneMenu()
 
 	if ( !itm )
 	{
-	    itm = new uiMenuItem( "", mCB(this,uiODMenuMgr,handleClick) );
+	    itm = new uiAction( "", mCB(this,uiODMenuMgr,handleClick) );
 	    scenemnu_->insertItem( itm, id );
 	    itm->setCheckable( true );
 	}
@@ -599,7 +599,7 @@ void uiODMenuMgr::fillViewMenu()
     viewmnu_->insertItem( stereoitm );
 
 #define mInsertStereoItem(itm,txt,docheck,id) \
-    itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,handleClick) ); \
+    itm = new uiAction( txt, mCB(this,uiODMenuMgr,handleClick) ); \
     stereoitm->insertItem( itm, id ); \
     itm->setCheckable( true ); \
     itm->setChecked( docheck );
@@ -610,7 +610,7 @@ void uiODMenuMgr::fillViewMenu()
     mInsertStereoItem( stereoquadbufitm_, "&Quad buffer", false,
 	    		mStereoQuadMnuItm )
 
-    stereooffsetitm_ = new uiMenuItem( "&Stereo offset ...",
+    stereooffsetitm_ = new uiAction( "&Stereo offset ...",
 				mCB(this,uiODMenuMgr,handleClick) );
     stereoitm->insertItem( stereooffsetitm_, mStereoOffsetMnuItm );
     stereooffsetitm_->setEnabled( false );
@@ -767,9 +767,9 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
 #define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) { \
     uiMenu* popmnu = new uiMenu( &appl_, nm ); \
-    popmnu->insertItem( new uiMenuItem(txt1, \
+    popmnu->insertItem( new uiAction(txt1, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm1 ); \
-    popmnu->insertItem( new uiMenuItem(txt2, \
+    popmnu->insertItem( new uiAction(txt2, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
     mantb_ ->setButtonMenu( mnuid, popmnu ); }
 
@@ -807,7 +807,7 @@ static bool sIsPolySelect = true;
     tb->addButton( fnm, txt, mCB(scenemgr,uiODSceneMgr,fn), togg )
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
-    uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,fn), fnm ); \
+    uiAction* itm = new uiAction( txt, mCB(this,uiODMenuMgr,fn), fnm ); \
     mnu->insertItem( itm, idx ); }
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
@@ -874,7 +874,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
 void uiODMenuMgr::handleViewClick( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiAction*,itm,cb)
     mDynamicCastGet(uiToolButton*,tb,cb)
 
     if ( viewselectid_ < 0 )
@@ -920,7 +920,7 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 
 void uiODMenuMgr::handleToolClick( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiAction*,itm,cb)
     if ( !itm ) return;
 
     sIsPolySelect = itm->getID()==0;
@@ -979,7 +979,7 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 
 void uiODMenuMgr::handleClick( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiAction*,itm,cb)
     if ( !itm ) return; // Huh?
 
     const int id = itm->getID();

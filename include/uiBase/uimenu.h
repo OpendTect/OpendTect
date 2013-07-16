@@ -129,9 +129,5 @@ public:
 				       const char* pixmapfilenm=0);
 };
 
-//Should go when the menus themselves work and we can do a renaming everywhere.
-typedef uiMenu uiPopupMenu;
-typedef uiAction uiMenuItem;
-
 #endif
 

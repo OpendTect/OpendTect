@@ -17,7 +17,7 @@ ________________________________________________________________________
    These are the menu IDs of standard menu items in OpendTect.
    Note that all 'nodes' (i.e. items that have sub-items) are also available
    through the interface of the uiODMenuMgr directly, e.g.:
-   uiPopupMenu* viewmnu = ODMainWin()->menuMgr().viewMnu();
+   uiMenu* viewmnu = ODMainWin()->menuMgr().viewMnu();
 
  */
 

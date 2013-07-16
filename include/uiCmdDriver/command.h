@@ -714,7 +714,7 @@ protected:
 
 #define mFindMenuItem( menupath, startmenu, curitem ) \
 \
-    const uiMenuItem* curitem; \
+    const uiAction* curitem; \
     if ( !MenuTracer(startmenu,drv_).findItem(menupath,curitem) ) \
 	return false;
 

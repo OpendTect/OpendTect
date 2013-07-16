@@ -241,14 +241,14 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     int mnuid = dbl ? 0 : (isempty ? 1 : -1);
     if ( !isempty && !dbl )
     {
-	uiPopupMenu mnu( parent(), "Action" );
-	mnu.insertItem( new uiMenuItem("&Edit ..."), 0 );
-	mnu.insertItem( new uiMenuItem("Add &Above ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Add &Below ..."), 2 );
+	uiMenu mnu( parent(), "Action" );
+	mnu.insertItem( new uiAction("&Edit ..."), 0 );
+	mnu.insertItem( new uiAction("Add &Above ..."), 1 );
+	mnu.insertItem( new uiAction("Add &Below ..."), 2 );
 	if ( desc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
-	    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+	    mnu.insertItem( new uiAction("&Remove"), 3 );
 	}
 	mnuid = mnu.exec();
     }

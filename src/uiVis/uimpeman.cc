@@ -50,7 +50,7 @@ using namespace MPE;
     toolbar->addButton( pm, tip, mCB(this,uiMPEMan,func), toggle )
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
-    uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiMPEMan,fn) ); \
+    uiAction* itm = new uiAction( txt, mCB(this,uiMPEMan,fn) ); \
     mnu->insertItem( itm, idx ); itm->setIcon( ioPixmap(fnm) ); }
 
 
@@ -130,7 +130,7 @@ void uiMPEMan::addButtons()
 
     moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
 			       "Display QC plane", true );
-    uiPopupMenu* mnu = new uiPopupMenu( toolbar, "Menu" );
+    uiMenu* mnu = new uiMenu( toolbar, "Menu" );
     mAddMnuItm( mnu, "Inline", handleOrientationClick, 
 	    	"QCplane-inline", 0 );
     mAddMnuItm( mnu, "CrossLine", handleOrientationClick, 
@@ -157,7 +157,7 @@ void uiMPEMan::addButtons()
 
     polyselectidx =  mAddButton( "polygonselect", selectionMode,
 	    			 "Polygon Selection mode", true );
-    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
+    uiMenu* polymnu = new uiMenu( toolbar, "PolyMenu" );
     mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect", 0 );
     mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect", 1 );
     toolbar->setButtonMenu( polyselectidx, polymnu );
@@ -1195,7 +1195,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 
 void uiMPEMan::handleToolClick( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiAction*,itm,cb)
     if ( !itm ) return;
 
     sIsPolySelect = itm->getID()==0;
@@ -1529,7 +1529,7 @@ static void updateQCButton( uiToolBar* tb, int butidx, int dim )
 
 void uiMPEMan::handleOrientationClick( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiAction*,itm,cb)
     if ( !itm ) return;
     const int dim = itm->getID();
     updateQCButton( toolbar, moveplaneidx, dim );

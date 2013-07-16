@@ -36,7 +36,7 @@ uiBouncyMgr::uiBouncyMgr( uiODMain* appl )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.toolsMnu()->insertItem(
-	    new uiMenuItem("B&ouncy",mCB(this,uiBouncyMgr,doWork)) );
+	    new uiAction("B&ouncy",mCB(this,uiBouncyMgr,doWork)) );
 
     visBase::DM().removeallnotify.notify(
 	    mCB(this, uiBouncyMgr, destroyAllBounciesCB) );

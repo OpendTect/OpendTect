@@ -38,7 +38,7 @@ GoogleTranslateMgr( uiODMain& a )
     : appl_(a)
 {
     appl_.menuMgr().utilMnu()->insertItem(
-	    new uiMenuItem("T&ranslate ...",
+	    new uiAction("T&ranslate ...",
 			   mCB(this,GoogleTranslateMgr,handleMenu)) );
 }
 

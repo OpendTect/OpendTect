@@ -448,24 +448,24 @@ void uiColorTable::canvasClick( CallBacker* )
     if ( !hasseq && !hasmapper )
 	return;
 
-    PtrMan<uiPopupMenu> mnu = new uiPopupMenu( this, "Action" );
+    PtrMan<uiMenu> mnu = new uiMenu( this, "Action" );
     if ( hasmapper ) 
     {
-	uiMenuItem* itm =
-	    new uiMenuItem("Flipped", mCB(this,uiColorTable,doFlip));
+	uiAction* itm =
+	    new uiAction("Flipped", mCB(this,uiColorTable,doFlip));
 
 	mnu->insertItem( itm, 0 );
 	itm->setCheckable( true );
 	itm->setChecked( mapsetup_.flipseq_ );
     }
     if ( hasmapper )
-	mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
+	mnu->insertItem( new uiAction("Ranges/Clipping ...",
 	    mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )
     {
-	mnu->insertItem( new uiMenuItem("Manage ...",
+	mnu->insertItem( new uiAction("Manage ...",
 	    mCB(this,uiColorTable,doManage)), 2 );
-	mnu->insertItem( new uiMenuItem("Set as default",
+	mnu->insertItem( new uiAction("Set as default",
 	    mCB(this,uiColorTable,setAsDefault)), 3 );
     }
 

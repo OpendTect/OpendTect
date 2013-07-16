@@ -344,15 +344,15 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 
 void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
-    uiPopupMenu mnu( this, "Action" );
+    uiMenu mnu( this, "Action" );
 
     const bool nomrkr = mrklist_->isEmpty();
 
-    mnu.insertItem( new uiMenuItem("Add &New ..."), 0 );
+    mnu.insertItem( new uiAction("Add &New ..."), 0 );
     if ( !nomrkr )
     {
-	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Remove ..."), 2 );
+	mnu.insertItem( new uiAction("&Edit ..."), 1 );
+	mnu.insertItem( new uiAction("Remove ..."), 2 );
     }
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) 
