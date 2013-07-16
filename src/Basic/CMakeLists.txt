@@ -102,8 +102,4 @@ if ( ITTNOTIFY_FOUND )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
 
-if ( WIN32 )
-    set_source_files_properties( genc.cc PROPERTIES COMPILE_FLAGS /wd4702 )
-endif( WIN32 )
-
 OD_INIT_MODULE()
