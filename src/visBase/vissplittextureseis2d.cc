@@ -303,7 +303,8 @@ void SplitTextureSeis2D::updateDisplay( )
 	    Interval<float> blockzrg = zrg_;
 	    if ( nrzpixels_ )
 	    {
-		const float zstep = zrg_.width()/(nrzpixels_-1);
+		const float zstep = nrzpixels_==1 ? zrg_.width() 
+		    				  : zrg_.width()/(nrzpixels_-1);
 		blockzrg.start += zstep*startzpixel; 
 		blockzrg.stop = (stopzpixel==nrzpixels_-1)
 		    ? zrg_.stop : blockzrg.start+(versz-1)*zstep;
