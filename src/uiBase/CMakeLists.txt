@@ -14,7 +14,6 @@ set(QT_MOC_HEADERS i_qaction.h
 		i_qlineedit.h
 		i_qlistbox.h
 		i_qmdiarea.h
-		i_qmenu.h
 		i_qslider.h
 		i_qspinbox.h
 		i_qsystemtrayicon.h
@@ -22,7 +21,6 @@ set(QT_MOC_HEADERS i_qaction.h
 		i_qtable.h
 		i_qtextedit.h
 		i_qtoolbar.h
-		i_qtoolbut.h
 		i_qtreeview.h
 		i_qtxtbrowser.h)
 SET(OD_MODULE_SOURCES     i_layout.cc

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 class uiODMenuMgr;
-class uiPopupMenu;
+class uiMenu;
 class uiODHelpDocInfo;
 
 
@@ -33,7 +33,7 @@ protected:
 
     bool			havedtectdoc_;
     uiODMenuMgr*		mnumgr_;
-    uiPopupMenu*		helpmnu_;
+    uiMenu*			helpmnu_;
     ObjectSet<uiODHelpDocInfo>	aboutentries_;
     ObjectSet<uiODHelpDocInfo>	varentries_;
     ObjectSet<uiODHelpDocInfo>	creditsentries_;
@@ -43,7 +43,7 @@ protected:
     void			mkAboutMenu();
     void			mkCreditsMenu();
     bool			getPopupData(int,BufferString&);
-    void			insertVarItem(uiPopupMenu*,int,bool);
+    void			insertVarItem(uiMenu*,int,bool);
 };
 
 #endif

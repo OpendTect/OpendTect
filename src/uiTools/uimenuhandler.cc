@@ -45,7 +45,7 @@ bool uiMenuHandler::executeMenuInternal()
     createnotifier.trigger();
     MouseCursorManager::restoreOverride();
 
-    PtrMan<uiPopupMenu> menu = createMenu( getItems() );
+    PtrMan<uiMenu> menu = createMenu( getItems() );
     if ( !menu ) return true;
 
     const int selection = menu->exec();
@@ -68,7 +68,7 @@ bool uiMenuHandler::executeMenu( int menutype, const TypeSet<int>* path )
 }
 
 
-uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
+uiMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 					const MenuItem* item )
 {
     ObjectSet<const MenuItem> validsubitms;
@@ -81,8 +81,8 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
     if ( validsubitms.isEmpty() )
 	return 0;
 
-    uiPopupMenu* menu = item ? new uiPopupMenu( uiparent_, item->text )
-			     : new uiPopupMenu( uiparent_ );
+    uiMenu* menu = item ? new uiMenu( uiparent_, item->text )
+			: new uiMenu( uiparent_ );
 
     BoolTypeSet handled( validsubitms.size(), false );
 
@@ -108,10 +108,10 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 
 	if ( subitm.nrItems() )
 	{
-	    uiPopupMenu* submenu = createMenu( subitm.getItems(), &subitm );
+	    uiMenu* submenu = createMenu( subitm.getItems(), &subitm );
 	    if ( submenu )
 	    {
-		menu->insertItem( submenu, subitm.id );
+		menu->insertItem( submenu );
 		submenu->setEnabled( subitm.enabled );
 		submenu->setCheckable( subitm.checkable );
 		submenu->setChecked( subitm.checked );
@@ -125,7 +125,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );
 	    if ( !subitm.iconfnm.isEmpty() )
-		mnuitem->setPixmap( ioPixmap(subitm.iconfnm) );
+		mnuitem->setIcon( ioPixmap(subitm.iconfnm) );
 	}
 
 	handled[lowestitem] = true;

@@ -104,8 +104,8 @@ public:
 
     virtual QMenu*	createPopupMenu();
     void		addToolBar(uiToolBar*);
-    void		removeToolBar(uiToolBar*);
-    uiPopupMenu&	getToolbarsMenu()		{ return *toolbarsmnu_;}
+    uiToolBar*		removeToolBar(uiToolBar*);
+    uiMenu&		getToolbarsMenu()		{ return *toolbarsmnu_;}
     void		updateToolbarsMenu();
 
     const ObjectSet<uiToolBar>& toolBars() const	{ return toolbars_; }
@@ -147,7 +147,7 @@ protected:
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
-    uiPopupMenu*	toolbarsmnu_;
+    uiMenu*		toolbarsmnu_;
     
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
@@ -216,11 +216,14 @@ uiMainWinBody::~uiMainWinBody()
     deleteAllChildren(); //delete them now to make sure all ui objects
     			 //are deleted before their body counterparts
 
-    while ( toolbars_.size() )
-	delete toolbars_[0];
+    deepErase( toolbars_ );
 
-    if ( toolbarsmnu_ ) toolbarsmnu_->clear();
-    delete toolbarsmnu_;
+    if ( toolbarsmnu_ )
+    {
+	toolbarsmnu_->clear();
+	if ( toolbarsmnu_->isStandAlone() )
+	    delete toolbarsmnu_;
+    }
 
     if ( !deletefromod_ )
     {
@@ -299,15 +302,13 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
     }
     if ( wantmenubar )
     {   
-	QMenuBar* myBar =  menuBar();
-
-	if ( myBar )
-	    menubar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
-				      *myBar);
+	QMenuBar* qmenubar = menuBar();
+	if ( qmenubar )
+	    menubar = new uiMenuBar( &handle(), "MenuBar", qmenubar );
 	else
 	    pErrMsg("No menubar returned from Qt");
 
-	toolbarsmnu_ = new uiPopupMenu( &handle(), "Toolbars" );
+	toolbarsmnu_ = new uiMenu( &handle(), "Toolbars" );
     }
 
     initing = false;
@@ -476,13 +477,13 @@ void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 
 void uiMainWinBody::toggleToolbar( CallBacker* cb )
 {
-    mDynamicCastGet( uiMenuItem*, itm, cb );
-    if ( !itm ) return;
+    mDynamicCastGet( uiAction*, action, cb );
+    if ( !action ) return;
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
-	if ( tb.name()==itm->name() )
+	if ( tb.name()==action->text() )
 	    tb.display( tb.isHidden() );
     }
 }
@@ -492,14 +493,14 @@ void uiMainWinBody::updateToolbarsMenu()
 {
     if ( !toolbarsmnu_ ) return;
 
-    const ObjectSet<uiMenuItem>& items = toolbarsmnu_->items();
+    const ObjectSet<uiMenuItem>& items = toolbarsmnu_->actions();
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	const uiToolBar& tb = *toolbars_[idx];
-	uiMenuItem& itm = *const_cast<uiMenuItem*>( items[idx] );
-	if ( itm.name()==tb.name() )
-	    itm.setChecked( !tb.isHidden() );
+	uiMenuItem& action = *const_cast<uiAction*>( items[idx] );
+	if ( tb.name()==tb.name() )
+	    action.setChecked( !tb.isHidden() );
     }
 }
 
@@ -512,11 +513,15 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 }
 
 
-void uiMainWinBody::removeToolBar( uiToolBar* tb )
+uiToolBar* uiMainWinBody::removeToolBar( uiToolBar* tb )
 {
+    if ( !toolbars_.indexOf(tb) )
+	return 0;
+
     QMainWindow::removeToolBar( tb->qwidget() );
     toolbars_ -= tb;
     renewToolbarsMenu();
+    return tb;
 }
 
 
@@ -524,15 +529,18 @@ void uiMainWinBody::renewToolbarsMenu()
 {
     if ( !toolbarsmnu_ ) return;
 
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
+	toolbars_[idx]->setToolBarMenuAction( 0 ); 
+
     toolbarsmnu_->clear();
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
-	const uiToolBar& tb = *toolbars_[idx];
+	uiToolBar& tb = *toolbars_[idx];
 	uiMenuItem* itm =
-	    new uiMenuItem( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
+	    new uiAction( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
+	tb.setToolBarMenuAction( itm ); 
 	itm->setCheckable( true );
-	itm->setChecked( !tb.isHidden() );
     }
 }
 
@@ -829,19 +837,16 @@ void uiMainWin::addToolBar( uiToolBar* tb )
 { body_->addToolBar( tb ); }
 
 
-void uiMainWin::removeToolBar( uiToolBar* tb )
-{ body_->removeToolBar( tb ); }
+uiToolBar* uiMainWin::removeToolBar( uiToolBar* tb )
+{ return body_->removeToolBar( tb ); }
 
 
 void uiMainWin::addToolBarBreak()
 { body_->addToolBarBreak(); } 
 
-uiPopupMenu& uiMainWin::getToolbarsMenu() const
+
+uiMenu& uiMainWin::getToolbarsMenu() const
 { return body_->getToolbarsMenu(); }
-
-
-void uiMainWin::updateToolbarsMenu()
-{ body_->updateToolbarsMenu(); }
 
 
 const ObjectSet<uiToolBar>& uiMainWin::toolBars() const
@@ -1190,9 +1195,7 @@ void uiMainWin::translate()
 
     for ( int idx=0; idx<body_->toolbars_.size(); idx++ )
     {
-	const ObjectSet<uiObject>& objs = body_->toolbars_[idx]->objectList();
-	for ( int idy=0; idy<objs.size(); idy++ )
-	    doTranslate( objs[idy] );
+	body_->toolbars_[idx]->translate();
     }
 
     for ( int idx=0; idx<body_->dockwins_.size(); idx++ )

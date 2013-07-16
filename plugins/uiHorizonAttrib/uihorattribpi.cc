@@ -105,18 +105,15 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 void uiHorAttribPIMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    MenuItemSeparString gridprocstr( "Create &Horizon Output" );
-    uiMenuItem* itm = mnumgr.procMnu()->find( gridprocstr );
-    if ( !itm ) return;
-
-    mDynamicCastGet(uiPopupItem*,gridpocitm,itm)
-    if ( !gridpocitm ) return;
+    uiActionSeparString gridprocstr( "Create &Horizon Output" );
+    uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
+    if ( !itm || !itm->getMenu() ) return;
 
     if ( SI().has3D() )
-	gridpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
+	itm->getMenu()->insertItem( new uiMenuItem("&Stratal Amplitude ...",
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    gridpocitm->menu().insertItem( new uiMenuItem("&Isopach ...",
+    itm->getMenu()->insertItem( new uiMenuItem("&Isopach ...",
 			    mCB(this,uiHorAttribPIMgr,doIsopachThruMenu)) );
 }
 

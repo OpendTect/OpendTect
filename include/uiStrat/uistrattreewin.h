@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "uitoolbutton.h"
 
-class uiMenuItem;
+class uiAction;
 class uiStratLvlList;
 class uiStratRefTree;
 class uiStratTreeWin;
@@ -51,11 +51,11 @@ protected:
     uiStratDisplay*		uistratdisp_;
     uiStratLvlList*		lvllist_;
     Strat::RepositoryAccess&	repos_;
-    uiMenuItem*			expandmnuitem_;
-    uiMenuItem*			editmnuitem_;
-    uiMenuItem*			savemnuitem_;
-    uiMenuItem*			saveasmnuitem_;
-    uiMenuItem*			resetmnuitem_;
+    uiAction*			expandmnuitem_;
+    uiAction*			editmnuitem_;
+    uiAction*			savemnuitem_;
+    uiAction*			saveasmnuitem_;
+    uiAction*			resetmnuitem_;
     uiToolBar*			tb_;
     uiToolButton*		colexpbut_;
     uiToolButton*		lockbut_;

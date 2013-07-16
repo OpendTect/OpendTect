@@ -45,7 +45,7 @@ private slots:
 
 void actionTriggered( QAction* qaction )
 {
-    const int butid = receiver_->getButtonID( qaction );
+    const int butid = receiver_->getID( qaction );
     receiver_->buttonClicked.trigger( butid, *receiver_ );
 }
 

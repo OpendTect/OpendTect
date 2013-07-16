@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "color.h"
 
-class uiPopupMenu;
 namespace Pick { class Set; }
 
 namespace Annotations

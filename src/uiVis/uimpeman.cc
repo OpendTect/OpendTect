@@ -51,7 +51,7 @@ using namespace MPE;
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
     uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiMPEMan,fn) ); \
-    mnu->insertItem( itm, idx ); itm->setPixmap( ioPixmap(fnm) ); }
+    mnu->insertItem( itm, idx ); itm->setIcon( ioPixmap(fnm) ); }
 
 
 #define mGetDisplays(create) \
@@ -1173,7 +1173,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 	visserv->setSelectionMode( mode );
     }
 
-    toolbar->setPixmap( polyselectidx, sIsPolySelect ?
+    toolbar->setIcon( polyselectidx, sIsPolySelect ?
 			"polygonselect" : "rectangleselect" );
     toolbar->setToolTip( polyselectidx, sIsPolySelect ?
 			"Polygon Selection mode" : "Rectangle Selection mode" );
@@ -1198,7 +1198,7 @@ void uiMPEMan::handleToolClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
-    sIsPolySelect = itm->id()==0;
+    sIsPolySelect = itm->getID()==0;
     selectionMode( cb );
 }
 
@@ -1522,7 +1522,7 @@ static void updateQCButton( uiToolBar* tb, int butidx, int dim )
     else
 	{ pm = "QCplane-z"; tooltip = "Display QC plane Z-dir"; }
 
-    tb->setPixmap( butidx, pm );
+    tb->setIcon( butidx, pm );
     tb->setToolTip( butidx, tooltip );
 }
 
@@ -1531,7 +1531,7 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
-    const int dim = itm->id();
+    const int dim = itm->getID();
     updateQCButton( toolbar, moveplaneidx, dim );
     changeTrackerOrientation( dim );
     movePlaneCB( cb );

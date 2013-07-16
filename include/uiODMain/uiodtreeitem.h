@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiTreeView;
 class uiODApplMgr;
-class uiPopupMenu;
+class uiMenu;
 class ui3DViewer;
 
 
@@ -35,7 +35,7 @@ protected:
     uiODApplMgr*	applMgr();
     ui3DViewer*		viewer();
 
-    void		addStandardItems(uiPopupMenu&);
+    void		addStandardItems(uiMenu&);
     void		handleStandardItems(int mnuid);
 };
 

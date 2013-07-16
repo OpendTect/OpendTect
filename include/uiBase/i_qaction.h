@@ -54,8 +54,7 @@ void toggled( bool checked )
 
 void triggered( bool checked )
 {
-    receiver_->checked_ = checked;
-    receiver_->triggered.trigger( *receiver_ );
+    receiver_->trigger( checked );
 }
 
 

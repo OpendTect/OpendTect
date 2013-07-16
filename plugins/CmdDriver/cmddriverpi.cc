@@ -57,7 +57,7 @@ mDefODInitPlugin(CmdDriver)
     cmdmnuitm = new uiMenuItem( "Command &Driver ..." );
 
     ODMainWin()->menuMgr().toolsMnu()->insertItem( cmdmnuitm );
-    cmdmnuitm->activated.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
+    cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
 
     initExtraCommands();
     initExtraFunctions();

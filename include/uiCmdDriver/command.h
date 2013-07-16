@@ -23,9 +23,8 @@ ________________________________________________________________________
 #include "timefun.h"
 
 class BufferString;
-class uiMenuItemContainer;
-class uiMenuItem;
-
+class uiActionContainer;
+class uiAction;
 
 namespace CmdDrive
 {
@@ -224,20 +223,20 @@ protected:
 mExpClass(uiCmdDriver) MenuTracer
 {
 public:
-    			MenuTracer(const uiMenuItemContainer& mnu,
+    			MenuTracer(const uiActionContainer& mnu,
 				   CmdDriver& cmddrv)
 			    : startmenu_(mnu), drv_(cmddrv)
 			{}
 
     bool		findItem(const FileMultiString& menupath,
-			    const uiMenuItem*& curitem,int* curitmidx=0) const;
+			    const uiAction*& curitem,int* curitmidx=0) const;
     bool		getMenuInfo(const FileMultiString& menupath,
 				    bool allowroot,MenuInfo&) const;
 
 protected:
 
     CmdDriver&			drv_;
-    const uiMenuItemContainer&  startmenu_;
+    const uiActionContainer& 	startmenu_;
 
     int			nrItems(const FileMultiString& menupath) const;
     bool		greyOutsSkipped() const;

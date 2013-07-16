@@ -111,7 +111,7 @@ bool GetMenuItemCmd::act( const char* parstr )
 
 
 void MenuActivator::actCB( CallBacker* cb )
-{ actmnuitm_.activated.trigger(); }
+{ actmnuitm_.triggered.trigger(); }
 
 
 #define mGetButtonMenuButton( uibut, toolbut ) \

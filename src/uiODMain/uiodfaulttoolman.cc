@@ -363,7 +363,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
     EM::EMM().undo().undoredochange.remove(
 				mCB(this,uiODFaultToolMan,updateToolbarCB) );
 
-    delete toolbar_;
+    delete appl_.removeToolBar( toolbar_ );
 
     if ( settingsdlg_ )
 	delete settingsdlg_;

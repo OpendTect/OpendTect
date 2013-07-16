@@ -228,7 +228,7 @@ bool AnnotTreeItem::showSubMenu()
 	return false;
     }
 
-    uiPopupMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), "Action" );
     BufferString addtxt = "&Add "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiMenuItem(addtxt), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );

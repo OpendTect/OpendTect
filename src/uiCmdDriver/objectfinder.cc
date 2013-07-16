@@ -52,7 +52,7 @@ bool ObjectFinder::findNodes( NodeTag tag, ObjectSet<const uiObject>* nodelist,
 
 	if ( !toolbars[tbidx]->isVisible() )
 	    continue;
-	
+	/*
 	const ObjectSet<uiObject>& objects = toolbars[tbidx]->objectList();
 	
 	for ( int objidx=0; objidx<objects.size(); objidx++ )
@@ -60,6 +60,8 @@ bool ObjectFinder::findNodes( NodeTag tag, ObjectSet<const uiObject>* nodelist,
 	    if ( findNodes(objects[objidx], nodelist, searchexpr, false) )
 		mResTrue(res,nodelist);
 	}
+	 */
+	pErrMsg( "JAAP");
     }
 
     const ObjectSet<uiDockWin>& dockwins = curwin_.dockWins();
@@ -205,10 +207,11 @@ int ObjectFinder::toolBarIndex( const uiObject* uiobj ) const
     const ObjectSet<uiToolBar>& toolbars = curwin_.toolBars();
     for ( int tbidx=0; uiobj && tbidx<toolbars.size(); tbidx++ )
     {
-	const int objidx = toolbars[tbidx]->objectList().indexOf( uiobj );
+	//JAAP
+	//const int objidx = toolbars[tbidx]->objectList().indexOf( uiobj );
 
-	if ( objidx>=0 )
-	    return tbidx;
+	//if ( objidx>=0 )
+	//  return tbidx;
     }
     return -1;
 }

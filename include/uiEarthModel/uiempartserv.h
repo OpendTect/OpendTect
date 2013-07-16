@@ -31,7 +31,6 @@ class uiExportHorizon;
 class uiExportFault;
 class uiImportHorizon;
 class uiImportFault3D;
-class uiPopupMenu;
 class uiVariogramDisplay;
 
 namespace Pick { class Set; }

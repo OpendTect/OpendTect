@@ -25,7 +25,6 @@ class BufferStringSet;
 class CubeSampling;
 class MultiID;
 class SeisTrcBuf;
-class uiPopupMenu;
 class uiFlatViewWin;
 
 namespace PosInfo { class Line2DData; }

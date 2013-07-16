@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
+#include "pixmap.h"
 
 #include "viswelldisplay.h"
 
@@ -67,7 +68,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     if ( children_.size() > 1 )
     {
-	mnu.insertSeparator( 40 );
+	mnu.insertSeparator();
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
 	showmnu->insertItem( new uiMenuItem("Well names (&Top)"), 41 );
 	showmnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 42 );

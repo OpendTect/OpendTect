@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "position.h"
 
-class uiPopupMenu;
-class uiMenuItem;
+class uiMenu;
 class uiToolBar;
 /*
 Implementation of MenuHandler for the dGB-based userinterface.
@@ -76,7 +75,7 @@ public:
 
 protected:
     bool			executeMenuInternal();
-    uiPopupMenu*		createMenu( const ObjectSet<MenuItem>&,
+    uiMenu*			createMenu( const ObjectSet<MenuItem>&,
 	    				    const MenuItem* =0);
     uiParent*			uiparent_;
     int				menutype_;

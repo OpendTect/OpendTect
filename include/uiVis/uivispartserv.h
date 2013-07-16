@@ -34,7 +34,6 @@ class ZAxisTransform;
 class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
-class uiPopupMenu;
 class uiSlicePos3DDisp;
 class uiToolBar;
 class uiTreeItemTBHandler;

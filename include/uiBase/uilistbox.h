@@ -22,7 +22,7 @@ class BufferStringSet;
 class Color;
 class uiLabel;
 class uiListBoxBody;
-class uiPopupMenu;
+class uiMenu;
 
 mFDQtclass(QListWidgetItem)
 
@@ -160,7 +160,7 @@ protected:
     Alignment::HPos	alignment_;
     bool		itemscheckable_;
     bool 		allowduplicates_;
-    uiPopupMenu&	rightclickmnu_;
+    uiMenu&		rightclickmnu_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));

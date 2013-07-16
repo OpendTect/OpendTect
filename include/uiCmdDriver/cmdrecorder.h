@@ -18,12 +18,12 @@ ________________________________________________________________________
 
 #include "cmddriverbasics.h"
 
-class uiPopupMenu;
+class uiMenu;
 class BufferString;
 class StreamData;
 class uiMainWin;
 class uiObject;
-class uiMenuItem;
+class uiAction;
 
 
 namespace CmdDrive
@@ -57,7 +57,7 @@ public:
     uiObject*		object_;
     bool		similarobjs_;
     BufferString	keystr_;
-    const uiMenuItem*	mnuitm_;
+    const uiAction*	mnuitm_;
     bool		dynamicpopup_;
     BufferString	menupath_;
     bool		casedep_;
@@ -109,7 +109,7 @@ protected:
     bool		recording_;
     BufferString	outputfnm_;
     StreamData&		outputsd_;
-    uiPopupMenu*        dynamicpopupmenu_;
+    uiMenu*	        dynamicpopupmenu_;
     BufferString	winassertion_;
     bool		winassertcasedep_;
 

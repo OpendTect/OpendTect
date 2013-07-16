@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 
 class DirList;
-class uiMenuItem;
 class uiODFaultToolMan;
 class uiODHelpMenuMgr;
-class uiPopupMenu;
+class uiMenu;
 class uiToolBar;
+class uiAction;
 
 
 /*!\brief The OpendTect menu manager
@@ -41,23 +41,23 @@ mExpClass(uiODMain) uiODMenuMgr : public CallBacker
 
 public:
 
-    uiPopupMenu*	fileMnu()		{ return surveymnu_; }
-    uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
-    uiPopupMenu*	analMnu()		{ return analmnu_; }
-    uiPopupMenu*	analWellMnu()		{ return analwellmnu_; }
-    uiPopupMenu*	layerModelMnu()		{ return layermodelmnu_; }
-    uiPopupMenu*	procMnu()		{ return procmnu_; }
-    uiPopupMenu*	sceneMnu()		{ return scenemnu_; }
-    uiPopupMenu*	viewMnu()		{ return viewmnu_; }
-    uiPopupMenu*	utilMnu()		{ return utilmnu_; }
-    uiPopupMenu*	helpMnu()		{ return helpmnu_; }
-    uiPopupMenu*	settMnu()		{ return settmnu_; }
-    uiPopupMenu*	toolsMnu()		{ return toolsmnu_; }
-    uiPopupMenu*	preLoadMenu()		{ return preloadmnu_; }
+    uiMenu*		fileMnu()		{ return surveymnu_; }
+    uiMenu*		surveyMnu()		{ return surveymnu_; }
+    uiMenu*		analMnu()		{ return analmnu_; }
+    uiMenu*		analWellMnu()		{ return analwellmnu_; }
+    uiMenu*		layerModelMnu()		{ return layermodelmnu_; }
+    uiMenu*		procMnu()		{ return procmnu_; }
+    uiMenu*		sceneMnu()		{ return scenemnu_; }
+    uiMenu*		viewMnu()		{ return viewmnu_; }
+    uiMenu*		utilMnu()		{ return utilmnu_; }
+    uiMenu*		helpMnu()		{ return helpmnu_; }
+    uiMenu*		settMnu()		{ return settmnu_; }
+    uiMenu*		toolsMnu()		{ return toolsmnu_; }
+    uiMenu*		preLoadMenu()		{ return preloadmnu_; }
 
-    uiPopupMenu*	getBaseMnu(uiODApplMgr::ActType);
+    uiMenu*		getBaseMnu(uiODApplMgr::ActType);
     			//! < Within Survey menu
-    uiPopupMenu*	getMnu(bool imp,uiODApplMgr::ObjType);
+    uiMenu*		getMnu(bool imp,uiODApplMgr::ObjType);
     			//! < Within Survey - Import or Export
 
     uiToolBar*		dtectTB()		{ return dtecttb_; }
@@ -89,23 +89,23 @@ protected:
     uiODMain&		appl_;
     uiODHelpMenuMgr*	helpmgr_;
 
-    uiPopupMenu*	surveymnu_;
-    uiPopupMenu*	analmnu_;
-    uiPopupMenu*	analwellmnu_;
-    uiPopupMenu*	layermodelmnu_;
-    uiPopupMenu*	procmnu_;
-    uiPopupMenu*	scenemnu_;
-    uiPopupMenu*	viewmnu_;
-    uiPopupMenu*	utilmnu_;
-    uiPopupMenu*	impmnu_;
-    uiPopupMenu*	expmnu_;
-    uiPopupMenu*	manmnu_;
-    uiPopupMenu*	preloadmnu_;
-    uiPopupMenu*	helpmnu_;
-    uiPopupMenu*	settmnu_;
-    uiPopupMenu*	toolsmnu_;
-    ObjectSet<uiPopupMenu> impmnus_;
-    ObjectSet<uiPopupMenu> expmnus_;
+    uiMenu*		surveymnu_;
+    uiMenu*		analmnu_;
+    uiMenu*		analwellmnu_;
+    uiMenu*		layermodelmnu_;
+    uiMenu*		procmnu_;
+    uiMenu*		scenemnu_;
+    uiMenu*		viewmnu_;
+    uiMenu*		utilmnu_;
+    uiMenu*		impmnu_;
+    uiMenu*		expmnu_;
+    uiMenu*		manmnu_;
+    uiMenu*		preloadmnu_;
+    uiMenu*		helpmnu_;
+    uiMenu*		settmnu_;
+    uiMenu*		toolsmnu_;
+    ObjectSet<uiMenu>	impmnus_;
+    ObjectSet<uiMenu>	expmnus_;
 
     uiToolBar*		dtecttb_;
     uiToolBar*		cointb_;
@@ -145,14 +145,14 @@ protected:
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
-    void		create2D3DMnu(uiPopupMenu*,const char*,int,int,
+    void		create2D3DMnu(uiMenu*,const char*,int,int,
 	    			      const char* pm=0);
 
-    uiMenuItem*		stereooffitm_;
-    uiMenuItem*		stereoredcyanitm_;
-    uiMenuItem*		stereoquadbufitm_;
-    uiMenuItem*		stereooffsetitm_;
-    uiMenuItem*		addtimedepthsceneitm_;
+    uiAction*		stereooffitm_;
+    uiAction*		stereoredcyanitm_;
+    uiAction*		stereoquadbufitm_;
+    uiAction*		stereooffsetitm_;
+    uiAction*		addtimedepthsceneitm_;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
     int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
@@ -164,7 +164,7 @@ protected:
 
     void		showLogFile();
     void		mkViewIconsMnu();
-    void		addIconMnuItems(const DirList&,uiPopupMenu*,
+    void		addIconMnuItems(const DirList&,uiMenu*,
 	    				BufferStringSet&);
 };
 

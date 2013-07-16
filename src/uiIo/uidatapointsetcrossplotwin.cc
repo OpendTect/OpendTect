@@ -252,7 +252,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
 
     disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
 	    				       : "Show density plot" );
-    disptb_.setPixmap( densityplottbid_,ison ? "xplot" : "densityplot" );
+    disptb_.setIcon( densityplottbid_,ison ? "xplot" : "densityplot" );
     eachfld_->setSensitive( !ison );
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( "Y2 cannot be displayed in density plot" );
@@ -343,7 +343,7 @@ void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
 {
     plotter_.setRectSelection( !plotter_.isRectSelection() );
-    seltb_.setPixmap( selmodechgtbid_,
+    seltb_.setIcon( selmodechgtbid_,
 	   	       plotter_.isRectSelection() ? "rectangleselect"
 			      			  : "polygonselect" );
     plotter_.setDragMode( plotter_.isRectSelection() ?
@@ -437,7 +437,7 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 {
     const bool isoff = !seltb_.isOn(setselecttbid_ );
-    seltb_.setPixmap( setselecttbid_, !isoff ? "altview" : "altpick");
+    seltb_.setIcon( setselecttbid_, !isoff ? "altview" : "altpick");
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     seltb_.setSensitive( selmodechgtbid_, isoff );

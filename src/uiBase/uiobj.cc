@@ -173,7 +173,6 @@ void uiParent::addChild( uiBaseObject& child )
 void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
 {
     if ( &child == static_cast<uiBaseObject*>(this) ) return;
-    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
     if ( !b )	return;

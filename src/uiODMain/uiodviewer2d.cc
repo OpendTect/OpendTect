@@ -299,12 +299,12 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
     uiMenuItem* polyitm = new uiMenuItem( "Polygon",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
-    polyitm->setPixmap( ioPixmap("polygonselect") );
+    polyitm->setIcon( ioPixmap("polygonselect") );
 
     uiMenuItem* rectitm = new uiMenuItem( "Rectangle",
 	    			      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
-    rectitm->setPixmap( ioPixmap("rectangleselect") );
+    rectitm->setIcon( ioPixmap("rectangleselect") );
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
@@ -422,7 +422,7 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
     if ( !viewstdcontrol_ || !viewstdcontrol_->toolBar() )
 	return;
 
-    viewstdcontrol_->toolBar()->setPixmap( polyseltbid_, ispolyselect_ ?
+    viewstdcontrol_->toolBar()->setIcon( polyseltbid_, ispolyselect_ ?
 	    			"polygonselect" : "rectangleselect" );
     viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, ispolyselect_ ?
 	    		"Polygon Selection mode" : "Rectangle Selection mode" );
@@ -444,7 +444,7 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
-    ispolyselect_ = itm->id()==0;
+    ispolyselect_ = itm->getID()==0;
     selectionMode( cb );
 }
 

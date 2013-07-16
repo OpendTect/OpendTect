@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
-class uiMenuItem;
 
 mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
 {

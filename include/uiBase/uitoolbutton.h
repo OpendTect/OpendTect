@@ -46,9 +46,9 @@ public:
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
-    void			setMenu(uiPopupMenu*); //!<Menu becomes mine
+    void			setMenu(uiMenu*); //!<Menu becomes mine
 
-    const uiPopupMenu*		menu() const		{ return uimenu_; }
+    const uiMenu*		menu() const		{ return uimenu_; }
 
     void			setID( int i )		{ id_ = i; }
     int				id() const		{ return id_; }
@@ -62,7 +62,7 @@ private:
 
     int				id_; // Used by toolbar
 
-    uiPopupMenu*		uimenu_;
+    uiMenu*			uimenu_;
     mQtclass(QMenu*)		qmenu_;
 
 };

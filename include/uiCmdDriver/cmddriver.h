@@ -26,7 +26,7 @@ ________________________________________________________________________
 class FilePath;
 class StreamData;
 class uiObject;
-class uiPopupMenu;
+class uiMenu;
 class uiTaskRunner;
 
 namespace CmdDrive
@@ -306,7 +306,7 @@ protected:
     MenuInfo		interceptmenuinfo_;
 
     void		dynamicMenuInterceptor(CallBacker*);
-    bool		dispatchDynamicMenu(uiPopupMenu*);
+    bool		dispatchDynamicMenu(uiMenu*);
 
     void		interactCB(CallBacker*);
     void		executeFinishedCB(CallBacker*);

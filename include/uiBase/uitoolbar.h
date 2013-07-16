@@ -13,6 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
+#include "uiaction.h"
 #include "uiparent.h"
 
 mFDQtclass(QAction)
@@ -21,14 +23,13 @@ mFDQtclass(QToolBar)
 class ioPixmap;
 class MenuItem;
 class uiObject;
-class uiPopupMenu;
-class uiToolBarBody;
 class uiToolButton;
 class uiToolButtonSetup;
 class i_ToolBarMessenger;
+class uiButton;
 
 
-mExpClass(uiBase) uiToolBar : public uiParent
+mExpClass(uiBase) uiToolBar : public uiActionContainer, public uiParent
 {
 friend class i_ToolBarMessenger;
 public:
@@ -54,13 +55,13 @@ public:
     int 		addButton(const char* fnm,const char* tooltip,
 	    			  const CallBack&,bool toggle=false);
     int			addButton(const MenuItem&);
-    void		addButton(uiToolButton*);
     void		addObject(uiObject*);
 
     void		setLabel(const char*);
 
-    void		setPixmap(int,const char*);
-    void		setPixmap(int,const ioPixmap&);
+    void		setToggle(int, bool);
+    void		setIcon(int,const char*);
+    void		setIcon(int,const ioPixmap&);
     void		setToolTip(int,const char*);
     void		setShortcut(int,const char*);
     void		turnOn(int idx,bool yn);
@@ -73,22 +74,24 @@ public:
     			/*!< Works on complete toolbar */
     bool		isSensitive() const;
 
-    void		setButtonMenu(int,uiPopupMenu*);
+    void		setButtonMenu(int,uiMenu*);
     			//!<Menu will be owned by uiToolButton
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added
-			     s and m are not used.
-			*/
+			     s and m are not used. */
+
+    void		setToolBarMenuAction(uiAction*);
+    			/*!The actions will be checked/unchecked
+			   as toolbar is displayed/hidden */
+			  
+
     bool		isHidden() const;
     bool		isVisible() const;
 
-    void		addSeparator();
-
-    void		reLoadPixMaps();
+    void		addSeparator() { insertSeparator(); }
+    
     void		clear();
-
-    virtual uiMainWin*  mainwin();
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
@@ -97,19 +100,31 @@ public:
     const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
 
-    CNotifier<uiToolBar,int>	buttonClicked;
+    CNotifier<uiToolBar,int>		buttonClicked;
 
 protected:
+	    
+    void			doInsertMenu(mQtclass(QMenu)*,
+					     mQtclass(QAction)* before);
+    void			doInsertAction(mQtclass(QAction)*,
+					       mQtclass(QAction)* before);
+    void			doInsertSeparator(mQtclass(QAction)* before);
+    void			doRemoveAction(mQtclass(QAction)*);
+    void			doClear();
+
+    uiAction*			toolbarmenuaction_;
 
     mQtclass(QToolBar*)		qtoolbar_;
-    i_ToolBarMessenger*	msgr_;
-    uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*,mQtclass(QToolBar&));
+    i_ToolBarMessenger*		msgr_;
 
-    uiParent*		parent_;
-    ToolBarArea		tbarea_;
+    ToolBarArea			tbarea_;
+    ObjectSet<uiObject>		addedobjects_;
 
-    int			getButtonID(mQtclass(QAction*));
+    int				getButtonID(mQtclass(QAction*));
+    
+public:
+    void			addButton(uiButton*);
+				//!<Legacy, use addObject instead
 
 };
 

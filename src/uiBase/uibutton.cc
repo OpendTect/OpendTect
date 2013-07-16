@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "i_qbutton.h"
 
+#include "uiaction.h"
 #include "uibuttongroup.h"
 #include "uiicons.h"
 #include "uimain.h"
@@ -508,17 +509,17 @@ void uiToolButton::setShortcut( const char* sc )
 }
 
 
-void uiToolButton::setMenu( uiPopupMenu* mnu )
+void uiToolButton::setMenu( uiMenu* mnu )
 {
     delete qmenu_; delete uimenu_;
     uimenu_ = mnu;
     if ( !uimenu_ ) return;
 
     qmenu_ = new QMenu;
-    for ( int idx=0; idx<mnu->nrItems(); idx++ )
+    for ( int idx=0; idx<mnu->nrActions(); idx++ )
     {
 	QAction* qact =
-	    	 const_cast<QAction*>( mnu->items()[idx]->qAction() );
+	    	 const_cast<QAction*>( mnu->actions()[idx]->qaction() );
 	qmenu_->addAction( qact );
     }
 

@@ -21,7 +21,7 @@ class uiPushButtonBody;
 class uiRadioButtonBody;
 mFDQtclass(QAbstractButton)
 
-class uiPopupMenu;
+class uiMenu;
 class ioPixmap;
 mFDQtclass(QEvent)
 mFDQtclass(QMenu)

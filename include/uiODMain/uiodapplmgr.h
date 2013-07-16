@@ -23,7 +23,6 @@ class uiEMPartServer;
 class uiMPEPartServer;
 class uiNLAPartServer;
 class uiODApplService;
-class uiPopupMenu;
 class uiPickPartServer;
 class uiSeisPartServer;
 class uiStratTreeWin;

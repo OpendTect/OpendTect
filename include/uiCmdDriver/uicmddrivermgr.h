@@ -15,12 +15,9 @@ ________________________________________________________________________
 #include "callback.h"
 #include "bufstringset.h"
 
-class uiPopupMenu;
 class uiMainWin;
 class Timer;
 class uiToolBar;
-class uiMenuItem;
-class uiMenuItem;
 
 namespace CmdDrive
 {
@@ -67,7 +64,6 @@ protected:
     CmdRecorder*		rec_;
     CmdRecorder*		historec_;
     Timer*			tim_;
-    uiMenuItem*			cmdmnuitm_;
     uiCmdDriverDlg*		cmddlg_;
 
     bool			cmdlineparsing_;

@@ -22,7 +22,7 @@ class uiGroup;
 class uiMainWinBody;
 class uiMenuBar;
 class uiObject;
-class uiPopupMenu;
+class uiMenu;
 class uiStatusBar;
 class uiToolBar;
 class BufferStringSet;
@@ -117,11 +117,10 @@ public:
     void		removeDockWindow(uiDockWin*);
     void		addDockWindow(uiDockWin&,Dock);
     void		addToolBar(uiToolBar*);
-    void		removeToolBar(uiToolBar*);
+    uiToolBar*		removeToolBar(uiToolBar*);
     void		addToolBarBreak();
 
-    uiPopupMenu& 	getToolbarsMenu() const;
-    void		updateToolbarsMenu();
+    uiMenu& 		getToolbarsMenu() const;
 
     const ObjectSet<uiToolBar>& toolBars() const;
     const ObjectSet<uiDockWin>& dockWins() const;

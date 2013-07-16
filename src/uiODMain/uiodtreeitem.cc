@@ -149,11 +149,11 @@ int uiODTreeItem::sceneID() const
 }
 
 
-void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
+void uiODTreeItem::addStandardItems( uiMenu& mnu )
 {
     if ( children_.size() < 2 ) return;
 
-    mnu.insertSeparator( 100 );
+    mnu.insertSeparator();
     mnu.insertItem( new uiMenuItem("Show all items"), 101 );
     mnu.insertItem( new uiMenuItem("Hide all items"), 102 );
     mnu.insertItem( new uiMenuItem("Remove all items"), 103 );

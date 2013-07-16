@@ -322,7 +322,7 @@ bool MenuTracer::goingToChangeUiObj() const
 bool MenuTracer::findItem( const FileMultiString& menupath,
 			   const uiMenuItem*& curitem, int* curitmidx ) const
 {
-    const uiMenuItemContainer* curmenu = &startmenu_;
+    const uiActionContainer* curmenu = &startmenu_;
     curitem = 0;
     FileMultiString pathstr;
     bool disabledpath = false;
@@ -332,10 +332,9 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	mParDisambiguatorRet("menu item name", itemstr, itmselnr, false);
 	if ( level > 0 )
 	{
-	    mDynamicCastGet( const uiPopupItem*, popupitm, curitem );
-	    curmenu = popupitm ? &popupitm->menu() : 0;
+	    curmenu = curitem->getMenu();
 	}
-	if ( !curmenu || !curmenu->nrItems() )
+	if ( !curmenu || !curmenu->nrActions() )
 	{
 	    mWinErrStrm << "No subitems in menu"
 		    << (level>0 ? " item \"" : "") << pathstr.unescapedStr()
@@ -343,7 +342,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	    return false;
 	}
 
-	ObjectSet<uiMenuItem> items( curmenu->items() );
+	ObjectSet<uiMenuItem> items( curmenu->actions() );
 	int nrgrey = 0;
 	for ( int itmidx=items.size()-1; itmidx>=0; itmidx-- )
 	{
@@ -371,8 +370,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	disabledpath = disabledpath || !curitem->isEnabled();
     }
 
-    mDynamicCastGet( const uiPopupItem*, popupitm, curitem );
-    if ( popupitm && goingToChangeUiObj() )
+    if ( curitem->getMenu() && goingToChangeUiObj() )
     {
 	mWinErrStrm << "No subitem specified for menu \"" << pathstr
 		    << "\"" << std::endl;
@@ -382,7 +380,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 
     if ( curitmidx )
     {
-	ObjectSet<uiMenuItem> items( curmenu->items() );
+	ObjectSet<uiMenuItem> items( curmenu->actions() );
 	*curitmidx = 0;
 	for ( int idx=items.size()-1; idx>=0; idx-- )
 	{
@@ -400,16 +398,15 @@ int MenuTracer::nrItems( const FileMultiString& menupath ) const
     ObjectSet<uiMenuItem> items;
 
     if ( menupath.isEmpty() )
-	items = startmenu_.items();
+	items = startmenu_.actions();
     else
     {
 	const uiMenuItem* mnuitm;
 	if ( !findItem(menupath, mnuitm) )
 	    return -1;
 
-	mDynamicCastGet( const uiPopupItem*, popupitm, mnuitm );
-	if ( popupitm )
-	    items = popupitm->menu().items();
+	if ( mnuitm->getMenu() )
+	    items = mnuitm->getMenu()->actions();
     }
 
     int nritems = 0;
