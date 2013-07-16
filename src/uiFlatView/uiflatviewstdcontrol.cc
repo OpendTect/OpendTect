@@ -141,7 +141,8 @@ void uiFlatViewStdControl::finalPrepare()
 
 void uiFlatViewStdControl::clearToolBar()
 {
-    tb_->clear(); delete tb_; tb_ = 0;
+    delete mainwin()->removeToolBar( tb_ );
+    tb_ = 0;
     zoominbut_ = zoomoutbut_ = manipdrawbut_ = parsbut_ = editbut_ = 0;
 }
 
