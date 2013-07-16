@@ -60,16 +60,16 @@ public:
 
     void		setLabel(const char*);
 
-    void		setToggle(int, bool);
-    void		setIcon(int,const char*);
-    void		setIcon(int,const ioPixmap&);
-    void		setToolTip(int,const char*);
-    void		setShortcut(int,const char*);
-    void		turnOn(int idx,bool yn);
+    void		setToggle(int id, bool);
+    void		setIcon(int id,const char*);
+    void		setIcon(int id,const ioPixmap&);
+    void		setToolTip(int id,const char*);
+    void		setShortcut(int id,const char*);
+    void		turnOn(int id,bool yn);
     			/*!< Does only work on toggle-buttons */
-    bool		isOn(int idx) const;
+    bool		isOn(int id) const;
     			/*!< Does only work on toggle-buttons */
-    void		setSensitive(int idx,bool yn);
+    void		setSensitive(int id,bool yn);
     			/*!< Does only work on buttons */
     void		setSensitive(bool yn);
     			/*!< Works on complete toolbar */
@@ -98,7 +98,6 @@ public:
     ToolBarArea		prefArea() const	{ return tbarea_; }
     mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }
 
-    const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
 
     CNotifier<uiToolBar,int>		buttonClicked;

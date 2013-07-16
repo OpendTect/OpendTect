@@ -507,6 +507,11 @@ void uiMainWinBody::updateToolbarsMenu()
 
 void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
+    if ( toolbars_.isPresent(tb) )
+    {
+	pErrMsg("Toolbar is already added");
+	return;
+    }
     QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
     toolbars_ += tb;
     renewToolbarsMenu();

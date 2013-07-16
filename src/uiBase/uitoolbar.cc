@@ -250,10 +250,6 @@ void uiToolBar::clear()
 }
 
 
-const ObjectSet<uiObject>& uiToolBar::objectList() const
-{ return addedobjects_; }
-
-
 void uiToolBar::doInsertMenu(mQtclass(QMenu)* menu,
 			  mQtclass(QAction)* before)
 {
