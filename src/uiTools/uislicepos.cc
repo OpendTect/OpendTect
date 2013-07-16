@@ -66,7 +66,6 @@ uiSlicePos::~uiSlicePos()
 {
     IOM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
     SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos,shortcutsChg) );
-    delete toolbar_;
 }
 
 
