@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mNoHelpID) )
+    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mTODOHelpID) )
 {
     setCtrlStyle( DoAndStay );
 
