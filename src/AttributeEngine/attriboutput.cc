@@ -862,8 +862,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	return;
 
     const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
-    const float globalsttime = stdstarttime_;
-    const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
+    const float trcstarttime = mNINT32(stdstarttime_/refstep) * refstep;
     const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
     const int index = outpbuf_->find( info.binid );
 
@@ -1062,8 +1061,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	return;
 
     const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
-    const float globalsttime = stdstarttime_;
-    const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
+    const float trcstarttime = mNINT32(stdstarttime_/refstep) * refstep;
     const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
     DataCharacteristics dc;
 
