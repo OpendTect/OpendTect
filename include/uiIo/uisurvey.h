@@ -78,7 +78,8 @@ protected:
     uiPushButton*	rmbut_;
     uiPushButton*	datarootbut_;
     uiPushButton*	copybut_;
-    uiPushButton*	archbut_;
+    uiToolButton*	exportbut_;
+    uiToolButton*	importbut_;
     ObjectSet<uiToolButton> utilbuts_;
     uiLabel*		inllbl_;
     uiLabel*		crllbl_; 
@@ -94,7 +95,8 @@ protected:
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		copyButPushed(CallBacker*);
-    void		archButPushed(CallBacker*);
+    void		exportButPushed(CallBacker*);
+     void		importButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);
