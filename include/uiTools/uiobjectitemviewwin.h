@@ -97,6 +97,8 @@ protected:
     float		hslval_;
     float		vslval_;
     LinScaler		scaler_;
+    uiSize              screensz_;
+    bool		fittoscreen_;
 
     void		init();
     void		makeSliders();
@@ -107,6 +109,7 @@ protected:
     void 		addItem(uiObjectItem* itm,uiObjectItem* infoitm=0);
     void		insertItem(int idx,uiObjectItem*,uiObjectItem* info=0);
 
+    void              	reSizeCB(CallBacker*);
     void		fitToScreen(CallBacker*);
     void		reSizeSld(CallBacker*);
     void		rubBandCB(CallBacker*);
