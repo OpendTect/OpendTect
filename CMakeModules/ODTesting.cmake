@@ -9,7 +9,6 @@
 set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
 
 macro ( OD_SETUP_TEST_FILTER )
-    message ( ${OD_TESTS_IGNORE_CONTINUOUS} )
     if( CTEST_MODEL )
 	if ( ${CTEST_MODEL} STREQUAL "Experimental" )
 	    set ( CTEST_CUSTOM_TESTS_IGNORE

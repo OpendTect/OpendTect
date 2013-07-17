@@ -161,8 +161,15 @@ if(WIN32)
 	set ( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) # conversion' conversion from 'type1' to 'type2', possible loss of data ( _int64 to int ) 
     endif()
 
-    set  ( OD_GUI_SYSTEM "WIN32" )
+    set ( OD_GUI_SYSTEM "WIN32" )
     set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
+
+    if ( CMAKE_GENERATOR STREQUAL "Ninja" )
+        set ( OD_UAC_LINKFLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"" )
+    else()
+        set ( OD_UAC_LINKFLAGS "/level='requireAdministrator' /uiAccess='false'" )
+    endif()
+
 endif()
 
 add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
