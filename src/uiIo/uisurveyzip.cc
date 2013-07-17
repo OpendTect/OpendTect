@@ -18,11 +18,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "survinfo.h"
+#include "ziparchiveinfo.h"
 #include "ziputils.h"
 
 bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 			   const char* destdir )
 {
+    ZipArchiveInfo zinfo( inpfnm );
+    BufferStringSet fnms;
+    zinfo.getAllFnms( fnms );
+    const BufferString survnm( fnms.get(0) );
+    const BufferString omf( survnm, ".omf" );
+    const bool isvalidsurvey = fnms.indexOf( omf ) > -1;
+    if ( !isvalidsurvey )
+    {
+	uiMSG().error( "This archive does not contain any valid survey" );
+	return false;
+    }
     if ( !destdir || !*destdir )
 	destdir = GetBaseDataDir();
     if ( !File::exists(destdir) )
@@ -41,6 +53,15 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 	return false;
     }
 
+    FilePath surveypath( destdir, survnm );
+    if ( File::exists(surveypath.fullPath()) )
+    {
+	 BufferString errmsg( surveypath.fullPath()," survey already exists.",
+				"\nOverwrite the existing survey?");
+	if ( !uiMSG().askOverwrite(errmsg) )
+	    return false;
+    }
+    
     BufferString zipfnm( inpfnm );
     if ( zipfnm.isEmpty() || !File::exists(zipfnm) )
     {

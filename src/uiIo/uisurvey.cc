@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurveyselect.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
+#include "uisurveyzip.h"
+#include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
@@ -51,7 +53,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mMapWidth	300
 #define mMapHeight	300
-
+static const char* sZip = "*.zip";
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
@@ -185,10 +187,14 @@ uiSurvey::uiSurvey( uiParent* p )
     copybut_->attach( alignedBelow, editbut_ );
     copybut_->setPrefWidthInChar( 12 );
 
-    archbut_ = new uiPushButton( leftgrp, "&Archive",
-				 mCB(this,uiSurvey,archButPushed), false );
-    archbut_->attach( alignedBelow, copybut_ );
-    archbut_->setPrefWidthInChar( 12 );
+    exportbut_ = new uiToolButton( leftgrp, "share",
+				    "Pack survey into a zip file",
+				    mCB(this,uiSurvey,exportButPushed) );
+    exportbut_->attach( alignedBelow, copybut_ );
+    importbut_ = new uiToolButton( leftgrp, "unpack",
+				    "Unpack survey from zip file", 
+				    mCB(this,uiSurvey,importButPushed) );
+    importbut_->attach( rightAlignedBelow, copybut_ );
 
     ObjectSet<uiSurvey::Util>& utils = getUtils();
     uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
@@ -455,16 +461,34 @@ void uiSurvey::rmButPushed( CallBacker* )
 }
 
 
-void uiSurvey::archButPushed( CallBacker* )
+void uiSurvey::exportButPushed( CallBacker* )
 {
     uiDialog dlg( this,
-	uiDialog::Setup("Archive survey",mNoDlgTitle,mTODOHelpID) );
-    (void)new uiFileInput( &dlg, "Destination",
-			    uiFileInput::Setup().directories(true) );
+    uiDialog::Setup("Pack survey into zip file",mNoDlgTitle,mTODOHelpID));
+    uiFileInput* filepinput = new uiFileInput( &dlg, "Select output destination",
+		    uiFileInput::Setup().directories(false).forread(false));
+    filepinput->setFilter( "*.zip" );
     if ( !dlg.go() )
 	return;
+	
+    const BufferString survnm( listbox_->getText() );
+    FilePath exportzippath( filepinput->fileName() );
+    uiSurvey_ZipDirectory( this, survnm, exportzippath.fullPath() );
+}
 
-    uiMSG().error( "Not implemented yet" );
+
+void uiSurvey::importButPushed( CallBacker* )
+{
+    uiDialog dlg( this,
+    uiDialog::Setup("Unpack survey",mNoDlgTitle,mTODOHelpID));
+    uiFileInput* filepinput = new uiFileInput( &dlg, "Select zip files",
+		    uiFileInput::Setup().directories(false) );
+    filepinput->setFilter( sZip );
+    if ( !dlg.go() )
+	return;
+    
+    uiSurvey_UnzipFile( this, filepinput->fileName(), GetBaseDataDir() );
+    updateSvyList();
 }
 
 
@@ -475,7 +499,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 
     const int butidx = utilbuts_.indexOf( tb );
     if ( butidx < 0 ) { pErrMsg("Huh"); return; }
-
+    
     if ( butidx == 0 )
     {
 	uiConvertPos dlg( this, *survinfo_ );
