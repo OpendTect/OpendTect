@@ -104,8 +104,12 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     if ( !zipfnm.isEmpty() )
     {
 	const FilePath fp( zipfnm );
-	if ( !File::isWritable(zipfnm) || !File::isWritable(fp.pathOnly()) )
-	    zipfnm.setEmpty();
+	if ( !File::isWritable(fp.pathOnly()) )
+	{
+	    uiMSG().error( fp.pathOnly(), " is not writable" );
+	    return false;
+	}
+	    
     }
     if ( zipfnm.isEmpty() )
     {

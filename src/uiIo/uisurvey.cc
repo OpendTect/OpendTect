@@ -466,13 +466,21 @@ void uiSurvey::exportButPushed( CallBacker* )
     uiDialog dlg( this,
     uiDialog::Setup("Pack survey into zip file",mNoDlgTitle,mTODOHelpID));
     uiFileInput* filepinput = new uiFileInput( &dlg, "Select output destination",
-		    uiFileInput::Setup().directories(false).forread(false));
-    filepinput->setFilter( "*.zip" );
+		    uiFileInput::Setup().directories(false).forread(false)
+		    .allowallextensions(false));
+    filepinput->setFilter( sZip );
     if ( !dlg.go() )
 	return;
 	
     const BufferString survnm( listbox_->getText() );
     FilePath exportzippath( filepinput->fileName() );
+    BufferString zipext = exportzippath.extension();
+    if ( zipext != "zip" )
+    {
+	uiMSG().error( "Please add .zip extension to the file name" );
+	return;
+    }
+
     uiSurvey_ZipDirectory( this, survnm, exportzippath.fullPath() );
 }
 
