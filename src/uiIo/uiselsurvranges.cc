@@ -277,8 +277,9 @@ void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, BufferString(lbltxt," step") );
-	stepfld_->setInterval( StepInterval<int>(limitrg.step,limitrg.width(),
-		    				 limitrg.step) );
+	stepfld_->setInterval( StepInterval<int>(limitrg.step,
+			    limitrg.width() ? limitrg.width() : limitrg.step,
+		    	    limitrg.step) );
 	stepfld_->doSnap( true );
 	stepfld_->valueChanging.notify( cb );
 	lbl = new uiLabel( this, "step", stepfld_ );
