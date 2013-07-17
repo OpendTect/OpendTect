@@ -293,6 +293,9 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 	if( val > maxval )
 	    maxval = val;
     }
+    
+    if( mIsZero(maxval, 1e-6f) )
+	return;
 
     for( int idx=0; idx<wvltsize_; idx++ )
 	normal.arr()[idx] = (normal.arr()[idx])/(maxval);
