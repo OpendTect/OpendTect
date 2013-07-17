@@ -442,8 +442,7 @@ bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
     return setupss.id().asInt()==clickedss.id().asInt() &&
 	setupssisstoed==clickedss.id().isStored() &&
 	setupss.isNLA()==clickedss.isNLA() &&
-	BufferString(setupss.objectRef())==BufferString(clickedss.objectRef())
-	&& BufferString(setupss.defString())==
+	BufferString(setupss.defString())==
 	   BufferString(clickedss.defString()) &&
 	setupss.is2D()==clickedss.is2D();
 }
