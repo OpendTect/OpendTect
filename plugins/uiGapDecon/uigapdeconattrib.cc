@@ -17,8 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "cubesampling.h"
+#include "hilbertattrib.h"
+#include "ioman.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "volstatsattrib.h"
+
 #include "uiattrsel.h"
 #include "uiseisioobjinfo.h"
 #include "uislicesel.h"
@@ -26,11 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uispinbox.h"
-#include "cubesampling.h"
-#include "volstatsattrib.h"
-#include "hilbertattrib.h"
 #include "uimsg.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
@@ -656,16 +658,25 @@ uiGDPositionDlg::~uiGDPositionDlg()
     
 void uiGDPositionDlg::popUpPosDlg()
 {
-    CallBack dummycb;
-    bool is2d = inlcrlfld_ == 0;
-    bool isinl = is2d ? false : inlcrlfld_->getBoolValue();
-    CubeSampling inputcs = cs_;
+    const bool is2d = inlcrlfld_ == 0;
     if ( is2d )
     {
-	SeisTrcTranslator::getRanges( mid_, inputcs, getLineKey() );
-	cs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
+	StepInterval<int> trcrg( 1, 100000, 1 );
+	PtrMan<IOObj> lsobj = IOM().get( mid_ );
+	if ( lsobj )
+	{
+	    const PosInfo::GeomID geomid =
+		S2DPOS().getGeomID( lsobj->name(), linesfld_->box()->text() );
+	    PosInfo::Line2DData l2d;
+	    const bool res = S2DPOS().getGeometry( geomid, l2d );
+	    if ( res ) trcrg = l2d.trcNrRange();
+	}
+
+	cs_.hrg.setCrlRange( trcrg );
     }
 
+    CubeSampling inputcs = cs_;
+    const bool isinl = is2d ? false : inlcrlfld_->getBoolValue();
     cs_.zrg.stop = cs_.zrg.width();
     cs_.zrg.start = 0;
     if ( prefcs_ )
@@ -685,6 +696,7 @@ void uiGDPositionDlg::popUpPosDlg()
 	inputcs.zrg.start = 0;
     }
 
+    CallBack dummycb;
     ZDomain::Info info( ZDomain::SI() );
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl);
