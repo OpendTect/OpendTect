@@ -35,7 +35,7 @@
  * Brian Paul  26 January 2000
  */
 
-#if defined (WIN32) || defined (_WINDOWS)
+#if defined (__win32__) || defined (__win64__)
 #include "w32glxinfo.c"
 #else
 
