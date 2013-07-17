@@ -46,7 +46,6 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->setPrefHeight( startheight_ );
     mainviewer_->enableScrollBars( true );
     mainviewer_->disableScrollZoom();
-    mainviewer_->reSize.notify( mCB(this,uiObjectItemViewWin,fitToScreen) );
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
