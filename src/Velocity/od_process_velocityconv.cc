@@ -13,8 +13,9 @@ static const char* rcsID = "$Id$";
 #include "iopar.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "progressmeter.h"
 #include "moddepmgr.h"
+#include "progressmeter.h"
+#include "seisioobjinfo.h"
 
 #include "prog.h"
 
@@ -25,13 +26,9 @@ static const char* rcsID = "$Id$";
 }
 
 bool BatchProgram::go( std::ostream& strm )
-{ 
+{
     OD::ModDeps().ensureLoaded("Velocity");
-
-    HorSampling hrg;
-    if ( !hrg.usePar( pars() ) )
-	hrg.init( true );
-
+    
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )
@@ -39,6 +36,15 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<IOObj> inputioobj = IOM().get( inputmid );
     if ( !inputioobj )
 	mErrRet( "Cannot read input volume object" )
+	
+    HorSampling hrg;
+    if ( !hrg.usePar(pars()) )
+    {
+	SeisIOObjInfo seisinfo( inputioobj );
+	CubeSampling cs;
+	seisinfo.getRanges( cs );
+	hrg = cs.hrg;
+    }
 
     MultiID outputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyOutput(), outputmid ) )
