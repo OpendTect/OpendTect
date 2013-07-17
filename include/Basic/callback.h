@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "plfdefs.h"
 #include "sets.h"
 #include "thread.h"
 #include <string>
@@ -329,6 +330,10 @@ mCBCapsuleGet(T,cb##caps,cb) \
 T var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
 
+# ifdef __msvc__
+#  pragma warning ( push )
+#  pragma warning( disable : 4700 )
+# endif	
 
 /*!
 \brief Notifier with automatic capsule creation.
@@ -341,6 +346,7 @@ CallBacker* cber = cb##caps->caller
   CNotifier<MyClass,const uiMouseEvent&>	mousepress;
   \endcode  
 */
+	
 
 template <class T,class C>
 mClass(Basic) CNotifier : public NotifierAccess
@@ -352,16 +358,11 @@ public:
 // Following functions are usually used by T class only:
 
 			CNotifier( T* cb )	{ cber_ = cb; }
-# ifdef __msvc__
-#  pragma warning ( push )
-#  pragma warning( disable : 4700 )
-# endif			
+	
 
     inline void		trigger( CallBacker* cb=0 )
 			    { if( !enabled_ ) return; C c; trigger(c,cb); }
-# ifdef __msvc__
-#  pragma warning ( pop )
-# endif
+
 
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
@@ -373,7 +374,9 @@ public:
 			}
 };
 
-
+# ifdef __msvc__
+#  pragma warning ( pop )
+# endif
 /*!
 \brief Temporarily disables a Notifier.
   
