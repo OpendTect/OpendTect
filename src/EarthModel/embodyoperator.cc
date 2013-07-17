@@ -109,17 +109,13 @@ float getVal( char p0, char p1, float v0, float v1 ) const
     {
 	if ( p1==mInsideVal )
 	{
-	    if ( action_==BodyOperator::Union )
+	    if ( action_==BodyOperator::Minus )
+	    {
+		res = useval ? b1_.threshold_-v1 : mOutsideVal;
+	    }
+	    else 
 	    {
 		res = useval ? (mMAX(v0,v1)) : mInsideVal;
-	    }
-	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = useval ? (mMAX(v0,v1)) : mInsideVal;
-	    }
-	    else
-	    {
-		res = useval ? -v1 : mOutsideVal;
 	    }
 	}
 	else if ( p1==mOnBodyVal )
@@ -134,22 +130,18 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? 0.01f : mOutsideVal;
+		res = useval ? b0_.threshold_+0.01f : mOutsideVal;
 	    }
 	}
 	else
 	{
-	    if ( action_==BodyOperator::Union )
-	    {
-		res = useval ? v0 : mInsideVal;
-	    }
-	    else if ( action_==BodyOperator::IntSect )
+	    if ( action_==BodyOperator::IntSect )
 	    {
 		res = useval ? v1 : mOutsideVal;
 	    }
 	    else
 	    {
-		res = useval ? v0 : mOutsideVal;
+		res = useval ? v0 : mInsideVal;
 	    }
 	}
     }
@@ -167,31 +159,16 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? -v1 : mOutsideVal;
+		res = useval ? b1_.threshold_-v1 : mOutsideVal;
 	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
-	    if ( action_==BodyOperator::Union )
-	    {
-		res = mOnBodyVal;
-	    }
-	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = mOnBodyVal;
-	    }
-	    else
-	    {
-		res = useval ? 0.01f : mOutsideVal;
-	    }
+    	    res = mOnBodyVal;
 	}
 	else
 	{
-	    if ( action_==BodyOperator::Union )
-	    {
-		res = mOnBodyVal;
-	    }
-	    else if ( action_==BodyOperator::IntSect )
+	    if ( action_==BodyOperator::IntSect )
 	    {
 		res = useval ? v1 : mOutsideVal;
 	    }
@@ -209,10 +186,6 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    {
 		res = useval ? v1 : mInsideVal;
 	    }
-	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = useval ? v0 : mOutsideVal;
-	    }
 	    else
 	    {
 		res = useval ? v0 : mOutsideVal;
@@ -224,29 +197,14 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    {
 		res = mOnBodyVal;
 	    }
-	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = useval ? v0 : mOutsideVal;
-	    }
-	    else
+	    else 
 	    {
 		res = useval ? v0 : mOutsideVal;
 	    }
 	}
 	else
 	{
-	    if ( action_==BodyOperator::Union )
-	    {
-		res = useval ? (mMIN(v0,v1)) : mOutsideVal;
-	    }
-	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = useval ? (mMIN(v0,v1)) : mOutsideVal;
-	    }
-	    else
-	    {
-		res = useval ? v0 : mOutsideVal;
-	    }
+	    res = useval ? (mMIN(v0,v1)) : mOutsideVal;
 	}
     }
 
