@@ -34,8 +34,10 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
     , infoheight_(su.infoheight_) 
-    , hslval_(1)
-    , vslval_(1)
+    , screensz_(uiSize(su.startwidth_,su.startheight_))
+    , fittoscreen_(true)
+    , hslval_(1.0f)
+    , vslval_(1.0f)
 {
     setPrefWidth( startwidth_ + su.infoheight_ );
     setPrefHeight( startheight_+ su.infoheight_ );
@@ -46,7 +48,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->setPrefHeight( startheight_ );
     mainviewer_->enableScrollBars( true );
     mainviewer_->disableScrollZoom();
-    mainviewer_->reSize.notify( mCB(this,uiObjectItemViewWin,fitToScreen) );
+    mainviewer_->reSize.notify( mCB(this,uiObjectItemViewWin,reSizeCB) );
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
     infobar_ = new uiObjectItemViewInfoBar( this );
@@ -154,7 +156,9 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
     hslval_ = hsldr->getValue();
     vslval_ = vsldr->getValue();
 
-    mDynamicCastGet(uiSlider*,sld,cb)
+    mDynamicCastGet(uiSlider*,sld,cb);
+    fittoscreen_ = !sld;
+
     if ( sld && zoomratiofld_->isChecked() ) 
     {
 	bool ishor = sld == hsldr;
@@ -273,6 +277,14 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
 }
 
 
+void uiObjectItemViewWin::reSizeCB( CallBacker* )
+{
+    if ( !fittoscreen_ || !poppedUp() ) return;
+    const uiSize newscreensz( mainviewer_->width(), mainviewer_->height() );
+    if ( newscreensz != screensz_ ) fitToScreen(0);
+}
+
+
 void uiObjectItemViewWin::fitToScreen( CallBacker* )
 {
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&mainviewer_->scene())
@@ -295,6 +307,7 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
     versliderfld_->sldr()->setValue( newvslval );
 
     zoomratiofld_->setChecked(false);
+    screensz_ = screensz;
     reSizeSld(0);
 }
 
