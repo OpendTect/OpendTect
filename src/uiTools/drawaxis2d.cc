@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uiworld2ui.h"
 
-# define mRemoveGraphicsItem( item ) \
+#define mRemoveGraphicsItem( item ) \
 if ( item ) \
 { scene_.removeItem( item ); delete item; item = 0; }
 
