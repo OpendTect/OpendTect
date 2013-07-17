@@ -41,7 +41,6 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , lineidx_(-1)
     , paramval_( mUdf(float) )
 {
-    wvlt_.setCenterSample( wvltsize/2 );
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
     
@@ -65,7 +64,7 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     si->getRanges( cs );
     wvlt_.reSize( wvltsize_ );
     wvlt_.setSampleRate( cs.zrg.step );
-    wvlt_.setCenterSample( mNINT32((float) wvltsize_/2) );
+    wvlt_.setCenterSample( wvltsize_/2 );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
 }
@@ -296,6 +295,9 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 	if( val > maxval )
 	    maxval = val;
     }
+
+    if( mIsZero(maxval, 1e-6f) )
+	return;
 
     for( int idx=0; idx<wvltsize_; idx++ )
 	normal.arr()[idx] = (normal.arr()[idx])/(maxval);
