@@ -581,8 +581,9 @@ main(int argc, char** argv)
     int   i;
 
     char* s;
+#define mBufLen 80
 
-    char  t[80];
+    char  t[mBufLen];
 
     char* p = 0;
 
@@ -706,9 +707,9 @@ main(int argc, char** argv)
 
 	    p++;
 
-	    i = strlen(p);
+	    i = (int) strlen(p);
 
-	    strcpy(t, p);
+	    strcpy_s(t, mBufLen, p);
 
 	}
 
