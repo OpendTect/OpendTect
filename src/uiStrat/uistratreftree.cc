@@ -172,8 +172,19 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
     if ( !strcmp( lvit->text(), Strat::RefTree::sKeyNoCode() ) )
 	{ updateUnitProperties( lvit ); return; }
 
-    uiMenu mnu( lv_->parent(), "Action" );
-    mnu.insertItem( new uiAction("&Create sub-unit..."), 0 );
+    uiPopupMenu mnu( lv_->parent(), "Action" );
+    
+    bool caninsertsubitem = true;
+    const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
+				    : 0;
+    if ( !(lvit && ( !un || un->isLeaf() )) )
+    {
+	NodeUnitRef* parun = lvit ? (NodeUnitRef*)un : tree_;
+	if ( parun && parun->treeDepth()>=5 ) //avoid overwriting litho column
+	    caninsertsubitem = false;
+    }
+    if ( caninsertsubitem )
+	mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
     if ( isLeaved( lvit ) )
 	mnu.insertItem( new uiAction("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiAction("&Properties..."), 2 );
