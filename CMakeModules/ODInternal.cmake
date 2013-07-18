@@ -99,7 +99,11 @@ set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 set( LMHOSTID lmhostid )
 if( WIN32 )
     install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
+	    DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+	    CONFIGURATIONS Debug )
+    install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
+	    DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+	    CONFIGURATIONS Release )
     set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
 	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
@@ -112,13 +116,13 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
+    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Release
 	    FILES_MATCHING
@@ -130,7 +134,11 @@ endif()
 install( PROGRAMS ${QJPEG} DESTINATION imageformats )
 if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+	     CONFIGURATIONS Release )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+	     CONFIGURATIONS Debug )
 else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )

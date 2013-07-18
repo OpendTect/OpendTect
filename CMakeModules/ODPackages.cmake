@@ -11,15 +11,16 @@ macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
 		    @ONLY )
 endmacro()
 
-if ( WIN32 )
+if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
+     (CMAKE_GENERATOR STREQUAL "Ninja") 
+    add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
+	    		WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+else()
     add_custom_target( do_install
 	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Debug
 	COMMAND
 	${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install --config Release
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-else()
-    add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
-WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 endif()
 
 macro( OD_ADD_PACKAGES_TARGET )
