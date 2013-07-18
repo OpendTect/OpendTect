@@ -66,6 +66,9 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
 uiViewer2DMainWin::~uiViewer2DMainWin()
 {
     deepErase( mutes_ );
+    deepErase( vwrs_ );
+    deepErase( gd_ );
+    deepErase( gdi_ );
     delete posdlg_;
 }
 
@@ -744,6 +747,9 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
     setGatherView( gd, gdi );
+
+    gd_ += gd;
+    gdi_ += gdi;
 }
 
 
