@@ -12,7 +12,7 @@ macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
 endmacro()
 
 if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-     (CMAKE_GENERATOR STREQUAL "Ninja") 
+     (CMAKE_GENERATOR STREQUAL "Ninja") )
     add_custom_target( do_install ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install
 	    		WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 else()
