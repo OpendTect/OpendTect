@@ -178,9 +178,9 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			        ${CMAKE_INSTALL_PREFIX}/doc/base_.mnuinfo
 				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-			        ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
+       #execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+			        #${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
+				#${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -205,9 +205,9 @@ macro( create_basepackages PACKAGE_NAME )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_.mnuinfo
 				${DESTINATION_DIR}/doc/User/dgb/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
+       #execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
+				#${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
+				#${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
    endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
