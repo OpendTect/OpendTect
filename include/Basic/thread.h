@@ -396,13 +396,13 @@ Atomic<type>::Atomic( type val ) \
 template <> inline \
 type Atomic<type>::operator += (type b) \
 {  \
-    return InterlockedExchangeAdd##postfix( &val_, b );  \
+    return InterlockedExchangeAdd##postfix( &val_, b ) + b;  \
 }  \
 \
 template <> inline \
 type Atomic<type>::operator -= (type b) \
 { \
-    return InterlockedExchangeAdd##postfix( &val_, -b ); \
+    return InterlockedExchangeAdd##postfix( &val_, -b ) -b; \
 } \
 \
 \
@@ -441,7 +441,7 @@ bool Atomic<type>::setIfEqual(type newval, type oldval ) \
     if ( newval==oldval ) \
 	return true; \
 \
-    return InterlockedCompareExchange##postfix( &val_, newval, oldval )!=newval; \
+    return InterlockedCompareExchange##postfix( &val_, newval, oldval )==oldval; \
 }
 
 mAtomicSpecialization( long, )
