@@ -13,6 +13,7 @@ static const char* rcsID = "$Id$";
 #include "survinfo.h"
 #include "undefval.h"
 #include <stdio.h>
+#include <math.h>
 
 #ifdef __win__
 # define sDirSep        "\\"
