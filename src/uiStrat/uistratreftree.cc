@@ -172,7 +172,7 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
     if ( !strcmp( lvit->text(), Strat::RefTree::sKeyNoCode() ) )
 	{ updateUnitProperties( lvit ); return; }
 
-    uiPopupMenu mnu( lv_->parent(), "Action" );
+    uiMenu mnu( lv_->parent(), "Action" );
     
     bool caninsertsubitem = true;
     const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) ) 
@@ -184,7 +184,7 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 	    caninsertsubitem = false;
     }
     if ( caninsertsubitem )
-	mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 0 );
+	mnu.insertItem( new uiAction("&Create sub-unit..."), 0 );
     if ( isLeaved( lvit ) )
 	mnu.insertItem( new uiAction("&Subdivide unit..."), 1 );
     mnu.insertItem( new uiAction("&Properties..."), 2 );
