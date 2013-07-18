@@ -106,7 +106,7 @@ inline void ChangeTracker::setChanged( bool ischgd )
 template <class T,class U>
 inline bool ChangeTracker::set( const T& val, const U& newval )
 {
-    bool ret = !(val == newval);
+    bool ret = !(val ==  mCast(T,newval));
     setChanged( ret );
     return ret;
 }
