@@ -239,7 +239,7 @@ void uiMadagascarMain::selChg( CallBacker* cb )
     downbut_->setSensitive( sz > 1 && curidx >= 0 && curidx < sz-1 );
 
     if ( cb == this || !bldfld_ ) return;
-    const ODMad::Proc* proc = curidx < 0 ? 0 : procflow_[curidx];
+    const ODMad::Proc* proc = procflow_.validIdx(curidx)? procflow_[curidx] : 0;
     bldfld_->setProc( proc );
 }
 
