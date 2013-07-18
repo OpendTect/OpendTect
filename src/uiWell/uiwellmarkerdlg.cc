@@ -586,8 +586,8 @@ void uiMarkerDlg::exportCB( CallBacker* )
     
     for ( int idx=0; idx<mset.size(); idx++ )
     {
-	*sd.ostrm << mset[idx]->dah()*zFactor() << '\t';
-   	*sd.ostrm << mset[idx]->name() << '\n';
+	*sd.ostrm << Conv::to<const char*>(mset[idx]->dah()*zFactor()) <<'\t';
+	*sd.ostrm << mset[idx]->name() << '\n';
     }
 
     sd.close();

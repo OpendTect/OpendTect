@@ -78,9 +78,22 @@ mGlobal const char* getStringFromUInt64(od_uint64,char* retbuf);
 /*!> Normally, pass null for fmt. Then it will do removal of
      trailing zeros and use %lf in more cases than std.
      If you pass 0 for retbuf, then a static buffer is used (not MT safe). */
-mGlobal const char* getStringFromDouble(const char* fmt,double,char* retbuf);
+mGlobal const char* getStringFromDouble(const char* fmt,double,
+					       char* retbuf);
+
+/*>Prints a double with the requested nr of digits. 
+    Use the returned string result immediately.*/
+mGlobal const char* getStringFromDouble(double,char* retbuf=0, 
+					       int nrdigits=15);
+
 /*!> is like getStringFromDouble, with special %f treatment. */
+
 mGlobal const char* getStringFromFloat(const char* fmt,float,char* retbuf);
+
+/*>Prints a float with the requested nr of digits.
+	    Use the returned string result immediately.*/
+mGlobal const char* getStringFromFloat(float,char* retbuf=0,
+					      int nrdigits=7);
 /*!> removes unwanted zeros and dots from a floating point in string. */
 mGlobal void prettyNumber(char*,bool is_float);
 
