@@ -110,19 +110,19 @@ if( WIN32 )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
 	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
     endif()
-    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
+    install( DIRECTORY ${OD_EXEC_RELPATH_RELEASE}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Release
 	    FILES_MATCHING
