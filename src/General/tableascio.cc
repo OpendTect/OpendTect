@@ -787,7 +787,7 @@ float Table::AscIO::getfValue( int ifld, float udf ) const
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(float);
     const double val = toDouble( sval );
-    if ( mIsEqual(val,udf,mDefEps) )
+    if ( mIsEqual(mCast(float,val),udf,mDefEps) )
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
