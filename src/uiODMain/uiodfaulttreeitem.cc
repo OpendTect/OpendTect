@@ -723,7 +723,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     uiMSG().message("Not complete yet");
     return;
     
-    const int visid = displayID();
+  /*const int visid = displayID();
     const int attribnr = attribNr();
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -779,7 +779,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else
     {
-    }
+    } */
 }
 
 
