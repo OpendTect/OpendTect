@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "errh.h"
 #include "odplatform.h"
 #include "odcomplex.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 #include <fstream>
@@ -45,6 +46,8 @@ void od_init_test_program(int argc, char** argv )
     SetProgramArgs( argc, argv );
     signal(SIGSEGV, od_test_prog_crash_handler );
     SetCrashOnProgrammerError( 1 );
+
+    OD::ModDeps().ensureLoaded("Basic");
 }
 
 

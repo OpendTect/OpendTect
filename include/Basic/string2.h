@@ -53,6 +53,10 @@ mGlobal(Basic) void removeTrailingBlanks(char*);
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+
+//!>Called from initBasic to setup some global settings for string format
+mGlobal(Basic) void initStringFormat();
+
 /*!> stricmp with option to compare part, default is all */
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
 /*!> checks whether a string is the start of another string. */
@@ -119,7 +123,7 @@ mGlobal(Basic) const char* getYesNoString(bool);
 mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
 
 /*!> returns 1 or 0 by inspecting string */
-mGlobal(Basic) int yesNoFromString(const char*);
+mGlobal(Basic) bool yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
 mGlobal(Basic) const char* getRankPostFix(int);
 /*!> returns a nicely, readable size, in bytes, KB, MB, GB, or TB */

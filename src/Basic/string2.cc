@@ -46,6 +46,13 @@ void removeTrailingBlanks( char* str )
 }
 
 
+void initStringFormat()
+{
+#ifdef __win__
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
+}
+
 const char* getStringFromInt( od_int32 val, char* str )
 
 {
@@ -339,7 +346,7 @@ const char* getDistUnitString( bool isfeet, bool wb )
 }
 
 
-int yesNoFromString( const char* str )
+bool yesNoFromString( const char* str )
 {
     if ( !str ) return false;
     mSkipBlanks( str );

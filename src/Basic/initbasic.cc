@@ -25,6 +25,8 @@ mDefModInitFn(Basic)
     mIfNotFirstTime( return );
     SignalHandling::initClass();
     PosInfo::Survey2D::initClass();
+
+    initStringFormat();
     
 #ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
