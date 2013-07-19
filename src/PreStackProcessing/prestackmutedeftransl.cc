@@ -87,8 +87,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
 				    astrm.minorVersion() );
 
-    const double version = (double)astrm.majorVersion() +
-			   ((double)astrm.minorVersion()/(double)10);
+    const int version = astrm.majorVersion() * 100 + astrm.minorVersion() * 10;
     if ( hasiopar )
     {
 	IOPar pars( astrm );
@@ -98,6 +97,8 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     }
 
     if ( atEndOfSection(astrm) ) astrm.next();
+    if ( atEndOfSection(astrm) ) astrm.next(); //skip for anextraparagraph that 
+    					//was inserted between version 4.4 & 4.6
     if ( atEndOfSection(astrm) )
 	return "Input file contains no Mute Definition locations";
 
@@ -146,24 +147,25 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
-	    char* ptrz = val.buf();
-	    mSkipBlanks(ptrz);
-	    char* ptrx = ptrz;
-	    mSkipNonBlanks( ptrx );
-	    if ( !*ptrx )
+	    char* ptr1stval = val.buf();
+	    mSkipBlanks(ptr1stval);
+	    char* ptr2ndval = ptr1stval;
+	    mSkipNonBlanks( ptr2ndval );
+	    if ( !*ptr2ndval )
 		{ astrm.next(); continue; }
-	    *ptrx = '\0'; ptrx++;
-	    mSkipBlanks(ptrx);
-	    if ( !*ptrx )
+	    *ptr2ndval = '\0'; ptr2ndval++;
+	    mSkipBlanks(ptr2ndval);
+	    if ( !*ptr2ndval )
 		{ astrm.next(); continue; }
 
-	    float z = toFloat( ptrz ); float x = toFloat( ptrx );
-	    if ( !mIsUdf(x) && !mIsUdf(z) )
+	    float firstval = toFloat( ptr1stval );
+	    float secondval = toFloat( ptr2ndval );
+	    if ( !mIsUdf(firstval) && !mIsUdf(secondval) )
 	    {
-		if ( version < 4.5 )
-		    fn->add( z, x );
+		if ( version < 440 )
+		    fn->add( secondval, firstval );
 		else
-		    fn->add( x, z );
+		    fn->add( firstval, secondval );
 	    }
 
 	    astrm.next();
@@ -213,7 +215,6 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	IOPar pars;
 	pars.set( sKeyRefHor(), md.getReferenceHorizon() );
 	pars.putTo( astrm );
-	astrm.newParagraph();
     }
 
     std::ostream& strm = astrm.stream();
