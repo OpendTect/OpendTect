@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "multiid.h"
 
+class CtxtIOObj;
 class IODir;
 class IOObj;
-class IOSubDir;
-class CtxtIOObj;
-class Translator;
 class IOObjContext;
+class IOPar;
+class IOSubDir;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -48,6 +48,9 @@ public:
 			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
+    IOObj*		getFromPar(const IOPar&,const char* basekey,
+				   const IOObjContext&,bool mknew,
+				   BufferString& errmsg) const;
 
     IODir*		dirPtr()		{ return dirptr_; }
     const IODir*	dirPtr() const		{ return dirptr_; }

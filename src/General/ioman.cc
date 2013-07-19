@@ -494,6 +494,53 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 }
 
 
+IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
+			  const IOObjContext& ctxt,
+			  bool mknew, BufferString& errmsg ) const
+{
+    BufferString basekey( bky );
+    if ( !basekey.isEmpty() ) basekey.add( "." );
+    BufferString iopkey( basekey );
+    iopkey.add( sKey::ID() );
+    BufferString res = par.find( iopkey ).str();
+    if ( res.isEmpty() )
+    {
+	iopkey = basekey; iopkey.add( sKey::Name() );
+	res = par.find( iopkey ).str();
+	if ( res.isEmpty() )
+	{
+	    errmsg = BufferString( "Please specify '", iopkey, "'" );
+	    return 0;
+	}
+
+	if ( !IOObj::isKey(res.buf()) )
+	{
+	    CtxtIOObj ctio( ctxt );
+	    IOM().to( ctio.ctxt.getSelKey() );
+	    const IOObj* ioob = (*(const IODir*)(dirPtr()))[res.buf()];
+	    if ( ioob )
+		res = ioob->key();
+	    else if ( mknew )
+	    {
+		ctio.setName( res );
+		IOM().getEntry( ctio );
+		if ( ctio.ioobj )
+		{
+		    IOM().commitChanges( *ctio.ioobj );
+		    return ctio.ioobj;
+		}
+	    }
+	}
+    }
+
+    IOObj* ioobj = get( MultiID(res.buf()) );
+    if ( !ioobj )
+	errmsg = BufferString( "Value for ", iopkey, " is invalid." );
+
+    return ioobj;
+}
+
+
 bool IOMan::isKey( const char* ky ) const
 {
     if ( !ky || !*ky || !isdigit(*ky) ) return false;

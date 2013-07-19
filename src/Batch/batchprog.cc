@@ -349,48 +349,11 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 					const IOObjContext& ctxt,
        					bool msgiffail ) const
 {
-    const BufferString basekey( bsky );
-    BufferString iopkey( basekey ); iopkey += ".";
-    iopkey += "ID";
-    BufferString res = pars().find( iopkey ).str();
-    if ( res.isEmpty() )
-    {
-	iopkey = basekey; res = pars().find( iopkey ).str();
-	if ( res.isEmpty() )
-	{
-	    iopkey += ".Name"; res = pars().find( iopkey ).str();
-	    if ( res.isEmpty() )
-	    {
-		if ( msgiffail )
-		    *sdout_.ostrm << "Please specify '" << iopkey
-				  << "'" << std::endl;
-		return 0;
-	    }
-	}
-	if ( !IOObj::isKey(res.buf()) )
-	{
-	    CtxtIOObj ctio( ctxt );
-	    IOM().to( ctio.ctxt.getSelKey() );
-	    const IOObj* ioob = (*(const IODir*)(IOM().dirPtr()))[res.buf()];
-	    if ( ioob )
-		res = ioob->key();
-	    else if ( mknew )
-	    {
-		ctio.setName( res );
-		IOM().getEntry( ctio );
-		if ( ctio.ioobj )
-		{
-		    IOM().commitChanges( *ctio.ioobj );
-		    return ctio.ioobj;
-		}
-	    }
-	}
-    }
+    BufferString errmsg;
+    IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
+    if ( !ioobj && msgiffail && !errmsg.isEmpty() )
+	*sdout_.ostrm << errmsg.buf() << std::endl;
 
-    IOObj* ioobj = IOM().get( MultiID(res.buf()) );
-    if ( !ioobj )
-	*sdout_.ostrm << "Cannot find the specified '" << basekey << "'"
-	    		<< std::endl;
     return ioobj;
 }
 
