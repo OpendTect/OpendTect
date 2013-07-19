@@ -44,6 +44,11 @@ public:
 			    cube will not be overwritten in those locations. */
 
 			ParallelReader(const IOObj&,
+				const CubeSampling&);
+			/*!<Calculates nr of comps and allocates cubes to
+			    fit the cs. */
+
+			ParallelReader(const IOObj&,
 			    BinIDValueSet&,
 			    const TypeSet<int>& components);
 			/*!<Will read the z from the first value. Will add

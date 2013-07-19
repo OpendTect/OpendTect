@@ -9,14 +9,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisparallelreader.h"
 
 #include "arrayndimpl.h"
-#include "ioobj.h"
 #include "cubesampling.h"
 #include "binidvalset.h"
+#include "ioobj.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 
-Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
+namespace Seis
+{
+
+ParallelReader::ParallelReader( const IOObj& ioobj,
 	const TypeSet<int>& components,
 	const ObjectSet<Array3D<float> >& arrays,
 	const CubeSampling& cs )
@@ -29,7 +33,21 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 {}
 
 
-Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
+ParallelReader::ParallelReader( const IOObj& ioobj, const CubeSampling& cs )
+    : arrays_(new ObjectSet<Array3D<float> >)
+    , bidvals_(0)
+    , cs_(cs)
+    , ioobj_( ioobj.clone() )
+    , totalnr_( cs.hrg.totalNr() )
+{
+    SeisIOObjInfo seisinfo( ioobj );
+    const int nrcomponents = seisinfo.nrComponents();
+    for ( int idx=0; idx<nrcomponents; idx++ )
+	components_ += idx;
+}
+
+
+ParallelReader::ParallelReader( const IOObj& ioobj,
                       BinIDValueSet& bidvals,
 		      const TypeSet<int>& components )
     : arrays_( 0 )
@@ -40,14 +58,14 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 {}
 
 
-Seis::ParallelReader::~ParallelReader()
+ParallelReader::~ParallelReader()
 {
     delete arrays_;
     delete ioobj_;
 }
 
 
-bool Seis::ParallelReader::doPrepare( int nrthreads )
+bool ParallelReader::doPrepare( int nrthreads )
 {
     const char* allocprob = "Cannot allocate memory";
 
@@ -108,7 +126,7 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 }
 
 
-bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
+bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     PtrMan<IOObj> ioobj = ioobj_->clone();
     PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj );
@@ -232,8 +250,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 
-bool Seis::ParallelReader::doFinish( bool success )
+bool ParallelReader::doFinish( bool success )
 { return success; }
 	    
-
-
+} // namespace Seis
