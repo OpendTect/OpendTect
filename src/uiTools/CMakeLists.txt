@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiBase Network )
-SET(OD_MODULE_SOURCES
+set ( OD_MODULE_DEPS uiBase Network )
+set ( OD_MODULE_SOURCES
 		inituitools.cc	
 		annotbuffill.cc	
 		drawaxis2d.cc	
@@ -91,6 +91,11 @@ SET(OD_MODULE_SOURCES
 		uizrangeinput.cc
                 uipolardiagram.cc)
 
-SET(OD_MODULE_GUI_PROGS od_FileBrowser.cc  od_ProgressViewer.cc
+set (OD_MODULE_GUI_PROGS od_FileBrowser.cc  od_ProgressViewer.cc
 			od_uiReportIssue.cc )
+if( WIN32 )
+    list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
+    set( OD_od_runinst_RESOURCE od_runinst.rc )
+endif( WIN32 )
+
 OD_INIT_MODULE()
