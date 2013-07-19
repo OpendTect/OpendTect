@@ -194,8 +194,12 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
 	}
 	else
 	{
-	    usedformat += nrdigits;
-	    usedformat += "g";
+	    if ( nrdigits>0 )
+		usedformat += (nrdigits-1);
+	    else
+		usedformat += 0;
+
+	    usedformat += "e";
 	}
 
 	sprintf( bufptr, usedformat.buf(), val );
@@ -272,8 +276,12 @@ const char* getStringFromFloat( float actualval, char* str, int nrdigits )
 	}
 	else
 	{
-	    usedformat += nrdigits;
-	    usedformat += "g";
+	    if ( nrdigits>0 )
+		usedformat += (nrdigits-1);
+	    else
+		usedformat += 0;
+
+	    usedformat += "e";
 	}
 
 	sprintf( bufptr, usedformat.buf(), val );
