@@ -68,8 +68,7 @@ IOObjInfo::IOObjInfo( const IOObjInfo& sii )
 
 void IOObjInfo::setType()
 {
-    if ( ioobj_ )
-	type_ = objectTypeOfIOObjGroup( ioobj_->group() );
+    type_ = ioobj_ ? objectTypeOfIOObjGroup( ioobj_->group() ) : Unknown;
 }
 
 
@@ -317,7 +316,8 @@ bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
     if ( list.isEmpty() )
 	return true;
 
-    EM::RelationTree reltree( IOObjInfo(list[0]).is2DHorizon() );
+    IOObjInfo info( list[0] );
+    EM::RelationTree reltree( info.is2DHorizon() );
     return reltree.getSorted( list, sorted );
 }
 
