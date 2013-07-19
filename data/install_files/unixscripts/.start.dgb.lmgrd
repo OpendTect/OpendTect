@@ -8,6 +8,6 @@
 
 source __INST_DIR__/bin/init_dtect >&! /dev/null
 
-source $DTECT_APPL/.dgb.lmgrd.vars
+source "$DTECT_APPL"/.dgb.lmgrd.vars
 
-$DTECT_APPL/.lic_start_common $*
+"$DTECT_APPL"/.lic_start_common $*
