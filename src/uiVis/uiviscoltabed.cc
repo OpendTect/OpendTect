@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "settings.h"
 #include "viscolortab.h"
+#include "visscenecoltab.h"
 #include "visdataman.h"
 #include "visdata.h"
 #include "vissurvobj.h"
@@ -96,8 +97,12 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 
 void uiVisColTabEd::mapperChangeCB( CallBacker* )
 {
-    uicoltab_->setMapperSetup(
-	    survobj_->getColTabMapperSetup( channel_, version_ ), true );
+    const ColTab::MapperSetup* ms  = 
+			survobj_->getColTabMapperSetup( channel_, version_ );
+
+    uicoltab_->setMapperSetup( ms, true );
+    if ( survobj_->getScene() )
+	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
 }
 
 
