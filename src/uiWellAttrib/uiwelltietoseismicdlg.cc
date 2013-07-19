@@ -686,16 +686,50 @@ void uiInfoDlg::usePar( const IOPar& par )
 
 void uiInfoDlg::putToScreen()
 {
-    if ( choicefld_ )
-	choicefld_->setValue( selidx_ );
+    if ( !choicefld_ )
+	return;
 
+    choicefld_->setValue( selidx_ );
     if ( !zrangeflds_[selidx_] )
 	return;
 
+    const int lastmarkeridx = markernames_.size()-1;
     if ( selidx_ == mMarkerFldIdx )
     {
-	zrangeflds_[selidx_]->setText( startmrknm_.buf(), 0 );
-	zrangeflds_[selidx_]->setText( stopmrknm_.buf(), 1 );
+	mGetWD(return)
+	if ( !wd || !wd->markers().size() )
+	    mErrRet( "No Well marker found" )
+
+	const Well::Marker* topmarkr = wd->markers().getByName( startmrknm_ );
+	const Well::Marker* basemarkr = wd->markers().getByName( stopmrknm_ );
+	if ( !topmarkr || !basemarkr )
+	{
+	    if ( !topmarkr )
+	    {
+		uiMSG().warning(
+			"Top marker from setup could not be retrieved." );
+		zrangeflds_[selidx_]->setValue( 0, 0 );
+	    }
+
+	    if ( !basemarkr )
+	    {
+		uiMSG().warning(
+			"Base marker from setup could not be retrieved." );
+		zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
+	    }
+	}
+	else if( topmarkr->dah() >= basemarkr->dah() )
+	{
+	    uiMSG().warning(
+		    "Inconsistency between top/base marker from setup." );
+	    zrangeflds_[selidx_]->setValue( 0, 0 );
+	    zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
+	}
+	else
+	{
+	    zrangeflds_[selidx_]->setText( startmrknm_.buf(), 0 );
+	    zrangeflds_[selidx_]->setText( stopmrknm_.buf(), 1 );
+	}
     }
     else
     {
@@ -704,6 +738,17 @@ void uiInfoDlg::putToScreen()
 	    		      ? SI().zDomain().userFactor()
 			      : zrginft_ ? mToFeetFactorF : 1.f;
 	zrg.scale( scalefact );
+	if ( zrg.width(false) < (float)mMinWvltLength )
+	{
+	    uiMSG().warning(
+		    "Invalid correlation gate from setup. Resetting." );
+	    selidx_ = mMarkerFldIdx;
+	    choicefld_->setValue( selidx_ );
+	    zrangeflds_[selidx_]->setValue( 0, 0 );
+	    zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
+	    return;
+	}
+
 	zrangeflds_[selidx_]->setValue( zrg );
     }
 }
@@ -874,7 +919,7 @@ bool uiInfoDlg::updateZrg()
 
     if ( zrangeflds_[mTwtFldIdx] )
     {
-	const float zfact = mCast(float,SI().zDomain().userFactor());
+	const float zfact = mCast( float, SI().zDomain().userFactor() );
 	Interval<int> timergms( mCast( int, timerg.start * zfact ),
 				mCast( int, timerg.stop * zfact ) );
 	zrangeflds_[mTwtFldIdx]->setValue( timergms );
