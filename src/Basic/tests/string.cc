@@ -86,7 +86,7 @@ bool testBytes2String( bool quiet )
 
 bool testStringPrecisionInAscII( bool quiet )
 {
-    mTestStringPrecision( 0.0001, "0.0001", true );
+    mTestStringPrecision( 0.0001, "1e-04", true );
     mTestStringPrecision( 12.3456785, "12.34568", true );
     mTestStringPrecision( 123.4567852, "123.4568", true );
     mTestStringPrecision( 1234.567352, "1234.567", true );
