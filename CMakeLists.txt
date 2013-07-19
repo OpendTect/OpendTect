@@ -83,11 +83,15 @@ set( OD_PLUGINS
 	CmdDriver
 )
 
-set( OD_SPECPROGS uiODInstMgr )
+set( OD_SPECPROGS )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 
 OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
+
+# All are not in OD_SPECPROGS as OD_SPECPROGS is used to put libraries in
+# packages
+# 
 OD_ADD_MODULES( spec ODSeis visBase ${OD_SPECPROGS} )
 
 OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
