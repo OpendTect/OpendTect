@@ -55,7 +55,7 @@ static const char* actionstr[] =
     "GLCM Mean",
     "GLCM Variance",
     "GLCM Standard Deviation",
-    "CLCM Correlation",
+    "GLCM Correlation",
     0
 };
 
