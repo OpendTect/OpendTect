@@ -227,8 +227,7 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
     par.getYN( sKeyFlipSeq(), flipseq_ );
 
     return par.get( sKeySymMidVal(), symmidval_ ) &&
-	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
-	   par.get( sKeyRange(), range_ );
+	   par.getYN( sKeyAutoSym(), autosym0_ );
 }
 
 
