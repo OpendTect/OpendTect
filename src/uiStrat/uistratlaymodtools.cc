@@ -135,6 +135,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     , dispZoomedChg(this)
     , dispLithChg(this)
     , flattenChg(this)
+    , mkSynthChg(this)
     , allownoprop_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
@@ -165,11 +166,17 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 				mCB(this,uiStratLayModEditTools,dispEachCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    mksynthtb_ = new uiToolButton( rightgrp, "autogensynth",
+			"Automatically create synthetics when on",
+			mCB(this,uiStratLayModEditTools,mkSynthCB) );
+    mksynthtb_->setToggleButton( true );
+    mksynthtb_->setOn( true );
     flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
 			"Show flattened when on",
 			mCB(this,uiStratLayModEditTools,showFlatCB) );
     flattenedtb_->setToggleButton( true );
     flattenedtb_->setOn( false );
+    flattenedtb_->attach( leftOf, mksynthtb_ );
     lithtb_ = new uiToolButton( rightgrp, "lithologies",
 			"Show lithology colors when on",
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
@@ -302,6 +309,12 @@ bool uiStratLayModEditTools::dispLith() const
 bool uiStratLayModEditTools::showFlattened() const
 {
     return flattenedtb_->isOn() && (bool)selStratLevel();
+}
+
+
+bool uiStratLayModEditTools::mkSynthetics() const
+{
+    return mksynthtb_->isOn();
 }
 
 

@@ -100,9 +100,11 @@ protected:
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
     bool			mostlyfilledwithbrine_;
+    bool			automksynth_;
 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
+    void			mkSynthChg(CallBacker*);
     void			levelChg(CallBacker*);
     void			seqSel(CallBacker*);
     void			modEd(CallBacker*);

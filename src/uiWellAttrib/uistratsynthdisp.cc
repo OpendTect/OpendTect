@@ -79,6 +79,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , prestackwin_(0)		      
     , currentwvasynthetic_(0)
     , currentvdsynthetic_(0)
+    , autoupdate_(true)
     , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
 {
@@ -310,7 +311,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 
     const bool domodelchg = dispflattened_ || dispflattened;
     dispflattened_ = dispflattened;
-    if ( domodelchg )
+    if ( domodelchg && !autoupdate_ )
     {
 	doModelChange();
 	control_->zoomMgr().toStart();
@@ -853,6 +854,7 @@ void uiStratSynthDisp::doModelChange()
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     d2tmodels_ = 0;
+    if ( !autoupdate_ ) return;
     
     if ( curSS().errMsg() )
 	mErrRet( curSS().errMsg(), return )
