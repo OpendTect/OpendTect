@@ -218,6 +218,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     {
 	clearAuxData();
 	deepErase( mutes_ );
+	mutecolors_.erase();
 	for ( int idx=0; idx<mutesel.selGrp()->nrSel(); idx++ )
 	{
 	    const MultiID& muteid = mutesel.selGrp()->selected( idx );
@@ -232,7 +233,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	    }
 
 	    mutes_ += mutedef;
-	    mutecolors_ += getRandomColor();
+	    mutecolors_ += getRandStdDrawColor();
 	}
 
 	displayMutes();
