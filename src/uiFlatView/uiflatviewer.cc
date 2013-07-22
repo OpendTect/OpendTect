@@ -181,7 +181,7 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 }
 
 
-uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
+uiWorldRect uiFlatViewer::getBoundingBox( bool wva, bool dosort ) const
 {
     const FlatDataPack* dp = pack( wva );
     if ( !dp ) dp = pack( !wva );
@@ -195,23 +195,22 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 	rg0.limitTo( xseldatarange_ ); 
 	rg1.limitTo( yseldatarange_ );
     }
-    rg0.sort( true ); 
-    rg1.sort( true );
+    if ( dosort ) { rg0.sort( true ); rg1.sort( true ); }
 
     rg0.widen( extfac_ * rg0.step, true );
     if ( !wva && !isVisible(wva) )
 	rg1.widen( extfac_ * rg1.step, true );
-    return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
+    return uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start);
 }
 
 
-uiWorldRect uiFlatViewer::boundingBox() const
+uiWorldRect uiFlatViewer::boundingBox( bool dosort ) const
 {
     const bool wvavisible = isVisible( true );
-    uiWorldRect wr1 = getBoundingBox( wvavisible );
+    uiWorldRect wr1 = getBoundingBox( wvavisible, dosort );
     if ( wvavisible && isVisible(false) )
     {
-	uiWorldRect wr2 = getBoundingBox( false );
+	uiWorldRect wr2 = getBoundingBox( false, dosort );
 	if ( wr1.left() > wr2.left() )
 	    wr1.setLeft( wr2.left() );
 	if ( wr1.right() < wr2.right() )

@@ -26,7 +26,7 @@ namespace FlatView
 class uiBitMapDisplayTask : public Task
 {
 public:
-    uiBitMapDisplayTask( Viewer& viewer, 
+    uiBitMapDisplayTask( uiFlatViewer& viewer, 
 			 uiDynamicImageItem* display, bool isdynamic )
 	: image_( new uiRGBArray( false ) )
 	, bitmap2image_( new BitMap2RGB( viewer.appearance(), *image_) )
@@ -112,7 +112,7 @@ public:
 
     bool			isdynamic_;
 
-    Viewer&			viewer_;
+    uiFlatViewer&		viewer_;
     BitMapMgr*			wvabmpmgr_;
     BitMapMgr*			vdbmpmgr_;
     uiRGBArray*			image_;
@@ -125,7 +125,7 @@ public:
 
 
 
-uiBitMapDisplay::uiBitMapDisplay( Viewer& viewer )
+uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
     : viewer_( viewer )
     , extfac_(0.0f)
     , display_( new uiDynamicImageItem )
@@ -168,35 +168,8 @@ void uiBitMapDisplay::update()
 	return;
     }
 
-    StepInterval<double> xrg, yrg;
-
-    if ( viewer_.isVisible(true) )
-    {
-	xrg = viewer_.pack(true)->posData().range(true);
-	yrg = viewer_.pack(true)->posData().range(false);
-
-	if ( viewer_.isVisible( false ) )
-	{
-	    const StepInterval<double> vdxrg =
-		viewer_.pack(false)->posData().range(true);
-	    const StepInterval<double> vdyrg =
-		viewer_.pack(false)->posData().range(false);
-
-	    xrg.include( vdxrg ); xrg.step = mMIN(vdxrg.step, xrg.step );
-	    yrg.include( vdyrg ); yrg.step = mMIN(vdyrg.step, yrg.step );
-	}
-    }
-    else
-    {
-	xrg = viewer_.pack(false)->posData().range(true);
-	yrg = viewer_.pack(false)->posData().range(false);
-	yrg.widen( extfac_ * yrg.step, true );
-    }
-
-    xrg.widen( extfac_ * xrg.step, true );
-    const uiWorldRect wr( xrg.start, yrg.start, xrg.stop, yrg.stop );
+    uiWorldRect wr( viewer_.boundingBox(false) ); wr.swapVer();
     const uiSize sz( viewrect_.width(), viewrect_.height() );
-
     basetask_->setScope( wr, sz );
     if ( !basetask_->execute() )
 	return;

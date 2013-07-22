@@ -51,7 +51,7 @@ public:
     void		setView(const uiWorldRect&);
     void		setViewToBoundingBox();
     const uiWorldRect&	curView() const			{ return wr_; }
-    uiWorldRect		boundingBox() const;
+    uiWorldRect		boundingBox(bool dosort=true) const;
 
     void		getWorld2Ui(uiWorld2Ui&) const;
     uiRect		getViewRect() const;
@@ -109,7 +109,7 @@ protected:
     void			updateBitmapCB(CallBacker*);
     void			updateAuxDataCB(CallBacker*);
 
-    uiWorldRect			getBoundingBox(bool) const;
+    uiWorldRect			getBoundingBox(bool wva,bool dosort=true) const;
     void			reSizeCB(CallBacker*);
 
     int				updatequeueid_;
