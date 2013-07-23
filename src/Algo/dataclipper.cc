@@ -357,6 +357,7 @@ DataClipSampler::DataClipSampler( int ns )
     , vals_(new float [ns])
     , count_(0)
     , finished_(false)
+    , rg_(mUdf(float),0)
 {
 }
 
@@ -399,6 +400,13 @@ void DataClipSampler::doAdd( float val )
     if ( finished_ )
 	finished_ = false;
 
+    if ( mIsUdf(rg_.start) )
+	rg_.start = rg_.stop = val;
+    else if ( rg_.start > val )
+	rg_.start = val;
+    else if ( rg_.stop < val )
+	rg_.stop = val;
+
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
     else
@@ -425,6 +433,9 @@ Interval<float> DataClipSampler::getRange( float clip ) const
 
     const od_int64 nv = nrVals();
     if ( nv == 0 ) return Interval<float>(0,0);
+
+    if ( mIsZero(clip,1.e-6f) && !mIsUdf(rg_.start) )
+	return rg_;
 
     const float fidx = nv * .5f * clip;
     od_int64 idx0 = mNINT64(fidx);
