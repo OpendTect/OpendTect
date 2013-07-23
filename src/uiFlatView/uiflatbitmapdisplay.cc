@@ -172,6 +172,7 @@ void uiBitMapDisplay::update()
 
     uiWorldRect wr( viewer_.boundingBox() ); wr.swapVer();
     const uiSize sz( viewrect_.width(), viewrect_.height() );
+    
     basetask_->setScope( wr, sz );
     if ( !basetask_->execute() )
 	return;
