@@ -42,6 +42,7 @@ namespace File
     mGlobal(Basic) bool		isWritable(const char*);
     mGlobal(Basic) bool		makeWritable(const char*,bool yesno,
 					     bool recursive);
+    mGlobal(Basic) bool		isExecutable(const char*);
     mGlobal(Basic) bool		makeExecutable(const char*,bool yesno);
     mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					       bool recursive);
