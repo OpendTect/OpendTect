@@ -292,7 +292,7 @@ bool isExecutable( const char* fnm )
 {
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
-    return qfi.isExecutable();
+    return qfi.isReadable() && qfi.isExecutable();
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);

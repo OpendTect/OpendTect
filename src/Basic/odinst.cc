@@ -117,6 +117,8 @@ bool ODInst::canInstall()
     else if ( __islinux__ ) \
 	installerdir.add( "run_installer" ); \
     BufferString cmd( installerdir.fullPath() ); \
+    if ( !File::isExecutable(cmd) ) \
+        return errretval; \
     cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
    
 
