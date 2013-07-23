@@ -86,12 +86,19 @@ bool testBytes2String( bool quiet )
 
 bool testStringPrecisionInAscII( bool quiet )
 {
-    mTestStringPrecision( 0.0001, "1e-04", true );
+    mTestStringPrecision( 0, "0", true );
+    mTestStringPrecision( 0.1, "0.1", true );
+    mTestStringPrecision( 0.05, "0.05", true );
+    mTestStringPrecision( 0.001, "0.001", true );
+    mTestStringPrecision( 0.023, "0.023", true );
+    mTestStringPrecision( 0.0001, "0.0001", true );
+    mTestStringPrecision( 0.00001, "0", true );
     mTestStringPrecision( 12.3456785, "12.34568", true );
     mTestStringPrecision( 123.4567852, "123.4568", true );
     mTestStringPrecision( 1234.567352, "1234.567", true );
     mTestStringPrecision( 12345.67352, "12345.67", true );
     mTestStringPrecision( 123456.7552, "123456.8", true );
+    mTestStringPrecision( 0.00001, "0.00001", false );
     mTestStringPrecision( 0.10010001002030415,"0.1001000100203", false );
     mTestStringPrecision( 12.32568023782987356,"12.3256802378299", false );
     mTestStringPrecision( 123.2568023782987353,"123.256802378299", false );
