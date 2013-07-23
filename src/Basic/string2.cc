@@ -189,10 +189,14 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
 	BufferString usedformat =  "%.";
+	bool decimalformat = val >=0 && val < 1e8;
 
-	if ( val > 1e-3 && val < 1e8 )
+	if ( decimalformat )
 	{
-	    const int nonfractionsize = ((int) log10( val ))+1;
+	    int nonfractionsize ( 0 ) ;
+	    if ( val !=0.0 )
+		nonfractionsize = abs(((int) log10( val ))+1);
+	    
 	    int fractionsize = nrdigits-nonfractionsize;
 	    if ( fractionsize<0 ) fractionsize = 0;
 
@@ -206,7 +210,7 @@ const char* getStringFromDouble( double actualval, char* str, int nrdigits )
 	    else
 		usedformat += 0;
 
-	    usedformat += "e";
+		usedformat += "e";
 	}
 
 	sprintf( bufptr, usedformat.buf(), val );
@@ -270,11 +274,13 @@ const char* getStringFromFloat( float actualval, char* str, int nrdigits )
 	bufptr = ret;
 	if ( isneg ) *bufptr++ = '-';
 	BufferString usedformat =  "%.";
-	bool decimalformat = val > 1e-3 && val < 1e8;
-
+	bool decimalformat = val >= 0 && val < 1e8;
 	if ( decimalformat )
 	{
-	    const int nonfractionsize = ((int) log10( val ))+1;
+	    int nonfractionsize ( 0 ) ;
+	    if ( val !=0.0 )
+		nonfractionsize = abs(((int) log10( val ))+1);
+
 	    int fractionsize = nrdigits-nonfractionsize;
 	    if ( fractionsize<0 ) fractionsize = 0;
 
@@ -297,12 +303,12 @@ const char* getStringFromFloat( float actualval, char* str, int nrdigits )
 	    truncFloatStr( actualval, ret );
 
 	prettyNumber( ret, true );
+
     }
 
-    return ret;
+    return ret ;
 
 }
-
 
 
 const char* getStringFromFloat( const char* fmt, float actualval, char* str )
