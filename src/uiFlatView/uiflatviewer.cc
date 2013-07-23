@@ -195,13 +195,13 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 	rg0.limitTo( xseldatarange_ ); 
 	rg1.limitTo( yseldatarange_ );
     }
-    rg0.sort( true ); 
+    rg0.sort( true );
     rg1.sort( true );
 
     rg0.widen( extfac_ * rg0.step, true );
     if ( !wva && !isVisible(wva) )
 	rg1.widen( extfac_ * rg1.step, true );
-    return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
+    return uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start);
 }
 
 

@@ -109,7 +109,7 @@ protected:
     void			updateBitmapCB(CallBacker*);
     void			updateAuxDataCB(CallBacker*);
 
-    uiWorldRect			getBoundingBox(bool) const;
+    uiWorldRect			getBoundingBox(bool wva) const;
     void			reSizeCB(CallBacker*);
 
     int				updatequeueid_;

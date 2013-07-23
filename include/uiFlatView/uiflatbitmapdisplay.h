@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "datapack.h"
 
+#include "uiflatviewer.h"
 #include "array2dbitmap.h"
 #include "arrayndimpl.h"
 #include "uigeom.h"
@@ -31,7 +32,6 @@ class BitMapMgr;
 class BitMap2RGB;
 class Appearance;
 class uiBitMapDisplayTask;
-class Viewer;
 
 /*!
 \brief Takes the flat-data from a FlatViewer and puts it into a uiGraphicsItem.
@@ -40,7 +40,7 @@ class Viewer;
 mExpClass(uiFlatView) uiBitMapDisplay : public CallBacker
 {
 public:
-    			uiBitMapDisplay(Viewer&);
+    			uiBitMapDisplay(uiFlatViewer&);
 			~uiBitMapDisplay();
 
     void		update();
@@ -62,7 +62,7 @@ protected:
     void			reGenerateCB(CallBacker*);
     void			dynamicTaskFinishCB(CallBacker*);
 
-    Viewer&			viewer_;
+    uiFlatViewer&		viewer_;
     int				workqueueid_;
     uiRect                      viewrect_;
     float			extfac_;
