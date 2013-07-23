@@ -288,6 +288,23 @@ bool isWritable( const char* fnm )
 }
 
 
+bool isExecutable( const char* fnm )
+{
+#ifndef OD_NO_QT
+    QFileInfo qfi( fnm );
+    return qfi.isExecutable();
+#else
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return false;
+
+    return st_buf.st_mode & S_IXUSR;
+#endif
+}
+
+
+
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
