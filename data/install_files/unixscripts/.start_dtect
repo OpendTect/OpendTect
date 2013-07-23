@@ -80,7 +80,7 @@ if ( $status == 0 ) then
 	else
 	    cd "$DTECT_APPL/../$installdir"
 	    set installerdir=`pwd`
-	    set installercmd="./${installerdir}/run_installer"
+	    set installercmd="${installerdir}/run_installer"
 	endif
 	$CSHCMD "$installercmd" --updcheck_startup --instdir "$DTECT_APPL"
 	cd "${curdir}"
