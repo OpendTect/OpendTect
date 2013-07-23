@@ -156,6 +156,7 @@ protected:
     float*		vals_;
     const int		maxnrvals_;
     od_int64		count_;
+    Interval<float>	rg_;
     bool		finished_;
 
     void		doAdd(float);
