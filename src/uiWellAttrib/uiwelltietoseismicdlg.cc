@@ -706,15 +706,21 @@ void uiInfoDlg::putToScreen()
 	{
 	    if ( !topmarkr )
 	    {
-		uiMSG().warning(
-			"Top marker from setup could not be retrieved." );
+		if ( !matchString(startmrknm_,
+			    	  Well::ZRangeSelector::sKeyDataStart()) )
+		    uiMSG().warning(
+			    "Top marker from setup could not be retrieved." );
+
 		zrangeflds_[selidx_]->setValue( 0, 0 );
 	    }
 
 	    if ( !basemarkr )
 	    {
-		uiMSG().warning(
-			"Base marker from setup could not be retrieved." );
+		if ( !matchString(stopmrknm_,
+			    	  Well::ZRangeSelector::sKeyDataEnd()) )
+		    uiMSG().warning(
+			    "Base marker from setup could not be retrieved." );
+
 		zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	    }
 	}
