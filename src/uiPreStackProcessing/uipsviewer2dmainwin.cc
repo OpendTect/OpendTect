@@ -66,7 +66,6 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
 uiViewer2DMainWin::~uiViewer2DMainWin()
 {
     deepErase( mutes_ );
-    deepErase( vwrs_ );
     deepErase( gd_ );
     deepErase( gdi_ );
     delete posdlg_;
@@ -301,7 +300,7 @@ void uiViewer2DMainWin::setAngleGather( int idx )
 {
     DPM(DataPackMgr::FlatID()).addAndObtain( anglegather_[idx] );
     gd_[idx]->setVDGather( anglegather_[idx]->id() );
-    setGatherView( gd_[idx], gdi_[idx] );
+    gd_[idx]->updateViewRange();
     DPM(DataPackMgr::FlatID()).release( anglegather_[idx] );
 }
 
