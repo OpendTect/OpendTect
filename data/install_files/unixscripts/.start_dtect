@@ -62,7 +62,7 @@ if ( $status == 0 ) then
     else
 	set installdir = "Installer"
     endif
-    if ( -e "$DTECT_APPL/../$installdir/run_installer" ) then
+    if ( -x "$DTECT_APPL/../$installdir/run_installer" ) then
         set chkupdate = "yes"
     endif
     if ( $?OD_INSTALLER_POLICY ) then
