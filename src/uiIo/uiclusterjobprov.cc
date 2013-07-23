@@ -108,7 +108,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
     *sd.ostrm << fp.fullPath().buf() << std::endl;
     *sd.ostrm << "set exitcode = $status" << std::endl;
     *sd.ostrm << "echo \""; *sd.ostrm << desc;
-    *sd.ostrm << " finished with code ${exitcode} >>\\" << std::endl;
+    *sd.ostrm << " finished with code ${exitcode} >> \"" << std::endl;
     fp.setExtension( ".log" );
     *sd.ostrm << fp.fullPath().buf() << std::endl;
     *sd.ostrm << "exit ${exitcode}" << std::endl;
