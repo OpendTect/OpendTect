@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>start_dtect</string>
+	<string>@BUNDLEEXEC@</string>
 	<key>CFBundleGetInfoString</key>
 	<string>OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_DETAIL@</string>
 	<key>CFBundleIconFile</key>
-	<string>od.icns</string>
+	<string>@BUNDLEICON@</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.dgbes.opendtect</string>
+	<string>@BUNDLEID@</string>
 	<key>CFBundleName</key>
 	<string>OpendTect</string>
 	<key>NSHumanReadableCopyright</key>

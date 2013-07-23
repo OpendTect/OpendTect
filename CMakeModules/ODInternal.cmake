@@ -94,6 +94,9 @@ if( APPLE )
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
     OD_CURRENT_YEAR( YEAR )
+    set( BUNDLEEXEC start_dtect )
+    set( BUNDLEICON "od.icns" )
+    set( BUNDLEID "com.dgbes.opendtect" )
     set ( INFOFILE CMakeModules/Info.plist )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
 		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
