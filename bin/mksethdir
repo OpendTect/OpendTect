@@ -52,7 +52,7 @@ set binsubdir=$HDIR
 if ( $binsubdir == sun5 ) then
 
     set binsubdir=sol32
-    if ( -d $ROOT_DIR/bin/sol64 ) then
+    if ( -d "$ROOT_DIR"/bin/sol64 ) then
 	set bits=32
 	if ( -x /bin/isainfo ) then
 	    set bits=`isainfo -b`
@@ -62,7 +62,7 @@ if ( $binsubdir == sun5 ) then
 	endif
 	if ( $bits == 64 ) set binsubdir=sol64
     endif
-    if ( -d $ROOT_DIR/bin/sol26 ) then
+    if ( -d "$ROOT_DIR"/bin/sol26 ) then
 	set v=`uname -r|sed 's/5\.//'`
 	if ( `uname -r | sed 's/5\.//'` < 8 ) set binsubdir=sol26
     endif
@@ -70,14 +70,14 @@ if ( $binsubdir == sun5 ) then
 else if ( $binsubdir == lux ) then
 
     set binsubdir=lux32
-    if ( -d $ROOT_DIR/bin/lux64 ) then
+    if ( -d "$ROOT_DIR"/bin/lux64 ) then
 	if ( `uname -a | grep _64 | wc -l` == 1 ) set binsubdir=lux64
     endif
     if ( `uname -a | grep ia64 | wc -l` == 1 ) set binsubdir=luxia64
 
 endif
 
-if ( ! -d "$ROOT_DIR/bin/$binsubdir" ) then
+if ( ! -d "$ROOT_DIR"/bin/$binsubdir ) then
     set binsubdir=$HDIR
 endif
 

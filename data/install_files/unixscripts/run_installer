@@ -1,0 +1,34 @@
+#!/bin/sh -f
+# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
+# Description:  Script to launch installer
+# Author:       Nageswara
+# Date:         May 2013
+# RCS:          $Id: run_installer 30761 2013-07-16 11:56:18Z kristofer.tingdahl@dgbes.com $
+
+if [ ! -f /bin/csh ]; then
+    echo "You do not have csh installed which is required by OpendTect"
+    echo "Please install csh or contact your system administrator."
+    exit 1
+fi
+
+PLFNAME=`uname`
+curdir=`dirname "$0"`
+
+if [ "${PLFNAME}" == "Darwin" ]; then
+    if [ ! $?DYLD_LIBRARY_PATH ]; then
+	export DYLD_LIBRARY_PATH="${curdir}"
+    else
+	export DYLD_LIBRARY_PATH="${curdir}":${DYLD_LIBRARY_PATH}
+    fi
+else
+    if [ ! $?LD_LIBRARY_PATH ]; then
+	export LD_LIBRARY_PATH="${curdir}"
+    else
+	export LD_LIBRARY_PATH="${curdir}":${LD_LIBRARY_PATH}
+    fi
+fi
+
+"${curdir}/od_instmgr" $*
+
+stat=$status
+exit $stat

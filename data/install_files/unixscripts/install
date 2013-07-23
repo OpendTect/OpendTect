@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: install,v 1.2 2012/03/06 05:54:15 relman Exp $
+# $Id: install 30836 2013-07-19 09:39:56Z nageswara.rao@dgbes.com $
 #
 # Installs the OpendTect application and optional extra software
 #_______________________________________________________________________________
@@ -38,8 +38,6 @@ endif
 
 set oddir=`pwd`
 
-echo ""
-
 if ( ! $?quietmode ) then
  echo -n "Do you have a previous release of OpendTect installed [y/n]? "
  set ans=$<
@@ -55,7 +53,7 @@ if ( ! $?quietmode ) then
 		goto try_again
 	endif
 	set olddir=`cd $ans;pwd`
-	cd $oddir
+	cd "${oddir}"
 
 	echo -n "Copying "
 	if ( -r $olddir/data/BatchHosts ) then
@@ -111,11 +109,11 @@ endif
 # Call the OpendTect setup script
 #
 
-cd $oddir
+cd "${oddir}"
 chmod +x ./setup.od
 ./setup.od
 
-cd $oddir
+cd "${oddir}"
 if ( ! -r bin/init_dtect ) then
     exit 1
 endif

@@ -27,8 +27,8 @@ endif
 
 if ( ! -e ./mk_datadir ) then
     setenv instdir "$0:h"
-    if ( -d "$instdir" ) then
-	cd "$instdir"
+    if ( -d "${instdir}" ) then
+	cd "${instdir}"
     endif
     if ( ! -e ./mk_datadir ) then
 	echo "Please run this script from the new d-Tect directory"
@@ -39,31 +39,31 @@ endif
 
 #At this point currenct directory is installation directory.
 setenv instdir `pwd`
-set instdir=$instdir
+set instdir="${instdir}"
 
 #For the substitution by sed
 setenv replaceinstdir `dirs -l| sed -e 's/\//\\\//g'`
-set replaceinstdir=$replaceinstdir
+set replaceinstdir="${replaceinstdir}"
 
-if ( ! -w ${instdir} ) then
+if ( ! -w "${instdir}" ) then
     echo "Warning: cannot properly setup OpendTect."
     echo "Reason: ${instdir} is not writable."
     echo "Will exit the setup now, OpendTect is not set up propertly"
     exit 1
 endif
 
-if ( ! -w ${instdir}/bin ) then
+if ( ! -w "${instdir}"/bin ) then
     echo "Warning: cannot properly setup OpendTect."
     echo "Reason: ${instdir}/bin is not writable."
     echo "Will exit the setup now, OpendTect is not set up propertly"
     exit 1
 endif
 
-set init_dtect_file=${instdir}/bin/init_dtect
-if ( -w $init_dtect_file ) then
-    sed -e "s/__INST_DIR__/$replaceinstdir/" ${instdir}/.init_dtect > ${instdir}/bin/init_dtect
+set init_dtect_file="${instdir}"/bin/init_dtect
+if ( -w "${init_dtect_file}" ) then
+    sed -e "s/__INST_DIR__/${replaceinstdir}/" "${instdir}"/.init_dtect > "${instdir}"/bin/init_dtect
 else
-    if ( -e $init_dtect_file ) then
+    if ( -e "${init_dtect_file}" ) then
 	echo "Warning: cannot properly setup OpendTect."
 	echo "Reason: ${instdir}/bin/init_dtect is not writable."
 	echo "Will exit the setup now, OpendTect is not set up propertly"
@@ -72,8 +72,8 @@ else
 endif
 
 # this fetches the old DTECT_DATA
-if ( -e $init_dtect_file ) then
-    source $init_dtect_file >&! /dev/null
+if ( -e "${init_dtect_file}" ) then
+    source "${init_dtect_file}" >&! /dev/null
 endif
 
 #
@@ -113,7 +113,7 @@ if ( ! $?DTECT_DATA ) then
     endif
 endif
 
-if ( "$DTECT_DATA" == "" || "$DTECT_DATA" == "/" ) then
+if ( "$DTECT_DATA" == "" ) then
     setenv replacedatadir __none__
 else
     setenv replacedatadir `echo $DTECT_DATA | sed 's/\//\\\//g'`
@@ -128,37 +128,37 @@ endif
 #
 
 # Remove relicts of previous attempts: links
-if ( -e ${instdir}/start_dtect ) rm ${instdir}/start_dtect
-if ( -e ${instdir}/exec_prog ) rm ${instdir}/exec_prog
+if ( -e "${instdir}"/start_dtect ) rm "${instdir}"/start_dtect
+if ( -e "${instdir}"/exec_prog ) rm "${instdir}"/exec_prog
 
 foreach fil ( init_dtect start_dtect init_dtect_user exec_prog )
     sed -e "s/__INST_DIR__/$replaceinstdir/" \
 	-e "s/__DATA_DIR__/$replacedatadir/" \
-	${instdir}/.$fil > ${instdir}/bin/$fil
+	"${instdir}"/.$fil > "${instdir}"/bin/$fil
 end
-chmod +x ${instdir}/bin/{start_dtect,init_dtect_user,exec_prog}
-ln -s ${instdir}/bin/{start_dtect,exec_prog} ${instdir}
+chmod +x "${instdir}"/bin/{start_dtect,init_dtect_user,exec_prog}
+ln -s "${instdir}"/bin/{start_dtect,exec_prog} "${instdir}"
 
 #
 # Generate scripts for added plugins
 #
 
 foreach fil ( .install.*.license .start.*.lmgrd )
-    if ( ! -r "${instdir}/$fil" ) continue
+    if ( ! -r "${instdir}"/$fil ) continue
     set outfil=`echo $fil | sed 's/^\.//'`
     sed -e "s/__INST_DIR__/$replaceinstdir/" \
 	-e "s/__DATA_DIR__/$replacedatadir/" \
-	${instdir}/$fil > ${instdir}/$outfil
-    chmod +x ${instdir}/$outfil
+	"${instdir}"/$fil > "${instdir}"/$outfil
+    chmod +x "${instdir}"/$outfil
 end
 
 # make sure the right stuff is set for the external scripts
-source $init_dtect_file >&! /dev/null
+source "${init_dtect_file}" >&! /dev/null
 
 foreach fil ( setup.od.* )
-    if ( -e ${instdir}/$fil ) then
-	chmod +x ${instdir}/$fil
-	${instdir}/$fil
+    if ( -e "${instdir}"/$fil ) then
+	chmod +x "${instdir}"/$fil
+	"${instdir}"/$fil
     endif
 end
 
