@@ -225,7 +225,8 @@ ObjectID EMManager::objectID( int idx ) const
 
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
-				   const SurfaceIODataSelection* iosel )
+				   const SurfaceIODataSelection* iosel, 
+				   TypeSet<MultiID>* idstobeloaded )
 {
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -234,6 +235,9 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 	const EMObject* obj = getObject( objid );
 	Executor* loader =
 	    obj && obj->isFullyLoaded() ? 0 : objectLoader( mids[idx], iosel );
+	if ( idstobeloaded && loader )
+	    *idstobeloaded += mids[idx];
+
 	if ( execgrp )
 	{
 	    if ( loader )
