@@ -227,9 +227,12 @@ bool doFFT( bool isfwd )
 
 bool Wavelet::reSample( float newsr )
 {
-    const int outsz = mNINT32( samplePositions().width() / newsr ) + 1;
-
-    WaveletFFTData inp(sz_,dpos_), out(outsz,newsr);
+    const Interval<float> twtrg = samplePositions();
+    const float maxlag = -1 * twtrg.start > twtrg.stop
+		       ? -1 * twtrg.start : twtrg.stop;
+    const int inpsz = mNINT32( 2.f * maxlag / dpos_ ) + 1;
+    const int outsz = mNINT32( 2.f * maxlag / newsr ) + 1;
+    WaveletFFTData inp(inpsz,dpos_), out(outsz,newsr);
 
     const int fwdfirstidx = inp.halfsz_ - cidx_;
     for ( int idx=0; idx<sz_; idx++ )
@@ -271,10 +274,9 @@ bool Wavelet::reSample( float newsr )
     if ( !out.doFFT(false) )
 	return false;
 
-    reSize( outsz );
-    const float starttwtinp = samplePositions().start;
+    reSize( mNINT32( twtrg.width() / newsr ) + 1 );
     dpos_ = newsr;
-    cidx_ = mNINT32( -starttwtinp / dpos_ );
+    cidx_ = mNINT32( -twtrg.start / newsr );
     const int revfirstidx = out.halfsz_ - cidx_;
     const float normfact = ((float)out.sz_) / inp.sz_;
     for ( int idx=0; idx<sz_; idx++ )
@@ -288,6 +290,7 @@ bool Wavelet::reSampleTime( float newsr )
 {
     if ( newsr < 1e-6 )
 	return false;
+
     float fnewsz = (sz_-1) * dpos_ / newsr + 1.f - 1e-5f;
     const int newsz = mNINT32( ceil(fnewsz) );
     float* newsamps = new float [newsz];
