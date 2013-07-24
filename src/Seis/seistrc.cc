@@ -191,6 +191,24 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 }
 
 
+bool SeisTrc::getWriteReady( SamplingData<float>& sampling, int& ns, bool inw )
+{
+    const float nz0 = sampling.start / sampling.step;
+    float newstart = sampling.step * mNINT32( nz0 );
+    if ( mIsEqual(sampling.start,newstart,1e-6) )
+	return false;
+
+    if ( inw && newstart < sampling.start )
+    {
+	if ( newstart < sampling.start )
+	    newstart += sampling.step;
+	ns--;
+    }
+    sampling.start = newstart;
+    return true;
+}
+
+
 bool SeisTrc::isWriteReady( const SamplingData<float>& sampling, int ns ) const
 {
     if ( !mIsUdf(ns) && ns != size() )
@@ -219,10 +237,7 @@ void SeisTrc::getWriteReady( SeisTrc& trc, SamplingData<float>& sampling,
     if ( mIsUdf(sampling.start) )
     {
 	sampling = info_.sampling;
-	const float nz0 = sampling.start / sampling.step;
-	const float newstart = sampling.step * mNINT32( nz0 );
-	if ( !mIsEqual(sampling.start,newstart,1e-6) )
-	    sampling.start = newstart;
+	getWriteReady( sampling, ns, true );
     }
 
     trc = *this;

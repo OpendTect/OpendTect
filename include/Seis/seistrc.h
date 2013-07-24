@@ -107,6 +107,9 @@ public:
 
     bool		isWriteReady(const SamplingData<float>&,int ns) const;
     void		getWriteReady(SeisTrc&,SamplingData<float>&,int&) const;
+    static bool		getWriteReady(SamplingData<float>&,int& nrsamples,
+	    				    bool inward_only=true);
+    			// returns whether any change was made
 
     static const char*	sKeyExtTrcToSI()
     			{ return "Extend Traces To Survey Z Range"; }
