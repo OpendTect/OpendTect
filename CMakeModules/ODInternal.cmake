@@ -106,12 +106,6 @@ endif( APPLE )
 set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 set( LMHOSTID lmhostid )
 if( WIN32 )
-    install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
-	    DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
-	    CONFIGURATIONS Debug )
-    install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
-	    DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
-	    CONFIGURATIONS Release )
     set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
 	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
