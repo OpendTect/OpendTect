@@ -97,5 +97,6 @@ if( WIN32 )
     list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
     set( OD_od_runinst_RESOURCE od_runinst.rc )
 endif( WIN32 )
+OD_ADD_SOURCE_FILES( od_runinst.cc od_runinst.rc od_runinst.ico )
 
 OD_INIT_MODULE()
