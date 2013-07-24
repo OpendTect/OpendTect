@@ -542,30 +542,29 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( hor3d )
       	selectedrg_ = sel.rg; 
 
-    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel);
-    if ( !exec )
-    {
-	bool allmissing = true;
-	for ( int idx=0; idx<surfaceids.size(); idx++ )
-	{
-	    if ( em_.getObject(em_.getObjectID(surfaceids[idx])) )
-	    {
-		allmissing = false;
-		break;
-	    }
-        }
-	
-	if ( allmissing )
-	    return;
-    }    
+    TypeSet<MultiID> idstobeloaded;
+    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel,
+					     &idstobeloaded);
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
 	if ( !obj ) continue;
 	obj->ref();
-	obj->setBurstAlert( true );
 	objs += obj;
+    }
+
+    if ( objs.isEmpty() )
+	return;
+
+    ObjectSet<EM::EMObject> objstobeloaded;
+    for ( int idx=0; idx<idstobeloaded.size(); idx++ )
+    {
+	EM::EMObject* obj = em_.getObject(em_.getObjectID(idstobeloaded[idx]));
+	if ( !obj ) continue;
+	obj->setBurstAlert( true );
+	obj->ref();
+	objstobeloaded += obj;
     }
 
     if ( exec )
@@ -575,8 +574,10 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     	    deepUnRef( objs );
     }
 
-    for ( int idx=0; idx<objs.size(); idx++ )
-	objs[idx]->setBurstAlert( false );
+    for ( int idx=0; idx<objstobeloaded.size(); idx++ )
+	objstobeloaded[idx]->setBurstAlert( false );
+	deepUnRef( objstobeloaded );
+
 }
 
 

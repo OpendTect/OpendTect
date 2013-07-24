@@ -105,7 +105,10 @@ public:
     Executor*		objectLoader(const MultiID&,
 	    			     const SurfaceIODataSelection* =0);
     Executor*		objectLoader(const TypeSet<MultiID>&,
-	    			     const SurfaceIODataSelection* =0);
+	    			     const SurfaceIODataSelection* =0,
+				     TypeSet<MultiID>* idstobeloaded =0);
+        		/*!< idstobeloaded are the ids for which the objects 
+			     will be actually loaded */
 
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it.
