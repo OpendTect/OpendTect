@@ -337,6 +337,8 @@ bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
 int IOObjInfo::nrSticks() const
 {
     mGetReaderRet
+    if ( !reader_->pars() )
+	return 0;
 
     Interval<float> rowrange;
     reader_->pars()->get( "Row range", rowrange );
