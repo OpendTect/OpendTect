@@ -229,9 +229,12 @@ bool doFFT( bool isfwd )
 
 bool Wavelet::reSample( float newsr )
 {
-    const int outsz = mNINT32( samplePositions().width() / newsr ) + 1;
-
-    WaveletFFTData inp(sz,dpos), out(outsz,newsr);
+    const Interval<float> twtrg = samplePositions();
+    const float maxlag = -1 * twtrg.start > twtrg.stop
+		       ? -1 * twtrg.start : twtrg.stop;
+    const int inpsz = mNINT32( 2.f * maxlag / dpos ) + 1;
+    const int outsz = mNINT32( 2.f * maxlag / newsr ) + 1;
+    WaveletFFTData inp(inpsz,dpos), out(outsz,newsr);
 
     const int fwdfirstidx = inp.halfsz_ + iw;
     for ( int idx=0; idx<sz; idx++ )
@@ -273,10 +276,9 @@ bool Wavelet::reSample( float newsr )
     if ( !out.doFFT(false) )
 	return false;
 
-    reSize( outsz );
-    const float starttwtinp = samplePositions().start;
+    reSize( mNINT32( twtrg.width() / newsr ) + 1 );
     dpos = newsr;
-    iw = mNINT32( starttwtinp / dpos );
+    iw = mNINT32( twtrg.start / newsr );
     const int revfirstidx = out.halfsz_ + iw;
     const float normfact = ((float)out.sz_) / inp.sz_;
     for ( int idx=0; idx<sz; idx++ )
