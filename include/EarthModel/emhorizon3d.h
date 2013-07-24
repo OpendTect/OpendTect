@@ -30,6 +30,7 @@ namespace Pos { class Provider3D; }
 
 namespace EM
 {
+class SurfaceAuxData;    
 
 /*!
 \brief 3D HorizonGeometry
