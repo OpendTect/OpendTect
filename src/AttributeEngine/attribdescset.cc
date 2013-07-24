@@ -1193,7 +1193,8 @@ void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
     for ( int idx=0; idx<descs_.size(); idx++ )                                 
     {                                                                           
 	const Attrib::Desc* tmpdsc = desc(idx);                                 
-	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) )
+	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
+	     (dsu.stored_ != tmpdsc->isStored())  )
 	    continue;
 
 	Attrib::SelSpec sp( 0, tmpdsc->id() );
