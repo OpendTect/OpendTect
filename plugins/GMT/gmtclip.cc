@@ -66,7 +66,7 @@ bool GMTClip::execute( std::ostream& strm, const char* fnm )
 {
     bool isstartofclipping = false;
     getYN( ODGMT::sKeyStartClipping(), isstartofclipping );
-    BufferString comm( "psclip " );
+    BufferString comm( "@psclip " );
     if ( !isstartofclipping )
     {
 	strm << "Terminating clipping ... ";
