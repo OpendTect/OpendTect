@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 
 class IOPar;
+class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;
@@ -40,6 +41,7 @@ public:
     od_int64		totalNr() const		{ return totnrpos_; }
     const char*		nrDoneText() const	{ return "Positions handled"; }
     int			nextStep();
+    void		setScaler(Scaler*);
 
     bool		stacktrcs_; //!< If not, first trace will be used
 
@@ -57,6 +59,7 @@ protected:
     SeisTrcBuf&			trcbuf_;
     int				nrsamps_;
     SamplingData<float>		sd_;
+    Scaler*			scaler_;
 
     SeisTrc*			getNewTrc();
     SeisTrc*			getTrcFrom(SeisTrcReader&);

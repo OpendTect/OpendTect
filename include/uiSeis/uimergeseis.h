@@ -15,12 +15,13 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
+class CtxtIOObj;
 class IOObj;
 class IOPar;
-class CtxtIOObj;
-class uiListBox;
-class uiSeisSel;
 class uiGenInput;
+class uiListBox;
+class uiSeisFmtScale;
+class uiSeisSel;
 
 
 mExpClass(uiSeis) uiMergeSeis : public uiDialog
@@ -33,12 +34,14 @@ protected:
 
     uiListBox*		inpfld_;
     uiGenInput*		stackfld_;
+    uiSeisFmtScale*	scfmtfld_;
     uiSeisSel*		outfld_;
 
     ObjectSet<MultiID>	ioobjids_;
     CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK(CallBacker*);
+    void		selChangeCB(CallBacker*);
     bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
 

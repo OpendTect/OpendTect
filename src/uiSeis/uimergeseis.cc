@@ -22,11 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 
-#include "uiseissel.h"
 #include "uilistbox.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseissel.h"
+#include "uiseisfmtscale.h"
 
 #include <math.h>
 
@@ -59,14 +60,18 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     inpfld_ = llb->box();
     inpfld_->addItems( ioobjnms );
     inpfld_->setCurrentItem( 0 );
+    inpfld_->selectionChanged.notify( mCB(this,uiMergeSeis,selChangeCB) );
 
     stackfld_ = new uiGenInput( this, "Duplicate traces",
 	    			BoolInpSpec(true,"Stack","Use first") );
     stackfld_->attach( alignedBelow, llb );
 
+    scfmtfld_ = new uiSeisFmtScale( this, Seis::Vol, false, false );
+    scfmtfld_->attach( alignedBelow, stackfld_ );
+
     ctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, stackfld_ );
+    outfld_->attach( alignedBelow, scfmtfld_ );
 }
 
 
@@ -85,8 +90,25 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 
     SeisMerger mrgr( inpars, outpar, false );
     mrgr.stacktrcs_ = stackfld_->getBoolValue();
+    mrgr.setScaler( scfmtfld_->getScaler() );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, mrgr );
+}
+
+
+void uiMergeSeis::selChangeCB( CallBacker* cb )
+{
+    for ( int idx=0; idx<inpfld_->size(); idx++ )
+    {
+        if ( !inpfld_->isSelected(idx) )
+	    continue;
+	
+	PtrMan<IOObj> firstselobj = IOM().get( *ioobjids_[idx] );
+	if ( !firstselobj ) continue;
+	
+	scfmtfld_->updateFrom( *firstselobj );
+	break;
+    }
 }
 
 
@@ -98,6 +120,8 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	    uiMSG().error( "Please enter an output Seismic data set name" );
         return false;
     }
+
+    scfmtfld_->updateIOObj( ctio_.ioobj );
     outpar.set( sKey::ID(), ctio_.ioobj->key() );
 
     ObjectSet<IOObj> selobjs;
@@ -106,10 +130,12 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
         if ( inpfld_->isSelected(idx) )
             selobjs += IOM().get( *ioobjids_[idx] );
     }
+
     const int inpsz = selobjs.size();
     if ( inpsz < 2 )
     {
 	uiMSG().error( "Please select at least 2 inputs" ); 
+	deepErase( selobjs );
 	return false; 
     }
 
@@ -130,7 +156,6 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	iop->set( sKey::ID(), ioobj.key() );
 	inpars += iop;
     }
-    deepErase( selobjs );
 
     if ( type.isEmpty() )
 	ctio_.ioobj->pars().removeWithKey( sKey::Type() );
@@ -140,7 +165,9 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	ctio_.ioobj->pars().removeWithKey( optdirkey );
     else
 	ctio_.ioobj->pars().set( optdirkey, optdir );
+
     IOM().commitChanges( *ctio_.ioobj );
 
+    deepErase( selobjs );
     return true;
 }

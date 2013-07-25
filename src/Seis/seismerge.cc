@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "scaler.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include <iostream>
@@ -35,6 +36,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, curbid_(SI().sampling(false).hrg.start)
     	, trcbuf_(*new SeisTrcBuf(false))
     	, stacktrcs_(true)
+        , scaler_(0)
     	, nrsamps_(-1)
 {
     if ( iops.isEmpty() )
@@ -126,12 +128,20 @@ SeisMerger::~SeisMerger()
     delete wrr_;
     trcbuf_.deepErase();
     delete &trcbuf_;
+    delete scaler_;
 }
 
 
 const char* SeisMerger::message() const
 {
     return errmsg_.isEmpty() ? errmsg_.buf() : "Handling traces";
+}
+
+
+void SeisMerger::setScaler( Scaler* scaler )
+{
+    delete scaler_;
+    scaler_ = scaler;
 }
 
 
@@ -304,6 +314,8 @@ int SeisMerger::writeTrc( SeisTrc* trc )
 	}
 	delete trc; trc = newtrc;
     }
+
+    if ( scaler_ ) trc->data().scale( *scaler_ );
     bool ret = wrr_->put( *trc );
     if ( !ret )
     {
