@@ -91,8 +91,6 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    continue;
 
 	rtrunner->addModel( layers, true );
-	if ( !rtrunner->prepareRayTracers() )
-	    continue;
 
 	if ( !rtrunner->executeParallel( false ) )
 	    { errmsg_ = rtrunner->errMsg(); continue; }
