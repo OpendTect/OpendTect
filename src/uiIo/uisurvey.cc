@@ -706,13 +706,22 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( !samesurvey || initialdatadir_ != GetBaseDataDir() || 
 	 (samesurvey && initialsurveyparchanged_) )
 	IOMan::enableSurveyChangeTriggers( true );
-    const bool cansetnewsurv =
-	updateSvyFile() && IOMan::setSurvey( listbox_->getText() );
+
+    if ( !updateSvyFile() )
+    {
+	IOMan::enableSurveyChangeTriggers( false );
+	return false;
+    }
+
+    if ( !IOMan::setSurvey(listbox_->getText()) )
+    {
+	if ( !IOM().message().isEmpty() )
+	    uiMSG().error( IOM().message() );
+	IOMan::enableSurveyChangeTriggers( false );
+	return false;
+    }
     
     IOMan::enableSurveyChangeTriggers( false );
-    if ( !cansetnewsurv )
-	return false;
-
     newSurvey();
     if ( impiop_ && impsip_ )
     {
