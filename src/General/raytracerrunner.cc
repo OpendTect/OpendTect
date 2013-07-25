@@ -110,6 +110,13 @@ int RayTracerRunner::modelIdx( od_int64 idx, bool& startlayer ) const
 }
 
 
+bool RayTracerRunner::executeParallel( bool parallel )
+{
+    if ( !prepareRayTracers() )
+	return false;
+    return ParallelTask::executeParallel( parallel );
+}
+
 
 bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
 {

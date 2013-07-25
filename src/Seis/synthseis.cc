@@ -625,8 +625,6 @@ bool RaySynthGenerator::doPrepare( int )
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
     rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
-    if ( !rtr_->prepareRayTracers() )
-	 mErrRet( rtr_->errMsg(), false );
     message_ = "Raytracing";
     if ( !rtr_->execute() ) 
 	mErrRet( rtr_->errMsg(), false );
@@ -637,32 +635,57 @@ bool RaySynthGenerator::doPrepare( int )
     {
 	const RayTracer1D* rt1d = rt1ds[idx];
 	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
-	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
-	{
-	    const TimeDepthModel& d2t = applynmo_ ? *rm->t2dmodels_[0]
-						  : *rm->t2dmodels_[idoff];
-	    if ( !mIsUdf( d2t.getLastTime() ) )
-		raysampling_.include( d2t.getLastTime() );
-	}
 	raymodels_.insertAt( rm, 0 );
 
 	if ( forcerefltimes_ )
 	    rm->forceReflTimes( forcedrefltimes_ );
     }
+
+    raysampling_ = Interval<float>(mUdf(float),-mUdf(float));
+    for ( int imod=0; imod<raymodels_.size(); imod++ )
+    {
+	ObjectSet<const ReflectivityModel> curraymodel;
+	raymodels_[imod]->getRefs( curraymodel, false );
+	for ( int iref=0; iref<curraymodel.size(); iref++ )
+	{
+	    Interval<int> validspike( mUdf(int), mUdf(int) );
+	    const ReflectivityModel& refmodel = *curraymodel[iref];
+	    for ( int idz=0; idz<refmodel.size(); idz++ )
+	    {
+		const ReflectivitySpike& spike = refmodel[idz];
+		if ( spike.isDefined() )
+		{
+		    if ( mIsUdf(validspike.start) )
+			validspike.start = idz;
+
+		    validspike.stop = idz;
+		}
+	    }
+	    if ( validspike.isUdf() )
+		continue;
+
+	    const ReflectivitySpike& firstspike = refmodel[validspike.start];
+	    const ReflectivitySpike& lastspike = refmodel[validspike.stop];
+	    raysampling_.include( applynmo_ ? firstspike.correctedtime_
+					    : firstspike.time_, false );
+	    raysampling_.include( applynmo_ ? lastspike.correctedtime_
+					    : lastspike.time_, false );
+	}
+    }
     
-    if ( !raysampling_.width() )
+    if ( !raysampling_.width(false) )
 	mErrRet( "no valid time generated from raytracing", false );
 
-    if ( mIsUdf( outputsampling_.start ) )
-    {
-	//TODO check if required
-	//raysampling_.stop += wavelet_->sampleRate()*wavelet_->size()/2; 
-	outputsampling_ = raysampling_; 
-    }
     if ( mIsUdf( outputsampling_.step ) )
 	outputsampling_.step = wavelet_->sampleRate();
-    if ( outputsampling_.width()/(float)outputsampling_.step<wavelet_->size() )
-	mErrRet( "Time range can not be smaller than wavelet", false )
+
+    outputsampling_.start = mNINT32( raysampling_.start/outputsampling_.step ) *
+			    outputsampling_.step +
+			    wavelet_->samplePositions().start;
+    outputsampling_.stop = mNINT32( raysampling_.stop/outputsampling_.step ) *
+			   outputsampling_.step +
+			   wavelet_->samplePositions().stop;
+
     if ( outputsampling_.nrSteps() < 1 )
 	mErrRet( "Time interval is empty", false );
     

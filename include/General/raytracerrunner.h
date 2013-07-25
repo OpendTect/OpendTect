@@ -32,11 +32,11 @@ public:
     //before exectution only
     void			setOffsets(TypeSet<float> offsets);
     void			addModel(const ElasticModel&,bool dosingle); 
-    bool                        prepareRayTracers();
 
     //available after excution
     ObjectSet<RayTracer1D>& 	rayTracers() 	{ return raytracers_; }
     od_int64			nrDone() const;
+    bool			executeParallel(bool);
 
 protected:
 
@@ -45,6 +45,7 @@ protected:
     bool                	doWork(od_int64,od_int64,int);
     od_int64                    nrIterations() const;
     int 			modelIdx(od_int64,bool&) const;
+    bool                        prepareRayTracers();
 
     BufferString		errmsg_;
 
