@@ -38,6 +38,7 @@ public:
 
     bool		bad() const		{ return state_ != Good; }
     bool		isReady() const;
+    const BufferString&	message() const		{ return msg_; }
 
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
@@ -112,6 +113,7 @@ private:
     int			curlvl_;
     FileNameString	rootdir_;
     bool		canchangesurvey_;
+    BufferString	msg_;
 
     void		init();
 			IOMan(const char* rd=0);

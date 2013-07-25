@@ -126,6 +126,8 @@ void IOMan::init()
 
 	rootfp.setFileName( dd->dirnm );
 	BufferString dirnm = rootfp.fullPath();
+
+#define mErrMsgRet(s) ErrMsg(s); msg_ = s; state_ = Bad; return
 	if ( !File::exists(dirnm) )
 	{
 	    // This directory should have been in the survey.
@@ -134,12 +136,13 @@ void IOMan::init()
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
-		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
+		msg += dirnm; mErrMsgRet( msg ); 
 	    }
 	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
-		BufferString msg( "Cannot create directory: " );
-		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
+		BufferString msg( "Cannot create directory: " ); msg += dirnm;
+		msg += ". You probably do not have write permissions in ";
+		msg += rootfp.pathOnly(); mErrMsgRet( msg );
 	    }
 	}
 
