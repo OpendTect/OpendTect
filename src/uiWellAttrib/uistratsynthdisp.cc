@@ -115,6 +115,11 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vddatalist_->setHSzPol( uiObject::Wide );
     prdatalblcbx->attach( leftBorder );
 
+    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export", 
+	    			"Export Synthetic DataSet(s)",
+				mCB(this,uiStratSynthDisp,exportSynth) );
+    expbut->attach( rightOf, vddatalist_ );
+
     datagrp_ = new uiGroup( this, "DataSet group" );
     datagrp_->attach( ensureBelow, topgrp_ );
     datagrp_->attach( ensureBelow, dataselgrp );
@@ -794,12 +799,6 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 
 void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 {
-    if ( prestackwin_ )
-    {
-	delete prestackwin_; 
-	prestackwin_ = 0;
-    }
-
     if ( !currentwvasynthetic_ || !currentwvasynthetic_->isPS() )
 	return;
     prestackwin_ =
@@ -965,6 +964,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 
 void uiStratSynthDisp::exportSynth( CallBacker* )
 {
+    if ( layerModel().isEmpty() )
+	mErrRet( "No valid layer model present", return )
     uiStratSynthExport dlg( this, curSS() );
     dlg.go();
 }
@@ -1144,7 +1145,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		continue;
 	    }
 
-	    sd->useDispPar( *synthpar );
+	    if ( useed_ )
+	    {
+		SyntheticData* nonfrsd = stratsynth_->getSyntheticByIdx( idx );
+		IOPar synthdisppar;
+		if ( nonfrsd )
+		    nonfrsd->fillDispPar( synthdisppar );
+		sd->useDispPar( synthdisppar );
+	    }
+	    else
+		sd->useDispPar( *synthpar );
+
 	    wvadatalist_->addItem( sd->name() );
 	}
 
