@@ -200,12 +200,18 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
+    { 
+	horizon_.setErrMsg( "Cannot find surface" ); 
+	return 0; 
+    }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-    { horizon_.errmsg_ = tr ? tr->errMsg() : "Cannot find Translator";return 0;}
+    { 
+	horizon_.setErrMsg( tr ? tr->errMsg() : "Cannot find Translator" );
+	return 0;
+    }
 
     SurfaceIODataSelection& sel = tr->selections();
     int nrauxdata = sel.sd.valnames.size();
@@ -243,7 +249,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	    return fnm;
     }
 
-    //return 0;
+    return 0;
 }
 
 
@@ -251,7 +257,11 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
+    { 
+	horizon_.setErrMsg( "Cannot find surface" ); 
+	return 0; 
+    }
+
     bool binary = true;
     mSettUse(getYN,"dTect.Surface","Binary format",binary);
 

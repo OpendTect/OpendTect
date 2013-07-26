@@ -29,7 +29,6 @@ namespace EM
 class EMManager;
 
 class EdgeLineManager;
-class SurfaceAuxData;
 class SurfaceGeometry;
 
 /*!
@@ -78,7 +77,6 @@ public:
 
 protected:
     friend class		SurfaceGeometry;
-    friend class		SurfaceAuxData;
     friend class		EMObject;
 
     				Surface(EMManager&);
