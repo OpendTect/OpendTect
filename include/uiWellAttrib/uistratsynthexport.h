@@ -24,10 +24,14 @@ class uiIOObjSel;
 class uiSeis2DLineNameSel;
 class uiStratSynthOutSel;
 
+namespace Geometry { class RandomLine; }
+namespace PosInfo { class Line2DData; }
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
 {
 public:
+    enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
+
     			uiStratSynthExport(uiParent*,const StratSynth&);
 			~uiStratSynthExport();
 
@@ -54,10 +58,17 @@ protected:
     ObjectSet<const SyntheticData> postsds_;
     ObjectSet<const SyntheticData> presds_;
     ObjectSet<StratSynthLevel> sslvls_;
-
+    
     BufferString	getWinTitle(const StratSynth&) const;
+    GeomSel		selType() const;
+    void		getNewName(BufferString&) const;
     void		fillGeomGroup();
     void		getExpObjs();
+    void		removeNonSelected();
+    bool		createHor2Ds();
+    bool		getGeometry(PosInfo::Line2DData&);
+    void		create2DGeometry(const TypeSet<Coord>&,
+	    				 PosInfo::Line2DData&);
 
     void		crNewChg(CallBacker*);
     void		lsSel(CallBacker*);

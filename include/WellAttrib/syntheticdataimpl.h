@@ -18,6 +18,7 @@ ________________________________________________________________________
 class RayTracer1D;
 class ElasticModel;
 class SeisTrcBufDataPack;
+class PropertyRef;
 
 namespace PreStack { class GatherSetDataPack; class Gather; } 
 

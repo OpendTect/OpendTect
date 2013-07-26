@@ -411,7 +411,7 @@ void uiStratSynthDisp::drawLevel()
 
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
-	    auxd->poly_ += FlatView::Point( imdl+1, tval );
+	    auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
 	}
 	if ( auxd->isEmpty() )
 	    delete auxd;
@@ -799,12 +799,6 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 
 void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 {
-    if ( prestackwin_ )
-    {
-	delete prestackwin_; 
-	prestackwin_ = 0;
-    }
-
     if ( !currentwvasynthetic_ || !currentwvasynthetic_->isPS() )
 	return;
     prestackwin_ =
@@ -970,6 +964,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 
 void uiStratSynthDisp::exportSynth( CallBacker* )
 {
+    if ( layerModel().isEmpty() )
+	mErrRet( "No valid layer model present", return )
     uiStratSynthExport dlg( this, curSS() );
     dlg.go();
 }
@@ -1088,7 +1084,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	sd->fillGenParams( genparams );
 	IOPar synthpar;
 	genparams.fillPar( synthpar );
-	sd->fillDispPar( synthpar );
+		sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
 		    		 nr_nonproprefsynths-1) );
     }
@@ -1149,7 +1145,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		continue;
 	    }
 
-	    sd->useDispPar( *synthpar );
+	    if ( useed_ )
+	    {
+		SyntheticData* nonfrsd = stratsynth_->getSyntheticByIdx( idx );
+		IOPar synthdisppar;
+		if ( nonfrsd )
+		    nonfrsd->fillDispPar( synthdisppar );
+		sd->useDispPar( synthdisppar );
+	    }
+	    else
+		sd->useDispPar( *synthpar );
+
 	    wvadatalist_->addItem( sd->name() );
 	}
 

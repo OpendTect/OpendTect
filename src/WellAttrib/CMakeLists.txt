@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 		createlogcube.cc
 		stratseisevent.cc
 		stratsynth.cc
+		stratsynthexp.cc
 		wellhorpos.cc
 		welltiecshot.cc
 		welltied2tmodelmanager.cc
