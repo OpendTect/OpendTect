@@ -71,27 +71,28 @@ public:
 		/*! ensures a model does not have layers below a given thickness
 		  last layer may not comply though */
 
-    void	upscale(float maxthickness, ElasticModel& outmdl);
-    void	upscale( float maxthickness )
-			    { return upscale( maxthickness, *this ); }
+    void	upscale(float maxthickness);
 
 		/*! Smashes every consecutive set of nblock layers
 		  into one output layer */
 
-    void	upscaleByN(int nblock, ElasticModel& outmdl);
-    void	upscaleByN( int nblock )
-			    { return upscaleByN( nblock, *this ); }
+    void	upscaleByN(int nblock);
 
+		/*! Ensures that all layers in the elastic model are not thicker
+		    than a maximum thickness. Splits the blocks if necessary */
+
+    void	setMaxThickness(float maxthickness);
+
+    		/*! Merged consecutive layers with same properties. */
+
+    void	mergeSameLayers();
 
 		/*! Block elastic model so that no blocks have larger difference
 		  than the threshold. Attempts will be made to put boundaries at
 		  large changes.
 		  \param pvelonly Will use density and SVel as well if false */
 
-    void	block(float relthreshold,bool pvelonly,ElasticModel& outmdl);
-    void	block( float relthreshold, bool pvelonly )
-			    { return block( relthreshold, pvelonly, *this ); }
-
+    void	block(float relthreshold,bool pvelonly);
 
 		/*! compute an upscaled elastic layer from an elastic model
 		  using simple weighted averaging.
@@ -99,31 +100,16 @@ public:
 		  returns false if the input model contain not a single valid
 		  input layer */
 
-    bool	upscaleByThicknessAvg(ElasticModel& inmdl,ElasticLayer& outlay);
-    bool	upscaleByThicknessAvg( ElasticLayer& outlay )
-			    { return upscaleByThicknessAvg( *this, outlay ); }
+    bool	getUpscaledByThicknessAvg(ElasticLayer& outlay) const;
 
-
-		/* compute and upscaled elastic layer from an elastic modelusing
-		   backus upscaling method. The thickness of the input and
+		/* computes an upscaled elastic layer from an elastic model
+		   using backus upscaling method. The thickness of the input and
 		   output remains constant.
 		   returns false if the input model contain not a single valid
 		   input layer
 		   \param theta Incidence angle in radians */
 
-    bool	upscaleBackus(ElasticModel& inmdl, ElasticLayer& outlay,
-	    		      float theta=0.);
-    bool	upscaleBackus( ElasticLayer& outlay, float theta=0. )
-			    { return upscaleBackus( *this, outlay, theta ); }
-
-
-		/*!Ensures that all layers in the elastic model are not thicker
-		  than a maximum thickness. Splits the blocks if necessary */
-
-    void	setMaxThickness(float maxthickness, ElasticModel& outmdl);
-    void	setMaxThickness( float maxthickness )
-			    { return setMaxThickness( maxthickness, *this ); }
-
+    bool	getUpscaledBackus(ElasticLayer& outlay,float theta=0.) const;
 
 };
 
