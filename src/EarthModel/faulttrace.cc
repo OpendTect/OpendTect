@@ -504,7 +504,8 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
     if ( intv )
     {
         const float fidx = intv->getfIndex( intersection.x );
-	trcnr = mNINT32( snappositive ? ceil(fidx) : floor(fidx) );
+	const int trcidx = mNINT32( snappositive ? ceil(fidx) : floor(fidx) );
+	trcnr = intv->atIndex( trcidx );
     }
 
     bid.inl = isinl_ ? nr_ : trcnr;
