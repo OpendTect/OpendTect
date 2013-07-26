@@ -41,10 +41,12 @@ bool WellT2DTransform::calcDepths()
     const int d2tsz = d2t->size();
     float dah0 = mUdf(float);
     float time0 = 0; int idx0 = 0;
-    for ( ; idx0<d2tsz && mIsUdf(dah0); idx0++ )
+    for ( ; idx0<d2tsz; idx0++ )
     {
 	time0 = d2t->t( idx0 );
 	dah0 = d2t->getDah( time0, track );
+	if ( !mIsUdf(dah0) )
+	    break;
     }
     if ( mIsUdf(dah0) )
     {
