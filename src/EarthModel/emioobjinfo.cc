@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
 #include "embodytr.h"
+#include "enums.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -23,6 +24,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM
 {
+
+DefineEnumNames( IOObjInfo, ObjectType, 0, "Object Type" )
+{ 
+  "Unknown",
+  EMHorizon3DTranslatorGroup::keyword(),
+  EMHorizon2DTranslatorGroup::keyword(),
+  EMFaultStickSetTranslatorGroup::keyword(),
+  EMFault3DTranslatorGroup::keyword(),
+  EMBodyTranslatorGroup::sKeyword(),
+  0
+};
+
 
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
     : ioobj_(ioobj ? ioobj->clone() : 0)
@@ -256,18 +269,9 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
 
 IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 {
-    static const char* grpnms[] =
-    {
-	EMHorizon3DTranslatorGroup::keyword(),
-	EMHorizon2DTranslatorGroup::keyword(),
-	EMFaultStickSetTranslatorGroup::keyword(),
-	EMFault3DTranslatorGroup::keyword(),
-	EMBodyTranslatorGroup::sKeyword(),
-	0
-    };
-    static BufferStringSet grpnmsbss( grpnms );
-    const int typ = grpnmsbss.indexOf( grpname );
-    return typ < 0 ? Body : (ObjectType)typ;
+    ObjectType type;
+    parseEnum( grpname, type );
+    return type;
 }
 
 
