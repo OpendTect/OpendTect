@@ -318,11 +318,50 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
     dh.ref();
 
     DataHolderArray array3d( dh.dataset_, false );
-    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
-    if ( !dataset_ || !dataset_->isOK() )
+    const int nrseries = array3d.info().getSize( 0 );
+    const int nrdh = array3d.info().getSize( 1 );
+    const int nrsamples = array3d.info().getSize( 2 );
+
+    mTryAlloc( dataset_, Array3DImpl<float>(nrseries, nrdh, nrsamples) );
+    if ( dataset_ )
     {
-	delete dataset_;
-	dataset_ = 0;
+	float* ptr = dataset_->getData();
+	bool valseriesok = true;
+
+	for ( int idx=0; idx<nrdh; idx++ )
+	{
+	    for ( int idy=0; idy<nrseries; idy++ )
+	    {
+		ValueSeries<float>* valser = dh.dataset_[idx]->series(idy);
+		if ( valser )
+		{
+		    valser->getValues( ptr, nrsamples );
+		    ptr += nrsamples;
+		}
+		else
+		{
+		    valseriesok = false;
+		    break;
+		}
+	    }
+
+	    if ( !valseriesok )
+		break;
+	}
+
+	if ( !valseriesok )
+	{
+	    delete dataset_;
+	    dataset_ = 0;
+	    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
+	}
+
+	if ( !dataset_ || !dataset_->isOK() )
+	{
+	    delete dataset_;
+	    dataset_ = 0;
+	}
+
     }
 
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
