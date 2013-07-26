@@ -1102,7 +1102,8 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	    layer.vel_ = velvals.get( idx );
 	    layer.svel_ = svelvals.get( idx );
 	}
-	 aimodel.upscale( 5.0f );
+	aimodel.mergeSameLayers();
+	aimodel.upscale( 5.0f );
     }
 
     return true;
