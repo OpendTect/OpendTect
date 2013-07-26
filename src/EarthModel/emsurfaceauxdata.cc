@@ -241,15 +241,16 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
     if ( !conn ) return 0;
 
-    BufferString fnm;
-    for ( int idx=0; ; idx++ )
+    const int maxnrfiles = 100000; // just a big number to make this loop end
+    for ( int idx=0; idx<maxnrfiles; idx++ )
     {
-	fnm = dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	BufferString fnm = 
+	    dgbSurfDataWriter::createHovName( conn->fileName(), idx );
 	if ( !File::exists(fnm.buf()) )
 	    return fnm;
     }
 
-    //return 0;
+    return 0;
 }
 
 
