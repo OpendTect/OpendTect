@@ -621,8 +621,6 @@ bool RaySynthGenerator::doPrepare( int )
     //TODO Put this in the doWork this by looking for the 0 offset longest time,
     //run the corresponding RayTracer, get raysamling and put the rest in doWork
     rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
-    if ( !rtr_->prepareRayTracers() )
-	 mErrRet( rtr_->errMsg(), false );
     message_ = "Raytracing";
     if ( !rtr_->execute() ) 
 	mErrRet( rtr_->errMsg(), false );
