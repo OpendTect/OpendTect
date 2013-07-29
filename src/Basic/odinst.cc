@@ -144,7 +144,6 @@ BufferString ODInst::GetInstallerDir()
 void ODInst::startInstManagement()
 {
 #ifndef __win__
-    BufferString cmd( "@" );
     mDefCmd();
     chdir( installerdir.pathOnly() );
     StreamProvider( cmd ).executeCommand( true, true );
