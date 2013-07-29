@@ -11,22 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-#include "envvars.h"
+#include "odinst.h"
 #include "strmprov.h"
 
 #ifdef __win__
 # include <direct.h>
 #endif
-
-static BufferString getInstDir()
-{
-    BufferString dirnm( _getcwd(NULL,0) );
-    const int len = dirnm.size() - 10;
-    if ( len > 0 )
-	dirnm[len] = '\0';
-    return dirnm;
-}
-
 
 static BufferString getCmdLine( int argc, char** argv )
 {
@@ -45,22 +35,9 @@ static bool ExecODMain( int argc, char** argv )
 }
 
 
-static bool ExecODInstMgr()
-{
-    BufferString envvar = GetEnvVar( "OD_INSTALLER_POLICY" );
-    if ( envvar == "None" )
-	return true;
-
-    BufferString cmd( "od_instmgr.exe --updcheck_startup --instdir " );
-    cmd += "\"";
-    cmd += getInstDir();
-    cmd += "\""; 
-    return ExecOSCmd( cmd, true, false );
-}
-
-
 int main( int argc, char** argv )
 {
-    ExecODInstMgr();
+    SetProgramArgs( argc, argv );
+    ODInst::runInstMgrForUpdt();
     ExecODMain( argc, argv );
 }

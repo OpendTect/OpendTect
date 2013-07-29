@@ -27,13 +27,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __win__
 #include <Windows.h>
 #include <direct.h>
+#include <string.h>
 #include "winutils.h"
 static BufferString getInstDir()
 {
     BufferString dirnm( _getcwd(NULL,0) );
-    const int len = dirnm.size() - 10;
-    if ( len > 0 )
-	dirnm[len] = '\0';
+    char* termchar = 0;
+    termchar = strstr( dirnm.buf(), "\\bin\\win" ); 
+    if ( !termchar )
+	termchar = strstr( dirnm.buf(), "\\bin\\Win" );
+
+    if ( termchar )
+	*termchar = '\0';
     return dirnm;
 }
 #undef mRelRootDir
@@ -109,11 +114,11 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( GetInstallerDir() ); \
+    FilePath installerdir( getInstallerPlfDir() ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     if ( __iswin__ ) \
-	installerdir.add( "od_instmgr" ); \
+	installerdir.add( "od_instmgr.exe" ); \
     else if ( __islinux__ ) \
 	installerdir.add( "run_installer" ); \
     BufferString cmd( installerdir.fullPath() ); \
@@ -142,8 +147,8 @@ void ODInst::startInstManagement()
     StreamProvider( cmd ).executeCommand( true, true );
     chdir( GetSoftwareDir(0) );
 #else
-    FilePath installerdir( GetInstallerDir() ); 
-    if ( !File::isDirectory(installerdir.fullPath()) )
+    FilePath installerdir( getInstallerPlfDir() );
+    if ( installerdir.isEmpty() )
 	return;
     installerdir.add( "od_instmgr" );
     BufferString cmd( installerdir.fullPath() ); 
@@ -153,6 +158,28 @@ void ODInst::startInstManagement()
     executeWinProg( cmd, parm, installerdir.pathOnly() );
 #endif
 }
+
+
+BufferString ODInst::getInstallerPlfDir()
+{
+    FilePath installerbasedir( GetInstallerDir() );
+    if ( !File::isDirectory(installerbasedir.fullPath()) )
+	return "";
+    FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
+    const BufferString path = installerdir.fullPath(); 
+    if ( !File::exists(path) || !File::isDirectory(path) )
+	return installerbasedir.fullPath();
+
+    return installerdir.fullPath();
+}
+
+
+bool ODInst::runInstMgrForUpdt()
+{
+    mDefCmd(false); cmd.add( " --updcheck_report" );
+    return ExecOSCmd( cmd, false, true );
+}
+
 
 bool ODInst::updatesAvailable()
 {
