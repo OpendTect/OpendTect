@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrvolout.h"
 
 #include "uiattrsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uimultoutsel.h"
@@ -44,7 +45,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismulticubeps.h"
 #include "seisselection.h"
 #include "seistrc.h"
-#include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
 
@@ -105,10 +105,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     if ( multioutput )
     {
-	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
-	ctxt.forread = false;
-	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
-	datastorefld_ = new uiIOObjSel( uppgrp_, ctxt, "Output data store" );
+	datastorefld_ = new uiCheckBox( uppgrp_, "Create Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, objfld_ );
     }
 

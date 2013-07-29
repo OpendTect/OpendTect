@@ -24,6 +24,7 @@ class IOPar;
 class NLAModel;
 
 class uiAttrSel;
+class uiCheckBox;
 class uiIOObjSel;
 class uiMultiAttribSel;
 class uiSeisSel;
@@ -59,7 +60,7 @@ protected:
     uiMultiAttribSel*	attrselfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		objfld_;
-    uiIOObjSel*		datastorefld_;
+    uiCheckBox*		datastorefld_;
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
