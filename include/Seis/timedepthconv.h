@@ -225,6 +225,7 @@ public:
 					      int sz,float* res) const;
     
     Interval<float>		getZInterval(bool time) const;
+    float			getGoodZStep() const;
  
     bool			needsVolumeOfInterest() const
     				{ return false; }
@@ -246,6 +247,7 @@ public:
 	    				      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;
+    float			getGoodZStep() const;
 
     bool			needsVolumeOfInterest() const
     				{ return false; }

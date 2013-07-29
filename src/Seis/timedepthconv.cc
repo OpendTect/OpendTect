@@ -816,9 +816,7 @@ int VelocityModelScanner::nextStep()
     	else
     	{
 	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
-	    v0 = (float) (zistime_
-						? 2 * diff0 / sd.step
-						: 2 * sd.step / diff0);
+	    v0 = (float)( zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0);
     	}
 
 	if ( v0 > 0 )
@@ -833,8 +831,8 @@ int VelocityModelScanner::nextStep()
 	}
 
 	const float v1 = (float) (zistime_
-									? 2 * resvs.value(last) / sd.atIndex(last)
-									: 2 * sd.atIndex(last) / resvs.value(last));
+		? 2 * resvs.value(last) / sd.atIndex(last)
+		: 2 * sd.atIndex(last) / resvs.value(last));
 
 	if ( !definedv1_ )
 	{
@@ -908,21 +906,16 @@ LinearT2DTransform::LinearT2DTransform( float startvel, float dv )
 {}
 
 
-
 void LinearT2DTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
-{
-    transformT2D( bid, sd, sz, res );
-}
+{ transformT2D( bid, sd, sz, res ); }
 
 
 void LinearT2DTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
-{
-    transformD2T( bid, sd, sz, res );
-}
+{ transformD2T( bid, sd, sz, res ); }
 
 
 Interval<float> LinearT2DTransform::getZInterval( bool time ) const
@@ -948,8 +941,19 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 }
 
 
-//LinearD2TTransform
+float LinearT2DTransform::getGoodZStep() const
+{
+    if ( !SI().zIsTime() )
+	return SI().zRange(true).step;
 
+    const Interval<float> zrg = getZInterval( false );
+    const int nrsamples = SI().zRange( false ).nrSteps();
+    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+}
+
+
+
+//LinearD2TTransform
 LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
     : LinearVelTransform(ZDomain::Depth(),ZDomain::Time(), startvel, dv)
 {}
@@ -958,17 +962,13 @@ LinearD2TTransform::LinearD2TTransform( float startvel, float dv )
 void LinearD2TTransform::transform( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
-{
-    transformD2T( bid, sd, sz, res );
-}
+{ transformD2T( bid, sd, sz, res ); }
 
 
 void LinearD2TTransform::transformBack( const BinID& bid,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
-{
-    transformT2D( bid, sd, sz, res );
-}
+{ transformT2D( bid, sd, sz, res ); }
 
 
 Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
@@ -991,4 +991,15 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
     }
 
     return zrg;
+}
+
+
+float LinearD2TTransform::getGoodZStep() const
+{
+    if ( SI().zIsTime() )
+	return SI().zRange(true).step;
+
+    const Interval<float> zrg = getZInterval( false );
+    const int nrsamples = SI().zRange( false ).nrSteps();
+    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
 }
