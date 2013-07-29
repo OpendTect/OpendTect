@@ -21,6 +21,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
+static void fillInAvailOutNames( Desc* desc, BufferStringSet& outnames )
+{
+    BufferString errmsg;
+    Provider* tmpprov = Provider::create( *desc, errmsg );
+    if ( !tmpprov ) return;
+    tmpprov->ref();
+
+    //compute and set refstep, needed to get nr outputs for some attribs
+    //( SpecDecomp for ex )
+    tmpprov->computeRefStep();
+
+    tmpprov->getCompNames( outnames );
+    tmpprov->ref();
+}
+
+
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
 		    	   "Select the outputs to compute", "101.2.3"))
@@ -36,23 +52,6 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	createMultOutDlg( outnames );
 
     tmpdesc->unRef();
-}
-
-
-void uiMultOutSel::fillInAvailOutNames( Desc* desc,
-					BufferStringSet& outnames ) const
-{
-    BufferString errmsg;
-    Provider* tmpprov = Provider::create( *desc, errmsg );
-    if ( !tmpprov ) return;
-    tmpprov->ref();
-
-    //compute and set refstep, needed to get nr outputs for some attribs
-    //( SpecDecomp for ex )
-    tmpprov->computeRefStep();
-
-    tmpprov->getCompNames( outnames );
-    tmpprov->unRef();
 }
 
 
@@ -106,6 +105,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
 	new uiLabeledListBox( this, "Available attributes", true, mLblPos );
     attribfld_ = attrllb->box();
     attribfld_->setHSzPol( uiObject::Wide );
+    attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
     fillAttribFld();
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", true );
@@ -128,6 +128,10 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     new uiToolButton( sortgrp, uiToolButton::DownArrow, "Move down",
 		      mCB(this,uiMultiAttribSel,moveDown) );
     sortgrp->attach( centeredRightOf, selllb );
+
+    allcompfld_ = new uiCheckBox( this, "Use all possible outputs" );
+    allcompfld_->attach( alignedBelow, attrllb );
+    allcompfld_->display( false );
 
     setHAlignObj( attrllb );
 }
@@ -178,6 +182,35 @@ void uiMultiAttribSel::doAdd( CallBacker* )
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
 	selids_ += allids_[ selidxs[idx] ];
+
+    if ( allcompfld_->isDisplayed() && allcompfld_->isChecked() )
+    {
+	Desc* seldesc = const_cast<Attrib::Desc*>(descset_.getDesc(
+			    descset_.getID( attribfld_->getText(),true ) ) );
+	if ( !seldesc )
+	{
+	    updateSelFld();
+	    return;
+	}
+
+	int seldescouputidx = seldesc->selectedOutput();
+	BufferStringSet alluserrefs;
+	fillInAvailOutNames( seldesc, alluserrefs );
+	for ( int idx=0; idx<alluserrefs.size(); idx++ )
+	{
+	    if ( idx == seldescouputidx ) continue;
+	    Desc* tmpdesc = new Desc( *seldesc );
+	    tmpdesc->ref();
+	    tmpdesc->selectOutput( idx );
+	    tmpdesc->setUserRef( BufferString(seldesc->userRef(),"_",
+				 alluserrefs.get(idx) ) );
+	    DescID newid = const_cast<Attrib::DescSet*>(&descset_)->
+							addDesc( tmpdesc );
+	    allids_ += newid;
+	    selids_ += newid;
+	}
+    }
+
     updateSelFld();
 }
 
@@ -220,4 +253,15 @@ void uiMultiAttribSel::moveDown( CallBacker* )
 
 void uiMultiAttribSel::getSelIds( TypeSet<Attrib::DescID>& ids ) const
 { ids = selids_; }
+
+
+void uiMultiAttribSel::entrySel( CallBacker* )
+{
+    BufferStringSet outnames;
+    Desc* seldesc = const_cast<Attrib::Desc*>(descset_.getDesc(
+			    descset_.getID( attribfld_->getText(),true ) ) );
+    if ( !seldesc ) return;
+    fillInAvailOutNames( seldesc, outnames );
+    allcompfld_->display( outnames.size()>1 );
+}
 
