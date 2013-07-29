@@ -62,13 +62,12 @@ int main( int argc, char ** argv )
     }
 
     IOPar iop; iop.read( *sdin.istrm, sKey::Pars() );
+    sdin.close();
     if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-
-    sdin.close();
 
     const char* res = iop.find( sKey::Survey() );
     if ( res && *res && SI().getDirName() != res )

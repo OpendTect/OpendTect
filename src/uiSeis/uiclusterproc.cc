@@ -38,16 +38,18 @@ ________________________________________________________________________
 #include <iostream>
 
 
+#define mCloseRet(res) { sd.close(); return res; }
+
 static int getExitStatus( const char* logfile, BufferString& msg )
 {
     StreamData sd = StreamProvider(logfile).makeIStream();
     if ( !sd.usable() )
-	return -1;
+	mCloseRet( -1 )
 
     StrmOper::seek( *sd.istrm, -50, std::ios::end );
     char buf[51];
     if ( !StrmOper::readBlock(*sd.istrm,(void*) buf,50) )
-	return -1;
+	mCloseRet( -1 )
 
     buf[50] = '\0';
     char* ptr = buf + 49;
@@ -60,12 +62,12 @@ static int getExitStatus( const char* logfile, BufferString& msg )
     if ( !ptr )
     {
 	msg.setEmpty();
-	return -1;
+	mCloseRet( -1 )
     }
 
     ptr += 19;
     *(ptr + 1) = '\0';
-    return atoi( ptr );
+    mCloseRet( atoi(ptr) );
 }
 
 
