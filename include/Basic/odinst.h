@@ -53,6 +53,8 @@ namespace ODInst
     mGlobal(Basic) Settings&		userSettings();
     
     mGlobal(Basic) RelType		getRelType();
+    mGlobal(Basic) BufferString		getInstallerPlfDir();
+
 
 } // namespace
 

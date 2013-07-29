@@ -114,11 +114,11 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( GetInstallerDir() ); \
+    FilePath installerdir( getInstallerPlfDir() ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     if ( __iswin__ ) \
-	installerdir.add( "od_instmgr" ); \
+	installerdir.add( "od_instmgr.exe" ); \
     else if ( __islinux__ ) \
 	installerdir.add( "run_installer" ); \
     BufferString cmd( installerdir.fullPath() ); \
@@ -147,8 +147,8 @@ void ODInst::startInstManagement()
     StreamProvider( cmd ).executeCommand( true, true );
     chdir( GetSoftwareDir(0) );
 #else
-    FilePath installerdir( GetInstallerDir() ); 
-    if ( !File::isDirectory(installerdir.fullPath()) )
+    FilePath installerdir( getInstallerPlfDir() );
+    if ( installerdir.isEmpty() )
 	return;
     installerdir.add( "od_instmgr" );
     BufferString cmd( installerdir.fullPath() ); 
@@ -157,6 +157,20 @@ void ODInst::startInstManagement()
     
     executeWinProg( cmd, parm, installerdir.pathOnly() );
 #endif
+}
+
+
+BufferString ODInst::getInstallerPlfDir()
+{
+    FilePath installerbasedir( GetInstallerDir() );
+    if ( !File::isDirectory(installerbasedir.fullPath()) )
+	return "";
+    FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
+    const BufferString path = installerdir.fullPath(); 
+    if ( !File::exists(path) || !File::isDirectory(path) )
+	return installerbasedir.fullPath();
+
+    return installerdir.fullPath();
 }
 
 
