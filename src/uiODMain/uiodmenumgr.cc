@@ -819,6 +819,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddTB(cointb_,"view_all","View all",false,viewAll);
     cameraid_ = mAddTB(cointb_,"perspective",
 	    	       "Switch to orthographic camera",false,switchCameraType);
+    mAddTB(cointb_,"seek","Seek: Change camera rotation point",false,seek);
     
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;

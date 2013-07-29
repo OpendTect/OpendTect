@@ -605,6 +605,8 @@ public:
     void			saveHomePos();
     virtual void		setViewing(SbBool);
     void			uisetViewing(bool);
+    void			enableSeek(bool);
+    bool			seekEnabled() const;
     virtual SbBool		processSoEvent(const SoEvent* const event);
 
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
@@ -830,6 +832,9 @@ void uiSoViewerBody::updateActModeCursor()
 
 void uiSoViewerBody::setViewing( SbBool yn )
 {
+    if ( seekEnabled() && !yn )
+	enableSeek( false );
+
     SoQtExaminerViewer::setViewing( yn );
     handle_.viewmodechanged.trigger(handle_);
     updateActModeCursor();
@@ -837,9 +842,13 @@ void uiSoViewerBody::setViewing( SbBool yn )
 
 
 void uiSoViewerBody::uisetViewing( bool yn )
-{
-    SoQtExaminerViewer::setViewing( yn );
-}
+{ SoQtExaminerViewer::setViewing( yn ); }
+
+void uiSoViewerBody::enableSeek( bool yn )
+{ SoQtExaminerViewer::setSeekMode( yn ); }
+
+bool uiSoViewerBody::seekEnabled() const
+{ return SoQtExaminerViewer::isSeekMode(); }
 
 
 void uiSoViewerBody::setAxisAnnotColor( const Color& col )
@@ -1492,6 +1501,7 @@ void ui3DViewer::setStereoOffset( float offset )
     }
 }
 
+
 float ui3DViewer::getStereoOffset() const
 {
     if ( sobody_ )
@@ -1501,6 +1511,7 @@ float ui3DViewer::getStereoOffset() const
     return 0;
 }
 
+
 void ui3DViewer::setSceneID( int sceneid )
 {
     if ( sobody_ )
@@ -1508,6 +1519,7 @@ void ui3DViewer::setSceneID( int sceneid )
     else
 	osgbody_->setSceneID( sceneid );
 }
+
 
 int ui3DViewer::sceneID() const
 {
@@ -1517,6 +1529,7 @@ int ui3DViewer::sceneID() const
     return osgbody_->getScene() ? osgbody_->getScene()->id() : -1;
 }
 
+
 void ui3DViewer::setViewing( bool yn )
 {
     if ( sobody_ )
@@ -1525,6 +1538,7 @@ void ui3DViewer::setViewing( bool yn )
 	osgbody_->uisetViewing( yn );
 }
 
+
 bool ui3DViewer::isViewing() const
 {
     if ( sobody_ )
@@ -1532,6 +1546,7 @@ bool ui3DViewer::isViewing() const
 
     return osgbody_->isViewing();
 }
+
 
 void ui3DViewer::rotateH( float angle )
     { sobody_->uiRotateHor(angle); }
@@ -1542,6 +1557,7 @@ void ui3DViewer::rotateV( float angle )
 void ui3DViewer::dolly( float rel )
     { sobody_->uiZoom(rel, 0); }
 
+
 float ui3DViewer::getCameraZoom()
 {
     if ( sobody_ )
@@ -1549,6 +1565,7 @@ float ui3DViewer::getCameraZoom()
 
     return 1;
 }
+
 
 const Coord3 ui3DViewer::getCameraPosition() const
 {
@@ -1577,11 +1594,13 @@ void ui3DViewer::setCameraZoom( float val )
     }
 }
 
+
 void ui3DViewer::anyWheelStart()
     { sobody_->anyWheelStart(); }
 
 void ui3DViewer::anyWheelStop()
     { sobody_->anyWheelStop(); }
+
 
 void ui3DViewer::align()
 {
@@ -1640,12 +1659,25 @@ bool ui3DViewer::rotAxisShown() const
     return false;
 }
 
+
 void ui3DViewer::toggleCameraType()
 {
     if ( sobody_ )
 	sobody_->toggleCameraType();
     else
 	osgbody_->toggleCameraType();
+}
+
+
+void ui3DViewer::switchSeekMode()
+{
+    if ( sobody_ )
+    {
+	if ( !isViewing() ) sobody_->setViewing( true );
+	sobody_->enableSeek( !sobody_->seekEnabled() );
+    }
+    else if ( osgbody_ )
+	pErrMsg("Not impl");
 }
 
 
