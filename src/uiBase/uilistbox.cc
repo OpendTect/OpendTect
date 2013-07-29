@@ -906,6 +906,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 
     lbitm->ischecked_ = ischecked;
     const int itmidx = body_->indexOf( lbitm );
+    setCurrentItem( itmidx );
     itemChecked.trigger( itmidx );
 }
 
