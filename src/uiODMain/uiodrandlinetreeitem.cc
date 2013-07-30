@@ -53,6 +53,8 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 		 .modal(false))
     , rtd_(rtd) 
 {
+    showAlwaysOnTop();
+
     label_ = new uiLabel( this, "Pick nodes on Z-Slices or Horizons" );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt("Color") );
