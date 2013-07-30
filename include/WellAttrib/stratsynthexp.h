@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		July 2013
- RCS:		$Id: stratsynthexp.h 30577 2013-07-05 11:42:09Z bert.bril@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
