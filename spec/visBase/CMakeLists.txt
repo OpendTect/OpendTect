@@ -16,5 +16,6 @@ else()
 	set( EXTRA_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
 	set( OD_MODULE_PROGS od_glxinfo.c ) 
 endif( UNIX )
+OD_ADD_SOURCE_FILES( w32glxinfo.c )
 
 OD_INIT_MODULE()
