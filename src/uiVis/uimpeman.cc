@@ -1678,19 +1678,16 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
 {
     //Undo/Redo
-    toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
     BufferString tooltip("Undo ");
     if ( EM::EMM().undo().canUnDo() )
 	tooltip += EM::EMM().undo().unDoDesc();
     toolbar->setToolTip( undoidx, tooltip.buf() );
+    toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
 
+    tooltip = "Redo ";
     if ( EM::EMM().undo().canReDo() )
-    {
-	tooltip = "Redo ";
 	tooltip += EM::EMM().undo().reDoDesc();
-    }
     toolbar->setToolTip( redoidx, tooltip.buf() );
-
     toolbar->setSensitive( redoidx, EM::EMM().undo().canReDo() );
 
     //Seed button
