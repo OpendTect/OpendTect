@@ -418,6 +418,7 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 }
 
 
+#define mReadNewline() StrmOper::readLine( strm )
 
 bool Strat::LayerModel::read( std::istream& strm )
 {
@@ -430,7 +431,7 @@ bool Strat::LayerModel::read( std::istream& strm )
     int nrseqs, nrprops;
     strm >> nrprops >> nrseqs;
     if ( nrprops < 1 ) return false;
-    StrmOper::wordFromLine( strm, buf, 256 ); // read newline
+    mReadNewline();
 
     PropertyRefSelection newprops;
     for ( int iprop=0; iprop<nrprops; iprop++ )
@@ -455,7 +456,7 @@ bool Strat::LayerModel::read( std::istream& strm )
 	StrmOper::wordFromLine( strm, buf, 256 ); // read away "#S.."
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
 	int nrlays; strm >> nrlays;
-	StrmOper::wordFromLine( strm, buf, 256 ); // read newline
+	mReadNewline();
 	if ( strm.bad() ) return false;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
@@ -476,7 +477,7 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
 		{ strm >> val; newlay->setValue( iprop, val ); }
 	    seq->layers() += newlay;
-	    StrmOper::wordFromLine( strm, buf, 256 ); // read newline
+	    mReadNewline();
 	}
 	seq->prepareUse();
 	seqs_ += seq;

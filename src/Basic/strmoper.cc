@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <limits.h>
 
 static const unsigned int nrretries = 4;
-static const float retrydelay = 1;
+static const float retrydelay = 0.001;
 
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
