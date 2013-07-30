@@ -87,7 +87,6 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
 				    astrm.minorVersion() );
 
-    const int version = astrm.majorVersion() * 100 + astrm.minorVersion() * 10;
     if ( hasiopar )
     {
 	IOPar pars( astrm );
@@ -162,10 +161,10 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    float secondval = toFloat( ptr2ndval );
 	    if ( !mIsUdf(firstval) && !mIsUdf(secondval) )
 	    {
-		if ( version < 440 )
+		/*if ( version < 440 )
 		    fn->add( secondval, firstval );
-		else
-		    fn->add( firstval, secondval );
+		else TODO have to recheck later on*/
+		fn->add( firstval, secondval );
 	    }
 
 	    astrm.next();
