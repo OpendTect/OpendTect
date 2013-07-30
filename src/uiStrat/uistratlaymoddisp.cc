@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "property.h"
 #include "keystrs.h"
+#include "envvars.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -131,13 +132,19 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( "Please generate some layer sequences" )
 
-    uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
-    if ( !dlg.go() ) return false;
+    static BufferString fixeddumpfnm = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" );
+    BufferString dumpfnm( fixeddumpfnm );
+    if ( dumpfnm.isEmpty() )
+    {
+	uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
+	if ( !dlg.go() ) return false;
+	dumpfnm = dlg.fileName();
+    }
 
-    StreamProvider sp( dlg.fileName() );
+    StreamProvider sp( dumpfnm );
     StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
     if ( !sd.usable() )
-	mErrRet( BufferString("Cannot open:\n",dlg.fileName()) )
+	mErrRet( BufferString("Cannot open:\n",dumpfnm) )
 
     if ( !foradd )
     {
