@@ -39,6 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( SI().depthsInFeet() ) \
 	target.scale( mToFeetFactorF )
 
+static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
+
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp )
@@ -632,7 +634,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
-    bool dofill = fillmdls_ || totalNrLayersToDisplay() < 50000;
+    bool dofill = fillmdls_ || totalNrLayersToDisplay() < cMaxNrLayers4RectDisp;
     float prevrelx = mUdf(float);
 
     mStartLayLoop( true, int lastdrawnypix = mUdf(int) )
