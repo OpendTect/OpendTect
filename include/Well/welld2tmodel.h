@@ -71,14 +71,14 @@ protected:
     bool		getVelocityBoundsForTwt(float twt,const Track&,
 	    				  Interval<double>& depths,
 					  Interval<float>& times) const;
+    			/*!<Gives index of next dtpoint at or after dah!>*/
+    int			getVelocityIdx(float pos,const Track&,
+	    			       bool posisdah=true) const;
 
 protected:
 
     inline float	getDepth( float time ) const { return mUdf(float); }
 			//!< Legacy, misleading name. Use getDah().
-    int			getDahIndex(float d_ah,const Track&) const;
-			/*!<For dah which are out of range of 
-			    time-depth model gives correct index!>*/
     bool		getOldVelocityBoundsForDah(float d_ah,const Track&,
 	    				     Interval<double>& depths,
 					     Interval<float>& times) const;

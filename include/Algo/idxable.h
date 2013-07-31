@@ -143,16 +143,34 @@ bool findFPPos( const T1& posarr, T3 sz, T2 pos, T3 beforefirst, T3& idx,
 }
 
 /*!>
-Find index of nearest point below a given position.
-The 'x' must return the positions.
-The return value may be -1, which means that 'pos' is before the first
-position.
+  Find index of nearest point below a given position.
+  The 'x' must return the positions.
+  The return value may be -1, which means that 'pos' is before the first
+  position.
 */
 
 template <class X>
 inline int getLowIdx( const X& x, int sz, double pos )
 {
     int idx; findFPPos( x, sz, pos, -1, idx ); return idx;
+}
+
+
+/*!>
+  Find index of nearest point above a given position.
+  The 'x' must return the positions.
+  The return value will be 1 if 'pos' is before the second
+  The return value will be equal to sz if 'pos' if after the last
+  position.
+*/
+
+
+template <class X>
+inline int getUpperIdx( const X& x, int sz, double pos )
+{
+    int idx;
+    const bool exactmatch = findFPPos( x, sz, pos, -1, idx );
+    return idx < 1 ? 1 : ( exactmatch ? idx : idx+1 );
 }
 
 
