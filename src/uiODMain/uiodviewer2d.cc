@@ -344,9 +344,6 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 	viewstdcontrol_->infoChanged.remove(mCB(this,uiODViewer2D,mouseMoveCB));
 
     winClosed.trigger();
-
-    viewstdcontrol_ = 0;
-    viewwin_ = 0;
 }
 
 
