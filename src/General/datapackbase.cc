@@ -323,6 +323,10 @@ Array2D<float>& MapDataPack::data()
 
 FlatPosData& MapDataPack::posData()
 {
+    Threads::Locker lck( initlock_ );
+    if ( isposcoord_ && !xyrotarr2d_ )
+	initXYRotArray( 0 );
+
     return isposcoord_ ? xyrotposdata_ : posdata_;
 }
 
