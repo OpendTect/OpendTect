@@ -22,7 +22,6 @@ class uiMenu;
 class BufferString;
 class StreamData;
 class uiMainWin;
-class uiObject;
 class uiAction;
 
 
@@ -54,10 +53,10 @@ public:
     BufferString	qdlgtitle_;
     bool		stolen_;
 
-    uiObject*		object_;
+    CallBacker*		object_;
     bool		similarobjs_;
     BufferString	keystr_;
-    const uiAction*	mnuitm_;
+    uiAction*		mnuitm_;
     bool		dynamicpopup_;
     BufferString	menupath_;
     bool		casedep_;
@@ -77,7 +76,7 @@ public:
     			CmdRecorder(const uiMainWin& applwin);
     			~CmdRecorder();
 
-    void		setOutputFile(const char* fnm)	{ outputfnm_= fnm; }
+    void		setOutputFile(const char* fnm)	{ outputfnm_ = fnm; }
     void		setBufferSize(int sz)		{ bufsize_ = sz; }
     void		writeTailOnly(bool yn)		{ writetailonly_ = yn; }
     void		ignoreCmdDriverWindows(bool);
@@ -119,7 +118,7 @@ protected:
     bool		openqdialog_;
     bool		ignorecmddriverwindows_;
 
-    const uiObject*		lastobjsearched_;
+    const CallBacker*		lastobjsearched_;
     ObjectSet<const uiMainWin>	lastobjfreewins_;	
 
     ObjectSet<CmdComposer>	composers_;

@@ -18,6 +18,12 @@ ________________________________________________________________________
 #include "mousecursor.h"
 
 class uiMainWin;
+class CallBacker;
+class uiObject;
+class uiAction;
+class uiParent;
+class uiBaseObject;
+class uiMenu;
 
 
 namespace CmdDrive
@@ -205,6 +211,39 @@ public:
     BufferString	cancelbuttext_;
     BufferString	infotext_;
     BufferString	resumetext_;
+};
+
+
+/*! \brief Convenience class UIEntity offers access to shared functionality of
+    uiAction and uiObject, given their base class CallBacker. Since toolbar
+    buttons are no longer uiToolButtons but uiActions, unspecified UI objects
+    have to be passed as CallBackers. */
+
+mExpClass(uiCmdDriver)  UIEntity
+{
+public:
+    			UIEntity(const CallBacker*);
+
+    bool		isValid() const		{ return uiobj_ || uiact_; }
+
+    const uiObject*	object() const		{ return uiobj_; }
+    const uiAction*	action() const		{ return uiact_; }
+
+    bool		visible() const;
+    bool		sensitive() const;
+
+    const char*		name() const;
+    const char*		toolTip() const;
+
+    const uiParent*	parent() const; 
+    const uiMenu*	menu() const;
+
+    const ObjectSet<uiBaseObject>* childList() const;
+
+protected:
+
+    const uiObject*	uiobj_;
+    const uiAction*	uiact_;
 };
 
 

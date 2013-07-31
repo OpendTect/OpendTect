@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 class FileMultiString;
 class uiMainWin;
-class uiObject;
 class BufferStringSet;
+class CallBacker;
 
 namespace CmdDrive
 {
@@ -35,35 +35,36 @@ public:
 				  CurWinTopGrp, UiObjNode,
 				  ToolbarBase=1000, DockWinBase=2000 };
 
-    bool		findNodes(NodeTag,ObjectSet<const uiObject>*,
+    bool		findNodes(NodeTag,ObjectSet<const CallBacker>* nodelist,
 				  const char* searchexpr=0) const;
-    bool		findNodes(const uiObject* root,
-				  ObjectSet<const uiObject>*,
+    bool		findNodes(const CallBacker* root,
+				  ObjectSet<const CallBacker>* nodelist,
 				  const char* searchexpr=0,
 				  bool visonly=true) const;
-    bool		findNodes(NodeTag,const uiObject* root,
-				  ObjectSet<const uiObject>*,
+    bool		findNodes(NodeTag,const CallBacker* root,
+				  ObjectSet<const CallBacker>* nodelist,
 				  const char* searchexpr=0) const;
 
-    bool		selectNodes(ObjectSet<const uiObject>&,
+    bool		selectNodes(ObjectSet<const CallBacker>& nodesfound,
 				    const FileMultiString& keys,
 				    int* unfoundkeyidx=0) const;
 
-    static int		deleteGreys(ObjectSet<const uiObject>&,bool yn=true);
+    static int		deleteGreys(ObjectSet<const CallBacker>& objsfound,
+				    bool yn=true);
     
-    static void		getAliases( const uiObject&,
+    static void		getAliases( const CallBacker& entity,
 				    BufferStringSet& aliases );
 
     bool 		getAncestor(NodeTag& curtag,
-	    			    const uiObject*& curnode) const;
+	    			    const CallBacker*& curnode) const;
 
 protected:
 
-    bool		isKeyInTree(NodeTag,const uiObject* root,
+    bool		isKeyInTree(NodeTag,const CallBacker* root,
 				    const char* searchexpr) const;
 
-    int 		toolBarIndex(const uiObject*) const;
-    int 		dockWinIndex(const uiObject*) const;
+    int 		toolBarIndex(const CallBacker* entity ) const;
+    int 		dockWinIndex(const CallBacker* entity ) const;
 
     const uiMainWin&	curwin_;
     bool		casesensitive_;

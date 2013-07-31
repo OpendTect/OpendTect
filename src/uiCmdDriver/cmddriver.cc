@@ -1214,13 +1214,14 @@ void CmdDriver::forceQtToCatchUp()
     if ( windowlist.isEmpty() )
 	return;
 
-    ObjectSet<const uiObject> objsfound; 
+    ObjectSet<const CallBacker> objsfound; 
     ObjectFinder objfinder( *windowlist[0] );
     objfinder.findNodes( ObjectFinder::CurWinTopGrp, &objsfound ); 
 
     for ( int idx=0; idx<objsfound.size(); idx++ )
     {
-	uiObject* dummy = const_cast<uiObject*>( objsfound[idx] );
+	const UIEntity uientity( objsfound[idx] );
+	uiObject* dummy = const_cast<uiObject*>( uientity.object() );
 	mDynamicCastGet( uiLabel*, uilbl, dummy ); 
 	if ( uilbl && mSearchKey("").isMatching(uilbl->name()) )
 	{

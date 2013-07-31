@@ -12,6 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cmddriverbasics.h"
 
 #include "uimainwin.h"
+#include "uiobj.h"
+#include "uiaction.h"
+#include "uitoolbutton.h"
 #include "errh.h"
 #include "filepath.h"
 
@@ -595,6 +598,8 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 }
 
 
+//=============================================================================
+
 const char* windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
 			 int aliasnr )
 {
@@ -635,6 +640,9 @@ bool isCmdDriverWindow( const uiMainWin* uimw )
 
 const char* controllerTitle()
 { return "Command controller (Ctrl-R)"; }
+
+
+//=============================================================================
 
 
 const uiMainWin* WindowStack::topWin( bool ignorecmdddriverwins ) const
@@ -742,6 +750,62 @@ void WindowStack::synchronize()
 	    winstack_.removeSingle( idx );
     }
 }
+
+
+//=============================================================================
+
+
+UIEntity::UIEntity( const CallBacker* cber )
+{
+    mDynamicCast( const uiObject*, uiobj_, cber );
+    mDynamicCast( const uiAction*, uiact_, cber );
+}
+
+
+bool UIEntity::visible() const
+{
+    if ( !isValid() ) return false;
+    return uiobj_ ? uiobj_->visible() :  uiact_->isVisible();
+}
+
+
+bool UIEntity::sensitive() const
+{
+    if ( !isValid() ) return false;
+    return uiobj_ ? uiobj_->sensitive() : uiact_->isEnabled();
+}
+
+
+const char* UIEntity::name() const
+{
+    if ( !isValid() ) return "";
+    return uiobj_ ? uiobj_->name().buf() : uiact_->text();
+}
+
+
+const char* UIEntity::toolTip() const
+{
+    if ( !isValid() ) return "";
+    return uiobj_ ? uiobj_->toolTip() : uiact_->toolTip();
+}
+
+
+const uiParent* UIEntity::parent() const 
+{ return uiobj_ ? uiobj_->parent() : 0; }
+
+
+const uiMenu* UIEntity::menu() const
+{
+    if ( uiact_ )
+	return uiact_->getMenu();
+
+    mDynamicCastGet( const uiToolButton*, toolbut, uiobj_ );
+    return toolbut ? toolbut->menu() : 0;
+}
+
+
+const ObjectSet<uiBaseObject>* UIEntity::childList() const
+{ return uiobj_ ? uiobj_->childList() : 0; }
 
 
 }; // namespace CmdDrive

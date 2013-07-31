@@ -102,8 +102,12 @@ CmdComposer::CmdComposer( CmdRecorder& cmdrec )
 
 CmdComposer::~CmdComposer()
 {
-    if ( !eventlist_.isEmpty() && eventlist_[0]->object_ && !objclosed_ )
-	eventlist_[0]->object_->closed.remove(mCB(this,CmdComposer,objClosed));
+    if ( !eventlist_.isEmpty() && !objclosed_ )
+    {
+	mDynamicCastGet( uiObject*, uiobj, eventlist_[0]->object_ );
+	if ( uiobj )
+	    uiobj->closed.remove( mCB(this,CmdComposer,objClosed) );
+    }
 
     deepErase( eventlist_ );
 }
@@ -208,7 +212,10 @@ bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
     {
 	if ( eventlist_[idx]->idstr_==evidstr )
 	{
+	    ev.object_ = eventlist_[idx]->object_;
+	    ev.mnuitm_ = eventlist_[idx]->mnuitm_;
 	    ev.srcwin_ = eventlist_[idx]->srcwin_;
+
 	    ev.openqdlg_ = eventlist_[idx]->openqdlg_;
 	    ev.qdlgtitle_ = eventlist_[idx]->qdlgtitle_;
 
@@ -227,8 +234,9 @@ bool CmdComposer::traceSrcWin( CmdRecEvent& ev ) const
 
 void CmdComposer::addToEventList( const CmdRecEvent& ev )
 {
-    if ( eventlist_.isEmpty() && ev.object_ )
-	ev.object_->closed.notify( mCB(this,CmdComposer,objClosed) ); 
+    mDynamicCastGet( uiObject*, uiobj, ev.object_ );
+    if ( eventlist_.isEmpty() && uiobj )
+	uiobj->closed.notify( mCB(this,CmdComposer,objClosed) ); 
 
     eventlist_ += new CmdRecEvent( ev );
 

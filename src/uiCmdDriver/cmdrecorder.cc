@@ -190,7 +190,7 @@ void CmdRecorder::dynamicMenuInterceptor( CallBacker* cb )
 }
 
 
-static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
+static void takeSimilarObjs( ObjectSet<const CallBacker>& objects,
 			     const char* srckey, bool tofront, bool toback )
 {
     int nrobjstodo = objects.size();
@@ -199,7 +199,7 @@ static void takeSimilarObjs( ObjectSet<const uiObject>& objects,
 
     while ( nrobjstodo )
     {
-	const uiObject* newobj = objects[idx];
+	const CallBacker* newobj = objects[idx];
 	const BufferString objkey = CmdComposer::factoryKey( newobj );
 	bool yn = srckey && objkey==srckey;
 
@@ -231,7 +231,7 @@ static bool deepFindKeyStr( const uiMainWin&, CmdRecEvent&, const uiObject* );
 
 #define mFindAllNodes( objfinder, localenv, objsfound ) \
 \
-    ObjectSet<const uiObject> objsfound; \
+    ObjectSet<const CallBacker> objsfound; \
     if ( localenv ) \
 	objfinder.findNodes( localenv, &objsfound ); \
     else \
@@ -253,14 +253,14 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
     if ( !objsfound.isPresent(event.object_) )
 	return deepFindKeyStr( srcwin, event, localenv );
 
-    ObjectSet<const uiObject> curobjset = objsfound;
+    ObjectSet<const CallBacker> curobjset = objsfound;
     ObjectFinder::NodeTag curtag = ObjectFinder::UiObjNode;
-    const uiObject* curnode = event.object_;
+    const CallBacker* curnode = event.object_;
     FileMultiString curkeystr;
 
     do
     {
-	ObjectSet<const uiObject> relatives;
+	ObjectSet<const CallBacker> relatives;
 	csobjfinder.findNodes( curtag, curnode, &relatives ); 
 
 	for ( int idx=0; idx<curobjset.size(); idx++ )
@@ -275,7 +275,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 	takeSimilarObjs( relatives, srckey, false, true );
 	takeSimilarObjs( relatives, "UIGROUPOBJ", false, true );
 
-	ObjectSet<const uiObject> minobjset;
+	ObjectSet<const CallBacker> minobjset;
 	BufferString minkey;
 
 	BufferStringSet aliases;
@@ -287,7 +287,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 		relatives.removeSingle( 0 );
 	    }
 
-	    ObjectSet<const uiObject> newobjset = curobjset;
+	    ObjectSet<const CallBacker> newobjset = curobjset;
 	    FileMultiString newkeystr;
 	    newkeystr += aliases[0]->buf(); 
 	    aliases.removeSingle( 0 );
@@ -317,7 +317,7 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 
     for ( int idx=curkeystr.size()-2; idx>=0; idx-- )
     {
-	ObjectSet<const uiObject> newobjset = objsfound;
+	ObjectSet<const CallBacker> newobjset = objsfound;
 	FileMultiString shorterkeystr;
 	for ( int idy=0; idy<curkeystr.size(); idy++ )
 	{
@@ -398,7 +398,8 @@ bool CmdRecorder::findKeyString( const uiMainWin& srcwin, CmdRecEvent& event )
 	return false;
 
     bool res = doFindKeyStr( srcwin, event );
-    if ( !res && event.object_->visible() && event.object_->sensitive()  )
+    const UIEntity uientity( event.object_ );
+    if ( !res && uientity.visible() && uientity.sensitive() )
 	lastobjfreewins_ += &srcwin;
 
     return res;
@@ -494,19 +495,18 @@ static bool findMenuPath( const uiMainWin& srcwin, CmdRecEvent& ev )
 	return true;
     }
 
-    ObjectSet<const uiObject> objsfound;
+    ObjectSet<const CallBacker> objsfound;
     ObjectFinder objfinder( srcwin );
     objfinder.findNodes( ObjectFinder::Everything, &objsfound );
 
     for ( int idx=objsfound.size()-1; idx>=0; idx-- )
     {
-	mDynamicCastGet( const uiToolButton*, toolbut, objsfound[idx] );
-	const uiMenu* menu = toolbut ? toolbut->menu() : 0;
+	const uiMenu* menu = UIEntity(objsfound[idx]).menu();
 	if ( menu && findMenuPath(*menu,*ev.mnuitm_,pathfms,ev.casedep_) )
 	{
 	    ev.srcwin_ = &srcwin;
 	    ev.menupath_ = pathfms.unescapedStr();
-	    ev.object_ = const_cast<uiToolButton*>( toolbut );
+	    ev.object_ = const_cast<CallBacker*>( objsfound[idx] );
 	    doFindKeyStr( srcwin, ev );
 	    return true;
 	}
@@ -563,6 +563,8 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	}
     }
 
+    BufferString fackey = CmdComposer::factoryKey( caller, keyword );
+
     if ( mMatchCI(keyword,"WinPopUp") )
     {
 	if ( ev.begin_ )
@@ -592,11 +594,22 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	for ( int idx=windowlist.size()-1; idx>=0; idx-- )
 	{
 	    uiMainWin* uimw = windowlist[idx];
-	    if ( ev.object_ && findKeyString(*uimw, ev) )
+
+	    if ( ev.mnuitm_ )
+		ev.object_ = ev.mnuitm_;
+	    if ( findKeyString(*uimw, ev) )
+	    {
+		if ( ev.mnuitm_ )
+		{
+		    fackey = "UIBUTTON";
+		    ev.mnuitm_ = 0;
+		}
 		break;
+	    }
 
 	    if ( ev.mnuitm_ )
 	    {
+		ev.object_ = 0;
 		if ( findMenuPath(*uimw, ev) )
 		    break;
 
@@ -653,7 +666,6 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 
     if ( !ev.nraccepts_ && !ev.dynamicpopup_ )
     {
-	const BufferString fackey = CmdComposer::factoryKey( caller, keyword );
 	CmdComposer* newcomp = CmdComposer::factory().create( fackey, rec_ );
 
 	if ( newcomp )

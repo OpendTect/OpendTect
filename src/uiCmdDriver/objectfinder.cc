@@ -39,7 +39,8 @@ ObjectFinder::ObjectFinder( const uiMainWin& uimw, bool cs,
 
 #define mResTrue(res,nodelist) { res = true; if ( !nodelist ) return res; }
 
-bool ObjectFinder::findNodes( NodeTag tag, ObjectSet<const uiObject>* nodelist,
+bool ObjectFinder::findNodes( NodeTag tag,
+			      ObjectSet<const CallBacker>* nodelist,
 			      const char* searchexpr ) const
 {
     bool res = false;
@@ -52,16 +53,15 @@ bool ObjectFinder::findNodes( NodeTag tag, ObjectSet<const uiObject>* nodelist,
 
 	if ( !toolbars[tbidx]->isVisible() )
 	    continue;
-	/*
-	const ObjectSet<uiObject>& objects = toolbars[tbidx]->objectList();
+
+	ObjectSet<const CallBacker> entities;
+	toolbars[tbidx]->getEntityList( entities );
 	
-	for ( int objidx=0; objidx<objects.size(); objidx++ )
+	for ( int objidx=0; objidx<entities.size(); objidx++ )
 	{
-	    if ( findNodes(objects[objidx], nodelist, searchexpr, false) )
+	    if ( findNodes(entities[objidx], nodelist, searchexpr, false) )
 		mResTrue(res,nodelist);
 	}
-	 */
-	pErrMsg( "JAAP");
     }
 
     const ObjectSet<uiDockWin>& dockwins = curwin_.dockWins();
@@ -101,20 +101,21 @@ static void addAlias( BufferString& name, BufferStringSet& aliases )
 }
 
 
-void ObjectFinder::getAliases( const uiObject& uiobj,
+void ObjectFinder::getAliases( const CallBacker& entity,
 			       BufferStringSet& aliases ) 
 {
     aliases.erase();
+    const UIEntity uientity( &entity );
 
-    BufferString objtext = uiobj.name();
-    BufferString tiptext = uiobj.toolTip();
+    BufferString objtext = uientity.name();
+    BufferString tiptext = uientity.toolTip();
     BufferString alttext;
 
-    mDynamicCastGet( const uiLabel*, uilabel, &uiobj ); 
+    mDynamicCastGet( const uiLabel*, uilabel, uientity.object() ); 
     if ( uilabel )
 	alttext = uilabel->text();
 
-    mDynamicCastGet( const uiButton*, uibut, &uiobj ); 
+    mDynamicCastGet( const uiButton*, uibut, uientity.object() ); 
     if ( uibut )
     {
 	alttext = const_cast<uiButton*>(uibut)->text();
@@ -122,6 +123,9 @@ void ObjectFinder::getAliases( const uiObject& uiobj,
 	StringProcessor(objtext).filterAmpersands();
 	StringProcessor(alttext).filterAmpersands();
     }
+
+    if ( uientity.action() )
+	StringProcessor(objtext).filterAmpersands();
 
     addAlias( objtext, aliases );
 
@@ -133,15 +137,16 @@ void ObjectFinder::getAliases( const uiObject& uiobj,
 }
 
 
-bool ObjectFinder::findNodes( const uiObject* root,  
-			      ObjectSet<const uiObject>* nodelist,
+bool ObjectFinder::findNodes( const CallBacker* root,  
+			      ObjectSet<const CallBacker>* nodelist,
        			      const char* searchexpr, bool visonly ) const
 {
     bool res = false;
+    const UIEntity uientity( root );
 
-    if ( !root || (visonly && !root->visible()) ) 
+    if ( !uientity.isValid() || (visonly && !uientity.visible()) )
 	return res;
-   
+
     if ( !searchexpr )
     {
 	mResTrue(res,nodelist);
@@ -167,7 +172,7 @@ bool ObjectFinder::findNodes( const uiObject* root,
 	}
     }
 
-    const ObjectSet<uiBaseObject>* children = root->childList();
+    const ObjectSet<uiBaseObject>* children = uientity.childList();
 
     for ( int idx=0; children && idx<children->size(); idx++ )
     {
@@ -182,47 +187,50 @@ bool ObjectFinder::findNodes( const uiObject* root,
 }
 
 
-bool ObjectFinder::findNodes( NodeTag tag, const uiObject* root,
-			      ObjectSet<const uiObject>* nodelist,
+bool ObjectFinder::findNodes( NodeTag tag, const CallBacker* root,
+			      ObjectSet<const CallBacker>* nodelist,
 			      const char* searchexpr ) const
 {
     if ( tag != UiObjNode )
 	return findNodes( tag, nodelist, searchexpr );
-    if ( root )
-	return findNodes( root, nodelist, searchexpr, root->visible() );
+
+    const UIEntity uientity( root );
+    if ( uientity.isValid() )
+	return findNodes( root, nodelist, searchexpr, uientity.visible() );
 
     return false;
 }
 
 
-bool ObjectFinder::isKeyInTree( NodeTag tag, const uiObject* root,
+bool ObjectFinder::isKeyInTree( NodeTag tag, const CallBacker* root,
 				const char* searchexpr ) const
 {
     return findNodes( tag, root, 0, searchexpr );
 }
 
 
-int ObjectFinder::toolBarIndex( const uiObject* uiobj ) const
+int ObjectFinder::toolBarIndex( const CallBacker* entity ) const
 {
     const ObjectSet<uiToolBar>& toolbars = curwin_.toolBars();
-    for ( int tbidx=0; uiobj && tbidx<toolbars.size(); tbidx++ )
+    for ( int tbidx=0; entity && tbidx<toolbars.size(); tbidx++ )
     {
-	//JAAP
-	//const int objidx = toolbars[tbidx]->objectList().indexOf( uiobj );
+	ObjectSet<const CallBacker> entities;
+	toolbars[tbidx]->getEntityList( entities );
+	const int objidx = entities.indexOf( entity );
 
-	//if ( objidx>=0 )
-	//  return tbidx;
+	if ( objidx>=0 )
+	  return tbidx;
     }
     return -1;
 }
 
 
-int ObjectFinder::dockWinIndex( const uiObject* uiobj ) const
+int ObjectFinder::dockWinIndex( const CallBacker* entity ) const
 {
     const ObjectSet<uiDockWin>& dockwins = curwin_.dockWins();
-    for ( int idx=0; uiobj && idx<dockwins.size(); idx++ )
+    for ( int idx=0; entity && idx<dockwins.size(); idx++ )
     {
-	if ( uiobj == *dockwins[idx]->topGroup() )
+	if ( entity == *dockwins[idx]->topGroup() )
 	    return idx;
     }
     return -1;
@@ -232,7 +240,7 @@ int ObjectFinder::dockWinIndex( const uiObject* uiobj ) const
 #define mReturnTag(tag) { curtag=tag; curnode=0; return true; }
 
 bool ObjectFinder::getAncestor( NodeTag& curtag,
-				const uiObject*& curnode ) const
+				const CallBacker*& curnode ) const
 {
     if ( curtag==CurWinTopGrp || curtag==AllToolbars || curtag==AllDockWins )
 	mReturnTag( Everything );
@@ -252,10 +260,11 @@ bool ObjectFinder::getAncestor( NodeTag& curtag,
     if ( toolbaridx >= 0 )
 	mReturnTag( (NodeTag)(ToolbarBase+toolbaridx) );
 
-    if ( !curnode->parent() )
+    const UIEntity uientity( curnode );
+    if ( !uientity.parent() )
 	return false;
 
-    curnode = curnode->parent()->mainObject();
+    curnode = uientity.parent()->mainObject();
 
     const int dockwinidx = dockWinIndex( curnode );
     if ( dockwinidx >= 0 )
@@ -268,19 +277,19 @@ bool ObjectFinder::getAncestor( NodeTag& curtag,
 }
 
 
-bool ObjectFinder::selectNodes( ObjectSet<const uiObject>& nodesfound,
+bool ObjectFinder::selectNodes( ObjectSet<const CallBacker>& nodesfound,
 				const FileMultiString& keys,
        				int* unfoundkeyidx ) const
 {
     for ( int keyidx=0; keyidx<mSepStrSize(keys); keyidx++ )
     {
-	ObjectSet<const uiObject> commonancestorobj;
+	ObjectSet<const CallBacker> commonancestorobj;
 	commonancestorobj.allowNull( true );
 	TypeSet<NodeTag> commonancestortag;
 	for ( int idx=0; idx<nodesfound.size(); idx++ )
 	{
 	    NodeTag curtag = UiObjNode;
-	    const uiObject* curnode = nodesfound[idx];
+	    const CallBacker* curnode = nodesfound[idx];
 	    
 	    while ( true )
 	    {
@@ -304,7 +313,7 @@ bool ObjectFinder::selectNodes( ObjectSet<const uiObject>& nodesfound,
 	for ( int idx=0; idx<nodesfound.size(); idx++ )
 	{
 	    NodeTag curtag = commonancestortag[idx];
-	    const uiObject* curnode = commonancestorobj[idx];
+	    const CallBacker* curnode = commonancestorobj[idx];
 
 	    while ( getAncestor(curtag, curnode) )
 	    {
@@ -328,12 +337,12 @@ bool ObjectFinder::selectNodes( ObjectSet<const uiObject>& nodesfound,
 }
 
 
-int ObjectFinder::deleteGreys( ObjectSet<const uiObject>& objsfound, bool yn ) 
+int ObjectFinder::deleteGreys( ObjectSet<const CallBacker>& objsfound, bool yn )
 {
     int nrgreyfound = 0;
     for ( int idx=objsfound.size()-1; idx>=0; idx-- )
     {
-	if ( !objsfound[idx]->sensitive() ) 
+	if ( !UIEntity(objsfound[idx]).sensitive() ) 
 	{
 	    nrgreyfound++;
 	    if ( yn )

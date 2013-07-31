@@ -114,16 +114,15 @@ void MenuActivator::actCB( CallBacker* cb )
 { actmnuitm_.triggered.trigger(); }
 
 
-#define mGetButtonMenuButton( uibut, toolbut ) \
+#define mGetButtonMenu( entity, butmenu ) \
 \
-    mDynamicCastGet( const uiToolButton*, toolbut, uibut ); \
-    if ( !toolbut || !toolbut->menu() ) \
+    const uiMenu* butmenu = UIEntity(entity).menu(); \
+    if ( !butmenu ) \
     { \
 	mWinErrStrm << "This button has no menu" << std::endl; \
 	return false; \
     } \
-    if ( !toolbut->menu()->isEnabled() && \
-	 (greyOutsSkipped() || goingToChangeUiObj()) ) \
+    if ( !butmenu->isEnabled() && (greyOutsSkipped() || goingToChangeUiObj()) )\
     { \
 	mWinErrStrm << "Button menu is disabled" << std::endl; \
 	return false; \
@@ -136,11 +135,11 @@ bool ButtonMenuCmd::act( const char* parstr )
     mParOnOffInit( parnexxt, partail, onoff );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
-    mGetButtonMenuButton( objsfound[0], toolbut );
-    mFindMenuItem( menupath, *toolbut->menu(), mnuitm );
+    mGetButtonMenu( objsfound[0], butmenu );
+    mFindMenuItem( menupath, *butmenu, mnuitm );
 
     mParOnOffPre( "menu item",onoff,mnuitm->isChecked(),mnuitm->isCheckable() );
 
@@ -158,11 +157,11 @@ bool NrButtonMenuItemsCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
-    mGetButtonMenuButton( objsfound[0], toolbut );
-    mGetMenuInfo( menupath, true, *toolbut->menu(), menuinfo );
+    mGetButtonMenu( objsfound[0], butmenu );
+    mGetMenuInfo( menupath, true, *butmenu, menuinfo );
     mParIdentPost( identname, menuinfo.nrchildren_, parnext );
     return true;
 }
@@ -175,11 +174,11 @@ bool IsButtonMenuItemOnCmd::act( const char* parstr )
     mParPathStrInit( "menu", parnexxt, partail, menupath );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
-    mGetButtonMenuButton( objsfound[0], toolbut );
-    mGetMenuInfo( menupath, false, *toolbut->menu(), menuinfo );
+    mGetButtonMenu( objsfound[0], butmenu );
+    mGetMenuInfo( menupath, false, *butmenu, menuinfo );
     mParIdentPost( identname, menuinfo.ison_, parnext );
     return true;
 }
@@ -193,11 +192,11 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     mParFormInit( parnexxxt, partail, form );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
-    mGetButtonMenuButton( objsfound[0], toolbut );
-    mGetMenuInfo( menupath, false, *toolbut->menu(), menuinfo );
+    mGetButtonMenu( objsfound[0], butmenu );
+    mGetMenuInfo( menupath, false, *butmenu, menuinfo );
     mParForm( answer, form, menuinfo.text_, menuinfo.siblingnr_ );
     mParIdentPost( identname, answer, parnext );
     return true;
@@ -249,12 +248,14 @@ bool ButtonCmd::act( const char* parstr )
     mParOnOffInit( parnext, partail, onoff );
     mParTail( partail );
    
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mTitleBarButtonCheck( objsfound, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
     mDynamicCastGet( const uiButton*, uibut, objsfound[0] );
-    mDynamicCastGet( const uiButtonGroup*, butgrp, uibut->parent() );
+    mDynamicCastGet( const uiButtonGroup*, butgrp,
+		     UIEntity(objsfound[0]).parent() );
+
     if ( butgrp && butgrp->isExclusive() && onoff<0 )
     {
 	mWinErrStrm << "An auto-exclusive button cannot be switched off"
@@ -266,6 +267,7 @@ bool ButtonCmd::act( const char* parstr )
     mDynamicCastGet( const uiRadioButton*, radiobut, uibut );
     mDynamicCastGet( const uiCheckBox*, checkbox, uibut );
     mDynamicCastGet( const uiToolButton*, toolbut, uibut );
+    mDynamicCastGet( const uiAction*, action, objsfound[0] );
 
     if ( pushbut )
 	mParOnOffPre( "push-button", onoff, false, false );
@@ -276,8 +278,14 @@ bool ButtonCmd::act( const char* parstr )
     if ( toolbut )
 	mParOnOffPre( "tool-button", onoff, toolbut->isOn(), 
 		      toolbut->isToggleButton() );
+    if ( action )
+	mParOnOffPre( "tool-button", onoff, action->isChecked(),
+		      action->isCheckable() );
     
-    mActivate( Button, Activator(*uibut) );
+    if ( uibut )
+	mActivate( Button, Activator(*uibut) );
+    if ( action )
+	mActivate( Menu, Activator(*action) );
 
     if ( radiobut )
 	mParOnOffPost( "radio-button", onoff, radiobut->isChecked() );
@@ -285,6 +293,8 @@ bool ButtonCmd::act( const char* parstr )
 	mParOnOffPost( "check-box", onoff, checkbox->isChecked() );
     if ( toolbut )
 	mParOnOffPost( "tool-button", onoff, toolbut->isOn() );
+    if ( action )
+	mParOnOffPost( "tool-button", onoff, action->isChecked() );
 
     return true;
 }
@@ -357,12 +367,13 @@ bool IsButtonOnCmd::act( const char* parstr )
     mParKeyStrInit( "button", parnext, partail, keys, selnr );
     mParTail( partail );
    
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
 
     mDynamicCastGet( const uiRadioButton*, radiobut, objsfound[0] );
     mDynamicCastGet( const uiCheckBox*, checkbox, objsfound[0] );
     mDynamicCastGet( const uiToolButton*, toolbut, objsfound[0] );
+    mDynamicCastGet( const uiAction*, action, objsfound[0] );
 
     int ison = -1;
     if ( radiobut )
@@ -371,6 +382,8 @@ bool IsButtonOnCmd::act( const char* parstr )
 	ison = checkbox->isChecked() ? 1 : 0;
     if ( toolbut && toolbut->isToggleButton() )
 	ison = toolbut->isOn() ? 1 : 0;
+    if ( action && action->isCheckable() )
+	ison = action->isChecked() ? 1 : 0;
 
     mParIdentPost( identname, ison, parnext );
     return true;
@@ -401,12 +414,13 @@ bool GetButtonCmd::act( const char* parstr )
     mParExtraFormInit( parnexxt, partail, form, "Color" )
     mParTail( partail );
    
-    mFindObjects( objsfound, uiButton, keys, nrgrey );
+    mFindObjects2( objsfound, uiButton, uiAction, keys, nrgrey );
     mParKeyStrPre( "button", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiButton*, uibut, objsfound[0] );
-    mDynamicCastGet( const uiColorInput*, uicolinp, objsfound[0]->parent() );
+    mDynamicCastGet( const uiColorInput*, uicolinp,
+		     UIEntity(objsfound[0]).parent() );
 
-    mGetAmpFilteredStr( text, const_cast<uiButton*>(uibut)->text() );
+    mGetAmpFilteredStr( text, uibut ? const_cast<uiButton*>(uibut)->text() : 0);
     mGetColorString( uicolinp->color(), uicolinp, colorstr );
     mParForm( answer, form, text, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -899,9 +913,8 @@ bool MenuCmdComposer::accept( const CmdRecEvent& ev )
     if ( ev.mnuitm_->isCheckable() )
 	onoffstr = ev.mnuitm_->isChecked() ? " On" : " Off";
 
-    mDynamicCastGet( const uiButton*, uibut, ev.object_ );
     insertWindowCaseExec( ev );
-    if ( uibut )
+    if ( UIEntity(ev.object_).menu() )
     {
 	mRecOutStrm << "ButtonMenu \"" << ev.keystr_ << "\" \""
 		    << ev.menupath_ << "\"" << onoffstr << std::endl;
@@ -931,6 +944,9 @@ bool ButtonCmdComposer::accept( const CmdRecEvent& ev )
     mDynamicCastGet( const uiToolButton*, toolbut, ev.object_ );
     if ( toolbut && toolbut->isToggleButton() )
 	onoffstr = toolbut->isOn() ? " On" : " Off";
+    mDynamicCastGet( const uiAction*, action, ev.object_ );
+    if ( action && action->isCheckable() )
+	onoffstr = action->isChecked() ? " On" : " Off";
 
     insertWindowCaseExec( ev );
     mRecOutStrm << "Button \"" << ev.keystr_ << "\"" << onoffstr << std::endl;

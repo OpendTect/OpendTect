@@ -337,11 +337,11 @@ protected:
 \
     mParDQuoted(objnm " keystring", parstr, parnext, keys##str, false, false); \
     mParDisambiguator( objnm " keystring", keys##str, selnr ); \
-    mGetEscConvertedFMS( keys, keys##str, false ); \
+    mGetEscConvertedFMS( keys, keys##str, false );
 
 #define mParKeyStrPre( objnm, objsfound, nrgrey, keys, selnr ) \
     mParStrPre( objnm, objsfound, nrgrey, keys.buf(), selnr, "key(s)", true ); \
-    mDisabilityCheck( objnm, 1, !objsfound[0]->sensitive() ); \
+    mDisabilityCheck( objnm, 1, !UIEntity(objsfound[0]).sensitive() ); \
     ObjectFinder wcmobjfinder( *curWin(), isCaseSensitive(), &wildcardMan() ); \
     wcmobjfinder.selectNodes( objsfound, keys );
 
@@ -350,7 +350,7 @@ protected:
     mGetEscConvertedFMS( path, path##str, false ); 
 
 #define mParPathStrInit( objnm, parstr, parnext, path ) \
-    mParOptPathStrInit( objnm, parstr, parnext, path, false ) \
+    mParOptPathStrInit( objnm, parstr, parnext, path, false )
 
 #define mParWinStrInit( objnm, parstr, parnext, winstr, selnr, optional ) \
     mParDQuoted( objnm " name", parstr, parnext, winstr, true, optional ); \
@@ -729,7 +729,7 @@ protected:
 
 #define mFindObjs3Base( objsfound, objcls1, objcls2, objcls3, keys, warn ) \
 \
-    ObjectSet<const uiObject> objsfound; \
+    ObjectSet<const CallBacker> objsfound; \
 { \
     ObjectFinder objfinder( *curWin(), isCaseSensitive() ); \
     if ( localSearchEnv() ) \
