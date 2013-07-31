@@ -395,7 +395,10 @@ int uiGenInputIntFld::getvalue_() const
 void uiGenInputIntFld::setvalue_( int val )
 {
     if ( !mIsUdf(val) )
+    {
 	uiSpinBox::setValue( val );
+	return;
+    }
 
     if ( mIsUdf(-minValue()) && mIsUdf(maxValue()) )
 	val = 0;
