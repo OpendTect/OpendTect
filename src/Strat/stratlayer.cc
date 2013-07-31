@@ -347,6 +347,18 @@ Strat::LayerModel& Strat::LayerModel::operator =( const Strat::LayerModel& oth )
 }
 
 
+bool Strat::LayerModel::isValid() const
+{
+    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
+    {
+	if ( !seqs_[iseq]->isEmpty() )
+	    return true;
+    }
+
+    return false;
+}
+
+
 Interval<float> Strat::LayerModel::zRange() const
 {
     if ( isEmpty() )
