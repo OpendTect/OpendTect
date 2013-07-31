@@ -147,7 +147,7 @@ protected:
     bool		readRowOffsets(std::istream&);
     RowCol		getFileStep() const;
     int			prepareNewSection(std::istream&);
-    bool		shouldSkipRow(int row) const;
+    bool		shouldSkipCurrentRow() const;
     int			skipRow(std::istream&);
     bool		prepareRowRead(std::istream&);
     int			currentRow() const;

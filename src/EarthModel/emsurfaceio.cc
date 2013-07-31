@@ -738,8 +738,9 @@ RowCol dgbSurfaceReader::getFileStep() const
 }
 
 
-bool dgbSurfaceReader::shouldSkipRow( int row ) const
+bool dgbSurfaceReader::shouldSkipCurrentRow() const
 {
+    const int row = currentRow();
     if ( version_==1 || (version_==2 && !isBinary()) )
 	return false;
 
@@ -748,9 +749,7 @@ bool dgbSurfaceReader::shouldSkipRow( int row ) const
 
     if ( readlinenames_ && linenames_.validIdx(rowindex_) )
     {
-	const int rowidx = rowrange_.step ? (row - firstrow_) / rowrange_.step
-	    				  : -1;
-	const BufferString& curlinenm = linenames_.get( rowidx );
+	const BufferString& curlinenm = linenames_.get( rowindex_ );
 	return !readlinenames_->isPresent( curlinenm.buf() );
     }
 
@@ -822,7 +821,7 @@ int dgbSurfaceReader::nextStep()
 	    return res;
     }
 
-    while ( shouldSkipRow( currentRow() ) )
+    while ( shouldSkipCurrentRow() )
     {
 	if ( rowrange_.includes(currentRow(), false) )
     	    fullyread_ = false;
