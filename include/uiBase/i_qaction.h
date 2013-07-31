@@ -54,7 +54,9 @@ void toggled( bool checked )
 
 void triggered( bool checked )
 {
+    const int refnr = receiver_->beginCmdRecEvent();
     receiver_->trigger( checked );
+    receiver_->endCmdRecEvent( refnr );
 }
 
 
