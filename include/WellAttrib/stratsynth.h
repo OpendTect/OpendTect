@@ -46,9 +46,17 @@ public:
     bool		removeSynthetic(const char*);
     SyntheticData*	replaceSynthetic(int id);
     SyntheticData*	addDefaultSynthetic(); 
+    int			syntheticIdx(const char* nm) const;
+    int			syntheticIdx(const PropertyRef&) const;
     SyntheticData* 	getSynthetic(const char* nm);
+    inline const SyntheticData* getSynthetic( const char* nm ) const
+			{ const int idx = syntheticIdx( nm );
+			    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0; }
     SyntheticData* 	getSynthetic(int id);
     SyntheticData* 	getSynthetic(const PropertyRef&);
+    inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
+			{ const int idx = syntheticIdx( prf );
+			    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0; }
     SyntheticData* 	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics();

@@ -17,6 +17,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class Wavelet;
 class SeisTrcBuf;
+class StratSynth;
 class PropertyRef;
 class SyntheticData;
 class TimeDepthModel;
@@ -58,7 +59,9 @@ public:
     Strat::LayerModel&                  layerModel();
     const char*				levelName() const; //!< null if none
     const SeisTrcBuf&			postStackTraces() const;
+    const SeisTrcBuf&			postStackTraces(const char* nm) const;
     const SeisTrcBuf&			modelTraces(const PropertyRef&) const;
+    const StratSynth&   		currentStratSynth() const;
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;

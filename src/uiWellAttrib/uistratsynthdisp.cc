@@ -1003,6 +1003,30 @@ const SeisTrcBuf& uiStratSynthDisp::postStackTraces(
 }
 
 
+const SeisTrcBuf& uiStratSynthDisp::postStackTraces(
+                                const char* nm ) const
+{
+    const SyntheticData* sd = nm
+                        ?  const_cast<StratSynth&>(curSS()).getSynthetic(nm)
+                        : currentwvasynthetic_;
+
+    static SeisTrcBuf emptytb( true );
+    if ( !sd || sd->isPS() ) return emptytb;
+
+    const DataPack& dp = sd->getPack();
+    mDynamicCastGet(const SeisTrcBufDataPack*,stbp,&dp);
+    if ( !stbp ) return emptytb;
+
+    if ( !sd->d2tmodels_.isEmpty() )
+    {
+        SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( stbp->trcBuf() );
+        curSS().getLevelTimes( tbuf, sd->d2tmodels_ );
+    }
+    return stbp->trcBuf();
+}
+
+
+
 const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
 { return layerModel().propertyRefs(); }
 
