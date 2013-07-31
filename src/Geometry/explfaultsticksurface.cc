@@ -45,14 +45,8 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
 }
 
     
-od_int64 nrIterations() const
-{
-    return explsurf_.getTextureSize().col;
-}
-
-
-int minThreadSize() const { return 100; }
-
+od_int64 nrIterations() const	{ return explsurf_.getTextureSize().col; }
+int minThreadSize() const	{ return 100; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
@@ -122,7 +116,6 @@ bool doFinish( bool success )
     dpset_.dataChanged();
     return success;
 }
-
 
 
 bool processPixelOnStick( int stickidx, int knotpos, Coord3& pos )
@@ -326,9 +319,8 @@ public:
 
 od_int64 nrIterations() const
 {
-    return updatesticksnotpanels_
-	? explsurf_.sticks_.size()
-	: explsurf_.paneltriangles_.size()-1;
+    return updatesticksnotpanels_ ? explsurf_.sticks_.size()
+				  : explsurf_.paneltriangles_.size()-1;
 }
 
 
@@ -359,7 +351,7 @@ protected:
 
     ExplFaultStickSurface&	explsurf_;
     bool			updatesticksnotpanels_;
-    Threads::Mutex      mutex_;
+    Threads::Mutex      	mutex_;
 };
 
 
@@ -779,10 +771,10 @@ bool ExplFaultStickSurface::updateTextureSize()
 		const Coord3 pos1 =
 		    surface_->getKnot( RowCol(sticknr,knotnr+colrg.step));
 
-		const BinIDValue bid0( SI().transform( pos0.coord()), 
-				       (float) pos0.z );
-		const BinIDValue bid1( SI().transform( pos1.coord()), 
-				       (float) pos1.z );
+		const BinIDValue bid0( 
+			SI().transform(pos0.coord()), (float)pos0.z );
+		const BinIDValue bid1( 
+			SI().transform(pos1.coord()), (float)pos1.z );
 		const int inlsamples =
 		    (bid0.binid.inl-bid1.binid.inl)/texturesampling_.binid.inl;
 		const int crlsamples =
@@ -1217,7 +1209,6 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    						  : inlsamples,
 	    		   trialg_==ExplFaultStickSurface::Zslice ? crlsamples 
 			   				  : mNINT32(zsamples) );
-
     const int nrfc = dps.nrFixedCols();
     const int nrcs = dps.nrCols();
     const DataColDef ti( sKeyTextureI() );
@@ -1561,15 +1552,16 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	TypeSet<int> conns;
 	for ( int idx=lconn.size()-1; idx>=0; idx-- )
 	{
-	    if ( lconn[idx]!=lidx )
-		continue;
-
-	    conns += rconn[idx];
+	    if ( lconn[idx]==lidx )
+		conns += rconn[idx];
 	}
+
+	if ( conns.isEmpty() )
+	    continue;
 
 	sort_array( conns.arr(), conns.size() );
 
-	if ( lidx && conns.size() )
+	if ( lidx )
 	    mAddTriangle( lknots[lidx], rknots[conns[0]], lknots[lidx-1],
 		          lnormals[lidx], rnormals[conns[0]], lnormals[lidx-1]);
 
