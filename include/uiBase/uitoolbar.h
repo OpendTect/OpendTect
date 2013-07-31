@@ -123,9 +123,11 @@ protected:
     int				getButtonID(mQtclass(QAction*));
     
 public:
-    void			addButton(uiButton*);
-				//!<Legacy, use addObject instead
+    			//!CmdDriver functionality, not for casual use
+    void		getEntityList(ObjectSet<const CallBacker>&) const;
 
+    void		addButton(uiButton*);
+			//!<Legacy, use addObject instead
 };
 
 #endif
