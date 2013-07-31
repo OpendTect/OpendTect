@@ -641,7 +641,7 @@ bool RaySynthGenerator::doPrepare( int )
 	    rm->forceReflTimes( forcedrefltimes_ );
     }
 
-    raysampling_ = Interval<float>(mUdf(float),-mUdf(float));
+    raysampling_ = Interval<float>(0.0f,-mUdf(float));
     for ( int imod=0; imod<raymodels_.size(); imod++ )
     {
 	ObjectSet<const ReflectivityModel> curraymodel;
@@ -679,9 +679,7 @@ bool RaySynthGenerator::doPrepare( int )
     if ( mIsUdf( outputsampling_.step ) )
 	outputsampling_.step = wavelet_->sampleRate();
 
-    outputsampling_.start = mNINT32( raysampling_.start/outputsampling_.step ) *
-			    outputsampling_.step +
-			    wavelet_->samplePositions().start;
+    outputsampling_.start = raysampling_.start;
     outputsampling_.stop = mNINT32( raysampling_.stop/outputsampling_.step ) *
 			   outputsampling_.step +
 			   wavelet_->samplePositions().stop;
