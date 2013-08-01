@@ -1593,11 +1593,11 @@ void uiDataPointSet::addColumn( CallBacker* )
 	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
 	BinIDValueSet& bvs = dps_.bivSet();
 	BinIDValueSet::Pos pos;
+	TypeSet<int> colids = dlg.usedColIDs();
+	MathExpression* mathobj = dlg.mathObject();
+	if ( !mathobj ) return;
 	while ( bvs.next(pos,false) )
 	{
-	    TypeSet<int> colids = dlg.usedColIDs();
-	    MathExpression* mathobj = dlg.mathObject();
-	    if ( !mathobj ) return;
 	    BinID curbid;
 	    TypeSet<float> vals;
 	    bvs.get( pos, curbid, vals );
@@ -1605,7 +1605,21 @@ void uiDataPointSet::addColumn( CallBacker* )
 	    
 	    for ( int idx=0; idx<colids.size(); idx++ )
 	    {
-		const float yval = dps_.value( colids[idx], rid );
+		float yval = mUdf(float);
+		if ( colids[idx] >= 0 )
+		    yval = dps_.value( colids[idx], rid );
+		else if ( colids[idx] == -1 )
+		{
+		    yval = dps_.z( rid );
+		    if ( !mIsUdf(yval) )
+			yval *= zfac_;
+		}
+		else
+		{
+		    const Coord poscoord = dps_.coord( rid );
+		    yval = colids[idx] == -3 ? poscoord.x : poscoord.y;
+		}
+	
 		mathobj->setVariableValue( idx, yval );
 	    }
 
