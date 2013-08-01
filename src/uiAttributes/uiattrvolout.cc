@@ -61,7 +61,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     , ctio_(mkCtxtIOObj(ad))
     , subselpar_(*new IOPar)
     , sel_(*new CurrentSel)
-    , ads_(const_cast<DescSet&>(ad))
+    , ads_(*new DescSet(ad))
     , nlamodel_(n)
     , nlaid_(id)
     , todofld_(0)
@@ -73,7 +73,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     const bool is2d = ad.is2D();
     setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute" );
 
-    uiAttrSelData attrdata( ad, false );
+    uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;
 
     if ( !multioutput )
@@ -103,10 +103,23 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
 
-    if ( multioutput )
+    if ( multioutput && !is2d )
     {
-	datastorefld_ = new uiCheckBox( uppgrp_, "Create Prestack DataStore" );
-	datastorefld_->attach( alignedBelow, objfld_ );
+	uiCheckBox* cb = new uiCheckBox( uppgrp_, "Create Prestack DataStore" );
+	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
+	cb->attach( alignedBelow, objfld_ );
+
+	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
+	ctxt.forread = false;
+	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
+	datastorefld_ = new uiIOObjSel( uppgrp_, ctxt, "Output data store" );
+	datastorefld_->attach( alignedBelow, cb );
+
+	const Interval<float> offsets( 10, 10 );
+	offsetfld_ = new uiGenInput( uppgrp_, "Offset (start/step)",
+				     FloatInpIntervalSpec(offsets) );
+	offsetfld_->attach( alignedBelow, datastorefld_ );
+	psSelCB( cb );
     }
 
     uppgrp_->setHAlignObj( transffld_ );
@@ -122,12 +135,23 @@ uiAttrVolOut::~uiAttrVolOut()
     delete &ctio_;
     delete &sel_;
     delete &subselpar_;
+    delete &ads_;
 }
 
 
 CtxtIOObj& uiAttrVolOut::mkCtxtIOObj( const Attrib::DescSet& ad )
 {
     return *uiSeisSel::mkCtxtIOObj( Seis::geomTypeOf(ad.is2D(),false), false );
+}
+
+
+void uiAttrVolOut::psSelCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiCheckBox*,box,cb)
+    if ( !box || !datastorefld_ ) return;
+
+    datastorefld_->setSensitive( box->isChecked() );
+    offsetfld_->setSensitive( box->isChecked() );
 }
 
 
@@ -281,6 +305,33 @@ bool uiAttrVolOut::prepareProcessing()
 		else
 		    return false;
 	    }
+	}
+    }
+
+    if ( datastorefld_ && datastorefld_->sensitive() )
+    {
+	if ( !datastorefld_->ioobj() )
+	    return false;
+
+	TypeSet<Attrib::DescID> ids;
+	attrselfld_->getSelIds( ids );
+	ObjectSet<MultiID> mids; TypeSet<float> offs; TypeSet<int> comps;
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    mids += new MultiID( ctio_.ioobj->key() );
+	    offs += offsetfld_->getfValue(0) + idx*offsetfld_->getfValue(1);
+	    comps += idx;
+	}
+
+	BufferString errmsg;
+	const bool res = MultiCubeSeisPSReader::writeData(
+		datastorefld_->ioobj()->fullUserExpr(false),
+		mids, offs, comps, errmsg );
+	deepErase( mids );
+	if ( !res )
+	{
+	    uiMSG().error( errmsg );
+	    return false;
 	}
     }
 

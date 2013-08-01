@@ -21,10 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-static void fillInAvailOutNames( Desc* desc, BufferStringSet& outnames )
+static void fillInAvailOutNames( const Desc& desc, BufferStringSet& outnames )
 {
     BufferString errmsg;
-    Provider* tmpprov = Provider::create( *desc, errmsg );
+    Desc& ds = const_cast<Desc&>(desc);
+    Provider* tmpprov = Provider::create( ds, errmsg );
     if ( !tmpprov ) return;
     tmpprov->ref();
 
@@ -46,7 +47,7 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
     BufferStringSet outnames;
     Desc* tmpdesc = new Desc( desc );
     tmpdesc->ref();
-    fillInAvailOutNames( tmpdesc, outnames );
+    fillInAvailOutNames( *tmpdesc, outnames );
     const bool dodlg = outnames.size() > 1;
     if ( dodlg )
 	createMultOutDlg( outnames );
@@ -131,7 +132,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
 
     allcompfld_ = new uiCheckBox( this, "Use all possible outputs" );
     allcompfld_->attach( alignedBelow, attrllb );
-    allcompfld_->display( false );
+    allcompfld_->setSensitive( false );
 
     setHAlignObj( attrllb );
 }
@@ -183,29 +184,30 @@ void uiMultiAttribSel::doAdd( CallBacker* )
     for ( int idx=0; idx<selidxs.size(); idx++ )
 	selids_ += allids_[ selidxs[idx] ];
 
-    if ( allcompfld_->isDisplayed() && allcompfld_->isChecked() )
+    if ( allcompfld_->sensitive() && allcompfld_->isChecked() )
     {
-	Desc* seldesc = const_cast<Attrib::Desc*>(descset_.getDesc(
-			    descset_.getID( attribfld_->getText(),true ) ) );
+	const Desc* seldesc =
+	    descset_.getDesc( descset_.getID(attribfld_->getText(),true) );
 	if ( !seldesc )
 	{
 	    updateSelFld();
 	    return;
 	}
 
-	int seldescouputidx = seldesc->selectedOutput();
+	const int seldescouputidx = seldesc->selectedOutput();
 	BufferStringSet alluserrefs;
-	fillInAvailOutNames( seldesc, alluserrefs );
+	fillInAvailOutNames( *seldesc, alluserrefs );
 	for ( int idx=0; idx<alluserrefs.size(); idx++ )
 	{
 	    if ( idx == seldescouputidx ) continue;
+
 	    Desc* tmpdesc = new Desc( *seldesc );
 	    tmpdesc->ref();
 	    tmpdesc->selectOutput( idx );
 	    tmpdesc->setUserRef( BufferString(seldesc->userRef(),"_",
 				 alluserrefs.get(idx) ) );
-	    DescID newid = const_cast<Attrib::DescSet*>(&descset_)->
-							addDesc( tmpdesc );
+	    const DescID newid =
+		const_cast<Attrib::DescSet*>(&descset_)->addDesc( tmpdesc );
 	    allids_ += newid;
 	    selids_ += newid;
 	}
@@ -258,10 +260,11 @@ void uiMultiAttribSel::getSelIds( TypeSet<Attrib::DescID>& ids ) const
 void uiMultiAttribSel::entrySel( CallBacker* )
 {
     BufferStringSet outnames;
-    Desc* seldesc = const_cast<Attrib::Desc*>(descset_.getDesc(
-			    descset_.getID( attribfld_->getText(),true ) ) );
+    const Desc* seldesc =
+	descset_.getDesc( descset_.getID(attribfld_->getText(),true) );
     if ( !seldesc ) return;
-    fillInAvailOutNames( seldesc, outnames );
-    allcompfld_->display( outnames.size()>1 );
+
+    fillInAvailOutNames( *seldesc, outnames );
+    allcompfld_->setSensitive( outnames.size()>1 );
 }
 

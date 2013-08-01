@@ -24,7 +24,7 @@ class IOPar;
 class NLAModel;
 
 class uiAttrSel;
-class uiCheckBox;
+class uiGenInput;
 class uiIOObjSel;
 class uiMultiAttribSel;
 class uiSeisSel;
@@ -60,7 +60,8 @@ protected:
     uiMultiAttribSel*	attrselfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		objfld_;
-    uiCheckBox*		datastorefld_;
+    uiIOObjSel*		datastorefld_;
+    uiGenInput*		offsetfld_;
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
@@ -70,6 +71,7 @@ protected:
 
     void		attrSel(CallBacker*);
     void		singLineSel(CallBacker*);
+    void		psSelCB(CallBacker*);
     void		addNLA(Attrib::DescID&);
 
 private:
