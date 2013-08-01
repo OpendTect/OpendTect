@@ -9,8 +9,6 @@ SET( OD_USECOIN 1 )
 OD_SETUP_COIN() #Gets name of SIMVoleon (needed below)
 SET( OD_USECOIN )
 
-ADD_DEFINITIONS( -DNDEBUG )
-
 if ( WIN32 )
      ADD_DEFINITIONS( /wd4244 ) # conversions
 endif()

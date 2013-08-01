@@ -9,8 +9,6 @@ SET( OD_MODULE_DEPS uiODMain)
 SET( OD_IS_PLUGIN yes)
 SET( OD_USECOIN 1)
 
-ADD_DEFINITIONS( -DNDEBUG )
-
 SET( OD_MODULE_SOURCES
 	annotationspi.cc
 	measuretoolman.cc
