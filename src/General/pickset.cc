@@ -220,6 +220,8 @@ void Location::toString( BufferString& str, bool forexport ) const
 	    mPIEPAdj(Z,z,false);
 	    usepos.z = z;
 	}
+
+	usepos.z = usepos.z * SI().showZ2UserFactor();
     }
 
 #define mSetFormat( val ) \
