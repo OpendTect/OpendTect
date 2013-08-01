@@ -746,6 +746,17 @@ bool dgbSurfaceReader::shouldSkipRow( int row ) const
     if ( !sectionsel_.isPresent(sectionids_[sectionindex_]) )
 	return true;
 
+    if ( readlinenames_ )
+    {
+	const int rowidx = rowrange_.step ? (row - firstrow_) / rowrange_.step
+	    				  : -1;
+	if ( linenames_.validIdx(rowidx) )
+	{
+	    const BufferString& curlinenm = linenames_.get( rowidx );
+	    return !readlinenames_->isPresent( curlinenm.buf() );
+	}
+    }
+
     if ( !readrowrange_ )
 	return false;
 
