@@ -143,7 +143,7 @@ void uiSynthGenDlg::updateSynthNames()
 	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
 	if ( !sd ) continue;
 
-	mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( prsd ) continue;
 	synthnmlb_->addItem( sd->name() );
     }

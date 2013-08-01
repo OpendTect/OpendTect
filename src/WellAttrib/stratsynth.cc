@@ -335,7 +335,7 @@ int StratSynth::syntheticIdx( const PropertyRef& pr ) const
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
-	mDynamicCastGet(const PropertyRefSyntheticData*,pssd,synthetics_[idx]);
+	mDynamicCastGet(const StratPropSyntheticData*,pssd,synthetics_[idx]);
 	if ( !pssd ) continue;
 	if ( pr == pssd->propRef() )
 	    return idx;
@@ -348,7 +348,7 @@ SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
-	mDynamicCastGet(PropertyRefSyntheticData*,pssd,synthetics_[idx]);
+	mDynamicCastGet(StratPropSyntheticData*,pssd,synthetics_[idx]);
 	if ( !pssd ) continue;
 	if ( pr == pssd->propRef() )
 	    return pssd;
@@ -763,7 +763,7 @@ void StratSynth::generateOtherQuantities()
     {
 	const SyntheticData* sd = synthetics_[idx];
 	mDynamicCastGet(const PostStackSyntheticData*,pssd,sd);
-	mDynamicCastGet(const PropertyRefSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( !pssd || prsd ) continue;
 	return generateOtherQuantities( *pssd, layMod() );
     }
@@ -868,8 +868,8 @@ bool doFinish( bool success )
 	SeisTrcBufDataPack* dp = seisbufdps_[idx];
 	BufferString nm( "[", props[idx+1]->name(), "]" );
 	dp->setName( nm );
-	PropertyRefSyntheticData* prsd = 
-	    	 new PropertyRefSyntheticData( sgp, *dp, *props[idx+1] );
+	StratPropSyntheticData* prsd = 
+	    	 new StratPropSyntheticData( sgp, *dp, *props[idx+1] );
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
 
@@ -1484,7 +1484,7 @@ void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 }
 
 
-PropertyRefSyntheticData::PropertyRefSyntheticData( const SynthGenParams& sgp,
+StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
 						    SeisTrcBufDataPack& dp,
 						    const PropertyRef& pr )
     : PostStackSyntheticData( sgp, dp ) 

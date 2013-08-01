@@ -124,10 +124,10 @@ protected:
 };
 
 
-mExpClass(WellAttrib) PropertyRefSyntheticData : public PostStackSyntheticData
+mExpClass(WellAttrib) StratPropSyntheticData : public PostStackSyntheticData
 {
 public:
-				PropertyRefSyntheticData(const SynthGenParams&,
+				StratPropSyntheticData(const SynthGenParams&,
 							SeisTrcBufDataPack&,
 							const PropertyRef&);
 
