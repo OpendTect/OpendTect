@@ -75,7 +75,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     if ( setup.withsnapshot_ )
+    {
+	vwr_.rgbCanvas().enableImageSave();
 	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
+    }
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
