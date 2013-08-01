@@ -75,7 +75,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     if ( setup.withsnapshot_ )
+    {
+	vwr_.rgbCanvas().enableImageSave();
 	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
+    }
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
@@ -148,7 +151,7 @@ void uiFlatViewStdControl::clearToolBar()
 
 void uiFlatViewStdControl::updatePosButtonStates()
 {
-    if( zoomoutbut_ ) zoomoutbut_->setSensitive( !zoommgr_.atStart() );
+    if ( zoomoutbut_ ) zoomoutbut_->setSensitive( !zoommgr_.atStart() );
 }
 
 
