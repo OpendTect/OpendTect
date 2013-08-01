@@ -14,12 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicursor.h"
 #include "uimainwin.h"
 #include "i_layoutitem.h"
+#include "uimain.h"
 
 #include "color.h"
 #include "errh.h"
 #include "texttranslator.h"
 #include "settings.h"
 #include "timer.h"
+#include "staticstring.h"
 
 #include <QEvent>
 
@@ -257,9 +259,6 @@ bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-bool uiObject::nametooltipactive_ = false;
-Color uiObject::normaltooltipcolor_;
-
 static ObjectSet<uiObject> uiobjectlist_;
 
 
@@ -276,12 +275,12 @@ uiObject::uiObject( uiParent* p, const char* nm )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
-    , normaltooltiptxt_("")
+    , normaltooltipqstring_(new QString)
     , translateid_(-1)
 { 
     if ( p ) p->addChild( *this );  
     uiobjectlist_ += this;
-    doSetToolTip();
+    updateToolTip();
 
     uiobjeventfilter_ = new uiObjEventFilter( *this );
     if ( body() && body()->qwidget() )
@@ -294,12 +293,12 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
-    , normaltooltiptxt_("")
+    , normaltooltipqstring_(new QString)
     , translateid_(-1)
 { 
     if ( p ) p->manageChld( *this, b );  
     uiobjectlist_ += this;
-    doSetToolTip(); 
+    updateToolTip(); 
 
     uiobjeventfilter_ = new uiObjEventFilter( *this );
     if ( body() && body()->qwidget() )
@@ -310,6 +309,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
 uiObject::~uiObject()
 {
     delete uiobjeventfilter_;
+    delete normaltooltipqstring_;
     closed.trigger();
     uiobjectlist_ -= this;
 
@@ -331,37 +331,39 @@ uiObject::SzPolicy uiObject::szPol(bool hor) const
 void uiObject::setName( const char* nm )
 {
     uiBaseObject::setName( getCleanName(nm) );
-    doSetToolTip();
+    updateToolTip();
 }
 
 
 const char* uiObject::toolTip() const
-{ return normaltooltiptxt_; }
-
-
-void uiObject::setToolTip(const char* t)
 {
-    normaltooltiptxt_ = t;
-    doSetToolTip();
+    static StaticStringManager stm;
+    BufferString& str = stm.getString();
+    str = normaltooltipqstring_->toLatin1().data();
+
+    return str.buf();
 }
 
 
-void uiObject::doSetToolTip()
+void uiObject::setToolTip( const char* txt )
 {
-    if ( !mBody() ) return;
+    *normaltooltipqstring_ = QString::fromAscii( txt );
+    updateToolTip();
+}
 
-    if ( nametooltipactive_ )
+
+void uiObject::updateToolTip()
+{
+    if ( !qwidget() ) return;
+
+    if ( uiMain::isNameToolTipUsed() )
     {
-	BufferString namestr = "\"";
-	namestr += !name().isEmpty() ? name().buf() : normaltooltiptxt_.buf();
-	namestr += "\"";
-	replaceString( namestr.buf(), "&&", "\a" );
-	removeCharacter( namestr.buf(), '&' );
-	replaceCharacter( namestr.buf(), '\a', '&' );
-	mBody()->setToolTip( namestr );
+	BufferString namestr = name().isEmpty() ? toolTip() : name().buf();
+	uiMain::formatNameToolTipString( namestr );
+	qwidget()->setToolTip( namestr.buf() );
     }
     else
-	mBody()->setToolTip( normaltooltiptxt_ );
+	qwidget()->setToolTip( *normaltooltipqstring_ );
 }
 
 
@@ -383,7 +385,9 @@ void uiObject::trlReady( CallBacker* cb )
     const wchar_t* translation = TrMgr().tr()->get();
     QString txt = QString::fromWCharArray( translation );
     QString tt( name().buf() ); tt += "\n\n"; tt += txt;
-    qwidget()->setToolTip( tt );
+
+    *normaltooltipqstring_ = tt;
+    updateToolTip();
 
     translateid_ = -1;
     TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
@@ -620,21 +624,10 @@ mDefSzFn(icon,"dTect.Icons.size",32)
 mDefSzFn(baseFld,"dTect.Field.size",10)
 
 
-void uiObject::useNameToolTip( bool yn ) 
+void uiObject::updateToolTips()
 {
-    if ( !nametooltipactive_ )
-	uiObjectBody::getToolTipBGColor( normaltooltipcolor_ );
-
-    if ( nametooltipactive_ == yn )
-	return;
-
-    const Color& ttcolor( yn ? Color(220,255,255) : normaltooltipcolor_ );
-    uiObjectBody::setToolTipBGColor( ttcolor );
-
-    nametooltipactive_ = yn;
-
     for ( int idx=uiobjectlist_.size()-1; idx>=0; idx-- )
-	uiobjectlist_[idx]->doSetToolTip();
+	uiobjectlist_[idx]->updateToolTip();
 }
 
 

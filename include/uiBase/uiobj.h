@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include <stdlib.h>
 
 mFDQtclass(QWidget)
+mFDQtclass(QString)
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
@@ -71,7 +72,7 @@ public:
 
     void		setToolTip(const char*);
     const char*		toolTip() const;
-    static void		useNameToolTip(bool);
+    static void		updateToolTips();
 
     virtual void	translate();
     
@@ -175,10 +176,8 @@ protected:
 			//! setGeometry should be triggered by this's layoutItem
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
-    void		doSetToolTip();
-    static bool		nametooltipactive_;
-    static Color	normaltooltipcolor_;
-    BufferString	normaltooltiptxt_;
+    void		updateToolTip();
+    mQtclass(QString*)	normaltooltipqstring_;
 
     uiObjEventFilter*	uiobjeventfilter_;
 

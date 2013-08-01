@@ -18,8 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "menuhandler.h"
 #include "pixmap.h"
+#include "uimain.h"
 
 mUseQtnamespace
+
+
+static ObjectSet<uiAction> uiactionlist_;
 
 #define mInit toggled(this), \
     triggered(this), \
@@ -27,7 +31,8 @@ mUseQtnamespace
     parentcontainer_( 0 ),  \
     cmdrecrefnr_( 0 ), \
     translateid_( -1 ), \
-    menu_( 0 ) 
+    menu_( 0 ), \
+    normaltooltipqstring_( new QString )
 
 uiAction::uiAction( QAction* qact )
     : mInit
@@ -99,6 +104,8 @@ uiAction::uiAction( const MenuItem& itm )
 uiAction::~uiAction()
 {
     delete msgr_;
+    delete normaltooltipqstring_;
+    uiactionlist_ -= this;
     if ( menu_ )
     {
 	//Sanity check. Does not cost much
@@ -116,6 +123,8 @@ void uiAction::init( const char* txt )
 {
     qaction_ = new QAction( QString(txt), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
+    uiactionlist_ += this;
+    updateToolTip();
 }
 
 
@@ -127,11 +136,17 @@ void uiAction::setShortcut( const char* sctxt )
 
 
 void uiAction::setText( const char* txt )
-{ qaction_->setText( QString(txt) ); }
+{
+    qaction_->setText( QString(txt) );
+    updateToolTip();
+}
 
 
 void uiAction::setText( const wchar_t* txt )
-{ qaction_->setText( QString::fromWCharArray(txt) ); }
+{
+    qaction_->setText( QString::fromWCharArray(txt) );
+    updateToolTip();
+}
 
 
 const char* uiAction::text() const
@@ -159,11 +174,50 @@ const char* uiAction::iconText() const
 
 
 void uiAction::setToolTip( const char* txt )
-{ qaction_->setToolTip( txt ); }
+{
+    *normaltooltipqstring_ = QString::fromAscii( txt );
+    updateToolTip();
+}
 
 
 void uiAction::setToolTip( const wchar_t* txt )
-{ qaction_->setToolTip( QString::fromWCharArray( txt ) ); }
+{
+    *normaltooltipqstring_ = QString::fromWCharArray( txt );
+    updateToolTip();
+}
+
+
+const char* uiAction::toolTip() const
+{
+    static StaticStringManager stm;
+    BufferString& str = stm.getString();
+    str = normaltooltipqstring_->toLatin1().data();
+
+    return str.buf();
+}
+
+
+void uiAction::updateToolTip()
+{
+    if ( uiMain::isNameToolTipUsed() )
+    {
+	BufferString namestr = text();
+	if ( namestr.isEmpty() )
+	    namestr = toolTip();
+
+	uiMain::formatNameToolTipString( namestr );
+	qaction_->setToolTip( namestr.buf() );
+    }
+    else
+	qaction_->setToolTip( *normaltooltipqstring_ );
+}
+
+
+void uiAction::updateToolTips()
+{
+    for ( int idx=uiactionlist_.size()-1; idx>=0; idx-- )
+	uiactionlist_[idx]->updateToolTip();
+}
 
 
 void uiAction::setMenu( uiMenu* menu )
@@ -176,16 +230,6 @@ void uiAction::setMenu( uiMenu* menu )
 	menu_->setAction( this );
 	qaction_->setMenu( menu_->getQMenu() );
     }
-}
-
-
-const char* uiAction::toolTip() const
-{
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-    str = qaction_->toolTip().toLatin1().data();
-
-    return str.buf();
 }
 
 
@@ -222,7 +266,10 @@ void uiAction::translate()
     TrMgr().tr()->ready.notify( mCB(this,uiAction,translationReadyCB) );
     //mAttachCB(TrMgr().tr()->ready, uiAction, translationReadyCB );
     BufferString txt = text();
+    replaceString( txt.buf(), "&&", "\a" );
     removeCharacter( txt.buf(), '&' );
+    replaceCharacter( txt.buf(), '\a', '&' );
+
     translateid_ = TrMgr().tr()->translate( txt );
 
     if ( menu_ ) menu_->translate();
@@ -255,7 +302,12 @@ void uiAction::translationReadyCB( CallBacker* cb )
 	return;
 
     const wchar_t* translation = TrMgr().tr()->get();
-    setToolTip( translation );
+    QString txt = QString::fromWCharArray( translation );
+    QString tt( text() ); tt += "\n\n"; tt += txt;
+
+    *normaltooltipqstring_ = tt;
+    updateToolTip();
+
     //mDetachCB(TrMgr().tr()->ready, uiAction, translationReadyCB );
     TrMgr().tr()->ready.remove( mCB(this,uiAction,translationReadyCB) );
 }

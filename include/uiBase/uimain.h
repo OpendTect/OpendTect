@@ -67,6 +67,10 @@ public:
 
     static KeyboardEventHandler& keyboardEventHandler();
 
+    static void		useNameToolTip(bool);
+    static bool		isNameToolTipUsed();
+    static void		formatNameToolTipString(BufferString&);
+
 protected:
 
     static uiMain*	themain_;

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitextedit.h"
+#include "uimain.h"
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -262,7 +263,7 @@ void uiCmdDriverDlg::interactClosedCB( CallBacker* )
 
 void uiCmdDriverDlg::toolTipChangeCB( CallBacker* )
 {
-    uiObject::useNameToolTip( tooltipfld_->isChecked() );
+    uiMain::useNameToolTip( tooltipfld_->isChecked() );
 }
 
 

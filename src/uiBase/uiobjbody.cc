@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "color.h"
 
 #include <QPixmap>
-#include <QToolTip>
 
 mUseQtnamespace
 
@@ -497,18 +496,6 @@ void uiObjectBody::setToolTip( const char* txt )
 {
     qwidget()->setToolTip( txt );
 }
-
-
-void uiObjectBody::getToolTipBGColor( Color& col )
-{ col = Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() ); }
-
-
-void uiObjectBody::setToolTipBGColor( const Color& col )
-{
-    QPalette palette;
-    palette.setColor( QPalette::ToolTipBase, QColor(col.r(),col.g(),col.b()) );
-    QToolTip::setPalette( palette );
-} 
 
 
 void uiObjectBody::uisetCaption( const char* str )

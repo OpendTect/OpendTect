@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "uiobjbody.h"
+#include "uiaction.h"
 
 #include "bufstringset.h"
 #include "debugmasks.h"
@@ -37,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QTreeWidget>
 #include <QMenu>
+#include <QToolTip>
 
 #ifdef __mac__
 # include "odlogo128x128.xpm"
@@ -559,6 +561,48 @@ void uiMain::flushX()
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { if ( app_ ) app_->processEvents( mQtclass(QEventLoop)::AllEvents, msec ); }
+
+
+static bool usenametooltip_ = false;
+static Color normaltooltipcolor_;
+
+void uiMain::useNameToolTip( bool yn )
+{
+    if ( usenametooltip_ == yn )
+	return;
+
+    Color col( normaltooltipcolor_ );
+    if ( yn )
+    {
+	col = Color( 220, 255, 255 ); // Pale cyan (to differ from pale yellow)
+	normaltooltipcolor_ =
+	    Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() );
+    }
+
+    QPalette palette;
+    palette.setColor( QPalette::ToolTipBase, QColor(col.r(),col.g(),col.b()) );
+    QToolTip::setPalette( palette );
+
+    usenametooltip_ = yn;
+    uiObject::updateToolTips();
+    uiAction::updateToolTips();
+}
+
+
+bool uiMain::isNameToolTipUsed()
+{ return usenametooltip_; }
+
+
+void uiMain::formatNameToolTipString( BufferString& namestr ) 
+{
+    BufferString bufstr( namestr );
+    replaceString( bufstr.buf(), "&&", "\a" );
+    removeCharacter( bufstr.buf(), '&' );
+    replaceCharacter( bufstr.buf(), '\a', '&' );
+
+    namestr = "\""; namestr += bufstr; namestr += "\"";
+}
+
 
 
 #if QT_VERSION >= 0x050000

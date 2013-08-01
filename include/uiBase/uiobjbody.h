@@ -44,8 +44,6 @@ public:
     virtual		~uiObjectBody();
 
     void		setToolTip(const char*);
-    static void		getToolTipBGColor(Color&);
-    static void		setToolTipBGColor(const Color&);
 
     void 		display(bool yn,bool shrink=false,
 				bool maximised=false);
