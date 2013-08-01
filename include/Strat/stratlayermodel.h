@@ -43,6 +43,7 @@ public:
     LayerModel&			operator =(const LayerModel&);
 
     bool			isEmpty() const	{ return seqs_.isEmpty(); }
+    bool			isValid() const;
     int				size() const	{ return seqs_.size(); }
     LayerSequence&		sequence( int idx )	  { return *seqs_[idx];}
     const LayerSequence& 	sequence( int idx ) const { return *seqs_[idx];}
