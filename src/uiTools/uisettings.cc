@@ -287,8 +287,9 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     	, lfsetts_(*new LooknFeelSettings)
 	, changed_(false)
 {
-    iconszfld_ = new uiGenInput( this, "Icon Size",
-	    			 IntInpSpec(lfsetts_.iconsz) );
+    IntInpSpec ispec( lfsetts_.iconsz );
+    ispec.setLimits( Interval<int>(10,64) );
+    iconszfld_ = new uiGenInput( this, "Icon Size", ispec );
 
     setts_.getYN( mCBarKey, lfsetts_.isvert );
     colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
