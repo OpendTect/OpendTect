@@ -175,17 +175,6 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     stickinfo_[0]->sticknr = sticknr;
     stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID(-1);
     stickinfo_[0]->pickednm = pickednm;
-#ifdef mNew2DGeometryImpl
-    stickinfo_[0]->geomid = Survey::GM().getGeomID( pickednm );
-    if ( stickinfo_[0]->geomid < 0 && pickedmid )
-    {
-	PtrMan<IOObj> seis2dobj = IOM().get( *pickedmid );
-	if ( seis2dobj )
-	    stickinfo_[0]->geomid = Survey::GM().getGeomID( Survey::Geometry2D::
-				makeUniqueLineName(seis2dobj->name(),pickednm));
-    }
-
-#endif
     if ( addtohistory )
     {
 	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
@@ -389,14 +378,6 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	{
 	    mDefEditNormalStr( editnormalstr, sid, sticknr );
 	    par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
-#ifdef mNew2DGeometryImpl
-		const int geomid = pickedGeomID( sid, sticknr );
-		if ( geomid >=0 )
-		{
-			mDefGeomIDStr( geomidstr, sid, sticknr );
-			par.set( geomidstr.buf(), geomid );
-		}
-#else
 	    const MultiID* pickedmid = pickedMultiID( sid, sticknr );
 	    if ( pickedmid )
 	    {
@@ -410,7 +391,6 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 		mDefPickedNameStr( pickednmstr, sid, sticknr );
 		par.set( pickednmstr.buf(), pickednm );
 	    }
-#endif
 	}
     }
 }

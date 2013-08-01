@@ -87,12 +87,7 @@ bool SeisTrcWriter::close()
     {
 	LineKey lk = mCurLineKey;
 	const BufferString lnm = lk.lineName();
-#ifdef mNew2DGeometryImpl
-	const int lineidx = dataset_ ? dataset_->indexOf( geom2d_.getGeomID() ) 
-									   : -1;
-#else
 	const int lineidx = lset_ ? lset_->indexOf(lk) : -1;
-#endif
 
 	if ( lineidx>=0 && !lnm.isEmpty() )
 	{
@@ -100,12 +95,8 @@ bool SeisTrcWriter::close()
 	    if ( !hasgeom )
 	    {
 		geom2d_.data().setLineName( lnm );
-#ifdef mNew2DGeometryImpl
-		GMAdmin().write( geom2d_ );
-#else
 		S2DPOS().setCurLineSet( lset_->name() );
 		PosInfo::POS2DAdmin().setGeometry( geom2d_.data() );
-#endif
 	    }
 	}
     }
@@ -253,31 +244,12 @@ bool SeisTrcWriter::next2DLine()
     delete putter_;
 
     IOPar* lineiopar = new IOPar;
-#ifdef mNew2DGeometryImpl
-    PtrMan< IOObj > ioobj = Survey::GMAdmin().createEntry(lnm,true);
-    if ( !ioobj || ioobj->key().nrKeys() != 2 )
-    {
-	errmsg_ = "Cannot write new line";
-	return false;
-    }
-
-    geom2d_.setGeomID( ioobj->key().ID(1) );
-    lineiopar->setName( lnm );
-    lineiopar->set( sKey::GeomID(), geom2d_.getGeomID() );
-#else
     lk.fillPar( *lineiopar, true );
-#endif
-
     if ( !datatype_.isEmpty() )
 	lineiopar->set( sKey::DataType(), datatype_.buf() );
 
     lineiopar->merge( lineauxiopar_ );
-#ifdef mNew2DGeometryImpl
-    putter_ = dataset_->linePutter( lineiopar );
-#else
     putter_ = lset_->linePutter( lineiopar );
-#endif
-
     if ( !putter_ )
     {
 	errmsg_ = "Cannot create 2D line writer";

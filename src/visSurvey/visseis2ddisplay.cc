@@ -121,14 +121,7 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
     if ( !seis2dobj )
 	return;
 
-#ifdef mNew2DGeometryImpl
-    geomid_ = Survey::GM().getGeomID( lnm );
-    if ( geomid_ < 0 )
-	geomid_ = Survey::GM().getGeomID( Survey::Geometry2D::makeUniqueLineName
-					(seis2dobj->name(),lnm) );
-#else
     oldgeomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
-#endif
     setName( lnm );
     if ( linename_ )
     {
@@ -141,15 +134,11 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 
 const char* Seis2DDisplay::getLineName() const
 {
-#ifdef mNew2DGeometryImpl
-    return Survey::GM().getName( geomid_ );
-#else
     if ( !oldgeomid_.isOK() )
 	return name();
 
     S2DPOS().setCurLineSet( oldgeomid_.lsid_ );
     return S2DPOS().getLineName( oldgeomid_.lineid_ );
-#endif
 }
 
 
@@ -1076,13 +1065,8 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
-
-#ifdef mNew2DGeometryImpl
-    par.set( "GeomID", geomid_ );
-#else
     par.set( "GeomID", oldgeomid_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
-#endif
     par.setYN( sKeyShowLineName(), lineNameShown() );
     if ( !trcdisplayinfo_.alltrcnrs.isEmpty() )
     {
