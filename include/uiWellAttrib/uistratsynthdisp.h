@@ -56,6 +56,7 @@ public:
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
     const SeisTrcBuf&	postStackTraces(const PropertyRef* pr=0) const;
+    const SeisTrcBuf&   postStackTraces(const char* nm) const;
     const PropertyRefSelection&	modelPropertyRefs() const;
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;

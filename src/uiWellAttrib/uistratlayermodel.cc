@@ -436,9 +436,21 @@ const SeisTrcBuf& uiStratLayerModel::postStackTraces() const
 }
 
 
+const SeisTrcBuf& uiStratLayerModel::postStackTraces( const char* nm ) const
+{
+    return synthdisp_->postStackTraces( nm );
+}
+
+
 const SeisTrcBuf& uiStratLayerModel::modelTraces( const PropertyRef& pr ) const
 {
     return synthdisp_->postStackTraces( &pr );
+}
+
+
+const StratSynth& uiStratLayerModel::currentStratSynth() const
+{
+    return const_cast<const uiStratSynthDisp*>(synthdisp_)->curSS();
 }
 
 

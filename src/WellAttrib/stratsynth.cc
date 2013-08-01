@@ -286,6 +286,17 @@ SyntheticData* StratSynth::addDefaultSynthetic()
 }
 
 
+int StratSynth::syntheticIdx( const char* nm ) const
+{
+    for ( int idx=0; idx<synthetics().size(); idx ++ )
+    {
+	if( synthetics_[idx]->name() == nm )
+	    return idx;
+    }
+    return 0;
+}
+
+
 SyntheticData* StratSynth::getSynthetic( const char* nm ) 
 {
     for ( int idx=0; idx<synthetics().size(); idx ++ )
@@ -317,6 +328,19 @@ SyntheticData* StratSynth::getSyntheticByIdx( int idx )
 const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
 {
     return synthetics_.validIdx( idx ) ?  synthetics_[idx] : 0;
+}
+
+
+int StratSynth::syntheticIdx( const PropertyRef& pr ) const
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	mDynamicCastGet(const PropertyRefSyntheticData*,pssd,synthetics_[idx]);
+	if ( !pssd ) continue;
+	if ( pr == pssd->propRef() )
+	    return idx;
+    }
+    return 0;
 }
 
 
