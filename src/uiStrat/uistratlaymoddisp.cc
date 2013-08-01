@@ -39,6 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( SI().depthsInFeet() ) \
 	target.scale( mToFeetFactorF )
 
+static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
+
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp )
@@ -174,7 +176,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , dispprop_(1)
     , dispeach_(1)
     , zoomwr_(mUdf(double),0,0,0)
-    , fillmdls_(true)
+    , fillmdls_(false)
     , uselithcols_(true)
     , showzoomed_(true)
     , vrg_(0,1)
@@ -580,6 +582,19 @@ bool uiStratSimpleLayerModelDisp::isDisplayedModel( int iseq ) const
 }
 
 
+int uiStratSimpleLayerModelDisp::totalNrLayersToDisplay() const
+{
+    const int nrseqs = layerModel().size();
+    int ret = 0;
+    for ( int iseq=0; iseq<nrseqs; iseq++ )
+    {
+	if ( isDisplayedModel(iseq) )
+	    ret += layerModel().sequence(iseq).size();
+    }
+    return ret;
+}
+
+
 void uiStratSimpleLayerModelDisp::doDraw()
 {
     dispprop_ = tools_.selPropIdx();
@@ -611,6 +626,8 @@ void uiStratSimpleLayerModelDisp::doDraw()
     yax_->plotAxis(); xax_->plotAxis();
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
+    bool dofill = fillmdls_ || totalNrLayersToDisplay() < cMaxNrLayers4RectDisp;
+    float prevrelx = mUdf(float);
 
     mStartLayLoop( true, int lastdrawnypix = mUdf(int) )
 
@@ -636,34 +653,47 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	if ( ypix0 >= ypix1 )
 	    continue;
 
-	lastdrawnypix = ypix1;
-	const float relx = (val-vrg_.start) / vwdth;
-	const int xpix0 = getXPix( iseq, 0 );
-	const int xpix1 = getXPix( iseq, relx );
-
-	uiRectItem* it = new uiRectItem( xpix0, ypix0,
-					 xpix1-xpix0+1, ypix1-ypix0+1 );
-
 	const Color laycol = lay.dispColor( uselithcols_ );
 	bool mustannotcont = false;
 	if ( !lay.content().isUnspecified() )
 	    mustannotcont = allcontents_
 		|| (selectedcontent_ && lay.content() == *selectedcontent_);
 	const Color pencol = mustannotcont ? lay.content().color_ : laycol;
-	it->setPenColor( pencol );
-	if ( pencol != laycol )
-	    it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) );
+	const bool needrect = dofill || mustannotcont;
 
-	if ( fillmdls_ )
+	lastdrawnypix = ypix1;
+	const float relx = (val-vrg_.start) / vwdth;
+	if ( mIsUdf(prevrelx) ) prevrelx = relx;
+	const int xpix0 = getXPix( iseq, needrect ? 0 : prevrelx );
+	const int xpix1 = getXPix( iseq, relx );
+	prevrelx = relx;
+
+#	define mHandleItem(it) \
+	    it->setPenColor( pencol ); \
+	    if ( pencol != laycol ) \
+		it->setPenStyle( LineStyle(LineStyle::Solid,2,pencol) ); \
+	    it->setZValue( layzlvl ); \
+	    scene().addItem( it ); \
+	    logblckitms_ += it
+
+	if ( dofill || mustannotcont )
 	{
-	    it->setFillColor( laycol );
+	    uiRectItem* rectit = new uiRectItem( xpix0, ypix0,
+				     xpix1-xpix0+1, ypix1-ypix0+1 );
+	    mHandleItem( rectit );
+	    rectit->setFillColor( laycol );
 	    if ( mustannotcont )
-		it->setFillPattern( lay.content().pattern_ );
+		rectit->setFillPattern( lay.content().pattern_ );
+	}
+	else
+	{
+	    uiLineItem* lineit1 = new uiLineItem( uiPoint(xpix0,ypix0),
+		    				  uiPoint(xpix1,ypix0), true );
+	    uiLineItem* lineit2 = new uiLineItem( uiPoint(xpix1,ypix0),
+		    				  uiPoint(xpix1,ypix1), true );
+	    mHandleItem( lineit1 ); mHandleItem( lineit2 );
 	}
 
-	it->setZValue( layzlvl );
-	scene().addItem( it );
-	logblckitms_ += it;
 
     mEndLayLoop()
 

@@ -86,6 +86,7 @@ protected:
     bool		isDisplayedModel(int) const;
     void		removeLayers(Strat::LayerSequence&,int,bool);
     void		forceRedispAll(bool modeledited=false);
+    int			totalNrLayersToDisplay() const;
 
 };
 
