@@ -1617,7 +1617,8 @@ void uiDataPointSet::addColumn( CallBacker* )
 		else
 		{
 		    const Coord poscoord = dps_.coord( rid );
-		    yval = colids[idx] == -3 ? poscoord.x : poscoord.y;
+		    yval = mCast( float, colids[idx] == -3 ? poscoord.x
+			    				   : poscoord.y );
 		}
 	
 		mathobj->setVariableValue( idx, yval );
