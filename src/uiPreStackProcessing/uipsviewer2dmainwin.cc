@@ -298,22 +298,59 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 
 void uiViewer2DMainWin::setAngleGather( int idx )
 {
-    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather_[idx] );
-    gd_[idx]->setVDGather( anglegather_[idx]->id() );
+    if ( !gd_.validIdx(idx) || !gd_[idx] )
+    { delete anglegather_.pop(); return; }
+
+    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather_.last() );
+    gd_[idx]->setVDGather( anglegather_.last()->id() );
     gd_[idx]->updateViewRange();
-    DPM(DataPackMgr::FlatID()).release( anglegather_[idx] );
+    DPM(DataPackMgr::FlatID()).release( anglegather_.last() );
+}
+
+
+void uiViewer2DMainWin::setAngleData( int idx,
+				      PreStack::Gather* gather, 
+				      PreStack::Gather* angledata )
+{
+    if ( !gd_.validIdx(idx) || !gd_[idx] )
+    { delete gather; delete angledata; return; }
+
+    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+    DPM(DataPackMgr::FlatID()).addAndObtain( angledata );
+    gd_[idx]->setWVAGather( gather->id() );
+    gd_[idx]->setVDGather( angledata->id() );
+    gd_[idx]->updateViewRange();
+    DPM(DataPackMgr::FlatID()).release( angledata );
+    DPM(DataPackMgr::FlatID()).release( gather );
 }
 
 
 void uiViewer2DMainWin::angleGatherCB( CallBacker* )
 {
-    uiDialog anglegatherdlg( this, uiDialog::Setup("Angle Gather Display",
-	    "Specify Parameters for Angle Gather Display",mTODOHelpID) );
+    anglegather_.erase();
+    displayAngle( true );
+}
+
+
+void uiViewer2DMainWin::angleDataCB( CallBacker* )
+{
+    displayAngle( false );
+}
+
+
+void uiViewer2DMainWin::displayAngle( bool isanglegather )
+{
+    FixedString windowtitle = isanglegather ? "Angle Gather Display" 
+					    : "Angle Data Display";
+
+    BufferString caption = "Specify Parameters for ";
+    caption += windowtitle;
+    uiDialog angledisplaydlg( this, uiDialog::Setup(windowtitle,
+						    caption,mTODOHelpID) );
 
     PreStack::AngleCompParams params;
-    PreStack::uiAngleCompGrp anglegrp( &anglegatherdlg, params, false, false );
-
-    if ( !anglegatherdlg.go() || !anglegrp.acceptOK() )
+    PreStack::uiAngleCompGrp anglegrp( &angledisplaydlg, params, false, false );
+    if ( !angledisplaydlg.go() || !anglegrp.acceptOK() )
 	return;
 
     PreStack::VelocityBasedAngleComputer velangcomp;
@@ -321,26 +358,43 @@ void uiViewer2DMainWin::angleGatherCB( CallBacker* )
     velangcomp.setRayTracer( params.raypar_ );
     velangcomp.setSmoothingPars( params.smoothingpar_ );
     const int nrgathers = gatherinfos_.size();
-    PreStack::Gather gather; PreStack::Gather* angledata = 0;
-
-    int gatheridx = 0;
+    PreStack::Gather* angledata = 0;
+    
+    int gatheridx = -1; 
     for ( int idx=0; idx<nrgathers; idx++ )
     {
 	if ( !gatherinfos_[idx].isselected_ ) continue;
+
+	gatheridx++;
 	const MultiID mid = gatherinfos_[idx].mid_;
 	const BinID bid = gatherinfos_[idx].bid_;
-	if ( gather.readFrom(mid,bid) ) 
+	PreStack::Gather* gather = new PreStack::Gather;
+
+	if ( !gather->readFrom(mid,bid) )
+	{ delete gather; continue; }
+	
+	const FlatPosData& fp = gather->posData();
+	velangcomp.setOutputSampling( fp );
+	velangcomp.setTraceID( gather->getBinID() );
+	angledata = velangcomp.computeAngles();
+	if ( !angledata )
+	{ delete gather; continue; }
+
+	if ( isanglegather )
 	{
-	    const FlatPosData& fp = gather.posData();
-	    velangcomp.setOutputSampling( fp );
-	    velangcomp.setTraceID( gather.getBinID() );
-	    angledata = velangcomp.computeAngles();
-	    anglegather_ += getAngleGather( gather, *angledata, 
-					    params.anglerange_ );
-	    setAngleGather( gatheridx );
+	    PreStack::Gather* anglegather = getAngleGather( *gather, *angledata, 
+							   params.anglerange_ );
+	    if ( anglegather )
+	    {
+		anglegather_ += anglegather;
+		setAngleGather( gatheridx );
+	    }
+
+	    delete gather; delete angledata;
 	}
-	gatheridx += 1;
-	delete angledata;
+	else
+	    setAngleData( gatheridx, gather, angledata );
+    
     }
 }
 
@@ -388,8 +442,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	    if  ( isStored() )
 	    {
 		tb->addButton( 
-		    new uiToolButton( tb, "anglegather", "Display Angle Gather",
-			mCB(this,uiViewer2DMainWin,angleGatherCB) ) );
+		    new uiToolButton( tb, "anglegather", "Display Angle Data",
+			mCB(this,uiViewer2DMainWin,angleDataCB) ) );
 		tb->addButton( 
 		    new uiToolButton( tb, "contexthelp", "Help",
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );

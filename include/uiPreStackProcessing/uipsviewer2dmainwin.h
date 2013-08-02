@@ -82,7 +82,10 @@ protected:
     PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
+    void		setAngleData(int idx, PreStack::Gather* gather,
+				     PreStack::Gather* angledata);
     void		setAngleGather(int idx);
+    void		displayAngle(bool isanglegather);
 
     void 		setUpView();
     void		clearAuxData();
@@ -97,6 +100,7 @@ protected:
     void		showZAxis(CallBacker*);
     void		loadMuteCB(CallBacker*);
     void		angleGatherCB(CallBacker*);
+    void		angleDataCB(CallBacker*);
 };
 
 
