@@ -182,10 +182,11 @@ int Well::D2TModel::getVelocityIdx( float pos, const Track& track,
 	const double reqz = track.getPos( pos ).z;
 	idx = IdxAble::getUpperIdx( trckposz, trcksz, reqz );
 	if ( idx >= trcksz ) idx--;
-	const float dhtop = track.dah( idx-1 );
-	const float dhbase = track.dah( idx );
-	const float reqdh = dhtop + ( (dhbase-dhtop)*(reqz-track.value(idx-1))/
-				      (track.value(idx)-track.value(idx-1) ) );
+	const double dhtop = mCast( double, track.dah(idx-1) );
+	const double dhbase = mCast( double, track.dah(idx) );
+	const double fraction = ( reqz - track.value(idx-1) ) /
+	    			( track.value(idx) - track.value(idx-1) );
+	const float reqdh = mCast( float, dhtop + (fraction * (dhbase-dhtop)) );
 	idah = IdxAble::getUpperIdx( dah_, dtsize, reqdh );
     }
 
