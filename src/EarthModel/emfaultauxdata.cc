@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "binidvalset.h"
 #include "emfault3d.h"
+#include "emioobjinfo.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
@@ -36,10 +37,39 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
+FaultAuxData::DataInfo::DataInfo()
+{
+    username.setEmpty();
+    filename.setEmpty();
+    data = 0;
+    policy = OD::UsePtr;
+}
+
+
+FaultAuxData::DataInfo::~DataInfo()
+{
+    if ( policy!=OD::UsePtr )
+	delete data;
+}
+
+
+bool FaultAuxData::DataInfo::operator==( const DataInfo& di )
+{ 
+    return username==di.username && filename==di.filename && 
+	   data==di.data && policy==di.policy; 
+}
+
+
 FaultAuxData::FaultAuxData( const Fault3D& flt )
-    : fault_(flt)
-    , surfdata_(0)  
-    , changed_(false)
+    : faultmid_(flt.multiID())
+{
+    fltfullnm_.setEmpty();
+    init();
+}
+
+
+FaultAuxData::FaultAuxData( const MultiID& mid )
+    : faultmid_(mid)
 {
     fltfullnm_.setEmpty();
     init();
@@ -47,121 +77,199 @@ FaultAuxData::FaultAuxData( const Fault3D& flt )
 
 
 FaultAuxData::~FaultAuxData()
-{
-    delete surfdata_;
-    deepErase( sdusernames_ );
-    deepErase( sdfilenames_ );
-}
+{ deepErase( dataset_ ); }
 
 
-void FaultAuxData::init()
+bool FaultAuxData::init()
 {
-    PtrMan<IOObj> ioobj = IOM().get( fault_.multiID() );
-    if ( !ioobj ) 
-	return;
+    if ( !dataset_.isEmpty() )
+	return true; //already called
+
+    PtrMan<IOObj> ioobj = IOM().get( faultmid_ );
+    IOObjInfo ioinfo( ioobj );
+    if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault ) 
+	return false;
     
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "" );
     fltfullnm_ = fp.fullPath();
 
-    deepErase( sdusernames_ );
-    deepErase( sdfilenames_ );
+    deepErase( dataset_ );
     
     ObjectSet<IOPar> pars;
     readSDInfoFile( pars );
-    for ( int idx=pars.size()-1; idx>=0; idx-- )
+    for ( int idx=0; idx<pars.size(); idx++ )
     {
-	BufferString unm, fnm;
-	pars[idx]->get( sKey::Name(), unm );
-	pars[idx]->get( sKey::FileName(), fnm );
-	sdusernames_.add( unm.buf() );
-	sdfilenames_.add( fnm.buf() );
+	DataInfo* di = new DataInfo();
+	pars[idx]->get( sKey::Name(), di->username );
+	pars[idx]->get( sKey::FileName(), di->filename );
+	
+	dataset_ += di;
     }
     deepErase( pars );
-}
-
-
-const BufferStringSet& FaultAuxData::auxDataList()  
-{ 
-    if ( fltfullnm_.isEmpty() )
-	init();
-
-    return sdusernames_; 
-}
-
-
-const char* FaultAuxData::dataName( int sdidx ) const
-{ 
-    return sdidx<0 || sdidx>=sdusernames_.size() ? 0 : 
-	sdusernames_[sdidx]->buf(); 
+    return true;
 }
 
 
 int FaultAuxData::dataIndex( const char* nm ) const
 {
-    for ( int idx=0; idx<sdusernames_.size(); idx++ )
+    for ( int idx=0; idx<dataset_.size(); idx++ )
     {
-	if ( sdusernames_[idx] && sdusernames_.get(idx)==nm )
+	if ( dataset_[idx]->username==nm )
 	    return idx;
     }
 
-    return -1;
+    return -1; 
 }
 
 
-int FaultAuxData::addData( const char* name )
+void FaultAuxData::setSelected( const TypeSet<int>& sl )
 {
-    updateDataInfoFile( Add, -1, name );
-    return sdusernames_.size()-1;
+    selected_.erase();
+    selattribnames_.erase();
+    for ( int idx=0; idx<sl.size(); idx++ )
+    {
+	if ( !dataset_.validIdx(sl[idx]) )
+	    continue;
+
+	selected_ += sl[idx];
+	selattribnames_.add( dataset_[sl[idx]]->username );
+    }
+}
+
+
+void FaultAuxData::getAuxDataList( BufferStringSet& list ) const
+{
+    list.erase();
+    for ( int idx=0; idx<dataset_.size(); idx++ )
+	list.add( dataset_[idx]->username );
+}
+
+
+int FaultAuxData::setData( const char* name, const Array2D<float>* data, 
+			   OD::PtrPolicy policy )
+{
+    if ( !data )
+	return -1;
+
+    const int sdidx = dataIndex( name );
+    if ( sdidx<0 )
+    {
+	DataInfo* di = new DataInfo();
+	di->data = data;
+	di->policy = policy;
+
+	dataset_ += di;
+	const int cursdidx = dataset_.size()-1;
+    	updateDataFiles( SetName, cursdidx, name );
+	return cursdidx;
+    }
+
+    setData( sdidx, data, policy );
+    return sdidx;
+}
+
+
+void FaultAuxData::setData( int sdidx, const Array2D<float>* data, 
+			   OD::PtrPolicy policy )
+{
+    if ( !data || !dataset_.validIdx(sdidx) )
+	return;
+
+    if ( dataset_[sdidx]->policy != OD::UsePtr )
+	delete dataset_[sdidx]->data;
+    
+    dataset_[sdidx]->data = data;
+    dataset_[sdidx]->policy = policy;
+}
+
+
+void FaultAuxData::setDataName( int sdidx, const char* name )
+{ updateDataFiles( SetName, sdidx, name ); }
+
+
+void FaultAuxData::setDataName( const char* oldname, const char* newname )
+{
+    const int sdidx = dataIndex( oldname );
+    setDataName( sdidx, newname );
 }
 
 
 void FaultAuxData::removeData( int sdidx )
-{ updateDataInfoFile( Remove, sdidx, 0 ); }
+{ updateDataFiles( Remove, sdidx, 0 ); }
 
 
-void FaultAuxData::setDataName( int sdidx, const char* name )
-{ updateDataInfoFile( Rename, sdidx, name ); }
+void FaultAuxData::removeData( const char* name )
+{
+    const int sdidx = dataIndex( name );
+    removeData( sdidx );
+}
 
 
-void FaultAuxData::updateDataInfoFile( Action act, int sdidx,
-	const char* sdname )
+void FaultAuxData::removeAllData()
+{
+    const int datasize = dataset_.size();
+    if ( !datasize || fltfullnm_.isEmpty() )
+	return;
+
+    deepErase( dataset_ );
+
+    for ( int idx=0; idx<datasize; idx++ )
+    {
+	const BufferString attrnm = createFltDataName( fltfullnm_, idx );
+    	File::remove( attrnm );
+    }
+
+    FilePath fp( fltfullnm_ );
+    fp.setExtension( sKeyExtension() );
+    File::remove( fp.fullPath() );
+}
+
+
+void FaultAuxData::renameFault( const char* fltnewname )
 {
     if ( fltfullnm_.isEmpty() )
-	init();
+	return;
+
+    const BufferString oldfltfulnm = fltfullnm_;
+    FilePath fp( fltfullnm_ );
+    fp.setFileName( fltnewname );
+    fltfullnm_ = fp.fullPath();
+    
+    for ( int idx=0; idx<dataset_.size(); idx++ )
+    {
+	const BufferString newname = createFltDataName( fltfullnm_, idx );
+	const BufferString oldname = createFltDataName( oldfltfulnm, idx );
+
+	FilePath fn( newname );
+	dataset_[idx]->filename = fn.fileName(); 
+    	File::rename( oldname, newname );
+    }
+
+    FilePath oldfp( oldfltfulnm );
+    oldfp.setExtension( sKeyExtension() );
+    File::remove( oldfp.fullPath() );
+    for ( int idx=0; idx<dataset_.size(); idx++ )
+	updateDataFiles( SetName, idx, dataset_[idx]->username );
+}
+
+
+void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
+{
+    if ( !dataset_.validIdx(sdidx) ) 
+	return;
 
     FilePath fp( fltfullnm_ );
     fp.setExtension( sKeyExtension() );
     FilePath backupfp(fp);
     backupfp.setExtension(".old");
 
-    ObjectSet<IOPar> pars;
-    int existparidx = -1;
     if ( File::exists(fp.fullPath()) )
-    {
-	readSDInfoFile(pars);
-	for ( int idx=pars.size()-1; idx>=0; idx-- )
-	{
-	    BufferString unm, snm;
-	    pars[idx]->get( sKey::Name(), unm );
-	    pars[idx]->get( sKey::FileName(), snm );
-	    if ( unm==sdname )
-	    {
-		existparidx = idx;
-		break;
-	    }
-	}
-
-	if ( (existparidx!=-1 && act==Add) || (existparidx==-1 && act!=Add) )
-	    return;
-
         File::rename(fp.fullPath(), backupfp.fullPath());
-    }
 
     SafeFileIO sfio( fp.fullPath(), true );
     if ( !sfio.open(false,true) )
     {
-	deepErase( pars );
 	File::remove( backupfp.fullPath() );
 	return;
     }
@@ -169,40 +277,36 @@ void FaultAuxData::updateDataInfoFile( Action act, int sdidx,
     ascostream astream( sfio.ostrm() );
     astream.putHeader( sKeyFaultAuxData() );
     
-    BufferString enm( sdname );
-    cleanupString( enm.buf(), false, false, false );
-    BufferString filenm( fault_.name() );
+    FilePath fpnm( fltfullnm_ );
+    BufferString filenm( fpnm.fileName() );
     cleanupString( filenm.buf(), false, false, false );
-    filenm.add( "." );
-    filenm.add( enm );
 
-    if ( act==Add )
+    if ( act==Remove )
+    {
+	delete dataset_.removeSingle( sdidx );
+    
+	BufferString prevnm = createFltDataName( fltfullnm_, sdidx );
+	BufferString nextnm = createFltDataName( fltfullnm_, sdidx+1 );
+    	File::remove( prevnm );
+	for ( int idx=sdidx; idx<dataset_.size(); idx++ )
+	{
+	    File::rename( nextnm, prevnm );
+	    prevnm = nextnm;
+	    nextnm = createFltDataName( fltfullnm_, idx+2 );
+	}
+    }
+    else 
+	dataset_[sdidx]->username = nm;
+
+    ObjectSet<IOPar> pars;
+    for ( int idx=0; idx<dataset_.size(); idx++ )
     {
 	IOPar* par = new IOPar();
-	par->set( sKey::Name(), sdname );
-	par->set( sKey::FileName(), filenm );
+	par->set( sKey::Name(), dataset_[idx]->username );
+    
+	const BufferString attrfilenm = createFltDataName( filenm,  idx ); 
+	par->set( sKey::FileName(), attrfilenm );
 	pars += par;
-	
-	sdusernames_.add( sdname );
-	sdfilenames_.add( filenm );
-    }
-    else
-    {
-	if ( act==Remove )
-	{
-	    delete pars.removeSingle(existparidx);
-	    sdusernames_.removeSingle( existparidx );
-    	    sdfilenames_.removeSingle( existparidx );
-	}
-	else
-	{
-	    pars[existparidx]->set( sKey::Name(), sdname );
-	    pars[existparidx]->set( sKey::FileName(), filenm );
-	    delete sdusernames_.replace( existparidx, 
-		    new BufferString(sdname) );
-    	    delete sdfilenames_.replace( existparidx, 
-		    new BufferString(filenm) );
-	}
     }
 
     astream.put( "Number of surface data", pars.size() );
@@ -211,22 +315,16 @@ void FaultAuxData::updateDataInfoFile( Action act, int sdidx,
     IOPar allpars;
     for ( int pidx=0; pidx<pars.size(); pidx++ )
 	allpars.mergeComp( *pars[pidx], toString(pidx) );
-
     allpars.putTo( astream );
     
     deepErase( pars );
     File::remove( backupfp.fullPath() );
-    
     sfio.closeSuccess();
-    changed_ = true;
 }
 
 
 void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
 {
-    if ( fltfullnm_.isEmpty() )
-	init();
-
     deepErase( sdnmpars );
     FilePath fp( fltfullnm_ );
     fp.setExtension( sKeyExtension() );
@@ -261,208 +359,157 @@ void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
 }
 
 
-float FaultAuxData::getDataVal( int sdidx, const PosID& posid ) const
+BufferString FaultAuxData::createFltDataName( const char* base, int sdidx )
 {
-    if ( !sdusernames_.validIdx(sdidx) )
-	return mUdf(float);
-
-    const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::Pos pos = surfdata_->findFirst( geomrc );
-    if ( !pos.valid() )
-	return mUdf(float);
-
-    return surfdata_->getVals( pos )[sdidx];
+    BufferString res( base );
+    res += "^"; res += (sdidx+1); res += ".flt";
+    return res;
 }
 
 
-void FaultAuxData::setDataVal( int sdidx, const PosID& posid, float val )
+#define mErrRtn(msg)	{ errmsg_ = msg; return false; }
+
+bool FaultAuxData::storeData( int sdidx, bool binary )
 {
-    if ( !sdusernames_.validIdx(sdidx) )
-	return;
+    errmsg_.setEmpty();
+    
+    if ( !dataset_.validIdx(sdidx) || !dataset_[sdidx]->data ) 
+	mErrRtn("No valid surface data to store");
 
-    const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::Pos pos = surfdata_->findFirst( geomrc );
-    if ( !pos.valid() )
+    const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
+    FilePath fp( fltsdnm );
+
+    FilePath backupfp(fp);
+    backupfp.setExtension(".old");
+    if ( File::exists(fp.fullPath()) )
+	File::copy( fp.fullPath(), backupfp.fullPath() );
+
+    SafeFileIO sfio( fp.fullPath(), true );
+    if ( !sfio.open(false,true) )
     {
-	mAllocVarLenArr( float, vals, surfdata_->nrVals() );
-	for ( int idx=0; idx<surfdata_->nrVals(); idx++ )
-	    vals[idx] = mUdf(float);
+	File::remove( backupfp.fullPath() );
+	mErrRtn("Cannot open file to write, check your disk I/O permission");
+    }
 
-	vals[sdidx] = val;
-	surfdata_->add( geomrc, vals );
+    ascostream astream( sfio.ostrm() );
+    astream.putHeader( sKeyFaultAuxData() );
+
+    IOPar sdinfo;
+    sdinfo.setYN( sKey::Binary(), binary );
+    FilePath fpnm( fltfullnm_ );
+    sdinfo.set( "RowSize", dataset_[sdidx]->data->info().getSize(0) );
+    sdinfo.set( "ColSize", dataset_[sdidx]->data->info().getSize(1) );
+    sdinfo.putTo( astream );
+
+    std::ostream& strm = astream.stream();
+    const float* vals = dataset_[sdidx]->data->getData();
+    if ( vals )
+    {
+	const od_uint64 datasz = dataset_[sdidx]->data->info().getTotalSz();
+	for ( od_int64 idy=0; idy<datasz; idy++ )
+	{
+	    if ( binary )
+		strm.write( (const char*)(&vals[idy]), sizeof(float) );
+	    else
+		strm << vals[idy] << '\t';
+	}
     }
     else
     {
-	surfdata_->getVals( pos )[sdidx] = val;
+	const int isz = dataset_[sdidx]->data->info().getSize( 0 );
+	const int jsz = dataset_[sdidx]->data->info().getSize( 1 );
+	for ( int idx=0; idx<isz; idx++ )
+	{
+	    for ( int jdx=0; jdx<jsz; jdx++ )
+	    {
+		const float val = dataset_[sdidx]->data->get( idx, jdx );
+    		if ( binary )
+    		    strm.write( (const char*)(&val), sizeof(float) );
+    		else
+    		    strm << val << '\t';
+	    }
+	}
     }
+	
+    if ( !binary ) 
+	strm << '\n';
 
-    changed_ = true;
+    File::remove( backupfp.fullPath() );
+    return sfio.closeSuccess();
 }
 
 
-Executor* FaultAuxData::dataLoader( int selidx )
+const Array2D<float>* FaultAuxData::loadIfNotLoaded( const char* sdname )
+{ return loadIfNotLoaded( dataIndex(sdname) ); }
+
+
+const Array2D<float>* FaultAuxData::loadIfNotLoaded( int sdidx )
+{ 
+    if ( !dataset_.validIdx(sdidx) )
+	return 0;
+
+    if ( !dataset_[sdidx]->data )
+	loadData( sdidx );
+
+    return dataset_[sdidx]->data; 
+}
+
+
+bool FaultAuxData::loadData( int sdidx )
 {
-    if ( fltfullnm_.isEmpty() )
-	init();
+    errmsg_.setEmpty();
+    if ( !dataset_.validIdx(sdidx) ) 
+	mErrRtn("Surface data does not exist");
+
+    const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
+    FilePath fp( fltsdnm );
+
+    if ( !File::exists(fp.fullPath()) )
+	mErrRtn("Surface data does not exist");
+
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(true) )
+	mErrRtn("Cannot open file, check your file read permission");
+
+    std::istream& istrm = sfio.istrm();
+    ascistream astream( istrm, true );
+    if ( !astream.isOfFileType( sKeyFaultAuxData() ) )
+    {
+	sfio.closeSuccess();
+	mErrRtn("Wrong file type, not fault aux data");
+    }
+
+    astream.next();
+    IOPar sdinfo;
+    sdinfo.getFrom( astream );
+
+    bool binary = false;
+    BufferString fltnm, username;
+    int rowsize, colsize;
+    sdinfo.getYN( sKey::Binary(), binary );
+    sdinfo.get( "RowSize", rowsize );
+    sdinfo.get( "ColSize", colsize );
+
+    std::istream& strm = astream.stream();
     
-    PtrMan<IOObj> ioobj = IOM().get( fault_.multiID() );
-    if ( !ioobj ) 
-	return 0; 
+    Array2DImpl<float>* newdata = new Array2DImpl<float>( rowsize, colsize );
+    const od_int64 datasz = rowsize * colsize;
+    float* arr = newdata->getData();
 
-    PtrMan<EMSurfaceTranslator> tr = 
-	(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !tr || !tr->startRead(*ioobj) )
-	return 0;
-
-    SurfaceIODataSelection& sel = tr->selections();
-    int nrauxdata = sel.sd.valnames.size();
-    if ( !nrauxdata || selidx >= nrauxdata ) return 0;
-
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
-    for ( int validx=0; validx<sel.sd.valnames.size(); validx++ )
+    for ( od_int64 idx=0; idx<datasz; idx++ )
     {
-	if ( selidx>=0 && selidx != validx ) continue;
-
-	BufferString filenm = getFileName( *ioobj, 
-		sel.sd.valnames[validx]->buf() );
-	if ( filenm.isEmpty() ) continue;
-
-	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm.buf());
-	//rdr->setSurface( fault_ );
-	grp->add( rdr );
+	float val;
+	if ( binary )
+	    strm.read( (char*)(&val), sizeof(float) );
+	else
+	    strm >> val;
+	arr[idx] = val;
     }
 
-    return grp;
-}
+    dataset_[sdidx]->data = newdata;
+    dataset_[sdidx]->policy = OD::CopyPtr;
 
-
-Executor* FaultAuxData::dataSaver( int dataidx, bool overwrite )
-{
-    PtrMan<IOObj> ioobj = IOM().get( fault_.multiID() );
-    if ( !ioobj )
-    	return 0; 
-
-    bool binary = true;
-    mSettUse(getYN,"dTect.Surface","Binary format",binary);
-
-    BufferString fnm;
-    if ( overwrite )
-    {
-	if ( dataidx<0 ) dataidx = 0;
-	fnm = getFileName( *ioobj, dataName(dataidx) );
-	if ( !fnm.isEmpty() )
-	    return 0;//new dgbSurfDataWriter(fault_,dataidx,0,binary,fnm.buf());
-    }
-
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
-    grp->setNrDoneText( "Nr done" );
-    for ( int selidx=0; selidx<sdusernames_.size(); selidx++ )
-    {
-	if ( dataidx >= 0 && dataidx != selidx ) continue;
-	//fnm = getFreeFileName( *ioobj );
-	Executor* exec = 0;
-	    //new dgbSurfDataWriter(fault_,selidx,0,binary,fnm.buf());
-	grp->add( exec );
-    }
-
-    return grp;
-}
-
-
-BufferString FaultAuxData::getFileName( const IOObj& ioobj, 
-					    const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
-
-
-BufferString FaultAuxData::getFileName( const char* fulluserexp, 
-					const char* attrnmptr )
-{
-    FixedString attrnm( attrnmptr );
-    const BufferString basefnm( fulluserexp );
-    BufferString fnm; int gap = 0;
-    for ( int idx=0; ; idx++ )
-    {
-	if ( gap > 100 ) return "";
-
-	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
-	if ( File::isEmpty(fnm.buf()) )
-	    { gap++; continue; }
-
-	EM::dgbSurfDataReader rdr( fnm.buf() );
-	if ( rdr.dataName()==attrnm )
-	    break;
-    }
-
-    return fnm;
-}
-
-/*
-bool FaultAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
-{
-    const BufferString fnm = getFileName( ioobj, attrnm );
-    return !fnm.isEmpty() ? File::remove( fnm ) : false;
-}
- 
-
-BufferString FaultAuxData::getFileName( const char* attrnm ) const
-{
-    PtrMan<IOObj> ioobj = IOM().get( fault_.multiID() );
-    return ioobj ? FaultAuxData::getFileName( *ioobj, attrnm ) : "";
-}
-
-
-bool FaultAuxData::removeFile( const char* attrnm ) const
-{
-    PtrMan<IOObj> ioobj = IOM().get( fault_.multiID() );
-    return ioobj ? FaultAuxData::removeFile( *ioobj, attrnm ) : false;
-}*/
-
-
-Array2D<float>* FaultAuxData::createArray2D( int sdidx ) const
-{
-    if ( fault_.geometry().sectionGeometry(0)->isEmpty() )
-	return 0;
-/*
-    const StepInterval<int> rowrg = fault_.geometry().rowRange( 0 );
-    const StepInterval<int> colrg = fault_.geometry().colRange( 0, -1 );
-
-    PosID posid( fault_.id(), sid );
-    Array2DImpl<float>* arr =
-	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-    {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
-	    const float val = getDataVal( sdidx, posid);
-	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
-	}
-    }
-
-    return arr;*/
-    return 0;
-}
-
-
-void FaultAuxData::setArray2D( int sdidx, const Array2D<float>& arr2d )
-{
-    const Geometry::RowColSurface* rcs = fault_.geometry().sectionGeometry(0);
-    if ( !rcs || rcs->isEmpty() )
-	return;
-/*
-    const StepInterval<int> rowrg = rcs->rowRange();
-    const StepInterval<int> colrg = rcs->colRange();
-    PosID posid( fault_.id(), sid );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-    {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
-	    const float val = arr2d.get( rowrg.getIndex(row),
-		    			 colrg.getIndex(col) );
-	    setDataVal( sdidx, posid, val );
-	}
-    }*/
+    return sfio.closeSuccess();
 }
 
 

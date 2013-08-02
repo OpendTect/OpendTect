@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "emeditor.h"
 #include "emfault3d.h"
+#include "emfaultauxdata.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "explplaneintersection.h"
@@ -122,6 +123,8 @@ FaultDisplay::FaultDisplay()
     drawstyle_->ref();
     addChild( drawstyle_->getInventorNode() );
     drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,2) );
+
+    texuredatas_.allowNull( true );
 }
 
 
@@ -189,9 +192,9 @@ FaultDisplay::~FaultDisplay()
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-    {
 	dpman.release( datapackids_[idx] );
-    }
+
+    deepErase( texuredatas_ );
 }
 
 
@@ -1132,8 +1135,11 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	return;
     }
 
-    RowCol sz = explicitpanels_->getTextureSize();
-    mDeclareAndTryAlloc( PtrMan<Array2D<float> >, texturedata,
+    const RowCol sz = explicitpanels_->getTextureSize();
+    while ( texuredatas_.size()-1 < attrib )
+	texuredatas_ += 0;
+
+    mDeclareAndTryAlloc( Array2D<float>*, texturedata,
 	    		 Array2DImpl<float>(sz.col,sz.row) );
 
     float* texturedataptr = texturedata->getData();
@@ -1157,11 +1163,47 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	texturedata->set( mNINT32(j), mNINT32(i), ptr[column] );
     }
 
+    delete texuredatas_.replace( attrib, texturedata );
     texture_->setData( attrib, 0, texturedata, true );
 
     validtexture_ = true;
     updateSingleColor();
 }
+
+
+void FaultDisplay::showSelectedSurfaceData()
+{
+    int lastattridx = nrAttribs()-1;
+    if ( !emfault_ || lastattridx<0 )
+	return;
+
+    EM::FaultAuxData* auxdata = emfault_->auxData();
+    if ( !auxdata )
+	return;
+
+    const TypeSet<int>& selindies = auxdata->selectedIndices();
+    for ( int idx=0; idx<selindies.size(); idx++ )
+    {
+	const Array2D<float>* data = auxdata->loadIfNotLoaded(selindies[idx]);
+	if ( !data )
+	    continue;
+
+	texture_->setData( lastattridx--, 0, data, true );
+	if ( lastattridx<0 )
+	    break;
+    }
+
+    validtexture_ = true;
+    updateSingleColor();
+}
+
+
+const BufferStringSet* FaultDisplay::selectedSurfaceDataNames() const
+{ return emfault_->auxData() ? &emfault_->auxData()->selectedNames() : 0; }
+
+
+const Array2D<float>* FaultDisplay::getTextureData( int attrib )
+{ return texuredatas_.validIdx(attrib) ? texuredatas_[attrib] : 0; }
 
 
 void FaultDisplay::setResolution( int res, TaskRunner* tr )
@@ -1245,7 +1287,7 @@ void FaultDisplay::displayHorizonIntersections( bool yn )
 
 
 bool FaultDisplay::areHorizonIntersectionsDisplayed() const
-{  return displayhorintersections_; }
+{ return displayhorintersections_; }
 
 
 bool FaultDisplay::canDisplayHorizonIntersections() const
@@ -1355,7 +1397,6 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
-
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
 	if ( !plane || !plane->isOn() )
 	    continue;
@@ -1695,7 +1736,7 @@ bool FaultDisplay::coincidesWithPlane(
 		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
-			intersectpoints.removeSingle( intersectpoints.size()-1 );
+			intersectpoints.removeSingle(intersectpoints.size()-1);
 
 		    res = res || coincidemode;
 		    intersectpoints += interpos;
@@ -1824,9 +1865,13 @@ int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				  TaskRunner* tr )
 {
+    if ( !datapackids_.validIdx(attrib) ) 
+	return false;
+
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     const DataPack* datapack = dpman.obtain( dpid );
-    if ( !datapack || !datapackids_.validIdx(attrib) ) return false;
+    if ( !datapack  ) 
+	return false;
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
@@ -1836,8 +1881,6 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 
 DataPack::ID FaultDisplay::getDataPackID( int attrib ) const
-{
-    return datapackids_[attrib];
-}
+{ return datapackids_[attrib]; }
 
 }; // namespace visSurvey

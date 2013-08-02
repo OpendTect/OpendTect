@@ -7,17 +7,15 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "emioobjinfo.h"
+
+#include "embodytr.h"
+#include "emfaultauxdata.h"
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
-#include "embodytr.h"
-#include "enums.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "iopar.h"
-#include "survinfo.h"
 #include "horizonrelation.h"
-#include "cubesampling.h"
-#include "bufstringset.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "iopar.h"
 
 #define mGoToEMDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) )
@@ -145,10 +143,22 @@ bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
 
 bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
-    mGetReaderRet
+    if ( type_==Fault )
+    {
+	if ( !ioobj_ ) 
+	    return false;
 
-    for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
-	attrnames.add( reader_->auxDataName(idx) );
+	FaultAuxData fad( ioobj_->key() );
+	fad.getAuxDataList( attrnames );
+	return true;
+    }
+    else
+    {
+     	mGetReaderRet;
+    	for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
+    	    attrnames.add( reader_->auxDataName(idx) );
+    }
+
     return true;
 }
 

@@ -30,14 +30,30 @@ mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() )
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
-    , auxdata( *new FaultAuxData(*this) )  
+    , auxdata_( 0 )  
 {
     geometry_.addSection( "", false );
 }
 
 
 Fault3D::~Fault3D()
-{ delete &auxdata; }
+{ delete auxdata_; }
+
+
+FaultAuxData* Fault3D::auxData()
+{
+    if ( !auxdata_ )
+    {
+	auxdata_ = new FaultAuxData( *this );
+	if ( !auxdata_->init() )
+	{
+	    delete auxdata_;
+	    auxdata_ = 0;
+	}
+    }
+
+    return auxdata_;
+}
 
 
 Fault3DGeometry& Fault3D::geometry()

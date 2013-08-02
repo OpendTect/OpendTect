@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
-#include "ranges.h"
 #include "explfaultsticksurface.h"
+#include "ranges.h"
 
 class DataPointSet;
 
@@ -40,6 +40,7 @@ namespace Geometry
     class FaultStickSurface; 
 }
 
+template <class T > class Array2D;
 
 namespace visSurvey
 {
@@ -153,6 +154,9 @@ public:
 				{ otherObjectsMoved( objs, whichobj ); }
 
     EM::Fault3D*		emFault()	{ return emfault_; }
+    void			showSelectedSurfaceData();
+    const BufferStringSet*	selectedSurfaceDataNames() const;
+    const Array2D<float>*	getTextureData(int attrib);
 
 protected:
 
@@ -250,11 +254,12 @@ protected:
     bool				stickselectmode_;
     bool				ctrldown_;
     ObjectSet<visBase::DataObjectGroup>	knotmarkers_;
+    ObjectSet<Array2D<float> >		texuredatas_;
 
     struct StickIntersectPoint
     {
 	Coord3				pos_;
-	EM::SectionID		sid_;
+	EM::SectionID			sid_;
 	int				sticknr_;
     };
 

@@ -22,11 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 
+#include "embodytr.h"
+#include "emfaultauxdata.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "emsurfaceauxdata.h"
-#include "embodytr.h"
 #include "emmarchingcubessurface.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 
@@ -102,12 +103,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
-
-    if ( mGet(typ,false,true,false,false,false,false) )
+    else if ( mGet(typ,false,true,false,false,false,false) )
+    {
 	manipgrp->addButton( "mergehorizons", "Merge 3D Horizons",
-			     mCB(this,uiSurfaceMan,merge3dCB) );
-
-    if ( mGet(typ,false,true,true,false,false,false) )
+		mCB(this,uiSurfaceMan,merge3dCB) );
+    }
+    else if ( mGet(typ,false,true,true,false,false,false) )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
 		"Horizon Data", true, uiLabeledListBox::AboveLeft );
@@ -135,8 +136,23 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
 	setPrefWidth( 50 );
     }
+    else if ( mGet(typ,false,false,false,false,true,false) )
+    {
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
+		"Fault Data", true, uiLabeledListBox::AboveLeft );
+	llb->attach( rightOf, selgrp_ );
+	attribfld_ = llb->box();
+	attribfld_->setToolTip( 
+		"Fault Data (Attributes stored in Fault format)" );
 
-    if ( mGet(typ,false,false,false,false,false,true) )
+	uiManipButGrp* butgrp = new uiManipButGrp( llb );
+	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Fault Data",
+			   mCB(this,uiSurfaceMan,removeAttribCB) );
+	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Fault Data",
+			   mCB(this,uiSurfaceMan,renameAttribCB) );
+	butgrp->attach( rightTo, attribfld_ );
+    }	
+    else if ( mGet(typ,false,false,false,false,false,true) )
     {
 	manipgrp->addButton( "set_union", "Merge bodies",
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
@@ -264,19 +280,28 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->implReadOnly() )
     {
-	uiMSG().error( "Could not remove Horizon Data. Surface is read-only" );
+	uiMSG().error( "Could not remove Surface Data. Surface is read-only" );
 	return;
     }
 
     BufferStringSet attrnms;
     attribfld_->getSelectedItems( attrnms );
-    if ( attrnms.isEmpty() || 
-	    !uiMSG().askRemove("All selected Horizon Data will be removed.\n"
+    if ( attrnms.isEmpty() && 
+	    !uiMSG().askRemove("All selected Surface Data will be removed.\n"
 			       "Do you want to continue?") )
 	return;
 
-    for ( int ida=0; ida<attrnms.size(); ida++ )
-	SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
+    if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
+    {
+	FaultAuxData fad( curioobj_->key() );
+    	for ( int ida=0; ida<attrnms.size(); ida++ )
+	    fad.removeData( attrnms.get(ida) );
+    }
+    else
+    {
+    	for ( int ida=0; ida<attrnms.size(); ida++ )
+    	    SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
+    }
 
     selChg( this );
 }
@@ -296,6 +321,15 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     const char* newnm = dlg.text();
     if ( attribfld_->isPresent(newnm) )
 	mErrRet( "Name is already in use" )
+
+    if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
+    {
+	FaultAuxData fad( curioobj_->key() );
+	fad.setDataName( attribnm, newnm );
+    
+	selChg( this );
+	return;
+    }
 
     const BufferString filename =
 		SurfaceAuxData::getFileName( *curioobj_, attribnm );

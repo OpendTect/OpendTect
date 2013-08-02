@@ -26,9 +26,10 @@ class uiPushButton;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
+template <class T> class Array2D;
+
 namespace EM 
 { 
-    class Fault3D;
     class Horizon3D; 
     class Surface; 
     class SurfaceIODataSelection; 
@@ -102,30 +103,6 @@ protected:
     CtxtIOObj&		ctio_;
     
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
-    bool		acceptOK(CallBacker*);
-};
-
-/*Brief dialog for saving fault aux-data. */
-mExpClass(uiEarthModel) uiStoreFaultData : public uiDialog
-{
-public:
-    			uiStoreFaultData(uiParent*,const EM::Fault3D&);
-    			~uiStoreFaultData();
-
-    Executor*		dataSaver(); 			
-    bool		doOverWrite() const	{ return dooverwrite_; }
-    const char*		surfaceDataName() const;
-    int			surfaceDataIdx() const;
-
-protected:
-
-    void		selButPushedCB(CallBacker*);
-
-    uiPushButton*	selbut_;
-    uiGenInput*		attrnmfld_;
-    const EM::Fault3D&	surface_;
-
-    bool		dooverwrite_;
     bool		acceptOK(CallBacker*);
 };
 

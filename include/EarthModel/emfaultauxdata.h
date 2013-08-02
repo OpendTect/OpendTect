@@ -13,14 +13,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "typeset.h"
-#include "bufstringset.h"
-#include "emposid.h"
+#include "earthmodelmod.h"
 
+#include "bufstringset.h"
+#include "odmemory.h"
+
+class BinIDValueSet;
 class Executor;
 class IOObj;
 class IOPar;
-class BinIDValueSet;
+class MultiID;
 
 template <class T> class Array2D;
 
@@ -38,50 +40,64 @@ mExpClass(EarthModel) FaultAuxData
 {
 public:
 			FaultAuxData(const Fault3D&);
+			FaultAuxData(const MultiID&);
 			~FaultAuxData();
 
-    Executor*		dataLoader(int sdidx);
-    Executor*		dataSaver(int sdidx=0,bool overwrite=false);
+    bool		init();
+    int			setData(const char* sdname,const Array2D<float>* data,
+	    			OD::PtrPolicy);
+    void		setData(int sdidx,const Array2D<float>*,
+	    			OD::PtrPolicy);
+    const Array2D<float>* loadIfNotLoaded(const char* sdname);
+    const Array2D<float>* loadIfNotLoaded(int sdidx);
+    int			dataIndex(const char* sdname) const;
 
-    int			addData(const char* name);
-    void		setDataName(int,const char*);    
-    void		removeData(int sdidx);
-    const char*		dataName(int sdidx) const;
-    int			dataIndex(const char*) const;
+    void		setSelected(const TypeSet<int>& sl);
+    const TypeSet<int>& selectedIndices() const	 { return selected_; }
+    const BufferStringSet& selectedNames() const { return selattribnames_; }
 
-    const BufferStringSet& auxDataList();
+    bool		storeData(int sdidx,bool binary);
     
-    enum Action		{ Add=0, Remove=1, Rename=2 };
-    void		updateDataInfoFile(Action,int idx,const char* newname);
+    void		setDataName(int sdidx,const char* newname);    
+    void		setDataName(const char* oldname,const char* newname);   
+    void		removeData(const char* sdname);
+    void		removeData(int sdidx);
+    void		removeAllData();
+    void		renameFault(const char* fltnewname);
 
-    float		getDataVal(int sdidx,const PosID& posid) const;
-    void		setDataVal(int sdidx,const PosID& posid,float val);
-
-    bool		isChanged(int) const	{ return changed_; }
-    void		resetChangedFlag()	{ changed_ = false; }
-
-    Array2D<float>*	createArray2D(int sdidx) const;
-    void		setArray2D(int sdidx,const Array2D<float>&);
-
-    void		readSDInfoFile(ObjectSet<IOPar>&);
-
-    const char*		sKeyFaultAuxData()	{ return "Fault Aux Data"; }
-    const char*		sKeyExtension()		{ return "auxdatainfo"; }	
+    void		getAuxDataList(BufferStringSet&) const;
+    const char*		errMsg() const		{ return errmsg_.buf(); }
 
 protected:
 
-    void			init();
-    BufferString		getFileName(const IOObj&,const char* attrnm);
-    BufferString		getFileName(const char* fulluserexp,
-	    				    const char* attrnm);
+    const char*		sKeyFaultAuxData()	{ return "Fault Aux Data"; }
+    const char*		sKeyExtension()		{ return "auxinfo"; }	
 
-    const Fault3D&		fault_;
-    BufferString		fltfullnm_;
-    BinIDValueSet*		surfdata_;
+    bool		loadData(int sdidx);
+    enum Action		{ Remove=0, SetName=1 };
+    void		updateDataFiles(Action,int idx,const char* newnme=0);
+    void		readSDInfoFile(ObjectSet<IOPar>&);
+    BufferString	createFltDataName(const char* base,int sdidx);
 
-    BufferStringSet		sdusernames_;
-    BufferStringSet		sdfilenames_;
-    bool			changed_;
+    const MultiID&	faultmid_;
+    BufferString	fltfullnm_;
+    BufferString	errmsg_;
+
+    struct DataInfo
+    {
+				DataInfo();
+				~DataInfo();
+	bool			operator==(const DataInfo&);
+
+	BufferString		username;
+	BufferString		filename;
+	const Array2D<float>*	data;
+	OD::PtrPolicy		policy;
+    };
+    
+    ObjectSet<DataInfo>	dataset_;
+    TypeSet<int>	selected_;
+    BufferStringSet	selattribnames_;    
 };
 
 

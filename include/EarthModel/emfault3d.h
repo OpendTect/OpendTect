@@ -82,7 +82,8 @@ public:
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);
 
-    FaultAuxData&		auxdata;
+    FaultAuxData*		auxData();
+    const FaultAuxData*		auxData() const;
 
 protected:
 
@@ -91,6 +92,7 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
     Fault3DGeometry		geometry_;
+    FaultAuxData*		auxdata_;
 };
 
 
