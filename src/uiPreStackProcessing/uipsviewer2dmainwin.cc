@@ -343,10 +343,10 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
     FixedString windowtitle = isanglegather ? "Angle Gather Display" 
 					    : "Angle Data Display";
 
-    BufferString caption = "Specify Parameters for ";
-    caption += windowtitle;
+    BufferString windowcaption = "Specify Parameters for ";
+    windowcaption += windowtitle;
     uiDialog angledisplaydlg( this, uiDialog::Setup(windowtitle,
-						    caption,mTODOHelpID) );
+						windowcaption,mTODOHelpID) );
 
     PreStack::AngleCompParams params;
     PreStack::uiAngleCompGrp anglegrp( &angledisplaydlg, params, false, false );
