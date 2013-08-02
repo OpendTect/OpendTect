@@ -68,7 +68,6 @@ protected:
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;
     Interval<float>	zrg_;
-    ObjectSet<PreStack::Gather> anglegather_;
     ObjectSet<uiGatherDisplay>	gd_;
     ObjectSet<uiGatherDisplayInfoHeader> gdi_;
 
@@ -82,7 +81,10 @@ protected:
     PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
-    void		setAngleGather(int idx);
+    void		setAngleData(int idx, PreStack::Gather* gather,
+				     PreStack::Gather* angledata);
+    void		setAngleGather(int idx, PreStack::Gather* anglegather);
+    void		displayAngle(bool isanglegather);
 
     void 		setUpView();
     void		clearAuxData();
@@ -97,6 +99,7 @@ protected:
     void		showZAxis(CallBacker*);
     void		loadMuteCB(CallBacker*);
     void		angleGatherCB(CallBacker*);
+    void		angleDataCB(CallBacker*);
 };
 
 
