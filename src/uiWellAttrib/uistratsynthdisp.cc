@@ -723,7 +723,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.autosym0_ = false;
 	mapper.type_ = ColTab::MapperSetup::Fixed;
 	SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
-	dispsd->dispPars().mapperrange_ = vwr_->getDataRange( wva );
+	dispsd->dispPars().mapperrange_ = mapper.range_;
     }
     displayFRText();
 

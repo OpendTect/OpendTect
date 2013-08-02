@@ -103,7 +103,7 @@ public:
 
 	FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
 	if ( mgr && mgr->bitMapGen() )
-	    rg = mgr->bitMapGen()->data().scale( mapper.cliprate_, mUdf(float));
+	    rg = mgr->bitMapGen()->data().scale( mapper.cliprate_, mapper.symmidval_);
 
 	return rg;
     }
