@@ -44,13 +44,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "windowfunction.h"
 
 
-static int sStartNrViewers = 10;
+static int sStartNrViewers = 8;
 
 namespace PreStackView 
 {
     
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
-    : uiObjectItemViewWin(p,title)
+    : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
     , posdlg_(0)
     , control_(0)
     , slicepos_(0)	 
@@ -59,7 +59,6 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , cs_(false)
 {
     setDeleteOnClose( true );
-    setPrefWidth( 800 );
 }
 
 
@@ -189,7 +188,7 @@ void uiViewer2DMainWin::displayMutes()
 		muteaux->poly_ +=  FlatView::Point( offset, val );
 	    }
 
-	    muteaux->namepos_ = 0;
+	    muteaux->namepos_ = sz/2;
 	    gd->getUiFlatViewer()->addAuxData( muteaux );
 	}
     }
