@@ -15,7 +15,10 @@ OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
 install ( DIRECTORY CMakeModules DESTINATION .
-	  PATTERN ".svn" EXCLUDE )
+	  PATTERN ".svn" EXCLUDE
+	  PATTERN "*.swp" EXCLUDE
+	  PATTERN "*.cmake~" EXCLUDE
+	  PATTERN "sourcefiles*.txt*" EXCLUDE)
 
 #install doc stuff
 file( GLOB TUTHFILES plugins/Tut/*.h )
@@ -38,6 +41,11 @@ install( DIRECTORY doc/Credits/base
 	 DESTINATION doc/Credits
 	 PATTERN ".svn" EXCLUDE )
 
+install( FILES doc/User/base/WindowLinkTable.txt DESTINATION doc
+         RENAME od_WindowLinkTable.txt )
+install( FILES doc/User/base/.mnuinfo DESTINATION doc
+         RENAME base_.mnuinfo )
+
 file( GLOB FLEXNETFILES doc/*.html )
 foreach( FLEXNETFILE ${FLEXNETFILES} )
     install( FILES ${FLEXNETFILE} DESTINATION doc )
@@ -52,13 +60,8 @@ install ( DIRECTORY "data" DESTINATION .
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
 
-#install alo files
-install ( DIRECTORY plugins/${OD_PLFSUBDIR}
-	  DESTINATION plugins )
-
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/relinfo
-	 DESTINATION .
-	 PATTERN ".svn" EXCLUDE )
+file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
+install ( FILES ${RELINFOFILES} DESTINATION relinfo )
 
 install( FILES CMakeLists.txt DESTINATION . )
 
@@ -71,7 +74,10 @@ endif()
 file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
 if( UNIX OR APPLE )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
-    list( REMOVE_ITEM PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
+    list( REMOVE_ITEM PROGRAMS
+	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
+    list( REMOVE_ITEM PROGRAMS
+	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/makeself )
     foreach( TEXTFILE ${TEXTFILES} )
         list( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
     endforeach()
@@ -88,6 +94,9 @@ if( APPLE )
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
     OD_CURRENT_YEAR( YEAR )
+    set( BUNDLEEXEC start_dtect )
+    set( BUNDLEICON "od.icns" )
+    set( BUNDLEID "com.dgbes.opendtect" )
     set ( INFOFILE CMakeModules/Info.plist )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
 		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
@@ -97,27 +106,25 @@ endif( APPLE )
 set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 set( LMHOSTID lmhostid )
 if( WIN32 )
-    install( PROGRAMS "C:/Program\ Files \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/signtool.exe" 
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
     set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
-        set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
+	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-        set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
+	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
     endif()
-    install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.pdb
 	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Debug
+    install( DIRECTORY ${OD_EXEC_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Debug
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-	install( DIRECTORY ${OD_EXEC_OUTPUT_PATH}/Release
+    install( DIRECTORY ${OD_EXEC_RELPATH_RELEASE}
 	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS Release
 	    FILES_MATCHING
@@ -129,7 +136,11 @@ endif()
 install( PROGRAMS ${QJPEG} DESTINATION imageformats )
 if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH}/${CMAKE_BUILD_TYPE} )
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+	     CONFIGURATIONS Release )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+	     CONFIGURATIONS Debug )
 else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
@@ -139,7 +150,8 @@ if( EXISTS ${MSVCPATH} )
     file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
     foreach( DLL ${MSVCDLLS} )
 	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} CONFIGURATIONS Release )
-	install( FILES ${DLL} DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG} CONFIGURATIONS Debug )
+	get_filename_component( FILENAME ${DLL} NAME )
+	list( APPEND OD_THIRD_PARTY_LIBS ${FILENAME} )
     endforeach()
 endif()
 
