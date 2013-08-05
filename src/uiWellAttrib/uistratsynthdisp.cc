@@ -411,7 +411,7 @@ void uiStratSynthDisp::drawLevel()
 
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
-	    auxd->poly_ += FlatView::Point( imdl+1, tval );
+	    auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
 	}
 	if ( auxd->isEmpty() )
 	    delete auxd;
@@ -723,7 +723,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.autosym0_ = false;
 	mapper.type_ = ColTab::MapperSetup::Fixed;
 	SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
-	dispsd->dispPars().mapperrange_ = vwr_->getDataRange( wva );
+	dispsd->dispPars().mapperrange_ = mapper.range_;
     }
     displayFRText();
 
