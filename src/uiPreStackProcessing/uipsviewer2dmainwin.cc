@@ -410,8 +410,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     gd->setPosition( gd->getBinID(), cs_.zrg.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
-    gd->displayAnnotation( false );
-    fv->appearance().annot_.x1_.showannot_ = false;
+    gd->displayAnnotation( true );
+    if ( vwrs_.size()>0 ) fv->appearance().annot_.x2_.showannot_ = false;
 
     vwrs_ += fv;
     addGroup( gd, gdi );
@@ -856,7 +856,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
-    disppars_ = propdlg_->viewer().appearance().ddpars_;
+    app_ = propdlg_->viewer().appearance();
     const int selannot = propdlg_->selectedAnnot();
 
     const FlatDataPack* vddatapack = vwrs_[0]->pack( false );
@@ -865,7 +865,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     {
 	if ( !vwrs_[ivwr] ) continue;
 	uiFlatViewer& vwr = *vwrs_[ivwr];
-	vwr.appearance().ddpars_ = disppars_;
+	vwr.appearance() = app_;
+	if ( ivwr>0 ) vwr.appearance().annot_.x2_.showannot_ = false;
 
 	const uiWorldRect cv( vwr.curView() );
 	FlatView::Annotation& annot = vwr.appearance().annot_;
@@ -879,10 +880,10 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
 	    FixedString datanm( DPM(DataPackMgr::FlatID()).nameOf(id) );
 	    if ( vddatapack && datanm == vddatapack->name() &&
-		 disppars_.vd_.show_ )
+		 app_.ddpars_.vd_.show_ )
 		vwr.usePack( false, id, false );
 	    if ( wvadatapack && datanm == wvadatapack->name() &&
-		 disppars_.wva_.show_ )
+		 app_.ddpars_.wva_.show_ )
 		vwr.usePack( true, id, false );
 	}
 

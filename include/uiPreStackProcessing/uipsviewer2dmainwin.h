@@ -156,13 +156,13 @@ public:
     Notifier<uiViewer2DControl> datadlgcalled_;
 
     void 			removeAllViewers();
-    const FlatView::DataDispPars& dispPars() const	{ return disppars_; }
-    FlatView::DataDispPars&	dispPars()		{ return disppars_; }
+    const FlatView::DataDispPars& dispPars() const    { return app_.ddpars_; }
+    FlatView::DataDispPars&	dispPars()	      { return app_.ddpars_; }
 
 protected:
 
     uiObjectItemViewControl*	objectitemctrl_;
-    FlatView::DataDispPars	disppars_;
+    FlatView::Appearance	app_;
 
     void		doPropertiesDialog(int vieweridx,bool dowva);
 
