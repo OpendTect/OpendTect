@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uidialog.h"
 
-class uiColorTable;
+class uiColorTableGroup;
 class uiTreeItem;
 
 mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
@@ -27,7 +27,7 @@ public:
 						       const char* attrnm);
 protected:
 	
-	uiColorTable*		uicoltab_;
+	uiColorTableGroup*		uicoltab_;
 	ObjectSet<uiTreeItem>&	items_;
 
 	void			seqChg(CallBacker*);

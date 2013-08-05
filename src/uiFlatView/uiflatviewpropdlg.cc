@@ -103,24 +103,11 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     }
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
-
-    /*
-    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr)
-    if ( uivwr )
-	uivwr->dispParsChanged.notify( 
-	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
-	    */
 }
 
 
 uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
 {
-    /*
-    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_)
-    if ( uivwr )
-	uivwr->dispParsChanged.remove( 
-	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
-	    */
 }
 
 
@@ -457,7 +444,8 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     , pars_(ddpars_.vd_)
     , ctab_( ddpars_.vd_.ctab_.buf() )
 {
-    uicoltab_ = new uiColorTable( this, ctab_.name().buf(), false );
+    ColTab::Sequence seq( ctab_.name().buf() );
+    uicoltab_ = new uiColorTableGroup( this, seq );
     uicoltab_->setStretch( 0, 0 );
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
     uicoltab_->attach( alignedBelow, lastcommonfld_ );

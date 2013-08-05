@@ -67,7 +67,7 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 
     showin3dscenefld_->attach( alignedBelow, showoverlayfld_ );
 
-    coltabfld_ = new uiColorTable( this, "Rainbow", false );
+    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow") );
     coltabfld_->attach( alignedBelow, showin3dscenefld_ );
     coltabfld_->display( false );
 }

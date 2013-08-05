@@ -50,6 +50,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     , ms_(ms)
     , scaleChanged(nf)
 {
+    showAlwaysOnTop();
     setCtrlStyle( DoAndStay );
     setButtonText( OK, "Apply" );
 
@@ -229,19 +230,22 @@ const char* uiColorTableSel::getCurrent() const
 	, enabmanage_(true)
 
 
-uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
-			    bool vert )
-    : uiGroup(p,"Color table display/edit")
-    , mStdInitList
+uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
+    : mStdInitList
     , coltabseq_( *new ColTab::Sequence(colseq) )
     , mapsetup_( *new ColTab::MapperSetup(ColTab::MapperSetup()
 	    .type(ColTab::MapperSetup::Auto)
 	    .symmidval(mUdf(float))
 	    .cliprate(ColTab::defClipRate())) )
-    , enabletrans_( true )
+    , enabletrans_(true)
+    , parent_(0)
 {
-    mDynamicCastGet(uiToolBar*,tb,p);
-    uiParent* parnt = tb ? p : this;
+}
+
+
+void uiColorTable::createFields( uiParent* parnt, bool vert )
+{
+    parent_ = parnt;
 
     minfld_ = new uiLineEdit( parnt, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
@@ -253,8 +257,6 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->getMouseEventHandler().doubleClick.notify(
 			mCB(this,uiColorTable,canvasDoubleClick) );
-    canvas_->setPrefHeight( vert ? 160 : 25 );
-    canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
@@ -267,59 +269,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
     selfld_ = new uiColorTableSel( parnt, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
-    selfld_->setCurrent( colseq );
-
-    if ( tb ) // No attachment inside toolbar
-    {
-#define mAddTBObj( fld, sz ) \
-    fld->setMaximumWidth( sz*uiObject::iconSize() ); \
-    tb->addObject( fld );
-
-	mAddTBObj( minfld_, 2 );
-	mAddTBObj( canvas_, 2 );
-	mAddTBObj( maxfld_, 2 );
-	mAddTBObj( selfld_, 4 );
-	return;
-    }
-
-    if ( vert )
-    {
-	maxfld_->attach( topBorder, 2 );
-	canvas_->attach( centeredBelow, maxfld_, 2 );
-	minfld_->attach( centeredBelow, canvas_, 2 );
-	selfld_->attach( centeredBelow, minfld_, 2 );
-    }
-    else 
-    {
-	canvas_->attach( rightOf, minfld_ );
-	maxfld_->attach( rightOf, canvas_ );
-	selfld_->attach( rightOf, maxfld_ );
-	setHAlignObj(minfld_); setHCenterObj(minfld_);
-    }
-}
-
-
-uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
-    : uiGroup(p,"Color table display")
-    , mStdInitList
-    , coltabseq_( *new ColTab::Sequence )
-    , mapsetup_( *new ColTab::MapperSetup(ColTab::MapperSetup()
-	    .type(ColTab::MapperSetup::Auto)
-	    .symmidval(mUdf(float))
-	    .cliprate(ColTab::defClipRate())) )
-{
-    ColTab::SM().get( ctnm, coltabseq_ );
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
-    canvas_->setPrefHeight( vert ? 160 : 25 );
-    canvas_->setPrefWidth( vert ? 30 : 80 );
-    canvas_->setStretch( 0, 0 );
-
-    selfld_ = new uiColorTableSel( this, "Table selection" );
-    selfld_->attach( vert ? alignedBelow : rightOf, canvas_ );
-    selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
-    selfld_->setStretch( 0, vert ? 1 : 0 );
     selfld_->setCurrent( coltabseq_ );
-    setHAlignObj(canvas_); setHCenterObj(canvas_);
 }
 
 
@@ -448,7 +398,7 @@ void uiColorTable::canvasClick( CallBacker* )
     if ( !hasseq && !hasmapper )
 	return;
 
-    PtrMan<uiMenu> mnu = new uiMenu( this, "Action" );
+    PtrMan<uiMenu> mnu = new uiMenu( parent_, "Action" );
     if ( hasmapper ) 
     {
 	uiAction* itm =
@@ -501,7 +451,7 @@ void uiColorTable::rangeEntered( CallBacker* )
 void uiColorTable::editScaling( CallBacker* )
 {
     if ( !scalingdlg_ )
-	scalingdlg_ = new uiAutoRangeClipDlg( this, mapsetup_, scaleChanged );
+	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_, scaleChanged);
 
     scalingdlg_->show();
     scalingdlg_->raise();
@@ -541,7 +491,7 @@ void uiColorTable::enableTransparencyEdit( bool yn )
 
 void uiColorTable::doManage( CallBacker* )
 {
-    uiColorTableMan coltabman( this, coltabseq_, enabletrans_ );
+    uiColorTableMan coltabman( parent_, coltabseq_, enabletrans_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
     coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
     coltabman.setHistogram( histogram_ );
@@ -569,3 +519,94 @@ void uiColorTable::tableAdded( CallBacker* cb )
 {
     selfld_->update();
 }
+
+
+// uiColorTableGroup
+uiColorTableGroup::uiColorTableGroup( uiParent* p, bool vertical,
+				      bool nominmax )
+    : uiGroup(p,"Color table display/edit")
+    , uiColorTable(ColTab::Sequence(""))
+{
+    init( vertical, nominmax );
+}
+
+
+uiColorTableGroup::uiColorTableGroup( uiParent* p, const ColTab::Sequence& seq,
+				      bool vertical, bool nominmax )
+    : uiGroup(p,"Color table display/edit")
+    , uiColorTable(seq)
+{
+    init( vertical, nominmax );
+}
+
+
+void uiColorTableGroup::init( bool vertical, bool nominmax )
+{
+    mDynamicCastGet(uiGroup*,grp,this)
+    createFields( grp, vertical );
+
+    canvas_->setPrefHeight( vertical ? 160 : 25 );
+    canvas_->setPrefWidth( vertical ? 30 : 80 );
+
+    if ( vertical )
+    {
+	maxfld_->attach( topBorder, 2 );
+	canvas_->attach( centeredBelow, maxfld_, 2 );
+	minfld_->attach( centeredBelow, canvas_, 2 );
+	selfld_->attach( centeredBelow, minfld_, 2 );
+    }
+    else 
+    {
+	canvas_->attach( rightOf, minfld_ );
+	maxfld_->attach( rightOf, canvas_ );
+	selfld_->attach( rightOf, maxfld_ );
+	setHAlignObj(minfld_); setHCenterObj(minfld_);
+    }
+
+    minfld_->display( !nominmax, true );
+    maxfld_->display( !nominmax, true );
+}
+
+
+uiColorTableGroup::~uiColorTableGroup()
+{}
+
+
+
+// uiColorTableToolBar
+uiColorTableToolBar::uiColorTableToolBar( uiParent* p )
+    : uiToolBar(p,"Color table toolbar")
+    , uiColorTable(ColTab::Sequence(""))
+{
+    init();
+}
+
+
+uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
+					  const ColTab::Sequence& seq )
+    : uiToolBar(p,"Color table toolbar")
+    , uiColorTable(seq)
+{
+    init();
+}
+
+
+void uiColorTableToolBar::init()
+{
+    mDynamicCastGet(uiToolBar*,tb,this)
+    createFields( tb, false );
+
+#define mAddTBObj( fld, sz ) \
+    fld->setMaximumWidth( sz*uiObject::iconSize() ); \
+    tb->addObject( fld );
+
+    mAddTBObj( minfld_, 2 );
+    mAddTBObj( canvas_, 2 );
+    mAddTBObj( maxfld_, 2 );
+    mAddTBObj( selfld_, 4 );
+}
+
+
+uiColorTableToolBar::~uiColorTableToolBar()
+{}
+

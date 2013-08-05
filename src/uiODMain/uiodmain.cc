@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattribpartserv.h"
 #include "uicmain.h"
+#include "uicolortable.h"
 #include "uidockwin.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -37,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 
+#include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
 #include "ioman.h"
@@ -192,6 +194,8 @@ uiODMain::~uiODMain()
 	manODMainWin( 0 );
 
     delete ctabwin_;
+    delete ctabed_;
+
     delete &lastsession_;
     delete &timer_;
     delete &memtimer_;
@@ -284,22 +288,20 @@ bool uiODMain::buildUI()
     if ( isvert )
     {
 	ctabwin_ = new uiDockWin( this, "Color Table" );
-	ctabed_ = new uiVisColTabEd( 0, true );
+	uiColorTableGroup* grp =
+	    new uiColorTableGroup( ctabwin_, ColTab::Sequence(""), true, false);
+	ctabed_ = new uiVisColTabEd( *grp );
 	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
 	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
-//	ctabed_->colTabGrp()->attach( hCentered );
-	ctabwin_->setGroup( ctabed_->colTabGrp() );
 	addDockWindow( *ctabwin_, uiMainWin::Left );
     }
     else
     {
-	uiToolBar* tb = new uiToolBar( this, "Color Table" );
-	ctabed_ = new uiVisColTabEd( tb, false );
+	uiColorTableToolBar* tb = new uiColorTableToolBar( this );
+	ctabed_ = new uiVisColTabEd( *tb );
 	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
 	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
-	tb->addObject( ctabed_->colTabGrp()->attachObj() );
     }
-
 
     return true;
 }

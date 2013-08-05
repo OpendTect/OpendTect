@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 
-class uiColorTable;
+class uiColorTableGroup;
 class uiComboBox;
 class uiDataPointSetCrossPlotter;
 
@@ -32,8 +32,8 @@ public:
 protected:
 
     uiDataPointSetCrossPlotter&	plotter_;
-    uiColorTable*		y3coltabfld_;
-    uiColorTable*		y4coltabfld_;
+    uiColorTableGroup*		y3coltabfld_;
+    uiColorTableGroup*		y4coltabfld_;
     uiComboBox*			y3propselfld_;
     uiComboBox*			y4propselfld_;
     TypeSet<int>		colids_;

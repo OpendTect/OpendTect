@@ -29,11 +29,10 @@ class uiParent;
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
-    				uiFlatViewColTabEd(uiParent*,FlatView::Viewer&);
-				~uiFlatViewColTabEd();
+			uiFlatViewColTabEd(uiColorTable&,FlatView::Viewer&);
+			~uiFlatViewColTabEd();
 
-    uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
-    void			setColTab( const FlatView::Viewer& );
+    void		setColTab( const FlatView::Viewer& );
 
     Notifier<uiFlatViewColTabEd> colTabChgd;
 
@@ -41,7 +40,7 @@ protected:
 
     FlatView::DataDispPars&	ddpars_;
     ColTab::Sequence&		colseq_;
-    uiColorTable*		uicoltab_;
+    uiColorTable&		uicoltab_;
     FlatView::Viewer*		vwr_;
 
     void			colTabChanged(CallBacker*);

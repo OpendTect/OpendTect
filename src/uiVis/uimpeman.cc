@@ -1296,8 +1296,11 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     updateDisplayList();
     setCtrlStyle( LeaveOnly );
 
-    uiGroup* coltabgrp = new uiGroup( this, "Coltabgrp" );
-    coltbl_ = new uiVisColTabEd( coltabgrp, false );
+    ColTab::Sequence ctseq( "" );
+    uiColorTableGroup* coltabgrp =
+	new uiColorTableGroup( this, ctseq, false, false );
+
+    coltbl_ = new uiVisColTabEd( *coltabgrp );
     coltbl_->seqChange().notify( mCB(this,uiPropertiesDialog,colSeqChange) );
     coltbl_->mapperChange().notify( mCB(this,uiPropertiesDialog,
 					colMapperChange) );

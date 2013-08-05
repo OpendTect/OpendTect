@@ -26,7 +26,7 @@ class IOPar;
 mExpClass(uiVis) uiVisColTabEd : public CallBacker
 {
 public:
-    				uiVisColTabEd(uiParent*,bool vert=true);
+    				uiVisColTabEd(uiColorTable&);
 				~uiVisColTabEd();
 
     void			setColTab(const ColTab::Sequence*,
@@ -45,10 +45,7 @@ public:
     NotifierAccess&		mapperChange();
     
     void			setHistogram(const TypeSet<float>*);
-    void			setPrefHeight(int);
-    void			setPrefWidth(int);
-    uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
-    uiColorTable*		colTab()	{ return uicoltab_; }
+    uiColorTable&		colTab()	{ return uicoltab_; }
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
@@ -70,14 +67,14 @@ protected:
     void			removeAllVisCB(CallBacker*);
 
 
-    uiColorTable*		uicoltab_;
+    uiColorTable&		uicoltab_;
     int				channel_;
     int				version_;
     visSurvey::SurveyObject*	survobj_;
 };
 
 
-mExpClass(uiVis) uiColorBarDialog :  public uiDialog
+mExpClass(uiVis) uiColorBarDialog : public uiDialog
 {
 public:
     				uiColorBarDialog(uiParent*,const char* title);

@@ -11,18 +11,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewstdcontrol.h"
 
+#include "uicolortable.h"
 #include "uiflatviewcoltabed.h"
-#include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
 #include "uigraphicsscene.h"
-#include "uitoolbutton.h"
 #include "uimainwin.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uiworld2ui.h"
 
+#include "flatviewzoommgr.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "pixmap.h"
@@ -85,8 +86,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withcoltabed_ )
     {
-	uiToolBar* coltabtb = new uiToolBar( mainwin(), "Color Table" );
-	ctabed_ = new uiFlatViewColTabEd( coltabtb, vwr );
+	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
+	ctabed_ = new uiFlatViewColTabEd( *coltabtb, vwr );
 	ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
     }

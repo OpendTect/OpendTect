@@ -325,7 +325,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(ColTab):
 	if ( at == uiODApplMgr::Man )
 	{
-	    ColTab::Sequence ctseq;
+	    ColTab::Sequence ctseq( "" );
 	    uiColorTableMan dlg( par_, ctseq, true );
 	    dlg.go();
 	}

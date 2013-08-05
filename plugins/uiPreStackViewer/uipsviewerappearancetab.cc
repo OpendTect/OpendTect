@@ -37,8 +37,8 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     , manuzsampl_( vwr_->appearance().annot_.x2_.sampling_ )			
     , manuoffssampl_( vwr_->appearance().annot_.x1_.sampling_ )			
 {
-    uicoltab_ = new uiColorTable( this, 
-	    vwr_ ? vwr_->appearance().ddpars_.vd_.ctab_.buf() : 0, false );
+    uicoltab_ = new uiColorTableGroup( this,
+            vwr_ ? vwr_->appearance().ddpars_.vd_.ctab_.buf() : 0 );
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;

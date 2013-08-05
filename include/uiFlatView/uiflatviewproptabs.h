@@ -23,7 +23,7 @@ class uiComboBox;
 class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
-class uiColorTable;
+class uiColorTableGroup;
     
 /*!
 \brief uiFlatViewer properties tabs.
@@ -146,7 +146,7 @@ protected:
     virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
     virtual const char*	dataName() const;
 
-    uiColorTable*	uicoltab_;
+    uiColorTableGroup*	uicoltab_;
     uiLabel*		uicoltablbl_;
 
     virtual void	handleFieldDisplay(bool);

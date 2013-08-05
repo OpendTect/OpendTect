@@ -91,7 +91,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 
     selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
 
-    coltabfld_ =  new uiColorTable( this, ColTab::Sequence("Rainbow"), false );
+    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow") );
     coltabfld_->attach( leftAlignedBelow, llb );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
@@ -132,7 +132,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
     uiGenInput*				typefld_;
     uiComboBox*				selfld_;
-    uiColorTable*			coltabfld_;
+    uiColorTableGroup*			coltabfld_;
     const uiDataPointSetCrossPlotter&	plotter_;
 };
 

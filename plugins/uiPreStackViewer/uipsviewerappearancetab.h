@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "samplingdata.h"
 
-class uiColorTable;
+class uiColorTableGroup;
 class uiLabel;
 class uiPushButton;
 class uiGenInput;
@@ -49,7 +49,7 @@ protected:
 					   uiGenInput* rgfld,
 					   uiLabel* lblfld,bool x1);
     
-    uiColorTable*       	uicoltab_;
+    uiColorTableGroup*       	uicoltab_;
     uiLabel*            	uicoltablbl_; 
     uiLabel*            	zgridrangelbl_; 
     uiLabel*            	offsgridrangelbl_; 

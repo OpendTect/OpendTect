@@ -13,8 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uicombobox.h"
 #include "uigroup.h"
+#include "uitoolbar.h"
 #include "flatview.h"
 
 class uiAutoRangeClipDlg;
@@ -40,16 +42,11 @@ protected:
 };
 
 
-mExpClass(uiTools) uiColorTable : public uiGroup
+mExpClass(uiTools) uiColorTable : public CallBacker
 {
 public:
-
-			uiColorTable(uiParent*,const ColTab::Sequence& colseq,
-				     bool vertical);
-			   //!< Editable
-			uiColorTable(uiParent*,const char*,bool vertical );
-			   //!< Display only
-			~uiColorTable();
+    virtual		~uiColorTable();
+    void		createFields(uiParent*,bool vert);
 
     const ColTab::Sequence&	colTabSeq() const	{ return coltabseq_;}
     const ColTab::MapperSetup&	colTabMapperSetup() const { return mapsetup_; }
@@ -75,6 +72,7 @@ public:
     Notifier<uiColorTable>	scaleChanged;
 
 protected:
+			uiColorTable(const ColTab::Sequence&);
 
     bool		enabmanage_;
 
@@ -82,6 +80,7 @@ protected:
     ColTab::Sequence&	coltabseq_;
 
     TypeSet<float>	histogram_;
+    uiParent*		parent_;
     uiColorTableCanvas*	canvas_;
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
@@ -108,6 +107,34 @@ protected:
     bool		isEditable() const	{ return maxfld_; }
 };
 
+
+mExpClass(uiTools) uiColorTableGroup : public uiGroup , public uiColorTable
+{
+public:
+			uiColorTableGroup(uiParent*,const ColTab::Sequence&,
+					  bool vertical=false,
+					  bool nominmax=true);
+					  //nominmax=true hides min/max fields
+			uiColorTableGroup(uiParent*,bool vertical=false,
+					  bool nominmax=true);
+					  //nominmax=true hides min/max fields
+			~uiColorTableGroup();
+
+protected:
+    void		init(bool vert,bool nominmax);
+};
+
+
+mExpClass(uiTools) uiColorTableToolBar : public uiToolBar , public uiColorTable
+{
+public:
+			uiColorTableToolBar(uiParent*,const ColTab::Sequence&);
+			uiColorTableToolBar(uiParent*);
+			~uiColorTableToolBar();
+
+protected:
+    void		init();
+};
 
 #endif
 

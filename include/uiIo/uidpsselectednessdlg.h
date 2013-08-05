@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class uiCheckBox;
-class uiColorTable;
+class uiColorTableGroup;
 class uiDataPointSetCrossPlotter;
 class uiGenInput;
 class uiTable;
@@ -42,7 +42,7 @@ protected:
     
     uiCheckBox*			showoverlayfld_;
     uiCheckBox*			showin3dscenefld_;
-    uiColorTable*		coltabfld_;
+    uiColorTableGroup*		coltabfld_;
     uiGenInput*			selaxisfld_;
     uiDataPointSetCrossPlotter&	plotter_;
 };

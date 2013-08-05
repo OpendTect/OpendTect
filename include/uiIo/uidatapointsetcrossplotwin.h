@@ -20,7 +20,7 @@ ________________________________________________________________________
 class uiDPSSelGrpDlg;
 class uiDataPointSetCrossPlotterPropDlg;
 class uiDPSRefineSelDlg;
-class uiColorTable;
+class uiColorTableGroup;
 class uiComboBox;
 class uiToolBar;
 
@@ -61,7 +61,7 @@ protected:
     uiSpinBox*			eachfld_;
     uiComboBox*			grpfld_;
     uiComboBox*			selfld_;
-    uiColorTable*		coltabfld_;
+    uiColorTableGroup*		coltabfld_;
 
     bool			wantnormalplot_;
     int				densityplottbid_;
