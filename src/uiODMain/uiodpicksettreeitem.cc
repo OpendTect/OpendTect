@@ -153,7 +153,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	display_on_add = true;
 	TypeSet<MultiID> mids;
-	const bool res = applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
+	const bool res = 
+	    applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
 	if ( !res ) 
 	    return false;
 	display_on_add = false;
