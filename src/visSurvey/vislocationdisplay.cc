@@ -215,7 +215,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 void LocationDisplay::showAll( bool yn )
 {
     showall_ = yn;
-    if ( needline_ && polyline_ )
+    if ( polyline_ )
 	polyline_->turnOn( yn );
 
     if ( !showall_ && scene_ )
