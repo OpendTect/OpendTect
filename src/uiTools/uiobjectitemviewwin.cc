@@ -279,7 +279,7 @@ void uiObjectItemViewWin::scrollBarCB( CallBacker* )
 
 void uiObjectItemViewWin::reSizeCB( CallBacker* )
 {
-    if ( !fittoscreen_ || !poppedUp() ) return;
+    if ( !fittoscreen_ ) return;
     const uiSize newscreensz( mainviewer_->width(), mainviewer_->height() );
     if ( newscreensz != screensz_ ) fitToScreen(0);
 }
