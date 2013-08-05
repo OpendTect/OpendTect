@@ -215,6 +215,9 @@ void LocationDisplay::fullRedraw( CallBacker* )
 void LocationDisplay::showAll( bool yn )
 {
     showall_ = yn;
+    if ( polyline_ )
+	polyline_->turnOn( yn );
+
     if ( !showall_ && scene_ )
     {
 	scene_->objectMoved(0);
