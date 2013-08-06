@@ -346,6 +346,12 @@ void DescSet::fillPar( IOPar& par ) const
 	IOPar apar;
 	BufferString defstr;
 	if ( !dsc.getDefStr(defstr) ) continue;
+
+        const BufferString storeid = dsc.getStoredID( true );
+        PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
+        if ( !ioobj )
+            continue;
+
 	apar.set( definitionStr(), defstr );
 
 	BufferString userref( dsc.userRef() );
@@ -573,6 +579,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
 				BufferStringSet* errmsgs )
 {
+    TypeSet<int> toberemoved;
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
 	PtrMan<IOPar> descpar =
@@ -617,9 +624,13 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 		err += dsc.userRef(); err += " attribute ";
 	    }
 
+            toberemoved += idx;
 	    mHandleParseErr(err);
 	}
     }
+
+    for ( int idx=toberemoved.size()-1; idx>=0; idx-- )
+        removeDesc( descs_[toberemoved[idx]]->id() );
 
     return true;
 }
