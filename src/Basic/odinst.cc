@@ -45,6 +45,7 @@ static BufferString getInstDir()
 #define mRelRootDir getInstDir()
 #else
 #include "unistd.h"
+#include <QProcess>
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
@@ -143,9 +144,10 @@ void ODInst::startInstManagement()
 {
 #ifndef __win__
     mDefCmd();
-    chdir( installerdir.pathOnly() );
+    const BufferString curpath = File::getCurrentPath();
+    File::changeDir( installerdir.pathOnly() );
     StreamProvider( cmd ).executeCommand( true, true );
-    chdir( GetSoftwareDir(0) );
+    File::changeDir( curpath.buf() );
 #else
     FilePath installerdir( getInstallerPlfDir() );
     if ( installerdir.isEmpty() )
@@ -187,10 +189,11 @@ bool ODInst::updatesAvailable()
     mDefCmd(false); cmd.add( " --updcheck_report" );
 #ifndef __win__
 
-    chdir( installerdir.pathOnly() );
-    const int ret = system( cmd );
-    chdir( GetSoftwareDir(0) );
-    return ret == 1;
+    const BufferString curpath = File::getCurrentPath();
+    File::changeDir( installerdir.pathOnly() );
+    const int res = QProcess::execute( QString(cmd.buf()) );
+    File::changeDir( curpath.buf() );
+    return res == 1;
 #else
     ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
