@@ -145,9 +145,10 @@ void ODInst::startInstManagement()
 {
 #ifndef __win__
     mDefCmd();
-    chdir( installerdir.pathOnly() );
+    const BufferString curpath = File::getCurrentPath();
+    File::changeDir( installerdir.pathOnly() );
     StreamProvider( cmd ).executeCommand( true, true );
-    chdir( GetSoftwareDir(0) );
+    File::changeDir( curpath.buf() );
 #else
     FilePath installerdir( getInstallerPlfDir() );
     if ( installerdir.isEmpty() )
@@ -187,9 +188,10 @@ bool ODInst::updatesAvailable()
 {
 #ifndef __win__
     mDefCmd(false); cmd.add( " --updcheck_report" );
-    chdir( installerdir.pathOnly() );
+    const BufferString curpath = File::getCurrentPath();
+    File::changeDir( installerdir.pathOnly() );
     const int res = QProcess::execute( QString(cmd.buf()) );
-    chdir( GetSoftwareDir(0) );
+    File::changeDir( curpath.buf() );
     return res == 1;
 #else
     FilePath tmp( File::getTempPath(), "od_updt" );
