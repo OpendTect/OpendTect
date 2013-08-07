@@ -40,9 +40,15 @@ protected:
     void		loadCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    void		fillTable(const BufferStringSet&,
+				  const BufferStringSet&);
+    bool		readTable(BufferStringSet&,BufferStringSet&) const;
+
     uiFileInput*	filefld_;
     uiPushButton*	loadbut_;
     uiTable*		partable_;
+
+    bool		fileloaded_;
 };
 
 } // namespace VolProc

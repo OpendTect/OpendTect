@@ -33,6 +33,7 @@ uiStepDialog* uiMatlabStep::createInstance( uiParent* p, Step* step )
 
 uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     : uiStepDialog(p,MatlabStep::sFactoryDisplayName(), step )
+    , fileloaded_(false)
 {
     filefld_ = new uiFileInput( this, "Select shared object file" );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
@@ -48,8 +49,19 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     partable_->setColumnReadOnly( 0, true );
     partable_->attach( alignedBelow, filefld_ );
 
-    filefld_->setFileName( step->sharedLibFileName() );
     addNameFld( partable_ );
+
+    const BufferString fnm = step->sharedLibFileName();
+    if ( !fnm.isEmpty() && File::exists(fnm) )
+    {
+	filefld_->setFileName( fnm );
+	fileSelCB( 0 );
+	loadCB( 0 );
+    }
+
+    BufferStringSet parnames, parvalues;
+    step->getParameters( parnames, parvalues );
+    fillTable( parnames, parvalues );
 }
 
 
@@ -58,34 +70,64 @@ void uiMatlabStep::fileSelCB( CallBacker* )
     const char* fnm = filefld_->fileName();
     const bool isok = File::exists( fnm );
     loadbut_->setSensitive( isok );
+    fileloaded_ = false;
 }
 
 
 void uiMatlabStep::loadCB( CallBacker* )
 {
-    const char* fnm = filefld_->fileName();
-    const bool isok = File::exists( fnm );
-    if ( !isok ) return;
+    if ( fileloaded_ ) return;
 
-    MLM().initApplication();
-    MatlabLibAccess mla( fnm );
-    if ( !mla.init() )
+    MatlabLibAccess* mla =
+	MLM().getMatlabLibAccess( filefld_->fileName(), true );
+    if ( !mla )
     {
-	uiMSG().error( mla.errMsg() );
+	uiMSG().error( MLM().errMsg() );
 	return;
     }
 
-    BufferStringSet parameters;
-    BufferStringSet values;
-    mla.getParameters( parameters, values );
-    for ( int idx=0; idx<parameters.size(); idx++ )
+    BufferStringSet parnames, parvalues;
+    mla->getParameters( parnames, parvalues );
+    fillTable( parnames, parvalues );
+
+    fileloaded_ = true;
+}
+
+
+void uiMatlabStep::fillTable( const BufferStringSet& nms,
+			      const BufferStringSet& vals )
+{
+    partable_->clearTable();
+    partable_->setNrRows( nms.size() );
+    for ( int idx=0; idx<nms.size(); idx++ )
     {
-	partable_->setText( RowCol(idx,0), parameters.get(idx) );
-	partable_->setText( RowCol(idx,1), values.get(idx) );
+	partable_->setText( RowCol(idx,0), nms.get(idx) );
+	partable_->setText( RowCol(idx,1), vals.get(idx) );
+    }
+}
+
+
+bool uiMatlabStep::readTable( BufferStringSet& names,
+			      BufferStringSet& vals ) const
+{
+    vals.erase();
+    for ( int idx=0; idx<partable_->nrRows(); idx++ )
+    {
+	const FixedString nmtxt = partable_->text( RowCol(idx,0) );
+	names.add( nmtxt );
+
+	const FixedString valtxt = partable_->text( RowCol(idx,1) );
+	if ( valtxt.isEmpty() )
+	{
+	    const char* parnm = partable_->text( RowCol(idx,0) );
+	    uiMSG().error( BufferString("No value given for ",parnm) );
+	    return false;
+	}
+
+	vals.add( valtxt );
     }
 
-    mla.terminate();
-    MLM().terminateApplication();
+    return true;
 }
 
 
@@ -94,6 +136,22 @@ bool uiMatlabStep::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
+    if ( !fileloaded_ )
+    {
+	loadCB( 0 );
+	return false;
+    }
+
+    mDynamicCastGet(MatlabStep*,step,step_)
+    if ( !step ) return false;
+
+    step->setSharedLibFileName( filefld_->fileName() );
+
+    BufferStringSet parnames, parvalues;
+    if ( !readTable(parnames,parvalues) )
+	return false;
+
+    step->setParameters( parnames, parvalues );
     return true;
 }
 
