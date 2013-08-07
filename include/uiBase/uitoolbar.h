@@ -86,6 +86,7 @@ public:
     			/*!The actions will be checked/unchecked
 			   as toolbar is displayed/hidden */
 			  
+    void		translate();
 
     bool		isHidden() const;
     bool		isVisible() const;
