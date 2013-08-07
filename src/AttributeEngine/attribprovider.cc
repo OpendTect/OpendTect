@@ -175,6 +175,14 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    return 0;
 	}
 
+	if ( newprov == inputprovider )
+	{
+	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
+	    newprov->unRef();
+	    errstr = "Input is not correct. One of the inputs depend on itself";
+	    return 0;
+	}
+
 	newprov->setInput( idx, inputprovider );
 	inputprovider->addParent(newprov);
 	issame = false;

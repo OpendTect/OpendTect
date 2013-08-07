@@ -89,6 +89,7 @@ public:
     Desc*		curDesc()			{ return desc_; }
     const Desc*		curDesc() const			{ return desc_; }
 
+    const char*		errMsgStr(Desc* desc);
     virtual const char*	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
