@@ -393,6 +393,7 @@ bool uiStratTreeWin::closeOK()
 	    saveCB( 0 );
 	else if ( res == 0 )
 	{
+	    Strat::setRT( repos_.readTree() );
 	    resetCB( 0 );
 	    return true;
 	}
