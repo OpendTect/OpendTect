@@ -94,9 +94,12 @@ protected:
 
     virtual void	trigger(bool checked);
     void		translationReadyCB(CallBacker*);
+    void		doTranslate();
+    void		setToolTip(const mQtclass(QString&));
 
     void		updateToolTip();
-    mQtclass(QString*)	normaltooltipqstring_;
+    mQtclass(QString*)	qnormaltooltipstr_;
+    mQtclass(QString*)	qtranslatedtooltipstr_;
 
 private:
 
@@ -167,7 +170,7 @@ public:
     void			removeAction(uiAction*);
     void			removeAction(int id);
     void			removeAllActions();
-    void			translate();
+    virtual void		translate();
     void			reloadIcons();
     
 protected:

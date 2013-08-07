@@ -275,7 +275,8 @@ uiObject::uiObject( uiParent* p, const char* nm )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
-    , normaltooltipqstring_(new QString)
+    , qnormaltooltipstr_(new QString)
+    , qtranslatedtooltipstr_(new QString)
     , translateid_(-1)
 { 
     if ( p ) p->addChild( *this );  
@@ -293,7 +294,8 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
-    , normaltooltipqstring_(new QString)
+    , qnormaltooltipstr_(new QString)
+    , qtranslatedtooltipstr_(new QString)
     , translateid_(-1)
 { 
     if ( p ) p->manageChld( *this, b );  
@@ -309,7 +311,8 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
 uiObject::~uiObject()
 {
     delete uiobjeventfilter_;
-    delete normaltooltipqstring_;
+    delete qnormaltooltipstr_;
+    delete qtranslatedtooltipstr_;
     closed.trigger();
     uiobjectlist_ -= this;
 
@@ -339,7 +342,7 @@ const char* uiObject::toolTip() const
 {
     static StaticStringManager stm;
     BufferString& str = stm.getString();
-    str = normaltooltipqstring_->toLatin1().data();
+    str = qnormaltooltipstr_->toLatin1().data();
 
     return str.buf();
 }
@@ -347,8 +350,19 @@ const char* uiObject::toolTip() const
 
 void uiObject::setToolTip( const char* txt )
 {
-    *normaltooltipqstring_ = QString::fromAscii( txt );
+    QString newtxt( txt );
+    if ( newtxt == *qnormaltooltipstr_ )
+	return;
+
+    const bool wastranslated = translateid_>=0 ||
+			       qtranslatedtooltipstr_->size();
+
+    *qnormaltooltipstr_ = newtxt;
+    *qtranslatedtooltipstr_ = "";
     updateToolTip();
+
+    if ( TrMgr().tr() && TrMgr().tr()->enabled() && wastranslated )
+	translate();
 }
 
 
@@ -362,8 +376,10 @@ void uiObject::updateToolTip()
 	uiMain::formatNameToolTipString( namestr );
 	qwidget()->setToolTip( namestr.buf() );
     }
+    else if ( qtranslatedtooltipstr_->size() )
+	qwidget()->setToolTip( *qtranslatedtooltipstr_ );
     else
-	qwidget()->setToolTip( *normaltooltipqstring_ );
+	qwidget()->setToolTip( *qnormaltooltipstr_ );
 }
 
 
@@ -371,8 +387,13 @@ void uiObject::translate()
 {
     if ( !TrMgr().tr() ) return;
 
-    TrMgr().tr()->ready.notify( mCB(this,uiObject,trlReady) );
-    translateid_ = TrMgr().tr()->translate( name().buf() );
+    BufferString txt( *toolTip() ? toolTip() : name().buf() );
+    removeStartAndEndSpaces( txt.buf() );
+    if ( txt.isEmpty() || isNumberString(txt.buf()) )
+	return;
+
+    mAttachCB(TrMgr().tr()->ready, uiObject::trlReady );
+    translateid_ = TrMgr().tr()->translate( txt );
 }
 
 
@@ -384,13 +405,14 @@ void uiObject::trlReady( CallBacker* cb )
 
     const wchar_t* translation = TrMgr().tr()->get();
     QString txt = QString::fromWCharArray( translation );
-    QString tt( name().buf() ); tt += "\n\n"; tt += txt;
+    QString tt( *toolTip() ? toolTip() : name().buf() );
+    tt += "\n\n"; tt += txt;
 
-    *normaltooltipqstring_ = tt;
+    *qtranslatedtooltipstr_ = tt;
     updateToolTip();
 
     translateid_ = -1;
-    TrMgr().tr()->ready.remove( mCB(this,uiObject,trlReady) );
+    mDetachCB(TrMgr().tr()->ready, uiObject::trlReady );
 }
 
 

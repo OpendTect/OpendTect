@@ -177,7 +177,8 @@ protected:
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
     void		updateToolTip();
-    mQtclass(QString*)	normaltooltipqstring_;
+    mQtclass(QString*)	qnormaltooltipstr_;
+    mQtclass(QString*)	qtranslatedtooltipstr_;
 
     uiObjEventFilter*	uiobjeventfilter_;
 
