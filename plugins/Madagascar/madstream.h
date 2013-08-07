@@ -21,7 +21,7 @@ class SeisTrcBuf;
 class SeisPSReader;
 class SeisPSWriter;
 
-namespace PosInfo { class CubeDataIterator; class Line2DData; }
+namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
 namespace Seis { class SelData; }
 
 namespace ODMad
@@ -72,6 +72,7 @@ protected:
     SeisTrcBuf*			stortrcbuf_;
     bool			stortrcbufismine_;
     PosInfo::CubeDataIterator*	iter_;
+    PosInfo::CubeData*		cubedata_;
     PosInfo::Line2DData*	l2ddata_;
     int				nroffsets_;
     int				curtrcidx_;		// For PS

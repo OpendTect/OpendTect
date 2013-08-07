@@ -64,7 +64,7 @@ MadStream::MadStream( IOPar& par )
     , trcbuf_(0),curtrcidx_(-1)
     , stortrcbuf_(0)
     , stortrcbufismine_(true)
-    , iter_(0),l2ddata_(0)
+    , iter_(0),cubedata_(0),l2ddata_(0)
     , headerpars_(0)
     , errmsg_(*new BufferString(""))
     , iswrite_(false)
@@ -98,7 +98,7 @@ MadStream::~MadStream()
 
     delete seisrdr_; delete seiswrr_;
     delete psrdr_; delete pswrr_;
-    delete trcbuf_; delete iter_; delete l2ddata_;
+    delete trcbuf_; delete iter_; delete cubedata_; delete l2ddata_;
     delete errmsg_;
     if ( headerpars_ ) delete headerpars_;
     if ( stortrcbuf_ && stortrcbufismine_ ) delete  stortrcbuf_;
@@ -452,25 +452,26 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     else
     {
 	mDynamicCastGet(SeisPS3DReader*,rdr,psrdr_);
-	PosInfo::CubeData newcd( rdr->posData() );
+	cubedata_ = new PosInfo::CubeData( rdr->posData() );
 	if ( seldata )
 	{
 	    HorSampling hs;
 	    hs.set( seldata->inlRange(), seldata->crlRange() );
-	    newcd.limitTo( hs );
+	    cubedata_->limitTo( hs );
 	}
 
-	nrbids = newcd.totalSize();
+	nrbids = cubedata_->totalSize();
 	if ( !nrbids ) mErrRet( "No data available in the given range" );
-	mWriteToPosFile( newcd );
+	mWriteToPosFile( (*cubedata_) );
 
 	int idx=0;
-	while (idx<newcd.size() && newcd[idx] && !newcd[idx]->segments_.size())
+	while (idx<cubedata_->size() && (*cubedata_)[idx]
+		&& !(*cubedata_)[idx]->segments_.size())
 	    idx++;
 
-	iter_ = new PosInfo::CubeDataIterator( newcd );
-	firstbid.inl = newcd[idx]->linenr_;
-	firstbid.crl = newcd[idx]->segments_[0].start;
+	iter_ = new PosInfo::CubeDataIterator( *cubedata_ );
+	firstbid.inl = (*cubedata_)[idx]->linenr_;
+	firstbid.crl = (*cubedata_)[idx]->segments_[0].start;
 
 	if ( !rdr->getGather(firstbid,trcbuf) )
 	    mErrRet( "No data to read" );
