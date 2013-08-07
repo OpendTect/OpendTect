@@ -270,7 +270,35 @@ bool uiAttrDescEd::zIsTime() const
 {
     return SI().zIsTime();
 }
-    
+
+
+const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
+{
+    if ( !desc )
+	return 0;
+
+    if ( desc->isSatisfied() == Desc::Error )
+    {
+	if ( !strcmp( desc->errMsg(), "Parameter 'id' is not correct") &&   
+		desc->isStored() )                                          
+	{                                                                       
+	    errmsg_ = "Impossible to find stored data '"; 
+	    errmsg_ += desc->userRef();
+	    errmsg_ += "'. \n";
+	    errmsg_ += "Data might have been deleted or corrupted.\n";
+	    errmsg_ += "Please select valid stored data as input.";
+	}                                                                       
+	else
+	    errmsg_ = desc->errMsg();
+    }
+
+    const bool isuiok = areUIParsOK();
+    if ( !isuiok && errmsg_.isEmpty() )
+	errmsg_= "Please review your parameters, some of them are not correct";
+
+    return errmsg_.str();
+}
+
 
 const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
@@ -283,26 +311,8 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     getInput( *editdesc );
     getOutput( *editdesc );
     editdesc->updateParams();	//needed after getInput to update inputs' params
-    if ( editdesc->isSatisfied() == Desc::Error )
-    {
-	if ( !strcmp( editdesc->errMsg(), "Parameter 'id' is not correct") &&   
-		editdesc->isStored() )                                          
-	{                                                                       
-	    errmsg_ = "Impossible to find stored data '"; 
-	    errmsg_ += editdesc->userRef();
-	    errmsg_ += "'. \n";
-	    errmsg_ += "Data might have been deleted or corrupted.\n";
-	    errmsg_ += "Please select valid stored data as input.";
-	}                                                                       
-	else
-	    errmsg_ = editdesc->errMsg();
-    }
 
-    const bool isuiok = areUIParsOK();
-    if ( !isuiok && errmsg_.isEmpty() )
-	errmsg_= "Please review your parameters, some of them are not correct";
-
-    return errmsg_.str();
+    return errMsgStr( editdesc );
 }
 
 

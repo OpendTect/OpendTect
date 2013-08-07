@@ -153,6 +153,7 @@ protected:
     void			newList(int);
     void			updateFields(bool settype=true);
     bool			doCommit(bool prevdesc=false);
+    bool			doAcceptInputs();
     void			handleSensitivity();
     void			updateUserRefs();
     bool			validName(const char*) const;

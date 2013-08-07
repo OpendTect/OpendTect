@@ -557,8 +557,9 @@ void uiAttribDescSetEd::handleSensitivity()
 
 bool uiAttribDescSetEd::acceptOK( CallBacker* )
 {
-    if ( !doCommit() )
+    if ( !doCommit() || !doAcceptInputs() )
 	return false;
+
     removeNotUsedAttr();
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
@@ -648,6 +649,27 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     }
     dummydesc->unRef();
     updating_fields_ = false;
+}
+
+
+bool uiAttribDescSetEd::doAcceptInputs()
+{
+    for ( int idx=0; idx<attrset_->size(); idx++ )
+    {
+	const DescID descid = attrset_->getID( idx );
+	Desc* desc = attrset_->getDesc( descid );
+	const char* errmsg = curDescEd()->errMsgStr( desc );
+	if ( errmsg )
+	{
+	    const char* attribname = desc->userRef();
+	    BufferString msg ( "Input is not correct for attribute '", 
+				attribname, "'. " ); 
+	    uiMSG().error( msg, errmsg );
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 
