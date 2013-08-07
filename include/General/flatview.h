@@ -157,7 +157,6 @@ public:
     static const char*	sKeyShwGridLines();
     static const char*	sKeyIsRev();
     static const char*	sKeyShwAux();
-    static const char*	sKeyAllowUserChangeAxis();
 };
 
 
@@ -387,8 +386,6 @@ protected:
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 };
-
-    mGlobal(General) const char*	sKeyAllowUserChange();
 
 } // namespace FlatView
 
