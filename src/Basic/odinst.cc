@@ -195,7 +195,6 @@ bool ODInst::updatesAvailable()
     File::changeDir( curpath.buf() );
     return res == 1;
 #else
-    ExecOSCmd( cmd, false, true );
     FilePath tmp( File::getTempPath(), "od_updt" );
     bool ret = File::exists( tmp.fullPath() );
     if ( ret )
