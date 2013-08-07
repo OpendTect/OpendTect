@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uicolortable.h"
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewslicepos.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
+#include "uisaveimagedlg.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -33,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "hiddenparam.h"
 #include "prestackanglemute.h"
 #include "prestackanglecomputer.h"
 #include "prestackmutedef.h"
@@ -48,7 +51,9 @@ static int sStartNrViewers = 8;
 
 namespace PreStackView 
 {
-    
+ 
+static HiddenParam<uiViewer2DControl,uiColorTableSel*> coltabsels( 0 );   
+
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
     , posdlg_(0)
@@ -68,6 +73,13 @@ uiViewer2DMainWin::~uiViewer2DMainWin()
     deepErase( gd_ );
     deepErase( gdi_ );
     delete posdlg_;
+}
+
+
+void uiViewer2DMainWin::snapshotCB( CallBacker* )
+{
+    uiSaveWinImageDlg snapshotdlg( this );
+    snapshotdlg.go();
 }
 
 
@@ -835,9 +847,11 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
-			.withstates(true)
+			.withstates(false)
 			.withthumbnail(false)
-			.withcoltabed(false)
+			.withcoltabed(true)
+			.withsnapshot(false)
+			.withflip(false)
 			.withedit(false))
     , posdlgcalled_(this)
     , datadlgcalled_(this)
@@ -851,7 +865,25 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     mDefBut(posbut,"orientation64",gatherPosCB,"Set positions");
     mDefBut(databut,"gatherdisplaysettings64",gatherDataCB, "Set gather data");
     mDefBut(parsbut,"2ddisppars",parsCB,"Set seismic display properties");
+    uiColorTableSel* ctabsel = new uiColorTableSel( tb_, "Select Color Table" );
+    coltabsels.setParam( this, ctabsel );
+    ctabsel->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
+    tb_->addObject( ctabsel );
     tb_->addSeparator();
+}
+
+
+void uiViewer2DControl::coltabChg( CallBacker* )
+{
+    uiColorTableSel* ctabsel = coltabsels.getParam( this );
+    disppars_.vd_.ctab_ = ctabsel->getCurrent();
+    for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
+    {
+	if ( !vwrs_[ivwr] ) continue;
+	uiFlatViewer& vwr = *vwrs_[ivwr];
+	vwr.appearance().ddpars_ = disppars_;
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
+    }
 }
 
 
@@ -859,7 +891,9 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 {
     if ( !propdlg_ ) return;
 
+    uiColorTableSel* ctabsel = coltabsels.getParam( this );
     disppars_ = propdlg_->viewer().appearance().ddpars_;
+    ctabsel->setCurrent( disppars_.vd_.ctab_.buf() );
     const int selannot = propdlg_->selectedAnnot();
 
     const FlatDataPack* vddatapack = vwrs_[0]->pack( false );

@@ -179,7 +179,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withedit(true).withthumbnail(false).withcoltabed(false)
-	.tba((int)uiToolBar::Right ).withflip(false);
+	.tba((int)uiToolBar::Right ).withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->zoomChanged.notify( mCB(this,uiStratSynthDisp,zoomChg) );
 

@@ -101,6 +101,7 @@ protected:
     void		loadMuteCB(CallBacker*);
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
+    void		snapshotCB(CallBacker*);
 };
 
 
@@ -170,6 +171,7 @@ protected:
     void		applyProperties(CallBacker*);
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);
+    void		coltabChg(CallBacker*);
 };
 
 
