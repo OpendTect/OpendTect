@@ -220,8 +220,6 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
     mIOPDoAxes2( setYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
     mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.setYN( sKeyShwAux(), showaux_ );
-    iop.setYN( sKeyAllowUserChange(), allowuserchange_ );
-    iop.setYN( sKeyAllowUserChangeAxis(), allowuserchangereversedaxis_ );
 }
 
 
@@ -236,8 +234,6 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 	    	 x2_.showgridlines_);
     mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux(), showaux_ );
-    iop.getYN( sKeyAllowUserChange(), allowuserchange_ );
-    iop.getYN( sKeyAllowUserChangeAxis(), allowuserchangereversedaxis_ );
 }
 
 
@@ -324,7 +320,6 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 	    		      vd_.mappersetup_.cliprate_.stop*100 );
     mIOPDoVD( set, sKeyClipPerc(), clipperc );
     mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
-    mIOPDoVD( setYN, sKeyAllowUserChange(), vd_.allowuserchange_ );
 
     mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
     mIOPDoWVA( set, sKeyDispRg(), wva_.mappersetup_.range_ );
@@ -339,7 +334,6 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoWVA( set, sKeyOverlap(), wva_.overlap_ );
     mIOPDoWVA( set, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( set, sKeyMidLineValue(), wva_.midlinevalue_ );
-    mIOPDoWVA( setYN, sKeyAllowUserChange(), wva_.allowuserchange_ );
 }
 
 
@@ -366,7 +360,6 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 	vd_.mappersetup_.cliprate_.stop *= 0.01;
     
     mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
-    mIOPDoVD( getYN, sKeyAllowUserChange(), vd_.allowuserchange_ );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
     mIOPDoWVA( get, sKeyDispRg(), range );
@@ -385,7 +378,6 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoWVA( get, sKeyOverlap(), wva_.overlap_ );
     mIOPDoWVA( get, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( get, sKeyMidLineValue(), wva_.midlinevalue_ );
-    mIOPDoWVA( getYN, sKeyAllowUserChange(), wva_.allowuserchange_ );
 }
 
 
