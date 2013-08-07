@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 
 class uiSlicePos2DView;
+class uiColorTableSel;
 
 namespace PreStack { class Gather; class MuteDef; 
 		     class VelocityBasedAngleComputer; }
@@ -100,6 +101,7 @@ protected:
     void		loadMuteCB(CallBacker*);
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
+    void		snapshotCB(CallBacker*);
 };
 
 
@@ -163,12 +165,14 @@ protected:
 
     uiObjectItemViewControl*	objectitemctrl_;
     FlatView::Appearance	app_;
+    uiColorTableSel*		ctabsel_;
 
     void		doPropertiesDialog(int vieweridx,bool dowva);
 
     void		applyProperties(CallBacker*);
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);
+    void		coltabChg(CallBacker*);
 };
 
 

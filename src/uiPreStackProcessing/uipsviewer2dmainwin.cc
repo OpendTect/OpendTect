@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uicolortable.h"
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewslicepos.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uimsg.h"
 #include "uiprogressbar.h"
+#include "uisaveimagedlg.h"
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -68,6 +70,13 @@ uiViewer2DMainWin::~uiViewer2DMainWin()
     deepErase( gd_ );
     deepErase( gdi_ );
     delete posdlg_;
+}
+
+
+void uiViewer2DMainWin::snapshotCB( CallBacker* )
+{
+    uiSaveWinImageDlg snapshotdlg( this );
+    snapshotdlg.go();
 }
 
 
@@ -425,6 +434,9 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 			    mCB(this,uiViewer2DMainWin,dataDlgPushed));
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
+	ctrl->toolBar()->addButton(
+		"snapshot", "Get snapshot",
+		mCB(this,uiStoredViewer2DMainWin,snapshotCB) );
 	control_ = ctrl;
 
 	uiToolBar* tb = control_->toolBar();
@@ -832,9 +844,11 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
-			.withstates(true)
+			.withstates(false)
 			.withthumbnail(false)
-			.withcoltabed(false)
+			.withcoltabed(true)
+			.withsnapshot(false)
+			.withflip(false)
 			.withedit(false))
     , posdlgcalled_(this)
     , datadlgcalled_(this)
@@ -848,7 +862,23 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     mDefBut(posbut,"orientation64",gatherPosCB,"Set positions");
     mDefBut(databut,"gatherdisplaysettings64",gatherDataCB, "Set gather data");
     mDefBut(parsbut,"2ddisppars",parsCB,"Set seismic display properties");
+    ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
+    ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
+    tb_->addObject( ctabsel_ );
     tb_->addSeparator();
+}
+
+
+void uiViewer2DControl::coltabChg( CallBacker* )
+{
+    dispPars().vd_.ctab_ = ctabsel_->getCurrent();
+    for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
+    {
+	if ( !vwrs_[ivwr] ) continue;
+	uiFlatViewer& vwr = *vwrs_[ivwr];
+	vwr.appearance().ddpars_ = app_.ddpars_;
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
+    }
 }
 
 
@@ -857,6 +887,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     if ( !propdlg_ ) return;
 
     app_ = propdlg_->viewer().appearance();
+    ctabsel_->setCurrent( dispPars().vd_.ctab_.buf() );
     const int selannot = propdlg_->selectedAnnot();
 
     const FlatDataPack* vddatapack = vwrs_[0]->pack( false );
