@@ -37,9 +37,10 @@ public:
 
 protected:
 
-    mutable BufferString errmsg_;
+    SharedLibAccess*	sla_;
     BufferString	shlibfnm_;
     bool		inited_;
+    mutable BufferString errmsg_;
 };
 
 
@@ -49,17 +50,21 @@ public:
 			MatlabLibMgr();
 			~MatlabLibMgr();
 
-    const SharedLibAccess* getSharedLibAccess(const char* libfnm) const;
-    bool		load(const char* libfnm);
+    bool		isOK() const	{ return inited_; }
+
+    MatlabLibAccess*	getMatlabLibAccess(const char* libfnm,bool doload);
     bool		isLoaded(const char* libfnm) const;
+    bool		close(const char* libfnm);
     const char*		errMsg() const	{ return errmsg_; }
 
-    bool		initApplication();
-    void		terminateApplication();
 
 protected:
 
-    ObjectSet<SharedLibAccess>	slas_;
+    bool		initApplication();
+    void		terminateApplication();
+    bool		load(const char* libfnm);
+
+    ObjectSet<MatlabLibAccess>	mlas_;
     BufferStringSet		libnms_;
     BufferString		errmsg_;
 

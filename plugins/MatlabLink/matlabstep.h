@@ -40,6 +40,11 @@ public:
     void		setSharedLibFileName(const char*);
     const char*		sharedLibFileName() const;
 
+    void		setParameters(const BufferStringSet& nms,
+				      const BufferStringSet& vals);
+    void		getParameters(BufferStringSet& nms,
+				      BufferStringSet& vals) const;
+
 protected:
 
 			MatlabStep();
@@ -47,6 +52,9 @@ protected:
 
     FixedString		errmsg_;
     BufferString	sharedlibfnm_;
+
+    BufferStringSet	parnames_;
+    BufferStringSet	parvalues_;
 };
 
 } // namespace VolProc
