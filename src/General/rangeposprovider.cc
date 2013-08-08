@@ -80,7 +80,7 @@ bool Pos::RangeProvider3D::toNextPos()
 
 bool Pos::RangeProvider3D::toNextZ()
 {
-    curz_ += cs_.zrg.step;
+    curz_ = cs_.zrg.snap( curz_ + cs_.zrg.step );
     if ( curz_ > cs_.zrg.stop+mZrgEps )
 	return toNextPos();
     return true;
@@ -264,7 +264,7 @@ bool Pos::RangeProvider2D::toNextPos()
 bool Pos::RangeProvider2D::toNextZ()
 {
     StepInterval<float> zrg = curZRange();
-    curz_ += zrg.step;
+    curz_ = zrg.snap( curz_ + zrg.step );
     if ( curz_ > zrg.stop+mZrgEps )
 	return toNextPos();
 
