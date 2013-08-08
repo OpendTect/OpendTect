@@ -3,6 +3,23 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0m: August 8, 2013
+  * Fix for Z units while exporting picksets
+  * Fix for cluster processing
+  * Fix for GMT clipping on windows platform
+  * Fix for crash during wavelet resampling when
+    the wavelet sample distribution was asymmetrical
+  * Fix for extracting wavelet
+  * Fix for crash while reading PreStack input in Madagascar
+  * Fix for crash while opening saved flow in Madagascar
+  * Fix for problem in step computation when only one
+    inline/crossline is present
+  * Fix for crash while tying well to seismic
+  * Fix for wrong values in Crossplot table while adding columns which are
+    functions of X-Y coordinates
+  * Fix for creating random lines in transformed scenes
+  * Fix for crash report generation on Linux
+
 v4.4.0l: July 11, 2013
   * Fix for crash while adding new 3D horizon
   * Fix for selection of items using up/down arrow keys in GMT
