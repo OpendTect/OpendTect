@@ -362,7 +362,7 @@ void uiObjectItemViewWin::rubBandCB( CallBacker* )
     NotifyStopper nsv( vsldr->sliderReleased );
     hsldr->setValue( newhorfac );
     vsldr->setValue( newverfac );
-    reSizeSld(0);
+    reSizeSld(0); fittoscreen_ = false;
 
     mainviewer_->setViewArea( selrect->left()*xfac, selrect->top()*yfac, 
 			      selrect->width()*xfac, selrect->height()*yfac );
