@@ -331,6 +331,8 @@ bool InputCmdComposer::accept( const CmdRecEvent& ev )
     if ( !CmdComposer::accept(ev) )
 	return false;
 
+    mCompleteAndQuitIfEventNested( ev, "editingFinished" );
+
     if ( mMatchCI(ev.msg_, "textChanged") )
     {
 	textchanged_ = true;
@@ -365,6 +367,8 @@ bool SpinCmdComposer::accept( const CmdRecEvent& ev )
 {
     if ( !CmdComposer::accept(ev) )
 	return false;
+
+    mCompleteAndQuitIfEventNested( ev, "valueChanged" );
 
     const char* msgnext;
     const float oldval = (float) strtod( ev.msg_, const_cast<char**>(&msgnext) );
@@ -424,6 +428,8 @@ bool SliderCmdComposer::accept( const CmdRecEvent& ev )
 {
     if ( !CmdComposer::accept(ev) )
 	return false;
+
+    mCompleteAndQuitIfEventNested( ev, "sliderReleased" );
 
     if ( ignoreflag_ || !ev.begin_ )
 	return true;
