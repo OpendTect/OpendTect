@@ -41,7 +41,7 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
     {
 	cs_ = p.cs_;
 	curbid_ = p.curbid_;
-	curz_ = p.curz_;
+	curzidx_ = p.curzidx_;
     }
     return *this;
 }
@@ -56,7 +56,7 @@ const char* Pos::RangeProvider3D::type() const
 void Pos::RangeProvider3D::reset()
 {
     curbid_ = BinID( cs_.hrg.start.inl, cs_.hrg.start.crl-cs_.hrg.step.crl );
-    curz_ = cs_.zrg.stop;
+    curzidx_ = cs_.zrg.nrSteps();
 }
 
 
@@ -71,7 +71,7 @@ bool Pos::RangeProvider3D::toNextPos()
 	curbid_.crl = cs_.hrg.start.crl;
     }
 
-    curz_ = cs_.zrg.start;
+    curzidx_ = 0;
     return true;
 }
 
@@ -80,10 +80,20 @@ bool Pos::RangeProvider3D::toNextPos()
 
 bool Pos::RangeProvider3D::toNextZ()
 {
-    curz_ += cs_.zrg.step;
-    if ( curz_ > cs_.zrg.stop+mZrgEps )
+    curzidx_++;
+    if ( curzidx_ > cs_.zrg.nrSteps() )
 	return toNextPos();
+
     return true;
+}
+
+
+float Pos::RangeProvider3D::curZ() const
+{
+    if ( curzidx_<0 || curzidx_>cs_.zrg.nrSteps() )
+	return mUdf(float);
+
+    return cs_.zrg.atIndex( curzidx_ );
 }
 
 
@@ -179,7 +189,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 	curtrcidx_ = p.curtrcidx_;
 	curlineidx_ =  p.curlineidx_;
 	delete curlinegeom_; curlinegeom_ = 0;
-	curz_ = p.curz_;
+	curzidx_ = p.curzidx_;
 	for ( int idx=0; idx<p.nrLines(); idx++ )
 	    addLineID( p.lineID(idx) );
     }
@@ -212,7 +222,7 @@ void Pos::RangeProvider2D::reset()
     }
 
     curtrcidx_ = -1;
-    curz_ = zrg.stop;
+    curzidx_ = zrg.nrSteps();
 }
 
 
@@ -253,7 +263,7 @@ bool Pos::RangeProvider2D::toNextPos()
     }
     
     StepInterval<float> zrg = curZRange();
-    curz_ = zrg.start;
+    curzidx_ = 0;
     return true;
 }
 
@@ -263,9 +273,9 @@ bool Pos::RangeProvider2D::toNextPos()
 
 bool Pos::RangeProvider2D::toNextZ()
 {
-    StepInterval<float> zrg = curZRange();
-    curz_ += zrg.step;
-    if ( curz_ > zrg.stop+mZrgEps )
+    curzidx_++;
+    const StepInterval<float> zrg = curZRange();
+    if ( curzidx_ > zrg.nrSteps() )
 	return toNextPos();
 
     return true;
@@ -276,6 +286,16 @@ int Pos::RangeProvider2D::curNr() const
 {
     StepInterval<int> trcrg = curTrcRange();
     return trcrg.atIndex( curtrcidx_ );
+}
+
+
+float Pos::RangeProvider2D::curZ() const
+{
+    const StepInterval<float> zrg = curZRange();
+    if ( curzidx_<0 || curzidx_>zrg.nrSteps() )
+	return mUdf(float);
+
+    return zrg.atIndex( curzidx_ );
 }
 
 

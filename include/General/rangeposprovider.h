@@ -41,7 +41,7 @@ public:
     virtual bool	toNextZ();
 
     virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const		{ return curz_; }
+    virtual float	curZ() const;		
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -62,7 +62,7 @@ protected:
 
     CubeSampling&	cs_;
     BinID		curbid_;
-    float		curz_;
+    int			curzidx_;
 
 public:
 
@@ -95,7 +95,7 @@ public:
     virtual bool	toNextZ();
 
     virtual int		curNr() const;
-    virtual float	curZ() const		{ return curz_; }
+    virtual float	curZ() const;
     virtual Coord	curCoord() const;
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
@@ -124,7 +124,7 @@ protected:
     TypeSet< StepInterval<float> > zrgs_;
     int			curtrcidx_;
     int			curlineidx_;
-    float		curz_;
+    int			curzidx_;
 
     PosInfo::Line2DData*	curlinegeom_;
 
