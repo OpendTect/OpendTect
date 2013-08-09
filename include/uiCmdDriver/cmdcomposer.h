@@ -162,6 +162,18 @@ public: \
 }
 
 
+#define mCompleteAndQuitIfEventNested( ev, notifierstr ) \
+\
+    if ( quitflag_ ) \
+    	return true; \
+    else if ( ev.begin_ && !stackwasempty_ && \
+	      stringEndsWithCI(notifierstr,ev.msg_) ) \
+    { \
+	ignoreflag_ = false; \
+	quitflag_ = true; \
+    } 
+
+
 #define mNotifyTest( objclass, uiobject, notifiername ) \
 { \
     mDynamicCastGet( objclass*, uiclassobj, uiobject ); \
