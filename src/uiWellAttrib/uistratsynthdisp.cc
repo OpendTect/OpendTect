@@ -170,6 +170,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
+    app.annot_.allowuserchangereversedaxis_ = false;
     app.annot_.title_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
@@ -781,6 +782,7 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 	wvamapper.autosym0_ = true;
 	wvamapper.symmidval_ = 0.0f;
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 }
 
