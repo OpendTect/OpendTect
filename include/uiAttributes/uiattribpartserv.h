@@ -164,6 +164,9 @@ public:
     bool		handleMultiComp(const LineKey&,bool,bool,
 	    				BufferStringSet&,Attrib::DescID&,
 					TypeSet<int>&);
+    bool		handleMultiCompChain(Attrib::DescID& selid,
+	    				const Attrib::DescID& multicompinpid,
+					bool,const Attrib::SelInfo&);
     void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
 	    				    bool& steering,bool& stored);
     bool		prepMultCompSpecs(TypeSet<int>,const LineKey&,

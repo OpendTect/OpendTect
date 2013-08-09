@@ -196,6 +196,12 @@ public:
 	    				       const char* key,BufferString&);
 
     Desc*			getStoredInput() const;
+    DescID			getMultiOutputInputID() const;
+
+    //Used to clone an attribute chain and apply it on multiple components
+    //of the same input cube (different offsets for instance)
+    Desc*			cloneDescAndPropagateInput(const DescID&,
+	    						   BufferString);
     
     static const char*		sKeyInlDipComp();
     static const char*		sKeyCrlDipComp();

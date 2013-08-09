@@ -66,6 +66,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
+#include "uimultoutsel.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
@@ -589,12 +590,31 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
     
     const bool istargetstored = targetspecs_[0].isStored();
     const bool is2d = targetspecs_[0].is2D();
-    const DescSet* ads = DSHolder().getDescSet( is2d, istargetstored );
-    if ( !ads )
+    Attrib::DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
+    if ( !curdescset )
 	{ pErrMsg("No attr set"); return 0; }
 
+    if ( !istargetstored )
+    {
+	DescID attribid = targetspecs_[0].id();
+	Desc* seldesc = curdescset->getDesc( attribid );
+	if ( seldesc )
+	{
+	    DescID multoiid = seldesc->getMultiOutputInputID();
+	    if ( multoiid != DescID::undef() )
+	    {
+		const DescSetMan* adsman = DSHolder().getDescSetMan( is2d );
+		uiAttrSelData attrdata( *adsman->descSet() );
+		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d,
+				 DescID::undef(), false, false );
+		if ( !handleMultiCompChain( attribid, multoiid, is2d, attrinf ))
+		    return 0;
+	    }
+	}
+    }
+
     EngineMan* aem = new EngineMan;
-    aem->setAttribSet( ads );
+    aem->setAttribSet( curdescset );
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
     if ( cs )
@@ -1462,6 +1482,78 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 }
 
 
+bool uiAttribPartServer::handleMultiCompChain( Attrib::DescID& attribid,
+					   const Attrib::DescID& multicompinpid,
+					   bool is2d, const SelInfo& attrinf )
+{
+    Attrib::DescSet* curdescset = eDSHolder().getDescSet(is2d,false);
+    Desc* seldesc = curdescset->getDesc( attribid );
+    if ( !seldesc )
+	return false;
+
+    Desc* inpdesc = curdescset->getDesc( multicompinpid );
+    if ( !inpdesc ) return false;
+
+    BufferStringSet complist;
+    uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
+    uiMultCompDlg compdlg( parent(), complist );
+    if ( compdlg.go() )
+    {
+	LineKey lk;
+	BufferString userrefstr ( inpdesc->userRef() );
+	if ( stringEndsWith( "|ALL", userrefstr.buf() ))
+	{
+	    char* cleanuserrefstr =
+			    const_cast<char*>( userrefstr.buf() );
+	    replaceString( cleanuserrefstr, "|ALL", "" );
+	    removeStartAndEndSpaces( cleanuserrefstr );
+	    userrefstr = BufferString( cleanuserrefstr );
+	}
+
+	if ( is2d )
+	{
+	    const MultiID mid( attrinf.ioobjids_.get(0) );
+	    lk = LineKey( mid, userrefstr );
+	}
+	else
+	{
+	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
+	    if ( inpidx<0 ) return false;
+
+	    const char* objidstr = attrinf.ioobjids_.get(inpidx);
+	    lk = LineKey( objidstr );
+	}
+
+	TypeSet<int> selectedcomps;
+	compdlg.getCompNrs( selectedcomps );
+	const int selcompssz = selectedcomps.size();
+	if ( selcompssz )
+	    targetspecs_.erase();
+
+	for ( int idx=0; idx<selcompssz; idx++ )
+	{
+	    const int compidx = selectedcomps[idx];
+	    const DescID newinpid = curdescset->getStoredID( lk, compidx,
+					true, true, complist.get(compidx) );
+	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
+						   complist.get(compidx) );
+	    if ( !newdesc ) continue;
+
+	    DescID newdid = curdescset->getID( *newdesc );
+	    SelSpec as( 0, newdid );
+	    BufferString bfs;
+	    newdesc->getDefStr( bfs );
+	    as.setDefString( bfs.buf() );
+	    as.setRefFromID( *curdescset );
+	    as.set2DFlag( is2d );
+	    targetspecs_ += as;
+	}
+    }
+
+    return true;
+}
+
+
 bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 					    const LineKey& idlkey, bool is2d,
 					    bool issteering )
@@ -1706,19 +1798,28 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	else
 	    ads->usePar( iopar, versionnr, &errmsgs );
 
-	BufferString errmsg;
-	for ( int idx=0; idx<errmsgs.size(); idx++ )
+	BufferString basemsg = "Error during restore of ";
+	basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";
+	
+	if ( errmsgs.size()<4 )
 	{
-	    if ( !idx )
+	    BufferString errmsg;
+	    for ( int idx=0; idx<errmsgs.size(); idx++ )
 	    {
-		errmsg = "Error during restore of ";
-		errmsg += is2d ? "2D " : "3D "; errmsg += "Attribute Set:";
+		if ( !idx )
+		{
+		    errmsg = basemsg;
+		    errmsg += ":";
+		}
+
+		errmsg += "\n";
+		errmsg += errmsgs.get( idx );
 	    }
-	    errmsg += "\n";
-	    errmsg += errmsgs.get( idx );
+	    if ( !errmsg.isEmpty() )
+		uiMSG().error( errmsg );
 	}
-	if ( !errmsg.isEmpty() )
-	    uiMSG().error( errmsg );
+	else
+	    uiMSG().errorWithDetails( errmsgs, basemsg );
 
 	set2DEvent( is2d );
 	sendEvent( evNewAttrSet() );

@@ -34,6 +34,8 @@ public:
     void		getSelectedOutNames(BufferStringSet&) const;
     bool		doDisp() const;
 
+    static void		fillInAvailOutNames(const Attrib::Desc&,BufferStringSet&);
+
 protected:
 
     void		createMultOutDlg(const BufferStringSet&);

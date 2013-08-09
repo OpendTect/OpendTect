@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-static void fillInAvailOutNames( const Desc& desc, BufferStringSet& outnames )
+void uiMultOutSel::fillInAvailOutNames( const Desc& desc, BufferStringSet& outnames )
 {
     BufferString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
@@ -196,7 +196,7 @@ void uiMultiAttribSel::doAdd( CallBacker* )
 
 	const int seldescouputidx = seldesc->selectedOutput();
 	BufferStringSet alluserrefs;
-	fillInAvailOutNames( *seldesc, alluserrefs );
+	uiMultOutSel::fillInAvailOutNames( *seldesc, alluserrefs );
 	for ( int idx=0; idx<alluserrefs.size(); idx++ )
 	{
 	    if ( idx == seldescouputidx ) continue;
@@ -264,7 +264,7 @@ void uiMultiAttribSel::entrySel( CallBacker* )
 	descset_.getDesc( descset_.getID(attribfld_->getText(),true) );
     if ( !seldesc ) return;
 
-    fillInAvailOutNames( *seldesc, outnames );
+    uiMultOutSel::fillInAvailOutNames( *seldesc, outnames );
     allcompfld_->setSensitive( outnames.size()>1 );
 }
 

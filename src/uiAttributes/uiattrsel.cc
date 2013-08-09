@@ -451,6 +451,9 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
     compfld_->box()->setEmpty();
+    if ( matchString( "{", ioobj->name() ) )
+	compfld_->box()->addItem( "ALL" );
+
     compfld_->box()->addItems( compnms );
     compfld_->display( transl->componentInfo().size()>1 );
 }
@@ -496,8 +499,12 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
-	attrdata_.compnr_ = compfld_->box()->currentItem();
-	if ( attrdata_.compnr_< 0 ) attrdata_.compnr_ = 0;
+	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
+	       				== BufferString("ALL");
+	const int curselitmidx = compfld_->box()->currentItem(); 
+	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
+	if ( attrdata_.compnr_< 0 && !canuseallcomps )
+	    attrdata_.compnr_ = 0;
 	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
 					 : attrinf_->steerids_.get( selidx );
 	LineKey linekey( ioobjkey );
@@ -523,8 +530,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
-	attrdata_.attribid_ =
-	    	descset->getStoredID( linekey, attrdata_.compnr_, true );
+	attrdata_.attribid_ = canuseallcomps && attrdata_.compnr_==-1
+	    ? descset->getStoredID( linekey, attrdata_.compnr_, true,true,"ALL")
+	    : descset->getStoredID( linekey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
 	{
 	    BufferString msg( "Could not find the seismic data " );

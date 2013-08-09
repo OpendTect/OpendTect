@@ -613,9 +613,9 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    {                                                                   
 		err = "Impossible to find stored data '";             
 		err += dsc.userRef();                                          
-		err += "' \nused as input for other attribute(s). \n";
+		err += "' used as input for other attribute(s). \n";
 		err += "Data might have been deleted or corrupted.\n";
-		err += "Please check your attribute set \n";
+		err += "Please check your attribute set ";
 		err += "and select valid stored data as input.";                      
 	    }                                                                   
 	    else                                                                

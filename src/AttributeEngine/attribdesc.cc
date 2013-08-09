@@ -146,7 +146,7 @@ bool Desc::getDefStr( BufferString& res ) const
 	params_[idx]->fillDefStr( res );
     }
 
-    if ( seloutput_!=-1 )
+    if ( seloutput_!=-1 || stringEndsWith( "|ALL", userref_.buf() ) )
     {
 	res += " output=";
 	res += seloutput_;
@@ -360,7 +360,7 @@ Desc* Desc::getInput( int input )
 
 Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput_==-1 )
+    if ( seloutput_==-1 && !stringEndsWith( "|ALL", userref_.buf() ) )
 	    // || seloutput_>nrOutputs()  )
 	    //TODO NN descs return only one output. Needs solution!
     {
@@ -827,6 +827,29 @@ Desc* Desc::getStoredInput() const
 }
 
 
+DescID Desc::getMultiOutputInputID() const
+{
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] ) continue;
+
+	if ( inputs_[idx]->isStored() )
+	{
+	    if ( inputs_[idx]->selectedOutput()==-1 )
+		return inputId( idx );
+	}
+	else
+	{
+	    DescID multoutinpdid = inputs_[idx]->getMultiOutputInputID();
+	    if ( multoutinpdid != DescID::undef() )
+		return multoutinpdid;
+	}
+    }
+
+    return DescID::undef();
+}
+
+
 bool Desc::isStoredInMem() const
 {
     if ( !isStored() ) return false;
@@ -836,6 +859,35 @@ bool Desc::isStoredInMem() const
     BufferString bstring = lk.lineName();
     const char* linenm = bstring.buf();
     return linenm && *linenm == '#';
+}
+
+
+Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
+       					BufferString sufix )
+{
+    if ( seloutput_ == -1 )
+	return descset_->getDesc( newinputid );
+
+    Desc* myclone = new Desc(*this);
+
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] ) continue;
+
+	Desc* newinpdesc =
+		inputs_[idx]->cloneDescAndPropagateInput( newinputid, sufix );
+	if ( !newinpdesc )
+	    return 0;
+
+	myclone->setInput( idx, newinpdesc );
+    }
+
+    myclone->ref();
+    myclone->setHidden( true );
+    BufferString newuserref( userref_, "_", sufix );
+    myclone->setUserRef( newuserref.buf() );
+    descset_->addDesc( myclone );
+    return myclone;
 }
 
 
