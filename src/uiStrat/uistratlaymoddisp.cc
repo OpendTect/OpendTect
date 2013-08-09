@@ -190,6 +190,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , allcontents_(false)
 {
     gv_ = new uiGraphicsView( this, "LayerModel display" );
+    gv_->disableScrollZoom();
     gv_->setPrefWidth( 800 ); gv_->setPrefHeight( 300 );
     gv_->getMouseEventHandler().buttonReleased.notify(
 			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
