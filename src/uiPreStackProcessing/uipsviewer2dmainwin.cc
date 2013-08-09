@@ -441,6 +441,9 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 			    mCB(this,uiViewer2DMainWin,dataDlgPushed));
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
+	ctrl->toolBar()->addButton(
+		"snapshot", "Get snapshot",
+		mCB(this,uiStoredViewer2DMainWin,snapshotCB) );
 	control_ = ctrl;
 
 	uiToolBar* tb = control_->toolBar();
@@ -868,8 +871,17 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     uiColorTableSel* ctabsel = new uiColorTableSel( tb_, "Select Color Table" );
     coltabsels.setParam( this, ctabsel );
     ctabsel->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
+	vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
     tb_->addObject( ctabsel );
     tb_->addSeparator();
+}
+
+
+void uiViewer2DControl::updateColTabCB( CallBacker* )
+{
+    uiColorTableSel* ctabsel = coltabsels.getParam( this );
+    disppars_ = vwr_.appearance().ddpars_;
+    ctabsel->setCurrent( dispPars().vd_.ctab_.buf() );
 }
 
 

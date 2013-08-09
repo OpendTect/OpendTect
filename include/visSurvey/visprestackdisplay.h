@@ -64,6 +64,7 @@ public:
     virtual DataPack::ID	getDataPackID(int i=0) const;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
+    const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
     PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
 
     				//3D case
