@@ -478,12 +478,24 @@ void uiODApplMgrDispatcher::startInstMgr()
 void uiODApplMgrDispatcher::setAutoUpdatePol()
 {
     const ODInst::AutoInstType curait = ODInst::getAutoInstType();
-    uiGetChoice dlg( par_, ODInst::autoInstTypeUserMsgs(),
+    BufferStringSet options, alloptions;
+    alloptions = ODInst::autoInstTypeUserMsgs();
+#ifndef __win__
+    options = alloptions;
+#else
+    options.add( alloptions.get( (int)ODInst::InformOnly) );
+    options.add( alloptions.get( (int)ODInst::NoAuto) );
+#endif
+
+    uiGetChoice dlg( par_, options,
 	    		"Select policy for auto-update", true, "0.4.5" );
-    dlg.setDefaultChoice( (int)curait );
+   
+    const int idx = options.indexOf( alloptions.get((int)curait) );
+    dlg.setDefaultChoice( idx < 0 ? 0 : idx );
     if ( !dlg.go() )
 	return;
-    ODInst::AutoInstType newait = (ODInst::AutoInstType)dlg.choice();
+    ODInst::AutoInstType newait = (ODInst::AutoInstType) 
+				alloptions.indexOf( options.get(dlg.choice()) );
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
     if ( newait == ODInst::InformOnly )
