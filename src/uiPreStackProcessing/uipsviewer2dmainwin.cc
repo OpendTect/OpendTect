@@ -864,8 +864,17 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     mDefBut(parsbut,"2ddisppars",parsCB,"Set seismic display properties");
     ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
     ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
+    vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
+    ctabsel_->setCurrent( dispPars().vd_.ctab_ );
     tb_->addObject( ctabsel_ );
     tb_->addSeparator();
+}
+
+
+void uiViewer2DControl::updateColTabCB( CallBacker* )
+{
+    app_ = vwr_.appearance();
+    ctabsel_->setCurrent( dispPars().vd_.ctab_.buf() );
 }
 
 
@@ -887,7 +896,6 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     if ( !propdlg_ ) return;
 
     app_ = propdlg_->viewer().appearance();
-    ctabsel_->setCurrent( dispPars().vd_.ctab_.buf() );
     const int selannot = propdlg_->selectedAnnot();
 
     const FlatDataPack* vddatapack = vwrs_[0]->pack( false );

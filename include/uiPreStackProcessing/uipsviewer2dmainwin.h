@@ -173,6 +173,7 @@ protected:
     void		gatherPosCB(CallBacker*);
     void		gatherDataCB(CallBacker*);
     void		coltabChg(CallBacker*);
+    void		updateColTabCB(CallBacker*);
 };
 
 

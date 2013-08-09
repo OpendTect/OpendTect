@@ -162,6 +162,7 @@ protected:
 
     void        	setToolButtons();
     void 		stateCB(CallBacker*);
+    void 		keyPressedCB(CallBacker*);
 };
 
 
