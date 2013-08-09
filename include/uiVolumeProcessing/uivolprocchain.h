@@ -56,6 +56,7 @@ protected:
 
     void			readPush(CallBacker*);
     void			savePush(CallBacker*);
+    void			saveAsPush(CallBacker*);
 
     void			factoryClickCB(CallBacker*);
     void			stepClickCB(CallBacker*);

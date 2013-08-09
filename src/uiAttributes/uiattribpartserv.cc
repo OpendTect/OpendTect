@@ -95,21 +95,22 @@ static const int cMaxNrClasses = 100;
 
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
-	: uiApplPartServer(a)
-	, dirshwattrdesc_(0)
-        , attrsetdlg_(0)
-        , is2devsent_(false)
-    	, attrsetclosetim_("Attrset dialog close")
-	, stored2dmnuitem_("&Stored 2D Data")
-	, stored3dmnuitem_("Stored &Cubes")
-	, steering2dmnuitem_("Stee&ring 2D Data")
-	, steering3dmnuitem_("Steer&ing Cubes")
-	, multcomp3d_("3D")
-	, multcomp2d_("2D")
-	, volprocchain_( 0 )
-	, dpsdispmgr_( 0 )
-        , evalmapperbackup_( 0 )
-        , attrsneedupdt_(true)
+    : uiApplPartServer(a)
+    , dirshwattrdesc_(0)
+    , attrsetdlg_(0)
+    , volprocchaindlg_(0)
+    , is2devsent_(false)
+    , attrsetclosetim_("Attrset dialog close")
+    , stored2dmnuitem_("&Stored 2D Data")
+    , stored3dmnuitem_("Stored &Cubes")
+    , steering2dmnuitem_("Stee&ring 2D Data")
+    , steering3dmnuitem_("Steer&ing Cubes")
+    , multcomp3d_("3D")
+    , multcomp2d_("2D")
+    , volprocchain_( 0 )
+    , dpsdispmgr_( 0 )
+    , evalmapperbackup_( 0 )
+    , attrsneedupdt_(true)
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -165,12 +166,18 @@ void uiAttribPartServer::doVolProc( const MultiID* mid )
 	}
     }
 
-    VolProc::uiChain dlg( parent(), *volprocchain_, true );
+    if ( !volprocchaindlg_ )
+	volprocchaindlg_ = new VolProc::uiChain( parent(), *volprocchain_,true);
+
+    volprocchaindlg_->show();
+
+    /*
     if ( dlg.go() && dlg.saveButtonChecked() )
     {
 	ioobj = IOM().get( volprocchain_->storageID() );
 	createVolProcOutput( ioobj );
     }
+    */
 }
 
 

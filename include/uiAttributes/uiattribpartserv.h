@@ -52,7 +52,7 @@ class uiAttribDescSetEd;
 class uiAttribCrossPlot;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
-namespace VolProc { class Chain; }
+namespace VolProc { class Chain; class uiChain; }
 namespace ZDomain { class Info; }
 template <class T> class Interval;
 template <class T> class Array3D;
@@ -262,6 +262,7 @@ protected:
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
     VolProc::Chain*		volprocchain_;
+    VolProc::uiChain*		volprocchaindlg_;
 
     ColTab::MapperSetup*	evalmapperbackup_;
 };
