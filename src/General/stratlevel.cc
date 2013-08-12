@@ -221,14 +221,15 @@ void Strat::Level::usePar( const IOPar& iop )
 }
 
 
-Strat::LevelSet::LevelSet()
-    : lastlevelid_(0)
-    , levelAdded(this)
-    , levelChanged(this)
-    , levelToBeRemoved(this)
+#define mLvlSetInitList(id) \
+    : lastlevelid_(id) \
+    , levelAdded(this) \
+    , levelChanged(this) \
+    , levelToBeRemoved(this) \
     , ischanged_(false)
-{
-}
+
+Strat::LevelSet::LevelSet() mLvlSetInitList(0)				{}
+Strat::LevelSet::LevelSet( Strat::Level::ID id ) mLvlSetInitList(id)	{}
 
 
 Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
@@ -300,6 +301,13 @@ Strat::Level* Strat::LevelSet::gtLvl( const char* nm, Level::ID id ) const
 {
     const int ilvl = gtIdxOf( nm, id );
     return ilvl < 0 ? 0 : const_cast<Level*>( lvls_[ilvl] );
+}
+
+
+void Strat::LevelSet::getNames( BufferStringSet& nms ) const
+{
+    for ( int ilvl=0; ilvl<size(); ilvl++ )
+	nms.add( lvls_[ilvl]->name().buf() );
 }
 
 

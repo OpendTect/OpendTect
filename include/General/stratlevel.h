@@ -102,6 +102,7 @@ mExpClass(General) LevelSet : public CallBacker
 public:
 
 			LevelSet();
+			LevelSet(Level::ID startat);
 			LevelSet(const LevelSet&);
     virtual		~LevelSet();
     LevelSet&		operator =(const LevelSet&);
@@ -154,6 +155,7 @@ public:
 			{ return getLevel(idx).id(); }
     Color		color( int idx ) const
 			{ return getLevel(idx).color(); }
+    void		getNames(BufferStringSet&) const;
 
 protected:
 
