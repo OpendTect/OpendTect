@@ -435,6 +435,12 @@ void uiMainWinBody::close()
 
     handle_.windowClosed.trigger( handle_ );
 
+    if ( testAttribute(Qt::WA_DeleteOnClose) )
+    {
+	QMainWindow::close();
+	return;
+    }
+
     if ( modal_ )
 	eventloop_.exit();
 
