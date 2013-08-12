@@ -526,8 +526,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 	tr->setSelData( sd );
     }
 
-    IOStream* iostrm = (IOStream*)&ioobj;
-    if ( !iostrm->multiConn() ) 
+    mDynamicCastGet(const IOStream*,iostrmptr,&ioobj)
+    if ( !iostrmptr || !iostrmptr->multiConn() ) 
     {
 	Conn* cnn = ioobj.getConn( Conn::Read );
 	if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
@@ -539,12 +539,13 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
     }
     else
     {
-	iostrm->resetConnNr();
+	IOStream& iostrm = *const_cast<IOStream*>( iostrmptr );
+	iostrm.resetConnNr();
 	do
 	{
 	    PtrMan<Translator> translator = ioobj.getTranslator();
 	    mDynamicCastGet(SeisTrcTranslator*,seistr,translator.ptr());
-	    Conn* conn = iostrm->getConn( Conn::Read );
+	    Conn* conn = iostrm.getConn( Conn::Read );
 	    if ( !seistr || !conn || !seistr->initRead(conn,Seis::PreScan) )
 		return false;
 
@@ -553,7 +554,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 	    newcs.hrg.set( pinf.inlrg, pinf.crlrg );
 	    newcs.zrg = pinf.zrg;
 	    cs.include( newcs );
-	} while ( iostrm->toNextConnNr() );
+	} while ( iostrm.toNextConnNr() );
     } 
 
     return true;
