@@ -99,7 +99,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
 	return false;
 
     *sd.ostrm << "#!/bin/csh -f " << std::endl;
-    mSetEnvVar("DTECT_APPL")
+
     *sd.ostrm << "setenv DTECT_DATA " << GetBaseDataDir() << std::endl;
     mSetEnvVar("LD_LIBRARY_PATH")
     *sd.ostrm << GetExecScript(false) << " " << prognm << " \\" << std::endl;

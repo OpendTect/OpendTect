@@ -19,7 +19,7 @@ class IOPar;
 
 /*!\brief access help/about/credit files
 
-  The files are sought in $DTECT_APPL/doc/DIR/xxx/ . The xxx is the 'scope'
+  The files are sought in GetSoftwareDir()/doc/DIR/xxx/ . The xxx is the 'scope'
   taken from the window ID (e.g. "myplugin" from "myplugin:1.2.3"). If
   no scope present, 'base' is used (which is the OpendTect manual).
   For user doc, DIR=User. For credits, DIR=Credits.

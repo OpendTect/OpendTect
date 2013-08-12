@@ -234,11 +234,16 @@ const char* GetSoftwareDir( int acceptnone )
     
     if ( res.isEmpty() )
     {
-	res = GetEnvVar( "DTECT_APPL" );
-	if ( res.isEmpty() )
+	//Find the relinfo directory, and set sw dir to its parent
+	const FilePath filepath = GetFullExecutablePath();
+	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	{
-	    FilePath filepath = GetFullExecutablePath();
-	    res = filepath.dirUpTo( filepath.nrLevels()-5 );
+	    const FilePath datapath( filepath.dirUpTo(idx).buf(),"relinfo");
+	    if ( File::isDirectory( datapath.fullPath()) )
+	    {
+		res = filepath.dirUpTo(idx);
+		break;
+	    }
 	}
     
 	if ( res.isEmpty() )
