@@ -303,6 +303,8 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
     markers_.usePar( *par );
     logs_[0]->left_.useLeftPar( *par );
     logs_[0]->right_.useRightPar( *par );
+    for ( int idx=logs_.size()-1; idx>0; idx-- )
+	delete logs_.remove( idx );
     int widx=1; IOPar* welliop = par->subselect( toString(widx) );
     while ( welliop )
     {
