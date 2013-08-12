@@ -102,6 +102,7 @@ mExpClass(General) LevelSet : public CallBacker
 public:
 
 			LevelSet();
+			LevelSet(Level::ID startat);
 			LevelSet(const LevelSet&);
     virtual		~LevelSet();
     LevelSet&		operator =(const LevelSet&);

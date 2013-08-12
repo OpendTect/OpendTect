@@ -221,14 +221,15 @@ void Strat::Level::usePar( const IOPar& iop )
 }
 
 
-Strat::LevelSet::LevelSet()
-    : lastlevelid_(0)
-    , levelAdded(this)
-    , levelChanged(this)
-    , levelToBeRemoved(this)
+#define mLvlSetInitList(id) \
+    : lastlevelid_(id) \
+    , levelAdded(this) \
+    , levelChanged(this) \
+    , levelToBeRemoved(this) \
     , ischanged_(false)
-{
-}
+
+Strat::LevelSet::LevelSet() mLvlSetInitList(0)				{}
+Strat::LevelSet::LevelSet( Strat::Level::ID id ) mLvlSetInitList(id)	{}
 
 
 Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
