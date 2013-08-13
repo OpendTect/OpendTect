@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
+mFDQtclass(QString)
+mFDQtclass(QStringList)
 class uiTreeViewBody;
 class uiTreeViewItem;
 class ioPixmap;
@@ -226,7 +228,10 @@ public:
 			//!< returns false if not checkable
 
     void		setToolTip(int column,const char*);
-    void		translate(int column);
+    const char*		toolTip(int column) const;
+    void		translate();
+
+    static void		updateToolTips();
 
     void		insertItem(int,uiTreeViewItem*);
     void		takeItem(uiTreeViewItem*);
@@ -315,7 +320,13 @@ protected:
     bool			checked_;
 
     void			trlReady(CallBacker*);
-    int				translateid_;
+    bool			translate(int column);
+    TypeSet<int>		translateids_;
+    TypeSet<int>		translatecolumns_;
+
+    bool			updateToolTip(int column);
+    mQtclass(QStringList*)	qnormaltooltipstrlist_;
+    mQtclass(QStringList*)	qtranslatedtooltipstrlist_;
 };
 
 #endif

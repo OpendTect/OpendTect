@@ -22,11 +22,16 @@ mClass(uiBase) ODQtObjectSet
 public:
     			ODQtObjectSet()		{}
 
+   int			size() const		{ return odobjs_.size(); }
+
     void		add(OD*,QT*);
     void		remove(const OD&);
 
     OD*			getODObject(const QT&);
     QT*			getQtObject(const OD&);
+
+    OD*			getODObject(int idx);
+    QT*			getQtObject(int idx);
 
 protected:
 
@@ -42,6 +47,7 @@ void ODQtObjectSet<OD,QT>::add( OD* odobj, QT* qtobj )
     qtobjs_ += qtobj;
 }
 
+
 template<class OD,class QT>
 void ODQtObjectSet<OD,QT>::remove( const OD& obj )
 {
@@ -52,6 +58,7 @@ void ODQtObjectSet<OD,QT>::remove( const OD& obj )
     qtobjs_.removeSingle( idx );
 }
 
+
 template<class OD,class QT>
 OD* ODQtObjectSet<OD,QT>::getODObject( const QT& qtobj )
 {
@@ -59,11 +66,26 @@ OD* ODQtObjectSet<OD,QT>::getODObject( const QT& qtobj )
     return idx<0 ? 0 : odobjs_[idx];
 }
 
+
 template<class OD,class QT>
 QT* ODQtObjectSet<OD,QT>::getQtObject( const OD& obj )
 {
     const int idx = odobjs_.indexOf( &obj );
     return idx<0 ? 0 : qtobjs_[idx];
+}
+
+
+template<class OD,class QT>
+OD* ODQtObjectSet<OD,QT>::getODObject( int idx )
+{
+    return odobjs_.validIdx(idx) ? odobjs_[idx] : 0;
+}
+
+
+template<class OD,class QT>
+QT* ODQtObjectSet<OD,QT>::getQtObject( int idx )
+{
+    return qtobjs_.validIdx(idx) ? qtobjs_[idx] : 0;
 }
 
 

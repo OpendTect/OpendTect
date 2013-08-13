@@ -12,11 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uiobjbody.h"
 #include "uishortcutsmgr.h"
+#include "uimain.h"
 
 #include "hiddenparam.h"
 #include "texttranslator.h"
 #include "odqtobjset.h"
 #include "pixmap.h"
+#include "staticstring.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>
@@ -591,7 +593,7 @@ void uiTreeView::translate()
     for ( int idx=0; idx<nrItems(); idx++ )
     {
         uiTreeViewItem* itm = getItem( idx );
-	if ( itm ) itm->translate( 0 );
+	if ( itm ) itm->translate();
     }
 }
 
@@ -601,7 +603,8 @@ void uiTreeView::translate()
 uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
-    , translateid_(-1)
+    , qnormaltooltipstrlist_(new QStringList)
+    , qtranslatedtooltipstrlist_(new QStringList)
 { 
     qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -612,7 +615,8 @@ uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
 uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
-    , translateid_(-1)
+    , qnormaltooltipstrlist_(new QStringList)
+    , qtranslatedtooltipstrlist_(new QStringList)
 { 
     qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -656,6 +660,8 @@ uiTreeViewItem::~uiTreeViewItem()
 //  Not sure whether the qtreeitem_ should be delete here.
 //  When enabled od crashes, so commented for now
 //    delete qtreeitem_;
+    delete qnormaltooltipstrlist_;
+    delete qtranslatedtooltipstrlist_;
 }
 
 
@@ -663,15 +669,14 @@ void uiTreeViewItem::setText( const char* txt, int column )
 { 
     mTreeViewBlockCmdRec;
     qtreeitem_->setText( column, QString(txt) );
-    qtreeitem_->setToolTip( column, QString(txt) );
+    setToolTip( column, txt );
 }
 
 
 void uiTreeViewItem::setBGColor( int column, const Color& color )
 {
     qtreeitem_->setBackground( column,
-	    QBrush( QColor( color.r(), color.g(),
-		    				color.b() ) ) );
+			QBrush( QColor( color.r(), color.g(), color.b() ) ) );
 }
 
 
@@ -682,27 +687,54 @@ const char* uiTreeViewItem::text( int column ) const
 }
 
 
-void uiTreeViewItem::translate( int column )
+void uiTreeViewItem::translate()
 {
-    if ( !TrMgr().tr() ) return;
+    int column = 0;
+    while ( translate(column++) );
 
-    TrMgr().tr()->ready.notify( mCB(this,uiTreeViewItem,trlReady) );
-    BufferString txt = text( column );
-    translateid_ = TrMgr().tr()->translate( txt );
+    for ( int idx=0; idx<nrChildren(); idx++ )
+	getChild(idx)->translate();
+}
+
+
+bool uiTreeViewItem::translate( int column )
+{
+    if ( !TrMgr().tr() || column<0 || column>=qnormaltooltipstrlist_->size() )
+	return false;
+
+    BufferString txt( *toolTip(column) ? toolTip(column) : text(column) );
+    removeStartAndEndSpaces( txt.buf() );
+    if ( txt.isEmpty() || isNumberString(txt.buf()) )
+	return true;
+
+    if ( translateids_.isEmpty() )
+	mAttachCB(TrMgr().tr()->ready, uiTreeViewItem::trlReady );
+
+    translatecolumns_ += column;
+    translateids_ += TrMgr().tr()->translate( txt );
+    return true;
 }
 
 
 void uiTreeViewItem::trlReady( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,id,cb);
-    if ( id != translateid_ )
-	return;
+    const int idx = translateids_.indexOf( id );
+    if ( idx<0 ) return;
+
+    const int column = translatecolumns_[idx];
+    translateids_.removeSingle( idx );
+    translatecolumns_.removeSingle( idx );
 
     const wchar_t* translation = TrMgr().tr()->get();
     QString txt = QString::fromWCharArray( translation );
-    QString tt( text(0) ); tt += "\n\n"; tt += txt;
-    qtreeitem_->setToolTip( 0, tt );
-    TrMgr().tr()->ready.remove( mCB(this,uiTreeViewItem,trlReady) );
+    QString tt( *toolTip(column) ? toolTip(column) : text(column) );
+    tt += "\n\n"; tt += txt;
+    (*qtranslatedtooltipstrlist_)[column] = tt;
+    updateToolTip( column );
+
+    if ( translateids_.isEmpty() )
+	mDetachCB(TrMgr().tr()->ready, uiTreeViewItem::trlReady );
 }
 
 
@@ -915,8 +947,67 @@ bool uiTreeViewItem::isChecked( bool qtstatus ) const
 }
 
 
-void uiTreeViewItem::setToolTip( int column, const char*  txt )
-{ qtreeitem_->setToolTip( column, QString(txt) ); }
+const char* uiTreeViewItem::toolTip(int column) const
+{
+    static StaticStringManager stm;
+    BufferString& str = stm.getString();
+    str = column<0 || column>=qnormaltooltipstrlist_->size() ? "" :
+		      (*qnormaltooltipstrlist_)[column].toLatin1().data();
+    return str.buf();
+}
+
+
+void uiTreeViewItem::setToolTip( int column, const char* txt )
+{
+    if ( column < 0 )
+	return;
+
+    while ( column >= qnormaltooltipstrlist_->size() )
+    {
+	*qnormaltooltipstrlist_ += "";
+	*qtranslatedtooltipstrlist_ += "";
+    }
+
+    QString newtxt( txt );
+    if ( newtxt == (*qnormaltooltipstrlist_)[column] )
+	return;
+
+    const bool wastranslated = !translateids_.isEmpty() ||
+			       (*qtranslatedtooltipstrlist_)[column].size();
+
+    (*qnormaltooltipstrlist_)[column] = newtxt;
+    (*qtranslatedtooltipstrlist_)[column] = "";
+    updateToolTip( column );
+
+    if ( TrMgr().tr() && TrMgr().tr()->enabled() && wastranslated )
+	translate( column );
+}
+
+
+bool uiTreeViewItem::updateToolTip( int column )
+{
+    if ( column<0 || column>=qnormaltooltipstrlist_->size() )
+	return false;
+
+    if ( uiMain::isNameToolTipUsed() )
+	qtreeitem_->setToolTip( column, "" ); // no name-tooltip for tree items
+    else if ( (*qtranslatedtooltipstrlist_)[column].size() )
+	qtreeitem_->setToolTip( column, (*qtranslatedtooltipstrlist_)[column] );
+    else
+	qtreeitem_->setToolTip( column, (*qnormaltooltipstrlist_)[column] );
+
+    return true;
+}
+
+
+void uiTreeViewItem::updateToolTips()
+{
+    for ( int idx=odqtobjects_.size()-1; idx>=0; idx-- )
+    {
+	int column = 0;
+	while ( odqtobjects_.getODObject(idx)->updateToolTip(column++) );
+    }
+}
 
 
 void uiTreeViewItem::updateFlags()
