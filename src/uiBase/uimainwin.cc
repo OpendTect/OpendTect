@@ -1234,14 +1234,14 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 {
     QString fname( fnm );
     
-    const WId desktopwinid = QApplication::desktop()->winId();
-    const QPixmap desktopsnapshot = QPixmap::grabWindow( desktopwinid );
-    QWidget* qwin = qWidget();//qApp->activeModalWidget();
+    QWidget* qwin = qWidget();
     if ( !qwin )
 	qwin = body_;
+    const QPixmap snapshot = QPixmap::grabWindow( qwin->winId() );
 
-    QPixmap snapshot = desktopsnapshot.copy(qwin->x(),qwin->y(),width,height);
     QImage image = snapshot.toImage();
+    image = image.scaledToWidth( width );
+    image = image.scaledToHeight( height );
     image.setDotsPerMeterX( (int)(res/0.0254) );
     image.setDotsPerMeterY( (int)(res/0.0254) );
     image.save( fname );
