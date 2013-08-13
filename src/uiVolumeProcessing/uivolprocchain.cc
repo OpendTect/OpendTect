@@ -87,6 +87,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 	    .modal(!withprocessnow) )
     , chain_(chn)
 {
+    chain_.ref();
+
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
     tb->addButton( "open", "Read stored setup", mCB(this,uiChain,readPush));
     tb->addButton( "save", "Save setup", mCB(this,uiChain,savePush) );
@@ -161,6 +163,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
 uiChain::~uiChain()
 {
+    chain_.unRef();
 }
 
 
@@ -177,21 +180,19 @@ const MultiID& uiChain::storageID() const
 }
 
 
-bool uiChain::acceptOK(CallBacker*)
+bool uiChain::acceptOK( CallBacker* )
 {
     if ( chain_.nrSteps() && chain_.getStep( 0 ) &&
-       chain_.getStep( 0 )->needsInput() )
+	 chain_.getStep( 0 )->needsInput() )
     {
 	if ( !uiMSG().askGoOn("The first step in the chain needs an input, "
                   "and can thus not be first. Proceed anyway?", true ) )
 	    return false;
     }
 
-    const IOObj* ioobj = objfld_->ioobj( true );
     if ( !doSave() )
 	return false;
 
-    chain_.setStorageID( ioobj->key() );
     if ( hasSaveButton() )
     {
 	Settings::common().setYN( sKeySettingKey(), saveButtonChecked() );
@@ -209,11 +210,14 @@ bool uiChain::doSave()
 	return doSaveAs();
 
     BufferString errmsg;
-    if ( VolProcessingTranslator::store( chain_, ioobj, errmsg ) )
+    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    {
+	chain_.setStorageID( ioobj->key() );
 	return true;
+    }
 
-     uiMSG().error( errmsg );
-     return false;
+    uiMSG().error( errmsg );
+    return false;
 }
 
 
@@ -225,15 +229,17 @@ bool uiChain::doSaveAs()
     if ( !dlg.go() || !dlg.nrSel() )
 	 return false;
 
-     BufferString errmsg;
-     if ( VolProcessingTranslator::store(chain_,dlg.ioObj(),errmsg) )
-     {
-	 updObj( *dlg.ioObj() );
-	 return true;
-     }
+    BufferString errmsg;
+    const IOObj* ioobj = dlg.ioObj();
+    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    {
+	chain_.setStorageID( ioobj->key() );
+	updObj( *dlg.ioObj() );
+	return true;
+    }
 
-     uiMSG().error( errmsg );
-     return false;
+    uiMSG().error( errmsg );
+    return false;
 }
 
 
