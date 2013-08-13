@@ -505,15 +505,19 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     {
 	data().get( pos, bid, vals );
 	*sd.ostrm << bid.inl << '\t' << bid.crl;
-	Coord crd = SI().transform( bid );
-	if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
-				      && colDef(1).name_=="Y Offset" )
+	if ( tabstyle )
 	{
-	    crd.x += vals[0];
-	    crd.y += vals[1];
+	    Coord crd = SI().transform( bid );
+	    if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
+					  && colDef(1).name_=="Y Offset" )
+	    {
+		crd.x += vals[0];
+		crd.y += vals[1];
+	    }
+
+	    *sd.ostrm << '\t' << toString(crd.x) << '\t' << toString(crd.y);
 	}
 
-	*sd.ostrm << '\t' << crd.x << '\t' << crd.y;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    str = vals[idx];
