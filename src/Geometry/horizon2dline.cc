@@ -55,7 +55,7 @@ Horizon2DLine* Horizon2DLine::clone() const
 bool Horizon2DLine::addRow( const PosInfo::GeomID& geomid,
 			   const TypeSet<Coord>& coords, int start, int step )
 {
-    const int index = oldgeomids_.indexOf( geomid );
+    const int index = getRowIndex( geomid );
     
     if ( mIsUdf(index) )
 	return false;
@@ -75,7 +75,7 @@ bool Horizon2DLine::addRow( const PosInfo::GeomID& geomid,
 bool Horizon2DLine::addRow( TraceID::GeomID geomid,const TypeSet<Coord>& coords, 
 			    int start, int step )
 {
-    const int index = geomids_.indexOf( geomid );
+    const int index = getRowIndex( geomid );
     
     if ( mIsUdf(index) )
 	return false;
@@ -117,7 +117,7 @@ bool Horizon2DLine::addUdfRow( TraceID::GeomID geomid, int start, int stop,
 bool Horizon2DLine::reassignRow( const PosInfo::GeomID& from,
 				 const PosInfo::GeomID& to )
 {
-    const int idx = oldgeomids_.indexOf( from );
+    const int idx = getRowIndex( from );
     if ( idx < 0 )
 	return false;
 
@@ -129,7 +129,7 @@ bool Horizon2DLine::reassignRow( const PosInfo::GeomID& from,
 bool Horizon2DLine::reassignRow( TraceID::GeomID fromgeomid, 
 				 TraceID::GeomID togeomid )
 {
-    const int idx = geomids_.indexOf( fromgeomid );
+    const int idx = getRowIndex( fromgeomid );
     if ( idx < 0 )
 	return false;
 
@@ -141,7 +141,7 @@ bool Horizon2DLine::reassignRow( TraceID::GeomID fromgeomid,
 void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
 			     const PosInfo::Line2DData& geom )
 {
-    const int rowidx = oldgeomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -204,7 +204,7 @@ void Horizon2DLine::syncRow( const PosInfo::GeomID& geomid,
 void Horizon2DLine::syncRow( TraceID::GeomID geomid, 
 			     const PosInfo::Line2DData& geom )
 {
-    const int rowidx = geomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -266,7 +266,7 @@ void Horizon2DLine::syncRow( TraceID::GeomID geomid,
 	
 void Horizon2DLine::removeRow( const PosInfo::GeomID& geomid )
 {
-    const int rowidx = oldgeomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -286,7 +286,7 @@ void Horizon2DLine::removeRow( const PosInfo::GeomID& geomid )
 
 void Horizon2DLine::removeRow( TraceID::GeomID geomid )
 {
-    const int rowidx = geomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -307,7 +307,7 @@ void Horizon2DLine::removeRow( TraceID::GeomID geomid )
 void Horizon2DLine::removeCols( const PosInfo::GeomID& geomid, int col1,
 				int col2 )
 {
-    const int rowidx = oldgeomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() ) return;
 
     const StepInterval<int> colrg = colRange( getRowIndex(geomid) );
@@ -333,7 +333,7 @@ void Horizon2DLine::removeCols( const PosInfo::GeomID& geomid, int col1,
 
 void Horizon2DLine::removeCols( TraceID::GeomID geomid, int col1, int col2 )
 {
-    const int rowidx = geomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() ) return;
 
     const StepInterval<int> colrg = colRange( getRowIndex(geomid) );
@@ -360,7 +360,7 @@ void Horizon2DLine::removeCols( TraceID::GeomID geomid, int col1, int col2 )
 void Horizon2DLine::setRow( const PosInfo::GeomID& geomid,
 			    const TypeSet<Coord>& path, int start, int step )
 {
-    const int rowidx = oldgeomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -387,7 +387,7 @@ void Horizon2DLine::setRow( const PosInfo::GeomID& geomid,
 void Horizon2DLine::setRow( TraceID::GeomID geomid, const TypeSet<Coord>& path, 
 			    int start, int step )
 {
-    const int rowidx = geomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
@@ -474,7 +474,7 @@ void Horizon2DLine::geometry( const PosInfo::GeomID& geomid,
 			      PosInfo::Line2DData& ld ) const
 {
     ld.setEmpty();
-    const int rowidx = oldgeomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( !rows_.validIdx(rowidx) )
 	return;
 
@@ -495,7 +495,7 @@ void Horizon2DLine::geometry( TraceID::GeomID geomid,
 			      PosInfo::Line2DData& ld ) const
 {
     ld.setEmpty();
-    const int rowidx = geomids_.indexOf( geomid );
+    const int rowidx = getRowIndex( geomid );
     if ( !rows_.validIdx(rowidx) )
 	return;
 
@@ -531,6 +531,52 @@ Coord3 Horizon2DLine::getKnot( const RowCol& rc ) const
 
     const int colidx = colIndex( rc.row, rc.col );
     return colidx>=0 ? (*rows_[rc.row])[colidx] : Coord3::udf();
+}
+
+
+int Horizon2DLine::rowIndex( int rowid ) const
+{
+    if ( geomids_.isEmpty() )
+    {
+    	for ( int rowidx=0; rowidx<oldgeomids_.size(); rowidx++ )
+    	{
+    	    if ( oldgeomids_[rowidx].lineid_==rowid )
+    		return rowidx;
+    	}
+    }
+    else
+    {
+    	for ( int rowidx=0; rowidx<geomids_.size(); rowidx++ )
+    	{
+    	    if ( geomids_[rowidx]==rowid )
+    		return rowidx;
+    	}
+    }
+    
+    return -1;
+}
+
+
+bool Horizon2DLine::isDefined( GeomPosID pid ) const
+{
+    const RowCol rc = RowCol::fromInt64( pid );
+    const int rowidx = rowIndex( rc.row );
+    return isKnotDefined( RowCol(rowidx,rc.col) );
+}
+
+
+Coord3 Horizon2DLine::getPosition( GeomPosID pid ) const
+{
+    const RowCol rc = RowCol::fromInt64( pid );
+    const int rowidx = rowIndex( rc.row );
+    return getKnot( RowCol(rowidx,rc.col) );
+}
+
+bool Horizon2DLine::setPosition( GeomPosID pid, const Coord3& pos )
+{
+    const RowCol rc = RowCol::fromInt64( pid );
+    const int rowidx = rowIndex( rc.row );
+    return setKnot( RowCol(rowidx,rc.col), pos );
 }
 
 

@@ -98,9 +98,14 @@ public:
     bool		hasSupport(const RowCol&) const;
     void		checkSupport(bool yn)	{ checksupport_ = yn; }
     bool		checksSupport() const	{ return checksupport_; }
+    
+    bool		setPosition(GeomPosID pid,const Coord3& pos);
+    Coord3		getPosition(GeomPosID pid) const;
+    bool		isDefined(GeomPosID pid) const;
 
 protected:
     int			colIndex(int rowidx,int colid) const;
+    int			rowIndex(int rowid) const;
 
     bool		checksupport_;
     int			firstrow_;
