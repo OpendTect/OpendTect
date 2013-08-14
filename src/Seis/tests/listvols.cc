@@ -1,11 +1,10 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : July 2012
- * FUNCTION : 
+ * AUTHOR   : Bert
+ * DATE     : Aug 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id: ibmformat.cc 30517 2013-07-02 13:07:14Z bert.bril@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id:$";
 
 #include "iodirentry.h"
 #include "ioman.h"
