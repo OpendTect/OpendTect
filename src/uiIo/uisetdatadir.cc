@@ -101,7 +101,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     if ( datadir.isEmpty() || !File::isDirectory(datadir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
-    if ( datadir == olddatadir )
+    if ( datadir == olddatadir && OD_isValidRootDataDir( olddatadir ) )
 	return true;
 
     FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir(0) );
@@ -222,8 +222,8 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 {
     if ( !par ) return;
 
-    const BufferString instdemosurv = getInstalledDemoSurvey();
-    const bool havedemosurv = !instdemosurv.isEmpty();
+    BufferString zipfilenm = getInstalledDemoSurvey();
+    const bool havedemosurv = !zipfilenm.isEmpty();
     BufferStringSet opts;
     opts.add( "&I will set up a new survey myself" );
     if ( havedemosurv )
@@ -246,6 +246,16 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     if ( !uigc.go() || uigc.choice() == 0 )
 	return;
 
-    BufferString zipfnm( uigc.choice() == 1 ? instdemosurv.buf() : "" );
-    (void)uiSurvey_UnzipFile( par, zipfnm, datadir );
+    if ( (havedemosurv && uigc.choice() == 2) || 
+         (!havedemosurv && uigc.choice() == 1))
+    {
+        uiFileDialog dlg( par, true, "", "*.zip", "Select zip file" );
+        dlg.setDirectory( datadir );
+        if ( !dlg.go() ) 
+            return;
+
+        zipfilenm = dlg.fileName();
+    }
+
+    (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
 }
