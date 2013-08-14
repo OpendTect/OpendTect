@@ -86,9 +86,17 @@ void uiStratSelUnits::mkBoxFld()
     while ( it.next() )
 	nms.add( it.unit()->fullCode() );
 
-    uiLabeledComboBox* cb = new uiLabeledComboBox( this, nms,
-						    setup_.fldtxt_ );
-    combo_ = cb->box(); setHAlignObj( cb );
+    if ( setup_.fldtxt_.isEmpty() )
+    {
+	combo_ = new uiComboBox( this, nms, "Unit" );
+	setHAlignObj( combo_ );
+    }
+    else
+    {
+	uiLabeledComboBox* cb = new uiLabeledComboBox( this, nms,
+							setup_.fldtxt_ );
+	combo_ = cb->box(); setHAlignObj( cb );
+    }
     combo_->selectionChanged.notify( curchgcb );
 }
 
