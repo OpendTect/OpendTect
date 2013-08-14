@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QProcess>
 #else
 #include <sys/stat.h>
 #include <fstream>
@@ -446,7 +447,7 @@ bool removeDir( const char* dirnm )
     }
 
     cmd.add(" '").add(dirnm).add("'");
-    bool res = system( cmd ) != -1;
+    bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
     if ( res ) res = !exists(dirnm);
     return res;
 #endif
@@ -478,7 +479,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     cmd.add(yn ? " ug+w '" : " a-w '").add(fnm).add("'");
 #endif
 
-    return system( cmd ) != -1;
+    return QProcess::execute( QString(cmd.buf()) ) >= 0;
 }
 
 
@@ -489,7 +490,7 @@ bool makeExecutable( const char* fnm, bool yn )
 #else
     BufferString cmd( "chmod" );
     cmd.add(yn ? " +r+x '" : " -x '").add(fnm).add("'");
-    return system( cmd ) != -1;
+    return QProcess::execute( QString(cmd.buf()) ) >= 0;
 #endif
 }
 
@@ -503,7 +504,7 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
     if ( recursive && isDirectory(fnm) )
 	cmd += " -R ";
     cmd.add( perms ).add( " " ).add( fnm );
-    return system( cmd ) != -1;
+    return QProcess::execute( QString(cmd.buf()) ) >= 0;
 #endif
 }
 

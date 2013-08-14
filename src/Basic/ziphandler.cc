@@ -1288,6 +1288,9 @@ int ZipHandler::readLocalFileHeader()
     {
 	headerbuff[srcfnmsize_ - 1] = 0;
 	destfile_ = destbasepath_;
+#ifdef __win__
+	replaceCharacter( headerbuff, '/', '\\' );
+#endif
 	destfile_ += headerbuff;
 	if ( !File::exists(destfile_.buf()) && 
 	     !File::createDir(destfile_.buf()) )
@@ -1299,6 +1302,9 @@ int ZipHandler::readLocalFileHeader()
     }
 
     destfile_ = destbasepath_;
+#ifdef __win__
+	replaceCharacter( headerbuff, '/', '\\' );
+#endif
     destfile_ += headerbuff;
     if ( xtrafldlth > 0 && compfilesize_ > m32BitSizeLimit )
     {
@@ -1331,6 +1337,9 @@ bool ZipHandler::openStreamToWrite()
 
     if ( !File::exists( pathonly.buf() ) )
 	File::createDir( pathonly.buf() );
+
+    if ( File::exists(destfile_) && !File::isWritable(destfile_) )
+	File::makeWritable( destfile_, true, false );
 
     osd_ = StreamProvider( destfile_ ).makeOStream();
     if ( !osd_.usable() ) 
