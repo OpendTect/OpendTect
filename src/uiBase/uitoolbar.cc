@@ -45,7 +45,7 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
-    : uiParent( nm, 0 )
+    : uiParent( nm, parnt ? parnt->pbody() : 0 )
     , tbarea_(tba)
     , buttonClicked(this)
     , toolbarmenuaction_( 0 )
@@ -103,7 +103,7 @@ int uiToolBar::addButton( const uiToolButtonSetup& su )
 
 int uiToolBar::addButton( const MenuItem& itm )
 {
-    return insertAction( new uiAction(itm) );
+    return insertAction( new uiAction(itm), itm.id );
 }
 
 
