@@ -363,15 +363,39 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	    addNLA( nlamodel_id );
 	}
 
-	const DescID targetid = nlamodel_id.isValid() ? nlamodel_id
-						      : todofld_->attribID();
-	clonedset = ads_.optimizeClone( targetid );
+	DescID targetid = nlamodel_id.isValid() ? nlamodel_id
+						: todofld_->attribID();
 
-	nrseloutputs = seloutputs_.size() ? seloutputs_.size() : 1;
+	Desc* seldesc = ads_.getDesc( targetid );
+	if ( seldesc )
+	{
+	    const bool is2d = todofld_->is2D();
+	    DescID multoiid = seldesc->getMultiOutputInputID();
+	    if ( multoiid != DescID::undef() )                                  
+	    {
+		uiAttrSelData attrdata( ads_ );                   
+		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d, 
+				 DescID::undef(), false, false );
+    		TypeSet<Attrib::SelSpec> targetspecs;		
+		if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
+				    is2d, attrinf, &ads_, this, targetspecs ))
+		    return false;
+	   	for ( int idx=0; idx<targetspecs.size(); idx++ )
+		    outdescids += targetspecs[idx].id();
+	    }
+	}
+	const int outdescidsz = outdescids.size();
+	clonedset = outdescidsz ? ads_.optimizeClone( outdescids )
+	    			: ads_.optimizeClone( targetid );
+	if ( !clonedset ) return false;
+
+	nrseloutputs = seloutputs_.size() ? seloutputs_.size()
+	    				  : outdescidsz ? outdescidsz : 1;
 	if ( clonedset && seloutputs_.size() )
+	    //TODO make use of the multiple targetspecs (pre-stack for inst)
 	    clonedset->createAndAddMultOutDescs( targetid, seloutputs_,
 						 seloutnms_, outdescids );
-	else
+	else if ( outdescids.isEmpty() )
 	    outdescids += targetid;
     }
     else

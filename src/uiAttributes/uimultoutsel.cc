@@ -13,15 +13,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "attribprovider.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uilistbox.h"
+#include "uimultcomputils.h"
 #include "uitoolbutton.h"
 
 using namespace Attrib;
 
-void uiMultOutSel::fillInAvailOutNames( const Desc& desc, BufferStringSet& outnames )
+void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
+					BufferStringSet& outnames )
 {
     BufferString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
@@ -91,6 +94,80 @@ bool uiMultOutSel::doDisp() const
 void uiMultOutSel::allSel( CallBacker* c )
 {
     outlistfld_->selectAll( outallfld_->isChecked() );
+}
+
+
+bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,        
+					const Attrib::DescID& multicompinpid,
+					bool is2d, const SelInfo& attrinf,
+					Attrib::DescSet* curdescset,
+					uiParent* parent,
+					TypeSet<Attrib::SelSpec>& targetspecs)
+{                                                                               
+    if ( !curdescset ) return false;           
+    Desc* seldesc = curdescset->getDesc( attribid );                            
+    if ( !seldesc )                                                             
+	return false;                                                           
+
+    Desc* inpdesc = curdescset->getDesc( multicompinpid );                      
+    if ( !inpdesc ) return false;                                               
+
+    BufferStringSet complist;                                                   
+    uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );                    
+    uiMultCompDlg compdlg( parent, complist );
+    if ( compdlg.go() )                                                         
+    {                                                                           
+	LineKey lk;                                                             
+	BufferString userrefstr ( inpdesc->userRef() );                         
+	if ( stringEndsWith( "|ALL", userrefstr.buf() ))                        
+	{                                                                       
+	    char* cleanuserrefstr = const_cast<char*>( userrefstr.buf() );
+	    replaceString( cleanuserrefstr, "|ALL", "" );                       
+	    removeStartAndEndSpaces( cleanuserrefstr );                         
+	    userrefstr = BufferString( cleanuserrefstr );                       
+	}                                                                       
+
+	if ( is2d )                                                             
+	{                                                                       
+	    const MultiID mid( attrinf.ioobjids_.get(0) );                      
+	    lk = LineKey( mid, userrefstr );                                    
+	}                                                                       
+	else                                                                    
+	{                                                                       
+	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );   
+	    if ( inpidx<0 ) return false;                                       
+
+	    const char* objidstr = attrinf.ioobjids_.get(inpidx);               
+	    lk = LineKey( objidstr );                                           
+	}
+
+	TypeSet<int> selectedcomps;                                             
+	compdlg.getCompNrs( selectedcomps );                                    
+	const int selcompssz = selectedcomps.size();                            
+	if ( selcompssz )                                                       
+	    targetspecs.erase();                                               
+
+	for ( int idx=0; idx<selcompssz; idx++ )                                
+	{                                                                       
+	    const int compidx = selectedcomps[idx];                             
+	    const DescID newinpid = curdescset->getStoredID( lk, compidx,       
+					    true, true, complist.get(compidx) );
+	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,      
+							complist.get(compidx) );
+	    if ( !newdesc ) continue;                                           
+
+	    DescID newdid = curdescset->getID( *newdesc );                      
+	    SelSpec as( 0, newdid );                                            
+	    BufferString bfs;                                                   
+	    newdesc->getDefStr( bfs );                                          
+	    as.setDefString( bfs.buf() );                                       
+	    as.setRefFromID( *curdescset );                                     
+	    as.set2DFlag( is2d );                                               
+	    targetspecs += as;                                                 
+	}                                                                       
+    }                                                                           
+
+    return true;                                                                
 }
 
 

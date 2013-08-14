@@ -614,7 +614,8 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 		uiAttrSelData attrdata( *adsman->descSet() );
 		SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d,
 				 DescID::undef(), false, false );
-		if ( !handleMultiCompChain( attribid, multoiid, is2d, attrinf ))
+		if ( !uiMultOutSel::handleMultiCompChain( attribid, multoiid,
+			    is2d, attrinf, curdescset, parent(), targetspecs_ ))
 		    return 0;
 	    }
 	}
@@ -1484,78 +1485,6 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
     }
     else
 	return false;
-
-    return true;
-}
-
-
-bool uiAttribPartServer::handleMultiCompChain( Attrib::DescID& attribid,
-					   const Attrib::DescID& multicompinpid,
-					   bool is2d, const SelInfo& attrinf )
-{
-    Attrib::DescSet* curdescset = eDSHolder().getDescSet(is2d,false);
-    Desc* seldesc = curdescset->getDesc( attribid );
-    if ( !seldesc )
-	return false;
-
-    Desc* inpdesc = curdescset->getDesc( multicompinpid );
-    if ( !inpdesc ) return false;
-
-    BufferStringSet complist;
-    uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
-    uiMultCompDlg compdlg( parent(), complist );
-    if ( compdlg.go() )
-    {
-	LineKey lk;
-	BufferString userrefstr ( inpdesc->userRef() );
-	if ( stringEndsWith( "|ALL", userrefstr.buf() ))
-	{
-	    char* cleanuserrefstr =
-			    const_cast<char*>( userrefstr.buf() );
-	    replaceString( cleanuserrefstr, "|ALL", "" );
-	    removeStartAndEndSpaces( cleanuserrefstr );
-	    userrefstr = BufferString( cleanuserrefstr );
-	}
-
-	if ( is2d )
-	{
-	    const MultiID mid( attrinf.ioobjids_.get(0) );
-	    lk = LineKey( mid, userrefstr );
-	}
-	else
-	{
-	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
-	    if ( inpidx<0 ) return false;
-
-	    const char* objidstr = attrinf.ioobjids_.get(inpidx);
-	    lk = LineKey( objidstr );
-	}
-
-	TypeSet<int> selectedcomps;
-	compdlg.getCompNrs( selectedcomps );
-	const int selcompssz = selectedcomps.size();
-	if ( selcompssz )
-	    targetspecs_.erase();
-
-	for ( int idx=0; idx<selcompssz; idx++ )
-	{
-	    const int compidx = selectedcomps[idx];
-	    const DescID newinpid = curdescset->getStoredID( lk, compidx,
-					true, true, complist.get(compidx) );
-	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
-						   complist.get(compidx) );
-	    if ( !newdesc ) continue;
-
-	    DescID newdid = curdescset->getID( *newdesc );
-	    SelSpec as( 0, newdid );
-	    BufferString bfs;
-	    newdesc->getDefStr( bfs );
-	    as.setDefString( bfs.buf() );
-	    as.setRefFromID( *curdescset );
-	    as.set2DFlag( is2d );
-	    targetspecs_ += as;
-	}
-    }
 
     return true;
 }
