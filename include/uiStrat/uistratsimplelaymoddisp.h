@@ -48,7 +48,8 @@ protected:
     uiAxisHandler*	yax_;
     uiTextItem*		emptyitm_;
     uiRectItem*		zoomboxitm_;
-    uiGraphicsItemSet&	logblckitms_;
+    uiGraphicsItemSet&	logblcklineitms_;
+    uiGraphicsItemSet&	logblckrectitms_;
     uiGraphicsItemSet&	lvlitms_;
     uiGraphicsItemSet&	contitms_;
     uiLineItem*		selseqitm_;
