@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 
 #include "file.h"
+#include "filepath.h"
 #include "matlabstep.h"
 #include "matlablibmgr.h"
 
@@ -71,6 +72,12 @@ void uiMatlabStep::fileSelCB( CallBacker* )
     const bool isok = File::exists( fnm );
     loadbut_->setSensitive( isok );
     fileloaded_ = false;
+
+    if ( isok )
+    {
+	const FilePath fp( fnm );
+	namefld_->setText( BufferString("MATLAB - ",fp.baseName()) );
+    }
 }
 
 
