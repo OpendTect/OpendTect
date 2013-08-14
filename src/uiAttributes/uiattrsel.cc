@@ -451,8 +451,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
     compfld_->box()->setEmpty();
-    if ( matchString( "{", ioobj->name() ) )
-	compfld_->box()->addItem( "ALL" );
+    compfld_->box()->addItem( "ALL" );
 
     compfld_->box()->addItems( compnms );
     compfld_->display( transl->componentInfo().size()>1 );
