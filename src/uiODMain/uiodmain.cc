@@ -243,7 +243,7 @@ bool uiODMain::ensureGoodSurveySetup()
 	    msgs.add( BufferString("DTECT_DATA variable: ",
 				   GetEnvVar("DTECT_DATA")) );
 	    uiMSG().errorWithDetails( msgs, msg );
-	    return false;
+	    return true;
 	}
 
 	while ( !applmgr_->manageSurvey() )
