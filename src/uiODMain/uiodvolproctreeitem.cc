@@ -83,7 +83,7 @@ void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istb )
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     mAddMenuOrTBItem( istb, 0, menu, &selmenuitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &reloadmenuitem_, ioobj, false );
+    mAddMenuOrTBItem( istb, menu, menu, &reloadmenuitem_, ioobj, false );
     mAddMenuOrTBItem( istb, 0, menu, &editmenuitem_, ioobj, false );
 }
 
