@@ -64,7 +64,27 @@ IOMan::IOMan( const char* rd )
 void IOMan::init()
 {
     state_ = Bad;
-    if ( !to( emptykey, true ) ) return;
+    if ( !to( emptykey, true ) ) 
+    {
+        FilePath surveyfp( GetDataDir(), ".omf" );
+        if ( File::exists(surveyfp.fullPath().buf()) )
+        {
+            msg_ = "Warning: Invalid '.omf' found in:\n";
+	    msg_ += rootdir_; 
+            msg_ += ".\nThis survey is corrupt.";
+	    return;
+        }
+
+        FilePath basicfp( mGetSetupFileName("BasicSurvey"), ".omf" );
+        File::copy( basicfp.fullPath(),surveyfp.fullPath() );
+        if ( !to( emptykey, true ) ) 
+        {
+            msg_ = "Warning: Invalid or no '.omf' found in:\n";
+	    msg_ += rootdir_; 
+            msg_ += ".\nThis survey is corrupt.";
+	    return;
+        }
+    }
 
     state_ = Good;
     curlvl_ = 0;
@@ -181,7 +201,7 @@ bool IOMan::isReady() const
 
 
 #define mDestroyInst(dotrigger) \
-    if ( dotrigger && survchg_triggers ) \
+    if ( dotrigger && !IOM().bad() && survchg_triggers ) \
 	IOM().surveyToBeChanged.trigger(); \
     if ( !IOM().canChangeSurvey() ) \
     { \
@@ -206,7 +226,7 @@ bool IOMan::isReady() const
     IOM().entryRemoved.cbs_ = rmcbs; \
     IOM().newIODir.cbs_ = dccbs; \
     IOM().applicationClosing.cbs_ = apccbs; \
-    if ( dotrigger ) \
+    if ( dotrigger && !IOM().bad() ) \
     { \
 	setupCustomDataDirs(-1); \
 	if ( dotrigger && survchg_triggers ) \
@@ -289,7 +309,13 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     else if ( !File::exists(basedatadir) )
 	mErrRetNotODDir(0)
     else if ( !validOmf(basedatadir) )
-	mErrRetNotODDir(".omf")
+    {
+        const BufferString stdomf( mGetSetupFileName("omf") );
+        FilePath baseomf( basedatadir, ".omf" );
+        File::copy( stdomf.buf(), baseomf.fullPath().buf() );
+	if ( !validOmf(basedatadir) )
+	    mErrRetNotODDir(".omf")
+    }
 
     const BufferString projdir = GetDataDir();
     if ( projdir != basedatadir && File::isDirectory(projdir) )
@@ -329,6 +355,8 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	errmsg += "Please remove this file";
 	return false;
     }
+    else
+        SetSurveyNameDirty();
 
     mDestroyInst( false );
     mFinishNewInst( false );
@@ -389,7 +417,7 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
     IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
     if ( !newdir || newdir->bad() )
-	return false;
+        return false;
 
     bool needtrigger = dirptr_;
     if ( dirptr_ )
