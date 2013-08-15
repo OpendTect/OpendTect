@@ -223,28 +223,64 @@ PropertyRef::StdType
 }
 
 
-
+//---
 
 ElasticPropSelection::ElasticPropSelection()
 {
-    removeSingle(0); // get rid of thickness
+    mkEmpty(); // get rid of thickness
 
     const char** props = ElasticFormula::TypeNames();
     for ( int idx=0; props[idx]; idx++ )
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
-	(*this) += new ElasticPropertyRef( props[idx], 
+	*this += new ElasticPropertyRef( props[idx], 
 				ElasticFormula(props[idx],"", tp) );
     }
 }
 
 
+ElasticPropSelection& ElasticPropSelection::operator =(
+					const ElasticPropSelection& oth )
+{
+    if ( this != &oth )
+    {
+	mkEmpty();
+	for ( int idx=0; idx<oth.size(); idx++ )
+	    *this += new ElasticPropertyRef( oth.gt(idx) );
+    }
+    return *this;
+}
+
+
+ElasticPropSelection::~ElasticPropSelection()
+{
+    mkEmpty();
+}
+
+
+static ElasticPropertyRef emptyepr("Empty",
+			    ElasticFormula("","",ElasticFormula::Den) );
+
+
+void ElasticPropSelection::mkEmpty()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const PropertyRef* pr = (*this)[idx];
+	mDynamicCastGet(const ElasticPropertyRef*,epr,pr)
+	if ( epr && epr != &emptyepr )
+	    delete const_cast<ElasticPropertyRef*>( epr );
+    }
+
+    erase();
+}
+
+
 ElasticPropertyRef& ElasticPropSelection::gt( int idx ) const
 {
-    static ElasticPropertyRef emptyepr("Empty",
-	    			ElasticFormula("","",ElasticFormula::Den) );
-    mDynamicCastGet(const ElasticPropertyRef*,epr,(*this)[idx]);
+    const PropertyRef* pr = validIdx(idx) ? (*this)[idx] : 0;
+    mDynamicCastGet(const ElasticPropertyRef*,epr,pr);
     return const_cast<ElasticPropertyRef&> ( epr ? *epr : emptyepr );
 }
 
@@ -252,8 +288,6 @@ ElasticPropertyRef& ElasticPropSelection::gt( int idx ) const
 
 ElasticPropertyRef& ElasticPropSelection::gt( ElasticFormula::Type tp ) const
 {
-    static ElasticPropertyRef emptyepr("Empty",
-	    			ElasticFormula("","",ElasticFormula::Den) );
     const ElasticPropertyRef* epr = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
