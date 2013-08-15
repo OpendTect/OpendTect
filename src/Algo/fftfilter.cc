@@ -145,12 +145,12 @@ void FFTFilter::buildFreqTaperWin()
     else
 	taperhp2lp = mCast(int, ( cutfreq2_ + cutfreq3_ ) / ( 2.f * df_ ) );
 
-    ArrayNDWindow* highpasswin = 0;
     if ( dohighpasstaperwin )
     {
 	const int f1idx = mCast( int, cutfreq1_ / df_ );
 	const float var = 1.f - ( cutfreq2_ - cutfreq1_ ) /
 	   		  	( df_ * taperhp2lp - cutfreq1_ );
+	ArrayNDWindow* highpasswin;
 	mSetTaperWin( highpasswin, 2 * ( taperhp2lp - f1idx ), var )
 	for ( int idx=0; idx<taperhp2lp; idx++ )
 	{
@@ -159,14 +159,15 @@ void FFTFilter::buildFreqTaperWin()
 	    freqwindow_->setValue( idx, taperval );
 	    freqwindow_->setValue( fftsz_-idx-1, taperval );
 	}
+	delete highpasswin;
     }
 
-    ArrayNDWindow* lowpasswin = 0;
     if ( dolowpasstaperwin )
     {
 	const int f4idx = mCast( int, cutfreq4_ / df_ );
 	const float var = 1.f - ( cutfreq4_ - cutfreq3_ ) /
 	    		  	( cutfreq4_ - df_ * taperhp2lp );
+	ArrayNDWindow* lowpasswin;
 	mSetTaperWin( lowpasswin, 2 * ( f4idx - taperhp2lp ), var )
 	for ( int idx=taperhp2lp; idx<nyqfreqidx; idx++ )
 	{
@@ -176,6 +177,7 @@ void FFTFilter::buildFreqTaperWin()
 	    freqwindow_->setValue( idx, taperval );
 	    freqwindow_->setValue( fftsz_-idx-1, taperval );
 	}
+	delete lowpasswin;
     }
 }
 

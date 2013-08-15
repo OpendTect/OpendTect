@@ -25,16 +25,19 @@ class MultiID;
 mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 {
 public:
+
 				ElasticPropSelection();
 				ElasticPropSelection(
 					const ElasticPropSelection& elp)
 				{ *this = elp; }
+				~ElasticPropSelection();
+    ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
-    ElasticPropertyRef&		get(int idx) 		{ return gt(idx); }
-    const ElasticPropertyRef&	get(int idx) const	{ return gt(idx); }
-    ElasticPropertyRef&		get(ElasticFormula::Type tp) 
+    ElasticPropertyRef&		get( int idx ) 		{ return gt(idx); }
+    const ElasticPropertyRef&	get( int idx ) const	{ return gt(idx); }
+    ElasticPropertyRef&		get( ElasticFormula::Type tp ) 
     							{ return gt(tp); }
-    const ElasticPropertyRef&	get(ElasticFormula::Type tp) const
+    const ElasticPropertyRef&	get( ElasticFormula::Type tp ) const
     							{ return gt(tp); }
 
     static ElasticPropSelection* get(const MultiID&);
@@ -47,8 +50,12 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
+
     ElasticPropertyRef&		gt(ElasticFormula::Type) const;
     ElasticPropertyRef&		gt(int idx) const;
+
+    void			mkEmpty();
+
 };
 
 
