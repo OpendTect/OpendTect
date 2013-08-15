@@ -9,7 +9,9 @@ SET(OD_MODULE_DEPS ExpAttribs uiODMain)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uiexpattribspi.cc
+	uicurvgrad.cc
 	uigrubbsfilterattrib.cc
-	uisemblanceattrib.cc)
+	uisemblanceattrib.cc
+	uisimilaritybyaw.cc)
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 OD_INIT_MODULE()
