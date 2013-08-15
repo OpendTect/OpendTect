@@ -74,7 +74,8 @@ CurvGrad::CurvGrad( Desc& desc )
 
     const float maxso = mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() );
     const float maxsecdip = maxSecureDip() * 1000;
-    sampgate_ = Interval<int> ( -maxso*maxsecdip, maxso*maxsecdip );
+    const int boudary = floor(maxso*maxsecdip) + 1;
+    sampgate_ = Interval<int>(-boudary, boudary );
 
     for( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
     {
@@ -165,11 +166,11 @@ bool CurvGrad::computeData( const DataHolder& output,
 	    float shift = 0;
 	    shift = steeringdata_ ?	
 		getInputValue( *steeringdata_, posidx_true_, idx, z0) : 0;
-	    shift = (mIsUdf(shift) ? 0 : mNINT32(shift) );			
+	    shift = (mIsUdf(shift) ? 0 : shift );			
 	    if( shift<sampgate_.start || shift>sampgate_.stop )
 		shift = 0;
 
-	    const int sampidx = idx + shift;	            
+	    const int sampidx = idx + mNINT32(shift);	            
 	    const float val = getInputValue( 
 		    *inputdata_[posidx_true_], dataidx_, sampidx, z0 );
 
@@ -203,8 +204,8 @@ float CurvGrad::calCurvGrad( float *inpvolume_ ) const
     float data_yb = *(inpvolume_+centralpos-inlsteo*crlsize);
     float data_yf = *(inpvolume_+centralpos+inlsteo*crlsize);
 
-    float crlcg = 0.5 * (data_xf - data_xb) / float(crlstep);
-    float inlcg = 0.5 * (data_yf - data_yb) / float(inlsteo);
+    float crlcg = (float)(0.5 * (data_xf - data_xb) / crlstep);
+    float inlcg = (float)(0.5 * (data_yf - data_yb) / inlsteo);
     float cgazim = atan2(crlcg, inlcg) * 180 / 3.1415926;
 
     //adjust the sign
