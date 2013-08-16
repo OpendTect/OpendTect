@@ -301,7 +301,7 @@ float SimilaritybyAW::calSimilarity( float *data1, float*data2,
 	yy += b * b;
     }
     
-    float output = sqrt(xy)/(sqrt(xx)+sqrt(yy));;
+    float output = Math::Sqrt(xy)/(Math::Sqrt(xx)+Math::Sqrt(yy));
     output = 1.0f - fabs(output);
     return output;
 }
