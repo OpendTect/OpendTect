@@ -4,11 +4,10 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2013
+SVN:		$Id$
 ________________________________________________________________________
 
 -*/
-
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "matlabarray.h"
 
@@ -16,23 +15,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndinfo.h"
 #include "task.h"
 
-#ifdef HAS_MATLAB
-
 ArrayNDCopier::ArrayNDCopier( const ArrayND<float>& arrnd )
     : arrnd_(arrnd)
     , mxarr_(0)
     , totalnr_(-1)
+    , managemxarr_(true)
 {
 }
 
 
 ArrayNDCopier::~ArrayNDCopier()
 {
-    mxDestroyArray( mxarr_ );
+    if ( managemxarr_ )
+	mxDestroyArray( mxarr_ );
 }
 
 
-bool ArrayNDCopier::init()
+bool ArrayNDCopier::init( bool managemxarr )
 {
     totalnr_ = arrnd_.info().getTotalSz();
 
@@ -42,6 +41,8 @@ bool ArrayNDCopier::init()
 	dims[idx] = arrnd_.info().getSize( idx );
 
     mxarr_ = mxCreateNumericArray( nrdim, dims, mxDOUBLE_CLASS, mxREAL );
+    managemxarr_ = managemxarr;
+
     return true;
 }
 
@@ -101,6 +102,4 @@ bool mxArrayCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 
     return true;
 }
-
-#endif
 

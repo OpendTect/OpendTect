@@ -9,20 +9,22 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "mex.h"
 
+#include "arraynd.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "matlabarray.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "ranges.h"
 #include "seisparallelreader.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "threadwork.h"
 
 extern "C" void od_Seis_initStdClasses();
 
@@ -110,12 +112,22 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 
     mexPrintf( "Nr of traces: %d\n", cs.hrg.totalNr() );
 
-    const int nrdim = 3;
-    mwSize dims[nrdim];
-    for ( int idx=0; idx<nrdim; idx++ )
+    const ObjectSet<Array3D<float> >* arrays = rdr.getArrays();
+    if ( !arrays )
+	mErrRet( "No data read" );
+
+    for ( int idx=0; idx<arrays->size(); idx++ )
     {
+	const Array3D<float>* arr3d = (*arrays)[idx];
+	if ( !arr3d ) continue;
+
+	ArrayNDCopier copier( *arr3d );
+	copier.init( false );
+	copier.execute();
+
+	if ( idx < nlhs )
+	    plhs[idx] = copier.getMxArray();
     }
 
-    plhs[0] = mxCreateNumericArray( nrdim, dims, mxDOUBLE_CLASS, mxREAL );
-    double* arrptr = mxGetPr( plhs[0] );
+    Threads::WorkManager::twm().shutdown();
 }

@@ -12,10 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "matlablinkmod.h"
 #include "task.h"
-
-#ifdef HAS_MATLAB
 
 // MATLAB header files
 #include "matrix.h"
@@ -23,12 +20,12 @@ ________________________________________________________________________
 template <class T> class ArrayND;
 
 
-mExpClass(MatlabLink) ArrayNDCopier : public ParallelTask
+mClass(MatlabLink) ArrayNDCopier : public ParallelTask
 {
 public:
 			ArrayNDCopier(const ArrayND<float>&);
 			~ArrayNDCopier();
-    bool		init();
+   bool			init(bool managemxarr);
 
    mxArray*		getMxArray()		{ return mxarr_; }
 
@@ -40,10 +37,11 @@ protected:
     mxArray*		mxarr_;
     const ArrayND<float>& arrnd_;
     od_int64		totalnr_;
+    bool		managemxarr_;
 };
 
 
-mExpClass(MatlabLink) mxArrayCopier : public ParallelTask
+mClass(MatlabLink) mxArrayCopier : public ParallelTask
 {
 public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);
@@ -59,7 +57,5 @@ protected:
     ArrayND<float>&	arrnd_;
     od_int64		totalnr_;
 };
-
-#endif // HAS_MATLAB
 
 #endif

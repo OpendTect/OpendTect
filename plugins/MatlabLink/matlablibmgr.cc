@@ -18,9 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "sharedlibs.h"
 
+#ifdef HAS_MATLAB
+
 #include "matlabarray.h"
 
-#ifdef HAS_MATLAB
 extern "C" {
     void mclmcrInitialize();
     bool mclInitializeApplication(const char**,size_t);

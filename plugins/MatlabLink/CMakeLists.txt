@@ -8,13 +8,13 @@
 SET( OD_MODULE_DEPS VolumeProcessing )
 SET( OD_IS_PLUGIN yes )
 SET( OD_MODULE_SOURCES
-	matlabarray.cc
 	matlablibmgr.cc
 	matlabpi.cc
 	matlabstep.cc
 )
 
 IF( DEFINED ENV{MATLABDIR} )
+    LIST( APPEND OD_MODULE_SOURCES matlabarray.cc )
     LIST( APPEND OD_MODULE_INCLUDESYSPATH $ENV{MATLABDIR}/extern/include )
     LIST( APPEND OD_MODULE_EXTERNAL_LIBS $ENV{MATLABDIR}/bin/glnxa64/libmx.so $ENV{MATLABDIR}/bin/glnxa64/libmwmclmcr.so )
     ADD_DEFINITIONS( -DHAS_MATLAB )

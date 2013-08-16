@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "matlabarray.h"
 
 extern "C" {
+    // mlfOd_doprocess
     typedef void (*odfn)(int,mxArray**,mxArray*,mxArray*);
 };
 #endif
@@ -116,9 +117,13 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
     mxArray* pars = createParameterArray( names, values );
 
     ArrayNDCopier arrndcopier( input_ );
-    arrndcopier.init();
+    arrndcopier.init( true );
     arrndcopier.execute();
     mxArray* mxarrin = arrndcopier.getMxArray();
+
+    // for multiple inputs:
+    // int dims[1]; dims[0] = nrinputs;
+    // mxArray* mxarrin = mxCreateCellArray( 1,  dims );
     mxArray* mxarrout = 0;
     (*fn)( 1, &mxarrout, pars, mxarrin );
 
