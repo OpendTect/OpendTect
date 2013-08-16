@@ -184,9 +184,9 @@ float uiAxisHandler::getVal( int pix ) const
 
 float uiAxisHandler::getRelPos( float v ) const
 {
-    float relv = rgisrev_ ? rg_.start - v : v - rg_.start;
+    float relv = ( rgisrev_ ? rg_.start - v : v - rg_.start ) / rgwidth_;
     if ( !setup_.islog_ )
-	return relv / rgwidth_;
+	return relv;
 
     if ( relv < -0.9 ) relv = -0.9;
     return log( relv + 1 ) / logof2;
