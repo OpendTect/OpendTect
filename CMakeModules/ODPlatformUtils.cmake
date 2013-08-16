@@ -122,7 +122,7 @@ if(WIN32)
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
     
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
-    set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc /Zi ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
     #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
@@ -130,7 +130,8 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_C_FLAGS}")
     set ( CMAKE_C_FLAGS   "\"-DmUsedVar=\" ${CMAKE_C_FLAGS}")
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    
+    set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
+
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
     set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
     set ( CMAKE_CXX_FLAGS  "/wd4505 ${CMAKE_CXX_FLAGS}" ) # unreferenced local function removed
