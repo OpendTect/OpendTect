@@ -46,7 +46,7 @@ uiWellLogDisplay::~uiWellLogDisplay()
 void uiWellLogDisplay::gatherDataInfo( bool first )
 {
     LogData& ld = logData( first );
-    ld.yax_.setup().islog( ld.disp_.islogarithmic_ );
+    ld.xax_.setup().islog( ld.disp_.islogarithmic_ );
     ld.cliprate_ = ld.disp_.cliprate_; 
     ld.valrg_ = ld.disp_.range_;
 
