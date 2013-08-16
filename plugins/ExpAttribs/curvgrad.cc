@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "curvgrad.h"
 
+#include "angles.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -74,7 +75,7 @@ CurvGrad::CurvGrad( Desc& desc )
 
     const float maxso = mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() );
     const float maxsecdip = maxSecureDip() * 1000;
-    const int boudary = floor(maxso*maxsecdip) + 1;
+    const int boudary = mCast( int, floor(maxso*maxsecdip) + 1 );
     sampgate_ = Interval<int>(-boudary, boudary );
 
     for( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
@@ -206,13 +207,13 @@ float CurvGrad::calCurvGrad( float *inpvolume_ ) const
 
     float crlcg = (float)(0.5 * (data_xf - data_xb) / crlstep);
     float inlcg = (float)(0.5 * (data_yf - data_yb) / inlsteo);
-    float cgazim = atan2(crlcg, inlcg) * 180 / 3.1415926;
+    float cgazim = Angle::rad2deg( atan2(crlcg, inlcg) );
 
     //adjust the sign
     const int sign = data_xf*data_xb<=0 || data_yf*data_yb<=0 ? -1 : 1;
     float output = 0.0;
     if( attribute_ == 0 )
-	output = sign * sqrt(inlcg*inlcg+crlcg*crlcg);
+	output = sign * Math::Sqrt( inlcg*inlcg+crlcg*crlcg );
     else if( attribute_ == 1 )
 	output = cgazim;
 

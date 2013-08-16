@@ -175,11 +175,11 @@ bool SimilaritybyAW::computeData( const DataHolder& output,
 			
 	    float shift = steeringdata_ ?
 		getInputValue( *steeringdata_, posidx_true_, idx, z0 ) : 0;
-            shift = mIsUdf(shift) ? 0 : mNINT32(shift);
-	    if( shift<-desstep_ || shift>desstep_ )
-	        shift = 0;
+            int ishift = mIsUdf(shift) ? 0 : mNINT32(shift);
+	    if( ishift<-desstep_ || ishift>desstep_ )
+	        ishift = 0;
 			
-	    const int sampidx = idx + shift - verstep_;			
+	    const int sampidx = idx + ishift - verstep_;			
 	    for( int isamp=0; isamp<znum; isamp++ )
 	    {
 		float val = getInputValue( *inputdata_[posidx_true_],
@@ -206,12 +206,12 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
     const int centralpos = inlstep_*crlsize*versize + 
 			   crlstep_*versize + verstep1_;
     float OptR_ = 0.0;
-    int OptW_ = 0.0;
+    int OptW_ = 0;
     float R_Std = 0;
     float R_Max = 0.0;
-    int W_Max = 0.0;
+    int W_Max = 0;
     float R_Min = 1.0;
-    int W_Min = 0.0;
+    int W_Min = 0;
 	
     for( int iter=-verstep1_; iter<=verstep1_; iter++ )
     {
@@ -245,7 +245,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 		(inpvolume+pos0_, inpvolume+pos7_, 2*(verstep0_-iter)+1);
 	const float R8_ = calSimilarity
 		(inpvolume+pos0_, inpvolume+pos8_, 2*(verstep0_-iter)+1);
-	const float R_ = 0.125 * (R1_+R2_+R3_+R4_+R5_+R6_+R7_+R8_);
+	const float R_ = mCast(float,0.125*(R1_+R2_+R3_+R4_+R5_+R6_+R7_+R8_));
 	
 	if( iter==0 )
 	    R_Std = R_;
@@ -273,7 +273,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 	
     float output = 0.0;
     if( attribute_ == 0 )
-	output = 1.0 - OptR_;
+	output = 1.0f - OptR_;
 
     if( attribute_ == 1 )
     {
@@ -302,7 +302,7 @@ float SimilaritybyAW::calSimilarity( float *data1, float*data2,
     }
     
     float output = sqrt(xy)/(sqrt(xx)+sqrt(yy));;
-    output = 1.0 - fabs(output);
+    output = 1.0f - fabs(output);
     return output;
 }
 
