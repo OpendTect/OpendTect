@@ -122,7 +122,7 @@ if(WIN32)
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
     
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
-    set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc /Zi ${CMAKE_CXX_FLAGS}")
     #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
     set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
