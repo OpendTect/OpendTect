@@ -132,6 +132,8 @@ uiAttribPartServer::~uiAttribPartServer()
 {
     delete attrsetdlg_;
     if ( volprocchain_ ) volprocchain_->unRef();
+    delete volprocchaindlg_;
+
     deepErase( linesets2dstoredmnuitem_ );
     deepErase( linesets2dsteeringmnuitem_ );
     deepErase( attrxplotset_ );
@@ -167,17 +169,27 @@ void uiAttribPartServer::doVolProc( const MultiID* mid )
     }
 
     if ( !volprocchaindlg_ )
-	volprocchaindlg_ = new VolProc::uiChain( parent(), *volprocchain_,true);
-
-    volprocchaindlg_->show();
-
-    /*
-    if ( dlg.go() && dlg.saveButtonChecked() )
     {
-	ioobj = IOM().get( volprocchain_->storageID() );
-	createVolProcOutput( ioobj );
+	volprocchaindlg_ = new VolProc::uiChain( parent(), *volprocchain_,true);
+	volprocchaindlg_->windowClosed.notify( 
+		mCB(this,uiAttribPartServer,volprocchainDlgClosed) );
     }
-    */
+    else
+	volprocchaindlg_->setChain( *volprocchain_ );
+
+    volprocchaindlg_->raise();
+    volprocchaindlg_->show();
+}
+
+
+void uiAttribPartServer::volprocchainDlgClosed( CallBacker* )
+{
+    if ( !volprocchaindlg_ || !volprocchaindlg_->saveButtonChecked() ||
+	 !volprocchain_ || volprocchaindlg_->uiResult()==0 )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
+    createVolProcOutput( ioobj );
 }
 
 

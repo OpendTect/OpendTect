@@ -232,6 +232,7 @@ protected:
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
+    void		volprocchainDlgClosed(CallBacker*);
 
     Attrib::DescID	targetID(bool is2d,int nr=0) const;
 

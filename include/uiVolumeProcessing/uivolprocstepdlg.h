@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiGroup;
+class uiTable;
 
 namespace VolProc
 {
@@ -37,9 +38,11 @@ public:
 
 protected:
 
+    uiTable*		multiinpfld_;
     uiGenInput*		namefld_;
     Step*		step_;
 
+    void		addMultiInputFld();
     void		addNameFld(uiObject* alignobj);
     void		addNameFld(uiGroup* aligngrp);
     friend class	uiChain;

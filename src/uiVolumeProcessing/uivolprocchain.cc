@@ -15,19 +15,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
-#include "uitoolbutton.h"
-#include "uiioobjsel.h"
+
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uitoolbar.h"
 #include "uiseparator.h"
+#include "uitable.h"
+#include "uitoolbar.h"
+#include "uitoolbutton.h"
 
 
 namespace VolProc
 {
-
 
 const char* uiChain::sKeySettingKey()
 { return "dTect.ProcessVolumeBuilderOnOK"; }   
@@ -35,10 +36,20 @@ const char* uiChain::sKeySettingKey()
 mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
 
+// uiStepDialog
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
     : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mNoHelpID) )
     , step_(step)
+    , multiinpfld_(0)
 {
+}
+
+
+void uiStepDialog::addMultiInputFld()
+{
+    uiTable::Setup ts( 5, 1 );
+    ts.rowgrow(true).rowdesc("Input");
+    multiinpfld_ = new uiTable( this, ts, "Step inputs" );
 }
 
 
@@ -81,6 +92,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
 }
 
 
+// uiChain
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",
 				   mNoDlgTitle,"103.6.0")
@@ -164,6 +176,17 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 uiChain::~uiChain()
 {
     chain_.unRef();
+}
+
+
+void uiChain::setChain( Chain& chn )
+{
+    chain_.unRef();
+    chain_ = chn;
+    chain_.ref();
+
+    updateList();
+    updateButtons();
 }
 
 
@@ -450,4 +473,4 @@ void uiChain::propertiesCB(CallBacker*)
     showPropDialog( idx );
 }
 
-}; //namespace
+} // namespace VolProc
