@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iopar.h"
 #include "keystrs.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 #include <math.h>
@@ -211,15 +212,45 @@ void HorSampling::limitToWithUdf( const HorSampling& h )
 }
 
 
+static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
+		      int& step )
+{
+    const char* ptr = par.find( key );
+    if ( !ptr || !*ptr ) return false;
+
+    FileMultiString fms( ptr );
+    if ( fms.size() > 0 )
+	start = fms.getIValue( 0 );
+    if ( fms.size() > 1 )
+	stop = fms.getIValue( 1 );
+    if ( fms.size() > 2 )
+	step = fms.getIValue( 2 );
+
+    return true;
+}
+
+
 bool HorSampling::usePar( const IOPar& pars )
 {
-    bool ret = pars.get( sKey::FirstInl(), start.inl );
-    ret = pars.get( sKey::FirstCrl(), start.crl ) || ret;
-    ret = pars.get( sKey::LastInl(), stop.inl ) || ret;
-    ret = pars.get( sKey::LastCrl(), stop.crl ) || ret;
-    pars.get( sKey::StepInl(), step.inl );
-    pars.get( sKey::StepCrl(), step.crl );
-    return ret;
+    bool inlok = getRange( pars, sKey::InlRange(),
+			   start.inl, stop.inl, step.inl );
+    if ( !inlok )
+    {
+	inlok = pars.get( sKey::FirstInl(), start.inl );
+	inlok = pars.get( sKey::LastInl(), stop.inl ) || inlok;
+	pars.get( sKey::StepInl(), step.inl );
+    }
+
+    bool crlok = getRange( pars, sKey::CrlRange(),
+			   start.crl, stop.crl, step.crl );
+    if ( !crlok )
+    {
+	crlok = pars.get( sKey::FirstCrl(), start.crl );
+	crlok = pars.get( sKey::LastCrl(), stop.crl ) || crlok;
+	pars.get( sKey::StepCrl(), step.crl );
+    }
+
+    return inlok && crlok;
 }
 
 
