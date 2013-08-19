@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "property.h"
 #include "keystrs.h"
 #include "envvars.h"
+#include "oddirs.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -139,6 +140,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( dumpfnm.isEmpty() )
     {
 	uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
+	dlg.setDirectory( GetDataDir() );
 	if ( !dlg.go() ) return false;
 	dumpfnm = dlg.fileName();
     }
