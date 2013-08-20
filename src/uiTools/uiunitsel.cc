@@ -45,8 +45,19 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType typ, const char* txt,
 void uiUnitSel::setUnit( const UnitOfMeasure* un )
 {
     if ( !un )
-	un = UoMR().getInternalFor( proptype_ );
-    if ( un )
+    {
+	if ( !withempty_ )
+	    un = UoMR().getInternalFor( proptype_ );
+	else
+	{
+	    inpfld_->setCurrentItem( 0 );
+	    return;
+	}
+    }
+
+    if ( !un )
+	pErrMsg( BufferString("No internal unit for:", toString(proptype_)) );
+    else
 	setUnit( un->name() );
 }
 
