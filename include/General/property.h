@@ -34,7 +34,7 @@ mExpClass(General) Property
 public:
 
     			Property( const PropertyRef& pr )
-			: ref_(pr)			{}
+			: ref_(pr), lastval_(mUdf(float)) {}
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}

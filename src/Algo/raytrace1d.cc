@@ -208,12 +208,21 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     if ( setup().doreflectivity_ ) 
     {
-	if ( !reflectivity_ )
-	    reflectivity_ =new Array2DImpl<float_complex>(layersize-1,offsetsz);
-	else
-	    reflectivity_->setSize( layersize-1, offsetsz );
+	if ( reflectivity_ && reflectivity_->isEmpty() )
+	    { delete reflectivity_; reflectivity_ = 0; }
 
-	reflectivity_->setAll( mUdf( float_complex ) );
+	const int dim0sz = layersize-1;
+	if ( dim0sz < 1 || offsetsz < 1 )
+	    { delete reflectivity_; reflectivity_ = 0; }
+	else
+	{
+	    if ( !reflectivity_ )
+		reflectivity_ =new Array2DImpl<float_complex>(dim0sz,offsetsz);
+	    else
+		reflectivity_->setSize( dim0sz, offsetsz );
+
+	    reflectivity_->setAll( mUdf( float_complex ) );
+	}
     }
 
     return true;
@@ -228,7 +237,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float sini = downvel * rayparam;
     sini_->set( layer, offsetidx, sini );
 
-    if ( !setup().doreflectivity_ || layer>=model_.size()-1 )
+    if ( !reflectivity_ || layer>=model_.size()-1 )
 	return true;
 
     const float off = offsets_[offsetidx];
@@ -306,7 +315,7 @@ float RayTracer1D::getSinAngle( int layer, int offset ) const
 
 bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 {
-    if ( !setup().doreflectivity_ || !offsetpermutation_.validIdx( offset ) )
+    if ( !reflectivity_ || !offsetpermutation_.validIdx( offset ) )
 	return false;
 
     const int offsetidx = offsetpermutation_[offset];
