@@ -317,7 +317,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 
     const bool domodelchg = dispflattened_ || dispflattened;
     dispflattened_ = dispflattened;
-    if ( domodelchg && !autoupdate_ )
+    if ( domodelchg )
     {
 	doModelChange();
 	control_->zoomMgr().toStart();
@@ -681,11 +681,6 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     curSS().trimTraces( *disptbuf, centralTrcShift(), sd->d2tmodels_,
 	    		    dispskipz_ );
 
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
-				    SeisTrcInfo::TrcNr, "Forward Modeling" );
-    DPM( DataPackMgr::FlatID() ).add( dp );
-    dp->setName( sd->name() );
-
     d2tmodels_ = &sd->d2tmodels_;
     for ( int idx=0; idx<d2tmodels_->size(); idx++ )
     {
@@ -694,9 +689,12 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	    { maxaimodelsz = (*d2tmodels_)[idx]->size(); longestaimdl_ = idx; }
     }
 
-
+    reSampleTraces( *disptbuf );
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line, 
+				    SeisTrcInfo::TrcNr, "Forward Modeling" );
+    DPM( DataPackMgr::FlatID() ).add( dp );
+    dp->setName( sd->name() );
     vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().coltab_;
-    
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
@@ -729,6 +727,24 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     displayFRText();
 
     levelSnapChanged( 0 );
+}
+
+
+void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
+{
+    Interval<float> depthrg = layerModel().sequence(longestaimdl_).zRange();
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+    {
+	const TimeDepthModel& d2t = *(*d2tmodels_)[idx];
+	SeisTrc& trc = *tbuf.get( idx );
+
+	const float lastzval = trc.info().sampling.atIndex( trc.size()-1 );
+	const float reqlastzval = d2t.getTime( depthrg.stop );
+	if ( lastzval > reqlastzval )
+	    continue;
+	const int newsz = trc.info().sampling.nearestIndex( reqlastzval );
+	trc.reSize( newsz, true );
+    }
 }
 
 
@@ -854,7 +870,6 @@ void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
 
-    d2tmodels_ = 0;
     if ( !autoupdate_ ) return;
     
     if ( curSS().errMsg() )
