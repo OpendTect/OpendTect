@@ -45,7 +45,6 @@ public:
 
     const char*         text() const;
     const UnitOfMeasure* uom() const;
-    void                getData(BufferString& nm,UnitOfMeasure& uom) const;
 
     void                setUseAlternate(bool yn);
     bool                isUseAlternate() const;

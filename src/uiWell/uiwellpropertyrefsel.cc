@@ -105,16 +105,6 @@ void uiPropSelFromList::set( const char* txt, bool alt, const UnitOfMeasure* um)
 }
 
 
-void uiPropSelFromList::getData( BufferString& lognm, UnitOfMeasure& un ) const
-{
-    const UnitOfMeasure* unm = unfld_->getUnit();
-    if ( !unm )
-	unm = UoMR().getInternalFor( unfld_->propType() );
-    un = *unm;
-    lognm = typefld_->text();
-}
-
-
 const char* uiPropSelFromList::text() const
 {
     return typefld_->text();
