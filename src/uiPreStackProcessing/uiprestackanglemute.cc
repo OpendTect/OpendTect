@@ -347,6 +347,7 @@ bool uiAngleMute::acceptOK(CallBacker*)
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
+    processor_->params().raypar_.setYN( RayTracer1D::sKeyReflectivity(), false);
     processor_->params().taperlen_ = taperlenfld_->getfValue();
     processor_->params().tail_ = !topfld_->getBoolValue();
 
