@@ -34,6 +34,7 @@ public:
     const UnitOfMeasure*	getUnit() const;
     const char*			getUnitName() const;
 
+    PropertyRef::StdType	propType() const	{ return proptype_; }
     void			setPropType(PropertyRef::StdType);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }

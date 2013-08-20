@@ -95,36 +95,22 @@ void uiPropSelFromList::setCurrent( const char* lnm )
 
 void uiPropSelFromList::setUOM( const UnitOfMeasure& um )
 {
-    if ( &um == 0 )
-	unfld_->setUnit( "-" );
-    else
-    {
-	if ( um.symbol() != '\0' )
-	    unfld_->setUnit( um.symbol() );
-	else
-	    unfld_->setUnit( um.name() );
-    }
+    unfld_->setUnit( &um );
 }
 
 
 void uiPropSelFromList::set( const char* txt, bool alt, const UnitOfMeasure* um)
 {
-    setCurrent( txt ); setUseAlternate( alt );
-    if ( um )
-	setUOM( *um );
-    else
-    {
-	const UnitOfMeasure* emptyuom = 0;
-	setUOM( *emptyuom );
-    }
+    setCurrent( txt ); setUseAlternate( alt ); unfld_->setUnit( um );
 }
 
 
 void uiPropSelFromList::getData( BufferString& lognm, UnitOfMeasure& un ) const
 {
-    if ( unfld_->getUnit() )
-	un = *unfld_->getUnit();
-
+    const UnitOfMeasure* unm = unfld_->getUnit();
+    if ( !unm )
+	unm = UoMR().getInternalFor( unfld_->propType() );
+    un = *unm;
     lognm = typefld_->text();
 }
 
@@ -261,7 +247,6 @@ bool uiWellPropSel::setLogs( const Well::LogSet& logs  )
 	for ( int ipropidx=0; ipropidx<propidx.size(); ipropidx++)
 	{
 	    BufferString lognm = logs.getLog(propidx[ipropidx]).name();
-//	    bufferString firstletter = (BufferString)lognm.buf()[0];
 	    const char* uomlbl = logs.getLog(propidx[ipropidx]).unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uomlbl );
 	    if ( uom && uom->propType() == propref.stdType() )
