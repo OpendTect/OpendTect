@@ -1,0 +1,18 @@
+-- Parameter file for OpendTect MEX files
+
+-- Specify survey and data root. If these are missing, last selected survey and
+-- dataroot from OpendTect will be used.
+Survey: F3_2012
+Data Root: /dsk/d112/nanne/surveys
+
+-- Input seismic data. Two option, with ID or name.
+-- Input Seismics.Name: OriginalSeismics
+Input Seismics.ID: 100010.118
+
+-- Output seismic data. Must be a name.
+Output Seismics.Name: FromMatlab
+
+-- Data range as start`stop`step. When empty. the survey ranges will be used.
+In-line range: 425`425`1
+Cross-line range: 
+Z range: 0`1`0.004
