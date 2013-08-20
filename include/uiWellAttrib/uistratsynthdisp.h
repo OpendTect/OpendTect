@@ -144,6 +144,7 @@ protected:
     void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
+    void		reSampleTraces(SeisTrcBuf&) const;
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);

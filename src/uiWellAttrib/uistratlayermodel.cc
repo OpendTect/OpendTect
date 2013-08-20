@@ -828,8 +828,7 @@ void uiStratLayerModel::genModels( CallBacker* )
     setElasticProps();
     useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    if ( !automksynth_ )
-	moddisp_->modelChanged();
+    moddisp_->modelChanged();
 
     if ( needtoretrievefrpars_ )
     {
