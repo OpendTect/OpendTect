@@ -52,7 +52,8 @@ static MultiID getKey( const char* nm )
 void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 {
     if ( nrhs < 2 )
-	mErrRet( "Usage: writesegyindex segy_filename OpendTect_name" );
+	mErrRet( "Usage: writesegyindex segy_filename OpendTect_name "
+		 "[parameter-file]" );
 
     if ( nlhs != 0 )
 	mErrRet( "No output required." );
@@ -65,32 +66,68 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     SetProgramArgs( argc, argv );
     od_Seis_initStdClasses();
 
-    const BufferString fnm = mxArrayToString( prhs[0] );
-    if ( !File::exists(fnm) )
+    const BufferString segyfnm = mxArrayToString( prhs[0] );
+    if ( !File::exists(segyfnm) )
 	mErrRet( "Input SEG-Y file name does not exist" );
 
     const BufferString indexnm = mxArrayToString( prhs[1] );
 
-    BufferString msg( "No dataroot specified. Using: ", GetBaseDataDir(), "\n");
-    mexPrintf( msg );
+    IOPar par;
+    if ( nrhs==3 )
+    {
+	const BufferString parfnm = mxArrayToString( prhs[2] );
+	if ( !File::exists(parfnm) )
+	    mErrRet( "Input parameter file name does not exist" );
 
-    msg = BufferString( "No survey specified. Using: ", GetSurveyName(), "\n" );
-    mexPrintf( msg );
+	if ( !par.read(parfnm,0) )
+	    mErrRet( "Cannot read input parameter file" );
+    }
+
+    BufferString res;
+    if ( par.get(sKey::DataRoot(),res) )
+    {
+	if ( !File::exists(res) || !File::isDirectory(res) )
+	    mErrRet( "Given dataroot does not exist or is not a directory" );
+
+	SetEnvVar( "DTECT_DATA", res );
+    }
+    else
+    {
+	const BufferString msg( "No dataroot specified. Using: ",
+		GetBaseDataDir() );
+	mexPrintf( msg );
+    }
+
+    if ( par.get(sKey::Survey(),res) )
+    {
+	FilePath fp( GetBaseDataDir() ); fp.add( res );
+	const BufferString surveyfp = fp.fullPath();
+	if ( !File::exists(surveyfp) || !File::isDirectory(surveyfp) )
+	    mErrRet( "Given survey does not exist" );
+
+	IOMan::setSurvey( res );
+    }
+    else
+    {
+	const BufferString msg( "No survey specified. Using: ",
+				GetSurveyName() );
+	mexPrintf( msg );
+    }
     mexEvalString("pause(.001);");
 
     const MultiID mid = getKey( indexnm );
-    IOPar pars;
-    pars.set( sKey::FileName(), fnm );
-    pars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyIndex3DVol() );
-    pars.setYN( SEGY::IO::sKeyIs2D(), false );
-    pars.set( sKey::Output(), mid );
+    IOPar segypars;
+    segypars.set( sKey::FileName(), segyfnm );
+    segypars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyIndex3DVol() );
+    segypars.setYN( SEGY::IO::sKeyIs2D(), false );
+    segypars.set( sKey::Output(), mid );
 
-    SEGY::FileSpec spec( fnm );
-    SEGY::FileIndexer indexer( mid, true, spec, false, pars );
+    SEGY::FileSpec spec( segyfnm );
+    SEGY::FileIndexer indexer( mid, true, spec, false, segypars );
     if ( !indexer.execute() )
 	mErrRet( indexer.message() );
 
-    msg.setEmpty();
+    BufferString msg;
     msg.add("Succesfully scanned SEG-Y file. Index file ").add( indexnm )
        .add(" is now available with id ").add( mid ).add(".\n");
     mexPrintf( msg );
