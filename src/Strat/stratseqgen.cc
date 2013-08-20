@@ -145,7 +145,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 
 	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
 	if ( lg )
-	    *this += lg;
+	    { lg->setGenDesc( this ); *this += lg; }
     }
 
     propsel_.erase();
