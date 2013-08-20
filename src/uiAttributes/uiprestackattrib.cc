@@ -353,6 +353,12 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
 
 void uiPreStackAttrib::angleTypSel( CallBacker* )
 {
+    if ( is2D() )
+    {
+	useanglefld_->setChecked( false );
+	useanglefld_->display( false );
+    }
+
     const bool useangle = useanglefld_->isChecked();
     anglecompgrp_->display( useangle );
     offsrgfld_->display( !useangle );
