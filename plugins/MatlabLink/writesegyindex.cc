@@ -29,7 +29,6 @@ ________________________________________________________________________
 
 extern "C" void od_Seis_initStdClasses();
 
-static const char* sOutSeisKey = "Output Seismics";
 
 #define mErrRet( msg ) \
 { mexErrMsgTxt( BufferString(msg,"\n") ); return; }
