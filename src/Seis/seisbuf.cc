@@ -65,11 +65,12 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     {
 	trc = get( idx ); bid = trc->info().binid;
 	spi.inlrg.include( bid.inl, false ); spi.crlrg.include( bid.crl, false);
-	if ( !trc->isNull() )
+	const SamplingData<float> trcsd = trc->info().sampling;
+	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
+	     !mIsZero(trcsd.step,mDefEps) )
 	{
-	    StepInterval<float> zrg(trc->info().sampling.start,
-		    		    trc->info().sampling.atIndex(trc->size()-1),
-				    trc->info().sampling.step );
+	    StepInterval<float> zrg(trcsd.start, trcsd.atIndex(trc->size()-1),
+				    trcsd.step );
 	    spi.zrg.include( zrg, false );
 	}
 
