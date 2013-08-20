@@ -45,11 +45,11 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
-    : uiParent( nm, parnt ? parnt->pbody() : 0 )
+    : uiParent(nm,0)
     , tbarea_(tba)
     , buttonClicked(this)
-    , toolbarmenuaction_( 0 )
-    , qtoolbar_( new QToolBar( QString(nm), parnt ? parnt->getWidget() : 0 ) )
+    , toolbarmenuaction_(0)
+    , qtoolbar_(new QToolBar(QString(nm), parnt ? parnt->getWidget() : 0))
 {
     qtoolbar_->setObjectName( nm );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
