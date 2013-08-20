@@ -662,7 +662,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
-    const int offset = offsetposfld_->getValue();
+    const float offset = mCast( float, offsetposfld_->getValue() );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 ) 
 				   : &postsd->postStackPack().trcBuf();
 
