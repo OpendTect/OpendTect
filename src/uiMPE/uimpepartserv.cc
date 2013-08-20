@@ -356,6 +356,8 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
 }
 
 
+#define mCloseReturn { setupgrp_ = 0; return; }
+
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
     cleanSetupDependents();
@@ -363,7 +365,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     //setupgrp_ = 0;
 
-    if ( trackercurrentobject_ == -1 ) return;
+    if ( trackercurrentobject_ == -1 ) mCloseReturn;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
     if ( trackerid == -1 )
@@ -372,15 +374,14 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	initialundoid_ = mUdf(int);
 	seedhasbeenpicked_ = false;
 	setupbeingupdated_ = false;
-
-	return;
+	mCloseReturn;
     }
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( !tracker ) return;
+    if ( !tracker ) mCloseReturn;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker ) return;
+    if ( !seedpicker ) mCloseReturn;
 
     if ( setupbeingupdated_ )
     {
@@ -391,7 +392,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	setupbeingupdated_ = false;
 	sendEvent( uiMPEPartServer::evShowToolbar() );
 	sendEvent( ::uiMPEPartServer::evSetupClosed() );
-	return;
+	mCloseReturn;
     }
     
     if ( !seedhasbeenpicked_ )
@@ -402,7 +403,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	if ( !res )
 	{
 	    noTrackingRemoval();
-	    return;
+	    mCloseReturn;
 	}
     }
 
@@ -410,7 +411,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	if ( !seedhasbeenpicked_ )
 	{
 	    seedswithoutattribsel_ = true;
-	    return;
+	    mCloseReturn;
 	}
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
