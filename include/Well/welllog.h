@@ -68,6 +68,8 @@ public:
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     void		convertTo(const UnitOfMeasure*);
+    bool		isCode(float eps=1e-3f) const;
+    			//!< log values are all integers stored as floats
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();

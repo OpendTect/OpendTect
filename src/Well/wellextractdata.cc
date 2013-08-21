@@ -843,27 +843,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
 		: logisvel ? 1.f / vals[0] : vals[0];
 
-    if ( samppol == Stats::UseMed )
-    {
-	sort_array( vals.arr(), sz );
-	return logisvel ? 1.f / vals[sz/2] : vals[sz/2];
-    }
-    else if ( samppol == Stats::UseAvg )
-    {
-	float val = 0;
-	for ( int idx=0; idx<sz; idx++ )
-	    val += vals[idx];
-	return logisvel ? (float)sz / val : val / (float)sz;
-    }
-    else if ( samppol == Stats::UseRMS )
-    {
-	float val = 0;
-	for ( int idx=0; idx<sz; idx++ )
-	    val += vals[idx] * vals[idx];
-	return logisvel ? Math::Sqrt( (float)sz / val )
-	    		: Math::Sqrt( val / (float)sz );
-    }
-    else if ( samppol == Stats::UseMostFreq )
+    if ( samppol == Stats::UseMostFreq || wl.isCode() )
     {
 	TypeSet<float> valsseen;
 	TypeSet<int> valsseencount;
@@ -888,6 +868,26 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 		maxvsidx = idx;
 	}
 	return logisvel ? 1.f / valsseen[ maxvsidx ] : valsseen[ maxvsidx ];
+    }
+    else if ( samppol == Stats::UseMed )
+    {
+	sort_array( vals.arr(), sz );
+	return logisvel ? 1.f / vals[sz/2] : vals[sz/2];
+    }
+    else if ( samppol == Stats::UseAvg )
+    {
+	float val = 0;
+	for ( int idx=0; idx<sz; idx++ )
+	    val += vals[idx];
+	return logisvel ? (float)sz / val : val / (float)sz;
+    }
+    else if ( samppol == Stats::UseRMS )
+    {
+	float val = 0;
+	for ( int idx=0; idx<sz; idx++ )
+	    val += vals[idx] * vals[idx];
+	return logisvel ? Math::Sqrt( (float)sz / val )
+	    		: Math::Sqrt( val / (float)sz );
     }
 
     //pErrMsg( "UpscaleType not supported" );
