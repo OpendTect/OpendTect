@@ -375,12 +375,17 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 	return false;
 
     setEmpty(); pars_.setEmpty(); setName( "" );
+    int valstartcol = 2;
     if ( tabstyle )
     {
 	char buf[65536]; sd.istrm->getline( buf, 65536 );
 	SeparString ss( buf, '\t' );
 	const int nrcols = ss.size();
-	for ( int idx=2; idx<nrcols; idx++ )
+	FixedString xcolnm( ss[2] );
+	FixedString ycolnm( ss[3] );
+	if ( xcolnm=="X-coord" && ycolnm=="Y-corrd" )
+	    valstartcol = 4;
+	for ( int idx=valstartcol; idx<nrcols; idx++ )
 	{
 	    BufferString nm;
 	    DataColDef* cd = new DataColDef( "" );
@@ -430,6 +435,12 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 	if ( !bid.inl && !bid.crl )
 	    { sd.istrm->ignore( 10000, '\n' ); continue; }
 
+	if ( valstartcol == 4 ) // also has X, Y coordinates.
+	{
+	    float x, y;
+	    *sd.istrm >> x >> y;
+	}
+
 	for ( int idx=0; idx<nrvals; idx++ )
 	    *sd.istrm >> vals[idx];
 	if ( !sd.istrm->good() )
@@ -457,7 +468,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     BufferString str;
     if ( tabstyle )
     {
-	*sd.ostrm << "\"In-line\"\t\"X-line\"";
+	*sd.ostrm << "\"In-line\"\t\"X-line\"\t\"X-coord\"\t\"Y-Coord\"";
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{
 	    const DataColDef& cd = colDef(idx);
@@ -495,6 +506,19 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     {
 	data().get( pos, bid, vals );
 	*sd.ostrm << bid.inl << '\t' << bid.crl;
+	if ( tabstyle )
+	{
+	    Coord crd = SI().transform( bid );
+	    if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
+					  && colDef(1).name_=="Y Offset" )
+	    {
+		crd.x += vals[0];
+		crd.y += vals[1];
+	    }
+
+	    *sd.ostrm << '\t' << toString(crd.x) << '\t' << toString(crd.y);
+	}
+
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    str = vals[idx];
