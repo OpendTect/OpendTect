@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 #include "uimsg.h"
 #include "uiwelllogcalc.h"
+#include "uiwelllogdisplay.h"
 
 #include "elasticprop.h"
 #include "elasticpropsel.h"
@@ -303,10 +304,8 @@ bool uiWellPropSel::isOK() const
     {
 	if ( !strcmp ( propflds_[idx]->text(), sKeyPlsSel() ) )
 	{
-	    BufferString propnm( propflds_[idx]->propRef().name() );
-	    BufferString msg( "Please create/select a log for " );
-	    msg += propnm;
-	    uiMSG().error( msg.buf() );
+	    uiMSG().error( BufferString("Please create/select a log for ",
+					propflds_[idx]->propRef().name()) );
 	    return false;
 	}
     }
@@ -386,17 +385,26 @@ uiWellPropSelWithCreate::uiWellPropSelWithCreate( uiParent* p,
 	uiToolButton* createbut = new uiToolButton( this, "newlog",
 		"Create a log from other logs",
 		mCB(this,uiWellPropSelWithCreate,createLogPushed) );
+	uiToolButton* viewbut = new uiToolButton( this, "view_log",
+		"View log", mCB(this,uiWellPropSelWithCreate,viewLogPushed) );
 	if ( idx )
 	    createbut->attach( ensureBelow, createbuts_[idx-1] );
 	for ( int idotherpr=0; idotherpr<propflds_.size(); idotherpr ++ )
 	    createbut->attach( ensureRightOf, propflds_[idotherpr] );
+	viewbut->attach( rightOf, createbut );
 	createbuts_ += createbut;
+	viewbuts_ += viewbut;
     }
 }
 
 
 void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 {
+    mDynamicCastGet(uiButton*,but,cb);
+    const int idxofbut = createbuts_.indexOf( but );
+    if ( !propflds_.validIdx( idxofbut ) )
+	return;
+
     const Well::Data* wd = Well::MGR().get( wellid_, false );
     if  ( !wd ) return;
 
@@ -404,11 +412,6 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
     BufferStringSet lognms;
     for ( int idx=0; idx<logs.size(); idx++ )
 	lognms.add( logs.getLog(idx).name() );
-
-    mDynamicCastGet(uiButton*,but,cb);
-    const int idxofbut = createbuts_.indexOf( but );
-    if ( !propflds_.validIdx( idxofbut ) )
-	return;
 
     TypeSet<MultiID> idset; idset += wellid_;
     uiWellLogCalc dlg( this, logs, lognms, idset );
@@ -423,6 +426,30 @@ void uiWellPropSelWithCreate::createLogPushed( CallBacker* cb )
 } 
 
 
+void uiWellPropSelWithCreate::viewLogPushed( CallBacker* cb )
+{
+    mDynamicCastGet(uiButton*,but,cb);
+    const int idxofbut = viewbuts_.indexOf( but );
+    if ( !propflds_.validIdx( idxofbut ) )
+	return;
+
+    const BufferString lognm( propflds_[idxofbut]->text() );
+    if ( lognm == sKeyPlsSel() )
+	return;
+
+    const Well::Data* wd = Well::MGR().get( wellid_, false );
+    if  ( !wd ) return;
+
+    const Well::LogSet& logs = wd->logs();
+    const Well::Log* wl = logs.getLog( lognm );
+    if ( !wl )
+	return; // the log was removed since popup of the window ... unlikely
+
+    (void)uiWellLogDispDlg::popupNonModal( this, wl );
+}
+
+
+
 uiWellElasticPropSel::uiWellElasticPropSel( uiParent* p, bool withswaves )
     : uiWellPropSel(p,*new ElasticPropSelection())
 {
@@ -434,5 +461,3 @@ uiWellElasticPropSel::~uiWellElasticPropSel()
 {
     delete &proprefsel_;
 }
-
-

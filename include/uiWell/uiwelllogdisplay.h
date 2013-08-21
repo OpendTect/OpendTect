@@ -108,6 +108,10 @@ public:
 
     Notifier<uiWellLogDispDlg>	logSet;
 
+    static uiWellLogDispDlg* popupNonModal(uiParent*,const Well::Log*,
+	    				   const Well::Log* wl2=0);
+    			//!< has setDeleteOnClose set
+
 protected:
 
     bool		logsmine_;
