@@ -203,6 +203,19 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 }
 
 
+bool Well::Log::isCode( float eps ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const float val = val_[idx];
+	if ( !mIsEqualWithUdf(val,(float)mNINT32(val),eps) || val < eps )
+	    return false;
+    }
+
+    return true;
+}
+
+
 void Well::Log::ensureAscZ()
 {
     if ( dah_.size() < 2 ) return;
