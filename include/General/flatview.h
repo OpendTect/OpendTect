@@ -68,12 +68,19 @@ public:
     BufferString		name_;
     Alignment			namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
-					    //!< center=0, after last=1
+					    	//!< center=0, after last=1
     Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
     Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
 
     TypeSet<Point>		poly_;
     TypeSet<MarkerStyle2D>	markerstyles_;
+    				/*!<- No markerstyles means no markers will be
+				      displayed.
+				    - If number of markerstyles is more than
+				      zero, but less than number of points, the
+				      last markerstyle will be used for the
+				      excess points.
+				*/
 
     LineStyle			linestyle_;
     Color			fillcolor_;
