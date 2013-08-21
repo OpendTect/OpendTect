@@ -33,12 +33,6 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , stratdisp_(0) 
 {
     Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
-    for ( int idx=0; idx<wd_.markers().size(); idx++ )
-    {
-	if ( !wd_.markers()[idx] ) continue;
-	const char* mrkrnm = wd_.markers()[idx]->name();
-	disp.markers_.selmarkernms_.addIfNew( mrkrnm );
-    }
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
