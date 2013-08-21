@@ -457,14 +457,8 @@ void uiWellMan::viewLogPush( CallBacker* )
 	    { lognm2 = nm2; break; }
     }
 
-    uiWellLogDisplay::Setup wldsu;
-    wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
-    dlg->setLog( wl, true );
-    if ( !lognm2.isEmpty() )
-	dlg->setLog( wls.getLog(lognm2), false );
-
-    dlg->show();
+    const Well::Log* wl2 = lognm2.isEmpty() ? 0 : wls.getLog( lognm2 );
+    (void)uiWellLogDispDlg::popupNonModal( this, wl, wl2 );
 }
 
 

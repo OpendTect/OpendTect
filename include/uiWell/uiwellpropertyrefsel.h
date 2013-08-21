@@ -107,14 +107,17 @@ public:
 			uiWellPropSelWithCreate(uiParent*,
 				const PropertyRefSelection&);
 
-    uiButton*		getButton( int idx )	{ return createbuts_[idx]; }
+    uiButton*		getRightmostButton( int idx ) { return viewbuts_[idx]; }
 
     Notifier<uiWellPropSel> logscreated; 
 
 protected:
 
     ObjectSet<uiButton> createbuts_;
+    ObjectSet<uiButton> viewbuts_;
+
     void		createLogPushed(CallBacker*);
+    void		viewLogPushed(CallBacker*);
 
 };
 

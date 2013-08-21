@@ -33,6 +33,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
     , unitmeas_(0)
     , logSet(this)
 {
+    disp_.color_ = Color::stdDrawColor( isfirst ? 0 : 1 );
 }
 
 
@@ -348,8 +349,8 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
     const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
     dispfld_->logData(true).logSet.notify( cb );
     dispfld_->logData(false).logSet.notify( cb );
-    dispfld_->dahObjData(true).col_ = Color::stdDrawColor( 0 );
-    dispfld_->dahObjData(false).col_ = Color::stdDrawColor( 1 );
+    dispfld_->dahObjData(true).col_ = dispfld_->logData(true).disp_.color_;
+    dispfld_->dahObjData(false).col_ = dispfld_->logData(false).disp_.color_;
 
     dispfld_->setPrefWidth( 300 );
     dispfld_->setPrefHeight( 500 );
@@ -404,4 +405,20 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     setCaption( capt );
 
     logSet.trigger();
+}
+
+
+uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
+				const Well::Log* wl1, const Well::Log* wl2 )
+{
+    uiWellLogDisplay::Setup wldsu;
+    wldsu.annotinside( false ).drawcurvenames( false );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
+    dlg->setLog( wl1, true );
+    if ( wl2 )
+	dlg->setLog( wl2, false );
+
+    dlg->setDeleteOnClose( true );
+    dlg->show();
+    return dlg;
 }
