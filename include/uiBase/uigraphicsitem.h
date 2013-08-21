@@ -130,7 +130,7 @@ public:
 
     void		add(uiGraphicsItem*);
     void		remove(uiGraphicsItem*,bool withdelete);
-    void		removeAll(bool);
+    void		removeAll(bool withdelete);
     bool		isEmpty() const		{ return items_.isEmpty(); }
     int			size() const		{ return items_.size(); }
     uiGraphicsItem* 	getUiItem( int idx )	{ return gtItm(idx); }
