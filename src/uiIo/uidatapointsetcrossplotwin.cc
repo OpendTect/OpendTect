@@ -582,6 +582,7 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
     if ( !grpfld_ ) return;
 
     plotter_.curgrp_ = grpfld_->currentItem();
+    plotter_.calcStats();
     plotter_.drawContent();
 }
 
