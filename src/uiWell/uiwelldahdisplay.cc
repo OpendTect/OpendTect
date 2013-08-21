@@ -278,7 +278,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
 
-    TypeSet<uiPoint> pts; 
+    TypeSet<uiPoint> pts; pts.setCapacity( sz ); 
     for ( int idx=0; idx<sz; idx++ )
     {
 	mDefZPosInLoop( ld.dahobj_->dah( idx ) );
@@ -292,8 +292,23 @@ void uiWellDahDisplay::drawCurve( bool first )
     LineStyle ls(LineStyle::Solid); ls.color_ = ld.col_; 
     if ( ld.drawascurve_ )
     {
+	TypeSet<uiPoint> ptsforspikes;
+	const bool isreflectivity =
+	    ld.dahobj_->name().isEqual( "Reflectivity", true );
+	if ( isreflectivity )
+	{
+	    ptsforspikes.setCapacity( 3 * sz );
+    	    for ( int idx=0; idx<pts.size(); idx++ )
+    	    {
+		const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),pts[idx].y );
+    		ptsforspikes += extrapt;
+    		ptsforspikes += pts[idx];
+    		ptsforspikes += extrapt;
+    	    }
+	}
+
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem() );
-	pli->setPolyLine( pts );
+	pli->setPolyLine( !isreflectivity ? pts : ptsforspikes );
 	ls.width_ = ld.curvesz_; 
 	pli->setPenStyle( ls );
 	pli->setZValue( ld.zoverlayval_ );
