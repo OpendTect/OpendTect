@@ -119,21 +119,18 @@ void uiAxisHandler::reCalc()
 	float pos = annotrg.start + idx * rg_.step;
 	if ( mIsZero( pos, setup_.epsaroundzero_ ) ) 
 	    pos = 0;
-	BufferString str;
-	if ( setup_.maxnumberdigitsprecision_ )
-	    sprintf(str.buf(),"%.*g",setup_.maxnumberdigitsprecision_,pos);
-	else
-	    str = pos; 
-	strs_.add( str );
+	BufferString posstr( "", pos );
+	strs_.add( posstr ); //TODO honor the setup_.maxnumberdigitsprecision_
+			     // see D1678
 	float relpos = pos - rg_.start;
 	if ( rgisrev_ ) relpos = -relpos;
 	relpos /= rgwidth_;
 	if ( setup_.islog_ )
 	    relpos = log( 1 + relpos );
 	pos_ += relpos;
-	const int wdth = font.width( str );
-	    if ( idx == 0 )			rgwdth = font.width( str );
-	    else if ( rgwdth < wdth )		rgwdth = wdth;
+	const int wdth = font.width( posstr );
+	if ( idx == 0 || rgwdth < wdth )
+	    rgwdth = wdth;
     }
     if ( !setup_.noaxisannot_ )
 	calcwdth_ += isHor() ? font.height() : rgwdth;
