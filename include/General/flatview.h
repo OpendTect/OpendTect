@@ -73,6 +73,13 @@ public:
 
     TypeSet<Point>		poly_;
     TypeSet<MarkerStyle2D>	markerstyles_;
+    				/*!<- No markerstyles means no markers will be
+				      displayed.
+				    - If number of markerstyles is more than
+				      zero, but less than number of points, the
+				      last markerstyle will be used for the 
+				      excess points.
+				*/
 
     LineStyle			linestyle_;
     Color			fillcolor_;
