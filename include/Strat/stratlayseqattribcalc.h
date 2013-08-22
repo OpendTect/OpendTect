@@ -43,6 +43,9 @@ public:
     void		setExtrGates(const TypeSet<Interval<float> >& extrgates)
 						 { extrgates_ = extrgates; }
 
+    bool		isDist() const;
+    bool		isVel() const;
+    
 protected:
 
     const LaySeqAttrib&			attr_;
