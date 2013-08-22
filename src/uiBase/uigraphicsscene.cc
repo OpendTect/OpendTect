@@ -361,7 +361,7 @@ uiRect uiGraphicsScene::getSelectedArea() const
 void uiGraphicsScene::setSelectionArea( const uiRect& uirect )
 {
     uiRect rect = uirect;
-    rect.checkCorners();
+    rect.sortCorners();
     const QRectF selrect( rect.topLeft().x, rect.topLeft().y, rect.width(),
 	    		  rect.height() );
     QPainterPath selareapath;

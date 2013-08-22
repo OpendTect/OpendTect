@@ -813,13 +813,13 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
 	actselarea.worldrect_ =
 	   uiWorldRect( ltptval[xaxis], ltptval[yaxisnr],
 			rbptval[xaxis], rbptval[yaxisnr] );
-	actselarea.worldrect_.checkCorners( true, false );
+	actselarea.worldrect_.sortCorners( true, false );
 	if (hasalt && actselarea.axistype_==SelectionArea::Both)
 	{
 	   actselarea.altworldrect_ =
 	       uiWorldRect( ltptval[xaxis], ltptval[y2axis],
 			    rbptval[xaxis], rbptval[y2axis] );
-	   actselarea.altworldrect_.checkCorners( true, false );
+	   actselarea.altworldrect_.sortCorners( true, false );
 	}
     }
 }

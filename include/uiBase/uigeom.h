@@ -225,7 +225,7 @@ inline bool uiRect::rightToAtLeast( int ref )
 
 inline void uiRect::expandTo( const uiRect& oth )
 {
-    checkCorners();
+    sortCorners();
     topleft_.x = mMIN( topleft_.x, oth.topleft_.x );
     topleft_.y = mMIN( topleft_.y, oth.topleft_.y );
     bottomright_.x = mMAX( bottomright_.x,

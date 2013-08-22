@@ -93,7 +93,7 @@ LineRectangleClipper<T>::LineRectangleClipper( const Geom::Rectangle<T>& r )
     , startchanged_( false )
     , stopchanged_( false )
 {
-    rect_.checkCorners();
+    rect_.sortCorners();
 }
 
 

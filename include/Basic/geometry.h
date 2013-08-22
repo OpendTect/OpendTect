@@ -152,7 +152,9 @@ public:
     inline void 	setRight(T val);
     inline void 	setBottom(T val);
 
-    void		checkCorners(bool leftislow=true,bool topislow=true);
+    bool		checkCorners(bool leftislow=true,
+				     bool topislow=true) const;
+    void		sortCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
     inline void 	zero();
 
@@ -597,10 +599,20 @@ void Rectangle<T>::setBottom( T val )
 
 
 template <class T> inline
-void Rectangle<T>::checkCorners( bool leftislow, bool topislow )
-{ 
-    if ( leftislow == (left() > right()) ) swapHor(); 
-    if ( topislow  == (top() > bottom()) ) swapVer(); 
+bool Rectangle<T>::checkCorners( bool leftislow, bool topislow ) const
+{
+    if ( leftislow == (left() > right()) ) return false;
+    if ( topislow  == (top() > bottom()) ) return false;
+    
+    return true;
+}
+    
+    
+template <class T> inline
+void Rectangle<T>::sortCorners( bool leftislow, bool topislow )
+{
+    if ( leftislow == (left() > right()) ) swapHor();
+    if ( topislow  == (top() > bottom()) ) swapVer();
 }
 
 

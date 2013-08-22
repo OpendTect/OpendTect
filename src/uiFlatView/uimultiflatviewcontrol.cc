@@ -65,7 +65,7 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
 	return;
 
     uiWorldRect br = activevwr_->boundingBox();
-    br.checkCorners();
+    br.sortCorners();
     const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
     const bool havezoom = haveZoom( activevwr_->curView().size(), sz );
     if ( (activevwr_ != &vwr_) && havezoom )

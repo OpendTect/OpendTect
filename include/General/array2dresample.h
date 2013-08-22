@@ -205,7 +205,7 @@ void Array2DReSampler<T,TT>::updateScale(
     if ( rectinfromptr )
     {
 	Geom::PosRectangle<float> nrect( *rectinfromptr );
-	nrect.checkCorners( true, true );
+	nrect.sortCorners( true, true );
 	if ( rectinfrom.contains( nrect, 1e-3 ) )
 	    rectinfrom = nrect;
     }

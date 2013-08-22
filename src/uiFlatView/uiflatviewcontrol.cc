@@ -178,7 +178,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 				    Geom::Size2D<double>& sz )
 {
     uiWorldRect br = getBoundingBox();
-    br.checkCorners();
+    br.sortCorners();
     const uiWorldRect wr = getNewWorldRect( centre,sz, vwrs_[0]->curView(),br );
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
