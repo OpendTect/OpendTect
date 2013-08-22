@@ -95,7 +95,6 @@ void IOMan::init()
     const IOObjContext::StdDirData* prevdd = 0;
     const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
     bool needwrite = false;
-    FilePath basicfp( mGetSetupFileName("BasicSurvey"), "X" );
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
@@ -137,6 +136,7 @@ void IOMan::init()
 
 	// Oops, a data directory required is missing
 	// We'll try to recover by using the 'BasicSurvey' in the app
+	FilePath basicfp( mGetSetupFileName("BasicSurvey"), "X" );
 	basicfp.setFileName( dd->dirnm );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File::exists(basicdirnm) )
