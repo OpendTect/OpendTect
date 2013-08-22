@@ -20,11 +20,6 @@ if ( ! -e ${sendappl} ) then
     exit 1
 endif
 
-if ( ! -e ${dtectdir}/doc/Programmer/Generated/html ) then
-    echo "${dtectdir}/doc/Programmer/Generated/html does not exist"
-    exit 1
-endif
-
 set serversubdir=progdoc/${1}
 set docdir=${2}
 
@@ -37,6 +32,12 @@ if ( ! -e ${docdir} ) then
     echo "${docdir} does not exist"
     goto syntax
 endif
+
+if ( ! -e ${docdir}/Generated/html ) then
+    echo "${docdir}/Generated/html does not exist"
+    exit 1
+endif
+
 
 cd ${docdir}
 set compdir = "${docdir}/../compressed/"
@@ -53,9 +54,12 @@ find . -name "*.tag" | xargs -P ${nrcpus} rm -f
 find . -name "*.dot" | xargs -P ${nrcpus} rm -f
 find . -name "*.dot" | xargs rm -f
 
-set files = `find . ! -path "*.svn*"`
+set files = `find . ! -path "*.svn*" ! -path "*.html.in"`
 
-echo "Compressing Documentation"
+set listfile = ${docdir}/compfilelist
+rm -rf ${listfile}
+
+echo "Making Documentation directory structure"
 foreach file ( ${files} )
     if ( "${file}" == "." ) then
 	continue
@@ -64,9 +68,12 @@ foreach file ( ${files} )
     if ( -d ${file} ) then
 	mkdir ${compdir}/${file}
     else
-	gzip -c ${file} > ${compdir}/${file}
+	echo ${file} >> ${listfile}
     endif
 end
+
+echo "Compressing Documentation"
+cat ${listfile} | xargs -P8 ${dtectdir}/compress_doc.csh ${compdir}
 
 set awkprog = /tmp/awkcmd.awk
 echo '{ print "http://static.opendtect.org/'"${serversubdir}"'/"$1 }' > $awkprog
