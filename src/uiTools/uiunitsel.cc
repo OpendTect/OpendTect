@@ -55,9 +55,7 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
 	}
     }
 
-    if ( !un )
-	pErrMsg( BufferString("No internal unit for:", toString(proptype_)) );
-    else
+    if ( un )
 	setUnit( un->name() );
 }
 
