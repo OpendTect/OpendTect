@@ -118,7 +118,10 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	    fp.setFileName( "index.htm" );
 	    if ( !File::exists(fp.fullPath()) )
 	    {
-		fp.setFileName( "index.html" );
+		FilePath temfp( fp );
+		temfp.setFileName( "index.html" );
+		if( File::exists(temfp.fullPath()) )
+		    fp.setFileName( "index.html" );
 		if ( !File::exists(fp.fullPath()) && !haslinkfile )
 		    { delete di; sd.close(); continue; }
 	    }
