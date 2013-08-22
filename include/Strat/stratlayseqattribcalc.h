@@ -40,6 +40,9 @@ public:
 
     float		getValue(const LayerSequence&,
 	    			 const Interval<float>& zrange) const;
+
+    bool		isDist() const;
+    bool		isVel() const;
     
 protected:
 

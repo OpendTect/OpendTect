@@ -178,6 +178,18 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 }
 
 
+bool Strat::LaySeqAttribCalc::isDist() const
+{
+    return attr_.prop_.stdType() == PropertyRef::Dist;
+}
+
+
+bool Strat::LaySeqAttribCalc::isVel() const
+{
+    return attr_.prop_.stdType() == PropertyRef::Vel;
+}
+
+
 float Strat::LaySeqAttribCalc::getValue( const LayerSequence& seq,
 					 const Interval<float>& zpos ) const
 {
@@ -185,11 +197,15 @@ float Strat::LaySeqAttribCalc::getValue( const LayerSequence& seq,
 }
 
 
+#define mRetUdfVal \
+	return isDist() ? 0 : mUdf(float)
+
+
 float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 					  const Interval<float>& zrg ) const
 {
     if ( validx_ < 0 || seq.isEmpty() )
-	return mUdf(float);
+	mRetUdfVal;
 
     const ObjectSet<Layer>& lays = seq.layers();
     if ( statupscl_ == Stats::TakeNearest || zrg.stop < zrg.start )
@@ -197,7 +213,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	const float depth = zrg.center();
 	const int ilay = seq.layerIdxAtZ( depth );
 	if ( !lays.validIdx(ilay) )
-	    return mUdf(float);
+	    mRetUdfVal;
 
 	const float propval = lays[ilay]->value( validx_ );
 	return propval;
@@ -206,12 +222,10 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
     LayerSequence* newseq = new LayerSequence( &seq.propertyRefs() );
     seq.getSequencePart( zrg, true, *newseq );
     if ( !newseq || newseq->isEmpty() )
-	return mUdf(float);
+	mRetUdfVal;
 
+    const bool propisvel = isVel();
     TypeSet<float> vals; TypeSet<float> wts;
-    const PropertyRef* prop = seq.propertyRefs().validIdx(validx_) ?
-			      seq.propertyRefs()[validx_] : 0;
-    const bool propisvel = prop && prop->stdType() == PropertyRef::Vel;
     for ( int ilay=0; ilay < newseq->size(); ilay++ )
     {
 	const Strat::Layer* lay = newseq->layers()[ilay];
@@ -229,7 +243,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
     }
 
     if ( vals.isEmpty() )
-	return mUdf(float);
+	mRetUdfVal;
 
     applyTransform( vals );
     Stats::CalcSetup rcsu( true );
@@ -255,10 +269,15 @@ static bool allLithAreUndef( const Strat::LayerSequence& seq )
 }
 
 
+#undef mRetUdfVal
+#define mRetUdfVal \
+	return isDist() || stattype_ == Stats::Count ? 0 : mUdf(float)
+
+
 float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 {
     if ( validx_ < 0 || seq.isEmpty() )
-	return mUdf(float);
+	mRetUdfVal;
 
     const ObjectSet<Layer>& lays = seq.layers();
     const int nrlays = seq.size();
@@ -276,13 +295,11 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 	}
     }
     if ( layers.isEmpty() )
-	return stattype_ == Stats::Count ? 0 : mUdf(float);
+	mRetUdfVal;
 
     TypeSet<float> vals; TypeSet<float> wts;
     const bool isthick = &attr_.prop_ == &Strat::Layer::thicknessRef();
-    const PropertyRef* prop = seq.propertyRefs().validIdx(validx_) ?
-			      seq.propertyRefs()[validx_] : 0;
-    const bool propisvel = prop && prop->stdType() == PropertyRef::Vel;
+    const bool propisvel = isVel();
     for ( int ilay=0; ilay<layers.size(); ilay++ )
     {
 	const Strat::Layer* lay = layers[ilay];
@@ -302,7 +319,7 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
     }
 
     if ( vals.isEmpty() )
-	return mUdf(float);
+	mRetUdfVal;
 
     applyTransform( vals );
     Stats::CalcSetup rcsu( !isthick );
