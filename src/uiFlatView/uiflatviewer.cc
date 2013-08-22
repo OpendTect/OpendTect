@@ -47,6 +47,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
+    , wr_(0,0,1,1)
 {
     updatequeueid_ =
 	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual );
@@ -65,6 +66,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
+    axesdrawer_.setWorldCoords( wr_ );
     mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer, reSizeCB );
 }
 
