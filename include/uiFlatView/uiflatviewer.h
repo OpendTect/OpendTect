@@ -51,6 +51,7 @@ public:
     void		setView(const uiWorldRect&);
     void		setViewToBoundingBox();
     const uiWorldRect&	curView() const			{ return wr_; }
+    			/*!<May be reversed if display is reversed. */
     uiWorldRect		boundingBox() const;
 
     void		getWorld2Ui(uiWorld2Ui&) const;
@@ -93,6 +94,7 @@ protected:
     uiGraphicsView*		view_;
     FlatView::AxesDrawer& 	axesdrawer_; //!< Must be declared after canvas_
     uiWorldRect			wr_;
+				/*!<May be reversed if display is reversed. */
     uiGraphicsItemGroup*	worldgroup_;
 
     TypeSet<DataChangeType>	reportedchanges_;

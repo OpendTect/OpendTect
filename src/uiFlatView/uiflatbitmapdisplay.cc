@@ -108,9 +108,6 @@ public:
 	return rg;
     }
 
-
-
-
     bool			isdynamic_;
 
     uiFlatViewer&		viewer_;
