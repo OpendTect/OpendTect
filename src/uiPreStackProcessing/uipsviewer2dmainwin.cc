@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
 #include "ioman.h"
@@ -316,13 +317,37 @@ void uiViewer2DMainWin::setAngleGather( int idx, PreStack::Gather* anglegather )
 }
 
 
+void uiViewer2DMainWin::convAngleDatatoDegrees( PreStack::Gather* angledata )
+{
+    if ( !angledata || !angledata->data().getData() )
+	return;
+
+    Array2D<float>& data = angledata->data();
+    float* ptr = data.getData();
+    const int size = mCast(int,data.info().getTotalSz());
+
+    for( int idx = 0; idx<size; idx++ )
+	ptr[idx] *= 180 / M_PIf;
+}
+
+
 void uiViewer2DMainWin::setAngleData( int idx,
 				      PreStack::Gather* gather, 
-				      PreStack::Gather* angledata )
+				      PreStack::Gather* angledata,
+				      const Interval<int>& anglerange )
 {
-    if ( !gd_.validIdx(idx) || !gd_[idx] )
+    if ( !gd_.validIdx(idx) || !(gd_[idx] && gd_[idx]->getUiFlatViewer()) )
     { delete gather; delete angledata; return; }
 
+    uiFlatViewer* vwr = gd_[idx]->getUiFlatViewer();
+    vwr->appearance().ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
+    ColTab::MapperSetup& mapper = vwr->appearance().ddpars_.vd_.mappersetup_;
+    mapper.type_ = ColTab::MapperSetup::Fixed;
+    mapper.range_ = Interval<float>( (float) anglerange.start, 
+				     (float) anglerange.stop );
+    
+    convAngleDatatoDegrees( angledata );
+    angledata->setName( "Incidence Angle" );
     DPM(DataPackMgr::FlatID()).addAndObtain( gather );
     DPM(DataPackMgr::FlatID()).addAndObtain( angledata );
     gd_[idx]->setWVAGather( gather->id() );
@@ -356,6 +381,7 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
 						windowcaption,mTODOHelpID) );
 
     PreStack::AngleCompParams params;
+    if ( !isanglegather ) params.anglerange_ = Interval<int>( 0 , 60 );
     PreStack::uiAngleCompGrp anglegrp( &angledisplaydlg, params, false, false );
     if ( !angledisplaydlg.go() || !anglegrp.acceptOK() )
 	return;
@@ -397,7 +423,7 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
 	    delete gather; delete angledata;
 	}
 	else
-	    setAngleData( gatheridx, gather, angledata );
+	    setAngleData( gatheridx, gather, angledata, params.anglerange_ );
     
     }
 }

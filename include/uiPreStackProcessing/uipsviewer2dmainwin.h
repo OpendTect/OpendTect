@@ -83,9 +83,11 @@ protected:
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
     void		setAngleData(int idx, PreStack::Gather* gather,
-				     PreStack::Gather* angledata);
+				     PreStack::Gather* angledata,
+				     const Interval<int>& anglerange);
     void		setAngleGather(int idx, PreStack::Gather* anglegather);
     void		displayAngle(bool isanglegather);
+    void		convAngleDatatoDegrees(PreStack::Gather* angledata);
 
     void 		setUpView();
     void		clearAuxData();

@@ -27,6 +27,7 @@ const char* ColTab::Sequence::sKeyUdfColor()	{ return "Undef color"; }
 const char* ColTab::Sequence::sKeyTransparency(){ return "Transparency"; }
 const char* ColTab::Sequence::sKeyCtbl()	{ return "Color table"; }
 const char* ColTab::Sequence::sKeyNrSegments()	{ return "Nr segments"; }
+const char* ColTab::Sequence::sKeyRainbow()	{ return "Rainbow"; }
 
 static const char* sKeyCtabSettsKey = "coltabs";
 
