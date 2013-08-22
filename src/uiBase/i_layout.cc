@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 #ifdef __debug__
-#define MAX_ITER	2000
+#define MAX_ITER	8000	//TODO: Increased from 2000 because of PEs
+				//in PS Viewer. Check how to lower it again.
 static bool lyoutdbg = false;
 #else
 #define MAX_ITER	20000
@@ -632,7 +633,7 @@ void i_LayoutMngr::layoutChildren( LayoutMode lom, bool finalLoop )
     startPoptimer();
 
     int iternr;
-    for ( iternr=0 ; iternr<=MAX_ITER; iternr++ ) 
+    for ( iternr=0 ; iternr<MAX_ITER; iternr++ ) 
     {
         bool child_updated = false;
 	for ( int idx=0; idx<childrenlist.size(); idx++ )
