@@ -279,7 +279,6 @@ ascistream& ascistream::next()
 	*separptr = '\0';
 	mTrimBlanks(startptr);
 	replaceString( startptr, toreplace_separ, toreplace_to_separ );
-	replaceString( startptr, toreplace_newln, toreplace_to_newln );
 	valbuf = startptr;
     }
 
