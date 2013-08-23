@@ -93,6 +93,11 @@ bool DataCubes::setSizeAndPos( const CubeSampling& cs )
 }
 
 
+bool DataCubes::validCubeIdx( int idx ) const
+{
+    return cubes_.validIdx( idx );
+}
+
 
 bool DataCubes::setSize( int nrinl, int nrcrl, int nrz )
 {

@@ -35,6 +35,8 @@ public:
     				DataCubes();
 
     int				nrCubes() const { return cubes_.size(); }
+    bool			validCubeIdx(int) const;
+    
     bool			addCube(const BinDataDesc* bdd=0);
     bool			addCube(float,const BinDataDesc* bdd=0);
     				//!<Adds the cube and inits it to the given val.
