@@ -19,6 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 
+static const char* valsep_replacement = "\\:";
+static const char* newline_replacement = "#-NL-#";
+
+
 static BufferString& getPVN()
 {
     static BufferString* projvernm = 0;
@@ -79,15 +83,12 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
     char* ptr = strchr( towrite.buf(), mAscStrmKeyValSep );
     while ( ptr )
     {
-	// Need to escape mAscStrmKeyValSep in keyword
-	const od_int64 offs = ptr - towrite.buf();
 	BufferString tmp( ptr + 1 );
-	char escbuf[3];
-	escbuf[0] = '\\'; escbuf[1] = mAscStrmKeyValSep; escbuf[2] = '\0';
 	*ptr = 0;
-	towrite += escbuf;
+	towrite += valsep_replacement;
+	const od_int64 prevlen = towrite.size();
 	towrite += tmp;
-	ptr = strchr( towrite.buf() + offs + 2, mAscStrmKeyValSep );
+	ptr = strchr( towrite.buf() + prevlen, mAscStrmKeyValSep );
     }
 
     stream() << towrite;
@@ -111,7 +112,7 @@ bool ascostream::put( const char* keyword, const char* value )
 	    while ( ptr )
 	    {
 		*ptr++ = '\0';
-		stream() << startptr << "\\n";
+		stream() << startptr << newline_replacement;
 		startptr = ptr; 
 		ptr = strchr( ptr, '\n' );
 	    }
@@ -241,11 +242,6 @@ void ascistream::init( std::istream* strm, bool rdhead )
 
 ascistream& ascistream::next()
 {
-    static const char* toreplace_newln =     "\\n";
-    static const char* toreplace_to_newln =  "\n";
-    static const char toreplace_separ[] =    { '\\', mAscStrmKeyValSep, '\0' };
-    static const char toreplace_to_separ[] = { mAscStrmKeyValSep, '\0' };
-
     keybuf.setEmpty(); valbuf.setEmpty();
     if ( !streamptr || !streamptr->good() )
 	return *this;
@@ -260,31 +256,29 @@ ascistream& ascistream::next()
 	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
     const int sz = lineread.size();
-    char* separptr = 0;
+    char* keywptr = linebuf;
+    char* valptr = 0;
     for ( int ich=1; ich<sz; ich++ )
     {
-	const bool isunesc = linebuf[ich] == mAscStrmKeyValSep
-	    		  && linebuf[ich-1]!='\\';
-	if ( isunesc )
-	    { separptr = linebuf+ich; break; }
+	if ( linebuf[ich] == mAscStrmKeyValSep && linebuf[ich-1]!='\\' )
+	{
+	    valptr = linebuf + ich;
+	    *valptr++ = '\0';
+	    mTrimBlanks(valptr);
+	    break;
+	}
     }
 
-    if ( separptr )
+    static const char keyvalsepstr[] = { mAscStrmKeyValSep, '\0' };
+    mTrimBlanks ( keywptr );
+    replaceString( keywptr, valsep_replacement, keyvalsepstr );
+    keybuf = keywptr;
+    if ( valptr )
     {
-	char* startptr = separptr + 1;
-	*separptr = '\0';
-	mTrimBlanks(startptr);
-	replaceString( startptr, toreplace_separ, toreplace_to_separ );
-	replaceString( startptr, toreplace_newln, toreplace_to_newln );
-	valbuf = startptr;
+	replaceString( valptr, newline_replacement, "\n" );
+	valbuf = valptr;
     }
 
-    char* startptr = linebuf;
-    mTrimBlanks(startptr);
-    replaceString( startptr, toreplace_separ, toreplace_to_separ );
-    replaceString( startptr, toreplace_newln, toreplace_to_newln );
-
-    keybuf = startptr;
     return *this;
 }
 
