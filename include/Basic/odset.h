@@ -71,6 +71,12 @@ inline void addNames( const ODSET& inp, WITHADD& withadd )
 	withadd.add( inp[idx]->name() );
 }
 
+#define mODSetApplyToAll( itp, os, op ) \
+    for ( itp idx=(itp) os.nrItems()-1; idx>=0; idx-- ) \
+    { \
+        op; \
+    }
+
 
 #endif
 

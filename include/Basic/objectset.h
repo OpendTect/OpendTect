@@ -97,8 +97,7 @@ public:
 
 
 #define mObjectSetApplyToAll( os, op ) \
-    for ( ObjectSet<int>::size_type idx=os.size()-1; idx>=0; idx-- ) \
-	op
+    mODSetApplyToAll( ObjectSet<int>::size_type, os, op )
 
 #define mObjectSetApplyToAllFunc( fn, op, extra ) \
 template <class T> \
