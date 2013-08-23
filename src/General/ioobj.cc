@@ -242,6 +242,9 @@ bool IOObj::isReadDefault() const
 void IOObj::setSurveyDefault( const char* subsel ) const
 {
     PtrMan<Translator> tr = createTranslator();
+    if ( !tr )
+	return;
+
     CompoundKey defaultkey = tr->group()->getSurveyDefaultKey( this );
     if ( subsel )
 	defaultkey += subsel;
