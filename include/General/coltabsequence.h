@@ -114,6 +114,7 @@ public:
     static const char*	sKeyTransparency();
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
+    static const char*  sKeyRainbow();
     
 protected:
 

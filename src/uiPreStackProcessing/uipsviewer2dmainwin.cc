@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
 #include "ioman.h"
@@ -319,6 +320,20 @@ void uiViewer2DMainWin::setAngleGather( int idx )
 }
 
 
+void uiViewer2DMainWin::convAngleDatatoDegrees( PreStack::Gather* angledata )
+{
+    if ( !angledata || !angledata->data().getData() )
+	return;
+
+    Array2D<float>& data = angledata->data();
+    float* ptr = data.getData();
+    const int size = mCast(int,data.info().getTotalSz());
+
+    for( int idx = 0; idx<size; idx++ )
+	ptr[idx] *= 180 / M_PIf;
+}
+
+
 void uiViewer2DMainWin::setAngleData( int idx,
 				      PreStack::Gather* gather, 
 				      PreStack::Gather* angledata )
@@ -360,6 +375,7 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
 						windowcaption,mTODOHelpID) );
 
     PreStack::AngleCompParams params;
+    if ( !isanglegather ) params.anglerange_ = Interval<int>( 0 , 60 );
     PreStack::uiAngleCompGrp anglegrp( &angledisplaydlg, params, false, false );
     if ( !angledisplaydlg.go() || !anglegrp.acceptOK() )
 	return;
@@ -404,7 +420,23 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
 	    delete gather; delete angledata;
 	}
 	else
+	{
+	    if ( !gd_.validIdx(idx) || 
+		 !(gd_[idx] && gd_[idx]->getUiFlatViewer()) )
+	    { delete gather; delete angledata; continue; }
+
+	    uiFlatViewer* vwr = gd_[idx]->getUiFlatViewer();
+	    FlatView::DataDispPars::VD& vd =  vwr->appearance().ddpars_.vd_;
+	    vd.ctab_ = ColTab::Sequence::sKeyRainbow();
+	    ColTab::MapperSetup& mapper = vd.mappersetup_;
+	    mapper.type_ = ColTab::MapperSetup::Fixed;
+	    mapper.range_ = Interval<float>( (float) params.anglerange_.start,
+					     (float) params.anglerange_.stop );
+
+	    convAngleDatatoDegrees( angledata );
+	    angledata->setName( "Incidence Angle" );
 	    setAngleData( gatheridx, gather, angledata );
+	}
     
     }
 }

@@ -102,6 +102,8 @@ protected:
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
     void		snapshotCB(CallBacker*);
+
+    void		convAngleDatatoDegrees(PreStack::Gather* angledata);
 };
 
 
