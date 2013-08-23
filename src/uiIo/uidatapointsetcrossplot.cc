@@ -1200,7 +1200,6 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     {
 	if ( y1userdefpolylineitm_ && !axisHandler(1) )
 	    y1userdefpolylineitm_->setVisible( false );
-
 	userdefy1str_.setEmpty(); y1rmserr_.setEmpty();
 	setup().showy1userdefpolyline_ = false;
     }
@@ -1208,6 +1207,8 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     
     if ( !isprevx || !isprevy2 )
     {
+	if ( y2userdefpolylineitm_ && !axisHandler(2) )
+	    y2userdefpolylineitm_->setVisible( false );
 	userdefy2str_.setEmpty(); y2rmserr_.setEmpty();
 	setup().showy2userdefpolyline_ = drawy2userdefpolyline_ = false;
     }
@@ -1267,9 +1268,12 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	if ( doy2_ && y2_.axis_ )
 	    y2_.axis_->plotAxis();
 
+	if ( y2ptitems_ )
+	    y2ptitems_->setVisible( y2_.axis_ );
+
 	if ( !x_.axis_ || !y_.axis_ )
 	{
-	    if ( yptitems_ )
+	    if ( yptitems_ ) 
 		yptitems_->setVisible( false );
 	    PtrMan<ioPixmap> pixmap =
 		new ioPixmap( arrarea_.width(),arrarea_.height());

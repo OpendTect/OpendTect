@@ -13,11 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uiiomod.h"
 #include "uidialog.h"
 #include "datapointset.h"
 #include "bufstringset.h"
 #include "iopar.h"
+
 class uiTable;
 class uiSpinBox;
 class uiToolBar;
@@ -199,15 +199,16 @@ protected:
     bool			saveOK();
     bool			doSave();
     void			setSortedCol(TColID);
+    void			unSelXCol();
 
     void			rowAddedCB(CallBacker*);
     void			initWin(CallBacker*);
     void			selXCol(CallBacker*);
     void			selYCol(CallBacker*);
-    void			unSelCol(CallBacker*);
+    void			unSelYCol(CallBacker*);
     void			colStepL(CallBacker*);
     void			colStepR(CallBacker*);
-    void			rowSel(CallBacker*);
+    void			rowClicked(CallBacker*);
     void			selChg(CallBacker*);
     void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
