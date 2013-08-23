@@ -1208,6 +1208,8 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     
     if ( !isprevx || !isprevy2 )
     {
+	if ( y2userdefpolylineitm_ && !axisHandler(2) )
+	    y2userdefpolylineitm_->setVisible( false );
 	userdefy2str_.setEmpty(); y2rmserr_.setEmpty();
 	setup().showy2userdefpolyline_ = drawy2userdefpolyline_ = false;
     }
@@ -1266,6 +1268,9 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 
 	if ( doy2_ && y2_.axis_ )
 	    y2_.axis_->plotAxis();
+
+	if ( y2ptitems_ )
+	    y2ptitems_->setVisible( y2_.axis_ );
 
 	if ( !x_.axis_ || !y_.axis_ )
 	{

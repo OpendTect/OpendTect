@@ -199,6 +199,7 @@ protected:
     bool			saveOK();
     bool			doSave();
     void			setSortedCol(TColID);
+    void			unSelXCol();
 
     void			rowAddedCB(CallBacker*);
     void			initWin(CallBacker*);

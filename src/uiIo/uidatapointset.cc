@@ -340,16 +340,12 @@ void uiDataPointSet::updColNames()
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
 	BufferString axnm;
-	if ( tid == xcol_ )
-	    axnm += "X";
-	else if ( tid == ycol_ )
-	    axnm += "Y";
-	else if ( tid == y2col_ )
-	    axnm += "Y2";
+	if ( tid == xcol_ ) axnm += "[X]";
+	if ( tid == ycol_ ) axnm += "[Y]";
+	if ( tid == y2col_ ) axnm += "[Y2]";
 
 	BufferString colnm( tid == sortcol_ ? "*" : "" );;
-	if ( !axnm.isEmpty() )
-	    { colnm += "["; colnm += axnm; colnm += "]"; }
+	if ( !axnm.isEmpty() ) colnm += axnm;
 
 	if ( tid == zcid )
 	    colnm += BufferString("Z (",zunitnm_,")");
@@ -530,6 +526,14 @@ void uiDataPointSet::selXCol( CallBacker* )
 	xcol_ = tid;
 	handleAxisColChg();
     }
+}
+
+
+void uiDataPointSet::unSelXCol()
+{
+    const TColID tid = tColID(); if ( tid < 0 ) return;
+    xcol_ = -1;
+    handleAxisColChg();
 }
 
 
@@ -744,7 +748,6 @@ void uiDataPointSet::selChg( CallBacker* )
 {
     const ObjectSet<uiTable::SelectionRange>& selrgs = tbl_->selectedRanges();
     if ( selrgs.isEmpty() ) return;
-
     handleGroupChg( dRowID(selrgs[0]->firstrow_) );
 }
 
@@ -1639,12 +1642,35 @@ void uiDataPointSet::addColumn( CallBacker* )
 void uiDataPointSet::removeColumn( CallBacker* )
 {
     const DColID dcolid = dColID();
+    const TColID tcolid = tColID( dcolid );
     if ( dcolid < 0 )
 	return uiMSG().error( "Cannot remove this column" );
+    if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
+    {
+    	BufferString msg( "This column is selected as data for " );
+	bool sel = false;
+	if ( tcolid == xcol_ ) { msg += "X"; sel = true; }
+	if ( tcolid == ycol_ )	{ if ( sel ) msg += ", "; msg += "Y"; sel=true;}
+	if ( tcolid == y2col_ ) { if ( sel ) msg += " and "; msg += "Y2"; }
+	msg += " axis for the crossplot. Removing the column will unselect it.";
+	msg += " Do you really want to remove this column?";
+
+	if ( !uiMSG().askGoOn(msg) )
+	    return;
+	else
+	{
+	    if ( tcolid == y2col_ ) unSelCol( 0 );
+	    if ( tcolid == ycol_ ) unSelCol( 0 );
+	    if ( tcolid == xcol_ ) unSelXCol();
+	}
+    }
 
     unsavedchgs_ = true;
     tbl_->removeColumn( tbl_->currentCol() );
-    dps_.dataSet().removeColumn( tColID(dcolid)+1 );
+    dps_.dataSet().removeColumn( tcolid+1 );
+    if ( xcol_>tcolid ) xcol_--;
+    if ( ycol_>tcolid ) ycol_--;
+    if ( y2col_>tcolid ) y2col_--;
     dps_.dataChanged();
     reDoTable();
 }
