@@ -273,6 +273,7 @@ ascistream& ascistream::next()
     }
 
     static const char keyvalsepstr[] = { mAscStrmKeyValSep, '\0' };
+    mTrimBlanks( keywptr );
     replaceString( keywptr, valsep_replacement, keyvalsepstr );
     keybuf = keywptr;
     if ( valptr )
