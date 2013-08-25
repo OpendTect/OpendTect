@@ -149,6 +149,10 @@ public:
     int		type_;
     int		opt_;
 
+    void	setNoFill()		{ type_ = opt_ = 0; }
+    void	setFullFill()		{ type_ = 1; opt_ = 0; }
+    void	setMediumDotted()	{ type_ = 1; opt_ = 4; }
+
 };
 
 

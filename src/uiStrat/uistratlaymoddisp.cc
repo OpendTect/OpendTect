@@ -645,6 +645,8 @@ void uiStratSimpleLayerModelDisp::doDraw()
     }
 
     yax_->plotAxis(); xax_->plotAxis();
+    if ( vrg_.width() == 0 ) 
+	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
     float zfac = 1; mGetDispZ( zfac );
     bool dofill = fillmdls_ || totalNrLayersToDisplay() < cMaxNrLayers4RectDisp;
@@ -719,6 +721,11 @@ void uiStratSimpleLayerModelDisp::doDraw()
 		rectitm->setFillColor( laycol );
 		if ( mustannotcont )
 		    rectitm->setFillPattern( lay.content().pattern_ );
+		else
+		{
+		    FillPattern fp; fp.setFullFill();
+		    rectitm->setFillPattern( fp );
+		}
 	    }
 	}
 	else
