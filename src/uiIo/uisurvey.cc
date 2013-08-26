@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurvey.h"
 
 #include "uiconvpos.h"
+#include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uifont.h"
 #include "uigroup.h"
@@ -461,18 +462,31 @@ void uiSurvey::rmButPushed( CallBacker* )
 }
 
 
+void osrbuttonCB( void* )
+{
+     uiDesktopServices::openUrl( "https://opendtect.org/osr" );
+}
+
 void uiSurvey::exportButPushed( CallBacker* )
 {
+    const BufferString survnm( listbox_->getText() );
+    const BufferString title( "Pack ", survnm, " survey into zip file" );
     uiDialog dlg( this,
-    uiDialog::Setup("Pack survey into zip file",mNoDlgTitle,mTODOHelpID));
+    uiDialog::Setup(title,mNoDlgTitle,mTODOHelpID));
     uiFileInput* filepinput = new uiFileInput( &dlg, "Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     filepinput->setFilter( sZip );
+    uiLabel* sharfld = new uiLabel( &dlg, 
+			   "You can share surveys to Open Seismic Repository."
+			   "To know more " );
+    sharfld->attach( leftAlignedBelow,  filepinput );
+    uiPushButton* osrbutton = new uiPushButton( &dlg, 
+				    "Click here", mSCB(osrbuttonCB), false );
+    osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
 	
-    const BufferString survnm( listbox_->getText() );
     FilePath exportzippath( filepinput->fileName() );
     BufferString zipext = exportzippath.extension();
     if ( zipext != "zip" )
@@ -487,15 +501,12 @@ void uiSurvey::exportButPushed( CallBacker* )
 
 void uiSurvey::importButPushed( CallBacker* )
 {
-    uiDialog dlg( this,
-    uiDialog::Setup("Unpack survey",mNoDlgTitle,mTODOHelpID));
-    uiFileInput* filepinput = new uiFileInput( &dlg, "Select zip files",
-		    uiFileInput::Setup().directories(false) );
-    filepinput->setFilter( sZip );
-    if ( !dlg.go() )
+    uiFileDialog fdlg( this, true, 0, "*.zip", "Select survey zip file" );
+    fdlg.setSelectedFilter( sZip );
+    if ( !fdlg.go() )
 	return;
     
-    uiSurvey_UnzipFile( this, filepinput->fileName(), GetBaseDataDir() );
+    uiSurvey_UnzipFile( this, fdlg.fileName(), GetBaseDataDir() );
     updateSvyList();
 }
 
