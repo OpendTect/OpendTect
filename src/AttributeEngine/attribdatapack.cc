@@ -584,8 +584,11 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
        					  TypeSet<BinID>* path )
     : Flat2DDataPack(did)
-    , path_(new TypeSet<BinID>(*path))  
+    , path_(0)  
 {
+    if ( path )
+	path_ = new TypeSet<BinID>(*path);
+
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
 
@@ -669,6 +672,7 @@ Coord3 FlatRdmTrcsDataPack::getCoord( int i0, int i1 ) const
 
 void FlatRdmTrcsDataPack::fill2DArray( TypeSet<BinID>* path )
 {
+    if ( !seisbuf_ ) return;
     if ( seisbuf_->isEmpty() || !arr2d_ ) return;
     
     int nrtrcs = seisbuf_->size();
