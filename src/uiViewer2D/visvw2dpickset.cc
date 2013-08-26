@@ -229,8 +229,12 @@ void VW2DPickSet::drawAll()
     if ( !dp3d && !dprdm ) return;
     
     const bool oninl = dp3d ? dp3d->dataDir() == CubeSampling::Inl : false;
-    dp3d ? updateSetIdx( dp3d->cube().cubeSampling() )
-	 : updateSetIdx( *dprdm->pathBIDs() );
+
+    if ( dp3d )
+	updateSetIdx( dp3d->cube().cubeSampling() );
+    else if ( dprdm->pathBIDs() )
+	updateSetIdx( *dprdm->pathBIDs() );
+
     if ( isownremove_ ) return;
 
     const uiWorldRect& curvw = viewer_.curView();
