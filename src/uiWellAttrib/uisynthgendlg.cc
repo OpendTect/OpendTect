@@ -36,7 +36,8 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthRemoved(this)
     , synthChanged(this)
 {
-    setOkText( "Apply" );
+    setOkText( "&Apply" );
+    setCancelText( "&Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
 	new uiLabeledListBox( syntlistgrp, "Synthetics", false,
