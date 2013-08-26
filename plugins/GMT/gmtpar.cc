@@ -100,7 +100,11 @@ bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
     if ( needsbash )
 	cmd += "bash -c \'";
 
-    cmd += comm;
+    const char* commstr = comm.buf();
+    if ( commstr && commstr[0] == '@' )
+	commstr++;
+    
+    cmd += commstr;
     cmd += " 2> \"";
     cmd += errfilenm;
     cmd += "\"";
