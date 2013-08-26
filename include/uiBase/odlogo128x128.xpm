@@ -1,5 +1,5 @@
 /* XPM */
-static const char * od_logo_128x128[] = {
+static const char * odlogo128x128_xpm[] = {
 "128 128 1641 2",
 "  	c None",
 ". 	c #1C1819",
