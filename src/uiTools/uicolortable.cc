@@ -120,6 +120,8 @@ void autoSymPush( CallBacker* )
     symPush( 0 );
 }
 
+void enabDefSetts( bool yn ) { storfld->display( yn ); }
+
 bool saveDef()
 { return doclipfld->getBoolValue() && storfld->isChecked(); }
 
@@ -453,6 +455,7 @@ void uiColorTable::editScaling( CallBacker* )
     if ( !scalingdlg_ )
 	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_, scaleChanged);
 
+    scalingdlg_->enabDefSetts( enabmanage_ );
     scalingdlg_->show();
     scalingdlg_->raise();
 }
