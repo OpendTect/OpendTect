@@ -469,8 +469,15 @@ void uiODApplMgrDispatcher::openXPlot()
 
 void uiODApplMgrDispatcher::startInstMgr()
 {
-    uiMSG().message( "If you make changes to the application,"
+#ifndef __win__
+    BufferString msg( "If you make changes to the application,"
 	    "\nplease restart OpendTect for the changes to take effect." );
+#else
+    BufferString msg( "Please close OpendTect application and all other " 
+		      "OpendTect processes before proceeding for"
+		      " installation/update" );
+#endif
+    uiMSG().message( msg );
     ODInst::startInstManagement();
 }
 
