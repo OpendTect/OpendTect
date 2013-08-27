@@ -270,9 +270,6 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 
     bool pickinvd = true;
 
-    if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
-	return;
-
     const MouseEvent& mouseevent = mehandler_->event();
 
     if ( editor_ )
@@ -309,12 +306,13 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
-    doTheSeed( *seedpicker, clickedcrd, mouseevent );
-    if ( editor_ && !editor_->sower().moreToSow() )
-    {
+    if ( !emobj->hasBurstAlert() )
 	emobj->setBurstAlert( true );
+
+    doTheSeed( *seedpicker, clickedcrd, mouseevent );
+
+    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );
-    }
 
     MouseCursorManager::restoreOverride();
 

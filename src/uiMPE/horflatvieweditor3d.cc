@@ -265,9 +265,6 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 
     bool pickinvd = true;
 
-    if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
-	return;
-
     const FlatDataPack* dp = editor_->viewer().pack( !pickinvd );
     if ( !dp ) return;
 
@@ -292,15 +289,19 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    emobj->setBurstAlert( true );
+
+    if ( !emobj->hasBurstAlert() )
+	emobj->setBurstAlert( true );
 
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     
     bool action = doTheSeed( *seedpicker, clickedcrd, mouseevent );
 
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
-    
-    emobj->setBurstAlert( false );
+
+    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
+	emobj->setBurstAlert( false );
+
     MouseCursorManager::restoreOverride();
 
     const int currentevent = EM::EMM().undo().currentEventID();
