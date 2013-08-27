@@ -698,10 +698,11 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
 	BufferStringSet nms;
 	int attrnr = 0;
+	MultiID mid( MultiID::udf() );
 	if ( param && param->getStringValue( 0 ) )
 	{
 	    const LineKey realkey = param->getStringValue(0);
-	    const MultiID mid = realkey.lineName().buf();
+	    mid = realkey.lineName().buf();
 	    SelInfo::getAttrNames( mid, nms );
 	    BufferString attrnm = realkey.attrName();
 	    if ( attrnm.isEmpty() )
@@ -712,11 +713,35 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	if ( attrnr >= 0 && attrnr < nms.size() )
 	    lk.setAttrName( nms.get(attrnr) );
 
-	if ( strcmp(ad->userRef(), lk ) )
-	    const_cast<Desc*>( ad )->setUserRef( lk.buf() );
-    }
+	usrnm_ = lk;
 
-    usrnm_ = lk;
+	//check for multi-components or pre-stack data
+	//tricky test: look for "="
+	BufferString descattrnm( ad->userRef() );
+	BufferString copyofdanm( descattrnm );
+	removeCharacter( const_cast<BufferString*>(&copyofdanm)->buf(), '=' );
+	if ( descattrnm != copyofdanm && !mid.isUdf() )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    if ( ioobj )
+	    {
+		if ( BufferString(ioobj->name()).isStartOf( descattrnm.buf()) )
+		    usrnm_ = descattrnm;
+		else
+		{
+		    usrnm_ = ioobj->name();
+		    usrnm_ += "|";
+		    usrnm_ += descattrnm;
+		}
+	    }
+	}
+    }
+    else
+	usrnm_ = lk;
+
+    if ( strcmp(ad->userRef(), usrnm_.buf() ) )
+	const_cast<Desc*>( ad )->setUserRef( usrnm_.buf() );
+
     return usrnm_.buf();
 }
 
