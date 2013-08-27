@@ -40,11 +40,13 @@ public:
 	    				   const char* post="\t");
     bool			writeFloat(const float&,
 	    				   const char* post="\t");
+    bool			writeBlock(void* ptr,od_uint64 nrbytes);
 
     virtual od_int16		readInt16() const;
     virtual od_int32		readInt32() const;
     virtual od_int64		readInt64() const;
     virtual float		readFloat() const;
+    virtual bool		readBlock(void* ptr,od_uint64 nrbytes) const;
 
     od_int64			tellg() const;
     od_int64			tellp() const;

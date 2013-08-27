@@ -295,6 +295,12 @@ mWriteImpl( writeInt64, od_int64 )
 mWriteImpl( writeFloat, float )
 
 
+bool StreamIO::writeBlock( void* ptr, od_uint64 nrbytes ) 
+{
+    return ostrm_ ? StrmOper::writeBlock( *ostrm_, ptr, nrbytes ) : false;
+}
+
+
 #define mReadImpl(fn,typ) \
 typ StreamIO::fn() const \
 { \
@@ -310,6 +316,13 @@ mReadImpl( readInt16, od_int16 )
 mReadImpl( readInt32, od_int32 )
 mReadImpl( readInt64, od_int64 )
 mReadImpl( readFloat, float )
+
+
+bool StreamIO::readBlock( void* ptr, od_uint64 nrbytes ) const
+{
+    return istrm_ ? StrmOper::readBlock( *istrm_, ptr, nrbytes ) : false;
+}
+
 
 od_int64 StreamIO::tellg() const
 {
