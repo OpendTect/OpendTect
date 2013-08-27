@@ -54,14 +54,15 @@ protected:
     void		updateSetIdx(const TypeSet<BinID>& bids);
 
     Pick::Set*			pickset_;
-    FlatView::AuxData*  	picks_;
-    uiFlatViewAuxDataEditor*	editor_;
-    uiFlatViewer&		viewer_;
-    int				auxid_;
     bool			isselected_;
     Notifier<VW2DPickSet>	deselected_;
     bool			isownremove_;
     TypeSet<int>		picksetidxs_;
+    TypeSet<int>		auxids_;
+
+    ObjectSet<FlatView::AuxData>  	picks_;
+    ObjectSet<uiFlatViewAuxDataEditor>	editors_;
+    ObjectSet<uiFlatViewer>		viewers_;
 };
 
 #endif
