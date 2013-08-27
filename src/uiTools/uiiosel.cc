@@ -46,6 +46,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	optbox_ = new uiCheckBox( this, su.seltxt_ );
 	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
 	optbox_->attach( leftOf, inp_ );
+	alobj->setHSzPol( uiObject::MedVar );
     }
     else
     {
@@ -63,6 +64,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	}
     }
     inp_->setReadOnly( false );
+    inp_->setHSzPol( uiObject::WideVar );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );

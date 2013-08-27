@@ -31,7 +31,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 	    			PropertyRef::StdTypeNames(), "Property Type" );
     typfld_ = lcb->box();
-    typfld_->setHSzPol( uiObject::Medium);
+    typfld_->setHSzPol( uiObject::MedMax );
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
 
     createFlds( lcb->attachObj() );

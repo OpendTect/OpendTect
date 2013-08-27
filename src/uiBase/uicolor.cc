@@ -172,6 +172,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	descfld_->selectionChanged.notify( mCB(this,uiColorInput,descSel) );
     }
 
+    descfld_->setHSzPol( uiObject::MedMax );
     setColor( color_ ); 
     if ( lbl_ )
 	setHAlignObj( colbut_ );
