@@ -166,15 +166,17 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	}
     }
 
-    //TODO Legacy, clean up this
-    TypeSet<MarkerStyle2D> markerstyles = markerstyles_;
-    const int nrmarkerstyles = markerstyles.size();
-    if ( nrmarkerstyles == 0 && poly_.size() == 1 )
-	markerstyles += MarkerStyle2D(MarkerStyle2D::Square,4,Color::Black());
+    const int nrmarkerstyles = markerstyles_.size();
+    if ( !nrmarkerstyles && !linestyle_.isVisible() && !drawfill )
+	pErrMsg( "Draw no markers, no lines, no nothing?" );
 
-    for ( int idx=0; idx<poly_.size() && idx<markerstyles.size(); idx++ )
+    for ( int idx=0; idx<poly_.size(); idx++ )
     {
-	const MarkerStyle2D& style = markerstyles[idx];
+	const int styleidx = mMIN(idx,nrmarkerstyles-1);
+	if ( styleidx < 0 )
+	    continue;
+
+	const MarkerStyle2D& style = markerstyles_[styleidx];
 	if ( !style.isVisible() )
 	    continue;
 

@@ -798,6 +798,7 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 
     mode_ = Furrowing;
     furrowstamp_ = Time::getMilliSeconds();
+    sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
 
     if ( !accept(mouseevent, false) )
     {
@@ -805,7 +806,6 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 	mReturnHandled( false );
     }
 
-    sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
     sowingline_->enabled_ = true;
 
     mReturnHandled( true );
