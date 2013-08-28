@@ -237,10 +237,7 @@ protected:
 
     Pol2D		survdatatype_;
     bool		survdatatypeknown_;
-
-    static SurveyInfo*	theinst_;
  
-    static void		deleteInstance();
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
@@ -336,10 +333,17 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
+    			// No, you really don't need these!
+    static void		pushSI(SurveyInfo*);
+    static SurveyInfo*	popSI();
+    static void		deleteInstance()		{ delete popSI(); }
+
 };
 
 
 mGlobal(Basic) const SurveyInfo& SI();
+mGlobal(Basic) inline SurveyInfo& eSI()
+			{ return const_cast<SurveyInfo&>(SI()); }
 
 mExternC( Basic ) const char* GetSurveyFileName(void);
 mExternC( Basic ) int SurveyNameDirty(void);

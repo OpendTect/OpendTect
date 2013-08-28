@@ -46,8 +46,6 @@ const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 
-SurveyInfo* SurveyInfo::theinst_ = 0;
-
 DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
@@ -64,27 +62,39 @@ bool InlCrlSystem::includes( int line, int tracenr ) const
 { return cs_.hrg.includes( BinID(line,tracenr) ); }
 
 
+static ObjectSet<SurveyInfo> survinfostack;
+
 const SurveyInfo& SI()
 {
-    if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )
+    int cursurvinfoidx = survinfostack.size() - 1;
+    if ( cursurvinfoidx < 0 || !survinfostack[cursurvinfoidx]->valid_ )
     {
-	if ( SurveyInfo::theinst_ )
+	while ( cursurvinfoidx >= 0 && !survinfostack[cursurvinfoidx]->valid_ )
 	{
-	    SurveyInfo * myinst = SurveyInfo::theinst_;
-	    SurveyInfo::theinst_ = 0;
-	    delete myinst;
+	    delete survinfostack.removeSingle( cursurvinfoidx );
+	    cursurvinfoidx--;
 	}
-	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
+	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
+	if ( !newsi || !newsi->valid_ )
+	    { delete newsi; newsi = new SurveyInfo; } // what option is left?
+	survinfostack += newsi;
+	cursurvinfoidx = survinfostack.size() - 1;
     }
     
-    return *SurveyInfo::theinst_;
+    return *survinfostack[cursurvinfoidx];
 }
 
 
-void SurveyInfo::deleteInstance()
+void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
-    delete theinst_;
-    theinst_ = 0;
+    survinfostack += newsi;
+}
+
+
+SurveyInfo* SurveyInfo::popSI()
+{
+    return survinfostack.isEmpty() ? 0
+	 : survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
