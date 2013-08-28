@@ -237,6 +237,7 @@ void uiFlatViewControl::flip( bool hor )
 				  : vwrs_[idx]->appearance().annot_.x2_;
 	ad.reversed_ = !ad.reversed_;
 	vwrs_[idx]->setView( newview );
+	vwrs_[idx]->handleChange( FlatView::Viewer::All );
     }
 }
 
