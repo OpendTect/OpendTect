@@ -643,12 +643,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     for ( int idx=0; idx<aimodels_.size(); idx++ )
 	maxsz = mMAX( aimodels_[idx].size(), maxsz );
 
-    if ( maxsz == 0 )
+    if ( maxsz == 0 || maxsz == 1 )
 	return 0;
-
-    if ( maxsz == 1 )
-	mErrRet( "Model has only one layer, please add another layer.", 
-		return 0; );
 
     if ( !TaskRunner::execute( tr_, synthgen) )
 	return 0;
@@ -778,7 +774,7 @@ StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 		    const PostStackSyntheticData& sd,
 		    const Strat::LayerModel& lm,
        		    int& lastsynthid )
-    : ParallelTask( "Creating Property Refs" )
+    : ParallelTask( "Creating Synthetics for Properties" )
     , synthetics_(synths)
     , sd_(sd)
     , lm_(lm)
@@ -1016,6 +1012,8 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
     {
 	const Strat::LayerSequence& seq = lm.sequence( midx );
 	ElasticModel& aimodel = aimodels[midx];
+	if ( aimodel.isEmpty() ) continue;
+
 	Array1DImpl<float> densvals( aimodel.size() );
 	Array1DImpl<float> velvals( aimodel.size() );
 	Array1DImpl<float> svelvals( aimodel.size() );
