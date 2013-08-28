@@ -167,8 +167,6 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     }
 
     const int nrmarkerstyles = markerstyles_.size();
-    if ( !nrmarkerstyles && !linestyle_.isVisible() && !drawfill )
-	pErrMsg( "Draw no markers, no lines, no nothing?" );
 
     for ( int idx=0; idx<poly_.size(); idx++ )
     {
