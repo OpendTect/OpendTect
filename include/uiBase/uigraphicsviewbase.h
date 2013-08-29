@@ -111,7 +111,6 @@ protected:
 
     bool			isctrlpressed_;
     bool			enabscrollzoom_;
-    bool			enabbgzoom_;
     void 			rubberBandCB(CallBacker*);
 
 };
