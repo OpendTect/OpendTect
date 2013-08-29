@@ -55,6 +55,8 @@ public:
 					    bool isinl, TypeSet<BinID>&) const;
 
     Notifier<uiViewer2DMainWin> seldatacalled_;
+    const TypeSet<GatherInfo>&	gatherInfos() const	{ return gatherinfos_; }
+    TypeSet<GatherInfo>&	gatherInfos() 		{ return gatherinfos_; }
 
 protected:
 
@@ -86,6 +88,9 @@ protected:
 				     PreStack::Gather* angledata);
     void		setAngleGather(int idx);
     void		displayAngle(bool isanglegather);
+    DataPack::ID	getPreProcessedID(const GatherInfo&);
+    void		setGatherforPreProc(const BinID& relbid,
+	    				    const GatherInfo&);
 
     void 		setUpView();
     void		clearAuxData();
@@ -102,7 +107,8 @@ protected:
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
     void		snapshotCB(CallBacker*);
-
+    void		preprocessingCB(CallBacker*);
+    void		applyPreProcCB(CallBacker*);
     void		convAngleDatatoDegrees(PreStack::Gather* angledata);
 };
 
@@ -119,6 +125,7 @@ public:
 			{ mids.copy( mids_ ); }
     void		getGatherNames(BufferStringSet& nms) const;
     virtual bool	is2D() const	{ return is2d_; }
+    const char*		lineName() const	{ return linename_; }
     
 protected:
     TypeSet<MultiID> 	mids_;
@@ -138,6 +145,8 @@ public:
     			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
     			~uiSyntheticViewer2DMainWin();
     void		setGathers(const TypeSet<PreStackView::GatherInfo>&);
+    void		setGatherInfos(const TypeSet<PreStackView::GatherInfo>&,
+				       bool getstaruppositions);
     void		removeGathers();
     void		getGatherNames(BufferStringSet& nms) const;
     void		setGatherNames(const BufferStringSet& nms);
@@ -163,6 +172,8 @@ public:
     const FlatView::DataDispPars& dispPars() const	{ return disppars_; }
     FlatView::DataDispPars&	dispPars()		{ return disppars_; }
 
+    void			setGatherInfos(const TypeSet<GatherInfo>&);
+
 protected:
 
     uiObjectItemViewControl*	objectitemctrl_;
@@ -175,6 +186,7 @@ protected:
     void		gatherDataCB(CallBacker*);
     void		coltabChg(CallBacker*);
     void		updateColTabCB(CallBacker*);
+    void		propertiesDlgCB(CallBacker*);
 };
 
 
