@@ -70,7 +70,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 
 /*!> Sorting for data with many duplicates. */
 template <class T,class I>
-inline void duplicate_sort( T* arr, I sz )
+inline bool duplicate_sort( T* arr, I sz, bool maxnrvals )
 {
     TypeSet<T> vals;
     TypeSet<int> count;
@@ -79,6 +79,11 @@ inline void duplicate_sort( T* arr, I sz )
 	const int vidx = vals.indexOf( arr[idx] );
 	if ( vidx<0 )
 	{
+	    if ( vals.size()>maxnrvals )
+	    {
+		return false;
+	    }
+	    
 	    count += 1;
 	    vals += arr[idx];
 	}
@@ -98,6 +103,8 @@ inline void duplicate_sort( T* arr, I sz )
 	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
 	    arr[++index] = vals[idx];
     }
+    
+    return true;
 }
 
 

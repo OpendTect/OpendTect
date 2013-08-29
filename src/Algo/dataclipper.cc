@@ -249,10 +249,11 @@ bool DataClipper::fullSort()
 
     if ( nrvals>100 )
     {
-	if ( nrvals>255 && is8BitesData(samples_.arr(),nrvals,100) )
-	    duplicate_sort( samples_.arr(), nrvals );
-	else
-	    quickSort( samples_.arr(), mCast(int,nrvals) );
+	if ( nrvals<=255 || !is8BitesData( samples_.arr(), nrvals, 100 ) ||
+	     !duplicate_sort( samples_.arr(), nrvals, 256 ))
+	{
+	    quickSort( samples_.arr(), mCast(int, nrvals) );
+	}
     }
     else
 	sort_array( samples_.arr(), mCast(int,nrvals) );
