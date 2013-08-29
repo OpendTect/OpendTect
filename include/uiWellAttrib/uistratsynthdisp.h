@@ -156,6 +156,7 @@ protected:
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*,
 	    					  bool wva=true);
+    void		setPreStackMapper();
 
     void		addEditSynth(CallBacker*);
     void		exportSynth(CallBacker*);
