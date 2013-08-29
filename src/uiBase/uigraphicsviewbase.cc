@@ -316,7 +316,7 @@ void uiGraphicsViewBase::rubberBandCB( CallBacker* )
 	return;
 
     const MouseEvent& ev = getMouseEventHandler().event();
-    if ( ev.rightButton() )
+    if ( ev.rightButton() || ev.middleButton() )
 	return;
 
     selectedarea_ = new uiRect( body_->getStartPos(), getCursorPos() );
