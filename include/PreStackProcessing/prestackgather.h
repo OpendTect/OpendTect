@@ -68,6 +68,9 @@ public:
 
     				//for 3d only
     const BinID&		getBinID() const 	{ return binid_; }
+    void			setBinID( const BinID& bid ) 
+    				{ binid_ = bid; }
+    const MultiID&		getStoredID() const 	{ return storagemid_; }
     const StepInterval<float>&	zRange() const 		{ return zrg_; }
     void			setZRange( const StepInterval<float>& zrg )
     				{ zrg_ = zrg; }
@@ -163,6 +166,7 @@ public:
 
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
+    ObjectSet<Gather>&		getGathers() 		{ return gathers_; }
 
 protected:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;

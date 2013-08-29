@@ -370,12 +370,16 @@ GatherSetDataPack::GatherSetDataPack( const char* categry,
        				      const ObjectSet<Gather>& gathers )
     : DataPack( categry )
     , gathers_( gathers )
-{}
+{
+    for ( int gidx=0; gidx<gathers_.size(); gidx++ )
+	DPM(DataPackMgr::FlatID()).addAndObtain( gathers_[gidx] );
+}
 
 
 GatherSetDataPack::~GatherSetDataPack()
 {
-    deepErase( gathers_ );
+    for ( int gidx=0; gidx<gathers_.size(); gidx++ )
+	DPM(DataPackMgr::FlatID()).release( gathers_[gidx] );
 }
 
 
