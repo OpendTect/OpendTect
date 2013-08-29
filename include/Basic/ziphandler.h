@@ -108,6 +108,7 @@ protected:
     bool			readZIP64EndOfCentralDirLocator();
     bool			readZIP64EndOfCentralDirRecord();
     bool			readXtraFldForZIP64(const char*,int);
+    bool                        readAndSetFileAttr();
 
     bool			initMakeZip(const char*,BufferStringSet);
     bool			initAppend(const char*,const char*);
@@ -117,14 +118,14 @@ protected:
     int				openStrmToRead(const char* src); 
     bool			setLocalFileHeader();
     bool			setLocalFileHeaderForDir();
+    bool			setLocalFileHeaderForLink();
     bool			setZIP64Header();
     bool			setEndOfArchiveHeaders();
     bool			setCentralDirHeader();
     bool			setEndOfCentralDirHeader(od_int64,od_uint32);
     bool			setZIP64EndOfDirRecord(od_int64);
     bool			setZIP64EndOfDirLocator(od_int64);
-
-    
+    od_uint32                   setExtFileAttr(od_uint32);
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
     od_int64			getCumulativeFileCount() const 
