@@ -170,8 +170,10 @@ void uiGatherPosSliceSel::reDoTable()
 		continue;
 	    const int gatherpos = is2d_ || isinl_ ? ginfo.bid_.crl
 						  : ginfo.bid_.inl;
-	    const RowCol rc( rowidx, colidx );
 	    CubeSampling cs( true );
+	    const int modelnr =
+		(ginfo.bid_.crl - cs.hrg.stop.crl)/cs.hrg.step.crl;
+	    const RowCol rc( rowidx, colidx );
 	    const int limitstep =
 		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
 						   : cs.hrg.inlRange().step;
@@ -182,8 +184,7 @@ void uiGatherPosSliceSel::reDoTable()
 						   .setLimits(limitrg) );
 	    inpfld->setWithCheck( true );
 	    inpfld->setChecked( gatherinfos_[gatheridx].isselected_ );
-	    inpfld->setValue( issynthetic_ ? dispgatheridxs_[idx]+1
-		    			   : gatherpos );
+	    inpfld->setValue( issynthetic_ ? modelnr : gatherpos );
 	    inpfld->checked.notify(mCB(this,uiGatherPosSliceSel,gatherChecked));
 	    inpfld->valuechanging.notify(
 		    mCB(this,uiGatherPosSliceSel,gatherPosChanged));
