@@ -70,7 +70,7 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 
 /*!> Sorting for data with many duplicates. */
 template <class T,class I>
-inline bool duplicate_sort( T* arr, I sz, I maxnrvals )
+inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 {
     TypeSet<T> vals;
     TypeSet<int> count;
