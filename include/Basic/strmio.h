@@ -56,6 +56,9 @@ public:
     virtual void		fillPar(IOPar&) const		{}
     virtual bool		usePar(const IOPar&)		{ return true; }
 
+    bool			writeBlock(void* ptr,od_uint64 nrbytes);
+    bool			readBlock(void* ptr,od_uint64 nrbytes) const;
+
 protected:
 
     std::ostream*		ostrm_;
