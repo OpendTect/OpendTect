@@ -1584,7 +1584,8 @@ bool ZipHandler::readAndSetFileAttr()
         mInsertToCharBuff( headerbuff, fileattr, 0, mSizeTwoBytes);   
         attrbuff[0] = *( headerbuff+mLExtFileAttr+2 );
         attrbuff[1] = *( headerbuff+mLExtFileAttr+3 );
-        fileattr = *( reinterpret_cast<od_uint32*>(headerbuff) );
+        const od_uint32* attrvalue = reinterpret_cast<od_uint32*>(headerbuff);
+        fileattr = *( attrvalue );
         if ( mCheckForSymLink )
         {
             StreamData readdest = StreamProvider(allfilenames_.get(index).buf())
