@@ -351,57 +351,221 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 // ==================================================================
 
 
-static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
+static const char* sKeyMD()		{ return "MD"; }
+static const char* sKeyTVD()		{ return "TVD"; }
+static const char* sKeyTVDGL()		{ return "TVDGL"; }
+static const char* sKeyTVDSD()		{ return "TVDSD"; }
+static const char* sKeyTVDSS()		{ return "TVDSS"; }
+static const char* sKeyTWT()		{ return "TWT"; }
+static const char* sKeyOWT()		{ return "OWT"; }
+static const char* sKeyVint()		{ return "Vint"; }
+static const int cMDCol = 0;
+static const int cTVDCol = 1;
+
 #define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
 
-uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
+uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 		 BufferString("Edit ",cksh?"Checkshot":"Time/Depth"," model"),
 				     "107.1.5"))
-	, wd_(d)
+	, wd_(wd)
     	, cksh_(cksh)
     	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
+        , tbl_(0)
+        , unitfld_(0)
+        , timefld_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
 	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
 				.rowgrow(true).defrowlbl(""), "Table" );
-    tbl_->setColumnLabels( t2dcollbls );
+    tbl_->setColumnLabels( getColLabels() );
     tbl_->setNrRows( nremptyrows );
-    tbl_->setPrefWidth( 500 );
+    tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
+    tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
+    tbl_->setColumnToolTip( cMDCol,
+	   "Measured depth along the borehole, origin at Reference Datum" );
+    tbl_->setColumnToolTip( cTVDCol,
+	    "True Vertical Depth, origin at Reference Datum" );
+    tbl_->setColumnToolTip( getTVDSSCol(),
+	    "True Vertical Depth Sub-Sea, positive downwards" );
+    tbl_->setColumnToolTip( getTimeCol(),
+	    "Two-way travel times with same origin as seismic survey: SRD=0" );
+    tbl_->setColumnToolTip( getVintCol(),
+	    "Interval velocity above this control point (read-only)" );
+    tbl_->setPrefWidth( 700 );
+
+    timefld_ = new uiCheckBox( this, " Time is TWT" );
+    timefld_->setChecked( true );
+    timefld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
+    timefld_->attach( rightAlignedBelow, tbl_ );
+
+    unitfld_ = new uiCheckBox( this, " Z in feet" );
+    unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
+    unitfld_->attach( rightAlignedBelow, timefld_ );
 
     uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons", false );
     if ( !cksh_ )
 	new uiPushButton( actbutgrp, "&Update display",
 			  mCB(this,uiD2TModelDlg,updNow), true );
-
-    new uiPushButton( actbutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
-		      false );
-    new uiPushButton( actbutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
-		      false );
     actbutgrp->attach( leftAlignedBelow, tbl_ );
 
-    unitfld_ = new uiCheckBox( this, " Z in feet" );
-    unitfld_->setChecked( SI().depthsInFeetByDefault() );
-    unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
-    unitfld_->attach( rightAlignedBelow, tbl_ );
+    uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons", false);
+    new uiPushButton( iobutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
+		      false );
+    new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
+		      false );
+    iobutgrp->attach( leftTo, unitfld_ );
 
     fillTable(0);
 }
 
 
+BufferStringSet uiD2TModelDlg::getColLabels() const
+{
+    bool zinfeet = false;
+    if ( unitfld_ )
+	zinfeet = unitfld_->isChecked();
+
+    bool timeisoneway = false;
+    if ( timefld_ )
+	timeisoneway = !timefld_->isChecked();
+
+    BufferStringSet lblset;
+    BufferString curlbl;
+
+    curlbl = sKeyMD();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lblset.add( curlbl );
+    curlbl = sKeyTVD();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lblset.add( curlbl );
+
+    if ( !mIsUdf(getTVDGLCol()) )
+    {
+	curlbl = sKeyTVDGL();
+	curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+	lblset.add( curlbl );
+    }
+
+    if ( !mIsUdf(getTVDSDCol()) )
+    {
+	curlbl = sKeyTVDSD();
+	curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+	lblset.add( curlbl );
+    }
+
+    curlbl = sKeyTVDSS();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lblset.add( curlbl );
+
+    curlbl = timeisoneway ? sKeyOWT() : sKeyTWT();
+    curlbl.add( "(ms)" );
+    lblset.add( curlbl );
+
+    curlbl = sKeyVint();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( "/s)" );
+    lblset.add( curlbl );
+
+    return lblset;
+}
+
+
+int uiD2TModelDlg::getTVDGLCol() const
+{
+    return mIsUdf( wd_.info().groundelev ) ? mUdf( int ) : cTVDCol + 1;
+}
+
+
+int uiD2TModelDlg::getTVDSDCol() const
+{
+    const int tvdglcol = getTVDGLCol();
+    if ( mIsZero(SI().seismicReferenceDatum(),1e-3) )
+	return mUdf( int );
+
+    return !mIsUdf( getTVDGLCol() ) ? tvdglcol + 1 : cTVDCol + 1;
+}
+
+
+int uiD2TModelDlg::getTVDSSCol() const
+{
+    const int tvdglcol = getTVDGLCol();
+    const int tvdsdcol = getTVDSDCol();
+    int tvdsscol = cTVDCol + 1;
+    if ( !mIsUdf(tvdglcol) || !mIsUdf(tvdsdcol) )
+	tvdsscol++;
+
+    if ( !mIsUdf(tvdglcol) && !mIsUdf(tvdsdcol) )
+	tvdsscol++;
+
+    return tvdsscol;
+}
+
+
+int uiD2TModelDlg::getTimeCol() const
+{
+    return getTVDSSCol() + 1;
+
+}
+
+
+int uiD2TModelDlg::getVintCol() const
+{
+    return getTVDSSCol() + 2;
+}
+
+
 void uiD2TModelDlg::fillTable( CallBacker* )
 {
+    NotifyStopper ns( tbl_->valueChanged );
+    tbl_->setColumnReadOnly( getVintCol(), false );
     const Well::D2TModel* d2t = mD2TModel;
-    const int sz = d2t ? d2t->size() : 0;
-    if ( !sz ) return;
-    tbl_->setNrRows( sz + nremptyrows );
+    const Well::Track& track = wd_.track();
+    const int tracksz = wd_.track().nrPoints();
+    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    {
+	BufferString errmsg = tracksz<2 ? "Invalid track"
+	    				: "Invalid time-depth model";
+	uiMSG().error( errmsg );
+	return;
+    }
+    
+    const int dtsz = d2t->size();
+    tbl_->setNrRows( dtsz + nremptyrows );
+    tbl_->setColumnLabels( getColLabels() );
 
     const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
-    for ( int idx=0; idx<sz; idx++ )
+    const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
+    const float kbelev = wd_.track().getKbElev();
+    const float groundevel = wd_.info().groundelev;
+    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const bool hastvdgl = !mIsUdf( groundevel );
+    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    for ( int idx=0; idx<dtsz; idx++ )
     {
-	tbl_->setValue( RowCol(idx,0), d2t->dah(idx) * zfac );
-	tbl_->setValue( RowCol(idx,1), d2t->t(idx) * 1000 );
+	const float dah = d2t->dah(idx);
+	const float tvdss = mCast(float,track.getPos(dah).z);
+	const float tvd = tvdss + kbelev;
+	const float vint = mCast(float,d2t->getVelocityForDah(dah,track));
+	tbl_->setValue( RowCol(idx,cMDCol), dah * zfac );
+	tbl_->setValue( RowCol(idx,cTVDCol), tvd * zfac );
+	if ( hastvdgl )
+	{
+	    const float tvdgl = ( tvdss + groundevel ) * zfac;
+	    tbl_->setValue( RowCol(idx,getTVDGLCol()), tvdgl );
+	}
+
+	if ( hastvdsd )
+	{
+	    const float tvdsd = ( tvdss + srdelev ) * zfac;
+	    tbl_->setValue( RowCol(idx,getTVDSDCol()), tvdsd );
+	}
+
+	tbl_->setValue( RowCol(idx,getTVDSSCol()), tvdss * zfac );
+	tbl_->setValue( RowCol(idx,getTimeCol()), d2t->t(idx) * twtfac );
+	tbl_->setValue( RowCol(idx,getVintCol()), vint * zfac );
     }
+    tbl_->setColumnReadOnly( getVintCol(), true );
 }
 
 
@@ -409,6 +573,329 @@ uiD2TModelDlg::~uiD2TModelDlg()
 {
     delete orgd2t_;
 }
+
+
+void uiD2TModelDlg::dtpointChangedCB( CallBacker* )
+{
+    const int row = tbl_->currentRow();
+    const int col = tbl_->currentCol();
+
+    if ( col < getTimeCol() )
+	updateDtpointDepth( row );
+    else if ( col == getTimeCol() )
+	updateDtpointTime( row );
+}
+
+
+void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
+{
+    Well::D2TModel* d2t = mD2TModel;
+    if ( !d2t || d2t->size()<3 )
+    {
+	uiMSG().error("Invalid time-depth model");
+	return;
+    }
+
+    const int row = tbl_->currentRow();
+    if ( rowIsIncomplete(row) )
+	return;
+
+    d2t->remove( row );
+    wd_.d2tchanged.trigger();
+    const int nextrow = getNextCompleteRowIdx( row-1 );
+    const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
+    const float olddah = tbl_->getfValue( RowCol(nextrow,cMDCol) ) / zfac;
+    updateDtpoint( nextrow, olddah );
+}
+
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
+bool uiD2TModelDlg::updateDtpointDepth( int row )
+{
+    NotifyStopper ns( tbl_->valueChanged );
+    const Well::D2TModel* d2t = mD2TModel;
+    const Well::Track& track = wd_.track();
+    const int tracksz = wd_.track().nrPoints();
+    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    {
+	BufferString errmsg = tracksz<2 ? "Invalid track"
+	    				: "Invalid time-depth model";
+	mErrRet(errmsg)
+    }
+
+    const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
+    const bool newrow = rowIsIncomplete( row );
+
+    const int incol = tbl_->currentCol();
+    const bool md2tvd = incol == cMDCol;
+    const bool inistvd = incol == cTVDCol;
+    const bool inistvdss = incol == getTVDSSCol();
+    const float kbelev = wd_.track().getKbElev();
+
+    const float groundevel = wd_.info().groundelev;
+    const bool hastvdgl = !mIsUdf( groundevel );
+    const bool inistvdgl = hastvdgl && incol == getTVDGLCol();
+
+    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
+
+    const float olddah = newrow ? mUdf(float) : d2t->dah( row );
+    const float oldtvdss = newrow ? mUdf(float) : (float)track.getPos(olddah).z;
+    float oldval = mUdf( float );
+    if ( inistvd && !mIsUdf(oldtvdss) )
+	oldval = oldtvdss + kbelev;
+    else if ( inistvdgl && !mIsUdf(oldtvdss) )
+	oldval = oldtvdss + groundevel;
+    else if ( inistvdsd && !mIsUdf(oldtvdss) )
+	oldval = oldtvdss + srdelev;
+    else if ( inistvdss && !mIsUdf(oldtvdss) )
+	oldval = oldtvdss;
+
+    const RowCol rcin(row,incol);
+    if ( mIsUdf(tbl_->getfValue(rcin)) )
+    {
+	uiMSG().error( "Please enter a valid number" );
+	if ( !newrow )
+	    tbl_->setValue( rcin, oldval * zfac );
+
+	return false;
+    }
+
+    float inval = tbl_->getfValue( rcin ) / zfac;
+    Interval<float> dahrg = track.dahRange();
+    Interval<float> zrg( track.value( 0 ), track.value( tracksz - 1 ) );
+    if ( inistvd )
+	zrg.shift( kbelev );
+    else if ( inistvdgl )
+	zrg.shift( groundevel );
+    else if ( inistvdsd )
+	zrg.shift( srdelev );
+
+    const Interval<float>& zrange = md2tvd ? dahrg : zrg;
+    Interval<float> tblrg;
+    const int prevrow = getPreviousCompleteRowIdx( row );
+    const int nextrow = getNextCompleteRowIdx( row );
+    tblrg.start = row == 0 || mIsUdf(prevrow) ? zrange.start
+	       : tbl_->getfValue( RowCol(prevrow,incol) ) / zfac;
+    tblrg.stop = d2t->size() < row || mIsUdf(nextrow) ? zrange.stop
+	       : tbl_->getfValue( RowCol(nextrow,incol) ) / zfac;
+
+    BufferString lbl;
+    if ( md2tvd ) lbl = sKeyMD();
+    else if ( inistvd ) lbl =  sKeyTVD();
+    else if ( inistvdgl ) lbl = sKeyTVDGL();
+    else if ( inistvdsd ) lbl = sKeyTVDSD();
+    else if ( inistvdss ) lbl = sKeyTVDSS();
+
+    BufferString errmsg = "The entered ";
+    if ( !zrange.includes(inval,true) )
+    {
+	errmsg.add( lbl ).add( " value is outside of track range\n" );
+	errmsg.add( "[" ).add( zrange.start * zfac );
+	errmsg.add( ", " ).add( zrange.stop * zfac ).add( "]" );
+	errmsg.add( getDistUnitString(unitfld_->isChecked(),false) );
+	errmsg.add( " (" ).add( lbl ).add( ")" );
+	tbl_->setValue( rcin, !newrow ? oldval * zfac : mUdf(float) );
+	mErrRet(errmsg)
+    }
+
+    if ( !tblrg.includes(inval,true) )
+    {
+	errmsg.add( lbl ).add( " is not between " );
+	errmsg.add( "the depths of the previous and next control points" );
+	tbl_->setValue( rcin, !newrow ? oldval * zfac : mUdf(float) );
+	mErrRet(errmsg)
+    }
+
+    if ( !md2tvd )
+    {
+	if ( inistvd ) inval -= kbelev;
+	else if ( inistvdgl ) inval -= groundevel;
+	else if ( inistvdsd ) inval -= srdelev;
+    }
+
+    const float dah = md2tvd ? inval : track.getDahForTVD( inval );
+    const float tvdss = !md2tvd ? inval : mCast(float,track.getPos(inval).z);
+    if ( !md2tvd )
+	tbl_->setValue( RowCol(row,cMDCol), dah * zfac );
+
+    if ( !inistvdss )
+	tbl_->setValue( RowCol(row,getTVDSSCol()), tvdss * zfac );
+
+    if ( !inistvd )
+	tbl_->setValue( RowCol(row,cTVDCol), ( tvdss + kbelev ) * zfac );
+
+    if ( hastvdgl && !inistvdgl )
+	tbl_->setValue( RowCol(row,getTVDGLCol()), ( tvdss + groundevel )*zfac);
+
+    if ( hastvdsd && !inistvdsd )
+	tbl_->setValue( RowCol(row,getTVDSDCol()), ( tvdss + srdelev ) * zfac );
+
+    return updateDtpoint( row, olddah );
+}
+
+
+bool uiD2TModelDlg::updateDtpointTime( int row )
+{
+    NotifyStopper ns( tbl_->valueChanged );
+    const Well::D2TModel* d2t = mD2TModel;
+    const Well::Track& track = wd_.track();
+    const int tracksz = wd_.track().nrPoints();
+    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    {
+	BufferString errmsg = tracksz<2 ? "Invalid track"
+	    				: "Invalid time-depth model";
+	mErrRet(errmsg)
+    }
+    
+    const RowCol rcin(row,getTimeCol());
+    const bool newrow = rowIsIncomplete( row );
+    const float oldval = newrow ? mUdf(float) : d2t->value( row );
+    const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
+    if ( mIsUdf(tbl_->getfValue(rcin)) )
+    {
+	uiMSG().error( "Please enter a valid number" );
+	if ( !newrow )
+	    tbl_->setValue( rcin, oldval * twtfac );
+
+	return false;
+    }
+
+    const float inval = tbl_->getfValue( rcin ) / twtfac;
+    Interval<float> dahrg = track.dahRange();
+    Interval<float> timerg;
+    timerg.start = d2t->getTime( dahrg.start, track );
+    timerg.stop = d2t->getTime( dahrg.stop, track );
+    Interval<float> tblrg;
+    const int prevrow = getPreviousCompleteRowIdx( row );
+    const int nextrow = getNextCompleteRowIdx( row );
+    tblrg.start = row == 0 || mIsUdf(prevrow) ? timerg.start
+	       : tbl_->getfValue( RowCol(prevrow,getTimeCol()) ) / twtfac;
+    tblrg.stop = d2t->size() < row || mIsUdf(nextrow) ? timerg.stop
+	       : tbl_->getfValue( RowCol(nextrow,getTimeCol()) ) / twtfac;
+
+    BufferString errmsg = "The entered ";
+    if ( !timerg.includes(inval,true) )
+    {
+	errmsg.add( "time is outside of track range\n" );
+	errmsg.add( "[").add( timerg.start * twtfac ).add( ", " );
+	errmsg.add( timerg.stop * twtfac ).add( "] ms (" );
+	errmsg.add( timefld_->isChecked() ? sKeyTWT() : sKeyOWT() ).add( ")" );
+	tbl_->setValue( rcin, !newrow ? oldval * twtfac : mUdf(float) );
+	mErrRet(errmsg)
+    }
+
+    if ( !tblrg.includes(inval,true) )
+    {
+	errmsg.add( "time is not between " );
+	errmsg.add( "the times of the previous and next control points" );
+	tbl_->setValue( rcin, !newrow ? oldval * twtfac : mUdf(float) );
+	mErrRet(errmsg)
+    }
+
+    return updateDtpoint( row, oldval );
+}
+
+
+bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
+{
+    NotifyStopper ns( tbl_->valueChanged );
+    tbl_->setColumnReadOnly( getVintCol(), false );
+    Well::D2TModel* d2t = mD2TModel;
+    const Well::Track& track = wd_.track();
+    const int tracksz = wd_.track().nrPoints();
+    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    {
+	BufferString errmsg = tracksz<2 ? "Invalid track"
+	    				: "Invalid time-depth model";
+	mErrRet(errmsg)
+    }
+
+    const RowCol rcdah(row,cMDCol);
+    const RowCol rctwt(row,getTimeCol());
+    if ( mIsUdf(tbl_->getfValue(rcdah)) || mIsUdf(tbl_->getfValue(rctwt)) )
+	return true; // not enough data yet to proceed
+
+    const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
+    if ( !rowIsIncomplete(row) )
+    {
+	const int dahidx = tbl_->currentCol() < getTimeCol()
+	    		 ? d2t->indexOf( oldval )
+			 : d2t->value( oldval );
+	d2t->remove( dahidx );
+    }
+
+    const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
+    const float dah = tbl_->getfValue( rcdah ) / zfac;
+    const float twt = tbl_->getfValue( rctwt ) / twtfac;
+    d2t->insertAtDah( dah, twt );
+
+    const float newvint = mCast(float,d2t->getVelocityForDah(dah,track));
+    const RowCol rcvint(row,getVintCol());
+    tbl_->setValue( rcvint, newvint );
+
+    for ( int irow=row+1; irow<tbl_->nrRows(); irow++ )
+    {
+	if ( rowIsIncomplete(irow) )
+	    continue;
+
+	const float nextdah = tbl_->getfValue( RowCol(irow,cMDCol) ) / zfac;
+	const float nextvint =
+		    mCast(float,d2t->getVelocityForDah(nextdah,track));
+	tbl_->setValue( RowCol(irow,getVintCol()), nextvint );
+	break;
+    }
+
+    tbl_->setColumnReadOnly( getVintCol(), true );
+    return true;
+}
+
+
+bool uiD2TModelDlg::rowIsIncomplete( int row ) const
+{
+    Well::D2TModel* d2t = mD2TModel;
+    if ( !d2t || d2t->size()<2 )
+	mErrRet( "Invalid time-depth model" )
+
+    if ( row >= d2t->size() )
+	return true;
+
+    const RowCol rctwt(row,getVintCol());
+    const float vint = tbl_->getfValue( rctwt );
+
+    return mIsUdf(vint);
+}
+
+
+int uiD2TModelDlg::getPreviousCompleteRowIdx( int row ) const
+{
+    for ( int irow=row-1; irow>=0; irow-- )
+    {
+	if ( rowIsIncomplete(irow) )
+	    continue;
+
+	return irow;
+    }
+
+    return mUdf(int);
+}
+
+
+int uiD2TModelDlg::getNextCompleteRowIdx( int row ) const
+{
+    for ( int irow=row+1; irow<tbl_->nrRows(); irow++ )
+    {
+	if ( rowIsIncomplete(irow) )
+	    continue;
+
+	return irow;
+    }
+
+    return mUdf(int);
+}
+
+
 
 class uiD2TModelReadDlg : public uiDialog
 {
@@ -479,10 +966,49 @@ void uiD2TModelDlg::expData( CallBacker* )
 		    			"' for write") ); return; }
 
     const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
+    const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
+    const float kbelev = wd_.track().getKbElev();
+    const float groundevel = wd_.info().groundelev;
+    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const bool hastvdgl = !mIsUdf( groundevel );
+    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    BufferStringSet header =  getColLabels();
+
+    *sd.ostrm << header.get( cMDCol ) << '\t';
+    *sd.ostrm <<  header.get( cTVDCol ) << '\t';
+    if ( hastvdgl )
+	*sd.ostrm << header.get( getTVDGLCol() ) << '\t';
+
+    if ( hastvdsd )
+	*sd.ostrm << header.get( getTVDSDCol() ) << '\t';
+
+    *sd.ostrm << header.get( getTVDSSCol() ) << '\t';
+    *sd.ostrm << header.get( getTimeCol() ) << '\t';
+    *sd.ostrm << header.get( getVintCol() ) << '\n';
     for ( int idx=0; idx<d2t.size(); idx++ )
     {
-	*sd.ostrm << Conv::to<const char*>( d2t.dah(idx)*zfac ) << '\t'; 
-	*sd.ostrm << Conv::to<const char*>( d2t.t(idx)*1000 ) << '\n';
+	const float dah = d2t.dah(idx) * zfac;
+	const float tvdss = mCast(float,wd_.track().getPos(dah).z) * zfac;
+	const float tvd = tvdss + kbelev * zfac;
+	const float twt = d2t.t(idx) * twtfac;
+	const float vint = d2t.getVelocityForDah( dah, wd_.track() ) * zfac;
+	*sd.ostrm << Conv::to<const char*>( dah ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( tvd ) << '\t';
+	if ( hastvdgl )
+	{
+	    const float tvdgl = tvdss + groundevel * zfac;
+	    *sd.ostrm << Conv::to<const char*>( tvdgl ) << '\t';
+	}
+
+	if ( hastvdsd )
+	{
+	    const float tvdsd = tvdss + srdelev * zfac;
+	    *sd.ostrm << Conv::to<const char*>( tvdsd ) << '\t';
+	}
+
+	*sd.ostrm << Conv::to<const char*>( tvdss ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( twt ) << '\t';
+	*sd.ostrm << Conv::to<const char*>( vint ) << '\n';
     }
 
     sd.close();
@@ -505,10 +1031,11 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 {
     d2t.setEmpty();
     const float zfac = !unitfld_->isChecked() ? 1 : mToFeetFactorF;
+    const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* sval = tbl_->text( RowCol(idx,0) );
+	const char* sval = tbl_->text( RowCol(idx,cMDCol) );
 	if ( !sval || !*sval ) continue;
 	float dah = mUdf(float);
 	if ( !SI().zInFeet() && unitfld_->isChecked() )
@@ -518,9 +1045,9 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 	if ( mIsUdf(dah) ) continue;
 
-	sval = tbl_->text( RowCol(idx,1) );
+	sval = tbl_->text( RowCol(idx,getTimeCol()) );
 	if ( !sval || !*sval ) continue;
-	float tm = toFloat(sval) * 0.001f;
+	float tm = toFloat(sval) / twtfac;
 	d2t.add( dah, tm );
     }
 }
@@ -692,6 +1219,7 @@ static const char* exptypes[] =
     "ICZ/Value",
     0
 };
+static const float cTWTFac  = 1000.f;
 
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds, 
@@ -786,8 +1314,6 @@ void uiExportLogs::typeSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
 bool uiExportLogs::acceptOK( CallBacker* )
 {
     BufferString fname = outfld_->fileName();
@@ -861,9 +1387,15 @@ void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 
 void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 {
-    bool infeet = zunitgrp_->selectedId() == 1;
-    bool insec = zunitgrp_->selectedId() == 2;
-    bool inmsec = zunitgrp_->selectedId() == 3;
+    const bool infeet = zunitgrp_->selectedId() == 1;
+    const bool insec = zunitgrp_->selectedId() == 2;
+    const bool inmsec = zunitgrp_->selectedId() == 3;
+    const bool intime = insec || inmsec;
+    if ( intime && !wd.d2TModel() )
+    {
+	uiMSG().error( "No depth-time model found, cannot export with time" );
+	return;
+    }
 
     const bool zinft = SI().depthsInFeetByDefault();
     const int outtypesel = typefld_->getIntValue();
@@ -901,8 +1433,12 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 
 	    float z = (float) pos.z;
 	    if ( infeet ) z *= mToFeetFactorF;
-	    else if ( insec ) z = wd.d2TModel()->getTime( md, wd.track() );
-	    else if ( inmsec ) z = wd.d2TModel()->getTime( md, wd.track() ) * 1000;
+	    else if (intime )
+	    {
+		z = wd.d2TModel()->getTime( md, wd.track() );
+		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
+	    }
+
 	    *sdo.ostrm << '\t' << z;
 	}
 
