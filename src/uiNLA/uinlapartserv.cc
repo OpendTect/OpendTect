@@ -497,7 +497,6 @@ bool uiNLAPartServer::doDPSDlg()
     bss.add( NLACreationDesc::DataTypeNames()[1] );
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
-    uidps_->setDeleteOnClose( true );
     return uidps_->go();
 }
 
