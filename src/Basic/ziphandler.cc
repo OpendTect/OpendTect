@@ -106,6 +106,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mCentralHeaderSize 46
 #define mEndOfDirHeaderSize 22
 
+#define mLDOSFileAttr 0
+#define mLUNIXFileAttr 2
 #define mVerNeedToExtract 45
 #define mDeflate 8
 #define mNoCompression 0
@@ -131,8 +133,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mLIntFileAttr 36
 #define mLExtFileAttr 38
 #define mLRelOffset 42
-#define mLDOSFileAttr 0
-#define mLUNIXFileAttr 2
 #define mLSizeOfData 4
 #define mLDiskNo 4
 #define mLCentralDirDiskNo 6
@@ -187,6 +187,13 @@ static const char* rcsID mUsedVar = "$Id$";
     errormsg_ += mid; \
     errormsg_ += post; \
     return false;
+
+
+union FileAttr
+{
+    od_uint32 integer_;
+    char      bytes_[4];
+};
 
 
 ZipHandler::~ZipHandler()
@@ -863,24 +870,26 @@ od_uint32 ZipHandler::setExtFileAttr( const od_uint32 index )
 {
     char headerbuff[4];
     char* buf;
-    const od_uint32 nullvalue = 0;
+    union FileAttr fileattr;
 #ifdef __win__
-    const od_uint32 fileattr = GetFileAttributes ( allfilenames_.get(
+    fileattr.integer_ = GetFileAttributes ( allfilenames_.get(
                                                      index-initialfilecount_) );
-    mInsertToCharBuff( headerbuff, fileattr, mLDOSFileAttr, mSizeOneBytes );     
-    mInsertToCharBuff( headerbuff, nullvalue, 1, mSizeThreeBytes );
-    return *((od_uint32*)headerbuff);
+    fileattr.bytes_[mLDOSFileAttr+1] = '\0';
+    fileattr.bytes_[mLUNIXFileAttr] = '\0';
+    fileattr.bytes_[mLUNIXFileAttr+1] = '\0';
+    return fileattr.integer_;
 #else
-    struct stat fileattr;
-    int ret = lstat( allfilenames_.get(index-initialfilecount_), &fileattr );
+    struct stat filestat;
+    int ret = lstat( allfilenames_.get(index-initialfilecount_), &filestat );
     if ( ret<0 )
         return 0;
 
-    mInsertToCharBuff( headerbuff, nullvalue, 0, mSizeTwoBytes );
-    mInsertToCharBuff( headerbuff, fileattr.st_mode, mLUNIXFileAttr, 
-                                                     mSizeTwoBytes );
-    const od_uint32* attrvalue = reinterpret_cast<od_uint32*>(headerbuff);
-    return *attrvalue;
+    mInsertToCharBuff( headerbuff, filestat.st_mode, 0, mSizeTwoBytes );
+    fileattr.bytes_[mLDOSFileAttr] = '\0';
+    fileattr.bytes_[mLDOSFileAttr+1] = '\0';
+    fileattr.bytes_[mLUNIXFileAttr] = headerbuff[0];
+    fileattr.bytes_[mLUNIXFileAttr+1] = headerbuff[1];
+    return fileattr.integer_;
 #endif
 }
 
@@ -1552,7 +1561,7 @@ bool ZipHandler::doZUnCompress()
 
 
 #define mCheckForSymLink \
-    getBitValue(attrbuff[1],7) && getBitValue(attrbuff[1],5)
+    getBitValue(fileattr.bytes_[1],7) && getBitValue(fileattr.bytes_[1],5)
 
 
 bool ZipHandler::readAndSetFileAttr()
@@ -1566,26 +1575,22 @@ bool ZipHandler::readAndSetFileAttr()
     StrmOper::seek( *isd_.istrm, offsetofcentraldir_ );
     od_int64 ptrlocation = StrmOper::tell( *isd_.istrm );
     unsigned char headerbuff[1024];
-    od_uint32 fileattr;
+    union FileAttr fileattr;
     for ( int index=0; index<allfilenames_.size(); index++ )
     {
 	isd_.istrm->read( mCast(char*,headerbuff), mCentralHeaderSize );
 	headerbuff[mCentralHeaderSize] = '\0';
-        fileattr = *( mCast(od_uint32*,headerbuff+mLExtFileAttr) );
-        char attrbuff[4];
-        char* buf;
 #ifdef __win__
-        const od_uint32 nullvalue = 0;
-        mInsertToCharBuff( attrbuff, fileattr, mLDOSFileAttr, mSizeOneBytes );     
-        mInsertToCharBuff( attrbuff, nullvalue, 1, mSizeThreeBytes );
-        fileattr = *( mCast(od_uint32*,attrbuff) );
-        SetFileAttributes( allfilenames_.get(index), fileattr );
+        fileattr.bytes_[0] = headerbuff[mLExtFileAttr];
+        fileattr.bytes_[1] = '\0';
+        fileattr.bytes_[2] = '\0';
+        fileattr.bytes_[3] = '\0';
+        SetFileAttributes( allfilenames_.get(index), fileattr.integer_ );
 #else
-        mInsertToCharBuff( headerbuff, fileattr, 0, mSizeTwoBytes);   
-        attrbuff[0] = *( headerbuff+mLExtFileAttr+2 );
-        attrbuff[1] = *( headerbuff+mLExtFileAttr+3 );
-        const od_uint32* attrvalue = reinterpret_cast<od_uint32*>(headerbuff);
-        fileattr = *( attrvalue );
+        fileattr.bytes_[0] = headerbuff[mLExtFileAttr+mLUNIXFileAttr];
+        fileattr.bytes_[1] = headerbuff[mLExtFileAttr+mLUNIXFileAttr+1];
+        fileattr.bytes_[2] = '\0';
+        fileattr.bytes_[3] = '\0';
         if ( mCheckForSymLink )
         {
             StreamData readdest = StreamProvider(allfilenames_.get(index).buf())
@@ -1597,8 +1602,8 @@ bool ZipHandler::readAndSetFileAttr()
             File::remove( allfilenames_.get(index) );
             File::createLink( linkbuff, allfilenames_.get(index) );
         }
-
-        chmod( allfilenames_.get(index), fileattr );
+        else
+            chmod( allfilenames_.get(index), fileattr.integer_ );
 #endif
         ptrlocation = ptrlocation
 			+ *mCast( od_uint16*,headerbuff+mLFnmLengthCentral )
