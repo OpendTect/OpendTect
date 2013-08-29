@@ -408,6 +408,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    {
 		if ( !iopar_ ) return;
 		IOPar* descpar = iopar_->subselect( storedid.asInt() ); 
+		if ( !descpar ) return;
 		setStoredKey( descpar, dlg.getSeisKey() );
 		descpar->set( "UserRef", dlg.getSeisRef() );
 		BufferString idstr; idstr+= storedid.asInt();
