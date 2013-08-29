@@ -764,14 +764,8 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     const ObjectSet<PreStack::Gather>& anglegathers = angledp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
-	PreStack::Gather* gather = new PreStack::Gather( *gathers[idx] );
-	gather->setName( sd->name() );
-	BufferString anggnm( sd->name(), "(Angle Data)" );
-	PreStack::Gather* anglegather= new PreStack::Gather(*anglegathers[idx]);
-	anglegather->setName( anggnm );
-	gather->setZRange( gathers[idx]->zRange() );
-	DPM(DataPackMgr::FlatID()).add( gather );
-	DPM(DataPackMgr::FlatID()).add( anglegather );
+	const PreStack::Gather* gather = gathers[idx];
+	const PreStack::Gather* anglegather= anglegathers[idx];
 
 	PreStackView::GatherInfo gatherinfo;
 	gatherinfo.isstored_ = false;
@@ -784,6 +778,12 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     }
 
     prestackwin_->setGathers( gatherinfos );
+    setPreStackMapper();
+}
+
+
+void uiStratSynthDisp::setPreStackMapper()
+{
     for ( int idx=0; idx<prestackwin_->nrViewers(); idx++ )
     {
 	uiFlatViewer& vwr = prestackwin_->viewer( idx );
@@ -792,6 +792,8 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 	vdmapper.cliprate_ = Interval<float>(0.0,0.0);
 	vdmapper.autosym0_ = false;
 	vdmapper.symmidval_ = mUdf(float);
+	vdmapper.type_ = ColTab::MapperSetup::Fixed;
+	vdmapper.range_ = Interval<float>(0,60);
 	vwr.appearance().ddpars_.vd_.ctab_ = "Rainbow";
 	ColTab::MapperSetup& wvamapper =
 	    vwr.appearance().ddpars_.wva_.mappersetup_;
@@ -807,11 +809,56 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 {
     BufferStringSet allgnms, selgnms;
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
-	allgnms.addIfNew( curSS().getSyntheticByIdx(idx)->name() );
+    {
+	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
+	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	if ( !presd ) continue;
+	allgnms.addIfNew( sd->name() );
+    }
+
+    TypeSet<PreStackView::GatherInfo> ginfos = prestackwin_->gatherInfos();
+
     prestackwin_->getGatherNames( selgnms );
+    for ( int idx=0; idx<selgnms.size(); idx++ )
+    {
+	const int gidx = allgnms.indexOf( selgnms[idx]->buf() );
+	if ( gidx<0 )
+	    continue;
+	allgnms.removeSingle( gidx );
+    }
+
     PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms );
     if ( seldlg.go() )
-	prestackwin_->setGatherNames( selgnms );
+    {
+	prestackwin_->removeGathers();
+	TypeSet<PreStackView::GatherInfo> newginfos;
+	for ( int synthidx=0; synthidx<selgnms.size(); synthidx++ )
+	{
+	    const SyntheticData* sd =
+		curSS().getSynthetic( selgnms[synthidx]->buf() );
+	    if ( !sd ) continue;
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
+		    	    &sd->getPack())
+	    if ( !gsetdp || !presd ) continue;
+	    const PreStack::GatherSetDataPack& angledp = presd->angleData();
+	    for ( int idx=0; idx<ginfos.size(); idx++ )
+	    {
+		PreStackView::GatherInfo ginfo = ginfos[idx];
+		ginfo.gathernm_ = sd->name();
+		const PreStack::Gather* gather = gsetdp->getGather( ginfo.bid_);
+		const PreStack::Gather* anglegather =
+		    angledp.getGather( ginfo.bid_);
+		ginfo.vddpid_ = anglegather->id();
+		ginfo.wvadpid_ = gather->id();
+		newginfos.addIfNew( ginfo );
+	    }
+	}
+
+	prestackwin_->setGatherInfos( newginfos, false );
+	setPreStackMapper();
+    }
+
 }
 
 
@@ -1125,7 +1172,7 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	sd->fillGenParams( genparams );
 	IOPar synthpar;
 	genparams.fillPar( synthpar );
-	sd->fillDispPar( synthpar );
+		sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
 		    		 nr_nonproprefsynths-1) );
     }
