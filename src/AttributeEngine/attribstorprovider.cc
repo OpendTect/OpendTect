@@ -635,8 +635,10 @@ bool StorageProvider::checkDesiredVolumeOK()
     const bool zwrong =
 	desiredvolume_->zrg.start > storedvolume_.zrg.stop
      || desiredvolume_->zrg.stop < storedvolume_.zrg.start;
+    const float zstepratio = desiredvolume_->zrg.step / storedvolume_.zrg.step;
+    const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
 
-    if ( !inlwrong && !crlwrong && !zwrong )
+    if ( !inlwrong && !crlwrong && !zwrong && !zstepwrong )
 	return true;
 
     mInitErrMsg();
@@ -645,6 +647,10 @@ bool StorageProvider::checkDesiredVolumeOK()
     mAdd2ErrMsg(crlwrong,"Crossline",
 	    	storedvolume_.hrg.start.crl,storedvolume_.hrg.stop.crl)
     mAdd2ErrMsg(zwrong,"Z",storedvolume_.zrg.start,storedvolume_.zrg.stop)
+    if ( zstepwrong )
+	errmsg_ = "Z-Step is not correct. The maximum resampling allowed is a"
+		  " factor 100. Probably the data belongs to a different" 
+		  " Z-Domain";
     return false;
 }
 
