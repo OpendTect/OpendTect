@@ -820,9 +820,9 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
     if ( !rowIsIncomplete(row) )
     {
-	const int dahidx = tbl_->currentCol() < getTimeCol()
-	    		 ? d2t->indexOf( oldval )
-			 : d2t->value( oldval );
+	const bool oldvalisdah = tbl_->currentCol() < getTimeCol();
+	const float olddah = oldvalisdah ? oldval : d2t->getDah( oldval, track );
+	const int dahidx = d2t->indexOf( olddah );
 	d2t->remove( dahidx );
     }
 
@@ -991,7 +991,8 @@ void uiD2TModelDlg::expData( CallBacker* )
 	const float tvdss = mCast(float,wd_.track().getPos(dah).z) * zfac;
 	const float tvd = tvdss + kbelev * zfac;
 	const float twt = d2t.t(idx) * twtfac;
-	const float vint = d2t.getVelocityForDah( dah, wd_.track() ) * zfac;
+	const float vint = mCast( float, d2t.getVelocityForDah( dah, wd_.track() ) *
+				  (double)zfac );
 	*sd.ostrm << Conv::to<const char*>( dah ) << '\t';
 	*sd.ostrm << Conv::to<const char*>( tvd ) << '\t';
 	if ( hastvdgl )
