@@ -25,12 +25,12 @@ ________________________________________________________________________
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>
-void deletePtr( T*& ptr )
+void deleteAndZeroPtr( T*& ptr )
 { delete ptr; ptr = 0; }
 
 
 template <class T>
-void deleteArrPtr( T*& ptr )
+void deleteAndZeroArrPtr( T*& ptr )
 { delete [] ptr; ptr = 0; }
 
 
