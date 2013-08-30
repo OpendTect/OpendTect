@@ -608,19 +608,19 @@ int TextureChannels::nrChannels() const
 
 int TextureChannels::addChannel()
 {
-    TypeSet<int> osgids;
+   /* TypeSet<int> osgids;
 
     int osgid = -1;
-   /* if ( osgtexture_ )
+    if ( osgtexture_ )
     {
 	osgid = osgtexture_->addDataLayer();
 	osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
 	osgtexture_->setDataLayerUndefChannel( osgid, 3 );
 	const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
 	osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
-    }*/
+    }
 
-    //osgids += osgid;
+    osgids += osgid;*/
 
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
