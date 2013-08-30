@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifdef __mac__
 # include "odlogo128x128.xpm"
-  const char** uiMain::XpmIconData = od_logo_128x128;
+  const char** uiMain::XpmIconData = odlogo128x128_xpm;
 #else
 # include "uimainicon.xpm"
   const char** uiMain::XpmIconData = uimainicon_xpm_data;
