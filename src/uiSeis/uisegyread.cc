@@ -404,8 +404,7 @@ void uiSEGYRead::basicOptsGot()
     if ( exsu.nrtrcs_ > 0 )
     {
 	examdlg_ = new uiSEGYExamine( parent_, exsu );
-	examdlg_->tobeDeleted.notify( mCB(this,uiSEGYRead,examDlgClose) );
-	mLaunchVWDialogOnly(examdlg_,uiSEGYRead,examDlgClose);
+        mLaunchVWDialogOnly( examdlg_, uiSEGYRead, examDlgClose );
     }
 
     rev_ = exrev ? WeakRev1 : Rev0;
@@ -466,6 +465,9 @@ void uiSEGYRead::setupScan()
 
 void uiSEGYRead::setupImport()
 {
+    if ( impdlg_ ) 
+        return;
+
     uiSEGYImpDlg::Setup su( geom_ );
     su.rev( rev_ ).modal(false).wintitle("Import SEG-Y");
     impdlg_ = new uiSEGYImpDlg( parent_, su, pars_ );
@@ -500,6 +502,7 @@ void uiSEGYRead::scanDlgClose( CallBacker* )
 void uiSEGYRead::impDlgClose( CallBacker* )
 {
     mHandleVWCancel(impdlg_,BasicOpts)
+    impdlg_ = 0;
     mSetState( cFinished() );
 }
 
@@ -513,12 +516,7 @@ void uiSEGYRead::rev1qDlgClose( CallBacker* )
 
 uiSEGYRead::~uiSEGYRead()
 {
-    if ( examdlg_ )
-    {
-	examdlg_->windowClosed.remove( mCB(this,uiSEGYRead,examDlgClose) );
-	examdlg_ = 0;
-    }
-
+    delete examdlg_;
     delete defdlg_;
     delete impdlg_;
     delete scandlg_;
