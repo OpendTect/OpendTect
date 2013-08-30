@@ -154,6 +154,7 @@ public:
 
     bool		checkCorners(bool leftislow=true,
 				     bool topislow=true) const;
+    			//!\returns if the corners are consistent
     void		sortCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
     inline void 	zero();

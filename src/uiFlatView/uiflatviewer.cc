@@ -64,7 +64,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
     reportedchanges_ += All;
     bitmapdisp_->getDisplay()->setZValue( mBitMapZ );
-    bitmapdisp_->setExtraFactor( extfac_ );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZvalue( mAxisZStart );
     axesdrawer_.setWorldCoords( wr_ );
@@ -91,7 +90,6 @@ uiFlatViewer::~uiFlatViewer()
 void uiFlatViewer::reSizeCB( CallBacker* cb )
 {
     axesdrawer_.setViewRect( getViewRect() );
-    bitmapdisp_->setViewRect( getViewRect() );
     updateTransforms();
 }
 
@@ -131,6 +129,13 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 void uiFlatViewer::updateAnnotCB( CallBacker* )
 {
     axesdrawer_.update();
+    
+    if ( !wr_.checkCorners( !appearance().annot_.x1_.reversed_,
+			    appearance().annot_.x2_.reversed_ ) )
+    {
+    	setView( wr_ ); //Will update the flipping
+    }
+    
     reSizeCB(0); // Needed as annotation changes may make view-area
     		 // larger or smaller.
 }

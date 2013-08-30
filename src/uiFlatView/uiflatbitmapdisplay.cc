@@ -125,7 +125,6 @@ public:
 
 uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
     : viewer_( viewer )
-    , extfac_(0.0f)
     , display_( new uiDynamicImageItem )
     , basetask_( new uiBitMapDisplayTask( viewer, display_, false ) )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
@@ -168,8 +167,8 @@ void uiBitMapDisplay::update()
     }
 
     uiWorldRect wr( viewer_.boundingBox() ); wr.swapVer();
-    const uiSize sz( viewrect_.width(), viewrect_.height() );
-    
+    const uiSize sz( viewer_.getDataPackRange(true).nrSteps()+1,
+		     viewer_.getDataPackRange(false).nrSteps()+1 );
     basetask_->setScope( wr, sz );
     if ( !basetask_->execute() )
 	return;

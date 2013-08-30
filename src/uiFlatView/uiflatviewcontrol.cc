@@ -289,7 +289,7 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     const int selannot = propdlg_->selectedAnnot();
     vwr->setAnnotChoice( selannot );
-    vwr->handleChange( FlatView::Viewer::All );
+    vwr->handleChange( FlatView::Viewer::Annot );
 }
 
 

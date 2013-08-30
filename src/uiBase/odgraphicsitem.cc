@@ -495,6 +495,24 @@ ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
     
 }
 
+#if QT_VERSION>=0x040700
+# define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )
+#else
+# define mImage2PixmapImpl( image, pixmap ) \
+   *pixmap = QPixmap::fromImage( image, Qt::OrderedAlphaDither )
+#endif
+
+
+#ifdef __mac__
+# define mImage2Pixmap( image, pixmap ) \
+ pixmap = new QPixmap; \
+ mImage2PixmapImpl( image, pixmap )
+#else
+# define mImage2Pixmap( image, pixmap ) \
+ if ( !basepixmap_ ) \
+    pixmap = new QPixmap; \
+ mImage2PixmapImpl( image, pixmap )
+#endif
 
 void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 					   const QImage& image,
@@ -507,6 +525,8 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 	dynamicimagebbox_ = rect;
 	updatedynpixmap_ = true;
 	dynamiclock_.unlock();
+	dynamicrev_[0] = false;
+	dynamicrev_[1] = false;
 	
 	if ( isMainThreadCurrent() )
 	{
@@ -525,25 +545,16 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
     else
     {
 	bbox_ = rect;
+	baseimage_ = image;
+	basepixmap_ = 0;
 	if ( !isMainThreadCurrent() )
 	{
 	    pErrMsg("Wrong thread");
 	    return;
 	}
 	
-#ifdef __mac__ 
-	basepixmap_ = new QPixmap;
-#else
-	if ( !basepixmap_ )
-	    basepixmap_ = new QPixmap;
-#endif
-	    	
-#if QT_VERSION>=0x040700
-	basepixmap_->convertFromImage( image );
-#else
-	*basepixmap_ = QPixmap::fromImage( image, Qt::OrderedAlphaDither );
-#endif
-	
+	baserev_[0] = false;
+	baserev_[1] = false;
     }
 }
 
@@ -571,24 +582,35 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 {
     if ( updateResolution( painter ) )
 	wantsData.trigger();
-
+    
+    const QTransform worldtrans = painter->worldTransform();
+    
     dynamiclock_.lock();
-    if ( updatedynpixmap_ )
+    
+    const QPointF pix00 = worldtrans.map( QPointF(0,0) );
+    const QPointF pix11 = worldtrans.map( QPointF(1,1) );
+    
+    const bool revx = pix00.x()>pix11.x();
+    const bool revy = pix00.y()>pix11.y();
+
+    if ( updatedynpixmap_ || (revx!=dynamicrev_[0] || revy!=dynamicrev_[1]) )
     {
 	if ( dynamicimagebbox_.isValid() )
 	{
-#ifdef __mac__
-	    dynamicpixmap_ = new QPixmap;
-#else
-	    if ( !dynamicpixmap_ ) dynamicpixmap_ = new QPixmap;
-#endif
-
-#if QT_VERSION>=0x040700
-	    dynamicpixmap_->convertFromImage( dynamicimage_ );
-#else
-	    *dynamicpixmap_ =
-		QPixmap::fromImage( dynamicimage_, Qt::OrderedAlphaDither );
-#endif
+	    if ( revx!=dynamicrev_[0] || revy!=dynamicrev_[1] )
+	    {
+		mImage2Pixmap( dynamicimage_.mirrored( revx, revy ),
+			       dynamicpixmap_ );
+		dynamicrev_[0] = revx;
+		dynamicrev_[1] = revy;
+	    }
+	    else
+	    {
+		mImage2Pixmap( dynamicimage_, dynamicpixmap_ );
+		
+		dynamicrev_[0] = false;
+		dynamicrev_[1] = false;
+	    }
 	}
 	else
 	{
@@ -600,8 +622,6 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     }
 
     dynamiclock_.unlock();
-
-    const QTransform worldtrans = painter->worldTransform();
 
     painter->save();
     painter->resetTransform();
@@ -618,6 +638,23 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 
     if ( paintbase )
     {
+	if ( !basepixmap_ || (revx!=baserev_[0] || revy!=baserev_[1]) )
+	{
+	    if ( revx!=baserev_[0] || revy!=baserev_[1] )
+	    {
+		mImage2Pixmap( baseimage_.mirrored( revx, revy ), basepixmap_ );
+		
+		baserev_[0] = revx;
+		baserev_[1] = revy;
+	    }
+	    else
+	    {
+	    	mImage2Pixmap( baseimage_, basepixmap_ );
+		baserev_[0] = false;
+		baserev_[1] = false;
+	    }
+	}
+	    
 	const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
 	painter->drawPixmap( scenerect, *basepixmap_ );
     }

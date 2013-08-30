@@ -90,9 +90,7 @@ void FlatView::BitMapMgr::setupChg()
     gen_->pars().midvalue_ = pars->mappersetup_.symmidval_;
 
     gen_->pars().nointerpol_ = pars->blocky_;
-    gen_->pars().fliplr_ = app.annot_.x1_.reversed_;
-    gen_->pars().fliptb_ = !app.annot_.x2_.reversed_;
-    		// in UI pixels, Y is reversed
+        
     gen_->pars().autoscale_ =
 	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
     if ( !gen_->pars().autoscale_ )

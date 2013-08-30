@@ -30,16 +30,12 @@ mStruct(General) A2DBitMapGenPars
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
 		  , autoscale_(true)
-		  , fliplr_(false)
-		  , fliptb_(false)
 		  , clipratio_(0.025,0.025)
 		  , midvalue_( mUdf(float) )
 		  , scale_(0,1)			{}
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
-    bool	fliplr_;	//!< Flip left/right
-    bool	fliptb_;	//!< Flip top/bottom
     Interval<float> clipratio_;	//!< ratio of numbers to be clipped before
     				//!< determining min/max, only when autoscale_
     float	midvalue_;	//!< if mUdf(float), use the median data value
@@ -60,6 +56,7 @@ public:
 
     			A2DBitMapInpData( const Array2D<float>& d )
 			    : data_(d) { collectData(); }
+    virtual		~A2DBitMapInpData()			{}
 
     const Array2D<float>& data() const	{ return data_; }
     Interval<float>	scale(const Interval<float>& clipratio,
@@ -146,14 +143,11 @@ public:
 
     inline float	getPixPerDim( int dim ) const
 			{ return dim ? pixperdim1_ : pixperdim0_; }
-    inline float	getPixOffs( int dim, float pos, bool rev ) const
-			{ return rev ?
-			        ((dim ? dim1rg_ : dim0rg_).stop - pos)
-				 * getPixPerDim( dim )
-			       : (pos - (dim ? dim1rg_ : dim0rg_).start)
+    inline float	getPixOffs( int dim, float pos ) const
+			{ return (pos - (dim ? dim1rg_ : dim0rg_).start)
 				 * getPixPerDim( dim ); }
 
-    int			getPix(int dim,float,bool rev) const;
+    int			getPix(int dim,float) const;
     			// Nr of pixels from (0,0), always inside bitmap
     bool		isInside(int dim,float) const;
     			// Is position in dim inside bitmap?

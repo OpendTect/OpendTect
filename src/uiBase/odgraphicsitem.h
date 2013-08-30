@@ -199,9 +199,12 @@ protected:
 
     bool			updatedynpixmap_;
     bool			forceredraw_;
+    
+    
     QMutex			dynamiclock_;
     QImage			dynamicimage_;
     QRectF			dynamicimagebbox_;
+    bool			dynamicrev_[2];
 
     PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
     QRectF			dynamicpixmapbbox_; //Only access in paint
@@ -209,6 +212,7 @@ protected:
     PtrMan<QPixmap>		basepixmap_;
     QImage			baseimage_;
     QRectF			bbox_;
+    bool			baserev_[2];
 };
 
 

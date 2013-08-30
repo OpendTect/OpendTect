@@ -146,9 +146,9 @@ void A2DBitMapPosSetup::setBitMapSizes( int n0, int n1 ) const
 }
 
 
-int A2DBitMapPosSetup::getPix( int dim, float pos, bool rev ) const
+int A2DBitMapPosSetup::getPix( int dim, float pos ) const
 {
-    const float fpix = getPixOffs( dim, pos, rev );
+    const float fpix = getPixOffs( dim, pos );
 
     int pix = mNINT32(fpix);
     if ( pix < 0 )
@@ -162,7 +162,7 @@ int A2DBitMapPosSetup::getPix( int dim, float pos, bool rev ) const
 
 bool A2DBitMapPosSetup::isInside( int dim, float pos ) const
 {
-    const float fpix = getPixOffs( dim, pos, false );
+    const float fpix = getPixOffs( dim, pos );
 
     return fpix + 1e-6 > 0 && fpix - 1e-6 < (dim?nrypix_:nrxpix_) - 1;
 }
@@ -311,14 +311,13 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     if ( mIsUdf(midval) ) midval = data_.midVal();
     const float midratio = (midval - scalerg_.start) / scalewidth_;
     const float offs = (midratio-0.5f) * stripwidth_;
-    const float middim0pos = dim0pos_[idim0] + (pars_.fliplr_ ? -offs : offs);
+    const float middim0pos = dim0pos_[idim0] + offs;
     const float dim1wdth = dim1pos_.width();
     const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
-	const float dim1pos = pars_.fliptb_ ? dim1rg_.stop - iy * dim1perpix_
-					    : dim1rg_.start + iy * dim1perpix_;
+	const float dim1pos = dim1rg_.start + iy * dim1perpix_;
 	if ( !setup_.isInside(1,dim1pos) )
 	    continue;
 
@@ -363,12 +362,11 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
     const float centerdim0pos = dim0pos_[idim0];
     const float valratio = (val - scalerg_.start) / scalewidth_;
     const float valdim0offs = (valratio-0.5f) * stripwidth_;
-    const float valdim0pos = centerdim0pos
-			   + (pars_.fliplr_ ? -valdim0offs : valdim0offs);
+    const float valdim0pos = centerdim0pos + valdim0offs;
 
     const bool isleft = val < midval;
-    const int midpix = setup_.getPix( 0, middim0pos, pars_.fliplr_ );
-    const int valpix = setup_.getPix( 0, valdim0pos, pars_.fliplr_ );
+    const int midpix = setup_.getPix( 0, middim0pos );
+    const int valpix = setup_.getPix( 0, valdim0pos );
 
     if ( isleft && wvapars().fillleft_ )
     {
@@ -392,9 +390,8 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 
 	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
 	const float prevvaldim0offs = (prevvalratio-0.5f) * stripwidth_;
-	const float prevvaldim0pos = centerdim0pos
-		       + (pars_.fliplr_ ? -prevvaldim0offs : prevvaldim0offs);
-	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos, pars_.fliplr_);
+	const float prevvaldim0pos = centerdim0pos + prevvaldim0offs;
+	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
 
 	int from, to;
 	if ( prevvalpix < valpix )
@@ -506,7 +503,7 @@ od_int64 VDA2DBitMapGenerator::nrIterations() const
 void VDA2DBitMapGenerator::drawStrip( int idim0 )
 {
     const float curpos = dim0pos_[idim0];
-    float stripmidpix = setup_.getPixOffs( 0, curpos, pars_.fliplr_ );
+    float stripmidpix = setup_.getPixOffs( 0, curpos );
     float halfstrippixs = strippixs_ / 2;
     Interval<int> pixs2do( (int)floor(stripmidpix-halfstrippixs+1e-6),
 	    		   (int)ceil( stripmidpix+halfstrippixs-1e-6) );
@@ -521,22 +518,18 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
     if ( idim0 > 0 )
     {
 	const float prevpos = dim0pos_[idim0-1];
-	float prevstripmidpix = setup_.getPixOffs( 0, prevpos, pars_.fliplr_ );
+	float prevstripmidpix = setup_.getPixOffs( 0, prevpos );
 	float halfwaypix = (prevstripmidpix + stripmidpix) * .5f;
-	if ( !pars_.fliplr_ && halfwaypix > pixs2do.start )
+	if ( halfwaypix > pixs2do.start )
 	    pixs2do.start = (int)ceil(halfwaypix-1e-6);
-	if ( pars_.fliplr_ && halfwaypix < pixs2do.stop )
-	    pixs2do.stop = (int)floor(halfwaypix+1e-6);
     }
     if ( idim0 < szdim0_-1 )
     {
 	const float nextpos = dim0pos_[idim0+1];
-	float nextstripmidpix = setup_.getPixOffs( 0, nextpos, pars_.fliplr_ );
+	float nextstripmidpix = setup_.getPixOffs( 0, nextpos );
 	float halfwaypix = (nextstripmidpix + stripmidpix) * .5f;
-	if ( !pars_.fliplr_ && halfwaypix < pixs2do.stop )
+	if ( halfwaypix < pixs2do.stop )
 	    pixs2do.stop = (int)floor(halfwaypix-1e-6);
-	if ( pars_.fliplr_ && halfwaypix > pixs2do.start )
-	    pixs2do.start = (int)ceil(halfwaypix+1e-6);
     }
 
     drawPixLines( idim0, pixs2do );
@@ -587,8 +580,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
     {
-	const float dim0pos = pars_.fliplr_ ? dim0rg_.stop - ix * dim0perpix_
-					    : dim0rg_.start + ix * dim0perpix_;
+	const float dim0pos = dim0rg_.start + ix * dim0perpix_;
 	int idim0 = stripdim0;
 	if ( dim0pos_[stripdim0] > dim0pos && stripdim0 > 0 )
 	    idim0--;
@@ -598,8 +590,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 
 	for ( int iy=0; iy<setup_.nrYPix(); iy++ )
 	{
-	    const float dim1pos = pars_.fliptb_ ? dim1rg_.stop - iy*dim1perpix_
-					: dim1rg_.start + iy*dim1perpix_;
+	    const float dim1pos = dim1rg_.start + iy*dim1perpix_;
 	    if ( !setup_.isInside(1,dim1pos) )
 		continue;
 
