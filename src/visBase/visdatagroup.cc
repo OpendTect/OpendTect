@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <Inventor/nodes/SoSeparator.h>
 
-#include <osg/Group>
+//#include <osg/Group>
 
 mCreateFactoryEntry( visBase::DataObjectGroup );
 
@@ -39,18 +39,18 @@ DataObjectGroup::~DataObjectGroup()
     deepUnRef( objects_ );
 
     if ( group_ ) group_->unref();
-    if ( osggroup_ ) osggroup_->unref();
+    //if ( osggroup_ ) osggroup_->unref();
 }
 
 
 void DataObjectGroup::ensureGroup()
 {
-    if ( doOsg() && !osggroup_ )
+    /*if ( doOsg() && !osggroup_ )
     {
 	osggroup_ = new osg::Group;
 	osggroup_->ref();
 	updateOsgNodeData();
-    }
+    }*/
 
     if ( group_ ) return;
     group_ = createGroup();
@@ -75,7 +75,7 @@ void DataObjectGroup::addObject( DataObject* no )
     group_->addChild( no->getInventorNode() );
     nodes_ += no->getInventorNode();
 
-    if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
+    //if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
 
     no->ref();
     no->setRightHandSystem( isRightHandSystem() );
@@ -133,7 +133,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     nodes_.insertAt(no->getInventorNode(), insertpos );
     ensureGroup();
     group_->insertChild( no->getInventorNode(), insertpos );
-    if ( osggroup_ && no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
+    //if ( osggroup_ && no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
     no->ref();
     no->setRightHandSystem( isRightHandSystem() );
     change.trigger();
@@ -160,7 +160,7 @@ void DataObjectGroup::removeObject( int idx )
     DataObject* sceneobject = objects_[idx];
     SoNode* node = nodes_[idx];
     group_->removeChild( node );
-    if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
+    //if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
 
     nodes_.removeSingle( idx );
     objects_.removeSingle( idx );
@@ -185,8 +185,7 @@ SoNode*  DataObjectGroup::gtInvntrNode()
 
 osg::Node* DataObjectGroup::gtOsgNode()
 {
-    ensureGroup();
-    return osggroup_;
+    return 0;
 }
 
 

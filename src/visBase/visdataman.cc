@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/SoPath.h>
 #include <Inventor/SoDB.h>
 
-#include <osg/Node>
+//#include <osg/Node>
 
 namespace visBase
 {

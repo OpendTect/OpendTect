@@ -66,7 +66,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexture3.h"
 #include "vistexture3viewer.h"
 #include "vistexturecoords.h"
-#include "vistexturerect.h"
+//#include "vistexturerect.h"
 #include "vistexturechannel2rgba.h"
 #include "vistexturechannels.h"
 #include "vistopbotimage.h"
@@ -153,7 +153,7 @@ mDefModInitFn(visBase)
     visBase::TextureChannels::initClass();
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::TextureChannel2VolData::initClass();
-    visBase::TextureRectangle::initClass();
+    //visBase::TextureRectangle::initClass();
     visBase::Transformation::initClass();
     visBase::Rotation::initClass();
     visBase::TriangleStripSet::initClass();

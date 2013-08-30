@@ -48,8 +48,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 
-#include <osgGeo/Horizon3D>
-#include <osgGeo/LayeredTexture>
+//#include <osgGeo/Horizon3D>
+//#include <osgGeo/LayeredTexture>
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
@@ -460,11 +460,11 @@ HorizonSection::HorizonSection()
 
     wireframematerial_->ref();
 
-    if ( doOsg() )
+    /*if ( doOsg() )
     {
 	osghorizon_ = new osgGeo::Horizon3DNode;
 	addChild( osghorizon_ );
-    }
+    }*/
 }
 
 
@@ -1110,75 +1110,75 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
 
-    if ( osghorizon_ )
-    {
-	const Interval<int> rowrg = geometry_->rowRange();
-	const Interval<int> colrg = geometry_->colRange();
-	std::vector<osg::Vec2d> cornerpts;
-	Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.start ) );
-	Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
-	Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
-	std::vector<osg::Vec2d> cornerptr;
-	cornerpts.push_back( osg::Vec2d( crd00.x, crd00.y ) );
-	cornerpts.push_back( osg::Vec2d( crd01.x, crd01.y ) );
-	cornerpts.push_back( osg::Vec2d( crd10.x, crd10.y ) );
+ //   if ( osghorizon_ )
+ //   {
+	//const Interval<int> rowrg = geometry_->rowRange();
+	//const Interval<int> colrg = geometry_->colRange();
+	//std::vector<osg::Vec2d> cornerpts;
+	//Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.start ) );
+	//Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
+	//Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
+	//std::vector<osg::Vec2d> cornerptr;
+	//cornerpts.push_back( osg::Vec2d( crd00.x, crd00.y ) );
+	//cornerpts.push_back( osg::Vec2d( crd01.x, crd01.y ) );
+	//cornerpts.push_back( osg::Vec2d( crd10.x, crd10.y ) );
 
-	osg::ref_ptr<osg::FloatArray> deptharr =
-	    static_cast<osg::FloatArray*>( osghorizon_->getDepthArray() );
+	//osg::ref_ptr<osg::FloatArray> deptharr =
+	//    static_cast<osg::FloatArray*>( osghorizon_->getDepthArray() );
 
-	if ( !deptharr )
-	{
-	    deptharr = new osg::FloatArray;
-	    osghorizon_->setDepthArray( deptharr );
-	    gpids = 0; //Force full update
-	}
+	//if ( !deptharr )
+	//{
+	//    deptharr = new osg::FloatArray;
+	//    osghorizon_->setDepthArray( deptharr );
+	//    gpids = 0; //Force full update
+	//}
 
-	const int newsize = geometry_->getArray()->info().getTotalSz();
+	//const int newsize = geometry_->getArray()->info().getTotalSz();
 
-	if ( deptharr->size()!=newsize )
-	    deptharr->resize( newsize, mUdf(float) );
+	///*if ( deptharr->size()!=newsize )
+	//    deptharr->resize( newsize, mUdf(float) );*/
 
-	float* depthptr = (float*) deptharr->getDataPointer();
+	//float* depthptr = (float*) deptharr->getDataPointer();
 
-	if ( !gpids )
-	{
-	    if ( !zaxistransform_ )
-		geometry_->getArray()->getAll( depthptr );
-	    else
-	    {
-		PtrMan<Geometry::Iterator> iter = geometry_->createIterator();
-		GeomPosID posid;
-		while ( (posid=iter->next())!=-1 )
-		{
-		    float z = geometry_->getPosition( posid ).z;
-		    const BinID bid = BinID::fromInt64( posid );
-		    if ( !mIsUdf(z) )
-		    {
-			if ( zaxistransform_ )
-			    z = zaxistransform_->transform( BinIDValue( bid, z ) );
-		    }
+	//if ( !gpids )
+	//{
+	//    if ( !zaxistransform_ )
+	//	geometry_->getArray()->getAll( depthptr );
+	//    else
+	//    {
+	//	PtrMan<Geometry::Iterator> iter = geometry_->createIterator();
+	//	GeomPosID posid;
+	//	while ( (posid=iter->next())!=-1 )
+	//	{
+	//	    float z = geometry_->getPosition( posid ).z;
+	//	    const BinID bid = BinID::fromInt64( posid );
+	//	    if ( !mIsUdf(z) )
+	//	    {
+	//		if ( zaxistransform_ )
+	//		    z = zaxistransform_->transform( BinIDValue( bid, z ) );
+	//	    }
 
-		    depthptr[geometry_->getKnotIndex( bid )] = z;
-		}
-	    }
-	}
-	else
-    	{
-	    const GeomPosID* gpidptr = gpids->arr();
-	    const GeomPosID* stopptr = gpidptr+gpids->size();
+	//	    depthptr[geometry_->getKnotIndex( bid )] = z;
+	//	}
+	//    }
+	//}
+	//else
+ //   	{
+	//    const GeomPosID* gpidptr = gpids->arr();
+	//    const GeomPosID* stopptr = gpidptr+gpids->size();
 
-	    while ( gpidptr!=stopptr )
-	    {
-		float z = geometry_->getPosition( *gpidptr ).z;
-		const BinID bid = BinID::fromInt64( *gpidptr );
-		if ( !mIsUdf(z) )
-		    z = zaxistransform_->transform( BinIDValue( bid, z ) );
+	//    while ( gpidptr!=stopptr )
+	//    {
+	//	float z = geometry_->getPosition( *gpidptr ).z;
+	//	const BinID bid = BinID::fromInt64( *gpidptr );
+	//	if ( !mIsUdf(z) )
+	//	    z = zaxistransform_->transform( BinIDValue( bid, z ) );
 
-		depthptr[geometry_->getKnotIndex( bid )] = z;
-		gpidptr++;
-	    }
-	}
-    }
+	//	depthptr[geometry_->getKnotIndex( bid )] = z;
+	//	gpidptr++;
+	//    }
+	//}
+ //   }
 
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
 	resetAllTiles( tr );

@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 #include <Inventor/nodes/SoTextureCoordinate3.h>
 
-#include <osg/Array>
+//#include <osg/Array>
 
 mCreateFactoryEntry( visBase::TextureCoords );
 mCreateFactoryEntry( visBase::TextureCoords2 );
@@ -54,7 +54,7 @@ SoNode* TextureCoords2::gtInvntrNode()
 TextureCoords::TextureCoords()
     : coords_( new SoTextureCoordinate3 )
     , mutex_( *new Threads::Mutex )
-    , osgcoords_( doOsg() ? new osg::Vec2Array : 0 )
+    , osgcoords_( 0 )
 {
     if ( coords_ )
     {
@@ -64,7 +64,7 @@ TextureCoords::TextureCoords()
 	return;
     }
     
-    mGetOsgVec2Arr(osgcoords_)->ref();
+    //mGetOsgVec2Arr(osgcoords_)->ref();
 }
 
 
@@ -78,7 +78,7 @@ TextureCoords::~TextureCoords()
 	return;
     }
     
-    mGetOsgVec2Arr(osgcoords_)->unref();
+    //mGetOsgVec2Arr(osgcoords_)->unref();
 }
 
 

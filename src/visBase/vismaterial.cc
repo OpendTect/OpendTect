@@ -15,8 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <osg/Material>
-#include <osg/Array>
+//#include <osg/Material>
+//#include <osg/Array>
 
 mCreateFactoryEntry( visBase::Material );
 
@@ -33,7 +33,7 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
 
 Material::Material()
     : coinmaterial_( new SoMaterial )
-    , material_( new osg::Material )
+    , material_( 0 )
     , colorarray_( 0 )
     , ambience_( 0.8 )
     , specularintensity_( 0 )
@@ -41,7 +41,7 @@ Material::Material()
     , shininess_( 0 )
     , change( this )
 {
-    material_->ref();
+    //material_->ref();
     coinmaterial_->ref();
     setMinNrOfMaterials(0);
     updateMaterial(0);
@@ -50,8 +50,8 @@ Material::Material()
 
 Material::~Material()
 {
-    material_->unref();
-    if ( colorarray_ ) colorarray_->unref();
+    //material_->unref();
+    //if ( colorarray_ ) colorarray_->unref();
     coinmaterial_->unref();
 }
     
@@ -236,26 +236,26 @@ void Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( sKeyTransparency(), getTransparency() );
 }
     
-    
+   
 osg::Material* Material::getMaterial()
-{ return material_; }
+{ return 0; }
     
     
 const osg::Array* Material::getColorArray() const
 {
-    return colorarray_;
+    return 0;
 }
     
 
 void Material::createArray()
 {
-    if ( colorarray_ )
+   /* if ( colorarray_ )
 	return;
     
     colorarray_ = new osg::Vec4Array;
     colorarray_->ref();
     mGetOsgVec4Arr(colorarray_)->
-        push_back( material_->getDiffuse( osg::Material::FRONT ) );
+        push_back( material_->getDiffuse( osg::Material::FRONT ) );*/
 }
 
 }; // namespace visBase

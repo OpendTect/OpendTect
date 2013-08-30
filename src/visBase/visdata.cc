@@ -17,14 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/SoOutput.h>
-
-#include <osg/Node>
-#include <osg/ValueObject>
-#include <osgDB/WriteFile>
+//
+//#include <osg/Node>
+//#include <osg/ValueObject>
+//#include <osgDB/WriteFile>
 
 namespace visBase
 {
-
 
 bool DataObject::doosg_ = false;
 
@@ -34,21 +33,20 @@ void DataObject::setOsg()
 bool DataObject::doOsg()
 { return doosg_; }
 
-
-void DataObject::enableTraversal( TraversalType tt, bool yn )
-{
-    if ( osgNode() )
-    {
-	unsigned int mask = osgNode()->getNodeMask();
-	osgNode()->setNodeMask( yn ? (mask | tt) : (mask & ~tt) );
-    }
-}
-
-
-bool DataObject::isTraversalEnabled( TraversalType tt ) const
-{
-    return osgNode() && (osgNode()->getNodeMask() & tt);
-}
+//void DataObject::enableTraversal( TraversalType tt, bool yn )
+//{
+//    /*if ( osgNode() )
+//    {
+//	unsigned int mask = osgNode()->getNodeMask();
+//	osgNode()->setNodeMask( yn ? (mask | tt) : (mask & ~tt) );
+//    }*/
+//}
+//
+//
+//bool DataObject::isTraversalEnabled( TraversalType tt ) const
+//{
+//    return osgNode() && (osgNode()->getNodeMask() & tt);
+//}
 
 
 FixedString DataObject::name() const
@@ -66,7 +64,7 @@ void DataObject::setName( const char* nm )
     if ( !name_ ) name_ = new BufferString;
     (*name_) = nm;
 
-    updateOsgNodeData();
+   // updateOsgNodeData();
 }
 
 
@@ -87,24 +85,24 @@ DataObject::~DataObject()
 void DataObject::setID( int nid )
 {
     id_ = nid;
-    updateOsgNodeData();
+    //updateOsgNodeData();
 }
 
 
-void DataObject::updateOsgNodeData()
-{
-    if ( !doOsg() )
-	return;
-
-    osg::Node* osgnode = gtOsgNode();
-    if ( !osgnode )
-	return;
-
-    osgnode->setName( name_ ? name_->buf() : "" );
-
-    static std::string idstr( sKey::ID() );
-    osgnode->setUserValue( idstr, id() );
-}
+//void DataObject::updateOsgNodeData()
+//{
+//    if ( !doOsg() )
+//	return;
+//
+//    osg::Node* osgnode = gtOsgNode();
+//    if ( !osgnode )
+//	return;
+//
+//    osgnode->setName( name_ ? name_->buf() : "" );
+//
+//    static std::string idstr( sKey::ID() );
+//    osgnode->setUserValue( idstr, id() );
+//}
 
 
 void DataObject::select() const
@@ -138,10 +136,10 @@ void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 
 bool DataObject::serialize( const char* filename, bool binary )
 {
-    if ( doOsg() && osgNode() )
+    /*if ( doOsg() && osgNode() )
     {
 	return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
-    }
+    }*/
 
     SoNode* node = getInventorNode();
     if ( !node ) return false;

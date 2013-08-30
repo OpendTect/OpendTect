@@ -45,9 +45,9 @@ TopBotImage::TopBotImage()
     imgshape_->removeSwitch();
     imgshape_->setVertexOrdering(
 		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
-    if ( doOsg() )
+   /* if ( doOsg() )
 	addChild( imgshape_->osgNode() );
-    else
+    else*/
 	addChild( imgshape_->getInventorNode() );
    
     visBase::TextureCoords* texturecoords = visBase::TextureCoords::create();
@@ -92,7 +92,6 @@ void TopBotImage::updateCoords()
     facecoords->setPos( 1, trans_ ? trans_->transform(pos1_) : pos1_ ); 
     facecoords->setPos( 2, trans_ ? trans_->transform(pos2_) : pos2_ );
     facecoords->setPos( 3, trans_ ? trans_->transform(pos3_) : pos3_ );
-    imgshape_->dirtyCoordinates();
 }
 
 

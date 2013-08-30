@@ -7,7 +7,6 @@
 
 SET(OD_MODULE_DEPS visSurvey uiTools )
 SET(OD_USEQT OpenGL)
-SET(OD_USEOSG 1)
 SET(OD_USECOIN 1)
 
 SET(QT_MOC_HEADERS i_qthumbwhl.h)
@@ -16,8 +15,8 @@ SET(OD_MODULE_SOURCES
 		uicmain.cc
 		uiprintscenedlg.cc 
 		ui3dviewer.cc 
-		ui3dindirectviewer.cc 
-		uiosgviewer.cc 
+		#ui3dindirectviewer.cc 
+		#uiosgviewer.cc 
 		uistereodlg.cc 
 		uithumbwheel.cc
 )

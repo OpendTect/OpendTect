@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <Inventor/nodes/SoNormal.h>
 
-#include <osg/Array>
+//#include <osg/Array>
 
 mCreateFactoryEntry( visBase::Normals );
 
@@ -26,10 +26,10 @@ namespace visBase
 {
 
 Normals::Normals()
-    : normals_( doOsg() ? 0 : new SoNormal )
+    : normals_( new SoNormal )
     , mutex_( *new Threads::Mutex )
     , transformation_( 0 )
-    , osgnormals_( doOsg() ? new osg::Vec3Array : 0 )
+    , osgnormals_( 0 )
 {
     if ( !osgnormals_ )
     {
@@ -44,7 +44,7 @@ Normals::Normals()
 	return;
     }
     
-    mGetOsgVec3Arr(osgnormals_)->ref();
+    //mGetOsgVec3Arr(osgnormals_)->ref();
 }
 
 
@@ -60,7 +60,7 @@ Normals::~Normals()
     }
     
     
-    mGetOsgVec3Arr(osgnormals_)->unref();
+    //mGetOsgVec3Arr(osgnormals_)->unref();
 }
 
 

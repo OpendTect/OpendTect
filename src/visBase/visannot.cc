@@ -27,8 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "SoOD.h"
 #include "SoOneSideRender.h"
 
-#include <osg/Geode>
-#include <osg/Geometry>
+//#include <osg/Geode>
+//#include <osg/Geometry>
 
 mCreateFactoryEntry( visBase::Annotation );
 
@@ -48,7 +48,7 @@ Annotation::Annotation()
     , gridlineswitch_(new SoSwitch)
     , pickstyle_(PickStyle::create())
     , texts_(0)
-    , geode_( doOsg() ? new osg::Geode : 0 )
+    , geode_( 0 )
 {
     annotscale_[0] = annotscale_[1] = annotscale_[2] = 1;
 
@@ -59,7 +59,7 @@ Annotation::Annotation()
 
     addChild( coords_ );
 
-    if ( doOsg() )
+    /*if ( doOsg() )
     {
 	float pos[8][3] =
 	{
@@ -83,7 +83,7 @@ Annotation::Annotation()
 
 	geode_->addDrawable( geometry );
 	addChild( geode_ );
-    }
+    }*/
     float pos[8][3] =
     {
 	{ 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 },
@@ -325,7 +325,7 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
 
 void Annotation::setCorner( int idx, float x, float y, float z )
 {
-    if ( geode_ && geode_->getNumDrawables() )
+    /*if ( geode_ && geode_->getNumDrawables() )
     {
 	 osg::ref_ptr<osg::Geometry> geometry =
 	     (osg::Geometry*) geode_->getDrawable( 0 );
@@ -334,7 +334,7 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 	     ((osg::Vec3*) geometry->getVertexArray()->getDataPointer())[idx];
 
 	 coord = osg::Vec3f( x, y, z );
-    }
+    }*/
 
 
     float c[3] = { x, y, z };

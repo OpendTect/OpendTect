@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <Inventor/nodes/SoTextureMatrixTransform.h>
 #include <Inventor/nodes/SoCallback.h>
 
-#include <osg/Group>
+//#include <osg/Group>
 
 #define mDefaultFactor	1
 #define mDefaultUnits	200
@@ -93,13 +93,13 @@ Scene::Scene()
     selroot_->addChild( DataObjectGroup::gtInvntrNode() );
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
 
-    if ( doOsg() )
+    /*if ( doOsg() )
     {
 	osgsceneroot_ = new osg::Group;
 	osgsceneroot_->addChild( DataObjectGroup::gtOsgNode() );
 	osgsceneroot_->addChild( events_.osgNode() );
 	osgsceneroot_->ref();
-    }
+    }*/
 }
 
 
@@ -112,8 +112,8 @@ bool Scene::saveCurrentOffsetAsDefault() const
 
 Scene::~Scene()
 {
-    if ( osgsceneroot_ )
-	osgsceneroot_->unref();
+    /*if ( osgsceneroot_ )
+	osgsceneroot_->unref();*/
 
     removeAll();
     events_.nothandled.remove( mCB(this,Scene,mousePickCB) );
@@ -193,7 +193,7 @@ SoNode* Scene::gtInvntrNode()
 
 osg::Node* Scene::gtOsgNode()
 {
-    return osgsceneroot_;
+    return 0;
 }
 
 
@@ -213,7 +213,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	return;
     }
 
-    if ( doOsg() && eventinfo.dragging )
+    /*if ( doOsg() && eventinfo.dragging )
     {
 	const TabletInfo* ti = TabletInfo::currentState();
 	if ( ti && ti->maxPostPressDist()<5 )
@@ -222,7 +222,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	    mousedownid_ = -1;
 
 	return;
-    }
+    }*/
 
     if ( eventinfo.type!=MouseClick ) return;
     if ( OD::middleMouseButton(eventinfo.buttonstate_) ) return;
@@ -256,7 +256,7 @@ void Scene::mousePickCB( CallBacker* cb )
 		 !OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    {
 		DM().selMan().deSelectAll();
-		if ( doOsg() ) events_.setHandled();
+		//if ( doOsg() ) events_.setHandled();
 	    }
 	}
 
@@ -280,7 +280,7 @@ void Scene::mousePickCB( CallBacker* cb )
 			continue;
 		    }
 		    dataobj->triggerRightClick(&eventinfo);
-		    if ( doOsg() ) events_.setHandled();
+		    //if ( doOsg() ) events_.setHandled();
 		}
 		else if ( dataobj->selectable() )
 		{
@@ -289,14 +289,14 @@ void Scene::mousePickCB( CallBacker* cb )
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    {
 			DM().selMan().select( mousedownid_, true );
-			if ( doOsg() ) events_.setHandled();
+			//if ( doOsg() ) events_.setHandled();
 		    }
 		    else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    {
 			DM().selMan().select( mousedownid_, false );
-			if ( doOsg() ) events_.setHandled();
+			//if ( doOsg() ) events_.setHandled();
 		    }
 		}
 

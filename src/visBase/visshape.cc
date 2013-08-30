@@ -33,11 +33,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "Inventor/nodes/SoSwitch.h"
 
 #include "SoIndexedTriangleFanSet.h"
-
-#include <osg/PrimitiveSet>
-#include <osg/Switch>
-#include <osg/Geometry>
-#include <osg/Geode>
+//
+//#include <osg/PrimitiveSet>
+//#include <osg/Switch>
+//#include <osg/Geometry>
+//#include <osg/Geode>
 
 
 namespace visBase
@@ -49,21 +49,21 @@ const char* Shape::sKeyMaterial() 		{ return  "Material";	}
 
 Shape::Shape( SoNode* shape )
     : shape_( shape )
-    , onoff_( doOsg() ? 0 : new SoSwitch )
+    , onoff_( new SoSwitch )
     , texture2_( 0 )
     , texture3_( 0 )
     , material_( 0 )
-    , root_( doOsg() ? 0 : new SoSeparator )
+    , root_(  new SoSeparator )
     , materialbinding_( 0 )
-    , lifter_( doOsg() ? 0 : ForegroundLifter::create() )
-    , lifterswitch_( doOsg() ? 0 : new SoSwitch )
-    , osgswitch_( doOsg() ? new osg::Switch : 0 )
+    , lifter_(  ForegroundLifter::create() )
+    , lifterswitch_( new SoSwitch )
+    , osgswitch_( 0 )
 {
-    if ( doOsg() )
+    /*if ( doOsg() )
     {
 	osgswitch_->ref();
     }
-    else
+    else*/
     {
 	onoff_->ref();
 	onoff_->addChild( root_ );
@@ -88,7 +88,7 @@ Shape::~Shape()
 
     if ( getInventorNode() ) getInventorNode()->unref();
     if ( lifter_ ) lifter_->unRef();
-    if ( osgswitch_ ) osgswitch_->unref();
+    //if ( osgswitch_ ) osgswitch_->unref();
 }
 
 
@@ -98,35 +98,14 @@ void Shape::turnOnForegroundLifter( bool yn )
 
 void Shape::turnOn(bool n)
 {
-    if ( !doOsg() )
-    {
-	if ( onoff_ ) onoff_->whichChild = n ? 0 : SO_SWITCH_NONE;
-	else if ( !n )
-	{
-	    pErrMsg( "Turning off object without switch");
-	}
-	
-	return;
-    }
-	
-    if ( osgswitch_ )
-    {
-	if ( n ) osgswitch_->setAllChildrenOn();
-	else osgswitch_->setAllChildrenOff();
-    }
-    else
-    {
+    if ( onoff_ ) onoff_->whichChild = n ? 0 : SO_SWITCH_NONE;
+    else if ( !n )
 	pErrMsg( "Turning off object without switch");
-    }
 }
 
 
 bool Shape::isOn() const
 {
-    if ( doOsg() )
-	return !osgswitch_ ||
-	   (osgswitch_->getNumChildren() && osgswitch_->getValue(0) );
-    
     return !onoff_ || !onoff_->whichChild.getValue();
 }
     
@@ -172,8 +151,6 @@ void ownclass::set##clssname( clssname* newitem ) \
     { \
 	if ( variable->getInventorNode() ) \
 	    removeNode( variable->getInventorNode() ); \
-	else \
-	{ osgremove; } \
 	variable->unRef(); \
 	variable = 0; \
     } \
@@ -184,8 +161,6 @@ void ownclass::set##clssname( clssname* newitem ) \
 	variable->ref(); \
 	if ( variable->getInventorNode() ) \
 	    insertNode( variable->getInventorNode() ); \
-	else \
-	{ osgset; } \
     } \
 } \
  \
@@ -309,9 +284,9 @@ int Shape::usePar( const IOPar& par )
 SoNode* Shape::gtInvntrNode()
 { return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
     
-    
+   
 osg::Node* Shape::gtOsgNode()
-{ return osgswitch_; }
+{ return 0; }
 
 
 void Shape::insertNode( SoNode*  node )
@@ -342,15 +317,15 @@ VertexShape::VertexShape( SoVertexShape* shape )
     , texturecoords_( 0 )
     , normalbinding_( 0 )
     , shapehints_( 0 )
-    , geode_( doOsg() ? new osg::Geode : 0 )
-    , osggeom_( doOsg() ? new osg::Geometry : 0 )
+    , geode_( 0 )
+    , osggeom_( 0 )
 {
-    if ( geode_ )
+    /*if ( geode_ )
     {
 	geode_->ref();
 	geode_->addDrawable( osggeom_ );
 	osgswitch_->addChild( geode_ );
-    }
+    }*/
     
     setCoordinates( Coordinates::create() );
 }
@@ -358,7 +333,7 @@ VertexShape::VertexShape( SoVertexShape* shape )
 
 VertexShape::~VertexShape()
 {
-    if ( geode_ ) geode_->unref();
+    //if ( geode_ ) geode_->unref();
     if ( normals_ ) normals_->unRef();
     if ( coords_ ) coords_->unRef();
     if ( texturecoords_ ) texturecoords_->unRef();
@@ -367,12 +342,12 @@ VertexShape::~VertexShape()
     
 void VertexShape::removeSwitch()
 {
-    if ( osgswitch_ )
+    /*if ( osgswitch_ )
     {
 	osgswitch_->unref();
 	osgswitch_ = 0;
     }
-    else
+    else*/
     {
 	Shape::removeSwitch();
     }
@@ -381,17 +356,17 @@ void VertexShape::removeSwitch()
     
 void VertexShape::dirtyCoordinates()
 {
-    if ( osggeom_ )
+    /*if ( osggeom_ )
     {
 	osggeom_->dirtyDisplayList();
 	osggeom_->dirtyBound();
-    }
+    }*/
 }
 
     
 osg::Node* VertexShape::gtOsgNode()
 {
-    return osgswitch_ ? (osg::Node*) osgswitch_ : (osg::Node*) geode_;
+    return 0;
 }
     
 
@@ -451,8 +426,6 @@ bool VertexShape::getNormalPerFaceBinding() const
 
 
 #define mCheckCreateShapeHints() \
-    if ( doOsg() ) \
-	return; \
     if ( !shapehints_ ) \
     { \
 	shapehints_ = new SoShapeHints; \
@@ -542,7 +515,7 @@ SoIndexedShape* createSoClass( Geometry::PrimitiveSet::PrimitiveType tp )
     
     
 IndexedShape::IndexedShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp )
-    : VertexShape( doOsg() ? 0 : createSoClass( tp ) )
+    : VertexShape( createSoClass( tp ) )
     , primitivetype_( tp )
 {
     indexedshape_ = (SoIndexedShape*) shape_;
@@ -608,43 +581,43 @@ int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
 }
     
 
-class OSGPrimitiveSet
-{
-public:
-    virtual osg::PrimitiveSet*	getPrimitiveSet()	= 0;
-    
-    static GLenum	getGLEnum(Geometry::PrimitiveSet::PrimitiveType tp)
-    {
-	switch ( tp )
-	{
-	    case Geometry::PrimitiveSet::Triangles:
-		return GL_TRIANGLES;
-	    case Geometry::PrimitiveSet::TriangleFan:
-		return GL_TRIANGLE_FAN;
-	    case Geometry::PrimitiveSet::TriangleStrip:
-		return GL_TRIANGLE_STRIP;
-	    case Geometry::PrimitiveSet::Lines:
-		return GL_LINES;
-	    case Geometry::PrimitiveSet::Points:
-		return GL_POINTS;
-	    case Geometry::PrimitiveSet::LineStrips:
-		return GL_LINE_STRIP;
-	    default:
-		break;
-	}
-	
-	return GL_POINTS;
-    }
-};
+//class OSGPrimitiveSet
+//{
+//public:
+//    virtual osg::PrimitiveSet*	getPrimitiveSet()	= 0;
+//    
+//    static GLenum	getGLEnum(Geometry::PrimitiveSet::PrimitiveType tp)
+//    {
+//	switch ( tp )
+//	{
+//	    case Geometry::PrimitiveSet::Triangles:
+//		return GL_TRIANGLES;
+//	    case Geometry::PrimitiveSet::TriangleFan:
+//		return GL_TRIANGLE_FAN;
+//	    case Geometry::PrimitiveSet::TriangleStrip:
+//		return GL_TRIANGLE_STRIP;
+//	    case Geometry::PrimitiveSet::Lines:
+//		return GL_LINES;
+//	    case Geometry::PrimitiveSet::Points:
+//		return GL_POINTS;
+//	    case Geometry::PrimitiveSet::LineStrips:
+//		return GL_LINE_STRIP;
+//	    default:
+//		break;
+//	}
+//	
+//	return GL_POINTS;
+//    }
+//};
     
 void visBase::IndexedShape::addPrimitiveSet( Geometry::IndexedPrimitiveSet* p )
 {
     p->setPrimitiveType( primitivetype_ );
-    if ( doOsg() )
+   /*if ( doOsg() )
     {
 	mDynamicCastGet(OSGPrimitiveSet*, osgps, p );
 	osggeom_->addPrimitiveSet( osgps->getPrimitiveSet() );
-    }
+    }*/
     
     primitivesets_ += p;
     updateFromPrimitives();
@@ -659,69 +632,70 @@ void setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp ) \
     element_->setMode( getGLEnum( getPrimitiveType() )); \
 }
 
-    
-template <class T>
-class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet,
-			       public OSGPrimitiveSet
-{
-public:
-			OSGIndexedPrimitiveSet()
-    			    : element_( new T ) {}
-    
-			mImplOsgFuncs
-    virtual void	setEmpty()
-    			{ element_->erase(element_->begin(), element_->end() ); }
-    virtual void	append( int ) {}
-    virtual int		pop() { return 0; }
-    virtual int		size() const { return 0; }
-    virtual int		get(int) const { return 0; }
-    virtual int		set(int,int) { return 0; }
-    void		set(const int* ptr, int num)
-    {
-	element_->clear();
-	element_->reserve( num );
-	for ( int idx=0; idx<num; idx++, ptr++ )
-	    element_->push_back( *ptr );
-    }
-    void		append(const int* ptr, int num)
-    {
-	element_->reserve( size()+num );
-	for ( int idx=0; idx<num; idx++, ptr++ )
-	    element_->push_back( *ptr );
-    }
 
-    
-    osg::ref_ptr<T>	element_;
-};
+   
+//template <class T>
+//class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet,
+//			       public OSGPrimitiveSet
+//{
+//public:
+//			OSGIndexedPrimitiveSet()
+//    			    : element_( new T ) {}
+//    
+//			mImplOsgFuncs
+//    virtual void	setEmpty()
+//    			{ element_->erase(element_->begin(), element_->end() ); }
+//    virtual void	append( int ) {}
+//    virtual int		pop() { return 0; }
+//    virtual int		size() const { return 0; }
+//    virtual int		get(int) const { return 0; }
+//    virtual int		set(int,int) { return 0; }
+//    void		set(const int* ptr, int num)
+//    {
+//	element_->clear();
+//	element_->reserve( num );
+//	for ( int idx=0; idx<num; idx++, ptr++ )
+//	    element_->push_back( *ptr );
+//    }
+//    void		append(const int* ptr, int num)
+//    {
+//	element_->reserve( size()+num );
+//	for ( int idx=0; idx<num; idx++, ptr++ )
+//	    element_->push_back( *ptr );
+//    }
+//
+//    
+//    osg::ref_ptr<T>	element_;
+//};
 
-    
-class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet,
-			     public OSGPrimitiveSet
-{
-public:
-			OSGRangePrimitiveSet()
-			    : element_( new osg::DrawArrays )
-			{}
-    
-			mImplOsgFuncs
-    
-    int			size() const 	   { return element_->getCount();}
-    int			get(int idx) const { return element_->getFirst()+idx;}
-
-    void		setRange( const Interval<int>& rg )
-    {
-	element_->setFirst( rg.start );
-	element_->setCount( rg.width()+1 );
-    }
-    
-    Interval<int>	getRange() const
-    {
-	const int first = element_->getFirst();
-	return Interval<int>( first, first+element_->getCount()-1 );
-    }
-    
-    osg::ref_ptr<osg::DrawArrays>	element_;
-};
+//    
+//class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet,
+//			     public OSGPrimitiveSet
+//{
+//public:
+//			OSGRangePrimitiveSet()
+//			    : element_( new osg::DrawArrays )
+//			{}
+//    
+//			mImplOsgFuncs
+//    
+//    int			size() const 	   { return element_->getCount();}
+//    int			get(int idx) const { return element_->getFirst()+idx;}
+//
+//    void		setRange( const Interval<int>& rg )
+//    {
+//	element_->setFirst( rg.start );
+//	element_->setCount( rg.width()+1 );
+//    }
+//    
+//    Interval<int>	getRange() const
+//    {
+//	const int first = element_->getFirst();
+//	return Interval<int>( first, first+element_->getCount()-1 );
+//    }
+//    
+//    osg::ref_ptr<osg::DrawArrays>	element_;
+//};
     
     
     
@@ -774,28 +748,14 @@ Geometry::PrimitiveSet*
     PrimitiveSetCreator::doCreate( bool indexed, bool large )
 {
     if ( indexed )
-	return visBase::DataObject::doOsg()
-	    ? (large
-	       ? (Geometry::IndexedPrimitiveSet*)
-		new OSGIndexedPrimitiveSet<osg::DrawElementsUInt>
-	       : (Geometry::IndexedPrimitiveSet*)
-		new OSGIndexedPrimitiveSet<osg::DrawElementsUShort> )
-	    : (Geometry::IndexedPrimitiveSet*) new CoinIndexedPrimitiveSet;
+	return (Geometry::IndexedPrimitiveSet*) new CoinIndexedPrimitiveSet;
     
-    return visBase::DataObject::doOsg()
-	? (Geometry::IndexedPrimitiveSet*) new OSGRangePrimitiveSet
-	: (Geometry::IndexedPrimitiveSet*) new CoinRangePrimitiveSet;
-
+    return (Geometry::IndexedPrimitiveSet*) new CoinRangePrimitiveSet;
 }
     
     
 void visBase::IndexedShape::updateFromPrimitives()
 {
-    if ( doOsg() )
-    {
-	
-    }
-    else
     {
 	TypeSet<int> idxs;
 	for ( int idx=0; idx<primitivesets_.size(); idx++ )

@@ -20,168 +20,168 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mouseevent.h"
 
 #include <Inventor/nodes/SoSeparator.h>
-
-#include <osgManipulator/TabPlaneDragger>
-#include <osg/Geometry>
-#include <osg/Switch>
-#include <osg/LightModel>
-#include <osg/BlendFunc>
-#include <osg/Version>
+//
+//#include <osgManipulator/TabPlaneDragger>
+//#include <osg/Geometry>
+//#include <osg/Switch>
+//#include <osg/LightModel>
+//#include <osg/BlendFunc>
+//#include <osg/Version>
 
 mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
 namespace visBase
 {
 
-
-static void setOsgMatrix( osgManipulator::TabPlaneDragger& osgdragger, int dim,
-			  const osg::Vec3& scale, const osg::Vec3& trans )
-{ 
-    osg::Matrix mat;
-    if ( dim == 0 )
-	mat.makeRotate( osg::Vec3(1,0,0), osg::Vec3(0,1,0) );
-    else if ( dim == 2 )
-	mat.makeRotate( osg::Vec3(0,1,0), osg::Vec3(0,0,1) );
-
-    mat *= osg::Matrix::scale( scale );
-    mat *= osg::Matrix::translate( trans );
-    osgdragger.setMatrix( mat );
-}
-
-
-class PlaneDraggerCallbackHandler: public osgManipulator::DraggerCallback
-{
-
-public:
-
-    PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
-	: dragger_( dragger )						{}
-
-    using			osgManipulator::DraggerCallback::receive;
-    virtual bool		receive(const osgManipulator::MotionCommand&);
-
-protected:
-
-    void			constrain(bool translatedinline);
-
-    DepthTabPlaneDragger&	dragger_;
-    osg::Matrix			startmatrix_;
-};
-
-
-bool PlaneDraggerCallbackHandler::receive(
-				    const osgManipulator::MotionCommand& cmd )
-{
-    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
-	startmatrix_ = dragger_.osgdragger_->getMatrix();
-
-    mDynamicCastGet( const osgManipulator::Scale1DCommand*, s1d, &cmd );
-    mDynamicCastGet( const osgManipulator::Scale2DCommand*, s2d, &cmd );
-    mDynamicCastGet( const osgManipulator::TranslateInLineCommand*,
-		     translatedinline, &cmd );
-    mDynamicCastGet( const osgManipulator::TranslateInPlaneCommand*,
-		     translatedinplane, &cmd );
-
-    bool ignore = !s1d && !s2d && !translatedinline && !translatedinplane;
-
-    const TabletInfo* ti = TabletInfo::currentState();
-    if ( ti && ti->maxPostPressDist()<5 )
-	ignore = true;
-
-    if ( ignore )
-    {
-	dragger_.osgdragger_->setMatrix( startmatrix_ );
-	return true;
-    }
-
-    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
-    {
-	dragger_.started.trigger();
-    }
-    else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
-    {
-	constrain( translatedinline );
-	dragger_.motion.trigger();
-    }
-    else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
-    {
-	dragger_.finished.trigger();
-	if ( startmatrix_ != dragger_.osgdragger_->getMatrix() )
-	    dragger_.changed.trigger();
-    }
-
-    return true;
-}
-
-
-void PlaneDraggerCallbackHandler::constrain( bool translatedinline )
-{
-    osg::Vec3 scale = dragger_.osgdragger_->getMatrix().getScale();
-    osg::Vec3 center = dragger_.osgdragger_->getMatrix().getTrans();
-
-    for ( int dim=0; dim<3; dim++ )
-    {
-	if ( translatedinline && dim==dragger_.dim_ )
-	{
-	    if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
-	    {
-		if ( center[dim] < dragger_.spaceranges_[dim].start )
-		    center[dim] = dragger_.spaceranges_[dim].start;
-		if ( center[dim] > dragger_.spaceranges_[dim].stop )
-		    center[dim] = dragger_.spaceranges_[dim].stop;
-	    }
-	}
-		
-	if ( !translatedinline && dim!=dragger_.dim_ )
-	{
-	    if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
-	    {
-		double diff = center[dim] - 0.5*scale[dim] -
-			      dragger_.spaceranges_[dim].start;
-		if ( diff < 0.0 )
-		{
-		    center[dim] -= 0.5*diff;
-		    scale[dim] += diff;
-		}
-
-		diff = center[dim] + 0.5*scale[dim] -
-		       dragger_.spaceranges_[dim].stop;
-		if ( diff > 0.0 )
-		{
-		    center[dim] -= 0.5*diff;
-		    scale[dim] -= diff;
-		}
-	    }
-
-	    if ( dragger_.widthranges_[dim].width(false) > 0.0 )
-	    {
-		double diff = scale[dim] - dragger_.widthranges_[dim].start;
-		if ( diff < 0 )
-		{
-		    if ( center[dim] < startmatrix_.getTrans()[dim] )
-			center[dim] -= 0.5*diff;
-		    else
-			center[dim] += 0.5*diff;
-
-		    scale[dim] -= diff;
-		}
-
-		diff = scale[dim] - dragger_.widthranges_[dim].stop;
-		if ( diff > 0 )
-		{
-		    if ( center[dim] > startmatrix_.getTrans()[dim] )
-			center[dim] -= 0.5*diff;
-		    else
-			center[dim] += 0.5*diff;
-
-		    scale[dim] -= diff;
-		}
-	    }
-	}
-    }
-
-    setOsgMatrix( *dragger_.osgdragger_, dragger_.dim_, scale, center );
-}
+//
+//static void setOsgMatrix( osgManipulator::TabPlaneDragger& osgdragger, int dim,
+//			  const osg::Vec3& scale, const osg::Vec3& trans )
+//{ 
+//    osg::Matrix mat;
+//    if ( dim == 0 )
+//	mat.makeRotate( osg::Vec3(1,0,0), osg::Vec3(0,1,0) );
+//    else if ( dim == 2 )
+//	mat.makeRotate( osg::Vec3(0,1,0), osg::Vec3(0,0,1) );
+//
+//    mat *= osg::Matrix::scale( scale );
+//    mat *= osg::Matrix::translate( trans );
+//    osgdragger.setMatrix( mat );
+//}
+//
+//
+//class PlaneDraggerCallbackHandler: public osgManipulator::DraggerCallback
+//{
+//
+//public:
+//
+//    PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
+//	: dragger_( dragger )						{}
+//
+//    using			osgManipulator::DraggerCallback::receive;
+//    virtual bool		receive(const osgManipulator::MotionCommand&);
+//
+//protected:
+//
+//    void			constrain(bool translatedinline);
+//
+//    DepthTabPlaneDragger&	dragger_;
+//    osg::Matrix			startmatrix_;
+//};
+//
+//
+//bool PlaneDraggerCallbackHandler::receive(
+//				    const osgManipulator::MotionCommand& cmd )
+//{
+//    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
+//	startmatrix_ = dragger_.osgdragger_->getMatrix();
+//
+//    mDynamicCastGet( const osgManipulator::Scale1DCommand*, s1d, &cmd );
+//    mDynamicCastGet( const osgManipulator::Scale2DCommand*, s2d, &cmd );
+//    mDynamicCastGet( const osgManipulator::TranslateInLineCommand*,
+//		     translatedinline, &cmd );
+//    mDynamicCastGet( const osgManipulator::TranslateInPlaneCommand*,
+//		     translatedinplane, &cmd );
+//
+//    bool ignore = !s1d && !s2d && !translatedinline && !translatedinplane;
+//
+//    const TabletInfo* ti = TabletInfo::currentState();
+//    if ( ti && ti->maxPostPressDist()<5 )
+//	ignore = true;
+//
+//    if ( ignore )
+//    {
+//	dragger_.osgdragger_->setMatrix( startmatrix_ );
+//	return true;
+//    }
+//
+//    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
+//    {
+//	dragger_.started.trigger();
+//    }
+//    else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
+//    {
+//	constrain( translatedinline );
+//	dragger_.motion.trigger();
+//    }
+//    else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
+//    {
+//	dragger_.finished.trigger();
+//	if ( startmatrix_ != dragger_.osgdragger_->getMatrix() )
+//	    dragger_.changed.trigger();
+//    }
+//
+//    return true;
+//}
+//
+//
+//void PlaneDraggerCallbackHandler::constrain( bool translatedinline )
+//{
+//    osg::Vec3 scale = dragger_.osgdragger_->getMatrix().getScale();
+//    osg::Vec3 center = dragger_.osgdragger_->getMatrix().getTrans();
+//
+//    for ( int dim=0; dim<3; dim++ )
+//    {
+//	if ( translatedinline && dim==dragger_.dim_ )
+//	{
+//	    if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
+//	    {
+//		if ( center[dim] < dragger_.spaceranges_[dim].start )
+//		    center[dim] = dragger_.spaceranges_[dim].start;
+//		if ( center[dim] > dragger_.spaceranges_[dim].stop )
+//		    center[dim] = dragger_.spaceranges_[dim].stop;
+//	    }
+//	}
+//		
+//	if ( !translatedinline && dim!=dragger_.dim_ )
+//	{
+//	    if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
+//	    {
+//		double diff = center[dim] - 0.5*scale[dim] -
+//			      dragger_.spaceranges_[dim].start;
+//		if ( diff < 0.0 )
+//		{
+//		    center[dim] -= 0.5*diff;
+//		    scale[dim] += diff;
+//		}
+//
+//		diff = center[dim] + 0.5*scale[dim] -
+//		       dragger_.spaceranges_[dim].stop;
+//		if ( diff > 0.0 )
+//		{
+//		    center[dim] -= 0.5*diff;
+//		    scale[dim] -= diff;
+//		}
+//	    }
+//
+//	    if ( dragger_.widthranges_[dim].width(false) > 0.0 )
+//	    {
+//		double diff = scale[dim] - dragger_.widthranges_[dim].start;
+//		if ( diff < 0 )
+//		{
+//		    if ( center[dim] < startmatrix_.getTrans()[dim] )
+//			center[dim] -= 0.5*diff;
+//		    else
+//			center[dim] += 0.5*diff;
+//
+//		    scale[dim] -= diff;
+//		}
+//
+//		diff = scale[dim] - dragger_.widthranges_[dim].stop;
+//		if ( diff > 0 )
+//		{
+//		    if ( center[dim] > startmatrix_.getTrans()[dim] )
+//			center[dim] -= 0.5*diff;
+//		    else
+//			center[dim] += 0.5*diff;
+//
+//		    scale[dim] -= diff;
+//		}
+//	    }
+//	}
+//    }
+//
+//    setOsgMatrix( *dragger_.osgdragger_, dragger_.dim_, scale, center );
+//}
 
 
 //=============================================================================
@@ -205,8 +205,8 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
     , osgdraggerplane_( 0 )
     , osgcallbackhandler_( 0 )
 {
-    if ( doOsg() )
-	initOsgDragger();
+    /*if ( doOsg() )
+	initOsgDragger();*/
 
     centers_ += center(); centers_ += center(); centers_ += center();
     sizes_ += size(); sizes_ += size(); sizes_ += size();
@@ -226,8 +226,8 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 
 DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
-    if ( osgdragger_ )
-	osgdragger_->removeDraggerCallback( osgcallbackhandler_ );
+    /*if ( osgdragger_ )
+	osgdragger_->removeDraggerCallback( osgcallbackhandler_ );*/
 
     if ( rotation_ ) rotation_->unRef();
     if ( transform_ ) transform_->unRef();
@@ -239,85 +239,85 @@ DepthTabPlaneDragger::~DepthTabPlaneDragger()
 	    		DepthTabPlaneDragger::valueChangedCB, this );
 }
 
-
-void DepthTabPlaneDragger::initOsgDragger()
-{
-    if ( !doOsg() || osgdragger_ )
-	return;
-
-#if OSG_MIN_VERSION_REQUIRED(3,1,3)
-    osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
-    osgdragger_->setIntersectionMask( IntersectionTraversal );
-    osgdragger_->setActivationMouseButtonMask(
-	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
-
-#else
-    osgdragger_ = new osgManipulator::TabPlaneDragger();
-#endif
-
-    addChild( osgdragger_ );
-
-    osgdragger_->setupDefaultGeometry();
-    osgdragger_->setHandleEvents( true );
-
-    osgcallbackhandler_ = new PlaneDraggerCallbackHandler( *this );
-    osgdragger_->addDraggerCallback( osgcallbackhandler_ );
-
-    osgdragger_->getOrCreateStateSet()->setAttributeAndModes(
-	    	new osg::PolygonOffset(-1.0,1.0), osg::StateAttribute::ON );
-    osgdragger_->getOrCreateStateSet()->setRenderingHint(
-					    osg::StateSet::TRANSPARENT_BIN );
-
-    for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
-    {
-	osgManipulator::Dragger* dragger = osgdragger_->getDragger( idx );
-	mDynamicCastGet( osgManipulator::Scale1DDragger*, s1dd, dragger );
-	if ( s1dd )
-	{
-	    s1dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
-	    s1dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
-	}
-	mDynamicCastGet( osgManipulator::Scale2DDragger*, s2dd, dragger );
-	if ( s2dd )
-	{
-	    s2dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
-	    s2dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
-	}
-    }
-
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-    vertices->push_back( osg::Vec3(-0.5,0.0,0.5) );
-    vertices->push_back( osg::Vec3(-0.5,0.0,-0.5) );
-    vertices->push_back( osg::Vec3(0.5,0.0,-0.5) );
-    vertices->push_back( osg::Vec3(0.5,0.0,0.5) );
-
-    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-    normals->push_back( osg::Vec3(0.0,1.0,0.0) );
-
-    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4(0.7,0.7,0.7,0.3) );
-
-    osg::ref_ptr<osg::Geometry> plane = new osg::Geometry;
-    plane->setVertexArray( vertices.get() );
-    plane->setNormalArray( normals.get() );
-    plane->setNormalBinding( osg::Geometry::BIND_OVERALL );
-    plane->setColorArray( colors.get() );
-    plane->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-    plane->addPrimitiveSet( new osg::DrawArrays(GL_QUADS,0,4) );
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-    geode->addDrawable( plane.get() );
-    geode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
-    geode->getOrCreateStateSet()->setAttributeAndModes(
-	    	new osg::PolygonOffset(1.0,1.0), osg::StateAttribute::ON );
-
-    osgdraggerplane_ = new osg::Switch();
-    osgdraggerplane_->addChild( geode.get() );
-    osgdragger_->addChild( osgdraggerplane_ );
-
-    showPlane( false );
-    showDraggerBorder( true );
-}
+//
+//void DepthTabPlaneDragger::initOsgDragger()
+//{
+//    if ( !doOsg() || osgdragger_ )
+//	return;
+//
+//#if OSG_MIN_VERSION_REQUIRED(3,1,3)
+//    osgdragger_ = new osgManipulator::TabPlaneDragger( 12.0 );
+//    osgdragger_->setIntersectionMask( IntersectionTraversal );
+//    osgdragger_->setActivationMouseButtonMask(
+//	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
+//
+//#else
+//    osgdragger_ = new osgManipulator::TabPlaneDragger();
+//#endif
+//
+//    addChild( osgdragger_ );
+//
+//    osgdragger_->setupDefaultGeometry();
+//    osgdragger_->setHandleEvents( true );
+//
+//    osgcallbackhandler_ = new PlaneDraggerCallbackHandler( *this );
+//    osgdragger_->addDraggerCallback( osgcallbackhandler_ );
+//
+//    osgdragger_->getOrCreateStateSet()->setAttributeAndModes(
+//	    	new osg::PolygonOffset(-1.0,1.0), osg::StateAttribute::ON );
+//    osgdragger_->getOrCreateStateSet()->setRenderingHint(
+//					    osg::StateSet::TRANSPARENT_BIN );
+//
+//    for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
+//    {
+//	osgManipulator::Dragger* dragger = osgdragger_->getDragger( idx );
+//	mDynamicCastGet( osgManipulator::Scale1DDragger*, s1dd, dragger );
+//	if ( s1dd )
+//	{
+//	    s1dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
+//	    s1dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
+//	}
+//	mDynamicCastGet( osgManipulator::Scale2DDragger*, s2dd, dragger );
+//	if ( s2dd )
+//	{
+//	    s2dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
+//	    s2dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
+//	}
+//    }
+//
+//    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+//    vertices->push_back( osg::Vec3(-0.5,0.0,0.5) );
+//    vertices->push_back( osg::Vec3(-0.5,0.0,-0.5) );
+//    vertices->push_back( osg::Vec3(0.5,0.0,-0.5) );
+//    vertices->push_back( osg::Vec3(0.5,0.0,0.5) );
+//
+//    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+//    normals->push_back( osg::Vec3(0.0,1.0,0.0) );
+//
+//    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
+//    colors->push_back( osg::Vec4(0.7,0.7,0.7,0.3) );
+//
+//    osg::ref_ptr<osg::Geometry> plane = new osg::Geometry;
+//    plane->setVertexArray( vertices.get() );
+//    plane->setNormalArray( normals.get() );
+//    plane->setNormalBinding( osg::Geometry::BIND_OVERALL );
+//    plane->setColorArray( colors.get() );
+//    plane->setColorBinding( osg::Geometry::BIND_OVERALL );
+//
+//    plane->addPrimitiveSet( new osg::DrawArrays(GL_QUADS,0,4) );
+//    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+//    geode->addDrawable( plane.get() );
+//    geode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+//    geode->getOrCreateStateSet()->setAttributeAndModes(
+//	    	new osg::PolygonOffset(1.0,1.0), osg::StateAttribute::ON );
+//
+//    osgdraggerplane_ = new osg::Switch();
+//    osgdraggerplane_->addChild( geode.get() );
+//    osgdragger_->addChild( osgdraggerplane_ );
+//
+//    showPlane( false );
+//    showDraggerBorder( true );
+//}
 
 
 void DepthTabPlaneDragger::setCenter( const Coord3& newcenter, bool alldims )
@@ -335,22 +335,22 @@ void DepthTabPlaneDragger::setCenter( const Coord3& newcenter, bool alldims )
 	centers_[2] = newcenter;
     }
 
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	setOsgMatrix( *osgdragger_, dim_,
 		      osgdragger_->getMatrix().getScale(),
 		      osg::Vec3(newcenter.x,newcenter.y,newcenter.z) );
-    }
+    }*/
 }
 
 
 Coord3 DepthTabPlaneDragger::center() const
 {
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	osg::Vec3 dragcenter = osgdragger_->getMatrix().getTrans();
 	return Coord3( dragcenter[0], dragcenter[1], dragcenter[2] );
-    }
+    }*/
 
     const SbVec3f res = dragger_->translation.getValue();
     return dragger2World( Coord3(res[0],res[1],res[2]), true );
@@ -373,22 +373,22 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 	sizes_[0] = newscale; sizes_[1] = newscale; sizes_[2] = newscale;
     }
 
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	setOsgMatrix( *osgdragger_, dim_,
 		      osg::Vec3f(newscale.x,newscale.y,newscale.z),
 		      osgdragger_->getMatrix().getTrans() );
-    }
+    }*/
 }
 
 
 Coord3 DepthTabPlaneDragger::size() const
 {
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	osg::Vec3 scale = osgdragger_->getMatrix().getScale();
 	return Coord3( scale[0], scale[1], scale[2] );
-    }
+    }*/
 
     const SbVec3f res = dragger_->scaleFactor.getValue();
     return dragger2World( Coord3(res[0]*2,res[1]*2,res[2]*2), false );
@@ -399,7 +399,7 @@ void DepthTabPlaneDragger::removeScaleTabs()
 {
     dragger_->setPart("greenTabsSep", 0 );
 
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
 	{
@@ -412,7 +412,7 @@ void DepthTabPlaneDragger::removeScaleTabs()
 		osgdragger_->removeDragger( dragger );
 	    }
 	}
-    }
+    }*/
 }
 
 
@@ -639,7 +639,7 @@ void DepthTabPlaneDragger::setTransDragKeys( bool depth, int ns )
     if ( depth ) dragger_->depthKey.setValue( key );
     else dragger_->translateKey.setValue( key );
 
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	unsigned int mask  = osgGA::GUIEventAdapter::NONE;
 	if ( ctrl )  mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
@@ -662,13 +662,13 @@ void DepthTabPlaneDragger::setTransDragKeys( bool depth, int ns )
 		tpd->getTranslate2DDragger()->setActivationModKeyMask( mask );
 	    }
 	}
-    }
+    }*/
 }
 
 
 int DepthTabPlaneDragger::getTransDragKeys( bool depth ) const
 {
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	int state = OD::NoButton;
 	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
@@ -697,7 +697,7 @@ int DepthTabPlaneDragger::getTransDragKeys( bool depth ) const
 		state |= OD::AltButton;
 	}
 	return (OD::ButtonState) state;
-    }
+    }*/
 
     SoDepthTabPlaneDragger::Key key = depth
 	? (SoDepthTabPlaneDragger::Key) dragger_->depthKey.getValue()
@@ -789,7 +789,7 @@ void DepthTabPlaneDragger::finishCB( void* obj, SoDragger* )
 
 void DepthTabPlaneDragger::showDraggerBorder( bool yn )
 {
-    if ( osgdragger_ )
+   /* if ( osgdragger_ )
     {
 	const float borderopacity = yn ? 1.0 : 0.0;
 	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
@@ -804,13 +804,13 @@ void DepthTabPlaneDragger::showDraggerBorder( bool yn )
 					osg::Vec4(1.0,1.0,1.0,borderopacity) );
 	    }
 	}
-    }
+    }*/
 }
 
 
 bool DepthTabPlaneDragger::isDraggerBorderShown() const
 {
-    if ( osgdragger_ )
+    /*if ( osgdragger_ )
     {
 	for ( int idx=osgdragger_->getNumDraggers()-1; idx>=0; idx-- )
 	{
@@ -819,7 +819,7 @@ bool DepthTabPlaneDragger::isDraggerBorderShown() const
 	    if ( tpd )
 		return tpd->getTranslate2DDragger()->getColor()[3];
 	}
-    }
+    }*/
 
     return false;
 }
@@ -827,13 +827,13 @@ bool DepthTabPlaneDragger::isDraggerBorderShown() const
 
 void DepthTabPlaneDragger::showPlane( bool yn )
 {
-    if ( osgdragger_ && osgdraggerplane_ )
-	osgdraggerplane_->setValue( 0, yn );
+   /* if ( osgdragger_ && osgdraggerplane_ )
+	osgdraggerplane_->setValue( 0, yn );*/
 }
 
 
 bool DepthTabPlaneDragger::isPlaneShown() const
-{ return osgdraggerplane_ && osgdraggerplane_->getValue(0); }
+{ return false; } //osgdraggerplane_ && osgdraggerplane_->getValue(0); }
 
 
 void DepthTabPlaneDragger::fillPar( IOPar& par, TypeSet<int>& saveids ) const

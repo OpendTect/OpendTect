@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "UTMCamera.h"
 #include "Inventor/nodes/SoGroup.h"
 
-#include <osg/Camera>
+//#include <osg/Camera>
 
 
 mCreateFactoryEntry( visBase::Camera );
@@ -35,8 +35,8 @@ const char* Camera::sKeyFocalDistance()	{ return "Focal Distance"; }
 Camera::Camera()
     : group( new SoGroup )
 {
-    camera_ = doOsg() ? new osg::Camera : 0;
-    if ( camera_ ) camera_->ref();
+    /*camera_ = doOsg() ? new osg::Camera : 0;
+    if ( camera_ ) camera_->ref();*/
 
     group->ref();
     group->addChild( new UTMCamera );
@@ -46,7 +46,7 @@ Camera::Camera()
 Camera::~Camera()
 {
     group->unref();
-    if ( camera_ ) camera_->unref();
+    //if ( camera_ ) camera_->unref();
 }
 
 
@@ -56,7 +56,7 @@ SoNode* Camera::gtInvntrNode()
 
 osg::Node* Camera::gtOsgNode()
 {
-    return camera_;
+    return 0;
 }
 
 
