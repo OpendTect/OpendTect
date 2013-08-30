@@ -304,7 +304,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ = 
 	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( FlatView::Viewer::Annot, true );
+    vwr_->handleChange( FlatView::Viewer::Auxdata, true );
 }
 
 
@@ -694,7 +694,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
-    vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().coltab_;
+    if ( !wva )
+	vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().coltab_;
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
@@ -970,6 +971,7 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     const BufferString curvdsynthnm( currentvdsynthetic_->name().buf() );
     const BufferString curwvasynthnm( currentwvasynthetic_->name().buf() );
     SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
+    if ( !cursd ) return;
     SynthGenParams curgp;
     cursd->fillGenParams( curgp );
     if ( !(curgp == curSS().genParams()) )
@@ -1206,13 +1208,13 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
     if ( !curSS().hasElasticModels() )
 	return false;
+    curSS().clearSynthetics();
     if ( !stratsynthpar )
 	curSS().addDefaultSynthetic();
     else
     {
 	int nrsynths;
 	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
-	curSS().clearSynthetics();
 	currentvdsynthetic_ = 0;
 	currentwvasynthetic_ = 0;
 	wvadatalist_->setEmpty();

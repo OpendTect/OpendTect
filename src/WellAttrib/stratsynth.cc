@@ -278,10 +278,6 @@ SyntheticData* StratSynth::addDefaultSynthetic()
     genparams_.synthtype_ = SynthGenParams::ZeroOffset;
     genparams_.createName( genparams_.name_ );
     SyntheticData* sd = addSynthetic();
-
-    mDynamicCastGet(PostStackSyntheticData*,psd,sd);
-    if ( psd )  generateOtherQuantities( *psd, layMod() );
-
     return sd;
 }
 
@@ -643,8 +639,12 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     for ( int idx=0; idx<aimodels_.size(); idx++ )
 	maxsz = mMAX( aimodels_[idx].size(), maxsz );
 
-    if ( maxsz == 0 || maxsz == 1 )
+    if ( maxsz == 0 )
 	return 0;
+
+    if ( maxsz == 1 )
+	mErrRet( "Model has only one layer, please add another layer.", 
+		return 0; );
 
     if ( !TaskRunner::execute( tr_, synthgen) )
 	return 0;
