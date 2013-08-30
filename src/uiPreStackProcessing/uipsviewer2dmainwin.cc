@@ -1185,6 +1185,9 @@ uiViewer2DControl::~uiViewer2DControl()
 
 DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
+    if ( !preprocmgr_->prepareWork() )
+	return -1;
+
     const BinID stepoutbid = preprocmgr_->getInputStepout();
     BinID relbid;
     HorSampling hs( false );
