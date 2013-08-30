@@ -1935,6 +1935,12 @@ void HorizonDisplay::updateSectionSeeds(
 	    if ( transformation_ )
 		pos = transformation_->transform( pos );
 
+            if ( zaxistransform_ )
+            {
+		marker->turnOn(false);
+                continue;
+            }
+
 	    for ( int idz=0; idz<planelist.size(); idz++ )
 	    {
 		const float dist = objs[planelist[idz]]->calcDist(pos);
