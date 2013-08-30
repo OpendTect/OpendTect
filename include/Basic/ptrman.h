@@ -22,6 +22,18 @@ ________________________________________________________________________
     inline type*		operator ->() const	{ return this->ptr_; } \
     inline type&		operator *() const	{ return *this->ptr_; }
 
+/*!Convenience function to delete and zero pointer. */
+
+template <class T>
+void deletePtr( T*& ptr )
+{ delete ptr; ptr = 0; }
+
+
+template <class T>
+void deleteArrPtr( T*& ptr )
+{ delete [] ptr; ptr = 0; }
+
+
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
     or RefMan instead. */
 
