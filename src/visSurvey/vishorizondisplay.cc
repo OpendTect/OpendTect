@@ -1934,6 +1934,12 @@ void HorizonDisplay::updateSectionSeeds(
 	    Coord3 pos = marker->centerPos();
 	    if ( transformation_ )
 		pos = transformation_->transform( pos );
+            
+            if ( zaxistransform_ )
+            {
+                marker->turnOn( false );
+                continue;
+            }
 
 	    for ( int idz=0; idz<planelist.size(); idz++ )
 	    {

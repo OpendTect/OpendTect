@@ -417,6 +417,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else
     { mResetMenuItem( &showbothmnuitem_ ); }
 
+    visSurvey::Scene* scene = emod->getScene();
+    const bool hastransform = scene && scene->getZAxisTransform();
     //Commented out as mAddMenu is commented out below
     //visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
     //const bool hastransform = scene && scene->getZAxisTransform();
@@ -445,7 +447,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	showseedsmnuitem_.text =
 	    emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? "&Hide" : "S&how";
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
-		      seeds && seeds->size(), false );
+		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
 		      !visserv_->isTrackingSetupActive(), false );
 	lockseedsmnuitem_.text = 
