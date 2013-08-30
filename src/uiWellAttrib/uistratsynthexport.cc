@@ -465,26 +465,43 @@ bool uiStratSynthExport::createHor2Ds()
 
 void uiStratSynthExport::removeNonSelected()
 {
-    TypeSet<int> selids = poststcksel_->selidxs_;
-    for ( int idx=postsds_.size()-1; idx>=0; idx-- )
-    {
-	if ( !selids.isPresent(idx) )
-	    postsds_.removeSingle( idx );
-    }
-    
-    selids = prestcksel_->selidxs_;
-    for ( int idx=presds_.size()-1; idx>=0; idx-- )
-    {
-	if ( !selids.isPresent(idx) )
-	    presds_.removeSingle( idx );
-    }
+    TypeSet<int> selids;
 
-    selids = horsel_->selidxs_;
-    for ( int idx=sslvls_.size()-1; idx>=0; idx-- )
+    if ( poststcksel_->isChecked() )
     {
-	if ( !selids.isPresent(idx) )
-	    sslvls_.removeSingle( idx );
+	selids = poststcksel_->selidxs_;
+	for ( int idx=postsds_.size()-1; idx>=0; idx-- )
+	{
+	    if ( !selids.isPresent(idx) )
+		postsds_.removeSingle( idx );
+	}
     }
+    else
+	postsds_.erase();
+    
+    if ( prestcksel_->isChecked() )
+    {
+	selids = prestcksel_->selidxs_;
+	for ( int idx=presds_.size()-1; idx>=0; idx-- )
+	{
+	    if ( !selids.isPresent(idx) )
+		presds_.removeSingle( idx );
+	}
+    }
+    else
+	presds_.erase();
+
+    if ( horsel_->isChecked() )
+    {
+	selids = horsel_->selidxs_;
+	for ( int idx=sslvls_.size()-1; idx>=0; idx-- )
+	{
+	    if ( !selids.isPresent(idx) )
+		sslvls_.removeSingle( idx );
+	}
+    }
+    else
+	sslvls_.erase();
 }
 
 
@@ -493,7 +510,11 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     removeNonSelected();
 
     if ( presds_.isEmpty() && postsds_.isEmpty() && sslvls_.isEmpty() )
-	mErrRet( "Nothing selected for export", false )
+    {
+	getExpObjs();
+	mErrRet( "Nothing selected for export", false );
+    }
+
     PtrMan<const IOObj> lineobj = linesetsel_->getIOObj();
     if ( !lineobj )
 	mErrRet( "Select proper 2D output lineset", false )
