@@ -87,6 +87,7 @@ namespace sKey
     inline FixedString Range()		{ return "Range"; }
     inline FixedString Sampling()	{ return "Sampling"; }
     inline FixedString Scale()		{ return "Scale"; }
+    inline FixedString SeisID()		{ return "SeisID"; }
     inline FixedString Selection()	{ return "Selection"; }
     inline FixedString Subsample()	{ return "Subsample"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
@@ -113,6 +114,7 @@ namespace sKey
     inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
     inline FixedString Version()	{ return "Version"; }
+    inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
