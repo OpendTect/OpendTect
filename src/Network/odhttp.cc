@@ -12,6 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odhttp.h"
 #include "qhttpconn.h"
 #include "settings.h"
+#include "odinst.h"
+#include "odplatform.h"
 
 #include <QByteArray>
 #include <QEventLoop>
@@ -114,10 +116,16 @@ int _postFileAndData( const char* path, const char* filename,
 {
     QUrl qurl( path );
     QString boundary = "---------------------------193971182219750";
- 
+
+    BufferString releasename ( OD::Platform::local().shortName(), "_");
+    releasename.add( ODInst::getPkgVersion ("base") );
+    releasename.add( "_" );
+
     QByteArray data(QString("--" + boundary + "\r\n").toAscii());
     data += "Content-Disposition: form-data; name=\"dumpfile\";"; 
-    data += "filename=\"crash.dmp\"\r\n";
+    data += "filename=\"";
+    data += releasename;
+    data += "crash.dmp\"\r\n";
     data += "Content-Type: application/octet-stream\r\n\r\n";
  
     QFile file( filename );
