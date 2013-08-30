@@ -153,7 +153,7 @@ void uiSynthGenDlg::updateSynthNames()
 
 void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
-    FixedString synthnm( synthnmlb_->textOfItem(synthnmlb_->nextSelected(-1)) );
+    FixedString synthnm( synthnmlb_->textOfItem(synthnmlb_->nextSelected()) );
     if ( synthnm.isEmpty() ) return;
     SyntheticData* sd = stratsynth_.getSynthetic( synthnm );
     if ( !sd ) return;
@@ -179,6 +179,9 @@ void uiSynthGenDlg::parsChanged( CallBacker* )
 
 void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 {
+    const int selidx = synthnmlb_->nextSelected();
+    if ( selidx<0 )
+	return uiMSG().error( "No synthetic selected" );
     if ( synthnmlb_->size()==1 )
 	return uiMSG().error( "Cannot remove all synthetics" );
 
@@ -220,7 +223,7 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	return uiMSG().error( msg );
     }
 
-    BufferString synthname( synthnmlb_->getText() );
+    BufferString synthname( synthnmlb_->textOfItem(selidx) );
     synthnmlb_->removeItem( synthnmlb_->currentItem() );
     synthRemoved.trigger( synthname );
 }
@@ -389,7 +392,10 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
     if ( !synthnmlb_->nrSelected() ) return true;
 
     if ( !getFromScreen() ) return false;
-    BufferString synthname( synthnmlb_->getText() );
+    const int selidx = synthnmlb_->nextSelected();
+    if ( selidx<0 )
+	return true;
+    BufferString synthname( synthnmlb_->textOfItem(selidx) );
     synthChanged.trigger( synthname );
     
     return true;
@@ -398,7 +404,7 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
 
 bool uiSynthGenDlg::isCurSynthChanged() const
 {
-    const int selidx = synthnmlb_->nextSelected(-1);
+    const int selidx = synthnmlb_->nextSelected();
     if ( selidx < 0 ) return false;
     BufferString selstr = synthnmlb_->textOfItem( selidx );
     SyntheticData* sd = stratsynth_.getSynthetic( selstr );
