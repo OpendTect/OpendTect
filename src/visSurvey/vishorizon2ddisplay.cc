@@ -463,17 +463,22 @@ void Horizon2DDisplay::updateSeedsOnSections(
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	visBase::DataObjectGroup* group = posattribmarkers_[idx];
-	for ( int idy=0; idy<group->size(); idy++ )
+        for ( int idy=0; idy<group->size(); idy++ )
 	{
 	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idy));
 	    if ( !marker ) continue;
 
 	    marker->turnOn( !displayonlyatsections_ );
 	    Coord3 pos = marker->centerPos();
-	    if ( transformation_ ) 
-		pos = transformation_->transform( pos );
+            if ( transformation_ )
+                pos = transformation_->transform( pos );
+
 	    if ( zaxistransform_ )
-		pos.z = zaxistransform_->transform( pos );
+            {
+                marker->turnOn( false );
+                continue;
+            }
+
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const float dist = seis2dlist[idz]->calcDist(pos);
