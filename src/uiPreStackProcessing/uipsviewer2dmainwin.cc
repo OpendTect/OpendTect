@@ -632,9 +632,14 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 
 	    if  ( isStored() )
 	    {
-		tb->addObject( 
-		    new uiToolButton( tb, "anglegather", "Display Angle Data",
-			mCB(this,uiViewer2DMainWin,angleDataCB) ) );
+		mDynamicCastGet(const uiStoredViewer2DMainWin*,storedwin,this);
+		if ( storedwin && !storedwin->is2D() )
+		{
+		    tb->addObject( 
+			new uiToolButton( tb,"anglegather","Display Angle Data",
+			    mCB(this,uiViewer2DMainWin,angleDataCB) ) );
+		}
+		
 		tb->addObject( 
 		    new uiToolButton( tb, "contexthelp", "Help",
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
