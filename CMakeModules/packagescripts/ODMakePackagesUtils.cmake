@@ -176,7 +176,7 @@ macro( create_basepackages PACKAGE_NAME )
 			        ${CMAKE_INSTALL_PREFIX}/doc/User/base/WindowLinkTable.txt
 				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/User/.mnuinfo
+			        ${CMAKE_INSTALL_PREFIX}/doc/User/base/.mnuinfo
 				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
        #execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 			        #${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
