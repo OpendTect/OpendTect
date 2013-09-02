@@ -446,7 +446,7 @@ bool removeDir( const char* dirnm )
 	// TODO
     }
 
-    cmd.add(" '").add(dirnm).add("'");
+    cmd.add(" \"").add(dirnm).add("\"");
     bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
     if ( res ) res = !exists(dirnm);
     return res;
@@ -476,7 +476,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     cmd = "chmod";
     if ( recursive && isDirectory(fnm) )
 	cmd += " -R ";
-    cmd.add(yn ? " ug+w '" : " a-w '").add(fnm).add("'");
+    cmd.add(yn ? " ug+w '" : " a-w \"").add(fnm).add("\"");
 #endif
 
     return QProcess::execute( QString(cmd.buf()) ) >= 0;
@@ -489,7 +489,7 @@ bool makeExecutable( const char* fnm, bool yn )
     return true;
 #else
     BufferString cmd( "chmod" );
-    cmd.add(yn ? " +r+x '" : " -x '").add(fnm).add("'");
+    cmd.add(yn ? " +r+x '" : " -x \"").add(fnm).add("\"");
     return QProcess::execute( QString(cmd.buf()) ) >= 0;
 #endif
 }
@@ -503,7 +503,7 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
     BufferString cmd( "chmod " );
     if ( recursive && isDirectory(fnm) )
 	cmd += " -R ";
-    cmd.add( perms ).add( " " ).add( fnm );
+    cmd.add( perms ).add( " \"" ).add( fnm ).add( "\"" );
     return QProcess::execute( QString(cmd.buf()) ) >= 0;
 #endif
 }
