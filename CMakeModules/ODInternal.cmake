@@ -41,10 +41,10 @@ install( DIRECTORY doc/Credits/base
 	 DESTINATION doc/Credits
 	 PATTERN ".svn" EXCLUDE )
 
-install( FILES doc/User/base/WindowLinkTable.txt DESTINATION doc
-         RENAME od_WindowLinkTable.txt )
-install( FILES doc/User/base/.mnuinfo DESTINATION doc
-         RENAME base_.mnuinfo )
+install( FILES doc/User/base/WindowLinkTable.txt
+         DESTINATION doc/User/base )
+install( FILES doc/User/base/.mnuinfo
+         DESTINATION doc/User/base )
 
 file( GLOB FLEXNETFILES doc/*.html )
 foreach( FLEXNETFILE ${FLEXNETFILES} )

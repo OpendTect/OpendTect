@@ -173,10 +173,10 @@ macro( create_basepackages PACKAGE_NAME )
 #install WindowLinkTable.txt
        file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/base )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/od_WindowLinkTable.txt
+			        ${CMAKE_INSTALL_PREFIX}/doc/User/base/WindowLinkTable.txt
 				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/base_.mnuinfo
+			        ${CMAKE_INSTALL_PREFIX}/doc/User/.mnuinfo
 				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
        #execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 			        #${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
@@ -200,10 +200,10 @@ macro( create_basepackages PACKAGE_NAME )
 #install WindowLinkTable.txt
        file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_WindowLinkTable.txt
+			        ${CMAKE_INSTALL_PREFIX}/doc/User/dgb/WindowLinkTable.txt
 				${DESTINATION_DIR}/doc/User/dgb/WindowLinkTable.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_.mnuinfo
+			        ${CMAKE_INSTALL_PREFIX}/doc/User/dgb/.mnuinfo
 				${DESTINATION_DIR}/doc/User/dgb/.mnuinfo )
        #execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
 				#${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
