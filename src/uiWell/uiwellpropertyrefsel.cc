@@ -313,28 +313,30 @@ bool uiWellPropSel::setLog( const PropertyRef::StdType tp,
 }
 
 
-bool uiWellPropSel::getLog( const PropertyRef::StdType tp, BufferString& bs, 
-			bool& check, BufferString& uom, int idx ) const
+bool uiWellPropSel::getLog( const PropertyRef::StdType proptyp,
+		BufferString& retlognm, bool& retisrev, BufferString& retuom,
+		int idx ) const
 {
-    check = propflds_[idx]->isUseAlternate();
-    const PropertyRef* alternatepr = check ? propflds_[idx]->altPropRef() : 0;
-    if ( propflds_[idx]->propRef().hasType(tp)
-	    || (alternatepr && alternatepr->hasType(tp)) ) 
-    {
-	bs = propflds_[idx]->text();
-	if ( propflds_[idx]->uom() )
-	{
-	    if ( *propflds_[idx]->uom()->symbol() != '\0' )
-		uom = propflds_[idx]->uom()->symbol();
-	    else
-		uom = propflds_[idx]->uom()->name();
-	}
-	else
-	    uom.setEmpty();
-	return true;
-    }
+    const uiPropSelFromList& psfl = *propflds_[idx];
+    const bool isrev = psfl.isUseAlternate();
+    const PropertyRef& pr = psfl.propRef();
+    const PropertyRef* altpr = isrev ? psfl.altPropRef() : 0;
+    if ( !pr.hasType(proptyp) && !(altpr && altpr->hasType(proptyp)) )
+	return false;
+    const BufferString lognm = psfl.text();
+    if ( lognm.isEmpty() || lognm == sKeyPlsSel() )
+	return false;
 
-    return false;
+    const UnitOfMeasure* uom = psfl.uom();
+
+    retlognm = lognm;
+    retisrev = isrev;
+    if ( !uom )
+	retuom.setEmpty();
+    else
+	retuom = *uom->symbol() ? uom->symbol() : uom->name().buf();
+
+    return true;
 }
 
 
