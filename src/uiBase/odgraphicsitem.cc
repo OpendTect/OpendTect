@@ -509,7 +509,7 @@ ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
  mImage2PixmapImpl( image, pixmap )
 #else
 # define mImage2Pixmap( image, pixmap ) \
- if ( !basepixmap_ ) \
+ if ( !pixmap ) \
     pixmap = new QPixmap; \
  mImage2PixmapImpl( image, pixmap )
 #endif
