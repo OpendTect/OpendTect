@@ -142,8 +142,8 @@ void Data::computeExtractionRange()
     dahrg_.limitTo( track.dahRange() );
     float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start, track ) );
     float twtstop = d2t->getTime( dahrg_.stop, track );
-    twtstart = (float) mNINT32(twtstart/cDefSeisSr()) * cDefSeisSr();
-    twtstop = (float) mNINT32(twtstop/cDefSeisSr()) * cDefSeisSr();
+    twtstart = ceil( twtstart / cDefSeisSr() ) * cDefSeisSr();
+    twtstop = floor( twtstop / cDefSeisSr() ) * cDefSeisSr();
     modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
 
     dahrg_.start = d2t->getDah( twtstart, track );
