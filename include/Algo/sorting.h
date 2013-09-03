@@ -67,10 +67,9 @@ inline void sort_idxabl_coupled( T& arr, IT* idxs, int sz )
 mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp,int)
 #undef mDoSort
 
-
 /*!> Sorting for data with many duplicates. */
 template <class T,class I>
-inline void duplicate_sort( T* arr, I sz )
+inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 {
     TypeSet<T> vals;
     TypeSet<int> count;
@@ -79,6 +78,11 @@ inline void duplicate_sort( T* arr, I sz )
 	const int vidx = vals.indexOf( arr[idx] );
 	if ( vidx<0 )
 	{
+	    if ( vals.size()>maxnrvals )
+	    {
+		return false;
+	    }
+	    
 	    count += 1;
 	    vals += arr[idx];
 	}
@@ -98,6 +102,15 @@ inline void duplicate_sort( T* arr, I sz )
 	for ( int idy=count[idxs[idx]]-1; idy>=0; --idy )
 	    arr[++index] = vals[idx];
     }
+    
+    return true;
+}
+
+//!>Old version to mantain binary compability
+template <class T,class I>
+inline void duplicate_sort( T* arr, I sz )
+{
+    duplicate_sort( arr, sz, sz );
 }
 
 
