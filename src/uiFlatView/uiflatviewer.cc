@@ -383,7 +383,6 @@ FlatView::AuxData* uiFlatViewer::removeAuxData( int idx )
 }
 
 
-
 void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
 {
     useseldataranges_ = true;
