@@ -569,7 +569,7 @@ void uiTieWinMGRDlg::set2DSeis() const
     if ( !lsobj )
 	return;
 
-    BufferString attrnm = mGetPar( sKeyDefaultAttrib );
+    BufferString attrnm = defpars ? mGetPar( sKeyDefaultAttrib ) : 0;
     if ( lsobj && attrnm.isEmpty() )
     {
 	SeisIOObjInfo seisinfo( lsobj );
