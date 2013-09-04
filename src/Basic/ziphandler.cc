@@ -556,6 +556,7 @@ bool ZipHandler::setLocalFileHeaderForDir()
 
 bool ZipHandler::setLocalFileHeaderForLink()
 {
+#ifdef HAS_ZLIB
     FilePath fnm( srcfile_ );
     int p = fnm.nrLevels();
     BufferString srcfnm = "";
@@ -602,6 +603,10 @@ bool ZipHandler::setLocalFileHeaderForLink()
 
     osd_.ostrm->flush();
     return true;
+#else
+    pErrMsg( "ZLib not available" );
+    return false;
+#endif
 }
 
 
