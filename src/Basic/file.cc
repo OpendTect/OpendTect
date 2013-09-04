@@ -310,7 +310,11 @@ bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
     QFile qfile( fnm );
-    return qfile.isOpen();
+    if ( !qfile.open(QFile::ReadWrite) )
+	return true;
+
+    qfile.close();
+    return false;
 #else
     return false;
 #endif
