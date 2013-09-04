@@ -1563,6 +1563,9 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
 		mCB(this,uiAttribPartServer,showSliceCB) );
 	crossevaldlg->windowClosed.notify(
 		mCB(this,uiAttribPartServer,evalDlgClosed) );
+	if( !crossevaldlg->evaluationPossible() )
+	    mErrRet( "This attribute has no parameters to evaluate" );
+
 	crossevaldlg->go();
     }
 
