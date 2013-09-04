@@ -88,6 +88,14 @@ int uiSurfaceSel::getSelItems() const
 { return listfld_->nrSelected(); }
 
 
+void uiSurfaceSel::clearList()
+{
+    listfld_->setEmpty();
+    names_.erase();
+    mids_.erase();
+}
+
+
 uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
     : uiSurfaceSel( p, ct )
 {}
@@ -123,7 +131,7 @@ void uiSurface2DSel::setLineSetID( const MultiID& mid )
 	for ( int idz=0; idz<linesets.size(); idz++ )
 	{
 	    IOObj* selobj = IOM().get( mid );
-	    if ( linesets.get(idz) == selobj->name() )
+	    if ( selobj && linesets.get(idz) == selobj->name() )
 	    {
 		mids_.addIfNew( ioobj->key() );
 		names_.addIfNew( ioobj->name() );

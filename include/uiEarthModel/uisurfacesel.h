@@ -30,6 +30,7 @@ public:
     int 		getSelItems() const;
 
     void		removeFromList(const TypeSet<MultiID>&);
+    void		clearList();
 
 protected:
     			uiSurfaceSel(uiParent*,const IOObjContext&);
