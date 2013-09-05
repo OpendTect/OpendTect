@@ -76,6 +76,13 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
 }
 
 
+uiObjectItemViewWin::~uiObjectItemViewWin()
+{
+    delete mainviewer_;
+    delete infobar_;
+}
+
+
 void uiObjectItemViewWin::addObject( uiObject* obj, uiObject* infoobj )
 {
     uiObjectItem* itm = new uiObjectItem( obj );

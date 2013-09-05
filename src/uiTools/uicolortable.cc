@@ -277,6 +277,7 @@ void uiColorTable::createFields( uiParent* parnt, bool vert )
 
 uiColorTable::~uiColorTable()
 {
+    delete canvas_;
     delete &coltabseq_;
     delete &mapsetup_;
 }
