@@ -609,7 +609,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     if ( paintbase )
     {
 	const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
-	painter->drawPixmap( scenerect, *basepixmap_ );
+	if ( basepixmap_ ) painter->drawPixmap( scenerect, *basepixmap_ );
     }
 
     if ( dynamicpixmap_ )
