@@ -447,6 +447,8 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     setToolButtons();
 
     mainviewer_.disableScrollZoom();
+    mainviewer_.getKeyboardEventHandler().keyPressed.notify(
+	    mCB(this,uiObjectItemViewControl,keyPressedCB) );
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
@@ -457,6 +459,13 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 void uiObjectItemViewControl::setToolButtons()
 {
     mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
+}
+
+
+void uiObjectItemViewControl::keyPressedCB( CallBacker* )
+{
+    if ( mainviewer_.getKeyboardEventHandler().event().key_ == OD::Escape )
+	changeStatus();
 }
 
 
