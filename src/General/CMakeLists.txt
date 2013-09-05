@@ -67,6 +67,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    transl.cc
 	    unitofmeasure.cc
 	    usrinputobj.cc
+	    velocitytag.cc
 	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 
