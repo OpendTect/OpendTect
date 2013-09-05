@@ -493,6 +493,7 @@ void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
     const bool shwy1 = shwy1userdefpolyline_->isChecked();
+    if ( !mathobj_ ) exp1plotted_ = true;
 
     if ( shwy1 && !exp1plotted_ )
     {
@@ -510,6 +511,7 @@ void drawPolyLines()
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
 	const bool shwy2 = shwy2userdefpolyline_->isChecked();
+	if ( !mathobj1_ ) exp2plotted_ = true;
 
     	if ( shwy2 && !exp2plotted_ )
     	{
