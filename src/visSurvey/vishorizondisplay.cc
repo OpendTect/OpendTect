@@ -478,6 +478,10 @@ int HorizonDisplay::nrTextures( int channel ) const
 
 void HorizonDisplay::selectTexture( int channel, int textureidx )
 {
+    if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty()
+	    || textureidx >= sections_[0]->nrVersions(channel) )
+	return;
+
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );

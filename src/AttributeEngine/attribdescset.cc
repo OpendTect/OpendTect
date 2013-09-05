@@ -340,9 +340,9 @@ void DescSet::fillPar( IOPar& par ) const
 	if ( !dsc.getDefStr(defstr) ) continue;
 
         const BufferString storeid = dsc.getStoredID( true );
-        PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
-        if ( !ioobj )
-            continue;
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
+	if ( !storeid.isEmpty() && !ioobj )
+	    continue;
 
 	apar.set( definitionStr(), defstr );
 
