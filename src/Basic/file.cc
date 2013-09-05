@@ -309,12 +309,16 @@ bool isExecutable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    QFile qfile( fnm );
-    if ( !qfile.open(QFile::ReadWrite) )
-	return true;
-
-    qfile.close();
-    return false;
+    HANDLE handle = CreateFileA( fnm, 
+				 GENERIC_READ | GENERIC_WRITE,
+				 0,
+				 0,
+				 OPEN_EXISTING,
+				 0,
+				 0 );
+    const bool ret = handle == INVALID_HANDLE_VALUE;
+    CloseHandle( handle );
+    return ret;
 #else
     return false;
 #endif
