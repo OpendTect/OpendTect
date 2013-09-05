@@ -81,11 +81,26 @@ protected:
 
     void			fillTable(CallBacker*);
     void			updNow(CallBacker*);
+    void			dtpointChangedCB(CallBacker*);
+    void			dtpointRemovedCB(CallBacker*);
+    bool			updateDtpointDepth(int row);
+    bool			updateDtpointTime(int row);
+    bool			updateDtpoint(int row,float oldval);
     void			readNew(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			expData(CallBacker*);
     void			getModel(Well::D2TModel&);
+
+    BufferStringSet		getColLabels() const;
+    int				getTVDGLCol() const;
+    int				getTVDSDCol() const;
+    int				getTVDSSCol() const;
+    int 			getTimeCol() const;
+    int				getVintCol() const;
+    bool			rowIsIncomplete(int row) const;
+    int				getPreviousCompleteRowIdx(int row) const;
+    int				getNextCompleteRowIdx(int row) const;
 };
 
 
