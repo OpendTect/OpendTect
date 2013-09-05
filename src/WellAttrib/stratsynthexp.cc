@@ -34,7 +34,8 @@ StratSynthExporter::StratSynthExporter( const IOObj& outobj,
     , outobj_(outobj)
     , cursdidx_(0)
     , posdone_(0)
-    , prepostfixstr_(prepostfix)
+    , prefixstr_(prepostfix[0].str())
+    , postfixstr_(prepostfix[1].str())
     , writer_(0)
 {
 }
@@ -59,11 +60,34 @@ od_int64 StratSynthExporter::totalNr() const
     return sds_.size()*linegeom_.positions().size();
 }
 
+#define mSkipInitialBlanks( str ) \
+{ \
+BufferString copystr = str.buf(); \
+char* strptr = copystr.buf(); \
+mSkipBlanks( strptr ); \
+str = strptr; \
+}
+
 void StratSynthExporter::prepareWriter()
 {
     const bool isps = sds_[cursdidx_]->isPS();
-    BufferString synthnm( prepostfixstr_[0].str(), "_",sds_[cursdidx_]->name());
-    synthnm += "_"; synthnm += prepostfixstr_[1].str();
+    BufferString synthnm;
+    mSkipInitialBlanks( prefixstr_ )
+    if ( !prefixstr_.isEmpty() )
+    {
+	synthnm += prefixstr_.buf();
+	synthnm += "_";
+    }
+    
+    synthnm += sds_[cursdidx_]->name();
+
+    mSkipInitialBlanks( postfixstr_ );
+    if ( !postfixstr_.isEmpty() )
+    {
+	synthnm += "_";
+	synthnm += postfixstr_.buf();
+    }
+
     PtrMan<CtxtIOObj> psctxt;
     if ( isps )
     {
@@ -95,12 +119,20 @@ int StratSynthExporter::nextStep()
 }
 
 
+const char* StratSynthExporter::errMsg() const
+{ return writer_->errMsg(); }
+
+
+#define mErrRetPErr( msg ) \
+{ pErrMsg( msg ); return ErrorOccurred(); }
+
 int StratSynthExporter::writePostStackTrace()
 {
     const SyntheticData* sd = sds_[cursdidx_];
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
     if ( !postsd )
-	return Executor::ErrorOccurred();
+	mErrRetPErr( "Wrong type (not PostStackSyntheticData)" )
+
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_.positions();
     if ( !positions.validIdx(posdone_) )
@@ -113,12 +145,15 @@ int StratSynthExporter::writePostStackTrace()
     const PosInfo::Line2DPos& linepos = positions[posdone_];
     const SeisTrc* synthrc = seisbuf.get( posdone_ );
     if ( !synthrc )
-	return Executor::ErrorOccurred();
+	mErrRetPErr( "Cannot find the trace in the required position" )
+
     SeisTrc trc( *synthrc );
     trc.info().nr = linepos.nr_;
     trc.info().binid = SI().transform( linepos.coord_ );
     trc.info().coord = linepos.coord_;
-    writer_->put( trc );
+    if ( !writer_->put(trc) )
+	return ErrorOccurred();
+
     posdone_++;
     return Executor::MoreToDo();
 }
@@ -129,7 +164,7 @@ int StratSynthExporter::writePreStackTraces()
     const SyntheticData* sd = sds_[cursdidx_];
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     if ( !presd )
-	return Executor::ErrorOccurred();
+	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_.positions();
@@ -143,7 +178,7 @@ int StratSynthExporter::writePreStackTraces()
     const PosInfo::Line2DPos& linepos = positions[posdone_];
 
     if ( !gathers.validIdx(posdone_) )
-	return Executor::ErrorOccurred();
+	mErrRetPErr( "Cannot find the gather in the required position" );
     const PreStack::Gather* gather = gathers[posdone_];
     for ( int offsidx=0; offsidx<gather->size(true); offsidx++ )
     {
@@ -153,7 +188,8 @@ int StratSynthExporter::writePreStackTraces()
 	trc.info().binid = SI().transform( linepos.coord_ );
 	trc.info().coord = linepos.coord_;
 	trc.info().offset = offset;
-	writer_->put( trc );
+	if ( !writer_->put(trc) )
+	    return ErrorOccurred();
     }
 
     posdone_++;

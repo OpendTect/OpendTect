@@ -237,6 +237,7 @@ void uiStratSynthExport::getExpObjs()
     if ( !ss_.nrSynthetics() )
 	return;
 
+    postsds_.erase(); presds_.erase(); sslvls_.erase();
     for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
     {
 	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
@@ -293,11 +294,14 @@ void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
 					   PosInfo::Line2DData& geom )
 {
     geom.setEmpty();
-    int synthmodelsz = 0;
+    int synthmodelsz = mUdf(int);
     if ( postsds_.isEmpty() )
     {
-	mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
-	synthmodelsz = presd->preStackPack().getGathers().size();
+	if ( !presds_.isEmpty() )
+	{
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
+	    synthmodelsz = presd->preStackPack().getGathers().size();
+	}
     }
     else
     {
@@ -354,10 +358,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
     switch ( selgeom )
     {
 	case Existing:
-	{
-	    S2DPOS().getGeometry( linegeom );
-	    return true;
-	}
+	    return S2DPOS().getGeometry( linegeom );
 	case StraightLine:
 	{
 	    ptlist += Coord(coord0fld_->getdValue(0), coord0fld_->getdValue(1));
@@ -419,10 +420,19 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 }
 
 
-void uiStratSynthExport::getNewName( BufferString& oldnm ) const
+void uiStratSynthExport::addPrePostFix( BufferString& oldnm ) const
 {
-    BufferString newnm( prefxfld_->text(), "_", oldnm.buf() );
-    newnm += "_"; newnm += postfxfld_->text();
+    BufferString newnm;
+
+    BufferString pfx( prefxfld_->text() );
+    if ( !pfx.isEmpty() )
+	newnm.add( pfx ).add( "_" );
+
+    newnm += oldnm.buf();
+    pfx = postfxfld_->text();
+    if ( !pfx.isEmpty() )
+	newnm.add( "_" ).add( pfx );
+
     oldnm = newnm;
 }
 
@@ -443,7 +453,7 @@ bool uiStratSynthExport::createHor2Ds()
     {
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
 	BufferString hornm( stratlvl->name() );
-	getNewName( hornm );
+	addPrePostFix( hornm );
 	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),hornm );
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,em.getObject(emid));
 	if ( !horizon2d ) continue;
@@ -515,36 +525,57 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	mErrRet( "Nothing selected for export", false );
     }
 
+    const bool useexisting = selType()==uiStratSynthExport::Existing;
+    if ( !useexisting && postsds_.isEmpty() )
+    {
+	getExpObjs();
+	mErrRet( "No post stack selected. Since a new geometry will be created "
+		 "you need to select atleast one post stack data to "
+		 "create a 2D line geometry.", false );
+    }
+
     PtrMan<const IOObj> lineobj = linesetsel_->getIOObj();
     if ( !lineobj )
-	mErrRet( "Select proper 2D output lineset", false )
+    {
+	getExpObjs();
+	return false;
+    }
 	
     S2DPOS().setCurLineSet( lineobj->name() );
-    const char* linenm =
+    BufferString linenm =
 	crnewfld_->getBoolValue() ? newlinenmsel_->getInput()
 				  : existlinenmsel_->getInput();
-    if ( !linenm )
-	mErrRet( "No line name specified", false )
+    if ( linenm.isEmpty() )
+    {
+	getExpObjs();
+	mErrRet( "No line name specified", false );
+    }
+
     PosInfo::Line2DData linegeom( linenm );
     if ( !getGeometry(linegeom) )
-	return true;
-
-    int synthmodelsz = 0;
-    if ( postsds_.isEmpty() )
     {
-	mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
-	synthmodelsz = presd->preStackPack().getGathers().size();
+	getExpObjs();
+	mErrRet( "Could not find the geometry of specified line", false );
     }
-    else
+
+    int synthmodelsz = linegeom.positions().size();
+    if ( !postsds_.isEmpty() )
     {
 	mDynamicCastGet(const PostStackSyntheticData*,postsd,postsds_[0]);
 	synthmodelsz = postsd->postStackPack().trcBuf().size();
     }
+    else if ( !presds_.isEmpty() )
+    {
+	mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
+	synthmodelsz = presd->preStackPack().getGathers().size();
+    }
+
     if ( linegeom.positions().size() < synthmodelsz )
 	uiMSG().warning( "The geometry of the line could not accomodate \n"
 			 "all the traces from the synthetics. Some of the \n"
 			 "end traces will be clipped" );
-    SeparString prepostfix( prefxfld_->text() );
+    SeparString prepostfix;
+    prepostfix.add( prefxfld_->text() );
     prepostfix.add( postfxfld_->text() );
     ObjectSet<const SyntheticData> sds( postsds_ );
     sds.append( presds_ );
@@ -552,8 +583,8 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	    			 linegeom, prepostfix );
     uiTaskRunner tr( this );
     const bool res = TaskRunner::execute( &tr, synthexp );
-    if ( selType() != uiStratSynthExport::Existing && !res )
-	return true;
+    if ( !res )
+	mErrRet( synthexp.errMsg(), false )
     createHor2Ds();
     if ( !SI().has2D() )
 	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"

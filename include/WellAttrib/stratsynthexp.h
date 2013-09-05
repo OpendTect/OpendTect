@@ -35,6 +35,7 @@ public:
 
     od_int64				nrDone() const;
     od_int64				totalNr() const;
+    const char*				errMsg() const;
 protected:
 
     int 				nextStep();
@@ -47,7 +48,8 @@ protected:
     const PosInfo::Line2DData&		linegeom_;
     const IOObj&			outobj_;
     SeisTrcWriter*			writer_;
-    const SeparString&			prepostfixstr_;
+    BufferString			prefixstr_;
+    BufferString			postfixstr_;
     int					cursdidx_;
     int					posdone_;
 };

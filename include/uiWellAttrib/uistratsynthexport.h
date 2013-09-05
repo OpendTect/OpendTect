@@ -61,7 +61,7 @@ protected:
     
     BufferString	getWinTitle(const StratSynth&) const;
     GeomSel		selType() const;
-    void		getNewName(BufferString&) const;
+    void		addPrePostFix(BufferString&) const;
     void		fillGeomGroup();
     void		getExpObjs();
     void		removeNonSelected();
