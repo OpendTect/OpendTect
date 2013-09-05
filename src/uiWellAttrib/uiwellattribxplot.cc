@@ -120,13 +120,30 @@ void uiWellAttribCrossPlot::adsChg()
 
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+
+    {
+	const Attrib::Desc* desc = ads_.getDesc( attrinf.attrids_[idx] );
+	if ( desc && desc->is2D() && desc->isPS() )
+	{
+	    attrinf.attrnms_.remove( idx );
+	    attrinf.attrids_.remove( idx );
+	    idx--;
+	}
 	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
+    }
     
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
 	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
 	sii.getDefKeys( bss, true );
+	if ( sii.isPS() && sii.is2D() )
+	{
+	    attrinf.ioobjids_.remove( idx );
+	    idx--;
+	    continue;
+	}
+
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{
 	    const char* defkey = bss.get(inm).buf();
