@@ -143,7 +143,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
 	delete strm_;
 
     strm_ = StreamProvider( fnm ).makeIStream().istrm;
-    if ( !strm_->good() )
+    if ( !strm_ || !strm_->good() )
     {
 	delete strm_;
 	strm_ = 0;
