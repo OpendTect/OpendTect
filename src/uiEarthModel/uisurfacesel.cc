@@ -88,6 +88,14 @@ int uiSurfaceSel::getSelItems() const
 { return listfld_->nrSelected(); }
 
 
+void uiSurfaceSel::clearList()
+{
+    listfld_->setEmpty();
+    names_.erase();
+    mids_.erase();
+}
+
+
 uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
     : uiSurfaceSel( p, ct )
 {}

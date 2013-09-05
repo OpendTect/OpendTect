@@ -41,6 +41,9 @@ protected:
     BufferStringSet	names_;
 
     IOObjContext&	ctxt_;
+
+public:
+    void		clearList();
 };
 
 
