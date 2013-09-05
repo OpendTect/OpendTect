@@ -124,12 +124,28 @@ void uiWellLogExtractGrp::adsChg()
 
     Attrib::SelInfo attrinf( ads_, 0, ads_->is2D() );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+    {
+	const Attrib::Desc* desc = ads_->getDesc( attrinf.attrids_[idx] );
+	if ( desc && desc->is2D() && desc->isPS() )
+	{
+	    attrinf.attrnms_.removeSingle( idx );
+	    attrinf.attrids_.removeSingle( idx );
+	    idx--;
+	    continue;
+	}
 	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
+    }
     
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
 	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
+	if ( sii.isPS() && sii.is2D() )
+	{
+	    attrinf.ioobjids_.removeSingle( idx );
+	    idx--;
+	    continue;
+	}
 	sii.getDefKeys( bss, true );
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{

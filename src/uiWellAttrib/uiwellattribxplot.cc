@@ -47,7 +47,9 @@ void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet* newads )
 
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
-    wellextractgrp_->extractDPS();
+    if ( !wellextractgrp_->extractDPS() )
+	return false;
+
     uiDataPointSet* uidps =
 	new uiDataPointSet( this, *wellextractgrp_->getDPS(),
 			    uiDataPointSet::Setup("Well attribute data",false),
