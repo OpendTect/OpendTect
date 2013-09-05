@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribengman.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
+#include "attribparam.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
@@ -109,13 +110,30 @@ void uiAttribCrossPlot::adsChg()
     delete attrinfo_;
     attrinfo_ = new Attrib::SelInfo( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinfo_->attrnms_.size(); idx++ )
+    {
+	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[idx] );
+	if ( desc && desc->is2D() && desc->isPS() )
+	{
+	    attrinfo_->attrnms_.removeSingle( idx );
+	    attrinfo_->attrids_.removeSingle( idx );
+	    idx--;
+	    continue;
+	}
 	attrsfld_->addItem( attrinfo_->attrnms_.get(idx), false );
+    }
     
     for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
 	SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
 	sii.getDefKeys( bss, true );
+	if ( sii.isPS() && sii.is2D() )
+	{
+	    attrinfo_->ioobjids_.removeSingle( idx );
+	    idx--;
+	    continue;
+	}
+
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{
 	    const char* defkey = bss.get(inm).buf();
@@ -175,6 +193,13 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     else
     {
 	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[curitem] );
+	if ( desc->isPS() )
+	{
+	    MultiID psid;
+	    mGetStringFromDesc( (*desc), psid, "id" );
+	    return psid;
+	}
+
 	MultiID mid( desc->getStoredID(true) );
 	return mid;
     }
@@ -199,7 +224,9 @@ void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
     else
     {
 	const LineKey lk( mid );
-	seisinfo.getLineNamesWithAttrib( lk.attrName(), linenames );
+	seisinfo.isPS() ? seisinfo.getLineNames( linenames )
+	    		: seisinfo.getLineNamesWithAttrib( lk.attrName(),
+							   linenames );
     }
 }
 
@@ -316,6 +343,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	mErrRet("Internal: no Pos::Provider")
 
     mDynamicCastGet(Pos::Provider2D*,p2d,prov.ptr())
+    BufferStringSet linenames;
     if ( lnmfld_ )
     {
 	for ( int lsidx=0; lsidx<selids_.size(); lsidx++ )
@@ -323,15 +351,35 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	    PtrMan<IOObj> lsobj = IOM().get( selids_[lsidx] );
 	    if ( !lsobj ) continue;
 
-	    S2DPOS().setCurLineSet( lsobj->name() );
-
 	    BufferStringSet lnms = linenmsset_[lsidx];
-	    for ( int lidx=0; lidx<lnms.size(); lidx++ )
+	    linenames.add( lnms, false );
+	    SeisIOObjInfo seisinfo( lsobj );
+	    if ( seisinfo.isPS() )
 	    {
-		PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(),
-							     lnms.get(lidx) );
-		if ( geomid.isOK() )
-		    p2d->addLineID( geomid );
+		BufferStringSet linesetnms;
+		S2DPOS().getLineSets( linesetnms );
+		for ( int lidx=0; lidx<lnms.size(); lidx++ )
+		{
+		    const char* linenm = lnms[lidx]->buf();
+		    for ( int ls2didx=0; ls2didx<linesetnms.size(); ls2didx++ )
+		    {
+			const char* lsnm = linesetnms[ls2didx]->buf();
+			if ( S2DPOS().hasLine(linenm,lsnm) )
+			    p2d->addLineID( S2DPOS().getGeomID(lsnm,linenm) );
+		    }
+		}
+	    }
+	    else
+	    {
+		S2DPOS().setCurLineSet( lsobj->name() );
+
+		for ( int lidx=0; lidx<lnms.size(); lidx++ )
+		{
+		    PosInfo::GeomID geomid =
+			S2DPOS().getGeomID( lsobj->name(), lnms.get(lidx) );
+		    if ( geomid.isOK() )
+			p2d->addLineID( geomid );
+		}
 	    }
 	}
     }
