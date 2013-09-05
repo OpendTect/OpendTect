@@ -1193,31 +1193,27 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     if ( !preprocmgr_->prepareWork() )
 	return -1;
 
-    const BinID stepoutbid = preprocmgr_->getInputStepout();
+    const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
-    HorSampling hs( false );
-    BinID startbid( -stepoutbid.inl * (isStored() ? 1 : SI().inlStep()),
-	    	    -stepoutbid.crl * (isStored() ? 1 : SI().crlStep()) );
-    BinID stopbid( stepoutbid.inl * (isStored() ? 1 : SI().inlStep()),
-	    	   stepoutbid.crl * (isStored() ? 1 : SI().crlStep()) );
-    hs.include( startbid );
-    hs.include( stopbid );
-    if ( isStored() )
-	hs.step = BinID( SI().inlStep(), SI().crlStep() );
-    HorSamplingIterator hsitr( hs );
-    while ( hsitr.next(relbid) )
+    for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
     {
-	if ( !preprocmgr_->wantsInput(relbid) )
-	    continue;
-	const BinID bid = ginfo.bid_ + relbid;
-	GatherInfo relposginfo;
-	relposginfo.isstored_ = ginfo.isstored_;
-	relposginfo.gathernm_ = ginfo.gathernm_;
-	relposginfo.bid_ = bid;
-	if ( isStored() )
-	    relposginfo.mid_ = ginfo.mid_;
+	for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
+	{
+	    if ( !preprocmgr_->wantsInput(relbid) )
+		continue;
+	    BinID facbid( 1, 1 );
+	    if ( isStored() && !is2D() )
+		facbid = BinID( SI().inlStep(), SI().crlStep() );
+	    const BinID bid = ginfo.bid_ + (relbid*facbid);
+	    GatherInfo relposginfo;
+	    relposginfo.isstored_ = ginfo.isstored_;
+	    relposginfo.gathernm_ = ginfo.gathernm_;
+	    relposginfo.bid_ = bid;
+	    if ( isStored() )
+		relposginfo.mid_ = ginfo.mid_;
 
-	setGatherforPreProc( relbid, relposginfo );
+	    setGatherforPreProc( relbid, relposginfo );
+	}
     }
 
     if ( !preprocmgr_->process() )
