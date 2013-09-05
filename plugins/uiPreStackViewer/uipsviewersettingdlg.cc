@@ -40,12 +40,9 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     scaletab_ = new uiViewer3DScalingTab( tabParent(), viewer, mgr );
     addGroup( scaletab_ );
 
-    if ( viewer.is3DSeis() )
-    {
-    	preproctab_ = 
-	    new uiViewer3DPreProcTab( tabParent(), viewer, mgr, prepromgr );
-	addGroup( preproctab_ );
-    } 
+    preproctab_ = 
+	new uiViewer3DPreProcTab( tabParent(), viewer, mgr, prepromgr );
+    addGroup( preproctab_ );
    
     applytoallfld_ = new uiCheckBox(this,"&Apply to all viewers");
     applytoallfld_->attach( centeredBelow, tabObject() );
