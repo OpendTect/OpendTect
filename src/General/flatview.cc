@@ -584,8 +584,13 @@ bool FlatView::Viewer::isVisible( bool wva ) const
 void FlatView::Viewer::setVisible( bool wva, bool visibility )
 {
     FlatView::DataDispPars& ddp = appearance().ddpars_;
-    ( wva ? ddp.wva_.show_ : ddp.vd_.show_ ) = visibility;
-    handleChange( BitmapData );
+    bool& show = ( wva ? ddp.wva_.show_ : ddp.vd_.show_ );
+    
+    if ( show!=visibility )
+    {
+	show = visibility;
+	handleChange( BitmapData );
+    }
 }
 
 
