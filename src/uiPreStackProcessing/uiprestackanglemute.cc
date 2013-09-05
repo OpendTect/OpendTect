@@ -158,7 +158,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
     : uiDialog(p, uiDialog::Setup("Advanced Parameter",
-				  "Advanced angle parameters", mTODOHelpID))
+				  "Advanced angle parameters", "103.2.26"))
     , params_(pars)
     , isformute_(isformute)
     , smoothtypefld_(0)

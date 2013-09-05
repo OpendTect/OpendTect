@@ -472,7 +472,7 @@ void uiSurvey::exportButPushed( CallBacker* )
     const BufferString survnm( listbox_->getText() );
     const BufferString title( "Pack ", survnm, " survey into zip file" );
     uiDialog dlg( this,
-    uiDialog::Setup(title,mNoDlgTitle,mTODOHelpID));
+    uiDialog::Setup(title,mNoDlgTitle,"0.3.12"));
     uiFileInput* filepinput = new uiFileInput( &dlg, "Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));

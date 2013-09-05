@@ -113,7 +113,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing","",mTODOHelpID) )
+    : uiDialog(p,uiDialog::Setup("Preprocessing","","50.2.4") )
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );

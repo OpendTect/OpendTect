@@ -177,7 +177,7 @@ public:
 uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 			const UnitOfMeasure* un )
     : uiDialog(p,Setup(BufferString("Set ",pr.name()," default to formula"),
-		mNoDlgTitle,mTODOHelpID) )
+		mNoDlgTitle,"110.0.6") )
     , pr_(pr)
 {
     uiMathExpression::Setup mesu( "Formula" ); mesu.withsetbut( true );
@@ -200,7 +200,7 @@ uiEditPropRefMathDef( uiParent* p, const PropertyRef& pr,
 void rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", mTODOHelpID) );
+		  "Use a rock physics formula", "110.0.7") );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, pr_.stdType() );
     if ( dlg.go() )
 	formfld_->setText( formgrp->getText(true) );

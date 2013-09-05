@@ -23,7 +23,7 @@ using namespace Attrib;
 mInitAttribUI(uiSampleValueAttrib,SampleValue,"Sample value",sKeyBasicGrp())
 
 uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,mTODOHelpID)
+	: uiAttrDescEd(p,is2d,"101.0.105")
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );

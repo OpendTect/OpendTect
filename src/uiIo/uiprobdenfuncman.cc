@@ -100,7 +100,7 @@ class uiProbDenFuncGen : public uiDialog
 public:
 
 uiProbDenFuncGen( uiParent* p )
-    : uiDialog(p,Setup("Generate PDF",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("Generate PDF",mNoDlgTitle,"112.1.2"))
 {
     const CallBack chgcb( mCB(this,uiProbDenFuncGen,chgCB) );
 

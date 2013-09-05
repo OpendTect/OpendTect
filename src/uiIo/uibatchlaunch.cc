@@ -54,7 +54,7 @@ static bool enabClusterProc()
 
 
 uiProcSettings::uiProcSettings( uiParent* p )
-    : uiDialog(p,Setup("Processing settings",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("Processing settings",mNoDlgTitle,"103.2.27"))
 {
     int nrinl = 3;
     Settings::common().get( sKeyNrInlJob, nrinl );
