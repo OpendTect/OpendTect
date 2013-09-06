@@ -34,7 +34,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const CubeSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
     : uiDialog(p,uiDialog::Setup("Pre-stack Gather display positions",
-				0,"50.2.3").modal(false))
+				0,"51.1.1").modal(false))
     , okpushed_(this)
     , is2d_(is2d)		     
 {
@@ -420,7 +420,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms, 
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
-				"Add PS Gather","50.2.4"))
+				"Add PS Gather","51.1.2"))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers", true );
