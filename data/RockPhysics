@@ -86,7 +86,7 @@ Unit: Gram/cm3
 Variable.0.Type: Porosity
 Variable.0.Name: Porosity
 Constant.0.Name: Matrix density
-Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
+Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.72`Dolomite: 2.81
 Constant.0.Default: 2.65
 Constant.0.Typical Range: 2.2`2.9
 Constant.1.Name: Fluid density
@@ -534,7 +534,7 @@ Variable.0.Name: Rhob
 Variable.0.Description: Measured density log
 Variable.0.Unit: Gram/cm3
 Constant.0.Name: Matrix density
-Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
+Constant.0.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.72`Dolomite: 2.81
 Constant.0.Default: 2.65
 Constant.0.Typical Range: 2.2`2.9
 Constant.1.Name: Fluid density
@@ -565,7 +565,7 @@ Constant.2.Name: Rho_hydrocarbon
 Constant.2.Description: The average density of the hydrocarbon fluid.`Therefore, the density for 100% porosity and no water.`Oil: 0.75`Gas: 0.1
 Constant.2.Default: 0.75
 Constant.3.Name: Rho_matrix
-Constant.3.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.67`Dolomite: 2.71
+Constant.3.Description: The average density of the rock material itself.`Therefore, the density for porosity 0.`Sandstone: 2.65`Limestone: 2.72`Dolomite: 2.81
 Constant.3.Default: 2.65
 Constant.3.Typical Range: 2.2`2.9
 !
