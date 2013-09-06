@@ -123,6 +123,7 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
     return strm.good();
 }
 
+
 #define mRead( var, interp, sz ) \
     if ( interp ) \
     { \
@@ -133,6 +134,9 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
     else \
 	strm_->read( (char*) &var, sizeof(var) )
 
+#   define mRet(yn) { sd.close(); strm_ = 0; return yn; }
+
+
 bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
 	bool readall,
 	DataInterpreter<int>* int32interp,
@@ -140,30 +144,20 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
         DataInterpreter<float>* floatinterp )
 {
     if ( strm_ )
-	delete strm_;
+	{ pErrMsg("strm_ not null"); delete strm_; strm_ = 0; }
 
-    strm_ = StreamProvider( fnm ).makeIStream().istrm;
-    if ( !strm_->good() )
-    {
-	delete strm_;
-	strm_ = 0;
-	return false;
-    }
+    StreamData sd = StreamProvider( fnm ).makeIStream();
+    if ( !sd.usable() )
+	mRet( false )
 
-    StrmOper::seek( *strm_, offset, std::ios::beg );
-    if ( !strm_->good() )
-    {
-	delete strm_;
-	strm_ = 0;
-	return false;
-    }
+    StrmOper::seek( *sd.istrm, offset, std::ios::beg );
+    if ( !sd.istrm->good() )
+	mRet( false )
 
+
+    strm_ = sd.istrm;
     if ( !readHeader( int32interp, int64interp, floatinterp ) )
-    {
-	delete strm_;
-	strm_ = 0;
-	return false;
-    }
+	mRet( false )
 
     if ( !readall )
     {
@@ -186,11 +180,8 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
 	TypeSet<od_int64>* idxset = new TypeSet<od_int64>;
 	if ( !readLine( *crlset, *idxset, int32interp, int64interp ) )
 	{
-	    delete crlset;
-	    delete idxset;
-	    delete strm_;
-	    strm_ = 0;
-	    return false;
+	    delete crlset; delete idxset;
+	    mRet( false )
 	}
 
 	crlsets_ += crlset;
@@ -198,9 +189,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_int64 offset,
     }
 
     const bool res = strm_->good();
-    delete strm_;
-    strm_ = 0;
-    return res;
+    mRet( res )
 }
 
 
