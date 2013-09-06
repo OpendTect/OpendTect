@@ -113,7 +113,11 @@ endif
 
 cd "${oddir}"
 chmod +x ./setup.od
-./setup.od
+if ( $?quietmode ) then
+    ./setup.od --no_dtect_data
+else
+    ./setup.od
+endif
 
 cd "${oddir}"
 if ( ! -r bin/init_dtect ) then
