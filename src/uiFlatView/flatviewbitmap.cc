@@ -47,7 +47,7 @@ void FlatView::BitMapMgr::setupChg()
 {
     clearAll();
     const FlatDataPack* dp = vwr_.pack( wva_ );
-    if ( !vwr_.isVisible(wva_) || !dp ) return;
+    if ( !vwr_.isVisible(wva_) ) return;
 
     DPM(DataPackMgr::FlatID()).obtain( dp->id() );
     Threads::Locker updlckr( dp->updateLock() );
