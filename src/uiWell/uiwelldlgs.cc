@@ -996,7 +996,8 @@ void uiD2TModelDlg::expData( CallBacker* )
 	const float tvdss = mCast(float,wd_.track().getPos(dah).z) * zfac;
 	const float tvd = tvdss + kbelev * zfac;
 	const float twt = d2t.t(idx) * twtfac;
-	const float vint = d2t.getVelocityForDah( dah, wd_.track() ) * zfac;
+	const float vint = mCast( float, d2t.getVelocityForDah( dah, wd_.track() ) *
+				  (double)zfac );
 	*sd.ostrm << Conv::to<const char*>( dah ) << '\t';
 	*sd.ostrm << Conv::to<const char*>( tvd ) << '\t';
 	if ( hastvdgl )
