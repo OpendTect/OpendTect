@@ -158,6 +158,8 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
     const bool isbodyitem = typefld_->box()->currentItem()==0;
     uiTreeViewItem* cur = tree_->selectedItem();
     const int curidx = listsaved_.indexOf( cur );
+    if ( !listinfo_.validIdx(curidx) )
+	return;
     
     if ( !isbodyitem )
     {
@@ -192,10 +194,9 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 
 	    listinfo_[curidx].act = -1;
 	    listinfo_[curidx].defined = false;
-
-	    delete cur;
-	    cur = new uiTreeViewItem( cur->parent(), uiTreeViewItem::Setup() );
-	    cur->setText( "input" );
+	
+	    tree_->selectedItem()->setText( "", 1 ); 
+    	    tree_->selectedItem()->setPixmap( 1, "blank" );
 	}
 
 	itemClick( cb );
@@ -215,11 +216,12 @@ void uiBodyOperatorDlg::deleteAllChildInfo( uiTreeViewItem* curitem )
 
 	listsaved_.removeSingle( idx );
 	listinfo_.removeSingle( idx );
-	return;
     }
-
-    for ( int cid=curitem->nrChildren()-1; cid>=0; cid-- )
-	deleteAllChildInfo( curitem->getChild(cid) );
+    else
+    {
+	for ( int cid=curitem->nrChildren()-1; cid>=0; cid-- )
+    	    deleteAllChildInfo( curitem->getChild(cid) );
+    }
 }
 
 
@@ -240,6 +242,9 @@ void uiBodyOperatorDlg::itemClick( CallBacker* cb )
 {
     typefld_->display( true );
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
+    if ( !listinfo_.validIdx(curidx) )
+	return;
+
     const char item = listinfo_[curidx].act!=sKeyUdf() ? listinfo_[curidx].act 
 						       : sKeyUnion();
     typefld_->setSensitive( tree_->firstItem()!=tree_->selectedItem() );
