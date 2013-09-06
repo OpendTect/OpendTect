@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: install 30836 2013-07-19 09:39:56Z nageswara.rao@dgbes.com $
+# $Id: install 31404 2013-09-04 11:17:48Z nageswara.rao@dgbes.com $
 #
 # Installs the OpendTect application and optional extra software
 #_______________________________________________________________________________
@@ -56,45 +56,47 @@ if ( ! $?quietmode ) then
 	cd "${oddir}"
 
 	echo -n "Copying "
-	if ( -r $olddir/data/BatchHosts ) then
+	if ( -r "$olddir/data/BatchHosts" ) then
 		echo -n "BatchHosts "
-		cp -ip $olddir/data/BatchHosts data/BatchHosts
+		cp -ip "$olddir"/data/BatchHosts data/BatchHosts
 	endif
-	if ( -r $olddir/data/WorkStationLink ) then
+	if ( -r "$olddir/data/WorkStationLink" ) then
 		echo -n "WorkStationLink "
-		cp -ip $olddir/data/WorkStationLink data/WorkStationLink
+		cp -ip "$olddir"/data/WorkStationLink data/WorkStationLink
 	endif
-	if ( -r $olddir/data/ColTabs ) then
-		set nrlines=`wc -l $olddir/data/ColTabs|awk '{print $1}'`
+	if ( -r "$olddir/data/ColTabs" ) then
+		set nrlines=`wc -l "$olddir"/data/ColTabs|awk '{print $1}'`
+		echo "nrlines:$nrlines"
 		set newnrlines=`wc -l data/ColTabs|awk '{print $1}'`
 		if ( $nrlines > $newnrlines ) then
 			echo -n "ColTabs "
 			mv data/ColTabs data/ColTabs.rel
-			cp -p $olddir/data/ColTabs data/ColTabs
+			cp -p "$olddir"/data/ColTabs data/ColTabs
 		endif
 	endif
-	if ( -r $olddir/data/MouseControls ) then
-		set nrlines=`wc -l $olddir/data/MouseControls|awk '{print $1}'`
+	if ( -r "$olddir/data/MouseControls" ) then
+		set nrlines=`wc -l "$olddir"/data/MouseControls|awk '{print $1}'`
+		echo "olddir=$olddir"
 		if ( $nrlines != 26 ) then
 			echo -n "MouseControls "
 			mv data/MouseControls data/MouseControls.rel
-			cp -p $olddir/data/MouseControls data/MouseControls
+			cp -p "$olddir"/data/MouseControls data/MouseControls
 		endif
 	endif
-	if ( -r $olddir/data/EnvVars ) then
+	if ( -r "$olddir/data/EnvVars" ) then
 	    mv data/EnvVars data/EnvVars.rel
-	    cp -p $olddir/data/EnvVars data/EnvVars
+	    cp -p "$olddir"/data/EnvVars data/EnvVars
 	endif
-	if ( -r $olddir/bin/init_dtect ) then
-		setenv DTECT_DATA `grep 'setenv DTECT_DATA /' $olddir/bin/init_dtect | awk '{print $3}'`
+	if ( -r "$olddir/bin/init_dtect" ) then
+		setenv DTECT_DATA `grep 'setenv DTECT_DATA /' "$olddir"/bin/init_dtect | awk '{print $3}'`
 		if ( "$DTECT_DATA" == "" ) then
-		    setenv DTECT_DATA `grep 'setenv dGB_DATA /' $olddir/bin/init_dtect | awk '{print $3}'`
+		    setenv DTECT_DATA `grep 'setenv dGB_DATA /' "$olddir"/bin/init_dtect | awk '{print $3}'`
 		endif
 		if ( "$DTECT_DATA" == "" ) then
 			unsetenv DTECT_DATA
 		endif
 	endif
-	set lic_fils=$olddir/license.*.dat
+	set lic_fils="$olddir/license.*.dat"
 	if ( "$lic_fils" != "" && "$lic_fils" != "$olddir/license.*.dat" ) then
 	    foreach fil ( $lic_fils )
 		echo -n "$fil:t "
