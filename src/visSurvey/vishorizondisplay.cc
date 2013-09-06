@@ -738,6 +738,8 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 
     setRandomPosData( channel, positions, tr );
     const BinIDValueSet* cache =sections_[0]->getCache( channel );
+    if ( !cache ) return;
+
     const bool isz = attrnms->size()>=1 &&
 		     !strcmp(attrnms->get(0).buf(),"Depth");
 
