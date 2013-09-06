@@ -736,6 +736,8 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     setRandomPosData( channel, positions, tr );
     const BinIDValueSet* cache =
 	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
+    if ( !cache ) return;
+
     const bool isz = attrnms->size()>=1 && attrnms->get(0)=="Depth";
 
     StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
