@@ -178,6 +178,11 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     A2DBitMapGenerator::initBitMap( *bmp_ );
     gen_->setBitMap( *bmp_ );
     gen_->setPixSizes( availsz.width(), availsz.height() );
+
+    if ( &pack->data() != &data_->data() ) return false;
+    // TODO: Find a better fix for this. A better one possibly in which the task
+    // knows datapack is deleted and returns or something like that.
+    
     gen_->fill();
 
     DPM(DataPackMgr::FlatID()).release(pack);
