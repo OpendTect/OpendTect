@@ -529,7 +529,7 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
     if ( !mevh || !mevh->hasEvent() || mevh->isHandled() ) return;
 
     bool isremove = curctrl_->isCtrlPressed();
-    const float dah = curctrl_->depth();
+    const float dah = curctrl_->dah();
     const char* mrknm = mrklist_->getText();
 
     if ( !isremove )

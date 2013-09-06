@@ -87,6 +87,7 @@ public:
 
 	//Set these	
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
+	bool			hasData() const { return dahobj_; }
 	bool                    xrev_;
 	int                     zoverlayval_;
 	float			cliprate_;

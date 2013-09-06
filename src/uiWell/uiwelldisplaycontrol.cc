@@ -31,7 +31,7 @@ uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )
     , xpos_(0)			   
     , ypos_(0)			   
     , time_(0)					       
-    , depth_(0)					       
+    , dah_(0)					       
     , posChanged(this)
     , mousePressed(this)
     , mouseReleased(this)
@@ -108,12 +108,12 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	{
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
-	    if ( d2t && d2t->size() > 2 && tr && tr->size() > 2 )
-		depth_ = d2t->getDah( ypos_*0.001f, *tr );
+	    if ( d2t && d2t->size()>1 && tr && tr->size()>1 )
+		dah_ = d2t->getDah( ypos_*0.001f, *tr );
 	}
 	else
 	{
-	    depth_ = tr ? tr->getDahForTVD( ypos_ ) : mUdf(float);
+	    dah_ = tr ? tr->getDahForTVD( ypos_ ) : mUdf(float);
 	    time_ = ypos_;
 	}
     }
@@ -127,35 +127,35 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 
 void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 {
-    info.setEmpty();
-    if ( !seldisp_ ) return;
-    if ( selmarker_ )
-    {
-	info += " Marker: ";
-	info += selmarker_->name();
-	info += "  ";
-    }
-    info += "  MD: ";
-    bool zinft = seldisp_->zData().dispzinft_ && seldisp_->zData().zistime_;
-    float dispdepth = zinft ? mToFeetFactorF*depth_ : depth_;
-    info += toString( mNINT32(dispdepth) );
-    info += seldisp_->zData().zistime_ ? " Time: " : " Depth: ";
-    info += toString( mNINT32(time_) );
-
-#define mGetLogPar( ld )\
-    info += "   ";\
-    info += ld.log()->name();\
-    info += ":";\
-    info += toString( ld.log()->getValue( depth_ ) );\
-    info += ld.log()->unitMeasLabel();\
-
+    info.setEmpty(); if ( !seldisp_ ) return;
     const uiWellDahDisplay::DahObjData& data1 = seldisp_->dahObjData(true);
     const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(false);
+    if ( data1.hasData() ) { info += "  "; data1.getInfoForDah(dah_,info); }
+    if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
+    if ( selmarker_ ) { info += "  Marker:"; info += selmarker_->name(); }
 
-    info += "  ";
-    data1.getInfoForDah( depth_, info );
-    info += "  ";
-    data2.getInfoForDah( depth_, info );
+    info += "  MD:";
+    const uiWellDahDisplay::Data& zdata = seldisp_->zData();
+    const bool zinft = zdata.dispzinft_ && zdata.zistime_;
+    const float dispdepth = zinft ? mToFeetFactorF*dah_ : dah_;
+    const FixedString depthunitstr = getDistUnitString(zinft,false);
+    info += toString( dispdepth );
+    info += depthunitstr; 
+
+    info += "  TVD:";
+    const Well::Track* tr = zdata.track();
+    info += toString( tr->getPos(dah_).z+tr->getKbElev() );
+    info += depthunitstr; 
+    info += "  TVDSS:";
+    info += toString( tr->getPos(dah_).z );
+    info += depthunitstr; 
+
+    if ( zdata.zistime_ )
+    {
+    	info += "  TWT:";
+    	info += toString( time_ );
+    	info += SI().zDomain().unitStr(); 
+    }
 }
 
 

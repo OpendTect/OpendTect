@@ -43,7 +43,7 @@ public:
     void			setSelMarker(const Well::Marker*);
 
     float			time() const 	{ return time_; }
-    float			depth() const	{ return depth_; }
+    float			dah() const	{ return dah_; }
     float			xPos() const	{ return xpos_; }
     float			yPos() const	{ return ypos_; }
 
@@ -74,7 +74,7 @@ protected:
     float 			mousePos() const; 
     
     float			time_;
-    float			depth_;
+    float			dah_;
     float			xpos_;
     float			ypos_;
 

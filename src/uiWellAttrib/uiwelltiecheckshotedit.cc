@@ -184,7 +184,7 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
 
 void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
-    const float dah = control_->depth();
+    const float dah = control_->dah();
     const float val = control_->xPos();
     movingpointidx_ = isedit_ ? newdriftcurve_.indexOfCurrentPoint(dah,val) :-1;
 }
@@ -211,7 +211,7 @@ void uiCheckShotEdit::movePt()
     if ( movingpointidx_ < 0 ) 
 	return;
 
-    const float dah = control_->depth();
+    const float dah = control_->dah();
 
     if ( movingpointidx_ > 1 )
     {
@@ -235,7 +235,7 @@ void uiCheckShotEdit::doInsertRemovePt()
 { 
     if ( isedit_ ) 
     {
-	const float dah = control_->depth();
+	const float dah = control_->dah();
 	const float val = control_->xPos();
 
 	const bool isadd = !control_->isCtrlPressed();
