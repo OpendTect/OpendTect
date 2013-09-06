@@ -214,8 +214,6 @@ void uiBodyOperatorDlg::deleteAllChildInfo( uiTreeViewItem* curitem )
 	}
 
 	listsaved_.removeSingle( idx );
-	listsaved_.removeSingle( idx );
-	listinfo_.removeSingle( idx );
 	listinfo_.removeSingle( idx );
 	return;
     }
