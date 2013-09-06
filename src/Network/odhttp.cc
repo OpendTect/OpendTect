@@ -87,23 +87,27 @@ int _post( const char* path, const IOPar& postvars, BufferString& errmsg )
 {
     qfiles_ += 0;
     QUrl qurl( path );
-    QString postarr;
+
+    QString boundary = "---------------------------193971182219750";
+    QByteArray data(QString("--" + boundary + "\r\n").toAscii());
+    
     for ( int idx=0; idx<postvars.size(); idx++ )
     {
-	BufferString varstr = postvars.getKey( idx );
-	varstr.add( "=" ).add( postvars.getValue( idx ) );
-	if ( idx!=postvars.size()-1 )
-	    varstr.add( "&" );
-			      
-	postarr.append( varstr );
-    }
-    
-    
-    QHttpRequestHeader header("POST", qurl.toEncoded() );
-    header.setValue( "Host", host_.buf() );
+	QString keystr = postvars.getKey(idx).str();
+	QString valstr = postvars.getValue(idx).str();
 
-    header.setContentType("application/x-www-form-urlencoded");
-    const int id = request(header,postarr.toUtf8() );
+	data += "Content-Disposition: form-data;";
+	data += "name=\"" + keystr + "\"\r\n\r\n";
+	data += valstr + "\r\n";
+	data += QString("--" + boundary + "--\r\n").toAscii();
+    }
+ 
+    QHttpRequestHeader header( sKeyPost() , qurl.toEncoded() );
+    header.setValue( sKeyHost(), host_.buf() );
+    header.setValue( sKeyContentType(), 
+		     "multipart/form-data; boundary=" + boundary );
+    header.setValue( sKeyContentLength(), QString::number(data.length()) );
+    const int id = request( header, data );
     
     requestids_ += id;
     startEventLoop();
