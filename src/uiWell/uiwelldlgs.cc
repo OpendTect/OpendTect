@@ -253,7 +253,6 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     if ( track_.nrPoints() > 1 )
     {
 	wd_.info().surfacecoord = track_.pos(0);
-	wd_.info().srdelev = track_.dah(0);
 	wd_.trackchanged.trigger();
     }
     else
@@ -538,9 +537,9 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
     const float kbelev = wd_.track().getKbElev();
     const float groundevel = wd_.info().groundelev;
-    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     const bool hastvdgl = !mIsUdf( groundevel );
-    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    const bool hastvdsd = !mIsZero( srd, 1e-3f );
     for ( int idx=0; idx<dtsz; idx++ )
     {
 	const float dah = d2t->dah(idx);
@@ -557,7 +556,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 
 	if ( hastvdsd )
 	{
-	    const float tvdsd = ( tvdss + srdelev ) * zfac;
+	    const float tvdsd = ( tvdss + srd ) * zfac;
 	    tbl_->setValue( RowCol(idx,getTVDSDCol()), tvdsd );
 	}
 
@@ -636,8 +635,8 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool inistvdgl = hastvdgl && incol == getTVDGLCol();
 
-    const float srdelev = mCast(float,SI().seismicReferenceDatum());
-    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const bool hastvdsd = !mIsZero( srd, 1e-3f );
     const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
 
     const float olddah = newrow ? mUdf(float) : d2t->dah( row );
@@ -648,7 +647,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     else if ( inistvdgl && !mIsUdf(oldtvdss) )
 	oldval = oldtvdss + groundevel;
     else if ( inistvdsd && !mIsUdf(oldtvdss) )
-	oldval = oldtvdss + srdelev;
+	oldval = oldtvdss + srd;
     else if ( inistvdss && !mIsUdf(oldtvdss) )
 	oldval = oldtvdss;
 
@@ -670,7 +669,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     else if ( inistvdgl )
 	zrg.shift( groundevel );
     else if ( inistvdsd )
-	zrg.shift( srdelev );
+	zrg.shift( srd );
 
     const Interval<float>& zrange = md2tvd ? dahrg : zrg;
     Interval<float> tblrg;
@@ -712,7 +711,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     {
 	if ( inistvd ) inval -= kbelev;
 	else if ( inistvdgl ) inval -= groundevel;
-	else if ( inistvdsd ) inval -= srdelev;
+	else if ( inistvdsd ) inval -= srd;
     }
 
     const float dah = md2tvd ? inval : track.getDahForTVD( inval );
@@ -730,7 +729,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 	tbl_->setValue( RowCol(row,getTVDGLCol()), ( tvdss + groundevel )*zfac);
 
     if ( hastvdsd && !inistvdsd )
-	tbl_->setValue( RowCol(row,getTVDSDCol()), ( tvdss + srdelev ) * zfac );
+	tbl_->setValue( RowCol(row,getTVDSDCol()), ( tvdss + srd ) * zfac );
 
     return updateDtpoint( row, olddah );
 }
@@ -969,9 +968,9 @@ void uiD2TModelDlg::expData( CallBacker* )
     const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
     const float kbelev = wd_.track().getKbElev();
     const float groundevel = wd_.info().groundelev;
-    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     const bool hastvdgl = !mIsUdf( groundevel );
-    const bool hastvdsd = !mIsZero( srdelev, 1e-3f );
+    const bool hastvdsd = !mIsZero( srd, 1e-3f );
     BufferStringSet header =  getColLabels();
 
     *sd.ostrm << header.get( cMDCol ) << '\t';
@@ -1003,7 +1002,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 
 	if ( hastvdsd )
 	{
-	    const float tvdsd = tvdss + srdelev * zfac;
+	    const float tvdsd = tvdss + srd * zfac;
 	    *sd.ostrm << Conv::to<const char*>( tvdsd ) << '\t';
 	}
 

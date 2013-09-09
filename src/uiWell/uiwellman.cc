@@ -569,17 +569,27 @@ void uiWellMan::mkFileInfo()
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt += "Reference Datum Elevation (KB)"; txt += ": ";
+	    txt += "Reference Datum Elevation (KB):";
 	    txt += zun ? zun->userValue(rdelev) : rdelev;
-	    txt += zun->symbol(); txt += "\n";
+	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( "\n" );
 	}
 
 	const float srdelev = info.srdelev;
-	if ( !mIsZero(srdelev,1e-4) && !mIsUdf(srdelev) )
+	const float srd = mCast(float,SI().seismicReferenceDatum());
+	if ( !mIsZero(srd,1e-4f) )
 	{
-	    txt += "Seismic Reference Datum (SRD)"; txt += ": ";
-	    txt += zun ? zun->userValue(srdelev) : srdelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt.add( "Seismic Reference Datum (SRD) :" );
+	    txt.add( zun ? zun->userValue(srd) : srd );
+	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( "\n" );
+	}
+	if ( !mIsEqual(srd,srdelev,1e-2f) &&
+	     !mIsUdf(srdelev) && !mIsZero(srdelev,1e-2f) )
+	{
+	    txt.add( "Warning: Seismic Reference Datum (SRD) from well " );
+	    txt.add( "is no longer supported.\n" );
+	    txt.add("This later is ignored, using SRD from survey settings.\n");
 	}
 
 	const float replvel = info.replvel;

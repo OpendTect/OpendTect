@@ -87,11 +87,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    float dispval = wd_.info().srdelev;
-    if ( !mIsZero(dispval, 0.01) )
-	wd_.info().srdelev = dispval;
-
-    dispval = wd_.info().replvel;
+    float dispval = wd_.info().replvel;
     if ( !mIsUdf(dispval) )
 	wd_.info().replvel = dispval;
 
@@ -192,18 +188,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	"Surface coordinate (if different from first coordinate in track file)",
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
-    float dispval = info.srdelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.srdelev) && zun_ ) 
-	dispval = zun_->userValue( info.srdelev );
-    if ( mIsZero(dispval,0.01) ) dispval = 0;
-    elevfld = new uiGenInput( this, "Seismic Reference Datum",
-	    			     FloatInpSpec(dispval) );
-    elevfld->attach( alignedBelow, coordfld );
-    zinftbox = new uiCheckBox( this, "Feet" );
-    zinftbox->attach( rightOf, elevfld );
-    zinftbox->setChecked( SI().depthsInFeetByDefault() );
-
-    dispval = info.replvel;
+    float dispval = info.replvel;
     if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
     else if ( SI().depthsInFeetByDefault() && !SI().zInFeet() )
 	dispval = mToFeetFactorF * info.replvel;
@@ -211,7 +196,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
     str += "/s)";
     replvelfld = new uiGenInput( this, str, FloatInpSpec(dispval) );
-    replvelfld->attach( alignedBelow, elevfld );
+    replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
     if ( SI().depthsInFeetByDefault() && !mIsUdf(info.groundelev) && zun_ )
@@ -247,12 +232,6 @@ bool acceptOK( CallBacker* )
 
     if ( *coordfld->text() )
 	info.surfacecoord = coordfld->getCoord();
-    if ( *elevfld->text() )
-    {
-	info.srdelev = elevfld->getfValue();
-	if ( zinftbox->isChecked() && !mIsUdf(info.srdelev) && zun_ ) 
-	    info.srdelev = zun_->internalValue( info.srdelev );
-    }
 
     if ( SI().depthsInFeetByDefault() && !SI().zInFeet()
 	 && !mIsUdf(replvelfld->getfValue()) )
@@ -266,7 +245,6 @@ bool acceptOK( CallBacker* )
 	if ( zinftbox->isChecked() && !mIsUdf(info.groundelev) && zun_ )
 	    info.groundelev = zun_->internalValue( info.groundelev );
     }
-
 
     info.uwid = idfld->text();
     info.oper = operfld->text();
