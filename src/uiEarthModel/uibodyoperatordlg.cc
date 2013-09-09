@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mTODOHelpID) )
+    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,"103.1.19") )
 {
     setCtrlStyle( DoAndStay );
 
@@ -395,7 +395,7 @@ bool uiBodyOperatorDlg::bodyOprand::operator==( const bodyOprand& v ) const
 uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p, 
 	const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
-		mNoDlgTitle,mTODOHelpID) )
+		mNoDlgTitle,"103.1.21") )
 {
     setCtrlStyle( DoAndStay );
     

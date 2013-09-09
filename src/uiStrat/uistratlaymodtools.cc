@@ -429,7 +429,7 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 		    		     "There are multiple properties referenced"
 				     " with the same type. \n" 
 				     "Please specify which one to use as: ",
-				     mTODOHelpID) )
+				     "110.0.10") )
 {
     mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
     mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );

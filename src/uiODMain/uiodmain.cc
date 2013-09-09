@@ -405,7 +405,7 @@ public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
     : uiDialog(p,uiDialog::Setup("Auto-load session"
-				,"Set auto-load session","50.3.1"))
+				,"Set auto-load session","50.2.1"))
     , ctio_(*mMkCtxtIOObj(ODSession))
 {
     bool douse = false; MultiID id;

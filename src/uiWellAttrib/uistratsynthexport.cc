@@ -63,7 +63,7 @@ uiStratSynthOutSel( uiParent* p, const char* seltxt, const BufferStringSet& nms 
 
 void selItems( CallBacker* )
 {
-    uiDialog::Setup su( BufferString("Select ",nm_), mNoDlgTitle, mTODOHelpID );
+    uiDialog::Setup su( BufferString("Select ",nm_), mNoDlgTitle, "110.0.9" );
     uiDialog dlg( parent(), su );
     uiListBox* lb = new uiListBox( &dlg, nm_ );
     lb->addItems( nms_ );
@@ -119,7 +119,7 @@ virtual BufferString getSummary() const
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup("Save synthetic seismics and horizons",
-				 getWinTitle(ss), mTODOHelpID) )
+				 getWinTitle(ss), "110.0.8") )
     , ss_(ss)
     , randlinesel_(0)
 {

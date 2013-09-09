@@ -538,7 +538,7 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog( p, Setup("Region constructor","Boundary settings",mTODOHelpID) )
+    : uiDialog( p, Setup("Region constructor","Boundary settings","103.1.20") )
     , singlehoradded_(false)  
 {
     setCtrlStyle( DoAndStay );

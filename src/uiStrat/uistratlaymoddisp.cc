@@ -357,7 +357,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     {
 
 	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
-		    BufferString("Remove '",lay.name(),"'"),mTODOHelpID) );
+		    BufferString("Remove '",lay.name(),"'"),"110.0.12") );
 	uiGenInput* gi = new uiGenInput( &dlg, "Remove", BoolInpSpec(true,
 		    "Only this layer","All layers with this ID") );
 	if ( dlg.go() )

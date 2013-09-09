@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
     : uiDialog(p,Setup("Layer properties",
-		    BufferString("Layer: '",lay.name(),"'"),mTODOHelpID))
+		    BufferString("Layer: '",lay.name(),"'"),"110.0.11"))
     , editable_(editable)
     , lay_(lay)
 {

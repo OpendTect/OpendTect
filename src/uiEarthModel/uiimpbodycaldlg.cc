@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup("Calculate volume","Body volume estimation",mNoHelpID))
+    : uiDialog(p,Setup("Calculate volume","Body volume estimation","103.1.22"))
     , embody_(eb)  
     , velfld_(0)
     , volfld_(0)

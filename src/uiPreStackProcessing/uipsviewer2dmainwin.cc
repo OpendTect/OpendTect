@@ -108,7 +108,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing","",mTODOHelpID) )
+    : uiDialog(p,uiDialog::Setup("Preprocessing","","103.2.13") )
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
@@ -223,7 +223,7 @@ void uiViewer2DMainWin::reSizeItems()
 
 void uiViewer2DMainWin::doHelp( CallBacker* )
 {
-    provideHelp( "50.2.2" );
+    provideHelp( "51.1.0" );
 }
 
 
@@ -447,7 +447,7 @@ void uiViewer2DMainWin::displayAngle( bool isanglegather )
     BufferString windowcaption = "Specify Parameters for ";
     windowcaption += windowtitle;
     uiDialog angledisplaydlg( this, uiDialog::Setup(windowtitle,
-						windowcaption,mTODOHelpID) );
+						windowcaption,"51.1.3") );
 
     PreStack::AngleCompParams params;
     if ( !isanglegather ) params.anglerange_ = Interval<int>( 0 , 60 );

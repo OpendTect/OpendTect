@@ -42,7 +42,7 @@ using namespace Well;
 
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well Track Import",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Well Track Import",mNoDlgTitle,"107.0.10"))
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
@@ -217,7 +217,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
 // uiBulkLogImport
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Bulk Log Import",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Bulk Log Import",mNoDlgTitle,"107.0.11"))
 {
     inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
@@ -295,7 +295,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
 // uiBulkMarkerImport
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Bulk Marker Import",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Bulk Marker Import",mNoDlgTitle,"107.0.12"))
     , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup());
