@@ -265,7 +265,8 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
 uiGraphicsSceneAxisMgr::~uiGraphicsSceneAxisMgr()
 {
     detachAllNotifiers();
-    delete xaxis_; delete yaxis_;
+    delete xaxis_;
+    delete yaxis_;
 }
 
 
