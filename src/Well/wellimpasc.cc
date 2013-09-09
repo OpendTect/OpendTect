@@ -620,7 +620,7 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, TypeSet<double>& rawzvals,
     TypeSet<float> mds;
     TypeSet<double> ts;
     const double zwllhead = trck.pos(0).z;
-    const double srd = wll.info().srdelev;
+    const double srd = mCast(float,SI().seismicReferenceDatum());
     const double firstz = mMAX(-1.f * srd, zwllhead );
     // no write above deepest of (well head, SRD)
     // velocity above is controled by info().replvel
@@ -693,7 +693,7 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
-	    zval -= wll.info().srdelev;
+	    zval -= mCast(float,SI().seismicReferenceDatum());
 	if ( dpthopt == 3 )
 	    zval -= wll.track().getKbElev();
 	if ( dpthopt == 4 )

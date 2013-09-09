@@ -99,14 +99,14 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	
 	d2t.setEmpty();
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
-	float srd = wd.info().srdelev;
+	float srd = mCast( float, SI().seismicReferenceDatum() );
 	float kb  = wd.track().getKbElev();
 	if ( SI().depthsInFeetByDefault() && zun_ )
 	{
-	    srd = zun_->userValue( wd.info().srdelev );
-	    kb  = zun_->userValue( wd.track().getKbElev() );
+	    srd = zun_->userValue( srd );
+	    kb  = zun_->userValue( kb );
 	}
-	if ( mIsZero(srd,0.01) ) srd = 0;
+	if ( mIsZero(srd,0.01f) ) srd = 0.f;
 	const float twtvel = velfld_->getfValue() * .5f;
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
 				( (1 / twtvel) - (2 / wd.info().replvel) );

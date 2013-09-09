@@ -45,7 +45,7 @@ public:
     Coord		coord_;
     float		elev_;
     float		td_;
-    float		srd_;
+    float		gl_;
     BufferString	uwi_;
 };
 
@@ -67,10 +67,14 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );
     tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
     const char* zunstr = zinft_ ? " (ft" : " (m";
-    tbl_->setColumnLabel( 3, BufferString("[KB Elevation",zunstr,")]") );
+    tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,")]") );
+    tbl_->setColumnToolTip( 3, "Reference Datum elevation" );
     tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
-    tbl_->setColumnLabel( 5, BufferString("[SRD",zunstr,")]") );
+    tbl_->setColumnToolTip( 4, "Total Depth" );
+    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,")]") );
+    tbl_->setColumnToolTip( 5, "Ground level elevation" );
     tbl_->setColumnLabel( 6, "[UWI]" );
+    tbl_->setColumnToolTip( 6, "Unique Well Identifier" );
 
     uiPushButton* pb = new uiPushButton( this, "Read file",
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -120,7 +124,7 @@ bool getLine()
 
     wcd_.elev_ = getfValue( 3 );
     wcd_.td_ = getfValue( 4 );
-    wcd_.srd_ = getfValue( 5 );
+    wcd_.gl_ = getfValue( 5 );
     wcd_.uwi_ = text( 6 );
     return true;
 }
@@ -153,7 +157,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( "TD" ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "Seismic Reference Datum" ); fd_.bodyinfos_ += ti;
+    ti->setName( "Ground Level Elevation" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "107.0.9" );
@@ -211,14 +215,15 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     Well::Data wd( wcd.nm_ );
     wd.info().surfacecoord = wcd.coord_;
     wd.info().uwid = wcd.uwi_;
-    wd.info().srdelev = wcd.srd_;
+    wd.info().groundelev = wcd.gl_;
+    const float srd = mCast(float,SI().seismicReferenceDatum());
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
     wd.track().addPoint( wcd.coord_, drg.start, 0 );
     wd.track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	Interval<float> zrg( -wcd.elev_+wcd.srd_, wcd.td_-wcd.elev_+wcd.srd_ );
+	Interval<float> zrg( -wcd.elev_+srd, wcd.td_-wcd.elev_+srd );
 	Interval<float> trg( zrg ); trg.scale( 1.f / vel_ );
 	d2t->add( 0, trg.start );
 	d2t->add( wcd.td_, trg.stop );
@@ -295,9 +300,9 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 	wcd.td_ = survzstop - wcd.elev_;
     }
 
-    wcd.srd_ = tbl_->getfValue( RowCol(irow,5) );
-    if ( mIsUdf(wcd.srd_) ) wcd.srd_ = 0;
-    if ( zinft_ && zun_ ) wcd.srd_ = zun_->internalValue(  wcd.srd_ );
+    wcd.gl_ = tbl_->getfValue( RowCol(irow,5) );
+    if ( zinft_ && zun_ && !mIsUdf(wcd.gl_) )
+	wcd.gl_ = zun_->internalValue(  wcd.gl_ );
 
     wcd.uwi_ = tbl_->text( RowCol(irow,6) );
     return true;
@@ -363,7 +368,7 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
     tbl_->setValue( rc, v ); rc.col++;
     v = wcd.td_; if ( zinft_ && zun_ ) zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
-    v = wcd.srd_; if ( zinft_ && zun_ ) zun_->userValue( v );
+    v = wcd.gl_; if ( !mIsUdf(v) && zinft_ && zun_ ) zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col++;
     tbl_->setText( rc, wcd.uwi_ );
 }

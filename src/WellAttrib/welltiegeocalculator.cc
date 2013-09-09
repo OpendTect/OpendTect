@@ -85,7 +85,8 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
     mAllocVarLenArr( int, zidxs, sz );
 
     const float replvel = wd.info().replvel;
-    const float replveldz = wd.info().srdelev - wd.track().getKbElev();
+    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float replveldz = srd - wd.track().getKbElev();
     const float replvelshift = 2.f * replveldz / replvel;
     const float srddah = -1.f * replveldz; //dz; should use its dah instead
     const bool srdbelowkb = replveldz < 0;
@@ -214,7 +215,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 
     const Well::Track& track = wd.track();
 
-    const float srddepth = -1.f * wd.info().srdelev;
+    const float srddepth = -1.f * mCast(float,SI().seismicReferenceDatum());
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.dah(0);
