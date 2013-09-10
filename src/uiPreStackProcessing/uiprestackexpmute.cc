@@ -57,7 +57,8 @@ uiExportMute::~uiExportMute()
 
 bool uiExportMute::writeAscii()
 {
-    if ( !ctio_.ioobj ) mErrRet("Cannot find mute def in database");
+    if ( !infld_->ioobj() )
+	return false;
 
     PtrMan<MuteDefTranslator> tr =
     	(MuteDefTranslator*)ctio_.ioobj->createTranslator();
