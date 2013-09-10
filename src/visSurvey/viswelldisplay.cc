@@ -142,6 +142,7 @@ WellDisplay::~WellDisplay()
     delete Well::MGR().release( wellid_ );
 
     setBaseMap( 0 );
+    delete pseudotrack_;
 }
 
 
@@ -955,8 +956,10 @@ void WellDisplay::showKnownPositions()
     mGetWD(return);
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
-    Well::Track ttrack(wd->track());
-    pseudotrack_ = &(ttrack);
+    if ( !pseudotrack_ )
+        return;
+
+    *pseudotrack_ = wd->track();
     if ( zistime_ )
 	pseudotrack_->toTime( *d2t, wd->track() );
 
