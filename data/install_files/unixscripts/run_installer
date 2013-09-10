@@ -11,6 +11,11 @@ if [ ! -f /bin/csh ]; then
     exit 1
 fi
 
+#get rid of the OD environment.
+if [ $?DTECT_APPL ]; then
+    export DTECT_APPL=""
+fi
+
 PLFNAME=`uname`
 curdir=`dirname "$0"`
 
