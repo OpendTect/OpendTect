@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "uiearthmodelmod.h"
 #include "multiid.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
