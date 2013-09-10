@@ -57,31 +57,8 @@ void uiMain::setXpmIconData( const char** xpmdata )
 #include <QWindowsVistaStyle>
 #endif
 #ifdef __mac__
-# define __machack__
-#include <QMacStyle>
-#endif
-
-#ifdef __machack__
-# include <CoreServices/CoreServices.h>
-# include <ApplicationServices/ApplicationServices.h>
-
-extern "C"
-{
-
-typedef struct CPSProcessSerNum
-{
-        UInt32          lo;
-        UInt32          hi;
-} CPSProcessSerNum;
-
-extern OSErr    CPSGetCurrentProcess(CPSProcessSerNum *);
-extern OSErr    CPSEnableForegroundOperation( CPSProcessSerNum *,
-                                              UInt32, UInt32, UInt32, UInt32);
-extern OSErr    CPSSetFrontProcess(CPSProcessSerNum *);
-extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
-
-}
-
+# include "uimacinit.h"
+# include <QMacStyle>
 #endif
 
 
@@ -310,21 +287,8 @@ static void initQApplication()
 uiMain::uiMain( int& argc, char **argv )
     : mainobj_( 0 )
 {
-#ifdef __machack__
-        ProcessSerialNumber psn;
-        CPSProcessSerNum PSN;
-
-        GetCurrentProcess(&psn);
-        if (!CPSGetCurrentProcess(&PSN))
-        {
-            if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
-            {
-                if (!CPSSetFrontProcess(&PSN))
-                {
-                    GetCurrentProcess(&psn);
-                }
-            }
-        }
+#ifdef __mac__
+    uiInitMac();
 #endif
 
     initQApplication();
