@@ -30,38 +30,53 @@ typedef std::complex<float> float_complex;
 namespace Math
 {
     
-mGlobal(Basic) unsigned int SetFlags( unsigned int curflags,
-                              unsigned int flag, bool yn );
-    		/*!<Takes curflags, sets/clears the bits in flag, and returns
-                    the composite value.*/
+/*! Takes curflags, sets/clears the bits in flag, and returns
+    the composite value.*/
+mGlobal(Basic) unsigned int SetBits( unsigned int curflags,
+				     unsigned int mask, bool yn );
+
+/*! Returns wether the bits in the flag are set. If mask has multiple
+    bits, the all boolean specifies if all bits are required. */
+mGlobal(Basic) bool AreBitsSet( unsigned int curflags,
+			        unsigned int maks, bool all );
+
+/*!\returns 0 for for infinite, NaN, and that sort of crap */
 mGlobal(Basic) bool IsNormalNumber(float);
-		/* Returns 0 for for infinite, NaN, and that sort of crap */
+
 mGlobal(Basic) float IntPowerOf(float,int);
+
+/*! PowerOf(-2,2) returns -4. This may be mathematically
+  incorrect, it delivers continuity with negative numbers */
 mGlobal(Basic) float PowerOf(float,float);
-		/*!< PowerOf(-2,2) returns -4. This may be mathematically
-		  incorrect, it delivers continuity with negative numbers */
+
+/*!Checks the input range before calling asin, and does thus
+   avoid nan's due to roundoff errors. */
 mGlobal(Basic) float ASin(float);
-		/*!<Checks the input range before calling asin, and does thus
-		    avoid nan's due to roundoff errors. */
+
+/*!Checks the input range before calling acos, and does thus
+   avoid nan's due to roundoff errors. */
 mGlobal(Basic) float ACos(float);
-		/*!<Checks the input range before calling acos, and does thus
-		    avoid nan's due to roundoff errors. */
+
+/*!Checks the input range before calling log, returns
+   undefined if negative or zero value is given. */
 mGlobal(Basic) float Log(float);
-                /*!<Checks the input range before calling log, returns
-		    undefined if negative or zero value is given. */
+
+/*!Checks the input range before calling log10, returns
+   mUdf(float) if negative or zero value is given. */
 mGlobal(Basic) float Log10(float);
-                /*!<Checks the input range before calling log10, returns
-		    mUdf(float) if negative or zero value is given. */
+
+/*!Checks the input range before calling sqrt, if negative
+   value is given, zero is returned. */
 mGlobal(Basic) float Sqrt(float);
-                /*!<Checks the input range before calling sqrt, if negative
-		    value is given, zero is returned. */
+
 mGlobal(Basic) float_complex Sqrt(const float_complex&);
+
+/*!Checks the input range before calling exp, if too large
+    value is given, mUdf(float) is returned. */
 mGlobal(Basic) float Exp(float);
-                /*!<Checks the input range before calling exp, if too large
-		    value is given, mUdf(float) is returned. */
+
 mGlobal(Basic) float toDB(float);
     
-
 mGlobal(Basic) inline unsigned int Abs( unsigned int i )    { return i; }
 mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
 mGlobal(Basic) unsigned int Abs(int i);
