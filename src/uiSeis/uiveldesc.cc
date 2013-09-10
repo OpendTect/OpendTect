@@ -12,13 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 
 #include "ctxtioobj.h"
+#include "ioobjtags.h"
 #include "seisselection.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "unitofmeasure.h"
 #include "velocitycalc.h"
-#include "velocitytag.h"
 #include "zdomain.h"
 
 #include "uibutton.h"
@@ -108,7 +108,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
     
     if ( desc.type_ != VelocityDesc::Unknown )
     {
-	if ( !Vel::SetStorageTag( ioobj, desc ) )
+	if ( !SetVelocityTag( ioobj, desc ) )
 	{
 	    if ( disperr ) uiMSG().error( errmsg );
 	    return false;
@@ -116,7 +116,7 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
     }
     else
     {
-	if ( !Vel::RemoveStorageTag( ioobj ) )
+	if ( !RemoveVelocityTag( ioobj ) )
 	{
 	    if ( disperr ) uiMSG().error( errmsg );
 	    return false;
@@ -173,7 +173,7 @@ void uiVelocityDescDlg::volSelChange(CallBacker*)
 	}
 
 	
-	if ( !Vel::GetStorageTag( *ioobj, oldveldesc_ ) )
+	if ( !GetVelocityTag( *ioobj, oldveldesc_ ) )
 	    oldveldesc_.type_ = VelocityDesc::Unknown;
     }
 
@@ -421,7 +421,7 @@ bool uiTimeDepthBase::acceptOK()
 	return false;
 
     VelocityDesc desc;
-    if ( !Vel::GetStorageTag( *ioobj, desc ) )
+    if ( !GetVelocityTag( *ioobj, desc ) )
 	mErrRet("Cannot read velocity information for selected model");
 
     BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).str();

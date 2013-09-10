@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
+const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
 { "Unknown", "Vint", "Vrms", "Vavg", "Delta", "Epsilon", "Eta", 0 };

@@ -115,7 +115,6 @@ public:
     static const char*		sKeyZisTime();
 
     static const char*		sKeyPostStackDataID();
-    static const char*		sKeyVelocityCubeID();
     static const char*		sKeyStaticsID();
     
     void			getAzimuths(TypeSet<float>& azimuths ) const

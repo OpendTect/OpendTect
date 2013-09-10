@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidvalset.h"
 #include "ioobj.h"
+#include "ioobjtags.h"
 #include "seisbounds.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -24,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
-#include "velocitytag.h"
 
 namespace Vel
 {
@@ -114,13 +114,13 @@ bool VolumeConverter::doPrepare( int nrthreads )
     delete writer_;
     writer_ = 0;
 
-    if ( !Vel::GetStorageTag( *input_, velinpdesc_ ) )
+    if ( !GetVelocityTag( *input_, velinpdesc_ ) )
     {
 	errmsg_ = "Cannot read velocity information on input.";
 	return false;
     }
 
-    if ( !Vel::SetStorageTag( *output_, veloutpdesc_ ) )
+    if ( !SetVelocityTag( *output_, veloutpdesc_ ) )
     {
 	errmsg_ = "Cannot write velocity information on output";
 	return false;

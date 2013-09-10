@@ -83,8 +83,6 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    static const char*	sKeyVelData() { return "Velocity volume"; }
-
 protected:
     friend		class TimeDepthDataLoader;
 			~Time2DepthStretcher();

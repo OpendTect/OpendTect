@@ -118,7 +118,7 @@ void Time2DepthStretcher::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
     if ( velreader_ && velreader_->ioObj() )
-	par.set( sKeyVelData(), velreader_->ioObj()->key() );
+	par.set( VelocityDesc::sKeyVelocityVolume(), velreader_->ioObj()->key() );
 }
 
 
@@ -128,7 +128,8 @@ bool Time2DepthStretcher::usePar( const IOPar& par )
 	return false;
 
     MultiID vid;
-    if ( par.get( sKeyVelData(), vid ) && !setVelData( vid ) )
+    if ( par.get( VelocityDesc::sKeyVelocityVolume(), vid ) &&
+	          !setVelData( vid ) )
 	return false;
 
     return true;

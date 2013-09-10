@@ -40,7 +40,7 @@ bool uiT2DVelConvSelGroup::fillPar( IOPar& par ) const
     }
 
     MultiID mid = velsel_->getIOObj(true)->key();
-    par.set( Time2DepthStretcher::sKeyVelData(), mid );
+    par.set( VelocityDesc::sKeyVelocityVolume(), mid );
 
     return true;
 }

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genericnumer.h"
 #include "flatposdata.h"
 #include "ioobj.h"
+#include "ioobjtags.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ptrman.h"
@@ -31,7 +32,6 @@ using namespace PreStack;
 const char* Gather::sDataPackCategory()		{ return "Pre-Stack Gather"; }
 const char* Gather::sKeyIsAngleGather()		{ return "Angle Gather"; }
 const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
-const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 const char* Gather::sKeyStaticsID()		{ return "Statics"; }
@@ -160,7 +160,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     ioobj.pars().getYN(sKeyZisTime(),zit_);
 
     velocitymid_.setEmpty();
-    ioobj.pars().get( sKeyVelocityCubeID(), velocitymid_ );
+    GetVelocityVolumeTag( ioobj, velocitymid_ );
     staticsmid_.setEmpty();
     ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
 
@@ -320,7 +320,7 @@ OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 bool Gather::getVelocityID(const MultiID& stor, MultiID& vid )
 {
     PtrMan<IOObj> ioobj = IOM().get( stor );
-    return ioobj ? ioobj->pars().get( sKeyVelocityCubeID(), vid ) : false;
+    return ioobj && GetVelocityVolumeTag( *ioobj, vid );
 }
 
 #define mIfNonZero \

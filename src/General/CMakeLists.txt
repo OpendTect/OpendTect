@@ -29,7 +29,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    flatauxdataeditor.cc
 	    flatview.cc
 	    geom2dascio.cc
-		geometryio.cc
+	    geometryio.cc
 	    googlexmlwriter.cc
 	    grid2d.cc
 	    helpview.cc
@@ -39,6 +39,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    iodirentry.cc
 	    ioman.cc
 	    ioobj.cc
+	    ioobjtags.cc
 	    iostrm.cc
 	    iox.cc
 	    keyboardevent.cc
@@ -61,13 +62,12 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    raytracerrunner.cc
 	    rockphysics.cc
 	    stratlevel.cc
-		survgeometrytransl.cc
+	    survgeometrytransl.cc
 	    tableascio.cc
 	    tableconv.cc
 	    transl.cc
 	    unitofmeasure.cc
 	    usrinputobj.cc
-	    velocitytag.cc
 	    variogramcomputers.cc
 	    zaxistransformdatapack.cc )
 

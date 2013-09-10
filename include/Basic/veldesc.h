@@ -65,6 +65,7 @@ public:
     static const char*	sKeyVelocityType();
     static const char*	sKeyIsFeetPerSecond();
     static const char*	sKeyIsVelocity();
+    static const char*	sKeyVelocityVolume();
 
     static const char*	getVelUnit(bool withparens=true);
 };
