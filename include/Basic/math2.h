@@ -38,7 +38,7 @@ mGlobal(Basic) unsigned int SetBits( unsigned int curflags,
 /*! Returns wether the bits in the flag are set. If mask has multiple
     bits, the all boolean specifies if all bits are required. */
 mGlobal(Basic) bool AreBitsSet( unsigned int curflags,
-			        unsigned int maks, bool all );
+			        unsigned int mask, bool all=true );
 
 /*!\returns 0 for for infinite, NaN, and that sort of crap */
 mGlobal(Basic) bool IsNormalNumber(float);

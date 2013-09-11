@@ -42,22 +42,22 @@ float_complex Math::Sqrt( const float_complex& s )
 
 
 
-unsigned int Math::SetBits( unsigned int curflags, unsigned int flags, bool yn)
+unsigned int Math::SetBits( unsigned int curflags, unsigned int mask, bool yn)
 {
     if ( yn )
-        return curflags | flags;
+        return curflags | mask;
     
-    return (~flags) & curflags;
+    return (~mask) & curflags;
 }
 
 
-bool Math::AreBitsSet( unsigned int curflags, unsigned int flags, bool all )
+bool Math::AreBitsSet( unsigned int curflags, unsigned int mask, bool all )
 {
-    unsigned int res = curflags & flags;
+    unsigned int res = curflags & mask;
     if ( all )
-	return res == flags;
+	return res == mask;
 
-    return res;
+    return res>0;
 }
 
 
