@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2013
- RCS:		$Id: ibmformat.h 28906 2013-03-20 08:26:48Z mahant.mothey@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/

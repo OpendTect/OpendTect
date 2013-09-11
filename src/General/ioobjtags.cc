@@ -4,7 +4,7 @@
  * DATE     : Sep 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id: ibmformat.cc 30517 2013-07-02 13:07:14Z bert.bril@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "ioobjtags.h"
 
