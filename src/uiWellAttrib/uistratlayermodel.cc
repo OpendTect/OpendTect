@@ -823,6 +823,9 @@ void uiStratLayerModel::genModels( CallBacker* )
     }
 
     lmp_.setModel( newmodl );
+    lmp_.setUseEdited( false );
+    synthdisp_->setUseEdited( false );
+    moddisp_->setFluidReplOn( false );
 
     setModelProps();
     setElasticProps();
