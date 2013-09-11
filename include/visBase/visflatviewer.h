@@ -33,8 +33,7 @@ public:
 				mCreateDataObj(FlatViewer);
 
     Notifier<FlatViewer> 	dataChange;    
-    void			handleChange(FlatView::Viewer::DataChangeType,
-	    				     bool dofill = true);
+    void			handleChange(unsigned int);
     void	                setPosition(const Coord3& c00,const Coord3& c01,
 	                                  const Coord3& c10,const Coord3& c11);    
     void			turnOnGridLines(bool offsetlines,bool zlines);

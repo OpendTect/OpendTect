@@ -304,7 +304,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ = 
 	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata, true );
+    vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -387,7 +387,7 @@ void uiStratSynthDisp::displayFRText()
     filltxtdata->poly_ += txtpos;
 
     vwr_->addAuxData( filltxtdata );
-    vwr_->handleChange( FlatView::Viewer::Annot, true );
+    vwr_->handleChange( FlatView::Viewer::Annot );
 }
 
 
@@ -423,7 +423,7 @@ void uiStratSynthDisp::drawLevel()
 	}
     }
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata, true );
+    vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
 
 

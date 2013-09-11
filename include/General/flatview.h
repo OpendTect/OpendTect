@@ -347,8 +347,11 @@ public:
     			//!< Will also handleChange.
     			//!< So, do not use unless you want both.
 
-    enum DataChangeType	{ All, BitmapData, DisplayPars, Annot, Auxdata };
-    virtual void	handleChange(DataChangeType,bool dofill=true)	= 0;
+    enum DataChangeType	{ All=0xFFFFFFFF, BitmapData=0x0001, DisplayPars=0x0002,
+			  Annot=0x0004, Auxdata=0x0008 };
+    virtual void	handleChange(unsigned int datachangetype)	= 0;
+			/*!<\param datachangetype can be any combination of
+    				   DataChangeType. */
 
     			//!Does not store any data, just how data is displayed
     virtual void	fillAppearancePar( IOPar& iop ) const

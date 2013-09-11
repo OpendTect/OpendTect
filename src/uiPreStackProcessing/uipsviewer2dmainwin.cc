@@ -1147,8 +1147,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	}
 
 	//vwr.setAnnotChoice( selannot );
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
-	vwr.handleChange( FlatView::Viewer::Annot, false );
+	vwr.handleChange(
+		FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
     }
 }
 

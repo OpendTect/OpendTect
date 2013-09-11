@@ -111,7 +111,7 @@ FlatViewer::~FlatViewer()
 }
 
 
-void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
+void FlatViewer::handleChange( unsigned int dt)
 {
     switch ( dt )
     {

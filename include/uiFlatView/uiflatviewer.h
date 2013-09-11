@@ -63,7 +63,7 @@ public:
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
 
-    void		handleChange(DataChangeType,bool dofill = true);
+    void		handleChange(unsigned int);
 
     FlatView::AuxData*		createAuxData(const char* nm) const;
     int				nrAuxData() const;
