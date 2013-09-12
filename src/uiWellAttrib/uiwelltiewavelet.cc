@@ -227,7 +227,7 @@ void uiWavelet::drawWavelet()
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );
     viewer_->setViewToBoundingBox();
-    viewer_->handleChange( uiFlatViewer::All );
+    viewer_->handleChange( mCast(unsigned int,uiFlatViewer::All) );
 }
 
 

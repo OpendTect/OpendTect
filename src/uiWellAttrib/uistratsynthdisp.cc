@@ -353,7 +353,7 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
     }
     const Interval<double> xrg = vwr_->getDataPackRange( true );
     vwr_->setSelDataRanges( xrg, newzrg ); 
-    vwr_->handleChange( FlatView::Viewer::All );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
 
@@ -524,7 +524,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    rv = true;
 	    wvltfld_->setInput( mid );
 	}
-	vwr_->handleChange( FlatView::Viewer::All );
+	vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
     }
     return rv;
 }

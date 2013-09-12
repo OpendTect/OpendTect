@@ -95,7 +95,7 @@ void uiTieView::redrawViewer()
     drawTraces();
     redrawViewerAuxDatas();
 
-    vwr_->handleChange( FlatView::Viewer::All );
+    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
     mDynamicCastGet(uiControlView*,ctrl,vwr_->control())
     if ( ctrl )
 	ctrl->setSelView( false, false );

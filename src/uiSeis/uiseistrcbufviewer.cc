@@ -109,7 +109,7 @@ void uiSeisTrcBufViewer::selectDispTypes( bool wva, bool vd )
 
 void uiSeisTrcBufViewer::handleBufChange()
 {
-    viewer().handleChange( FlatView::Viewer::All );
+    viewer().handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
 
