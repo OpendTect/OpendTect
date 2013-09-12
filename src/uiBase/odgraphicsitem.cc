@@ -486,7 +486,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
     , bbox_( 0, 0, 1, 1 )
     , updatedynpixmap_( false )
-    , forceredraw_( false )
+    , updatebasepixmap_( false )
 {}
 
 
@@ -518,59 +518,38 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 					   const QImage& image,
 					   const QRectF& rect )
 {
+    imagelock_.lock();
     if ( isdynamic )
     {
-	dynamiclock_.lock();
 	dynamicimage_ = image;
 	dynamicimagebbox_ = rect;
 	updatedynpixmap_ = true;
-	dynamiclock_.unlock();
 	dynamicrev_[0] = false;
 	dynamicrev_[1] = false;
-	
-	if ( isMainThreadCurrent() )
-	{
-	    update();
-	}
-	else
-	{
-	    QObject* qobj = scene();
-	    if ( qobj && !QMetaObject::invokeMethod( qobj, "update",
-						 Qt::QueuedConnection ))
-	    {
-		pErrMsg("Cannot invoke method");
-	    }
-	}
     }
     else
     {
 	bbox_ = rect;
 	baseimage_ = image;
-	basepixmap_ = 0;
-	if ( !isMainThreadCurrent() )
-	{
-	    pErrMsg("Wrong thread");
-	    return;
-	}
-	
+	updatebasepixmap_ = true;
 	baserev_[0] = false;
 	baserev_[1] = false;
     }
-}
 
+    imagelock_.unlock();
 
-void ODGraphicsDynamicImageItem::clearImages( bool triggerupdate )
-{
-    const QImage qimage;
-    setImage( true, qimage, wantedwr_ );
-    setImage( false, qimage, bbox_ );
-
-    if ( triggerupdate )
+    if ( isMainThreadCurrent() )
     {
-	if ( wantedwr_.isValid() )
-	    wantsData.trigger();
-	else
-	    forceredraw_ = true;
+	update();
+    }
+    else
+    {
+	QObject* qobj = scene();
+	if ( qobj && !QMetaObject::invokeMethod( qobj, "update",
+					     Qt::QueuedConnection ))
+	{
+	    pErrMsg("Cannot invoke method");
+	}
     }
 }
 
@@ -584,7 +563,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     
     const QTransform worldtrans = painter->worldTransform();
     
-    dynamiclock_.lock();
+    imagelock_.lock();
     
     const QPointF pix00 = worldtrans.map( QPointF(0,0) );
     const QPointF pix11 = worldtrans.map( QPointF(1,1) );
@@ -592,11 +571,13 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
     const bool revx = pix00.x()>pix11.x();
     const bool revy = pix00.y()>pix11.y();
 
-    if ( updatedynpixmap_ || (revx!=dynamicrev_[0] || revy!=dynamicrev_[1]) )
+    const bool dynmirror = (revx!=dynamicrev_[0] || revy!=dynamicrev_[1]);
+
+    if ( updatedynpixmap_ || dynmirror )
     {
 	if ( dynamicimagebbox_.isValid() )
 	{
-	    if ( revx!=dynamicrev_[0] || revy!=dynamicrev_[1] )
+	    if ( dynmirror )
 	    {
 		mImage2Pixmap( dynamicimage_.mirrored( revx, revy ),
 			       dynamicpixmap_ );
@@ -620,11 +601,6 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	updatedynpixmap_ = false;
     }
 
-    dynamiclock_.unlock();
-
-    painter->save();
-    painter->resetTransform();
-
     bool paintbase = true;
     QRect dynamicscenerect;
 
@@ -637,9 +613,10 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 
     if ( paintbase )
     {
-	if ( !basepixmap_ || (revx!=baserev_[0] || revy!=baserev_[1]) )
+	const bool basemirror = (revx!=baserev_[0] || revy!=baserev_[1]);
+	if ( !basepixmap_ || updatebasepixmap_ || basemirror )
 	{
-	    if ( revx!=baserev_[0] || revy!=baserev_[1] )
+	    if ( basemirror )
 	    {
 		mImage2Pixmap( baseimage_.mirrored( revx, revy ), basepixmap_ );
 		
@@ -653,10 +630,21 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 		baserev_[1] = false;
 	    }
 	}
-	    
+
+	updatebasepixmap_ = false;
+    }
+
+    imagelock_.unlock();
+
+    painter->save();
+    painter->resetTransform();
+
+    if ( paintbase )
+    {
 	const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
 	painter->drawPixmap( scenerect, *basepixmap_ );
     }
+
 
     if ( dynamicpixmap_ )
 	painter->drawPixmap( dynamicscenerect, *dynamicpixmap_ );
@@ -678,15 +666,8 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
     const QSize wantedscreensz =
     	painter->worldTransform().mapRect(wantedwr).toRect().size();
 
-    if ( !forceredraw_ )
-    {
-	if ( wantedwr==wantedwr_ && wantedscreensz==wantedscreensz_)
-	    return false;
-    }
-    else
-    {
-        forceredraw_ = false;
-    }
+    if ( wantedwr==wantedwr_ && wantedscreensz==wantedscreensz_)
+	return false;
 
     wantedwr_ = wantedwr;
     wantedscreensz_ = wantedscreensz;

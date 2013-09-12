@@ -51,10 +51,12 @@ public:
 
     Interval<float>	getDataRange(bool iswva) const;
 
-protected:
+private:
 
     void			reGenerateCB(CallBacker*);
     void			dynamicTaskFinishCB(CallBacker*);
+
+    Task*			createDynamicTask();
 
     uiFlatViewer&		viewer_;
     int				workqueueid_;
@@ -62,7 +64,6 @@ protected:
     uiDynamicImageItem*		display_;
 
     uiBitMapDisplayTask*	basetask_;
-    uiBitMapDisplayTask*	dynamictask_;
 
     CallBack			finishedcb_;
 };

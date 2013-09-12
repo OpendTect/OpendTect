@@ -183,9 +183,6 @@ public:
 
     QRectF		boundingRect() const { return bbox_; }
 
-    void		clearImages( bool triggerupdate=false );
-    			 //!<If triggerupdate is set, it will seek to update
-    			 //!<and get a new detailed dynamicimage_.
     void		paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		      QWidget*);
 
@@ -197,22 +194,20 @@ protected:
     QRectF			wantedwr_;
     QSize			wantedscreensz_;
 
+    QMutex			imagelock_;
     bool			updatedynpixmap_;
-    bool			forceredraw_;
-    
-    
-    QMutex			dynamiclock_;
     QImage			dynamicimage_;
     QRectF			dynamicimagebbox_;
     bool			dynamicrev_[2];
-
-    PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
-    QRectF			dynamicpixmapbbox_; //Only access in paint
-
-    PtrMan<QPixmap>		basepixmap_;
+    bool			updatebasepixmap_;
     QImage			baseimage_;
     QRectF			bbox_;
     bool			baserev_[2];
+
+    PtrMan<QPixmap>		basepixmap_;	//Only access in paint
+    PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint
+    QRectF			dynamicpixmapbbox_; //Only access in paint
+
 };
 
 

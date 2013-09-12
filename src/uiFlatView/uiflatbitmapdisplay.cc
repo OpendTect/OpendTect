@@ -157,7 +157,6 @@ void uiBitMapDisplay::removeDisplay()
 
 void uiBitMapDisplay::update()
 {
-    display_->clearImages( true );
     basetask_->reset();
 
     if ( !viewer_.isVisible(true) && !viewer_.isVisible(false) )
@@ -166,11 +165,21 @@ void uiBitMapDisplay::update()
 	return;
     }
 
-    uiWorldRect wr( viewer_.boundingBox() ); wr.swapVer();
+    TypeSet<Threads::Work> updatework;
+
+    PtrMan<Task> dynamictask = createDynamicTask();
+    if ( dynamictask )
+	updatework += Threads::Work( *dynamictask, false );
+
+    uiWorldRect wr( viewer_.boundingBox() );
+    wr.swapVer();
     const uiSize sz( viewer_.getDataPackRange(true).nrSteps()+1,
 		     viewer_.getDataPackRange(false).nrSteps()+1 );
     basetask_->setScope( wr, sz );
-    if ( !basetask_->execute() )
+
+    updatework += Threads::Work( *basetask_, false );
+
+    if ( !Threads::WorkManager::twm().addWork( updatework ) )
 	return;
 
     viewer_.appearance().ddpars_.wva_.mappersetup_.range_ = getDataRange( true);
@@ -195,18 +204,33 @@ Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 
 void uiBitMapDisplay::reGenerateCB(CallBacker*)
 {
+    Task* dynamictask = createDynamicTask();
+
+    if ( !dynamictask )
+	return;
+
+    Threads::WorkManager::twm().emptyQueue( workqueueid_, false );
+    Threads::WorkManager::twm().addWork( 
+	Threads::Work(*dynamictask,true), &finishedcb_, workqueueid_, true);
+}
+
+
+Task* uiBitMapDisplay::createDynamicTask()
+{
+    if ( !display_ )
+	return 0;
+
     const uiWorldRect wr = display_->wantedWorldRect();
     const uiSize sz = display_->wantedScreenSize();
-    if ( sz.width()<=0 || sz.height()<=0 ) return;
+    if ( sz.width()<=0 || sz.height()<=0 )
+	return 0;
 
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );
 
     dynamictask->setScope( wr, sz );
 
-    Threads::WorkManager::twm().emptyQueue( workqueueid_, false );
-    Threads::WorkManager::twm().addWork( 
-	Threads::Work(*dynamictask,true), &finishedcb_, workqueueid_, true);
+    return dynamictask;
 }
 
 
