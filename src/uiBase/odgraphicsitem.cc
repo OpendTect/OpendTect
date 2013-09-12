@@ -561,18 +561,17 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 
 void ODGraphicsDynamicImageItem::clearImages( bool triggerupdate )
 {
-    const bool invalidwrsz = wantedwr_.width()<=0 || wantedwr_.height()<=0;
-    
-    if ( triggerupdate && !invalidwrsz )
-    {
-	wantsData.trigger();
-	return;
-    }
-
     const QImage qimage;
     setImage( true, qimage, wantedwr_ );
     setImage( false, qimage, bbox_ );
-    if ( triggerupdate ) forceredraw_ = true;
+
+    if ( triggerupdate )
+    {
+	if ( wantedwr_.isValid() )
+	    wantsData.trigger();
+	else
+	    forceredraw_ = true;
+    }
 }
 
 
