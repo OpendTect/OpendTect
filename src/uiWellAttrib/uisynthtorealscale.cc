@@ -66,14 +66,13 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     dispfld_->setPrefWidth( 260 );
     dispfld_->setPrefHeight( GetGoldenMinor(260) );
 
-    valueslider_ = new uiSliderExtra( this,
-	    	uiSliderExtra::Setup("Value"), "Value" );
-    valueslider_->sldr()->valueChanged.notify(
-			    mCB(this,uiSynthToRealScaleStatsDisp,sliderChgCB) );
-    avgfld_ = new uiGenInput( this, "", FloatInpSpec() );
-    valueslider_->attach( leftAlignedBelow, dispfld_ );
-    avgfld_->attach( rightOf, valueslider_ );
-    avgfld_->valuechanging.notify(mCB(this,uiSynthToRealScaleStatsDisp,avgChg));
+    uiSliderExtra::Setup slsu( "" );
+    slsu.withedit( true );
+    valueslider_ = new uiSliderExtra( this, slsu, "Value" );
+    valueslider_->valueChanged.notify(
+	    mCB(this,uiSynthToRealScaleStatsDisp,sliderChgCB) );
+    valueslider_->attach( alignedBelow, dispfld_ );
+    valueslider_->sldr()->setStretch( 2, 1 );
 
     uiLabel* lbl = new uiLabel( this, nm );
     dispfld_->attach( centeredBelow, lbl );
@@ -90,18 +89,11 @@ void updateSlider( float val )
     drawMarkerLine( val );
 }
 
-void avgChg( CallBacker* )
-{
-    usrval_ = avgfld_->getfValue();
-    dispfld_->setMarkValue( usrval_, true );
-    usrValChanged.trigger();
-}
-
 void sliderChgCB( CallBacker* )
 {
-    const float val = valueslider_->sldr()->getValue();
-    drawMarkerLine( val );
-    avgfld_->setValue( val );
+    usrval_ = valueslider_->sldr()->getValue();
+    drawMarkerLine( usrval_ );
+    usrValChanged.trigger();
 }
 
 void drawMarkerLine( float val )
@@ -125,12 +117,12 @@ void drawMarkerLine( float val )
     }
 
     markerlineitem_->setLine( valx, valytop, valx, valybottom );
+    usrval_ = val;
 }
 
     float		usrval_;
 
     uiHistogramDisplay*	dispfld_;
-    uiGenInput*		avgfld_;
     uiSliderExtra*	valueslider_;
     uiLineItem*		markerlineitem_;
     Notifier<uiSynthToRealScaleStatsDisp>	usrValChanged;
@@ -242,8 +234,8 @@ void uiSynthToRealScale::initWin( CallBacker* )
 
 void uiSynthToRealScale::setScaleFld( CallBacker* )
 {
-    const float synthval = synthstatsfld_->avgfld_->getfValue();
-    const float realval = realstatsfld_->avgfld_->getfValue();
+    const float synthval = synthstatsfld_->usrval_;
+    const float realval = realstatsfld_->usrval_;
     if ( mIsUdf(synthval) || mIsUdf(realval) || synthval == 0 )
 	finalscalefld_->setValue( mUdf(float) );
     else
@@ -334,7 +326,7 @@ void uiSynthToRealScale::updSynthStats()
     uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;
     histfld.setData( vals.arr(), vals.size() );
     histfld.putN();
-    synthstatsfld_->avgfld_->setValue( histfld.getStatCalc().average() );
+    synthstatsfld_->updateSlider( (float)histfld.getStatCalc().average() );
 }
 
 
@@ -475,7 +467,7 @@ void uiSynthToRealScale::updRealStats()
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;
     histfld.setData( coll.vals_.arr(), coll.vals_.size() );
     histfld.putN();
-    realstatsfld_->avgfld_->setValue( histfld.getStatCalc().average() );
+    realstatsfld_->updateSlider( (float)histfld.getStatCalc().average() );
     setScaleFld( 0 );
 }
 

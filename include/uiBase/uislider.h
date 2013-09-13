@@ -130,6 +130,8 @@ public:
     float		editValue() const;
     			//!<The val in the ed field, which may be outside range
 
+    // see below: Notifier<uiSliderExtra> valueChanged;
+
 protected:
 
     uiSlider*		slider;
@@ -139,6 +141,12 @@ protected:
     void		init(const Setup&,const char*);
     void		editRetPress(CallBacker*);
     void		sliderMove(CallBacker*);
+
+public:
+
+    			// added after binary compat
+    Notifier<uiSliderExtra> valueChanged;
+
 };
 
 
