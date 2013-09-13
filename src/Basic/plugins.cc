@@ -168,8 +168,7 @@ static BufferString getProgNm( const char* argv0 )
 static const char* getFnName( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
 
     ret = fnbeg;
 
@@ -249,8 +248,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
 
 const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else

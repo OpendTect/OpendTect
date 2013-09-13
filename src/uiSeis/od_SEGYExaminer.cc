@@ -66,7 +66,7 @@ int main( int argc, char ** argv )
 #endif
 
     if ( dofork )
-	forkProcess();
+	ForkProcess();
 
     su.fs_.fname_ = argv[argidx];
     //replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' ); 

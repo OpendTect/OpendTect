@@ -38,8 +38,7 @@ const char* getCleanUnxPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
+    mDeclStaticString( ret );
 
     BufferString buf; buf = path;
     char* ptr = buf.buf();
@@ -48,15 +47,15 @@ const char* getCleanUnxPath( const char* path )
     replaceCharacter( ptr, ';' , ':' );
 
     char* drivesep = strstr( ptr, ":" );
-    if ( !drivesep ) { res = ptr; return res; }
+    if ( !drivesep ) { ret = ptr; return ret; }
     *drivesep = '\0';
 
-    res = drvstr;
+    ret = drvstr;
     *ptr = (char) tolower(*ptr);
-    res += ptr;
-    res += ++drivesep;
+    ret += ptr;
+    ret += ++drivesep;
 
-    return res;
+    return ret;
 }
 
 #define mRet(ret) \
@@ -75,8 +74,7 @@ const char* getCleanWinPath( const char* path )
 {
     if ( !path || !*path ) return 0;
 
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = path;
     replaceCharacter( ret.buf(), ';' , ':' );
 
@@ -132,9 +130,8 @@ const char* getCleanWinPath( const char* path )
 
 const char* getCygDir()
 {
-    static StaticStringManager stm;
-    BufferString& answer = stm.getString();
-    if ( !answer.isEmpty() )  return answer;
+    mDeclStaticString( answer );
+    if ( !answer.isEmpty() ) return answer;
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
     LPTSTR subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
@@ -168,23 +165,20 @@ const char* getCygDir()
 }
 
 
-const char* GetSpecialFolderLocation(int nFolder)
+const char* GetSpecialFolderLocation( int nFolder )
 {
-    static StaticStringManager stm;
-    BufferString& Result = stm.getString();
-
     LPITEMIDLIST pidl;
-    HRESULT hr = SHGetSpecialFolderLocation(NULL, nFolder, &pidl);
-    
-    if ( !SUCCEEDED(hr) ) return 0;
+    HRESULT hr = SHGetSpecialFolderLocation( NULL, nFolder, &pidl );
+    if ( !SUCCEEDED(hr) )
+	return 0;
 
     char szPath[_MAX_PATH];
+    if ( !SHGetPathFromIDList(pidl,szPath) )
+	return 0;
 
-    if ( !SHGetPathFromIDList(pidl, szPath)) return 0;
-
-    Result = szPath;
-
-    return Result;
+    mDeclStaticString( ret );
+    ret = szPath;
+    return ret;
 }
 
 

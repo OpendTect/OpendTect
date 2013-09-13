@@ -83,14 +83,13 @@ mGlobal(Basic) int GetSubversionRevision(void);
 
 mGlobal(Basic) const char* GetSubversionUrl(void);
 		/*!< Returns Subversion url */
+
+mGlobal( Basic ) const char* GetLastSystemErrorMessage(void);
     
-    
-mGlobal( Basic ) void forkProcess(void);
+mGlobal( Basic ) void ForkProcess(void);
     
     
 mGlobal( Basic ) int InSysAdmMode(void);
-    
-    
 mGlobal( Basic ) void SetInSysAdmMode(void);
     
     

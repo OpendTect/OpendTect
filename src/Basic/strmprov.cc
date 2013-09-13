@@ -215,64 +215,6 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 }
 
 
-//---- StreamData ----
-
-StreamData& StreamData::operator =( const StreamData& sd )
-{
-    if ( this != &sd )
-	copyFrom( sd );
-    return *this;
-}
-
-
-void StreamData::close()
-{
-    if ( istrm && istrm != &std::cin )
-    	delete istrm;
-
-    if ( ostrm )
-    {
-	ostrm->flush();
-	if ( ostrm != &std::cout && ostrm != &std::cerr )
-	    delete ostrm;
-    }
-
-    if ( fp_ && fp_ != stdin && fp_ != stdout && fp_ != stderr )
-	{ if ( ispipe_ ) pclose(fp_); else fclose(fp_); }
-
-    initStrms();
-}
-
-
-bool StreamData::usable() const
-{
-    return ( istrm || ostrm ) && ( !ispipe_ || fp_ );
-}
-
-
-void StreamData::copyFrom( const StreamData& sd )
-{
-    istrm = sd.istrm; ostrm = sd.ostrm;
-    fp_ = sd.fp_; ispipe_ = sd.ispipe_;
-    setFileName( sd.fname_ );
-}
-
-
-void StreamData::transferTo( StreamData& sd )
-{
-    sd.copyFrom( *this );
-    initStrms();
-}
-
-
-void StreamData::setFileName( const char* f )
-{
-    delete [] fname_;
-    fname_ = f ? new char [strlen(f)+1] : 0;
-    if ( fname_ ) strcpy( fname_, f );
-}
-
-
 //---- Pre-loaded data ----
 
 
@@ -699,20 +641,20 @@ bool StreamProvider::isNormalFile() const
 
 const char* StreamProvider::fullName() const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
-    ret = "";
+    mDeclStaticString( ret );
+    ret.setEmpty();
+
     if ( iscomm_ )
-	ret += "@";
+	ret.add( "@" );
     if ( !hostname_.isEmpty() ) 
     {
 #ifdef __win__
-	ret += "\\\\"; ret += hostname_;
+	ret.add( "\\\\" ).add( hostname_ );
 #else
-	ret += hostname_; ret += ":";
+	ret.add( hostname_ ).add( ":" );
 #endif
     }
-    ret += fname_.buf();
+    ret.add( fname_.buf() );
 
     return ret.buf();
 }
@@ -974,8 +916,7 @@ static const char* getCmd( const char* fnm )
     
     if ( interp )
     {
-	static StaticStringManager stm;
-	BufferString& fullexec = stm.getString();
+	mDeclStaticString( fullexec );
 
 	fullexec = "\"";
 	FilePath interpfp;
@@ -997,7 +938,7 @@ static const char* getCmd( const char* fnm )
 	if ( args && *args )
 	    fullexec.add( " " ).add( args );
 
-	return fullexec;
+	return fullexec.buf();
     }
 
     return fnm;

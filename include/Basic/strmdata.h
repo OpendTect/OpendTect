@@ -41,10 +41,10 @@ public:
     bool	usable() const;
 
     void	setFileName(const char*);
-    const char*	fileName() const	{ return fname_; }
-    						//!< Beware: may be NULL
+    const char*	fileName() const { return fname_; } //!< Beware: may be NULL
 
-    FILE*	filePtr() const		{ return const_cast<FILE*>(fp_); }
+    FILE*	filePtr() const;
+    std::ios*	streamPtr()const;
 
     std::istream* istrm;
     std::ostream* ostrm;

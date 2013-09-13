@@ -488,8 +488,7 @@ static const ColorDescriptionData cColDD[] = {
 
 static const char* getApproxDesc( const char* nm )
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = "~";
     ret += nm;
     return ret.buf();
@@ -574,8 +573,7 @@ const TypeSet<Color>& Color::descriptionCenters()
 
 const char* Color::largeUserInfoString() const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
 
     ret = getStdStr();
 

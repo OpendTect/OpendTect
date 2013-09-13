@@ -205,8 +205,7 @@ bool Settings::write( bool do_merge ) const
 
 mExternC(Basic) const char* GetSettingsDataDir()
 {
-    static StaticStringManager stm;
-    BufferString& dirnm = stm.getString();
-    Settings::common().get( "Default DATA directory", dirnm );
-    return dirnm.buf();
+    mDeclStaticString( ret );
+    Settings::common().get( "Default DATA directory", ret );
+    return ret.buf();
 }

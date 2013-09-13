@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
 #include "strmio.h"
+#include "strmdata.h"
+#include "staticstring.h"
 
 #include "bufstring.h"
 #include "thread.h"
@@ -278,6 +280,52 @@ od_int64 StrmOper::tell( std::ostream& strm )
 }
 
 
+const char* StrmOper::getErrorMessage( std::ios& strm )
+{
+    mDeclStaticString( ret );
+    if ( strm.good() )
+	{ ret.setEmpty(); return ret; }
+
+    ret = GetLastSystemErrorMessage();
+    if ( ret.isEmpty() )
+    {
+	if ( strm.rdstate() & std::ios::eofbit )
+	    ret = "End-of-file reached";
+	else if ( strm.rdstate() & std::ios::failbit )
+	    ret = "Recoverable error encountered";
+	else if ( strm.rdstate() & std::ios::badbit )
+	    ret = "Unrecoverable error encountered";
+    }
+
+    return ret.buf();
+}
+
+
+const char* StrmOper::getErrorMessage( const StreamData& sd )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+
+    const int iotyp = sd.istrm ? -1 : (sd.ostrm ? 1 : 0);
+
+    if ( sd.fileName() && *sd.fileName() )
+    {
+	if ( iotyp )
+	    ret.add( iotyp > 0 ? "Writing " : "Reading " );
+	ret.add( "'" ).add( sd.fileName() ).add( "': " );
+    }
+
+    if ( iotyp == 0 )
+	ret.add( "Cannot open file" );
+    else if ( sd.streamPtr()->good() )
+	ret.add( "Successfully opened" );
+    else
+	ret.add( getErrorMessage(*sd.streamPtr()) );
+
+    return ret.buf();
+}
+
+
 
 #define mWriteImpl(fn,typ) \
 bool StreamIO::fn( const typ& val, const char* post ) \
@@ -293,6 +341,9 @@ mWriteImpl( writeInt16, od_int16 )
 mWriteImpl( writeInt32, od_int32 )
 mWriteImpl( writeInt64, od_int64 )
 mWriteImpl( writeFloat, float )
+
+
+//---- StreamIO ----
 
 
 bool StreamIO::writeBlock( void* ptr, od_uint64 nrbytes ) 
@@ -329,10 +380,12 @@ od_int64 StreamIO::tellg() const
     return istrm_ ? StrmOper::tell( *istrm_ ) : -1;
 }
 
+
 od_int64 StreamIO::tellp() const
 {
     return ostrm_ ? StrmOper::tell( *ostrm_ ) : -1;
 }
+
 
 bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
 {
@@ -341,6 +394,7 @@ bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
     return !istrm_->fail();
 }
 
+
 bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
 {
     if ( !ostrm_ ) return false;
@@ -348,3 +402,75 @@ bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
     return !ostrm_->fail();
 }
 
+
+//---- StreamData ----
+
+StreamData& StreamData::operator =( const StreamData& sd )
+{
+    if ( this != &sd )
+	copyFrom( sd );
+    return *this;
+}
+
+
+void StreamData::close()
+{
+    if ( istrm && istrm != &std::cin )
+    	delete istrm;
+
+    if ( ostrm )
+    {
+	ostrm->flush();
+	if ( ostrm != &std::cout && ostrm != &std::cerr )
+	    delete ostrm;
+    }
+
+    if ( fp_ && fp_ != stdin && fp_ != stdout && fp_ != stderr )
+	{ if ( ispipe_ ) pclose(fp_); else fclose(fp_); }
+
+    initStrms();
+}
+
+
+bool StreamData::usable() const
+{
+    return ( istrm || ostrm ) && ( !ispipe_ || fp_ );
+}
+
+
+void StreamData::copyFrom( const StreamData& sd )
+{
+    istrm = sd.istrm; ostrm = sd.ostrm;
+    fp_ = sd.fp_; ispipe_ = sd.ispipe_;
+    setFileName( sd.fname_ );
+}
+
+
+void StreamData::transferTo( StreamData& sd )
+{
+    sd.copyFrom( *this );
+    initStrms();
+}
+
+
+void StreamData::setFileName( const char* f )
+{
+    delete [] fname_;
+    fname_ = f ? new char [strlen(f)+1] : 0;
+    if ( fname_ ) strcpy( fname_, f );
+}
+
+
+FILE* StreamData::filePtr() const
+{
+    return const_cast<FILE*>( fp_ );
+}
+
+
+std::ios* StreamData::streamPtr() const
+{
+    const std::ios* ret = istrm;
+    if ( !istrm )
+	ret = ostrm;
+    return const_cast<std::ios*>( ret );
+}

@@ -26,6 +26,7 @@ passing of static strings where needed.
 mExpClass(Basic) StaticStringManager
 {
 public:
+
     BufferString&		getString();
 
     				~StaticStringManager();
@@ -35,6 +36,11 @@ protected:
     ObjectSet<const void>     	threadids_;
     Threads::Lock		lock_;
 };
+
+
+#define mDeclStaticString(nm) \
+    static StaticStringManager nm##_ssm; \
+    BufferString& nm = nm##_ssm.getString()
 
 
 #endif

@@ -65,12 +65,10 @@ const char* getStringFromInt( od_int32 val, char* str )
 
 const char* quoteString( const char* initial, char quote )
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-
+    mDeclStaticString( str );
     str = initial;
 
-    if ( !str.size() )
+    if ( str.isEmpty() )
 	return str.str();
 
     char insertstr[] = { quote, 0 };
@@ -858,10 +856,9 @@ const char* toString( unsigned char c )
 
 const char* toString( const char* str )
 {
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    res = str;
-    return res.buf();
+    mDeclStaticString( ret );
+    ret = str;
+    return ret.buf();
 }
 
 
@@ -927,18 +924,16 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( nrdecimals );
     formatstr.add( "f");
     
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    
-    getStringFromFloat( formatstr, fsz, res.buf() );
+    mDeclStaticString( ret );
+    getStringFromFloat( formatstr, fsz, ret.buf() );
     
     if ( withunit )
     {
-	res.add( " " );
-	res.add( getUnitString() );
+	ret.add( " " );
+	ret.add( getUnitString() );
     }
     
-    return res.str();
+    return FixedString( ret.str() );
 }
 
 

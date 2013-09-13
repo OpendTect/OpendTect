@@ -24,7 +24,7 @@ int main( int argc, char** argv )
 
     const bool dofork = CommandLineParser().hasKey( "bg" );
     if ( dofork )
-	forkProcess();
+	ForkProcess();
 
     RemCommHandler* handler = new RemCommHandler( 5050 );
     handler->listen();

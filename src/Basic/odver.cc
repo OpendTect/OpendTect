@@ -38,24 +38,23 @@ DefineEnumNames(OD::Platform,Type,0,"Platform")
 
 extern "C" const char* GetFullODVersion()
 {
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    if ( !res.isEmpty() ) return res.buf();
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
 
-    GetSpecificODVersion( 0, res );
+    GetSpecificODVersion( 0, ret );
 
-    if ( res.isEmpty() )
+    if ( ret.isEmpty() )
     {
 	const char* pvnm = GetProjectVersionName();
 	pvnm = strrchr( pvnm, 'V' );
 	if ( pvnm )
-	    res = pvnm + 1;
+	    ret = pvnm + 1;
 
-	if ( res.isEmpty() )
-	    res = "0.0.0";
+	if ( ret.isEmpty() )
+	    ret = "0.0.0";
     }
 
-    return res.buf();
+    return ret.buf();
 }
 
 

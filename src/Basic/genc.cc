@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "filepath.h"
 #include "errh.h"
+#include "staticstring.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -130,14 +131,25 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 }
 
 
-mExternC(Basic) void forkProcess(void)
+mExternC(Basic) const char* GetLastSystemErrorMessage()
+{
+    mDeclStaticString( ret );
+#ifndef __win__
+    char buf[1024];
+    ret = strerror_r( errno, buf, 1024 );
+#endif
+    return ret.buf();
+}
+
+
+mExternC(Basic) void ForkProcess(void)
 {
 #ifndef __win__
     switch ( fork() )
     {
     case 0:     break;
     case -1:
-	fprintf( stderr, "Cannot fork new process, errno=: %d\n", errno );
+	fprintf( stderr, "Cannot fork: %s\n", GetLastSystemErrorMessage() );
     default:
 	ExitProgram( 0 );
     }

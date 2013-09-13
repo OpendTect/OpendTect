@@ -51,7 +51,7 @@ int main( int argc, char** argv )
     argidx--;
 
     if ( dofork )
-	forkProcess();
+	ForkProcess();
 
     BufferString fnm = argidx > 0 ? argv[argidx] : "";
     //replaceCharacter( fnm.buf(), (char)128, ' ' );

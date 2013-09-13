@@ -10,7 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "hostdata.h"
-#include "strmdata.h"
+#include "strmoper.h"
 #include "strmprov.h"
 #include "ascstream.h"
 #include "envvars.h"
@@ -186,13 +186,16 @@ bool HostDataList::readHostFile( const char* fname )
 {
     StreamData sd = StreamProvider( fname ).makeIStream();
     if ( !sd.usable() || !sd.istrm->good() )
-	{ sd.close(); return false; }
+    {
+	if ( sd.usable() )
+	    ErrMsg( StrmOper::getErrorMessage(sd) );
+	sd.close(); return false;
+    }
 
     ascistream astrm( *sd.istrm );
     if ( !astrm.isOfFileType("Batch Processing Hosts") )
     {
-	BufferString msg( fname );
-	msg += ": invalid hosts file (invalid file header)";
+	const BufferString msg( fname, ": hosts file has invalid file header" );
 	ErrMsg( msg ); sd.close(); return false;
     }
 

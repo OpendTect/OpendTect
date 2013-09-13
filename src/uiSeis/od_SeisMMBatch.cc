@@ -57,7 +57,7 @@ int main( int argc, char ** argv )
     sdin.close();
 
     if ( bgadd )
-	forkProcess();
+	ForkProcess();
 
     const char* res = iop.find( sKey::Survey() );
     if ( res && *res && SI().getDirName() != res )
