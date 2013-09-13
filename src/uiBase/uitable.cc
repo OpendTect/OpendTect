@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivirtualkeyboard.h"
 #include "convert.h"
 #include "bufstringset.h"
+#include "staticstring.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
@@ -541,10 +542,10 @@ const char* uiTable::text( const RowCol& rc ) const
 	return cb->text();
     }
 
-    static BufferString rettxt;
+    mDeclStaticString( ret );
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
-    rettxt = itm ? itm->text().toLatin1().data() : "";
-    return rettxt;
+    ret = itm ? itm->text().toLatin1().data() : "";
+    return ret;
 }
 
 
