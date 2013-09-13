@@ -326,7 +326,7 @@ void uiSynthToRealScale::updSynthStats()
     uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;
     histfld.setData( vals.arr(), vals.size() );
     histfld.putN();
-    synthstatsfld_->updateSlider( histfld.getStatCalc().average() );
+    synthstatsfld_->updateSlider( (float)histfld.getStatCalc().average() );
 }
 
 
@@ -467,7 +467,7 @@ void uiSynthToRealScale::updRealStats()
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;
     histfld.setData( coll.vals_.arr(), coll.vals_.size() );
     histfld.putN();
-    realstatsfld_->updateSlider( histfld.getStatCalc().average() );
+    realstatsfld_->updateSlider( (float)histfld.getStatCalc().average() );
     setScaleFld( 0 );
 }
 
