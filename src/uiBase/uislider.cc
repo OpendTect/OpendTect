@@ -299,6 +299,7 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
     : uiGroup(p,mGetNm)
     , editfld(0)
     , lbl(0)
+    , valueChanged(this)
 {
     init( s, mGetNm );
 }
@@ -343,6 +344,7 @@ void uiSliderExtra::sliderMove( CallBacker* )
 {
     float val = slider->getValue();
     if ( editfld ) editfld->setValue( val );
+    valueChanged.trigger();
 }
 
 
@@ -361,4 +363,5 @@ float uiSliderExtra::editValue() const
 void uiSliderExtra::editRetPress( CallBacker* )
 {
     processInput();
+    valueChanged.trigger();
 }

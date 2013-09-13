@@ -130,6 +130,8 @@ public:
     float		editValue() const;
     			//!<The val in the ed field, which may be outside range
 
+    Notifier<uiSliderExtra> valueChanged;
+
 protected:
 
     uiSlider*		slider;
