@@ -107,7 +107,8 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	    kb  = zun_->userValue( kb );
 	}
 	if ( mIsZero(srd,0.01f) ) srd = 0.f;
-	const float twtvel = velfld_->getfValue() * .5f;
+	const float twtvel = velfld_->getfValue() * .5f *
+                        ( SI().depthsInFeetByDefault() ? mFromFeetFactorF : 1 );
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
 				( (1 / twtvel) - (2 / wd.info().replvel) );
 	int idahofminz = 0;
