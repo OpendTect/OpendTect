@@ -1,0 +1,7 @@
+This file contains extensions to arcanist by dgb. If you do changes
+in the files, you have to run:
+
+   arc liberate <directory>
+
+For instance:
+   arc liberate dgbarcanist
