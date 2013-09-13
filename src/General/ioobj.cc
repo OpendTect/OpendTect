@@ -332,8 +332,7 @@ IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 
 const char* IOSubDir::fullUserExpr( bool ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = FilePath(dirnm_,name()).fullPath();
     return ret;
 }

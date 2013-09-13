@@ -272,9 +272,8 @@ const char* HelpViewer::getCreditsSpecificFileName( const char* winid )
     const BufferString cfnm( getCreditsFileName(winid) );
     if ( !getCreditsData(cfnm,iop) )
 	return 0;
-    
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+
+    mDeclStaticString( ret );
     ret = iop.find( unScoped(winid) );
     return ret.isEmpty() ? 0 : ret.buf();
 }

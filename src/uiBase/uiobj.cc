@@ -340,11 +340,9 @@ void uiObject::setName( const char* nm )
 
 const char* uiObject::toolTip() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-    str = qnormaltooltipstr_->toLatin1().data();
-
-    return str.buf();
+    mDeclStaticString( ret );
+    ret = qnormaltooltipstr_->toLatin1().data();
+    return ret.buf();
 }
 
 

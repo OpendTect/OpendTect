@@ -588,8 +588,7 @@ bool IOMan::isKey( const char* ky ) const
 
 const char* IOMan::nameOf( const char* id ) const
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     if ( !id || !*id || !IOObj::isKey(id) )
 	return id;
 

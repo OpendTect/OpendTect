@@ -53,32 +53,30 @@ const char* DatabaseColumnBase::createColumnQuery() const
 	return 0;
     }
 
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
+    mDeclStaticString( ret );
 
-    str = backQuoteString( columnName() );
-    str += " ";
-    str += columnType();
+    ret = backQuoteString( columnName() );
+    ret += " ";
+    ret += columnType();
     
     const char* options = columnOptions();
     if ( options )
     {
-	str += " ";
-	str += options;
+	ret += " ";
+	ret += options;
     }
 
-    return str.buf();
+    return ret.buf();
 }
 
 
 const char* DatabaseColumnBase::selectString() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
+    mDeclStaticString( ret );
 
-    str = backQuoteString( table_.tableName() );
-    str.add( "." ).add( backQuoteString( columnName() ) );
-    return str;
+    ret = backQuoteString( table_.tableName() );
+    ret.add( "." ).add( backQuoteString( columnName() ) );
+    return ret;
 }
 
 
@@ -132,10 +130,9 @@ const char* DateDatabaseColumn::dataString(const DateInfo& di) const
     datestr.add( toString( di.usrMonth() ) );
     datestr.add( toString( di.day() ) );
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    res = datestr.buf();
-    return res.buf();
+    mDeclStaticString( ret );
+    ret = datestr.buf();
+    return ret.buf();
 }
 
 
@@ -172,10 +169,9 @@ const char* PriceDatabaseColumn::dataString( const Price& price ) const
     SeparString pricestr( price.currency_->abrevation_, ' ' );
     pricestr.add( toString( price.amount_ ) );
 
-    static StaticStringManager stm;
-    BufferString& res = stm.getString();
-    res = pricestr.buf();
-    return res.buf();
+    mDeclStaticString( ret );
+    ret = pricestr.buf();
+    return ret.buf();
 }
 
 
@@ -197,15 +193,14 @@ bool CreatedTimeStampDatabaseColumn::parse( const Query& query,
 
 const char* CreatedTimeStampDatabaseColumn::selectString() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
+    mDeclStaticString( ret );
 
-    str = "UNIX_TIMESTAMP(";
-    str.add( backQuoteString( table_.tableName() ) ).add(".");
-    str += backQuoteString( columnName() );
-    str += ")";
+    ret = "UNIX_TIMESTAMP(";
+    ret.add( backQuoteString( table_.tableName() ) ).add(".");
+    ret += backQuoteString( columnName() );
+    ret += ")";
 
-    return str.buf();
+    return ret.buf();
 }
 
 

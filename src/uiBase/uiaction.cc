@@ -153,11 +153,10 @@ void uiAction::setText( const wchar_t* txt )
 
 const char* uiAction::text() const
 {
+    mDeclStaticString( ret );
     static StaticStringManager stm;
-    BufferString& str = stm.getString();
-    str = qaction_->text().toLatin1().data();
-
-    return str.buf();
+    ret = qaction_->text().toLatin1().data();
+    return ret.buf();
 }
 
 
@@ -167,11 +166,9 @@ void uiAction::setIconText( const char* txt )
 
 const char* uiAction::iconText() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-    str = qaction_->iconText().toLatin1().data();
-
-    return str.buf();
+    mDeclStaticString( ret );
+    ret = qaction_->iconText().toLatin1().data();
+    return ret.buf();
 }
 
 
@@ -203,11 +200,9 @@ void uiAction::setToolTip( const QString& txt )
 
 const char* uiAction::toolTip() const
 {
-    static StaticStringManager stm;
-    BufferString& str = stm.getString();
-    str = qnormaltooltipstr_->toLatin1().data();
-
-    return str.buf();
+    mDeclStaticString( ret );
+    ret = qnormaltooltipstr_->toLatin1().data();
+    return ret.buf();
 }
 
 

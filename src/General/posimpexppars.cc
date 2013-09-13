@@ -46,8 +46,7 @@ void PosImpExpPars::getFromSI()
 
 const char* PosImpExpPars::fullKey( const char* attr, bool scl )
 {
-    static StaticStringManager stm;
-    BufferString& ret = stm.getString();
+    mDeclStaticString( ret );
     ret = IOPar::compKey( sKeyBase(), attr );
     ret = IOPar::compKey( ret.buf(), scl ? sKeyScale() : sKeyOffset() );
     return ret.buf();
