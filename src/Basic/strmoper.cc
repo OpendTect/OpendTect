@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #ifdef __win__
 # include "winstreambuf.h"
+#include <stdio.h>
 #endif
 
 #include <iostream>
