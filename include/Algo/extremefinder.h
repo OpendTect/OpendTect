@@ -205,9 +205,9 @@ public:
     int			nrIter() const;
     			/*!<\return	The number of iterations */
 
-    float 		extremeVal() { return fret_; }
+    float 		extremeVal() const	{ return fret_; }
     			/*!<\return	The extreme value */
-    const float*	extremePos() { return p_; }
+    const float*	extremePos() const	{ return p_; }
     			/*!<\return	A pointer to the extreme positions */
 
     template<class IDXABL>	

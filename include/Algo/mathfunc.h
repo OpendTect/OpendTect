@@ -40,17 +40,7 @@ mClass(Algo) MathFunctionND
 public:
     virtual	~MathFunctionND() {}
 
-    template <class IDXABL>
-    RT			getValue( const IDXABL& x ) const
-			{
-			    const int nrdim = getNrDim();
-			    mAllocVarLenArr( PT, pos, nrdim );
-			    for ( int idx=0; idx<nrdim; idx++ )
-				pos[idx] = x[idx];
-			    return getValue( (const PT*) pos );
-			}
-
-    virtual RT		getValue(const PT*) const		= 0;
+    virtual RT		getNDValue(const PT*) const		= 0;
     virtual int		getNrDim() const 			= 0;
 };
 
@@ -70,10 +60,11 @@ mClass(Algo) MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT		getValue(const PT* pos) const	{ return getValue(*pos); }
-    virtual int		getNrDim() const		{ return 1; }
+    virtual RT		getNDValue( const PT* pos ) const
+						{ return getValue(*pos); }
+    virtual int		getNrDim() const	{ return 1; }
 
-    virtual RT		getValue( PT p ) const		= 0;
+    virtual RT		getValue( PT ) const	= 0;
 
 };
 
@@ -90,16 +81,16 @@ mClass(Algo) MathFunctionSampler
 {
 public:
 			MathFunctionSampler( const MathFunction<RT,PT>& f )
-			    : func( f )
+			    : func_( f )
 			{}
     RT			operator[](int idx) const
-			{ return func.getValue( sd.atIndex(idx) ); }
+			{ return func_.getValue( sd.atIndex(idx) ); }
 
     SamplingData<PT>	sd;
 
 protected:
 
-    const MathFunction<RT,PT>&	func;
+    const MathFunction<RT,PT>&	func_;
 
 };
 
@@ -115,7 +106,7 @@ public:
 
     virtual RT	getValue(PT,PT) const		= 0;
 
-    RT		getValue( const PT* pos ) const
+    RT		getNDValue( const PT* pos ) const
     		        { return getValue(pos[0],pos[1]);}
     int		getNrDim() const { return 2; }
 
@@ -132,7 +123,7 @@ public:
 
     virtual RT	getValue(PT,PT,PT) const	= 0;
 
-    RT		getValue( const PT* pos ) const
+    RT		getNDValue( const PT* pos ) const
     		        { return getValue(pos[0],pos[1],pos[2]);}
     int		getNrDim() const { return 3; }
 
@@ -155,7 +146,7 @@ public:
 */
 
 template <class xT,class yT>
-mExpClass(Algo) BendPointBasedMathFunction : public MathFunction<xT,yT>
+mExpClass(Algo) BendPointBasedMathFunction : public MathFunction<yT,xT>
 {
 public:
 
@@ -182,7 +173,7 @@ public:
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
     void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
-    virtual yT		getValue( const xT* p ) const	{ return getValue(*p); }
+    virtual yT		getNDValue( const xT* p ) const	{ return getValue(*p); }
 
 protected:
 
@@ -228,10 +219,8 @@ public:
 			    for ( int idx=0; idx<nrdim; idx++ )
 				pos[idx] = P[idx] + N[idx]*lambda;
 
-			    return func.getValue( pos );
+			    return func.getNDValue( pos );
 			}
-    RT			getValue( const PT* p ) const
-			{ return getValue( *p ); }
 
 protected:
 
@@ -268,7 +257,6 @@ public:
 			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    return pos*pos * a + pos * b + c;
 			}
-    float		getValue( const float* p ) const { return getValue(*p); }
 
     float		getExtremePos() const
 			{
@@ -340,7 +328,6 @@ public:
 			    const float possq = pos * pos;
 			    return possq * pos * a + possq * b + pos * c + d;
 			}
-    float		getValue( const float* p ) const { return getValue(*p); }
 
     SecondOrderPoly*	createDerivative() const
 			{ return new SecondOrderPoly( a*3, b*2, c ); }

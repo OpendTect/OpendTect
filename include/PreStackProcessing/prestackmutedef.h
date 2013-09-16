@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "multiid.h"
+#include "mathfunc.h"
 
-class PointBasedMathFunction;
 
 namespace PreStack
 {

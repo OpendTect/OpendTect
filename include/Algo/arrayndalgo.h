@@ -14,7 +14,6 @@ ________________________________________________________________________
 @$*/
 #include "algomod.h"
 #include "arraynd.h"
-#include "arrayndimpl.h"
 #include "enums.h"
 #include "arrayndslice.h"
 #include "mathfunc.h"
@@ -165,76 +164,86 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
     return true;
 }
 
+/*!
+   This function returns the average of all defined values in the Arrray1D.
+   Only if the array is empty or contains only undef values it returns udf.
+*/
 
 template <class T>
-inline T computeAvg( ArrayND<T>* in )
+inline T getAverage( const ArrayND<T>& in )
 {
-    T avg = 0;
-    const int sz = in->info().getTotalSz();
-    T* inpptr = in->getData();
+    const int sz = in.info().getTotalSz();
+    if ( sz < 1 )
+	return mUdf(T);
 
-    if ( inpptr )
+    T avg = 0; int count = 0;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	int count = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	const T val = in.get( idx );
+	if ( !mIsUdf(val) )
 	{
-	    const T val = inpptr[idx];
-	    if ( !mIsUdf(val) )
-	    {
-		avg += inpptr[idx];
-		count++;
-	    }
+	    avg += val;
+	    count++;
 	}
-
-	if ( !count )
-	    return mUdf(T);
-
-	avg /= count;
     }
 
+    if ( count == 0 )
+	return mUdf(T);
+
+    avg /= count;
     return avg;
 }
 
 
-/*
-   The function interpUdf fills all the values in a Array1D by using an 
-   interpolation with the previous and the next defined values or 
-   by changing the undefined values at the beginning or at the end of the array 
-   with the nearest defined value.
-
-   This function returns a false value if it was not able to find any defined 
-   value in the entire array. A true value is returned if there are no undefined
-   values in the array or if the function succeeded to replace all the undefined
-   values. If there is only one defined value, this fnction will fill the
-   entire array by this value.
+/*!
+   Returns whether there are undefs in the Array1D.
 */
+
 template <class fT>
-inline bool interpUdf( Array1DImpl<fT>& in,
+inline bool hasUndefs( const Array1D<fT>& in )
+{
+    const int sz = in.info().getTotalSz();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = in.get( idx );
+	if ( mIsUdf(val) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+/*!
+   The function interpUdf fills all the undefined values in a Array1D
+   by using an inter- or extrapolation from the defined values.
+   It uses the BendPointBasedMathFunction for this.
+   Note that even if there is only one defined value, this function will fill
+   the entire array by this value.
+
+   Returns whether any substitution was made.
+*/
+
+template <class fT>
+inline bool interpUdf( Array1D<fT>& in,
 	typename BendPointBasedMathFunction<fT,fT>::InterpolType ipoltyp=
 			BendPointBasedMathFunction<fT,fT>::Poly )
 {
-    const int sz = in.info().getTotalSz();
-    fT* inpptr = in.getData();
-    if ( !sz )
+    if ( !hasUndefs(in) )
 	return false;
 
     BendPointBasedMathFunction<fT,fT> data( ipoltyp );
+    const int sz = in.info().getTotalSz();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const fT val = inpptr[idx];
+	const fT val = in.get( idx );
 	if ( !mIsUdf(val) )
 	    data.add( mCast(fT,idx), val );
     }
 
-    if ( data.isEmpty() )
-	return false;
-
-    if ( data.size() == sz )
-	return true;
-
     for ( int idx=0; idx<sz; idx++ )
     {
-	const fT val = inpptr[idx];
+	const fT val = in.get( idx );
 	if ( mIsUdf(val) )
 	    in.set( idx, data.getValue( mCast(fT,idx) ) );
     }

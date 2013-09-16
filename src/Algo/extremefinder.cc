@@ -419,6 +419,10 @@ ExtremeFinderND::~ExtremeFinderND()
 }
 
 
+#undef mGetFuncVal
+#define mGetFuncVal( xpos ) \
+( max_ ? -func_.getNDValue( xpos ) : func_.getNDValue( xpos ) )
+
 int ExtremeFinderND::nextStep()
 {
     if ( !iter_ )
