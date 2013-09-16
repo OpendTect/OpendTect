@@ -146,11 +146,17 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     rsu.doreflectivity_ = false;
     raytracerfld_ = new uiRayTracerSel( this, rsu );
 
-    if ( isformute_ )
-	return; //TODO: remove when anglemute computer uses angle computer
+    if ( !isformute_ )
+	createAngleCompFields();
 
+    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
+}
+
+
+void uiAngleCompAdvParsDlg::createAngleCompFields()
+{
     smoothtypefld_ = new uiGenInput( this, "Smoothing Type",
-	StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
+    StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
@@ -183,8 +189,6 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
     freqf4lbl_ = new uiLabel( this, "Hz" );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
-
-    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
 }
 
 
@@ -192,7 +196,7 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
 {
     raytracerfld_->fillPar( params_.raypar_ );
     if ( isformute_ )
-	return true; //TODO: remove when anglemute computer uses angle computer
+	return true; 
 
     IOPar& iopar = params_.smoothingpar_;
     iopar.set( PreStack::AngleComputer::sKeySmoothType(),
@@ -222,11 +226,12 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
     return true;
 }
 
+
 void uiAngleCompAdvParsDlg::updateFromParams()
 {
     raytracerfld_->usePar( params_.raypar_ );
     if ( isformute_ )
-	return; //TODO: remove when anglemute computer uses angle computer
+	return; 
 
     const IOPar& iopar = params_.smoothingpar_;
     int smoothtype = 0;
@@ -299,6 +304,10 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 
 void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
 {
+    updateFromParams();
+    if ( isformute_ )
+	return;
+
     freqf3fld_->setToolTip( "Frequency where the cosine tapering window starts:"
 			    " Amplitude=input" );
     freqf4fld_->setToolTip( "Frequency where the cosine tapering window stops:"

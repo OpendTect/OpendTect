@@ -73,6 +73,7 @@ public:
 protected :
 
     bool		acceptOK(CallBacker*);
+    void		createAngleCompFields();
     bool		isSmoothTypeMovingAverage();
     bool		isSmoothTypeFFTFilter();
     void		smoothTypeSel(CallBacker*);
