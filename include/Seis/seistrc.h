@@ -65,6 +65,7 @@ public:
     float		getValue(float,int icomp) const;
 
     bool		isNull(int icomp=-1) const;
+    bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
     bool		reSize(int,bool copydata);
@@ -119,6 +120,8 @@ protected:
     TraceData				data_;
     SeisTrcInfo				info_;
     ValueSeriesInterpolator<float>*	intpol_;
+
+    bool		chkForSpecVal(int icomp,bool isnull) const;
 
 private:
 
