@@ -180,6 +180,11 @@ public:
 };
 
 
+#define mExportTypeSet( mod, tp ) \
+mExportVectorAccess( mod, tp, int ); \
+template mExpClass(mod) TypeSetBase<tp,int>; \
+template mExpClass(mod) TypeSet<tp>
+
 template <class T, class I>
 inline bool operator ==( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
 {
