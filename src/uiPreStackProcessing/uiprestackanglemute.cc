@@ -177,6 +177,8 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     rsu.doreflectivity_ = false;
     raytracerfld_ = new uiRayTracerSel( this, rsu );
 
+    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
+
     if ( isformute_ )
 	return; //TODO: remove when anglemute computer uses angle computer
 
@@ -214,8 +216,6 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
     freqf4lbl_ = new uiLabel( this, "Hz" );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
-
-    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
 }
 
 
@@ -336,6 +336,10 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 
 void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
 {
+    updateFromParams();
+    if ( isformute_ )
+	return;
+
     freqf3fld_->setToolTip( "Frequency where the cosine tapering window starts:"
 			    " Amplitude=input" );
     freqf4fld_->setToolTip( "Frequency where the cosine tapering window stops:"
