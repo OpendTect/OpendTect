@@ -404,6 +404,7 @@ void uiSEGYRead::basicOptsGot()
     if ( exsu.nrtrcs_ > 0 )
     {
 	examdlg_ = new uiSEGYExamine( parent_, exsu );
+        examdlg_->tobeDeleted.notify( mCB(this,uiSEGYRead,examDlgClose) );
         examdlg_->go();
     }
 
@@ -484,7 +485,7 @@ void uiSEGYRead::defDlgClose( CallBacker* )
 
 
 void uiSEGYRead::examDlgClose( CallBacker* )
-{}
+{ examdlg_ = 0; }
 
 
 void uiSEGYRead::scanDlgClose( CallBacker* )
@@ -512,7 +513,12 @@ void uiSEGYRead::rev1qDlgClose( CallBacker* )
 
 uiSEGYRead::~uiSEGYRead()
 {
-    delete examdlg_;
+    if ( examdlg_ )
+    {
+        examdlg_->tobeDeleted.remove(mCB(this,uiSEGYRead,examDlgClose));
+        delete examdlg_;
+    }
+
     delete defdlg_;
     delete impdlg_;
     delete scandlg_;
