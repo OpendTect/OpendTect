@@ -335,8 +335,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
 	isudf.setSize( sz );
     }
 
-    PointBasedMathFunction data( PointBasedMathFunction::Poly,
-	    			 PointBasedMathFunction::EndVal );
+    PointBasedMathFunction data( PointBasedMathFunction::Poly );
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float val = outp[idx];

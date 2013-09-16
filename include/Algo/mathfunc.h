@@ -78,6 +78,7 @@ public:
 };
 
 typedef MathFunction<float,float> FloatMathFunction;
+typedef MathFunction<double,double> DoubleMathFunction;
 
 
 /*!
@@ -153,47 +154,50 @@ public:
   return). Undef sections are therefore supported.
 */
 
-mExpClass(Algo) PointBasedMathFunction : public FloatMathFunction
+template <class xT,class yT>
+mExpClass(Algo) BendPointBasedMathFunction : public MathFunction<xT,yT>
 {
 public:
 
     enum InterpolType	{ Linear, Poly, Snap };
     enum ExtrapolType   { None, EndVal, ExtraPolGradient };
 
-    			PointBasedMathFunction( InterpolType t=Linear,
-			       			ExtrapolType extr=EndVal )
+    			BendPointBasedMathFunction( InterpolType t=Linear,
+						    ExtrapolType extr=EndVal )
 			    : itype_(t)
 			    , extrapol_(extr)	{}
 
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
     bool		isEmpty() const		{ return x_.isEmpty(); }
-    void		add(float x,float y);
+    void		add(xT x,yT y);
     void		remove(int idx);
-    float		getValue( float x ) const
+    yT			getValue( xT x ) const
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
-    float		getValue( const float* p ) const { return getValue(*p); }
 
-    const TypeSet<float>& xVals() const		{ return x_; }
-    const TypeSet<float>& yVals() const		{ return y_; }
+    const TypeSet<xT>& xVals() const		{ return x_; }
+    const TypeSet<yT>& yVals() const		{ return y_; }
 
     InterpolType	interpolType() const	{ return itype_; }
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
     void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
+    virtual yT		getValue( const xT* p ) const	{ return getValue(*p); }
 
 protected:
 
     InterpolType	itype_;
     ExtrapolType	extrapol_;
-    TypeSet<float>	x_;
-    TypeSet<float>	y_;
+    TypeSet<xT>		x_;
+    TypeSet<yT>		y_;
 
-    int			baseIdx(float) const;
-    float		snapVal(float) const;
-    float		interpVal(float) const;
-    float		outsideVal(float) const;
+    int			baseIdx(xT) const;
+    yT			snapVal(xT) const;
+    yT			interpVal(xT) const;
+    yT			outsideVal(xT) const;
 };
+
+typedef BendPointBasedMathFunction<float,float> PointBasedMathFunction;
 
 
 /*!

@@ -7,41 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndalgo.h"
-
 #include "windowfunction.h"
-
-
-bool interpUdf( Array1DImpl<float>& in )
-{
-    const int sz = in.info().getTotalSz();
-    float* inpptr = in.getData();
-    if ( !sz )
-	return false;
-
-    PointBasedMathFunction data( PointBasedMathFunction::Poly,
-	                         PointBasedMathFunction::EndVal );
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float val = inpptr[idx];
-	if ( !mIsUdf(val) )
-	    data.add( mCast(float,idx), val );
-    }
-
-    if ( data.isEmpty() )
-	return false;
-
-    if ( data.size() == sz )
-	return true;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float val = inpptr[idx];
-	if ( mIsUdf(val) )
-	    in.set( idx, data.getValue( mCast(float,idx) ) );
-    }
-
-    return true;
-}
 
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")

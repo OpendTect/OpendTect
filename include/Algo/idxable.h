@@ -349,13 +349,13 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
 
 
 template <class T> inline
-void callibrateArray( const T* input, int sz,
+void calibrateArray( const T* input, int sz,
 	       const T* controlpts, const int* controlsamples, int nrcontrols,
 	       bool usefactor, T* output,
 	       float* callibrationcurve = 0 )
 {
     int firstsample = mUdf(int), lastsample = -mUdf(int);
-    PointBasedMathFunction func( PointBasedMathFunction::Linear );
+    BendPointBasedMathFunction<T,T> func;
     for ( int idx=0; idx<nrcontrols; idx++ )
     {
 	const int sample = controlsamples[idx];

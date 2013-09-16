@@ -197,18 +197,50 @@ inline T computeAvg( ArrayND<T>* in )
 
 
 /*
-   The function interpUdf fills all the values in a Array1D by using a 
-   polynomial interpolation with the previous and the next defined values or 
+   The function interpUdf fills all the values in a Array1D by using an 
+   interpolation with the previous and the next defined values or 
    by changing the undefined values at the beginning or at the end of the array 
    with the nearest defined value.
 
    This function returns a false value if it was not able to find any defined 
-   value in the entire array. A true value is returned if there is no undefined
+   value in the entire array. A true value is returned if there are no undefined
    values in the array or if the function succeeded to replace all the undefined
-   values. If there is only one defined value, the arry will fill the entire 
-   array by this value.
+   values. If there is only one defined value, this fnction will fill the
+   entire array by this value.
 */
-bool interpUdf( Array1DImpl<float>& in );
+template <class fT>
+inline bool interpUdf( Array1DImpl<fT>& in,
+	typename BendPointBasedMathFunction<fT,fT>::InterpolType ipoltyp=
+			BendPointBasedMathFunction<fT,fT>::Poly )
+{
+    const int sz = in.info().getTotalSz();
+    fT* inpptr = in.getData();
+    if ( !sz )
+	return false;
+
+    BendPointBasedMathFunction<fT,fT> data( ipoltyp );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = inpptr[idx];
+	if ( !mIsUdf(val) )
+	    data.add( mCast(fT,idx), val );
+    }
+
+    if ( data.isEmpty() )
+	return false;
+
+    if ( data.size() == sz )
+	return true;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = inpptr[idx];
+	if ( mIsUdf(val) )
+	    in.set( idx, data.getValue( mCast(fT,idx) ) );
+    }
+
+    return true;
+}
 
 
 /*!
