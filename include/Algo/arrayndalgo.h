@@ -14,6 +14,7 @@ ________________________________________________________________________
 @$*/
 #include "algomod.h"
 #include "arraynd.h"
+#include "arrayndimpl.h"
 #include "enums.h"
 #include "arrayndslice.h"
 #include "mathfunc.h"
@@ -193,6 +194,21 @@ inline T computeAvg( ArrayND<T>* in )
 
     return avg;
 }
+
+
+/*
+   The function interpUdf fills all the values in a Array1D by using a 
+   polynomial interpolation with the previous and the next defined values or 
+   by changing the undefined values at the beginning or at the end of the array 
+   with the nearest defined value.
+
+   This function returns a false value if it was not able to find any defined 
+   value in the entire array. A true value is returned if there is no undefined
+   values in the array or if the function succeeded to replace all the undefined
+   values. If there is only one defined value, the arry will fill the entire 
+   array by this value.
+*/
+bool interpUdf( Array1DImpl<float>& in );
 
 
 /*!
