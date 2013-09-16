@@ -60,7 +60,7 @@ public:
     inline I		size() const			{ return (I)v_.size(); }
     inline bool		setCapacity(I sz);
     			/*!<Allocates mem for sz, does not change size.*/
-    inline void		getCapacity() const		{ return v_.capacity();}
+    inline I		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
     inline bool		setSize(I sz,T val);
     
@@ -138,6 +138,13 @@ protected:
     std::vector<T>	v_;
 
 };
+
+
+#define mExportVectorAccess(mod,tp,itp) \
+template mExpClass(mod) std::allocator<tp>;\
+template mExpClass(mod) std::_Vector_val<tp,std::allocator<tp> >;\
+template mExpClass(mod) std::vector<tp>;\
+template mExpClass(mod) VectorAccess<tp,itp>;\
 
 
 template<class T,class I> inline
