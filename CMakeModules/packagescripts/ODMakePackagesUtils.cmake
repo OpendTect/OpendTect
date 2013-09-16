@@ -153,6 +153,9 @@ macro( create_basepackages PACKAGE_NAME )
 			${CMAKE_INSTALL_PREFIX}/doc/about.html
 			${DESTINATION_DIR}/doc )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_INSTALL_PREFIX}/doc/system_requirements.html
+			${DESTINATION_DIR}/doc )
+       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.txt
 				${DESTINATION_DIR}/doc/ReleaseInfo )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
