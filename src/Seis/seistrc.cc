@@ -75,6 +75,29 @@ void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
 }
 
 
+bool SeisTrc::hasUndef( int icomp ) const
+{
+    if ( icomp >= nrComponents() )
+	return false;
+
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	{ comps.start = 0; comps.stop = nrComponents()-1; }
+
+    const int sz = size();
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	for ( int isamp=0; isamp<sz; isamp++ )
+	{
+	    const float val = get(isamp,icomp);
+	    if ( mIsUdf(val) )
+		return true;
+	}
+    }
+    return false;
+}
+
+
 bool SeisTrc::isNull( int icomp ) const
 {
     if ( icomp >= nrComponents() )

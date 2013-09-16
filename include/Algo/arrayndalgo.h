@@ -165,33 +165,98 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 }
 
 
+/*!
+   This function returns the average of all defined values in the Arrray1D.
+   Only if the array is empty or contains only undef values it returns udf.
+*/
+
 template <class T>
-inline T computeAvg( ArrayND<T>* in )
+inline T getAverage( const ArrayND<T>& in )
 {
-    T avg = 0;
-    const int sz = in->info().getTotalSz();
-    T* inpptr = in->getData();
+    const int sz = in.info().getTotalSz();
+    if ( sz < 1 )
+	return mUdf(T);
 
-    if ( inpptr )
+    T avg = 0; int count = 0;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	int count = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	const T val = in.get( idx );
+	if ( !mIsUdf(val) )
 	{
-	    const T val = inpptr[idx];
-	    if ( !mIsUdf(val) )
-	    {
-		avg += inpptr[idx];
-		count++;
-	    }
+	    avg += val;
+	    count++;
 	}
-
-	if ( !count )
-	    return mUdf(T);
-
-	avg /= count;
     }
 
+    if ( count == 0 )
+	return mUdf(T);
+
+    avg /= count;
     return avg;
+}
+
+
+/*! Legacy. Don't use. Will disappear in 5.0. */
+
+template <class T>
+inline T computeAvg( const ArrayND<T>* in )
+{
+    return in ? getAverage( *in ) : mUdf(T);
+}
+
+
+/*!
+   Returns whether there are undefs in the Array1D.
+*/
+
+template <class fT>
+inline bool hasUndefs( const Array1D<fT>& in )
+{
+    const int sz = in.info().getTotalSz();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = in.get( idx );
+	if ( mIsUdf(val) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+/*!
+   The function interpUdf fills all the undefined values in a Array1D
+   by using an inter- or extrapolation from the defined values.
+   It uses the BendPointBasedMathFunction for this.
+   Note that even if there is only one defined value, this function will fill
+   the entire array by this value.
+
+   Returns whether any substitution was made.
+*/
+
+template <class fT>
+inline bool interpUdf( Array1D<fT>& in )
+{
+    if ( !hasUndefs(in) )
+	return false;
+
+    PointBasedMathFunction data( PointBasedMathFunction::Poly );
+    const int sz = in.info().getTotalSz();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = in.get( idx );
+	if ( !mIsUdf(val) )
+	    data.add( mCast(fT,idx), val );
+    }
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const fT val = in.get( idx );
+	if ( mIsUdf(val) )
+	    in.set( idx, data.getValue( mCast(fT,idx) ) );
+    }
+
+    return true;
 }
 
 
