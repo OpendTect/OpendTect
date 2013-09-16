@@ -43,6 +43,18 @@ AngleCompParams::AngleCompParams()
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(),
 	    	       100.0f/SI().zDomain().userFactor() );
     smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
+
+    RayTracer1D::Setup setup;
+    setup.doreflectivity( false );
+    setup.fillPar( raypar_ );
+    raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
+
+    const StepInterval<float> offsrange( 0, 6000, 100 );
+    TypeSet<float> offsetvals;
+    for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
+	offsetvals += offsrange.atIndex( idx );
+
+    raypar_.set( RayTracer1D::sKeyOffset(), offsetvals );
 }
 
 
@@ -125,16 +137,14 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
     
     if ( velsource_->zIsTime() )
     {
-	RefMan<Time2DepthStretcher> t2dstretcher= new Time2DepthStretcher();
-	if ( !t2dstretcher->setVelData(params_->velvolmid_) )
-	    return false;
+	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrlayers );
+	 ArrayValueSeries<float,float> depthvals(depths.arr(), false, nrlayers);
+	 const VelocityDesc& veldesc = velfun->getDesc();
+	 TimeDepthConverter tdc;
+	 tdc.setVelocityModel( velvals, nrlayers, sd, veldesc, true );
+	 if ( !tdc.calcDepths(depthvals,nrlayers,sd) )
+	     return false;
 
-	CubeSampling cs;
-	cs.hrg.start = cs.hrg.stop = bid; 
-	cs.zrg = zrg;
-	t2dstretcher->addVolumeOfInterest( cs, false);
-	t2dstretcher->loadDataIfMissing( 0, 0 );
-	t2dstretcher->transform( bid, sd, nrlayers, depths.arr() );
     }
     else
     {
