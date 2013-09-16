@@ -59,11 +59,11 @@ final class TextLinter extends ArcanistLinter {
       return;
     }
 
-    $this->lintNewlines($path);
-
-    if ($this->didStopAllLinters()) {
-      return;
-    }
+    //$this->lintNewlines($path);
+//
+    //if ($this->didStopAllLinters()) {
+      //return;
+    //}
 
     $this->lintCharset($path);
 
@@ -134,7 +134,8 @@ final class TextLinter extends ArcanistLinter {
 	      $line_idx + 1,
 	      1,
 	      self::LINT_LINE_WRAP,
-	      'This line is '.number_format(strlen($expandedline)).' characters long, '.
+	      'This line is '.number_format(strlen($expandedline)).
+	      ' characters long, '.
 	      'but the convention is '.$width.' characters.',
 	      $expandedline);
 	}
@@ -190,7 +191,7 @@ final class TextLinter extends ArcanistLinter {
 
     $matches = null;
     $preg = preg_match_all(
-      '/ +$/m',
+      '/[ \t]+$/m',
       $data,
       $matches,
       PREG_OFFSET_CAPTURE);
