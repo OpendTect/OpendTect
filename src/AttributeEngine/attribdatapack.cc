@@ -592,12 +592,12 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
 
-    setPosData( path );
     const int nrtrcs = seisbuf_->size();
-    const int arrsz0 = posData().nrPts( true );
-    const int nrsamp = nrtrcs ? seisbuf_->get(0)->size() : 0;
+    const int arrsz0 = path ? path->size() : nrtrcs; 
+    const int nrsamp = nrtrcs ? seisbuf_->get(0)->size() : 0; 
     arr2d_ = new Array2DImpl<float>( arrsz0, nrsamp );
     fill2DArray( path );
+    setPosData( path );
 }
 
 
@@ -611,20 +611,17 @@ FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 
 void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 {
-    const int nrpos = seisbuf_->size();
-    if ( nrpos < 1 || ( path && path->size() < nrpos ) ) return;
+    const int nrtrcs = seisbuf_->size(); 
+    if ( nrtrcs<1 || ( path && path->size()<nrtrcs ) ) return;
 
+    const int nrpos = path ? path->size() : nrtrcs; 
     float* pos = new float[nrpos]; pos[0] = 0;
-    Coord prevcrd;
-    int loopmaxidx = path ? path->size() : nrpos;
-    int x0arridx = -1;
-    for ( int idx=0; idx<loopmaxidx; idx++ )
+    Coord prevcrd; int x0arridx = -1;
+    for ( int idx=0; idx<nrpos; idx++ )
     {
-	int trcidx = path ? seisbuf_->find( (*path)[idx] ) : idx;
-	if ( trcidx < 0 ) continue;
-
 	x0arridx++;	
-	Coord crd = seisbuf_->get(trcidx)->info().coord;
+	const Coord crd = path ? SI().transform( (*path)[idx] )
+	    		 : seisbuf_->get(idx)->info().coord; 
 	if ( x0arridx > 0 )
 	{
 	    float distnnm1 = (float) prevcrd.distTo(crd);
@@ -633,7 +630,7 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 	prevcrd = crd;
     }
 
-    int nrsamp = seisbuf_->get(0)->size();
+    const int nrsamp = seisbuf_->get(0)->size();
     const StepInterval<float> zrg = 
 			seisbuf_->get(0)->info().sampling.interval( nrsamp );
     posdata_.setX1Pos( pos, nrpos, 0 );
@@ -675,24 +672,22 @@ void FlatRdmTrcsDataPack::fill2DArray( TypeSet<BinID>* path )
     if ( !seisbuf_ ) return;
     if ( seisbuf_->isEmpty() || !arr2d_ ) return;
     
-    int nrtrcs = seisbuf_->size();
-    if ( path && path->size() < nrtrcs ) return;
+    const int nrtrcs = seisbuf_->size();
+    if ( path && path->size()<nrtrcs ) return;
     
-    int nrsamp = seisbuf_->get(0)->size();
-    int loopmaxidx = path ? path->size() : nrtrcs;
+    const int nrsamp = seisbuf_->get(0)->size();
+    const int arrsz0 = path ? path->size() : nrtrcs;
     int x0arridx = -1;
     
-    for ( int idt=0; idt<loopmaxidx; idt++ )
+    for ( int idt=0; idt<arrsz0; idt++ )
     {
-	int trcidx = path ? seisbuf_->find( (*path)[idt] ) : idt;
-	if ( trcidx < 0 ) continue;
-	
+	const int trcidx = path ? seisbuf_->find( (*path)[idt] ) : idt;
 	x0arridx++;
-	SeisTrc* trc = seisbuf_->get( trcidx );
+	const SeisTrc* trc = trcidx<0 ? 0 : seisbuf_->get( trcidx );
 	for ( int idz=0; idz<nrsamp; idz++ )
-	    arr2d_->set( x0arridx, idz, trc->get(idz,0) );
+	    arr2d_->set( x0arridx, idz, !trc ? mUdf(float) : trc->get(idz,0) );
     //rem: assuming that interesting data is at component 0;
-    //allways true if coming from the engine, from where else?
+    //always true if coming from the engine, from where else?
     }
 }
 
