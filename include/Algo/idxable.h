@@ -341,18 +341,18 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
 }
 
 
-/*Given an array of values and a number of callibrated values at different
-  positions, compute a n array of values that is callibrated everywhere.
-  Depending on usefactor, the callibration will either be with absolute numbers
-  or with factors. The callibration curve can optionally be output, if
+/*Given an array of values and a number of calibrated values at different
+  positions, compute a n array of values that is calibrated everywhere.
+  Depending on usefactor, the calibration will either be with absolute numbers
+  or with factors. The calibration curve can optionally be output, if
   so, it should have at least sz samples allocated. */
 
 
 template <class T> inline
-void callibrateArray( const T* input, int sz,
+void calibrateArray( const T* input, int sz,
 	       const T* controlpts, const int* controlsamples, int nrcontrols,
 	       bool usefactor, T* output,
-	       float* callibrationcurve = 0 )
+	       float* calibrationcurve = 0 )
 {
     int firstsample = mUdf(int), lastsample = -mUdf(int);
     PointBasedMathFunction func( PointBasedMathFunction::Linear );
@@ -382,21 +382,33 @@ void callibrateArray( const T* input, int sz,
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	float callibration;
+	float calibration;
 	if ( idx<=firstsample )
-	   callibration = func.yVals()[0];
+	   calibration = func.yVals()[0];
 	else if ( idx>=lastsample )
-	   callibration = func.yVals()[func.size()-1];
+	   calibration = func.yVals()[func.size()-1];
 	else
-	   callibration = func.getValue( mCast(float,idx) );
+	   calibration = func.getValue( mCast(float,idx) );
 
 	output[idx] = usefactor
-	    ? input[idx]*callibration 
-	    : input[idx]+callibration;
+	    ? input[idx]*calibration 
+	    : input[idx]+calibration;
 
-	if ( callibrationcurve )
-	    callibrationcurve[idx] = callibration;
+	if ( calibrationcurve )
+	    calibrationcurve[idx] = calibration;
     }
+}
+
+
+//! Legacy: function name based on a typo. Don't use, will disappear in 5.0
+template <class T> inline
+void callibrateArray( const T* input, int sz,
+	       const T* controlpts, const int* controlsamples, int nrcontrols,
+	       bool usefactor, T* output,
+	       float* calibrationcurve = 0 )
+{
+    calibrateArray( input, sz, controlpts, controlsamples, nrcontrols,
+	    		usefactor, output, calibrationcurve );
 }
 
 

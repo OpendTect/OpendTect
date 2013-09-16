@@ -44,9 +44,9 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
 	ctrlsamples += dahidx; 
     }
     const float* csarr = cs.valArr();
-    IdxAble::callibrateArray( d2tarr, d2tsz,
-			      csarr, ctrlsamples.arr(), 
-			      cs.size(), false, d2tarr );
+    IdxAble::calibrateArray( d2tarr, d2tsz,
+			     csarr, ctrlsamples.arr(), 
+			     cs.size(), false, d2tarr );
 }
 
 }; //namespace WellTie
