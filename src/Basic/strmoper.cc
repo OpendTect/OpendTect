@@ -126,6 +126,54 @@ bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
 }
 
 
+#define mGetNextChar() \
+    { getres = getNextChar(strm,ch); if ( !getres ) return false; }
+#define mIsQuote() (ch == '\'' || ch == '"')
+
+
+bool StrmOper::readWord( std::istream& strm, BufferString* bs )
+{
+    if ( bs ) bs->setEmpty();
+    int bsidx = 0; char ch;
+    bool getres = getNextChar(strm,ch);
+    if ( !getres ) return false;
+
+    while ( isspace(ch) )
+	mGetNextChar();
+
+    char quotetofind = '\0';
+    if ( ch == '\'' || ch == '"' )
+    {
+	quotetofind = ch;
+	mGetNextChar()
+    }
+
+    char bsbuf[1024+1];
+    while ( !isspace(ch) )
+    {
+	if ( ch == quotetofind )
+	    break;
+
+	if ( bs )
+	{
+	    bsbuf[bsidx] = ch;
+	    bsidx++;
+	    if ( bsidx == 1024 )
+	    {
+		bsbuf[bsidx] = '\0';
+		*bs += bsbuf;
+		bsidx = 0;
+	    }
+	}
+	mGetNextChar()
+    }
+
+    if ( bs && bsidx )
+	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+    return !strm.bad();
+}
+
+
 bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 {
     if ( bs ) bs->setEmpty();
@@ -153,7 +201,7 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 
     if ( bs && bsidx )
 	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
-    return strm.good();
+    return !strm.bad();
 }
 
 
@@ -279,6 +327,12 @@ od_int64 StrmOper::tell( std::ostream& strm )
     mDynamicCastGet(const std::winfilebuf*,winbuf,strm.rdbuf())
     return winbuf ? winbuf->getRealPos() : -1;
 #endif
+}
+
+
+od_int64 StrmOper::lastNrBytesRead( std::istream& strm )
+{
+    return strm.gcount();
 }
 
 

@@ -29,6 +29,7 @@ namespace StrmOper
     mGlobal(Basic) bool		getNextChar(std::istream&,char&);
     mGlobal(Basic) bool		wordFromLine(std::istream&,char*,int maxnrchrs);
 
+    mGlobal(Basic) bool		readWord(std::istream&,BufferString* b=0);
     mGlobal(Basic) bool		readLine(std::istream&,BufferString* b=0);
     mGlobal(Basic) bool		readFile(std::istream&,BufferString&);
 
@@ -40,6 +41,7 @@ namespace StrmOper
     mGlobal(Basic) void		seek(std::ostream&,od_int64 pos);
     mGlobal(Basic) void		seek(std::ostream&,od_int64 offset,
 	    				std::ios::seekdir);
+    mGlobal(Basic) od_int64	lastNrBytesRead(std::istream&);
    
     mGlobal(Basic) const char*	getErrorMessage(std::ios&);
     mGlobal(Basic) const char*	getErrorMessage(const StreamData&);
