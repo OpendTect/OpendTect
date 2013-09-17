@@ -101,11 +101,6 @@ public:
     
     inline bool	setIfEqual(T* newptr,const T* oldptr);
     
-    inline void	unRef();
-    /*!<Don't be confused, class works for non-ref-counted objects
-     as well. Just don't call ref/unRef(); */
-    inline void	ref();
-    
     inline T*	setToNull();
     /*!<Returns the last value of the ptr. */
     
@@ -738,19 +733,6 @@ T* AtomicPointer<T>::setToNull()
     
     return (T*) oldptr;
 }
-
-
-template <class T> inline
-void AtomicPointer<T>::unRef()
-{
-    T* oldptr = setToNull();
-    if ( oldptr )
-	oldptr->unRef();
-}
-
-
-template <class T> inline
-void AtomicPointer<T>::ref() { ((T*) ptr_ )->ref(); }
 
 
 template <class T> inline

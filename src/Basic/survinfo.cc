@@ -104,8 +104,11 @@ void SurveyInfo::setInvalid() const
     myself->valid_ = false;
     
     
-    winlcrlsystem_.unRef();
-    inlcrlsystem_.unRef();
+    InlCrlSystem* old = winlcrlsystem_.setToNull();
+    if ( old ) old->unRef();
+
+    old = inlcrlsystem_.setToNull();
+    if ( old ) old->unRef();
 }
 
 
@@ -156,8 +159,11 @@ SurveyInfo::~SurveyInfo()
     delete &wcs_;
     delete &zdef_;
     
-    inlcrlsystem_.unRef();
-    winlcrlsystem_.unRef();
+    InlCrlSystem* old = winlcrlsystem_.setToNull();
+    if ( old ) old->unRef();
+
+    old = inlcrlsystem_.setToNull();
+    if ( old ) old->unRef();
 }
 
 
