@@ -54,6 +54,7 @@ set( OD_MODULE_SOURCES
 	    math2.cc
 	    moddepmgr.cc
 	    namedobj.cc
+	    od_iostream.cc
 	    oddirs.cc
 	    odimage.cc
 	    odinst.cc
