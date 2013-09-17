@@ -78,12 +78,12 @@ mYT BendPointBasedMathFunction<mXT,mYT>::outsideVal( mXT x ) const
     
     if ( x < x_[0] )
     {
-	const mYT gradient = (y_[1]-y_[0]) / (x_[1]-x_[0]);
-	return y_[0] + (x-x_[0]) * gradient;
+	const mYT gradient = (mYT)(y_[1]-y_[0]) / (x_[1]-x_[0]);
+	return (mYT)(y_[0] + (x-x_[0]) * gradient);
     }
     
-    const mYT gradient = (y_[sz-1]-y_[sz-2]) / (x_[sz-1]-x_[sz-2]);
-    return y_[sz-1] + (x-x_[sz-1]) * gradient;
+    const mYT gradient = (mYT)(y_[sz-1]-y_[sz-2]) / (x_[sz-1]-x_[sz-2]);
+    return (mYT)(y_[sz-1] + (x-x_[sz-1]) * gradient);
 }
 
 
@@ -134,7 +134,7 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
     // - don't coincide
 
     if ( itype_ == Linear )
-	return v1 * relx + v0 * (1-relx);
+	return (mYT)(v1 * relx + v0 * (1-relx));
 
     const int im1 = i0 > 0 ? i0 - 1 : i0;
     const mXT xm1 = im1 == i0 ? x0 - dx : x_[im1];
@@ -144,5 +144,5 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
     const mXT x2 = i2 == i1 ? x1 + dx : x_[i2];
     const mYT v2 = mIsUdf(y_[i2]) ? v1 : y_[i2];
 
-    return Interpolate::poly1D( xm1, vm1, x0, v0, x1, v1, x2, v2, x );
+    return (mYT)Interpolate::poly1D( xm1, vm1, x0, v0, x1, v1, x2, v2, x );
 }
