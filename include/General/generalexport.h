@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 -*/
 
+# ifdef do_import_export
+#  include <arraynd.h>
 
-#include <arraynd.h>
+mExportTemplClassInst( General ) Array2D<float>;
 
-mExportTemplClassInst( General, Array2D<float> );
-
+# endif
 #endif
 

@@ -137,10 +137,10 @@ ________________________________________________________________________
 
 #ifndef mDoWindowsImport
 #define mExp( module )			dll_export
-#define mExportInst( mod, tp, inst )
+#define mExportInst( mod, tp )
 #else
 #define mExp( module )			Export_##module
-#define mExportInst( mod, tp, inst )	Extern_##mod tp mExp(mod) inst
+#define mExportInst( mod, tp )		Extern_##mod tp mExp(mod) 
 #endif
 
 #define mExpClass( module )		class mExp( module )
@@ -152,7 +152,8 @@ ________________________________________________________________________
 #define mExtern( module )		extern mExp( module )
 #define mExternC( module)		extern "C" mExp( module )
 
-#define mExportTemplClassInst(mod,clss)	mExportInst(mod,template class,clss)
+#define mExportTemplClassInst(mod)	mExportInst(mod,template class)
+
 
 //for Qt
 #ifndef QT_NAMESPACE

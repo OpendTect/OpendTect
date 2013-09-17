@@ -12,10 +12,11 @@ ________________________________________________________________________
 
 -*/
 
+# ifdef do_import_export
 
-#include <valseries.h>
+#  include <valseries.h>
 
-mExportTemplClassInst( Seis, ValueSeries<float> );
+mExportTemplClassInst( Seis ) ValueSeries<float>;
 
+# endif
 #endif
-

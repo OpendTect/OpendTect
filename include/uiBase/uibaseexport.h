@@ -12,11 +12,13 @@ ________________________________________________________________________
 
 -*/
 
+# ifdef do_import_export
 
-#include "geometry.h"
+#  include "geometry.h"
 
-mExportTemplClassInst( uiBase, Geom::Size2D<int> );
-mExportTemplClassInst( uiBase, Geom::PixRectangle<int> );
+mExportTemplClassInst( uiBase ) Geom::Size2D<int>;
+mExportTemplClassInst( uiBase ) Geom::PixRectangle<int>;
 
+# endif
 #endif
 
