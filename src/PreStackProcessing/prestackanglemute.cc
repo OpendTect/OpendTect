@@ -108,16 +108,14 @@ bool AngleMuteBase::getLayers(const BinID& bid,
     
     if ( velsource_->zIsTime() )
     {
-	RefMan<Time2DepthStretcher> t2dstretcher= new Time2DepthStretcher();
-	if ( !t2dstretcher->setVelData(params_->velvolmid_) )
-	    return false;
+	 ArrayValueSeries<float,float> velvals( vels.arr(), false, nrlayers );
+	 ArrayValueSeries<float,float> depthvals(depths.arr(), false, nrlayers);
+	 const VelocityDesc& veldesc = velfun->getDesc();
+	 TimeDepthConverter tdc;
+	 tdc.setVelocityModel( velvals, nrlayers, sd, veldesc, true );
+	 if ( !tdc.calcDepths(depthvals,nrlayers,sd) )
+	     return false;
 
-	CubeSampling cs;
-	cs.hrg.start = cs.hrg.stop = bid; 
-	cs.zrg = zrg;
-	t2dstretcher->addVolumeOfInterest( cs, false);
-	t2dstretcher->loadDataIfMissing( 0, 0 );
-	t2dstretcher->transform( bid, sd, nrlayers, depths.arr() );
     }
     else
     {
