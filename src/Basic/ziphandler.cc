@@ -243,12 +243,14 @@ bool ZipHandler::getFileList( const char* src,
 	filenames.add( dlist.fullPath(idx) );
 	if ( !File::isLink(dlist.fullPath(idx)) )
 	    getFileList( dlist.fullPath(idx), filenames);
+        else
+            totalsize_ += File::getFileSize( dlist.fullPath(idx), false );
     }
 
     for( int idx=0; idx<flist.size(); idx++)
     {
 	filenames.add( flist.fullPath(idx) );
-	totalsize_ += File::getFileSize( flist.fullPath(idx) );
+	totalsize_ += File::getFileSize( flist.fullPath(idx), false );
     }
     return true;
 }
@@ -299,12 +301,8 @@ bool ZipHandler::compressNextFile()
 int ZipHandler::openStrmToRead( const char* src )
 {
     srcfile_ = src;
-#ifndef __win__
     if ( File::isLink(src) )
-    {
         return mIsLink;
-    }
-#endif
 
     if ( File::isDirectory(src) )
 	return mIsDirectory;
@@ -443,7 +441,7 @@ bool ZipHandler::doZCompress()
 bool ZipHandler::setLocalFileHeader()
 {
     od_int64 srcfilesize;
-    uncompfilesize_ = File::getFileSize(srcfile_);
+    uncompfilesize_ = File::getFileSize(srcfile_,false);
     if ( uncompfilesize_ > m32BitSizeLimit )
 	srcfilesize = m32BitSizeLimit + 1;
     else
@@ -575,8 +573,19 @@ bool ZipHandler::setLocalFileHeaderForLink()
     for ( int idx=5; idx<10; idx++ )
 	headerbuff[idx] = '\0';
 
+#ifdef __win__
+    HANDLE filehandle = CreateFile ( srcfile_, GENERIC_READ, 0, NULL, 
+                                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+    od_int32 linksize = GetFileSize( filehandle, NULL );
+    od_int32 bytesread;
+    BufferString linkvalue( linksize, true );
+    ReadFile( filehandle, linkvalue.buf(), linksize, (LPDWORD)&bytesread, NULL);
+    CloseHandle( filehandle );
+#else
     BufferString linkvalue = File::linkValue( srcfile_ );
     od_uint32 linksize = linkvalue.size();
+#endif
+
     od_uint32 crc = 0;
     crc = crc32(crc, mCast(Bytef*,linkvalue.buf()), linksize);
     char* buf = 0;
