@@ -41,12 +41,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-enum UndefTreat		{ Skip, Adopt, Interpolate };
+
 
 
 class Horizon2DImporter : public Executor
 {
 public:
+
+    enum UndefTreat		{ Skip, Adopt, Interpolate };
 
 Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 		   const MultiID& setid, const BinIDValueSet* valset,
@@ -465,7 +467,7 @@ bool uiImportHorizon2D::doImport()
     const int setidx = linesetnms_.indexOf( setnm );
     PtrMan<Horizon2DImporter> exec =
 	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
-			       (UndefTreat) udftreatfld_->getIntValue() );
+	    (Horizon2DImporter::UndefTreat) udftreatfld_->getIntValue() );
     uiTaskRunner impdlg( this );
     if ( !TaskRunner::execute(&impdlg,*exec) )
 	mDeburstRet( false, unRef );
