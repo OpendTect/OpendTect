@@ -259,6 +259,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , plotter_(p->plotter())
     , dps_(p->plotter().dps())
     , hasy2_(plotter_.axisHandler(2))
+    , mathexprstring_(plotter_.userdefy1str_)
+    , mathexprstring1_(plotter_.userdefy2str_)
     , shwy1userdefpolyline_(0)
     , shwy2userdefpolyline_(0)
     , mathobj_(0)
@@ -334,7 +336,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 {
     plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
     plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    delete mathobj_; delete mathobj1_;
+    setPolyLines( 0 ); delete mathobj_; delete mathobj1_;
 }
 
 
@@ -346,15 +348,16 @@ void checkMathExpr( CallBacker* cb )
     const BufferString& inptxt = isy1 ? inpfld_->text() : inpfld1_->text();
     const bool& errbfrplot = isy1 ? err1bfrplot_ : err2bfrplot_;
     bool& expplotted = isy1 ? exp1plotted_ : exp2plotted_;
+    bool& linedrawn = isy1 ? line1drawn_ : line2drawn_;
 
     if ( mathexpr != inptxt )
     {
-	expplotted = false;
+	expplotted = linedrawn = false;
 	isy1 ? rmsfld_->setText(0) : rmsfld1_->setText(0);
     }
     else
     {
-	if ( !errbfrplot ) expplotted = true;
+	( !errbfrplot ? expplotted : linedrawn ) = true;
 	isy1 ? rmsfld_->setText(plotter_.y1rmserr_)
 	    : rmsfld1_->setText(plotter_.y2rmserr_);
     }
@@ -464,7 +467,7 @@ void setPolyLines( CallBacker* cb )
     mDynamicCastGet(uiDialog*,dlg,cb);
     if ( dlg && dlg->uiResult() == 1 )
 	return;
-    else if ( dlg->uiResult() == 0 )
+    else if ( !cb || dlg->uiResult() == 0 )
     {
 	if ( line1drawn_ || err1bfrplot_ )
 	{
@@ -493,7 +496,6 @@ void drawPolyLines()
 {
     uiDataPointSetCrossPlotter::AxisData& yax = plotter_.axisData(1);
     const bool shwy1 = shwy1userdefpolyline_->isChecked();
-    if ( !mathobj_ ) exp1plotted_ = true;
 
     if ( shwy1 && !exp1plotted_ )
     {
@@ -511,7 +513,6 @@ void drawPolyLines()
     {
 	uiDataPointSetCrossPlotter::AxisData& y2ax = plotter_.axisData(2);
 	const bool shwy2 = shwy2userdefpolyline_->isChecked();
-	if ( !mathobj1_ ) exp2plotted_ = true;
 
     	if ( shwy2 && !exp2plotted_ )
     	{
@@ -530,7 +531,6 @@ void drawPolyLines()
 
 void computePts( bool isy2 )
 {
-    TypeSet<uiWorldPoint> pts;
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
     vert.handleAutoScale( plotter_.uidps().getRunCalc( vert.colid_ ) );
@@ -538,15 +538,17 @@ void computePts( bool isy2 )
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
 	    vert.axis_->range().step );
     MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
-    if ( !mathobj ) return;
-    Interval<float> xrge = horz.rg_;
-    const float step = fabs( ( xrge.stop - xrge.start )/999.0f );
+    const bool& linedrawn = isy2 ? line2drawn_ : line1drawn_;
+    const int nrpts = linedrawn ? 2 : 1000;
+    const Interval<float> xrge = horz.rg_;
+    const float step = fabs( (xrge.stop-xrge.start)/(nrpts-1) );
+    TypeSet<uiWorldPoint> pts; pts.setCapacity( nrpts );
 
-    for ( int idx = 0; idx < 1000; idx++ )
+    for ( int idx=0; idx<nrpts; idx++ )
     {
-	float curvxval = xrge.start + ((float)idx)*step;
+	const float curvxval = xrge.start + idx*step;
 	mathobj->setVariableValue( 0, curvxval );	
-	float curvyval = mathobj->getValue();
+	const float curvyval = mathobj->getValue();
 	if ( !Math::IsNormalNumber(curvyval) ) break;
 	if ( mIsUdf(curvyval) || mIsUdf(curvxval) ) continue;
 
