@@ -276,6 +276,7 @@ if( OD_MODULE_BATCHPROGS OR OD_MODULE_GUI_PROGS )
     OD_ADD_SOURCE_FILES( ${OD_MODULE_PROGS} ${OD_MODULE_BATCHPROGS}
 			 ${OD_MODULE_GUI_PROGS} )
 endif()
+
 set ( OD_RUNTIMELIBS ${OD_MODULE_DEPS})
 if ( OD_MODULE_HAS_LIBRARY )
     list ( APPEND OD_RUNTIMELIBS ${OD_MODULE_NAME} )
@@ -346,11 +347,7 @@ endif()
 
 if(OD_MODULE_BATCHPROGS)
     #Add dep on Batch if there are batch-progs
-    if ( OD_MODULE_BATCHPROGS )
-	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
-	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
-    endif()
-
+    set ( PROGRAM_RUNTIMELIBS ${OD_RUNTIMELIBS} "Batch" "Network" )
 
     foreach ( EXEC ${OD_MODULE_BATCHPROGS} )
 	get_filename_component( TARGET_NAME ${EXEC} NAME_WE )
@@ -358,7 +355,7 @@ if(OD_MODULE_BATCHPROGS)
 	target_link_libraries(
 	    ${TARGET_NAME}
 	    ${OD_EXEC_DEP_LIBS}
-	    ${OD_RUNTIMELIBS} )
+	    ${PROGRAM_RUNTIMELIBS} )
 
 	set( TARGET_PROPERTIES ${TARGET_NAME}
 	    PROPERTIES 
@@ -395,7 +392,7 @@ if(OD_MODULE_BATCHPROGS)
 
 endif( OD_MODULE_BATCHPROGS )
 
-foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} )
+foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} ${OD_BATCH_TEST_PROGS} )
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( TEST_NAME test_${TEST_NAME} )
 
@@ -403,13 +400,21 @@ foreach ( TEST_FILE ${OD_NIGHTLY_TEST_PROGS} )
     set ( OD_TESTS_IGNORE_EXPERIMENTAL ${OD_TESTS_IGNORE_EXPERIMENTAL} ${TEST_NAME} PARENT_SCOPE )
 endforeach()
 
-foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
+foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
+
+    set ( PROGRAM_RUNTIMELIBS ${OD_RUNTIMELIBS} )
+
     #Add dep on Batch if there are batch-progs
-    if ( OD_USEBATCH )
-	list( APPEND OD_RUNTIMELIBS "Batch" "Network" )
-	list( REMOVE_DUPLICATES OD_RUNTIMELIBS )
-	add_definitions( -D__prog__ )
+    set ( INDEX -1 )
+    if ( OD_BATCH_TEST_PROGS )
+	list ( FIND OD_BATCH_TEST_PROGS ${TEST_FILE} INDEX )
     endif()
+
+    if ( NOT (${INDEX} EQUAL -1) )
+	list( APPEND PROGRAM_RUNTIMELIBS "Batch" "Network" )
+	set( EXTRA_TARGET_PROP COMPILE_DEFINITIONS __prog__ )
+    endif()
+
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST_NAME}.par )
     set ( TEST_NAME test_${TEST_NAME} )
@@ -418,13 +423,14 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_NIGHTLY_TEST_PROGS} )
 
     set_target_properties( ${TEST_NAME}
 	    PROPERTIES 
+	    ${EXTRA_TARGET_PROP}
 	    LINK_FLAGS "${OD_PLATFORM_LINK_OPTIONS} ${OD_MODULE_LINK_OPTIONS}"
 	    LABELS ${OD_MODULE_NAME}
 	    RUNTIME_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}")
     target_link_libraries(
 	    ${TEST_NAME}
 	    ${OD_EXEC_DEP_LIBS}
-	    ${OD_RUNTIMELIBS} )
+	    ${PROGRAM_RUNTIMELIBS} )
     if( OD_CREATE_LAUNCHERS )
 	    create_target_launcher( ${TEST_NAME}
 		RUNTIME_LIBRARY_DIRS
