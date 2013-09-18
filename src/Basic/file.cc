@@ -139,8 +139,24 @@ Executor* getRecursiveCopier( const char* from, const char* to )
 { return new RecursiveCopier( from, to ); }
 
 
-od_int64 getFileSize( const char* fnm )
+od_int64 getFileSize( const char* fnm, bool followlink )
 {
+    if ( !followlink && isLink(fnm) )
+    {
+        od_int64 filesize = 0;
+#ifdef __win__
+        HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
+                                   FILE_ATTRIBUTE_NORMAL, NULL );
+        filesize = GetFileSize( file, NULL );
+        CloseHandle( file );
+#else
+        struct stat filestat;
+        filesize = lstat( filenm, &filestat )>=0 ? filestat.st_size : 0;
+#endif
+
+        return filesize;
+    }
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.size();

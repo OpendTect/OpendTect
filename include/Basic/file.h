@@ -60,9 +60,11 @@ namespace File
     mGlobal(Basic) bool		changeDir(const char* path);
 
     mGlobal(Basic) bool		getContent(const char*,BufferString&);
-    mGlobal(Basic) od_int64	getFileSize(const char*);
+    mGlobal(Basic) od_int64	getFileSize(const char* fnm,
+                                            bool followlink=true);
     				//!<returns size in bytes
 				//!<Returns 0 on error
+                                //!<For size of link itself followlink=false
     mGlobal(Basic) int		getKbSize(const char*);
 				//!<Returns 0 on error
 
