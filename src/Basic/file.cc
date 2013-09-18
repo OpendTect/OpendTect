@@ -151,7 +151,7 @@ od_int64 getFileSize( const char* fnm, bool followlink )
         CloseHandle( file );
 #else
         struct stat filestat;
-        filesize = lstat( filenm, &filestat )>=0 ? filestat.st_size : 0;
+        filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
 #endif
 
         return filesize;
