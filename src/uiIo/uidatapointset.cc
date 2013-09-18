@@ -10,49 +10,47 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidatapointset.h"
-#include "uidatapointsetman.h"
-#include "uistatsdisplaywin.h"
-#include "uidatapointsetcrossplotwin.h"
-#include "uimsg.h"
 
+#include "ctxtioobj.h"
 #include "datapointset.h"
+#include "datacoldef.h"
 #include "dpsdispmgr.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "mathexpression.h"
+#include "mousecursor.h"
+#include "oddirs.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "randcolor.h"
-#include "datacoldef.h"
-#include "ctxtioobj.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "survinfo.h"
-#include "statruncalc.h"
-#include "unitofmeasure.h"
-#include "keystrs.h"
-#include "oddirs.h"
-#include "unitofmeasure.h"
-#include "mousecursor.h"
-#include "mathexpression.h"
 #include "settings.h"
+#include "statruncalc.h"
+#include "survinfo.h"
 #include "timer.h"
+#include "unitofmeasure.h"
 #include "variogramcomputers.h"
 
 #include "uibutton.h"
-#include "uitable.h"
-#include "uilabel.h"
-#include "uicombobox.h"
 #include "uicolortable.h"
+#include "uicombobox.h"
+#include "uidatapointsetman.h"
+#include "uidatapointsetcrossplotwin.h"
 #include "uidpsaddcolumndlg.h"
 #include "uidpsselectednessdlg.h"
-#include "uigeninput.h"
-#include "uispinbox.h"
-#include "uitoolbar.h"
-#include "uiioobjsel.h"
-#include "uiioobjmanip.h"
 #include "uifileinput.h"
-#include "uistatusbar.h"
-#include "uiobjdisposer.h"
+#include "uigeninput.h"
+#include "uiioobjmanip.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uimsg.h"
+#include "uiobjdisposer.h"
+#include "uispinbox.h"
+#include "uistatsdisplaywin.h"
+#include "uistatusbar.h"
+#include "uitable.h"
+#include "uitoolbar.h"
 #include "uivariogram.h"
 
 static const int cNrPosCols = 3;
@@ -294,14 +292,15 @@ void uiDataPointSet::mkToolBars()
     if ( !disptb_ )
 	disptb_ = new uiToolBar( this, "Display Tool bar" );
 
-    uiGroup* grp = new uiGroup( disptb_, "Each grp" );
-    percfld_ = new uiSpinBox( grp, 1, "Each" );
+    uiLabel* showlbl = new uiLabel( disptb_,"Show" );
+    disptb_->addObject( showlbl );
+    percfld_ = new uiSpinBox( disptb_, 1, "Each" );
     percfld_->setSuffix( "%" );
+    percfld_->setInterval( (float)0.1, (float)100, (float)0.1 );
     percfld_->setValue( percentage_ );
-    percfld_->setInterval( (float)0.1, mUdf(float),(float)0.1 );
+    percfld_->setStretch( 0, 0 );
     percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    new uiLabel( grp, "Show", percfld_ );
-    disptb_->addObject( grp->attachObj() );
+    disptb_->addObject( percfld_ );
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
