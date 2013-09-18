@@ -99,7 +99,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     BufferStringSet remset;
     get( ODGMT::sKeyRemarks(), remset );
     for ( int idx=0; idx<remset.size(); idx++ )
-	*sd.ostrm << "L 12 4 C " << remset.get(idx) << std::endl;
+	*sd.ostrm << "L 12 4 C '" << remset.get(idx) << "'" << std::endl;
 
     *sd.ostrm << std::endl;
     sd.close();
