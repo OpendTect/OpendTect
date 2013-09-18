@@ -25,6 +25,7 @@ ________________________________________________________________________
 #ifdef __win__
 # include <direct.h>
 #else
+#include "sys/stat.h"
 # include <unistd.h>
 #endif
 
@@ -35,7 +36,6 @@ ________________________________________________________________________
 #include <QFileInfo>
 #include <QProcess>
 #else
-#include <sys/stat.h>
 #include <fstream>
 #endif
 
