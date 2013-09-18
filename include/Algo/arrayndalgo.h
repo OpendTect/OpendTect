@@ -212,7 +212,7 @@ inline T computeAvg( const ArrayND<T>* in )
 template <class fT>
 inline bool hasUndefs( const Array1D<fT>& in )
 {
-    const int sz = in.info().getTotalSz();
+    const od_uint64 sz = in.info().getTotalSz();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
@@ -241,7 +241,7 @@ inline bool interpUdf( Array1D<fT>& in )
 	return false;
 
     PointBasedMathFunction data( PointBasedMathFunction::Poly );
-    const int sz = in.info().getTotalSz();
+    const od_uint64 sz = in.info().getTotalSz();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
