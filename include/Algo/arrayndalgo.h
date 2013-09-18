@@ -202,7 +202,7 @@ inline T getAverage( const ArrayND<T>& in )
 template <class fT>
 inline bool hasUndefs( const Array1D<fT>& in )
 {
-    const int sz = in.info().getTotalSz();
+    const int sz = in.info().getSize(0);
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
@@ -233,7 +233,7 @@ inline bool interpUdf( Array1D<fT>& in,
 	return false;
 
     BendPointBasedMathFunction<fT,fT> data( ipoltyp );
-    const int sz = in.info().getTotalSz();
+    const int sz = in.info().getSize(0);
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
