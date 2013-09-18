@@ -184,6 +184,12 @@ bool od_stream::forWrite() const
 }
 
 
+void od_stream::releaseStream( StreamData& out )
+{
+    sd_.transferTo( out );
+}
+
+
 std::ostream& od_ostream::stdStream()
 {
     return sd_.ostrm ? *sd_.ostrm : std::cerr;

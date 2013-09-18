@@ -42,8 +42,10 @@ public:
 
     od_int64		endPosition() const;
     bool		forWrite() const;
+
     inline StreamData&	streamData()		{ return sd_; }
     inline const StreamData& streamData() const	{ return sd_; }
+    void		releaseStream(StreamData&);
 
 protected:
 
