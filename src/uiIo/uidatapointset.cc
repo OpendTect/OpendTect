@@ -294,14 +294,15 @@ void uiDataPointSet::mkToolBars()
     if ( !disptb_ )
 	disptb_ = new uiToolBar( this, "Display Tool bar" );
 
-    uiGroup* grp = new uiGroup( disptb_, "Each grp" );
-    percfld_ = new uiSpinBox( grp, 1, "Each" );
+    uiLabel* showlbl = new uiLabel( disptb_,"Show" );
+    disptb_->addObject( showlbl );
+    percfld_ = new uiSpinBox( disptb_, 1, "Each" );
     percfld_->setSuffix( "%" );
+    percfld_->setInterval( (float)0.1, (float)100, (float)0.1 );
     percfld_->setValue( percentage_ );
-    percfld_->setInterval( (float)0.1, mUdf(float),(float)0.1 );
+    percfld_->setStretch( 0, 0 );
     percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    new uiLabel( grp, "Show", percfld_ );
-    disptb_->addObject( grp->attachObj() );
+    disptb_->addObject( percfld_ );
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
