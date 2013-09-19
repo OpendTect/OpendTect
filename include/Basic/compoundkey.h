@@ -17,17 +17,9 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "general.h"
 #endif
-#include <stdlib.h>
-#include <iostream>
 
-/*!
-\brief Concatenated short keys separated by dots.
-  
-  Usage is for Object identifiers in the Object Manager, or UnitIDs.
-  
-  A Compound Key Glob Expression is a string used for matching.
-  It is similar to a UNIX-type glob expression.
-*/
+/*!\brief Concatenated short keys separated by dots.
+Used for Object identifiers in the Object Manager, or stratigraphic IDs. */
 
 mExpClass(Basic) CompoundKey
 {
@@ -59,20 +51,26 @@ public:
 protected:
 
     BufferString	id_;
-    char*		fromKey(int,bool cptobuf=false) const;
+    char*		fromKey(int) const;
+    const char*		getKeyPart(int) const;
     friend std::istream& operator >>(std::istream&,CompoundKey&);
+
+private:
+
+    char*		fetchKeyPart(int,bool) const;
 
 };
 
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {
-    if ( !id_.isEmpty() ) id_ += ".";
-    id_ += s;
+    if ( !id_.isEmpty() )
+	id_.add( "." ).add( s );
     return *this;
 }
 
-mGlobal(Basic) std::ostream& operator<<(std::ostream&,const CompoundKey&);
+mGlobal(Basic) std::ostream& operator <<(std::ostream&,const CompoundKey&);
+mGlobal(Basic) std::istream& operator >>(std::istream&,CompoundKey&);
 
 
 #endif

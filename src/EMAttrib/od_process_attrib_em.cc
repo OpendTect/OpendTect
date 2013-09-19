@@ -59,8 +59,7 @@ using namespace EM;
 #define mErrRet(s) \
 { \
     strm << (stepout ? "0 0" : "0") << std::endl; \
-    std::cerr << s << std::endl; \
-    return false; \
+    ErrMsg( s ); return false; \
 }
 
 

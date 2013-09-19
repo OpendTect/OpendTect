@@ -60,6 +60,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsysmem.h"
 
 #include "visdata.h"
+#include <iostream>
 
 
 extern "C" const char* GetSettingsDataDir();

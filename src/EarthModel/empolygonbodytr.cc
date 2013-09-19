@@ -49,13 +49,9 @@ const char* polygonEMBodyTranslator::errMsg() const
 Executor* polygonEMBodyTranslator::reader( const IOObj& ioobj,
 					   EM::PolygonBody& pb )
 {
-    EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( ioobj,userName() );
+    EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( ioobj, userName() );
     if ( !rd->isOK() )
-    {
-	std::cout<<"\n"<<rd->message();
-	delete rd;
-	return 0;
-    }
+	return rd;
 
     rd->setOutput( pb );
     rd->setReadOnlyZ( false );

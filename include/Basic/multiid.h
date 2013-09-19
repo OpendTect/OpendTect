@@ -38,13 +38,13 @@ public:
 			MultiID( int i1, int i2, int i3 )
 			{ add(i1); add(i2); add(i3); }
 
-    MultiID&		operator =( const MultiID& mi )
+    inline MultiID&	operator =( const MultiID& mi )
 			{ id_ = mi.id_; return *this; }
-    MultiID&		operator =( const CompoundKey& ck )
-			{ id_ = (const char*)ck; return *this; }
-    MultiID&		operator =( const FixedString& fs )
+    inline MultiID&	operator =( const CompoundKey& ck )
+			{ id_ = ck.buf(); return *this; }
+    inline MultiID&	operator =( const FixedString& fs )
 			{ id_ = fs.str(); return *this; }
-    MultiID&		operator =( const char* s )
+    inline MultiID&	operator =( const char* s )
 			{ id_ = s; return *this; }
 
     inline bool		operator==( const MultiID& m ) const
@@ -59,10 +59,11 @@ public:
     int			leafID() const;
 
     inline MultiID&	add( int i )
-			{ *this += toString(i);return *this;}
+			{ *this += toString(i); return *this; }
 
     static const MultiID& udf();
-    inline bool		isUdf() const	{ return *this==udf(); }
+    inline bool		isUdf() const
+    			{ return *this == udf(); }
 
 };
 

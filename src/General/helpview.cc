@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 #include "oddirs.h"
 #include "odinst.h"
-#include "strmprov.h"
 #include "ascstream.h"
 #include "staticstring.h"
 #include "iopar.h"
@@ -42,16 +41,17 @@ void HelpViewer::init()
 }
 
 
-static StreamData getStreamData( const char* fnm )
+static od_istream getIStream( const char* fnm )
 {
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
     {
 	BufferString msg( "Help file '" );
-	msg += fnm; msg += "' not available";
-	ErrMsg( msg ); sd.close();
+	msg.add( fnm ).add( "' not available: \"" )
+	    	.add( strm.errMsg() ).add( "\"" );
+	ErrMsg( msg );
     }
-    return sd;
+    return strm;
 }
 
 
@@ -94,10 +94,9 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 
     const BufferString fnm =
 	FilePath( docdir ).add( "WindowLinkTable.txt" ).fullPath();
-    StreamData sd = getStreamData( fnm );
-    if ( !sd.usable() )
+    od_istream strm = getIStream( fnm );
+    if ( !strm.isOK() )
 	return BufferString("");
-    std::istream& strm = *sd.istrm;
 
     ascistream astream( strm );
     MultiID code[3];
@@ -106,14 +105,14 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
     const char* ptr = 0;
     while ( 1 )
     {
-	char c = mCast( char, strm.peek() );
-	while ( c == '\n' ) { strm.ignore( 1 ); c = mCast(char,strm.peek()); }
+	char c = strm.peek();
+	while ( c == '\n' ) { strm.ignore( 1 ); c = strm.peek(); }
 	lvl = 0;
 	if ( c == '\t' )
 	{
 	    lvl++;
 	    strm.ignore( 1 );
-	    c = mCast( char, strm.peek() );
+	    c = strm.peek();
 	    if ( c == '\t' ) lvl++;
 	}
 	astream.next();
@@ -136,7 +135,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 
 	// Skip object name
 	mSkipNonBlanks( ptr );
-	if ( ! *ptr ) { strm.ignore(10000,'\n'); ptr = 0; continue; }
+	if ( ! *ptr ) { strm.skipUntil('\n'); ptr = 0; continue; }
 	mSkipBlanks(ptr);
 
 	const char* endptr = ptr;
@@ -158,7 +157,6 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 	msg += ptr; msg += "'"; UsrMsg( msg );
     }
 
-    sd.close();
     return BufferString( ptr );
 }
 
@@ -188,23 +186,18 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
 
     const BufferString ftnm =
 	FilePath( docdir ).add( "LinkFileTable.txt" ).fullPath();
-    StreamData sd = getStreamData( ftnm );
+    od_istream strm = getIStream(ftnm);
     BufferString htmlfnm;
-    if ( sd.usable() )
+    if ( strm.isOK() )
     {
-	std::string lnk, fnm;
-	std::istream& strm = *sd.istrm;
-	while ( strm.good() )
+	BufferString lnk, fnm;
+	while ( strm.isOK() )
 	{
-	    strm >> lnk >> fnm;
-	    if ( caseInsensitiveEqual(lnk.c_str(),linknm.buf(),0) )
-	    {
-		htmlfnm = fnm.c_str();
-		linknm = lnk.c_str();
-		break;
-	    }
+	    strm.get( lnk ).get( fnm );
+	    if ( caseInsensitiveEqual(lnk.buf(),linknm.buf(),0) )
+		{ htmlfnm = fnm; linknm = lnk; break; }
 	}
-	sd.close();
+	strm.close();
     }
 
     const char* fnm = htmlfnm.isEmpty() ? sIndexHtml : htmlfnm.buf();
@@ -255,13 +248,10 @@ BufferString HelpViewer::getCreditsFileName( const char* winid )
 
 bool HelpViewer::getCreditsData( const char* fnm, IOPar& iop )
 {
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	return false;
-
-    ascistream astrm( *sd.istrm, true );
-    iop.getFrom( astrm );
-    sd.close();
+    strm >> iop;
     return !iop.isEmpty();
 }
 

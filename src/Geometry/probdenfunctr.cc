@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "sampledprobdenfunc.h"
 #include "strmprov.h"
+#include <iostream>
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
 defineTranslator(od,ProbDenFunc,mdTectKey);

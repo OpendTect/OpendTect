@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
+#include <iostream>
 
 
 using namespace ODMad;
@@ -89,11 +90,13 @@ MadStream::MadStream( IOPar& par )
 
 MadStream::~MadStream()
 {
-    if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
+    if ( istrm_ && istrm_ != &std::cin )
+	delete istrm_;
     if ( ostrm_ )
     {
 	ostrm_->flush();
-	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr ) delete ostrm_;
+	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr )
+	    delete ostrm_;
     }
 
     delete seisrdr_; delete seiswrr_;

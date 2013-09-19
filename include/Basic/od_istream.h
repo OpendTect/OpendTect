@@ -27,14 +27,19 @@ mExpClass(Basic) od_istream : public od_stream
 {
 public:
 
+    			od_istream()			{}
     			od_istream( const char* fnm )
-			    : od_stream(fnm,true)	{}
+			    : od_stream(fnm,false)	{}
     			od_istream( const FilePath& fp )
-			    : od_stream(fp,true)	{}
+			    : od_stream(fp,false)	{}
     			od_istream( std::istream* s )
 			    : od_stream(s)		{}
     			od_istream( std::istream& s )
 			    : od_stream(s)		{}
+			od_istream( const od_istream& s )
+			    : od_stream(s)		{ *this = s; }
+    od_istream&		operator =( const od_istream& s )
+    			{ od_stream::operator =(s); return *this; }
 
     od_istream&		get(char&);
     od_istream&		get(unsigned char&);
@@ -65,13 +70,10 @@ public:
 
     char		peek() const;
     void		ignore(Count);
+    void		skipUntil(char);
 
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();
-
-private:
-
-    od_istream&		operator =(const od_istream&);
 
 };
 

@@ -24,6 +24,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mMkiStrmData(fnm) StreamProvider(fnm).makeIStream()
 #define mInitList(ismine) sd_(*new StreamData), mine_(ismine)
 
+od_stream::od_stream()
+    : mInitList(false)
+{
+}
+
+od_stream::od_stream( const od_stream& oth )
+    : mInitList(false)
+{
+    *this = oth;
+}
+
 od_stream::od_stream( const char* fnm, bool forwrite )
     : mInitList(true)
 {
@@ -67,17 +78,25 @@ od_stream::od_stream( std::istream& strm )
 }
 
 
-// all private, setting to empty
-od_stream::od_stream(const od_stream&) : mInitList(false) {}
-od_stream& od_stream::operator =(const od_stream&) { close(); return *this; }
-od_istream& od_istream::operator =(const od_istream&) { close(); return *this; }
-od_ostream& od_ostream::operator =(const od_ostream&) { close(); return *this; }
-
-
 od_stream::~od_stream()
 {
     close();
     delete &sd_;
+}
+
+
+od_stream& od_stream::operator =( const od_stream& oth )
+{
+    if ( this != &oth )
+    {
+	close();
+	if ( oth.mine_ )
+	    oth.sd_.transferTo( sd_ );
+	else
+	    sd_ = oth.sd_;
+	mine_ = oth.mine_;
+    }
+    return *this;
 }
 
 
@@ -312,6 +331,12 @@ char od_istream::peek() const
 void od_istream::ignore( od_stream::Count nrbytes )
 {
     stdStream().ignore( (std::streamsize)nrbytes );
+}
+
+
+void od_istream::skipUntil( char tofind )
+{
+    stdStream().ignore( 9223372036854775807LL, tofind );
 }
 
 

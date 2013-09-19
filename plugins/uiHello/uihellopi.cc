@@ -102,7 +102,6 @@ bool acceptOK( CallBacker* )
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    std::cout << "function called" ;
     uiHelloMsgBringer dlg( &appl );
     dlg.go();
 }

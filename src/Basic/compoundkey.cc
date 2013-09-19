@@ -9,37 +9,41 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
 #include "globexpr.h"
+#include "od_iostream.h"
+#include "staticstring.h"
 #include <stdlib.h>
 #include <iostream>
 
 
-static char bufstr[4096];
-
-
-// returns piece from level nr, copies that part only if tobuf == true
-char* CompoundKey::fromKey( int keynr, bool tobuf ) const
+char* CompoundKey::fromKey( int keynr ) const
 {
-    bufstr[0] = '\0';
-    if ( keynr<1 && !tobuf ) return (char*) id_.buf();
+    return fetchKeyPart( keynr, false );
+}
 
-    const char* ptr = (const char*)id_;
-    if ( !ptr ) return 0;
 
-    while ( keynr )
+char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
+{
+    char* ptr = const_cast<char*>( id_.buf() );
+    if ( !ptr || (keynr<1 && !parttobuf) )
+	return ptr;
+
+    while ( keynr > 0 )
     {
 	ptr = strchr( ptr, '.' );
 	if ( !ptr ) return 0;
 	ptr++; keynr--;
     }
 
-    if ( tobuf )
+    if ( parttobuf )
     {
-	strcpy( bufstr, ptr );
-	char* ptrend = strchr( bufstr, '.' );
+	mDeclStaticString(bufstr);
+	bufstr = ptr; char* bufptr = bufstr.buf();
+	char* ptrend = strchr( bufptr, '.' );
 	if ( ptrend ) *ptrend = '\0';
+	ptr = bufptr;
     }
 
-    return (char*)ptr;
+    return ptr;
 }
 
 
@@ -64,38 +68,46 @@ int CompoundKey::nrKeys() const
 
 BufferString CompoundKey::key( int idx ) const
 {
-    fromKey( idx, true );
-    return BufferString(bufstr);
+    return BufferString( fetchKeyPart(idx,true) );
 }
 
 
 void CompoundKey::setKey( int ikey, const char* s )
 {
-    char* ptr = fromKey( ikey );
+					// example: "X.Y.Z", ikey=1, s="new"
+
+    char* ptr = fromKey( ikey );	// ptr="Y.Z"
     if ( !ptr ) return;
-    char* endptr = strchr( ptr, '.' );
-    if ( !endptr ) { strcpy( ptr, s ); return; }
-    BufferString rest( endptr );
-    strcpy( ptr, s );
-    strcat( ptr, rest );
+
+    const BufferString lastpart( strchr(ptr,'.') ); // lastpart=".Z"
+    *ptr = '\0';			// id_="X."
+
+    if ( s && *s )
+	id_.add( s );			// id_="X.new"
+    else if ( ptr != id_.buf() )
+	*(ptr-1) = '\0';		// id_="X"
+
+    id_.add( lastpart );		// id_="X.new.Z" or "X.Z" if s==0
 }
 
 
 CompoundKey CompoundKey::upLevel() const
 {
-    if ( id_.isEmpty() ) return CompoundKey("");
-    CompoundKey newid( *this );
+    if ( id_.isEmpty() )
+	return CompoundKey("");
+
+    CompoundKey ret( *this );
 
     int nrkeys = nrKeys();
     if ( nrkeys <= 1 )
-	newid = "";
+	ret = "";
     else
     {
-	char* ptr = newid.fromKey( nrkeys-1, false );
+	char* ptr = ret.fromKey( nrkeys-1 );
 	if ( ptr ) *(ptr-1) = '\0';
     }
 
-    return newid;
+    return ret;
 }
 
 
@@ -120,12 +132,6 @@ const MultiID& MultiID::udf()
 
 
 std::ostream& operator <<( std::ostream& strm, const CompoundKey& ck )
-{
-    strm << ck.buf(); return strm;
-}
-
-
+	{ strm << ck.buf(); return strm; }
 std::istream& operator >>( std::istream& strm, CompoundKey& ck )
-{
-    strm >> ck.id_; return strm;
-}
+	{ strm >> ck.id_; return strm; }

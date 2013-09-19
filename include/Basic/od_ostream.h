@@ -35,6 +35,10 @@ public:
 			    : od_stream(s)		{}
     			od_ostream( std::ostream& s )
 			    : od_stream(s)		{}
+			od_ostream( const od_ostream& s )
+			    : od_stream(s)		{ *this = s; }
+    od_ostream&		operator =( const od_ostream& s )
+    			{ od_stream::operator =(s); return *this; }
 
     od_ostream&		add(char);
     od_ostream&		add(unsigned char);
@@ -57,10 +61,6 @@ public:
     bool		putBin(const void*,Count nrbytes);
     std::ostream&	stdStream();
     void		flush();
-
-private:
-
-    od_ostream&		operator =(const od_ostream&);
 
 };
 
