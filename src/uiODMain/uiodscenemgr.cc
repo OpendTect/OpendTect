@@ -130,7 +130,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
 		       SurveyInfo::Both2DAnd3D );
 
-    mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
+    mAttachCB( mdiarea_->windowActivated, uiODSceneMgr::mdiAreaChanged );
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
@@ -173,7 +173,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	appl_.postFinalise().notify( mCB(this,uiODSceneMgr,afterFinalise) );
     }
 
-    scenetimer_->tick.notify( mCB(this,uiODSceneMgr,sceneTimerCB) );
+    mAttachCB( scenetimer_->tick, uiODSceneMgr::sceneTimerCB );
 
 
 }
@@ -182,6 +182,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 uiODSceneMgr::~uiODSceneMgr()
 {
     cleanUp( false );
+
+    detachAllNotifiers();
+
     delete tifs_;
     delete mdiarea_;
     delete wingrabber_;
@@ -209,7 +212,8 @@ void uiODSceneMgr::cleanUp( bool startnew )
 uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
-    scn.mdiwin_->closed().notify( mWSMCB(removeScene) );
+
+    mAttachCB( scn.mdiwin_->closed(), uiODSceneMgr::removeScene );
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
@@ -231,8 +235,8 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display( true );
     scn.sovwr_->viewAll();
-    scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-    scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
+    mAttachCB( scn.sovwr_->viewmodechanged, uiODSceneMgr::viewModeChg );
+    mAttachCB( scn.sovwr_->pageupdown, uiODSceneMgr::pageUpDownPressed );
     scn.mdiwin_->display( true, false, maximized );
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
@@ -371,8 +375,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
   	scn.mdiwin_->setTitle( title );
 	scn.sovwr_->display( true );
 	scn.sovwr_->showRotAxis( true );
-	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
+	mAttachCB( scn.sovwr_->viewmodechanged, uiODSceneMgr::viewModeChg );
+	mAttachCB( scn.sovwr_->pageupdown, uiODSceneMgr::pageUpDownPressed );
 	scn.mdiwin_->display( true, false );
 	setZoomValue( scn.sovwr_->getCameraZoom() );
 	treeToBeAdded.trigger( scn.sovwr_->sceneID() );

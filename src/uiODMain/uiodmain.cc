@@ -101,8 +101,8 @@ int ODMain( int argc, char** argv )
 
     uiDialog::setTitlePos( -1 );
 
-    uicMain* uimain = new uicMain(argc,argv);
-    uiODMain* odmain = new uiODMain( *uimain );
+    PtrMan<uicMain> uimain = new uicMain(argc,argv);
+    PtrMan<uiODMain> odmain = new uiODMain( *uimain );
     ioPixmap pm( mGetSetupFileName("splash") );
   //  uiSplashScreen splash( pm );
   //  splash.show();
@@ -129,8 +129,7 @@ int ODMain( int argc, char** argv )
    // splash.finish( odmain );
 
     odmain->go();
-    delete odmain;
-    delete uimain;
+
     return 0;
 }
 
@@ -204,6 +203,7 @@ uiODMain::~uiODMain()
     delete menumgr_;
     delete viewer2dmgr_;
     delete scenemgr_;
+    delete applmgr_;
 }
 
 
@@ -551,8 +551,10 @@ void uiODMain::doRestoreSession()
     }
     if ( SI().has3D() )
     {
-	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),						false, false );
-	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),						false, true );
+	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
+                                        false, false );
+	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
+                                        false, true );
     }
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
