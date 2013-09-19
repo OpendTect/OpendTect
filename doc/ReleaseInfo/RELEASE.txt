@@ -3,6 +3,18 @@ OpendTect V4.4.x : Release info
 In general, all fixes in the stable 4.2 are also applied in the 4.4 releases.
 
 ----
+v4.4.0n: September 19, 2013
+  * Fix for crash in mute function in Prestack processing 
+  * Fix for crash while creating a new survey and filling
+    ranges/coordinate settings by scanning SEGY file
+  * Fix for crsah while importing seismics from SEG Y file
+  * Fix for importing well track in Feet
+  * Fix for crash while editing well track
+  * Fix for crash in evaluate attribute
+  * Writing X-Y coordinates while exporting a crossplot to a text file
+  * Fix for updating for crossplot correlation coefficient
+  * Fix for displaying of well markers if the 'logarithmic' option is checked
+
 v4.4.0m: August 8, 2013
   * Fix for Z units while exporting picksets
   * Fix for cluster processing
