@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "objectset.h"
 #include "callback.h"
+#include "bufstringset.h"
 
 typedef bool (*StaticTaskFunction)();
 typedef bool (CallBacker::*TaskFunction)();
@@ -47,9 +48,9 @@ public:
     				/*!<Manual queues will not be executed
 				    automaticall, only at executeQueue.
 				    \returns queid
-				    \param name is for debugging, and is
-				           assumed to be a static string,
-					   always alive.*/
+				    \param name is for debugging
+                                */
+    void                        setQueueName(int queueid,const char*);
     int				queueSize(int queueid) const;
     void			emptyQueue(int queueid,bool finishall);
     void			removeQueue(int queueid,bool finishall);
@@ -120,7 +121,7 @@ protected:
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
     TypeSet<QueueType>		queuetypes_;
-    ObjectSet<const char>	queuenames_;
+    BufferStringSet             queuenames_;
     BoolTypeSet			queueisclosing_;
 
     ConditionVar&		workloadcond_;
@@ -131,7 +132,8 @@ protected:
 
 /*!
 \brief The abstraction of something that can be done. It can be an ordinary
-CallBack, a static function (must return bool) or a TaskFunction on a CallBackerinheriting class, or a Task. The three examples are shown below.
+ CallBack, a static function (must return bool) or a TaskFunction on a
+ CallBackerinheriting class, or a Task. The three examples are shown below.
 
 \code
     mExpClass(Basic) MyClass : public CallBacker
@@ -143,7 +145,8 @@ CallBack, a static function (must return bool) or a TaskFunction on a CallBacker
 \endcode
     Calls to normalCallBack and task functions can be invoked as:
 \code
-    Threads::WorkManager::twm().addWork( Work(mCB(this,MyClass,normalCallBack) ) );
+    Threads::WorkManager::twm().addWork(
+                Work(mCB(this,MyClass,normalCallBack) ) );
 \endcode
     or
 \code
