@@ -87,6 +87,24 @@ Well::DisplayProperties::~DisplayProperties()
 }
 
 
+Well::DisplayProperties& Well::DisplayProperties::operator = ( 
+                                            const Well::DisplayProperties& dp )
+{
+    track_ = dp.track_;
+    markers_ = dp.markers_;
+    displaystrat_ = dp.displaystrat_;
+    if ( logs_.size() != dp.logs_.size() )
+        deepCopy( logs_, dp.logs_ );
+    else
+        for ( int idx=0; idx<logs_.size(); idx++ )
+            *logs_[idx] = *dp.logs_[idx];
+
+    deepCopy( markers_.selmarkernms_, dp.markers_.selmarkernms_ );
+    return *this;
+	
+}
+
+
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
 {
     iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
@@ -185,7 +203,8 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
 {
     par.setYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerShape), shapeint_ );
-    par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight), cylinderheight_ );
+    par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight), 
+             cylinderheight_ );
     BufferString fontdata;
     font_.putTo( fontdata );
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmFont), fontdata );
@@ -216,7 +235,8 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftLogWidth), logwidth_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), iscoltabflipped_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
+               iscoltabflipped_ );
 }
 
 
@@ -230,7 +250,8 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyRightFillRange), fillrange_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightLeftFill), isleftfill_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightRightFill), isrightfill_ );
-    iop.getYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),islogreverted_);
+    iop.getYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),
+              islogreverted_);
     iop.get( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightSingleCol), issinglecol_ );
@@ -241,7 +262,8 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidth), logwidth_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), iscoltabflipped_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
+               iscoltabflipped_ );
 }
 
 
@@ -266,7 +288,8 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftLogWidth), logwidth_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), iscoltabflipped_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
+               iscoltabflipped_ );
 }
 
 
@@ -280,7 +303,8 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyRightFillRange), fillrange_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightLeftFill), isleftfill_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightRightFill), isrightfill_ );
-    iop.setYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),islogreverted_);
+    iop.setYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),
+              islogreverted_);
     iop.set( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightSingleCol), issinglecol_ );
@@ -291,7 +315,8 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightLogWidth), logwidth_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), iscoltabflipped_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
+               iscoltabflipped_ );
 }
 
 

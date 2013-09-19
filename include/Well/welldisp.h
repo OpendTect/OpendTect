@@ -43,16 +43,7 @@ public:
 
 			~DisplayProperties();
 
-    DisplayProperties& 	operator = (const DisplayProperties& dp)
-			{
-			    track_ = dp.track_;
-			    markers_ = dp.markers_;
-			    displaystrat_ = dp.displaystrat_;
-			    deepCopy( logs_, dp.logs_ );
-			    deepCopy( markers_.selmarkernms_,
-				    dp.markers_.selmarkernms_ );
-			    return *this;
-			}
+    DisplayProperties& 	operator = (const DisplayProperties& dp);
 
     mStruct(Well) BasicProps
     {
