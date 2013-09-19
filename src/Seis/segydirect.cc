@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisposindexer.h"
 #include "strmoper.h"
 #include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 
 #include <iostream>
@@ -207,7 +208,7 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
 }
 
 
-#define mErrRet(s) { errmsg_ = s; sd.close(); return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 #define mGetInterp( str, type, interp ) \
     PtrMan<DataInterpreter<type> > interp = 0; \
     if ( iop1.get(str,dc ) ) \
@@ -222,11 +223,15 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
 
 bool SEGY::DirectDef::readFromFile( const char* fnm )
 {
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
-	mErrRet(BufferString("Cannot open '",fnm,"'"))
+    od_istream odstrm( fnm );
+    if ( !odstrm.isOK() )
+    {
+	BufferString msg( "Cannot open '",fnm,"':\n");
+	msg.add( odstrm.errMsg() );
+	mErrRet( msg )
+    }
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( odstrm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
 	mErrRet(BufferString("Input file '",fnm,"' has wrong file type"))
 
@@ -265,24 +270,24 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	IOPar segypars;
 	segypars.getFrom( astrm );
 
-	std::istream& strm = *sd.istrm;
-	const od_int64 datastart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
-	const od_int64 textpars =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
-	const od_int64 cubedatastart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
-	const od_int64 indexstart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
-	if ( !strm.good() )
+	std::istream& stdstrm = odstrm.stdStream();
+	const od_stream::Pos datastart =
+	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	const od_stream::Pos textpars =
+	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	const od_stream::Pos cubedatastart =
+	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	const od_stream::Pos indexstart =
+	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	if ( !odstrm.isOK() )
 	    mErrRet( readerror );
 
-	StrmOper::seek( strm, textpars, std::ios::beg );
-	ascistream astrm2( strm, false );
+	odstrm.setPosition( textpars, od_stream::Beg );
+	ascistream astrm2( odstrm, false );
 
 	IOPar iop2;
 	iop2.getFrom( astrm2 );
-	if ( !strm.good() )
+	if ( !odstrm.isOK() )
 	    mErrRet( readerror );
 
 	FixedString int32typestr = iop1.find( sKeyInt32DataChar() );
@@ -295,15 +300,12 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( readerror );
 	}
 
-	const od_int64 curpos = strm.tellg();
+	const od_stream::Pos curpos = odstrm.position();
 	if ( curpos!=cubedatastart )
-	    StrmOper::seek( strm, cubedatastart, std::ios::beg );
+	    odstrm.setPosition( cubedatastart, od_stream::Beg );
 
-	if ( !cubedata_.read( strm, false ) || !linedata_.read(strm,false) )
-	{
-	    delete fds;
-	    mErrRet( readerror );
-	}
+	if ( !cubedata_.read(odstrm,false) || !linedata_.read(odstrm,false) )
+	    { delete fds; mErrRet( readerror ); }
 
 	delete keylist_;
 	delete indexer_;
@@ -321,7 +323,6 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( readerror );
     }
 
-    sd.close();
     return true;
 }
 
@@ -407,8 +408,9 @@ bool SEGY::DirectDef::writeFootersToFile()
     getPosData( cubedata_ );
     getPosData( linedata_ );
 
-    cubedata_.write( strm, false );
-    linedata_.write( strm, false );
+    od_ostream odstrm( strm );
+    cubedata_.write( odstrm, false );
+    linedata_.write( odstrm, false );
 
     indexstart_ = strm.tellp();
 

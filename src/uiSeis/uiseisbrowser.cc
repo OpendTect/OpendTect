@@ -625,6 +625,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     , is2d_(is2d)
     , tbufchgdtrcs_(tbuf)
     , trc_(*new SeisTrc())
+    , msg_("Initialising")
 {
     PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
     const FilePath fp( ioobj->fullUserExpr(true) );
@@ -664,7 +665,7 @@ bool init()
 	uiMSG().error( "Unable to open the file" );
 	return false;
     }
-    StreamConn* conno = new StreamConn( safeio_->strmdata() );
+    StreamConn* conno = new StreamConn( safeio_->ostrm() );
     if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
     {
 	uiMSG().error( "Unable to write" );
@@ -675,16 +676,17 @@ bool init()
 	uiMSG().error( "Input cube is empty" );
 	return false;
     }
+    msg_ = "Writing";
     return true;
 }
 
-
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const          { return nrdone_; }
-    const char*         message() const         { return "Computing..."; }
+    const char*         message() const         { return msg_.buf(); }
     const char*         nrDoneText() const      { return "Traces done"; }
 
 protected:
+
 int nextStep()
 {
     if ( nrdone_ == 0 && !init() )
@@ -697,6 +699,7 @@ int nextStep()
 				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
 	if ( !res )
 	{
+	    msg_ = tro_->errMsg();
 	    safeio_->closeFail();
 	    return ErrorOccurred();
 	}
@@ -718,6 +721,7 @@ int nextStep()
     const SeisTrcBuf&	tbufchgdtrcs_;
     SeisTrc&		trc_;
     bool                is2d_;
+    BufferString	msg_;
 
 };
 

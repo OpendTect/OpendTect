@@ -16,13 +16,14 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "position.h"
-
 #include <iosfwd>
 
 class IOPar;
 class IOObj;
 class Executor;
 class SeisTrcBuf;
+class od_istream;
+class od_ostream;
 class CubeSampling;
 class SeisTrcWriter;
 class Seis2DLinePutter;
@@ -79,8 +80,8 @@ public:
     			//!< returns err msg, or null when OK
    
 
-    void		getFrom(std::istream&,BufferString*);
-    void		putTo(std::ostream&) const;
+    void		getFrom(od_istream&,BufferString*);
+    void		putTo(od_ostream&) const;
 
     bool		remove(TraceID::GeomID geomid);
     				//!< Also removes from disk

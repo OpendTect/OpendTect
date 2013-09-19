@@ -818,7 +818,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    std::ostream& strm = sfio.ostrm();
+    od_ostream& strm = sfio.ostrm();
     ascostream astream( strm );
     if ( !astream.putHeader(sKeySI) )
     {
@@ -864,7 +864,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	strm << '\n';
     }
 
-    if ( strm.fail() )
+    if ( !strm.isOK() )
     {
 	sfio.closeFail();
 	ErrMsg( "Error during write of survey info file!" );

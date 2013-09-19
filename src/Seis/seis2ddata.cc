@@ -126,7 +126,7 @@ void Seis2DDataSet::readFile( bool mklock, BufferString* typestr )
 }
 
 
-void Seis2DDataSet::getFrom( std::istream& strm, BufferString* typestr )
+void Seis2DDataSet::getFrom( od_istream& strm, BufferString* typestr )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
@@ -174,7 +174,7 @@ void Seis2DDataSet::writeFile() const
 }
 
 
-void Seis2DDataSet::putTo( std::ostream& strm ) const
+void Seis2DDataSet::putTo( od_ostream& strm ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )

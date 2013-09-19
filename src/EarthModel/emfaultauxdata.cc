@@ -333,8 +333,7 @@ void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
     if ( !sfio.open(true) )
 	return;
 
-    std::istream& istrm = sfio.istrm();
-    ascistream astrm( istrm, true );
+    ascistream astrm( sfio.istrm(), true );
     if ( !astrm.isOfFileType( sKeyFaultAuxData() ) )
     {
 	sfio.closeSuccess();
@@ -471,8 +470,7 @@ bool FaultAuxData::loadData( int sdidx )
     if ( !sfio.open(true) )
 	mErrRtn("Cannot open file, check your file read permission");
 
-    std::istream& istrm = sfio.istrm();
-    ascistream astream( istrm, true );
+    ascistream astream( sfio.istrm(), true );
     if ( !astream.isOfFileType( sKeyFaultAuxData() ) )
     {
 	sfio.closeSuccess();

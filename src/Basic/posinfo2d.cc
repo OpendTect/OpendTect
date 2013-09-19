@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surv2dgeom.h"
 #include "survinfo.h"
 #include "cubesampling.h"
-#include <iostream>
+#include "od_iostream.h"
 
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
@@ -169,7 +169,7 @@ bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos ) const
 }
 
 
-void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
+void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 {
     if ( !pretty )
 	strm << zrg_.start << '\t' << zrg_.stop << '\t' << zrg_.step << '\n';
@@ -179,20 +179,19 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 	const int fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
-	strm << "\n\nTrcNr\tX-coord\tY-coord" << std::endl;
+	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
     }
 
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << std::fixed << pos.nr_ << '\t' << pos.coord_.x
-				      << '\t' << pos.coord_.y << '\n';
+	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
 }
 
 
-bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
+bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
     int linesz = -1;
     if ( asc )
@@ -200,15 +199,15 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
     else
     {
 	float buf[3];
-	strm.read( (char*) buf, 3 * sizeof(float) );
+	strm.getBin( buf, 3 * sizeof(float) );
 	zrg_.start = buf[0];
 	zrg_.stop = buf[1];
 	zrg_.step = buf[2];
-	strm.read( (char*) &linesz, sizeof(int) );
+	strm.getBin( &linesz, sizeof(int) );
     }
 
 
-    if ( !strm.good() || linesz < 0 ) 
+    if ( !strm.isOK() || linesz < 0 ) 
 	return false;
 
     posns_.erase();
@@ -218,8 +217,8 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 	if ( asc )
 	    strm >> trcnr;
 	else
-	    strm.read( (char*) &trcnr, sizeof(int) );
-	if ( trcnr<0 || strm.bad() || strm.eof() )
+	    strm.getBin( &trcnr, sizeof(int) );
+	if ( trcnr<0 || !strm.isOK() )
 	    return false;
 
 	PosInfo::Line2DPos pos( trcnr );
@@ -228,7 +227,7 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 	else
 	{
 	    double dbuf[2];
-	    strm.read( (char*) dbuf, 2 * sizeof(double) );
+	    strm.getBin( dbuf, 2 * sizeof(double) );
 	    pos.coord_.x = dbuf[0]; pos.coord_.y = dbuf[1];
 	}
 	posns_ += pos;
@@ -238,7 +237,7 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 }
 
 
-bool PosInfo::Line2DData::write( std::ostream& strm, bool asc,
+bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 				 bool withnls ) const
 {
     const int linesz = posns_.size();
@@ -246,13 +245,13 @@ bool PosInfo::Line2DData::write( std::ostream& strm, bool asc,
     {
 	strm << zrg_.start << ' ' << zrg_.stop << ' ' << zrg_.step
 	     << ' ' << linesz;
-	if ( withnls && linesz ) strm << '\n';
+	if ( withnls && linesz ) strm << od_newline;
     }
     else
     {
 	float buf[] = { zrg_.start, zrg_.stop, zrg_.step };
-	strm.write( (const char*) buf, 3 * sizeof(float) );
-	strm.write( (const char*) &linesz, sizeof(int) );
+	strm.putBin( buf, 3 * sizeof(float) );
+	strm.putBin( &linesz, sizeof(int) );
     }
 
     for ( int idx=0; idx<linesz; idx++ )
@@ -260,24 +259,22 @@ bool PosInfo::Line2DData::write( std::ostream& strm, bool asc,
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( asc )
 	{
-	    char str[255];
-	    getStringFromDouble(0,pos.coord_.x,str);
-	    strm << '\t' << pos.nr_
-		 << '\t' << str;
-	    getStringFromDouble(0,pos.coord_.y,str);
+	    BufferString str; str.set( pos.coord_.x );
+	    strm << '\t' << pos.nr_ << '\t' << str;
+	    str.set( pos.coord_.y );
 	    strm << '\t' << str;
-	    if ( withnls && idx < linesz-1 ) strm << '\n';
+	    if ( withnls && idx < linesz-1 ) strm << od_newline;
 	}
 	else
 	{
 	    double dbuf[2];
 	    dbuf[0] = pos.coord_.x; dbuf[1] = pos.coord_.y;
-	    strm.write( (const char*) &pos.nr_, sizeof(int) );
-	    strm.write( (const char*) dbuf, 2 * sizeof(double) );
+	    strm.putBin( &pos.nr_, sizeof(int) );
+	    strm.putBin( dbuf, 2 * sizeof(double) );
 	}
     }
 
-    return strm.good();
+    return strm.isOK();
 }
 
 

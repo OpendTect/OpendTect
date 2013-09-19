@@ -17,8 +17,9 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "objectset.h"
 #include "namedobj.h"
-#include <iosfwd>
 class IOObj;
+class od_ostream;
+class od_istream;
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -79,10 +80,10 @@ private:
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     static void		setDirName(IOObj&,const char*);
-    static IOObj*	readOmf(std::istream&,const char*,IODir*,int);
+    static IOObj*	readOmf(od_istream&,const char*,IODir*,int);
 
     bool		build();
-    bool		wrOmf(std::ostream&) const;
+    bool		wrOmf(od_ostream&) const;
 
     MultiID		newKey() const;
 

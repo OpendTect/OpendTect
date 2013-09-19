@@ -198,7 +198,7 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* typestr )
 	return;
     }
 
-    getFrom( sfio.istrm(), typestr );
+    getFrom( sfio.istrm().stdStream(), typestr );
     sfio.closeSuccess( mklock );
 }
 
@@ -264,7 +264,7 @@ void Seis2DLineSet::writeFile() const
 	SafeFileIO sfio( fname_, true );
 	if ( sfio.open(false,true) )
 	{
-	    putTo( sfio.ostrm() );
+	    putTo( sfio.ostrm().stdStream() );
 	    sfio.closeSuccess();
 	}
     }

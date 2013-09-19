@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "indexinfo.h"
 #include "position.h"
 class BinID;
+class od_istream;
+class od_ostream;
 
 
 /*!\brief Position info, often segmented
@@ -131,8 +133,8 @@ public:
     				//!< incl=union, !incl=intersection
     void		generate(BinID start,BinID stop,BinID step);
 
-    bool		read(std::istream&,bool asc);
-    bool		write(std::ostream&,bool asc) const;
+    bool		read(od_istream&,bool asc);
+    bool		write(od_ostream&,bool asc) const;
 
     virtual int		indexOf( const LineData* l ) const
     			{ return ObjectSet<LineData>::indexOf( l ); }

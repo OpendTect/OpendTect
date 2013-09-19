@@ -75,6 +75,8 @@ public:
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();
 
+    static od_istream&	nullStream();
+
 };
 
 

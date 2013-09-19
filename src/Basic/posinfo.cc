@@ -8,8 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfo.h"
 #include "survinfo.h"
+#include "od_iostream.h"
 #include "math2.h"
-#include <iostream>
 
 
 int PosInfo::LineData::size() const
@@ -628,7 +628,7 @@ void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
 
 
 
-bool PosInfo::CubeData::read( std::istream& strm, bool asc )
+bool PosInfo::CubeData::read( od_istream& strm, bool asc )
 {
     const int intsz = sizeof(int);
     int buf[4]; int itmp = 0;
@@ -636,7 +636,7 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 	strm >> itmp;
     else
     {
-	strm.read( (char*)buf, intsz );
+	strm.getBin( buf, intsz );
 	itmp = buf[0];
     }
     const int nrinl = itmp;
@@ -653,7 +653,7 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 	    strm >> linenr >> nrseg;
 	else
 	{
-	    strm.read( (char*)buf, 2 * intsz );
+	    strm.getBin( buf, 2 * intsz );
 	    linenr = buf[0];
 	    nrseg = buf[1];
 	}
@@ -672,10 +672,8 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 		strm >> crls.start >> crls.stop >> crls.step;
 	    else
 	    {
-		strm.read( (char*)buf, 3 * intsz );
-		crls.start = buf[0];
-		crls.stop = buf[1];
-		crls.step = buf[2];
+		strm.getBin( buf, 3 * intsz );
+		crls.start = buf[0]; crls.stop = buf[1]; crls.step = buf[2];
 	    }
 
 	    if ( !reasonablecrls.includes( crls.start,false ) ||
@@ -698,14 +696,14 @@ bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 }
 
 
-bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
+bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
 {
     const int intsz = sizeof( int );
     const int nrinl = this->size();
     if ( asc )
 	strm << nrinl << '\n';
     else
-	strm.write( (const char*)&nrinl, intsz );
+	strm.putBin( &nrinl, intsz );
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
@@ -715,8 +713,8 @@ bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
 	    strm << inlinf.linenr_ << ' ' << nrcrl;
 	else
 	{
-	    strm.write( (const char*)&inlinf.linenr_, intsz );
-	    strm.write( (const char*)&nrcrl, intsz );
+	    strm.putBin( &inlinf.linenr_, intsz );
+	    strm.putBin( &nrcrl, intsz );
 	}
 
 	for ( int icrl=0; icrl<nrcrl; icrl++ )
@@ -726,15 +724,15 @@ bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
 		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
 	    else
 	    {
-		strm.write( (const char*)&seg.start, intsz );
-		strm.write( (const char*)&seg.stop, intsz );
-		strm.write( (const char*)&seg.step, intsz );
+		strm.putBin( &seg.start, intsz );
+		strm.putBin( &seg.stop, intsz );
+		strm.putBin( &seg.step, intsz );
 	    }
 	    if ( asc )
 		strm << '\n';
 	}
 
-	if ( !strm.good() ) return false;
+	if ( !strm.isOK() ) return false;
     }
 
     return true;

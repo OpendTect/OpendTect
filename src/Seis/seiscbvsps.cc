@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "od_iostream.h"
 
 static const char* cSampNmsFnm = "samplenames.txt";
 static const char* cPosDataFnm = "posdata.txt";
@@ -314,15 +315,12 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     const BufferString cachefnm( posdataFileName(dirnm_) );
     if ( mIsUdf(inl) )
     {
-	StreamData sd = StreamProvider(cachefnm).makeIStream();
-	if ( sd.usable() )
+	od_istream istrm( cachefnm );
+	if ( istrm.isOK() )
 	{
-	    bool posdataok = posdata_.read( *sd.istrm, true );
-	    sd.close();
-	    if ( !posdataok || posdata_.isEmpty() )
-		mRemoveCache(cachefnm);
-	    else
+	    if ( posdata_.read(istrm,true) && !posdata_.isEmpty() )
 		return;
+	    mRemoveCache(cachefnm);
 	}
     }
     else
@@ -342,18 +340,14 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 
     if ( posdata_.size() < 1 )
     {
-	errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	errmsg_ += "' contains no usable pre-stack data files";
+	errmsg_.set( "Directory '" ).add( dirnm_ )
+	       .add( "' contains no usable pre-stack data files" );
 	return;
     }
 
-    StreamData sd = StreamProvider(cachefnm).makeOStream();
-    if ( sd.usable() )
-    {
-	if ( !posdata_.write(*sd.ostrm,true) )
-	    mRemoveCache(cachefnm);
-    }
-    sd.close();
+    od_ostream ostrm( cachefnm );
+    if ( ostrm.isOK() && !posdata_.write(ostrm,true) )
+	mRemoveCache(cachefnm);
 }
 
 

@@ -454,7 +454,8 @@ bool EventReader::readAuxData(const char* fnm)
     }
 
     IOPar par;
-    if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
+    if ( !par.read( fileio.istrm().stdStream(),
+		    EventReader::sHorizonFileType(), true ) )
     {
 	errmsg_ = "Cannot read ";
 	errmsg_ += auxfilenm;
@@ -733,7 +734,8 @@ bool EventWriter::writeAuxData( const char* fnm )
 	return false;
     }
 	     
-    if ( !auxinfo_.write( fileio.ostrm(), EventReader::sHorizonFileType() ) )
+    if ( !auxinfo_.write( fileio.ostrm().stdStream(),
+			  EventReader::sHorizonFileType() ) )
     {
 	errmsg_ = "Cannot write to ";
 	errmsg_ += horidfnm.fullPath().buf();
@@ -1498,12 +1500,12 @@ int EventPatchWriter::nextStep()
 	    return ErrorOccurred();
 	}
 
-	std::ostream& strm = fileio_.ostrm();
-	ascostream astream( strm );
+	ascostream astream( fileio_.ostrm() );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
-	fileheaderoffset_ = mCast(int,strm.tellp());
-	if ( !fileheader_.toStream( strm, binary_ ) )
+	std::ostream& ostrm = astream.stdstream();
+	fileheaderoffset_ = mCast(int,ostrm.tellp());
+	if ( !fileheader_.toStream( ostrm, binary_ ) )
 	{
 	    errmsg_ = "Cannot write file header to stream ";
 	    errmsg_ += fileio_.fileName();
@@ -1512,7 +1514,7 @@ int EventPatchWriter::nextStep()
 	}
     }
 
-    std::ostream& strm = fileio_.ostrm();
+    std::ostream& strm = fileio_.ostrm().stdStream();
     if ( headeridx_>=fileheader_.nrEvents() )
     {
 	strm.seekp( fileheaderoffset_, std::ios::beg );

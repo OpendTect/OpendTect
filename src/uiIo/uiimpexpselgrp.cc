@@ -153,13 +153,15 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 	astrm.put( nms.get(idx).buf() );
     astrm.newParagraph();
 
-    if ( sfio.ostrm().good() )
+    if ( sfio.ostrm().isOK() )
 	sfio.closeSuccess();
     else
     {
 	sfio.closeFail();
-	uiMSG().error( "Error during write to Cross-plot Selection index file ."
-		       "Check disk space." );
+	const BufferString errmsg(
+		"Error writing Cross-plot Selection index file.\n",
+		sfio.ostrm().errMsg() );
+	uiMSG().error( errmsg );
 	return false;
     }
 

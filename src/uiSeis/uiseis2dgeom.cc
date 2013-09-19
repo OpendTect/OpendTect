@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
+#include "od_iostream.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -96,8 +97,8 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
         uiMSG().error( "Cannot open the output file" );
         return false;
@@ -116,10 +117,9 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     {
 	PosInfo::Line2DData l2dd( lnms.get(idx) );
 	S2DPOS().getGeometry( l2dd );
-	l2dd.dump( *sd.ostrm, true );
-	*sd.ostrm << "\n\n";
+	l2dd.dump( strm, true );
+	strm << "\n\n";
     }
 
-    sd.close();
     return true;
 }

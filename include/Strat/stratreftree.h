@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratcontent.h"
 #include "repos.h"
+class od_istream;
+class od_ostream;
 
 namespace Strat
 {
@@ -77,8 +79,8 @@ public:
 
     				// for printing, export or something.
     				// otherwise, use RepositoryAccess::write()
-    bool		read(std::istream&);
-    bool		write(std::ostream&) const;
+    bool		read(od_istream&);
+    bool		write(od_ostream&) const;
 
     friend class	RefTreeMgr;
 

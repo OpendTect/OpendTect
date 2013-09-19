@@ -13,9 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "bufstring.h"
-#include "strmdata.h"
-#include <iosfwd>
+#include "od_iostream.h"
 
 
 /*!
@@ -52,9 +50,8 @@ public:
 
     bool		open(bool forread,bool ignorelock=false);
     const char*		errMsg() const		{ return errmsg_.str(); }
-    std::istream&	istrm()			{ return *sd_.istrm; }
-    std::ostream&	ostrm()			{ return *sd_.ostrm; }
-    StreamData&		strmdata()		{ return sd_; }
+    od_istream&		istrm();
+    od_ostream&		ostrm();
 
     void		closeFail( bool keeplock=false )
 			{ doClose( keeplock, false ); }
@@ -71,7 +68,7 @@ public:
     bool		allowlockremove_;	//!< default=true
     			//!< when true, will remove the lock after retries
     			//!< i.e. we'll assume the lock is phony then
-    			//!< this is safety-- but robustness++
+    			//!< this is --safety but ++robustness
 
     bool		remove();
 
@@ -83,7 +80,7 @@ protected:
     const BufferString	bakfnm_;
     const BufferString	newfnm_;
     mutable BufferString errmsg_;
-    StreamData		sd_;
+    od_stream*		strm_;
 
     bool		openRead(bool);
     bool		openWrite(bool);

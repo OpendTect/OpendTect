@@ -20,6 +20,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 
 
+od_istream& od_istream::nullStream()
+{
+    static od_istream* ret = 0;
+    if ( !ret )
+    {
+#ifndef __win__
+	ret = new od_istream( "/dev/null" );
+#else
+	ret = new od_istream( "NUL:" );
+#endif
+	ret->setNeverClose();
+    }
+    return *ret;
+}
+
+od_ostream& od_ostream::nullStream()
+{
+    static od_ostream* ret = 0;
+    if ( !ret )
+    {
+#ifndef __win__
+	ret = new od_ostream( "/dev/null" );
+#else
+	ret = new od_ostream( "NUL:" );
+#endif
+	ret->setNeverClose();
+    }
+    return *ret;
+}
+
+
 #define mMkoStrmData(fnm) StreamProvider(fnm).makeOStream()
 #define mMkiStrmData(fnm) StreamProvider(fnm).makeIStream()
 #define mInitList(ismine) sd_(*new StreamData), mine_(ismine)
@@ -197,6 +228,12 @@ od_int64 od_stream::endPosition() const
 }
 
 
+bool od_stream::forRead() const
+{
+    return sd_.istrm;
+}
+
+
 bool od_stream::forWrite() const
 {
     return sd_.ostrm;
@@ -211,13 +248,19 @@ void od_stream::releaseStream( StreamData& out )
 
 std::istream& od_istream::stdStream()
 {
-    return sd_.istrm ? *sd_.istrm : std::cin;
+    if ( sd_.istrm )
+	return *sd_.istrm;
+    pErrMsg( "stdStream() requested but none available" );
+    return nullStream().stdStream();
 }
 
 
 std::ostream& od_ostream::stdStream()
 {
-    return sd_.ostrm ? *sd_.ostrm : std::cerr;
+    if ( sd_.ostrm )
+	return *sd_.ostrm;
+    pErrMsg( "stdStream() requested but none available" );
+    return nullStream().stdStream();
 }
 
 

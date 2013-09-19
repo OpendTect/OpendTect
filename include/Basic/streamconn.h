@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "conn.h"
 #include "strmdata.h"
+class od_istream;
+class od_ostream;
 
 
 /*!
@@ -38,6 +40,10 @@ public:
 				//!< YOUR stream: I may close only
 			StreamConn(std::ostream&,bool close_on_delete=false);
 				//!< YOUR stream: I may close only
+			StreamConn(od_istream&);
+				//!< YOUR stream: I cannot even close
+			StreamConn(od_ostream&);
+				//!< YOUR stream: I cannot even close
 
     virtual		~StreamConn();
 

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
+#include "od_iostream.h"
 #include <iostream>
 
 
@@ -301,11 +302,10 @@ BufferString MadStream::getPosFileName( bool forread ) const
 
 
 #define mWriteToPosFile( obj ) \
-    StreamData sd = StreamProvider( posfnm ).makeOStream(); \
-    if ( !sd.usable() ) mErrRet( "Cannot create Pos file" ); \
-    if ( !obj.write(*sd.ostrm,false) ) \
-    { sd.close(); mErrRet( "Cannot write to Pos file" ); } \
-    sd.close(); \
+    od_ostream strm( posfnm ); \
+    if ( !strm.isOK() ) mErrRet( "Cannot create Pos file" ); \
+    if ( !obj.write(strm,false) ) \
+	{ mErrRet( "Cannot write to Pos file" ); } \
     pars_.set( sKeyPosFileName, posfnm );
 
 #ifdef __win__
@@ -677,17 +677,15 @@ void MadStream::readRSFTrace( float* arr, int nrsamps ) const
     if ( !posfnm.isEmpty() ) \
     { \
 	haspos = true; \
-	StreamProvider sp( posfnm ); \
-	StreamData possd = sp.makeIStream(); \
-	if ( !possd.usable() ) mErrBoolRet("Cannot Open Pos File"); \
-       	if ( !obj.read(*possd.istrm,false) ) \
+	od_istream strm( posfnm ); \
+	if ( !strm.isOK() ) mErrBoolRet("Cannot Open Pos File"); \
+       	if ( !obj.read(strm,false) ) \
 	    mErrBoolRet("Cannot Read Pos File"); \
        	if ( obj.isEmpty() ) \
 	    mErrBoolRet("No positions in Pos File"); \
-	possd.close(); \
-	FilePath fp( posfnm ); \
-	if ( fp.pathOnly() == FilePath::getTempDir() ) \
-	    sp.remove(); \
+	strm.close(); \
+	if ( FilePath(posfnm).pathOnly() == FilePath::getTempDir() ) \
+	    File::remove( posfnm ); \
     }
 
 bool MadStream::writeTraces( bool writetofile )

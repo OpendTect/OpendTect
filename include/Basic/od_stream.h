@@ -81,6 +81,8 @@ protected:
     StreamData&		sd_;
     bool		mine_;
 
+    void		setNeverClose()		{ mine_ = false; }
+
 };
 
 

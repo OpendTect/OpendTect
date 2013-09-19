@@ -72,27 +72,17 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
-    BufferString report;
-    getReport( report );
-    
+    BufferString report; getReport( report );
     reporter_.getReport() = report;
-    
+
     if ( !reporter_.send() )
     {
 	SafeFileIO outfile( filename_, false );
 	if ( outfile.open( false ) )
 	{
-	    bool success = true;
-	    std::ostream& outstream = outfile.ostrm();
-	    if ( outstream )
-	    {
-		outstream << report.buf();
-		success = outstream;
-	    }
-	    else
-		success = false;
-	    
-	    if ( success )
+	    od_ostream& outstream = outfile.ostrm();
+	    outstream << report;
+	    if ( outstream.isOK() )
 		outfile.closeSuccess();
 	    else
 		outfile.closeFail();
@@ -106,9 +96,9 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 	uiMSG().error( msg );
 	return true;
     }
-    
+
     uiMSG().message( "The report was successfully sent.\nThe development crew"
 		    " want to thank you for your help!" );		    
-    
+
     return true;
 }

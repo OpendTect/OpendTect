@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include "od_iostream.h"
 #include <iostream>
 #include <fstream>
 
@@ -70,6 +71,28 @@ StreamConn::StreamConn( std::ostream& s, bool cod )
 	, closeondel_(cod)
 {
     sd_.ostrm = &s;
+    (void)bad();
+}
+
+
+StreamConn::StreamConn( od_istream& s )
+	: mine_(false)
+	, state_(Read)
+	, closeondel_(false)
+{
+    sd_.istrm = &s.stdStream();
+    sd_.setFileName( s.fileName() );
+    (void)bad();
+}
+
+
+StreamConn::StreamConn( od_ostream& s )
+	: mine_(false)
+	, state_(Write)
+	, closeondel_(false)
+{
+    sd_.ostrm = &s.stdStream();
+    sd_.setFileName( s.fileName() );
     (void)bad();
 }
 

@@ -88,6 +88,8 @@ public:
     BufferString&	add(const T&);
     template <class T>
     inline BufferString& operator+=( const T& t )	{ return add( t ); }
+    template <class T>
+    BufferString&	set(const T&);
 
     unsigned int	size() const;
     inline unsigned int	bufSize() const		{ return len_; }
@@ -171,10 +173,13 @@ inline  bool BufferString::operator!=( const char* s ) const
 { return ! (*this == s); }
 
 template <class T> inline BufferString& BufferString::operator=( const T& t )
-{ setEmpty(); add( t ); return *this; }
+{ set( t ); return *this; }
 
 template <class T> inline BufferString& BufferString::add( const T& t )
 { return add( toString( t ) ); }
+
+template <class T> inline BufferString& BufferString::set( const T& t )
+{ setEmpty(); return add( t ); }
 
 template <class T> inline bool BufferString::operator >( const T& t ) const
 { return *this > ( Conv::to<const char*>( t ) ); }

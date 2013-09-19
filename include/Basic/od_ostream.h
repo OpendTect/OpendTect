@@ -62,6 +62,8 @@ public:
     std::ostream&	stdStream();
     void		flush();
 
+    static od_ostream&	nullStream();
+
 };
 
 

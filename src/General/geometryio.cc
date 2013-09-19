@@ -11,18 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "iodir.h"
 #include "ioman.h"
-#include "iostrm.h"
-#include "iosubdir.h"
 #include "surv2dgeom.h"
 #include "survgeometrytransl.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "executor.h"
+#include "keystrs.h"
+#include "od_iostream.h"
 
 using namespace Survey;
 
-#define mReturn nrdone_++; \
-return nrdone_ < totalNr() ? MoreToDo() : Finished();
+#define mReturn return ++nrdone_ < totalNr() ? MoreToDo() : Finished();
 
 class GeomFileReader : public Executor
 {
@@ -51,26 +49,22 @@ protected:
 	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
 	if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() || 
 	     ioobj->key().nrKeys() != 2 )
-	{ mReturn }
+	    mReturn
 
-	StreamData isd = StreamProvider( ioobj->fullUserExpr() ).makeIStream();
-	if ( !isd.usable() )
-	{ mReturn }
+	od_istream strm( ioobj->fullUserExpr() );
+	if ( !strm.isOK() )
+	    mReturn
 	    
 	PosInfo::Line2DData* data = new PosInfo::Line2DData;
-	if ( !data->read(*(isd.istrm),false) )
-	{
-	    delete data;
-	    isd.close();
-	    mReturn
-	}
-	    
-	isd.close();
+	if ( !data->read(strm,false) )
+	    { delete data; mReturn }
+
 	data->setLineName( ioobj->name() );
 	Geometry2D* geom = new Geometry2D( data );
 	geom->setGeomID( ioobj->key().ID(1) );
 	geom->ref();
 	geometries_ += geom;
+
 	mReturn
     }
 
@@ -97,11 +91,9 @@ bool GeometryWriter2D::write( Geometry& geom ) const
 	return false;
 
     geom2d->setGeomID( ioobj->key().ID(1) );
-    BufferString destfile = ioobj->fullUserExpr();
-    StreamData osd = StreamProvider( destfile ).makeOStream();
-    const bool res = osd.usable() ? geom2d->data()
-				  .write( *(osd.ostrm),false,true ) : false;
-    osd.close();
+    od_ostream strm( ioobj->fullUserExpr() );
+    const bool res = !strm.isOK() ? false
+		   : geom2d->data().write( strm, false, true );
     return res;
 }
 

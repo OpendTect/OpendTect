@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SafeFileIO::SafeFileIO( const char* fnm, bool l )
     	: filenm_(fnm)
+    	, strm_(0)
     	, locked_(l)
     	, removebakonsuccess_(false)
     	, usebakwhenmissing_(true)
@@ -45,10 +46,28 @@ SafeFileIO::SafeFileIO( const char* fnm, bool l )
 
 SafeFileIO::~SafeFileIO()
 {
-    if ( sd_.istrm || sd_.ostrm )
-    {
+    if ( strm_ )
 	pErrMsg("You forgot to close");
-    }
+}
+
+
+od_istream& SafeFileIO::istrm()
+{
+    if ( !strm_ )
+	{ pErrMsg("no open stream" ); return od_istream::nullStream(); }
+    if ( !strm_->forRead() )
+	{ pErrMsg("no read stream" ); return od_istream::nullStream(); }
+    return static_cast<od_istream&>( *strm_ );
+}
+
+
+od_ostream& SafeFileIO::ostrm()
+{
+    if ( !strm_ )
+	{ pErrMsg("no open stream" ); return od_ostream::nullStream(); }
+    if ( !strm_->forWrite() )
+	{ pErrMsg("no write stream" ); return od_ostream::nullStream(); }
+    return static_cast<od_ostream&>( *strm_ );
 }
 
 
@@ -60,6 +79,9 @@ bool SafeFileIO::open( bool forread, bool ignorelock )
 
 bool SafeFileIO::openRead( bool ignorelock )
 {
+    if ( strm_ )
+	{ pErrMsg("Stream open before openRead"); closeFail(); }
+
     if ( locked_ && !ignorelock && !waitForLock() )
 	return false;
     mkLock( true );
@@ -71,25 +93,25 @@ bool SafeFileIO::openRead( bool ignorelock )
 	    toopen = bakfnm_.buf();
 	if ( File::isEmpty(toopen) )
 	{
-	    errmsg_ = "Input file '"; errmsg_ += filenm_;
-	    errmsg_ += "' is not present or empty";
+	    errmsg_.set( "Input file '" ).add( filenm_ )
+		   .add( "' is not present or empty" );
 	    rmLock();
 	    return false;
 	}
 	else
 	{
-	    errmsg_ = "Using backup file '";
-	    errmsg_ += bakfnm_; errmsg_ += "'";
+	    const BufferString msg( "Using backup file '", bakfnm_, "'" );
 	    UsrMsg( errmsg_.buf(), MsgClass::Warning );
-	    errmsg_ = "";
 	}
     }
 
-    sd_ = StreamProvider( toopen ).makeIStream();
-    if ( !sd_.usable() )
+    strm_ = new od_istream( toopen );
+    if ( !strm_ || !strm_->isOK() )
     {
-	errmsg_ = "Cannot open '"; errmsg_ += toopen;
-	errmsg_ += "' for read";
+	errmsg_.set( "Cannot open '" ).add( toopen ).add( "' for read" );
+	if ( strm_ )
+	    errmsg_.add( ".\n" ).add( strm_->errMsg() );
+	delete strm_;
 	rmLock();
 	return false;
     }
@@ -100,6 +122,9 @@ bool SafeFileIO::openRead( bool ignorelock )
 
 bool SafeFileIO::openWrite( bool ignorelock )
 {
+    if ( strm_ )
+	{ pErrMsg("Stream open before openWrite"); closeFail(); }
+
     if ( locked_ && !ignorelock && !waitForLock() )
 	return false;
     mkLock( false );
@@ -107,11 +132,12 @@ bool SafeFileIO::openWrite( bool ignorelock )
     if ( File::exists(newfnm_) )
 	File::remove( newfnm_ );
 
-    sd_ = StreamProvider( newfnm_ ).makeOStream();
-    if ( !sd_.usable() )
+    strm_ = new od_ostream( newfnm_ );
+    if ( !strm_ || !strm_->isOK() )
     {
-	errmsg_ = "Cannot open '"; errmsg_ += newfnm_;
-	errmsg_ += "' for write";
+	errmsg_.set( "Cannot open '" ).add( newfnm_ ).add( "' for write" );
+	if ( strm_ )
+	    errmsg_.add( ".\n" ).add( strm_->errMsg() );
 	rmLock();
 	return false;
     }
@@ -124,8 +150,8 @@ bool SafeFileIO::commitWrite()
 {
     if ( File::isEmpty(newfnm_) )
     {
-	errmsg_ = "File '"; errmsg_ += filenm_;
-	errmsg_ += "' not overwritten with empty new file";
+	errmsg_.set( "File '" ).add( filenm_ )
+		.add( "' not overwritten with empty new file" );
 	return false;
     }
 
@@ -134,15 +160,13 @@ bool SafeFileIO::commitWrite()
 
     if ( File::exists(filenm_) && !File::rename( filenm_, bakfnm_ ) )
     {
-	errmsg_ = "Cannot create backup file '";
-	errmsg_ += bakfnm_; errmsg_ += "'";
-	UsrMsg( errmsg_.buf(), MsgClass::Warning );
-	errmsg_ = "";
+	const BufferString msg( "Cannot create backup file '", bakfnm_, "'" );
+	UsrMsg( msg.buf(), MsgClass::Warning );
     }
     if ( !File::rename( newfnm_, filenm_ ) )
     {
-	errmsg_ = "Changes in '"; errmsg_ += filenm_;
-	errmsg_ += "' could not be commited.";
+	errmsg_.set( "Changes in '" ).add( filenm_ )
+	       .add( "' could not be commited" );
 	return false;
     }
     if ( removebakonsuccess_ )
@@ -170,15 +194,20 @@ bool SafeFileIO::remove()
 
 bool SafeFileIO::doClose( bool keeplock, bool docommit )
 {
-    bool isread = sd_.istrm;
-    sd_.close();
+    bool isread = false; bool iswrite = false;
+    if ( strm_ )
+    {
+	isread = strm_->forRead();
+	iswrite = strm_->forWrite();
+	delete strm_; strm_ = 0;
+    }
     bool res = true;
     if ( isread || !docommit )
     {
 	if ( !isread && File::exists(newfnm_) )
 	    File::remove( newfnm_ );
     }
-    else
+    else if ( iswrite )
 	res = commitWrite();
 
     if ( !keeplock )
@@ -226,21 +255,20 @@ void SafeFileIO::mkLock( bool forread )
 {
     if ( !locked_ ) return;
 
-    StreamData sd = StreamProvider(lockfnm_).makeOStream();
-    if ( sd.usable() )
+    od_ostream strm( lockfnm_ );
+    if ( strm.isOK() )
     {
 	DateInfo di; BufferString datestr; di.getUsrDisp( datestr, true );
-	*sd.ostrm << "Type: " << (forread ? "Read\n" : "Write\n");
-	*sd.ostrm << "Date: " << datestr << " (" << di.key() << ")\n";
-	*sd.ostrm << "Host: " << HostData::localHostName() << '\n';
-	*sd.ostrm << "Process: " << GetPID() << '\n';
+	strm << "Type: " << (forread ? "Read\n" : "Write\n");
+	strm << "Date: " << datestr << " (" << di.key() << ")\n";
+	strm << "Host: " << HostData::localHostName() << '\n';
+	strm << "Process: " << GetPID() << '\n';
 	const char* ptr = GetPersonalDir();
-	*sd.ostrm << "User's HOME: " << (ptr ? ptr : "<none>") << '\n';
+	strm << "User's HOME: " << (ptr ? ptr : "<none>") << '\n';
 	ptr = GetSoftwareUser();
-	*sd.ostrm << "DTECT_USER: " << (ptr ? ptr : "<none>") << '\n';
-	sd.ostrm->flush();
+	strm << "DTECT_USER: " << (ptr ? ptr : "<none>") << '\n';
+	strm.flush();
     }
-    sd.close();
 }
 
 
