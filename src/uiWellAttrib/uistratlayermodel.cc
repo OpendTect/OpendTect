@@ -920,7 +920,8 @@ bool uiStratLayerModel::closeOK()
 }
 
 
-void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged, bool fwd )
+void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
+					 bool fwd )
 {
     lmp_.setUseEdited( usefr );
     mostlyfilledwithbrine_ = !fwd;
@@ -1073,124 +1074,87 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
     BufferString fnmlm;
     fnmlm = fnm;
     fnmlm += ".txt";
-    StreamData* outstreamdata =
-       			  new StreamData( StreamProvider(fnmlm).makeOStream() );
-    if ( !outstreamdata->usable() )
+    StreamData outsd( StreamProvider(fnmlm).makeOStream() );
+    if ( !outsd.usable() )
 	{ uiMSG().error( "Cannot open '", fnmlm,"' for write" ); return false; }
 
-    ascostream astrm( *outstreamdata->ostrm );
+    ascostream astrm( *outsd.ostrm );
     const char* typ = "Well group";
     astrm.putHeader( typ );
-    std::ostream& strm = astrm.stream();
 
     const int nrpswells = layerModel().size();
-    BufferString str;
-    str = "Name: ";
-    str += nrpswells;
-    str += " pseudowells";
-    astrm << str << std::endl;
-    strm << "!\n";
+    astrm.put( sKey::Name(), BufferString("",nrpswells," pseudowells") );
+    astrm.newParagraph();
 
+    od_ostream& strm = astrm.stream();
     for ( int iwell=0; iwell<nrpswells; iwell++ )
     {
-	str = "Name: ";
-	str += iwell + 1;
-	str += "-pseudowell";
-	astrm << str << std::endl;
-	str = "Inline: ";
+	const Strat::LayerSequence& seq = layerModel().sequence( iwell );
+	const int nrlayers = seq.size();
+	if ( nrlayers < 1 )
+	    continue;
+
+	astrm.put( sKey::Name(), BufferString("",iwell+1,"-pseudowell") );
 	const int inlnb = SI().inlRange(true).stop + SI().inlStep();
-	str += inlnb;
-	astrm << str << std::endl;
-	str = "Crossline: ";
+	astrm.put( "Inline", inlnb );
 	const int crlnb = SI().crlRange(true).stop +
 	   		  SI().crlStep() * ( iwell + 1 );
-	str += crlnb;
-	astrm << str << std::endl;
-	str = "Rep Area: ";
-	str += inlnb; str += "`"; str += inlnb; str += "`";
-	str += crlnb; str += "`"; str += crlnb;
-	astrm << str << std::endl;
-	str = "Simulated: Yes";
-	astrm << str << std::endl;
-	strm << "!\n";
+	astrm.put( "Crossline", crlnb );
+	FileMultiString fms;
+	fms += inlnb; fms += crlnb; fms += inlnb; fms += crlnb;
+	astrm.put( "Rep Area", fms );
+	astrm.putYN( "Simulated", true );
+	astrm.newParagraph();
 
-	str = "Reference depth: ";
-	str += layerModel().sequence(iwell).startDepth();
-	astrm << str << std::endl;
-	const int nrvals = layerModel().sequence(iwell).layers()[0]->nrValues();
-	str = "Compact: Yes";
-	astrm << str << std::endl;
-	BufferString propnm;
+	astrm.put( "Reference depth", seq.startDepth() );
+	astrm.putYN( "Compact", true );
+	const int nrvals = seq.layers()[0]->nrValues();
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
-	    str = "Quantity: ";
-	    propnm = layerModel().propertyRefs()[ival]->name();
+	    BufferString propnm = layerModel().propertyRefs()[ival]->name();
 	    cleanupString( propnm.buf(), false, false, true );
-	    str += propnm;
-	    astrm << str << std::endl;
+	    astrm.put( "Quantity", propnm );
 	}
-	strm << "!\n";
+	astrm.newParagraph();
 
-	const int nrlayers = layerModel().sequence(iwell).size();
 	BufferString prevunitnm;
 	TypeSet<int> nrliths;
 	TypeSet<BufferString> lithnms;
 	for ( int ilayer=0; ilayer<nrlayers; ilayer++ )
 	{
-	    BufferString unitnm = layerModel().sequence(iwell).layers()[ilayer]
-				   ->unitRef().parentCode().buf();
-	    BufferString lith = layerModel().sequence(iwell).layers()[ilayer]
-				->unitRef().code();
+	    const Strat::Layer& lay = *seq.layers()[ilayer];
+	    BufferString unitnm = lay.unitRef().parentCode().buf();
+	    BufferString lith = lay.unitRef().code();
 	    if ( unitnm == prevunitnm )
 	    {
 		const int idx = lithnms.isPresent(lith) ?
-		   		lithnms.indexOf(lith) : 
-				lithnms.size();
+		   		lithnms.indexOf(lith) : lithnms.size();
 		if ( lithnms.isPresent(lith) )
-		{
 		    nrliths[idx]++;
-		}
 		else
-		{
-		    nrliths += 1;
-		    lithnms += lith;
-		}
+		    { nrliths += 1; lithnms += lith; }
 	    }
 	    else
 	    {
-		lithnms.erase();
-		nrliths.erase();
-		lithnms += lith;
-		nrliths += 1;
+		lithnms.erase(); nrliths.erase();
+		lithnms += lith; nrliths += 1;
 	    }
+
 	    prevunitnm = unitnm;
-	    str = unitnm; str += "."; str += lith;
+	    BufferString str = unitnm; str.add( "." ).add( lith );
 	    if ( nrliths[lithnms.indexOf(lith)] > 1 )
-	    {
-		str += "(";
-		str += nrliths[lithnms.indexOf(lith)];
-		str += ")";
-	    }
-	    if ( !layerModel().sequence(iwell).layers()[ilayer]->content().
-		    name().isEmpty() )
-	    {
-		str+= ",";
-		str+= layerModel().sequence(iwell).layers()[ilayer]
-		      ->content().name();
-	    }
+		str.add( "(" ).add( nrliths[lithnms.indexOf(lith)] ).add( ")" );
+	    if ( !lay.content().name().isEmpty() )
+		str.add( "," ).add( lay.content().name() );
+
 	    for ( int ival=0; ival<nrvals; ival++ )
-	    {
-		str += " ";
-		str+=layerModel().sequence(iwell).layers()[ilayer]->value(ival);
-	    }
-	    astrm << str << std::endl;
+		str.add( " " ).add( lay.value(ival) );
+	    strm << str << od_newline;
 	}
 	strm << "!\n!\n!\n";
     }
-    const bool res = strm.good();
-    outstreamdata->close();
-    delete outstreamdata;
-    outstreamdata = 0;
 
+    const bool res = strm.isOK();
+    outsd.close();
     return res;
 }

@@ -32,7 +32,8 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false; }
+    if ( !tr )
+    	{ bs = "Selected object is not a Mute Definition"; return false; }
     
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -70,8 +71,7 @@ const char* dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(PreStackProc)) )
 	return "Input file is not a Mute Definition file";
@@ -92,17 +92,12 @@ const char* dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PreStackProc) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output Mute Definition file";
 
     IOPar par;
     md.fillPar( par );
 
     par.putTo( astrm );
-
-    if ( strm.good() )
-	return 0;
-
-    return "Error during write to output process definition file";
+    return astrm.isOK() ? 0 : "Error during write to process definition file";
 }

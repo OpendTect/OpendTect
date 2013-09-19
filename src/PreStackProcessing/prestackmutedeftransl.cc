@@ -41,7 +41,8 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false; }
+    if ( !tr )
+    	{ bs = "Selected object is not a Mute Definition"; return false; }
     
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -78,10 +79,9 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(MuteDef)) )
+    else if ( !astrm.isOfFileType(mTranslGroupName(MuteDef)) )
 	return "Input file is not a Mute Definition file";
 
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
@@ -216,8 +216,8 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	pars.putTo( astrm );
     }
 
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    od_ostream& strm = astrm.stream();
+    if ( !strm.isOK() )
 	return "Cannot write to output Mute Definition file";
 
     for ( int imd=0; imd<md.size(); imd++ )
@@ -241,7 +241,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	astrm.newParagraph();
     }
 
-    if ( strm.good() )
+    if ( strm.isOK() )
     {
 	const_cast<PreStack::MuteDef&>(md).setChanged( false );
 	return 0;

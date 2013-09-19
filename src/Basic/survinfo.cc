@@ -24,8 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "errh.h"
 #include "zdomain.h"
 #include "keystrs.h"
+#include "od_istream.h"
 #include <math.h>
-#include <iostream>
 
 
 static const char* sKeySI = "Survey Info";
@@ -300,12 +300,12 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     si->cs_.normalise();
     si->wcs_ = si->cs_;
 
-    char buf[1024];
-    while ( astream.stream().getline(buf,1024) )
+    BufferString line;
+    while ( astream.stream().getLine(line) )
     {
 	if ( !si->comment_.isEmpty() )
 	    si->comment_ += "\n";
-	si->comment_ += buf;
+	si->comment_ += line;
     }
     sfio.closeSuccess();
     

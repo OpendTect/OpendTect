@@ -537,7 +537,7 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 	    BufferString nm; iop.get( sKeyPropertyName, nm ); 
 	    eps->get( tp ).setName(nm);
 	}
-	if ( !astream.stream().good() )
+	if ( !astream.isOK() )
 	    ErrMsg( "Problem reading Elastic property selection from file" );
     }
     else
@@ -572,7 +572,7 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
 	    get(idx).formula().fillPar( iop ); 
 	    iop.putTo( astream ); iop.setEmpty();
 	}
-	if ( astream.stream().good() )
+	if ( astream.isOK() )
 	    retval = true;
 	else
 	    ErrMsg( "Cannot write Elastic property selection" );

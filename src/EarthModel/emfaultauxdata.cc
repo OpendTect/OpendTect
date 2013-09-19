@@ -401,7 +401,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     sdinfo.set( "ColSize", dataset_[sdidx]->data->info().getSize(1) );
     sdinfo.putTo( astream );
 
-    std::ostream& strm = astream.stream();
+    od_ostream& strm = astream.stream();
     const float* vals = dataset_[sdidx]->data->getData();
     if ( vals )
     {
@@ -409,9 +409,9 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	for ( od_int64 idy=0; idy<datasz; idy++ )
 	{
 	    if ( binary )
-		strm.write( (const char*)(&vals[idy]), sizeof(float) );
+		strm.putBin( &vals[idy], sizeof(float) );
 	    else
-		strm << vals[idy] << '\t';
+		strm << vals[idy] << od_tab;
 	}
     }
     else
@@ -424,15 +424,15 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	    {
 		const float val = dataset_[sdidx]->data->get( idx, jdx );
     		if ( binary )
-    		    strm.write( (const char*)(&val), sizeof(float) );
+    		    strm.putBin( &val, sizeof(float) );
     		else
-    		    strm << val << '\t';
+    		    strm << val << od_tab;
 	    }
 	}
     }
 	
     if ( !binary ) 
-	strm << '\n';
+	strm << od_newline;
 
     File::remove( backupfp.fullPath() );
     return sfio.closeSuccess();
@@ -489,18 +489,17 @@ bool FaultAuxData::loadData( int sdidx )
     sdinfo.getYN( sKey::Binary(), binary );
     sdinfo.get( "RowSize", rowsize );
     sdinfo.get( "ColSize", colsize );
-
-    std::istream& strm = astream.stream();
     
     Array2DImpl<float>* newdata = new Array2DImpl<float>( rowsize, colsize );
     const od_int64 datasz = rowsize * colsize;
     float* arr = newdata->getData();
 
+    od_istream& strm = astream.stream();
     for ( od_int64 idx=0; idx<datasz; idx++ )
     {
 	float val;
 	if ( binary )
-	    strm.read( (char*)(&val), sizeof(float) );
+	    strm.getBin( &val, sizeof(float) );
 	else
 	    strm >> val;
 	arr[idx] = val;

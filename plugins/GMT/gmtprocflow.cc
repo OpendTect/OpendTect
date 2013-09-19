@@ -78,12 +78,12 @@ const char* dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(ODGMTProcFlow)) )
 	return "Input file is not a Processing flow";
-    if ( atEndOfSection(astrm) ) astrm.next();
+    if ( atEndOfSection(astrm) )
+	astrm.next();
     if ( atEndOfSection(astrm) )
 	return "Input file is empty";
 
@@ -101,10 +101,9 @@ const char* dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODGMTProcFlow) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output GMT flow file";
 
     pf.pars().putTo( astrm );
-    return strm.good() ? 0 : "Error during write to GMT flow file";
+    return astrm.isOK() ? 0 : "Error during write to GMT flow file";
 }

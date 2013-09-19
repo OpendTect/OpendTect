@@ -83,8 +83,7 @@ const char* dgbVolProcessingTranslator::read( VolProc::Chain& tr,
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing)) )
 	return "Input file is not a Volume Processing setup file";
@@ -109,14 +108,13 @@ const char* dgbVolProcessingTranslator::write( const VolProc::Chain& tr,
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(VolProcessing) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output Volume Processing setup file";
 
     IOPar par;
     tr.fillPar( par );
     par.putTo( astrm );
 
-    return strm.good() ? 0
+    return astrm.isOK() ? 0
 	:  "Error during write to output Volume Processing setup file";
 }

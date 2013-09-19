@@ -437,8 +437,8 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
     }
     else
     {
-	std::istream& strm = astrm.stream();
-	int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
+	od_istream& strm = astrm.stream();
+	unsigned int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
 	if ( !is2d )
 	    entrylen += sizeof(int);
 	if ( isrich )
@@ -446,13 +446,13 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 	char* buf = new char [entrylen];
 	Coord crd( Coord::udf() );
 
-	while ( strm.good() )
+	while ( strm.isOK() )
 	{
-	    const char ch = (char) strm.peek();
+	    const char ch = strm.peek();
 	    if ( ch == '\n' )
 		{ strm.ignore( 1 ); break; }
 
-	    strm.read( buf, entrylen );
+	    strm.getBin( buf, entrylen );
 	    const bool usable = buf[0] != 'U';
 
 	    char* bufpos = buf + 1;

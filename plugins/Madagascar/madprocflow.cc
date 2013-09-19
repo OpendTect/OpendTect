@@ -169,7 +169,8 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
     if ( !ioobj ) { bs = "Cannot find flow object in data base"; return false; }
     mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a processing flow"; return false; }
+    if ( !tr )
+    	{ bs = "Selected object is not a processing flow"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -203,12 +204,12 @@ const char* dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(ODMadProcFlow)) )
 	return "Input file is not a Processing flow";
-    if ( atEndOfSection(astrm) ) astrm.next();
+    if ( atEndOfSection(astrm) )
+	astrm.next();
     if ( atEndOfSection(astrm) )
 	return "Input file is empty";
 
@@ -226,12 +227,11 @@ const char* dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODMadProcFlow) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output Processing flow file";
 
     IOPar par;
     pf.fillPar( par );
     par.putTo( astrm );
-    return strm.good() ? 0 : "Error during write to Processing flow file";
+    return astrm.isOK() ? 0 : "Error during write to Processing flow file";
 }

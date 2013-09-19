@@ -122,8 +122,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(RandomLineSet)) )
 	return "Input file is not a RandomLineSet file";
@@ -185,8 +184,7 @@ const char* dgbRandomLineSetTranslator::write(
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(RandomLineSet) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output RandomLineSet file";
 
     const bool issimple = nrlines < 2 && rdls.pars().isEmpty();
@@ -200,6 +198,7 @@ const char* dgbRandomLineSetTranslator::write(
     }
     astrm.newParagraph();
 
+    od_ostream& strm = astrm.stream();
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	const Geometry::RandomLine& rdl = *rdls.lines()[iln];
@@ -209,10 +208,10 @@ const char* dgbRandomLineSetTranslator::write(
 	for ( int idx=0; idx<rdl.nrNodes(); idx++ )
 	{
 	    const BinID bid = rdl.nodePosition( idx );
-	    strm << bid.inl << '\t' << bid.crl << '\n';
+	    strm << bid.inl << od_tab << bid.crl << od_newline;
 	}
 	astrm.newParagraph();
     }
 
-    return strm.good() ? 0 : "Error during write of RandomLine Set file";
+    return strm.isOK() ? 0 : "Error during write of RandomLine Set file";
 }

@@ -107,7 +107,8 @@ Wavelet::~Wavelet()
 Wavelet* Wavelet::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    PtrMan<WaveletTranslator> tr = (WaveletTranslator*)ioobj->createTranslator();
+    PtrMan<WaveletTranslator> tr =
+		(WaveletTranslator*)ioobj->createTranslator();
     if ( !tr ) return 0;
     Wavelet* newwv = 0;
 
@@ -472,7 +473,7 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() >> wv->samples()[idx];
 
-    return astream.stream().good();
+    return astream.isOK();
 }
 
 
@@ -493,7 +494,7 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
 	astream.stream() << wv->samples()[idx] << '\n';
     astream.newParagraph();
 
-    return astream.stream().good();
+    return astream.isOK();
 }
 
 

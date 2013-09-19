@@ -6,8 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "od_istream.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "strmoper.h"
@@ -16,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "compoundkey.h"
 #include "iopar.h"
+#include "ascstream.h"
 #include <iostream>
 #include <string.h>
 
@@ -112,7 +112,7 @@ const char* od_stream::errMsg() const
 }
 
 
-od_stream::Count od_stream::position() const
+od_stream::Pos od_stream::position() const
 {
     if ( sd_.ostrm )
 	return StrmOper::tell( *sd_.ostrm );
@@ -130,7 +130,7 @@ static std::ios::seekdir getSeekdir( od_stream::Ref ref )
 }
 
 
-void od_stream::setPosition( od_stream::Count offs, od_stream::Ref ref )
+void od_stream::setPosition( od_stream::Pos offs, od_stream::Ref ref )
 {
     if ( sd_.ostrm )
     {
@@ -169,10 +169,10 @@ void od_stream::setFileName( const char* fnm )
 
 od_int64 od_stream::endPosition() const
 {
-    const Count curpos = position();
+    const Pos curpos = position();
     od_stream& self = *const_cast<od_stream*>( this );
     self.setPosition( 0, End );
-    const Count ret = position();
+    const Pos ret = position();
     self.setPosition( curpos, Abs );
     return ret;
 }
@@ -190,15 +190,30 @@ void od_stream::releaseStream( StreamData& out )
 }
 
 
+std::istream& od_istream::stdStream()
+{
+    return sd_.istrm ? *sd_.istrm : std::cin;
+}
+
+
 std::ostream& od_ostream::stdStream()
 {
     return sd_.ostrm ? *sd_.ostrm : std::cerr;
 }
 
 
-std::istream& od_istream::stdStream()
+void od_ostream::flush()
 {
-    return sd_.istrm ? *sd_.istrm : std::cin;
+    if ( sd_.ostrm )
+	sd_.ostrm->flush();
+}
+
+
+od_stream::Count od_istream::lastNrBytesRead() const
+{
+    if ( sd_.istrm )
+	return mCast(od_stream::Count,StrmOper::lastNrBytesRead(*sd_.istrm));
+    return 0;
 }
 
 
@@ -218,6 +233,8 @@ od_istream& od_istream::get( typ& t ) \
 #define mImplSimpleGetFn(typ) mImplStrmGetFn(typ,t)
 #define mImplSimpleAddGetFns(typ) mImplSimpleAddFn(typ) mImplSimpleGetFn(typ)
 
+mImplSimpleAddGetFns(char)
+mImplSimpleAddGetFns(unsigned char)
 mImplSimpleAddGetFns(od_int16)
 mImplSimpleAddGetFns(od_uint16)
 mImplSimpleAddGetFns(od_int32)
@@ -259,9 +276,69 @@ od_istream& od_istream::getC( char* str, int maxnrch )
 }
 
 
-od_stream::Count od_istream::lastNrBytesRead() const
+bool od_istream::getBin( void* buf, od_stream::Count nrbytes )
 {
-    if ( sd_.istrm )
-	return mCast(od_stream::Count,StrmOper::lastNrBytesRead(*sd_.istrm));
-    return 0;
+    if ( nrbytes == 0 || !buf )
+	return true;
+    return StrmOper::readBlock( stdStream(), buf, nrbytes );
+}
+
+
+bool od_ostream::putBin( const void* buf, od_stream::Count nrbytes )
+{
+    return nrbytes <= 0 || !buf ? true
+	: StrmOper::writeBlock( stdStream(), buf, nrbytes );
+}
+
+
+bool od_istream::getLine( BufferString& bs )
+{
+    return StrmOper::readLine( stdStream(), &bs );
+}
+
+
+bool od_istream::getAll( BufferString& bs )
+{
+    return StrmOper::readFile( stdStream(), bs );
+}
+
+
+char od_istream::peek() const
+{
+    return (char)(const_cast<od_istream*>(this)->stdStream()).peek();
+}
+
+
+void od_istream::ignore( od_stream::Count nrbytes )
+{
+    stdStream().ignore( (std::streamsize)nrbytes );
+}
+
+
+od_istream& od_istream::get( IOPar& iop )
+{
+    ascistream astrm( *this, false );
+    iop.getFrom( astrm );
+    return *this;
+}
+
+od_ostream& od_ostream::add( const IOPar& iop )
+{
+    ascostream astrm( *this );
+    iop.putTo( astrm );
+    return *this;
+}
+
+
+mImplStrmAddFn(const SeparString&,t.buf())
+od_istream& od_istream::get( SeparString& ss )
+{
+    BufferString bs; get( bs ); ss = bs.buf();
+    return *this;
+}
+mImplStrmAddFn(const CompoundKey&,t.buf())
+od_istream& od_istream::get( CompoundKey& ck )
+{
+    BufferString bs; get( bs ); ck = bs.buf();
+    return *this;
 }

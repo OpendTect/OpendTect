@@ -327,5 +327,5 @@ bool RockPhysics::FormulaSet::writeTo( ascostream& astrm ) const
 	IOPar iop; fm.fillPar( iop );
 	iop.putTo( astrm );
     }
-    return astrm.stream().good();
+    return astrm.isOK();
 }

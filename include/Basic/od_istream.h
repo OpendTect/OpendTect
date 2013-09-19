@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "od_iostream.h"
+#include "od_stream.h"
 class IOPar;
 class SeparString;
 class CompoundKey;
@@ -36,6 +36,8 @@ public:
     			od_istream( std::istream& s )
 			    : od_stream(s)		{}
 
+    od_istream&		get(char&);
+    od_istream&		get(unsigned char&);
     od_istream&		get(od_int16&);
     od_istream&		get(od_uint16&);
     od_istream&		get(od_int32&);
@@ -47,20 +49,25 @@ public:
 
     od_istream&		get(BufferString&);
     			//!< reads one word delimited by whitespace, "" or ''
+
     od_istream&		get(IOPar&);
     od_istream&		get(SeparString&);
     od_istream&		get(CompoundKey&);
-
-    od_istream&		get(void*,od_uint64 nrbytes);
-
-    std::istream&	stdStream();
 
     od_istream&		getC(char*,int maxnrchar);
     od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsg
     od_istream&		getC(FixedString&,int maxnrchar);
     od_istream&		get(FixedString&); //!< unsafe - see get(char*)
 
+    bool		getBin(void*,Count nrbytes);
+    bool		getLine(BufferString&);
+    bool		getAll(BufferString&);
+
+    char		peek() const;
+    void		ignore(Count);
+
     Count		lastNrBytesRead() const;
+    std::istream&	stdStream();
 
 private:
 
@@ -70,7 +77,7 @@ private:
 
 
 
-template <class T> inline od_istream& operator <<( od_istream& s, T& t )
+template <class T> inline od_istream& operator >>( od_istream& s, T& t )
 { return s.get( t ); }
 
 

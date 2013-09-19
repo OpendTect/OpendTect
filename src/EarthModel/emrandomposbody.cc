@@ -47,7 +47,7 @@ public:
 
 	ascistream astream( ((StreamConn*)conn_)->iStream() );
 
-	if ( !astream.stream().good() )
+	if ( !astream.isOK() )
 	    mRetErr( "Cannot read from input file" );
 	if ( !astream.isOfFileType( sKeyRandomPosBodyFileType() ) )
 	    mRetErr( sInvalidFile() );
@@ -136,7 +136,7 @@ public:
 	
 	ascostream astream( ((StreamConn*)conn_)->oStream() );
 	astream.putHeader( RandomPosBody::typeStr() );
-	if ( !astream.stream().good() )
+	if ( !astream.isOK() )
 	    mRetErr( "Cannot write to output Pick Set file" );
 
 	IOPar pars;

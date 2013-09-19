@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "od_iostream.h"
+#include "od_stream.h"
 class IOPar;
 class SeparString;
 class CompoundKey;
@@ -36,6 +36,8 @@ public:
     			od_ostream( std::ostream& s )
 			    : od_stream(s)		{}
 
+    od_ostream&		add(char);
+    od_ostream&		add(unsigned char);
     od_ostream&		add(const char*);
     od_ostream&		add(od_int16);
     od_ostream&		add(od_uint16);
@@ -52,9 +54,9 @@ public:
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
 
-    od_ostream&		add(const void*,od_uint64 nrbytes);
-
+    bool		putBin(const void*,Count nrbytes);
     std::ostream&	stdStream();
+    void		flush();
 
 private:
 
@@ -65,6 +67,9 @@ private:
 
 template <class T> inline od_ostream& operator <<( od_ostream& s, const T& t )
 { return s.add( t ); }
+
+#define od_tab '\t'
+#define od_newline '\n'
 
 
 #endif

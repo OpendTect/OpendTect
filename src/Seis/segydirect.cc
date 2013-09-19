@@ -369,7 +369,7 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     iop1.putTo( astrm );
     fds_->segyPars().putTo( astrm );
 
-    std::ostream& strm = astrm.stream();
+    std::ostream& strm = *outstreamdata_->ostrm;
     offsetstart_ = strm.tellp();
     
     //Reserve space for offsets, which are written at the end

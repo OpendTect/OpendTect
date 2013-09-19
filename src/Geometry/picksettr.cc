@@ -80,10 +80,9 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	return "Internal error: bad connection";
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
-    std::istream& strm = astrm.stream();
-    if ( !strm.good() )
-	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
+    if ( !astrm.isOK() )
+	return "Cannot read from Pick Set file";
+    else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
 	return "Input file is not a Pick Set";
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( atEndOfSection(astrm) )
@@ -152,8 +151,7 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PickSet) );
-    std::ostream& strm = astrm.stream();
-    if ( !strm.good() )
+    if ( !astrm.isOK() )
 	return "Cannot write to output Pick Set file";
 
     BufferString str;
@@ -161,14 +159,15 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     ps.fillPar( par );
     par.putTo( astrm );
 
+    od_ostream& strm = astrm.stream();
     for ( int iloc=0; iloc<ps.size(); iloc++ )
     {
 	ps[iloc].toString( str );
-	strm << str.buf() << '\n';
+	strm << str << od_newline;
     }
 
     astrm.newParagraph();
-    return strm.good() ? 0
+    return astrm.isOK() ? 0
 	:  "Error during write to output Pick Set file";
 }
 

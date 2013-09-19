@@ -454,7 +454,7 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
 	pr.fillPar( iop );
 	iop.putTo( astrm );
     }
-    return astrm.stream().good();
+    return astrm.isOK();
 }
 
 

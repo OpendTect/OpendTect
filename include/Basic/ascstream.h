@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 #include "plftypes.h"
+#include "od_iostream.h"
 #include <limits.h>
 #include <iosfwd>
 
@@ -34,12 +35,14 @@ mExpClass(Basic) ascostream
 {
 
 public:
-		ascostream( std::ostream& strm )
-			: mystrm(false), streamptr(&strm) {}
-		ascostream( std::ostream* strm )
-			: mystrm(true), streamptr(strm)   {}
-					//!<\note strm becomes mine
-		~ascostream();
+
+		ascostream(od_ostream&);
+		ascostream(od_ostream*); // becomes mine
+		ascostream(std::ostream&);
+		ascostream(std::ostream*); // becomes mine
+    virtual	~ascostream();
+
+    bool	isOK() const;
 
     bool	putHeader(const char* filetype);
     bool	put(const char*,const char* val=0);
@@ -60,15 +63,13 @@ public:
 
     void	newParagraph();
 
-    std::ostream& stream()			{ return *streamptr; }
-    const std::ostream& stream() const		{ return *streamptr; }
-    operator	std::ostream&()			{ return *streamptr; }
-    operator	const std::ostream&() const	{ return *streamptr; }
+    inline od_ostream&	stream()		{ return strm_; }
+    std::ostream& stdstream();
 
 protected:
 
-    std::ostream* streamptr;
-    bool	mystrm;
+    od_ostream& strm_;
+    bool	strmmine_;
 
     void	putKeyword(const char*,bool wsep=true);
 
@@ -86,13 +87,14 @@ protected:
 mExpClass(Basic) ascistream
 {
 public:
-			ascistream( std::istream& strm, bool rdhead=true )
-				: mystrm(false)	{ init(&strm,rdhead); }
-			ascistream( std::istream* strm, bool rdhead=true )
-				: mystrm(true)	{ init(strm,rdhead); }
-			~ascistream();
+			ascistream(od_istream&,bool rdhead=true);
+			ascistream(od_istream*,bool rdhead=true);
+			ascistream(std::istream&,bool rdhead=true);
+			ascistream(std::istream*,bool rdhead=true);
+    virtual		~ascistream();
 
     ascistream&		next();
+    bool		isOK() const;
 
     const char*		headerStartLine() const	{ return header.buf(); }
     bool		hasStandardHeader() const;
@@ -120,7 +122,8 @@ public:
     double		getDValue(int i=0) const;
     bool		getYN(int i=0) const;
 
-    inline std::istream& stream() const		{ return *streamptr; }
+    inline od_istream&	stream()		{ return strm_; }
+    std::istream&	stdstream();
 
 			// This is for overriding what's in the file
     void		setKeyWord( const char* s ) { keybuf = s; }
@@ -128,8 +131,8 @@ public:
 
 protected:
 
-    std::istream*	streamptr;
-    bool		mystrm;
+    od_istream&		strm_;
+    bool		strmmine_;
     BufferString	keybuf;
     BufferString	valbuf;
 
@@ -139,7 +142,7 @@ protected:
 
 private:
 
-    void		init(std::istream*,bool);
+    void		init(bool);
 
 };
 
