@@ -80,6 +80,7 @@ protected:
     uiCheckBox*			unitfld_;
 
     void			fillTable(CallBacker*);
+    bool			getFromScreen();
     void			updNow(CallBacker*);
     void			dtpointChangedCB(CallBacker*);
     void			dtpointRemovedCB(CallBacker*);
