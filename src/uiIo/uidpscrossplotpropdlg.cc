@@ -357,7 +357,7 @@ void checkMathExpr( CallBacker* cb )
     }
     else
     {
-	( !errbfrplot ? expplotted : linedrawn ) = true;
+	if ( !errbfrplot ) expplotted = true;
 	isy1 ? rmsfld_->setText(plotter_.y1rmserr_)
 	    : rmsfld1_->setText(plotter_.y2rmserr_);
     }
