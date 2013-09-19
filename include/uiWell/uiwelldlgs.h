@@ -27,6 +27,7 @@ class uiIOObjSel;
 class uiLabel;
 class uiLabeledListBox;
 class uiTable;
+class BufferStringSet;
 class Coord3;
 class CtxtIOObj;
 class UnitOfMeasure;
@@ -81,6 +82,7 @@ protected:
     uiCheckBox*			timefld_;
 
     void			fillTable(CallBacker*);
+    bool			getFromScreen();
     void			updNow(CallBacker*);
     void			dtpointChangedCB(CallBacker*);
     void			dtpointRemovedCB(CallBacker*);
@@ -93,7 +95,7 @@ protected:
     void			expData(CallBacker*);
     void			getModel(Well::D2TModel&);
 
-    BufferStringSet		getColLabels() const;
+    void			getColLabels(BufferStringSet&) const;
     int				getTVDGLCol() const;
     int				getTVDSDCol() const;
     int				getTVDSSCol() const;
