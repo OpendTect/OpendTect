@@ -49,7 +49,12 @@ public:
 			    track_ = dp.track_;
 			    markers_ = dp.markers_;
 			    displaystrat_ = dp.displaystrat_;
-			    deepCopy( logs_, dp.logs_ );
+                            if ( logs_.size() != dp.logs_.size() )
+			        deepCopy( logs_, dp.logs_ );
+                            else
+                                for ( int idx=0; idx<logs_.size(); idx++ )
+                                    *logs_[idx] = *dp.logs_[idx];
+
 			    deepCopy( markers_.selmarkernms_,
 				    dp.markers_.selmarkernms_ );
 			    return *this;
@@ -153,7 +158,7 @@ public:
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
 			    , iscoltabflipped_(false)			 
-			    {}		 
+			    {}
 
 	virtual const char* subjectName() const 	{ return "Log"; }
 
