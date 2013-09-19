@@ -60,9 +60,9 @@ private:
     ObjectSet<const DataHolder>	inputdata_;
     TypeSet<int>		inputidxs_;
 
-    TypeSet<float>		csts_;
+    TypeSet<double>		csts_;
     MathExpression*		expression_;
-    TypeSet<float>		recstartvals_;
+    TypeSet<double>		recstartvals_;
     float			recstartpos_;
     Interval<float>		desintv_;
     Interval<int>		reqintv_;

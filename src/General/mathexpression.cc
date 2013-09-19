@@ -115,12 +115,12 @@ public:
 
     int				nrVariables() const { return 1; }
 
-    float			getValue() const
+    double			getValue() const
 				{
 				    return val_;
 				}
 
-    void			setVariableValue( int, float nv )
+    void			setVariableValue( int, double nv )
 				{ val_ = nv; }
 
     MathExpression*		clone() const
@@ -133,7 +133,7 @@ public:
 
 
 protected:
-    float 			val_;
+    double 			val_;
     char*			str_;
 };
 
@@ -141,11 +141,11 @@ protected:
 class MathExpressionConstant : public MathExpression
 {
 public:
-				MathExpressionConstant( float val )
+				MathExpressionConstant( double val )
 				    : val_ ( val )
 				    , MathExpression( 0 )		{}
 
-    float			getValue() const { return val_; }
+    double			getValue() const { return val_; }
 
     MathExpression*		clone() const
 				{
@@ -156,7 +156,7 @@ public:
 				}
 
 protected:
-    float 			val_;
+    double 			val_;
 };
 
 
@@ -167,7 +167,7 @@ public: \
 			MathExpression##clss() \
 			    : MathExpression( nr )		{} \
  \
-    float		getValue() const; \
+    double		getValue() const; \
  \
     MathExpression*	clone() const \
 			{ \
@@ -180,109 +180,109 @@ public: \
 
 
 mMathExpressionClass( Plus, 2 )
-float MathExpressionPlus::getValue() const
+double MathExpressionPlus::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
     return val0+val1;
 }
 
 
 mMathExpressionClass( Minus, 2 )
-float MathExpressionMinus::getValue() const
+double MathExpressionMinus::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0-val1;
 }
 
 
 mMathExpressionClass( Multiply, 2 )
-float MathExpressionMultiply::getValue() const
+double MathExpressionMultiply::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0*val1;
 }
 
 
 mMathExpressionClass( Divide, 2 )
-float MathExpressionDivide::getValue() const
+double MathExpressionDivide::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     if ( mIsZero(val1,mDefEps) )
-	return mIsZero(val0,mDefEps) ? 1 : mUdf(float);
+	return mIsZero(val0,mDefEps) ? 1 : mUdf(double);
 
     return val0/val1;
 }
 
 
 mMathExpressionClass( IntDivide, 2 )
-float MathExpressionIntDivide::getValue() const
+double MathExpressionIntDivide::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     const od_int64 i0 = mRounded(od_int64,val0);
     const od_int64 i1 = mRounded(od_int64,val1);
     if ( i1 == 0 )
-	return mUdf(float);
+	return mUdf(double);
 
-    return (float)( i0 / i1 );
+    return (double)( i0 / i1 );
 }
 
 
 mMathExpressionClass( IntDivRest, 2 )
-float MathExpressionIntDivRest::getValue() const
+double MathExpressionIntDivRest::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     const od_int64 i0 = mRounded(od_int64,val0);
     const od_int64 i1 = mRounded(od_int64,val1);
     if ( i1 == 0 )
-	return mUdf(float);
+	return mUdf(double);
 
-    return (float)( i0 % i1 );
+    return (double)( i0 % i1 );
 }
 
 
 mMathExpressionClass( Abs, 1 )
-float MathExpressionAbs::getValue() const
+double MathExpressionAbs::getValue() const
 {
     return fabs(inputs_[0]->getValue());
 }
 
 
 mMathExpressionClass( Power, 2 )
-float MathExpressionPower::getValue() const
+double MathExpressionPower::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     if ( val0 < 0 )
     {
 	int val1int = (int)val1;
 	if ( !mIsEqual(val1,val1int,mDefEps) )
-	    return mUdf(float);
+	    return mUdf(double);
     }
 
     return pow(val0,val1);
@@ -290,71 +290,71 @@ float MathExpressionPower::getValue() const
 
 
 mMathExpressionClass( Condition, 3 )
-float MathExpressionCondition::getValue() const
+double MathExpressionCondition::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
-    float val2 = inputs_[2]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
+    double val2 = inputs_[2]->getValue();
     if ( Values::isUdf(val0) )
-	return mUdf(float);
+	return mUdf(double);
 
     return !mIsZero(val0,mDefEps) ? val1 : val2;
 }
 
 
 mMathExpressionClass( LessOrEqual, 2 )
-float MathExpressionLessOrEqual::getValue() const
+double MathExpressionLessOrEqual::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0 <= val1;
 }
 
 
 mMathExpressionClass( Less, 2 )
-float MathExpressionLess::getValue() const
+double MathExpressionLess::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0 < val1;
 }
 
 
 mMathExpressionClass( MoreOrEqual, 2 )
-float MathExpressionMoreOrEqual::getValue() const
+double MathExpressionMoreOrEqual::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0 >= val1;
 }
 
 
 mMathExpressionClass( More, 2 )
-float MathExpressionMore::getValue() const
+double MathExpressionMore::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return val0 > val1;
 }
 
 
 mMathExpressionClass( Equal, 2 )
-float MathExpressionEqual::getValue() const
+double MathExpressionEqual::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
 
     const bool val0udf = Values::isUdf(val0);
     const bool val1udf = Values::isUdf(val1);
@@ -370,10 +370,10 @@ float MathExpressionEqual::getValue() const
 
 
 mMathExpressionClass( NotEqual, 2 )
-float MathExpressionNotEqual::getValue() const
+double MathExpressionNotEqual::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
 
     const bool val0udf = Values::isUdf(val0);
     const bool val1udf = Values::isUdf(val1);
@@ -389,24 +389,24 @@ float MathExpressionNotEqual::getValue() const
 
 
 mMathExpressionClass( OR, 2 )
-float MathExpressionOR::getValue() const
+double MathExpressionOR::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return !mIsZero(val0,mDefEps) || !mIsZero(val1,mDefEps);
 }
 
 
 mMathExpressionClass( AND, 2 )
-float MathExpressionAND::getValue() const
+double MathExpressionAND::getValue() const
 {
-    float val0 = inputs_[0]->getValue();
-    float val1 = inputs_[1]->getValue();
+    double val0 = inputs_[0]->getValue();
+    double val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
-	return mUdf(float);
+	return mUdf(double);
 
     return !mIsZero(val0,mDefEps) && !mIsZero(val1,mDefEps);
 }
@@ -419,26 +419,26 @@ static int ensureRandInited()
 }
 
 mMathExpressionClass( Random, 1 )
-float MathExpressionRandom::getValue() const
+double MathExpressionRandom::getValue() const
 {
     double maxval = inputs_[0]->getValue();
     if ( Values::isUdf(maxval) )
-	return mUdf(float);
+	return mUdf(double);
 
     static int dum mUnusedVar = ensureRandInited();
-    return ( float )( maxval * Stats::randGen().get() );
+    return ( double )( maxval * Stats::randGen().get() );
 }
 
 
 mMathExpressionClass( GaussRandom, 1 )
-float MathExpressionGaussRandom::getValue() const
+double MathExpressionGaussRandom::getValue() const
 {
     const double stdev = inputs_[0]->getValue();
     if ( Values::isUdf(stdev) )
-	return mUdf(float);
+	return mUdf(double);
 
     static int dum mUnusedVar = ensureRandInited();
-    return ( float ) Stats::randGen().getNormal(0,stdev);
+    return ( double ) Stats::randGen().getNormal(0,stdev);
 }
 
 
@@ -449,14 +449,14 @@ public: \
 			MathExpression##clss() \
 			    : MathExpression( 1 )		{} \
  \
-    float		getValue() const \
+    double		getValue() const \
 			{ \
-			    float val = inputs_[0]->getValue(); \
+			    double val = inputs_[0]->getValue(); \
 			    if ( Values::isUdf(val) ) \
-				return mUdf(float); \
+				return mUdf(double); \
  \
-			    float out = func(val); \
-			    return out == out ? out : mUdf(float); \
+			    double out = func(val); \
+			    return out == out ? out : mUdf(double); \
 			} \
  \
     MathExpression*	clone() const \
@@ -488,14 +488,14 @@ public: \
 			MathExpression##statnm( int nrvals ) \
 			    : MathExpression( nrvals )		{} \
  \
-    float		getValue() const \
+    double		getValue() const \
 			{ \
-			    Stats::RunCalc<float> stats( \
+			    Stats::RunCalc<double> stats( \
 				Stats::CalcSetup().require(Stats::statnm)); \
 			    for ( int idx=0; idx<inputs_.size(); idx++) \
 				stats += inputs_[idx]->getValue(); \
  \
-			    return ( float ) stats.getValue(Stats::statnm); \
+			    return ( double ) stats.getValue(Stats::statnm); \
 			} \
  \
     MathExpression*	clone() const \
@@ -526,7 +526,7 @@ const char* MathExpression::fullVariableExpression( int var ) const
 }
 
 
-void MathExpression::setVariableValue( int var, float val )
+void MathExpression::setVariableValue( int var, double val )
 {
     if ( var>=nrVariables() || var<0 ) return;
 
@@ -1103,7 +1103,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     double tres = strtod( str, &endptr );
 
     if ( endptr != str )
-	return new MathExpressionConstant( ( float )tres );
+	return new MathExpressionConstant( ( double )tres );
 
 
 #define mParseFunction( func, clss ) { \
@@ -1217,7 +1217,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 	return new MathExpressionConstant( M_PI );
 
     if ( !strcasecmp( input, "undef" ) )
-	return new MathExpressionConstant( mUdf(float) );
+	return new MathExpressionConstant( mUdf(double) );
 
     bool isvariable = true;
 

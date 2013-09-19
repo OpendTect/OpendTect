@@ -148,6 +148,7 @@ public:
 
     virtual int			getIntValue(int idx=0) const;
     virtual float		getfValue(int idx=0) const;
+    virtual double		getdValue(int idx=0) const;
     virtual BufferString	getDefaultValue() const;
 };
 
@@ -195,6 +196,14 @@ int NumParam<T>::getIntValue( int idx ) const
     return res;
 }
 
+
+template <class T>
+double NumParam<T>::getdValue( int idx ) const
+{
+    if ( !spec_ ) return mUdf(double);
+    double res = spec_->isUndef() ? mUdf(double) : ValParam::getdValue( idx );
+    return res;
+}
 
 template <class T>
 bool NumParam<T>::setCompositeValue( const char* nv )

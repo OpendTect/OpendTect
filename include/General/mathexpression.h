@@ -23,18 +23,18 @@ template <class T> class TypeSet;
   and each variable's name can be queried with getVariableStr( int ).
   
   When a calculations should be done, all variables must be set with
-  setVariable( int, float ). Then, the calculation can be done with getValue().
+  setVariable( int, double ). Then, the calculation can be done with getValue().
 -*/
 
 mExpClass(General) MathExpression
 {
 public:
 
-    virtual float		getValue() const		= 0;
+    virtual double		getValue() const		= 0;
 
     virtual int			nrVariables() const;
     virtual const char*		fullVariableExpression(int) const;
-    virtual void		setVariableValue(int,float);
+    virtual void		setVariableValue(int,double);
 
 				// recursive "out" or "this" excluded
     int				nrUniqueVarNames() const

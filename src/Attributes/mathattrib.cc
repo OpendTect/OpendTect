@@ -33,12 +33,12 @@ void Math::initClass()
 
     desc->addParam( new StringParam(expressionStr()) );
 
-    FloatParam cst( cstStr() );
-    ParamGroup<FloatParam>* cstset = 
-			new ParamGroup<FloatParam>( 0, cstStr(), cst );
+    DoubleParam cst( cstStr() );
+    ParamGroup<DoubleParam>* cstset = 
+			new ParamGroup<DoubleParam>( 0, cstStr(), cst );
     desc->addParam( cstset );
 
-    desc->addParam( new FloatParam(recstartStr(), 0, false) );
+    desc->addParam( new DoubleParam(recstartStr(), 0, false) );
     desc->addParam( new StringParam(recstartvalsStr(), 0, false) );
 
     FloatParam* recstartpos = new FloatParam( recstartposStr() );
@@ -133,11 +133,11 @@ Math::Math( Desc& dsc )
     errmsg_ += mep.errMsg();
     if ( mep.errMsg() ) return;
 
-    mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
+    mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*cstset)[idx];
-	csts_ += param.getfValue();
+	csts_ += param.getdValue();
     }
     
     if ( expression_->isRecursive() )
@@ -147,8 +147,8 @@ Math::Math( Desc& dsc )
 	if ( recstartstr.isEmpty() )
 	{
 	    //backward compatibility v3.3 and previous
-	    float recstartval = mUdf(float);
-	    mGetFloat( recstartval, recstartStr() );
+	    double recstartval = mUdf(double);
+	    mGetDouble( recstartval, recstartStr() );
 	    if ( !mIsUdf(recstartval) ) recstartvals_ += recstartval;
 	}
 	else
@@ -156,7 +156,7 @@ Math::Math( Desc& dsc )
 	    const int nrvals = recstartstr.size();
 	    for ( int idx=0; idx<nrvals; idx++ )
 	    {
-		float val = toFloat( recstartstr[idx] );
+		double val = toDouble( recstartstr[idx] );
 		if ( mIsUdf(val) )
 		    break;
 		recstartvals_ += val;
@@ -269,9 +269,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    const int refdhidx = inpidx == -1 ? recstartidx : 0;
 	    const int inpsampidx = inpidx == -1 ? sampidx : idx;
 	    int compidx = inpidx == -1 ? 0 : inputidxs_[inpidx];
-	    float val = inpidx==-1 && shift+idx-loopstartidx<0
+	    double val = inpidx==-1 && shift+idx-loopstartidx<0
 		? recstartvals_[shift-maxshift_]
-		: getInputValue( *inpdata, compidx, inpsampidx+shift, refdhidx);
+		: mCast( double, getInputValue( *inpdata, compidx,
+			    			inpsampidx+shift, refdhidx ) );
 	    
 	    //in case first samp is undef prevent result=undef
 	    //on whole trace for recursive formulas
@@ -286,17 +287,17 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	
 	for ( int specidx=0; specidx<nrspecvars; specidx++ )
 	{
-	    float val = mUdf(float);
+	    double val = mUdf(double);
 	    switch ( specstable_[specidx].specidx_ )
 	    {
-		case 0 :	val = refstep_; break;
-		case 1 :	val = mCast( float, currentbid_.inl ); break;
-		case 2 :	val = mCast( float, currentbid_.crl ); break;
+		case 0 :	val = mCast( double, refstep_ ); break;
+		case 1 :	val = mCast( double, currentbid_.inl ); break;
+		case 2 :	val = mCast( double, currentbid_.crl ); break;
 	    }
 	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
 	}
-
-	const float result = mathobj->getValue();
+ 
+	const float result = mCast( float, mathobj->getValue() );
 	
 	if ( hasudf && !mIsUdf( result ) )
 	    hasudf = false;

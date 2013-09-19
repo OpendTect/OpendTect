@@ -260,6 +260,13 @@ protected:
 }
 
 
+#define mGetDoubleFromDesc( __desc, var, varstring ) \
+{\
+    var = __desc.getValParam(varstring)->getdValue(0); \
+    if ( mIsUdf(var) )\
+        var = __desc.getValParam(varstring)->getDefaultdValue(0);\
+}
+
 
 #define mGetBoolFromDesc( __desc, var, varstring ) \
 {\
@@ -332,6 +339,8 @@ protected:
     mGetBinIDFromDesc( desc_, var, varstring )
 #define mGetFloatInterval( var, varstring ) \
     mGetFloatIntervalFromDesc( desc_, var, varstring )
+#define mGetDouble( var, varstring ) \
+    mGetDoubleFromDesc( desc_, var, varstring )
 
 #endif
 

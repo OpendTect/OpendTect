@@ -87,7 +87,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     
     BufferString lbl = zDepLabel( "Provide a starting",
 	    			  "\nfor recursive function" );
-    recstartposfld_ = new uiGenInput( this, lbl, FloatInpSpec() );
+    recstartposfld_ = new uiGenInput( this, lbl, DoubleInpSpec() );
     recstartposfld_->setPrefHeightInChar(2);
     recstartposfld_->attach( alignedBelow, recstartfld_ );
     setHAlignObj( inpfld_ );
@@ -213,14 +213,14 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 
     if ( desc.getParam(Attrib::Math::cstStr()) )
     {
-	mDescGetConstParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr());
+	mDescGetConstParamGroup(DoubleParam,cstset,desc,Attrib::Math::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
 	    if ( ctable_->nrRows() < idx+1 )
 		ctable_->insertRows( idx, 1 );
 	    
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    ctable_->setValue( RowCol(idx,0), param.getfValue(0) );
+	    ctable_->setValue( RowCol(idx,0), param.getdValue(0) );
 	    ctable_->setRowLabel( idx, cstnms.get(idx) );
 	}
     }
@@ -228,8 +228,8 @@ bool uiMathAttrib::setParameters( const Desc& desc )
     //backward compatibility v3.3 and previous
     if ( desc.getValParam( Attrib::Math::recstartStr() ) )
     {
-	float recstart =
-	    desc.getValParam( Attrib::Math::recstartStr() )->getfValue(0);
+	double recstart =
+	    desc.getValParam( Attrib::Math::recstartStr() )->getdValue(0);
 	if ( !mIsUdf( recstart ) )
 	    recstartfld_->setText( toString(recstart) );
     }
@@ -239,8 +239,8 @@ bool uiMathAttrib::setParameters( const Desc& desc )
     
     if ( desc.getValParam( Attrib::Math::recstartposStr() ) )
     {
-	float recstartpos =
-	    desc.getValParam( Attrib::Math::recstartposStr() )->getfValue(0);
+	double recstartpos =
+	    desc.getValParam( Attrib::Math::recstartposStr() )->getdValue(0);
 	if ( !mIsUdf( recstartpos ) )
 	    recstartposfld_->setValue(
 		    recstartpos * SI().zDomain().userFactor() );
@@ -280,19 +280,19 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	    nrconsts++;
     }
 
-    mDescGetParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr())
+    mDescGetParamGroup(DoubleParam,cstset,desc,Attrib::Math::cstStr())
     cstset->setSize( nrconsts );
     if ( ctable_->nrRows() < nrconsts ) return false;
     
     for ( int idx=0; idx<nrconsts; idx++ )
     {
-	FloatParam& fparam = (FloatParam&)(*cstset)[idx];
-	fparam.setValue( ctable_->getfValue( RowCol(idx,0) ) );
+	DoubleParam& dparam = (DoubleParam&)(*cstset)[idx];
+	dparam.setValue( ctable_->getdValue( RowCol(idx,0) ) );
     }
     
     mSetString( Attrib::Math::recstartvalsStr(), recstartfld_->text() );
-    mSetFloat( Attrib::Math::recstartposStr(),
-	       recstartposfld_->getfValue() / SI().zDomain().userFactor() );
+    mSetDouble( Attrib::Math::recstartposStr(),
+	       recstartposfld_->getdValue() / SI().zDomain().userFactor() );
     return true;
 }
 
@@ -313,7 +313,7 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     if ( !curDesc() ) return;
 
-    mDescGetConstParamGroup(FloatParam,cstset,(*curDesc()),
+    mDescGetConstParamGroup(DoubleParam,cstset,(*curDesc()),
 	    		    Attrib::Math::cstStr());
     BufferString constantbase = "constant c";
     for ( int idx=0; idx<cstset->size(); idx++ )

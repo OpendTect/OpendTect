@@ -105,18 +105,20 @@ void ValParam::setValue( type val, int idx ) \
 mSetGet(int,getIntValue)
 mSetGet(float,getfValue)
 mSetGet(bool,getBoolValue)
+mSetGet(double,getdValue)
     
-#define mSetGetDefault(type,getfunc) \
+#define mSetGetDefault(type,getfunc,dataspecgetfunc) \
 type ValParam::getfunc( int idx ) const \
-{ return spec_->getfunc(idx); } \
+{ return spec_->dataspecgetfunc(idx); } \
 \
 void ValParam::setDefaultValue( type val, int idx ) \
 { spec_->setDefaultValue( val, idx ); }
 
-mSetGetDefault(int,getDefaultIntValue)
-mSetGetDefault(float,getDefaultfValue)
-mSetGetDefault(bool,getDefaultBoolValue)
-mSetGetDefault(const char*,getDefaultStringValue)
+mSetGetDefault(int,getDefaultIntValue,getDefaultIntValue)
+mSetGetDefault(float,getDefaultfValue,getDefaultfValue)
+mSetGetDefault(double,getDefaultdValue,getDefaultValue)
+mSetGetDefault(bool,getDefaultBoolValue,getDefaultBoolValue)
+mSetGetDefault(const char*,getDefaultStringValue,getDefaultStringValue)
 
     
 const char* ValParam::getStringValue( int idx ) const

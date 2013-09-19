@@ -104,6 +104,7 @@ public:
     int				nrValues() const;
     virtual int			getIntValue(int idx=0) const;
     virtual float		getfValue(int idx=0) const;
+    virtual double		getdValue(int idx=0) const;
     bool			getBoolValue(int idx=0) const;
     const char*			getStringValue(int idx=0) const;
 
@@ -111,16 +112,19 @@ public:
     void			setValue(float,int idx=0);
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
+    void			setValue(double,int idx=0);
 
     virtual int			getDefaultIntValue(int idx=0) const;
     virtual float		getDefaultfValue(int idx=0) const;
     bool			getDefaultBoolValue(int idx=0) const;
     const char*			getDefaultStringValue(int idx=0) const;
+    virtual double		getDefaultdValue(int idx=0) const;
 
     void			setDefaultValue(int,int idx=0);
     void			setDefaultValue(float,int idx=0);
     void			setDefaultValue(bool,int idx=0);
     void			setDefaultValue(const char*,int idx=0);
+    void			setDefaultValue(double,int idx=0);
 
     DataInpSpec*		getSpec()	{ return spec_; }
     const DataInpSpec*		getSpec() const	{ return spec_; }

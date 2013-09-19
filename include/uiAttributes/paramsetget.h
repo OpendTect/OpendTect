@@ -29,6 +29,14 @@ ________________________________________________________________________
         param->setValue( newval ); \
 }
 
+#define mSetDouble( str, newval ) \
+{ \
+    Attrib::ValParam* param = desc.getValParam( str ); \
+    const double oldval = param->getdValue(); \
+    if ( chtr_.set(oldval,newval) ) \
+        param->setValue( newval ); \
+}
+
 #define mSetInt( str, newval ) \
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
@@ -97,6 +105,15 @@ if ( desc.getValParam(str) ) \
     float var = desc.getValParam(str)->getfValue(0);\
     if ( mIsUdf(var) )\
 	var = desc.getValParam(str)->getDefaultfValue(0);\
+    setfunc;\
+}
+
+#define mIfGetDouble( str, var, setfunc ) \
+if ( desc.getValParam(str) ) \
+{\
+    double var = desc.getValParam(str)->getdValue(0);\
+    if ( mIsUdf(var) )\
+	var = desc.getValParam(str)->getDefaultdValue(0);\
     setfunc;\
 }
 
