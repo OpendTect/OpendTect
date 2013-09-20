@@ -103,7 +103,8 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .defrowlbl("")
 					       .fillcol(true)
 					       .maxrowhgt(1)
-	   				       ,"Define Gate limits" );
+					       .selmode(uiTable::Multi),
+		         "Define Gate limits" );
 
     BufferString lblstart = "Start "; lblstart += SI().getZUnitString();
     BufferString lblstop = "Stop "; lblstop += SI().getZUnitString();

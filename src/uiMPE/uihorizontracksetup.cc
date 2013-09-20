@@ -399,7 +399,10 @@ uiStepDialog( uiParent* p, const char* valstr )
     : uiDialog(p,Setup("Stepwise tracking","","108.0.1"))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
-				    .rowgrow(true).defrowlbl(true),
+	    					       .rowgrow(true)
+						       .defrowlbl(true)
+						       .selmode(uiTable::Multi)
+						       .defrowlbl(""),
 			      "Stepwise tracking table" );
     steptable_->setColumnLabel( 0, "Value" );
 

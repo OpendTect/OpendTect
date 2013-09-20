@@ -60,8 +60,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     , overwritepol_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
-	    		.colgrow(false).removecolallowed(false)
-			.manualresize( true ), "Data Table" );
+	    					  .manualresize(true)
+						  .selmode(uiTable::Multi),
+		        "Data Table" );
     tbl_->setColumnLabel( 0, "Well name" );
     const char* xunstr = SI().getXYUnitString();
     tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );

@@ -588,12 +588,13 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 					    const Strat::LeavedUnitRef& unit ) 
     : uiDialog(p,uiDialog::Setup("Subdivide Stratigraphic Unit",
 			     "Specify number and properties of the new units",
-			     mNoHelpID))
+			     mTODOHelpID))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")
-						.rowgrow(true)
-						.defrowlbl(""));
+	    					      .rowgrow(true)
+						      .defrowlbl("")
+						      .selmode(uiTable::Multi));
     table_->setColumnLabels( unitcollbls );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -601,6 +602,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
     table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
+    table_->selectionDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits));
     table_->setMinimumWidth( 450 );
     
     if ( table_->nrRows() )
@@ -661,7 +663,7 @@ void uiStratUnitDivideDlg::addUnitToTable( int irow,
 }
 
 
-void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units ) 
+void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units )
 {
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
