@@ -140,6 +140,7 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
     {
 	BinID start = knots[idx-1];
 	BinID stop = knots[idx];
+	if ( start == stop ) continue;
 	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
 	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
 	bool inlwise = nrinl > nrcrl;
