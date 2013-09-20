@@ -52,6 +52,7 @@ SET(OD_MODULE_SOURCES
 	seisrandlineto2d.cc
 	seisrandomprovider.cc
 	seisread.cc
+	seisreaderset.cc
 	seisresampler.cc
 	seisscanner.cc
 	seisselection.cc
