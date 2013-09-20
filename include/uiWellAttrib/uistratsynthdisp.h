@@ -108,6 +108,7 @@ protected:
     StratSynth*		stratsynth_;
     StratSynth*		edstratsynth_;
     const Strat::LayerModelProvider& lmp_;
+    uiWorldRect		curviewwr_;
     int			selectedtrace_;
     int			dispeach_;
     float		dispskipz_;
@@ -175,6 +176,7 @@ protected:
     void		syntheticRemoved(CallBacker*);
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
+    void		preStackWinClosedCB(CallBacker*);
 };
 
 

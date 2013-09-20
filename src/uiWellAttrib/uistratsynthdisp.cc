@@ -51,7 +51,7 @@ static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
-
+static const char* sKeyViewArea()	{ return "Start View Area"; }
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    const Strat::LayerModelProvider& lmp )
@@ -82,6 +82,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , autoupdate_(true)
     , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
+    , curviewwr_(mUdf(double),0,0,0)
 {
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
@@ -319,6 +320,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
     dispflattened_ = dispflattened;
     if ( domodelchg )
     {
+	curviewwr_ = uiWorldRect( mUdf(double), 0, 0, 0 );
 	doModelChange();
 	control_->zoomMgr().toStart();
 	return;
@@ -335,6 +337,7 @@ void uiStratSynthDisp::setZoomView( const uiWorldRect& wr )
     control_->zoomMgr().toStart();
     control_->setActiveVwr( 0 );
     control_->setNewView( centre, newsz );
+    curviewwr_ = wr;
 }
 
 
@@ -532,20 +535,33 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
 void uiStratSynthDisp::parsChangedCB( CallBacker* )
 {
-    if ( currentvdsynthetic_ && !vwr_->appearance().ddpars_.vd_.ctab_.isEmpty())
-	currentvdsynthetic_->dispPars().coltab_ =
-	    vwr_->appearance().ddpars_.vd_.ctab_;
+    if ( currentvdsynthetic_ )
+    {
+	SynthDispParams& disppars = currentvdsynthetic_->dispPars();
+	disppars.coltab_ = vwr_->appearance().ddpars_.vd_.ctab_;
+	disppars.mapperrange_ =
+	    vwr_->appearance().ddpars_.vd_.mappersetup_.range_;
+    }
+
+    if ( currentwvasynthetic_ )
+    {
+	SynthDispParams& disppars = currentwvasynthetic_->dispPars();
+	disppars.mapperrange_ =
+	    vwr_->appearance().ddpars_.wva_.mappersetup_.range_;
+    }
 }
 
 
 void uiStratSynthDisp::viewChg( CallBacker* )
 {
+    curviewwr_ = curView( false );
     viewChanged.trigger();
 }
 
 
 void uiStratSynthDisp::zoomChg( CallBacker* )
 {
+    curviewwr_ = curView( false );
     zoomChanged.trigger();
 }
 
@@ -717,7 +733,10 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setPack( wva, dp->id(), false, !hadpack );
-    vwr_->setViewToBoundingBox();
+    if ( mIsUdf(curviewwr_.left()) )
+	curviewwr_ = vwr_->boundingBox();
+    vwr_->setView( curviewwr_ );
+
     if ( !hasrgsaved && !prsd )
     {
 	mapper.autosym0_ = false;
@@ -733,6 +752,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
 void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
 {
+    if ( longestaimdl_>=layerModel().size() || longestaimdl_<0 )
+	return;
     Interval<float> depthrg = layerModel().sequence(longestaimdl_).zRange();
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
@@ -779,7 +800,6 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
     }
 
     prestackwin_->setGathers( gatherinfos );
-    setPreStackMapper();
 }
 
 
@@ -857,9 +877,14 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 	}
 
 	prestackwin_->setGathers( newginfos, false );
-	setPreStackMapper();
     }
 
+}
+
+
+void uiStratSynthDisp::preStackWinClosedCB( CallBacker* )
+{
+    prestackwin_ = 0;
 }
 
 
@@ -867,11 +892,16 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 {
     if ( !currentwvasynthetic_ || !currentwvasynthetic_->isPS() )
 	return;
-    prestackwin_ =
-	new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
-    if ( prestackwin_ )
+    if ( !prestackwin_ )
+    {
+	prestackwin_ =
+	    new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
 	prestackwin_->seldatacalled_.notify(
 		mCB(this,uiStratSynthDisp,selPreStackDataCB) );
+	prestackwin_->windowClosed.notify(
+		mCB(this,uiStratSynthDisp,preStackWinClosedCB) );
+    }
+
     displayPreStackSynthetic( currentwvasynthetic_ );
     prestackwin_->show();
 }
@@ -903,7 +933,8 @@ void uiStratSynthDisp::updateFields()
     if ( pssd )
     {
 	StepInterval<float> limits( pssd->offsetRange() );
-	limits.step = 100;
+	const float offsetstep = pssd->offsetRangeStep();
+	limits.step = mIsUdf(offsetstep) ? 100 : offsetstep;
 	offsetposfld_->setLimitSampling( limits );
     }
 
@@ -952,7 +983,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     updateSyntheticList( wva );
     synthsChanged.trigger();
 
-    datalist->setCurrentItem( syntheticnm );
+    datalist->setCurrentItem( sd->name() );
     setCurrentSynthetic( wva );
 }
 
@@ -988,10 +1019,12 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     displaySynthetic( currentwvasynthetic_ );
     if ( curwvasynthnm == curvdsynthnm )
     {
-	vddatalist_->setCurrentItem( syntheticnm );
+	vddatalist_->setCurrentItem( currentwvasynthetic_->name() );
 	setCurrentSynthetic( false );
 	displayPostStackSynthetic( currentvdsynthetic_, false );
     }
+
+    updateFields();
 }
 
 
@@ -1179,7 +1212,14 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 		    		 nr_nonproprefsynths-1) );
     }
 
-    stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths ); 
+    stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
+    TypeSet<double> startviewareapts;
+    startviewareapts.setSize( 4 );
+    startviewareapts[0] = curviewwr_.left();
+    startviewareapts[1] = curviewwr_.top();
+    startviewareapts[2] = curviewwr_.right();
+    startviewareapts[3] = curviewwr_.bottom();
+    stratsynthpar.set( sKeyViewArea(), startviewareapts );
     par.removeWithKey( sKeySynthetics() );
     par.mergeComp( stratsynthpar, sKeySynthetics() );
 }
@@ -1251,6 +1291,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	if ( !nrsynths )
 	    curSS().addDefaultSynthetic();
+    }
+
+    TypeSet<double> startviewareapts;
+    curviewwr_ = uiWorldRect( mUdf(double), 0, 0, 0 );
+    if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
+	 startviewareapts.size()==4 )
+    {
+	curviewwr_.setLeft( startviewareapts[0] );
+	curviewwr_.setTop( startviewareapts[1] );
+	curviewwr_.setRight( startviewareapts[2] );
+	curviewwr_.setBottom( startviewareapts[3] );
     }
 
     if ( !curSS().nrSynthetics() )
