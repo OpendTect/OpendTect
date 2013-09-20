@@ -80,7 +80,9 @@ uiStratLayerModelManager()
     : dlg_(0)
 {
     IOM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
+    IOM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
 }
+
 
 void survChg( CallBacker* )
 {
@@ -508,10 +510,13 @@ void uiStratLayerModel::mkSynthChg( CallBacker* cb )
     synthdisp_->setAutoUpdate( automksynth_ );
     if ( automksynth_ )
     {
+	uiWorldRect zoomwr = synthdisp_->curView( false );
 	useSyntheticsPars( desc_.getWorkBenchParams() );
 	synthdisp_->modelChanged();
 	mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
 	if ( mfvc ) mfvc->reInitZooms();
+	zoomwr_ = zoomwr;
+	synthdisp_->setZoomView( zoomwr_ );
     }
 }
 
@@ -787,11 +792,14 @@ void uiStratLayerModel::seqSel( CallBacker* )
 
 void uiStratLayerModel::modEd( CallBacker* )
 {
+    uiWorldRect zoomwr = synthdisp_->curView( false );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     useSyntheticsPars( desc_.getWorkBenchParams() );
     synthdisp_->modelChanged();
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
+    zoomwr_ = zoomwr;
+    synthdisp_->setZoomView( zoomwr_ );
 }
 
 
@@ -850,8 +858,11 @@ void uiStratLayerModel::genModels( CallBacker* )
 
     newModels.trigger();
 
+    uiWorldRect zoomwr = synthdisp_->curView( false );
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
+    zoomwr_ = zoomwr;
+    synthdisp_->setZoomView( zoomwr_ );
 
     if ( autoupdatechged )
     {

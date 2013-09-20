@@ -175,6 +175,7 @@ protected:
     void		syntheticRemoved(CallBacker*);
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
+    void		preStackWinClosedCB(CallBacker*);
 };
 
 
