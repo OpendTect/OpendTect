@@ -1711,10 +1711,9 @@ void uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !hasMaterial(id) || !vo ) return;
 
-    uiPropertiesDlg* dlg = new uiPropertiesDlg( appserv().parent(),
-	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
-    dlg->setDeleteOnClose( true );
-    dlg->go();
+    uiPropertiesDlg dlg( appserv().parent(),
+			 dynamic_cast<visSurvey::SurveyObject*>(vo) );
+    dlg.go();
 }
 
 
