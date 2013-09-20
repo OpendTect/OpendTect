@@ -84,6 +84,7 @@ public:
 			, rightclickdisabled_(false)
 		       		   //!<default enables right click popup	
 			, enablecopytext_(false)
+			, removeselallowed_(true)
 				{}
 
 	mDefSetupMemb(RowCol,size)
@@ -109,6 +110,7 @@ public:
 	mDefSetupMemb(int,defrowstartidx)
 	mDefSetupMemb(bool,rightclickdisabled)
 	mDefSetupMemb(bool,enablecopytext)
+	mDefSetupMemb(bool,removeselallowed)
 
 	Setup& sizesFixed( bool yn )
 	{
@@ -209,6 +211,8 @@ public:
     bool		isSelected(const RowCol&) const;
     bool		isRowSelected(int) const;
     bool		isColumnSelected(int) const;
+    bool		getSelectedRows(TypeSet<int>&) const;
+    bool		getSelectedCols(TypeSet<int>&) const;
     int			currentRow() const;
     int			currentCol() const;
     RowCol		currentCell() const
@@ -336,6 +340,11 @@ private:
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
     mutable uiSize	lastsz;
+
+public:
+
+			// ABI  compatibility - needs to be last
+    Notifier<uiTable>	selectionDeleted;
 
 };
 
