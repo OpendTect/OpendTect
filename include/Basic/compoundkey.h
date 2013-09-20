@@ -53,7 +53,7 @@ protected:
     BufferString	id_;
     char*		fromKey(int) const;
     const char*		getKeyPart(int) const;
-    friend std::istream& operator >>(std::istream&,CompoundKey&);
+    mGlobal(Basic) friend std::istream& operator >>(std::istream&,CompoundKey&);
 
 private:
 
