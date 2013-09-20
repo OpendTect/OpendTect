@@ -169,23 +169,20 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	return;
     }
 
+    eminfo.getSurfaceData( sd_ );
     CubeSampling cs;
-    HorSampling emhs;
-    emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
-    cs.hrg = emhs;
+    cs.hrg = sd_.rg;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
     attribfld_->addItem( ODGMT::sKeyZVals() );
 
-    BufferStringSet attrnms;
-    eminfo.getAttribNames( attrnms );
-    if ( attrnms.size() )
+    if ( sd_.valnames.isEmpty() )
+	attribfld_->setSensitive( false );
+    else
     {
-	attribfld_->addItems( attrnms );
+	attribfld_->addItems( sd_.valnames );
 	attribfld_->setSensitive( true );	
     }
-    else
-	attribfld_->setSensitive( false );
 
     readCB(0);
 }
@@ -286,6 +283,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     if ( !isz )
     {
 	const int selidx = sd_.valnames.indexOf( attrnm.buf() );
+	if ( selidx < 0 ) return;
 	PtrMan<Executor> exec = hor_->auxdata.auxDataLoader( selidx );
 	if ( exec ) exec->execute();
 
