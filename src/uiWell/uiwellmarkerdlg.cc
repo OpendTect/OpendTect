@@ -40,27 +40,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltransl.h"
 
-static const char* mrkrcollbls[] = { "[Name]", "Depth (MD)", "TVDSS",
-				 "[Color]", "Regional marker", 0 };
 static const int cNrEmptyRows = 5;
 
+static const char* sKeyName()		{ return "Name"; }
+static const char* sKeyMD()		{ return "MD"; }
+static const char* sKeyTVD()		{ return "TVD"; }
+static const char* sKeyTVDSS()		{ return "TVDSS"; }
+static const char* sKeyColor()		{ return "Color"; }
+static const char* sKeyRegMarker()	{ return "Regional marker"; }
 static const int cNameCol  = 0;
 static const int cDepthCol = 1;
-static const int cTVDSSCol = 2;
-static const int cColorCol = 3;
-static const int cLevelCol = 4;
+static const int cTVDCol = 2;
+static const int cTVDSSCol = 3;
+static const int cColorCol = 4;
+static const int cLevelCol = 5;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers", "107.1.1"))
     	, track_(t)
         , oldmrkrs_(0)
+        , table_(0)
+   	, unitfld_(0)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				        .rowgrow(true) 
+	    				        .rowgrow(true)
 					        .defrowlbl("")
+						.selmode(uiTable::Multi)
 				,"Well Marker Table" );
-    table_->setColumnLabels( mrkrcollbls );
+    BufferStringSet header;
+    getColLabels( header );
+    table_->setColumnLabels( header );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
@@ -69,7 +79,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
-    table_->setPrefWidth( 600 );
+    table_->selectionDeleted.notify( mCB(this,uiMarkerDlg,selectionRemovedCB) );
+    table_->setPrefWidth( 650 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",
 	    			mCB(this,uiMarkerDlg,updateDisplayCB), true );
@@ -94,9 +105,9 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     stratbut->attach( rightOf, setregmrkar );
 
     unitfld_ = new uiCheckBox( this, "Z in Feet" );
-    unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
     unitfld_->attach( rightAlignedBelow, table_ );
     unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
     setPrefWidthInChar( 60 );
 }
@@ -105,6 +116,32 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 uiMarkerDlg::~uiMarkerDlg()
 {
     if ( oldmrkrs_ ) delete oldmrkrs_;
+}
+
+
+void uiMarkerDlg::getColLabels( BufferStringSet& lbls ) const
+{
+    bool zinfeet = false;
+    if ( unitfld_ )
+	zinfeet = unitfld_->isChecked();
+
+    lbls.add( sKeyName() );
+    BufferString curlbl;
+
+    curlbl = sKeyMD();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lbls.add( curlbl );
+
+    curlbl = sKeyTVD();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lbls.add( curlbl );
+
+    curlbl = sKeyTVDSS();
+    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    lbls.add( curlbl );
+
+    lbls.add( sKeyColor() );
+    lbls.add( sKeyRegMarker() );
 }
 
 
@@ -122,8 +159,24 @@ int uiMarkerDlg::getNrRows() const
 
 void uiMarkerDlg::markerRemovedCB( CallBacker* )
 {
-    const int currow = table_->currentRow();
-    depths_.removeSingle( currow<0 ? table_->nrRows() : currow );
+    getFromScreen();
+}
+
+
+void uiMarkerDlg::selectionRemovedCB( CallBacker* )
+{
+    getFromScreen();
+}
+
+
+bool uiMarkerDlg::getFromScreen()
+{
+    Well::MarkerSet markers;
+    if ( !getMarkerSet(markers) )
+	return false;
+
+    setMarkerSet( markers );
+    return true;
 }
 
 
@@ -154,7 +207,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	if ( !updateMarkerDepths( row, true) )
 	    return;
     }
-    else if ( col == cTVDSSCol )
+    else if ( col == cTVDCol || col == cTVDSSCol )
     {
 	if ( !updateMarkerDepths( row, false) )
 	    return;
@@ -194,20 +247,27 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 	return;
 
     NotifyStopper notifystop( table_->valueChanged );
+    BufferStringSet header;
+    getColLabels( header );
+    table_->setColumnLabels( header );
     table_->selectColumn( cNameCol );
+    const float kbelev = track_.getKbElev();
+    const float zfac = zFactor();
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
 	const RowCol rc( rowidx, cDepthCol );
-	const float val = depths_[rowidx];
-	if ( mIsUdf(val) )
+	const float dah = depths_[rowidx];
+	if ( mIsUdf(dah) )
 	{
 	    table_->clearCell( rc );
 	    continue;
 	}
 
-	table_->setValue( rc, val*zFactor() );
-	if ( !updateMarkerDepths( rowidx, true ) )
-	    continue;
+	const float tvdss = mCast(float,track_.getPos(dah).z);
+	const float tvd = tvdss + kbelev;
+	table_->setValue( rc, dah * zfac );
+	table_->setValue( RowCol(rowidx,cTVDCol), tvd * zfac );
+	table_->setValue( RowCol(rowidx,cTVDSSCol), tvdss * zfac );
     }
     
     table_->selectColumn( cDepthCol );
@@ -262,6 +322,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     int startrow = add ? getNrRows() : 0;
     const int nrrows = nrnew + startrow + cNrEmptyRows;
     table_->setNrRows( nrrows );
+    const float zfac = zFactor();
+    const float kbelev = track_.getKbElev();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const int irow = startrow + idx;
@@ -275,9 +337,11 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 		const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
 
 	    levelsel->setID( marker->levelID() );
-	    table_->setValue( RowCol(irow,cDepthCol), marker->dah()*zFactor() );
-	    const Coord3 pos = track_.getPos( marker->dah() );
-	    table_->setValue( RowCol(irow,cTVDSSCol), (float)pos.z * zFactor());
+	    const float dah = marker->dah();
+	    table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
+	    const float tvdss = mCast(float,track_.getPos(dah).z);
+	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
+	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID() >= 0 )
@@ -289,6 +353,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	Well::Marker mrk;
 	levelsel->setSensitive( false );
 	table_->setText( RowCol(irow,cDepthCol), "" );
+	table_->setText( RowCol(irow,cTVDCol), "" );
 	table_->setText( RowCol(irow,cTVDSSCol), "" );
 	table_->setText( RowCol(irow,cNameCol), "" );
 	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
@@ -301,7 +366,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	if ( mIsUdf(val) )
 	    depths_ += 1e30;
 	else
-	    depths_ += val/zFactor();
+	    depths_ += val / zfac;
     }
 
     table_->resizeHeaderToContents( false );
@@ -415,17 +480,23 @@ void uiMarkerDlg::rdFile( CallBacker* )
 
 bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers )
 {
-    if ( table_->nrRows() != depths_.size() )
-	return false;
-
     deepErase( markers );
+    depths_.setEmpty();
     BufferStringSet markernms;
     BufferString errmsg;
+    const float zfac = zFactor();
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
-	const float depth = depths_[rowidx];
+	float dah = table_->getfValue( RowCol(rowidx,cDepthCol) );
+	if ( mIsUdf(dah) )
+	{
+	    depths_ += dah;
+	    continue;
+	}
+
+	depths_ += dah / zfac;
 	const char* markernm = table_->text( RowCol(rowidx,cNameCol) );
-	if ( !markernm || !*markernm || mIsUdf(depth) ) continue;
+	if ( !markernm || !*markernm ) continue;
 
 	if ( !markernms.addIfNew(markernm) )
 	{
@@ -436,7 +507,8 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers )
 	    return false;
 	}
 
-	Well::Marker* marker = new Well::Marker( markernm, depth );
+	dah /= zfac;
+	Well::Marker* marker = new Well::Marker( markernm, dah );
 	marker->setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
 	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
@@ -451,24 +523,22 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers )
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
     Well::MarkerSet markers;
-    if ( !getMarkerSet( markers ) ) return false;
+    if ( !getMarkerSet(markers) ) return false;
 
-    Interval<float> dahrg = track_.dahRange();
-    dahrg.start = dahrg.start * zFactor();
-    dahrg.stop = dahrg.stop * zFactor();
+    Interval<float> dahrg( track_.dahRange() );
+    const float zfac = zFactor();
+    dahrg.scale( zFactor() );
     BufferString errmsg;
     for ( int midx=0; midx<markers.size(); midx++ )
     {
-	const float val = markers[midx]->dah() * zFactor();
-	const bool isbetween = dahrg.includes( val, true );
-	const RowCol rcname( midx, cNameCol );
-	if ( !isbetween )
+	const float val = markers[midx]->dah() * zfac;
+	if ( !dahrg.includes(val,true) )
 	    errmsg.add( "'" ).add( markers[midx]->name() ).add( "' " );
     }
 
     if ( !errmsg.isEmpty() )
     {
-      errmsg.add( "depth value(s) is out of well track range [" )
+      errmsg.add( "depth value(s) is/are out of well track range [" )
 	    .add( dahrg.start ).add( "-" ).add( dahrg.stop ).add( "]. " )
 	    .add ( "Press Abort if you want to re-enter the depth." );
       const bool res = uiMSG().askContinue( errmsg );
@@ -581,12 +651,27 @@ void uiMarkerDlg::exportCB( CallBacker* )
     {
 	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
 		    		     "' for write" ) );
+	sd.close();
 	return;
     }
+
+    BufferStringSet header;
+    getColLabels( header );
+    *sd.ostrm << header.get( cDepthCol ) << '\t';
+    *sd.ostrm << header.get( cTVDCol ) << '\t';
+    *sd.ostrm << header.get( cTVDSSCol ) << '\t';
+    *sd.ostrm << header.get( cNameCol ) << '\n';
     
+    const float kbelev = track_.getKbElev();
+    const float zfac = zFactor();
     for ( int idx=0; idx<mset.size(); idx++ )
     {
-	*sd.ostrm << Conv::to<const char*>(mset[idx]->dah()*zFactor()) <<'\t';
+	const float dah = mset[idx]->dah();
+	const float tvdss = mCast(float,track_.getPos(dah).z);
+	const float tvd = tvdss + kbelev;
+	*sd.ostrm << toString( dah * zfac ) << '\t';
+	*sd.ostrm << toString( tvd * zfac ) << '\t';
+	*sd.ostrm << toString( tvdss * zfac ) << '\t';
    	*sd.ostrm << mset[idx]->name() << '\n';
     }
 
@@ -645,65 +730,55 @@ bool uiMarkerDlg::rejectOK( CallBacker* )
 }
 
 
-bool uiMarkerDlg::updateMarkerDepths(int rowidx, bool md2tvdss)
+bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 {
-    const int incol = md2tvdss ? cDepthCol : cTVDSSCol;
-    const int outcol = md2tvdss ? cTVDSSCol : cDepthCol;
+    NotifyStopper ns( table_->valueChanged );
+    const int incol = table_->currentCol();
     const RowCol rcin( rowidx, incol );
-    const RowCol rcout( rowidx, outcol );
+    const bool istvd = incol == cTVDCol;
+    const float kbelev = track_.getKbElev();
+    const float zfac = zFactor();
 
-    if ( mIsUdf( table_->getfValue( rcin ) ) )
+    const float olddah = depths_[rowidx];
+    const float oldtvdss = mCast(float,track_.getPos(olddah).z);
+    const float oldtvd = oldtvdss + kbelev;
+    const float oldval = md2tvdss ? olddah : istvd ? oldtvd : oldtvdss;
+
+    if ( mIsUdf(table_->getfValue(rcin)) )
     {
 	uiMSG().error( "Please enter a valid number" );
-	const float oldval = md2tvdss ? depths_[rowidx] :
-				(float)( track_.getPos(depths_[rowidx]).z );
-	table_->setValue( rcin, oldval * zFactor() );
+	table_->setValue( rcin, oldval * zfac );
 	return false;
     }
 
-    const float inval = table_->getfValue( rcin ) / zFactor();
+    float inval = table_->getfValue( rcin ) / zfac;
+    if ( istvd ) inval -= kbelev;
 
-    float outval = mUdf(float);
-    const int tracksz = track_.nrPoints();
+    Interval<float> trckrg( md2tvdss ? track_.dahRange() : track_.zRange() );
+    if ( !trckrg.includes(inval,true) )
+    {
+	BufferString errmsg( "The entered depth " );
+	errmsg.add( inval * zfac ).add( " is outside of track range\n" );
+	errmsg.add( "[" ).add( trckrg.start * zfac ).add( ", ");
+	errmsg.add( trckrg.stop * zfac ).add( "] " );
+	errmsg.add( !unitfld_->isChecked() ? "m" : "ft" );
+	errmsg.add( md2tvdss ? sKeyMD() : istvd ? sKeyTVD() : sKeyTVDSS() );
+	table_->setValue( rcin, oldval * zfac );
+    }
+
+    const float dah = md2tvdss ? inval : track_.getDahForTVD( inval );
+    const float tvdss = md2tvdss ? mCast(float,track_.getPos(inval).z) : inval;
+    const float tvd = tvdss + kbelev;
     if ( !md2tvdss )
-    {
-	Interval<float> tvdssrg;
-	tvdssrg.start = track_.value(0);
-	tvdssrg.stop = track_.value(tracksz-1);
-	if ( !tvdssrg.includes( inval, true ) )
-	{
-	    BufferString errmsg = "The entered depth is outside of track range";
-	    errmsg += "\n["; errmsg += tvdssrg.start * zFactor();
-	    errmsg += ", "; errmsg += tvdssrg.stop * zFactor(); errmsg += "] ";
-	    errmsg += !unitfld_->isChecked() ? "m" : "ft";
-	    errmsg += " (TVDSS)";
-	    uiMSG().error( errmsg );
-	    table_->setValue( rcin, (float)track_.getPos( depths_[rowidx] ).z *
-		    		    zFactor() );
-	    return false;
-	}
-	outval = track_.getDahForTVD( inval );
-    }
-    else
-    {
-	Interval<float> dahrg = track_.dahRange();
-	dahrg.start = dahrg.start;
-	dahrg.stop = dahrg.stop;
-	if ( !dahrg.includes( inval, true ) )
-	{
-	    BufferString errmsg = "The entered depth is outside of track range";
-	    errmsg += "\n["; errmsg += dahrg.start * zFactor();
-	    errmsg += ", "; errmsg += dahrg.stop * zFactor(); errmsg += "]";
-	    errmsg += !unitfld_->isChecked() ? "m" : "ft";
-	    errmsg += " (MD)";
-	    uiMSG().error( errmsg );
-	    table_->setValue( rcin, depths_[rowidx] * zFactor() );
-	    return false;
-	}
-	outval = (float)track_.getPos(inval).z;
-    }
+	table_->setValue( RowCol(rowidx,cDepthCol), dah * zfac );
 
-    depths_[rowidx] = md2tvdss ? inval : outval;
-    table_->setValue( rcout, outval * zFactor() );
+    if ( md2tvdss || istvd )
+	table_->setValue( RowCol(rowidx,cTVDSSCol), tvdss * zfac );
+
+    if ( md2tvdss || !istvd )
+	table_->setValue( RowCol(rowidx,cTVDCol), tvd * zfac );
+
+    depths_[rowidx] = dah;
     return true;
 }
+
