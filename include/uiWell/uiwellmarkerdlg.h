@@ -44,6 +44,7 @@ protected:
 
     //TODO will go with the Strat level Sel 
 
+    void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
     void			mouseClick(CallBacker*);
@@ -53,9 +54,11 @@ protected:
     void			stratLvlChg(CallBacker*);
     void			unitChangedCB(CallBacker*);
     void			updateFromLevel(int,uiStratLevelSel*);
+    bool			getFromScreen();
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
     void			markerRemovedCB(CallBacker*);
+    void			selectionRemovedCB(CallBacker*);
     bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
