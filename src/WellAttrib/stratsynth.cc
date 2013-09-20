@@ -1442,6 +1442,20 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 }
 
 
+float PreStackSyntheticData::offsetRangeStep() const
+{
+    float offsetstep = mUdf(float);
+    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
+    if ( !gathers.isEmpty() ) 
+    {
+	const PreStack::Gather& gather = *gathers[0];
+	offsetstep = gather.getOffset(1)-gather.getOffset(0);
+    }
+
+    return offsetstep;
+}
+
+
 const Interval<float> PreStackSyntheticData::offsetRange() const
 {
     Interval<float> offrg( 0, 0 );

@@ -100,6 +100,7 @@ public:
     bool				isPS() const 	  { return true; }
     bool				hasOffset() const;
     const Interval<float>		offsetRange() const; 
+    float				offsetRangeStep() const; 
     SynthGenParams::SynthType		synthType() const
 					{ return SynthGenParams::PreStack; }
 
