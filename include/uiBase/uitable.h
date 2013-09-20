@@ -74,6 +74,7 @@ public:
 			, maxcolwdt_(2.3f*uiObject::baseFldSize())
 					  //!< units of font
 			, selmode_(NoSelection)
+			, removeselallowed_(true)
 			, snglclkedit_(true)
 			, defcollbl_(false)
 			, defrowlbl_(false)
@@ -102,6 +103,7 @@ public:
 	mDefSetupMemb(float,maxcolwdt)
 	mDefSetupMemb(float,mincolwdt)
 	mDefSetupMemb(SelectionMode,selmode)
+	mDefSetupMemb(bool,removeselallowed)
 	mDefSetupMemb(bool,snglclkedit)
 	mDefSetupMemb(bool,defrowlbl)
 	mDefSetupMemb(bool,defcollbl)
@@ -209,6 +211,8 @@ public:
     bool		isSelected(const RowCol&) const;
     bool		isRowSelected(int) const;
     bool		isColumnSelected(int) const;
+    bool		getSelectedRows(TypeSet<int>&) const;
+    bool		getSelectedCols(TypeSet<int>&) const;
     int			currentRow() const;
     int			currentCol() const;
     RowCol		currentCell() const
@@ -262,6 +266,7 @@ public:
     const RowCol&	newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	rowDeleted;
+    Notifier<uiTable>	selectionDeleted;
     Notifier<uiTable>	colInserted;
     Notifier<uiTable>	colDeleted;
     CNotifier<uiTable,int> rowClicked;
