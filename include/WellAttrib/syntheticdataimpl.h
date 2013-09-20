@@ -58,7 +58,8 @@ protected:
 };
 
 
-mExpClass(WellAttrib) AVOGradSyntheticData : public PSBasedPostStackSyntheticData
+mExpClass(WellAttrib) AVOGradSyntheticData
+		: public PSBasedPostStackSyntheticData
 {
 public:
 				AVOGradSyntheticData(
@@ -74,7 +75,8 @@ protected:
 };
 
 
-mExpClass(WellAttrib) AngleStackSyntheticData : public PSBasedPostStackSyntheticData
+mExpClass(WellAttrib) AngleStackSyntheticData
+		: public PSBasedPostStackSyntheticData
 {
 public:
 				AngleStackSyntheticData(
@@ -100,6 +102,7 @@ public:
     bool				isPS() const 	  { return true; }
     bool				hasOffset() const;
     const Interval<float>		offsetRange() const; 
+    float				offsetRangeStep() const;
     SynthGenParams::SynthType		synthType() const
 					{ return SynthGenParams::PreStack; }
 
@@ -110,7 +113,7 @@ public:
     					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
-					    const Interval<float>* off=0) const;
+					    const Interval<float>* of=0) const;
 
     PreStack::GatherSetDataPack&	preStackPack();
     const PreStack::GatherSetDataPack&	preStackPack() const;
