@@ -537,7 +537,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    }
 	}
 
-	vals += expr_->getValue();
+	vals += mCast(float,expr_->getValue());
     }
 
     for ( int idx=nrstart; idx<vals.size(); idx++ )

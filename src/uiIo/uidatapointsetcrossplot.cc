@@ -1089,7 +1089,7 @@ void uiDataPointSetCrossPlotter::calcStats()
     TypeSet<float> xvals, yvals, x2vals, y2vals;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	if ( dps_.isInactive(rid) || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	if ( dps_.isInactive(rid) || (curgrp_>0 && dps_.group(rid) != curgrp_) )
 	    continue;
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
@@ -1373,7 +1373,7 @@ bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 	    mathobj_->setVariableValue( idx, yval );
 	}
 
-	const float result = mathobj_->getValue();
+	const float result = mCast(float,mathobj_->getValue());
 	if ( mIsZero(result,mDefEps) || mIsUdf(result) )
 	    return false;
     }

@@ -77,7 +77,7 @@ bool isSelectionValid( uiDataPointSet::DRowID rid )
 	    mathobj_->setVariableValue( idx, yval );
 	}
 
-	const float result = mathobj_->getValue();
+	const float result = mCast(float,mathobj_->getValue());
 	if ( mIsZero(result,mDefEps) || mIsUdf(result) )
 	    return false;
     }

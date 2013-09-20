@@ -1026,7 +1026,8 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
     const Stats::RunCalc<float>& rc = getRunCalc( dcid );
     if ( !statswin_ )
     {
-	statswin_ = new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
+	statswin_ =
+	    new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
 
@@ -1626,7 +1627,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 		mathobj->setVariableValue( idx, yval );
 	    }
 
-	    vals[ vals.size()-1 ] = mathobj->getValue();
+	    vals[ vals.size()-1 ] = mCast(float,mathobj->getValue());
 	    bvs.set( pos, vals ); 
 	}
 

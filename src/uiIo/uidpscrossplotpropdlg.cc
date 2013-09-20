@@ -454,9 +454,10 @@ void initFlds( CallBacker* )
     {
 	inpfld1_->setText( plotter_.userdefy2str_ );
 	rmsfld1_->setText( plotter_.y2rmserr_ );
-	shwy2userdefpolyline_->setChecked( plotter_.setup().showy2userdefpolyline_ );
+	shwy2userdefpolyline_->setChecked(
+	    plotter_.setup().showy2userdefpolyline_ );
     }
-    shwy1userdefpolyline_->setChecked( plotter_.setup().showy1userdefpolyline_ );
+    shwy1userdefpolyline_->setChecked(plotter_.setup().showy1userdefpolyline_);
 }
 
 
@@ -548,7 +549,7 @@ void computePts( bool isy2 )
     {
 	const float curvxval = xrge.start + idx*step;
 	mathobj->setVariableValue( 0, curvxval );	
-	const float curvyval = mathobj->getValue();
+	const float curvyval = mCast(float,mathobj->getValue());
 	if ( !Math::IsNormalNumber(curvyval) ) break;
 	if ( mIsUdf(curvyval) || mIsUdf(curvxval) ) continue;
 
@@ -601,7 +602,7 @@ void getRmsError( bool isy2 )
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
 	mathobj->setVariableValue( 0, xval );	
-	float expyval = mathobj->getValue();	
+	float expyval = mCast(float,mathobj->getValue());	
 	if ( !Math::IsNormalNumber(expyval) || mIsUdf(expyval) ) 
 	{ shwrmserr = false; break; }
 	
@@ -796,7 +797,8 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-	IntInpSpec(minptsfordensity_).setLimits(StepInterval<int>(1,mCast(int,1e6),100)) );
+	IntInpSpec(minptsfordensity_)
+	.setLimits(StepInterval<int>(1,mCast(int,1e6),100)) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
@@ -832,7 +834,8 @@ void cellSzChanged( CallBacker* )
     }
 
     wcellszfld_->setValue( mNINT32( (float)plotter_.arrArea().width()/cellsz) );
-    hcellszfld_->setValue( mNINT32( (float) plotter_.arrArea().height()/cellsz) );
+    hcellszfld_->setValue( 
+			mNINT32( (float) plotter_.arrArea().height()/cellsz) );
 }
 
 void wCellNrChanged( CallBacker* )
@@ -842,7 +845,7 @@ void wCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     hcellszfld_->setValue( wcellszfld_->getIntValue()/aspectratio );
     cellsizefld_->setValue(
-	    mNINT32((float) plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
+       mNINT32((float) plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );
@@ -856,7 +859,7 @@ void hCellNrChanged( CallBacker* )
 			      (float)(plotter_.arrArea().height()/cellsz);
     wcellszfld_->setValue( hcellszfld_->getIntValue()*aspectratio );
     cellsizefld_->setValue(
-	    mNINT32((float) plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
+      mNINT32((float) plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
     
     if ( mIsUdf(cellsz) || cellsz <=0 )
 	cellsizefld_->setValue( cellsize_ );

@@ -805,7 +805,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     if ( inval < 0.f && !mIsUdf(wd_.info().replvel) )
     {
 	const float zfac = !unitfld_->isChecked() ? 1.f : mToFeetFactorF;
-	const float tvdss = ( wd_.info().replvel * inval * 500. / twtfac
+	const float tvdss = ( wd_.info().replvel * inval * 500.0f / twtfac
 			      - mCast(float, SI().seismicReferenceDatum()) ) *
 	    		    zfac;
 	const RowCol rc( row, getTVDSSCol() );

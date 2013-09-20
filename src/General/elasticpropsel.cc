@@ -493,7 +493,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 	}
 	expr->setVariableValue( idx, val );
     }
-    val = expr ? expr->getValue() : val;
+    val = expr ? mCast(float,expr->getValue()) : val;
     delete expr;
     return val;
 }
