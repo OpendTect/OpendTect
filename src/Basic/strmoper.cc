@@ -26,6 +26,31 @@ static const char* rcsID mUsedVar = "$Id$";
 static const unsigned int nrretries = 4;
 static const float retrydelay = 0.001;
 
+bool StrmOper::resetSoftError( std::istream& strm, int& retrycount )
+{
+    if ( strm.good() || strm.eof() ) return true;
+    else if ( strm.bad() ) return false;
+    strm.clear();
+    if ( retrycount > nrretries )
+	return false;
+    Threads::sleep( retrydelay );
+    retrycount++;
+    return true;
+}
+
+bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
+{
+    if ( strm.good() ) return true;
+    else if ( strm.bad() ) return false;
+    strm.clear();
+    strm.flush();
+    if ( retrycount > nrretries )
+	return false;
+    Threads::sleep( retrydelay );
+    retrycount++;
+    return true;
+}
+
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
@@ -41,10 +66,9 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 	if ( strm.eof() ) return false;
 
 	char* cp = (char*)ptr + strm.gcount();
-	for ( unsigned int idx=0; idx<nrretries; idx++ )
+	int retrycount = 0;
+	while ( resetSoftError(strm,retrycount) )
 	{
-	    Threads::sleep( retrydelay );
-	    strm.clear();
 	    strm.read( cp, nrbytes );
 	    if ( strm.bad() || strm.eof() ) break;
 
@@ -71,16 +95,15 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
     if ( strm.bad() ) return false;
 
     strm.flush();
-    for ( unsigned int idx=0; idx<nrretries; idx++ )
+    int retrycount = 0;
+    while ( resetSoftError(strm,retrycount) )
     {
-	Threads::sleep( retrydelay );
-	strm.clear();
 	strm.write( (const char*)ptr, nrbytes );
 	if ( !strm.fail() )
 	    break;
     }
-    strm.flush();
 
+    strm.flush();
     return strm.good();
 }
 
@@ -342,15 +365,20 @@ const char* StrmOper::getErrorMessage( std::ios& strm )
     if ( strm.good() )
 	{ ret.setEmpty(); return ret; }
 
-    ret = GetLastSystemErrorMessage();
-    if ( ret.isEmpty() )
+    if ( strm.rdstate() & std::ios::eofbit )
+	ret = "File ended unexpectedly";
+    else
     {
-	if ( strm.rdstate() & std::ios::eofbit )
-	    ret = "End-of-file reached";
-	else if ( strm.rdstate() & std::ios::failbit )
-	    ret = "Recoverable error encountered";
-	else if ( strm.rdstate() & std::ios::badbit )
-	    ret = "Unrecoverable error encountered";
+	ret = GetLastSystemErrorMessage();
+	if ( ret.isEmpty() )
+	{
+	    if ( strm.rdstate() & std::ios::failbit )
+		ret = "Recoverable error encountered";
+	    else if ( strm.rdstate() & std::ios::badbit )
+		ret = "Unrecoverable error encountered";
+	    else
+		ret = "Unknown error encountered";
+	}
     }
 
     return ret.buf();

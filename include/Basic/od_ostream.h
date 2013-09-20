@@ -27,6 +27,7 @@ mExpClass(Basic) od_ostream : public od_stream
 {
 public:
 
+    			od_ostream()			{}
     			od_ostream( const char* fnm )
 			    : od_stream(fnm,true)	{}
     			od_ostream( const FilePath& fp )

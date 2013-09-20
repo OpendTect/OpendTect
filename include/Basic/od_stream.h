@@ -29,8 +29,8 @@ on destruction, but you can do it 'earlier' if you want.
 
 As a result, copying a stream will transfer the stream to the copy, if the
 od_stream is owner. So unlike StreamData, you will then not have 2 od_streams
-pointing to the same std stream.  This is what you would expect, in that way
-you can for example return an od_stream from a function.
+pointing to the same std stream. In this way you can for example return an
+od_stream from a function.
  
  */
 
@@ -45,25 +45,25 @@ public:
     virtual		~od_stream();
 
     bool		isOK() const;
-    bool		isBad() const;
     const char*		errMsg() const;
+    bool		forRead() const;
+    bool		forWrite() const;
 
     enum Ref		{ Abs, Rel, Beg, End };
     Pos			position() const;
     void		setPosition(Pos,Ref r=Abs);
+    od_int64		endPosition() const;
 
     const char*		fileName() const;
     void		setFileName(const char*);
 
-    od_int64		endPosition() const;
-    bool		forRead() const;
-    bool		forWrite() const;
+    inline StreamData&	streamData()			{ return sd_; }
+    inline const StreamData& streamData() const		{ return sd_; }
 
-    inline StreamData&	streamData()		{ return sd_; }
-    inline const StreamData& streamData() const	{ return sd_; }
+    void		setNoClose( bool yn=true )	{ noclose_ = yn; }
     void		releaseStream(StreamData&);
-
     void		close();
+    bool		isBad() const;	//!< eof is not Bad
 
 protected:
 
@@ -77,11 +77,9 @@ protected:
     			od_stream(const od_stream&);
     od_stream&		operator =(const od_stream&);
 
-
     StreamData&		sd_;
     bool		mine_;
-
-    void		setNeverClose()		{ mine_ = false; }
+    bool		noclose_;
 
 };
 

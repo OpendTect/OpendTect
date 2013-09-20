@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "od_iostream.h"
+#include "od_strstream.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "strmoper.h"
@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ascstream.h"
 #include <iostream>
+#include <sstream>
 #include <string.h>
 
 
@@ -30,7 +31,7 @@ od_istream& od_istream::nullStream()
 #else
 	ret = new od_istream( "NUL:" );
 #endif
-	ret->setNeverClose();
+	ret->setNoClose();
     }
     return *ret;
 }
@@ -45,7 +46,7 @@ od_ostream& od_ostream::nullStream()
 #else
 	ret = new od_ostream( "NUL:" );
 #endif
-	ret->setNeverClose();
+	ret->setNoClose();
     }
     return *ret;
 }
@@ -53,7 +54,7 @@ od_ostream& od_ostream::nullStream()
 
 #define mMkoStrmData(fnm) StreamProvider(fnm).makeOStream()
 #define mMkiStrmData(fnm) StreamProvider(fnm).makeIStream()
-#define mInitList(ismine) sd_(*new StreamData), mine_(ismine)
+#define mInitList(ismine) sd_(*new StreamData), mine_(ismine), noclose_(false)
 
 od_stream::od_stream()
     : mInitList(false)
@@ -121,11 +122,12 @@ od_stream& od_stream::operator =( const od_stream& oth )
     if ( this != &oth )
     {
 	close();
-	if ( oth.mine_ )
+	if ( oth.mine_ && !oth.noclose_ )
 	    oth.sd_.transferTo( sd_ );
 	else
 	    sd_ = oth.sd_;
 	mine_ = oth.mine_;
+	noclose_ = oth.noclose_;
     }
     return *this;
 }
@@ -133,7 +135,7 @@ od_stream& od_stream::operator =( const od_stream& oth )
 
 void od_stream::close()
 {
-    if ( mine_ )
+    if ( mine_ && !noclose_ )
 	sd_.close();
 }
 
@@ -279,16 +281,27 @@ od_stream::Count od_istream::lastNrBytesRead() const
 }
 
 
+#define mDoWithRetry(stmts,rv) \
+    int retrycount = 0; \
+    while ( true ) \
+    { \
+	{ stmts; } \
+	if ( !stdStream().fail() \
+	  || !StrmOper::resetSoftError(stdStream(),retrycount) ) \
+	    return rv; \
+    }
+
+
 #define mImplStrmAddFn(typ,tostrm) \
 od_ostream& od_ostream::add( typ t ) \
 { \
-    stdStream() << tostrm; return *this; \
+    mDoWithRetry( stdStream() << tostrm, *this ) \
 }
 
 #define mImplStrmGetFn(typ,tostrm) \
 od_istream& od_istream::get( typ& t ) \
 { \
-    stdStream() >> tostrm; return *this; \
+    mDoWithRetry( stdStream() >> tostrm, *this ) \
 }
 
 #define mImplSimpleAddFn(typ) mImplStrmAddFn(typ,t)
@@ -303,8 +316,12 @@ mImplSimpleAddGetFns(od_int32)
 mImplSimpleAddGetFns(od_uint32)
 mImplSimpleAddGetFns(od_int64)
 mImplSimpleAddGetFns(od_uint64)
-mImplSimpleAddGetFns(float)
-mImplSimpleAddGetFns(double)
+
+
+mImplStrmAddFn(float,toString(t))
+mImplSimpleGetFn(float)
+mImplStrmAddFn(double,toString(t))
+mImplSimpleGetFn(double)
 
 
 mImplSimpleAddFn(const char*)
@@ -329,7 +346,9 @@ od_istream& od_istream::getC( char* str, int maxnrch )
     if ( str )
     {
 	BufferString bs; get( bs );
-	if ( maxnrch > 0 )
+	if ( isBad() )
+	    *str = '\0';
+	else if ( maxnrch > 0 )
 	    strncpy( str, bs.buf(), maxnrch );
 	else
 	    strcpy( str, bs.buf() ); // still dangerous, but intentional
@@ -373,28 +392,30 @@ char od_istream::peek() const
 
 void od_istream::ignore( od_stream::Count nrbytes )
 {
-    stdStream().ignore( (std::streamsize)nrbytes );
+    mDoWithRetry(
+	stdStream().ignore( (std::streamsize)nrbytes )
+    , )
 }
 
 
 void od_istream::skipUntil( char tofind )
 {
-    stdStream().ignore( 9223372036854775807LL, tofind );
+    mDoWithRetry(
+	stdStream().ignore( 9223372036854775807LL, tofind )
+    , )
 }
 
 
 od_istream& od_istream::get( IOPar& iop )
 {
     ascistream astrm( *this, false );
-    iop.getFrom( astrm );
-    return *this;
+    mDoWithRetry( iop.getFrom( astrm ), *this )
 }
 
 od_ostream& od_ostream::add( const IOPar& iop )
 {
     ascostream astrm( *this );
-    iop.putTo( astrm );
-    return *this;
+    mDoWithRetry( iop.putTo( astrm ), *this )
 }
 
 
@@ -409,4 +430,34 @@ od_istream& od_istream::get( CompoundKey& ck )
 {
     BufferString bs; get( bs ); ck = bs.buf();
     return *this;
+}
+
+
+od_istrstream::od_istrstream( const char* str )
+    : od_istream(new std::istringstream(str))
+{
+}
+
+
+const char* od_istrstream::input() const
+{
+    od_istrstream& self = const_cast<od_istrstream&>( *this );
+    const std::istringstream& stdstrstrm
+		= static_cast<const std::istringstream&>( self.stdStream() );
+    return stdstrstrm.str().c_str();
+}
+
+
+od_ostrstream::od_ostrstream()
+    : od_ostream(new std::ostringstream)
+{
+}
+
+
+const char* od_ostrstream::result() const
+{
+    od_ostrstream& self = const_cast<od_ostrstream&>( *this );
+    const std::ostringstream& stdstrstrm
+		= static_cast<const std::ostringstream&>( self.stdStream() );
+    return stdstrstrm.str().c_str();
 }

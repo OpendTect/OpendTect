@@ -43,6 +43,8 @@ namespace StrmOper
 	    				std::ios::seekdir);
     mGlobal(Basic) od_int64	lastNrBytesRead(std::istream&);
    
+    mGlobal(Basic) bool		resetSoftError(std::istream&,int& retrycount);
+    mGlobal(Basic) bool		resetSoftError(std::ostream&,int& retrycount);
     mGlobal(Basic) const char*	getErrorMessage(std::ios&);
     mGlobal(Basic) const char*	getErrorMessage(const StreamData&);
 
