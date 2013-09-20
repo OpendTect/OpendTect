@@ -148,16 +148,17 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	    		   "Please select some attributes and go to Advanced" );
     manlbl_->attach( alignedBelow, refgrp_ );
 
-    table_ = new uiTable( this,uiTable::Setup().rowdesc("")
-					.rowgrow(true)
-					.minrowhgt(1.5)
-					.maxrowhgt(1.8)
-					.mincolwdt(3.f*uiObject::baseFldSize())
-					.maxcolwdt(4.f*uiObject::baseFldSize())
-					.defrowlbl("")
-					.fillcol(true)
-					.fillrow(true) 
-    			       ,"Reference attributes table" );
+    table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute")
+	    				        .rowgrow(true)
+					        .minrowhgt(1.5)
+					        .maxrowhgt(1.8)
+				       	        .defrowlbl("")
+					        .fillcol(true)
+					        .fillrow(true)
+					        .removeselallowed(false)
+				       .mincolwdt(3.f*uiObject::baseFldSize())
+				       .maxcolwdt(4.f*uiObject::baseFldSize()),
+			  "Reference attributes table" );
 
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );

@@ -62,8 +62,10 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
 {
     tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
-	    				       .rowgrow(true) 
-					       .defrowlbl(""), "Table" );
+	    				      .rowgrow(true)
+					      .defrowlbl("")
+					      .removeselallowed(false),
+		        "Well Track Table" );
     tbl_->setColumnLabels( trackcollbls );
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
@@ -379,8 +381,11 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     timefld_.setParam( this, 0 );
     tbl_ = new uiTable( this, uiTable::Setup()
 	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
-				.rowgrow(true).defrowlbl("")
-				.selmode(uiTable::Single), "Table" );
+				.rowgrow(true)
+				.defrowlbl("")
+				.selmode(uiTable::Single)
+				.removeselallowed(false),
+		  BufferString( cksh_ ? "CheckShot" : "Time-Depth", " model" ));
     tbl_->setColumnLabels( getColLabels() );
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );

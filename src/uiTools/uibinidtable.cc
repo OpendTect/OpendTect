@@ -25,7 +25,9 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
 	    					.rowgrow(true)
-						.defrowlbl(true),"BinID Table" );
+						.defrowlbl(true)
+						.selmode(uiTable::Multi),
+			  "BinID Table" );
     table_->setNrCols( 2 );
     table_->setColumnLabel( 0, "Inline" );
     table_->setColumnLabel( 1, "Crossline" );

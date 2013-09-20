@@ -48,7 +48,9 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
 	    					.rowgrow(true)
-						.defrowlbl(true), "Pos Table" );
+						.selmode(uiTable::Multi)
+						.defrowlbl(true),
+			  "Pos Table" );
     table_->attach( alignedBelow, lbl );
     table_->valueChanged.notify( mCB(this,uiPositionTable,posChgCB) );
     table_->setNrCols( withxy_ && withic_ ? 4 : 2 );
