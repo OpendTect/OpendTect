@@ -2,11 +2,11 @@
 #_______________________________________________________________________________
 #
 # OpenTect dGB license manager daemon startup script
-# $Id: .start.dgb.lmgrd,v 1.1 2010-04-06 08:33:09 relman Exp $
+# $Id$
 #_______________________________________________________________________________
 
 
-source __INST_DIR__/bin/init_dtect >&! /dev/null
+source "__INST_DIR__/bin/init_dtect" >&! /dev/null
 
 source "$DTECT_APPL"/.dgb.lmgrd.vars
 

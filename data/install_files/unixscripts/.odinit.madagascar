@@ -10,7 +10,7 @@ if ( $?RSFROOT ) then
     exit
 endif
 
-setenv RSFROOT __INST_DIR__/Madagascar/${binsubdir}
+setenv RSFROOT "__INST_DIR__/Madagascar/${binsubdir}"
 if ( ! -d ${RSFROOT} ) then
     echo "Madagascar installation directory not found"
     exit
