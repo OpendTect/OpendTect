@@ -178,7 +178,7 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 	    me.setVariableValue( ivar, val );
 	}
 
-	const float meval = me.getValue();
+	const float meval = mCast(float,me.getValue());
 	(*this)[iexpr]->he_.putValue( buf, mNINT32(meval) );
     }
 
