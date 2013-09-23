@@ -234,7 +234,8 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( idx >= z0+nrsamples )
 		return true;
 
-	    setOutputValue( output, 0, idx-z0, z0, recstartvals_[0] );
+	    setOutputValue( output, 0, idx-z0, z0, 
+			    mCast(float,recstartvals_[0]) );
 	}
     }
     
@@ -252,9 +253,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	if ( isrec && sampidx == 0 )
 	{
 	    setOutputValue( *tmpholder, 0, sampidx, recstartidx,
-		    	    recstartvals_[0] );
+		    	    mCast(float,recstartvals_[0]) );
 	    if ( idx == z0 || recstartidx>z0 )
-		setOutputValue( output, 0, idx-z0, z0, recstartvals_[0] );
+		setOutputValue( output, 0, idx-z0, z0, 
+				mCast(float,recstartvals_[0]) );
 
 	    continue;
 	}
