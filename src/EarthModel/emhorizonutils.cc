@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
+#include "od_ostream.h"
 
 #define mMaxSampInterpol	150;
 
@@ -128,7 +129,8 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
     if ( !surface ) return;
 
     strm << "\nFetching surface positions ...\n" ;
-    TextStreamProgressMeter pm( strm );
+    od_ostream odstrm( strm );
+    TextStreamProgressMeter pm( odstrm );
     deepErase( data );
 
     PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
@@ -169,7 +171,8 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
     mDynamicCastGet(Horizon2D*,hor2d,surface);
 
     strm << "\nFetching surface positions ...\n" ;
-    TextStreamProgressMeter pm( strm );
+    od_ostream odstrm( strm );
+    TextStreamProgressMeter pm( odstrm );
     deepErase( data );
 
     DataPointSet* res = 0;
@@ -243,7 +246,8 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
     }
     
     strm << "\nFetching surface positions ...\n" ;
-    TextStreamProgressMeter pm( strm );
+    od_ostream odstrm( strm );
+    TextStreamProgressMeter pm( odstrm );
    
     if ( mIsUdf(nrinterpsamp) )
 	nrinterpsamp = mMaxSampInterpol;

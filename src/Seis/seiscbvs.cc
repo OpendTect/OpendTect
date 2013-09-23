@@ -136,7 +136,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	return true;
     }
 
-    mDynamicCastGet(IOStream*,iostrm,conn->ioobj)
+    mDynamicCastGet(const IOStream*,iostrm,conn->ioobj)
     if ( !iostrm )
 	{ errmsg = "Object manager provides wrong type"; return false; }
 

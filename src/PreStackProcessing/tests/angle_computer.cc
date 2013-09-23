@@ -79,7 +79,7 @@ bool isFFTAngleOK(PreStack::Gather* angles)
 }
 
 
-bool BatchProgram::go( std::ostream &strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     od_init_test_program( GetArgC(), GetArgV() );
     OD::ModDeps().ensureLoaded( "Velocity" );

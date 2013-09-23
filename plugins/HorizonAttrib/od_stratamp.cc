@@ -39,15 +39,15 @@ static bool getHorsampling( const IOPar& par, HorSampling& hs )
 
 
 static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
-				   std::ostream& strm )
+				   od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    strm << "Laoding " << em.objectName( mid ) << std::endl;
+    strm << "Laoding " << em.objectName( mid ) << od_newline;
     Executor* exec = em.objectLoader( mid, &sdsel );
-    if ( !(exec && exec->execute(&strm, false, false, 0) ) )
+    if ( !(exec && exec->execute(&strm.stdStream(), false, false, 0) ) )
 	return 0;
 
     EM::ObjectID emid = em.getObjectID( mid );
@@ -57,7 +57,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
 	BufferString msg;
 	msg = "Error while loading horizon '";
 	msg.add( em.objectName( mid ) ).add( "'" );
-	strm << msg << std::endl;
+	strm << msg << od_newline;
 	return 0;
     }
 
@@ -69,7 +69,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
 
 #define mUnRef(){ tophor->unRef(); if ( bothor ) bothor->unRef(); }
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EMAttrib" );
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
@@ -83,8 +83,8 @@ bool BatchProgram::go( std::ostream& strm )
     pars().getYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle );
     MultiID mid1;
     pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
-    strm << GetProjectVersionName() << std::endl;
-    strm << "Loading horizons ..." << std::endl;
+    strm << GetProjectVersionName() << od_newline;
+    strm << "Loading horizons ..." << od_newline;
     EM::Horizon3D* tophor = loadHorizon( mid1, hs, strm );
     if ( !tophor )
 	return false;
@@ -102,7 +102,7 @@ bool BatchProgram::go( std::ostream& strm )
 	}
     }
 
-    strm << "Horizon(s) loaded successfully" << std::endl;
+    strm << "Horizon(s) loaded successfully" << od_newline;
 
     BufferString type;
     pars().get( StratAmpCalc::sKeyAmplitudeOption(), type );
@@ -113,27 +113,27 @@ bool BatchProgram::go( std::ostream& strm )
     int attribidx = exec.init( pars() );
     if ( attribidx < 0 )
     {
-	strm << "Cannot add attribute to Horizon" << std::endl;
+	strm << "Cannot add attribute to Horizon" << od_newline;
 	mUnRef();
 	return false;
     }
 
-    strm << "Calculating attribute ..." << std::endl;
-    if ( !exec.execute( &strm, false, false, 0 ) )
+    strm << "Calculating attribute ..." << od_newline;
+    if ( !exec.execute( &strm.stdStream(), false, false, 0 ) )
     {
-	strm << "Failed to calculate attribute." << std::endl;
+	strm << "Failed to calculate attribute." << od_newline;
 	mUnRef();
 	return false;
     }
 
     infoMsg( "Attribute calculated successfully\n" );
-    strm << "Saving attribute..." << std::endl;
+    strm << "Saving attribute..." << od_newline;
     bool addtotop = false;
     pars().getYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );
     bool isoverwrite = false;
     pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite );
     if ( !exec.saveAttribute( addtotop ? tophor : bothor, attribidx,
-			      isoverwrite, &strm ) )
+			      isoverwrite, &strm.stdStream() ) )
     {
 	strm << "Failed to save attribute";
 	mUnRef();

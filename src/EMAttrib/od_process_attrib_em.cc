@@ -58,12 +58,12 @@ using namespace EM;
 
 #define mErrRet(s) \
 { \
-    strm << (stepout ? "0 0" : "0") << std::endl; \
+    strm << (stepout ? "0 0\n" : "0\n"); \
     ErrMsg( s ); return false; \
 }
 
 
-static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
+static bool attribSetQuery( od_ostream& strm, const IOPar& iopar,
 			    bool stepout, float vnr )
 {
     DescSet initialset( false );
@@ -85,8 +85,8 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 }
 
 
-static void showHostName( std::ostream& strm )
-{ strm << "Processing on " << HostData::localHostName() << '.' << std::endl; }
+static void showHostName( od_ostream& strm )
+{ strm << "Processing on " << HostData::localHostName() << ".\n"; }
 
 
 static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
@@ -118,7 +118,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 }
 
 
-static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
+static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 		     ObjectSet<MultiID>& midset, BufferString& errmsg, 
 		     bool iscubeoutp, MultiID& outpid  )
 {
@@ -135,7 +135,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	midset += mid;
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
-	strm << "Calculating Horizon Data '" << newattrnm << "'." << std::endl;
+	strm << "Calculating Horizon Data '" << newattrnm << "'.\n";
 	strm.flush();
     }
     else
@@ -144,7 +144,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
 	if ( !ioobj ) return false;
 
-	strm << "Calculating '" << ioobj->name() << "'." << std::endl;
+	strm << "Calculating '" << ioobj->name() << "'.\n";
 	strm.flush();
 	BufferString basehorstr(
 	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
@@ -171,15 +171,15 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #undef mErrRet
 #define mErrRet(s) \
-    { strm << '\n' << s << '\n' << std::endl; mDestroyWorkers ; return false; }
+    { strm << '\n' << s << "\n\n"; mDestroyWorkers ; return false; }
 
 #define mErrRetNoProc(s) \
-    { strm << '\n' << s << '\n' << std::endl; return false; }
+    { strm << '\n' << s << "\n\n"; return false; }
 
-#define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
+#define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << '\n'; }
 
 
-static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc, 
+static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc, 
 		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
@@ -197,8 +197,8 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 	if ( nriter==0 )
 	{
 	    strm << "Estimated number of positions to be processed"
-		 <<"(regular survey): " << proc->totalNr() << std::endl;
-	    strm << "Loading cube data ..." << std::endl;
+		 <<"(regular survey): " << proc->totalNr() << od_newline;
+	    strm << "Loading cube data ..." << od_newline;
 
 	    if ( !useoutwfunc && tbuf )
 	    {
@@ -282,7 +282,7 @@ static HorSampling getHorSamp( IOPar& geompar )
 
 static void interpolate( EM::Horizon3D* horizon,
 			 const BufferStringSet& attribrefs, IOPar& par,
-			 std::ostream& strm )
+			 od_ostream& strm )
 {
     PtrMan<IOPar> gridpar = par.subselect( "Grid" );
     if ( !gridpar )
@@ -312,7 +312,7 @@ static void interpolate( EM::Horizon3D* horizon,
 }
 
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
@@ -378,7 +378,7 @@ bool BatchProgram::go( std::ostream& strm )
 	sels.rg = hsamp;
 	PtrMan<Executor> loader = 
 			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
-	if ( !loader || !loader->execute(&strm) ) 
+	if ( !loader || !loader->execute(&strm.stdStream()) ) 
 	{
 	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
@@ -451,7 +451,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !iscubeoutp )
     {
 	ObjectSet<BinIDValueSet> bivs;
-	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
+	HorizonUtils::getPositions( strm.stdStream(), *(midset[0]), bivs );
 	Processor* proc = aem.createLocationOutput( errmsg, bivs );
 	if ( !proc ) mErrRet( errmsg );
 
@@ -466,7 +466,7 @@ bool BatchProgram::go( std::ostream& strm )
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
 	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, true );
-	if ( !saver || !saver->execute(&strm) )
+	if ( !saver || !saver->execute(&strm.stdStream()) )
 	    mErrRet( "Cannot save data" );
     }
     else if ( geompar )
@@ -518,16 +518,16 @@ bool BatchProgram::go( std::ostream& strm )
 		hsamp.setCrlRange( l2dd.trcNrRange() );
 	    }
 
-	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, 
-		    			  extraz, geomid );
+	    HorizonUtils::getWantedPos2D( strm.stdStream(), midset, dtps,
+		    			  hsamp, extraz, geomid );
 	}
 	else
 	{
 	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
 		    						  false );
-	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
-		    			      extraz, nrinterpsamp, mainhoridx,
-					      extrawidth, provider );
+	    HorizonUtils::getWantedPositions( strm.stdStream(), midset, bivs,
+				hsamp, extraz, nrinterpsamp, mainhoridx,
+				extrawidth, provider );
 	}
 
 	if ( !zboundsset && mmprocrange )
@@ -550,7 +550,7 @@ bool BatchProgram::go( std::ostream& strm )
 	delete dtps;
     }
 
-    strm << "Successfully saved data." << std::endl;
+    strm << "Successfully saved data." << od_newline;
 
     deepErase(midset);
     deepUnRef( objects );

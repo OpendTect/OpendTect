@@ -17,9 +17,8 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "objectset.h"
 #include "namedobj.h"
+#include "od_iosfwd.h"
 class IOObj;
-class od_ostream;
-class od_istream;
 
 
 /*\brief 'Directory' of IOObj objects.

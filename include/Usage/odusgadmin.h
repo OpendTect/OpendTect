@@ -16,13 +16,12 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "odusginfo.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 class IOPar;
 
 
 namespace Usage
 {
-static std::ostream* logstrm_ = 0;
 
 
 
@@ -42,7 +41,8 @@ public:
     static int		add(Administrator*);
     static bool		dispatch(Info&);
 
-    static void		setLogStream( std::ostream* s ) { logstrm_ = s; }
+    static od_ostream*	logStream(); //!< can be null
+    static void		setLogStream( od_ostream* s ) { logstrm_ = s; }
     			    //!< ostream does *not* become mine, can be null
 
 protected:
@@ -55,6 +55,8 @@ protected:
     bool		haveLogging() const	{ return logstrm_; }
     void		toLogFile(const char*) const;
     virtual void	reset()			{}
+
+    static od_ostream*	logstrm_;
 
 };
 

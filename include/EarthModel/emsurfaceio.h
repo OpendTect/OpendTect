@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "rowcol.h"
+#include "od_iosfwd.h"
 
 class StreamConn;
 class IOObj;
@@ -134,22 +135,22 @@ protected:
 
     bool		isBinary() const;
 
-    double		readDouble(std::istream&) const;
-    int			readInt16(std::istream&) const;
-    int			readInt32(std::istream&) const;
-    od_int64		readInt64(std::istream&) const;
+    double		readDouble(od_istream&) const;
+    int			readInt16(od_istream&) const;
+    int			readInt32(od_istream&) const;
+    od_int64		readInt64(od_istream&) const;
     int			int64Size() const;
     void		createAuxDataReader();
-    bool		readParData(std::istream&,const IOPar&,const char*);
+    bool		readParData(od_istream&,const IOPar&,const char*);
     void		mergeExternalPar(const char*);
     int			scanFor2DGeom(TypeSet< StepInterval<int> >&);
     bool		readHeaders(const char*);
-    bool		readRowOffsets(std::istream&);
+    bool		readRowOffsets(od_istream&);
     RowCol		getFileStep() const;
-    int			prepareNewSection(std::istream&);
+    int			prepareNewSection(od_istream&);
     bool		shouldSkipCurrentRow() const;
-    int			skipRow(std::istream&);
-    bool		prepareRowRead(std::istream&);
+    int			skipRow(od_istream&);
+    bool		prepareRowRead(od_istream&);
     int			currentRow() const;
     void		goToNextRow();
     void		createSection( const SectionID& );
@@ -201,10 +202,10 @@ protected:
     BufferString	dbinfo_;
     int			version_;
 
-    bool		readVersion2Row(std::istream&,int,int);
+    bool		readVersion2Row(od_istream&,int,int);
 
 //Version 3 stuff 
-    bool		readVersion3Row(std::istream&,int,int,int,
+    bool		readVersion3Row(od_istream&,int,int,int,
 	    					int noofcoltoskip=0);
     DataInterpreter<int>* int16interpreter_;
     DataInterpreter<od_int64>* int64interpreter_;
@@ -212,7 +213,7 @@ protected:
     TypeSet<od_int64>	sectionoffsets_;
 
 //Version 1 stuff
-    bool		readVersion1Row(std::istream&,int,int);
+    bool		readVersion1Row(od_istream&,int,int);
     RowCol		convertRowCol(int,int) const;
     bool		parseVersion1(const IOPar&);
     static const char*	sKeyTransformX();
@@ -298,16 +299,16 @@ public:
     virtual const char*		message() const;
 
 protected:
-    bool			writeNewSection(std::ostream&);
-    bool			writeRow(std::ostream&);
+    bool			writeNewSection(od_ostream&);
+    bool			writeRow(od_ostream&);
 
-    bool			writeDouble(std::ostream&,double,
+    bool			writeDouble(od_ostream&,double,
 	    				   const char*) const;
-    bool                 	writeInt16(std::ostream&,unsigned short,
+    bool                 	writeInt16(od_ostream&,unsigned short,
 	    				   const char*) const;
-    bool                 	writeInt32(std::ostream&,od_int32,
+    bool                 	writeInt32(od_ostream&,od_int32,
 	    				   const char*) const;
-    bool                 	writeInt64(std::ostream&,od_int64,
+    bool                 	writeInt64(od_ostream&,od_int64,
 	    				   const char*) const;
 
     void			finishWriting();

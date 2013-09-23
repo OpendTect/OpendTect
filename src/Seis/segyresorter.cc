@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "filepath.h"
 #include "strmoper.h"
+#include "od_istream.h"
 
 SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const MultiID& ky,
 			      const char* fnm )
@@ -373,20 +374,20 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 
 bool SEGY::ReSorter::readData( int fidx, int trcidx )
 {
-    std::istream& strm( *inpsds_[ fidx ]->istrm );
+    od_istream odstrm( *inpsds_[fidx]->istrm );
     if ( !trcbuf_ )
     {
-	StrmOper::seek( strm, 0 );
-	if ( !StrmOper::readBlock(strm,hdrbuf_,3600) )
+	odstrm.setPosition( 0 );
+	if ( !odstrm.getBin(hdrbuf_,3600) )
 	{
 	    msg_ = "Cannot read SEG-Y file header. Empty file? -\n";
 	    msg_.add( inpfnms_.get(fidx) );
 	    return false;
 	}
-	StrmOper::seek( strm, 0 );
+	odstrm.setPosition( 0 );
 	SEGYSeisTrcTranslator tr( "SEGY", "SEG-Y" );
 	tr.usePar( fds().segyPars() );
-	StreamConn* sc = new StreamConn( strm, false );
+	StreamConn* sc = new StreamConn( odstrm );
 	if ( !tr.initRead(sc) || !tr.commitSelections() )
 	{
 	    msg_ = "Cannot read SEG-Y file details. Corrupt file? -\n";
@@ -397,9 +398,10 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	trcbuf_ = new unsigned char [trcbytes_];
     }
 
-    od_int64 offs = 3600 + trcbytes_ * trcidx;
-    StrmOper::seek( strm, offs );
-    if ( !StrmOper::readBlock(strm,trcbuf_,trcbytes_) )
+    odstrm.setPosition( 0 );
+    od_stream::Pos pos = 3600 + trcbytes_ * trcidx;
+    odstrm.setPosition( pos );
+    if ( !odstrm.getBin(trcbuf_,trcbytes_) )
     {
 	msg_ = "Cannot read trace.\nFile: ";
 	msg_.add( inpfnms_.get(fidx) ).add( "\nTrace: " ).add( trcidx );

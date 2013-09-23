@@ -19,6 +19,7 @@ ________________________________________________________________________
 */
 
 #include "strmprov.h"
+#include "od_ostream.h"
 #include "envvars.h"
 
 
@@ -36,9 +37,10 @@ int Execute_batch( int* pargc, char** argv )
     bool allok = bp.initOutput();
     if ( allok )
     {
-	*bp.sdout_.ostrm << "Starting program " << argv[0] << " "
+	od_ostream logstrm( *bp.sdout_.ostrm );
+	logstrm << "Starting program " << argv[0] << " "
 	    << bp.name() << "\n";
-	allok = bp.go( *bp.sdout_.ostrm );
+	allok = bp.go( logstrm );
     }
 
     bp.stillok_ = allok;

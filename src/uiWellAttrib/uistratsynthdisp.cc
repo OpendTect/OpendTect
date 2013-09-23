@@ -1295,8 +1295,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     TypeSet<double> startviewareapts;
     curviewwr_ = uiWorldRect( mUdf(double), 0, 0, 0 );
-    if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
-	 startviewareapts.size()==4 )
+    if ( stratsynthpar
+      && stratsynthpar->get(sKeyViewArea(),startviewareapts)
+      && startviewareapts.size() == 4 )
     {
 	curviewwr_.setLeft( startviewareapts[0] );
 	curviewwr_.setTop( startviewareapts[1] );

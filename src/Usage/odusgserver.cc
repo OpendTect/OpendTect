@@ -16,17 +16,16 @@ static const char* rcsPrStr = "$Revision$ $Date$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "thread.h"
 #include "timefun.h"
-#include <iostream>
 
 const char* Usage::Server::sKeyPort()		{ return "Port"; }
 const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }
 int Usage::Server::cDefaulPort()		{ return mUsgServDefaulPort; }
 
 
-Usage::Server::Server( const IOPar* inpars, std::ostream& strm )
+Usage::Server::Server( const IOPar* inpars, od_ostream& strm )
     : logstrm_(strm)
     , pars_(inpars ? *inpars : *new IOPar)
     , port_(mUsgServDefaulPort)
@@ -43,18 +42,19 @@ Usage::Server::Server( const IOPar* inpars, std::ostream& strm )
 	logstrm_ << "Cannot start OpendTect Usage server (" << rcsPrStr
 	    	 << "):\n";
 	if ( inpars )
-	    logstrm_ << "No input parameters" << std::endl;
+	    logstrm_ << "No input parameters" << od_newline;
 	else
-	    logstrm_ << "Cannot read: " << setupFileName(0) << std::endl;
+	    logstrm_ << "Cannot read: " << setupFileName(0) << od_newline;
 	return;
     }
     usePar();
 
-    logstrm_ << "OpendTect Usage server (" << rcsPrStr << ")" << std::endl;
+    logstrm_ << "OpendTect Usage server (" << rcsPrStr << ")" << od_newline;
     logstrm_ << "\non " << GetLocalHostName();
     if ( port_ > 0 )
 	logstrm_ << " (port: " << port_ << ")";
-    logstrm_ << "\nStarted: " << Time::getDateTimeString() << '\n' << std::endl;
+    logstrm_ << "\nStarted: " << Time::getDateTimeString() << "\n\n";
+    logstrm_.flush();
 
     Administrator::setLogStream( &logstrm_ );
 }
@@ -84,17 +84,15 @@ const char* Usage::Server::setupFileName( const char* admnm )
 
 IOPar* Usage::Server::getPars()
 {
-    StreamData sd( StreamProvider(setupFileName(0)).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( setupFileName(0) );
+    if ( !strm.isOK() )
 	return 0;
 
     IOPar* iop = new IOPar( "Usage Monitor settings" );
-    ascistream astrm( *sd.istrm );
+    ascistream astrm( strm );
     iop->getFrom( astrm );
-    sd.close();
-
     if ( iop->isEmpty() )
-	{ delete iop; return 0; }
+	{ delete iop; iop = 0; }
 
     return iop;
 }

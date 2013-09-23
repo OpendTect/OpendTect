@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
     

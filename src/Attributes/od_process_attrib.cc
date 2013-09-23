@@ -46,12 +46,10 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 	    mRetHostErr( msg ); \
 	}
 
-#define mStrmWithProcID(s) \
-    strm << "\n[" << process_id << "]: " << s << "." << std::endl
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
-    strm << "Processing on " << HostData::localHostName()  << '.' << std::endl;
+    strm << "Processing on " << HostData::localHostName()  << ".\n";
 
     float vsn = 0;
     if ( !parversion_.isEmpty() )
@@ -86,9 +84,9 @@ bool BatchProgram::go( std::ostream& strm )
 	FileMultiString fms( selspec );
 	int lnr = toInt( fms[0] );
 	if ( lnr == toInt( fms[1] ) )
-	    strm << "Calculating for in-line " << lnr << '.' << std::endl;
+	    strm << "Calculating for in-line " << lnr << '.' << od_newline;
     }
-    strm << std::endl;
+    strm << od_newline;
 
     strm << "Preparing processing"; strm.flush();
     const char* seisid = pars().find( "Output.0.Seismic.ID" );
@@ -96,7 +94,7 @@ bool BatchProgram::go( std::ostream& strm )
 	seisid = pars().find( "Output.1.Seismic ID" );
 
     if ( !seisid )
-	strm << " ..." << std::endl;
+	strm << " ..." << od_newline;
     else
     {
 	PtrMan<IOObj> ioobj = IOM().get( seisid );
@@ -125,7 +123,7 @@ bool BatchProgram::go( std::ostream& strm )
 		    	 isdir ? "is not writeable" : "does not exist")
 	}
 
-	strm << " of '" << ioobj->name() << "'." << std::endl;
+	strm << " of '" << ioobj->name() << "'.\n";
 	strm.flush();
 
     }
@@ -216,7 +214,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    {
 		strm << "\nEstimated number of positions to be processed"
 		     <<"(assuming regular input): "<< proc->totalNr()
-		     << "\nLoading cube data ..." << std::endl;
+		     << "\nLoading cube data ...\n"; strm.flush();
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 

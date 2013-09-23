@@ -20,15 +20,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "moddepmgr.h"
 
-static bool loadHorizon( const MultiID& mid, std::ostream& strm )
+static bool loadHorizon( const MultiID& mid, od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
-    strm << "Loading horizon '" << em.objectName( mid ) << "'" << std::endl;
+    strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
     Executor* exec = em.objectLoader( mid );
-    if ( !(exec && exec->execute( &strm, false, false, 0 )) )
+    if ( !(exec && exec->execute( &strm.stdStream(), false, false, 0 )) )
     {
 	strm << "Failed to load horizon: ";
-	strm << em.objectName( mid ).buf() << std::endl;
+	strm << em.objectName( mid ).buf() << od_newline;
 	return false;
     }
 
@@ -36,11 +36,11 @@ static bool loadHorizon( const MultiID& mid, std::ostream& strm )
 }
 
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
 
-    strm << "Loading Horizons ..." << std::endl;
+    strm << "Loading Horizons ..." << od_newline;
     MultiID mid1;
     pars().get( IsopachMaker::sKeyHorizonID(), mid1 );
     if ( !loadHorizon( mid1, strm ) )
@@ -64,7 +64,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !horizon2 )
 	return false;
 
-    strm << "Horizons successfully loaded" << std::endl;
+    strm << "Horizons successfully loaded" << od_newline;
     horizon1->ref();
     horizon2->ref();
 
@@ -80,7 +80,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( dataidx < 0 )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
-    strm << "Calculating isopach ..." << std::endl;
+    strm << "Calculating isopach ..." << od_newline;
     IsopachMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
@@ -89,25 +89,26 @@ bool BatchProgram::go( std::ostream& strm )
 	maker.setUnits( isinmsec );
     }
 
-    if ( !maker.execute( &strm, false, false, 0 ) )
+    if ( !maker.execute( &strm.stdStream(), false, false, 0 ) )
     {
-	strm << "Failed to calculate isopach" << std::endl;
+	strm << "Failed to calculate isopach" << od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
     strm << "Isopach '" << attrnm.buf() << "' calculated successfully\n";
-    strm << "Saving isopach ..." << std::endl;
+    strm << "Saving isopach ..." << od_newline;
     bool isoverwrite = false;
     pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
-    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
+    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite,
+			&strm.stdStream() ) )
     {
-	strm << "Failed save isopach" << std::endl;
+	strm << "Failed save isopach" << od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isopach '" << attrnm.buf() << "' saved successfully" << std::endl;
+    strm << "Isopach '" << attrnm.buf() << "' saved successfully" << od_newline;
     horizon1->unRef(); horizon2->unRef();
     return true;
 }

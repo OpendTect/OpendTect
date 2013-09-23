@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "fixedstring.h"
 #include "samplingdata.h"
+#include "od_iosfwd.h"
 
 class BinID;
 class BufferString;
@@ -241,14 +242,14 @@ public:
 	    			bool chktype=false);
     			//!< filetype null will assume no file header
     			//!< uses set(). no clear() done
-    bool		read(std::istream&,const char* filetype,
+    bool		read(od_istream&,const char* filetype,
 	    			bool chktype=false);
     bool		write(const char* filename,const char* filetype) const;
     			//!< If filetype is set to null no ascstream header
     			//!< sKeyDumpPretty calls dumpPretty.
-    bool		write(std::ostream&,const char* filetyp) const;
+    bool		write(od_ostream&,const char* filetyp) const;
     void		dumpPretty(BufferString&) const;
-    void		dumpPretty(std::ostream&) const;
+    void		dumpPretty(od_ostream&) const;
 
     static const char*	sKeyDumpPretty()         { return "_pretty"; }
     static const char*	sKeyHdr()		 { return "->";	     }	

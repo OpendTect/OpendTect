@@ -14,10 +14,11 @@ ________________________________________________________________________
  
  
 #include "generalmod.h"
-#include "conn.h"
 #include "multiid.h"
 #include "namedobj.h"
+class Conn;
 class IOPar;
+class IOObj;
 class CallBack;
 class ascistream;
 class ascostream;
@@ -67,7 +68,7 @@ public:
 				{ return s && s==connType(); }
 
     virtual FixedString		connType() const		= 0;
-    virtual Conn*		getConn(Conn::State) const	= 0;
+    virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual const BufferString&	translator() const	       {return transl_;}
     virtual void		setTranslator( const char* s ) {transl_ = s; }

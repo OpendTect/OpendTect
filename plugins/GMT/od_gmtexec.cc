@@ -25,21 +25,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mErrFatalRet(msg) \
 { \
-    strm << msg << std::endl; \
+    strm << msg << od_newline; \
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream(); \
     outputfp.setFileName( ".gmtcommands4" ); \
     if ( File::exists(outputfp.fullPath()) ) \
 	StreamProvider( outputfp.fullPath() ).remove(); \
 	\
     File::changeDir( cwd.buf() ); \
-    *sd.ostrm << "Failed" << std::endl; \
+    *sd.ostrm << "Failed" << od_newline; \
     sd.close(); \
     finishmsg_ = "Failed to create map"; \
     return false; \
 }
 
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
     GMT::initStdClasses();
@@ -68,11 +68,11 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !idx && ( !par || par->find(ODGMT::sKeyGroupName()) != "Basemap" ) )
 	    mErrFatalRet("Basemap parameters missing")
 
-	if ( !par->execute(strm,psfilenm) )
+	if ( !par->execute(strm.stdStream(),psfilenm) )
 	{
 	    BufferString msg = "Failed to post ";
 	    msg += iop->find( ODGMT::sKeyGroupName() );
-	    strm << msg << std::endl;
+	    strm << msg << od_newline;
 	    if ( idx )
 		continue;
 	    else
@@ -99,14 +99,14 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     PtrMan<GMTPar> par = GMTPF().create( legendspar );
-    if ( !par || !par->execute(strm, psfilenm) )
+    if ( !par || !par->execute(strm.stdStream(), psfilenm) )
 	strm << "Failed to post legends";
 
     outputfp.setFileName( ".gmtcommands4" );
     StreamProvider( outputfp.fullPath() ).remove();
     File::changeDir( cwd.buf() );
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
-    *sd.ostrm << "Finished" << std::endl;
+    *sd.ostrm << "Finished.\n";
     sd.close();
     return true;
 }

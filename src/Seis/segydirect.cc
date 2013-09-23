@@ -282,7 +282,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !odstrm.isOK() )
 	    mErrRet( readerror );
 
-	odstrm.setPosition( textpars, od_stream::Beg );
+	odstrm.setPosition( textpars, od_stream::Abs );
 	ascistream astrm2( odstrm, false );
 
 	IOPar iop2;
@@ -302,7 +302,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
 	const od_stream::Pos curpos = odstrm.position();
 	if ( curpos!=cubedatastart )
-	    odstrm.setPosition( cubedatastart, od_stream::Beg );
+	    odstrm.setPosition( cubedatastart, od_stream::Abs );
 
 	if ( !cubedata_.read(odstrm,false) || !linedata_.read(odstrm,false) )
 	    { delete fds; mErrRet( readerror ); }

@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 { 
     OD::ModDeps().ensureLoaded("Seis");
     
@@ -38,15 +38,14 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( mid.isEmpty() )
 	{
 	    strm << "Parameter file lacks the '" << sKey::Output() << " key."
-		 << std::endl;
+		 << od_newline;
 	    return false;
 	}
 
 	SEGY::FileSpec filespec;
 	if ( !filespec.usePar( pars() ) )
 	{
-	    strm << "Missing or invalid file name in parameter file"
-		 << std::endl;
+	    strm << "Missing or invalid file name in parameter file\n";
 	    return false;
 	}
 
@@ -72,7 +71,7 @@ bool BatchProgram::go( std::ostream& strm )
 	}
 
 	SEGY::FileIndexer indexer( mid, isvol, filespec, is2d, pars() );
-	if ( !indexer.execute( &strm ) )
+	if ( !indexer.execute( &strm.stdStream() ) )
 	{
 	    strm << indexer.message();
 	    IOM().permRemove( mid );
@@ -100,6 +99,6 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
-			     << std::endl;
+			     << od_newline;
     return false;
 }

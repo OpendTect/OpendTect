@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "progressmeter.h"
 #include "thread.h"
+#include "od_ostream.h"
 #include <iostream>
 
 
@@ -42,7 +43,8 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
     if ( isfirst )
 	stream << GetProjectVersionName() << "\n\n";
 
-    TextStreamProgressMeter progressmeter( *strm );
+    od_ostream odstrm( *strm );
+    TextStreamProgressMeter progressmeter( odstrm );
     setProgressMeter( &progressmeter );
 
     bool res = SequentialTask::execute();
@@ -208,4 +210,21 @@ const char* ExecutorGroup::nrDoneText() const
 	return Executor::nrDoneText();
 
     return executors_[currentexec_]->nrDoneText();
+}
+
+
+bool TextTaskRunner::execute( Task& t )
+{
+    mDynamicCastGet(Executor*,exec,&t)
+    if ( exec )
+	execres_ = exec->execute( &strm_ );
+    else
+    {
+	od_ostream odstrm( strm_ );
+	TextStreamProgressMeter progressmeter(odstrm);
+	t.setProgressMeter( &progressmeter );
+	execres_ = t.execute();
+    }
+    
+    return execres_;
 }

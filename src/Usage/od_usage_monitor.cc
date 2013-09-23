@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "moddepmgr.h"
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "Usage" );
     

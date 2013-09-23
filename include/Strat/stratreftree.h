@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratcontent.h"
 #include "repos.h"
-class od_istream;
-class od_ostream;
+#include "od_iosfwd.h"
 
 namespace Strat
 {

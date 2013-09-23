@@ -8,124 +8,22 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "streamconn.h"
-#include "strmprov.h"
-#include "strmoper.h"
 #include "od_iostream.h"
-#include <iostream>
-#include <fstream>
 
 
-StreamConn::StreamConn()
-	: mine_(true)
-	, state_(Bad)
-	, closeondel_(false)
-{
-}
+const bool Conn::Read = true;
+const bool Conn::Write = false;
 
 
-StreamConn::StreamConn( std::istream* s )
-	: mine_(true)
-	, state_(Read)
-	, closeondel_(false)
-{
-    sd_.istrm = s;
-    (void)bad();
-}
+#define mInitList(s,ismine) strm_(s), mine_(ismine)
 
-
-StreamConn::StreamConn( std::ostream* s )
-	: mine_(true)
-	, state_(Write)
-	, closeondel_(false)
-{
-    sd_.ostrm = s;
-    (void)bad();
-}
-
-
-StreamConn::StreamConn( StreamData& strmdta )
-	: mine_(true)
-	, closeondel_(false)
-{
-    strmdta.transferTo(sd_);
-
-    if		( !sd_.usable() )	state_ = Bad;
-    else if	( sd_.istrm )		state_ = Read;
-    else if	( sd_.ostrm )		state_ = Write;
-}
-
-
-StreamConn::StreamConn( std::istream& s, bool cod )
-	: mine_(false)
-	, state_(Read)
-	, closeondel_(cod)
-{
-    sd_.istrm = &s;
-    (void)bad();
-}
-
-
-StreamConn::StreamConn( std::ostream& s, bool cod )
-	: mine_(false)
-	, state_(Write)
-	, closeondel_(cod)
-{
-    sd_.ostrm = &s;
-    (void)bad();
-}
-
-
-StreamConn::StreamConn( od_istream& s )
-	: mine_(false)
-	, state_(Read)
-	, closeondel_(false)
-{
-    sd_.istrm = &s.stdStream();
-    sd_.setFileName( s.fileName() );
-    (void)bad();
-}
-
-
-StreamConn::StreamConn( od_ostream& s )
-	: mine_(false)
-	, state_(Write)
-	, closeondel_(false)
-{
-    sd_.ostrm = &s.stdStream();
-    sd_.setFileName( s.fileName() );
-    (void)bad();
-}
-
-
-StreamConn::StreamConn( const char* nm, State s )
-	: mine_(true)
-	, state_(s)
-	, closeondel_(false)
-{
-    switch ( state_ )
-    {
-    case Read:
-	if ( !nm || !*nm ) sd_.istrm = &std::cin;
-	else
-	{
-	    StreamProvider sp( nm );
-	    sd_ = sp.makeIStream();
-	}
-    break;
-    case Write:
-	if ( !nm || !*nm ) sd_.ostrm = &std::cout;
-	else
-	{
-	    StreamProvider sp( nm );
-	    sd_ = sp.makeOStream();
-	}
-    break;
-    default:
-    break;
-    }
-
-    (void)bad();
-}
+StreamConn::StreamConn() : mInitList(0,true) {}
+StreamConn::StreamConn( od_istream* s ) : mInitList(s,true) {}
+StreamConn::StreamConn( od_ostream* s ) : mInitList(s,true) {}
+StreamConn::StreamConn( od_istream& s ) : mInitList(&s,false) {}
+StreamConn::StreamConn( od_ostream& s ) : mInitList(&s,false) {}
+StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
+{ setFileName( fnm, forread ); }
 
 
 StreamConn::~StreamConn()
@@ -136,46 +34,74 @@ StreamConn::~StreamConn()
 
 bool StreamConn::bad() const
 {
-    if ( state_ == Bad )
-	return true;
-    else if ( !sd_.usable() )
-	const_cast<StreamConn*>(this)->state_ = Bad;
-    return state_ == Bad;
+    return !strm_ || strm_->isBad();
 }
 
 
-void StreamConn::clearErr()
+bool StreamConn::forRead() const
 {
-    if ( forWrite() ) { oStream().flush(); oStream().clear(); }
-    if ( forRead() ) iStream().clear();
+    return strm_ && strm_->forRead();
+}
+
+
+bool StreamConn::forWrite() const
+{
+    return strm_ && strm_->forWrite();
 }
 
 
 void StreamConn::close()
 {
-    if ( mine_ )
-	sd_.close();
-    else if ( closeondel_ )
+    if ( strm_ && mine_ )
+	{ delete strm_; strm_ = 0; }
+}
+
+
+od_stream& StreamConn::odStream()
+{
+    if ( strm_ )
+	return *strm_;
+    return od_istream::nullStream();
+}
+
+
+od_istream& StreamConn::iStream()
+{
+    return forRead() ? *static_cast<od_istream*>(strm_)
+		     : od_istream::nullStream();
+}
+
+
+od_ostream& StreamConn::oStream()
+{
+    return forWrite() ? *static_cast<od_ostream*>(strm_)
+		      : od_ostream::nullStream();
+}
+
+
+void StreamConn::setFileName( const char* nm, bool forread )
+{
+    close();
+
+    mine_ = true;
+    if ( forread )
     {
-	if ( state_ == Read && sd_.istrm && sd_.istrm != &std::cin )
-	{
-	    mDynamicCastGet(std::ifstream*,s,sd_.istrm)
-	    if ( s ) s->close();
-	}
-	else if ( state_ == Write && sd_.ostrm
-	       && sd_.ostrm != &std::cout && sd_.ostrm != &std::cerr )
-	{
-	    mDynamicCastGet(std::ofstream*,s,sd_.ostrm)
-	    if ( s ) s->close();
-	}
+	if ( !nm || !*nm )
+	    strm_ = &od_istream::nullStream();
+	else
+	    strm_ = new od_istream( nm );
+    }
+    else
+    {
+	if ( !nm || !*nm )
+	    strm_ = &od_ostream::nullStream();
+	else
+	    strm_ = new od_ostream( nm );
     }
 }
 
 
-bool StreamConn::doIO( void* ptr, unsigned int nrbytes )
+const char* StreamConn::fileName() const
 {
-    if ( forWrite() )
-	return StrmOper::writeBlock( oStream(), ptr, nrbytes );
-
-    return StrmOper::readBlock( iStream(), ptr, nrbytes );
+    return strm_ ? strm_->fileName() : "";
 }

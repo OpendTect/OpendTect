@@ -15,8 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "datapointset.h"
 #include "posinfodetector.h"
-#include "strmprov.h"
 #include "dirlist.h"
+#include "od_istream.h"
 #include "dataclipper.h"
 #include "filepath.h"
 #include "executor.h"
@@ -221,15 +221,16 @@ int SEGY::Scanner::openNext()
     if ( !fp.isAbsolute() )
 	fp.insert( GetDataDir() );
     BufferString abspath = fp.fullPath();
-    StreamData sd = StreamProvider( abspath ).makeIStream();
-    
-    if ( !sd.usable() )
-	{ addFailed( "Cannot open this file" ); return Executor::MoreToDo(); }
+
+    od_istream* strm = new od_istream( abspath );
+    if ( !strm || !strm->isOK() )
+	{ delete strm; addFailed( "Cannot open this file" );
+	    	return Executor::MoreToDo(); }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     tr_->usePar( pars_ );
     tr_->setForceRev0( forcerev0_ );
-    if ( !tr_->initRead(new StreamConn(sd),Seis::Scan) )
+    if ( !tr_->initRead(new StreamConn(strm),Seis::Scan) )
     {
 	addFailed( tr_->errMsg() );
 	return Executor::MoreToDo();

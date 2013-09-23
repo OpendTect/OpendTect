@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "usagemod.h"
 #include "callback.h"
 #include "threadlock.h"
-
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 class IOPar;
 namespace Threads { class Thread; }
@@ -30,7 +29,7 @@ mExpClass(Usage) Server : public CallBacker
 {
 public:
 
-    			Server(const IOPar*,std::ostream&);
+    			Server(const IOPar*,od_ostream&);
     virtual		~Server();
 
     const IOPar&	pars()		{ return pars_; }
@@ -51,7 +50,7 @@ protected:
 
     const IOPar&	pars_;
     int			port_;
-    std::ostream&	logstrm_;
+    od_ostream&		logstrm_;
     Threads::Thread*	thread_;
     Threads::Lock	threadlock_;
     ObjectSet<Info>	infos_;

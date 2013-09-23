@@ -70,7 +70,9 @@ public:
 
     char		peek() const;
     void		ignore(Count);
-    void		skipUntil(char);
+    bool		skipUntil(char);
+    bool		skipWord();
+    bool		skipLine();
 
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();

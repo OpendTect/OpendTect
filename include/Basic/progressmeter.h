@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "threadlock.h"
 #include "callback.h"
+#include "od_iosfwd.h"
 
 
 class Task;
@@ -49,7 +50,7 @@ public:
 mExpClass(Basic) TextStreamProgressMeter : public ProgressMeter
 {
 public:
-			TextStreamProgressMeter(std::ostream&,
+			TextStreamProgressMeter(od_ostream&,
 					unsigned short rowlen=cDefaultRowLen());
 			~TextStreamProgressMeter();
     static int		cDefaultRowLen() { return 50; }
@@ -69,7 +70,7 @@ protected:
     void		reset();
     void		addProgress(int);
 
-    std::ostream&	strm_;
+    od_ostream&		strm_;
     BufferString	message_;
     BufferString	name_;
     unsigned short	rowlen_;

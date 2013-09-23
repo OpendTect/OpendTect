@@ -15,9 +15,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "typeset.h"
 #include "position.h"
+#include "od_iosfwd.h"
 class BinID;
-class od_istream;
-class od_ostream;
 
 
 namespace PosInfo

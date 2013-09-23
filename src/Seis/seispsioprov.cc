@@ -205,7 +205,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
     if ( conn->ioobj )
     {
-	mDynamicCastGet(IOX*,iox,conn->ioobj)
+	mDynamicCastGet(const IOX*,iox,conn->ioobj)
 	IOObj* useioobj = iox ? iox->getIOObj() : conn->ioobj->clone();
 	psrdr_ = SPSIOPF().get3DReader( *useioobj );
 	int trcnr = -1;

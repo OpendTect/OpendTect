@@ -16,9 +16,8 @@ ________________________________________________________________________
 #include "task.h"
 #include "namedobj.h"
 #include "progressmeter.h"
-
+#include "od_iosfwd.h"
 #include <iosfwd>
-
 template <class T> class ObjectSet;
 
 /*!
@@ -116,23 +115,12 @@ public:
 			    : TaskRunner()
 			    , strm_(strm)	{}
 
-    bool		execute( Task& t )
-			{
-			    mDynamicCastGet(Executor*,exec,&t)
-			    if ( exec )
-				execres_ = exec->execute( &strm_ );
-			    else
-			    {
-				TextStreamProgressMeter progressmeter(strm_);
-				t.setProgressMeter( &progressmeter );
-				execres_ = t.execute();
-			    }
-			    
-			    return execres_;
-			}
+    bool		execute(Task&);
 
 protected:
+
     std::ostream&	strm_;
+
 };
 
 

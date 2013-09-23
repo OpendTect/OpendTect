@@ -14,10 +14,11 @@ ________________________________________________________________________
 -*/
  
 #include "generalmod.h"
-#include "ioobj.h"
 #include "streamconn.h"
+#include "ioobj.h"
 #include "ranges.h"
 class StreamProvider;
+
 
 /*\brief An IOStream is a file (default) or command entry in the omf. */
 
@@ -38,7 +39,7 @@ public:
     void		genDefaultImpl()		{ genFileName(); }
 
     FixedString		connType() const;
-    Conn*		getConn(Conn::State) const;
+    Conn*		getConn(bool) const;
 
     bool		implExists(bool forread) const;
     bool		implReadOnly() const;
@@ -82,7 +83,6 @@ public:
     StepInterval<int>&	fileNumbers()			{ return fnrs_; }
     const StepInterval<int>& fileNumbers() const	{ return fnrs_; }
 
-    StreamProvider*	streamProvider(bool,bool fillwc=true) const;
     bool		isMulti() const
 			{ return fnrs_.start != fnrs_.stop; }
 
@@ -105,6 +105,7 @@ protected:
     int			nrretries_;
     int			retrydelay_;
 
+    StreamProvider*	getStreamProv(bool,bool f=true) const;
     void		getDev(ascistream&);
     bool		validNr() const
 			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }

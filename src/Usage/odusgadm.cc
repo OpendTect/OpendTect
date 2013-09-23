@@ -14,8 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "strmprov.h"
 #include "ascstream.h"
-#include <iostream>
+#include "od_iostream.h"
 
+
+od_ostream* Usage::Administrator::logstrm_ = 0;
 
 
 static ObjectSet<Usage::Administrator>& ADMS()
@@ -94,6 +96,12 @@ void Usage::Administrator::reInit()
 }
 
 
+od_ostream* Usage::Administrator::logStream()
+{
+    return logstrm_;
+}
+
+
 void Usage::Administrator::toLogFile( const char* msg ) const
 {
     if ( !logstrm_ || !msg || !*msg ) return;
@@ -104,7 +112,8 @@ void Usage::Administrator::toLogFile( const char* msg ) const
     else if ( !*msg )
 	return;
 
-    *logstrm_ << msg << std::endl;
+    *logstrm_ << msg << od_newline;
+    logstrm_->flush();
 }
 
 

@@ -131,7 +131,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	if ( !ioobj )
 	    continue;
 
-	std::istream& strm = ((StreamConn*)conn)->iStream();
+	od_istream& strm = ((StreamConn*)conn)->iStream();
 	ascistream astream( strm );
 	const int majorversion = astream.majorVersion();
 	const int minorversion = astream.minorVersion();

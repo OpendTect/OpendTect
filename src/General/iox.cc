@@ -85,13 +85,13 @@ bool IOX::implExists( bool i ) const
 }
 
 
-Conn* IOX::getConn( Conn::State rw ) const
+Conn* IOX::getConn( bool forread ) const
 {
     IOObj* ioobj = getIOObj();
     if ( !ioobj ) return 0;
 
     XConn* xconn = new XConn;
-    xconn->conn_ = ioobj->getConn( rw );
+    xconn->conn_ = ioobj->getConn( forread );
     if ( xconn->conn_ ) xconn->conn_->ioobj = 0;
     xconn->ioobj = const_cast<IOX*>( this );
 

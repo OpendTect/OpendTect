@@ -20,8 +20,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "bufstringset.h"
 #include "genc.h"
-
-#include <iosfwd>
+#include "od_iostream.h"
 
 class CommandLineParser;
 class IOPar;
@@ -60,7 +59,7 @@ public:
     const CommandLineParser&	clParser()	{ return *clparser_; }
 
 			//! This method must be defined by user
-    bool		go(std::ostream& log_stream);
+    bool		go(od_ostream& log_stream);
 
     mExp(Batch) IOObj*	getIOObjFromPars(const char* keybase,bool mknew,
 					 const IOObjContext& ctxt,
@@ -138,7 +137,7 @@ mGlobal(Batch) BatchProgram& BP();
 }
 
 #define mStrmWithProcID(s) \
-strm << "\n[" << process_id << "]: " << s << "." << std::endl
+strm << "\n[" << process_id << "]: " << s << "." << od_newline
 
 #define mSetCommState(State) \
 if ( comm_ ) \

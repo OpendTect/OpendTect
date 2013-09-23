@@ -79,19 +79,6 @@ void IOStream::copyFrom( const IOObj* obj )
 }
 
 
-const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
-{
-    StreamProvider* sp = streamProvider( forread, fillwc );
-    if ( !sp ) return "<bad>";
-
-    mDeclStaticString( ret );
-    ret = sp->fullName();
-    delete sp;
-
-    return ret;
-}
-
-
 const char* IOStream::fullDirName() const
 {
     FilePath fp( fname_ );
@@ -114,8 +101,8 @@ const char* IOStream::fullUserExpr( bool forread ) const
 
 bool IOStream::implExists( bool fr ) const
 {
-    StreamProvider* sp = streamProvider( fr );
-    bool ret = sp && sp->exists( fr );
+    StreamProvider* sp = getStreamProv( fr );
+    const bool ret = sp && sp->exists( fr );
     delete sp;
     return ret;
 }
@@ -123,8 +110,8 @@ bool IOStream::implExists( bool fr ) const
 
 bool IOStream::implReadOnly() const
 {
-    StreamProvider* sp = streamProvider( true );
-    bool ret = sp && sp->isReadOnly();
+    StreamProvider* sp = getStreamProv( true );
+    const bool ret = sp && sp->isReadOnly();
     delete sp;
     return ret;
 }
@@ -160,8 +147,8 @@ bool IOStream::implDo( bool dorem, bool yn ) const
     for ( int idx=0; idx<curnrfiles; idx++ )
     {
 	fnr = fnrs_.start + idx*fnrs_.step;
-	StreamProvider* sp = streamProvider( true );
-	bool thisret = sp && (dorem ? sp->remove(yn) : sp->setReadOnly(yn));
+	StreamProvider* sp = getStreamProv( true );
+	bool thisret = dorem ? sp->remove(yn) : sp->setReadOnly(yn);
 	delete sp;
 	if ( !thisret ) ret = false;
     }
@@ -173,40 +160,28 @@ bool IOStream::implDo( bool dorem, bool yn ) const
 
 bool IOStream::implRename( const char* newnm, const CallBack* cb )
 {
-    StreamProvider* sp = streamProvider( true );
-    if ( !sp ) return true;
-
-    bool rv = sp->rename( newnm, cb );
-    delete sp;
-
+    StreamProvider* sp = getStreamProv( true );
+    bool rv = !sp || sp->rename( newnm, cb );
     if ( rv )
 	setFileName( newnm );
-    return true;
+    delete sp;
+    return rv;
 }
 
 
-Conn* IOStream::getConn( Conn::State rw ) const
+Conn* IOStream::getConn( bool forread ) const
 {
-    bool fr = rw == Conn::Read;
-    StreamProvider* sp = streamProvider( fr );
-    if ( !sp ) return 0;
-
     if ( !iscomm_ && fname_ == "?" )
-    {
-	((IOStream*)this)->genFileName();
-	delete sp;
-	sp = streamProvider( fr );
-    }
+	const_cast<IOStream*>(this)->genFileName();
 
-    StreamConn*	s = 0;
-    StreamData sd( fr ? sp->makeIStream() : sp->makeOStream() );
-    if ( !sd.usable() && !File::isDirectory(sp->fileName()) )
-	{ delete sp; return 0; }
+    const BufferString implnm( getExpandedName(forread) );
+    StreamConn*	ret = new StreamConn( implnm, forread );
+    if ( !ret || ret->bad() )
+	{ delete ret; ret = 0; }
+    else
+	ret->ioobj = this;
 
-    s = new StreamConn( sd );
-    s->ioobj = (IOObj*)this;
-    delete sp;
-    return s;
+    return ret;
 }
 
 
@@ -357,8 +332,20 @@ bool IOStream::putTo( ascostream& stream ) const
 }
 
 
-StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
+const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
 {
+    StreamProvider* sp = getStreamProv( forread, fillwc );
+    mDeclStaticString( ret );
+    ret = sp ? sp->fullName() : "";
+    delete sp;
+    return ret.buf();
+}
+
+
+StreamProvider* IOStream::getStreamProv( bool fr, bool fillwc ) const
+{
+    BufferString ret;
+
     FileNameString nm( iscomm_ && !fr ? writer() : (const char*)fname_ );
 
     const bool hasast = strchr( nm, '*' );
@@ -378,8 +365,9 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
     }
 
     StreamProvider* sp = new StreamProvider( hostname_, nm, iscomm_ );
-    if ( sp->bad() )
+    if ( !sp || sp->bad() )
 	{ delete sp; return 0; }
+
     if ( hostname_.isEmpty() && !iscomm_ )
 	sp->addPathIfNecessary( fullDirName() );
 
@@ -387,7 +375,7 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
     {
 	int kppz = padzeros_;
 	const_cast<IOStream*>(this)->padzeros_ = 0;
-	StreamProvider* trysp = streamProvider( fr );
+	StreamProvider* trysp = getStreamProv( fr );
 	if ( trysp && trysp->exists(fr) )
 	    { delete sp; sp = trysp; trysp = 0; }
 	delete trysp;

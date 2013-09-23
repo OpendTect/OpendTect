@@ -23,9 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mErrRet(msg) { strm << msg << std::endl; return false; }
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& odstrm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
+    std::ostream& strm( odstrm.stdStream() );
 
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )

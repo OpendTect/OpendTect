@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "errh.h"
 #include "file.h"
+#include "od_stream.h"
 #include <math.h>
 
 
@@ -446,7 +447,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
     mDynamicCastGet(StreamConn*,strmconn,c)
     if ( strmconn )
     {
-	const char* fnm = strmconn->streamData().fileName();
+	const char* fnm = strmconn->odStream().fileName();
 	if ( c->bad() && !File::isDirectory(fnm) )
 	{
 	    static BufferString emsg; emsg.setEmpty();

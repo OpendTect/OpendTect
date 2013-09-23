@@ -15,9 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "conn.h"
-#include "strmdata.h"
-class od_istream;
-class od_ostream;
+#include "od_iosfwd.h"
 
 
 /*!
@@ -28,54 +26,38 @@ mExpClass(Basic) StreamConn : public Conn
 {
 public:
 			StreamConn();
-			StreamConn(StreamData&);
-				//!< MY stream: Input StreamData will be zero-ed
-			StreamConn(std::istream*);
-				//!< MY stream: I will delete on destruct
-			StreamConn(std::ostream*);
-				//!< MY stream: I will delete on destruct
-			StreamConn(const char*,State);
-				//!< MY stream: I will delete on destruct
-			StreamConn(std::istream&,bool close_on_delete=false);
-				//!< YOUR stream: I may close only
-			StreamConn(std::ostream&,bool close_on_delete=false);
-				//!< YOUR stream: I may close only
-			StreamConn(od_istream&);
-				//!< YOUR stream: I cannot even close
-			StreamConn(od_ostream&);
-				//!< YOUR stream: I cannot even close
-
+			StreamConn(od_istream*); //!< strm becomes all mine
+			StreamConn(od_ostream*); //!< strm becomes all mine
+			StreamConn(od_istream&); //!< strm remains all yours
+			StreamConn(od_ostream&); //!< strm remains all yours
+			StreamConn(const char* fnm,bool forread);
     virtual		~StreamConn();
 
-    const std::istream&	iStream() const		{ return *sd_.istrm; }
-    std::istream&	iStream()		{ return *sd_.istrm; }
-    const std::ostream&	oStream() const		{ return *sd_.ostrm; }
-    std::ostream&	oStream()		{ return *sd_.ostrm; }
-    const StreamData&	streamData() const	{ return sd_; }
-    StreamData&		streamData()		{ return sd_; }
-    FILE*		fp() const		{ return sd_.filePtr(); }
-
-    virtual State	state() const		{ return state_; }
     virtual bool	bad() const;
-    void		clearErr();
-    bool		doIO(void*,unsigned int nrbytes);
-    void		close();
+    virtual bool	forRead() const;
+    virtual bool	forWrite() const;
+    virtual StreamConn*	getStream()		{ return this; }
+    virtual void	close();
 
-    const char*		fileName() const	{ return sd_.fileName(); }
-    void		setFileName( const char* s ) { sd_.setFileName(s); }
+    void		setStream(od_istream*); //!< strm becomes all mine
+    void		setStream(od_ostream*); //!< strm becomes all mine
+    void		setStream(od_istream&); //!< strm remains all yours
+    void		setStream(od_ostream&); //!< strm remains all yours
+
+    od_stream&		odStream();
+    od_istream&		iStream();
+    od_ostream&		oStream();
+    void		setFileName(const char*,bool forread);
+    const char*		fileName() const;
 
     const char*		connType() const	{ return sType(); }
-    bool		isStream() const	{ return true; }
-
     static const char*	sType()			{ return "Stream"; }	
 
 
 private:
 
-    StreamData		sd_;
-    State		state_;
+    od_stream*		strm_;
     bool		mine_;
-    bool		closeondel_;
 
 };
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "od_iosfwd.h"
 #include <iosfwd>
 class FilePath;
 class StreamData;
@@ -39,31 +40,31 @@ mExpClass(Basic) od_stream
 {
 public:
 
-    typedef od_uint64	Count;
-    typedef od_int64	Pos;
+    typedef od_stream_Count	Count;
+    typedef od_stream_Pos	Pos;
 
-    virtual		~od_stream();
+    virtual			~od_stream();
 
-    bool		isOK() const;
-    const char*		errMsg() const;
-    bool		forRead() const;
-    bool		forWrite() const;
+    bool			isOK() const;
+    const char*			errMsg() const;
+    bool			forRead() const;
+    bool			forWrite() const;
 
-    enum Ref		{ Abs, Rel, Beg, End };
-    Pos			position() const;
-    void		setPosition(Pos,Ref r=Abs);
-    od_int64		endPosition() const;
+    enum Ref			{ Abs, Rel, End };
+    Pos				position() const;
+    void			setPosition(Pos,Ref r=Abs);
+    Pos				endPosition() const;
 
-    const char*		fileName() const;
-    void		setFileName(const char*);
+    const char*			fileName() const;
+    void			setFileName(const char*);
 
-    inline StreamData&	streamData()			{ return sd_; }
-    inline const StreamData& streamData() const		{ return sd_; }
+    inline StreamData&		streamData()			{ return sd_; }
+    inline const StreamData&	streamData() const		{ return sd_; }
 
-    void		setNoClose( bool yn=true )	{ noclose_ = yn; }
-    void		releaseStream(StreamData&);
-    void		close();
-    bool		isBad() const;	//!< eof is not Bad
+    void			setNoClose( bool yn=true )	{ noclose_=yn; }
+    void			releaseStream(StreamData&);
+    void			close();
+    bool			isBad() const;	//!< eof is not Bad
 
 protected:
 

@@ -472,7 +472,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 	selectionpar.merge( selgrppar );
     }
 
-    selectionpar.write( astrm.stream().stdStream(), sKeyFileType );
+    selectionpar.write( astrm.stream(), sKeyFileType );
     const bool ret = astrm.isOK();
     if ( !ret )
 	errmsg_ = "Error during write";

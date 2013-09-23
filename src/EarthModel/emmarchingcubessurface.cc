@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randcolor.h"
 #include "streamconn.h"
 #include "separstr.h"
+#include "od_iostream.h"
 
 #include "emmanager.h"
 
@@ -55,7 +56,7 @@ public:
 	    return;
 	}
 
-	std::istream& strm = ((StreamConn*)conn_)->iStream();
+	od_istream& strm = ((StreamConn*)conn_)->iStream();
 	ascistream astream( strm );
 	if ( !astream.isOfFileType( sFileType() ) &&
 	     !astream.isOfFileType( sOldFileType() ) )
@@ -88,7 +89,7 @@ public:
 	if ( par.get( sKey::Color(), col ) )
 	    surface.setPreferredColor( col );
 
-	exec_ = surface.surface().readFrom(strm,int32interpreter_);
+	exec_ = surface.surface().readFrom(strm.stdStream(),int32interpreter_);
     }
 
     static const char* sKeyInt32DataChar()	{ return "Int32 format"; }
@@ -155,7 +156,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 	return;
     }
 
-    std::ostream& strm = ((StreamConn*)conn_)->oStream();
+    od_ostream& strm = ((StreamConn*)conn_)->oStream();
     ascostream astream( strm );
     astream.putHeader( MarchingCubesSurfaceReader::sFileType());
 
@@ -180,7 +181,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 
     par.putTo( astream );
 
-    exec_ = surface.surface().writeTo( strm, binary );
+    exec_ = surface.surface().writeTo( strm.stdStream(), binary );
 }
 
 int nextStep()

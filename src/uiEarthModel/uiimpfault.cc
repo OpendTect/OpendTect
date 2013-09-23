@@ -23,10 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "lmkemfaulttransl.h"
 #include "oddirs.h"
 #include "streamconn.h"
-#include "strmdata.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_istream.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -200,8 +199,7 @@ bool uiImportFault::handleLMKAscii()
 
     PtrMan<lmkEMFault3DTranslator> transl =
 	lmkEMFault3DTranslator::getInstance();
-    StreamData sd = StreamProvider( infld_->fileName() ).makeIStream();
-    Conn* conn = new StreamConn( sd.istrm );
+    Conn* conn = new StreamConn( infld_->fileName(), true );
 
     PtrMan<Executor> exec =
 	transl->reader( *fault3d, conn, formatfld_->fileName() ); 
@@ -233,15 +231,15 @@ bool uiImportFault::handleAscii()
 
     fault->ref();
 
-    StreamData sd( StreamProvider(infld_->fileName()).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( infld_->fileName() );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 
     const char* tp = fault3d ? "fault" : "faultstickset";
 
-    const bool res = getFromAscIO( *sd.istrm, *fault );
+    const bool res = getFromAscIO( strm.stdStream(), *fault );
     if ( !res )
 	mErrRet( BufferString("Cannot import ",tp) );
     PtrMan<Executor> exec = fault->saver();

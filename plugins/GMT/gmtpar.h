@@ -73,7 +73,7 @@ protected:
 mGlobal(GMT) GMTParFactory& GMTPF();
 
 
-#define mErrStrmRet(s) { strm << s << std::endl; return false; }
+#define mErrStrmRet(s) { strm << s << '\n'; return false; }
 
 #define mGetRangeProjString( str, projkey ) \
     mGetRangeString( str ) \
@@ -123,5 +123,3 @@ mGlobal(GMT) GMTParFactory& GMTPF();
     }
 
 #endif
-
-

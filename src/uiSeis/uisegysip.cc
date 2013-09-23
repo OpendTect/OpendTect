@@ -24,8 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "errh.h"
 #include "oddirs.h"
-#include "strmprov.h"
 #include "timer.h"
+#include "strmprov.h"
+#include "od_ostream.h"
 
 
 class uiSEGYSIPMgrDlg : public uiDialog
@@ -82,18 +83,14 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 static void showReport( const SEGY::Scanner& scanner )
 {
     const BufferString fnm( GetProcFileName("SEGY_survey_scan.txt" ) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet("Cannot open temporary file in Proc directory")
     IOPar iop; 
     scanner.getReport( iop );
-    if ( !iop.write(*sd.ostrm,IOPar::sKeyDumpPretty()) )
-    {
-	sd.close();
+    if ( !iop.write(strm,IOPar::sKeyDumpPretty()) )
 	mErrRet("Cannot write to temporary file in Proc directory")
-    }
 
-    sd.close();
     ExecuteScriptCommand( "od_FileBrowser", fnm );
 }
 

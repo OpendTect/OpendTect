@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "strmdata.h"
 #include "survinfo.h"
+#include "od_istream.h"
 
 #include <iostream>
 
@@ -41,20 +42,19 @@ int main( int argc, char ** argv )
 
     FilePath fp( argv[ 2 + bgadd ] );
     const BufferString parfnm( fp.fullPath() );
-    StreamProvider spin( parfnm );
-    StreamData sdin = spin.makeIStream();
-    if ( !sdin.usable() )
+    od_istream strm( parfnm );
+    if ( !strm.isOK() )
     {
 	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    IOPar iop; iop.read( *sdin.istrm, sKey::Pars() );
+    IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    sdin.close();
+    strm.close();
 
     if ( bgadd )
 	ForkProcess();

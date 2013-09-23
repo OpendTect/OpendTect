@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "progressmeter.h"
 #include "timefun.h"
-#include <iostream>
+#include "od_ostream.h"
 #include <limits.h>
 #include <stdlib.h>
 #include "task.h"
@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char dispchars_[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-TextStreamProgressMeter::TextStreamProgressMeter( std::ostream& out,
+TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
 						  unsigned short rowlen )
     : strm_(out)
     , rowlen_(rowlen)
@@ -52,7 +52,8 @@ void TextStreamProgressMeter::setFinished()
     annotate(false);
     finished_ = true;
 
-    strm_ << "\nFinished: "  << Time::getDateTimeString() << std::endl;
+    strm_ << "\nFinished: "  << Time::getDateTimeString() << od_newline;
+    strm_.flush();
     lock.unlockNow();
     reset();
 }
@@ -192,7 +193,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
 	strm_ << " (" << eta << ")";
     }
 
-    strm_ << std::endl;
+    strm_ << od_newline; strm_.flush();
 
     lastannotatednrdone_ = nrdone_;
     oldtime_ = newtime; 

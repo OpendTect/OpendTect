@@ -35,7 +35,7 @@ public:
     bool		implShouldRemove() const	{ return false; }
 
     FixedString		connType() const;
-    Conn*		getConn(Conn::State) const;
+    Conn*		getConn(bool) const;
     IOObj*		getIOObj() const;
 
     const MultiID&	ownKey() const			{ return ownkey_; }

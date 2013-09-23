@@ -39,9 +39,9 @@ static const char* rcsID mUsedVar = "$Id$";
 { delete procman; procman = 0; writer = 0; }
 
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
-    strm << "Processing on " << HostData::localHostName() << '.' << std::endl;
+    strm << "Processing on " << HostData::localHostName() << '.' << od_newline;
 
     if ( !parversion_.isEmpty() )
     {

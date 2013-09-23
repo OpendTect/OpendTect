@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "madprocexec.h"
 #include "moddepmgr.h"
 
-bool BatchProgram::go( std::ostream& strm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "AttributeEngine" );
 
-    ODMad::ProcExec exec( pars(), strm );
+    ODMad::ProcExec exec( pars(), strm.stdStream() );
     if ( !exec.init() || !exec.execute() )
     {
 	BufferString cmd = "od_DispMsg --err ";

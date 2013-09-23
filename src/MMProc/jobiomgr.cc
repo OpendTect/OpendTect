@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "string2.h"
 #include "strmprov.h"
+#include "od_ostream.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "tcpserver.h"
@@ -463,20 +464,15 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
     if ( File::exists(logfnm) ) File::remove( logfnm );
 
-    StreamData iopsd = StreamProvider(iopfnm).makeOStream();
-    if ( !iopsd.usable() )
+    od_ostream iopstrm( iopfnm );
+    if ( !iopstrm.isOK() )
     {
-	BufferString s( "Cannot open '" );
-	s += iopfnm; s += "' for write ...";
+	const BufferString s( "Cannot open '", iopfnm, "' for write ..." );
 	mErrRet(s)
     }
-
-    const bool res = newiop.write( *iopsd.ostrm, sKey::Pars() );
-    iopsd.close();
-    if ( !res )
+    else if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
-	BufferString s( "Cannot write parameters into '" );
-	s += iopfnm; s += "'";
+	const BufferString s( "Cannot write parameters into '", iopfnm, "'" );
 	mErrRet(s)
     }
 
@@ -512,20 +508,15 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
     if ( File::exists(logfnm) ) File::remove( logfnm );
 
-    StreamData iopsd = StreamProvider(iopfnm).makeOStream();
-    if ( !iopsd.usable() )
+    od_ostream iopstrm( iopfnm );
+    if ( !iopstrm.isOK() )
     {
-	BufferString s( "Cannot open '" );
-	s += iopfnm; s += "' for write ...";
+	const BufferString s( "Cannot open '", iopfnm, "' for write ..." );
 	mErrRet(s)
     }
-
-    const bool res = newiop.write( *iopsd.ostrm, sKey::Pars() );
-    iopsd.close();
-    if ( !res )
+    if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
-	BufferString s( "Cannot write parameters into '" );
-	s += iopfnm; s += "'";
+	const BufferString s( "Cannot write parameters into '", iopfnm, "'" );
 	mErrRet(s)
     }
 

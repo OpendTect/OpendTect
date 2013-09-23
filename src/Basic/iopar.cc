@@ -9,8 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "multiid.h"
 #include "keystrs.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "globexpr.h"
 #include "position.h"
 #include "separstr.h"
@@ -21,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "color.h"
 #include "convert.h"
 #include "errh.h"
+#include <stdio.h>
 
 const int cMaxTypeSetItemsPerLine = 100;
 
@@ -1049,16 +1049,16 @@ void IOPar::getParsFrom( const char* str )
 
 bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 {
-    StreamData sd = StreamProvider(fnm).makeIStream();
-    if ( !sd.usable() ) return false;
-    const bool res = read( *sd.istrm, typ, chktyp );
-    sd.close();
-    return res;
+    od_istream strm( fnm );
+    return read( strm, typ, chktyp );
 }
 
 
-bool IOPar::read( std::istream& strm, const char* typ, bool chktyp )
+bool IOPar::read( od_istream& strm, const char* typ, bool chktyp )
 {
+    if ( !strm.isOK() )
+	return false;
+
     const bool havetyp = typ && *typ;
     ascistream astream( strm, havetyp );
     if ( havetyp && chktyp && !astream.isOfFileType(typ) )
@@ -1074,22 +1074,21 @@ bool IOPar::read( std::istream& strm, const char* typ, bool chktyp )
     else
 	getFrom( astream );
 
-    return true;
+    return !strm.isBad();
 }
 
 
 bool IOPar::write( const char* fnm, const char* typ ) const
 {
-    StreamData sd = StreamProvider(fnm).makeOStream();
-    if ( !sd.usable() ) return false;
-    bool ret = write( *sd.ostrm, typ );
-    sd.close();
-    return ret;
+    od_ostream strm( fnm );
+    return write( strm, typ );
 }
 
 
-bool IOPar::write( std::ostream& strm, const char* typ ) const
+bool IOPar::write( od_ostream& strm, const char* typ ) const
 {
+    if ( !strm.isOK() )
+	return false;
 
     if ( typ && FixedString(typ)==sKeyDumpPretty() )
 	dumpPretty( strm );
@@ -1100,11 +1099,12 @@ bool IOPar::write( std::ostream& strm, const char* typ ) const
 	    astream.putHeader( typ );
 	putTo( astream );
     }
-    return true;
+
+    return strm.isOK();
 }
 
 
-void IOPar::dumpPretty( std::ostream& strm ) const
+void IOPar::dumpPretty( od_ostream& strm ) const
 {
     BufferString res;
     dumpPretty( res );

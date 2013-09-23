@@ -454,8 +454,7 @@ bool EventReader::readAuxData(const char* fnm)
     }
 
     IOPar par;
-    if ( !par.read( fileio.istrm().stdStream(),
-		    EventReader::sHorizonFileType(), true ) )
+    if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
     {
 	errmsg_ = "Cannot read ";
 	errmsg_ += auxfilenm;
@@ -734,7 +733,7 @@ bool EventWriter::writeAuxData( const char* fnm )
 	return false;
     }
 	     
-    if ( !auxinfo_.write( fileio.ostrm().stdStream(),
+    if ( !auxinfo_.write( fileio.ostrm(),
 			  EventReader::sHorizonFileType() ) )
     {
 	errmsg_ = "Cannot write to ";
@@ -1078,7 +1077,7 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 	return;
     }
 
-    std::istream& strm = ((StreamConn*)conn_)->iStream();
+    std::istream& strm = ((StreamConn*)conn_)->iStream().stdStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( EventReader::sFileType() ) )
     {
@@ -1186,7 +1185,7 @@ int EventPatchReader::nextStep()
 {
     if ( !eventmanager_ ) return Finished();
 
-    std::istream& strm = ((StreamConn*)conn_)->iStream();
+    std::istream& strm = ((StreamConn*)conn_)->iStream().stdStream();
 
     BinID curbid;
     while ( headeridx_<fileheader_.nrEvents() )

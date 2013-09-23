@@ -34,13 +34,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "separstr.h"
 #include "streamconn.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "filepath.h"
-
-#include <fstream>
 
 
 namespace EM
@@ -159,18 +156,18 @@ void dgbSurfaceReader::setOutput( Array3D<float>& cube )
 }
 
 
-bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
+bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 					const char* horfnm )
 {
     if ( version_ == 3 )
     {
-	const od_int64 nrsectionsoffset = readInt64( strm );
-	if ( !strm || !nrsectionsoffset )
+	const od_stream::Pos nrsectionsoffset = readInt64( strm );
+	if ( !strm.isOK() || !nrsectionsoffset )
 	{ msg_ = sMsgReadError(); return false; }
 
-	StrmOper::seek( strm, nrsectionsoffset, std::ios::beg );
+	strm.setPosition( nrsectionsoffset );
 	const int nrsections = readInt32( strm );
-	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
 	for ( int idx=0; idx<nrsections; idx++ )
 	{
@@ -182,7 +179,7 @@ bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
 	for ( int idx=0; idx<nrsections; idx++ )
 	    sectionids_ += mCast(EM::SectionID,readInt32(strm));
 
-	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
 	ascistream parstream( strm, false );
 	parstream.next();
@@ -218,12 +215,12 @@ bool dgbSurfaceReader::readParData( std::istream& strm, const IOPar& toppar,
 void dgbSurfaceReader::mergeExternalPar( const char* horfnm )
 {
     FilePath fp( horfnm ); fp.setExtension( "par" );
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() ) return;
+    od_istream strm( fp );
+    if ( !strm.isOK() )
+	return;
     IOPar par;
-    if ( par.read(*sd.istrm,"Surface parameters") )
+    if ( par.read(strm,"Surface parameters") )
 	const_cast<IOPar*>(par_)->merge( par );
-    sd.close();
 }
 
 
@@ -349,7 +346,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
     StreamConn& sconn( *((StreamConn*)conn_) );
-    std::istream& strm = sconn.iStream();
+    od_istream& strm = sconn.iStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( filetype ))
 	{ msg_ = "Invalid filetype"; return false; }
@@ -706,7 +703,7 @@ void dgbSurfaceReader::setGeometry()
 }
 
 
-bool dgbSurfaceReader::readRowOffsets( std::istream& strm )
+bool dgbSurfaceReader::readRowOffsets( od_istream& strm )
 {
     if ( version_<=2 )
     {
@@ -718,7 +715,7 @@ bool dgbSurfaceReader::readRowOffsets( std::istream& strm )
     for ( int idx=0; idx<nrrows_; idx++ )
     {
 	rowoffsets_[idx] = readInt64( strm );
-	if ( !strm || !rowoffsets_[idx] )
+	if ( !strm.isOK() || !rowoffsets_[idx] )
 	{
 	    msg_ = sMsgReadError();
 	    return false;
@@ -777,7 +774,7 @@ int dgbSurfaceReader::nextStep()
 	return ErrorOccurred();
     }
 
-    std::istream& strm = conn_->iStream();
+    od_istream& strm = conn_->iStream();
 
     if ( !isinited_ )
     {
@@ -896,7 +893,7 @@ int dgbSurfaceReader::nextStep()
 
 	nrcols = callastcols - firstcol - noofcoltoskip + 1;
     }
-    if ( !strm )
+    if ( !strm.isOK() )
     {
 	msg_ = sMsgReadError();
 	return ErrorOccurred();
@@ -987,7 +984,7 @@ int dgbSurfaceReader::nextStep()
 }
 
 
-int dgbSurfaceReader::prepareNewSection( std::istream& strm )
+int dgbSurfaceReader::prepareNewSection( od_istream& strm )
 {
     const SectionID sectionid = sectionids_[sectionindex_];
     if ( version_==3 && !sectionsel_.isPresent(sectionid) )
@@ -997,11 +994,10 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     }
 
     if ( version_==3 )
-	StrmOper::seek( strm, sectionoffsets_[sectionindex_], 
-			std::ios_base::beg );
+	strm.setPosition( sectionoffsets_[sectionindex_] );
 
     nrrows_ = readInt32( strm );
-    if ( !strm )
+    if ( !strm.isOK() )
     {
 	msg_ = sMsgReadError();
 	return ErrorOccurred();
@@ -1010,7 +1006,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     if ( nrrows_ )
     {
 	firstrow_ = readInt32( strm );
-	if ( !strm )
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgReadError();
 	    return ErrorOccurred();
@@ -1051,7 +1047,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 }
 
 
-bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
+bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 					int nrcols )
 {
     bool isrowused = false;
@@ -1075,7 +1071,7 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 	if ( rowindex_!=nrrows_-1 && colindex!=nrcols-1 )
 	    readInt32( strm );
 
-	if ( !strm )
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgReadError();
 	    return false;
@@ -1110,7 +1106,7 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 }
 
 
-bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
+bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 					int firstcol, int nrcols )
 {
     const int filerow = currentRow();
@@ -1129,7 +1125,7 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 	}
 
 	pos.z = readDouble( strm );
-	if ( !strm )
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgReadError();
 	    return false;
@@ -1164,14 +1160,14 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 }
 
 
-int dgbSurfaceReader::skipRow( std::istream& strm )
+int dgbSurfaceReader::skipRow( od_istream& strm )
 {
     if ( version_!=3 )
     {
 	if ( !isBinary() ) return ErrorOccurred();
 
 	const int nrcols = readInt32( strm );
-	if ( !strm ) return ErrorOccurred();
+	if ( !strm.isOK() ) return ErrorOccurred();
 
 	int offset = 0;
 	if ( nrcols )
@@ -1184,8 +1180,8 @@ int dgbSurfaceReader::skipRow( std::istream& strm )
 
 	    offset += int32interpreter_->nrBytes(); //firstcol
 
-	    StrmOper::seek( strm, offset, std::ios_base::cur );
-	    if ( !strm ) return ErrorOccurred();
+	    strm.setPosition( offset, od_stream::Rel );
+	    if ( !strm.isOK() ) return ErrorOccurred();
 	}
     }
 
@@ -1194,13 +1190,13 @@ int dgbSurfaceReader::skipRow( std::istream& strm )
 }
 
 
-bool dgbSurfaceReader::prepareRowRead( std::istream& strm )
+bool dgbSurfaceReader::prepareRowRead( od_istream& strm )
 {
     if ( version_!=3 )
 	return true;
 
-    StrmOper::seek( strm, rowoffsets_[rowindex_], std::ios_base::beg );
-    return strm;
+    strm.setPosition( rowoffsets_[rowindex_] );
+    return strm.isOK();
 }
 
 
@@ -1224,7 +1220,7 @@ void dgbSurfaceReader::goToNextRow()
 }
 
 
-bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol, 
+bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol, 
 					int nrcols, int colstep, int colstoskip)
 {
     SamplingData<double> zsd;
@@ -1256,8 +1252,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	    if ( colindex )
 	    {
 		fullyread_ = false;
-		StrmOper::seek( strm, colindex*int16interpreter_->nrBytes(),
-				std::ios_base::cur );
+		strm.setPosition( colindex*int16interpreter_->nrBytes() );
 	    }
 	}
     }
@@ -1305,7 +1300,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 		continue;
 	}
 
-	if ( !strm )
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgReadError();
 	    return false;
@@ -1368,13 +1363,13 @@ const char* dgbSurfaceReader::message() const
 }
 
 
-int dgbSurfaceReader::readInt16(std::istream& strm) const
+int dgbSurfaceReader::readInt16(od_istream& strm) const
 {
     if ( int16interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return int16interpreter_->get(buf,0);
     }
 
@@ -1385,13 +1380,13 @@ int dgbSurfaceReader::readInt16(std::istream& strm) const
 
 
 
-int dgbSurfaceReader::readInt32(std::istream& strm) const
+int dgbSurfaceReader::readInt32(od_istream& strm) const
 {
     if ( int32interpreter_ )
     {
 	const int sz = int32interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return int32interpreter_->get(buf,0);
     }
 
@@ -1401,13 +1396,13 @@ int dgbSurfaceReader::readInt32(std::istream& strm) const
 }
 
 
-od_int64 dgbSurfaceReader::readInt64(std::istream& strm) const
+od_int64 dgbSurfaceReader::readInt64(od_istream& strm) const
 {
     if ( int64interpreter_ )
     {
 	const int sz = int64interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return int64interpreter_->get(buf,0);
     }
 
@@ -1429,13 +1424,13 @@ bool dgbSurfaceReader::isBinary() const
 
 
 
-double dgbSurfaceReader::readDouble(std::istream& strm) const
+double dgbSurfaceReader::readDouble(od_istream& strm) const
 {
     if ( floatinterpreter_ )
     {
 	const int sz = floatinterpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
-	strm.read(buf,sz);
+	strm.getBin(buf,sz);
 	return floatinterpreter_->get(buf,0);
     }
 
@@ -1545,8 +1540,8 @@ void dgbSurfaceWriter::finishWriting()
 {
     if ( conn_ )
     {
-	std::ostream& strm = conn_->oStream();
-	const od_int64 nrsectionsoffset = strm.tellp();
+	od_ostream& strm = conn_->oStream();
+	const od_int64 nrsectionsoffset = strm.position();
 	writeInt32( strm, sectionsel_.size(), sEOL() );
 
 	for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
@@ -1556,10 +1551,10 @@ void dgbSurfaceWriter::finishWriting()
 	    writeInt32( strm, sectionsel_[idx], sEOL() );
 
 
-	const od_int64 secondparoffset = strm.tellp();
-	strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
+	const od_stream::Pos secondparoffset = strm.position();
+	strm.setPosition( nrsectionsoffsetoffset_ );
 	writeInt64( strm, nrsectionsoffset, sEOL() );
-	strm.seekp( secondparoffset, std::ios::beg );
+	strm.setPosition( secondparoffset );
 
 	par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
 
@@ -1740,11 +1735,11 @@ int dgbSurfaceWriter::nextStep()
 	}
 
 
-	std::ostream& strm = conn_->oStream();
+	od_ostream& strm = conn_->oStream();
 	ascostream astream( strm );
 	astream.putHeader( filetype_.buf() );
 	versionpar.putTo( astream );
-	nrsectionsoffsetoffset_ = strm.tellp();
+	nrsectionsoffsetoffset_ = strm.position();
 	writeInt64( strm, 0, sEOL() );
 
 	mDynamicCastGet(const Horizon3D*,hor,&surface_);
@@ -1783,7 +1778,7 @@ int dgbSurfaceWriter::nextStep()
 	return res;
     }
 
-    std::ostream& strm = conn_->oStream();
+    od_ostream& strm = conn_->oStream();
 
     if ( sectionindex_!=oldsectionindex_ && !writeNewSection( strm ) )
 	return ErrorOccurred();
@@ -1794,8 +1789,8 @@ int dgbSurfaceWriter::nextStep()
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
-	strm.seekp( rowoffsettableoffset_, std::ios_base::beg );
-	if ( !strm )
+	strm.setPosition( rowoffsettableoffset_ );
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred();
@@ -1812,8 +1807,8 @@ int dgbSurfaceWriter::nextStep()
 
 	rowoffsettable_.erase();
 
-	strm.seekp( 0, std::ios_base::end );
-	if ( !strm )
+	strm.setPosition( 0, od_stream::End );
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred();
@@ -1821,7 +1816,7 @@ int dgbSurfaceWriter::nextStep()
 
 	sectionindex_++;
 	strm.flush();
-	if ( !strm )
+	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred();
@@ -1839,35 +1834,35 @@ const char* dgbSurfaceWriter::message() const
 }
 
 
-bool dgbSurfaceWriter::writeInt16( std::ostream& strm, unsigned short val,
+bool dgbSurfaceWriter::writeInt16( od_ostream& strm, unsigned short val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.putBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool dgbSurfaceWriter::writeInt32( std::ostream& strm, od_int32 val,
+bool dgbSurfaceWriter::writeInt32( od_ostream& strm, od_int32 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.putBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
+bool dgbSurfaceWriter::writeInt64( od_ostream& strm, od_int64 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.write((const char*)&val,sizeof(val));
+	strm.putBin( &val, sizeof(val) );
     else
     {
 	BufferString valstr;
@@ -1878,11 +1873,11 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
 	strm << valstr << post;
     }
 
-    return strm;
+    return strm.isOK();
 }
 
 
-bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
+bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 {
     rowindex_ = 0;
     rowoffsettableoffset_ = 0;
@@ -1927,7 +1922,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 	}
     }
 
-    sectionoffsets_ += strm.tellp();
+    sectionoffsets_ += strm.position();
 
     if ( !writeInt32(strm,nrrows_, nrrows_ ? sTab() : sEOL() ) )
     {
@@ -1948,7 +1943,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 	return ErrorOccurred();
     }
 
-    rowoffsettableoffset_ = strm.tellp();
+    rowoffsettableoffset_ = strm.position();
     for ( int idx=0; idx<nrrows_; idx++ )
     {
 	if ( !writeInt64(strm,0,sEOL() ) )
@@ -1976,12 +1971,12 @@ void dgbSurfaceWriter::setShift( float s )
 { shift_ = s; }
 
 
-bool dgbSurfaceWriter::writeRow( std::ostream& strm )
+bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 {
     if ( !colrange_.step || !rowrange_.step )
 	pErrMsg("Steps not set");
 
-    rowoffsettable_ += strm.tellp();
+    rowoffsettable_ += strm.position();
     const int row = firstrow_ + rowindex_ *
 		    (writerowrange_ ? writerowrange_->step : rowrange_.step);
 
@@ -2111,11 +2106,11 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 }
 
 
-bool dgbSurfaceWriter::writeDouble( std::ostream& strm, double val,
+bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
 				       const char* post) const
 {
     if ( binary_ )
-	strm.write((const char*) &val,sizeof(val));
+	strm.putBin( &val, sizeof(val) );
     else
     {
 	char str[255];
@@ -2123,7 +2118,7 @@ bool dgbSurfaceWriter::writeDouble( std::ostream& strm, double val,
 	strm << str << post;
     }
 
-    return strm;
+    return strm.isOK();
 }
 
 }; //namespace

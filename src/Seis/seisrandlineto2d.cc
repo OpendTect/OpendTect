@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "od_ostream.h"
 
 
 SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
@@ -216,7 +217,8 @@ bool SeisRandLineTo2D::execute( std::ostream* strm, bool b1, bool b2, int i )
     if ( !strm )
 	return Executor::execute(strm,b1,b2,i);
 
-    TextStreamProgressMeter progressmeter( *strm );
+    od_ostream odstrm( *strm );
+    TextStreamProgressMeter progressmeter( odstrm );
     setProgressMeter( &progressmeter );
     bool res = SequentialTask::execute();
     if ( !res )

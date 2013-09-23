@@ -16,14 +16,13 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "objectset.h"
 #include "position.h"
+#include "od_iosfwd.h"
 #include <iosfwd>
 
 class IOPar;
 class IOObj;
 class Executor;
 class SeisTrcBuf;
-class od_istream;
-class od_ostream;
 class CubeSampling;
 class SeisTrcWriter;
 class Seis2DLinePutter;

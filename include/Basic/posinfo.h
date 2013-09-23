@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "indexinfo.h"
 #include "position.h"
+#include "od_iosfwd.h"
 class BinID;
-class od_istream;
-class od_ostream;
 
 
 /*!\brief Position info, often segmented

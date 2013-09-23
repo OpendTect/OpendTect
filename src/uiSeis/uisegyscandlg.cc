@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segydirectdef.h"
 #include "seispsioprov.h"
 #include "file.h"
-#include <sstream>
+#include "od_strstream.h"
 
 
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
@@ -258,8 +258,8 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
     uiDialog* dlg = new uiDialog( p,
 	    	    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
     dlg->setCtrlStyle( uiDialog::LeaveOnly );
-    std::ostringstream strstrm; rep.dumpPretty( strstrm );
+    od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, titl );
-    te->setText( strstrm.str().c_str() );
+    te->setText( strstrm.result() );
     dlg->setDeleteOnClose( true ); dlg->go();
 }

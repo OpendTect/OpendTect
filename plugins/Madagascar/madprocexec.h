@@ -10,6 +10,7 @@
 #include "madagascarmod.h"
 #include "enums.h"
 #include "executor.h"
+#include "od_ostream.h"
 
 class IOPar;
 class StreamData;
@@ -52,6 +53,7 @@ protected:
 //    ProcFlow&		procflow_;
     BufferString	errmsg_;
     std::ostream&	strm_;
+    od_ostream		odstrm_;
     int			nrdone_;
     float*		trc_;
 

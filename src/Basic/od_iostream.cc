@@ -177,26 +177,26 @@ od_stream::Pos od_stream::position() const
 static std::ios::seekdir getSeekdir( od_stream::Ref ref )
 {
     return ref == od_stream::Rel ? std::ios::cur
-	: (ref == od_stream::Beg ? std::ios::beg
+	: (ref == od_stream::Abs ? std::ios::beg
 				 : std::ios::end);
 }
 
 
-void od_stream::setPosition( od_stream::Pos offs, od_stream::Ref ref )
+void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
 {
     if ( sd_.ostrm )
     {
 	if ( ref == Abs )
-	    StrmOper::seek( *sd_.ostrm, offs );
+	    StrmOper::seek( *sd_.ostrm, pos );
 	else
-	    StrmOper::seek( *sd_.ostrm, offs, getSeekdir(ref) );
+	    StrmOper::seek( *sd_.ostrm, pos, getSeekdir(ref) );
     }
     else if ( sd_.istrm )
     {
 	if ( ref == Abs )
-	    StrmOper::seek( *sd_.istrm, offs );
+	    StrmOper::seek( *sd_.istrm, pos );
 	else
-	    StrmOper::seek( *sd_.istrm, offs, getSeekdir(ref) );
+	    StrmOper::seek( *sd_.istrm, pos, getSeekdir(ref) );
     }
 }
 
@@ -219,7 +219,7 @@ void od_stream::setFileName( const char* fnm )
 }
 
 
-od_int64 od_stream::endPosition() const
+od_stream::Pos od_stream::endPosition() const
 {
     const Pos curpos = position();
     od_stream& self = *const_cast<od_stream*>( this );
@@ -398,11 +398,25 @@ void od_istream::ignore( od_stream::Count nrbytes )
 }
 
 
-void od_istream::skipUntil( char tofind )
+bool od_istream::skipUntil( char tofind )
 {
     mDoWithRetry(
 	stdStream().ignore( 9223372036854775807LL, tofind )
-    , )
+    , isOK() )
+}
+
+
+bool od_istream::skipWord()
+{
+    StrmOper::readWord( stdStream() );
+    return isOK();
+}
+
+
+bool od_istream::skipLine()
+{
+    StrmOper::readLine( stdStream() );
+    return isOK();
 }
 
 

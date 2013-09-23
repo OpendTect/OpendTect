@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ctxtioobj.h"
 #include "ascstream.h"
+#include "od_istream.h"
 #include "strmprov.h"
 #include <iostream>
 
@@ -139,18 +140,18 @@ int lmkEMFault3DReader::nextStep()
 {
     if ( error ) return ErrorOccurred();
 
-    std::istream& strm = ((StreamConn*)conn)->iStream();
+    od_istream& strm = ((StreamConn*)conn)->iStream();
     
     char buf[] = " ";
     BufferString buffer;
 
-    while ( strm && buf[0]!='\n' )
+    while ( strm.isOK() && buf[0]!='\n' )
     {
-	strm.read(buf,1);
+	strm.getBin(buf,1);
 	buffer += buf;
     }
 
-    if ( !strm )
+    if ( !strm.isOK() )
     {
 	return Finished();
     }

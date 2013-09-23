@@ -36,7 +36,7 @@ public:
     bool	removeQuery() const	{ return true; }
 
     FixedString	connType() const	{ return sKey::EmptyString(); }
-    Conn*	getConn( Conn::State s ) const { return 0; }
+    Conn*	getConn( bool forread ) const { return 0; }
 
     void	genDefaultImpl()	{}
     const char*	dirName() const		{ return fullUserExpr(true); }
