@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -67,7 +66,6 @@ protected:
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
-    void		repaintHorizon();
 
     EM::ObjectID	id_;
     CubeSampling	cs_;

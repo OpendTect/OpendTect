@@ -78,7 +78,6 @@ protected:
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
     void		changePolyLinePosition( const EM::PosID& pid );
-    void		repaintHorizon();
 
     EM::ObjectID        id_;
     CubeSampling        cs_;
