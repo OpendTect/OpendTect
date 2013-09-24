@@ -316,27 +316,42 @@ od_stream::Count od_istream::lastNrBytesRead() const
 }
 
 
-#define mDoWithRetry(stmts,rv) \
-    int retrycount = 0; \
-    while ( true ) \
-    { \
-	{ stmts; } \
-	if ( !stdStream().fail() \
-	  || !StrmOper::resetSoftError(stdStream(),retrycount) ) \
-	    return rv; \
-    }
+#define mGetWithRetry(stmts,rv) \
+int retrycount = 0; \
+std::istream& strm = stdStream(); \
+while ( true ) \
+{ \
+    { stmts; } \
+    if ( strm.eof() || !strm.fail() ) \
+	return rv; \
+    if ( !StrmOper::resetSoftError(stdStream(),retrycount) ) \
+	return rv; \
+} \
+return rv;
+
+
+#define mPutWithRetry(stmts,rv) \
+int retrycount = 0; \
+std::ostream& strm = stdStream(); \
+while ( true ) \
+{ \
+    { stmts; } \
+    if ( !strm.fail() || !StrmOper::resetSoftError(stdStream(),retrycount) ) \
+	return rv; \
+} \
+return rv;
 
 
 #define mImplStrmAddFn(typ,tostrm) \
 od_ostream& od_ostream::add( typ t ) \
 { \
-    mDoWithRetry( stdStream() << tostrm, *this ) \
+    mPutWithRetry( strm << tostrm, *this ) \
 }
 
 #define mImplStrmGetFn(typ,tostrm) \
 od_istream& od_istream::get( typ& t ) \
 { \
-    mDoWithRetry( stdStream() >> tostrm, *this ) \
+    mGetWithRetry( strm >> tostrm, *this ) \
 }
 
 #define mImplSimpleAddFn(typ) mImplStrmAddFn(typ,t)
@@ -427,7 +442,7 @@ char od_istream::peek() const
 
 void od_istream::ignore( od_stream::Count nrbytes )
 {
-    mDoWithRetry(
+    mGetWithRetry(
 	stdStream().ignore( (std::streamsize)nrbytes )
     , )
 }
@@ -435,7 +450,7 @@ void od_istream::ignore( od_stream::Count nrbytes )
 
 bool od_istream::skipUntil( char tofind )
 {
-    mDoWithRetry(
+    mGetWithRetry(
 	stdStream().ignore( 9223372036854775807LL, tofind )
     , isOK() )
 }
@@ -458,13 +473,13 @@ bool od_istream::skipLine()
 od_istream& od_istream::get( IOPar& iop )
 {
     ascistream astrm( *this, false );
-    mDoWithRetry( iop.getFrom( astrm ), *this )
+    mGetWithRetry( iop.getFrom( astrm ), *this )
 }
 
 od_ostream& od_ostream::add( const IOPar& iop )
 {
     ascostream astrm( *this );
-    mDoWithRetry( iop.putTo( astrm ), *this )
+    mPutWithRetry( iop.putTo( astrm ), *this )
 }
 
 
