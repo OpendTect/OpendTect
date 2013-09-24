@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ptrman.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welltrack.h"
@@ -28,8 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "welldisp.h"
-
-#include <iostream>
+#include "od_istream.h"
 
 const char* Well::IO::sKeyWell()	{ return "Well"; }
 const char* Well::IO::sKeyTrack()	{ return "Track"; }
@@ -47,26 +45,20 @@ const char* Well::IO::sExtDispProps()	{ return ".disp"; }
 const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
 
 
+
 Well::IO::IO( const char* f, bool fr )
-    	: basenm(f)
-    	, isrdr(fr)
+    	: basenm_(f)
+    	, isrdr_(fr)
 {
-    FilePath fp( basenm );
+    FilePath fp( basenm_ );
     fp.setExtension( 0, true );
-    const_cast<BufferString&>(basenm) = fp.fullPath();
-}
-
-
-StreamData Well::IO::mkSD( const char* ext, int nr ) const
-{
-    StreamProvider sp( getFileName(ext,nr) );
-    return isrdr ? sp.makeIStream() : sp.makeOStream();
+    const_cast<BufferString&>(basenm_) = fp.fullPath();
 }
 
 
 const char* Well::IO::getFileName( const char* ext, int nr ) const
 {
-    return mkFileName( basenm, ext, nr );
+    return mkFileName( basenm_, ext, nr );
 }
 
 
@@ -109,7 +101,7 @@ bool Well::IO::removeAll( const char* ext ) const
 }
 
 
-static const char* rdHdr( std::istream& strm, const char* fileky,
+static const char* rdHdr( od_istream& strm, const char* fileky,
 			  double& ver )
 {
     ascistream astrm( strm, true );
@@ -127,6 +119,12 @@ static const char* rdHdr( std::istream& strm, const char* fileky,
     static BufferString hdrln; hdrln = astrm.headerStartLine();
     return hdrln.buf();
 }
+
+
+#define mGetInpStream(ext,nr,todo) \
+    od_istream strm( getFileName(ext,nr) ); \
+    if ( !strm.isOK() ) { todo; }
+
 
 
 Well::Reader::Reader( const char* f, Well::Data& w )
@@ -156,18 +154,14 @@ bool Well::Reader::get() const
 
 bool Well::Reader::getInfo() const
 {
-    StreamData sd = mkSD( sExtWell() );
-    if ( !sd.usable() ) return false;
+    mGetInpStream( sExtWell(), 0, return false );
 
     wd.info().setName( getFileName(sExtWell()) );
-    const bool isok = getInfo( *sd.istrm );
-
-    sd.close();
-    return isok;
+    return getInfo( strm );
 }
 
 
-bool Well::Reader::getInfo( std::istream& strm ) const
+bool Well::Reader::getInfo( od_istream& strm ) const
 {
     double version = 0.0;
     const char* hdrln = rdHdr( strm, sKeyWell(), version );
@@ -229,7 +223,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 }
 
 
-bool Well::Reader::getOldTimeWell( std::istream& strm ) const
+bool Well::Reader::getOldTimeWell( od_istream& strm ) const
 {
     ascistream astrm( strm, false );
     astrm.next();
@@ -238,10 +232,10 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
     // get track
     Coord3 c3, prevc, c0;
     float dah = 0;
-    while ( strm )
+    while ( strm.isOK() )
     {
 	strm >> c3.x >> c3.y >> c3.z;
-	if ( !strm || c3.distTo(c0) < 1 ) break;
+	if ( !strm.isOK() || c3.distTo(c0) < 1 ) break;
 
 	if ( !wd.track().isEmpty() )
 	    dah += (float) c3.distTo( prevc );
@@ -252,7 +246,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 	return false;
 
     wd.info().surfacecoord = wd.track().pos(0);
-    wd.info().setName( FilePath(basenm).fileName() );
+    wd.info().setName( FilePath(basenm_).fileName() );
 
     // create T2D
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell() );
@@ -264,13 +258,13 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 }
 
 
-bool Well::Reader::getTrack( std::istream& strm ) const
+bool Well::Reader::getTrack( od_istream& strm ) const
 {
     Coord3 c, c0; float dah;
-    while ( strm )
+    while ( strm.isOK() )
     {
 	strm >> c.x >> c.y >> c.z >> dah;
-	if ( !strm || c.distTo(c0) < 1 ) break;
+	if ( !strm.isOK() || c.distTo(c0) < 1 ) break;
 	wd.track().addPoint( c, (float) c.z, dah );
     }
     if ( wd.track().isEmpty() )
@@ -284,23 +278,22 @@ bool Well::Reader::getTrack( std::istream& strm ) const
 
 bool Well::Reader::getTrack() const
 {
-    StreamData sd = mkSD( sExtTrack() );
     bool isold = false;
-    if ( !sd.usable() )
+    mGetInpStream( sExtTrack(), 0, isold = true );
+    if ( isold )
     {
-	sd = mkSD( ".well" );
-	if ( !sd.usable() )
+	strm.open( getFileName(".well",0) );
+	if ( !strm.isOK() )
 	    return false;
-	isold = true;
     }
 
-    ascistream astrm( *sd.istrm );
+    ascistream astrm( strm );
     const double version = (double)astrm.majorVersion() +
 			   ((double)astrm.minorVersion()/(double)10);
     if ( isold )
 	{ IOPar dum; dum.getFrom( astrm ); }
 
-    const bool isok = getTrack( *sd.istrm );
+    const bool isok = getTrack( strm );
     if ( SI().zInFeet() && version < 4.195 )
     {
 	Well::Track& welltrack = wd.track();
@@ -312,7 +305,6 @@ bool Well::Reader::getTrack() const
 	}
     }
 
-    sd.close();
     return isok;
 }
 
@@ -321,14 +313,13 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 {
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog(), idx );
-	if ( !sd.usable() ) break;
+	mGetInpStream( sExtLog(), idx, break );
 
 	double version = 0.0;
-	if ( rdHdr(*sd.istrm,sKeyLog(),version) )
+	if ( rdHdr(strm,sKeyLog(),version) )
 	{
 	    int bintyp = 0;
-	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, bintyp, idx-1 );
+	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    if ( strs.isPresent( log->name() ) )
 	    {
 		BufferString msg(log->name());
@@ -338,7 +329,6 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	    else
 		strs.add( log->name() );
 	}
-	sd.close();
     }
 }
 
@@ -350,21 +340,18 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog(), idx );
-	if ( !sd.usable() ) break;
-	std::istream& strm = *sd.istrm;
+	mGetInpStream( sExtLog(), idx, break );
 
 	double version = 0.0;
 	if ( !rdHdr(strm,sKeyLog(),version) )
-	    { sd.close(); continue; }
+	    continue;
 
 	int bintype = 0;
 	PtrMan<Well::Log> log = rdLogHdr( strm, bintype, wd.logs().size() );
 	if ( log->name() != nm )
-	    { sd.close(); continue; }
+	    continue;
 
 	readLogData( *log, strm, bintype );
-	sd.close();
 	if ( log->isEmpty() )
 	    continue;
 	
@@ -405,28 +392,26 @@ bool Well::Reader::getLogs() const
     wd.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog(), idx );
-	if ( !sd.usable() ) break;
+	mGetInpStream( sExtLog(), idx, break );
 
-	if ( !addLog(*sd.istrm) )
+	if ( !addLog(strm) )
 	{
 	    BufferString msg( "Could not read data from " );
-	    msg += FilePath(basenm).fileName();
-	    msg += " log #";
-	    msg += idx;
+	    msg.add( FilePath(basenm_).fileName() );
+	    msg.add( " log #" ).add( idx );
+	    strm.addErrMsgTo( msg );
 	    ErrMsg( msg );
 	    continue;
 	}
 
 	rv = true;
-	sd.close();
     }
 
     return rv;
 }
 
 
-Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
+Well::Log* Well::Reader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 {
     Well::Log* newlog = new Well::Log;
     ascistream astrm( strm, false );
@@ -457,7 +442,7 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
 }
 
 
-bool Well::Reader::addLog( std::istream& strm ) const
+bool Well::Reader::addLog( od_istream& strm ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyLog(),version) )
@@ -493,25 +478,25 @@ bool Well::Reader::addLog( std::istream& strm ) const
 }
 
 
-void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
+void Well::Reader::readLogData( Well::Log& wl, od_istream& strm,
        				int bintype ) const
 {
 
     float v[2];
-    while ( strm )
+    while ( strm.isOK() )
     {
 	if ( !bintype )
 	    strm >> v[0] >> v[1];
 	else
 	{
-	    strm.read( (char*)v, 2 * sizeof(float) );
+	    strm.getBin( (char*)v, 2 * sizeof(float) );
 	    if ( (bintype > 0) != __islittle__ )
 	    {
 		SwapBytes( v, sizeof(float) );
 		SwapBytes( v+1, sizeof(float) );
 	    }
 	}
-	if ( !strm ) break;
+	if ( !strm.isOK() ) break;
 
 	wl.addValue( v[0], v[1] );
     }
@@ -520,16 +505,12 @@ void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
 
 bool Well::Reader::getMarkers() const
 {
-    StreamData sd = mkSD( sExtMarkers() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = getMarkers( *sd.istrm );
-    sd.close();
-    return isok;
+    mGetInpStream( sExtMarkers(), 0, return false );
+    return getMarkers( strm );
 }
 
 
-bool Well::Reader::getMarkers( std::istream& strm ) const
+bool Well::Reader::getMarkers( od_istream& strm ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyMarkers(),version) )
@@ -583,20 +564,16 @@ bool Well::Reader::getD2T() const	{ return doGetD2T( false ); }
 bool Well::Reader::getCSMdl() const	{ return doGetD2T( true ); }
 bool Well::Reader::doGetD2T( bool csmdl ) const
 {
-    StreamData sd = mkSD( csmdl ? sExtCSMdl() : sExtD2T() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = doGetD2T( *sd.istrm, csmdl );
-    sd.close();
-    return isok;
+    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, return false );
+    return doGetD2T( strm, csmdl );
 }
 
 
-bool Well::Reader::getD2T( std::istream& strm ) const
+bool Well::Reader::getD2T( od_istream& strm ) const
 { return doGetD2T(strm,false); }
-bool Well::Reader::getCSMdl( std::istream& strm ) const
+bool Well::Reader::getCSMdl( od_istream& strm ) const
 { return doGetD2T(strm,true); }
-bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
+bool Well::Reader::doGetD2T( od_istream& strm, bool csmdl ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyD2T(),version) )
@@ -615,10 +592,10 @@ bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
     }
 
     float dah, val;
-    while ( strm )
+    while ( strm.isOK() )
     {
 	strm >> dah >> val;
-	if ( !strm ) break;
+	if ( !strm.isOK() ) break;
 	d2t->add( dah, val );
     }
     if ( d2t->size() < (csmdl ? 1 : 2) )
@@ -634,16 +611,12 @@ bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
 
 bool Well::Reader::getDispProps() const
 {
-    StreamData sd = mkSD( sExtDispProps() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = getDispProps( *sd.istrm );
-    sd.close();
-    return isok;
+    mGetInpStream( sExtDispProps(), 0, return false );
+    return getDispProps( strm );
 }
 
 
-bool Well::Reader::getDispProps( std::istream& strm ) const
+bool Well::Reader::getDispProps( od_istream& strm ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyDispProps(),version) )

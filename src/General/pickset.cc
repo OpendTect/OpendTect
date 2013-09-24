@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tabledef.h"
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
+#include "od_iostream.h"
 #include <ctype.h>
 
 
@@ -596,7 +597,7 @@ bool PickSetAscIO::isXY() const
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
+bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 			bool iszreq, float constz ) const
 {
     while ( true )
@@ -637,4 +638,3 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 
     return true;
 }
-

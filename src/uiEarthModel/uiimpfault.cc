@@ -239,7 +239,7 @@ bool uiImportFault::handleAscii()
 
     const char* tp = fault3d ? "fault" : "faultstickset";
 
-    const bool res = getFromAscIO( strm.stdStream(), *fault );
+    const bool res = getFromAscIO( strm, *fault );
     if ( !res )
 	mErrRet( BufferString("Cannot import ",tp) );
     PtrMan<Executor> exec = fault->saver();
@@ -259,7 +259,7 @@ bool uiImportFault::handleAscii()
 }
 
 
-bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
+bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 {
     EM::FaultAscIO ascio( *fd_ );
     mDynamicCastGet( EM::Fault3D*, fault3d, &flt );

@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "ioman.h"
 #include "pixmap.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "settings.h"
 #include "separstr.h"
 #include "stratlayseqgendesc.h"
@@ -677,16 +677,16 @@ bool uiStratLayerModel::saveGenDesc() const
     descctio_.setObj( dlg.ioObj()->clone() );
 
     const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
+    
     MouseCursorChanger mcch( MouseCursor::Wait );
     
-    
     fillWorkBenchPars( desc_.getWorkBenchParams() );
-    
-    if ( !sd.usable() )
+
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	uiMSG().error( "Cannot open output file" );
-    else if ( !desc_.putTo(*sd.ostrm) )
+    else if ( !desc_.putTo(strm) )
 	uiMSG().error(desc_.errMsg());
     else
     {
@@ -695,7 +695,6 @@ bool uiStratLayerModel::saveGenDesc() const
 	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
 
-    sd.close();
     return rv;
 }
 
@@ -712,17 +711,17 @@ bool uiStratLayerModel::openGenDesc()
     descctio_.setObj( dlg.ioObj()->clone() );
 
     const BufferString fnm( descctio_.ioobj->fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	{ uiMSG().error( "Cannot open input file" ); return false; }
 
     delete elpropsel_; elpropsel_ = 0;
     desc_.erase();
     MouseCursorChanger mcch( MouseCursor::Wait );
-    bool rv = desc_.getFrom( *sd.istrm );
+    bool rv = desc_.getFrom( strm );
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
-    sd.close();
+    strm.close();
     
     //Before calculation
     if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
@@ -1085,11 +1084,11 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
     BufferString fnmlm;
     fnmlm = fnm;
     fnmlm += ".txt";
-    StreamData outsd( StreamProvider(fnmlm).makeOStream() );
-    if ( !outsd.usable() )
+    od_ostream strm( fnmlm );
+    if ( !strm.isOK() )
 	{ uiMSG().error( "Cannot open '", fnmlm,"' for write" ); return false; }
 
-    ascostream astrm( *outsd.ostrm );
+    ascostream astrm( strm );
     const char* typ = "Well group";
     astrm.putHeader( typ );
 
@@ -1097,7 +1096,6 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
     astrm.put( sKey::Name(), BufferString("",nrpswells," pseudowells") );
     astrm.newParagraph();
 
-    od_ostream& strm = astrm.stream();
     for ( int iwell=0; iwell<nrpswells; iwell++ )
     {
 	const Strat::LayerSequence& seq = layerModel().sequence( iwell );
@@ -1166,6 +1164,5 @@ bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
     }
 
     const bool res = strm.isOK();
-    outsd.close();
     return res;
 }

@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "oddirs.h"
 #include "tabledef.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 
 #include "uiioobjsel.h"
@@ -71,22 +71,17 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( "Please enter the input file name" )
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
-	mErrRet( "Cannot open input file" )
-
     if ( !wvltfld_->commitInput() )
-    {
-	sd.close();
 	mErrRet( !wvltfld_->isEmpty() ? 0
 		: "Please enter a name for the new wavelet" )
-    }
     if ( !dataselfld_->commit() )
-	{ sd.close(); return false; }
+	return false;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( "Cannot open input file" )
 
     WaveletAscIO aio( fd_ );
-    PtrMan<Wavelet> wvlt = aio.get( *sd.istrm );
-    sd.close();
+    PtrMan<Wavelet> wvlt = aio.get( strm );
     if ( !wvlt )
 	mErrRet(aio.errMsg())
 
@@ -161,8 +156,8 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( "Cannot read wavelet" )
     if ( wvlt->size() < 1 )
 	mErrRet( "Empty wavelet" )
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open output file" )
 
     const bool addz = addzfld_->getBoolValue();
@@ -174,14 +169,13 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	{
 	    const float zval = zfac * zpos.atIndex(idx);
 	    const od_int64 izval = mRounded( od_int64, 1000 * zval );
-	    *sd.ostrm << toString( izval * 0.001 ) << '\t';
+	    strm << toString( izval * 0.001 ) << '\t';
 	}
-	*sd.ostrm << toString(wvlt->samples()[idx]) << '\n';
+	strm << toString(wvlt->samples()[idx]) << '\n';
     }
 
-    if ( !sd.ostrm->good() )
-	{ sd.close(); mErrRet( "Possible error during write" ) }
+    if ( !strm.isOK() )
+	mErrRet( "Possible error during write" );
 
-    sd.close();
     return true;
 }

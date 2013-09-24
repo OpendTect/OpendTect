@@ -1502,7 +1502,7 @@ int EventPatchWriter::nextStep()
 	ascostream astream( fileio_.ostrm() );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
-	std::ostream& ostrm = astream.stdstream();
+	std::ostream& ostrm = astream.stream().stdStream();
 	fileheaderoffset_ = mCast(int,ostrm.tellp());
 	if ( !fileheader_.toStream( ostrm, binary_ ) )
 	{

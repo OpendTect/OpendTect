@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "multiid.h"
 #include "threadlock.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 class DataPackMgr;
 class IOPar;
@@ -181,7 +181,7 @@ public:
     virtual void	dumpInfoFor(DataPack::ID,IOPar&) const;
 
     ID			id() const		{ return id_; }
-    void		dumpInfo(std::ostream&) const;
+    void		dumpInfo(od_ostream&) const;
     float		nrKBytes() const;
 
     const ObjectSet<const DataPack>&	packs() const	{ return packs_; }
@@ -210,7 +210,7 @@ public:
 
     static DataPackMgr&	DPM(ID);
     static DataPackMgr*	gtDPM(ID,bool);
-    static void		dumpDPMs(std::ostream&);
+    static void		dumpDPMs(od_ostream&);
 
 };
 

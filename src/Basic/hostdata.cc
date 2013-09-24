@@ -21,8 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "filepath.h"
 #include "debugmasks.h"
-#include <iostream>
-#include <sstream>
+#include "od_strstream.h"
 #ifdef __win__
 # include <windows.h>
 #else
@@ -184,19 +183,15 @@ HostDataList::HostDataList( bool readhostfile )
 
 bool HostDataList::readHostFile( const char* fname )
 {
-    StreamData sd = StreamProvider( fname ).makeIStream();
-    if ( !sd.usable() || !sd.istrm->good() )
-    {
-	if ( sd.usable() )
-	    ErrMsg( StrmOper::getErrorMessage(sd) );
-	sd.close(); return false;
-    }
+    od_istream strm( fname );
+    if ( !strm.isOK() )
+	{ ErrMsg( strm.errMsg() ); return false; }
 
-    ascistream astrm( *sd.istrm );
+    ascistream astrm( strm );
     if ( !astrm.isOfFileType("Batch Processing Hosts") )
     {
 	const BufferString msg( fname, ": hosts file has invalid file header" );
-	ErrMsg( msg ); sd.close(); return false;
+	ErrMsg( msg ); return false;
     }
 
     BufferString sharehost;
@@ -302,12 +297,10 @@ bool HostDataList::readHostFile( const char* fname )
 	complain = false;
     }
 
-    sd.close();
     if ( mDebugOn )
     {
-	std::ostringstream strstrm;
-	dump( strstrm );
-	DBG::message( strstrm.str().c_str() );
+	od_ostrstream strstrm; dump( strstrm );
+	DBG::message( strstrm.result() );
     }
     return true;
 }
@@ -315,7 +308,7 @@ bool HostDataList::readHostFile( const char* fname )
 
 #define mPrMemb(obj,x) { strm << "-- " << #x << "='" << obj->x << "'\n"; }
 
-void HostDataList::dump( std::ostream& strm ) const
+void HostDataList::dump( od_ostream& strm ) const
 {
     strm << "\n\n-- Host data list:\n--\n";
     mPrMemb(this,rshcomm_)
@@ -359,8 +352,9 @@ void HostDataList::dump( std::ostream& strm ) const
 	    else
 		strm << "-- No sharedata_->host_\n";
 	}
-	strm << "--" << std::endl;
+	strm << "--\n";
     }
+    strm.flush();
 }
 
 

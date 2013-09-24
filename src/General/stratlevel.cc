@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "keystrs.h"
 #include "safefileio.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "ascstream.h"
 #include "oddirs.h"
 #include "dirlist.h"
@@ -492,13 +492,12 @@ Repos::Source Strat::LevelSet::readOldRepos()
     if ( bestfile.isEmpty() )
 	return Repos::Temp;
 
-    StreamData sd( StreamProvider(bestfile).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( bestfile );
+    if ( !strm.isOK() )
 	return Repos::Temp;
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( strm, true );
     readPars( astrm, true );
-    sd.close();
 
     ischanged_ = false;
     return rsrc;

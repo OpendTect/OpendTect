@@ -16,11 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldisp.h"
 #include "ascstream.h"
 #include "errh.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "keystrs.h"
 #include "envvars.h"
-#include <iostream>
 
+#define mGetOutStream(ext,nr,todo) \
+        od_ostream strm( getFileName(ext,nr) ); \
+    if ( !strm.isOK() ) { todo; }
 
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f,false)
@@ -30,14 +32,14 @@ Well::Writer::Writer( const char* f, const Well::Data& w )
 }
 
 
-bool Well::Writer::wrHdr( std::ostream& strm, const char* fileky ) const
+bool Well::Writer::wrHdr( od_ostream& strm, const char* fileky ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(fileky) )
     {
 	BufferString msg( "Cannot write to " );
-	msg += fileky;
-	msg += " file";
+	msg.add( fileky ).add( " file" );
+	strm.addErrMsgTo( msg );
 	ErrMsg( msg );
 	return false;
     }
@@ -58,16 +60,12 @@ bool Well::Writer::put() const
 
 bool Well::Writer::putInfoAndTrack() const
 {
-    StreamData sd = mkSD( sExtWell() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = putInfoAndTrack( *sd.ostrm );
-    sd.close();
-    return isok;
+    mGetOutStream( sExtWell(), 0, return false )
+    return putInfoAndTrack( strm );
 }
 
 
-bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
+bool Well::Writer::putInfoAndTrack( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWell()) ) return false;
 
@@ -90,7 +88,7 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 }
 
 
-bool Well::Writer::putTrack( std::ostream& strm ) const
+bool Well::Writer::putTrack( od_ostream& strm ) const
 {
     for ( int idx=0; idx<wd.track().size(); idx++ )
     {
@@ -102,18 +100,14 @@ bool Well::Writer::putTrack( std::ostream& strm ) const
 	strm << toString(c.z) << '\t';
 	strm << wd.track().dah(idx) << '\n';
     }
-    return strm.good();
+    return strm.isOK();
 }
 
 
 bool Well::Writer::putTrack() const
 {
-    StreamData sd = mkSD( sExtTrack() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = putTrack( *sd.ostrm );
-    sd.close();
-    return isok;
+    mGetOutStream( sExtTrack(), 0, return false )
+    return putTrack( strm );
 }
 
 
@@ -121,24 +115,22 @@ bool Well::Writer::putLogs() const
 {
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
-	StreamData sd = mkSD( sExtLog(), idx+1 );
-	if ( !sd.usable() ) break;
+	mGetOutStream( sExtLog(), idx+1, break )
 
 	const Well::Log& wl = wd.logs().getLog(idx);
-	if ( !putLog(*sd.ostrm,wl) )
+	if ( !putLog(strm,wl) )
 	{
-	    ErrMsg( BufferString("Could not write log: '",wl.name(),"'") );
-	    sd.close();
-	    return false;
+	    BufferString msg( "Could not write log: '", wl.name(), "'" );
+	    strm.addErrMsgTo( msg );
+	    ErrMsg( msg ); return false;
 	}
-	sd.close();
     }
 
     return true;
 }
 
 
-bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
+bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog()) ) return false;
 
@@ -179,7 +171,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	    continue;
 
 	if ( binwrlogs_ )
-	    strm.write( (char*)v, 2*sizeof(float) );
+	    strm.putBin( (char*)v, 2*sizeof(float) );
 	else
 	{
 	    if ( mIsUdf(v[1]) )
@@ -189,22 +181,18 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	}
     }
 
-    return strm.good();
+    return strm.isOK();
 }
 
 
 bool Well::Writer::putMarkers() const
 {
-    StreamData sd = mkSD( sExtMarkers() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = putMarkers( *sd.ostrm );
-    sd.close();
-    return isok;
+    mGetOutStream( sExtMarkers(), 0, return false )
+    return putMarkers( strm );
 }
 
 
-bool Well::Writer::putMarkers( std::ostream& strm ) const
+bool Well::Writer::putMarkers( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyMarkers()) ) return false;
 
@@ -220,7 +208,7 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
     }
 
-    return strm.good();
+    return strm.isOK();
 }
 
 
@@ -231,20 +219,16 @@ bool Well::Writer::doPutD2T( bool csmdl ) const
     if ( (csmdl && !wd.checkShotModel()) || (!csmdl && !wd.d2TModel()) )
 	return true;
 
-    StreamData sd = mkSD( csmdl ? sExtCSMdl() : sExtD2T() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = doPutD2T( *sd.ostrm, csmdl );
-    sd.close();
-    return isok;
+    mGetOutStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, return false )
+    return doPutD2T( strm, csmdl );
 }
 
 
-bool Well::Writer::putD2T( std::ostream& strm ) const
+bool Well::Writer::putD2T( od_ostream& strm ) const
 { return doPutD2T( strm, false ); }
-bool Well::Writer::putCSMdl( std::ostream& strm ) const
+bool Well::Writer::putCSMdl( od_ostream& strm ) const
 { return doPutD2T( strm, true ); }
-bool Well::Writer::doPutD2T( std::ostream& strm, bool csmdl ) const
+bool Well::Writer::doPutD2T( od_ostream& strm, bool csmdl ) const
 {
     if ( !wrHdr(strm,sKeyD2T()) ) return false;
 
@@ -257,22 +241,18 @@ bool Well::Writer::doPutD2T( std::ostream& strm, bool csmdl ) const
 
     for ( int idx=0; idx<d2t.size(); idx++ )
 	strm << d2t.dah(idx) << '\t' << d2t.t(idx) << '\n';
-    return strm.good();
+    return strm.isOK();
 }
 
 
 bool Well::Writer::putDispProps() const
 {
-    StreamData sd = mkSD( sExtDispProps() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = putDispProps( *sd.ostrm );
-    sd.close();
-    return isok;
+    mGetOutStream( sExtDispProps(), 0, return false )
+    return putDispProps( strm );
 }
 
 
-bool Well::Writer::putDispProps( std::ostream& strm ) const
+bool Well::Writer::putDispProps( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyDispProps()) ) return false;
 
@@ -281,5 +261,5 @@ bool Well::Writer::putDispProps( std::ostream& strm ) const
     wd.displayProperties(true).fillPar( iop );
     wd.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
-    return strm.good();
+    return strm.isOK();
 }

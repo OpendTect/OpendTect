@@ -117,8 +117,8 @@ public:
 
     static Table::FormatDesc*	getDesc();
 
-    Wavelet*			get(std::istream&) const;
-    bool			put(std::ostream&) const;
+    Wavelet*			get(od_istream&) const;
+    bool			put(od_ostream&) const;
 
 };
 

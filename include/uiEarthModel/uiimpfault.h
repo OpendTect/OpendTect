@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
+class od_istream;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -45,7 +46,7 @@ protected:
     bool		handleAscii();
     bool		handleLMKAscii();
     virtual bool	acceptOK(CallBacker*) { return false; }
-    virtual bool	getFromAscIO(std::istream&,EM::Fault&);
+    virtual bool	getFromAscIO(od_istream&,EM::Fault&);
     EM::Fault*		createFault() const;
 
     uiFileInput*	infld_;

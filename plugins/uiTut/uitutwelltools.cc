@@ -14,8 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "welldata.h"
 #include "wellio.h"
 #include "welllog.h"
@@ -98,11 +97,14 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	const int lognr = logset.size();
 	const BufferString logfnm =
 	    		wtr.getFileName( Well::IO::sExtLog(), lognr );
-	StreamData sdo = StreamProvider(logfnm).makeOStream();
-	if ( !sdo.usable() )
-	    mErrRet( "Cannot write smoothed log" )
-	wtr.putLog( *sdo.ostrm, logset.getLog(lognr-1) );
-	sdo.close();
+	od_ostream strm( logfnm );
+	if ( !strm.isOK() )
+	{
+	    BufferString errmsg( "Cannot open file for write" );
+	    strm.addErrMsgTo( errmsg );
+	    mErrRet( errmsg )
+	}
+	wtr.putLog( strm, logset.getLog(lognr-1) );
     }
     else
 	delete outputlog;

@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odinst.h"
 #include "odsysmem.h"
 #include "settings.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "survinfo.h"
 #include "thread.h"
 
@@ -658,8 +658,6 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
-extern Export_Basic const char* logMsgFileName();
-
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = new uiMenu( &appl_, "&Settings" );
@@ -699,7 +697,7 @@ void uiODMenuMgr::fillUtilMenu()
 		     mInstConnSettsMnuItm );
     }
 
-    const char* lmfnm = logMsgFileName();
+    const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
 	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
 #ifdef __debug__
@@ -1116,8 +1114,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.setAllowAllExts( true );
 	if ( dlg.go() )
 	{
-	    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
-	    if ( sd.usable() ) DataPackMgr::dumpDPMs( *sd.ostrm );
+	    od_ostream strm( dlg.fileName() );
+	    if ( strm.isOK() )
+		DataPackMgr::dumpDPMs( strm );
 	}
     } break;
     case mDisplayMemoryMnuItm: {
@@ -1230,7 +1229,7 @@ mDefManCBFn(PDF)
 
 void uiODMenuMgr::showLogFile()
 {
-    uiTextFileDlg::Setup su( logMsgFileName() );
+    uiTextFileDlg::Setup su( od_ostream::logStream().fileName() );
     su.modal( true );
     uiTextFileDlg dlg( &appl_, su );
     dlg.go();

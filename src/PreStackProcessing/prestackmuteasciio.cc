@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
+#include "od_istream.h"
 
 namespace PreStack
 {

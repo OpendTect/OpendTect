@@ -56,8 +56,8 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    void			dump(std::ostream&,bool binary) const;
-    bool			obtain(std::istream&,bool binary);
+    void			dump(od_ostream&,bool binary) const;
+    bool			obtain(od_istream&,bool binary);
 
     float			getAveragePos(int dim) const;
     static float		findAveragePos(const float*,int,
@@ -114,8 +114,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(std::ostream&,bool binary) const;
-    virtual bool	obtain(std::istream&,bool binary);
+    virtual void	dump(od_ostream&,bool binary) const;
+    virtual bool	obtain(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const	
     			{ return new Array1DImpl<float>(bins_); }
 
@@ -152,8 +152,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(std::ostream&,bool binary) const;
-    virtual bool	obtain(std::istream&,bool binary);
+    virtual void	dump(od_ostream&,bool binary) const;
+    virtual bool	obtain(od_istream&,bool binary);
     virtual ArrayND<float>* getArrClone() const	
     			{ return new Array2DImpl<float>(bins_); }
     virtual float	averagePos( int dim ) const
@@ -206,8 +206,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(std::ostream&,bool binary) const;
-    virtual bool	obtain(std::istream&,bool binary);
+    virtual void	dump(od_ostream&,bool binary) const;
+    virtual bool	obtain(od_istream&,bool binary);
 
     TypeSet< SamplingData<float> >	sds_;
     ArrayNDImpl<float>			bins_;

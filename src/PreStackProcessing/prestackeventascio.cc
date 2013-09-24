@@ -12,16 +12,14 @@ ________________________________________________________________________
 #include "prestackeventascio.h"
 #include "executor.h"
 #include "file.h"
-#include "strmdata.h"
-#include "strmoper.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 
 namespace PreStack
 {
 
-EventExporter::EventExporter( std::ostream& strm, EventManager& events )
+EventExporter::EventExporter( od_ostream& strm, EventManager& events )
     : strm_( strm )
     , events_( events )
     , hrg_( true )
@@ -127,22 +125,22 @@ int EventExporter::nextStep()
 EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
 			      EventManager& evmgr )
     : evmgr_(evmgr)
-    , sd_(*new StreamData(StreamProvider(filenm).makeIStream(false,false)))
+    , strm_(*new od_istream(filenm))
     , ascio_(0)
     , event_(0)
     , lasthorid_(-1)
     , message_("")
 {
-    if ( sd_.istrm )
-	ascio_ = new EventAscIO( fd, *sd_.istrm );
-
+    if ( strm_.isOK() )
+	ascio_ = new EventAscIO( fd, strm_ );
     totalnr_ = File::getFileSize( filenm );
     evmgr_.ref();
+    message_ = ascio_ ? "Importing" : "Cannot open input file";
 }
 
 
 EventImporter::~EventImporter()
-{ evmgr_.unRef(); delete &sd_; delete ascio_; }
+{ evmgr_.unRef(); delete &strm_; delete ascio_; }
 
 
 const char* EventImporter::nrDoneText() const
@@ -151,8 +149,7 @@ const char* EventImporter::nrDoneText() const
 
 od_int64 EventImporter::nrDone() const
 {
-    if ( !sd_.istrm ) return 0;
-    return StrmOper::tell( *sd_.istrm );
+    return strm_.isOK() ? strm_.position() : 0;
 }
 
 
@@ -166,7 +163,7 @@ int EventImporter::nextStep()
     float offset, zval;
     const int ret = ascio_->getNextLine( bid, horid, offset, zval );
     if ( ret < 0 )
-	return ErrorOccurred();
+	{ message_ = "Error during read"; return ErrorOccurred(); }
 
     if ( bid != lastbid_ || horid != lasthorid_ )
     {

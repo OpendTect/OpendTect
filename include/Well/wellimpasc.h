@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 #include "tableascio.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 namespace Table { class FormatDesc; }
 class Coord3;
@@ -65,10 +65,10 @@ public:
 
     void		setData( Data* wd )	    { wd_ = wd; }
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
-    const char*		getLogInfo(std::istream& lasstrm,FileInfo&) const;
+    const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
 	    			bool istvd=true);
-    const char*		getLogs(std::istream& lasstrm,const FileInfo&,
+    const char*		getLogs(od_istream& lasstrm,const FileInfo&,
 	    			bool istvd=true);
 
     bool		willConvertToSI() const		{ return useconvs_; }
@@ -85,7 +85,7 @@ protected:
     bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
-    const char*		getLogData(std::istream&,const BoolTypeSet&,
+    const char*		getLogData(od_istream&,const BoolTypeSet&,
 	    			   const FileInfo&,bool,int,int);
 
 };
@@ -99,7 +99,7 @@ mExpClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
     				TrackAscIO( const Table::FormatDesc& fd,
-					   std::istream& strm )
+					   od_istream& strm )
 				    : Table::AscIO(fd)
 	      		    	    , strm_(strm)	{}
 
@@ -108,7 +108,7 @@ public:
 
 protected:
 
-    std::istream&		strm_;
+    od_istream&		strm_;
 
 };
 
@@ -127,7 +127,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
     static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
     static void                 createDescBody(Table::FormatDesc*,bool unitfld);
 
-    bool                        get(std::istream&,Well::D2TModel&,
+    bool                        get(od_istream&,Well::D2TModel&,
 	    			    const Well::Data&) const;
 };
 
@@ -144,7 +144,7 @@ public:
 
     static Table::FormatDesc*	getDesc();
 
-    bool		get(std::istream&,MarkerSet&,const Track&) const;
+    bool		get(od_istream&,MarkerSet&,const Track&) const;
 
 };
 
@@ -156,14 +156,16 @@ public:
 mExpClass(Well) BulkTrackAscIO : public Table::AscIO
 {
 public:
-			BulkTrackAscIO(const Table::FormatDesc&,std::istream&);
+			BulkTrackAscIO(const Table::FormatDesc&,od_istream&);
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,Coord3& crd,float& md,
 				    BufferString& uwi) const;
 
 protected:
-    std::istream&	strm_;
+
+    od_istream&	strm_;
+
 };
 
 
@@ -174,7 +176,7 @@ protected:
 mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
 {
 public:
-			BulkMarkerAscIO(const Table::FormatDesc&,std::istream&);
+			BulkMarkerAscIO(const Table::FormatDesc&,od_istream&);
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,
@@ -182,7 +184,9 @@ public:
     bool			identifierIsUWI() const;
 
 protected:
-    std::istream&	strm_;
+
+    od_istream&	strm_;
+
 };
 
 
@@ -194,7 +198,7 @@ mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
 {
 public:
 			BulkD2TModelAscIO(const Table::FormatDesc&,
-					  std::istream&);
+					  od_istream&);
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,
@@ -202,7 +206,9 @@ public:
     bool			identifierIsUWI() const;
 
 protected:
-    std::istream&	strm_;
+
+    od_istream&	strm_;
+
 };
 
 } // namespace Well

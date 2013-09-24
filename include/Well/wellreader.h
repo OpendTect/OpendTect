@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "wellio.h"
 #include "sets.h"
 #include "ranges.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 class BufferStringSet;
 
 
@@ -46,12 +46,12 @@ public:
     bool		getCSMdl() const;	//!< Read Checkshot model only
     bool		getDispProps() const;	//!< Read display props only
 
-    bool		getInfo(std::istream&) const;
-    bool		addLog(std::istream&) const;
-    bool		getMarkers(std::istream&) const;
-    bool		getD2T(std::istream&) const;
-    bool		getCSMdl(std::istream&) const;
-    bool		getDispProps(std::istream&) const;
+    bool		getInfo(od_istream&) const;
+    bool		addLog(od_istream&) const;
+    bool		getMarkers(od_istream&) const;
+    bool		getD2T(od_istream&) const;
+    bool		getCSMdl(od_istream&) const;
+    bool		getDispProps(od_istream&) const;
 
     void		getLogInfo(BufferStringSet&) const;
     Interval<float>	getLogDahRange(const char*) const;
@@ -63,13 +63,13 @@ protected:
 
     Data&		wd;
 
-    bool		getOldTimeWell(std::istream&) const;
-    void		readLogData(Log&,std::istream&,int) const;
-    bool		getTrack(std::istream&) const;
-    bool		doGetD2T(std::istream&,bool csmdl) const;
+    bool		getOldTimeWell(od_istream&) const;
+    void		readLogData(Log&,od_istream&,int) const;
+    bool		getTrack(od_istream&) const;
+    bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
 
-    static Log*		rdLogHdr(std::istream&,int&,int);
+    static Log*		rdLogHdr(od_istream&,int&,int);
 
 };
 

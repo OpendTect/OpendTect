@@ -17,8 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpolnd.h"
 #include "idxable.h"
 #include "statrand.h"
+#include "od_iostream.h"
 #include <math.h>
-#include <iostream>
 
 static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
@@ -166,7 +166,7 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     constspec float* values = array.getData(); \
     if ( !values ) return retval
 
-void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
+void ArrayNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
 {
     mDefArrVars(,const);
     const ArrayNDInfo& info = array.info();
@@ -175,7 +175,7 @@ void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
-	    strm.write( (const char*)(&values[idx]), sizeof(float) );
+	    strm.putBin( &values[idx], sizeof(float) );
 	else
 	{
 	    strm << values[idx];
@@ -188,7 +188,7 @@ void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
 }
 
 
-bool ArrayNDProbDenFunc::obtain( std::istream& strm, bool binary )
+bool ArrayNDProbDenFunc::obtain( od_istream& strm, bool binary )
 {
     mDefArrVars(false,);
 
@@ -196,7 +196,7 @@ bool ArrayNDProbDenFunc::obtain( std::istream& strm, bool binary )
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
-	    strm.read( (char*)(&val), sizeof(float) );
+	    strm.getBin( &val, sizeof(float) );
 	else
 	    strm >> val;
 
@@ -450,10 +450,10 @@ bool Sampled1DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void Sampled1DProbDenFunc::dump( std::ostream& strm, bool binary ) const
+void Sampled1DProbDenFunc::dump( od_ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool Sampled1DProbDenFunc::obtain( std::istream& strm, bool binary )
+bool Sampled1DProbDenFunc::obtain( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
@@ -576,10 +576,10 @@ bool Sampled2DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void Sampled2DProbDenFunc::dump( std::ostream& strm, bool binary ) const
+void Sampled2DProbDenFunc::dump( od_ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool Sampled2DProbDenFunc::obtain( std::istream& strm, bool binary )
+bool Sampled2DProbDenFunc::obtain( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
@@ -784,9 +784,9 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 }
 
 
-void SampledNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
+void SampledNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledNDProbDenFunc::obtain( std::istream& strm, bool binary )
+bool SampledNDProbDenFunc::obtain( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 

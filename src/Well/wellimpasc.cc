@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "idxable.h"
+#include "od_istream.h"
 
 #include <iostream>
 #include <math.h>
@@ -39,40 +40,42 @@ Well::LASImporter::~LASImporter()
 
 
 #define mOpenFile(fnm) \
-	StreamProvider sp( fnm ); \
-	StreamData sd = sp.makeIStream(); \
-	if ( !sd.usable() ) \
-	    return "Cannot open input file"
+    od_istream strm( fnm ); \
+    if ( !strm.isOK() ) \
+    { \
+	mDeclStaticString(ret); \
+	ret = "Cannot open input file"; strm.addErrMsgTo( ret ); \
+	return ret.buf(); \
+    }
 
 
 const char* Well::LASImporter::getLogInfo( const char* fnm,
 					   FileInfo& lfi ) const
 {
     mOpenFile( fnm );
-    const char* res = getLogInfo( *sd.istrm, lfi );
-    sd.close();
+    const char* res = getLogInfo( strm, lfi );
     return res;
 }
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 #define mErrRet(s) { lfi.depthcolnr = -1; return s; }
 
-const char* Well::LASImporter::getLogInfo( std::istream& strm,
+const char* Well::LASImporter::getLogInfo( od_istream& strm,
 					   FileInfo& lfi ) const
 {
     convs_.allowNull();
     convs_.erase();
 
-    char linebuf[4096]; char wordbuf[64];
+    BufferString linebuf; char wordbuf[64];
     const char* ptr;
     char section = '-';
     lfi.depthcolnr = -1;
     int colnr = 0;
 
-    while ( strm )
+    while ( strm.isOK() )
     {
-	strm.getline( linebuf, 4096 );
-	ptr = linebuf; mSkipBlanks(ptr);
+	strm.getLine( linebuf );
+	ptr = linebuf.buf(); mSkipBlanks(ptr);
 	if ( *ptr == '#' || *ptr == '\0' ) continue;
 
 	if ( *ptr == '~' )
@@ -197,7 +200,7 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 	    lfi.zrg.stop = unmeas->internalValue(lfi.zrg.stop);
     }
 
-    if ( !strm.good() )
+    if ( !strm.isOK() )
 	mErrRet( "Only header found; No data" )
     else if ( lfi.lognms.size() < 1 )
 	mErrRet( "No logs present" )
@@ -238,13 +241,12 @@ const char* Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
 					bool istvd )
 {
     mOpenFile( fnm );
-    const char* res = getLogs( *sd.istrm, lfi, istvd );
-    sd.close();
+    const char* res = getLogs( strm, lfi, istvd );
     return res;
 }
 
 
-const char* Well::LASImporter::getLogs( std::istream& strm,
+const char* Well::LASImporter::getLogs( od_istream& strm,
 					const FileInfo& lfi, bool istvd )
 {
     FileInfo inplfi;
@@ -294,7 +296,7 @@ const char* Well::LASImporter::getLogs( std::istream& strm,
 }
 
 
-const char* Well::LASImporter::getLogData( std::istream& strm,
+const char* Well::LASImporter::getLogData( od_istream& strm,
 	const BoolTypeSet& issel, const FileInfo& lfi,
 	bool istvd, int addstartidx, int totalcols )
 {
@@ -314,7 +316,7 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	for ( int icol=0; icol<totalcols; icol++ )
 	{
 	    strm >> val;
-	    if ( strm.fail() || (icol<totalcols-1 && strm.eof()) )
+	    if ( strm.isBad() || (icol<totalcols-1 && !strm.isOK()) )
 		{ atend = true; break; }
 	    if ( mIsEqual(val,lfi.undefval,mDefEps) )
 		val = mUdf(float);

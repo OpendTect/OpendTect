@@ -17,13 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tabledef.h"
 #include "tableconv.h"
 #include "unitofmeasure.h"
+#include "od_istream.h"
 
 namespace Vel
 {
 
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
-			      std::istream& stm,
+			      od_istream& stm,
        			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
@@ -78,12 +79,12 @@ int FunctionAscIO::nextStep()
     const bool isxy = isXY();
     float farr[3];
 
-    const std::streamoff oldpos = strm_.tellg();
+    const od_stream::Pos oldpos = strm_.position();
     const int ret = getNextBodyVals( strm_ );
     if ( ret < 0 ) return ErrorOccurred();
     if ( ret == 0) return Finished();
 
-    const std::streamoff newpos = strm_.tellg();
+    const od_stream::Pos newpos = strm_.position();
     nrdone_ += newpos-oldpos;
 
     if ( first_ )

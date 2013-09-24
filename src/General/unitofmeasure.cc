@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "file.h"
 #include "filepath.h"
 #include "debug.h"
@@ -147,11 +147,11 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
 void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 						Repos::Source src )
 {
-    if ( !File::exists(fnm) ) return;
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() ) return;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	return;
 
-    ascistream stream( *sd.istrm, true );
+    ascistream stream( strm, true );
     while ( !atEndOfSection( stream.next() ) )
     {
 	FileMultiString fms( stream.value() );
@@ -171,8 +171,6 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	un.setSource( src );
 	add( un );
     }
-
-    sd.close();
 }
 
 
@@ -190,16 +188,16 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
     if ( !havesrc )
 	return !File::exists(fnm) || File::remove( fnm );
 
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
 	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( fnm );
+	strm.addErrMsgTo( msg ); ErrMsg( fnm );
 	return false;
     }
 
-    ascostream strm( *sd.ostrm );
-    strm.putHeader( "Units of Measure" );
+    ascostream astrm( strm );
+    astrm.putHeader( "Units of Measure" );
     for ( int idx=0; idx<entries.size(); idx++ )
     {
 	const UnitOfMeasure& uom = *entries[idx];
@@ -208,10 +206,9 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 	FileMultiString fms( PropertyRef::getStdTypeString(uom.propType()) );
 	fms += uom.symbol();
 	fms += uom.scaler().toString();
-	strm.put( uom.name(), fms );
+	astrm.put( uom.name(), fms );
     }
 
-    sd.close();
     return true;
 }
 

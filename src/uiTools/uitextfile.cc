@@ -15,9 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
-#include "strmprov.h"
 #include "filepath.h"
 #include "tableconvimpl.h"
+#include "od_iostream.h"
 
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
@@ -60,7 +60,7 @@ class uiTableExpHandler : public Table::ExportHandler
 public:
 
 uiTableExpHandler( uiTable* t, int ml )
-    : Table::ExportHandler(std::cerr)
+    : Table::ExportHandler(od_ostream::nullStream())
     , tbl_(t)
     , nrlines_(0)
     , maxlines_(ml)
@@ -118,11 +118,11 @@ bool uiTextFile::open( const char* fnm )
 	txtbr_->setSource( fnm );
     else
     {
-	StreamData sd = StreamProvider(fnm).makeIStream();
-	if ( !sd.usable() )
-	    { sd.close(); return false; }
+	od_istream strm( fnm );
+	if ( !strm.isOK() )
+	    return false;
 
-	Table::WSImportHandler imphndlr( *sd.istrm );
+	Table::WSImportHandler imphndlr( strm );
 	uiTableExpHandler exphndlr( tbl_, setup_.maxlines_ );
 	Table::Converter cnvrtr( imphndlr, exphndlr );
 	cnvrtr.execute();
@@ -159,13 +159,12 @@ bool uiTextFile::saveAs( const char* fnm )
     }
     else
     {
-	StreamData sd = StreamProvider(fnm).makeOStream();
-	if ( !sd.usable() )
-	    { sd.close(); return false; }
-	*sd.ostrm << text();
-	if ( !sd.ostrm->good() )
-	    { sd.close(); return false; }
-	sd.close();
+	od_ostream strm( fnm );
+	if ( !strm.isOK() )
+	    return false;
+	strm << text();
+	if ( !strm.isOK() )
+	    return false;
 	// tbl_->setModified( false );
     }
 

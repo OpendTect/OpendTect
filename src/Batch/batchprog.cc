@@ -120,17 +120,16 @@ void BatchProgram::init()
     }
 
     setName( parfilnm );
-
-    StreamData sd = StreamProvider( parfilnm ).makeIStream();
-    if ( !sd.usable() )
+    od_istream odstrm( parfilnm );
+    if ( !odstrm.isOK() )
     {
-	errorMsg( BufferString( clparser_->getExecutableName(),
-			       ": Cannot open parameter file: ",
-			        parfilnm ) );
-	return;
+	BufferString msg( clparser_->getExecutableName(),
+		       ": Cannot open parameter file: ", parfilnm );
+	odstrm.addErrMsgTo( msg );
+	errorMsg( msg ); return;
     }
  
-    ascistream aistrm( *sd.istrm, true );
+    ascistream aistrm( odstrm, true );
     if ( aistrm.fileType()!=sKey::Pars() )
     {
 	BufferString errmsg( clparser_->getExecutableName(),
@@ -142,7 +141,7 @@ void BatchProgram::init()
     }
     parversion_ = aistrm.version();
     iopar_->getFrom( aistrm );
-    sd.close();
+    odstrm.close();
 
     if ( iopar_->size() == 0 )
     {

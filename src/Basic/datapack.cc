@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include <iostream>
+#include "od_ostream.h"
 
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
@@ -91,12 +91,12 @@ const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
 }
 
 
-void DataPackMgr::dumpDPMs( std::ostream& strm )
+void DataPackMgr::dumpDPMs( od_ostream& strm )
 {
     Threads::Locker lock( mgrlistlock_ );
     strm << "** Data Pack Manager dump **\n";
     if ( !mgrs_.size() )
-	{ strm << "No Data pack managers (yet)" << std::endl; return; }
+	{ strm << "No Data pack managers (yet)" << od_newline; return; }
 
     for ( int imgr=0; imgr<mgrs_.size(); imgr++ )
     {
@@ -135,10 +135,10 @@ float DataPackMgr::nrKBytes() const
 }
 
 
-void DataPackMgr::dumpInfo( std::ostream& strm ) const
+void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
-    strm << "Manager.ID: " << id() << std::endl;
-    strm << "Total memory (kB): " << nrKBytes() << std::endl;
+    strm << "Manager.ID: " << id() << od_newline;
+    strm << "Total memory (kB): " << nrKBytes() << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
     for ( int idx=0; idx<packs_.size(); idx++ )

@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackmutedeftransl.h"
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "tabledef.h"
 
@@ -107,11 +107,11 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );
 
-    StreamData sd = StreamProvider( inpfld_->fileName() ).makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( inpfld_->fileName() );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
-    MuteAscIO muteascio( fd_, *sd.istrm );
+    MuteAscIO muteascio( fd_, strm );
 
     if ( haveInpPosData() )
     {
@@ -132,8 +132,6 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    mErrRet( "Failed to convert into compatible data" )
     }
 
-    sd.close();
-    
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
 		    

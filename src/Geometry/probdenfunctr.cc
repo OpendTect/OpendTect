@@ -44,17 +44,17 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
 
     const BufferString fnm( ioobj.fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
     {
 	if ( emsg )
-	    { *emsg = "Cannot open '"; *emsg += fnm; *emsg += "'"; }
+	    { emsg->set( "Cannot open '" ).add( fnm ).add( "'" );
+		strm.addErrMsgTo(*emsg); }
 	return 0;
     }
 
-    ProbDenFunc* ret = pdftr->read( *sd.istrm );
+    ProbDenFunc* ret = pdftr->read( strm );
     ret->setName( ioobj.name() );
-    sd.close();
     if ( !ret && emsg )
 	{ *emsg = "Cannot read PDF from '"; *emsg += fnm; *emsg += "'"; }
     return ret;
@@ -70,23 +70,23 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 	{ if ( emsg ) *emsg = "Cannot create Translator"; return false; }
 
     const BufferString fnm( ioobj.fullUserExpr(false) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
 	if ( emsg )
-	    { *emsg = "Cannot write to '"; *emsg += fnm; *emsg += "'"; }
+	    { emsg->set( "Cannot write to '" ).add( fnm ).add( "'" );
+		strm.addErrMsgTo(*emsg); }
 	return false;
     }
 
-    const bool ret = pdftr->write( pdf, *sd.ostrm );
-    sd.close();
+    const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
 	{ *emsg = "Cannot write PDF to '"; *emsg += fnm; *emsg += "'"; }
     return ret;
 }
 
 
-ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
+ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
 {
     ascistream astrm( strm );
     IOPar par( astrm );
@@ -114,10 +114,9 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 }
 
 
-bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
-				     std::ostream& strm )
+bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf, od_ostream& strm )
 {
-    if ( !strm.good() )
+    if ( !strm.isOK() )
 	return false;
 
     ascostream astrm( strm );
@@ -129,5 +128,5 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
     par.putTo( astrm );
 
     pdf.dump( strm, binary_ );
-    return strm.good();
+    return strm.isOK();
 }

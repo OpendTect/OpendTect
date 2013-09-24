@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "geom2dascio.h"
 #include "surv2dgeom.h"
-#include "strmprov.h"
+#include "od_istream.h"
 
 #include "uitoolbutton.h"
 #include "uifileinput.h"
@@ -189,19 +189,14 @@ void impLineGeom( CallBacker* )
     BufferString filenm( dlg.geom2dinfld_->fileName() ); 
     if ( !filenm.isEmpty() )
     {
-	StreamData sd = StreamProvider( filenm ).makeIStream();
-	if ( !sd.usable() )
-	{
-	    uiMSG().error( "Cannot open input file" );
-	    return;
-	}
+	od_istream strm( filenm );
+	if ( !strm.isOK() )
+	    { uiMSG().error( "Cannot open input file" ); return; }
 
 	PosInfo::Line2DData geom( linenm_ );
-	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), *sd.istrm );
+	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );
 	if ( !geomascio.getData( geom ) )
 	    uiMSG().error( "Failed to convert into compatible data" );
-
-	sd.close();
 
 	table_->clearTable();
 	fillTable( geom );

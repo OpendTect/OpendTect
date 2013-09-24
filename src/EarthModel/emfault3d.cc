@@ -411,7 +411,7 @@ Coord3 getNormal( bool is2d ) const
 };
 
 
-bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
+bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 		      const MultiID* linesetmid, bool is2d ) const
 {
     getHdrVals( strm );

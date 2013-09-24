@@ -29,7 +29,7 @@ public:
 
 protected:
 
-    void		readFile(std::istream&);
+    void		readFile(od_istream&);
     void		addD2T(BufferString&);
     void		write(BufferStringSet&);
     bool		acceptOK(CallBacker*);
@@ -65,7 +65,7 @@ public:
 protected:
 
     bool		acceptOK(CallBacker*);
-    void		readFile(std::istream&,BufferStringSet&,
+    void		readFile(od_istream&,BufferStringSet&,
 				 ObjectSet<Well::MarkerSet>&);
 
     uiFileInput*	inpfld_;
@@ -83,7 +83,7 @@ public:
 protected:
 
     bool		acceptOK(CallBacker*);
-    void		readFile(std::istream&,
+    void		readFile(od_istream&,
 				 ObjectSet<D2TModelData>&);
 
     uiFileInput*	inpfld_;

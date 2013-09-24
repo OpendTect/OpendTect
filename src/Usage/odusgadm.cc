@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "filepath.h"
-#include "strmprov.h"
 #include "ascstream.h"
 #include "od_iostream.h"
 
@@ -77,10 +76,10 @@ void Usage::Administrator::readPars()
 void Usage::Administrator::addPars( const char* dir, const char* fnm )
 {
     const FilePath fp( dir, fnm );
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() ) return;
+    od_istream strm( fp.fullPath() );
+    if ( !strm.isOK() ) return;
 
-    ascistream astrm( *sd.istrm );
+    ascistream astrm( strm );
     IOPar* newpar = new IOPar( astrm );
     if ( newpar->isEmpty() )
 	delete newpar;

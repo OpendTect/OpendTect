@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "od_ostream.h"
 #include "prestackeventascio.h"
 #include "prestackeventtransl.h"
 #include "uifileinput.h"
@@ -20,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
 
-#include <fstream>
 
 namespace PreStack
 {
@@ -64,12 +64,12 @@ bool uiEventExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    std::ofstream strm( outputfile_->fileName() );
-    if ( !strm )
+    od_ostream strm( outputfile_->fileName() );
+    if ( !strm.isOK() )
     {
 	BufferString msg = "Cannot open ";
-	msg += outputfile_->fileName();
-	msg += " for writing";
+	msg.add( outputfile_->fileName() ).add( " for writing" );
+	strm.addErrMsgTo( msg );
 	uiMSG().error( msg.buf() );
 	return false;
     }
@@ -85,7 +85,6 @@ bool uiEventExport::acceptOK( CallBacker* )
 	uiMSG().error("Could not export prestack events");
 	return false;
     }
-
 
     return true;
 }

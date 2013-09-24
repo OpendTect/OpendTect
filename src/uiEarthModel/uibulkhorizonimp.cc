@@ -17,7 +17,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "emmanager.h"
 #include "executor.h"
 #include "posinfodetector.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
@@ -33,7 +33,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 class BulkHorizonAscIO : public Table::AscIO
 {
 public:
-BulkHorizonAscIO( const Table::FormatDesc& fd, std::istream& strm )
+BulkHorizonAscIO( const Table::FormatDesc& fd, od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
@@ -65,7 +65,7 @@ bool getData( BufferString& hornm, Coord3& crd )
     return true;
 }
 
-    std::istream&	strm_;
+    od_istream&	strm_;
 };
 
 
@@ -94,8 +94,8 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( "Please enter the input file name" )
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
     if ( !dataselfld_->commit() )
@@ -103,7 +103,7 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 
     ObjectSet<BinIDValueSet> data;
     BufferStringSet hornms;
-    BulkHorizonAscIO aio( *fd_, *sd.istrm );
+    BulkHorizonAscIO aio( *fd_, strm );
     BufferString hornm; Coord3 crd;
     while ( aio.getData(hornm,crd) )
     {

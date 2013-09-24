@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "filepath.h"
 #include "manobjectset.h"
+#include "od_iosfwd.h"
 
 class HostDataList;
 class ShareData;
@@ -167,6 +168,8 @@ public:
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
 
+    void		dump(od_ostream&) const;
+
 protected:
 
     bool		realaliases_;
@@ -182,10 +185,6 @@ protected:
     void		handleLocal();
     bool		readHostFile(const char*);
     HostData*		findHost(const char*) const;
-
-public:
-
-    void		dump(std::ostream&) const;
 
 };
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "bufstringset.h"
 #include "repos.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 class IOPar;
 class UnitOfMeasure;
 
@@ -73,11 +73,11 @@ protected:
 
     void			emptyVals() const;
     void			addVal(const char*,const UnitOfMeasure*) const;
-    bool			getHdrVals(std::istream&) const;
-    int				getNextBodyVals(std::istream&) const;
+    bool			getHdrVals(od_istream&) const;
+    int				getNextBodyVals(od_istream&) const;
     				//!< Executor convention
-    bool			putHdrVals(std::ostream&) const;
-    bool			putNextBodyVals(std::ostream&) const;
+    bool			putHdrVals(od_ostream&) const;
+    bool			putNextBodyVals(od_ostream&) const;
 
     const char*			text(int) const; // Never returns null
     int				getIntValue(int,int udf=mUdf(int)) const;

@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdatasettr.h"
 #include "ioobj.h"
 #include "file.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
@@ -81,14 +81,13 @@ bool uiImpPVDS::acceptOK( CallBacker* )
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet("Cannot open input file")
 
     DataPointSet dps( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rv = getData( *sd.istrm, fd_, dps );
-    sd.close();
+    bool rv = getData( strm, fd_, dps );
     MouseCursorManager::restoreOverride();
 
     return rv ? writeData( dps, *ioobj ) : false;
@@ -98,7 +97,7 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 class uiImpPVDSAscio : public Table::AscIO
 {
 public:
-uiImpPVDSAscio( const Table::FormatDesc& fd, std::istream& strm )
+uiImpPVDSAscio( const Table::FormatDesc& fd, od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
     , rownr_(-1)
@@ -182,7 +181,7 @@ bool getLine()
     return true;
 }
 
-    std::istream&	strm_;
+    od_istream&		strm_;
     bool		havecolnms_;
     bool		is2d_;
 
@@ -203,7 +202,7 @@ bool getLine()
 };
 
 
-bool uiImpPVDS::getData( std::istream& strm, Table::FormatDesc& fd,
+bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
 			 DataPointSet& dps )
 {
     uiImpPVDSAscio aio( fd, strm );

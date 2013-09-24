@@ -44,11 +44,18 @@ od_ostream& od_ostream::nullStream()
 #ifndef __win__
 	ret = new od_ostream( "/dev/null" );
 #else
-	ret = new od_ostream( "NUL:" );
+	ret = new od_ostream( "NUL" );
 #endif
 	ret->setNoClose();
     }
     return *ret;
+}
+
+namespace OD { extern Export_Basic od_ostream& logMsgStrm(); }
+
+od_ostream& od_ostream::logStream()
+{
+    return OD::logMsgStrm();
 }
 
 
@@ -164,6 +171,14 @@ const char* od_stream::errMsg() const
 }
 
 
+void od_stream::addErrMsgTo( BufferString& msg ) const
+{
+    const char* mymsg = errMsg();
+    if ( mymsg && *mymsg )
+	msg.add( ":\n" ).add( mymsg );
+}
+
+
 od_stream::Pos od_stream::position() const
 {
     if ( sd_.ostrm )
@@ -263,6 +278,26 @@ std::ostream& od_ostream::stdStream()
 	return *sd_.ostrm;
     pErrMsg( "stdStream() requested but none available" );
     return nullStream().stdStream();
+}
+
+
+bool od_istream::open( const char* fnm )
+{
+    od_istream strm( fnm );
+    if ( strm.isOK() )
+	{ *this = strm; return true; }
+    else
+	{ close(); setFileName(fnm); return false; }
+}
+
+
+bool od_ostream::open( const char* fnm )
+{
+    od_ostream strm( fnm );
+    if ( strm.isOK() )
+	{ *this = strm; return true; }
+    else
+	{ close(); setFileName(fnm); return false; }
 }
 
 

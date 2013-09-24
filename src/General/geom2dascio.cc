@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = " $";
 #include "posinfo2d.h"
 #include "tabledef.h"
 
-Geom2dAscIO::Geom2dAscIO( const Table::FormatDesc& fd, std::istream& strm )
+Geom2dAscIO::Geom2dAscIO( const Table::FormatDesc& fd, od_istream& strm )
     : Table::AscIO( fd )
     , strm_( strm )
 {

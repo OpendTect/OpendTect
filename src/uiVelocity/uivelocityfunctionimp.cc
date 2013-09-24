@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "oddirs.h"
 #include "picksettr.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "tabledef.h"
 #include "velocityfunctionascio.h"
 #include "velocityfunctionstored.h"
@@ -108,12 +108,12 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );
 
-    StreamData sd = StreamProvider( inpfld_->fileName() ).makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( inpfld_->fileName() );
+    if ( !strm.isOK() )
 	 mErrRet( "Cannot open input file" );
 
     const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
-    FunctionAscIO velascio( fd_, *sd.istrm, filesize ? filesize : -1 );
+    FunctionAscIO velascio( fd_, strm, filesize ? filesize : -1 );
 
     velascio.setOutput( bidvalset );
     bool success;
@@ -128,8 +128,6 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     
     if ( !success )
 	mErrRet( "Failed to convert into compatible data" );
-
-    sd.close();
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)

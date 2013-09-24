@@ -33,7 +33,7 @@ mExpClass(PreStackProcessing) MuteAscIO : public Table::AscIO
 {
 public:
 				MuteAscIO( const Table::FormatDesc& fd,
-				       	   std::istream& stm )
+				       	   od_istream& stm )
 				    : Table::AscIO(fd)
 		 		    , strm_(stm)		{}
    static Table::FormatDesc*	getDesc();
@@ -51,7 +51,7 @@ public:
 protected:
 	
    static void 			createDescBody(Table::FormatDesc&,bool havepos);
-   std::istream&		strm_;	
+   od_istream&			strm_;	
 };
 
 } // namespace PreStack

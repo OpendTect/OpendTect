@@ -14,10 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ptrman.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include <iostream>
+#include "od_ostream.h"
 
 
 const DataColDef& DataColDef::unknown()
@@ -261,25 +260,25 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 }
 
 
-#define mErrRet(s) { errmsg = s; sd.close(); return sd; }
+#define mErrRet(s) { errmsg = s; return strm; }
 
 
-static StreamData getInpSD( const char* fnm, BufferString& errmsg,
+static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 			    bool& tabstyle )
 {
-    StreamData sd = StreamProvider(fnm).makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet("Cannot open input file")
-    std::string buf; *sd.istrm >> buf;
-    sd.istrm->seekg( 0, std::ios::beg );
-    tabstyle = buf != "dTect" && buf != "dGB-GDI"; // For legacy data
+    BufferString firstword; strm >> firstword;
+    strm.setPosition( 0 );
+    tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
     if ( !tabstyle )
     {
-	ascistream strm( *sd.istrm );
-	if ( !strm.isOfFileType(mPosVecDataSetFileType) )
+	ascistream astrm( strm );
+	if ( !astrm.isOfFileType(mPosVecDataSetFileType) )
 	    mErrRet("Invalid input file")
     }
-    return sd;
+    return strm;
 }
 
 
@@ -308,13 +307,13 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 				 BufferString& errmsg, bool refs )
 {
     bool tabstyle = false;
-    StreamData sd = getInpSD( fnm, errmsg, tabstyle );
-    if ( !sd.usable() )
+    od_istream strm = getInpStrm( fnm, errmsg, tabstyle );
+    if ( !strm.isOK() )
 	return false;
 
     if ( tabstyle )
     {
-	char buf[65536]; sd.istrm->getline( buf, 65536 );
+	BufferString buf; strm.getLine( buf );
 	SeparString ss( buf, '\t' );
 	const int nrcols = ss.size();
 	for ( int idx=2; idx<nrcols; idx++ )
@@ -326,19 +325,18 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
     }
     else
     {
-	ascistream strm( *sd.istrm, false );
-	while ( !atEndOfSection(strm.next()) )
+	ascistream astrm( strm, false );
+	while ( !atEndOfSection(astrm.next()) )
 	{
-	    if ( strm.type() == ascistream::Keyword )
+	    if ( astrm.type() == ascistream::Keyword )
 	    {
 		DataColDef cd( "" );
-		cd.getFrom( strm.keyWord() );
+		cd.getFrom( astrm.keyWord() );
 		bss.add( refs ? cd.ref_ : cd.name_ );
 	    }
 	}
     }
 
-    sd.close();
     return true;
 }
 
@@ -346,19 +344,18 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, BufferString& emsg )
 {
     bool tabstyle = false;
-    StreamData sd = getInpSD( fnm, emsg, tabstyle );
-    if ( !sd.usable() )
+    od_istream strm = getInpStrm( fnm, emsg, tabstyle );
+    if ( !strm.isOK() )
 	return false;
     iop.setEmpty();
     if ( tabstyle )
 	return true;
 
-    ascistream strm( *sd.istrm, false );
-    while ( !atEndOfSection(strm.next()) )
+    ascistream astrm( strm, false );
+    while ( !atEndOfSection(astrm.next()) )
 	/* read away column defs */;
 
-    iop.getFrom( strm );
-    sd.close();
+    iop.getFrom( astrm );
     return true;
 }
 
@@ -369,19 +366,18 @@ bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, BufferString& emsg )
 bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 {
     bool tabstyle = false;
-    StreamData sd = getInpSD( fnm, errmsg, tabstyle );
-    if ( !sd.usable() )
+    od_istream strm = getInpStrm( fnm, errmsg, tabstyle );
+    if ( !strm.isOK() )
 	return false;
 
     setEmpty(); pars_.setEmpty(); setName( "" );
     int valstartcol = 2;
     if ( tabstyle )
     {
-	char buf[65536]; sd.istrm->getline( buf, 65536 );
+	BufferString buf; strm.getLine( buf );
 	SeparString ss( buf, '\t' );
 	const int nrcols = ss.size();
-	FixedString xcolnm( ss[2] );
-	FixedString ycolnm( ss[3] );
+	const BufferString xcolnm( ss[2] ); const BufferString ycolnm( ss[3] );
 	if ( xcolnm=="X-coord" && ycolnm=="Y-corrd" )
 	    valstartcol = 4;
 	for ( int idx=valstartcol; idx<nrcols; idx++ )
@@ -395,13 +391,13 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     }
     else
     {
-	ascistream strm( *sd.istrm, false );
-	while ( !atEndOfSection(strm.next()) )
+	ascistream astrm( strm, false );
+	while ( !atEndOfSection(astrm.next()) )
 	{
-	    if ( strm.type() == ascistream::Keyword )
+	    if ( astrm.type() == ascistream::Keyword )
 	    {
 		DataColDef* cd = new DataColDef( "" );
-		cd->getFrom( strm.keyWord() );
+		cd->getFrom( astrm.keyWord() );
 		if ( cd->name_ != "Z" )
 		    add( cd );
 		else
@@ -410,11 +406,11 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 		    delete cd;
 		}
 	    }
-	    else if ( strm.hasKeyword( sKey::Name() ) )
-		setName( strm.value() );
+	    else if ( astrm.hasKeyword( sKey::Name() ) )
+		setName( astrm.value() );
 	}
-	if ( !atEndOfSection(strm.next()) )
-	    pars().getFrom( strm );
+	if ( !atEndOfSection(astrm.next()) )
+	    pars().getFrom( astrm );
     }
 
     const int nrvals = nrCols();
@@ -422,78 +418,77 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     {
 	add( new DataColDef("Z") );
 	data().setNrVals(1);
-	sd.close(); return true;
+	return true;
     }
 
     data().setNrVals( nrvals );
     BinID bid; float* vals = new float [ nrvals ];
-    while ( *sd.istrm )
+    while ( strm.isOK() )
     {
 	bid.inl = bid.crl = 0;
-	*sd.istrm >> bid.inl >> bid.crl;
+	strm >> bid.inl >> bid.crl;
 	if ( !bid.inl && !bid.crl )
-	    { sd.istrm->ignore( 10000, '\n' ); continue; }
+	    { strm.skipUntil( '\n' ); continue; }
 
 	if ( valstartcol == 4 ) // also has X, Y coordinates.
 	{
 	    float x, y;
-	    *sd.istrm >> x >> y;
+	    strm >> x >> y;
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )
-	    *sd.istrm >> vals[idx];
-	if ( !sd.istrm->good() )
+	    strm >> vals[idx];
+	if ( !strm.isBad() )
+	    data().add( bid, vals );
+	if ( !strm.isOK() )
 	    break;
-
-	data().add( bid, vals );
     }
     delete [] vals;
 
-    sd.close();
     return true;
 }
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg = s; sd.close(); return false; }
+#define mErrRet(s) { errmsg = s; return false; }
 
 bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 			   bool tabstyle ) const
 {
-    StreamData sd = StreamProvider(fnm).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet("Cannot open output file")
 
     BufferString str;
     if ( tabstyle )
     {
-	*sd.ostrm << "\"In-line\"\t\"X-line\"\t\"X-coord\"\t\"Y-Coord\"";
+	strm << "\"In-line\"\t\"X-line\"\t\"X-coord\"\t\"Y-Coord\"";
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{
 	    const DataColDef& cd = colDef(idx);
-	    *sd.ostrm << "\t\"" << cd.name_;
+	    strm << "\t\"" << cd.name_;
 	    if ( cd.unit_ )
-		*sd.ostrm << " (" << cd.unit_->symbol() << ")";
-	    *sd.ostrm << '"';
+		strm << " (" << cd.unit_->symbol() << ")";
+	    strm << '"';
 	}
-	*sd.ostrm << '\n';
+	strm << '\n';
     }
     else
     {
-	ascostream strm( *sd.ostrm );
-	if ( !strm.putHeader(mPosVecDataSetFileType) )
+	ascostream astrm( strm );
+	if ( !astrm.putHeader(mPosVecDataSetFileType) )
 	    mErrRet("Cannot write header to output file")
 
 	if ( *name() )
-	    strm.put( sKey::Name(), name() );
-	strm.put( "--\n-- Column definitions:" );
+	    astrm.put( sKey::Name(), name() );
+	astrm.put( "--\n-- Column definitions:" );
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{
 	    colDef(idx).putTo( str );
-	    strm.put( str );
+	    astrm.put( str );
 	}
-	strm.newParagraph();
-	pars().putTo(strm);
+	astrm.newParagraph();
+	pars().putTo(astrm);
 	// iopar does a newParagraph()
     }
 
@@ -504,7 +499,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     while ( data().next(pos) )
     {
 	data().get( pos, bid, vals );
-	*sd.ostrm << bid.inl << '\t' << bid.crl;
+	strm << bid.inl << '\t' << bid.crl;
 	if ( tabstyle )
 	{
 	    Coord crd = SI().transform( bid );
@@ -515,20 +510,19 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 		crd.y += vals[1];
 	    }
 
-	    *sd.ostrm << '\t' << toString(crd.x) << '\t' << toString(crd.y);
+	    strm << '\t' << toString(crd.x) << '\t' << toString(crd.y);
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    str = vals[idx];
-	    *sd.ostrm << '\t' << str;
+	    strm << '\t' << str;
 	}
-	*sd.ostrm << '\n';
-	if ( !sd.ostrm->good() )
+	strm << '\n';
+	if ( !strm.isOK() )
 	    mErrRet("Error during write of data")
     }
     delete [] vals;
 
-    sd.close();
     return true;
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 class IOObj;
+class od_istream;
 class uiIOObjSel;
 class uiGenInput;
 class uiFileInput;
@@ -41,7 +42,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
 
-    bool		getData(std::istream&,Table::FormatDesc&,DataPointSet&);
+    bool		getData(od_istream&,Table::FormatDesc&,DataPointSet&);
     bool		writeData(const DataPointSet&,const IOObj&);
 
 };

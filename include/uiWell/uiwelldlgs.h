@@ -29,9 +29,9 @@ class uiLabeledListBox;
 class uiTable;
 class BufferStringSet;
 class Coord3;
+class od_ostream;
 class CtxtIOObj;
 class UnitOfMeasure;
-class StreamData;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
@@ -152,8 +152,8 @@ protected:
     uiGenInput*			multiwellsnamefld_;
 
     void			setDefaultRange(bool);
-    void			writeHeader(StreamData&,const Well::Data&);
-    void			writeLogs(StreamData&,const Well::Data&);
+    void			writeHeader(od_ostream&,const Well::Data&);
+    void			writeLogs(od_ostream&,const Well::Data&);
 
     void			typeSel(CallBacker*);
     virtual bool		acceptOK(CallBacker*);

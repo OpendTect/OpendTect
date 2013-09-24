@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "tableconv.h"
 #include "bufstringset.h"
 #include "globexpr.h"
+#include "od_iosfwd.h"
 
 
 namespace Table
@@ -26,7 +27,7 @@ mExpClass(General) WSImportHandler : public ImportHandler
 public:
 
 
-    			WSImportHandler( std::istream& s )
+    			WSImportHandler( od_istream& s )
 			    : ImportHandler(s)
 			    , insingqstring_(false)
 			    , indoubqstring_(false)	{}
@@ -48,7 +49,7 @@ protected:
 mExpClass(General) CSVImportHandler : public ImportHandler
 {
 public:
-    			CSVImportHandler( std::istream& s )
+    			CSVImportHandler( od_istream& s )
 			    : ImportHandler(s)
 			    , nlreplace_('\n')
 			    , instring_(false)	{}
@@ -75,7 +76,7 @@ public:
 
     enum ColWSHandl	{ None, Underscores, SingQuot, DoubQuot };
 
-    			WSExportHandler( std::ostream& s,
+    			WSExportHandler( od_ostream& s,
 					 ColWSHandl w=Underscores )
 			    : ExportHandler(s)
 			    , colwshanld_(w)	{}
@@ -94,7 +95,7 @@ protected:
 mExpClass(General) CSVExportHandler : public ExportHandler
 {
 public:
-    			CSVExportHandler( std::ostream& s )
+    			CSVExportHandler( od_ostream& s )
 			    : ExportHandler(s)		{}
 
     const char*		putRow(const BufferStringSet&);
@@ -110,7 +111,7 @@ mExpClass(General) SQLInsertExportHandler : public ExportHandler
 {
 public:
 
-    			SQLInsertExportHandler( std::ostream& s )
+    			SQLInsertExportHandler( od_ostream& s )
 			    : ExportHandler(s)
 			    , startindex_(1)
 			    , stepindex_(1)

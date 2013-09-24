@@ -29,9 +29,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "stratlevel.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
@@ -464,13 +465,13 @@ void uiMarkerDlg::rdFile( CallBacker* )
     uiReadMarkerFile dlg( this );
     if ( !dlg.go() ) return;
 
-    StreamData sd( StreamProvider(dlg.fnm_).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( dlg.fnm_ );
+    if ( !strm.isOK() )
 	{ uiMSG().error( "Input file exists but cannot be read" ); return; }
 
     Well::MarkerSetAscIO aio( dlg.fd_ );
     Well::MarkerSet mrkrs;
-    aio.get( *sd.istrm, mrkrs, track_ );
+    aio.get( strm, mrkrs, track_ );
     if ( mrkrs.isEmpty() )
 	uiMSG().error( "No valid markers found" );
     else
@@ -646,21 +647,20 @@ void uiMarkerDlg::exportCB( CallBacker* )
     if ( !fdlg.go() )
 	return;
 
-    StreamData sd( StreamProvider(fdlg.fileName()).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fdlg.fileName() );
+    if ( !strm.isOK() )
     {
-	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
-		    		     "' for write" ) );
-	sd.close();
+	BufferString msg( "Cannot open '", fdlg.fileName(), "' for write" );
+	strm.addErrMsgTo( msg );
 	return;
     }
 
     BufferStringSet header;
     getColLabels( header );
-    *sd.ostrm << header.get( cDepthCol ) << '\t';
-    *sd.ostrm << header.get( cTVDCol ) << '\t';
-    *sd.ostrm << header.get( cTVDSSCol ) << '\t';
-    *sd.ostrm << header.get( cNameCol ) << '\n';
+    strm << header.get( cDepthCol ) << od_tab
+	 << header.get( cTVDCol ) << od_tab
+	 << header.get( cTVDSSCol ) << od_tab
+	 << header.get( cNameCol ) << od_newline;
     
     const float kbelev = track_.getKbElev();
     const float zfac = zFactor();
@@ -669,13 +669,11 @@ void uiMarkerDlg::exportCB( CallBacker* )
 	const float dah = mset[idx]->dah();
 	const float tvdss = mCast(float,track_.getPos(dah).z);
 	const float tvd = tvdss + kbelev;
-	*sd.ostrm << toString( dah * zfac ) << '\t';
-	*sd.ostrm << toString( tvd * zfac ) << '\t';
-	*sd.ostrm << toString( tvdss * zfac ) << '\t';
-   	*sd.ostrm << mset[idx]->name() << '\n';
+	strm << dah * zfac << od_tab
+	     << tvd * zfac << od_tab
+	     << tvdss * zfac << od_tab
+	     << mset[idx]->name() << od_newline;
     }
-
-    sd.close();
 }
 
 

@@ -12,14 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "separstr.h"
 #include "iopar.h"
-#include "strmprov.h"
 #include "ascstream.h"
 #include "keystrs.h"
 #include "file.h"
 #include "staticstring.h"
-#include <iostream>
-
-extern Export_Basic std::ostream& logMsgStrm();
+#include "od_iostream.h"
 
 namespace Table
 {
@@ -59,11 +56,10 @@ FileFormatRepository::FileFormatRepository()
 void FileFormatRepository::addFromFile( const char* fnm,
 					Repos::Source src )
 {
-    if ( !File::exists(fnm) ) return;
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() ) return;
+    od_istream strm( fnm );
+    if ( !strm.isOK() ) return;
 
-    ascistream stream( *sd.istrm, true );
+    ascistream stream( strm, true );
     while ( stream.type() != ascistream::EndOfFile )
     {
 	IOPar* newpar = new IOPar(stream);
@@ -152,21 +148,20 @@ bool FileFormatRepository::write( Repos::Source src ) const
     if ( !havesrc )
 	return !File::exists(fnm) || File::remove( fnm );
 
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
 	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( fnm );
+	strm.addErrMsgTo( msg ); ErrMsg( fnm );
 	return false;
     }
 
-    ascostream strm( *sd.ostrm );
-    strm.putHeader( "File Formats" );
+    ascostream astrm( strm );
+    astrm.putHeader( "File Formats" );
     for ( int idx=0; idx<entries_.size(); idx++ )
 	if ( entries_[idx]->src_ == src )
-	    entries_[idx]->iopar_->putTo( strm );
+	    entries_[idx]->iopar_->putTo( astrm );
 
-    sd.close();
     return true;
 }
 
@@ -454,7 +449,7 @@ struct HdrInfo : public BodyInfo
 };
 
 AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
-    : ExportHandler(logMsgStrm())
+    : ExportHandler(od_ostream::logStream())
     , aio_(const_cast<AscIO&>(aio))
     , ishdr_(hdr)
     , hdrready_(false)
@@ -656,7 +651,7 @@ void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool Table::AscIO::getHdrVals( std::istream& strm ) const
+bool Table::AscIO::getHdrVals( od_istream& strm ) const
 {
     const int nrhdrlines = fd_.nrHdrLines();
     if ( nrhdrlines < 1 )
@@ -684,11 +679,11 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 	    else if ( res == 0 || hdrexphndlr.hdrready_ )
 		break;
 	}
-	if ( !hdrexphndlr.hdrready_ || !strm.good() )
+	if ( !hdrexphndlr.hdrready_ || !strm.isOK() )
 	    mErrRet( "File header does not comply with format description" )
     }
 
-    if ( !strm.good() || strm.eof() )
+    if ( !strm.isOK() )
 	mErrRet( "End of file reached before end of header" )
 
     hdrread_ = true;
@@ -696,7 +691,7 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 }
 
 
-int Table::AscIO::getNextBodyVals( std::istream& strm ) const
+int Table::AscIO::getNextBodyVals( od_istream& strm ) const
 {
     if ( !hdrread_ )
     {
@@ -722,14 +717,14 @@ int Table::AscIO::getNextBodyVals( std::istream& strm ) const
 }
 
 
-bool Table::AscIO::putHdrVals( std::ostream& strm ) const
+bool Table::AscIO::putHdrVals( od_ostream& strm ) const
 {
     errmsg_ = "TODO: Table::AscIO::putHdrVals not implemented";
     return false;
 }
 
 
-bool Table::AscIO::putNextBodyVals( std::ostream& strm ) const
+bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 {
     errmsg_ = "TODO: Table::AscIO::putNextBodyVals not implemented";
     return false;

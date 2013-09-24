@@ -118,7 +118,7 @@ Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 }
 
 
-bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
+bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
@@ -159,7 +159,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
 }
 
 
-bool Strat::LayerSequenceGenDesc::putTo( std::ostream& strm ) const
+bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )

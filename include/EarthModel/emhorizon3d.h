@@ -146,7 +146,7 @@ mExpClass(EarthModel) Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,
-						std::istream& strm )
+						od_istream& strm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
@@ -166,7 +166,7 @@ public:
 
 protected:
 
-    std::istream&		strm_;
+    od_istream&			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 };

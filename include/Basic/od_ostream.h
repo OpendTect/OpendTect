@@ -40,6 +40,7 @@ public:
 			    : od_stream(s)		{ *this = s; }
     od_ostream&		operator =( const od_ostream& s )
     			{ od_stream::operator =(s); return *this; }
+    bool		open(const char*);
 
     od_ostream&		add(char);
     od_ostream&		add(unsigned char);
@@ -64,6 +65,7 @@ public:
     void		flush();
 
     static od_ostream&	nullStream();
+    static od_ostream&	logStream(); //!< used by ErrMsg and UsrMsg
 
 };
 

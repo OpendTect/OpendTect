@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
@@ -93,7 +93,7 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 }
 
 
-void uiBulkTrackImport::readFile( std::istream& istrm )
+void uiBulkTrackImport::readFile( od_istream& istrm )
 {
     BulkTrackAscIO aio( *fd_, istrm );
     BufferString wellnm, uwi; Coord3 crd;
@@ -187,14 +187,14 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( "Please enter input file name" )
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
     if ( !dataselfld_->commit() )
 	return false;
 
-    readFile( *sd.istrm );
+    readFile( strm );
     BufferString errmsg;
     addD2T( errmsg );
     if ( !errmsg.isEmpty() )
@@ -315,8 +315,8 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( "Please enter input file name" )
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
     if ( !dataselfld_->commit() )
@@ -324,13 +324,13 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 
     BufferStringSet wellnms;
     ObjectSet<MarkerSet> markersets;
-    readFile( *sd.istrm, wellnms, markersets );
+    readFile( strm, wellnms, markersets );
 
     return true;
 }
 
 
-void uiBulkMarkerImport::readFile( std::istream& istrm,
+void uiBulkMarkerImport::readFile( od_istream& istrm,
 				   BufferStringSet& wellnms,
 				   ObjectSet<MarkerSet>& markersets )
 {
@@ -389,15 +389,15 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( "Please enter input file name" )
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	mErrRet( "Cannot open input file" )
 
     if ( !dataselfld_->commit() )
 	return false;
 
     ObjectSet<D2TModelData> data;
-    readFile( *sd.istrm, data );
+    readFile( strm, data );
 
     return true;
 }
@@ -415,7 +415,7 @@ static int getIndex( const ObjectSet<D2TModelData>& data,
     return -1;
 }
 
-void uiBulkD2TModelImport::readFile( std::istream& istrm,
+void uiBulkD2TModelImport::readFile( od_istream& istrm,
 				     ObjectSet<D2TModelData>& data )
 {
     BulkD2TModelAscIO aio( *fd_, istrm );

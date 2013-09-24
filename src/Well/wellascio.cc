@@ -18,9 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "idxable.h"
-
-//#include <iostream>
-//#include <math.h>
+#include "od_ostream.h"
 
 
 static bool convToDah( const Well::Track& trck, float& val,
@@ -158,7 +156,7 @@ Table::FormatDesc* MarkerSetAscIO::getDesc()
 }
 
 
-bool MarkerSetAscIO::get( std::istream& strm, MarkerSet& ms,
+bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
        				const Track& trck ) const
 {
     ms.erase();
@@ -331,7 +329,7 @@ static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
 }
 
 
-bool D2TModelAscIO::get( std::istream& strm, D2TModel& d2t,
+bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 			 const Data& wll ) const
 {
     d2t.setEmpty();
@@ -380,7 +378,7 @@ bool D2TModelAscIO::get( std::istream& strm, D2TModel& d2t,
 
 // Well::BulkTrackAscIO
 BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
-				std::istream& strm )
+				od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
@@ -427,7 +425,7 @@ Table::TargetInfo* gtWellNameTI()
 
 // Well::BulkMarkerAscIO
 BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
-				std::istream& strm )
+				od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
@@ -462,7 +460,7 @@ bool BulkMarkerAscIO::identifierIsUWI() const
 
 // Well::BulkD2TModelAscIO
 BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
-				      std::istream& strm )
+				      od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}

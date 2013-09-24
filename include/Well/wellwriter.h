@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "wellio.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 namespace Well
 {
@@ -42,12 +42,12 @@ public:
     bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
 
-    bool		putInfoAndTrack(std::ostream&) const;
-    bool		putLog(std::ostream&,const Log&) const;
-    bool		putMarkers(std::ostream&) const;
-    bool		putD2T(std::ostream&) const;
-    bool		putCSMdl(std::ostream&) const;
-    bool		putDispProps(std::ostream&) const;
+    bool		putInfoAndTrack(od_ostream&) const;
+    bool		putLog(od_ostream&,const Log&) const;
+    bool		putMarkers(od_ostream&) const;
+    bool		putD2T(od_ostream&) const;
+    bool		putCSMdl(od_ostream&) const;
+    bool		putDispProps(od_ostream&) const;
 
     void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
 
@@ -56,10 +56,10 @@ protected:
     const Data&		wd;
     bool		binwrlogs_;
 
-    bool		wrHdr(std::ostream&,const char*) const;
-    bool		putTrack(std::ostream&) const;
+    bool		wrHdr(od_ostream&,const char*) const;
+    bool		putTrack(od_ostream&) const;
     bool		doPutD2T(bool) const;
-    bool		doPutD2T(std::ostream&,bool) const;
+    bool		doPutD2T(od_ostream&,bool) const;
 
 };
 

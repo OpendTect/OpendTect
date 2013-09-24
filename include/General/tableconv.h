@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "executor.h"
 #include "bufstringset.h"
-#include <iostream>
+#include "od_iosfwd.h"
 
 namespace Table
 {
@@ -24,7 +24,7 @@ namespace Table
 mExpClass(General) ImportHandler
 {
 public:
-    			ImportHandler( std::istream& strm )
+    			ImportHandler( od_istream& strm )
 			    : strm_(strm)
 			    , colpos_(0)	{}
     virtual		~ImportHandler()	{}
@@ -39,17 +39,12 @@ public:
     virtual void	newCol()		{ *col_.buf() = '\0';
 						  colpos_ = 0; }
 
-    inline char		readNewChar() const
-			{
-			    char c = mCast( char, strm_.peek() );
-			    strm_.ignore( 1 );
-			    return atEnd() ? '\n' : c;
-			}
-    inline bool		atEnd() const		{ return strm_.eof(); }
+    char		readNewChar() const;
+    bool		atEnd() const;
 
 protected:
 
-    std::istream&	strm_;
+    od_istream&		strm_;
     BufferString	col_;
     int			colpos_;
 
@@ -61,7 +56,7 @@ protected:
 mExpClass(General) ExportHandler
 {
 public:
-    			ExportHandler( std::ostream& strm )
+    			ExportHandler( od_ostream& strm )
 			    : strm_(strm)		{}
     virtual		~ExportHandler()		{}
 
@@ -79,10 +74,9 @@ public:
 
 protected:
 
-    std::ostream&	strm_;
+    od_ostream&		strm_;
 
-    inline const char*	getStrmMsg() const
-			{ return strm_.good() ? 0 : "Error writing to output"; }
+    const char*		getStrmMsg() const;
 
 };
 

@@ -110,7 +110,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 }
 
 
-bool Strat::LaySeqAttribSet::getFrom( std::istream& strm )
+bool Strat::LaySeqAttribSet::getFrom( od_istream& strm )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
@@ -122,7 +122,7 @@ bool Strat::LaySeqAttribSet::getFrom( std::istream& strm )
 }
 
 
-bool Strat::LaySeqAttribSet::putTo( std::ostream& strm ) const
+bool Strat::LaySeqAttribSet::putTo( od_ostream& strm ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
@@ -130,7 +130,7 @@ bool Strat::LaySeqAttribSet::putTo( std::ostream& strm ) const
 
     IOPar iop; putTo( iop );
     iop.putTo( astrm );
-    return strm.good();
+    return strm.isOK();
 }
 
 

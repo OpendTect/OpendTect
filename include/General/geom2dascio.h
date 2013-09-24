@@ -27,13 +27,13 @@ mExpClass(General) Geom2dAscIO : public Table::AscIO
 {
 public:
 				Geom2dAscIO(const Table::FormatDesc&,
-					    std::istream&);
+					    od_istream&);
     static Table::FormatDesc*	getDesc();
     bool			getData(PosInfo::Line2DData&);
 
 protected:
 
-    std::istream&	strm_;
+    od_istream&			strm_;
 };
 
 #endif

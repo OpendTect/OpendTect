@@ -14,7 +14,7 @@ ________________________________________________________________________
  
 #include "geometrymod.h"
 #include "transl.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 class IOObj;
 class ProbDenFunc;
@@ -42,8 +42,8 @@ public:
     static bool		write(const ProbDenFunc&,const IOObj&,
 	    		      BufferString* emsg=0);
 
-    virtual ProbDenFunc* read(std::istream&)			= 0;
-    virtual bool	 write(const ProbDenFunc&,std::ostream&) = 0;;
+    virtual ProbDenFunc* read(od_istream&)			= 0;
+    virtual bool	 write(const ProbDenFunc&,od_ostream&) = 0;;
 
     bool		binary_;	//!< default: false
 
@@ -55,8 +55,8 @@ mExpClass(Geometry) odProbDenFuncTranslator : public ProbDenFuncTranslator
 public:
     			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
 
-    ProbDenFunc*	read(std::istream&);
-    bool		write(const ProbDenFunc&,std::ostream&);
+    ProbDenFunc*	read(od_istream&);
+    bool		write(const ProbDenFunc&,od_ostream&);
 
 };
 

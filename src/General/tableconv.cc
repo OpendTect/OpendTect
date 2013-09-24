@@ -8,8 +8,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "tableconvimpl.h"
 #include "string2.h"
+#include "od_iostream.h"
 
 const GlobExpr Table::RecordMatcher::emptyge_;
+
+
+char Table::ImportHandler::readNewChar() const
+{
+    const char c = strm_.peek();
+    strm_.ignore( 1 );
+    return atEnd() ? '\n' : c;
+}
+
+
+bool Table::ImportHandler::atEnd() const
+{
+    return !strm_.isOK();
+}
 
 
 void Table::ImportHandler::addToCol( char c )
@@ -38,7 +53,7 @@ bool Table::ExportHandler::init()
     if ( *prepend_.buf() )
 	strm_ << prepend_;
 
-    return strm_.good();
+    return strm_.isOK();
 }
 
 
@@ -46,6 +61,15 @@ void Table::ExportHandler::finish()
 {
     if ( *append_.buf() )
 	strm_ << append_;
+}
+
+
+const char* Table::ExportHandler::getStrmMsg() const
+{
+    if ( strm_.isOK() )
+	return 0;
+    const char* ret = strm_.errMsg();
+    return ret && *ret ? ret : "Error writing to output";
 }
 
 
@@ -206,7 +230,7 @@ Table::ImportHandler::State Table::CSVImportHandler::add( char c )
 void Table::WSExportHandler::addVal( int col, const char* val )
 {
     if ( col )
-	strm_ << '\t';
+	strm_ << od_tab;
 
     bool needsquotes = false;
     const bool isquotecand = !*val || strcspn( val, " \t" );
@@ -247,7 +271,7 @@ const char* Table::WSExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
-    strm_ << std::endl;
+    strm_ << od_newline; strm_.flush();
     return getStrmMsg();
 }
 
@@ -272,7 +296,7 @@ const char* Table::CSVExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
-    strm_ << std::endl;
+    strm_ << od_newline; strm_.flush();
     return getStrmMsg();
 }
 
@@ -336,7 +360,8 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx+idxoffs, row.get(idx) );
 
-    strm_ << ");" << std::endl;
+    strm_ << ");";
+    strm_ << od_newline; strm_.flush();
 
     nrrows_++;
     return getStrmMsg();

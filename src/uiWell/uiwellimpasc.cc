@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -299,18 +299,16 @@ bool uiWellImportAsc::doWork()
 	BufferString fnm( trckinpfld_->fileName() );
 	if ( !fnm.isEmpty() )
 	{
-	    StreamData sd = StreamProvider( trckinpfld_->fileName() )
-					.makeIStream();
-	    if ( !sd.usable() )
+	    od_istream strm( trckinpfld_->fileName() );
+	    if ( !strm.isOK() )
 		mErrRet( "Cannot open track file" )
-	    Well::TrackAscIO wellascio( fd_, *sd.istrm );
+	    Well::TrackAscIO wellascio( fd_, strm );
 	    if ( !wellascio.getData(wd_,true) )
 	    {
 		BufferString msg( "The track file cannot be loaded:\n" );
 		msg += wellascio.errMsg();
 		mErrRet( msg.buf() );
 	    }
-	    sd.close();
 	}
     }
     else

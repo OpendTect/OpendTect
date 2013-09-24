@@ -42,7 +42,7 @@ uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
 }
 
 
-bool uiImportFaultStickSet2D::getFromAscIO( std::istream& strm, EM::Fault& flt )
+bool uiImportFaultStickSet2D::getFromAscIO( od_istream& strm, EM::Fault& flt )
 {
     const int setidx = linesetfld_->currentItem();
     const MultiID setid = setids_[setidx];

@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"
 #include "strattransl.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "ioobj.h"
 
 
@@ -146,41 +146,49 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	return false;
     ctio_.setObj( dlg.ioObj()->clone() );
 
+    const BufferString fnm( ctio_.ioobj->fullUserExpr(!forsave) );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    StreamProvider sp( ctio_.ioobj->fullUserExpr(false) );
-    StreamData sd( forsave ? sp.makeOStream() : sp.makeIStream() );
     bool rv = false;
-    if ( !sd.usable() )
-	uiMSG().error( "Cannot open ", forsave ? "out" : "in", "put file" );
+    if ( forsave )
+    {
+	od_ostream strm( fnm );
+	if ( !strm.isOK() )
+	    uiMSG().error( "Cannot open output file" );
+	else
+	    rv = attrset_.putTo( strm );
+    }
     else
     {
-	rv = forsave ? attrset_.putTo(*sd.ostrm) : attrset_.getFrom(*sd.istrm);
-	if ( !rv )
-	    uiMSG().error( "Error during ",
-		    forsave ? "write to output" : "read from input ", " file" );
+	od_istream strm( fnm );
+	if ( !strm.isOK() )
+	    uiMSG().error( "Cannot open input file" );
+	else
+	    rv = attrset_.getFrom( strm );
     }
 
-    if ( rv )
+    if ( !rv )
     {
-	usrchg_ = false;
-	if ( !forsave )
-	{
-	    removeAll();
-	    if ( typesel_ != AllTypes )
-	    {
-		const bool needlocal = typesel_ == OnlyLocal;
-		for ( int idx=0; idx<attrset_.size(); idx++ )
-		{
-		    if ( attrset_[idx]->islocal_ != needlocal )
-			{ attrset_.removeSingle( idx ); idx--; }
-		}
-	    }
-	    for ( int idx=0; idx<attrset_.size(); idx++ )
-		addItem( attrset_.attr(idx).name() );
-	}
+	uiMSG().error( "Error during ",
+		forsave ? "write to output" : "read from input ", " file" );
+	return false;
     }
 
-    if ( rv )
-	anychg_ = false;
-    return rv;
+    if ( !forsave )
+    {
+	removeAll();
+	if ( typesel_ != AllTypes )
+	{
+	    const bool needlocal = typesel_ == OnlyLocal;
+	    for ( int idx=0; idx<attrset_.size(); idx++ )
+	    {
+		if ( attrset_[idx]->islocal_ != needlocal )
+		    { attrset_.removeSingle( idx ); idx--; }
+	    }
+	}
+	for ( int idx=0; idx<attrset_.size(); idx++ )
+	    addItem( attrset_.attr(idx).name() );
+    }
+
+    usrchg_ = anychg_ = false;
+    return true;
 }

@@ -27,7 +27,7 @@ mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 {
 public:
     				FunctionAscIO( const Table::FormatDesc& fd,
-					       std::istream& stm,
+					       od_istream&,
 				       	       od_int64 filesizeinkb=-1 );
    static Table::FormatDesc*	getDesc();
    static void			updateDesc(Table::FormatDesc&);
@@ -38,13 +38,14 @@ public:
        				{ output_ = &bvs; first_ = true; }
 
 protected:
+
    int				nextStep();
    od_int64			nrDone() const { return nrdone_/1024; }
    const char*			nrDoneText() const { return "KBytes read"; }
    od_int64			totalNr() const { return nrkbytes_; }
    static void			createDescBody(Table::FormatDesc&);
 
-   std::istream&		strm_;   
+   od_istream&			strm_;   
    BinIDValueSet*		output_;
    bool				first_;
    od_int64			nrdone_;

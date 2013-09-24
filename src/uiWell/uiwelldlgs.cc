@@ -33,8 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "randcolor.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -181,16 +180,14 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
     if ( !dlg.fnm_.isEmpty() )
     {
-	StreamData sd = StreamProvider( dlg.fnm_ ).makeIStream();
-	if ( !sd.usable() )
-	uiMSG().error( "Cannot open input file" );
+	od_istream strm( dlg.fnm_ );
+	if ( !strm.isOK() )
+	    { uiMSG().error( "Cannot open input file" ); return; }
 
-	Well::TrackAscIO wellascio(fd_, *sd.istrm );
+	Well::TrackAscIO wellascio(fd_, strm );
 	if ( !wellascio.getData( wd_, true ) )
 	    uiMSG().error( "Failed to convert into compatible data" );
 
-	sd.close();
-	
 	tbl_->clearTable();
 	if ( !fillTable() )
 	    return;
@@ -328,8 +325,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     if ( !fdlg.go() )
 	return;
 
-    StreamData sd( StreamProvider(fdlg.fileName()).makeOStream() );
-    if ( !sd.usable() )
+    od_ostream strm( fdlg.fileName() );
+    if ( !strm.isOK() )
     {
 	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
 		    		     "' for write" ) );
@@ -339,13 +336,9 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     for ( int idx=0; idx<track_.size(); idx++ )
     {
 	const Coord3 coord( track_.pos(idx) );
-	*sd.ostrm << Conv::to<const char*>( coord.x ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( coord.y ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( (float)coord.z ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( track_.dah( idx ) ) << '\n';
+	strm << coord.x << od_tab << coord.y << od_tab << coord.z
+	     << od_tab << track_.dah(idx) << od_newline;
     }
-
-    sd.close();
 }
 
 
@@ -983,12 +976,11 @@ void uiD2TModelDlg::expData( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
-    if ( !sd.usable() )
+    const BufferString fnm( dlg.fileName() );
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
-	uiMSG().error( BufferString("Cannot open '", dlg.fileName(),
-		    			"' for write") );
-	sd.close();
+	uiMSG().error( BufferString("Cannot open '", fnm, "' for write") );
 	return;
     }
 
@@ -1002,17 +994,14 @@ void uiD2TModelDlg::expData( CallBacker* )
     BufferStringSet header;
     getColLabels( header );
 
-    *sd.ostrm << header.get( cMDCol ) << '\t';
-    *sd.ostrm <<  header.get( cTVDCol ) << '\t';
+    strm << header.get( cMDCol ) << od_tab <<  header.get( cTVDCol ) << od_tab;
     if ( hastvdgl )
-	*sd.ostrm << header.get( getTVDGLCol() ) << '\t';
-
+	strm << header.get( getTVDGLCol() ) << od_tab;
     if ( hastvdsd )
-	*sd.ostrm << header.get( getTVDSDCol() ) << '\t';
-
-    *sd.ostrm << header.get( getTVDSSCol() ) << '\t';
-    *sd.ostrm << header.get( getTimeCol() ) << '\t';
-    *sd.ostrm << header.get( getVintCol() ) << '\n';
+	strm << header.get( getTVDSDCol() ) << od_tab;
+    strm << header.get( getTVDSSCol() ) << od_tab;
+    strm << header.get( getTimeCol() ) << od_tab;
+    strm << header.get( getVintCol() ) << od_newline;
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
 	const float dah = d2t->dah(idx) * zfac;
@@ -1020,26 +1009,19 @@ void uiD2TModelDlg::expData( CallBacker* )
 	const float tvd = tvdss + kbelev * zfac;
 	const float twt = d2t->t(idx) * twtfac;
 	const float vint = mGetVel(dah,d2t);
-	*sd.ostrm << Conv::to<const char*>( dah ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( tvd ) << '\t';
+	strm << dah << od_tab << tvd << od_tab;
 	if ( hastvdgl )
 	{
 	    const float tvdgl = tvdss + groundevel * zfac;
-	    *sd.ostrm << Conv::to<const char*>( tvdgl ) << '\t';
+	    strm << tvdgl << od_tab;
 	}
-
 	if ( hastvdsd )
 	{
 	    const float tvdsd = tvdss + srd * zfac;
-	    *sd.ostrm << Conv::to<const char*>( tvdsd ) << '\t';
+	    strm << tvdsd << od_tab;
 	}
-
-	*sd.ostrm << Conv::to<const char*>( tvdss ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( twt ) << '\t';
-	*sd.ostrm << Conv::to<const char*>( vint * zfac ) << '\n';
+	strm << tvdss << od_tab << twt << od_tab << vint * zfac << od_newline;
     }
-
-    sd.close();
 }
 
 
@@ -1369,32 +1351,33 @@ bool uiExportLogs::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<fnames.size(); idx++ )
     {
-	StreamData sdo = StreamProvider( fnames.get(idx) ).makeOStream();
-	if ( !sdo.usable() )
+	const BufferString fnm( fnames.get(idx) );
+	od_ostream strm( fnm );
+	if ( !strm.isOK() )
 	{
-	    sdo.close();
-	    mErrRet( "Cannot open output file" )
+	    BufferString msg( "Cannot open output file ", fnm );
+	    strm.addErrMsgTo( msg );
+	    mErrRet( msg );
 	}
-	writeHeader( sdo, *wds_[idx] );
-	writeLogs( sdo, *wds_[idx] );
-	sdo.close();
+	writeHeader( strm, *wds_[idx] );
+	writeLogs( strm, *wds_[idx] );
     }
     return true;
 }
 
 
-void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
+void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 {
     const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
     
     if ( typefld_->getIntValue() == 1 )
-	*sdo.ostrm << "X\tY\t";
+	strm << "X\tY\t";
     else if ( typefld_->getIntValue() == 2 )
-	*sdo.ostrm << "Inline\tCrossline\t";
+	strm << "Inline\tCrossline\t";
 
     const int unitid = zunitgrp_->selectedId();
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
-    *sdo.ostrm << zstr << units[unitid];
+    strm << zstr << units[unitid];
 
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
@@ -1404,16 +1387,16 @@ void uiExportLogs::writeHeader( StreamData& sdo, const Well::Data& wd )
 	cleanupString( lognm.buf(), 0, 0, 0 );
 	replaceCharacter( lognm.buf(), '+', '_' );
 	replaceCharacter( lognm.buf(), '-', '_' );
-	*sdo.ostrm << "\t" << lognm;
+	strm << od_tab << lognm;
 	if ( *log.unitMeasLabel() )
-	    *sdo.ostrm << "(" << log.unitMeasLabel() << ")";
+	    strm << "(" << log.unitMeasLabel() << ")";
     }
     
-    *sdo.ostrm << '\n';
+    strm << od_newline;
 }
 
 
-void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
+void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 {
     const bool infeet = zunitgrp_->selectedId() == 1;
     const bool insec = zunitgrp_->selectedId() == 2;
@@ -1438,7 +1421,7 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 	if ( outtypesel == 0 )
 	{
 	    const float mdout = infeet ? md*mToFeetFactorF : md;
-	    *sdo.ostrm << mdout;
+	    strm << mdout;
 	}
 	else
 	{
@@ -1448,15 +1431,15 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 	    if ( dobinid )
 	    {
 		const BinID bid = SI().transform( pos );
-		*sdo.ostrm << bid.inl << '\t' << bid.crl;
+		strm << bid.inl << od_tab << bid.crl;
 	    }
 	    else
 	    {
 		char str[255];
 		getStringFromDouble( 0, pos.x, str );
-		*sdo.ostrm << str << '\t';
+		strm << str << od_tab;
 		getStringFromDouble( 0, pos.y, str );
-		*sdo.ostrm << str;
+		strm << str;
 	    }
 
 	    float z = (float) pos.z;
@@ -1467,7 +1450,7 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
 	    }
 
-	    *sdo.ostrm << '\t' << z;
+	    strm << od_tab << z;
 	}
 
 	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
@@ -1476,11 +1459,11 @@ void uiExportLogs::writeLogs( StreamData& sdo, const Well::Data& wd )
 	    if ( !logsel_.isPresent( log.name() ) ) continue;
 	    const float val = log.getValue( md );
 	    if ( mIsUdf(val) )
-		*sdo.ostrm << '\t' << "1e30";
+		strm << od_tab << "1e30";
 	    else
-		*sdo.ostrm << '\t' << val;
+		strm << od_tab << val;
 	}
-	*sdo.ostrm << '\n';
+	strm << od_newline;
     }
 }
 

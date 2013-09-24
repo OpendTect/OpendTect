@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "surv2dgeom.h"
 #include "tableascio.h"
 #include "surv2dgeom.h"
+#include "od_istream.h"
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
@@ -193,7 +194,7 @@ mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 {
 public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,
-						std::istream& strm )
+						od_istream& strm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
@@ -212,7 +213,7 @@ public:
 
 protected:
 
-    std::istream&		strm_;
+    od_istream			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 };

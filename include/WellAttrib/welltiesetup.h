@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "multiid.h"
 #include "wellio.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 class IOPar;
 
@@ -106,8 +106,8 @@ public:
 protected:
 
     bool          	        putIOPar(const IOPar&,const char*,
-	    					std::ostream&) const; 
-    bool                	wrHdr(std::ostream&,const char*) const;
+	    					od_ostream&) const; 
+    bool                	wrHdr(od_ostream&,const char*) const;
 };
 
 mExpClass(WellAttrib) Reader : public IO
@@ -121,7 +121,7 @@ public:
     IOPar* 			getIOPar(const char*) const;
 
 protected:
-    IOPar* 			getIOPar(const char*,std::istream&) const;	
+    IOPar* 			getIOPar(const char*,od_istream&) const;	
 };
 
 }; //namespace WellTie

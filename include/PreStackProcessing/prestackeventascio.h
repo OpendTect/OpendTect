@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "prestackevents.h"
 #include "tableascio.h"
 
-class StreamData;
 namespace Table { class FormatDesc; }
 
 namespace PreStack
@@ -46,7 +45,7 @@ The columns are as follows:
 mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 {
 public:
-    			EventExporter(std::ostream& strm,EventManager&);
+    			EventExporter(od_ostream& strm,EventManager&);
     			~EventExporter();
     void		setHRange(const HorSampling& hrg);
 
@@ -59,7 +58,7 @@ public:
 
 protected:
 
-    std::ostream&		strm_;
+    od_ostream&			strm_;
     EventManager&		events_;
     HorSampling			hrg_;
 
@@ -80,7 +79,7 @@ mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
 {
 public:
     				EventAscIO( const Table::FormatDesc& fd,
-						std::istream& strm )
+						od_istream& strm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
@@ -96,7 +95,7 @@ public:
 
 protected:
 
-    std::istream&		strm_;
+    od_istream&			strm_;
     float			udfval_;
     bool			isxy_;
     bool			finishedreadingheader_;
@@ -123,7 +122,7 @@ public:
 
 protected:
 
-    StreamData&			sd_;
+    od_istream&			strm_;
     EventAscIO*			ascio_;
     Event*			event_;
     EventManager&		evmgr_;

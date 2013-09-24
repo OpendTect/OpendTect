@@ -514,7 +514,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-Wavelet* WaveletAscIO::get( std::istream& strm ) const
+Wavelet* WaveletAscIO::get( od_istream& strm ) const
 {
     if ( !getHdrVals(strm) )
 	return 0;
@@ -554,7 +554,7 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
 }
 
 
-bool WaveletAscIO::put( std::ostream& ) const
+bool WaveletAscIO::put( od_ostream& ) const
 {
     errmsg_ = "TODO: WaveletAscIO::put not implemented";
     return false;

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfodetector.h"
 #include "iopar.h"
 #include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
@@ -83,17 +84,16 @@ od_int64 HorizonScanner::totalNr() const
     totalnr_ = 0;
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	StreamProvider sp( filenames_.get(0).buf() );
-	StreamData sd = sp.makeIStream();
-	if ( !sd.usable() ) continue;
+	od_istream strm( filenames_.get(idx).buf() );
+	if ( !strm.isOK() )
+	    continue;
 
-	char buf[80];
-	while ( *sd.istrm )
+	BufferString buf;
+	while ( strm.isOK() )
 	{
-	    sd.istrm->getline( buf, 80 );
+	    strm.getLine( buf );
 	    totalnr_++;
 	}
-	sd.close();
 	totalnr_ -= fd_.nrhdrlines_;
     }
 
@@ -187,14 +187,12 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
 
 bool HorizonScanner::reInitAscIO( const char* fnm )
 {
-    StreamProvider sp( fnm );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	return false;
 
-    ascio_ = new EM::Horizon3DAscIO( fd_, *sd.istrm );
+    ascio_ = new EM::Horizon3DAscIO( fd_, strm );
     if ( !ascio_ ) return false;
-
     return true;
 }
 

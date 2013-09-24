@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "propertyref.h"
 #include "iopar.h"
+#include "od_iosfwd.h"
 
 namespace Strat
 {
@@ -50,8 +51,8 @@ public:
     const MultiID& 	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
-    bool		getFrom(std::istream&);
-    bool		putTo(std::ostream&) const;
+    bool		getFrom(od_istream&);
+    bool		putTo(od_ostream&) const;
 
     bool		prepareGenerate() const;
     bool		generate(LayerSequence&,float modpos) const;

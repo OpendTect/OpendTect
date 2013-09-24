@@ -225,9 +225,8 @@ public:
     static void                 createDescBody(Table::FormatDesc*,bool iszreq);
 
     bool			isXY() const;
-    bool			get(std::istream&,Pick::Set&,bool iszreq,
+    bool			get(od_istream&,Pick::Set&,bool iszreq,
 	    			    float zval) const;
-    bool                        put(std::ostream&) const;
 };
 
 #endif

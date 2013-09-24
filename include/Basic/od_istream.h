@@ -40,6 +40,7 @@ public:
 			    : od_stream(s)		{ *this = s; }
     od_istream&		operator =( const od_istream& s )
     			{ od_stream::operator =(s); return *this; }
+    bool		open(const char*);
 
     od_istream&		get(char&);
     od_istream&		get(unsigned char&);

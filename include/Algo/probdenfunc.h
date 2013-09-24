@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "namedobj.h"
 #include "ranges.h"
+#include "od_iosfwd.h"
 
 template <class T> class TypeSet;
 class IOPar;
@@ -51,8 +52,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)			{ return true; }
-    virtual void	dump(std::ostream&,bool binary) const	{}
-    virtual bool	obtain(std::istream&,bool binary)	{ return true; }
+    virtual void	dump(od_ostream&,bool binary) const	{}
+    virtual bool	obtain(od_istream&,bool binary)		{ return true; }
 
     virtual bool	isCompatibleWith(const ProbDenFunc&) const;
     void		getIndexTableFor(const ProbDenFunc& pdf,

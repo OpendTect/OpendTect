@@ -15,23 +15,20 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "bufstring.h"
-#include "strmdata.h"
-
 class IOObj;
 class MultiID;
+
 
 namespace Well
 {
 
-/*!
-\brief I/O
-*/
+/*!\brief base class for Reader and Writer. */
 
 mExpClass(Well) IO
 {
 public:
 
-    const BufferString&	baseName() const	{ return basenm; }
+    const BufferString&	baseName() const	{ return basenm_; }
 
     const char*		getFileName(const char* ext,int nr=0) const;
     bool		removeAll(const char* ext) const;
@@ -59,16 +56,15 @@ protected:
 
 			IO(const char*,bool);
 
-    StreamData		mkSD(const char* ext,int nr=0) const;
-    const BufferString	basenm;
+    const BufferString	basenm_;
 
 private:
 
-    const bool		isrdr;
+    const bool		isrdr_;
 
 public:
 
-    static const char*	mkFileName(const char* basefnm,const char* ext,int nr=0);
+    static const char*	mkFileName(const char* basfnm,const char* ext,int nr=0);
 
 };
 

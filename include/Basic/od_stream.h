@@ -46,7 +46,7 @@ public:
     virtual			~od_stream();
 
     bool			isOK() const;
-    const char*			errMsg() const;
+    const char*			errMsg() const; //!< see also below
     bool			forRead() const;
     bool			forWrite() const;
 
@@ -65,6 +65,8 @@ public:
     void			releaseStream(StreamData&);
     void			close();
     bool			isBad() const;	//!< eof is not Bad
+
+    void			addErrMsgTo(BufferString&) const;
 
 protected:
 

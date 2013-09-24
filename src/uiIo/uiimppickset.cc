@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "picksettr.h"
 #include "randcolor.h"
-#include "strmdata.h"
+#include "od_istream.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
@@ -142,12 +142,9 @@ void uiImpExpPickSet::formatSel( CallBacker* )
 bool uiImpExpPickSet::doImport()
 {
     const char* fname = filefld_->fileName();
-    StreamData sdi = StreamProvider( fname ).makeIStream();
-    if ( !sdi.usable() ) 
-    { 
-	sdi.close();
+    od_istream strm( fname );
+    if ( !strm.isOK() )
 	mErrRet( "Could not open input file" )
-    }
 
     const char* psnm = objfld_->getInput();
     Pick::Set ps( psnm );
@@ -157,8 +154,7 @@ bool uiImpExpPickSet::doImport()
 
     ps.disp_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
-    aio.get( *sdi.istrm, ps, zchoice==0, constz );
-    sdi.close();
+    aio.get( strm, ps, zchoice==0, constz );
 
     if ( zchoice == 2 )
     {

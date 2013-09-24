@@ -27,12 +27,14 @@ public:
     			uiImportFaultStickSet2D(uiParent*,const char* type);
 
 protected:
+
     bool		acceptOK(CallBacker*);
-    bool		getFromAscIO(std::istream&,EM::Fault&);
+    bool		getFromAscIO(od_istream&,EM::Fault&);
 
     uiComboBox*		linesetfld_;
     BufferStringSet&	linesetnms_;
     TypeSet<MultiID>	setids_;
+
 };
 
 #endif

@@ -171,12 +171,12 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
 
 bool Horizon2DScanner::reInitAscIO( const char* fnm )
 {
-    StreamProvider sp( fnm );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
 	return false;
 
-    ascio_ = new EM::Horizon2DAscIO( fd_, *sd.istrm );
+    delete ascio_;
+    ascio_ = new EM::Horizon2DAscIO( fd_, strm );
     return true;
 }
 

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "enums.h"
 #include "bufstringset.h"
+#include "od_iosfwd.h"
 class PropertyRef;
 class IOPar;
 
@@ -102,8 +103,8 @@ public:
 
     void		getFrom(const IOPar&);
     void		putTo(IOPar&) const;
-    bool		getFrom(std::istream&);
-    bool		putTo(std::ostream&) const;
+    bool		getFrom(od_istream&);
+    bool		putTo(od_ostream&) const;
 
 protected:
 

@@ -18,8 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "separstr.h"
 #include "settings.h"
-#include "strmprov.h"
-#include <iostream>
+#include "od_ostream.h"
 
 const char* ColTab::Sequence::sKeyValCol()	{ return "Value-Color"; }
 const char* ColTab::Sequence::sKeyMarkColor()	{ return "Marker color"; }
@@ -522,19 +521,16 @@ void ColTab::SeqMgr::readColTabs()
 {
     IOPar* iop = 0;
     BufferString fnm = mGetSetupFileName("ColTabs");
-    if ( File::exists(fnm) )
+    od_istream strm( mGetSetupFileName("ColTabs") );
+    if ( strm.isOK() )
     {
-	StreamData sd = StreamProvider( fnm ).makeIStream();
-	if ( sd.usable() )
-	{
-	    ascistream astrm( *sd.istrm );
-	    iop = new IOPar( astrm );
-	    sd.close();
-	}
+	ascistream astrm( strm );
+	iop = new IOPar( astrm );
     }
-    if ( iop ) addFromPar( *iop, true );
-    delete iop;
-    if ( InSysAdmMode() ) return;
+    if ( iop )
+	{ addFromPar( *iop, true ); delete iop; }
+    if ( InSysAdmMode() )
+	return;
 
     Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
     addFromPar( setts, false );
@@ -679,14 +675,15 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	ErrMsg( msg ); return false;
     }
 
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() || !sd.ostrm->good() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
     {
-	BufferString msg( "Cannot open:\n" ); msg += fnm; msg += "\nfor write.";
+	BufferString msg( "Cannot open:\n", fnm, "\nfor write" );
+	strm.addErrMsgTo( msg );
 	ErrMsg( msg ); return false;
     }
 
-    ascostream astrm( *sd.ostrm );
+    ascostream astrm( strm );
     astrm.putHeader( "Color table definitions" );
     IOPar iopar;
     int newidx = 1;

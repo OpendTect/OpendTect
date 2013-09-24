@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 
 #include "ctxtioobj.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welld2tmodel.h"
@@ -137,12 +137,9 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     else
     {
 	const char* fname = filefld_->fileName();
-	StreamData sdi = StreamProvider( fname ).makeIStream();
-	if ( !sdi.usable() )
-	{
-	    sdi.close();
+	od_istream strm( fname );
+	if ( !strm.isOK() )
 	    return "Could not open input file";
-	}
 
 	BufferString errmsg;
 	if ( !dataselfld_->commit() )
@@ -150,7 +147,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
-	aio.get( *sdi.istrm, d2t, wd );
+	aio.get( strm, d2t, wd );
     }
 
     d2t.deInterpolate();

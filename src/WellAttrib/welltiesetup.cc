@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "ascstream.h"
-#include <iostream>
+#include "od_iostream.h"
 
 namespace WellTie
 {
@@ -83,7 +83,7 @@ void Setup::commitDefaults()
 }
 
 
-bool Writer::wrHdr( std::ostream& strm, const char* fileky ) const
+bool Writer::wrHdr( od_ostream& strm, const char* fileky ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(fileky) )
@@ -108,32 +108,27 @@ bool Writer::putWellTieSetup( const WellTie::Setup& wst ) const
 bool Writer::putIOPar( const IOPar& iop, const char* subsel ) const
 {
     BufferString fnm( getFileName(sExtWellTieSetup()) );
-    Reader wtr( fnm );
-    IOPar* filepar = wtr.getIOPar( 0 );
-    if ( !filepar ) filepar = new IOPar();
+    Reader rdr( fnm );
+    PtrMan<IOPar> filepar = rdr.getIOPar( 0 );
+    if ( !filepar ) filepar = new IOPar;
     filepar->mergeComp( iop, subsel );
 
-    StreamData sd = mkSD( sExtWellTieSetup() );
-    if ( !sd.usable() ) return false;
-
-    const bool isok = putIOPar( *filepar, subsel, *sd.ostrm );
-    sd.close();
-    delete filepar;
-    return isok;
+    od_ostream strm( getFileName(sExtWellTieSetup(),0) );
+    return strm.isOK() && putIOPar( *filepar, subsel, strm );
 }
 
 
-bool Writer::putIOPar(const IOPar& iop,const char* subs,std::ostream& strm) const
+bool Writer::putIOPar(const IOPar& iop,const char* subs,od_ostream& strm) const
 {
     if ( !wrHdr(strm,sKeyWellTieSetup()) ) return false;
 
     ascostream astrm( strm );
     iop.putTo( astrm );
-    return strm.good();
+    return strm.isOK();
 }
 
 
-static const char* rdHdr( std::istream& strm, const char* fileky )
+static const char* rdHdr( od_istream& strm, const char* fileky )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(fileky) )
@@ -160,19 +155,19 @@ void Reader::getWellTieSetup( WellTie::Setup& wst ) const
     delete iop;
 }
 
+#define mGetOutStream(ext,nr,todo) \
+    od_ostream strm( getFileName(ext,nr) ); \
+    if ( !strm.isOK() ) { todo; }
+
 
 IOPar* Reader::getIOPar( const char* subsel ) const
 {
-    StreamData sd = mkSD( sExtWellTieSetup() );
-    if ( !sd.usable() ) return 0;
-
-    IOPar* iop = getIOPar( subsel, *sd.istrm );
-    sd.close();
-    return iop;
+    od_istream strm( getFileName(sExtWellTieSetup(),0) );
+    return strm.isOK() ? getIOPar( subsel, strm ) : 0;
 }
 
 
-IOPar* Reader::getIOPar( const char* subsel, std::istream& strm ) const
+IOPar* Reader::getIOPar( const char* subsel, od_istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return 0;

@@ -25,8 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "ioman.h"
 #include "randcolor.h"
-#include "strmdata.h"
-#include "strmprov.h"
+#include "od_ostream.h"
 #include "wellwriter.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -130,18 +129,16 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
     if ( lognr > wd->logs().size() - 1 )
 	lognr = wd->logs().size() - 1;
     BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr+1 );
-    StreamData sdo = StreamProvider(logfnm).makeOStream();
-    if ( !sdo.usable() )
+    od_ostream strm( logfnm );
+    if ( !strm.isOK() )
     {
-	BufferStringSet errmsg; errmsg.add( "Cannot write log to disk" );
-	errmsg.add( logfnm );
-	uiMSG().errorWithDetails( errmsg );
+	BufferString errmsg( "Cannot write log to disk: ", logfnm );
+	strm.addErrMsgTo( errmsg );
+	uiMSG().error( errmsg );
 	return false;
     }
 
-    wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr) );
-    sdo.close();
-
+    wtr.putLog( strm, wd->logs().getLog(lognr) );
     return true;
 }
 

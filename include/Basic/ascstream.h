@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "plftypes.h"
 #include "od_iostream.h"
-#include <limits.h>
 #include <iosfwd>
+#include <limits.h>
 
 #define mAscStrmParagraphMarker		"!"
 #define mAscStrmKeyValSep		':'
@@ -64,7 +64,6 @@ public:
     void	newParagraph();
 
     inline od_ostream&	stream()		{ return strm_; }
-    std::ostream& stdstream();
 
 protected:
 
@@ -96,12 +95,12 @@ public:
     ascistream&		next();
     bool		isOK() const;
 
-    const char*		headerStartLine() const	{ return header.buf(); }
+    const char*		headerStartLine() const	{ return header_.buf(); }
     bool		hasStandardHeader() const;
-    const char*		fileType() const	{ return filetype.buf(); }
+    const char*		fileType() const	{ return filetype_.buf(); }
     bool		isOfFileType(const char*) const;
     const char*		version() const;
-    const char*		timeStamp() const	{ return timestamp.buf(); }
+    const char*		timeStamp() const	{ return timestamp_.buf(); }
     int			majorVersion() const;
     int			minorVersion() const;
 
@@ -110,8 +109,8 @@ public:
     bool		atEOS() const		{ return type() > KeyVal; }
 			//!< returns true if at end of segment (='paragraph')
 
-    const char*		keyWord() const		{ return keybuf.buf(); }
-    const char*		value() const		{ return valbuf.buf(); }
+    const char*		keyWord() const		{ return keybuf_.buf(); }
+    const char*		value() const		{ return valbuf_.buf(); }
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
     int			getIValue(int i=0) const;
@@ -123,22 +122,21 @@ public:
     bool		getYN(int i=0) const;
 
     inline od_istream&	stream()		{ return strm_; }
-    std::istream&	stdstream();
 
 			// This is for overriding what's in the file
-    void		setKeyWord( const char* s ) { keybuf = s; }
-    void		setValue( const char* s ) { valbuf = s; }
+    void		setKeyWord( const char* s ) { keybuf_ = s; }
+    void		setValue( const char* s ) { valbuf_ = s; }
 
 protected:
 
     od_istream&		strm_;
     bool		strmmine_;
-    BufferString	keybuf;
-    BufferString	valbuf;
+    BufferString	keybuf_;
+    BufferString	valbuf_;
 
-    BufferString	header;
-    BufferString	filetype;
-    BufferString	timestamp;
+    BufferString	header_;
+    BufferString	filetype_;
+    BufferString	timestamp_;
 
 private:
 
