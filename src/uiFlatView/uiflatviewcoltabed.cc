@@ -27,7 +27,6 @@ uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTable& ct, FlatView::Viewer& vwr)
     , uicoltab_(ct)
 {
     ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
-
     uicoltab_.setEnabManage( false );
     uicoltab_.seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
     uicoltab_.scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged));
