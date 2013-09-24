@@ -128,7 +128,7 @@ bool getLine()
     }
     else
     {
-	const BinID bid( getdValue(1), getdValue(2) );
+	const BinID bid( getIntValue(1), getIntValue(2) );
 	wcd_.coord_ = SI().transform( bid );
     }
 
