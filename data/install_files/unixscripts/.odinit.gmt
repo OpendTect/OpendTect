@@ -17,8 +17,8 @@ if ( $?NETCDFHOME ) then
     exit
 endif
 
-setenv GMTROOT __INST_DIR__/GMT/${binsubdir}
-if ( ! -d ${GMTROOT} ) then
+setenv GMTROOT "__INST_DIR__/GMT/${binsubdir}"
+if ( ! -d "${GMTROOT}" ) then
     echo "GMT installation directory not found"
     exit
 endif
