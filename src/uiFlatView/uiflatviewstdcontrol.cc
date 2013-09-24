@@ -40,7 +40,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , ctabed_(0)
     , manip_(false)
     , mousepressed_(false)
-    , viewdragged_(false)
     , menu_(*new uiMenuHandler(&vwr,-1))
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)

@@ -69,7 +69,6 @@ protected:
     uiPoint		mousedownpt_;
     uiWorldRect		mousedownwr_;
     
-    bool		viewdragged_;
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
