@@ -67,9 +67,11 @@ void HorizonPainter2D::setLineName( const char* ln )
 
 void HorizonPainter2D::paint()
 {
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 
@@ -187,10 +189,7 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 	    {
 		if ( emobject->hasBurstAlert() )
 		    return;
-
-		abouttorepaint_.trigger();
 		repaintHorizon();
-		repaintdone_.trigger();
 		break;
 	    }
 	default:
@@ -211,9 +210,11 @@ void HorizonPainter2D::getDisplayedHor( ObjectSet<Marker2D>& disphor )
 
 void HorizonPainter2D::repaintHorizon()
 {
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 
@@ -244,7 +245,9 @@ void HorizonPainter2D::removePolyLine()
 	SectionMarker2DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	{
-	    viewer_.removeAuxData( (*markerlines)[idy]->marker_ );
+	    if ( !viewer_.removeAuxData( (*markerlines)[idy]->marker_ ) )
+		(*markerlines)[idy]->marker_ = 0;
+	    deepErase( markerlines[idy] );
 	}
     }
     deepErase( markerline_ );
