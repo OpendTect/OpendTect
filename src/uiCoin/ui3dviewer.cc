@@ -12,15 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewer.h"
 
 #include "uicursor.h"
-//#include "ui3dviewerbody.h"
-//#include "ui3dindirectviewer.h"
 #include "uirgbarray.h"
-//
-//#include <osgQt/GraphicsWindowQt>
-//#include <osgViewer/View>
-//#include <osgViewer/CompositeViewer>
-//#include <osgViewer/ViewerEventHandlers>
-//#include <osgGA/TrackballManipulator>
 
 #include "envvars.h"
 #include "iopar.h"
@@ -70,8 +62,6 @@ static const char* rcsID mUsedVar = "$Id$";
  
 #define col2f(rgb) float(col.rgb())/255
 
-//#include "uiosgviewer.h"
-
 #include "uiobjbody.h"
 #include "keystrs.h"
 
@@ -85,459 +75,6 @@ static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
 
-
-//class uiDirectViewBody : public ui3DViewerBody
-//{
-//public:
-//				uiDirectViewBody(ui3DViewer&,uiParent*);
-//
-//    const mQtclass(QWidget)* 	qwidget_() const;
-//    
-//
-//    virtual uiSize		minimumSize() const 
-//    				{ return uiSize(200,200); }
-//
-//protected:
-//    void			updateActModeCursor();
-//    osgGA::GUIActionAdapter&	getActionAdapter() { return *graphicswin_.get();}
-//    osg::GraphicsContext*	getGraphicsContext() {return graphicswin_.get();}
-//
-//    bool			mousebutdown_;
-//    float			zoomfactor_;
-//
-//    //visBase::CameraInfo*	camerainfo_;
-//    MouseCursor			actmodecursor_;
-//
-//    osg::ref_ptr<osgQt::GraphicsWindowQt>	graphicswin_;
-//};
-//
-//
-//ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
-//    : uiObjectBody( parnt, 0 )
-//    , handle_( h )
-//    , printpar_(*new IOPar)
-//    , viewport_( 0 )
-//{}
-//
-//
-//ui3DViewerBody::~ui3DViewerBody()
-//{			
-//    handle_.destroyed.trigger(handle_);
-//    delete &printpar_;
-//    view_.detachView();
-//    viewport_->unref();
-//}
-//
-//
-//uiObject& ui3DViewerBody::uiObjHandle()
-//{ return handle_; }
-//
-//
-//osg::Camera* ui3DViewerBody::getOsgCamera()
-//{
-//    if ( !view_.getOsgView() )
-//	return 0;
-//
-//    return view_.getOsgView()->getCamera();
-//}
-//
-//
-//const osg::Camera* ui3DViewerBody::getOsgCamera() const
-//{
-//    return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
-//}
-//
-//
-//void ui3DViewerBody::reSizeEvent(CallBacker*)
-//{
-//    const mQtclass(QWidget)* widget = qwidget();
-//    if ( !widget )
-//	return;
-//
-//    if ( !camera_ )
-//	return;
-//
-//    osg::ref_ptr<osg::Camera> osgcamera = getOsgCamera();
-//
-//    if ( !osgcamera )
-//	return;
-//
-//    const double aspectratio = static_cast<double>(widget->width())/
-//	static_cast<double>(widget->height());
-//
-//    osgcamera->setProjectionMatrixAsPerspective( 30.0f, aspectratio,
-//						  1.0f, 10000.0f );
-//}
-//
-//
-//class ODDirectWidget : public osgQt::GLWidget, public CallBacker
-//{
-//public:
-//    			ODDirectWidget(QWidget* p)
-//			    : osgQt::GLWidget(p)
-//			    , resize( this )
-//			{}
-//
-//    bool		event(QEvent* ev)
-//			{
-//			    if ( ev->type()==QEvent::Resize )
-//			    {
-//				resize.trigger();
-//			    }
-//
-//			    return osgQt::GLWidget::event( ev );
-//			}
-//
-//    Notifier<ODDirectWidget>	resize;
-//};
-
-
-
-//
-//uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
-//    : ui3DViewerBody( hndl, parnt )
-//    , mousebutdown_(false)
-//    , zoomfactor_( 1 )
-//{
-//    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
-//    ODDirectWidget* glw = new ODDirectWidget( parnt->pbody()->managewidg() );
-//    glw->resize.notify( mCB( this, ui3DViewerBody, reSizeEvent ) );
-//
-//    graphicswin_ = new osgQt::GraphicsWindowQt( glw );
-//    setStretch(2,2);
-//}
-//
-//
-//const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
-//{ return graphicswin_->getGLWidget(); }
-//
-//
-//void uiDirectViewBody::updateActModeCursor()
-//{
-//    /*
-//    if ( isViewing() )
-//	return;
-//
-//    if ( !isCursorEnabled() )
-//	return;
-//
-//    QCursor qcursor;
-//    uiCursorManager::fillQCursor( actmodecursor_, qcursor );
-//
-//    getGLWidget()->setCursor( qcursor );
-//    */
-//}
-//
-//
-//bool ui3DViewerBody::isViewing() const
-//{
-//    return scene_ && !scene_->isTraversalEnabled( visBase::EventTraversal );
-//}
-//
-//
-//#define ROTATE_WIDTH 16
-//#define ROTATE_HEIGHT 16
-//#define ROTATE_BYTES ((ROTATE_WIDTH + 7) / 8) * ROTATE_HEIGHT
-//#define ROTATE_HOT_X 6
-//#define ROTATE_HOT_Y 8
-//
-//static unsigned char rotate_bitmap[ROTATE_BYTES] = {
-//    0xf0, 0xef, 0x18, 0xb8, 0x0c, 0x90, 0xe4, 0x83,
-//    0x34, 0x86, 0x1c, 0x83, 0x00, 0x81, 0x00, 0xff,
-//    0xff, 0x00, 0x81, 0x00, 0xc1, 0x38, 0x61, 0x2c,
-//    0xc1, 0x27, 0x09, 0x30, 0x1d, 0x18, 0xf7, 0x0f
-//};
-//
-//static unsigned char rotate_mask_bitmap[ROTATE_BYTES] = {
-//    0xf0,0xef,0xf8,0xff,0xfc,0xff,0xfc,0xff,0x3c,0xfe,0x1c,0xff,0x00,0xff,0x00,
-//    0xff,0xff,0x00,0xff,0x00,0xff,0x38,0x7f,0x3c,0xff,0x3f,0xff,0x3f,0xff,0x1f,
-//    0xf7,0x0f
-//};
-//
-//
-//
-//void ui3DViewerBody::setViewing( bool yn )
-//{
-//        /*
-//    SoQtExaminerViewer::setViewing( yn );
-//    handle_.viewmodechanged.trigger(handle_);
-//    updateActModeCursor();
-//    */
-//}
-//
-//
-//void ui3DViewerBody::uisetViewing( bool yn )
-//{
-//    if ( scene_ )
-//	scene_->enableTraversal( visBase::EventTraversal, !yn );
-//    
-//    MouseCursor cursor;
-//    if ( yn )
-//    {
-//	cursor.shape_ = MouseCursor::Bitmap;
-//	
-//	uiRGBArray* cursorimage = new uiRGBArray( true );
-//	cursorimage->setSize( ROTATE_WIDTH, ROTATE_HEIGHT );
-//	cursorimage->putFromBitmap( rotate_bitmap, rotate_mask_bitmap );
-//	
-//	cursor.image_ = cursorimage;
-//	cursor.hotx_ = ROTATE_HOT_X;
-//	cursor.hoty_ = ROTATE_HOT_Y;
-//	
-//    }
-//    else
-//    {
-//	cursor.shape_ = MouseCursor::Arrow;
-//    }
-//    
-//    mQtclass(QCursor) qcursor;
-//    uiCursorManager::fillQCursor( cursor, qcursor );
-//    qwidget()->setCursor( qcursor );
-//
-//
-////    SoQtExaminerViewer::setViewing( yn );
-//}
-//
-//
-//Coord3 ui3DViewerBody::getCameraPosition() const
-//{
-//    osg::ref_ptr<const osg::Camera> cam = getOsgCamera();
-//    if ( !cam )
-//	return Coord3::udf();
-//
-//    osg::Vec3 eye, center, up;
-//    cam->getViewMatrixAsLookAt( eye, center, up );
-//    return Coord3( eye.x(), eye.y(), eye.z() );
-//}
-//
-//
-//void ui3DViewerBody::setSceneID( int sceneid )
-//{
-//    visBase::DataObject* obj = visBase::DM().getObject( sceneid );
-//    mDynamicCastGet(visBase::Scene*,newscene,obj)
-//    if ( !newscene ) return;
-//
-//    if ( !view_.getOsgView() )
-//    {
-//	camera_ = visBase::Camera::create();
-//
-//	mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
-//	osgcamera->setGraphicsContext( getGraphicsContext() );
-//	osgcamera->setClearColor( osg::Vec4(0, 0, 0, 1.0) );
-//	if ( viewport_ ) viewport_->unref();
-//	viewport_ = new osg::Viewport(0, 0, 600, 400 );
-//	viewport_->ref();
-//	osgcamera->setViewport( viewport_ );
-//
-//	osg::ref_ptr<osgViewer::View> view = new osgViewer::View;
-//	view->setCamera( osgcamera );
-//	view->setSceneData( newscene->osgNode() );
-//	view->addEventHandler( new osgViewer::StatsHandler );
-//
-//	osg::ref_ptr<osgGA::TrackballManipulator> manip =
-//	    new osgGA::TrackballManipulator(
-//		osgGA::StandardManipulator::DEFAULT_SETTINGS |
-//		osgGA::StandardManipulator::SET_CENTER_ON_WHEEL_FORWARD_MOVEMENT
-//	    );
-//
-//	manip->setAutoComputeHomePosition( false );
-//
-//	view->setCameraManipulator( manip.get() );
-//	view_.setOsgView( view );
-//
-//	// To put exaggerated bounding sphere radius offside
-//	manip->setMinimumDistance( 0 );
-//
-//	// Camera projection must be initialized before computing home position
-//	reSizeEvent( 0 );
-//    }
-//
-//    scene_ = newscene;
-//}
-//
-//
-//void ui3DViewerBody::align()
-//{
-//    /*
-//    SoCamera* cam = getCamera();
-//    if ( !cam ) return;
-//    osg::Vec3f dir;
-//    cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), dir );
-//
-//    osg::Vec3f focalpoint = cam->position.getValue() +
-//					cam->focalDistance.getValue() * dir;
-//					osg::Vec3f upvector( dir[0], dir[1], 1 );
-//    cam->pointAt( focalpoint, upvector );
-//    */
-//}
-//
-//
-//Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
-//{
-//    osg::ref_ptr<const osg::Camera> camera = getOsgCamera();
-//    osg::ref_ptr<const osg::Viewport> vp = camera->getViewport();
-//
-//    return Geom::Size2D<int>( mNINT32(vp->width()), mNINT32(vp->height()) );
-//}
-//
-//
-//void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir, 
-//				  const osg::Vec3f& focusdir,
-//				  bool usetruedir )
-//{
-//    /*
-//    osg::Camera* cam = getOsgCamera();
-//    if ( !cam ) return;
-//
-//    osg::Vec3f dir;
-//    cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), dir );
-//
-//#define mEps 1e-6
-//    const float angletofocus = Math::ACos( dir.dot(focusdir) );
-//    if ( mIsZero(angletofocus,mEps) ) return;
-//
-//    const float diffangle = fabs(angletofocus) - M_PI_2;
-//    const int sign = usetruedir || mIsZero(diffangle,mEps) || diffangle < 0 ? 1 : -1;
-//    osg::Vec3f focalpoint = cam->position.getValue() +
-//			 cam->focalDistance.getValue() * sign * focusdir;
-//    cam->pointAt( focalpoint, updir );
-//
-//    cam->position = focalpoint + cam->focalDistance.getValue() * sign *focusdir;
-//    viewAll();
-//    */
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneX()
-//{
-//    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false );
-//}
-//
-//
-//void ui3DViewerBody::viewAll()
-//{
-//    if ( !view_.getOsgView() )
-//	return;
-//
-//    osg::ref_ptr<osgGA::CameraManipulator> manip =
-//	static_cast<osgGA::CameraManipulator*>(
-//	    view_.getOsgView()->getCameraManipulator() );
-//
-//    if ( !manip )
-//	return;
-//
-//    osg::ref_ptr<osgGA::GUIEventAdapter>& ea =
-//	osgGA::GUIEventAdapter::getAccumulatedEventState();
-//    if ( !ea )
-//	return;
-//
-//    manip->computeHomePosition( getOsgCamera(), true );
-//    manip->home( *ea, getActionAdapter() );
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneY()
-//{
-//    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false );
-//}
-//
-//
-//void ui3DViewerBody::setBackgroundColor( const Color& col )
-//{
-//    getOsgCamera()->setClearColor( osg::Vec4(col2f(r),col2f(g),col2f(b), 1.0) ); }
-//
-//
-//Color ui3DViewerBody::getBackgroundColor() const
-//{
-//    const osg::Vec4 col = getOsgCamera()->getClearColor();
-//    return Color( mNINT32(col.r()*255), mNINT32(col.g()*255), mNINT32(col.b()*255) );
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneN()
-//{
-//    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), true );
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneZ()
-//{
-//    osg::Camera* cam = getOsgCamera();
-//    if ( !cam ) return;
-//
-//    osg::Vec3f curdir;
-//    //cam->orientation.getValue().multVec( osg::Vec3f(0,0,-1), curdir );
-//    //setCameraPos( curdir, osg::Vec3f(0,0,-1), true );
-//}
-//
-//
-//static void getInlCrlVec( osg::Vec3f& vec, bool inl )
-//{
-//    const RCol2Coord& b2c = SI().binID2Coord();
-//    const RCol2Coord::RCTransform& xtr = b2c.getTransform(true);
-//    const RCol2Coord::RCTransform& ytr = b2c.getTransform(false);
-//    const float det = xtr.det( ytr );
-//    if ( inl )
-//	vec = osg::Vec3f( ytr.c/det, -xtr.c/det, 0 );
-//    else
-//	vec = osg::Vec3f( -ytr.b/det, xtr.b/det, 0 );
-//    vec.normalize();
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneInl()
-//{
-//    osg::Vec3f inlvec;
-//    getInlCrlVec( inlvec, true );
-//    setCameraPos( osg::Vec3f(0,0,1), inlvec, false );
-//}
-//
-//
-//void ui3DViewerBody::viewPlaneCrl()
-//{
-//    osg::Vec3f crlvec;
-//    getInlCrlVec( crlvec, false );
-//    setCameraPos( osg::Vec3f(0,0,1), crlvec, false );
-//}
-//
-//
-//bool ui3DViewerBody::isCameraPerspective() const
-//{
-//    return !camera_->isOrthogonal();
-//}
-//
-//
-//bool ui3DViewerBody::isCameraOrthographic() const
-//{
-//    return camera_->isOrthogonal();
-//}
-//
-//
-//void ui3DViewerBody::toggleCameraType()
-//{
-//    //TODO
-//}
-//
-//
-//void ui3DViewerBody::setHomePos()
-//{
-//    if ( !camera_ ) return;
-//
-//    PtrMan<IOPar> homepospar =
-//	SI().pars().subselect( ui3DViewer::sKeyHomePos() );
-//    if ( !homepospar )
-//	return;
-//
-//    camera_->usePar( *homepospar );
-//}
-//
-//
-//
-//void ui3DViewerBody::resetToHomePosition()
-//{
-//}
-
-// Start of SO stuff
 
 class i_uiSoviewLayoutItem : public i_uiLayoutItem
 {
@@ -605,6 +142,8 @@ public:
     void			saveHomePos();
     virtual void		setViewing(SbBool);
     void			uisetViewing(bool);
+    void			enableSeek(bool);
+    bool			seekEnabled() const;
     virtual SbBool		processSoEvent(const SoEvent* const event);
 
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
@@ -830,6 +369,9 @@ void uiSoViewerBody::updateActModeCursor()
 
 void uiSoViewerBody::setViewing( SbBool yn )
 {
+    if ( seekEnabled() && !yn )
+	enableSeek( false );
+
     SoQtExaminerViewer::setViewing( yn );
     handle_.viewmodechanged.trigger(handle_);
     updateActModeCursor();
@@ -837,9 +379,13 @@ void uiSoViewerBody::setViewing( SbBool yn )
 
 
 void uiSoViewerBody::uisetViewing( bool yn )
-{
-    SoQtExaminerViewer::setViewing( yn );
-}
+{ SoQtExaminerViewer::setViewing( yn ); }
+
+void uiSoViewerBody::enableSeek( bool yn )
+{ SoQtExaminerViewer::setSeekMode( yn ); }
+
+bool uiSoViewerBody::seekEnabled() const
+{ return SoQtExaminerViewer::isSeekMode(); }
 
 
 void uiSoViewerBody::setAxisAnnotColor( const Color& col )
@@ -1516,7 +1062,10 @@ int ui3DViewer::sceneID() const
 void ui3DViewer::setViewing( bool yn )
 {
     if ( sobody_ )
+    {
+	if ( !yn ) sobody_->enableSeek( false );
 	sobody_->uisetViewing(yn);
+    }
     /*else
 	osgbody_->uisetViewing( yn );*/
 }
@@ -1628,6 +1177,16 @@ void ui3DViewer::toggleCameraType()
 {
     if ( sobody_ )
 	sobody_->toggleCameraType();
+}
+
+
+void ui3DViewer::switchSeekMode()
+{
+    if ( sobody_ )
+    {
+	if ( !isViewing() ) sobody_->setViewing( true );
+	sobody_->enableSeek( !sobody_->seekEnabled() );
+    }
 }
 
 

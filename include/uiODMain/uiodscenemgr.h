@@ -68,6 +68,7 @@ public:
     void			actMode(CallBacker* cb=0);
     void			viewMode(CallBacker* cb=0);
     Notifier<uiODSceneMgr>	viewModeChanged;
+    void			seek(CallBacker* cb=0);
 
     void			pageUpDownPressed(CallBacker*);
 
