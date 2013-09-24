@@ -22,7 +22,6 @@ SET(OD_MODULE_SOURCES
 		emundo.cc
 		emhorizon2d.cc
 		emhorizon3d.cc
-		emhorizonpainter.cc
 		emhorizonpainter2d.cc
 		emhorizonpainter3d.cc
 		emhorizonpreload.cc
