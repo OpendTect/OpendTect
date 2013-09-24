@@ -67,6 +67,7 @@ Export_Basic od_ostream& logMsgStrm()
 		BufferString datestr = Time::getDateTimeString();
 		replaceString( datestr.buf(), ", ", "-" );
 		replaceCharacter( datestr.buf(), ':', '.' );
+		replaceCharacter( datestr.buf(), ' ', '_' );
 		fnm += "_"; fnm += datestr.buf();
 		fnm += ".txt";
 
