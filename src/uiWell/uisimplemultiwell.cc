@@ -106,6 +106,11 @@ uiSimpleMultiWellCreateReadDataAscio( const Table::FormatDesc& fd,
     atend_ = !getHdrVals( strm_ );
 }
 
+bool isXY()
+{
+    return formOf( false, 1 ) == 0;
+}
+
 bool getLine()
 {
     if ( atend_ ) return false;
@@ -116,8 +121,17 @@ bool getLine()
     atend_ = false;
 
     wcd_.nm_ = text( 0 );
-    wcd_.coord_.x = getdValue( 1 );
-    wcd_.coord_.y = getdValue( 2 );
+    if ( isXY() )
+    {
+	wcd_.coord_.x = getdValue( 1 );
+	wcd_.coord_.y = getdValue( 2 );
+    }
+    else
+    {
+	const BinID bid( getdValue(1), getdValue(2) );
+	wcd_.coord_ = SI().transform( bid );
+    }
+
     if ( wcd_.nm_.isEmpty()
       || mIsUdf(wcd_.coord_.x) || mIsUdf(wcd_.coord_.y)
       || (wcd_.coord_.x == 0 && wcd_.coord_.y == 0) )
