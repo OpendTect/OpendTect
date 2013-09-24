@@ -742,9 +742,11 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
 	rm.getD2T( tmpd2ts, true );
-	if ( !tmpd2ts.isEmpty() )
+	if ( tmpd2ts.isEmpty() )
+	    continue;
+
+	while ( tmpd2ts.size() )
 	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
-	deepErase( tmpd2ts );
     }
 
     return sd;
