@@ -1310,8 +1310,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
     TypeSet<double> startviewareapts;
     uiWorldRect wr( mUdf(double), 0, 0, 0 );
-    if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
-	 startviewareapts.size()==4 )
+    if ( stratsynthpar
+      && stratsynthpar->get(sKeyViewArea(),startviewareapts)
+      && startviewareapts.size() == 4 )
     {
 	wr.setLeft( startviewareapts[0] );
 	wr.setTop( startviewareapts[1] );
