@@ -4,6 +4,16 @@ In general, all fixes in the stable 4.4 are also applied in the 4.6 releases.
 
 ----
 
+v4.6.0b: September 26, 2013
+  * Fix for crash while creating a new survey and filling
+    ranges/coordinate settings by scanning SEGY file
+  * Fix for importing well track in Feet
+  * Fix for crash in mute function in Prestack processing
+  * Fix for crash while displaying  well properties dialog
+  * Fix for taking snapshot of Scene on Mac platform
+  * Fix for crash while plotting contours using GMT
+  * Fix for repeated text in title box of maps created by GMT
+
 v4.6.0a: September 10, 2013
   * An improved Installer with cross-platform offline installation support
   * Improved, faster 2D displays
