@@ -212,26 +212,10 @@ od_int64 SeisRandLineTo2D::totalNr() const
 { return totnr_; }
 
 
-bool SeisRandLineTo2D::execute( std::ostream* strm, bool b1, bool b2, int i )
-{
-    if ( !strm )
-	return Executor::execute(strm,b1,b2,i);
+#define mNotOKRet(s) \
+	{ isok_ = false; strm_ << s << od_newline; strm_.flush(); return; }
 
-    od_ostream odstrm( *strm );
-    TextStreamProgressMeter progressmeter( odstrm );
-    setProgressMeter( &progressmeter );
-    bool res = SequentialTask::execute();
-    if ( !res )
-	*strm << "Error: " << message() << std::endl;
-    else
-	*strm << "\nFinished: " << std::endl;
-
-    setProgressMeter( 0 );
-    return res;
-}
-
-#define mNotOKRet(s) { isok_ = false; strm_ << s << std::endl; return; }
-SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, std::ostream& s )
+SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
     : isok_(true),strm_(s)
     , inpobj_(0),outpobj_(0)
 {
@@ -276,7 +260,8 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, std::ostream& s )
 
 
 #undef mNotOKRet
-#define mFalseRet(s) { strm_ << s << std::endl; return false; }
+#define mFalseRet(s) { strm_ << s << od_newline; strm_.flush(); return false; }
+
 bool SeisRandLineTo2DGrid::createGrid()
 {
     CubeSampling cs;
@@ -313,17 +298,18 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	linenm += strsuffix;
 	LineKey lk( linenm, outpattrib_.buf() );
 	SeisRandLineTo2D exec( *inpobj_, *outpobj_, lk, 1, *rln );
-	strm_ << "Creating 2D line " << linenm << ":" << std::endl;
+	strm_ << "Creating 2D line " << linenm << ":" << od_newline;
 	strm_.flush();
-	if ( !exec.execute(&strm_) )
-	    strm_ << "Failedto create line " << linenm << std::endl;
+	if ( !exec.go(strm_) )
+	    strm_ << "Failedto create line " << linenm << od_newline;
     }
 
-    strm_ << "Finished processing." << std::endl;
+    strm_ << "Finished processing." << od_newline;
     if ( !SI().has2D() )
     {
-	strm_ << "PLEASE NOTE THAT YOU NEED TO CHANGE SURVEY TYPE" << std::endl;
-	strm_ << " TO 'Both 2D and 3D' TO DISPLAY THE 2D LINES" << std::endl;
+	strm_ << "PLEASE NOTE THAT YOU NEED TO CHANGE SURVEY TYPE\n"
+		<< " TO 'Both 2D and 3D' TO DISPLAY THE 2D LINES";
+	strm_.flush();
     }
 
     return true;

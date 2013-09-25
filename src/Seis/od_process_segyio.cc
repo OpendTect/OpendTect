@@ -71,7 +71,7 @@ bool BatchProgram::go( od_ostream& strm )
 	}
 
 	SEGY::FileIndexer indexer( mid, isvol, filespec, is2d, pars() );
-	if ( !indexer.execute( &strm.stdStream() ) )
+	if ( !indexer.go(strm) )
 	{
 	    strm << indexer.message();
 	    IOM().permRemove( mid );

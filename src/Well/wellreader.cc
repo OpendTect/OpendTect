@@ -46,9 +46,8 @@ const char* Well::IO::sExtWellTieSetup() { return ".tie"; }
 
 
 
-Well::IO::IO( const char* f, bool fr )
+Well::IO::IO( const char* f )
     	: basenm_(f)
-    	, isrdr_(fr)
 {
     FilePath fp( basenm_ );
     fp.setExtension( 0, true );
@@ -128,7 +127,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 
 
 Well::Reader::Reader( const char* f, Well::Data& w )
-	: Well::IO(f,true)
+	: Well::IO(f)
     	, wd(w)
 {
 }

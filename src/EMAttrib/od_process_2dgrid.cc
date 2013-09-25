@@ -21,31 +21,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 
-#define mErrRet(msg) { strm << msg << std::endl; return false; }
-
-bool BatchProgram::go( od_ostream& odstrm )
+bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "EarthModel" );
-    std::ostream& strm( odstrm.stdStream() );
 
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )
-    {
-	strm << "Cannot find necessary information in parameter file"
-	     << std::endl;
-	return false;
-    }
+	{ strm.add( "Incomplete parameter file\n" ).flush(); return false; }
 
     bool res = true;
     TextTaskRunner tr( strm );
-    strm << "Creating 2D Grid ..." << std::endl;
+    strm.add( "Creating 2D Grid ...\n" ).flush();
     Seis2DGridCreator* seiscr = new Seis2DGridCreator( *seispar );
     res = tr.execute( *seiscr );
     if ( !res )
-    {
-	strm << "  failed.\nProcess stopped" << std::endl;
-	return false;
-    }
+	{ strm.add( "  failed.\nProcess stopped\n" ).flush(); return false; }
 
     delete seiscr;
 
@@ -53,15 +43,12 @@ bool BatchProgram::go( od_ostream& odstrm )
     if ( !horpar )
 	return res;
 
-    strm << "\n\nCreating 2D Horizon(s) ..." << std::endl;
+    strm.add( "\n\nCreating 2D Horizon(s) ...\n" ).flush();
     Horizon2DGridCreator horcr;
     horcr.init( *horpar, &tr );
     res = tr.execute( horcr );
     if ( !res ) 
-    {
-	strm << "  failed.\nProcess stopped" << std::endl;
-	return false;
-    }
+	{ strm.add( "  failed.\nProcess stopped\n" ).flush(); return false; }
 
     res = horcr.finish( &tr );
     return res;

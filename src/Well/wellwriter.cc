@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( !strm.isOK() ) { todo; }
 
 Well::Writer::Writer( const char* f, const Well::Data& w )
-	: Well::IO(f,false)
+	: Well::IO(f)
     	, wd(w)
 	, binwrlogs_(false)
 {

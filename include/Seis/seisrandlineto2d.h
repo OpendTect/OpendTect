@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class IOObj;
 class IOPar;
+class od_ostream;
 class LineKey;
 class SeisTrcReader;
 class SeisTrcWriter;
@@ -41,10 +42,6 @@ public:
     od_int64		nrDone() const;
     int			nextStep();
 
-    virtual bool	execute(std::ostream* log,bool isfirst=true,
-	    			bool islast=true,int delaybetwnstepsinms=0);
-    virtual bool	execute()	{ return execute(0); }
-
 protected:
 
     SeisTrcReader*	rdr_;
@@ -66,7 +63,7 @@ private:
 mExpClass(Seis) SeisRandLineTo2DGrid
 {
 public:
-    			SeisRandLineTo2DGrid(const IOPar&,std::ostream&);
+    			SeisRandLineTo2DGrid(const IOPar&,od_ostream&);
 
     bool		isOK()			{ return isok_; }
     bool		createGrid();
@@ -84,7 +81,7 @@ public:
 protected:
 
     bool		isok_;
-    std::ostream&	strm_;
+    od_ostream&		strm_;
 
     IOObj*		inpobj_;
     IOObj*		outpobj_;
@@ -93,7 +90,7 @@ protected:
     BufferString	perprefix_;
     double		gridspacing_;
 
-    Geometry::RandomLine	rln_;
+    Geometry::RandomLine rln_;
 
     bool		mk2DLines(const Geometry::RandomLineSet&,bool);
 };

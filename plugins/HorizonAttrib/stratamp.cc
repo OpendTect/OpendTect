@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "od_ostream.h"
 
 
 const char* StratAmpCalc::sKeySingleHorizonYN()	{ return "Is single horizon"; }
@@ -248,18 +249,18 @@ int StratAmpCalc::nextStep()
 
 
 bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
-				  bool overwrite, std::ostream* strm )
+				  bool overwrite, od_ostream* strm )
 {
     PtrMan<Executor> datasaver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->execute(strm,false,false,0)) )
+    if ( !(datasaver && datasaver->go(strm,false,false)) )
 	return false;
 
     if ( outfold_ )
     {
 	datasaver.erase();
 	datasaver = hor->auxdata.auxDataSaver( dataidxfold_, overwrite );
-	if ( !(datasaver && datasaver->execute(strm,false,false,0)) )
+	if ( !(datasaver && datasaver->go(strm,false,false)) )
 	    return false;
     }
 

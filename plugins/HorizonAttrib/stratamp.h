@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "stattype.h"
 
+class od_ostream;
 class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
@@ -37,7 +38,7 @@ public:
 
     int			init(const IOPar&);
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite, std::ostream* strm=0);
+	    			      bool overwrite,od_ostream* s=0);
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();

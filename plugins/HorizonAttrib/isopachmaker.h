@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "emposid.h"
 
+class od_ostream;
 class DataPointSet;
 namespace EM{ class Horizon3D; class EMObjectIterator; }
 
@@ -36,7 +37,7 @@ public:
 
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite, std::ostream* strm=0);
+	    			      bool overwrite,od_ostream* strm=0);
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();

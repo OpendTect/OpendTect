@@ -25,7 +25,7 @@ static bool loadHorizon( const MultiID& mid, od_ostream& strm )
     EM::EMManager& em = EM::EMM();
     strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
     Executor* exec = em.objectLoader( mid );
-    if ( !(exec && exec->execute( &strm.stdStream(), false, false, 0 )) )
+    if ( !(exec && exec->go( strm, false, false, 0 )) )
     {
 	strm << "Failed to load horizon: ";
 	strm << em.objectName( mid ).buf() << od_newline;
@@ -89,7 +89,7 @@ bool BatchProgram::go( od_ostream& strm )
 	maker.setUnits( isinmsec );
     }
 
-    if ( !maker.execute( &strm.stdStream(), false, false, 0 ) )
+    if ( !maker.go( strm, false, false, 0 ) )
     {
 	strm << "Failed to calculate isopach" << od_newline;
 	horizon1->unRef(); horizon2->unRef();
@@ -100,8 +100,7 @@ bool BatchProgram::go( od_ostream& strm )
     strm << "Saving isopach ..." << od_newline;
     bool isoverwrite = false;
     pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
-    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite,
-			&strm.stdStream() ) )
+    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
 	strm << "Failed save isopach" << od_newline;
 	horizon1->unRef(); horizon2->unRef();

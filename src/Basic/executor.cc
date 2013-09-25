@@ -13,15 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "thread.h"
 #include "od_ostream.h"
-#include <iostream>
 
 
-bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
-		        int delaybetwnsteps )
+bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 {
-    if ( !strm )
+    if ( !strm || strm == &od_ostream::nullStream() )
     {
-	if ( !delaybetwnsteps ) return SequentialTask::execute();
+	if ( !delay ) return SequentialTask::execute();
 
 	int rv = MoreToDo();
 	while ( rv )
@@ -33,29 +31,28 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 		if ( msg && *msg ) ErrMsg( msg );
 		return false;
 	    }
-	    if ( delaybetwnsteps )
-		Threads::sleep( delaybetwnsteps*0.001 );
+	    if ( delay )
+		Threads::sleep( delay*0.001 );
 	}
 	return true;
     }
 
-    std::ostream& stream = *strm;
     if ( isfirst )
-	stream << GetProjectVersionName() << "\n\n";
+	*strm << GetProjectVersionName() << "\n\n";
 
-    od_ostream odstrm( *strm );
-    TextStreamProgressMeter progressmeter( odstrm );
+    TextStreamProgressMeter progressmeter( *strm );
     setProgressMeter( &progressmeter );
 
     bool res = SequentialTask::execute();
     if ( !res )
-	stream << "Error: " << message() << std::endl;
+	*strm << "Error: " << message() << od_newline;
 
     setProgressMeter( 0 );
 
     if ( islast )
-	stream << "\n\nEnd of process: '" << name() << "'" << std::endl;
+	*strm << "\n\nEnd of process: '" << name() << "'" << od_newline;
 
+    strm->flush();
     return res;
 }
 
@@ -217,11 +214,10 @@ bool TextTaskRunner::execute( Task& t )
 {
     mDynamicCastGet(Executor*,exec,&t)
     if ( exec )
-	execres_ = exec->execute( &strm_ );
+	execres_ = exec->go( strm_ );
     else
     {
-	od_ostream odstrm( strm_ );
-	TextStreamProgressMeter progressmeter(odstrm);
+	TextStreamProgressMeter progressmeter(strm_);
 	t.setProgressMeter( &progressmeter );
 	execres_ = t.execute();
     }

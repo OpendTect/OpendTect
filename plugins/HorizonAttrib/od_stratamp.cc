@@ -47,7 +47,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
     sdsel.rg = hs;
     strm << "Laoding " << em.objectName( mid ) << od_newline;
     Executor* exec = em.objectLoader( mid, &sdsel );
-    if ( !(exec && exec->execute(&strm.stdStream(), false, false, 0) ) )
+    if ( !(exec && exec->go(strm, false, false, 0) ) )
 	return 0;
 
     EM::ObjectID emid = em.getObjectID( mid );
@@ -119,7 +119,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     strm << "Calculating attribute ..." << od_newline;
-    if ( !exec.execute( &strm.stdStream(), false, false, 0 ) )
+    if ( !exec.go( strm, false, false, 0 ) )
     {
 	strm << "Failed to calculate attribute." << od_newline;
 	mUnRef();
@@ -133,7 +133,7 @@ bool BatchProgram::go( od_ostream& strm )
     bool isoverwrite = false;
     pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite );
     if ( !exec.saveAttribute( addtotop ? tophor : bothor, attribidx,
-			      isoverwrite, &strm.stdStream() ) )
+			      isoverwrite, &strm ) )
     {
 	strm << "Failed to save attribute";
 	mUnRef();

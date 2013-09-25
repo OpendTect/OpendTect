@@ -54,13 +54,9 @@ public:
 protected:
 
 
-			IO(const char*,bool);
+			IO(const char*);
 
     const BufferString	basenm_;
-
-private:
-
-    const bool		isrdr_;
 
 public:
 

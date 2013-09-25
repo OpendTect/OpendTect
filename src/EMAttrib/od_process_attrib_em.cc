@@ -378,7 +378,7 @@ bool BatchProgram::go( od_ostream& strm )
 	sels.rg = hsamp;
 	PtrMan<Executor> loader = 
 			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
-	if ( !loader || !loader->execute(&strm.stdStream()) ) 
+	if ( !loader || !loader->go(strm) ) 
 	{
 	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
@@ -466,7 +466,7 @@ bool BatchProgram::go( od_ostream& strm )
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
 	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, true );
-	if ( !saver || !saver->execute(&strm.stdStream()) )
+	if ( !saver || !saver->go(strm) )
 	    mErrRet( "Cannot save data" );
     }
     else if ( geompar )

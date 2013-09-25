@@ -146,11 +146,11 @@ int IsopachMaker::finishWork()
 
 
 bool IsopachMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
-				  bool overwrite, std::ostream* strm )
+				  bool overwrite, od_ostream* strm )
 {
     PtrMan<Executor> datasaver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->execute(strm,false,false,0)) )
+    if ( !(datasaver && datasaver->go(strm,false,false)) )
 	return false;
 
     return true;

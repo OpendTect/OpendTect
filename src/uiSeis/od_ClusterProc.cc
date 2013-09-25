@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "strmdata.h"
 #include "survinfo.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 
 #include <iostream>
 
@@ -85,11 +85,12 @@ int main( int argc, char ** argv )
 	ExitProgram( ret );
     }
 
-    std::cout << "Merging output ... " << std::endl;
-    TextTaskRunner tr( std::cout );
+    od_ostream logstrm( std::cout );
+    logstrm.add( "Merging output ...\n" ).flush();
+    TextTaskRunner tr( logstrm );
     BufferString msg;
     const bool result = uiClusterProc::mergeOutput( iop, &tr, msg, withdelete );
-    std::cout << msg << std::endl;
+    logstrm.add( msg ).flush();
     ExitProgram( result ? 0 : 1 );
     return 0;
 }

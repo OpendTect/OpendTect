@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "progressmeter.h"
 #include "od_iosfwd.h"
-#include <iosfwd>
 template <class T> class ObjectSet;
 
 /*!
@@ -48,12 +47,22 @@ public:
 
     virtual int		doStep();
 
-    virtual bool	execute(std::ostream*,bool isfirst=true,
-	    			bool islast=true,int delaybetwnstepsinms=0);
-    virtual bool	execute()	{ return execute(0); }
+    inline bool		go( od_ostream* s=0, bool isfirst=true,
+			    bool islast=true, int delaybtwnstepsinms=0 )
+			{ return goImpl(s,isfirst,islast,delaybtwnstepsinms); }
+    inline bool		go( od_ostream& s, bool isfirst=true,
+			    bool islast=true, int delaybtwnstepsinms=0 )
+			{ return goImpl(&s,isfirst,islast,delaybtwnstepsinms); }
 
     Notifier<Executor>	prestep;
     Notifier<Executor>	poststep; //!< Only when MoreToDo will be returned.
+
+    			// Being a Task requires:
+    virtual bool	execute()	{ return go(); }
+
+protected:
+
+    virtual bool	goImpl(od_ostream*,bool,bool,int);
 
 };
 
@@ -111,7 +120,7 @@ protected:
 mExpClass(Basic) TextTaskRunner : public TaskRunner
 {
 public:
-			TextTaskRunner( std::ostream& strm )
+			TextTaskRunner( od_ostream& strm )
 			    : TaskRunner()
 			    , strm_(strm)	{}
 
@@ -119,7 +128,7 @@ public:
 
 protected:
 
-    std::ostream&	strm_;
+    od_ostream&		strm_;
 
 };
 
