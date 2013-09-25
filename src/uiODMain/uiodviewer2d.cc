@@ -87,8 +87,7 @@ uiODViewer2D::~uiODViewer2D()
     }
     delete marker_;
 
-    if ( fvdw )
-	delete viewwin();
+    delete viewwin();
 }
 
 
