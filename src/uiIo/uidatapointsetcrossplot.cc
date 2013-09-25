@@ -72,7 +72,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , removeRequest( this )
     , drawTypeChanged( this )
     , coltabRgChanged( this )
-    , doy2_(true)
     , plotperc_(1)
     , curgrp_(0)
     , curselgrp_(0)
@@ -306,12 +305,12 @@ void uiDataPointSetCrossPlotter::deleteSelections()
 	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
 	{
 	    checkSelection( rid, 0, false, y_, true );
-	    if ( y2_.axis_ && doy2_ ) 
+	    if ( y2_.axis_ )
 		checkSelection( rid, 0, true, y2_, true );
 	}
 
 	drawData( y_, false, true );
-	if ( y2_.axis_ && doy2_ )
+	if ( y2_.axis_ )
 	    drawData( y2_ , true, true );
     }
 
@@ -386,7 +385,7 @@ void uiDataPointSetCrossPlotter::reDrawSelections()
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
 	checkSelection( rid, 0, false, y_, false );
-	if ( y2_.axis_ && doy2_ ) 
+	if ( y2_.axis_ )
 	    checkSelection( rid, 0, true, y2_, false );
     }
 }
@@ -1020,7 +1019,7 @@ void uiDataPointSetCrossPlotter::mouseReleasedCB( CallBacker* )
 	if ( dps_.isInactive(rid) ) continue;
 
 	checkSelection( rid, 0, false, y_, false );
-	if ( y2_.axis_ && doy2_ ) 
+	if ( y2_.axis_ )
 	    checkSelection( rid, 0, true, y2_, false );
     }
 
@@ -1223,6 +1222,11 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     mHandleAxisAutoScale(x_);
     mHandleAxisAutoScale(y_);
     mHandleAxisAutoScale(y2_);
+
+    if ( yptitems_ )
+	yptitems_->setVisible( axisHandler(1) );
+    if ( y2ptitems_ )
+	y2ptitems_->setVisible( axisHandler(2) );
     
     getRandRowids();
     calcStats();
@@ -1247,7 +1251,7 @@ void uiDataPointSetCrossPlotter::setDraw()
     if ( y_.axis_ )
 	y_.axis_->updateDevSize();
 
-    if ( doy2_ && y2_.axis_ )
+    if ( y2_.axis_ )
 	y2_.axis_->updateDevSize();
 }
 
@@ -1265,16 +1269,11 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	if ( y_.axis_ )
 	    y_.axis_->plotAxis();
 
-	if ( doy2_ && y2_.axis_ )
+	if ( y2_.axis_ )
 	    y2_.axis_->plotAxis();
-
-	if ( y2ptitems_ )
-	    y2ptitems_->setVisible( y2_.axis_ );
 
 	if ( !x_.axis_ || !y_.axis_ )
 	{
-	    if ( yptitems_ ) 
-		yptitems_->setVisible( false );
 	    PtrMan<ioPixmap> pixmap =
 		new ioPixmap( arrarea_.width(),arrarea_.height());
 	    pixmap->fill( Color::White() );
@@ -1285,7 +1284,7 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
     }
 
     drawData( y_, false );
-    if ( y2_.axis_ && doy2_ )
+    if ( y2_.axis_ )
 	drawData( y2_, true );
     else if ( y2ptitems_ )
 	y2ptitems_->removeAll( true );
@@ -1334,7 +1333,7 @@ void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 	const uiPoint& pt )
 {
     item->setPos( mCast(float,pt.x), mCast(float,pt.y) ); 
-    item->setVisible( isy2 ? doy2_ && isY2Shown() : true ); 
+    item->setVisible( isy2 ? isY2Shown() : true );
 }
 
 

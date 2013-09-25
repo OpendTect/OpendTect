@@ -307,7 +307,6 @@ protected:
     Timer&			timer_;
     bool			showy3_;
     bool			showy4_;
-    bool			doy2_;
     bool			selectable_;
     bool			mousepressed_;
     bool			rectangleselection_;
