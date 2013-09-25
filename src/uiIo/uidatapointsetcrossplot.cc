@@ -1224,6 +1224,11 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     mHandleAxisAutoScale(x_);
     mHandleAxisAutoScale(y_);
     mHandleAxisAutoScale(y2_);
+
+    if ( yptitems_ )
+	yptitems_->setVisible( axisHandler(1) );
+    if ( y2ptitems_ )
+	y2ptitems_->setVisible( axisHandler(2) );
     
     getRandRowids();
     calcStats();
@@ -1268,9 +1273,6 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 
 	if ( doy2_ && y2_.axis_ )
 	    y2_.axis_->plotAxis();
-
-	if ( y2ptitems_ )
-	    y2ptitems_->setVisible( y2_.axis_ );
 
 	if ( !x_.axis_ || !y_.axis_ )
 	{
