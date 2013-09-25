@@ -39,6 +39,7 @@ protected:
     uiTable*			table_;
     uiCheckBox*			unitfld_;
     const Well::Track&		track_;
+    				// do not use, will be removed
     TypeSet<float>		depths_;
     Well::MarkerSet*		oldmrkrs_;
 
@@ -57,15 +58,22 @@ protected:
     bool			getFromScreen();
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
-    void			markerRemovedCB(CallBacker*);
-    void			selectionRemovedCB(CallBacker*);
+    				// do not use, will be removed
+    void			markerRemovedCB(CallBacker*) {};
+    				// do not use, will be removed
+    void			selectionRemovedCB(CallBacker*) {};
     bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*);
-    bool			updateMarkerDepths(int rowidx, bool md2tvdss);
+    bool			updateMarkerDepths(int rowidx,bool md2tvdss);
+    float			getOldMarkerVal(Well::Marker*) const;
+
+    				//This marker is now yours
+    Well::Marker*		getMarker(int rowidx,bool fromname);
+
 };
 
 #endif

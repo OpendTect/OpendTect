@@ -28,6 +28,7 @@ static void getLvlNms( BufferStringSet& bss, bool withudf )
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf, const char* lbl )
     : uiGroup(p)
+    , fld_(0)
     , haveudf_(withudf)
     , selChange(this)
 {
