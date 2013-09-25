@@ -86,7 +86,6 @@ uiODViewer2D::~uiODViewer2D()
 	viewwin()->viewer(0).removeAuxData( marker_ );
     }
     delete marker_;
-
     delete viewwin();
 }
 
