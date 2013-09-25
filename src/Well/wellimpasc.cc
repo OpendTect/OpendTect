@@ -422,11 +422,15 @@ bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	    continue;
 
 	c.z = getdValue(2);
-	const float newdah = getfValue( 3 );
+	float newdah = getfValue( 3 );
 	const bool havez = !mIsUdf(c.z);
 	const bool havedah = !mIsUdf(newdah);
 	if ( !havez && !havedah )
 	    continue;
+        else if ( !havez && havedah )
+            c.z = newdah;
+        else if ( havez && !havedah )
+            newdah = mCast( float, c.z );
 
 	if ( wd.track().size() == 0 )
 	{
