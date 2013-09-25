@@ -1489,6 +1489,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
 {
     fulluserexpr_ = fulluserexpr;
     par_ = new IOPar("Surface parameters" );
+    conn_ = 0;
     writerowrange_ = 0;
     writecolrange_ = 0;
     writtenrowrange_ = Interval<int>( INT_MAX, INT_MIN );
