@@ -83,7 +83,7 @@ od_int64 HorizonScanner::totalNr() const
     totalnr_ = 0;
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	StreamProvider sp( filenames_.get(0).buf() );
+	StreamProvider sp( filenames_.get(idx).buf() );
 	StreamData sd = sp.makeIStream();
 	if ( !sd.usable() ) continue;
 
