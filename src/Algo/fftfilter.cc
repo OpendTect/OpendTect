@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "mathfunc.h"
-
-#include <complex>
+#include "odcomplex.h"
 
 
 #define mMINNRSAMPLES	100
