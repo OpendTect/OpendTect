@@ -303,6 +303,8 @@ inline bool uiTreeItem::getPropertyPtr( const char* propertykey, void*& res ) co
 }
 
 
+#include <typeinfo>
+
 template<class T>
 void inline uiTreeItem::setProperty( const char* propertykey, const T& val )
 {
