@@ -61,7 +61,7 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
     {
 	int dupid;
 	if ( !tree_.insertPoint( delayedpts[idx], dupid ) )
-	    pErrMsg("Hmm");
+	    { pErrMsg("Hmm"); }
 
 	addToNrDone(1);
     }
@@ -804,10 +804,7 @@ void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1,
 {
     if ( ti0<0 || ti0>=tetrahedras_.size() || 
 	 ti1<0 || ti1>=tetrahedras_.size() || face<0 )
-    {
-	pErrMsg("Could not split on face");
-	return;
-    }
+	{ pErrMsg("Could not split on face"); return; }
     
     const int crds0[] = { tetrahedras_[ti0].coordindices_[0],
       			  tetrahedras_[ti0].coordindices_[1],
@@ -1083,10 +1080,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 
 	if ( checkti==cNoTetrahedra() || newpt==cNoVertex() ) continue;
 	if ( checkti==ti )
-	{
-	    pErrMsg("Checkti duplicate");
-	    continue;
-	}
+	    { pErrMsg("Checkti duplicate"); continue; }
 
 	const int checkcrds[] = { tetrahedras_[checkti].coordindices_[0],
 				  tetrahedras_[checkti].coordindices_[1],

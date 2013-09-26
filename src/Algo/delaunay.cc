@@ -318,10 +318,7 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
     if ( mIsUdf((*coordlist_)[ci].x) || mIsUdf((*coordlist_)[ci].y) ) 
     {
 	mMultiThread( coordlock_.readUnLock() );
-	BufferString msg = "The point ";
-	msg += ci;
-	msg +=" is not defined!";
-	pErrMsg( msg );
+	pErrMsg( BufferString("The point ",ci," is not defined!") );
 	return true; //For undefined point, skip.
     }
     mMultiThread( coordlock_.readUnLock() );
@@ -349,10 +346,7 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
 		return true;
 	    else
 	    {
-		BufferString msg = "\nInsert point ";
-		msg += ci;
-		msg += " failed!";
-		pErrMsg( msg );
+		pErrMsg( BufferString("Insert point ",ci," failed!") );
 		return false;
 	    }
 	}
@@ -360,10 +354,7 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
     else if ( res==cIsDuplicate() )
 	return true;
 
-    BufferString msg = "\nInsert point ";
-    msg += ci;
-    msg += " failed!";
-    pErrMsg( msg );
+    pErrMsg( BufferString("Insert point ",ci," failed!") );
     return false;
 }
 
@@ -426,14 +417,11 @@ char DAGTriangleTree::searchFurther( const Coord& pt, int& ti0,
 		break;
 	    }
 	    else
-		pErrMsg("Hmm");
+		{ pErrMsg("Hmm"); }
 	}
 
 	if ( !found )
-	{
-	    pErrMsg("No child found");
-	    return cError();
-	}
+	    { pErrMsg("No child found"); return cError(); }
     }
 
     return cError();
@@ -495,8 +483,7 @@ char DAGTriangleTree::isInside( const Coord& pt, int ti, int& dupid ) const
     if ( clockwise(*tricoord0, *tricoord1, *tricoord2) )
     {
 	pErrMsg( "Did not expect clockwise triangle!" );
-	const Coord* tmp;
-	mSWAP( tricoord0, tricoord2, tmp );
+	Swap( tricoord0, tricoord2 );
     }
 
     if ( isPointLeftOfLine(pt, *tricoord0, *tricoord1) ||
@@ -592,10 +579,7 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
     }
 
     if ( id0==-1 || id1==-1 )
-    {
-	pErrMsg( "vertex is not on the triangle" );
-	return cNoVertex();
-    }
+	{ pErrMsg( "vertex is not on the triangle" ); return cNoVertex(); }
 
     int res;
     
@@ -606,10 +590,7 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
     else if ( (id0==1 && id1==2) || (id0==2 && id1==1) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[1] );
     else
-    {
-	pErrMsg("Should never happen");
-	return mUdf(int);
-    }
+	{ pErrMsg("Should never happen"); return mUdf(int); }
 
     return res;
 }
@@ -700,10 +681,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	}
 
 	if ( checkpt==cNoVertex() )
-	{
-	    pErrMsg("Impossible case.");
-	    continue;
-	}
+	    { pErrMsg("Impossible case."); continue; }
 
 	mMultiThread( coordlock_.readLock() );
 
@@ -1027,10 +1005,7 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 
     const int nrvertices = tmpvertices.size();
     if ( !nrvertices )
-    {
-	pErrMsg("Hmm");
-	return false;
-    }
+	{ pErrMsg("Hmm"); return false; }
 
     if ( !dointerpolate ) //Get the nearest node only
     {
@@ -1141,10 +1116,7 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
     }
 
     if ( preidx==-1 && aftidx==-1 )
-    {
-	pErrMsg("Hmm");
-	return false;
-    }
+	{ pErrMsg("Hmm"); return false; }
     
     if ( preidx==-1 )
 	preidx = perimeter_[0];
