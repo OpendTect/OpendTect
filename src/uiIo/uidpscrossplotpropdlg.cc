@@ -540,7 +540,7 @@ void computePts( bool isy2 )
 	    vert.axis_->range().step );
     MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
     const bool& linedrawn = isy2 ? line2drawn_ : line1drawn_;
-    const int nrpts = linedrawn ? 2 : 1000;
+    const int nrpts = linedrawn ? 70 : 1000;
     const Interval<float> xrge = horz.rg_;
     const float step = fabs( (xrge.stop-xrge.start)/(nrpts-1) );
     TypeSet<uiWorldPoint> pts; pts.setCapacity( nrpts );
