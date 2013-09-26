@@ -251,7 +251,8 @@ bool Strat::RefTree::write( od_ostream& strm ) const
 void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
 {
     mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    if ( !lvlset )
+	{ pErrMsg( "cb null or not a LevelSet" ); }
     const int lvlidx = lvlset->notifLvlIdx();
     if ( !lvlset->levels().validIdx( lvlidx ) ) return;
     const Strat::Level& lvl = *lvlset->levels()[lvlidx];
