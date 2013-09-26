@@ -752,7 +752,7 @@ bool CallCmd::act( const char* parstr )
     }
 
     if ( !insertProcedure(atoi(formalfms[formalfms.size()-1])) )
-	pErrMsg( "Huh? Corrupted command action sequence!" );
+	{ pErrMsg( "Huh? Corrupted command action sequence!" ); }
 
     return true;
 }
