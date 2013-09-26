@@ -86,14 +86,14 @@ for( int idx=0; idx<nElems(); idx++ ) \
 { \
     UserInputObj* obj = element( idx ); \
     if ( obj ) obj->fn; \
-    else pErrMsg("Found null field"); \
+    else { pErrMsg("Found null field"); } \
 }
 #define mDoAllElemObjs(fn) \
 for( int idx=0; idx<nElems(); idx++ ) \
 { \
     uiObject* obj = elemObj( idx ); \
     if ( obj ) obj->fn; \
-    else pErrMsg("Found null elemObj"); \
+    else { pErrMsg("Found null elemObj"); } \
 }
 
 //! stores current value as clear state.
@@ -236,12 +236,15 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec, const
     , valueChanged( this )
 {
     const BoolInpSpec* spc = dynamic_cast<const BoolInpSpec*>(&spec);
-    if ( !spc ) pErrMsg("huh?");
-
-    init( p, spc->trueFalseTxt(true), 
-	    spc->trueFalseTxt(false), spc->getBoolValue() );
-    if ( rb1 && spec.name(0) ) rb1->setName( spec.name(0) );
-    if ( rb2 && spec.name(1) ) rb2->setName( spec.name(1) );
+    if ( !spc )
+	{ pErrMsg("huh?"); init( p, "Y", "N", true ); }
+    else
+    {
+	init( p, spc->trueFalseTxt(true), 
+		spc->trueFalseTxt(false), spc->getBoolValue() );
+	if ( rb1 && spec.name(0) ) rb1->setName( spec.name(0) );
+	if ( rb2 && spec.name(1) ) rb2->setName( spec.name(1) );
+    }
 }
 
 
@@ -320,7 +323,8 @@ void uiGenInputBoolFld::setvalue_( bool b )
 
     if ( checkbox ) { checkbox->setChecked( yn ); return; }
 
-    if ( !rb1 || !rb2 ) { pErrMsg("Huh?"); return; }
+    if ( !rb1 || !rb2 )
+	{ pErrMsg("Huh?"); return; }
 
     rb1->setChecked(yn); 
     rb2->setChecked(!yn); 
@@ -331,7 +335,8 @@ void uiGenInputBoolFld::setReadOnly( bool ro )
 {
     if ( checkbox ) { checkbox->setSensitive( !ro ); return; }
 
-    if ( !rb1 || !rb2 ) { pErrMsg("Huh?"); return; }
+    if ( !rb1 || !rb2 )
+	{ pErrMsg("Huh?"); return; }
 
     rb1->setSensitive(!ro); 
     rb2->setSensitive(!ro); 
@@ -342,7 +347,8 @@ bool uiGenInputBoolFld::isReadOnly() const
 {
     if ( checkbox )		return checkbox->sensitive();
 
-    if ( !rb1 || !rb2 ) { pErrMsg("Huh?"); return false; }
+    if ( !rb1 || !rb2 )
+    	{ pErrMsg("Huh?"); return false; }
 
     return !rb1->sensitive() && !rb2->sensitive(); 
 }

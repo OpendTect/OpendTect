@@ -141,10 +141,7 @@ void TextureInfo::enable( bool yn )
 void TextureInfo::setNrVersions( int nsz )
 {
     if ( !nsz )
-    {
-	pErrMsg( "Must leave one version" );
-	return;
-    }
+	{ pErrMsg( "Must leave one version" ); return; }
 
     while ( nsz<versionindexdata_.size() )
     {
@@ -383,10 +380,7 @@ int TextureInfo::getCurrentVersion() const { return currentversion_; }
 void TextureInfo::setCurrentVersion( int nidx )
 {
     if ( nidx<0 || nidx>=versionindexdata_.size() )
-    {
-	pErrMsg("Invalid index");
-	return;
-    }
+	{ pErrMsg("Invalid index"); return; }
 
     currentversion_ = nidx;
 
@@ -588,10 +582,7 @@ int MultiTexture::insertTexture( int idx, const char* nm )
 	return addTexture( nm );
 
     if ( idx<0 )
-    {
-	pErrMsg("Negative index");
-	idx=0;
-    }
+	{ pErrMsg("Negative index"); idx=0; }
 
     TextureInfo* newtexture = new TextureInfo( this, nm );
     textureinfo_.insertAt( newtexture, idx );
@@ -640,7 +631,7 @@ void MultiTexture::setColorTab( int idx, VisColorTab& ct )
 VisColorTab& MultiTexture::getColorTab( int idx )
 {
     if ( idx<0 || idx>=textureinfo_.size() )
-	pErrMsg("Index out of bounds");
+	{ pErrMsg("Index out of bounds"); idx = 0; }
 
     return textureinfo_[idx]->getColorTab();
 }
@@ -649,7 +640,7 @@ VisColorTab& MultiTexture::getColorTab( int idx )
 const VisColorTab& MultiTexture::getColorTab( int idx ) const
 {
     if ( idx<0 || idx>=textureinfo_.size() )
-	pErrMsg("Index out of bounds");
+	{ pErrMsg("Index out of bounds"); idx = 0; }
 
     return textureinfo_[idx]->getColorTab();
 }
@@ -742,10 +733,7 @@ void MultiTexture::textureChange( TextureInfo* ti )
 {
     const int textureidx = textureinfo_.indexOf( ti );
     if ( textureidx<0 )
-    {
-	pErrMsg("Hugh");
-	return;
-    }
+	{ pErrMsg("Hugh"); return; }
 
     updateSoTextureInternal( textureidx );
 }

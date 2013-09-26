@@ -231,7 +231,7 @@ void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
     if ( useshading_ )
     {
 	if ( op!=MultiTexture::BLEND )
-	    pErrMsg("Not implemented");
+	    { pErrMsg("Not implemented"); }
 	return;
     }
 
@@ -344,10 +344,7 @@ bool MultiTexture2::setSize( int sz0, int sz1 )
 
     if ( size_.row>=0 && size_.col>=0 &&
 		(nrTextures()>1 || (nrTextures() && nrVersions(0)>1)) )
-    {
-	pErrMsg("Invalid size" );
-	return false;
-    }
+	{ pErrMsg("Invalid size" ); return false; }
 
     size_.row = sz0;
     size_.col = sz1;

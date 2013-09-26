@@ -400,10 +400,10 @@ public:
 			    { cbb.setCurrentItem(t); }
 
     virtual void	setReadOnly( bool yn = true, int idx=0 )
-			    { 
-			      if ( !yn )
-				pErrMsg("Stringlist input must be read-only");
-			    }
+			{ 
+			    if ( !yn )
+			      { pErrMsg("Stringlist input must be read-only"); }
+			}
 
     virtual UserInputObj* element( int idx=0 )		{ return &cbb; }
     virtual uiObject*	mainObj()			{ return &cbb; }
@@ -483,7 +483,8 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     break;
     }
 
-    if ( ! fld ) { pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
+    if ( ! fld )
+	{ pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
     const bool ispos = desc.type().form() == DataType::position;
     uiObject* other= flds.size() ? flds[ flds.size()-1 ]->mainObj() : 0;
@@ -590,7 +591,7 @@ bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 void uiGenInput::updateSpecs()
 {
     if ( !finalised )
-	{ pErrMsg("Nothing to update. Not finalised yet.");return; }
+	{ pErrMsg("Nothing to update. Not finalised yet."); return; }
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->updateSpec();
@@ -600,7 +601,8 @@ void uiGenInput::updateSpecs()
 void uiGenInput::doFinalise( CallBacker* )
 {
     if ( finalised )		return;
-    if ( inputs.isEmpty() )	{ pErrMsg("Knurft: No inputs"); return; }
+    if ( inputs.isEmpty() )
+    	{ pErrMsg("Knurft: No inputs"); return; }
 
     uiObject* lastElem = createInpFld( *inputs[0] ).mainObj();
     setHAlignObj( lastElem );
@@ -698,7 +700,8 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 
 void uiGenInput::clear( int nr )
 {
-    if ( !finalised ){ pErrMsg("Nothing to clear. Not finalised yet.");return; }
+    if ( !finalised )
+    	{ pErrMsg("Nothing to clear. Not finalised yet."); return; }
 
     if ( nr >= 0 )
 	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->clear(); return; }
