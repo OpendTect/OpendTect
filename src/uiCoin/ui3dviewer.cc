@@ -1155,8 +1155,8 @@ void uiSoViewerBody::errorCB( const SoError* error, void* data )
      if ( GetEnvVarYN("DTECT_COIN_SHOW_ERRORS") || 
 	  GetEnvVarYN("COIN_DEBUG_DL") )
      {
-	 const SbString& str = error->getDebugString();
-	 pFreeFnErrMsg( str.getString(), "uiSoViewerBody::errorCB" );
+	 pFreeFnErrMsg( error->getDebugString().getString(),
+		 	"uiSoViewerBody::errorCB" );
      }
 }
 
