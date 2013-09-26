@@ -51,12 +51,14 @@ public:
     SyntheticData* 	getSynthetic(const char* nm);
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
-			    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0; }
+			  return synthetics_.validIdx(idx) ? synthetics_[idx]
+			      				   : 0; }
     SyntheticData* 	getSynthetic(int id);
     SyntheticData* 	getSynthetic(const PropertyRef&);
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
-			    return synthetics_.validIdx(idx) ? synthetics_[idx] : 0; }
+			  return synthetics_.validIdx(idx) ? synthetics_[idx]
+			      				   : 0; }
     SyntheticData* 	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics();
@@ -94,6 +96,7 @@ public:
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     const char* 	errMsg() const;
     const char* 	infoMsg() const;
+    void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 
 protected:
 
