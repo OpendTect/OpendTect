@@ -343,10 +343,7 @@ void uiODApplMgr::addTimeDepthScene()
     
     StepInterval<float> zsampling;
     if ( !uitrans->getTargetSampling( zsampling ) )
-    {
-	pErrMsg( "Cannot get sampling.");
-	return;
-    }
+	{ pErrMsg( "Cannot get sampling."); return; }
 
     snm += " (using '";
     snm += ztrans->factoryDisplayName();
@@ -564,10 +561,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    break;
 	}
 	default :
-	{
-	    pErrMsg("Invalid format");
-	    return false;
-	}
+	    { pErrMsg("Invalid format"); return false; }
     }
 
     updateColorTable( visid, attrib );
@@ -840,7 +834,7 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 	}
     }
     else
-	pErrMsg("deliverObject for unsupported part server");
+	{ pErrMsg("deliverObject for unsupported part server"); }
 
     return 0;
 }
@@ -989,7 +983,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->trackInVolume();
     }
     else
-	pErrMsg("Unknown event from mpeserv");
+	{ pErrMsg("Unknown event from mpeserv"); }
 
     return true;
 }
@@ -1103,7 +1097,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	return true;
     }
     else
-	pErrMsg("Unknown event from emserv");
+	{ pErrMsg("Unknown event from emserv"); }
 
     return true;
 }
@@ -1246,7 +1240,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else
-	pErrMsg("Unknown event from emattrserv");
+	{ pErrMsg("Unknown event from emattrserv"); }
 
     return true;
 }
@@ -1304,7 +1298,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	}
     }
     else
-	pErrMsg("Unknown event from pickserv");
+	{ pErrMsg("Unknown event from pickserv"); }
 
     return true;
 }
@@ -1383,7 +1377,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
 
     else
-	pErrMsg("Unknown event from visserv");
+	{ pErrMsg("Unknown event from visserv"); }
 
     return true;
 }
@@ -1504,7 +1498,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	pickserv_->createRandom2DSet();
     }
     else
-	pErrMsg("Unknown event from nlaserv");
+	{ pErrMsg("Unknown event from nlaserv"); }
 
     return true;
 }
@@ -1634,7 +1628,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else
-	pErrMsg("Unknown event from attrserv");
+	{ pErrMsg("Unknown event from attrserv"); }
 
     return true;
 }
