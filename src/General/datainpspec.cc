@@ -32,7 +32,7 @@ DataType DataInpSpec::type() const
 bool DataInpSpec::isInsideLimits(int idx) const
 {
     if ( hasLimits() )
-	pErrMsg("function must be defined on inheriting class");
+	{ pErrMsg("function must be defined on inheriting class"); }
 
     return !isUndef(idx);
 }
