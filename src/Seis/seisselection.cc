@@ -585,7 +585,8 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
     else if ( sd.type() == Seis::Range )
     {
 	mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd)
-	if ( !rsd ) pErrMsg( "Huh" );
+	if ( !rsd )
+	    { pErrMsg( "Huh" ); }
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const CubeSampling& cs = rsd->cubeSampling();
 	poly->add( Geom::Point2D<float>(

@@ -417,7 +417,7 @@ SeisSequentialWriter::~SeisSequentialWriter()
     if ( outputs_.size() )
 	{ pErrMsg( "Buffer is not empty" ); deepErase( outputs_ ); }
     if ( Threads::WorkManager::twm().queueSize( queueid_ ) )
-	pErrMsg("finishWrite was not called");
+	{ pErrMsg("finishWrite was not called"); }
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
     delete &lock_;
