@@ -259,10 +259,7 @@ char ExplPolygonSurfacerrlocationToSurface( const Coord3 pt )
 	    continue;
 
 	if ( !ptonplane.isDefined() )
-	{
-	    pErrMsg( "Something is wrong!" );
-	    continue;
-	}
+	    { pErrMsg( "Something is wrong!" ); continue; }
 
 	if ( pointInTriangle3D(ptonplane,v0,v1,v2,1e-3) )
 	{
@@ -304,7 +301,7 @@ void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 
     mGetIndexedShapeWriteLocker4Geometries();
     if ( geometries_.isPresent( ig ) )
-	pErrMsg("Adding more than once");
+	{ pErrMsg("Adding more than once"); }
 
     ig->ischanged_ = true;
     geometries_ += ig;

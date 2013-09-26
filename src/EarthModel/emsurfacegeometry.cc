@@ -238,7 +238,7 @@ bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
     sectionnames_.get(idx) = nm;
 
     if ( addtoundo )
-	pErrMsg("Section namechange undo not implemented" );
+	{ pErrMsg("Section namechange undo not implemented" ); }
 
     changed_ = true;
     return true;

@@ -512,7 +512,7 @@ void Horizon3DGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
     }
 
     if ( nrSections() )
-        pErrMsg("Hey, this can only be done without sections.");
+	{ pErrMsg("Hey, this can only be done without sections."); }
 }
 
 
