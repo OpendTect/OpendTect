@@ -293,6 +293,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , rowClicked(this)
     , columnClicked(this)
     , istablereadonly_(false)
+    , seliscols_(false)
 {
     setFont( FontList().get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
@@ -471,7 +472,7 @@ void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
 
 
 void uiTable::removeRow( int row )
-{ 
+{
     mBlockCmdRec;
     for ( int col=0; col<nrCols(); col++ )
 	clearCellObject( RowCol(row,col) );
@@ -483,6 +484,8 @@ void uiTable::removeRow( int row )
 void uiTable::removeColumn( int col )
 {
     mBlockCmdRec;
+    for ( int row=0; row<nrRows(); row++ )
+	clearCellObject( RowCol(row,col) );
     body_->removeColumn( col );
     updateCol(col);
 }
@@ -1029,6 +1032,9 @@ void uiTable::popupMenu( CallBacker* )
     BufferString itmtxt;
 
     const RowCol cur = notifiedCell();
+    if ( setup_.removeselallowed_ )
+	getSelected();
+
     int inscolbef = 0;
     int delcol = 0;
     int delcols = 0;
@@ -1043,13 +1049,13 @@ void uiTable::popupMenu( CallBacker* )
 	    inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
 	}
 
-	if ( setup_.removecolallowed_ )
+	if ( setup_.removecolallowed_ && notifcols_.size() < 2 )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.coldesc_;
 	    delcol = mnu->insertItem( new uiAction(itmtxt), 4 );
 	}
 
-	if ( setup_.removeselallowed_ )
+	if ( notifcols_.size() > 1 )
 	{
 	    itmtxt = BufferString( "Remove selected ", setup_.coldesc_, "s" );
 	    delcols = mnu->insertItem( new uiAction(itmtxt), 6 );
@@ -1070,13 +1076,13 @@ void uiTable::popupMenu( CallBacker* )
 	    insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
 	}
 
-	if ( setup_.removerowallowed_ )
+	if ( setup_.removerowallowed_ && notifrows_.size() < 2 )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
 	    delrow = mnu->insertItem( new uiAction(itmtxt), 5 );
 	}
 
-	if ( setup_.removeselallowed_ )
+	if ( notifrows_.size() > 1 )
 	{
 	    itmtxt = BufferString( "Remove selected ", setup_.rowdesc_, "s" );
 	    delrows = mnu->insertItem( new uiAction(itmtxt), 7 );
@@ -1119,9 +1125,8 @@ void uiTable::popupMenu( CallBacker* )
     }
     else if ( ret == delcols )
     {
-	TypeSet<int> sel;
-	getSelectedCols( sel );
-	removeColumns( sel );
+	seliscols_ = true;
+	removeColumns( notifcols_ );
 	selectionDeleted.trigger();
     }
     else if ( ret == insrowbef || ret == insrowaft  )
@@ -1142,9 +1147,8 @@ void uiTable::popupMenu( CallBacker* )
     }
     else if ( ret == delrows )
     {
-	TypeSet<int> sel;
-	getSelectedRows( sel );
-	removeRows( sel );
+	seliscols_ = false;
+	removeRows( notifrows_ );
 	selectionDeleted.trigger();
     }
     else if ( ret == virkeyboardid )
@@ -1297,6 +1301,29 @@ bool uiTable::isColumnSelected( int col ) const
 {
     QItemSelectionModel* model = body_->selectionModel();
     return model ? model->isColumnSelected( col, body_->rootIndex() ) : false;
+}
+
+
+bool uiTable::getSelected()
+{
+    notifrows_.setEmpty();
+    notifcols_.setEmpty();
+    return getSelectedRows( notifrows_ ) && getSelectedCols( notifcols_ ) &&
+	   getSelectedCells( notifcells_ );
+}
+
+
+bool uiTable::getSelectedCells( TypeSet<RowCol>& sel ) const
+{
+    for ( int idx=0; idx<selectedRanges().size(); idx++ )
+    {
+	const int firstrow = selectedRanges()[idx]->firstrow_;
+	const int lastrow = selectedRanges()[idx]->lastrow_;
+	for ( int row = firstrow; row<=lastrow; row++ )
+	    sel += RowCol( row, idx );
+    }
+
+    return !sel.isEmpty();
 }
 
 
