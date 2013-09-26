@@ -32,14 +32,13 @@ public:
 
     void			setMarkerSet(const Well::MarkerSet&,
 	    				     bool addtoexisting=false);
-    bool			getMarkerSet(Well::MarkerSet&);
+    bool			getMarkerSet(Well::MarkerSet&) const;
 
 protected:
 
     uiTable*			table_;
     uiCheckBox*			unitfld_;
     const Well::Track&		track_;
-    TypeSet<float>		depths_;
     Well::MarkerSet*		oldmrkrs_;
 
     //TODO will go with the Strat level Sel 
@@ -57,15 +56,18 @@ protected:
     bool			getFromScreen();
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
-    void			markerRemovedCB(CallBacker*);
-    void			selectionRemovedCB(CallBacker*);
     bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(MultiID&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK(CallBacker*);
-    bool			updateMarkerDepths(int rowidx, bool md2tvdss);
+    bool			updateMarkerDepths(int rowidx,bool md2tvdss);
+    float			getOldMarkerVal(Well::Marker*) const;
+
+    				//This marker is now yours
+    Well::Marker*		getMarker(int rowidx,bool fromname) const;
+
 };
 
 #endif
