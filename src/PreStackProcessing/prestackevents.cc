@@ -105,10 +105,7 @@ void Event::setSize( int sz, bool doquality )
 void Event::removePick( int idx )
 {
     if ( sz_<=0 )
-    {
-	pErrMsg( "Trying to remove non-existing pick" );
-	return;
-    }
+	{ pErrMsg( "Trying to remove non-existing pick" ); return; }
 
     sz_--;
     float* pick = sz_ ? new float[sz_] : 0;
@@ -231,7 +228,7 @@ EventManager::~EventManager()
 {
     cleanUp( false );
     if ( !events_.isEmpty() )
-	pErrMsg("Leaving unreffed picks. Memory leak");
+	{ pErrMsg("Leaving unreffed picks. Memory leak"); }
 
     delete reloadbids_;
     delete notificationqueue_;
@@ -245,10 +242,7 @@ EventManager::~EventManager()
 int EventManager::addHorizon( int id )
 {
     if ( id!=-1 && horids_.isPresent( id ) )
-    {
-	pErrMsg("Horizon ID interference");
-	id = -1;
-    }
+	{ pErrMsg("Horizon ID interference"); id = -1; }
 
     const int res = id==-1 ? nextHorizonID( true ) : id;
     horids_ += res;
@@ -314,10 +308,7 @@ void EventManager::setNextHorizonID( int ni )
     for ( int idx=horids_.size()-1; idx>=0; idx-- )
     {
 	if ( ni<=horids_[idx] )
-	{
-	    pErrMsg("NextHorID interfereance");
-	    break;
-	}
+	    { pErrMsg("NextHorID interference"); break; }
     }
 
     nexthorid_ = ni;
@@ -463,10 +454,7 @@ Executor* EventManager::commitChanges()
 {
     IOObj* ioobj = IOM().get( storageid_ );
     if ( !ioobj )
-    {
-	pErrMsg("No ioobj");
-	return 0;
-    }
+	{ pErrMsg("No ioobj"); return 0; }
 
     return PSEventTranslator::writer( *this, ioobj );
 }
