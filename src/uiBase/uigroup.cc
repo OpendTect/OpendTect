@@ -164,8 +164,10 @@ protected:
 
     void		mngrDel( CallBacker* cb ) 
 			{
-			    if( cb == loMngr ) loMngr = 0;
-			    else pErrMsg("huh?");
+			    if( cb == loMngr )
+				loMngr = 0;
+			    else
+				{ pErrMsg("huh?"); }
 			}
 
 private:
@@ -331,7 +333,7 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
 { 
 #ifdef __debug__
     if( !prntbody_ ) 
-	{ pErrMsg("Yo. No parentbody yet."); return 0; }
+	{ pErrMsg("Duh. No parentbody yet."); return 0; }
 #endif
     i_uiGroupLayoutItem* loitm = 
 			new i_uiGroupLayoutItem( mgr, *this, *prntbody_ );
@@ -437,7 +439,8 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
 	    				     QFrame::Plain );
 
 #ifdef __debug__
-    if( !grpbdy ) { pErrMsg("Huh") ; return; }
+    if( !grpbdy )
+    	{ pErrMsg("Huh") ; return; }
 #endif
 
     body_ =  new uiGroupParentBody(*this,*grpbdy, p, nm );
@@ -465,15 +468,19 @@ uiGroup::~uiGroup()
 
 void uiGroup::bodyDel( CallBacker* cb )
 {
-    if( body_ == cb ) body_ = 0;
-    else pErrMsg("huh?");
+    if( body_ == cb )
+	body_ = 0;
+    else
+        { pErrMsg("huh?"); }
 }
 
 
 void uiGroup::uiobjDel( CallBacker* cb )
 {
-    if( cb == grpobj_ ) grpobj_ = 0;
-    else pErrMsg("huh?");
+    if( cb == grpobj_ )
+	grpobj_ = 0;
+    else
+        { pErrMsg("huh?"); }
 }
 
 void uiGroup::setShrinkAllowed(bool yn)
@@ -496,8 +503,7 @@ void uiGroup::attach_( constraintType c, uiObject *other, int margin,
 	BufferString msg((c == heightSameAs ) ? "heightSameAs":"widthSameAs" );
 	msg += " not allowed for group ";
 	msg += mainObject()->name();
-	pErrMsg(msg); 
-	return;
+	pErrMsg(msg); return;
     }
     mainObject()->attach(c,other,margin,reciprocal);
 
@@ -627,14 +633,16 @@ const ObjectSet<uiBaseObject>* uiGroupObj::childList() const
 void uiGroupObj::bodyDel( CallBacker* cb )
 {
     if( body_ == cb ) body_ = 0;
-    else pErrMsg("huh?");
+    else
+	{ pErrMsg("huh?"); }
 }
 
 
 void uiGroupObj::grpDel( CallBacker* cb )
 {
     if( cb == uigrp_ ) uigrp_ = 0;
-    else pErrMsg("huh?");
+    else
+	{ pErrMsg("huh?"); }
 }
 
 uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )

@@ -95,7 +95,9 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiWellLogToolWin*,win,cb)
-    if ( !win ) pErrMsg( "can not find window" );
+    if ( !win )
+	{ pErrMsg( "cb null or not uiWellLogToolWin" ); return; }
+
     if ( win->needSave() )
     {
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "odcomplex.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
