@@ -45,7 +45,7 @@ SafeFileIO::SafeFileIO( const char* fnm, bool l )
 SafeFileIO::~SafeFileIO()
 {
     if ( strm_ )
-	pErrMsg("You forgot to close");
+	{ pErrMsg("You forgot to close"); }
 }
 
 

@@ -94,6 +94,8 @@ protected:
 };
 
 
+#include <typeinfo>
+
 #define mImplArr \
 { return typeid(RT)==typeid(AT) ? (RT*) ptr_ : (RT*) 0;}
 
@@ -295,7 +297,7 @@ void OffsetValueSeries<T>::setValue( od_int64 idx, T v )
     if ( writable_ )
 	src_.setValue(idx+off_,v);
     else
-	pErrMsg("Attempting to write to write-protected array");
+	{ pErrMsg("Attempting to write to write-protected array"); }
 }
 
 
@@ -305,7 +307,7 @@ void OffsetValueSeries<T>::setAll( T v )
     if ( writable_ )
 	src_.setAll( v );
     else
-	pErrMsg("Attempting to write to write-protected array");
+	{ pErrMsg("Attempting to write to write-protected array"); }
 }
 
 
