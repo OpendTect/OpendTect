@@ -75,8 +75,11 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
     , locality_( PossiblyMultiTrace )
     , usestrcpos_( false )
 {
-    if ( strchr( attribname, ' ' ) )
+    if ( strchr(attribname_.buf(),' ') )
+    {
 	pErrMsg("Space character is not permitted in attribute names");
+	removeCharacter( attribname_.buf(), ' ' );
+    }
 
     inputs_.allowNull(true);
 }
