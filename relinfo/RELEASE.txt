@@ -13,6 +13,8 @@ v4.6.0b: September 26, 2013
   * Fix for taking snapshot of Scene on Mac platform
   * Fix for crash while plotting contours using GMT
   * Fix for repeated text in title box of maps created by GMT
+  * Fix for crash while saving horizon
+  * Fix for importing simple multi well with inline/crossline
 
 v4.6.0a: September 10, 2013
   * An improved Installer with cross-platform offline installation support
