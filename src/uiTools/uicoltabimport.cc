@@ -33,6 +33,7 @@ uiColTabImport::uiColTabImport( uiParent* p )
 	    			  uiFileInput::Setup(fp.fullPath())
 				  .directories(true) );
     homedirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
+    homedirfld_->setReadOnly();
 
     dtectusrfld_ = new uiGenInput( this, "DTECT_USER (if any)" );
     dtectusrfld_->attach( alignedBelow, homedirfld_ );
