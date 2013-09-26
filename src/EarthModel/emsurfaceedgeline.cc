@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "survinfo.h"
 #include "toplist.h"
+#include <typeinfo>
 
 #include <math.h>
 

@@ -249,9 +249,9 @@ const char* IOObjInfo::getSurfaceData( SurfaceIOData& sd ) const
     if ( !str )
     {
 	if ( !tr )
-	    pErrMsg("No Translator for IOObj" );
+	    { pErrMsg("No Translator for IOObj" ); }
 	else
-	    pErrMsg("Created Translator is not a EMSurfaceTranslator");
+	    { pErrMsg("Created Translator is not a EMSurfaceTranslator"); }
 	return "Internal: Unknown Surface interpreter encountered";
     }
 

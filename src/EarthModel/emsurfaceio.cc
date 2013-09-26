@@ -1975,7 +1975,7 @@ void dgbSurfaceWriter::setShift( float s )
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 {
     if ( !colrange_.step || !rowrange_.step )
-	pErrMsg("Steps not set");
+	{ pErrMsg("Steps not set"); return false; }
 
     rowoffsettable_ += strm.position();
     const int row = firstrow_ + rowindex_ *
