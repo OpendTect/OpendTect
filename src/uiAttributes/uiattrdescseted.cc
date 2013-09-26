@@ -119,7 +119,8 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 void uiAttribDescSetEd::createMenuBar()
 {
     uiMenuBar* menu = menuBar();
-    if( !menu )		{ pErrMsg("huh?"); return; }
+    if( !menu )
+        { pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, "&File" );
     mInsertItem( "&New set ...", newSet, "newset" );
@@ -877,7 +878,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	mErrRetFalse(bs)
 
     if ( !bs.isEmpty() )
-	pErrMsg( bs );
+	{ pErrMsg( bs ); }
 
     setid_ = setctio_.ioobj->key();
     return true;

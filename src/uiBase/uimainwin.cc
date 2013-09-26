@@ -291,7 +291,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	    statusbar = new uiStatusBar( &handle(),
 					  "MainWindow StatusBar handle", *mbar);
 	else
-	    pErrMsg("No statusbar returned from Qt");
+	    { pErrMsg("No statusbar returned from Qt"); }
 
 	if ( nrstatusflds > 0 )
 	{
@@ -305,7 +305,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	if ( qmenubar )
 	    menubar = new uiMenuBar( &handle(), "MenuBar", qmenubar );
 	else
-	    pErrMsg("No menubar returned from Qt");
+	    { pErrMsg("No menubar returned from Qt"); }
 
 	toolbarsmnu_ = new uiMenu( &handle(), "Toolbars" );
     }
@@ -385,8 +385,9 @@ QMenu* uiMainWinBody::createPopupMenu()
 
 void uiMainWinBody::popTimTick( CallBacker* )
 {
-    if ( popped_up ) { pErrMsg( "huh?" );  return; }
-	popped_up = true;
+    if ( popped_up )
+    	{ pErrMsg( "huh?" ); return; }
+    popped_up = true;
 
 // TODO: Remove when we can get rid of the popTimTick
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
@@ -513,10 +514,7 @@ void uiMainWinBody::updateToolbarsMenu()
 void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
     if ( toolbars_.isPresent(tb) )
-    {
-	pErrMsg("Toolbar is already added");
-	return;
-    }
+	{ pErrMsg("Toolbar is already added"); return; }
     QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
     toolbars_ += tb;
     renewToolbarsMenu();
@@ -1787,8 +1785,8 @@ void uiDialog::setButtonText( Button but, const char* txt )
         case CANCEL	: setCancelText( txt ); break;
         case SAVE	: enableSaveButton( txt ); break;
         case HELP	: pErrMsg("set help txt but"); break;
-        case CREDITS: pErrMsg("set credits txt but");
-        case TRANSLATE: pErrMsg("set transl txt but");
+        case CREDITS	: pErrMsg("set credits txt but"); break;
+        case TRANSLATE	: pErrMsg("set transl txt but"); break;
     }
 }
 

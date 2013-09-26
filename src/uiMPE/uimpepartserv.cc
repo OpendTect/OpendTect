@@ -505,7 +505,7 @@ void uiMPEPartServer::noTrackingRemoval()
     if ( ioobj )
     {
 	if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
-	    pErrMsg( "Could not remove object" );
+	    { pErrMsg( "Could not remove object" ); }
     }
 
     MPE::engine().trackeraddremove.disable();

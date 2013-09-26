@@ -28,7 +28,7 @@ uiRGBArray::uiRGBArray( const OD::RGBImage& image )
 {
     mDynamicCastGet( const uiRGBArray*, input, &image );
     if ( !input )
-	pErrMsg( "Not supported. Go ahead and implement");
+	{ pErrMsg( "Not supported. Go ahead and implement"); }
     
     qimg_ = new QImage( input->qImage() );
     qimg_->detach();

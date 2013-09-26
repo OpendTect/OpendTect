@@ -143,10 +143,7 @@ void uiObjectBody::reDraw( bool deep )
 i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 {
     if( layoutItem_ )
-    {
-	pErrMsg("Already have layout itm");
-	return layoutItem_ ;
-    }
+	{ pErrMsg("Already have layout itm"); return layoutItem_ ; }
 
     layoutItem_ = mkLayoutItem_( mngr );
     return layoutItem_;
@@ -270,7 +267,8 @@ int uiObjectBody::prefHNrPics() const
 	else if ( pref_char_width >= 0 ) 
 	{
 	    int fw = fontWdt();
-	    if ( !fw ){ pErrMsg("Font has 0 width."); return 0; }
+	    if ( !fw )
+	    	{ pErrMsg("Font has 0 width."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_width_ =
 					     mNINT32( pref_char_width * fw ); 
@@ -306,7 +304,8 @@ int uiObjectBody::prefHNrPics() const
 	    else
 	    {
 		int fw = fontWdt();
-		if ( !fw ){ pErrMsg("Font has 0 width."); }
+		if ( !fw )
+		    { pErrMsg("Font has 0 width."); }
 
 		int pw = var ? mMAX(pref_width_hint, fw*pwc ) : fw*pwc ;
 		const_cast<uiObjectBody*>(this)->pref_width_ = pw;
@@ -322,7 +321,7 @@ void uiObjectBody::setPrefWidth( int w )
     if( itemInited() )
     {
 	if( pref_width_set != w )
-	pErrMsg("Not allowed when finalized.");
+	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
@@ -338,7 +337,7 @@ void uiObjectBody::setPrefWidthInChar( float w )
     if( itemInited() )
     {
 	if( pref_char_width != w )
-	pErrMsg("Not allowed when finalized.");
+	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
@@ -374,7 +373,8 @@ int uiObjectBody::prefVNrPics() const
 	else if ( pref_char_height >= 0 ) 
 	{
 	    int fh = fontHgt();
-	    if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+	    if ( !fh )
+	    	{ pErrMsg("Font has 0 height."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_height_ =
 					    mNINT32( pref_char_height * fh ); 
@@ -417,7 +417,8 @@ int uiObjectBody::prefVNrPics() const
 
 
 		int fh = fontHgt();
-		if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+		if ( !fh )
+		    { pErrMsg("Font has 0 height."); return 0; }
 
 		int phc = mNINT32( lines * fh);
 		const_cast<uiObjectBody*>(this)->pref_height_=
@@ -435,7 +436,7 @@ void uiObjectBody::setPrefHeight( int h )
     if( itemInited() )
     {
 	if( pref_height_set != h )
-	pErrMsg("Not allowed when finalized.");
+	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
@@ -451,7 +452,7 @@ void uiObjectBody::setPrefHeightInChar( float h )
     if( itemInited() )
     {
 	if( pref_char_height != h )
-	pErrMsg("Not allowed when finalized.");
+	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
@@ -467,7 +468,7 @@ void uiObjectBody::setStretch( int hor, int ver )
     if( itemInited() )
     {
 	if( hStretch != hor || vStretch != ver )
-	pErrMsg("Not allowed when finalized.");
+	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
     
@@ -567,15 +568,9 @@ void uiObjectBody::gtFntWdtHgt() const
     self.fnt_maxwdt = qfm.maxWidth();
 
     if ( fnt_hgt<=0 || fnt_hgt>100 )
-    { 
-	pErrMsg( "Font heigt no good. Taking 15." ); 
-	self.fnt_hgt = 15;
-    }
+	{ pErrMsg( "Font heigt no good. Taking 15." ); self.fnt_hgt = 15; }
     if ( fnt_wdt<=0 || fnt_wdt>100 )
-    { 
-	pErrMsg( "Font width no good. Taking 10." ); 
-	self.fnt_wdt = 10;
-    }
+	{ pErrMsg( "Font width no good. Taking 10." ); self.fnt_wdt = 10; }
     if ( fnt_maxwdt<=0 || fnt_maxwdt>100 )
     { 
 	for ( char idx=32; idx<127; idx++ )
@@ -590,9 +585,6 @@ void uiObjectBody::gtFntWdtHgt() const
 	}
 
 	if ( fnt_maxwdt<=0 )
-	{
-	    pErrMsg( "Font maxwidth no good. Taking 15." ); 
-	    self.fnt_maxwdt = 15;
-	}
+	    { pErrMsg( "Font maxwidth no good -> 15." ); self.fnt_maxwdt = 15; }
     }
 }
