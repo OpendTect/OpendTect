@@ -20,9 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transform.h"
 #include "envvars.h"
 #include "math2.h"
+#include "odcomplex.h"
 
 #include <math.h>
-#include <complex>
 
 #include <iostream>
 

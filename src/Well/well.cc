@@ -193,7 +193,8 @@ void Well::Data::empty()
 void Well::Data::levelToBeRemoved( CallBacker* cb )
 {
     mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset ) pErrMsg( "Can't find levelSet" );
+    if ( !lvlset )
+	{ pErrMsg( "cb null or not LevelSet" ); return; }
     const int lvlidx = lvlset->notifLvlIdx();
     if ( lvlset->levels().validIdx( lvlidx ) )
     {

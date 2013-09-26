@@ -31,8 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "welltieunitfactors.h"
 #include "welld2tmodel.h"
-
-#include <complex>
+#include "odcomplex.h"
 
 
 namespace WellTie

@@ -24,8 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseiswvltattr.h"
 #include "uitoolbutton.h"
+#include "odcomplex.h"
 
-#include <complex>
 
 namespace WellTie
 {
