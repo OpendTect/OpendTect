@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "vistransmgr.h"
 #include "vissurvscene.h"
+#include <typeinfo>
 
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
