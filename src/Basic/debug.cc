@@ -57,7 +57,9 @@ mExternC(Basic) void od_debug_init(void)
 }
 
 
-bool dbgIsUdf( float val )
+#ifdef __debug__
+
+bool isUdfImpl( float val )
 {
     if ( !Math::IsNormalNumber(val) )
     {
@@ -73,7 +75,7 @@ bool dbgIsUdf( float val )
 }
 
 
-bool dbgIsUdf( double val )
+bool isUdfImpl( double val )
 {
     if ( !Math::IsNormalNumber(val) )
     {
@@ -89,7 +91,7 @@ bool dbgIsUdf( double val )
 }
 
 
-bool dbgIsUdf( float_complex val )
+bool isUdfImpl( float_complex val )
 {
     if ( !Math::IsNormalNumber(val.real()) || !Math::IsNormalNumber(val.imag()))
     {
@@ -103,6 +105,18 @@ bool dbgIsUdf( float_complex val )
 
     return Values::isUdf( val );
 }
+
+#else
+
+// Need this for instantiation in non-debug (i.e. release) mode
+
+bool isUdfImpl( float_complex val )
+{
+    return Values::isUdf( val );
+}
+
+#endif
+
 
 namespace DBG
 {

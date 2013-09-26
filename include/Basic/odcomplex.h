@@ -53,7 +53,9 @@ public:
 
 };//namespace Values
 
-mGlobal(Basic) bool dbgIsUdf(float_complex);
+
+mGlobal(Basic) bool isUdfImpl(float_complex);
+
 
 #endif
 

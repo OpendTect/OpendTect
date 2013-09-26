@@ -262,17 +262,16 @@ T& setUdf( T& u )
 
 
 template <class T>
-inline bool dbgIsUdf( T val )
+inline bool isUdfImpl( T val )
     { return Values::isUdf( val ); }
-mGlobal(Basic) bool dbgIsUdf(float);
-mGlobal(Basic) bool dbgIsUdf(double);
-
 #ifdef __debug__
-# define mIsUdf(val) dbgIsUdf(val)
-#else
-//! Use mIsUdf to check for undefinedness of simple types
-# define mIsUdf(val) Values::isUdf(val)
+mGlobal(Basic) bool isUdfImpl(float);
+mGlobal(Basic) bool isUdfImpl(double);
 #endif
+
+
+//! Use mIsUdf to check for undefinedness of simple types
+# define mIsUdf(val) isUdfImpl(val)
 
 
 #else
