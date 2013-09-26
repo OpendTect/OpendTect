@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debugmasks.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -24,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "staticstring.h"
 #include "moddepmgr.h"
+#include "msgh.h"
 
 #include <iostream>
 

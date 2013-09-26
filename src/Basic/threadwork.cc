@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "task.h"
 #include "thread.h"
-#include "errh.h"
 #include "sighndl.h"
 #include <signal.h>
 

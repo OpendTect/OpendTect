@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "array2dresample.h"
 #include "interpol2d.h"
-#include "errh.h"
 #include "simpnumer.h"
 #include "thread.h"
 #include "viscolortab.h"

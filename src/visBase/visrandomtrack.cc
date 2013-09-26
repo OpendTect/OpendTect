@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoltabmod.h"
 #include "vistransform.h"
 #include "iopar.h"
-#include "errh.h"
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoShapeHints.h>

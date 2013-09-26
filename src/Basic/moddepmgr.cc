@@ -17,16 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "strmprov.h"
 #include "envvars.h"
-#include "errh.h"
 #include "sharedlibs.h"
 #include <iostream>
 
-static const bool isdebug = 
-# ifdef __debug__
-    true;
-# else
-    false;
-# endif
 
 const OD::ModDepMgr& OD::ModDeps()
 {

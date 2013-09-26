@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visnormals.h"
 
-#include "errh.h"
 #include "trigonometry.h"
 #include "thread.h"
 #include "vistransform.h"

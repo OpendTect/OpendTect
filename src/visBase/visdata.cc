@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visdata.h"
 
-#include "errh.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "visdataman.h"

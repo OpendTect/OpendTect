@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uimainwin.h"
 #include "bufstring.h"
-#include "errh.h"
 
 class uiButton;
 class uiGroup;

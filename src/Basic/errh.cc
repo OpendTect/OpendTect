@@ -98,6 +98,16 @@ Export_Basic od_ostream& logMsgStrm()
     return *strm;
 }
 
+Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
+				    const char* fname, int linenr )
+{
+    BufferString msg( cname, " | " );
+    msg.add( fname ).add( ":" ).add( linenr )
+	.add( " >> " ).add( inpmsg ).add( " <<" );
+    ErrMsg( msg.buf(), true );
+}
+
+
 }
 
 
@@ -133,8 +143,7 @@ void ErrMsg( const char* msg, bool progr )
 	else if ( msg && *msg )
 	{
 	    const char* start = *msg == '[' ? "" : "Err: ";
-	    OD::logMsgStrm() << start << msg << od_newline;
-	    OD::logMsgStrm().flush();
+	    OD::logMsgStrm().add( start ).add( msg ).add( od_newline ).flush();
 	}
     }
     else

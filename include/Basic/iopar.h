@@ -14,7 +14,6 @@ ________________________________________________________________________
  
 #include "basicmod.h"
 #include "namedobj.h"
-#include "sets.h"
 #include "fixedstring.h"
 #include "samplingdata.h"
 #include "od_iosfwd.h"
@@ -29,6 +28,8 @@ class MultiID;
 class SeparString;
 class ascistream;
 class ascostream;
+template <class T> class TypeSet;
+template <class T> class ObjectSet;
 
 /*!
 \brief Generalized set of parameters of the keyword-value type.

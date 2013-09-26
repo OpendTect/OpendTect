@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "posinfo2d.h"
+#include "objectset.h"
 class BinIDValueSet;
 
 

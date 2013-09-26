@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "envvars.h"
 #include "ctxtioobj.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "iodir.h"
@@ -27,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "timefun.h"
 #include "transl.h"
+#include "msgh.h"
 
 #include <stdlib.h>
 

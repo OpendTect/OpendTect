@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "mathfunc.h"
 #include <math.h>
+template <class T> class TypeSet;
+template <class T> class ObjectSet;
 
 /*!>
 Compute z = x convolved with y; i.e.,

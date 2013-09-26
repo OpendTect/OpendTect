@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
-#include "errh.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"

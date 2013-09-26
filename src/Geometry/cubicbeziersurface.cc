@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "cubicbeziercurve.h"
-#include "errh.h"
 #include "mathfunc.h"
 #include "rowcol.h"
 #include "survinfo.h"

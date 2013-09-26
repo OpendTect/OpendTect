@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturecoords.h"
 
-#include "errh.h"
 #include "position.h"
 #include "thread.h"
 

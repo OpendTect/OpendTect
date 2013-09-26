@@ -15,11 +15,10 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "position.h"
+#include "typeset.h"
 #include <math.h>
-
-template <class T> class TypeSet;
-template <class T> class ObjectSet;
 class Plane3;
+
 
 /*!\brief
 Given a point pt in a triangle ABC, we calculate the interpolation weights for

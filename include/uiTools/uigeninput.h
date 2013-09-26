@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
-#include "errh.h"
 
 class uiLineEdit;
 class uiLabel;

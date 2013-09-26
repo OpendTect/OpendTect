@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "samplingdata.h"
 #include "varlenarray.h"
+#include "typeset.h"
 
 #include <math.h>
 

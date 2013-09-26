@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
+#include "typeset.h"
 
 
 namespace EM

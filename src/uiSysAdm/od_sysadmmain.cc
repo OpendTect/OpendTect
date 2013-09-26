@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 #include "genc.h"
-#include "errh.h"
 #include <iostream>
 
 extern int ODSysAdmMain(int,char**);

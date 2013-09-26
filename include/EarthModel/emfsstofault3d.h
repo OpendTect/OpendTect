@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emposid.h"
 #include "position.h"
+#include "sets.h"
 
 
 namespace Geometry { class FaultStickSet; }

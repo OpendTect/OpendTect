@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "mmprocmod.h"
 #include "ranges.h"
 #include "bufstringset.h"
+#include "typeset.h"
 
 class IOPar;
 

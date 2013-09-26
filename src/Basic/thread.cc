@@ -166,7 +166,6 @@ bool Threads::Locker::convertToWriteLock()
 #include "debugmasks.h"
 #include "debug.h"
 #include "envvars.h"
-#include "errh.h"
 
 #ifdef __ittnotify__
 # include <ittnotify.h>

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visselman.h"
 #include "separstr.h"
 #include "envvars.h"
-#include "errh.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "ptrman.h"

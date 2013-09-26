@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #  define popen _popen
 #  define pclose _pclose
 #  define fileno(s) _fileno(s)
-#  include "errh.h"
 #  include "winstreambuf.h"
 # endif
 #endif
@@ -46,7 +45,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "namedobj.h"
 #include "debugmasks.h"
 #include "oddirs.h"
-#include "errh.h"
 #include "executor.h"
 #include "fixedstreambuf.h"
 

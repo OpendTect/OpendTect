@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "undo.h"
-#include "errh.h"
 #include "posfilter.h"
 #include "survinfo.h"
 #include "tabledef.h"

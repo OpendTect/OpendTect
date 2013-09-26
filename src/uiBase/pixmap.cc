@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "color.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"

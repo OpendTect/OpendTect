@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
-#include "errh.h"
 
 #include <limits.h>
 

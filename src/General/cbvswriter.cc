@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainterp.h"
 #include "survinfo.h"
 #include "strmoper.h"
-#include "errh.h"
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;

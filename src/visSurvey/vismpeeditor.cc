@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vismpeeditor.h"
 
-#include "errh.h"
 #include "emeditor.h"
 #include "emsurface.h"
 #include "emsurfaceedgeline.h"

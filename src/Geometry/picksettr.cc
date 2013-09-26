@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "ioman.h"
 #include "polygon.h"
-#include "errh.h"
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,

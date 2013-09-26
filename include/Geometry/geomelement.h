@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "position.h"
 #include "ranges.h"
+#include "callback.h"
 
 typedef od_int64 GeomPosID;
 namespace Geometry

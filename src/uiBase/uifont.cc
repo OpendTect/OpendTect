@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "bufstringset.h"
 
-#include "errh.h"
 #include "uibody.h"
 
 #include <qfont.h>

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "idxable.h"
 #include "ranges.h"
 #include "sets.h"
-#include "errh.h"
 #include <limits.h>
 
 /*! Stores one or more values of type T that are associated with a discrete

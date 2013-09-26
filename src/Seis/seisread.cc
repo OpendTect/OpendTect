@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "cubesampling.h"
 #include "binidvalset.h"
-#include "errh.h"
 #include "file.h"
 #include "iopar.h"
 

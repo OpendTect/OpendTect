@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "iopar.h"
-#include "errh.h"
 #include "valseriesinterpol.h"
 #include <math.h>
 #include <float.h>

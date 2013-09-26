@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ranges.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "errh.h"
 
 #include <math.h>
 

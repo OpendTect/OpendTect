@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "errh.h"
 
 
 static const IOObj* nullioobj = 0;

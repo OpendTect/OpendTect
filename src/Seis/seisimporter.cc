@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidsorting.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"

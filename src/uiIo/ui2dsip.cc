@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uigeninput.h"
 #include "cubesampling.h"
-#include "errh.h"
 
 static const char* dlgtitle =
 "Specify working area values.\n"

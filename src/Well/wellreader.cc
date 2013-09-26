@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
 #include "bufstringset.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"

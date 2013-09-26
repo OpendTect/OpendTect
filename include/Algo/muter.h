@@ -15,8 +15,9 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "samplingdata.h"
-
 template <class T> class ValueSeries;
+template <class T> class TypeSet;
+
 
 /*!
 \brief Sets start or end part of a float series to 0.

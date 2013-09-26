@@ -21,6 +21,7 @@ ________________________________________________________________________
  plftypes.h
  undefval.h
  commondefs.h
+ errmsg.h
  gendefs.h
 
  All the above are usable from C and C++.
@@ -32,6 +33,9 @@ ________________________________________________________________________
 #endif
 #ifndef commondefs_h
 #include "commondefs.h"
+#endif
+#ifndef errmsg_h
+#include "errmsg.h"
 #endif
 
 

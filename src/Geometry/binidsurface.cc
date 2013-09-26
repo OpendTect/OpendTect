@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "parametricsurfaceimpl.h"
 
 #include "arrayndimpl.h"
-#include "errh.h"
 #include "rowcol.h"
 #include "survinfo.h"
 #include "trigonometry.h"

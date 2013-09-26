@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "ascstream.h"
-#include "errh.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "keystrs.h"

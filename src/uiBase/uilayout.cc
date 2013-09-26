@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uilayout.h"
-#include "errh.h"
 
 
 uiConstraint::uiConstraint( constraintType tp, i_LayoutItem* o, int marg )

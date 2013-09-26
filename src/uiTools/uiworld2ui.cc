@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiworld2ui.h"
 
-#include "errh.h"
 #include "posgeom.h"
 #include "ranges.h"
 #include "axislayout.h"

@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
-#include "errh.h"
 #include <stdio.h>
 
 const int cMaxTypeSetItemsPerLine = 100;

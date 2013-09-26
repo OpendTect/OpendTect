@@ -9,15 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "safefileio.h"
 
 #include "dateinfo.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "thread.h"
-
-#include <iostream>
+#include "msgh.h"
 
 
 SafeFileIO::SafeFileIO( const char* fnm, bool l )

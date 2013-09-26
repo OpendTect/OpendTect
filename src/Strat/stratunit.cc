@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "property.h"
 #include "propertyref.h"
 #include "separstr.h"
-#include "errh.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "randcolor.h"

@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "oddirs.h"
 #include "iopar.h"
-#include "errh.h"
 
 static const char* oddirnm = "base";
 

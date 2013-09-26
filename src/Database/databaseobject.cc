@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "databaseobject.h"
 
 #include "dateinfo.h"
-#include "errh.h"
 #include "separstr.h"
 #include "staticstring.h"
 #include "price.h"

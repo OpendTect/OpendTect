@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "staticstring.h"
 #include "winutils.h"
-#include "errh.h"
 #include "executor.h"
 #include "ptrman.h"
 #include "strmprov.h"

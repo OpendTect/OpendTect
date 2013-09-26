@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 #include "attribdescid.h"
+#include "typeset.h"
 
 class IOPar;
 class NLAModel;

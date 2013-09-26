@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "envvars.h"
 #include "dirlist.h"
-#include "errh.h"
 #include <iostream>
 
 

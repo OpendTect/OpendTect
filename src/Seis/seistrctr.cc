@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "envvars.h"
-#include "errh.h"
 #include "file.h"
 #include "od_stream.h"
 #include <math.h>

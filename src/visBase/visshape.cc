@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visshape.h"
 
-#include "errh.h"
 #include "iopar.h"
 #include "viscoord.h"
 #include "visdataman.h"

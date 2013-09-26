@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "undo.h"
 
-#include "errh.h"
 #include "iopar.h"
 #include "position.h"
 

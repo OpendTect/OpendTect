@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "debug.h"
-#include "errh.h"
 
 static const char* filenamebase = "UnitsOfMeasure";
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "refcount.h"
 #include "position.h"
+#include "typeset.h"
 
 /*!
 \brief Base class for vertex attribute list.

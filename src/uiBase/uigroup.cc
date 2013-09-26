@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_layout.h"
 #include "i_layoutitem.h"
 #include "envvars.h"
-#include "errh.h"
 
 #include <QFrame>
 #include <QWidget>

@@ -40,7 +40,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
-#include "errh.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "pixmap.h"

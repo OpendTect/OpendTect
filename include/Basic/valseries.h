@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
-#include "errh.h"
 #include "odmemory.h"
 
 #ifdef __debug__

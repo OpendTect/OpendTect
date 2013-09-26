@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class IOPar;
+template <class T> class TypeSet;
 
 
 /*!

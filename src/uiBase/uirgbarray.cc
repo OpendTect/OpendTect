@@ -11,8 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uirgbarray.h"
 
-#include "errh.h"
-
 #include <QImage>
 #include <QColor>
 #include <QColormap>

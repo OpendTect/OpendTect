@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "errh.h"
 #include "ptrman.h"
 
 

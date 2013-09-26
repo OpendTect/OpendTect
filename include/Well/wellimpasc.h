@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 #include "tableascio.h"
+#include "typeset.h"
 #include "od_iosfwd.h"
 
 namespace Table { class FormatDesc; }

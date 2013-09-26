@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmdata.h"
 #include "strmprov.h"
 #include "envvars.h"
-#include "errh.h"
 
 #include <signal.h>
 #include <iostream>

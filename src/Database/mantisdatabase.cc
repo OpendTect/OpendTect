@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "convert.h"
 #include "envvars.h"
-#include "errh.h"
 #include "mantistables.h"
 #include "oddirs.h"
 #include "odver.h"
 #include "ptrman.h"
+#include "msgh.h"
 
 const char* SqlDB::MantisDBMgr::sKeyAll()
 { return "All"; }

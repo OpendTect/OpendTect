@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "math2.h"
-#include "errh.h"
 #include "task.h"
 
 namespace ColTab

@@ -29,7 +29,6 @@ The next 8 bytes are reserved for 2 integers:
 #include "datainterp.h"
 #include "survinfo.h"
 #include "envvars.h"
-#include "errh.h"
 #include "ptrman.h"
 #include "varlenarray.h"
 #include "strmoper.h"

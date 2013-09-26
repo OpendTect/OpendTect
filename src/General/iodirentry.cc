@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include "filepath.h"
 
-#include "errh.h"
 
 
 IODirEntry::IODirEntry( IOObj* iob )

@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "cubicbeziercurve.h"
 
-#include "errh.h"
 
 #define mRetErr( msg, retval ) { errmsg()=msg; return retval; }
 

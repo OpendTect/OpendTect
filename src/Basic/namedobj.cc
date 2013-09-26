@@ -10,10 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include <ctype.h>
 
-#ifdef __debug__
-#include "errh.h"
-#endif
-
 
 NamedObject::~NamedObject()
 {

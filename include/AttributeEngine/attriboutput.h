@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "seistype.h"
+#include "typeset.h"
 
 class BinID;
 class BinIDValueSet;

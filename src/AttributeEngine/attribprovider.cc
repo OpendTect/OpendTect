@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "cubesampling.h"
-#include "errh.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -307,10 +306,7 @@ void Provider::enableOutput( int out, bool yn )
     else
     {
 	if ( !outputinterest_[out] )
-	{
-	    pErrMsg( "Hue?");
-	    return;
-	}
+	    { pErrMsg( "Huh2?"); return; }
 	outputinterest_[out]--;
     }
 }

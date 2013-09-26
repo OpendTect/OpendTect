@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "general.h"
-#include "errh.h"
 #include "atomic.h"
 
 #define mImpPtrManPointerAccess( type ) \

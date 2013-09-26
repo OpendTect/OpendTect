@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "i_layout.h"
 #include "i_layoutitem.h"
-#include "errh.h"
 #include "timer.h"
 #include "pixmap.h"
 #include "color.h"

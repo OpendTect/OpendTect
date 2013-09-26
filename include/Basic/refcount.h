@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "atomic.h"
 #include "objectset.h"
-#include "errh.h"
 
 
 template <class T> class ObjectSet;

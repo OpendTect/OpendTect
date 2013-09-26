@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellmarker.h"
 #include "welldisp.h"
 #include "ascstream.h"
-#include "errh.h"
 #include "od_ostream.h"
 #include "keystrs.h"
 #include "envvars.h"

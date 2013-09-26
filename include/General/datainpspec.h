@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "bufstringset.h"
 #include "position.h"
+#include "typeset.h"
 #include "keystrs.h"
 
 class RCol2Coord;

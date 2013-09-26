@@ -12,7 +12,6 @@
 #include "fixedstring.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "errh.h"
 #include "debugmasks.h"
 #include "keystrs.h"
 

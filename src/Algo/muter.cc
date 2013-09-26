@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "muter.h"
 
 #include "valseries.h"
-#include "errh.h"
 #include <math.h>
 
 

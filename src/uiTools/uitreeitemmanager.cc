@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitreeitemmanager.h"
 
-#include "errh.h"
 #include "uitreeview.h"
 
 

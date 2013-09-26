@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "iopar.h"
 #include "ioman.h"
-#include "errh.h"
 #include <typeinfo>
 
 static const char* filenamebase = "Properties";

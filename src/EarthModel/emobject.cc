@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emobjectselremoval.h"
-#include "errh.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"

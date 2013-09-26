@@ -12,8 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 #include "genc.h"
 #include "envvars.h"
-#include "errh.h"
 #include "odver.h"
+#include "msgh.h"
 #include <iostream>
 
 

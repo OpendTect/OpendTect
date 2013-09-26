@@ -1156,7 +1156,8 @@ void uiSoViewerBody::errorCB( const SoError* error, void* data )
 	  GetEnvVarYN("COIN_DEBUG_DL") )
      {
 	 const SbString& str = error->getDebugString();
-	     programmerErrMsg( str.getString(), "uiSoViewerBody::errorCB" ,__FILE__,__LINE__);
+	 OD::programmerErrMsg( str.getString(), "uiSoViewerBody::errorCB"
+		 		,__FILE__,__LINE__);
      }
 }
 

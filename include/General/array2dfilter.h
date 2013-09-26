@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "iopar.h"
 #include "rowcol.h"
-#include "errh.h"
 #include <math.h>
 
 /*!

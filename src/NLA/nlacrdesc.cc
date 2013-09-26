@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nlacrdesc.h"
 
 #include "datacoldef.h"
-#include "errh.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"

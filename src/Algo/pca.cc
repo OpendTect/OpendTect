@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pca.h"
 
 #include "task.h"
-#include "errh.h"
 #include "sorting.h"
 #include "thread.h"
 #include "threadwork.h"
@@ -127,11 +126,8 @@ bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 
 	    if ( idy!=idx )
 	    {
-		if ( iter++==30)
-		{
-		    pErrMsg("Too many iterations");
-		    return false;
-		}
+		if ( iter++==30 )
+		    { pErrMsg("Too many iterations"); return false; }
 
 		float g = (d[idx+1]-d[idx])/(2.0f*e[idx]);
 		float r = Math::Sqrt((g*g)+1.0f);

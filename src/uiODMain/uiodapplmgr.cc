@@ -60,7 +60,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
-#include "errh.h"
 #include "externalattrib.h"
 #include "filepath.h"
 #include "flatposdata.h"

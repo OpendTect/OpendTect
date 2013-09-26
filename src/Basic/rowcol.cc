@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "rowcol.h"
 #include "bufstring.h"
-#include "errh.h"
 #include "ptrman.h"
 #include "typeset.h"
 #include "position.h"

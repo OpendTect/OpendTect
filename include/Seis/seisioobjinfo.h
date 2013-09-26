@@ -25,6 +25,7 @@ class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
 namespace ZDomain { class Def; }
+template <class T> class TypeSet;
 
 /*!\brief Info on IOObj for seismics */
 

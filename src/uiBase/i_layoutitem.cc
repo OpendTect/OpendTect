@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 
 #include "envvars.h"
-#include "errh.h"
 
 #include <iostream>
 

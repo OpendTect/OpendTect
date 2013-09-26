@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "errh.h"
+
 
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
 	: but(b)

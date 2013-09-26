@@ -25,16 +25,6 @@ ________________________________________________________________________
 template <class T>
 inline void Swap( T& a, T& b ) { T tmp = a; a = b; b = tmp; }
 
-#include <typeinfo>
-
-template <class T>
-inline const char* className( const T& t )
-{	//!< Also works for gcc that returns the size first e.g. 4Clss
-    const char* nm = typeid(t).name();
-    while ( *nm >= '0' && *nm <= '9' ) nm++;
-    return nm;
-}
-
 
 //! Defines policy for 2D and 3D Data type
 enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };

@@ -14,6 +14,7 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
+#include "errmsg.h"
 #include "msgh.h"
 #include "bufstring.h"
 #include "fixedstring.h"
@@ -40,32 +41,9 @@ public:
 };
 
 
-mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
 mGlobal(Basic) void SetCrashOnProgrammerError(int yn);
 //!<Default is off. Normally only turned on in test-programs.
 
-
-inline void programmerErrMsg( const char* msg, const char* cname,
-				const char* fname, int linenr )
-{
-    BufferString str( cname );
-    str += " | "; str += fname;
-    str += ":"; str += linenr;
-    str += " | "; str += msg;
-    ErrMsg( str.buf(), true );
-}
-
-
-
-#ifdef __debug__
-# define pErrMsg(msg) programmerErrMsg(msg,::className(*this),__FILE__,__LINE__)
-//!< Usual access point for programmer error messages
-# define pFreeFnErrMsg(msg,fn) programmerErrMsg( msg, fn, __FILE__, __LINE__ )
-//!< Usual access point for programmer error messages in free functions
-#else
-# define pErrMsg(msg)			EmptyFunction()
-# define pFreeFnErrMsg(msg,fn)		EmptyFunction()
-#endif
 
 #if defined ( __msvc__ )  && defined ( HAS_BREAKPAD )
 # define mUseCrashDumper

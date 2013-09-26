@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "callback.h"
 #include "thread.h"
-#include "errh.h"
 
 #define mOneMilliSecond 0.001
 

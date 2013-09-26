@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survgeom.h"
 #include "threadlock.h"
+#include "callback.h"
 
 class IOPar;
 class FilePath;

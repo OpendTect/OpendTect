@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "errh.h"
 #include "ioman.h"
 #include "rowcol.h"
 #include "prestackeventtransl.h"

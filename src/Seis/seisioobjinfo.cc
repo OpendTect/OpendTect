@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "keystrs.h"
 #include "zdomain.h"
-#include "errh.h"
 
 #define mGoToSeisDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )

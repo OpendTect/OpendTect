@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ziphandler.h"
 
 #include "bufstring.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "dirlist.h"

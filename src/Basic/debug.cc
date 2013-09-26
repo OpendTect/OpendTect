@@ -22,10 +22,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sighndl.h"
 #include "undefval.h"
 #include "math2.h"
-#include "errh.h"
 #include "odplatform.h"
 #include "odcomplex.h"
 #include "moddepmgr.h"
+#include "errh.h"
 
 #include <iostream>
 #include <fstream>

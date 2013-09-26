@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "trigonometry.h"
 
-#include "errh.h"
 #include "math2.h"
 #include "pca.h"
 #include "position.h"
@@ -668,9 +667,9 @@ bool Plane3::operator==(const Plane3& b ) const
 
     if ( a_iszero||b_iszero) 
     {
-	if ( a_iszero&&b_iszero ) return true;
-	pErrMsg("Zero-length Vector");
-	return false;
+	if ( a_iszero&&b_iszero )
+	    return true;
+	pErrMsg("Zero-length Vector"); return false;
     }
 
     const double cross = 1-a_vec.dot(b_vec);

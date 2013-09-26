@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seisselection.h"
 #include "position.h"
+#include "objectset.h"
 
 class HorSampling;
 class CubeSampling;

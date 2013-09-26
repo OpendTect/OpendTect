@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismultitexture2.h"
 
 #include "coltabsequence.h"
-#include "errh.h"
 #include "ranges.h"
 #include "task.h"
 #include "thread.h"

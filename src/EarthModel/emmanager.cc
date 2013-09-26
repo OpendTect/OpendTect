@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emioobjinfo.h"
 #include "emundo.h"
-#include "errh.h"
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"

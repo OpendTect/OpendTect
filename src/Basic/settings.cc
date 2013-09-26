@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 #include "ascstream.h"
-#include "errh.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"

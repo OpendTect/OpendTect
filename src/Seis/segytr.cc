@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyfiledef.h"
 #include "datainterp.h"
 #include "conn.h"
-#include "errh.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "timefun.h"

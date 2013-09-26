@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "menuhandler.h"
 
 #include "bufstringset.h"
-#include "errh.h"
 #include "string2.h"
 #include "threadwork.h"
 
