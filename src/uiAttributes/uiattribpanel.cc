@@ -161,5 +161,5 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     if ( fdpack )
 	createAndDisplay2DViewer( fdpack );
     else
-	pErrMsg( "Error during attribute computation" );
+	{ pErrMsg( "Error during attribute computation" ); }
 }
