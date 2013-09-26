@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class RowCol;
 class MultiID;
+class od_ostream;
 class BinIDValueSet;
 class DataPointSet;
 class HorSampling;
@@ -43,19 +44,19 @@ public:
     static float 	getZ(const RowCol&,const Surface*);
     static float 	getMissingZ(const RowCol&,const Surface*,int);
     static Surface* 	getSurface(const MultiID&);
-    static void 	getPositions(std::ostream&,const MultiID&,
+    static void 	getPositions(od_ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
-    static void 	getExactCoords(std::ostream&,const MultiID&,
+    static void 	getExactCoords(od_ostream&,const MultiID&,
 	    			       const PosInfo::GeomID&,
 				       const HorSampling&,
 				       ObjectSet<DataPointSet>&);
-    static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
+    static void 	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
 					   float extrawidth,
 					   Pos::Provider* provider=0);
-    static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
+    static void 	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const HorSampling&,
 				       const Interval<float>& extraz,
 				       const PosInfo::GeomID&);

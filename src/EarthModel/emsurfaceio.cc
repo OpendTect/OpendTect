@@ -1839,7 +1839,7 @@ bool dgbSurfaceWriter::writeInt16( od_ostream& strm, unsigned short val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.putBin( &val, sizeof(val) );
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
@@ -1851,7 +1851,7 @@ bool dgbSurfaceWriter::writeInt32( od_ostream& strm, od_int32 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.putBin( &val, sizeof(val) );
+	strm.addBin( &val, sizeof(val) );
     else
 	strm << val << post;
 
@@ -1863,7 +1863,7 @@ bool dgbSurfaceWriter::writeInt64( od_ostream& strm, od_int64 val,
 				   const char* post) const
 {
     if ( binary_ )
-	strm.putBin( &val, sizeof(val) );
+	strm.addBin( &val, sizeof(val) );
     else
     {
 	BufferString valstr;
@@ -2111,7 +2111,7 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
 				       const char* post) const
 {
     if ( binary_ )
-	strm.putBin( &val, sizeof(val) );
+	strm.addBin( &val, sizeof(val) );
     else
     {
 	char str[255];

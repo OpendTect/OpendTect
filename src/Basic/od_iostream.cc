@@ -330,7 +330,7 @@ while ( true ) \
 return rv;
 
 
-#define mPutWithRetry(stmts,rv) \
+#define mAddWithRetry(stmts,rv) \
 int retrycount = 0; \
 std::ostream& strm = stdStream(); \
 while ( true ) \
@@ -345,7 +345,7 @@ return rv;
 #define mImplStrmAddFn(typ,tostrm) \
 od_ostream& od_ostream::add( typ t ) \
 { \
-    mPutWithRetry( strm << tostrm, *this ) \
+    mAddWithRetry( strm << tostrm, *this ) \
 }
 
 #define mImplStrmGetFn(typ,tostrm) \
@@ -389,6 +389,8 @@ od_ostream& od_ostream::add( const FixedString& fs )
     { return fs.str() ? add( fs.str() ) : *this; }
 od_istream& od_istream::get( FixedString& fs )
     { pErrMsg("od_istream::get(FixedString&) called"); return *this; }
+od_istream& od_istream::get( void* ptr )
+    { pErrMsg("od_istream::get(void*) called"); return *this; }
 
 
 od_istream& od_istream::getC( char* str, int maxnrch )
@@ -415,10 +417,26 @@ bool od_istream::getBin( void* buf, od_stream::Count nrbytes )
 }
 
 
-bool od_ostream::putBin( const void* buf, od_stream::Count nrbytes )
+bool od_ostream::addBin( const void* buf, od_stream::Count nrbytes )
 {
     return nrbytes <= 0 || !buf ? true
 	: StrmOper::writeBlock( stdStream(), buf, nrbytes );
+}
+
+
+od_ostream& od_ostream::add( const void* ptr )
+{
+    pErrMsg( "od_ostream::add(void*) called. If intentional, use addPtr" );
+    return addPtr( ptr );
+}
+
+
+od_ostream& od_ostream::addPtr( const void* ptr )
+{
+    if ( ptr )
+	{ mAddWithRetry( strm << ((const int*)ptr), *this ) }
+    else
+	{ mAddWithRetry( strm << "(null)", *this ) }
 }
 
 
@@ -479,7 +497,7 @@ od_istream& od_istream::get( IOPar& iop )
 od_ostream& od_ostream::add( const IOPar& iop )
 {
     ascostream astrm( *this );
-    mPutWithRetry( iop.putTo( astrm ), *this )
+    mAddWithRetry( iop.putTo( astrm ), *this )
 }
 
 

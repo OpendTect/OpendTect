@@ -18,35 +18,6 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
-#include "odcomplex.h"
-
-
-#include <math.h>
-
-#ifndef M_PI
-# define M_PI           3.14159265358979323846  /* pi */
-#endif
-
-template <class T>
-inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
-{ 
-    ArrayNDIter iter( array.info() );
-    const int ndim = array.info().getNDim();
-
-    strm << ndim << ' ';
-
-    for ( int idx=0; idx<ndim; idx++ )
-	strm << array.info().getSize(idx) << ' ';
-
-    do 
-    {
-	strm << array.getND( iter.getPos() );
-
-	strm << ' ';
-    } while ( iter.next() );
-
-    strm.flush();
-}
 
 
 /*!

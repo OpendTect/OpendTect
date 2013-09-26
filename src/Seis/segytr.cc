@@ -405,7 +405,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
 	    txthead_->setEbcdic();
     }
-    if ( !sConn().oStream().putBin( txthead_->txt_, SegyTxtHeaderLength ) )
+    if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
     SEGY::BinHeader binhead;
@@ -420,7 +420,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
     					// To make Strata users happy
     binhead.setInFeet( SI().xyInFeet() );
-    if ( !sConn().oStream().putBin( binhead.buf(), SegyBinHeaderLength ) )
+    if ( !sConn().oStream().addBin( binhead.buf(), SegyBinHeaderLength ) )
 	mErrRet("Cannot write SEG-Y binary header")
 
     return true;
@@ -801,7 +801,7 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     memset( headerbuf_, 0, mSEGYTraceHeaderBytes );
     fillHeaderBuf( trc );
 
-    if ( !sConn().oStream().putBin( headerbuf_, mSEGYTraceHeaderBytes ) )
+    if ( !sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes ) )
 	mErrRet("Cannot write trace header")
 
     return writeData( trc );
@@ -829,7 +829,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
 	strm.setPosition( samps.start * mBPS(inpcd_), od_stream::Rel );
 
     int rdsz = (samps.width()+1) *  mBPS(inpcd_);
-    if ( !sConn().oStream().putBin(blockbuf_,rdsz) )
+    if ( !sConn().oStream().addBin(blockbuf_,rdsz) )
     {
 	if ( strm.lastNrBytesRead() != rdsz )
 	    addWarn( cSEGYWarnDataReadIncomplete, strm.lastNrBytesRead()
@@ -885,7 +885,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 	storinterp_->put( blockbuf_, idx, val );
     }
 
-    if ( !sConn().oStream().putBin( blockbuf_,
+    if ( !sConn().oStream().addBin( blockbuf_,
 			 outnrsamples * outcd_->datachar.nrBytes() ) )
 	mErrRet("Cannot write trace data")
 

@@ -18,13 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
-#include "file.h"
-#include "iopar.h"
 #include "parametricsurface.h"
-#include "strmprov.h"
+#include "od_iostream.h"
 #include "survinfo.h"
+#include "iopar.h"
+#include "file.h"
 
-#include <iostream>
 
 namespace EM
 {
@@ -72,10 +71,9 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	par.set( sKeyFloatDataChar(), dc );
     }
 
-    StreamData sd = StreamProvider( filename_.buf() ).makeOStream();
-    if ( !sd.usable() ) return;
-    stream_ = sd.ostrm;
-    if ( !(*stream_) ) return;
+    stream_ = new od_ostream( filename_ );
+    if ( !stream_ || !stream_->isOK() )
+	{ delete stream_; stream_ = 0; return; }
 
     ascostream astream( *stream_ );
     astream.putHeader( sKeyFileType() );
@@ -108,16 +106,15 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 
 bool dgbSurfDataWriter::writeDummyHeader( const char* fnm, const char* attrnm )
 {
-    StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	return false;
 
-    ascostream astream( *sd.ostrm );
+    ascostream astream( strm );
     astream.putHeader( dgbSurfDataWriter::sKeyFileType() );
     IOPar par( "Surface Data" );
     par.set( dgbSurfDataWriter::sKeyAttrName(), attrnm );
     par.putTo( astream );
-    sd.close();
     return true;
 }
 
@@ -206,9 +203,9 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
 #define mWriteData() \
     if ( !stream_ ) return false; \
     if ( binary_ ) \
-	stream_->write( (char*) &val, sizeof(val) ); \
+	stream_->addBin( &val, sizeof(val) ); \
     else \
-	(*stream_) << val << '\n'; \
+	stream_->add( val ).add( od_newline ); \
     return true
 
 
@@ -254,12 +251,9 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , shift_(0)
     , stream_(0)
 {
-    StreamData sd = StreamProvider( filename ).makeIStream();
-    if ( !sd.usable() )
-	return;
-    stream_ = sd.istrm;
-    if ( !(*stream_) )
-	return;
+    stream_ = new od_istream( filename );
+    if ( !stream_ || !stream_->isOK() )
+	{ delete stream_; stream_ = 0; return; }
 
     ascistream astream( *stream_ );
     if ( !astream.isOfFileType(dgbSurfDataWriter::sKeyFileType()) )
@@ -395,16 +389,16 @@ int dgbSurfDataReader::nextStep()
 
 
 #define mReadData(interpreter) \
-    if ( !stream_ ) return false; \
+    if ( !stream_ ) \
+	return false; \
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
-	stream_->read(buf,sizeof(res)); \
-	res = interpreter->get(buf,0); \
+	stream_->getBin( buf, sizeof(res) ); \
+	res = interpreter->get( buf, 0 ); \
     } \
     else \
-	(*stream_) >> res; \
-\
+	stream_->get( res ); \
     return true;
 
 bool dgbSurfDataReader::readInt( int& res )

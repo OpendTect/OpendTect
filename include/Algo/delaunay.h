@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "thread.h"
 #include "trigonometry.h"
+class od_ostream;
 
 
 #define mDAGTriangleForceSingleThread
@@ -79,9 +80,9 @@ public:
 					     bool normailze=true) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
-    void		dumpTo(std::ostream&) const;
+    void		dumpTo(od_ostream&) const;
     			//!<Dumps all triangles to stream;
-    void		dumpTriangulationToIV(std::ostream&) const;
+    void		dumpTriangulationToIV(od_ostream&) const;
 
 
     static int		cNoVertex()	{ return -1; }

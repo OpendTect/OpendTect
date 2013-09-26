@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emposid.h"
 #include "executor.h"
+#include "od_iosfwd.h"
 class HorSampling;
 template <class T> class DataInterpreter;
 
@@ -83,7 +84,7 @@ protected:
     int				totalnr_;
     BufferString		errmsg_;
 
-    std::ostream*		stream_;
+    od_ostream*			stream_;
     bool			binary_;
     BufferString		filename_;
 };
@@ -132,7 +133,7 @@ protected:
     int				totalnr_;
     BufferString		errmsg_;
 
-    std::istream*		stream_;
+    od_istream*			stream_;
     DataInterpreter<int>*	intinterpreter_;
     DataInterpreter<od_int64>*	int64interpreter_;
     DataInterpreter<float>*	floatinterpreter_;

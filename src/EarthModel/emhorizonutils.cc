@@ -122,15 +122,14 @@ Surface* HorizonUtils::getSurface( const MultiID& id )
 }
 
 
-void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
+void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 				 ObjectSet<BinIDValueSet>& data )
 {
     Surface* surface = getSurface(id);
     if ( !surface ) return;
 
     strm << "\nFetching surface positions ...\n" ;
-    od_ostream odstrm( strm );
-    TextStreamProgressMeter pm( odstrm );
+    TextStreamProgressMeter pm( strm );
     deepErase( data );
 
     PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
@@ -156,11 +155,11 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
     }
 
     pm.setFinished();
-    strm << "Done!" << std::endl;
+    strm.add( "Done!\n" ).flush();
 }
 
 
-void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
+void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 				   const PosInfo::GeomID& geomid,
 				   const HorSampling& hsamp,
 				   ObjectSet<DataPointSet>& data )
@@ -171,8 +170,7 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
     mDynamicCastGet(Horizon2D*,hor2d,surface);
 
     strm << "\nFetching surface positions ...\n" ;
-    od_ostream odstrm( strm );
-    TextStreamProgressMeter pm( odstrm );
+    TextStreamProgressMeter pm( strm );
     deepErase( data );
 
     DataPointSet* res = 0;
@@ -222,11 +220,11 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
     if ( res ) res->dataChanged();
     
     pm.setFinished();
-    strm << "Done!" << std::endl;
+    strm.add( "Done!\n" ).flush();
 }
 
 
-void HorizonUtils::getWantedPositions( std::ostream& strm, 
+void HorizonUtils::getWantedPositions( od_ostream& strm, 
 				       ObjectSet<MultiID>& midset,
 				       BinIDValueSet& wantedposbivs, 
 				       const HorSampling& hs,
@@ -246,8 +244,7 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
     }
     
     strm << "\nFetching surface positions ...\n" ;
-    od_ostream odstrm( strm );
-    TextStreamProgressMeter pm( odstrm );
+    TextStreamProgressMeter pm( strm );
    
     if ( mIsUdf(nrinterpsamp) )
 	nrinterpsamp = mMaxSampInterpol;
@@ -393,7 +390,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	return;\
     }
 
-void HorizonUtils::getWantedPos2D( std::ostream& strm,
+void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   ObjectSet<MultiID>& midset, 
 				   DataPointSet* dtps,
 				   const HorSampling& horsamp,

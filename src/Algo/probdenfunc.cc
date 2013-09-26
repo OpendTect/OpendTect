@@ -175,7 +175,7 @@ void ArrayNDProbDenFunc::dump( od_ostream& strm, bool binary ) const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
 	if ( binary )
-	    strm.putBin( &values[idx], sizeof(float) );
+	    strm.addBin( &values[idx], sizeof(float) );
 	else
 	{
 	    strm << values[idx];

@@ -60,7 +60,10 @@ public:
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
 
-    bool		putBin(const void*,Count nrbytes);
+    od_ostream&		add(const void*); //!< produces pErrMsg but works
+    od_ostream&		addPtr(const void*);
+
+    bool		addBin(const void*,Count nrbytes);
     std::ostream&	stdStream();
     void		flush();
 
@@ -70,8 +73,10 @@ public:
 };
 
 
-template <class T> inline od_ostream& operator <<( od_ostream& s, const T& t )
+template <class T>
+inline od_ostream& operator <<( od_ostream& s, const T& t )
 { return s.add( t ); }
+
 
 #define od_tab '\t'
 #define od_newline '\n'

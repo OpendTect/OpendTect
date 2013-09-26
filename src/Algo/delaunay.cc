@@ -10,7 +10,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
-#include <iostream>
+#include "od_ostream.h"
+
 
 DelaunayTriangulator::DelaunayTriangulator( DAGTriangleTree& dagt )
     : tree_( dagt )  
@@ -26,7 +27,7 @@ DelaunayTriangulator::~DelaunayTriangulator()
 }
 
 
-void DelaunayTriangulator::setCalcScope(const Interval<int>& rg)
+void DelaunayTriangulator::setCalcScope( const Interval<int>& rg )
 {
     calcscope_.start =  mMAX( 0, rg.start );
     calcscope_.stop =  mMIN( tree_.coordList().size()-1, rg.stop );
@@ -854,19 +855,19 @@ bool DAGTriangleTree::getWeights( int vertexidx, const TypeSet<int>& conns,
 }
 
 
-void DAGTriangleTree::dumpTo(std::ostream& stream) const
+void DAGTriangleTree::dumpTo( od_ostream& stream ) const
 {
     for ( int idx=0; idx<triangles_.size(); idx++ )
     {
 	const DAGTriangle& triangle = triangles_[idx];
-	stream << (int) triangle.coordindices_[0] << '\t'
-	       << (int) triangle.coordindices_[1] << '\t'
-	       << (int) triangle.coordindices_[2] << '\n';
+	stream.add( triangle.coordindices_[0] ).add( od_tab )
+	      .add( triangle.coordindices_[1] ).add( od_tab )
+	      .add( triangle.coordindices_[2] ).add( od_newline );
     }
 }
 
 
-void DAGTriangleTree::dumpTriangulationToIV(std::ostream& stream) const
+void DAGTriangleTree::dumpTriangulationToIV( od_ostream& stream ) const
 {
     stream << "#Inventor V2.1 ascii\n\n"
 	   << "Coordinate3 {\n"
@@ -896,7 +897,7 @@ void DAGTriangleTree::dumpTriangulationToIV(std::ostream& stream) const
 	      << triangle.coordindices_[2] << ", -1"
 	      << (idx<triangles_.size()-1 ? ",\n" : "\n");
     }
-    stream << "]\n}" << std::endl;
+    stream.add( "]\n}\n" ).flush();
 }
 
 

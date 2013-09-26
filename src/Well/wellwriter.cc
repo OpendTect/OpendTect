@@ -171,7 +171,7 @@ bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
 	    continue;
 
 	if ( binwrlogs_ )
-	    strm.putBin( (char*)v, 2*sizeof(float) );
+	    strm.addBin( (char*)v, 2*sizeof(float) );
 	else
 	{
 	    if ( mIsUdf(v[1]) )

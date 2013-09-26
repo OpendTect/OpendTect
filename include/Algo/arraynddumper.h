@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "arraynd.h"
-#include <iostream>
+#include "od_iostream.h"
 
 /*!\brief Dumps contents of ArrayND objects.
 
@@ -41,7 +41,7 @@ public:
     inline void			setOneLinePerFastestDim();
     inline void			setOneLinePerSlowestDim();
 
-    inline void			dump(std::ostream&) const;
+    inline void			dump(od_ostream&) const;
 
     const ArrayND<T>&		inp_;
     bool			withpos_;
@@ -73,7 +73,7 @@ void ArrayNDDumper<T>::setOneLinePerSlowestDim()
 
 
 template <class T>
-void ArrayNDDumper<T>::dump( std::ostream& strm ) const
+void ArrayNDDumper<T>::dump( od_ostream& strm ) const
 {
     if ( inp_.isEmpty() ) return;
 
@@ -87,30 +87,29 @@ void ArrayNDDumper<T>::dump( std::ostream& strm ) const
 	if ( withpos_ && nrthisline == 0 )
 	{
 	    for ( int idim=0; idim<nrdims; idim++ )
-		strm << pos[idim] << '\t';
+		strm.add( pos[idim] ).add( od_tab );
 
 	}
 
 	const T val = inp_.getND( pos );
 	if ( haveudfs_ && mIsUdf(val) )
-	    strm << "udf";
+	    strm.add( "udf" );
 	else
-	    strm << val;
+	    strm.add( val );
 
-	char wschar = '\t';
+	char wschar = od_tab;
 	if ( nlafter_ > 0 )
 	{
 	    nrthisline++;
 	    if ( nrthisline == nlafter_ )
-		{ wschar = '\n'; nrthisline = 0; }
+		{ wschar = od_newline; nrthisline = 0; }
 	}
 	if ( it.next() )
-	    strm << wschar;
+	    strm.add( wschar );
 	else
-	    { strm << std::endl; break; }
+	    { strm.add(od_newline).flush(); break; }
     }
 }
 
 
 #endif
-

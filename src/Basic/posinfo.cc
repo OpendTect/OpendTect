@@ -703,7 +703,7 @@ bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
     if ( asc )
 	strm << nrinl << '\n';
     else
-	strm.putBin( &nrinl, intsz );
+	strm.addBin( &nrinl, intsz );
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
@@ -713,8 +713,8 @@ bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
 	    strm << inlinf.linenr_ << ' ' << nrcrl;
 	else
 	{
-	    strm.putBin( &inlinf.linenr_, intsz );
-	    strm.putBin( &nrcrl, intsz );
+	    strm.addBin( &inlinf.linenr_, intsz );
+	    strm.addBin( &nrcrl, intsz );
 	}
 
 	for ( int icrl=0; icrl<nrcrl; icrl++ )
@@ -724,9 +724,9 @@ bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
 		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
 	    else
 	    {
-		strm.putBin( &seg.start, intsz );
-		strm.putBin( &seg.stop, intsz );
-		strm.putBin( &seg.step, intsz );
+		strm.addBin( &seg.start, intsz );
+		strm.addBin( &seg.stop, intsz );
+		strm.addBin( &seg.step, intsz );
 	    }
 	    if ( asc )
 		strm << '\n';

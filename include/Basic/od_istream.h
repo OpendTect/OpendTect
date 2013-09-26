@@ -63,6 +63,7 @@ public:
     od_istream&		getC(char*,int maxnrchar);
     od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsg
     od_istream&		get(FixedString&); //!< does nothing + pErrMsg
+    od_istream&		get(void*); //!< does nothing + pErrMsg
 
     bool		getBin(void*,Count nrbytes);
     bool		getLine(BufferString&);

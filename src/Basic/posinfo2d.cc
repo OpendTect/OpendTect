@@ -250,8 +250,8 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     else
     {
 	float buf[] = { zrg_.start, zrg_.stop, zrg_.step };
-	strm.putBin( buf, 3 * sizeof(float) );
-	strm.putBin( &linesz, sizeof(int) );
+	strm.addBin( buf, 3 * sizeof(float) );
+	strm.addBin( &linesz, sizeof(int) );
     }
 
     for ( int idx=0; idx<linesz; idx++ )
@@ -269,8 +269,8 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 	{
 	    double dbuf[2];
 	    dbuf[0] = pos.coord_.x; dbuf[1] = pos.coord_.y;
-	    strm.putBin( &pos.nr_, sizeof(int) );
-	    strm.putBin( dbuf, 2 * sizeof(double) );
+	    strm.addBin( &pos.nr_, sizeof(int) );
+	    strm.addBin( dbuf, 2 * sizeof(double) );
 	}
     }
 

@@ -451,7 +451,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !iscubeoutp )
     {
 	ObjectSet<BinIDValueSet> bivs;
-	HorizonUtils::getPositions( strm.stdStream(), *(midset[0]), bivs );
+	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
 	Processor* proc = aem.createLocationOutput( errmsg, bivs );
 	if ( !proc ) mErrRet( errmsg );
 
@@ -518,14 +518,14 @@ bool BatchProgram::go( od_ostream& strm )
 		hsamp.setCrlRange( l2dd.trcNrRange() );
 	    }
 
-	    HorizonUtils::getWantedPos2D( strm.stdStream(), midset, dtps,
+	    HorizonUtils::getWantedPos2D( strm, midset, dtps,
 		    			  hsamp, extraz, geomid );
 	}
 	else
 	{
 	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
 		    						  false );
-	    HorizonUtils::getWantedPositions( strm.stdStream(), midset, bivs,
+	    HorizonUtils::getWantedPositions( strm, midset, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
 				extrawidth, provider );
 	}
