@@ -1156,8 +1156,7 @@ void uiSoViewerBody::errorCB( const SoError* error, void* data )
 	  GetEnvVarYN("COIN_DEBUG_DL") )
      {
 	 const SbString& str = error->getDebugString();
-	 OD::programmerErrMsg( str.getString(), "uiSoViewerBody::errorCB"
-		 		,__FILE__,__LINE__);
+	 pFreeFnErrMsg( str.getString(), "uiSoViewerBody::errorCB" );
      }
 }
 
@@ -1678,7 +1677,7 @@ void ui3DViewer::switchSeekMode()
 	sobody_->enableSeek( !sobody_->seekEnabled() );
     }
     else if ( osgbody_ )
-	pErrMsg("Not impl");
+	{ pErrMsg("OSG: Not impl"); }
 }
 
 

@@ -37,7 +37,7 @@ LogCubeCreator::LogCubeCreator( const Well::Data& wd )
 {
     Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
     if ( !wtextr.execute() )
-	pErrMsg( "unable to extract position" );
+	{ pErrMsg( "unable to extract position" ); }
     wtextr.getBIDs( binids_ );
     extractparams_.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
 }
@@ -157,15 +157,15 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 
     SeisTrcWriter writer( lcd.seisctio_.ioobj );
     HorSamplingIterator hsit( hrg_ );
-    bool succeeded = true;
     BinID bid;
     while ( hsit.next( bid ) )
     {
 	trc.info().binid = bid;
 	if ( !writer.put(trc) )
-	    { pErrMsg( "cannot write new trace" ); succeeded = false; }
+	    mErrRet( "cannot write new trace", false );
     }
-    return succeeded;
+
+    return true;
 }
 
 

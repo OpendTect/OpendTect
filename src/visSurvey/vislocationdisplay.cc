@@ -118,7 +118,7 @@ void LocationDisplay::setSet( Pick::Set* s )
     if ( set_ )
     {
 	if ( set_!=s )
-	    pErrMsg("Cannot set set_ twice");
+	    { pErrMsg("Cannot set set_ twice"); }
 	return;
     }
 
@@ -520,7 +520,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
     loc.pos_.z = newdepth;
 
     if ( hasDirection() )
-	pErrMsg("Direction not impl");
+	{ pErrMsg("Direction not impl"); }
 
     return true;
 }

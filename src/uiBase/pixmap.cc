@@ -91,8 +91,9 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 {
     bool isnone = true;
     if ( srcname_.isEmpty() )
-	pErrMsg("Empty icon name specified. "
-		" (if this is intentional, use uiIcon::None())");
+	{ pErrMsg("Empty icon name specified. "
+		    " (if this is intentional, use uiIcon::None())"); }
+
     if ( srcname_ != uiIcon::None() )
 	isnone = false;
     if ( isnone )
