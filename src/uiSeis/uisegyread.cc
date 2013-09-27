@@ -523,9 +523,5 @@ uiSEGYRead::~uiSEGYRead()
         delete examdlg_;
     }
 
-    delete defdlg_;
-    delete impdlg_;
-    delete scandlg_;
-    delete rev1qdlg_;
     delete scanner_;
 }
