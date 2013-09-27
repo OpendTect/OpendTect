@@ -78,7 +78,6 @@ protected:
     TraceDataInterpreter* storinterp_;
     unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
     bool		headerdone_;
-    bool		headerbufread_;
 
     // Following variables are inited by commitSelections
     unsigned char*	blockbuf_;

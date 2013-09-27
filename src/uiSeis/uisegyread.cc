@@ -85,7 +85,17 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     nextAction();
 }
 
-// Destructor at end of file (deleting local class)
+
+uiSEGYRead::~uiSEGYRead()
+{
+    if ( examdlg_ )
+    {
+        examdlg_->tobeDeleted.remove( mCB(this,uiSEGYRead,examDlgClose) );
+        delete examdlg_;
+    }
+
+    delete scanner_;
+}
 
 
 void uiSEGYRead::closeDown()
@@ -330,15 +340,13 @@ static const char* rev1txts[] =
     0
 };
 
-class uiSEGYReadRev1Question : public uiDialog
+class uiSEGYReadRev1Question : public uiVarWizardDlg
 {
 public:
 
-uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
-    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8")
-	    	.modal(false).okcancelrev(true)
-		.oktext(uiVarWizardDlg::sProceedButTxt())
-		.canceltext(uiVarWizardDlg::sBackButTxt()) )
+uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
+    : uiVarWizardDlg(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8"),
+	    			iop,Middle)
     , initialpol_(pol)
 {
     choicefld_ = new uiCheckList( this, BufferStringSet(rev1txts),
@@ -420,7 +428,7 @@ void uiSEGYRead::basicOptsGot()
 	else
 	{
 	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_,
-		    				    Seis::is2D(geom_) );
+		    				    Seis::is2D(geom_), pars_ );
 	    needimmediatedet = false;
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
 	}
@@ -510,18 +518,7 @@ void uiSEGYRead::impDlgClose( CallBacker* )
 
 void uiSEGYRead::rev1qDlgClose( CallBacker* )
 {
-    determineRevPol();
+    mHandleVWCancel(rev1qdlg_,BasicOpts)
     rev1qdlg_ = 0;
-}
-
-
-uiSEGYRead::~uiSEGYRead()
-{
-    if ( examdlg_ )
-    {
-        examdlg_->tobeDeleted.remove( mCB(this,uiSEGYRead,examDlgClose) );
-        delete examdlg_;
-    }
-
-    delete scanner_;
+    determineRevPol();
 }
