@@ -117,11 +117,10 @@ void GeoCalculator::ensureValidD2TModel( Well::D2TModel& d2t,
 	return;
 
     do { idah++; }
-    while ( dahs[zidxs[idah]] <= srddah || dahs[zidxs[idah]]  < mLocalEps ||
-	    times[zidxs[idah]] < mLocalEps );
+    while ( (idah < sz) && (dahs[zidxs[idah]] <= srddah || 
+            dahs[zidxs[idah]]  < mLocalEps || times[zidxs[idah]] < mLocalEps) );
 
-    if ( dahs[zidxs[idah]] > srddah && dahs[zidxs[idah]] > mLocalEps &&
-	 times[zidxs[idah]] > mLocalEps )
+    if ( idah < sz )
 	d2t.add( dahs[zidxs[idah]], times[zidxs[idah]] + bulkshift );
 
     for ( int idx=idah+1; idx<sz; idx++ )
