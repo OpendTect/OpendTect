@@ -65,7 +65,8 @@ private:
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {
     if ( !id_.isEmpty() )
-	id_.add( "." ).add( s );
+	id_.add( "." );
+    id_.add( s );
     return *this;
 }
 
