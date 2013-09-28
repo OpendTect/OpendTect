@@ -208,9 +208,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     {
 	BufferString errmsg( "Survey definition file cannot be read.\n"
 			     "Survey file '" );
-	errmsg += fp.fullPath(); errmsg += "' has file type '";
-	errmsg += astream.fileType();
-	errmsg += "'.\nThe file may be corrupt or not accessible.";
+	errmsg.add( fp.fullPath() ).add( "' has file type '" )
+		.add( astream.fileType() )
+		.add( "'.\nThe file may be corrupt or not accessible." );
+	if ( !astream.stream().isOK() )
+	    astream.stream().addErrMsgTo( errmsg );
 	ErrMsg( errmsg );
 	sfio.closeFail();
 	return new SurveyInfo;
