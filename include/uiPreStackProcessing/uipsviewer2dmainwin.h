@@ -34,6 +34,16 @@ namespace PreStackView
     class uiViewer2DPosDlg;
     class uiGatherDisplay;
     class uiGatherDisplayInfoHeader;
+    class uiPSMultiPropDlg;
+
+mExpClass(uiPreStackProcessing) PSViewAppearance : public FlatView::Appearance
+{
+public:
+    BufferString	datanm_;
+    bool operator==( const PSViewAppearance& psapp ) const
+    { return datanm_ == psapp.datanm_; }
+};
+
 
 mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
 {
@@ -53,6 +63,8 @@ public:
     void		getStartupPositions(const BinID& bid,
 	    				    const StepInterval<int>& trcrg,
 					    bool isinl, TypeSet<BinID>&) const;
+    void		setAppearance(const FlatView::Appearance&,
+	    			       int appidx=0);
 
     Notifier<uiViewer2DMainWin> seldatacalled_;
     const TypeSet<GatherInfo>&	gatherInfos() const	{ return gatherinfos_; }
@@ -109,7 +121,13 @@ protected:
     void		snapshotCB(CallBacker*);
     void		preprocessingCB(CallBacker*);
     void		applyPreProcCB(CallBacker*);
+    void		propChangedCB(CallBacker*);
     void		convAngleDatatoDegrees(PreStack::Gather* angledata);
+ 
+    void		prepareNewAppearances(BufferStringSet oldgathernms,
+	    				      BufferStringSet newgathernms );
+    DataPack::ID	getAngleData(DataPack::ID gatherid);
+    bool		getAngleParams();
 };
 
 
@@ -173,6 +191,8 @@ public:
     FlatView::DataDispPars&	dispPars()		{ return disppars_; }
 
     void			setGatherInfos(const TypeSet<GatherInfo>&);
+    Notifier<uiViewer2DControl>& propChanged();
+    PSViewAppearance		curViewerApp();
 
 protected:
 

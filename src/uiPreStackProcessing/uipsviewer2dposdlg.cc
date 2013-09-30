@@ -408,7 +408,7 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 		gatherinfos_ += ginfo;
 		dispgatheridxs_ += gatherinfos_.size()-1;
 	    }
-	    else if ( gatherinfos_.validIdx(trcnr) )
+	    else if ( gatherinfos_.validIdx(trcnr-1) )
 		dispgatheridxs_ += trcnr-1;
 	}
     }

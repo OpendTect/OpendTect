@@ -57,4 +57,7 @@ void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
     BufferString posstr( "Model " ); posstr += pos;
     poslbl_->setText( posstr.buf() );
 }
+
+const char* uiGatherDisplayInfoHeader::getDataName() const
+{ return datalbl_->text(); }
 } //namespace

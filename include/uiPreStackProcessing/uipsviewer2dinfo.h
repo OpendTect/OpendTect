@@ -31,6 +31,7 @@ public:
 	    				const char* data);
     void			setData(int pos,const char* data);
     void			setOffsetRange(const Interval<float>&);
+    const char*			getDataName() const;
 
 protected:
     uiLabel*			datalbl_;
