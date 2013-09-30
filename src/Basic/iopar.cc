@@ -511,7 +511,7 @@ bool IOPar::get( const char* s, type& v1, type& v2, type& v3, type& v4 ) const \
     if ( ptr != endptr ) v3 = tmpval; \
 \
     ptr = fms[3]; tmpval = convfunc; \
-    if ( ptr != endptr ) v3 = tmpval; \
+    if ( ptr != endptr ) v4 = tmpval; \
 \
     return true; \
 }
