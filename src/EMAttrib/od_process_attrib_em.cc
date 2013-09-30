@@ -122,7 +122,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 		     ObjectSet<MultiID>& midset, BufferString& errmsg, 
 		     bool iscubeoutp, MultiID& outpid  )
 {
-    strm << "Preparing processing\n"; strm.flush();
+    strm << "Preparing processing" << od_endl;
     BufferString lpartstr = IOPar::compKey( sKey::Output(), 0 );
     BufferString outstr( IOPar::compKey( lpartstr.buf(), idstr ) );
 
@@ -135,8 +135,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	midset += mid;
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
-	strm << "Calculating Horizon Data '" << newattrnm << "'.\n";
-	strm.flush();
+	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
     }
     else
     {
@@ -144,8 +143,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
 	if ( !ioobj ) return false;
 
-	strm << "Calculating '" << ioobj->name() << "'.\n";
-	strm.flush();
+	strm << "Calculating '" << ioobj->name() << "'." << od_endl;
 	BufferString basehorstr(
 	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
 	BufferString hor1str = IOPar::compKey(basehorstr,0);

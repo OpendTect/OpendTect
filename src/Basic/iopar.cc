@@ -1107,8 +1107,7 @@ void IOPar::dumpPretty( od_ostream& strm ) const
 {
     BufferString res;
     dumpPretty( res );
-    strm << res.buf();
-    strm.flush();
+    strm << res.buf() << od_endl;
 }
 
 

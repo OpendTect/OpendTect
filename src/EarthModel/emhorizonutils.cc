@@ -155,7 +155,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
     }
 
     pm.setFinished();
-    strm.add( "Done!\n" ).flush();
+    strm << "Done!" << od_endl;
 }
 
 
@@ -220,7 +220,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
     if ( res ) res->dataChanged();
     
     pm.setFinished();
-    strm.add( "Done!\n" ).flush();
+    strm << "Done!" << od_endl;
 }
 
 

@@ -259,13 +259,12 @@ void SafeFileIO::mkLock( bool forread )
 	DateInfo di; BufferString datestr; di.getUsrDisp( datestr, true );
 	strm << "Type: " << (forread ? "Read\n" : "Write\n");
 	strm << "Date: " << datestr << " (" << di.key() << ")\n";
-	strm << "Host: " << HostData::localHostName() << '\n';
+	strm << "Host: " << HostData::localHostName() << od_newline;
 	strm << "Process: " << GetPID() << '\n';
 	const char* ptr = GetPersonalDir();
-	strm << "User's HOME: " << (ptr ? ptr : "<none>") << '\n';
+	strm << "User's HOME: " << (ptr ? ptr : "<none>") << od_newline;
 	ptr = GetSoftwareUser();
-	strm << "DTECT_USER: " << (ptr ? ptr : "<none>") << '\n';
-	strm.flush();
+	strm << "DTECT_USER: " << (ptr ? ptr : "<none>") << od_endl;
     }
 }
 

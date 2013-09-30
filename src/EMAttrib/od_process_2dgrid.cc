@@ -27,7 +27,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     PtrMan<IOPar> seispar = pars().subselect( "Seis" );
     if ( !seispar )
-	{ strm.add( "Incomplete parameter file\n" ).flush(); return false; }
+	{ strm << "Incomplete parameter file" << od_endl; return false; }
 
     bool res = true;
     TextTaskRunner tr( strm );
@@ -35,7 +35,7 @@ bool BatchProgram::go( od_ostream& strm )
     Seis2DGridCreator* seiscr = new Seis2DGridCreator( *seispar );
     res = tr.execute( *seiscr );
     if ( !res )
-	{ strm.add( "  failed.\nProcess stopped\n" ).flush(); return false; }
+	{ strm << "  failed.\nProcess stopped" << od_endl; return false; }
 
     delete seiscr;
 
@@ -43,12 +43,12 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !horpar )
 	return res;
 
-    strm.add( "\n\nCreating 2D Horizon(s) ...\n" ).flush();
+    strm << "\n\nCreating 2D Horizon(s) ..." << od_endl;
     Horizon2DGridCreator horcr;
     horcr.init( *horpar, &tr );
     res = tr.execute( horcr );
     if ( !res ) 
-	{ strm.add( "  failed.\nProcess stopped\n" ).flush(); return false; }
+	{ strm << "  failed.\nProcess stopped\n" << od_endl; return false; }
 
     res = horcr.finish( &tr );
     return res;

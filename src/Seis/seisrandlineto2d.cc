@@ -306,8 +306,8 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
     strm_ << "Finished processing." << od_endl;
     if ( !SI().has2D() )
     {
-	strm_ << "PLEASE NOTE THAT YOU NEED TO CHANGE SURVEY TYPE\n"
-		<< " TO 'Both 2D and 3D' TO DISPLAY THE 2D LINES";
+	strm_ << "Please note that you need to change SURVEY TYPE\n"
+		<< " to 'Both 2D and 3D' to display the 2D lines";
 	strm_.flush();
     }
 

@@ -65,9 +65,8 @@ void TextStreamProgressMeter::setStarted()
     {
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
 	strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
-	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << '\n';
+	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << od_endl;
         oldtime_ = Time::getMilliSeconds();
-	strm_.flush();
 	finished_ = false;
 	inited_ = true;
     }

@@ -88,7 +88,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
     strm << od_newline;
 
-    strm << "Preparing processing"; strm.flush();
+    strm << "Preparing processing" << od_endl;
     const char* seisid = pars().find( "Output.0.Seismic.ID" );
     if ( !seisid )
 	seisid = pars().find( "Output.1.Seismic ID" );
@@ -123,9 +123,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    	 isdir ? "is not writeable" : "does not exist")
 	}
 
-	strm << " of '" << ioobj->name() << "'.\n";
-	strm.flush();
-
+	strm << " of '" << ioobj->name() << "'.\n" << od_endl;
     }
 
     Attrib::DescSet attribset( false );
@@ -214,7 +212,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		strm << "\nEstimated number of positions to be processed"
 		     <<"(assuming regular input): "<< proc->totalNr()
-		     << "\nLoading cube data ...\n"; strm.flush();
+		     << "\nLoading cube data ...\n" << od_endl;
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 

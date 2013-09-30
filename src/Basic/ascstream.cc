@@ -83,8 +83,7 @@ bool ascostream::putHeader( const char* fltyp )
 
 void ascostream::newParagraph()
 {
-    strm_ << mAscStrmParagraphMarker << od_newline;
-    strm_.flush();
+    strm_ << mAscStrmParagraphMarker << od_endl;
 }
 
 

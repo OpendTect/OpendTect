@@ -114,10 +114,7 @@ Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
 void UsrMsg( const char* msg, MsgClass::Type t )
 {
     if ( !MsgClass::theCB().willCall() )
-    {
-	OD::logMsgStrm() << msg << od_newline;
-	OD::logMsgStrm().flush();
-    }
+	OD::logMsgStrm() << msg << od_endl;
     else
     {
 	MsgClass obj( msg, t );
@@ -143,7 +140,7 @@ void ErrMsg( const char* msg, bool progr )
 	else if ( msg && *msg )
 	{
 	    const char* start = *msg == '[' ? "" : "Err: ";
-	    OD::logMsgStrm().add( start ).add( msg ).add( od_newline ).flush();
+	    OD::logMsgStrm() << start  << msg << od_endl;
 	}
     }
     else

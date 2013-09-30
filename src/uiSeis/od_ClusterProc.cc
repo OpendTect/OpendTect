@@ -86,11 +86,11 @@ int main( int argc, char ** argv )
     }
 
     od_ostream logstrm( std::cout );
-    logstrm.add( "Merging output ...\n" ).flush();
+    logstrm << "Merging output ..." << od_endl;
     TextTaskRunner tr( logstrm );
     BufferString msg;
     const bool result = uiClusterProc::mergeOutput( iop, &tr, msg, withdelete );
-    logstrm.add( msg ).flush();
+    logstrm << msg << od_endl;
     ExitProgram( result ? 0 : 1 );
     return 0;
 }
