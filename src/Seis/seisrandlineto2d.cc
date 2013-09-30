@@ -213,7 +213,7 @@ od_int64 SeisRandLineTo2D::totalNr() const
 
 
 #define mNotOKRet(s) \
-	{ isok_ = false; strm_ << s << od_newline; strm_.flush(); return; }
+	{ isok_ = false; strm_ << s << od_endl; return; }
 
 SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
     : isok_(true),strm_(s)
@@ -260,7 +260,7 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 
 
 #undef mNotOKRet
-#define mFalseRet(s) { strm_ << s << od_newline; strm_.flush(); return false; }
+#define mFalseRet(s) { strm_ << s << od_endl; return false; }
 
 bool SeisRandLineTo2DGrid::createGrid()
 {
@@ -298,13 +298,12 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	linenm += strsuffix;
 	LineKey lk( linenm, outpattrib_.buf() );
 	SeisRandLineTo2D exec( *inpobj_, *outpobj_, lk, 1, *rln );
-	strm_ << "Creating 2D line " << linenm << ":" << od_newline;
-	strm_.flush();
+	strm_ << "Creating 2D line " << linenm << ":" << od_endl;
 	if ( !exec.go(strm_) )
-	    strm_ << "Failedto create line " << linenm << od_newline;
+	    strm_ << "Failedto create line " << linenm << od_endl;
     }
 
-    strm_ << "Finished processing." << od_newline;
+    strm_ << "Finished processing." << od_endl;
     if ( !SI().has2D() )
     {
 	strm_ << "PLEASE NOTE THAT YOU NEED TO CHANGE SURVEY TYPE\n"

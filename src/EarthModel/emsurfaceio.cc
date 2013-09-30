@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "filepath.h"
+#include <limits.h>
 
 
 namespace EM

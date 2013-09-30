@@ -52,8 +52,7 @@ void TextStreamProgressMeter::setFinished()
     annotate(false);
     finished_ = true;
 
-    strm_ << "\nFinished: "  << Time::getDateTimeString() << od_newline;
-    strm_.flush();
+    strm_ << "\nFinished: "  << Time::getDateTimeString() << od_endl;
     lock.unlockNow();
     reset();
 }
@@ -192,8 +191,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
 
 	strm_ << " (" << eta << ")";
     }
-
-    strm_ << od_newline; strm_.flush();
+    strm_ << od_endl;
 
     lastannotatednrdone_ = nrdone_;
     oldtime_ = newtime; 

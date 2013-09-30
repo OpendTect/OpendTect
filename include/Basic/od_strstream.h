@@ -26,6 +26,8 @@ public:
 
     const char*		input() const;
 
+    void		setInput(const char*);
+
 };
 
 
@@ -38,6 +40,8 @@ public:
     			od_ostrstream();
 
     const char*		result() const;
+
+    void		setEmpty();
 
 };
 

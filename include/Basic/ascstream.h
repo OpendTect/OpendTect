@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "plftypes.h"
 #include "od_iostream.h"
 #include <iosfwd>
-#include <limits.h>
 
 #define mAscStrmParagraphMarker		"!"
 #define mAscStrmKeyValSep		':'

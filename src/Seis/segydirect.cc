@@ -28,8 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "survinfo.h"
 
-#include <iostream>
-
 
 namespace SEGY
 {
@@ -127,7 +125,7 @@ FileDataSet::TrcIdx findOcc( const Seis::PosKey& pk,
     , cubedata_( *new PosInfo::CubeData ) \
     , linedata_( *new PosInfo::Line2DData ) \
     , indexer_( 0 ) \
-    , outstreamdata_( 0 )
+    , outstream_( 0 )
 
 SEGY::DirectDef::DirectDef()
     mDefMembInitList
@@ -149,11 +147,8 @@ SEGY::DirectDef::~DirectDef()
     delete myfds_;
     delete keylist_;
     delete indexer_;
-    if ( outstreamdata_ )
-    {
-	outstreamdata_->close();
-	delete outstreamdata_;
-    }
+    if ( outstream_ )
+	delete outstream_;
 }
 
 
@@ -223,15 +218,15 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
 
 bool SEGY::DirectDef::readFromFile( const char* fnm )
 {
-    od_istream odstrm( fnm );
-    if ( !odstrm.isOK() )
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
     {
 	BufferString msg( "Cannot open '",fnm,"':\n");
-	msg.add( odstrm.errMsg() );
+	msg.add( strm.errMsg() );
 	mErrRet( msg )
     }
 
-    ascistream astrm( odstrm, true );
+    ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
 	mErrRet(BufferString("Input file '",fnm,"' has wrong file type"))
 
@@ -270,24 +265,24 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	IOPar segypars;
 	segypars.getFrom( astrm );
 
-	std::istream& stdstrm = odstrm.stdStream();
+	std::istream& stdstrm = strm.stdStream();
 	const od_stream::Pos datastart =
-	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
 	const od_stream::Pos textpars =
-	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
 	const od_stream::Pos cubedatastart =
-	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
+	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
 	const od_stream::Pos indexstart =
-	    DataInterpreter<od_stream::Pos>::get(int64interp,stdstrm);
-	if ( !odstrm.isOK() )
+	    DataInterpreter<od_int64>::get(int64interp,stdstrm);
+	if ( !strm.isOK() )
 	    mErrRet( readerror );
 
-	odstrm.setPosition( textpars, od_stream::Abs );
-	ascistream astrm2( odstrm, false );
+	strm.setPosition( textpars );
+	ascistream astrm2( strm, false );
 
 	IOPar iop2;
 	iop2.getFrom( astrm2 );
-	if ( !odstrm.isOK() )
+	if ( !strm.isOK() )
 	    mErrRet( readerror );
 
 	FixedString int32typestr = iop1.find( sKeyInt32DataChar() );
@@ -300,11 +295,11 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( readerror );
 	}
 
-	const od_stream::Pos curpos = odstrm.position();
+	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
-	    odstrm.setPosition( cubedatastart, od_stream::Abs );
+	    strm.setPosition( cubedatastart );
 
-	if ( !cubedata_.read(odstrm,false) || !linedata_.read(odstrm,false) )
+	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
 	    { delete fds; mErrRet( readerror ); }
 
 	delete keylist_;
@@ -350,15 +345,26 @@ const IOPar* SEGY::DirectDef::segyPars() const
 }\
     par.set( string, dc )
 
+#define mWriteOffset(var) strm.addBin( &var, sizeof(var) )
+#define mWriteOffsets \
+    mWriteOffset(datastart_); mWriteOffset(textparstart_); \
+    mWriteOffset(cubedatastart_); mWriteOffset(indexstart_)
+
 
 bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 {
-    delete outstreamdata_;
-    outstreamdata_ = new StreamData( StreamProvider(fnm).makeOStream() );
-    if ( !outstreamdata_->usable() )
-	mErrRet(BufferString("Cannot open '",fnm,"' for write"))
+    delete outstream_;
+    outstream_ = new od_ostream( fnm );
+    if ( !outstream_->isOK() )
+    {
+	BufferString msg( "Cannot open '", fnm, "' for write" );
+	outstream_->addErrMsgTo( msg );
+	delete outstream_; outstream_ = 0;
+	mErrRet( msg );
+    }
 
-    ascostream astrm( *outstreamdata_->ostrm );
+    od_ostream& strm = *outstream_;
+    ascostream astrm( strm );
     astrm.putHeader( sKeyFileType() );
 
     IOPar iop1;
@@ -370,70 +376,57 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     iop1.putTo( astrm );
     fds_->segyPars().putTo( astrm );
 
-    std::ostream& strm = *outstreamdata_->ostrm;
-    offsetstart_ = strm.tellp();
+    offsetstart_ = strm.position();
     
     //Reserve space for offsets, which are written at the end
-    datastart_ = 0; 
-    textparstart_ = 0; 
-    cubedatastart_ = 0; 
-    indexstart_ = 0; 
-
-#define mWriteOffsets \
-    strm.write( (const char*) &datastart_, sizeof(datastart_) ); \
-    strm.write( (const char*) &textparstart_, sizeof(textparstart_) ); \
-    strm.write( (const char*) &cubedatastart_, sizeof(cubedatastart_) ); \
-    strm.write( (const char*) &indexstart_, sizeof(indexstart_) )
+    datastart_ = textparstart_ = cubedatastart_ = indexstart_ = 0; 
 
     mWriteOffsets;
 
     //Write the data
-    datastart_ = strm.tellp();
+    datastart_ = strm.position();
 
-    return strm.good();
+    return strm.isOK();
 }
 
 
 bool SEGY::DirectDef::writeFootersToFile() 
 {
-    if ( !outstreamdata_ )
+    if ( !outstream_ )
 	return false;
-
-    std::ostream& strm = *outstreamdata_->ostrm;
+    od_ostream& strm = *outstream_;
 
     strm << "\n!\n"; //Just for nice formatting
 
-    cubedatastart_ = strm.tellp();
+    cubedatastart_ = strm.position();
 
     getPosData( cubedata_ );
     getPosData( linedata_ );
 
-    od_ostream odstrm( strm );
-    cubedata_.write( odstrm, false );
-    linedata_.write( odstrm, false );
+    cubedata_.write( strm, false );
+    linedata_.write( strm, false );
 
-    indexstart_ = strm.tellp();
+    indexstart_ = strm.position();
 
-    indexer_->dumpTo( strm );
+    indexer_->dumpTo( strm.stdStream() );
 
     //Put this at the end, so one can manipulate the filenames without
     //breaking the indexing
-    textparstart_ = strm.tellp();
+    textparstart_ = strm.position();
     IOPar iop2;
     fds_->fillPar( iop2 );
 
     ascostream astrm2( strm );
     iop2.putTo( astrm2 );
 
-    const od_int64 eof = strm.tellp();
-    strm.seekp( offsetstart_, std::ios::beg  );
+    const od_stream::Pos eofpos = strm.position();
+    strm.setPosition( offsetstart_ );
     mWriteOffsets;
 
-    strm.seekp( eof, std::ios::beg );
-    const bool res = strm.good();
-    outstreamdata_->close();
-    delete outstreamdata_;
-    outstreamdata_ = 0;
+    strm.setPosition( eofpos );
+    const bool res = strm.isOK();
+    delete outstream_;
+    outstream_ = 0;
 
     return res;
 }
@@ -490,12 +483,6 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
     }
 
     ld.setZRange( fds_->getSampling().interval(fds_->getTrcSz()) );
-}
-
-
-std::ostream* SEGY::DirectDef::getOutputStream()
-{
-    return outstreamdata_ ? outstreamdata_->ostrm : 0;
 }
 
 
@@ -583,7 +570,8 @@ int SEGY::FileIndexer::nextStep()
 	if ( !directdef_->writeHeadersToFile( outfile ) )
 	    mErrRet( "Cannot write to file", outfile )
 
-	scanner_->fileDataSet().setOutputStream(*directdef_->getOutputStream());
+	scanner_->fileDataSet().setOutputStream(
+			directdef_->getOutputStream()->stdStream() );
 	return MoreToDo();
     }
 

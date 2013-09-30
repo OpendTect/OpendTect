@@ -56,12 +56,10 @@ bool uiVarWizard::mustLeave( uiVarWizardDlg* dlg )
 
 uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
 			IOPar& pars, uiVarWizardDlg::Position pos )
-    : uiDialog(p,uiDialog::Setup(su).okcancelrev(true))
+    : uiDialog(p,uiDialog::Setup(su).modal(false).okcancelrev(true))
     , pars_(pars)
     , pos_(pos)
 {
-    setModal( false );
-
     if ( pos_ == End )
 	setOkText( "&Go" );
     else

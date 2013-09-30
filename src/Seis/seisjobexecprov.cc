@@ -24,14 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "strmprov.h"
 #include "ptrman.h"
+#include "od_iostream.h"
+#include "strmdata.h"
 #include "survinfo.h"
 #include "surv2dgeom.h"
 #include "cubesampling.h"
 #include "separstr.h"
-#include <iostream>
-#include <sstream>
 
 const char* SeisJobExecProv::sKeySeisOutIDKey()	    { return "Output Seismics Key"; }
 const char* SeisJobExecProv::sKeyOutputLS()	    { return "Output Line Set"; }
@@ -187,12 +186,11 @@ bool SeisJobExecProv::emitLSFile( const char* fnm ) const
 {
     if ( !outls_ ) return false;
 
-    StreamData sd = StreamProvider(fnm).makeOStream();
-    if ( !sd.usable() )
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
 	return false;
 
-    outls_->putTo( *sd.ostrm );
-    sd.close();
+    outls_->putTo( strm );
     return !File::isEmpty( fnm );
 }
 
@@ -306,10 +304,12 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	BufferString fnm( "i." ); fnm += inl;
 	FilePath fp( basefp, fnm );
 	fnm = fp.fullPath();
-	StreamData sd = StreamProvider( fnm ).makeIStream();
-	bool isok = sd.usable();
+	od_istream strm( fnm );
+	bool isok = strm.isOK();
 	if ( isok )
 	{
+	    StreamData sd;
+	    strm.releaseStream( sd );
 	    CBVSReader rdr( sd.istrm, false ); // stream closed by reader
 	    isok = !rdr.errMsg();
 	    if ( isok )

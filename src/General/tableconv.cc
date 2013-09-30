@@ -271,7 +271,7 @@ const char* Table::WSExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
-    strm_ << od_newline; strm_.flush();
+    strm_ << od_endl;
     return getStrmMsg();
 }
 
@@ -296,7 +296,7 @@ const char* Table::CSVExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
-    strm_ << od_newline; strm_.flush();
+    strm_ << od_endl;
     return getStrmMsg();
 }
 
@@ -360,8 +360,7 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx+idxoffs, row.get(idx) );
 
-    strm_ << ");";
-    strm_ << od_newline; strm_.flush();
+    strm_ << ");" << od_endl;
 
     nrrows_++;
     return getStrmMsg();

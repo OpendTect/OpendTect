@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "linekey.h"
 #include "objectset.h"
-#include <iosfwd>
+#include "od_iosfwd.h"
 
 class IOPar;
 class IOObj;
@@ -109,8 +109,8 @@ public:
     bool		haveMatch(int,const BinIDValueSet&) const;
     			//!< Uses getGeometry
 
-    void		getFrom(std::istream&,BufferString*);
-    void		putTo(std::ostream&) const;
+    void		getFrom(od_istream&,BufferString*);
+    void		putTo(od_ostream&) const;
 
     static void		invalidateCache();
 
@@ -139,7 +139,7 @@ public:
 private:
     bool		getGeometry(PosInfo::LineSet2DData&) const;
     bool		getGeometry(int,PosInfo::Line2DData&) const;
-    Executor*		geometryDumper(std::ostream&,bool inc_nr,
+    Executor*		geometryDumper(od_ostream&,bool inc_nr,
 	    				float z_val=mUdf(float),
 	    				const char* linekey=0) const;
 

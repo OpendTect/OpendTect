@@ -62,6 +62,7 @@ public:
 
     od_ostream&		add(const void*); //!< produces pErrMsg but works
     od_ostream&		addPtr(const void*);
+    od_ostream&		add( od_ostream& )		{ return *this; }
 
     bool		addBin(const void*,Count nrbytes);
     std::ostream&	stdStream();
@@ -72,7 +73,6 @@ public:
 
 };
 
-
 template <class T>
 inline od_ostream& operator <<( od_ostream& s, const T& t )
 { return s.add( t ); }
@@ -80,6 +80,16 @@ inline od_ostream& operator <<( od_ostream& s, const T& t )
 
 #define od_tab '\t'
 #define od_newline '\n'
+inline od_ostream& od_endl( od_ostream& strm )
+{
+    strm.add( od_newline ).flush();
+    return strm;
+}
+
+typedef od_ostream& (*od_ostrmfn)(od_ostream&);
+inline od_ostream& operator <<( od_ostream& s, od_ostrmfn fn )
+{ return (*fn)( s ); }
+
 
 
 #endif

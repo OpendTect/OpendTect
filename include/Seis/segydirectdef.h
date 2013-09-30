@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "segyfiledata.h"
 #include "bufstringset.h"
 #include "executor.h"
+#include "od_iosfwd.h"
 
-class StreamData;
 class IOObj;
 namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
@@ -53,7 +53,7 @@ public:
     bool		writeHeadersToFile(const char*);
     			/*!<Write the headers. After calling, the fds should
 			    be dumped into the stream. */
-    std::ostream*	getOutputStream();
+    od_ostream*		getOutputStream()	{ return outstream_; }
     bool		writeFootersToFile();
     			/*!<After fds has been dumped, write the 
 			    remainder of the file */
@@ -78,7 +78,6 @@ protected:
     void		getPosData(PosInfo::CubeData&) const;
     void		getPosData(PosInfo::Line2DData&) const;
 
-
     PosInfo::CubeData&	 cubedata_;
     PosInfo::Line2DData& linedata_;
 
@@ -89,12 +88,12 @@ protected:
 
     mutable BufferString errmsg_;
 
-    StreamData*		outstreamdata_;
-    od_int64		offsetstart_;
-    od_int64		datastart_;
-    od_int64		textparstart_;
-    od_int64		cubedatastart_;
-    od_int64		indexstart_;
+    od_ostream*		outstream_;
+    od_stream_Pos	offsetstart_;
+    od_stream_Pos	datastart_;
+    od_stream_Pos	textparstart_;
+    od_stream_Pos	cubedatastart_;
+    od_stream_Pos	indexstart_;
 };
 
 

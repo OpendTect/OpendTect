@@ -521,12 +521,23 @@ od_istrstream::od_istrstream( const char* str )
 }
 
 
+#define mGetStdStream(clss,stdclss,cnst,var) \
+    clss& self = const_cast<clss&>( *this ); \
+    cnst std::stdclss& var = static_cast<cnst std::stdclss&>( self.stdStream() )
+
+
 const char* od_istrstream::input() const
 {
-    od_istrstream& self = const_cast<od_istrstream&>( *this );
-    const std::istringstream& stdstrstrm
-		= static_cast<const std::istringstream&>( self.stdStream() );
+    mGetStdStream(od_istrstream,istringstream,const,stdstrstrm);
     return stdstrstrm.str().c_str();
+}
+
+
+void od_istrstream::setInput( const char* inp )
+{
+    mGetStdStream(od_istrstream,istringstream,,stdstrstrm);
+    stdstrstrm.str( inp ? inp : "" );
+    stdstrstrm.clear();
 }
 
 
@@ -538,8 +549,14 @@ od_ostrstream::od_ostrstream()
 
 const char* od_ostrstream::result() const
 {
-    od_ostrstream& self = const_cast<od_ostrstream&>( *this );
-    const std::ostringstream& stdstrstrm
-		= static_cast<const std::ostringstream&>( self.stdStream() );
+    mGetStdStream(od_ostrstream,ostringstream,const,stdstrstrm);
     return stdstrstrm.str().c_str();
+}
+
+
+void od_ostrstream::setEmpty()
+{
+    mGetStdStream(od_ostrstream,ostringstream,,stdstrstrm);
+    stdstrstrm.str( "" );
+    stdstrstrm.clear();
 }
