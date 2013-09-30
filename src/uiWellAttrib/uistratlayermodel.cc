@@ -99,10 +99,10 @@ void startCB( CallBacker* cb )
     const BufferStringSet& nms =
 			uiLayerSequenceGenDesc::factory().getNames( true );
     mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( Strat::RT().isEmpty() || nms.isEmpty() || !tb )
+    if ( Strat::RT().isEmpty() || nms.isEmpty() )
 	{ pErrMsg("Pre-condition not met"); return; }
 
-    uiParent* par = tb->parent();
+    uiParent* par = tb ? tb->parent() : &StratTreeWin();
     const char* settres = Settings::common().find(
 	    			uiStratLayerModel::sKeyModeler2Use());
     BufferString modnm( settres );
