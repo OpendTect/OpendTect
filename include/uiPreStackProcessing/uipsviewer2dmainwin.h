@@ -26,7 +26,7 @@ class uiSlicePos2DView;
 class uiColorTableSel;
 
 namespace PreStack { class Gather; class MuteDef; class ProcessManager;
-		     class VelocityBasedAngleComputer; }
+		     class VelocityBasedAngleComputer; class AngleCompParams; }
 namespace FlatView { class AuxData; }
 namespace PreStackView
 {
@@ -37,7 +37,17 @@ namespace PreStackView
     class uiGatherDisplayInfoHeader;
     class uiPSMultiPropDlg;
 
-mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin, public uiFlatViewWin
+mExpClass(uiPreStackProcessing) PSViewAppearance : public FlatView::Appearance
+{
+public:
+    BufferString	datanm_;
+    bool operator==( const PSViewAppearance& psapp ) const
+    { return datanm_ == psapp.datanm_; }
+};
+
+
+mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
+						  , public uiFlatViewWin
 {
 public:    
 			uiViewer2DMainWin(uiParent*,const char* title);
@@ -55,6 +65,8 @@ public:
     void		getStartupPositions(const BinID& bid,
 	    				    const StepInterval<int>& trcrg,
 					    bool isinl, TypeSet<BinID>&) const;
+    void		setAppearance(const FlatView::Appearance&,
+	    			       int appidx=0);
 
     Notifier<uiViewer2DMainWin> seldatacalled_;
     const TypeSet<GatherInfo>&	gatherInfos() const	{ return gatherinfos_; }
@@ -75,6 +87,8 @@ protected:
     ObjectSet<uiGatherDisplay>	gd_;
     ObjectSet<uiGatherDisplayInfoHeader> gdi_;
     PreStack::ProcessManager*	preprocmgr_;
+    TypeSet<PSViewAppearance>	appearances_;
+    bool		hasangledata_;
 
     void		removeAllGathers();
     void		reSizeItems();
@@ -86,12 +100,6 @@ protected:
     PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
-    void		setAngleData(int idx, PreStack::Gather* gather,
-				     PreStack::Gather* angledata,
-				     const Interval<int>& anglerange);
-    void		setAngleGather(int idx, PreStack::Gather* anglegather);
-    void		displayAngle(bool isanglegather);
-    void		convAngleDatatoDegrees(PreStack::Gather* angledata);
     DataPack::ID	getPreProcessedID(const GatherInfo&);
     void		setGatherforPreProc(const BinID& relbid,
 	    				    const GatherInfo&);
@@ -108,15 +116,17 @@ protected:
     void 		dataDlgPushed(CallBacker*);
     void		showZAxis(CallBacker*);
     void		loadMuteCB(CallBacker*);
-    void		angleGatherCB(CallBacker*);
-    void		angleDataCB(CallBacker*);
     void		snapshotCB(CallBacker*);
     void		preprocessingCB(CallBacker*);
     void		applyPreProcCB(CallBacker*);
+    void		propChangedCB(CallBacker*);
+    void		prepareNewAppearances(BufferStringSet oldgathernms,
+	    				      BufferStringSet newgathernms);
 };
 
 
-mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin : public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin
+					: public uiViewer2DMainWin
 {
 public:
 			uiStoredViewer2DMainWin(uiParent*,const char* title);
@@ -129,20 +139,31 @@ public:
     void		getGatherNames(BufferStringSet& nms) const;
     virtual bool	is2D() const	{ return is2d_; }
     const char*		lineName() const	{ return linename_; }
+    void		angleGatherCB(CallBacker*);
+    void		angleDataCB(CallBacker*);
     
 protected:
     TypeSet<MultiID> 	mids_;
 
     bool		is2d_;
     BufferString	linename_;
+    PreStack::AngleCompParams* angleparams_;
+    bool		doanglegather_;
+
+    void		displayAngle();
+    bool		getAngleParams();
     void		setGatherInfo(uiGatherDisplayInfoHeader* info,
 	    			      const GatherInfo&);
     void		setGather(const GatherInfo&); 
+    void		convAngleDataToDegrees(
+	    			PreStack::Gather* angledata) const;
+    DataPack::ID	getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
 };
 
 
-mExpClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin : public uiViewer2DMainWin
+mExpClass(uiPreStackProcessing) uiSyntheticViewer2DMainWin
+					: public uiViewer2DMainWin
 {
 public:
     			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
@@ -158,7 +179,7 @@ protected:
 
     void		setGatherInfo(uiGatherDisplayInfoHeader* info,
 	    			      const GatherInfo&);
-    void		setGather(const GatherInfo&); 
+    void		setGather(const GatherInfo&);
 };
 
 
@@ -170,12 +191,14 @@ public:
 
     Notifier<uiViewer2DControl> posdlgcalled_;
     Notifier<uiViewer2DControl> datadlgcalled_;
+    Notifier<uiViewer2DControl> propChanged;
 
     void 			removeAllViewers();
     const FlatView::DataDispPars& dispPars() const    { return app_.ddpars_; }
     FlatView::DataDispPars&	dispPars()	      { return app_.ddpars_; }
     void			setGatherInfos( const TypeSet<GatherInfo>& gis )
 				{ gatherinfos_ = gis; }
+    PSViewAppearance		curViewerApp();
 
 protected:
 

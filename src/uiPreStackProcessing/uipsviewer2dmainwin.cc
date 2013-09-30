@@ -112,12 +112,22 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
+    uiPushButton* applybut =
+	new uiPushButton( this, "Apply", mCB(this,uiPSPreProcessingDlg,applyCB),
+			  true );
+    applybut->attach( alignedBelow, preprocgrp_ );
 }
 
 
 protected:
 
 bool acceptOK( CallBacker* )
+{
+    return applyCB( 0 );
+}
+
+
+bool applyCB( CallBacker* )
 {
     if ( preprocgrp_->isChanged() )
     {
@@ -156,16 +166,6 @@ void uiViewer2DMainWin::applyPreProcCB( CallBacker* )
 
 void uiViewer2DMainWin::setUpView()
 {
-    ColTab::MapperSetup prevvdmapper;
-    ColTab::MapperSetup prevwvamapper;
-    BufferString vdctab;
-    if ( nrViewers() )
-    {
-	prevvdmapper = vwrs_[0]->appearance().ddpars_.vd_.mappersetup_;
-	prevwvamapper = vwrs_[0]->appearance().ddpars_.wva_.mappersetup_;
-	vdctab = vwrs_[0]->appearance().ddpars_.vd_.ctab_;
-    }
-
     uiMainWin win( this, "Creating gather displays ... " );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
@@ -175,7 +175,7 @@ void uiViewer2DMainWin::setUpView()
 
     removeAllGathers();
 
-    if ( preprocmgr_ && (!preprocmgr_->nrProcessors() || !preprocmgr_->reset()))
+    if ( preprocmgr_ && !preprocmgr_->reset() )
 	return uiMSG().error( "Can not preprocess data" );
 
     int nrvwr = 0;
@@ -187,17 +187,7 @@ void uiViewer2DMainWin::setUpView()
     }
 
     control_->setGatherInfos( gatherinfos_ );
-    for ( int idx=0; idx<nrViewers(); idx++ )
-    {
-	ColTab::MapperSetup& vdmapper =
-	    vwrs_[idx]->appearance().ddpars_.vd_.mappersetup_;
-	vdmapper = prevvdmapper;
-	vwrs_[idx]->appearance().ddpars_.vd_.ctab_ = vdctab;
-	ColTab::MapperSetup& wvamapper =
-	    vwrs_[idx]->appearance().ddpars_.wva_.mappersetup_;
-	wvamapper = prevwvamapper;
-    }
-    
+
     displayMutes();
     reSizeSld(0);
 }
@@ -364,19 +354,8 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 }
 
 
-void uiViewer2DMainWin::setAngleGather( int idx, PreStack::Gather* anglegather )
-{
-    if ( !gd_.validIdx(idx) || !gd_[idx] )
-    { delete anglegather; return; }
-
-    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
-    gd_[idx]->setVDGather( anglegather->id() );
-    gd_[idx]->updateViewRange();
-    DPM(DataPackMgr::FlatID()).release( anglegather );
-}
-
-
-void uiViewer2DMainWin::convAngleDatatoDegrees( PreStack::Gather* angledata )
+void uiStoredViewer2DMainWin::convAngleDataToDegrees(
+	PreStack::Gather* angledata ) const
 {
     if ( !angledata || !angledata->data().getData() )
 	return;
@@ -387,114 +366,6 @@ void uiViewer2DMainWin::convAngleDatatoDegrees( PreStack::Gather* angledata )
 
     for( int idx = 0; idx<size; idx++ )
 	ptr[idx] *= 180 / M_PIf;
-}
-
-
-void uiViewer2DMainWin::setAngleData( int idx,
-				      PreStack::Gather* gather, 
-				      PreStack::Gather* angledata,
-				      const Interval<int>& anglerange )
-{
-    if ( !gd_.validIdx(idx) || !(gd_[idx] && gd_[idx]->getUiFlatViewer()) )
-    { delete gather; delete angledata; return; }
-
-    uiFlatViewer* vwr = gd_[idx]->getUiFlatViewer();
-    vwr->appearance().ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
-    ColTab::MapperSetup& mapper = vwr->appearance().ddpars_.vd_.mappersetup_;
-    mapper.type_ = ColTab::MapperSetup::Fixed;
-    mapper.range_ = Interval<float>( (float) anglerange.start, 
-				     (float) anglerange.stop );
-    
-    convAngleDatatoDegrees( angledata );
-    GatherInfo dummyginfo;
-    dummyginfo.isstored_ = true;
-    dummyginfo.bid_ = gather->getBinID();
-    dummyginfo.mid_ = gather->getStoredID();
-    const int actginfoidx = gatherinfos_.indexOf( dummyginfo );
-    DataPack::ID ppgatherid = -1;
-    if ( preprocmgr_ && actginfoidx<0 )
-	ppgatherid = getPreProcessedID( gatherinfos_[actginfoidx] );
-
-    BufferString angledpnm( gather->name(), " Incidence Angle" );
-    angledata->setName( angledpnm );
-    DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-    DPM(DataPackMgr::FlatID()).addAndObtain( angledata );
-    gd_[idx]->setWVAGather( ppgatherid>=0 ? ppgatherid : gather->id() );
-    gd_[idx]->setVDGather( angledata->id() );
-    gd_[idx]->updateViewRange();
-    DPM(DataPackMgr::FlatID()).release( angledata );
-    DPM(DataPackMgr::FlatID()).release( gather );
-}
-
-
-void uiViewer2DMainWin::angleGatherCB( CallBacker* )
-{
-    displayAngle( true );
-}
-
-
-void uiViewer2DMainWin::angleDataCB( CallBacker* )
-{
-    displayAngle( false );
-}
-
-
-void uiViewer2DMainWin::displayAngle( bool isanglegather )
-{
-    FixedString windowtitle = isanglegather ? "Angle Gather Display" 
-					    : "Angle Data Display";
-
-    BufferString windowcaption = "Specify Parameters for ";
-    windowcaption += windowtitle;
-    uiDialog angledisplaydlg( this, uiDialog::Setup(windowtitle,
-						windowcaption,"51.1.3") );
-
-    PreStack::AngleCompParams params;
-    if ( !isanglegather ) params.anglerange_ = Interval<int>( 0 , 60 );
-    PreStack::uiAngleCompGrp anglegrp( &angledisplaydlg, params, false, false );
-    if ( !angledisplaydlg.go() || !anglegrp.acceptOK() )
-	return;
-
-    PreStack::VelocityBasedAngleComputer velangcomp;
-    velangcomp.setMultiID( params.velvolmid_ );
-    velangcomp.setRayTracer( params.raypar_ );
-    velangcomp.setSmoothingPars( params.smoothingpar_ );
-    const int nrgathers = gatherinfos_.size();
-    PreStack::Gather* angledata = 0;
-    
-    int gatheridx = -1; 
-    for ( int idx=0; idx<nrgathers; idx++ )
-    {
-	if ( !gatherinfos_[idx].isselected_ ) continue;
-
-	gatheridx++;
-	const MultiID mid = gatherinfos_[idx].mid_;
-	const BinID bid = gatherinfos_[idx].bid_;
-	PreStack::Gather* gather = new PreStack::Gather;
-
-	if ( !gather->readFrom(mid,bid) )
-	{ delete gather; continue; }
-	
-	const FlatPosData& fp = gather->posData();
-	velangcomp.setOutputSampling( fp );
-	velangcomp.setTraceID( gather->getBinID() );
-	angledata = velangcomp.computeAngles();
-	if ( !angledata )
-	{ delete gather; continue; }
-
-	if ( isanglegather )
-	{
-	    PreStack::Gather* anglegather = getAngleGather( *gather, *angledata, 
-							   params.anglerange_ );
-	    if ( anglegather )
-		setAngleGather( gatheridx, anglegather );
-
-	    delete gather; delete angledata;
-	}
-	else
-	    setAngleData( gatheridx, gather, angledata, params.anglerange_ );
-    
-    }
 }
 
 
@@ -560,8 +431,7 @@ void updateGatherNames()
 
 void gatherChanged( CallBacker* )
 {
-    BufferString curgathernm =
-	datasetcb_->textOfItem( datasetcb_->currentItem() );
+    BufferString curgathernm = curGatherName();
     activevwridxs_.erase();
     int curvwridx = 0;
     for ( int gidx=0; gidx<ginfos_.size(); gidx++ )
@@ -584,6 +454,13 @@ void getGatherNames( BufferStringSet& gnms )
 }
 
 
+BufferString curGatherName() const
+{
+    BufferString curgathernm =
+	datasetcb_->textOfItem( datasetcb_->currentItem() );
+    return curgathernm;
+}
+
 const TypeSet<int> activeViewerIdx() const	{ return activevwridxs_; }
 ObjectSet<uiFlatViewer>&	vwrs_;
 TypeSet<GatherInfo>		ginfos_;
@@ -600,8 +477,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     gd->setPosition( gd->getBinID(), cs_.zrg.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
-    gd->displayAnnotation( true );
-    if ( vwrs_.size()>0 ) fv->appearance().annot_.x2_.showannot_ = false;
+    gd->displayAnnotation( false );
+    fv->appearance().annot_.x2_.showannot_ = false;
 
     vwrs_ += fv;
     addGroup( gd, gdi );
@@ -613,6 +490,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 			    mCB(this,uiViewer2DMainWin,posDlgPushed));
 	ctrl->datadlgcalled_.notify(
 			    mCB(this,uiViewer2DMainWin,dataDlgPushed));
+	ctrl->propChanged.notify(
+			    mCB(this,uiViewer2DMainWin,propChangedCB));
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
 	ctrl->toolBar()->addButton(
@@ -635,9 +514,11 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 		mDynamicCastGet(const uiStoredViewer2DMainWin*,storedwin,this);
 		if ( storedwin && !storedwin->is2D() )
 		{
-		    tb->addObject( 
-			new uiToolButton( tb,"anglegather","Display Angle Data",
-			    mCB(this,uiViewer2DMainWin,angleDataCB) ) );
+		    uiToolButtonSetup adtbsu(
+			    "anglegather", "Display Angle Data",
+			    mCB(this,uiStoredViewer2DMainWin,angleDataCB) );
+		    adtbsu.istoggle( true );
+		    tb->addObject( new uiToolButton(tb,adtbsu) );
 		}
 		
 		tb->addObject( 
@@ -647,8 +528,22 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	}
     }
 
-    fv->appearance().ddpars_ = control_->dispPars();
+    PSViewAppearance dummypsapp;
+    dummypsapp.datanm_ = gdi->getDataName();
+    const int actappidx = appearances_.indexOf( dummypsapp );
+    fv->appearance().ddpars_ =
+	actappidx<0 ? control_->dispPars() : appearances_[actappidx].ddpars_;
+    fv->handleChange( FlatView::Viewer::DisplayPars );
     control_->addViewer( *fv );
+}
+
+
+void uiViewer2DMainWin::propChangedCB( CallBacker* )
+{
+    PSViewAppearance curapp = control_->curViewerApp();
+    const int appidx = appearances_.indexOf( curapp );
+    if ( appidx>=0 )
+	appearances_[appidx] = curapp;
 }
 
 
@@ -658,7 +553,6 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	BufferStringSet gathernms;
 	getGatherNames( gathernms );
-	cs_.zrg.step = (cs_.zrg.stop-cs_.zrg.start)/10.0f;
 	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
 					!isStored() );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
@@ -711,7 +605,10 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title )
     : uiViewer2DMainWin(p,title)
     , linename_(0)
+    , angleparams_(0)
+    , doanglegather_(false)
 {
+    hasangledata_ = false;
 }
 
 
@@ -762,6 +659,7 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
     TypeSet<BinID> bids;
     getStartupPositions( bid, trcrg, isinl, bids );
     gatherinfos_.erase();
+    BufferStringSet oldgathernms, newgathernms;
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	GatherInfo ginfo;
@@ -770,19 +668,24 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 	ginfo.bid_ = bids[idx];
 	ginfo.isselected_ = true;
 	ginfo.gathernm_ = info.ioObj()->name();
+	newgathernms.addIfNew( ginfo.gathernm_ );
 	gatherinfos_ += ginfo;
     }
 
+    prepareNewAppearances( oldgathernms, newgathernms );
     setUpView();
 }
 
 
 void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 {
+    TypeSet<PSViewAppearance> oldapps = appearances_;
+    appearances_.erase();
     mids_.copy( mids );
     TypeSet<GatherInfo> oldginfos = gatherinfos_;
     gatherinfos_.erase();
 
+    BufferStringSet newgathernms, oldgathernms;
     for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
     {
 	for ( int midx=0; midx<mids_.size(); midx++ )
@@ -792,10 +695,22 @@ void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 	    GatherInfo ginfo = oldginfos[gidx];
 	    ginfo.gathernm_ = gatherioobj->name();
 	    ginfo.mid_ = mids_[midx];
-	    gatherinfos_.addIfNew( ginfo );
+	    newgathernms.addIfNew( ginfo.gathernm_ );
+	    if ( gatherinfos_.addIfNew(ginfo) )
+	    {
+		PSViewAppearance dummypsapp;
+		dummypsapp.datanm_ = gatherioobj->name();
+		const int oldappidx = oldapps.indexOf( dummypsapp );
+		if ( oldappidx>=0 )
+		{
+		    oldgathernms.addIfNew( ginfo.gathernm_ );
+		    appearances_.addIfNew( oldapps[oldappidx] );
+		}
+	    }
 	}
     }
 
+    prepareNewAppearances( oldgathernms, newgathernms );
     if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
     setUpView();
 }
@@ -838,6 +753,157 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 }
 
 
+DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
+{
+    if ( !hasangledata_ || !angleparams_ ) return -1;
+    DataPack* dp = DPM( DataPackMgr::FlatID() ).obtain( gatherid );
+    mDynamicCastGet(PreStack::Gather*,gather,dp);
+    if ( !gather ) return -1;
+    PreStack::VelocityBasedAngleComputer velangcomp;
+    velangcomp.setMultiID( angleparams_->velvolmid_ );
+    velangcomp.setRayTracer( angleparams_->raypar_ );
+    velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
+    const FlatPosData& fp = gather->posData();
+    velangcomp.setOutputSampling( fp );
+    velangcomp.setTraceID( gather->getBinID() );
+    PreStack::Gather* angledata = velangcomp.computeAngles();
+    if ( !angledata ) return -1;
+    BufferString angledpnm( gather->name(), " Incidence Angle" );
+    angledata->setName( angledpnm );
+    convAngleDataToDegrees( angledata );
+    DPM( DataPackMgr::FlatID() ).addAndObtain( angledata );
+    if ( doanglegather_ )
+    {
+	PreStack::Gather* anglegather =
+	     getAngleGather( *gather, *angledata, angleparams_->anglerange_ );
+	DPM( DataPackMgr::FlatID() ).addAndObtain( anglegather );
+	DPM( DataPackMgr::FlatID() ).release( angledata->id() );
+	return anglegather->id();
+    }
+    return angledata->id();
+}
+
+
+class uiAngleCompParDlg : public uiDialog
+{
+public:
+
+uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
+    : uiDialog(p,uiDialog::Setup("","","51.1.3"))
+{
+    FixedString windowtitle = isag ? "Angle Gather Display"
+				   : "Angle Data Display";
+
+    setTitleText( windowtitle );
+    BufferString windowcaption = "Specify Parameters for ";
+    windowcaption += windowtitle;
+    setCaption( windowcaption );
+    anglegrp_ = new PreStack::uiAngleCompGrp( this, acp, false, false );
+}
+
+protected:
+
+bool acceptOK( CallBacker* )
+{
+    return anglegrp_->acceptOK();
+}
+
+PreStack::uiAngleCompGrp*	anglegrp_;
+};
+
+
+bool uiStoredViewer2DMainWin::getAngleParams()
+{
+    if ( !angleparams_ )
+    {
+	angleparams_ = new PreStack::AngleCompParams;
+	if ( !doanglegather_ )
+	    angleparams_->anglerange_ = Interval<int>( 0 , 60 );
+    }
+
+    uiAngleCompParDlg agcompdlg( this, *angleparams_, doanglegather_ );
+    return agcompdlg.go();
+}
+
+
+void uiStoredViewer2DMainWin::angleGatherCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb);
+    if ( !tb ) return;
+    hasangledata_ = tb->isOn();
+    doanglegather_ = true;
+    if ( tb->isOn() )
+    {
+	if ( !getAngleParams() )
+	{
+	    tb->setOn( false );
+	    hasangledata_ = false;
+	    doanglegather_ = false;
+	    return;
+	}
+    }
+
+    displayAngle();
+}
+
+
+void uiStoredViewer2DMainWin::angleDataCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb);
+    if ( !tb ) return;
+    hasangledata_ = tb->isOn();
+    doanglegather_ = false;
+    if ( tb->isOn() )
+    {
+	if ( !getAngleParams() )
+	{
+	    tb->setOn( false );
+	    hasangledata_ = false;
+	    doanglegather_ = false;
+	    return;
+	}
+    }
+
+    displayAngle();
+}
+
+
+void uiStoredViewer2DMainWin::displayAngle()
+{
+    for ( int dataidx=0; dataidx<appearances_.size(); dataidx++ )
+    {
+	if ( doanglegather_ ) continue;
+	PSViewAppearance& psapp = appearances_[dataidx];
+	ColTab::MapperSetup& vdmapper = psapp.ddpars_.vd_.mappersetup_;
+	if ( hasangledata_ )
+	{
+	    psapp.ddpars_.vd_.show_ = true;
+	    psapp.ddpars_.wva_.show_ = true;
+	    vdmapper.autosym0_ = false;
+	    vdmapper.symmidval_ = mUdf(float);
+	    vdmapper.type_ = ColTab::MapperSetup::Fixed;
+	    Interval<float> anglerg(
+		    mCast(float,angleparams_->anglerange_.start),
+		    mCast(float,angleparams_->anglerange_.stop) );
+	    vdmapper.range_ = anglerg;
+	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
+	}
+	else
+	{
+	    psapp.ddpars_.vd_.show_ = true;
+	    psapp.ddpars_.wva_.show_ = false;
+	    psapp.ddpars_.vd_.ctab_ = "Seismics";
+	    vdmapper.cliprate_ = Interval<float>(0.025,0.025);
+	    vdmapper.type_ = ColTab::MapperSetup::Auto;
+	    vdmapper.autosym0_ = true;
+	    vdmapper.symmidval_ = 0.0f;
+	}
+    }
+
+    setUpView();
+}
+
+
 void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 {
     if ( !gatherinfo.isselected_ ) return;
@@ -852,14 +918,18 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     {
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	DataPack::ID ppgatherid = -1;
-	if ( preprocmgr_ )
+	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	    ppgatherid = getPreProcessedID( gatherinfo );
 
-	gd->setVDGather( ppgatherid>=0 ? ppgatherid : gather->id() );
+	const int gatherid = ppgatherid>=0 ? ppgatherid : gather->id();
+	const int anglegatherid = getAngleData( gatherid );
+	gd->setVDGather( hasangledata_ ? anglegatherid : gatherid );
+	gd->setWVAGather( hasangledata_ ? gatherid : -1 );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
 	DPM(DataPackMgr::FlatID()).release( gather );
+	DPM(DataPackMgr::FlatID()).release( anglegatherid );
     }
     else
     {
@@ -881,25 +951,106 @@ uiSyntheticViewer2DMainWin::uiSyntheticViewer2DMainWin( uiParent* p,
 							const char* title )
     : uiViewer2DMainWin(p,title)
 {
+    hasangledata_ = true;
 }
 
 
 void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms) 
 {
+    TypeSet<PSViewAppearance> oldapps = appearances_;
+    appearances_.erase();
     TypeSet<GatherInfo> oldginfos = gatherinfos_;
     gatherinfos_.erase();
 
+    BufferStringSet newgathernms, oldgathernms;
     for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
     {
 	for ( int nmidx=0; nmidx<nms.size(); nmidx++ )
 	{
 	    GatherInfo ginfo = oldginfos[gidx];
 	    ginfo.gathernm_ = nms.get( nmidx );
-	    gatherinfos_.addIfNew( ginfo );
+	    newgathernms.addIfNew( ginfo.gathernm_ );
+	    if ( gatherinfos_.addIfNew(ginfo) )
+	    {
+		PSViewAppearance dummypsapp;
+		dummypsapp.datanm_ = ginfo.gathernm_;
+		const int oldappidx = oldapps.indexOf( dummypsapp );
+		if ( oldappidx>=0 )
+		{
+		    oldgathernms.addIfNew( ginfo.gathernm_ );
+		    appearances_.addIfNew( oldapps[oldappidx] );
+		}
+	    }
 	}
     }
 
+    prepareNewAppearances( oldgathernms, newgathernms );
     if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
+    setUpView();
+}
+
+
+
+void uiViewer2DMainWin::setAppearance( const FlatView::Appearance& app,
+					int appidx )
+{
+    if ( !appearances_.validIdx(appidx) )
+	return;
+    PSViewAppearance& viewapp = appearances_[appidx];
+    viewapp.annot_ = app.annot_;
+    viewapp.ddpars_ = app.ddpars_;
+    for ( int gidx=0; gidx<gd_.size(); gidx++ )
+    {
+	if ( viewapp.datanm_ != gdi_[gidx]->getDataName() )
+	    continue;
+	uiFlatViewer* vwr = gd_[gidx]->getUiFlatViewer();
+	vwr->appearance() = app;
+	vwr->handleChange( FlatView::Viewer::DisplayPars );
+    }
+}
+
+
+void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
+					       BufferStringSet newgathernms )
+{
+    while ( oldgathernms.size() )
+    {
+	BufferString gathertoberemoved = oldgathernms.get( 0 );
+	const int newgatheridx = newgathernms.indexOf( gathertoberemoved );
+	if ( newgatheridx>=0 )
+	    delete newgathernms.removeSingle( newgatheridx );
+	delete oldgathernms.removeSingle( 0 );
+    }
+
+    while ( newgathernms.size() )
+    {
+	PSViewAppearance psapp;
+	psapp.datanm_ = newgathernms.get( 0 );
+	delete newgathernms.removeSingle( 0 );
+	if ( isStored() )
+	{
+	    if ( appearances_.size() )
+	    {
+		psapp.annot_ = appearances_[0].annot_;
+		psapp.ddpars_ = appearances_[0].ddpars_;
+	    }
+	}
+	else
+	{
+	    ColTab::MapperSetup& vdmapper = psapp.ddpars_.vd_.mappersetup_;
+	    vdmapper.autosym0_ = false;
+	    vdmapper.symmidval_ = mUdf(float);
+	    vdmapper.type_ = ColTab::MapperSetup::Fixed;
+	    vdmapper.range_ = Interval<float>(0,60);
+	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
+	    ColTab::MapperSetup& wvamapper = psapp.ddpars_.wva_.mappersetup_;
+	    wvamapper.cliprate_ = Interval<float>(0.0,0.0);
+	    wvamapper.autosym0_ = true;
+	    wvamapper.symmidval_ = 0.0f;
+	}
+
+	appearances_ +=psapp;
+    }
 }
 
 
@@ -953,12 +1104,29 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
 void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 					     bool getstartups )
 {
+    TypeSet<PSViewAppearance> oldapps = appearances_;
+    appearances_.erase();
+    BufferStringSet oldgathernms;
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
     cs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl,
 					   gatherinfos_[0].bid_.inl,1) );
+    BufferStringSet newgathernms;
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	trcrg.include( gatherinfos_[idx].bid_.crl, false );
+    {
+	PreStackView::GatherInfo ginfo = gatherinfos_[idx];
+	trcrg.include( ginfo.bid_.crl, false );
+	PSViewAppearance dummypsapp;
+	dummypsapp.datanm_ = ginfo.gathernm_;
+	newgathernms.addIfNew( ginfo.gathernm_ );
+	if ( oldapps.isPresent(dummypsapp) &&
+	     !appearances_.isPresent(dummypsapp) )
+	    oldgathernms.addIfNew( ginfo.gathernm_ );
+    }
+
+    prepareNewAppearances( oldgathernms, newgathernms );
     trcrg.step = SI().crlStep();
     TypeSet<BinID> selbids;
     if ( getstartups )
@@ -966,15 +1134,11 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	getStartupPositions( gatherinfos_[0].bid_, trcrg, true, selbids );
 	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	{
-	    if ( selbids.isPresent(gatherinfos_[idx].bid_) )
-		gatherinfos_[idx].isselected_ = true;
-	    else
-		gatherinfos_[idx].isselected_ = false;
+	    gatherinfos_[idx].isselected_ =
+		selbids.isPresent( gatherinfos_[idx].bid_ );
 	}
     }
     
-    
-
     cs_.hrg.setCrlRange( trcrg );
     cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
@@ -999,17 +1163,19 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	return;
     }
 
-    cs_.zrg.include(wvagather ? wvagather->zRange()
-	    		      : vdgather->zRange(),false);
+    if ( !posdlg_ )
+	cs_.zrg.include( wvagather ? wvagather->zRange()
+				   : vdgather->zRange(), false );
     DataPack::ID ppgatherid = -1;
-    if ( preprocmgr_ )
+    if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
 
     gd->setVDGather( ginfo.vddpid_<0 ? ppgatherid>=0 ? ppgatherid
 	    					     : ginfo.wvadpid_
 				     : ginfo.vddpid_ );
-    if (  ginfo.vddpid_>=0 )
-	gd->setWVAGather( ppgatherid>=0 ? ppgatherid : ginfo.wvadpid_ );
+    gd->setWVAGather( ginfo.vddpid_>=0 ? ppgatherid>=0 ? ppgatherid
+						       : ginfo.wvadpid_
+				       : -1 );
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -1041,7 +1207,8 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
-    uiToolButton* but = new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
+uiToolButton* but = \
+new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
     tb_->addButton( but );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
@@ -1054,6 +1221,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
 			.withedit(false))
     , posdlgcalled_(this)
     , datadlgcalled_(this)
+    , propChanged(this)
     , pspropdlg_(0)
 {
     removeViewer( vwr );
@@ -1105,6 +1273,16 @@ void uiViewer2DControl::coltabChg( CallBacker* )
 }
 
 
+PSViewAppearance uiViewer2DControl::curViewerApp()
+{
+    PSViewAppearance psviewapp;
+    psviewapp.annot_ = app_.annot_;
+    psviewapp.ddpars_ = app_.ddpars_;
+    psviewapp.datanm_ = pspropdlg_->curGatherName();
+    return psviewapp;
+};
+
+
 void uiViewer2DControl::applyProperties( CallBacker* )
 {
     if ( !pspropdlg_ ) return;
@@ -1115,6 +1293,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	return;
 
     app_ = vwrs_[ actvwridx ]->appearance();
+    propChanged.trigger();
     //const int selannot = pspropdlg_->selectedAnnot();
 
     const FlatDataPack* vddatapack = vwrs_[actvwridx]->pack( false );
@@ -1147,8 +1326,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	}
 
 	//vwr.setAnnotChoice( selannot );
-	vwr.handleChange(
-		FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
+	vwr.handleChange( FlatView::Viewer::DisplayPars |
+			  FlatView::Viewer::Annot );
     }
 }
 
