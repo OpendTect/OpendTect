@@ -203,6 +203,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
     curviewwr.removeParam( this );
     delete stratsynth_;
     delete edstratsynth_;
+    delete d2tmodels_;
 }
 
 
@@ -678,10 +679,7 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 		ObjectSet<const TimeDepthModel>& d2tmodels, float offset ) const
 {
     if ( !sd )
-    {
-	d2tmodels = *d2tmodels_;
 	return;
-    }
 
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     if ( !presd )
@@ -726,6 +724,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) ); 
     vwr_->removeAllAuxData();
+    delete d2tmodels_;
     d2tmodels_ = 0;
     if ( !sd )
     {
@@ -753,6 +752,10 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     tbuf->copyInto( *disptbuf );
     ObjectSet<const TimeDepthModel> curd2tmodels;
     getCurD2TModel( sd, curd2tmodels, offset );
+    ObjectSet<const TimeDepthModel>* zerooffsd2tmodels =
+	new ObjectSet<const TimeDepthModel>();
+    getCurD2TModel( sd, *zerooffsd2tmodels, 0.0f );
+    d2tmodels_ = zerooffsd2tmodels;
     curSS().decimateTraces( *disptbuf, dispeach_ );
     if ( dispflattened_ )
     {
