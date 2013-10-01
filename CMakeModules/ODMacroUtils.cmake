@@ -563,6 +563,12 @@ macro ( OD_CURRENT_YEAR RESULT)
     endif (WIN32)
 endmacro (OD_CURRENT_YEAR )
 
+macro ( OD_CURRENT_MONTH RESULT )
+    if( UNIX )
+	execute_process(COMMAND "date" "+%B" OUTPUT_VARIABLE ${RESULT})
+	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
+    endif()
+endmacro( OD_CURRENT_MONTH )
 
 #Adds lists of files to global file-list
 macro ( OD_ADD_SOURCE_FILES )
