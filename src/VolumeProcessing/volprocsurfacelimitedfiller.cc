@@ -306,7 +306,6 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     }
 
     double gradient = fixedgradient_; //gradvertical_==true case done
-    bool horinterfiller = true;
     if ( !usegradient_ )
     {
 	EM::PosID pid( gradhorizon_->id(), gradhorizon_->sectionID(0), bidsq );
