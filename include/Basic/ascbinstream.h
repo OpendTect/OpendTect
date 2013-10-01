@@ -20,9 +20,9 @@ ________________________________________________________________________
 
 /*!\brief writes to a stream that can be Ascii or Binary.
 
-  In Ascii mode every write will get a post-character written, either a tab
-  (default) or a newline. In binary mode the bytes of the input values are
-  simply dumped to the stream.
+  In Ascii mode every write will get a post-character or post-string written,
+  usually either a tab (default) or a newline. In binary mode the bytes of
+  the input values are simply dumped to the stream.
  
  */
 
