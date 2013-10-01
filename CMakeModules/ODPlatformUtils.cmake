@@ -25,6 +25,13 @@ set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_S
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
 if(UNIX) #Apple an Linux
+    if ( CMAKE_COMPILER_IS_GNUCC  ) 
+	set ( OD_GCC_COMPILER 1 )
+	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
+			 OUTPUT_VARIABLE GCC_VERSION )
+
+    endif(CMAKE_COMPILER_IS_GNUCC)
+
 
     if(APPLE)
 	set ( OD_GCC_COMPILER 1 )
@@ -49,7 +56,13 @@ if(UNIX) #Apple an Linux
 	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 
+	set ( CMAKE_CXX_FLAGS "-Wdelete-non-virtual-dtor ${CMAKE_CXX_FLAGS}" )
+
 	set ( OD_PLFSUBDIR mac )
+
+	if ( GCC_VERSION VERSION_GREATER 4.2 )
+	    set ( CMAKE_CXX_FLAGS "-Wdelete-non-virtual-dtor ${CMAKE_CXX_FLAGS}" )
+	endif()
 
 	#NEEDED AS LONG AS WE HAVE COIN
 	set ( CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvmgcc42")
@@ -65,10 +78,6 @@ if(UNIX) #Apple an Linux
 	endif()
 
 	if ( CMAKE_COMPILER_IS_GNUCC  ) 
-	    set ( OD_GCC_COMPILER 1 )
-	    execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
-			     OUTPUT_VARIABLE GCC_VERSION )
-
 	    if ( GCC_VERSION VERSION_GREATER 4.2 )
 		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wignored-qualifiers" )
 	    endif()
