@@ -153,10 +153,10 @@ bool StrmOper::wordFromLine( std::istream& strm, BufferString& bs )
 	}
 
 	*ptr++ = ch;
-	const int nrchar = ptr - bs.buf();
+	const od_int64 nrchar = ptr - bs.buf();
 	if ( nrchar >= bs.bufSize() )
 	{
-	    bs.setBufSize( nrchar + 256 );
+	    bs.setBufSize( (unsigned int)(nrchar + 256) );
 	    ptr = bs.buf() + nrchar;
 	}
     }
