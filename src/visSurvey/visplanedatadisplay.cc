@@ -396,7 +396,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
         : inlcrlsystem_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
-	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start), fabs(xytpos.z-cs.zrg.stop))  
+	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start), fabs(xytpos.z-cs.zrg.stop))
 	               * zfactor  * scene_->getZStretch() );
 
     const float inldist = inlcrlsystem_->inlDistance();
@@ -410,8 +410,10 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZScale() : inlcrlsystem_->zScale();
-    float maxzdist = zfactor * scene_->getZStretch() * inlcrlsystem_->zStep() / 2;
+    const float zfactor =
+	scene_ ? scene_->getZScale() : inlcrlsystem_->zScale();
+    const float maxzdist =
+	zfactor * scene_->getZStretch() * inlcrlsystem_->zStep() / 2;
     return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -880,6 +882,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	}
     }
 
+    res.hrg.geomid_ = inlcrlsystem_ ? inlcrlsystem_->getGeomID()
+				    : TraceID::std3DGeomID();
     return res;
 }
 
