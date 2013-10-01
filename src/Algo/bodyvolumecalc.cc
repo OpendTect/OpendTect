@@ -21,8 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs, 
 	const Array3D<float>& arr, float threshold, float velocityinmeter )
-    : cs_(cs)
-    , arr_(arr)
+    : arr_(arr)
     , threshold_(threshold)
     , volsum_(0)  
     , lock_(true)  
@@ -30,9 +29,9 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
     const float zfactor = SI().zIsTime() ? velocityinmeter : 
 	(SI().zInFeet() ? mFromFeetFactorF : 1);
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    unitvol_ = cs_.hrg.step.inl * SI().inlDistance() * xyfactor * 
-	       cs_.hrg.step.crl * SI().crlDistance() * xyfactor *
-	       cs_.zrg.step * zfactor;
+    unitvol_ = cs.hrg.step.inl * SI().inlDistance() * xyfactor * 
+	       cs.hrg.step.crl * SI().crlDistance() * xyfactor *
+	       cs.zrg.step * zfactor;
 }
 
 
@@ -42,7 +41,7 @@ od_int64 BodyVolumeCalculator::nrIterations() const
 
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    if ( !cs_.isDefined() || mIsUdf(threshold_) )
+    if ( mIsUdf(unitvol_) || mIsUdf(threshold_) )
 	return 0;
 
     const int inlsz = arr_.info().getSize(0); 
