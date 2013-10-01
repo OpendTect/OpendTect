@@ -46,6 +46,13 @@ install( FILES doc/User/base/WindowLinkTable.txt DESTINATION doc
 install( FILES doc/User/base/.mnuinfo DESTINATION doc
          RENAME base_.mnuinfo )
 
+if( UNIX )
+    OD_CURRENT_MONTH( MONTH )
+    OD_CURRENT_YEAR( YEAR )
+    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/about.html.in
+		    ${CMAKE_SOURCE_DIR}/doc/about.html @ONLY )
+endif()
+
 file( GLOB FLEXNETFILES doc/*.html )
 foreach( FLEXNETFILE ${FLEXNETFILES} )
     install( FILES ${FLEXNETFILE} DESTINATION doc )
