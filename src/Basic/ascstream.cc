@@ -68,7 +68,7 @@ ascostream::ascostream( std::ostream* strm )
 ascostream::~ascostream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascostream::isOK() const
-    { return !strm_.isBad(); }
+    { return strm_.isOK(); }
 
 
 

@@ -8,7 +8,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
-#include "strmio.h"
 #include "strmdata.h"
 #include "staticstring.h"
 
@@ -407,83 +406,6 @@ const char* StrmOper::getErrorMessage( const StreamData& sd )
 	ret.add( getErrorMessage(*sd.streamPtr()) );
 
     return ret.buf();
-}
-
-
-
-#define mWriteImpl(fn,typ) \
-bool StreamIO::fn( const typ& val, const char* post ) \
-{ \
-    if ( binary_ ) \
-	ostrm_->write( (const char*)&val, sizeof(val) ); \
-    else \
-	(*ostrm_) << val << post; \
-    return ostrm_; \
-}
-
-mWriteImpl( writeInt16, od_int16 )
-mWriteImpl( writeInt32, od_int32 )
-mWriteImpl( writeInt64, od_int64 )
-mWriteImpl( writeFloat, float )
-
-
-//---- StreamIO ----
-
-
-bool StreamIO::writeBlock( void* ptr, od_uint64 nrbytes ) 
-{
-    return ostrm_ ? StrmOper::writeBlock( *ostrm_, ptr, nrbytes ) : false;
-}
-
-
-#define mReadImpl(fn,typ) \
-typ StreamIO::fn() const \
-{ \
-    typ val; \
-    if ( binary_ ) \
-	istrm_->read( (char*)(&val), sizeof(val) ); \
-    else \
-	(*istrm_) >> val; \
-    return val; \
-}
-
-mReadImpl( readInt16, od_int16 )
-mReadImpl( readInt32, od_int32 )
-mReadImpl( readInt64, od_int64 )
-mReadImpl( readFloat, float )
-
-
-bool StreamIO::readBlock( void* ptr, od_uint64 nrbytes ) const
-{
-    return istrm_ ? StrmOper::readBlock( *istrm_, ptr, nrbytes ) : false;
-}
-
-
-od_int64 StreamIO::tellg() const
-{
-    return istrm_ ? StrmOper::tell( *istrm_ ) : -1;
-}
-
-
-od_int64 StreamIO::tellp() const
-{
-    return ostrm_ ? StrmOper::tell( *ostrm_ ) : -1;
-}
-
-
-bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
-{
-    if ( !istrm_ ) return false;
-    StrmOper::seek( *istrm_, pos, dir );
-    return !istrm_->fail();
-}
-
-
-bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
-{
-    if ( !ostrm_ ) return false;
-    StrmOper::seek( *ostrm_, pos, dir ); 
-    return !ostrm_->fail();
 }
 
 

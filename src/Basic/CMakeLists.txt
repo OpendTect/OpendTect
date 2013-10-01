@@ -25,6 +25,7 @@ set( OD_MODULE_SOURCES
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc
+	    ascbinstream.cc
 	    bindatadesc.cc
 	    bufstring.cc
 	    callback.cc

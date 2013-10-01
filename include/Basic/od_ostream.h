@@ -78,16 +78,14 @@ inline od_ostream& operator <<( od_ostream& s, const T& t )
 { return s.add( t ); }
 
 
-#define od_tab '\t'
-#define od_newline '\n'
 inline od_ostream& od_endl( od_ostream& strm )
 {
     strm.add( od_newline ).flush();
     return strm;
 }
 
-typedef od_ostream& (*od_ostrmfn)(od_ostream&);
-inline od_ostream& operator <<( od_ostream& s, od_ostrmfn fn )
+typedef od_ostream& (*od_ostreamFunction)(od_ostream&);
+inline od_ostream& operator <<( od_ostream& s, od_ostreamFunction fn )
 { return (*fn)( s ); }
 
 
