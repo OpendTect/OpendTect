@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "factory.h"
 #include "callback.h"
+#include <typeinfo>
 
 namespace osg { class Node; }
 
