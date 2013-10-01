@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+#include "uisip.h"
+#include "bufstringset.h"
 #include "ranges.h"
 
 class IOPar;
@@ -33,7 +35,8 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 
-			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
+			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
+					   bool isnew=false);
     bool		isOK() const		{ return topgrp_; }
     			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
@@ -41,12 +44,12 @@ public:
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName() const;
 
+    static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
     static bool		copySurv(const char* frompath,const char* fromdirnm,
 	    			 const char* topath,const char* todirnm);
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
-    static const char*	newSurvTempDirName();
 
     Notifier<uiSurveyInfoEditor> survParChanged;
     			
@@ -106,6 +109,7 @@ protected:
     
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
+    void		updatePar(CallBacker*);
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
@@ -117,6 +121,28 @@ protected:
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
+
+};
+
+
+mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
+{
+public:
+			uiCopySurveySIP() {};
+
+    const char*		usrText() const	{ return "Copy from other survey"; }
+    uiDialog*		dialog(uiParent*);
+    bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+
+    TDInfo		tdInfo() const { return tdinf_; }
+    bool		xyInFeet() const { return inft_; }
+
+
+protected:
+
+    TDInfo		tdinf_;
+    bool		inft_;
+    BufferStringSet	survlist_;
 
 };
 

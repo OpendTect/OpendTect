@@ -75,7 +75,8 @@ void IOMan::init()
 	    return;
         }
 
-        FilePath basicfp( mGetSetupFileName("BasicSurvey"), ".omf" );
+        FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
+	       		  ".omf" );
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
         if ( !to( emptykey, true ) ) 
         {
@@ -93,7 +94,7 @@ void IOMan::init()
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
-    const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
+    const bool needsurvtype = !SI().survdatatypeknown_;
     bool needwrite = false;
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
@@ -135,12 +136,13 @@ void IOMan::init()
 	}
 
 	// Oops, a data directory required is missing
-	// We'll try to recover by using the 'BasicSurvey' in the app
-	FilePath basicfp( mGetSetupFileName("BasicSurvey"), "X" );
+	// We'll try to recover by using the 'Basic Survey' in the app
+	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
+	       		  "X" );
 	basicfp.setFileName( dd->dirnm );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File::exists(basicdirnm) )
-	    // Oh? So this is removed from the BasicSurvey
+	    // Oh? So this is removed from the Basic Survey
 	    // Let's hope they know what they're doing
 	    { prevdd = dd; continue; }
 
@@ -152,7 +154,7 @@ void IOMan::init()
 	{
 	    // This directory should have been in the survey.
 	    // It is not. If it is the seismic directory, we do not want to
-	    // continue. Otherwise, we want to copy the BasicSurvey directory.
+	    // continue. Otherwise, we want to copy the Basic Survey directory.
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
@@ -315,9 +317,9 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     if ( projdir != basedatadir && File::isDirectory(projdir) )
     {
 	const bool noomf = !validOmf( projdir );
-	const bool nosurv = File::isEmpty(
-				FilePath(projdir).add(".survey").fullPath() );
-
+	const bool nosurv = File::isEmpty( FilePath(projdir).
+					   add(SurveyInfo::sKeySetupFileName()).
+					   fullPath() );
 	if ( !noomf && !nosurv )
 	{
 	    if ( !IOM().bad() )
@@ -332,7 +334,11 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	    if ( nosurv && noomf )
 		msg = "Warning: Essential data files not found in ";
 	    else if ( nosurv )
-		msg = "Warning: Invalid or no '.survey' found in ";
+	    {
+		msg = BufferString( "Warning: Invalid or no '",
+				    SurveyInfo::sKeySetupFileName(),
+				    "' found in " );
+	    }
 	    else if ( noomf )
 		msg = "Warning: Invalid or no '.omf' found in ";
 	    msg += projdir; msg += ".\nThis survey is corrupt.";
@@ -932,13 +938,13 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 bool OD_isValidRootDataDir( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
-    if ( !File::isDirectory( fp.fullPath() ) ) return false;
+    if ( !File::isDirectory(fp.fullPath()) ) return false;
 
     fp.add( ".omf" );
-    if ( !File::exists( fp.fullPath() ) ) return false;
+    if ( !File::exists(fp.fullPath()) ) return false;
 
-    fp.setFileName( ".survey" );
-    if ( File::exists( fp.fullPath() ) )
+    fp.setFileName( SurveyInfo::sKeySetupFileName() );
+    if ( File::exists(fp.fullPath()) )
 	return false;
 
     return true;

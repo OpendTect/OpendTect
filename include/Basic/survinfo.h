@@ -87,7 +87,8 @@ protected:
 /*!
 \brief Holds survey general information.
 
-  The surveyinfo is the primary source for ranges and steps.It also provides the  transformation between inline/xline <-> coordinates and lat/long estimates.
+  The surveyinfo is the primary source for ranges and steps.It also provides
+  the transformation between inline/xline <-> coordinates and lat/long estimates
   
   Note: the Z range step is only a default. It should not be used further
   because different cubes/lines have different sample rates.
@@ -107,7 +108,6 @@ mExpClass(Basic) SurveyInfo : public NamedObject
 
 public:
 			~SurveyInfo();
-    bool		isValid() const		{ return valid_; }
     bool		has2D() const;
     bool		has3D() const;
     
@@ -206,7 +206,6 @@ public:
 protected:
 
 			SurveyInfo();
-    bool		valid_;
 
     BufferString	datadir_;
     BufferString	dirname_;
@@ -237,6 +236,7 @@ protected:
 
     Pol2D		survdatatype_;
     bool		survdatatypeknown_;
+    BufferString	sipnm_;
  
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
@@ -292,12 +292,18 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
+    static const char*	sKeySetupFileName()		{ return ".survey"; }
+    static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
 
     BufferString	getDirName() const	{ return dirname_; }
+    void		updateDirName(); //!< May be used after setName()
 
     			DeclareEnumUtils(Pol2D);
     Pol2D		survDataType() const	{ return survdatatype_; }
-    void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
+    void		setSurvDataType( Pol2D typ )
+    			{ survdatatype_ = typ; survdatatypeknown_ = true; }
+    BufferString	sipName() const		{ return sipnm_; }
+    void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
 
     const char*		comment() const		{ return comment_.buf(); }
 
@@ -326,7 +332,6 @@ public:
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
     void		setComment( const char* s )	{ comment_ = s; }
-    void		setInvalid() const;
 
     void		setWSProjName( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }

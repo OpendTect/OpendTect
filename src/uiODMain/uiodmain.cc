@@ -34,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
-#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 
@@ -159,7 +158,6 @@ uiODMain::uiODMain( uicMain& a )
     BufferString icntxt( "OpendTect V", GetFullODVersion() );
     setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
-    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
@@ -552,9 +550,9 @@ void uiODMain::doRestoreSession()
     if ( SI().has3D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
-                                        false, false );
+					false, false );
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
-                                        false, true );
+					false, true );
     }
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
