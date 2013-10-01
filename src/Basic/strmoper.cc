@@ -128,23 +128,41 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
 
 bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
 {
-    if ( !ptr ) return false;
+    BufferString bs;
+    if ( wordFromLine( strm, bs ) )
+	strncpy( ptr, bs.buf(), maxnrchars );
+
     *ptr = '\0';
+    return false;
+}
+
+
+bool StrmOper::wordFromLine( std::istream& strm, BufferString& bs )
+{
+    bs.setEmpty();
 
     char ch;
-    char* start = ptr;
+    char* ptr = bs.buf();
     while ( getNextChar(strm,ch) && ch != '\n' )
     {
-	if ( !isspace(ch) )
-	    *ptr++ = ch;
-	else if ( ch == '\n' || *start )
+	if ( isspace(ch) )
+	{
+	    if ( ptr == bs.buf() )
+		continue; // 'skip leading blanks'
 	    break;
+	}
 
-	maxnrchars--; if ( maxnrchars == 0 ) break;
+	*ptr++ = ch;
+	const int nrchar = ptr - bs.buf();
+	if ( nrchar >= bs.bufSize() )
+	{
+	    bs.setBufSize( nrchar + 256 );
+	    ptr = bs.buf() + nrchar;
+	}
     }
 
     *ptr = '\0';
-    return ptr != start;
+    return ptr != bs.buf();
 }
 
 

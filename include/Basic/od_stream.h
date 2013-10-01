@@ -67,6 +67,9 @@ public:
     bool			isBad() const;	//!< eof is not Bad
 
     void			addErrMsgTo(BufferString&) const;
+    static od_stream*		create(const char*,bool forread,
+	    				BufferString& errmsg);
+    				//!< returns null on failure, never a bad stream
 
 protected:
 

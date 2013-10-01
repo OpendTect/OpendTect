@@ -301,6 +301,45 @@ bool od_ostream::open( const char* fnm )
 }
 
 
+od_stream* od_stream::create( const char* fnm, bool forread,
+			      BufferString& errmsg )
+{
+    od_stream* ret = 0;
+    if ( forread )
+    {
+	if ( !fnm || !*fnm )
+	    return &od_istream::nullStream();
+
+	ret = new od_istream( fnm );
+	if ( !ret )
+	    errmsg = "Out of memory";
+	else if ( !ret->isOK() )
+	{
+	    errmsg.set( "Cannot open " ).add( fnm ).add( " for read" );
+	    ret->addErrMsgTo( errmsg );
+	    delete ret; return 0;
+	}
+    }
+    else
+    {
+	if ( !fnm || !*fnm )
+	    return &od_ostream::nullStream();
+
+	ret = new od_ostream( fnm );
+	if ( !ret )
+	    errmsg = "Out of memory";
+	else if ( !ret->isOK() )
+	{
+	    errmsg.set( "Cannot open " ).add( fnm ).add( " for write" );
+	    ret->addErrMsgTo( errmsg );
+	    delete ret; return 0;
+	}
+    }
+
+    return ret;
+}
+
+
 void od_ostream::flush()
 {
     if ( sd_.ostrm )
@@ -379,9 +418,12 @@ od_istream& od_istream::get( char* str )
     { pErrMsg("Dangerous: od_istream::get(char*)"); return getC( str, 0 ); }
 
 mImplStrmAddFn(const BufferString&,t.buf())
-od_istream& od_istream::get( BufferString& bs )
+od_istream& od_istream::get( BufferString& bs, bool allownl )
 {
-    StrmOper::readWord( stdStream(), &bs );
+    if ( allownl )
+	StrmOper::readWord( stdStream(), &bs );
+    else
+	StrmOper::wordFromLine( stdStream(), bs );
     return *this;
 }
 

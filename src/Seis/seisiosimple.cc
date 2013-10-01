@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "strmprov.h"
-#include "strmoper.h"
+#include "od_iostream.h"
+#include "ascbinstream.h"
 #include "ptrman.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -31,11 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
-#define mStrmBinRead(var,typ) \
-    sd_.istrm->read( (char*)(&var), sizeof(typ) )
-
-#define mStrmBinWrite(var,typ) \
-    sd_.ostrm->write( (const char*)(&var), sizeof(typ) )
+#define mGetIBinStrm \
+    ascbinistream binstrm( iStream(), !data_.isasc_ )
+#define mGetOBinStrm \
+    ascbinostream binstrm( oStream(), !data_.isasc_ )
 
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
@@ -148,9 +147,9 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     	: Executor( imp ? "Import Seismics from simple file"
 			: "Export Seismics to simple file" )
 	, data_(d)
-	, isimp_(imp)
-    	, sd_(*new StreamData)
     	, trc_(*new SeisTrc)
+	, isimp_(imp)
+    	, strm_(0)
     	, rdr_(0)
     	, wrr_(0)
     	, importer_(0)
@@ -163,7 +162,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 {
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
     if ( !ioobj ) return;
-    zistm_ = ZDomain::isTime( ioobj->pars() );
+    const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );
 
     SeisStoreAccess* sa;
     if ( isimp_ )
@@ -183,14 +182,9 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     sa->setSelData( seldata );
 
-    StreamProvider sp( data_.fname_ );
-    sd_ = isimp_ ? sp.makeIStream() : sp.makeOStream(); 
-    if ( !sd_.usable() )
-    {
-	errmsg_ = isimp_ ? "Cannot open input file"
-			 : "Cannot open output file";
+    strm_ = od_stream::create( data_.fname_, isimp_, errmsg_ );
+    if ( !strm_ )
 	return;
-    }
 
     if ( isimp_ )
 	startImpRead();
@@ -202,9 +196,20 @@ SeisIOSimple::~SeisIOSimple()
     delete importer_;
     delete rdr_;
     delete wrr_;
-    sd_.close();
-    delete &sd_;
+    delete strm_;
     delete &trc_;
+}
+
+
+od_istream& SeisIOSimple::iStream()
+{
+    return *static_cast<od_istream*>( strm_ );
+}
+
+
+od_ostream& SeisIOSimple::oStream()
+{
+    return *static_cast<od_ostream*>( strm_ );
 }
 
 
@@ -234,18 +239,12 @@ bool fetch( SeisTrc& trc )
 
 void SeisIOSimple::startImpRead()
 {
+    mGetIBinStrm;
     if ( data_.havesd_ )
     {
-	if ( data_.isasc_ )
-	    *sd_.istrm >> data_.sd_.start >> data_.sd_.step
-		       >> data_.nrsamples_;
-	else
-	{
-	    mStrmBinRead( data_.sd_.start, float );
-	    mStrmBinRead( data_.sd_.step, float );
-	    mStrmBinRead( data_.nrsamples_, int );
-	}
-	if ( !sd_.istrm->good() )
+	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
+	       .get( data_.nrsamples_ );
+	if ( !strm_->isOK() )
 	    { errmsg_ = "Input file contains no data"; return; }
 	if ( zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
@@ -291,7 +290,7 @@ int SeisIOSimple::nextStep()
     else if ( isimp_ )
     {
 	int rv = importer_ ? importer_->nextStep() : -1;
-	if ( rv == Executor::Finished() && importer_->nrSkipped() > 0 )
+	if ( rv == Finished() && importer_->nrSkipped() > 0 )
 	    UsrMsg( BufferString("Warning: ",importer_->nrSkipped(),
 				 " traces were rejected during import") );
 	return rv;
@@ -299,23 +298,18 @@ int SeisIOSimple::nextStep()
 
     int rv = readExpTrc();
     if ( rv < 0 )
-	return errmsg_.isEmpty()
-	    ? Executor::Finished()
-	    : Executor::ErrorOccurred();
+	return errmsg_.isEmpty() ? Finished() : ErrorOccurred();
 
-    return rv == 0 ? Executor::MoreToDo() : writeExpTrc();
+    return rv == 0 ? MoreToDo() : writeExpTrc();
 }
 
 
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
-    std::istream& strm = *sd_.istrm;
-    while ( isspace(strm.peek()) )
-	strm.ignore( 1 );
-    if ( !strm.good() )
-	return Executor::Finished();
+    if ( !strm_->isOK() )
+	return Finished();
 
-
+    mGetIBinStrm;
     BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
     const bool is2d = Seis::is2D(data_.geom_);
     const bool isps = Seis::isPS(data_.geom_);
@@ -324,19 +318,9 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
     else
     {
-	if ( data_.isasc_ )
-	{
-	    strm >> coord.x;
-	    nr = mNINT32(coord.x);
-	    if ( data_.haverefnr_ )
-		strm >> refnr;
-	}
-	else
-	{
-	    mStrmBinRead( nr, int );
-	    if ( data_.haverefnr_ )
-		mStrmBinRead( refnr, float );
-	}
+	binstrm.get( nr );
+	if ( data_.haverefnr_ )
+	    binstrm.get( refnr );
     }
 
     if ( !data_.havepos_ )
@@ -361,27 +345,12 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     {
 	if ( data_.isxy_ )
 	{
-	    if ( data_.isasc_ )
-		strm >> coord.x >> coord.y;
-	    else
-	    {
-		mStrmBinRead( coord.x, double );
-		mStrmBinRead( coord.y, double );
-	    }
+	    binstrm.get( coord.x ).get( coord.y );
 	    bid = SI().transform( coord );
 	}
 	else
 	{
-	    if ( data_.isasc_ )
-	    {
-		strm >> coord.x >> coord.y;
-		bid.inl = mNINT32(coord.x); bid.crl = mNINT32(coord.y);
-	    }
-	    else
-	    {
-		mStrmBinRead( bid.inl, int );
-		mStrmBinRead( bid.crl, int );
-	    }
+	    binstrm.get( bid.inl ).get( bid.crl );
 	    coord = SI().transform( bid );
 	}
 
@@ -392,27 +361,17 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( !data_.haveoffs_ )
 	    offs = data_.offsdef_.start + offsnr_ * data_.offsdef_.step;
 	else
-	{
-	    if ( data_.isasc_ )
-		strm >> offs;
-	    else
-		mStrmBinRead( offs, float );
-	}
+	    binstrm.get( offs );
 	if ( data_.haveazim_ )
-	{
-	    if ( data_.isasc_ )
-		strm >> azim;
-	    else
-		mStrmBinRead( azim, float );
-	}
+	    binstrm.get( azim );
 	if ( (is2d && nr != prevnr_) || (!is2d && bid != prevbid_) )
 	    offsnr_ = 0;
 	else
 	    offsnr_++;
     }
 
-    if ( !strm.good() )
-	return Executor::Finished();
+    if ( !strm_->isOK() )
+	return Finished();
 
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
@@ -426,25 +385,18 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().nr = nr;
     trc.info().refnr = refnr;
     prevnr_ = nr;
-    float val; char buf[128]; const char* ptr = buf;
+    float val;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
-	if ( data_.isasc_ )
-	{
-	    if ( !StrmOper::wordFromLine( strm, buf, 127 ) )
-		return Executor::Finished();
-	    Conv::set( val, ptr );
-	}
-	else
-	    mStrmBinRead( val, float );
-	if ( !strm.good() )
-	    return Executor::Finished();
+	binstrm.get( val );
+	if ( strm_->isBad() )
+	    return Finished();
 
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
 	trc.set( idx, val, 0 );
     }
 
-    return Executor::MoreToDo();
+    return strm_->isOK() ? MoreToDo() : Finished();
 }
 
 
@@ -477,6 +429,8 @@ int SeisIOSimple::readExpTrc()
 
 int SeisIOSimple::writeExpTrc()
 {
+    mGetOBinStrm;
+
     if ( firsttrc_ )
     {
 	firsttrc_ = false;
@@ -487,43 +441,23 @@ int SeisIOSimple::writeExpTrc()
 	    if ( zistm_ )
 		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
-	    if ( data_.isasc_ )
-	    {
-		*sd_.ostrm << toString(datasd.start) << '\t';
-		*sd_.ostrm << toString(datasd.step) << '\t'
-			   << data_.nrsamples_ << std::endl;
-	    }
-	    else
-	    {
-		mStrmBinWrite( datasd.start, float );
-		mStrmBinWrite( datasd.step, float );
-		mStrmBinWrite( data_.nrsamples_, int );
-	    }
+	    binstrm.add( datasd.start )
+		   .add( datasd.step )
+		   .add( data_.nrsamples_, od_newline );
 	}
     }
 
     if ( data_.remnull_ && trc_.isNull() )
-	return Executor::MoreToDo();
+	return MoreToDo();
 
     if ( data_.havenr_ )
     {
 	int nr = trc_.info().nr;
 	const float refnr = trc_.info().refnr;
 	mPIEPAdj(TrcNr,nr,false);
-	if ( data_.isasc_ )
-	{
-	    *sd_.ostrm << nr;
-	    if ( data_.haverefnr_ )
-		*sd_.ostrm << '\t' << toString(refnr);
-	    if ( data_.havepos_ )
-		*sd_.ostrm << '\t';
-	}
-	else
-	{
-	    mStrmBinWrite( nr, int );
-	    if ( data_.haverefnr_ )
-		mStrmBinWrite( refnr, float );
-	}
+	binstrm.add( nr );
+	if ( data_.haverefnr_ )
+	    binstrm.add( refnr );
     }
 
     if ( data_.havepos_ )
@@ -532,28 +466,13 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    Coord coord = trc_.info().coord;
 	    mPIEPAdj(Coord,coord,false);
-	    if ( data_.isasc_ )
-	    {
-		*sd_.ostrm << toString(coord.x) << '\t';
-		*sd_.ostrm << toString(coord.y);
-	    }
-	    else
-	    {
-		mStrmBinWrite( coord.x, double );
-		mStrmBinWrite( coord.y, double );
-	    }
+	    binstrm.add( coord.x ).add( coord.y );
 	}
 	else
 	{
 	    BinID bid = trc_.info().binid;
 	    mPIEPAdj(BinID,bid,false);
-	    if ( data_.isasc_ )
-		*sd_.ostrm << bid.inl << '\t' << bid.crl;
-	    else
-	    {
-		mStrmBinWrite( bid.inl, int );
-		mStrmBinWrite( bid.crl, int );
-	    }
+	    binstrm.add( bid.inl ).add( bid.crl );
 	}
     }
 
@@ -564,19 +483,10 @@ int SeisIOSimple::writeExpTrc()
 	    float offs = trc_.info().offset;
 	    mPIEPAdj(Offset,offs,false);
 	    if ( SI().xyInFeet() ) offs *= mToFeetFactorF;
-	    if ( data_.isasc_ )
-		*sd_.ostrm << '\t' << offs;
-	    else
-		mStrmBinWrite( offs, float );
+	    binstrm.add( offs );
 	}
 	if ( data_.haveazim_ )
-	{
-	    const float azim = trc_.info().azimuth;
-	    if ( data_.isasc_ )
-		*sd_.ostrm << '\t' << azim;
-	    else
-		mStrmBinWrite( azim, float );
-	}
+	    binstrm.add( trc_.info().azimuth );
     }
 
     float val;
@@ -584,18 +494,16 @@ int SeisIOSimple::writeExpTrc()
     {
 	val = trc_.get( idx, 0 );
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
-	if ( data_.isasc_ )
-	    *sd_.ostrm << '\t' << val;
-	else
-	    mStrmBinWrite( val, float );
+	binstrm.add( val, idx == data_.nrsamples_-1 ? od_newline : od_tab );
     }
 
-    if ( data_.isasc_ )
-	*sd_.ostrm << std::endl;
-
-    if ( !sd_.ostrm->good() )
-	{ errmsg_ = "Error during write"; return Executor::ErrorOccurred(); }
+    if ( !strm_->isOK() )
+    {
+	errmsg_ = "Error during write";
+	strm_->addErrMsgTo( errmsg_ );
+	return ErrorOccurred();
+    }
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }

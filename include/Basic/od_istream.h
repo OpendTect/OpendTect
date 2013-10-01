@@ -53,7 +53,7 @@ public:
     od_istream&		get(float&);
     od_istream&		get(double&);
 
-    od_istream&		get(BufferString&);
+    od_istream&		get(BufferString&,bool allowgotonextline=true);
     			//!< reads one word delimited by whitespace, "" or ''
 
     od_istream&		get(IOPar&);
