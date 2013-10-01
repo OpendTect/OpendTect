@@ -385,15 +385,36 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().nr = nr;
     trc.info().refnr = refnr;
     prevnr_ = nr;
-    float val;
-    for ( int idx=0; idx<data_.nrsamples_; idx++ )
+#   define mApplyScalerAndSetTrcVal \
+	if ( data_.scaler_ ) \
+	    val = (float) data_.scaler_->scale( val ); \
+	trc.set( idx, val, 0 )
+
+    if ( !data_.isasc_ )
     {
-	binstrm.get( val );
+	for ( int idx=0; idx<data_.nrsamples_; idx++ )
+	{
+	    float val = 0; binstrm.get( val );
+	    if ( strm_->isBad() )
+		return Finished();
+	    mApplyScalerAndSetTrcVal;
+	}
+    }
+    else
+    {
+	    // got support calls because of bad files too often, so taking
+	    // evasive action here:
+	BufferString line; iStream().getLine( line );
 	if ( strm_->isBad() )
 	    return Finished();
-
-	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
-	trc.set( idx, val, 0 );
+	const char* ptr = line.buf();
+	char buf[1024]; const char* bufptr = buf;
+	for ( int idx=0; idx<data_.nrsamples_; idx++ )
+	{
+	    ptr = getNextWord( ptr, buf );
+	    float val = 0; Conv::set( val, bufptr );
+	    mApplyScalerAndSetTrcVal;
+	}
     }
 
     return strm_->isOK() ? MoreToDo() : Finished();
