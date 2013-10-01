@@ -14,8 +14,8 @@ SET(OD_MODULE_SOURCES
 		volproclateralsmoother.cc
 		volprocsmoother.cc
 		volproctrans.cc
-		volprochorinterfiller.cc
 		volprocbodyfiller.cc
+		volprocsurfacelimitedfiller.cc
 		volprocvolreader.cc
 )
 SET(OD_MODULE_BATCHPROGS od_process_volume.cc )

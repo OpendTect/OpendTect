@@ -12,10 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "uivelocitygridder.h"
-#include "uivolprochorinterfiller.h"
 #include "uivolproclateralsmoother.h"
 #include "uivolprocbodyfiller.h"
 #include "uivolprocsmoother.h"
+#include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
 
 
@@ -23,10 +23,10 @@ mDefModInitFn(uiVolumeProcessing)
 {
     mIfNotFirstTime( return );
 
-    VolProc::uiHorInterFiller::initClass();
     VolProc::uiBodyFiller::initClass();
     VolProc::uiLateralSmoother::initClass();
     VolProc::uiSmoother::initClass();
+    VolProc::uiSurfaceLimitedFiller::initClass();
     VolProc::uiVelocityGridder::initClass();
     VolProc::uiVolumeReader::initClass();
 }

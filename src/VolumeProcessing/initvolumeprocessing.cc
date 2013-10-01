@@ -12,11 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "velocitygridder.h"
-#include "volprochorinterfiller.h"
 #include "volprocattrib.h"
 #include "volproclateralsmoother.h"
 #include "volprocsmoother.h"
 #include "volprocbodyfiller.h"
+#include "volprocsurfacelimitedfiller.h"
 #include "volprocvolreader.h"
 #include "volproctrans.h"
 
@@ -28,11 +28,11 @@ mDefModInitFn(VolumeProcessing)
     VolProcessingTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
 
-    VolProc::HorInterFiller::initClass();
     VolProc::LateralSmoother::initClass();
     VolProc::Smoother::initClass();
     VolProc::ExternalAttribCalculator::initClass();
     VolProc::BodyFiller::initClass();
+    VolProc::SurfaceLimitedFiller::initClass();
     VolProc::VelGriddingStep::initClass();
     VolProc::VolumeReader::initClass();
 }
