@@ -37,7 +37,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
 
 
 od_int64 BodyVolumeCalculator::nrIterations() const
-{ return cs_.nrZ()-1; }
+{ return arr_.info().getSize(2)-1; }
 
 
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
@@ -47,9 +47,6 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 
     const int inlsz = arr_.info().getSize(0); 
     const int crlsz = arr_.info().getSize(1); 
-    const int zsz = arr_.info().getSize(2);
-    if ( cs_.nrInl()!=inlsz || cs_.nrCrl()!=crlsz || cs_.nrZ()!=zsz )
-	return 0;
 
     float nrunits = 0;
     for ( int idx=0; idx<inlsz-1; idx++ )
