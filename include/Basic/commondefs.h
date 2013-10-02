@@ -26,6 +26,8 @@ ________________________________________________________________________
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
+#define mMaxLimited(v,lim)	( (v)<(lim) ? (v) : (lim) )
+#define mMinLimited(v,lim)	( (v)>(lim) ? (v) : (lim) )
 
 #define mIsZero(x,eps)		( (x) < (eps) && (x) > (-eps) )
 #define mIsEqual(x,y,eps)	( (x-y) < (eps) && (x-y) > (-eps) )
