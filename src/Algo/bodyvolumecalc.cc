@@ -74,40 +74,20 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 		}
 		else if ( nrdftop==2 && nrdfbas==2 )  
 		{
-		    int ti=-1, tj=-1;
-		    int bi=-1, bj=-1;
-		    for ( int k=0; k<4; k++ )
-		    {
-			if ( inside[k] )
-			{
-			    if ( ti==-1 )
-				ti = k;
-			    else 
-				tj = k;
-			}
-			if ( inside[k+4] )
-			{
-			    if ( ti==-1 )
-				bi = k+4;
-			    else 
-				bj = k+4;
-			}
-		    }
-
-		    if ( (ti==0 && tj==1 && bi==4 && bj==5) ||  
-			 (ti==0 && tj==1 && bi==6 && bj==7) ||
-			 (ti==1 && tj==2 && bi==5 && bj==6) ||
-			 (ti==1 && tj==2 && bi==4 && bj==7) ||
-			 (ti==2 && tj==3 && bi==6 && bj==7) ||
-			 (ti==2 && tj==3 && bi==4 && bj==5) ||
-			 (ti==0 && tj==3 && bi==4 && bj==7) ||
-			 (ti==0 && tj==3 && bi==5 && bj==6) ||
-			 (ti==1 && tj==3 && bi==5 && bj==7) ||
-			 (ti==0 && tj==2 && bi==4 && bj==6) )
+		    if ( (inside[0] && inside[1] && inside[4] && inside[5]) ||
+			 (inside[0] && inside[1] && inside[6] && inside[7]) ||
+			 (inside[0] && inside[2] && inside[4] && inside[6]) ||
+			 (inside[0] && inside[3] && inside[4] && inside[7]) ||
+			 (inside[0] && inside[3] && inside[5] && inside[6]) ||
+			 (inside[1] && inside[2] && inside[5] && inside[6]) ||
+			 (inside[1] && inside[2] && inside[4] && inside[7]) ||
+			 (inside[1] && inside[3] && inside[5] && inside[7]) ||
+			 (inside[2] && inside[3] && inside[4] && inside[5]) ||
+			 (inside[2] && inside[3] && inside[6] && inside[7]) )
 			continue;
-
-		    if ( (ti==0 && tj==2 && bi==5 && bj==7) ||
-		         (ti==1 && tj==3 && bi==4 && bj==6) )
+		    
+		    if ( (inside[0] && inside[2] && inside[5] && inside[7]) ||
+			 (inside[1] && inside[3] && inside[4] && inside[6]) )
 			nrunits += 1.0/3.0;
 		    else
 			nrunits += 1.0/6.0;
