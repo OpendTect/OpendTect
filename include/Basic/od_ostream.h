@@ -27,20 +27,20 @@ mExpClass(Basic) od_ostream : public od_stream
 {
 public:
 
-    			od_ostream()			{}
-    			od_ostream( const char* fnm )
-			    : od_stream(fnm,true)	{}
-    			od_ostream( const FilePath& fp )
-			    : od_stream(fp,true)	{}
+    			od_ostream()				{}
+    			od_ostream( const char* fnm, bool useexist=false )
+			    : od_stream(fnm,true,useexist)	{}
+    			od_ostream( const FilePath& fp, bool useexist=false )
+			    : od_stream(fp,true,useexist)	{}
     			od_ostream( std::ostream* s )
-			    : od_stream(s)		{}
+			    : od_stream(s)			{}
     			od_ostream( std::ostream& s )
-			    : od_stream(s)		{}
+			    : od_stream(s)			{}
 			od_ostream( const od_ostream& s )
-			    : od_stream(s)		{ *this = s; }
+			    : od_stream(s)			{ *this = s; }
     od_ostream&		operator =( const od_ostream& s )
     			{ od_stream::operator =(s); return *this; }
-    bool		open(const char*);
+    bool		open(const char*,bool useexist=false);
 
     od_ostream&		add(char);
     od_ostream&		add(unsigned char);

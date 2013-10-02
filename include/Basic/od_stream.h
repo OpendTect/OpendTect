@@ -74,8 +74,8 @@ public:
 protected:
 
     			od_stream();
-    			od_stream(const char*,bool);
-    			od_stream(const FilePath&,bool);
+    			od_stream(const char*,bool,bool editmode=false);
+    			od_stream(const FilePath&,bool,bool editmode=false);
     			od_stream(std::ostream*);
     			od_stream(std::ostream&);
     			od_stream(std::istream*);

@@ -59,7 +59,7 @@ od_ostream& od_ostream::logStream()
 }
 
 
-#define mMkoStrmData(fnm) StreamProvider(fnm).makeOStream()
+#define mMkoStrmData(fnm,ex) StreamProvider(fnm).makeOStream(true,ex)
 #define mMkiStrmData(fnm) StreamProvider(fnm).makeIStream()
 #define mInitList(ismine) sd_(*new StreamData), mine_(ismine), noclose_(false)
 
@@ -74,18 +74,19 @@ od_stream::od_stream( const od_stream& oth )
     *this = oth;
 }
 
-od_stream::od_stream( const char* fnm, bool forwrite )
+od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
+
     : mInitList(true)
 {
-    sd_ = forwrite ? mMkoStrmData( fnm ) : mMkiStrmData( fnm );
+    sd_ = forwrite ? mMkoStrmData( fnm, useexist ) : mMkiStrmData( fnm );
 }
 
 
-od_stream::od_stream( const FilePath& fp, bool forwrite )
+od_stream::od_stream( const FilePath& fp, bool forwrite, bool useexist )
     : mInitList(true)
 {
     const BufferString fnm( fp.fullPath() );
-    sd_ = forwrite ? mMkoStrmData( fnm ) : mMkiStrmData( fnm );
+    sd_ = forwrite ? mMkoStrmData( fnm, useexist ) : mMkiStrmData( fnm );
 }
 
 
@@ -291,9 +292,9 @@ bool od_istream::open( const char* fnm )
 }
 
 
-bool od_ostream::open( const char* fnm )
+bool od_ostream::open( const char* fnm, bool useexist )
 {
-    od_ostream strm( fnm );
+    od_ostream strm( fnm, useexist );
     if ( strm.isOK() )
 	{ *this = strm; return true; }
     else

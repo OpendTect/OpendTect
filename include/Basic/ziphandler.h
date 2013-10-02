@@ -14,8 +14,8 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
-#include "strmprov.h"
 #include "typeset.h"
+#include "od_iosfwd.h"
 
 
 class ZipArchiveInfo;
@@ -66,6 +66,8 @@ public:
 				, uncompfilesize_(0)
 				, compfilesize_(0)
 				, offsetofcentraldir_(0)
+				, istrm_(0)
+				, ostrm_(0)
 				, curinputidx_(0)
 				, curfileidx_(0)
 				, totalsize_(0)
@@ -110,7 +112,7 @@ protected:
     bool			readXtraFldForZIP64(const char*,int);
     bool                        readAndSetFileAttr();
 
-    bool			initMakeZip(const char*,BufferStringSet);
+    bool			initMakeZip(const char*,const BufferStringSet&);
     bool			initAppend(const char*,const char*);
 
     bool			compressNextFile();
@@ -136,7 +138,14 @@ protected:
     od_int64			getTotalSize()const  { return totalsize_; }
     od_int64			getNrDoneSize()const  { return nrdonesize_; }
 
-    BufferString		errormsg_;
+    bool			reportReadError(const char* filenm=0) const;
+    bool			reportWriteError(const char* filenm=0) const;
+    bool			reportStrmReadError(od_istream*,
+	    					    const char*) const;
+    void			closeInputStream();
+    void			closeOutputStream();
+
+    mutable BufferString	errormsg_;
     BufferStringSet		allfilenames_;
     
     BufferString		srcfile_ ;
@@ -163,14 +172,14 @@ protected:
 
     od_uint32			crc_;
 
-    od_int64			offsetofcentraldir_;
-    od_int64			offsetoflocalheader_;
+    od_stream_Pos		offsetofcentraldir_;
+    od_stream_Pos		offsetoflocalheader_;
 
     od_int64			totalsize_;
     od_int64			nrdonesize_;
 
-    StreamData			osd_;
-    StreamData			isd_;
+    od_ostream*			ostrm_;
+    od_istream*			istrm_;
     
 };
 

@@ -136,27 +136,6 @@ inline Coord3 operator*( double f, const Coord3& b )
 
 
 /*!
-\brief 2D coordinate and a value.
-*/
-
-mExpClass(Basic) CoordValue
-{
-public:
-		CoordValue( double x=0, double y=0, float v=mUdf(float) )
-		: coord(x,y), value(v)		{}
-		CoordValue( const Coord& c, float v=mUdf(float) )
-		: coord(c), value(v)		{}
-    bool	operator==( const CoordValue& cv ) const
-		{ return cv.coord == coord; }
-    bool	operator!=( const CoordValue& cv ) const
-		{ return cv.coord != coord; }
-
-    Coord	coord;
-    float	value;
-};
-
-
-/*!
 \brief 3D coordinate and a value.
 */
 
