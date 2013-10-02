@@ -306,6 +306,7 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
+    IOM().to( MultiID(0) );
     IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
     BufferString nmflt = filtfld_->text();
@@ -446,7 +447,7 @@ bool uiIOObjSelGrp::processInput()
 	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
 	if ( !ioobj )
 	{
-	    IOM().to( "" );
+	    IOM().to( MultiID(0) );
 	    fullUpdate( -1 );
 	    return false;
 	}
