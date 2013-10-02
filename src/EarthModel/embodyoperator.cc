@@ -68,15 +68,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const float z = zrg_.atIndex(p[2]);
 	
 	int id0[3], id1[3];
-	id0[0] = b0_.cs_.hrg.inlRange().nearestIndex( inl );
-	id0[1] = b0_.cs_.hrg.crlRange().nearestIndex( crl );
-	id0[2] = b0_.cs_.zrg.nearestIndex( z );
-	id1[0] = b1_.cs_.hrg.inlRange().nearestIndex( inl );
-	id1[1] = b1_.cs_.hrg.crlRange().nearestIndex( crl );
-	id1[2] = b1_.cs_.zrg.nearestIndex( z );
+	id0[0] = b0_.cs_.inlIdx( inl );
+	id0[1] = b0_.cs_.crlIdx( crl );
+	id0[2] = b0_.cs_.zIdx( z );
+	id1[0] = b1_.cs_.inlIdx( inl );
+	id1[1] = b1_.cs_.crlIdx( crl );
+	id1[2] = b1_.cs_.zIdx( z );
 	
 	char pos0 = mOutsideVal, pos1 = mOutsideVal;
-	float v0 = mUdf(float), v1 = mUdf(float);
+	float v0 = b0_.threshold_+mOutsideVal, v1 = b1_.threshold_+mOutsideVal; 
 	if ( b0_.arr_->info().validPos(id0[0],id0[1],id0[2]) )
 	{
 	    v0 = b0_.arr_->get( id0[0], id0[1], id0[2] );
