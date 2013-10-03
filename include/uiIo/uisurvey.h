@@ -116,6 +116,7 @@ protected:
     void		mkInfo();
     void		writeComments();
     bool		writeSurveyName(const char*);
+    void		updateDataRootInSettings();
 
 };
 

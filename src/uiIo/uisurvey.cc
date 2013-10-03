@@ -345,6 +345,16 @@ bool uiSurvey::survTypeOKForUser( bool is2d )
     return false; \
 }
 
+
+void uiSurvey::updateDataRootInSettings()
+{
+    Settings::common().set( "Default DATA directory", GetBaseDataDir() );
+    if ( !Settings::common().write() )
+	uiMSG().warning( "Could not save the survey location in the settings"
+			  " file" );
+}
+
+
 bool uiSurvey::acceptOK( CallBacker* )
 {
     if ( listbox_->isEmpty() )
@@ -363,8 +373,19 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( !updateSvyFile() )
 	mPrevSurv( prevsurvey )
 
-    SurveyInfo::deleteInstance();
-    SurveyInfo::pushSI( survinfo_ );
+    if ( samesurvey && !initialsurveyparchanged_ )
+    {
+	IOMan::enableSurveyChangeTriggers( false );
+	updateDataRootInSettings();
+	return true;
+    }
+
+    if ( survinfo_ != &SI() )
+    {
+	SurveyInfo::deleteInstance();
+	SurveyInfo::pushSI( survinfo_ );
+    }
+
     if ( !IOMan::newSurvey() )
     {
 	if ( !IOM().message().isEmpty() )
@@ -374,10 +395,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     }
 
     IOMan::enableSurveyChangeTriggers( false );
-    Settings::common().set( "Default DATA directory", GetBaseDataDir() );
-    if ( !Settings::common().write() )
-	uiMSG().warning( "Could not save the survey location in the settings"
-	       		 " file" );
+    updateDataRootInSettings();
 
     if ( impiop_ && impsip_ )
     {
