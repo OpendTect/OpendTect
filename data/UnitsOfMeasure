@@ -48,4 +48,17 @@ GigaPascal: Pressure`GPa`1e9
 Atmosphere: Pressure`atm`101325.01
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
+Square meter: Area`m2`1
+Square kilometer: Area`km2`1e-6
+Square mile: Area`mi2`3.8610215855e-7
+Acre: Area`ac`2.4710538147e-4
+Liter: Volume`L`1000
+Cubic meters: Volume`m3`1
+Cubic centimeters: Volume`cm3`1e6
+Cubic mile: Volume`mi3`2.3991275858e-10
+Cubic feet: Volume`ft3`35.314666721
+Cubic inch: Volume`in3`61023.744095
+Gallon [UK]: Volume`gal`219.9692483
+Barrels: Volume`barrels`6.2898107704
+Billion Cubic Feet: Volume`bcf`35.314666721e-9
 !

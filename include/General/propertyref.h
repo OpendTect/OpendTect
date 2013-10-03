@@ -41,9 +41,9 @@ mExpClass(General) PropertyRef : public NamedObject
 public:
 
     enum StdType	{
-			    Anis, Class, Comp, Den, Dist, ElaRa, ElPot, GR,
-			    Imp, Perm, Pres, PresWt, Res, Son, Temp, Time,
-			    Vel, Volum, Other
+			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
+			    GR, Imp, Perm, Pres, PresWt, Res, Son, Temp, Time,
+			    Vel, Volum, Vol, Other
 			};
 			DeclareEnumUtils(StdType)
     static StdType	surveyZType();
