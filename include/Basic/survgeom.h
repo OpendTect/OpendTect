@@ -104,7 +104,7 @@ inline mGlobal(Basic) const GeometryManager& GM()
 mExpClass(Basic) GeometryReader
 {
 public:
-			GeometryReader(){};
+    virtual		~GeometryReader()		{};
 			mDefineFactoryInClass(GeometryReader,factory);
 
     virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
@@ -119,7 +119,7 @@ public:
 mExpClass(Basic) GeometryWriter
 {
 public:
-			GeometryWriter(){};
+    virtual		~GeometryWriter()		{};
 			mDefineFactoryInClass(GeometryWriter,factory);
 
     virtual bool	write(Geometry&) const		{ return true; }
