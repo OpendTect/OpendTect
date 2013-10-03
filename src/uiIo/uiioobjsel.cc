@@ -307,6 +307,7 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
+    IOM().to( MultiID(0) ); // force refresh
     IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
     BufferString nmflt = filtfld_->text();
