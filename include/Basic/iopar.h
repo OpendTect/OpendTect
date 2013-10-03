@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class BinID;
+class TraceID;
 class BufferString;
 class BufferStringSet;
 class Coord;
@@ -136,6 +137,7 @@ public:
     bool		get(const char*,TypeSet<float>&) const;
 
     bool		get(const char*,BinID&) const;
+    bool		get(const char*,TraceID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
     bool		get(const char*,MultiID&) const;
@@ -205,6 +207,7 @@ public:
 
     void		set(const char*,const char*,const char*);
     void		set(const char*,const BinID&);
+    void		set(const char*,const TraceID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
     void		set(const char*,const MultiID&);

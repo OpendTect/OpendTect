@@ -332,7 +332,8 @@ void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, bool yn3 ) \
     fms.add( getYesNoString(yn3) ); \
     fnnm( keyw, fms ); \
 } \
-void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, bool yn3, bool yn4 ) \
+void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, \
+		      bool yn3, bool yn4 ) \
 { \
     FileMultiString fms( getYesNoString(yn1) ); \
     fms.add( getYesNoString(yn2) ); \
@@ -827,6 +828,27 @@ bool IOPar::get( const char* s, BinID& binid ) const
 { return get( s, binid.inl, binid.crl ); }
 void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl, binid.crl ); }
+
+
+bool IOPar::get( const char* s, TraceID& traceid ) const
+{
+    TraceID::GeomID gid;
+    int trcnr;
+    int linenr;
+
+    if ( !get( s, gid, linenr, trcnr ) )
+	return false;
+
+    if ( !traceid.setGeomID(gid) )
+	return false;
+
+    traceid.trcNr() = trcnr;
+    traceid.lineNr() = linenr;
+
+    return true;
+}
+void IOPar::set( const char* s, const TraceID& traceid )
+{ set( s, traceid.getGeomID(), traceid.lineNr(), traceid.trcNr() ); }
 
 
 bool IOPar::get( const char* s, SeparString& ss ) const

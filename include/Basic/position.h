@@ -249,6 +249,10 @@ public:
     static const TraceID&	udf();
     
     bool			isUdf() const { return mIsUdf(pos_.trcNr()); }
+
+    GeomID			getGeomID() const	{ return geomid_; }
+    bool			setGeomID(GeomID gid)
+    				    { geomid_ = gid; return true; }
     
     GeomID			geomid_;
 				/*!<std3DGeomID refers to the default 3d survey
