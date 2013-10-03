@@ -374,7 +374,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     }
 
     IOMan::enableSurveyChangeTriggers( false );
-    Settings::common().set( "Default DATA directory", GetDataDir() );
+    Settings::common().set( "Default DATA directory", GetBaseDataDir() );
     if ( !Settings::common().write() )
 	uiMSG().warning( "Could not save the survey location in the settings"
 	       		 " file" );
