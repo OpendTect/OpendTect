@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* valsep_replacement = "\\:";
 static const char* newline_replacement = "#-NL-#";
 
+#define mChckStrm(act) if ( !strm_.isOK() ) { act; }
+
 
 static BufferString& getPVN()
 {
@@ -71,9 +73,9 @@ bool ascostream::isOK() const
     { return strm_.isOK(); }
 
 
-
 bool ascostream::putHeader( const char* fltyp )
 {
+    mChckStrm(return false)
     strm_ << GetProjectVersionName() << od_newline << fltyp << od_newline
 	     << Time::getDateTimeString() << od_newline;
     newParagraph();
@@ -83,13 +85,14 @@ bool ascostream::putHeader( const char* fltyp )
 
 void ascostream::newParagraph()
 {
+    mChckStrm(return)
     strm_ << mAscStrmParagraphMarker << od_endl;
 }
 
 
 void ascostream::putKeyword( const char* keyword, bool withsep )
 {
-    if ( !keyword || !*keyword ) return;
+    if ( !isOK() || !keyword || !*keyword ) return;
 
     BufferString towrite = keyword;
     char* ptr = strchr( towrite.buf(), mAscStrmKeyValSep );
@@ -112,6 +115,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
 bool ascostream::put( const char* keyword, const char* value )
 {
     putKeyword( keyword, (bool)value );
+    mChckStrm(return false)
 
     if ( value )
     {
@@ -133,7 +137,7 @@ bool ascostream::put( const char* keyword, const char* value )
 	strm_ << value;
     }
 
-    strm_ << od_newline;
+    strm_ << od_endl;
     return strm_.isOK();
 }
 
@@ -141,6 +145,7 @@ bool ascostream::put( const char* keyword, const char* value )
 #define mDeclPut1IFn(typ) \
 bool ascostream::put( const char* keyword, typ value ) \
 { \
+    mChckStrm(return false) \
     putKeyword( keyword ); strm_ << value << od_newline; \
     return strm_.isOK(); \
 }
@@ -166,6 +171,7 @@ bool ascostream::put( const char* keyword, double value )
 bool ascostream::putYN( const char* keyword, bool yn )
 {
     putKeyword( keyword );
+    mChckStrm(return false)
     strm_ << getYesNoString(yn) << od_newline;
     return strm_.isOK();
 }
@@ -272,8 +278,7 @@ bool ascistream::hasStandardHeader() const
 ascistream& ascistream::next()
 {
     keybuf_.setEmpty(); valbuf_.setEmpty();
-    if ( !strm_.isOK() )
-	return *this;
+    mChckStrm(return *this)
 
     BufferString lineread;
     if ( !strm_.getLine(lineread) )
