@@ -40,7 +40,7 @@ mExpClass(EarthModel) SurfaceAuxData
 {
 public:
 			SurfaceAuxData(Horizon3D&);
-			~SurfaceAuxData();
+    virtual		~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
     Executor*		auxDataSaver(int dataid=0,bool overwrite=false);
 

@@ -48,7 +48,7 @@ public:
     };
 
 			uiWellZRangeSelector(uiParent*,const Setup&);
-			~uiWellZRangeSelector();
+    virtual		~uiWellZRangeSelector();
 
     virtual void	clear();
 

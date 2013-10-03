@@ -265,6 +265,8 @@ public:
 			    , secondsetaxes_(drkbg)
 			    , anglewithset1_(0)		{}
 
+    virtual		~Appearance()			{}
+
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 

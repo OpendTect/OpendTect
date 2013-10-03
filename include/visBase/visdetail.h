@@ -38,6 +38,7 @@ mExpClass(visBase) Detail
 public:
 			Detail( DetailType dt )
 			    : detailtype( dt )	{}
+    virtual		~Detail()		{}
     
     virtual DetailType	getDetailType();
     

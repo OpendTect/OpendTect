@@ -34,6 +34,7 @@ mExpClass(Database) DatabaseColumnBase
 public:
     			DatabaseColumnBase( DatabaseTable& dobj,
 			    const char* columnname,const char* columntype );
+    virtual		~DatabaseColumnBase()	{}
 
     virtual const char*	columnName() const	{ return columnname_; }
     virtual const char*	selectString() const;
@@ -58,7 +59,7 @@ protected:
 */
 
 #define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
-mExpClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase			\
+mExpClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase		\
 {									\
 public:									\
     		clssnm( ::SqlDB::DatabaseTable& dobj,	\

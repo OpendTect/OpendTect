@@ -48,6 +48,7 @@ mExpClass(Well) ZRangeSelector
 public :
     			ZRangeSelector() { setEmpty(); }
     			ZRangeSelector(const ZRangeSelector&);
+    virtual		~ZRangeSelector() {}
 
 
     enum		ZSelection { Markers, Depths, Times };

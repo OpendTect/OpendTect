@@ -41,7 +41,7 @@ public:
 			DisplayProperties(const Well::DisplayProperties& dp)
 			{ *this = dp;}			   
 
-			~DisplayProperties();
+    virtual		~DisplayProperties();
 
     DisplayProperties& 	operator = (const DisplayProperties& dp);
 

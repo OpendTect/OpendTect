@@ -32,7 +32,7 @@ mExpClass(Algo) TimeDepthModel
 public:
     			TimeDepthModel();
     			TimeDepthModel(const TimeDepthModel&);
-    			~TimeDepthModel();
+    virtual		~TimeDepthModel();
 
     virtual bool	isOK() const;
     const char*		errMsg() const;
@@ -204,8 +204,8 @@ public:
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0, const float* t,
-			int nrlayers, float* Vint);
+mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0,
+			const float* t, int nrlayers, float* Vint);
 
 /*!
 \brief Rms velocity to interval velocity conversion.
@@ -247,8 +247,8 @@ mGlobal(Algo) bool computeDix(const float* Vrms,const SamplingData<double>& sd,
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0, const float* t,
-			int nrlayers, float* Vint);
+mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0,
+				const float* t, int nrlayers, float* Vint);
 
 
 /*! Be very careful when using this one: the input Vint has to be regularly
@@ -308,17 +308,17 @@ mGlobal(Algo) bool sampleVavg(const float* Vavg, const float* t_in, int nr_in,
 /*!Given a residual moveout at a reference offset, comput the residual moveout
    at other offsets */
 
-mGlobal(Algo) void computeResidualMoveouts( float z0, float rmo, float refoffset,
-				      int nroffsets, bool outputdepth,
-				      const float* offsets, float* output );
+mGlobal(Algo) void computeResidualMoveouts(float z0,float rmo,float refoffset,
+				      int nroffsets,bool outputdepth,
+				      const float* offsets,float* output);
 
 /*!Given a layered V_int model (in time or depth), compute the best fit for a
    V_int = V_0 + gradient * (z-reference_z). The fit is such that the time/depth
    pairs at the layer's boundary will be preserved. */
-mGlobal(Algo) bool fitLinearVelocity( const float* Vint, const float* z_in, int nr_in,
-			      const Interval<float>& zlayer, float reference_z,
-			      bool zisdepth, float& V_0, float& gradient,
-			      float& error);
+mGlobal(Algo) bool fitLinearVelocity( const float* Vint, const float* z_in,
+			      int nr_in, const Interval<float>& zlayer,
+			      float reference_z, bool zisdepth, float& V_0,
+			      float& gradient, float& error);
 	        
 	        
 /*!Given an irregularly sampled depth or time array, create a regularly sampled
@@ -330,13 +330,15 @@ mGlobal(Algo) void resampleZ(const float* zarr,const float* tord_in, int nr_in,
 			float* zsampled);
 
 /*!Given an irregularly sampled effective Thomsen parameter array, create a
-  regularly sampled one. The function assumes constant value of the parameter before and after the input interval.*/
-mGlobal(Algo) void sampleEffectiveThomsenPars(const float* vinarr,const float* t_in,
-				 int nr_in,const SamplingData<double>& sd_out,
-				 int nr_out,float* voutarr);
+  regularly sampled one. The function assumes constant value of the parameter
+  before and after the input interval.*/
+mGlobal(Algo) void sampleEffectiveThomsenPars(const float* vinarr,
+	const float* t_in,int nr_in,const SamplingData<double>& sd_out,
+	int nr_out,float* voutarr);
 
 /*!Given an irregularly sampled interval Thomsen parameter array, create a
-  regularly sampled one. The function assumes constant value of the parameter before and after the input interval.*/
+  regularly sampled one. The function assumes constant value of the parameter
+  before and after the input interval.*/
 mGlobal(Algo) void sampleIntvThomsenPars(const float* inarr,const float* t_in,
 				int nr_in,const SamplingData<double>& sd_out,
 				int nr_out,float* outarr);
