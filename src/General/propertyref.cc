@@ -30,6 +30,7 @@ mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
 	"Anisotropy",
+	"Area",
 	"Classification",
 	"Compressibility",
 	"Density",
@@ -46,7 +47,8 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	"Temperature",
 	"Time",
 	"Velocity",
-	"Volumetrics",
+	"Volumetrics", // ratios: relative
+	"Volume", // absolute
 	"Other",
 	0
 };
