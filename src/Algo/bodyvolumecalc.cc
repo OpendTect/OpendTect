@@ -36,7 +36,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs,
 
 
 od_int64 BodyVolumeCalculator::nrIterations() const
-{ return cs_.nrZ()-1; }
+{ return arr_.info().getSize(2)-1; }
 
 
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
@@ -46,9 +46,6 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 
     const int inlsz = arr_.info().getSize(0); 
     const int crlsz = arr_.info().getSize(1); 
-    const int zsz = arr_.info().getSize(2);
-    if ( cs_.nrInl()!=inlsz || cs_.nrCrl()!=crlsz || cs_.nrZ()!=zsz )
-	return 0;
 
     float nrunits = 0;
     for ( int idx=0; idx<inlsz-1; idx++ )
@@ -77,40 +74,20 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 		}
 		else if ( nrdftop==2 && nrdfbas==2 )  
 		{
-		    int ti=-1, tj=-1;
-		    int bi=-1, bj=-1;
-		    for ( int k=0; k<4; k++ )
-		    {
-			if ( inside[k] )
-			{
-			    if ( ti==-1 )
-				ti = k;
-			    else 
-				tj = k;
-			}
-			if ( inside[k+4] )
-			{
-			    if ( ti==-1 )
-				bi = k+4;
-			    else 
-				bj = k+4;
-			}
-		    }
-
-		    if ( (ti==0 && tj==1 && bi==4 && bj==5) ||  
-			 (ti==0 && tj==1 && bi==6 && bj==7) ||
-			 (ti==1 && tj==2 && bi==5 && bj==6) ||
-			 (ti==1 && tj==2 && bi==4 && bj==7) ||
-			 (ti==2 && tj==3 && bi==6 && bj==7) ||
-			 (ti==2 && tj==3 && bi==4 && bj==5) ||
-			 (ti==0 && tj==3 && bi==4 && bj==7) ||
-			 (ti==0 && tj==3 && bi==5 && bj==6) ||
-			 (ti==1 && tj==3 && bi==5 && bj==7) ||
-			 (ti==0 && tj==2 && bi==4 && bj==6) )
+		    if ( (inside[0] && inside[1] && inside[4] && inside[5]) ||
+			 (inside[0] && inside[1] && inside[6] && inside[7]) ||
+			 (inside[0] && inside[2] && inside[4] && inside[6]) ||
+			 (inside[0] && inside[3] && inside[4] && inside[7]) ||
+			 (inside[0] && inside[3] && inside[5] && inside[6]) ||
+			 (inside[1] && inside[2] && inside[5] && inside[6]) ||
+			 (inside[1] && inside[2] && inside[4] && inside[7]) ||
+			 (inside[1] && inside[3] && inside[5] && inside[7]) ||
+			 (inside[2] && inside[3] && inside[4] && inside[5]) ||
+			 (inside[2] && inside[3] && inside[6] && inside[7]) )
 			continue;
 
-		    if ( (ti==0 && tj==2 && bi==5 && bj==7) ||
-		         (ti==1 && tj==3 && bi==4 && bj==6) )
+		    if ( (inside[0] && inside[2] && inside[5] && inside[7]) ||
+		         (inside[1] && inside[3] && inside[4] && inside[6]) )
 			nrunits += 1.0/3.0;
 		    else
 			nrunits += 1.0/6.0;
