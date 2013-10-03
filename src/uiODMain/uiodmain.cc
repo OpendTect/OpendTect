@@ -713,9 +713,9 @@ bool uiODMain::closeOK()
     saveSettings();
 
     bool askedanything = false;
-    if ( !askStore(askedanything,"Shutdown") )
+    if ( !askStore(askedanything,"Close OpendTect") )
     {
-	uiMSG().message("Shutdown cancelled");
+	uiMSG().message("closing cancelled");
 	return false;
     }
 
@@ -727,7 +727,7 @@ bool uiODMain::closeOK()
     {
 	bool doask = false;
 	Settings::common().getYN( "dTect.Ask close", doask );
-	if ( doask && !uiMSG().askGoOn( "Do you want to quit?" ) )
+	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
 	    return false;
     }
 
