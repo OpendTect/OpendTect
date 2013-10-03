@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
+#include "survinfo.h"
 #include "uilistbox.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -37,7 +38,7 @@ static BufferStringSet getSurvList()
 	    if ( matchString("_New_Survey_",dirnm) )
 		continue;
 
-	    const FilePath fp( basedir, dirnm, ".survey" );
+	    const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName());
 	    if ( File::exists(fp.fullPath()) )
 		bss.add( dirnm );
 	}

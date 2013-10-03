@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static bool checkIfDataDir( const char* path )
 {
-    FilePath fpo( path, ".omf" ), fps( path, ".survey" );
+    FilePath fpo( path, ".omf" ), fps( path, SurveyInfo::sKeySetupFileName() );
     return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
 }
 
@@ -178,7 +178,8 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 		 "Please specify the full path" );
     if ( !File::isDirectory(fullpath) )
 	mErrRet( "Please select a valid directory" );
-    if ( !File::exists( FilePath(fullpath,".survey").fullPath() ) )
+    if ( !File::exists(FilePath(fullpath,SurveyInfo::sKeySetupFileName()).
+		       fullPath()) )
 	mErrRet( "This is not an OpendTect survey directory" );
 
     setInputText( fullpath );

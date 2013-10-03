@@ -41,72 +41,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 extern "C" const char* GetBaseDataDir();
 
-
-static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
-{
-    static ObjectSet<uiSurvInfoProvider>* sips = 0;
-    if ( !sips )
-	sips = new ObjectSet<uiSurvInfoProvider>;
-    return *sips;
-}
-
-
-class uiCopySurveySIP : public uiSurvInfoProvider
-{
-public:
-
-const char* usrText() const
-{ return "Copy from other survey"; }
-
-uiDialog* dialog( uiParent* p )
-{
-    survlist_.erase();
-    uiSurvey::getSurveyList( survlist_ );
-    uiSelectFromList::Setup setup( "Surveys", survlist_ );
-    setup.dlgtitle( "Select survey" );
-    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpID("0.3.6");
-    return dlg;
-}
-
-
-bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
-{
-    tdinf_ = Uknown;
-    inft_ = false;
-    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
-    if ( !seldlg ) return false;
-
-    BufferString fname = FilePath( GetBaseDataDir() )
-			 .add( seldlg->selFld()->getText() ).fullPath();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
-    if ( !survinfo ) return false;
-
-    cs = survinfo->sampling( false );
-    crd[0] = survinfo->transform( cs.hrg.start );
-    crd[1] = survinfo->transform( cs.hrg.stop );
-    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
-
-    tdinf_ = survinfo->zIsTime() ? Time
-				 : (survinfo->zInFeet() ? DepthFeet : Depth);
-    inft_ = survinfo->xyInFeet();
-    return true;
-}
-
-TDInfo tdInfo() const { return tdinf_; }
-bool xyInFeet() const { return inft_; }
-
-    TDInfo	tdinf_;
-    bool	inft_;
-    BufferStringSet survlist_;
-
-};
-
-
 static const char* sKeySRDMeter = "Seismic Reference Datum (m) ";
 static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
+       					bool isnew )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
 				     "Specify survey parameters","0.3.2")
 				     .nrstatusflds(1))
@@ -119,18 +58,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, sipfld_(0)
 	, lastsip_(0)
 	, impiop_(0)
-	, topgrp_( 0 )
+	, topgrp_(0)
+	, isnew_(isnew)
 {
-    static int sipidx mUnusedVar = addInfoProvider( new uiCopySurveySIP );
-
     orgstorepath_ = si_.datadir_.buf();
-    isnew_ = orgdirname_.isEmpty();
-
     BufferString fulldirpath;
     if ( !isnew_ )
     {
-	BufferString storagedir = FilePath(orgstorepath_)
-	    			  .add(orgdirname_).fullPath();
+	BufferString storagedir = FilePath(orgstorepath_).add(orgdirname_)
+	    						 .fullPath();
 	int linkcount = 0;
 	while ( linkcount++ < 20 && File::isLink(storagedir) )
 	{
@@ -153,32 +89,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	fulldirpath = storagedir;
     }
     else
-    {
-	orgstorepath_ = rootdir_;
-	if ( !File::isWritable(orgstorepath_) )
-	{
-	    BufferString msg( "Cannot create new survey in\n",orgstorepath_,
-			      ".\nDirectory is write protected.");
-	    uiMSG().error( msg );
-	    return;
-	}
+	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
 
-	orgdirname_ = newSurvTempDirName();
-	BufferString dirnm = FilePath( orgstorepath_ )
-	    		    .add( orgdirname_ ).fullPath();
-	if ( File::exists(dirnm) && !strncmp(orgdirname_,"_New_",5) )
-	    File::remove( dirnm );
-	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
-		       orgstorepath_,orgdirname_) )
-	    return;
-	File::makeWritable( dirnm, true, true );
-
-	fulldirpath = dirnm;
-    }
-
-    IOMan::setSurvey( orgdirname_ );
-    SI().setInvalid();
-    SurveyInfo::read( fulldirpath );
+    if ( isnew_ )
+	SurveyInfo::pushSI( &si_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     survnmfld_ = new uiGenInput( topgrp_, "Survey name",
@@ -245,6 +159,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+    updatePar(0);
+    sipCB(0);
 }
 
 
@@ -278,8 +194,19 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 	txt += " ...";
 	sipfld_->addItem( txt );
     }
-    sipfld_->setCurrentItem( 0 );
     sipfld_->setPrefWidthInChar( maxlen + 1 );
+    sipfld_->setCurrentItem( 0 );
+
+    if ( !si_.sipName().isEmpty() )
+    {
+	const BufferString sipnm = si_.sipName();
+	if ( !sipfld_->isPresent(sipnm) )
+	    return;
+
+	const int sipidx = sipfld_->indexOf( sipnm );
+	sipfld_->setCurrentItem( sipidx );
+    }
+
 }
 
 
@@ -308,6 +235,11 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );
+    if ( si_.zdef_.isTime() )
+	zunitfld_->setCurrentItem( 0 );
+    else
+	zunitfld_->setCurrentItem( si_.depthsinfeet_ ? 2 : 1 );
+
     zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
     const bool depthinft = si_.depthsInFeet();
@@ -453,6 +385,15 @@ void uiSurveyInfoEditor::setValues()
 }
 
 
+ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
+{
+    static ObjectSet<uiSurvInfoProvider>* sips = 0;
+    if ( !sips )
+	sips = new ObjectSet<uiSurvInfoProvider>;
+    return *sips;
+}
+
+
 int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 {
     if ( p ) survInfoProvs() += p;
@@ -542,13 +483,9 @@ bool uiSurveyInfoEditor::doApply()
 {
     if ( !setSurvName() || !setRanges() )
 	return false;
-    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
 
-    const bool xyinft = xyinftfld_->isChecked();
-    si_.setXYInFeet( xyinft );
-    const bool zdepthft = zunitfld_->currentItem() == 2;
-    const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-            xyinft || zdepthft || !depthdispfld_->getBoolValue() );
+    si_.setSeismicReferenceDatum( refdatumfld_->getdValue( 0.0 ) );
+    updatePar(0);
 
     if ( !mUseAdvanced() )
     {
@@ -589,12 +526,14 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
 bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 {
-    if ( isnew_ && !strncmp(orgdirname_,"_New_",5) )
+    if ( isnew_ )
     {
-	const BufferString dirnm = FilePath(orgstorepath_)
-	    			   .add(orgdirname_).fullPath();
+	const BufferString dirnm = FilePath(orgstorepath_).add(orgdirname_)
+	    						  .fullPath();
 	if ( File::exists(dirnm) )
 	    File::remove( dirnm );
+
+	SurveyInfo::popSI();
     }
 
     return true;
@@ -627,48 +566,26 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     const bool storepathchanged = orgstorepath_ != newstorepath;
     dirnamechanged = orgdirname_ != newdirnm;
 
-    if ( !isnew_ )
+    if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
     {
-	if ( (dirnamechanged || storepathchanged)
-	  && File::exists(newdir) )
-	{
-	    uiMSG().error( "The new target directory exists.\n"
-		    	   "Please enter another survey name or location." );
-	    return false;
-	}
-
-	if ( storepathchanged )
-	{
-	    if ( !uiMSG().askGoOn("Copy your survey to another location?") )
-		return false;
-	    else if ( !copySurv(orgstorepath_,orgdirname_,
-				newstorepath,newdirnm) )
-		return false;
-	    else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
-		File::remove( olddir );
-	}
-	else if ( dirnamechanged )
-	{
-	    if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
-		return false;
-	}
+	uiMSG().error( "The new target directory exists.\n"
+		       "Please enter another survey name or location." );
+	return false;
     }
-    else
-    {
-	if ( File::exists(newdir) )
-	{
-	    uiMSG().error( "The chosen target directory exists.\n"
-		    	   "Please enter another name or location." );
-	    return false;
-	}
 
-	if ( newstorepath != orgstorepath_ )
-	{
-	    if ( !copySurv(orgstorepath_,orgdirname_,newstorepath,newdirnm) )
-		return false;
+    if ( storepathchanged )
+    {
+	if ( !uiMSG().askGoOn("Copy your survey to another location?") )
+	    return false;
+	else if ( !copySurv(orgstorepath_,orgdirname_,
+			    newstorepath,newdirnm) )
+	    return false;
+	else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
 	    File::remove( olddir );
-	}
-	else if ( !renameSurv(newstorepath,orgdirname_,newdirnm) )
+    }
+    else if ( dirnamechanged )
+    {
+	if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
 	    return false;
     }
 
@@ -700,6 +617,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
         uiMSG().error( "Failed to write survey info.\nNo changes committed." );
 	return false;
     }
+
+    if ( isnew_ )
+	SurveyInfo::popSI();
     
     return true;
 }
@@ -786,6 +706,17 @@ bool uiSurveyInfoEditor::setRelation()
 }
 
 
+void uiSurveyInfoEditor::updatePar( CallBacker* cb )
+{
+    const bool xyinft = xyinftfld_->isChecked();
+    si_.setXYInFeet( xyinft );
+    const bool zdepthft = zunitfld_->currentItem() == 2;
+    const bool depthinft = xyinft || zdepthft || !depthdispfld_->getBoolValue();
+    const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
+	    				  depthinft );
+}
+
+
 void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 {
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
@@ -808,6 +739,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	si_.setZUnit( sip->tdInfo() == uiSurvInfoProvider::Time,
 		      sip->tdInfo() == uiSurvInfoProvider::DepthFeet );
     si_.setXYInFeet( sip->xyInFeet() );
+    updatePar(0);
 
     const bool havez = !mIsUdf(cs.zrg.start);
     if ( !havez )
@@ -820,10 +752,6 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     si_.set3Pts( crd, bid, cs.hrg.stop.crl );
     setValues();
     if ( !havez ) zfld_->clear();
-    const bool xyinft = xyinftfld_->isChecked();
-    si_.setXYInFeet( xyinft );
-    const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
-                        xyinft || !depthdispfld_->getBoolValue() );
 
     si_.setWSProjName( SI().getWSProjName() );
     si_.setWSPwd( SI().getWSPwd() );
@@ -929,3 +857,41 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 
     depthDisplayUnitSel( 0 );
 }
+
+
+
+uiDialog* uiCopySurveySIP::dialog( uiParent* p )
+{
+    survlist_.erase();
+    uiSurvey::getSurveyList( survlist_ );
+    uiSelectFromList::Setup setup( "Surveys", survlist_ );
+    setup.dlgtitle( "Select survey" );
+    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
+    dlg->setHelpID("0.3.6");
+    return dlg;
+}
+
+
+bool uiCopySurveySIP::getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
+{
+    tdinf_ = Uknown;
+    inft_ = false;
+    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
+    if ( !seldlg ) return false;
+
+    BufferString fname = FilePath( GetBaseDataDir() )
+			 .add( seldlg->selFld()->getText() ).fullPath();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
+    if ( !survinfo ) return false;
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hrg.start );
+    crd[1] = survinfo->transform( cs.hrg.stop );
+    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    inft_ = survinfo->xyInFeet();
+    return true;
+}
+

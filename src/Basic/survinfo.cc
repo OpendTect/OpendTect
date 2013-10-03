@@ -64,27 +64,39 @@ bool InlCrlSystem::includes( int line, int tracenr ) const
 { return cs_.hrg.includes( BinID(line,tracenr) ); }
 
 
+static ObjectSet<SurveyInfo> survinfostack;
+
 const SurveyInfo& SI()
 {
-    if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )
+    int cursurvinfoidx = survinfostack.size() - 1;
+    if ( cursurvinfoidx < 0 || !survinfostack[cursurvinfoidx] )
     {
-	if ( SurveyInfo::theinst_ )
+	while ( cursurvinfoidx >= 0 && !survinfostack[cursurvinfoidx] )
 	{
-	    SurveyInfo * myinst = SurveyInfo::theinst_;
-	    SurveyInfo::theinst_ = 0;
-	    delete myinst;
+	    delete survinfostack.removeSingle( cursurvinfoidx );
+	    cursurvinfoidx--;
 	}
-	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
+	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
+	if ( !newsi )
+	    { delete newsi; newsi = new SurveyInfo; } // what option is left?
+	survinfostack += newsi;
+	cursurvinfoidx = survinfostack.size() - 1;
     }
     
-    return *SurveyInfo::theinst_;
+    return *survinfostack[cursurvinfoidx];
 }
 
 
-void SurveyInfo::deleteInstance()
+void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
-    delete theinst_;
-    theinst_ = 0;
+    survinfostack += newsi;
+}
+
+
+SurveyInfo* SurveyInfo::popSI()
+{
+    return survinfostack.isEmpty() ? 0
+	 : survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
@@ -97,6 +109,7 @@ void SurveyInfo::setInvalid() const
     winlcrlsystem_.unRef();
     inlcrlsystem_.unRef();
 }
+
 
 
 SurveyInfo::SurveyInfo()
@@ -123,6 +136,7 @@ SurveyInfo::SurveyInfo()
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
 }
+
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
@@ -174,7 +188,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     }
     cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
     seisrefdatum_ = si.seisrefdatum_;
-
+    sipnm_ = si.sipnm_;
 
     return *this;
 }
@@ -183,10 +197,10 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 SurveyInfo* SurveyInfo::read( const char* survdir )
 {
     FilePath fpsurvdir( survdir );
-    FilePath fp( fpsurvdir, ".survey" );
+    FilePath fp( fpsurvdir, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
-	return new SurveyInfo;
+	return 0;
 
     ascistream astream( sfio.istrm() );
     if ( !astream.isOfFileType(sKeySI) )
@@ -198,7 +212,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	errmsg += "'.\nThe file may be corrupt or not accessible.";
 	ErrMsg( errmsg );
 	sfio.closeFail();
-	return new SurveyInfo;
+	return 0;
     }
 
     astream.next();
@@ -270,7 +284,6 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 		var = Both2DAnd3D;
 
 	    si->setSurvDataType( var );
-	    si->survdatatypeknown_ = true;
 	}
 	else if ( keyw == sKeyXYInFt() )
 	    si->xyinfeet_ = astream.getYN();
@@ -293,8 +306,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     }
     sfio.closeSuccess();
     
-    if ( si->wrapUpRead() )
-	si->valid_ = true;
+    if ( !si->wrapUpRead() )
+    { delete si; return 0; }
 
     return si;
 }
@@ -304,8 +317,17 @@ bool SurveyInfo::wrapUpRead()
 {
     if ( set3binids_[2].crl == 0 )
 	get3Pts( set3coords_, set3binids_, set3binids_[2].crl );
+
     b2c_.setTransforms( rdxtr_, rdytr_ );
-    return b2c_.isValid();
+    if ( !b2c_.isValid() )
+    {
+	BufferString errmsg( "Survey ", name() );
+	errmsg.add( " has an invalid coordinate transformation" );
+	ErrMsg( errmsg );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -329,6 +351,16 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	set3binids_[ptidx].use( fms[0] );
 	set3coords_[ptidx].use( fms[1] );
     }
+}
+
+
+void SurveyInfo::updateDirName()
+{
+    if ( !name_  || name_->isEmpty() )
+	return;
+
+    dirname_ = name();
+    cleanupString( dirname_.buf(), false, false, true );
 }
 
 
@@ -628,10 +660,11 @@ float SurveyInfo::zScale() const
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
-    if ( !valid_ ) return BinID(0,0);
     static StepInterval<int> inlrg, crlrg;
     cs_.hrg.get( inlrg, crlrg );
-    return b2c_.transformBack( c, &inlrg, &crlrg );
+    return inlrg.width(false) < 1 || crlrg.width(false) < 1
+	   ? BinID(0,0)
+	   : b2c_.transformBack( c, &inlrg, &crlrg );
 }
 
 
@@ -788,10 +821,9 @@ bool SurveyInfo::isClockWise() const
 
 bool SurveyInfo::write( const char* basedir ) const
 {
-    if ( !valid_ ) return false;
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    FilePath fp( basedir, dirname_, ".survey" );
+    FilePath fp( basedir, dirname_, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
@@ -902,13 +934,17 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     if ( File::isHidden(s) ) \
 	cmd += ". This is a hidden file"; \
     else \
-    cmd += " Please check the file permission"; \
+	cmd += " Please check the file permission"; \
     ExecOSCmd( cmd.buf(), true ); } \
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
     if ( !basedir || !*basedir )
-	basedir = GetDataDir();
+    {
+	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
+	basedir = File::exists(storepath) ? storepath.buf() : GetDataDir();
+    }
+
     const BufferString defsfnm( FilePath(basedir,sKeyDefsFile).fullPath() );
 
     if ( pars_.isEmpty() )
