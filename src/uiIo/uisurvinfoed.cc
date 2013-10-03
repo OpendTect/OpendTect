@@ -156,6 +156,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     xyinftfld_ = new uiCheckBox( this, "Coordinates are in feet" );
     xyinftfld_->attach( rightTo, applybut );
     xyinftfld_->attach( rightBorder );
+    xyinftfld_->setChecked( si_.xyInFeet() );
     xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
