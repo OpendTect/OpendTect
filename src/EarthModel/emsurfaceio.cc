@@ -132,14 +132,9 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
     setName( exnm.buf() );
     setNrDoneText( "Nr done" );
     auxdataexecs_.allowNull(true);
-    if ( !conn_ || !conn_->forRead()  )
-    {
-	msg_ = "Cannot open input surface file";
-	error_ = true;
-	return;
-    }
 
-    createAuxDataReader();
+    if ( conn_ )
+	createAuxDataReader();
 }
 
 
@@ -348,9 +343,14 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
     StreamConn& sconn( *((StreamConn*)conn_) );
     od_istream& strm = sconn.iStream();
+    if ( !strm.isOK() )
+    {
+	msg_ = "Could not open horizon file"; strm.addErrMsgTo( msg_ );
+	delete conn_; conn_ = 0; return false;
+    }
     ascistream astream( strm );
-    if ( !astream.isOfFileType( filetype ))
-	{ msg_ = "Invalid filetype"; return false; }
+    if ( !astream.isOfFileType(filetype) )
+	{ msg_ = "Horizon file has wrong file type"; return false; }
 
     version_ = 1;
     astream.next();
@@ -1540,51 +1540,50 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 
 void dgbSurfaceWriter::finishWriting()
 {
-    if ( conn_ )
+    writingfinished_ = true;
+    if ( !conn_ )
+	return;
+
+    od_ostream& strm = conn_->oStream();
+    const od_int64 nrsectionsoffset = strm.position();
+    writeInt32( strm, sectionsel_.size(), sEOL() );
+
+    for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
+	writeInt64( strm, sectionoffsets_[idx], sEOL() );
+
+    for ( int idx=0; idx<sectionsel_.size(); idx++ )
+	writeInt32( strm, sectionsel_[idx], sEOL() );
+
+
+    const od_stream::Pos secondparoffset = strm.position();
+    strm.setPosition( nrsectionsoffsetoffset_ );
+    writeInt64( strm, nrsectionsoffset, sEOL() );
+    strm.setPosition( secondparoffset );
+
+    par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
+
+    const int rowrgstep = writerowrange_ ? 
+			  writerowrange_->step : rowrange_.step;
+    par_->set( dgbSurfaceReader::sKeyRowRange(),
+	      writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
+
+    const int colrgstep = writecolrange_ ? 
+			  writecolrange_->step : colrange_.step;
+    par_->set( dgbSurfaceReader::sKeyColRange(),
+	      writtencolrange_.start, writtencolrange_.stop, colrgstep );
+    
+    par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
+			  
+    for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
     {
-	od_ostream& strm = conn_->oStream();
-	const od_int64 nrsectionsoffset = strm.position();
-	writeInt32( strm, sectionsel_.size(), sEOL() );
-
-	for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
-	    writeInt64( strm, sectionoffsets_[idx], sEOL() );
-
-	for ( int idx=0; idx<sectionsel_.size(); idx++ )
-	    writeInt32( strm, sectionsel_[idx], sEOL() );
-
-
-	const od_stream::Pos secondparoffset = strm.position();
-	strm.setPosition( nrsectionsoffsetoffset_ );
-	writeInt64( strm, nrsectionsoffset, sEOL() );
-	strm.setPosition( secondparoffset );
-
-	par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
-
-	const int rowrgstep = writerowrange_ ? 
-			      writerowrange_->step : rowrange_.step;
-	par_->set( dgbSurfaceReader::sKeyRowRange(),
-		  writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
-
-	const int colrgstep = writecolrange_ ? 
-			      writecolrange_->step : colrange_.step;
-	par_->set( dgbSurfaceReader::sKeyColRange(),
-		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
-	
-	par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
-			      
-	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
-	{
-	    const int idxcolstep = geometry_->colRange(idx).step;
-	    if ( idxcolstep && idxcolstep!=colrange_.step )
-		par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
-	}
-
-	ascostream astream( strm );
-	astream.newParagraph();
-	par_->putTo( astream );
+	const int idxcolstep = geometry_->colRange(idx).step;
+	if ( idxcolstep && idxcolstep!=colrange_.step )
+	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
 
-    writingfinished_ = true;
+    ascostream astream( strm );
+    astream.newParagraph();
+    par_->putTo( astream );
 }
 
 
@@ -1720,8 +1719,13 @@ int dgbSurfaceWriter::nextStep()
     {
 	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
+	    { msg_ = "Cannot open output surface file"; return ErrorOccurred();}
+	od_ostream& strm = conn_->oStream();
+	if ( !strm.isOK() )
 	{
 	    msg_ = "Cannot open output surface file";
+	    strm.addErrMsgTo( msg_ );
+	    delete conn_; conn_ = 0;
 	    return ErrorOccurred();
 	}
 
@@ -1736,8 +1740,6 @@ int dgbSurfaceWriter::nextStep()
 	    mSetDc( double, dgbSurfaceReader::sKeyFloatDataChar() );
 	}
 
-
-	od_ostream& strm = conn_->oStream();
 	ascostream astream( strm );
 	astream.putHeader( filetype_.buf() );
 	versionpar.putTo( astream );
