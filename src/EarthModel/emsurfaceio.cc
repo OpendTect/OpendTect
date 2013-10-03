@@ -134,10 +134,10 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
     setName( exnm.buf() );
     setNrDoneText( "Nr done" );
     auxdataexecs_.allowNull(true);
-    if ( !conn_ || !conn_->forRead()  )
+    if ( !conn_ || !conn_->forRead() || conn_->bad() )
     {
 	msg_ = "Cannot open input surface file";
-	error_ = true;
+	delete conn_; conn_ = 0; error_ = true;
 	return;
     }
 
@@ -324,6 +324,9 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 
 bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
+    if ( !conn_ )
+	return false;
+
     StreamConn& sconn( *((StreamConn*)conn_) );
     std::istream& strm = sconn.iStream();
     ascistream astream( strm );
@@ -1493,51 +1496,50 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 
 void dgbSurfaceWriter::finishWriting()
 {
-    if ( conn_ )
+    writingfinished_ = true;
+    if ( !conn_ )
+	return;
+
+    std::ostream& strm = conn_->oStream();
+    const od_int64 nrsectionsoffset = strm.tellp();
+    writeInt32( strm, sectionsel_.size(), sEOL() );
+
+    for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
+	writeInt64( strm, sectionoffsets_[idx], sEOL() );
+
+    for ( int idx=0; idx<sectionsel_.size(); idx++ )
+	writeInt32( strm, sectionsel_[idx], sEOL() );
+
+
+    const od_int64 secondparoffset = strm.tellp();
+    strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
+    writeInt64( strm, nrsectionsoffset, sEOL() );
+    strm.seekp( secondparoffset, std::ios::beg );
+
+    par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
+
+    const int rowrgstep = writerowrange_ ? 
+			  writerowrange_->step : rowrange_.step;
+    par_->set( dgbSurfaceReader::sKeyRowRange(),
+	      writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
+
+    const int colrgstep = writecolrange_ ? 
+			  writecolrange_->step : colrange_.step;
+    par_->set( dgbSurfaceReader::sKeyColRange(),
+	      writtencolrange_.start, writtencolrange_.stop, colrgstep );
+    
+    par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
+			  
+    for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
     {
-	std::ostream& strm = conn_->oStream();
-	const od_int64 nrsectionsoffset = strm.tellp();
-	writeInt32( strm, sectionsel_.size(), sEOL() );
-
-	for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
-	    writeInt64( strm, sectionoffsets_[idx], sEOL() );
-
-	for ( int idx=0; idx<sectionsel_.size(); idx++ )
-	    writeInt32( strm, sectionsel_[idx], sEOL() );
-
-
-	const od_int64 secondparoffset = strm.tellp();
-	strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
-	writeInt64( strm, nrsectionsoffset, sEOL() );
-	strm.seekp( secondparoffset, std::ios::beg );
-
-	par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
-
-	const int rowrgstep = writerowrange_ ? 
-			      writerowrange_->step : rowrange_.step;
-	par_->set( dgbSurfaceReader::sKeyRowRange(),
-		  writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
-
-	const int colrgstep = writecolrange_ ? 
-			      writecolrange_->step : colrange_.step;
-	par_->set( dgbSurfaceReader::sKeyColRange(),
-		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
-	
-	par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
-			      
-	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
-	{
-	    const int idxcolstep = geometry_->colRange(idx).step;
-	    if ( idxcolstep && idxcolstep!=colrange_.step )
-		par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
-	}
-
-	ascostream astream( strm );
-	astream.newParagraph();
-	par_->putTo( astream );
+	const int idxcolstep = geometry_->colRange(idx).step;
+	if ( idxcolstep && idxcolstep!=colrange_.step )
+	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
 
-    writingfinished_ = true;
+    ascostream astream( strm );
+    astream.newParagraph();
+    par_->putTo( astream );
 }
 
 
@@ -1672,9 +1674,10 @@ int dgbSurfaceWriter::nextStep()
     if ( !nrdone_ )
     {
 	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
-	if ( !conn_ )
+	if ( !conn_ || conn_->bad() )
 	{
 	    msg_ = "Cannot open output surface file";
+	    delete conn_; conn_ = 0;
 	    return ErrorOccurred();
 	}
 
