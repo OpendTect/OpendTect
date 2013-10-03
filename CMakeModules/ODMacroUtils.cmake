@@ -185,7 +185,7 @@ foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
     set( STATIC_LIB_DIR
          ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${OD_MODULE_NAME}.dir/${STATIC_LIB_NAME}.dir )
     if ( WIN32 )
-   	set ( SHARED_LIB_COMMAND "lib.exe ${STATIC_LIB}" )
+	set ( SHARED_LIB_COMMAND ${OpendTect_DIR}/dtect/extract_static_lib.cmd ${STATIC_LIB} ${OD_PLFSUBDIR} )
     else()
 	set ( SHARED_LIB_COMMAND ${CMAKE_AR} x ${STATIC_LIB} )
     endif()
@@ -197,7 +197,12 @@ foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 	COMMAND ${SHARED_LIB_COMMAND}
 	WORKING_DIRECTORY ${STATIC_LIB_DIR} )
 
-    file( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*${CMAKE_C_OUTPUT_EXTENSION} )
+    if ( WIN32 )
+	file ( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*.obj )
+    else()
+	file( GLOB STATIC_LIB_FILES ${STATIC_LIB_DIR}/*${CMAKE_C_OUTPUT_EXTENSION} )
+    endif()
+
     list( APPEND OD_STATIC_OUTFILES ${STATIC_LIB_FILES} )
 
     add_custom_command( OUTPUT ${STATIC_LIB_FILES}
