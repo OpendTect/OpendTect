@@ -146,6 +146,12 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 					  PointBasedMathFunction::EndVal );
 
 	rt->getTDModel( ofsidx, td );
+	if ( !td.isOK() )
+	{
+	    arr1doutput = arr1doutput + zsize;
+	    continue;
+	}
+
 	float layertwt = 0, prevlayertwt = mUdf(float);
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
@@ -156,6 +162,12 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 
 	    anglevals.add( layertwt, angledata.get(ofsidx, zidx) );
 	    prevlayertwt = layertwt;
+	}
+
+	if ( mIsUdf(layertwt) )
+	{
+	    arr1doutput = arr1doutput + zsize;
+	    continue;
 	}
 
 	const int zsizeintime = mCast( int, layertwt/deftimestep );
