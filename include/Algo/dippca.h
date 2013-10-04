@@ -41,7 +41,8 @@ mExpClass(Algo) DipPCA
 {
 public:    
 
-    				~DipPCA()			{}
+    virtual			~DipPCA()			{}
+
     mStruct(Algo) Setup
     {				Setup();
 	Setup&			operator=(const Setup&);
