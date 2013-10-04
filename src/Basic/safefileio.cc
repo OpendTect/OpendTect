@@ -108,8 +108,10 @@ bool SafeFileIO::openRead( bool ignorelock )
     {
 	errmsg_.set( "Cannot open '" ).add( toopen ).add( "' for read" );
 	if ( strm_ )
+	{
 	    errmsg_.add( ".\n" ).add( strm_->errMsg() );
-	delete strm_;
+	    delete strm_; strm_ = 0;
+	}
 	rmLock();
 	return false;
     }
@@ -135,7 +137,10 @@ bool SafeFileIO::openWrite( bool ignorelock )
     {
 	errmsg_.set( "Cannot open '" ).add( newfnm_ ).add( "' for write" );
 	if ( strm_ )
+	{
 	    errmsg_.add( ".\n" ).add( strm_->errMsg() );
+	    delete strm_; strm_ = 0;
+	}
 	rmLock();
 	return false;
     }
