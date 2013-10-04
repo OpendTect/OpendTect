@@ -922,7 +922,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	float mindist = 0;
 	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
 	{
-	    const float dist = (float) fabs( posdata.position(true,idx)-offset );
+	    const float dist = (float) fabs( posdata.position(true,idx)-offset);
 	    if ( !idx || dist<mindist )
 	    {
 		offsetsample = idx;
@@ -943,7 +943,13 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     }
 
     info = "Offset: ";
-    info += traceoffset;
+    if ( SI().xyInFeet() )
+    {
+	traceoffset *= mToFeetFactorD;
+    }
+
+    info.add( (float) traceoffset );
+    info.add( " " ).add( SI().getXYUnitString(false) );
 
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( offsetsample, zsample );
