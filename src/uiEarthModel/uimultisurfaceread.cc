@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uipossubsel.h"
+#include "uimsg.h"
 
 #include "ctxtioobj.h"
 #include "emioobjinfo.h"
@@ -132,8 +133,37 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
     const int nrsel = ioobjselgrp_->nrSel();
+    BufferString errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
-	mids += ioobjselgrp_->selected( idx );
+    {
+	const MultiID mid = ioobjselgrp_->selected( idx );
+	const EM::IOObjInfo info( mid );
+	EM::SurfaceIOData sd;
+	const char* res = info.getSurfaceData( sd );
+	if ( !res )
+	    mids += mid;
+	else
+	{
+	    if ( !info.ioObj() )
+		continue;
+
+	    errormsgstr += info.ioObj()->name();
+	    errormsgstr += " :  ";
+	    errormsgstr += res;
+	    errormsgstr += "\n";
+	}
+
+    }
+
+    if ( !errormsgstr.isEmpty() )
+    {
+	if ( nrsel == 1  ) 
+	    uiMSG().error( errormsgstr );
+	else
+	    uiMSG().error( "The following selections will not be loaded \n\n",
+			    errormsgstr );
+    }
+   
 }
 
 
