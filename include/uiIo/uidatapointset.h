@@ -201,6 +201,7 @@ protected:
     void			setSortedCol(TColID);
     void			unSelXCol();
 
+    void                        chgPosDispType(CallBacker*);
     void			rowAddedCB(CallBacker*);
     void			initWin(CallBacker*);
     void			selXCol(CallBacker*);
