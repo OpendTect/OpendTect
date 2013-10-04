@@ -324,7 +324,10 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( curdps_->isEmpty() )
 	mErrRet("No positions found matching criteria")
 
-    BufferString dpsnm( "Well data" );
+    BufferString dpsnm( "Well data:" );
+    for ( int idx=0; idx<wellnms.size(); idx++ )
+    { dpsnm += wellnms[idx]->buf(); if ( idx!=wellnms.size()-1 ) dpsnm += ","; }
+
     if ( !attrnms.isEmpty() )
     {
 	dpsnm += " / Attributes";

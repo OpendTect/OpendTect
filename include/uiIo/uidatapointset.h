@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class uiTable;
 class uiSpinBox;
+class uiCheckBox;
 class uiToolBar;
 class uiIOObjSelDlg;
 class uiStatsDisplayWin;
@@ -125,6 +126,7 @@ public:
 
     void			notifySelectedCell();
     void			reDoTable();
+    bool			posDispTypeChgd()   { return posdisptypechgd_; }
 
     int 			getSelectionGroupIdx(int selaareaid) const;
 
@@ -166,6 +168,8 @@ protected:
     DataPointSet::DataRow	afterchgdr_;
     bool			unsavedchgs_;
     bool			fillingtable_;
+    bool			showbids_;
+    bool			posdisptypechgd_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
     Timer*			timer_;
@@ -177,6 +181,7 @@ protected:
     uiToolBar*			disptb_;
     uiToolBar*			maniptb_;
     uiSpinBox*			percfld_;
+    uiCheckBox*			showbidsfld_;
     int				xplottbid_;
     int				dispxytbid_;
     int				dispztbid_;
@@ -227,6 +232,7 @@ protected:
     void			addColumn(CallBacker*);
     void			removeColumn(CallBacker*);
     void			compVertVariogram(CallBacker*);
+    void                        chgPosDispType(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

@@ -1165,6 +1165,9 @@ void uiDataPointSetCrossPlotter::setOverlayY2Cols( int y4 )
 { y4colid_ = y4; }
 
 
+#define mIsHPosCol( colid ) \
+    ( colid == mincolid_ || colid == mincolid_+1 )
+
 void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 		    DataPointSet::ColID y, DataPointSet::ColID y2 )
 {
@@ -1174,9 +1177,13 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     if ( x < mincolid_ )
 	y = y2 = mincolid_ - 1;
 
-    const bool isprevx = x_.colid_ == x;
-    const bool isprevy = y_.colid_ == y;
-    const bool isprevy2 = y2_.colid_ == y2;
+    const bool posdisptypechgd = uidps_.posDispTypeChgd();
+    const bool isprevx = ( x_.colid_ == x ) &&
+			 ( posdisptypechgd ? !mIsHPosCol( x ) : true );
+    const bool isprevy = ( y_.colid_ == y ) &&
+			 ( posdisptypechgd ? !mIsHPosCol( y ) : true );
+    const bool isprevy2 = ( y2_.colid_ == y2 ) &&
+			  ( posdisptypechgd ? !mIsHPosCol( y2 ) : true );
     x_.setCol( x ); y_.setCol( y ); y2_.setCol( y2 );
 
     if ( y_.axis_ )
