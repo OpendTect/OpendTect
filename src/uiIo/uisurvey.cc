@@ -704,7 +704,7 @@ void uiSurvey::updateInfo( CallBacker* cb )
 
 bool uiSurvey::survInfoDialog( bool isnew )
 {
-    delete impiop_; impsip_ = 0;
+    delete impiop_; impiop_ = 0; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *survinfo_, isnew );
     if ( !dlg.isOK() )
 	return false;
@@ -850,7 +850,7 @@ void uiSurvey::getSurvInfo()
 
 bool uiSurvey::survInfoDialog()
 {
-    delete impiop_; impsip_ = 0;
+    delete impiop_; impiop_ = 0; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *survinfo_, false );
     if ( !dlg.isOK() )
 	return false;
