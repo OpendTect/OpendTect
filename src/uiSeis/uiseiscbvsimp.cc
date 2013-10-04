@@ -325,8 +325,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	if ( !seltyp )
 	    outctio_.ioobj->pars().removeWithKey( "Type" );
 	else
-	    outctio_.ioobj->pars().set( sKey::Type(), seltyp == 1
-		    			? sKey::Attribute() : sKey::Steering() );
+	    outctio_.ioobj->pars().set( sKey::Type(), seltyp == 1 ?
+		    		        sKey::Attribute() : sKey::Steering() );
 
 	outctio_.ioobj->setTranslator( CBVSSeisTrcTranslator::translKey() );
 	if ( !dolink )
@@ -338,7 +338,12 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	}
     }
 
-    IOM().commitChanges( *outctio_.ioobj );
+    if ( !IOM().commitChanges(*outctio_.ioobj) )
+    {
+	uiMSG().error( "Cannot write new file\nSee log file for details" );
+	return false;
+    }
+
     if ( dolink )
     {
 	uiMSG().message( "Import successful" );
