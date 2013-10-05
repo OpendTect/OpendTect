@@ -916,7 +916,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     }
 
     int offsetsample = 0;
-    double traceoffset;
+    double traceoffset = 0;
     if ( posdata.isIrregular() )
     {
 	float mindist = 0;
