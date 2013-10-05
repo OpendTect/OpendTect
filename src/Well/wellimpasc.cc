@@ -158,7 +158,7 @@ const char* Well::LASImporter::getLogInfo( std::istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
-		if ( lognm.isEmpty() )
+		if ( lognm.isEmpty() || matchStringCI("Run",lognm.buf()) )
 		    lognm = keyw;
 		lfi.lognms += new BufferString( lognm );
 	    }
