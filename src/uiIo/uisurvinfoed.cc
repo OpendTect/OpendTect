@@ -380,7 +380,7 @@ void uiSurveyInfoEditor::setValues()
     }
 
     xyinftfld_->setChecked( si_.xyInFeet() );
-    depthdispfld_->setValue( !si_.depthsInFeetByDefault() );
+    depthdispfld_->setValue( !si_.depthsInFeet() );
     updZUnit( 0 );
 }
 

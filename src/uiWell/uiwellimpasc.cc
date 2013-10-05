@@ -75,7 +75,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft) " : " (m) ";
+    BufferString zlbl = " ";
+    zlbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) ).add(" ");
     BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );
@@ -190,7 +191,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 
     float dispval = info.replvel;
     if ( mIsUdf(info.replvel) ) dispval = mUdf(float);
-    else if ( SI().depthsInFeetByDefault() && !SI().zInFeet() )
+    else if ( SI().depthsInFeet() && !SI().zInFeet() )
 	dispval = mToFeetFactorF * info.replvel;
     BufferString str = "Replacement velocity "; str += "(";
     str += UnitOfMeasure::zUnitAnnot( false, true, false );
@@ -199,7 +200,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
-    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.groundelev) && zun_ )
+    if ( SI().depthsInFeet() && !mIsUdf(info.groundelev) && zun_ )
 	dispval = zun_->userValue( info.groundelev );
     if ( mIsUdf(info.groundelev) ) dispval = mUdf(float);
     gdelevfld = new uiGenInput( this, "Ground level elevation",
@@ -207,7 +208,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     gdelevfld->attach( alignedBelow, replvelfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, gdelevfld );
-    zinftbox->setChecked( SI().depthsInFeetByDefault() );
+    zinftbox->setChecked( SI().depthsInFeet() );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
@@ -233,7 +234,7 @@ bool acceptOK( CallBacker* )
     if ( *coordfld->text() )
 	info.surfacecoord = coordfld->getCoord();
 
-    if ( SI().depthsInFeetByDefault() && !SI().zInFeet()
+    if ( SI().depthsInFeet() && !SI().zInFeet()
 	 && !mIsUdf(replvelfld->getfValue()) )
 	info.replvel = replvelfld->getfValue() * mFromFeetFactorF;
     else
@@ -315,11 +316,11 @@ bool uiWellImportAsc::doWork()
     {
 	float kbelev = kbelevfld_->getfValue();
 	if ( mIsUdf(kbelev) ) kbelev = 0;
-	else if ( SI().depthsInFeetByDefault() && zun_ ) 
+	else if ( SI().depthsInFeet() && zun_ )
 	    kbelev = zun_->internalValue( kbelev );
 
 	float td = tdfld_->getfValue();
-	if ( !mIsUdf(td) && SI().depthsInFeetByDefault() && zun_ )
+	if ( !mIsUdf(td) && SI().depthsInFeet() && zun_ )
 	    td = zun_->internalValue( td ) ;
 	if ( mIsUdf(td) || td < 1e-6 )
 	{

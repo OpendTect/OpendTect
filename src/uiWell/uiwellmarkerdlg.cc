@@ -105,7 +105,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 
     unitfld_ = new uiCheckBox( this, "Z in Feet" );
     unitfld_->attach( rightAlignedBelow, table_ );
-    unitfld_->setChecked( SI().depthsInFeetByDefault() );
+    unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
 
     setPrefWidthInChar( 60 );

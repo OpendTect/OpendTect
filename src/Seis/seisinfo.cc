@@ -441,7 +441,7 @@ void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
 						bool othdomain )
 {
     if ( SI().zIsTime() != othdomain		// data is in time
-      || (othdomain && !SI().depthsInFeetByDefault())
+      || (othdomain && !SI().depthsInFeet())
       || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
 	return;
 

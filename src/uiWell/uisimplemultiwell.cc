@@ -55,7 +55,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,"107.0.7")
 	    		.savebutton(true).savetext("Display after creation") )
     , velfld_(0)
-    , zinft_(SI().depthsInFeetByDefault())
+    , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , overwritepol_(0)
 {

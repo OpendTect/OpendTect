@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
 
@@ -63,8 +64,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     zchoicefld_->valuechanged.notify( cb ); 
     setHAlignObj( zchoicefld_ );
 
-    const bool zinft = SI().depthsInFeetByDefault();
-    BufferString dptlbl = zinft ? "(ft)":"(m)";
+    BufferString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
     const char* units[] = { "",dptlbl.buf(),"(ms)",0 };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
@@ -102,7 +102,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     }
 
     BufferString txt = "Distance above/below ";
-    txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
+    txt += UnitOfMeasure::zUnitAnnot(false,true,true);
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );
@@ -254,7 +254,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( dostep_ )
     {
-	const bool zinft = SI().depthsInFeetByDefault();
+	const bool zinft = SI().depthsInFeet();
 	const float dptstep = zinft ? s.defmeterstep_*mToFeetFactorF 
 				    : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;

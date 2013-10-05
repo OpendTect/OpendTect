@@ -336,7 +336,9 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
 {
     IOObjContext ctxt = uiVelSel::ioContext();
     ctxt.forread = true;
-    uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
+    uiSeisSel::Setup su( false, false );
+
+    su.seltxt( VelocityDesc::getVelVolumeLabel() );
     velsel_ = new uiVelSel( this, ctxt, su );
     velsel_->velrgchanged.notify(
 	    mCB(this,uiTimeDepthBase,setZRangeCB) );

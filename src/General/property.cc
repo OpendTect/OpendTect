@@ -548,7 +548,7 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	    if ( uom )
 		v = uom->getUserValueFromSI( v );
 	}
-	else if ( SI().depthsInFeetByDefault() )
+	else if ( SI().depthsInFeet() )
 	    v *= mToFeetFactorF;
 	expr_->setVariableValue( getMathVarIdx(*expr_,idx,true), v );
     }

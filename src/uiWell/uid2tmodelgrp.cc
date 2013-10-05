@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "od_istream.h"
 #include "survinfo.h"
+#include "veldesc.h"
 #include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
@@ -37,11 +38,10 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	BufferString zlbl = SI().depthsInFeetByDefault() ? " (ft" : " (m";
-		     zlbl += "/s)";
-	BufferString velllbl( "Temporary model velocity"); velllbl += zlbl;
+	BufferString velllbl( "Temporary model velocity ");
+	velllbl.add( VelocityDesc::getVelUnit( true ) );
 	const float vel = mCast( float, 
-			       SI().depthsInFeetByDefault() ? 8000 : 2000 );
+			       SI().depthsInFeet() ? 8000 : 2000 );
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
@@ -101,14 +101,14 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const UnitOfMeasure* zun_ = UnitOfMeasure::surveyDefDepthUnit();
 	float srd = mCast( float, SI().seismicReferenceDatum() );
 	float kb  = wd.track().getKbElev();
-	if ( SI().depthsInFeetByDefault() && zun_ )
+	if ( SI().depthsInFeet() && zun_ )
 	{
 	    srd = zun_->userValue( srd );
 	    kb  = zun_->userValue( kb );
 	}
 	if ( mIsZero(srd,0.01f) ) srd = 0.f;
 	const float twtvel = velfld_->getfValue() * .5f *
-                        ( SI().depthsInFeetByDefault() ? mFromFeetFactorF : 1 );
+			( SI().depthsInFeet() ? mFromFeetFactorF : 1 );
 	const float bulkshift = mIsUdf( wd.info().replvel ) ? 0 : ( kb-srd )*
 				( (1 / twtvel) - (2 / wd.info().replvel) );
 	int idahofminz = 0;

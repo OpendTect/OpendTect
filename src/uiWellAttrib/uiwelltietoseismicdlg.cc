@@ -311,7 +311,7 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
 
-    zinftfld_->setChecked( SI().depthsInFeetByDefault() );
+    zinftfld_->setChecked( SI().depthsInFeet() );
 }
 
 

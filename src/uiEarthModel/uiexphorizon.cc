@@ -356,7 +356,7 @@ bool uiExportHorizon::writeAscii()
 	    if ( zatf )
 		crd.z = zatf->transform( crd );
 
-	    if ( zatf && SI().depthsInFeetByDefault() )
+	    if ( zatf && SI().depthsInFeet() )
 	    {
 		const UnitOfMeasure* uom = UoMR().get( "ft" );
 		crd.z = uom->getSIValue( crd.z );

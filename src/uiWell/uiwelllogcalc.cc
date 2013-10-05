@@ -120,7 +120,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const Well::LogSet& ls,
     srfld_->attach( alignedBelow, inpgrp );
     srfld_->attach( ensureBelow, sep );
     ftbox_ = new uiCheckBox( this, "Feet" );
-    ftbox_->setChecked( SI().depthsInFeetByDefault() );
+    ftbox_->setChecked( SI().depthsInFeet() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, srfld_ );
 

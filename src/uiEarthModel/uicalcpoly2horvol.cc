@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
 	: uiDialog(p,Setup("Calculate volume",dlgtxt,"104.4.5"))
-	, zinft_(SI().depthsInFeetByDefault())
+	, zinft_(SI().depthsInFeet())
 	, velfld_(0)
 	, valfld_(0)
 {

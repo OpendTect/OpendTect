@@ -74,7 +74,7 @@ const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 {
-    return UoMR().get( SI().depthsInFeetByDefault() ? "Feet" : "Meter" );
+    return UoMR().get( SI().depthsInFeet() ? "Feet" : "Meter" );
 }
 
 
@@ -95,7 +95,7 @@ const char* UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
 	    return withparens ? "(ms)" : "ms";
     }
 
-    if ( SI().depthsInFeetByDefault() )
+    if ( SI().depthsInFeet() )
     {
 	if ( !symbol )
 	    return "Feet";

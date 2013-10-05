@@ -379,7 +379,7 @@ Well::ExtractParams::ExtractParams( const ExtractParams& ep )
 void Well::ExtractParams::setEmpty()
 {
     ZRangeSelector::setEmpty();
-    zstep_ = SI().depthsInFeetByDefault() ? mToFeetFactorF : 1;
+    zstep_ = SI().depthsInFeet() ? mToFeetFactorF : 1;
     extractzintime_ = false;
     samppol_ = Stats::UseAvg;
 }
@@ -646,7 +646,7 @@ int Well::LogDataExtracter::nextStep()
     if ( curid_ >= ids_.size() )
 	return 0;
     if ( msg_.isEmpty() )
-	{ msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo(); }
+    { msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo(); }
 
     IOObj* ioobj = 0;
     if ( dpss_.size() <= curid_ ) mRetNext()

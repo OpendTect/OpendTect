@@ -677,9 +677,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     if( dah == 0 )
 	return;
 
-    info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
-							mToFeetFactorF : 1;
+    info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
+    const float zfac = SI().depthsInFeet() && SI().zIsTime()
+	? mToFeetFactorF : 1;
     if ( nrsegment != 0 )
     {
 	info += ", MD ";

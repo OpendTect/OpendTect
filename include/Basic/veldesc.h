@@ -68,6 +68,7 @@ public:
     static const char*	sKeyVelocityVolume();
 
     static const char*	getVelUnit(bool withparens=true);
+    static const char*	getVelVolumeLabel();
 };
 
 

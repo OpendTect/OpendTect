@@ -71,9 +71,10 @@ PropRef_ThickRef_Man()
     IOM().afterSurveyChange.notify( mCB(this,PropRef_ThickRef_Man,setZUnit) );
 }
 
+
 void setZUnit( CallBacker* cb=0 )
 {
-    ref_->disp_.unit_ = SI().depthsInFeetByDefault() ? "ft" : "m";
+    ref_->disp_.unit_ = UnitOfMeasure::zUnitAnnot(false, true, false );
 }
 
     PropertyRef*	ref_;

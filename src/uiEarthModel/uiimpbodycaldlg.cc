@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "veldesc.h"
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
@@ -33,10 +34,8 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     
     if ( SI().zIsTime() )
     {
-	const bool zinft = SI().depthsInFeetByDefault();
-	const char* txt = zinft ? "Velocity (ft/s)" : "Velocity (m/s)";
-	velfld_ = new uiGenInput( this, txt, FloatInpSpec(
-					    mCast(float,zinft?10000:3000)) );
+	velfld_ = new uiGenInput( this, VelocityDesc::getVelVolumeLabel(),
+			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
     }
     
     volfld_ = new uiGenInput( this, "Volume" );
@@ -71,7 +70,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	vel = velfld_->getfValue();
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet("Please provide the velocity")
-	if ( SI().depthsInFeetByDefault() )
+	if ( SI().depthsInFeet() )
 	    vel *= mFromFeetFactorF;
     }
 

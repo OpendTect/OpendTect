@@ -104,7 +104,7 @@ bool Time2DepthStretcher::isOK() const
 Interval<float> Time2DepthStretcher::getDefaultVAvg()
 {
     Interval<float> res( 1350, 4500 );
-    if ( SI().depthsInFeetByDefault() )
+    if ( SI().depthsInFeet() )
     {
 	res.start *= mToFeetFactorF;
 	res.stop *= mToFeetFactorF;
@@ -118,7 +118,10 @@ void Time2DepthStretcher::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
     if ( velreader_ && velreader_->ioObj() )
-	par.set( VelocityDesc::sKeyVelocityVolume(), velreader_->ioObj()->key() );
+    {
+	par.set( VelocityDesc::sKeyVelocityVolume(),
+		 velreader_->ioObj()->key() );
+    }
 }
 
 

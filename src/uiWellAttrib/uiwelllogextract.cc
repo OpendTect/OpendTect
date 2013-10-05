@@ -248,7 +248,7 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
     BufferString unit( "MD" );
-    SI().depthsInFeetByDefault() ? unit.add( "(ft)" ) : unit.add( "(m)" );
+    unit.add( UnitOfMeasure::zUnitAnnot(false,true,true) );
     dcds += new DataColDef( unit );
     BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -311,7 +311,7 @@ bool uiWellLogExtractGrp::extractDPS()
 		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
 
-	    if ( uom && !SI().zInFeet() && SI().depthsInFeetByDefault() )
+	    if ( uom && !SI().zInFeet() && SI().depthsInFeet() )
 		newdr.data_[0] = uom->getUserValueFromSI( newdr.data_[0] );
 
 	    curdps_->setRow( newdr );

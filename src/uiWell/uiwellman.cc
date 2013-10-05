@@ -596,7 +596,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(replvel) )
 	{
 	     txt += "Replacement velocity (from KB to SRD)"; txt += ": ";
-	     txt += ( SI().depthsInFeetByDefault() && !SI().zInFeet() ) ?
+	     txt += ( SI().depthsInFeet() && !SI().zInFeet() ) ?
 		    mToFeetFactorF * replvel : replvel;
 	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
 	     txt += "/s\n";

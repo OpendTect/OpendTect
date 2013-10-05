@@ -123,7 +123,7 @@ public:
 				    Data()
 				    : zrg_(mUdf(float),mUdf(float))
 				    , zistime_(SI().zIsTime())
-				    , dispzinft_(SI().depthsInFeetByDefault())
+				    , dispzinft_(SI().depthsInFeet())
 				    , wd_(0)
 				    {}
 

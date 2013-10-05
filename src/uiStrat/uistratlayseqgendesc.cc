@@ -139,7 +139,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)
-    , zinft_(SI().depthsInFeetByDefault())
+    , zinft_(SI().depthsInFeet())
 {
     border_.setTop( border_.top() + 25 );
     setPrefWidth( 180 );

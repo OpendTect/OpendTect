@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
+#include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -54,11 +55,9 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const BufferString zlbl(
-		SI().depthsInFeetByDefault() ? " (ft" : " (m", "/s)" );
-	const BufferString vellbl( "Temporary model velocity", zlbl );
-	const float vel =
-		mCast(float,SI().depthsInFeetByDefault() ? 8000 : 2000);
+	const BufferString vellbl( "Temporary model velocity ",
+				   VelocityDesc::getVelUnit( true ));
+	const float vel = mCast(float,SI().depthsInFeet() ? 8000 : 2000);
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );
     }
