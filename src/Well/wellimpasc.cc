@@ -153,7 +153,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
-		if ( lognm.isEmpty() )
+		if ( lognm.isEmpty() || matchStringCI("Run",lognm.buf()) )
 		    lognm = keyw;
 		lfi.lognms += new BufferString( lognm );
 	    }
