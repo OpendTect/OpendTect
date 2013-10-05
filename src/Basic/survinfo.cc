@@ -894,11 +894,11 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     putTr( b2c_.getTransform(true), astream, sKeyXTransf );
     putTr( b2c_.getTransform(false), astream, sKeyYTransf );
     FileMultiString fms;
+    BufferString buf;
     for ( int idx=0; idx<3; idx++ )
     {
 	SeparString ky( "Set Point", '.' );
 	ky += idx + 1;
-	char buf[80];
 	set3binids_[idx].fill( buf ); fms = buf;
 	set3coords_[idx].fill( buf ); fms += buf;
 	astream.put( (const char*)ky, (const char*)fms );
@@ -906,7 +906,6 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
     if ( ll2c_.isOK() )
     {
-	char buf[1024];
 	ll2c_.fill( buf );
 	astream.put( sKeyLatLongAnchor, buf );
     }

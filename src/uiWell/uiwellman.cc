@@ -558,8 +558,8 @@ void uiWellMan::mkFileInfo()
     const Well::Info& info = curwds_[0]->info();
     const Well::Track& track = curwds_[0]->track();
 
-    BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );
-    BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );
+    BufferString crdstr; info.surfacecoord.fill( crdstr );
+    BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr );
     BufferString posstr( bidstr ); posstr += " "; posstr += crdstr;
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
 

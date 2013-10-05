@@ -287,7 +287,7 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 	par.set( sKey::TraceNr(), binid_.crl );
     else
     {
-	BufferString str( 128, false ); binid_.fill( str.buf() );
+	BufferString str; binid_.fill( str );
 	par.set( sKey::Position(), str );
     }
 }

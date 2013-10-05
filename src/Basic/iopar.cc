@@ -952,7 +952,7 @@ bool IOPar::get( const char* s, Color& c ) const
 
 void IOPar::set( const char* s, const Color& c )
 {
-    BufferString bs; c.fill( bs.buf() );
+    BufferString bs; c.fill( bs );
     set( s, bs );
 }
 

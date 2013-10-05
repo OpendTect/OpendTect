@@ -270,15 +270,15 @@ const BufferString& BufferString::empty()
 }
 
 
-void BufferString::fill( char* output ) const
+void BufferString::fill( char* output, int maxnrchar ) const
 {
-    if ( !output )
+    if ( !output || maxnrchar < 1 )
 	return;
 
-    if ( !buf_ )
+    if ( !buf_ || maxnrchar < 2 )
 	*output = 0;
     else
-	strcpy( output, buf_ );
+	strncpy( output, buf_, maxnrchar );
 }
 
 

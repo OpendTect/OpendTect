@@ -89,14 +89,21 @@ double Coord::angle( const Coord& from, const Coord& to ) const
 } 
 
 
-void Coord::fill( char* str ) const
+void Coord::fill( BufferString& bs ) const
 {
-    if ( !str ) return;
-    strcpy( str, "(" ); 
-    getStringFromDouble(0,x,str+1);
-    strcat( str, "," );
-    getStringFromDouble( 0, y, str+strlen(str) );
-    strcat( str, ")" );
+    if ( isUdf() )
+	bs.set( "(1e30,1e30)" );
+    else
+	bs.set( "(" ).add( x ).add( "," ).add( y ).add( ")" );
+}
+
+
+void Coord::fillMinimal( BufferString& bs ) const
+{
+    if ( isUdf() )
+	bs.set( "1e30 1e30" );
+    else
+	bs.set( x ).add( " " ).add( y );
 }
 
 
@@ -153,20 +160,28 @@ double Coord3::abs() const
 double Coord3::sqAbs() const { return x*x + y*y + z*z; }
 
 
-void Coord3::fill(char* str, const char* start,
-		     const char* space, const char* end) const
+void Coord3::fill( BufferString& bs ) const
 {
-    strcpy( str, start );
-    getStringFromDouble( 0, x, str+strlen(str) ); strcat(str,space);
-    getStringFromDouble( 0, y, str+strlen(str) ); strcat(str,space);
-    getStringFromDouble( 0, z, str+strlen(str) ); strcat(str,space);
-    strcat( str, end );
+    if ( isUdf() )
+	bs.set( "(1e30,1e30,1e30)" );
+    else
+	bs.set("(").add(x).add(",").add(y).add(",").add(z).add(")");
 }
 
 
-bool Coord3::use(const char* str)
+void Coord3::fillMinimal( BufferString& bs ) const
+{
+    if ( isUdf() )
+	bs.set( "1e30 1e30 1e30" );
+    else
+	bs.set(x).add(" ").add(y).add(" ").add(z);
+}
+
+
+bool Coord3::use( const char* str )
 {
     if ( !str ) return false;
+
     const char* endptr=str+strlen(str);
 
     while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )

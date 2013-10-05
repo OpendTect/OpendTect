@@ -194,7 +194,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	if ( typ == 0 )
 	    fms += elem.val_;
 	else if ( typ == 2 )
-	    { char buf[40]; elem.pos_.fill(buf); fms += buf; }
+	    { BufferString buf; elem.pos_.fill(buf); fms += buf; }
 	else
 	    { fms += elem.keyword_; fms += elem.pos_.col; }
     }

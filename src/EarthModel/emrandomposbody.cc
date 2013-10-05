@@ -154,8 +154,8 @@ public:
 	}
 
 	BufferString str;
-	rdposbody_.getPositions()[nrdone_].fill( str.buf(),""," ","" );
-	str += " ";
+	rdposbody_.getPositions()[nrdone_].fillMinimal( str );
+	str.add( " " );
 	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
 	if ( !idx ) 
 	    str += "0";

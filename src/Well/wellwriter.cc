@@ -75,7 +75,7 @@ bool Well::Writer::putInfoAndTrack( od_ostream& strm ) const
     astrm.put( Well::Info::sKeycounty(), wd.info().county );
     if ( wd.info().surfacecoord != Coord(0,0) )
     {
-	char str[80]; wd.info().surfacecoord.fill( str );
+	BufferString str; wd.info().surfacecoord.fill( str );
 	astrm.put( Well::Info::sKeycoord(), str );
     }
     astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
@@ -203,7 +203,7 @@ bool Well::Writer::putMarkers( od_ostream& strm ) const
 	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
 	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), wm.dah() );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef()), wm.levelID() );
-	BufferString bs; wm.color().fill( bs.buf() );
+	BufferString bs; wm.color().fill( bs );
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
     }
 

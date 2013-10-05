@@ -79,7 +79,7 @@ public:
     bool		isEqual(const char*,bool caseinsens=false) const;
     bool		isStartOf(const char*,bool caseinsens=false) const;
     bool		matches(const char*,bool caseinsens=false) const;
-    void                fill(char*) const; //<!Caller should ensure enough space
+    void                fill(char*,int maxnrchar) const;
 
     BufferString&	add(const char*);
     BufferString&	add( const BufferString& b )	{ return add(b.buf()); }

@@ -53,10 +53,12 @@ public:
     Coord	normalize() const;
     double	dot(const Coord&) const;
 
-    void	fill(char*) const;
+    void	fill(BufferString&) const;		//! For user eyes
     bool	use(const char*);
+    void	fillMinimal(BufferString&) const;	//! For files, transfer
     
     static const Coord&		udf();
+    inline bool isUdf() const		{ return !isDefined(); }
 };
 
 bool getDirectionStr( const Coord&, BufferString& );
@@ -106,6 +108,7 @@ public:
     inline bool		operator==(const Coord3&) const;
     inline bool		operator!=(const Coord3&) const;
     inline bool		isDefined() const;
+    inline bool		isUdf() const		{ return !isDefined(); }
     double		distTo(const Coord3&) const;
     double		sqDistTo(const Coord3&) const;
 
@@ -115,12 +118,11 @@ public:
     double		sqAbs() const;
     inline Coord3	normalize() const;
 
-    void	fill(char* str) const { fill( str, "(", " ", ")"); }
-    void	fill(char*, const char* start, const char* space,
-	    		    const char* end) const;
-    bool	use(const char*);
+    void		fill(BufferString&) const;	//!< For user eyes
+    bool		use(const char*);
+    void		fillMinimal(BufferString&) const; //! For files/transfer
 
-    double	z;
+    double		z;
 
     static const Coord3& udf();
 
@@ -193,7 +195,7 @@ public:
     inline static BinID		fromInt32(int);
     inline int			sqDistTo(const BinID&) const;
 
-    void			fill(char*) const;
+    void			fill(BufferString&) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
     bool                        isNeighborTo(const BinID&,const BinID&,
@@ -210,9 +212,9 @@ public:
     int				lineNr() const	{ return inl; }
 
 
-    od_int64			getSerialized() const;
+    // od_int64			getSerialized() const;
     				//!<Legacy. Use toInt64 instead.
-    void			setSerialized(od_int64);
+    // void			setSerialized(od_int64);
     				//!<Legacy. Use fromInt64 instead.
 };
 

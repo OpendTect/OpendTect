@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 template <class T> class TypeSet;
 class BinID;
+class BufferString;
 
 /*!
 \brief Object with row and col. RowCol has most functions in common with
@@ -48,7 +49,7 @@ public:
     inline const RowCol&	operator/=(const RowCol&);
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
-    void			fill(char*) const;
+    void			fill(BufferString&) const;
     bool			use(const char*);
     inline od_int64		toInt64() const;
     static inline RowCol	fromInt64(od_int64);
@@ -81,14 +82,12 @@ public:
     int				col;
 
     static const TypeSet<RowCol>&	clockWiseSequence();
-    od_int64			getSerialized() const;
-    				//!<Legacy. Use toInt64 instead.
-    void			setSerialized(od_int64);
-    				//!<Legacy. Use fromInt64 instead.
+
 };
 
 
 mImplInlineRowColFunctions(RowCol, row, col);
+
 
 #endif
 

@@ -813,7 +813,7 @@ void TextSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
     BufferString colstr;
-    boxcolor_.fill( colstr.buf() );
+    boxcolor_.fill( colstr );
     par.set( sKeyBoxColor(), colstr.buf() );
 }
 

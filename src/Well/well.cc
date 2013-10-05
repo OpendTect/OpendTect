@@ -216,9 +216,9 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( sKeystate(), state );
     par.set( sKeycounty(), county );
 
-    BufferString coord;
-    surfacecoord.fill( coord.buf() );
-    par.set( sKeycoord(), coord );
+    BufferString coordstr;
+    surfacecoord.fill( coordstr );
+    par.set( sKeycoord(), coordstr );
 
     par.set( sKeySRD(), srdelev );
     par.set( sKeyreplvel(), replvel );
@@ -234,9 +234,9 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeystate(), state );
     par.get( sKeycounty(), county );
 
-    BufferString coord;
-    par.get( sKeycoord(), coord );
-    surfacecoord.use( coord );
+    BufferString coordstr;
+    par.get( sKeycoord(), coordstr );
+    surfacecoord.use( coordstr );
 
     par.get( sKeySRD(), srdelev );
     par.get( sKeyreplvel(), replvel );

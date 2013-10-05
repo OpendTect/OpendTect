@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
+class BufferString;
 class BufferStringSet;
 template <class T> class TypeSet;
 
@@ -62,7 +63,7 @@ public:
     			//!< without hash Google KML standard -> order reversed
     			//!< transpopt -1=opacity 0=not 1=transparency
 
-    void		fill(char*) const;
+    void		fill(BufferString&) const;
     bool		use(const char*);
 
     static Color	NoColor()	{ return  Color(0,0,0,255); }

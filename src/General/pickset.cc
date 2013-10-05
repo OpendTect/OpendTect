@@ -523,8 +523,8 @@ void Set::fillPar( IOPar& par ) const
     BufferString colstr;
     if ( disp_.color_ != Color::NoColor() )
     {
-	disp_.color_.fill( colstr.buf() );
-	par.set( sKey::Color(), colstr.buf() );
+	disp_.color_.fill( colstr );
+	par.set( sKey::Color(), colstr );
     }
 
     par.set( sKey::Size(), disp_.pixsize_ );

@@ -32,7 +32,7 @@ public:
     static Coord	transform(const LatLong&); //!< Uses SI()
     static LatLong	transform(const Coord&);   //!< Uses SI()
 
-    void		fill(char*) const;
+    void		fill(BufferString&) const;
     bool		use(const char*);
 
     void		getDMS(bool lat,int&,int&,float&) const;
@@ -63,7 +63,7 @@ public:
     LatLong		transform(const Coord&) const;
     Coord		transform(const LatLong&) const;
 
-    void		fill(char*) const;
+    void		fill(BufferString&) const;
     bool		use(const char*);
 
     Coord		refCoord() const	{ return refcoord_; }

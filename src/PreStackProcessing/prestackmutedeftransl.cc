@@ -225,7 +225,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	if ( !imd && !hasiopar )
 	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
 
-	char buf[80]; md.getPos(imd).fill( buf );
+	BufferString buf; md.getPos(imd).fill( buf );
 	astrm.put( sKey::Position(), buf );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap

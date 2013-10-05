@@ -30,21 +30,21 @@ public:
 	    curpos_.row = rowrg_.start;
 	    curpos_.col = colrg_.start;
 	}
-    else
-    {
-	curpos_.col += colrg_.step;
-	if ( !colrg_.includes( curpos_.col, false ) )
+	else
 	{
-	    curpos_.row += rowrg_.step;
-	    if ( !rowrg_.includes( curpos_.row, false ) )
-		return -1;
+	    curpos_.col += colrg_.step;
+	    if ( !colrg_.includes( curpos_.col, false ) )
+	    {
+		curpos_.row += rowrg_.step;
+		if ( !rowrg_.includes( curpos_.row, false ) )
+		    return -1;
 
-	    curpos_.col = colrg_.start;
+		curpos_.col = colrg_.start;
+	    }
 	}
-    }
 
-    return curpos_.getSerialized();
-}
+	return curpos_.toInt64();
+    }
 
 protected:
 

@@ -286,12 +286,13 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	    return 1;
 	else
 	{
-	    BufferString msg( "Trace " );
+	    BufferString tmp;
 	    if ( is2D() )
-		msg += trc.info().nr;
+		tmp += trc.info().nr;
 	    else
-		trc.info().binid.fill( msg.buf() + 6 );
-	    msg += ": "; msg += rdr_.errMsg();
+		trc.info().binid.fill( tmp );
+	    BufferString msg( "Trace ", tmp, ": " );
+	    msg += rdr_.errMsg();
 	    ErrMsg( msg );
 	}
     }

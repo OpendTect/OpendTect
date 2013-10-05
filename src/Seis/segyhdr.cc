@@ -89,12 +89,12 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
 {
     clear();
 
-    FileNameString buf;
+    BufferString str, str2;
     const char* res = Settings::common().find( "Company" );
     if ( !res ) res = "OpendTect";
-    buf = "Created by: "; buf += res;
-    buf += "     ("; buf += Time::getDateTimeString(); buf += ")";
-    putAt( 1, 6, 75, buf );
+    str = "Created by: "; str += res;
+    str += "     ("; str += Time::getDateTimeString(); str += ")";
+    putAt( 1, 6, 75, str );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hrg.start;
     Coord coord = SI().transform( bid );
@@ -105,26 +105,25 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
       || !mIsEqual(bid.crl,coord.y,mDefEps) )
     {
 	putAt( 13, 6, 75, "Survey setup:" );
-	char* pbuf = buf.buf();
 	coord = SI().transform( bid );
-	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 14, 6, 75, buf );
+	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	putAt( 14, 6, 75, str );
 	bid.crl = SI().sampling(false).hrg.stop.crl;
 	coord = SI().transform( bid );
-	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 15, 6, 75, buf );
+	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	putAt( 15, 6, 75, str );
 	bid.inl = SI().sampling(false).hrg.stop.inl;
 	bid.crl = SI().sampling(false).hrg.start.crl;
 	coord = SI().transform( bid );
-	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 16, 6, 75, buf );
+	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	putAt( 16, 6, 75, str );
     }
 
     if ( !SI().zIsTime() )
     {
-	buf = "Depth survey: 1 SEG-Y millisec = 1 ";
-	buf += SI().getZUnitString(false);
-	putAt( 18, 6, 75, buf.buf() );
+	str = "Depth survey: 1 SEG-Y millisec = 1 ";
+	str += SI().getZUnitString(false);
+	putAt( 18, 6, 75, str );
     }
 }
 

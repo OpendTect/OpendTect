@@ -163,13 +163,13 @@ void Pos::TableProvider3D::getSummary( BufferString& txt ) const
     txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
     BinID start, stop;
     getExtent( start, stop );
-    BufferString tmp; start.fill( tmp.buf() );
+    BufferString tmp; start.fill( tmp );
     if ( start == stop )
 	{ txt += " at "; txt += tmp; }
     else
     {
 	txt += " in "; txt += tmp; txt += "-";
-	stop.fill( tmp.buf() ); txt += tmp;
+	stop.fill( tmp ); txt += tmp;
     }
 }
 

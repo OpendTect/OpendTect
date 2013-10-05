@@ -123,14 +123,14 @@ Color Color::stdDrawColor( int idx )
 }
 
 
-void Color::fill( char* str ) const
+void Color::fill( BufferString& bs ) const
 {
     FileMultiString fms;
     fms += (int)r();
     fms += (int)g();
     fms += (int)b();
     if ( t() ) fms += (int)t();
-    strcpy( str, (const char*)fms );
+    bs = fms.buf();
 }
 
 

@@ -30,14 +30,9 @@ LatLong LatLong::transform( const Coord& c )
 }
 
 
-void LatLong::fill( char* str ) const
+void LatLong::fill( BufferString& bs ) const
 {
-    if ( !str ) return;
-    strcpy( str, "[" );
-    getStringFromDouble(0,lat_,str+1);
-    strcat( str, "," );
-    getStringFromDouble( 0, lng_, str+strlen(str) );
-    strcat( str, "]" );
+    bs.set( "[" ).add( lat_ ).add( "," ).add( lng_ ).add( "]" );
 }
 
 
@@ -142,15 +137,12 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 }
 
 
-void LatLong2Coord::fill( char* s ) const
+void LatLong2Coord::fill( BufferString& bs ) const
 {
-    if ( !s ) return;
-
-    BufferString str;
-    refcoord_.fill( str.buf() );
-    str += "=";
-    reflatlng_.fill( str.buf() + str.size() );
-    strcpy( s, str );
+    refcoord_.fill( bs );
+    BufferString rest;
+    reflatlng_.fill( rest );
+    bs.add( "=" ).add( rest );
 }
 
 

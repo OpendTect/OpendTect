@@ -231,9 +231,9 @@ BufferStringSet SelectionArea::getAxisNames() const
 void SelectionGrp::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name().buf() );
-    BufferString color;
-    col_.fill( color.buf() );
-    par.set( sKey::Color(), color.buf() );
+    BufferString colorstr;
+    col_.fill( colorstr );
+    par.set( sKey::Color(), colorstr );
     par.set( sKeyNrAreas, selareas_.size() );
 
     for ( int selidx=0; selidx < selareas_.size(); selidx++ )

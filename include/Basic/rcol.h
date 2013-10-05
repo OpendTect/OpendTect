@@ -79,21 +79,20 @@ inline int clss::sqDistTo( const clss& rc ) const \
 
 
 #define mImplRowColFunctions(clss, row, col) \
-void	clss::fill(char* str) const \
+void clss::fill( BufferString& bs ) const \
 { \
-    if ( !str ) return; \
-    sprintf( str, "%d/%d", row, col ); \
+    bs.set( row ).add( "/" ).add( col ); \
 } \
  \
-bool	clss::use(const char* str) \
+bool clss::use( const char* str ) \
 { \
     if ( !str || !*str ) return false; \
  \
-    static BufferString buf; buf = str; \
-    char* ptr = strchr( buf.buf(), '/' ); \
+    static BufferString bs; bs = str; \
+    char* ptr = strchr( bs.buf(), '/' ); \
     if ( !ptr ) return false; \
     *ptr++ = '\0'; \
-    row = toInt( buf.buf() ); col = toInt( ptr ); \
+    row = toInt( bs.buf() ); col = toInt( ptr ); \
     return true; \
 } \
  \
@@ -108,32 +107,6 @@ bool clss::isNeighborTo( const clss& rc, const clss& step, \
  \
     const int res = int(diff.row>0) + int(diff.col>0); \
     return areeightconnected && res<2; \
-} \
- \
- \
-od_int64 clss::getSerialized() const \
-{ \
-    static bool didwarn = false; \
-    if ( !didwarn ) \
-    { \
-	pErrMsg("Legacy, use toInt64 instead" ); \
-	didwarn = true; \
-    } \
- \
-    return toInt64(); \
-} \
- \
- \
-void clss::setSerialized(od_int64 ll) \
-{ \
-    static bool didwarn = false; \
-    if ( !didwarn ) \
-    { \
-	pErrMsg("Legacy, use fromInt64 instead" ); \
-	didwarn = true; \
-    } \
- \
-    fromInt64( ll ); \
 }
 
 
