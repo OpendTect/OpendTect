@@ -374,11 +374,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
     
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
-    {
-	BufferString coordstr("(");
-	coordstr.add( ti.coord.x ).add( "," ).add( ti.coord.y ).add( "(" );
-	addWarn( cSEGYWarnSuspiciousCoord, coordstr );
-    }
+	addWarn( cSEGYWarnSuspiciousCoord, ti.coord.getUsrStr() );
 }
 
 
@@ -633,7 +629,7 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
     else
     {
 	const BinID bid( usecur ? curbid_ : prevbid_ );
-	ret += "position "; ret += bid.inl; ret += "/"; ret += bid.crl;
+	ret.add( "position " ).add( bid.getUsrStr() );
     }
 
     if ( Seis::isPS(fileopts_.geomType()) )

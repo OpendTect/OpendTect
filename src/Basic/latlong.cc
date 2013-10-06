@@ -30,13 +30,15 @@ LatLong LatLong::transform( const Coord& c )
 }
 
 
-void LatLong::fill( BufferString& bs ) const
+const char* LatLong::getUsrStr() const
 {
-    bs.set( "[" ).add( lat_ ).add( "," ).add( lng_ ).add( "]" );
+    mDeclStaticString( ret );
+    ret.set( "[" ).add( lat_ ).add( "," ).add( lng_ ).add( "]" );
+    return ret.buf();
 }
 
 
-bool LatLong::use( const char* s )
+bool LatLong::parseUsrStr( const char* s )
 {
     if ( !s || !*s ) return false;
 
@@ -137,16 +139,15 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 }
 
 
-void LatLong2Coord::fill( BufferString& bs ) const
+const char* LatLong2Coord::getUsrStr() const
 {
-    refcoord_.fill( bs );
-    BufferString rest;
-    reflatlng_.fill( rest );
-    bs.add( "=" ).add( rest );
+    mDeclStaticString( ret );
+    ret.set( refcoord_.getUsrStr() ).add( "=" ).add( reflatlng_.getUsrStr() );
+    return ret.buf();
 }
 
 
-bool LatLong2Coord::use( const char* s )
+bool LatLong2Coord::parseUsrStr( const char* s )
 {
     lngdist_ = mUdf(float);
     if ( !s || !*s ) return false;
@@ -156,7 +157,7 @@ bool LatLong2Coord::use( const char* s )
     if ( !ptr ) return false;
     *ptr++ = '\0';
     Coord c; LatLong l;
-    if ( !c.use(str) || !l.use(ptr) )
+    if ( !c.parseUsrStr(str) || !l.parseUsrStr(ptr) )
 	return false;
     else if ( mIsZero(c.x,1e-3) && mIsZero(c.y,1e-3) )
 	return false;

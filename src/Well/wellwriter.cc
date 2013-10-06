@@ -74,10 +74,7 @@ bool Well::Writer::putInfoAndTrack( od_ostream& strm ) const
     astrm.put( Well::Info::sKeystate(), wd.info().state );
     astrm.put( Well::Info::sKeycounty(), wd.info().county );
     if ( wd.info().surfacecoord != Coord(0,0) )
-    {
-	BufferString str; wd.info().surfacecoord.fill( str );
-	astrm.put( Well::Info::sKeycoord(), str );
-    }
+	astrm.put( Well::Info::sKeycoord(), wd.info().surfacecoord.getUsrStr());
     astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
     astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
     astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );

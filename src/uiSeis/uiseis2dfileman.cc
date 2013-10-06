@@ -205,18 +205,12 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
 	txt += "Number of traces: "; txt += sz;
 	txt += "\nFirst trace: ";
 	if ( l2dd.getPos(trcrg.start,firstpos) )
-	{
-	    txt += firstpos.nr_;
-	    txt += " ("; txt += firstpos.coord_.x;
-	    txt += ","; txt += firstpos.coord_.y; txt += ")";
-	}
+	    txt.add( firstpos.nr_ )
+		.add( " " ).add( firstpos.coord_.getUsrStr() );
 	txt += "\nLast trace: ";
 	if ( l2dd.getPos(trcrg.stop,lastpos) )
-	{
-	    txt += lastpos.nr_;
-	    txt += " ("; txt += lastpos.coord_.x;
-	    txt += ","; txt += lastpos.coord_.y; txt += ")";
-	}
+	    txt.add( lastpos.nr_ )
+		.add( " " ).add( lastpos.coord_.getUsrStr() );
 
 #define mAddZRangeTxt(memb) txt += zistm ? mNINT32(1000*memb) : memb
 	txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";

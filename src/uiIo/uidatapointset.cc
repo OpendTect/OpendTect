@@ -499,7 +499,7 @@ void uiDataPointSet::fillPos( TRowID tid )
     	if ( is2D() )
     	    rownm += pos.nr_;
     	else
-	{ rownm += pos.binid_.inl; rownm += "/"; rownm += pos.binid_.crl; }
+    	    rownm += pos.binid_.getUsrStr();
     }
     tbl_->setRowLabel( tid, rownm );
     fillingtable_ = false;

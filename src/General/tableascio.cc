@@ -194,7 +194,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	if ( typ == 0 )
 	    fms += elem.val_;
 	else if ( typ == 2 )
-	    { BufferString buf; elem.pos_.fill(buf); fms += buf; }
+	    fms += elem.pos_.getUsrStr();
 	else
 	    { fms += elem.keyword_; fms += elem.pos_.col; }
     }
@@ -243,7 +243,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	if ( typ == 0 )
 	    elem.val_ = res;
 	else if ( typ == 2 )
-	    elem.pos_.use( res );
+	    elem.pos_.parseUsrStr( res );
 	else
 	{
 	    curfmsidx++;

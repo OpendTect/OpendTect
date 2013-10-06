@@ -288,8 +288,7 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
     {
 	mIOIOPar( set, BinIDInl, binid.inl );
 	mIOIOPar( set, BinIDCrl, binid.crl );
-	BufferString str; binid.fill( str );
-	iopar.set( sKey::Position(), str );
+	iopar.set( sKey::Position(), binid.getUsrStr() );
     }
 
     mIOIOPar( set, CoordX, coord.x );

@@ -157,14 +157,10 @@ int main( int argc, char** argv )
 		      << std::endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{
-	    BufferString str; trc.info().coord.fill(str);
-	    std::cerr << "Coordinate: " << str;
+	    std::cerr << "Coordinate: " << trc.info().coord.getUsrStr();
 	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
 	    if ( b != trc.info().binid )
-	    {
-		b.fill( str );
-		std::cerr << " --> " << str;
-	    }
+		std::cerr << " --> " << b.getUsrStr();
 	    std::cerr << std::endl;
 	}
 

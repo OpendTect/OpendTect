@@ -260,13 +260,10 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 
 void PosInfo::Detector::addToErrMsg( const PosInfo::CrdBidOffs& cbo )
 {
-    if ( setup_.is2d_ )
-	errmsg_ += "trace number ";
-    else
-	{ errmsg_ += cbo.binid_.inl; errmsg_ += "/"; }
-    errmsg_ += cbo.binid_.crl;
+    errmsg_.add( setup_.is2d_ ? "trace number " : "position " )
+	    .add( cbo.binid_.getUsrStr(setup_.is2d_) );
     if ( setup_.isps_ )
-	{ errmsg_ += " (offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
+	{ errmsg_.add( " (offset " ).add( cbo.offset_ ).add( ")" ); }
 }
 
 
@@ -547,13 +544,6 @@ static BufferString getStepRangeStr( T start, T stop, T step )
 }
 
 
-static BufferString getBinIDStr( BinID bid )
-{
-    BufferString ret; ret += bid.inl; ret += "/"; ret += bid.crl;
-    return ret;
-}
-
-
 void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
@@ -593,7 +583,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( varstr, fao.binid_.crl );
 	    else
-		iop.set( varstr, getBinIDStr(fao.binid_) );
+		iop.set( varstr, fao.binid_.getUsrStr() );
 	}
     }
     else
@@ -607,7 +597,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( fdupstr, fdp.binid_.crl );
 	    else
-		iop.set( fdupstr, getBinIDStr(fdp.binid_) );
+		iop.set( fdupstr, fdp.binid_.getUsrStr() );
 	}
     }
 }

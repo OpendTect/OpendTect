@@ -121,12 +121,11 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 {
-    BufferString tmp;
-    cs_.hrg.start.fill( tmp ); txt += tmp; txt += "-";
-    cs_.hrg.stop.fill( tmp ); txt += tmp;
+    txt.set( cs_.hrg.start.getUsrStr() ).add( "-" )
+       .add( cs_.hrg.stop.getUsrStr() );
     const int nrsamps = cs_.zrg.nrSteps() + 1;
     if ( nrsamps > 1 )
-	{ txt += " ("; txt += nrsamps; txt += " samples)"; }
+	txt.add( " (" ).add( nrsamps ).add( " samples)" );
 }
 
 

@@ -1217,10 +1217,8 @@ int EventPatchReader::nextStep()
     if ( !strm )
     {
 	errmsg_ = "Could not read nr events from ";
-	errmsg_ += ((StreamConn*)conn_)->fileName();
-	errmsg_ += ". Binid=";
-	errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
-
+	errmsg_.add( ((StreamConn*)conn_)->fileName() )
+		.add( " at " ).add( curbid.getUsrStr() );
 	return ErrorOccurred();
     }
 
@@ -1237,9 +1235,8 @@ int EventPatchReader::nextStep()
 	    ge->unRef();
 
 	    errmsg_ = "Could not read nr picks from ";
-	    errmsg_ += ((StreamConn*)conn_)->fileName();
-	    errmsg_ += ". Binid=";
-	    errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
+	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
+		    .add( " at " ).add( curbid.getUsrStr() );
 	    errmsg_ += ". Event nr="; errmsg_ +=idx;
 
 	    return ErrorOccurred();
@@ -1274,10 +1271,9 @@ int EventPatchReader::nextStep()
 	    deepErase( ge->events_ );
 	    ge->unRef();
 	    errmsg_ = "Could not event from ";
-	    errmsg_ += ((StreamConn*)conn_)->fileName();
-	    errmsg_ += ". Binid=";
-	    errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
-	    errmsg_ += ". Event nr="; errmsg_ += idx;
+	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
+		    .add( " at " ).add( curbid.getUsrStr() );
+	    errmsg_ += ". Event nr="; errmsg_ +=idx;
 	    return ErrorOccurred();
 	}
 

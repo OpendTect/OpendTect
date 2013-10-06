@@ -153,14 +153,11 @@ public:
 	    return Finished();
 	}
 
-	BufferString str;
-	rdposbody_.getPositions()[nrdone_].fillMinimal( str );
-	str.add( " " );
+	const Coord3& crd( rdposbody_.getPositions()[nrdone_] );
 	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
-	if ( !idx ) 
-	    str += "0";
-	else
-    	    str += idx;
+	BufferString str;
+	str.add( crd.x ).add( " " ).add( crd.y ).add( " " ).add( crd.z )
+	    .add( " " ).add ( idx );
 	((StreamConn*)conn_)->oStream() << str.buf() << '\n';
 	nrdone_++;	
 	

@@ -779,10 +779,9 @@ BufferString RandomTrackDisplay::getManipulationString() const
     int knotidx = getSelKnotIdx();
     if ( knotidx >= 0 )
     {
-	BinID binid  = getManipKnotPos( knotidx );
+	const BinID binid = getManipKnotPos( knotidx );
 	str = "Node "; str += knotidx;
-	str += " Inl/Crl: ";
-	str += binid.inl; str += "/"; str += binid.crl;
+	str += " Position: "; str += binid.getUsrStr();
     }
 
     return str;

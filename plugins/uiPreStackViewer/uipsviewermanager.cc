@@ -707,12 +707,8 @@ void uiViewer3DMgr::getSeis2DTitle( int tracenr, const char* nm,
 void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
 				    BufferString& title )
 {
-    title = "Gather from [";
-    title += name;
-    title += "] at ";
-    title += bid.inl;
-    title += "/";
-    title += bid.crl;
+    title.set( "Gather from [" ).add( name ).add( "] at " )
+	 .add( bid.getUsrStr() );
 }
 
 

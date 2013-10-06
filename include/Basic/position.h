@@ -53,9 +53,8 @@ public:
     Coord	normalize() const;
     double	dot(const Coord&) const;
 
-    void	fill(BufferString&) const;		//! For user eyes
-    bool	use(const char*);
-    void	fillMinimal(BufferString&) const;	//! For files, transfer
+    const char*	getUsrStr() const;
+    bool	parseUsrStr(const char*);
     
     static const Coord&		udf();
     inline bool isUdf() const		{ return !isDefined(); }
@@ -118,9 +117,8 @@ public:
     double		sqAbs() const;
     inline Coord3	normalize() const;
 
-    void		fill(BufferString&) const;	//!< For user eyes
-    bool		use(const char*);
-    void		fillMinimal(BufferString&) const; //! For files/transfer
+    const char*		getUsrStr() const;
+    bool		parseUsrStr(const char*);
 
     double		z;
 
@@ -195,8 +193,8 @@ public:
     inline static BinID		fromInt32(int);
     inline int			sqDistTo(const BinID&) const;
 
-    void			fill(BufferString&) const;
-    bool			use(const char*);
+    const char*			getUsrStr(bool is2d=false) const;
+    bool			parseUsrStr(const char*);
     inline od_int64		toInt64() const;
     bool                        isNeighborTo(const BinID&,const BinID&,
 					     bool eightconnectivity=true) const;

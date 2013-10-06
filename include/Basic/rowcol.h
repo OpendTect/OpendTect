@@ -49,8 +49,8 @@ public:
     inline const RowCol&	operator/=(const RowCol&);
     inline int&			operator[](int idx);
     inline int			operator[](int idx) const;
-    void			fill(BufferString&) const;
-    bool			use(const char*);
+    const char*			getUsrStr(bool onlycol=false) const;
+    bool			parseUsrStr(const char*);
     inline od_int64		toInt64() const;
     static inline RowCol	fromInt64(od_int64);
     inline int			toInt32() const;

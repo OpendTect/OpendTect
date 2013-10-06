@@ -89,27 +89,22 @@ double Coord::angle( const Coord& from, const Coord& to ) const
 } 
 
 
-void Coord::fill( BufferString& bs ) const
+const char* Coord::getUsrStr() const
 {
+    mDeclStaticString( ret );
     if ( isUdf() )
-	bs.set( "(1e30,1e30)" );
+	ret.set( "<undef>" );
     else
-	bs.set( "(" ).add( x ).add( "," ).add( y ).add( ")" );
+	ret.set( "(" ).add( x ).add( "," ).add( y ).add( ")" );
+    return ret.buf();
 }
 
 
-void Coord::fillMinimal( BufferString& bs ) const
-{
-    if ( isUdf() )
-	bs.set( "1e30 1e30" );
-    else
-	bs.set( x ).add( " " ).add( y );
-}
-
-
-bool Coord::use( const char* s )
+bool Coord::parseUsrStr( const char* s )
 {
     if ( !s || !*s ) return false;
+    if ( *s == '<' )
+	{ *this = udf(); return true; }
 
     BufferString str( s );
     char* ptrx = str.buf(); mSkipBlanks( ptrx );
@@ -160,25 +155,18 @@ double Coord3::abs() const
 double Coord3::sqAbs() const { return x*x + y*y + z*z; }
 
 
-void Coord3::fill( BufferString& bs ) const
+const char* Coord3::getUsrStr() const
 {
+    mDeclStaticString( ret );
     if ( isUdf() )
-	bs.set( "(1e30,1e30,1e30)" );
+	ret.set( "<undef>" );
     else
-	bs.set("(").add(x).add(",").add(y).add(",").add(z).add(")");
+	ret.set("(").add(x).add(",").add(y).add(",").add(z).add(")");
+    return ret.buf();
 }
 
 
-void Coord3::fillMinimal( BufferString& bs ) const
-{
-    if ( isUdf() )
-	bs.set( "1e30 1e30 1e30" );
-    else
-	bs.set(x).add(" ").add(y).add(" ").add(z);
-}
-
-
-bool Coord3::use( const char* str )
+bool Coord3::parseUsrStr( const char* str )
 {
     if ( !str ) return false;
 

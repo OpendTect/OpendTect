@@ -98,12 +98,11 @@ void uiSurveyBoxObject::update()
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = cpt[idx].y > cpt[oppidx].y;
         BinID bid = si.transform( mapcnr[idx] );
-	Alignment al( Alignment::HCenter, bot ? Alignment::Top : Alignment::Bottom );
-	BufferString annot;
-        annot += bid.inl; annot += "/"; annot += bid.crl;
+	Alignment al( Alignment::HCenter,
+		      bot ? Alignment::Top : Alignment::Bottom );
 	uiPoint txtpos( cpt[idx].x, cpt[idx].y );
 	labels_[idx]->setPos( txtpos );
-	labels_[idx]->setText( annot.buf() );
+	labels_[idx]->setText( bid.getUsrStr() );
 	labels_[idx]->setAlignment( al );
     }
 }
@@ -263,4 +262,3 @@ void uiSurveyMap::reDraw( bool )
 
     drawMap( survinfo_ );
 }
-

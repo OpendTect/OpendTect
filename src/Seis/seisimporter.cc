@@ -345,9 +345,8 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    }
 	    else
 	    {
-		BufferString buf; bid.fill( buf );
 		errmsg_ = "Importing stopped because trace position found: ";
-		errmsg_ += buf;
+		errmsg_ += bid.getUsrStr();
 		errmsg_ += "\nviolates previous trace sorting:\n";
 	    }
 	    errmsg_ += sorting_->description();

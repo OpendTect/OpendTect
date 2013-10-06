@@ -79,20 +79,26 @@ inline int clss::sqDistTo( const clss& rc ) const \
 
 
 #define mImplRowColFunctions(clss, row, col) \
-void clss::fill( BufferString& bs ) const \
+const char* clss::getUsrStr( bool onlycol ) const \
 { \
-    bs.set( row ).add( "/" ).add( col ); \
+    mDeclStaticString( ret ); \
+    if ( onlycol ) \
+	ret.set( col ); \
+    else \
+	ret.set( row ).add( "/" ).add( col ); \
+    return ret.buf(); \
 } \
  \
-bool clss::use( const char* str ) \
+bool clss::parseUsrStr( const char* str ) \
 { \
     if ( !str || !*str ) return false; \
  \
     static BufferString bs; bs = str; \
     char* ptr = strchr( bs.buf(), '/' ); \
-    if ( !ptr ) return false; \
-    *ptr++ = '\0'; \
-    row = toInt( bs.buf() ); col = toInt( ptr ); \
+    if ( !ptr ) \
+	{ row = 0; col = toInt( bs.buf() ); } \
+    else \
+	{ *ptr++ = '\0'; row = toInt( bs.buf() ); col = toInt( ptr ); } \
     return true; \
 } \
  \

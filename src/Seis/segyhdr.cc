@@ -89,7 +89,7 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
 {
     clear();
 
-    BufferString str, str2;
+    BufferString str;
     const char* res = Settings::common().find( "Company" );
     if ( !res ) res = "OpendTect";
     str = "Created by: "; str += res;
@@ -106,16 +106,16 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     {
 	putAt( 13, 6, 75, "Survey setup:" );
 	coord = SI().transform( bid );
-	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 14, 6, 75, str );
 	bid.crl = SI().sampling(false).hrg.stop.crl;
 	coord = SI().transform( bid );
-	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 15, 6, 75, str );
 	bid.inl = SI().sampling(false).hrg.stop.inl;
 	bid.crl = SI().sampling(false).hrg.start.crl;
 	coord = SI().transform( bid );
-	bid.fill( str ); str += " = "; coord.fill( str2 ); str += str2;
+	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 16, 6, 75, str );
     }
 

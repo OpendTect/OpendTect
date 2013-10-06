@@ -489,7 +489,7 @@ void uiODSceneMgr::updateStatusBar()
     if ( haspos  )
     {
 	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
-	msg = bid.inl; msg += "/"; msg += bid.crl;
+	msg = bid.getUsrStr();
 	msg += "   (";
 	msg += mNINT32(xytpos.x); msg += ", ";
 	msg += mNINT32(xytpos.y); msg += ", ";

@@ -398,11 +398,7 @@ BufferString NumGateParam<T>::getDefaultValue() const
 template <class T>
 void NumGateParam<T>::toString(BufferString& res, const Interval<T>& gate) const
 {
-    res = "[";
-    res += gate.start;
-    res += ",";
-    res += gate.stop;
-    res += "]";
+    res.set( "[" ).add( gate.start ).add( "," ).add( gate.stop ).add( "]" );
 }
 
 
