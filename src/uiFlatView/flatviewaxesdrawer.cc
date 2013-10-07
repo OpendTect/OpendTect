@@ -119,8 +119,8 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     {
 	const int right = rect.right();
 	const int bottom = rect.bottom();
-    	uiPoint from( right-12, bottom+10 );
-    	uiPoint to( right, bottom+10 );
+    	uiPoint from( right-10, bottom+9 );
+    	uiPoint to( right, bottom+9 );
     	
     	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
@@ -136,8 +136,8 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     	    axis1nm_->setText( ad1.name_ );
 
 	axis1nm_->setVisible( true );
-    	axis1nm_->setTextColor( annot.color_ );
-    	axis1nm_->setPos( uiPoint(right-11,bottom-1) );
+	axis1nm_->setTextColor( annot.color_ );
+	axis1nm_->setPos( uiPoint(right-11,bottom-1) );
     }
     else
     {
@@ -149,8 +149,8 @@ void FlatView::AxesDrawer::setViewRect( const uiRect& rect )
     {
 	const int left = rect.left();
 	const int bottom = rect.bottom();
-	uiPoint from( left , bottom+5 );
-	uiPoint to( left, bottom+15 );
+	uiPoint from( left , bottom+3 );
+	uiPoint to( left, bottom+13 );
 
 	if ( ad2.reversed_ ) Swap( from, to );
 	if ( !arrowitem2_ )
