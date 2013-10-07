@@ -50,7 +50,7 @@ public:
     void		setFlattened(bool yn);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
-    bool		isBrineFilled() const		{return isbrinefilled_; }
+    bool		isBrineFilled() const		{return isbrinefilled_;}
     void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
     
 
@@ -62,6 +62,7 @@ public:
     Notifier<uiStratLayerModelDisp> rangeChanged;
     Notifier<uiStratLayerModelDisp> modelEdited;
     CNotifier<uiStratLayerModelDisp,IOPar> infoChanged;
+    Notifier<uiStratLayerModelDisp> zskipChanged;
 
 protected:
 

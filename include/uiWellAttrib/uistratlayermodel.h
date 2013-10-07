@@ -79,7 +79,8 @@ public:
     static void			doLayerModel(const char* modnm);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
-    void			displayFRResult(bool usefr,bool parschanged,bool fwd);
+    void			displayFRResult(bool usefr,bool parschanged,
+	    					bool fwd);
     void			prepareFluidRepl();
 
     //Utility
@@ -136,6 +137,7 @@ protected:
 	    				bool allowcancel=true) const;
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
+    void			zSkipChanged(CallBacker*);
 
     bool			closeOK();
     

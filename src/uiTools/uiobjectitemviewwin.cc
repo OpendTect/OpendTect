@@ -50,7 +50,8 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->disableScrollZoom();
     mainviewer_->reSize.notify( mCB(this,uiObjectItemViewWin,reSizeCB) );
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
-    mainviewer_->scrollBarUsed.notify(mCB(this,uiObjectItemViewWin,scrollBarCB));
+    mainviewer_->scrollBarUsed.notify(
+	    mCB(this,uiObjectItemViewWin,scrollBarCB) );
     infobar_ = new uiObjectItemViewInfoBar( this );
     infobar_->setPrefWidth( startwidth_ - mScrollBarSize );
     infobar_->setPrefHeight( su.infoheight_ );
@@ -437,7 +438,8 @@ void uiObjectItemViewInfoBar::reSizeItems()
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(toolbar_,fnm,tt,mCB(this,uiObjectItemViewControl,cbnm) ); \
+    but = new uiToolButton(toolbar_,fnm,tt, \
+    mCB(this,uiObjectItemViewControl,cbnm) ); \
     toolbar_->addButton( but );
 
 uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )

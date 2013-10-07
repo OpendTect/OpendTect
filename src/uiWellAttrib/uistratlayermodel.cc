@@ -388,6 +388,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp )
 			    mCB(this,uiStratLayerModel,infoChanged));
     moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
     moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
+    moddisp_->zskipChanged.notify( mCB(this,uiStratLayerModel,zSkipChanged) );
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
@@ -781,6 +782,15 @@ MultiID uiStratLayerModel::genDescID() const
 void uiStratLayerModel::seqSel( CallBacker* )
 {
     synthdisp_->setSelectedTrace( moddisp_->selectedSequence() );
+}
+
+
+void uiStratLayerModel::zSkipChanged( CallBacker* )
+{
+    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
+    synthdisp_->modelChanged();
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
 }
 
 

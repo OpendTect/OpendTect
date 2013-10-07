@@ -59,6 +59,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , rangeChanged(this)   
     , modelEdited(this)   
     , infoChanged(this)   
+    , zskipChanged(this)
 {
 }
 
@@ -560,10 +561,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
     if ( mIsUdf(zrg.start) )
 	zrg_ = Interval<float>( 0, 1 );
     else
-    {
-	zrg_.start = zrg.start + getDisplayZSkip();
-	zrg_.stop = zrg.stop;
-    }
+	zrg_ = zrg;
     vrg_ = mIsUdf(vrg.start) ? Interval<float>(0,1) : vrg;
 
     if ( mIsUdf(zoomwr_.left()) )
