@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "hiddenparam.h"
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -41,7 +42,8 @@ static const char* rcsID mUsedVar = "$Id$";
 	target.scale( mToFeetFactorF )
 
 static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
-
+static HiddenParam< uiStratLayerModelDisp, Notifier<uiStratLayerModelDisp>* >
+							zskipchanged( 0 );
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp )
@@ -60,11 +62,23 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , modelEdited(this)   
     , infoChanged(this)   
 {
+    Notifier<uiStratLayerModelDisp>* notifier =
+	new Notifier<uiStratLayerModelDisp>( this );
+    zskipchanged.setParam( this, notifier );
 }
 
 
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
+    Notifier<uiStratLayerModelDisp>* notifier = zskipchanged.getParam( this );
+    zskipchanged.removeParam( this );
+    delete notifier;
+}
+
+
+Notifier<uiStratLayerModelDisp>& uiStratLayerModelDisp::zskipChanged()
+{
+    return *zskipchanged.getParam( this );
 }
 
 
@@ -552,10 +566,7 @@ void uiStratSimpleLayerModelDisp::getBounds()
     if ( mIsUdf(zrg.start) )
 	zrg_ = Interval<float>( 0, 1 );
     else
-    {
-	zrg_.start = zrg.start + getDisplayZSkip();
-	zrg_.stop = zrg.stop;
-    }
+	zrg_ = zrg;
     vrg_ = mIsUdf(vrg.start) ? Interval<float>(0,1) : vrg;
 
     if ( mIsUdf(zoomwr_.left()) )

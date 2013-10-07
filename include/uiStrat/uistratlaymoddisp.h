@@ -81,6 +81,8 @@ protected:
 
     bool		doLayerModelIO(bool);
     				//!< returns whether layermodel has changed
+public:
+    Notifier<uiStratLayerModelDisp>& zskipChanged();
 
 };
 

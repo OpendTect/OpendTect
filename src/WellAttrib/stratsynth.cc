@@ -1209,14 +1209,21 @@ void StratSynth::trimTraces( SeisTrcBuf& tbuf, float flatshift,
     if ( mIsZero(zskip,mDefEps) )
 	return;
 
+    float highetszkip = mUdf(float);
+    for ( int idx=0; idx<d2ts.size(); idx++ )
+    {
+	const TimeDepthModel& d2tmodel = *d2ts[idx];
+	if ( d2tmodel.getTime(zskip)<highetszkip )
+	    highetszkip = d2tmodel.getTime(zskip);
+    }
+
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
 	SeisTrc* trc = tbuf.get( idx );
 	SeisTrc* newtrc = new SeisTrc( *trc );
 	newtrc->info() = trc->info();
-	const TimeDepthModel& d2tmodel = *d2ts[idx];
 	const int startidx =
-	    trc->nearestSample( d2tmodel.getTime(zskip)-flatshift );
+	    trc->nearestSample( trc->info().sampling.start + highetszkip );
 	newtrc->reSize( trc->size()-startidx, false );
 	newtrc->setStartPos( trc->samplePos(startidx) );
 	for ( int sampidx=startidx; sampidx<trc->size(); sampidx++ )

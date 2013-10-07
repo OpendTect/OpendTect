@@ -135,6 +135,7 @@ protected:
 	    				bool allowcancel=true) const;
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
+    void			zSkipChanged(CallBacker*);
 
     bool			closeOK();
     

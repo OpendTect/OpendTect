@@ -88,9 +88,9 @@ public:
 				const ObjectSet<const TimeDepthModel>&) const;
 
     void		flattenTraces(SeisTrcBuf&) const;
-    void		trimTraces(SeisTrcBuf&,float,
+    void		trimTraces(SeisTrcBuf&,float flatshift,
 			    const ObjectSet<const TimeDepthModel>&,
-			    float zskip) const;
+			    float zskip) const;// flatshift not used anymore
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
