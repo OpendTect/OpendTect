@@ -792,8 +792,8 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
+	if ( mIsUdf(irg.step) || !irg.step || irg.step>irg.width() ) irg.step=1;
 	if ( irg.isUdf() ) return;
-	if ( !irg.step || irg.step>fabs(irg.stop-irg.start) ) irg.step = 1;
 
 	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
 	inlfld_->setValue( irg );
@@ -801,8 +801,8 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
+	if ( mIsUdf(crg.step) || !crg.step || crg.step>crg.width() ) crg.step=1;
 	if ( crg.isUdf() ) return;
-	if ( !crg.step || crg.step>fabs(crg.stop-crg.start) ) crg.step = 1;
 
 	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
 	crlfld_->setValue( crg );
