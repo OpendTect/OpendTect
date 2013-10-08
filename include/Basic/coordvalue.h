@@ -23,10 +23,9 @@ mExpClass(Basic) Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0,
-			     float v=mUdf(float) )
-		    : coord(x,y,z), value(v) 	{}
-		Coord3Value( const Coord3& c, float v=mUdf(float) )
-		    : coord(c), value(v)		{}
+			     float v=mUdf(float) );
+		Coord3Value( const Coord3& c, float v=mUdf(float) );
+
     bool	operator==( const Coord3Value& cv ) const
 		{ return cv.coord == coord; }
     bool	operator!=( const Coord3Value& cv ) const

@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "position.h"
+#include "coordvalue.h"
 #include "binidvalue.h"
 
 #include "bufstring.h"
@@ -216,6 +217,18 @@ const Coord3& Coord3::udf()
 {
    static Coord3 _udf( mUdf(OrdType), mUdf(OrdType), mUdf(OrdType) );
    return _udf;
+}
+
+
+Coord3Value::Coord3Value( double x, double y, double z, float v )
+    : coord(x,y,z), value(v) 	
+{
+}
+
+
+Coord3Value::Coord3Value( const Coord3& c, float v )
+    : coord(c), value(v)
+{
 }
 
 
