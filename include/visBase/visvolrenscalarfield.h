@@ -65,7 +65,7 @@ public:
 					      const Interval<float>& z);
     Interval<float>		getVolumeSize(int dim) const;
 
-    const char*			writeVolumeFile(std::ostream&) const;
+    const char* 		writeVolumeFile(od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
 
     virtual int			usePar(const IOPar&);

@@ -26,12 +26,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odcomplex.h"
 #include "moddepmgr.h"
 #include "errh.h"
+#include "od_ostream.h"
 
 #include <iostream>
 #include <fstream>
 #include <signal.h>
 
-static std::ostream* dbglogstrm = 0;
+static PtrMan<od_ostream> dbglogstrm = 0;
 
 
 void od_test_prog_crash_handler(int)
@@ -155,10 +156,10 @@ static int getMask()
 	BufferString msg;
 	if ( dbglogfnm )
 	{
-	    dbglogstrm = new std::ofstream( dbglogfnm );
-	    if ( dbglogstrm && !dbglogstrm->good() )
+	    dbglogstrm = new od_ostream( dbglogfnm );
+	    if ( dbglogstrm && !dbglogstrm->isOK() )
 	    {
-		delete dbglogstrm; dbglogstrm = 0;
+		dbglogstrm = 0;
 		msg = "Cannot open debug log file '";
 		msg += dbglogfnm;
 		msg += "': reverting to stdout";
@@ -209,7 +210,7 @@ void message( const char* msg )
     msg_ += msg;
 
     if ( dbglogstrm )
-	*dbglogstrm << msg_ << std::endl;
+	*dbglogstrm.ptr() << msg_ << od_endl;
     else
 	std::cerr << msg_ << std::endl;
 }

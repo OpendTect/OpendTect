@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "marchingcubes.h"
 #include "picksettr.h"
 #include "pickset.h"
+#include "od_ostream.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -1389,10 +1390,11 @@ bool VolumeDisplay::writeVolume( const char* filename ) const
     if ( !scalarfield_ )
 	return false;
 
-    std::ofstream strm( filename );
-    if ( !strm )
+    od_ostream strm( filename );
+    if ( !strm.isOK() )
     {
-	errmsg_ = "Cannot open file";
+	errmsg_.set( "Cannot open file ").add( filename );
+	strm.addErrMsgTo( errmsg_ );
 	return false;
     }
 

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "settings.h"
+#include "od_ostream.h"
 
 #include "ostream"
 
@@ -396,7 +397,7 @@ static float hton_float(float value)
 
 		    
 
-const char* VolumeRenderScalarField::writeVolumeFile( std::ostream& strm ) const
+const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
 {
     if ( !indexcache_ )
 	return "Nothing to write";
@@ -417,11 +418,11 @@ const char* VolumeRenderScalarField::writeVolumeFile( std::ostream& strm ) const
     vh.images = hton_uint32(sz0_);
     vh.bits_per_voxel = hton_uint32(8);
 
-    if ( !strm.write( (char*) &vh, sizeof(struct VolFileHeader) ) )
+    if ( !strm.addBin( &vh, sizeof(struct VolFileHeader) ) )
 	return writeerr;
 
     const od_int64 totalsz = sz0_*sz1_*sz2_;
-    if ( !strm.write( (char*) indexcache_, totalsz ) )
+    if ( !strm.addBin( indexcache_, totalsz ) )
 	return writeerr;
 
     return 0;
