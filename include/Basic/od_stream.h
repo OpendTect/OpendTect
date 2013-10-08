@@ -46,6 +46,7 @@ public:
     virtual			~od_stream();
 
     bool			isOK() const;
+    bool			isEOF() const;
     const char*			errMsg() const; //!< see also below
     bool			forRead() const;
     bool			forWrite() const;
@@ -81,7 +82,7 @@ protected:
     			od_stream(std::istream*);
     			od_stream(std::istream&);
     			od_stream(const od_stream&);
-    od_stream&		operator =(const od_stream&);
+    od_stream&		operator=(const od_stream&);
 
     StreamData&		sd_;
     bool		mine_;
