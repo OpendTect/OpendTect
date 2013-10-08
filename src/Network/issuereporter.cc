@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "oddirs.h"
 #include "odinst.h"
+#include "od_istream.h"
 #include "odplatform.h"
 
 
@@ -42,33 +43,29 @@ bool System::IssueReporter::readReport( const char* filename )
 	errmsg_.add( " does not exist" );
 	return false;
     }
-    
-    std::ifstream fstream( filename );
-    if ( !fstream )
-    {
-	errmsg_ = "Cannot open ";
-	errmsg_.add( filename ).add( ".");
-	return false;
-    }
-    
+
+#define mStreamError( op ) \
+{ \
+    errmsg_ = "Cannot " #op; \
+    errmsg_.add( filename ).add( ". Reason: "); \
+    errmsg_.add( fstream.errMsg() ); \
+    return false; \
+}
+
+
+    od_istream fstream( filename );
+    if ( fstream.isBad() )
+	mStreamError( open );
+
     report_.setEmpty();
     
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
 
-    
-#define mBufSize 10000
     BufferString unfilteredreport;
-    char buf[mBufSize+1];
-    while ( fstream.read( buf, mBufSize ) )
-    {
-	buf[fstream.gcount()] = 0;
-	unfilteredreport +=  buf;
-    }
-    
-    buf[fstream.gcount()] = 0;
-    unfilteredreport +=  buf;
-    
-    
+
+    if ( !fstream.getAll( unfilteredreport ) )
+	mStreamError( read );
+
     SeparString sep( unfilteredreport.buf(), '\n' );
     
     for ( int idx=0; idx<sep.size(); idx++ )
