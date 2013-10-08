@@ -243,7 +243,8 @@ float Instantaneous::calcRotPhase( int cursample, int z0, float angle ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
-    return (float) (real*cos( angle*M_PI/180 ) - imag*sin( angle*M_PI/180 ));
+    const float radians = Math::toRadians( angle );
+    return (float) (real*cos( radians ) - imag*sin( radians ));
 }
 
 

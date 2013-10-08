@@ -96,7 +96,8 @@ int main( int argc, char** argv )
 
 	if ( info.geom_.fullyrectandreg )
 	{
-	    if ( bid.inl() < info.geom_.start.inl() || bid.inl() > info.geom_.stop.inl() )
+	    if ( bid.inl()<info.geom_.start.inl() ||
+		 bid.inl()>info.geom_.stop.inl() )
 	    {
 		std::cerr << "Invalid inline" << std::endl;
 		continue;
@@ -153,7 +154,7 @@ int main( int argc, char** argv )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
 	if ( !mIsZero(trc.info().azimuth,mDefEps)
 		&& !mIsUdf(trc.info().azimuth) )
-	    std::cerr << "Azimuth: " << (trc.info().azimuth*57.29577951308232)
+	    std::cerr << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
 		      << std::endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{

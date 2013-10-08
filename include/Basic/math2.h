@@ -82,9 +82,14 @@ mGlobal(Basic) inline od_uint64 Abs( od_uint64 i )	    { return i; }
 mGlobal(Basic) unsigned int Abs(int i);
 mGlobal(Basic) od_uint64 Abs(od_int64 i);
 
+inline float	toDegrees(float r)	{ return (mIsUdf(r) ? r : r*mRad2DegF);}
+inline double	toDegrees(double r)	{ return (mIsUdf(r) ? r : r*mRad2DegD);}
+inline float	toRadians(float d)	{ return (mIsUdf(d) ? d : d*mDeg2RadF);}
+inline double	toRadians(double d)	{ return (mIsUdf(d) ? d : d*mDeg2RadD);}
+
 inline float	degFromNorth( float azimuth )
 		{
-		    const float deg = 90 - 57.2957795131f * azimuth;
+		    const float deg = 90 - mRad2DegF * azimuth;
 		    return deg < 0 ? deg + 360 : deg;
 		}
 

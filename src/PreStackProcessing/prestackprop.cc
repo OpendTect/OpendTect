@@ -136,8 +136,8 @@ float PropCalc::getVal( float z ) const
     Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start = setup_.anglerg_.start*M_PIf/180; 
-	axisvalrg.stop = setup_.anglerg_.stop*M_PIf/180;
+	axisvalrg.start = Math::toRadians( (float) setup_.anglerg_.start );
+	axisvalrg.stop = Math::toRadians( (float) setup_.anglerg_.stop );
     }
    
     const float eps = 1e-3;

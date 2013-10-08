@@ -329,7 +329,8 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 	float prevangleval = mUdf( float );
 	for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
 	{
-	    const float angleval = anglevals.get( ofsidx, zidx ) * 180/M_PIf;
+	    const float angleval =
+		Math::toDegrees( anglevals.get(ofsidx,zidx) );
 	    if ( mIsEqual(angleval,prevangleval,1e-3) )
 		continue;
 
@@ -365,7 +366,7 @@ void uiStoredViewer2DMainWin::convAngleDataToDegrees(
     const int size = mCast(int,data.info().getTotalSz());
 
     for( int idx = 0; idx<size; idx++ )
-	ptr[idx] *= 180 / M_PIf;
+	ptr[idx] = Math::toDegrees( ptr[idx] );
 }
 
 

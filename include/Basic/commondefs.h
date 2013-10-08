@@ -109,6 +109,10 @@ ________________________________________________________________________
 #define mMileToFeetFactor	5280
 #define mToPercent(f)		(mIsUdf(f) ? f : f*100)
 #define mFromPercent(p)		(mIsUdf(p) ? p : p*0.01)
+#define mDeg2RadD		0.017453292519943292
+#define mRad2DegD		57.295779513082323
+#define mDeg2RadF		0.017453292519943292f
+#define mRad2DegF		57.295779513082323f
 
 
 #ifdef __msvc__

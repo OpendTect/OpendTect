@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 const double cAvgEarthRadius = 6367450;
-const double cDeg2Rad = M_PI / 180;
+
 
 
 Coord LatLong::transform( const LatLong& ll )
@@ -80,14 +80,14 @@ void LatLong::setDMS( bool lat, int d, int m, float s )
 
 LatLong2Coord::LatLong2Coord()
     : lngdist_(mUdf(float))
-    , latdist_(cAvgEarthRadius*cDeg2Rad)
+    , latdist_(cAvgEarthRadius*mDeg2RadD)
     , scalefac_(-1)
 {
 }
 
 
 LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
-    : latdist_(cAvgEarthRadius*cDeg2Rad)
+    : latdist_(cAvgEarthRadius*mDeg2RadD)
     , scalefac_(-1)
 {
     set( c, l );
@@ -97,7 +97,7 @@ LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
 void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 {
     refcoord_ = c; reflatlng_ = ll;
-    lngdist_ = cDeg2Rad * cos( ll.lat_ * cDeg2Rad ) * cAvgEarthRadius;
+    lngdist_ = mDeg2RadD * cos( ll.lat_ * mDeg2RadD ) * cAvgEarthRadius;
 }
 
 

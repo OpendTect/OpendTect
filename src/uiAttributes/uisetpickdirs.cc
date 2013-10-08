@@ -182,8 +182,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    phi = (float) (dps.value( 0, rid ) * M_PI / 180);
-	    theta = (float) (dps.value( 1, rid ) * M_PI / 180);
+	    phi = Math::toRadians( (float) dps.value( 0, rid ) );
+	    theta = Math::toRadians( (float) dps.value( 1, rid ) );
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );

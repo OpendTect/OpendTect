@@ -16,10 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "task.h"
 
 
-#define mAngle2Rad	0.017453292519943292	
-#define mRad2Angle	57.295779513082323	
-
-
 class Dip3DCalculator : public ParallelTask
 {
 public:
@@ -131,10 +127,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const float edenominator = Math::Sqrt(eigenvec0[0]*eigenvec0[0]+
 		eigenvec0[1]*eigenvec0[1]);
-	const float absdip = (float)(atan(edenominator/eigenvec0[2])*mRad2Angle); 
+	const float absdip = (float)(atan(edenominator/eigenvec0[2])*mRad2DegF);
 	const float inldip = eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
 	const float crldip = eigenvec0[1]*fd_.ydist_/(fd_.zdist_*eigenvec0[2]);
-	const float azimuth = (float)(atan(eigenvec0[1]/eigenvec0[0])*mRad2Angle);
+	const float azimuth =(float)(atan(eigenvec0[1]/eigenvec0[0])*mRad2DegF);
 
 	fd_.absdip_->set( x, y, z, absdip );
 	fd_.inldip_->set( x, y, z, inldip );
@@ -388,7 +384,7 @@ bool Dip2D::fillGap()
 	    {
                 /*find the line function passing current point using curent 
 		  angle, ax + by + c = 0 */
-		float arc = (float)( mAngle2Rad*angleset[jangle] );
+		float arc = (float)( mDeg2RadF*angleset[jangle] );
 		float slope =  tan(arc);
 		float a_term = -slope;
 		float b_term = 1;
@@ -428,9 +424,12 @@ bool Dip2D::fillGap()
 	}
     }
 
-    /*dot produce to get the energy in each angle zone
-    angle_zone_energy:       the energy in current angle zone
-    min_npoixsz_needed:minimum point number needed for a valid zone identified */
+/*
+    dot produce to get the energy in each angle zone
+    angle_zone_energy:		the energy in current angle zone
+    min_npoixsz_needed: 	minimum point number needed for a valid zone
+				identified
+*/
 
     mDeclareAndTryAlloc( PtrMan<Array3D<float> >, angle_zone_energy,
 	    Array3DImpl<float>(xsz_,ysz_,nangle) );
@@ -448,7 +447,7 @@ bool Dip2D::fillGap()
 	    
 	    for ( int jangle=0; jangle<nangle; jangle++ )
 	    {
-		float arc = (float)( angleset[jangle]*mAngle2Rad );
+		float arc = (float)( angleset[jangle]*mDeg2RadF );
 		float v0X = cos(arc);
 		float v0Y = sin(arc);
 		int npoint = accumulator->get(jt,jtrace,jangle);
@@ -459,7 +458,7 @@ bool Dip2D::fillGap()
 		{
 		    int pos[4] = { jt, jtrace, jangle, jpoint };
 		    float angle_temp = fault_dip_collection->getND(pos);
-		    arc = (float)( angle_temp*mAngle2Rad );
+		    arc = (float)( angle_temp*mDeg2RadF );
 		    float v1X = cos(arc);
 		    float v1Y = sin(arc);
 		    angle_zone_energy->set(jt,jtrace,jangle,
@@ -478,7 +477,7 @@ bool Dip2D::fillGap()
       energy_threshold:         threshold based on angle diffrence
       energy_threshold_percent: the point percent which have the value of 
       energy_threshold */
-    const float energy_threshold = (float) cos(30*mAngle2Rad);
+    const float energy_threshold = (float) cos(30*mDeg2RadF);
     const float energy_threshold_percent = 0.7;
     
     for ( int jtrace=0; jtrace<ysz_; jtrace++ )

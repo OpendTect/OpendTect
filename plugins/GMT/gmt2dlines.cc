@@ -149,7 +149,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	float angle = (float) atan2( cvec.y, cvec.x );
 	float dy = sin( angle );
 	float dx = cos( angle );
-	angle *= 180 / M_PI;
+	angle = Math::toDegrees( angle );
 
 	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	float perpangle = angle > 0 ? angle - 90 : angle + 90;
@@ -174,7 +174,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	    angle = (float) atan2( cvec.y, cvec.x );
 	    dy = sin( angle );
 	    dx = cos( angle );
-	    angle *= 180 / M_PI;
+	    angle = Math::toDegrees( angle );
 	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
@@ -196,8 +196,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 		if ( tdx > 4 && tdx < posns.size()-5 )
 		{
 		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
-		    angle = (float) atan2( cvec.y, cvec.x );
-		    angle *= 180 / M_PI;
+		    angle = Math::toDegrees( (float) atan2( cvec.y, cvec.x ) );
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
@@ -219,7 +218,8 @@ int GMTRandLines::factoryid_ = -1;
 void GMTRandLines::initClass()
 {
     if ( factoryid_ < 1 )
-	factoryid_ = GMTPF().add( "Random Lines", GMTRandLines::createInstance );
+	factoryid_ = GMTPF().add( "Random Lines",
+				  GMTRandLines::createInstance );
 }
 
 GMTPar* GMTRandLines::createInstance( const IOPar& iop )
@@ -323,7 +323,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	float angle = (float) atan2( cvec.y, cvec.x );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
-	angle *= 180 / M_PI;
+	angle = Math::toDegrees( angle );
 
 	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	BufferString al = fabs(angle) > 90 ? "BR " : "BL ";

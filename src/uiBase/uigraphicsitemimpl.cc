@@ -767,7 +767,7 @@ void uiArrowItem::update()
     setArrowSize( mNINT32(arrsz) );
     setPos( headpos_ );
     const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );
-    const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
+    const float ang = Math::toDegrees( atan2((float)relvec.y,(float)relvec.x) );
     setRotation( ang );
 }
 
