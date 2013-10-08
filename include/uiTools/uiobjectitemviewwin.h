@@ -58,7 +58,6 @@ public:
     };
 
 			uiObjectItemViewWin(uiParent*,const Setup&);
-			~uiObjectItemViewWin();
 
 
     int 		nrItems() const { return mainviewer_->nrItems(); }
