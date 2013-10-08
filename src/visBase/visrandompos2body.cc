@@ -96,16 +96,16 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	BinID bid = SI().transform( pts[idx] );
 	if ( idx==0 )
 	{
-	    inl = bid.inl;
-	    crl = bid.crl;
+	    inl = bid.inl();
+	    crl = bid.crl();
 	    z = pts[idx].z;
 	}
 	else
 	{
-	    if ( oninline && inl!=bid.inl )
+	    if ( oninline && inl!=bid.inl() )
 		oninline = false;
 
-	    if ( oncrossline && crl!=bid.crl )
+	    if ( oncrossline && crl!=bid.crl() )
 		oncrossline = false;
 
 	    if ( onzslice && !mIsEqual(z,pts[idx].z,zeps) )

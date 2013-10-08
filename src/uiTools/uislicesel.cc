@@ -142,12 +142,12 @@ uiSliceScroll( uiSliceSel* ss )
 
     const CubeSampling& cs = SI().sampling( false );
     const HorSampling& hs = cs.hrg;
-    int step = hs.step.inl;
-    int maxstep = hs.start.inl - hs.stop.inl;
+    int step = hs.step.inl();
+    int maxstep = hs.start.inl() - hs.stop.inl();
     if  ( ss->iscrl_ )
     {
-	step = hs.step.crl;
-	maxstep = hs.start.crl - hs.stop.crl;
+	step = hs.step.crl();
+	maxstep = hs.start.crl() - hs.stop.crl();
     }
     else if ( ss->istsl_ )
     {
@@ -246,7 +246,7 @@ void doAdvance( bool reversed )
     slcsel_->readInput();
     if ( slcsel_->isinl_ )
     {
-	int newval = slcsel_->cs_.hrg.start.inl + step;
+	int newval = slcsel_->cs_.hrg.start.inl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
@@ -254,7 +254,7 @@ void doAdvance( bool reversed )
     }
     else if ( slcsel_->iscrl_ )
     {
-	int newval = slcsel_->cs_.hrg.start.crl + step;
+	int newval = slcsel_->cs_.hrg.start.crl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
@@ -379,13 +379,13 @@ void uiSliceSel::readInput()
 	inlrg.start = inl0fld_->box()->getValue();
 	inlrg.stop = isinl_ ? inlrg.start : inl1fld_->getValue();
 	if ( !isinl_ && inlrg.start == inlrg.stop )
-	    inlrg.stop += hs.step.inl;
+	    inlrg.stop += hs.step.inl();
     }
 
     crlrg.start = crl0fld_->box()->getValue();
     crlrg.stop = iscrl_ ? crlrg.start : crl1fld_->getValue();
     if ( !iscrl_ && crlrg.start == crlrg.stop )
-	crlrg.stop += hs.step.crl;
+	crlrg.stop += hs.step.crl();
 
     const float zfac = mCast( float, zdominfo_.userFactor() );
     Interval<float> zrg;
@@ -417,16 +417,16 @@ void uiSliceSel::updateUI()
 {
     if ( inl0fld_ )
     {
-	Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
-	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
-				    maxcs_.hrg.step.inl );
+	Interval<int> inlrg( cs_.hrg.start.inl(), cs_.hrg.stop.inl() );
+	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl(), maxcs_.hrg.stop.inl(),
+				    maxcs_.hrg.step.inl() );
 	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start );
 	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
     }
 
-    Interval<int> crlrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
-    StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl, maxcs_.hrg.stop.crl,
-				maxcs_.hrg.step.crl );
+    Interval<int> crlrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
+    StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl(), maxcs_.hrg.stop.crl(),
+				maxcs_.hrg.step.crl() );
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
@@ -512,15 +512,15 @@ void uiSliceSel::enableScrollButton( bool yn )
 void uiSliceSel::fillPar( IOPar& iop )
 {
     CubeSampling cs;
-    cs.hrg.start.inl = is2d_ ? 0 : inl0fld_->box()->getValue();
+    cs.hrg.start.inl() = is2d_ ? 0 : inl0fld_->box()->getValue();
 
     if ( isinl_ )
-	cs.hrg.stop.inl =  is2d_ ? 0 : inl0fld_->box()->getValue();
+	cs.hrg.stop.inl() =  is2d_ ? 0 : inl0fld_->box()->getValue();
     else
-	cs.hrg.stop.inl = is2d_ ? 0 : inl1fld_->getValue();
+	cs.hrg.stop.inl() = is2d_ ? 0 : inl1fld_->getValue();
 
-    cs.hrg.start.crl = crl0fld_->box()->getValue();
-    cs.hrg.stop.crl = iscrl_ ? crl0fld_->box()->getValue()
+    cs.hrg.start.crl() = crl0fld_->box()->getValue();
+    cs.hrg.stop.crl() = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
     
     cs.zrg.start = mCast( float, z0fld_->box()->getValue() );

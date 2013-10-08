@@ -67,8 +67,8 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	const BinID& stopbid = rln.nodePosition( idx );
 	Coord stoppos = SI().transform( stopbid );
 	const double dist = startpos.distTo( stoppos );
-	const double unitdist = mMAX( inpstep.inl * SI().inlDistance(),
-				      inpstep.crl * SI().crlDistance() );
+	const double unitdist = mMAX( inpstep.inl() * SI().inlDistance(),
+				      inpstep.crl() * SI().crlDistance() );
 	const int nrsegs = mNINT32( dist / unitdist );
 	const double unitx = ( stoppos.x - startpos.x ) / nrsegs;
 	const double unity = ( stoppos.y - startpos.y ) / nrsegs;

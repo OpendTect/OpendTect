@@ -203,14 +203,14 @@ void CBVSWriter::writeGeom()
     if ( survgeom_.fullyrectandreg )
     {
 	irect = 1;
-	nrxlines_ = (survgeom_.stop.crl - survgeom_.start.crl)
-		  / survgeom_.step.crl + 1;
+	nrxlines_ = (survgeom_.stop.crl() - survgeom_.start.crl())
+		  / survgeom_.step.crl() + 1;
     }
     strm_.write( (const char*)&irect, integersize );
     strm_.write( (const char*)&nrtrcsperposn_, integersize );
-    strm_.write( (const char*)&survgeom_.start.inl, 2 * integersize );
-    strm_.write( (const char*)&survgeom_.stop.inl, 2 * integersize );
-    strm_.write( (const char*)&survgeom_.step.inl, 2 * integersize );
+    strm_.write( (const char*)&survgeom_.start.inl(), 2 * integersize );
+    strm_.write( (const char*)&survgeom_.stop.inl(), 2 * integersize );
+    strm_.write( (const char*)&survgeom_.step.inl(), 2 * integersize );
     strm_.write( (const char*)&survgeom_.b2c.getTransform(true).a, 
 		    3*sizeof(double) );
     strm_.write( (const char*)&survgeom_.b2c.getTransform(false).a, 
@@ -223,25 +223,25 @@ void CBVSWriter::newSeg( bool newinl )
     bool goodgeom = nrtrcsperposn_status_ != 2 && nrtrcsperposn_ > 0;
     if ( !goodgeom && !newinl )
     {
-	lds_[lds_.size()-1]->segments_[0].stop = curbinid_.crl;
+	lds_[lds_.size()-1]->segments_[0].stop = curbinid_.crl();
 	return;
     }
     goodgeom = nrtrcsperposn_status_ == 0 && nrtrcsperposn_ > 0;
 
     if ( !trcswritten_ ) prevbinid_ = curbinid_;
 
-    int newstep = forcedlinestep_.crl ? forcedlinestep_.crl : SI().crlStep();
+    int newstep = forcedlinestep_.crl() ? forcedlinestep_.crl() : SI().crlStep();
     if ( newinl )
     {
 	if ( goodgeom && lds_.size() )
 	    newstep = lds_[lds_.size()-1]->segments_[0].step;
-	lds_ += new PosInfo::LineData( curbinid_.inl );
+	lds_ += new PosInfo::LineData( curbinid_.inl() );
     }
     else if ( goodgeom )
 	newstep = lds_[lds_.size()-1]->segments_[0].step;
 
     lds_[lds_.size()-1]->segments_ +=
-	PosInfo::LineData::Segment(curbinid_.crl,curbinid_.crl, newstep);
+	PosInfo::LineData::Segment(curbinid_.crl(),curbinid_.crl(), newstep);
 }
 
 
@@ -251,35 +251,35 @@ void CBVSWriter::getBinID()
     if ( input_rectnreg_ || !auxinfo_ )
     {
 	int posidx = trcswritten_ / nrtrcpp;
-	curbinid_.inl = survgeom_.start.inl
-		   + survgeom_.step.inl * (posidx / nrxlines_);
-	curbinid_.crl = survgeom_.start.crl
-		   + survgeom_.step.crl * (posidx % nrxlines_);
+	curbinid_.inl() = survgeom_.start.inl()
+		   + survgeom_.step.inl() * (posidx / nrxlines_);
+	curbinid_.crl() = survgeom_.start.crl()
+		   + survgeom_.step.crl() * (posidx % nrxlines_);
     }
     else if ( !(trcswritten_ % nrtrcpp) )
     {
 	curbinid_ = auxinfo_->binid;
-	if ( !trcswritten_ || prevbinid_.inl != curbinid_.inl )
+	if ( !trcswritten_ || prevbinid_.inl() != curbinid_.inl() )
 	    newSeg( true );
 	else
 	{
 	    PosInfo::LineData& inlinf = *lds_[lds_.size()-1];
 	    PosInfo::LineData::Segment& seg =
 				inlinf.segments_[inlinf.segments_.size()-1];
-	    if ( !forcedlinestep_.crl && seg.stop == seg.start )
+	    if ( !forcedlinestep_.crl() && seg.stop == seg.start )
 	    {
-		if ( seg.stop != curbinid_.crl )
+		if ( seg.stop != curbinid_.crl() )
 		{
-		    seg.stop = curbinid_.crl;
+		    seg.stop = curbinid_.crl();
 		    seg.step = seg.stop - seg.start;
 		}
 	    }
 	    else
 	    {
-		if ( curbinid_.crl != seg.stop + seg.step )
+		if ( curbinid_.crl() != seg.stop + seg.step )
 		    newSeg( false );
 		else
-		    seg.stop = curbinid_.crl;
+		    seg.stop = curbinid_.crl();
 	    }
 	}
     }
@@ -294,7 +294,7 @@ int CBVSWriter::put( void** cdat, int offs )
 #endif
 
     getBinID();
-    if ( prevbinid_.inl != curbinid_.inl )
+    if ( prevbinid_.inl() != curbinid_.inl() )
     {
 	// getBinID() has added a new segment, so remove it from list ...
 	PosInfo::LineData* newinldat = lds_[lds_.size()-1];
@@ -422,22 +422,22 @@ void CBVSWriter::getRealGeometry()
 
     survgeom_.fullyrectandreg = cd.isFullyRectAndReg();
     StepInterval<int> rg;
-    cd.getInlRange( rg ); survgeom_.step.inl = rg.step;
-    survgeom_.start.inl = rg.start; survgeom_.stop.inl = rg.stop;
-    cd.getCrlRange( rg ); survgeom_.step.crl = rg.step;
-    survgeom_.start.crl = rg.start; survgeom_.stop.crl = rg.stop;
+    cd.getInlRange( rg ); survgeom_.step.inl() = rg.step;
+    survgeom_.start.inl() = rg.start; survgeom_.stop.inl() = rg.stop;
+    cd.getCrlRange( rg ); survgeom_.step.crl() = rg.step;
+    survgeom_.start.crl() = rg.start; survgeom_.stop.crl() = rg.stop;
 
     if ( !cd.haveCrlStepInfo() )
-	survgeom_.step.crl = SI().crlStep();
+	survgeom_.step.crl() = SI().crlStep();
     if ( !cd.haveInlStepInfo() )
-	survgeom_.step.inl = SI().inlStep();
+	survgeom_.step.inl() = SI().inlStep();
     else if ( lds_[0]->linenr_ > lds_[1]->linenr_ )
-	survgeom_.step.inl = -survgeom_.step.inl;
+	survgeom_.step.inl() = -survgeom_.step.inl();
 
     if ( survgeom_.fullyrectandreg )
 	deepErase( cd );
-    else if ( forcedlinestep_.inl )
-	survgeom_.step.inl = forcedlinestep_.inl;
+    else if ( forcedlinestep_.inl() )
+	survgeom_.step.inl() = forcedlinestep_.inl();
 }
 
 

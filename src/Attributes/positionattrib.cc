@@ -98,19 +98,19 @@ Position::Position( Desc& desc )
     mGetBool( dosteer_, steeringStr() );
 
     BinID pos;
-    for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
+    for ( pos.inl()=-stepout_.inl(); pos.inl()<=stepout_.inl(); pos.inl()++ )
     {
-	for ( pos.crl=-stepout_.crl; pos.crl<=stepout_.crl; pos.crl++ )
+	for ( pos.crl()=-stepout_.crl(); pos.crl()<=stepout_.crl(); pos.crl()++ )
 	{
 	    positions_ += pos;
 	    if ( dosteer_ ) steerindexes_ += getSteeringIndex( pos );
 	}
     }
 
-    outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl*2+1,
-						   stepout_.crl*2+1 );
+    outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl()*2+1,
+						   stepout_.crl()*2+1 );
 
-    const float maxso = mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() );
+    const float maxso = mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() );
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
 	    			gate_.stop+maxso*maxsecdip );
@@ -139,7 +139,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 {
     const int nrpos = positions_.size();
     BinID bidstep = inputs_[0]->getStepoutStep();
-    //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
+    //bidstep.inl() = abs(bidstep.inl()); bidstep.crl() = abs(bidstep.crl());
 
     while ( inputdata_.size()<nrpos )
 	inputdata_ += 0;
@@ -153,8 +153,8 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 	if ( !indata || !odata ) return false;
 
 	inputdata_.replace( posidx, indata );
-	outdata_->set( positions_[posidx].inl + stepout_.inl,
-		       positions_[posidx].crl + stepout_.crl, odata );
+	outdata_->set( positions_[posidx].inl() + stepout_.inl(),
+		       positions_[posidx].crl() + stepout_.crl(), odata );
     }
     
     inidx_ = getDataIndex( 0 );
@@ -212,8 +212,8 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	{
     	    const int posidx = stats.getIndex( statstype );
     	    BinID bid = bidv[posidx].binid;
-    	    const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 
-						     bid.crl+stepout_.crl );
+    	    const DataHolder* odata = outdata_->get( bid.inl()+stepout_.inl(), 
+						     bid.crl()+stepout_.crl() );
 	    val = 0;
     	    if ( odata && !odata->isEmpty() && odata->series(outidx_) )
     		val = getInterpolInputValue( *odata, outidx_,

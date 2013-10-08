@@ -26,21 +26,21 @@ bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
 			  const Coord& c2, const BinID& bid0,
 			  const BinID& bid1, od_int32 crl2 )
 {
-    if ( bid1.inl == bid0.inl )
+    if ( bid1.inl() == bid0.inl() )
 	return false;
-    if ( bid0.crl == crl2 )
+    if ( bid0.crl() == crl2 )
         return false;
 
     RCTransform nxtr, nytr;
-    od_int32 cold = bid0.crl - crl2;
+    od_int32 cold = bid0.crl() - crl2;
     nxtr.c = ( c0.x - c2.x ) / cold;
     nytr.c = ( c0.y - c2.y ) / cold;
-    const od_int32 rowd = bid0.inl - bid1.inl;
-    cold = bid0.crl - bid1.crl;
+    const od_int32 rowd = bid0.inl() - bid1.inl();
+    cold = bid0.crl() - bid1.crl();
     nxtr.b = ( c0.x - c1.x ) / rowd - ( nxtr.c * cold / rowd );
     nytr.b = ( c0.y - c1.y ) / rowd - ( nytr.c * cold / rowd );
-    nxtr.a = c0.x - nxtr.b * bid0.inl - nxtr.c * bid0.crl;
-    nytr.a = c0.y - nytr.b * bid0.inl - nytr.c * bid0.crl;
+    nxtr.a = c0.x - nxtr.b * bid0.inl() - nxtr.c * bid0.crl();
+    nytr.a = c0.y - nytr.b * bid0.inl() - nytr.c * bid0.crl();
 
     if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
     if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;
@@ -67,8 +67,8 @@ Coord RCol2Coord::transform( const RowCol& rc ) const
 
 Coord RCol2Coord::transform( const BinID& rc ) const
 {
-    return Coord( xtr.a + xtr.b*rc.inl + xtr.c*rc.crl,
-		  ytr.a + ytr.b*rc.inl + ytr.c*rc.crl );
+    return Coord( xtr.a + xtr.b*rc.inl() + xtr.c*rc.crl(),
+		  ytr.a + ytr.b*rc.inl() + ytr.c*rc.crl() );
 }
 
 

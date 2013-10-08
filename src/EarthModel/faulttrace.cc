@@ -123,8 +123,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 
     const float fidx = trcrg.getfIndex( intsectn.x );
     const int index = posdir ? mNINT32( ceil(fidx) ) : mNINT32( floor(fidx) );
-    bidimg.inl = isinl_ ? nr_ : trcrg.atIndex( index );
-    bidimg.crl = isinl_ ? trcrg.atIndex( index ) : nr_;
+    bidimg.inl() = isinl_ ? nr_ : trcrg.atIndex( index );
+    bidimg.crl() = isinl_ ? trcrg.atIndex( index ) : nr_;
     return true;
 }
 
@@ -174,8 +174,8 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
     trcrg.limitTo( trcrange_ );
 
     Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
-    bid.inl = isinl_ ? nr_ : trcrg.snap( mNINT32(intsectn.x) );
-    bid.crl = isinl_ ? trcrg.snap( mNINT32(intsectn.x) ) : nr_;
+    bid.inl() = isinl_ ? nr_ : trcrg.snap( mNINT32(intsectn.x) );
+    bid.crl() = isinl_ ? trcrg.snap( mNINT32(intsectn.x) ) : nr_;
     return true;
 }
 
@@ -186,7 +186,7 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 {
     BinID bid = negbid;
     float prevz = mUdf(float);
-    int& trcvar = isinl_ ? bid.crl : bid.inl;
+    int& trcvar = isinl_ ? bid.crl() : bid.inl();
     BinID origin( isinl_ ? nr_ : trcrange_.stop+10,
 	    	  isinl_ ? trcrange_.stop+10 : nr_ );
     for ( int idx=0; idx<1024; idx++,trcvar-- )
@@ -253,7 +253,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     BinID start( isinl_ ? nr_ : trcrange_.start - 10*step,
 	         isinl_ ? trcrange_.start - 10*step : nr_ );
     float starttopz=mUdf(float), startbotz=mUdf(float);
-    int& startvar = isinl_ ? start.crl : start.inl;
+    int& startvar = isinl_ ? start.crl() : start.inl();
     const od_int64 bvssz = bvs.totalSize();
     od_int64 idx = 0;
     for ( idx=0; idx<bvssz; idx++,startvar += step )
@@ -273,7 +273,7 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 
     BinID stop( isinl_ ? nr_ : trcrange_.stop + 10*step,
 	    	isinl_ ? trcrange_.stop + 10*step: nr_ );
-    int& stopvar = isinl_ ? stop.crl : stop.inl;
+    int& stopvar = isinl_ ? stop.crl() : stop.inl();
     step = -step;
     float stoptopz, stopbotz;
     float prevstoptopz = mUdf(float), prevstopbotz = mUdf(float);
@@ -367,10 +367,10 @@ float FaultTrace::getZValFor( const BinID& bid ) const
 
 bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 {
-    if ( ( isinl_ && bid.inl != nr_ ) || ( !isinl_ && bid.crl != nr_ ) )
+    if ( ( isinl_ && bid.inl() != nr_ ) || ( !isinl_ && bid.crl() != nr_ ) )
 	return false;
 
-    const int trcnr = isinl_ ? bid.crl : bid.inl;
+    const int trcnr = isinl_ ? bid.crl() : bid.inl();
     if ( trcnr >= trcrange_.stop )
 	return true;
     if ( trcnr <= trcrange_.start )
@@ -405,8 +405,8 @@ void FaultTrace::getAllActNames( BufferStringSet& bss )
 
 bool FaultTrace::includes( const BinID& bid ) const
 {
-    return isinl_ ? bid.inl == nr_ && trcrange_.includes( bid.crl, true )
-		  : bid.crl == nr_ && trcrange_.includes( bid.inl, true );
+    return isinl_ ? bid.inl() == nr_ && trcrange_.includes( bid.crl(), true )
+		  : bid.crl() == nr_ && trcrange_.includes( bid.inl(), true );
 }
 
 
@@ -460,12 +460,12 @@ Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
     zrg.sort();
     z1 *= SI().zDomain().userFactor();
     z2 *= SI().zDomain().userFactor();
-    if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
-	    || ( !isinl_ && (bid1.crl != nr_ || bid2.crl != nr_) ) )
+    if ( ( isinl_ && (bid1.inl() != nr_ || bid2.inl() != nr_) )
+	    || ( !isinl_ && (bid1.crl() != nr_ || bid2.crl() != nr_) ) )
 	return Coord::udf();
 
-    Coord pt1( isinl_ ? bid1.crl : bid1.inl, z1 );
-    Coord pt2( isinl_ ? bid2.crl : bid2.inl, z2 );
+    Coord pt1( isinl_ ? bid1.crl() : bid1.inl(), z1 );
+    Coord pt2( isinl_ ? bid2.crl() : bid2.inl(), z2 );
     Line2 line( pt1, pt2 );
 
     for ( int idx=0; idx<tracesegs_.size(); idx++ )
@@ -508,8 +508,8 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 	trcnr = intv->atIndex( trcidx );
     }
 
-    bid.inl = isinl_ ? nr_ : trcnr;
-    bid.crl = isinl_ ? trcnr : nr_;
+    bid.inl() = isinl_ ? nr_ : trcnr;
+    bid.crl() = isinl_ ? trcnr : nr_;
     z = (float) intersection.y;
     return !intv || intv->includes( trcnr, true );
 }
@@ -518,8 +518,8 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
 bool FaultTrace::isOnFault( const BinID& bid, float z,
 			    float thresholddist ) const
 {
-    const int trcnr = isinl_ ? bid.inl : bid.crl;
-    const int alttrcnr = !isinl_ ? bid.inl : bid.crl;
+    const int trcnr = isinl_ ? bid.inl() : bid.crl();
+    const int alttrcnr = !isinl_ ? bid.inl() : bid.crl();
     if ( trcnr != nr_ || !trcrange_.includes(alttrcnr,false) ) return false;
     BinID startbid( isinl_ ? nr_ : trcrange_.start,
 	    	    isinl_ ? trcrange_.start : nr_ );
@@ -531,7 +531,7 @@ bool FaultTrace::isOnFault( const BinID& bid, float z,
 	intersection = getIntersection( bid, z, stopbid, z );
     if ( !intersection.isDefined() )
 	return false;
-    Coord pt( isinl_ ? bid.crl : bid.inl, z );
+    Coord pt( isinl_ ? bid.crl() : bid.inl(), z );
     const double dist = pt.distTo( intersection );
     return mIsEqual(dist,0.0,thresholddist);
 }
@@ -540,11 +540,11 @@ bool FaultTrace::isOnFault( const BinID& bid, float z,
 bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 			     const BinID& bid2, float z2  ) const
 {
-    if ( (isinl_ && bid1.inl != bid2.inl) || (!isinl_ && bid1.crl != bid2.crl) )
+    if ( (isinl_ && bid1.inl() != bid2.inl()) || (!isinl_ && bid1.crl() != bid2.crl()) )
 	return false;
 
-    Interval<int> trcrg( isinl_ ? bid1.crl : bid1.inl,
-	    		 isinl_ ? bid2.crl : bid2.inl );
+    Interval<int> trcrg( isinl_ ? bid1.crl() : bid1.inl(),
+	    		 isinl_ ? bid2.crl() : bid2.inl() );
     trcrg.sort();
     if ( !trcrg.overlaps(trcrange_,false) )
 	return false;
@@ -574,7 +574,7 @@ void FaultTrace::computeRange()
 	for ( int idx=0; idx<coords_.size(); idx++ )
 	{
 	    const BinID bid = SI().transform( coords_[idx] );
-	    trcrange_.include( isinl_ ? bid.crl : bid.inl, false );
+	    trcrange_.include( isinl_ ? bid.crl() : bid.inl(), false );
 	    zrange_.include( (float) coords_[idx].z, false );
 	}
     }
@@ -725,14 +725,14 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 
     const HorSampling& hs = holder_.hs_;
     const bool isinl = hs.nrCrl() > 1 && idx < hs.nrInl();
-    const int linenr = isinl ? hs.start.inl + idx * hs.step.inl
-	: hs.start.crl + (hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl );
+    const int linenr = isinl ? hs.start.inl() + idx * hs.step.inl()
+	: hs.start.crl() + (hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl() );
 
     const StepInterval<float>& zrg = SI().zRange( false );
-    BinID start( isinl ? linenr : holder_.hs_.start.inl,
-	    	 isinl ? holder_.hs_.start.crl : linenr );
-    BinID stop( isinl ? linenr : holder_.hs_.stop.inl,
-	    	isinl ? holder_.hs_.stop.crl : linenr );
+    BinID start( isinl ? linenr : holder_.hs_.start.inl(),
+	    	 isinl ? holder_.hs_.start.crl() : linenr );
+    BinID stop( isinl ? linenr : holder_.hs_.stop.inl(),
+	    	isinl ? holder_.hs_.stop.crl() : linenr );
     Coord3 p0( SI().transform(start), zrg.start );
     Coord3 p1( SI().transform(start), zrg.stop );
     Coord3 p2( SI().transform(stop), zrg.stop );
@@ -1088,8 +1088,8 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 
 	if ( !is2d_ )
 	{
-	    const FaultTrace* inltrc = holders_[idx]->getTrc( bid.inl, true );
-	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl, false );
+	    const FaultTrace* inltrc = holders_[idx]->getTrc( bid.inl(), true );
+	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl(), false );
 	    if ( (inltrc && inltrc->includes(bid))
 	      || (crltrc && crltrc->includes(bid)) )
 		return true;
@@ -1130,9 +1130,9 @@ bool FaultTrcDataProvider::isOnFault( const BinID& bid, float z,
 
     for ( int idx=0; idx<nrFaults(); idx++ )
     {
-	const FaultTrace* flt = getFaultTrace( idx, bid.inl, true );
+	const FaultTrace* flt = getFaultTrace( idx, bid.inl(), true );
 	if ( !flt )
-	    flt = getFaultTrace( idx, bid.crl, false );
+	    flt = getFaultTrace( idx, bid.crl(), false );
 
 	if ( flt && flt->isOnFault(bid,z,thresholddist) )
 	    return true;
@@ -1161,15 +1161,15 @@ bool FaultTrcDataProvider::isCrossingFault( const BinID& bid1, float z1,
 	return false;
     }
 
-    const int inldiff = abs( bid1.inl - bid2.inl );
-    const int crldiff = abs( bid1.crl - bid2.crl );
+    const int inldiff = abs( bid1.inl() - bid2.inl() );
+    const int crldiff = abs( bid1.crl() - bid2.crl() );
     if ( !inldiff && !crldiff )
     {
 	for ( int idx=0; idx<nrFaults(); idx++ )
 	{
-	    const FaultTrace* flt = getFaultTrace( idx, bid1.inl, true );
+	    const FaultTrace* flt = getFaultTrace( idx, bid1.inl(), true );
 	    if ( !flt )
-		flt = getFaultTrace( idx, bid1.crl, false );
+		flt = getFaultTrace( idx, bid1.crl(), false );
 
 	    if ( flt && flt->isCrossing(bid1,z1,bid2,z2) )
 		return true;
@@ -1178,21 +1178,21 @@ bool FaultTrcDataProvider::isCrossingFault( const BinID& bid1, float z1,
 	return false;
     }
 
-    const BinID anchorbid( bid2.inl, bid1.crl );
+    const BinID anchorbid( bid2.inl(), bid1.crl() );
     const float anchorz = z1 + ( z2 - z1 ) * inldiff / ( inldiff + crldiff );
     for ( int idx=0; idx<nrFaults(); idx++ )
     {
 	int nrcrossings = 0;
-	if ( bid1.inl != bid2.inl )
+	if ( bid1.inl() != bid2.inl() )
 	{
-	    const FaultTrace* crlflt = getFaultTrace( idx, bid1.crl, false );
+	    const FaultTrace* crlflt = getFaultTrace( idx, bid1.crl(), false );
 	    if ( crlflt && crlflt->isCrossing(bid1,z1,anchorbid,anchorz) )
 		nrcrossings++;
 	}
 
-	if ( bid1.crl != bid2.crl )
+	if ( bid1.crl() != bid2.crl() )
 	{
-	    const FaultTrace* inlflt = getFaultTrace( idx, bid2.inl, true );
+	    const FaultTrace* inlflt = getFaultTrace( idx, bid2.inl(), true );
 	    if ( inlflt && inlflt->isCrossing(bid2,z2,anchorbid,anchorz) )
 		nrcrossings++;
 	}
@@ -1215,9 +1215,9 @@ bool FaultTrcDataProvider::getFaultZVals( const BinID& bid,
 	for ( int idy=0; idy<nrsticks; idy++ )
 	{
 	    const FaultTrace* flt = is2d_ ? getFaultTrace2D( idx, idy ) :
-		getFaultTrace( idx,bid.inl,true);
+		getFaultTrace( idx,bid.inl(),true);
 	    if ( !is2d_ && !flt )
-		flt = getFaultTrace( idx, bid.crl, false );
+		flt = getFaultTrace( idx, bid.crl(), false );
 
 	    if ( !flt ) continue;
 

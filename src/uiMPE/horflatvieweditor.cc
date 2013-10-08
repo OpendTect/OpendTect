@@ -431,8 +431,8 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 
 	if ( !hor2d ) return false;
 	
-	bid.inl = hor2d->geometry().lineIndex( linenm_ );
-	bid.crl = pos.nr_;
+	bid.inl() = hor2d->geometry().lineIndex( linenm_ );
+	bid.crl() = pos.nr_;
     }
 
     for ( int idx=0; idx<emobj.nrSections(); idx++ )

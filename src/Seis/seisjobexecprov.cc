@@ -313,7 +313,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	    CBVSReader rdr( sd.istrm, false ); // stream closed by reader
 	    isok = !rdr.errMsg();
 	    if ( isok )
-		isok = rdr.info().geom_.start.crl || rdr.info().geom_.start.crl;
+		isok = rdr.info().geom_.start.crl() || rdr.info().geom_.start.crl();
 	}
 	if ( !isok )
 	    inlnrs += inl;
@@ -359,9 +359,9 @@ MultiID SeisJobExecProv::tempStorID() const
 	{
 	    // That cannot be right.
 	    StepInterval<int> fnrs;
-	    fnrs.start = SI().sampling(false).hrg.start.inl;
-	    fnrs.stop = SI().sampling(false).hrg.stop.inl;
-	    fnrs.step = SI().sampling(false).hrg.step.inl;
+	    fnrs.start = SI().sampling(false).hrg.start.inl();
+	    fnrs.stop = SI().sampling(false).hrg.stop.inl();
+	    fnrs.step = SI().sampling(false).hrg.step.inl();
 	    iostrm->fileNumbers() = fnrs;
 	}
 	iostrm->setFileName( fp.fullPath() );

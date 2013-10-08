@@ -126,12 +126,12 @@ void Processor::useFullProcess( int& res )
 	else
 	{
 	    const BinID step = provider_->getStepoutStep();
-	    firstpos.inl = step.inl/abs(step.inl)>0 ? 
-			   provider_->getDesiredVolume()->hrg.start.inl : 
-			   provider_->getDesiredVolume()->hrg.stop.inl;
-	    firstpos.crl = step.crl/abs(step.crl)>0 ?
-			   provider_->getDesiredVolume()->hrg.start.crl :
-			   provider_->getDesiredVolume()->hrg.stop.crl;
+	    firstpos.inl() = step.inl()/abs(step.inl())>0 ? 
+			   provider_->getDesiredVolume()->hrg.start.inl() : 
+			   provider_->getDesiredVolume()->hrg.stop.inl();
+	    firstpos.crl() = step.crl()/abs(step.crl())>0 ?
+			   provider_->getDesiredVolume()->hrg.start.crl() :
+			   provider_->getDesiredVolume()->hrg.stop.crl();
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
@@ -174,8 +174,8 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    curbid = curtrcinfo->binid;
 	else
 	{
-	    curbid.inl = 0;
-	    curbid.crl = curtrcinfo->nr;
+	    curbid.inl() = 0;
+	    curbid.crl() = curtrcinfo->nr;
 	}
     }
 
@@ -185,11 +185,11 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	mytrcinfo.binid = curbid;
 	if ( is2d_ )
 	{
-	    mytrcinfo.nr = curbid.crl;
+	    mytrcinfo.nr = curbid.crl();
 	    const PosInfo::GeomID geomid = provider_->getGeomID();
 	    PosInfo::Line2DData l2dd; PosInfo::Line2DPos pos2d;
 	    if ( S2DPOS().getGeometry(geomid,l2dd) &&
-		 l2dd.getPos(curbid.crl,pos2d) )
+		 l2dd.getPos(curbid.crl(),pos2d) )
 		mytrcinfo.coord = pos2d.coord_;
 	}
 
@@ -405,9 +405,9 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	    possvol = globalcs;
 	else if ( is2d_ && possvol == globalcs )
 	{
-	    possvol.hrg.stop.inl = possvol.hrg.start.inl = 0;
-	    possvol.hrg.start.crl = 0;
-	    possvol.hrg.stop.crl = INT_MAX/3*2;	//unlikely; still, a limitation.
+	    possvol.hrg.stop.inl() = possvol.hrg.start.inl() = 0;
+	    possvol.hrg.start.crl() = 0;
+	    possvol.hrg.stop.crl() = INT_MAX/3*2;	//unlikely; still, a limitation.
 	    globalcs = possvol;
 	}
 

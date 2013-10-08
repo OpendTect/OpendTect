@@ -370,7 +370,7 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 
     mDynamicCastGet( Attrib::BinIDParam*,bidparam,
 		     newdesc->getValParam(VolStats::stepoutStr()) )
-    bidparam->setValue( userbid.inl, 0 ); bidparam->setValue( userbid.crl, 1 );
+    bidparam->setValue( userbid.inl(), 0 ); bidparam->setValue( userbid.crl(), 1 );
     mDynamicCastGet( Attrib::FloatGateParam*,gateparam,
 		     newdesc->getValParam(VolStats::gateStr()) )
     gateparam->setValue( gate );
@@ -675,10 +675,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	if ( !is2d )
 	{
 	    if ( isinl )
-		inputcs.hrg.stop.inl = inputcs.hrg.start.inl
+		inputcs.hrg.stop.inl() = inputcs.hrg.start.inl()
 		    		     = inputcs.hrg.inlRange().snappedCenter();
 	    else
-		inputcs.hrg.stop.crl = inputcs.hrg.start.crl
+		inputcs.hrg.stop.crl() = inputcs.hrg.start.crl()
 		    		     = inputcs.hrg.crlRange().snappedCenter();
 	}
 

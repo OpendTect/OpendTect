@@ -71,10 +71,10 @@ const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 static CubeSampling getInitCubeSampling( const CubeSampling& csin )
 {
     CubeSampling cs(false);
-    cs.hrg.start.inl = (5*csin.hrg.start.inl+3*csin.hrg.stop.inl)/8;
-    cs.hrg.start.crl = (5*csin.hrg.start.crl+3*csin.hrg.stop.crl)/8;
-    cs.hrg.stop.inl = (3*csin.hrg.start.inl+5*csin.hrg.stop.inl)/8;
-    cs.hrg.stop.crl = (3*csin.hrg.start.crl+5*csin.hrg.stop.crl)/8;
+    cs.hrg.start.inl() = (5*csin.hrg.start.inl()+3*csin.hrg.stop.inl())/8;
+    cs.hrg.start.crl() = (5*csin.hrg.start.crl()+3*csin.hrg.stop.crl())/8;
+    cs.hrg.stop.inl() = (3*csin.hrg.start.inl()+5*csin.hrg.stop.inl())/8;
+    cs.hrg.stop.crl() = (3*csin.hrg.start.crl()+5*csin.hrg.stop.crl())/8;
     cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.f;
     cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.f;
     SI().snap( cs.hrg.start, BinID(0,0) );
@@ -460,10 +460,10 @@ int VolumeDisplay::volRenID() const
     
 void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( mCast(float,cs.hrg.start.inl), 
-				    mCast(float,cs.hrg.stop.inl) );
-    const Interval<float> yintv( mCast(float,cs.hrg.start.crl), 
-				    mCast(float,cs.hrg.stop.crl) );
+    const Interval<float> xintv( mCast(float,cs.hrg.start.inl()), 
+				    mCast(float,cs.hrg.stop.inl()) );
+    const Interval<float> yintv( mCast(float,cs.hrg.start.crl()), 
+				    mCast(float,cs.hrg.stop.crl()) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
 
     voltrans_->setTranslation( 
@@ -631,8 +631,8 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     {
 	const Coord3 pos =  seeds[seedidx].pos_;
 	const BinID bid = SI().transform( pos );
-	const int i = cs.inlIdx( bid.inl );
-	const int j = cs.crlIdx( bid.crl );
+	const int i = cs.inlIdx( bid.inl() );
+	const int j = cs.crlIdx( bid.crl() );
 	const int k = cs.zIdx( (float) pos.z );
 	ff.addSeed( i, j, k );
     }
@@ -695,8 +695,8 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
 
-    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
-    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
+    Interval<int> inlrg( cs.hrg.start.inl(), cs.hrg.stop.inl() );
+    Interval<int> crlrg( cs.hrg.start.crl(), cs.hrg.stop.crl() );
     Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
     SI().checkInlRange( inlrg, true );
     SI().checkCrlRange( crlrg, true );
@@ -710,17 +710,17 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     }
     else
     {
-	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
-	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
+	cs.hrg.start.inl() = inlrg.start; cs.hrg.stop.inl() = inlrg.stop;
+	cs.hrg.start.crl() = crlrg.start; cs.hrg.stop.crl() = crlrg.stop;
 	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
     }
 
-    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
-			   cs.hrg.stop.crl - cs.hrg.start.crl,
+    const Coord3 newwidth( cs.hrg.stop.inl() - cs.hrg.start.inl(),
+			   cs.hrg.stop.crl() - cs.hrg.start.crl(),
 			   cs.zrg.stop - cs.zrg.start );
     boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
-			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
+    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl() + cs.hrg.start.inl()),
+			    0.5*(cs.hrg.stop.crl() + cs.hrg.start.crl()),
 			    0.5*(cs.zrg.stop + cs.zrg.start) );
     boxdragger_->setCenter( newcenter );
 }

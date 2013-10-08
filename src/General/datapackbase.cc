@@ -45,10 +45,10 @@ public:
 		    (int)tmpirg.step),
 		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
 		    (int)tmpcrg.step) );
-	Coord spt1 = SI().transform(BinID(hsamp_.start.inl,hsamp_.start.crl) );
-	Coord spt2 = SI().transform( BinID(hsamp_.start.inl,hsamp_.stop.crl) );
-	Coord spt3 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.start.crl) );
-	Coord spt4 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.stop.crl) );
+	Coord spt1 = SI().transform(BinID(hsamp_.start.inl(),hsamp_.start.crl()) );
+	Coord spt2 = SI().transform( BinID(hsamp_.start.inl(),hsamp_.stop.crl()) );
+	Coord spt3 = SI().transform( BinID(hsamp_.stop.inl(),hsamp_.start.crl()) );
+	Coord spt4 = SI().transform( BinID(hsamp_.stop.inl(),hsamp_.stop.crl()) );
 	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
 		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
 	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
@@ -94,12 +94,12 @@ public:
 		Coord approxcoord = SI().transform( approxbid );
 		float diffx = ( float ) (( coord.x - approxcoord.x ) / xstep_);
 		float diffy = ( float ) (( coord.y - approxcoord.y ) / ystep_);
-		toreach00.inl = diffx>=0 ? 0 : -1;
-		toreach00.crl = diffy>=0 ? 0 : -1;
-		int id0v00 = (approxbid.inl - hsamp_.start.inl)/hsamp_.step.inl
-		    + toreach00.inl;
-		int id1v00 = (approxbid.crl - hsamp_.start.crl)/hsamp_.step.crl
-		    + toreach00.crl;
+		toreach00.inl() = diffx>=0 ? 0 : -1;
+		toreach00.crl() = diffy>=0 ? 0 : -1;
+		int id0v00 = (approxbid.inl() - hsamp_.start.inl())/hsamp_.step.inl()
+		    + toreach00.inl();
+		int id1v00 = (approxbid.crl() - hsamp_.start.crl())/hsamp_.step.crl()
+		    + toreach00.crl();
 		float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
 		float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
 		float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
@@ -251,8 +251,8 @@ void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( isposcoord_ )
     {
 	const BinID bid = SI().transform( Coord(pos.x,pos.y) );
-	par.set( axeslbls_[2], bid.inl );
-	par.set( axeslbls_[3], bid.crl );
+	par.set( axeslbls_[2], bid.inl() );
+	par.set( axeslbls_[3], bid.crl() );
     }
     else
     {
@@ -434,8 +434,8 @@ CubeDataPack::CubeDataPack( const char* cat )
 void CubeDataPack::init()
 {
     if ( !arr3d_ ) return;
-    cs_.hrg.stop.inl = cs_.hrg.start.inl + (size(0)-1) * cs_.hrg.step.inl;
-    cs_.hrg.stop.crl = cs_.hrg.start.crl + (size(1)-1) * cs_.hrg.step.crl;
+    cs_.hrg.stop.inl() = cs_.hrg.start.inl() + (size(0)-1) * cs_.hrg.step.inl();
+    cs_.hrg.stop.crl() = cs_.hrg.start.crl() + (size(1)-1) * cs_.hrg.step.crl();
     cs_.zrg.stop = cs_.zrg.start + (size(2)-1) * cs_.zrg.step;
 }
 
@@ -459,9 +459,9 @@ void CubeDataPack::dumpInfo( IOPar& iop ) const
     VolumeDataPack::dumpInfo( iop );
 
     const CubeSampling& cs = sampling();
-    iop.set( "Positions.inl", cs.hrg.start.inl, cs.hrg.stop.inl,
-	    		      cs.hrg.step.inl );
-    iop.set( "Positions.crl", cs.hrg.start.crl, cs.hrg.stop.crl,
-	    		      cs.hrg.step.crl );
+    iop.set( "Positions.inl()", cs.hrg.start.inl(), cs.hrg.stop.inl(),
+	    		      cs.hrg.step.inl() );
+    iop.set( "Positions.crl()", cs.hrg.start.crl(), cs.hrg.stop.crl(),
+	    		      cs.hrg.step.crl() );
     iop.set( "Positions.z", cs.zrg.start, cs.zrg.stop, cs.zrg.step );
 }

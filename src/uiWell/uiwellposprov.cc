@@ -59,8 +59,8 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
 {
     wellfld_->usePar( iop );
     BinID so; float zext = 0; bool onlysurfacecoords = true;
-    iop.get( mGetWellKey(sKeyInlExt()), so.inl );
-    iop.get( mGetWellKey(sKeyCrlExt()), so.crl );
+    iop.get( mGetWellKey(sKeyInlExt()), so.inl() );
+    iop.get( mGetWellKey(sKeyCrlExt()), so.crl() );
     iop.get( mGetWellKey(sKeyZExt()), zext );
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords );
 
@@ -77,8 +77,8 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
     wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;
     const BinID so = stepoutfld_->getBinID();
-    iop.set( mGetWellKey(sKeyInlExt()), so.inl );
-    iop.set( mGetWellKey(sKeyCrlExt()), so.crl );
+    iop.set( mGetWellKey(sKeyInlExt()), so.inl() );
+    iop.set( mGetWellKey(sKeyCrlExt()), so.crl() );
     iop.set( mGetWellKey(sKeyZExt()), zext );
     iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords );
 

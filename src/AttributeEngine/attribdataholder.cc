@@ -246,8 +246,8 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	return false;
 
     const CubeSampling cs = getCubeSampling();
-    const StepInterval<int> trcrange( cs.hrg.start.crl, cs.hrg.stop.crl,
-				      cs.hrg.step.crl );
+    const StepInterval<int> trcrange( cs.hrg.start.crl(), cs.hrg.stop.crl(),
+				      cs.hrg.step.crl() );
     res.setSizeAndPos( getCubeSampling() );
     if ( res.nrCubes() == 0 )
 	res.addCube( mUdf(float) );

@@ -730,10 +730,10 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
     {
 	const BinID bid = geometry_->getKnotRowCol(idx);
 	if ( userchangedisplayrg_ &&
-	     ( !displayrrg_.includes(bid.inl, false) || 
-	       !displaycrg_.includes(bid.crl, false) ||
-	       ((bid.inl-displayrrg_.start)%displayrrg_.step) ||
-  	       ((bid.crl-displaycrg_.start)%displaycrg_.step) ) )
+	     ( !displayrrg_.includes(bid.inl(), false) || 
+	       !displaycrg_.includes(bid.crl(), false) ||
+	       ((bid.inl()-displayrrg_.start)%displayrrg_.step) ||
+  	       ((bid.crl()-displaycrg_.start)%displaycrg_.step) ) )
 	    continue;
 
 	const Coord3 pos = geometry_->getKnot(RowCol(bid),false);
@@ -858,16 +858,16 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	const BinID bid = data->getBinID( pos );
 	if ( userchangedisplayrg_ )
 	{
-	    if ( !rrg.includes(bid.inl, false) ||!crg.includes(bid.crl,false) )
+	    if ( !rrg.includes(bid.inl(), false) ||!crg.includes(bid.crl(),false) )
     		continue;
 
-	    if ( (bid.inl-rrg.start) % rrg.step || 
-		 (bid.crl-crg.start) % crg.step )
+	    if ( (bid.inl()-rrg.start) % rrg.step || 
+		 (bid.crl()-crg.start) % crg.step )
 		continue;
 	}
 
-	const int inlidx = rrg.nearestIndex(bid.inl);
-	const int crlidx = crg.nearestIndex(bid.crl);
+	const int inlidx = rrg.nearestIndex(bid.inl());
+	const int crlidx = crg.nearestIndex(bid.crl());
 
 	const int offset = inlidx*nrcols + crlidx;
 	if ( offset>=nrcells )

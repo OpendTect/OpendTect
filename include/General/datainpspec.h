@@ -736,7 +736,7 @@ public:
 	void		clear()
 			{
 			    coord_.x = coord_.y = mUdf(double);
-			    binid_.inl = binid_.crl = mUdf(int);
+			    binid_.inl() = binid_.crl() = mUdf(int);
 			    offs_ = 0;
 			}
     };

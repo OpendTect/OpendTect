@@ -264,7 +264,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		BufferString dump;
 		BinID pos = currentbid_;
-		dump += pos.inl; dump += " "; dump += pos.crl; dump += " ";
+		dump += pos.inl(); dump += " "; dump += pos.crl(); dump += " ";
 		dump += cursample*refstep_; dump += " "; 
 		dump += df_*idy; dump += " "; dump += val2; dump += "\n";
 		myself->dumpset_.add( dump );

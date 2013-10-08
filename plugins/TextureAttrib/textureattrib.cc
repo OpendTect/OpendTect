@@ -100,9 +100,9 @@ Texture::Texture( Desc& desc )
     mGetInt( glcmsize_, glcmsizeStr() );
 
     int posidx = 0;
-    for ( int idx=-stepout_.inl; idx<=stepout_.inl; idx++ )
+    for ( int idx=-stepout_.inl(); idx<=stepout_.inl(); idx++ )
     {
-	for ( int cdx=-stepout_.crl; cdx<=stepout_.crl; cdx++ )
+	for ( int cdx=-stepout_.crl(); cdx<=stepout_.crl(); cdx++ )
 	{
 	    const BinID bid( idx, cdx );
 	    posandsteeridx_.pos_ += bid;
@@ -210,8 +210,8 @@ void Texture::fillGLCM( int sampleidx, int z0, int posidx1, int posidx2,
 int Texture::computeGLCM( int idx, int z0, Array2D<int>& glcm ) const
 {
     int glcmcount = 0;
-    const int inlsz = stepout_.inl *2 +1;
-    const int crlsz = stepout_.crl *2 +1;
+    const int inlsz = stepout_.inl() *2 +1;
+    const int crlsz = stepout_.crl() *2 +1;
     for ( int idi=0; idi<inlsz; idi++ )
     {
 	for ( int idc=0; idc<crlsz-1; idc++ )

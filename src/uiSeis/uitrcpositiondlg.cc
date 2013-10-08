@@ -133,8 +133,8 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
     else
     {
 	const BinID bid = SI().transform( crd );
-	inlfld_->box()->setValue( bid.inl );
-	crlfld_->setValue( bid.crl );
+	inlfld_->box()->setValue( bid.inl() );
+	crlfld_->setValue( bid.crl() );
     }
 }
 

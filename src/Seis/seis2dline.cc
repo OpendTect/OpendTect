@@ -758,9 +758,9 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 	    StepInterval<int> trg; StepInterval<float> zrg;
 	    if ( getRanges(iln,trg,zrg) )
 	    {
-		if ( cs.hrg.start.crl > trg.start ) cs.hrg.start.crl =trg.start;
-		if ( cs.hrg.stop.crl < trg.stop ) cs.hrg.stop.crl = trg.stop;
-		if ( cs.hrg.step.crl > trg.step ) cs.hrg.step.crl = trg.step;
+		if ( cs.hrg.start.crl() > trg.start ) cs.hrg.start.crl() =trg.start;
+		if ( cs.hrg.stop.crl() < trg.stop ) cs.hrg.stop.crl() = trg.stop;
+		if ( cs.hrg.step.crl() > trg.step ) cs.hrg.step.crl() = trg.step;
 		if ( cs.zrg.start > zrg.start ) cs.zrg.start = zrg.start;
 		if ( cs.zrg.stop < zrg.stop ) cs.zrg.stop = zrg.stop;
 		if ( cs.zrg.step > zrg.step ) cs.zrg.step = zrg.step;
@@ -774,9 +774,9 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 
 const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 {
-    cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    cs.hrg.start.inl = 0; cs.hrg.stop.inl = nrLines()-1;
-    cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUdf(int);
+    cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
+    cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = nrLines()-1;
+    cs.hrg.start.crl() = 0; cs.hrg.stop.crl() = mUdf(int);
     cs.zrg = SI().zRange(false);
     const int nrlines = nrLines();
     if ( nrlines < 1 )
@@ -786,7 +786,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     if ( !havelinesel )
 	lnr = 0;
     else
-	cs.hrg.start.inl = cs.hrg.stop.inl = lnr;
+	cs.hrg.start.inl() = cs.hrg.stop.inl() = lnr;
 
     StepInterval<int> trg; StepInterval<float> zrg;
     bool foundone = false;
@@ -815,8 +815,8 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     if ( !foundone )
 	return "No range info present";
 
-    cs.hrg.start.crl = trg.start; cs.hrg.stop.crl = trg.stop;
-    cs.hrg.step.crl = trg.step;
+    cs.hrg.start.crl() = trg.start; cs.hrg.stop.crl() = trg.stop;
+    cs.hrg.step.crl() = trg.step;
     cs.zrg = zrg;
     return 0;
 }

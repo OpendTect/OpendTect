@@ -207,7 +207,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	bid = SI().transform( crd );
 	if ( !SI().isReasonable(bid) )
 	{
-	    bid.inl = (int)crd.x; bid.crl = (int)crd.y;
+	    bid.inl() = (int)crd.x; bid.crl() = (int)crd.y;
 	    if ( !SI().isReasonable(bid) )
 		continue;
 	}
@@ -249,7 +249,7 @@ bool BinIDValueSet::putTo( std::ostream& strm ) const
     {
 	const BinID bid( getInl(pos), getCrl(pos) );
 	const float* vals = getVals(pos);
-	strm << bid.inl << '\t' << bid.crl;
+	strm << bid.inl() << '\t' << bid.crl();
 	char str[255];
 	for ( int idx=0; idx<nrvals_; idx++ )
 	{
@@ -363,17 +363,17 @@ void BinIDValueSet::copyStructureFrom( const BinIDValueSet& bvs )
 
 BinIDValueSet::Pos BinIDValueSet::findFirst( const BinID& bid ) const
 {
-    bool found; int idx = findIndexFor(inls_,bid.inl,&found);
+    bool found; int idx = findIndexFor(inls_,bid.inl(),&found);
     Pos pos( found ? idx : -1, -1 );
     if ( pos.i >= 0 )
     {
 	const TypeSet<int>& crls = getCrlSet(pos);
-	idx = findIndexFor(crls,bid.crl,&found);
+	idx = findIndexFor(crls,bid.crl(),&found);
 	pos.j = found ? idx : -1;
 	if ( found )
 	{
 	    pos.j = idx;
-	    while ( pos.j && crls[pos.j-1] == bid.crl )
+	    while ( pos.j && crls[pos.j-1] == bid.crl() )
 		pos.j--;
 	}
     }
@@ -442,7 +442,7 @@ bool BinIDValueSet::valid( const BinID& bid ) const
 {
     Pos pos = findFirst( bid );
     return pos.valid()
-	&& inls_.isPresent(bid.inl)
+	&& inls_.isPresent(bid.inl())
 	&& getCrlSet(pos).size() > pos.j;
 }
 
@@ -453,10 +453,10 @@ void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs,
     if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
 
     if ( !pos.valid() )
-	{ bid.inl = bid.crl = 0; }
+	{ bid.inl() = bid.crl() = 0; }
     else
     {
-	bid.inl = getInl(pos); bid.crl = getCrl(pos);
+	bid.inl() = getInl(pos); bid.crl() = getCrl(pos);
 	if ( vs && maxnrvals )
 	{
 	    memcpy( vs, getVals(pos), maxnrvals * sizeof(float) );
@@ -498,24 +498,24 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, const float* arr )
     Pos pos( findFirst(bid) );
     if ( pos.i < 0 )
     {
-	pos.i = findIndexFor(inls_,bid.inl) + 1;
+	pos.i = findIndexFor(inls_,bid.inl()) + 1;
 	if ( pos.i > inls_.size()-1 )
 	{
-	    inls_ += bid.inl;
+	    inls_ += bid.inl();
 	    crlsets_ += new TypeSet<int>;
 	    valsets_ += new TypeSet<float>;
 	    pos.i = inls_.size() - 1;
 	}
 	else
 	{
-	    inls_.insert( pos.i, bid.inl );
+	    inls_.insert( pos.i, bid.inl() );
 	    crlsets_.insertAt( new TypeSet<int>, pos.i );
 	    valsets_.insertAt( new TypeSet<float>, pos.i );
 	}
     }
 
     if ( pos.j < 0 || allowdup_ )
-	addNew( pos, bid.crl, arr );
+	addNew( pos, bid.crl(), arr );
 
     return pos;
 }
@@ -891,7 +891,7 @@ void BinIDValueSet::sortPart( TypeSet<int>& crls, TypeSet<float>& vals,
 
 void BinIDValueSet::extend( const BinID& so, const BinID& sos )
 {
-    if ( (!so.inl && !so.crl) || (!sos.inl && !sos.crl) ) return;
+    if ( (!so.inl() && !so.crl()) || (!sos.inl() && !sos.crl()) ) return;
 
     BinIDValueSet bvs( *this );
 
@@ -904,14 +904,14 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
     {
 	bvs.get( pos, bid, vals );
 	const BinID centralbid( bid );
-	for ( int iinl=-so.inl; iinl<=so.inl; iinl++ )
+	for ( int iinl=-so.inl(); iinl<=so.inl(); iinl++ )
 	{
-	    bid.inl = centralbid.inl + iinl * sos.inl;
-	    for ( int icrl=-so.crl; icrl<=so.crl; icrl++ )
+	    bid.inl() = centralbid.inl() + iinl * sos.inl();
+	    for ( int icrl=-so.crl(); icrl<=so.crl(); icrl++ )
 	    {
 		if ( !iinl && !icrl )
 		    continue;
-		bid.crl = centralbid.crl + icrl * sos.crl;
+		bid.crl() = centralbid.crl() + icrl * sos.crl();
 		add( bid, vals );
 	    }
 	}
@@ -1213,12 +1213,12 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
 	if ( !*res ) continue;
 
 	fms = res;
-	bivs.binid.inl = toInt( fms[0] );
+	bivs.binid.inl() = toInt( fms[0] );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
 	for ( int icrl=0; icrl<nrpos; icrl++ )
 	{
 	    int fmsidx = 1 + icrl * (nrvals_ + 1);
-	    bivs.binid.crl = toInt( fms[fmsidx] );
+	    bivs.binid.crl() = toInt( fms[fmsidx] );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
 		bivs.value(ival) = toFloat( fms[fmsidx+ival] );

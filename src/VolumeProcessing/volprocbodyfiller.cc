@@ -125,16 +125,16 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     if ( flatbody && plgknots_.size()<2 )
 	return false;
    
-    const int outputinlidx = output_->inlsampling_.nearestIndex( bid.inl );
-    const int outputcrlidx = output_->crlsampling_.nearestIndex( bid.crl );
+    const int outputinlidx = output_->inlsampling_.nearestIndex( bid.inl() );
+    const int outputcrlidx = output_->crlsampling_.nearestIndex( bid.crl() );
     const int outputzsz = output_->getZSz();
     if ( outputinlidx<0 || outputcrlidx<0 )
 	return true;
 
     const int inputinlidx = input_ 
-	? input_->inlsampling_.nearestIndex(bid.inl) : 0;
+	? input_->inlsampling_.nearestIndex(bid.inl()) : 0;
     const int inputcrlidx = input_
-	? input_->crlsampling_.nearestIndex(bid.crl) : 0;
+	? input_->crlsampling_.nearestIndex(bid.crl()) : 0;
     const bool useinput = input_ &&
 	inputinlidx>=0 && inputinlidx < input_->getCube(0).info().getSize(0) &&
 	inputcrlidx>=0 && inputcrlidx < input_->getCube(0).info().getSize(1);
@@ -146,8 +146,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
     {
-	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl,false) ||
-		     !flatpolygon_.hrg.crlRange().includes(bid.crl,false);
+	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl(),false) ||
+		     !flatpolygon_.hrg.crlRange().includes(bid.crl(),false);
 	if ( !alloutside )
 	{
 	    if ( !getFlatPlgZRange( bid, plgzrg ) )
@@ -156,8 +156,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl );
-	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl );
+	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl() );
+	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl() );
 	
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -286,7 +286,7 @@ Task* BodyFiller::createTask()
     {
 	plgknots_[idx].z *= SI().zScale();
 	const BinID bid = SI().transform( plgknots_[idx] );
-	plgbids_ += Coord3(bid.inl,bid.crl,plgknots_[idx].z);
+	plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z);
 	
 	if ( flatpolygon_.isEmpty() )
 	{

@@ -432,11 +432,11 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	{
 	    key = IOPar::compKey( sKey::Geometry(),
 				  SeisTrcStorOutput::inlrangekey() );
-	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
+	    iopar.set( key, horsamp.start.inl(), horsamp.stop.inl() );
 
 	    key = IOPar::compKey( sKey::Geometry(),
 				  SeisTrcStorOutput::crlrangekey() );
-	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
+	    iopar.set( key, horsamp.start.crl(), horsamp.stop.crl() );
 	}
     }
 
@@ -497,16 +497,16 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
     EM::SurfaceIOData sd;
     EM::EMM().getSurfaceData( ctio_.ioobj->key(), sd );
 
-    Interval<int> inlrg(sd.rg.start.inl, sd.rg.stop.inl);
-    Interval<int> crlrg(sd.rg.start.crl, sd.rg.stop.crl);
+    Interval<int> inlrg(sd.rg.start.inl(), sd.rg.stop.inl());
+    Interval<int> crlrg(sd.rg.start.crl(), sd.rg.stop.crl());
 
     if ( !usesinglehor_ )
     {
 	EM::SurfaceIOData sd2;
 	EM::EMM().getSurfaceData( ctio2_.ioobj->key(), sd2 );
 
-	Interval<int> inlrg2(sd2.rg.start.inl, sd2.rg.stop.inl);
-	Interval<int> crlrg2(sd2.rg.start.crl, sd2.rg.stop.crl);
+	Interval<int> inlrg2(sd2.rg.start.inl(), sd2.rg.stop.inl());
+	Interval<int> crlrg2(sd2.rg.start.crl(), sd2.rg.stop.crl());
 
 	inlrg.start = mMAX( inlrg.start, inlrg2.start);
 	inlrg.stop = mMIN( inlrg.stop, inlrg2.stop);

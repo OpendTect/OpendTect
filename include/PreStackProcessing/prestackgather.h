@@ -82,7 +82,7 @@ public:
     bool			readFrom(const IOObj&, const int tracenr, 
 	    				 const char* linename,int comp,
     					 BufferString* errmsg=0);
-    int				getSeis2DTraceNr() const { return binid_.crl; }
+    int				getSeis2DTraceNr() const { return binid_.crl(); }
     const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }

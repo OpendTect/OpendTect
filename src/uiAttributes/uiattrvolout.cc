@@ -533,9 +533,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     {
 	EngineMan::getPossibleVolume( *clonedset, cs, linename, outdescids[0] );
 	iop.set( sKeyMaxInlRg(),
-		 cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
+		 cs.hrg.start.inl(), cs.hrg.stop.inl(), cs.hrg.step.inl() );
 	iop.set( sKeyMaxCrlRg(),
-		 cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
+		 cs.hrg.start.crl(), cs.hrg.stop.crl(), cs.hrg.step.crl() );
     }
     delete clonedset;
 

@@ -374,9 +374,9 @@ bool Seis2DDataSet::getRanges( int ipar, StepInterval<int>& sii,
 
 const char* Seis2DDataSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 {
-    cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    cs.hrg.start.inl = 0; cs.hrg.stop.inl = nrLines()-1;
-    cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUdf(int);
+    cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
+    cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = nrLines()-1;
+    cs.hrg.start.crl() = 0; cs.hrg.stop.crl() = mUdf(int);
     cs.zrg = SI().zRange(false);
     const int nrlines = nrLines();
     if ( nrlines < 1 )
@@ -386,7 +386,7 @@ const char* Seis2DDataSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     if ( !havelinesel )
 	lnr = 0;
     else
-	cs.hrg.start.inl = cs.hrg.stop.inl = lnr;
+	cs.hrg.start.inl() = cs.hrg.stop.inl() = lnr;
 
     StepInterval<int> trg; StepInterval<float> zrg;
     bool foundone = false;
@@ -415,8 +415,8 @@ const char* Seis2DDataSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     if ( !foundone )
 	return "No range info present";
 
-    cs.hrg.start.crl = trg.start; cs.hrg.stop.crl = trg.stop;
-    cs.hrg.step.crl = trg.step;
+    cs.hrg.start.crl() = trg.start; cs.hrg.stop.crl() = trg.stop;
+    cs.hrg.step.crl() = trg.step;
     cs.zrg = zrg;
     return 0;
 }

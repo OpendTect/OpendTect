@@ -105,7 +105,7 @@ int FunctionAscIO::nextStep()
     }
     else
     { 
-	binid.inl = getIntValue(0); binid.crl = getIntValue(1);
+	binid.inl() = getIntValue(0); binid.crl() = getIntValue(1);
 	if ( binid == BinID::udf() )
 	    return MoreToDo();
     }

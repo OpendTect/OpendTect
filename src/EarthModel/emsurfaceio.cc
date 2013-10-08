@@ -1446,7 +1446,7 @@ RowCol dgbSurfaceReader::convertRowCol( int row, int col ) const
     const Coord coord(conv11*row+conv12*col+conv13,
 		      conv21*row+conv22*col+conv23 );
     const BinID bid = SI().transform(coord);
-    return RowCol(bid.inl, bid.crl );
+    return RowCol(bid.inl(), bid.crl() );
 }
 
 

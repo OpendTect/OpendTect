@@ -506,9 +506,9 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 		continue;
 	
 	    const BinID bid = SI().transform( stick[idy] );
-	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
-		    		: bid.inl, 
-			     trialg_==ExplFaultStickSurface::Zslice ? bid.crl 
+	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
+		    		: bid.inl(), 
+			     trialg_==ExplFaultStickSurface::Zslice ? bid.crl() 
 			     	: stick[idy].z*zscale );
 	    if ( !knots.isPresent(pos) )
 	    {
@@ -712,13 +712,13 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
     const BinID lp1bid = SI().transform(linept1.coord());
 
     const Coord3 lp0relpos(
-	    (float)(lp0bid.inl-ptbid.inl)/texturesampling_.binid.inl,
-	    (float)(lp0bid.crl-ptbid.crl)/texturesampling_.binid.crl,
+	    (float)(lp0bid.inl()-ptbid.inl())/texturesampling_.binid.inl(),
+	    (float)(lp0bid.crl()-ptbid.crl())/texturesampling_.binid.crl(),
 	    (linept0.z-point.z)/texturesampling_.value);
 
     const Coord3 lp1relpos(
-	    (float)(lp1bid.inl-ptbid.inl)/texturesampling_.binid.inl,
-	    (float)(lp1bid.crl-ptbid.crl)/texturesampling_.binid.crl,
+	    (float)(lp1bid.inl()-ptbid.inl())/texturesampling_.binid.inl(),
+	    (float)(lp1bid.crl()-ptbid.crl())/texturesampling_.binid.crl(),
 	    (linept1.z-point.z)/texturesampling_.value);
 
     const Coord3 dir = lp0relpos-lp1relpos;
@@ -732,8 +732,8 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
 int ExplFaultStickSurface::sampleSize( const Coord3& p0, const Coord3& p1 )
 {
     const BinID bid = SI().transform(p0.coord()) - SI().transform(p1.coord());
-    const Coord3 sampl( (float)bid.inl/texturesampling_.binid.inl,
-	    		(float)bid.crl/texturesampling_.binid.crl,
+    const Coord3 sampl( (float)bid.inl()/texturesampling_.binid.inl(),
+	    		(float)bid.crl()/texturesampling_.binid.crl(),
 			(p0.z-p1.z)/texturesampling_.value );
     const float nrsamples =  (float) sampl.abs();
     return mNINT32( nrsamples );
@@ -776,9 +776,9 @@ bool ExplFaultStickSurface::updateTextureSize()
 		const BinIDValue bid1( 
 			SI().transform(pos1.coord()), (float)pos1.z );
 		const int inlsamples =
-		    (bid0.binid.inl-bid1.binid.inl)/texturesampling_.binid.inl;
+		    (bid0.binid.inl()-bid1.binid.inl())/texturesampling_.binid.inl();
 		const int crlsamples =
-		    (bid0.binid.crl-bid1.binid.crl)/texturesampling_.binid.crl;
+		    (bid0.binid.crl()-bid1.binid.crl())/texturesampling_.binid.crl();
 		const float zsamples =
 		    (bid0.value-bid1.value)/texturesampling_.value;
 
@@ -1174,22 +1174,22 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	
 	const Coord3& pos = coordlist_->get( curid );
 	const BinID bid = SI().transform( pos );
-	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
-							       : bid.inl,
-			trialg_==ExplFaultStickSurface::Zslice ? bid.crl
+	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
+							       : bid.inl(),
+			trialg_==ExplFaultStickSurface::Zslice ? bid.crl()
 							       : pos.z*zscale );
 	knotids += curid;
 	if ( !found )
 	{
-	    inlrg.start = inlrg.stop = bid.inl;
-	    crlrg.start = crlrg.stop = bid.crl;
+	    inlrg.start = inlrg.stop = bid.inl();
+	    crlrg.start = crlrg.stop = bid.crl();
 	    zrg.start = zrg.stop = (float) pos.z;
 	    found = true;
 	}
 	else
 	{
-	    inlrg.include( bid.inl );
-	    crlrg.include( bid.crl );
+	    inlrg.include( bid.inl() );
+	    crlrg.include( bid.crl() );
 	    zrg.include( (float) pos.z );
 	}
     }
@@ -1202,8 +1202,8 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     DelaunayTriangulator triangulator( tt );
     triangulator.executeParallel( false );
     
-    const int inlsamples = inlrg.width()/texturesampling_.binid.inl;
-    const int crlsamples = crlrg.width()/texturesampling_.binid.crl;
+    const int inlsamples = inlrg.width()/texturesampling_.binid.inl();
+    const int crlsamples = crlrg.width()/texturesampling_.binid.crl();
     const float zsamples = zrg.width()/texturesampling_.value;
     texturesize_ = RowCol( trialg_==ExplFaultStickSurface::Inline ? crlsamples 
 	    						  : inlsamples,
@@ -1219,19 +1219,19 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     for ( int row=0; row<texturesize_.row; row++ )
     {
 	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 : 
-		texturesampling_.binid.inl*row+inlrg.start,
+		texturesampling_.binid.inl()*row+inlrg.start,
 		trialg_!=ExplFaultStickSurface::Inline ? -1 : 
-		texturesampling_.binid.crl*row+crlrg.start );
+		texturesampling_.binid.crl()*row+crlrg.start );
 	for ( int col=0; col<texturesize_.col; col++ )
 	{
 	    float z = -1;
 	    if ( trialg_==ExplFaultStickSurface::Zslice )
-		bid.crl = texturesampling_.binid.crl*col+crlrg.start;
+		bid.crl() = texturesampling_.binid.crl()*col+crlrg.start;
 	    else
 		z = texturesampling_.value*col+zrg.start;
-	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl 
-		    						   : bid.inl,
-			    trialg_==ExplFaultStickSurface::Zslice ? bid.crl
+	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
+		    						   : bid.inl(),
+			    trialg_==ExplFaultStickSurface::Zslice ? bid.crl()
 			    					   : z*zscale );
 	    int dupid = -1;
 	    TypeSet<int> vs;

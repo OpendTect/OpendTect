@@ -99,21 +99,21 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     BinID bid = SI().sampling(false).hrg.start;
     Coord coord = SI().transform( bid );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
-    if ( !mIsEqual(bid.inl,coord.x,mDefEps)
-      || !mIsEqual(bid.crl,coord.x,mDefEps)
-      || !mIsEqual(bid.inl,coord.y,mDefEps)
-      || !mIsEqual(bid.crl,coord.y,mDefEps) )
+    if ( !mIsEqual(bid.inl(),coord.x,mDefEps)
+      || !mIsEqual(bid.crl(),coord.x,mDefEps)
+      || !mIsEqual(bid.inl(),coord.y,mDefEps)
+      || !mIsEqual(bid.crl(),coord.y,mDefEps) )
     {
 	putAt( 13, 6, 75, "Survey setup:" );
 	coord = SI().transform( bid );
 	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 14, 6, 75, str );
-	bid.crl = SI().sampling(false).hrg.stop.crl;
+	bid.crl() = SI().sampling(false).hrg.stop.crl();
 	coord = SI().transform( bid );
 	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 15, 6, 75, str );
-	bid.inl = SI().sampling(false).hrg.stop.inl;
-	bid.crl = SI().sampling(false).hrg.start.crl;
+	bid.inl() = SI().sampling(false).hrg.stop.inl();
+	bid.crl() = SI().sampling(false).hrg.start.crl();
 	coord = SI().transform( bid );
 	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
 	putAt( 16, 6, 75, str );
@@ -462,8 +462,8 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-    setEntryVal( EntryInline(), bid.inl );
-    setEntryVal( EntryCrossline(), bid.crl );
+    setEntryVal( EntryInline(), bid.inl() );
+    setEntryVal( EntryCrossline(), bid.crl() );
     int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
     if ( ti.refnr != 0 && !mIsUdf(ti.refnr) )
     {
@@ -484,9 +484,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryCoUnit(), 1 );
 
     const bool is2d = SEGY::TxtHeader::info2D();
-    if ( !is2d && ti.binid.inl != previnl_ )
+    if ( !is2d && ti.binid.inl() != previnl_ )
 	lineseqnr_ = 1;
-    previnl_ = ti.binid.inl;
+    previnl_ = ti.binid.inl();
     int nr2put = is2d ? seqnr_ : lineseqnr_;
     setEntryVal( EntryTracl(), nr2put );
     setEntryVal( EntryTracr(), seqnr_ );
@@ -494,7 +494,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( is2d ) 
 	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
     else
-	{ nr2put = ti.binid.crl; mPIEPAdj(Inl,nr2put,false); }
+	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
     setEntryVal( EntryCdp(), nr2put );
 
     setEntryVal( EntryScalco(), -10 );
@@ -506,8 +506,8 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     hdef_.ycoord_.putValue( buf_, icy );
 
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-    hdef_.inl_.putValue( buf_, ti.binid.inl );
-    hdef_.crl_.putValue( buf_, ti.binid.crl );
+    hdef_.inl_.putValue( buf_, ti.binid.inl() );
+    hdef_.crl_.putValue( buf_, ti.binid.crl() );
     int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
     hdef_.trnr_.putValue( buf_, intval );
     float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
@@ -561,8 +561,8 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
     ti.coord.x = entryVal( EntryXcdp() );
     ti.coord.y = entryVal( EntryYcdp() );
-    ti.binid.inl = entryVal( EntryInline() );
-    ti.binid.crl = entryVal( EntryCrossline() );
+    ti.binid.inl() = entryVal( EntryInline() );
+    ti.binid.crl() = entryVal( EntryCrossline() );
     ti.refnr = mCast( float, entryVal( EntrySP() ) );
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
@@ -630,9 +630,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.coord.x = ti.coord.y = 0;
     ti.coord.x = hdef_.xcoord_.getValue(buf_,needswap_);
     ti.coord.y = hdef_.ycoord_.getValue(buf_,needswap_);
-    ti.binid.inl = ti.binid.crl = 0;
-    ti.binid.inl = hdef_.inl_.getValue(buf_,needswap_);
-    ti.binid.crl = hdef_.crl_.getValue(buf_,needswap_);
+    ti.binid.inl() = ti.binid.crl() = 0;
+    ti.binid.inl() = hdef_.inl_.getValue(buf_,needswap_);
+    ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
     mPIEPAdj(BinID,ti.binid,true);
 
     ti.offset = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );

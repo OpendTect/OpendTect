@@ -117,20 +117,20 @@ Semblance::Semblance( Desc& desc )
 
 	if ( extension_==mExtensionRot90 )
 	{
-	    int maxstepout = mMAX( mMAX( abs(pos0_.inl), abs(pos1_.inl) ), 
-		    		   mMAX( abs(pos0_.crl), abs(pos1_.crl) ) );
+	    int maxstepout = mMAX( mMAX( abs(pos0_.inl()), abs(pos1_.inl()) ), 
+		    		   mMAX( abs(pos0_.crl()), abs(pos1_.crl()) ) );
 	    stepout_ = BinID( maxstepout, maxstepout );
 	}
 	else
-	    stepout_ = BinID(mMAX(abs(pos0_.inl),abs(pos1_.inl)),
-			     mMAX(abs(pos0_.crl),abs(pos1_.crl)) );
+	    stepout_ = BinID(mMAX(abs(pos0_.inl()),abs(pos1_.inl())),
+			     mMAX(abs(pos0_.crl()),abs(pos1_.crl())) );
 
 	    
     }
     getTrcPos();
 
     const float maxdist = dosteer_ ? 
-	mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
+	mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() ) : 0;
     
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 
@@ -144,8 +144,8 @@ bool Semblance::getTrcPos()
     if ( extension_==mExtensionCube )
     {
 	BinID bid;
-	for ( bid.inl=-stepout_.inl; bid.inl<=stepout_.inl; bid.inl++ )
-	    for ( bid.crl=-stepout_.crl; bid.crl<=stepout_.crl; bid.crl++ )
+	for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++ )
+	    for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl(); bid.crl()++ )
 		trcpos_ += bid;
     }
     else
@@ -155,13 +155,13 @@ bool Semblance::getTrcPos()
 
 	if ( extension_==mExtensionRot90 )
 	{
-	    trcpos_ += BinID(pos0_.crl,-pos0_.inl);
-	    trcpos_ += BinID(pos1_.crl,-pos1_.inl);
+	    trcpos_ += BinID(pos0_.crl(),-pos0_.inl());
+	    trcpos_ += BinID(pos1_.crl(),-pos1_.inl());
 	}
 	else if ( extension_==mExtensionRot180 )
 	{
-	    trcpos_ += BinID(-pos0_.inl,-pos0_.crl);
-	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
+	    trcpos_ += BinID(-pos0_.inl(),-pos0_.crl());
+	    trcpos_ += BinID(-pos1_.inl(),-pos1_.crl());
 	}
     }
 

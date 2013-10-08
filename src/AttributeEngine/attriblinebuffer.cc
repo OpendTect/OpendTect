@@ -31,21 +31,21 @@ DataHolderLineBuffer::~DataHolderLineBuffer()
 DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 						    int z0, int nrsamples )
 {
-    int lineidx = inlines_.indexOf(bid.inl);
+    int lineidx = inlines_.indexOf(bid.inl());
     if ( lineidx==-1 )
     {
 	inlinedata_ += new ObjectSet<DataHolder>;
 	crossliness_ += new TypeSet<int>;
 	lineidx = inlinedata_.size()-1;
-	inlines_ += bid.inl;
+	inlines_ += bid.inl();
     }
 
-    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl());
     if ( traceidx==-1 )
     {
 	DataHolder* res = new DataHolder( z0, nrsamples );
 	(*inlinedata_[lineidx]) += res;
-	(*crossliness_[lineidx]) += bid.crl;
+	(*crossliness_[lineidx]) += bid.crl();
 	return res;
     }
 
@@ -63,10 +63,10 @@ DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 
 DataHolder* DataHolderLineBuffer::gtDataHolder( const BinID& bid ) const
 {
-    const int lineidx = inlines_.indexOf(bid.inl);
+    const int lineidx = inlines_.indexOf(bid.inl());
     if ( lineidx==-1 ) return 0;
 
-    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl());
     if ( traceidx==-1 ) return 0;
     return const_cast<DataHolder*>( (*inlinedata_[lineidx])[traceidx] );
 }
@@ -74,10 +74,10 @@ DataHolder* DataHolderLineBuffer::gtDataHolder( const BinID& bid ) const
 
 void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 {
-    const int lineidx = inlines_.indexOf(bid.inl);
+    const int lineidx = inlines_.indexOf(bid.inl());
     if ( lineidx==-1 ) return;
 
-    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl());
     if ( traceidx==-1 ) return;
 
     delete (*inlinedata_[lineidx])[traceidx];
@@ -94,14 +94,14 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
     for ( int idx=0; idx<inlines_.size(); idx++ )\
     {\
 	bool removeline = false;\
-	if ( direction.inl*inlines_[idx] op direction.inl*bid.inl )\
+	if ( direction.inl()*inlines_[idx] op direction.inl()*bid.inl() )\
 	    removeline = true;\
-	else if ( inlines_[idx]==bid.inl )\
+	else if ( inlines_[idx]==bid.inl() )\
 	{\
 	    TypeSet<int>& crosslines = *crossliness_[idx];\
 	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )\
 	    {\
-		if ( direction.crl*crosslines[idy] op direction.crl*bid.crl )\
+		if ( direction.crl()*crosslines[idy] op direction.crl()*bid.crl() )\
 		{ \
 		    delete inlinedata_[idx]->removeSingle(idy);\
 		    crosslines.removeSingle(idy);\

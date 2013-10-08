@@ -392,8 +392,8 @@ bool EventManager::getHorRanges( HorSampling& hrg ) const
 	if ( first )
 	{
 	    first = false;
-	    hrg.start.inl = hrg.stop.inl = bid.inl;
-	    hrg.start.crl = hrg.stop.crl = bid.crl;
+	    hrg.start.inl() = hrg.stop.inl() = bid.inl();
+	    hrg.start.crl() = hrg.stop.crl() = bid.crl();
 	}
 	else
 	{
@@ -417,8 +417,8 @@ bool EventManager::getHorRanges( HorSampling& hrg ) const
 	if ( first )
 	{
 	    first = false;
-	    hrg.start.inl = hrg.stop.inl = inlrg.start;
-	    hrg.start.crl = hrg.stop.crl = crlrg.start;
+	    hrg.start.inl() = hrg.stop.inl() = inlrg.start;
+	    hrg.start.crl() = hrg.stop.crl() = crlrg.start;
 	}
 
 	hrg.include( BinID(inlrg.stop,crlrg.stop) );
@@ -508,7 +508,7 @@ void EventManager::resetChangedFlag( bool horflagonly )
 
 EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 {
-    if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
+    if ( mIsUdf(bid.inl()) || mIsUdf(bid.crl()) )
 	return 0;
 
     int arrpos[2];
@@ -673,8 +673,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	const EM::SectionID sid = emhorizons_[horidx]->sectionID( 0 );
 
 	const BinID horstep = emhorizons_[horidx]->geometry().loadedStep();
-	BinID previnl( bidv.binid.inl-horstep.inl, bidv.binid.crl );
-	BinID nextinl( bidv.binid.inl+horstep.inl, bidv.binid.crl );
+	BinID previnl( bidv.binid.inl()-horstep.inl(), bidv.binid.crl() );
+	BinID nextinl( bidv.binid.inl()+horstep.inl(), bidv.binid.crl() );
 	if ( !emhorizons_[horidx]->isDefined(sid,previnl.toInt64() ) )
 	    previnl = bidv.binid;
 	if ( !emhorizons_[horidx]->isDefined(sid,nextinl.toInt64() ) )
@@ -687,8 +687,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z -
 	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z);
 
-	BinID prevcrl( bidv.binid.inl, bidv.binid.crl-horstep.inl );
-	BinID nextcrl( bidv.binid.inl, bidv.binid.crl+horstep.inl );
+	BinID prevcrl( bidv.binid.inl(), bidv.binid.crl()-horstep.inl() );
+	BinID nextcrl( bidv.binid.inl(), bidv.binid.crl()+horstep.inl() );
 	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.toInt64() ) )
 	    prevcrl = bidv.binid;
 	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.toInt64() ) )
@@ -701,8 +701,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z -
 	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z);
 
-	inldip = inldiff/((nextinl.inl-previnl.inl)*SI().inlDistance() );
-	crldip = crldiff/((nextcrl.crl-prevcrl.crl)*SI().crlDistance() );
+	inldip = inldiff/((nextinl.inl()-previnl.inl())*SI().inlDistance() );
+	crldip = crldiff/((nextcrl.crl()-prevcrl.crl())*SI().crlDistance() );
 
 	return true;
     }

@@ -341,8 +341,8 @@ void uiSurveyInfoEditor::setValues()
 {
     const CubeSampling& cs = si_.sampling( false );
     const HorSampling& hs = cs.hrg;
-    StepInterval<int> inlrg( hs.start.inl, hs.stop.inl, hs.step.inl );
-    StepInterval<int> crlrg( hs.start.crl, hs.stop.crl, hs.step.crl );
+    StepInterval<int> inlrg( hs.start.inl(), hs.stop.inl(), hs.step.inl() );
+    StepInterval<int> crlrg( hs.start.crl(), hs.stop.crl(), hs.step.crl() );
     inlfld_->setValue( inlrg );
     crlfld_->setValue( crlrg );
 
@@ -363,16 +363,16 @@ void uiSurveyInfoEditor::setValues()
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
-    if ( b[0].inl )
+    if ( b[0].inl() )
     {
 	ic0fld_->setValue( b[0] );
-	ic1fld_->setValues( b[0].inl, xline );
+	ic1fld_->setValues( b[0].inl(), xline );
 	ic2fld_->setValue( b[1] );
 	if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
 	{
 	    c[0] = si_.transform( b[0] );
 	    c[1] = si_.transform( b[1] );
-	    c[2] = si_.transform( BinID(b[0].inl,xline) );
+	    c[2] = si_.transform( BinID(b[0].inl(),xline) );
 	}
 	xy0fld_->setValue( c[0] );
 	xy1fld_->setValue( c[2] );
@@ -596,7 +596,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     si_.dirname_ = newdirnm;
     si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
     if ( mUseAdvanced() )
-	si_.get3Pts( si_.set3coords_, si_.set3binids_, si_.set3binids_[2].crl );
+	si_.get3Pts( si_.set3coords_, si_.set3binids_, si_.set3binids_[2].crl() );
 
     if ( !si_.write(rootdir_) )
     {
@@ -630,12 +630,12 @@ bool uiSurveyInfoEditor::setRanges()
     if ( crg.isUdf() ) mErrRet("Please enter a valid range for crosslines")
     CubeSampling cs( si_.sampling(false) );
     HorSampling& hs = cs.hrg;
-    hs.start.inl = irg.start; hs.start.crl = crg.start;
-    hs.stop.inl = irg.atIndex( irg.getIndex(irg.stop) );
-    hs.stop.crl = crg.atIndex( crg.getIndex(crg.stop) );
-    hs.step.inl = irg.step;   hs.step.crl = crg.step;
-    if ( hs.step.inl < 1 ) hs.step.inl = 1;
-    if ( hs.step.crl < 1 ) hs.step.crl = 1;
+    hs.start.inl() = irg.start; hs.start.crl() = crg.start;
+    hs.stop.inl() = irg.atIndex( irg.getIndex(irg.stop) );
+    hs.stop.crl() = crg.atIndex( crg.getIndex(crg.stop) );
+    hs.step.inl() = irg.step;   hs.step.crl() = crg.step;
+    if ( hs.step.inl() < 1 ) hs.step.inl() = 1;
+    if ( hs.step.crl() < 1 ) hs.step.crl() = 1;
 
     const int curzunititem = zunitfld_->currentItem();
     si_.setZUnit( curzunititem == 0, curzunititem == 2 );
@@ -663,7 +663,7 @@ bool uiSurveyInfoEditor::setCoords()
     BinID b[2]; Coord c[3]; int xline;
     b[0] = ic0fld_->getBinID();
     b[1] = ic2fld_->getBinID();
-    xline = ic1fld_->getBinID().crl;
+    xline = ic1fld_->getBinID().crl();
     c[0] = xy0fld_->getCoord();
     c[1] = xy2fld_->getCoord();
     c[2] = xy1fld_->getCoord();
@@ -735,9 +735,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 
     si_.setRange(cs,false);
     BinID bid[2];
-    bid[0].inl = cs.hrg.start.inl; bid[0].crl = cs.hrg.start.crl;
-    bid[1].inl = cs.hrg.stop.inl; bid[1].crl = cs.hrg.stop.crl;
-    si_.set3Pts( crd, bid, cs.hrg.stop.crl );
+    bid[0].inl() = cs.hrg.start.inl(); bid[0].crl() = cs.hrg.start.crl();
+    bid[1].inl() = cs.hrg.stop.inl(); bid[1].crl() = cs.hrg.stop.crl();
+    si_.set3Pts( crd, bid, cs.hrg.stop.crl() );
     setValues();
     if ( !havez ) zfld_->clear();
 
@@ -877,7 +877,7 @@ bool uiCopySurveySIP::getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hrg.start );
     crd[1] = survinfo->transform( cs.hrg.stop );
-    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
 
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);

@@ -262,8 +262,8 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
-	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl);
-	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl);
+	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl());
+	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl());
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{
 	    vals[valcol] = 0;
@@ -758,7 +758,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
 	PlaneDataDisplay::Orientation ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==PlaneDataDisplay::Zslice ? cs.zrg.start :
-	    ori==PlaneDataDisplay::Inline ? cs.hrg.start.inl : cs.hrg.start.crl;
+	    ori==PlaneDataDisplay::Inline ? cs.hrg.start.inl() : cs.hrg.start.crl();
 
 	pi->planeorientation_ = (char)ori;
 	pi->planepos_ = pos;

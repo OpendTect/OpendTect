@@ -173,8 +173,8 @@ int Convolve::Kernel::nrSubKernels(  ) const
 
 int Convolve::Kernel::getSubKernelSize() const
 {
-    int inl = 1 + stepout_.inl * 2;
-    int crl = 1 + stepout_.crl * 2;
+    int inl = 1 + stepout_.inl() * 2;
+    int crl = 1 + stepout_.crl() * 2;
     int sgw = 1 + sg_.width();
     return inl * crl * sgw;
 }
@@ -208,9 +208,9 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 
 	int pos = 0;
 
-	for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
+	for ( int inl=-stepout_.inl(); inl<=stepout_.inl(); inl++ )
 	{
-	    for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
+	    for ( int crl=-stepout_.crl(); crl<=stepout_.crl(); crl++ )
 	    {
 		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
 		{
@@ -321,7 +321,7 @@ bool Convolve::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Convolve::getInputData( const BinID& relpos, int idx )
 {
-    int sz = (1+stepout_.inl*2) * (1+stepout_.crl*2);
+    int sz = (1+stepout_.inl()*2) * (1+stepout_.crl()*2);
     
     while ( inputdata_.size()< sz )
 	inputdata_ += 0;
@@ -329,12 +329,12 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     BinID truepos;
     int index = 0;
-    for (int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
+    for (int inl=-stepout_.inl(); inl<=stepout_.inl(); inl++ )
     {
-	for (int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
+	for (int crl=-stepout_.crl(); crl<=stepout_.crl(); crl++ )
 	{
-	    truepos.inl = inl * bidstep.inl;
-	    truepos.crl = crl * bidstep.crl;
+	    truepos.inl() = inl * bidstep.inl();
+	    truepos.crl() = crl * bidstep.crl();
 	    const DataHolder* data = inputs_[0]->getData( relpos+truepos, idx );
 	    if ( !data )
 		return false;
@@ -372,7 +372,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
     const int subkernelsz = kernel_->getSubKernelSize();
     const float* kernelvals = kernel_->getKernel();
 
-    const int nrtraces = (1+stepout_.inl*2) * (1+stepout_.crl*2);
+    const int nrtraces = (1+stepout_.inl()*2) * (1+stepout_.crl()*2);
 
     ArrPtrMan<bool> docalculate = new bool[nrofkernels];
     const bool customcalc = !isOutputEnabled(0);

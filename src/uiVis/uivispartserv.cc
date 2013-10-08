@@ -1320,8 +1320,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	FileMultiString fms(res);
 	CubeSampling cs;
 	HorSampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
-	hs.start.inl = toInt(fms[0]); hs.stop.inl = toInt(fms[1]);
-	hs.start.crl = toInt(fms[2]); hs.stop.crl = toInt(fms[3]);
+	hs.start.inl() = toInt(fms[0]); hs.stop.inl() = toInt(fms[1]);
+	hs.start.crl() = toInt(fms[2]); hs.stop.crl() = toInt(fms[3]);
 	zrg.start = toFloat(fms[4]); zrg.stop = toFloat(fms[5]);
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
@@ -1400,8 +1400,8 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
-    fms += cs.hrg.start.inl; fms += cs.hrg.stop.inl; fms += cs.hrg.start.crl;
-    fms += cs.hrg.stop.crl; fms += cs.zrg.start; fms += cs.zrg.stop;
+    fms += cs.hrg.start.inl(); fms += cs.hrg.stop.inl(); fms += cs.hrg.start.crl();
+    fms += cs.hrg.stop.crl(); fms += cs.zrg.start; fms += cs.zrg.stop;
     par.set( sKeyWorkArea(), fms );
 
     visBase::DM().fillPar( par, storids );

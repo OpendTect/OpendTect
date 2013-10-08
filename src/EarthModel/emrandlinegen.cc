@@ -89,8 +89,8 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		for ( int ipt=0; ipt<poly.size(); ipt++ )
 		{
 		    const Geom::Point2D<float> vtx = poly.getVertex( ipt );
-		    bid.inl = inlrg.snap( vtx.x );
-		    bid.crl = crlrg.snap( vtx.y );
+		    bid.inl() = inlrg.snap( vtx.x );
+		    bid.crl() = crlrg.snap( vtx.y );
 		    if ( bid != prevbid )
 		    {
 			rl->addNode( bid );
@@ -99,7 +99,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		    if ( ipt == 0 && poly.isClosed() )
 			addbid = bid;
 		}
-		if ( !mIsUdf(addbid.inl) && addbid!=prevbid && rl->nrNodes()>2 )
+		if ( !mIsUdf(addbid.inl()) && addbid!=prevbid && rl->nrNodes()>2 )
 		    rl->addNode( addbid );
 
 		if ( rl->nrNodes() < 2 )

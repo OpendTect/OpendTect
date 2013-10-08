@@ -28,7 +28,7 @@ public:
 
     void	clear()
 		{
-		    binid.inl = binid.crl = 0; coord.x = coord.y = 0;
+		    binid.inl() = binid.crl() = 0; coord.x = coord.y = 0;
 		    startpos = offset = azimuth = 0;
 		    pick = refnr = mUdf(float);
 		}

@@ -106,8 +106,8 @@ void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
     Coord coord( SI().transform( binid ) );
     xfld_->setValue( coord.x );
     yfld_->setValue( coord.y );
-    inlfld_->setValue( binid.inl );
-    crlfld_->setValue( binid.crl );
+    inlfld_->setValue( binid.inl() );
+    crlfld_->setValue( binid.crl() );
 
     changeCB( 0 );
 }
@@ -123,8 +123,8 @@ void uiBouncySettingsDlg::x_yChangedCB( CallBacker* )
      }
 
      BinID binid( SI().transform( coord ) );
-     inlfld_->setValue( binid.inl );
-     crlfld_->setValue( binid.crl );
+     inlfld_->setValue( binid.inl() );
+     crlfld_->setValue( binid.crl() );
      xfld_->setValue( coord.x );
      yfld_->setValue( coord.y );
 

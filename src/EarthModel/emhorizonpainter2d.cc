@@ -109,11 +109,11 @@ bool HorizonPainter2D::addPolyLine()
 
 	while ( iter.next(bid) )
 	{
-	    int inlfromcs = bid.inl;
+	    int inlfromcs = bid.inl();
 	    if ( hor2d->geometry().lineIndex( linenm_ ) < 0 )
 		continue;
 	    else
-		bid.inl = hor2d->geometry().lineIndex( linenm_ );
+		bid.inl() = hor2d->geometry().lineIndex( linenm_ );
 	    
 	    const Coord3 crd = hor2d->getPos( sid, bid.toInt64() );
 	    EM::PosID posid( id_, sid, bid.toInt64() );
@@ -121,7 +121,7 @@ bool HorizonPainter2D::addPolyLine()
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
-		bid.inl = inlfromcs;
+		bid.inl() = inlfromcs;
 		continue;
 	    }
 	    else if ( !coorddefined )
@@ -150,7 +150,7 @@ bool HorizonPainter2D::addPolyLine()
 		newmarker = false;
 	    }
 	    
-	    int idx = trcnos_.indexOf(bid.crl);
+	    int idx = trcnos_.indexOf(bid.crl());
 	    if ( idx == -1 )
 		continue;
 
@@ -161,7 +161,7 @@ bool HorizonPainter2D::addPolyLine()
 		markerseeds_->marker_->poly_ +=
 		    		FlatView::Point( distances_[idx], crd.z );
 	    
-	    bid.inl = inlfromcs;
+	    bid.inl() = inlfromcs;
 	}
     }
 

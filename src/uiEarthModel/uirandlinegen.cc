@@ -207,7 +207,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     infld_ = new uiIOObjSel( this, inctio_, "Input Random Line" );
 
     const BinID bid1( 1, 1 );
-    const BinID bid2( 1 + SI().sampling(false).hrg.step.inl, 1 );
+    const BinID bid2( 1 + SI().sampling(false).hrg.step.inl(), 1 );
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
     distfld_ = new uiGenInput( this, "Distance from input",

@@ -89,7 +89,7 @@ void MuteDef::remove( int idx )
 
 float MuteDef::value( float offs, const BinID& pos ) const
 {
-    if ( pos.inl<0 || pos.crl<0 )
+    if ( pos.inl()<0 || pos.crl()<0 )
 	return mUdf(float);
 
     if ( fns_.size() < 1 )
@@ -124,7 +124,7 @@ float MuteDef::value( float offs, const BinID& pos ) const
 void MuteDef::computeIntervals( float offs, const BinID& pos,
 			       TypeSet<Interval<float> >& res) const
 {
-    if ( pos.inl<0 || pos.crl<0 || fns_.isEmpty() )
+    if ( pos.inl()<0 || pos.crl()<0 || fns_.isEmpty() )
 	return;
 
     const Coord si00 = SI().transform(

@@ -43,10 +43,10 @@ HorSampling Smoother::getInputHRg( const HorSampling& hrg ) const
     const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
     const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
 
-    res.start.inl = hrg.start.inl - res.step.inl * inlstepout;
-    res.start.crl = hrg.start.crl - res.step.crl * crlstepout;
-    res.stop.inl = hrg.stop.inl + res.step.inl * inlstepout;
-    res.stop.crl = hrg.stop.crl + res.step.crl * crlstepout;
+    res.start.inl() = hrg.start.inl() - res.step.inl() * inlstepout;
+    res.start.crl() = hrg.start.crl() - res.step.crl() * crlstepout;
+    res.stop.inl() = hrg.stop.inl() + res.step.inl() * inlstepout;
+    res.stop.crl() = hrg.stop.crl() + res.step.crl() * crlstepout;
     return res;
 }
 

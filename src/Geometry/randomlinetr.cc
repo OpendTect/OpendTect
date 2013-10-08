@@ -208,7 +208,7 @@ const char* dgbRandomLineSetTranslator::write(
 	for ( int idx=0; idx<rdl.nrNodes(); idx++ )
 	{
 	    const BinID bid = rdl.nodePosition( idx );
-	    strm << bid.inl << od_tab << bid.crl << od_newline;
+	    strm << bid.inl() << od_tab << bid.crl() << od_newline;
 	}
 	astrm.newParagraph();
     }

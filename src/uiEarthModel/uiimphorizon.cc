@@ -529,8 +529,8 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
-    interpol_->setRowStep( inldist*hs.step.inl );
-    interpol_->setColStep( crldist*hs.step.crl);
+    interpol_->setRowStep( inldist*hs.step.inl() );
+    interpol_->setColStep( crldist*hs.step.crl());
     uiTaskRunner taskrunner( this );
     Array2DImpl<float> arr( hs.nrInl(), hs.nrCrl() );
     if ( !arr.isOK() )
@@ -543,10 +543,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	BinID bid;
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
-	    bid.inl = hs.start.inl + inl*hs.step.inl;
+	    bid.inl() = hs.start.inl() + inl*hs.step.inl();
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
-		bid.crl = hs.start.crl + crl*hs.step.crl;
+		bid.crl() = hs.start.crl() + crl*hs.step.crl();
 		BinIDValueSet::Pos pos = data.findFirst( bid );
 		if ( pos.j >= 0 )
 		{
@@ -565,10 +565,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
-	    bid.inl = hs.start.inl + inl*hs.step.inl;
+	    bid.inl() = hs.start.inl() + inl*hs.step.inl();
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
-		bid.crl = hs.start.crl + crl*hs.step.crl;
+		bid.crl() = hs.start.crl() + crl*hs.step.crl();
 		BinIDValueSet::Pos pos = data.findFirst( bid );
 		if ( pos.j >= 0 ) continue;
 

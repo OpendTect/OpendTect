@@ -320,18 +320,18 @@ float DipFilter::taper( float pos ) const
 
 bool DipFilter::getInputData( const BinID& relpos, int index )
 {
-    while ( inputdata_.size()< (1+stepout_.inl*2) * (1+stepout_.crl*2) )
+    while ( inputdata_.size()< (1+stepout_.inl()*2) * (1+stepout_.crl()*2) )
 	inputdata_ += 0;
     
     int idx = 0;
 
     const BinID bidstep = inputs_[0]->getStepoutStep();
-    for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
+    for ( int inl=-stepout_.inl(); inl<=stepout_.inl(); inl++ )
     {
-	for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
+	for ( int crl=-stepout_.crl(); crl<=stepout_.crl(); crl++ )
 	{
-	    const BinID truepos( relpos.inl + inl*abs(bidstep.inl),
-				 relpos.crl + crl*abs(bidstep.crl) );
+	    const BinID truepos( relpos.inl() + inl*abs(bidstep.inl()),
+				 relpos.crl() + crl*abs(bidstep.crl()) );
 	    const DataHolder* dh = inputs_[0]->getData( truepos, index );
 	    if ( !dh ) return false;
 

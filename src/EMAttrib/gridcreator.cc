@@ -189,7 +189,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	CubeSampling cs = bbox;
-	cs.hrg.start.inl = cs.hrg.stop.inl = inlines[idx];
+	cs.hrg.start.inl() = cs.hrg.stop.inl() = inlines[idx];
 	LineKey lk( BufferString(inlstr.str(),inlines[idx]), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }
@@ -214,7 +214,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
 	CubeSampling cs = bbox;
-	cs.hrg.start.crl = cs.hrg.stop.crl = crosslines[idx];
+	cs.hrg.start.crl() = cs.hrg.stop.crl() = crosslines[idx];
 	LineKey lk( BufferString(crlstr.str(),crosslines[idx]), attribname );
 	add( new Seis2DLineCreator(input,cs,output,lk) );
     }

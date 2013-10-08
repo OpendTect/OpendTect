@@ -21,14 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 
 
-mImplRowColFunctions( BinID, inl, crl );
+mImplRowColFunctions( BinID, inl_, crl_ );
 
 
 float BinIDValues::udf = mUdf(float);
 
 BinID::BinID( const RowCol& rc )
-    : inl( rc.row )
-    , crl( rc.col )
+    : inl_( rc.row )
+    , crl_( rc.col )
 {}
 
 

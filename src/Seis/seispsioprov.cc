@@ -230,8 +230,8 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     posdata_.getInlRange( pinfo.inlrg );
     posdata_.getCrlRange( pinfo.crlrg );
     pinfo.inlrg.sort(); pinfo.crlrg.sort();
-    curbinid_.inl = pinfo.inlrg.start;
-    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
+    curbinid_.inl() = pinfo.inlrg.start;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
 
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
@@ -242,38 +242,38 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
 		 BufferString("O=",offss[icomp]) );
 
-    curbinid_.inl = pinfo.inlrg.start;
-    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
+    curbinid_.inl() = pinfo.inlrg.start;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
     return true;
 }
 
 
 bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( !posdata_.includes(bid.inl,bid.crl) ) return false;
-    curbinid_ = bid; curbinid_.crl -= pinfo.crlrg.step;
+    if ( !posdata_.includes(bid.inl(),bid.crl()) ) return false;
+    curbinid_ = bid; curbinid_.crl() -= pinfo.crlrg.step;
     return true;
 }
 
 
 bool SeisPSCubeSeisTrcTranslator::toNext()
 {
-    for ( int crl=curbinid_.crl+pinfo.crlrg.step; crl<=pinfo.crlrg.stop;
+    for ( int crl=curbinid_.crl()+pinfo.crlrg.step; crl<=pinfo.crlrg.stop;
 	    crl+=pinfo.crlrg.step )
     {
-	if ( posdata_.includes(curbinid_.inl,crl) )
+	if ( posdata_.includes(curbinid_.inl(),crl) )
 	{
-	    BinID bid( curbinid_.inl, crl );
-	    if ( !seldata || seldata->isOK(BinID(curbinid_.inl,crl)) )
-		{ curbinid_.crl = crl; return true; }
+	    BinID bid( curbinid_.inl(), crl );
+	    if ( !seldata || seldata->isOK(BinID(curbinid_.inl(),crl)) )
+		{ curbinid_.crl() = crl; return true; }
 	}
     }
 
-    curbinid_.inl += pinfo.inlrg.step;
-    if ( curbinid_.inl > pinfo.inlrg.stop )
+    curbinid_.inl() += pinfo.inlrg.step;
+    if ( curbinid_.inl() > pinfo.inlrg.stop )
 	return false;
 
-    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
     return toNext();
 }
 

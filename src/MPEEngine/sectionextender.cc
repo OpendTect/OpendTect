@@ -78,14 +78,14 @@ if ( res==-1 ) return
 void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
 {
     int res;
-    mExtendDirection(bidstep.inl, 0, 0);
-    mExtendDirection(-bidstep.inl, 0, 0);
-    mExtendDirection(0, bidstep.crl, 0);
-    mExtendDirection(0, -bidstep.crl, 0);
-    mExtendDirection(bidstep.inl, bidstep.crl,0);
-    mExtendDirection(bidstep.inl, -bidstep.crl,0);
-    mExtendDirection(-bidstep.inl, bidstep.crl,0);
-    mExtendDirection(-bidstep.inl, -bidstep.crl,0);
+    mExtendDirection(bidstep.inl(), 0, 0);
+    mExtendDirection(-bidstep.inl(), 0, 0);
+    mExtendDirection(0, bidstep.crl(), 0);
+    mExtendDirection(0, -bidstep.crl(), 0);
+    mExtendDirection(bidstep.inl(), bidstep.crl(),0);
+    mExtendDirection(bidstep.inl(), -bidstep.crl(),0);
+    mExtendDirection(-bidstep.inl(), bidstep.crl(),0);
+    mExtendDirection(-bidstep.inl(), -bidstep.crl(),0);
     mExtendDirection(0,0,zstep);
     mExtendDirection(0,0,-zstep);
 }

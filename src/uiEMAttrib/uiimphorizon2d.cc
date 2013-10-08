@@ -92,13 +92,13 @@ int nextStep()
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl < 0 ) return Executor::ErrorOccurred();
+    if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
 
-    const PosInfo::GeomID& geomid = geomidset_[bid.inl];
+    const PosInfo::GeomID& geomid = geomidset_[bid.inl()];
 
-    if ( bid.inl != prevlineidx_ )
+    if ( bid.inl() != prevlineidx_ )
     {
-	prevlineidx_ = bid.inl;
+	prevlineidx_ = bid.inl();
 	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
 	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
 
@@ -124,7 +124,7 @@ int nextStep()
 	}
     }
 
-    const int curtrcnr = bid.crl;
+    const int curtrcnr = bid.crl();
     for ( int validx=0; validx<nrvals; validx++ )
     {
 	if ( validx>=hors_.size() || !geomid.isOK() )

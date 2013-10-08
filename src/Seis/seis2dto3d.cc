@@ -128,7 +128,7 @@ bool Seis2DTo3D::read()
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
 	const BinID& bid = trc.info().binid; 
-	if ( !inlrg.includes( bid.inl,false ) || !crlrg.includes( bid.crl,false ) )
+	if ( !inlrg.includes( bid.inl(),false ) || !crlrg.includes( bid.crl(),false ) )
 	    { seisbuf_.remove( idx ); continue; }
 
 	linecs.hrg.include( bid );
@@ -172,7 +172,7 @@ int Seis2DTo3D::nextStep()
     if ( nrdone_ == 0 )
 	prevbid_ = curbid_;
 
-    if ( curbid_.inl != prevbid_.inl )
+    if ( curbid_.inl() != prevbid_.inl() )
     {
 	if ( !writeTmpTrcs() )
 	    { errmsg_ = "Can not write trace"; return ErrorOccurred(); }
@@ -194,8 +194,8 @@ int Seis2DTo3D::nextStep()
 		break;
 	    }
 
-	    int xx0 = b.inl-curbid_.inl;     xx0 *= xx0;
-	    int yy0 = b.crl-curbid_.crl;     yy0 *= yy0;
+	    int xx0 = b.inl()-curbid_.inl();     xx0 *= xx0;
+	    int yy0 = b.crl()-curbid_.crl();     yy0 *= yy0;
 
 	    if ( (  xx0 + yy0  ) < mindist || mIsUdf(mindist) )
 	    {
@@ -210,7 +210,7 @@ int Seis2DTo3D::nextStep()
     }
     else
     {
-	const int inl = curbid_.inl; const int crl = curbid_.crl;
+	const int inl = curbid_.inl(); const int crl = curbid_.crl();
 	Interval<int> inlrg( inl-mInterpInlWin/2, inl+mInterpInlWin/2 );
 	Interval<int> crlrg( crl-mInterpCrlWin/2, crl+mInterpCrlWin/2 );
 	inlrg.limitTo( SI().inlRange(true) );
@@ -288,14 +288,14 @@ bool Seis2DTo3D::writeTmpTrcs()
     }
 
     tmpseisbuf_.sort( true, SeisTrcInfo::BinIDInl );
-    int curinl = tmpseisbuf_.get( 0 )->info().binid.inl;
+    int curinl = tmpseisbuf_.get( 0 )->info().binid.inl();
     int previnl = curinl;
     SeisTrcBuf tmpbuf(true); 
     bool isbufempty = false;
     while ( !tmpseisbuf_.isEmpty() )
     {
 	SeisTrc* trc = tmpseisbuf_.remove(0);
-	curinl = trc->info().binid.inl;
+	curinl = trc->info().binid.inl();
 	isbufempty = tmpseisbuf_.isEmpty();
 	if ( previnl != curinl || isbufempty )
 	{
@@ -304,7 +304,7 @@ bool Seis2DTo3D::writeTmpTrcs()
 	    while( !tmpbuf.isEmpty() )
 	    {
 		const SeisTrc* crltrc = tmpbuf.remove(0);
-		const int curcrl = crltrc->info().binid.crl;
+		const int curcrl = crltrc->info().binid.crl();
 		if ( curcrl != prevcrl )
 		{
 		    if ( !wrr_->put( *crltrc ) ) 
@@ -498,8 +498,8 @@ const BinID SeisInterpol::convertToBID( int idx, int idy ) const
 
 void SeisInterpol::convertToPos( const BinID& bid, int& idx, int& idy ) const
 {
-    idx = hs_.inlRange().getIndex( bid.inl );
-    idy = hs_.crlRange().getIndex( bid.crl );
+    idx = hs_.inlRange().getIndex( bid.inl() );
+    idy = hs_.crlRange().getIndex( bid.crl() );
 }
 
 

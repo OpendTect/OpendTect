@@ -61,7 +61,7 @@ CBVSReader::CBVSReader( std::istream* s, bool glob_info_only,
 	, lastposfo_(0)
 	, hs_(false)
 {
-    hs_.step.inl = hs_.step.crl = 1;
+    hs_.step.inl() = hs_.step.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
 	toStart();
 }
@@ -289,14 +289,14 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     strm_.read( buf, 8*integersize );
     info_.geom_.fullyrectandreg = (bool)iinterp_.get( buf, 0 );
     info_.nrtrcsperposn_ = iinterp_.get( buf, 1 );
-    info_.geom_.start.inl = iinterp_.get( buf, 2 );
-    info_.geom_.start.crl = iinterp_.get( buf, 3 );
-    info_.geom_.stop.inl = iinterp_.get( buf, 4 );
-    info_.geom_.stop.crl = iinterp_.get( buf, 5 );
-    info_.geom_.step.inl = iinterp_.get( buf, 6 );
-    if ( info_.geom_.step.inl == 0 ) info_.geom_.step.inl = 1;
-    info_.geom_.step.crl = iinterp_.get( buf, 7 );
-    if ( info_.geom_.step.crl == 0 ) info_.geom_.step.crl = 1;
+    info_.geom_.start.inl() = iinterp_.get( buf, 2 );
+    info_.geom_.start.crl() = iinterp_.get( buf, 3 );
+    info_.geom_.stop.inl() = iinterp_.get( buf, 4 );
+    info_.geom_.stop.crl() = iinterp_.get( buf, 5 );
+    info_.geom_.step.inl() = iinterp_.get( buf, 6 );
+    if ( info_.geom_.step.inl() == 0 ) info_.geom_.step.inl() = 1;
+    info_.geom_.step.crl() = iinterp_.get( buf, 7 );
+    if ( info_.geom_.step.crl() == 0 ) info_.geom_.step.crl() = 1;
 
     strm_.read( buf, 6*sizeof(double) );
     RCol2Coord::RCTransform xtr, ytr;
@@ -310,8 +310,8 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     else
 	info_.geom_.b2c = SI().binID2Coord();
 
-    hs_.start = hs_.stop = BinID( info_.geom_.start.inl, info_.geom_.start.crl );
-    hs_.include( BinID( info_.geom_.stop.inl, info_.geom_.stop.crl ) );
+    hs_.start = hs_.stop = BinID( info_.geom_.start.inl(), info_.geom_.start.crl() );
+    hs_.include( BinID( info_.geom_.stop.inl(), info_.geom_.stop.crl() ) );
 
     return strm_.good();
 }
@@ -353,7 +353,7 @@ bool CBVSReader::readTrailer()
 	    PosInfo::LineData* iinf
 		= new PosInfo::LineData( iinterp_.get( buf, 0 ) );
 	    if ( !iinl )
-		hs_.start.inl = hs_.stop.inl = iinf->linenr_;
+		hs_.start.inl() = hs_.stop.inl() = iinf->linenr_;
 
 	    const int nrseg = iinterp_.get( buf, 1 );
 	    PosInfo::LineData::Segment crls;
@@ -367,7 +367,7 @@ bool CBVSReader::readTrailer()
 		iinf->segments_ += crls;
 
 		if ( !iinl && !iseg )
-		    hs_.start.crl = hs_.stop.crl = crls.start;
+		    hs_.start.crl() = hs_.stop.crl() = crls.start;
 		else
 		    hs_.include( BinID(iinf->linenr_,crls.start) );
 		hs_.include( BinID(iinf->linenr_,crls.stop) );
@@ -555,28 +555,28 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
     int arridx = 0;
     if ( info_.geom_.fullyrectandreg )
     {
-	if ( bid.inl != info_.geom_.start.inl )
+	if ( bid.inl() != info_.geom_.start.inl() )
 	{
-	    const int nrcrl = (info_.geom_.stop.crl-info_.geom_.start.crl)
-			    / info_.geom_.step.crl + 1;
-	    arridx = nrcrl * (bid.inl - info_.geom_.start.inl);
+	    const int nrcrl = (info_.geom_.stop.crl()-info_.geom_.start.crl())
+			    / info_.geom_.step.crl() + 1;
+	    arridx = nrcrl * (bid.inl() - info_.geom_.start.inl());
 	}
-	arridx += (bid.crl-info_.geom_.start.crl) / info_.geom_.step.crl;
+	arridx += (bid.crl()-info_.geom_.start.crl()) / info_.geom_.step.crl();
     }
     else
     {
 	for ( int iinl=0; iinl<lds_.size(); iinl++ )
 	{
 	    const PosInfo::LineData& inlinf = *lds_[iinl];
-	    bool inlmatches = inlinf.linenr_ == bid.inl;
+	    bool inlmatches = inlinf.linenr_ == bid.inl();
 	    for ( int icrl=0; icrl<inlinf.segments_.size(); icrl++ )
 	    {
 		const StepInterval<int>& seg = inlinf.segments_[icrl];
-		if ( !inlmatches || !seg.includes(bid.crl,false) )
+		if ( !inlmatches || !seg.includes(bid.crl(),false) )
 		    arridx += seg.nrSteps() + 1;
 		else
 		{
-		    arridx += (bid.crl - seg.start) / seg.step;
+		    arridx += (bid.crl() - seg.start) / seg.step;
 		    break;
 		}
 	    }

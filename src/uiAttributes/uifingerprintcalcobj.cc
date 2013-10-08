@@ -93,8 +93,8 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT32( irg.start + Stats::randGen().get() * irg.nrSteps() );
-	bid.crl = mNINT32( crg.start + Stats::randGen().get() * crg.nrSteps() );
+	bid.inl() = mNINT32( irg.start + Stats::randGen().get() * irg.nrSteps() );
+	bid.crl() = mNINT32( crg.start + Stats::randGen().get() * crg.nrSteps() );
 	SI().snap( bid );
 	const float z = (float) (SI().zRange(true).start
 	    	      + Stats::randGen().get() * SI().zRange(true).width());

@@ -175,12 +175,12 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	BinID bid; float z;
 	if ( dp3d->dataDir() == CubeSampling::Inl )
 	{
-	    bid = BinID( cs.hrg.start.inl, (int)pt.x );
+	    bid = BinID( cs.hrg.start.inl(), (int)pt.x );
 	    z = (float) pt.y;
 	}
 	else if ( dp3d->dataDir() == CubeSampling::Crl )
 	{
-	    bid = BinID( (int)pt.x, cs.hrg.start.crl );
+	    bid = BinID( (int)pt.x, cs.hrg.start.crl() );
 	    z = (float) pt.y;
 	}
 	else
@@ -276,7 +276,7 @@ void VW2DPickSet::drawAll()
     		const float depth = (dip/1000000) * zfac;
     		markerstyle.rotation_ =
     		    mIsUdf(dip) ? 0 : Angle::rad2deg( atan2f(2*depth,xfac) );
-    		FlatView::Point point( (oninl ? bid.crl : bid.inl), pos.z );
+    		FlatView::Point point( (oninl ? bid.crl() : bid.inl()), pos.z );
     		picks->poly_ += point;
     	    }
     	    else if ( dprdm )

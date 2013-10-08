@@ -335,8 +335,8 @@ int HorizonScanner::nextStep()
 	bid = SI().transform( crd );
     else
     {
-	bid.inl = mNINT32( crd.x );
-	bid.crl = mNINT32( crd.y );
+	bid.inl() = mNINT32( crd.x );
+	bid.crl() = mNINT32( crd.y );
     }
 
     if ( !SI().isReasonable(bid) )

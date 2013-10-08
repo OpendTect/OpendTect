@@ -64,7 +64,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     for ( int idx=0; idx<sz; idx++ )
     {
 	trc = get( idx ); bid = trc->info().binid;
-	spi.inlrg.include( bid.inl, false ); spi.crlrg.include( bid.crl, false);
+	spi.inlrg.include( bid.inl(), false ); spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling;
 	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
 	     !mIsZero(trcsd.step,mDefEps) )
@@ -74,10 +74,10 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	    spi.zrg.include( zrg, false );
 	}
 
-	if ( !doneinl && bid.inl != pbid.inl )
-	    { spi.inlrg.step = bid.inl - pbid.inl; doneinl = true; }
-	if ( !donecrl && bid.crl != pbid.crl )
-	    { spi.crlrg.step = bid.crl - pbid.crl; donecrl = true; }
+	if ( !doneinl && bid.inl() != pbid.inl() )
+	    { spi.inlrg.step = bid.inl() - pbid.inl(); doneinl = true; }
+	if ( !donecrl && bid.crl() != pbid.crl() )
+	    { spi.crlrg.step = bid.crl() - pbid.crl(); donecrl = true; }
     }
 
     if ( spi.inlrg.step < 0 ) spi.inlrg.step = -spi.inlrg.step;
@@ -229,7 +229,7 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     {
 	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
 	    return idx;
-	else if ( is2d && ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl)
+	else if ( is2d && ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl())
 	    return idx;
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -266,18 +266,18 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     BinID stop = trcs_[sz-1]->info().binid;
     if ( is2d )
     {
-	start.inl = stop.inl = 0;
-	start.crl = trcs_[0]->info().nr;
-	stop.crl = trcs_[sz-1]->info().nr;
+	start.inl() = stop.inl() = 0;
+	start.crl() = trcs_[0]->info().nr;
+	stop.crl() = trcs_[sz-1]->info().nr;
     }
 
-    BinID dist( start.inl - stop.inl, start.crl - stop.crl );
-    if ( !dist.inl && !dist.crl )
+    BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
+    if ( !dist.inl() && !dist.crl() )
 	return 0;
 
-    int n1  = dist.inl ? start.inl : start.crl;
-    int n2  = dist.inl ? stop.inl  : stop.crl;
-    int pos = dist.inl ? bid.inl   : bid.crl;
+    int n1  = dist.inl() ? start.inl() : start.crl();
+    int n2  = dist.inl() ? stop.inl()  : stop.crl();
+    int pos = dist.inl() ? bid.inl()   : bid.crl();
  
     float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
@@ -305,7 +305,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	strm << '\n';
 	const SeisTrc& trc = *get( itrc );
 	if ( !is2d )
-	    strm << trc.info().binid.inl << ' ' << trc.info().binid.crl;
+	    strm << trc.info().binid.inl() << ' ' << trc.info().binid.crl();
 	else
 	{
 	    BufferString postxt;
@@ -542,10 +542,10 @@ bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
     if ( buf.isEmpty() )
 	return false;
 
-    cs.hrg.start.inl = cs.hrg.stop.inl = buf.first()->info().binid.inl;
-    cs.hrg.start.crl = cs.hrg.stop.crl = buf.first()->info().binid.crl;
-    cs.hrg.step.inl = SI().inlStep();
-    cs.hrg.step.crl = SI().crlStep();
+    cs.hrg.start.inl() = cs.hrg.stop.inl() = buf.first()->info().binid.inl();
+    cs.hrg.start.crl() = cs.hrg.stop.crl() = buf.first()->info().binid.crl();
+    cs.hrg.step.inl() = SI().inlStep();
+    cs.hrg.step.crl() = SI().crlStep();
 
     for ( int idx=1; idx<buf.size(); idx++ )
 	cs.hrg.include( buf.get( idx )->info().binid );

@@ -112,7 +112,7 @@ SurveyInfo::SurveyInfo()
     , seisrefdatum_( 0 )
 {
     rdxtr_.b = rdytr_.c = 1;
-    set3binids_[2].crl = 0;
+    set3binids_[2].crl() = 0;
 
     // To get a 'reasonable' transform even when no proper SI is yet defined
     // Then, DataPointSets need to work
@@ -229,16 +229,16 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.inl = toInt(fms[0]);
-	    si->cs_.hrg.stop.inl = toInt(fms[1]);
-	    si->cs_.hrg.step.inl = toInt(fms[2]);
+	    si->cs_.hrg.start.inl() = toInt(fms[0]);
+	    si->cs_.hrg.stop.inl() = toInt(fms[1]);
+	    si->cs_.hrg.step.inl() = toInt(fms[2]);
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.crl = toInt(fms[0]);
-	    si->cs_.hrg.stop.crl = toInt(fms[1]);
-	    si->cs_.hrg.step.crl = toInt(fms[2]);
+	    si->cs_.hrg.start.crl() = toInt(fms[0]);
+	    si->cs_.hrg.stop.crl() = toInt(fms[1]);
+	    si->cs_.hrg.step.crl() = toInt(fms[2]);
 	}
 	else if ( keyw == sKeyZRange() )
 	{
@@ -302,8 +302,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
 bool SurveyInfo::wrapUpRead()
 {
-    if ( set3binids_[2].crl == 0 )
-	get3Pts( set3coords_, set3binids_, set3binids_[2].crl );
+    if ( set3binids_[2].crl() == 0 )
+	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
 
     b2c_.setTransforms( rdxtr_, rdytr_ );
     if ( !b2c_.isValid() )
@@ -378,8 +378,8 @@ int SurveyInfo::maxNrTraces( bool work ) const
 }
 
 
-int SurveyInfo::inlStep() const { return cs_.hrg.step.inl; }
-int SurveyInfo::crlStep() const { return cs_.hrg.step.crl; }
+int SurveyInfo::inlStep() const { return cs_.hrg.step.inl(); }
+int SurveyInfo::crlStep() const { return cs_.hrg.step.crl(); }
 
 
 float SurveyInfo::inlDistance() const
@@ -403,8 +403,8 @@ float SurveyInfo::computeArea( const Interval<int>& inlrg,
 {
     const BinID step = sampling(false).hrg.step;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
-    const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl) );
-    const Coord c10 = transform( BinID(inlrg.stop+step.inl,crlrg.start) );
+    const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
+    const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
     const float scale = xyInFeet() ? mFromFeetFactorF : 1; 
     const double d01 = c00.distTo( c01 ) * scale;
@@ -468,8 +468,8 @@ void SurveyInfo::setWorkRange( const CubeSampling& cs )
 Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
     const Interval<int> rg = inl
-      ? Interval<int>( cs_.hrg.start.inl, cs_.hrg.stop.inl )
-      : Interval<int>( cs_.hrg.start.crl, cs_.hrg.stop.crl );
+      ? Interval<int>( cs_.hrg.start.inl(), cs_.hrg.stop.inl() )
+      : Interval<int>( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
 
     const int w = rg.stop - rg.start;
 
@@ -479,8 +479,8 @@ Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 
 bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    return reasonableRange( true ).includes( b.inl,false ) &&
-	   reasonableRange( false ).includes( b.crl,false );
+    return reasonableRange( true ).includes( b.inl(),false ) &&
+	   reasonableRange( false ).includes( b.crl(),false );
 }
 
 
@@ -502,10 +502,10 @@ Coord SurveyInfo::minCoord( bool work ) const
     Coord minc = transform( cs.hrg.start );
     Coord c = transform( cs.hrg.stop );
     mChkCoord(c);
-    BinID bid( cs.hrg.start.inl, cs.hrg.stop.crl );
+    BinID bid( cs.hrg.start.inl(), cs.hrg.stop.crl() );
     c = transform( bid );
     mChkCoord(c);
-    bid = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );
+    bid = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
     c = transform( bid );
     mChkCoord(c);
     return minc;
@@ -522,10 +522,10 @@ Coord SurveyInfo::maxCoord( bool work ) const
     Coord maxc = transform( cs.hrg.start );
     Coord c = transform( cs.hrg.stop );
     mChkCoord(c);
-    BinID bid( cs.hrg.start.inl, cs.hrg.stop.crl );
+    BinID bid( cs.hrg.start.inl(), cs.hrg.stop.crl() );
     c = transform( bid );
     mChkCoord(c);
-    bid = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );
+    bid = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
     c = transform( bid );
     mChkCoord(c);
     return maxc;
@@ -536,26 +536,26 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
     const CubeSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hrg.start.inl ) intv.start = cs.hrg.start.inl;
-    if ( intv.start > cs.hrg.stop.inl )  intv.start = cs.hrg.stop.inl;
-    if ( intv.stop > cs.hrg.stop.inl )   intv.stop = cs.hrg.stop.inl;
-    if ( intv.stop < cs.hrg.start.inl )  intv.stop = cs.hrg.start.inl;
+    if ( intv.start < cs.hrg.start.inl() ) intv.start = cs.hrg.start.inl();
+    if ( intv.start > cs.hrg.stop.inl() )  intv.start = cs.hrg.stop.inl();
+    if ( intv.stop > cs.hrg.stop.inl() )   intv.stop = cs.hrg.stop.inl();
+    if ( intv.stop < cs.hrg.start.inl() )  intv.stop = cs.hrg.start.inl();
     BinID bid( intv.start, 0 );
-    snap( bid, BinID(1,1) ); intv.start = bid.inl;
-    bid.inl = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl;
+    snap( bid, BinID(1,1) ); intv.start = bid.inl();
+    bid.inl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl();
 }
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
     const CubeSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hrg.start.crl ) intv.start = cs.hrg.start.crl;
-    if ( intv.start > cs.hrg.stop.crl )  intv.start = cs.hrg.stop.crl;
-    if ( intv.stop > cs.hrg.stop.crl )   intv.stop = cs.hrg.stop.crl;
-    if ( intv.stop < cs.hrg.start.crl )  intv.stop = cs.hrg.start.crl;
+    if ( intv.start < cs.hrg.start.crl() ) intv.start = cs.hrg.start.crl();
+    if ( intv.start > cs.hrg.stop.crl() )  intv.start = cs.hrg.stop.crl();
+    if ( intv.stop > cs.hrg.stop.crl() )   intv.stop = cs.hrg.stop.crl();
+    if ( intv.stop < cs.hrg.start.crl() )  intv.stop = cs.hrg.start.crl();
     BinID bid( 0, intv.start );
-    snap( bid, BinID(1,1) ); intv.start = bid.crl;
-    bid.crl = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl;
+    snap( bid, BinID(1,1) ); intv.start = bid.crl();
+    bid.crl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl();
 }
 
 
@@ -657,18 +657,18 @@ BinID SurveyInfo::transform( const Coord& c ) const
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
-    if ( set3binids_[0].inl )
+    if ( set3binids_[0].inl() )
     {
 	b[0] = set3binids_[0]; c[0] = set3coords_[0];
 	b[1] = set3binids_[1]; c[1] = set3coords_[1];
-	c[2] = set3coords_[2]; xline = set3binids_[2].crl;
+	c[2] = set3coords_[2]; xline = set3binids_[2].crl();
     }
     else
     {
 	b[0] = cs_.hrg.start; c[0] = transform( b[0] );
 	b[1] = cs_.hrg.stop; c[1] = transform( b[1] );
-	BinID b2 = cs_.hrg.stop; b2.inl = b[0].inl;
-	c[2] = transform( b2 ); xline = b2.crl;
+	BinID b2 = cs_.hrg.stop; b2.inl() = b[0].inl();
+	c[2] = transform( b2 ); xline = b2.crl();
     }
 }
 
@@ -676,9 +676,9 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 				 int xline )
 {
-    if ( b[1].inl == b[0].inl )
+    if ( b[1].inl() == b[0].inl() )
         return "Need two different in-lines";
-    if ( b[0].crl == xline )
+    if ( b[0].crl() == xline )
         return "No Cross-line range present";
 
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
@@ -687,7 +687,7 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 
     set3binids_[0] = b[0];
     set3binids_[1] = b[1];
-    set3binids_[2] = BinID( b[0].inl, xline );
+    set3binids_[2] = BinID( b[0].inl(), xline );
     set3coords_[0] = c[0];
     set3coords_[1] = c[1];
     set3coords_[2] = c[2];
@@ -699,7 +699,7 @@ void SurveyInfo::gen3Pts()
 {
     set3binids_[0] = cs_.hrg.start;
     set3binids_[1] = cs_.hrg.stop;
-    set3binids_[2] = BinID( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+    set3binids_[2] = BinID( cs_.hrg.start.inl(), cs_.hrg.stop.crl() );
     set3coords_[0] = transform( set3binids_[0] );
     set3coords_[1] = transform( set3binids_[1] );
     set3coords_[2] = transform( set3binids_[2] );
@@ -725,20 +725,20 @@ void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
     const CubeSampling& cs = sampling( false );
     const BinID& stp = cs.hrg.step;
-    if ( stp.inl == 1 && stp.crl == 1 ) return;
-    doSnap( binid.inl, cs.hrg.start.inl, stp.inl, rounding.inl );
-    doSnap( binid.crl, cs.hrg.start.crl, stp.crl, rounding.crl );
+    if ( stp.inl() == 1 && stp.crl() == 1 ) return;
+    doSnap( binid.inl(), cs.hrg.start.inl(), stp.inl(), rounding.inl() );
+    doSnap( binid.crl(), cs.hrg.start.crl(), stp.crl(), rounding.crl() );
 }
 
 
 void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 {
     const BinID& stp = cs_.hrg.step;
-    if ( s.inl < 0 ) s.inl = -s.inl;
-    if ( s.crl < 0 ) s.crl = -s.crl;
-    if ( s.inl < stp.inl ) s.inl = stp.inl;
-    if ( s.crl < stp.crl ) s.crl = stp.crl;
-    if ( s == stp || (stp.inl == 1 && stp.crl == 1) )
+    if ( s.inl() < 0 ) s.inl() = -s.inl();
+    if ( s.crl() < 0 ) s.crl() = -s.crl();
+    if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
+    if ( s.crl() < stp.crl() ) s.crl() = stp.crl();
+    if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
 	return;
 
     int rest;
@@ -752,8 +752,8 @@ void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 	if ( upw ) s.ic += stp.ic; \
     }
 
-    mSnapStep(inl)
-    mSnapStep(crl)
+    mSnapStep(inl())
+    mSnapStep(crl())
 }
 
 
@@ -832,10 +832,10 @@ bool SurveyInfo::write( const char* basedir ) const
     astream.put( sKey::Name(), name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
-    fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
+    fms += cs_.hrg.start.inl(); fms += cs_.hrg.stop.inl(); fms += cs_.hrg.step.inl();
     astream.put( sKeyInlRange(), fms );
     fms = "";
-    fms += cs_.hrg.start.crl; fms += cs_.hrg.stop.crl; fms += cs_.hrg.step.crl;
+    fms += cs_.hrg.start.crl(); fms += cs_.hrg.stop.crl(); fms += cs_.hrg.step.crl();
     astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += cs_.zrg.start; fms += cs_.zrg.stop;
     fms += cs_.zrg.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
@@ -989,7 +989,7 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 {
     const Interval<int> inlrg( inlRange(work) );
     const Interval<int> crlrg( crlRange(work) );
-    return inlrg.includes(bid.inl,false) && crlrg.includes(bid.crl,false);
+    return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
 }
 
 

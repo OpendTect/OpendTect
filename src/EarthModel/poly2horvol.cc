@@ -55,7 +55,7 @@ bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
 
 
 #define mPolyLoc(b) \
-	Geom::Point2D<float>( (float)b.inl, (float)(b.crl) )
+	Geom::Point2D<float>( (float)b.inl(), (float)(b.crl()) )
 
 float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 {
@@ -99,10 +99,10 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
 	    float horz = (float) hor_->getPos( sid, subid ).z;
-	    if ( mIsUdf(horz) && bid.inl!=hs.stop.inl && bid.crl!=hs.stop.crl )
+	    if ( mIsUdf(horz) && bid.inl()!=hs.stop.inl() && bid.crl()!=hs.stop.crl() )
  	    { //The very last edges should exclude.
 		horz = (float) hor_->geometry().sectionGeometry(sid)->computePosition(
-       			Coord(bid.inl,bid.crl) ).z;
+       			Coord(bid.inl(),bid.crl()) ).z;
  	    }
 		    
 	    if ( mIsUdf(horz) )
@@ -126,8 +126,8 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	}
     }
 
-    const float cellarea = SI().inlDistance() * hs.step.inl
-			 * SI().crlDistance() * hs.step.crl;
+    const float cellarea = SI().inlDistance() * hs.step.inl()
+			 * SI().crlDistance() * hs.step.crl();
     const float v = SI().zIsTime() ? vel * .5f : 1; // TWT
     return cellarea * v * totth;
 }

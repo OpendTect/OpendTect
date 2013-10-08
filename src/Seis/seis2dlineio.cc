@@ -107,9 +107,9 @@ bool TwoDSeisTrcTranslator::initRead_()
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl; pinfo.inlrg.stop = cs.hrg.stop.inl;
-    pinfo.inlrg.step = cs.hrg.step.inl; pinfo.crlrg.step = cs.hrg.step.crl;
-    pinfo.crlrg.start = cs.hrg.start.crl; pinfo.crlrg.stop = cs.hrg.stop.crl;
+    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 
@@ -180,9 +180,9 @@ bool TwoDDataSeisTrcTranslator::initRead_()
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl; pinfo.inlrg.stop = cs.hrg.stop.inl;
-    pinfo.inlrg.step = cs.hrg.step.inl; pinfo.crlrg.step = cs.hrg.step.crl;
-    pinfo.crlrg.start = cs.hrg.start.crl; pinfo.crlrg.stop = cs.hrg.stop.crl;
+    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 

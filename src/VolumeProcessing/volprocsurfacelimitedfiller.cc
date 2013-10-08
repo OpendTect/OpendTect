@@ -250,24 +250,24 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    output_->inlsampling_.atIndex( output_->getInlSz()-1 ),
 	    output_->inlsampling_.step );
 
-    if ( !outputinlrg.includes( bid.inl, false ) ||
-         (bid.inl-outputinlrg.start)%outputinlrg.step )
+    if ( !outputinlrg.includes( bid.inl(), false ) ||
+         (bid.inl()-outputinlrg.start)%outputinlrg.step )
 	return false;
 
     const StepInterval<int> outputcrlrg( output_->crlsampling_.start,
 	    output_->crlsampling_.atIndex( output_->getCrlSz()-1 ),
 	    output_->crlsampling_.step );
 
-    if ( !outputcrlrg.includes( bid.crl, false ) ||
-         (bid.crl-outputcrlrg.start)%outputcrlrg.step )
+    if ( !outputcrlrg.includes( bid.crl(), false ) ||
+         (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
 	return false;
 
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
 	inputinlrg = input_->inlsampling_.interval( input_->getInlSz() );
-	if ( !inputinlrg.includes( bid.inl, false ) ||
-	     (bid.inl-inputinlrg.start)%inputinlrg.step )
+	if ( !inputinlrg.includes( bid.inl(), false ) ||
+	     (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
     }
 
@@ -275,8 +275,8 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     if ( inputarr )
     {
 	inputcrlrg = input_->crlsampling_.interval( input_->getCrlSz() );
-	if ( !inputcrlrg.includes( bid.crl, false ) ||
-	     (bid.crl-inputcrlrg.start)%inputcrlrg.step )
+	if ( !inputcrlrg.includes( bid.crl(), false ) ||
+	     (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
     }
 
@@ -322,10 +322,10 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	gradient = valrange_ / depth;
     }
     
-    const int inputinlidx = inputarr ? inputinlrg.nearestIndex( bid.inl ) : -1;
-    const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex( bid.crl ) : -1;
-    const int outputinlidx = outputinlrg.nearestIndex( bid.inl );
-    const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl );
+    const int inputinlidx = inputarr ? inputinlrg.nearestIndex( bid.inl() ) : -1;
+    const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex( bid.crl() ) : -1;
+    const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
+    const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
     const int outputmaxidx = output_->getZSz()-1;
     const bool initok = !mIsUdf(val0) && !mIsUdf(gradient) && !mIsUdf(fixedz);
 

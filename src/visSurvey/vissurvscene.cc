@@ -492,8 +492,8 @@ Coord3 Scene::getMousePos( bool xyt ) const
    
    Coord3 res = xytmousepos_;
    BinID binid = SI().transform( Coord(res.x,res.y) );
-   res.x = binid.inl;
-   res.y = binid.crl;
+   res.x = binid.inl();
+   res.y = binid.crl();
    return res;
 }
 

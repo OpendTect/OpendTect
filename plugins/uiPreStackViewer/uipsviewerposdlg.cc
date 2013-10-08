@@ -80,8 +80,8 @@ bool uiViewer3DPositionDlg::isInl() const
 void uiViewer3DPositionDlg::renewFld( CallBacker* )
 {
     posfld_->setValue( !is3D() ? viewer_.traceNr() :
-	    (isInl() ? viewer_.draggerPosition().crl 
-	     	     : viewer_.draggerPosition().inl) );
+	    (isInl() ? viewer_.draggerPosition().crl() 
+	     	     : viewer_.draggerPosition().inl()) );
 }
 
 
@@ -92,7 +92,7 @@ void uiViewer3DPositionDlg::stepCB( CallBacker* )
 void uiViewer3DPositionDlg::atStart( CallBacker* )
 {
     posfld_->setValue( !is3D() ? viewer_.traceNr() : 
-	(isInl() ? viewer_.getPosition().crl : viewer_.getPosition().inl) ) ;
+	(isInl() ? viewer_.getPosition().crl() : viewer_.getPosition().inl()) ) ;
 
     applybox_->setChecked( true );
     applybut_->display( false );
@@ -147,12 +147,12 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	
 	if ( isInl() )
 	{
-	    if ( newpos.crl==location )
+	    if ( newpos.crl()==location )
 		return true;
 
 	    const StepInterval<int> crlrg = SI().crlRange( true );
 	    if ( crlrg.includes( location, false ) )
-	    	newpos.crl = location;
+	    	newpos.crl() = location;
 	    else
 	    {
 		BufferString msg = "The crossline should be between ";
@@ -165,12 +165,12 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	}
 	else
 	{
-	    if ( newpos.inl==location )
+	    if ( newpos.inl()==location )
 		return true;
 
 	    const StepInterval<int> inlrg = SI().inlRange( true );
 	    if ( inlrg.includes( location, false ) )
-	    	newpos.inl = location;
+	    	newpos.inl() = location;
 	    else
 	    {
 		BufferString msg = "The inline should be between ";
@@ -185,7 +185,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	viewer_.setPosition( newpos );
 
 	const BinID bid = viewer_.getPosition();
-	posfld_->setValue( isInl() ? bid.crl : bid.inl );
+	posfld_->setValue( isInl() ? bid.crl() : bid.inl() );
     }
     else
     {

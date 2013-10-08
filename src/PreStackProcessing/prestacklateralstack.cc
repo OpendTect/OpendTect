@@ -53,7 +53,7 @@ bool LateralStack::reset()
 
 bool LateralStack::setPattern( const BinID& stepout, bool cross )
 {
-    if ( stepout.inl<0 || stepout.crl<0 )
+    if ( stepout.inl()<0 || stepout.crl()<0 )
 	return false;
 
     patternstepout_ = stepout;
@@ -71,10 +71,10 @@ bool LateralStack::setOutputInterest( const BinID& relbid, bool yn )
     if ( !Processor::setOutputInterest( relbid, yn ) )
 	return false;
 
-    const BinID minoutstepout( abs(relbid.inl), abs(relbid.crl) );
+    const BinID minoutstepout( abs(relbid.inl()), abs(relbid.crl()) );
     const BinID mininstepout = minoutstepout+patternstepout_;
-    if ( mininstepout.inl<=inputstepout_.inl &&
-	 mininstepout.crl<=inputstepout_.crl )
+    if ( mininstepout.inl()<=inputstepout_.inl() &&
+	 mininstepout.crl()<=inputstepout_.crl() )
 	return true;
 
     mPSProcAddStepoutStep( inputs_, ObjectSet<Gather>,
@@ -87,9 +87,9 @@ bool LateralStack::setOutputInterest( const BinID& relbid, bool yn )
 
 bool LateralStack::wantsInput( const BinID& relbid ) const
 {
-    for ( int oinl=-outputstepout_.inl; oinl<=outputstepout_.inl; oinl++ )
+    for ( int oinl=-outputstepout_.inl(); oinl<=outputstepout_.inl(); oinl++ )
     {
-	for ( int ocrl=-outputstepout_.crl; ocrl<=outputstepout_.crl; ocrl++ )
+	for ( int ocrl=-outputstepout_.crl(); ocrl<=outputstepout_.crl(); ocrl++ )
 	{
 	    const BinID outputbid( oinl, ocrl );
 	    const int outputoffset = getRelBidOffset(outputbid,outputstepout_);
@@ -97,10 +97,10 @@ bool LateralStack::wantsInput( const BinID& relbid ) const
 	    if ( !outputinterest_[outputoffset] )
 		continue;
 
-	    for ( int pinl=-patternstepout_.inl; pinl<=patternstepout_.inl;
+	    for ( int pinl=-patternstepout_.inl(); pinl<=patternstepout_.inl();
 		  pinl++ )
 	    {
-		for ( int pcrl=-patternstepout_.crl; pcrl<=patternstepout_.crl;
+		for ( int pcrl=-patternstepout_.crl(); pcrl<=patternstepout_.crl();
 		      pcrl++ )
 		{
 		    const BinID patternbid( pinl, pcrl );
@@ -121,14 +121,14 @@ bool LateralStack::wantsInput( const BinID& relbid ) const
 
 bool LateralStack::isInPattern( const BinID& relbid ) const
 {
-    if ( abs(relbid.inl)>patternstepout_.inl ||
-	 abs(relbid.crl)>patternstepout_.crl )
+    if ( abs(relbid.inl())>patternstepout_.inl() ||
+	 abs(relbid.crl())>patternstepout_.crl() )
 	return false;
 
     if ( !iscross_ )
 	return true;
 
-    return !relbid.inl || !relbid.crl;
+    return !relbid.inl() || !relbid.crl();
 }
 
 
@@ -173,9 +173,9 @@ bool LateralStack::doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int ioffs=mCast(int,start); ioffs<=stop; ioffs++, addToNrDone(1) )
     {
-	for ( int oinl=-outputstepout_.inl; oinl<=outputstepout_.inl; oinl++ )
+	for ( int oinl=-outputstepout_.inl(); oinl<=outputstepout_.inl(); oinl++ )
 	{
-	    for ( int ocrl=-outputstepout_.crl; ocrl<=outputstepout_.crl;ocrl++)
+	    for ( int ocrl=-outputstepout_.crl(); ocrl<=outputstepout_.crl();ocrl++)
 	    {
 		processOutput( offsetazi_[ioffs], BinID(oinl,ocrl) );
 	    }
@@ -217,9 +217,9 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 
     TypeSet<int> nrvals( outputgather->size(Gather::zDim()==0), 0 );
 
-    for ( int oinl=-patternstepout_.inl; oinl<=patternstepout_.inl; oinl++ )
+    for ( int oinl=-patternstepout_.inl(); oinl<=patternstepout_.inl(); oinl++ )
     {
-	for ( int ocrl=-patternstepout_.crl; ocrl<=patternstepout_.crl; ocrl++ )
+	for ( int ocrl=-patternstepout_.crl(); ocrl<=patternstepout_.crl(); ocrl++ )
 	{
 	    const BinID patternbid( oinl, ocrl );
 	    if ( !isInPattern( patternbid ) )

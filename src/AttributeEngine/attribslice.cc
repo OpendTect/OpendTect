@@ -46,8 +46,8 @@ SliceSet::~SliceSet()
 { deepUnRef( *this ); }
 
 
-#define mInlIdx ((inl-sampling_.hrg.start.inl) / sampling_.hrg.step.inl)
-#define mCrlIdx ((crl-sampling_.hrg.start.crl) / sampling_.hrg.step.crl)
+#define mInlIdx ((inl-sampling_.hrg.start.inl()) / sampling_.hrg.step.inl())
+#define mCrlIdx ((crl-sampling_.hrg.start.crl()) / sampling_.hrg.step.crl())
 #define mZIdx (sampling_.zrg.nearestIndex(z))
 
 void SliceSet::getIdxs( int inl, int crl, float z,

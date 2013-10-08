@@ -57,10 +57,10 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
 	    const BinID bid1 = SI().transform( crds_[idy] );
-	    const int inldist = abs( bid0.inl-bid1.inl );
+	    const int inldist = abs( bid0.inl()-bid1.inl() );
 	    if ( inldist < maxdist )
 		oninl += maxdist - inldist;
-	    const int crldist = abs( bid0.crl-bid1.crl );
+	    const int crldist = abs( bid0.crl()-bid1.crl() );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
 	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
@@ -259,14 +259,14 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    const BinID bid = SI().transform( stickpositions[idy] );
 	    if ( !idy )
 	    {
-		inlrg.start = inlrg.stop = bid.inl;
-		crlrg.start = crlrg.stop = bid.crl;
+		inlrg.start = inlrg.stop = bid.inl();
+		crlrg.start = crlrg.stop = bid.crl();
 		zrg.start = zrg.stop = stickpositions[idy].z;
 	    }
 	    else
 	    {
-		inlrg.include( bid.inl );
-		crlrg.include( bid.crl );
+		inlrg.include( bid.inl() );
+		crlrg.include( bid.crl() );
 		zrg.include( stickpositions[idy].z );
 	    }
 	}
@@ -366,8 +366,8 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	int nearidx = -1;
 	for ( int idy=0; idy<sz; idy++ )
 	{
-	    if ( (pickedplane[idy]==mOnInline && inlcrl[idy]==bid.inl) ||
-	         (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl) ||
+	    if ( (pickedplane[idy]==mOnInline && inlcrl[idy]==bid.inl()) ||
+	         (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl()) ||
 	         (pickedplane[idy]==mOnZSlice && 
 		  mIsEqual(pos.z,zs[idy],zepsilon)) )
 	    {

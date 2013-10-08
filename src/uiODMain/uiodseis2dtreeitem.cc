@@ -728,13 +728,13 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 
 	CubeSampling maxcs;
 	assign( maxcs.zrg, s2d->getMaxZRange(true)  );
-	maxcs.hrg.start.crl = s2d->getMaxTraceNrRange().start;
-	maxcs.hrg.stop.crl = s2d->getMaxTraceNrRange().stop;
+	maxcs.hrg.start.crl() = s2d->getMaxTraceNrRange().start;
+	maxcs.hrg.stop.crl() = s2d->getMaxTraceNrRange().stop;
 
 	CubeSampling curcs;
 	curcs.zrg.setFrom( s2d->getZRange(true) );
-	curcs.hrg.start.crl = s2d->getTraceNrRange().start;
-	curcs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+	curcs.hrg.start.crl() = s2d->getTraceNrRange().start;
+	curcs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
@@ -752,7 +752,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	    s2d->setZRange( newzrg );
 	}
 
-	const Interval<int> ntrcnrrg( newcs.hrg.start.crl, newcs.hrg.stop.crl );
+	const Interval<int> ntrcnrrg( newcs.hrg.start.crl(), newcs.hrg.stop.crl() );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    doupdate = true;
@@ -812,11 +812,11 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     if ( !s2d ) return;
 
     CubeSampling cs;
-    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-    cs.hrg.step.inl = 1;
-    cs.hrg.start.crl = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.hrg.step.crl = 1;
+    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
+    cs.hrg.step.inl() = 1;
+    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
+    cs.hrg.step.crl() = 1;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
@@ -1134,8 +1134,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     attrserv->setTargetSelSpec( myas );
 
     CubeSampling cs;
-    cs.hrg.start.crl = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
     const FixedString zdomainkey = myas.zDomainKey();
@@ -1167,8 +1167,8 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 		    visserv->getObject(displayID()))
 
     CubeSampling cs;
-    cs.hrg.start.crl = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     LineKey lk( s2d->name() );

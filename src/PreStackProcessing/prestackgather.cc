@@ -97,7 +97,7 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
 bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 		       BufferString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl );
+    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl() );
     if ( !rdr )
     {
 	if ( errmsg )
@@ -284,7 +284,7 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( azimuths_.validIdx(idim0) )
 	par.set( sKey::Azimuth(), getAzimuth(idim0) );
     if ( !is3D() )
-	par.set( sKey::TraceNr(), binid_.crl );
+	par.set( sKey::TraceNr(), binid_.crl() );
     else
 	par.set( sKey::Position(), binid_.getUsrStr() );
 }

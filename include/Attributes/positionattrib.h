@@ -55,7 +55,7 @@ public:
 
     void			prepPriorToBoundsCalc();
     virtual bool		isSingleTrace() const
-				{ return !stepout_.inl && !stepout_.crl; }
+				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
     				~Position();

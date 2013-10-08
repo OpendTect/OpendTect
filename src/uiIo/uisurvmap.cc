@@ -78,9 +78,9 @@ void uiSurveyBoxObject::update()
     const CubeSampling& cs = si.sampling( false );
     Coord mapcnr[4];
     mapcnr[0] = si.transform( cs.hrg.start );
-    mapcnr[1] = si.transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    mapcnr[1] = si.transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
     mapcnr[2] = si.transform( cs.hrg.stop );
-    mapcnr[3] = si.transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
+    mapcnr[3] = si.transform( BinID(cs.hrg.stop.inl(),cs.hrg.start.crl()) );
 
     uiPoint cpt[4];
     for ( int idx=0; idx<vertices_.size(); idx++ )

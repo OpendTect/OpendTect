@@ -263,7 +263,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetBinID( FingerPrint::refposStr(), refpos,
-		 is2d_ ? refposfld_->setValue(refpos.crl)
+		 is2d_ ? refposfld_->setValue(refpos.crl())
 		       : refposfld_->setValue(refpos) )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
@@ -547,7 +547,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	BinID refpos = is2d_ ? get2DRefPos() : refposfld_->getBinID();
 	float refposz = refposzfld_->getfValue() / SI().zDomain().userFactor();
 
-	if ( mIsUdf(refpos.inl) || mIsUdf(refpos.crl) || mIsUdf(refposz) )
+	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
 	    if ( is2d_ )
 		errmsg = "2D lineset is not OK";
@@ -616,7 +616,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	    if ( !S2DPOS().getGeometry(*geometry) )
 		{ delete geometry; return undef; }
 
-	    const int trcnr = refposfld_->getBinID().crl;
+	    const int trcnr = refposfld_->getBinID().crl();
 	    const int trcidx = geometry->indexOf( trcnr );
 	    if ( geometry->positions().validIdx(trcidx) )
 		return SI().transform( geometry->positions()[trcidx].coord_ );

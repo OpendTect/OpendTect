@@ -290,12 +290,12 @@ bool dgbEMSurfaceTranslator::prepRead()
     }
     else
     {
-	sd_.rg.start.inl = reader_->rowInterval().start;
-	sd_.rg.stop.inl = reader_->rowInterval().stop;
-	sd_.rg.step.inl = reader_->rowInterval().step;
-	sd_.rg.start.crl = reader_->colInterval().start;
-	sd_.rg.stop.crl = reader_->colInterval().stop;
-	sd_.rg.step.crl = reader_->colInterval().step;
+	sd_.rg.start.inl() = reader_->rowInterval().start;
+	sd_.rg.stop.inl() = reader_->rowInterval().stop;
+	sd_.rg.step.inl() = reader_->rowInterval().step;
+	sd_.rg.start.crl() = reader_->colInterval().start;
+	sd_.rg.stop.crl() = reader_->colInterval().stop;
+	sd_.rg.step.crl() = reader_->colInterval().step;
 	sd_.zrg.start = reader_->zInterval().start;
 	sd_.zrg.stop = reader_->zInterval().stop;
 
@@ -314,10 +314,10 @@ void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
     if ( sels_.rg.isEmpty() )
 	sels_.rg = sd_.rg;
 
-    rrg.start = sels_.rg.start.inl; rrg.stop = sels_.rg.stop.inl;
-    rrg.step = sels_.rg.step.inl;
-    crg.start = sels_.rg.start.crl; crg.stop = sels_.rg.stop.crl;
-    crg.step = sels_.rg.step.crl;
+    rrg.start = sels_.rg.start.inl(); rrg.stop = sels_.rg.stop.inl();
+    rrg.step = sels_.rg.step.inl();
+    crg.start = sels_.rg.start.crl(); crg.stop = sels_.rg.stop.crl();
+    crg.step = sels_.rg.step.crl();
 }
 
 

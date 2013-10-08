@@ -519,7 +519,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 
     int trackidx = 0; Coord3 precisepos;
     BinIDValue biv; 
-    BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
+    BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl());
 
     dahrg.start -= mLocalEps;
     dahrg.stop  += mLocalEps;
@@ -596,18 +596,18 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     {
 	int nradded = 0;
 
-	newbiv.binid.crl = biv.binid.crl - idist;
+	newbiv.binid.crl() = biv.binid.crl() - idist;
 	for ( int iinl=-idist; iinl<=idist; iinl++ )
-	    mTryAddRow(newbiv.binid.inl = biv.binid.inl + iinl)
-	newbiv.binid.crl = biv.binid.crl + idist;
+	    mTryAddRow(newbiv.binid.inl() = biv.binid.inl() + iinl)
+	newbiv.binid.crl() = biv.binid.crl() + idist;
 	for ( int iinl=-idist; iinl<=idist; iinl++ )
-	    mTryAddRow(newbiv.binid.inl = biv.binid.inl + iinl)
-	newbiv.binid.inl = biv.binid.inl + idist;
+	    mTryAddRow(newbiv.binid.inl() = biv.binid.inl() + iinl)
+	newbiv.binid.inl() = biv.binid.inl() + idist;
 	for ( int icrl=1-idist; icrl<idist; icrl++ )
-	    mTryAddRow(newbiv.binid.crl = biv.binid.crl + icrl)
-	newbiv.binid.inl = biv.binid.inl - idist;
+	    mTryAddRow(newbiv.binid.crl() = biv.binid.crl() + icrl)
+	newbiv.binid.inl() = biv.binid.inl() - idist;
 	for ( int icrl=1-idist; icrl<idist; icrl++ )
-	    mTryAddRow(newbiv.binid.crl = biv.binid.crl + icrl)
+	    mTryAddRow(newbiv.binid.crl() = biv.binid.crl() + icrl)
 
 	if ( nradded == 0 ) break;
     }

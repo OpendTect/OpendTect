@@ -191,15 +191,15 @@ void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step )
 {
     erase();
 
-    if ( start.inl > stop.inl ) Swap( start.inl, stop.inl );
-    if ( start.crl > stop.crl ) Swap( start.crl, stop.crl );
-    if ( step.inl < 0 ) step.inl = -step.inl;
-    if ( step.crl < 0 ) step.crl = -step.crl;
+    if ( start.inl() > stop.inl() ) Swap( start.inl(), stop.inl() );
+    if ( start.crl() > stop.crl() ) Swap( start.crl(), stop.crl() );
+    if ( step.inl() < 0 ) step.inl() = -step.inl();
+    if ( step.crl() < 0 ) step.crl() = -step.crl();
 
-    for ( int iln=start.inl; iln<=stop.inl; iln+=step.inl )
+    for ( int iln=start.inl(); iln<=stop.inl(); iln+=step.inl() )
     {
 	LineData* ld = new LineData( iln );
-	ld->segments_ += LineData::Segment( start.crl, stop.crl, step.crl );
+	ld->segments_ += LineData::Segment( start.crl(), stop.crl(), step.crl() );
 	*this += ld;
     }
 }
@@ -319,16 +319,16 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
 	{
 	    StepInterval<int>& seg = ld->segments_[iseg];
-	    if ( seg.start > hs.stop.crl || seg.stop < hs.start.crl )
+	    if ( seg.start > hs.stop.crl() || seg.stop < hs.start.crl() )
 	    { ld->segments_.removeSingle( iseg ); continue; }
 
-	    seg.step = Math::LCMOf( seg.step, hs.step.crl );
+	    seg.step = Math::LCMOf( seg.step, hs.step.crl() );
 	    if ( !seg.step )
 	    { ld->segments_.removeSingle( iseg ); continue; }
 
-	    if ( seg.start < hs.start.crl )
+	    if ( seg.start < hs.start.crl() )
 	    {
-		int newstart = hs.start.crl;
+		int newstart = hs.start.crl();
 		int diff = newstart - seg.start;
 		if ( diff % seg.step )
 		{
@@ -338,9 +338,9 @@ void PosInfo::CubeData::limitTo( const HorSampling& hsin )
 
 		seg.start = newstart;
 	    }
-	    if ( seg.stop > hs.stop.crl )
+	    if ( seg.stop > hs.stop.crl() )
 	    {
-		int newstop = hs.stop.crl;
+		int newstop = hs.stop.crl();
 		int diff = seg.stop - newstop;
 		if ( diff % seg.step )
 		{
@@ -498,19 +498,19 @@ BinID PosInfo::CubeData::binID( const PosInfo::CubeDataPos& cdp ) const
 PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
 {
     PosInfo::CubeDataPos cdp;
-    cdp.lidx_ = indexOf( bid.inl );
+    cdp.lidx_ = indexOf( bid.inl() );
     if ( cdp.lidx_ < 0 )
 	return cdp;
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
 	const StepInterval<int>& seg( segs[iseg] );
-	if ( segs[iseg].includes(bid.crl,false) )
+	if ( segs[iseg].includes(bid.crl(),false) )
 	{
-	    if ( !seg.step || !((bid.crl-seg.start) % seg.step) )
+	    if ( !seg.step || !((bid.crl()-seg.start) % seg.step) )
 	    {
 		cdp.segnr_ = iseg;
-		cdp.sidx_ = segs[iseg].getIndex( bid.crl );
+		cdp.sidx_ = segs[iseg].getIndex( bid.crl() );
 	    }
 	    break;
 	}
@@ -762,26 +762,26 @@ PosInfo::LineData* PosInfo::CubeDataFiller::findLine( int lnr )
 
 void PosInfo::CubeDataFiller::add( const BinID& bid )
 {
-    if ( !ld_ || ld_->linenr_ != bid.inl )
+    if ( !ld_ || ld_->linenr_ != bid.inl() )
     {
 	if ( ld_ )
 	    finishLine();
-	ld_ = findLine( bid.inl );
+	ld_ = findLine( bid.inl() );
 	if ( !ld_ )
-	    ld_ = new LineData( bid.inl );
+	    ld_ = new LineData( bid.inl() );
 	else
 	{
-	    if ( ld_->segmentOf(bid.crl) >= 0 )
+	    if ( ld_->segmentOf(bid.crl()) >= 0 )
 		return;
 	    mSetUdf(prevcrl); mSetUdf(seg_.step);
 	}
     }
 
     if ( mIsUdf(prevcrl) )
-	prevcrl = seg_.start = seg_.stop = bid.crl;
+	prevcrl = seg_.start = seg_.stop = bid.crl();
     else
     {
-	const int curstep = bid.crl - prevcrl;
+	const int curstep = bid.crl() - prevcrl;
 	if ( curstep != 0 )
 	{
 	    if ( mIsUdf(seg_.step) )
@@ -789,10 +789,10 @@ void PosInfo::CubeDataFiller::add( const BinID& bid )
 	    else if ( seg_.step != curstep )
 	    {
 		ld_->segments_ += seg_;
-		seg_.start = bid.crl;
+		seg_.start = bid.crl();
 		mSetUdf(seg_.step);
 	    }
-	    prevcrl = seg_.stop = bid.crl;
+	    prevcrl = seg_.stop = bid.crl();
 	}
     }
 }

@@ -99,8 +99,8 @@ int EventExporter::nextStep()
 
 	    for ( int pickidx=0; pickidx<event.sz_; pickidx++ )
 	    {
-		mWrite( bid.inl );
-		mWrite( bid.crl );
+		mWrite( bid.inl() );
+		mWrite( bid.crl() );
 		mWrite( fileidx_ );
 		mWrite( inldip );
 		mWrite( crldip );

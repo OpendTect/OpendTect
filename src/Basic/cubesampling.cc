@@ -27,8 +27,8 @@ void HorSampling::init( bool tosi )
     }
     else
     {
-	start.inl = start.crl = stop.inl = stop.crl = mUdf(int);
-	step.inl = step.crl = 1;
+	start.inl() = start.crl() = stop.inl() = stop.crl() = mUdf(int);
+	step.inl() = step.crl() = 1;
 	geomid_ = TraceID::cUndefGeomID();
     }
 }
@@ -48,9 +48,9 @@ BinID HorSampling::atIndex(  od_int64 globalidx ) const
 
 void HorSampling::set2DDef()
 {
-    start.inl = start.crl = 0;
-    stop.inl = stop.crl = mUdf(int);
-    step.inl = step.crl = 1;
+    start.inl() = start.crl() = 0;
+    stop.inl() = stop.crl() = mUdf(int);
+    step.inl() = step.crl() = 1;
 }
 
 
@@ -65,62 +65,62 @@ HorSampling& HorSampling::set( const Interval<int>& inlrg,
 
 void HorSampling::setInlRange( const Interval<int>& inlrg )
 {
-    start.inl = inlrg.start; stop.inl = inlrg.stop;
+    start.inl() = inlrg.start; stop.inl() = inlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	step.inl = inlsrg->step;
+	step.inl() = inlsrg->step;
 }
 
 
 void HorSampling::setCrlRange( const Interval<int>& crlrg )
 {
-    start.crl = crlrg.start; stop.crl = crlrg.stop;
+    start.crl() = crlrg.start; stop.crl() = crlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	step.crl = crlsrg->step;
+	step.crl() = crlsrg->step;
 }
 
 
 StepInterval<int> HorSampling::inlRange() const
-{ return StepInterval<int>( start.inl, stop.inl, step.inl ); }
+{ return StepInterval<int>( start.inl(), stop.inl(), step.inl() ); }
 
 
 StepInterval<int> HorSampling::crlRange() const
-{ return StepInterval<int>( start.crl, stop.crl, step.crl ); }
+{ return StepInterval<int>( start.crl(), stop.crl(), step.crl() ); }
 
 
 bool HorSampling::includes( const HorSampling& hs, bool ignoresteps ) const
 {
     if ( ignoresteps )
-	return hs.start.inl >= start.inl && hs.stop.inl <= stop.inl
-	    && hs.start.crl >= start.crl && hs.stop.crl <= stop.crl;
+	return hs.start.inl() >= start.inl() && hs.stop.inl() <= stop.inl()
+	    && hs.start.crl() >= start.crl() && hs.stop.crl() <= stop.crl();
 
     return includes(hs.start) && includes(hs.stop)
-	&& step.inl && !(hs.step.inl % step.inl)
-	&& step.crl && !(hs.step.crl % step.crl);
+	&& step.inl() && !(hs.step.inl() % step.inl())
+	&& step.crl() && !(hs.step.crl() % step.crl());
 }
 
 
 void HorSampling::includeInl( int inl )
 {
-    if ( mIsUdf(start.inl) || mIsUdf(stop.inl) || nrInl()<1 )
-	start.inl = stop.inl = inl;
+    if ( mIsUdf(start.inl()) || mIsUdf(stop.inl()) || nrInl()<1 )
+	start.inl() = stop.inl() = inl;
     else
     {
-	start.inl = mMIN( start.inl, inl );
-	stop.inl = mMAX( stop.inl, inl );
+	start.inl() = mMIN( start.inl(), inl );
+	stop.inl() = mMAX( stop.inl(), inl );
     }
 }
 
 
 void HorSampling::includeCrl( int crl )
 {
-    if ( mIsUdf(start.crl) || mIsUdf(stop.crl) || nrCrl()<1 )
-	start.crl = stop.crl = crl;
+    if ( mIsUdf(start.crl()) || mIsUdf(stop.crl()) || nrCrl()<1 )
+	start.crl() = stop.crl() = crl;
     else
     {
-	start.crl = mMIN( start.crl, crl );
-	stop.crl = mMAX( stop.crl, crl );
+	start.crl() = mMIN( start.crl(), crl );
+	stop.crl() = mMAX( stop.crl(), crl );
     }
 }
 
@@ -139,14 +139,14 @@ void HorSampling::include( const HorSampling& hs, bool ignoresteps )
     temp.include( hs.stop );
 
 #define mHandleIC( ic ) \
-    const int newstart##ic = temp.start.ic; \
-    const int newstop##ic = temp.stop.ic; \
-    int offset##ic = mIsUdf(start.ic) || mIsUdf(hs.start.ic) ? 0 \
-	: ( start.ic != newstart##ic ? start.ic - newstart##ic \
-				     : hs.start.ic - newstart##ic ); \
-    step.ic = Math::HCFOf( step.ic, hs.step.ic ); \
-    if ( offset##ic ) step.ic = Math::HCFOf( step.ic, offset##ic ); \
-    start.ic = newstart##ic; stop.ic = newstop##ic
+    const int newstart##ic = temp.start.ic(); \
+    const int newstop##ic = temp.stop.ic(); \
+    int offset##ic = mIsUdf(start.ic()) || mIsUdf(hs.start.ic()) ? 0 \
+	: ( start.ic() != newstart##ic ? start.ic() - newstart##ic \
+				     : hs.start.ic() - newstart##ic ); \
+    step.ic() = Math::HCFOf( step.ic(), hs.step.ic() ); \
+    if ( offset##ic ) step.ic() = Math::HCFOf( step.ic(), offset##ic ); \
+    start.ic() = newstart##ic; stop.ic() = newstop##ic
 
     mHandleIC(inl);
     mHandleIC(crl);
@@ -155,22 +155,22 @@ void HorSampling::include( const HorSampling& hs, bool ignoresteps )
 
 void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 {
-    inlrg.start = start.inl; inlrg.stop = stop.inl;
+    inlrg.start = start.inl(); inlrg.stop = stop.inl();
     mDynamicCastGet(StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	inlsrg->step = step.inl;
-    crlrg.start = start.crl; crlrg.stop = stop.crl;
+	inlsrg->step = step.inl();
+    crlrg.start = start.crl(); crlrg.stop = stop.crl();
     mDynamicCastGet(StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	crlsrg->step = step.crl;
+	crlsrg->step = step.crl();
 }
 
 
 bool HorSampling::isDefined() const
 {
-    return !mIsUdf(start.inl) && !mIsUdf(start.crl) &&
-	   !mIsUdf(stop.inl) && !mIsUdf(stop.crl) &&
-	   !mIsUdf(step.inl) && !mIsUdf(step.crl);
+    return !mIsUdf(start.inl()) && !mIsUdf(start.crl()) &&
+	   !mIsUdf(stop.inl()) && !mIsUdf(stop.crl()) &&
+	   !mIsUdf(step.inl()) && !mIsUdf(step.crl());
 }
 
 
@@ -179,19 +179,19 @@ void HorSampling::limitTo( const HorSampling& h )
     HorSampling hs( h ); hs.normalise();
     normalise();
 
-    if ( hs.start.inl > stop.inl || hs.stop.inl < start.inl ||
-	 hs.start.crl > stop.crl || hs.stop.crl < start.crl )
+    if ( hs.start.inl() > stop.inl() || hs.stop.inl() < start.inl() ||
+	 hs.start.crl() > stop.crl() || hs.stop.crl() < start.crl() )
     {
 	init( false );
 	return;
     }
     
-    if ( hs.start.inl > start.inl ) start.inl = hs.start.inl;
-    if ( hs.start.crl > start.crl ) start.crl = hs.start.crl;
-    if ( hs.stop.crl < stop.crl ) stop.crl = hs.stop.crl;
-    if ( hs.stop.inl < stop.inl ) stop.inl = hs.stop.inl;
-    if ( hs.step.inl > step.inl ) step.inl = hs.step.inl;
-    if ( hs.step.crl > step.crl ) step.crl = hs.step.crl;
+    if ( hs.start.inl() > start.inl() ) start.inl() = hs.start.inl();
+    if ( hs.start.crl() > start.crl() ) start.crl() = hs.start.crl();
+    if ( hs.stop.crl() < stop.crl() ) stop.crl() = hs.stop.crl();
+    if ( hs.stop.inl() < stop.inl() ) stop.inl() = hs.stop.inl();
+    if ( hs.step.inl() > step.inl() ) step.inl() = hs.step.inl();
+    if ( hs.step.crl() > step.crl() ) step.crl() = hs.step.crl();
 }
 
 
@@ -203,12 +203,12 @@ void HorSampling::limitToWithUdf( const HorSampling& h )
     HorSampling hs( h ); hs.normalise();
     normalise();
 
-    mAdjustIf(start.inl,<,hs.start.inl);
-    mAdjustIf(start.crl,<,hs.start.crl);
-    mAdjustIf(stop.inl,>,hs.stop.inl);
-    mAdjustIf(stop.crl,>,hs.stop.crl);
-    mAdjustIf(step.inl,<,hs.step.inl);
-    mAdjustIf(step.crl,<,hs.step.crl);
+    mAdjustIf(start.inl(),<,hs.start.inl());
+    mAdjustIf(start.crl(),<,hs.start.crl());
+    mAdjustIf(stop.inl(),>,hs.stop.inl());
+    mAdjustIf(stop.crl(),>,hs.stop.crl());
+    mAdjustIf(step.inl(),<,hs.step.inl());
+    mAdjustIf(step.crl(),<,hs.step.crl());
 }
 
 
@@ -233,21 +233,21 @@ static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
 bool HorSampling::usePar( const IOPar& pars )
 {
     bool inlok = getRange( pars, sKey::InlRange(),
-			   start.inl, stop.inl, step.inl );
+			   start.inl(), stop.inl(), step.inl() );
     if ( !inlok )
     {
-	inlok = pars.get( sKey::FirstInl(), start.inl );
-	inlok = pars.get( sKey::LastInl(), stop.inl ) || inlok;
-	pars.get( sKey::StepInl(), step.inl );
+	inlok = pars.get( sKey::FirstInl(), start.inl() );
+	inlok = pars.get( sKey::LastInl(), stop.inl() ) || inlok;
+	pars.get( sKey::StepInl(), step.inl() );
     }
 
     bool crlok = getRange( pars, sKey::CrlRange(),
-			   start.crl, stop.crl, step.crl );
+			   start.crl(), stop.crl(), step.crl() );
     if ( !crlok )
     {
-	crlok = pars.get( sKey::FirstCrl(), start.crl );
-	crlok = pars.get( sKey::LastCrl(), stop.crl ) || crlok;
-	pars.get( sKey::StepCrl(), step.crl );
+	crlok = pars.get( sKey::FirstCrl(), start.crl() );
+	crlok = pars.get( sKey::LastCrl(), stop.crl() ) || crlok;
+	pars.get( sKey::StepCrl(), step.crl() );
     }
 
     return inlok && crlok;
@@ -256,12 +256,12 @@ bool HorSampling::usePar( const IOPar& pars )
 
 void HorSampling::fillPar( IOPar& pars ) const
 {
-    pars.set( sKey::FirstInl(), start.inl );
-    pars.set( sKey::FirstCrl(), start.crl );
-    pars.set( sKey::LastInl(), stop.inl );
-    pars.set( sKey::LastCrl(), stop.crl );
-    pars.set( sKey::StepInl(), step.inl );
-    pars.set( sKey::StepCrl(), step.crl );
+    pars.set( sKey::FirstInl(), start.inl() );
+    pars.set( sKey::FirstCrl(), start.crl() );
+    pars.set( sKey::LastInl(), stop.inl() );
+    pars.set( sKey::LastCrl(), stop.crl() );
+    pars.set( sKey::StepInl(), step.inl() );
+    pars.set( sKey::StepCrl(), step.crl() );
 }
 
 
@@ -278,32 +278,32 @@ void HorSampling::removeInfo( IOPar& par )
 
 int HorSampling::nrInl() const
 {
-    if ( (mIsUdf(start.inl) && mIsUdf(stop.inl)) )
+    if ( (mIsUdf(start.inl()) && mIsUdf(stop.inl())) )
 	return 0;
     
-    if ( !step.inl )
+    if ( !step.inl() )
 	return 0;
 
-    if ( start.inl==stop.inl )
+    if ( start.inl()==stop.inl() )
 	return 1;
     
-    int ret = inlIdx( stop.inl );
+    int ret = inlIdx( stop.inl() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
 
 
 int HorSampling::nrCrl() const
 {
-    if ( (mIsUdf(start.crl) && mIsUdf(stop.crl)) )
+    if ( (mIsUdf(start.crl()) && mIsUdf(stop.crl())) )
 	return 0;
     
-    if ( !step.crl )
+    if ( !step.crl() )
 	return 0;
 
-    if ( start.crl==stop.crl )
+    if ( start.crl()==stop.crl() )
 	return 1;
     
-    int ret = crlIdx( stop.crl );
+    int ret = crlIdx( stop.crl() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
 
@@ -393,12 +393,12 @@ bool HorSampling::getInterSection( const HorSampling& hs,
     HorSampling hs1( hs );	hs1.normalise();
     HorSampling hs2( *this );	hs2.normalise();
 
-    return intersect( hs1.start.inl, hs1.stop.inl, hs1.step.inl,
-		      hs2.start.inl, hs2.stop.inl, hs2.step.inl,
-		      out.start.inl, out.stop.inl, out.step.inl )
-	&& intersect( hs1.start.crl, hs1.stop.crl, hs1.step.crl,
-		      hs2.start.crl, hs2.stop.crl, hs2.step.crl,
-		      out.start.crl, out.stop.crl, out.step.crl );
+    return intersect( hs1.start.inl(), hs1.stop.inl(), hs1.step.inl(),
+		      hs2.start.inl(), hs2.stop.inl(), hs2.step.inl(),
+		      out.start.inl(), out.stop.inl(), out.step.inl() )
+	&& intersect( hs1.start.crl(), hs1.stop.crl(), hs1.step.crl(),
+		      hs2.start.crl(), hs2.stop.crl(), hs2.step.crl(),
+		      out.start.crl(), out.stop.crl(), out.step.crl() );
 }
 
 
@@ -411,10 +411,10 @@ void HorSampling::snapToSurvey()
 
 void HorSampling::toString( BufferString& str ) const
 {
-    str.add( "Inline range: " ).add( start.inl ).add( " - " ).add( stop.inl )
-       .add( " [" ).add( step.inl ).add( "]\n" );
-    str.add( "Crossline range: " ).add( start.crl ).add( " - " ).add( stop.crl )
-       .add( " [" ).add( step.crl ).add( "]" );
+    str.add( "Inline range: " ).add( start.inl() ).add( " - " ).add( stop.inl() )
+       .add( " [" ).add( step.inl() ).add( "]\n" );
+    str.add( "Crossline range: " ).add( start.crl() ).add( " - " ).add( stop.crl() )
+       .add( " [" ).add( step.crl() ).add( "]" );
 }
 
 
@@ -475,7 +475,7 @@ bool CubeSampling::getIntersection( const CubeSampling& cs,
 
 bool CubeSampling::isFlat() const
 {
-    if ( hrg.start.inl==hrg.stop.inl || hrg.start.crl==hrg.stop.crl )
+    if ( hrg.start.inl()==hrg.stop.inl() || hrg.start.crl()==hrg.stop.crl() )
 	return true;
 
     return fabs( zrg.stop-zrg.start ) < fabs( zrg.step * 0.5 );
@@ -625,12 +625,12 @@ void CubeSampling::removeInfo( IOPar& par )
 
 void HorSampling::normalise()
 {
-    if ( start.inl > stop.inl )	Swap(start.inl,stop.inl);
-    if ( start.crl > stop.crl )	Swap(start.crl,stop.crl);
-    if ( step.inl < 0 )		step.inl = -step.inl;
-    else if ( !step.inl )	step.inl = SI().inlStep();
-    if ( step.crl < 0 )		step.crl = -step.crl;
-    else if ( !step.crl )	step.crl = SI().crlStep();
+    if ( start.inl() > stop.inl() )	Swap(start.inl(),stop.inl());
+    if ( start.crl() > stop.crl() )	Swap(start.crl(),stop.crl());
+    if ( step.inl() < 0 )		step.inl() = -step.inl();
+    else if ( !step.inl() )	step.inl() = SI().inlStep();
+    if ( step.crl() < 0 )		step.crl() = -step.crl();
+    else if ( !step.crl() )	step.crl() = SI().crlStep();
 }
 
 
@@ -650,12 +650,12 @@ bool HorSamplingIterator::next( BinID& bid )
 	return true;
     }
 
-    bid.crl += hrg_.step.crl;
-    if ( bid.crl > hrg_.stop.crl )
+    bid.crl() += hrg_.step.crl();
+    if ( bid.crl() > hrg_.stop.crl() )
     {
-	bid.inl += hrg_.step.inl;
-	bid.crl = hrg_.start.crl;
+	bid.inl() += hrg_.step.inl();
+	bid.crl() = hrg_.start.crl();
     }
 
-    return bid.inl <= hrg_.stop.inl;
+    return bid.inl() <= hrg_.stop.inl();
 }

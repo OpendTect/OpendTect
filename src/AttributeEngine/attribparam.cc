@@ -101,7 +101,7 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
 
 void BinIDParam::toString( BufferString& res, const BinID& bid ) const
 {
-    res.add( bid.inl ).add( "," ).add( bid.crl );
+    res.add( bid.inl() ).add( "," ).add( bid.crl() );
 }
 
 

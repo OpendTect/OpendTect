@@ -80,23 +80,23 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
 {
     const BinID startbid = hs.start;
     const BinID stopbid = hs.stop;
-    const BinID extrabid( startbid.inl, stopbid.crl );
+    const BinID extrabid( startbid.inl(), stopbid.crl() );
 
     const Coord startpos = SI().transform( startbid );
     const Coord stoppos = SI().transform( stopbid );
     const Coord extrapos = SI().transform( extrabid );
 
     Array2DImpl<double> A(3,3);
-    A.set( 0, 0, startbid.inl );
-    A.set( 0, 1, startbid.crl );
+    A.set( 0, 0, startbid.inl() );
+    A.set( 0, 1, startbid.crl() );
     A.set( 0, 2, 1);
 
-    A.set( 1, 0, stopbid.inl );
-    A.set( 1, 1, stopbid.crl );
+    A.set( 1, 0, stopbid.inl() );
+    A.set( 1, 1, stopbid.crl() );
     A.set( 1, 2, 1);
 
-    A.set( 2, 0, extrabid.inl );
-    A.set( 2, 1, extrabid.crl );
+    A.set( 2, 0, extrabid.inl() );
+    A.set( 2, 1, extrabid.crl() );
     A.set( 2, 2, 1);
 
     double b[] = { 0, stoppos.x-startpos.x, extrapos.x-startpos.x };
@@ -116,7 +116,7 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
 	
 	x[0] = 1;
 	x[1] = b[1] / crlwidth;
-	x[2] = -startbid.inl - x[1] * startbid.crl;
+	x[2] = -startbid.inl() - x[1] * startbid.crl();
     }
     else
 	linsolver.apply( b, x );
@@ -133,7 +133,7 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
     {
 	x[0] = b[1] / inlwidth;
 	x[1] = 1;
-	x[2] = -x[0] * startbid.inl - startbid.crl;
+	x[2] = -x[0] * startbid.inl() - startbid.crl();
     }
     else
     	linsolver.apply( b, x );

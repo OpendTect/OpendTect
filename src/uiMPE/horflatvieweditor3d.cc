@@ -576,15 +576,15 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
     {
 	if ( curcs_.nrInl() == 1 )
 	{
-	    bid.inl = curcs_.hrg.start.inl;
-	    bid.crl = 
+	    bid.inl() = curcs_.hrg.start.inl();
+	    bid.crl() = 
 		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
 	}
 	else if ( curcs_.nrCrl() == 1 )
 	{
-	    bid.inl = 
+	    bid.inl() = 
 		mNINT32(getAuxData(selectedids[ids])->poly_[selectedidxs[ids]].x);
-	    bid.crl = curcs_.hrg.start.crl;
+	    bid.crl() = curcs_.hrg.start.crl();
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );

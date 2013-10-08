@@ -113,9 +113,9 @@ bool uiStepOutSel::dir2Active() const
 void uiStepOutSel::setBinID( const BinID& bid )
 {
     if ( dir2Active() )
-	{ setVal(true,bid.inl); setVal(false,bid.crl); }
+	{ setVal(true,bid.inl()); setVal(false,bid.crl()); }
     else
-	setVal(true,bid.crl);
+	setVal(true,bid.crl());
 }
 
 

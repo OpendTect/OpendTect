@@ -70,7 +70,7 @@ ________________________________________________________________________
     mDynamicCastGet(Attrib::BinIDParam*,param,desc.getValParam(str)) \
     const BinID oldval = param->getValue(); \
     if ( chtr_.set(oldval,newval) ) \
-    { param->setValue( newval.inl, 0 ); param->setValue( newval.crl, 1 ); } \
+    { param->setValue( newval.inl(), 0 ); param->setValue( newval.crl(), 1 ); } \
 }
 
 
@@ -157,7 +157,7 @@ if ( binidparam##var ) \
 { \
     BinID var; \
     var = binidparam##var->getValue(); \
-    if ( mIsUdf(var.inl) || mIsUdf(var.crl) )\
+    if ( mIsUdf(var.inl()) || mIsUdf(var.crl()) )\
 	var = binidparam##var->getDefaultBinIDValue();\
     setfunc; \
 }

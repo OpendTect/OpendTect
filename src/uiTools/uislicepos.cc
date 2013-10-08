@@ -121,9 +121,9 @@ void uiSlicePos::slicePosChanged( Orientation orientation,
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
     if ( orientation == uiSlicePos::Inline )
-	curcs_.hrg.start.inl = curcs_.hrg.stop.inl = posbox->getValue();
+	curcs_.hrg.start.inl() = curcs_.hrg.stop.inl() = posbox->getValue();
     else if ( orientation == uiSlicePos::Crossline )
-	curcs_.hrg.start.crl = curcs_.hrg.stop.crl = posbox->getValue();
+	curcs_.hrg.start.crl() = curcs_.hrg.stop.crl() = posbox->getValue();
     else
 	curcs_.zrg.start = curcs_.zrg.stop = (float)posbox->getValue()/zfactor_;
 
@@ -151,17 +151,17 @@ void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
 
     if ( orientation == uiSlicePos::Inline )
     {
-	posbox->setInterval( survcs.hrg.start.inl, survcs.hrg.stop.inl );
-	stepbox->setInterval( survcs.hrg.step.inl,
-			      survcs.hrg.stop.inl-survcs.hrg.start.inl,
-			      survcs.hrg.step.inl );
+	posbox->setInterval( survcs.hrg.start.inl(), survcs.hrg.stop.inl() );
+	stepbox->setInterval( survcs.hrg.step.inl(),
+			      survcs.hrg.stop.inl()-survcs.hrg.start.inl(),
+			      survcs.hrg.step.inl() );
     }
     else if ( orientation == uiSlicePos::Crossline )
     {
-	posbox->setInterval( survcs.hrg.start.crl, survcs.hrg.stop.crl );
-	stepbox->setInterval( survcs.hrg.step.crl,
-			      survcs.hrg.stop.crl-survcs.hrg.start.crl,
-			      survcs.hrg.step.crl );
+	posbox->setInterval( survcs.hrg.start.crl(), survcs.hrg.stop.crl() );
+	stepbox->setInterval( survcs.hrg.step.crl(),
+			      survcs.hrg.stop.crl()-survcs.hrg.start.crl(),
+			      survcs.hrg.step.crl() );
     }
     else
     {
@@ -180,9 +180,9 @@ void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
     NotifyStopper posstop( posbox->valueChanging );
 
     if ( orientation == uiSlicePos::Inline )
-	posbox->setValue( cs.hrg.start.inl );
+	posbox->setValue( cs.hrg.start.inl() );
     else if ( orientation == uiSlicePos::Crossline )
-	posbox->setValue( cs.hrg.start.crl );
+	posbox->setValue( cs.hrg.start.crl() );
     else
 	posbox->setValue( cs.zrg.start*zfactor_ );
 }

@@ -41,8 +41,8 @@ BinID SeisTrcReaderSet::getBinID( int irdr, const SeisTrcInfo& ti ) const
     BinID bid( ti.binid );
     if ( is2D() )
     {
-	bid.inl = (*this)[irdr]->curLineIdx();
-	bid.crl = ti.nr;
+	bid.inl() = (*this)[irdr]->curLineIdx();
+	bid.crl() = ti.nr;
     }
     return bid;
 }

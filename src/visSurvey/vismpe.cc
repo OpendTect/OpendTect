@@ -210,33 +210,33 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 
     if ( !dim )
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap( center.x );
-	planebox.hrg.stop.inl = planebox.hrg.start.inl;
+	planebox.hrg.start.inl() = SI().inlRange(true).snap( center.x );
+	planebox.hrg.stop.inl() = planebox.hrg.start.inl();
 
-	planebox.hrg.start.crl = SI().crlRange(true).snap( sy.start );
-	planebox.hrg.stop.crl =  SI().crlRange(true).snap( sy.stop );
+	planebox.hrg.start.crl() = SI().crlRange(true).snap( sy.start );
+	planebox.hrg.stop.crl() =  SI().crlRange(true).snap( sy.stop );
 
 	planebox.zrg.start = SI().zRange(true).snap( sz.start );
 	planebox.zrg.stop = SI().zRange(true).snap( sz.stop );
     }
     else if ( dim==1 )
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap( sx.start );
-	planebox.hrg.stop.inl =  SI().inlRange(true).snap( sx.stop );
+	planebox.hrg.start.inl() = SI().inlRange(true).snap( sx.start );
+	planebox.hrg.stop.inl() =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.stop.crl = SI().crlRange(true).snap( center.y );
-	planebox.hrg.start.crl = planebox.hrg.stop.crl;
+	planebox.hrg.stop.crl() = SI().crlRange(true).snap( center.y );
+	planebox.hrg.start.crl() = planebox.hrg.stop.crl();
 
 	planebox.zrg.start = SI().zRange(true).snap( sz.start );
 	planebox.zrg.stop = SI().zRange(true).snap( sz.stop );
     }
     else 
     {
-	planebox.hrg.start.inl = SI().inlRange(true).snap( sx.start );
-	planebox.hrg.stop.inl =  SI().inlRange(true).snap( sx.stop );
+	planebox.hrg.start.inl() = SI().inlRange(true).snap( sx.start );
+	planebox.hrg.stop.inl() =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.start.crl = SI().crlRange(true).snap( sy.start );
-	planebox.hrg.stop.crl =  SI().crlRange(true).snap( sy.stop );
+	planebox.hrg.start.crl() = SI().crlRange(true).snap( sy.start );
+	planebox.hrg.stop.crl() =  SI().crlRange(true).snap( sy.stop );
 
 	planebox.zrg.stop = SI().zRange(true).snap( center.z );
 	planebox.zrg.start = planebox.zrg.stop;
@@ -406,8 +406,8 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
 
-    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
-    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
+    Interval<int> inlrg( cs.hrg.start.inl(), cs.hrg.stop.inl() );
+    Interval<int> crlrg( cs.hrg.start.crl(), cs.hrg.stop.crl() );
     Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
     SI().checkInlRange( inlrg, true );
     SI().checkCrlRange( crlrg, true );
@@ -421,17 +421,17 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
     }
     else
     {
-	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
-	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
+	cs.hrg.start.inl() = inlrg.start; cs.hrg.stop.inl() = inlrg.stop;
+	cs.hrg.start.crl() = crlrg.start; cs.hrg.stop.crl() = crlrg.stop;
 	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
     }
 
-    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
-			   cs.hrg.stop.crl - cs.hrg.start.crl,
+    const Coord3 newwidth( cs.hrg.stop.inl() - cs.hrg.start.inl(),
+			   cs.hrg.stop.crl() - cs.hrg.start.crl(),
 			   cs.zrg.stop - cs.zrg.start );
     boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
-			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
+    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl() + cs.hrg.start.inl()),
+			    0.5*(cs.hrg.stop.crl() + cs.hrg.start.crl()),
 			    0.5*(cs.zrg.stop + cs.zrg.start) );
     boxdragger_->setCenter( newcenter );
 
@@ -625,23 +625,23 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
     CubeSampling cube = engine_.activeVolume();
-    Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
-		     cube.hrg.stop.crl-cube.hrg.start.crl,
+    Coord3 newwidth( cube.hrg.stop.inl()-cube.hrg.start.inl(),
+		     cube.hrg.stop.crl()-cube.hrg.start.crl(),
 		     cube.zrg.stop-cube.zrg.start );
 
     // Workaround for deadlock in COIN's polar_decomp() or Math::Sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
     if ( cube.hrg.nrInl()==1 )
-	newwidth.x = 0.1 * cube.hrg.step.inl;
+	newwidth.x = 0.1 * cube.hrg.step.inl();
     if ( cube.hrg.nrCrl()==1 )
-	newwidth.y = 0.1 * cube.hrg.step.crl;
+	newwidth.y = 0.1 * cube.hrg.step.crl();
 	if ( cube.zrg.nrSteps()==0 ) 
 	newwidth.z = 0.1 * cube.zrg.step;
 
     boxdragger_->setWidth( newwidth );
 
-    const Coord3 newcenter( 0.5*(cube.hrg.stop.inl+cube.hrg.start.inl),
-			    0.5*(cube.hrg.stop.crl+cube.hrg.start.crl),
+    const Coord3 newcenter( 0.5*(cube.hrg.stop.inl()+cube.hrg.start.inl()),
+			    0.5*(cube.hrg.stop.crl()+cube.hrg.start.crl()),
 			    cube.zrg.center());
 
     boxdragger_->setCenter( newcenter );
@@ -657,10 +657,10 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 void MPEDisplay::updateBoxSpace()
 {
     const HorSampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( mCast(float,hs.start.inl), 
-					mCast(float,hs.stop.inl) );
-    const Interval<float> survcrlrg( mCast(float,hs.start.crl), 
-					mCast(float,hs.stop.crl) );
+    const Interval<float> survinlrg( mCast(float,hs.start.inl()), 
+					mCast(float,hs.stop.inl()) );
+    const Interval<float> survcrlrg( mCast(float,hs.start.crl()), 
+					mCast(float,hs.stop.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
 
@@ -681,16 +681,16 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     BinID inlcrldist( 0, 0 );
     float zdiff = 0;
 
-    inlcrldist.inl =
-	binid.inl>=cs.hrg.start.inl && binid.inl<=cs.hrg.stop.inl
+    inlcrldist.inl() =
+	binid.inl()>=cs.hrg.start.inl() && binid.inl()<=cs.hrg.stop.inl()
 	     ? 0
-	     : mMIN( abs(binid.inl-cs.hrg.start.inl),
-		     abs( binid.inl-cs.hrg.stop.inl) );
-    inlcrldist.crl =
-        binid.crl>=cs.hrg.start.crl && binid.crl<=cs.hrg.stop.crl
+	     : mMIN( abs(binid.inl()-cs.hrg.start.inl()),
+		     abs( binid.inl()-cs.hrg.stop.inl()) );
+    inlcrldist.crl() =
+        binid.crl()>=cs.hrg.start.crl() && binid.crl()<=cs.hrg.stop.crl()
              ? 0
-	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
-		     abs( binid.crl-cs.hrg.stop.crl) );
+	     : mMIN( abs(binid.crl()-cs.hrg.start.crl()),
+		     abs( binid.crl()-cs.hrg.stop.crl()) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     zdiff = (float) ( cs.zrg.includes(xytpos.z,false)
 	     ? 0
@@ -699,8 +699,8 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
-    float inldiff = inlcrldist.inl * inldist;
-    float crldiff = inlcrldist.crl * crldist;
+    float inldiff = inlcrldist.inl() * inldist;
+    float crldiff = inlcrldist.crl() * crldist;
 
     return Math::Sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
 }
@@ -809,10 +809,10 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 
 void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( mCast(float,cs.hrg.start.inl), 
-				    mCast(float,cs.hrg.stop.inl) );
-    const Interval<float> yintv( mCast(float,cs.hrg.start.crl), 
-				    mCast(float,cs.hrg.stop.crl) );
+    const Interval<float> xintv( mCast(float,cs.hrg.start.inl()), 
+				    mCast(float,cs.hrg.stop.inl()) );
+    const Interval<float> yintv( mCast(float,cs.hrg.start.crl()), 
+				    mCast(float,cs.hrg.stop.crl()) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
     voltrans_->setTranslation(
 	    Coord3(xintv.center(),yintv.center(),zintv.center()) );
@@ -945,10 +945,10 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 
 	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
 	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
-	const Interval<int> dispinlrg( inlrg.getIndex(displaycs.hrg.start.inl),
-				       inlrg.getIndex(displaycs.hrg.stop.inl) );
-	const Interval<int> dispcrlrg( crlrg.getIndex(displaycs.hrg.start.crl),
-				       crlrg.getIndex(displaycs.hrg.stop.crl) );
+	const Interval<int> dispinlrg( inlrg.getIndex(displaycs.hrg.start.inl()),
+				       inlrg.getIndex(displaycs.hrg.stop.inl()) );
+	const Interval<int> dispcrlrg( crlrg.getIndex(displaycs.hrg.start.crl()),
+				       crlrg.getIndex(displaycs.hrg.stop.crl()) );
 
 	const StepInterval<float>& zrg( displaycs.zrg );
 	const Interval<int> dispzrg( attrcs.zrg.nearestIndex( zrg.start ),
@@ -1252,9 +1252,9 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
 	const int dim = slice->getDragger()->getDim();
-	if ( dim==2 && planebox.hrg.start.inl==engineplane.hrg.start.inl )
+	if ( dim==2 && planebox.hrg.start.inl()==engineplane.hrg.start.inl() )
 	    return;
-	if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
+	if ( dim==1 && planebox.hrg.start.crl()==engineplane.hrg.start.crl() )
 	    return;
 	if ( dim==0 && mIsEqual( planebox.zrg.start, engineplane.zrg.start, 
 				 0.1*SI().zStep() ) )
@@ -1262,20 +1262,20 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
 	if ( dim==2 )
 	{
-	    const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
-	    int& start = planebox.hrg.start.inl;
-	    int& stop =  planebox.hrg.stop.inl;
+	    const bool inc = planebox.hrg.start.inl()>engineplane.hrg.start.inl();
+	    int& start = planebox.hrg.start.inl();
+	    int& stop =  planebox.hrg.stop.inl();
 	    const int step = SI().inlStep();
-	    start = stop = engineplane.hrg.start.inl + ( inc ? step : -step );
+	    start = stop = engineplane.hrg.start.inl() + ( inc ? step : -step );
 	    newplane.setMotion( inc ? step : -step, 0, 0 );
 	}
 	else if ( dim==1 )
 	{
-	    const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
-	    int& start = planebox.hrg.start.crl;
-	    int& stop =  planebox.hrg.stop.crl;
+	    const bool inc = planebox.hrg.start.crl()>engineplane.hrg.start.crl();
+	    int& start = planebox.hrg.start.crl();
+	    int& stop =  planebox.hrg.stop.crl();
 	    const int step = SI().crlStep();
-	    start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
+	    start = stop = engineplane.hrg.start.crl() + ( inc ? step : -step );
 	    newplane.setMotion( 0, inc ? step : -step, 0 );
 	}
 	else if ( dim==0 )

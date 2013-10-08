@@ -121,7 +121,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	if ( astrm.hasKeyword(sKey::Position()) )
 	{
 	    bid.parseUsrStr( astrm.value() );
-	    if ( !bid.inl || !bid.crl )
+	    if ( !bid.inl() || !bid.crl() )
 		rejectpt = true;
 
 	    astrm.next();

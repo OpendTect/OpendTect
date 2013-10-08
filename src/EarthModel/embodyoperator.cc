@@ -759,14 +759,14 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	
 	if ( !idx )
 	{
-	    inlrg.start = inlrg.stop = bid.inl;
-	    crlrg.start = crlrg.stop = bid.crl;
+	    inlrg.start = inlrg.stop = bid.inl();
+	    crlrg.start = crlrg.stop = bid.crl();
 	    zrg.start = zrg.stop = (float) bodypts[idx].z;
 	}
 	else
 	{
-	    inlrg.include( bid.inl );
-	    crlrg.include( bid.crl );
+	    inlrg.include( bid.inl() );
+	    crlrg.include( bid.crl() );
 	    zrg.include( (float) bodypts[idx].z );
 	}
     }

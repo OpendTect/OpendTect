@@ -98,8 +98,8 @@ int DataCubesWriter::nextStep()
 
     trc_->info().binid = currentpos_;
     trc_->info().coord = SI().transform( currentpos_ );
-    const int inlidx = cube_.inlsampling_.nearestIndex( currentpos_.inl );
-    const int crlidx = cube_.crlsampling_.nearestIndex( currentpos_.crl );
+    const int inlidx = cube_.inlsampling_.nearestIndex( currentpos_.inl() );
+    const int crlidx = cube_.crlsampling_.nearestIndex( currentpos_.crl() );
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {

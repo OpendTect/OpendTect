@@ -223,8 +223,8 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( geomtype==Seis::LinePS )
     {
-	curbid.crl = cdprange.start;
-	step.crl = 1;
+	curbid.crl() = cdprange.start;
+	step.crl() = 1;
     }
     else
     {
@@ -235,8 +235,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    return false;
 	}
 
-	step.inl = SI().inlRange(true).step;
-	step.crl = SI().crlRange(true).step;
+	step.inl() = SI().inlRange(true).step;
+	step.crl() = SI().crlRange(true).step;
     }
 
     mSetCommState(Working);
@@ -277,15 +277,15 @@ bool BatchProgram::go( od_ostream& strm )
 
 	int nrfound = 0;
 	PreStack::Gather* sparegather = 0;
-	for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
+	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
 	{
-	    for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl;relbid.crl++)
+	    for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();relbid.crl()++)
 	    {
 		if ( !procman->wantsInput( relbid ) )
 		    continue;
 
-		const BinID inputbid( curbid.inl+relbid.inl*step.inl,
-				      curbid.crl+relbid.crl*step.crl );
+		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
+				      curbid.crl()+relbid.crl()*step.crl() );
 
 		PreStack::Gather* gather = 0;
 		const int bufidx = bids.indexOf( inputbid );
@@ -346,9 +346,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().nr = curbid.crl;
+		    trc.info().nr = curbid.crl();
 		    PosInfo::Line2DPos linepos;
-		    if ( reader2d->posData().getPos( curbid.crl, linepos ) )
+		    if ( reader2d->posData().getPos( curbid.crl(), linepos ) )
 			trc.info().coord = linepos.coord_;
 		}
 		else
@@ -381,16 +381,16 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( geomtype==Seis::VolPS )
 	{
-	    const int prevline = curbid.inl;
+	    const int prevline = curbid.inl();
 	    if ( !hiter.next(curbid) )
 		break;
 
-	    if ( prevline!=curbid.inl )
+	    if ( prevline!=curbid.inl() )
 	    {
-		const int obsoleteline = curbid.inl - (stepout.inl+1)*step.inl;
+		const int obsoleteline = curbid.inl() - (stepout.inl()+1)*step.inl();
 		for ( int idx=bids.size()-1; idx>=0; idx-- )
 		{
-		    if ( bids[idx].inl<=obsoleteline )
+		    if ( bids[idx].inl()<=obsoleteline )
 		    {
 			bids.removeSingle( idx ); 
 			DPM( DataPackMgr::FlatID() ).release(
@@ -401,13 +401,13 @@ bool BatchProgram::go( od_ostream& strm )
 	}
 	else
 	{
-	    curbid.crl += cdprange.step;
-	    if ( !cdprange.includes( curbid.crl, true ) )
+	    curbid.crl() += cdprange.step;
+	    if ( !cdprange.includes( curbid.crl(), true ) )
 		break;
-	    const int obsoletetrace = curbid.crl -(stepout.crl+1)*cdprange.step;
+	    const int obsoletetrace = curbid.crl() -(stepout.crl()+1)*cdprange.step;
 	    for ( int idx=bids.size()-1; idx>=0; idx-- )
 	    {
-		if ( bids[idx].crl<=obsoletetrace )
+		if ( bids[idx].crl()<=obsoletetrace )
 		{
 		    bids.removeSingle( idx );
 		    DPM( DataPackMgr::FlatID() ).release(

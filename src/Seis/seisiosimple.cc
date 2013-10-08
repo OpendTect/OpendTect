@@ -125,12 +125,12 @@ void SeisIOSimple::Data::clear( bool survchg )
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;
-    inldef_.start = SI().sampling(false).hrg.start.inl;
-    crldef_.start = SI().sampling(false).hrg.start.crl;
+    inldef_.start = SI().sampling(false).hrg.start.inl();
+    crldef_.start = SI().sampling(false).hrg.start.crl();
     inldef_.step = SI().inlStep();
     crldef_.step = SI().crlStep();
-    nrcrlperinl_ = (SI().sampling(false).hrg.stop.crl
-		 - SI().sampling(false).hrg.start.crl)
+    nrcrlperinl_ = (SI().sampling(false).hrg.stop.crl()
+		 - SI().sampling(false).hrg.start.crl())
 		    / crldef_.step + 1;
     nroffsperpos_ = 10; // cannot think of a good default ...
     startpos_ = SI().transform( BinID(inldef_.start,crldef_.start) );
@@ -336,8 +336,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    const int nrinl = nrposdone / data_.nrcrlperinl_;
 	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
-	    bid.inl = data_.inldef_.start + nrinl * data_.inldef_.step;
-	    bid.crl = data_.crldef_.start + nrcrl * data_.crldef_.step;
+	    bid.inl() = data_.inldef_.start + nrinl * data_.inldef_.step;
+	    bid.crl() = data_.crldef_.start + nrcrl * data_.crldef_.step;
 	    coord = SI().transform( bid );
 	}
     }
@@ -350,7 +350,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	}
 	else
 	{
-	    binstrm.get( bid.inl ).get( bid.crl );
+	    binstrm.get( bid.inl() ).get( bid.crl() );
 	    coord = SI().transform( bid );
 	}
 
@@ -493,7 +493,7 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    BinID bid = trc_.info().binid;
 	    mPIEPAdj(BinID,bid,false);
-	    binstrm.add( bid.inl ).add( bid.crl );
+	    binstrm.add( bid.inl() ).add( bid.crl() );
 	}
     }
 

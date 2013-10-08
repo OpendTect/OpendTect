@@ -58,8 +58,8 @@ float RowCol::angleTo(const RowCol& rc) const
 
 
 RowCol::RowCol( const BinID& bid )
-    : row( bid.inl )
-    , col( bid.crl )
+    : row( bid.inl() )
+    , col( bid.crl() )
 {}
 
 

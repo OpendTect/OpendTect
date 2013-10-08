@@ -239,8 +239,8 @@ bool SEGY::ReSorter::getCurPos( BinID& bid )
 				= dDef().lineData().positions();
 	if ( nrdone_ >= posns.size() )
 	    return false;
-	bid.inl = 1;
-	bid.crl = posns[(int)nrdone_].nr_;
+	bid.inl() = 1;
+	bid.crl() = posns[(int)nrdone_].nr_;
     }
     else
     {
@@ -275,10 +275,10 @@ bool SEGY::ReSorter::createOutput( const BinID& bid )
 	    curinlrg_ = setup_.getInlRg( -1, dDef().cubeData() );
     }
 
-    if ( nrdone_ < 1 || bid.inl > curinlrg_.stop )
+    if ( nrdone_ < 1 || bid.inl() > curinlrg_.stop )
     {
-	if ( bid.inl > curinlrg_.stop )
-	    curinlrg_ = setup_.getInlRg( bid.inl, dDef().cubeData() );
+	if ( bid.inl() > curinlrg_.stop )
+	    curinlrg_ = setup_.getInlRg( bid.inl(), dDef().cubeData() );
 	if ( !openOutputFile() )
 	    return false;
     }
@@ -332,9 +332,9 @@ bool SEGY::ReSorter::getNext( const BinID& bid, int& previdx,
 	else
 	{
 	    const BinID& pos( binids_[newidx] );
-	    if ( pos.crl == bid.crl )
+	    if ( pos.crl() == bid.crl() )
 	    {
-		if ( is2d || pos.inl == bid.inl )
+		if ( is2d || pos.inl() == bid.inl() )
 		    { previdx = newidx; return true; }
 	    }
 	}

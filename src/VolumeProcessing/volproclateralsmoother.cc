@@ -336,10 +336,10 @@ LateralSmoother::~LateralSmoother()
 HorSampling LateralSmoother::getInputHRg( const HorSampling& hrg ) const
 {
     HorSampling res = hrg;
-    res.start.inl = hrg.start.inl - res.step.inl * pars_.stepout_.row;
-    res.start.crl = hrg.start.crl - res.step.crl * pars_.stepout_.col;
-    res.stop.inl = hrg.stop.inl + res.step.inl * pars_.stepout_.row;
-    res.stop.crl = hrg.stop.crl + res.step.crl * pars_.stepout_.col;
+    res.start.inl() = hrg.start.inl() - res.step.inl() * pars_.stepout_.row;
+    res.start.crl() = hrg.start.crl() - res.step.crl() * pars_.stepout_.col;
+    res.stop.inl() = hrg.stop.inl() + res.step.inl() * pars_.stepout_.row;
+    res.stop.crl() = hrg.stop.crl() + res.step.crl() * pars_.stepout_.col;
     return res;
 }
 
@@ -418,11 +418,11 @@ Task* LateralSmoother::createTask()
 
     pars_.filludf_ = true;
 
-    Interval<int> inlsamples( input_->inlsampling_.nearestIndex(hrg_.start.inl),
-	    		      input_->inlsampling_.nearestIndex(hrg_.stop.inl));
+    Interval<int> inlsamples( input_->inlsampling_.nearestIndex(hrg_.start.inl()),
+	    		      input_->inlsampling_.nearestIndex(hrg_.stop.inl()));
 
-    Interval<int> crlsamples( input_->crlsampling_.nearestIndex(hrg_.start.crl),
-	    		      input_->crlsampling_.nearestIndex(hrg_.stop.crl));
+    Interval<int> crlsamples( input_->crlsampling_.nearestIndex(hrg_.start.crl()),
+	    		      input_->crlsampling_.nearestIndex(hrg_.stop.crl()));
 
 
     return new LateralSmootherTask( input_->getCube( 0 ),

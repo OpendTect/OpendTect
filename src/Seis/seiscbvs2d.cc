@@ -160,7 +160,7 @@ SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().binid.crl;
+    const int tnr = trc->info().binid.crl();
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
@@ -252,7 +252,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )
     {
-	PosInfo::Line2DPos p( binids[idx].crl );
+	PosInfo::Line2DPos p( binids[idx].crl() );
 	p.coord_ = coords[idx];
 	geom.add( p );
     }
@@ -341,7 +341,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
 	, preseldt_(DataCharacteristics::Auto)
 {
     tr_->set2D( true );
-    bid_.inl = CBVSIOMgr::getFileNr( fnm );
+    bid_.inl() = CBVSIOMgr::getFileNr( fnm );
     DataCharacteristics::parseEnumUserType(
 	    iop.find(sKey::DataStorage()), preseldt_ );
 }
@@ -356,7 +356,7 @@ SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl = info.nr;
+    bid_.crl() = info.nr;
     const BinID oldbid = info.binid;
     info.binid = bid_;
 

@@ -175,13 +175,13 @@ bool CBVSSeisTrcTranslator::initRead_()
     pinfo.stdinfo = info.stdtext_;
     pinfo.nr = info.seqnr_;
     pinfo.fullyrectandreg = info.geom_.fullyrectandreg;
-    pinfo.inlrg.start = info.geom_.start.inl;
-    pinfo.inlrg.stop = info.geom_.stop.inl;
-    pinfo.inlrg.step = abs(info.geom_.step.inl);
+    pinfo.inlrg.start = info.geom_.start.inl();
+    pinfo.inlrg.stop = info.geom_.stop.inl();
+    pinfo.inlrg.step = abs(info.geom_.step.inl());
     pinfo.inlrg.sort();
-    pinfo.crlrg.start = info.geom_.start.crl;
-    pinfo.crlrg.stop = info.geom_.stop.crl;
-    pinfo.crlrg.step = abs(info.geom_.step.crl);
+    pinfo.crlrg.start = info.geom_.start.crl();
+    pinfo.crlrg.stop = info.geom_.stop.crl();
+    pinfo.crlrg.step = abs(info.geom_.step.crl());
     if ( !pinfo.fullyrectandreg )
 	pinfo.cubedata = &info.geom_.cubedata;
 
@@ -215,8 +215,8 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	CubeSampling cs;
 	Interval<int> inlrg = seldata->inlRange();
 	Interval<int> crlrg = seldata->crlRange();
-	cs.hrg.start.inl = inlrg.start; cs.hrg.start.crl = crlrg.start;
-	cs.hrg.stop.inl = inlrg.stop; cs.hrg.stop.crl = crlrg.stop;
+	cs.hrg.start.inl() = inlrg.start; cs.hrg.start.crl() = crlrg.start;
+	cs.hrg.stop.inl() = inlrg.stop; cs.hrg.stop.crl() = crlrg.stop;
 	cs.zrg.start = outsd.start; cs.zrg.step = outsd.step;
 	cs.zrg.stop = outsd.start + (outnrsamples-1) * outsd.step;
 
@@ -253,7 +253,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     {
 	// For 2D, inline is just an index number
 	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata );
-	sd.setInlRange( Interval<int>(rdmgr_->binID().inl,rdmgr_->binID().inl) );
+	sd.setInlRange( Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
     }
 
     if ( selRes(rdmgr_->binID()) )
@@ -361,7 +361,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     ti.sampling.step = outsd.step;
     ti.nr = ++nrdone_;
 
-    if ( ti.binid.inl == 0 && ti.binid.crl == 0 )
+    if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
 	ti.binid = SI().transform( ti.coord );
 
     return (headerdone_ = true);

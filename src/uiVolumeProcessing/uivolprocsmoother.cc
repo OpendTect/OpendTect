@@ -47,13 +47,13 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
 	    			  	"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
-    inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl, step.inl );
-    inllenfld_->box()->setValue( step.inl*(smoother_->inlSz()/2) );
+    inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
+    inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
 
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line", 0,
 	    			       "Crline_spinbox" );
-    crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl, step.crl );
-    crllenfld_->box()->setValue( step.crl*(smoother_->crlSz()/2) );
+    crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
+    crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();

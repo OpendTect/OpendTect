@@ -159,24 +159,24 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 
 void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
 {
-    if ( cs.hrg.step.inl > desiredvolume_.hrg.step.inl )
+    if ( cs.hrg.step.inl() > desiredvolume_.hrg.step.inl() )
     {
-	desiredvolume_.hrg.step.inl = cs.hrg.step.inl;
-	dcsampling_.hrg.step.inl = cs.hrg.step.inl;
-	desiredvolume_.hrg.start.inl = cs.hrg.start.inl;
+	desiredvolume_.hrg.step.inl() = cs.hrg.step.inl();
+	dcsampling_.hrg.step.inl() = cs.hrg.step.inl();
+	desiredvolume_.hrg.start.inl() = cs.hrg.start.inl();
     }
-    if ( cs.hrg.step.crl > desiredvolume_.hrg.step.crl )
+    if ( cs.hrg.step.crl() > desiredvolume_.hrg.step.crl() )
     {
-	desiredvolume_.hrg.step.crl = cs.hrg.step.crl;
-	dcsampling_.hrg.step.crl = cs.hrg.step.crl;
-	desiredvolume_.hrg.start.crl = cs.hrg.start.crl;
+	desiredvolume_.hrg.step.crl() = cs.hrg.step.crl();
+	dcsampling_.hrg.step.crl() = cs.hrg.step.crl();
+	desiredvolume_.hrg.start.crl() = cs.hrg.start.crl();
     }
 }
 
 
 #define mGetSz(dir)\
-	dir##sz = (dcsampling_.hrg.stop.dir - dcsampling_.hrg.start.dir)\
-		  /dcsampling_.hrg.step.dir + 1;\
+	dir##sz = (dcsampling_.hrg.stop.dir() - dcsampling_.hrg.start.dir())\
+		  /dcsampling_.hrg.step.dir() + 1;\
 
 #define mGetZSz()\
 	zsz = mNINT32( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
@@ -221,9 +221,9 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    			 mMIN(inputrg.stop, outrg.stop ) );
 
     const int inlidx =
-	datacubes_->inlsampling_.nearestIndex(info.binid.inl);
+	datacubes_->inlsampling_.nearestIndex(info.binid.inl());
     const int crlidx =
-	datacubes_->crlsampling_.nearestIndex(info.binid.crl);
+	datacubes_->crlsampling_.nearestIndex(info.binid.crl());
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -279,12 +279,12 @@ void DataCubesOutput::init( float refstep )
 {
     datacubes_ = new Attrib::DataCubes;
     datacubes_->ref();
-    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hrg.start.inl,
-						dcsampling_.hrg.stop.inl,
-						dcsampling_.hrg.step.inl);
-    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl,
-						dcsampling_.hrg.stop.crl,
-						dcsampling_.hrg.step.crl);
+    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hrg.start.inl(),
+						dcsampling_.hrg.stop.inl(),
+						dcsampling_.hrg.step.inl());
+    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl(),
+						dcsampling_.hrg.stop.crl(),
+						dcsampling_.hrg.step.crl());
     datacubes_->z0_ = mNINT32(dcsampling_.zrg.start/refstep);
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
@@ -629,7 +629,7 @@ TwoDOutput::~TwoDOutput()
 
 bool TwoDOutput::wantsOutput( const BinID& bid ) const
 {
-    return seldata_->crlRange().includes(bid.crl,true);
+    return seldata_->crlRange().includes(bid.crl(),true);
 }
 
 
@@ -645,10 +645,10 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
 {
     const Interval<int> rg( seldata_->crlRange() );
-    cs.hrg.start.crl = rg.start; cs.hrg.stop.crl = rg.stop;
+    cs.hrg.start.crl() = rg.start; cs.hrg.stop.crl() = rg.stop;
     const Interval<float> zrg( seldata_->zRange() );
     cs.zrg = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
     return true;
 }
 
@@ -978,8 +978,8 @@ bool TrcSelectionOutput::getDesiredVolume( CubeSampling& cs ) const
 const CubeSampling Trc2DVarZStorOutput::getCS()
 {
     CubeSampling cs;
-    cs.hrg.start.inl = 0; cs.hrg.stop.inl = mUdf(int);
-    cs.hrg.start.crl = 1; cs.hrg.stop.crl = mUdf(int);
+    cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = mUdf(int);
+    cs.hrg.start.crl() = 1; cs.hrg.stop.crl() = mUdf(int);
     return cs;
 }
 

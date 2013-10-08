@@ -265,8 +265,8 @@ BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 				   bool before ) const
 {
     const BinID& step = tr_->readMgr()->info().geom_.step;
-    return crlwise_ ? BinID( cur.inl + (before?-1:1) * step.inl * idx, cur.crl)
-		    : BinID( cur.inl, cur.crl + (before?-1:1) * step.crl * idx);
+    return crlwise_ ? BinID( cur.inl() + (before?-1:1) * step.inl() * idx, cur.crl())
+		    : BinID( cur.inl(), cur.crl() + (before?-1:1) * step.crl() * idx);
 }
 
 
@@ -301,8 +301,8 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
 
     commitChanges();
     BinID binid( bid );
-    const bool inlok = is2D() || !mIsUdf(bid.inl);
-    const bool crlok = !mIsUdf(bid.crl);
+    const bool inlok = is2D() || !mIsUdf(bid.inl());
+    const bool crlok = !mIsUdf(bid.crl());
     if ( !inlok || !crlok )
     {
 	tr_->toStart();
@@ -867,7 +867,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	trcnrbinidfld_->setValue( trc.info().binid );
     else
     {
-	trcnrbinidfld_->setValue( trc.info().binid.crl, 0 );
+	trcnrbinidfld_->setValue( trc.info().binid.crl(), 0 );
 	trcnrbinidfld_->setValue( trc.info().refnr, 1 );
     }
 

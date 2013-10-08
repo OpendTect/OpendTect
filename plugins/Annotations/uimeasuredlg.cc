@@ -193,8 +193,8 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	const BinID prevbid = SI().transform( prevxy );
 	double zdist = fabs( points[idx-1].z - points[idx].z );
 
-	totinldist += abs( bid.inl - prevbid.inl );
-	totcrldist += abs( bid.crl - prevbid.crl );
+	totinldist += abs( bid.inl() - prevbid.inl() );
+	totcrldist += abs( bid.crl() - prevbid.crl() );
 	const double hdist = xy.distTo( prevxy );
 	tothdist += hdist;
 	totzdist += zdist;

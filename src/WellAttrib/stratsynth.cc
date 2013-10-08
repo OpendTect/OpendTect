@@ -446,7 +446,7 @@ const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
 for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
-    dptrcbufs->get( trcidx )->info().nr =(bid.crl-bid0.crl)/crlstep; \
+    dptrcbufs->get( trcidx )->info().nr =(bid.crl()-bid0.crl())/crlstep; \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
@@ -663,7 +663,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
+	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl * crlstep );
 	    trc->info().nr = imdl+1;
 	    cs.hrg.include( trc->info().binid );
 	    if ( !trc->isEmpty() )

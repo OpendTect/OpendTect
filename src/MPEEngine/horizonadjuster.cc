@@ -188,11 +188,11 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 {
     //const Array3D<float>& cube = attrdata_->getCube(0);
     CubeSampling cs = attrdata_->getCubeSampling();
-    const int toinlidx = cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl);
+    const int toinlidx = cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl());
     if ( toinlidx<0 || toinlidx>=cs.nrInl() )
 	return false;
 
-    const int tocrlidx = cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl);
+    const int tocrlidx = cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl());
     if ( tocrlidx<0 || tocrlidx>=cs.nrCrl() )
 	return false;
 
@@ -206,7 +206,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     }
     else if ( attrdata_->is2D() && attrdata_->get2DData() )
     {
-	const int dhidx = attrdata_->get2DData()->indexOf( to.crl );
+	const int dhidx = attrdata_->get2DData()->indexOf( to.crl() );
 	if ( dhidx<0 )
 	    return false;
 
@@ -232,15 +232,15 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     tracker_->setTarget( &toarr, zsz, sd.getfIndex(startz) );
 
-    if ( from.inl!=-1 && from.crl!=-1 )
+    if ( from.inl()!=-1 && from.crl()!=-1 )
     {
 	const int frominlidx = 
-	    cs.hrg.inlRange().nearestIndex(attrDataBinId(from).inl);
+	    cs.hrg.inlRange().nearestIndex(attrDataBinId(from).inl());
 	if ( frominlidx<0 || frominlidx>=cs.nrInl() )
 	    return false;
 
 	const int fromcrlidx = 
-	    cs.hrg.crlRange().nearestIndex(attrDataBinId(from).crl);
+	    cs.hrg.crlRange().nearestIndex(attrDataBinId(from).crl());
 	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
 
@@ -251,7 +251,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
 	if ( attrdata_->is2D() && attrdata_->get2DData() )
 	{
-	    const int dhidx = attrdata_->get2DData()->indexOf( from.crl );
+	    const int dhidx = attrdata_->get2DData()->indexOf( from.crl() );
 	    if ( dhidx<0 )
 		return false;
 
@@ -342,7 +342,7 @@ bool HorizonAdjuster::is2D() const
 const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const 
 {
     return is2D() && attrdata_->getCubeSampling().nrInl()==1 
-	? BinID( attrdata_->getCubeSampling().hrg.inlRange().start, bid.crl )
+	? BinID( attrdata_->getCubeSampling().hrg.inlRange().start, bid.crl() )
 	: bid;
 }
 

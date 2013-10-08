@@ -73,16 +73,16 @@ void PosImpExpPars::usePar( const IOPar& iop )
 
 void PosImpExpPars::adjustBinID( BinID& bid, bool inw ) const
 {
-    mChkUdf(bid.inl); mChkUdf(bid.crl);
+    mChkUdf(bid.inl()); mChkUdf(bid.crl());
     if ( inw )
     {
-	bid.inl *= binidscale_; bid.crl *= binidscale_;
+	bid.inl() *= binidscale_; bid.crl() *= binidscale_;
 	bid += binidoffs_;
     }
     else
     {
 	bid -= binidoffs_;
-	bid.inl /= binidscale_; bid.crl /= binidscale_;
+	bid.inl() /= binidscale_; bid.crl() /= binidscale_;
     }
 }
 
@@ -137,9 +137,9 @@ void PosImpExpPars::adjustInl( int& inl, bool inw ) const
 {
     mChkUdf(inl);
     if ( inw )
-	{ inl *= binidscale_; inl += binidoffs_.inl; }
+	{ inl *= binidscale_; inl += binidoffs_.inl(); }
     else
-	{ inl -= binidoffs_.inl; inl /= binidscale_; }
+	{ inl -= binidoffs_.inl(); inl /= binidscale_; }
 }
 
 
@@ -147,9 +147,9 @@ void PosImpExpPars::adjustCrl( int& crl, bool inw ) const
 {
     mChkUdf(crl);
     if ( inw )
-	{ crl *= binidscale_; crl += binidoffs_.crl; }
+	{ crl *= binidscale_; crl += binidoffs_.crl(); }
     else
-	{ crl -= binidoffs_.crl; crl /= binidscale_; }
+	{ crl -= binidoffs_.crl(); crl /= binidscale_; }
 }
 
 
@@ -175,7 +175,7 @@ void PosImpExpPars::adjustY( double& y, bool inw ) const
 
 bool PosImpExpPars::haveBinIDChg() const
 {
-    return binidscale_ != 1 || binidoffs_.inl != 0 || binidoffs_.crl != 0;
+    return binidscale_ != 1 || binidoffs_.inl() != 0 || binidoffs_.crl() != 0;
 }
 
 
@@ -205,13 +205,13 @@ bool PosImpExpPars::haveOffsetChg() const
 
 bool PosImpExpPars::haveInlChg() const
 {
-    return binidscale_ != 1 || binidoffs_.inl != 0;
+    return binidscale_ != 1 || binidoffs_.inl() != 0;
 }
 
 
 bool PosImpExpPars::haveCrlChg() const
 {
-    return binidscale_ != 1 || binidoffs_.crl != 0;
+    return binidscale_ != 1 || binidoffs_.crl() != 0;
 }
 
 

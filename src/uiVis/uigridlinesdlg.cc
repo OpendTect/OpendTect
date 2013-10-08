@@ -144,10 +144,10 @@ void uiGridLinesDlg::setParameters()
     }
     else
     {
-	getDefaultHorSampling( cs.hrg.start.inl, cs.hrg.stop.inl, 
-			       cs.hrg.step.inl );
-	getDefaultHorSampling( cs.hrg.start.crl, cs.hrg.stop.crl, 
-			       cs.hrg.step.crl );
+	getDefaultHorSampling( cs.hrg.start.inl(), cs.hrg.stop.inl(), 
+			       cs.hrg.step.inl() );
+	getDefaultHorSampling( cs.hrg.start.crl(), cs.hrg.stop.crl(), 
+			       cs.hrg.step.crl() );
 	getDefaultZSampling( cs.zrg );
     }
     
@@ -177,9 +177,9 @@ void uiGridLinesDlg::setParameters()
 
 #define mGetHrgSampling(dir)\
     StepInterval<int> dir##intv = dir##spacingfld_->getIStepInterval();\
-    cs.hrg.start.dir = dir##intv.start;\
-    cs.hrg.stop.dir = dir##intv.stop;\
-    cs.hrg.step.dir = dir##intv.step;\
+    cs.hrg.start.dir() = dir##intv.start;\
+    cs.hrg.stop.dir() = dir##intv.stop;\
+    cs.hrg.step.dir() = dir##intv.step;\
 
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
@@ -193,8 +193,8 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	cs.zrg.scale( 1.f/SI().zDomain().userFactor() );
     }
 
-    if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl==0) ||
-	 (crlfld_ && crlfld_->isChecked() && cs.hrg.step.crl==0) ||
+    if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl()==0) ||
+	 (crlfld_ && crlfld_->isChecked() && cs.hrg.step.crl()==0) ||
 	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zrg.step,mDefEps)) )
     {
 	uiMSG().error( "Please make sure all steps are non-zero" );

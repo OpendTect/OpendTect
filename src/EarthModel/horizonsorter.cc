@@ -208,25 +208,25 @@ int HorizonSorter::nextStep()
     if ( is2d_ && geomids_.isEmpty() )
 	mErrRet( "Could not load 2D geometry." );
 
-    const int previnl = binid_.inl;
-    while ( binid_.inl==previnl )
+    const int previnl = binid_.inl();
+    while ( binid_.inl()==previnl )
     {
 	if ( is2d_ )
 	{
-	    binid_.crl += trcrgs_[previnl].step;
-	    if ( binid_.crl > trcrgs_[previnl].stop )
-		binid_.inl++;
+	    binid_.crl() += trcrgs_[previnl].step;
+	    if ( binid_.crl() > trcrgs_[previnl].stop )
+		binid_.inl()++;
 	}
 
 	if ( ( !is2d_ && !iterator_->next(binid_) )
-	       || ( is2d_ && binid_.inl >= geomids_.size() ) )
+	       || ( is2d_ && binid_.inl() >= geomids_.size() ) )
 	{
 	    sort();
 	    return Finished();
 	}
 
-	if ( is2d_ && binid_.inl != previnl )
-	    binid_.crl = trcrgs_[binid_.inl].start;
+	if ( is2d_ && binid_.inl() != previnl )
+	    binid_.crl() = trcrgs_[binid_.inl()].start;
 
 	const int nrhors = horizons_.size();
 	ArrPtrMan<float> depths = new float [nrhors];
@@ -240,7 +240,7 @@ int HorizonSorter::nextStep()
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    (float) hor2d->getPos( sid, geomids_[binid_.inl], binid_.crl ).z;
+		    (float) hor2d->getPos( sid, geomids_[binid_.inl()], binid_.crl() ).z;
 	    }
 	    else
 		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z;

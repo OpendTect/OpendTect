@@ -859,8 +859,8 @@ void PolygonBodyDisplay::otherObjectsMoved(
 
 	if ( plane->getOrientation()==PlaneDataDisplay::Zslice )
 	{
-	    b01 = BinID( cs.hrg.start.inl, cs.hrg.stop.crl );
-	    b10 = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );
+	    b01 = BinID( cs.hrg.start.inl(), cs.hrg.stop.crl() );
+	    b10 = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
 	}
 	else
 	{

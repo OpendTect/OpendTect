@@ -283,8 +283,8 @@ bool CBVSWriteMgr::put( void** data )
 		if ( !strm ) return false;
 
 		if ( info_.geom_.fullyrectandreg )
-		    info_.geom_.start.inl = writer->survGeom().stop.inl
-					 + info_.geom_.step.inl;
+		    info_.geom_.start.inl() = writer->survGeom().stop.inl()
+					 + info_.geom_.step.inl();
 
 		writer->forceLineStep( writer->survGeom().step );
 		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );

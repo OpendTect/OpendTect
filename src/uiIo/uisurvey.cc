@@ -754,12 +754,12 @@ void uiSurvey::mkInfo()
 
     if ( si.sampling(false).hrg.totalNr() )
     {
-	inlinfo += si.sampling(false).hrg.start.inl;
-	inlinfo += " - "; inlinfo += si.sampling(false).hrg.stop.inl;
+	inlinfo += si.sampling(false).hrg.start.inl();
+	inlinfo += " - "; inlinfo += si.sampling(false).hrg.stop.inl();
 	inlinfo += "  step: "; inlinfo += si.inlStep();
 	
-	crlinfo += si.sampling(false).hrg.start.crl;
-	crlinfo += " - "; crlinfo += si.sampling(false).hrg.stop.crl;
+	crlinfo += si.sampling(false).hrg.start.crl();
+	crlinfo += " - "; crlinfo += si.sampling(false).hrg.stop.crl();
 	crlinfo += "  step: "; crlinfo += si.crlStep();
 
 	float inldist = si.inlDistance();

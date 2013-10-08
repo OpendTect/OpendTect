@@ -39,7 +39,7 @@ public:
     virtual void		prepPriorToBoundsCalc();
     virtual void		initSteering() { stdPrepSteering(stepout_); }
     bool			isSingleTrace() const
-				{ return !stepout_.inl && !stepout_.crl; }
+				{ return !stepout_.inl() && !stepout_.crl(); }
 
 protected:
 				VolStatsBase(Desc&);

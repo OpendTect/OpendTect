@@ -434,8 +434,8 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
 #define mGetMembAsFloat(s,idx) ( \
     idx > 1 ? s.offs_ :	( \
     s.wantcoords_  ? (idx == 0 ? (float)s.coord_.x : (float)s.coord_.y) \
-	   : (s.is2d_ ? (idx == 0 ? (float)s.binid_.crl : s.offs_) \
-		      : (float)(idx == 0 ? s.binid_.inl : s.binid_.crl) ) \
+	   : (s.is2d_ ? (idx == 0 ? (float)s.binid_.crl() : s.offs_) \
+		      : (float)(idx == 0 ? s.binid_.inl() : s.binid_.crl()) ) \
 			) \
    )
 
@@ -445,9 +445,9 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
     else if ( s.wantcoords_  ) \
        	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
     else if ( !s.is2d_ && idx == 0 ) \
-      s.binid_.inl = mNINT32(f); \
+      s.binid_.inl() = mNINT32(f); \
     else \
-      s.binid_.crl = mNINT32(f); \
+      s.binid_.crl() = mNINT32(f); \
 }
 
 
@@ -479,7 +479,7 @@ PositionInpSpec::PositionInpSpec( int trcnr, bool isps )
     : DataInpSpec( DataTypeImpl<float>(DataType::position) )
 {
     setup_ = Setup( false, true, isps );
-    setup_.binid_.crl = trcnr;
+    setup_.binid_.crl() = trcnr;
 }
 
 
@@ -510,13 +510,13 @@ Coord PositionInpSpec::getCoord( double udfval ) const
 
 BinID PositionInpSpec::getBinID( int udfval ) const
 {
-    return mIsUdf(setup_.binid_.crl) ? BinID(udfval,udfval) : setup_.binid_;
+    return mIsUdf(setup_.binid_.crl()) ? BinID(udfval,udfval) : setup_.binid_;
 }
 
 
 int PositionInpSpec::getTrcNr( int udfval ) const
 {
-    return mIsUdf(setup_.binid_.crl) ? udfval : setup_.binid_.crl;
+    return mIsUdf(setup_.binid_.crl()) ? udfval : setup_.binid_.crl();
 }
 
 

@@ -179,10 +179,10 @@ void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
     while ( bvs_.next(p) )
     {
 	const BinID bid( bvs_.getBinID(p) );
-	if ( start.inl > bid.inl ) start.inl = bid.inl;
-	if ( stop.inl < bid.inl ) stop.inl = bid.inl;
-	if ( start.crl > bid.crl ) start.crl = bid.crl;
-	if ( stop.crl < bid.crl ) stop.crl = bid.crl;
+	if ( start.inl() > bid.inl() ) start.inl() = bid.inl();
+	if ( stop.inl() < bid.inl() ) stop.inl() = bid.inl();
+	if ( start.crl() > bid.crl() ) start.crl() = bid.crl();
+	if ( stop.crl() < bid.crl() ) stop.crl() = bid.crl();
     }
 }
 

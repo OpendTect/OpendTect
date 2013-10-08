@@ -215,8 +215,8 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
     {
     case CoordX:	return coord.x;
     case CoordY:	return coord.y;
-    case BinIDInl:	return binid.inl;
-    case BinIDCrl:	return binid.crl;
+    case BinIDInl:	return binid.inl();
+    case BinIDCrl:	return binid.crl();
     case Offset:	return offset;
     case Azimuth:	return azimuth;
     case RefNr:		return refnr;
@@ -255,9 +255,9 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 	return Offset;
     if ( is2d && ti->nr != nr )
 	return TrcNr;
-    if ( !is2d && ti->binid.crl != binid.crl )
+    if ( !is2d && ti->binid.crl() != binid.crl() )
 	return BinIDCrl;
-    if ( !is2d && ti->binid.inl != binid.inl )
+    if ( !is2d && ti->binid.inl() != binid.inl() )
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
@@ -286,8 +286,8 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
     }
     else
     {
-	mIOIOPar( set, BinIDInl, binid.inl );
-	mIOIOPar( set, BinIDCrl, binid.crl );
+	mIOIOPar( set, BinIDInl, binid.inl() );
+	mIOIOPar( set, BinIDCrl, binid.crl() );
 	iopar.set( sKey::Position(), binid.getUsrStr() );
     }
 
@@ -317,8 +317,8 @@ void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 void SeisTrcInfo::usePar( const IOPar& iopar )
 {
     mIOIOPar( get, TrcNr,	nr );
-    mIOIOPar( get, BinIDInl,	binid.inl );
-    mIOIOPar( get, BinIDCrl,	binid.crl );
+    mIOIOPar( get, BinIDInl,	binid.inl() );
+    mIOIOPar( get, BinIDCrl,	binid.crl() );
     mIOIOPar( get, CoordX,	coord.x );
     mIOIOPar( get, CoordY,	coord.y );
     mIOIOPar( get, Offset,	offset );
@@ -332,8 +332,8 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
 void SeisTrcInfo::fillPar( IOPar& iopar ) const
 {
     mIOIOPar( set, TrcNr,	nr );
-    mIOIOPar( set, BinIDInl,	binid.inl );
-    mIOIOPar( set, BinIDCrl,	binid.crl );
+    mIOIOPar( set, BinIDInl,	binid.inl() );
+    mIOIOPar( set, BinIDCrl,	binid.crl() );
     mIOIOPar( set, CoordX,	coord.x );
     mIOIOPar( set, CoordY,	coord.y );
     mIOIOPar( set, Offset,	offset );
@@ -490,19 +490,19 @@ Seis::Bounds3D::~Bounds3D()
 
 int Seis::Bounds3D::start( bool first ) const
 {
-    return first ? cs_.hrg.start.inl : cs_.hrg.start.crl;
+    return first ? cs_.hrg.start.inl() : cs_.hrg.start.crl();
 }
 
 
 int Seis::Bounds3D::stop( bool first ) const
 {
-    return first ? cs_.hrg.stop.inl : cs_.hrg.stop.crl;
+    return first ? cs_.hrg.stop.inl() : cs_.hrg.stop.crl();
 }
 
 
 int Seis::Bounds3D::step( bool first ) const
 {
-    return first ? cs_.hrg.step.inl : cs_.hrg.step.crl;
+    return first ? cs_.hrg.step.inl() : cs_.hrg.step.crl();
 }
 
 
@@ -514,12 +514,12 @@ StepInterval<float> Seis::Bounds3D::getZRange() const
 
 void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 {
-    mn = SI().transform( BinID(cs_.hrg.start.inl,cs_.hrg.start.crl) );
-    Coord c = SI().transform( BinID(cs_.hrg.stop.inl,cs_.hrg.start.crl) );
+    mn = SI().transform( BinID(cs_.hrg.start.inl(),cs_.hrg.start.crl()) );
+    Coord c = SI().transform( BinID(cs_.hrg.stop.inl(),cs_.hrg.start.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(cs_.hrg.stop.inl,cs_.hrg.stop.crl) );
+    c = SI().transform( BinID(cs_.hrg.stop.inl(),cs_.hrg.stop.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(cs_.hrg.start.inl,cs_.hrg.stop.crl) );
+    c = SI().transform( BinID(cs_.hrg.start.inl(),cs_.hrg.stop.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
 }
 

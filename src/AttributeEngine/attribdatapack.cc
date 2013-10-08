@@ -332,8 +332,8 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     BinID bid = SI().transform( c );
     iop.set( mKeyX, c.x );
     iop.set( mKeyY, c.y );
-    iop.set( "Inline", bid.inl );
-    iop.set( "Crossline", bid.crl );
+    iop.set( "Inline", bid.inl() );
+    iop.set( "Crossline", bid.crl() );
     iop.set( "Z", c.z*SI().zDomain().userFactor() );
 
     if ( usemultcubes_ )

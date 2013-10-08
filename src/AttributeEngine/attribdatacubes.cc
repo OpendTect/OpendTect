@@ -82,10 +82,10 @@ void DataCubes::removeCube( int idx )
 
 bool DataCubes::setSizeAndPos( const CubeSampling& cs )
 {
-    inlsampling_.start = cs.hrg.start.inl;
-    crlsampling_.start = cs.hrg.start.crl;
-    inlsampling_.step = cs.hrg.step.inl;
-    crlsampling_.step = cs.hrg.step.crl;
+    inlsampling_.start = cs.hrg.start.inl();
+    crlsampling_.start = cs.hrg.start.crl();
+    inlsampling_.step = cs.hrg.step.inl();
+    crlsampling_.step = cs.hrg.step.crl();
     z0_ = mNINT32(cs.zrg.start/cs.zrg.step);
     zstep_ = cs.zrg.step;
 
@@ -135,9 +135,9 @@ void DataCubes::setValue( int array, float val )
 bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 			  bool interpolate ) const
 {
-    const int inlidx = inlsampling_.nearestIndex( bidv.binid.inl );
+    const int inlidx = inlsampling_.nearestIndex( bidv.binid.inl() );
     if ( inlidx<0 || inlidx>=inlsz_ ) return false;
-    const int crlidx = crlsampling_.nearestIndex( bidv.binid.crl );
+    const int crlidx = crlsampling_.nearestIndex( bidv.binid.crl() );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
     if ( !cubes_.validIdx(array) || !cubes_[array] ) return false;
@@ -183,9 +183,9 @@ bool DataCubes::includes( const BinIDValue& bidv ) const
 
 bool DataCubes::includes( const BinID& binid ) const
 {
-    const int inlidx = inlsampling_.nearestIndex( binid.inl );
+    const int inlidx = inlsampling_.nearestIndex( binid.inl() );
     if ( inlidx<0 || inlidx>=inlsz_ ) return false;
-    const int crlidx = crlsampling_.nearestIndex( binid.crl );
+    const int crlidx = crlsampling_.nearestIndex( binid.crl() );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
     return true;
 }

@@ -249,7 +249,7 @@ protected:
 				only once*/
     bool			isUsedMultTimes()  { return isusedmulttimes_; }
     bool			isNew2DLine() const
-    				{ return prevtrcnr_ > currentbid_.crl; }
+    				{ return prevtrcnr_ > currentbid_.crl(); }
 
     virtual const BinID*	desStepout(int input,int output) const;
 				/*!<The system will

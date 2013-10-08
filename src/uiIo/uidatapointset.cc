@@ -225,8 +225,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	runcalcs_ += 0
 
 #define mGetHPosVal( dcid, drid ) ( dcid == -cNrPosCols ) ? \
-	( showbids_ ? dps_.binID(drid).inl : dps_.coord(drid).x ) : \
-	( showbids_ ? dps_.binID(drid).crl : dps_.coord(drid).y )
+	( showbids_ ? dps_.binID(drid).inl() : dps_.coord(drid).x ) : \
+	( showbids_ ? dps_.binID(drid).crl() : dps_.coord(drid).y )
 
 int uiDataPointSet::initVars()
 {
@@ -1139,7 +1139,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	    BinID bid( pos.binID() ); Coord crd( pos.coord() );
 	    if ( showbids_ )
 	    {
-		int& posval = ( dcid == -cNrPosCols ) ? bid.inl : bid.crl;
+		int& posval = ( dcid == -cNrPosCols ) ? bid.inl() : bid.crl();
 		posval = mCast(int,tbl_->getdValue(cell));
 	    }
 	    else

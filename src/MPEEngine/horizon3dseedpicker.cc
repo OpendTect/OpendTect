@@ -541,9 +541,9 @@ bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
 	return false;
 
     if ( (!perptotrackdir && inltracking) || (perptotrackdir && crltracking) )
-	dir.inl = 0; 
+	dir.inl() = 0; 
     else
-	dir.crl = 0;
+	dir.crl() = 0;
 
     return true;
 }
@@ -585,7 +585,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     BinID dir;
     if ( !lineTrackDirection(dir) ) return false;
 
-    const int step = dir.inl ? dir.inl : dir.crl;
+    const int step = dir.inl() ? dir.inl() : dir.crl();
 
     const int nrseeds = seedlist_.size();
     if ( nrseeds<2 ) 
@@ -597,7 +597,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
-	sortval[idx] = dir.inl ? seedbid.inl : seedbid.crl;
+	sortval[idx] = dir.inl() ? seedbid.inl() : seedbid.crl();
 	sortidx[idx] = idx;
     }
 

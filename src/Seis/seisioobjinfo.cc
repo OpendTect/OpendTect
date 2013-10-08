@@ -234,7 +234,7 @@ bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
     cd.getCrlRange( rg ); cs.hrg.setCrlRange( rg );
     for ( int icrl=rg.start; icrl<rg.stop; icrl += rg.step )
     {
-	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl,icrl) );
+	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl(),icrl) );
 	if ( trc )
 	    { cs.zrg = trc->zRange(); delete trc; break; }
     }

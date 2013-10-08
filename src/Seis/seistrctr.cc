@@ -72,7 +72,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , prevnr_(mUdf(int))
     , pinfo(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
-    , lastinlwritten(SI().sampling(false).hrg.start.inl)
+    , lastinlwritten(SI().sampling(false).hrg.start.inl())
     , read_mode(Seis::Prod)
     , is_prestack(false)
     , is_2d(false)
@@ -279,9 +279,9 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
-				: prevnr_ != trc.info().binid.inl);
+				: prevnr_ != trc.info().binid.inl());
     if ( !is_2d )
-	prevnr_ = trc.info().binid.inl;
+	prevnr_ = trc.info().binid.inl();
     else if ( wrblk || !haveprev )
 	prevnr_ = 1;
     else
@@ -304,7 +304,7 @@ bool SeisTrcTranslator::writeBlock()
     int sz = trcblock_.size();
     SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
     if ( firsttrc )
-	lastinlwritten = firsttrc->info().binid.inl;
+	lastinlwritten = firsttrc->info().binid.inl();
 
     if ( sz && enforce_regular_write )
     {
@@ -318,13 +318,13 @@ bool SeisTrcTranslator::writeBlock()
 	trcblock_.sort( sort_asc, keyfld );
 	firsttrc = trcblock_.get( 0 );
 	const int firstnr = is_2d ? firsttrc->info().nr
-	    			 : firsttrc->info().binid.crl;
+	    			 : firsttrc->info().binid.crl();
 	int nrperpos = 1;
 	if ( !is_2d )
 	{
 	    for ( int idx=1; idx<sz; idx++ )
 	    {
-		if ( trcblock_.get(idx)->info().binid.crl != firstnr )
+		if ( trcblock_.get(idx)->info().binid.crl() != firstnr )
 		    break;
 		nrperpos++;
 	    }
@@ -345,9 +345,9 @@ bool SeisTrcTranslator::writeBlock()
     BinID binid( lastinlwritten, crlrg.start );
     SeisTrc* filltrc = 0;
     int nrwritten = 0;
-    for ( ; binid.crl != firstafter; binid.crl += stp )
+    for ( ; binid.crl() != firstafter; binid.crl() += stp )
     {
-	while ( trc && trc->info().binid.crl < binid.crl )
+	while ( trc && trc->info().binid.crl() < binid.crl() )
 	{
 	    bufidx++;
 	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;

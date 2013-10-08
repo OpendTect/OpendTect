@@ -214,8 +214,8 @@ void BouncyDisplay::eventCB( CallBacker* cb )
 	BinID bid;
 	bid = SI().transform( eventinfo.worldpickedpos );
 //	if ( !SI().isInside( bid, true ) )
-	if ( !SI().inlRange(true).includes( bid.inl,true ) ||
-		    !SI().crlRange(true).includes( bid.crl,true ) )           
+	if ( !SI().inlRange(true).includes( bid.inl(),true ) ||
+		    !SI().crlRange(true).includes( bid.crl(),true ) )           
 	    return;
 
 	setPaddlePosition( Coord3( eventinfo.worldpickedpos.x, 

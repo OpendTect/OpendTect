@@ -104,8 +104,8 @@ void uiPositionTable::posChgCB( CallBacker* )
 	bid = SI().transform( coord );
 	if ( withic_ )
 	{
-	    table_->setValue( RowCol(rc.row,2), bid.inl );
-	    table_->setValue( RowCol(rc.row,3), bid.crl );
+	    table_->setValue( RowCol(rc.row,2), bid.inl() );
+	    table_->setValue( RowCol(rc.row,3), bid.crl() );
 	}
     }
     else if ( rc.col==2 || rc.col==3 )
@@ -141,8 +141,8 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 
 	if ( withic_ )
 	{
-	    table_->setValue( RowCol(idx,getICol()), bid.inl );
-	    table_->setValue( RowCol(idx,getCCol()), bid.crl );
+	    table_->setValue( RowCol(idx,getICol()), bid.inl() );
+	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
 	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
@@ -171,8 +171,8 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 
 	if ( withic_ )
 	{
-	    table_->setValue( RowCol(idx,getICol()), bid.inl );
-	    table_->setValue( RowCol(idx,getCCol()), bid.crl );
+	    table_->setValue( RowCol(idx,getICol()), bid.inl() );
+	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
 	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );

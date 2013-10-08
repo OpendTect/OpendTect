@@ -215,12 +215,12 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
 {
     if ( !is2d_ )
 	return;
-    bid_.inl = transform_.lineIndex(lnm);
+    bid_.inl() = transform_.lineIndex(lnm);
     curlinenm_ = lnm;
 }
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ bid_.crl = trcnr; }
+{ bid_.crl() = trcnr; }
 
 
 float ZAxisTransformSampler::operator[](int idx) const
@@ -234,10 +234,10 @@ float ZAxisTransformSampler::operator[](int idx) const
     }
 
     const BinIDValue bidval( BinIDValue(bid_,(float) sd_.atIndex(idx)) );
-    return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl,
+    return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl(),
 						      bidval.value)
 			   : transform_.transformBack(bidval) )
-	         : ( is2d_ ? transform_.transform2D(curlinenm_,bid_.crl,
+	         : ( is2d_ ? transform_.transform2D(curlinenm_,bid_.crl(),
 			     			  bidval.value)
 			   : transform_.transform(bidval) );
 }
@@ -252,7 +252,7 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
     if ( back_ )
     {
 	if ( is2d_ )
-	    transform_.transformBack2D( curlinenm_, bid_.crl, cachesd,
+	    transform_.transformBack2D( curlinenm_, bid_.crl(), cachesd,
 				      sz, cache_.arr() );
 	else
 	    transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
@@ -260,7 +260,7 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
     else
     {
 	if ( is2d_ )
-	    transform_.transform2D( curlinenm_, bid_.crl, cachesd,
+	    transform_.transform2D( curlinenm_, bid_.crl(), cachesd,
 				  sz, cache_.arr() );
 	else
 	    transform_.transform( bid_, cachesd, sz, cache_.arr() );

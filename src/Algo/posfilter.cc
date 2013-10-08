@@ -359,8 +359,8 @@ void Pos::Provider::getCubeSampling( CubeSampling& cs ) const
 	cs.set2DDef();
 	mDynamicCastGet(const Pos::Provider2D*,prov2d,this)
 	StepInterval<int> ext; prov2d->getExtent( ext, 0 );
-	cs.hrg.start.crl = ext.start; cs.hrg.stop.crl = ext.stop;
-	cs.hrg.step.crl = ext.step;
+	cs.hrg.start.crl() = ext.start; cs.hrg.stop.crl() = ext.stop;
+	cs.hrg.step.crl() = ext.step;
 	prov2d->getZRange( cs.zrg, 0 );
     }
     else

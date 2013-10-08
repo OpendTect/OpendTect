@@ -192,14 +192,14 @@ void uiPositionInpFld::commitToSetup() const
     }
     else if ( setup.is2d_ )
     {
-	setup.binid_.crl = flds_[0]->getIntValue();
+	setup.binid_.crl() = flds_[0]->getIntValue();
 	if ( setup.isps_ )
 	    setup.offs_ = flds_[1]->getfValue();
     }
     else
     {
-	setup.binid_.inl = flds_[0]->getIntValue();
-	setup.binid_.crl = flds_[1]->getIntValue();
+	setup.binid_.inl() = flds_[0]->getIntValue();
+	setup.binid_.crl() = flds_[1]->getIntValue();
 	if ( setup.isps_ )
 	    setup.offs_ = flds_[2]->getfValue();
     }
@@ -224,15 +224,15 @@ bool uiPositionInpFld::update_( const DataInpSpec& dis )
     if ( su.wantcoords_ )
 	mSetFld( 0, su.coord_.x )
     else
-	mSetFld( 0, su.is2d_ ? su.binid_.crl : su.binid_.inl )
+	mSetFld( 0, su.is2d_ ? su.binid_.crl() : su.binid_.inl() )
     if ( flds_.size() < 2 ) return true;
 
     if ( su.wantcoords_ )
 	mSetFld( 1, su.coord_.y )
     else if ( su.isps_ )
-	mSetFld( 1, su.is2d_ ? su.offs_ : su.binid_.crl )
+	mSetFld( 1, su.is2d_ ? su.offs_ : su.binid_.crl() )
     else
-	mSetFld( 1, su.binid_.crl )
+	mSetFld( 1, su.binid_.crl() )
     if ( flds_.size() < 3 ) return true;
 
     if ( su.isps_ )

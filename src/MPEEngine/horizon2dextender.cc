@@ -87,7 +87,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
     do 
     {
 	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
-	if ( !colrange.includes(neighbrbid.crl,false) )
+	if ( !colrange.includes(neighbrbid.crl(),false) )
 	    return;
 	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighbrbid)) )
 	    return;

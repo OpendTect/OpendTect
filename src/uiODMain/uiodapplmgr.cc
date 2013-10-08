@@ -777,9 +777,9 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     if ( !s2d ) return false;
 
     CubeSampling cs;
-    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-    cs.hrg.start.crl = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
+    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     uiTaskRunner uitr( &appl_ ); 

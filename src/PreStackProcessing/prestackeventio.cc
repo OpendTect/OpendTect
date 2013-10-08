@@ -195,17 +195,17 @@ bool EventReader::getBoundingBox( Interval<int>& inlrg,
 	const HorSampling& hrg = reader->getRange();
 	if ( !idx )
 	{
-	    inlrg.start = hrg.start.inl;
-	    inlrg.stop = hrg.stop.inl;
-	    crlrg.start = hrg.start.crl;
-	    crlrg.stop = hrg.stop.crl;
+	    inlrg.start = hrg.start.inl();
+	    inlrg.stop = hrg.stop.inl();
+	    crlrg.start = hrg.start.crl();
+	    crlrg.stop = hrg.stop.crl();
 	}
 	else
 	{
-	    inlrg.include( hrg.start.inl );
-	    inlrg.include( hrg.stop.inl );
-	    crlrg.include( hrg.start.crl );
-	    crlrg.include( hrg.stop.crl );
+	    inlrg.include( hrg.start.inl() );
+	    inlrg.include( hrg.stop.inl() );
+	    crlrg.include( hrg.start.crl() );
+	    crlrg.include( hrg.stop.crl() );
 	}
     }
 
@@ -350,14 +350,14 @@ bool EventReader::prepareWork()
  
        const SeparString sepstr( dirlist[idx]->buf(), '_' );
        HorSampling filehrg;
-       if ( !getFromString( filehrg.start.inl, sepstr[0], -1 ) ||
-	    !getFromString( filehrg.stop.inl, sepstr[1], -1 ) ||
-	    !getFromString( filehrg.start.crl, sepstr[2], -1 ) ||
-	    !getFromString( filehrg.stop.crl, sepstr[3], -1 ) )
+       if ( !getFromString( filehrg.start.inl(), sepstr[0], -1 ) ||
+	    !getFromString( filehrg.stop.inl(), sepstr[1], -1 ) ||
+	    !getFromString( filehrg.start.crl(), sepstr[2], -1 ) ||
+	    !getFromString( filehrg.stop.crl(), sepstr[3], -1 ) )
 	    continue;
 
-      if ( inlsampling.snap( filehrg.start.inl )!=filehrg.start.inl ||
-	   crlsampling.snap( filehrg.start.crl )!=filehrg.start.crl )
+      if ( inlsampling.snap( filehrg.start.inl() )!=filehrg.start.inl() ||
+	   crlsampling.snap( filehrg.start.crl() )!=filehrg.start.crl() )
 	    continue;
 
 	bool usefile = true;
@@ -601,8 +601,8 @@ int EventWriter::nextStep()
 	    if ( !ge->ischanged_ )
 		continue;
 
-	    const RowCol rc( (bid.inl-inlsampling.start)/inlsampling.step,
-		    	     (bid.crl-crlsampling.start)/crlsampling.step );
+	    const RowCol rc( (bid.inl()-inlsampling.start)/inlsampling.step,
+		    	     (bid.crl()-crlsampling.start)/crlsampling.step );
 
 	    if ( !rcols.isPresent( rc ) )
 		rcols += rc;
@@ -616,16 +616,16 @@ int EventWriter::nextStep()
 	for ( int idx=0; idx<rcols.size(); idx++ )
 	{
 	    const RowCol& rc( rcols[idx] );
-	    hrg.start.inl = inlsampling.atIndex( rc.row );
-	    hrg.stop.inl = inlsampling.atIndex( rc.row+1 ) - hrg.step.inl;
-	    hrg.start.crl = crlsampling.atIndex( rc.col );
-	    hrg.stop.crl = crlsampling.atIndex( rc.col+1 ) - hrg.step.crl;
+	    hrg.start.inl() = inlsampling.atIndex( rc.row );
+	    hrg.stop.inl() = inlsampling.atIndex( rc.row+1 ) - hrg.step.inl();
+	    hrg.start.crl() = crlsampling.atIndex( rc.col );
+	    hrg.stop.crl() = crlsampling.atIndex( rc.col+1 ) - hrg.step.crl();
 
 	    SeparString filenamebase( 0, '_' );
-	    filenamebase += hrg.start.inl;
-	    filenamebase += hrg.stop.inl;
-	    filenamebase += hrg.start.crl;
-	    filenamebase += hrg.stop.crl;
+	    filenamebase += hrg.start.inl();
+	    filenamebase += hrg.stop.inl();
+	    filenamebase += hrg.start.crl();
+	    filenamebase += hrg.stop.crl();
 
 
 	    FilePath filename;
@@ -926,8 +926,8 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
     {
 	BinID bid;
 	int offset;
-	strm >> bid.inl;
-	strm >> bid.crl;
+	strm >> bid.inl();
+	strm >> bid.crl();
 	strm >> offset;
 	if ( !strm )
 	{
@@ -977,8 +977,8 @@ bool EventPatchFileHeader::toStream( std::ostream& strm, bool binary )
 	mWriteFixedCharVal( nrevents_, '\n' );
 	for ( int idx=0; idx<nrevents_; idx++ )
 	{
-	    mWriteFixedCharVal( getBinID(idx).inl, '\t' );
-	    mWriteFixedCharVal( getBinID(idx).crl, '\t' );
+	    mWriteFixedCharVal( getBinID(idx).inl(), '\t' );
+	    mWriteFixedCharVal( getBinID(idx).crl(), '\t' );
 	    mWriteFixedCharVal( getOffset(idx), '\n' );
 	}
     }
@@ -1027,13 +1027,13 @@ void EventPatchFileHeader::setBinID( int idx, const BinID& bid )
     char* baseptr = buffptr_+offset;
     if ( int32interpreter_ )
     {
-	int32interpreter_->put( baseptr, 0,  bid.inl );
-	int32interpreter_->put( baseptr, 1,  bid.crl );
+	int32interpreter_->put( baseptr, 0,  bid.inl() );
+	int32interpreter_->put( baseptr, 1,  bid.crl() );
     }
     else
     {
-	((int*) baseptr)[0] = bid.inl;
-	((int*) baseptr)[1] = bid.crl;
+	((int*) baseptr)[0] = bid.inl();
+	((int*) baseptr)[1] = bid.crl();
     }
 }
 

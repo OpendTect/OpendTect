@@ -210,15 +210,15 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	BinID extrbid1, extrbid2;
 	if ( cs_.defaultDir() == CubeSampling::Inl )
 	{
-	    extrbid1.inl = extrbid2.inl = cs_.hrg.inlRange().start;
-	    extrbid1.crl = cs_.hrg.crlRange().start;
-	    extrbid2.crl = cs_.hrg.crlRange().stop;
+	    extrbid1.inl() = extrbid2.inl() = cs_.hrg.inlRange().start;
+	    extrbid1.crl() = cs_.hrg.crlRange().start;
+	    extrbid2.crl() = cs_.hrg.crlRange().stop;
 	}
 	else if ( cs_.defaultDir() == CubeSampling::Crl )
 	{
-	    extrbid1.inl = cs_.hrg.inlRange().start;
-	    extrbid2.inl = cs_.hrg.inlRange().stop;
-	    extrbid1.crl = extrbid2.crl = cs_.hrg.crlRange().start;
+	    extrbid1.inl() = cs_.hrg.inlRange().start;
+	    extrbid2.inl() = cs_.hrg.inlRange().stop;
+	    extrbid1.crl() = extrbid2.crl() = cs_.hrg.crlRange().start;
 	}
 
 	Coord extrcoord1, extrcoord2;
@@ -232,16 +232,16 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 
 	    if ( pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
 		 || (cs_.defaultDir()==CubeSampling::Inl
-		     && knotbinid.inl==extrbid1.inl)
+		     && knotbinid.inl()==extrbid1.inl())
 		 || (cs_.defaultDir()==CubeSampling::Crl
-		     && knotbinid.crl==extrbid1.crl) )
+		     && knotbinid.crl()==extrbid1.crl()) )
 	    {
 		if ( cs_.defaultDir() == CubeSampling::Inl )
 		    stickauxdata.poly_ += FlatView::Point(
-			    		SI().transform(pos.coord()).crl, pos.z);
+			    		SI().transform(pos.coord()).crl(), pos.z);
 		else if ( cs_.defaultDir() == CubeSampling::Crl )
 		    stickauxdata.poly_ += FlatView::Point(
-			    		SI().transform(pos.coord()).inl, pos.z);
+			    		SI().transform(pos.coord()).inl(), pos.z);
 	    }
 	}
     }
@@ -254,7 +254,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 		break;
 
 	    BinID binid = SI().transform(pos.coord());
-	    stickauxdata.poly_ += FlatView::Point( binid.inl, binid.crl );
+	    stickauxdata.poly_ += FlatView::Point( binid.inl(), binid.crl() );
 	}
     }
 
@@ -339,8 +339,8 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     }
     else
     {
-	BinID start( cs_.hrg.start.inl, cs_.hrg.start.crl );
-	BinID stop(cs_.hrg.stop.inl, cs_.hrg.stop.crl );
+	BinID start( cs_.hrg.start.inl(), cs_.hrg.start.crl() );
+	BinID stop(cs_.hrg.stop.inl(), cs_.hrg.stop.crl() );
 
 	Coord3 p0( SI().transform(start), cs_.zrg.start );
 	Coord3 p1( SI().transform(start), cs_.zrg.stop );
@@ -453,11 +453,11 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	}
 
 	if ( cs_.nrZ() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl, posbid.crl );
+	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), posbid.crl() );
 	else if ( cs_.nrCrl() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl, pos.z );
+	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), pos.z );
 	else if ( cs_.nrInl() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.crl, pos.z );
+	    intsecauxdat->poly_ += FlatView::Point( posbid.crl(), pos.z );
     }
 
     viewer_.addAuxData( intsecauxdat );
@@ -673,9 +673,9 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
     else if ( idx-1 > 0 )
 	nextbid = (*path_)[idx-1];
 
-    if ( pivotbid.inl == nextbid.inl )
+    if ( pivotbid.inl() == nextbid.inl() )
 	return  SI().binID2Coord().rowDir();
-    else if ( pivotbid.crl == nextbid.crl )
+    else if ( pivotbid.crl() == nextbid.crl() )
 	return SI().binID2Coord().colDir();
 
     return Coord(mUdf(float), mUdf(float));

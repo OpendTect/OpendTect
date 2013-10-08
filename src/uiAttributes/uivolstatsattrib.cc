@@ -172,8 +172,8 @@ void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
 {
     const BinID so = stepoutfld_->getBinID();
     int nrtrcs = 1;
-    if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
-	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
+    if ( !mIsUdf(so.inl()) && !mIsUdf(so.crl()) )
+	nrtrcs = (so.inl()*2+1) * (so.crl()*2+1);
     nrtrcsfld_->box()->setInterval( 1, nrtrcs );
 }
 

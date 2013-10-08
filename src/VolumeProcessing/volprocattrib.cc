@@ -147,12 +147,12 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     if ( cs.nrInl()<2 )
     {
 	dir = CubeSampling::Inl;
-	slice = datacubes->inlsampling_.nearestIndex( cs.hrg.start.inl );
+	slice = datacubes->inlsampling_.nearestIndex( cs.hrg.start.inl() );
     }
     else if ( cs.nrCrl()<2 )
     {
 	dir = CubeSampling::Crl;
-	slice = datacubes->crlsampling_.nearestIndex( cs.hrg.start.crl );
+	slice = datacubes->crlsampling_.nearestIndex( cs.hrg.start.crl() );
     }
     else
     {

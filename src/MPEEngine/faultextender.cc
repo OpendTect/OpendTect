@@ -61,7 +61,7 @@ int FaultExtender::nextStep()
 	Coord3( SI().transform(direction.binid)-SI().transform(BinID(0,0)),
 		direction.value).normalize();
 
-    const bool rowdir = !direction.binid.inl && !direction.binid.crl;
+    const bool rowdir = !direction.binid.inl() && !direction.binid.crl();
     char inc;
     if ( rowdir ) inc = direction.value>0 ? rowrange.step : -rowrange.step;
     else if ( colrange.start==colrange.stop ) inc = colrange.step;

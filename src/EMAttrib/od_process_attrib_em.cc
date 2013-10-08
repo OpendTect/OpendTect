@@ -264,14 +264,14 @@ static HorSampling getHorSamp( IOPar& geompar )
 {
     HorSampling hsamp;
     if ( !geompar.get( SurveyInfo::sKeyInlRange(),
-			hsamp.start.inl, hsamp.stop.inl )
+			hsamp.start.inl(), hsamp.stop.inl() )
 	 || !geompar.get( SurveyInfo::sKeyCrlRange(),
-			   hsamp.start.crl, hsamp.stop.crl ) )
+			   hsamp.start.crl(), hsamp.stop.crl() ) )
     {
-	hsamp.start.inl = 0;
-	hsamp.stop.inl = mUdf(int);
-	hsamp.start.crl = 0;
-	hsamp.stop.crl = mUdf(int);
+	hsamp.start.inl() = 0;
+	hsamp.stop.inl() = mUdf(int);
+	hsamp.start.crl() = 0;
+	hsamp.stop.crl() = mUdf(int);
     }
 
     return hsamp;
@@ -508,8 +508,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    if ( !lineset ) return false;
 	    const PosInfo::GeomID& geomid =
 		S2DPOS().getGeomID( lineset->name(), linename );
-	    hsamp.start.inl = hsamp.stop.inl = 0;
-	    if ( mIsUdf(hsamp.stop.crl) )
+	    hsamp.start.inl() = hsamp.stop.inl() = 0;
+	    if ( mIsUdf(hsamp.stop.crl()) )
 	    {
 		PosInfo::Line2DData l2dd;
 		S2DPOS().getGeometry( geomid, l2dd );

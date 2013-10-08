@@ -199,15 +199,20 @@ public:
     bool                        isNeighborTo(const BinID&,const BinID&,
 					     bool eightconnectivity=true) const;
 
-    int				inl;
-    int				crl;
+    int&			crl()		{ return crl_; }
+    int				crl()const	{ return crl_; }
+    int&			inl()		{ return inl_; }
+    int				inl()const	{ return inl_; }
+
+    int				inl_;
+    int				crl_;
 
     static const BinID&		udf();
     
-    int&			trcNr()		{ return crl; }
-    int				trcNr() const	{ return crl; }
-    int&			lineNr()	{ return inl; }
-    int				lineNr() const	{ return inl; }
+    int&			trcNr()		{ return crl_; }
+    int				trcNr() const	{ return crl_; }
+    int&			lineNr()	{ return inl_; }
+    int				lineNr() const	{ return inl_; }
 
 
     // od_int64			getSerialized() const;
@@ -218,7 +223,7 @@ public:
 
 
 
-mImplInlineRowColFunctions(BinID, inl, crl);
+mImplInlineRowColFunctions(BinID, inl_, crl_);
 
 /*!
 \brief Represents a trace position, with the geometry (2D or 3D) and position in

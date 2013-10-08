@@ -77,8 +77,8 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 	    binid = SI().transform( Coord(getdValue(0),getdValue(1)) );
 	else
 	{
-   	    binid.inl = getIntValue(0);
-   	    binid.crl = getIntValue(1);
+   	    binid.inl() = getIntValue(0);
+   	    binid.crl() = getIntValue(1);
 	}
 
 	const PointBasedMathFunction::ExtrapolType et = extrapol

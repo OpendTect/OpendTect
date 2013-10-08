@@ -220,8 +220,8 @@ protected:
 	    return Finished();
 
 	const od_int64 offset =
-	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid_.inl),
-				  readcs_.hrg.crlIdx(curbid_.crl), 0 );
+	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid_.inl()),
+				  readcs_.hrg.crlIdx(curbid_.crl()), 0 );
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
@@ -422,8 +422,8 @@ void Time2DepthStretcher::transform(const BinID& bid,
 
     const Array3D<float>& arr = *voidata_[bestidx];
     const HorSampling& hrg = voivols_[bestidx].hrg;
-    const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl),
-						 hrg.crlIdx(bid.crl), 0 );
+    const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
+						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
 
@@ -492,8 +492,8 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
 
     const Array3D<float>& arr = *voidata_[bestidx];
     const HorSampling& hrg = voivols_[bestidx].hrg;
-    const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl),
-						 hrg.crlIdx(bid.crl), 0 );
+    const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
+						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
 
@@ -527,10 +527,10 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
 	return voivols_[idx].zrg;
 
     return
-	Interval<float>( voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
-				    voivols_[idx].hrg.crlIdx(bid.crl), 0 ),
-			 voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
-				    voivols_[idx].hrg.crlIdx(bid.crl), 
+	Interval<float>( voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
+				    voivols_[idx].hrg.crlIdx(bid.crl()), 0 ),
+			 voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
+				    voivols_[idx].hrg.crlIdx(bid.crl()), 
 		   		    voidata_[idx]->info().getSize(2)-1 ) );
 }
 
@@ -541,8 +541,8 @@ Interval<float> Time2DepthStretcher::getDepthInterval( const BinID& bid,
     if ( !voiintime_[idx] )
 	return voivols_[idx].zrg;
 
-    const int inlidx = voivols_[idx].hrg.inlIdx(bid.inl);
-    const int crlidx = voivols_[idx].hrg.crlIdx(bid.crl);
+    const int inlidx = voivols_[idx].hrg.inlIdx(bid.inl());
+    const int crlidx = voivols_[idx].hrg.crlIdx(bid.crl());
     const int zsz = voidata_[idx]->info().getSize(2);
 
     return Interval<float>( voidata_[idx]->get( inlidx, crlidx, 0 ),

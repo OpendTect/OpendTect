@@ -371,13 +371,13 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
     const int oldnrrows = nrRows();
     const int oldnrcols = nrCols();
 
-    int startrowidx = rowIndex( start.inl );
+    int startrowidx = rowIndex( start.inl() );
     startrowidx = startrowidx>=0 ? 0 : startrowidx;
-    int startcolidx = colIndex( start.crl );
+    int startcolidx = colIndex( start.crl() );
     startcolidx = startcolidx>=0 ? 0 : startcolidx;
-    int stoprowidx = rowIndex( stop.inl );
+    int stoprowidx = rowIndex( stop.inl() );
     stoprowidx = stoprowidx<oldnrrows ? oldnrrows-1 : stoprowidx;
-    int stopcolidx = colIndex( stop.crl );
+    int stopcolidx = colIndex( stop.crl() );
     stopcolidx = stopcolidx<oldnrcols ? oldnrcols-1 : stopcolidx;
     
     const int newnrrows = stoprowidx-startrowidx+1;

@@ -13,24 +13,24 @@ static const char* rcsID mUsedVar = "$Id$";
 bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,
 			    bool inlsort, bool inlupw, bool crlupw )
 {
-    if ( mIsUdf(prev.crl) || (!is2d && mIsUdf(prev.inl)) )
+    if ( mIsUdf(prev.crl()) || (!is2d && mIsUdf(prev.inl())) )
 	return true;
-    else if ( mIsUdf(cur.crl) || (!is2d && mIsUdf(cur.inl)) )
+    else if ( mIsUdf(cur.crl()) || (!is2d && mIsUdf(cur.inl())) )
 	return false;
 
     if ( is2d )
     {
-	if ( !mIsUdf(cur.inl) && !mIsUdf(cur.inl) && prev.inl != cur.inl )
+	if ( !mIsUdf(cur.inl()) && !mIsUdf(cur.inl()) && prev.inl() != cur.inl() )
 	    return true;
 
-	return (crlupw && prev.crl <= cur.crl)
-	    || (!crlupw && prev.crl >= cur.crl);
+	return (crlupw && prev.crl() <= cur.crl())
+	    || (!crlupw && prev.crl() >= cur.crl());
     }
 
-    const int previnl = inlupw ? prev.inl : -prev.inl;
-    const int curinl = inlupw ? cur.inl : -cur.inl;
-    const int prevcrl = crlupw ? prev.crl : -prev.crl;
-    const int curcrl = crlupw ? cur.crl : -cur.crl;
+    const int previnl = inlupw ? prev.inl() : -prev.inl();
+    const int curinl = inlupw ? cur.inl() : -cur.inl();
+    const int prevcrl = crlupw ? prev.crl() : -prev.crl();
+    const int curcrl = crlupw ? cur.crl() : -cur.crl();
     if ( inlsort )
 	return previnl<curinl || (previnl==curinl && prevcrl<=curcrl);
     else
@@ -93,19 +93,19 @@ BinIDSortingAnalyser::BinIDSortingAnalyser( bool is2d )
 
 bool BinIDSortingAnalyser::add( const BinID& cur )
 {
-    if ( mIsUdf(cur.inl) )
+    if ( mIsUdf(cur.inl()) )
 	return false;
-    if ( mIsUdf(prev_.inl) || mIsUdf(prev_.crl) )
+    if ( mIsUdf(prev_.inl()) || mIsUdf(prev_.crl()) )
 	{ prev_ = cur; return false; }
 
     bool rv = false;
     if ( is2d_ )
     {
-	if ( !mIsUdf(prev_.crl)
-	  && prev_.inl == cur.inl
-	  && prev_.crl != cur.crl )
+	if ( !mIsUdf(prev_.crl())
+	  && prev_.inl() == cur.inl()
+	  && prev_.crl() != cur.crl() )
 	{
-	    st_[0] = prev_.crl < cur.crl;
+	    st_[0] = prev_.crl() < cur.crl();
 	    rv = true;
 	}
     }

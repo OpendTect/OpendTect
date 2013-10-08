@@ -103,18 +103,18 @@ bool HorizonModifier::getNextNode2D( BinID& bid )
 
     if ( geomids_.isEmpty() ) return false;
 
-    if ( bid.crl < trcrgs_[bid.inl].start )
-	bid.crl = trcrgs_[bid.inl].start;
+    if ( bid.crl() < trcrgs_[bid.inl()].start )
+	bid.crl() = trcrgs_[bid.inl()].start;
     else
-	bid.crl += trcrgs_[bid.inl].step;
+	bid.crl() += trcrgs_[bid.inl()].step;
 
-    if ( bid.crl > trcrgs_[bid.inl].stop )
+    if ( bid.crl() > trcrgs_[bid.inl()].stop )
     {
-	bid.inl++;
-	if ( bid.inl >= geomids_.size() )
+	bid.inl()++;
+	if ( bid.inl() >= geomids_.size() )
 	    return false;
 
-	bid.crl = trcrgs_[bid.inl].start;
+	bid.crl() = trcrgs_[bid.inl()].start;
     }
 
     return true;
@@ -182,7 +182,7 @@ float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return mUdf(float);
 
-    return (float) hor2d->getPos( sid, geomids_[bid.inl], bid.crl ).z;
+    return (float) hor2d->getPos( sid, geomids_[bid.inl()], bid.crl() ).z;
 }
 
 
@@ -213,12 +213,12 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	if ( !dynamichor2d ) return;
 
 	float newz = (float) statichor2d->getPos( statichor->sectionID(0),
-					  geomids_[bid.inl], bid.crl ).z;
+					  geomids_[bid.inl()], bid.crl() ).z;
 	if ( !mIsUdf(newz) )
 	    newz += (float) extrashift;
 
-	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl],
-			      bid.crl, newz, false);
+	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl()],
+			      bid.crl(), newz, false);
     }
 
 }
@@ -238,8 +238,8 @@ void HorizonModifier::removeNode( const BinID& bid )
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
-	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl],
-			      bid.crl, mUdf(float), false );
+	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl()],
+			      bid.crl(), mUdf(float), false );
     }
 
 }

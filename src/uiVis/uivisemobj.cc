@@ -98,12 +98,12 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 		const StepInterval<int> colrg = hordisp->geometryColRange();
 		if ( rowrg.step!=-1 && colrg.step!=-1 )
 		{
-		    sel.rg.start.inl = rowrg.start;
-		    sel.rg.start.crl = colrg.start;
-		    sel.rg.stop.inl = rowrg.stop;
-		    sel.rg.step.crl = colrg.step;
-		    sel.rg.step.inl = rowrg.step;
-		    sel.rg.stop.crl = colrg.stop;
+		    sel.rg.start.inl() = rowrg.start;
+		    sel.rg.start.crl() = colrg.start;
+		    sel.rg.stop.inl() = rowrg.stop;
+		    sel.rg.step.crl() = colrg.step;
+		    sel.rg.step.inl() = rowrg.step;
+		    sel.rg.stop.crl() = colrg.stop;
 		}
 	    }
 

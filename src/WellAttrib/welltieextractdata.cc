@@ -67,7 +67,7 @@ bool SeismicExtractor::collectTracesAroundPath()
 
     if ( rdr_->is2D() )
     {
-	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl,bidset_[0].inl) );
+	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl(),bidset_[0].inl()) );
 	cs_->hrg.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
     }
     else
@@ -75,8 +75,8 @@ bool SeismicExtractor::collectTracesAroundPath()
 	for ( int idx=0; idx<bidset_.size(); idx++ )
 	{
 	    BinID bid = bidset_[idx];
-	    cs_->hrg.include( BinID( bid.inl + radius_, bid.crl + radius_ ) );
-	    cs_->hrg.include( BinID( bid.inl - radius_, bid.crl - radius_ ) );
+	    cs_->hrg.include( BinID( bid.inl() + radius_, bid.crl() + radius_ ) );
+	    cs_->hrg.include( BinID( bid.inl() - radius_, bid.crl() - radius_ ) );
 	}
     }
     cs_->hrg.snapToSurvey();
@@ -130,8 +130,8 @@ int SeismicExtractor::nextStep()
 	const SamplingData<float>& sd = trc->info().sampling;
 	const int trcidx = sd.nearestIndex( zval );
 
-	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
-	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
+	int xx0 = b.inl()-curbid.inl(); 	xx0 *= xx0; 
+	int yy0 = b.crl()-curbid.crl();	yy0 *= yy0;
 	const float trcval = ( trcidx < 0 || trcidx >= trc->size() ) ? 
 	    					0 : trc->get( trcidx, 0 );
 

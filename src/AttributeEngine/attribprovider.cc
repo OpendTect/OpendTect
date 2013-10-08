@@ -323,14 +323,14 @@ bool Provider::isOutputEnabled( int out ) const
 
 #define setBufStepout( prefix ) \
 { \
-    if ( ns.inl <= prefix##bufferstepout_.inl \
-	    && ns.crl <= prefix##bufferstepout_.crl ) \
+    if ( ns.inl() <= prefix##bufferstepout_.inl() \
+	    && ns.crl() <= prefix##bufferstepout_.crl() ) \
 	return; \
 \
-    if ( ns.inl > prefix##bufferstepout_.inl ) \
-    	prefix##bufferstepout_.inl = ns.inl; \
-    if ( ns.crl > prefix##bufferstepout_.crl ) \
-    	prefix##bufferstepout_.crl = ns.crl;\
+    if ( ns.inl() > prefix##bufferstepout_.inl() ) \
+    	prefix##bufferstepout_.inl() = ns.inl(); \
+    if ( ns.crl() > prefix##bufferstepout_.crl() ) \
+    	prefix##bufferstepout_.crl() = ns.crl();\
 }
 
 
@@ -362,18 +362,18 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	    *desiredvolume_ = ndv;
 	else
 	{
-	    desiredvolume_->hrg.start.inl = 
-		desiredvolume_->hrg.start.inl < ndv.hrg.start.inl ?
-		desiredvolume_->hrg.start.inl : ndv.hrg.start.inl;
-	    desiredvolume_->hrg.stop.inl =
-		desiredvolume_->hrg.stop.inl > ndv.hrg.stop.inl ?
-		desiredvolume_->hrg.stop.inl : ndv.hrg.stop.inl;
-	    desiredvolume_->hrg.stop.crl =
-		desiredvolume_->hrg.stop.crl > ndv.hrg.stop.crl ?
-		desiredvolume_->hrg.stop.crl : ndv.hrg.stop.crl;
-	    desiredvolume_->hrg.start.crl =
-		desiredvolume_->hrg.start.crl < ndv.hrg.start.crl ?
-		desiredvolume_->hrg.start.crl : ndv.hrg.start.crl;
+	    desiredvolume_->hrg.start.inl() = 
+		desiredvolume_->hrg.start.inl() < ndv.hrg.start.inl() ?
+		desiredvolume_->hrg.start.inl() : ndv.hrg.start.inl();
+	    desiredvolume_->hrg.stop.inl() =
+		desiredvolume_->hrg.stop.inl() > ndv.hrg.stop.inl() ?
+		desiredvolume_->hrg.stop.inl() : ndv.hrg.stop.inl();
+	    desiredvolume_->hrg.stop.crl() =
+		desiredvolume_->hrg.stop.crl() > ndv.hrg.stop.crl() ?
+		desiredvolume_->hrg.stop.crl() : ndv.hrg.stop.crl();
+	    desiredvolume_->hrg.start.crl() =
+		desiredvolume_->hrg.start.crl() < ndv.hrg.start.crl() ?
+		desiredvolume_->hrg.start.crl() : ndv.hrg.start.crl();
 	    desiredvolume_->zrg.start = desiredvolume_->zrg.start < ndv.zrg.start?
 		desiredvolume_->zrg.start : ndv.zrg.start;
 	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zrg.stop ?
@@ -461,12 +461,12 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		const BinID* stepout = reqStepout(inp,out);
 		if ( stepout )
 		{
-		    int inlstepoutfact = desiredvolume_->hrg.step.inl;
-		    int crlstepoutfact = desiredvolume_->hrg.step.crl;
-		    inputcs.hrg.start.inl += stepout->inl * inlstepoutfact;
-		    inputcs.hrg.start.crl += stepout->crl * crlstepoutfact;
-		    inputcs.hrg.stop.inl -= stepout->inl * inlstepoutfact;
-		    inputcs.hrg.stop.crl -= stepout->crl * crlstepoutfact;
+		    int inlstepoutfact = desiredvolume_->hrg.step.inl();
+		    int crlstepoutfact = desiredvolume_->hrg.step.crl();
+		    inputcs.hrg.start.inl() += stepout->inl() * inlstepoutfact;
+		    inputcs.hrg.start.crl() += stepout->crl() * crlstepoutfact;
+		    inputcs.hrg.stop.inl() -= stepout->inl() * inlstepoutfact;
+		    inputcs.hrg.stop.crl() -= stepout->crl() * crlstepoutfact;
 		}
 
 		const Interval<float>* zrg = reqZMargin(inp,out);
@@ -535,7 +535,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     bool docheck = pos == BinID(-1,-1);
     
     if ( is2D() )
-	prevtrcnr_ = currentbid_.crl;
+	prevtrcnr_ = currentbid_.crl();
 
     bool needmove = false;
     bool docontinue = true;
@@ -597,21 +597,21 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
-	    if ( currentbid_.inl == -1 && currentbid_.crl == -1 )
+	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
 	    {
-		currentbid_.inl = is2D() ? 0 : desiredvolume_->hrg.start.inl;
-		currentbid_.crl = desiredvolume_->hrg.start.crl;
+		currentbid_.inl() = is2D() ? 0 : desiredvolume_->hrg.start.inl();
+		currentbid_.crl() = desiredvolume_->hrg.start.crl();
 	    }
 	    else
 	    {
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
-		if ( prevbid.crl +step.crl <= desiredvolume_->hrg.stop.crl )
-		    currentbid_.crl = prevbid.crl +step.crl;
-		else if ( prevbid.inl +step.inl <= desiredvolume_->hrg.stop.inl)
+		if ( prevbid.crl() +step.crl() <= desiredvolume_->hrg.stop.crl() )
+		    currentbid_.crl() = prevbid.crl() +step.crl();
+		else if ( prevbid.inl() +step.inl() <= desiredvolume_->hrg.stop.inl())
 		{
-		    currentbid_.inl = prevbid.inl +step.inl;
-		    currentbid_.crl = desiredvolume_->hrg.start.crl;
+		    currentbid_.inl() = prevbid.inl() +step.inl();
+		    currentbid_.crl() = desiredvolume_->hrg.start.crl();
 		}
 		else
 		    return 0;
@@ -682,15 +682,15 @@ void Provider::computeNewStartPos( BinID& newstart )
 	else
 	{
 	    if ( is2D() )
-		newstart = newstart.crl<inputbid.crl ? inputbid : newstart; 
+		newstart = newstart.crl()<inputbid.crl() ? inputbid : newstart; 
 	    else
 	    {
-		newstart.inl = step.inl<0 ? 
-			       mMIN(newstart.inl,inputbid.inl):
-			       mMAX(newstart.inl,inputbid.inl);
-		newstart.crl = step.crl<0 ? 
-			       mMIN(newstart.crl,inputbid.crl):
-			       mMAX(newstart.crl,inputbid.crl);
+		newstart.inl() = step.inl()<0 ? 
+			       mMIN(newstart.inl(),inputbid.inl()):
+			       mMAX(newstart.inl(),inputbid.inl());
+		newstart.crl() = step.crl()<0 ? 
+			       mMIN(newstart.crl(),inputbid.crl()):
+			       mMAX(newstart.crl(),inputbid.crl());
 	    }
 	}
     }
@@ -755,10 +755,10 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 		compres = 0;
 	    else if ( !is2D() )
 	    {
-		if ( inp1pos.inl != inp2pos.inl )
-		    compres = inp1pos.inl > inp2pos.inl ? 1 : -1;
+		if ( inp1pos.inl() != inp2pos.inl() )
+		    compres = inp1pos.inl() > inp2pos.inl() ? 1 : -1;
 		else
-		    compres = inp1pos.crl > inp2pos.crl ? 1 : -1;
+		    compres = inp1pos.crl() > inp2pos.crl() ? 1 : -1;
 	    }
 	}
 
@@ -836,7 +836,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
-	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
+	dir.inl() *= step.inl()/abs(step.inl()); dir.crl() *= step.crl()/abs(step.crl());
 	const BinID lastbid = currentbid_ - desbufferstepout_*step;
 	linebuffer_->removeBefore(lastbid, dir);
     // in every direction...
@@ -965,14 +965,14 @@ BinID Provider::getStepoutStep() const
     {
 	if ( !inputs_[idx] || !inputs_[idx]->needStoredInput() ) continue;
 	BinID bid = inputs_[idx]->getStepoutStep();
-	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
+	if ( bid.inl()!=0 && bid.crl()!=0 ) return bid;
     }
 
     for ( int idx=0; idx<parents_.size(); idx++ )
     {
 	if ( !parents_[idx] ) continue;
 	BinID bid = parents_[idx]->getStepoutStep();
-	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
+	if ( bid.inl()!=0 && bid.crl()!=0 ) return bid;
     }
 
     return BinID( SI().inlStep(), SI().crlStep() );
@@ -1252,8 +1252,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
     if ( usestepout )
     {
-	int inlstepoutfact = desiredvolume_->hrg.step.inl;
-	int crlstepoutfact = desiredvolume_->hrg.step.crl;
+	int inlstepoutfact = desiredvolume_->hrg.step.inl();
+	int crlstepoutfact = desiredvolume_->hrg.step.crl();
 
 	BinID stepout(0,0);
 	const BinID* reqstepout = reqStepout( inp, out );
@@ -1261,14 +1261,16 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 	const BinID* desstepout = desStepout( inp, out );
 	if ( desstepout )
 	{
-	    if ( stepout.inl < desstepout->inl ) stepout.inl = desstepout->inl;
-	    if ( stepout.crl < desstepout->crl ) stepout.crl = desstepout->crl;
+	    if ( stepout.inl() < desstepout->inl() ) 
+		stepout.inl() = desstepout->inl();
+	    if ( stepout.crl() < desstepout->crl() ) 
+		stepout.crl() = desstepout->crl();
 	}
 
-	res.hrg.start.inl -= stepout.inl * inlstepoutfact;
-	res.hrg.start.crl -= stepout.crl * crlstepoutfact;
-	res.hrg.stop.inl += stepout.inl * inlstepoutfact;
-	res.hrg.stop.crl += stepout.crl * crlstepoutfact;
+	res.hrg.start.inl() -= stepout.inl() * inlstepoutfact;
+	res.hrg.start.crl() -= stepout.crl() * crlstepoutfact;
+	res.hrg.stop.inl() += stepout.inl() * inlstepoutfact;
+	res.hrg.stop.crl() += stepout.crl() * crlstepoutfact;
     }
    
     Interval<float> zrg(0,0);
@@ -1309,8 +1311,8 @@ void Provider::updateInputReqs( int inp )
 	const BinID* des = desStepout(inp,out);
 	if ( des )
 	{
-	    stepout.inl = mMAX(stepout.inl,des->inl);
-	    stepout.crl = mMAX(stepout.crl,des->crl );
+	    stepout.inl() = mMAX(stepout.inl(),des->inl());
+	    stepout.crl() = mMAX(stepout.crl(),des->crl() );
 	}
 
 	if ( inputs_[inp] )
@@ -1344,25 +1346,25 @@ int Provider::getTotalNrPos( bool is2d )
     CubeSampling cs = *desiredvolume_;
     if ( getDesc().isStored() )
     {
-	cs.hrg.start.inl =
-	    desiredvolume_->hrg.start.inl < cs.hrg.start.inl ?
-	    cs.hrg.start.inl : desiredvolume_->hrg.start.inl;
-	cs.hrg.stop.inl =
-	    desiredvolume_->hrg.stop.inl > cs.hrg.stop.inl ?
-	    cs.hrg.stop.inl : desiredvolume_->hrg.stop.inl;
-	cs.hrg.stop.crl =
-	    desiredvolume_->hrg.stop.crl > cs.hrg.stop.crl ?
-	    cs.hrg.stop.crl : desiredvolume_->hrg.stop.crl;
-	cs.hrg.start.crl =
-	    desiredvolume_->hrg.start.crl < cs.hrg.start.crl ?
-	    cs.hrg.start.crl : desiredvolume_->hrg.start.crl;
+	cs.hrg.start.inl() =
+	    desiredvolume_->hrg.start.inl() < cs.hrg.start.inl() ?
+	    cs.hrg.start.inl() : desiredvolume_->hrg.start.inl();
+	cs.hrg.stop.inl() =
+	    desiredvolume_->hrg.stop.inl() > cs.hrg.stop.inl() ?
+	    cs.hrg.stop.inl() : desiredvolume_->hrg.stop.inl();
+	cs.hrg.stop.crl() =
+	    desiredvolume_->hrg.stop.crl() > cs.hrg.stop.crl() ?
+	    cs.hrg.stop.crl() : desiredvolume_->hrg.stop.crl();
+	cs.hrg.start.crl() =
+	    desiredvolume_->hrg.start.crl() < cs.hrg.start.crl() ?
+	    cs.hrg.start.crl() : desiredvolume_->hrg.start.crl();
     }
 
     if ( is2d )
     {
 	const PosInfo::GeomID geomid = getGeomID();
 	PosInfo::Line2DData l2dd;
-	cs.hrg.step.crl = S2DPOS().getGeometry(geomid,l2dd) ?
+	cs.hrg.step.crl() = S2DPOS().getGeometry(geomid,l2dd) ?
 	    l2dd.trcNrRange().step : 1;
 	return cs.nrCrl();
     }

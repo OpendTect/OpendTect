@@ -157,7 +157,7 @@ int dgbSurfDataWriter::nextStep()
 		if ( sel_ && !sel_->includes(bid) )
 		    continue;
 
-		const RowCol emrc( bid.inl, bid.crl );
+		const RowCol emrc( bid.inl(), bid.crl() );
 		const SubID subid = emrc.toInt64();
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );

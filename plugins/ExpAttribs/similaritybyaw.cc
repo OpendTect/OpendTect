@@ -72,10 +72,10 @@ SimilaritybyAW::SimilaritybyAW( Desc& desc )
     mGetBinID( stepout_, stepoutStr() );
     mGetBool( dosteer_, sKey::Steering() );
 
-    inlstep_ = mMAX(stepout_.inl, stepout_.crl);
+    inlstep_ = mMAX(stepout_.inl(), stepout_.crl());
     crlstep_ = inlstep_;
-    horgate_.inl = inlstep_;
-    horgate_.crl = crlstep_;
+    horgate_.inl() = inlstep_;
+    horgate_.crl() = crlstep_;
 
     const float zinterval = SI().zStep() * 1000;
     verstep0_ = int((reftimegate_.stop - reftimegate_.start)/(2*zinterval));
@@ -88,9 +88,9 @@ SimilaritybyAW::SimilaritybyAW( Desc& desc )
     desstep_ = int(maxso*maxsecdip);
     desgate_ = Interval<int> (-verstep_-desstep_, verstep_+desstep_);
 
-    for( int inl=-horgate_.inl; inl<=horgate_.inl; inl++ )
+    for( int inl=-horgate_.inl(); inl<=horgate_.inl(); inl++ )
     {
-        for( int crl=-horgate_.crl; crl<=horgate_.crl; crl++ )
+        for( int crl=-horgate_.crl(); crl<=horgate_.crl(); crl++ )
         {
             const BinID bid( inl, crl );
             const int steeridx = getSteeringIndex( bid );
@@ -128,7 +128,7 @@ bool SimilaritybyAW::getInputData( const BinID& relpos, int zintv )
     if( !inpdata ) return false;
     inputdata_.replace( 0, inpdata );
    
-    const int maxlength = mMAX(horgate_.inl, horgate_.crl)*2+1;
+    const int maxlength = mMAX(horgate_.inl(), horgate_.crl())*2+1;
     while( inputdata_.size()<maxlength*maxlength )
         inputdata_ += 0;
 

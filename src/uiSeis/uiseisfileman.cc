@@ -141,10 +141,10 @@ void uiSeisFileMan::mkFileInfo()
 	if ( oinf.getRanges(cs) )
 	{
 	    txt = "";
-	    if ( !mIsUdf(cs.hrg.stop.inl) )
-		{ txt.add("Inline") mAddRangeTxt(inl); }
-	    if ( !mIsUdf(cs.hrg.stop.crl) )
-		{ txt.add("\nCrossline") mAddRangeTxt(crl); }
+	    if ( !mIsUdf(cs.hrg.stop.inl()) )
+		{ txt.add("Inline") mAddRangeTxt(inl()); }
+	    if ( !mIsUdf(cs.hrg.stop.crl()) )
+		{ txt.add("\nCrossline") mAddRangeTxt(crl()); }
 	    float area = SI().computeArea( cs.hrg.inlRange(),
 		    			   cs.hrg.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );

@@ -81,7 +81,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	Settings::common().get( sKeyMaxConsBadTrcs, maxnrconsecutivebadtrcs );
     }
     curtrcnr_ = prevtrcnr_ = -1;
-    mSetUdf(curbid_.inl); mSetUdf(prevbid_.inl);
+    mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
 }
 
 
@@ -616,8 +616,8 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
     }
     else
     {
-	if ( mIsUdf(curbid_.inl) )
-	    usecur = mIsUdf(prevbid_.inl) ? -1 : 0;
+	if ( mIsUdf(curbid_.inl()) )
+	    usecur = mIsUdf(prevbid_.inl()) ? -1 : 0;
     }
 
     ret = usecur ? "at " : "after ";
@@ -670,7 +670,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 #define mBadCoord(ti) \
 	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
-	(ti.binid.inl <= 0 && ti.binid.crl <= 0)
+	(ti.binid.inl() <= 0 && ti.binid.crl() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
 
 
@@ -680,7 +680,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( headerdone_ ) return true;
 
     if ( read_mode != Seis::Scan )
-	{ mSetUdf(curbid_.inl); mSetUdf(curtrcnr_); }
+	{ mSetUdf(curbid_.inl()); mSetUdf(curtrcnr_); }
 
     if ( !readTraceHeadBuffer() )
 	return false;

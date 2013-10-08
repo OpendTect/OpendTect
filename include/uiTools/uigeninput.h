@@ -181,7 +181,7 @@ Returns true, if changes are accepted.
     inline void		setValue( const Coord& c )
 			{ setValue(c.x,0); setValue(c.y,1); }
     inline void		setValue( const BinID& b )
-			{ setValue(b.inl,0); setValue(b.crl,1); }
+			{ setValue(b.inl(),0); setValue(b.crl(),1); }
     inline void		setValue( const BinIDValue& b )
 			{ setValue(b.binid); setValue(b.value,2); }
     void		setValue(const Interval<int>&); //!< and StepIntv

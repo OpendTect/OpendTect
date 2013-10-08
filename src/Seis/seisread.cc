@@ -292,11 +292,11 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.new_packet = false;
 
     if ( mIsUdf(prev_inl) )
-	prev_inl = ti.binid.inl;
-    else if ( prev_inl != ti.binid.inl )
+	prev_inl = ti.binid.inl();
+    else if ( prev_inl != ti.binid.inl() )
     {
 	foundvalidcrl = false;
-	prev_inl = ti.binid.inl;
+	prev_inl = ti.binid.inl();
 	if ( !entryis2d )
 	    ti.new_packet = true;
     }
@@ -681,22 +681,22 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 					  const StepInterval<float>& zrg ) const
 {
     Seis::Bounds3D* b3d = new Seis::Bounds3D;
-    b3d->cs_.hrg.start.inl = inlrg.start;
-    b3d->cs_.hrg.start.crl = crlrg.start;
-    b3d->cs_.hrg.stop.inl = inlrg.stop;
-    b3d->cs_.hrg.stop.crl = crlrg.stop;
-    b3d->cs_.hrg.step.inl = inlrg.step;
-    b3d->cs_.hrg.step.crl = crlrg.step;
+    b3d->cs_.hrg.start.inl() = inlrg.start;
+    b3d->cs_.hrg.start.crl() = crlrg.start;
+    b3d->cs_.hrg.stop.inl() = inlrg.stop;
+    b3d->cs_.hrg.stop.crl() = crlrg.stop;
+    b3d->cs_.hrg.step.inl() = inlrg.step;
+    b3d->cs_.hrg.step.crl() = crlrg.step;
 
-    if ( b3d->cs_.hrg.step.inl < 0 )
+    if ( b3d->cs_.hrg.step.inl() < 0 )
     {
 	pErrMsg("Poss prob: negative inl step from transl");
-	b3d->cs_.hrg.step.inl = -b3d->cs_.hrg.step.inl;
+	b3d->cs_.hrg.step.inl() = -b3d->cs_.hrg.step.inl();
     }
-    if ( b3d->cs_.hrg.step.crl < 0 )
+    if ( b3d->cs_.hrg.step.crl() < 0 )
     {
 	pErrMsg("Poss prob: negative crl step from transl");
-	b3d->cs_.hrg.step.crl = -b3d->cs_.hrg.step.crl;
+	b3d->cs_.hrg.step.crl() = -b3d->cs_.hrg.step.crl();
     }
     b3d->cs_.zrg = zrg;
 
@@ -705,10 +705,10 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 
 #define mChkRg(dir) \
     const Interval<int> dir##rng( seldata_->dir##Range() ); \
-    if ( b3d->cs_.hrg.start.dir < dir##rng.start ) \
-	b3d->cs_.hrg.start.dir = dir##rng.start; \
-    if ( b3d->cs_.hrg.stop.dir > dir##rng.stop ) \
-	b3d->cs_.hrg.stop.dir = dir##rng.stop;
+    if ( b3d->cs_.hrg.start.dir() < dir##rng.start ) \
+	b3d->cs_.hrg.start.dir() = dir##rng.start; \
+    if ( b3d->cs_.hrg.stop.dir() > dir##rng.stop ) \
+	b3d->cs_.hrg.stop.dir() = dir##rng.stop;
 
     mChkRg(inl)
     mChkRg(crl)

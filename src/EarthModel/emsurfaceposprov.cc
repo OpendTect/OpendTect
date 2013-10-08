@@ -367,7 +367,7 @@ const char* EMSurfaceProvider2D::curLine() const
 	if ( !hor2d )
 	    return 0;
 
-	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( bid.inl );
+	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( bid.inl() );
 	S2DPOS().setCurLineSet( geomid.lsid_ );
 	return S2DPOS().getLineName( geomid.lineid_ );
     }
@@ -377,7 +377,7 @@ const char* EMSurfaceProvider2D::curLine() const
 
 
 int EMSurfaceProvider2D::curNr() const
-{ return BinID::fromInt64( curpos_.subID() ).crl; }
+{ return BinID::fromInt64( curpos_.subID() ).crl(); }
 
 
 Coord EMSurfaceProvider2D::curCoord() const
@@ -418,8 +418,8 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 
     Interval<float> zrg;
     BinID bid;
-    bid.crl = nr;
-    bid.inl = hor2d1->geometry().lineIndex( l2d.lineName().buf() );
+    bid.crl() = nr;
+    bid.inl() = hor2d1->geometry().lineIndex( l2d.lineName().buf() );
     const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0), bid.toInt64() );
     if ( !crd1.isDefined() )
 	return false;
@@ -427,7 +427,7 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
     mDynamicCastGet(EM::Horizon2D*,hor2d2,surf2_);
     if ( hor2d2 )
     {
-	bid.inl =hor2d2->geometry().lineIndex(l2d.lineName().buf());
+	bid.inl() =hor2d2->geometry().lineIndex(l2d.lineName().buf());
 	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
 					    bid.toInt64() );
 	if ( !crd2.isDefined() )
@@ -503,9 +503,9 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 
 	    const BinID bid2d = posid.getRowCol();
 	    DataPointSet::Pos pos( surf.getPos(posid) );
-	    pos.nr_ = bid2d.crl;
+	    pos.nr_ = bid2d.crl();
 	    dps.addRow( DataPointSet::DataRow( pos, 
-			mCast(unsigned short,bid2d.inl)) );
+			mCast(unsigned short,bid2d.inl())) );
 	}
     }
 }
@@ -729,10 +729,10 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
     if ( !useinside_ )
     {
 	txt += "  Within cube range: Inline( ";
-	txt += bbox_.hrg.start.inl; txt += ", ";
-	txt += bbox_.hrg.stop.inl; txt += " ), Crossline( ";
-	txt += bbox_.hrg.start.crl; txt += ", ";
-	txt += bbox_.hrg.stop.crl; txt += " ), Z( ";
+	txt += bbox_.hrg.start.inl(); txt += ", ";
+	txt += bbox_.hrg.stop.inl(); txt += " ), Crossline( ";
+	txt += bbox_.hrg.start.crl(); txt += ", ";
+	txt += bbox_.hrg.stop.crl(); txt += " ), Z( ";
 	txt += bbox_.zrg.start; txt += ", ";
 	txt += bbox_.zrg.stop; txt += " ).";
     }
@@ -769,8 +769,8 @@ bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
     if ( !isOK() || !bb.hrg.includes(bid) || !bb.zrg.includes(z,false) ) 
 	return false;
 
-    const int inlidx = cs_.inlIdx(bid.inl);
-    const int crlidx = cs_.crlIdx(bid.crl);
+    const int inlidx = cs_.inlIdx(bid.inl());
+    const int crlidx = cs_.crlIdx(bid.crl());
     const int zidx = cs_.zIdx(z);
     const bool inbody = imparr_->info().validPos(inlidx,crlidx,zidx) &&
 	imparr_->get(inlidx,crlidx,zidx)<=threshold_;

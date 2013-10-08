@@ -480,9 +480,9 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 	if ( is2d_ )
 	{
 	    //TODO verify how to get lineidx if it's necessary
-	    curbid.inl = ztransform_ ? ztransform_->lineIndex(
+	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
 			    seisreader_->selData()->lineKey().lineName() ) : 0;
-	    curbid.crl = trc.info().nr;
+	    curbid.crl() = trc.info().nr;
 	}
 
 	if ( !outcs_.hrg.includes( curbid ) )
@@ -500,7 +500,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, BinID& curbid )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( curbid.inl ) )
+	    if ( !loadTransformChunk( curbid.inl() ) )
 		continue;
 	}
 
@@ -544,9 +544,9 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
 	if ( is2d_ )
 	{
 	    //TODO verify how to get lineidx if it's necessary
-	    curbid.inl = ztransform_ ? ztransform_->lineIndex(
+	    curbid.inl() = ztransform_ ? ztransform_->lineIndex(
 		    seisreadertdmodel_->selData()->lineKey().lineName() ) : 0;
-	    curbid.crl = trc.info().nr;
+	    curbid.crl() = trc.info().nr;
 	}
 
 	if ( !outcs_.hrg.includes( curbid ) )
@@ -564,7 +564,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, BinID& curbid )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( curbid.inl ) )
+	    if ( !loadTransformChunk( curbid.inl() ) )
 		continue;
 	}
 
@@ -589,10 +589,10 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
     if ( chunksize<1 ) chunksize = 1;
 
     curhrg_ = outcs_.hrg;
-    curhrg_.start.inl = inl;
-    curhrg_.stop.inl = curhrg_.start.inl + curhrg_.step.inl * (chunksize-1);
-    if ( curhrg_.stop.inl>outcs_.hrg.stop.inl )
-	curhrg_.stop.inl = outcs_.hrg.stop.inl;
+    curhrg_.start.inl() = inl;
+    curhrg_.stop.inl() = curhrg_.start.inl() + curhrg_.step.inl() * (chunksize-1);
+    if ( curhrg_.stop.inl()>outcs_.hrg.stop.inl() )
+	curhrg_.stop.inl() = outcs_.hrg.stop.inl();
 
     CubeSampling cs( outcs_ );
     cs.hrg = curhrg_;

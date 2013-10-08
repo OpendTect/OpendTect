@@ -181,7 +181,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	res = new DataPointSet( pts, nms, true );
 	data += res;
 	SectionID sid = 0; 		//multiple sections not used here
-	for ( int idx=hsamp.start.crl; idx<=hsamp.stop.crl; idx++ )
+	for ( int idx=hsamp.start.crl(); idx<=hsamp.stop.crl(); idx++ )
 	{
 	    Coord3 coords = hor2d->getPos( sid, geomid, idx);
 	    DataPointSet::Pos newpos( coords );
@@ -251,9 +251,9 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
     float meanzinter = 0;
     int nrpos;
     float topz, botz, lastzinter;
-    for ( int idi=hs.start.inl; idi<=hs.stop.inl; idi+=SI().inlStep() )
+    for ( int idi=hs.start.inl(); idi<=hs.stop.inl(); idi+=SI().inlStep() )
     {
-	for ( int idc=hs.start.crl; idc<=hs.stop.crl; idc+=SI().crlStep() )
+	for ( int idc=hs.start.crl(); idc<=hs.stop.crl(); idc+=SI().crlStep() )
 	{
 	    lastzinter = meanzinter;
 	    if ( !getZInterval( idi, idc, surface1, surface2, topz, botz, 
@@ -374,7 +374,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	while ( bivs.next(pos) )
 	{
 	    bivs.get( pos, bid, vals );
-	    const SubID subid = RowCol(bid.inl,bid.crl).toInt64();
+	    const SubID subid = RowCol(bid.inl(),bid.crl()).toInt64();
 	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
 		horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );

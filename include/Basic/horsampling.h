@@ -42,19 +42,19 @@ public:
     bool		includes( const HorSampling& hs,
 	    			  bool ignoresteps=false ) const;
     inline bool		includes( const BinID& bid ) const
-			{ return inlOK(bid.inl) && crlOK(bid.crl); }
+			{ return inlOK(bid.inl()) && crlOK(bid.crl()); }
     inline bool		inlOK( int inl ) const
-			{ return inl >= start.inl && inl <= stop.inl && 
-			    (step.inl ? !( (inl-start.inl) % step.inl )
-				      : inl==start.inl); }
+			{ return inl >= start.inl() && inl <= stop.inl() && 
+			    (step.inl() ? !( (inl-start.inl()) % step.inl() )
+				      : inl==start.inl()); }
 
     inline bool		crlOK( int crl ) const
-			{ return crl >= start.crl && crl <= stop.crl && 
-			    (step.crl ? !( (crl-start.crl) % step.crl )
-			     	      : crl==start.crl); }
+			{ return crl >= start.crl() && crl <= stop.crl() && 
+			    (step.crl() ? !( (crl-start.crl()) % step.crl() )
+			     	      : crl==start.crl()); }
 
     inline void		include( const BinID& bid )
-			{ includeInl(bid.inl); includeCrl(bid.crl); }
+			{ includeInl(bid.inl()); includeCrl(bid.crl()); }
     void		includeInl( int inl );
     void		includeCrl( int crl );
     void		include( const HorSampling&, bool ignoresteps=false );
@@ -65,16 +65,16 @@ public:
 			     nearest limit if horsamplings do not intersect */
 
     inline int		inlIdx( int inl ) const
-			{ return step.inl ? (inl-start.inl) / step.inl 
-					  : (inl==start.inl ? 0 : -1); }
+			{ return step.inl() ? (inl-start.inl()) / step.inl() 
+					  : (inl==start.inl() ? 0 : -1); }
     inline int		crlIdx( int crl ) const
-			{ return step.crl ? (crl-start.crl) / step.crl
-					  : (crl==start.crl ? 0 : -1); }
+			{ return step.crl() ? (crl-start.crl()) / step.crl()
+					  : (crl==start.crl() ? 0 : -1); }
     inline od_int64	globalIdx( const BinID& bid ) const
-			{ return inlIdx(bid.inl)*nrCrl() + crlIdx(bid.crl); }
+			{ return inlIdx(bid.inl())*nrCrl() + crlIdx(bid.crl()); }
     BinID		atIndex( int i0, int i1 ) const
-			{ return BinID( start.inl + i0*step.inl,
-					start.crl + i1*step.crl ); }
+			{ return BinID( start.inl() + i0*step.inl(),
+					start.crl() + i1*step.crl() ); }
     BinID		atIndex( od_int64 globalidx ) const;
     int			nrInl() const;
     int			nrCrl() const;

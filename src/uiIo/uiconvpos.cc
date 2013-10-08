@@ -112,8 +112,8 @@ void uiConvertPos::getCoord( CallBacker* )
     Coord coord( survinfo.transform( binid ) );
     xfld->setValue( coord.x );
     yfld->setValue( coord.y );
-    inlfld->setValue( binid.inl );
-    crlfld->setValue( binid.crl );
+    inlfld->setValue( binid.inl() );
+    crlfld->setValue( binid.crl() );
 }
 
 
@@ -128,8 +128,8 @@ void uiConvertPos::getBinID( CallBacker* )
     }
 
     BinID binid( survinfo.transform( coord ) );
-    inlfld->setValue( binid.inl );
-    crlfld->setValue( binid.crl );
+    inlfld->setValue( binid.inl() );
+    crlfld->setValue( binid.crl() );
     xfld->setValue( coord.x );
     yfld->setValue( coord.y );
 }
@@ -165,7 +165,7 @@ void uiConvertPos::convFile( CallBacker* )
 	if ( xy2ic )
 	{
 	    BinID bid( SI().transform(c) );
-	    *sdout.ostrm << bid.inl << ' ' << bid.crl << linebuf << '\n';
+	    *sdout.ostrm << bid.inl() << ' ' << bid.crl() << linebuf << '\n';
 	}
 	else
 	{

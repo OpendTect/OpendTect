@@ -447,7 +447,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	if ( !nrbids ) mErrRet( "No data available in the given range" );
 
 	mWriteToPosFile( (*l2ddata_) );
-	firstbid.crl = l2ddata_->positions()[0].nr_;
+	firstbid.crl() = l2ddata_->positions()[0].nr_;
 
 	if ( !rdr->getGather(firstbid,trcbuf) )
 	    mErrRet( "No data to read" );
@@ -473,8 +473,8 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	    idx++;
 
 	iter_ = new PosInfo::CubeDataIterator( *cubedata_ );
-	firstbid.inl = (*cubedata_)[idx]->linenr_;
-	firstbid.crl = (*cubedata_)[idx]->segments_[0].start;
+	firstbid.inl() = (*cubedata_)[idx]->linenr_;
+	firstbid.crl() = (*cubedata_)[idx]->segments_[0].start;
 
 	if ( !rdr->getGather(firstbid,trcbuf) )
 	    mErrRet( "No data to read" );
@@ -595,17 +595,17 @@ bool MadStream::getNextPos( BinID& bid )
     if ( !l2ddata_ || l2ddata_->isEmpty() ) return false;
 
     const TypeSet<PosInfo::Line2DPos>& posns = l2ddata_->positions();
-    if ( !bid.crl )
-	{ bid.crl = posns[0].nr_; return true; }
+    if ( !bid.crl() )
+	{ bid.crl() = posns[0].nr_; return true; }
     
     int idx = 0;
-    while ( idx<posns.size() && bid.crl != posns[idx].nr_ )
+    while ( idx<posns.size() && bid.crl() != posns[idx].nr_ )
 	idx++;
 
     if ( idx+1 >= posns.size() )
 	return false;
 
-    bid.crl = posns[idx+1].nr_;
+    bid.crl() = posns[idx+1].nr_;
     return true;
 }
 
@@ -830,7 +830,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling = sd;
 	    trc->info().coord = posns[idx].coord_;
-	    trc->info().binid.crl = trcnr;
+	    trc->info().binid.crl() = trcnr;
 	    trc->info().nr = trcnr;
 	    if ( isps_ )
 		trc->info().offset = offsetsd.atIndex( offidx );

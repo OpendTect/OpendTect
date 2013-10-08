@@ -54,9 +54,9 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
     for ( int idx=0; idx<nrbids; idx++ )
     {
 	const BinID bid = bids[idx];
-	BufferString txt = toString(bid.inl);
+	BufferString txt = toString(bid.inl());
 	table_->setText( RowCol(idx,0), txt );
-	txt = toString(bid.crl);
+	txt = toString(bid.crl());
 	table_->setText( RowCol(idx,1), txt );
     }
 }
@@ -73,8 +73,8 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
 
-	bid.inl = toInt(inlstr);
-	bid.crl = toInt(crlstr);
+	bid.inl() = toInt(inlstr);
+	bid.crl() = toInt(crlstr);
 	if ( !SI().isReasonable(bid) )
 	{
 	    Coord c( toDouble(inlstr), toDouble(crlstr) );

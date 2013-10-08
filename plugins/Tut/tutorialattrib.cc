@@ -105,9 +105,9 @@ Tutorial::Tutorial( Desc& desc )
 
     else if ( action_ == 2  && horsmooth_ )
     {
-	for ( int idx=-stepout_.inl; idx<=stepout_.inl; idx++ )
+	for ( int idx=-stepout_.inl(); idx<=stepout_.inl(); idx++ )
 	{
-	    for ( int cdx=-stepout_.crl; cdx<=stepout_.crl; cdx++ )
+	    for ( int cdx=-stepout_.crl(); cdx<=stepout_.crl(); cdx++ )
 	    {
 		const BinID bid ( idx, cdx );
 		const int steeridx = getSteeringIndex( bid );
@@ -145,7 +145,7 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
     if ( action_ ==2 && horsmooth_ )
     {
 	steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
-	const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
+	const int maxlength  = mMAX(stepout_.inl(), stepout_.crl())*2 + 1;
 	while ( inpdata_.size() < maxlength * maxlength )
 	    inpdata_ += 0;
     

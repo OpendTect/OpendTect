@@ -182,7 +182,7 @@ bool uiExportFault::writeAscii()
 	    if ( !doxy )
 	    {
 		const BinID bid = SI().transform( crd );
-		*sdo.ostrm << bid.inl << '\t' << bid.crl;
+		*sdo.ostrm << bid.inl() << '\t' << bid.crl();
 	    }
 	    else
 	    {

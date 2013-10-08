@@ -103,7 +103,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    for ( int k=0; k<3; k++ )
 	    {
 		BinID bid = SI().transform( v[k] );
-		RowCol rc(surfrrg.snap(bid.inl),surfcrg.snap(bid.crl));
+		RowCol rc(surfrrg.snap(bid.inl()),surfcrg.snap(bid.crl()));
 
 		const double pz = surf_.getKnot(rc, false).z + zshift_;
 		rcz[k] = Coord3( rc.row, rc.col, pz );

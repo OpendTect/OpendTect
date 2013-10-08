@@ -135,7 +135,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	{
 	    cs_.set2DDef(); // doesn't make much sense, but is better than nothing
 
-	    cs_.hrg.start.inl = cs_.hrg.stop.inl = 0;
+	    cs_.hrg.start.inl() = cs_.hrg.stop.inl() = 0;
 	    MultiID lsid;
 	    iopar.get( "Input Line Set", lsid );
 	    PtrMan<IOObj> lsobj = IOM().get( lsid );
@@ -548,7 +548,7 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     if ( prov && !prov->getDesc().isStored() )
 	lkey.setAttrName( proc->getAttribName() );
     
-    Interval<int> trcrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
+    Interval<int> trcrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
     attrout->setOutput( output );
@@ -577,12 +577,12 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	cache_->ref();
 	const CubeSampling cachecs = cache_->cubeSampling();
 	if ( mRg(h).step != cs_.hrg.step
-	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
-	  || (mRg(h).start.crl - cs_.hrg.start.crl) % cs_.hrg.step.crl 
-	  || mRg(h).start.inl > cs_.hrg.stop.inl
-	  || mRg(h).stop.inl < cs_.hrg.start.inl
-	  || mRg(h).start.crl > cs_.hrg.stop.crl
-	  || mRg(h).stop.crl < cs_.hrg.start.crl
+	  || (mRg(h).start.inl() - cs_.hrg.start.inl()) % cs_.hrg.step.inl()
+	  || (mRg(h).start.crl() - cs_.hrg.start.crl()) % cs_.hrg.step.crl() 
+	  || mRg(h).start.inl() > cs_.hrg.stop.inl()
+	  || mRg(h).stop.inl() < cs_.hrg.start.inl()
+	  || mRg(h).start.crl() > cs_.hrg.stop.crl()
+	  || mRg(h).stop.crl() < cs_.hrg.start.crl()
 	  || mRg(z).start > cs_.zrg.stop + mStepEps*cs_.zrg.step
 	  || mRg(z).stop < cs_.zrg.start - mStepEps*cs_.zrg.step )
 	    // No overlap, gotta crunch all the numbers ...
@@ -610,42 +610,42 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
     {
 	const CubeSampling cachecs = cache_->cubeSampling();
 	CubeSampling todocs( cs_ );
-	if ( mRg(h).start.inl > cs_.hrg.start.inl )
+	if ( mRg(h).start.inl() > cs_.hrg.start.inl() )
 	{
-	    todocs.hrg.stop.inl = mRg(h).start.inl - cs_.hrg.step.inl;
+	    todocs.hrg.stop.inl() = mRg(h).start.inl() - cs_.hrg.step.inl();
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop.inl < cs_.hrg.stop.inl )
+	if ( mRg(h).stop.inl() < cs_.hrg.stop.inl() )
 	{
 	    todocs = cs_;
-	    todocs.hrg.start.inl = mRg(h).stop.inl + cs_.hrg.step.inl;
+	    todocs.hrg.start.inl() = mRg(h).stop.inl() + cs_.hrg.step.inl();
 	    mAddAttrOut( todocs )
 	}
 
-	const int startinl = mMAX(cs_.hrg.start.inl, mRg(h).start.inl );
-	const int stopinl = mMIN( cs_.hrg.stop.inl, mRg(h).stop.inl );
+	const int startinl = mMAX(cs_.hrg.start.inl(), mRg(h).start.inl() );
+	const int stopinl = mMIN( cs_.hrg.stop.inl(), mRg(h).stop.inl() );
 
-	if ( mRg(h).start.crl > cs_.hrg.start.crl )
+	if ( mRg(h).start.crl() > cs_.hrg.start.crl() )
 	{
 	    todocs = cs_;
-	    todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	    todocs.hrg.stop.crl = mRg(h).start.crl - cs_.hrg.step.crl;
+	    todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
+	    todocs.hrg.stop.crl() = mRg(h).start.crl() - cs_.hrg.step.crl();
 	    mAddAttrOut( todocs )
 	}
 	
-	if ( mRg(h).stop.crl < cs_.hrg.stop.crl )
+	if ( mRg(h).stop.crl() < cs_.hrg.stop.crl() )
 	{
 	    todocs = cs_;
-	    todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	    todocs.hrg.start.crl = mRg(h).stop.crl + cs_.hrg.step.crl;
+	    todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
+	    todocs.hrg.start.crl() = mRg(h).stop.crl() + cs_.hrg.step.crl();
 	    mAddAttrOut( todocs )
 	}
 
 	todocs = cs_;
-	todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	todocs.hrg.start.crl = mMAX(cs_.hrg.start.crl, mRg(h).start.crl );
-	todocs.hrg.stop.crl = mMIN(cs_.hrg.stop.crl, mRg(h).stop.crl );
+	todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
+	todocs.hrg.start.crl() = mMAX(cs_.hrg.start.crl(), mRg(h).start.crl() );
+	todocs.hrg.stop.crl() = mMIN(cs_.hrg.stop.crl(), mRg(h).stop.crl() );
 
 	if ( mRg(z).start > cs_.zrg.start + mStepEps*cs_.zrg.step )
 	{
@@ -666,12 +666,12 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	TypeSet<BinID> positions;
 	if ( cs_.defaultDir() == CubeSampling::Inl )
 	    for ( int idx=0; idx<cs_.nrCrl(); idx++ )
-		positions += BinID( cs_.hrg.start.inl,
-				    cs_.hrg.start.crl + cs_.hrg.step.crl*idx );
+		positions += BinID( cs_.hrg.start.inl(),
+				    cs_.hrg.start.crl() + cs_.hrg.step.crl()*idx );
 	if ( cs_.defaultDir() == CubeSampling::Crl )
 	    for ( int idx=0; idx<cs_.nrInl(); idx++ )
-		positions += BinID( cs_.hrg.start.inl+ cs_.hrg.step.inl*idx,
-				    cs_.hrg.start.crl );
+		positions += BinID( cs_.hrg.start.inl()+ cs_.hrg.step.inl()*idx,
+				    cs_.hrg.start.crl() );
 
 	proc->setRdmPaths( &positions, &positions );
     }

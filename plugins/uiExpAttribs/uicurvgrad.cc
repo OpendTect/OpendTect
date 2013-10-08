@@ -78,7 +78,7 @@ bool  uiCurvGrad::getParameters( Desc& desc )
 
     BinID stepout( stepoutfld_->getBinID() );
     if( stepout == BinID(0,0) )
-        stepout.inl = stepout.crl = mUdf(int);
+        stepout.inl() = stepout.crl() = mUdf(int);
 
     mSetBinID( CurvGrad::stepoutStr(), stepout );
     mSetEnum( sKey::Output(), attributefld_->getIntValue() );

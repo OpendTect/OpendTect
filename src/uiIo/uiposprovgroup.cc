@@ -117,8 +117,8 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
     int blocks = nrextr / 50000;
     float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
     int stepfac = mNINT32(fstepfac);
-    cs.hrg.step.inl *= stepfac;
-    cs.hrg.step.crl *= stepfac;
+    cs.hrg.step.inl() *= stepfac;
+    cs.hrg.step.crl() *= stepfac;
 }
 
 
@@ -199,8 +199,8 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
     if ( stepfld_ )
     {
 	BinID stps( SI().sampling(true).hrg.step );
-	iop.get( mGetPolyKey(sKey::StepInl()), stps.inl );
-	iop.get( mGetPolyKey(sKey::StepCrl()), stps.crl );
+	iop.get( mGetPolyKey(sKey::StepInl()), stps.inl() );
+	iop.get( mGetPolyKey(sKey::StepCrl()), stps.crl() );
 	stepfld_->setSteps( stps );
     }
     if ( zrgfld_ )
@@ -220,8 +220,8 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 
     const BinID stps(
 	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hrg.step );
-    iop.set( mGetPolyKey(sKey::StepInl()), stps.inl );
-    iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl );
+    iop.set( mGetPolyKey(sKey::StepInl()), stps.inl() );
+    iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl() );
     iop.set( mGetPolyKey(sKey::ZRange()),
 	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
     return true;

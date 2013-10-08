@@ -90,10 +90,10 @@ void WellProvider3D::setHS()
     if ( !hs_.isDefined() )
 	return;
 
-    hs_.start.inl -= inlext_;
-    hs_.stop.inl += inlext_;
-    hs_.start.crl -= crlext_;
-    hs_.stop.crl += crlext_;
+    hs_.start.inl() -= inlext_;
+    hs_.stop.inl() += inlext_;
+    hs_.start.crl() -= crlext_;
+    hs_.stop.crl() += crlext_;
 }
 
 
@@ -116,21 +116,21 @@ bool WellProvider3D::initialize( TaskRunner* )
 
 bool WellProvider3D::toNextPos()
 {
-    curbid_.crl += hs_.step.crl;
+    curbid_.crl() += hs_.step.crl();
     curz_ = zrg_.start;
 
     while ( true )
     {
 	if ( !hs_.includes(curbid_) )
 	{
-	    curbid_.inl += hs_.step.inl;
-	    curbid_.crl = hs_.start.crl;
+	    curbid_.inl() += hs_.step.inl();
+	    curbid_.crl() = hs_.start.crl();
 	    if ( !hs_.includes(curbid_) )
 		break;
 	}
 	if ( includes(curbid_,mUdf(float)) )
 	    return true;
-	curbid_.crl += hs_.step.crl;
+	curbid_.crl() += hs_.step.crl();
     }
 
     return false;

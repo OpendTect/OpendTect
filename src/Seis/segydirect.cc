@@ -71,7 +71,7 @@ bool key( od_int64 nr, Seis::PosKey& pk ) const
     if ( !Seis::is2D( geom ) )
     {
 	const BinID bid = pk.binID();
-	if ( bid.inl<=0 || bid.crl<=0 )
+	if ( bid.inl()<=0 || bid.crl()<=0 )
 	{
 	    pk = Seis::PosKey::undef();
 	}

@@ -194,7 +194,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 
     if ( !linesel2dfld_ && subselfld3d_ )
     {
-	cs.hrg.step.inl = cs.hrg.step.crl = 10;
+	cs.hrg.step.inl() = cs.hrg.step.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
     }
 

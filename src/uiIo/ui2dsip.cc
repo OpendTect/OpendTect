@@ -80,9 +80,9 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     if ( nrinl < 2 && nrcrl < 2 )
 	mErrRet("Coordinate ranges are less than one trace distance")
 
-    cs.hrg.start.inl = cs.hrg.start.crl = 10000;
-    cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    cs.hrg.stop.inl = 10000 + nrinl - 1; cs.hrg.stop.crl = 10000 + nrcrl - 1;
+    cs.hrg.start.inl() = cs.hrg.start.crl() = 10000;
+    cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
+    cs.hrg.stop.inl() = 10000 + nrinl - 1; cs.hrg.stop.crl() = 10000 + nrcrl - 1;
 
     Coord cmax( c0.x + grdsp*(nrinl-1), c0.y + grdsp*(nrcrl-1) );
     if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );

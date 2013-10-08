@@ -167,12 +167,12 @@ bool uiHorizonInterpolDlg::interpolate3D()
 
 	BinID steps = interpol2dsel_->getStep();
 	StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-	rowrg.step = steps.inl;
+	rowrg.step = steps.inl();
 	StepInterval<int> colrg = hor3d->geometry().colRange();
-	colrg.step = steps.crl;
+	colrg.step = steps.crl();
 	
-	interpolator->setRowStep( SI().inlDistance()*steps.inl );
-	interpolator->setColStep( SI().crlDistance()*steps.crl );
+	interpolator->setRowStep( SI().inlDistance()*steps.inl() );
+	interpolator->setColStep( SI().crlDistance()*steps.crl() );
 	
 	HorSampling hs( false );
 	hs.set( rowrg, colrg );
@@ -202,7 +202,7 @@ bool uiHorizonInterpolDlg::interpolate3D()
 	    if ( hs.includes(bid) )
 	    {
 		Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl), hs.crlIdx(bid.crl), (float) pos.z );
+		arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()), (float) pos.z );
 	    }
 	}
 

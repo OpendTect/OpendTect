@@ -53,9 +53,9 @@ bool uiLateralStack::acceptOK( CallBacker* )
     if ( !processor_ ) return true;
 
     const BinID stepout = stepoutfld_->getBinID();
-    if ( mIsUdf(stepout.inl) || mIsUdf(stepout.crl) ||
-	 stepout.inl<0 || stepout.crl<0 ||
-	 (!stepout.inl && !stepout.crl) )
+    if ( mIsUdf(stepout.inl()) || mIsUdf(stepout.crl()) ||
+	 stepout.inl()<0 || stepout.crl()<0 ||
+	 (!stepout.inl() && !stepout.crl()) )
     {
 	uiMSG().error("Stepout is not set to a valid range");
 	return false;

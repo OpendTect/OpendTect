@@ -898,14 +898,14 @@ void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
     const int minnr = 20;
     if ( newcube.nrInl() < minnr )
     {
-	newcube.hrg.start.inl -= minnr*newcube.hrg.step.inl;
-	newcube.hrg.stop.inl += minnr*newcube.hrg.step.inl;
+	newcube.hrg.start.inl() -= minnr*newcube.hrg.step.inl();
+	newcube.hrg.stop.inl() += minnr*newcube.hrg.step.inl();
     }
 
     if ( newcube.nrCrl() < minnr )
     {
-	newcube.hrg.start.crl -= minnr*newcube.hrg.step.crl;
-	newcube.hrg.stop.crl += minnr*newcube.hrg.step.crl;
+	newcube.hrg.start.crl() -= minnr*newcube.hrg.step.crl();
+	newcube.hrg.stop.crl() += minnr*newcube.hrg.step.crl();
     }
 
     if ( isdefault )

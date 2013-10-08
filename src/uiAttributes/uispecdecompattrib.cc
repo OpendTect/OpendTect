@@ -303,8 +303,8 @@ void uiSpecDecompAttrib::getPrevSel()
     }
 
     BinID bid;
-    bid.inl = positiondlg_->inlfld_->box()->getValue();
-    bid.crl = positiondlg_->crlfld_->getValue();
+    bid.inl() = positiondlg_->inlfld_->box()->getValue();
+    bid.crl() = positiondlg_->crlfld_->getValue();
     prevpar_.set( sKeyBinID(), bid );
 }
 
@@ -334,8 +334,8 @@ void uiSpecDecompAttrib::setPrevSel()
 
     BinID bid;
     prevpar_.get( sKeyBinID(), bid );
-    positiondlg_->inlfld_->box()->setValue( bid.inl );
-    positiondlg_->crlfld_->setValue( bid.crl );
+    positiondlg_->inlfld_->box()->setValue( bid.inl() );
+    positiondlg_->crlfld_->setValue( bid.crl() );
 }
 
 

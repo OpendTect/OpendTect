@@ -58,9 +58,9 @@ MadAGC::MadAGC( Desc& desc )
 bool MadAGC::getInputData( const BinID& relpos, int zintv )
 {
     const BinID bidstep = inputs_[0]->getStepoutStep();
-    for ( int idi=-reqstepout_.inl; idi<=reqstepout_.inl; idi++ )
+    for ( int idi=-reqstepout_.inl(); idi<=reqstepout_.inl(); idi++ )
     {
-	for ( int idc=-reqstepout_.crl; idc<=reqstepout_.crl; idc++ )
+	for ( int idc=-reqstepout_.crl(); idc<=reqstepout_.crl(); idc++ )
 	{
 	    const DataHolder* inputn =
 		    inputs_[0]->getData( relpos+BinID(idi,idc)*bidstep, zintv );

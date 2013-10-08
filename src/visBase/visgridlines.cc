@@ -80,20 +80,20 @@ void GridLines::setGridCubeSampling( const CubeSampling& cs )
 	return;
 
     if ( cs.hrg.inlRange() != gridcs_.hrg.inlRange() || 
-	 cs.hrg.step.inl != gridcs_.hrg.step.inl )
+	 cs.hrg.step.inl() != gridcs_.hrg.step.inl() )
 	csinlchanged_ = true;
     if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() ||
-	 cs.hrg.step.crl != gridcs_.hrg.step.crl )
+	 cs.hrg.step.crl() != gridcs_.hrg.step.crl() )
 	cscrlchanged_ = true;
     if ( cs.zrg != gridcs_.zrg || cs.zrg.step != gridcs_.zrg.step )
 	cszchanged_ = true;
 
     gridcs_ = cs;
 
-    if ( gridcs_.hrg.step.inl == 0 )
-	gridcs_.hrg.step.inl = planecs_.hrg.step.inl;
-    if ( gridcs_.hrg.step.crl == 0 )
-	gridcs_.hrg.step.crl = planecs_.hrg.step.crl;
+    if ( gridcs_.hrg.step.inl() == 0 )
+	gridcs_.hrg.step.inl() = planecs_.hrg.step.inl();
+    if ( gridcs_.hrg.step.crl() == 0 )
+	gridcs_.hrg.step.crl() = planecs_.hrg.step.crl();
     if ( mIsZero(gridcs_.zrg.step,mDefEps) )
 	gridcs_.zrg.step = planecs_.zrg.step;
 }
@@ -109,33 +109,33 @@ void GridLines::adjustGridCS()
 
     if ( csinlchanged_ )
     {
-	while ( phs.start.inl > ghs.start.inl ) 
-	    ghs.start.inl += ghs.step.inl;
+	while ( phs.start.inl() > ghs.start.inl() ) 
+	    ghs.start.inl() += ghs.step.inl();
 	
-	while ( phs.start.inl < ghs.start.inl - ghs.step.inl )
-	    ghs.start.inl -= ghs.step.inl;
+	while ( phs.start.inl() < ghs.start.inl() - ghs.step.inl() )
+	    ghs.start.inl() -= ghs.step.inl();
 
-	while ( phs.stop.inl > ghs.stop.inl + ghs.step.inl )
-	    ghs.stop.inl += ghs.step.inl;
+	while ( phs.stop.inl() > ghs.stop.inl() + ghs.step.inl() )
+	    ghs.stop.inl() += ghs.step.inl();
 
-	while ( phs.stop.inl < ghs.stop.inl )
-	    ghs.stop.inl -= ghs.step.inl;
+	while ( phs.stop.inl() < ghs.stop.inl() )
+	    ghs.stop.inl() -= ghs.step.inl();
 	csinlchanged_ = false;
     }
 
     if ( cscrlchanged_ )
     {
-	while ( phs.start.crl > ghs.start.crl )
-	    ghs.start.crl += ghs.step.crl;
+	while ( phs.start.crl() > ghs.start.crl() )
+	    ghs.start.crl() += ghs.step.crl();
 
-	while ( phs.start.crl < ghs.start.crl - ghs.step.crl )
-	    ghs.start.crl -= ghs.step.crl;
+	while ( phs.start.crl() < ghs.start.crl() - ghs.step.crl() )
+	    ghs.start.crl() -= ghs.step.crl();
 
-	while ( phs.stop.crl > ghs.stop.crl + ghs.step.crl )
-	    ghs.stop.crl += ghs.step.crl;
+	while ( phs.stop.crl() > ghs.stop.crl() + ghs.step.crl() )
+	    ghs.stop.crl() += ghs.step.crl();
 
-	while ( phs.stop.crl < ghs.stop.crl )
-	    ghs.stop.crl -= ghs.step.crl;
+	while ( phs.stop.crl() < ghs.stop.crl() )
+	    ghs.stop.crl() -= ghs.step.crl();
 	cscrlchanged_ = false;
     }
 
@@ -214,11 +214,11 @@ void GridLines::drawInlines()
 
     
     const HorSampling& ghs = gridcs_.hrg;
-    for ( int inl=ghs.start.inl; inl<=ghs.stop.inl; inl+=ghs.step.inl )
+    for ( int inl=ghs.start.inl(); inl<=ghs.stop.inl(); inl+=ghs.step.inl() )
     {
 	addLine( *inlines_, 
-		 Coord3(inl,planecs_.hrg.start.crl,planecs_.zrg.start),
-		 Coord3(inl,planecs_.hrg.stop.crl,planecs_.zrg.stop) );
+		 Coord3(inl,planecs_.hrg.start.crl(),planecs_.zrg.start),
+		 Coord3(inl,planecs_.hrg.stop.crl(),planecs_.zrg.stop) );
     }
     csinlchanged_ = false;
 }
@@ -232,11 +232,11 @@ void GridLines::drawCrosslines()
 	emptyLineSet( crosslines_ );
     
     const HorSampling& ghs = gridcs_.hrg;
-    for ( int crl=ghs.start.crl; crl<=ghs.stop.crl; crl+=ghs.step.crl )
+    for ( int crl=ghs.start.crl(); crl<=ghs.stop.crl(); crl+=ghs.step.crl() )
     {
 	addLine( *crosslines_, 
-		 Coord3(planecs_.hrg.start.inl,crl,planecs_.zrg.start),
-		 Coord3(planecs_.hrg.stop.inl,crl,planecs_.zrg.stop) );
+		 Coord3(planecs_.hrg.start.inl(),crl,planecs_.zrg.start),
+		 Coord3(planecs_.hrg.stop.inl(),crl,planecs_.zrg.stop) );
     }
     cscrlchanged_ = false;
 }
@@ -253,8 +253,8 @@ void GridLines::drawZlines()
     for ( int zidx=0; zidx<gridcs_.zrg.nrSteps()+1; zidx++ )
     {
 	const float zval = gridcs_.zrg.atIndex( zidx );
-	addLine( *zlines_, Coord3(phs.start.inl,phs.start.crl,zval),
-			   Coord3(phs.stop.inl,phs.stop.crl,zval) );
+	addLine( *zlines_, Coord3(phs.start.inl(),phs.start.crl(),zval),
+			   Coord3(phs.stop.inl(),phs.stop.crl(),zval) );
     }
     cszchanged_ = false;
 }

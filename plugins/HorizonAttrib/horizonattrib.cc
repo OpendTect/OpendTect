@@ -206,7 +206,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	if ( mIsUdf(horizon2dlineid_) )
 	    return false;
 
-	rc = RowCol( horizon2dlineid_, currentbid_.crl+relpos.crl );
+	rc = RowCol( horizon2dlineid_, currentbid_.crl()+relpos.crl() );
     }
 
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),

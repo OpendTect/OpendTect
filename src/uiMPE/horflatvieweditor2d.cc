@@ -589,8 +589,8 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
     if ( !hor2d ) return false;
 
     BinID bid;
-    bid.inl = hor2d->geometry().lineIndex( linenm_ );
-    bid.crl = pos.nr_;
+    bid.inl() = hor2d->geometry().lineIndex( linenm_ );
+    bid.crl() = pos.nr_;
 
     for ( int idx=0; idx<emobj->nrSections(); idx++ )
     {
@@ -631,12 +631,12 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
-	bid.inl = hor2d->geometry().lineIndex( linenm_ );
+	bid.inl() = hor2d->geometry().lineIndex( linenm_ );
 
 	int posidx = horpainter_->getDistances().indexOf(
 				mCast( float, getAuxData(selectedids[ids])->
 				poly_[selectedidxs[ids]].x ) );
-	bid.crl = horpainter_->getTrcNos()[posidx];
+	bid.crl() = horpainter_->getTrcNos()[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
 	emobj->unSetPos( posid, false );

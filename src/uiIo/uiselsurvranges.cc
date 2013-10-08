@@ -376,12 +376,12 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     {
 	stp = SI().sampling(true).hrg.step;
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
-	inlfld_->setInterval( StepInterval<int>(stp.inl,cUnLim,stp.inl) );
+	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );
 	lbl = "Inline/Crossline steps";
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
-    crlfld_->setInterval( StepInterval<int>(stp.crl,cUnLim,stp.crl) );
+    crlfld_->setInterval( StepInterval<int>(stp.crl(),cUnLim,stp.crl()) );
     crlfld_->doSnap( true );
     if ( inlfld_ )
 	crlfld_->attach( rightOf, inlfld_ );
@@ -401,9 +401,9 @@ BinID uiSelSteps::getSteps() const
 
 void uiSelSteps::setSteps( const BinID& bid )
 {
-    crlfld_->setValue( bid.crl );
+    crlfld_->setValue( bid.crl() );
     if ( inlfld_ )
-	inlfld_->setValue( bid.inl );
+	inlfld_->setValue( bid.inl() );
 }
 
 

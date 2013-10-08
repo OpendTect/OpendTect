@@ -214,15 +214,15 @@ bool FaultStickPainter::addPolyLine()
 		    BinID extrbid1, extrbid2;
 		    if ( cs_.defaultDir() == CubeSampling::Inl )
 		    { 
-			extrbid1.inl = extrbid2.inl = cs_.hrg.inlRange().start;
-			extrbid1.crl = cs_.hrg.crlRange().start;
-			extrbid2.crl = cs_.hrg.crlRange().stop;
+			extrbid1.inl() = extrbid2.inl() = cs_.hrg.inlRange().start;
+			extrbid1.crl() = cs_.hrg.crlRange().start;
+			extrbid2.crl() = cs_.hrg.crlRange().stop;
 		    }
 		    else if ( cs_.defaultDir() == CubeSampling::Crl )
 		    {
-			extrbid1.inl = cs_.hrg.inlRange().start;
-			extrbid2.inl = cs_.hrg.inlRange().stop;
-			extrbid1.crl = extrbid2.crl = cs_.hrg.crlRange().start;
+			extrbid1.inl() = cs_.hrg.inlRange().start;
+			extrbid2.inl() = cs_.hrg.inlRange().stop;
+			extrbid1.crl() = extrbid2.crl() = cs_.hrg.crlRange().start;
 		    }
 
 		    Coord extrcoord1, extrcoord2;
@@ -236,16 +236,16 @@ bool FaultStickPainter::addPolyLine()
 			BinID knotbinid = SI().transform( pos );
 			if (pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
 			    || (cs_.defaultDir()==CubeSampling::Inl
-				&& knotbinid.inl==extrbid1.inl)
+				&& knotbinid.inl()==extrbid1.inl())
 			    || (cs_.defaultDir()==CubeSampling::Crl
-				&& knotbinid.crl==extrbid1.crl) )
+				&& knotbinid.crl()==extrbid1.crl()) )
 			{
 			    if ( cs_.defaultDir() == CubeSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).crl, pos.z );
+				       SI().transform(pos.coord()).crl(), pos.z );
 			    else if ( cs_.defaultDir() == CubeSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
-				       SI().transform(pos.coord()).inl, pos.z );
+				       SI().transform(pos.coord()).inl(), pos.z );
 			}
 		    }
 		}
@@ -260,7 +260,7 @@ bool FaultStickPainter::addPolyLine()
 
 			BinID binid = SI().transform(pos.coord());
 			stickauxdata->poly_ +=
-			    FlatView::Point( binid.inl, binid.crl );
+			    FlatView::Point( binid.inl(), binid.crl() );
 		    }
 		}
 	    }
@@ -531,9 +531,9 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
     else if ( idx-1 > 0 )
 	nextbid = (*path_)[idx-1];
 
-    if ( pivotbid.inl == nextbid.inl )
+    if ( pivotbid.inl() == nextbid.inl() )
 	return  SI().binID2Coord().rowDir();
-    else if ( pivotbid.crl == nextbid.crl )
+    else if ( pivotbid.crl() == nextbid.crl() )
 	return SI().binID2Coord().colDir();
 
     return Coord(mUdf(float), mUdf(float));

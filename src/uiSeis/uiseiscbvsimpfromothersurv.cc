@@ -178,9 +178,9 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     const CBVSInfo& info = tr_->readMgr()->info();
     const RCol2Coord& b2c = tr_->getTransform();
     const CBVSInfo::SurvGeom& geom = info.geom_;
-    olddata_.cs_.hrg.start = BinID( geom.start.inl, geom.start.crl );
-    olddata_.cs_.hrg.stop  = BinID( geom.stop.inl, geom.stop.crl );
-    olddata_.cs_.hrg.step  = BinID( geom.step.inl, geom.step.crl ); 
+    olddata_.cs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
+    olddata_.cs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
+    olddata_.cs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() ); 
     data_.hsit_ = new HorSamplingIterator( olddata_.cs_.hrg );
     olddata_.cs_.zrg = info.sd_.interval( info.nrsamples_ );
     data_.cs_.zrg = olddata_.cs_.zrg; data_.cs_.zrg.step = SI().zStep();
@@ -193,9 +193,9 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 	&& !SI().isInside(data_.cs_.hrg.stop,true) )
 	mErrRet("The selected cube has no coordinate matching the current survey")
 
-    int step = olddata_.cs_.hrg.step.inl;
+    int step = olddata_.cs_.hrg.step.inl();
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;
-    step = olddata_.cs_.hrg.step.crl;
+    step = olddata_.cs_.hrg.step.crl();
     int pady = (int)( getInlXlnDist(b2c,false,step) /SI().crlDistance() )+1;
     padfac_ = mMAX( padx, pady );
 
@@ -329,16 +329,16 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
 					    ObjectSet<SeisTrc>& trcs ) const
 {
     deepErase( trcs );
-    const int inlstep = olddata_.cs_.hrg.step.inl;
-    const int crlstep = olddata_.cs_.hrg.step.crl;
+    const int inlstep = olddata_.cs_.hrg.step.inl();
+    const int crlstep = olddata_.cs_.hrg.step.crl();
     const int nrinltrcs = sz_*inlstep/2;
     const int nrcrltrcs = sz_*crlstep/2;
     for ( int idinl=-nrinltrcs; idinl<nrinltrcs; idinl+=inlstep)
     {
 	for ( int idcrl=-nrcrltrcs; idcrl<nrcrltrcs; idcrl+=crlstep)
 	{
-	    BinID oldbid( olddata_.curbid_.inl + idinl, 
-		    	  olddata_.curbid_.crl + idcrl );
+	    BinID oldbid( olddata_.curbid_.inl() + idinl, 
+		    	  olddata_.curbid_.crl() + idcrl );
 	    SeisTrc* trc = readTrc( oldbid );
 	    if ( !trc || trc->isEmpty() )
 		{ deepErase( trcs ); return false; }

@@ -42,9 +42,9 @@ void PosInfo::Detector::reInit()
     curline_ = curseg_ = -1;
     nrpos_ = nruniquepos_ = nroffsperpos_ = 0;
     offsrg_.start = offsrg_.stop = 0;
-    firstduppos_.binid_.inl = firstaltnroffs_.binid_.inl = mUdf(int);
+    firstduppos_.binid_.inl() = firstaltnroffs_.binid_.inl() = mUdf(int);
     mSetUdf(distrg_.start); avgdist_ = 0;
-    step_.inl = step_.crl = 1;
+    step_.inl() = step_.crl() = 1;
 }
 
 
@@ -64,7 +64,7 @@ bool PosInfo::Detector::add( const Coord& c, const BinID& b, int nr, float o )
     if ( !setup_.isps_ )
 	cbo.offset_ = 0;
     if ( setup_.is2d_ )
-	 { cbo.binid_.inl = 1; cbo.binid_.crl = nr; }
+	 { cbo.binid_.inl() = 1; cbo.binid_.crl() = nr; }
     return add( cbo );
 }
 
@@ -76,12 +76,12 @@ bool PosInfo::Detector::finish()
 
     lastcbo_ = curcbo_;
     getBinIDRanges();
-    step_.inl = getStep(true);
-    step_.crl = getStep(false);
+    step_.inl() = getStep(true);
+    step_.crl() = getStep(false);
     avgdist_ /= nruniquepos_;
 
     // Get rid of 0 step (for segments with one position)
-    const int nrstep = crlSorted() ? step_.inl : step_.crl;
+    const int nrstep = crlSorted() ? step_.inl() : step_.crl();
     for ( int iln=0; iln<lds_.size(); iln++ )
     {
 	LineData& ld = *lds_[iln];
@@ -160,10 +160,10 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
 
     hs.start = start_; hs.stop = stop_; hs.step = step_;
 
-    if ( hs.start.inl == hs.stop.inl )
-	mErrRet2("The input data contains only one in-line: ",hs.start.inl)
-    else if ( hs.start.crl == hs.stop.crl )
-	mErrRet2("The input data contains only one cross-line: ",hs.start.crl)
+    if ( hs.start.inl() == hs.stop.inl() )
+	mErrRet2("The input data contains only one in-line: ",hs.start.inl())
+    else if ( hs.start.crl() == hs.stop.crl() )
+	mErrRet2("The input data contains only one cross-line: ",hs.start.crl())
 
     const CrdBidOffs llnstart( userCBO(llnstart_) );
     const CrdBidOffs llnstop( userCBO(llnstop_) );
@@ -171,8 +171,8 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
     const CrdBidOffs lastcbo( userCBO(lastcbo_) );
 
     const CrdBidOffs& usecbo(
-	      abs(firstcbo.binid_.inl-llnstart.binid_.inl)
-	    < abs(lastcbo.binid_.inl-llnstart.binid_.inl)
+	      abs(firstcbo.binid_.inl()-llnstart.binid_.inl())
+	    < abs(lastcbo.binid_.inl()-llnstart.binid_.inl())
 	    ? lastcbo : firstcbo );
     Coord c[3]; BinID b[2];
     c[0] = llnstart.coord_;	b[0] = llnstart.binid_;
@@ -180,7 +180,7 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
     c[1] = usecbo.coord_;	b[1] = usecbo.binid_;
 
     RCol2Coord b2c;
-    if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl ) )
+    if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl() ) )
 	return "The input data does not contain the required information\n"
 	    "to establish a relation between\nthe inline/crossline system\n"
 	    "and the coordinates.";
@@ -188,7 +188,7 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
     // what coords would have been on the corners
     crd[0] = b2c.transform( hs.start );
     crd[1] = b2c.transform( hs.stop );
-    crd[2] = b2c.transform( BinID(hs.start.inl,hs.stop.crl) );
+    crd[2] = b2c.transform( BinID(hs.start.inl(),hs.stop.crl()) );
 
     return 0;
 }
@@ -216,8 +216,8 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
 
 StepInterval<int> PosInfo::Detector::getRange( bool inldir ) const
 {
-    return inldir ? StepInterval<int>( start_.inl, stop_.inl, step_.inl )
-		  : StepInterval<int>( start_.crl, stop_.crl, step_.crl );
+    return inldir ? StepInterval<int>( start_.inl(), stop_.inl(), step_.inl() )
+		  : StepInterval<int>( start_.crl(), stop_.crl(), step_.crl() );
 }
 
 
@@ -310,10 +310,10 @@ void PosInfo::Detector::addLine()
 	    { llnstart_ = curlnstart_; llnstop_ = prevcbo_; }
     }
 
-    lds_ += new PosInfo::LineData( curcbo_.binid_.inl );
+    lds_ += new PosInfo::LineData( curcbo_.binid_.inl() );
     curline_ = lds_.size() - 1;
     lds_[curline_]->segments_ += PosInfo::LineData::Segment(
-				curcbo_.binid_.crl, curcbo_.binid_.crl, 0 );
+				curcbo_.binid_.crl(), curcbo_.binid_.crl(), 0 );
     curseg_ = 0;
     curlnstart_ = curcbo_;
     nroffsthispos_ = 1;
@@ -323,16 +323,16 @@ void PosInfo::Detector::addLine()
 void PosInfo::Detector::addPos()
 {
     nrpos_++;
-    if ( prevcbo_.binid_.inl != curcbo_.binid_.inl )
+    if ( prevcbo_.binid_.inl() != curcbo_.binid_.inl() )
 	{ addLine(); nruniquepos_++; return; }
 
     mDefCurLineAndSegment;
-    int stp = curcbo_.binid_.crl - prevcbo_.binid_.crl;
+    int stp = curcbo_.binid_.crl() - prevcbo_.binid_.crl();
     if ( stp == 0 )
     {
 	if ( setup_.isps_ )
 	    nroffsthispos_++;
-	else if ( mIsUdf(firstduppos_.binid_.inl) )
+	else if ( mIsUdf(firstduppos_.binid_.inl()) )
 	    firstduppos_ = curcbo_;
     }
     else
@@ -343,19 +343,19 @@ void PosInfo::Detector::addPos()
 	    if ( nroffsperpos_ < 1 )
 		nroffsperpos_ = nroffsthispos_;
 	    else if ( nroffsperpos_ != nroffsthispos_
-		   && mIsUdf(firstaltnroffs_.binid_.inl) )
+		   && mIsUdf(firstaltnroffs_.binid_.inl()) )
 		firstaltnroffs_ = curcbo_;
 	    nroffsthispos_ = 1;
 	}
 	if ( curseg.step && stp != curseg.step )
 	{
 	    curline.segments_ += PosInfo::LineData::Segment(
-				    curcbo_.binid_.crl, curcbo_.binid_.crl, 0 );
+				    curcbo_.binid_.crl(), curcbo_.binid_.crl(), 0 );
 	    curseg_++;
 	}
 	else
 	{
-	    curseg.stop = curcbo_.binid_.crl;
+	    curseg.stop = curcbo_.binid_.crl();
 	    if ( curseg.step == 0 )
 		curseg.step = curseg.stop - curseg.start;
 	}
@@ -383,8 +383,8 @@ void PosInfo::Detector::setCur( const PosInfo::CrdBidOffs& cbo )
 
 void PosInfo::Detector::getBinIDRanges()
 {
-    Interval<int> inlrg( firstcbo_.binid_.inl, firstcbo_.binid_.inl );
-    Interval<int> crlrg( firstcbo_.binid_.crl, firstcbo_.binid_.crl );
+    Interval<int> inlrg( firstcbo_.binid_.inl(), firstcbo_.binid_.inl() );
+    Interval<int> crlrg( firstcbo_.binid_.crl(), firstcbo_.binid_.crl() );
     int lnstep=mUdf(int), trcstep=mUdf(int);
     for ( int iln=0; iln<lds_.size(); iln++ )
     {
@@ -426,8 +426,8 @@ void PosInfo::Detector::getBinIDRanges()
 	Swap( crlrg.start, crlrg.stop );
     }
 
-    start_.inl = inlrg.start; start_.crl = crlrg.start;
-    stop_.inl = inlrg.stop; stop_.crl = crlrg.stop;
+    start_.inl() = inlrg.start; start_.crl() = crlrg.start;
+    stop_.inl() = inlrg.stop; stop_.crl() = crlrg.stop;
 }
 
 
@@ -468,19 +468,19 @@ PosInfo::CrdBidOffs PosInfo::Detector::workCBO(
 			const PosInfo::CrdBidOffs& usrcbo ) const
 {
     PosInfo::CrdBidOffs workcbo( usrcbo );
-    if ( setup_.is2d_ ) workcbo.binid_.inl = 1;
+    if ( setup_.is2d_ ) workcbo.binid_.inl() = 1;
     if ( allstd_ ) return workcbo;
 
     if ( setup_.is2d_ )
-	workcbo.binid_.crl = -workcbo.binid_.crl;
+	workcbo.binid_.crl() = -workcbo.binid_.crl();
     else
     {
 	if ( !sorting_.inlUpward() )
-	    workcbo.binid_.inl = -workcbo.binid_.inl;
+	    workcbo.binid_.inl() = -workcbo.binid_.inl();
 	if ( !sorting_.crlUpward() )
-	    workcbo.binid_.crl = -workcbo.binid_.crl;
+	    workcbo.binid_.crl() = -workcbo.binid_.crl();
 	if ( !inlSorted() )
-	    Swap( workcbo.binid_.inl, workcbo.binid_.crl );
+	    Swap( workcbo.binid_.inl(), workcbo.binid_.crl() );
     }
 
     return workcbo;
@@ -495,15 +495,15 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
     PosInfo::CrdBidOffs usrcbo( internalcbo );
 
     if ( setup_.is2d_ )
-	usrcbo.binid_.crl = -usrcbo.binid_.crl;
+	usrcbo.binid_.crl() = -usrcbo.binid_.crl();
     else
     {
 	if ( !inlSorted() )
-	    Swap( usrcbo.binid_.inl, usrcbo.binid_.crl );
+	    Swap( usrcbo.binid_.inl(), usrcbo.binid_.crl() );
 	if ( !sorting_.crlUpward() )
-	    usrcbo.binid_.crl = -usrcbo.binid_.crl;
+	    usrcbo.binid_.crl() = -usrcbo.binid_.crl();
 	if ( !sorting_.inlUpward() )
-	    usrcbo.binid_.inl = -usrcbo.binid_.inl;
+	    usrcbo.binid_.inl() = -usrcbo.binid_.inl();
     }
 
     return usrcbo;
@@ -556,7 +556,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
     if ( setup_.is2d_ )
     {
 	iop.set( "Trace numbers",
-		 getStepRangeStr(start_.crl,stop_.crl,step_.crl) );
+		 getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()) );
 	iop.set( setup_.isps_ ? "Distance range between gathers"
 			: "Trace distance range", distrg_ );
 	iop.set( setup_.isps_ ? "Average gather distance"
@@ -565,15 +565,15 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     else
     {
-	iop.set( "Inlines", getStepRangeStr(start_.inl,stop_.inl,step_.inl) );
-	iop.set( "Crosslines", getStepRangeStr(start_.crl,stop_.crl,step_.crl));
+	iop.set( "Inlines", getStepRangeStr(start_.inl(),stop_.inl(),step_.inl()) );
+	iop.set( "Crosslines", getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()));
 	iop.setYN( "Gaps in inlines", inlirreg_ );
 	iop.setYN( "Gaps in crosslines", crlirreg_ );
     }
     if ( setup_.isps_ )
     {
 	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop) );
-	if ( mIsUdf(firstaltnroffs_.binid_.inl) )
+	if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else
 	{
@@ -581,21 +581,21 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    const char* varstr = "First different traces/gather at";
 	    const CrdBidOffs fao( userCBO(firstaltnroffs_) );
 	    if ( setup_.is2d_ )
-		iop.set( varstr, fao.binid_.crl );
+		iop.set( varstr, fao.binid_.crl() );
 	    else
 		iop.set( varstr, fao.binid_.getUsrStr() );
 	}
     }
     else
     {
-	if ( mIsUdf(firstduppos_.binid_.inl) )
+	if ( mIsUdf(firstduppos_.binid_.inl()) )
 	    iop.set( "Duplicate positions", "None" );
 	else
 	{
 	    const char* fdupstr = "First duplicate position at";
 	    const CrdBidOffs fdp( userCBO(firstduppos_) );
 	    if ( setup_.is2d_ )
-		iop.set( fdupstr, fdp.binid_.crl );
+		iop.set( fdupstr, fdp.binid_.crl() );
 	    else
 		iop.set( fdupstr, fdp.binid_.getUsrStr() );
 	}

@@ -825,9 +825,9 @@ void IOPar::set( const char* s, const Coord3& crd )
 { set( s, crd.x, crd.y, crd.z ); }
 
 bool IOPar::get( const char* s, BinID& binid ) const
-{ return get( s, binid.inl, binid.crl ); }
+{ return get( s, binid.inl(), binid.crl() ); }
 void IOPar::set( const char* s, const BinID& binid )
-{ set( s, binid.inl, binid.crl ); }
+{ set( s, binid.inl(), binid.crl() ); }
 
 
 bool IOPar::get( const char* s, TraceID& traceid ) const

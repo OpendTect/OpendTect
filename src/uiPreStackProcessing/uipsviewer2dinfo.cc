@@ -46,7 +46,7 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 {
     datalbl_->setText( datanm ); 
     BufferString posstr( is2d ? "Trace " : isinl ? "Crl " : "Inl " ); 
-    posstr += isinl ? toString( pos.crl ) : toString( pos.inl );
+    posstr += isinl ? toString( pos.crl() ) : toString( pos.inl() );
     poslbl_->setText( posstr.buf() );
 }
 

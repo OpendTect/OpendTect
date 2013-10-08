@@ -895,7 +895,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id, DataPointSet& data,
 	bid = bivs.getBinID( pos );
 	const float* vals = bivs.getVals( pos );
 
-	RowCol rc( bid.inl, bid.crl );
+	RowCol rc( bid.inl(), bid.crl() );
 	EM::SubID subid = rc.toInt64();
 	posid.setSubID( subid );
 	hor3d->auxdata.setAuxDataVal( auxdataidx, posid, vals[idx] );
@@ -992,8 +992,8 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     		    continue;
     
 		BinID diff = bid - cs->hrg.start;
-		if ( diff.inl % cs->hrg.step.inl ||
-		     diff.crl % cs->hrg.step.crl )	
+		if ( diff.inl() % cs->hrg.step.inl() ||
+		     diff.crl() % cs->hrg.step.crl() )	
     		    continue;
 	    }
 
@@ -1331,9 +1331,9 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     }
 
     BinID bid;
-    for ( bid.inl=hs.start.inl; bid.inl<=hs.stop.inl; bid.inl+=hs.step.inl )
+    for ( bid.inl()=hs.start.inl(); bid.inl()<=hs.stop.inl(); bid.inl()+=hs.step.inl() )
     {
-	for ( bid.crl=hs.start.crl; bid.crl<=hs.stop.crl; bid.crl+=hs.step.crl )
+	for ( bid.crl()=hs.start.crl(); bid.crl()<=hs.stop.crl(); bid.crl()+=hs.step.crl() )
 	{
 	    const EM::SubID subid = bid.toInt64();
 	    TypeSet<Coord3> z1pos, z2pos;
@@ -1482,7 +1482,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	    const Geometry::BinIDSurface* geom = 
 		hor->geometry().sectionGeometry( hor->sectionID(0) );
 	    if ( geom )
-		zval = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
 	    if ( mIsUdf(zval) )
 	    {
 		ps.removeSingle(idx);

@@ -281,12 +281,12 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 bool SeisMerger::toNextPos()
 {
     HorSampling hs = SI().sampling(false).hrg;
-    curbid_.crl += hs.step.crl;
-    if ( curbid_.crl > hs.stop.crl )
+    curbid_.crl() += hs.step.crl();
+    if ( curbid_.crl() > hs.stop.crl() )
     {
-	curbid_.inl += hs.step.inl;
-	curbid_.crl = hs.start.crl;
-	if ( curbid_.inl > hs.stop.inl )
+	curbid_.inl() += hs.step.inl();
+	curbid_.crl() = hs.start.crl();
+	if ( curbid_.inl() > hs.stop.inl() )
 	    return false;
     }
     return true;

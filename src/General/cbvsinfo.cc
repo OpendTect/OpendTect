@@ -35,11 +35,11 @@ int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
 {
     int res = 0;
 
-    if ( bid.inl < start.inl || bid.inl > stop.inl
-	    || (bid.inl-start.inl)%step.inl )
+    if ( bid.inl() < start.inl() || bid.inl() > stop.inl()
+	    || (bid.inl()-start.inl())%step.inl() )
 	    res = 2;
-    if ( bid.crl < start.crl || bid.crl > stop.crl
-	    || (bid.crl-start.crl)%step.crl )
+    if ( bid.crl() < start.crl() || bid.crl() > stop.crl()
+	    || (bid.crl()-start.crl())%step.crl() )
 	    res += 2 * 256;
 
     return res;
@@ -59,8 +59,8 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 {
     if ( fullyrectandreg )
     {
-	inl -= start.inl;
-	return inl >= 0 && inl + start.inl <= stop.inl && inl % step.inl == 0;
+	inl -= start.inl();
+	return inl >= 0 && inl + start.inl() <= stop.inl() && inl % step.inl() == 0;
     }
 
     return cubedata.indexOf(inl) >= 0;
@@ -99,23 +99,23 @@ bool CBVSInfo::SurvGeom::moveToNextInline( BinID& bid ) const
 void CBVSInfo::SurvGeom::merge( const CBVSInfo::SurvGeom& geom )
 {
     if ( !geom.fullyrectandreg || !fullyrectandreg
-      || start.crl != geom.start.crl || stop.crl != geom.stop.crl
-      || step.crl != geom.step.crl || step.inl != geom.step.inl )
+      || start.crl() != geom.start.crl() || stop.crl() != geom.stop.crl()
+      || step.crl() != geom.step.crl() || step.inl() != geom.step.inl() )
         { mergeIrreg( geom ); return; }
 
-    int expected_inline = stop.inl + abs(step.inl);
+    int expected_inline = stop.inl() + abs(step.inl());
     bool isafter = true;
-    if ( geom.start.inl != expected_inline )
+    if ( geom.start.inl() != expected_inline )
     {
-        expected_inline = start.inl - abs(step.inl);
-        if ( geom.stop.inl == expected_inline )
+        expected_inline = start.inl() - abs(step.inl());
+        if ( geom.stop.inl() == expected_inline )
             isafter = false;
         else
             { mergeIrreg( geom ); return; }
     }
 
-    if ( isafter ) stop.inl = geom.stop.inl;
-    else           start.inl = geom.start.inl;
+    if ( isafter ) stop.inl() = geom.stop.inl();
+    else           start.inl() = geom.start.inl();
 }
 
 
@@ -125,16 +125,16 @@ void CBVSInfo::SurvGeom::toIrreg()
 
     deepErase( cubedata );
     fullyrectandreg = false;
-    const int nrinls = (stop.inl-start.inl)/ abs(step.inl) + 1;
-    const int startinl = step.inl > 0 ? start.inl : stop.inl;
+    const int nrinls = (stop.inl()-start.inl())/ abs(step.inl()) + 1;
+    const int startinl = step.inl() > 0 ? start.inl() : stop.inl();
     for ( int idx=0; idx<nrinls; idx++ )
     {
-	int curinl = startinl + idx * step.inl;
+	int curinl = startinl + idx * step.inl();
 	PosInfo::LineData* newinf = new PosInfo::LineData( curinl );
 	newinf->segments_ += PosInfo::LineData::Segment(
-				step.crl > 0 ? start.crl : stop.crl,
-				step.crl > 0 ? stop.crl : start.crl,
-				step.crl );
+				step.crl() > 0 ? start.crl() : stop.crl(),
+				step.crl() > 0 ? stop.crl() : start.crl(),
+				step.crl() );
 	cubedata.add( newinf );
     }
 }
@@ -211,8 +211,8 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 bool CBVSInfo::contributesTo( const CubeSampling& cs ) const
 {
-    if ( cs.hrg.start.inl > geom_.stop.inl || cs.hrg.stop.inl < geom_.start.inl
-      || cs.hrg.start.crl > geom_.stop.crl || cs.hrg.stop.crl < geom_.start.crl )
+    if ( cs.hrg.start.inl() > geom_.stop.inl() || cs.hrg.stop.inl() < geom_.start.inl()
+      || cs.hrg.start.crl() > geom_.stop.crl() || cs.hrg.stop.crl() < geom_.start.crl() )
 	return false;
 
     float zend = sd_.start + (nrsamples_-1) * sd_.step;

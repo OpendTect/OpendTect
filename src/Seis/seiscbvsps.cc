@@ -238,7 +238,7 @@ SeisTrc* SeisCBVSPSIO::readNewTrace( int crlnr ) const
     SeisTrc* trc = new SeisTrc;
     if ( !tr_->read(*trc) )
 	{ delete trc; return 0; }
-    if ( trc->info().binid.inl != crlnr )
+    if ( trc->info().binid.inl() != crlnr )
 	{ delete trc; return 0; }
 
     return trc;
@@ -365,8 +365,8 @@ void SeisCBVSPS3DReader::addInl( int inl )
 
     if ( sg.fullyrectandreg )
 
-	newid->segments_ += PosInfo::LineData::Segment( sg.start.inl,
-					sg.stop.inl, sg.step.inl );
+	newid->segments_ += PosInfo::LineData::Segment( sg.start.inl(),
+					sg.stop.inl(), sg.step.inl() );
     else
     {
 	const PosInfo::CubeData& cd = sg.cubedata;
@@ -427,9 +427,9 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 					   const Coord& coord ) const
 {
-    SeisTrc* trc = readNewTrace( bid.crl );
+    SeisTrc* trc = readNewTrace( bid.crl() );
     if ( !trc ) return 0;
-    trc->info().nr = trc->info().binid.crl;
+    trc->info().nr = trc->info().binid.crl();
     trc->info().binid = bid; trc->info().coord = coord;
     return trc;
 }
@@ -457,14 +457,14 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 
 SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
 {
-    return mkTr(bid.inl) && goTo(bid.crl,nr)
+    return mkTr(bid.inl()) && goTo(bid.crl(),nr)
 	 ? getNextTrace( bid, SI().transform(bid) ) : 0;
 }
 
 
 bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 {
-    return mkTr( bid.inl ) && getGather( bid.crl, gath );
+    return mkTr( bid.inl() ) && getGather( bid.crl(), gath );
 }
 
 
@@ -498,7 +498,7 @@ void SeisCBVSPS3DWriter::close()
 bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
     const BinID& trcbid = trc.info().binid;
-    BufferString fnm( "", trcbid.inl, ext() );
+    BufferString fnm( "", trcbid.inl(), ext() );
     FilePath fp( dirnm_, fnm );
     fnm = fp.fullPath();
 
@@ -512,19 +512,19 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
     const BinID trcbid = ti.binid;
-    if ( trcbid.inl != prevbid_.inl )
+    if ( trcbid.inl() != prevbid_.inl() )
     {
 	if ( !newInl(trc) )
 	    return false;
 	nringather_ = 1;
-	if ( mIsUdf(prevbid_.inl) )
+	if ( mIsUdf(prevbid_.inl()) )
 	    mRemoveCache( posdataFileName(dirnm_) );
     }
-    else if ( trcbid.crl != prevbid_.crl )
+    else if ( trcbid.crl() != prevbid_.crl() )
 	nringather_ = 1;
     prevbid_ = trcbid;
 
-    ti.binid = BinID( trcbid.crl, nringather_ );
+    ti.binid = BinID( trcbid.crl(), nringather_ );
     bool res = tr_->write( trc );
     ti.binid = trcbid;
     if ( !res )
@@ -564,7 +564,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     int prevnr = mUdf(int);
     for ( int idx=0; idx<coords.size(); idx++ )
     {
-	const int curnr = binids[idx].inl;
+	const int curnr = binids[idx].inl();
 	if ( curnr != prevnr )
 	{
 	    PosInfo::Line2DPos p( curnr );
@@ -586,12 +586,12 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 {
     if ( !tr_ ) return 0;
 
-    if ( !goTo(bid.crl,nr) )
+    if ( !goTo(bid.crl(),nr) )
 	return 0;
 
-    SeisTrc* trc = readNewTrace( bid.crl );
+    SeisTrc* trc = readNewTrace( bid.crl() );
     if ( !trc ) return 0;
-    trc->info().nr = trc->info().binid.inl;
+    trc->info().nr = trc->info().binid.inl();
     trc->info().binid = SI().transform( trc->info().coord );
     return trc;
 }
@@ -599,19 +599,19 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 
 bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 {
-    if ( !prepGather(bid.crl,tbuf) )
+    if ( !prepGather(bid.crl(),tbuf) )
 	return false;
 
-    SeisTrc* trc = readNewTrace( bid.crl );
+    SeisTrc* trc = readNewTrace( bid.crl() );
     if ( !trc ) return false;
 
     while ( trc )
     {
-	trc->info().nr = bid.crl;
+	trc->info().nr = bid.crl();
 	trc->info().binid = SI().transform( trc->info().coord );
 	tbuf.add( trc );
 
-	trc = readNewTrace( bid.crl );
+	trc = readNewTrace( bid.crl() );
     }
 
     return true;

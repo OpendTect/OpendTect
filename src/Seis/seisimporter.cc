@@ -241,7 +241,7 @@ void SeisImporter::reportWrite( const char* errmsg )
 int SeisImporter::doWrite( SeisTrc& trc )
 {
     if ( needInlCrlSwap() )
-	Swap( trc.info().binid.inl, trc.info().binid.crl );
+	Swap( trc.info().binid.inl(), trc.info().binid.crl() );
 
     Threads::MutexLocker lock( lock_ );
     while ( Threads::WorkManager::twm().queueSize( queueid_ )>maxqueuesize_ )
@@ -324,12 +324,12 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
     BinID bid( trc.info().binid );
     if ( is2d )
     {
-	bid.crl = trc.info().nr;
-	bid.inl = prevbid_.inl;
-	if ( mIsUdf(bid.inl) )
-	    bid.inl = 0;
+	bid.crl() = trc.info().nr;
+	bid.inl() = prevbid_.inl();
+	if ( mIsUdf(bid.inl()) )
+	    bid.inl() = 0;
 	else if ( trc.info().new_packet )
-	    bid.inl = prevbid_.inl + 1;
+	    bid.inl() = prevbid_.inl() + 1;
     }
 
     bool rv = true;
@@ -397,8 +397,8 @@ SeisInlCrlSwapper( const char* inpfnm, IOObj* out, int nrtrcs )
     if ( !tri_->initRead(new StreamConn(inpfnm,Conn::Read)) )
 	{ errmsg_ = tri_->errMsg(); return; }
     geom_ = &tri_->readMgr()->info().geom_;
-    linenr_ = geom_->start.crl;
-    trcnr_ = geom_->start.inl - geom_->step.inl;
+    linenr_ = geom_->start.crl();
+    trcnr_ = geom_->start.inl() - geom_->step.inl();
 
     wrr_ = new SeisTrcWriter( out_ );
     if ( wrr_->errMsg() )
@@ -427,14 +427,14 @@ int nextStep()
     if ( !errmsg_.isEmpty() )
 	return Executor::ErrorOccurred();
 
-    trcnr_ += geom_->step.inl;
-    if ( trcnr_ > geom_->stop.inl )
+    trcnr_ += geom_->step.inl();
+    if ( trcnr_ > geom_->stop.inl() )
     {
-	linenr_ += geom_->step.crl;
-	if ( linenr_ > geom_->stop.crl )
+	linenr_ += geom_->step.crl();
+	if ( linenr_ > geom_->stop.crl() )
 	    return doFinal();
 	else
-	    trcnr_ = geom_->start.inl;
+	    trcnr_ = geom_->start.inl();
     }
 
     if ( tri_->goTo(BinID(trcnr_,linenr_)) )
@@ -447,7 +447,7 @@ int nextStep()
 	    return Executor::ErrorOccurred();
 	}
 
-	Swap( trc_.info().binid.inl, trc_.info().binid.crl );
+	Swap( trc_.info().binid.inl(), trc_.info().binid.crl() );
 	trc_.info().coord = SI().transform( trc_.info().binid );
 
 	if ( !wrr_->put(trc_) )

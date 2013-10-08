@@ -224,12 +224,12 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
 	neednewconn = trc.info().new_packet
 		   || (iostrm->isMulti() &&
-			iostrm->connNr() != trc.info().binid.inl);
+			iostrm->connNr() != trc.info().binid.inl());
     }
 
     if ( neednewconn )
     {
-	Conn* conn = crConn( trc.info().binid.inl, first );
+	Conn* conn = crConn( trc.info().binid.inl(), first );
 	if ( !conn || !start3DWrite(conn,trc) )
 	    return false;
     }
@@ -427,8 +427,8 @@ SeisSequentialWriter::~SeisSequentialWriter()
 bool SeisSequentialWriter::announceTrace( const BinID& bid )
 {
     Threads::MutexLocker lock( lock_ );
-    if ( bid.inl<latestbid_.inl ||
-	    (bid.inl==latestbid_.inl && bid.crl<latestbid_.crl ) )
+    if ( bid.inl()<latestbid_.inl() ||
+	    (bid.inl()==latestbid_.inl() && bid.crl()<latestbid_.crl() ) )
     {
 	errmsg_ = "Announced trace is out of sequence";
 	return false;
@@ -520,7 +520,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
 		const bool samepos = writer_->is2D()
-		    ? bid.crl == outputs_[idy]->info().nr
+		    ? bid.crl() == outputs_[idy]->info().nr
 		    : outputs_[idy]->info().binid == bid;
 		if ( samepos )
 		{

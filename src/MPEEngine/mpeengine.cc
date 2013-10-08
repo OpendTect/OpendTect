@@ -90,8 +90,8 @@ void Engine::setActiveVolume( const CubeSampling& nav )
     activevolume_ = nav;
 
     int dim = 0;
-    if ( trackplane_.boundingBox().hrg.start.crl==
-	 trackplane_.boundingBox().hrg.stop.crl )
+    if ( trackplane_.boundingBox().hrg.start.crl()==
+	 trackplane_.boundingBox().hrg.stop.crl() )
 	dim = 1;
     else if ( !trackplane_.boundingBox().zrg.width() )
 	dim = 2;
@@ -101,11 +101,11 @@ void Engine::setActiveVolume( const CubeSampling& nav )
     ncs = nav;
 
     if ( !dim )
-	ncs.hrg.start.inl = ncs.hrg.stop.inl =
-	    SI().inlRange(true).snap((ncs.hrg.start.inl+ncs.hrg.stop.inl)/2);
+	ncs.hrg.start.inl() = ncs.hrg.stop.inl() =
+	    SI().inlRange(true).snap((ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
     else if ( dim==1 )
-	ncs.hrg.start.crl = ncs.hrg.stop.crl =
-	    SI().crlRange(true).snap((ncs.hrg.start.crl+ncs.hrg.stop.crl)/2);
+	ncs.hrg.start.crl() = ncs.hrg.stop.crl() =
+	    SI().crlRange(true).snap((ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
     else
 	ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(ncs.zrg.center());
 
@@ -230,8 +230,8 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	{
 	    int dim = 0;
-	    if ( trackplane_.boundingBox().hrg.start.crl==
-		 trackplane_.boundingBox().hrg.stop.crl )
+	    if ( trackplane_.boundingBox().hrg.start.crl()==
+		 trackplane_.boundingBox().hrg.stop.crl() )
 		dim = 1;
 	    else if ( !trackplane_.boundingBox().zrg.width() )
 		dim = 2;
@@ -241,13 +241,13 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	    ncs = emobj->getRemovedPolySelectedPosBox();
 
 	    if ( !dim )
-		ncs.hrg.start.inl = ncs.hrg.stop.inl =
+		ncs.hrg.start.inl() = ncs.hrg.stop.inl() =
 		    SI().inlRange(true).snap(
-			    (ncs.hrg.start.inl+ncs.hrg.stop.inl)/2);
+			    (ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
 	    else if ( dim==1 )
-		ncs.hrg.start.crl = ncs.hrg.stop.crl =
+		ncs.hrg.start.crl() = ncs.hrg.stop.crl() =
 		    SI().crlRange(true).snap(
-			    (ncs.hrg.start.crl+ncs.hrg.stop.crl)/2);
+			    (ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
 	    else
 		ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(
 							ncs.zrg.center());
@@ -643,8 +643,8 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 	{
 	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
 	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl == 
-			cs.hrg.start.inl )
+		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl() == 
+			cs.hrg.start.inl() )
 		{
 		    idxinquestion = flatcsidx;
 		    break;
@@ -652,8 +652,8 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 	    }
 	    else if ( flatcubes[flatcsidx]->flatcs_.nrCrl() == 1 )
 	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.crl ==
-		     cs.hrg.start.crl )
+		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.crl() ==
+		     cs.hrg.start.crl() )
 		{
 		    idxinquestion = flatcsidx;
 		    break;
@@ -753,10 +753,10 @@ const char* Engine::errMsg() const
 CubeSampling Engine::getDefaultActiveVolume()
 {
     CubeSampling cs;
-    cs.hrg.start.inl=(5*SI().inlRange(true).start+3*SI().inlRange(true).stop)/8;
-    cs.hrg.start.crl=(5*SI().crlRange(true).start+3*SI().crlRange(true).stop)/8;
-    cs.hrg.stop.inl =(3*SI().inlRange(true).start+5*SI().inlRange(true).stop)/8;
-    cs.hrg.stop.crl =(3*SI().crlRange(true).start+5*SI().crlRange(true).stop)/8;
+    cs.hrg.start.inl()=(5*SI().inlRange(true).start+3*SI().inlRange(true).stop)/8;
+    cs.hrg.start.crl()=(5*SI().crlRange(true).start+3*SI().crlRange(true).stop)/8;
+    cs.hrg.stop.inl() =(3*SI().inlRange(true).start+5*SI().inlRange(true).stop)/8;
+    cs.hrg.stop.crl() =(3*SI().crlRange(true).start+5*SI().crlRange(true).stop)/8;
     cs.zrg.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
     cs.zrg.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
     SI().snap( cs.hrg.start, BinID(0,0) );

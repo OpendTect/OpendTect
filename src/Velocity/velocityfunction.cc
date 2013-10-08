@@ -207,7 +207,7 @@ int FunctionSource::findFunction( const BinID& bid ) const
 
 ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 {
-    if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
+    if ( mIsUdf(bid.inl()) || mIsUdf(bid.crl()) )
 	return 0;
 
     Threads::Locker lckr( lock_ );

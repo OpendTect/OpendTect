@@ -168,11 +168,11 @@ void uiGatherPosSliceSel::reDoTable()
 	    const GatherInfo& ginfo = gatherinfos_[gatheridx];
 	    if ( ginfo.gathernm_ != curgnm )
 		continue;
-	    const int gatherpos = is2d_ || isinl_ ? ginfo.bid_.crl
-						  : ginfo.bid_.inl;
+	    const int gatherpos = is2d_ || isinl_ ? ginfo.bid_.crl()
+						  : ginfo.bid_.inl();
 	    CubeSampling cs( true );
 	    const int modelnr =
-		(ginfo.bid_.crl - cs.hrg.stop.crl)/cs.hrg.step.crl;
+		(ginfo.bid_.crl() - cs.hrg.stop.crl())/cs.hrg.step.crl();
 	    const RowCol rc( rowidx, colidx );
 	    const int limitstep =
 		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
@@ -239,7 +239,7 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
     if ( !issynthetic_ )
     {
 	GatherInfo& ginfo = gatherinfos_[prevgatheridx];
-	int& pos = isinl_ ? ginfo.bid_.crl : ginfo.bid_.inl;
+	int& pos = isinl_ ? ginfo.bid_.crl() : ginfo.bid_.inl();
 	pos = geninp->getIntValue();
     }
     else
@@ -253,11 +253,11 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
 	    StepInterval<int> trcrg( mUdf(int), -mUdf(int),
 		    		     cs.hrg.crlRange().step );
 	    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-		trcrg.include( gatherinfos_[idx].bid_.crl, false );
+		trcrg.include( gatherinfos_[idx].bid_.crl(), false );
 	    selpos = trcrg.atIndex( selpos );
 	}
 
-	ginfo.bid_.crl = selpos;
+	ginfo.bid_.crl() = selpos;
 
 	const int curgatheridx = gatherinfos_.indexOf( ginfo );
 	if ( curgatheridx >= 0 )
@@ -287,8 +287,8 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     {
 	const GatherInfo& ginfo = gatherinfos[gidx];
 	const int trcnr = issynthetic_ ? gidx+1
-	    			       : isinl_ || is2d_ ? ginfo.bid_.crl
-							 : ginfo.bid_.inl;
+	    			       : isinl_ || is2d_ ? ginfo.bid_.crl()
+							 : ginfo.bid_.inl();
 	if ( !issynthetic_ || ginfo.isselected_  )
 	{
 	    if ( !mIsUdf(prevginfoidx) )
@@ -296,8 +296,8 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 		const GatherInfo& prevginfo = gatherinfos[prevginfoidx];
 		const int prevtrcnr =
 		    issynthetic_ ? prevginfoidx+1
-				 : isinl_ || is2d_ ? prevginfo.bid_.crl
-						   : prevginfo.bid_.inl;
+				 : isinl_ || is2d_ ? prevginfo.bid_.crl()
+						   : prevginfo.bid_.inl();
 		if ( abs(trcnr-prevtrcnr) < rgstep )
 		    rgstep = abs(trcnr-prevtrcnr);
 	    }
@@ -398,8 +398,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 
 	    if ( !issynthetic_ )
 	    {
-		BinID bid( isinl_ ? cs_.hrg.start.inl : trcnr,
-			   isinl_ ? trcnr : cs_.hrg.start.crl );
+		BinID bid( isinl_ ? cs_.hrg.start.inl() : trcnr,
+			   isinl_ ? trcnr : cs_.hrg.start.crl() );
 		GatherInfo ginfo;
 		ginfo.bid_ = bid;
 		ginfo.gathernm_ = gathernm;

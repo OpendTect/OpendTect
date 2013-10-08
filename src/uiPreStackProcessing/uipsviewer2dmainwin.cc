@@ -577,12 +577,12 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
     bids.erase();
     int approxstep = trcrg.width()/sStartNrViewers;
     if ( !approxstep ) approxstep = 1;
-    const int starttrcnr = isinl ? bid.crl : bid.inl;
+    const int starttrcnr = isinl ? bid.crl() : bid.inl();
     for ( int trcnr=starttrcnr; trcnr<=trcrg.stop; trcnr+=approxstep )
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl : acttrcnr, isinl ? acttrcnr : bid.crl );
+	BinID posbid( isinl ? bid.inl() : acttrcnr, isinl ? acttrcnr : bid.crl() );
 	bids.addIfNew( posbid );
 	if ( bids.size() >= sStartNrViewers )
 	    return;
@@ -592,7 +592,7 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl : acttrcnr, isinl ? acttrcnr : bid.crl );
+	BinID posbid( isinl ? bid.inl() : acttrcnr, isinl ? acttrcnr : bid.crl() );
 	if ( bids.isPresent(posbid) )
 	    continue;
 	bids.insert( 0, posbid );
@@ -642,12 +642,12 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
     {
 	if ( isinl )
 	{
-	    cs_.hrg.setInlRange( Interval<int>( bid.inl, bid.inl ) );
+	    cs_.hrg.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
 	    cs_.hrg.setCrlRange( trcrg );
 	}
 	else
 	{
-	    cs_.hrg.setCrlRange( Interval<int>( bid.crl, bid.crl ) );
+	    cs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
 	    cs_.hrg.setInlRange( trcrg );
 	}
 	slicepos_ = new uiSlicePos2DView( this );
@@ -913,7 +913,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     PreStack::Gather* gather = new PreStack::Gather;
     MultiID mid = gatherinfo.mid_;
     BinID bid = gatherinfo.bid_;
-    if ( (is2d_ && gather->readFrom(mid,bid.crl,linename_,0)) 
+    if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0)) 
 	|| (!is2d_ && gather->readFrom(mid,bid)) )
     {
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
@@ -1111,13 +1111,13 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    cs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl,
-					   gatherinfos_[0].bid_.inl,1) );
+    cs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
+					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
 	PreStackView::GatherInfo ginfo = gatherinfos_[idx];
-	trcrg.include( ginfo.bid_.crl, false );
+	trcrg.include( ginfo.bid_.crl(), false );
 	PSViewAppearance dummypsapp;
 	dummypsapp.datanm_ = ginfo.gathernm_;
 	newgathernms.addIfNew( ginfo.gathernm_ );
@@ -1200,7 +1200,7 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
     CubeSampling cs;
-    const int modelnr = (ginfo.bid_.crl - cs.hrg.stop.crl)/cs.hrg.step.crl;
+    const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())/cs.hrg.step.crl();
     info->setData( modelnr, ginfo.gathernm_ );
 }
 
@@ -1374,9 +1374,9 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
-    for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
+    for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
     {
-	for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
+	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl(); relbid.crl()++ )
 	{
 	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
@@ -1414,7 +1414,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
-	if ( (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl,linename,0))
+	if ( (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
 	     || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
 	{
 	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );

@@ -483,9 +483,9 @@ void uiODViewer2D::setWinTitle( bool fromcs )
 	    info += cs_.zrg.start * zdef.userFactor();
 	}
 	else if ( cs_.defaultDir() == CubeSampling::Crl )
-	{ info = "Crossline: "; info += cs_.hrg.start.crl; }
+	{ info = "Crossline: "; info += cs_.hrg.start.crl(); }
 	else
-	{ info = "Inline: "; info += cs_.hrg.start.inl; }
+	{ info = "Inline: "; info += cs_.hrg.start.inl(); }
     }
 
     basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
@@ -572,11 +572,11 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     const BinID bid = SI().transform( info.surveypos_.coord() );
     FlatView::Point& pt = marker_->poly_[0];
     if ( cs_.defaultDir() == CubeSampling::Inl )
-	pt = FlatView::Point( bid.crl, info.surveypos_.z );
+	pt = FlatView::Point( bid.crl(), info.surveypos_.z );
     else if ( cs_.defaultDir() == CubeSampling::Crl )
-	pt = FlatView::Point( bid.inl, info.surveypos_.z );
+	pt = FlatView::Point( bid.inl(), info.surveypos_.z );
     else
-	pt = FlatView::Point( bid.inl, bid.crl );
+	pt = FlatView::Point( bid.inl(), bid.crl() );
 
     vwr.handleChange( FlatView::Viewer::Auxdata );
 }

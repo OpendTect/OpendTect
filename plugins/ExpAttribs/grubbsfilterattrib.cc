@@ -91,11 +91,11 @@ bool GrubbsFilter::getTrcPos()
     BinID bid;
     int trcidx = 0;
     centertrcidx_ = 0;
-    for ( bid.inl=-stepout_.inl; bid.inl<=stepout_.inl; bid.inl++ )
+    for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++ )
     {
-	for ( bid.crl=-stepout_.crl; bid.crl<=stepout_.crl; bid.crl++ )
+	for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl(); bid.crl()++ )
 	{
-	    if ( !bid.inl && !bid.crl )
+	    if ( !bid.inl() && !bid.crl() )
 		centertrcidx_ = trcidx;
 	    trcpos_ += bid;
 	    trcidx++;

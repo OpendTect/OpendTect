@@ -170,7 +170,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 {
     if ( bvss_.isEmpty() ) return;
     nrvals_ = bvss_[0]->nrVals();
-    const RowCol step( hs_.step.inl, hs_.step.crl );
+    const RowCol step( hs_.step.inl(), hs_.step.crl() );
     horizon_.geometry().setStep( step, step );
 
     for ( int idx=0; idx<bvss_.size(); idx++ )

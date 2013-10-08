@@ -148,7 +148,7 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( IntervalFunction*, func, functions_[idx] );
-	if ( bid.inl!=-1 && bid.crl!=-1 && func->getBinID()!=bid )
+	if ( bid.inl()!=-1 && bid.crl()!=-1 && func->getBinID()!=bid )
 	    continue;
 
 	func->removeCache();

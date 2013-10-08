@@ -95,12 +95,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
 	const BinID bid = cs_.hrg.atIndex(inlidx,crlidx);
-	if ( bid.inl==cs_.hrg.start.inl || bid.inl==cs_.hrg.stop.inl ||
-	     bid.crl==cs_.hrg.start.crl || bid.crl==cs_.hrg.stop.crl )
+	if ( bid.inl()==cs_.hrg.start.inl() || bid.inl()==cs_.hrg.stop.inl() ||
+	     bid.crl()==cs_.hrg.start.crl() || bid.crl()==cs_.hrg.stop.crl() )
 	    continue;/*Extended one layer*/
 
 	if ( usepolygon && !plg_.isInside(Geom::Point2D<float>(
-		     mCast(float,bid.inl), mCast(float,bid.crl)), true, 0.01) )
+		     mCast(float,bid.inl()), mCast(float,bid.crl())), true, 0.01) )
 	    continue;
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
@@ -154,14 +154,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl), 
-	                          mCast(float,cs_.hrg.start.crl) );
-    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl), 
-				  mCast(float,cs_.hrg.start.crl) );
-    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl), 
-				  mCast(float,cs_.hrg.stop.crl) );
-    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl), 
-				  mCast(float,cs_.hrg.stop.crl) );
+    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()), 
+	                          mCast(float,cs_.hrg.start.crl()) );
+    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()), 
+				  mCast(float,cs_.hrg.start.crl()) );
+    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()), 
+				  mCast(float,cs_.hrg.stop.crl()) );
+    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()), 
+				  mCast(float,cs_.hrg.stop.crl()) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
@@ -204,11 +204,11 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
+	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
+	    const int crlidx = cs_.hrg.crlIdx(bid.crl());	    
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
-		    Geom::Point2D<float>( mCast(float,bid.inl),
-					 mCast(float,bid.crl) ),true,0.01 ) );
+		    Geom::Point2D<float>( mCast(float,bid.inl()),
+					 mCast(float,bid.crl()) ),true,0.01 ) );
 	}
     }
 }
@@ -246,10 +246,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     if ( fltsz )
     {
 	corners += Coord3( SI().transform(cs_.hrg.start), 0 );
-	const BinID cbid0( cs_.hrg.start.inl, cs_.hrg.stop.crl );
+	const BinID cbid0( cs_.hrg.start.inl(), cs_.hrg.stop.crl() );
 	corners += Coord3( SI().transform(cbid0), 0 );
 	corners += Coord3( SI().transform(cs_.hrg.stop), 0 );
-	const BinID cbid1( cs_.hrg.stop.inl, cs_.hrg.start.crl );
+	const BinID cbid1( cs_.hrg.stop.inl(), cs_.hrg.start.crl() );
 	corners += Coord3( SI().transform(cbid1), 0 );
     }
     const int cornersz = corners.size();
@@ -294,8 +294,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const int inlidx = cs_.hrg.inlIdx(bid.inl);
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl);	    
+	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
+	    const int crlidx = cs_.hrg.crlIdx(bid.crl());	    
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 
@@ -355,7 +355,7 @@ bool inFaultRange( const BinID& pos, int curidx,
 	Geometry::ExplPlaneIntersection* epi )
 {
     const char side = fsides_[curidx];
-    const int ic = side==mToMinInline || side==mToMaxInline ? pos.inl : pos.crl;
+    const int ic = side==mToMinInline || side==mToMaxInline ? pos.inl() : pos.crl();
     if ( outsidergs_[curidx].includes(ic,false) )
 	return false;
 
@@ -375,9 +375,9 @@ bool inFaultRange( const BinID& pos, int curidx,
     {
 	ids[idx] = idx;
 	BinID bid = SI().transform( crds[idx] );
-	inls[idx] = bid.inl;
-	bidpos += Geom::Point2D<float>( mCast(float,bid.inl),
-					mCast(float,bid.crl) );
+	inls[idx] = bid.inl();
+	bidpos += Geom::Point2D<float>( mCast(float,bid.inl()),
+					mCast(float,bid.crl()) );
     }
 
     sort_coupled( mVarLenArr(inls), mVarLenArr(ids), sz );
@@ -417,8 +417,8 @@ bool inFaultRange( const BinID& pos, int curidx,
 	poly.add( c_[3] );
     }
 
-    return poly.isInside(Geom::Point2D<float>( mCast(float,pos.inl),
-						mCast(float,pos.crl)),true,0 );
+    return poly.isInside(Geom::Point2D<float>( mCast(float,pos.inl()),
+						mCast(float,pos.crl())),true,0 );
 }
 
 
@@ -494,23 +494,23 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
     
     if ( side==mToMinInline )
     {
-	insiderg.set( cs_.hrg.start.inl, hrg.start.inl );
-	outsiderg.set( hrg.stop.inl, cs_.hrg.stop.inl );
+	insiderg.set( cs_.hrg.start.inl(), hrg.start.inl() );
+	outsiderg.set( hrg.stop.inl(), cs_.hrg.stop.inl() );
     }
     else if ( side==mToMaxInline )
     {
-	insiderg.set( hrg.stop.inl, cs_.hrg.stop.inl );
-	outsiderg.set( cs_.hrg.start.inl, hrg.start.inl );
+	insiderg.set( hrg.stop.inl(), cs_.hrg.stop.inl() );
+	outsiderg.set( cs_.hrg.start.inl(), hrg.start.inl() );
     }
     else if ( side==mToMinCrossline )
     {
-	insiderg.set( cs_.hrg.start.crl, hrg.start.crl );
-	outsiderg.set( hrg.stop.crl, cs_.hrg.stop.crl );
+	insiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
+	outsiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
     }
     else 
     {
-	insiderg.set( hrg.stop.crl, cs_.hrg.stop.crl );
-	outsiderg.set( cs_.hrg.start.crl, hrg.start.crl );
+	insiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
+	outsiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
     }
 
     insidergs_ += insiderg;
@@ -832,8 +832,8 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     CubeSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
-    cs.hrg.start.inl -= cs.hrg.step.inl; cs.hrg.stop.inl += cs.hrg.step.inl;
-    cs.hrg.start.crl -= cs.hrg.step.crl; cs.hrg.stop.crl += cs.hrg.step.crl;
+    cs.hrg.start.inl() -= cs.hrg.step.inl(); cs.hrg.stop.inl() += cs.hrg.step.inl();
+    cs.hrg.start.crl() -= cs.hrg.step.crl(); cs.hrg.stop.crl() += cs.hrg.step.crl();
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
@@ -864,8 +864,8 @@ bool uiBodyRegionDlg::createImplicitBody()
 	new EM::MarchingCubesSurface(EM::EMM());
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
-    emcs->setInlSampling(SamplingData<int>(cs.hrg.start.inl,cs.hrg.step.inl));
-    emcs->setCrlSampling(SamplingData<int>(cs.hrg.start.crl,cs.hrg.step.crl));
+    emcs->setInlSampling(SamplingData<int>(cs.hrg.start.inl(),cs.hrg.step.inl()));
+    emcs->setCrlSampling(SamplingData<int>(cs.hrg.start.crl(),cs.hrg.step.crl()));
     emcs->setZSampling(SamplingData<float>(cs.zrg.start,cs.zrg.step));
 
     emcs->setMultiID( outputfld_->key() );

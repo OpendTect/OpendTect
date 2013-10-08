@@ -39,7 +39,7 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     dtctor_.reInit();
     valrg_.start = mUdf(float);
     nonnullsamplerg_.stop = 0;
-    nonnullsamplerg_.start = invalidsamplebid_.inl = mUdf(int);
+    nonnullsamplerg_.start = invalidsamplebid_.inl() = mUdf(int);
     Stats::randGen().init();
 }
 
@@ -149,7 +149,7 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Median value", vals[nrvals/2] );
 	iopar.set( "1/4 value", vals[nrvals/4] );
 	iopar.set( "3/4 value", vals[3*nrvals/4] );
-	if ( !mIsUdf(invalidsamplebid_.inl) )
+	if ( !mIsUdf(invalidsamplebid_.inl()) )
 	{
 	    iopar.set( "First invalid value at", invalidsamplebid_ );
 	    iopar.set( "First invalid value sample number", invalidsamplenr_ );
@@ -229,7 +229,7 @@ int SeisScanner::nextStep()
 	    {
 		const BinID& bid( dtctor_.lastPosition().binid_ );
 		if ( dtctor_.is2D() )
-		    { curmsg_ += "trace number "; curmsg_ += bid.crl; }
+		    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
 		else
 		    { curmsg_ += bid.getUsrStr(); }
 	    }
@@ -246,7 +246,7 @@ int SeisScanner::nextStep()
 	curmsg_ = "Error during read of trace data at ";
 	const BinID& bid( trc_.info().binid );
 	if ( dtctor_.is2D() )
-	    { curmsg_ += "trace number "; curmsg_ += bid.crl; }
+	    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
 	else
 	    { curmsg_ += bid.getUsrStr(); }
 	wrapUp();

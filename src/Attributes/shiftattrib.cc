@@ -69,14 +69,14 @@ Shift::Shift( Desc& desc )
 
 void Shift::init()
 {
-    stepout_ = BinID( abs(pos_.inl), abs(pos_.crl) );
+    stepout_ = BinID( abs(pos_.inl()), abs(pos_.crl()) );
 
     interval_.start = time_<0 ? time_/zFactor() : 0;
     interval_.stop = time_>0 ? time_/zFactor() : 0;
 
     if ( dosteer_ )
     {
-	float maxso = mMAX(stepout_.inl*inlDist(),stepout_.crl*crlDist());
+	float maxso = mMAX(stepout_.inl()*inlDist(),stepout_.crl()*crlDist());
 	const float maxsecdip = maxSecureDip();
 	desinterval_ = Interval<float>( -maxso*maxsecdip, maxso*maxsecdip );
 	steeridx_ = getSteeringIndex( pos_ );

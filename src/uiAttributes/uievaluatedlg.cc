@@ -181,37 +181,37 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     else if ( bidpar )
     {
 	BinID bid;
-	bid.inl = initfld->getBinID().inl + idx * incrfld->getBinID().inl;
-	bid.crl = initfld->getBinID().crl + idx * incrfld->getBinID().crl;
+	bid.inl() = initfld->getBinID().inl() + idx * incrfld->getBinID().inl();
+	bid.crl() = initfld->getBinID().crl() + idx * incrfld->getBinID().crl();
 	
 	if ( desc.is2D() )
-	    { mCreateLabel1(bid.crl) }
+	    { mCreateLabel1(bid.crl()) }
 	else
-	    { mCreateLabel2(bid.inl,bid.crl) }
+	    { mCreateLabel2(bid.inl(),bid.crl()) }
 
-	bidpar->setValue( bid.inl, 0 );
-	bidpar->setValue( bid.crl, 1 );
+	bidpar->setValue( bid.inl(), 0 );
+	bidpar->setValue( bid.crl(), 1 );
 
 	ValParam* valpar2 = desc.getValParam( parstr2_ );
 	mDynamicCastGet(BinIDParam*,bidpar2,valpar2)
 	if ( bidpar2 )
 	{
 	    BinID bid2;
-	    bid2.inl = initfld->getBinID(1).inl + 
-					idx * incrfld->getBinID(1).inl;
-	    bid2.crl = initfld->getBinID(1).crl + 
-					idx * incrfld->getBinID(1).crl;
-	    bidpar2->setValue( bid2.inl, 0 );
-	    bidpar2->setValue( bid2.crl, 1 );
+	    bid2.inl() = initfld->getBinID(1).inl() + 
+					idx * incrfld->getBinID(1).inl();
+	    bid2.crl() = initfld->getBinID(1).crl() + 
+					idx * incrfld->getBinID(1).crl();
+	    bidpar2->setValue( bid2.inl(), 0 );
+	    bidpar2->setValue( bid2.crl(), 1 );
 
 	    evallbl_ += "[";
 	    if ( desc.is2D() )
-		evallbl_ += bid2.crl;
+		evallbl_ += bid2.crl();
 	    else
 	    {
-		evallbl_ += bid2.inl;
+		evallbl_ += bid2.inl();
 		evallbl_ += ",";
-		evallbl_ += bid2.crl;
+		evallbl_ += bid2.crl();
 	    }
 	    evallbl_ += "]";
 	}

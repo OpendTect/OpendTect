@@ -1395,14 +1395,14 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
     int faststop, faststep, slowdim, fastdim;
     if ( oninline )
     {
-	rg = inlrg; targetline = cs.hrg.start.inl;
+	rg = inlrg; targetline = cs.hrg.start.inl();
 	startbid = BinID( targetline, crlrg.start );
 	faststop = crlrg.stop; faststep = crlrg.step;
 	slowdim = 0; fastdim = 1;
     }
     else
     {
-	rg = crlrg; targetline = cs.hrg.start.crl;
+	rg = crlrg; targetline = cs.hrg.start.crl();
 	startbid = BinID( inlrg.start, targetline );
 	faststop = inlrg.stop; faststep = inlrg.step;
 	slowdim = 1; fastdim = 0;
@@ -1711,7 +1711,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
 	    {
 		cs.hrg.include( tracebids[bidx] );
-		trclist += Coord( tracebids[bidx].inl, tracebids[bidx].crl );
+		trclist += Coord( tracebids[bidx].inl(), tracebids[bidx].crl() );
 	    }
 	}
 
@@ -1813,11 +1813,11 @@ void HorizonDisplay::updateIntersectionLines(
 		drawHorizonOnRandomTrack( trclist, cs.zrg, sid, 
 					  line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.inl==cs.hrg.stop.inl )
+	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )
 	    {
 		traverseLine( true, cs, sid, line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.crl==cs.hrg.stop.crl )
+	    else if ( cs.hrg.start.crl()==cs.hrg.stop.crl() )
 	    {
 		traverseLine( false, cs, sid, line, cii, pointgroup );
 	    }

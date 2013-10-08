@@ -188,7 +188,7 @@ const PosInfo::Line2DData& SEGYDirect2DPSReader::posData() const
 
 bool SEGYDirect2DPSReader::goTo( const BinID& bid )
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl), false );
+    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl()), false );
     return ti.isValid() ? goTo( ti.filenr_, mCast(int,ti.trcidx_) ) : false;
 }
 
@@ -223,18 +223,18 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 
 SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl), nr );
-    return ti.isValid() ? getTrace(ti.filenr_,mCast(int,ti.trcidx_),bid.crl): 0;
+    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl()), nr );
+    return ti.isValid() ? getTrace(ti.filenr_,mCast(int,ti.trcidx_),bid.crl()): 0;
 }
 
 
 bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl), false );
+    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl()), false );
     if ( !ti.isValid() )
 	return 0;
 
-    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl );
+    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() );
     if ( !trc ) return false;
 
     tb.deepErase();
@@ -433,16 +433,16 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
     if ( !def_ ) return false;
 
     const PosInfo::CubeData& cd = cubeData();
-    const int newild = cd.indexOf( bid.inl );
+    const int newild = cd.indexOf( bid.inl() );
     if ( newild < 0 )
 	return false;
     const PosInfo::LineData& ld = *cd[newild];
-    const int newiseg = ld.segmentOf( bid.crl );
+    const int newiseg = ld.segmentOf( bid.crl() );
     if ( newiseg < 0 )
 	return false;
 
     ild_ = newild; iseg_ = newiseg;
-    itrc_ = ld.segments_[iseg_].getIndex( bid.crl );
+    itrc_ = ld.segments_[iseg_].getIndex( bid.crl() );
     return positionTranslator();
 }
 

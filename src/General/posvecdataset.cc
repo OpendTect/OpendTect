@@ -425,9 +425,9 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     BinID bid; float* vals = new float [ nrvals ];
     while ( strm.isOK() )
     {
-	bid.inl = bid.crl = 0;
-	strm >> bid.inl >> bid.crl;
-	if ( !bid.inl && !bid.crl )
+	bid.inl() = bid.crl() = 0;
+	strm >> bid.inl() >> bid.crl();
+	if ( !bid.inl() && !bid.crl() )
 	    { strm.skipUntil( '\n' ); continue; }
 
 	if ( valstartcol == 4 ) // also has X, Y coordinates.
@@ -499,7 +499,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     while ( data().next(pos) )
     {
 	data().get( pos, bid, vals );
-	strm << bid.inl << '\t' << bid.crl;
+	strm << bid.inl() << '\t' << bid.crl();
 	if ( tabstyle )
 	{
 	    Coord crd = SI().transform( bid );

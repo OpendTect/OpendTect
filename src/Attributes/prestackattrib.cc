@@ -289,9 +289,9 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    const BinID stepoutstep( SI().inlRange(true).step,
 				     SI().crlRange(true).step );
 	    PreStack::Gather* gather = 0;
-	    for ( int inlidx=-stepout.inl; inlidx<=stepout.inl; inlidx++ )
+	    for ( int inlidx=-stepout.inl(); inlidx<=stepout.inl(); inlidx++ )
 	    {
-		for ( int crlidx=-stepout.crl; crlidx<=stepout.crl; crlidx++ )
+		for ( int crlidx=-stepout.crl(); crlidx<=stepout.crl(); crlidx++ )
 		{
 		    const BinID relbid( inlidx, crlidx );
 		    if ( !preprocessor_->wantsInput(relbid) )
@@ -334,7 +334,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    //TODO full support for 2d : idx is not really my nymber of traces
 	    if ( is2D() )
 	    {
-		if ( idx == bid.crl )
+		if ( idx == bid.crl() )
 		   curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
 	    }
             else if ( gatherset_[idx]->getBinID() == bid )

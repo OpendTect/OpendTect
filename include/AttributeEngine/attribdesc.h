@@ -297,9 +297,9 @@ protected:
     
 #define mGetBinIDFromDesc( __desc, var, varstring ) \
 {\
-    var.inl = __desc.getValParam(varstring)->getIntValue(0); \
-    var.crl = __desc.getValParam(varstring)->getIntValue(1); \
-    if ( mIsUdf(var.inl) || mIsUdf(var.crl) )\
+    var.inl() = __desc.getValParam(varstring)->getIntValue(0); \
+    var.crl() = __desc.getValParam(varstring)->getIntValue(1); \
+    if ( mIsUdf(var.inl()) || mIsUdf(var.crl()) )\
     {\
 	Attrib::ValParam* valparam##var = \
 	      const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
@@ -308,7 +308,7 @@ protected:
 	    var = binidparam##var->getDefaultBinIDValue();\
     }\
     if ( __desc.descSet()->is2D() ) \
-    	var.inl = 0; \
+    	var.inl() = 0; \
 }
 
 #define mGetFloatIntervalFromDesc( __desc, var, varstring ) \

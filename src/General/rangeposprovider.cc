@@ -55,20 +55,20 @@ const char* Pos::RangeProvider3D::type() const
 
 void Pos::RangeProvider3D::reset()
 {
-    curbid_ = BinID( cs_.hrg.start.inl, cs_.hrg.start.crl-cs_.hrg.step.crl );
+    curbid_ = BinID( cs_.hrg.start.inl(), cs_.hrg.start.crl()-cs_.hrg.step.crl() );
     curzidx_ = cs_.zrg.nrSteps();
 }
 
 
 bool Pos::RangeProvider3D::toNextPos()
 {
-    curbid_.crl += cs_.hrg.step.crl;
-    if ( curbid_.crl > cs_.hrg.stop.crl )
+    curbid_.crl() += cs_.hrg.step.crl();
+    if ( curbid_.crl() > cs_.hrg.stop.crl() )
     {
-	curbid_.inl += cs_.hrg.step.inl;
-	if ( curbid_.inl > cs_.hrg.stop.inl )
+	curbid_.inl() += cs_.hrg.step.inl();
+	if ( curbid_.inl() > cs_.hrg.stop.inl() )
 	    return false;
-	curbid_.crl = cs_.hrg.start.crl;
+	curbid_.crl() = cs_.hrg.start.crl();
     }
 
     curzidx_ = 0;

@@ -48,8 +48,8 @@ int Horizon2DSelector::nextStep()
     StepInterval<int> crlrg = trackplane_.boundingBox().hrg.crlRange();
     const StepInterval<float >& zrg = trackplane_.boundingBox().zrg;
 
-    inlrg.include( inlrg.start+trackplane_.motion().binid.inl );
-    crlrg.include( crlrg.start+trackplane_.motion().binid.crl );
+    inlrg.include( inlrg.start+trackplane_.motion().binid.inl() );
+    crlrg.include( crlrg.start+trackplane_.motion().binid.crl() );
 
     PtrMan<EM::EMObjectIterator> iterator =
 				horizon_.createIterator( sectionid_ );
@@ -63,8 +63,8 @@ int Horizon2DSelector::nextStep()
 
 	const Coord3 pos = horizon_.getPos( sectionid_, subid );
 	const BinID bid = SI().transform( pos );
-	if ( !inlrg.includes( bid.inl,true ) ||
-	     !crlrg.includes( bid.crl,true ) ||
+	if ( !inlrg.includes( bid.inl(),true ) ||
+	     !crlrg.includes( bid.crl(),true ) ||
 	     !zrg.includes( pos.z,true ) )
 	    continue;
 

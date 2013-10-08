@@ -141,8 +141,8 @@ int Tut::HorSmoother::nextStep()
 	{
 	    for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	    {
-		const BinID binid = BinID( bid_.inl + inloffs * hs_.step.inl,
-					   bid_.crl + crloffs * hs_.step.crl );
+		const BinID binid = BinID( bid_.inl() + inloffs * hs_.step.inl(),
+					   bid_.crl() + crloffs * hs_.step.crl() );
 		const EM::SubID subid = binid.toInt64();
 		const float z = (float) horizon1_->getPos( isect, subid ).z;
 		if ( mIsUdf(z) ) continue;

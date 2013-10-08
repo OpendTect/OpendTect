@@ -243,12 +243,12 @@ int PreStack::EventsAPIMgr::getRanges( int handle,
 	}
     }
 
-    firstinl = hrg.start.inl;
-    lastinl = hrg.stop.inl;
-    inlstep = hrg.step.inl;
-    firstcrl = hrg.start.crl;
-    lastcrl = hrg.stop.crl;
-    crlstep = hrg.step.crl;
+    firstinl = hrg.start.inl();
+    lastinl = hrg.stop.inl();
+    inlstep = hrg.step.inl();
+    firstcrl = hrg.start.crl();
+    lastcrl = hrg.stop.crl();
+    crlstep = hrg.step.crl();
 
     return 0;
 }
@@ -292,8 +292,8 @@ int PreStack::EventsAPIMgr::getNextCDP(int handle, int previnl, int prevcrl,
 	return 0;
 
     const BinID newbid = locations_[idx]->getBinID( pos );
-    nextinl = newbid.inl;
-    nextcrl = newbid.crl; 
+    nextinl = newbid.inl();
+    nextcrl = newbid.crl(); 
     return 1;
 }
 

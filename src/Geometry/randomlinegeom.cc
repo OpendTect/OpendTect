@@ -78,9 +78,9 @@ void RandomLine::limitTo( const CubeSampling& cs )
 
     Coord svert[4];
     svert[0] = SI().transform( hs.start );
-    svert[1] = SI().transform( BinID(hs.start.inl,hs.stop.crl) );
+    svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
     svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl,hs.start.crl) );
+    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start.crl()) );
 
     Line2 line( SI().transform(nodes_[0]), SI().transform(nodes_[1]) );
     TypeSet<Coord> points;
@@ -141,14 +141,14 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 	BinID start = knots[idx-1];
 	BinID stop = knots[idx];
 	if ( start == stop ) continue;
-	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
-	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
+	const int nrinl = int(abs(stop.inl()-start.inl()) / SI().inlStep() + 1);
+	const int nrcrl = int(abs(stop.crl()-start.crl()) / SI().crlStep() + 1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	if ( inlwise )
-	    { mGetBinIDs(inl,crl); }
+	    { mGetBinIDs(inl(),crl()); }
 	else
-	    { mGetBinIDs(crl,inl); }
+	    { mGetBinIDs(crl(),inl()); }
     }
 }
 
@@ -198,9 +198,9 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
     const HorSampling hs( SI().sampling(false).hrg );
     Coord svert[4];
     svert[0] = SI().transform( hs.start );
-    svert[1] = SI().transform( BinID(hs.start.inl,hs.stop.crl) );
+    svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
     svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl,hs.start.crl) );
+    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start.crl()) );
 
     Line2 sbound[4];			// Survey boundaries
     for ( int idx=0; idx<4; idx++ )

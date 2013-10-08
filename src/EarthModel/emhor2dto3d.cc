@@ -29,10 +29,10 @@ public:
 Hor2DTo3DSectionData( EM::SectionID sid,
 		      const BinID& minbid, const BinID& maxbid,
 		      const BinID& step )
-    : arr_( getSz(minbid.inl,maxbid.inl,step.inl),
-	    getSz(minbid.crl,maxbid.crl,step.crl) )
-    , count_( getSz(minbid.inl,maxbid.inl,step.inl),
-	      getSz(minbid.crl,maxbid.crl,step.crl) )
+    : arr_( getSz(minbid.inl(),maxbid.inl(),step.inl()),
+	    getSz(minbid.crl(),maxbid.crl(),step.crl()) )
+    , count_( getSz(minbid.inl(),maxbid.inl(),step.inl()),
+	      getSz(minbid.crl(),maxbid.crl(),step.crl()) )
     , sid_(sid)
 {
     inlsz_ = count_.info().getSize( 0 );
@@ -43,8 +43,8 @@ Hor2DTo3DSectionData( EM::SectionID sid,
 
     hs_.start = minbid;
     hs_.step = step;
-    hs_.stop.inl = hs_.start.inl + hs_.step.inl * (inlsz_ - 1);
-    hs_.stop.crl = hs_.start.crl + hs_.step.crl * (crlsz_ - 1);
+    hs_.stop.inl() = hs_.start.inl() + hs_.step.inl() * (inlsz_ - 1);
+    hs_.stop.crl() = hs_.start.crl() + hs_.step.crl() * (crlsz_ - 1);
 }
 
 
@@ -59,8 +59,8 @@ int getSz( int start, int stop, int step ) const
 
 void add( const BinID& bid, float z )
 {
-    float inldist = (bid.inl - hs_.start.inl) / ((float)hs_.step.inl);
-    float crldist = (bid.crl - hs_.start.crl) / ((float)hs_.step.crl);
+    float inldist = (bid.inl() - hs_.start.inl()) / ((float)hs_.step.inl());
+    float crldist = (bid.crl() - hs_.start.crl()) / ((float)hs_.step.crl());
     const int inlidx = mNINT32(inldist); const int crlidx = mNINT32(crldist);
     if ( inlidx < 0 || inlidx >= inlsz_ || crlidx < 0 || crlidx >= crlsz_ )
 	return;
@@ -102,8 +102,8 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	msg_ = "No data in selected area";
     else if ( curinterp_ )
     {
-	const float inldist = hrg.step.inl*SI().inlDistance();
-	const float crldist = hrg.step.crl*SI().crlDistance();
+	const float inldist = hrg.step.inl()*SI().inlDistance();
+	const float crldist = hrg.step.crl()*SI().crlDistance();
 
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );
@@ -136,33 +136,33 @@ void Hor2DTo3D::addSections( const HorSampling& hs )
 
 	    const Coord coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord );
-	    if ( mIsUdf(minbid.inl) )
+	    if ( mIsUdf(minbid.inl()) )
 		minbid = maxbid = bid;
 	    else
 	    {
-		if ( minbid.inl > bid.inl ) minbid.inl = bid.inl;
-		if ( minbid.crl > bid.crl ) minbid.crl = bid.crl;
-		if ( maxbid.inl < bid.inl ) maxbid.inl = bid.inl;
-		if ( maxbid.crl < bid.crl ) maxbid.crl = bid.crl;
+		if ( minbid.inl() > bid.inl() ) minbid.inl() = bid.inl();
+		if ( minbid.crl() > bid.crl() ) minbid.crl() = bid.crl();
+		if ( maxbid.inl() < bid.inl() ) maxbid.inl() = bid.inl();
+		if ( maxbid.crl() < bid.crl() ) maxbid.crl() = bid.crl();
 	    }
 	}
 
-	if ( mIsUdf(minbid.inl) || minbid == maxbid )
+	if ( mIsUdf(minbid.inl()) || minbid == maxbid )
 	    continue;
 
-	if ( curinterp_ && (minbid.inl==maxbid.inl || minbid.crl==maxbid.crl) ) 
+	if ( curinterp_ && (minbid.inl()==maxbid.inl() || minbid.crl()==maxbid.crl()) ) 
 	{
 	    int extendedsize = 1;
 	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
 	    if ( inv && !mIsUdf(inv->getNrSteps()) )
 		extendedsize = inv->getNrSteps(); 
 
-	    minbid.inl -= extendedsize;
-	    if ( minbid.inl<0 ) minbid.inl = 0;
-	    minbid.crl -= extendedsize;
-	    if ( minbid.crl<0 ) minbid.crl = 0;
-	    maxbid.inl += extendedsize;
-	    maxbid.crl += extendedsize;
+	    minbid.inl() -= extendedsize;
+	    if ( minbid.inl()<0 ) minbid.inl() = 0;
+	    minbid.crl() -= extendedsize;
+	    if ( minbid.crl()<0 ) minbid.crl() = 0;
+	    maxbid.inl() += extendedsize;
+	    maxbid.crl() += extendedsize;
 	}
 
 	sd_ += new Hor2DTo3DSectionData( sid, minbid, maxbid, hs.step );

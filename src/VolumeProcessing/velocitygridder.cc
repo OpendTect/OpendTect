@@ -272,8 +272,8 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 	if ( !func->moveTo( bid ) )
 	    continue;
 
-	const int inlidx = output->inlsampling_.nearestIndex( bid.inl );
-	const int crlidx = output->crlsampling_.nearestIndex( bid.crl );
+	const int inlidx = output->inlsampling_.nearestIndex( bid.inl() );
+	const int crlidx = output->crlsampling_.nearestIndex( bid.crl() );
 
 	for ( int idy=0; idy<zsz; idy++ )
 	{
@@ -366,9 +366,9 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		task_.definedBids().getBinID(task_.definedPos()[usedvals[idy]]);
 
 	    const int inlidx =
-		output.inlsampling_.nearestIndex( sourcebid.inl );
+		output.inlsampling_.nearestIndex( sourcebid.inl() );
 	    const int crlidx =
-		output.crlsampling_.nearestIndex( sourcebid.crl );
+		output.crlsampling_.nearestIndex( sourcebid.crl() );
 
 	    const od_int64 offset = array.info().getOffset( inlidx, crlidx, 0 );
 
@@ -378,8 +378,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		srcoffsets += offset;
 	}
 
-	const int inlidx = output.inlsampling_.nearestIndex( bid.inl );
-	const int crlidx = output.crlsampling_.nearestIndex( bid.crl );
+	const int inlidx = output.inlsampling_.nearestIndex( bid.inl() );
+	const int crlidx = output.crlsampling_.nearestIndex( bid.crl() );
 	const od_int64 targetoffset = array.info().getOffset(inlidx,crlidx,0);
 	float* dstptr = output.getCube(0).getData();
 

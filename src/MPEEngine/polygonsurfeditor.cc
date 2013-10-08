@@ -293,8 +293,8 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( !mpos.isDefined() ) return false;
     
     const BinID bid = SI().transform( mpos );
-    if ( !SI().inlRange( true ).includes(bid.inl,false) || 
-	 !SI().crlRange( true ).includes(bid.crl,false) || 
+    if ( !SI().inlRange( true ).includes(bid.inl(),false) || 
+	 !SI().crlRange( true ).includes(bid.crl(),false) || 
 	 !SI().zRange( true ).includes(mpos.z,false) )
 	return false;
 

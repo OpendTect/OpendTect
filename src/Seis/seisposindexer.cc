@@ -350,7 +350,7 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 	return -1;
 
     bool pres = true;
-    inlidx = is2d_ ? 0 : getIndex( inls_, bid.inl, pres );
+    inlidx = is2d_ ? 0 : getIndex( inls_, bid.inl(), pres );
     if ( !pres )
 	{ crlidx = -1; return -1; }
 
@@ -359,12 +359,12 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 
     if ( strm_ )
     {
-	if ( curinl_!=bid.inl )
+	if ( curinl_!=bid.inl() )
 	{
 	    StrmOper::seek( *strm_, inlfileoffsets_[inlidx], std::ios::beg );
 	    if ( !readLine(curcrlset_,curidxset_,int32interp_,int64interp_ ) )
 		return -1;
-	    curinl_ = bid.inl;
+	    curinl_ = bid.inl();
 	}
 
 	crlsetptr = &curcrlset_;
@@ -372,7 +372,7 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
     else
 	crlsetptr = crlsets_[inlidx];
 
-    crlidx = getIndex( *crlsetptr, bid.crl, pres );
+    crlidx = getIndex( *crlsetptr, bid.crl(), pres );
     if ( !pres )
 	return -2;
 
@@ -547,10 +547,10 @@ bool Seis::PosIndexer::isReasonable( const BinID& bid ) const
     if ( is2d_ )
 	return true;
 
-    if ( !goodinlrg_.includes( bid.inl,false ) )
+    if ( !goodinlrg_.includes( bid.inl(),false ) )
 	return false;
 
-    if ( !goodcrlrg_.includes( bid.crl,false ) )
+    if ( !goodcrlrg_.includes( bid.crl(),false ) )
 	return false;
 
     return true;

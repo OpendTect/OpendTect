@@ -91,13 +91,13 @@ void Processor::setInput( const BinID& relbid, DataPack::ID id )
 
 bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 {
-    const BinID needestepout( abs(relbid.inl),abs(relbid.crl) );
+    const BinID needestepout( abs(relbid.inl()),abs(relbid.crl()) );
 
-    if ( needestepout.inl>outputstepout_.inl ||
-	 needestepout.crl>outputstepout_.crl )
+    if ( needestepout.inl()>outputstepout_.inl() ||
+	 needestepout.crl()>outputstepout_.crl() )
     {
-	const BinID newstepout( mMAX(outputstepout_.inl,needestepout.inl),
-		                mMAX(outputstepout_.crl,needestepout.crl) );
+	const BinID newstepout( mMAX(outputstepout_.inl(),needestepout.inl()),
+		                mMAX(outputstepout_.crl(),needestepout.crl()) );
 	mPSProcAddStepoutStep( outputs_, ObjectSet<Gather>,
 			       outputstepout_, newstepout );
 	mPSProcAddStepoutStep( inputs_, ObjectSet<Gather>,
@@ -133,9 +133,9 @@ bool Processor::prepareWork()
     freeArray( outputs_ );
 
     BinID inputstepout = getInputStepout();
-    for ( int idx=-outputstepout_.inl; idx<=outputstepout_.inl; idx++ )
+    for ( int idx=-outputstepout_.inl(); idx<=outputstepout_.inl(); idx++ )
     {
-	for ( int idy=-outputstepout_.crl; idy<=outputstepout_.crl; idy++ )
+	for ( int idy=-outputstepout_.crl(); idy<=outputstepout_.crl(); idy++ )
 	{
 	    const BinID curpos( idx, idy );
 
@@ -189,7 +189,7 @@ int Processor::getRelBidOffset( const BinID& relbid, const BinID& stepout )
 {
     const BinID start = -stepout;
     const BinID diff = relbid - start;
-    return diff.inl*(stepout.crl*2+1)+diff.crl;
+    return diff.inl()*(stepout.crl()*2+1)+diff.crl();
 }
 
 
@@ -249,9 +249,9 @@ bool ProcessManager::prepareWork()
     {
 	const BinID inputstepout = processors_[proc]->getInputStepout();
 
-	for ( int idz=-inputstepout.inl; idz<=inputstepout.inl; idz++ )
+	for ( int idz=-inputstepout.inl(); idz<=inputstepout.inl(); idz++ )
 	{
-	    for ( int idu=-inputstepout.crl;idu<=inputstepout.crl;idu++)
+	    for ( int idu=-inputstepout.crl();idu<=inputstepout.crl();idu++)
 	    {
 		const BinID relinput(idz,idu);
 		if ( !processors_[proc]->wantsInput( relinput ) )
@@ -274,9 +274,9 @@ bool ProcessManager::process()
 	if ( proc )
 	{
 	    const BinID stepout = processors_[proc]->getInputStepout();
-	    for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
+	    for ( int idx=-stepout.inl(); idx<=stepout.inl(); idx++ )
 	    {
-		for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
+		for ( int idy=-stepout.crl(); idy<=stepout.crl(); idy++ )
 		{
 		    const BinID relbid( idx,idy );
 		    processors_[proc]->setInput( relbid,

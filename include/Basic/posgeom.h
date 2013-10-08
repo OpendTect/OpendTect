@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 
 inline Geom::Point2D<int>	pt( const BinID& bid )
-				{ return Geom::Point2D<int>(bid.inl,bid.crl); }
+				{ return Geom::Point2D<int>(bid.inl(),bid.crl()); }
 inline Geom::Point2D<double>	pt( const Coord& c )
 				{ return Geom::Point2D<double>(c.x,c.y); }
 

@@ -269,7 +269,7 @@ void SplitTextureRandomLine::updateDisplay( )
 	    bool repeated = false;
 	    for ( int idx=0; idx<knots.size(); idx++ )
 	    {
-		const Coord coord( knots[idx].inl, knots[idx].crl );
+		const Coord coord( knots[idx].inl(), knots[idx].crl() );
 		const Coord3 start(coord,blockzrg.start);
 		if ( !usedpts.isPresent(start) )
 		{

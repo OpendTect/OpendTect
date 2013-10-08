@@ -181,20 +181,20 @@ Similarity::Similarity( Desc& desc )
 
 	if ( extension_==mExtensionRot90 )
 	{
-	    int maxstepout = mMAX( mMAX( abs(pos0_.inl), abs(pos1_.inl) ), 
-		    		   mMAX( abs(pos0_.crl), abs(pos1_.crl) ) );
+	    int maxstepout = mMAX( mMAX( abs(pos0_.inl()), abs(pos1_.inl()) ), 
+		    		   mMAX( abs(pos0_.crl()), abs(pos1_.crl()) ) );
 	    stepout_ = BinID( maxstepout, maxstepout );
 	}
 	else
-	    stepout_ = BinID(mMAX(abs(pos0_.inl),abs(pos1_.inl)),
-			     mMAX(abs(pos0_.crl),abs(pos1_.crl)) );
+	    stepout_ = BinID(mMAX(abs(pos0_.inl()),abs(pos1_.inl())),
+			     mMAX(abs(pos0_.crl()),abs(pos1_.crl())) );
 
 	    
     }
     getTrcPos();
 
     float maxdist = dosteer_ || dobrowsedip_ ? 
-		mMAX( stepout_.inl*inlDist(), stepout_.crl*crlDist() ) : 0;
+		mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() ) : 0;
     if ( dobrowsedip_ )		//approx: dip from trc to trc, not central ref
 	maxdist *= 2;
     
@@ -211,8 +211,8 @@ bool Similarity::getTrcPos()
     if ( extension_==mExtensionCube )
     {
 	BinID bid;
-	for ( bid.inl=-stepout_.inl; bid.inl<=stepout_.inl; bid.inl++ )
-	    for ( bid.crl=-stepout_.crl; bid.crl<=stepout_.crl; bid.crl++ )
+	for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl(); bid.inl()++ )
+	    for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl(); bid.crl()++ )
 		trcpos_ += bid;
 
 	for ( int idx=0; idx<trcpos_.size()-1; idx++ )
@@ -231,31 +231,31 @@ bool Similarity::getTrcPos()
 
 	if ( extension_==mExtensionCross )
 	{
-	    trcpos_ += BinID(0,stepout_.crl);
+	    trcpos_ += BinID(0,stepout_.crl());
 	    if ( !is2d ) 
-		trcpos_ += BinID(stepout_.inl,0);
+		trcpos_ += BinID(stepout_.inl(),0);
 
-	    trcpos_ += BinID(0,-stepout_.crl);
+	    trcpos_ += BinID(0,-stepout_.crl());
 	    if ( !is2d ) 
-		trcpos_ += BinID(-stepout_.inl,0);
+		trcpos_ += BinID(-stepout_.inl(),0);
 	}
 	else if ( extension_==mExtensionAllDir )
 	{
-	    trcpos_ += BinID(-stepout_.inl,stepout_.crl);
-	    trcpos_ += BinID(0,stepout_.crl);
-	    trcpos_ += BinID(stepout_.inl,stepout_.crl);
-	    trcpos_ += BinID(stepout_.inl,0);
-	    trcpos_ += BinID(stepout_.inl,-stepout_.crl);
-	    trcpos_ += BinID(0,-stepout_.crl);
-	    trcpos_ += BinID(-stepout_.inl,-stepout_.crl);
-	    trcpos_ += BinID(-stepout_.inl,0);
+	    trcpos_ += BinID(-stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(0,stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),0);
+	    trcpos_ += BinID(stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(0,-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),0);
 	}
 	else
 	{
-	    trcpos_ += BinID(-stepout_.inl,stepout_.crl);
-	    trcpos_ += BinID(stepout_.inl,stepout_.crl);
-	    trcpos_ += BinID(stepout_.inl,-stepout_.crl);
-	    trcpos_ += BinID(-stepout_.inl,-stepout_.crl);
+	    trcpos_ += BinID(-stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),-stepout_.crl());
 	}
     }
     else
@@ -265,13 +265,13 @@ bool Similarity::getTrcPos()
 
 	if ( extension_==mExtensionRot90 )
 	{
-	    trcpos_ += BinID(pos0_.crl,-pos0_.inl);
-	    trcpos_ += BinID(pos1_.crl,-pos1_.inl);
+	    trcpos_ += BinID(pos0_.crl(),-pos0_.inl());
+	    trcpos_ += BinID(pos1_.crl(),-pos1_.inl());
 	}
 	else if ( extension_==mExtensionRot180 )
 	{
-	    trcpos_ += BinID(-pos0_.inl,-pos0_.crl);
-	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
+	    trcpos_ += BinID(-pos0_.inl(),-pos0_.crl());
+	    trcpos_ += BinID(-pos1_.inl(),-pos1_.crl());
 	}
     }
 
@@ -383,8 +383,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float dist = 0;
 	    if ( dobrowsedip_ )
 	    {
-		float di = abs(trcpos_[idx1].inl - trcpos_[idx0].inl)*inlDist();
-		float dc = abs(trcpos_[idx1].crl - trcpos_[idx0].crl)*crlDist();
+		float di = abs(trcpos_[idx1].inl() - trcpos_[idx0].inl())*inlDist();
+		float dc = abs(trcpos_[idx1].crl() - trcpos_[idx0].crl())*crlDist();
 		dist = Math::Sqrt( di*di + dc*dc );
 	    }
 

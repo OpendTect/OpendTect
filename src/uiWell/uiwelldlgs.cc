@@ -1431,7 +1431,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    if ( dobinid )
 	    {
 		const BinID bid = SI().transform( pos );
-		strm << bid.inl << od_tab << bid.crl;
+		strm << bid.inl() << od_tab << bid.crl();
 	    }
 	    else
 	    {

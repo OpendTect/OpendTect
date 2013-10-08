@@ -387,10 +387,10 @@ Coord3 getNormal( bool is2d ) const
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
 	    const BinID bid1 = SI().transform( crds_[idy] );
-	    const int inldist = abs( bid0.inl-bid1.inl );
+	    const int inldist = abs( bid0.inl()-bid1.inl() );
 	    if ( inldist < maxdist )
 		oninl += maxdist - inldist;
-	    const int crldist = abs( bid0.crl-bid1.crl );
+	    const int crldist = abs( bid0.crl()-bid1.crl() );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
 	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
@@ -467,8 +467,8 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    const BinID curbid = SI().transform( crd );
 
-	    oninl = oninl && curbid.inl==firstbid.inl;
-	    oncrl = oncrl && curbid.crl==firstbid.crl;
+	    oninl = oninl && curbid.inl()==firstbid.inl();
+	    oncrl = oncrl && curbid.crl()==firstbid.crl();
 	    ontms = ontms && fabs(crd.z-firstz) < fabs(0.5*SI().zStep());
 
 	    if ( !oninl && !oncrl && !ontms )

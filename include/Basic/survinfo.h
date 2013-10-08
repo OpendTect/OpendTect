@@ -50,8 +50,8 @@ public:
     StepInterval<int>	inlRange() const	{ return cs_.hrg.inlRange(); }
     StepInterval<int>	crlRange() const	{ return cs_.hrg.crlRange(); }
     StepInterval<float>	zRange() const		{ return cs_.zrg; }
-    int			inlStep() const 	{ return cs_.hrg.step.inl; }
-    int			crlStep() const 	{ return cs_.hrg.step.crl; }
+    int			inlStep() const 	{ return cs_.hrg.step.inl(); }
+    int			crlStep() const 	{ return cs_.hrg.step.crl(); }
     
     float		zStep() const 		{ return cs_.zrg.step; }
     

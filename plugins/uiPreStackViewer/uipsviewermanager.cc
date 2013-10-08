@@ -253,8 +253,8 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	capt += psv->getObjectName();
 	capt += " at ";
 	if ( psv->is3DSeis() )
-	    { capt += psv->getPosition().inl; capt += "/"; }
-	capt += psv->getPosition().crl;
+	    { capt += psv->getPosition().inl(); capt += "/"; }
+	capt += psv->getPosition().crl();
 	asd->setCaption( capt );
 	asd->show();
     }
@@ -353,7 +353,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     const Coord3 displaycampos = 
 	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
     const BinID dir0 = SI().transform(displaycampos)-SI().transform(pickedpos);
-    const Coord dir( dir0.inl, dir0.crl );
+    const Coord dir( dir0.inl(), dir0.crl() );
     viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
     
     //Read defaults 
