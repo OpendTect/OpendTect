@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
-mImplementEMObjFuncs( FaultStickSet, EMFaultStickSetTranslatorGroup::keyword() ) 
+mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::keyword())
     
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)
@@ -346,7 +346,7 @@ const char* FaultStickSetGeometry::pickedName( const SectionID& sid,
 }
 
 
-TraceID::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
+Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
 						     int sticknr) const
 {
     int idx = indexOf(sid,sticknr);

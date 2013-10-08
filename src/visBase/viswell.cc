@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+#include "coordvalue.h"
 
 #include "SoPlaneWellLog.h"
 

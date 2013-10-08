@@ -49,8 +49,8 @@ public:
 
     virtual Gather*		computeAngles() = 0;
     virtual bool		isOK() const = 0;
-    void			setTraceID(const TraceID& trcid)
-				{ trcid_ = trcid; }
+    void			setTrcKey( const TrcKey& tk )
+				{ trckey_ = tk; }
 
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracer(const IOPar& raypar);
@@ -90,7 +90,7 @@ protected:
     float			thresholdparam_;
     float			maxthickness_;
     bool			needsraytracing_;
-    TraceID			trcid_;
+    TrcKey			trckey_;
 };
 
 /*!
@@ -135,31 +135,31 @@ public:
     {
     public:
 				ModelTool(const ElasticModel& em,
-						 const TraceID& id )
+						 const TrcKey& tk )
 				    : rt_(0), em_(new ElasticModel(em))
-				    , trcid_(id) {}
+				    , trckey_(tk) {}
 				ModelTool(const RayTracer1D* rt,
-						 const TraceID& id )
-				    : rt_(rt), em_(0), trcid_(id) {}
+						 const TrcKey& tk )
+				    : rt_(rt), em_(0), trckey_(tk) {}
 				~ModelTool()	{ delete em_; }
 	const RayTracer1D*	rayTracer() const { return rt_; }
 	const ElasticModel&	elasticModel() const;
-	const TraceID&		trcID() const	{ return trcid_; }
+	const TrcKey&		trcKey() const	{ return trckey_; }
 	bool 			operator ==( const ModelTool& a ) const
-				{ return a.trcID() == trcid_; }
+				{ return a.trcKey() == trckey_; }
     protected:
 	ElasticModel*		em_;
 	const RayTracer1D*	rt_;
-	TraceID			trcid_;
+	TrcKey			trckey_;
     };
 				ModelBasedAngleComputer();
 				
-    void			setElasticModel(const TraceID& trcid,
+    void			setElasticModel(const TrcKey&,
 	    					bool doblock,
 						bool pvelonly,
 	   					ElasticModel& em);
     void			setRayTracer(const RayTracer1D* rt,
-	    				     const TraceID&);
+	    				     const TrcKey&);
 
     bool			isOK() const
 				{ return curElasticModel().size(); }
@@ -177,4 +177,3 @@ protected:
 }; //namespace
 
 #endif
-

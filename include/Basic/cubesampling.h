@@ -42,7 +42,7 @@ public:
     Dir			defaultDir() const;
     			//!< 'flattest' direction, i.e. direction with
     			//!< smallest size. If equal, prefer Inl then Crl then Z
-    Coord3		defaultNormal() const;
+    void		getDefaultNormal(Coord3&) const;
     bool		isFlat() const; //!< is one of directions size 1?
 
     void		init(bool settoSI=true);

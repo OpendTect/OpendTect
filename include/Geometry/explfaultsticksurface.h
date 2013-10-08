@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "rowcol.h"
 #include "datapack.h"
+#include "binidvalue.h"
 
 class DataPointSet;
 

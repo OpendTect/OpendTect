@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturerect.h"
 
 #include "cubesampling.h"
+#include "coord.h"
 #include "vistexturechannels.h"
 
 #include <osgGeo/TexturePlane>

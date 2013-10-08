@@ -171,9 +171,10 @@ public:
                    		Geometry2D();
 				Geometry2D(PosInfo::Line2DData*);
 				//!<Line2DData becomes mine
+    const char*			getName() const;
 
     virtual Coord		toCoord(int linenr,int tracenr) const;
-    virtual TraceID		nearestTrace(const Coord&,float* dist) const;
+    virtual TrcKey		nearestTrace(const Coord&,float* dist) const;
 
     virtual bool		includes(int linenr,int tracenr) const;
 

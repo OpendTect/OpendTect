@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 #include "sorting.h"
 #include "envvars.h"
+#include "binidvalue.h"
 
 #include <iostream>
 #include <math.h>

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "idxable.h"
 #include "convmemvalseries.h"
+#include "binidvalue.h"
 
 namespace Attrib
 {
@@ -48,7 +49,8 @@ bool DataCubes::addCube( const  BinDataDesc* desc )
     else
     {
 	 arr = new Array3DImpl<float>( 0, 0, 0 );
-	 ConvMemValueSeries<float>* stor= new ConvMemValueSeries<float>(0,*desc);
+	 ConvMemValueSeries<float>* stor
+	     			= new ConvMemValueSeries<float>(0,*desc);
 	 arr->setStorage( stor );
 	 arr->setSize( inlsz_, crlsz_, zsz_ );
 	 if ( !stor->storArr() )

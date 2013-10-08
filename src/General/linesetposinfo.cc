@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "binidvalset.h"
+#include "binidvalue.h"
 
 
 PosInfo::LineSet2DData::IR::~IR()

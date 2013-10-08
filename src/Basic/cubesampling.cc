@@ -23,13 +23,11 @@ void HorSampling::init( bool tosi )
 	start = SI().sampling(false).hrg.start;
 	stop = SI().sampling(false).hrg.stop;
 	step = SI().sampling(false).hrg.step;
-	geomid_ = TraceID::std3DGeomID();
     }
     else
     {
 	start.inl() = start.crl() = stop.inl() = stop.crl() = mUdf(int);
 	step.inl() = step.crl() = 1;
-	geomid_ = TraceID::cUndefGeomID();
     }
 }
 
@@ -411,10 +409,10 @@ void HorSampling::snapToSurvey()
 
 void HorSampling::toString( BufferString& str ) const
 {
-    str.add( "Inline range: " ).add( start.inl() ).add( " - " ).add( stop.inl() )
-       .add( " [" ).add( step.inl() ).add( "]\n" );
-    str.add( "Crossline range: " ).add( start.crl() ).add( " - " ).add( stop.crl() )
-       .add( " [" ).add( step.crl() ).add( "]" );
+    str.add( "Inline range: " ).add( start.inl() ).add( " - " )
+	.add( stop.inl() ).add( " [" ).add( step.inl() ).add( "]\n" );
+    str.add( "Crossline range: " ).add( start.crl() ).add( " - " )
+	.add( stop.crl() ).add( " [" ).add( step.crl() ).add( "]" );
 }
 
 
@@ -494,15 +492,14 @@ CubeSampling::Dir CubeSampling::defaultDir() const
 }
 
 
-Coord3 CubeSampling::defaultNormal() const
+void CubeSampling::getDefaultNormal( Coord3& ret ) const
 {
     if ( defaultDir() == Inl )
-	return Coord3( SI().binID2Coord().rowDir(), 0 );
-
-    if ( defaultDir() == Crl )
-	return Coord3( SI().binID2Coord().colDir(), 0 );
-
-    return Coord3( 0, 0, 1 );
+	ret = Coord3( SI().binID2Coord().rowDir(), 0 );
+    else if ( defaultDir() == Crl )
+	ret = Coord3( SI().binID2Coord().colDir(), 0 );
+    else
+	ret = Coord3( 0, 0, 1 );
 } 
 
 

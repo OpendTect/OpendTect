@@ -60,7 +60,7 @@ protected:
     int				nrdone_;
     int				totalnr_;
     PosInfo::GeomID		oldgeomid_;
-    TraceID::GeomID             geomid_;
+    Pos::GeomID			geomid_;
     
     PosInfo::Line2DData		posdata_;
 };

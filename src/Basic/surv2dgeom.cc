@@ -929,6 +929,12 @@ Survey::Geometry2D::~Geometry2D()
 { delete &data_; }
 
 
+const char* Survey::Geometry2D::getName() const
+{
+    return data_.lineName().buf();
+}
+
+
 Coord Survey::Geometry2D::toCoord( int, int trcnr ) const
 {
     PosInfo::Line2DPos pos;
@@ -936,11 +942,13 @@ Coord Survey::Geometry2D::toCoord( int, int trcnr ) const
 }
 
 
-TraceID Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
+TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
 {
     PosInfo::Line2DPos pos;
-    return data_.getPos(crd,pos,dist) ? TraceID( geomid_, geomid_, pos.nr_) 
-				      : TraceID::udf();
+    if ( !data_.getPos(crd,pos,dist) )
+	return TrcKey::udf();
+
+    return TrcKey( get2DSurvID(), id_, pos.nr_ );
 }
 
 

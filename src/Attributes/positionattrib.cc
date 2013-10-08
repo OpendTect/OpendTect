@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
+#include "binidvalue.h"
 #include "statruncalc.h"
 #include "valseriesinterpol.h"
 
@@ -100,7 +101,8 @@ Position::Position( Desc& desc )
     BinID pos;
     for ( pos.inl()=-stepout_.inl(); pos.inl()<=stepout_.inl(); pos.inl()++ )
     {
-	for ( pos.crl()=-stepout_.crl(); pos.crl()<=stepout_.crl(); pos.crl()++ )
+	for ( pos.crl()=-stepout_.crl(); pos.crl()<=stepout_.crl();
+		pos.crl()++ )
 	{
 	    positions_ += pos;
 	    if ( dosteer_ ) steerindexes_ += getSteeringIndex( pos );
@@ -110,7 +112,8 @@ Position::Position( Desc& desc )
     outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl()*2+1,
 						   stepout_.crl()*2+1 );
 
-    const float maxso = mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() );
+    const float maxso = mMAX( stepout_.inl()*inlDist(),
+	    			stepout_.crl()*crlDist() );
     const float maxsecdip = maxSecureDip();
     desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
 	    			gate_.stop+maxso*maxsecdip );

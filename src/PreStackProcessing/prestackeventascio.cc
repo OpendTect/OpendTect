@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
+#include "binidvalue.h"
 
 namespace PreStack
 {
@@ -108,7 +109,7 @@ int EventExporter::nextStep()
 		mWrite( event.offsetazimuth_[pickidx].azimuth() );
 		mWrite( event.offsetazimuth_[pickidx].offset() );
 		mWrite( event.pick_[pickidx] );
-		mWrite( event.pickquality_ ? event.pickquality_[pickidx] : 255 );
+		mWrite( event.pickquality_ ? event.pickquality_[pickidx] : 255);
 		strm_ << '\n';
 	    }
 
@@ -245,7 +246,8 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
 	return ret;
 
     Coord pos( getdValue(0,udfval_), getdValue(1,udfval_) );
-    bid = isxy_ ? SI().transform( pos ) : BinID( mNINT32(pos.x), mNINT32(pos.y) );
+    bid = isxy_ ? SI().transform( pos )
+		: BinID( mNINT32(pos.x), mNINT32(pos.y) );
     horid = getIntValue( 2, mUdf(od_int16) );
     offset = getfValue( 3, udfval_ );
     zval = getfValue( 4, udfval_ );

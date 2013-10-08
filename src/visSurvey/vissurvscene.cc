@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "basemapimpl.h"
+#include "binidvalue.h"
 #include "cubesampling.h"
 #include "envvars.h"
 #include "iopar.h"

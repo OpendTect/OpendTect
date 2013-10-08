@@ -383,6 +383,10 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 }
 
 
+#define mGetNormal(var) \
+    Coord3 var( Coord3::udf() ); \
+    if ( !cs_.isEmpty() ) cs_.getDefaultNormal( var )
+
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
     if ( seedhasmoved_ )
@@ -413,7 +417,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     EM::PosID pid;
-    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( pid, &fsspainter_->getLineSetID(),
 				   fsspainter_->getLineName(), pos, &normal );
@@ -543,7 +547,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     EM::PosID interactpid;
-    const Coord3 normal( cs_.isEmpty() ? Coord3::udf() : cs_.defaultNormal() );
+    mGetNormal( normal );
     fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
 				   fsspainter_->getLineName(), pos, &normal );
@@ -572,7 +576,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( mouseevent.shiftStatus() || interactpid.isUdf() )
     {
-	Coord3 editnormal = cs_.defaultNormal();
+	mGetNormal( editnormal );
 
 	const MultiID* lineset = 0;
 	const char* linenm = 0;

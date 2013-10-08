@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatapack.h"
 #include "attribsel.h"
 #include "basemap.h"
+#include "binidvalue.h"
 #include "coltabsequence.h"
 #include "cubesampling.h"
 #include "datapointset.h"
@@ -295,8 +296,8 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger_->setWidthLimits(
-	    Interval<float>( mCast(float,4*survey.hrg.step.inl()), mUdf(float) ),
-	    Interval<float>( mCast(float,4*survey.hrg.step.crl()), mUdf(float) ),
+	    Interval<float>( mCast(float,4*survey.hrg.step.inl()),mUdf(float)),
+	    Interval<float>( mCast(float,4*survey.hrg.step.crl()),mUdf(float)),
 	    Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
 
     CubeSampling newpos = getCubeSampling(false,true);
@@ -524,7 +525,7 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 		         (thecs.hrg.start.crl()+thecs.hrg.stop.crl())/2.0, \
 		         thecs.zrg.center() ); \
     Coord3 width( thecs.hrg.stop.inl()-thecs.hrg.start.inl(), \
-		  thecs.hrg.stop.crl()-thecs.hrg.start.crl(), thecs.zrg.width() ); \
+	      thecs.hrg.stop.crl()-thecs.hrg.start.crl(), thecs.zrg.width() ); \
     if ( width.x < 1 ) width.x = 1; \
     if ( width.y < 1 ) width.y = 1; \
     if ( width.z < thecs.zrg.step * 0.5 ) width.z = 1; \
@@ -882,8 +883,10 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	}
     }
 
+    /*
     res.hrg.geomid_ = inlcrlsystem_ ? inlcrlsystem_->getGeomID()
 				    : TraceID::std3DGeomID();
+    */
     return res;
 }
 

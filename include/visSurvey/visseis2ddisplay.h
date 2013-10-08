@@ -50,7 +50,7 @@ public:
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
     PosInfo::GeomID		getGeomID() const;
-    TraceID::GeomID		geomID() const;
+    Pos::GeomID			geomID() const;
     MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
@@ -102,7 +102,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 				    Coord3&,BufferString&,BufferString&) const;
     void			getMousePosInfo(const visBase::EventInfo&,
-																IOPar&) const;
+						IOPar&) const;
     void			getObjectInfo(BufferString&) const;
     void			snapToTracePos(Coord3&) const;
     int				getNearestTraceNr(const Coord3&) const;
@@ -185,7 +185,7 @@ protected:
     Notifier<Seis2DDisplay>	geomchanged_;
 
     PosInfo::GeomID		oldgeomid_;
-    TraceID::GeomID		geomid_;
+    Pos::GeomID			geomid_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
 

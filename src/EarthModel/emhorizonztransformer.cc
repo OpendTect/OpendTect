@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emhorizon.h"
 #include "emhorizonztransform.h"
+#include "binidvalue.h"
 
 namespace EM
 {

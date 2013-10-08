@@ -21,6 +21,7 @@ ________________________________________________________________________
  plftypes.h
  undefval.h
  commondefs.h
+ commontypes.h
  errmsg.h
  gendefs.h
 
@@ -31,8 +32,8 @@ ________________________________________________________________________
 #ifndef undefval_h
 # include "undefval.h"
 #endif
-#ifndef commondefs_h
-#include "commondefs.h"
+#ifndef commontypes_h
+#include "commontypes.h"
 #endif
 #ifndef errmsg_h
 #include "errmsg.h"

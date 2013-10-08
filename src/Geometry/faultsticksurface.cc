@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "faultsticksurface.h"
+#include "binidvalue.h"
 #include <math.h>
 
 namespace Geometry

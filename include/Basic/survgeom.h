@@ -13,7 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "factory.h"
-#include "position.h"
+#include "coord.h"
+#include "trckey.h"
 #include "refcount.h"
 
 class MultiID;
@@ -25,27 +26,55 @@ namespace Survey
 
 /*!
 \brief A Geometry which holds trace positions.
+
+For 3D, a geometry is the InlCrlSystem.
+For 2D, each line has a Geometry.
+
+Beware, the Geometry::ID != Survkey::ID for 2D geometries. The Geometry::ID
+will end up in the lineNr() of the TrcKey.
+
 */
 
 mExpClass(Basic) Geometry
-{ mRefCountImpl(Geometry);
+{			mRefCountImpl(Geometry);
 public:
-    virtual bool	is2D() const					= 0;
-    TraceID::GeomID	getGeomID() const { return geomid_; }
-    void		setGeomID( TraceID::GeomID id ) { geomid_ = id; }
-    Coord		toCoord(const TraceID& tid) const;
-    virtual Coord	toCoord(int linenr,int tracenr) const		= 0;
-    virtual TraceID	nearestTrace(const Coord&,float* distance) const= 0;
-    virtual TraceID	getTrace(const Coord&,float maxdist) const;
-			//!<returns undef if no trace found
 
-    bool		includes(const TraceID& tid) const;
-    virtual bool	includes(int linenr,int tracenr) const		= 0;
+    typedef Pos::GeomID	ID;
+
+    virtual bool	is2D() const			= 0;
+    static TrcKey::SurvID get2DSurvID();
+
+    ID			getID() const			{ return id_; }
+    void		setID( ID id )			{ id_ = id; }
+    virtual const char*	getName() const			= 0;
+
+    virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
+    virtual bool	includes(Pos::LineID,Pos::TraceID) const	= 0;
+    bool		includes(const TrcKey&) const;
+
+    static Coord	toCoord(const TrcKey&);
+    static bool		exists(const TrcKey&);
+
+    inline Coord	toCoord( const BinID& b ) const
+			{ return toCoord( b.lineNr(), b.trcNr() ); }
+    inline bool		includes( const BinID& b ) const
+			{ return includes( b.lineNr(), b.trcNr() ); }
+
+    virtual TrcKey	nearestTrace(const Coord&,float* distance) const = 0;
+    virtual TrcKey	getTrace(const Coord&,float maxdist) const;
+				//!<returns undef if no trace found
+
+    Geometry::ID	getID(const char* geomname) const;
+    const char*		getName(Geometry::ID) const;
     
-    virtual StepInterval<float>   zRange() const			= 0;
+    virtual StepInterval<float> zRange() const				= 0;
+
 protected:
+
 			Geometry();
-    TraceID::GeomID	geomid_;
+
+    ID			id_;
+
 };
 
 
@@ -56,15 +85,18 @@ protected:
 mExpClass(Basic) GeometryManager
 {
 public:
+
 				GeometryManager();
 				~GeometryManager();
-    const Geometry*		getGeometry(TraceID::GeomID) const;
+
+    const Geometry*		getGeometry(Geometry::ID) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
-    TraceID::GeomID		getGeomID(const char* linename) const;
-    const char*			getName(TraceID::GeomID) const;
+    Geometry::ID		getGeomID(const TrcKey&) const;
+    Geometry::ID		getGeomID(const char* survname) const;
+    const char*			getName(Geometry::ID) const;
     
-    Coord			toCoord(const TraceID&) const;
+    Coord			toCoord(const TrcKey&) const;
 
     bool			fetchFrom2DGeom();
 				//converts od4 geometries to od5 geometries.
@@ -74,19 +106,24 @@ public:
     IOObj*			createEntry(const char* name,const bool is2d);
 				// returns new GeomID.
     
-    void			removeGeometry(TraceID::GeomID);    
+    void			removeGeometry(Geometry::ID);
     
     bool			fillGeometries(TaskRunner*);
-    static TraceID::GeomID	cDefault3DGeom() { return -1; }
-    static TraceID::GeomID	cUndefGeomID() { return mUdf(TraceID::GeomID); }
+
+    static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
+    TrcKey::SurvID		default3DSurvID() const;
+    static Geometry::ID		cUndefGeomID()	{ return mUdf(Geometry::ID); }
 
 protected:
+
     void			addGeometry(Geometry&);
     bool			hasDuplicateLineNames();
 
-    int				indexOf(TraceID::GeomID) const;
+    int				indexOf(Geometry::ID) const;
 
     ObjectSet<Geometry>		geometries_;
+    static const TrcKey::SurvID	surv2did_;
+
 };
 
 

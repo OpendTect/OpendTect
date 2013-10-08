@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
+#include "binidvalue.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "cubesampling.h"

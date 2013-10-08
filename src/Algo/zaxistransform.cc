@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "binidvalue.h"
 #include "zdomain.h"
 
 
@@ -59,11 +60,12 @@ int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool )
 void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool )
 {}
 
-int ZAxisTransform::addVolumeOfInterest2D( const char*, const CubeSampling&, bool)
+int ZAxisTransform::addVolumeOfInterest2D( const char*, const CubeSampling&,
+					   bool )
 { return -1; }
 
-void ZAxisTransform::setVolumeOfInterest2D( int, const char*, const CubeSampling&,
-					    bool )
+void ZAxisTransform::setVolumeOfInterest2D( int, const char*,
+					    const CubeSampling&, bool )
 {}
 
 
@@ -105,7 +107,8 @@ void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 }
 
 
-float ZAxisTransform::transform2D( const char* linenm, int trcnr, float z ) const
+float ZAxisTransform::transform2D( const char* linenm, int trcnr,
+				   float z ) const
 {
     float res = mUdf(float);
     transform2D( linenm, trcnr, SamplingData<float>(z,1), 1, &res );

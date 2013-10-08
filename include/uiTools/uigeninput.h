@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
+#include "binidvalue.h"
 
 class uiLineEdit;
 class uiLabel;

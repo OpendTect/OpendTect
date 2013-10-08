@@ -249,7 +249,7 @@ bool PSAttrib::getAngleInputData()
 
     const FlatPosData& fp = gather->posData();
     anglecomp_->setOutputSampling( fp );
-    anglecomp_->setTraceID( gather->getBinID() );
+    anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
     PreStack::Gather* angledata = anglecomp_->computeAngles();
 
     if ( !angledata )
@@ -291,7 +291,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    PreStack::Gather* gather = 0;
 	    for ( int inlidx=-stepout.inl(); inlidx<=stepout.inl(); inlidx++ )
 	    {
-		for ( int crlidx=-stepout.crl(); crlidx<=stepout.crl(); crlidx++ )
+		for ( int crlidx=-stepout.crl(); crlidx<=stepout.crl();
+			crlidx++ )
 		{
 		    const BinID relbid( inlidx, crlidx );
 		    if ( !preprocessor_->wantsInput(relbid) )

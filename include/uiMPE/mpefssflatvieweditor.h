@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "uimpemod.h"
+#include "geometry.h"
 #include "emfaultsticksetflatvieweditor.h"
 
 #include "emposid.h"
@@ -28,7 +28,8 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
-mExpClass(uiMPE) FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mExpClass(uiMPE) FaultStickSetFlatViewEditor
+    			: public EM::FaultStickSetFlatViewEditor
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,

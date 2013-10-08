@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sectionextender.h"
 #include "position.h"
 #include "surv2dgeom.h"
+#include "binidvalue.h"
 
 namespace EM { class Horizon2D; };
 

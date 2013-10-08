@@ -53,8 +53,8 @@ Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
 { return transform( BinID(linenr,tracenr) ); }
 
 
-TraceID	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
-{ return TraceID( transform(crd) ); }
+TrcKey	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
+{ return TrcKey( getID(), transform(crd) ); }
 
 
 bool InlCrlSystem::includes( int line, int tracenr ) const
@@ -832,10 +832,12 @@ bool SurveyInfo::write( const char* basedir ) const
     astream.put( sKey::Name(), name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
-    fms += cs_.hrg.start.inl(); fms += cs_.hrg.stop.inl(); fms += cs_.hrg.step.inl();
+    fms += cs_.hrg.start.inl(); fms += cs_.hrg.stop.inl();
+				fms += cs_.hrg.step.inl();
     astream.put( sKeyInlRange(), fms );
     fms = "";
-    fms += cs_.hrg.start.crl(); fms += cs_.hrg.stop.crl(); fms += cs_.hrg.step.crl();
+    fms += cs_.hrg.start.crl(); fms += cs_.hrg.stop.crl();
+				fms += cs_.hrg.step.crl();
     astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += cs_.zrg.start; fms += cs_.zrg.stop;
     fms += cs_.zrg.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
@@ -961,7 +963,7 @@ RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
 	RefMan<InlCrlSystem> newsys = new InlCrlSystem( name(), zdef_ );
 	newsys->ref();
 	if ( work )
-	    newsys->setGeomID( Survey::GeometryManager::cDefault3DGeom() );
+	    newsys->setID( Survey::GM().default3DSurvID() );
 	
 	newsys->b2c_ = b2c_;
 	newsys->cs_ = sampling( work );

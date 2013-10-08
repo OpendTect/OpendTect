@@ -830,25 +830,22 @@ void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl(), binid.crl() ); }
 
 
-bool IOPar::get( const char* s, TraceID& traceid ) const
+bool IOPar::get( const char* s, TrcKey& tk ) const
 {
-    TraceID::GeomID gid;
+    TrcKey::SurvID sid;
     int trcnr;
     int linenr;
 
-    if ( !get( s, gid, linenr, trcnr ) )
+    if ( !get( s, sid, linenr, trcnr ) )
 	return false;
 
-    if ( !traceid.setGeomID(gid) )
-	return false;
-
-    traceid.trcNr() = trcnr;
-    traceid.lineNr() = linenr;
-
+    tk.setSurvID( sid );
+    tk.trcNr() = trcnr;
+    tk.lineNr() = linenr;
     return true;
 }
-void IOPar::set( const char* s, const TraceID& traceid )
-{ set( s, traceid.getGeomID(), traceid.lineNr(), traceid.trcNr() ); }
+void IOPar::set( const char* s, const TrcKey& tk )
+{ set( s, tk.survID(), tk.lineNr(), tk.trcNr() ); }
 
 
 bool IOPar::get( const char* s, SeparString& ss ) const

@@ -19,10 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "velocitypicks.h"
+#include "binidvalue.h"
 
 
 
-extern "C" int dGBPreStackEventsSetSurvey( const char* dataroot, const char* survey )
+extern "C" int dGBPreStackEventsSetSurvey( const char* dataroot,
+					   const char* survey )
 {
     return PreStack::EventsAPIMgr::getMgr().setSurvey( dataroot, survey );
 }
@@ -62,8 +64,8 @@ extern "C" int dGBPreStackEventsGetRanges( int handle,
 }
 
 
-extern "C" int dGBPreStackEventsGetNextCDP(  int handle, int previnl, int prevcrl,
-					int& nextinl, int& nextcrl )
+extern "C" int dGBPreStackEventsGetNextCDP( int handle, int previnl,
+				    int prevcrl, int& nextinl, int& nextcrl )
 {
     return PreStack::EventsAPIMgr::getMgr().getNextCDP( handle,
 		    previnl, prevcrl, nextinl, nextcrl );
@@ -89,9 +91,9 @@ extern "C" int dGBPreStackEventsGetEventSize( int handle, int index )
 }
 
 
-extern "C" void dGBPreStackEventsGetEvent( int handle, int index, float* offsets,
-				      float* azimuths, float* depths,
-       				      float* quality )
+extern "C" void dGBPreStackEventsGetEvent( int handle, int index,
+				float* offsets, float* azimuths, float* depths,
+				  float* quality )
 {
     PreStack::EventsAPIMgr::getMgr().getEvent( handle, index, offsets, azimuths,
 	    				     depths, quality );
@@ -105,9 +107,10 @@ extern "C" void dGBPreStackEventsGetDip( int handle, int index,
 }
 
 
-extern "C" int dGBPreStackEventsGetHorizonID( int handle, int index, int& horid )
+extern "C" int dGBPreStackEventsGetHorizonID( int handle, int index, int& horid)
 {
-    return PreStack::EventsAPIMgr::getMgr().getHorizonID( handle, index, horid );
+    return PreStack::EventsAPIMgr::getMgr().getHorizonID( handle, index,
+	    						  horid );
 }
 
 
@@ -134,7 +137,7 @@ PreStack::EventsAPIMgr::~EventsAPIMgr()
 }
 
 
-int PreStack::EventsAPIMgr::setSurvey( const char* dataroot, const char* survey )
+int PreStack::EventsAPIMgr::setSurvey( const char* dataroot, const char* survey)
 {
     if ( !IOM().setRootDir( dataroot ) )
 	return -1;

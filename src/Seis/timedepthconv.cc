@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timedepthconv.h"
 
 #include "arrayndimpl.h"
+#include "binidvalue.h"
 #include "cubesampling.h"
 #include "datapackbase.h"
 #include "genericnumer.h"
@@ -527,11 +528,12 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
 	return voivols_[idx].zrg;
 
     return
-	Interval<float>( voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
-				    voivols_[idx].hrg.crlIdx(bid.crl()), 0 ),
-			 voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
-				    voivols_[idx].hrg.crlIdx(bid.crl()), 
-		   		    voidata_[idx]->info().getSize(2)-1 ) );
+	Interval<float>( voidata_[idx]->get(
+		     voivols_[idx].hrg.inlIdx(bid.inl()),
+		     voivols_[idx].hrg.crlIdx(bid.crl()), 0 ),
+		     voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
+			voivols_[idx].hrg.crlIdx(bid.crl()),
+			voidata_[idx]->info().getSize(2)-1 ) );
 }
 
 

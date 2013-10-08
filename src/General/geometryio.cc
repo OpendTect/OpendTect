@@ -61,7 +61,7 @@ protected:
 
 	data->setLineName( ioobj->name() );
 	Geometry2D* geom = new Geometry2D( data );
-	geom->setGeomID( ioobj->key().ID(1) );
+	geom->setID( ioobj->key().ID(1) );
 	geom->ref();
 	geometries_ += geom;
 
@@ -90,7 +90,7 @@ bool GeometryWriter2D::write( Geometry& geom ) const
     if ( !ioobj || ioobj->key().nrKeys() != 2)
 	return false;
 
-    geom2d->setGeomID( ioobj->key().ID(1) );
+    geom2d->setID( ioobj->key().ID(1) );
     od_ostream strm( ioobj->fullUserExpr() );
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizonutils.h"
 
 #include "binidvalset.h"
+#include "binidvalue.h"
 #include "cubesampling.h"
 #include "datapointset.h"
 

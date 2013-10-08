@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "basemap.h"
 #include "dataclipper.h"
 #include "draw.h"
+#include "coordvalue.h"
 #include "iopar.h"
 #include "executor.h"
 #include "ptrman.h"

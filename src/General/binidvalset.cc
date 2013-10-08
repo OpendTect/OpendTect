@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidvalset.h"
+#include "binidvalue.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
@@ -568,7 +569,8 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinIDValues& bivs )
 class BinIDValueSetFromCubeData : public ParallelTask
 {
 public:
-BinIDValueSetFromCubeData( BinIDValueSet& bvs, const PosInfo::CubeData& cubedata )
+BinIDValueSetFromCubeData( BinIDValueSet& bvs,
+			   const PosInfo::CubeData& cubedata )
     : bvs_( bvs )
     , cubedata_( cubedata )
 {

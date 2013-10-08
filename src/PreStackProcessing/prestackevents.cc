@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "thread.h"
 #include "randcolor.h"
+#include "binidvalue.h"
 
 namespace PreStack
 {

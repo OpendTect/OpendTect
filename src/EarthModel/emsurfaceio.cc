@@ -532,7 +532,7 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 { return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
 
 
-TraceID::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
+Pos::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
 { return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
 
 

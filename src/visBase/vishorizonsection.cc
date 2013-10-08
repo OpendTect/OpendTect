@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidsurface.h"
 #include "binidvalset.h"
+#include "binidvalue.h"
 #include "cubesampling.h"
 #include "coltabmapper.h"
 #include "datacoldef.h"
@@ -858,7 +859,8 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	const BinID bid = data->getBinID( pos );
 	if ( userchangedisplayrg_ )
 	{
-	    if ( !rrg.includes(bid.inl(), false) ||!crg.includes(bid.crl(),false) )
+	    if ( !rrg.includes(bid.inl(),false)
+	      || !crg.includes(bid.crl(),false) )
     		continue;
 
 	    if ( (bid.inl()-rrg.start) % rrg.step || 
@@ -1115,9 +1117,12 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	const Interval<int> rowrg = geometry_->rowRange();
 	const Interval<int> colrg = geometry_->colRange();
 	std::vector<osg::Vec2d> cornerpts;
-	Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.start ) );
-	Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
-	Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start, colrg.stop ) );
+	Coord crd00 = geometry_->getKnotCoord( RowCol( rowrg.start,
+		    					colrg.start ) );
+	Coord crd01 = geometry_->getKnotCoord( RowCol( rowrg.start,
+		    					colrg.stop ) );
+	Coord crd10 = geometry_->getKnotCoord( RowCol( rowrg.start,
+		    					colrg.stop ) );
 	std::vector<osg::Vec2d> cornerptr;
 	cornerpts.push_back( osg::Vec2d( crd00.x, crd00.y ) );
 	cornerpts.push_back( osg::Vec2d( crd01.x, crd01.y ) );
@@ -1155,7 +1160,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		    if ( !mIsUdf(z) )
 		    {
 			if ( zaxistransform_ )
-			    z = zaxistransform_->transform( BinIDValue( bid, z ) );
+			    z = zaxistransform_->transform( BinIDValue(bid,z) );
 		    }
 
 		    depthptr[geometry_->getKnotIndex( bid )] = z;

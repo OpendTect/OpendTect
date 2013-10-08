@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "samplingdata.h"
 #include "bindatadesc.h"
+class BinIDValue;
 
 
 template <class T> class Array3D;

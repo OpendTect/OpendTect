@@ -43,7 +43,7 @@ public:
     			    , zdomain_( zd )
 			{}
     bool		is2D() const		{ return false; }
-    const BufferString&	name() const		{ return name_; }
+    const char*		getName() const		{ return name_.buf(); }
     			    
     float		zScale() const 		{ return zscale_; }
 
@@ -56,7 +56,7 @@ public:
     float		zStep() const 		{ return cs_.zrg.step; }
     
     Coord		toCoord(int line,int tracenr) const;
-    TraceID		nearestTrace(const Coord&,float* distance) const;
+    TrcKey		nearestTrace(const Coord&,float* distance) const;
     bool		includes(int line,int tracenr) const;
 
     Coord		transform(const BinID&) const;

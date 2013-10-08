@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "mathfunc.h"
 #include "enums.h"
+#include "binidvalue.h"
 
 class Plane3;
 

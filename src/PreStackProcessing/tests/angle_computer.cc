@@ -99,7 +99,7 @@ bool BatchProgram::go( od_ostream& strm )
     fp.setRange( true, offsetrange );
     fp.setRange( false, zrange );
     computer->setOutputSampling( fp );
-    computer->setTraceID( BinID(426,800) );
+    computer->setTrcKey( TrcKey(BinID(426,800)) );
     if ( !computer->isOK() )
     {
 	std::cerr<<" Angle computer is not OK.\n";

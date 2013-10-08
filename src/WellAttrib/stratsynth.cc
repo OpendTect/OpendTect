@@ -474,8 +474,8 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     for ( int idx=0; idx<rts.size(); idx++ )
     {
 	const PreStack::Gather* gather = gathers[idx];
-	const TraceID trcid( gather->getBinID() );
-	anglecomp->setRayTracer( rts[idx], trcid );
+	const TrcKey trckey( gather->getBinID() );
+	anglecomp->setRayTracer( rts[idx], trckey );
     }
 
     psattr->setAngleComp( anglecomp );
@@ -663,7 +663,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl * crlstep );
+	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
 	    trc->info().nr = imdl+1;
 	    cs.hrg.include( trc->info().binid );
 	    if ( !trc->isEmpty() )
@@ -1432,9 +1432,9 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 	    continue;
 	const PreStack::Gather* gather = gathers[idx];
 	anglecomp.setOutputSampling( gather->posData() );
-	const TraceID trcid( gather->getBinID() );
-	anglecomp.setRayTracer( rts[idx], trcid );
-	anglecomp.setTraceID( trcid );
+	const TrcKey trckey( gather->getBinID() );
+	anglecomp.setRayTracer( rts[idx], trckey );
+	anglecomp.setTrcKey( trckey );
 	PreStack::Gather* anglegather = anglecomp.computeAngles();
 	convertAngleDataToDegrees( anglegather );
 	TypeSet<float> azimuths;

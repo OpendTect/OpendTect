@@ -2,18 +2,17 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          18-4-1996
+ Author:        Kris
+ Date:          2013
 ________________________________________________________________________
 
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "survgeom.h"
+#include "surv2dgeom.h"
 
 #include "keystrs.h"
 #include "multiid.h"
-#include "surv2dgeom.h"
 #include "survinfo.h"
 #include "task.h"
 
@@ -22,46 +21,67 @@ using namespace Survey;
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
-
 static GeometryManager* theinst = 0;
+const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 
 
 GeometryManager& Survey::GMAdmin()
 {
     if( !theinst )
-    { theinst = new GeometryManager(); }
+	{ theinst = new GeometryManager(); }
 
     return *theinst;
 }
 
 
 Geometry::Geometry()
-    : geomid_( -2 )
-{}
-
-
-Geometry::~Geometry()
-{}
-
-
-TraceID Geometry::getTrace( const Coord& crd, float maxdist ) const
+    : id_(mUdf(ID))
 {
-    float dist;
-    TraceID trcid = nearestTrace( crd,  &dist );
-    
-    if ( trcid.isUdf() || dist>maxdist )
-	return TraceID::udf();
-    
-    return trcid;
 }
 
 
-Coord Geometry::toCoord( const TraceID& tid ) const
-{ return toCoord( tid.lineNr(), tid.trcNr() ); }
+Geometry::~Geometry()
+{
+}
 
 
-bool Geometry::includes( const TraceID& tid ) const
-{ return includes( tid.lineNr(), tid.trcNr() ); }
+TrcKey::SurvID Geometry::get2DSurvID()
+{
+    return GeometryManager::get2DSurvID();
+}
+
+
+TrcKey Geometry::getTrace( const Coord& crd, float maxdist ) const
+{
+    float dist;
+    const TrcKey tk = nearestTrace( crd,  &dist );
+    return tk.isUdf() || dist>maxdist ? TrcKey::udf() : tk;
+}
+
+
+bool Geometry::includes( const TrcKey& tk ) const
+{
+    return GM().getGeomID( tk ) == getID()
+	&& includes( tk.lineNr(), tk.trcNr() );
+}
+
+
+Coord Geometry::toCoord( const TrcKey& tk )
+{
+    const Geometry* geom = GM().getGeometry( GM().getGeomID(tk)  );
+    return geom ? geom->toCoord( tk.pos() ) : Coord::udf();
+}
+
+
+bool Geometry::exists( const TrcKey& tk )
+{
+    const Geometry* geom = GM().getGeometry( GM().getGeomID(tk) );
+    return geom && geom->includes( tk.pos() );
+}
+
+
+#define mGetConstGeom(varnm,geomid) \
+    ConstRefMan<Geometry> varnm = GM().getGeometry( geomid );
 
 
 GeometryManager::GeometryManager()
@@ -70,18 +90,25 @@ GeometryManager::GeometryManager()
 
 
 GeometryManager::~GeometryManager()
-{ deepUnRef( geometries_ ); }
-
-
-const Geometry* GeometryManager::getGeometry(TraceID::GeomID geomid) const
 {
-    if ( geomid==cDefault3DGeom() )
-	return SI().get3DGeometry( false );
+    deepUnRef( geometries_ );
+}
 
+
+TrcKey::SurvID GeometryManager::default3DSurvID() const
+{
     for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->getGeomID() == geomid )
+	if ( !geometries_[idx]->is2D() )
+	    return geometries_[idx]->getID();
+    return cUndefGeomID();
+}
+
+
+const Geometry* GeometryManager::getGeometry( Geometry::ID geomid ) const
+{
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+	if ( geometries_[idx]->getID() == geomid )
 	    return geometries_[idx];
-    
     return 0;
 }
 
@@ -95,40 +122,40 @@ const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 }
 
 
-int GeometryManager::getGeomID( const char* name ) const
+Geometry::ID GeometryManager::getGeomID( const TrcKey& tk ) const
 {
+    Geometry::ID geomid = tk.survID();
+    if ( geomid == surv2did_ )
+	geomid = tk.lineNr();
+    return geomid;
+}
+
+
+Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
+{
+    const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
-	if ( !geometries_[idx]->is2D() )
-	    return -cDefault3DGeom();
-	else
-	{
-	    if ( ((Geometry2D*)geometries_[idx])->data().lineName() == name)
-		return geometries_[idx]->getGeomID();
-	}
+	if ( reqln == geometries_[idx]->getName() )
+	    return geometries_[idx]->getID();
     }
 
-    return -1;
+    return cUndefGeomID();
 }
 
 
-const char* GeometryManager::getName( TraceID::GeomID geomid ) const
+const char* GeometryManager::getName( Geometry::ID geomid ) const
 {
-    if ( !getGeometry(geomid)->is2D() )
-    {}//
-    else
-	return ( (Geometry2D*)getGeometry(geomid) )->data().lineName();
-
-    return 0;
+    mGetConstGeom(geom,geomid);
+    return geom ? geom->getName() : 0;
 }
 
 
-Coord GeometryManager::toCoord( const TraceID& tid ) const
+Coord GeometryManager::toCoord( const TrcKey& tk ) const
 {
-    ConstRefMan<Geometry> geom = getGeometry( tid.geomid_ );
-    return geom
-	? geom->toCoord( tid.lineNr(), tid.trcNr() )
-	: Coord::udf();
+    const Geometry::ID geomid = getGeomID( tk );
+    mGetConstGeom(geom,geomid);
+    return geom ? geom->toCoord( tk.lineNr(), tk.trcNr() ) : Coord::udf();
 }
 
 
@@ -225,7 +252,7 @@ bool GeometryManager::write( Geometry& geom )
 }
 
 
-IOObj* GeometryManager::createEntry( const char* name,const bool is2d )
+IOObj* GeometryManager::createEntry( const char* name, const bool is2d )
 {
     if ( is2d )
     {
@@ -239,7 +266,7 @@ IOObj* GeometryManager::createEntry( const char* name,const bool is2d )
 }
 
 
-void GeometryManager::removeGeometry( TraceID::GeomID geomid )
+void GeometryManager::removeGeometry( Geometry::ID geomid )
 {
     const int index = indexOf( geomid );
     if ( geometries_.validIdx(index) )
@@ -253,10 +280,10 @@ void GeometryManager::removeGeometry( TraceID::GeomID geomid )
 }
 
 
-int GeometryManager::indexOf( TraceID::GeomID geomid ) const
+int GeometryManager::indexOf( Geometry::ID geomid ) const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( geometries_[idx]->getGeomID() == geomid )
+	if ( geometries_[idx]->getID() == geomid )
 	    return idx;
 
     return -1;
@@ -273,7 +300,7 @@ bool GeometryManager::fillGeometries( TaskRunner* tr )
 
 BinID InlCrlSystem::transform( const Coord& c ) const
 {
-    StepInterval<int> inlrg, crlrg;
+    StepInterval<Pos::LineID> inlrg; StepInterval<Pos::TraceID> crlrg;
     cs_.hrg.get( inlrg, crlrg );
     return b2c_.transformBack( c, &inlrg, &crlrg );
 }

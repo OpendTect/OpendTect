@@ -582,7 +582,8 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl() : acttrcnr, isinl ? acttrcnr : bid.crl() );
+	BinID posbid( isinl ? bid.inl() : acttrcnr,
+		      isinl ? acttrcnr : bid.crl() );
 	bids.addIfNew( posbid );
 	if ( bids.size() >= sStartNrViewers )
 	    return;
@@ -592,7 +593,8 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl() : acttrcnr, isinl ? acttrcnr : bid.crl() );
+	BinID posbid( isinl ? bid.inl() : acttrcnr,
+		      isinl ? acttrcnr : bid.crl() );
 	if ( bids.isPresent(posbid) )
 	    continue;
 	bids.insert( 0, posbid );
@@ -765,7 +767,7 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
     velangcomp.setOutputSampling( fp );
-    velangcomp.setTraceID( gather->getBinID() );
+    velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
     PreStack::Gather* angledata = velangcomp.computeAngles();
     if ( !angledata ) return -1;
     BufferString angledpnm( gather->name(), " Incidence Angle" );
@@ -1200,7 +1202,8 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
     CubeSampling cs;
-    const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())/cs.hrg.step.crl();
+    const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())
+			/ cs.hrg.step.crl();
     info->setData( modelnr, ginfo.gathernm_ );
 }
 
@@ -1374,9 +1377,11 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
-    for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
+    for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
+	    	relbid.inl()++ )
     {
-	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl(); relbid.crl()++ )
+	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
+		relbid.crl()++ )
 	{
 	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
@@ -1414,8 +1419,9 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
-	if ( (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
-	     || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
+	if (
+	    (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
+	    || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
 	{
 	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 	    preprocmgr_->setInput( relbid, gather->id() );

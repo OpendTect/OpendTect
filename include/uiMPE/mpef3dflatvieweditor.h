@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "uimpemod.h"
+#include "geometry.h"
 #include "emfaultsticksetflatvieweditor.h"
 
 #include "emposid.h"

@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "samplingdata.h"
 
-class Coord3;
+class BinIDValue;
 class CubeSampling;
 class IOPar;
 class TaskRunner;

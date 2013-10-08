@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "binid.h"
 #include "ranges.h"
-#include "position.h"
 
 class IOPar;
 template <class T> class TypeSet;
@@ -71,7 +71,8 @@ public:
 			{ return step.crl() ? (crl-start.crl()) / step.crl()
 					  : (crl==start.crl() ? 0 : -1); }
     inline od_int64	globalIdx( const BinID& bid ) const
-			{ return inlIdx(bid.inl())*nrCrl() + crlIdx(bid.crl()); }
+			{ return inlIdx(bid.inl())*nrCrl()
+			       + crlIdx(bid.crl()); }
     BinID		atIndex( int i0, int i1 ) const
 			{ return BinID( start.inl() + i0*step.inl(),
 					start.crl() + i1*step.crl() ); }
@@ -110,7 +111,7 @@ public:
     BinID		start;
     BinID		stop;
     BinID		step;
-    TraceID::GeomID	geomid_;
+
 };
 
 

@@ -46,27 +46,27 @@ public:
     int				nrLines() const;
 
     int				lineIndex(const PosInfo::GeomID&) const;
-    int				lineIndex(TraceID::GeomID geomid) const;
+    int				lineIndex(Pos::GeomID geomid) const;
 
     int				lineIndex(const char* linenm) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
     PosInfo::GeomID		lineGeomID(int idx) const;
-    TraceID::GeomID		geomID(int idx) const;
+    Pos::GeomID			geomID(int idx) const;
 
     bool			includeLine(const PosInfo::GeomID&,int step=1);
-    bool			includeLine(TraceID::GeomID geomid,int step=1);
+    bool			includeLine(Pos::GeomID geomid,int step=1);
 
     bool 			addLine(const PosInfo::GeomID&,int step=1);
-    bool 			addLine(TraceID::GeomID geomid,int step=1);
+    bool 			addLine(Pos::GeomID geomid,int step=1);
 
     bool 			addLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg);
-    bool 			addLine(TraceID::GeomID geomid,
+    bool 			addLine(Pos::GeomID geomid,
 					const StepInterval<int>& trcrg);
 
     void			removeLine(const PosInfo::GeomID&);
-    void			removeLine(TraceID::GeomID geomid);
+    void			removeLine(Pos::GeomID geomid);
 
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
@@ -91,10 +91,10 @@ public:
     StepInterval<int>		colRange(const SectionID&,
 	    				 const PosInfo::GeomID&) const;
     StepInterval<int>		colRange(const SectionID&,
-					 TraceID::GeomID geomid) const;
+					 Pos::GeomID geomid) const;
 
     StepInterval<int>		colRange(const PosInfo::GeomID&) const;
-    StepInterval<int>		colRange(TraceID::GeomID geomid) const;
+    StepInterval<int>		colRange(Pos::GeomID geomid) const;
 
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
@@ -102,7 +102,7 @@ protected:
     bool 			doAddLine(const PosInfo::GeomID&,
 					const StepInterval<int>& trcrg,
 					bool mergewithdouble);
-    bool 			doAddLine(TraceID::GeomID geomid,
+    bool 			doAddLine(Pos::GeomID geomid,
 					  const StepInterval<int>& trcrg,
 					  bool mergewithdouble);
 
@@ -110,7 +110,7 @@ protected:
     bool			usePar(const IOPar&);
 
     TypeSet<PosInfo::GeomID>	oldgeomids_;
-    TypeSet<TraceID::GeomID>	geomids_;
+    TypeSet<Pos::GeomID>	geomids_;
 };
 
 
@@ -140,12 +140,12 @@ public:
 
     Coord3			getPos(EM::SectionID,const PosInfo::GeomID&,
 	    			       int trcnr) const;
-    Coord3			getPosition(EM::SectionID,TraceID::GeomID geomid
+    Coord3			getPosition(EM::SectionID,Pos::GeomID geomid
 					    ,int trcnr) const;
 
     bool			setPos(EM::SectionID,const PosInfo::GeomID&,
 	    			       int trcnr,float z,bool addtohistory);
-    bool			setPos(EM::SectionID,TraceID::GeomID geomid,
+    bool			setPos(EM::SectionID,Pos::GeomID geomid,
 	    			       int trcnr,float z,bool addtohistory);
 
     bool			setPos(const EM::PosID&,const Coord3&,bool);
@@ -169,14 +169,14 @@ public:
 					   const PosInfo::GeomID& geomid,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,SectionID sid,
-	    				   TraceID::GeomID geomid,
+	    				   Pos::GeomID geomid,
 					   bool onlyfillundefs );
 
     Array1D<float>*		createArray1D(SectionID,
 	    				      const PosInfo::GeomID& geomid,
 	    				      const ZAxisTransform* =0) const;
     Array1D<float>*		createArray1D(SectionID,
-	    				      TraceID::GeomID geomid,
+	    				      Pos::GeomID geomid,
 	    				      const ZAxisTransform* =0) const;
 
 protected:
