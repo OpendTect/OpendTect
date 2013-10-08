@@ -65,7 +65,8 @@ template <class T>
 class DataClipperDataInserter : public ParallelTask
 {
 public:
-    DataClipperDataInserter( const T& input, od_int64 sz, LargeValVec<float>& samples,
+    DataClipperDataInserter( const T& input, od_int64 sz, 
+			     LargeValVec<float>& samples,
 			     Interval<float>& rg, float prob )
         : input_( input )
         , nrvals_( sz )
@@ -130,7 +131,7 @@ protected:
 
 void DataClipper::putData( const float* vals, od_int64 nrvals )
 {
-    DataClipperDataInserter<const float*> inserter( vals, mCast(int,nrvals),
+    DataClipperDataInserter<const float*> inserter( vals, nrvals,
 					samples_, absoluterg_,sampleprob_ );
     
     inserter.execute();
@@ -145,8 +146,8 @@ void DataClipper::putData( const ValueSeries<float>& vals, od_int64 nrvals )
 	return;
     }
     
-    DataClipperDataInserter<const ValueSeries<float> > inserter( vals, 
-			mCast(int,nrvals), samples_, absoluterg_, sampleprob_ );
+    DataClipperDataInserter<const ValueSeries<float> > inserter( vals, nrvals, 
+					samples_, absoluterg_, sampleprob_ );
     
     inserter.execute();
 }
@@ -191,10 +192,10 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
 
     if ( firstidx && topnr )
     {
-	sortFor( vals, mCast(int,nrvals), mCast(int,firstidx) );
+	sortFor( vals, nrvals, firstidx );
 	range.start = vals[firstidx];
 
-	sortFor( vals, mCast(int,nrvals), mCast(int,lastidx) );
+	sortFor( vals, nrvals, lastidx );
 	range.stop = vals[lastidx];
     }
     else
@@ -251,11 +252,11 @@ bool DataClipper::fullSort()
 	if ( nrvals<=255 || !is8BitesData( samples_.arr(), nrvals, 100 ) ||
 	     !duplicate_sort( samples_.arr(), nrvals, 256 ))
 	{
-	    quickSort( samples_.arr(), mCast(int, nrvals) );
+	    quickSort( samples_.arr(), nrvals );
 	}
     }
     else
-	sort_array( samples_.arr(), mCast(int,nrvals) );
+	sort_array( samples_.arr(), nrvals );
 
     return true;
 }
@@ -286,7 +287,8 @@ bool DataClipper::getRange( float lowclip, float highclip,
     else
     {
 	const od_int64 firstidx = mNINT64(lowclip*nrvals);
-	range.start = samples_[ mCast(int,firstidx) ];
+	range.start = samples_.validIdx( firstidx) ? samples_[ firstidx ] 
+						   : samples_[ 0 ];
     }
     
     if ( mIsZero( highclip, 1e-5 ) )
@@ -298,7 +300,8 @@ bool DataClipper::getRange( float lowclip, float highclip,
 	const od_int64 topnr = mNINT64(highclip*nrvals);
 	const od_int64 lastidx = nrvals-topnr-1;
 	
-	range.stop = samples_[ mCast(int,lastidx) ];
+	range.stop = samples_.validIdx( lastidx ) ? samples_[ lastidx ] 
+						  : samples_[ nrvals-1 ];
     }
     
     return true;
@@ -321,8 +324,8 @@ bool DataClipper::getSymmetricRange( float cliprate, float midval,
 	if ( firstsample==lastsample )
 	    break;
 
-	const float firstdist = fabs(midval-samples_[mCast(int,firstsample)]);
-	const float lastdist = fabs(midval-samples_[mCast(int,lastsample)]);
+	const float firstdist = fabs( midval - samples_[firstsample] );
+	const float lastdist = fabs( midval - samples_[lastsample] );
 
 	if ( firstdist>lastdist )
 	    firstsample++;
@@ -331,8 +334,8 @@ bool DataClipper::getSymmetricRange( float cliprate, float midval,
     }
 
 
-    const float firstdist = fabs(midval-samples_[mCast(int,firstsample)]);
-    const float lastdist = fabs(midval-samples_[mCast(int,lastsample)]);
+    const float firstdist = fabs( midval - samples_[firstsample] );
+    const float lastdist = fabs( midval - samples_[lastsample] );
     const float halfwidth = mMAX( firstdist, lastdist );
 
     range.start = midval-halfwidth;
@@ -416,7 +419,7 @@ void DataClipSampler::doAdd( float val )
 }
 
 od_int64 DataClipSampler::nrVals() const
-{ return mCast( int, count_ > maxnrvals_ ? maxnrvals_ : count_ ); }
+{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
 
 
 void DataClipSampler::finish() const
