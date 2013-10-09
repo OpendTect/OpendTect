@@ -50,10 +50,7 @@ uiViewer3DPreProcTab::~uiViewer3DPreProcTab()
 
 void uiViewer3DPreProcTab::processorChangeCB( CallBacker* )
 {
-    if ( !preprocmgr_->nrProcessors() )
-	applybut_->setSensitive( false );
-    else
-	applybut_->setSensitive( true );
+    applybut_->setSensitive( true );
 }
 
 
@@ -69,9 +66,7 @@ bool uiViewer3DPreProcTab::acceptOK()
 bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 {
     applybut_->setSensitive( false );
-    if ( !preprocmgr_->nrProcessors() )
-	return true;
-
+    
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
 	visSurvey::PreStackDisplay* vwr = mgr_.get3DViewers()[idx];
