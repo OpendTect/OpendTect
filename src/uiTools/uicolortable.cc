@@ -88,7 +88,8 @@ void updateFields()
 {
     doclipfld->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
 
-    Interval<float> cliprate( ms_.cliprate_.start*100, ms_.cliprate_.stop*100 );
+    Interval<float> cliprate( ms_.cliprate_.start*100, 
+			      ms_.cliprate_.stop*100 );
     clipfld->setValue( cliprate );
     autosymfld->setValue( ms_.autosym0_ );
     symfld->setValue( !mIsUdf(ms_.symmidval_) );
@@ -110,13 +111,15 @@ void clipPush( CallBacker* )
 
 void symPush( CallBacker* )
 {
-    midvalfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue()
-	   		&& symfld->getBoolValue() );
+    midvalfld->display( doclipfld->getBoolValue() && 
+			!autosymfld->getBoolValue() && 
+			symfld->getBoolValue() );
 }
 
 void autoSymPush( CallBacker* )
 {
-    symfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue() );
+    symfld->display( doclipfld->getBoolValue() && 
+		     !autosymfld->getBoolValue() );
     symPush( 0 );
 }
 
@@ -143,8 +146,8 @@ void doApply()
 	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
 
     Interval<float> cliprate = clipfld->getFInterval();
-    cliprate.start *= 0.01;
-    cliprate.stop *= 0.01;
+    cliprate.start = fabs( cliprate.start * 0.01f );
+    cliprate.stop = fabs( cliprate.stop * 0.01f );
     ms_.cliprate_ = cliprate;
     const bool autosym = autosymfld->getBoolValue();
     const bool symmetry = !autosym && symfld->getBoolValue();
@@ -454,7 +457,8 @@ void uiColorTable::rangeEntered( CallBacker* )
 void uiColorTable::editScaling( CallBacker* )
 {
     if ( !scalingdlg_ )
-	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_, scaleChanged);
+	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_, 
+					      scaleChanged );
 
     scalingdlg_->enabDefSetts( enabmanage_ );
     scalingdlg_->show();
