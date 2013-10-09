@@ -485,7 +485,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     ConstRefMan<Survey::Geometry> geom =
 	SI().geomManager().getGeometry( trcid_.geomid_ );
     
-    if ( geom->is2D() )
+    if ( geom && geom->is2D() )
     {
 	pErrMsg( "Only 3D is supported at this time" );
 	return 0;
