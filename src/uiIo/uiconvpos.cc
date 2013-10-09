@@ -159,8 +159,8 @@ void uiConvertPos::convFile( CallBacker* )
     while ( istream.isOK() )
     {
         istream.get( c.x );
-	if ( istream.isEOF() ) break;
         istream.get( c.y );
+	if ( !istream.isOK() ) break;
 
         istream.getLine( linebuf );
         if ( istream.isBad() ) break;

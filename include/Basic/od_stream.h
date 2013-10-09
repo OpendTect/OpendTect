@@ -58,7 +58,6 @@ public:
     virtual			~od_stream();
 
     bool			isOK() const;
-    bool			isEOF() const;
     const char*			errMsg() const; //!< see also below
     bool			forRead() const;
     bool			forWrite() const;

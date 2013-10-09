@@ -157,16 +157,6 @@ bool od_stream::isOK() const
 }
 
 
-
-bool od_stream::isEOF() const
-{
-    if ( forWrite() )
-	return sd_.ostrm && sd_.ostrm->eof();
-    else
-	return sd_.istrm && sd_.istrm->eof();
-}
-
-
 bool od_stream::isBad() const
 {
     if ( forWrite() )
