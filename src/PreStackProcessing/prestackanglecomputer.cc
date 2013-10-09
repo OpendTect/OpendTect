@@ -176,7 +176,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    angles.set( zidx, anglevals.getValue( zidx*deftimestep ) );
 	
 	filter.apply( angles );
-	PointBasedMathFunction anglevalsindepth( PointBasedMathFunction::Linear,
+	PointBasedMathFunction anglevalsindepth(PointBasedMathFunction::Linear,
 					    PointBasedMathFunction::EndVal );
 
 	float layerdepth = 0, prevlayerdepth = mUdf(float);
@@ -478,7 +478,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     ConstRefMan<Survey::Geometry> geom =
 	Survey::GM().getGeometry( Survey::GM().getGeomID(trckey_) );
     
-    if ( geom->is2D() )
+    if ( geom && geom->is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
     
     RefMan<Vel::FunctionSource> source = velsource_;
@@ -507,7 +507,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( veldesc.type_ != VelocityDesc::Interval )
     {
 	mAllocVarLenArr( float, velocityvalues, zsize );
-	if ( !checkAndConvertVelocity(vel.arr(),veldesc,zrange,velocityvalues) )
+	if (!checkAndConvertVelocity(vel.arr(),veldesc,zrange,velocityvalues))
 	    return 0;
 
 	if ( !createElasticModel(zrange,velocityvalues) )
