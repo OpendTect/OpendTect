@@ -146,8 +146,8 @@ void doApply()
 	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
 
     Interval<float> cliprate = clipfld->getFInterval();
-    cliprate.start *= 0.01;
-    cliprate.stop *= 0.01;
+    cliprate.start = fabs( cliprate.start * 0.01f );
+    cliprate.stop = fabs( cliprate.stop * 0.01f );
     ms_.cliprate_ = cliprate;
     const bool autosym = autosymfld->getBoolValue();
     const bool symmetry = !autosym && symfld->getBoolValue();
