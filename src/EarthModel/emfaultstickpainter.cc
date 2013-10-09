@@ -111,14 +111,14 @@ bool FaultStickPainter::addPolyLine()
 	ObjectSet<StkMarkerInfo>* secmarkerlines = new ObjectSet<StkMarkerInfo>;
 	sectionmarkerlines_ += secmarkerlines;
 
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    StepInterval<int> colrg = fss->colRange( rc.row ); 
+	    StepInterval<int> colrg = fss->colRange( rc.row() ); 
 
 	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
-	    if ( rc.row == activestickid_ )
+	    if ( rc.row() == activestickid_ )
 		stickauxdata->linestyle_.width_ *= 2;
 
 	    stickauxdata->linestyle_.color_ = emfss->preferredColor();
@@ -127,17 +127,17 @@ bool FaultStickPainter::addPolyLine()
 		stickauxdata->markerstyles_.erase();
 	    stickauxdata->enabled_ = linenabled_;
 
-	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row) )
+	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row()) )
 	    {
 		const MultiID* lset =
-			    emfss->geometry().pickedMultiID( sid, rc.row );
-		const char* lnm = emfss->geometry().pickedName( sid, rc.row );
+			    emfss->geometry().pickedMultiID( sid, rc.row() );
+		const char* lnm = emfss->geometry().pickedName( sid, rc.row() );
 
 		if ( !is2d_ || !matchString(lnm,linenm_) ||
 		     !lset || *lset!=lsetid_ )
 		    continue;
 	    }
-	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row) )
+	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row()) )
 	    {
 		if ( cs_.isEmpty() && !path_ ) continue;
 	    }
@@ -149,8 +149,8 @@ bool FaultStickPainter::addPolyLine()
 		{
 		    BinID bid;
 
-		    for ( rc.col=colrg.start;rc.col<=colrg.stop;
-			  rc.col+=colrg.step )
+		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+			  rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			bid = SI().transform( pos.coord() );
@@ -161,7 +161,7 @@ bool FaultStickPainter::addPolyLine()
 			Coord3 editnormal( getNormalInRandLine(idx), 0 );
 			const Coord3 nzednor = editnormal.normalize();
 			const Coord3 stkednor =
-			    emfss->geometry().getEditPlaneNormal(sid,rc.row);
+			    emfss->geometry().getEditPlaneNormal(sid,rc.row());
 			const bool equinormal =
 			    mIsEqual(nzednor.x,stkednor.x,.001) &&
 			    mIsEqual(nzednor.y,stkednor.y,.001) &&
@@ -176,8 +176,8 @@ bool FaultStickPainter::addPolyLine()
 		}
 		else
 		{
-		    for ( rc.col=colrg.start;rc.col<=colrg.stop;
-			  rc.col+=colrg.step ) 
+		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+			  rc.col()+=colrg.step ) 
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
@@ -199,7 +199,7 @@ bool FaultStickPainter::addPolyLine()
 
 		const Coord3 nzednor = editnormal.normalize();
 		const Coord3 stkednor = 
-		    	emfss->geometry().getEditPlaneNormal(sid,rc.row);
+		    	emfss->geometry().getEditPlaneNormal(sid,rc.row());
 
 		const bool equinormal =
 		    mIsEqual(nzednor.x,stkednor.x,.001) &&
@@ -229,8 +229,8 @@ bool FaultStickPainter::addPolyLine()
 		    extrcoord1 = SI().transform( extrbid1 );
 		    extrcoord2 = SI().transform( extrbid2 );
 
-		    for ( rc.col=colrg.start;rc.col<=colrg.stop;
-			    			rc.col+=colrg.step )
+		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+			    			rc.col()+=colrg.step )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
 			BinID knotbinid = SI().transform( pos );
@@ -251,8 +251,8 @@ bool FaultStickPainter::addPolyLine()
 		}
 		else
 		{
-		    for ( rc.col=colrg.start; rc.col<=colrg.stop; 
-			    				rc.col+=colrg.step )
+		    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; 
+			    				rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
@@ -271,7 +271,7 @@ bool FaultStickPainter::addPolyLine()
 	    {
 		StkMarkerInfo* stkmkrinfo = new StkMarkerInfo;
 		stkmkrinfo->marker_ = stickauxdata;
-		stkmkrinfo->stickid_ = rc.row;
+		stkmkrinfo->stickid_ = rc.row();
 		(*secmarkerlines) += stkmkrinfo;
 		viewer_.addAuxData( stickauxdata );
 	    }
@@ -429,7 +429,7 @@ void FaultStickPainter::getDisplayedSticks(
 bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 {
     if ( pid->objectID() != emid_ ||
-	 pid->getRowCol().row != activestickid_ )
+	 pid->getRowCol().row() != activestickid_ )
 	return true;
     else
 	return false;
@@ -440,7 +440,7 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
 {
     if ( pid.objectID() != emid_ ) return;
 
-    if ( pid.getRowCol().row == activestickid_ ) return;
+    if ( pid.getRowCol().row() == activestickid_ ) return;
 
     for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
     {
@@ -449,11 +449,11 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
 	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;
 	else if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==
-		  pid.getRowCol().row )
+		  pid.getRowCol().row() )
 	    linestyle.width_ = markerlinestyle_.width_ * 2;
     }
 
-    activestickid_ = pid.getRowCol().row;
+    activestickid_ = pid.getRowCol().row();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 

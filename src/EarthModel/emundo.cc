@@ -138,9 +138,9 @@ bool EM::SetAllHor3DPosUndoEvent::unDo()
     if ( !newarr_ )
     {
 	newarr_ = horizon_->createArray2D( sid_, 0 );
-	neworigin_.row =
+	neworigin_.row() =
 		horizon_->geometry().sectionGeometry(sid_)->rowRange().start;
-	neworigin_.col =
+	neworigin_.col() =
 		horizon_->geometry().sectionGeometry(sid_)->colRange().start;
     }
 
@@ -171,8 +171,8 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 		     horizon_->sectionGeometry( sid_ ) );
 
     StepInterval<int> curcolrg = surf->colRange();
-    const StepInterval<int> targetcolrg( origin.col,
-	origin.col+curcolrg.step*(arr.info().getSize(1)-1), curcolrg.step );
+    const StepInterval<int> targetcolrg( origin.col(),
+	origin.col()+curcolrg.step*(arr.info().getSize(1)-1), curcolrg.step );
 
     while ( curcolrg.start-curcolrg.step>=targetcolrg.start )
     {
@@ -190,8 +190,8 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
 
     StepInterval<int> currowrg = surf->rowRange();
-    const StepInterval<int> targetrowrg( origin.row,
-	origin.row+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
+    const StepInterval<int> targetrowrg( origin.row(),
+	origin.row()+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
 
     while ( currowrg.start-currowrg.step>=targetrowrg.start )
     {

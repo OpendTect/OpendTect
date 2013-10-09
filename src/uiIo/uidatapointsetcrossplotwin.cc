@@ -380,7 +380,7 @@ void changeColCB( CallBacker* )
     Color newcol = tbl_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
     {
-	rc.col == 0 ? y1cols_[rc.row] = newcol : y2cols_[rc.row] = newcol;
+	rc.col() == 0 ? y1cols_[rc.row()] = newcol : y2cols_[rc.row()] = newcol;
 	tbl_->setColor( rc, newcol );
     }
 }

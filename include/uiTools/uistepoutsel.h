@@ -59,7 +59,7 @@ public:
     virtual void	setVals(int); //!< similar to 2x setVal
     bool		dir2Active() const;
     void		setRowCol( const RowCol& rc )
-    			{ setVal(true,rc.row); setVal(false,rc.col); }
+    			{ setVal(true,rc.row()); setVal(false,rc.col()); }
     void		setBinID(const BinID&);
     				//!< Different from RowCol when no dir2 present:
 				//!< then crl is used, not inl

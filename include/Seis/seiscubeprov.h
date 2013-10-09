@@ -78,11 +78,11 @@ public:
     void		setStepout(Array2D<bool>* mask);
 			/*!< mask has 2m+1 * 2n+1 entries and becomes mine. */
     void		setStepoutStep( int i, int c )
-			{ stepoutstep_.row = i; stepoutstep_.col = c; }
+			{ stepoutstep_.row() = i; stepoutstep_.col() = c; }
     int			inlStepout( bool req ) const
-    			{ return req ? reqstepout_.row : desstepout_.row; }
+    			{ return req ? reqstepout_.row() : desstepout_.row(); }
     int			crlStepout( bool req ) const
-    			{ return req ? reqstepout_.col : desstepout_.col; }
+    			{ return req ? reqstepout_.col() : desstepout_.col(); }
     void		setSelData(Seis::SelData*);
     			//!< seldata becomes mine
 

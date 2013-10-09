@@ -174,18 +174,18 @@ void FaultAdjuster::getTargetPositions( EM::SubID target, const EM::SubID* src,
     
     const RowCol srcrc = RowCol::fromInt64( *src );
 
-    if ( srcrc.col==rc.col ) // tracking up/down
+    if ( srcrc.col()==rc.col() ) // tracking up/down
     {
 	const Geometry::ParametricSurface* psurf = 0;
 	    				//fault_.geometry().sectionGeometry(0);
 	if ( !psurf ) return;
 	Geometry::ParametricCurve* pcurv = 
-				psurf->createRowCurve( mCast(float,rc.row) );
+				psurf->createRowCurve( mCast(float,rc.row()) );
 
 	mDynamicCastGet(Geometry::CubicBezierCurve*,bcurv,pcurv)
 	if ( !bcurv ) return;
 
-	Coord3 tangent = bcurv->getTangent( rc.col, true );
+	Coord3 tangent = bcurv->getTangent( rc.col(), true );
 	BinID bnorm = SI().transform( tangent ) - SI().transform( Coord(0,0) );
 	mGetNormal( bnorm );
 

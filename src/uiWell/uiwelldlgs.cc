@@ -128,7 +128,7 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 	tbl_->setValue( RowCol(idx,3), track_.dah(idx)*fac );
     }
 
-    if ( curcell.row >= newsz ) curcell.row = newsz-1;
+    if ( curcell.row() >= newsz ) curcell.row() = newsz-1;
     tbl_->setCurrentCell( curcell );
     return true;
 }

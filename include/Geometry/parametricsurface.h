@@ -85,8 +85,8 @@ protected:
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
     virtual bool	checkSelfIntersection( const RowCol& ) const;
 
-    int		rowIndex(int row) const { return (row-origin_.row)/step_.row; }
-    int		colIndex(int col) const { return (col-origin_.col)/step_.col; }
+    int		rowIndex(int row) const { return (row-origin_.row())/step_.row(); }
+    int		colIndex(int col) const { return (col-origin_.col())/step_.col(); }
     static int	rowDim() { return 0; }
     static int	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;

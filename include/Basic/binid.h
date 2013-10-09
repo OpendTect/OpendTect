@@ -14,8 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "rcol.h"
-class RowCol;
+#include "posidxpair.h"
 
 
 /*!
@@ -23,79 +22,108 @@ class RowCol;
 identical to RowCol.
 */
 
-mExpClass(Basic) BinID
+mExpClass(Basic) BinID : public Pos::IdxPair
 {
 public:
 
-    typedef Pos::Index_Type	IdxType;
+    inline			BinID()				{}
+    inline			BinID(IdxType i,IdxType x);
+    inline			BinID(const Pos::IdxPair&);
 
-    inline			BinID(IdxType r,IdxType c);
-    				BinID(const RowCol&);
-    inline			BinID(const BinID&);
-    inline			BinID();
-
-    inline static BinID		fromInt64(od_int64);
-    inline static BinID		fromInt32(int);
-    inline IdxType		sqDistTo(const BinID&) const;
-
-    const char*			getUsrStr(bool is2d=false) const;
-    bool			parseUsrStr(const char*);
-    inline od_int64		toInt64() const;
-    bool                        isNeighborTo(const BinID&,const BinID&,
-					     bool eightconnectivity=true) const;
-
-    				// accessors
-    IdxType&			inl()		{ return inl_; }
-    IdxType			inl() const	{ return inl_; }
-    IdxType&			crl()		{ return crl_; }
-    IdxType			crl() const	{ return crl_; }
-
-    				// aliases
-    IdxType&			lineNr()	{ return inl_; }
-    IdxType			lineNr() const	{ return inl_; }
-    IdxType&			trcNr()		{ return crl_; }
-    IdxType			trcNr() const	{ return crl_; }
-
-    inline bool			isUdf() const	{ return *this == udf(); }
-    static const BinID&		udf();
-
-    inline bool			operator==(const BinID&) const;
-    inline bool			operator!=(const BinID&) const;
-    inline BinID		operator+(const BinID&) const;
-    inline BinID		operator-(const BinID&) const;
+    inline const BinID&		operator+=(const BinID&);
+    inline const BinID&		operator-=(const BinID&);
+    inline BinID	 	operator+(const BinID&) const;
+    inline BinID	 	operator-(const BinID&) const;
     inline BinID		operator+() const;
     inline BinID		operator-() const;
     inline BinID		operator*(const BinID&) const;
     inline BinID		operator*(int) const;
     inline BinID		operator/(const BinID&) const;
     inline BinID		operator/(int) const;
-    inline const BinID&		operator+=(const BinID&);
-    inline const BinID&		operator-=(const BinID&);
-    inline const BinID&		operator*=(const BinID&);
-    inline const BinID&		operator*=(int);
-    inline const BinID&		operator/=(const BinID&);
+    inline static BinID		fromInt64(od_int64);
 
-    inline IdxType&		operator[](int idx);
-    inline IdxType		operator[](int idx) const;
-
-    inline int			toInt32() const;
-
-protected:
-
-    IdxType			inl_;
-    IdxType			crl_;
+    inline const char*		getUsrStr(bool is2d=false) const;
+    inline bool			parseUsrStr(const char*);
 
 };
 
-// These should become separate classes with their own specific functions
-// at some point in time.
+// See remarks for IdxPair equivalents
 typedef BinID BinIDDelta;
 typedef BinID BinIDAbsDelta;
 typedef BinID BinIDRelDelta;
 typedef BinID BinIDDeltaStep;
 
 
-mImplInlineRowColFunctions(BinID, inl_, crl_);
+inline BinID::BinID( BinID::IdxType i, BinID::IdxType c )
+    : Pos::IdxPair(i,c)
+{
+}
+
+
+inline BinID::BinID( const Pos::IdxPair& p )
+    : Pos::IdxPair(p)
+{
+}
+
+
+inline const BinID& BinID::operator+=( const BinID& bid )
+{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
+
+
+inline const BinID& BinID::operator-=( const BinID& bid )
+{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
+
+
+inline BinID BinID::operator+( const BinID& bid ) const
+{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
+
+
+inline BinID BinID::operator-( const BinID& bid ) const
+{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
+
+
+inline BinID BinID::operator+() const
+{ return BinID( +inl(), +crl() ); }
+
+
+inline BinID BinID::operator-() const
+{ return BinID( -inl(), -crl() ); }
+
+
+inline BinID BinID::operator*( const BinID& bid ) const
+{ return BinID( inl()*bid.inl(), crl()*bid.crl() ); }
+
+
+inline BinID BinID::operator*( int factor ) const
+{ return BinID( inl()*factor, crl()*factor ); }
+
+
+inline BinID BinID::operator/( const BinID& rc ) const
+{ return BinID( inl()/rc.inl(), col()/rc.crl() ); }
+
+
+inline BinID BinID::operator/( int denominator ) const
+{ return BinID( inl()/denominator, crl()/denominator ); }
+
+
+inline BinID BinID::fromInt64( od_int64 i64 )
+{
+    Pos::IdxPair p( Pos::IdxPair::fromInt64(i64) );
+    return BinID( p.first, p.second );
+}
+
+
+inline const char* BinID::getUsrStr( bool is2d ) const
+{
+    return Pos::IdxPair::getUsrStr( "", "/", "", is2d );
+}
+
+
+inline bool BinID::parseUsrStr( const char* str )
+{
+    return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
+}
+
 
 
 #endif

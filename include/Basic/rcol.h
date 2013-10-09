@@ -20,36 +20,36 @@ ________________________________________________________________________
 
 #define mImplInlineRowColFunctions(clss, row, col) \
 inline clss::clss( int r, int c ) : row(r), col(c) {}       \
-inline clss::clss( const clss& rc ) : row(rc.row), col(rc.col) {}       \
+inline clss::clss( const clss& rc ) : row(rc.row()), col(rc.col()) {}       \
 inline clss::clss() : row( 0 ), col ( 0 )  {} \
 inline bool clss::operator==(const clss& rc ) const \
-	    { return row==rc.row && col==rc.col; }  \
+	    { return row==rc.row() && col==rc.col(); }  \
 inline bool clss::operator!=(const clss& rc ) const \
-	    { return row!=rc.row || col!=rc.col; }  \
+	    { return row!=rc.row() || col!=rc.col(); }  \
 inline clss clss::operator+( const clss& rc ) const \
-	    { return clss( row+rc.row, col+rc.col ); } \
+	    { return clss( row+rc.row(), col+rc.col() ); } \
 inline clss clss::operator-( const clss& rc ) const \
-	    { return clss( row-rc.row, col-rc.col ); } \
+	    { return clss( row-rc.row(), col-rc.col() ); } \
 inline clss clss::operator+() const { return clss( +row, +col ); } \
 inline clss clss::operator-() const { return clss( -row, -col ); } \
 inline clss clss::operator*( const clss& rc ) const \
-	    { return clss( row*rc.row, col*rc.col ); } \
+	    { return clss( row*rc.row(), col*rc.col() ); } \
 inline clss clss::operator*( int factor ) const \
 	    { return clss( row*factor, col*factor ); } \
 inline clss clss::operator/( const clss& rc ) const \
-	    { return clss( row/rc.row, col/rc.col ); } \
+	    { return clss( row/rc.row(), col/rc.col() ); } \
 inline clss clss::operator/( int denominator ) const \
 	    { return clss( row/denominator, col/denominator ); } \
 inline const clss& clss::operator+=( const clss& rc ) \
-	    { row += rc.row; col += rc.col; return *this; } \
+	    { row += rc.row(); col += rc.col(); return *this; } \
 inline const clss& clss::operator-=( const clss& rc ) \
-	    { row -= rc.row; col -= rc.col; return *this; } \
+	    { row -= rc.row(); col -= rc.col(); return *this; } \
 inline const clss& clss::operator*=( const clss& rc ) \
-	    { row *= rc.row; col *= rc.col; return *this; } \
+	    { row *= rc.row(); col *= rc.col(); return *this; } \
 inline const clss& clss::operator*=( int factor ) \
 	    { row *= factor; col *= factor;  return *this; }  \
 inline const clss& clss::operator/=( const clss& rc ) \
-	    { row /= rc.row; col /= rc.col;  return *this; }  \
+	    { row /= rc.row(); col /= rc.col();  return *this; }  \
 inline int& clss::operator[](int idx) { return idx==0 ? row : col; } \
 inline int clss::operator[](int idx) const { return idx==0 ? row : col; } \
 inline int clss::toInt32() const \
@@ -70,7 +70,7 @@ inline clss clss::fromInt64( od_int64 serialized ) \
  \
 inline int clss::sqDistTo( const clss& rc ) const \
 { \
-    const int rdist = (row-rc.row); const int cdist = (col-rc.col); \
+    const int rdist = (row-rc.row()); const int cdist = (col-rc.col()); \
     return rdist*rdist+cdist*cdist; \
 } \
  \
@@ -105,13 +105,13 @@ bool clss::parseUsrStr( const char* str ) \
 bool clss::isNeighborTo( const clss& rc, const clss& step, \
 		         bool eightconnectivity ) const \
 { \
-    const clss diff(abs(row-rc.row),abs(col-rc.col)); \
-    const bool areeightconnected = diff.row<=step.row && diff.col<=step.col && \
-	                                 !(!diff.row && !diff.col); \
+    const clss diff(abs(row-rc.row()),abs(col-rc.col())); \
+    const bool areeightconnected = diff.row()<=step.row() && diff.col()<=step.col() && \
+	                                 !(!diff.row() && !diff.col()); \
     if ( eightconnectivity ) \
 	return areeightconnected; \
  \
-    const int res = int(diff.row>0) + int(diff.col>0); \
+    const int res = int(diff.row()>0) + int(diff.col()>0); \
     return areeightconnected && res<2; \
 }
 

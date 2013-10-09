@@ -106,7 +106,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		RowCol rc(surfrrg.snap(bid.inl()),surfcrg.snap(bid.crl()));
 
 		const double pz = surf_.getKnot(rc, false).z + zshift_;
-		rcz[k] = Coord3( rc.row, rc.col, pz );
+		rcz[k] = Coord3( rc.row(), rc.col(), pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
     		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
@@ -115,13 +115,13 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 		if ( !k )
 		{
-		    trrg.start = trrg.stop = rc.row;
-		    tcrg.start = tcrg.stop = rc.col;
+		    trrg.start = trrg.stop = rc.row();
+		    tcrg.start = tcrg.stop = rc.col();
 		}
 		else
 		{
-		    trrg.include( rc.row );
-		    tcrg.include( rc.col );
+		    trrg.include( rc.row() );
+		    tcrg.include( rc.col() );
 		}
 	    }
 

@@ -37,7 +37,7 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
     if ( !polygon ) return;
 
     pos_ = polygon->getPos( posid_ );
-    const int row = posid_.getRowCol().row;
+    const int row = posid_.getRowCol().row();
     normal_ = polygon->geometry().getPolygonNormal( posid_.sectionID(), row );
 }
 
@@ -62,11 +62,11 @@ bool unDo()
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = posid_.getRowCol().row();
 
     return remove_
 	? polygon->geometry().insertPolygon( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false )
+		posid_.getRowCol().col(), pos_, normal_, false )
 	: polygon->geometry().removePolygon( posid_.sectionID(), row, false );
 }
 
@@ -77,12 +77,12 @@ bool reDo()
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = posid_.getRowCol().row();
 
     return remove_
 	? polygon->geometry().removePolygon( posid_.sectionID(), row, false )
 	: polygon->geometry().insertPolygon( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false );
+		posid_.getRowCol().col(), pos_, normal_, false );
 }
 
 protected:

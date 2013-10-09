@@ -82,7 +82,6 @@ protected:
 
     float*		vals;
     int			sz;
-    static float	udf;
 
 };
 

@@ -69,7 +69,7 @@ bool uiEMHorizonEditorSetting::acceptOK(CallBacker*)
 {
     const RowCol rc( horsizefld->getIntValue(0), horsizefld->getIntValue(1) );
     const Interval<int> range( 0,25 );
-    if ( !range.includes(rc.row,false) || !range.includes(rc.col,false) )
+    if ( !range.includes(rc.row(),false) || !range.includes(rc.col(),false) )
     {
 	BufferString msg = "Allowed size is 0 to ";
 	msg += range.stop;
@@ -281,9 +281,9 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	}
 
 	TypeSet<EM::PosID> nodestoremove;
-	for ( RowCol rc(start.row,0); rc.row<=stop.row; rc.row+=step.row )
+	for ( RowCol rc(start.row(),0); rc.row()<=stop.row(); rc.row()+=step.row() )
 	{
-	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
+	    for ( rc.col()=start.col(); rc.col()<=stop.col(); rc.col()+=step.col() )
 	    {
 		pid.setSubID( rc.toInt64() );
 		const int idx = interactionlineseg.indexOf(rc);

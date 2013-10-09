@@ -832,7 +832,7 @@ bool EdgeLine::isInside( const RowCol& rc, bool undefval ) const
     do
     {
 	const RowCol diff = rc-iter.currentRowCol();
-	const int distsquare = diff.row*diff.row+diff.col*diff.col;
+	const int distsquare = diff.row()*diff.row()+diff.col()*diff.col();
 	if ( first || distsquare<shortestdistsquare )
 	{
 	    if ( !distsquare ) return undefval;
@@ -1008,14 +1008,14 @@ int EdgeLine::computeArea() const
 	while ( currentseed<stop )
 	{
 	    const RowCol& currc = nodesinside[currentseed];
-	    for ( int row=-step.row; row<=step.row; row+=step.row )
+	    for ( int row=-step.row(); row<=step.row(); row+=step.row() )
 	    {
-		for ( int col=-step.col; col<=step.col; col+=step.col )
+		for ( int col=-step.col(); col<=step.col(); col+=step.col() )
 		{
 		    //Only add with 4-connectivity
 		    if ( (col && row) || (!row && !col) ) continue;
 
-		    const RowCol rc(currc.row+row, currc.col+col );
+		    const RowCol rc(currc.row()+row, currc.col()+col );
 		    if ( nodesinside.indexOf(rc,false)!=-1 )
 			continue;
 
@@ -1519,10 +1519,10 @@ void EdgeLine::getBoundingBox( RowCol& start, RowCol& stop ) const
     while ( iterator.next() )
     {
 	const RowCol& currc = iterator.currentRowCol();
-	if ( currc.row < start.row ) start.row = currc.row;
-	if ( currc.col < start.col ) start.col = currc.col;
-	if ( currc.row > stop.row ) stop.row = currc.row;
-	if ( currc.col > stop.col ) stop.col = currc.col;
+	if ( currc.row() < start.row() ) start.row() = currc.row();
+	if ( currc.col() < start.col() ) start.col() = currc.col();
+	if ( currc.row() > stop.row() ) stop.row() = currc.row();
+	if ( currc.col() > stop.col() ) stop.col() = currc.col();
     }
 }
 

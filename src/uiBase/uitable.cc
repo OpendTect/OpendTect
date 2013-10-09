@@ -180,11 +180,11 @@ int uiTableBody::nrTxtLines() const
 QTableWidgetItem* uiTableBody::getItem( const RowCol& rc,
 						  bool createnew )
 {
-    QTableWidgetItem* itm = item( rc.row, rc.col );
+    QTableWidgetItem* itm = item( rc.row(), rc.col() );
     if ( !itm && createnew )
     {
 	itm = new QTableWidgetItem;
-	setItem( rc.row, rc.col, itm );
+	setItem( rc.row(), rc.col(), itm );
     }
 
     return itm;
@@ -194,14 +194,14 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc,
 void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 {
     QWidget* qw = obj->body()->qwidget();
-    setCellWidget( rc.row, rc.col, qw );
+    setCellWidget( rc.row(), rc.col(), qw );
     cellobjects_ += new CellObject( qw, obj, rc );
 }
 
 
 uiObject* uiTableBody::getCellObject( const RowCol& rc ) const
 {
-    QWidget* qw = cellWidget( rc.row, rc.col );
+    QWidget* qw = cellWidget( rc.row(), rc.col() );
     if ( !qw ) return 0;
 
     uiObject* obj = 0;
@@ -232,7 +232,7 @@ RowCol uiTableBody::getCell( uiObject* obj )
 
 void uiTableBody::clearCellObject( const RowCol& rc )
 {
-    QWidget* qw = cellWidget( rc.row, rc.col );
+    QWidget* qw = cellWidget( rc.row(), rc.col() );
     if ( !qw ) return;
 
     CellObject* co = 0;
@@ -245,7 +245,7 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 	}
     }
 
-    setCellWidget( rc.row, rc.col, 0 );
+    setCellWidget( rc.row(), rc.col(), 0 );
     if ( co )
     {
 	cellobjects_ -= co;
@@ -277,7 +277,7 @@ int uiTableBody::maxNrOfSelections() const
 
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
-    : uiObject(p,nm,mkbody(p,nm,s.size_.row,s.size_.col))
+    : uiObject(p,nm,mkbody(p,nm,s.size_.row(),s.size_.col()))
     , setup_(s)
     , buttonstate_(OD::NoButton)
     , valueChanged(this)
@@ -517,7 +517,7 @@ int uiTable::nrCols() const		{ return body_->columnCount(); }
 void uiTable::clearCell( const RowCol& rc )
 {
     mBlockCmdRec;
-    QTableWidgetItem* itm = body_->takeItem( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->takeItem( rc.row(), rc.col() );
     delete itm;
 }
 
@@ -526,9 +526,9 @@ void uiTable::setCurrentCell( const RowCol& rc, bool noselection )
 {
     mBlockCmdRec;
     if ( noselection )
-	body_->setCurrentCell( rc.row, rc.col, QItemSelectionModel::NoUpdate );
+	body_->setCurrentCell( rc.row(), rc.col(), QItemSelectionModel::NoUpdate );
     else
-	body_->setCurrentCell( rc.row, rc.col );
+	body_->setCurrentCell( rc.row(), rc.col() );
 }
 
 
@@ -547,7 +547,7 @@ const char* uiTable::text( const RowCol& rc ) const
     }
 
     mDeclStaticString( ret );
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     ret = itm ? itm->text().toLatin1().data() : "";
     return ret;
 }
@@ -610,14 +610,14 @@ void uiTable::setColumnReadOnly( int col, bool yn )
 void uiTable::setCellReadOnly( const RowCol& rc, bool yn )
 {
     mBlockCmdRec;
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     if ( itm ) itm->setFlags( yn ? flags_ro : flags );
 }
 
 
 bool uiTable::isCellReadOnly( const RowCol& rc ) const
 {
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     return itm && !itm->flags().testFlag( Qt::ItemIsEditable );
 }
 
@@ -1008,7 +1008,7 @@ void uiTable::setSelectionBehavior( SelectionBehavior sb )
 void uiTable::editCell( const RowCol& rc, bool replace )
 {
     mBlockCmdRec;
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     body_->editItem( itm );
 }
 
@@ -1110,17 +1110,17 @@ void uiTable::popupMenu( CallBacker* )
     if ( ret == inscolbef || ret == inscolaft )
     {
 	const int offset = (ret == inscolbef) ? 0 : 1;
-	newcell_ = RowCol( cur.row, cur.col+offset );
+	newcell_ = RowCol( cur.row(), cur.col()+offset );
 	insertColumns( newcell_, 1 );
 
 	if ( !setup_.defcollbl_ )
-	    setColumnLabel( newcell_, toString(newcell_.col) );
+	    setColumnLabel( newcell_, toString(newcell_.col()) );
 
 	colInserted.trigger();
     }
     else if ( ret == delcol )
     {
-	removeColumn( cur.col );
+	removeColumn( cur.col() );
 	colDeleted.trigger();
     }
     else if ( ret == delcols )
@@ -1132,17 +1132,17 @@ void uiTable::popupMenu( CallBacker* )
     else if ( ret == insrowbef || ret == insrowaft  )
     {
 	const int offset = (ret == insrowbef) ? 0 : 1;
-	newcell_ = RowCol( cur.row+offset, cur.col );
+	newcell_ = RowCol( cur.row()+offset, cur.col() );
 	insertRows( newcell_, 1 );
 
 	if ( !setup_.defrowlbl_ )
-	    setRowLabel( newcell_, toString(newcell_.row) );
+	    setRowLabel( newcell_, toString(newcell_.row()) );
 
 	rowInserted.trigger();
     }
     else if ( ret == delrow )
     {
-	removeRow( cur.row );
+	removeRow( cur.row() );
 	rowDeleted.trigger();
     }
     else if ( ret == delrows )
@@ -1285,7 +1285,7 @@ bool uiTable::isSelected ( const RowCol& rc ) const
 	return false;
 
     QModelIndex idx = body_->rootIndex();
-    idx = model->index( rc.row, rc.col, idx );
+    idx = model->index( rc.row(), rc.col(), idx );
     return selmodel->isSelected( idx );
 }
 
@@ -1367,7 +1367,7 @@ int uiTable::currentCol() const
 void uiTable::setSelected( const RowCol& rc, bool yn )
 {
     mBlockCmdRec;
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     if ( itm )
 	itm->setSelected( yn );
 }
@@ -1389,7 +1389,7 @@ void  uiTable::selectColumn( int col )
 
 void uiTable::ensureCellVisible( const RowCol& rc )
 {
-    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    QTableWidgetItem* itm = body_->item( rc.row(), rc.col() );
     body_->scrollToItem( itm );
 }
 
@@ -1474,9 +1474,9 @@ void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
     removeAllSelections();
     for ( int idx=0; idx<rcs.size(); idx++ )
     {
-	if ( mIsUdf(rcs[idx].row) || mIsUdf(rcs[idx].col) )
+	if ( mIsUdf(rcs[idx].row()) || mIsUdf(rcs[idx].col()) )
 	    continue;
-	QTableWidgetItem* itm = body_->item( rcs[idx].row, rcs[idx].col );
+	QTableWidgetItem* itm = body_->item( rcs[idx].row(), rcs[idx].col() );
 	if ( !itm || (yn && itm->isSelected()) || (!yn && !itm->isSelected()) )
 	    continue;
 	itm->setSelected( yn );
@@ -1487,7 +1487,7 @@ void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 bool uiTable::handleLongTabletPress()
 {
     BufferString msg = "rightClicked ";
-    msg += notifcell_.row; msg += " "; msg += notifcell_.col;
+    msg += notifcell_.row(); msg += " "; msg += notifcell_.col();
     const int refnr = beginCmdRecEvent( msg ); 
     rightClicked.trigger();
     endCmdRecEvent( refnr, msg );
@@ -1499,9 +1499,9 @@ bool uiTable::needOfVirtualKeyboard() const
 {
     if ( isCellReadOnly(notifiedCell()) || getCellObject(notifiedCell()) )
 	return false;
-    if ( isRowReadOnly(notifiedCell().row) )
+    if ( isRowReadOnly(notifiedCell().row()) )
 	return false;
-    if ( isColumnReadOnly(notifiedCell().col) )
+    if ( isColumnReadOnly(notifiedCell().col()) )
 	return false;
 
     return hasFocus() && !isTableReadOnly();

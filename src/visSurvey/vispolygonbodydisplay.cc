@@ -569,7 +569,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,					    pos, zscale );
 
     const int nearestpolygon = 
-	nearestpid0.isUdf() ? mUdf(int) : insertpid.getRowCol().row;
+	nearestpid0.isUdf() ? mUdf(int) : insertpid.getRowCol().row();
 
     if ( nearestpolygon_!=nearestpolygon )
     {
@@ -594,7 +594,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    eventcatcher_->setHandled();
 	    if ( !eventinfo.pressed )
 	    {
-		const int removepolygon = pid.getRowCol().row;
+		const int removepolygon = pid.getRowCol().row();
 		const bool res = empolygonsurf_->geometry().nrKnots( 
 			pid.sectionID(),removepolygon)==1  ? 
 		    empolygonsurf_->geometry().removePolygon( 
@@ -643,7 +643,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		    SI().transform(BinID(0,0)), 0 );
 
 	if ( empolygonsurf_->geometry().insertPolygon( insertpid.sectionID(),
-	       insertpid.getRowCol().row, 0, pos, editnormal, true ) )
+	       insertpid.getRowCol().row(), 0, pos, editnormal, true ) )
 	{
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -686,7 +686,7 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	     if ( cbdata.pid0.getRowCol().row==nearestpolygon_ )
+	     if ( cbdata.pid0.getRowCol().row()==nearestpolygon_ )
 		updateNearestPolygonMarker();
 	}
 	else

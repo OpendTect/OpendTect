@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 
 
-mImplRowColFunctions( RowCol, row, col );
 
 float RowCol::clockwiseAngleTo(const RowCol& rc) const
 {
@@ -25,10 +24,10 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
     const TypeSet<RowCol>& clockwisedirs = RowCol::clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
     const float selfangle =  selfidx!=-1 ? selfidx * (float) M_PI_4 
-					 : atan2( (float)col, (float)-row );
+			     : atan2( (float)col(), (float)-row() );
     const int rcidx =  clockwisedirs.indexOf(tmprc);
     const float rcangle = rcidx!=-1 ? rcidx * (float) M_PI_4 
-				 : atan2( (float)tmprc.col, (float)-tmprc.row );
+			     : atan2( (float)tmprc.col(), (float)-tmprc.row() );
     static double twopi = M_PI*2;
     float anglediff = rcangle-selfangle;
     if ( anglediff<0 ) anglediff = (float)( anglediff + twopi );
@@ -57,12 +56,6 @@ float RowCol::angleTo(const RowCol& rc) const
 }
 
 
-RowCol::RowCol( const BinID& bid )
-    : row( bid.inl() )
-    , col( bid.crl() )
-{}
-
-
 const TypeSet<RowCol>& RowCol::clockWiseSequence()
 {
     static PtrMan<TypeSet<RowCol> > clockwisedirs_ = new TypeSet<RowCol>;
@@ -88,11 +81,11 @@ const TypeSet<RowCol>& RowCol::clockWiseSequence()
 RowCol RowCol::getDirection() const
 {
     RowCol res(0,0);
-    if ( row>0 ) res.row=1;
-    else if ( row<0 ) res.row=-1;
+    if ( row()>0 ) res.row()=1;
+    else if ( row()<0 ) res.row()=-1;
 
-    if ( col>0 ) res.col=1;
-    else if ( col<0 ) res.col=-1;
+    if ( col()>0 ) res.col()=1;
+    else if ( col()<0 ) res.col()=-1;
     return res;
 }
 

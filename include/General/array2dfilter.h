@@ -115,7 +115,7 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , calc_(0)
     , inputrowsize_(a.info().getSize(0))
     , inputcolsize_(a.info().getSize(1))
-    , nrcols_(2 * p.stepout_.col + 1)
+    , nrcols_(2 * p.stepout_.col() + 1)
     , nrrowsdone_(0)
     , origin_( 0, 0 )
 {
@@ -139,15 +139,15 @@ Array2DFilterer<T>::Array2DFilterer( const Array2D<T>& input, Array2D<T>& a,
     , calc_(0)
     , inputrowsize_(input.info().getSize(0))
     , inputcolsize_(input.info().getSize(1))
-    , nrcols_(2 * p.stepout_.col + 1)
+    , nrcols_(2 * p.stepout_.col() + 1)
     , nrrowsdone_(0)
     , origin_( origin )
 {
-    outputrowrg_.start = origin.row;
-    outputrowrg_.stop = origin.row+a.info().getSize(0)-1;
+    outputrowrg_.start = origin.row();
+    outputrowrg_.stop = origin.row()+a.info().getSize(0)-1;
 
-    outputcolrg_.start = origin.col;
-    outputcolrg_.stop = origin.col+a.info().getSize(1)-1;
+    outputcolrg_.start = origin.col();
+    outputcolrg_.stop = origin.col()+a.info().getSize(1)-1;
 
     Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );
@@ -179,15 +179,15 @@ template <class T> inline int Array2DFilterer<T>::nextStep()
 	    return ErrorOccurred();
 	}
 
-	if ( inputrowsize_ < 2 * pars_.stepout_.row + 1
-	  || inputcolsize_ < 2 * pars_.stepout_.col + 1
-	  || (pars_.stepout_.col < 1 && pars_.stepout_.row < 1) )
+	if ( inputrowsize_ < 2 * pars_.stepout_.row() + 1
+	  || inputcolsize_ < 2 * pars_.stepout_.col() + 1
+	  || (pars_.stepout_.col() < 1 && pars_.stepout_.row() < 1) )
 	{
 	    ErrMsg("Invalid parameters");
 	    return ErrorOccurred();
 	}
 
-	linefilt_ = pars_.stepout_.row == 0 || pars_.stepout_.col == 0;
+	linefilt_ = pars_.stepout_.row() == 0 || pars_.stepout_.col() == 0;
     }
 
 
@@ -230,17 +230,17 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
     calc_->clear();
 
     const bool isweighted = calc_->isWeighted();
-    const int startrow = row - pars_.stepout_.row;
+    const int startrow = row - pars_.stepout_.row();
     int firstrow = startrow;
     if ( firstrow < 0 ) firstrow = 0;
-    const int endrow = row + pars_.stepout_.row;
+    const int endrow = row + pars_.stepout_.row();
     int lastrow = endrow;
     if ( lastrow >= inputrowsize_ ) lastrow = inputrowsize_-1;
 
-    const int startcol = col - pars_.stepout_.col;
+    const int startcol = col - pars_.stepout_.col();
     int firstcol = startcol;
     if ( firstcol < 0 ) firstcol = 0;
-    const int endcol = col + pars_.stepout_.col;
+    const int endcol = col + pars_.stepout_.col();
     int lastcol = endcol;
     if ( lastcol >= inputcolsize_ ) lastcol = inputcolsize_-1;
 
@@ -275,7 +275,7 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 	}
     }
 
-    output_.set( row-origin_.row, col-origin_.col,(T) calc_->getValue(pars_.type_));
+    output_.set( row-origin_.row(), col-origin_.col(),(T) calc_->getValue(pars_.type_));
 }
 
 

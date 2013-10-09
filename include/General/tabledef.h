@@ -147,7 +147,7 @@ public:
 				    : pos_(0,-1), val_(s) 	{}
 
 	    bool		isInFile() const
-				    { return pos_.col >= 0; }
+				    { return pos_.col() >= 0; }
 	    bool		isKeyworded() const
 				    { return isInFile() && !keyword_.isEmpty();}
 	    bool		isSpecified() const

@@ -23,7 +23,7 @@ const bool addedinfront = idxvar<0; \
 if ( addedinfront ) \
 { \
     idxvar = 0; \
-    origin_.type -= step_.type*nrtoinsert; \
+    origin_.type() -= step_.type()*nrtoinsert; \
 }\
 \
 const int curnrrows = nrRows(); \
@@ -51,9 +51,9 @@ for ( int idx=0; new##variable && idx<curnrrows+nrtoinsert; idx++ ) \
 		new##variable->set(idx,idy, udf ); \
 	    else \
 	    { \
-		const float relrow = origin_.row + \
-		    ((float) idx-rowidx)/(nrtoinsert+1)*step_.row; \
-		const Coord param( relrow, origin_.col+idy*step_.col ); \
+		const float relrow = origin_.row() + \
+		    ((float) idx-rowidx)/(nrtoinsert+1)*step_.row(); \
+		const Coord param( relrow, origin_.col()+idy*step_.col() ); \
 		new##variable->set(idx,idy,(type) interpolfunc); \
 	    } \
 	} \
@@ -82,9 +82,9 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
 		new##variable->set(idx,idy, udf ); \
 	    else \
 	    { \
-		const float relcol = origin_.col + \
-		    ((float) idy-colidx)/(nrtoinsert+1)*step_.col; \
-		const Coord param( origin_.row+idx*step_.row, relcol ); \
+		const float relcol = origin_.col() + \
+		    ((float) idy-colidx)/(nrtoinsert+1)*step_.col(); \
+		const Coord param( origin_.row()+idx*step_.row(), relcol ); \
 		new##variable->set(idx,idy,(type) interpolfunc); \
 	    } \
 	} \

@@ -88,7 +88,7 @@ public:
     void		geometry(Pos::GeomID geomid,
 				 PosInfo::Line2DData&)const;
 
-    Coord3		getKnot(const RowCol& rc) const; // rc.row = rowindex
+    Coord3		getKnot(const RowCol& rc) const; // rc.row() = rowindex
     bool		setKnot(const RowCol&,const Coord3&);
     bool		isKnotDefined(const RowCol&) const;
     Coord3		computePosition(const PosInfo::GeomID&,int trcnr) const;

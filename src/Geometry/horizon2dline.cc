@@ -526,11 +526,11 @@ int Horizon2DLine::getRowIndex( Pos::GeomID geomid) const
 
 Coord3 Horizon2DLine::getKnot( const RowCol& rc ) const
 {
-    if ( mIsUdf(rc.row) || rc.row < 0 )
+    if ( mIsUdf(rc.row()) || rc.row() < 0 )
 	return Coord3::udf();
 
-    const int colidx = colIndex( rc.row, rc.col );
-    return colidx>=0 ? (*rows_[rc.row])[colidx] : Coord3::udf();
+    const int colidx = colIndex( rc.row(), rc.col() );
+    return colidx>=0 ? (*rows_[rc.row()])[colidx] : Coord3::udf();
 }
 
 
@@ -560,33 +560,33 @@ int Horizon2DLine::rowIndex( int rowid ) const
 bool Horizon2DLine::isDefined( GeomPosID pid ) const
 {
     const RowCol rc = RowCol::fromInt64( pid );
-    const int rowidx = rowIndex( rc.row );
-    return isKnotDefined( RowCol(rowidx,rc.col) );
+    const int rowidx = rowIndex( rc.row() );
+    return isKnotDefined( RowCol(rowidx,rc.col()) );
 }
 
 
 Coord3 Horizon2DLine::getPosition( GeomPosID pid ) const
 {
     const RowCol rc = RowCol::fromInt64( pid );
-    const int rowidx = rowIndex( rc.row );
-    return getKnot( RowCol(rowidx,rc.col) );
+    const int rowidx = rowIndex( rc.row() );
+    return getKnot( RowCol(rowidx,rc.col()) );
 }
 
 bool Horizon2DLine::setPosition( GeomPosID pid, const Coord3& pos )
 {
     const RowCol rc = RowCol::fromInt64( pid );
-    const int rowidx = rowIndex( rc.row );
-    return setKnot( RowCol(rowidx,rc.col), pos );
+    const int rowidx = rowIndex( rc.row() );
+    return setKnot( RowCol(rowidx,rc.col()), pos );
 }
 
 
 bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )
 {
-    const int colidx = colIndex( rc.row, rc.col );
+    const int colidx = colIndex( rc.row(), rc.col() );
 
     if ( colidx<0 ) return false;
 
-    (*rows_[rc.row])[colidx] = pos;
+    (*rows_[rc.row()])[colidx] = pos;
 
     return true;
 }
@@ -594,8 +594,8 @@ bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )
 
 bool Horizon2DLine::isKnotDefined( const RowCol& rc ) const
 {
-    const int colidx = colIndex( rc.row, rc.col );
-    return colidx>=0 ? (*rows_[rc.row])[colidx].isDefined() : false;
+    const int colidx = colIndex( rc.row(), rc.col() );
+    return colidx>=0 ? (*rows_[rc.row()])[colidx].isDefined() : false;
 }
 
 
@@ -767,9 +767,9 @@ int Horizon2DLine::colIndex( int rowidx, int colid ) const
 
 bool Horizon2DLine::hasSupport( const RowCol& rc ) const
 {
-    StepInterval<int> colrg = colRange( rc.row );
-    const RowCol prev( rc.row, rc.col-colrg.step );
-    const RowCol next( rc.row, rc.col+colrg.step );
+    StepInterval<int> colrg = colRange( rc.row() );
+    const RowCol prev( rc.row(), rc.col()-colrg.step );
+    const RowCol next( rc.row(), rc.col()+colrg.step );
     return isKnotDefined(prev) || isKnotDefined(next);
 }
 

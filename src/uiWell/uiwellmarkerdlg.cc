@@ -182,8 +182,8 @@ void uiMarkerDlg::markerAddedCB( CallBacker* )
 void uiMarkerDlg::markerChangedCB( CallBacker* )
 {
     const RowCol rc = table_->notifiedCell();
-    const int row = rc.row;
-    const int col = rc.col;
+    const int row = rc.row();
+    const int col = rc.col();
 
     const bool depthchg = col == cDepthCol || col == cTVDCol || col==cTVDSSCol;
     const bool nmchg = col == cNameCol;
@@ -262,9 +262,9 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 void uiMarkerDlg::mouseClick( CallBacker* )
 {
     const RowCol rc = table_->notifiedCell();
-    if ( rc.col != cColorCol ) return;
+    if ( rc.col() != cColorCol ) return;
 
-    uiGroup* grp = table_->getCellGroup( RowCol(rc.row,cLevelCol) );
+    uiGroup* grp = table_->getCellGroup( RowCol(rc.row(),cLevelCol) );
     mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
     const bool havelvl = levelsel && levelsel->getID() >= 0;
     if ( havelvl )
@@ -703,8 +703,8 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 {
     NotifyStopper ns( table_->valueChanged );
     const RowCol rcin = table_->notifiedCell();
-    const int row = rcin.row;
-    const bool istvd = rcin.col == cTVDCol;
+    const int row = rcin.row();
+    const bool istvd = rcin.col() == cTVDCol;
     const float kbelev = track_.getKbElev();
     const float zfac = zFactor();
 
@@ -777,8 +777,8 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 	return mUdf(float);
 
     const RowCol rc = table_->notifiedCell();
-    const bool ismd = rc.col == cDepthCol;
-    const bool istvd = rc.col == cTVDCol;
+    const bool ismd = rc.col() == cDepthCol;
+    const bool istvd = rc.col() == cTVDCol;
     const float kbelev = track_.getKbElev();
 
     const float olddah = marker->dah();

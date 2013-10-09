@@ -615,7 +615,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 void uiStratUnitDivideDlg::mouseClick( CallBacker* )
 {
     RowCol rc = table_->notifiedCell();
-    if ( rc.col != cColorCol || table_->isCellReadOnly(rc) ) return;
+    if ( rc.col() != cColorCol || table_->isCellReadOnly(rc) ) return;
 
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Unit color") )

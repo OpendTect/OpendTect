@@ -303,7 +303,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( !surface ) return false;
 
     const RowCol rc = pid.getRowCol();
-    const StepInterval<int> colrg = surface->colRange( rc.row );
+    const StepInterval<int> colrg = surface->colRange( rc.row() );
     if ( colrg.isUdf() ) return false;
 	
     const bool addtoundo = changedpids.indexOf(pid) == -1;
@@ -314,12 +314,12 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	return emobject.setPos( pid, mpos, addtoundo );
 
     const int zscale =  SI().zDomain().userFactor();   
-    const int previdx = rc.col==colrg.start ? colrg.stop : rc.col-colrg.step;
-    const int nextidx = rc.col<colrg.stop ? rc.col+colrg.step : colrg.start;
+    const int previdx = rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
+    const int nextidx = rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
     
     Coord3 curpos = mpos; curpos.z *= zscale;
-    Coord3 prevpos = surface->getKnot( RowCol(rc.row, previdx) );
-    Coord3 nextpos = surface->getKnot( RowCol(rc.row, nextidx) );
+    Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
+    Coord3 nextpos = surface->getKnot( RowCol(rc.row(), nextidx) );
     
     const bool prevdefined = prevpos.isDefined();
     const bool nextdefined = nextpos.isDefined();
@@ -329,11 +329,11 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
     {
 	const int nextknot = knot<colrg.stop ? knot+colrg.step : colrg.start;
-	if ( knot==previdx || knot==rc.col )
+	if ( knot==previdx || knot==rc.col() )
 	    continue;
 
-	Coord3 v0 = surface->getKnot( RowCol(rc.row, knot) ); 
-	Coord3 v1 = surface->getKnot( RowCol(rc.row,nextknot));
+	Coord3 v0 = surface->getKnot( RowCol(rc.row(), knot) ); 
+	Coord3 v1 = surface->getKnot( RowCol(rc.row(),nextknot));
 	if ( !v0.isDefined() || !v1.isDefined() )
  	    return false;
 

@@ -193,8 +193,8 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     {
 	const RowCol closestrc = closestnode.getRowCol();
 	BufferString str = "Section: "; str += closestnode.sectionID();
-	str += " ("; str += closestrc.row;
-	str += ","; str += closestrc.col; str += ",";
+	str += " ("; str += closestrc.row();
+	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
 	str += pos.z; str += ", "; str+= pos.y; str += ", "; str+= pos.z;
 	str+=")";

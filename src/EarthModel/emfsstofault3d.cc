@@ -173,16 +173,16 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	return false;
 
     RowCol rc;
-    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
     {
-	const StepInterval<int> colrg = curfssg_->colRange( rc.row );
+	const StepInterval<int> colrg = curfssg_->colRange( rc.row() );
 	if ( colrg.isUdf() )
 	    return false;
 
-	FaultStick* stick = new FaultStick( rc.row );
+	FaultStick* stick = new FaultStick( rc.row() );
 	sticks_ += stick;
 
-	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    const Coord3 pos = curfssg_->getKnot( rc );
 	    if ( !pos.isDefined() )
@@ -190,12 +190,12 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	    stick->crds_ += pos;
 	}
 
-	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, rc.row );
+	stick->pickedonplane_ = fss_.geometry().pickedOnPlane( sid, rc.row() );
 
 	if ( stick->pickedonplane_ )
 	    stick->normal_ = stick->findPlaneNormal();
 	else
-	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row );
+	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row() );
     }
     return true;
 }

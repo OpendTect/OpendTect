@@ -385,10 +385,10 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
     const StepInterval<int> colrange = rowRange();
 
     RowCol rc;
-    for ( rc.row=rowrange.start;rc.row<=rowrange.stop;rc.row+=rowrange.step)
+    for ( rc.row()=rowrange.start;rc.row()<=rowrange.stop;rc.row()+=rowrange.step)
     {
-	for ( rc.col=colrange.start; rc.col<=colrange.stop;
-						    rc.col+=colrange.step )
+	for ( rc.col()=colrange.start; rc.col()<=colrange.stop;
+						    rc.col()+=colrange.step )
 	{
 	    if ( isDefined(sid,rc) )
 	    {
@@ -538,9 +538,9 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	    const StepInterval<int> colrange = colRange(sid,-1);
 
 	    RowCol idx( rowrange.start, colrange.start );
-	    for ( ; rowrange.includes( idx.row ); idx.row+=rowrange.step )
+	    for ( ; rowrange.includes( idx.row() ); idx.row()+=rowrange.step )
 	    {
-		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
+		for ( ; colrange.includes( idx.col() ); idx.col()+=colrange.step )
 		{
 		    if ( isDefined(sid,idx) )
 			nodes += PosID(surface_.id(),sid,idx.toInt64());
@@ -796,7 +796,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     const PosID& nodealias = nodealiases[idy]; \
     const SectionID sid = nodealias.sectionID(); \
     const RowCol noderc(nodealias.subID()); \
-    const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
+    const RowCol neighborrc( noderc.row() rowdiff, noderc.col() coldiff ); \
     coordname = surface_.getPos(sid, neighborrc.toInt64()); \
     defname = coordname.isDefined(); \
     if ( defname ) \
@@ -825,9 +825,9 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
     c00def = c00.isDefined();
     if ( c00def && t2dfunc ) c00.z = t2dfunc->getValue(c00.z);
 
-    mGetNeigborCoord( c10, c10def, +step_.row, +0 );
-    mGetNeigborCoord( c01, c01def, +0, +step_.col );
-    mGetNeigborCoord( c11, c11def, +step_.row, +step_.col );
+    mGetNeigborCoord( c10, c10def, +step_.row(), +0 );
+    mGetNeigborCoord( c01, c01def, +0, +step_.col() );
+    mGetNeigborCoord( c11, c11def, +step_.row(), +step_.col() );
 }
 
 */

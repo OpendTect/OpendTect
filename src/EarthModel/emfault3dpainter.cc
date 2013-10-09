@@ -140,13 +140,13 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 
     RowCol rc;
     const StepInterval<int> rowrg = fss->rowRange();
-    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
     {
-	StepInterval<int> colrg = fss->colRange( rc.row );
+	StepInterval<int> colrg = fss->colRange( rc.row() );
 	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
-	if ( rc.row == activestickid_ )
+	if ( rc.row() == activestickid_ )
 	    stickauxdata->linestyle_.width_ *= 2;
 
 	stickauxdata->linestyle_.color_ = f3d.preferredColor();
@@ -155,7 +155,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	    stickauxdata->markerstyles_.erase();
 	stickauxdata->enabled_ = linenabled_;
 
-	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(sid,rc.row);
+	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(sid,rc.row());
 
 	if ( !path_ )
 	{
@@ -174,7 +174,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	    {
 		StkMarkerInfo* stkmkrinfo = new StkMarkerInfo;
 		stkmkrinfo->marker_ = stickauxdata;
-		stkmkrinfo->stickid_ = rc.row;
+		stkmkrinfo->stickid_ = rc.row();
 		f3dmaker->stickmarker_ += stkmkrinfo;
 		viewer_.addAuxData( stickauxdata );
 	    }
@@ -225,7 +225,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	extrcoord1 = SI().transform( extrbid1 );
 	extrcoord2 = SI().transform( extrbid2 );
 
-	for ( rc.col=crg.start; rc.col<=crg.stop; rc.col+=crg.step )
+	for ( rc.col()=crg.start; rc.col()<=crg.stop; rc.col()+=crg.step )
 	{
 	    const Coord3& pos = fss.getKnot( rc );
 	    BinID knotbinid = SI().transform( pos );
@@ -247,7 +247,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
     }
     else
     {
-	for ( rc.col=crg.start; rc.col<=crg.stop; rc.col+=crg.step )
+	for ( rc.col()=crg.start; rc.col()<=crg.stop; rc.col()+=crg.step )
 	{
 	    const Coord3 pos = fss.getKnot( rc );
 	    if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
@@ -268,7 +268,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 				   FlatView::AuxData& stickauxdata )
 {
     BinID bid;
-    for ( rc.col=crg.start;rc.col<=crg.stop;rc.col+=crg.step )
+    for ( rc.col()=crg.start;rc.col()<=crg.stop;rc.col()+=crg.step )
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
@@ -518,7 +518,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 {
     if ( pid.objectID() != emid_ ) return;
 
-    if ( pid.getRowCol().row == activestickid_ ) return;
+    if ( pid.getRowCol().row() == activestickid_ ) return;
 
     for ( int auxdid=0; auxdid<f3dmarkers_[0]->stickmarker_.size(); auxdid++ )
     {
@@ -527,11 +527,11 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 	if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_== activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;
 	else if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_ ==
-		  pid.getRowCol().row )
+		  pid.getRowCol().row() )
 	    linestyle.width_ = markerlinestyle_.width_ * 2;
     }
 
-    activestickid_ = pid.getRowCol().row;
+    activestickid_ = pid.getRowCol().row();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
@@ -539,7 +539,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid ) const
 {
     if ( pid->objectID() != emid_ ||
-	 pid->getRowCol().row != activestickid_ )
+	 pid->getRowCol().row() != activestickid_ )
 	return true;
     else
 	return false;

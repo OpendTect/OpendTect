@@ -262,7 +262,8 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     const BinID start = workrange_->start;
     const BinID stop = workrange_->stop;
 
-    const int min2 = mMIN( lastbid.sqDistTo(start), lastbid.sqDistTo(stop) );
+    const int min2 = (int)mMIN( lastbid.sqDistTo(start), 
+				lastbid.sqDistTo(stop) );
     const int step = workrange_->nrCrl()==1 ? workrange_->step.inl()
 					    : workrange_->step.crl();
     if ( min2 > 100*step*step )

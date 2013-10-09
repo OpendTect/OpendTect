@@ -66,12 +66,12 @@ void uiColTabMarkerDlg::fillTable()
 	for ( int idy=0; idy<ctab_.size(); idy++ )
 	{
 	    RowCol rc;
-	    rc.row = idy;
-	    rc.col = idx;
+	    rc.row() = idy;
+	    rc.col() = idx;
 	    const float position = ctab_.position( idy );
-	    if ( rc.col == 0 )
+	    if ( rc.col() == 0 )
 		table_->setValue( rc, position );
-	    if ( rc.col == 1 )
+	    if ( rc.col() == 1 )
 	    {
 		Color color( ctab_.color(position) );
 		table_->setColor( rc, color );
@@ -85,15 +85,15 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rc = table_->notifiedCell();
-    if ( rc.col != cColorCol ) return;
+    if ( rc.col() != cColorCol ) return;
 
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
     {
 	ColTab::Sequence orgctab = ctab_;
 	table_->setColor( rc, newcol );
-	table_->setCurrentCell( RowCol(rc.row,0) );
-	orgctab.changeColor( rc.row, newcol.r(), newcol.g(), newcol.b() );
+	table_->setCurrentCell( RowCol(rc.row(),0) );
+	orgctab.changeColor( rc.row(), newcol.r(), newcol.g(), newcol.b() );
 	ctab_ = orgctab;
     }
 
@@ -105,20 +105,20 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rcvalue = table_->newCell();
-    if ( rcvalue.row-1 < 0 || rcvalue.row >= ctab_.size() )
+    if ( rcvalue.row()-1 < 0 || rcvalue.row() >= ctab_.size() )
     {
 	table_->removeRow( rcvalue );
 	uiMSG().error( "Cannot insert markers at extreme positions" );
 	return;
     }
 
-    RowCol rccolor( rcvalue.row, 1 );
-    const float newpos = ctab_.position(rcvalue.row-1) +
-			 ( ctab_.position(rcvalue.row) - 
-			   ctab_.position(rcvalue.row-1) ) / 2;
+    RowCol rccolor( rcvalue.row(), 1 );
+    const float newpos = ctab_.position(rcvalue.row()-1) +
+			 ( ctab_.position(rcvalue.row()) - 
+			   ctab_.position(rcvalue.row()-1) ) / 2;
     Color col( ctab_.color(newpos) );
     table_->setColor( rccolor, col );
-    table_->setCurrentCell( RowCol(rcvalue.row,0) );
+    table_->setCurrentCell( RowCol(rcvalue.row(),0) );
     ctab_.setColor( newpos, col.r(), col.g(), col.b() );
     fillTable();
     markersChanged.trigger();
@@ -129,13 +129,13 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     const RowCol rc = table_->notifiedCell();
-    if ( rc.row == 0 || rc.row == ctab_.size()-1 )
+    if ( rc.row() == 0 || rc.row() == ctab_.size()-1 )
     {
 	table_->insertRows( rc, 1 );
-	const float pos = ctab_.position(rc.row);
-	table_->setValue( RowCol(rc.row,0), pos );
-	table_->setColor( RowCol(rc.row,1), ctab_.color(pos) );
-	table_->setCurrentCell( RowCol(rc.row,0) );
+	const float pos = ctab_.position(rc.row());
+	table_->setValue( RowCol(rc.row(),0), pos );
+	table_->setColor( RowCol(rc.row(),1), ctab_.color(pos) );
+	table_->setCurrentCell( RowCol(rc.row(),0) );
 	uiMSG().error( "Cannot remove markers at extreme positions" );
 	return;
     }
@@ -149,13 +149,13 @@ void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
     RowCol rc = table_->currentCell();
     const float newpos = table_->getfValue( rc );
-    if ( ctab_.position(rc.row-1)>newpos || ctab_.position(rc.row+1)<newpos )
+    if ( ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos )
     {
 	uiMSG().error( "Please enter position between 0 & 1 for Markers " );
-	table_->setValue( rc, ctab_.position(rc.row) );
+	table_->setValue( rc, ctab_.position(rc.row()) );
 	return;
     }
-    ctab_.changePos( rc.row, newpos );
+    ctab_.changePos( rc.row(), newpos );
     markersChanged.trigger();
 }
 

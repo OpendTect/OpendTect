@@ -158,7 +158,7 @@ int BaseHorizon3DExtender::nextStep()
 		    const RowCol dst( (RowCol::fromInt64(serc))/step );
 		    const RowCol cursrc( srcbid/step );
 
-		    const int olddist = oldsrc.sqDistTo(dst);
+		    const int olddist = (int)oldsrc.sqDistTo(dst);
 		    if ( cursrc.sqDistTo( dst )<olddist ) 
 		    {
 			addedpossrc_[previndex] = srcbid.toInt64();

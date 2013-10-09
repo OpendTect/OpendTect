@@ -132,8 +132,8 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
     if ( sel==0 || sel==3 )
 	return;           // all outside or all behind projection plane
 
-    int rowlen = (stop.row-start.row) / rowstep;
-    int collen = (stop.col-start.col) / colstep;
+    int rowlen = (stop.row()-start.row()) / rowstep;
+    int collen = (stop.col()-start.col()) / colstep;
 
     if ( rowlen < 32 && collen < 32 )
 	makeListGrow( start, stop, sel );
@@ -142,47 +142,47 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( stop.row, start.col+colstep*(collen/2) );
+	stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row,start.col+colstep*(1+collen/2)), stop );
+	processBlock( RowCol(start.row(),start.col()+colstep*(1+collen/2)), stop );
     }
     else if ( rowlen >=32 && collen < 32 )
     {
 	lock_.lock();
 
 	starts_ += start;
-	stops_ += RowCol( start.row+rowstep*(rowlen/2), stop.col );
+	stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row+rowstep*(1+rowlen/2),start.col), stop );
+	processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),start.col()), stop );
     }
     else
     {
 	lock_.lock();
 	
 	starts_ += start;
-	stops_ += RowCol( start.row+rowstep*(rowlen/2),
-	    		  start.col+colstep*(collen/2) );
+	stops_ += RowCol( start.row()+rowstep*(rowlen/2),
+	    		  start.col()+colstep*(collen/2) );
 
-	starts_ += RowCol( start.row, start.col+colstep*(1+collen/2) );
-	stops_ += RowCol( start.row+rowstep*(rowlen/2), stop.col );
+	starts_ += RowCol( start.row(), start.col()+colstep*(1+collen/2) );
+	stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
 
-	starts_ += RowCol( start.row+rowstep*(1+rowlen/2), start.col );
-	stops_ += RowCol( stop.row, start.col+colstep*(collen/2) );
+	starts_ += RowCol( start.row()+rowstep*(1+rowlen/2), start.col() );
+	stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
 
 	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
-	processBlock( RowCol(start.row+rowstep*(1+rowlen/2),
-			     start.col+colstep*(1+collen/2) ), stop );
+	processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),
+			     start.col()+colstep*(1+collen/2) ), stop );
     }
 }
 
@@ -198,23 +198,23 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
     const int rowstep = surf->rowRange().step;
     const int colstep = surf->colRange().step;
 
-    Coord coord0 = SI().transform( BinID(start.row,start.col) );
+    Coord coord0 = SI().transform( BinID(start.row(),start.col()) );
     up.x = down.x = coord0.x;
     up.y = down.y = coord0.y;
 
-    Coord coord1 = SI().transform( BinID(start.row,stop.col) );
+    Coord coord1 = SI().transform( BinID(start.row(),stop.col()) );
     if ( up.x < coord1.x ) up.x = coord1.x;
     if ( up.y < coord1.y ) up.y = coord1.y;
     if ( coord1.x < down.x ) down.x = coord1.x;
     if ( coord1.y < down.y ) down.y = coord1.y;
 
-    Coord coord2 = SI().transform( BinID(stop.row,start.col) );
+    Coord coord2 = SI().transform( BinID(stop.row(),start.col()) );
     if ( up.x < coord2.x ) up.x = coord2.x;
     if ( up.y < coord2.y ) up.y = coord2.y;
     if ( coord2.x < down.x ) down.x = coord2.x;
     if ( coord2.y < down.y ) down.y = coord2.y;
 
-    Coord coord3 = SI().transform( BinID(stop.row,stop.col) );
+    Coord coord3 = SI().transform( BinID(stop.row(),stop.col()) );
     if ( up.x < coord3.x ) up.x = coord3.x;
     if ( up.y < coord3.y ) up.y = coord3.y;
     if ( coord3.x < down.x ) down.x = coord3.x;
@@ -222,10 +222,10 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 
     up.z = down.z = mUdf(float);
 
-    for ( int row=start.row; row<=stop.row; row+=rowstep )
+    for ( int row=start.row(); row<=stop.row(); row+=rowstep )
     {
-	int idx = nrcols_*(row-startrow_)/rowstep+(start.col-startcol_)/colstep;
-	for ( int col=start.col; col<=stop.col; col+=colstep, idx++ )
+	int idx = nrcols_*(row-startrow_)/rowstep+(start.col()-startcol_)/colstep;
+	for ( int col=start.col(); col<=stop.col(); col+=colstep, idx++ )
 	{
 	    const float val = zvals_[idx];
 	    if ( mIsUdf(val) )
@@ -248,8 +248,8 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
      mDynamicCastGet(const Geometry::RowColSurface*,surf,ge);
      if ( !surf ) return;
 
-    const StepInterval<int> rowrg( start.row, stop.row, surf->rowRange().step );
-    const StepInterval<int> colrg( start.col, stop.col, surf->colRange().step );
+    const StepInterval<int> rowrg( start.row(), stop.row(), surf->rowRange().step );
+    const StepInterval<int> colrg( start.col(), stop.col(), surf->colRange().step );
 
     TypeSet<EM::SubID> ids;
 

@@ -68,25 +68,25 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
     {
 	if ( firstinlz == -mUdf(float) )
 	{
-	    RowCol rowcol(rc.row-dist, rc.col );
+	    RowCol rowcol(rc.row()-dist, rc.col() );
 	    firstinlz = getZ( rowcol, surface );
 	    if ( firstinlz > -mUdf(float) ) distfirstinlz = dist;
 	}
 	if ( secondinlz == -mUdf(float) )
 	{
-	    RowCol rowcol( rc.row+dist, rc.col );
+	    RowCol rowcol( rc.row()+dist, rc.col() );
 	    secondinlz = getZ( rowcol, surface );
 	    if ( secondinlz > -mUdf(float) ) distsecondinlz = dist;
 	}
 	if ( firstcrlz == -mUdf(float) )
 	{
-	    RowCol rowcol( rc.row, rc.col-dist );
+	    RowCol rowcol( rc.row(), rc.col()-dist );
 	    firstcrlz = getZ( rowcol, surface );
 	    if ( firstcrlz > -mUdf(float) ) distfirstcrlz = dist;
 	}
 	if ( secondcrlz == -mUdf(float) )
 	{
-	    RowCol rowcol( rc.row, rc.col+dist );
+	    RowCol rowcol( rc.row(), rc.col()+dist );
 	    secondcrlz = getZ( rowcol, surface );
 	    if ( secondcrlz > -mUdf(float) ) distsecondcrlz = dist;
 	}

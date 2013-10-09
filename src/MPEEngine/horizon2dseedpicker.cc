@@ -222,7 +222,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 
 	hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 
-	res = drop ? true : retrackOnActiveLine(rc.col,pickedposwasdef);
+	res = drop ? true : retrackOnActiveLine(rc.col(),pickedposwasdef);
     }
 
     surfchange_.trigger();
@@ -267,16 +267,16 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
     mGetHorizon(hor,false);
     RowCol rc = RowCol::fromInt64( pid.subID() );
-    if ( rc.row != hor->geometry().lineIndex(geomid_) )
+    if ( rc.row() != hor->geometry().lineIndex(geomid_) )
 	return false;
 
     hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
-    if ( environment || !nrLineNeighbors(rc.col) )
+    if ( environment || !nrLineNeighbors(rc.col()) )
 	hor->unSetPos( pid, true );
 
     seedlist_.erase();
     const bool res = environment ? 
-		     retrackOnActiveLine(rc.col,true,!retrack) : true;
+		     retrackOnActiveLine(rc.col(),true,!retrack) : true;
 
     surfchange_.trigger();
     return res;
@@ -339,10 +339,10 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	const EM::PosID prevpid = curpid;
 	const bool prevdefined = curdefined;
 
-	currc.col += step;
+	currc.col() += step;
 
 	// reaching end of line
-	if ( !colrg.includes(currc.col,false) )
+	if ( !colrg.includes(currc.col(),false) )
 	{
 	    if  ( seedconmode_ == TrackFromSeeds )
 		trackbounds_ += prevpid;
@@ -554,11 +554,11 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	RowCol tmprc = RowCol::fromInt64( seedlist_[idx].subID() );
-	if ( tmprc.row != hor->geometry().lineIndex(geomid_) )
+	if ( tmprc.row() != hor->geometry().lineIndex(geomid_) )
 	    return false;
 
 	rc = tmprc;
-	sortval[idx] = rc.col;
+	sortval[idx] = rc.col();
 	sortidx[idx] = idx;
     }
 
@@ -573,10 +573,10 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	
 	double totarclen = 0.0;
 	Coord prevpos = startpos;
-	rc.col = sortval[vtx];
-	while ( rc.col<sortval[vtx+1] )
+	rc.col() = sortval[vtx];
+	while ( rc.col()<sortval[vtx+1] )
 	{
-	    rc.col += colrg.step;
+	    rc.col() += colrg.step;
 	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
 	    if ( !curpos.isDefined() ) 
 		continue;
@@ -586,8 +586,8 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 
 	double arclen = 0.0;
 	prevpos = startpos;
-	rc.col = sortval[vtx] + colrg.step;
-	for ( ; rc.col<sortval[vtx+1]; rc.col += colrg.step  )
+	rc.col() = sortval[vtx] + colrg.step;
+	for ( ; rc.col()<sortval[vtx+1]; rc.col() += colrg.step  )
 	{
 	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
 	    if ( !curpos.isDefined() ) 

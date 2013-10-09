@@ -109,8 +109,8 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 	{
 	    EM::FaultGeometry& geom = fault->geometry();
 	    if ( isrowstick_
-		    ? !geom.insertCol(sectionid_,newseedrc.col,true)
-		    : !geom.insertRow(sectionid_,newseedrc.row,true))
+		    ? !geom.insertCol(sectionid_,newseedrc.col(),true)
+		    : !geom.insertRow(sectionid_,newseedrc.row(),true))
 		return false;
 	}
 
@@ -196,7 +196,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 
     if ( !isrowstick_ )
     {
-	const int inc = stickstep_.row>0 ? 1 : -1;
+	const int inc = stickstep_.row()>0 ? 1 : -1;
 	const float compz = pos.z*inc;
 	for ( int idx=0; idx<nrseeds_; idx++ )
 	{

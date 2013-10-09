@@ -303,19 +303,19 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 
 void uiTextBrowserBody::recordScrollPos()
 {
-    scrollpos_.row = horizontalScrollBar() ? horizontalScrollBar()->value()
+    scrollpos_.row() = horizontalScrollBar() ? horizontalScrollBar()->value()
 					   : mUdf(int);
-    scrollpos_.col = verticalScrollBar() ? verticalScrollBar()->value()
+    scrollpos_.col() = verticalScrollBar() ? verticalScrollBar()->value()
 					   : mUdf(int);
 }
 
 
 void uiTextBrowserBody::restoreScrollPos()
 {
-    if ( horizontalScrollBar() && !mIsUdf(scrollpos_.row) )
-	horizontalScrollBar()->setValue( scrollpos_.row );
-    if ( verticalScrollBar() && !mIsUdf(scrollpos_.col) )
-	verticalScrollBar()->setValue( scrollpos_.col );
+    if ( horizontalScrollBar() && !mIsUdf(scrollpos_.row()) )
+	horizontalScrollBar()->setValue( scrollpos_.row() );
+    if ( verticalScrollBar() && !mIsUdf(scrollpos_.col()) )
+	verticalScrollBar()->setValue( scrollpos_.col() );
 }
 
 

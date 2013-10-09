@@ -92,7 +92,7 @@ int FaultExtender::nextStep()
     TypeSet<int> linekeys;
     for ( int idx=0; idx<rcs.size(); idx++ )
     {
-	const int key = rowdir ? rcs[idx].row : rcs[idx].col;
+	const int key = rowdir ? rcs[idx].row() : rcs[idx].col();
 	if ( linekeys.indexOf(key)==-1 ) linekeys += key;
     }
 
@@ -108,8 +108,8 @@ int FaultExtender::nextStep()
 	{
 	    for ( int idy=0; idy<rcs.size(); idy++ )
 	    {
-		if ( (rowdir&&rcs[idy].row!=linekeys[idx]) ||  
-		     ( !rowdir && rcs[idy].col!=linekeys[idx]) )  
+		if ( (rowdir&&rcs[idy].row()!=linekeys[idx]) ||  
+		     ( !rowdir && rcs[idy].col()!=linekeys[idx]) )  
 		    continue;
 
 		linercs += rcs[idy];
@@ -134,7 +134,7 @@ int FaultExtender::nextStep()
 		
 		const RowCol& rc = linercs[idy];
 		const RowCol nextrc = rowdir
-		    ? RowCol(rc.row+inc,rc.col) : RowCol(rc.row, rc.col+inc );
+		    ? RowCol(rc.row()+inc,rc.col()) : RowCol(rc.row(), rc.col()+inc );
 
 		if ( surface->isKnotDefined(nextrc) )
 		{ linercs.remove(idy--); continue; }
@@ -163,8 +163,8 @@ int FaultExtender::nextStep()
 	    RowCol targetrc = rc;
 	    if ( duplicate )
 	    {
-		targetrc.row += rowdir ? inc : 0;
-		targetrc.col += rowdir ? 0 : inc;
+		targetrc.row() += rowdir ? inc : 0;
+		targetrc.col() += rowdir ? 0 : inc;
 	    }
 
 	    const Coord3 newpos = surface->getKnot(rc) +
@@ -177,7 +177,7 @@ int FaultExtender::nextStep()
 	for ( int idy=0; idy<changednodes.size(); idy++ )
 	{
 	    const RowCol rc( changednodes[idx] );
-	    const RowCol backnode(rc.row-(rowdir?inc:0), rc.col-(rowdir?0:inc));
+	    const RowCol backnode(rc.row()-(rowdir?inc:0), rc.col()-(rowdir?0:inc));
 
 	    const Coord3 backcoord = surface->getKnot(backnode);
 	    if ( !backcoord.isDefined() )
@@ -191,7 +191,7 @@ int FaultExtender::nextStep()
 	    {
 		if ( rowdir )
 		{
-		    const int newrow =  mMAX(rc.row,backnode.row);
+		    const int newrow =  mMAX(rc.row(),backnode.row());
 		    if ( !fault.geometry.insertRow(sid,newrow,true) )
 		    {
 			pErrMsg("Hue");
@@ -200,22 +200,22 @@ int FaultExtender::nextStep()
 
 		    for ( int idz=0; idz<rcs.size(); idz++ )
 		    {
-			if ( rcs[idz].row>=newrow )
-			    rcs[idz].row += rowrange.step;
+			if ( rcs[idz].row()>=newrow )
+			    rcs[idz].row() += rowrange.step;
 		    }
 
 		    for ( int idz=0; idz<changednodes.size(); idz++ )
 		    {
-			if ( changednodes[idz].row>=newrow )
-			    changednodes[idz].row += rowrange.step;
+			if ( changednodes[idz].row()>=newrow )
+			    changednodes[idz].row() += rowrange.step;
 		    }
 
 		    for ( int idz=0; idz<addedpos.size(); idz++ )
 		    {
 			RowCol addedrc( addedpos[idz] );
-			if ( addedrc.row>=newrow )
+			if ( addedrc.row()>=newrow )
 			{
-			    addedrc.row += rowrange.step;
+			    addedrc.row() += rowrange.step;
 			    addedpos[idz] = addedrc.toInt64();
 			}
 		    }
@@ -230,7 +230,7 @@ int FaultExtender::nextStep()
 		}
 		else
 		{
-		    const int newcol =  mMAX(rc.col,backnode.col);
+		    const int newcol =  mMAX(rc.col(),backnode.col());
 		    if ( !fault.geometry.insertCol(sid,newcol,true) )
 		    {
 			pErrMsg("Hue");
@@ -240,22 +240,22 @@ int FaultExtender::nextStep()
 		    // Update local rowcol lists to the inserted column	
 		    for ( int idz=0; idz<rcs.size(); idz++ )
 		    {
-			if ( rcs[idz].col>=newcol )
-			    rcs[idz].col += colrange.step;
+			if ( rcs[idz].col()>=newcol )
+			    rcs[idz].col() += colrange.step;
 		    }
 
 		    for ( int idz=0; idz<changednodes.size(); idz++ )
 		    {
-			if ( changednodes[idz].col>=newcol )
-			    changednodes[idz].col += colrange.step;
+			if ( changednodes[idz].col()>=newcol )
+			    changednodes[idz].col() += colrange.step;
 		    }
 
 		    for ( int idz=0; idz<addedpos.size(); idz++ )
 		    {
 			RowCol addedrc( addedpos[idz] );
-			if ( addedrc.col>=newcol )
+			if ( addedrc.col()>=newcol )
 			{
-			    addedrc.col += colrange.step;
+			    addedrc.col() += colrange.step;
 			    addedpos[idz] = addedrc.toInt64();
 			}
 		    }

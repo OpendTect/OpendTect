@@ -314,7 +314,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
-    const int lineidx = nodepid.getRowCol().row;
+    const int lineidx = nodepid.getRowCol().row();
     const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
     S2DPOS().setCurLineSet( geomid.lsid_ );
     BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );

@@ -25,7 +25,7 @@ PickSetEvent::PickSetEvent( Picks& picks, const Pick& oldpick,
 bool PickSetEvent::unDo()
 {
     const RowCol pos = picks_.find( bid_, newpick_.depth_ );
-    if ( pos.row<0 && pos.col<0 )
+    if ( pos.row()<0 && pos.col()<0 )
 	return false;
 
     picks_.set( pos, oldpick_, false );
@@ -37,7 +37,7 @@ bool PickSetEvent::unDo()
 bool PickSetEvent::reDo()
 {
     const RowCol pos = picks_.find( bid_, oldpick_.depth_ );
-    if ( pos.row<0 && pos.col<0 )
+    if ( pos.row()<0 && pos.col()<0 )
 	return false;
 
     picks_.set( pos, newpick_, false );
@@ -62,7 +62,7 @@ PickAddEvent::PickAddEvent( Picks& picks, const RowCol& pos )
 bool PickAddEvent::unDo()
 {
     const RowCol pos = picks_.find( newbid_, newpick_.depth_ );
-    if ( pos.row<0 && pos.col<0 )
+    if ( pos.row()<0 && pos.col()<0 )
 	return false;
 
     picks_.remove( pos, false );
@@ -94,7 +94,7 @@ PickRemoveEvent::PickRemoveEvent( Picks& picks,
 bool PickRemoveEvent::reDo()
 {
     const RowCol pos = picks_.find( oldbid_, oldpick_.depth_ );
-    if ( pos.row<0 && pos.col<0 )
+    if ( pos.row()<0 && pos.col()<0 )
 	return false;
 
     picks_.remove( pos, false );

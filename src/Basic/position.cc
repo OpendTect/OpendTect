@@ -23,23 +23,85 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 
 
-mImplRowColFunctions( BinID, inl_, crl_ );
-
-
-float BinIDValues::udf = mUdf(float);
-
-BinID::BinID( const RowCol& rc )
-    : inl_(rc.row)
-    , crl_(rc.col)
+od_int64 Pos::IdxPair::sqDistTo( const Pos::IdxPair& oth ) const
 {
+    od_int64 sqfrst = (first-oth.first); sqfrst *= sqfrst;
+    od_int64 sqsec = (second-oth.second); sqsec *= sqsec;
+    return sqfrst + sqsec;
 }
 
 
-const BinID& BinID::udf()
+const Pos::IdxPair& Pos::IdxPair::udf()
 {
-   static BinID udfbid( mUdf(IdxType), mUdf(IdxType) );
-   return udfbid;
+   static Pos::IdxPair udfpair( mUdf(IdxType), mUdf(IdxType) );
+   return udfpair;
 }
+
+
+const char* Pos::IdxPair::getUsrStr( const char* prefx, const char* sep,
+				     const char* postfx, bool only2nd ) const
+{
+    mDeclStaticString( ret );
+    if ( isUdf() )
+	ret.set( "<undef>" );
+    else
+    {
+	ret.set( prefx );
+	if ( only2nd )
+	    ret.add( second );
+	else
+	    ret.add( first ).add( sep ).add( second );
+	ret.add( postfx );
+    }
+    return ret.buf();
+}
+
+
+bool Pos::IdxPair::parseUsrStr( const char* str, const char* prefx,
+       				const char* sep, const char* postfx )
+{
+    if ( !str || !*str )
+	return false;
+    if ( *str == '<' )
+	{ *this = udf(); return true; }
+
+    BufferString bs( str );
+    char* ptr1st = bs.buf(); mSkipBlanks( ptr1st );
+    while ( *prefx && *ptr1st && *prefx == *ptr1st )
+	{ prefx++; ptr1st++; }
+    if ( !*ptr1st )
+	return false;
+
+    char* ptr2nd = strstr( ptr1st, sep );
+    if ( !ptr2nd )
+	ptr2nd = ptr1st;
+    else
+	*ptr2nd++ = '\0';
+
+    char* ptrpost = *postfx ? strstr( ptr2nd, postfx ) : 0;
+    if ( ptrpost )
+	*ptrpost = 0;
+
+    second = toInt( ptr2nd );
+    if ( ptr1st != ptr2nd )
+	first = toInt( ptr1st );
+    return true;
+}
+
+
+bool Pos::IdxPair::isNeighborTo( const Pos::IdxPair& oth,
+	const Pos::IdxPairDeltaStep& step, bool conn8 ) const
+{
+    const IdxPairDelta diff( abs(row()-oth.row()), abs(col()-oth.col()) );
+    const bool are8 = diff.row()<=step.row() && diff.col()<=step.col()
+		   && !(!diff.row() && !diff.col());
+    if ( conn8 )
+	return are8;
+
+    const IdxType res = (IdxType)(diff.row()>0) + (IdxType)(diff.col()>0);
+    return are8 && res < 2;
+}
+
 
 
 Coord Coord::normalize() const
@@ -215,8 +277,8 @@ Coord::DistType Coord3::sqDistTo( const Coord3& b ) const
 
 const Coord3& Coord3::udf()
 {
-   static Coord3 _udf( mUdf(OrdType), mUdf(OrdType), mUdf(OrdType) );
-   return _udf;
+   static Coord3 udfc3( mUdf(OrdType), mUdf(OrdType), mUdf(OrdType) );
+   return udfc3;
 }
 
 

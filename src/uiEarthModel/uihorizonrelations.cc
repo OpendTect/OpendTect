@@ -195,8 +195,8 @@ bool acceptOK( CallBacker* )
 	    arr2d = hor3d->createArray2D( emobj->sectionID(0) );
 	    BinID start( hor3d->geometry().rowRange().start,
 		    	 hor3d->geometry().colRange().start );
-	    BinID step( hor3d->geometry().step().row,
-		    	hor3d->geometry().step().col );
+	    BinID step( hor3d->geometry().step().row(),
+		    	hor3d->geometry().step().col() );
 	    outhor3d->setMultiID( outmid );
 	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
 		    start, step, arr2d, true );

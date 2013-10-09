@@ -52,9 +52,9 @@ bool TableCmd::parTableSelPre( const char* prefix, TableTag tag,
 		    break;
 
 		RowCol rc = tag<CellTag ? RowCol(idy,idx) : RowCol(idx,idy);
-		if ( rc.row>=0 && table->isRowHidden(rc.row) )
+		if ( rc.row()>=0 && table->isRowHidden(rc.row()) )
 		    continue;
-		if ( rc.col>=0 && table->isColumnHidden(rc.col) )
+		if ( rc.col()>=0 && table->isColumnHidden(rc.col()) )
 		    continue;
 
 		const BufferString itemtxt =
@@ -62,9 +62,9 @@ bool TableCmd::parTableSelPre( const char* prefix, TableTag tag,
 			   : ( tag<CellTag ? mHdrText(table,rowLabel,idy)
 					   : mHdrText(table,columnLabel,idy) );
 		if ( tag==RowTag )
-		    rc.col = -1;
+		    rc.col() = -1;
 		if ( tag==ColTag )
-		    rc.row = -1;
+		    rc.row() = -1;
 		if ( mSearchKey(itemstr).isMatching(itemtxt) )
 		{
 		    nrfound++;
@@ -97,17 +97,17 @@ bool TableCmd::parTableSelPre( const char* prefix, TableTag tag,
 
 bool TableCmd::isSelected( const uiTable* uitable, const RowCol& rc ) const
 {
-    if ( rc.row>=0 && rc.col>=0 )
+    if ( rc.row()>=0 && rc.col()>=0 )
 	return uitable->isSelected( rc );
 
     bool res = false;
-    if ( rc.row<0 && rc.col>=0 )
+    if ( rc.row()<0 && rc.col()>=0 )
     {
 	for ( int row=0; row<uitable->nrRows(); row++ )
 	{
 	    if ( uitable->isRowHidden(row) )
 	       continue;
-	    if ( !uitable->isSelected(RowCol(row,rc.col)) )
+	    if ( !uitable->isSelected(RowCol(row,rc.col())) )
 		return false;
 
 	    res = true;
@@ -115,13 +115,13 @@ bool TableCmd::isSelected( const uiTable* uitable, const RowCol& rc ) const
 	return res;
     }
 
-    if ( rc.row>=0 && rc.col<0 )
+    if ( rc.row()>=0 && rc.col()<0 )
     {
 	for ( int col=0; col<uitable->nrCols(); col++ )
 	{
 	    if ( uitable->isColumnHidden(col) )
 	       continue;
-	    if ( !uitable->isSelected(RowCol(rc.row,col)) )
+	    if ( !uitable->isSelected(RowCol(rc.row(),col)) )
 		return false;
 
 	    res = true;
@@ -154,18 +154,18 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
 
     for ( int row=0; row<uitable->nrRows(); row++ )
     {
-	if ( isSelected(uitable, RowCol(row,-1)) != (row==selrc.row) )
+	if ( isSelected(uitable, RowCol(row,-1)) != (row==selrc.row()) )
 	{
 	    for ( int col=0; col<uitable->nrCols(); col++ )
 	    {
-		if ( isSelected(uitable, RowCol(-1,col)) != (col==selrc.col) )
+		if ( isSelected(uitable, RowCol(-1,col)) != (col==selrc.col()) )
 		    return RowCol( -1, -1 );
 	    }
-	    return RowCol( -1, selrc.col );
+	    return RowCol( -1, selrc.col() );
 	}
     }
 
-    return RowCol( selrc.row, -1 );
+    return RowCol( selrc.row(), -1 );
 }
 
 
@@ -232,7 +232,7 @@ bool TableClickCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
     mActivate( Table, Activator(*uitable, rc, clicktags) );
@@ -254,9 +254,9 @@ TableActivator::TableActivator( const uiTable& uitable, const RowCol& rc,
     if ( !toggle ) \
 	acttable_.removeAllSelections(); \
     RowCol rc; \
-    for ( rc.row=lowrc.row; rc.row<=highrc.row; rc.row++ ) \
+    for ( rc.row()=lowrc.row(); rc.row()<=highrc.row(); rc.row()++ ) \
     { \
-	for ( rc.col=lowrc.col; rc.col<=highrc.col; rc.col++ ) \
+	for ( rc.col()=lowrc.col(); rc.col()<=highrc.col(); rc.col()++ ) \
 	{ \
 	    acttable_.setSelected( rc, !toggle || !acttable_.isSelected(rc) ); \
 	} \
@@ -269,33 +269,33 @@ TableActivator::TableActivator( const uiTable& uitable, const RowCol& rc,
 
 void TableActivator::actCB( CallBacker* cb )
 {
-    if ( actrc_.row<acttable_.nrRows() && actrc_.col<acttable_.nrCols() )
+    if ( actrc_.row()<acttable_.nrRows() && actrc_.col()<acttable_.nrCols() )
     {
 	bool ctrlclicked = actclicktags_.isPresent( "Ctrl" );
 
-	if ( actrc_.row==-1 && actrc_.col>=0 )
+	if ( actrc_.row()==-1 && actrc_.col()>=0 )
 	{
 	    if ( acttable_.maxNrOfSelections()>0 &&
 		 acttable_.getSelBehavior()!=uiTable::SelectRows )
 	    {
-		mSelectBlock( RowCol(0, actrc_.col),
-			      RowCol(acttable_.nrRows()-1, actrc_.col),
+		mSelectBlock( RowCol(0, actrc_.col()),
+			      RowCol(acttable_.nrRows()-1, actrc_.col()),
 			      ctrlclicked );
 	    }
-	    acttable_.columnClicked.trigger( actrc_.col );
+	    acttable_.columnClicked.trigger( actrc_.col() );
 	}
-	else if ( actrc_.row>=0 && actrc_.col==-1 )
+	else if ( actrc_.row()>=0 && actrc_.col()==-1 )
 	{
 	    if ( acttable_.maxNrOfSelections()>0 &&
 		 acttable_.getSelBehavior()!=uiTable::SelectColumns )
 	    {
-		mSelectBlock( RowCol(actrc_.row, 0),
-			      RowCol(actrc_.row, acttable_.nrCols()-1),
+		mSelectBlock( RowCol(actrc_.row(), 0),
+			      RowCol(actrc_.row(), acttable_.nrCols()-1),
 			      ctrlclicked );
 	    }
-	    acttable_.rowClicked.trigger( actrc_.row );
+	    acttable_.rowClicked.trigger( actrc_.row() );
 	}
-	else if ( actrc_.row>=0 && actrc_.col>=0 )
+	else if ( actrc_.row()>=0 && actrc_.col()>=0 )
 	{
 	    if ( acttable_.maxNrOfSelections() > 0 )
 	    {
@@ -340,10 +340,10 @@ bool TableFillCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
     
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     if ( uitable->isTableReadOnly() ||
-	 uitable->isRowReadOnly(rc.row) || uitable->isColumnReadOnly(rc.col) )
+	 uitable->isRowReadOnly(rc.row()) || uitable->isColumnReadOnly(rc.col()) )
     {
 	mWinErrStrm << "Table cell is read-only" << std::endl;
 	return false;
@@ -365,10 +365,10 @@ TableFillActivator::TableFillActivator( const uiTable& uitable,
 
 void TableFillActivator::actCB( CallBacker* cb )
 {
-    if ( actrc_.row>=0 && actrc_.row<acttable_.nrRows() && actrc_.col>=0 &&
-	 actrc_.col<acttable_.nrCols() && !acttable_.isTableReadOnly() &&
-	 !acttable_.isRowReadOnly(actrc_.row) &&
-	 !acttable_.isColumnReadOnly(actrc_.col) )
+    if ( actrc_.row()>=0 && actrc_.row()<acttable_.nrRows() && actrc_.col()>=0 &&
+	 actrc_.col()<acttable_.nrCols() && !acttable_.isTableReadOnly() &&
+	 !acttable_.isRowReadOnly(actrc_.row()) &&
+	 !acttable_.isColumnReadOnly(actrc_.col()) )
     {
 	acttable_.setText( actrc_, acttxt_ );
     }
@@ -392,7 +392,7 @@ bool TableExecCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
     
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     
     uiObject* localsearchenv = uitable->getCellObject(rc);
@@ -495,15 +495,15 @@ bool TableSelectCmd::act( const char* parstr )
 	    }
 	    else
 	    {
-		const int firstrow = tag1==ColHead ? 0 : itemrcs11[0].row;
+		const int firstrow = tag1==ColHead ? 0 : itemrcs11[0].row();
 		const int firstcol = tag2==RowHead ? 0 :
-				   ( tag2==RowTag  ? itemrcs12[0].col :
-						     itemrcs11[0].col );
+				   ( tag2==RowTag  ? itemrcs12[0].col() :
+						     itemrcs11[0].col() );
 		
-		const int lastrow = tag2==ColHead ? nrrows-1 : itemrcs21[0].row;
+		const int lastrow = tag2==ColHead ? nrrows-1 : itemrcs21[0].row();
 		const int lastcol = tag2==RowHead ? nrcols-1 :
-				  ( tag2==RowTag  ? itemrcs22[0].col :
-						    itemrcs21[0].col );
+				  ( tag2==RowTag  ? itemrcs22[0].col() :
+						    itemrcs21[0].col() );
 				  
 		if ( firstrow <= lastrow )
 		    specified = row>=firstrow && row<=lastrow;
@@ -599,13 +599,13 @@ void TableSelectActivator::actCB( CallBacker* cb )
 	int idx = 0;
 	while ( idx < actselset_.size() )
 	{
-	    if ( actselset_[idx].col < 0 )
+	    if ( actselset_[idx].col() < 0 )
 	    {
-		for ( int row=actselset_[idx].row;
-		      row<=actselset_[idx+1].row;
-		      row-=actselset_[idx].col )
+		for ( int row=actselset_[idx].row();
+		      row<=actselset_[idx+1].row();
+		      row-=actselset_[idx].col() )
 		{
-		    RowCol rc( row, actselset_[idx+1].col );
+		    RowCol rc( row, actselset_[idx+1].col() );
 		    acttable_.setSelected( rc, true );
 		}
 		idx++;
@@ -642,7 +642,7 @@ bool TableMenuCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
     
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     
     prepareIntercept( menupath, onoff );
@@ -650,7 +650,7 @@ bool TableMenuCmd::act( const char* parstr )
     mActivate( Table, Activator(*uitable, rc, clicktags) );
     
     BufferString objnm = "Table cell ("; 
-    objnm += rc.row+1; objnm += ","; objnm += rc.col+1; objnm += ")";
+    objnm += rc.row()+1; objnm += ","; objnm += rc.col()+1; objnm += ")";
     return didInterceptSucceed( objnm );
 }
 
@@ -726,7 +726,7 @@ bool IsTableItemOnCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     const int ison = uitable->maxNrOfSelections()<=0  ? -1 :
 		     isSelected(uitable, rc) ? 1 : 0;
@@ -750,12 +750,12 @@ bool CurTableRowCmd::act( const char* parstr )
 
     const RowCol rc = framed ? uitable->currentCell() : singleSelected(uitable);
 
-    const BufferString text = uitable->isLeftHeaderHidden() || rc.row<0 ? "" :
-			      mHdrText( uitable, rowLabel, rc.row );
+    const BufferString text = uitable->isLeftHeaderHidden() || rc.row()<0 ? "" :
+			      mHdrText( uitable, rowLabel, rc.row() );
 
-    const Color color = uitable->getHeaderBackground( rc.col, true );
-    mGetColorString( color, rc.col>=0, colorstr );
-    mParForm( answer, form, text, countRows(uitable,rc.row) );
+    const Color color = uitable->getHeaderBackground( rc.col(), true );
+    mGetColorString( color, rc.col()>=0, colorstr );
+    mParForm( answer, form, text, countRows(uitable,rc.row()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
     return true;
@@ -776,12 +776,12 @@ bool CurTableColCmd::act( const char* parstr )
 
     const RowCol rc = framed ? uitable->currentCell() : singleSelected(uitable);
 
-    const BufferString text = uitable->isTopHeaderHidden() || rc.col<0 ? "" :
-			      mHdrText( uitable, columnLabel, rc.col );
+    const BufferString text = uitable->isTopHeaderHidden() || rc.col()<0 ? "" :
+			      mHdrText( uitable, columnLabel, rc.col() );
 
-    const Color color = uitable->getHeaderBackground( rc.col, false );
-    mGetColorString( color, rc.col>=0, colorstr );
-    mParForm( answer, form, text, countCols(uitable,rc.col) );
+    const Color color = uitable->getHeaderBackground( rc.col(), false );
+    mGetColorString( color, rc.col()>=0, colorstr );
+    mParForm( answer, form, text, countCols(uitable,rc.col()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
     return true;
@@ -790,8 +790,8 @@ bool CurTableColCmd::act( const char* parstr )
 
 #define mGetTableItemNr( uitable, rc, itemnr ) \
 \
-    const int rownr = countRows( uitable, rc.row ); \
-    const int colnr = countCols( uitable, rc.col ); \
+    const int rownr = countRows( uitable, rc.row() ); \
+    const int colnr = countCols( uitable, rc.col() ); \
     const int itemnr = (!rownr || !colnr) ? 0 : \
 		       (rownr-1) * countCols(uitable) + colnr; 
 
@@ -808,12 +808,12 @@ bool CurTableItemCmd::act( const char* parstr )
     mDynamicCastGet( const uiTable*, uitable, objsfound[0] );
 
     RowCol selrc = singleSelected( uitable );
-    if ( selrc.row<0 || selrc.col<0 )
+    if ( selrc.row()<0 || selrc.col()<0 )
 	selrc = RowCol( -1, -1 );
 
     const RowCol rc = framed ? uitable->currentCell() : selrc;
     mGetTableItemNr( uitable, rc, itemnr );
-    mGetColorString( uitable->getColor(rc), rc.col>=0, colorstr );
+    mGetColorString( uitable->getColor(rc), rc.col()>=0, colorstr );
     mParForm( answer, form, uitable->text(rc), itemnr );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -841,14 +841,14 @@ bool GetTableRowCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
-    const BufferString text = uitable->isLeftHeaderHidden() || rc.row<0 ? "" :
-			      mHdrText( uitable, rowLabel, rc.row );
+    const BufferString text = uitable->isLeftHeaderHidden() || rc.row()<0 ? "" :
+			      mHdrText( uitable, rowLabel, rc.row() );
 
-    mGetColorString(uitable->getHeaderBackground(rc.col,true), true, colorstr);
-    mParForm( answer, form, text, countRows(uitable,rc.row) );
+    mGetColorString(uitable->getHeaderBackground(rc.col(),true), true, colorstr);
+    mParForm( answer, form, text, countRows(uitable,rc.row()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
     return true;
@@ -875,14 +875,14 @@ bool GetTableColCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
-    const BufferString text = uitable->isTopHeaderHidden() || rc.col<0 ? "" :
-			      mHdrText( uitable, columnLabel, rc.col );
+    const BufferString text = uitable->isTopHeaderHidden() || rc.col()<0 ? "" :
+			      mHdrText( uitable, columnLabel, rc.col() );
 
-    mGetColorString(uitable->getHeaderBackground(rc.col,false), true, colorstr);
-    mParForm( answer, form, text, countRows(uitable,rc.col) );
+    mGetColorString(uitable->getHeaderBackground(rc.col(),false), true, colorstr);
+    mParForm( answer, form, text, countRows(uitable,rc.col()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
     return true;
@@ -909,7 +909,7 @@ bool GetTableItemCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
     mGetTableItemNr( uitable, rc, itemnr );
@@ -929,7 +929,7 @@ bool GetTableItemCmd::act( const char* parstr )
     prepareIntercept( menupath, 0, mode ); \
     mActivate( Table, Activator(*uitable, rc, clicktags) ); \
     BufferString objnm = "Table cell ("; \
-    objnm += rc.row+1; objnm += ","; objnm += rc.col+1; objnm += ")"; \
+    objnm += rc.row()+1; objnm += ","; objnm += rc.col()+1; objnm += ")"; \
     if ( !didInterceptSucceed(objnm) ) \
 	return false;
 
@@ -953,7 +953,7 @@ bool NrTableMenuItemsCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
     mInterceptTableMenu( menupath, true, uitable, rc );
@@ -982,7 +982,7 @@ bool IsTableMenuItemOnCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
     mInterceptTableMenu( menupath, false, uitable, rc );
@@ -1012,7 +1012,7 @@ bool GetTableMenuItemCmd::act( const char* parstr )
     mParTableSelPre( "", tag, uitable, itemstr1, itemnr1, itemrcs1, true );
     mParTableSelPre( "", ColTag, uitable, itemstr2, itemnr2, itemrcs2, true );
 
-    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row,itemrcs2[0].col)
+    const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
 
     mInterceptTableMenu( menupath, false, uitable, rc );
@@ -1032,24 +1032,24 @@ bool TableState::headInsert( const RowCol& rc )
     else
     {
 	int step = 0;
-	int col = set_[0].col;
+	int col = set_[0].col();
 	if ( col < 0 )
 	{
 	    if ( set_.size() < 2 )
 		return false;
 
 	    step = -col;
-	    col = set_[1].col;
+	    col = set_[1].col();
 	}
-	if ( rc.col>col || (rc.col==col && rc.row>=set_[0].row) )
+	if ( rc.col()>col || (rc.col()==col && rc.row()>=set_[0].row()) )
 	    return false;
 
-	if ( rc.col != col )
+	if ( rc.col() != col )
 	    set_.insert( 0, rc );
 	else if ( !step )
-	    set_.insert( 0, RowCol(rc.row, rc.row-set_[0].row) );
-	else if ( rc.row+step == set_[0].row )
-	    set_[0].row = rc.row;
+	    set_.insert( 0, RowCol(rc.row(), rc.row()-set_[0].row()) );
+	else if ( rc.row()+step == set_[0].row() )
+	    set_[0].row() = rc.row();
 	else
 	    set_.insert( 0, rc );
     }
@@ -1063,17 +1063,17 @@ int TableState::remove( const RowCol& rc, int startidx )
 
     if ( idx >= 0 ) 
     {
-	if ( set_[idx].col < 0 )
+	if ( set_[idx].col() < 0 )
 	{
-	    const int step = -set_[idx].col;
-	    if ( rc.row+step < set_[idx+1].row )
-		set_.insert( idx+1, RowCol(rc.row+step, -step) );
-	    else if ( rc.row+step > set_[idx+1].row )
+	    const int step = -set_[idx].col();
+	    if ( rc.row()+step < set_[idx+1].row() )
+		set_.insert( idx+1, RowCol(rc.row()+step, -step) );
+	    else if ( rc.row()+step > set_[idx+1].row() )
 		set_.removeSingle( idx+1 );
 
-	    if ( rc.row-step >= set_[idx].row )
-		set_.insert( idx+1, RowCol(rc.row-step, rc.col) );
-	    if ( rc.row-step <= set_[idx].row )
+	    if ( rc.row()-step >= set_[idx].row() )
+		set_.insert( idx+1, RowCol(rc.row()-step, rc.col()) );
+	    if ( rc.row()-step <= set_[idx].row() )
 		set_.removeSingle( idx );
 	}
 	else 
@@ -1090,8 +1090,8 @@ int TableState::indexOf( const RowCol& rc, int startidx ) const
     for ( int idx=(startidx<0 ? 0 : startidx); idx<sz; idx++ )
     {
 	int step = 1;
-	int col = set_[idx].col;
-	const int row0 = set_[idx].row;
+	int col = set_[idx].col();
+	const int row0 = set_[idx].row();
 	int row1 = row0;
 	const int res = idx;
 
@@ -1102,13 +1102,13 @@ int TableState::indexOf( const RowCol& rc, int startidx ) const
 		return -1;
 
 	    step = -col;
-	    col = set_[idx].col;
-	    row1 = set_[idx].row;
+	    col = set_[idx].col();
+	    row1 = set_[idx].row();
 	}
-	if ( rc.col<col || (rc.col==col && rc.row<row0) )
+	if ( rc.col()<col || (rc.col()==col && rc.row()<row0) )
 	    return -1;
 
-	if ( rc.col==col && rc.row<=row1 && (rc.row-row0)%step==0 )
+	if ( rc.col()==col && rc.row()<=row1 && (rc.row()-row0)%step==0 )
 	    return res;
     }
     return -1;
@@ -1122,14 +1122,14 @@ int TableState::indexOf( const RowCol& rc, int startidx ) const
 \
     int startidx = 0; \
     RowCol rc; \
-    for ( rc.col=0; rc.col<table_->nrCols(); rc.col++ ) \
+    for ( rc.col()=0; rc.col()<table_->nrCols(); rc.col()++ ) \
     { \
-	if ( table_->isColumnHidden(rc.col) ) \
+	if ( table_->isColumnHidden(rc.col()) ) \
 	    continue; \
 \
-	for ( rc.row=0; rc.row<table_->nrRows(); rc.row++ ) \
+	for ( rc.row()=0; rc.row()<table_->nrRows(); rc.row()++ ) \
 	{ \
-	    if ( table_->isRowHidden(rc.row) ) \
+	    if ( table_->isRowHidden(rc.row()) ) \
 		continue; \
 \
 	    const int idx = indexOf( rc, startidx ); \
@@ -1147,8 +1147,8 @@ bool TableState::equalToCurItemSel() const
 mBodyTableStateEqualTo( table_->isSelected(rc) )
 
 #define mIsCellMatch( rc1, rc2 ) \
-    ( (rc1.row==-1 || rc2.row==-1 || rc1.row==rc2.row) && \
-      (rc1.col==-1 || rc2.col==-1 || rc1.col==rc2.col) )
+    ( (rc1.row()==-1 || rc2.row()==-1 || rc1.row()==rc2.row()) && \
+      (rc1.col()==-1 || rc2.col()==-1 || rc1.col()==rc2.col()) )
 
 bool TableState::equalToClickedItem( const RowCol& clickedrc ) const
 mBodyTableStateEqualTo( mIsCellMatch(clickedrc, rc) )
@@ -1161,9 +1161,9 @@ mBodyTableStateEqualTo( mIsCellMatch(clickedrc, rc) )
 \
     clear(); \
     RowCol rc; \
-    for ( rc.col=table_->nrCols()-1; rc.col>=0; rc.col-- ) \
+    for ( rc.col()=table_->nrCols()-1; rc.col()>=0; rc.col()-- ) \
     { \
-	for ( rc.row=table_->nrRows()-1; rc.row>=0; rc.row-- ) \
+	for ( rc.row()=table_->nrRows()-1; rc.row()>=0; rc.row()-- ) \
 	{ \
 	    if ( selcondition ) \
 		headInsert( rc ); \
@@ -1230,11 +1230,11 @@ mBodyStoreTableState( true )
 
 #define mGetTopHeaderItemSel( uitable, curitemrc, curitemsel, casedep ) \
     mGetHeaderItemSel( uitable, isTopHeaderHidden, nrCols, columnLabel, \
-		       isColumnHidden, curitemrc.col, curitemsel, casedep )
+		       isColumnHidden, curitemrc.col(), curitemsel, casedep )
 
 #define mGetLeftHeaderItemSel( uitable, curitemrc, curitemsel, casedep ) \
     mGetHeaderItemSel( uitable, isLeftHeaderHidden, nrRows, rowLabel, \
-		       isRowHidden, curitemrc.row, curitemsel, casedep )
+		       isRowHidden, curitemrc.row(), curitemsel, casedep )
 
 
 void TableCmdComposer::init()
@@ -1336,19 +1336,19 @@ void TableCmdComposer::writeTableSelect()
 
 #define mInitStatesInLoop( oldstate, curstate, rc ) \
 \
-    if ( uitable->isRowHidden(rc.row) || uitable->isColumnHidden(rc.col) ) \
+    if ( uitable->isRowHidden(rc.row()) || uitable->isColumnHidden(rc.col()) ) \
 	continue; \
 \
     const int oldstate = differential ? mIsSet(wasselected,rc) : 0; \
 \
     int curstate = oldstate; \
-    if ( rc.row==uitable->nrRows() || accessible.indexOf(rc)<0 ) \
+    if ( rc.row()==uitable->nrRows() || accessible.indexOf(rc)<0 ) \
 	curstate = mUdf(int); \
     else if ( !mIsCellMatch(clickedrc_, rc) ) \
 	curstate = mIsSet( isselected, rc ); \
     else if ( !mIsSet(isselected, rc) ) \
 	curstate = 1; \
-    else if ( leftclicked_ || clickedrc_.row==-1 || clickedrc_.col==-1 ) \
+    else if ( leftclicked_ || clickedrc_.row()==-1 || clickedrc_.col()==-1 ) \
 	curstate = 0; \
     else if ( !mIsUdf(firstrow) ) \
 	curstate = blockstate; \
@@ -1366,25 +1366,25 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
     int nrtableselects = 0;
 
     RowCol rc0;
-    for ( rc0.col=0; rc0.col<uitable->nrCols(); rc0.col++ )
+    for ( rc0.col()=0; rc0.col()<uitable->nrCols(); rc0.col()++ )
     {
 	int topmargin = 0;
 	int firstrow = mUdf(int);
 	int lastrow = -1;
 	int blockstate = -1;
 
-	for ( rc0.row=0; rc0.row<=uitable->nrRows(); rc0.row++ )
+	for ( rc0.row()=0; rc0.row()<=uitable->nrRows(); rc0.row()++ )
 	{
 	    mInitStatesInLoop( oldstate0, curstate0, rc0 );
 
 	    if ( mIsUdf(firstrow) )
 	    {
 		if ( mIsUdf(curstate0) )
-		    topmargin = rc0.row+1;
+		    topmargin = rc0.row()+1;
 		else if ( curstate0 != oldstate0 )
 		{
-		    firstrow = rc0.row;
-		    lastrow = rc0.row;
+		    firstrow = rc0.row();
+		    lastrow = rc0.row();
 		    blockstate = curstate0;
 		}
 		continue;
@@ -1393,22 +1393,22 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 	    if ( curstate0 == blockstate )
 	    {
 		if ( curstate0 != oldstate0 )
-		    lastrow = rc0.row;
+		    lastrow = rc0.row();
 
 		continue;
 	    }
 
-	    rc0.row--;
+	    rc0.row()--;
 
-	    int bottommargin = rc0.row;
-	    int lastcol = rc0.col;
+	    int bottommargin = rc0.row();
+	    int lastcol = rc0.col();
 
 	    RowCol rc1;
-	    for ( rc1.col=rc0.col+1; rc1.col<uitable->nrCols(); rc1.col++ )
+	    for ( rc1.col()=rc0.col()+1; rc1.col()<uitable->nrCols(); rc1.col()++ )
 	    {
 		bool excludecurcol = false;
 		bool includecurcol = false;
-		for ( rc1.row=firstrow; rc1.row<=lastrow; rc1.row++ )
+		for ( rc1.row()=firstrow; rc1.row()<=lastrow; rc1.row()++ )
 		{
 		    mInitStatesInLoop( oldstate1, curstate1, rc1 );
 		    if ( curstate1 != blockstate  )
@@ -1419,38 +1419,38 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 		if ( excludecurcol )
 		    break;
 		if ( includecurcol )
-		    lastcol = rc1.col;
+		    lastcol = rc1.col();
 
-		for ( rc1.row=lastrow+1; rc1.row<=bottommargin; rc1.row++ )
+		for ( rc1.row()=lastrow+1; rc1.row()<=bottommargin; rc1.row()++ )
 		{
 		    mInitStatesInLoop( oldstate1, curstate1, rc1 );
 		    if ( curstate1 != blockstate  )
 		    {
-			bottommargin = rc1.row-1;
+			bottommargin = rc1.row()-1;
 			break;
 		    }
 		    if ( curstate1 != oldstate1 )
-			lastrow = rc1.row;
+			lastrow = rc1.row();
 		}
 
-		for ( rc1.row=firstrow-1; rc1.row>=topmargin; rc1.row-- )
+		for ( rc1.row()=firstrow-1; rc1.row()>=topmargin; rc1.row()-- )
 		{
 		    mInitStatesInLoop( oldstate1, curstate1, rc1 );
 		    if ( curstate1 != blockstate  )
 		    {
-			topmargin = rc1.row+1;
+			topmargin = rc1.row()+1;
 			break;
 		    }
 		    if ( curstate1 != oldstate1 )
-			firstrow = rc1.row;
+			firstrow = rc1.row();
 		}
 
 	    }
 
 	    int startidx = 0;
-	    for ( rc1.col=rc0.col+1; rc1.col<=lastcol; rc1.col++ )
+	    for ( rc1.col()=rc0.col()+1; rc1.col()<=lastcol; rc1.col()++ )
 	    {
-		for ( rc1.row=firstrow; rc1.row<=lastrow; rc1.row++ )
+		for ( rc1.row()=firstrow; rc1.row()<=lastrow; rc1.row()++ )
 		{
 		    startidx = accessible.remove( rc1, startidx );
 		}
@@ -1469,11 +1469,11 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 
 		const bool colhead = allormultiplerows && topmargin==0 &&
 				     bottommargin==uitable->nrRows()-1;
-		const bool rowhead = !colhead && rc0.col==firstviscolidx &&
+		const bool rowhead = !colhead && rc0.col()==firstviscolidx &&
 				     lastcol==lastviscolidx;
 
 		const RowCol firstrc( colhead ? -1 : firstrow,
-				      rowhead ? -1 : rc0.col  );
+				      rowhead ? -1 : rc0.col()  );
 		const RowCol lastrc(  colhead ? -1 : lastrow,
 		       		      rowhead ? -1 : lastcol  );
 
@@ -1492,9 +1492,9 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 
 #define mHeaderCheck( rc, rowsel, colsel ) \
 \
-    if ( rc.row == -1 ) \
+    if ( rc.row() == -1 ) \
 	rowsel = " ColHead"; \
-    else if ( rc.col == -1 ) \
+    else if ( rc.col() == -1 ) \
     { \
 	colsel = rowsel; \
 	rowsel = " RowHead"; \
@@ -1516,7 +1516,7 @@ void TableCmdComposer::writeTableSelect( const RowCol& firstrc,
     BufferString itemrg = rowsel1; itemrg += colsel1;
     if ( firstrc != lastrc )
     {
-	if ( lastrc.row>=0 && lastrc.col>=0 )
+	if ( lastrc.row()>=0 && lastrc.col()>=0 )
 	    itemrg += rowsel2;
 
 	itemrg += colsel2; 
@@ -1552,7 +1552,7 @@ void TableCmdComposer::writeTableFill()
     BufferString mousetag = " "; \
     if ( ctrlclicked_ ) \
 	mousetag += "Ctrl"; \
-    if ( clickedrc_.row>=0 && clickedrc_.col>=0 ) \
+    if ( clickedrc_.row()>=0 && clickedrc_.col()>=0 ) \
     { \
 	if ( stagenr_==3 || stagenr_==4 ) \
 	    mousetag += "Double"; \
@@ -1625,8 +1625,8 @@ bool TableCmdComposer::accept( const CmdRecEvent& ev )
 	    return true;
 
 	const char* msgnext = getNextWord( ev.msg_, notifiername.buf() );
-	cellrc.row = strtol( msgnext, &msgnexxt, 0 );
-	cellrc.col = strtol( msgnexxt, &msgnexxxt, 0 );
+	cellrc.row() = strtol( msgnext, &msgnexxt, 0 );
+	cellrc.col() = strtol( msgnexxt, &msgnexxxt, 0 );
 
 	const bool notienter = mMatchCI(notifiername, "cellEntered") ||
 			       mMatchCI(notifiername, "cellPressed") ||

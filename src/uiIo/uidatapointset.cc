@@ -483,8 +483,8 @@ void uiDataPointSet::fillPos( TRowID tid )
     const DRowID drid = dRowID(tid);
     const DataPointSet::Pos pos( dps_.pos(drid) );
     RowCol rc( tid, 0 );
-    tbl_->setValue( rc, mGetHPosVal(-cNrPosCols,drid) ); rc.col++;
-    tbl_->setValue( rc, mGetHPosVal(-cNrPosCols+1,drid) ); rc.col++;
+    tbl_->setValue( rc, mGetHPosVal(-cNrPosCols,drid) ); rc.col()++;
+    tbl_->setValue( rc, mGetHPosVal(-cNrPosCols+1,drid) ); rc.col()++;
     if ( mIsUdf(pos.z_) )
 	tbl_->setText( rc, "" );
     else
@@ -512,7 +512,7 @@ void uiDataPointSet::fillData( TRowID tid )
     const DRowID drid = dRowID(tid);
     fillingtable_ = true;
     for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
-	{ tbl_->setValue( rc, getVal(dcid,drid,true) ); rc.col++; }
+	{ tbl_->setValue( rc, getVal(dcid,drid,true) ); rc.col()++; }
     fillingtable_ = false;
 }
 
@@ -776,7 +776,7 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	}
     }
     else
-	tbl_->removeRow( tbl_->newCell().row );
+	tbl_->removeRow( tbl_->newCell().row() );
 }
 
 
@@ -889,7 +889,7 @@ void uiDataPointSet::setCurrent( uiDataPointSet::DColID dcid,
 				 uiDataPointSet::DRowID drid )
 {
     RowCol rc( tRowID(drid), tColID(dcid) );
-    if ( rc.col >= 0 && rc.row >= 0 )
+    if ( rc.col() >= 0 && rc.row() >= 0 )
 	tbl_->setCurrentCell( rc );
 }
 
@@ -1096,17 +1096,17 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 }
 
 
-#define mRetErr fillPos( cell.row ); return
+#define mRetErr fillPos( cell.row() ); return
 
 void uiDataPointSet::valChg( CallBacker* )
 {
     if ( fillingtable_ ) return;
 
     const RowCol& cell = tbl_->notifiedCell();
-    if ( cell.row < 0 || cell.col < 0 ) return;
+    if ( cell.row() < 0 || cell.col() < 0 ) return;
 
-    const DColID dcid( dColID(cell.col) );
-    const DRowID drid( dRowID(cell.row) );
+    const DColID dcid( dColID(cell.col()) );
+    const DRowID drid( dRowID(cell.row()) );
 
     afterchgdr_ = beforechgdr_ = dps_.dataRow( drid );
     bool poschgd = false;
@@ -1159,7 +1159,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	rowRemoved.trigger( drid );
     }
 
-    bool setchg = dps_.setRow( afterchgdr_ ) || cell.col == sortcol_;
+    bool setchg = dps_.setRow( afterchgdr_ ) || cell.col() == sortcol_;
     if ( setchg )
     {
 	dps_.dataChanged(); redoAll();

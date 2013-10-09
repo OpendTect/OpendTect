@@ -233,7 +233,7 @@ int lmkEMFault3DReader::nextStep()
     }
     pos.z *= zfac;
 
-    RowCol newnode( lastnode.row, lastnode.col+1 );
+    RowCol newnode( lastnode.row(), lastnode.col()+1 );
     if ( pt==mLMK_START_PT && lastpt!=-1 && lastpt!=mLMK_END_PT )
 	return ErrorOccurred();
 
@@ -242,8 +242,8 @@ int lmkEMFault3DReader::nextStep()
 	if ( pt!=mLMK_START_PT )
 	    return ErrorOccurred();
 
-	newnode.row++; newnode.col = 0;
-	fault.geometry().insertStick( 0, newnode.row, newnode.col, pos,
+	newnode.row()++; newnode.col() = 0;
+	fault.geometry().insertStick( 0, newnode.row(), newnode.col(), pos,
 			Coord3(0,1,0), false );
     }
     else

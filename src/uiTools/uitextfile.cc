@@ -83,18 +83,18 @@ void finish()
 const char* putRow( const BufferStringSet& bss )
 {
     RowCol rc( tbl_->nrRows(), 0 );
-    tbl_->insertRows( rc.row, 1 );
+    tbl_->insertRows( rc.row(), 1 );
     if ( bss.size() >= tbl_->nrCols() )
 	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
 
-    for ( ; rc.col<bss.size(); rc.col++ )
-	tbl_->setText( rc, bss.get(rc.col) );
+    for ( ; rc.col()<bss.size(); rc.col()++ )
+	tbl_->setText( rc, bss.get(rc.col()) );
 
     nrlines_++;
     if ( nrlines_ >= maxlines_ )
     {
-	rc.row++; rc.col = 0;
-	tbl_->insertRows( rc.row, 1 );
+	rc.row()++; rc.col() = 0;
+	tbl_->insertRows( rc.row(), 1 );
 	tbl_->setText( rc, "[...]" );
 	return "";
     }
@@ -213,17 +213,17 @@ const char* uiTextFile::text() const
     static BufferString ret; ret = "";
     BufferString linetxt;
     const int nrrows = tbl_->nrRows(); const int nrcols = tbl_->nrCols();
-    for ( RowCol rc(0,0); rc.row<nrrows; rc.row++ )
+    for ( RowCol rc(0,0); rc.row()<nrrows; rc.row()++ )
     {
 	linetxt = "";
-	for ( rc.col=0; rc.col<nrcols; rc.col++ )
+	for ( rc.col()=0; rc.col()<nrcols; rc.col()++ )
 	{
 	    const char* celltxt = tbl_->text( rc );
 	    if ( !*celltxt ) break;
-	    if ( rc.col ) linetxt += " ";
+	    if ( rc.col() ) linetxt += " ";
 	    linetxt += celltxt;
 	}
-	if ( rc.row != nrrows-1 ) linetxt += "\n";
+	if ( rc.row() != nrrows-1 ) linetxt += "\n";
 	ret += linetxt;
     }
 

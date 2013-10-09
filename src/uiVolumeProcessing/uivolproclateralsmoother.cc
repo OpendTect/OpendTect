@@ -38,13 +38,13 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
     if ( pars )
-	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row );
+	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
 
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line stepout", 0,
 	    			       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
     if ( pars )
-	crllenfld_->box()->setValue( step.crl()*pars->stepout_.col );
+	crllenfld_->box()->setValue( step.crl()*pars->stepout_.col() );
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
     replaceudfsfld_ = new uiGenInput( stepoutgroup,
@@ -117,8 +117,8 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	? 1
 	: mUdf(float);
 
-    pars.stepout_.row = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
-    pars.stepout_.col = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
+    pars.stepout_.row() = mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
+    pars.stepout_.col() = mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
     pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );

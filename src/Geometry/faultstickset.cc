@@ -125,8 +125,8 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
     if ( !pos.isDefined() )
 	return false;
 
-    mGetValidStickIdx( stickidx, rc.row, 0, false );
-    mGetValidKnotIdx( knotidx, rc.col, stickidx, 1, false );
+    mGetValidStickIdx( stickidx, rc.row(), 0, false );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 1, false );
     if ( knotidx==-1 )
     {
 	firstcols_[stickidx]--;
@@ -146,11 +146,11 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
 
 bool FaultStickSet::removeKnot( const RowCol& rc )
 {
-    mGetValidStickIdx( stickidx, rc.row, 0, false );
-    mGetValidKnotIdx( knotidx, rc.col, stickidx, 0, false );
+    mGetValidStickIdx( stickidx, rc.row(), 0, false );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
     if ( sticks_[stickidx]->size() <= 1 )
-	return removeStick( rc.row );
+	return removeStick( rc.row() );
 
     sticks_[stickidx]->removeSingle( knotidx );
 
@@ -208,8 +208,8 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
 	return removeKnot( rc );
     }
 
-    mGetValidStickIdx( stickidx, rc.row, 0, false );
-    mGetValidKnotIdx( knotidx, rc.col, stickidx, 0, false );
+    mGetValidStickIdx( stickidx, rc.row(), 0, false );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
     triggerMovement( RowCol(stickidx,StickChange).toInt64() );
@@ -219,8 +219,8 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
 
 Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
 {
-    mGetValidStickIdx( stickidx, rc.row, 0, Coord3::udf() );
-    mGetValidKnotIdx( knotidx, rc.col, stickidx, 0, Coord3::udf() );
+    mGetValidStickIdx( stickidx, rc.row(), 0, Coord3::udf() );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, Coord3::udf() );
     
     return (*sticks_[stickidx])[knotidx];
 }
@@ -228,8 +228,8 @@ Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
 
 bool FaultStickSet::isKnotDefined( const RowCol& rc ) const
 {
-    mGetValidStickIdx( stickidx, rc.row, 0, false );
-    mGetValidKnotIdx( knotidx, rc.col, stickidx, 0, false );
+    mGetValidStickIdx( stickidx, rc.row(), 0, false );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
     return true;
 }

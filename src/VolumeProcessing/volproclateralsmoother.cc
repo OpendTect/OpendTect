@@ -149,15 +149,15 @@ bool processKernel( int start, int stop, int thread )
 {
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     const int ksz0 =
-	fft->getFastSize( 2*pars_.stepout_.row+i0samples_.width()+1 );
+	fft->getFastSize( 2*pars_.stepout_.row()+i0samples_.width()+1 );
     const int ksz1 =
-	fft->getFastSize( 2*pars_.stepout_.col+i1samples_.width()+1 );
+	fft->getFastSize( 2*pars_.stepout_.col()+i1samples_.width()+1 );
 
     Smoother2D<float> smoother;
     smoother.setWindow( mIsUdf(pars_.rowdist_)
 		? BoxWindow::sName()
 		: HanningWindow::sName(),
-	    mUdf(float), pars_.stepout_.row*2+1, pars_.stepout_.col*2+1 );
+	    mUdf(float), pars_.stepout_.row()*2+1, pars_.stepout_.col()*2+1 );
 
     Array2DImpl<float> slice( ksz0, ksz1 );
     if ( !slice.isOK() )
@@ -336,10 +336,10 @@ LateralSmoother::~LateralSmoother()
 HorSampling LateralSmoother::getInputHRg( const HorSampling& hrg ) const
 {
     HorSampling res = hrg;
-    res.start.inl() = hrg.start.inl() - res.step.inl() * pars_.stepout_.row;
-    res.start.crl() = hrg.start.crl() - res.step.crl() * pars_.stepout_.col;
-    res.stop.inl() = hrg.stop.inl() + res.step.inl() * pars_.stepout_.row;
-    res.stop.crl() = hrg.stop.crl() + res.step.crl() * pars_.stepout_.col;
+    res.start.inl() = hrg.start.inl() - res.step.inl() * pars_.stepout_.row();
+    res.start.crl() = hrg.start.crl() - res.step.crl() * pars_.stepout_.col();
+    res.stop.inl() = hrg.stop.inl() + res.step.inl() * pars_.stepout_.row();
+    res.stop.crl() = hrg.stop.crl() + res.step.crl() * pars_.stepout_.col();
     return res;
 }
 
@@ -357,8 +357,8 @@ void LateralSmoother::fillPar( IOPar& pars ) const
     pars.setYN( sKeyIsMedian(), pars_.type_==Stats::Median );
     pars.setYN( sKeyIsWeighted(),
 	    pars_.type_!=Stats::Median && !mIsUdf(pars_.rowdist_) );
-    pars.set( sKey::StepOutInl(), pars_.stepout_.row );
-    pars.set( sKey::StepOutCrl(), pars_.stepout_.col );
+    pars.set( sKey::StepOutInl(), pars_.stepout_.row() );
+    pars.set( sKey::StepOutCrl(), pars_.stepout_.col() );
 }
 
 
@@ -373,8 +373,8 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
     bool ismedian, isweighted;
     if ( !pars.getYN( sKeyIsMedian(), ismedian ) || 
-	 !pars.get( sKey::StepOutInl(), pars_.stepout_.row ) ||
-	 !pars.get( sKey::StepOutCrl(), pars_.stepout_.col ) ||
+	 !pars.get( sKey::StepOutInl(), pars_.stepout_.row() ) ||
+	 !pars.get( sKey::StepOutCrl(), pars_.stepout_.col() ) ||
 	 !pars.getYN( sKeyIsWeighted(), isweighted ) )
     {
 	return false;

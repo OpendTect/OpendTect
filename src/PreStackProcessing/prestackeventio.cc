@@ -616,10 +616,10 @@ int EventWriter::nextStep()
 	for ( int idx=0; idx<rcols.size(); idx++ )
 	{
 	    const RowCol& rc( rcols[idx] );
-	    hrg.start.inl() = inlsampling.atIndex( rc.row );
-	    hrg.stop.inl() = inlsampling.atIndex( rc.row+1 ) - hrg.step.inl();
-	    hrg.start.crl() = crlsampling.atIndex( rc.col );
-	    hrg.stop.crl() = crlsampling.atIndex( rc.col+1 ) - hrg.step.crl();
+	    hrg.start.inl() = inlsampling.atIndex( rc.row() );
+	    hrg.stop.inl() = inlsampling.atIndex( rc.row()+1 ) - hrg.step.inl();
+	    hrg.start.crl() = crlsampling.atIndex( rc.col() );
+	    hrg.stop.crl() = crlsampling.atIndex( rc.col()+1 ) - hrg.step.crl();
 
 	    SeparString filenamebase( 0, '_' );
 	    filenamebase += hrg.start.inl();

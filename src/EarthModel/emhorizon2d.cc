@@ -331,9 +331,9 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     {
 	const SectionID sid = aliases[idx].sectionID();
 	const RowCol ownrc = aliases[idx].getRowCol();
-	const int colstep = colRange( sid, ownrc.row ).step;
-	const RowCol neighborrc( ownrc.row,
-		nextcol ? ownrc.col+colstep : ownrc.col-colstep );
+	const int colstep = colRange( sid, ownrc.row() ).step;
+	const RowCol neighborrc( ownrc.row(),
+		nextcol ? ownrc.col()+colstep : ownrc.col()-colstep );
 
 	if ( surface_.isDefined( sid, neighborrc.toInt64() ) ||
 	     (!retundef && idx==nraliases-1) )
@@ -658,8 +658,8 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 	StepInterval<int> colrg = line->colRange( rowidx );
 	RowCol rowcol( rowrg.atIndex( rowidx ), 0 );
 
-	for ( rowcol.col=colrg.start; rowcol.col<=colrg.stop;
-	      rowcol.col+= colrg.step )
+	for ( rowcol.col()=colrg.start; rowcol.col()<=colrg.stop;
+	      rowcol.col()+= colrg.step )
 	{
 	    const Coord3 knot = line->getKnot( rowcol );
 	    if ( !knot.isDefined() )

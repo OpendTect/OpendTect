@@ -543,11 +543,11 @@ void doStrat( CallBacker* )
 void doCol( CallBacker* )
 {
     const RowCol& cell = tbl_->notifiedCell();
-    if ( cell.col != 1 )
+    if ( cell.col() != 1 )
 	return;
 
     mDynamicCastGet(uiStratLevelSel*,levelsel,
-	tbl_->getCellGroup(RowCol(cell.row,2)))
+	tbl_->getCellGroup(RowCol(cell.row(),2)))
     const bool havelvl = levelsel && levelsel->getID() >= 0;
     if ( havelvl )
     {
@@ -571,7 +571,7 @@ void lvlChg( CallBacker* cb )
     if ( col == Color::NoColor() ) return;
 
     const RowCol rc = tbl_->getCell( levelsel );
-    tbl_->setColor( RowCol(rc.row,1), col );
+    tbl_->setColor( RowCol(rc.row(),1), col );
 }
 
 bool acceptOK( CallBacker* )

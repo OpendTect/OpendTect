@@ -40,7 +40,7 @@ Coord3 PolygonSurfEditor::translation2DNormal( GeomPosID gpid ) const
 {
     const PolygonSurface& plg = 
 			reinterpret_cast<const PolygonSurface&>( element );
-    const int plgnr = RowCol::fromInt64(gpid).row;
+    const int plgnr = RowCol::fromInt64(gpid).row();
     return plg.getPolygonNormal( plgnr );
 }
 

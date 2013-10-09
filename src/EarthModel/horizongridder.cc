@@ -164,14 +164,14 @@ bool InvDistHor3DGridder::initFromArray( TaskRunner* tr )
 	return false;
 
     HorSampling hs( true );
-    if ( origin_.row != -1 )
+    if ( origin_.row() != -1 )
     {
 	hs.start = origin_;
 	const int inlstep = mNINT32(rowstep_/SI().inlDistance());
 	const int crlstep = mNINT32(colstep_/SI().crlDistance());
 	hs.step = BinID( inlstep, crlstep );
-	hs.stop.inl() = origin_.row + inlstep*(nrrows_-1);
-	hs.stop.crl() = origin_.col + crlstep*(nrcols_-1);
+	hs.stop.inl() = origin_.row() + inlstep*(nrrows_-1);
+	hs.stop.crl() = origin_.col() + crlstep*(nrcols_-1);
     }
 
     return HorizonGridder::init( hs, tr );
@@ -210,14 +210,14 @@ bool TriangulationHor3DGridder::initFromArray( TaskRunner* tr )
 	return false;
 
     HorSampling hs( true );
-    if ( origin_.row != -1 )
+    if ( origin_.row() != -1 )
     {
 	hs.start = origin_;
 	const int inlstep = mNINT32(rowstep_/SI().inlDistance());
 	const int crlstep = mNINT32(colstep_/SI().crlDistance());
 	hs.step = BinID( inlstep, crlstep );
-	hs.stop.inl() = origin_.row + inlstep*(nrrows_-1);
-	hs.stop.crl() = origin_.col + crlstep*(nrcols_-1);
+	hs.stop.inl() = origin_.row() + inlstep*(nrrows_-1);
+	hs.stop.crl() = origin_.col() + crlstep*(nrcols_-1);
     }
 
     return HorizonGridder::init( hs, tr );

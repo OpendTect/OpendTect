@@ -60,21 +60,21 @@ PosID RowColIterator::next()
 	}
 	else
 	{
-	    rc_.col += colrg_.step;
-	    if ( !colrg_.includes(rc_.col,true) )
+	    rc_.col() += colrg_.step;
+	    if ( !colrg_.includes(rc_.col(),true) )
 	    {
-		rc_.row += rowrg_.step;
-		if ( !rowrg_.includes(rc_.row,true) )
+		rc_.row() += rowrg_.step;
+		if ( !rowrg_.includes(rc_.row(),true) )
 		{
 		    cursection_ = 0;
 		    if ( !nextSection() )
 			return PosID(-1,-1,-1);
 		}
 
-		colrg_ = cursection_->colRange( rc_.row );
+		colrg_ = cursection_->colRange( rc_.row() );
 		if ( rowcolbounded_ )
 		    colrg_.limitTo( colbound_ );
-		rc_.col = colrg_.start;
+		rc_.col() = colrg_.start;
 	    }
 	}
 	if ( !cursection_->isKnotDefined( rc_ ) )
@@ -154,8 +154,8 @@ bool RowColIterator::initSection()
 	colrg_.limitTo( colbound_ );
     }
 
-    rc_.row = rowrg_.start;
-    rc_.col = colrg_.start;
+    rc_.row() = rowrg_.start;
+    rc_.col() = colrg_.start;
     return true;
 }
 

@@ -45,8 +45,8 @@ Coord3 ParametricSurface::computeNormal( const Coord& ) const
 
 StepInterval<int> ParametricSurface::rowRange() const
 {
-    return StepInterval<int>( origin_.row, origin_.row+(nrRows()-1)*step_.row,
-	   		      step_.row );
+    return StepInterval<int>( origin_.row(), origin_.row()+(nrRows()-1)*step_.row(),
+	   		      step_.row() );
 }
 
 
@@ -56,8 +56,8 @@ StepInterval<int> ParametricSurface::rowRange(int) const
 
 StepInterval<int> ParametricSurface::colRange() const
 {
-    return StepInterval<int>( origin_.col, origin_.col+(nrCols()-1)*step_.col,
-	    		      step_.col );
+    return StepInterval<int>( origin_.col(), origin_.col()+(nrCols()-1)*step_.col(),
+	    		      step_.col() );
 }
 
 
@@ -70,26 +70,26 @@ int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
 
 RowCol ParametricSurface::getKnotRowCol( int idx ) const
 {
-    return RowCol( origin_.row+idx/nrCols()*step_.row,
-	    	   origin_.col+idx%nrCols()*step_.col);
+    return RowCol( origin_.row()+idx/nrCols()*step_.row(),
+	    	   origin_.col()+idx%nrCols()*step_.col());
 }
 
 
 int ParametricSurface::getKnotIndex( const RowCol& rc ) const
 {
     RowCol relbid = -(origin_-rc);
-    if ( relbid.row<0 || relbid.col<0 )
+    if ( relbid.row()<0 || relbid.col()<0 )
 	return -1;
 
-    if ( relbid.row%step_.row || relbid.col%step_.col )
+    if ( relbid.row()%step_.row() || relbid.col()%step_.col() )
 	return -1;
 
     relbid /= step_;
     
-    if ( relbid.row>=nrRows() || relbid.col>=nrCols() )
+    if ( relbid.row()>=nrRows() || relbid.col()>=nrCols() )
 	return -1;
 
-    return relbid.row*nrCols()+relbid.col;
+    return relbid.row()*nrCols()+relbid.col();
 }
 
 
@@ -124,41 +124,41 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	    return false;
 	}
 
-	int rowindex = rowIndex( rc.row );
+	int rowindex = rowIndex( rc.row() );
 	if ( rowindex < -1 )
 	{
-	    const int nrtoinsert = rc.row - origin_.row;
-	    insertRow( origin_.row-step_.row, nrtoinsert );
-	    rowindex = rowIndex( rc.row );
+	    const int nrtoinsert = rc.row() - origin_.row();
+	    insertRow( origin_.row()-step_.row(), nrtoinsert );
+	    rowindex = rowIndex( rc.row() );
 	}
 
 	while ( rowindex<0 )
 	{
-	    if ( !insertRow(origin_.row-step_.row) )
+	    if ( !insertRow(origin_.row()-step_.row()) )
 		return false;
-	    rowindex = rowIndex( rc.row );
+	    rowindex = rowIndex( rc.row() );
 	}
 
 	while ( rowindex>=nrRows() )
 	{
-	    if ( !insertRow(origin_.row+step_.row*nrRows()) )
+	    if ( !insertRow(origin_.row()+step_.row()*nrRows()) )
 		return false;
-	    rowindex = rowIndex( rc.row );
+	    rowindex = rowIndex( rc.row() );
 	}
  
-	int colindex = colIndex( rc.col );
+	int colindex = colIndex( rc.col() );
 	while ( colindex<0 )
 	{
-	    if ( !insertCol(origin_.col-step_.col) )
+	    if ( !insertCol(origin_.col()-step_.col()) )
 		return false;
-	    colindex = colIndex( rc.col );
+	    colindex = colIndex( rc.col() );
 	}
 
 	while ( colindex>=nrCols() )
 	{
-	    if ( !insertCol(origin_.col+step_.col*nrCols()) )
+	    if ( !insertCol(origin_.col()+step_.col()*nrCols()) )
 		return false;
-	    colindex = colIndex( rc.col );
+	    colindex = colIndex( rc.col() );
 	}
 
     	index = getKnotIndex( rc );
@@ -348,10 +348,10 @@ bool ParametricSurface::hasSupport( const RowCol& rc ) const
 
 bool ParametricSurface::isAtEdge( const RowCol& rc ) const
 {
-    return !isKnotDefined(RowCol(rc.row+step_.row, rc.col+step_.col) ) ||
-	   !isKnotDefined(RowCol(rc.row+step_.row, rc.col-step_.col) ) ||
-	   !isKnotDefined(RowCol(rc.row-step_.row, rc.col+step_.col) ) ||
-	   !isKnotDefined(RowCol(rc.row-step_.row, rc.col-step_.col) );
+    return !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()+step_.col()) ) ||
+	   !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()-step_.col()) ) ||
+	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()+step_.col()) ) ||
+	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()-step_.col()) );
 }
 
 
@@ -367,13 +367,13 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
 
     int udefidx = -1;
-    if ( !isKnotDefined(RowCol(rc1.row+step_.row, rc1.col+step_.col)) )
+    if ( !isKnotDefined(RowCol(rc1.row()+step_.row(), rc1.col()+step_.col())) )
 	udefidx = dirs.indexOf(RowCol(1,1));
-    else if ( !isKnotDefined(RowCol(rc1.row+step_.row, rc1.col-step_.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.row()+step_.row(), rc1.col()-step_.col())) )
 	udefidx = dirs.indexOf(RowCol(1,-1));
-    else if ( !isKnotDefined(RowCol(rc1.row-step_.row, rc1.col+step_.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.row()-step_.row(), rc1.col()+step_.col())) )
 	udefidx = dirs.indexOf(RowCol(-1,1));
-    else if ( !isKnotDefined(RowCol(rc1.row-step_.row, rc1.col-step_.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.row()-step_.row(), rc1.col()-step_.col())) )
 	udefidx = dirs.indexOf(RowCol(-1,-1));
 
     if ( udefidx==-1 )

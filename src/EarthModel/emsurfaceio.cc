@@ -680,14 +680,14 @@ void dgbSurfaceReader::setGeometry()
     {
 	const RowCol filestep = getFileStep();
 
-	if ( readrowrange_->step < abs(filestep.row) )
-	    readrowrange_->step = filestep.row;
-	if ( readcolrange_->step < abs(filestep.col) )
-	    readcolrange_->step = filestep.col;
+	if ( readrowrange_->step < abs(filestep.row()) )
+	    readrowrange_->step = filestep.row();
+	if ( readcolrange_->step < abs(filestep.col()) )
+	    readcolrange_->step = filestep.col();
 
-	if ( filestep.row && readrowrange_->step / filestep.row < 0 )
+	if ( filestep.row() && readrowrange_->step / filestep.row() < 0 )
 	    readrowrange_->step *= -1;
-	if ( filestep.col && readcolrange_->step / filestep.col < 0 )
+	if ( filestep.col() && readcolrange_->step / filestep.col() < 0 )
 	    readcolrange_->step *= -1;
     }
 
@@ -1078,15 +1078,15 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	    return false;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row, false) ||
-		    ((surfrc.row-readrowrange_->start)%readrowrange_->step)))
+	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row(), false) ||
+		    ((surfrc.row()-readrowrange_->start)%readrowrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col, false) ||
-		    ((surfrc.col-readcolrange_->start)%readcolrange_->step)))
+	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col(), false) ||
+		    ((surfrc.col()-readcolrange_->start)%readcolrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
@@ -1132,15 +1132,15 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	    return false;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col, false) ||
-		    ((rowcol.col-readcolrange_->start)%readcolrange_->step)))
+	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col(), false) ||
+		    ((rowcol.col()-readcolrange_->start)%readcolrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row, false) ||
-		    ((rowcol.row-readrowrange_->start)%readrowrange_->step)))
+	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row(), false) ||
+		    ((rowcol.row()-readrowrange_->start)%readrowrange_->step)))
 	{
 	    fullyread_ = false;
 	    continue;
@@ -1265,7 +1265,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
     for ( ; colindex<nrcols+colstoskip; colindex++ )
     {
-	rc.col = firstcol+colindex*colstep;
+	rc.col() = firstcol+colindex*colstep;
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
@@ -1291,13 +1291,13 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 	if ( readcolrange_ )
 	{
-	    if ( rc.col<readcolrange_->start )
+	    if ( rc.col()<readcolrange_->start )
 		continue;
 
-	    if ( rc.col>readcolrange_->stop )
+	    if ( rc.col()>readcolrange_->stop )
 		break;
 
-	    if ( (rc.col-readcolrange_->start)%readcolrange_->step )
+	    if ( (rc.col()-readcolrange_->start)%readcolrange_->step )
 		continue;
 	}
 
@@ -1321,8 +1321,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 	if ( cube_ )
 	{
-	    cube_->set( readrowrange_->nearestIndex(rc.row),
-			readcolrange_->nearestIndex(rc.col),
+	    cube_->set( readrowrange_->nearestIndex(rc.row()),
+			readcolrange_->nearestIndex(rc.col()),
 			cubezidx, (float) pos.z );
 	}
 

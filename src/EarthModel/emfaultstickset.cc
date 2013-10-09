@@ -49,12 +49,12 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 	if ( rowrg.isUdf() ) continue;
 
 	RowCol rc;
-	for ( rc.row=rowrg.stop; rc.row>=rowrg.start; rc.row-=rowrg.step )
+	for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
 	{
-	    const StepInterval<int> colrg = fssg->colRange( rc.row );
+	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	    if ( colrg.isUdf() ) continue;
 
-	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
+	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start; rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
 		if ( !pf.includes( (Coord) pos, (float) pos.z) )

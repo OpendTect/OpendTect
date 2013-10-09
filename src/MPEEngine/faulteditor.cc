@@ -66,7 +66,7 @@ void FaultEditor::setLastClicked( const EM::PosID& pid )
     Geometry::Element* ge = emobj.sectionGeometry( pid.sectionID() );
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )
-	fss->preferStick( pid.getRowCol().row  );
+	fss->preferStick( pid.getRowCol().row()  );
 
     if ( sowingpivot_.isDefined() )
     {
@@ -88,7 +88,7 @@ int FaultEditor::getLastClickedStick() const
 
     if ( fss )
     {
-	const int lastclickedsticknr = lastclickedpid_.getRowCol().row;
+	const int lastclickedsticknr = lastclickedpid_.getRowCol().row();
 	if ( lastclickedsticknr == fss->preferredStickNr() )
 	    return lastclickedsticknr;
     }
@@ -622,7 +622,7 @@ void FaultEditor::cloneMovingNode()
     mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
     EM::Fault3DGeometry& fg = emfault->geometry();
     const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = movingnode.getRowCol().row;
+    const int sticknr = movingnode.getRowCol().row();
     Geometry::FaultStickSurface* fss = fg.sectionGeometry( sid );
 
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );

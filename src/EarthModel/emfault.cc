@@ -53,27 +53,27 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 	    continue;
 
 	RowCol rc;
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    if ( !srcfss->isStickSelected(rc.row) )
+	    if ( !srcfss->isStickSelected(rc.row()) )
 		continue;
 
-	    const StepInterval<int> colrg = srcfss->colRange( rc.row );
+	    const StepInterval<int> colrg = srcfss->colRange( rc.row() );
 	    if ( colrg.isUdf() )
 		continue;
 
 	    int knotnr = 0;
 
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	    {
 		const Coord3 pos = srcfss->getKnot( rc );
 
-		if ( rc.col == colrg.start )
+		if ( rc.col() == colrg.start )
 		{
 		    destfssg.insertStick( destsid, sticknr, knotnr, pos,
-					  getEditPlaneNormal(sid,rc.row),
-					  pickedMultiID(sid,rc.row),
-					  pickedName(sid,rc.row),
+					  getEditPlaneNormal(sid,rc.row()),
+					  pickedMultiID(sid,rc.row()),
+					  pickedName(sid,rc.row()),
 					  addtohistory );
 		}
 		else
@@ -107,7 +107,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 	if ( pid.objectID() == -1 )
 	    break;
 
-	const int sticknr = pid.getRowCol().row;
+	const int sticknr = pid.getRowCol().row();
 	const EM::SectionID sid = pid.sectionID();
 	mDynamicCastGet( Geometry::FaultStickSet*, fss, sectionGeometry(sid) );
 
@@ -144,9 +144,9 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 	    continue;
 
 	RowCol rc;
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    if ( !fss->isStickSelected(rc.row) )
+	    if ( !fss->isStickSelected(rc.row()) )
 		continue;
 
 	    if ( selidx ) 
@@ -155,18 +155,18 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 		continue;
 	    }
 
-	    if ( doublesref && !nrStickDoubles(sid, rc.row, doublesref) )
+	    if ( doublesref && !nrStickDoubles(sid, rc.row(), doublesref) )
 		return false;
 
-	    const StepInterval<int> colrg = fss->colRange( rc.row );
+	    const StepInterval<int> colrg = fss->colRange( rc.row() );
 	    if ( colrg.isUdf() )
 		continue;
 
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	    {
 
-		if ( rc.col == colrg.stop )
-		    removeStick( sid, rc.row, addtohistory );
+		if ( rc.col() == colrg.stop )
+		    removeStick( sid, rc.row(), addtohistory );
 		else
 		    removeKnot( sid, rc.toInt64(), addtohistory );
 	    }
@@ -196,9 +196,9 @@ int FaultGeometry::nrSelectedSticks() const
 	    continue;
 
 	RowCol rc;
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    if ( fss->isStickSelected(rc.row) )
+	    if ( fss->isStickSelected(rc.row()) )
 		nrselectedsticks++;
 	}
     }
@@ -240,22 +240,22 @@ int FaultGeometry::nrStickDoubles( const SectionID& sid, int sticknr,
 	    continue;
 
 	RowCol rc;
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    const StepInterval<int> colrg = reffss->colRange( rc.row );
+	    const StepInterval<int> colrg = reffss->colRange( rc.row() );
 	    if ( colrg.isUdf() || colrg.width()!=srccolrg.width() )
 		continue;
 
 	    RowCol uprc( sticknr, srccolrg.start);
 	    RowCol downrc( sticknr, srccolrg.stop);
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	    {
 		if ( isSameKnot(srcfss->getKnot(uprc), reffss->getKnot(rc)) )
-		    uprc.col += srccolrg.step;
+		    uprc.col() += srccolrg.step;
 		if ( isSameKnot(srcfss->getKnot(downrc), reffss->getKnot(rc)) )
-		    downrc.col -= srccolrg.step;
+		    downrc.col() -= srccolrg.step;
 	    }
-	    if ( uprc.col>srccolrg.stop || downrc.col<srccolrg.start )
+	    if ( uprc.col()>srccolrg.stop || downrc.col()<srccolrg.start )
 		nrdoubles++;
 	}
     }
@@ -275,7 +275,7 @@ FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
     if ( !fault ) return;
 
     pos_ = fault->getPos( posid_ );
-    const int row = posid.getRowCol().row;
+    const int row = posid.getRowCol().row();
     normal_ = fault->geometry().getEditPlaneNormal( posid_.sectionID(), row );
 }
 
@@ -299,11 +299,11 @@ bool FaultStickUndoEvent::unDo()
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = posid_.getRowCol().row();
 
     return remove_
 	? fault->geometry().insertStick( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false )
+		posid_.getRowCol().col(), pos_, normal_, false )
 	: fault->geometry().removeStick( posid_.sectionID(), row, false );
 }
 
@@ -314,12 +314,12 @@ bool FaultStickUndoEvent::reDo()
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
-    const int row = posid_.getRowCol().row;
+    const int row = posid_.getRowCol().row();
 
     return remove_
 	? fault->geometry().removeStick( posid_.sectionID(), row, false )
 	: fault->geometry().insertStick( posid_.sectionID(), row,
-		posid_.getRowCol().col, pos_, normal_, false );
+		posid_.getRowCol().col(), pos_, normal_, false );
 }
 
 

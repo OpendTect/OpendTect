@@ -86,9 +86,9 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     if ( hor )
     {
 	horizon3dundoinfo_ = hor->createArray2D( sectionid_ );
-	horizon3dundoorigin_.row =
+	horizon3dundoorigin_.row() =
 	    hor->geometry().sectionGeometry(sid)->rowRange().start;
-	horizon3dundoorigin_.col =
+	horizon3dundoorigin_.col() =
 	    hor->geometry().sectionGeometry(sid)->colRange().start;
     }
 }

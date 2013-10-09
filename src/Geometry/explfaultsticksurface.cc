@@ -45,7 +45,7 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
 }
 
     
-od_int64 nrIterations() const	{ return explsurf_.getTextureSize().col; }
+od_int64 nrIterations() const	{ return explsurf_.getTextureSize().col(); }
 int minThreadSize() const	{ return 100; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
@@ -79,7 +79,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	if ( stickidx==-1 && panelidx==-1 )
 	    return false;
 
-	for( int knotpos=0; knotpos<explsurf_.getTextureSize().row; knotpos++ )
+	for( int knotpos=0; knotpos<explsurf_.getTextureSize().row(); knotpos++ )
 	{
     	    Coord3 pos = Coord3::udf();
     	    bool found = false;
@@ -565,10 +565,10 @@ void ExplFaultStickSurface::updateTextureCoords()
 		continue;
 
 	    const float rowcoord =
-		(texturecolcoords_[stickidx] + 0.5f)/texturesize_.col;
+		(texturecolcoords_[stickidx] + 0.5f)/texturesize_.col();
 
 	    const float knotpos = 
-		((*textureknotcoords_[stickidx])[idx] + 0.5f)/ texturesize_.row;
+		((*textureknotcoords_[stickidx])[idx] + 0.5f)/ texturesize_.row();
 
 	    texturecoords.set( ci, Coord3(knotpos,rowcoord,0) );
 	}
@@ -994,7 +994,7 @@ void ExplFaultStickSurface::updateStickShifting()
 Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
 {
     if ( stickidx<0 || stickidx>=sticks_.size() || 
-	 texturerow<0 || texturerow>texturesize_.row )
+	 texturerow<0 || texturerow>texturesize_.row() )
 	return Coord3::udf();
     
     const int sticknr = surface_->rowRange().atIndex( stickidx );
@@ -1042,7 +1042,7 @@ float ExplFaultStickSurface::getAvgDistance( int stickidx,
 
     const int lastrow =
 	knotpos[knotpos.size()-1] + shift[stickidx] + extrashift;
-    if ( lastrow>=texturesize_.row )
+    if ( lastrow>=texturesize_.row() )
 	return mUdf(float);
 
     for ( int row=firstrow; row<=lastrow; row++ )
@@ -1087,7 +1087,7 @@ void ExplFaultStickSurface::shiftStick( int stickidx, int nrunits )
 	return;
 
     TypeSet<int>& knots = *textureknotcoords_[stickidx];
-    if ( nrunits+knots[knots.size()-1]>texturesize_.row )
+    if ( nrunits+knots[knots.size()-1]>texturesize_.row() )
 	return;
 
     for ( int idx=0; idx<knots.size(); idx++ )
@@ -1216,13 +1216,13 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     const int ic = dps.dataSet().findColDef(ti,PosVecDataSet::NameExact)-nrfc;
     const int jc = dps.dataSet().findColDef(tj,PosVecDataSet::NameExact)-nrfc;
     
-    for ( int row=0; row<texturesize_.row; row++ )
+    for ( int row=0; row<texturesize_.row(); row++ )
     {
 	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 : 
 		texturesampling_.binid.inl()*row+inlrg.start,
 		trialg_!=ExplFaultStickSurface::Inline ? -1 : 
 		texturesampling_.binid.crl()*row+crlrg.start );
-	for ( int col=0; col<texturesize_.col; col++ )
+	for ( int col=0; col<texturesize_.col(); col++ )
 	{
 	    float z = -1;
 	    if ( trialg_==ExplFaultStickSurface::Zslice )
@@ -1607,27 +1607,27 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
 	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
-	const int stickidx = rc.row;
+	const int stickidx = rc.row();
 
-	if ( rc.col==FaultStickSurface::StickChange )
+	if ( rc.col()==FaultStickSurface::StickChange )
 	{
 	    emptyPanel( stickidx-1 );
 	    emptyPanel( stickidx );
 	    emptyStick( stickidx );
 	}
-	if ( rc.col==FaultStickSurface::StickInsert )
+	if ( rc.col()==FaultStickSurface::StickInsert )
 	{
 	    emptyPanel( stickidx-1 );
 	    insertPanel( !stickidx ? 0 : stickidx-1 );
 	    insertStick( stickidx );
 	}
-	if ( rc.col==FaultStickSurface::StickRemove )
+	if ( rc.col()==FaultStickSurface::StickRemove )
 	{
 	    emptyPanel( stickidx );
 	    removePanel( !stickidx ? 0 : stickidx-1 );
 	    removeStick( stickidx );
 	}
-	if ( rc.col==FaultStickSurface::StickHide )
+	if ( rc.col()==FaultStickSurface::StickHide )
 	{
 	    if ( sticks_.validIdx(stickidx) )
 	    {
@@ -1651,7 +1651,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
 	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
-	const int stickidx = rc.row;
+	const int stickidx = rc.row();
 
 	emptyPanel( stickidx-1 );
 	emptyPanel( stickidx );

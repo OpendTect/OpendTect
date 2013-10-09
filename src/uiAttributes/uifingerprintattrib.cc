@@ -224,7 +224,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
-    const int newrow = table_->newCell().row;
+    const int newrow = table_->newCell().row();
     const uiAttrSelData asd( is2d_, false );
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
     attrbox->setLabelSelectable( false );	// reveals table right-click
@@ -243,7 +243,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 
 void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 {
-    const int row2rm = table_->notifiedCell().row;
+    const int row2rm = table_->notifiedCell().row();
     if ( row2rm<0 || row2rm >= attribflds_.size() )
 	return;
 

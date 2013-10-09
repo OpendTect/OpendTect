@@ -24,8 +24,8 @@ uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
     medianfld_->setValue( pars.type_ == Stats::Median );
 
     stepoutfld_ = new uiStepOutSel( this, false, "Filter stepout" );
-    stepoutfld_->setVal( true, pars.stepout_.row );
-    stepoutfld_->setVal( false, pars.stepout_.col );
+    stepoutfld_->setVal( true, pars.stepout_.row() );
+    stepoutfld_->setVal( false, pars.stepout_.col() );
     stepoutfld_->attach( alignedBelow, medianfld_ );
 
     setHAlignObj( medianfld_ );

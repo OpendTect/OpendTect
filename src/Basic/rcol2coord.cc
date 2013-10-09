@@ -60,8 +60,8 @@ bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
 
 Coord RCol2Coord::transform( const RowCol& rc ) const
 {
-    return Coord( xtr.a + xtr.b*rc.row + xtr.c*rc.col,
-		  ytr.a + ytr.b*rc.row + ytr.c*rc.col );
+    return Coord( xtr.a + xtr.b*rc.row() + xtr.c*rc.col(),
+		  ytr.a + ytr.b*rc.row() + ytr.c*rc.col() );
 }
 
 

@@ -228,7 +228,7 @@ bool BinIDSurface::removeRow( int start, int stop )
 
     if ( newpositions ) { delete depths_; depths_ = newpositions; }
     if ( !startidx )
-	origin_.row += step_.row*nrremoved;
+	origin_.row() += step_.row()*nrremoved;
     
     return true;
 }
@@ -271,7 +271,7 @@ bool BinIDSurface::removeCol( int start, int stop )
     }
     if ( newpositions ) { delete depths_; depths_ = newpositions; }
     if ( !startidx )
-	origin_.col += step_.col*nrremoved;
+	origin_.col() += step_.col()*nrremoved;
 
     return true;
 }
@@ -291,7 +291,7 @@ StepInterval<int> BinIDSurface::colRange() const
 
 StepInterval<int> BinIDSurface::rowRange( int col ) const
 {
-    StepInterval<int> ret( mUdf(int), mUdf(int), step_.row );
+    StepInterval<int> ret( mUdf(int), mUdf(int), step_.row() );
     const int colidx = colIndex( col );
     if ( colidx < 0  || !depths_ || colidx >= depths_->info().getSize(1) )
 	return ret;
@@ -320,15 +320,15 @@ StepInterval<int> BinIDSurface::rowRange( int col ) const
 
     }
 
-    ret.start = origin_.row + startidx * step_.row;
-    ret.stop = origin_.row + stopidx * step_.row;
+    ret.start = origin_.row() + startidx * step_.row();
+    ret.stop = origin_.row() + stopidx * step_.row();
     return ret;
 }
 
 
 StepInterval<int> BinIDSurface::colRange( int row ) const
 {
-    StepInterval<int> ret( mUdf(int), mUdf(int), step_.col );
+    StepInterval<int> ret( mUdf(int), mUdf(int), step_.col() );
     const int rowidx = rowIndex( row );
     if ( rowidx < 0  || !depths_ || rowidx >= depths_->info().getSize(0) )
 	return ret;
@@ -357,8 +357,8 @@ StepInterval<int> BinIDSurface::colRange( int row ) const
 
     }
 
-    ret.start = origin_.col + startidy * step_.col;
-    ret.stop = origin_.col + stopidy * step_.col;
+    ret.start = origin_.col() + startidy * step_.col();
+    ret.stop = origin_.col() + stopidy * step_.col();
     return ret;
 }
 
@@ -412,8 +412,8 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 	depths_ = newdepths; 
     }
     
-    origin_.row += step_.row*startrowidx;
-    origin_.col += step_.col*startcolidx;
+    origin_.row() += step_.row()*startrowidx;
+    origin_.col() += step_.col()*startcolidx;
 
     return true;
 }

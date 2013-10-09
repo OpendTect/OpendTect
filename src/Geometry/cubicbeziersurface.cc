@@ -187,15 +187,15 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 
-    for ( RowCol rc(rowrange.start,0); rc.row<=rowrange.stop;
-	  rc.row+=rowrange.step )
+    for ( RowCol rc(rowrange.start,0); rc.row()<=rowrange.stop;
+	  rc.row()+=rowrange.step )
     {
-	for ( rc.col = colrange.start; rc.col<=colrange.stop;
-	      rc.col+=colrange.step )
+	for ( rc.col() = colrange.start; rc.col()<=colrange.stop;
+	      rc.col()+=colrange.step )
 	{
-	    for ( RowCol relrc(-1,-1); relrc.row<=1; relrc.row++ )
+	    for ( RowCol relrc(-1,-1); relrc.row()<=1; relrc.row()++ )
 	    {
-		for ( relrc.col=-1; relrc.col<=1; relrc.col++ )
+		for ( relrc.col()=-1; relrc.col()<=1; relrc.col()++ )
 		{
 		    const Coord3 vertex = getBezierVertex( rc, relrc );
 		    if ( !vertex.isDefined() )
@@ -269,10 +269,10 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	return false;
 
     RowCol rc(origin_);
-    for ( int rowidx=0; rowidx<nrRows()-1; rowidx++, rc.row+=step_.row )
+    for ( int rowidx=0; rowidx<nrRows()-1; rowidx++, rc.row()+=step_.row() )
     {
-	rc.col=origin_.col;
-	for ( int colidx=0; colidx<nrCols()-1; colidx++, rc.col+=step_.col )
+	rc.col()=origin_.col();
+	for ( int colidx=0; colidx<nrCols()-1; colidx++, rc.col()+=step_.col() )
 	{
 	    const CubicBezierSurfacePatch* patch = getPatch(rc);
 	    if ( !patch ) continue;
@@ -322,23 +322,23 @@ Coord3 CubicBezierSurface::getBezierVertex( const RowCol& knot,
     Coord3 pos = getKnot( knot );
     if ( !pos.isDefined() ) return pos;
 
-    if ( relpos.row )
+    if ( relpos.row() )
     {
 	const Coord3 rowdir = getRowDirection( knot, true );
 	if ( !rowdir.isDefined() ) return rowdir;
 
-	if ( relpos.row>0 )
+	if ( relpos.row()>0 )
 	    pos += rowdir;
 	else
 	    pos -= rowdir;
     }
 
-    if ( relpos.col )
+    if ( relpos.col() )
     {
 	const Coord3 coldir = getColDirection( knot, true );
 	if ( !coldir.isDefined() ) return coldir;
 
-	if ( relpos.col>0 )
+	if ( relpos.col()>0 )
 	    pos += coldir;
 	else 
 	    pos -= coldir;
@@ -357,18 +357,18 @@ bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
     {
 	for ( int idx=rowidx; idx<curnrrows; idx++ )
 	{
-	    const int currow = origin_.row+idx*step_.row;
+	    const int currow = origin_.row()+idx*step_.row();
 	    for ( int idy=0; idy<curnrcols; idy++ )
 		movedpos +=
-		    RowCol(currow,origin_.col+idy*step_.col).toInt64();
+		    RowCol(currow,origin_.col()+idy*step_.col()).toInt64();
 	}
     }
 
     TypeSet<GeomPosID> addedpos;
     const int newrow = addedinfront 
-		       ? origin_.row : origin_.row+curnrrows*step_.row;
+		       ? origin_.row() : origin_.row()+curnrrows*step_.row();
     for ( int idy=0; idy<curnrcols; idy++ )
-	addedpos += RowCol(newrow,origin_.col+idy*step_.col).toInt64();
+	addedpos += RowCol(newrow,origin_.col()+idy*step_.col()).toInt64();
 
     mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -388,18 +388,18 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
     {
 	for ( int idx=colidx; idx<curnrcols; idx++ )
 	{
-	    const int curcol = origin_.col+idx*step_.col;
+	    const int curcol = origin_.col()+idx*step_.col();
 	    for ( int idy=0; idy<curnrrows; idy++ )
 		movedpos +=
-		    RowCol(origin_.row+idy*step_.row,curcol).toInt64();
+		    RowCol(origin_.row()+idy*step_.row(),curcol).toInt64();
 	}
     }
 
     TypeSet<GeomPosID> addedpos;
     const int newcol = addedinfront 
-		       ? origin_.col : origin_.col+curnrcols*step_.col;
+		       ? origin_.col() : origin_.col()+curnrcols*step_.col();
     for ( int idy=0; idy<curnrrows; idy++ )
-	addedpos += RowCol(origin_.row+idy*step_.row,newcol).toInt64();
+	addedpos += RowCol(origin_.row()+idy*step_.row(),newcol).toInt64();
 
     mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -428,13 +428,13 @@ bool CubicBezierSurface::removeRow( int row, int )
 
     for ( int idy=0; idy<curnrcols; idy++ )
     {
-	int curcol = origin_.col + idy*step_.col;
+	int curcol = origin_.col() + idy*step_.col();
 	removedpos += RowCol( row, curcol ).toInt64();
 
 	for ( int idx=rowidx+1; idx<curnrrows; idx++ )
 	{
 	    movedpos += 
-		RowCol( origin_.row + idx*step_.row, curcol ).toInt64();
+		RowCol( origin_.row() + idx*step_.row(), curcol ).toInt64();
 	}
     }
 
@@ -504,13 +504,13 @@ bool CubicBezierSurface::removeCol( int col, int )
 
     for ( int idx=0; idx<curnrrows; idx++ )
     {
-	int currow = origin_.row + idx*step_.row;
+	int currow = origin_.row() + idx*step_.row();
 	removedpos += RowCol( currow, col ).toInt64();
 
 	for ( int idy=colidx+1; idy<curnrcols; idy++ )
 	{
 	    movedpos += 
-		RowCol( currow, origin_.col + idy*step_.col ).toInt64();
+		RowCol( currow, origin_.col() + idy*step_.col() ).toInt64();
 	}
     }
 
@@ -574,7 +574,7 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
     if ( estimateifundef && !data[index].isDefined() )
     {
 	RowCol neighborrc( rc );
-	neighborrc.row = rc.row-step_.row;
+	neighborrc.row() = rc.row()-step_.row();
 	Coord3 pos = getKnot( neighborrc, false );
 	if ( pos.isDefined() )
 	{
@@ -583,7 +583,7 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
 		return pos+dir;
 	}
 
-	neighborrc.row = rc.row+step_.row;
+	neighborrc.row() = rc.row()+step_.row();
 	pos = getKnot( neighborrc, false );
 	if ( pos.isDefined() )
 	{
@@ -592,8 +592,8 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
 		return pos-dir;
 	}
 
-	neighborrc.row = rc.row;
-	neighborrc.col = rc.col-step_.col;
+	neighborrc.row() = rc.row();
+	neighborrc.col() = rc.col()-step_.col();
 	pos = getKnot( neighborrc, false );
 	if ( pos.isDefined() )
 	{
@@ -602,7 +602,7 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
 		return pos+dir;
 	}
 
-	neighborrc.col = rc.col+step_.col;
+	neighborrc.col() = rc.col()+step_.col();
 	pos = getKnot( neighborrc, false );
 	if ( pos.isDefined() )
 	{
@@ -671,9 +671,9 @@ void CubicBezierSurface::setDirectionInfluence(float ndi)
 const CubicBezierSurfacePatch*
 CubicBezierSurface::getPatch(const RowCol& rc) const
 {
-    const RowCol rc01( rc.row, rc.col+step_.col );
-    const RowCol rc10( rc.row+step_.row, rc.col );
-    const RowCol rc11( rc.row+step_.row, rc.col+step_.col );
+    const RowCol rc01( rc.row(), rc.col()+step_.col() );
+    const RowCol rc10( rc.row()+step_.row(), rc.col() );
+    const RowCol rc11( rc.row()+step_.row(), rc.col()+step_.col() );
 
     return new CubicBezierSurfacePatch( getKnot(rc,true),
 	    				getBezierVertex(rc,RowCol(0,1)),
@@ -783,16 +783,16 @@ bool CubicBezierSurface::checkSelfIntersection( const RowCol& ownrc ) const
 
     TypeSet<RowCol> affectedrcs;
     RowCol affectedrc;
-    for ( RowCol rc(-2,-2); rc.row<=1; rc.row++ )
+    for ( RowCol rc(-2,-2); rc.row()<=1; rc.row()++ )
     {
-	affectedrc.row = ownrc.row+rc.row*step_.row;
-	if ( !rowrange.includes(affectedrc.row,false) )
+	affectedrc.row() = ownrc.row()+rc.row()*step_.row();
+	if ( !rowrange.includes(affectedrc.row(),false) )
 	    continue;
 
-	for ( rc.col=-2; rc.col<=1; rc.col++ )
+	for ( rc.col()=-2; rc.col()<=1; rc.col()++ )
 	{
-	    affectedrc.col = ownrc.col+rc.col*step_.col;
-	    if ( !colrange.includes(affectedrc.col,false) )
+	    affectedrc.col() = ownrc.col()+rc.col()*step_.col();
+	    if ( !colrange.includes(affectedrc.col(),false) )
 		continue;
 
 	    affectedrcs += affectedrc;
@@ -807,15 +807,15 @@ bool CubicBezierSurface::checkSelfIntersection( const RowCol& ownrc ) const
 	const IntervalND<float> ownbbox = boundingBox(affectedrc, false );
 	if ( !ownbbox.isSet() ) return false;
 
-	for ( RowCol rc(rowrange.start,0); rc.row<=rowrange.stop;
-	      rc.row+=rowrange.step )
+	for ( RowCol rc(rowrange.start,0); rc.row()<=rowrange.stop;
+	      rc.row()+=rowrange.step )
 	{
-	    for ( rc.col = colrange.start; rc.col<=colrange.stop;
-		  rc.col+=colrange.step )
+	    for ( rc.col() = colrange.start; rc.col()<=colrange.stop;
+		  rc.col()+=colrange.step )
 	    {
 		if ( rc==affectedrc ) continue;
-		if ( abs(rc.row-affectedrc.row)<=step_.row &&
-		     abs(rc.col-affectedrc.col)<=step_.col )
+		if ( abs(rc.row()-affectedrc.row())<=step_.row() &&
+		     abs(rc.col()-affectedrc.col())<=step_.col() )
 		{
 		    //TODO
 		    continue;
@@ -866,9 +866,9 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
 
     if ( ownvertices )
     {
-	for ( RowCol relrc(-1,-1); relrc.row<=1; relrc.row++ )
+	for ( RowCol relrc(-1,-1); relrc.row()<=1; relrc.row()++ )
 	{
-	    for ( relrc.col=-1; relrc.col<=1; relrc.col++ )
+	    for ( relrc.col()=-1; relrc.col()<=1; relrc.col()++ )
 	    {
 		const Coord3 vertex = getBezierVertex( rc, relrc );
 		if ( !vertex.isDefined() )
@@ -881,23 +881,23 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
     }
     else
     {
-	const bool rowext = rc.row<origin_.row+(nrRows()-1)*step_.row;
-	const bool colext = rc.col<origin_.col+(nrCols()-1)*step_.col;
+	const bool rowext = rc.row()<origin_.row()+(nrRows()-1)*step_.row();
+	const bool colext = rc.col()<origin_.col()+(nrCols()-1)*step_.col();
 	if ( rowext || colext )
 	{
 	    Coord3 vertex;
 	    RowCol currc(rc);
 	    mGetBBoxVertex( 1, 1 );
 
-	    currc.row += step_.row;
+	    currc.row() += step_.row();
 	    if ( rowext )
 	    { mGetBBoxVertex( -1, 1 ); }
 
-	    currc.col += step_.col;
+	    currc.col() += step_.col();
 	    if ( rowext && colext )
 	    { mGetBBoxVertex( -1, -1 ); }
 
-	    currc.row = rc.row;
+	    currc.row() = rc.row();
 	    if ( colext )
 	    { mGetBBoxVertex( 1, -1 ); }
 	}
@@ -947,25 +947,25 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
 
 Coord3 CubicBezierSurface::computeRowDirection( const RowCol& rc ) const
 {
-    const int lastrow = origin_.row + (nrRows()-1)*step_.row;
-    const RowCol prev( rc.row==origin_.row && circularRows() 
-	    ? lastrow : rc.row-step_.row, rc.col );
-    const RowCol next( rc.row==lastrow && circularRows() 
-	    ? origin_.row : rc.row+step_.row, rc.col );
+    const int lastrow = origin_.row() + (nrRows()-1)*step_.row();
+    const RowCol prev( rc.row()==origin_.row() && circularRows() 
+	    ? lastrow : rc.row()-step_.row(), rc.col() );
+    const RowCol next( rc.row()==lastrow && circularRows() 
+	    ? origin_.row() : rc.row()+step_.row(), rc.col() );
 
-    mComputeDirImpl(row);
+    mComputeDirImpl(row());
 }
 
 
 Coord3 CubicBezierSurface::computeColDirection( const RowCol& rc ) const
 {
-    const int lastcol = origin_.col + (nrCols()-1)*step_.col;
-    const RowCol prev( rc.row, rc.col==origin_.col && circularCols() 
-	    ? lastcol : rc.col-step_.col );
-    const RowCol next( rc.row, rc.col==lastcol && circularCols() 
-	    ? origin_.col : rc.col+step_.col);
+    const int lastcol = origin_.col() + (nrCols()-1)*step_.col();
+    const RowCol prev( rc.row(), rc.col()==origin_.col() && circularCols() 
+	    ? lastcol : rc.col()-step_.col() );
+    const RowCol next( rc.row(), rc.col()==lastcol && circularCols() 
+	    ? origin_.col() : rc.col()+step_.col());
 
-    mComputeDirImpl(col);
+    mComputeDirImpl(col());
 }
 
 

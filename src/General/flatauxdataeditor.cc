@@ -253,7 +253,7 @@ void AuxDataEditor::getPointSelections(
 	{
 	    const RowCol& rc =
 		polytrans.transformBack(polygonsel[idx]->poly_[idy]);
-	    displayselpoly += Geom::Point2D<int>( rc.row, rc.col );
+	    displayselpoly += Geom::Point2D<int>( rc.row(), rc.col() );
 	}
 
 	ODPolygon<int> polygon( displayselpoly );
@@ -270,7 +270,7 @@ void AuxDataEditor::getPointSelections(
 	    {
 		const RowCol& rc =
 		    trans.transformBack(auxdata_[idy]->poly_[idz]);
-		const Geom::Point2D<int> testpos( rc.row, rc.col );
+		const Geom::Point2D<int> testpos( rc.row(), rc.col() );
 
 		if ( !polygon.isInside( testpos, true, 1 ) )
 		    continue;
@@ -636,7 +636,7 @@ void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
 	for ( int idy=0; idy<dataset.size(); idy++ )
 	{
 	    const RowCol rc = transform.transformBack( dataset[idy] );
-	    const Geom::Point2D<int> displaypos( rc.row, rc.col );
+	    const Geom::Point2D<int> displaypos( rc.row(), rc.col() );
 
 	    const int markeridx = mMIN(idy,nrmarkerstyles-1);
 

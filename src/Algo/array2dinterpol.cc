@@ -599,7 +599,7 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyFillType(), filltype_ );
     par.set( sKeyRowStep(), rowstep_ );
     par.set( sKeyColStep(), colstep_ );
-    par.set( sKeyOrigin(), origin_.row, origin_.col );
+    par.set( sKeyOrigin(), origin_.row(), origin_.col() );
     par.set( sKeyNrRows(), nrrows_ );
     par.set( sKeyNrCols(), nrcols_ );
     par.set( sKeyNrCells(), nrcells_ );
@@ -616,7 +616,7 @@ bool Array2DInterpol::usePar( const IOPar& par )
 
     par.get( sKeyRowStep(), rowstep_ );
     par.get( sKeyColStep(), colstep_ );
-    par.get( sKeyOrigin(), origin_.row, origin_.col );
+    par.get( sKeyOrigin(), origin_.row(), origin_.col() );
     par.get( sKeyNrRows(), nrrows_ );
     par.get( sKeyNrCols(), nrcols_ );
     par.get( sKeyNrCells(), nrcells_ );
@@ -854,11 +854,11 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	    for ( int neighbor=neighbors_.size()-1; neighbor>=0; neighbor-- )
 	    {
 		const RowCol& rc = neighbors_[neighbor];
-		const int sourcerow = targetrow+rc.row;
+		const int sourcerow = targetrow+rc.row();
 		if ( sourcerow<0 || sourcerow>=nrrows_ )
 		    continue;
 
-		const int sourcecol = targetcol+rc.col;
+		const int sourcecol = targetcol+rc.col();
 		if ( sourcecol<0 || sourcecol>=nrcols_ )
 		    continue;
 

@@ -367,7 +367,7 @@ protected:
 	    positions.setCapacity( nrCrdsPerTileSide_ * nrCrdsPerTileSide_ );
 	    for ( int rowidx=0; rowidx<nrCrdsPerTileSide_ ; rowidx++ )
 	    {
-		const int row = origin.row + rowidx*rrg_.step;
+		const int row = origin.row() + rowidx*rrg_.step;
 		const bool rowok = rrg_.includes(row, false);
 		const StepInterval<int> colrg( 
 			mMAX(geo_.colRange(row).start, crg_.start),
@@ -375,7 +375,7 @@ protected:
 
 		for ( int colidx=0; colidx<nrCrdsPerTileSide_ ; colidx++ )
 		{
-		    const int col = origin.col + colidx*colrg.step;
+		    const int col = origin.col() + colidx*colrg.step;
 		    Coord3 pos = rowok && colrg.includes(col, false)
 			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
@@ -883,8 +883,8 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
 				    OD::TakeOverPtr, 0 );
 
-    updateTileTextureOrigin( RowCol( rrg.start - origin_.row,
-				     crg.start - origin_.col ) );
+    updateTileTextureOrigin( RowCol( rrg.start - origin_.row(),
+				     crg.start - origin_.col() ) );
 }
 
 
@@ -1212,18 +1212,18 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
     {
 	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
 	RowCol rc = absrc - origin_; 
-	rc.row /= rrg.step; rc.col /= crg.step;
+	rc.row() /= rrg.step; rc.col() /= crg.step;
 
-	int tilerowidx = rc.row/mTileSideSize;
-	int tilerow = rc.row%mTileSideSize;
+	int tilerowidx = rc.row()/mTileSideSize;
+	int tilerow = rc.row()%mTileSideSize;
 	if ( tilerowidx==nrrowsz && !tilerow )
 	{
 	    tilerowidx--;
 	    tilerow = mTileLastIdx;
 	}
 
-	int tilecolidx = rc.col/mTileSideSize;
-	int tilecol = rc.col%mTileSideSize;
+	int tilecolidx = rc.col()/mTileSideSize;
+	int tilecol = rc.col()%mTileSideSize;
 	if ( tilecolidx==nrcolsz && !tilecol )
 	{
 	    tilecolidx--;
@@ -1365,24 +1365,24 @@ void HorizonSection::updateTileArray()
     int nrnewrowsbefore = 0;
     int nrnewcolsbefore = 0;
 	
-    int diff = origin_.row - rrg.start;
+    int diff = origin_.row() - rrg.start;
     if ( diff>0 ) 
     {
 	nrnewrowsbefore = diff/rowsteps + (diff%rowsteps ? 1 : 0);
     	newrowsize += nrnewrowsbefore;
     }
 
-    diff = rrg.stop - (origin_.row+oldrowsize*rowsteps);
+    diff = rrg.stop - (origin_.row()+oldrowsize*rowsteps);
     if ( diff>0 ) newrowsize += diff/rowsteps + (diff%rowsteps ? 1 : 0);
     
-    diff = origin_.col - crg.start;
+    diff = origin_.col() - crg.start;
     if ( diff>0 ) 
     {
 	nrnewcolsbefore = diff/colsteps + (diff%colsteps ? 1 : 0);
     	newcolsize += nrnewcolsbefore;
     }
 
-    diff = crg.stop - (origin_.col+oldcolsize*colsteps);
+    diff = crg.stop - (origin_.col()+oldcolsize*colsteps);
     if ( diff>0 ) newcolsize += diff/colsteps + (diff%colsteps ? 1 : 0);
 
     if ( newrowsize==oldrowsize && newcolsize==oldcolsize )
@@ -1403,8 +1403,8 @@ void HorizonSection::updateTileArray()
 
     writeLock();
     tiles_.copyFrom( newtiles );
-    origin_.row -= nrnewrowsbefore*rowsteps;
-    origin_.col -= nrnewcolsbefore*colsteps;
+    origin_.row() -= nrnewrowsbefore*rowsteps;
+    origin_.col() -= nrnewcolsbefore*colsteps;
     writeUnLock();
 }
 
@@ -1427,7 +1427,7 @@ void HorizonSection::updateTileTextureOrigin( const RowCol& textureorigin )
 	    const RowCol tilestart( rowidx*mTileSideSize, colidx*mTileSideSize);
 	    const RowCol texturestart = tilestart - textureorigin/step;
 
-	    tile->setTextureOrigin( texturestart.row, texturestart.col );
+	    tile->setTextureOrigin( texturestart.row(), texturestart.col() );
 	}
     }
 }
@@ -1437,8 +1437,8 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
 {
     mDefineRCRange;
     const RowCol step( rrg.step, crg.step );
-    const RowCol tileorigin( origin_.row+tilerowidx*mTileSideSize*step.row,
-			     origin_.col+tilecolidx*mTileSideSize*step.col );
+    const RowCol tileorigin( origin_.row()+tilerowidx*mTileSideSize*step.row(),
+			     origin_.col()+tilecolidx*mTileSideSize*step.col() );
     HorizonSectionTile* tile = new HorizonSectionTile( *this, tileorigin,
 	    			wireframematerial_->getInventorNode() );
 
@@ -1818,7 +1818,7 @@ void HorizonSectionTile::updateNormals( char res )
     { \
         if ( !beforefound ) \
         { \
-            const int cur##rc = rc-idx*step.rc; \
+            const int cur##rc = rc-idx*step.rc(); \
             if ( cur##rc>=rc##range.start ) \
             { \
                 const Coord3 pos =  \
@@ -1834,7 +1834,7 @@ void HorizonSectionTile::updateNormals( char res )
  \
         if ( idx && !afterfound ) \
         { \
-            const int cur##rc = rc+idx*step.rc; \
+            const int cur##rc = rc+idx*step.rc(); \
             if ( cur##rc<=rc##range.stop ) \
             { \
                 const Coord3 pos =  \
@@ -1876,8 +1876,8 @@ void HorizonSectionTile::computeNormal( int nmidx, int res,
     const int normalcol = 
 	(nmidx-section_.normalstartidx_[res])%section_.normalsidesize_[res];
 
-    const int row = origin_.row + step.row * normalrow*section_.spacing_[res];
-    const int col = origin_.col + step.col * normalcol*section_.spacing_[res];
+    const int row = origin_.row() + step.row() * normalrow*section_.spacing_[res];
+    const int col = origin_.col() + step.col() * normalcol*section_.spacing_[res];
 
     const StepInterval<int> rowrange = section_.geometry_->rowRange();
     const StepInterval<int> colrange = section_.geometry_->colRange();

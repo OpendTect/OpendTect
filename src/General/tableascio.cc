@@ -196,7 +196,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	else if ( typ == 2 )
 	    fms += elem.pos_.getUsrStr();
 	else
-	    { fms += elem.keyword_; fms += elem.pos_.col; }
+	    { fms += elem.keyword_; fms += elem.pos_.col(); }
     }
     iopar.set( IOPar::compKey("Selection",nm), fms );
 }
@@ -248,7 +248,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	{
 	    curfmsidx++;
 	    elem.keyword_ = res;
-	    elem.pos_.col = toInt( fms[curfmsidx] );
+	    elem.pos_.col() = toInt( fms[curfmsidx] );
 	}
 
 	selection_.elems_ += elem;
@@ -379,7 +379,7 @@ bool FormatDesc::bodyUsesCol( int icol ) const
 	const TargetInfo::Selection& sel = info.selection_;
 	for ( int ielm=0; ielm<sel.elems_.size(); ielm++ )
 	{
-	    if ( sel.elems_[ielm].pos_.col == icol )
+	    if ( sel.elems_[ielm].pos_.col() == icol )
 		return true;
 	}
     }
@@ -402,7 +402,7 @@ struct BodyInfo
 		    , specnr_(specnr)
 		{
 		    if ( sel_.havePos(specnr_) )
-			col_ = sel_.elems_[specnr_].pos_.col;
+			col_ = sel_.elems_[specnr_].pos_.col();
 		}
     virtual	~BodyInfo()			{}
     bool	operator ==( const BodyInfo& bi )
@@ -430,7 +430,7 @@ struct HdrInfo : public BodyInfo
 			if ( elem.isKeyworded() )
 			    keyw_ = elem.keyword_;
 			else
-			    row_ = elem.pos_.row;
+			    row_ = elem.pos_.row();
 		    }
 		    else
 		    {
@@ -819,5 +819,5 @@ int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
     const ObjectSet<TargetInfo>& tis = hdr ? fd_.headerinfos_ : fd_.bodyinfos_;
     if ( tis.size() <= iinf ) return 0;
 
-    return tis[iinf]->selection_.elems_[ielem].pos_.col;
+    return tis[iinf]->selection_.elems_[ielem].pos_.col();
 }

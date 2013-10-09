@@ -172,7 +172,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 		fd_.bodyinfos_[icol+1]->selection_.elems_ +=
 		  Table::TargetInfo::Selection::Elem( RowCol(0,nmcol+icol), 0 );
 	    else
-		fd_.bodyinfos_[icol+1]->selection_.elems_[0].pos_.col
+		fd_.bodyinfos_[icol+1]->selection_.elems_[0].pos_.col()
 		    = icol + nmcol;
 	}
     }

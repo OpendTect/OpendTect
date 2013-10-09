@@ -107,14 +107,14 @@ void uiDPSSelGrpDlg::addSelGrp( CallBacker* cb )
     tbl_->insertRows( tbl_->nrRows(), 1 );
     tbl_->setColumnReadOnly( 1, true );
     RowCol newcell = RowCol( tbl_->nrRows()-1, 1 );
-    tbl_->setColor( RowCol(newcell.row,1), getRandomColor() );
+    tbl_->setColor( RowCol(newcell.row(),1), getRandomColor() );
     BufferString selgrpnm( "No " );
     static int selgrpnr = 2;
     selgrpnm += selgrpnr;
     selgrpnr++;
-    tbl_->setText( RowCol(newcell.row,0), selgrpnm );
+    tbl_->setText( RowCol(newcell.row(),0), selgrpnm );
     selgrps_ +=
-	new SelectionGrp( selgrpnm, tbl_->getColor(RowCol(newcell.row,1)) );
+	new SelectionGrp( selgrpnm, tbl_->getColor(RowCol(newcell.row(),1)) );
 
     setCurSelGrp(0);
 }
@@ -169,12 +169,12 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
     if ( tbl_->currentRow() < 0 ) return;
 
     RowCol rc = tbl_->notifiedCell();
-    if ( !rc.col ) return;
+    if ( !rc.col() ) return;
 
     Color newcol = tbl_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
     {
-	selgrps_[rc.row]->col_ = newcol;
+	selgrps_[rc.row()]->col_ = newcol;
 	tbl_->setColor( rc, newcol );
     }
 

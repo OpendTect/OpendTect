@@ -75,7 +75,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 	if ( hor3d )
 	{
 	    RowCol rc = hor3d->geometry().step();
-	    BinID step( rc.row, rc.col );
+	    BinID step( rc.row(), rc.col() );
 	    interpol2dsel_->setStep( step );
 	}
     }

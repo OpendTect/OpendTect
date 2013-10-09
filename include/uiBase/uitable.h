@@ -195,17 +195,17 @@ public:
 
     void		insertRows(int row,int count);
     inline void		insertRows( const RowCol& rc, int count )
-			    { insertRows( rc.row, count ); }
+			    { insertRows( rc.row(), count ); }
     void		insertColumns(int col,int count);
     inline void		insertColumns( const RowCol& rc, int count )
-			    { insertColumns( rc.col, count ); }
+			    { insertColumns( rc.col(), count ); }
     void		removeRow(int);
     void		removeRow( const RowCol& rc )
-    				{ removeRow( rc.row ); }
+    				{ removeRow( rc.row() ); }
     void		removeRows(const TypeSet<int>&);
     void		removeColumn(int);
     void		removeColumn( const RowCol& rc )
-    				{ removeColumn( rc.col ); }
+    				{ removeColumn( rc.col() ); }
     void		removeColumns(const TypeSet<int>&);
 
     bool		isSelected(const RowCol&) const;
@@ -228,22 +228,22 @@ public:
 
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
-			    { return rowLabel(rc.row); }
+			    { return rowLabel(rc.row()); }
     void		setRowLabel(int,const char*); // also sets tooltip
     void		setRowLabels(const char**);
     void		setRowLabels(const BufferStringSet&);
     void		setRowLabel( const RowCol& rc, const char* lbl )
-			    { setRowLabel( rc.row, lbl ); }
+			    { setRowLabel( rc.row(), lbl ); }
     void		setRowToolTip(int,const char*);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
-			    { return columnLabel(rc.col); }
+			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const char*); // also sets tooltip
     void		setColumnLabels(const char**);
     void		setColumnLabels(const BufferStringSet&);
     void		setColumnLabel( const RowCol& rc, const char* lbl )
-			    { setColumnLabel( rc.col, lbl ); }
+			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const char*);
 
     void		setDefaultRowLabels();

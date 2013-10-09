@@ -372,11 +372,11 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 	//diagonal
 
 	const RowCol dir = line[idx]-line[idx-1];
-	if ( !dir.row || !dir.col )
+	if ( !dir.row() || !dir.col() )
 	    continue;
 
-	const RowCol rownode = line[idx]-RowCol(dir.row,0);
-	const RowCol colnode = line[idx]-RowCol(0, dir.col);
+	const RowCol rownode = line[idx]-RowCol(dir.row(),0);
+	const RowCol colnode = line[idx]-RowCol(0, dir.col());
 	const int rowindex = els.indexOf(rownode);
 	const int colindex = els.indexOf(colnode);
 

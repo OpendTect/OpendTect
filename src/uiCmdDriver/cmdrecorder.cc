@@ -361,9 +361,9 @@ static bool deepFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 	if ( uitable )
 	{
 	    RowCol rc;
-	    for ( rc.row=0; rc.row<uitable->nrRows(); rc.row++ )
+	    for ( rc.row()=0; rc.row()<uitable->nrRows(); rc.row()++ )
 	    {
-		for ( rc.col=0; rc.col<uitable->nrCols(); rc.col++ )
+		for ( rc.col()=0; rc.col()<uitable->nrCols(); rc.col()++ )
 		{
 		    uiObject* uiobj = uitable->getCellObject( rc );
 		    if ( uiobj && doFindKeyStr(srcwin, event, uiobj) )

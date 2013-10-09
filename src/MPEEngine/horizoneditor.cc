@@ -119,15 +119,15 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
     const RowCol rc = movingnode.getRowCol();
     const RowCol step = horizon->geometry().step();
 
-    for ( int ridx=-editarea.row; ridx<=editarea.row; ridx++ )
+    for ( int ridx=-editarea.row(); ridx<=editarea.row(); ridx++ )
     {
-	for ( int cidx=-editarea.col; cidx<=editarea.col; cidx++ )
+	for ( int cidx=-editarea.col(); cidx<=editarea.col(); cidx++ )
 	{
 	    float effect = 1;
 	    if ( !horbox )
 	    {
-		const float relrow = (float)ridx/editarea.row;
-		const float relcol = (float)cidx/editarea.col;
+		const float relrow = (float)ridx/editarea.row();
+		const float relcol = (float)cidx/editarea.col();
 		const float curradius = Math::Sqrt(relrow*relrow+relcol*relcol);
 		if ( curradius>1 ) 
 		    continue;
@@ -140,20 +140,20 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 
 		if ( ridx )
 		{
-		    const float rowfactor = fabs((float)ridx)/(editarea.row+1);
+		    const float rowfactor = fabs((float)ridx)/(editarea.row()+1);
 		    const float colfactor = fabs((float)cidx)/rowfactor;
 		    const float totallength =
-			Math::Sqrt(editarea.row*editarea.row+colfactor*colfactor);
+			Math::Sqrt(editarea.row()*editarea.row()+colfactor*colfactor);
 
 		    effect = 1-length/totallength;
 		}
 
 		if ( cidx )
 		{
-		    const float colfactor = fabs((float)cidx)/(editarea.col+1);
+		    const float colfactor = fabs((float)cidx)/(editarea.col()+1);
 		    const float rowfactor = fabs((float)ridx)/colfactor;
 		    const float totallength =
-			Math::Sqrt(editarea.col*editarea.col+rowfactor*rowfactor);
+			Math::Sqrt(editarea.col()*editarea.col()+rowfactor*rowfactor);
 
 		    const float neweffect = 1-length/totallength;
 		    effect = mMIN(neweffect,effect);

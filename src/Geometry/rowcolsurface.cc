@@ -25,21 +25,21 @@ public:
 
     GeomPosID           next()
     {
-	if ( curpos_.row==-1 )
+	if ( curpos_.row()==-1 )
 	{
-	    curpos_.row = rowrg_.start;
-	    curpos_.col = colrg_.start;
+	    curpos_.row() = rowrg_.start;
+	    curpos_.col() = colrg_.start;
 	}
 	else
 	{
-	    curpos_.col += colrg_.step;
-	    if ( !colrg_.includes( curpos_.col, false ) )
+	    curpos_.col() += colrg_.step;
+	    if ( !colrg_.includes( curpos_.col(), false ) )
 	    {
-		curpos_.row += rowrg_.step;
-		if ( !rowrg_.includes( curpos_.row, false ) )
+		curpos_.row() += rowrg_.step;
+		if ( !rowrg_.includes( curpos_.row(), false ) )
 		    return -1;
 
-		curpos_.col = colrg_.start;
+		curpos_.col() = colrg_.start;
 	    }
 	}
 
@@ -69,8 +69,8 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
     RowCol rc;
     for ( int rowidx=0; rowidx<nrrows; rowidx++ )
     {
-	rc.row = rowrg.atIndex( rowidx );
-	const StepInterval<int> colrg = colRange( rc.row );
+	rc.row() = rowrg.atIndex( rowidx );
+	const StepInterval<int> colrg = colRange( rc.row() );
 	if ( colrg.start>colrg.stop )
 	    continue;
 
@@ -78,7 +78,7 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 
 	for ( int colidx=0; colidx<nrcols; colidx++ )
 	{
-	    rc.col = colrg.atIndex( colidx );
+	    rc.col() = colrg.atIndex( colidx );
 
 	    if ( remudf && !isKnotDefined(rc) ) continue;
 

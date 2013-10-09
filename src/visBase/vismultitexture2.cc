@@ -118,7 +118,7 @@ bool MultiTexture2::isOn() const
 
 void MultiTexture2::clearAll()
 {
-    size_.row = -1; size_.col = -1;
+    size_.row() = -1; size_.col() = -1;
 
     for ( int idx=0; idx<nrTextures(); idx++ )
     {
@@ -339,19 +339,19 @@ static bool newsize_ = false;
 
 bool MultiTexture2::setSize( int sz0, int sz1 )
 {
-    if ( size_.row==sz0 && size_.col==sz1 )
+    if ( size_.row()==sz0 && size_.col()==sz1 )
 	return true;
 
-    if ( size_.row>=0 && size_.col>=0 &&
+    if ( size_.row()>=0 && size_.col()>=0 &&
 		(nrTextures()>1 || (nrTextures() && nrVersions(0)>1)) )
 	{ pErrMsg("Invalid size" ); return false; }
 
-    size_.row = sz0;
-    size_.col = sz1;
+    size_.row() = sz0;
+    size_.col() = sz1;
     if ( layersize0_ )
     {
-	layersize0_->value.setValue( size_.col );
-	layersize1_->value.setValue( size_.row );
+	layersize0_->value.setValue( size_.col() );
+	layersize1_->value.setValue( size_.row() );
     }
 
     newsize_ = true;
@@ -436,7 +436,7 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
     reviewShading();
     const unsigned char* texture0 = getCurrentTextureIndexData(texturenr);
 
-    if ( size_.row<0 || size_.col<0 || !texture0 )
+    if ( size_.row()<0 || size_.col()<0 || !texture0 )
     {
 	if ( useshading_ && layeropacity_ )
 	    layeropacity_->value.set1Value( texturenr, 0 );
@@ -448,7 +448,7 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
 
     if ( useshading_ )
     {
-	const int nrelem = size_.col*size_.row;
+	const int nrelem = size_.col()*size_.row();
 
 	const int unit = texturenr/mLayersPerUnit;
 	int texturenrbase = unit*mLayersPerUnit;
@@ -489,7 +489,7 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
 	    if ( !texture )
 		return;
 
-	    texture->image.setValue( SbVec2s(size_.col,size_.row), num, ptr,
+	    texture->image.setValue( SbVec2s(size_.col(),size_.row()), num, ptr,
 				     SoSFImage::COPY );
 	}
 	else
@@ -499,13 +499,13 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
 	    if ( !texture )
 		return;
 	    
-	    texture->image.setValue( SbVec2s(size_.col,size_.row), num, ptr,
+	    texture->image.setValue( SbVec2s(size_.col(),size_.row()), num, ptr,
 				     SoSFImage::COPY );
 	}
     }
     else
     {
-	const SbImagei32 image( texture0, SbVec2i32(size_.col,size_.row), 1 );
+	const SbImagei32 image( texture0, SbVec2i32(size_.col(),size_.row()), 1 );
 	texture_->image.set1Value( texturenr, image );
     }
 
@@ -772,12 +772,12 @@ void MultiTexture2::createShadingVars()
 
 	layersize0_ = new SoShaderParameter1i;
 	layersize0_->name.setValue("texturesize0");
-	layersize0_->value.setValue(size_.col);
+	layersize0_->value.setValue(size_.col());
 	fragmentshader_->parameter.addNode( layersize0_ );
 
 	layersize1_ = new SoShaderParameter1i;
 	layersize1_->name.setValue("texturesize1");
-	layersize1_->value.setValue(size_.row);
+	layersize1_->value.setValue(size_.row());
 	fragmentshader_->parameter.addNode( layersize1_ );
 
 	const int maxnrunits = (MultiTexture2::maxNrTextures()-1)/
@@ -863,14 +863,14 @@ void MultiTexture2::reviewShading()
     if ( canUseShading() )
     {
 	const int maxshadingsize = SoShaderTexture2::getMaxSize();
-	if ( size_.row>0 && size_.col>0 && (dosplittexture_ ||
-	     (size_.row<=maxshadingsize && size_.col<=maxshadingsize)) )
+	if ( size_.row()>0 && size_.col()>0 && (dosplittexture_ ||
+	     (size_.row()<=maxshadingsize && size_.col()<=maxshadingsize)) )
 	    res = true;
-	else if ( newsize_ && size_.row>0 && size_.col>0 )
+	else if ( newsize_ && size_.row()>0 && size_.col()>0 )
 	{
 	    BufferString msg( "Texture size is too large for using shading.\n"
 			      "Current size is (" );
-	    msg += size_.row; msg += ","; msg += size_.col; msg += "). ";
+	    msg += size_.row(); msg += ","; msg += size_.col(); msg += "). ";
 	    msg += "Maximum size is: ("; msg += maxshadingsize; msg += ",";
 	    msg += maxshadingsize; msg += ").";
 	    ErrMsg( msg );
