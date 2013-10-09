@@ -38,7 +38,7 @@ public:
     int			indexOf( const BufferString* b ) const
 				{ return ObjectSet<BufferString>::indexOf(b); }
     inline bool		isPresent( const BufferString* b ) const
-				{ return ObjectSet<BufferString>::isPresent(b); }
+				{ return ObjectSet<BufferString>::isPresent(b);}
     inline bool		isPresent( const char* s ) const
 				{ return indexOf(s) >= 0; }
     int			nearestMatch(const char*,bool caseinsens=true) const;
