@@ -19,15 +19,17 @@ ________________________________________________________________________
 #ifdef __cpp__
 
 class IOPar;
+class Color;
 class BinID;
 class Coord;
 class Coord3;
 class TrcKey;
+class MultiID;
 class BufferString;
-template<class T> class Interval;
-template<class T> class StepInterval;
-template<class T> class ObjectSet;
 template<class T> class TypeSet;
+template<class T> class Interval;
+template<class T> class ObjectSet;
+template<class T> class StepInterval;
 
 
 namespace Pos
