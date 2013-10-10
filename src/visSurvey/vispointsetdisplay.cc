@@ -37,8 +37,8 @@ PointSetDisplay::PointSetDisplay()
 
 PointSetDisplay::~PointSetDisplay()
 {
-    setSceneEventCatcher(0);
-
+    setSceneEventCatcher( 0 );
+    setDisplayTransformation( 0 );
     removeChild( pointset_->getInventorNode() );
     if ( data_ )
 	DPM( DataPackMgr::PointID() ).release( data_->id() );
@@ -169,6 +169,7 @@ const mVisTrans* PointSetDisplay::getDisplayTransformation() const
 void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
     if ( eventcatcher_ ) eventcatcher_->unRef();
+    eventcatcher_ = 0;
 
     if ( !nevc ) return;
 
