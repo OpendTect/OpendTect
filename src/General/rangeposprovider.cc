@@ -121,8 +121,8 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 {
-    txt.set( cs_.hrg.start.getUsrStr() ).add( "-" )
-       .add( cs_.hrg.stop.getUsrStr() );
+    txt.set( cs_.hrg.start.getUsrStr() ).add( "-" );
+    txt.add( cs_.hrg.stop.getUsrStr() ); // needs to be a separate line
     const int nrsamps = cs_.zrg.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );
