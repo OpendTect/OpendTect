@@ -15,7 +15,6 @@
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 
-class MultiID;
 class uiGenInput;
 class uiLabeledSpinBox;
 class uiMultiWellLogSel;

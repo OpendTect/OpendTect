@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emobject.h"
 
 class uiColorInput;
-class uiGenInput;
 class uiSliderExtra;
 
 mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg

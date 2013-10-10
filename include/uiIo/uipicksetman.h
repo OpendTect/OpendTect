@@ -19,7 +19,6 @@ ________________________________________________________________________
 PickSet manager
 */
 
-class uiButton;
 
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 {

@@ -19,7 +19,6 @@ class StratSynth;
 
 class uiComboBox;
 class uiGenInput;
-class uiCheckBox;
 class uiFlatViewer;
 class uiRayTracerSel;
 class uiListBox;

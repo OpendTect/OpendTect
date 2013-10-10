@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "rawarray.h"
+#include "bufstring.h"
 
 
 /*!\brief Raw data array with memory management. */
@@ -32,6 +33,7 @@ public:
     void		reSize(int,bool copydata=true);
     void		reByte(int,bool copydata=true);
     void		zero();
+    BufferString	getString() const;
 
 };
 

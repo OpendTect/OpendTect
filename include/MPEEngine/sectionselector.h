@@ -19,11 +19,6 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "sets.h"
 
-namespace EM
-{
-    class EMObject;
-};
-
 
 namespace MPE
 {

@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class IOObj;
 class VelocityDesc;
-class MultiID;
 
 /*! Writes velocity information to an IOObj. */
 mGlobal(General) bool SetVelocityTag(IOObj&,const VelocityDesc&);

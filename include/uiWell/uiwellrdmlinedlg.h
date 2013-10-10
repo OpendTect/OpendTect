@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 
-class MultiID;
 class IOObj;
 class CtxtIOObj;
 class uiCheckBox;

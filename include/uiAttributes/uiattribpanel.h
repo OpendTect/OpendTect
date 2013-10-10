@@ -20,8 +20,7 @@ ________________________________________________________________________
 class FlatDataPack;
 class uiFlatViewMainWin;
 
-template <class T> class Array2D;
-namespace Attrib { class EngineMan; class DescSet; class DataCubes;
+namespace Attrib { class EngineMan; class DescSet;
     		   class Data2DHolder; class Processor; }
 
 /*! \brief Attribute preview in a 2d viewer */

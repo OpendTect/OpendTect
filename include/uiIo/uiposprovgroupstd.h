@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiposprovgroup.h"
-class MultiID;
 class CtxtIOObj;
 class CubeSampling;
 class uiGenInput;

@@ -29,7 +29,6 @@ namespace visBase
     class RandomTrackDragger; 
 };
 
-namespace Attrib { class SelSpec; }
 
 namespace visSurvey
 {

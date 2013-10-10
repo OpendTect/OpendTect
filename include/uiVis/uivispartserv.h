@@ -20,12 +20,9 @@ ________________________________________________________________________
 #include "thread.h"
 #include "uiapplserv.h"
 
-class BinIDValueSet;
 class BufferStringSet;
-class Color;
 class DataPointSet;
 class MouseCursorExchange;
-class MultiID;
 class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;

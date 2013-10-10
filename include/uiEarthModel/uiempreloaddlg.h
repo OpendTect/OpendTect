@@ -19,7 +19,6 @@ class uiListBox;
 class uiPushButton;
 class uiTextEdit;
 class uiToolButton;
-class MultiID;
 
 mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
 {

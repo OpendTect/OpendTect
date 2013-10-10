@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uiattremout.h"
 
-class MultiID;
 class NLAModel;
 class uiGenInput;
 class uiIOObjSel;

@@ -25,17 +25,14 @@ ________________________________________________________________________
 class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
-class MultiID;
 
 class uiCheckBox;
 class uiColorInput;
 class uiFaultOptSel;
-class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
-class uiTable;
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 

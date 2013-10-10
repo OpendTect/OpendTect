@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class CubeSampling;
-class MultiID;
 class SeisTrcBuf;
 class uiFlatViewWin;
 

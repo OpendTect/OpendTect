@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
 
-namespace Attrib { class SelSpec; };
-
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 

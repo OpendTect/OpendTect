@@ -27,6 +27,7 @@ class SoFragmentShader;
 class SoShaderParameter1i;
 class SoShaderParameter2i;
 class SoShaderParameterArray1f;
+template <class T> class Array2D;
 
 namespace visBase
 {

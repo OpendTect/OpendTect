@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 class uiIOObjSel;
 class uiPushButton;
-class MultiID;
 
 namespace PreStack
 {

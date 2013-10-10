@@ -15,12 +15,11 @@ ________________________________________________________________________
 #include "uivolumeprocessingmod.h"
 #include "uibatchlaunch.h"
 
-class CtxtIOObj;
 class IOObj;
 
-class uiGenInput;
 class uiIOObjSel;
 class uiPosSubSel;
+class uiPushButton;
 class uiVelocityDesc;
 
 

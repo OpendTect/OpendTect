@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "bufstring.h"
 class IOObj;
-class MultiID;
 
 
 namespace Well

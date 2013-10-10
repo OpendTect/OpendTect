@@ -18,8 +18,6 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-class RowCol;
-
 namespace visBase { class IndexedPolyLine3D; class Transformation; };
 namespace EM { class EdgeLineSet; };
 

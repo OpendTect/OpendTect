@@ -19,7 +19,6 @@ ________________________________________________________________________
 class uiIOObjSel;
 class uiSeisSubSel;
 class uiFileInput;
-class MultiID;
 
 namespace PreStack
 {

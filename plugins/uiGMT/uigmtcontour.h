@@ -20,6 +20,7 @@ class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
 class uiPosSubSel;
+class uiPushButton;
 class uiSelLineStyle;
 
 namespace EM { class SurfaceIOData; class Horizon3D; }

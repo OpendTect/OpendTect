@@ -25,8 +25,6 @@ ________________________________________________________________________
 namespace EM { class Fault; class Horizon; }
 namespace Geometry { class ExplFaultStickSurface; }
 namespace PosInfo { class Line2DData; }
-class IOObj;
-class MultiID;
 class BinIDValueSet;
 
 /*!

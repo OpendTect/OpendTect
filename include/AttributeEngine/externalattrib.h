@@ -28,7 +28,6 @@ namespace Attrib
 {
 
 class SelSpec;
-class DataCubes;
 
 /*!
 \brief Generic class for attribs that does not come from the attribute engine.

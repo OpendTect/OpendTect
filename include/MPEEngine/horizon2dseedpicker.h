@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 #include "surv2dgeom.h"
 
-namespace Attrib { class Data2DHolder; class SelSpec; }
+namespace Attrib { class SelSpec; }
 
 namespace MPE
 {

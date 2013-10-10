@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
-class uiGenInput;
 class uiIOObjSel;
 class uiSeisSubSel;
 class uiVelSel;

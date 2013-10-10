@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
-class MultiID;
 class uiIOObjSel;
 class uiPosSubSel;
 class uiGenInput;

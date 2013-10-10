@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seispsioprov.h"
 class SeisTrcReader;
-class MultiID;
 
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */

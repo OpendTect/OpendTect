@@ -17,11 +17,9 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "volprocsurfacelimitedfiller.h"
 
-class MultiID;
 class uiGenInput;
 class uiIOObjSel;
 class IOObj;
-class uiListBox;
 class uiPushButton;
 class uiTable;
 class uiHorizonAuxDataSel;

@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "surv2dgeom.h"
 
 class uiComboBox;
-class uiLabeledSpinBox;
 class uiListBox;
 class uiSeisSel;
 class uiSelNrRange;

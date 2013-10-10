@@ -26,7 +26,6 @@ ________________________________________________________________________
 namespace Attrib
 {
     class DataCubes;
-    class Data2DHolder;
     class Desc;
     class DescSet;
     class EngineMan;
@@ -38,7 +37,6 @@ class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
 class DataPointSetDisplayMgr;
-class Executor;
 class IOObj;
 class LineKey;
 class NLAModel;

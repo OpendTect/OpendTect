@@ -20,7 +20,6 @@ ________________________________________________________________________
 class BinIDValueSet;
 class CubeSampling;
 class IOObj;
-class SeisTrcReader;
 
 template <class T> class Array3D;
 

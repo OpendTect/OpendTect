@@ -17,11 +17,9 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "bufstring.h"
 
-namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
+namespace Attrib { class Desc; class DescSet; class SelInfo; };
 
-class MultiID;
 class uiButtonGroup;
-class uiGenInput;
 class uiListBox;
 class uiRadioButton;
 class NLAModel;

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
-class Color;
 class uiLabel;
 class uiListBoxBody;
 class uiMenu;

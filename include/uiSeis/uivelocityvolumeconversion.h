@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uibatchlaunch.h"
 
-class CtxtIOObj;
 class uiVelSel;
 class uiSeisSel;
 class uiPosSubSel;

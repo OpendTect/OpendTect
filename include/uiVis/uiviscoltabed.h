@@ -19,7 +19,6 @@ ________________________________________________________________________
 namespace visSurvey { class SurveyObject; }
 namespace ColTab { class Sequence; class MapperSetup; }
 class uiColorTable;
-class uiGroup;
 
 
 mExpClass(uiVis) uiVisColTabEd : public CallBacker

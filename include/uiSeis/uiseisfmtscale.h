@@ -17,7 +17,6 @@ ________________________________________________________________________
 class IOObj;
 class Scaler;
 class uiScaler;
-class uiGenInput;
 class uiSeisFmtScaleComp;
 
 

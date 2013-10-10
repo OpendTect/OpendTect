@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class CubeSampling;
 class LineKey;
-class MultiID;
 class IOObj;
 class SeisTrcReader;
 class SeisTrcBuf;

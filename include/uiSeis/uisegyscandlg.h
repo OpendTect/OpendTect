@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; class FileIndexer; }
-class CtxtIOObj;
 class uiSeisSel;
 class uiSeis2DLineSel;
 

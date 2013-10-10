@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "refcount.h"
 
-class Color;
 class CubeSampling;
 class Executor;
 class IOObj;

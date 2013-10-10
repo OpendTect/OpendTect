@@ -23,14 +23,11 @@ class uiComboBox;
 class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
-class uiIOObjSel;
 class uiLabel;
 class uiLabeledListBox;
 class uiTable;
 class BufferStringSet;
 class od_ostream;
-class CtxtIOObj;
-class UnitOfMeasure;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }

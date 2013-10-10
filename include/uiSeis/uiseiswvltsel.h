@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
-class MultiID;
 class Wavelet;
 class uiComboBox;
 

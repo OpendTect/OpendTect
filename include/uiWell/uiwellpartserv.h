@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "bufstringset.h"
 
-class Color;
-class MultiID;
 namespace Well { class Data; class LogDisplayParSet; }
 
 class uiWell2RandomLineDlg;

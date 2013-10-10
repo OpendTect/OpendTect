@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 
 class ArrayNDWindow;
-class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class CtxtIOObj;
 class IOObj;

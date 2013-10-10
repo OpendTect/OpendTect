@@ -25,7 +25,6 @@ ________________________________________________________________________
 namespace FlatView { class Viewer; }
 
 class FlatPosData;
-class MultiID;
 
 namespace EM
 {

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "veldesc.h"
 
 class uiGenInput;
-class uiSeisSel;
 class uiLabeledComboBox;
 
 /*!Group that allows the user to edit StaticsDesc information. */

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 
 class LegendKit;
-class Color;
 namespace ColTab { class MapperSetup; }
 
 namespace visBase

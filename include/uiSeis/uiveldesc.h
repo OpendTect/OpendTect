@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 
 class uiSeisSel;
-class uiCheckBox;
 class uiStaticsDesc;
 class uiZRangeInput;
 class VelocityStretcher;

@@ -24,12 +24,11 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "geomelement.h"
 
-class Color;
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
 namespace EM { class EdgeLineSet; }
 namespace Attrib { class SelSpec; }
-namespace visBase { class Marker; class Dragger; }
+namespace visBase { class Dragger; }
 
 
 namespace visSurvey

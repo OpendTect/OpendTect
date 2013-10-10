@@ -18,7 +18,6 @@ ________________________________________________________________________
 class uiSeisSel;
 class uiGenInput;
 class CtxtIOObj;
-namespace EM { class Horizon3D; }
 namespace Pos { class EMSurfaceProvider3D; }
 
 

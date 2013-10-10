@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "stratunitref.h"
 #include "uilistbox.h"
 
-class BufferStringSet;
 class uiColorInput;
 class uiGenInput;
 class uiListBox;

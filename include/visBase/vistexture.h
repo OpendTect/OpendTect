@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class DataClipper;
 class SequentialTask;
-class Color;
 class SoComplexity;
 class SoGroup;
 class SoSwitch;

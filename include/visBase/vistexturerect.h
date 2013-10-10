@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visobject.h"
 
-class CubeSampling;
 
 /*!\brief A collection of geoscientific extensions to OpenSceneGraph.*/
 

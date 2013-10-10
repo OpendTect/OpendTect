@@ -23,8 +23,6 @@ ________________________________________________________________________
 
 class CubeDataPack;
 class IOObj;
-class FlatDataPack;
-class MultiID;
 class SeisTrc;
 class SeisTrcReader;
 template <class T> class Array3D;

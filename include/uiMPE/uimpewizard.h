@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-class Color;
-class CtxtIOObj;
 class IOObj;
 class uiButtonGroup;
 class uiColorInput;
@@ -28,9 +26,7 @@ class uiGenInput;
 class uiGroup;
 class uiIOObjSel;
 class uiIOObjSelGrp;
-class uiLabeledSpinBox;
 class uiLabel;
-class uiPushButton;
 class uiSelLineStyle;
 class uiMPEPartServer;
 class uiTextEdit;

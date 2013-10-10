@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "parametricsurface.h"
 
 class Line3;
+template <class T> class Array2D;
 
 namespace Geometry
 {

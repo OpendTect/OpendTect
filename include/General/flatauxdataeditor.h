@@ -21,7 +21,6 @@ ________________________________________________________________________
 class MouseEventHandler;
 class MouseEvent;
 class MenuHandler;
-class Color;
 
 namespace FlatView
 {

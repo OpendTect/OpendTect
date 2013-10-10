@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiattremout.h"
 
 class CtxtIOObj;
-class MultiID;
 class NLAModel;
 class uiGenInput;
 class uiIOObjSel;

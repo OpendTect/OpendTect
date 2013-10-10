@@ -18,7 +18,6 @@ ________________________________________________________________________
 class IOObj;
 class Scaler;
 class SeisTrc;
-class MultiID;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;

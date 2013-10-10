@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 class BaseMap;
 class BaseMapMarkers;
-class Color;
 class MouseCursor;
 class TaskRunner;
 class ZAxisTransform;

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "threadlock.h"
 
-template <class T> class Array2DImpl;
 class RowCol;
 class DAGTriangleTree;
 class Triangle2DInterpolator;

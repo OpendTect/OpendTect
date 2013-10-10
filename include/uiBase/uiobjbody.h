@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 #include "color.h"
 
-class uiButtonGroup;
 class i_LayoutItem;
 class i_LayoutMngr;
 class ioPixmap;

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 
-class Color;
 class uiComboBox;
 namespace Strat { class Level; } 
 

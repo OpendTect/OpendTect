@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "namedobj.h"
 
-class MultiID;
 namespace Well
 {
     class Data;

@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 
-template <class T> class Array2DImpl;
 template <class T> class Array2D;
 namespace visBase
 {
@@ -35,7 +34,6 @@ namespace visBase
 };
 
 class BinIDValueSet;
-class FlatDataPack;
 class BaseMapObject;
 
 namespace Attrib { class Flat3DDataPack; }

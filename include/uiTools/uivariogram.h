@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class BufferStringSet;
-class DataPointSet;
 class uiGenInput;
 class uiFunctionDisplay;
 class uiSliderExtra;

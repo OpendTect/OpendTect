@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "velocityfunction.h"
 
 class BinIDValueSet;
-class MultiID;
-class SeisTrcReader;
 class Gridder2D;
 
 namespace Vel

@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uidialog.h"
-class BufferStringSet;
 class UnitOfMeasure;
 class uiGenInput;
 class uiStratLayerContent;

@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "ranges.h"
 
 
-class DataPointSet;
-
 namespace visBase
 {
     class DrawStyle;

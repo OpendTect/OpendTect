@@ -17,10 +17,8 @@ ________________________________________________________________________
 namespace Attrib { class Desc; }
 class uiAttrSel;
 class uiGenInput;
-class uiLabel;
 class uiSteeringSel;
 class uiStepOutSel;
-class uiPushButton;
 class SeisTrcBuf;
 class CubeSampling;
 class LineKey;

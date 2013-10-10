@@ -9,13 +9,11 @@
 
 #include "uigroup.h"
 
-class BufferStringSet;
 class uiCheckBox;
 class uiComboBox;
 class uiLineEdit;
 class uiListBox;
 class uiMadagascarBldPlotCmd;
-class uiSplitter;
 class uiTextEdit;
 namespace ODMad { class ProgDef; class Proc; }
 

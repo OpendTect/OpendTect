@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "wellmarker.h"
 
 class uiStratLevelSel;
-class uiGenInput;
 class uiCheckBox;
 class uiTable;
 namespace Well { class Marker; class Track; class MarkerSet; }

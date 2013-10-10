@@ -23,7 +23,6 @@ ________________________________________________________________________
 class BinIDValueSet;
 class DataPointSet;
 class LineKey;
-class MultiID;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "draw.h"
 
-class Color;
 class ioPixmap;
 class uiFont;
 class uiGroup;

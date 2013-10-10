@@ -26,7 +26,6 @@ class BufferStringSet;
 class CubeSampling;
 class DataPointSet;
 class HorSampling;
-class MultiID;
 class SurfaceInfo;
 class uiExportHorizon;
 class uiExportFault;

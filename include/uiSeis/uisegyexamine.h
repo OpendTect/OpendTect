@@ -17,10 +17,8 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 class Timer;
 class SeisTrc;
-class uiLabel;
 class uiTable;
 class uiTextEdit;
-class uiGenInput;
 class SeisTrcBuf;
 class SeisTrcReader;
 class uiSEGYTrcHdrValPlot;

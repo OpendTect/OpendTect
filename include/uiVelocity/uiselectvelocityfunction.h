@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 
-class Color;
 class uiListBox;
 class uiColorInput;
 class uiGenInput;

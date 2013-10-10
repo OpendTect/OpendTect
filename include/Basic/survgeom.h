@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "trckey.h"
 #include "refcount.h"
 
-class MultiID;
 class TaskRunner;
 class IOObj;
 

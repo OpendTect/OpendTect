@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uidlggroup.h"
 
-class uiGenInput;
 class uiPushButton;
 
 namespace PreStack { class ProcessManager; class uiProcessorManager; }

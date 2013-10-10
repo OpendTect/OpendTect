@@ -17,9 +17,6 @@
 class Scaler;
 class SeisTrc;
 class LineKey;
-class uiGenInput;
-class uiIOObjSel;
-class uiFileInput;
 class SeisImporter;
 class SeisTrcReader;
 class SeisTrcWriter;

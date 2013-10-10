@@ -17,16 +17,12 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 class CtxtIOObj;
-class Executor;
 class IOObj;
-class MultiID;
 class uiGenInput;
 class uiIOObjSel;
-class uiPushButton;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
-template <class T> class Array2D;
 
 namespace EM 
 { 

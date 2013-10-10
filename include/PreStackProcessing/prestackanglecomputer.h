@@ -24,7 +24,6 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class FFTFilter;
-class MultiID;
 class RayTracer1D;
 class VelocityDesc;
 

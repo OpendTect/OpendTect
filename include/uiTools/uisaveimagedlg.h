@@ -23,7 +23,6 @@ class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
 class uiLabel;
-class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
 mExpClass(uiTools) uiSaveImageDlg : public uiDialog

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "bufstring.h"
 
-class MultiID;
 
 namespace Well
 {

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "multiid.h"
 #include "grav.h"
-class MultiID;
 class ZAxisTransform;
 namespace EM { class Horizon3D; }
 

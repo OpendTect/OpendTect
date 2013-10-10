@@ -26,7 +26,6 @@ ________________________________________________________________________
 class RayTracer1D;
 class SeisTrc;
 class TimeDepthModel;
-class TaskRunner;
 class RayTracerRunner;
 class Wavelet;
 

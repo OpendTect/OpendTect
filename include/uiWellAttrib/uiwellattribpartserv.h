@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class DataPointSet;
 class DataPointSetDisplayMgr;
-class MultiID;
 class NLAModel;
 class uiWellAttribCrossPlot;
 

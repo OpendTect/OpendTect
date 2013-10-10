@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-namespace EM { class EMObject; };
 namespace Attrib { class SelSpec; }
 
 

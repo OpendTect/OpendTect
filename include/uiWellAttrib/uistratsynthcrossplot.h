@@ -16,11 +16,8 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "datapack.h"
 
-class uiLabel;
 class SeisTrcBuf;
 class TimeDepthModel;
-class uiGenInput;
-class uiComboBox;
 class DataPointSet;
 class SyntheticData;
 class uiStratSeisEvent;

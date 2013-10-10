@@ -21,8 +21,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "cubesampling.h"
 
-class Color;
-class IOObj;
 class SurfaceInfo;
 class RandLocGenPars;
 namespace Pick { class Set; class SetMgr; }

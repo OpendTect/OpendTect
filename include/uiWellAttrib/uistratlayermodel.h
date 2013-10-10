@@ -23,8 +23,6 @@ class SyntheticData;
 class TimeDepthModel;
 class PropertyRefSelection;
 class ElasticPropSelection;
-class uiGenInput;
-class uiSpinBox;
 class uiToolBar;
 class uiStratSynthDisp;
 class uiStratLayerModelDisp;

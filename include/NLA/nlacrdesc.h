@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "enums.h"
 
-class BinIDValueSet;
 class DataPointSet;
 
 /*!

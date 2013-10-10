@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uiobjfileman.h"
 
-class uiButton;
 
 /*!
 \brief AttributeSet Manager

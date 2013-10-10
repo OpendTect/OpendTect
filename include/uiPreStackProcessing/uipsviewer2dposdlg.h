@@ -18,9 +18,9 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uislicesel.h"
 
-class uiCheckBox;
 class uiListBox;
 class uiTable;
+class uiPushButton;
 class uiToolButton;
 
 namespace PreStackView

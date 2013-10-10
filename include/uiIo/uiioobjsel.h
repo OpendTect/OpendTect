@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class IODirEntryList;
 class IOObj;
-class IOStream;
 class uiGenInput;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;

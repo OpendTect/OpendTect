@@ -34,9 +34,7 @@ class uiODApplMgrDispatcher;
 class uiODApplMgrAttrVisHandler;
 class uiVisDataPointSetDisplayMgr;
 
-class Color;
 class DataPointSet;
-class MultiID;
 class ODSession;
 namespace Attrib { class SelSpec; }
 namespace Pick { class Set; }

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 class BufferStringSet;
-class MultiID;
 class Timer;
 class uiDockWin;
 class uiFlatViewWin;

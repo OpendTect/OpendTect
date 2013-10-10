@@ -25,7 +25,6 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
-class uiLabel;
 class uiLineEdit;
 class uiODMain;
 class uiPushButton;

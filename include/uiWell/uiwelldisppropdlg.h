@@ -19,7 +19,7 @@ class uiTabStack;
 class uiWellDispProperties;
 class uiLabeledComboBox;
 
-namespace Well { class Data; class DisplayProperties; class LogSet; };
+namespace Well { class Data; };
 
 /*!
 \brief Well display properties dialog box.

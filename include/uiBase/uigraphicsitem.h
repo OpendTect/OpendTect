@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "manobjectset.h"
 
-class Color;
 class LineStyle;
 class FillPattern;
 class MouseCursor;

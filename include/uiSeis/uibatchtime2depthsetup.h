@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uibatchlaunch.h"
 
-class CtxtIOObj;
 class uiTimeDepthBase;
 class uiSeisSel;
 class uiPosSubSel;

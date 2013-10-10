@@ -18,18 +18,13 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "odmemory.h"
 
-class BinIDValueSet;
-class Executor;
-class IOObj;
-class MultiID;
-
 template <class T> class Array2D;
+
 
 namespace EM
 {
 
 class Fault3D;
-class PosID;
 
 /*!
 \brief Fault surface data

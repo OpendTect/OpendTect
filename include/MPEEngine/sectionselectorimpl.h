@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 
-namespace EM { class Horizon3D; }
+namespace EM { class Horizon3D; class EMObject; }
 
 
 namespace MPE

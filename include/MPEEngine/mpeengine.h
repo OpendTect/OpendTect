@@ -29,7 +29,6 @@ class BufferStringSet;
 class Executor;
 class CubeSampling;
 class TaskRunner;
-class MultiID;
 
 namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }

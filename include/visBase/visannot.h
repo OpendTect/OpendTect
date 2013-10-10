@@ -28,7 +28,6 @@ class SoCallback;
 class SoCoordinate3;
 class SoIndexedLineSet;
 class AxisInfo;
-class Color;
 class SoOneSideRender;
 
 namespace osg { class Geode; }

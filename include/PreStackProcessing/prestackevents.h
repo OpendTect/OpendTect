@@ -31,7 +31,6 @@ class Executor;
 class BinIDValueSet;
 class OffsetAzimuth;
 class HorSampling;
-class Color;
 class SeisTrcReader;
 
 namespace EM { class Horizon3D; }

@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "position.h"
-class CubeSampling;
 
 
 /*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */

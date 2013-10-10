@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
-class MultiID;
 class MathExpression;
 class PropertyRefSelection;
 
@@ -28,7 +27,6 @@ class uiLabeledComboBox;
 class uiComboBox;
 class uiGenInput;
 class uiSeparator;
-class uiIOObjSel;
 class uiTabStack;
 
 

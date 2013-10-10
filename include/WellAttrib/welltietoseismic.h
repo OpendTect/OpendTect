@@ -20,9 +20,8 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 
 class LineKey;
-class MultiID;
 class Wavelet;
-namespace Well { class Data; class D2TModel; class Log;}
+namespace Well { class Data; class Log; }
 
 namespace WellTie
 {

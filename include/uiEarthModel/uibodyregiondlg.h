@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 
 
-class MultiID;
 class IOObj;
 class uiGenInput;
 class uiPosSubSel;

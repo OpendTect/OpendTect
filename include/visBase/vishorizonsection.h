@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "geomelement.h"
 
 class BinIDValueSet;
-class Color;
 class DataPointSet;
 class SbVec2f;
 class SoAction;

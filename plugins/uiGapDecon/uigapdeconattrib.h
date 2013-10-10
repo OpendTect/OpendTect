@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 
-class MultiID;
 class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;

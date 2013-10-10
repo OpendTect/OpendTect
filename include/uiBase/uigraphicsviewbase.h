@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class Alignment;
-class Color;
 class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;

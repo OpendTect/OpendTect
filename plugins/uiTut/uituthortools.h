@@ -10,7 +10,6 @@
 #include "uitutmod.h"
 #include "uidialog.h"
 
-class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 

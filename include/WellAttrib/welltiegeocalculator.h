@@ -18,8 +18,7 @@ ________________________________________________________________________
 
 /* !brief performs the computations needed by TWTS  !*/   
 
-namespace Well { class D2TModel; class Track; class Log; class Data; }
-template <class T> class Array1DImpl;
+namespace Well { class D2TModel; class Log; class Data; }
 
 namespace WellTie
 {

@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiListBox;
 class uiButton;
 class uiGroup;
+class uiToolButton;
 class uiPushButton;
 namespace Well { class Data; class Reader; };
 

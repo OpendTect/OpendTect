@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "elasticprop.h"
 
 class IOObj;
-class MultiID;
 
 /*!
 \brief User parameters to compute values for an elastic layer (den,p/s-waves).

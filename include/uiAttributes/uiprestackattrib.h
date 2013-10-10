@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "stattype.h"
 
-class CtxtIOObj;
 namespace Attrib { class Desc; };
 
 class uiCheckBox;

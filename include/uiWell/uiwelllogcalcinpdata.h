@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiwelllogcalc.h"
 
 class uiCheckBox;
-class uiToolButton;
 
 namespace Well { class Log; class LogSet; }
 

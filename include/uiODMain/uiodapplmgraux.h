@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiapplserv.h"
 
-class CtxtIOObj;
 class DataPointSet;
 class IOObj;
 class FilePath;

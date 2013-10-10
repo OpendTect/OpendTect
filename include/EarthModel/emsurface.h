@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class IOObj;
-class RowCol;
 template <class T, class AT> class TopList;
 
 namespace Pos { class Filter; }

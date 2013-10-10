@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiArray2DInterpolSel;
-class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
 class uiEMPartServer;

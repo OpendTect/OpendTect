@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "factory.h"
 #include "surv2dgeom.h"
 
-class Executor;
 class TaskRunner;
 
 /*!\brief Position*/

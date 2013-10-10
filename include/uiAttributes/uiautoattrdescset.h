@@ -22,7 +22,6 @@ class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiLabeledListBox;
-class uiPushButton;
 class uiIOObjSelGrp;
 class CtxtIOObj;
 class IOObj;

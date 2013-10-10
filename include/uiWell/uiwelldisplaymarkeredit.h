@@ -22,7 +22,6 @@ class uiColorInput;
 class uiGenInput;
 class uiListBox;
 class uiMenuHandler;
-class uiPushButton;
 class uiToolButton;
 class uiWellDisplayControl;
 

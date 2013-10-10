@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "callback.h"
 
 class IOObj;
-class MultiID;
 class uiParent;
 namespace Pick { class Set; class SetMgr; };
 

@@ -12,7 +12,6 @@
 #include "position.h"
 #include "strmdata.h"
 
-class CubeSampling;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisTrcBuf;

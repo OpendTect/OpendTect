@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "survinfo.h"
 
-class MultiID;
 class DataPointSet;
 class IODirEntryList;
 class IOObj;
@@ -31,7 +30,6 @@ template <class T> class Array2DImpl;
 namespace Well
 {
 class Log;
-class LogSet;
 class Info;
 class D2TModel;
 class Data;

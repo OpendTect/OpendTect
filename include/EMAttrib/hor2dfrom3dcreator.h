@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 namespace EM { class Horizon3D; class Horizon2D; }
 class BufferStringSet;
-class MultiID;
 
 /*!
 \brief ExecutorGroup to create EM::Horizon2D from EM::Horizon3D.

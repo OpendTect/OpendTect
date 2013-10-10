@@ -22,7 +22,6 @@ ________________________________________________________________________
 #endif
 
 class mQSqlDatabase;
-class BufferStringSet;
 
 
 namespace SqlDB

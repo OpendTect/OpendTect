@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "attribdescid.h"
 
-template <class T> class Array2D;
-namespace Attrib { class EngineMan; class DescSet; class DataCubes;
+namespace Attrib { class EngineMan; class DescSet;
     		   class Data2DHolder; class Processor; }
 class uiFlatViewMainWin;
 class FlatDataPack;

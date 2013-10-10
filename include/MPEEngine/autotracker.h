@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "cubesampling.h"
 
 namespace EM { class EMObject; };
-namespace Attrib { class SelSpec; }
 namespace Geometry { class Element; }
 template <class T> class Array2D;
 

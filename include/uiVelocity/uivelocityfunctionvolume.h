@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "velocityfunctionvolume.h"
 
 class uiSeisSel;
-class uiGenInput;
 
 namespace Vel
 {

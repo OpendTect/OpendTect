@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 
-class MultiID;
 class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;

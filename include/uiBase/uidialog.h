@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 class uiButton;
-class uiGroup;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.

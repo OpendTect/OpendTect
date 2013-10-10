@@ -19,11 +19,9 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "viscoord.h"
 
-
-class CallBacker;
 class SoNormal;
-
 namespace Threads { class Mutex; };
+
 
 namespace visBase
 {

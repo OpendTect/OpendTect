@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiGenInput;
-class uiCheckBox;
 class uiLabeledComboBox;
 
 

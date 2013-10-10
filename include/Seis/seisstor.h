@@ -20,7 +20,6 @@ Trace storage objects handle seismic data storage.
 class Conn;
 class IOObj;
 class Translator;
-class SeisTrcBuf;
 class Seis2DDataSet;
 class Seis2DLineSet;
 class SeisPSIOProvider;

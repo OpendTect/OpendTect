@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uibuttongroup.h"
 class IOObj;
-class MultiID;
 class IOStream;
-class uiListBox;
 class Translator;
 class uiToolButton;
 class IODirEntryList;

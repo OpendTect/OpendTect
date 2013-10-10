@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class BufferStringSet;
-class Color;
-class MultiID;
 class SeparString;
 class ascistream;
 class ascostream;

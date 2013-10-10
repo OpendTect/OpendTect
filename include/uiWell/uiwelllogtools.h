@@ -26,7 +26,6 @@ class uiMultiWellLogSel;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
-class uiListBox;
 class uiPushButton;
 class uiSpinBox;
 class uiWellLogDisplay;

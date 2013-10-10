@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "typeset.h"
 
-class MultiID;
 class TaskRunner;
 
 namespace EM

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class BufferStringSet;
-class MultiID;
 class uiComboBox;
 
 /*Brief Dialog for 2D FaultStickSet*/

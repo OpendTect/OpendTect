@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "datapack.h"
 
-class SeisTrcBuf;
 class SeisPSReader;
 
 namespace PreStack

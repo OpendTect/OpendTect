@@ -128,7 +128,6 @@ public:
 
 #include "uiobjfileman.h"
 
-class uiButton;
 
 /*! \brief
 Session manager

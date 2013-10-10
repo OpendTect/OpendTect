@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "velocityfunctionstored.h"
 
 class uiIOObjSel;
-class uiGenInput;
 
 namespace Vel
 {

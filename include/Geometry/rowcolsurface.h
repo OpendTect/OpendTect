@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "geomelement.h"
 
-template <class T> class Array2D;
 
 namespace Geometry
 {

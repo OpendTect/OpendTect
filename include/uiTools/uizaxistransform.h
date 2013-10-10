@@ -19,8 +19,6 @@ ________________________________________________________________________
 
 class ZAxisTransform;
 class uiGenInput;
-class uiPushButton;
-class uiDialog;
 
 /*! Base class for ZAxisTransform ui's*/
 

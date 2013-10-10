@@ -22,7 +22,6 @@ namespace Well
 {
 class Data;
 class Log;
-class LogSet;
 class LogSampler;
 
 /*!

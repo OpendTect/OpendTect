@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 
 class uiFlatViewer;
-class uiButton;
 class uiToolBar;
 class uiIOObjSelDlg;
 class uiRect;

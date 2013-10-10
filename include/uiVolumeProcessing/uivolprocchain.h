@@ -20,7 +20,6 @@ ________________________________________________________________________
 class IOObj;
 class uiListBox;
 class uiButton;
-class uiGenInput;
 class uiIOObjSel;
 
 

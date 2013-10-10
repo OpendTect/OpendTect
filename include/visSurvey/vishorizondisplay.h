@@ -18,9 +18,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 
-class Executor;
 namespace ColTab{ class Sequence; class MapperSetup; }
-namespace EM { class Horizon3D; }
 namespace visBase
 {
     class HorizonSection;

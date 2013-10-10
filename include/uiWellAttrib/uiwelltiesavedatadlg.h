@@ -24,17 +24,10 @@ class IOObj;
 class IOObjSel;
 class uiGenInput;
 class uiCheckBox;
-class uiListBox;
 class uiIOObjSel;
 class uiLabel;
 class uiLabeledSpinBox;
-class Wavelet;
 
-namespace Well
-{
-    class Log;
-    class LogSet;
-}
 
 namespace WellTie
 {

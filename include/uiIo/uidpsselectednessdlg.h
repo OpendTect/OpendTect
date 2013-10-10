@@ -20,7 +20,6 @@ class uiCheckBox;
 class uiColorTableGroup;
 class uiDataPointSetCrossPlotter;
 class uiGenInput;
-class uiTable;
 
 class MathExpression;
 

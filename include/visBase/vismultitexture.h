@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 
-template <class T> class Array2D;
 
 namespace visBase
 {

@@ -21,7 +21,6 @@ CBVS-based seimic translator.
 class CBVSReadMgr;
 class CBVSWriteMgr;
 class VBrickSpec;
-class SeisTrcBuf;
 
 
 mExpClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator

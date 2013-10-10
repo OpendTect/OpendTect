@@ -12,7 +12,6 @@ ________________________________________________________________________
 */
 
 #include "position.h"
-class MultiID;
 
 
 namespace Grav

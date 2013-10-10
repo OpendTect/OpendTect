@@ -18,15 +18,12 @@ ________________________________________________________________________
 
 namespace Well { class Data; }
 
-class MultiID;
 class CtxtIOObj;
 
 class uiIOObjSel;
-class uiComboBox;
 class uiLabeledComboBox;
 class uiCheckBox;
 class uiGenInput;
-class uiPushButton;
 class uiSeisSel;
 class uiSeis2DLineNameSel;
 class uiSeisWaveletSel;

@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 namespace Table { class FormatDesc; }
 class BinIDValueSet;
-class TaskRunner;
 
 namespace Vel
 {

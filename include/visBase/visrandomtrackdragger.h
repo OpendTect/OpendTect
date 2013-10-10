@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 
-class Color;
-
 class SoRandomTrackLineDragger;
 
 

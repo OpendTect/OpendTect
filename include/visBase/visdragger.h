@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "position.h"
 
-class Color;
-
 class SoDragger;
 class SoSeparator;
 

@@ -16,7 +16,6 @@
 class uiCheckBox;
 class uiGenInput;
 class uiSeisSel;
-class uiIOObjSel;
 class uiFileInput;
 class uiSeisSubSel;
 class uiSeis2DSubSel;

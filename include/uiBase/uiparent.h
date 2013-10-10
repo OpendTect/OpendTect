@@ -20,7 +20,6 @@ class MouseCursor;
 class uiObjectBody;
 class uiObject;
 class uiMainWin;
-class Color;
 class uiParentBody;
 
 

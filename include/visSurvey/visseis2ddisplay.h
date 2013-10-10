@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 class SeisTrcInfo;
 class ZAxisTransform;
-class Color;
 
 namespace visBase
 {

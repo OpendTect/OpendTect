@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uiselsimple.h"
 class uiGenInput;
-class uiListBox;
 class DataPointSet;
 namespace EM { class Horizon3D; }
 

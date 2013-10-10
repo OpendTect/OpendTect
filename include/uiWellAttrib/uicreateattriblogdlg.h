@@ -18,7 +18,6 @@
 #include "createattriblog.h"
 
 namespace Attrib { class DescSet; }
-namespace Well { class Data; }
 class NLAModel;
 class uiAttrSel;
 class uiListBox;

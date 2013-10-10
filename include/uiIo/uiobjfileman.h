@@ -19,7 +19,6 @@ class IOObjContext;
 class uiButton;
 class uiGroup;
 class uiIOObjSelGrp;
-class uiToolButton;
 class uiTextEdit;
 
 

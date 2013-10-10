@@ -23,7 +23,7 @@ class MouseEvent;
 class MouseEventHandler;
 
 namespace Attrib { class SelSpec; }
-namespace EM { class Horizon3D; class PosID; class EMObject; };
+namespace EM { class PosID; class EMObject; };
 namespace FlatView { class AuxDataEditor; }
 
 namespace MPE

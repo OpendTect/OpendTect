@@ -19,9 +19,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "threadlock.h"
 
-class uiCheckBox;
 class uiLabeledSpinBox;
-class uiPushButton;
 class uiScrollDialog;
 class uiSpinBox;
 class uiSliceScroll;

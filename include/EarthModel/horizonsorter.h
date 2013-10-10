@@ -24,7 +24,6 @@ ________________________________________________________________________
 namespace EM { class Horizon; }
 template <class T> class Array3D;
 class HorSamplingIterator;
-class BufferStringSet;
 
 /*!
 \brief Executor to sort horizons.

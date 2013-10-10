@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "welldisp.h"
 
-class MultiID;
 class uiCheckBox;
 class uiColorInput;
 class uiComboBox;
@@ -31,12 +30,7 @@ class uiLabeledSpinBox;
 class uiSpinBox;
 class uiListBox;
 
-namespace Well
-{
-    class LogDisplayParSet;
-    class Data;
-    class LogSet;
-}
+namespace Well { class LogDisplayParSet; class LogSet; }
 
 /*!
 \brief Well display properties.

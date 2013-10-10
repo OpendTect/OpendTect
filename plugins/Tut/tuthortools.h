@@ -13,7 +13,6 @@
 #include "horsampling.h"
 #include "ranges.h"
 
-class IOObj;
 class HorSamplingIterator;
 
 namespace EM { class Horizon3D; }

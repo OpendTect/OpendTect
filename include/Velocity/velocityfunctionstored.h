@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 
 class BinIDValueSet;
-class MultiID;
 class IOObjContext;
 
 namespace Vel

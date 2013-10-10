@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiMainWin;
 class Timer;
-class uiToolBar;
+
 
 namespace CmdDrive
 {

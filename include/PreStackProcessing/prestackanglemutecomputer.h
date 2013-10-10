@@ -21,9 +21,6 @@ ________________________________________________________________________
 #include "threadlock.h"
 
 class HorSampling;
-class IOObj;
-class MultiID;
-class RayTracer1D;
 
 namespace Vel { class VolumeFunctionSource; }
 

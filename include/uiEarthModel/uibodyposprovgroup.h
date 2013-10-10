@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
-class MultiID;
 class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;

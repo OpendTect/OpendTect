@@ -20,7 +20,6 @@ mFDQtclass(QPaintDevice)
 mFDQtclass(QPixmap)
 
 class BufferStringSet;
-class Color;
 namespace ColTab { class Sequence; }
 class uiRGBArray;
 

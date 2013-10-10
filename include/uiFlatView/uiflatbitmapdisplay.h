@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 
 class uiDynamicImageItem;
-class FlatDataPack;
 class uiGraphicsItem;
 class A2DBitMapGenerator;
 class uiRGBArray;

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "rowcolsurface.h"
 
-template <class T> class Array2D;
 
 namespace Geometry
 {

@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "manobjectset.h"
 
-class uiPushButton;
 class GMTPar;
 
 mClass(uiGMT) uiGMTOverlayGrp : public uiDlgGroup

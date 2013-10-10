@@ -24,7 +24,6 @@ namespace visSurvey { class EMObjectDisplay; }
 class uiParent;
 class uiMenuHandler;
 class uiVisPartServer;
-class MultiID;
 
 
 mExpClass(uiVis) uiVisEMObject : public CallBacker

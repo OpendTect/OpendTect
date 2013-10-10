@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 namespace Attrib { class Desc; };
 
-class uiAttrSel;
 class uiImagAttrSel;
 class uiGenInput;
 class uiStepOutSel;

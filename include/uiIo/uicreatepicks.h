@@ -17,16 +17,12 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "bufstringset.h"
 
-class Color;
-class IOObj;
-class uiGroup;
 class uiComboBox;
 class uiColorInput;
 class uiPosSubSel;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
-class uiSeis2DSubSel;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class DataPointSet;

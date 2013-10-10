@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 
-
-class Executor;
 class ZAxisTransform;
 
 namespace EM { class EMManager; class EMObject; }

@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 class BufferStringSet;
-class uiDialog;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }

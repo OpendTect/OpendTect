@@ -18,7 +18,6 @@ ________________________________________________________________________
 class InlineSplitJobDescProv;
 class uiGenInput;
 class uiFileInput;
-class uiPushButton;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;

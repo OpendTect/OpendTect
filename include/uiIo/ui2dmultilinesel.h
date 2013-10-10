@@ -23,10 +23,8 @@ ________________________________________________________________________
 class iopar;
 class uiComboBox;
 class uiCheckBox;
-class uiLabeledSpinBox;
 class uiLabeledListBox;
 class uiListBox;
-class uiSeisSel;
 class uiSelLineSet;
 class uiSelNrRange;
 class uiSelZRange;

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "segyfiledef.h"
 class SeisTrc;
-class DataPointSet;
 class DataClipSampler;
 class SEGYSeisTrcTranslator;
 namespace PosInfo { class Detector; }

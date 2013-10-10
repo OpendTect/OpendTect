@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "uidpscrossplottools.h"
 
 class RowCol;
-class uiComboBox;
 class MathExpression;
 class MouseEvent;
 class LinStats2D;

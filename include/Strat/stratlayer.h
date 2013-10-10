@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "stratcontent.h"
 #include "compoundkey.h"
 #include "typeset.h"
-class Color;
 class PropertyRef;
 
 namespace Strat

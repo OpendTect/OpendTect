@@ -12,7 +12,6 @@
 
 class StreamData;
 class LatLong;
-class Color;
 class SurveyInfo;
 
 

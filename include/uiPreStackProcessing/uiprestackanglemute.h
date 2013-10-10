@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "prestackanglemute.h"
 
-class CtxtIOObj;
-class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiPushButton;

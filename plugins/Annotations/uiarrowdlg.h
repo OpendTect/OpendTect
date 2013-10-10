@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class Color;
 class uiLabeledComboBox;
 class uiSelLineStyle;
 class uiSliderExtra;

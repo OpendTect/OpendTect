@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoBeachBall;
-class Color;
 class SoScale;
 class UTMPosition;
 class SoTranslation;

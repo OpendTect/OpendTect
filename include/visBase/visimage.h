@@ -20,7 +20,6 @@ ________________________________________________________________________
 template <class T> class Array2D;
 
 class SoTexture2;
-class Color;
 class SbImage;
 
 

@@ -23,7 +23,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class ioPixmap;
 class uiGroup;
-class uiLabel;
 class uiTableBody;
 
 

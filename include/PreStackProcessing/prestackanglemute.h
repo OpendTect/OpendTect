@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 class ElasticLayer;
 class ElasticModel;
-class MultiID;
 class Muter;
 class RayTracer1D;
 class RayTracerRunner;

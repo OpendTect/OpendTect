@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 
 class BinIDValueSet;
-class MultiID;
 class SeisTrcReader;
 
 namespace Vel

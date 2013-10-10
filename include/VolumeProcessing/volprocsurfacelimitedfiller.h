@@ -16,9 +16,8 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "volprocchain.h"
 
-class BinIDValueSet;
 namespace Geometry { class FaultStickSurface; }
-namespace EM { class EMObject; class Fault; class Horizon; class Horizon3D; }
+namespace EM { class Fault; class Horizon; class Horizon3D; }
 
 namespace VolProc
 {

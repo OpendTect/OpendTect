@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class IOObj;
 class LineKey;
-class MultiID;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;

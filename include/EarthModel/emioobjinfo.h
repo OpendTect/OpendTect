@@ -21,7 +21,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class CubeSampling;
 class IOObj;
-class MultiID;
 
 namespace EM
 {

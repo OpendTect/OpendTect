@@ -26,7 +26,7 @@ class uiPolygonItem;
 class uiGraphicsScene;
 class UnitOfMeasure;
 
-namespace Well { class Log; class Marker; }
+namespace Well { class Log; }
 
 /*!
 \brief Displays maximum two Well logs.

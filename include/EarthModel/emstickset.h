@@ -19,9 +19,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "position.h"
 
-class RowCol;
-class CubeSampling;
-
 
 namespace EM
 {

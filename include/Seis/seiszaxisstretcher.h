@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "thread.h"
 
 class IOObj;
-class MultiID;
 class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
