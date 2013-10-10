@@ -11,7 +11,6 @@
 #include "madagascarmod.h"
 #include "bufstringset.h"
 
-class IOPar;
 
 namespace ODMad
 {

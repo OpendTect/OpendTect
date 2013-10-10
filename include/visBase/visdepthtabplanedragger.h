@@ -24,8 +24,6 @@ namespace osg { class Switch; }
 
 class SoDepthTabPlaneDragger;
 class SoDragger;
-class Coord3;
-class IOPar;
 
 namespace visBase
 {

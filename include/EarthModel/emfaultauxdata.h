@@ -21,7 +21,6 @@ ________________________________________________________________________
 class BinIDValueSet;
 class Executor;
 class IOObj;
-class IOPar;
 class MultiID;
 
 template <class T> class Array2D;

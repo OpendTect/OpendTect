@@ -27,7 +27,6 @@ namespace Attrib { class DataCubes; }
 class VelocityDesc;
 class Executor;
 class HorSampling;
-template <class T> class StepInterval;
 template <class T> class ValueSeries;
 
 namespace VolProc

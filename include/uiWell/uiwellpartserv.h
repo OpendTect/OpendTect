@@ -16,10 +16,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "bufstringset.h"
 
-class Coord3;
-class Coord;
 class Color;
-template <class T> class Interval;
 class MultiID;
 namespace Well { class Data; class LogDisplayParSet; }
 

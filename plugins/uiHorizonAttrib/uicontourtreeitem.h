@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "color.h"
 #include "externalattrib.h"
 
-class BinID;
 class visContourLabels;
 
 template <class T> class Array2DImpl;

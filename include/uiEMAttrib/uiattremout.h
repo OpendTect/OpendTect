@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "attribdescid.h"
 
-class IOPar;
 class MultiID;
 class NLAModel;
 class uiAttrSel;

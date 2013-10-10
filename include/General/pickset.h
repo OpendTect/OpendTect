@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "trigonometry.h"
 
-class IOPar;
 
 namespace Pick
 {

@@ -90,7 +90,7 @@ bool Pos::IdxPair::parseUsrStr( const char* str, const char* prefx,
 
 
 bool Pos::IdxPair::isNeighborTo( const Pos::IdxPair& oth,
-	const Pos::IdxPairDeltaStep& step, bool conn8 ) const
+			const Pos::IdxPairStep& step, bool conn8 ) const
 {
     const IdxPairDelta diff( abs(row()-oth.row()), abs(col()-oth.col()) );
     const bool are8 = diff.row()<=step.row() && diff.col()<=step.col()

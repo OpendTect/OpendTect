@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 #include <iostream>
-class BufferString;
 class StreamData;
 
 /*!\brief Stream operations. operations will be retried on soft errors */

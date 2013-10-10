@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 
 class IOObj;
-class IOPar;
 class od_ostream;
 class LineKey;
 class SeisTrcReader;

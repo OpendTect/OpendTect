@@ -19,9 +19,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "geometry.h"
 
-class IOPar;
 class BufferStringSet;
-class NamedBufferStringSet;
+
 
 namespace ColTab
 {

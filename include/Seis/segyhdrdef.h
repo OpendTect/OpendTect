@@ -14,8 +14,8 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "objectset.h"
-class IOPar;
  
+
 namespace SEGY
 {
 

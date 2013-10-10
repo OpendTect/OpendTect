@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class CubeSampling;
-class BinID;
 
 namespace visBase 
 { 

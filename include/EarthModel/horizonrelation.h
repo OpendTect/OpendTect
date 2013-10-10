@@ -18,8 +18,7 @@ ________________________________________________________________________
 #include "objectset.h"
 
 class FileMultiString;
-class IOPar;
-template <class T> class TypeSet;
+
 
 namespace EM
 {

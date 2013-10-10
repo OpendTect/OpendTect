@@ -16,9 +16,8 @@ ________________________________________________________________________
 #include "callback.h"
 #include "gendefs.h"
 
-class BufferString;
-class IOPar;
 class TcpSocket;
+
 
 /*!
 \brief Remote job executor

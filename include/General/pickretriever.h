@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "zaxistransform.h"
 
-class Coord3;
 namespace PosInfo { class GeomID; }
 
 /*!Interface to when an application wants a pick somewere in a 3D environment.

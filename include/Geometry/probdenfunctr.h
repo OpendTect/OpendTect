@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 class IOObj;
 class ProbDenFunc;
-class BufferString;
 
 
 mExpClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup

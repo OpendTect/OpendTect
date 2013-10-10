@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "color.h"
 
-class Coord;
 class uiSurvTopBotImageGrp;
 namespace visSurvey { class Scene; }
 

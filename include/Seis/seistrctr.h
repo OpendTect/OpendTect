@@ -23,8 +23,6 @@ Translators for seismic traces.
 #include "seistype.h"
 #include "linekey.h"
 
-class BinID;
-class Coord;
 class SeisTrc;
 class LinScaler;
 class SeisTrcBuf;

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class Coord3;
 class LineStyle;
 class uiGenInput;
 class uiSelLineStyle;

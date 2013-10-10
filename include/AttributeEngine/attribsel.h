@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "typeset.h"
 
-class IOPar;
 class NLAModel;
 
 namespace ZDomain { class Info; }
+
 
 namespace Attrib 
 {

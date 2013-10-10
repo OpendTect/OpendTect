@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "callback.h"
 
-class IOPar;
 class FilePath;
 class BufferStringSet;
 

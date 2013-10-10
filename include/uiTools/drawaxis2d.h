@@ -25,7 +25,6 @@ class uiGraphicsItemGroup;
 class uiRectItem;
 class uiTextItem;
 class uiLineItem;
-template <class T> class StepInterval;
 
 /*!\brief To draw simple axes for a 2D coordinate system.
   

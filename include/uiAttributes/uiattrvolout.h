@@ -20,7 +20,6 @@ namespace Attrib { class CurrentSel; class DescID; class DescSet; };
 
 class CtxtIOObj;
 class IOObj;
-class IOPar;
 class NLAModel;
 
 class uiAttrSel;

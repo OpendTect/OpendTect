@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "callback.h"
 
-class IOPar;
 
 class uiGroupBody;
 class uiParentBody;

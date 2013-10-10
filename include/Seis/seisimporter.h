@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "bufstring.h"
 class IOObj;
-class BinID;
 class Scaler;
 class SeisTrc;
 class SeisTrcBuf;

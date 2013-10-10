@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "trackplane.h"
 #include "valseriesevent.h"
 
-class IOPar;
 namespace EM { class Horizon; };
 class EventTracker;
 

@@ -17,7 +17,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class uiComboBox;
 class uiGenInput;
-template < class T > class StepInterval;
 
 mExpClass(uiIo) uiPrDenFunVarSel : public uiGroup
 {

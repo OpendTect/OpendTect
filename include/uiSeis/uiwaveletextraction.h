@@ -23,7 +23,6 @@ class uiSeis2DMultiLineSel;
 class uiSeis3DSubSel;
 class uiSelZRange;
 class CtxtIOObj;
-class IOPar;
 class MultiID;
 namespace Seis { class SelData; class TableSelData; }
 

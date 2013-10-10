@@ -25,7 +25,6 @@ class SoGroup;
 class SoTransferFunction;
 class So2DTransferFunction;
 class SoVolumeData;
-class IOPar;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
 

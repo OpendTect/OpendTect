@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "vistransform.h"
 
-class Coord;
-class Coord3;
 
 namespace visBase { class PolyLine; }
 

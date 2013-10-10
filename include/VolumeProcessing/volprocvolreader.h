@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class SeisTrcReader;
 class SeisTrcTranslator;
-class BinID;
 
 namespace VolProc
 {

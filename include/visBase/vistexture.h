@@ -20,12 +20,11 @@ ________________________________________________________________________
 class DataClipper;
 class SequentialTask;
 class Color;
-class IOPar;
 class SoComplexity;
 class SoGroup;
 class SoSwitch;
 class visBaseTextureColorIndexMaker;
-template <class T> class Interval;
+
 
 namespace visBase
 {

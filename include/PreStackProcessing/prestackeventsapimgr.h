@@ -15,10 +15,9 @@ ________________________________________________________________________
 
 #include "sets.h"
 
-class BinID;
-
 namespace PreStack { class EventManager; }
 namespace Vel { class Picks; }
+
 
 namespace PreStack
 {

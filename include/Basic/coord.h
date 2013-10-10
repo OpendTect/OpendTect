@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "geometry.h"
 #include "undefval.h"
-class BufferString;
 
 
 /*!

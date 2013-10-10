@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 
-class IOPar;
 class uiComboBox;
 class uiLabel;
 class uiGraphicsScene;

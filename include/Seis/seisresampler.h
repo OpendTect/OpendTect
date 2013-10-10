@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 class SeisTrc;
 class CubeSampling;
-template <class T> class Interval;
 
 
 /*!\brief will sub-sample in inl and crl, and re-sample in Z

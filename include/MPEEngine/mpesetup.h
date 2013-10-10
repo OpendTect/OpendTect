@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "transl.h"
 
-class IOPar;
 
 namespace MPE {
 

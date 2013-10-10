@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class InlineSplitJobDescProv;
-class IOPar;
 class uiGenInput;
 class uiFileInput;
 class uiPushButton;

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 
-class IOPar;
 class TranslatorGroup;
 
 /*!

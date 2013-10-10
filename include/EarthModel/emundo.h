@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "color.h"
 
-class IOPar;
 namespace Geometry { class ParametricSurface; };
 template <class T> class Array2D;
 

@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapimpl.h"
-#include "position.h"
+#include "coord.h"
 
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)

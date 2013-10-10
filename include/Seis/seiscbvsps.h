@@ -15,9 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seispsread.h"
 #include "seispswrite.h"
-class IOPar;
-class BinID;
-class Coord;
 class SeisTrcTranslator;
 class CBVSSeisTrcTranslator;
 

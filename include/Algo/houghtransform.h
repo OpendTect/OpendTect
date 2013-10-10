@@ -20,11 +20,9 @@ ________________________________________________________________________
 class Array3DInfo;
 template <class T> class Array3D;
 class SequentialTask;
-template <class T> class ObjectSet;
 template <class T, class B> class TopList;
 class PlaneFrom3DSpaceHoughTransformTask;
 class Plane3;
-class Coord3;
 
 /*!
 \brief Finds planes in Array3D<float>'s regions with high values. All

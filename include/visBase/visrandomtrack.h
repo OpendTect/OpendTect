@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class SoRandomTrackLineDragger;
 template <class T> class Array2D;
-class IOPar;
 
 namespace visBase
 {

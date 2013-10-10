@@ -14,11 +14,10 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "position.h"
+#include "coord.h"
 #include "factory.h"
 #include "surv2dgeom.h"
 
-class IOPar;
 class Executor;
 class TaskRunner;
 

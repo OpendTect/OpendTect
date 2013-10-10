@@ -15,11 +15,9 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seistrctr.h"
 
-class IOPar;
 class SeisTrc;
 class Executor;
 class SeisTrcBuf;
-template <class T>	class StepInterval;
 namespace PosInfo	{ class Line2DData; }
 namespace Seis		{ class SelData; }
 

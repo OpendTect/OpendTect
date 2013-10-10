@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "wellextractdata.h"
 
-class BinID;
 class CtxtIOObj;
 
 namespace Well { class Data;  }

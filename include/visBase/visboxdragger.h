@@ -26,7 +26,6 @@ class SoMaterial;
 class SoDragger;
 class SoSwitch;
 
-template <class T> class Interval;
 
 namespace visBase
 {

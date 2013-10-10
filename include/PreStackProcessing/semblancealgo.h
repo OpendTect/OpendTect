@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "factory.h"
 #include "objectset.h"
 
-class IOPar;
 
 namespace PreStack
 {

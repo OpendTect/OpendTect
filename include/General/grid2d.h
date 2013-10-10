@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class HorSampling;
-class IOPar;
 class Line2;
 
 /*!

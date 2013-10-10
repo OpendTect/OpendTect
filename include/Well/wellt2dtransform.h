@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "zaxistransform.h"
 
-class IOPar;
 
 namespace Well { class Data; }
 

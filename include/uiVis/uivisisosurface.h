@@ -27,7 +27,6 @@ class uiStatsDisplay;
 namespace visBase { class MarchingCubesSurface; }
 namespace visSurvey { class VolumeDisplay; }
 template <class T> class SamplingData;
-template <class T> class TypeSet;
 
 /*!\brief Dialog to set isovalue of an isosurface.  */
 

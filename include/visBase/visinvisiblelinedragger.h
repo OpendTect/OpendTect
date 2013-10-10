@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "visobject.h"
 
 
-template <class T> class Interval;
 
 class SoInvisibleLineDragger;
 class SoDragger;

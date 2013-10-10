@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "mmprocmod.h"
 #include "callback.h"
 
-class BufferString;
-class IOPar;
 class TcpServer;
 
 /*!

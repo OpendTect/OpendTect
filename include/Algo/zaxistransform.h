@@ -14,14 +14,13 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "enums.h"
 #include "factory.h"
-#include "position.h"
+#include "binid.h"
 #include "ranges.h"
 #include "refcount.h"
 #include "samplingdata.h"
 
 class BinIDValue;
 class CubeSampling;
-class IOPar;
 class TaskRunner;
 
 namespace ZDomain { class Def; class Info; }
@@ -146,6 +145,7 @@ public:
     void			computeCache(const Interval<int>& range);
 
 protected:
+
     const ZAxisTransform&	transform_;
     bool			back_;
     bool			is2d_;
@@ -155,6 +155,7 @@ protected:
 
     TypeSet<float>		cache_;
     int				firstcachesample_;
+
 };
 
 #endif

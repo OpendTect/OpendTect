@@ -14,11 +14,9 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "od_stream.h"
-class IOPar;
 class SeparString;
 class CompoundKey;
 class FixedString;
-class BufferString;
 
 
 /*!\brief OD class for stream read */

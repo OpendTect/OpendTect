@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "sortedlist.h"
 
-class BinID;
 class BinIDValue;
 
 namespace EM

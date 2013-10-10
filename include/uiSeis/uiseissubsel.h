@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 #include "sets.h"
-class IOPar;
 class IOObj;
 class MultiID;
 class CtxtIOObj;

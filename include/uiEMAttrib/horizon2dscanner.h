@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 
-class IOPar;
 class BinIDValueSet;
 namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }

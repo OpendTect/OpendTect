@@ -11,11 +11,9 @@
 #include "bufstring.h"
 
 class StreamData;
-class Coord;
 class LatLong;
 class Color;
 class SurveyInfo;
-template <class T> class TypeSet;
 
 
 namespace ODGoogle

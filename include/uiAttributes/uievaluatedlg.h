@@ -36,7 +36,6 @@ class uiLabel;
 class uiLabeledSpinBox;
 class uiPushButton;
 class uiSliderExtra;
-class IOPar;
 
 
 mExpClass(uiAttributes) AttribParamGroup : public uiGroup

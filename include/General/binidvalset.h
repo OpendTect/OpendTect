@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 #include "ranges.h"
-class IOPar;
 class BinIDValue;
 class BinIDValues;
 namespace PosInfo { class CubeData; }

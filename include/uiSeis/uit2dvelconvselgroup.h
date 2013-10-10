@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class uiVelSel;
-class IOPar;
 
 mExpClass(uiSeis) uiT2DVelConvSelGroup : public uiT2DConvSelGroup
 {

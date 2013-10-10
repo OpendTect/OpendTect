@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
-class IOPar;
 class uiGenInput;
 class uiListBox;
 class uiSeisFmtScale;

@@ -34,14 +34,12 @@ namespace Attrib
     class SelSpec;
 };
 
-class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
 class DataPointSetDisplayMgr;
 class Executor;
 class IOObj;
-class IOPar;
 class LineKey;
 class NLAModel;
 class DataPointSet;
@@ -54,7 +52,6 @@ namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
 namespace VolProc { class Chain; class uiChain; }
 namespace ZDomain { class Info; }
-template <class T> class Interval;
 template <class T> class Array3D;
 
 

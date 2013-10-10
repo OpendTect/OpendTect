@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "sets.h"
 #include "ranges.h"
-class IOPar;
 template <class T> class ValueSeries;
 template <class T> class ArrayND;
 

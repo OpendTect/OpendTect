@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "rcol.h"
 #include "posidxpair.h"
+class RowCol;
 
-template <class T> class TypeSet;
-class BinID;
-class BufferString;
 
-/*!\brief Object with row() and col().  */
+typedef RowCol RowColDelta;
 
+
+/*!\brief IdxPair used for its row() and col().  */
 
 mExpClass(Basic) RowCol : public Pos::IdxPair
 {

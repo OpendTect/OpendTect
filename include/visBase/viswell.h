@@ -21,15 +21,12 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "visobject.h"
 
-class Coord3;
 class Coord3Value;
-class IOPar;
 class LineStyle;
 class TaskRunner;
 class VisColorTab;
 class ZAxisTransform;
 class SoPlaneWellLog;
-template <class T> class Interval;
 
 class SoSwitch;
 

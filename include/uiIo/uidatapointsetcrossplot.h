@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "linear.h"
 #include "uidpscrossplottools.h"
 
-class Coord;
 class RowCol;
 class uiComboBox;
 class MathExpression;

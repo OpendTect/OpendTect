@@ -27,7 +27,6 @@ object of that type.
 #include "bufstring.h"
 #include "streamconn.h"
 #include "ctxtioobj.h"
-class IOPar;
 class Translator;
 
 #define mDGBKey "dGB"

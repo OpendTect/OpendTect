@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "position.h"
+#include "binid.h"
 #include "bufstring.h"
 
 

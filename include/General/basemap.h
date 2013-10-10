@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 namespace OD { class RGBImage; }
 
-class Coord;
 class MarkerStyle2D;
 class LineStyle;
 

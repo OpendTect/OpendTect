@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 
-class IOPar;
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;

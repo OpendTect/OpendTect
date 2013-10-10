@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class uiDialBody;
-template <class T> class StepInterval;
 
 class uiLabel;
 class uiLineEdit;

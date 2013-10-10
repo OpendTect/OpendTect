@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class MarchingCubesSurface;
-template <class T> class Interval;
 template <class T> class Array3D;
 
 /*!

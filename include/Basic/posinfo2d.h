@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "position.h"
 #include "od_iosfwd.h"
-class BinID;
 
 
 namespace PosInfo

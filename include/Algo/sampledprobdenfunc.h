@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "bufstringset.h"
 
-class IOPar;
 
 /*!
 \brief PDF based on ArrayND implementation.

@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "multidimstorage.h"
 #include "veldesc.h"
 
-class BinID;
 class CubeDataPack;
 class IOObj;
 class FlatDataPack;

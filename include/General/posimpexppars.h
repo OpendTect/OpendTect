@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "position.h"
 #include "callback.h"
-class IOPar;
 
 
 /* Holds scale and shift(s) for Coord, BinID, TrcNr, Z and Offset;

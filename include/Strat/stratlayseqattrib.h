@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "od_iosfwd.h"
 class PropertyRef;
-class IOPar;
 
 
 namespace Strat

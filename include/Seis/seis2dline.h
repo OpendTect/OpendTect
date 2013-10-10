@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "od_iosfwd.h"
 
-class IOPar;
 class IOObj;
 class Executor;
 class SeisTrcBuf;
@@ -29,7 +28,6 @@ class SeisTrcWriter;
 class Seis2DLinePutter;
 class Seis2DLineIOProvider;
 class OD_2DLineGeometryFrom2DLinesTransf;
-template <class T> class StepInterval;
 namespace PosInfo	{ class LineSet2DData; class Line2DData; }
 namespace Seis		{ class SelData; }
 

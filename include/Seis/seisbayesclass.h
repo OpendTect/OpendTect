@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "bufstringset.h"
-class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
 class ProbDenFunc;

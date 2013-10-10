@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "general.h"
 
-class IOPar;
 
 #if defined(__msvc__) && (defined(GENERAL_EXPORTS) || defined(General_EXPORTS) )
 # define mGenClass	class dll_export

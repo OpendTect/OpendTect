@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 class CallBacker;
 class SoNormal;
-class Coord3;
 
 namespace Threads { class Mutex; };
 

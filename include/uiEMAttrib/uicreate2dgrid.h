@@ -21,7 +21,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class CubeSampling;
 class HorSampling;
-class IOPar;
 class uiCheckBox;
 class uiGenInput;
 class uiGrid2DMapObject;

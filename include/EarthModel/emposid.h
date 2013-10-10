@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "rowcol.h"
 
-class IOPar;
-
 
 namespace EM
 {

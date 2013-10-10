@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "factory.h"
 
-class IOPar;
 class uiIOObjSel;
 class uiGenInput;
 class uiComboBox;

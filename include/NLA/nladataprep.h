@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class PosVecDataSet;
-template <class T> class Interval;
 
 /*!
 \brief Prepare data for usage in NLA training.

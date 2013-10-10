@@ -19,7 +19,6 @@ class uiParent;
 class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
-class IOPar;
 
 /*!
 \brief Base class for windows containing one or more uiFlatViewer(s).

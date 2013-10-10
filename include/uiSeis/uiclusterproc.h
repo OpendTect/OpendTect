@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class DirList;
-class IOPar;
 class TaskRunner;
 class Timer;
 class uiLabel;

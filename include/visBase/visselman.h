@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "sets.h"
 
-class IOPar;
 class SoSelection;
 class SoNode;
 class SoPath;

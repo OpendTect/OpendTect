@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 namespace Attrib { class DescSet; class SelInfo; };
 
-class Coord3;
 class NLAModel;
 class CtxtIOObj;
 class uiAttrSel;

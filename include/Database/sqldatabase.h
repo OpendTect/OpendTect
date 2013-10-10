@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "databasemod.h"
 #include "bufstring.h"
-class IOPar;
 
 #ifdef __have_qsql__
 # define mQSqlDatabase QSqlDatabase

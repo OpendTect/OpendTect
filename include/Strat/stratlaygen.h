@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "property.h"
-class IOPar;
 
 namespace Strat
 {

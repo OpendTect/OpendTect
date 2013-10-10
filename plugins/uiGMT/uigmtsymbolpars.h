@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-class IOPar;
 class uiComboBox;
 class uiGenInput;
 class uiColorInput;

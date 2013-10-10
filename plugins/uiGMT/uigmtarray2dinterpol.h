@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uigmtmod.h"
 #include "uiarray2dinterpol.h"
 
-class BufferString;
-class IOPar;
 class uiGenInput;
 
 

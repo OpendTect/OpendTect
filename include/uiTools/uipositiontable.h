@@ -18,7 +18,7 @@
 
 class uiGenInput;
 class uiTable;
-template <class T> class Interval;
+
 
 mExpClass(uiTools) uiPositionTable : public uiGroup
 {

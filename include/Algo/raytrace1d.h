@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 
 template <class T> class Array2DImpl;
-class IOPar;
 class TimeDepthModel;
 
 

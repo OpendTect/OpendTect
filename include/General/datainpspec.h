@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 class RCol2Coord;
-class IOPar;
 
 /*!
 \brief Data type.

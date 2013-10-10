@@ -22,7 +22,6 @@ ________________________________________________________________________
 #define mUndefColIdx    (nrsteps_)
 
 class DataClipper;
-class IOPar;
 class TaskRunner;
 
 namespace ColTab

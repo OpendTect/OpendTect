@@ -12,7 +12,6 @@
 #include "executor.h"
 #include "od_ostream.h"
 
-class IOPar;
 class StreamData;
 class TextStreamProgressMeter;
 

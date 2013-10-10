@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 
-class IOPar;
 class BinIDValueSet;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }

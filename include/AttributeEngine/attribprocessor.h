@@ -19,7 +19,6 @@ ________________________________________________________________________
 class CubeSampling;
 class SeisTrcInfo;
 namespace Seis { class SelData; }
-template <class T> class Interval;
 
 namespace Attrib
 {

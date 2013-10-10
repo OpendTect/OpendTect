@@ -18,8 +18,6 @@ ________________________________________________________________________
 class uiLabel;
 class uiComboBoxBody;
 class BufferStringSet;
-class BufferString;
-template <class T> class ObjectSet;
 
 /*!\brief Combo box.
 

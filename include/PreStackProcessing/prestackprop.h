@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "datapack.h"
 
-class BinID;
 class SeisTrcBuf;
 class SeisPSReader;
 

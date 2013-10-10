@@ -20,8 +20,6 @@ ________________________________________________________________________
 
 class SoTextureCoordinate2;
 class SoTextureCoordinate3;
-class Coord3;
-class Coord;
 namespace Threads { class Mutex; };
 
 namespace visBase

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "factory.h"
 #include "mathfunc.h"
 
-class IOPar;
 
 /*!
 \brief Base class for window functions. The inheriting classes will give a

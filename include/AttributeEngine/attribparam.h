@@ -16,9 +16,6 @@ ________________________________________________________________________
 #include "attribparambase.h"
 #include "datainpspec.h"
 
-class BinID;
-
-template <class T> class Interval;
 
 namespace Attrib
 {

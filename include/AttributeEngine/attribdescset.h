@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class DataPointSet;
-class IOPar;
+
 
 namespace Attrib 
 {

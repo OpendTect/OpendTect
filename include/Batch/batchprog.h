@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "od_iostream.h"
 
 class CommandLineParser;
-class IOPar;
 class IOObj;
 class IOObjContext;
 class MMSockCommunic;

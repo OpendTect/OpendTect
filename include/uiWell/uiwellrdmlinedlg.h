@@ -20,7 +20,6 @@ ________________________________________________________________________
 class MultiID;
 class IOObj;
 class CtxtIOObj;
-class Coord;
 class uiCheckBox;
 class uiIOObjSel;
 class uiTable;

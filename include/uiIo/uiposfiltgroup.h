@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
-class IOPar;
 
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */

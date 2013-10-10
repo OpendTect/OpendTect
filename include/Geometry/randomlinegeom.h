@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 class CubeSampling;
-class IOPar;
 class Line2;
 
 namespace Geometry

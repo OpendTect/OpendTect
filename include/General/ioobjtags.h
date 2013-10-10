@@ -13,12 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "commondefs.h"
+#include "gendefs.h"
 
 class IOObj;
 class VelocityDesc;
 class MultiID;
-class BufferString;
 
 /*! Writes velocity information to an IOObj. */
 mGlobal(General) bool SetVelocityTag(IOObj&,const VelocityDesc&);

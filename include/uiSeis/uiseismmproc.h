@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 
-class IOPar;
 class IOObj;
 class Timer;
 class uiLabel;

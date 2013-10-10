@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "networkmod.h"
 #include "gendefs.h"
 
-class BufferString;
 class BufferStringSet;
 class IOObj;
 

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "sets.h"
 
-class BinID;
 
 
 namespace Attrib

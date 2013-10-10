@@ -18,9 +18,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "od_iosfwd.h"
 
-template <class T> class TypeSet;
-class IOPar;
-
 
 /*!
 \brief Base class for Probability Density Functions.

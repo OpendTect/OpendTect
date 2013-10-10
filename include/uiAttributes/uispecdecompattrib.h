@@ -26,7 +26,6 @@ class uiLabeledSpinBox;
 class uiPushButton;
 class uiSpecDecompPanel;
 class uiTrcPositionDlg;
-class BinID;
 
 /*! \brief Spectral Decomposition Attribute description editor */
 

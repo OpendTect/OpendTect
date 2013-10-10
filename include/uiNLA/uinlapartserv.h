@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "bufstringset.h"
 
-class IOPar;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class uiDataPointSet;

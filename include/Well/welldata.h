@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "callback.h"
 
-class IOPar;
 
 namespace Well
 {

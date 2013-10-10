@@ -13,7 +13,6 @@
 class uiFileInput;
 class uiGenInput;
 class uiTableImpDataSel;
-class BufferString;
 class BufferStringSet;
 
 namespace Table { class FormatDesc; }

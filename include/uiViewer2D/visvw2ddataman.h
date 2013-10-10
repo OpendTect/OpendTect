@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 
 class Vw2DDataObject;
-class IOPar;
 
 class uiFlatViewWin; 
 class uiFlatViewAuxDataEditor;

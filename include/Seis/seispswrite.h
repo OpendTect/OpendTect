@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "datachar.h"
-class IOPar;
 class SeisTrc;
 class BufferStringSet;
 

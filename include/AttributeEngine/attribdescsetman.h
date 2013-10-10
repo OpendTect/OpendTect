@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "multiid.h"
 
-class IOPar;
 
 namespace Attrib
 {

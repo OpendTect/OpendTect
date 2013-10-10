@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
-class IOPar;
 class DataColDef;
 
 

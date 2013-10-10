@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "attribdescset.h"
 
 class AttribParamGroup;
-class IOPar;
 class uiAttribDescSetEd;
 class uiCheckBox;
 class uiLabel;

@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
-class IOPar;
 class ODSession;
 class Timer;
 class uicMain;

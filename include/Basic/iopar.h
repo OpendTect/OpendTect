@@ -18,15 +18,12 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "od_iosfwd.h"
 
-class BufferString;
 class BufferStringSet;
 class Color;
 class MultiID;
 class SeparString;
 class ascistream;
 class ascostream;
-template <class T> class TypeSet;
-template <class T> class ObjectSet;
 
 /*!
 \brief Generalized set of parameters of the keyword-value type.

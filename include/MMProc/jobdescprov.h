@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "typeset.h"
 
-class IOPar;
 
 /*!
 \brief Interface for providing parameter files for jobs (job descriptions). Two

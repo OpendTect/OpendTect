@@ -18,10 +18,17 @@ ________________________________________________________________________
 
 #ifdef __cpp__
 
+class IOPar;
 class BinID;
 class Coord;
 class Coord3;
 class TrcKey;
+class BufferString;
+template<class T> class Interval;
+template<class T> class StepInterval;
+template<class T> class ObjectSet;
+template<class T> class TypeSet;
+
 
 namespace Pos
 {

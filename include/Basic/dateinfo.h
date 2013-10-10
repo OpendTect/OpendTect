@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "enums.h"
 #include "undefval.h"
-class BufferString;
 
 /*!
 \brief A date info class.

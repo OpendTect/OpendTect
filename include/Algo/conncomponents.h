@@ -21,7 +21,6 @@ ________________________________________________________________________
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
 template <class T> class Array3D;
-template <class T> class TypeSet;
 
 class TaskRunner;
 

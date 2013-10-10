@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "nlamod.h"
 #include "gendefs.h"
 
-class IOPar;
 class NLADesign;
-class BufferString;
 
 /*!
 \ingroup NLA

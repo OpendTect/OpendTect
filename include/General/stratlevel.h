@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "repos.h"
 #include "objectset.h"
 class ascistream;
-class IOPar;
 class BufferStringSet;
 
 

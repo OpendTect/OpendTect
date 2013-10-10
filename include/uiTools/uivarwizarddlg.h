@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-class IOPar;
 
 
 /*!\brief Dialog in flexible wizard series. */

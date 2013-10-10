@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seistype.h"
 #include "dataclipper.h"
-class IOPar;
 class IOObj;
 class SeisTrc;
 class CubeSampling;

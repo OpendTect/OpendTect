@@ -26,7 +26,6 @@ ________________________________________________________________________
 
 class Undo;
 class IOObj;
-class BinID;
 template <class T> class Smoother1D;
 class BinIDValueSet;
 class IOObjContext;

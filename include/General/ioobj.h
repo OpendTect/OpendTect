@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "namedobj.h"
 class Conn;
-class IOPar;
 class IOObj;
 class CallBack;
 class ascistream;

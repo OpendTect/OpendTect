@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "position.h"
+#include "coord.h"
 #include "sets.h"
 #include "task.h"
 

@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "mathfunc.h"
 #include "interpol1d.h"
-#include "position.h"
 #include "ptrman.h"
 #include "samplingdata.h"
 #include "varlenarray.h"
 #include "typeset.h"
+#include "math2.h"
 
 #include <math.h>
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vislocationdisplay.h"
 
-class BufferString;
 class SoSeparator;
 namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
 

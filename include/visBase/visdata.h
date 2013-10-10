@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 
 class SoNode;
-class IOPar;
-class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
 

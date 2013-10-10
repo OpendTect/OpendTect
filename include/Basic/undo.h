@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "callback.h"
 
 class UndoEvent;
-class BinID;
 
 /*!
 \brief Class to handle undo/redo information. Events that can be undone/redone

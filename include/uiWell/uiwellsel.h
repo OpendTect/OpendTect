@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "multiid.h"
 
-class IOPar;
 
 mExpClass(uiWell) uiWellSel : public uiIOObjSel
 {

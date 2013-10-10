@@ -21,7 +21,6 @@ class CtxtIOObj;
 class IODir;
 class IOObj;
 class IOObjContext;
-class IOPar;
 class IOSubDir;
 
 /*!

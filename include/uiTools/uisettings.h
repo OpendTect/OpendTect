@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 
-class IOPar;
 class Settings;
 class uiTable;
 class uiGenInput;

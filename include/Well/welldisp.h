@@ -20,8 +20,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 
-class IOPar;
-class BufferStringSet;
 
 namespace Well
 {

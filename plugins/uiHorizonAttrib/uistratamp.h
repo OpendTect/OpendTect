@@ -12,7 +12,6 @@
 
 class CtxtIOObj;
 class HorSampling;
-class IOPar;
 class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;

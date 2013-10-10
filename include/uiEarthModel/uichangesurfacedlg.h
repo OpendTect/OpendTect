@@ -23,7 +23,6 @@ class Executor;
 class uiGenInput;
 class uiIOObjSel;
 template <class T> class Array2D;
-template <class T> class StepInterval;
 
 /*!\brief Base class for surface changers. At the moment only does horizons. */
 

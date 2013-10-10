@@ -36,7 +36,6 @@ class uiToolBar;
 class BufferStringSet;
 class CtxtIOObj;
 class IOObj;
-class IOPar;
 class uiToolButton;
 
 /*!

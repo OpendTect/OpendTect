@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seistype.h"
 #include "segythdef.h"
-class IOPar;
 class IOObj;
 class Scaler;
  

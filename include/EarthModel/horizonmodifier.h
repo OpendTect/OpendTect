@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "surv2dgeom.h"
 
 namespace EM { class Horizon; }
-class BinID;
 class BufferStringSet;
 class HorSamplingIterator;
 

@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "objectset.h"
 
 
-template <class T> class ObjectSet;
-
 #define mInvalidRefCount (-1)
 
 

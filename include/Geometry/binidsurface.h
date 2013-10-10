@@ -19,7 +19,6 @@ class BinIDValue;
 class SurveyInfo;
 
 template <class T> class Array2D;
-template <class T> class TypeSet;
 
 namespace Geometry
 {

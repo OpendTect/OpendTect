@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "threadlock.h"
 
-class IOPar;
 class DisplayPropertyHolder;
 class DisplayPropertyLink;
 

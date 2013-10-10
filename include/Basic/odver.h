@@ -28,7 +28,6 @@ extern "C" {
 
 }
 
-class BufferString;
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
 

@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-
-class IOPar;
 namespace EM { class EMObject; };
 namespace Attrib { class SelSpec; }
+
 
 namespace MPE
 {

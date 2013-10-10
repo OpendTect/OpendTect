@@ -21,12 +21,8 @@ namespace Pos
 {
 
 typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
-// These should become separate classes with their own specific functions
-// at some point in time.
 typedef IdxPair IdxPairDelta;
-typedef IdxPair IdxPairAbsDelta;
-typedef IdxPair IdxPairRelDelta;
-typedef IdxPair IdxPairDeltaStep;
+typedef IdxPair IdxPairStep;
 
 
 /*!\brief A pair of numbers; base class for BinID et al. */
@@ -71,7 +67,7 @@ public:
     inline static IdxPair	fromInt64(od_int64);
     od_int64			sqDistTo(const IdxPair&) const;
     bool			isNeighborTo(const IdxPair&,
-	    			 const IdxPairDeltaStep&,bool conn8=true) const;
+	    			 const IdxPairStep&,bool conn8=true) const;
 
     inline bool			isUdf() const	{ return *this == udf(); }
     static const IdxPair&	udf();

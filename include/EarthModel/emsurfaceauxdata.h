@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class Executor;
 class IOObj;
-class IOPar;
 class BinIDValueSet;
 
 template <class T> class Array2D;

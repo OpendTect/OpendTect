@@ -15,8 +15,6 @@ ________________________________________________________________________
 
 #include <math.h>
 
-template <class T> class TypeSet;
-template <class T> class ObjectSet;
 
 inline void getVariogramModel( const char* typestr, float nugget, float sill,
 			      float range, int size, float* in, float* out )

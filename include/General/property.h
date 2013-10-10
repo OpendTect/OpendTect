@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "factory.h"
 
 class PropertySet;
-class IOPar;
 
 
 /*!\brief A (usually petrophysical) property of some object.

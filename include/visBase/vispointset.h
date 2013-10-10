@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoPointSet;
-class Coord3;
 
 namespace visBase
 {

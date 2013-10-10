@@ -18,7 +18,6 @@ ________________________________________________________________________
 template <class T> class Array2D;
 class BinIDValueSet;
 class DataPointSet;
-class IOPar;
 
 namespace EM
 {

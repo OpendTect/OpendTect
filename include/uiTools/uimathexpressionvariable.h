@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-class BufferString;
 class BufferStringSet;
 class MathExpression;
 class uiGenInput;

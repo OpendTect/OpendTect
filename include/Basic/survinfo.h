@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "survgeom.h"
 
 class ascostream;
-class IOPar;
 class CubeSampling;
 class LatLong2Coord;
 

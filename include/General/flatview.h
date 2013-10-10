@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "draw.h"
 #include "samplingdata.h"
 
-class IOPar;
 class FlatView_CB_Rcvr;
 
 

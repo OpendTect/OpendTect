@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "od_iosfwd.h"
 
-class IOPar;
 namespace Threads { class Thread; }
 
 

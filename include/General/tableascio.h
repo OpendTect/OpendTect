@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "repos.h"
 #include "od_iosfwd.h"
-class IOPar;
 class UnitOfMeasure;
 
 namespace Table

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 
-class IOPar;
 class Scaler;
 class SeisTrc;
 class SeisTrcBuf;

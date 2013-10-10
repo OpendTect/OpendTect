@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "multiid.h"
 
-class IOPar;
 
 /*!
 \brief Specifies Statics as a horizon and either a horizon attribute or a

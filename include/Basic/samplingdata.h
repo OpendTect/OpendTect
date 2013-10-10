@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
+#include "gendefs.h"
 
-template <class T> class StepInterval;
 
 /*!
 \brief Holds the fundamental sampling info: start and interval.

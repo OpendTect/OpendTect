@@ -11,12 +11,9 @@ ________________________________________________________________________
 
 */
 
-#include "commondefs.h"
-#include "undefval.h"
-
+#include "gendefs.h"
 #include <iosfwd>
 
-class BufferString;
 
 
 /*!

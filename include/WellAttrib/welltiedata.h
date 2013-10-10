@@ -21,13 +21,11 @@ ________________________________________________________________________
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
 
-class BinID;
 class CtxtIOObj;
 class SeisTrc;
 class TaskRunner;
 class Wavelet;
 
-template <class T> class StepInterval;
 
 namespace Well { class Data; class Log; class LogSet; class Writer; }
 

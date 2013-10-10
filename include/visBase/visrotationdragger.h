@@ -24,7 +24,6 @@ class SoSwitch;
 class SoDragger;
 class Quaternion;
 
-template <class T> class Interval;
 
 namespace visBase
 {

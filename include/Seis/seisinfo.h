@@ -18,10 +18,8 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "enums.h"
-class IOPar;
 class SeisTrc;
 class PosAuxInfo;
-template <class T> class TypeSet;
 
 
 /*!\brief Information for a seismic trace, AKA trace header info */

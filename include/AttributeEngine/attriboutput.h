@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "typeset.h"
 
-class BinID;
 class BinIDValueSet;
 class DataPointSet;
 class LineKey;

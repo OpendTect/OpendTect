@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "cmddriver.h"
 #include "timefun.h"
 
-class BufferString;
 class uiActionContainer;
 class uiAction;
 

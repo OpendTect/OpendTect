@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "refcount.h"
 
 class BufferStringSet;
-template <class T> class TypeSet;
 
 namespace EM { class EMObject; class EdgeLineSet; };
 namespace Geometry { class ElementEditor; };

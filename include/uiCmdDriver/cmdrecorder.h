@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "cmddriverbasics.h"
 
 class uiMenu;
-class BufferString;
 class StreamData;
 class uiMainWin;
 class uiAction;

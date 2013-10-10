@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "samplingdata.h"
 template <class T> class ValueSeries;
-template <class T> class TypeSet;
 
 
 /*!

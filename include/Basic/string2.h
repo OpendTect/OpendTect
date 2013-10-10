@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 
-class BufferString;
 
 /*!
 \brief Advances given pointer to first non-whitespace.

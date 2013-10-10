@@ -16,11 +16,9 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "mathfunc.h"
 #include "factory.h"
-#include "position.h"
+#include "coord.h"
 #include "positionlist.h"
 
-template<class T> class Interval;
-class IOPar;
 class DAGTriangleTree;
 class Triangle2DInterpolator;
 

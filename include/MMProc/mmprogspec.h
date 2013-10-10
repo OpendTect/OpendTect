@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "mmprocmod.h"
 #include "datainpspec.h"
 #include "namedobj.h"
-class IOPar;
+
 
 namespace MMProc
 {

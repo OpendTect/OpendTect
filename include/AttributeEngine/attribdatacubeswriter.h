@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "multiid.h" 
 
-class BinID;
-class IOPar;
 class SeisTrcWriter;
 class SeisTrc;
+
 
 namespace Attrib
 {

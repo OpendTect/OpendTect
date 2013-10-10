@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "objectset.h"
 
 template <class T> class Array2D;
-class BinID;
 class IOObj;
 class MultiID;
 class LineKey;

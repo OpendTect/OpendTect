@@ -24,7 +24,6 @@ ________________________________________________________________________
 
 
 class ArrayNDWindow;
-class BinID;
 template<class T> class Array1DImpl;
 
 namespace Attrib

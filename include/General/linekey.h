@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "bufstring.h"
 
-class IOPar;
 
 /*!
 \brief Key for a line in a line set.

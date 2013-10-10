@@ -15,7 +15,6 @@ _______________________________________________________________________
 #include "uiseismod.h"
 #include "seistype.h"
 #include "uiflatviewmainwin.h"
-class BufferString;
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
 

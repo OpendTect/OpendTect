@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "objectset.h"
 
-class BufferString;
 class BufferStringSet;
 
 

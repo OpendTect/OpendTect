@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "position.h"
-class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
 class BufferStringSet;

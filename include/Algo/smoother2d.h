@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "convolve2d.h"
 #include "arrayndimpl.h"
 #include "iopar.h"
+#include "coord.h"
 #include "windowfunction.h"
 
 /*!

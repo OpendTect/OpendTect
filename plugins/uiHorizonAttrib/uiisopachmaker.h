@@ -22,7 +22,6 @@ class CtxtIOObj;
 class DataPointSet;
 namespace EM { class EMObject; }
 
-class IOPar;
 
 /*! \brief Create isopach as attribute of horizon */
 

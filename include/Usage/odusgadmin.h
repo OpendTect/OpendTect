@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "odusginfo.h"
 #include "od_iosfwd.h"
-class IOPar;
 
 
 namespace Usage

@@ -21,7 +21,6 @@ class QTcpServer;
 class QTcpServerComm;
 class QTcpSocket;
 class TcpSocket;
-class IOPar;
 
 
 mExpClass(Network) TcpServer : public CallBacker

@@ -12,7 +12,6 @@
 #include "bufstring.h"
 #include "factory.h"
 
-class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisPSReader;

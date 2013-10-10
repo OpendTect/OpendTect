@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 
 class Color;
-class Coord;
 class HorSampling;
 
 namespace visBase { class PolyLine; class PickStyle; };

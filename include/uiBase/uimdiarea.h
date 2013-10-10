@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class BufferStringSet;
-class IOPar;
 class uiMdiAreaBody;
 
 mFDQtclass(QMdiArea)

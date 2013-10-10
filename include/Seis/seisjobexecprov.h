@@ -18,14 +18,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include <iosfwd>
-class IOPar;
 class IOObj;
 class Executor;
 class CtxtIOObj;
 class JobRunner;
 class JobDescProv;
 class Seis2DLineSet;
-template <class T> class TypeSet;
 
 /*!\brief Provides job runners and postprocessor for seismic processing.
 

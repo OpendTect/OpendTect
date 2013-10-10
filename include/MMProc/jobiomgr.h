@@ -20,7 +20,6 @@ class CommandString;
 class FilePath;
 class HostData;
 class HostDataList;
-class IOPar;
 class JobInfo;
 class JobIOHandler;
 template <class T> class ObjQueue;

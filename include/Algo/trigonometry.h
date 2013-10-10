@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "position.h"
+#include "coord.h"
 #include "typeset.h"
 #include <math.h>
 class Plane3;

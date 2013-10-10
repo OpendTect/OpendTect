@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 
-class Coord;
 class CubeSampling;
 class SurveyInfo;
 class uiDialog;

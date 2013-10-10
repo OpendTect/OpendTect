@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 
-class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
@@ -39,7 +38,6 @@ namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
 
 template <class T> class Array2D;
-template <class T> class Interval;
 
 namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 

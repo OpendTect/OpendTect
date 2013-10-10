@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 #include "timefun.h"
-class BufferString;
 class Executor;
 
 

@@ -29,7 +29,6 @@ class InlCrlSystem;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
-class IOPar;
 class LineStyle;
 class NotifierAccess;
 class SeisTrcBuf;

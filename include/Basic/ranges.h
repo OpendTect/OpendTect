@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 
-template <class T> class Interval;
 
 /*!
 \brief Base class for Interval. Has no virtual functions and can hence be

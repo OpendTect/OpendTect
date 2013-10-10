@@ -18,17 +18,16 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "attribsel.h"
 
-class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
 class DataPointSet;
 class Executor;
-class IOPar;
 class LineKey;
 class NLAModel;
 class SeisTrcBuf;
 class SeisTrcInfo;
+
 
 namespace Attrib
 {

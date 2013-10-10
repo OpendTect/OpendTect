@@ -21,7 +21,6 @@ class SeisIOObjInfo;
 class Seis2DLineSet;
 class BufferStringSet;
 class Seis2DLinePutter;
-template <class T> class TypeSet;
 namespace PosInfo { class Line2DData; }
 
 

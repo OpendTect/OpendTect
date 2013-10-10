@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstring.h"
-class IOPar;
 
 /*!\brief access help/about/credit files
 

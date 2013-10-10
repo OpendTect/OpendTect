@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "progressmeter.h"
 #include "od_iosfwd.h"
-template <class T> class ObjectSet;
 
 /*!
 \brief Specification to enable chunkwise execution of a process.

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "indexinfo.h"
 #include "position.h"
 #include "od_iosfwd.h"
-class BinID;
 
 
 /*!\brief Position info, often segmented

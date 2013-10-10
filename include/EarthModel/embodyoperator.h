@@ -22,12 +22,10 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 class TaskRunner;
-class Coord3;
 class Plane3;
 class DAGTetrahedraTree;
 
 template<class T> class Array3D;
-template <class T> class TypeSet;
 
 namespace EM
 {

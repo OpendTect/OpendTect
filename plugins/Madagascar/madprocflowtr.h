@@ -10,7 +10,6 @@
 #include "madagascarmod.h"
 #include "transl.h"
 class Conn;
-class BufferString;
 namespace ODMad { class ProcFlow; }
 
 

@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 
-class IOPar;
 class uiSurfaceSel;
 
 mExpClass(uiEarthModel) uiHorizonSortDlg : public uiDialog

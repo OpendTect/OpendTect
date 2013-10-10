@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "position.h"
 
-class BinID;
 class IOObj;
 class RowCol;
 template <class T, class AT> class TopList;

@@ -20,9 +20,8 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
-class Coord3;
-class IOPar;
 class SeisTrcBuf;
+
 
 namespace Attrib
 {

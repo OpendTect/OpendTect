@@ -20,7 +20,6 @@ class LinScaler;
 class uiSliderBody;
 class uiLabel;
 class uiLineEdit;
-template <class T> class StepInterval;
 
 mExpClass(uiBase) uiSlider : public uiObject
 {

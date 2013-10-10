@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 namespace Table { class FormatDesc; }
-class Coord3;
 class UnitOfMeasure;
 
 

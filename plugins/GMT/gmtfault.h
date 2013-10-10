@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 class BufferStringSet;
-class Coord3;
 class Coord3ListImpl;
 namespace Geometry { class ExplFaultStickSurface; }
 namespace EM { class Fault3D; }

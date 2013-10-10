@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "cubesampling.h"
 
-class IOPar;
 class LineStyle;
 
 namespace visBase

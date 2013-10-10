@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "ptrman.h"
 
-class IOPar;
 class Settings;
 class uiCheckBox;
 class uiFileInput;

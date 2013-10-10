@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiLabel;
-class BinID;
 
 namespace PreStackView
 {

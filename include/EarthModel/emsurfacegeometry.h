@@ -25,8 +25,6 @@ template <class T, class AT> class TopList;
 
 
 class RowCol;
-template <class T> class Interval;
-template <class T> class StepInterval;
 
 
 namespace Geometry { class RowColSurface; };

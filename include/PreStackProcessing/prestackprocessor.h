@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "task.h"
 
-class IOPar;
 
 namespace PreStack
 {

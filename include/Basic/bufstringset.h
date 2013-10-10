@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 #include "manobjectset.h"
-class IOPar;
 class GlobExpr;
 
 /*!

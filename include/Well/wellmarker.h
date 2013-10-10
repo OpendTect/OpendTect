@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "namedobj.h"
 #include "manobjectset.h"
-class IOPar;
 
 
 namespace Well

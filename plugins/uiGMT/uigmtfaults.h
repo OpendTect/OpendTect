@@ -21,7 +21,6 @@ class uiIOObjSelGrp;
 class uiSelLineStyle;
 class uiCheckBox;
 class uiColorInput;
-class IOPar;
 
 mExpClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
 {

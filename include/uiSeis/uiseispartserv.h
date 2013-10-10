@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "ioman.h"
 
 
-class BufferString;
 class BufferStringSet;
 class CubeSampling;
 class MultiID;

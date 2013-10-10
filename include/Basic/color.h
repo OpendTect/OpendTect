@@ -15,9 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
-class BufferString;
 class BufferStringSet;
-template <class T> class TypeSet;
 
 
 /*!

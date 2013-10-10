@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiFlatViewer;
-class BinID;
 
 namespace PreStackView
 {

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "multiid.h"
 
-template <class T> class Interval;
 
 namespace PreStack
 {

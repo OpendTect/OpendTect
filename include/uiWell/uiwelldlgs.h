@@ -28,7 +28,6 @@ class uiLabel;
 class uiLabeledListBox;
 class uiTable;
 class BufferStringSet;
-class Coord3;
 class od_ostream;
 class CtxtIOObj;
 class UnitOfMeasure;

@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "wellio.h"
 #include "od_iosfwd.h"
 
-class IOPar;
 
 #define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<2 )
 namespace WellTie

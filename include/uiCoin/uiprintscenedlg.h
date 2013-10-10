@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicoinmod.h"
 #include "uisaveimagedlg.h"
 
-class IOPar;
 class uiGenInput;
 class uiLabeledComboBox;
 class ui3DViewer;

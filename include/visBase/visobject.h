@@ -21,7 +21,6 @@ class SoSeparator;
 class SoLockableSeparator;
 class SoNode;
 class SoSwitch;
-class Coord3;
 
 namespace osg { class Switch; }
 

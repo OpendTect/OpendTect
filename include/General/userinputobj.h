@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "initval.h"
 
 class CallBack;
-class BufferString;
 class BufferStringSet;
-template <class T> class ObjectSet;
+
 
 mExpClass(General) UserInputObj
 {

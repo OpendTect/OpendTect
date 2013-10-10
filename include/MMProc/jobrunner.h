@@ -19,7 +19,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class FilePath;
 class HostData;
-class IOPar;
 class JobDescProv;
 class JobIOMgr;
 class StatusInfo;

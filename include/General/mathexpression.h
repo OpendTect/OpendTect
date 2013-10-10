@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstringset.h"
-template <class T> class TypeSet;
 
 /*!
 \brief Parsed Math expression.

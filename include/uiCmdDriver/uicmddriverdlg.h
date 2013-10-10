@@ -20,7 +20,6 @@ class uiTextEdit;
 class uiLabel;
 class uiLabeledComboBox;
 class uiPushButton;
-class BufferString;
 
 
 namespace CmdDrive

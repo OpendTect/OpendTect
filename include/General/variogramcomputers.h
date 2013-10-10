@@ -12,11 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "commondefs.h"
-#include "plftypes.h"
+#include "gendefs.h"
 
 template <class T> class Array2D;
-class BufferString;
 class BufferStringSet;
 class DataPointSet;
 

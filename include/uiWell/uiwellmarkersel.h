@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 class uiComboBox;
-class IOPar;
 namespace Well { class Marker; class MarkerSet; } 
 
 

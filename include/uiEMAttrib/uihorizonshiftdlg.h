@@ -23,7 +23,6 @@ class uiCheckBox;
 class uiGenInput;
 class uiSliderExtra;
 class uiPushButton;
-template <class T> class StepInterval;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; }
 

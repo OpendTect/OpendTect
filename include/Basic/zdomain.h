@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
-class IOPar;
 
 
 namespace ZDomain

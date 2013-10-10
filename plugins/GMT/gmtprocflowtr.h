@@ -10,7 +10,6 @@
 #include "gmtmod.h"
 #include "transl.h"
 class Conn;
-class BufferString;
 namespace ODGMT { class ProcFlow; }
 
 

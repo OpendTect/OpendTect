@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 #include "visvw2ddataman.h"
 
-class IOPar;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 

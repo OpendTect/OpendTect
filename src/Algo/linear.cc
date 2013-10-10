@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linear.h"
 #include "undefval.h"
 #include "math2.h"
-//#include <math.h>
+#include "geometry.h"
 
 #define mArrVal(arr) (*(float*)(arr + idx * offs))
 

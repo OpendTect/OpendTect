@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "surv2dgeom.h"
 
 namespace EM { class Horizon3D; class Horizon2D; }
-class BufferString;
 class BufferStringSet;
 class MultiID;
 

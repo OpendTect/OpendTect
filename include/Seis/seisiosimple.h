@@ -14,7 +14,6 @@
 #include "executor.h"
 #include "seistype.h"
 #include "od_iosfwd.h"
-class IOPar;
 class Scaler;
 class SeisTrc;
 class LineKey;

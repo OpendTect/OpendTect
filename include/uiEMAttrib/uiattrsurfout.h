@@ -15,14 +15,12 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uiattremout.h"
 
-class IOPar;
 class MultiID;
 class NLAModel;
 class uiGenInput;
 class uiIOObjSel;
 class uiPushButton;
 class Array2DInterpol;
-class BufferString;
 
 namespace Attrib { class DescSet; }
 

@@ -42,8 +42,6 @@ protected:
 };
 
 
-class Coord3;
-
 /*!
 \brief Use Coord3ListImpl instead.
 */

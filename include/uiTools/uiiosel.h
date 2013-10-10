@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
-class IOPar;
 class uiLabel;
 class uiCheckBox;
 class uiComboBox;

@@ -8,10 +8,8 @@
 -*/
 
 #include "uigoogleexpdlg.h"
-class Coord;
 class uiGenInput;
 class uiSelLineStyle;
-template <class T> class TypeSet;
 namespace ODGoogle { class XMLWriter; }
 
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "position.h"
+#include "coord.h"
 #include "sets.h"
 #include "iopar.h"
 #include "bufstring.h"

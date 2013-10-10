@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "gendefs.h"
 
-class IOPar;
 
 /*!\brief Seismics*/
 

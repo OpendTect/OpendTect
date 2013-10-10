@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class MarchingCubesSurface;
 template <class T> class SamplingData;
-template <class T> class Interval;
 class TaskRunner;
 
 /*!A triangulated representation of an MarchingCubesSurface. */

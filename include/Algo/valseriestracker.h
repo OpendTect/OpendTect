@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "valseriesevent.h"
 
-class IOPar;
 template <class T> class ValueSeries;
 
 

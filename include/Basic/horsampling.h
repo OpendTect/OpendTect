@@ -16,9 +16,6 @@ ________________________________________________________________________
 #include "binid.h"
 #include "ranges.h"
 
-class IOPar;
-template <class T> class TypeSet;
-
 
 /*!
 \brief Horizontal sampling (inline and crossline range and steps).
