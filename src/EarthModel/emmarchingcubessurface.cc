@@ -435,40 +435,31 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     const int crlsz = crlrg.width()+1;
     const int zsz = zrg.width()+1;
 
+    mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
+    if ( !res ) return 0; 
 
     mDeclareAndTryAlloc(Array3D<int>*,intarr,Array3DImpl<int>(inlsz,crlsz,zsz));
-    if ( !intarr )
-	return 0;
+    if ( !intarr ) 
+    {
+	delete res; return 0;
+    }
 
-    mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
-    if ( !res )
-	{ delete intarr; return 0; }
+    MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
+	    inlrg.start, crlrg.start, zrg.start, !smooth );
+    const bool execres = TaskRunner::execute( t, m2i );
+    if ( !execres )
+    { 
+	delete res; return 0; 
+    }
 
     Array3D<float>* arr = new Array3DConv<float,int>(intarr);
     if ( !arr )
-	{ delete intarr; delete res; return 0; }
-
-    const Array3D<float>* vd = mcsurface_->impvoldata_;
-    if ( !vd )
     { 
-    	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
-		inlrg.start, crlrg.start, zrg.start, !smooth );
-	const bool execres = TaskRunner::execute( t, m2i );
-    	if ( !execres )
-	    { delete res; return 0; }
-    
-	res->arr_ = arr;
-	res->threshold_ = m2i.threshold();
-    }
-    else
-    {
-	delete arr; 
-	Array3DImpl<float>* arrimpl = new Array3DImpl<float>( vd->info() );
-	arrimpl->copyFrom( *vd );
-	res->arr_ = arrimpl;
-	res->threshold_ = 0;
+	delete intarr; delete res; return 0; 
     }
 
+    res->arr_ = arr;
+    res->threshold_ = m2i.threshold();
 
     res->cs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
 	    			crlsampling_.atIndex(crlrg.start) );
