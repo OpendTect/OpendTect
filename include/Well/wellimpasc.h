@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include <iosfwd>
 
 namespace Table { class FormatDesc; }
+class Coord3;
 class UnitOfMeasure;
 
 
@@ -148,7 +149,68 @@ public:
 };
 
 
-}; // namespace Well
+/*!
+\brief Bulk WellTrack Ascii I/O.
+*/
+
+mExpClass(Well) BulkTrackAscIO : public Table::AscIO
+{
+public:
+			BulkTrackAscIO(const Table::FormatDesc&,std::istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			get(BufferString& wellnm,Coord3& crd,float& md,
+				    BufferString& uwi) const;
+
+protected:
+
+    std::istream&	strm_;
+
+};
+
+
+/*!
+\brief Bulk MarkerSet Ascii I/O.
+*/
+
+mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
+{
+public:
+			BulkMarkerAscIO(const Table::FormatDesc&,std::istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			get(BufferString& wellnm,
+				    float& md,BufferString& markernm) const;
+    bool			identifierIsUWI() const;
+
+protected:
+
+    std::istream&	strm_;
+
+};
+
+
+/*!
+\brief Bulk D2TModel Ascii I/O.
+*/
+
+mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
+{
+public:
+			BulkD2TModelAscIO(const Table::FormatDesc&,
+					  std::istream&);
+
+    static Table::FormatDesc*	getDesc();
+    bool			get(BufferString& wellnm,
+				    float& md,float& twt) const;
+    bool			identifierIsUWI() const;
+
+protected:
+
+    std::istream&	strm_;
+
+};
+
+} // namespace Well
 
 #endif
-

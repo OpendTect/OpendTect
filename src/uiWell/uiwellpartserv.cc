@@ -95,6 +95,13 @@ bool uiWellPartServer::bulkImportMarkers()
 }
 
 
+bool uiWellPartServer::bulkImportD2TModel()
+{
+    uiBulkD2TModelImport dlg( parent() );
+    return dlg.go();
+}
+
+
 bool uiWellPartServer::importTrack()
 {
     if ( uiwellimpdlg_ )

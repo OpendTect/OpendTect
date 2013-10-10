@@ -49,6 +49,7 @@ public:
     bool			bulkImportTrack();
     bool			bulkImportLogs();
     bool			bulkImportMarkers();
+    bool			bulkImportD2TModel();
 
     void			manageWells();
     void			launchRockPhysics();
