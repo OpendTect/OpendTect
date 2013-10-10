@@ -13,12 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "datachar.h"
 #include "survinfo.h"
-#include <iostream>
+#include "od_istream.h"
 
 static const float cNanoFac = 1e-9;
 
 
-#define mRdVal(v) strm.read( (char*)(&v), sizeof(v) )
+#define mRdVal(v) strm.getBin( &v, sizeof(v) )
 
 DZT::FileHeader::FileHeader()
     : nsamp(0)
@@ -29,7 +29,7 @@ DZT::FileHeader::FileHeader()
 }
 
 
-bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
+bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 {
     // From 0, (u)shorts:
     mRdVal(tag); mRdVal(data); mRdVal(nsamp); mRdVal(bits); mRdVal(zero);
@@ -43,11 +43,11 @@ bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
     // From 54, floats:
     mRdVal(epsr); mRdVal(top); mRdVal(depth);
     // From 66, 1 byte dtype and 31 bytes reserved
-    char buf[32]; strm.read( buf, 32 ); dtype = buf[31];
+    char buf[32]; strm.getBin( buf, 32 ); dtype = buf[31];
     // From 98, 14 bytes antenna
-    strm.read( antname, 14 );
+    strm.getBin( antname, 14 );
     // From 112, the rest
-    mRdVal(chanmask); strm.read( buf, 12 );
+    mRdVal(chanmask); strm.getBin( buf, 12 );
     mRdVal(chksum);
 
     emsg.setEmpty();
@@ -70,8 +70,8 @@ bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
 	    dtype = bits == 16 ? 2 : 0;
     }
 
-    strm.seekg( std::streampos(data), std::ios::beg );
-    if ( !strm.good() )
+    strm.setPosition( data, od_stream::Abs );
+    if ( !strm.isOK() )
 	{ emsg = "Cannot read first trace."; mRetFalse; }
 
     return true;
@@ -89,8 +89,6 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 }
 
 
-#define mStrm (*sd_.istrm)
-
 DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
 			 const LineKey& lk )
     : Executor("Importing DZT file")
@@ -101,13 +99,13 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     , databuf_(0)
     , di_(DataCharacteristics())
     , trc_(*new SeisTrc)
-    , sd_(*new StreamData(StreamProvider(fnm).makeIStream()))
+    , istream_(*new od_istream(fnm) )
     , zfac_(1)
 {
-    if ( !sd_.usable() )
+    if ( !istream_.isOK() )
 	return;
 
-    if ( !fh_.getFrom( mStrm, msg_ ) )
+    if ( !fh_.getFrom( istream_, msg_ ) )
 	return;
 
     DataCharacteristics dc( fh_.dtype < 9, fh_.dtype %2 );
@@ -135,14 +133,16 @@ DZT::Importer::~Importer()
     closeAll();
     delete [] databuf_;
     delete &trc_;
-    delete &sd_;
+    delete &istream_;
 }
 
 
 int DZT::Importer::closeAll()
 {
-    sd_.close();
-    delete wrr_; wrr_ = 0;
+    istream_.close();
+
+    deleteAndZeroPtr(wrr_);
+
     return Finished();
 }
 
@@ -153,15 +153,15 @@ int DZT::Importer::nextStep()
 {
     if ( !fh_.isOK() )
     {
-	if ( !sd_.usable() )
+	if ( !istream_.isOK() )
 	    mErrRet("Cannot open input file")
 	else
 	    return ErrorOccurred();
     }
 
     const int trcbytes = fh_.nrBytesPerTrace();
-    mStrm.read( databuf_, trcbytes );
-    if ( mStrm.gcount() != trcbytes )
+    istream_.getBin( databuf_, trcbytes );
+    if ( istream_.lastNrBytesRead() != trcbytes )
 	return closeAll();
 
     fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
@@ -180,5 +180,5 @@ int DZT::Importer::nextStep()
 	mErrRet(wrr_->errMsg())
 
     nrdone_++;
-    return mStrm.good() ? MoreToDo() : closeAll();
+    return istream_.isOK() ? MoreToDo() : closeAll();
 }

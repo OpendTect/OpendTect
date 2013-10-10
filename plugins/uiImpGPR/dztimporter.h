@@ -20,7 +20,6 @@ class IOObj;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcWriter;
-class StreamData;
 
 
 namespace DZT
@@ -35,7 +34,7 @@ struct FileHeader
 
 			FileHeader();
 
-    bool		getFrom(std::istream&,BufferString&);
+    bool		getFrom(od_istream&,BufferString&);
     inline bool		isOK() const		{ return nsamp > 0; }
 
     inline int		traceNr( int trcidx ) const
@@ -84,7 +83,7 @@ protected:
 
     SeisTrc&		trc_;
     SeisTrcWriter*	wrr_;
-    StreamData&		sd_;
+    od_istream&		istream_;
     LineKey		lk_;
 
     char*		databuf_;

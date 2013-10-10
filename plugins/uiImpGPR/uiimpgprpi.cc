@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "dztimporter.h"
 #include "survinfo.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "filepath.h"
 #include "odplugin.h"
 
@@ -110,11 +110,12 @@ void inpSel( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() ) return;
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() ) return;
+    od_istream stream( fnm );
+
+    if ( !stream.isOK() ) return;
 
     DZT::FileHeader fh; BufferString emsg;
-    if ( !fh.getFrom(*sd.istrm,emsg) ) return;
+    if ( !fh.getFrom(stream,emsg) ) return;
 
     FilePath fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
