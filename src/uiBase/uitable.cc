@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivirtualkeyboard.h"
 #include "convert.h"
 #include "bufstringset.h"
+#include "hiddenparam.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
@@ -274,6 +275,19 @@ int uiTableBody::maxNrOfSelections() const
 }
 
 
+HiddenParam<uiTable,Notifier<uiTable>* > selectiondelman( 0 );
+HiddenParam<uiTable,char> removeselallowedman( true );
+HiddenParam<uiTable,char> seliscolman( false );
+HiddenParam<uiTable,TypeSet<int>*> notifrowsman( 0 );
+HiddenParam<uiTable,TypeSet<int>*> notifcolsman( 0 );
+HiddenParam<uiTable,TypeSet<RowCol>*> notifcellsman( 0 );
+
+
+Notifier<uiTable>* uiTable::selectionDeleted()
+{
+    return selectiondelman.getParam( this );
+}
+
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     : uiObject(p,nm,mkbody(p,nm,s.size_.row,s.size_.col))
@@ -291,9 +305,18 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , rowClicked(this)
     , columnClicked(this)
     , istablereadonly_(false)
-    , selectionDeleted(this)
-    , seliscols_(false)
 {
+    Notifier<uiTable>* selectiondeletednotify = new Notifier<uiTable>(this);
+    selectiondelman.setParam( this, selectiondeletednotify );
+    removeselallowedman.setParam( this, true );
+    seliscolman.setParam( this, false );
+    TypeSet<int>* notifrows = new TypeSet<int>;
+    TypeSet<int>* notifcols = new TypeSet<int>;
+    TypeSet<RowCol>* notifcells = new TypeSet<RowCol>;
+    notifrowsman.setParam( this, notifrows );
+    notifcolsman.setParam( this, notifcols );
+    notifcellsman.setParam( this, notifcells );
+
     setFont( FontList().get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
@@ -321,6 +344,14 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc )
 uiTable::~uiTable()
 {
     deepErase( selranges_ );
+    delete selectiondelman.getParam(this);
+    delete notifrowsman.getParam(this);
+    delete notifcolsman.getParam(this);
+    delete notifcellsman.getParam(this);
+    selectiondelman.removeParam(this);
+    notifrowsman.removeParam(this);
+    notifcolsman.removeParam(this);
+    notifcellsman.removeParam(this);
 }
 
 
@@ -495,6 +526,13 @@ void uiTable::removeRows( const TypeSet<int>& idxs )
 
 void uiTable::removeColumns( const TypeSet<int>& idxs )
 { removeRCs( idxs, true ); }
+
+
+void uiTable::setRemoveSelAllowed( bool removeselallowed )
+{
+    removeselallowedman.setParam( this, removeselallowed  );
+}
+
 
 void uiTable::setNrRows( int nr )
 {
@@ -1031,7 +1069,7 @@ void uiTable::popupMenu( CallBacker* )
     BufferString itmtxt;
 
     const RowCol cur = notifiedCell();
-    if ( setup_.removeselallowed_ )
+    if ( removeselallowedman.getParam(this) )
 	getSelected();
 
     int inscolbef = 0;
@@ -1048,13 +1086,13 @@ void uiTable::popupMenu( CallBacker* )
 	    inscolaft = mnu->insertItem( new uiMenuItem(itmtxt), 2 );
 	}
 
-	if ( setup_.removecolallowed_ && notifcols_.size() < 2 )
+	if ( setup_.removecolallowed_ && notifcolsman.getParam(this)->size()<2 )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.coldesc_;
 	    delcol = mnu->insertItem( new uiMenuItem(itmtxt), 4 );
 	}
 
-	if ( notifcols_.size() > 1 )
+	if ( notifcolsman.getParam(this)->size() > 1 )
 	{
 	    itmtxt = BufferString( "Remove selected ", setup_.coldesc_, "s" );
 	    delcols = mnu->insertItem( new uiMenuItem(itmtxt), 6 );
@@ -1075,13 +1113,13 @@ void uiTable::popupMenu( CallBacker* )
 	    insrowaft = mnu->insertItem( new uiMenuItem(itmtxt), 3 );
 	}
 
-	if ( setup_.removerowallowed_ && notifrows_.size() < 2 )
+	if ( setup_.removerowallowed_ && notifrowsman.getParam(this)->size()<2 )
 	{
 	    itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
 	    delrow = mnu->insertItem( new uiMenuItem(itmtxt), 5 );
 	}
 
-	if ( notifrows_.size() > 1 )
+	if ( notifrowsman.getParam(this)->size() > 1 )
 	{
 	    itmtxt = BufferString( "Remove selected ", setup_.rowdesc_, "s" );
 	    delrows = mnu->insertItem( new uiMenuItem(itmtxt), 7 );
@@ -1124,9 +1162,10 @@ void uiTable::popupMenu( CallBacker* )
     }
     else if ( ret == delcols )
     {
-	seliscols_ = true;
-	removeColumns( notifcols_ );
-	selectionDeleted.trigger();
+	seliscolman.setParam( this, true );
+	removeColumns( *notifcolsman.getParam(this) );
+	if ( const_cast<uiTable*>(this)->selectionDeleted() )
+	    selectionDeleted()->trigger();
     }
     else if ( ret == insrowbef || ret == insrowaft  )
     {
@@ -1146,9 +1185,10 @@ void uiTable::popupMenu( CallBacker* )
     }
     else if ( ret == delrows )
     {
-	seliscols_ = false;
-	removeRows( notifrows_ );
-	selectionDeleted.trigger();
+	seliscolman.setParam( this, false );
+	removeRows( *notifrowsman.getParam(this) );
+	if ( const_cast<uiTable*>(this)->selectionDeleted() )
+	    selectionDeleted()->trigger();
     }
     else if ( ret == virkeyboardid )
     {
@@ -1305,10 +1345,12 @@ bool uiTable::isColumnSelected( int col ) const
 
 bool uiTable::getSelected()
 {
-    notifrows_.setEmpty();
-    notifcols_.setEmpty();
-    return getSelectedRows( notifrows_ ) && getSelectedCols( notifcols_ ) &&
-	   getSelectedCells( notifcells_ );
+    TypeSet<int>* notifrows = notifrowsman.getParam(this);
+    TypeSet<int>* notifcols = notifcolsman.getParam(this);
+    notifrows->setEmpty();
+    notifcols->setEmpty();
+    return getSelectedRows( *notifrows ) && getSelectedCols( *notifcols ) &&
+	   getSelectedCells( *notifcellsman.getParam(this) );
 }
 
 

@@ -602,7 +602,8 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
     table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
-    table_->selectionDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits));
+    table_->selectionDeleted()->
+			notify( mCB(this,uiStratUnitDivideDlg,resetUnits));
     table_->setMinimumWidth( 450 );
     
     if ( table_->nrRows() )

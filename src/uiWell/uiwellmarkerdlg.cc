@@ -79,7 +79,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->rowDeleted.notify( mCB(this,uiMarkerDlg,markerRemovedCB) );
-    table_->selectionDeleted.notify( mCB(this,uiMarkerDlg,selectionRemovedCB) );
+    table_->selectionDeleted()->
+			notify( mCB(this,uiMarkerDlg,selectionRemovedCB) );
     table_->setPrefWidth( 650 );
 
     uiButton* updatebut = new uiPushButton( this, "&Update display",

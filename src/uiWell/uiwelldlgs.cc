@@ -63,11 +63,11 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 {
     tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
 	    				      .rowgrow(true)
-					      .defrowlbl("")
-					      .removeselallowed(false),
+					      .defrowlbl(""),
 		        "Well Track Table" );
     tbl_->setColumnLabels( trackcollbls );
     tbl_->setNrRows( nremptyrows );
+    tbl_->setRemoveSelAllowed( false );
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
 
@@ -383,11 +383,11 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
 				.rowgrow(true)
 				.defrowlbl("")
-				.selmode(uiTable::Single)
-				.removeselallowed(false),
+				.selmode(uiTable::Single),
 		  BufferString( cksh_ ? "CheckShot" : "Time-Depth", " model" ));
     tbl_->setColumnLabels( getColLabels() );
     tbl_->setNrRows( nremptyrows );
+    tbl_->setRemoveSelAllowed( false ),
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
     tbl_->setColumnToolTip( cMDCol,

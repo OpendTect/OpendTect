@@ -84,7 +84,6 @@ public:
 			, rightclickdisabled_(false)
 		       		   //!<default enables right click popup	
 			, enablecopytext_(false)
-			, removeselallowed_(true)
 				{}
 
 	mDefSetupMemb(RowCol,size)
@@ -110,7 +109,6 @@ public:
 	mDefSetupMemb(int,defrowstartidx)
 	mDefSetupMemb(bool,rightclickdisabled)
 	mDefSetupMemb(bool,enablecopytext)
-	mDefSetupMemb(bool,removeselallowed)
 
 	Setup& sizesFixed( bool yn )
 	{
@@ -207,6 +205,7 @@ public:
     void		removeColumn( const RowCol& rc )
     				{ removeColumn( rc.col ); }
     void		removeColumns(const TypeSet<int>&);
+    void		setRemoveSelAllowed(bool);
 
     bool		isSelected(const RowCol&) const;
     bool		isRowSelected(int) const;
@@ -257,10 +256,9 @@ public:
 
     const RowCol&	notifiedCell() const	{ return notifcell_; }
     void		setNotifiedCell(const RowCol& rc)
-						{ notifcell_=rc; }
-    const TypeSet<int>&	getNotifRCs() const
-			{ return seliscols_ ? notifcols_ : notifrows_; }
-    const TypeSet<RowCol>& getNotifCells() const { return notifcells_; }
+						{ notifcell_=rc; } 
+    const TypeSet<int>&	getNotifRCs() const;
+    const TypeSet<RowCol>& getNotifCells() const;
     
     Notifier<uiTable>	valueChanged;
     Notifier<uiTable>	leftClicked;
@@ -271,6 +269,7 @@ public:
     const RowCol&	newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	rowDeleted;
+    Notifier<uiTable>*	selectionDeleted();
     Notifier<uiTable>	colInserted;
     Notifier<uiTable>	colDeleted;
     CNotifier<uiTable,int> rowClicked;
@@ -346,18 +345,6 @@ private:
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
     mutable uiSize	lastsz;
-
-public:
-
-			// ABI  compatibility - needs to be last
-    Notifier<uiTable>	selectionDeleted;
-
-protected:
-
-    TypeSet<RowCol>	notifcells_;
-    TypeSet<int>	notifrows_;
-    TypeSet<int>	notifcols_;
-    bool		seliscols_;
 
 };
 

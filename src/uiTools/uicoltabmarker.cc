@@ -43,13 +43,13 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 	    					.rowgrow(true)
 	    					.rowdesc("Marker")
 						.defrowlbl(true)
-	   					.manualresize(true)
-						.removeselallowed(false),
+	   					.manualresize(true),
 			  "Marker table");
     BufferStringSet columnlabels;
     columnlabels.add("Position").add("Color");
     table_->setColumnLabels( columnlabels );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setRemoveSelAllowed( false );
     fillTable();
 
     table_->leftClicked.notify( mCB(this,uiColTabMarkerDlg,mouseClick) );
