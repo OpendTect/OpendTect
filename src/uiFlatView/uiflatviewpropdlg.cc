@@ -480,6 +480,7 @@ void uiFVVDPropTab::handleFieldDisplay( bool dodisp )
 void uiFVVDPropTab::putToScreen()
 {
     ColTab::SM().get( pars_.ctab_, ctab_ );
+    uicoltab_->setDispPars( pars_ );
     uicoltab_->setSequence( &ctab_, true );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
@@ -494,6 +495,7 @@ bool uiFVVDPropTab::acceptOK()
     if ( !uiFlatViewDataDispPropTab::acceptOK() )
 	return false;
 
+    pars_.mappersetup_.flipseq_ = uicoltab_->colTabMapperSetup().flipseq_;
     if ( pars_.show_ )
 	pars_.ctab_ = uicoltab_->colTabSeq().name();
 

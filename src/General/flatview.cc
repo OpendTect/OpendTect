@@ -312,6 +312,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyShow(), vd_.show_ );
     mIOPDoVD( set, sKeyDispRg(), vd_.mappersetup_.range_ );
     mIOPDoVD( set, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( setYN, "Flip Sequence", vd_.mappersetup_.flipseq_ );
     mIOPDoVD( setYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale(),
@@ -344,6 +345,7 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( get, sKeyDispRg(), range );
     vd_.mappersetup_.range_ = range;
     mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( getYN, "Flip Sequence", vd_.mappersetup_.flipseq_ );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
     bool autoscale = true;

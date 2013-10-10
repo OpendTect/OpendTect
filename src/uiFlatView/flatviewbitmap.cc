@@ -239,6 +239,8 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	histequalizer_ = new HistEqualizer( maxfill-minfill+1 );
 	histequalizer_->setRawData( datapts );
     }
+    
+    const int maxidx = ctindex.nrCols()-1;
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
 	if ( ix >= bmpsz.width() ) break;
@@ -250,7 +252,9 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 		continue;
 
 	    Color col;
-	    col = ctindex.colorForIndex( (int)bmpval-minfill );
+	    const int idx = (int)bmpval-minfill;
+	    const int colidx = pars.mappersetup_.flipseq_ ? maxidx-idx : idx;
+	    col = ctindex.colorForIndex( colidx );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}
