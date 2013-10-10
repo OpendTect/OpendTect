@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "rcol.h"
 #include "posidxpair.h"
 class RowCol;
 

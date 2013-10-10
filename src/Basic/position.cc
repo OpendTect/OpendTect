@@ -189,30 +189,6 @@ bool Coord::parseUsrStr( const char* s )
 }
 
 
-bool getDirectionStr( const Coord& coord, BufferString& res )
-{
-    if ( mIsZero(coord.x,mDefEps) && mIsZero(coord.y,mDefEps) )
-	return false;
-
-    const Coord::DistType len = Math::Sqrt(coord.x*coord.x+coord.y*coord.y);
-    const Coord::DistType x = coord.x/len;
-    const Coord::DistType y = coord.y/len;
-
-    res = "";
-    if ( y>0.5 )
-	res += "north";
-    else if ( y<-0.5 )
-	res += "south";
-
-    if ( x>0.5 )
-	res += "east";
-    else if ( x<-0.5 )
-	res += "west";
-
-    return true;
-}
-
-
 Coord::DistType Coord3::abs() const
 {
     return Math::Sqrt( x*x + y*y + z*z );

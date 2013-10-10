@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		21-6-1996
- Contents:	Positions: Inline/crossline and Coordinate
+ Contents:	Positions: Coordinates
  RCS:		$Id$
 ________________________________________________________________________
 
@@ -59,11 +59,6 @@ public:
     inline bool isUdf() const		{ return !isDefined(); }
 };
 
-bool getDirectionStr( const Coord&, BufferString& );
-/*!< Returns strings like 'South-West', NorthEast depending on the given
-     coord that is assumed to have the x-axis pointing northwards, and the
-     y axis pointing eastwards
-*/
 
 
 /*!
@@ -73,9 +68,6 @@ bool getDirectionStr( const Coord&, BufferString& );
 mExpClass(Basic) Coord3 : public Coord
 {
 public:
-
-    typedef Pos::Ordinate_Type	OrdType;
-    typedef Pos::Distance_Type	DistType;
 
 			Coord3() : z(0)					{}
 			Coord3(const Coord& a, OrdType z_ )

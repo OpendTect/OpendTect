@@ -25,7 +25,6 @@ static const char* rcsID = "$Id$";
 #include "seis2dline.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "rcol.h"
 #include "executor.h"
 
 #define NaN 9
