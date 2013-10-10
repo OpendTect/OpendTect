@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert/Salil
  Date:		Oct 2013
- RCS:		$Id: position.h 31787 2013-10-03 07:59:05Z kristofer.tingdahl@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
