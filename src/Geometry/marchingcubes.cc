@@ -360,30 +360,19 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
 MarchingCubesSurface::MarchingCubesSurface()
     : models_( 3, 1 )
     , change( this )
-    , impvoldata_( 0 )		    
 {}
 
 
 MarchingCubesSurface::~MarchingCubesSurface()
 {
     removeAll();
-    delete impvoldata_;
 }
 
 
 bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 		const Array3D<float>& arr, float threshold, TaskRunner* tr )
 {
-    if ( impvoldata_ )
-	delete impvoldata_;
-    mDeclareAndTryAlloc( Array3DImpl<float>*, nvoldata, 
-	    Array3DImpl<float>(arr.info()) );
-    if ( nvoldata )
-	nvoldata->copyFrom(arr);
-    impvoldata_ = nvoldata;
-
     const bool wasempty = models_.isEmpty();
-
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 	    			      *this );
     const bool res = TaskRunner::execute( tr, converter );

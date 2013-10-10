@@ -90,7 +90,6 @@ public:
 			    with an isosurface from the array and its
 			    threshold. */
 
-    Array3D<float>* 	impvoldata_;
     void		removeAll();
     bool		isEmpty() const;
 
