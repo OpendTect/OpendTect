@@ -489,6 +489,7 @@ bool uiNLAPartServer::doDPSDlg()
 {
     uiDataPointSet::Setup su( "Input data", true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
+    delete uidps_;
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
     uidps_->setCtrlStyle( uiDialog::DoAndStay );
     uidps_->storePars() = storepars_;
