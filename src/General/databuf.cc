@@ -128,10 +128,10 @@ BufferString DataBuffer::getString() const
     BufferString ret;
     if ( data_ )
     {
-	const size_t sz = (size_t)( size() + 1 );
-	ret.setBufSize( sz );
-	memcpy( ret.buf(), data_, sz-1 );
-	(ret.buf())[sz-1] = '\0';
+	const size_t totsz = (size_t)( nelem_ * bytes_ + 1 );
+	ret.setBufSize( totsz );
+	memcpy( ret.buf(), data_, totsz-1 );
+	(ret.buf())[totsz-1] = '\0';
     }
     return ret;
 }
