@@ -67,43 +67,25 @@ inline BinID::BinID( const Pos::IdxPair& p )
 
 
 inline const BinID& BinID::operator+=( const BinID& bid )
-{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
-
-
+	{ inl() += bid.inl(); crl() += bid.crl(); return *this; }
 inline const BinID& BinID::operator-=( const BinID& bid )
-{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
-
-
+	{ inl() -= bid.inl(); crl() -= bid.crl(); return *this; }
 inline BinID BinID::operator+( const BinID& bid ) const
-{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
-
-
+	{ return BinID( inl()+bid.inl(), crl()+bid.crl() ); }
 inline BinID BinID::operator-( const BinID& bid ) const
-{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
-
-
+	{ return BinID( inl()-bid.inl(), crl()-bid.crl() ); }
 inline BinID BinID::operator+() const
-{ return BinID( +inl(), +crl() ); }
-
-
+	{ return BinID( +inl(), +crl() ); }
 inline BinID BinID::operator-() const
-{ return BinID( -inl(), -crl() ); }
-
-
+	{ return BinID( -inl(), -crl() ); }
 inline BinID BinID::operator*( const BinID& bid ) const
-{ return BinID( inl()*bid.inl(), crl()*bid.crl() ); }
-
-
+	{ return BinID( inl()*bid.inl(), crl()*bid.crl() ); }
 inline BinID BinID::operator*( int factor ) const
-{ return BinID( inl()*factor, crl()*factor ); }
-
-
+	{ return BinID( inl()*factor, crl()*factor ); }
 inline BinID BinID::operator/( const BinID& rc ) const
-{ return BinID( inl()/rc.inl(), col()/rc.crl() ); }
-
-
+	{ return BinID( inl()/rc.inl(), col()/rc.crl() ); }
 inline BinID BinID::operator/( int denominator ) const
-{ return BinID( inl()/denominator, crl()/denominator ); }
+	{ return BinID( inl()/denominator, crl()/denominator ); }
 
 
 inline BinID BinID::fromInt64( od_int64 i64 )
@@ -123,7 +105,5 @@ inline bool BinID::parseUsrStr( const char* str )
 {
     return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
 }
-
-
 
 #endif
