@@ -355,7 +355,7 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
     if ( indpth && d2tmodels_ && !d2tmodels_->isEmpty() )
     {
 	int mdlidx = longestaimdl_;
-	if ( mdlidx >= d2tmodels_->size() )
+	if ( !d2tmodels_->validIdx(mdlidx) )
 	    mdlidx = d2tmodels_->size()-1;
 
 	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
@@ -828,7 +828,8 @@ void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
     if ( !curd2tmodels.validIdx(longestaimdl_) )
 	return;
     const TimeDepthModel& d2t = *curd2tmodels[longestaimdl_];
-    const float reqlastzval = d2t.getLastTime();
+    const float reqlastzval =
+	d2t.getTime( layerModel().sequence(longestaimdl_).zRange().stop );
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
 	SeisTrc& trc = *tbuf.get( idx );
