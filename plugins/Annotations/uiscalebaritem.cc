@@ -33,14 +33,17 @@ namespace Annotations
 struct ScaleBarPars
 {
 ScaleBarPars()
-    : orientation_(0), length_(1000)
+    : oninlcrl_(true), orientation_(0), length_(1000)
 {}
 
+bool		oninlcrl_;
 int		orientation_;
 double		length_;
 LineStyle	ls_;
 };
 
+
+static const BoolInpSpec horverspec( true, "Horizontal", "Vertical" );
 
 class uiScaleBarDialog : public uiDialog
 {
@@ -52,12 +55,23 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 {
     setCtrlStyle( LeaveOnly );
 
-    orientationfld_ = new uiGenInput( this, "Orientation",
-		BoolInpSpec(true,"Horizontal","Vertical") );
-    orientationfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
+    objectfld_ = new uiGenInput( this, "Picked on",
+		BoolInpSpec(true,"Inl/Crl","Z-slice") );
+    objectfld_->setSensitive( false );
+
+    horverfld_ = new uiGenInput( this, "Orientation", horverspec );
+    horverfld_->attach( alignedBelow, objectfld_ );
+    horverfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
+
+    // TODO: Support X, Y, Inl, Crl orientations
+    static const BoolInpSpec xyspec( true, "X", "Y" );
+    inlcrlfld_= new uiGenInput( this, "Orientation", xyspec );
+    inlcrlfld_->attach( alignedBelow, objectfld_ );
+    inlcrlfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
+    inlcrlfld_->display( false );
 
     lengthfld_ = new uiGenInput( this, "Length", DoubleInpSpec() );
-    lengthfld_->attach( alignedBelow, orientationfld_ );
+    lengthfld_->attach( alignedBelow, horverfld_ );
     lengthfld_->updateRequested.notify( mCB(this,uiScaleBarDialog,changeCB) );
     unitlbl_ = new uiLabel( this, "" );
     unitlbl_->attach( rightTo, lengthfld_ );
@@ -68,21 +82,28 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     linestylefld_->attach( alignedBelow, lengthfld_ );
 }
 
-
 void setPars( const ScaleBarPars& pars )
 {
-    orientationfld_->setValue( !pars.orientation_ );
+    objectfld_->setValue( pars.oninlcrl_ );
+    if ( pars.oninlcrl_ )
+	horverfld_->setValue( !pars.orientation_ );
+    else
+	inlcrlfld_->setValue( !pars.orientation_ );
+    updateOrientationFld();
+
     double length = pars.length_;
-    if ( pars.orientation_==1 ) length *= zinf_.userFactor();
+    if ( pars.oninlcrl_ && pars.orientation_==1 ) length *= zinf_.userFactor();
     lengthfld_->setValue( length );
     linestylefld_->setStyle( pars.ls_ );
 }
 
 void fillPars( ScaleBarPars& pars ) const
 {
-    pars.orientation_ = !orientationfld_->getBoolValue();
+    pars.oninlcrl_ = objectfld_->getBoolValue();
+    pars.orientation_ = pars.oninlcrl_ ? !horverfld_->getBoolValue()
+				       : !inlcrlfld_->getBoolValue();
     double length = lengthfld_->getdValue();
-    if ( pars.orientation_==1 ) length /= zinf_.userFactor();
+    if ( pars.oninlcrl_ && pars.orientation_==1 ) length /= zinf_.userFactor();
     pars.length_ = length;
     pars.ls_ = linestylefld_->getStyle();
 }
@@ -91,14 +112,23 @@ Notifier<uiScaleBarDialog>	propertyChange;
 
 protected:
 
+void updateOrientationFld()
+{
+    horverfld_->display( objectfld_->getBoolValue() );
+    inlcrlfld_->display( !objectfld_->getBoolValue() );
+}
+
 void changeCB( CallBacker* )
 {
-    unitlbl_->setText( orientationfld_->getBoolValue()
-	    ? SI().getXYUnitString(true) : zinf_.unitStr(true) );
+    unitlbl_->setText( !objectfld_->getBoolValue() ||
+		       horverfld_->getBoolValue()
+		? SI().getXYUnitString(true) : zinf_.unitStr(true) );
     propertyChange.trigger();
 }
 
-    uiGenInput*			orientationfld_;
+    uiGenInput*			objectfld_;
+    uiGenInput*			horverfld_;
+    uiGenInput*			inlcrlfld_;
     uiGenInput*			lengthfld_;
     uiLabel*			unitlbl_;
     uiSelLineStyle*		linestylefld_;
@@ -140,18 +170,7 @@ bool ScaleBarSubItem::init()
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
-    int orientation = 0;
-    set_->pars_.get( sKeyOrientation(), orientation );
-    ad->setOrientation( orientation );
-
-    int linewidth = 2;
-    set_->pars_.get( sKeyLineWidth(), linewidth );
-    ad->setLineWidth( linewidth );
-
-    double length = 1000;
-    set_->pars_.get( sKeyLength(), length );
-    ad->setLength( length );
-
+    ad->fromPar( set_->pars_ );
     return SubItem::init();
 }
 
@@ -160,9 +179,7 @@ void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
     mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_))
-    par.set( sKeyOrientation(), ad->getOrientation() );
-    par.set( sKeyLineWidth(), ad->getLineWidth() );
-    par.set( sKeyLength(), ad->getLength() );
+    ad->toPar( par );
 }
 
 
@@ -190,6 +207,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 
 	mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_));
 	ScaleBarPars pars;
+	pars.oninlcrl_ = ad->isOnInlCrl();
 	pars.orientation_ = ad->getOrientation();
 	pars.length_ = ad->getLength();
 	pars.ls_ = LineStyle(LineStyle::Solid,ad->getLineWidth(),
@@ -214,6 +232,7 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     setColor( pars.ls_.color_ );
 
     mDynamicCastGet(ScaleBarDisplay*,ad,visserv_->getObject(displayid_));
+    ad->setOnInlCrl( pars.oninlcrl_ );
     ad->setOrientation( pars.orientation_ );
     ad->setLineWidth( pars.ls_.width_ );
     ad->setLength( pars.length_ );

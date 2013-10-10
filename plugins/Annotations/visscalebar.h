@@ -34,6 +34,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     void			setLineWidth(int);
     void			setLength(double);
+    void			setOnInlCrl(bool);
     void			setOrientation(int);
 
 protected:
@@ -65,6 +66,8 @@ public:
 
     void			setScene(visSurvey::Scene*);
 
+    void			setOnInlCrl(bool);
+    bool			isOnInlCrl() const;
     void			setOrientation(int);
     int				getOrientation() const;
 
@@ -72,6 +75,9 @@ public:
     int				getLineWidth() const;
     void			setLength(double);
     double			getLength() const;
+
+    void			fromPar(const IOPar&);
+    void			toPar(IOPar&) const;
 
 protected:
 

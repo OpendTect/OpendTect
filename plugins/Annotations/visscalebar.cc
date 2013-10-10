@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visscalebar.h"
 
+#include "hiddenparam.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "viscoord.h"
@@ -24,6 +25,8 @@ mCreateFactoryEntry( Annotations::ScaleBarDisplay );
 
 namespace Annotations
 {
+
+HiddenParam<ScaleBar,BoolTypeSetType> oninlcrls( true );
 
 ScaleBar::ScaleBar()
     : visBase::VisualObjectImpl(true)
@@ -56,6 +59,8 @@ ScaleBar::ScaleBar()
     polyline_->setMaterial( 0 );
     polyline_->ref();
     addChild( polyline_->getInventorNode() );
+
+    oninlcrls.setParam( this, true );
 }
 
 
@@ -76,6 +81,17 @@ void ScaleBar::setLength( double l )
 	return;
 
     length_ = l;
+    updateVis( firstloc_ );
+}
+
+
+void ScaleBar::setOnInlCrl( bool yn )
+{
+    const bool oninlcrl = oninlcrls.getParam( this );
+    if ( oninlcrl == yn )
+	return;
+
+    oninlcrls.setParam( this, yn );
     updateVis( firstloc_ );
 }
 
@@ -117,21 +133,36 @@ void ScaleBar::updateVis( const Pick::Location& loc )
 
 Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 {
-    if ( orientation_ == 1 )
+    Coord3 pos = Coord3::udf();
+    const bool oninlcrl = oninlcrls.getParam( this );
+    if ( oninlcrl )
     {
-	Coord3 pos = loc.pos_;
-	pos.z += length_;
-	return pos;
+	if ( orientation_ == 1 )
+	{
+	    pos = loc.pos_;
+	    pos.z += length_;
+	}
+	else
+	{
+	    const Coord3 normal = spherical2Cartesian( loc.dir_, true );
+	    const double l2 = length_*length_;
+	    const double ny2 = normal.x*normal.x;
+	    const double nx2 = normal.y*normal.y;
+	    const double term = 1 + nx2/ny2;
+	    const double dx2 = l2 / term;
+	    const double dy2 = l2 - dx2;
+	    pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
+	}
+    }
+    else
+    {
+	pos = loc.pos_;
+	if ( orientation_ == 0 )
+	    pos.x += length_;
+	else
+	    pos.y += length_;
     }
 
-    Coord3 normal = spherical2Cartesian( loc.dir_, true );
-    const double l2 = length_*length_;
-    const double ny2 = normal.x*normal.x;
-    const double nx2 = normal.y*normal.y;
-    const double term = 1 + nx2/ny2;
-    const double dx2 = l2 / term;
-    const double dy2 = l2 - dx2;
-    Coord3 pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
     return pos;
 }
 
@@ -154,6 +185,12 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
+static const char* sKeyOnInlCrl()	{ return "On Inl/Crl"; }
+static const char* sKeyOrientation()	{ return "Orientation"; }
+static const char* sKeyLineWidth()	{ return "Line width"; }
+static const char* sKeyLength()		{ return "Length"; }
+
+HiddenParam<ScaleBarDisplay,BoolTypeSetType> oninlcrlsbd( true );
 
 // ScaleBarDisplay
 ScaleBarDisplay::ScaleBarDisplay()
@@ -161,6 +198,7 @@ ScaleBarDisplay::ScaleBarDisplay()
     , length_(1000)
     , linewidth_(2)
 {
+    oninlcrlsbd.setParam( this, true );
 }
 
 
@@ -221,6 +259,17 @@ int ScaleBarDisplay::getOrientation() const
 { return orientation_; }
 
 
+void ScaleBarDisplay::setOnInlCrl( bool yn )
+{
+    oninlcrlsbd.setParam( this, yn );
+    mToGroup( setOnInlCrl, yn );
+}
+
+
+bool ScaleBarDisplay::isOnInlCrl() const
+{ return oninlcrlsbd.getParam(this); }
+
+
 void ScaleBarDisplay::zScaleCB( CallBacker* )
 { fullRedraw(); }
 
@@ -235,6 +284,7 @@ void ScaleBarDisplay::dispChg( CallBacker* cb )
 visBase::VisualObject* ScaleBarDisplay::createLocation() const
 {
     ScaleBar* sb = ScaleBar::create();
+    sb->setOnInlCrl( isOnInlCrl() );
     sb->setLineWidth( linewidth_ );
     sb->setLength( length_ );
     sb->setOrientation( orientation_ );
@@ -244,6 +294,13 @@ visBase::VisualObject* ScaleBarDisplay::createLocation() const
 
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 {
+    const Coord3 normal = spherical2Cartesian( loc.dir_, true );
+    const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
+    if ( idx==0 )
+	setOnInlCrl( !pickedonz );
+    else if ( pickedonz == isOnInlCrl() )
+	return;
+
     mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
     if ( sb ) sb->setPick( loc );
 }
@@ -254,11 +311,40 @@ int ScaleBarDisplay::isMarkerClick( const TypeSet<int>& path ) const
     for ( int idx=0; idx<group_->size(); idx++ )
     {
 	mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
-	if ( sb && path.indexOf(sb->id()) != -1 )
+	if ( sb && path.isPresent(sb->id()) )
 	    return idx;
     }
 
     return -1;
+}
+
+
+void ScaleBarDisplay::fromPar( const IOPar& par )
+{
+    bool oninlcrl = true;
+    par.getYN( sKeyOnInlCrl(), oninlcrl );
+    setOnInlCrl( oninlcrl );
+
+    int orientation = 0;
+    par.get( sKeyOrientation(), orientation );
+    setOrientation( orientation );
+
+    int linewidth = 2;
+    par.get( sKeyLineWidth(), linewidth );
+    setLineWidth( linewidth );
+
+    double length = 1000;
+    par.get( sKeyLength(), length );
+    setLength( length );
+}
+
+
+void ScaleBarDisplay::toPar( IOPar& par ) const
+{
+    par.setYN( sKeyOnInlCrl(), isOnInlCrl() );
+    par.set( sKeyOrientation(), getOrientation() );
+    par.set( sKeyLineWidth(), getLineWidth() );
+    par.set( sKeyLength(), getLength() );
 }
 
 } // namespace Annotation
