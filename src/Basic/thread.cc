@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadlock.h"
 #include "atomic.h"
 
+
 // Thread::Lock interface
 
 Threads::Lock::Lock( bool sp )
@@ -156,6 +157,20 @@ bool Threads::Locker::convertToWriteLock()
     return isok;
 }
 
+
+bool Threads::lockSimpleSpinLock( volatile int& lock,
+                                  Threads::Locker::WaitType wt )
+{
+    if ( wt==Threads::Locker::WaitIfLocked )
+    {
+        while ( !Threads::atomicSetIfEqual( lock, 1, 0 ) )
+        {}
+
+        return true;
+    }
+
+    return Threads::atomicSetIfEqual( lock, 1, 0 );
+}
 
 
 // Thread::General interface

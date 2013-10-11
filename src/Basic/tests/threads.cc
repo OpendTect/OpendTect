@@ -331,6 +331,25 @@ bool testLock( bool quiet, bool testcount, const char* type )
 }
 
 
+bool testSimpleSpinLock( bool quiet )
+{
+    volatile int lock = 0;
+    Threads::lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
+
+    mRunTest( "Simple spinlock acquire lock", (lock==1));
+    mRunTest( "Simple spinlock trylock on locked lock.",
+        !Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+
+    Threads::unlockSimpleSpinLock( lock );
+    mRunTest( "Simple spinlock release lock", lock==0 );
+
+    mRunTest( "Simple spinlock trylock on unlocked lock.",
+         Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+
+    return true;
+}
+
+
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " ", quiet ) ) \
 	ExitProgram( 1 );
@@ -357,6 +376,9 @@ int main( int narg, char** argv )
     mRunTestWithType(unsigned int);
     mRunTestWithType(short);
     mRunTestWithType(unsigned short);
+
+    if ( !testSimpleSpinLock(quiet) )
+        ExitProgram( 1 );
 
     if ( !testLock<Threads::Mutex>( quiet, false, "Mutex" ) )
 	ExitProgram( 1 );

@@ -123,6 +123,17 @@ private:
 
 };
 
+
+/*!Any volatile integer that is initialized to 0 can act as a spinlock using
+   this funciton. If you lock it, you have to unlock it by setting it to 0.
+   Note that parallelStudio will report these as violations of thread-safety.
+   Hence use thes only when standard locks cannot be used (e.g. static locks in
+   functions). */
+
+mGlobal(Basic) bool lockSimpleSpinLock(volatile int& lock,Locker::WaitType);
+inline void unlockSimpleSpinLock(volatile int& lock) { lock = 0; }
+
+
 } // namespace Threads
 
 

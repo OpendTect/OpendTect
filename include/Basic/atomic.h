@@ -73,12 +73,27 @@ private:
     volatile T		values_[8];
     volatile T*		valptr_;
 
-    Mutex*			lock_;
+    Mutex*		lock_;
 
 #else
     volatile T		val_;
 #endif
 };
+
+
+/*!Function to do basic atomic operation on integer. Sets the val to newval
+   only if it is previously set to expected. Returns true if the value was
+   set, otherwise false. */
+inline bool atomicSetIfEqual(volatile int& val,int newval,int expected)
+{
+# ifdef __win__
+    return InterlockedCompareExchange( (volatile long*) &val_, newval,
+                                      expected )==expected;
+
+# else
+    return __sync_val_compare_and_swap( &val, expected, newval )==expected;
+#endif
+}
 
 
 #ifdef __win__
@@ -124,9 +139,11 @@ protected:
 
 
 /*!
-\brief Is an alternative to Mutex. It is a lock which causes a thread trying to acquire it to simply wait in a loop ("spin") while repeatedly checking if the
-lock is available. Because they avoid overhead from operating system process
-re-scheduling or context switching, spinlocks are efficient if threads are only likely to be blocked for a short period.
+\brief Is an alternative to Mutex. It is a lock which causes a thread trying to
+ acquire it to simply wait in a loop ("spin") while repeatedly checking if the
+ lock is available. Because they avoid overhead from operating system process
+ re-scheduling or context switching, spinlocks are efficient if threads are only
+ likely to be blocked for a short period.
 */
 
 mExpClass(Basic) SpinLock
@@ -313,6 +330,13 @@ template <class T> inline
 bool Atomic<T>::strongSetIfEqual( T newval, T expected )
 {
     return __sync_val_compare_and_swap( &val_, expected, newval )==expected;
+}
+
+
+template <> inline
+bool Atomic<int>::strongSetIfEqual( int newval, int expected )
+{
+    return atomicSetIfEqual( val_, newval, expected );
 }
 
 
@@ -555,7 +579,7 @@ Atomic<int>::Atomic( int val )
 template <> inline
 bool Atomic<int>::strongSetIfEqual(int newval, int expected )
 {
-    return InterlockedCompareExchange( (volatile long*) valptr_,newval,expected)==expected;
+    return atomicSetIfEqual( val_, newval, expected );
 }
 	 
 	 
@@ -635,7 +659,8 @@ Atomic<long>::Atomic( long val )
 template <> inline
 bool Atomic<long>::strongSetIfEqual(long newval, long expected )
 {
-    return InterlockedCompareExchange( (volatile long*) valptr_, newval, expected)==expected;
+    return InterlockedCompareExchange( (volatile long*) valptr_,
+                                        newval, expected)==expected;
 }
 
 
