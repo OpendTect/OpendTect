@@ -14,6 +14,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    beachballdata.cc
 	    bidvsetarrayadapter.cc
 	    binidvalset.cc
+	    conn.cc
 	    cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
 	    cbvswriter.cc cbvswritemgr.cc
 	    coltabindex.cc coltabmapper.cc coltabsequence.cc

@@ -32,7 +32,6 @@ set( OD_MODULE_SOURCES
 	    color.cc
 	    compoundkey.cc
 	    commandlineparser.cc
-	    conn.cc
 	    cubesampling.cc
 	    dateinfo.cc
 	    datapack.cc
