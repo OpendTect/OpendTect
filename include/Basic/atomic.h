@@ -87,7 +87,7 @@ private:
 inline bool atomicSetIfEqual(volatile int& val,int newval,int expected)
 {
 # ifdef __win__
-    return InterlockedCompareExchange( (volatile long*) &val_, newval,
+    return InterlockedCompareExchange( (volatile long*) &val, newval,
                                       expected )==expected;
 
 # else
@@ -579,7 +579,7 @@ Atomic<int>::Atomic( int val )
 template <> inline
 bool Atomic<int>::strongSetIfEqual(int newval, int expected )
 {
-    return atomicSetIfEqual( val_, newval, expected );
+    return atomicSetIfEqual( *valptr_, newval, expected );
 }
 	 
 	 
