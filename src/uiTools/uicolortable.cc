@@ -232,7 +232,8 @@ const char* uiColorTableSel::getCurrent() const
 	, scalingdlg_(0) \
 	, minfld_(0) \
 	, maxfld_(0) \
-	, enabmanage_(true)
+	, enabmanage_(true)\
+	, enabclipdlg_(true)
 
 
 uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
@@ -414,7 +415,7 @@ void uiColorTable::canvasClick( CallBacker* )
 	itm->setCheckable( true );
 	itm->setChecked( mapsetup_.flipseq_ );
     }
-    if ( hasmapper )
+    if ( enabclipdlg_ && hasmapper )
 	mnu->insertItem( new uiAction("Ranges/Clipping ...",
 	    mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )

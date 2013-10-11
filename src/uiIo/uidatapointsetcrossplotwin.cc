@@ -106,7 +106,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     disptb_.turnOn( showy2tbid_, false );
 
     coltabfld_ = new uiColorTableGroup( &colortb_, ColTab::Sequence("Rainbow"));
-    coltabfld_->setEnabManage( false );
+    coltabfld_->enableManage( false );
     coltabfld_->seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
     coltabfld_->scaleChanged.notify(

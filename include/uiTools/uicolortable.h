@@ -63,7 +63,8 @@ public:
     void		enableTransparencyEdit(bool);
     void		commitInput();
 
-    void                setEnabManage( bool yn )	{ enabmanage_ = yn; }
+    void                enableManage(bool yn)		{ enabmanage_ = yn; }
+    void		enableClippingDlg(bool yn)	{ enabclipdlg_ = yn; }
 
     void		setDispPars(const FlatView::DataDispPars::VD&);
     void		getDispPars(FlatView::DataDispPars::VD&) const;
@@ -75,6 +76,7 @@ protected:
 			uiColorTable(const ColTab::Sequence&);
 
     bool		enabmanage_;
+    bool		enabclipdlg_;
 
     ColTab::MapperSetup& mapsetup_;
     ColTab::Sequence&	coltabseq_;
