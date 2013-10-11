@@ -27,6 +27,8 @@ extern "C" {
 # include "string2_c.h"
 #endif
 
+namespace Threads{ class Lock; }
+
 mGlobal(Basic) const char* GetProjectVersionName(void);
 		/*!< "dTect Vx.x" */
 
@@ -91,6 +93,18 @@ mGlobal( Basic ) void ForkProcess(void);
     
 mGlobal( Basic ) int InSysAdmMode(void);
 mGlobal( Basic ) void SetInSysAdmMode(void);
+
+
+namespace OD 
+{
+    mGlobal( Basic ) Threads::Lock& getGlobalInitializationLock();
+}
+
+
+#define mDefineStaticLocalObject( type, var, init ) \
+    Threads::Locker lckr( OD::getGlobalInitializationLock() ); \
+    static type var init; \
+    lckr.unlockNow()
     
     
 inline void EmptyFunction() 			{}

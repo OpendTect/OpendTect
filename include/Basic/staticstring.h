@@ -39,7 +39,7 @@ protected:
 
 
 #define mDeclStaticString(nm) \
-    static StaticStringManager nm##_ssm; \
+    mDefineStaticLocalObject( StaticStringManager, nm##_ssm, ); \
     BufferString& nm = nm##_ssm.getString()
 
 
