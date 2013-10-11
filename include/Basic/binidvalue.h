@@ -37,12 +37,10 @@ public:
 			    : BinIDValueIdxPair(i,c,v)	{}
     inline		BinIDValue( const BinID& b, float v=mUdf(float) )
 			    : BinIDValueIdxPair(b,v)	{}
-    inline		BinIDValue(const BinIDValues&,int idx);
+			BinIDValue(const BinIDValues&,int idx);
 
-    bool		operator==( const BinID& bid ) const
-			{ return Pos::IdxPair::operator==(bid); }
-    bool		operator!=( const BinID& bid ) const
-			{ return Pos::IdxPair::operator!=(bid); }
+    bool		operator==(const BinID&) const;
+    bool		operator!=(const BinID&) const;
 
 };
 
@@ -67,18 +65,10 @@ public:
     inline		BinIDValues( const BinIDValue& biv )
 			    : BinIDIdxPairValues(biv)	{}
 
-    bool		operator==( const BinID& bid ) const
-			{ return Pos::IdxPair::operator==(bid); }
-    bool		operator!=( const BinID& bid ) const
-			{ return Pos::IdxPair::operator!=(bid); }
+    bool		operator==(const BinID&) const;
+    bool		operator!=(const BinID&) const;
 
 };
-
-
-inline BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
-{
-    set( bvs, nr );
-}
 
 
 #endif

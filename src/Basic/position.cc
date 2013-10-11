@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "position.h"
+#include "binidvalue.h"
 #include "coordvalue.h"
 
 #include "bufstring.h"
@@ -99,6 +100,21 @@ bool Pos::IdxPair::isNeighborTo( const Pos::IdxPair& oth,
 
     const IdxType res = (IdxType)(diff.row()>0) + (IdxType)(diff.col()>0);
     return are8 && res < 2;
+}
+
+
+#define mImplBinIDValueEqOpers(clss) \
+bool clss::operator==( const BinID& bid ) const \
+{ return Pos::IdxPair::operator==(bid); } \
+bool clss::operator!=( const BinID& bid ) const \
+{ return Pos::IdxPair::operator!=(bid); }
+
+mImplBinIDValueEqOpers(BinIDValue)
+mImplBinIDValueEqOpers(BinIDValues)
+
+BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
+{
+    set( bvs, nr );
 }
 
 
