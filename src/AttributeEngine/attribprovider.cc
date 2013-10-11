@@ -853,7 +853,8 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
 
     const int nrintvs = intvs.size();
-    if ( nrintvs < 1 ) { pErrMsg("Huh"); return; }
+    if ( nrintvs < 1 )
+    	{ pErrMsg("Huh"); return; }
     const int nrinps = inputs_.size();
 
     Array2DImpl< BasicInterval<int> > inputranges( nrinps<1?1:nrinps, nrintvs );
