@@ -173,8 +173,8 @@ inline bool IdxPairValues<IPT,FT>::operator ==(
 
 
 template <class IPT,class FT>
-inline void IdxPairValues<IPT,FT>::setSize( IdxPairValues<IPT,FT>::size_type sz,
-					    bool kpvals )
+inline void IdxPairValues<IPT,FT>::setSize(
+		typename IdxPairValues<IPT,FT>::size_type sz, bool kpvals )
 {
     if ( sz == size() )
     {
