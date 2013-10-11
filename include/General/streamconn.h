@@ -51,7 +51,7 @@ public:
     const char*		fileName() const;
 
     const char*		connType() const	{ return sType(); }
-    static const char*	sType()			{ return "Stream"; }	
+    static const char*	sType();
 
 
 private:
