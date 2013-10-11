@@ -14,8 +14,8 @@ ________________________________________________________________________
 -*/
 
 
-#include "basicmod.h"
-#include "commondefs.h"
+#include "generalmod.h"
+#include "gendefs.h"
 class IOObj;
 class StreamConn;
 
@@ -27,7 +27,7 @@ class StreamConn;
   interface common to these connections.
 */
 
-mExpClass(Basic) Conn
+mExpClass(General) Conn
 {
 public:
 
