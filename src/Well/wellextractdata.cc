@@ -520,7 +520,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 
     int trackidx = 0; Coord3 precisepos;
     BinIDValue biv; 
-    BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl());
+    BinIDValue prevbiv; mSetUdf(prevbiv.inl());
 
     dahrg.start -= mLocalEps;
     dahrg.stop  += mLocalEps;
@@ -533,8 +533,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 	else if ( !getPos(wd,dah,biv,trackidx,precisepos) )
 	    continue;
 
-	if ( biv.binid != prevbiv.binid ||
-	     !mIsEqual(biv.value,prevbiv.value,mDefEps) )
+	if ( biv != prevbiv )
 	{
 	    addPosns( dps, biv, precisepos, dah );
 	    prevbiv = biv;
@@ -555,7 +554,7 @@ bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
 
     // Position is between trackidx and trackidx-1
     pos = wd.track().coordAfterIdx( dah, trackidx-1 );
-    biv.binid = SI().transform( pos );
+    biv.set( SI().transform(pos) );
     if ( SI().zIsTime() && wd.d2TModel() )
     {
 	pos.z = mCast( double, wd.d2TModel()->getTime( dah, wd.track() ) );
@@ -563,7 +562,7 @@ bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
 	    return false;
     }
 
-    biv.value = (float) pos.z;
+    biv.set( (float)pos.z );
     return true;
 }
 
@@ -575,7 +574,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     if ( dahcolnr_ >= 0 )
 	dr.data_ += dah;
 #define mAddRow(bv,pos) \
-    dr.pos_.z_ = bv.value; dr.pos_.set( pos ); dps.addRow( dr )
+    dr.pos_.z_ = bv.val(); dr.pos_.set( pos ); dps.addRow( dr )
 
     mAddRow( biv, precisepos );
     if ( mIsUdf(locradius_) || locradius_ < 1e-3 )
@@ -586,7 +585,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 #define mTryAddRow(stmt) \
 { \
     stmt; \
-    crd = SI().transform( newbiv.binid ); \
+    crd = SI().transform( newbiv ); \
     if ( crd.sqDistTo(precisepos) <= sqrlocradius ) \
 	{ mAddRow(biv,crd); nradded++; } \
 }
@@ -597,18 +596,18 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     {
 	int nradded = 0;
 
-	newbiv.binid.crl() = biv.binid.crl() - idist;
+	newbiv.crl() = biv.crl() - idist;
 	for ( int iinl=-idist; iinl<=idist; iinl++ )
-	    mTryAddRow(newbiv.binid.inl() = biv.binid.inl() + iinl)
-	newbiv.binid.crl() = biv.binid.crl() + idist;
+	    mTryAddRow(newbiv.inl() = biv.inl() + iinl)
+	newbiv.crl() = biv.crl() + idist;
 	for ( int iinl=-idist; iinl<=idist; iinl++ )
-	    mTryAddRow(newbiv.binid.inl() = biv.binid.inl() + iinl)
-	newbiv.binid.inl() = biv.binid.inl() + idist;
+	    mTryAddRow(newbiv.inl() = biv.inl() + iinl)
+	newbiv.inl() = biv.inl() + idist;
 	for ( int icrl=1-idist; icrl<idist; icrl++ )
-	    mTryAddRow(newbiv.binid.crl() = biv.binid.crl() + icrl)
-	newbiv.binid.inl() = biv.binid.inl() - idist;
+	    mTryAddRow(newbiv.crl() = biv.crl() + icrl)
+	newbiv.inl() = biv.inl() - idist;
 	for ( int icrl=1-idist; icrl<idist; icrl++ )
-	    mTryAddRow(newbiv.binid.crl() = biv.binid.crl() + icrl)
+	    mTryAddRow(newbiv.crl() = biv.crl() + icrl)
 
 	if ( nradded == 0 ) break;
     }

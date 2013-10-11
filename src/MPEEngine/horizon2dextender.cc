@@ -54,7 +54,7 @@ float Horizon2DExtender::getAngleThreshold() const
 void Horizon2DExtender::setDirection( const BinIDValue& dir )
 {
     direction_ = dir;
-    xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir.binid );
+    xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir );
     const double abs = xydirection_.abs();
     alldirs_ = mIsZero( abs, 1e-3 );
     if ( !alldirs_ )

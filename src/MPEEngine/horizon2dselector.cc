@@ -48,8 +48,8 @@ int Horizon2DSelector::nextStep()
     StepInterval<int> crlrg = trackplane_.boundingBox().hrg.crlRange();
     const StepInterval<float >& zrg = trackplane_.boundingBox().zrg;
 
-    inlrg.include( inlrg.start+trackplane_.motion().binid.inl() );
-    crlrg.include( crlrg.start+trackplane_.motion().binid.crl() );
+    inlrg.include( inlrg.start+trackplane_.motion().inl() );
+    crlrg.include( crlrg.start+trackplane_.motion().crl() );
 
     PtrMan<EM::EMObjectIterator> iterator =
 				horizon_.createIterator( sectionid_ );

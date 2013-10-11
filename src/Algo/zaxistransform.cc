@@ -83,7 +83,7 @@ float ZAxisTransform::transform( const Coord3& pos ) const
 float ZAxisTransform::transform( const BinIDValue& pos ) const
 {
     float res = mUdf(float);
-    transform( pos.binid, SamplingData<float>(pos.value,1), 1, &res );
+    transform( pos, SamplingData<float>(pos.val(),1), 1, &res );
     return res;
 }
 
@@ -95,7 +95,7 @@ float ZAxisTransform::transformBack( const Coord3& pos ) const
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 {
     float res = mUdf(float);
-    transformBack( pos.binid, SamplingData<float>(pos.value,1), 1, &res );
+    transformBack( pos, SamplingData<float>(pos.val(),1), 1, &res );
     return res;
 }
 
@@ -236,12 +236,12 @@ float ZAxisTransformSampler::operator[](int idx) const
 	    return cache_[cacheidx];
     }
 
-    const BinIDValue bidval( BinIDValue(bid_,(float) sd_.atIndex(idx)) );
+    const BinIDValue bidval( bid_, (float)sd_.atIndex(idx) );
     return back_ ? ( is2d_ ? transform_.transformBack2D(curlinenm_,bid_.crl(),
-						      bidval.value)
+						      bidval.val())
 			   : transform_.transformBack(bidval) )
 	         : ( is2d_ ? transform_.transform2D(curlinenm_,bid_.crl(),
-			     			  bidval.value)
+			     			  bidval.val())
 			   : transform_.transform(bidval) );
 }
 

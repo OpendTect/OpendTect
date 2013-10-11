@@ -92,9 +92,9 @@ float TrackPlane::distance( const Coord3& pos,
 
 void TrackPlane::setMotion( int inl, int crl, float z )
 {
-    motion_.binid.inl() = inl;
-    motion_.binid.crl() = crl;
-    motion_.value = z;
+    motion_.inl() = inl;
+    motion_.crl() = crl;
+    motion_.val() = z;
 }
 
 

@@ -214,13 +214,13 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	if ( !stats.isEmpty() ) 
 	{
     	    const int posidx = stats.getIndex( statstype );
-    	    BinID bid = bidv[posidx].binid;
+    	    BinID bid = bidv[posidx];
     	    const DataHolder* odata = outdata_->get( bid.inl()+stepout_.inl(), 
 						     bid.crl()+stepout_.crl() );
 	    val = 0;
     	    if ( odata && !odata->isEmpty() && odata->series(outidx_) )
     		val = getInterpolInputValue( *odata, outidx_,
-			bidv[posidx].value, z0 );
+			bidv[posidx].val(), z0 );
 	}
 
 	setOutputValue( output, 0, idx, z0, val );

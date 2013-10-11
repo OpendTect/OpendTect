@@ -556,14 +556,14 @@ void BinIDValueSet::addNew( BinIDValueSet::Pos& pos, int crl, const float* arr )
 BinIDValueSet::Pos BinIDValueSet::add( const BinIDValues& bivs )
 {
     if ( bivs.size() >= nrvals_ )
-	return add( bivs.binid, bivs.values() );
+	return add( bivs, bivs.values() );
 
     BinIDValues locbivs( 0, 0, nrvals_ );
     for ( int idx=0; idx<bivs.size(); idx++ )
 	locbivs.value(idx) = bivs.value(idx);
     for ( int idx=bivs.size(); idx<nrvals_; idx++ )
 	Values::setUdf( locbivs.value(idx) );
-    return add( bivs.binid, locbivs.values() );
+    return add( bivs, locbivs.values() );
 }
 
 class BinIDValueSetFromCubeData : public ParallelTask
@@ -993,7 +993,7 @@ void BinIDValueSet::removeLine( int idx )
 
 BinIDValueSet::Pos BinIDValueSet::add( const BinIDValue& biv )
 {
-    return nrvals_ < 2 ? add(biv.binid,&biv.value)  : add(BinIDValues(biv));
+    return nrvals_ < 2 ? add(biv,biv.val()) : add(BinIDValues(biv));
 }
 
 
@@ -1045,18 +1045,18 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid,
 void BinIDValueSet::get( const Pos& pos, BinIDValues& bivs ) const
 {
     bivs.setSize( nrvals_ );
-    get( pos, bivs.binid, bivs.values() );
+    get( pos, bivs, bivs.values() );
 }
 
 
 void BinIDValueSet::get( const Pos& pos, BinIDValue& biv ) const
 {
     if ( nrvals_ < 2 )
-	get( pos, biv.binid, &biv.value );
+	get( pos, biv, &biv.val() );
     else
     {
-	BinIDValues bvs; get( pos, bvs ); biv.binid = bvs.binid;
-	biv.value = bvs.value(0);
+	BinIDValues bvs; get( pos, bvs );
+	biv.set( bvs ); biv.set( bvs.value(0) );
     }
 }
 
@@ -1068,8 +1068,8 @@ void BinIDValueSet::get( const BinIDValueSet::Pos& pos,
 	get( pos, bid, &v );
     else
     {
-	BinIDValues bvs; get( pos, bvs ); bid = bvs.binid;
-	v = bvs.value(0);
+	BinIDValues bvs; get( pos, bvs );
+	bid = bvs; v = bvs.value(0);
     }
 }
 
@@ -1084,8 +1084,8 @@ void BinIDValueSet::get( const BinIDValueSet::Pos& pos, BinID& bid,
     }
     else
     {
-	BinIDValues bvs; get( pos, bvs ); bid = bvs.binid;
-	v1 = bvs.value(0); v2 = bvs.value(1);
+	BinIDValues bvs; get( pos, bvs );
+	bid = bvs; v1 = bvs.value(0); v2 = bvs.value(1);
     }
 }
 
@@ -1215,12 +1215,12 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
 	if ( !*res ) continue;
 
 	fms = res;
-	bivs.binid.inl() = toInt( fms[0] );
+	bivs.inl() = toInt( fms[0] );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
 	for ( int icrl=0; icrl<nrpos; icrl++ )
 	{
 	    int fmsidx = 1 + icrl * (nrvals_ + 1);
-	    bivs.binid.crl() = toInt( fms[fmsidx] );
+	    bivs.crl() = toInt( fms[fmsidx] );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
 		bivs.value(ival) = toFloat( fms[fmsidx+ival] );
@@ -1232,12 +1232,12 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
 
 bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
 {
-    Pos pos = findFirst( bidvals.binid );
+    Pos pos = findFirst( bidvals );
     bool found = false;
     BinID tmpbid;
     while ( !found && pos.valid() )
     {
-	if ( getBinID(pos) != bidvals.binid )
+	if ( getBinID(pos) != bidvals )
 	    break;
 	
 	TypeSet<float> valofset;

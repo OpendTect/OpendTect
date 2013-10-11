@@ -137,14 +137,14 @@ void DataCubes::setValue( int array, float val )
 bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 			  bool interpolate ) const
 {
-    const int inlidx = inlsampling_.nearestIndex( bidv.binid.inl() );
+    const int inlidx = inlsampling_.nearestIndex( bidv.inl() );
     if ( inlidx<0 || inlidx>=inlsz_ ) return false;
-    const int crlidx = crlsampling_.nearestIndex( bidv.binid.crl() );
+    const int crlidx = crlsampling_.nearestIndex( bidv.crl() );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
     if ( !cubes_.validIdx(array) || !cubes_[array] ) return false;
 
-    const float zpos = (float) (bidv.value/zstep_-z0_);
+    const float zpos = (float) (bidv.val()/zstep_-z0_);
 
     if ( !interpolate )
     {
@@ -174,11 +174,11 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 
 bool DataCubes::includes( const BinIDValue& bidv ) const
 {
-    if ( !includes( bidv.binid ) )
+    if ( !includes( (const BinID&)bidv ) )
 	return false;
 
-    const float zpos = (float) (bidv.value/zstep_-z0_);
-    const float eps = (float) (bidv.compareEpsilon()/zstep_);
+    const float zpos = (float) (bidv.val()/zstep_-z0_);
+    const float eps = (float) (mDefEpsF/zstep_);
     return zpos>-eps && zpos<=zsz_-1+eps;
 }
 

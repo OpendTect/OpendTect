@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "position.h"
 #include "coordvalue.h"
-#include "binidvalue.h"
 
 #include "bufstring.h"
 #include "math2.h"
@@ -267,77 +266,6 @@ Coord3Value::Coord3Value( double x, double y, double z, float v )
 Coord3Value::Coord3Value( const Coord3& c, float v )
     : coord(c), value(v)
 {
-}
-
-
-BinIDValue::BinIDValue( const BinIDValues& bvs, BinID::IdxType nr )
-    	: binid(bvs.binid)
-    	, value(bvs.value(nr))
-{
-}
-
-
-BinIDValues::~BinIDValues()
-{
-    delete [] vals;
-}
-
-
-BinIDValues& BinIDValues::operator =( const BinIDValues& bvs )
-{
-    if ( &bvs != this )
-    {
-	binid = bvs.binid;
-	setSize( bvs.sz );
-	if ( vals )
-	    memcpy( vals, bvs.vals, sz * sizeof(float) );
-    }
-    return *this;
-}
-
-
-bool BinIDValues::operator ==( const BinIDValues& bvs ) const
-{
-    if ( binid != bvs.binid || sz != bvs.sz )
-	return false;
-
-    for ( int idx=0; idx<sz; idx++ )
-	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::compareEpsilon()) )
-	    return false;
-
-    return true;
-}
-
-
-void BinIDValues::setSize( int newsz, bool kpvals )
-{
-    if ( newsz == sz ) return;
-
-    if ( !kpvals || newsz < 1 )
-    {
-	sz = newsz < 1 ? 0 : newsz;
-	delete [] vals; vals = sz ? new float [sz] : 0;
-	for ( int idx=0; idx<sz; idx++ )
-	    Values::setUdf( vals[idx] );
-    }
-    else
-    {
-	float* oldvals = vals;
-	int oldsz = sz; sz = newsz;
-	vals = new float [ sz ];
-	int transfsz = oldsz > sz ? sz : oldsz;
-	for ( int idx=0; idx<transfsz; idx++ )
-	    vals[idx] = oldvals[idx];
-	delete [] oldvals;
-	for ( int idx=transfsz; idx<sz; idx++ )
-	    Values::setUdf( vals[idx] );
-    }
-}
-
-
-void BinIDValues::setVals( const float* vs )
-{
-    if ( sz ) memcpy( vals, vs, sz * sizeof(float) );
 }
 
 

@@ -41,7 +41,7 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
     BinID currentbid( startbid );
     while ( true )
     {
-	const BinID prevbid = currentbid-plane.motion().binid;
+	const BinID prevbid = currentbid-plane.motion();
 	const EM::SubID curnode = currentbid.toInt64();
 	const EM::SubID prevnode = prevbid.toInt64();
 	const bool curnodedef = surface_.isDefined( sectionid_, curnode );
@@ -96,10 +96,10 @@ void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 	    		    plane.boundingBox().zrg.stop );
 
     inlrange.include( plane.boundingBox().hrg.start.inl()-
-	    	      plane.motion().binid.inl() );
+	    	      plane.motion().inl() );
     crlrange.include( plane.boundingBox().hrg.start.crl()-
-	    	      plane.motion().binid.crl() );
-    zrange.include( plane.boundingBox().zrg.start-plane.motion().value );
+	    	      plane.motion().crl() );
+    zrange.include( plane.boundingBox().zrg.start-plane.motion().val() );
 
     for ( int idx=0; idx<allnodes.size(); idx++ )
     {

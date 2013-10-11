@@ -743,14 +743,14 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
 
     HorSamplingIterator iter( cs.hrg );
     BinIDValue curpos;
-    curpos.value = cs.zrg.start;
-    while ( iter.next(curpos.binid) )
+    curpos.val() = cs.zrg.start;
+    while ( iter.next(curpos) )
     {
 	const float depth = datatransform_->transformBack( curpos );
 	if ( mIsUdf(depth) )
 	    continue;
 
-	DataPointSet::Pos newpos( curpos.binid, depth );
+	DataPointSet::Pos newpos( curpos, depth );
 	DataPointSet::DataRow dtrow( newpos );
 	pos.addRow( dtrow );
     }
@@ -1312,7 +1312,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     else if ( attrib<rposcache_.size() && rposcache_[attrib] )
     {
 	const BinIDValueSet& set = *rposcache_[attrib];
-	const BinIDValueSet::Pos setpos = set.findFirst( bidv.binid );
+	const BinIDValueSet::Pos setpos = set.findFirst( bidv );
 	if ( setpos.i==-1 || setpos.j==-1 )
 	    return false;
 

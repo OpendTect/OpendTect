@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "datainpspec.h"
 #include "survinfo.h"
+#include "binidvalue.h"
 #include "undefval.h"
 
 
@@ -758,6 +759,12 @@ void uiGenInput::setValue( const Interval<float>& i )
     setValue(i.start,0); setValue(i.stop,1);
     mDynamicCastGet(const StepInterval<float>*,si,&i)
     if ( si ) setValue(si->step,2);
+}
+
+
+void uiGenInput::setValue( const BinIDValue& b )
+{
+    setValue(b.inl(),0); setValue(b.crl(),1); setValue(b.val(),2);
 }
 
 

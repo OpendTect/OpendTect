@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timedepthconv.h"
 #include "zdomain.h"
 #include "survinfo.h"
+#include "binidvalue.h"
 #include "uimsg.h"
 #include "uigeninput.h"
 #include "uizrangeinput.h"

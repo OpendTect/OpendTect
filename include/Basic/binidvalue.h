@@ -14,76 +14,71 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "posidxpairvalue.h"
 #include "binid.h"
 class BinIDValues;
 
+typedef Pos::ValueIdxPair<BinID,float> BinIDValueIdxPair;
+typedef Pos::IdxPairValues<BinID,float> BinIDIdxPairValues;
+
 /*!
 \brief BinID and a value.
+
+Can be used as a BinID, also contains a val().
+
 */
 
-mClass(Basic) BinIDValue
+mClass(Basic) BinIDValue : public BinIDValueIdxPair
 {
 public:
-		BinIDValue( int inl=0, int crl=0, float v=mUdf(float) )
-		: binid(inl,crl), value(v)	{}
-		BinIDValue( const BinID& b, float v=mUdf(float) )
-		: binid(b), value(v)		{}
-		BinIDValue(const BinIDValues&,int);
 
-    bool	operator==( const BinIDValue& biv ) const
-		{ return biv.binid == binid
-		      && mIsEqual(value,biv.value,compareEpsilon()); }
-    bool	operator!=( const BinIDValue& biv ) const
-		{ return !(*this == biv); }
+    inline		BinIDValue( BinID::IdxType i=0, BinID::IdxType c=0,
+				float v=mUdf(float) )
+			    : BinIDValueIdxPair(i,c,v)	{}
+    inline		BinIDValue( const BinID& b, float v=mUdf(float) )
+			    : BinIDValueIdxPair(b,v)	{}
+    inline		BinIDValue(const BinIDValues&,int idx);
 
-    BinID	binid;
-    float	value;
+    bool		operator==( const BinID& bid ) const
+			{ return Pos::IdxPair::operator==(bid); }
+    bool		operator!=( const BinID& bid ) const
+			{ return Pos::IdxPair::operator!=(bid); }
 
-    static float compareEpsilon()		{ return 1e-5; }
 };
 
 
 /*!
 \brief BinID and values. If one of the values is Z, make it the first one.
+
+Can be used as a BinID, also contains various accesses to the TypeSet of values
+contained.
+
 */
 
-mExpClass(Basic) BinIDValues
+mExpClass(Basic) BinIDValues : public BinIDIdxPairValues
 {
 public:
-			BinIDValues( int inl=0, int crl=0, int n=2 )
-			: binid(inl,crl), vals(0), sz(0) { setSize(n); }
-			BinIDValues( const BinID& b, int n=2 )
-			: binid(b), vals(0), sz(0)	{ setSize(n); }
-			BinIDValues( const BinIDValues& biv )
-			: vals(0), sz(0)		{ *this = biv; }
-			BinIDValues( const BinIDValue& biv )
-			: binid(biv.binid), vals(0), sz(0)
-					{ setSize(1); value(0) = biv.value; }
-			~BinIDValues();
 
-    BinIDValues&	operator =(const BinIDValues&);
+    inline		BinIDValues( BinID::IdxType i=0, BinID::IdxType c=0,
+	    				int n=2 )
+			    : BinIDIdxPairValues(i,c,n)	{}
+    inline		BinIDValues( const BinID& b, int n=2 )
+			    : BinIDIdxPairValues(b,n)	{}
+    inline		BinIDValues( const BinIDValue& biv )
+			    : BinIDIdxPairValues(biv)	{}
 
-    bool		operator==( const BinIDValues& biv ) const;
-    			//!< uses BinIDValue::compareepsilon
-    inline bool		operator!=( const BinIDValues& biv ) const
-			{ return !(*this == biv); }
-
-    BinID		binid;
-    int			size() const			{ return sz; }
-    float&		value( int idx )		{ return vals[idx]; }
-    float		value( int idx ) const		{ return vals[idx]; }
-    float*		values()			{ return vals; }
-    const float*	values() const			{ return vals; }
-
-    void		setSize(int,bool kpvals=false);
-    void		setVals(const float*);
-
-protected:
-
-    float*		vals;
-    int			sz;
+    bool		operator==( const BinID& bid ) const
+			{ return Pos::IdxPair::operator==(bid); }
+    bool		operator!=( const BinID& bid ) const
+			{ return Pos::IdxPair::operator!=(bid); }
 
 };
+
+
+inline BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
+{
+    set( bvs, nr );
+}
 
 
 #endif

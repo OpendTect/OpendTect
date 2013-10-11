@@ -84,7 +84,7 @@ void BaseHorizon3DExtender::preallocExtArea()
 
 int BaseHorizon3DExtender::nextStep()
 {
-    const bool alldirs = direction.binid.inl()==0 && direction.binid.crl()==0;
+    const bool alldirs = direction.inl()==0 && direction.crl()==0;
     
     TypeSet<BinID> sourcenodes;
     
@@ -97,8 +97,8 @@ int BaseHorizon3DExtender::nextStep()
     if ( sourcenodes.size() == 0 )
 	return 0;
 
-    const BinID sidehash( direction.binid.crl() ? SI().inlStep() : 0,
-	    		  direction.binid.inl() ? SI().crlStep() : 0 );
+    const BinID sidehash( direction.crl() ? SI().inlStep() : 0,
+	    		  direction.inl() ? SI().crlStep() : 0 );
     // const BinID firstnode = sourcenodes[0];
     // const BinID lastnode = sourcenodes[sourcenodes.size()-1];
 
@@ -117,17 +117,9 @@ int BaseHorizon3DExtender::nextStep()
 	    TypeSet<RowCol> directions;
 	    if ( !alldirs )
 	    {
-		directions += RowCol(direction.binid);
-/*		const bool expand =
-		    extend && srcbid!=firstnode && srcbid!=lastnode;
-
-		if ( expand )
-		{
-		    directions += RowCol(direction.binid+sidehash);
-		    directions += RowCol(direction.binid-sidehash);
-		} */
-		directions += RowCol( direction.binid.inl()*-1,
-				      direction.binid.crl()*-1 );
+		directions += RowCol(direction);
+		directions += RowCol( direction.inl()*-1,
+				      direction.crl()*-1 );
 	    }
 	    else
 		directions = RowCol::clockWiseSequence();
