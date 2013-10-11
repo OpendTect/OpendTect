@@ -92,7 +92,7 @@ public:
 			  conn_ = c; mine_ = becomesmine; }
 
     const char*		connType() const	{ return sType(); }
-    static const char*	sType()			{ return "X-Group"; }
+    static const char*	sType();
 
 protected:
 

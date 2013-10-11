@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 const bool Conn::Read = true;
 const bool Conn::Write = false;
 const char* StreamConn::sType() { return "Stream"; }
+const char* XConn::sType() { return "X-Group"; }
 
 
 #define mInitList(s,ismine) strm_(s), mine_(ismine)
