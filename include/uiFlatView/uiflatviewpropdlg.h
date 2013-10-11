@@ -32,7 +32,9 @@ public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
-					  int selann=0 ); 
+					  int selann=0 );
+			~uiFlatViewPropDlg();
+
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
     void		putAllToScreen();
@@ -56,6 +58,7 @@ protected:
 
     CallBack		applycb_;
     void		doApply(CallBacker*);
+    void		parsChgCB(CallBacker*);
 
 };
 

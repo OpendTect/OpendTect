@@ -37,8 +37,9 @@ namespace visBase
 {
    
 FlatViewer::FlatViewer()
-    : VisualObjectImpl( false )
-    , dataChange( this )
+    : VisualObjectImpl(false)
+    , dataChanged(this)
+    , dispParsChanged(this)
     , channels_( TextureChannels::create() )
     , channel2rgba_( ColTabTextureChannel2RGBA::create() )
     , rectangle_( SplitTexture2Rectangle::create() )
@@ -175,7 +176,7 @@ void FlatViewer::handleChange( unsigned int dt)
 		    rectangle_->setOriginalTextureSize( rowsz, colsz );
 		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
 
-		    dataChange.trigger();
+		    dataChanged.trigger();
 		    if ( dt!=All )
 			break;
 		}
@@ -199,6 +200,7 @@ void FlatViewer::handleChange( unsigned int dt)
 			channel2rgba_->setSequence( 0, sequence );
 		    }
 		}
+		dispParsChanged.trigger();
 	    }
     }			
 }

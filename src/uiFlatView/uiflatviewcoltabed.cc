@@ -27,9 +27,9 @@ uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTable& ct, FlatView::Viewer& vwr)
     , uicoltab_(ct)
 {
     ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
-    uicoltab_.setEnabManage( false );
+    uicoltab_.enableManage( false );
     uicoltab_.seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
-    uicoltab_.scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged));
+    uicoltab_.scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
     setColTab( vwr );
 }
 
@@ -42,8 +42,8 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 
 void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr)
 {
-    uicoltab_.setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
     uicoltab_.setDispPars( vwr.appearance().ddpars_.vd_ );
+    uicoltab_.setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
     uicoltab_.setInterval( vwr.getDataRange(false) );
 }
 

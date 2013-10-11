@@ -106,17 +106,6 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 }
 
 
-uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
-{
-}
-
-
-void uiFlatViewDataDispPropTab::dispParsChanged( CallBacker* )
-{
-    putCommonToScreen();
-}
-
-
 void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
 {
     symmidvalfld_->display( useclipfld_->getIntValue()==1 && 
@@ -161,7 +150,6 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 	pars.mappersetup_.symmidval_ = mUdf(float);
 	pars.mappersetup_.type_ = ColTab::MapperSetup::Auto;
     }
-
 }
 
 
@@ -343,7 +331,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
 			 "Right fill color" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
-     wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
+    wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
 			lbltxt("Draw Wiggles").withcheck(true).withdesc(false),
 			"Draw wiggles color" );
 
@@ -365,6 +353,16 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     midvalfld_ = new uiGenInput( this, "Middle line value", FloatInpSpec() );
     midvalfld_->setElemSzPol(uiObject::Small);
     midvalfld_->attach( alignedBelow, midlinefld_ );
+
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    if ( uivwr )
+    	mAttachCB( uivwr->dispParsChanged, uiFVWVAPropTab::dispChgCB );
+}
+
+
+uiFVWVAPropTab::~uiFVWVAPropTab()
+{
+    detachAllNotifiers();
 }
 
 
@@ -392,6 +390,12 @@ void uiFVWVAPropTab::midlineSel(CallBacker*)
     const bool havecol = midlcolsel_->doDraw();
     midvalfld_->display( dodisp && havecol && midlinefld_->getBoolValue() );
     midlinefld_->display( dodisp && havecol );
+}
+
+
+void uiFVWVAPropTab::dispChgCB( CallBacker* )
+{
+    putToScreen();
 }
 
 
@@ -442,13 +446,25 @@ bool uiFVWVAPropTab::acceptOK()
 uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewDataDispPropTab(p,vwr,"Variable Density")
     , pars_(ddpars_.vd_)
-    , ctab_( ddpars_.vd_.ctab_.buf() )
+    , ctab_(ddpars_.vd_.ctab_.buf())
 {
     ColTab::Sequence seq( ctab_.name().buf() );
     uicoltab_ = new uiColorTableGroup( this, seq );
+    uicoltab_->enableManage( false );
+    uicoltab_->enableClippingDlg( false );
     uicoltab_->setStretch( 0, 0 );
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
     uicoltab_->attach( alignedBelow, lastcommonfld_ );
+
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    if ( uivwr )
+    	mAttachCB( uivwr->dispParsChanged, uiFVVDPropTab::dispChgCB );
+}
+
+
+uiFVVDPropTab::~uiFVVDPropTab()
+{
+    detachAllNotifiers();
 }
 
 
@@ -465,10 +481,18 @@ void uiFVVDPropTab::handleFieldDisplay( bool dodisp )
 }
 
 
+void uiFVVDPropTab::dispChgCB( CallBacker* )
+{
+    putToScreen();
+}
+
+
 void uiFVVDPropTab::putToScreen()
 {
     ColTab::SM().get( pars_.ctab_, ctab_ );
+    uicoltab_->setDispPars( pars_ );
     uicoltab_->setSequence( &ctab_, true );
+    uicoltab_->setInterval( vwr_.getDataRange(false) );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
     Interval<float> range = pars.mappersetup_.range_;
@@ -482,6 +506,7 @@ bool uiFVVDPropTab::acceptOK()
     if ( !uiFlatViewDataDispPropTab::acceptOK() )
 	return false;
 
+    pars_.mappersetup_.flipseq_ = uicoltab_->colTabMapperSetup().flipseq_;
     if ( pars_.show_ )
 	pars_.ctab_ = uicoltab_->colTabSeq().name();
 
@@ -575,6 +600,10 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     , auxnamefld_( 0 )
     , currentaux_( 0 )
 {
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    if ( uivwr )
+	mAttachCB( uivwr->annotChanged, uiFVAnnotPropTab::annotChgdCB );
+
     colfld_ = new uiColorInput( this, uiColorInput::Setup(annot_.color_).
 	    			lbltxt("Annotation color"), 
 				"Annotation color" );
@@ -636,6 +665,18 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 }
 
 
+uiFVAnnotPropTab::~uiFVAnnotPropTab()
+{
+    detachAllNotifiers();
+}
+
+
+void uiFVAnnotPropTab::annotChgdCB( CallBacker* )
+{
+    putToScreen();
+}
+
+
 void uiFVAnnotPropTab::putToScreen()
 {
     colfld_->setColor( annot_.color_ );
@@ -648,9 +689,9 @@ void uiFVAnnotPropTab::putToScreen()
 	enabled_[idx] = vwr_.getAuxData(indices_[idx])->enabled_;
 	linestyles_[idx] = vwr_.getAuxData(indices_[idx])->linestyle_;
 	fillcolors_[idx] = vwr_.getAuxData(indices_[idx])->fillcolor_;
-	markerstyles_[idx] = vwr_.getAuxData(indices_[idx])->markerstyles_.size()
-	    ? vwr_.getAuxData(indices_[idx])->markerstyles_[0]
-	    : MarkerStyle2D();
+	markerstyles_[idx] =
+	    vwr_.getAuxData(indices_[idx])->markerstyles_.size() ?
+	    vwr_.getAuxData(indices_[idx])->markerstyles_[0] : MarkerStyle2D();
 	x1rgs_[idx] = vwr_.getAuxData(indices_[idx])->x1rg_
 	    ? *vwr_.getAuxData(indices_[idx])->x1rg_
 	    : Interval<double>( 0, 1 );
@@ -773,8 +814,6 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     , wvatab_(0)
     , annottab_(0)	
 {
-    vwr_.fillAppearancePar( initialpar_ );
-
     const bool wva = vwr_.appearance().ddpars_.wva_.allowuserchange_;
     const bool vd = vwr_.appearance().ddpars_.vd_.allowuserchange_;
     const bool annot = vwr_.appearance().annot_.allowuserchange_;
@@ -812,6 +851,26 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     {
 	showGroup( 1 );
     }
+
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    if ( uivwr )
+    {
+    	mAttachCB( uivwr->dispParsChanged, uiFlatViewPropDlg::parsChgCB );
+	mAttachCB( uivwr->annotChanged, uiFlatViewPropDlg::parsChgCB );
+    }
+    vwr_.fillAppearancePar( initialpar_ );
+}
+
+
+uiFlatViewPropDlg::~uiFlatViewPropDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiFlatViewPropDlg::parsChgCB( CallBacker* )
+{
+    vwr_.fillAppearancePar( initialpar_ );
 }
 
 
@@ -846,10 +905,11 @@ bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 
 bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 {
-    mDynamicCastGet(uiFlatViewer&,uivwr,vwr_);
-    if ( !&uivwr )
-	return false;
-    //NotifyStopper notifystop( uivwr.dispParsChanged );
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
+    if ( !uivwr ) return false;
+
+    NotifyStopper ns1( uivwr->dispParsChanged );
+    NotifyStopper ns2( uivwr->annotChanged );
 
     if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
     {

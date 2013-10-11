@@ -32,10 +32,11 @@ public:
     static FlatViewer*		create()
 				mCreateDataObj(FlatViewer);
 
-    Notifier<FlatViewer> 	dataChange;    
+    Notifier<FlatViewer> 	dataChanged;
+    Notifier<FlatViewer>	dispParsChanged;
     void			handleChange(unsigned int);
     void	                setPosition(const Coord3& c00,const Coord3& c01,
-	                                  const Coord3& c10,const Coord3& c11);    
+	    				   const Coord3& c10,const Coord3& c11);
     void			turnOnGridLines(bool offsetlines,bool zlines);
     void			allowShading(bool yn);  
     void			replaceChannels(visBase::TextureChannels*);
@@ -49,13 +50,13 @@ public:
     int				getResolution() const	{ return resolution_; } 
     BufferString		getResolutionName(int) const;
 
-    FlatView::AuxData*		createAuxData(const char* nm) const { return 0; }
+    FlatView::AuxData*		createAuxData(const char* nm)const { return 0; }
 
     int				nrAuxData() const { return 0; }
     FlatView::AuxData*		getAuxData(int idx) { return 0; }
     const FlatView::AuxData*	getAuxData(int idx) const { return 0; }
     void			addAuxData(FlatView::AuxData* a) {}
-    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a) { return a; }
+    FlatView::AuxData*		removeAuxData(FlatView::AuxData* a){ return a; }
     FlatView::AuxData*		removeAuxData(int idx) { return 0; }
 
 protected:

@@ -47,6 +47,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
+    , annotChanged(this)
     , wr_(0,0,1,1)
 {
     updatequeueid_ =
@@ -138,6 +139,7 @@ void uiFlatViewer::updateAnnotCB( CallBacker* )
     
     reSizeCB(0); // Needed as annotation changes may make view-area
     		 // larger or smaller.
+    annotChanged.trigger();
 }
 
 

@@ -33,6 +33,8 @@ public:
 				uiViewer3DAppearanceTab(uiParent*,
 						 visSurvey::PreStackDisplay&,
   						 uiViewer3DMgr&);
+				~uiViewer3DAppearanceTab();
+
     bool			acceptOK();
     void			applyToAll(bool yn)	{ applyall_ = yn; }
     bool			applyToAll()		{ return applyall_; }
@@ -43,6 +45,8 @@ protected:
 
     void			applyButPushedCB(CallBacker*);
     void			updateZFlds(CallBacker*);
+    void			colTabChanged(CallBacker*);
+    void			updateColTab(CallBacker*);
     void			updateOffsFlds(CallBacker*);
     void			updateFlds(uiGenInput* gridfld,
 	    				   uiGenInput* autofld,

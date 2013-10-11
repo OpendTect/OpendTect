@@ -53,7 +53,6 @@ protected:
 mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
-    			~uiFlatViewDataDispPropTab();
 
     void		setDataNames();
     virtual void	setData()			= 0;
@@ -83,7 +82,6 @@ protected:
     void		useMidValSel(CallBacker*);
     void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
-    void		dispParsChanged(CallBacker*);
     virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();
@@ -101,6 +99,7 @@ mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
+			~uiFVWVAPropTab();
 
     virtual void	putToScreen();
     bool		acceptOK();
@@ -123,6 +122,7 @@ protected:
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
     void		midlineSel(CallBacker*);
+    void		dispChgCB(CallBacker*);
 };
 
 
@@ -134,6 +134,7 @@ mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
+			~uiFVVDPropTab();
 
     virtual void	putToScreen();
     virtual bool	acceptOK();
@@ -151,6 +152,7 @@ protected:
 
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
+    void		dispChgCB(CallBacker*);
 };
 
 
@@ -164,6 +166,7 @@ public:
 
     			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
 					 const BufferStringSet* annots);
+			~uiFVAnnotPropTab();
 
     virtual void	putToScreen();
     virtual bool	acceptOK();
@@ -174,6 +177,7 @@ public:
 
 protected:
 
+    void		annotChgdCB(CallBacker*);
     void		auxNmFldCB(CallBacker*);
     void		getFromAuxFld(int);
     void		updateAuxFlds(int);
@@ -211,7 +215,6 @@ protected:
     uiGenInput*		auxnamefld_;
     uiSelLineStyle*	linestylefld_;
     uiSelLineStyle*	linestylenocolorfld_;
-    //uiSelLineStyle*	markerstylefld_;
     uiColorInput*	fillcolorfld_;
     uiGenInput*		x1rgfld_;
     uiGenInput*		x2rgfld_;

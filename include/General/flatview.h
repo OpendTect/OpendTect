@@ -237,6 +237,7 @@ public:
     static const char*	sKeyShow();
     static const char*	sKeyDispRg();
     static const char*	sKeyColTab();
+    static const char*  sKeyFlipSequence();
     static const char*	sKeyLinearInter();
     static const char*	sKeyBlocky();
     static const char*  sKeyAutoScale();

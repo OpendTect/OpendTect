@@ -36,6 +36,7 @@ const char* DataDispPars::sKeyWVA()	{ return "WVA"; }
 const char* DataDispPars::sKeyShow()	{ return "Show"; }
 const char* DataDispPars::sKeyDispRg()  { return "Range"; }
 const char* DataDispPars::sKeyColTab()  { return "Color Table"; }
+const char* DataDispPars::sKeyFlipSequence() { return "Flip Sequence"; }
 const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }
 const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
 const char* DataDispPars::sKeyAutoScale(){ return "Auto scale"; }
@@ -214,7 +215,7 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
     mIOPDoAxes( set, sKeyX2Sampl(), x2_.sampling_ );
     mIOPDoAxes2( set, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( setYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
-    mIOPDoAxes2( setYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2(setYN,sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
     mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.setYN( sKeyShwAux(), showaux_ );
 }
@@ -309,6 +310,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyShow(), vd_.show_ );
     mIOPDoVD( set, sKeyDispRg(), vd_.mappersetup_.range_ );
     mIOPDoVD( set, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( setYN, sKeyFlipSequence(), vd_.mappersetup_.flipseq_ );
     mIOPDoVD( setYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale(),
@@ -341,6 +343,7 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( get, sKeyDispRg(), range );
     vd_.mappersetup_.range_ = range;
     mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
+    mIOPDoVD( getYN, sKeyFlipSequence(), vd_.mappersetup_.flipseq_ );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
     bool autoscale = true;

@@ -28,6 +28,8 @@ public:
 				uiViewer3DScalingTab(uiParent*,
 						 visSurvey::PreStackDisplay&,
   						 uiViewer3DMgr&);
+				~uiViewer3DScalingTab();
+
     virtual void		putToScreen();
     virtual void		setData()		{ doSetData(true); }
 
@@ -44,6 +46,7 @@ protected:
 
     virtual const char* 	dataName() const;
     void                	dispSel(CallBacker*);
+    void			dispChgCB(CallBacker*);
     virtual void		handleFieldDisplay(bool) {}
     FlatView::DataDispPars::Common& commonPars();
     

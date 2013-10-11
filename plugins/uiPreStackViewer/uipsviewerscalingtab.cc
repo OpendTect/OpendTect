@@ -37,6 +37,22 @@ uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
     applybut_->activated.notify( 
 	    mCB(this,uiViewer3DScalingTab,applyButPushedCB) );
     applybut_->attach( alignedBelow, symmidvalfld_ );
+
+    mDynamicCastGet(visBase::FlatViewer*,vwr,&vwr_);
+    if ( vwr )
+    	mAttachCB( vwr->dispParsChanged, uiViewer3DScalingTab::dispChgCB );
+    putToScreen();
+}
+
+
+uiViewer3DScalingTab::~uiViewer3DScalingTab()
+{
+    detachAllNotifiers();
+}
+
+
+void uiViewer3DScalingTab::dispChgCB( CallBacker* )
+{
     putToScreen();
 }
 

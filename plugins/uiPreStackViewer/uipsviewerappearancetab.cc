@@ -39,6 +39,8 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 {
     uicoltab_ = new uiColorTableGroup( this,
             vwr_ ? vwr_->appearance().ddpars_.vd_.ctab_.buf() : 0 );
+    mAttachCB( uicoltab_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
+    mAttachCB(uicoltab_->scaleChanged, uiViewer3DAppearanceTab::colTabChanged);
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
@@ -95,8 +97,36 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     if ( mIsUdf(manuoffssampl_.start) || mIsUdf(manuoffssampl_.step) )
 	manuoffssampl_ = vwr_->getDefaultGridSampling( true );
 
+    mAttachCB( vwr_->dispParsChanged, uiViewer3DAppearanceTab::updateColTab );
+
+    updateColTab( 0 );
     updateZFlds( 0 );
     updateOffsFlds( 0 );
+}
+
+
+uiViewer3DAppearanceTab::~uiViewer3DAppearanceTab()
+{
+    detachAllNotifiers();
+}
+
+
+void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
+{
+    FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
+    pars.ctab_ = uicoltab_->colTabSeq().name();
+    uicoltab_->getDispPars( pars );
+    vwr_->handleChange( FlatView::Viewer::DisplayPars );
+}
+
+
+void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
+{
+    const FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
+    const ColTab::Sequence ctseq( pars.ctab_ );
+    uicoltab_->setDispPars( pars );
+    uicoltab_->setSequence( &ctseq, true );
+    uicoltab_->setInterval( vwr_->getDataRange(false) );
 }
 
 
@@ -170,7 +200,9 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     if ( !vwr_ )
 	return;
 
-    vwr_->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
+    FlatView::DataDispPars& ddp = vwr_->appearance().ddpars_;
+    ddp.vd_.mappersetup_.flipseq_ = uicoltab_->colTabMapperSetup().flipseq_;
+    ddp.vd_.ctab_ = uicoltab_->colTabSeq().name();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 
     const bool showzgridlines = zgridfld_->getBoolValue();

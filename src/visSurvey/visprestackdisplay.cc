@@ -85,7 +85,7 @@ PreStackDisplay::PreStackDisplay()
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
     flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
+    flatviewer_->dataChanged.notify( mCB(this,PreStackDisplay,dataChangedCB) );
     addChild( flatviewer_->getInventorNode() );
     
     lifter_->ref();
@@ -135,7 +135,7 @@ PreStackDisplay::~PreStackDisplay()
     draggerrect_->unRef();
     draggermaterial_->unRef();
 
-    flatviewer_->dataChange.remove( mCB(this,PreStackDisplay,dataChangedCB) );
+    flatviewer_->dataChanged.remove( mCB(this,PreStackDisplay,dataChangedCB) );
     flatviewer_->unRef();
     
     if ( section_ )
@@ -222,9 +222,11 @@ DataPack::ID PreStackDisplay::preProcess()
     const BinID stepout = preprocmgr_->getInputStepout();
 
     BinID relbid;
-    for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
+    for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
+	    			       relbid.inl()++ )
     {
-	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl(); relbid.crl()++ )
+	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
+					   relbid.crl()++ )
 	{
 	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
