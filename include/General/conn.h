@@ -66,7 +66,7 @@ protected:
 \brief Connection implemented in terms of another Conn object.
 */
 
-mExpClass(Basic) XConn  : public Conn
+mExpClass(General) XConn  : public Conn
 {
 
     friend class	IOX;

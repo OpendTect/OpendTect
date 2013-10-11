@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "basicmod.h"
+#include "generalmod.h"
 #include "conn.h"
 #include "od_iosfwd.h"
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 \brief Connection with an underlying iostream.
 */
 
-mExpClass(Basic) StreamConn : public Conn
+mExpClass(General) StreamConn : public Conn
 {
 public:
 			StreamConn();
