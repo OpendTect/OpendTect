@@ -20,18 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
-extern "C" void C_removeTrailingBlanks(char*);
-extern "C" int C_caseInsensitiveEqual(const char*,const char*,int);
-extern "C" void C_replaceCharacter(char*,char,char);
-
-extern "C" void C_removeTrailingBlanks( char* str )
-{ removeTrailingBlanks( str ); }
-extern "C" int C_caseInsensitiveEqual( const char* s1, const char* s2, int n )
-{ return caseInsensitiveEqual( s1, s2, n ); }
-extern "C" void C_replaceCharacter( char* s, char from, char to )
-{ replaceCharacter( s, from, to ); }
-
-
 void removeTrailingBlanks( char* str )
 {
     if ( !str || ! *str ) return;

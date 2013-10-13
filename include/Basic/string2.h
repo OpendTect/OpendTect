@@ -43,10 +43,6 @@ ________________________________________________________________________
 mGlobal(Basic) void removeTrailingBlanks(char*);
 
 
-#ifndef __cpp__
-# include "string2_c.h"
-#else
-
 #include "undefval.h"
 #include "fixedstring.h"
 #include <string.h>
@@ -57,12 +53,15 @@ mGlobal(Basic) void removeTrailingBlanks(char*);
 mGlobal(Basic) void initStringFormat();
 
 /*!> stricmp with option to compare part, default is all */
-mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,int match_nrchars=-1);
+mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
+					 int match_nrchars=-1);
 /*!> checks whether a string is the start of another string. */
-mGlobal(Basic) bool matchString(const char* startstring,const char* maybebigger);
+mGlobal(Basic) bool matchString(const char* startstring,
+				const char* maybebigger);
 /*!> is a case insensitive version of matchString */
 mGlobal(Basic) bool matchStringCI(const char*,const char*);
-mGlobal(Basic) bool stringEndsWith(const char* endstring,const char* maybebigger);
+mGlobal(Basic) bool stringEndsWith(const char* endstring,
+				   const char* maybebigger);
 mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 
 /*!> counts occurrences of a char in string */
@@ -107,7 +106,8 @@ mGlobal(Basic) const char* getStringFromDouble(double,char* retbuf=0,
 
 /*!> is like getStringFromDouble, with special %f treatment. */
 
-mGlobal(Basic) const char* getStringFromFloat(const char* fmt,float,char* retbuf);
+mGlobal(Basic) const char* getStringFromFloat(const char* fmt,float,
+					      char* retbuf);
 
 /*>Prints a float with the requested nr of digits.
 	    Use the returned string result immediately.*/
@@ -142,7 +142,8 @@ mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 
 /*!>Returns a string with an area and its unit, depending on survey and
     area size, unit is ft^2, m^2, km^2 or mile^2. */
-mGlobal(Basic) const char* getAreaString( float m2, bool parensonunit, char* str=0 );
+mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
+					 char* str=0);
 
 // toString functions. 
 mGlobal(Basic) const char* toString( od_int32 i );
@@ -249,9 +250,6 @@ inline int toInt( const char* s, int defval=0 )
 {
     int ret = defval; getFromString( ret, s, ret ); return ret;
 }
-
-
-#endif
 
 
 #endif

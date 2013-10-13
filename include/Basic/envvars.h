@@ -17,9 +17,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #endif
 
-#ifdef __cpp__
 extern "C" {
-#endif
 
 mGlobal(Basic) const char* GetEnvVar(const char*);
 		/*!< getenv or other source. Cannot be called before
@@ -41,9 +39,7 @@ mGlobal(Basic) int WriteEnvVar(const char* env,const char* val);
 mGlobal(Basic) char GetEnvSeparChar(void);
 		/*!< The character separating entries in an env variable */
 
-#ifdef __cpp__
 }
-#endif
 
 
 #endif

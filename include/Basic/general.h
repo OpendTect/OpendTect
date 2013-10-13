@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "genc.h"
 #endif
 
-#ifdef __cpp__
-
 #include "bufstring.h"
 #define FileNameString	BufferString
 
@@ -86,8 +84,6 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
-
-#endif
 
 /*!
 \ingroup Basic

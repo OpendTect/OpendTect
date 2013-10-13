@@ -16,8 +16,6 @@ ________________________________________________________________________
 # include "commondefs.h"
 #endif
 
-#ifdef __cpp__
-
 class IOPar;
 class Color;
 class BinID;
@@ -48,8 +46,5 @@ typedef double		Ordinate_Type;
 typedef double		Distance_Type;
 
 }
-
-#endif /* ifdef __cpp__ */
-
 
 #endif

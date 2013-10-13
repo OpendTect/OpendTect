@@ -20,14 +20,10 @@ mRounded which are found in commondefs.h.
 #include "plfdefs.h"
 #include "plftypes.h"
 
-#ifdef __cpp__
-
 template <class RT> inline
 RT roundOff( double x ) { return (RT) ((x)>0 ? (x)+.5 : (x)-.5); }
 
 template <class RT> inline
 RT roundOff( float x ) { return (RT) ((x)>0 ? (x)+.5f : (x)-.5f); }
-
-#endif
 
 #endif

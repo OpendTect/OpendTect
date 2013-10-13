@@ -21,9 +21,7 @@ Beware that all functions may return a pointer to *the same* static buffer!
 #include "gendefs.h"
 #endif
 
-#ifdef __cpp__
 extern "C" {
-#endif
 
     /* Functions delivering files/directies in the 'survey data' scope */
 
@@ -164,9 +162,7 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 mGlobal(Basic) const char* GetScriptsDir(const char*);
 
 
-#ifdef __cpp__
 }
-#endif
 
 #endif
 

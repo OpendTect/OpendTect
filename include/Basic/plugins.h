@@ -23,9 +23,7 @@ ________________________________________________________________________
 
 class FileMultiString;
 
-#ifdef __cpp__
 extern "C" {
-#endif
 
 #include "pluginbase.h"
 
@@ -36,7 +34,6 @@ void LoadAutoPlugins(int inittype);
 /*! To be called from program if needed */
 int LoadPlugin(const char* libnm);
 
-#ifdef __cpp__
 }
 
 /*!
@@ -163,9 +160,6 @@ private:
 };
 
 mGlobal(Basic) PluginManager& PIM();
-
-
-#endif /* End of C++ only section */
 
 
 #endif

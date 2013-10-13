@@ -8,7 +8,7 @@
 set(OD_MODULE_DEPS Basic )
 set( OD_TEST_PROGS velocitycalc.cc simpnumer.cc )
 
-set(OD_MODULE_SOURCES timeser.c
+set(OD_MODULE_SOURCES
 	    array1dinterpol.cc
 	    array2dinterpol.cc
             arrayndalgo.cc
@@ -46,6 +46,7 @@ set(OD_MODULE_SOURCES timeser.c
 	    spectrogram.cc
 	    stats.cc
 	    reflectivitysampler.cc
+	    timeser.cc
 	    transform.cc
 	    trigonometry.cc
 	    valseriesevent.cc

@@ -34,21 +34,20 @@ ________________________________________________________________________
 
 */
 
-# ifdef __cpp__
 namespace DBG
 {
     mGlobal(Basic) bool isOn( int flag=0xffff ); 
 
-    mGlobal(Basic) void message( const char* ); 		    // default: to stderr
+    mGlobal(Basic) void message( const char* );     // default: to stderr
     mGlobal(Basic) void message( int flag, const char* msg ); 
 // { if ( isOn(flag) ) message(msg); }
-    mGlobal(Basic) void putProgInfo(int,char**); 		    //!< one line; more if isOn()
+    mGlobal(Basic) void putProgInfo(int,char**);
+    			//!< one line; more if isOn()
     mGlobal(Basic) void forceCrash(bool withdump); 
     mGlobal(Basic) bool crashOnNaN(); 
 };
 
 extern "C" {
-# endif
 
     mGlobal(Basic) int od_debug_isOn( int flag );
     mGlobal(Basic) void od_debug_message( const char* msg );
@@ -60,8 +59,6 @@ extern "C" {
         signal handling for crashes. */
 
 
-# ifdef __cpp__
 }
-# endif
 #endif
 

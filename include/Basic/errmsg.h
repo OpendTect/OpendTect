@@ -15,12 +15,6 @@ ________________________________________________________________________
 #ifndef commondefs_h
 # include "commondefs.h"
 #endif
-#ifndef __cpp__
-# define ErrMsg(x,y) fprintf(stderr,"%s",x)
-# define pErrMsg(msg)
-# define pFreeFnErrMsg(msg,fn)
-#else
-
 
 mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
 
@@ -56,7 +50,5 @@ inline const char* className( const T& t )
 # define pFreeFnErrMsg(msg,fn)
 
 #endif
-
-#endif // __cpp__
 
 #endif

@@ -18,20 +18,14 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-#ifdef __cpp__
 extern "C" {
-#endif
 
     mGlobal(Basic) const char* GetFullODVersion();
-
-#ifdef __cpp__
 
 }
 
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
-
-#endif
 
 #endif
 

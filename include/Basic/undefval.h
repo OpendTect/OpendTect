@@ -27,9 +27,6 @@ ________________________________________________________________________
 #define __mUndefIntVal64          9223344556677889900LL
 
 
-#ifdef __cpp__
-
-
 /*!  \brief Templatized undefined and initialisation (i.e. null) values.  
 
     Since these are all templates, they can be used much more generic
@@ -272,19 +269,6 @@ mGlobal(Basic) bool isUdfImpl(double);
 
 //! Use mIsUdf to check for undefinedness of simple types
 # define mIsUdf(val) isUdfImpl(val)
-
-
-#else
-
-/* for C, fallback to old style macro's. Do not provide mUdf and mIsUdf to
-   ensure explicit thinking about the situation. */
-
-# define scUndefValue		 "1e30"
-# define mcUndefValue             __mUndefDValue
-# define mcIsUndefined(x)         __mIsUndefinedD(x)
-
-
-#endif 
 
 
 #endif
