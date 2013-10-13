@@ -13,11 +13,17 @@ ________________________________________________________________________
 -*/
 
 # ifdef do_import_export
+
+/* This makes matters worse, howwwwww do I get it right ...
+
 #  include "posidxpairvalue.h"
 #  include "binid.h"
 
 mExportTemplClassInst( Basic ) ValueIdxPair<BinID,float>;
 mExportTemplClassInst( Basic ) IdxPairValues<BinID,float>;
+
+*/
+
 
 # endif
 #endif
