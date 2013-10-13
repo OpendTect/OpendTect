@@ -37,8 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static int insysadmmode_ = 0;
 
-static Threads::Lock global_initialization_lock_;
-
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
@@ -473,8 +471,3 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
     return res;
 }
 
-
-Threads::Lock& OD::getGlobalInitializationLock()
-{
-    return global_initialization_lock_;
-}

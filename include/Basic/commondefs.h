@@ -160,6 +160,17 @@ ________________________________________________________________________
 
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
+#ifdef __win__
+#define mDefineStaticLocalObject( type, var, init ) \
+static volatile int static##var##lck__ = 0; \
+Threads::lockSimpleSpinLock(static##var##lck__,Threads::Locker::WaitIfLocked);\
+static type var init; \
+Threads::unlockSimpleSpinLock(static##var##lck__)
+#else
+#define mDefineStaticLocalObject( type, var, init ) \
+static type var init
+#endif
+
 
 //for Qt
 #ifndef QT_NAMESPACE
