@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 # ifdef do_import_export
 #  include "posidxpairvalue.h"
+class BinID;
 
 mExportTemplClassInst( Basic ) ValueIdxPair<BinID,float>;
 mExportTemplClassInst( Basic ) IdxPairValues<BinID,float>;
