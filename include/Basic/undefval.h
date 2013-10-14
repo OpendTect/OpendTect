@@ -263,10 +263,8 @@ template <class T>
 inline bool isUdfImpl( T val )
     { return Values::isUdf( val ); }
 
-#ifdef __debug__
 mGlobal(Basic) bool isUdfImpl(float);
 mGlobal(Basic) bool isUdfImpl(double);
-#endif
 
 
 //! Use mIsUdf to check for undefinedness of simple types
