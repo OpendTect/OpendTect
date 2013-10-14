@@ -40,7 +40,7 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 }
 
 
-void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr)
+void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr )
 {
     uicoltab_.setDispPars( vwr.appearance().ddpars_.vd_ );
     uicoltab_.setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
