@@ -272,7 +272,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
     const int zsz = arr_.info().getSize(2);
     const int planesize = planes_.size();
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
@@ -358,6 +358,8 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
     	    for ( int zidx=0; zidx<zsz; zidx++ )
 		arr_.set( inlidx, crlidx, zidx, mOutsideVal );
 	}
+
+	addToNrDone( 1 );
     }
 
     return true;
