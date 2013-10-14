@@ -98,7 +98,6 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 
     vwr.setRubberBandingOn( !manip_ );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,vwChgCB) );
-    //vwr.dispParsChanged.notify( mCB(this,uiMultiFlatViewControl,dispChgCB) );
     vwr.appearance().annot_.editable_ = false;
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomAreasCB) );
     vwr.viewChanged.notify( mCB(this,uiMultiFlatViewControl,setZoomBoxesCB) );
