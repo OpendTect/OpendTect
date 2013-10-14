@@ -147,7 +147,7 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 
 	BinIDValueSet* bidvs = data[idx];
 	BinID bid;
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	PosInfo::Detector detector( PosInfo::Detector::Setup(false) );
 	while ( bidvs->next(pos) )
 	{

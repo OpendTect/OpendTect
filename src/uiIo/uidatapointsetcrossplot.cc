@@ -1540,7 +1540,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    {
 			if ( item )
 			    item->setVisible( false );
-			BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+			BinIDValueSet::SPos pos = dps_.bvsPos(rid);
 			float* vals = dps_.bivSet().getVals( pos );
 			vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
 			yrowidxs_->set( rid, '0' );
@@ -1567,7 +1567,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    {
 			if ( item )
 			    item->setVisible( false );
-			BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+			BinIDValueSet::SPos pos = dps_.bvsPos(rid);
 			float* vals = dps_.bivSet().getVals( pos );
 			vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
 			y2rowidxs_->set( rid, '0' );

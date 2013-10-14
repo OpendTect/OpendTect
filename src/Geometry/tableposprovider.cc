@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -56,8 +56,8 @@ const char* Pos::TableProvider3D::type() const
 
 bool Pos::TableProvider3D::includes( const BinID& bid, float z ) const
 {
-    BinIDValueSet::Pos pos = bvs_.findFirst( bid );
-    if ( !pos.valid() ) return false;
+    BinIDValueSet::SPos pos = bvs_.find( bid );
+    if ( !pos.isValid() ) return false;
     if ( mIsUdf(z) ) return true;
 
     while ( true )
@@ -101,12 +101,10 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	res = iop.find( mGetTableKey(sKey::FileName()) );
 	if ( res && *res )
 	{
-	    StreamData sd( StreamProvider(res).makeIStream() );
-	    if ( sd.usable() )
-	    {
-		bvs.getFrom( *sd.istrm );
-		sd.close();
-	    }
+	    od_istream strm( res );
+	    if ( strm.isOK() )
+		bvs.getFrom( strm );
+	    strm.close();
 	    if ( !bvs.isEmpty() )
 	    {
 		float zfac = -1;
@@ -126,7 +124,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		}
 		if ( zfac > 0 )
 		{
-		    BinIDValueSet::Pos p;
+		    BinIDValueSet::SPos p;
 		    while ( bvs.next(p) )
 		    {
 			float* val = bvs.getVals( p );
@@ -171,8 +169,8 @@ void Pos::TableProvider3D::getSummary( BufferString& txt ) const
 
 void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    BinIDValueSet::Pos p; bvs_.next(p);
-    if ( !p.valid() )
+    BinIDValueSet::SPos p; bvs_.next(p);
+    if ( !p.isValid() )
 	{ start = stop = BinID(0,0); return; }
 
     start = stop = bvs_.getBinID(p);
@@ -190,8 +188,8 @@ void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 {
-    BinIDValueSet::Pos p; bvs_.next(p);
-    if ( !p.valid() )
+    BinIDValueSet::SPos p; bvs_.next(p);
+    if ( !p.isValid() )
 	{ zrg.start = zrg.stop = 0; return; }
 
     const float* val = bvs_.getVals( p );

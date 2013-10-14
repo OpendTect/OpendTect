@@ -109,7 +109,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     MouseCursorChanger cursor( MouseCursor::Wait );
 
     BinIDValueSet bidset( 2, true );
-    TypeSet<BinIDValueSet::Pos> positions;
+    TypeSet<BinIDValueSet::SPos> positions;
     TypeSet<float> mdepths;
     getPositions( bidset, positions, mdepths );
     if ( positions.isEmpty() )
@@ -152,7 +152,7 @@ bool uiWellAttribSel::inputsOK()
 
 
 void uiWellAttribSel::getPositions( BinIDValueSet& bidset, 
-				    TypeSet<BinIDValueSet::Pos>& positions,
+				    TypeSet<BinIDValueSet::SPos>& positions,
 				    TypeSet<float>& mdepths )
 {
     const bool zinft = SI().depthsInFeetByDefault();
@@ -170,10 +170,10 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
 	    pos.z = wd_.d2TModel()->getTime( md );
 	bidset.add( bid, pos.z, (float)idx );
 	mdepths += md;
-	positions += BinIDValueSet::Pos(0,0);
+	positions += BinIDValueSet::SPos(0,0);
     }
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bidset.next(pos) )
     {
 	float& vidx = bidset.getVals(pos)[1];
@@ -205,7 +205,7 @@ bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
 
 
 bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
-				 const TypeSet<BinIDValueSet::Pos>& positions,
+				 const TypeSet<BinIDValueSet::SPos>& positions,
 				 const TypeSet<float>& mdepths )
 {
     BufferString lognm = lognmfld->text();

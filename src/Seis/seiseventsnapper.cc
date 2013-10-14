@@ -101,8 +101,8 @@ int SeisEventSnapper3D::nextStep()
 	case SeisMSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->get(0,0);
-	    BinIDValueSet::Pos pos = positions_.findFirst( trc->info().binid );
-	    if ( pos.valid() )
+	    BinIDValueSet::SPos pos = positions_.find( trc->info().binid );
+	    if ( pos.isValid() )
 	    {
 		BinID dummy; float zval;
 		positions_.get( pos, dummy, zval );

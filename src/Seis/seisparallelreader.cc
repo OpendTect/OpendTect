@@ -153,12 +153,12 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     }
 
     HorSamplingIterator iter;
-    BinIDValueSet::Pos bidvalpos;
+    BinIDValueSet::SPos bidvalpos;
     BinID curbid;
     if ( bidvals_ )
     {
         bidvalpos = bidvals_->getPos( start );
-        if ( !bidvalpos.valid() )
+        if ( !bidvalpos.isValid() )
             return false;
         
         curbid = bidvals_->getBinID( bidvalpos );

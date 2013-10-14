@@ -515,11 +515,11 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( tabsel )
 	    {
 		if ( currentbid_ == BinID(-1,-1) )
-		    pos = tabsel->binidValueSet().firstPos();
+		    pos = tabsel->binidValueSet().firstBinID();
 		else
 		{
-		    BinIDValueSet::Pos oldpos =
-			tabsel->binidValueSet().findFirst( currentbid_ );
+		    BinIDValueSet::SPos oldpos =
+			tabsel->binidValueSet().find( currentbid_ );
 		    if ( tabsel->binidValueSet().next( oldpos, true ) )
 			pos = tabsel->binidValueSet().getBinID( oldpos );
 		}

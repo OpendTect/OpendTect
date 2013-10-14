@@ -289,7 +289,7 @@ void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
 	statsset += new Stats::RunCalc<float>(
 			Stats::CalcSetup().require(styp) );
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bidvalset->next(pos) )
     {
 	const float* values = bidvalset->getVals( pos );

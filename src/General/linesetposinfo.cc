@@ -81,13 +81,13 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 	    prevbid = bid;
 	    if ( bivset.includes(bid) )
 	    {
-		BinIDValueSet::Pos pos = bivset.findFirst(bid);
+		BinIDValueSet::SPos pos = bivset.find(bid);
 
 		while ( true )
 		{
 		    BinIDValues bidvalues;
 		    bivset.get(pos,bidvalues);
-		    if ( !globalbivset->areBinidValuesThere( bidvalues ) )
+		    if ( !globalbivset->includes( bidvalues ) )
 		    {
 			newbivset->add(bidvalues);
 			globalbivset->add(bidvalues);

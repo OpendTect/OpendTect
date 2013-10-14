@@ -191,8 +191,8 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 	    	  isinl_ ? trcrange_.stop+10 : nr_ );
     for ( int idx=0; idx<1024; idx++,trcvar-- )
     {
-	BinIDValueSet::Pos pos = bvs.findFirst( bid );
-	if ( !pos.valid() )
+	BinIDValueSet::SPos pos = bvs.find( bid );
+	if ( !pos.isValid() )
 	    continue;
 
 	BinID dummy;
@@ -219,8 +219,8 @@ bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 	    	    isinl_ ? trcrange_.start-10 : nr_ );
     for ( int idx=0; idx<1024; idx++,trcvar++ )
     {
-	BinIDValueSet::Pos pos = bvs.findFirst( bid );
-	if ( !pos.valid() )
+	BinIDValueSet::SPos pos = bvs.find( bid );
+	if ( !pos.isValid() )
 	    continue;
 
 	BinID dummy;
@@ -258,8 +258,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
     od_int64 idx = 0;
     for ( idx=0; idx<bvssz; idx++,startvar += step )
     {
-	BinIDValueSet::Pos pos = bvs.findFirst( start );
-	if ( !pos.valid() )
+	BinIDValueSet::SPos pos = bvs.find( start );
+	if ( !pos.isValid() )
 	    continue;
 
 	BinID dummy;
@@ -285,8 +285,8 @@ bool FaultTrace::getHorCrossings( const BinIDValueSet& bvs,
 	if ( foundtop && foundbot )
 	    break;
 
-	BinIDValueSet::Pos pos = bvs.findFirst( stop );
-	if ( !pos.valid() )
+	BinIDValueSet::SPos pos = bvs.find( stop );
+	if ( !pos.isValid() )
 	    continue;
 
 	BinID dummy;

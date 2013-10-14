@@ -289,7 +289,7 @@ int HorizonScanner::nextStep()
 	{
 	    const BinIDValueSet& bivs = *sections_[idx];
 	    BinID bid;
-	    BinIDValueSet::Pos pos;
+	    BinIDValueSet::SPos pos;
 	    while ( bivs.next(pos) )
 	    {
 		bid = bivs.getBinID( pos );

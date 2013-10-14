@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "statrand.h"
 #include "varlenarray.h"
-#include <iostream>
-#include <vector>
+#include "od_iostream.h"
+
 
 static inline void setToUdf( float* arr, int nvals )
 {
@@ -57,17 +57,17 @@ Pos::IdxPairValueSet::~IdxPairValueSet()
 
 
 Pos::IdxPairValueSet& Pos::IdxPairValueSet::operator =(
-						const Pos::IdxPairValueSet& vs )
+						const IdxPairValueSet& vs )
 {
     if ( &vs == this ) return *this;
 
     setEmpty(); copyStructureFrom( vs );
 
-    for ( int iinl=0; iinl<vs.frsts_.size(); iinl++ )
+    for ( IdxType ifst=0; ifst<vs.frsts_.size(); ifst++ )
     {
-	frsts_ += vs.frsts_[iinl];
-	scndsets_ += new TypeSet<int>( *vs.scndsets_[iinl] );
-	valsets_ += new TypeSet<float>( *vs.valsets_[iinl] );
+	frsts_ += vs.frsts_[ifst];
+	scndsets_ += new TypeSet<IdxType>( *vs.scndsets_[ifst] );
+	valsets_ += new TypeSet<float>( *vs.valsets_[ifst] );
     }
 
     return *this;
@@ -82,16 +82,16 @@ void Pos::IdxPairValueSet::setEmpty()
 }
 
 
-bool Pos::IdxPairValueSet::append( const Pos::IdxPairValueSet& vs )
+bool Pos::IdxPairValueSet::append( const IdxPairValueSet& vs )
 {
-    Pos pos; IdxPair idxpair;
+    SPos pos; IdxPair idxpair;
     if ( nrvals_ <= vs.nrvals_ )
     {
 	while ( vs.next(pos,!vs.allowdup_) )
 	{
 	    vs.get( pos, idxpair );
-	    const Pos newpos = add( idxpair, nrvals_ ? vs.getVals( pos ) : 0 );
-	    if ( !newpos.valid() )
+	    const SPos newpos = add( idxpair, nrvals_ ? vs.getVals( pos ) : 0 );
+	    if ( !newpos.isValid() )
 		return false;
 	}
     }
@@ -103,8 +103,8 @@ bool Pos::IdxPairValueSet::append( const Pos::IdxPairValueSet& vs )
 	{
 	    vs.get( pos, idxpair );
 	    memcpy( insvals, vs.getVals( pos ), vs.nrvals_ * sizeof(float) );
-	    const Pos newpos = add( idxpair, insvals );
-	    if ( !newpos.valid() )
+	    const SPos newpos = add( idxpair, insvals );
+	    if ( !newpos.isValid() )
 		return false;
 	}
     }
@@ -113,14 +113,14 @@ bool Pos::IdxPairValueSet::append( const Pos::IdxPairValueSet& vs )
 }
 
 
-void Pos::IdxPairValueSet::remove( const Pos::IdxPairValueSet& removepairs ) 
+void Pos::IdxPairValueSet::remove( const IdxPairValueSet& removepairs ) 
 { 
-    Pos::IdxPairValueSet::Pos pos; 
+    SPos pos; 
 	 
     while ( removepairs.next(pos, true ) ) 
     { 
 	const IdxPair pair = removepairs.getIdxPair( pos ); 
-	Pos::IdxPairValueSet::Pos removepos = findOccurrence( pair ); 
+	SPos removepos = findOccurrence( pair ); 
 					 
 	while ( removepos.j>=0 ) 
 	{ 
@@ -145,7 +145,7 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
     Stats::randGen().subselect( idxs, orgsz, maxsz );
-    TypeSet<Pos> poss;
+    TypeSet<SPos> poss;
     if ( buildnew )
     {
 	for ( od_int64 idx=0; idx<maxsz; idx++ )
@@ -162,7 +162,7 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
 	remove( poss );
     else
     {
-	Pos::IdxPairValueSet newvs( nrvals_, allowdup_ );
+	IdxPairValueSet newvs( nrvals_, allowdup_ );
 	DataRow dr;
 	for ( od_int64 idx=0; idx<poss.size(); idx++ )
 	{
@@ -180,12 +180,12 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
     if ( !setNrVals( 0, false ) )
 	return false;
 
-    char linebuf[4096], valbuf[1024];
-    Coord crd; BinID bid;
+    BufferString line; char valbuf[1024];
+    IdxPair ip;
     bool first_time = true;
-    while ( strm.getline( linebuf, 4096 ) )
+    while ( strm.getLine( line ) )
     {
-	char* firstchar = linebuf;
+	char* firstchar = line.buf();
 	mSkipBlanks( firstchar );
 	if ( *firstchar == '"' )
 	{
@@ -198,10 +198,10 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );
-	bid.inl = toInt( valbuf );
+	ip.first = toInt( valbuf );
 	mSkipBlanks( nextword ); if ( !*nextword ) continue;
 	nextword = getNextWord( nextword, valbuf );
-	bid.crl = toInt( valbuf );
+	ip.second = toInt( valbuf );
 
 	if ( first_time )
 	{
@@ -218,7 +218,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
 	    nextword = firstval;
 	}
 
-	float* vals = getVals( add(bid) );
+	float* vals = getVals( add(ip) );
 	if ( !vals ) continue;
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{
@@ -235,12 +235,12 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
 
 bool Pos::IdxPairValueSet::putTo( od_ostream& strm ) const
 {
-    Pos pos;
+    SPos pos;
     while ( next(pos) )
     {
-	const IdxPair ip( getInl(pos), getCrl(pos) );
+	const IdxPair ip( getFrst(pos), getScnd(pos) );
 	const float* vals = getVals(pos);
-	strm << ip.inl() << od_tab << ip.crl();
+	strm << ip.first << od_tab << ip.second;
 	char str[255];
 	for ( int idx=0; idx<nrvals_; idx++ )
 	{
@@ -250,47 +250,48 @@ bool Pos::IdxPairValueSet::putTo( od_ostream& strm ) const
 	strm << od_newline;
     }
     strm.flush();
-    return strm.good();
+    return strm.isOK();
 }
 
 
-int Pos::IdxPairValueSet::nrSecond( Pos::IdxPairValueSet::IdxType inl ) const
+int Pos::IdxPairValueSet::nrSecond( IdxType frst ) const
 {
-    const int inlidx = frsts_.indexOf( inl );
-    return inlidx<0 ? 0 : getCrlSet(inlidx).size();
+    const IdxType frstidx = frsts_.indexOf( frst );
+    return frstidx<0 ? 0 : getScndSet(frstidx).size();
 }
 
 
-Interval<int> Pos::IdxPairValueSet::firstRange() const
+Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::firstRange() const
 {
-    Interval<int> ret( mUdf(int), mUdf(int) );
+    Interval<IdxType> ret( mUdf(IdxType), mUdf(IdxType) );
 
     bool first = true;
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( IdxType ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	if ( first )
-	    { ret.start = ret.stop = frsts_[iinl]; first = false; }
+	    { ret.start = ret.stop = frsts_[ifrst]; first = false; }
 	else
-	    ret.include( frsts_[iinl], false );
+	    ret.include( frsts_[ifrst], false );
     }
     return ret;
 }
 
 
-Interval<int> Pos::IdxPairValueSet::secondRange( int inl ) const
+Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::secondRange(
+							IdxType frst ) const
 {
-    Interval<int> ret( mUdf(int), mUdf(int) );
+    Interval<IdxType> ret( mUdf(IdxType), mUdf(IdxType) );
     if ( frsts_.isEmpty() ) return ret;
 
-    const int inlidx = frsts_.indexOf( inl );
-    if ( inlidx >= 0 )
+    const int frstidx = frsts_.indexOf( frst );
+    if ( frstidx >= 0 )
     {
-	const TypeSet<int>& crlset = getCrlSet(inlidx);
-	const int nrcrl = crlset.size();
-	if ( nrcrl>=1 )
-	    ret.start = ret.stop = crlset[0];
-	if ( nrcrl>1 )
-	    ret.include( crlset[nrcrl-1], false );
+	const TypeSet<IdxType>& scndset = getScndSet(frstidx);
+	const int nrscnd = scndset.size();
+	if ( nrscnd>=1 )
+	    ret.start = ret.stop = scndset[0];
+	if ( nrscnd>1 )
+	    ret.include( scndset[nrscnd-1], false );
 
     }
     else
@@ -298,21 +299,21 @@ Interval<int> Pos::IdxPairValueSet::secondRange( int inl ) const
 	bool found = false;
 	for ( int idx=0; idx<frsts_.size(); idx++ )
 	{
-	    const TypeSet<int>& crlset = getCrlSet(idx);
-	    const int nrcrl = crlset.size();
-	    if ( nrcrl>=1 )
+	    const TypeSet<IdxType>& scndset = getScndSet(idx);
+	    const int nrscnd = scndset.size();
+	    if ( nrscnd>=1 )
 	    {
 		if ( found )
-		    ret.include( crlset[0], false );
+		    ret.include( scndset[0], false );
 		else
 		{
-		    ret.start = ret.stop = crlset[0];
+		    ret.start = ret.stop = scndset[0];
 		    found = true;
 		}
 	    }
 
-	    if ( nrcrl>1 )
-		ret.include( crlset[nrcrl-1], false );
+	    if ( nrscnd>1 )
+		ret.include( scndset[nrscnd-1], false );
 	}
     }
 
@@ -326,7 +327,7 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
     if ( valnr >= nrvals_ || valnr < 0 || isEmpty() )
 	return ret;
 
-    Pos pos;
+    SPos pos;
     while ( next(pos) )
     {
 	const float val = getVals(pos)[valnr];
@@ -344,7 +345,7 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
 }
 
 
-void Pos::IdxPairValueSet::copyStructureFrom( const Pos::IdxPairValueSet& vs )
+void Pos::IdxPairValueSet::copyStructureFrom( const IdxPairValueSet& vs )
 {
     setEmpty();
     const_cast<int&>(nrvals_) = vs.nrvals_;
@@ -352,20 +353,20 @@ void Pos::IdxPairValueSet::copyStructureFrom( const Pos::IdxPairValueSet& vs )
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::findOccurrence(
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findOccurrence(
 					const IdxPair& ip, int occ ) const
 {
-    bool found; int idx = findIndexFor(frsts_,ip.inl(),&found);
-    Pos pos( found ? idx : -1, -1 );
+    bool found; int idx = findIndexFor(frsts_,ip.first,&found);
+    SPos pos( found ? idx : -1, -1 );
     if ( pos.i >= 0 )
     {
-	const TypeSet<int>& crls = getCrlSet(pos);
-	idx = findIndexFor(crls,ip.crl(),&found);
+	const TypeSet<IdxType>& scnds = getScndSet(pos);
+	idx = findIndexFor(scnds,ip.second,&found);
 	pos.j = found ? idx : -1;
 	if ( found )
 	{
 	    pos.j = idx;
-	    while ( pos.j && crls[pos.j-1] == ip.crl() )
+	    while ( pos.j && scnds[pos.j-1] == ip.second )
 		pos.j--;
 	}
     }
@@ -376,8 +377,7 @@ Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::findOccurrence(
 }
 
 
-bool Pos::IdxPairValueSet::next( Pos::IdxPairValueSet::Pos& pos,
-					bool skip_dup ) const
+bool Pos::IdxPairValueSet::next( SPos& pos, bool skip_dup ) const
 {
     if ( pos.i < 0 )
     {
@@ -390,8 +390,8 @@ bool Pos::IdxPairValueSet::next( Pos::IdxPairValueSet::Pos& pos,
     else if ( pos.j < 0 )
     	{ pos.j = 0; return true; }
 
-    const TypeSet<int>& crls = getCrlSet(pos);
-    if ( pos.j > crls.size()-2 )
+    const TypeSet<IdxType>& scnds = getScndSet(pos);
+    if ( pos.j > scnds.size()-2 )
     {
 	pos.j = 0;
 	pos.i++;
@@ -401,58 +401,57 @@ bool Pos::IdxPairValueSet::next( Pos::IdxPairValueSet::Pos& pos,
     }
 
     pos.j++;
-    if ( skip_dup && crls[pos.j] == crls[pos.j-1] )
+    if ( skip_dup && scnds[pos.j] == scnds[pos.j-1] )
 	return next( pos, true );
 
     return true;
 }
 
 
-bool Pos::IdxPairValueSet::prev( Pos::IdxPairValueSet::Pos& pos,
-				 bool skip_dup ) const
+bool Pos::IdxPairValueSet::prev( SPos& pos, bool skip_dup ) const
 {
-    if ( !pos.valid() )
+    if ( !pos.isValid() )
 	return false;
     if ( pos.i == 0 && pos.j == 0)
 	{ pos.i = pos.j = -1; return false; }
 
-    int curcrl = getCrl(pos);
+    IdxType curscnd = getScnd(pos);
     if ( pos.j )
 	pos.j--;
     else
     {
 	pos.i--;
-	pos.j = getCrlSet(pos).size() - 1;
+	pos.j = getScndSet(pos).size() - 1;
     }
 
     if ( !skip_dup ) return true;
 
-    while ( getCrl(pos) == curcrl )
+    while ( getScnd(pos) == curscnd )
 	return prev( pos, true );
 
     return true;
 }
 
 
-bool Pos::IdxPairValueSet::valid( const IdxPair& ip ) const
+bool Pos::IdxPairValueSet::isValid( const IdxPair& ip ) const
 {
-    Pos pos = findFirst( ip );
-    return pos.valid()
-	&& frsts_.isPresent(ip.inl())
-	&& getCrlSet(pos).size() > pos.j;
+    SPos pos = find( ip );
+    return pos.isValid()
+	&& frsts_.isPresent(ip.first)
+	&& getScndSet(pos).size() > pos.j;
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos& pos, IdxPair& ip, float* vs,
+void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
        			 int maxnrvals ) const
 {
     if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
 
-    if ( !pos.valid() )
-	{ ip.inl() = ip.crl() = 0; }
+    if ( !pos.isValid() )
+	{ ip.first = ip.second = 0; }
     else
     {
-	ip.inl() = getInl(pos); ip.crl() = getCrl(pos);
+	ip.first = getFrst(pos); ip.second = getScnd(pos);
 	if ( vs && maxnrvals )
 	{
 	    memcpy( vs, getVals(pos), maxnrvals * sizeof(float) );
@@ -465,100 +464,99 @@ void Pos::IdxPairValueSet::get( const Pos& pos, IdxPair& ip, float* vs,
 }
 
 
-Pos::IdxPair Pos::IdxPairValueSet::getIdxPair( const Pos& pos ) const
+Pos::IdxPair Pos::IdxPairValueSet::getIdxPair( const SPos& pos ) const
 {
-    return pos.valid() ? IdxPair(getInl(pos),getCrl(pos)) : IdxPair(0,0);
+    return pos.isValid() ? IdxPair(getFrst(pos),getScnd(pos)) : IdxPair::udf();
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::getPos( od_int64 glidx ) const
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::getPos( od_int64 glidx ) const
 {
-    od_int64 firstidx = 0; Pos pos;
+    od_int64 firstidx = 0; SPos pos;
     for ( pos.i=0; pos.i<frsts_.size(); pos.i++ )
     {
-	const TypeSet<int>& crls = getCrlSet(pos);
-	if ( firstidx + crls.size() > glidx )
+	const TypeSet<IdxType>& scnds = getScndSet(pos);
+	if ( firstidx + scnds.size() > glidx )
 	{
 	    pos.j = (int)(glidx - firstidx);
 	    return pos;
 	}
-	firstidx += crls.size();
+	firstidx += scnds.size();
     }
 
-    return Pos(-1,-1);
+    return SPos(-1,-1);
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 							const float* arr )
 {
-    Pos pos( findFirst(ip) );
+    SPos pos( find(ip) );
     if ( pos.i < 0 )
     {
-	pos.i = findIndexFor(frsts_,ip.inl()) + 1;
+	pos.i = findIndexFor(frsts_,ip.first) + 1;
 	if ( pos.i > frsts_.size()-1 )
 	{
-	    frsts_ += ip.inl();
-	    scndsets_ += new TypeSet<int>;
+	    frsts_ += ip.first;
+	    scndsets_ += new TypeSet<IdxType>;
 	    valsets_ += new TypeSet<float>;
 	    pos.i = frsts_.size() - 1;
 	}
 	else
 	{
-	    frsts_.insert( pos.i, ip.inl() );
-	    scndsets_.insertAt( new TypeSet<int>, pos.i );
+	    frsts_.insert( pos.i, ip.first );
+	    scndsets_.insertAt( new TypeSet<IdxType>, pos.i );
 	    valsets_.insertAt( new TypeSet<float>, pos.i );
 	}
     }
 
     if ( pos.j < 0 || allowdup_ )
-	addNew( pos, ip.crl(), arr );
+	addNew( pos, ip.second, arr );
 
     return pos;
 }
 
 
-void Pos::IdxPairValueSet::addNew( Pos::IdxPairValueSet::Pos& pos, int crl,
-					const float* arr )
+void Pos::IdxPairValueSet::addNew( SPos& pos, IdxType scnd, const float* arr )
 {
-    TypeSet<int>& crls = getCrlSet(pos);
+    TypeSet<IdxType>& scnds = getScndSet(pos);
 
     if ( pos.j < 0 )
-	pos.j = findIndexFor(crls,crl) + 1;
+	pos.j = findIndexFor(scnds,scnd) + 1;
     else
     {
 	pos.j++;
-	while ( pos.j < crls.size() && crls[pos.j] == crl )
+	while ( pos.j < scnds.size() && scnds[pos.j] == scnd )
 	    pos.j++;
     }
 
 
     TypeSet<float>& vals = getValSet(pos);
-    if ( pos.j > crls.size() - 1 )
+    if ( pos.j > scnds.size() - 1 )
     {
-	crls += crl;
+	scnds += scnd;
 	for ( int idx=0; idx<nrvals_; idx++ )
 	    vals += arr ? arr[idx] : mUdf(float);
     }
     else
     {
-	crls.insert( pos.j, crl );
+	scnds.insert( pos.j, scnd );
 	for ( int idx=nrvals_-1; idx>=0; idx-- )
 	    vals.insert( pos.j*nrvals_, arr ? arr[idx] : mUdf(float) );
     }
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const DataRow& dr )
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const DataRow& dr )
 {
     if ( dr.size() >= nrvals_ )
-	return add( dr, vals.values() );
+	return add( dr, dr.values() );
 
     DataRow locdr( 0, 0, nrvals_ );
     for ( int idx=0; idx<dr.size(); idx++ )
 	locdr.value(idx) = dr.value(idx);
     for ( int idx=dr.size(); idx<nrvals_; idx++ )
-	DataRow::setUdf( locdr.value(idx) );
+	mSetUdf( locdr.value(idx) );
     return add( dr, locdr.values() );
 }
 
@@ -569,19 +567,21 @@ class IdxPairValueSetFromCubeData : public ::ParallelTask
 {
 public:
 
-IdxPairValueSetFromCubeData( Pos::IdxPairValueSet& vs,
+typedef Pos::IdxPairValueSet::IdxType IdxType;
+
+IdxPairValueSetFromCubeData( IdxPairValueSet& vs,
 			       const PosInfo::CubeData& cubedata )
     : vs_( vs )
     , cubedata_( cubedata )
 {
-    //Add first pos on each inline so all inlines are in, thus
-    //threadsafe to add things as long as each inline is separate
+    //Add first pos on each line so all lines are in, thus
+    //threadsafe to add things as long as each line is separate
     for ( int idx=0; idx<cubedata.size(); idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
-	const int inl = line.linenr_;
+	const int frst = line.linenr_;
 	if ( line.segments_.size() )
-	    vs.add( IdxPair(inl,line.segments_[0].start) );
+	    vs.add( IdxPair(frst,line.segments_[0].start) );
     }
 }
 
@@ -592,16 +592,14 @@ bool doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
-	const int inl = line.linenr_;
+	const IdxType frst = line.linenr_;
 	for ( int idy=0; idy<line.segments_.size(); idy++ )
 	{
 	    StepInterval<int> crls = line.segments_[idy];
 	    if ( !idy )
-		crls.start += crls.step; //We added first crl in constructor
-	    for ( int crl=crls.start; crl<=crls.stop; crl+=crls.step )
-	    {
-		vs_.add( IdxPair(inl,crl) );
-	    }
+		crls.start += crls.step; //We added first scnd in constructor
+	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
+		vs_.add( IdxPair(frst,scnd) );
 	}
     }
 
@@ -613,6 +611,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 };
 
+} // namespace Pos
+
 
 void Pos::IdxPairValueSet::add( const PosInfo::CubeData& cubedata )
 {
@@ -621,10 +621,9 @@ void Pos::IdxPairValueSet::add( const PosInfo::CubeData& cubedata )
 }
 
 
-void Pos::IdxPairValueSet::set( Pos::IdxPairValueSet::Pos pos,
-				const float* vals )
+void Pos::IdxPairValueSet::set( SPos pos, const float* vals )
 {
-    if ( !pos.valid() || !nrvals_ ) return;
+    if ( !pos.isValid() || !nrvals_ ) return;
 
     if ( vals )
 	memcpy( getVals(pos), vals, nrvals_*sizeof(float) );
@@ -633,9 +632,10 @@ void Pos::IdxPairValueSet::set( Pos::IdxPairValueSet::Pos pos,
 }
 
 
-int Pos::IdxPairValueSet::nrPos( int inlidx ) const
+int Pos::IdxPairValueSet::nrPos( int frstidx ) const
 {
-    return inlidx < 0 || inlidx >= frsts_.size() ? 0 : getCrlSet(inlidx).size();
+    return frstidx < 0 || frstidx >= frsts_.size() ? 0
+		: getScndSet(frstidx).size();
 }
 
 
@@ -643,24 +643,24 @@ od_int64 Pos::IdxPairValueSet::totalSize() const
 {
     od_int64 nr = 0;
     for ( int idx=0; idx<frsts_.size(); idx++ )
-	nr += getCrlSet(idx).size();
+	nr += getScndSet(idx).size();
     return nr;
 }
 
 
-bool Pos::IdxPairValueSet::hasFirst( Pos::IdxPairValueSet::IdxType inl ) const
+bool Pos::IdxPairValueSet::hasFirst( IdxType frst ) const
 {
-    return frsts_.isPresent(inl);
+    return frsts_.isPresent(frst);
 }
 
 
-bool Pos::IdxPairValueSet::hasSecond( Pos::IdxPairValueSet::IdxType crl ) const
+bool Pos::IdxPairValueSet::hasSecond( IdxType scnd ) const
 {
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	const TypeSet<int>& crls = getCrlSet(iinl);
-	for ( int icrl=0; icrl<crls.size(); icrl++ )
-	    if ( crls[icrl] == crl ) return true;
+	const TypeSet<IdxType>& scnds = getScndSet(ifrst);
+	for ( int iscnd=0; iscnd<scnds.size(); iscnd++ )
+	    if ( scnds[iscnd] == scnd ) return true;
     }
     return false;
 }
@@ -668,23 +668,23 @@ bool Pos::IdxPairValueSet::hasSecond( Pos::IdxPairValueSet::IdxType crl ) const
 
 Pos::IdxPair Pos::IdxPairValueSet::firstIdxPair() const
 {
-    Pos pos; next(pos);
+    SPos pos; next(pos);
     IdxPair ip( IdxPair::udf() ); get(pos,ip);
     return ip;
 }
 
 
-void Pos::IdxPairValueSet::remove( const Pos& pos )
+void Pos::IdxPairValueSet::remove( const SPos& pos )
 {
     if ( pos.i < 0 || pos.i >= frsts_.size() )
 	return;
 
-    TypeSet<int>& crls = getCrlSet(pos);
-    if ( pos.j < 0 || pos.j >= crls.size() )
+    TypeSet<IdxType>& scnds = getScndSet(pos);
+    if ( pos.j < 0 || pos.j >= scnds.size() )
 	return;
 
-    crls.removeSingle( pos.j );
-    if ( crls.size() )
+    scnds.removeSingle( pos.j );
+    if ( scnds.size() )
     {
 	if ( nrvals_ )
 	    getValSet(pos).removeRange( pos.j*nrvals_, (pos.j+1)*nrvals_ - 1 );
@@ -696,25 +696,24 @@ void Pos::IdxPairValueSet::remove( const Pos& pos )
 }
 
 
-void Pos::IdxPairValueSet::remove(
-			const TypeSet<Pos::IdxPairValueSet::Pos>& poss )
+void Pos::IdxPairValueSet::remove( const TypeSet<SPos>& poss )
 {
     if ( poss.size() < 1 )
 	return;
     else if ( poss.size() == 1 )
 	{ remove( poss[0] ); return; }
 
-    Pos::IdxPairValueSet rmvs( 0, false );
+    IdxPairValueSet rmvs( 0, false );
     for ( int idx=0; idx<poss.size(); idx++ )
 	rmvs.add( IdxPair(poss[idx].i,poss[idx].j) );
 
-    Pos::IdxPairValueSet vs( *this );
+    IdxPairValueSet vs( *this );
     setEmpty();
 
-    Pos pos; IdxPair ip;
+    SPos pos; IdxPair ip;
     while ( vs.next(pos) )
     {
-	if ( !rmvs.valid(IdxPair(pos.i,pos.j)) )
+	if ( !rmvs.isValid(IdxPair(pos.i,pos.j)) )
 	{
 	    vs.get( pos, ip );
 	    add( ip, vs.getVals(pos) );
@@ -723,13 +722,13 @@ void Pos::IdxPairValueSet::remove(
 }
 
 
-void Pos::IdxPairValueSet::removeDuplicateBids()
+void Pos::IdxPairValueSet::removeDuplicateIdxPairs()
 {
     if ( isEmpty() ) return;
 
-    Pos pos; next(pos,false);
+    SPos pos; next(pos,false);
     IdxPair previp; get( pos, previp );
-    TypeSet<Pos::IdxPairValueSet::Pos> poss;
+    TypeSet<SPos> poss;
     IdxPair cur;
     while ( next(pos,false) )
     {
@@ -754,15 +753,16 @@ void Pos::IdxPairValueSet::removeVal( int validx )
 	return;
     }
 
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	TypeSet<float>& vals = getValSet(iinl);
-	TypeSet<int>& crls = getCrlSet(iinl);
-	for ( int icrl=crls.size()-1; icrl>=0; icrl-- )
-	    vals.removeSingle( nrvals_*icrl+validx );
+	TypeSet<float>& vals = getValSet(ifrst);
+	TypeSet<IdxType>& scnds = getScndSet(ifrst);
+	for ( int iscnd=scnds.size()-1; iscnd>=0; iscnd-- )
+	    vals.removeSingle( nrvals_*iscnd+validx );
     }
     const_cast<int&>(nrvals_)--;
 }
+
 
 bool Pos::IdxPairValueSet::insertVal( int validx )
 {
@@ -772,23 +772,23 @@ bool Pos::IdxPairValueSet::insertVal( int validx )
     const int oldnrvals = nrvals_;
     const_cast<int&>( nrvals_ ) = oldnrvals+1;
 
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	const int nrcrl = getCrlSet(iinl).size();
-	TypeSet<float>* oldvals = valsets_[iinl];
+	const int nrscnd = getScndSet(ifrst).size();
+	TypeSet<float>* oldvals = valsets_[ifrst];
 	mDeclareAndTryAlloc( TypeSet<float>*, newvals,
-			     TypeSet<float>( nrcrl*nrvals_, mUdf(float) ) );
+			     TypeSet<float>( nrscnd*nrvals_, mUdf(float) ) );
 	if ( !newvals )
 	    return false;
-	valsets_.replace( iinl, newvals );
+	valsets_.replace( ifrst, newvals );
 	float* oldarr = oldvals->arr();
 	float* newarr = newvals->arr();
-	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	for ( int iscnd=0; iscnd<nrscnd; iscnd++ )
 	{
-	    memcpy( newarr+(icrl*nrvals_), oldarr+(icrl*oldnrvals),
+	    memcpy( newarr+(iscnd*nrvals_), oldarr+(iscnd*oldnrvals),
 		    (validx) * sizeof(float) );
-	    memcpy( newarr+(icrl*nrvals_+validx+1),
-		    oldarr+(icrl*oldnrvals+validx+1),
+	    memcpy( newarr+(iscnd*nrvals_+validx+1),
+		    oldarr+(iscnd*oldnrvals+validx+1),
 		    (oldnrvals-validx) * sizeof(float) );
 	}
 
@@ -807,29 +807,29 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals, bool keepdata )
     const int oldnrvals = nrvals_;
     const_cast<int&>( nrvals_ ) = newnrvals;
 
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	const int nrcrl = getCrlSet(iinl).size();
+	const int nrscnd = getScndSet(ifrst).size();
 	if ( nrvals_ == 0 )
-	    getValSet(iinl).erase();
+	    getValSet(ifrst).erase();
 	else if ( oldnrvals == 0 )
-	    getValSet(iinl).setSize( nrcrl * nrvals_, mUdf(float) );
+	    getValSet(ifrst).setSize( nrscnd * nrvals_, mUdf(float) );
 	else
 	{
-	    TypeSet<float>* oldvals = valsets_[iinl];
+	    TypeSet<float>* oldvals = valsets_[ifrst];
 	    mDeclareAndTryAlloc( TypeSet<float>*, newvals,
-				 TypeSet<float>( nrcrl*nrvals_, mUdf(float) ) );
+				 TypeSet<float>( nrscnd*nrvals_, mUdf(float) ) );
 	    if ( !newvals )
 		return false;
-	    valsets_.replace( iinl, newvals );
+	    valsets_.replace( ifrst, newvals );
 	    if ( keepdata )
 	    {
 		float* oldarr = oldvals->arr();
 		float* newarr = newvals->arr();
 		const int cpsz = (oldnrvals > nrvals_ ? nrvals_ : oldnrvals)
 		    		   * sizeof( float );
-		for ( int icrl=0; icrl<nrcrl; icrl++ )
-		    memcpy( newarr+icrl*nrvals_, oldarr+icrl*oldnrvals, cpsz );
+		for ( int iscnd=0; iscnd<nrscnd; iscnd++ )
+		    memcpy( newarr+iscnd*nrvals_, oldarr+iscnd*oldnrvals, cpsz );
 	    }
 	    delete oldvals;
 	}
@@ -839,36 +839,36 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals, bool keepdata )
 }
 
 
-void Pos::IdxPairValueSet::sortDuplicateBids( int valnr, bool asc )
+void Pos::IdxPairValueSet::sortDuplicateIdxPairs( int valnr, bool asc )
 {
     if ( valnr >= nrvals_ || !allowdup_ ) return;
 
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	TypeSet<int>& crls = getCrlSet(iinl);
-	TypeSet<float>& vals = getValSet(iinl);
-	for ( int icrl=1; icrl<crls.size(); icrl++ )
+	TypeSet<IdxType>& scnds = getScndSet(ifrst);
+	TypeSet<float>& vals = getValSet(ifrst);
+	for ( int iscnd=1; iscnd<scnds.size(); iscnd++ )
 	{
-	    int curcrl = crls[icrl];
-	    int firstdup = icrl - 1;
-	    if ( crls[icrl-1] == curcrl )
+	    IdxType curscnd = scnds[iscnd];
+	    IdxType firstdup = iscnd - 1;
+	    if ( scnds[iscnd-1] == curscnd )
 	    {
-		for ( int idup=icrl+1; idup<crls.size(); idup++ )
+		for ( int idup=iscnd+1; idup<scnds.size(); idup++ )
 		{
-		    if ( crls[idup] == curcrl )
-			icrl = idup;
+		    if ( scnds[idup] == curscnd )
+			iscnd = idup;
 		    else
 			break;
 		}
-		sortPart( crls, vals, valnr, firstdup, icrl, asc );
+		sortPart( scnds, vals, valnr, firstdup, iscnd, asc );
 	    }
 	}
     }
 }
 
 
-void Pos::IdxPairValueSet::sortPart( TypeSet<int>& crls, TypeSet<float>& vals,
-			      int valnr, int firstidx, int lastidx, bool asc )
+void Pos::IdxPairValueSet::sortPart( TypeSet<IdxType>& scnds,
+	TypeSet<float>& vals, int valnr, int firstidx, int lastidx, bool asc )
 {
     int nridxs = lastidx - firstidx + 1;
     float* vs = new float [ nridxs ];
@@ -884,7 +884,7 @@ void Pos::IdxPairValueSet::sortPart( TypeSet<int>& crls, TypeSet<float>& vals,
     {
 	if ( idxs[idx] != idx )
 	{
-	    Swap( crls[idx], crls[ idxs[idx] ] );
+	    Swap( scnds[idx], scnds[ idxs[idx] ] );
 	    for ( int iv=0; iv<nrvals_; iv++ )
 		Swap( vals[ idx*nrvals_ + iv], vals[ idxs[idx]*nrvals_ + iv ] );
 	}
@@ -894,30 +894,30 @@ void Pos::IdxPairValueSet::sortPart( TypeSet<int>& crls, TypeSet<float>& vals,
 }
 
 
-void Pos::IdxPairValueSet::extend( const Pos::IdxPair& so,
-				   const Pos::IdxPair& sos )
+void Pos::IdxPairValueSet::extend( const Pos::IdxPairDelta& so,
+				   const Pos::IdxPairStep& sos )
 {
-    if ( (!so.inl() && !so.crl()) || (!sos.inl() && !sos.crl()) ) return;
+    if ( (!so.first && !so.second) || (!sos.first && !sos.second) ) return;
 
-    Pos::IdxPairValueSet vs( *this );
+    IdxPairValueSet vs( *this );
 
     const bool kpdup = allowdup_;
     allowdup_ = false;
 
-    Pos pos; IdxPair ip;
+    SPos pos; IdxPair ip;
     float* vals = nrvals_ ? new float [nrvals_] : 0;
     while ( vs.next(pos) )
     {
 	vs.get( pos, ip, vals );
 	const IdxPair centralip( ip );
-	for ( int iinl=-so.inl(); iinl<=so.inl(); iinl++ )
+	for ( int ifrst=-so.first; ifrst<=so.first; ifrst++ )
 	{
-	    ip.inl() = centralip.inl() + iinl * sos.inl();
-	    for ( int icrl=-so.crl(); icrl<=so.crl(); icrl++ )
+	    ip.first = centralip.first + ifrst * sos.first;
+	    for ( int iscnd=-so.second; iscnd<=so.second; iscnd++ )
 	    {
-		if ( !iinl && !icrl )
+		if ( !ifrst && !iscnd )
 		    continue;
-		ip.crl() = centralip.crl() + icrl * sos.crl();
+		ip.second = centralip.second + iscnd * sos.second;
 		add( ip, vals );
 	    }
 	}
@@ -932,7 +932,7 @@ void Pos::IdxPairValueSet::getColumn( int valnr, TypeSet<float>& vals,
 				bool incudf ) const
 {
     if ( valnr < 0 || valnr >= nrVals() ) return;
-    Pos pos;
+    SPos pos;
     while ( next(pos) )
     {
 	const float* v = getVals( pos );
@@ -946,7 +946,7 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 				 bool inside )
 {
     if ( valnr < 0 || valnr >= nrVals() ) return;
-    TypeSet<Pos> poss; Pos pos;
+    TypeSet<SPos> poss; SPos pos;
     while ( next(pos) )
     {
 	const float* v = getVals( pos );
@@ -959,26 +959,26 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 
 void Pos::IdxPairValueSet::remove( const HorSampling& hrg, bool removeinside )
 {
-    const StepInterval<int> inlrg = hrg.inlRange();
-    const StepInterval<int> crlrg = hrg.crlRange();
+    const StepInterval<IdxType> frstrg = hrg.inlRange();
+    const StepInterval<IdxType> scndrg = hrg.crlRange();
 
     for ( int idx=frsts_.size()-1; idx>=0; idx-- )
     {
-	const int inl = frsts_[idx];
-	bool isin = inlrg.includes(inl,false) && inlrg.snap( inl )==inl;
+	const int frst = frsts_[idx];
+	bool isin = frstrg.includes(frst,false) && frstrg.snap( frst )== frst;
 	if ( isin==removeinside )
 	    removeLine( idx );
 	else
 	{
-	    TypeSet<int>& crls = *scndsets_[idx];
+	    TypeSet<IdxType>& scnds = *scndsets_[idx];
 	    TypeSet<float>& vals = *valsets_[idx];
-	    for ( int idy=crls.size()-1; idy>=0; idy-- )
+	    for ( int idy=scnds.size()-1; idy>=0; idy-- )
 	    {
-		const int crl = crls[idy];
-		isin = crlrg.includes(crl,false) && crlrg.snap( crl )==crl;
+		const IdxType scnd = scnds[idy];
+		isin = scndrg.includes(scnd,false) && scndrg.snap( scnd )==scnd;
 		if ( isin==removeinside )
 		{
-		    crls.removeSingle( idy );
+		    scnds.removeSingle( idy );
 		    vals.removeRange( idy*nrvals_, idy*nrvals_+nrvals_-1 );
 		}
 	    }
@@ -995,19 +995,18 @@ void Pos::IdxPairValueSet::removeLine( int idx )
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add(
-			const Pos::IdxPairValueSet::PairVal& pv )
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const PairVal& pv )
 {
     return nrvals_ < 2 ? add(pv,pv.val()) : add(DataRow(pv));
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 								double v )
 { return add( ip, mCast(float,v) ); }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 							float v )
 {
     if ( nrvals_ < 2 )
@@ -1019,7 +1018,7 @@ Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 							float v1, float v2 )
 {
     if ( nrvals_ == 0 )
@@ -1036,7 +1035,7 @@ Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 }
 
 
-Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
+Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 				       const TypeSet<float>& vals )
 {
     if ( vals.isEmpty() )
@@ -1050,14 +1049,14 @@ Pos::IdxPairValueSet::Pos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos& pos, DataRow& dr ) const
+void Pos::IdxPairValueSet::get( const SPos& pos, DataRow& dr ) const
 {
     dr.setSize( nrvals_ );
     get( pos, dr, dr.values() );
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos& pos, PairVal& pv ) const
+void Pos::IdxPairValueSet::get( const SPos& pos, PairVal& pv ) const
 {
     if ( nrvals_ < 2 )
 	get( pos, pv, &pv.val() );
@@ -1069,8 +1068,8 @@ void Pos::IdxPairValueSet::get( const Pos& pos, PairVal& pv ) const
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
-			 Pos::IdxPair& ip, float& v ) const
+void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+					float& v ) const
 {
     if ( nrvals_ < 2 )
 	get( pos, ip, &v );
@@ -1082,8 +1081,8 @@ void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
-				Pos::IdxPair& ip, float& v1, float& v2 ) const
+void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+				float& v1, float& v2 ) const
 {
     if ( nrvals_ < 3 )
     {
@@ -1098,9 +1097,8 @@ void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
 }
 
 
-void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
-				Pos::IdxPair& ip, TypeSet<float>& vals,
-				int maxnrvals ) const
+void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+				TypeSet<float>& vals, int maxnrvals ) const
 {
     if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
 
@@ -1114,7 +1112,7 @@ void Pos::IdxPairValueSet::get( const Pos::IdxPairValueSet::Pos& pos,
 }
 
 
-void Pos::IdxPairValueSet::set( const Pos::IdxPairValueSet::Pos& pos, float v )
+void Pos::IdxPairValueSet::set( const SPos& pos, float v )
 {
     if ( nrvals_ < 1 ) return;
 
@@ -1128,8 +1126,7 @@ void Pos::IdxPairValueSet::set( const Pos::IdxPairValueSet::Pos& pos, float v )
 }
 
 
-void Pos::IdxPairValueSet::set( const Pos::IdxPairValueSet::Pos& pos,
-				float v1, float v2 )
+void Pos::IdxPairValueSet::set( const SPos& pos, float v1, float v2 )
 {
     if ( nrvals_ < 1 ) return;
 
@@ -1146,8 +1143,7 @@ void Pos::IdxPairValueSet::set( const Pos::IdxPairValueSet::Pos& pos,
 }
 
 
-void Pos::IdxPairValueSet::set( const Pos::IdxPairValueSet::Pos& pos,
-				const TypeSet<float>& v )
+void Pos::IdxPairValueSet::set( const SPos& pos, const TypeSet<float>& v )
 {
     if ( nrvals_ < 1 ) return;
 
@@ -1171,17 +1167,17 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
     BufferString key; if ( ky && *ky ) { key = ky; key += ".Setup"; }
     iop.set( key, fms );
 
-    for ( int iinl=0; iinl<frsts_.size(); iinl++ )
+    for ( int ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
-	fms = ""; fms += frsts_[iinl];
-	const TypeSet<int>& crls = getCrlSet(iinl);
-	const TypeSet<float>& vals = getValSet(iinl);
-	for ( int icrl=0; icrl<crls.size(); icrl++ )
+	fms = ""; fms += frsts_[ifrst];
+	const TypeSet<IdxType>& scnds = getScndSet(ifrst);
+	const TypeSet<float>& vals = getValSet(ifrst);
+	for ( int iscnd=0; iscnd<scnds.size(); iscnd++ )
 	{
-	    fms += crls[icrl];
+	    fms += scnds[iscnd];
 	    if ( nrvals_ )
 	    {
-		const float* v = vals.arr() + icrl*nrvals_;
+		const float* v = vals.arr() + iscnd*nrvals_;
 		char str[255];
 		for ( int idx=0; idx<nrvals_; idx++ )
 		{
@@ -1194,7 +1190,7 @@ void Pos::IdxPairValueSet::fillPar( IOPar& iop, const char* ky ) const
 	    { key = ky; key += "."; }
 	else
 	    key = "";
-	key += iinl;
+	key += ifrst;
 	iop.set( key, fms );
     }
 }
@@ -1214,24 +1210,24 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
 	allowdup_ = *fms[1] == 'D';
     }
 
-    for ( int iinl=0; ; iinl++ )
+    for ( int ifrst=0; ; ifrst++ )
     {
 	if ( ky && *ky )
 	    { key = ky; key += "."; }
 	else
 	    key = "";
-	key += iinl;
+	key += ifrst;
 	res = iop.find( key );
 	if ( !res ) return;
 	if ( !*res ) continue;
 
 	fms = res;
-	dr.inl() = toInt( fms[0] );
+	dr.first = toInt( fms[0] );
 	int nrpos = (fms.size() - 1) / (nrvals_ + 1);
-	for ( int icrl=0; icrl<nrpos; icrl++ )
+	for ( int iscnd=0; iscnd<nrpos; iscnd++ )
 	{
-	    int fmsidx = 1 + icrl * (nrvals_ + 1);
-	    dr.crl() = toInt( fms[fmsidx] );
+	    int fmsidx = 1 + iscnd * (nrvals_ + 1);
+	    dr.second = toInt( fms[fmsidx] );
 	    fmsidx++;
 	    for ( int ival=0; ival<nrvals_; ival++ )
 		dr.value(ival) = toFloat( fms[fmsidx+ival] );
@@ -1243,10 +1239,10 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* ky )
 
 bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
 {
-    Pos pos = findFirst( dr );
+    SPos pos = find( dr );
     bool found = false;
     IdxPair tmpip;
-    while ( !found && pos.valid() )
+    while ( !found && pos.isValid() )
     {
 	if ( getIdxPair(pos) != dr )
 	    break;
@@ -1273,7 +1269,7 @@ bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
 bool Pos::IdxPairValueSet::hasDuplicateIdxPairs() const
 {
     IdxPair previp = IdxPair::udf();
-    Pos::IdxPairValueSet::Pos pos;
+    SPos pos;
     while ( next(pos) )
     {
 	IdxPair ip = getIdxPair( pos );
@@ -1289,7 +1285,7 @@ bool Pos::IdxPairValueSet::hasDuplicateIdxPairs() const
 int Pos::IdxPairValueSet::nrDuplicateIdxPairs() const
 {
     int nrdupips = 0;
-    IdxPairValueSet::Pos pos;
+    SPos pos;
     if ( !next(pos) )
 	return 0;
 
@@ -1309,7 +1305,7 @@ int Pos::IdxPairValueSet::nrDuplicateIdxPairs() const
 	    }	
 	}
 
-	if ( !pos.valid() )
+	if ( !pos.isValid() )
 	    break;
 
 	previp = ip;

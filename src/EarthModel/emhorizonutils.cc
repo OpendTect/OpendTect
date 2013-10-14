@@ -370,7 +370,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	const BinIDValueSet& bivs = *data[sectionidx];
 
 	PosID posid( objid, sectionid );
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	BinID bid; TypeSet<float> vals;
 	while ( bivs.next(pos) )
 	{

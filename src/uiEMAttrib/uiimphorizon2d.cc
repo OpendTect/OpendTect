@@ -203,7 +203,7 @@ protected:
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
     int				prevlineidx_;
-    BinIDValueSet::Pos		pos_;
+    BinIDValueSet::SPos		pos_;
     UndefTreat			udftreat_;
 };
 

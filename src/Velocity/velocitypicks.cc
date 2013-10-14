@@ -732,7 +732,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
     const bool usesearchradius = !mIsUdf(searchradius);
     const double searchradius2 = searchradius*searchradius;
 
-    BinIDValueSet::Pos pos( 0, 0 );
+    BinIDValueSet::SPos pos( 0, 0 );
     do
     {
 	const BinID bid = res.getBinID(pos);
@@ -877,7 +877,7 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
     {
 	BinIDValueSet bidset( 2, false );
 	const float vals[] = { mUdf(float), mUdf(float) };
-	BinIDValueSet::Pos pos = bidset.add( pickbid );
+	BinIDValueSet::SPos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
 	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];
@@ -930,7 +930,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
     {
 	BinIDValueSet bidset( 2, false );
 	const float vals[] = { mUdf(float), mUdf(float) };
-	BinIDValueSet::Pos pos = bidset.add( pickbid );
+	BinIDValueSet::SPos pos = bidset.add( pickbid );
 	for ( int idx=nrHorizons()-1; idx>=0; idx-- )
 	{
 	    ConstRefMan<EM::Horizon3D> hor = horizons_[idx];

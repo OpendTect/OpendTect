@@ -588,7 +588,7 @@ void EventManager::blockChange( bool yn, bool sendnow )
 	change.enable();
 	if ( sendnow )
 	{
-	    BinIDValueSet::Pos pos;
+	    BinIDValueSet::SPos pos;
 	    while ( notificationqueue_->next(pos) )
 		reportChange( notificationqueue_->getBinID( pos ) );
 	}

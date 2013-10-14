@@ -257,7 +257,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     const int crlsz = impbody_->cs_.nrCrl();
     const int zsz = impbody_->cs_.nrZ();
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	BinID bid = bivs.getBinID(pos);
@@ -308,7 +308,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 {
     mSetDataPointSet("Depth");
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	float* vals = bivs.getVals(pos);
@@ -400,10 +400,10 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     TypeSet<float> zdist;
     TypeSet<float> vals;
 
-    BinIDValueSet::Pos pos = bivset.findFirst( bid );
+    BinIDValueSet::SPos pos = bivset.find( bid );
     const int validx = bivset.nrVals()-1;
 
-    while ( pos.valid() )
+    while ( pos.isValid() )
     {
 	const float* posvals = bivset.getVals(pos);
 	const float depth = posvals[0];

@@ -1119,7 +1119,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     	for ( int idy=0; idy<arr->info().getTotalSz(); idy++ )
     	    (*texturedataptr++) = mUdf(float);
 	
-    	BinIDValueSet::Pos pos;
+    	BinIDValueSet::SPos pos;
     	BinID bid;
     	while ( bivset->next(pos,true) )
     	{
@@ -1312,7 +1312,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     else if ( attrib<rposcache_.size() && rposcache_[attrib] )
     {
 	const BinIDValueSet& set = *rposcache_[attrib];
-	const BinIDValueSet::Pos setpos = set.findFirst( bidv );
+	const BinIDValueSet::SPos setpos = set.find( bidv );
 	if ( setpos.i==-1 || setpos.j==-1 )
 	    return false;
 

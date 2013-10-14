@@ -886,7 +886,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id, DataPointSet& data,
     hor3d->auxdata.setAuxDataShift( auxdataidx, shift );
 
     BinID bid;
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     const EM::SectionID sectionid = hor3d->sectionID( 0 );
 
     EM::PosID posid( id, sectionid );
@@ -968,7 +968,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	}
     }
 
-    data.bivSet().allowDuplicateBids(false);
+    data.bivSet().allowDuplicateBinIDs(false);
     mAllocVarLenArr( float, auxvals, nms.size()+2 );
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {

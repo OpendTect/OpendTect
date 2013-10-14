@@ -287,9 +287,9 @@ int PreStack::EventsAPIMgr::getNextCDP(int handle, int previnl, int prevcrl,
 	}
     }
 
-    BinIDValueSet::Pos pos = previnl!=-1 && prevcrl!=-1
-	?  locations_[idx]->findFirst( BinID(previnl, prevcrl ) )
-	: BinIDValueSet::Pos( -1, -1 );
+    BinIDValueSet::SPos pos = previnl!=-1 && prevcrl!=-1
+	?  locations_[idx]->find( BinID(previnl, prevcrl ) )
+	: BinIDValueSet::SPos( -1, -1 );
 
     if ( !locations_[idx]->next( pos, true ) )
 	return 0;

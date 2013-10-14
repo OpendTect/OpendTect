@@ -216,9 +216,9 @@ public:
     bool		setRow(const DataRow&);
     			//!< Can be add or change
     			//!< Returns whether it's an add (see addRow)
-    RowID		getRowID(BinIDValueSet::Pos) const;
+    RowID		getRowID(BinIDValueSet::SPos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
-    BinIDValueSet::Pos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
+    BinIDValueSet::SPos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
     			DataPointSet(bool is2d,bool minimal=false);
 			//!< use dataSet() to add columns
 
@@ -231,7 +231,7 @@ public:
 protected:
 
     PosVecDataSet&		data_;
-    TypeSet<BinIDValueSet::Pos>	bvsidxs_;
+    TypeSet<BinIDValueSet::SPos> bvsidxs_;
     bool			is2d_;
     bool			minimal_;
 

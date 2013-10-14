@@ -25,8 +25,8 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
     BinID bid = hrg_.atIndex( inlidx, crlidx );
-    BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
-    if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ ) return;
+    BinIDValueSet::SPos pos = bidvs_.find( bid );
+    if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ ) return;
 
     BinIDValueSet& ncset = const_cast<BinIDValueSet&>( bidvs_ );
     float* allvals = ncset.getVals( pos );
@@ -38,8 +38,8 @@ void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
 {
     BinID bid = hrg_.atIndex( inlidx, crlidx );
-    BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
-    if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ )
+    BinIDValueSet::SPos pos = bidvs_.find( bid );
+    if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ )
 	return mUdf(float);
 
     return bidvs_.getVal( pos, targetcolidx_ );

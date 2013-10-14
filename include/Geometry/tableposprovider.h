@@ -67,7 +67,7 @@ public:
 protected:
 
     BinIDValueSet	bvs_;
-    BinIDValueSet::Pos	pos_;
+    BinIDValueSet::SPos	pos_;
 
 public:
 

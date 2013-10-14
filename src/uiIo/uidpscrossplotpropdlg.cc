@@ -590,7 +590,7 @@ void getRmsError( bool isy2 )
 
     MathExpression* mathobj = isy2 ? mathobj1_ : mathobj_;
     const BinIDValueSet& bvs = dps_.bivSet();
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     bool shwrmserr = true;
     double sqsumerr = 0.0;
     int count = 0;

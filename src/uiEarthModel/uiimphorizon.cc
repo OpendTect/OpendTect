@@ -547,7 +547,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
 		bid.crl() = hs.start.crl() + crl*hs.step.crl();
-		BinIDValueSet::Pos pos = data.findFirst( bid );
+		BinIDValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 )
 		{
 		    const float* vals = data.getVals( pos );
@@ -569,7 +569,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
 		bid.crl() = hs.start.crl() + crl*hs.step.crl();
-		BinIDValueSet::Pos pos = data.findFirst( bid );
+		BinIDValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 ) continue;
 
 		TypeSet<float> vals( data.nrVals(), mUdf(float) );

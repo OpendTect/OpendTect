@@ -51,8 +51,8 @@ SeisRandomProvider::~SeisRandomProvider()
 void SeisRandomProvider::requestTrace( const BinID& bid )
 {
     Threads::MutexLocker lock( lock_ );
-    const BinIDValueSet::Pos pos = wantedbids_.findFirst( bid );
-    if ( pos.valid() )
+    const BinIDValueSet::SPos pos = wantedbids_.find( bid );
+    if ( pos.isValid() )
 	return;
     
     wantedbids_.add( bid );
@@ -70,7 +70,7 @@ bool SeisRandomProvider::readTraces()
     
     isreading_ = true;
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     if ( !wantedbids_.next( pos ) )
     {
 	isreading_ = false;
@@ -90,8 +90,8 @@ bool SeisRandomProvider::readTraces()
 	
 	lock.lock();
 	
-	const BinIDValueSet::Pos oldpos = wantedbids_.findFirst( curbid );
-	if ( !oldpos.valid() )
+	const BinIDValueSet::SPos oldpos = wantedbids_.find( curbid );
+	if ( !oldpos.isValid() )
 	{
 	    pErrMsg( "Trace removed by someone. Should never happen");
 	    isreading_ = false;

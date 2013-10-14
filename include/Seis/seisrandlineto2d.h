@@ -48,7 +48,7 @@ protected:
     int			nrdone_;
     int			totnr_;
 
-    BinIDValueSet::Pos	pos_;
+    BinIDValueSet::SPos	pos_;
     Seis::TableSelData&	seldata_;
 
 private:

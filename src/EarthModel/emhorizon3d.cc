@@ -106,8 +106,8 @@ int nextStep()
 	const BinID bid( inl_, crl );
 	if ( !hs_.includes(bid) ) continue;
 
-	BinIDValueSet::Pos pos = bvs.findFirst( bid );
-	if ( !pos.valid() ) continue;
+	BinIDValueSet::SPos pos = bvs.find( bid );
+	if ( !pos.isValid() ) continue;
 
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
@@ -245,7 +245,7 @@ protected:
 
     const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&		horizon_;
-    BinIDValueSet::Pos	pos_;
+    BinIDValueSet::SPos	pos_;
     HorSampling		hs_;
     BufferString	msg_;
     int			nrvals_;

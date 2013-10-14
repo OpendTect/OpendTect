@@ -22,8 +22,8 @@ void NLADataPreparer::limitRange( const Interval<float>& r )
 
 void NLADataPreparer::removeUndefs( bool targetonly )
 {
-    TypeSet<BinIDValueSet::Pos> poss;
-    BinIDValueSet::Pos pos;
+    TypeSet<BinIDValueSet::SPos> poss;
+    BinIDValueSet::SPos pos;
     while ( bvs_.next(pos) )
     {
 	float* vals = bvs_.getVals( pos );
@@ -54,7 +54,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 
     const int nrvals = bvs_.nrVals();
     ArrPtrMan< Interval<float> > rgs = new Interval<float> [nrvals];
-    BinIDValueSet::Pos pos; BinID bid;
+    BinIDValueSet::SPos pos; BinID bid;
     bool first_pos = true;
     while ( bvs_.next(pos) )
     {
@@ -70,7 +70,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     }
 
     const Interval<float> targetrg( rgs[targetcol_] );
-    pos = BinIDValueSet::Pos();
+    pos = BinIDValueSet::SPos();
     const float targetrgwdth = targetrg.width();
     while ( bvs_.next(pos) )
     {
@@ -109,7 +109,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const int orgsz = mCast( int, bvs.totalSize() );
     if ( orgsz == 0 ) return;
 
-    bvs.allowDuplicateBids( true );
+    bvs.allowDuplicateBinIDs( true );
     BinIDValueSet bvsnew( bvs.nrVals(), true );
     BinID bid;
     const int nrvals = bvs.nrVals();
@@ -117,7 +117,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     for ( int idx=0; idx<nr; idx++ )
     {
 	const int dupidx = Stats::randGen().getIndex( orgsz );
-	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
+	BinIDValueSet::SPos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
 	if ( nonoise )

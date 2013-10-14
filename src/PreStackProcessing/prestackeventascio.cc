@@ -79,7 +79,7 @@ int EventExporter::nextStep()
 	return ErrorOccurred();
 
     message_ = "Writing";
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
 
     while ( currentbatch.next( pos ) )
     {

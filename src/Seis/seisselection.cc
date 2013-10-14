@@ -493,7 +493,7 @@ int Seis::TableSelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 
-    const BinIDValueSet::Pos pos( bvs_.findFirst(bid) );
+    const BinIDValueSet::SPos pos( bvs_.find(bid) );
     if ( pos.j >= 0 ) return 0;
 
     const int inlres = pos.i < 0 ? 2 : 0;

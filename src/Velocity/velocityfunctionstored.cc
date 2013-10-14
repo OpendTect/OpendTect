@@ -126,7 +126,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
     }
 
     ::Pick::Set ps( ioobj->name() );
-    BinIDValueSet::Pos arrpos;
+    BinIDValueSet::SPos arrpos;
 
     while ( veldata_.next(arrpos,false) )
     {
@@ -201,7 +201,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 void StoredFunctionSource::getAvailablePositions( BinIDValueSet& binvals) const
 {
     binvals.setEmpty();
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( veldata_.next(pos, true) )
 	binvals.add( veldata_.getBinID(pos) );
 }
@@ -239,10 +239,10 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
     zval.erase();
     vel.erase();
 
-    if ( !veldata_.valid(binid) )
+    if ( !veldata_.isValid(binid) )
 	return false;
 
-    BinIDValueSet::Pos pos = veldata_.findFirst( binid );
+    BinIDValueSet::SPos pos = veldata_.find( binid );
     do 
     {
 	if ( veldata_.getBinID(pos)!=binid )

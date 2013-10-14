@@ -709,7 +709,7 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
-    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBids( true );
+    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
     ((Seis::TableSelData*)seldata_)->binidValueSet() = bidvalset;
 
     arebiddupl_ = areBIDDuplicated();
@@ -719,8 +719,8 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 void LocationOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( info.binid );
-    if ( !pos.valid() ) return;
+    BinIDValueSet::SPos pos = bidvalset_.find( info.binid );
+    if ( !pos.isValid() ) return;
 
     const int desnrvals = desoutputs_.size()+1;
     if ( bidvalset_.nrVals() < desnrvals )
@@ -767,8 +767,8 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 
 bool LocationOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
-    return pos.valid();
+    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    return pos.isValid();
 }
 
 
@@ -779,8 +779,8 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
     //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
 
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
-    while ( pos.valid() )
+    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    while ( pos.isValid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
 	int zidx;
@@ -807,7 +807,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 bool LocationOutput::areBIDDuplicated() const
 {
     BinIDValueSet tmpset(bidvalset_);
-    tmpset.allowDuplicateBids(false);
+    tmpset.allowDuplicateBinIDs(false);
 
     return tmpset.totalSize()<bidvalset_.totalSize();
 }
@@ -823,7 +823,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     delete seldata_;
     Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
     seldata_ = &sd;
-    sd.binidValueSet().allowDuplicateBids( true );
+    sd.binidValueSet().allowDuplicateBinIDs( true );
 
     const int nrinterv = bidvalset.nrVals() / 2;
     float zmin = mUdf(float);
@@ -838,7 +838,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 
     if ( !mIsUdf(zmin) && !mIsUdf(-zmax) )
     {
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	bidvalset.next( pos );
 	sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
 	sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
@@ -903,8 +903,8 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 
 bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
-    return pos.valid();
+    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    return pos.isValid();
 }
 
 
@@ -934,7 +934,7 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 						const BinID& bid, float zstep,
        						TypeSet<float>&	) const
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    BinIDValueSet::SPos pos = bidvalset_.find( bid );
     BinID binid;
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
@@ -1186,7 +1186,7 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
-    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBids( true );
+    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
     ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
 
     arebiddupl_ = areBIDDuplicated();
@@ -1264,8 +1264,8 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 
 bool TableOutput::wantsOutput( const BinID& bid ) const
 {
-    BinIDValueSet::Pos pos = datapointset_.bivSet().findFirst( bid );
-    return pos.valid();
+    BinIDValueSet::SPos pos = datapointset_.bivSet().find( bid );
+    return pos.isValid();
 }
 
 
@@ -1288,10 +1288,10 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     TypeSet< Interval<int> > sampleinterval;
 
     const BinIDValueSet& bvs = datapointset_.bivSet();
-    BinIDValueSet::Pos pos = bvs.findFirst( bid );
+    BinIDValueSet::SPos pos = bvs.find( bid );
 
     DataPointSet::RowID rid = datapointset_.getRowID( pos );
-    while ( pos.valid() && bid == bvs.getBinID(pos) )
+    while ( pos.isValid() && bid == bvs.getBinID(pos) )
     {
 	addLocalInterval( sampleinterval, exactz, rid, zstep );
 	datapointset_.bivSet().next( pos );

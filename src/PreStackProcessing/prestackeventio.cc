@@ -371,7 +371,7 @@ bool EventReader::prepareWork()
 
 	    if ( !usefile && bidsel_ )
 	    {
-		BinIDValueSet::Pos pos;
+		BinIDValueSet::SPos pos;
 		while ( bidsel_->next(pos,true) )
 		{
 		    if ( filehrg.includes( bidsel_->getBinID(pos) ))

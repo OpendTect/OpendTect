@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "prestackevents.h"
 #include "tableascio.h"
+#include "binidvalset.h"
 
 namespace Table { class FormatDesc; }
 
@@ -63,7 +64,7 @@ protected:
     HorSampling			hrg_;
 
     BinIDValueSet		locations_;
-    BinIDValueSet::Pos		pos_;
+    BinIDValueSet::SPos		pos_;
 
     int				nrdone_;
     int				fileidx_;

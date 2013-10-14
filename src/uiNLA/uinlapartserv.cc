@@ -363,7 +363,7 @@ const char* uiNLAPartServer::convertToClasses(
     for ( int iset=firstgooddps; iset<dpss.size(); iset++ )
     {
 	const BinIDValueSet& bvs = dpss[iset]->dataSet().data();
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	while( bvs.next(pos) )
 	{
 	    const float val = bvs.getVals(pos)[valnr];
@@ -462,7 +462,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 					      const int valnr )
 {
     BinIDValueSet& bvs = vds.data();
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bvs.next(pos) )
     {
 	float* vals = bvs.getVals( pos );

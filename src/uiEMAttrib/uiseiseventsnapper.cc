@@ -147,7 +147,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 
 	    hor3d->setBurstAlert( true );
 	    MouseCursorManager::setOverride( MouseCursor::Wait );
-	    BinIDValueSet::Pos pos;
+	    BinIDValueSet::SPos pos;
 	    while ( bivs.next(pos) )
 	    {
 		BinID bid; float z;

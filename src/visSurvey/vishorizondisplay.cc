@@ -699,7 +699,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( depthcol==-1 )
 	depthcol = 1;
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( bivs.next(pos,true) )
     {
 	float* vals = bivs.getVals(pos);
@@ -766,7 +766,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 
 void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
-    data.bivSet().allowDuplicateBids(false);
+    data.bivSet().allowDuplicateBinIDs(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->getDataPositions( data, getTranslation().z, 
 					  sids_[idx], tr );
@@ -1282,8 +1282,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	const BinIDValueSet* bidvalset = sections_[sectionidx]->getCache( idx );
 	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
 
-	const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
-	if ( !setpos.valid() )
+	const BinIDValueSet::SPos setpos = bidvalset->find( bid );
+	if ( !setpos.isValid() )
 	    continue;
 
 	const float* vals = bidvalset->getVals( setpos );

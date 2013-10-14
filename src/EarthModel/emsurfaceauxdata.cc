@@ -141,8 +141,8 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 	return mUdf(float);
 
     const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
-    if ( !pos.valid() )
+    const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
+    if ( !pos.isValid() )
 	return mUdf(float);
 
     return auxdata_[sectionidx]->getVals( pos )[dataidx];
@@ -167,8 +167,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
     const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
-    if ( !pos.valid() )
+    const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
+    if ( !pos.isValid() )
     {
 	mAllocVarLenArr( float, vals, auxdata_[sectionidx]->nrVals() );
 	for ( int idx=0; idx<auxdata_[sectionidx]->nrVals(); idx++ )

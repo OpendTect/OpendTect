@@ -441,7 +441,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
 	EM::SectionID sid2 = horizon2->sectionID( 0 );
 	BinIDValueSet& bvs = tsd.binidValueSet();
-	bvs.allowDuplicateBids( true );
+	bvs.allowDuplicateBinIDs( true );
 	horizon1->geometry().fillBinIDValueSet( sid, bvs, prov );
 	horizon2->geometry().fillBinIDValueSet( sid2, bvs, prov );
 	emobjdoublehor->unRef();

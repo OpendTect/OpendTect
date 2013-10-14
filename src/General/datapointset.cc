@@ -225,7 +225,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
     float* vals = new float [ bvssz ];
     BinID bid; DataPointSet::DataRow dr;
     dr.data_.setSize( bvssz - startidx );
-    BinIDValueSet::Pos bvspos;
+    BinIDValueSet::SPos bvspos;
     while ( bvs.next(bvspos) )
     {
 	bvs.get( bvspos, dr.pos_.binid_, vals );
@@ -334,7 +334,7 @@ void DataPointSet::init( const TypeSet<DataPointSet::DataRow>& pts,
 void DataPointSet::calcIdxs()
 {
     bvsidxs_.erase();
-    BinIDValueSet::Pos bvspos;
+    BinIDValueSet::SPos bvspos;
     while ( bivSet().next(bvspos) )
 	bvsidxs_ += bvspos;
 }
@@ -563,8 +563,8 @@ void DataPointSet::addRow( const DataPointSet::DataRow& dr )
 bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 {
     bool alreadyin = false;
-    BinIDValueSet::Pos bvspos = bivSet().findFirst( dr.pos_.binid_ );
-    while ( bvspos.valid() && bivSet().getBinID(bvspos) == dr.pos_.binid_ )
+    BinIDValueSet::SPos bvspos = bivSet().find( dr.pos_.binid_ );
+    while ( bvspos.isValid() && bivSet().getBinID(bvspos) == dr.pos_.binid_ )
     {
 	const float zval = *bivSet().getVals( bvspos );
 	if ( mIsZero(zval-dr.pos_.z_,mDefEps) )
@@ -618,7 +618,7 @@ int DataPointSet::nrActive() const
 
 void DataPointSet::purgeInactive()
 {
-    TypeSet<BinIDValueSet::Pos> torem;
+    TypeSet<BinIDValueSet::SPos> torem;
     for ( RowID irow=0; irow<size(); irow++ )
     {
 	if ( isInactive(irow) )
@@ -634,7 +634,7 @@ void DataPointSet::purgeInactive()
 
 void DataPointSet::purgeSelected( bool sel )
 {
-    TypeSet<BinIDValueSet::Pos> torem;
+    TypeSet<BinIDValueSet::SPos> torem;
     for ( RowID irow=0; irow<size(); irow++ )
     {
 	if ( sel != isSelected(irow) )
@@ -739,7 +739,7 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 }
 
 
-DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::Pos bvspos ) const
+DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::SPos bvspos ) const
 {
     int rid = -1;
     return IdxAble::findPos( bvsidxs_.arr(), bvsidxs_.size(), bvspos, -1, rid )
@@ -749,7 +749,7 @@ DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::Pos bvspos ) const
 
 DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos ) const
 {
-    BinIDValueSet::Pos bpos = bivSet().findFirst( dpos.binid_ );
+    BinIDValueSet::SPos bpos = bivSet().find( dpos.binid_ );
     bivSet().prev( bpos );
     while ( bivSet().next(bpos) )
     {
@@ -810,7 +810,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
 
 DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
 {
-    BinIDValueSet::Pos bpos = bivSet().findFirst( bid );
+    BinIDValueSet::SPos bpos = bivSet().find( bid );
     return getRowID( bpos );
 }
 

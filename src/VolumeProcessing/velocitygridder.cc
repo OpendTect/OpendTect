@@ -87,19 +87,20 @@ public:
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
-    const TypeSet<BinIDValueSet::Pos>& definedPos() const { return definedpos_;}
+    const TypeSet<BinIDValueSet::SPos>& definedPos() const
+    							{ return definedpos_;}
 
 protected:
     int				nrdone_;
     mutable Threads::Mutex	lock_;
 
-    BinIDValueSet::Pos		curpos_;
+    BinIDValueSet::SPos		curpos_;
 
     BinIDValueSet		remainingbids_;
     BinIDValueSet		definedbids_;
 
     TypeSet<Coord>		definedpts_;
-    TypeSet<BinIDValueSet::Pos>	definedpos_;
+    TypeSet<BinIDValueSet::SPos> definedpos_;
 
     VelGriddingStep&		step_;
     od_int64			totalnr_;
@@ -158,7 +159,7 @@ BinID VelGriddingStepTask::getNextBid()
 
 int VelGriddingStepTask::nextStep()
 {
-    curpos_ = BinIDValueSet::Pos(-1,-1);
+    curpos_ = BinIDValueSet::SPos(-1,-1);
 
     bool change = false;
 
@@ -178,7 +179,7 @@ int VelGriddingStepTask::nextStep()
 	definedpts_.erase();
 	definedpos_.erase();
 
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	while ( definedbids_.next( pos, true ) )
 	{
 	    definedpts_ += SI().transform( definedbids_.getBinID(pos) );

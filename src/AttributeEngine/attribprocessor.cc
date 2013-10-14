@@ -121,7 +121,7 @@ void Processor::useFullProcess( int& res )
 	if ( sd_ && sd_->type() == Seis::Table )
 	{
 	    mDynamicCastGet(Seis::TableSelData*,tsd,sd_)
-	    firstpos = tsd->binidValueSet().firstPos();
+	    firstpos = tsd->binidValueSet().firstBinID();
 	}
 	else
 	{

@@ -13,7 +13,6 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
 	    beachballdata.cc
 	    bidvsetarrayadapter.cc
-	    binidvalset.cc
 	    conn.cc
 	    cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
 	    cbvswriter.cc cbvswritemgr.cc
@@ -54,6 +53,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    pickretriever.cc
 	    pickset.cc
 	    posimpexppars.cc
+	    posidxpairvalset.cc
 	    posinfodetector.cc
 	    posvecdataset.cc
 	    property.cc

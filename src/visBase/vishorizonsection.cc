@@ -848,7 +848,7 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	versiondata += vals;
     }
 
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     const int startsourceidx = nrfixedcols + (nrfixedcols==sidcol ? 1 : 0);
     while ( data->next(pos,true) )
     {

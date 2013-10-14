@@ -27,7 +27,7 @@ public:
 				    , bidset_(BinIDValueSet(2,true))  
 				    {}
 
-    const TypeSet<BinIDValueSet::Pos>& positions() const { return  positions_; }
+    const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
     const TypeSet<float>& 	depths() const  	{ return depths_; }
     const BinIDValueSet& 	bidset() const		{ return bidset_; } 
 
@@ -39,7 +39,7 @@ public:
 protected:
 
     const Well::Data*		wd_;
-    TypeSet<BinIDValueSet::Pos> positions_;
+    TypeSet<BinIDValueSet::SPos> positions_;
     BinIDValueSet 		bidset_; 
     TypeSet<float>		depths_;
 };

@@ -1154,7 +1154,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
 
     const BinIDValueSet& vals = dpset->bivSet();
-    BinIDValueSet::Pos pos;
+    BinIDValueSet::SPos pos;
     while ( vals.next( pos ) )
     {
 	const float* ptr = vals.getVals( pos );

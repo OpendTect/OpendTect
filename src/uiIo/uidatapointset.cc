@@ -1641,7 +1641,7 @@ void uiDataPointSet::addColumn( CallBacker* )
     {
 	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
 	BinIDValueSet& bvs = dps_.bivSet();
-	BinIDValueSet::Pos pos;
+	BinIDValueSet::SPos pos;
 	TypeSet<int> colids = dlg.usedColIDs();
 	MathExpression* mathobj = dlg.mathObject();
 	if ( !mathobj ) return;

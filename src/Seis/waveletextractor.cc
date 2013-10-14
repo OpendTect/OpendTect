@@ -198,7 +198,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     BinID bid = trc.info().binid;
     float z1(mUdf(float)), z2(mUdf(float));
     BinID duplicatebid;
-    BinIDValueSet::Pos pos = bvis.findFirst( bid );
+    BinIDValueSet::SPos pos = bvis.find( bid );
     bvis.get( pos, bid, z1 );
 
     if ( !isbetweenhor_ )
@@ -206,7 +206,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     else
     {
 	bvis.next( pos );
-	bvis.get( pos, duplicatebid, z2 );
+	bvis.get( pos, duplicatebid, z2  );
 	if ( duplicatebid != bid || mIsUdf(z2) )
 	    return false;
     }
