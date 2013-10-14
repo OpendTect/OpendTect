@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
-#include "rcol2coord.h"
+#include "posidxpair2coord.h"
 #include "binidsorting.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -179,7 +179,7 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
     c[2] = llnstop.coord_;
     c[1] = usecbo.coord_;	b[1] = usecbo.binid_;
 
-    RCol2Coord b2c;
+    Pos::IdxPair2Coord b2c;
     if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl() ) )
 	return "The input data does not contain the required information\n"
 	    "to establish a relation between\nthe inline/crossline system\n"

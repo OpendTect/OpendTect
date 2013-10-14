@@ -176,7 +176,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 	mErrRet( "Can not read cube" )
 
     const CBVSInfo& info = tr_->readMgr()->info();
-    const RCol2Coord& b2c = tr_->getTransform();
+    const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const CBVSInfo::SurvGeom& geom = info.geom_;
     olddata_.cs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
     olddata_.cs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
@@ -225,7 +225,7 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 }
 
 
-float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const RCol2Coord& b2c, 
+float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c, 
 						 bool inldir, int step ) const
 {
     BinID orgbid = BinID( 0, 0 );
@@ -256,7 +256,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     const Coord& curcoord = SI().transform( data_.curbid_ );
     const StepInterval<int>& rowrg( olddata_.cs_.hrg.inlRange() );
     const StepInterval<int>& colrg( olddata_.cs_.hrg.crlRange() );
-    const RCol2Coord& b2c = tr_->getTransform();
+    const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const BinID& oldbid = b2c.transformBack( curcoord, &rowrg, &colrg );
     SeisTrc* outtrc = 0; 
     if ( interpol_ == Nearest || padfac_ <= 1 )

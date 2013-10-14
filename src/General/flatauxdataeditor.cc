@@ -227,11 +227,11 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 }
 
 
-#define mGetRCol2CoordTransform( trans, view, mousearea ) \
-    RCol2Coord trans; \
+#define mGetIdxPair2CoordTransform( trans, view, mousearea ) \
+    Pos::IdxPair2Coord trans; \
     trans.set3Pts( view.topLeft(), view.topRight(), view.bottomLeft(), \
-		   RowCol( mousearea.topLeft().x, mousearea.topLeft().y ), \
-		   RowCol( mousearea.topRight().x, mousearea.topRight().y ), \
+		   Pos::IdxPair( mousearea.topLeft().x, mousearea.topLeft().y ), \
+		   Pos::IdxPair( mousearea.topRight().x, mousearea.topRight().y ), \
 		   mousearea.bottomLeft().y );
 
 
@@ -241,7 +241,7 @@ void AuxDataEditor::getPointSelections(
 {
     ids.erase();
     idxs.erase();
-    mGetRCol2CoordTransform( polytrans, curview_, mousearea_ );
+    mGetIdxPair2CoordTransform( polytrans, curview_, mousearea_ );
 
     for ( int idx=0; idx<polygonsel.size(); idx++ )
     {
@@ -251,9 +251,9 @@ void AuxDataEditor::getPointSelections(
 	TypeSet<Geom::Point2D<int> > displayselpoly;
 	for ( int idy=0; idy<polygonsel[idx]->poly_.size(); idy++ )
 	{
-	    const RowCol& rc =
+	    const Pos::IdxPair& ip =
 		polytrans.transformBack(polygonsel[idx]->poly_[idy]);
-	    displayselpoly += Geom::Point2D<int>( rc.row(), rc.col() );
+	    displayselpoly += Geom::Point2D<int>( ip.row(), ip.col() );
 	}
 
 	ODPolygon<int> polygon( displayselpoly );
@@ -264,13 +264,13 @@ void AuxDataEditor::getPointSelections(
 
 	    const int auxdataid = ids_[idy];
 	    const Rect wr = getWorldRect( auxdataid );
-	    mGetRCol2CoordTransform( trans, wr, mousearea_ );
+	    mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
 	    for ( int idz=0; idz<auxdata_[idy]->poly_.size(); idz++ )
 	    {
-		const RowCol& rc =
+		const Pos::IdxPair& ip =
 		    trans.transformBack(auxdata_[idy]->poly_[idz]);
-		const Geom::Point2D<int> testpos( rc.row(), rc.col() );
+		const Geom::Point2D<int> testpos( ip.row(), ip.col() );
 
 		if ( !polygon.isInside( testpos, true, 1 ) )
 		    continue;
@@ -388,12 +388,12 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
     if ( seldatasetidx_!=-1 )
     {
 	const Rect wr = getWorldRect( ids_[seldatasetidx_] );
-	mGetRCol2CoordTransform( trans, wr, mousearea_ );
+	mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
 	selptcoord_ = selptidx_.size() && seldatasetidx_<auxdata_.size() &&
 		      selptidx_[0]<auxdata_[seldatasetidx_]->poly_.size()
 	    ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
-	    : (FlatView::Point) trans.transform(RowCol(ev.pos().x,ev.pos().y) );
+	    : (FlatView::Point) trans.transform(Pos::IdxPair(ev.pos().x,ev.pos().y) );
     }
 
     hasmoved_ = false;
@@ -436,9 +436,9 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( seldatasetidx_!=-1 && allowadd_[seldatasetidx_] )
 	{
 	    const Rect wr = getWorldRect(ids_[seldatasetidx_]);
-	    mGetRCol2CoordTransform( trans, wr, mousearea_ );
+	    mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
-	    selptcoord_ = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
+	    selptcoord_ = trans.transform( Pos::IdxPair(ev.pos().x,ev.pos().y) );
 	    movementFinished.trigger();
 	    mousehandler_.setHandled( true );
 	}
@@ -523,13 +523,13 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    return;
 
 	const Rect wr = getWorldRect(ids_[seldatasetidx_]);
-	mGetRCol2CoordTransform( trans, wr, mousearea_ );
+	mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
 	const Geom::Point2D<int> mousedisplaypos =
 	    mousearea_.moveInside(ev.pos());
 
 	selptcoord_ = trans.transform(
-		RowCol(mousedisplaypos.x,mousedisplaypos.y ) );
+		Pos::IdxPair(mousedisplaypos.x,mousedisplaypos.y ) );
 
 	if ( movementlimit_ )
 	    selptcoord_ = movementlimit_->moveInside( selptcoord_ );
@@ -558,21 +558,21 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     }
     else if ( addauxdataid_!=-1 )
     {
-	mGetRCol2CoordTransform( trans, curview_, mousearea_ );
+	mGetIdxPair2CoordTransform( trans, curview_, mousearea_ );
 
 	if ( (!hasmoved_ && !ev.shiftStatus()) || !polygonsel_.size() )
 	{
 	    AuxData* polysel = viewer_.createAuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
-	    //polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
+	    //polysel->poly_ += trans.transform( Pos::IdxPair(prevpt_.x,prevpt_.y) );
 	    polygonsel_ += polysel;
 	    viewer_.addAuxData( polysel );
 	}
 
 	const int polyidx = polygonsel_.size()-1;
 
-	const Point pt = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
+	const Point pt = trans.transform( Pos::IdxPair(ev.pos().x,ev.pos().y) );
 	if ( isselactive_ )
 	{
 
@@ -629,14 +629,14 @@ void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
 	    continue;
 
 	const Rect wr = getWorldRect( ids_[idx] );
-	mGetRCol2CoordTransform( transform, wr, mousearea_ );
+	mGetIdxPair2CoordTransform( transform, wr, mousearea_ );
 
 	const TypeSet<Point>& dataset = auxdata_[idx]->poly_;
 
 	for ( int idy=0; idy<dataset.size(); idy++ )
 	{
-	    const RowCol rc = transform.transformBack( dataset[idy] );
-	    const Geom::Point2D<int> displaypos( rc.row(), rc.col() );
+	    const Pos::IdxPair ip = transform.transformBack( dataset[idy] );
+	    const Geom::Point2D<int> displaypos( ip.row(), ip.col() );
 
 	    const int markeridx = mMIN(idy,nrmarkerstyles-1);
 
@@ -769,7 +769,7 @@ void Sower::intersow( bool yn )
 
 void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 {
-    mGetRCol2CoordTransform( trans, curview, mousearea );
+    mGetIdxPair2CoordTransform( trans, curview, mousearea );
     transformation_ = trans;
     mouserectangle_ = mousearea;
 }
@@ -865,8 +865,8 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	if ( sz && mouseevent.pos()==eventlist_[sz-1]->pos() )
 	    mReturnHandled( true );
 
-	const RowCol rc = RowCol( mouseevent.x(), mouseevent.y() );
-	const Point pt = transformation_.transform( rc );
+	const Pos::IdxPair ip = Pos::IdxPair( mouseevent.x(), mouseevent.y() );
+	const Point pt = transformation_.transform( ip );
 	sowingline_->poly_ += pt;
 	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker  
 	    sowingline_->poly_ += pt;		    // from one-point polyline

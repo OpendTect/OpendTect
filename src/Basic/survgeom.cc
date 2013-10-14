@@ -323,7 +323,7 @@ Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const
 	Coord norm2d = planenormal;
 	norm2d.normalize();
 	
-	if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
+	if ( fabs(norm2d.dot(SI().binID2Coord().inlDir())) > 0.5 )
 	    translation.x = inlDistance();
 	else
 	    translation.y = crlDistance();

@@ -679,7 +679,7 @@ bool uiSurveyInfoEditor::setCoords()
 
 bool uiSurveyInfoEditor::setRelation()
 {
-    RCol2Coord::RCTransform xtr, ytr;
+    Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.a = x0fld_->getdValue();   ytr.a = y0fld_->getdValue();
     xtr.b = xinlfld_->getdValue(); ytr.b = yinlfld_->getdValue();
     xtr.c = xcrlfld_->getdValue(); ytr.c = ycrlfld_->getdValue();

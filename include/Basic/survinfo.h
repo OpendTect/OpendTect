@@ -15,16 +15,15 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 #include "ranges.h"
-#include "rcol2coord.h"
 #include "enums.h"
 #include "zdomain.h"
 #include "refcount.h"
 #include "atomic.h"
 #include "cubesampling.h"
 #include "survgeom.h"
+#include "posidxpair2coord.h"
 
 class ascostream;
-class CubeSampling;
 class LatLong2Coord;
 
 
@@ -60,7 +59,7 @@ public:
 
     Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;
-    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
+    const Pos::IdxPair2Coord& binID2Coord() const	{ return b2c_; }
 
     float		inlDistance() const;
     float		crlDistance() const;
@@ -75,7 +74,7 @@ public:
 protected:
     
     BufferString	name_;
-    RCol2Coord		b2c_;
+    Pos::IdxPair2Coord	b2c_;
     
     CubeSampling	cs_; 
     ZDomain::Def	zdomain_;
@@ -228,7 +227,7 @@ protected:
     
     Survey::GeometryManager geometryman_;
 
-    RCol2Coord		b2c_;
+    Pos::IdxPair2Coord	b2c_;
     LatLong2Coord&	ll2c_;
     BinID		set3binids_[3];
     Coord		set3coords_[3];
@@ -241,8 +240,8 @@ protected:
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
 
-    void		setTr(RCol2Coord::RCTransform&,const char*);
-    void		putTr(const RCol2Coord::RCTransform&,
+    void		setTr(Pos::IdxPair2Coord::DirTransform&,const char*);
+    void		putTr(const Pos::IdxPair2Coord::DirTransform&,
 	    			ascostream&,const char*) const;
 
 private:
@@ -252,8 +251,8 @@ private:
     friend class		uiSurvey;
     friend class		uiSurveyInfoEditor;
 
-    RCol2Coord::RCTransform	rdxtr_;
-    RCol2Coord::RCTransform	rdytr_;
+    Pos::IdxPair2Coord::DirTransform rdxtr_;
+    Pos::IdxPair2Coord::DirTransform rdytr_;
 
 public:
 
@@ -262,7 +261,7 @@ public:
     void		setWorkRange(const CubeSampling&);
     Notifier<SurveyInfo> workRangeChg;
 
-    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
+    const Pos::IdxPair2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
     const LatLong2Coord& latlong2Coord() const	{ return ll2c_; }
     bool		isClockWise() const;
@@ -315,7 +314,7 @@ public:
     			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
 
-    RCol2Coord&		getBinID2Coord() const
+    Pos::IdxPair2Coord&	getBinID2Coord() const
     			{ return const_cast<SurveyInfo*>(this)->b2c_; }
     LatLong2Coord&	getLatlong2Coord() const
     			{ return const_cast<SurveyInfo*>(this)->ll2c_; }

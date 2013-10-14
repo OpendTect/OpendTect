@@ -45,7 +45,7 @@ public:
     virtual void	usePar(const IOPar&);
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
-    RCol2Coord		getTransform() const;
+    Pos::IdxPair2Coord	getTransform() const;
 
     virtual bool	implRemove(const IOObj*) const;
     virtual bool	implRename(const IOObj*,const char*,

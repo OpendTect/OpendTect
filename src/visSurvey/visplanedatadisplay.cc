@@ -366,8 +366,8 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 	return Coord3(0,0,1);
     
     return Coord3( orientation_==Inline
-		  ? inlcrlsystem_->binID2Coord().rowDir()
-		  : inlcrlsystem_->binID2Coord().colDir(), 0 );
+		  ? inlcrlsystem_->binID2Coord().inlDir()
+		  : inlcrlsystem_->binID2Coord().crlDir(), 0 );
 }
 
 

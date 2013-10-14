@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "mousecursor.h"
 #include "pickset.h"
-#include "rcol2coord.h"
+#include "posidxpair2coord.h"
 #include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -334,7 +334,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
 {
     const float azi = atan2( inldip, crldip );
 
-    const RCol2Coord& b2c = SI().binID2Coord();
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
     const double xcrl = b2c.getTransform(true).c;
     double ycrl = b2c.getTransform(false).c;
 

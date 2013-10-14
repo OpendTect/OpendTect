@@ -473,9 +473,9 @@ void ui3DViewerBody::viewPlaneZ()
 
 static void getInlCrlVec( osg::Vec3f& vec, bool inl )
 {
-    const RCol2Coord& b2c = SI().binID2Coord();
-    const RCol2Coord::RCTransform& xtr = b2c.getTransform(true);
-    const RCol2Coord::RCTransform& ytr = b2c.getTransform(false);
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
+    const Pos::IdxPair2Coord::DirTransform& xtr = b2c.getTransform(true);
+    const Pos::IdxPair2Coord::DirTransform& ytr = b2c.getTransform(false);
     const float det = xtr.det( ytr );
     if ( inl )
 	vec = osg::Vec3f( ytr.c/det, -xtr.c/det, 0 );
@@ -979,9 +979,9 @@ void uiSoViewerBody::viewPlaneZ()
 
 static void getInlCrlVec( SbVec3f& vec, bool inl )
 {
-    const RCol2Coord& b2c = SI().binID2Coord();
-    const RCol2Coord::RCTransform& xtr = b2c.getTransform(true);
-    const RCol2Coord::RCTransform& ytr = b2c.getTransform(false);
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
+    const Pos::IdxPair2Coord::DirTransform& xtr = b2c.getTransform(true);
+    const Pos::IdxPair2Coord::DirTransform& ytr = b2c.getTransform(false);
     const float det = xtr.det( ytr );
     if ( inl )
 	vec = SbVec3f( ytr.c/det, -xtr.c/det, 0 );

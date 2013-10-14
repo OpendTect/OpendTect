@@ -409,7 +409,7 @@ bool CBVSSeisTrcTranslator::skip( int nr )
 }
 
 
-RCol2Coord CBVSSeisTrcTranslator::getTransform() const
+Pos::IdxPair2Coord CBVSSeisTrcTranslator::getTransform() const
 {
     if ( !rdmgr_ || !rdmgr_->nrReaders() )
 	return SI().binID2Coord();

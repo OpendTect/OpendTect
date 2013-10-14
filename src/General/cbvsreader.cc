@@ -299,7 +299,7 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     if ( info_.geom_.step.crl() == 0 ) info_.geom_.step.crl() = 1;
 
     strm_.read( buf, 6*sizeof(double) );
-    RCol2Coord::RCTransform xtr, ytr;
+    Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.a = dinterp_.get( buf, 0 ); xtr.b = dinterp_.get( buf, 1 );
     xtr.c = dinterp_.get( buf, 2 ); ytr.a = dinterp_.get( buf, 3 );
     ytr.b = dinterp_.get( buf, 4 ); ytr.c = dinterp_.get( buf, 5 );

@@ -77,15 +77,15 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
     if ( oninl == oncrl )
 	return Coord3( Coord::udf(), 0 );
 
-    return oncrl>oninl ? Coord3( SI().binID2Coord().colDir(), 0 ) :
-			 Coord3( SI().binID2Coord().rowDir(), 0 );
+    return oncrl>oninl ? Coord3( SI().binID2Coord().inlDir(), 0 ) :
+			 Coord3( SI().binID2Coord().crlDir(), 0 );
 }
 
 
 bool FSStoFault3DConverter::FaultStick::pickedOnInl() const
 {
     return pickedonplane_ && normal_.isDefined() &&
-	   fabs(Coord(normal_).dot(SI().binID2Coord().rowDir()))>0.5;
+	   fabs(Coord(normal_).dot(SI().binID2Coord().inlDir()))>0.5;
 }
 
 
@@ -627,7 +627,7 @@ void FSStoFault3DConverter::resolveUdfNormals()
 	    }
 	}
 	if ( !normal.isDefined() )
-	    normal = Coord3( SI().binID2Coord().rowDir(), 0 );
+	    normal = Coord3( SI().binID2Coord().inlDir(), 0 );
     }	
 }
 

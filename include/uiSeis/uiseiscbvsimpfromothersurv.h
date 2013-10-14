@@ -25,10 +25,10 @@ class ArrayNDWindow;
 class CBVSSeisTrcTranslator;
 class CtxtIOObj;
 class IOObj;
-class RCol2Coord;
 class SeisTrc;
 class SeisTrcWriter;
 class SeisTrcInfo;
+namespace Pos { class IdxPair2Coord; }
 
 class uiGenInput;
 class uiLabeledSpinBox;
@@ -98,7 +98,7 @@ protected:
 
     bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;
     void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
-    float 		getInlXlnDist(const RCol2Coord&,bool,int) const;
+    float 		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };

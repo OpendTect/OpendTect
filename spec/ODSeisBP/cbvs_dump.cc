@@ -39,7 +39,7 @@ static bool provideInfo( CBVSSeisTrcTranslator& tr )
 }
 
 
-static void prBidCoord( std::ostream& strm, const RCol2Coord& b2c,
+static void prBidCoord( std::ostream& strm, const Pos::IdxPair2Coord& b2c,
 			const BinID& bid)
 {
     Coord coord = b2c.transform( bid );

@@ -134,7 +134,7 @@ MarkerStyle3D::Type Marker::getType() const
 
 static float getSurveyRotation()
 {
-    const RCol2Coord& b2c = SI().binID2Coord();
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
     const float xcrd = (float) b2c.getTransform(true).c;
     const float ycrd = (float) b2c.getTransform(false).c;
     const float angle = atan2( ycrd, xcrd );

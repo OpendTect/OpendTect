@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "zdomain.h"
 #include "keystrs.h"
+#include "posidxpair2coord.h"
 #include "od_istream.h"
 #include <math.h>
 
@@ -116,7 +117,7 @@ SurveyInfo::SurveyInfo()
 
     // To get a 'reasonable' transform even when no proper SI is yet defined
     // Then, DataPointSets need to work
-    RCol2Coord::RCTransform xtr, ytr;
+    Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
@@ -435,8 +436,8 @@ Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 	Coord norm2d = planenormal;
 	norm2d.normalize();
 
-	if ( fabs(norm2d.dot(SI().binID2Coord().rowDir())) > 0.5 )
-	   translation.x = inlDistance();
+	if ( fabs(norm2d.dot(SI().binID2Coord().inlDir())) > 0.5 )
+	    translation.x = inlDistance();
 	else
 	    translation.y = crlDistance();
     }
@@ -778,14 +779,14 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 }
 
 
-void SurveyInfo::setTr( RCol2Coord::RCTransform& tr, const char* str )
+void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& tr, const char* str )
 {
     FileMultiString fms( str );
     tr.a = toDouble(fms[0]); tr.b = toDouble(fms[1]); tr.c = toDouble(fms[2]);
 }
 
 
-void SurveyInfo::putTr( const RCol2Coord::RCTransform& tr,
+void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
 			  ascostream& astream, const char* key ) const
 {
     char buf[1024];

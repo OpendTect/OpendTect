@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "statrand.h"
 #include "survinfo.h"
-#include "rcol2coord.h"
 #include "tabledef.h"
 #include "tableascio.h"
 

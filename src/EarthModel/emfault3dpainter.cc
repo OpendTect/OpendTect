@@ -192,9 +192,9 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
     Coord3 editnormal( 0, 0, 1 );
 
     if ( cs_.defaultDir() == CubeSampling::Inl )
-	editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
+	editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
     else if ( cs_.defaultDir() == CubeSampling::Crl )
-	editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
+	editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
 
     const Coord3 nzednor = editnormal.normalize();
 
@@ -674,9 +674,9 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
 	nextbid = (*path_)[idx-1];
 
     if ( pivotbid.inl() == nextbid.inl() )
-	return  SI().binID2Coord().rowDir();
+	return  SI().binID2Coord().inlDir();
     else if ( pivotbid.crl() == nextbid.crl() )
-	return SI().binID2Coord().colDir();
+	return SI().binID2Coord().crlDir();
 
     return Coord(mUdf(float), mUdf(float));
 }

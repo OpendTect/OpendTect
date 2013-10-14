@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "generalmod.h"
 #include "posauxinfo.h"
-#include "rcol2coord.h"
+#include "posidxpair2coord.h"
 #include "basiccompinfo.h"
 #include "samplingdata.h"
 #include "posinfo.h"
@@ -49,7 +49,7 @@ public:
 
 	bool			fullyrectandreg;
 	BinID			start, stop, step;	//!< step can be < 0
-	RCol2Coord		b2c;
+	Pos::IdxPair2Coord	b2c;
 	PosInfo::SortedCubeData	cubedata;
 
 	void			merge(const SurvGeom&);

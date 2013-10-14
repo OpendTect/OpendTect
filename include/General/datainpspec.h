@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "keystrs.h"
 
-class RCol2Coord;
 
 /*!
 \brief Data type.

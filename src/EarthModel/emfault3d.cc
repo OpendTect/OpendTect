@@ -243,7 +243,7 @@ bool Fault3DGeometry::areSticksVertical( const SectionID& sid ) const
 bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
 {
     int nrcrls=0, nrnoncrls=0;
-    const Coord crldir = SI().binID2Coord().colDir().normalize();
+    const Coord crldir = SI().binID2Coord().crlDir().normalize();
     for ( int sidx=0; sidx<nrSections(); sidx++ )
     {	
 	const EM::SectionID sid = sectionID( sidx );
@@ -403,8 +403,8 @@ Coord3 getNormal( bool is2d ) const
     if ( ontms>oncrl && ontms>oninl && !is2d )
 	return Coord3( 0, 0, 1 );
 
-    return oncrl>oninl ? Coord3( SI().binID2Coord().colDir(), 0 )
-		       : Coord3( SI().binID2Coord().rowDir(), 0 );
+    return oncrl>oninl ? Coord3( SI().binID2Coord().crlDir(), 0 )
+		       : Coord3( SI().binID2Coord().inlDir(), 0 );
 }
 
 };

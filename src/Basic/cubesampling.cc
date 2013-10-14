@@ -495,9 +495,9 @@ CubeSampling::Dir CubeSampling::defaultDir() const
 void CubeSampling::getDefaultNormal( Coord3& ret ) const
 {
     if ( defaultDir() == Inl )
-	ret = Coord3( SI().binID2Coord().rowDir(), 0 );
+	ret = Coord3( SI().binID2Coord().inlDir(), 0 );
     else if ( defaultDir() == Crl )
-	ret = Coord3( SI().binID2Coord().colDir(), 0 );
+	ret = Coord3( SI().binID2Coord().crlDir(), 0 );
     else
 	ret = Coord3( 0, 0, 1 );
 } 

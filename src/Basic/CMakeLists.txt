@@ -66,7 +66,6 @@ set( OD_MODULE_SOURCES
 	    position.cc
 	    positionlist.cc
 	    progressmeter.cc
-	    rcol2coord.cc
 	    repos.cc
 	    rowcol.cc
 	    qptr.cc
