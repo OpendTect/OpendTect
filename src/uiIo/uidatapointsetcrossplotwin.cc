@@ -204,7 +204,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    plotter_.y1grpColors().add( coly1 );
 	    plotter_.y2grpColors().add( coly2 );
 	}
-
 	grpfld_->attach( rightOf, eachfld_ );
 	grpfld_->setCurrentItem( 0 );
 	grpfld_->selectionChanged.notify(
@@ -478,7 +477,6 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 	plotter_.setTRMsg( "Showing selected points in workspace" );
 	plotter_.calculateDensity( data, true );
     }
-
     uidps_.selPtsToBeShown.trigger();
 }
 
@@ -501,7 +499,6 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
     if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
 
     float newperc = eachfld_->getFValue();
-
     if ( plotter_.isADensityPlot() )
     {
 	if ( !mIsEqual(newperc,100,mDefEps) )
@@ -509,7 +506,6 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	    uiMSG().message( "Density Plot will always display all data" );
 	    eachfld_->setValue( (float)100 );
 	}
-
 	return;
     }
     
@@ -574,7 +570,6 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 {
     if ( !grpfld_ ) return;
-
     plotter_.curgrp_ = grpfld_->currentItem();
     plotter_.calcStats();
     plotter_.drawContent();
