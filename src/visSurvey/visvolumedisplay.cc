@@ -644,6 +644,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 
     if ( isosurfsettings_[idx].seedsaboveisoval_ )
     {
+	const float outsideval = 10000;
     	const float threshold = isosurfsettings_[idx].isovalue_;
     	float* newdata = newarr.getData();
     	if ( newdata )
