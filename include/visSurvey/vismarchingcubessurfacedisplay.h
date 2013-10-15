@@ -84,8 +84,6 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
 
-    bool			canRemoveSelection() const	{ return true; }    void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);    
     EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
 
 protected:
