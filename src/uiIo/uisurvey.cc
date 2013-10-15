@@ -907,6 +907,9 @@ bool uiSurveyNewDlg::isOK()
     }
 
     const int sipidx = sipfld_->currentItem();
+    if ( sipidx == sipfld_->size()-1 )
+	return true; // Manual selection.
+
     if ( !sips_.validIdx(sipidx) )
     {
 	pErrMsg( "Cannot use this geometry provider method" );
