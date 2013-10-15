@@ -62,6 +62,8 @@ public:
 
     void		addSeed(int,int,int);
     bool		isAboveIsovalue() const { return aboveisovalue_; }
+    			/*<Only when use input value. */
+
     int			maxNrThreads() const 	{ return compartments_.size(); }
     od_int64		nrIterations() const{return input_.info().getTotalSz();}
    
@@ -186,11 +188,7 @@ int Array3DFloodfill<T>::getWorkCompartment( int x0, int x1, int x2 ) const
 template <class T> inline
 void Array3DFloodfill<T>::setOutsideValue( T val )
 {
-    if ( mIsUdf(val) )
-	outsideval_ = val;
-    else
-    	outsideval_ = aboveisovalue_ ? val : -val;
-
+    outsideval_ = val;
     output_.setAll( outsideval_ );
 }
 
@@ -233,8 +231,8 @@ void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
 
     const T inputval = input_.get( x0, x1, x2 );
 
-    if ( (aboveisovalue_ && inputval<=threshold_) || 
-	 (!aboveisovalue_ && inputval>=threshold_) )
+    if ( (aboveisovalue_ && inputval<threshold_) || 
+	 (!aboveisovalue_ && inputval>threshold_) )
     {
 	output_.set( x0, x1, x2, useinputval_ ? inputval : outsideval_ );
 	compartments_[cellidx]->lock_.writeUnLock();
