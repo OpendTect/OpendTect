@@ -660,7 +660,7 @@ float SurveyInfo::zScale() const
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
-    static StepInterval<int> inlrg, crlrg;
+    StepInterval<int> inlrg, crlrg;
     cs_.hrg.get( inlrg, crlrg );
     return inlrg.width(false) < 1 || crlrg.width(false) < 1
 	   ? BinID(0,0)
