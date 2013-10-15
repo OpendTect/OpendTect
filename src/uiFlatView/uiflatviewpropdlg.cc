@@ -898,6 +898,7 @@ void uiFlatViewPropDlg::doApply( CallBacker* cb )
 
 bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 {
+    putAllToScreen();
     vwr_.useAppearancePar( initialpar_ );
     return true;
 }
