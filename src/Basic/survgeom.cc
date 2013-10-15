@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Survey;
 
+static Pos::GeomID cSIGeomID = -1;
+
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
@@ -95,17 +97,35 @@ GeometryManager::~GeometryManager()
 }
 
 
+void GeometryManager::ensureSIPresent() const
+{
+    if ( geometries_.isEmpty() )
+    {
+	RefMan<InlCrlSystem> rm = SI().get3DGeometry( false );
+	InlCrlSystem* survicsys = rm.ptr();
+	rm.set( 0, false );
+	survicsys->setID( cSIGeomID );
+	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
+    }
+}
+
+
 TrcKey::SurvID GeometryManager::default3DSurvID() const
 {
+    ensureSIPresent();
+
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( !geometries_[idx]->is2D() )
 	    return geometries_[idx]->getID();
+
     return cUndefGeomID();
 }
 
 
 const Geometry* GeometryManager::getGeometry( Geometry::ID geomid ) const
 {
+    ensureSIPresent();
+
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
 	    return geometries_[idx];
@@ -133,6 +153,8 @@ Geometry::ID GeometryManager::getGeomID( const TrcKey& tk ) const
 
 Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 {
+    ensureSIPresent();
+
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -282,12 +304,15 @@ void GeometryManager::removeGeometry( Geometry::ID geomid )
 
 int GeometryManager::indexOf( Geometry::ID geomid ) const
 {
+    ensureSIPresent();
+
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
 	    return idx;
 
     return -1;
 }
+
 
 bool GeometryManager::fillGeometries( TaskRunner* tr )
 {
@@ -300,14 +325,14 @@ bool GeometryManager::fillGeometries( TaskRunner* tr )
 
 BinID InlCrlSystem::transform( const Coord& c ) const
 {
-    StepInterval<Pos::LineID> inlrg; StepInterval<Pos::TraceID> crlrg;
-    cs_.hrg.get( inlrg, crlrg );
-    return b2c_.transformBack( c, &inlrg, &crlrg );
+    return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
 }
 
 
 Coord InlCrlSystem::transform( const BinID& b ) const
-{ return b2c_.transform(b); }
+{
+    return b2c_.transform(b);
+}
 
 
 Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const

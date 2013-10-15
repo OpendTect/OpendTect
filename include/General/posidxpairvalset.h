@@ -195,11 +195,11 @@ public:
     void		usePar(const IOPar&,const char* key);
 
     			// Fast
-    bool		getFrom(od_istream&);
-				//!< re-structures but keeps allowdup_
+    bool		getFrom(od_istream&,Pos::GeomID=mUdf(Pos::GeomID));
+				//!< detects/converts coords if geomid passed
     bool		putTo(od_ostream&) const;
-    bool		includes(const DataRow&) const;
 
+    bool		includes(const DataRow&) const;
     int			nrPos(int lineidx) const; //!< nth line in the set
     inline float*	getVals( const SPos& pos )
 			{ return valsets_[pos.i]->arr() + nrvals_*pos.j; }

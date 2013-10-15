@@ -27,6 +27,8 @@ mExpClass(Basic) IdxPair2Coord
 {
 public:
 
+    typedef IdxPair::IdxType IdxType;
+
 			IdxPair2Coord()		{}
 
     bool		isValid() const		{ return xtr.valid(ytr); }
@@ -34,20 +36,18 @@ public:
     Coord		secondDir() const	{ return Coord(xtr.c,ytr.c); }
 
     Coord		transform(const IdxPair&) const;
-    BinID		transformBack(const Coord&,
-	    			  const StepInterval<int>* inlrg=0,
-	    			  const StepInterval<int>* crlrg=0 ) const;
-			    /*!< Transforms Coord to IdxPair. If the ranges are
-				 given, they are only used for snapping: the
-				 actual range is not used */
+    IdxPair		transformBack(const Coord&) const;
+			    /*!< Transforms Coord to nearest IdxPair.  */
+    IdxPair		transformBack(const Coord&,const IdxPair& start,
+	    				const IdxPairStep&) const;
+			    /*!< Transforms Coord to IdxPair, with snap.  */
 
     Coord		transformBackNoSnap(const Coord&) const;
-			    /*!< transforms back, but does not snap. The 
-				 row is stored in the x-component, and the
-				 col is stored in the y-component. */
+			    /*!< transforms back, but doesn't go to int domain.
+				 first == X, second == Y. */
     Coord		transform(const Coord& rc) const;
-			    /*!< transforms a non-integer IdxPair stored in a coord. */
-
+			    /*!< transforms a non-integer IdxPair
+				 first == X, second == Y. */
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
 	    			const IdxPair& rc0,const IdxPair& rc1,

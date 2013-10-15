@@ -27,9 +27,9 @@ public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
     HorSampling&	set(const Interval<int>& inlrg,
 	    		    const Interval<int>& crlrg);
-    			//!< steps copied if available
+			    //!< steps copied if available
     void		get(Interval<int>& inlrg,Interval<int>& crlrg) const;
-    			//!< steps filled if available
+			    //!< steps filled if available
 			
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
@@ -58,8 +58,8 @@ public:
     bool		isDefined() const;
     void		limitTo(const HorSampling&);
     void		limitToWithUdf(const HorSampling&);
-    			/*!< handles undef values +returns reference horsampling
-			     nearest limit if horsamplings do not intersect */
+			    /*!< handles undef values +returns reference HS
+				 nearest limit if HS's do not intersect */
 
     inline int		inlIdx( int inl ) const
 			{ return step.inl() ? (inl-start.inl()) / step.inl() 
@@ -80,19 +80,22 @@ public:
     inline bool		isEmpty() const { return nrInl() < 1 || nrCrl() < 1; }
 
     void		init(bool settoSI=true);
-    			//!< Sets to survey values or mUdf(int) (but step 1)
+			    //!< Sets to survey values or mUdf(int) (but step 1)
     void		set2DDef();
-    			//!< Sets ranges to 0-maxint
+			    //!< Sets ranges to 0-maxint
     void		normalise();
-    			//!< Makes sure start<stop and steps are non-zero
+			    //!< Makes sure start<stop and steps are non-zero
     void		getRandomSet(int nr,TypeSet<BinID>&) const;
 
     bool		getInterSection(const HorSampling&,HorSampling&) const;
-    			//!< Returns false if intersection is empty
+			    //!< Returns false if intersection is empty
 
+    BinID		getNearest(const BinID&) const;
+			    /*!< step-snap and outside -> edge.
+				Assumes inldist == crldist */
     void		snapToSurvey();
-    			/*!< Checks if it is on valid bids. If not, it will
-			     expand until it is */
+			    /*!< Checks if it is on valid bids. If not, it will
+				 expand until it is */
 
     bool		operator==( const HorSampling& hs ) const
 			{ return hs.start==start && hs.stop==stop 

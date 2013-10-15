@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include <math.h>
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
@@ -103,7 +104,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	{
 	    od_istream strm( res );
 	    if ( strm.isOK() )
-		bvs.getFrom( strm );
+		bvs.getFrom( strm, Survey::GM().default3DSurvID() );
 	    strm.close();
 	    if ( !bvs.isEmpty() )
 	    {

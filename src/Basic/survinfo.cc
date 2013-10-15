@@ -51,11 +51,30 @@ DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 
 
 Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
-{ return transform( BinID(linenr,tracenr) ); }
+{
+    return transform( BinID(linenr,tracenr) );
+}
 
 
-TrcKey	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
-{ return TrcKey( getID(), transform(crd) ); }
+TrcKey InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
+{
+    TrcKey tk = TrcKey( getID(), transform(crd) );
+    if ( dist )
+    {
+	if ( cs_.hrg.includes(tk.pos()) )
+	{
+	    const Coord projcoord( transform(tk.pos()) );
+	    *dist = projcoord.distTo( crd );
+	}
+	else
+	{
+	    BinID nearbid( cs_.hrg.getNearest(tk.pos()) );
+	    const Coord nearcoord( transform(nearbid) );
+	    *dist = nearcoord.distTo( crd );
+	}
+    }
+    return tk;
+}
 
 
 bool InlCrlSystem::includes( int line, int tracenr ) const
@@ -643,16 +662,14 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 
 
 float SurveyInfo::zScale() const
-{ return defaultXYtoZScale( zUnit(), xyUnit() ); }
+{
+    return defaultXYtoZScale( zUnit(), xyUnit() );
+}
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
-    static StepInterval<int> inlrg, crlrg;
-    cs_.hrg.get( inlrg, crlrg );
-    return inlrg.width(false) < 1 || crlrg.width(false) < 1
-	   ? BinID(0,0)
-	   : b2c_.transformBack( c, &inlrg, &crlrg );
+    return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
 }
 
 

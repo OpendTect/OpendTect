@@ -400,6 +400,25 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 }
 
 
+BinID HorSampling::getNearest( const BinID& bid ) const
+{
+    BinID ret( bid );
+    if ( step.first )
+	ret.first -= ret.first % step.first;
+    if ( step.second )
+	ret.second -= ret.second % step.second;
+    if ( ret.first < start.first )
+	ret.first = start.first;
+    else if ( ret.first > stop.first )
+	ret.first = stop.first;
+    if ( ret.second < start.second )
+	ret.second = start.second;
+    else if ( ret.second > stop.second )
+	ret.second = stop.second;
+    return ret;
+}
+
+
 void HorSampling::snapToSurvey()
 {
     SI().snap( start, BinID(-1,-1) );

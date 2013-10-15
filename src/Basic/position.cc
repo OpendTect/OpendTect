@@ -376,19 +376,35 @@ Coord Pos::IdxPair2Coord::transform( const Pos::IdxPair& ip ) const
 }
 
 
-BinID Pos::IdxPair2Coord::transformBack( const Coord& coord,
-				  const StepInterval<int>* rowrg,
-				  const StepInterval<int>* colrg) const
+Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord ) const
 {
     if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
 	return Pos::IdxPair::udf();
-
-    const Coord res = transformBackNoSnap( coord );
-    if ( mIsUdf(res.x) || mIsUdf(res.y) )
+    const Coord fip = transformBackNoSnap( coord );
+    if ( mIsUdf(fip.x) || mIsUdf(fip.y) )
 	return Pos::IdxPair::udf();
 
-    return BinID(rowrg ? rowrg->snap(res.x) : mNINT32(res.x),
-	    	  colrg ? colrg->snap(res.y) : mNINT32(res.y));
+    return IdxPair( mRounded(IdxType,fip.x), mRounded(IdxType,fip.y) );
+}
+
+
+Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
+			const IdxPair& start, const IdxPairStep& step ) const
+{
+    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
+	return Pos::IdxPair::udf();
+    const Coord fip = transformBackNoSnap( coord );
+    if ( mIsUdf(fip.x) || mIsUdf(fip.y) )
+	return Pos::IdxPair::udf();
+
+    Coord frelip( fip.x - start.first, fip.y - start.second );
+    if ( step.first && step.second )
+	{ frelip.x /= step.first; frelip.y /= step.second; }
+
+    const IdxPair relip( mRounded(IdxType,frelip.x),
+	    		 mRounded(IdxType,frelip.y) );
+    return IdxPair( start.first + relip.first * step.first,
+		    start.second + relip.second * step.second );
 }
 
 

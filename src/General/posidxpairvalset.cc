@@ -15,8 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "strmoper.h"
 #include "statrand.h"
+#include "survgeom.h"
 #include "varlenarray.h"
 #include "od_iostream.h"
+
+static const float cMaxDistFromGeom = 1000.f;
 
 
 static inline void setToUdf( float* arr, int nvals )
@@ -174,15 +177,16 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
 }
 
 
-bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
+bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 {
     setEmpty();
     if ( !setNrVals( 0, false ) )
 	return false;
 
     BufferString line; char valbuf[1024];
-    IdxPair ip;
-    bool first_time = true;
+    const Survey::Geometry* survgeom = Survey::GM().getGeometry( gid );
+    int coordindic = -1;
+
     while ( strm.getLine( line ) )
     {
 	char* firstchar = line.buf();
@@ -198,14 +202,18 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );
-	ip.first = toInt( valbuf );
+	Coord coord;
+	coord.x = toDouble( valbuf );
 	mSkipBlanks( nextword ); if ( !*nextword ) continue;
 	nextword = getNextWord( nextword, valbuf );
-	ip.second = toInt( valbuf );
+	coord.y = toInt( valbuf );
 
-	if ( first_time )
+	if ( coordindic < 0 )
 	{
-	    first_time = false;
+	    float dist = mUdf(float);
+	    if ( survgeom )
+		(void)survgeom->nearestTrace( coord, &dist );
+
 	    const char* firstval = nextword;
 	    int nrvalsfound = 0;
 	    while ( true )
@@ -216,9 +224,19 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm )
 	    }
 	    setNrVals( nrvalsfound, false );
 	    nextword = firstval;
+	    coordindic = dist < cMaxDistFromGeom ? 1 : 0;
 	}
 
-	float* vals = getVals( add(ip) );
+	TrcKey tk;
+	if ( coordindic == 1 )
+	    tk = survgeom->nearestTrace( coord );
+	else
+	{
+	    tk.lineNr() = (Pos::LineID)(coord.x + 0.5);
+	    tk.trcNr() = (Pos::TraceID)(coord.y + 0.5);
+	}
+
+	float* vals = getVals( add(tk.pos()) );
 	if ( !vals ) continue;
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{

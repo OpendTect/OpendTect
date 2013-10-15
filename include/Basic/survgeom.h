@@ -59,7 +59,7 @@ public:
     inline bool		includes( const BinID& b ) const
 			{ return includes( b.lineNr(), b.trcNr() ); }
 
-    virtual TrcKey	nearestTrace(const Coord&,float* distance) const = 0;
+    virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
 				//!<returns undef if no trace found
 
@@ -115,6 +115,7 @@ public:
 
 protected:
 
+    void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
     bool			hasDuplicateLineNames();
 
