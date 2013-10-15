@@ -252,11 +252,11 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     if ( !tr_ || !tr_->readMgr() ) 
 	return Executor::ErrorOccurred();
 
-    const Coord& curcoord = SI().transform( data_.curbid_ );
-    const StepInterval<int>& rowrg( olddata_.cs_.hrg.inlRange() );
-    const StepInterval<int>& colrg( olddata_.cs_.hrg.crlRange() );
+    const Coord curcoord = SI().transform( data_.curbid_ );
+    const StepInterval<int> rowrg( olddata_.cs_.hrg.inlRange() );
+    const StepInterval<int> colrg( olddata_.cs_.hrg.crlRange() );
     const RCol2Coord& b2c = tr_->getTransform();
-    const BinID& oldbid = b2c.transformBack( curcoord, &rowrg, &colrg );
+    const BinID oldbid = b2c.transformBack( curcoord, &rowrg, &colrg );
     SeisTrc* outtrc = 0; 
     if ( interpol_ == Nearest || padfac_ <= 1 )
     {
