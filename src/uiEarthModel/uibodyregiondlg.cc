@@ -832,8 +832,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     CubeSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
-    cs.hrg.start.inl() -= cs.hrg.step.inl(); cs.hrg.stop.inl() += cs.hrg.step.inl();
-    cs.hrg.start.crl() -= cs.hrg.step.crl(); cs.hrg.stop.crl() += cs.hrg.step.crl();
+    cs.hrg.start.inl() -= cs.hrg.step.inl(); 
+    cs.hrg.stop.inl() += cs.hrg.step.inl();
+    cs.hrg.start.crl() -= cs.hrg.step.crl(); 
+    cs.hrg.stop.crl() += cs.hrg.step.crl();
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
@@ -864,8 +866,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 	new EM::MarchingCubesSurface(EM::EMM());
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
-    emcs->setInlSampling(SamplingData<int>(cs.hrg.start.inl(),cs.hrg.step.inl()));
-    emcs->setCrlSampling(SamplingData<int>(cs.hrg.start.crl(),cs.hrg.step.crl()));
+    emcs->setInlSampling(
+	    SamplingData<int>(cs.hrg.start.inl(),cs.hrg.step.inl()));
+    emcs->setCrlSampling(
+	    SamplingData<int>(cs.hrg.start.crl(),cs.hrg.step.crl()));
     emcs->setZSampling(SamplingData<float>(cs.zrg.start,cs.zrg.step));
 
     emcs->setMultiID( outputfld_->key() );
