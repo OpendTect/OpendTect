@@ -14,16 +14,14 @@ ________________________________________________________________________
 
 # ifdef do_import_export
 
-/* This makes matters worse, howwwwww do I get it right ...
-
 #  include "posidxpairvalue.h"
 #  include "binid.h"
+#  include "geometry.h"
 
-mExportTemplClassInst( Basic ) ValueIdxPair<BinID,float>;
-mExportTemplClassInst( Basic ) IdxPairValues<BinID,float>;
-
-*/
-
+mExportTemplClassInst( Basic ) Pos::ValueIdxPair<BinID,float>;
+mExportTemplClassInst( Basic ) Pos::IdxPairValues<BinID,float>;
+mExportTemplClassInst( Basic ) Pos::IdxPairValues<Pos::IdxPair,float>;
+mExportTemplClassInst( Basic ) Geom::Point2D<double>;
 
 # endif
 #endif

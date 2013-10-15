@@ -11,12 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "moddepmgr.h"
+#include "coord.h"
 #include "uivelocitygridder.h"
 #include "uivolproclateralsmoother.h"
 #include "uivolprocbodyfiller.h"
 #include "uivolprocsmoother.h"
 #include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
+
 
 
 mDefModInitFn(uiVolumeProcessing)

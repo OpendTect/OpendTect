@@ -28,7 +28,7 @@ Can be used as a BinID, also contains a val().
 
 */
 
-mClass(Basic) BinIDValue : public BinIDValueIdxPair
+mExpClass(Basic) BinIDValue : public BinIDValueIdxPair
 {
 public:
 
