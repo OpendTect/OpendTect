@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
 #include "plfdefs.h"
 #include "rounding.h"
 

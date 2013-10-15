@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "commondefs.h"
+#include "basicmod.h"
 
 class NotifierAccess;
 class i_QPtrImpl;
