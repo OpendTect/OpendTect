@@ -621,7 +621,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     const Array3D<float>& data = cache_->getCube(0);
     if ( !data.isOK() )
 	return false;
-    
+   
     Array3DImpl<float> newarr( data.info() );
     Array3DFloodfill<float> ff( data, isosurfsettings_[idx].isovalue_,
 	    isosurfsettings_[idx].seedsaboveisoval_, newarr );    
@@ -642,8 +642,33 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     if ( !ff.execute() )
 	return false;
 
+    if ( isosurfsettings_[idx].seedsaboveisoval_ )
+    {
+    	const float threshold = isosurfsettings_[idx].isovalue_;
+    	float* newdata = newarr.getData();
+    	if ( newdata )
+    	{
+	    for ( int idy=0; idy<newarr.info().getTotalSz(); idy++ )
+		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval 
+		    				    : threshold - newdata[idy];
+	}
+    	else
+    	{
+    	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
+    		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
+    		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
+		    {
+			float val = newarr.get(id0,idy,idz);
+			val = mIsUdf(val) ? 10000 : threshold-val;
+			newarr.set( id0, idy, idz, val );
+		    }
+    	}
+    }
+
+    const float threshold = isosurfsettings_[idx].seedsaboveisoval_ ? 0 :
+	isosurfsettings_[idx].isovalue_;
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
-	    isosurfsettings_[idx].isovalue_, tr );
+	    threshold, tr );
     return true;
 }
 
@@ -671,8 +696,32 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		SamplingData<float>((float) (cache_->z0_*cache_->zstep_),
 					    (float) (cache_->zstep_) ) );
 	if ( isosurfsettings_[idx].mode_ )
-    	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );
+	{
+	    const Array3D<float>& arr = cache_->getCube(0);
+	    if ( !arr.isOK() )	return;
+
+	    const int size = arr.info().getTotalSz();
+	    PtrMan< Array3D<float> > newarr = 
+		new Array3DImpl<float>(arr.info());
+	    const float threshold = isosurfsettings_[idx].isovalue_;
+	    const float* data = arr.getData();
+	    if ( data )
+	    {
+		float* newdata = newarr->getData();
+		for ( int idy=0; idy<size; idy++ )
+		    newdata[idy] = threshold - data[idy];
+	    }
+	    else
+	    {
+		for ( int id0=0; id0<arr.info().getSize(0); id0++ )
+		    for ( int idy=0; idy<arr.info().getSize(1); idy++ )
+			for ( int idz=0; idz<arr.info().getSize(2); idz++ )
+			    newarr->set( id0, idy, idz,
+				         threshold - arr.get(id0,idy,idz) );
+	    }
+
+	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
+	}
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
