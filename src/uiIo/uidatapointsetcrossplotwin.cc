@@ -624,7 +624,6 @@ void uiDataPointSetCrossPlotWin::manageSel( CallBacker* )
 void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 {
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
-
     uiDPSOverlayPropDlg dlg( this, plotter_ );
     dlg.go();
 }
@@ -633,11 +632,10 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
     if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
-
-    if ( !propdlg_ )  
+    if ( !propdlg_ )
 	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
-
     propdlg_->show();
+    propdlg_->raise();
 }
 
 
