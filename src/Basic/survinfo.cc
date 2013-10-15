@@ -64,13 +64,13 @@ TrcKey InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
 	if ( cs_.hrg.includes(tk.pos()) )
 	{
 	    const Coord projcoord( transform(tk.pos()) );
-	    *dist = projcoord.distTo( crd );
+	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
 	    BinID nearbid( cs_.hrg.getNearest(tk.pos()) );
 	    const Coord nearcoord( transform(nearbid) );
-	    *dist = nearcoord.distTo( crd );
+	    *dist = (float)nearcoord.distTo( crd );
 	}
     }
     return tk;
