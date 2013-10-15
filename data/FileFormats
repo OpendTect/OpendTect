@@ -366,6 +366,70 @@ Body.Selection.Z: P`-1/2
 Body.MD.Unit: Feet
 Group: WellTrack
 !
+Well track from Petrel (m)
+Header.Size: 16
+Header.Token: -1`
+Body.Position.Form: X Y
+Body.Selection.Position: P`-1/1`P`-1/2
+Body.Z.Unit: -Meter
+Body.Selection.Z: P`-1/3
+Body.MD.Unit: Meter
+Group: WellTrack
+!
+Well track from Petrel (ft)
+Header.Size: 16
+Header.Token: -1`
+Body.Position.Form: X Y
+Body.Selection.Position: P`-1/1`P`-1/2
+Body.Z.Unit: -Feet
+Body.Selection.Z: P`-1/3
+Body.MD.Unit: Feet
+Group: WellTrack
+!
+Multi-track from Petrel well tops v2 (m)
+Header.Size: -1
+Header.Token: -1`END
+Body.Selection.Well name: P`-1/8
+Body.Position.Form: X Y
+Body.Selection.Position: P`-1/0`P`-1/1
+Body.Z.Unit: -Meter
+Body.Selection.Z: P`-1/2
+Body.Selection.MD: P`-1/5
+Body.MD.Unit: Meter
+Group: BulkWellTrack
+!
+Multi-track from Petrel well tops v2 (ft)
+Header.Size: -1
+Header.Token: -1`END
+Body.Selection.Well name: P`-1/8
+Body.Position.Form: X Y
+Body.Selection.Position: P`-1/0`P`-1/1
+Body.Z.Unit: -Feet
+Body.Selection.Z: P`-1/2
+Body.Selection.MD: P`-1/5
+Body.MD.Unit: Feet
+Group: BulkWellTrack
+!
+Multi marker set from Petrel well tops v2 (m)
+Header.Size: -1
+Header.Token: -1`END
+Body.Depth.Form: MD
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/5
+Body.Selection.Well name: P`-1/8
+Body.Selection.Marker name: P`-1/7
+Group: BulkWellMarkers
+!
+Multi marker set from Petrel well tops v2 (ft)
+Header.Size: -1
+Header.Token: -1`END
+Body.Depth.Form: MD
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/5
+Body.Selection.Well name: P`-1/8
+Body.Selection.Marker name: P`-1/7
+Group: BulkWellMarkers
+!
 TrcNr X Y
 Header.Size: 0
 Header.Token: -1`
