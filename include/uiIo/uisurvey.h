@@ -102,7 +102,7 @@ protected:
     void		updateSurvList();
     void		putToScreen();
     bool		writeSettingsSurveyFile();
-    bool		writeSurvInfoFile(bool chcknotesonly);
+    bool		writeSurvInfoFileIfCommentChanged();
     bool		rootDirWritable() const;
     bool		doSurvInfoDialog(bool isnew);
     void		updateDataRootInSettings();

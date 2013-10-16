@@ -254,6 +254,9 @@ private:
     Pos::IdxPair2Coord::DirTransform rdxtr_;
     Pos::IdxPair2Coord::DirTransform rdytr_;
 
+    				// For IOMan only
+    static void			setSurveyName(const char*);
+
 public:
 
 	// These fns are rarely used by non-specialist classes.
@@ -349,9 +352,6 @@ mGlobal(Basic) inline SurveyInfo& eSI()
 			{ return const_cast<SurveyInfo&>(SI()); }
 
 mExternC( Basic ) const char* GetSurveyFileName(void);
-mExternC( Basic ) int SurveyNameDirty(void);
-mExternC( Basic ) void SetSurveyNameDirty(void);
-mExternC( Basic ) void SetSurveyName(const char*);
 mExternC( Basic ) const char* GetSurveyName(void);
 
 

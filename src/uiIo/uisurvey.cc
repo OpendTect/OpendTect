@@ -275,12 +275,6 @@ uiStartNewSurveySetup::uiStartNewSurveySetup( uiParent* p,
 
 bool uiStartNewSurveySetup::isOK()
 {
-    if ( !survnmfld_ || !pol2dfld_ || !sipfld_ || !zdomainfld_ )
-    {
-	pErrMsg( "New survey dialog is missing a field" );
-	return false;
-    }
-
     BufferString survnm = survName();
     if ( survnm.isEmpty() )
     	mErrRet( "Please enter a new survey name" )
@@ -612,11 +606,11 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( samedataroot && samesurvey && !parschanged_ )
 	return true;
 
-    // Step 1: write Surv/.survey file
-    if ( !writeSurvInfoFile(false) )
+    // Step 1: write local changes
+    if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(0)
 
-    // Step 2: write .od/survey file
+    // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
 	return false;
 
@@ -624,7 +618,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( !samedataroot )
 	updateDataRootInSettings();
 
-    // Step 4: Make the changes effective
+    // Step 4: Do the IOMan changes necessary
     if ( samesurvey )
 	IOM().surveyParsChanged();
     else
@@ -638,8 +632,6 @@ bool uiSurvey::acceptOK( CallBacker* )
 		uiMSG().error( IOM().message() );
 	    return false;
 	}
-
-	SetSurveyName( selsurv );
     }
 
     // Step 5: start importing if possible
@@ -990,7 +982,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 
 void uiSurvey::selChange( CallBacker* )
 {
-    writeSurvInfoFile( true );
+    writeSurvInfoFileIfCommentChanged();
     readSurvInfoFromFile();
     putToScreen();
 }
@@ -1078,9 +1070,9 @@ void uiSurvey::putToScreen()
 }
 
 
-bool uiSurvey::writeSurvInfoFile( bool chknotes )
+bool uiSurvey::writeSurvInfoFileIfCommentChanged()
 {
-    if ( !cursurvinfo_ || (chknotes && !notes_->isModified()) )
+    if ( !cursurvinfo_ || !notes_->isModified() )
 	return true;
 
     cursurvinfo_->setComment( notes_->text() );

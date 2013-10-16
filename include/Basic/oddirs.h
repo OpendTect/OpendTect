@@ -162,7 +162,7 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 mGlobal(Basic) const char* GetScriptsDir(const char*);
 
 
-}
+} // extern "C"
 
 #endif
 

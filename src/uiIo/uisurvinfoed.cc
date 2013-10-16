@@ -597,7 +597,8 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     si_.dirname_ = newdirnm;
     si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
     if ( mUseAdvanced() )
-	si_.get3Pts( si_.set3coords_, si_.set3binids_, si_.set3binids_[2].crl() );
+	si_.get3Pts( si_.set3coords_, si_.set3binids_,
+			si_.set3binids_[2].crl() );
 
     if ( !si_.write(rootdir_) )
     {

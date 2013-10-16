@@ -249,13 +249,15 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
 {
     mDestroyInst( true );
 
-    if ( newsi )
+    SurveyInfo::deleteInstance();
+    if ( !newsi )
+	SurveyInfo::setSurveyName( "" );
+    else
     {
-	SurveyInfo::deleteInstance();
+	SurveyInfo::setSurveyName( newsi->getDirName() );
 	SurveyInfo::pushSI( newsi );
     }
 
-    SetSurveyNameDirty();
     mFinishNewInst( true );
     return !IOM().bad();
 }
@@ -266,7 +268,8 @@ bool IOMan::setSurvey( const char* survname )
     mDestroyInst( true );
 
     SurveyInfo::deleteInstance();
-    SetSurveyName( survname );
+    SurveyInfo::setSurveyName( survname );
+
     mFinishNewInst( true );
     return !IOM().bad();
 }
@@ -369,8 +372,8 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	errmsg += "Please remove this file";
 	return false;
     }
-    else
-        SetSurveyNameDirty();
+
+    SurveyInfo::setSurveyName( "" );
 
     mDestroyInst( false );
     mFinishNewInst( false );
