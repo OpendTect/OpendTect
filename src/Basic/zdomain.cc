@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+const char* rcsID mUsedVar = "$Id$";
 
 #include "zdomain.h"
 #include "survinfo.h"
@@ -20,14 +20,20 @@ const char* ZDomain::sKey()		{ return "ZDomain"; }
 const char* ZDomain::sKeyTime()		{ return "TWT"; }
 const char* ZDomain::sKeyDepth()	{ return "Depth"; }
 
-static ObjectSet<ZDomain::Def>& DEFS()
+ObjectSet<ZDomain::Def>& DEFS()
 {
-    static PtrMan<ManagedObjectSet<ZDomain::Def> > defs = 0;
+    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<ZDomain::Def> >,
+                              defs, (0) );
+
     if ( !defs )
     {
-	defs = new ManagedObjectSet<ZDomain::Def>;
-	*defs += new ZDomain::Def( ZDomain::sKeyTime(), "Time", "ms", 1000 );
-	*defs += new ZDomain::Def( ZDomain::sKeyDepth(), "Depth", "", 1 );
+        ManagedObjectSet<ZDomain::Def>* newdefs =
+        				new ManagedObjectSet<ZDomain::Def>;
+        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(), "Time", "ms", 1000 );
+	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(), "Depth", "", 1 );
+
+        if ( !defs.setIfNull( newdefs ) )
+            delete newdefs;
     }
 
     return *defs;
