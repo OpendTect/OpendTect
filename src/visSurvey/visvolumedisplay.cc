@@ -649,20 +649,36 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     	float* newdata = newarr.getData();
     	if ( newdata )
     	{
-	    for ( int idy=0; idy<newarr.info().getTotalSz(); idy++ )
+            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
 		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval 
 		    				    : threshold - newdata[idy];
 	}
+        else if ( newarr.getStorage() )
+        {
+            ValueSeries<float>* newstor = newarr.getStorage();
+            for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
+            {
+		newstor->setValue(idy,
+                    mIsUdf(newstor->value(idy))
+                        ? outsideval
+                        : threshold - newstor->value(idy) );
+            }
+
+        }
     	else
     	{
     	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
+            {
     		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
+                {
     		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
 		    {
 			float val = newarr.get(id0,idy,idz);
-			val = mIsUdf(val) ? 10000 : threshold-val;
+			val = mIsUdf(val) ? outsideval : threshold-val;
 			newarr.set( id0, idy, idz, val );
 		    }
+                }
+            }
     	}
     }
 
@@ -706,19 +722,33 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		new Array3DImpl<float>(arr.info());
 	    const float threshold = isosurfsettings_[idx].isovalue_;
 	    const float* data = arr.getData();
-	    if ( data )
+	    if ( data && newarr->getData() )
 	    {
 		float* newdata = newarr->getData();
-		for ( int idy=0; idy<size; idy++ )
+		for ( od_int64 idy=0; idy<size; idy++ )
 		    newdata[idy] = threshold - data[idy];
 	    }
-	    else
+	    else if ( arr.getStorage() && newarr->getStorage() )
+            {
+                ValueSeries<float>* newstor = newarr->getStorage();
+                const ValueSeries<float>* arrstor = arr.getStorage();
+
+		for ( od_int64 idy=0; idy<size; idy++ )
+		    newstor->setValue(idy, threshold - arrstor->value(idy) );
+            }
+            else
 	    {
 		for ( int id0=0; id0<arr.info().getSize(0); id0++ )
+                {
 		    for ( int idy=0; idy<arr.info().getSize(1); idy++ )
+                    {
 			for ( int idz=0; idz<arr.info().getSize(2); idz++ )
+                        {
 			    newarr->set( id0, idy, idz,
 				         threshold - arr.get(id0,idy,idz) );
+                        }
+                    }
+                }
 	    }
 
 	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
