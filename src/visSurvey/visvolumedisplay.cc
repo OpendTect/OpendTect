@@ -701,7 +701,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	    const Array3D<float>& arr = cache_->getCube(0);
 	    if ( !arr.isOK() )	return;
 
-	    const int size = arr.info().getTotalSz();
+	    const od_int64 size = arr.info().getTotalSz();
 	    PtrMan< Array3D<float> > newarr = 
 		new Array3DImpl<float>(arr.info());
 	    const float threshold = isosurfsettings_[idx].isovalue_;
