@@ -32,9 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubesampling.h"
 #include "separstr.h"
 
-const char* SeisJobExecProv::sKeySeisOutIDKey()	    { return "Output Seismics Key"; }
-const char* SeisJobExecProv::sKeyOutputLS()	    { return "Output Line Set"; }
-const char* SeisJobExecProv::sKeyWorkLS()	    { return "Work Line Set"; }
+const char* SeisJobExecProv::sKeySeisOutIDKey()	{ return "Output Seismics Key";}
+const char* SeisJobExecProv::sKeyOutputLS()	{ return "Output Line Set"; }
+const char* SeisJobExecProv::sKeyWorkLS()	{ return "Work Line Set"; }
 
 static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.0",s)
@@ -304,17 +304,21 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	BufferString fnm( "i." ); fnm += inl;
 	FilePath fp( basefp, fnm );
 	fnm = fp.fullPath();
-	od_istream strm( fnm );
-	bool isok = strm.isOK();
+	od_istream* strm = new od_istream( fnm );
+	bool isok = strm->isOK();
 	if ( isok )
 	{
-	    StreamData sd;
-	    strm.releaseStream( sd );
-	    CBVSReader rdr( sd.istrm, false ); // stream closed by reader
+	    CBVSReader rdr( strm, false ); // stream closed by reader
 	    isok = !rdr.errMsg();
 	    if ( isok )
-		isok = rdr.info().geom_.start.crl() || rdr.info().geom_.start.crl();
+		isok = rdr.info().geom_.start.crl() ||
+                       rdr.info().geom_.start.crl();
 	}
+        else
+        {
+            delete strm;
+        }
+
 	if ( !isok )
 	    inlnrs += inl;
     }
