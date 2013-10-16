@@ -431,7 +431,6 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 		intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true, 
 		!mcd_->usesTexture() );
-	mAddMenuItem( menu, &volcalmnuitem_, true, true );
     }
 
     if ( plg_ )
@@ -445,6 +444,7 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
     }
 
+    mAddMenuItem( menu, &volcalmnuitem_, true, true );
     mAddMenuItem( menu, &savemnuitem_, enablesave, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
