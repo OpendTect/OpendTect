@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include "od_istream.h"
 
 #ifdef __win__
 # include <direct.h>
@@ -531,14 +532,12 @@ bool getContent( const char* fnm, BufferString& bs )
     bs.setEmpty();
     if ( !fnm || !*fnm ) return false;
 
-    StreamData sd( StreamProvider(fnm).makeIStream() );
-    bool rv = true;
-    if ( sd.usable() )
-	StrmOper::readFile( *sd.istrm, bs );
-    else
-	rv = false;
-    sd.close();
-    return rv;
+    od_istream stream( fnm );
+
+    if ( stream.isBad() )
+        return false;
+
+    return stream.getAll( bs );
 }
 
 

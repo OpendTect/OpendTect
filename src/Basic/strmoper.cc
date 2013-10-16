@@ -261,7 +261,7 @@ bool StrmOper::readFile( std::istream& strm, BufferString& bs )
     if ( sz > 0 && bs[sz-1] == '\n' )
 	{ bs[sz-1] = '\0'; sz--; }
 
-    return sz > 0;
+    return !strm.bad();
 }
 
 
