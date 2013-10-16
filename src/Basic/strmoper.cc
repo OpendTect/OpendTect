@@ -122,7 +122,7 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
 
     ch = (char)strm.peek();
     strm.ignore( 1 );
-    return true;
+    return strm.good();
 }
 
 
@@ -236,7 +236,8 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 	    }
 	}
 	getres = getNextChar(strm,ch);
-	if ( !getres ) return false;
+	if ( !getres )
+	    break;
     }
 
     if ( bs && bsidx )
