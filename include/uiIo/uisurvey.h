@@ -12,24 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "survinfo.h"
-#include "uichecklist.h"
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "uigeninput.h"
 #include "bufstring.h"
-#include "bufstringset.h"
 
-class uiComboBox;
+class SurveyInfo;
+class BufferStringSet;
 class uiLabel;
-class uiGraphicsScene;
-class uiGraphicsView;
+class uiButton;
 class uiListBox;
 class uiTextEdit;
 class uiSurveyMap;
-class uiPushButton;
-class uiToolButton;
-class uiSurveySelect;
 class uiSurvInfoProvider;
 
 
@@ -42,7 +35,8 @@ public:
 			uiSurvey(uiParent*);
 			~uiSurvey();
 
-    static void		getSurveyList(BufferStringSet&,const char* dataroot=0);
+    static void		getSurveyList(BufferStringSet&,const char* dataroot=0,
+	    			      const char* excludenm=0);
 
     static bool		survTypeOKForUser(bool is2d);
     			//!< checks whether given type has support
@@ -63,28 +57,24 @@ public:
     };
     static void		add(const Util&);
 
-    SurveyInfo*		curSurvInfo()		{ return survinfo_; }
-    const SurveyInfo*	curSurvInfo() const	{ return survinfo_; }
+    SurveyInfo*		curSurvInfo()		{ return cursurvinfo_; }
+    const SurveyInfo*	curSurvInfo() const	{ return cursurvinfo_; }
+
+    const char*		selectedSurveyName() const;
 
 protected:
 
-    SurveyInfo*		survinfo_;
-    BufferStringSet	dirlist_;
+    SurveyInfo*		cursurvinfo_;
     BufferString	initialdatadir_;
     BufferString	initialsurvey_;
     uiSurveyMap*	survmap_;
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;
 
-    uiListBox*		listbox_;
-    uiPushButton*	newbut_;
-    uiPushButton*	editbut_;
-    uiPushButton*	rmbut_;
-    uiPushButton*	datarootbut_;
-    uiPushButton*	copybut_;
-    uiToolButton*	exportbut_;
-    uiToolButton*	importbut_;
-    ObjectSet<uiToolButton> utilbuts_;
+    uiListBox*		dirfld_;
+    uiButton*		editbut_;
+    uiButton*		rmbut_;
+    ObjectSet<uiButton>	utilbuts_;
     uiLabel*		inllbl_;
     uiLabel*		crllbl_; 
     uiLabel*		zlbl_;
@@ -92,7 +82,7 @@ protected:
     uiLabel*		arealbl_;
     uiLabel*		typelbl_;
     uiTextEdit*		notes_;
-    bool		initialsurveyparchanged_;
+    bool		parschanged_; //!< of initial survey only
 
     bool		acceptOK(CallBacker*);  
     bool		rejectOK(CallBacker*);  
@@ -104,75 +94,23 @@ protected:
     void		exportButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		utilButPush(CallBacker*);
-    void		updateSvyList();
-    bool		updateSvyFile();
-    bool 		getSurvInfo();
-    void		delSurvInfo();
-    void 		updateInfo(CallBacker*);
-    bool		survInfoDialog(bool isnew);
     void		selChange(CallBacker*);
-    void		mkDirList();
-    void		mkInfo();
-    void		writeComments();
-    bool		writeSurveyName(const char*);
+    void 		updateInfo( CallBacker* )	{ putToScreen(); }
+
+    void		readSurvInfoFromFile();
+    void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
+    void		updateSurvList();
+    void		putToScreen();
+    bool		writeSettingsSurveyFile();
+    bool		writeSurvInfoFile(bool chcknotesonly);
+    bool		rootDirWritable() const;
+    bool		doSurvInfoDialog(bool isnew);
     void		updateDataRootInSettings();
+    void		rollbackNewSurvey(const char*);
 
 };
 
 
-/*!\brief The new survey selection dialog */
-
-mExpClass(uiIo)	uiSurveyNewDlg : public uiDialog
-{
-
-public:
-    			uiSurveyNewDlg(uiParent*,SurveyInfo&);
-
-    bool		isOK();
-    bool		acceptOK(CallBacker*);
-
-protected:
-
-    SurveyInfo&		survinfo_;
-    uiGenInput*		survnmfld_;
-    uiCheckList*	pol2dfld_;
-    uiComboBox*		sipfld_;
-    uiCheckList*	zdomainfld_;
-    uiGroup*		zunitgrp_;
-    uiCheckList*	zunitfld_;
-    ObjectSet<uiSurvInfoProvider>& sips_;
-
-    BufferString	survName() const { return survnmfld_->text(); }
-    SurveyInfo::Pol2D	pol2D() const;
-    bool		has3D() const { return pol2dfld_->isChecked(0); }
-    bool		has2D() const { return pol2dfld_->isChecked(1); }
-    BufferString	sipName() const;
-    bool		isTime() const { return zdomainfld_->isChecked(0); }
-    bool		isInFeet() const { return zunitfld_->isChecked(1); }
-
-    void		setSip(bool for2donly);
-    void		pol2dChg(CallBacker*);
-    void		zdomainChg(CallBacker*);
-
-};
-
-/*!\brief The copy survey selection dialog */
-
-mExpClass(uiIo) uiSurveyGetCopyDir : public uiDialog
-{
-
-public:
-			uiSurveyGetCopyDir(uiParent*,const char* cursurv);
-
-    void		inpSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
-    BufferString	fname_;
-    BufferString	newdirnm_;
-    uiSurveySelect*	inpsurveyfld_;
-    uiSurveySelect*	newsurveyfld_;
-
-};
 
 #endif
 

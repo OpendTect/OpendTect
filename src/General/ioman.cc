@@ -30,9 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <stdlib.h>
 
-IOMan*	IOMan::theinst_	= 0;
-
-static bool survchg_triggers = false;
+IOMan* IOMan::theinst_	= 0;
 static const MultiID emptykey( "" );
 
 
@@ -46,7 +44,7 @@ IOMan& IOM()
 IOMan::IOMan( const char* rd )
 	: NamedObject("IO Manager")
 	, dirptr_(0)
-	, canchangesurvey_(true)
+	, survchgblocked_(false)
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
     	, entryRemoved(this)
@@ -203,11 +201,11 @@ bool IOMan::isReady() const
 
 
 #define mDestroyInst(dotrigger) \
-    if ( dotrigger && !IOM().bad() && survchg_triggers ) \
+    if ( dotrigger && !IOM().bad() ) \
 	IOM().surveyToBeChanged.trigger(); \
-    if ( !IOM().canChangeSurvey() ) \
+    if ( IOM().changeSurveyBlocked() ) \
     { \
-	IOM().allowSurveyChange(); \
+	IOM().setChangeSurveyBlocked(false); \
 	return false; \
     } \
     StreamProvider::unLoadAll(); \
@@ -228,10 +226,10 @@ bool IOMan::isReady() const
     IOM().entryRemoved.cbs_ = rmcbs; \
     IOM().newIODir.cbs_ = dccbs; \
     IOM().applicationClosing.cbs_ = apccbs; \
-    if ( dotrigger  && !IOM().bad() ) \
+    if ( dotrigger && !IOM().bad() ) \
     { \
 	setupCustomDataDirs(-1); \
-	if ( dotrigger && survchg_triggers ) \
+	if ( dotrigger ) \
 	{ \
 	    IOM().surveyChanged.trigger(); \
 	    IOM().afterSurveyChange.trigger(); \
@@ -247,9 +245,15 @@ static void clearSelHists()
 }
 
 
-bool IOMan::newSurvey()
+bool IOMan::newSurvey( SurveyInfo* newsi )
 {
     mDestroyInst( true );
+
+    if ( newsi )
+    {
+	SurveyInfo::deleteInstance();
+	SurveyInfo::pushSI( newsi );
+    }
 
     SetSurveyNameDirty();
     mFinishNewInst( true );
@@ -265,6 +269,16 @@ bool IOMan::setSurvey( const char* survname )
     SetSurveyName( survname );
     mFinishNewInst( true );
     return !IOM().bad();
+}
+
+
+void IOMan::surveyParsChanged()
+{
+    IOM().surveyToBeChanged.trigger();
+    if ( IOM().changeSurveyBlocked() )
+	{ IOM().setChangeSurveyBlocked(false); return; }
+    IOM().surveyChanged.trigger();
+    IOM().afterSurveyChange.trigger();
 }
 
 
@@ -938,13 +952,12 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 bool OD_isValidRootDataDir( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
-    if ( !File::isDirectory(fp.fullPath()) ) return false;
+    const BufferString dirnm( fp.fullPath() );
+    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
+	return false;
 
     fp.add( ".omf" );
-    if ( !File::exists(fp.fullPath()) ) return false;
-
-    fp.setFileName( SurveyInfo::sKeySetupFileName() );
-    if ( File::exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
 	return false;
 
     return true;
@@ -984,10 +997,4 @@ const char* OD_SetRootDataDir( const char* inpdatadir )
 
     IOMan::newSurvey();
     return 0;
-}
-
-
-void IOMan::enableSurveyChangeTriggers( bool yn )
-{
-    survchg_triggers = yn;
 }

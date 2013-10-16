@@ -388,7 +388,7 @@ void uiODApplMgrDispatcher::showBaseMap()
 	basemap_ = new uiSurveyMap( basemapdlg_ );
 	basemap_->setPrefHeight( 250 );
 	basemap_->setPrefWidth( 250 );
-	basemap_->drawMap( &SI() );
+	basemap_->setSurveyInfo( &SI() );
 	scene->setBaseMap( basemap_ );
     }
 

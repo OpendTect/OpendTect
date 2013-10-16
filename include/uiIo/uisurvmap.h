@@ -30,7 +30,7 @@ public:
     const char*		getType() const		{ return "SurveyBox"; }
 
     void		update();
-    void		setSurveyInfo(const SurveyInfo&);
+    void		setSurveyInfo(const SurveyInfo*);
 
 protected:
 
@@ -39,6 +39,8 @@ protected:
     ObjectSet<uiTextItem>	labels_;
 
     const SurveyInfo*		survinfo_;
+
+    void			setVisibility(bool);
 
 };
 
@@ -51,7 +53,7 @@ public:
     const char*		getType() const		{ return "NorthArrow"; }
 
     void		update();
-    void		setSurveyInfo(const SurveyInfo&);
+    void		setSurveyInfo(const SurveyInfo*);
 
 protected:
 
@@ -61,6 +63,8 @@ protected:
 
     const SurveyInfo*	survinfo_;
 
+    void		setVisibility(bool);
+
 };
 
 
@@ -69,7 +73,7 @@ mExpClass(uiIo) uiSurveyMap : public uiBaseMap
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
 
-    void		drawMap(const SurveyInfo*);
+    void		setSurveyInfo(const SurveyInfo*);
 
 protected:
 

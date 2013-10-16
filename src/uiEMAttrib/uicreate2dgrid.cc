@@ -637,7 +637,7 @@ void uiCreate2DGrid::updatePreview( CallBacker* )
     const Grid2D* grid = grp->getGridLines();
     preview_->setGrid( grid );
     preview_->setBaseLine( grp->getBaseLine() );
-    previewmap_->drawMap( &SI() );
+    previewmap_->setSurveyInfo( &SI() );
     BufferString nrinlstxt, nrcrlstxt;
     grp->getNrLinesLabelTexts( nrinlstxt, nrcrlstxt );
     nrinlinesfld_->setText( nrinlstxt.buf() );

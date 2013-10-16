@@ -22,6 +22,7 @@ class IODir;
 class IOObj;
 class IOObjContext;
 class IOSubDir;
+class SurveyInfo;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -111,7 +112,7 @@ private:
     IODir*		dirptr_;
     int			curlvl_;
     FileNameString	rootdir_;
-    bool		canchangesurvey_;
+    bool		survchgblocked_;
     BufferString	msg_;
 
     void		init();
@@ -138,21 +139,19 @@ public:
     static bool		validSurveySetup(BufferString& errmsg);
     static IOSubDir*	getIOSubDir(const CustomDirData&);
 
-    void		allowSurveyChange()	{ canchangesurvey_ = true; }
-    void		disallowSurveyChange()	{ canchangesurvey_ = false; }
-    bool		canChangeSurvey() const		
-    			{ return canchangesurvey_; }
+    void		setChangeSurveyBlocked( bool yn )
+					{ survchgblocked_ = yn; }
+    bool		changeSurveyBlocked() const		
+					{ return survchgblocked_; }
     void		applClosing()	{ applicationClosing.trigger(); }
-    static bool		newSurvey();
-			/*!< if an external source has changed
-				the .od/survey, force re-read it. */
+    static bool		newSurvey(SurveyInfo* newsi=0);
+			/*!< set new SurveyInfo; force re-read the data tree. */
     static bool		setSurvey(const char*);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
-    static void		enableSurveyChangeTriggers(bool);
-    			/*!< if set to true, survey change notifiers will be
-			     triggered */
+    static void		surveyParsChanged();
+    			/*! Triggers the post-survey change notifiers */
 
 };
 

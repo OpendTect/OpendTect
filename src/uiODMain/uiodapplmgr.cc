@@ -202,10 +202,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
     bool anythingasked = false;
     if ( !appl_.askStore(anythingasked,"Survey change") )
-    {
-	IOM().disallowSurveyChange();
-	return;
-    }
+	{ IOM().setChangeSurveyBlocked( true ); return; }
 
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; attrserv_ = 0;

@@ -78,7 +78,9 @@ TrcKey InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
 
 
 bool InlCrlSystem::includes( int line, int tracenr ) const
-{ return cs_.hrg.includes( BinID(line,tracenr) ); }
+{
+    return cs_.hrg.includes( BinID(line,tracenr) );
+}
 
 
 static ObjectSet<SurveyInfo> survinfostack;
@@ -86,16 +88,11 @@ static ObjectSet<SurveyInfo> survinfostack;
 const SurveyInfo& SI()
 {
     int cursurvinfoidx = survinfostack.size() - 1;
-    if ( cursurvinfoidx < 0 || !survinfostack[cursurvinfoidx] )
+    if ( cursurvinfoidx < 0 )
     {
-	while ( cursurvinfoidx >= 0 && !survinfostack[cursurvinfoidx] )
-	{
-	    delete survinfostack.removeSingle( cursurvinfoidx );
-	    cursurvinfoidx--;
-	}
 	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
 	if ( !newsi )
-	    { delete newsi; newsi = new SurveyInfo; } // what option is left?
+	    newsi = new SurveyInfo;
 	survinfostack += newsi;
 	cursurvinfoidx = survinfostack.size() - 1;
     }
@@ -106,14 +103,19 @@ const SurveyInfo& SI()
 
 void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
-    survinfostack += newsi;
+    if ( !newsi )
+	pFreeFnErrMsg("Null survinfo pushed","SurveyInfo::pushSI");
+    else
+	survinfostack += newsi;
 }
 
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    return survinfostack.isEmpty() ? 0
-	 : survinfostack.removeSingle( survinfostack.size()-1 );
+    if ( survinfostack.isEmpty() )
+	{ pFreeFnErrMsg("Pop from empty stack","SurveyInfo::popSI"); return 0; }
+
+    return survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
@@ -134,8 +136,8 @@ SurveyInfo::SurveyInfo()
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl() = 0;
 
-    // To get a 'reasonable' transform even when no proper SI is yet defined
-    // Then, DataPointSets need to work
+	// We need a 'reasonable' transform even when no proper SI is available
+	// For example DataPointSets need to work
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;

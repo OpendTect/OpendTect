@@ -61,8 +61,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 	, isnew_(isnew)
 {
     orgstorepath_ = si_.datadir_.buf();
+
     BufferString fulldirpath;
-    if ( !isnew_ )
+    if ( isnew_ )
+    {
+	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
+	SurveyInfo::pushSI( &si_ );
+    }
+    else
     {
 	BufferString storagedir = FilePath(orgstorepath_).add(orgdirname_)
 	    						 .fullPath();
@@ -87,11 +93,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 
 	fulldirpath = storagedir;
     }
-    else
-	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
-
-    if ( isnew_ )
-	SurveyInfo::pushSI( &si_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     survnmfld_ = new uiGenInput( topgrp_, "Survey name",
@@ -167,6 +168,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 uiSurveyInfoEditor::~uiSurveyInfoEditor()
 {
     delete impiop_;
+    if ( isnew_ )
+	SurveyInfo::popSI();
 }
 
 
@@ -518,8 +521,6 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 	    						  .fullPath();
 	if ( File::exists(dirnm) )
 	    File::remove( dirnm );
-
-	SurveyInfo::popSI();
     }
 
     return true;
@@ -604,9 +605,6 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( isnew_ )
-	SurveyInfo::popSI();
-    
     return true;
 }
 
@@ -853,7 +851,7 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurvey::getSurveyList( survlist_ );
+    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
     uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
