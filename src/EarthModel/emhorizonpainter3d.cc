@@ -373,15 +373,13 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 
 void HorizonPainter3D::removePolyLine()
 {
-    for ( int markidx=markerline_.size()-1;  markidx>=0; markidx-- )
+    for ( int markidx=markerline_.size()-1; markidx>=0; markidx-- )
     {
 	SectionMarker3DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
 	    if ( !viewer_.removeAuxData( (*markerlines)[idy]->marker_ ) )
 		(*markerlines)[idy]->marker_ = 0;
-	    deepErase( markerlines[idy] );
-	}
+	deepErase( *markerlines );
     }
     deepErase( markerline_ );
 
