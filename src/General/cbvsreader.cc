@@ -33,14 +33,15 @@ The next 8 bytes are reserved for 2 integers:
 #include "varlenarray.h"
 #include "strmoper.h"
 #include "posinfo.h"
+#include "od_istream.h"
 
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
-    strm.read( buf, sizeof(auxinf.memb) ); \
+    strm.getBin( buf, sizeof(auxinf.memb) ); \
     auxinf.memb = finterp_.get( buf, 0 )
 
 #define mGetCoordAuxFromStrm(auxinf,buf,strm) \
-    strm.read( buf, 2*sizeof(auxinf.coord.x) ); \
+    strm.getBin( buf, 2*sizeof(auxinf.coord.x) ); \
     auxinf.coord.x = dinterp_.get( buf, 0 ); \
     auxinf.coord.y = dinterp_.get( buf, 1 )
 
@@ -48,7 +49,7 @@ The next 8 bytes are reserved for 2 integers:
 
 
 
-CBVSReader::CBVSReader( std::istream* s, bool glob_info_only, 
+CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 				bool forceusecbvsinfo )
 	: strm_(*s)
 	, iinterp_(DataCharacteristics())
@@ -75,7 +76,7 @@ CBVSReader::~CBVSReader()
 
 void CBVSReader::close()
 {
-    if ( !strmclosed_ && &strm_ != &std::cin )
+    if ( !strmclosed_  )
 	delete &strm_;
     strmclosed_ = true;
 }
@@ -91,7 +92,7 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
 
     BufferString buf( headstartbytes, false );
     char* ptr = buf.buf();
-    strm_.read( ptr, headstartbytes );
+    strm_.getBin( ptr, headstartbytes );
 
     DataCharacteristics dc;
     dc.littleendian_ = ptr[3] != 0;
@@ -106,18 +107,18 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
     getAuxInfoSel( ptr + 5 );
     // const int nrbytesinheader = iinterp_.get( ptr+8 );
 
-    strm_.read( ptr, integersize );
+    strm_.getBin( ptr, integersize );
     getText( iinterp_.get(ptr,0), info_.stdtext_ );
 
     if ( !readComps() || !readGeom(forceusecbvsinfo) )
 	return false;
 
-    strm_.read( ptr, 2 * integersize );
+    strm_.getBin( ptr, 2 * integersize );
     info_.seqnr_ = iinterp_.get( ptr, 0 );
     getText( iinterp_.get(ptr,1), info_.usertext_ );
     removeTrailingBlanks( info_.usertext_.buf() );
 
-    datastartfo_ = strm_.tellg();
+    datastartfo_ = strm_.position();
 
     CBVSInfo::SurvGeom& geom = info_.geom_;
     if ( !wanttrailer )
@@ -173,33 +174,32 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
     {
 	if ( txt.bufSize() <= nrchar )
 	    txt.setBufSize(nrchar+1);
-	strm_.read( txt.buf(), nrchar );
+	strm_.getBin( txt.buf(), nrchar );
 	txt[nrchar] = '\0';
     }
 }
 
 
 #undef mErrRet
-#define mErrRet { strm.seekg( 0, std::ios::beg ); return msg; }
+#define mErrRet { strm.setPosition( 0, od_stream::Abs ); return msg; }
 
-const char* CBVSReader::check( std::istream& strm )
+const char* CBVSReader::check( od_istream& strm )
 {
-    if ( strm.bad() ) return "Input stream cannot be used";
-    if ( strm.fail() ) strm.clear();
+    if ( strm.isBad() ) return "Input stream cannot be used";
 
-    strm.seekg( 0, std::ios::beg );
+    strm.setPosition( 0, od_stream::Abs );
     char buf[4]; memset( buf, 0, 4 );
-    strm.read( buf, 3 );
+    strm.getBin( buf, 3 );
     const char* msg = "Input stream cannot be used";
-    if ( !strm.good() ) mErrRet;
+    if ( !strm.isOK() ) mErrRet;
 
     msg = "File is not in CBVS format";
     if ( FixedString(buf)!="dGB" ) mErrRet;
 
-    char plf; strm.read( &plf, 1 );
+    char plf; strm.getBin( &plf, 1 );
     if ( plf > 2 ) mErrRet;
 
-    strm.seekg( 0, std::ios::beg );
+    strm.setPosition( 0, od_stream::Abs );
     return 0;
 }
 
@@ -236,7 +236,7 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
 bool CBVSReader::readComps()
 {
     mAllocVarLenArr( char, ucbuf, 4*integersize );
-    strm_.read( ucbuf, integersize );
+    strm_.getBin( ucbuf, integersize );
     nrcomps_ = iinterp_.get( ucbuf, 0 );
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
 
@@ -245,24 +245,24 @@ bool CBVSReader::readComps()
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	strm_.read( ucbuf, integersize );
+	strm_.getBin( ucbuf, integersize );
 	BufferString bs; getText( iinterp_.get(ucbuf,0), bs );
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 	
-	strm_.read( ucbuf, integersize );
+	strm_.getBin( ucbuf, integersize );
 	    newinf->datatype = iinterp_.get( ucbuf, 0 );
-	strm_.read( ucbuf, 4 );
+	strm_.getBin( ucbuf, 4 );
 	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
 	    // extra 2 bytes reserved for compression type
 	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
-	strm_.read( ucbuf, sizeof(float) );
+	strm_.getBin( ucbuf, sizeof(float) );
 	    info_.sd_.start = finterp_.get( ucbuf, 0 );
-	strm_.read( ucbuf, sizeof(float) );
+	strm_.getBin( ucbuf, sizeof(float) );
 	    info_.sd_.step = finterp_.get( ucbuf, 0 );
 
-	strm_.read( ucbuf, integersize ); // nr samples
+	strm_.getBin( ucbuf, integersize ); // nr samples
 	    info_.nrsamples_ = iinterp_.get( ucbuf, 0 );
-	strm_.read( ucbuf, 2*sizeof(float) );
+	strm_.getBin( ucbuf, 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
 	if ( info_.nrsamples_ < 0 || newinf->datatype < 0 )
@@ -286,7 +286,7 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
 {
     char buf[8*sizeof(double)];
 
-    strm_.read( buf, 8*integersize );
+    strm_.getBin( buf, 8*integersize );
     info_.geom_.fullyrectandreg = (bool)iinterp_.get( buf, 0 );
     info_.nrtrcsperposn_ = iinterp_.get( buf, 1 );
     info_.geom_.start.inl() = iinterp_.get( buf, 2 );
@@ -298,7 +298,7 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     info_.geom_.step.crl() = iinterp_.get( buf, 7 );
     if ( info_.geom_.step.crl() == 0 ) info_.geom_.step.crl() = 1;
 
-    strm_.read( buf, 6*sizeof(double) );
+    strm_.getBin( buf, 6*sizeof(double) );
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.a = dinterp_.get( buf, 0 ); xtr.b = dinterp_.get( buf, 1 );
     xtr.c = dinterp_.get( buf, 2 ); ytr.a = dinterp_.get( buf, 3 );
@@ -310,46 +310,47 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     else
 	info_.geom_.b2c = SI().binID2Coord();
 
-    hs_.start = hs_.stop = BinID( info_.geom_.start.inl(), info_.geom_.start.crl() );
+    hs_.start = hs_.stop = BinID( info_.geom_.start.inl(),
+                                  info_.geom_.start.crl() );
     hs_.include( BinID( info_.geom_.stop.inl(), info_.geom_.stop.crl() ) );
 
-    return strm_.good();
+    return strm_.isOK();
 }
 
 
 bool CBVSReader::readTrailer()
 {
-    StrmOper::seek( strm_, -3, std::ios::end );
+    strm_.setPosition( -3, od_stream::End );
     char buf[40];
-    strm_.read( buf, 3 ); buf[3] = '\0';
+    strm_.getBin( buf, 3 ); buf[3] = '\0';
     if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
     
-    StrmOper::seek( strm_,-4-integersize, std::ios::end );
-    strm_.read( buf, integersize );
+    strm_.setPosition( -4-integersize, od_stream::End );
+    strm_.getBin( buf, integersize );
     const int nrbytes = iinterp_.get( buf, 0 );
 
-    StrmOper::seek( strm_, -4-integersize-nrbytes, std::ios::end );
+    strm_.setPosition( -4-integersize-nrbytes, od_stream::End );
     if ( coordpol_ == InTrailer )
     {
-	strm_.read( buf, integersize );
+	strm_.getBin( buf, integersize );
 	const int sz = iinterp_.get( buf, 0 );
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    strm_.read( buf, 2 * sizeof(double) );
+	    strm_.getBin( buf, 2 * sizeof(double) );
 	    trailercoords_ += Coord( dinterp_.get(buf,0), dinterp_.get(buf,1) );
 	}
     }
 
     if ( !info_.geom_.fullyrectandreg )
     {
-	strm_.read( buf, integersize );
+	strm_.getBin( buf, integersize );
 	const int nrinl = iinterp_.get( buf, 0 );
 	if ( nrinl < 0 ) mErrRet("File trailer corrupt")
 	if ( nrinl == 0 ) mErrRet("No traces in file")
 
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
-	    strm_.read( buf, 2 * integersize );
+	    strm_.getBin( buf, 2 * integersize );
 	    PosInfo::LineData* iinf
 		= new PosInfo::LineData( iinterp_.get( buf, 0 ) );
 	    if ( !iinl )
@@ -359,7 +360,7 @@ bool CBVSReader::readTrailer()
 	    PosInfo::LineData::Segment crls;
 	    for ( int iseg=0; iseg<nrseg; iseg++ )
 	    {
-		strm_.read( buf, 3 * integersize );
+		strm_.getBin( buf, 3 * integersize );
 
 		crls.start = iinterp_.get(buf,0);
 		crls.stop = iinterp_.get(buf,1);
@@ -382,7 +383,7 @@ bool CBVSReader::readTrailer()
     info_.geom_.fullyrectandreg = lds_.isFullyRectAndReg();;
     if ( !info_.geom_.fullyrectandreg )
 	info_.geom_.cubedata = lds_;
-    return strm_.good();
+    return strm_.isOK();
 }
 
 
@@ -406,7 +407,7 @@ BinID CBVSReader::nextBinID() const
 void CBVSReader::toOffs( od_int64 sp )
 {
     lastposfo_ = sp;
-    StrmOper::seek( strm_, lastposfo_, std::ios::beg );
+    strm_.setPosition( lastposfo_, od_stream::Abs );
 }
 
 
@@ -519,7 +520,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
-    std::streampos curfo mUnusedVar = strm_.tellg();
+    od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
     auxinf.binid = curbinid_;
@@ -532,7 +533,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 
     if ( hinfofetched_ )
-	StrmOper::seek( strm_,-auxnrbytes_, std::ios::cur );
+	strm_.setPosition(-auxnrbytes_, od_stream::Rel );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)
@@ -546,7 +547,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     mCondGetAux(azimuth)
 
     hinfofetched_ = true;
-    return strm_.good();
+    return strm_.isOK();
 }
 
 
@@ -607,7 +608,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     {
 	if ( comps && !comps[icomp] )
 	{
-	    StrmOper::seek( strm_, cnrbytes_[icomp], std::ios::cur );
+	    strm_.setPosition( cnrbytes_[icomp], od_stream::Rel );
 	    continue;
 	}
 	iselc++;
@@ -615,16 +616,16 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
-	    StrmOper::seek( strm_, samps->start*bps, std::ios::cur );
-	if ( !StrmOper::readBlock( strm_, ((char*)bufs[iselc]) + offs*bps,
+	    strm_.setPosition( samps->start*bps, od_stream::Rel );
+	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
 		    		   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
 	if ( samps->stop < info_.nrsamples_-1 )
-	    StrmOper::seek( strm_, (info_.nrsamples_-samps->stop-1)*bps,
-		    std::ios::cur );
+	    strm_.setPosition((info_.nrsamples_-samps->stop-1)*bps,
+		    od_stream::Rel );
     }
 
     hinfofetched_ = false;
-    return strm_.good() || strm_.eof();
+    return !strm_.isBad();
 }

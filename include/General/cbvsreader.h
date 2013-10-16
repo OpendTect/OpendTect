@@ -40,7 +40,7 @@ mExpClass(General) CBVSReader : public CBVSIO
 {
 public:
 
-			CBVSReader(std::istream*,bool glob_info_only=false,
+			CBVSReader(od_istream*,bool glob_info_only=false,
 					bool forceusecbvsinfo=false);
 			~CBVSReader();
 
@@ -65,7 +65,7 @@ public:
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
 
-    static const char*	check(std::istream&);
+    static const char*	check(od_istream&);
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 
@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    std::istream&	strm_;
+    od_istream&		strm_;
     CBVSInfo		info_;
 
     void		getAuxInfoSel(const char*);

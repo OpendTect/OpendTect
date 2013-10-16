@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datachar.h"
 #include "cubesampling.h"
 #include "strmprov.h"
-#include <iostream>
+#include "od_istream.h"
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -36,7 +36,8 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 
     if ( !fnm || FixedString(fnm)==StreamProvider::sStdIO() )
     {
-	addReader( &std::cin, cs, glob_info_only, forceusecbvsinfo );
+	addReader( new od_istream( std::cin ), cs, glob_info_only,
+                   forceusecbvsinfo );
 	if ( readers_.isEmpty() )
 	    errmsg_ = "Standard input contains no relevant data";
 	else
@@ -97,21 +98,22 @@ const char* CBVSReadMgr::errMsg_() const
 
 
 bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
-				bool info_only, bool forceusecbvsinfo )
+                             bool info_only, bool forceusecbvsinfo )
 {
-    StreamData sd = StreamProvider(fname).makeIStream();
-    if ( !sd.usable() )
+    od_istream* istream = new od_istream( fname );
+
+    if ( !istream || !istream->isOK() )
     {
 	mkErrMsg( errmsg_, fname, "cannot be opened" );
-	sd.close();
+	delete istream;
 	return false;
     }
 
-    return addReader( sd.istrm, cs, info_only, forceusecbvsinfo );
+    return addReader( istream, cs, info_only, forceusecbvsinfo );
 }
 
 
-bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs,
+bool CBVSReadMgr::addReader( od_istream* strm, const CubeSampling* cs,
 				bool info_only, bool usecbvsinfo )
 {
     CBVSReader* newrdr = new CBVSReader( strm, info_only, usecbvsinfo );
@@ -178,7 +180,8 @@ void CBVSReadMgr::createInfo()
 	{
 	    if ( readers_[rdrnr]->info().geom_.step.inl() )
 	    {
-		info_.geom_.step.inl() = readers_[rdrnr]->info().geom_.step.inl();
+		info_.geom_.step.inl() =
+                	readers_[rdrnr]->info().geom_.step.inl();
 	        break;
 	    }
 	}
@@ -210,7 +213,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     if ( rdrinfo.nrtrcsperposn_ != info_.nrtrcsperposn_ )
 	mErrRet("Number of traces per position")
     if ( !rdrinfo.geom_.fullyrectandreg )
-	const_cast<CBVSInfo&>(rdrinfo).geom_.step.inl() = info_.geom_.step.inl();
+    {
+	const_cast<CBVSInfo&>(rdrinfo).geom_.step.inl() =info_.geom_.step.inl();
+    }
     else if ( rdrinfo.geom_.step.inl() != info_.geom_.step.inl() )
 	mErrRet("In-line number step")
     if ( rdrinfo.geom_.step.crl() != info_.geom_.step.crl() )
@@ -514,8 +519,9 @@ const char* CBVSReadMgr::check( const char* basefname )
 	BufferString fname = getFileName( basefname, curnr );
 	if ( !File::exists((const char*)fname) ) break;
 
-	StreamData sd = StreamProvider(fname).makeIStream();
-	const char* res = CBVSReader::check( *sd.istrm );
+        od_istream istream( fname );
+
+	const char* res = CBVSReader::check( istream );
 
 	if ( res && *res )
 	{

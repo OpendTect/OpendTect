@@ -83,7 +83,7 @@ protected:
     bool		vertical_;
     int			rdr1firstsampnr_;
 
-    bool		addReader(std::istream*,const CubeSampling*,bool,bool);
+    bool		addReader(od_istream*,const CubeSampling*,bool,bool);
     bool		addReader(const char*,const CubeSampling*,bool,bool);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
