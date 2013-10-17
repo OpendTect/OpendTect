@@ -946,14 +946,16 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
+    BufferString surveypath;
     if ( !basedir || !*basedir )
     {
 	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
-	basedir = File::exists(storepath) ? storepath.buf() : GetDataDir();
+	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
     }
+    else
+	surveypath = basedir;
 
-    const BufferString defsfnm( FilePath(basedir,sKeyDefsFile).fullPath() );
-
+    const BufferString defsfnm( FilePath(surveypath,sKeyDefsFile).fullPath() );
     if ( pars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
