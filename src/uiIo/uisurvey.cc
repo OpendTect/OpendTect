@@ -380,6 +380,7 @@ uiSurvey::uiSurvey( uiParent* p )
     , impiop_(0)
     , impsip_(0)
     , parschanged_(false)
+    , cursurvremoved_(false)
 {
     const int lbwidth = 250;
     const int noteshght = 5;
@@ -612,7 +613,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
-	return false;
+	mErrRet(0)
 
     // Step 3: record data root preference
     if ( !samedataroot )
@@ -652,6 +653,10 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 bool uiSurvey::rejectOK( CallBacker* )
 {
+    if ( cursurvremoved_ )
+	mErrRet( "You have removed the current survey ...\n"
+		   "You *have to* select a survey now!" )
+
     if ( initialdatadir_ != GetBaseDataDir() )
     {
 	if ( !uiSetDataDir::setRootDataDir(this,initialdatadir_) )
@@ -680,7 +685,7 @@ void uiSurvey::rollbackNewSurvey( const char* errmsg )
     if ( errmsg && *errmsg )
     {
 	const BufferString tousr( haverem ? "New survey removed because:\n"
-		: "New survey directory is invalid because:", errmsg );
+		: "New survey directory is invalid because:\n", errmsg );
 	uiMSG().error( tousr );
     }
 }
@@ -765,7 +770,10 @@ void uiSurvey::rmButPushed( CallBacker* )
     updateSurvList();
     const char* ptr = GetSurveyName();
     if ( ptr && selnm == ptr )
+    {
+	cursurvremoved_ = true;
 	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
+    }
 }
 
 

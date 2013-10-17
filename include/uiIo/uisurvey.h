@@ -83,6 +83,7 @@ protected:
     uiLabel*		typelbl_;
     uiTextEdit*		notes_;
     bool		parschanged_; //!< of initial survey only
+    bool		cursurvremoved_;
 
     bool		acceptOK(CallBacker*);  
     bool		rejectOK(CallBacker*);  
