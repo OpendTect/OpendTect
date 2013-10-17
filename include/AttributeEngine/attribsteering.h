@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "position.h"
+#include "binid.h"
 #include "seistype.h"
 //#include "commondefs.h"
 namespace Attrib

@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emposid.h"
-#include "position.h"
+#include "coord.h"
 #include "sets.h"
 
 

@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emposid.h"
-#include "position.h"
 #include "selector.h"
 #include "task.h"
 #include "thread.h"

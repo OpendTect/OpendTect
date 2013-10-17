@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seistype.h"
 #include "ranges.h"
-#include "position.h"
+#include "binid.h"
 class LineKey;
 namespace Pos { class Provider; }
 

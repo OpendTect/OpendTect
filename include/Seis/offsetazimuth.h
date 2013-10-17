@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "position.h"
+#include "coord.h"
 
 /*!Stores offset and azimuth as an int, wich makes it easy to compare them
 without having to think of epsilons when comparing.

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "refcount.h"
-#include "position.h"
+#include "coord.h"
 #include "typeset.h"
 
 /*!

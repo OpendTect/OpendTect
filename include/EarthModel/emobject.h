@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
-#include "position.h"
+#include "coord.h"
 #include "refcount.h"
 
 class CubeSampling;

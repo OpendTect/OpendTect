@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "iopar.h"
 #include "manobjectset.h"
-#include "position.h"
+#include "coord.h"
 #include "samplingdata.h"
 #include "seisposkey.h"
 #include "sortedtable.h"

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "seisposkey.h"
+#include "ranges.h"
 #include "multiid.h"
 #include "strmdata.h"
 #include "bufstringset.h"

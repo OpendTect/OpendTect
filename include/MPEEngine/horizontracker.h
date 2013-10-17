@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "emposid.h"
 #include "refcount.h"
-#include "position.h"
+#include "rowcol.h"
 
 namespace EM {
     class Fault;

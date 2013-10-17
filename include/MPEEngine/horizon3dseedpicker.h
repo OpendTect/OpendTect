@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "emseedpicker.h"
+#include "coord.h"
 
 class FaultTrcDataProvider;
 namespace Attrib { class SelSpec; }

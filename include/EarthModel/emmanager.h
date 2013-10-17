@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "callback.h"
 #include "factory.h"
-#include "position.h"
 #include "ptrman.h"
 #include "ranges.h"
 #include "multiid.h"

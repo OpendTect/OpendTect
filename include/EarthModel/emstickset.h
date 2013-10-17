@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "emobject.h"
 #include "sets.h"
-#include "position.h"
+#include "coord.h"
 
 
 namespace EM

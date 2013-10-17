@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emobject.h"
-#include "position.h"
 
 class IOObj;
 template <class T, class AT> class TopList;

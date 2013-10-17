@@ -14,7 +14,7 @@ ________________________________________________________________________
  
 #include "seismod.h"
 #include "segythdef.h"
-#include "position.h"
+#include "coord.h"
 #include "samplingdata.h"
 class SeisTrcInfo;
 

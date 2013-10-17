@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "earthmodelmod.h"
 #include "ranges.h"
-#include "position.h"
+#include "coord.h"
 class RandomLineSet;
 template <class T> class ODPolygon;
 namespace Geometry { class RandomLine; class RandomLineSet; }

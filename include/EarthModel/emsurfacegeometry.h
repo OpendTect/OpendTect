@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "emposid.h"
 #include "emobject.h"
-#include "position.h"
 #include "mathfunc.h"
 #include "rowcolsurface.h"
 

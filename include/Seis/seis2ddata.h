@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "namedobj.h"
 #include "objectset.h"
-#include "position.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
 
@@ -57,7 +56,7 @@ public:
     const char*		lineName(int) const;
     Pos::GeomID		geomID(int) const;
     int			indexOf(const char* linename) const;
-    int			indexOf(Pos::GeomID geomid) const;
+    int			indexOf(Pos::GeomID) const;
 
     
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
@@ -80,7 +79,7 @@ public:
     void		getFrom(od_istream&,BufferString*);
     void		putTo(od_ostream&) const;
 
-    bool		remove(Pos::GeomID geomid);
+    bool		remove(Pos::GeomID);
     				//!< Also removes from disk
 
 protected:

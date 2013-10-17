@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "callback.h"
 #include "emtracker.h"
-#include "position.h"
 #include "sets.h"
 
 namespace Attrib { class SelSpec; }    

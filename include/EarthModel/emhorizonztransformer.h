@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "executor.h"
-#include "position.h"
 
 class ZAxisTransform;
 

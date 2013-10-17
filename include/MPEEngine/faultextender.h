@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "binidvalue.h"
-
-#include "position.h"
+#include "coord.h"
 
 namespace EM { class Fault3D; };
 

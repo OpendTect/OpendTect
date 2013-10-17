@@ -15,8 +15,9 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seisposkey.h"
-#include "sets.h"
 #include "threadlock.h"
+#include "ranges.h"
+#include "sets.h"
 
 
 template <class T> class DataInterpreter;

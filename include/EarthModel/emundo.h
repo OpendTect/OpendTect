@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "undo.h"
 #include "emposid.h"
-#include "position.h"
+#include "coord.h"
 #include "color.h"
 
 namespace Geometry { class ParametricSurface; };

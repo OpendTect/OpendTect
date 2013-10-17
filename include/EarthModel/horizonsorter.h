@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "cubesampling.h"
 #include "multiid.h"
-#include "position.h"
+#include "binid.h"
 #include "surv2dgeom.h"
 
 

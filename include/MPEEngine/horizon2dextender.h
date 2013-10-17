@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "sectionextender.h"
-#include "position.h"
+#include "coord.h"
 #include "surv2dgeom.h"
 #include "binidvalue.h"
 

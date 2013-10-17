@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "executor.h"
-#include "position.h"
+#include "binid.h"
 #include "samplingdata.h"
 
 class Scaler;

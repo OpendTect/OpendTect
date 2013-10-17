@@ -16,8 +16,6 @@
 #include "seismod.h"
 #include "binidvalset.h"
 #include "callback.h"
-#include "position.h"
-#include "callback.h"
 #include "multidimstorage.h"
 #include "thread.h"
 #include "seistrc.h"

@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "arrayndimpl.h"
 #include "fourier.h"
-#include "position.h"
+#include "binid.h"
 #include "seisbuf.h"
 
 class IOObj;

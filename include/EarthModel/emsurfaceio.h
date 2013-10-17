@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
-#include "position.h"
 #include "ranges.h"
 #include "rowcol.h"
 #include "od_iosfwd.h"

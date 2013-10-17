@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "bufstringset.h"
 #include "linekey.h"
-#include "position.h"
+#include "binid.h"
 #include "ranges.h"
 #include "refcount.h"
 #include "sets.h"

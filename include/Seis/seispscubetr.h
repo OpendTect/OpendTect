@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistrctr.h"
-#include "position.h"
+#include "binid.h"
 class IOObj;
 class SeisPS3DReader;
 namespace PosInfo { class CubeData; }

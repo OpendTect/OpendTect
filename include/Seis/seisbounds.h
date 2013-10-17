@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "ranges.h"
-#include "position.h"
+#include "coord.h"
 class CubeSampling;
 
 

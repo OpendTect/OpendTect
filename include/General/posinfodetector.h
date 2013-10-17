@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "posinfo.h"
+#include "coord.h"
 class HorSampling;
 class BinIDSorting;
 class BinIDSortingAnalyser;

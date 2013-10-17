@@ -16,10 +16,6 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "sectionselector.h"
 
-#include "position.h"
-#include "sets.h"
-
-
 namespace EM { class Horizon3D; class EMObject; }
 
 

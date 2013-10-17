@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seistype.h"
 #include "bufstringset.h"
-#include "position.h"
 #include "segyfiledef.h"
 class SeisTrc;
 class DataClipSampler;

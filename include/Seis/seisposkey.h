@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistype.h"
-#include "position.h"
+#include "binid.h"
 
 
 namespace Seis

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "executor.h"
-#include "position.h"
+#include "binid.h"
 
 class CubeSampling;
 class SeisTrcInfo;

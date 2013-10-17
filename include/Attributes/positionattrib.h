@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
-#include "position.h"
+#include "binid.h"
 #include "arrayndimpl.h"
 
 namespace Attrib
