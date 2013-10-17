@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "position.h"
+#include "coord.h"
 #include "ranges.h"
 #include "callback.h"
 

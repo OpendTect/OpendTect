@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "position.h"
 #include "task.h"
 
 class Coord3List;

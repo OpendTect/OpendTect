@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "position.h"
+#include "gendefs.h"
 
 class Coord3List;
 

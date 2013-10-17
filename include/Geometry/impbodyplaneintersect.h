@@ -12,11 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "arraynd.h"
-#include "cubesampling.h"
-#include "position.h"
-
+#include "gendefs.h"
+template <class T> class Array3D;
 class Coord3List;
+class CubeSampling;
 
 namespace Geometry
 {

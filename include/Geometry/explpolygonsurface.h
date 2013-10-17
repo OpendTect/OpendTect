@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "indexedshape.h"
-#include "position.h"
+#include "coord.h"
 
 class DAGTetrahedraTree;
 

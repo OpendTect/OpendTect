@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "position.h"
+#include "binid.h"
 #include "ranges.h"
 #include "namedobj.h"
 

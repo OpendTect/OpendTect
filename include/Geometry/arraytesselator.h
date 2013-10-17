@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "arraynd.h"
+#include "ranges.h"
 
 
 template <class T> class Array2D;

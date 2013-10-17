@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "indexedshape.h"
 #include "positionlist.h"
 #include "trigonometry.h"
+#include "cubesampling.h"
 
 
 namespace Geometry

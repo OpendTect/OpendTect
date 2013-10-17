@@ -13,7 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "position.h"
+#include "coord.h"
+
 
 mExpClass(Geometry) SurveyGeometry
 {
@@ -30,4 +31,3 @@ public:
 };
 
 #endif
-
