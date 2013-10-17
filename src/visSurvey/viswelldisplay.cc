@@ -133,7 +133,10 @@ WellDisplay::~WellDisplay()
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
     if ( group_ )
+    {
 	removeChild( group_->getInventorNode() );
+	group_->unRef(); group_ = 0;
+    }
 
     wd_ = 0;
     mGetWD(return);
@@ -940,6 +943,7 @@ void WellDisplay::setupPicking( bool yn )
     {
 	group_ = visBase::DataObjectGroup::create();
 	mTryAlloc( pseudotrack_, Well::Track() );
+	group_->ref();
 	addChild( group_->getInventorNode() );
     }
 

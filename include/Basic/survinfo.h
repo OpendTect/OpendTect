@@ -87,8 +87,7 @@ protected:
 /*!
 \brief Holds survey general information.
 
-  The surveyinfo is the primary source for ranges and steps.It also provides
-  the transformation between inline/xline <-> coordinates and lat/long estimates
+  The surveyinfo is the primary source for ranges and steps.It also provides the  transformation between inline/xline <-> coordinates and lat/long estimates.
   
   Note: the Z range step is only a default. It should not be used further
   because different cubes/lines have different sample rates.
@@ -207,7 +206,6 @@ public:
 protected:
 
 			SurveyInfo();
-			// do not use, will be removed
     bool		valid_;
 
     BufferString	datadir_;
@@ -242,6 +240,7 @@ protected:
 
     static SurveyInfo*	theinst_;
  
+    static void		deleteInstance();
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
@@ -296,18 +295,12 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
-    static const char*	sKeySetupFileName()		{ return ".survey"; }
-    static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
 
     BufferString	getDirName() const	{ return dirname_; }
-    void		updateDirName(); //!< May be used after setName()
 
     			DeclareEnumUtils(Pol2D);
     Pol2D		survDataType() const	{ return survdatatype_; }
-    void		setSurvDataType( Pol2D typ )
-    			{ survdatatype_ = typ; survdatatypeknown_ = true; }
-    BufferString	sipName() const		{ return sipnm_; }
-    void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
+    void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
 
     const char*		comment() const		{ return comment_.buf(); }
 
@@ -336,7 +329,6 @@ public:
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
     void		setComment( const char* s )	{ comment_ = s; }
-    			// do not use, will be removed
     void		setInvalid() const;
 
     void		setWSProjName( const char* nm ) const
@@ -344,21 +336,10 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
-    			// No, you really don't need these!
-    static void		pushSI(SurveyInfo*);
-    static SurveyInfo*	popSI();
-    static void		deleteInstance()		{ delete popSI(); }
-
-protected:
-
-    BufferString	sipnm_;
-
 };
 
 
 mGlobal(Basic) const SurveyInfo& SI();
-mGlobal(Basic) inline SurveyInfo& eSI()
-			{ return const_cast<SurveyInfo&>(SI()); }
 
 mExternC( Basic ) const char* GetSurveyFileName(void);
 mExternC( Basic ) int SurveyNameDirty(void);

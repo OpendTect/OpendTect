@@ -387,11 +387,10 @@ void HorizonPainter3D::removePolyLine()
     {
 	SectionMarker3DLine* markerlines = markerline_[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
-	{
 	    if ( !viewer_.removeAuxData( (*markerlines)[idy]->marker_ ) )
 		(*markerlines)[idy]->marker_ = 0;
-	    deepErase( markerlines[idy] );
-	}
+	
+	deepErase( *markerlines );
     }
     deepErase( markerline_ );
 

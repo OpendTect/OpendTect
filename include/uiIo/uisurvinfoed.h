@@ -14,8 +14,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "uisip.h"
-#include "bufstringset.h"
 #include "ranges.h"
 
 class IOPar;
@@ -24,6 +22,7 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiGroup;
+class uiSurvInfoProvider;
 
 /*!
 \brief The survey info editor.
@@ -34,9 +33,6 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 
-			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
-					   bool isnew=false);
-			// do not use, will be removed
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
     bool		isOK() const		{ return topgrp_; }
     			//!<Must be checked before 'go'
@@ -110,7 +106,6 @@ protected:
     
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
-    void		updatePar(CallBacker*);
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
@@ -122,32 +117,6 @@ protected:
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
-
-public:
-    			// ABI compatibility
-    static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
-
-};
-
-
-mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
-{
-public:
-			uiCopySurveySIP() {};
-
-    const char*		usrText() const	{ return "Copy from other survey"; }
-    uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
-
-    TDInfo		tdInfo() const { return tdinf_; }
-    bool		xyInFeet() const { return inft_; }
-
-
-protected:
-
-    TDInfo		tdinf_;
-    bool		inft_;
-    BufferStringSet	survlist_;
 
 };
 
