@@ -728,7 +728,10 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !doSurvInfoDialog(true) )
 	mRetRollBackNewSurvey( 0 )
     else
+    {
+	readSurvInfoFromFile(); // essential
 	putToScreen();
+    }
 
     rmbut_->setSensitive(true);
     editbut_->setSensitive(true);
