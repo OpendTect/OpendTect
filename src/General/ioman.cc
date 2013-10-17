@@ -931,10 +931,6 @@ bool OD_isValidRootDataDir( const char* d )
     fp.add( ".omf" );
     if ( !File::exists(fp.fullPath()) ) return false;
 
-    fp.setFileName( SurveyInfo::sKeySetupFileName() );
-    if ( File::exists(fp.fullPath()) )
-	return false;
-
     return true;
 }
 
