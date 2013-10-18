@@ -403,8 +403,8 @@ T Atomic<T>::get() const
 template <class T> inline
 T Atomic<T>::exchange( T newval )
 {
-    T expected = *valptr_;
-    while ( !weakSetIfEqual( newval, expected ) )
+    T curval = *valptr_;
+    while ( !setIfValueIs( curval, newval ) )
     {}
 
     return expected;
@@ -503,7 +503,7 @@ bool Atomic<long long>::setIfValueIs(long long& curval, long long newval )
     	InterlockedCompareExchange64(valptr_,newval,curval);
     if ( prevval==curval )
 	return true;
-    expected = prevval;
+    curval = prevval;
     return false; 
 }
 	 
