@@ -91,6 +91,9 @@ public:
     bool		getInterSection(const HorSampling&,HorSampling&) const;
     			//!< Returns false if intersection is empty
 
+    BinID		getNearest(const BinID&) const;
+			    /*!< step-snap and outside -> edge.
+				Assumes inldist == crldist */
     void		snapToSurvey();
     			/*!< Checks if it is on valid bids. If not, it will
 			     expand until it is */

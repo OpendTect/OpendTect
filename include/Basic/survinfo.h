@@ -240,7 +240,6 @@ protected:
     Pol2D		survdatatype_;
     bool		survdatatypeknown_;
 
-    static SurveyInfo*	theinst_;
  
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
@@ -259,6 +258,11 @@ private:
 
     RCol2Coord::RCTransform	rdxtr_;
     RCol2Coord::RCTransform	rdytr_;
+
+    				// For IOMan only
+    static void			setSurveyName(const char*);
+    				// friends only
+    static const char*		surveyFileName();
 
 public:
 
@@ -344,6 +348,8 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
+    static const char*	curSurveyName();
+
     			// No, you really don't need these!
     static void		pushSI(SurveyInfo*);
     static SurveyInfo*	popSI();
@@ -360,11 +366,15 @@ mGlobal(Basic) const SurveyInfo& SI();
 mGlobal(Basic) inline SurveyInfo& eSI()
 			{ return const_cast<SurveyInfo&>(SI()); }
 
+/* The following can be used at all times to get the current survey name: */
+mExternC( Basic ) const char* GetSurveyName(void);
+
+
+/* Deprecated, these will go away in 5.0: */
 mExternC( Basic ) const char* GetSurveyFileName(void);
 mExternC( Basic ) int SurveyNameDirty(void);
 mExternC( Basic ) void SetSurveyNameDirty(void);
 mExternC( Basic ) void SetSurveyName(const char*);
-mExternC( Basic ) const char* GetSurveyName(void);
 
 
 

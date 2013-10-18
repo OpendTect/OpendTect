@@ -62,8 +62,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 	, isnew_(isnew)
 {
     orgstorepath_ = si_.datadir_.buf();
+
     BufferString fulldirpath;
-    if ( !isnew_ )
+    if ( isnew_ )
+    {
+	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
+	SurveyInfo::pushSI( &si_ );
+    }
+    else
     {
 	BufferString storagedir = FilePath(orgstorepath_).add(orgdirname_)
 	    						 .fullPath();
@@ -88,11 +94,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 
 	fulldirpath = storagedir;
     }
-    else
-	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
-
-    if ( isnew_ )
-	SurveyInfo::pushSI( &si_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     survnmfld_ = new uiGenInput( topgrp_, "Survey name",
@@ -168,6 +169,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 uiSurveyInfoEditor::~uiSurveyInfoEditor()
 {
     delete impiop_;
+    if ( isnew_ )
+	SurveyInfo::popSI();
 }
 
 
@@ -381,7 +384,7 @@ void uiSurveyInfoEditor::setValues()
     }
 
     xyinftfld_->setChecked( si_.xyInFeet() );
-    depthdispfld_->setValue( !si_.depthsInFeetByDefault() );
+    depthdispfld_->setValue( !si_.depthsInFeet() );
     updZUnit( 0 );
 }
 
@@ -533,8 +536,6 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 	    						  .fullPath();
 	if ( File::exists(dirnm) )
 	    File::remove( dirnm );
-
-	SurveyInfo::popSI();
     }
 
     return true;
@@ -619,9 +620,6 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( isnew_ )
-	SurveyInfo::popSI();
-    
     return true;
 }
 
@@ -807,8 +805,8 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
+	if ( mIsUdf(irg.step) || !irg.step || irg.step>irg.width() ) irg.step=1;
 	if ( irg.isUdf() ) return;
-	if ( !irg.step || irg.step>irg.width() ) irg.step = 1;
 
 	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
 	inlfld_->setValue( irg );
@@ -816,8 +814,8 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
+	if ( mIsUdf(crg.step) || !crg.step || crg.step>crg.width() ) crg.step=1;
 	if ( crg.isUdf() ) return;
-	if ( !crg.step || crg.step>crg.width() ) crg.step = 1;
 
 	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
 	crlfld_->setValue( crg );
@@ -868,7 +866,7 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurvey::getSurveyList( survlist_ );
+    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
     uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );

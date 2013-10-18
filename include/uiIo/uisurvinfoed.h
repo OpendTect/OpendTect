@@ -24,6 +24,7 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiGroup;
+class uiSurvInfoProvider;
 
 /*!
 \brief The survey info editor.
@@ -45,11 +46,14 @@ public:
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName() const;
 
+    static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
     static bool		copySurv(const char* frompath,const char* fromdirnm,
 	    			 const char* topath,const char* todirnm);
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
+
+    /* Deprecated; no longer used */
     static const char*	newSurvTempDirName();
 
     Notifier<uiSurveyInfoEditor> survParChanged;
@@ -122,10 +126,6 @@ protected:
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
-
-public:
-    			// ABI compatibility
-    static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
 
 };
 

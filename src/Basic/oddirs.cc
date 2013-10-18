@@ -9,13 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 #include "oddirs.h"
-#include <string.h>
 #include "envvars.h"
 #include "winutils.h"
 #include "debugmasks.h"
 #include "file.h"
 #include "filepath.h"
 #include "settings.h"
+#include "survinfo.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -68,46 +68,17 @@ static const char* mkFullPath( const char* path, const char* filename )
 }
 
 
-/* -> hidden survey functions used in survinfo.cc, ioman.cc etc. */
+/* -> hidden survey functions used in survinfo.cc, ioman.cc etc.
+   Will go away in 5.0 */
 
 mExternC(Basic) int SurveyNameDirty(void)
-{
-    return surveynamedirty;
-}
-
-
+{ return surveynamedirty; }
 mExternC(Basic) void SetSurveyNameDirty(void)
-{
-    surveynamedirty = 1;
-}
+{ surveynamedirty = 1; }
 
 
-
-mExternC(Basic) const char* GetSurveyFileName(void)
-{
-    static BufferString sfname;
-
-    if ( sfname.isEmpty() )
-    {
-	const char* ptr = GetSettingsDir();
-	sfname = mkFullPath(ptr,"survey");
-	ptr = GetSoftwareUser();
-	if ( ptr )
-	{
-	    sfname += ".";
-	    sfname += ptr;
-	}
-    }
-
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgstrbuf, "GetSurveyFileName: '%s'", sfname.buf() );
-	od_debug_message( dbgstrbuf );
-    }
-
-    return sfname;
-}
-
+void SurveyInfo::setSurveyName( const char* newnm )
+{ SetSurveyName( newnm ); }
 
 mExternC(Basic) void SetSurveyName( const char* newnm )
 {
@@ -115,6 +86,34 @@ mExternC(Basic) void SetSurveyName( const char* newnm )
     strcpy( surveyname.buf(), newnm );
     removeTrailingBlanks( surveyname.buf() );
     surveynamedirty = 0;
+}
+
+
+const char* SurveyInfo::surveyFileName()
+{ return GetSurveyFileName(); }
+
+mExternC(Basic) const char* GetSurveyFileName(void)
+{
+    static const char* ret = 0;
+
+    if ( !ret )
+    {
+	FilePath fp( GetSettingsDir(), "survey" );
+	const char* ptr = GetSoftwareUser();
+	if ( ptr )
+	    fp.setExtension( ptr );
+	static BufferString fnm;
+	fnm = fp.fullPath();
+	ret = fnm.buf();
+
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    sprintf( dbgstrbuf, "GetSurveyFileName: %s", ret );
+	    od_debug_message( dbgstrbuf );
+	}
+    }
+
+    return *ret ? ret : 0;
 }
 
 

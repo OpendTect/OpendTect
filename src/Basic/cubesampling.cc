@@ -371,6 +371,39 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 }
 
 
+static void getNearestIdx( int& diridx, int step )
+{
+    const int rest = diridx % step;
+    if ( rest > step/2 )
+	diridx += step - rest;
+    else
+	diridx -= rest;
+}
+
+
+BinID HorSampling::getNearest( const BinID& bid ) const
+{
+    BinID relbid( bid.inl - start.inl, bid.crl - start.crl );
+
+    if ( step.inl )
+	getNearestIdx( relbid.inl, step.inl );
+    if ( step.crl )
+	getNearestIdx( relbid.crl, step.crl );
+
+    BinID ret( start.inl + relbid.inl, start.crl + relbid.crl );
+    if ( ret.inl < start.inl )
+	ret.inl = start.inl;
+    else if ( ret.inl > stop.inl )
+	ret.inl = stop.inl;
+    if ( ret.crl < start.crl )
+	ret.crl = start.crl;
+    else if ( ret.crl > stop.crl )
+	ret.crl = stop.crl;
+
+    return ret;
+}
+
+
 void HorSampling::snapToSurvey()
 {
     SI().snap( start, BinID(-1,-1) );

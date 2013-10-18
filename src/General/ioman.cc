@@ -31,8 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdlib.h>
 
 IOMan*	IOMan::theinst_	= 0;
-
-static bool survchg_triggers = false;
 static const MultiID emptykey( "" );
 
 
@@ -203,7 +201,7 @@ bool IOMan::isReady() const
 
 
 #define mDestroyInst(dotrigger) \
-    if ( dotrigger && !IOM().bad() && survchg_triggers ) \
+    if ( dotrigger && !IOM().bad() ) \
 	IOM().surveyToBeChanged.trigger(); \
     if ( !IOM().canChangeSurvey() ) \
     { \
@@ -231,7 +229,7 @@ bool IOMan::isReady() const
     if ( dotrigger && !IOM().bad() ) \
     { \
 	setupCustomDataDirs(-1); \
-	if ( dotrigger && survchg_triggers ) \
+	if ( dotrigger ) \
 	{ \
 	    IOM().surveyChanged.trigger(); \
 	    IOM().afterSurveyChange.trigger(); \
@@ -247,11 +245,20 @@ static void clearSelHists()
 }
 
 
-bool IOMan::newSurvey()
+bool IOMan::newSurvey() { return newSurvey(0); }
+bool IOMan::newSurvey( SurveyInfo* newsi )
 {
     mDestroyInst( true );
 
-    SetSurveyNameDirty();
+    SurveyInfo::deleteInstance();
+    if ( !newsi )
+	SurveyInfo::setSurveyName( "" );
+    else
+    {
+	SurveyInfo::setSurveyName( newsi->getDirName() );
+	SurveyInfo::pushSI( newsi );
+    }
+
     mFinishNewInst( true );
     return !IOM().bad();
 }
@@ -262,9 +269,20 @@ bool IOMan::setSurvey( const char* survname )
     mDestroyInst( true );
 
     SurveyInfo::deleteInstance();
-    SetSurveyName( survname );
+    SurveyInfo::setSurveyName( survname );
+
     mFinishNewInst( true );
     return !IOM().bad();
+}
+
+
+void IOMan::surveyParsChanged()
+{
+    IOM().surveyToBeChanged.trigger();
+    if ( !IOM().canChangeSurvey() )
+	{ IOM().allowSurveyChange(); return; }
+    IOM().surveyChanged.trigger();
+    IOM().afterSurveyChange.trigger();
 }
 
 
@@ -352,17 +370,16 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	}
     }
 
-    // Survey in ~/.od/survey[.$DTECT_USER] is invalid. Remove it if necessary
-    BufferString survfname = GetSurveyFileName();
+    // Survey name in ~/.od/survey is invalid or absent. If there, lose it ...
+    const BufferString survfname = SurveyInfo::surveyFileName();
     if ( File::exists(survfname) && !File::remove(survfname) )
     {
-	errmsg = "The file "; errmsg += survfname;
-	errmsg += " contains an invalid survey.\n";
-	errmsg += "Please remove this file";
+	errmsg.set( "The file:\n" ).add( survfname )
+	    .add( "\ncontains an invalid survey.\n\nPlease remove this file" );
 	return false;
     }
-    else
-        SetSurveyNameDirty();
+
+    SurveyInfo::setSurveyName( "" ); // force user-set of survey
 
     mDestroyInst( false );
     mFinishNewInst( false );
@@ -528,6 +545,53 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
     }
 
     return ret;
+}
+
+
+IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
+			  const IOObjContext& ctxt,
+			  bool mknew, BufferString& errmsg ) const
+{
+    BufferString basekey( bky );
+    if ( !basekey.isEmpty() ) basekey.add( "." );
+    BufferString iopkey( basekey );
+    iopkey.add( sKey::ID() );
+    BufferString res = par.find( iopkey ).str();
+    if ( res.isEmpty() )
+    {
+	iopkey = basekey; iopkey.add( sKey::Name() );
+	res = par.find( iopkey ).str();
+	if ( res.isEmpty() )
+	{
+	    errmsg = BufferString( "Please specify '", iopkey, "'" );
+	    return 0;
+	}
+
+	if ( !IOObj::isKey(res.buf()) )
+	{
+	    CtxtIOObj ctio( ctxt );
+	    IOM().to( ctio.ctxt.getSelKey() );
+	    const IOObj* ioob = (*(const IODir*)(dirPtr()))[res.buf()];
+	    if ( ioob )
+		res = ioob->key();
+	    else if ( mknew )
+	    {
+		ctio.setName( res );
+		IOM().getEntry( ctio );
+		if ( ctio.ioobj )
+		{
+		    IOM().commitChanges( *ctio.ioobj );
+		    return ctio.ioobj;
+		}
+	    }
+	}
+    }
+
+    IOObj* ioobj = get( MultiID(res.buf()) );
+    if ( !ioobj )
+	errmsg = BufferString( "Value for ", iopkey, " is invalid." );
+
+    return ioobj;
 }
 
 
@@ -926,10 +990,13 @@ IOSubDir* IOMan::getIOSubDir( const IOMan::CustomDirData& cdd )
 bool OD_isValidRootDataDir( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
-    if ( !File::isDirectory(fp.fullPath()) ) return false;
+    const BufferString dirnm( fp.fullPath() );
+    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
+	return false;
 
     fp.add( ".omf" );
-    if ( !File::exists(fp.fullPath()) ) return false;
+    if ( !File::exists(fp.fullPath()) )
+	return false;
 
     return true;
 }
@@ -966,12 +1033,6 @@ const char* OD_SetRootDataDir( const char* inpdatadir )
 		    "OpendTect root data dir";
     }
 
-    IOMan::newSurvey();
+    IOMan::newSurvey(0);
     return 0;
-}
-
-
-void IOMan::enableSurveyChangeTriggers( bool yn )
-{
-    survchg_triggers = yn;
 }

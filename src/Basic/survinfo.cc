@@ -46,8 +46,6 @@ const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 
-SurveyInfo* SurveyInfo::theinst_ = 0;
-
 DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
@@ -56,12 +54,32 @@ Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
 { return transform( BinID(linenr,tracenr) ); }
 
 
-TraceID	InlCrlSystem::nearestTrace( const Coord& crd, float* ) const
-{ return TraceID( transform(crd) ); }
+TraceID InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
+{
+    const BinID bid( transform(crd) );
+    TraceID tk = TraceID( getGeomID(), bid.inl, bid.crl );
+    if ( dist )
+    {
+	if ( cs_.hrg.includes(tk.pos_) )
+	{
+	    const Coord projcoord( transform(tk.pos_) );
+	    *dist = (float)projcoord.distTo( crd );
+	}
+	else
+	{
+	    BinID nearbid( cs_.hrg.getNearest(tk.pos_) );
+	    const Coord nearcoord( transform(nearbid) );
+	    *dist = (float)nearcoord.distTo( crd );
+	}
+    }
+    return tk;
+}
 
 
 bool InlCrlSystem::includes( int line, int tracenr ) const
-{ return cs_.hrg.includes( BinID(line,tracenr) ); }
+{
+    return cs_.hrg.includes( BinID(line,tracenr) );
+}
 
 
 static ObjectSet<SurveyInfo> survinfostack;
@@ -69,16 +87,11 @@ static ObjectSet<SurveyInfo> survinfostack;
 const SurveyInfo& SI()
 {
     int cursurvinfoidx = survinfostack.size() - 1;
-    if ( cursurvinfoidx < 0 || !survinfostack[cursurvinfoidx] )
+    if ( cursurvinfoidx < 0 )
     {
-	while ( cursurvinfoidx >= 0 && !survinfostack[cursurvinfoidx] )
-	{
-	    delete survinfostack.removeSingle( cursurvinfoidx );
-	    cursurvinfoidx--;
-	}
 	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
 	if ( !newsi )
-	    { delete newsi; newsi = new SurveyInfo; } // what option is left?
+	    newsi = new SurveyInfo;
 	survinfostack += newsi;
 	cursurvinfoidx = survinfostack.size() - 1;
     }
@@ -89,14 +102,18 @@ const SurveyInfo& SI()
 
 void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
-    survinfostack += newsi;
+    if ( !newsi )
+	pFreeFnErrMsg("Null survinfo pushed","SurveyInfo::pushSI");
+    else
+	survinfostack += newsi;
 }
 
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    return survinfostack.isEmpty() ? 0
-	 : survinfostack.removeSingle( survinfostack.size()-1 );
+    if ( survinfostack.isEmpty() )
+	{ pFreeFnErrMsg("Pop from empty stack","SurveyInfo::popSI"); return 0; }
+    return survinfostack.removeSingle( survinfostack.size()-1 );
 }
 
 
@@ -655,7 +672,9 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 
 
 float SurveyInfo::zScale() const
-{ return defaultXYtoZScale( zUnit(), xyUnit() ); }
+{
+    return defaultXYtoZScale( zUnit(), xyUnit() );
+}
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
@@ -939,14 +958,16 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
+    BufferString surveypath;
     if ( !basedir || !*basedir )
     {
 	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
-	basedir = File::exists(storepath) ? storepath.buf() : GetDataDir();
+	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
     }
+    else
+	surveypath = basedir;
 
-    const BufferString defsfnm( FilePath(basedir,sKeyDefsFile).fullPath() );
-
+    const BufferString defsfnm( FilePath(surveypath,sKeyDefsFile).fullPath() );
     if ( pars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )

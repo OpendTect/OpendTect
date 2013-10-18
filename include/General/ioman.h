@@ -18,10 +18,12 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class IODir;
+class IOPar;
 class IOObj;
 class IOSubDir;
 class CtxtIOObj;
 class Translator;
+class SurveyInfo;
 class IOObjContext;
 
 /*!
@@ -49,6 +51,9 @@ public:
 			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
+    IOObj*		getFromPar(const IOPar&,const char* basekey,
+				   const IOObjContext&,bool mknew,
+				   BufferString& errmsg) const;
 
     IODir*		dirPtr()		{ return dirptr_; }
     const IODir*	dirPtr() const		{ return dirptr_; }
@@ -145,13 +150,12 @@ public:
     static bool		newSurvey();
 			/*!< if an external source has changed
 				the .od/survey, force re-read it. */
+    static bool		newSurvey(SurveyInfo*);
     static bool		setSurvey(const char*);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
-    static void		enableSurveyChangeTriggers(bool);
-    			/*!< if set to true, survey change notifiers will be
-			     triggered */
+    static void		surveyParsChanged();
 
 };
 
