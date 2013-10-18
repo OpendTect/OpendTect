@@ -543,7 +543,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	D2TModel* d2t = new D2TModel();
+	//D2TModel* d2t = new D2TModel();
 	// fill d2t
 	const BufferString wellfnm = ioobj->fullUserExpr();
 	Writer wtr( wellfnm, *wd );
