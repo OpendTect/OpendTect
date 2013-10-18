@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
 #include "threadlock.h"
