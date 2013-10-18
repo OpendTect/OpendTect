@@ -916,14 +916,13 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     putTr( b2c_.getTransform(true), astream, sKeyXTransf );
     putTr( b2c_.getTransform(false), astream, sKeyYTransf );
     FileMultiString fms;
-    BufferString buf;
     for ( int idx=0; idx<3; idx++ )
     {
 	SeparString ky( "Set Point", '.' );
 	ky += idx + 1;
 	fms = set3binids_[idx].getUsrStr();
 	fms += set3coords_[idx].getUsrStr();
-	astream.put( (const char*)ky, (const char*)fms );
+	astream.put( ky.buf(), fms.buf() );
     }
 
     if ( ll2c_.isOK() )

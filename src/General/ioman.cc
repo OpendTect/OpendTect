@@ -363,17 +363,16 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	}
     }
 
-    // Survey in ~/.od/survey[.$DTECT_USER] is invalid. Remove it if necessary
-    BufferString survfname = GetSurveyFileName();
+    // Survey name in ~/.od/survey is invalid or absent. If there, lose it ...
+    const BufferString survfname = SurveyInfo::surveyFileName();
     if ( File::exists(survfname) && !File::remove(survfname) )
     {
-	errmsg = "The file "; errmsg += survfname;
-	errmsg += " contains an invalid survey.\n";
-	errmsg += "Please remove this file";
+	errmsg.set( "The file:\n" ).add( survfname )
+	    .add( "\ncontains an invalid survey.\n\nPlease remove this file" );
 	return false;
     }
 
-    SurveyInfo::setSurveyName( "" );
+    SurveyInfo::setSurveyName( "" ); // force user-set of survey
 
     mDestroyInst( false );
     mFinishNewInst( false );

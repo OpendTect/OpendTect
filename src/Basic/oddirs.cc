@@ -42,7 +42,7 @@ static BufferString cur_survey_name;
 
 
 
-mExternC(Basic) const char* GetSurveyFileName()
+const char* SurveyInfo::surveyFileName()
 {
     static const char* ret = 0;
 
@@ -55,10 +55,10 @@ mExternC(Basic) const char* GetSurveyFileName()
 	static BufferString fnm;
 	fnm = fp.fullPath();
 	ret = fnm.buf();
-    }
 
-    if ( od_debug_isOn(DBG_SETTINGS) )
-	mPrDebug( "GetSurveyFileName", ret );
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	    mPrDebug( "SurveyInfo::surveyFileName", ret );
+    }
 
     return *ret ? ret : 0;
 }
@@ -72,12 +72,12 @@ void SurveyInfo::setSurveyName( const char* newnm )
 }
 
 
-mExternC(Basic) const char* GetSurveyName()
+const char* SurveyInfo::curSurveyName()
 {
     if ( !cur_survey_name.isEmpty() )
 	return cur_survey_name.buf();
 
-    od_istream strm( GetSurveyFileName() );
+    od_istream strm( SurveyInfo::surveyFileName() );
     if ( !strm.isOK() )
 	return 0;
 
@@ -87,9 +87,15 @@ mExternC(Basic) const char* GetSurveyName()
     if ( !*ptr ) return 0;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
-	mPrDebug( "GetSurveyName", cur_survey_name );
+	mPrDebug( "SurveyInfo::curSurveyName", cur_survey_name );
 
     return cur_survey_name;
+}
+
+
+mExternC(Basic) const char* GetSurveyName()
+{
+    return SurveyInfo::curSurveyName();
 }
 
 

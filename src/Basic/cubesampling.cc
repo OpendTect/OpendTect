@@ -402,11 +402,14 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 
 BinID HorSampling::getNearest( const BinID& bid ) const
 {
-    BinID ret( bid );
+    BinID relbid( bid.first - start.first, bid.second - start.second );
+
     if ( step.first )
-	ret.first -= ret.first % step.first;
+	relbid.first -= relbid.first % step.first;
     if ( step.second )
-	ret.second -= ret.second % step.second;
+	relbid.second -= relbid.second % step.second;
+
+    BinID ret( start.first + relbid.first, start.second + relbid.second );
     if ( ret.first < start.first )
 	ret.first = start.first;
     else if ( ret.first > stop.first )
@@ -415,6 +418,7 @@ BinID HorSampling::getNearest( const BinID& bid ) const
 	ret.second = start.second;
     else if ( ret.second > stop.second )
 	ret.second = stop.second;
+
     return ret;
 }
 

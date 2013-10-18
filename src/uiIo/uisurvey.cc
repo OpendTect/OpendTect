@@ -935,7 +935,7 @@ bool uiSurvey::writeSettingsSurveyFile()
     if ( !File::exists(FilePath(GetBaseDataDir(),seltxt).fullPath()) )
 	mErrRet( "Survey directory does not exist anymore" )
 
-    const char* survfnm = GetSurveyFileName();
+    const char* survfnm = SurveyInfo::surveyFileName();
     if ( !survfnm )
 	mErrRet( "Internal error: cannot construct last-survey-filename" )
 

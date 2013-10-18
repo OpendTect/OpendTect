@@ -256,6 +256,8 @@ private:
 
     				// For IOMan only
     static void			setSurveyName(const char*);
+    				// friends only
+    static const char*		surveyFileName();
 
 public:
 
@@ -339,6 +341,8 @@ public:
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
+    static const char*	curSurveyName();
+
     			// No, you really don't need these!
     static void		pushSI(SurveyInfo*);
     static SurveyInfo*	popSI();
@@ -351,7 +355,6 @@ mGlobal(Basic) const SurveyInfo& SI();
 mGlobal(Basic) inline SurveyInfo& eSI()
 			{ return const_cast<SurveyInfo&>(SI()); }
 
-mExternC( Basic ) const char* GetSurveyFileName(void);
 mExternC( Basic ) const char* GetSurveyName(void);
 
 
