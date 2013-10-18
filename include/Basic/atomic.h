@@ -407,7 +407,7 @@ T Atomic<T>::exchange( T newval )
     while ( !setIfValueIs( curval, newval ) )
     {}
 
-    return expected;
+    return curval;
 }
 
 
