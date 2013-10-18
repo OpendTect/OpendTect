@@ -83,7 +83,6 @@ static const char* rcsID = "$Id$";
 #include <stdio.h>
 
 
-
 void
 
 VisualInfo(HDC hDC, int verbose)
@@ -721,12 +720,47 @@ main(int argc, char** argv)
 
     printf("    %s.\n\n", t);
 
+    printf("Limits:\n");
 
+#define mPrintIntegerLimit( LIMIT ) \
+{ \
+    GLint limit; \
+    glGetIntegerv(LIMIT, &limit); \
+    if ( glGetError()==GL_NO_ERROR ) \
+    { \
+	printf("    %s: %d\n", #LIMIT, limit ); \
+    }\
+}
 
-    /* enumerate all the formats */
+    mPrintIntegerLimit(GL_MAX_TEXTURE_SIZE);
+    mPrintIntegerLimit(GL_MAX_ATTRIB_STACK_DEPTH);
+    mPrintIntegerLimit(GL_MAX_CLIP_PLANES);
+    mPrintIntegerLimit(GL_MAX_ELEMENTS_VERTICES_WIN);
+    mPrintIntegerLimit(GL_MAX_ELEMENTS_INDICES_WIN);
+
+    mPrintIntegerLimit(GL_MAX_ELEMENTS_INDICES_WIN);
+    mPrintIntegerLimit(GL_MAX_ELEMENTS_INDICES_WIN);
+    mPrintIntegerLimit(GL_MAX_EVAL_ORDER);
+    mPrintIntegerLimit(GL_MAX_LIGHTS);
+    mPrintIntegerLimit(GL_MAX_LIST_NESTING);
+    mPrintIntegerLimit(GL_MAX_MODELVIEW_STACK_DEPTH);
+    mPrintIntegerLimit(GL_MAX_NAME_STACK_DEPTH);
+    mPrintIntegerLimit(GL_MAX_PIXEL_MAP_TABLE);
+    mPrintIntegerLimit(GL_MAX_PROJECTION_STACK_DEPTH);
+    mPrintIntegerLimit(GL_MAX_TEXTURE_STACK_DEPTH);
+    mPrintIntegerLimit(GL_MAX_TEXTURE_SIZE);
+    mPrintIntegerLimit(GL_3D_COLOR_TEXTURE);
+
+    mPrintIntegerLimit(GL_TEXTURE_WIDTH);
+    mPrintIntegerLimit(GL_TEXTURE_HEIGHT);
+    mPrintIntegerLimit(GL_TEXTURE_RED_SIZE);
+    mPrintIntegerLimit(GL_TEXTURE_GREEN_SIZE);
+    mPrintIntegerLimit(GL_TEXTURE_BLUE_SIZE);
+    mPrintIntegerLimit(GL_TEXTURE_ALPHA_SIZE);
+    mPrintIntegerLimit(GL_TEXTURE_LUMINANCE_SIZE);
+    mPrintIntegerLimit(GL_TEXTURE_INTENSITY_SIZE);
 
     VisualInfo(hDC, verbose);
-
 
 
     PostQuitMessage(0);
@@ -749,9 +783,10 @@ main(int argc, char** argv)
 
     DestroyWindow(hWnd);
 
-
+    while(( getchar()) != '\n');
 
     return msg.wParam;
+
 
 }
 
