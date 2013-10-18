@@ -96,16 +96,14 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 
 FaultStickSetDisplay::~FaultStickSetDisplay()
 {
+    setSceneEventCatcher( 0 );
+    showManipulator( false );
     if ( scene_ && scene_->getPolySelection() &&
 	 scene_->getPolySelection()->polygonFinished() )
     {
 	const CallBack cb = mCB(this, FaultStickSetDisplay, polygonFinishedCB);
 	scene_->getPolySelection()->polygonFinished()->remove( cb );
     }
-
-    setSceneEventCatcher( 0 );
-    showManipulator( false );
-
 
     if ( viseditor_ )
 	viseditor_->unRef();
