@@ -990,7 +990,7 @@ RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
 	newsys->cs_ = sampling( work );
 	newsys->zscale_ = zScale();
 	
-	 if ( sys.setIfEqual( newsys, 0 ) )
+	 if ( sys.setIfEqual( 0, newsys ) )
 	    newsys->ref();
     }
     

@@ -77,9 +77,12 @@ bool testAtomic( const char* valtype, bool quiet )
 	std::cout << "\n====================\n";
     }
 
-    mRunTest( !atomic.strongSetIfEqual( 1, 2 ), 0 ); //0
-    mRunTest( !atomic.strongSetIfEqual( 1, 2 ), 0 ); //0
-    mRunTest( atomic.strongSetIfEqual( 1, 0 ), 1 );  //1
+    T curval = 2;
+    mRunTest( !atomic.setIfValueIs( curval, 1 ) && curval==0, 0 ); //0
+    curval = 2;
+    mRunTest( !atomic.setIfValueIs( curval, 1 ) && curval==0, 0 ); //0
+    curval = 0;
+    mRunTest( atomic.setIfValueIs( curval, 1 ) && curval==0, 1 );  //1
     mRunTest( ++atomic==2, 2 ); //2
     mRunTest( atomic++==2, 3 ); //3
     mRunTest( atomic--==3, 2 ); //2
@@ -87,11 +90,6 @@ bool testAtomic( const char* valtype, bool quiet )
     mRunTest( (atomic+=2)==3, 3 ); //3
     mRunTest( (atomic-=2)==1, 1 );  //1
     mRunTest( atomic.exchange(2)==1, 2 ); //2
-
-    T expected = 2;
-    while ( !atomic.weakSetIfEqual( 1, expected ) ) {}
-    if ( atomic.get()!=1 )
-	mPrintResult( "weakSetIfEqual" )
 
     //Let's do some stress-test
     AtomicIncrementer<T> inc1( atomic, stopflag );
@@ -102,10 +100,10 @@ bool testAtomic( const char* valtype, bool quiet )
     
     int count = 10000000;
     bool successfound = false, failurefound = false;
-    expected = atomic.get();
+    curval = atomic.get();
     for ( int idx=0; idx<count; idx++ )
     {
-	if ( atomic.weakSetIfEqual( mTestVal,expected) )
+	if ( atomic.setIfValueIs( curval, mTestVal ) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -123,8 +121,8 @@ bool testAtomic( const char* valtype, bool quiet )
     int idx;
     for ( idx=0; idx<count; idx++ )
     {
-	expected = atomic.get();
-	if ( atomic.strongSetIfEqual(mTestVal,expected) )
+	curval = atomic.get();
+	if ( atomic.setIfValueIs(curval,mTestVal) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -151,6 +149,9 @@ bool testAtomic( const char* valtype, bool quiet )
     return true;
 }
 
+
+
+
 #undef mRunTest
 
 #define mRunTest( desc, test ) \
@@ -169,6 +170,21 @@ bool testAtomic( const char* valtype, bool quiet )
 	std::cout << " Fail\n"; \
 	return false; \
     } \
+}
+
+bool testAtomicSetIfValueIs( bool quiet )
+{
+    volatile int val = 0;
+
+    int curval = 1;
+    mRunTest( "atomicSetIfValueIs failure",
+              !Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+
+    curval = 0;
+    mRunTest( "atomicSetIfValueIs success",
+              Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+
+    return true;
 }
 
 
@@ -233,6 +249,7 @@ struct LockerTester : public CallBacker
     				//Must be at bottom
     Threads::Thread		thread_;
 };
+
 
 
 template <class T> inline
@@ -376,6 +393,9 @@ int main( int narg, char** argv )
     mRunTestWithType(unsigned int);
     mRunTestWithType(short);
     mRunTestWithType(unsigned short);
+
+    if ( !testAtomicSetIfValueIs(quiet))
+        ExitProgram( 1 );
 
     if ( !testSimpleSpinLock(quiet) )
         ExitProgram( 1 );

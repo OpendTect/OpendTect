@@ -201,7 +201,7 @@ void PtrManBase<T>::set( T* p, bool doerase )
 template <class T> inline
 bool PtrManBase<T>::setIfNull( T* p )
 {
-    if ( ptr_.setIfEqual( p, 0 ) )
+    if ( ptr_.setIfEqual( 0, p ) )
     {
 	if ( setfunc_ && p )
 	    setfunc_(p);
