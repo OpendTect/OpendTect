@@ -400,14 +400,28 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 }
 
 
+
+static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step )
+{
+    const Pos::Index_Type rest = diridx % step;
+    if ( !rest )
+	return;
+
+    if ( rest > step/2 )
+	diridx += step - rest;
+    else
+	diridx -= rest;
+}
+
+
 BinID HorSampling::getNearest( const BinID& bid ) const
 {
     BinID relbid( bid.first - start.first, bid.second - start.second );
 
     if ( step.first )
-	relbid.first -= relbid.first % step.first;
+	getNearestIdx( relbid.first, step.first );
     if ( step.second )
-	relbid.second -= relbid.second % step.second;
+	getNearestIdx( relbid.second, step.second );
 
     BinID ret( start.first + relbid.first, start.second + relbid.second );
     if ( ret.first < start.first )
@@ -421,6 +435,7 @@ BinID HorSampling::getNearest( const BinID& bid ) const
 
     return ret;
 }
+
 
 
 void HorSampling::snapToSurvey()
