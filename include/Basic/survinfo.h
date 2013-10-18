@@ -63,6 +63,10 @@ public:
 
     float		inlDistance() const;
     float		crlDistance() const;
+
+    bool		isClockWise() const;
+    			/*!< Orientation is determined by rotating the
+			     inline axis to the crossline axis. */
     
     const CubeSampling&	sampling() const	{ return cs_; }
     
@@ -131,8 +135,7 @@ public:
     const CubeSampling&	sampling( bool work ) const
     			{ return work ? wcs_ : cs_; }
 
-    Coord		transform( const BinID& b ) const
-			{ return b2c_.transform(b); }
+    Coord		transform( const BinID& b ) const;
     BinID		transform(const Coord&) const;
     			/*!<\note BinID will be snapped using work step. */
 

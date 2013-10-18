@@ -83,6 +83,72 @@ bool InlCrlSystem::includes( int line, int tracenr ) const
 }
 
 
+bool InlCrlSystem::isClockWise() const
+{
+    double xinl = b2c_.getTransform(true).b;
+    double xcrl = b2c_.getTransform(true).c;
+    double yinl = b2c_.getTransform(false).b;
+    double ycrl = b2c_.getTransform(false).c;
+
+    double det = xinl*ycrl - xcrl*yinl;
+    return det < 0;
+}
+
+
+BinID InlCrlSystem::transform( const Coord& c ) const
+{
+    return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
+}
+
+
+Coord InlCrlSystem::transform( const BinID& b ) const
+{
+    return b2c_.transform(b);
+}
+
+
+Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const
+{
+    Coord3 translation( 0, 0, 0 );
+
+    if ( fabs(planenormal.z) > 0.5 )
+    {
+	translation.z = zStep();
+    }
+    else
+    {
+	Coord norm2d = planenormal;
+	norm2d.normalize();
+
+	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
+	    translation.x = inlDistance();
+	else
+	    translation.y = crlDistance();
+    }
+
+    return translation;
+}
+
+
+float InlCrlSystem::inlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(1,0) );
+    return (float) c00.distTo(c10);
+}
+
+
+float InlCrlSystem::crlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c01 = transform( BinID(0,1) );
+    return (float) c00.distTo(c01);
+}
+
+
+//==============================================================================
+
+
 static ObjectSet<SurveyInfo> survinfostack;
 
 const SurveyInfo& SI()
@@ -405,19 +471,11 @@ int SurveyInfo::crlStep() const { return cs_.hrg.step.crl(); }
 
 
 float SurveyInfo::inlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(1,0) );
-    return (float) c00.distTo(c10);
-}
+{ return get3DGeometry(false)->inlDistance(); }
 
 
 float SurveyInfo::crlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c01 = transform( BinID(0,1) );
-    return (float) c00.distTo(c01);
-}
+{ return get3DGeometry(false)->crlDistance(); }
 
 
 float SurveyInfo::computeArea( const Interval<int>& inlrg,
@@ -445,26 +503,7 @@ float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
-{
-    Coord3 translation( 0, 0, 0 ); 
-
-    if ( fabs(planenormal.z) > 0.5 )
-    {
-	translation.z = SI().zStep();
-    }
-    else
-    {
-	Coord norm2d = planenormal;
-	norm2d.normalize();
-
-	if ( fabs(norm2d.dot(SI().binID2Coord().inlDir())) > 0.5 )
-	    translation.x = inlDistance();
-	else
-	    translation.y = crlDistance();
-    }
-
-    return translation;
-}
+{ return get3DGeometry(false)->oneStepTranslation( planenormal ); }
 
 
 void SurveyInfo::setRange( const CubeSampling& cs, bool work )
@@ -669,10 +708,12 @@ float SurveyInfo::zScale() const
 }
 
 
+Coord SurveyInfo::transform( const BinID& b ) const
+{ return get3DGeometry(false)->transform( b ); }
+
+
 BinID SurveyInfo::transform( const Coord& c ) const
-{
-    return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
-}
+{ return get3DGeometry(false)->transform( c ); }
 
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
@@ -815,15 +856,7 @@ void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
 
 
 bool SurveyInfo::isClockWise() const
-{
-    double xinl = b2c_.getTransform(true).b;
-    double xcrl = b2c_.getTransform(true).c;
-    double yinl = b2c_.getTransform(false).b;
-    double ycrl = b2c_.getTransform(false).c;
-
-    double det = xinl*ycrl - xcrl*yinl;
-    return det < 0;
-}
+{ return get3DGeometry(false)->isClockWise(); }
 
 
 bool SurveyInfo::write( const char* basedir ) const
