@@ -418,7 +418,7 @@ macro( download_packages  )
 			     ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${FILENAME}
 			     -d ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}
 			     RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip )
+	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${FILENAME} )
 	    if( NOT STATUS EQUAL "0" )
 		message( "*** unzip Failed***")
 	    endif()
@@ -438,7 +438,7 @@ macro( create_docpackages PACKAGE_NAME )
 
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
-			     ${DESTINATION_DIR}/doc/SysAdm )
+			     ${DESTINATION_DIR}/doc/SysAdm/base )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/Scripts
 			     ${DESTINATION_DIR}/doc/Scripts )
