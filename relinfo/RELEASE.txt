@@ -4,6 +4,22 @@ In general, all fixes in the stable 4.4 are also applied in the 4.6 releases.
 
 ----
 
+v4.6.0c: October 18, 2013
+  * Added feature 'Show BinIDs' to Attribute data window
+  * Fix for crash while removing selected markers in wellmarker manager
+  * Fix for crash while selecting color table manager
+  * Fix for crash in well to seismic tie tool
+  * Fix for volume calculation of combined bodies
+  * Fix for crash while setting 3D Survey on Windows
+  * Fix for Voxel connectivity filter default value
+  * Fix for crash while editing In-line/X-line ranges in Survey setup dialog
+  * Fix for crash in prestack angle computer
+  * Fix for crash while changing survey and closing OpendTect
+  * Fix for Bulk well import
+  * Fix for flipping colorbar in 2D Viewers
+  * Fix for preprocessing of pre-stack gather display
+  * Fix for crash while scanning SEGY 3D file
+
 v4.6.0b: September 26, 2013
   * Fix for crash while creating a new survey and filling
     ranges/coordinate settings by scanning SEGY file
