@@ -519,7 +519,9 @@ bool ExplFaultStickSurface::reTriangulateSurface()
     }
 
     DAGTriangleTree tt;
-    tt.setCoordList( &knots, OD::UsePtr );
+    if ( !tt.setCoordList( &knots, OD::UsePtr ) )
+	return false;
+
     DelaunayTriangulator triangulator( tt );
     triangulator.executeParallel( false );
     TypeSet<int> grid;
