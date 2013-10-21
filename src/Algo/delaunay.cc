@@ -85,7 +85,7 @@ bool DelaunayTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
     if ( multithreadsupport_ ) { statements; };
 
 DAGTriangleTree::DAGTriangleTree()
-    : coordlist_( 0 )
+    : coordlist_( new TypeSet<Coord>() )
     , epsilon_( 1e-5 )
     , ownscoordlist_( true )
 {
@@ -98,7 +98,7 @@ DAGTriangleTree::DAGTriangleTree()
 
 
 DAGTriangleTree::DAGTriangleTree( const DAGTriangleTree& b )
-    : coordlist_( 0 )
+    : coordlist_( new TypeSet<Coord>() )
     , epsilon_( 1e-5 )
     , ownscoordlist_( true )
 {
@@ -173,14 +173,6 @@ bool DAGTriangleTree::computeCoordRanges( const TypeSet<Coord>& coordlist,
 bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
 				    OD::PtrPolicy policy )
 {
-    mMultiThread( coordlock_.writeLock() );
-
-    if ( coordlist_ && ownscoordlist_ )
-	delete coordlist_;
-
-    coordlist_ = 0;
-    mMultiThread( coordlock_.writeUnLock() );
-
     if ( !coordlist || coordlist->size()<3 )
 	return false;
 
@@ -189,6 +181,9 @@ bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
 	return false;
 
     mMultiThread( coordlock_.writeLock() );
+
+    if ( coordlist_ && ownscoordlist_ )
+	delete coordlist_;
 
     if ( policy==OD::CopyPtr )
     {
