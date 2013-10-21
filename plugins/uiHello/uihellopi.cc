@@ -31,12 +31,12 @@ mDefODInitPlugin(uiHello)
 
 mDefODPluginInfo(uiHello)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"uiHello plugin - plan B",
 	"Bert",
 	"1.1.1",
 	"This is the more extensive variant of the uiHello example.\n"
-   	"See the plugin manual for details." };
+   	"See the plugin manual for details.") );
     return &retpi;
 }
 

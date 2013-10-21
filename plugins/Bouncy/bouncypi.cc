@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(Bouncy)
 mDefODPluginInfo(Bouncy)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi, (
 	"Bouncy thingy (Non-UI)",
 	"dGB (Karthika)",
 	"4.2",
-    	"Having some fun in OpendTect." };
+    	"Having some fun in OpendTect." ) );
     return &retpi;
 }
 

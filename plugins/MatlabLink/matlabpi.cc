@@ -13,11 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(MatlabLink)
 mDefODPluginInfo(MatlabLink)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB (base)",
 	"dGB Earth Sciences",
 	"=od",
-    	"MATLAB - base" };
+    	"MATLAB - base" ) );
     return &retpi;
 }
 

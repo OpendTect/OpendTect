@@ -13,11 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GMT (base)",
 	"dGB (Raman)",
 	"=od",
-    	"GMT mapping tool - base" };
+    	"GMT mapping tool - base") );
     return &retpi;
 }
 

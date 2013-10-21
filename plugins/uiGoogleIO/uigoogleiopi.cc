@@ -37,13 +37,13 @@ static const int cRLMnuIdx = -999;
 
 mDefODPluginInfo(uiGoogleIO)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Google KML generation",
 	"dGB",
 	"=od",
 	"Export to Google programs (Maps,Earth)."
     	    "\nThis plugin adds functionality to generate KML files "
-	    "from Opendtect." };
+	    "from Opendtect."));
     return &retpi;
 }
 
@@ -193,9 +193,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 
 mDefODInitPlugin(uiGoogleIO)
 {
-    static uiGoogleIOMgr* mgr = 0;
-    if ( !mgr )
-	mgr = new uiGoogleIOMgr( *ODMainWin() );
-
+    mDefineStaticLocalObject( uiGoogleIOMgr* mUsedVar, mgr,
+                              = new uiGoogleIOMgr( *ODMainWin() ) );
     return 0;
 }

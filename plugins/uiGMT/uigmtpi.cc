@@ -38,13 +38,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiGMT)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GMT link",
 	"dGB (Raman)",
 	"3.2",
     	"A link to the GMT mapping tool."
 	    "\nThis is the User interface of the link."
-	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" };
+	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" ));
     return &retpi;
 }
 
@@ -162,7 +162,8 @@ void uiGMTMgr::createMap( CallBacker* )
 
 mDefODInitPlugin(uiGMT)
 {
-    static uiGMTMgr* mgr = 0; if ( mgr ) return 0;
+    mDefineStaticLocalObject( uiGMTMgr*, mgr, = 0 );
+    if ( mgr ) return 0;
     mgr = new uiGMTMgr( ODMainWin() );
 
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),

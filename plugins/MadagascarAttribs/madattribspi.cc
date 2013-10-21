@@ -12,12 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(MadagascarAttribs)
 mDefODPluginInfo(MadagascarAttribs)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Attributes (Base)",
 	"dGB - Helene Huck",
 	"=od",
-	"Transforming Madagascar routines into OpendTect attributes." };
-    return &retpii;
+	"Transforming Madagascar routines into OpendTect attributes." ));
+    return &retpi;
 }
 
 

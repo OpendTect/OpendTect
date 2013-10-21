@@ -12,11 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(VoxelConnectivityFilter);
 mDefODPluginInfo(VoxelConnectivityFilter)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"VoxelConnectivityFilter plugin (base)",
 	"dGB (Kristofer)",
 	"1.0",
-   	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies." };
+   	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies."));
     return &retpi;
 }
 

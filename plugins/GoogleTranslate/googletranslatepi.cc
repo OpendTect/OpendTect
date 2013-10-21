@@ -21,11 +21,11 @@
 
 mDefODPluginInfo(GoogleTranslate)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Google Translate",
 	"dGB",
 	"=od",
-	"Translate Gui text with Google Translate" };
+	"Translate Gui text with Google Translate" ) );
     return &retpi;
 }
 
@@ -57,9 +57,7 @@ mDefODInitPlugin(GoogleTranslate)
 {
     TrMgr().setTranslator( new GoogleTranslator );
 
-    static GoogleTranslateMgr* mgr = 0;
-    if ( !mgr )
-	mgr = new GoogleTranslateMgr( *ODMainWin() );
-
+    mDefineStaticLocalObject( GoogleTranslateMgr* mUsedVar, mgr,
+                              = new GoogleTranslateMgr( *ODMainWin() ));
     return 0;
 }

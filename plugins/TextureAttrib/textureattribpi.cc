@@ -16,11 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(TextureAttrib)
 mDefODPluginInfo(TextureAttrib)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Texture Attribute (base)",
 	"dGB (Paul)",
 	"0.9",
-    	"Implements Texture attributes" };
+    	"Implements Texture attributes") );
     return &retpi;
 }
 

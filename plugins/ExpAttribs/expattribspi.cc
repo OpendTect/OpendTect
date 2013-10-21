@@ -22,11 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
-    static PluginInfo retpi = {
-	"Experimental Attributes (Base)",
+    mDefineStaticLocalObject( PluginInfo, retpi,
+	( "Experimental Attributes (Base)",
 	"dGB Earth Sciences (Nanne)",
 	"=od",
-    	"" };
+    	"" ) );
     return &retpi;
 }
 

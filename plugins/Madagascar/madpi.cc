@@ -13,12 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(Madagascar)
 mDefODPluginInfo(Madagascar)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar (base)",
 	"dGB - Bert Bril",
 	"=od",
-	"The Madagascar batch-level tools." };
-    return &retpii;
+	"The Madagascar batch-level tools.") );
+    return &retpi;
 }
 
 
@@ -26,7 +26,7 @@ mDefODInitPlugin(Madagascar)
 {
     ODMadProcFlowTranslatorGroup::initClass();
     dgbODMadProcFlowTranslator::initClass();
-    
-    static BufferString prescanmsg = ODMad::PI().errMsg();
+
+    mDefineStaticLocalObject( BufferString, prescanmsg, =ODMad::PI().errMsg());
     return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
 }

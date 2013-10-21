@@ -13,19 +13,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiBouncy)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Bouncy thingy",
 	"dGB (Karthika)",
 	"4.0",
-    	"Having some fun in OpendTect." };
+    	"Having some fun in OpendTect.") );
     return &retpi;
 }
 
 
 mDefODInitPlugin(uiBouncy)
 {
-    static uiBouncy::uiBouncyMgr* mgr = 0; 
-    if ( mgr ) return 0;
-    mgr = new uiBouncy::uiBouncyMgr( ODMainWin() );
+    mDefineStaticLocalObject( uiBouncy::uiBouncyMgr* mUsedVar, mgr,
+		= new uiBouncy::uiBouncyMgr( ODMainWin() ) );
     return 0;
 }

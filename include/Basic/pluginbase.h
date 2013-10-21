@@ -19,7 +19,8 @@ ________________________________________________________________________
 -*/
 
 
-/* If you do not use OpendTect stuff here, you need a way to figure out whether you are in the C++ world and add something like:
+/* If you do not use OpendTect stuff here, you need a way to figure out whether
+   you are in the C++ world and add something like:
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,14 +33,22 @@ extern "C" {
 
 /*!\brief Information about plugin for outside world */
 
-typedef struct {
+struct PluginInfo
+{
+    PluginInfo(const char* dispname, const char* creator,
+               const char* version, const char* text)
+        : dispname_( dispname )
+        , creator_( creator )
+        , version_( version )
+        , text_( text )
+    {}
 
-    const char*	dispname;
-    const char*	creator;
-    const char*	version;
-    const char*	text;
+    const char*	dispname_;
+    const char*	creator_;
+    const char*	version_;
+    const char*	text_;
 
-} PluginInfo;
+};
 
 /* } -- for the extern "C" */
 

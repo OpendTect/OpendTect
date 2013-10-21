@@ -19,11 +19,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiGrav)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Gravity calculation",
 	"Bert",
 	"0.0.1",
-	"Calculates gravity between horizons" };
+	"Calculates gravity between horizons" ) );
     return &retpi;
 }
 

@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiDPSDemo)
 {
     // Just to show a way to make plugin info text variable
-    static BufferString* commenttxt = 0;
+    mDefineStaticLocalObject( PtrMan<BufferString>, commenttxt, (0) );
     if ( !commenttxt )
     {
 	commenttxt = new BufferString( "Showing a few DataPointSet things."
@@ -39,11 +39,11 @@ mDefODPluginInfo(uiDPSDemo)
 	*commenttxt += ").";
     }
 
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"DataPointSet demo",
 	"Bert",
 	"7.8.9",
-	commenttxt->buf() };
+	commenttxt->buf() ) );
     return &retpi;
 }
 
@@ -102,7 +102,8 @@ void uiDPSDemoMgr::doIt( CallBacker* )
 
 mDefODInitPlugin(uiDPSDemo)
 {
-    static uiDPSDemoMgr* mgr = 0; if ( mgr ) return 0;
+    mDefineStaticLocalObject( uiDPSDemoMgr*, mgr,(0) );
+    if ( mgr ) return 0;
     mgr = new uiDPSDemoMgr( *ODMainWin() );
     return 0;
 }

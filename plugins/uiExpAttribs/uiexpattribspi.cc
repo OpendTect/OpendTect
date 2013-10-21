@@ -21,11 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiExpAttribs)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Experimental Attributes (UI)",
 	"dGB (Nanne)",
 	"=od",
-   	"" };
+   	"" ));
     return &retpi;
 }
 

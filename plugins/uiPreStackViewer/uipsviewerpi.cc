@@ -14,19 +14,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiPreStackViewer)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
     "Pre-Stack Viewer",
     "dGB - Kristofer/Yuancheng",
     "1.1.1",
     "This is the PreStack Viewer in the 3D scene."
-	"\nIt can be activated by right-clicking on a plane in the scene." };
+	"\nIt can be activated by right-clicking on a plane in the scene."));
     return &retpi;
 }
 
 
 mDefODInitPlugin(uiPreStackViewer)
 {
-    static PreStackView::uiViewer3DMgr* mgr=0;
+    mDefineStaticLocalObject( PreStackView::uiViewer3DMgr*, mgr, =0 );
     if ( mgr ) return 0;
     mgr = new PreStackView::uiViewer3DMgr();
     return 0; 

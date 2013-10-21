@@ -26,13 +26,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiMadagascar)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar link",
 	"dGB (Bert, Raman)",
 	"3.2",
     	"A link to the Madagascar system."
 	    "\nSee http://opendtect.org/links/madagascar.html"
-	    " for info on Madagascar." };
+	    " for info on Madagascar."));
     return &retpi;
 }
 
@@ -151,7 +151,7 @@ void uiMadagascarLink::doMain( CallBacker* )
 
 mDefODInitPlugin(uiMadagascar)
 {
-    static uiMadagascarLink* lnk = 0;
+    mDefineStaticLocalObject( uiMadagascarLink*, lnk, = 0 );
     if ( lnk ) return 0;
 
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),

@@ -22,12 +22,12 @@ namespace CmdDrive
 
 mDefODPluginInfo(CmdDriver)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Command driver",
 	"dGB (Bert/Jaap)",
 	"=od",
-	"Used for testing and general 'scripting'." };
-    return &retpii;
+	"Used for testing and general 'scripting'." ));
+    return &retpi;
 }
 
 
@@ -48,11 +48,11 @@ static void initExtraComposers()
 
 mDefODInitPlugin(CmdDriver)
 {
-    static uiCmdDriverMgr* mgr = 0;
+    mDefineStaticLocalObject( uiCmdDriverMgr*, mgr, = 0 );
     if ( mgr ) return 0;
     mgr = new uiCmdDriverMgr( true );
 
-    static uiAction* cmdmnuitm = 0;
+    mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
     if ( cmdmnuitm ) return 0;
     cmdmnuitm = new uiAction( "Command &Driver ..." );
 

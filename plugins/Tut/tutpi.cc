@@ -15,12 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(Tut)
 mDefODPluginInfo(Tut)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin Base",
 	"dGB (Raman/Bert)",
 	"3.2",
     	"Back-end for the plugin that shows simple plugin development basics."
-    	"\nThis non-UI part can also be loaded into od_process_attrib." };
+    	"\nThis non-UI part can also be loaded into od_process_attrib." ) );
     return &retpi;
 }
 

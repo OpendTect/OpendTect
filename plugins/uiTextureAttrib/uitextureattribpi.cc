@@ -14,15 +14,14 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 mDefODPluginInfo(uiTextureAttrib)
 {
-    static PluginInfo retpi = 
-    {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Texture Attribute",
 	"dGB (Paul)",
 	"0.9",
-    	"User interface for Texture attributes" 
-    };
+    	"User interface for Texture attributes" ));
     return &retpi;
 }
+
 
 mDefODInitPlugin(uiTextureAttrib)
 {

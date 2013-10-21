@@ -12,12 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(GapDecon)
 mDefODPluginInfo(GapDecon)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Gap Decon (base)",
 	"dGB - Helene",
 	"=od",
-	"Gap Decon (Prediction Error Filter) attribute plugin.\n\n" };
-    return &retpii;
+	"Gap Decon (Prediction Error Filter) attribute plugin.\n\n" ));
+    return &retpi;
 }
 
 

@@ -32,12 +32,12 @@ static const int cTutIdx = -1100;
 
 mDefODPluginInfo(uiTut)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin",
 	"dGB (Raman/Bert)",
 	"3.2",
     	"Shows some simple plugin development basics."
-	    "\nCan be loaded into od_main only." };
+	    "\nCan be loaded into od_main only.") );
     return &retpi;
 }
 
@@ -135,7 +135,8 @@ void uiTutMgr::doWells( CallBacker* )
 
 mDefODInitPlugin(uiTut)
 {
-    static uiTutMgr* mgr = 0; if ( mgr ) return 0;
+    mDefineStaticLocalObject( uiTutMgr*, mgr, = 0 );
+    if ( mgr ) return 0;
     mgr = new uiTutMgr( ODMainWin() );
 
     uiTutorialAttrib::initClass();

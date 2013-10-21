@@ -31,13 +31,13 @@ static const char* menunm = "&GPR: DZT ...";
 
 mDefODPluginInfo(uiImpGPR)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"GPR: .DZT import",
 	"Bert",
 	"0.0.2",
 	"Imports GPR data in DZT format."
 	"\nThanks to Matthias Schuh (m.schuh@neckargeo.net) for information,"
-	"\ntest data and comments." };
+	"\ntest data and comments.") );
     return &retpi;
 }
 

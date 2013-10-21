@@ -16,11 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiTutMadagascar)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Tutorial plugin",
 	"dGB (Helene)",
 	"=od",
-	"User Interface for Madagascar tutorial plugin." };
+	"User Interface for Madagascar tutorial plugin."));
     return &retpi;
 }
 

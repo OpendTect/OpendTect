@@ -18,12 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(HorizonAttrib)
 mDefODPluginInfo(HorizonAttrib)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute (Base)",
 	"dGB (Nanne)",
 	"=od",
-	"The 'Horizon' attribute plugin." };
-    return &retpii;
+	"The 'Horizon' attribute plugin." ));
+    return &retpi;
 }
 
 

@@ -42,7 +42,7 @@ static const char* sKeyContours = "Contours";
 
 mDefODPluginInfo(uiHorizonAttrib)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute",
 	"dGB - Nanne Hemstra",
 	"=od",
@@ -50,7 +50,7 @@ mDefODPluginInfo(uiHorizonAttrib)
 	"Not to be confused with calculating attributes on horizons.\n"
 	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
 	"Also, the Stratal Amplitude is provided by this plugin,\n"
-	"and the writing of flattened cubes" };
+	"and the writing of flattened cubes") );
     return &retpi;
 }
 
@@ -283,7 +283,8 @@ mDefODInitPlugin(uiHorizonAttrib)
 {
     uiHorizonAttrib::initClass();
     uiContourTreeItem::initClass();
-    static uiHorAttribPIMgr* mgr = 0; if ( mgr ) return 0;
+    mDefineStaticLocalObject( uiHorAttribPIMgr*, mgr, = 0 );
+    if ( mgr ) return 0;
     mgr = new uiHorAttribPIMgr( ODMainWin() );
 
     return 0;

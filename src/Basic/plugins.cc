@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "moddepmgr.h"
 #include "msgh.h"
+#include "keystrs.h"
 
 #include <iostream>
 
@@ -239,7 +240,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     {
 	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
-	if ( piinf && piinf->dispname && FixedString(piinf->dispname)==nm)
+	if ( piinf && piinf->dispname_ && FixedString(piinf->dispname_)==nm)
 	    return data;
     }
     return 0;
@@ -284,7 +285,7 @@ const char* PluginManager::userName( const char* nm ) const
     if ( !piinf )
 	return moduleName( nm );
 
-    return piinf->dispname;
+    return piinf->dispname_;
 }
 
 
@@ -296,12 +297,8 @@ const char* PluginManager::moduleName( const char* nm )
 
 static PluginInfo* mkEmptyInfo()
 {
-    PluginInfo* piinf = new PluginInfo;
-    piinf = new PluginInfo;
-    piinf->dispname = sKeyNoDispName;
-    piinf->creator = piinf->version = "";
-    piinf->text = "No info available";
-    return piinf;
+    return new PluginInfo( sKeyNoDispName, sKey::EmptyString(),
+                           sKey::EmptyString(),"No info available");
 }
 
 
@@ -447,7 +444,7 @@ bool PluginManager::load( const char* libnm )
 	{ delete data; return false; }
 
     Data* existing = const_cast<Data*>(
-	findDataWithDispName( data->info_->dispname ) );
+	findDataWithDispName( data->info_->dispname_ ) );
 
     if ( existing && existing->sla_ && existing->sla_->isOK() )
     {
@@ -500,7 +497,7 @@ void PluginManager::loadAuto( bool late )
 	if ( data.autotype_ != pitype )
 	    continue;
 
-	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname )!=-1 )
+	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname_ )!=-1 )
 	    continue;
 
 	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )
@@ -512,7 +509,7 @@ void PluginManager::loadAuto( bool late )
 
 	data.isloaded_ = true;
 
-	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
+	bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
 	if ( shw_load )
 	{
 	    BufferString msg;
@@ -529,6 +526,6 @@ void PluginManager::loadAuto( bool late )
 
 PluginManager& PIM()
 {
-    static PluginManager* inst = new PluginManager;
+    mDefineStaticLocalObject(PtrMan<PluginManager>,inst,= new PluginManager);
     return *inst;
 }

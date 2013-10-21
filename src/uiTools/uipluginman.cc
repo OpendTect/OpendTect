@@ -66,9 +66,9 @@ void uiPluginMan::fillList()
 	if ( !data.info_ || !data.isloaded_ )
 	    notloaded.add( data.name_ );
 	else if ( data.autotype_ == PI_AUTO_INIT_EARLY )
-	    early.add( data.info_->dispname );
+	    early.add( data.info_->dispname_ );
 	else
-	    late.add( data.info_->dispname );
+	    late.add( data.info_->dispname_ );
 
     }
     early.sort(); late.sort(); notloaded.sort();
@@ -110,14 +110,14 @@ void uiPluginMan::selChg( CallBacker* )
 	{ infofld->setText( txt ); return; }
 
     const PluginInfo& piinf = *data->info_;
-    txt += "Created by: "; txt += piinf.creator;
+    txt += "Created by: "; txt += piinf.creator_;
     txt += "\n\nFilename: "; txt += PIM().getFileName( *data );
-    if ( piinf.version && *piinf.version )
+    if ( piinf.version_ && *piinf.version_ )
     {
 	txt += "\nVersion: ";
 
-	if ( *piinf.version != '=' )
-	    txt += piinf.version;
+	if ( *piinf.version_ != '=' )
+	    txt += piinf.version_;
 	else
 	{
 	    BufferString ver; GetSpecificODVersion( 0, ver );
@@ -126,7 +126,7 @@ void uiPluginMan::selChg( CallBacker* )
     }
 
     txt += "\n-----------------------------------------\n\n";
-    txt += piinf.text;
+    txt += piinf.text_;
     infofld->setText( txt );
 }
 
@@ -134,18 +134,18 @@ void uiPluginMan::selChg( CallBacker* )
 void uiPluginMan::loadPush( CallBacker* )
 {
 #ifdef __win__
-    static const char* filt = "*.DLL;;*.*";
-    static const char* captn = "Select plugin DLL";
+    const char* filt = "*.DLL;;*.*";
+    const char* captn = "Select plugin DLL";
 #else
-    static const char* captn = "Select plugin shared library";
+    const char* captn = "Select plugin shared library";
 # ifdef __mac__
-    static const char* filt = "*.dylib*;;*";
+    const char* filt = "*.dylib*;;*";
 # else
-    static const char* filt = "*.so*;;*";
+    const char* filt = "*.so*;;*";
 # endif
 #endif
 
-    static BufferString loaddir;
+    mDefineStaticLocalObject( BufferString, loaddir, );
     if ( loaddir.isEmpty() )
     {
 	loaddir = PIM().getAutoDir( true );
@@ -168,7 +168,8 @@ void uiPluginMan::loadPush( CallBacker* )
 
 bool uiPluginMan::rejectOK( CallBacker* )
 {
-    const bool oldyn = Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());
+    const bool oldyn =
+	Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());
     const bool newyn = selatstartfld->isChecked();
     if ( oldyn != newyn )
     {

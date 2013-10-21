@@ -14,12 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiMatlabLink)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB link",
 	"dGB Earth Sciences",
 	"=od",
     	"A link to MATLAB."
-	    "\nThis is the User interface of the link." };
+	    "\nThis is the User interface of the link." ));
     return &retpi;
 }
 

@@ -11,11 +11,11 @@ static const char* rcsID mUsedVar = "$Id";
 
 mDefODPluginInfo(uiGapDecon)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Gap Decon",
 	"dGB (Helene)",
 	"=od",
-	"User Interface for Gap Decon attribute plugin." };
+	"User Interface for Gap Decon attribute plugin."));
     return &retpi;
 }
 
