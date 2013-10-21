@@ -85,12 +85,12 @@ bool InlCrlSystem::includes( int line, int tracenr ) const
 
 bool InlCrlSystem::isClockWise() const
 {
-    double xinl = b2c_.getTransform(true).b;
-    double xcrl = b2c_.getTransform(true).c;
-    double yinl = b2c_.getTransform(false).b;
-    double ycrl = b2c_.getTransform(false).c;
+    const double xinl = b2c_.getTransform(true).b;
+    const double xcrl = b2c_.getTransform(true).c;
+    const double yinl = b2c_.getTransform(false).b;
+    const double ycrl = b2c_.getTransform(false).c;
 
-    double det = xinl*ycrl - xcrl*yinl;
+    const double det = xinl*ycrl - xcrl*yinl;
     return det < 0;
 }
 
