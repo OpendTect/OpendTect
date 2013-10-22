@@ -5,7 +5,9 @@
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
-#include "commondefs.h"
+
+#include "gendefs.h"
+
 #ifdef __win__
 #include "winterminate.h"
 

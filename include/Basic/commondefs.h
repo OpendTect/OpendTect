@@ -160,9 +160,14 @@ ________________________________________________________________________
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
 #ifdef __win__
+namespace Threads
+{
+    mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
+    mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
+}
 #define mDefineStaticLocalObject( type, var, init ) \
 static volatile int static##var##lck__ = 0; \
-Threads::lockSimpleSpinLock(static##var##lck__,Threads::Locker::WaitIfLocked);\
+Threads::lockSimpleSpinWaitLock(static##var##lck__);\
 static type var init; \
 Threads::unlockSimpleSpinLock(static##var##lck__)
 #else

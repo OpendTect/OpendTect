@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "od_istream.h"
 #include "od_ostream.h"
-#include "threadlock.h"
 #include <string.h>
 #include <stdlib.h>
 
