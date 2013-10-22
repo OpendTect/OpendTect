@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismulticubeps.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "iodirentry.h"
@@ -85,7 +86,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
     selfld_->setPrefWidthInChar( 30 );
 
-    offsfld_ = new uiGenInput( this, "Offset", 
+    BufferString offsetstr( "Offset ", SI().getXYUnitString() );
+    offsfld_ = new uiGenInput( this, offsetstr, 
 			       FloatInpSpec().setName("Offset") );
     offsfld_->attach( alignedBelow, selllb );
     offsfld_->setElemSzPol( uiObject::Small );
@@ -141,7 +143,8 @@ void uiSeisMultiCubePS::recordEntryData()
 	curselidx_ = selentries_.size() - 1;
 
     uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
-    se.offs_ = offsfld_->getfValue();
+    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
+    se.offs_ = offsfld_->getfValue() * convfactor;
     se.comp_ = compfld_->isEmpty() ? 0 : compfld_->currentItem();
 }
 
@@ -210,7 +213,8 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 	{
 	    for ( int idx=0; idx<compnms.size(); idx++ )
 	    {
-		uiSeisMultiCubePSEntry* selentry = new uiSeisMultiCubePSEntry( *entry );
+		uiSeisMultiCubePSEntry* selentry = 
+					new uiSeisMultiCubePSEntry( *entry );
 		selentry->comp_ = idx;
 		selentry->offs_ = mCast(float,10*idx);
 		selentries_ += selentry;

@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsmerge.h"
 #include "seisselectionimpl.h"
 #include "seissingtrcproc.h"
+#include "survinfo.h"
 #include "transl.h"
 #include "uiioobjsel.h"
 
@@ -296,7 +297,8 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     subselfld_ = new uiPosSubSel( this, psssu );
     subselfld_->attach( alignedBelow, inpfld_ );
 
-    offsrgfld_ = new uiGenInput( this, "Offset range",
+    BufferString offsetrangestr ( "Offset range ", SI().getXYUnitString() );
+    offsrgfld_ = new uiGenInput( this, offsetrangestr,
 	    			 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
@@ -358,7 +360,10 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     selobjs += inctio_.ioobj;
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
 	    					  true, sd );
-    exec->setOffsetRange( offsrgfld_->getfValue(0), offsrgfld_->getfValue(1) );
+    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
+    const float ofsrgstart = offsrgfld_->getfValue(0) * convfactor;
+    const float ofsrgstop = offsrgfld_->getfValue(1) * convfactor;
+    exec->setOffsetRange( ofsrgstart, ofsrgstop );
     exec->setName( "Copy Pre-Stack Data Store" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
