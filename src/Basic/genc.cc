@@ -212,6 +212,9 @@ mExternC(Basic) char* GetOSEnvVar( const char* env )
 
 static void loadEntries( const char* fnm, IOPar* iop=0 )
 {
+    if ( !fnm || !*fnm )
+	return;
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	return;

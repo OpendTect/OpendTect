@@ -39,7 +39,6 @@ set( OD_MODULE_SOURCES
 	    debug.cc
 	    dirlist.cc
 	    enums.cc
-	    errh.cc
 	    executor.cc
 	    factory.cc
 	    fontdata.cc
