@@ -71,12 +71,12 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define cDefaultTWTMax 6000
-#define cDefaultZMaxm 6000
-#define cDefaultZMaxft 10000
-#define cDefautSRms 2
-#define cDefautSRm 5
-#define cDefautSRft 15
+#define cDefaultTWTMax 6000.0f
+#define cDefaultZMaxm 6000.0f
+#define cDefaultZMaxft 10000.0f
+#define cDefautSRms 2.0f
+#define cDefautSRm 5.0f
+#define cDefautSRft 15.0f
 
 
 bool acceptOK( CallBacker* )
