@@ -7,9 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "gpucalc.h"
-
 #include "odplugin.h"
-#include "errh.h"
+
 
 mDefODPluginEarlyLoad(GPUCalc)
 mDefODPluginInfo(GPUCalc)

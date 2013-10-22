@@ -19,7 +19,7 @@ static const char* rcsID = "$Id$";
 #include "separstr.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "errh.h"
+#include "msgh.h"
 #include "iopar.h"
 #include "debug.h"
 #include <math.h>
