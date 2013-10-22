@@ -157,6 +157,13 @@ bool Threads::Locker::convertToWriteLock()
     return isok;
 }
 
+bool Threads::lockSimpleSpinWaitLock(volatile int& lock)
+{ return lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked ); }
+
+
+void Threads::unlockSimpleSpinLock(volatile int& lock)
+{ lock = 0; }
+
 
 bool Threads::lockSimpleSpinLock( volatile int& lock,
                                   Threads::Locker::WaitType wt )

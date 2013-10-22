@@ -130,8 +130,10 @@ private:
    Hence use thes only when standard locks cannot be used (e.g. static locks in
    functions). */
 
+
+mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
 mGlobal(Basic) bool lockSimpleSpinLock(volatile int& lock,Locker::WaitType);
-inline void unlockSimpleSpinLock(volatile int& lock) { lock = 0; }
+mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 
 
 } // namespace Threads
