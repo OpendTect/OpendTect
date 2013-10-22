@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "convert.h"
 #include "odver.h"
 #include "separstr.h"
+#include "ptrman.h"
 #include "od_istream.h"
 #include "od_ostream.h"
 #include <string.h>
@@ -26,9 +27,9 @@ static const char* newline_replacement = "#-NL-#";
 
 static BufferString& getPVN()
 {
-    static BufferString* projvernm = 0;
-    if ( !projvernm )
-	projvernm = new BufferString;
+    mDefineStaticLocalObject( PtrMan<BufferString>, projvernm,
+			      = new BufferString );
+
     return *projvernm;
 }
 
@@ -304,7 +305,7 @@ ascistream& ascistream::next()
 	}
     }
 
-    static const char keyvalsepstr[] = { mAscStrmKeyValSep, '\0' };
+    const char keyvalsepstr[] = { mAscStrmKeyValSep, '\0' };
     mTrimBlanks( keywptr );
     replaceString( keywptr, valsep_replacement, keyvalsepstr );
     keybuf_ = keywptr;
