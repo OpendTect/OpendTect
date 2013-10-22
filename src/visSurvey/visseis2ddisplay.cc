@@ -401,7 +401,6 @@ void Seis2DDisplay::setData( int attrib,
 		usedarr = tmparr;
 		const int startidx = trcdisplayinfo_.rg.start;
 		float* sampleptr = tmparr->getData();
-		const bool canuseptr = sampleptr;
 		for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 		{
 		    const int trcnr =
@@ -414,12 +413,15 @@ void Seis2DDisplay::setData( int attrib,
 		    if ( trcptr ) trcptr += offset;
 		    OffsetValueSeries<float> trcstor( *stor, offset );
 
-		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++,sampleptr++)
+		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
 		    {
 			if ( trcidx==-1 )
 			{
-			    if ( canuseptr )
+			    if ( sampleptr )
+			    {
 				*sampleptr = mUdf(float);
+				sampleptr++;
+			    }
 			    else
 				tmparr->set( crlidx, zidx, mUdf(float) );
 			    continue;
@@ -434,8 +436,11 @@ void Seis2DDisplay::setData( int attrib,
 			else
 			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
 						     val, false );
-			if ( canuseptr )
+			if ( sampleptr )
+			{
 			    *sampleptr = val;
+			    sampleptr++;
+			}
 			else
 			    tmparr->set( crlidx, zidx, val );
 		    }
@@ -490,9 +495,22 @@ void Seis2DDisplay::setData( int attrib,
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
-		float* outputptr = tmparr->getData() +
-				   tmparr->info().getOffset( crlidx, 0 );	
-		reSample( inputfunc, outpsampler, outputptr, zsz );
+		if ( tmparr->getData() )
+		{
+    		    float* outputptr = tmparr->getData() +
+			tmparr->info().getOffset( crlidx, 0 );	
+    		    reSample( inputfunc, outpsampler, outputptr, zsz );
+		}
+		else
+		{
+		    for ( int zidx=0; zidx<zsz; zidx++ )
+		    {
+			const float sampleval = outpsampler[zidx];
+			const float outputval = Values::isUdf(sampleval) ?
+			    mUdf(float) : inputfunc.getValue(sampleval);
+			tmparr->set( crlidx, zidx, outputval );
+		    }
+		}
 	    }
 	}
 
