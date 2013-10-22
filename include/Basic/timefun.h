@@ -21,22 +21,21 @@ mFDQtclass(QTime)
 namespace Time
 {
 
-/*!
-\brief Time Counter
-*/
+    mExpClass(Basic) Counter
+    {
+    public:
 
-mExpClass(Basic) Counter
-{
-public:
-    		Counter();
-		~Counter();
-    void	start();
-    int		restart();		//!< Returns elapsed time in ms
-    int		elapsed() const;	//!< Returns elapsed time in ms
+			Counter();
+			~Counter();
+	void		start();
+	int		restart();		//!< Returns elapsed time in ms
+	int		elapsed() const;	//!< Returns elapsed time in ms
 
-protected:
-    mQtclass(QTime&)	qtime_;
-};
+    protected:
+
+	mQtclass(QTime&)	qtime_;
+
+    };
 
 
     mGlobal(Basic) int getMilliSeconds();          //!< From day start
@@ -47,19 +46,20 @@ protected:
     mGlobal(Basic) const char*	defDateFmt();
     mGlobal(Basic) const char*	defTimeFmt();
 
-    mGlobal(Basic) const char*	getDateTimeString(const char* fmt=defDateTimeFmt(),
-					  bool local=true);
+    mGlobal(Basic) const char*	getDateTimeString(const char* fmt
+					    =defDateTimeFmt(),bool local=true);
     mGlobal(Basic) const char*	getDateString(const char* fmt=defDateFmt(),
-				      bool local=true);
+					      bool local=true);
     mGlobal(Basic) const char*	getTimeString(const char* fmt=defTimeFmt(),
-				      bool local=true);
+					      bool local=true);
 
     mGlobal(Basic) bool isEarlier(const char* first, const char* second,
 	    		   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
 
+
 } // namespace Time
 
-#endif
 
+#endif
