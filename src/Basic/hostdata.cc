@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "separstr.h"
 #include "filepath.h"
-#include "debugmasks.h"
+#include "debug.h"
 #include "od_strstream.h"
 #ifdef __win__
 # include <windows.h>

@@ -22,14 +22,7 @@ ________________________________________________________________________
     isOn returns the bitwise "and" of the passed flag and the internal
     environment mask, converted to a boolean.
 
-    The reserved/defined masks are defined in "debugmasks.h".
-    If you want, you can include it in a .cc you want to spit out debug
-    messages, with the risk of regular big recompiles if someone adds a
-    new debugmask.
-    You can also make sure the debugmask you're using is defined in one
-    of your header files and equals the one in "debugmasks.h", so you 
-    don't have to include "debugmasks.h".
-
+    The reserved/defined masks are defined below.
     if you want the output in a file, set the full path in DTECT_DEBUG_LOGFILE.
 
 */
@@ -55,10 +48,28 @@ extern "C" {
     mGlobal(Basic) void od_debug_putProgInfo(int,char**);
     mGlobal(Basic) void od_putProgInfo(int,char**);
     mGlobal(Basic) void od_init_test_program(int,char**);
-    /*!<Calls SetProgramArgs, sets crash on programmer error, and installs
-        signal handling for crashes. */
+	/*!<Calls SetProgramArgs, sets crash on programmer error, and installs
+	    signal handling for crashes. */
 
 
 }
-#endif
 
+
+/* 
+    This is a list of reserved debug masks, in order to avoid conflicts.
+    Don't just throw any of these away or change a value, adding new masks
+    should be OK.
+*/
+
+#define	DBG_DBG		0x0001	// general, low frequency stuff
+#define	DBG_MT		0x0002	// multi-threaded stuff
+#define	DBG_UI		0x0004	// ui-related stuff
+#define	DBG_IO		0x0008	// general I/O stuff
+#define	DBG_SOCKIO	0x0010	// socket I/O
+#define	DBG_MM		0x0020	// Multi-machine batch processing
+#define	DBG_SETTINGS	0x0040	// User settings
+#define	DBG_PROGSTART	0x0080	// Program start and stop
+#define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
+
+
+#endif

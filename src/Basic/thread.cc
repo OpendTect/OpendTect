@@ -188,8 +188,6 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 #include "callback.h"
 #include "debug.h"
 #include "settings.h"
-#include "debugmasks.h"
-#include "debug.h"
 #include "envvars.h"
 
 #ifdef __ittnotify__

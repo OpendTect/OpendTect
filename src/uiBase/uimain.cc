@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 
 #include "bufstringset.h"
-#include "debugmasks.h"
+#include "debug.h"
 #include "envvars.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"

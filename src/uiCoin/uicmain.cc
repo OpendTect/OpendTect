@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicmain.h"
 
 #include "debug.h"
-#include "debugmasks.h"
 #include "envvars.h"
 
 #include <Inventor/Qt/SoQt.h>

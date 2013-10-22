@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "datainpspec.h"
 #include "convert.h"
-#include "initval.h"
+#include "undefval.h"
 
 class CallBack;
 class BufferStringSet;
@@ -38,20 +38,14 @@ public:
     virtual void        setValue(const char* s);
     virtual void        setValue(int)			= 0;
     virtual void        setValue(double)		= 0;
-    virtual void        setValue(float )		= 0;
+    virtual void        setValue(float)			= 0;
     virtual void        setValue(bool)			= 0;
 
     virtual void	setReadOnly( bool = true )	= 0;
     virtual bool	isReadOnly() const		= 0;
 
-			//! sets current value as clear value
-    virtual void	initClearValue()		= 0;
-    virtual void	clear()				= 0;
-
-    virtual void        addItem( const char* txt );
-//    void		addItems(const char**);
-//    void		addItems(const BufferStringSet&);
-
+    virtual void	setEmpty()			= 0;
+    virtual void        addItem(const char*);
 
 		        /*! \brief intermediate value available
 			    \return true if this notification is supported */
@@ -70,12 +64,14 @@ public:
     virtual void        setToolTip(const char*)			= 0;
 
 protected:
+
 			//! return false if not available
     virtual bool	notifyValueChanging_(const CallBack&)	=0;
 			//! return false if not available
     virtual bool	notifyValueChanged_(const CallBack&)	=0;
     virtual bool	notifyUpdateRequested_(const CallBack&)	=0;
     virtual bool	update_( const DataInpSpec&)		=0;
+
 };
 
 
@@ -83,8 +79,6 @@ template<class T>
 mClass(General) UserInputObjImpl : public UserInputObj
 {
 public:
-                        UserInputObjImpl()
-			    : clearvalset_(false)	{}
 
     virtual const char*	text() const
 			{ return Conv::to<const char*>( getvalue_() ); }
@@ -100,7 +94,7 @@ public:
     virtual void	setText( const char* s )
 			    { setvalue_( Conv::to<T>(s) ); }
     virtual void	setValue( const char* s )
-			    { UserInputObj::setValue( s ); }
+			    { setText( s ); }
     virtual void	setValue( int i )
 			    { setvalue_( Conv::to<T>(i) ); }
     virtual void	setValue( double d )
@@ -110,25 +104,13 @@ public:
     virtual void	setValue( bool b )
 			    { setvalue_( Conv::to<T>(b) ); }
 
-    void		initClearValue()
-			    { setClearValue( getvalue_() ); }
-    void		clear()
-			    {
-				if ( clearvalset_ )
-				    setvalue_(clearval_);
-				else if ( !clear_() )
-				    setvalue_( Values::initVal<T>() );
-			    }
-    void		setClearValue( const T& v )
-			    { clearvalset_ = true; clearval_ = v; }
+    void		setEmpty()
+			    { setvalue_(mUdf(T)); }
 
 protected:
 
-    T			clearval_;
-    bool		clearvalset_;
-
 			// return true if implemented.
-    virtual bool	clear_()			{ return false; }
+    virtual bool	setEmpty_()			{ return false; }
 
     virtual void	setvalue_( T v )		= 0;
     virtual T		getvalue_() const		= 0;

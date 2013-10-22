@@ -12,7 +12,6 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
-#include "debugmasks.h"
 #include "genc.h"
 #include "bufstring.h"
 #include "timefun.h"

@@ -96,16 +96,11 @@ for( int idx=0; idx<nElems(); idx++ ) \
     else { pErrMsg("Found null elemObj"); } \
 }
 
-//! stores current value as clear state.
-void uiGenInputInputFld::initClearValue()
-{
-    mDoAllElems(initClearValue())
-}
 
 
-void uiGenInputInputFld::clear()
+void uiGenInputInputFld::setEmpty()
 {
-    mDoAllElems(clear())
+    mDoAllElems(setEmpty())
 }
 
 void uiGenInputInputFld::display( bool yn, int elemidx )
@@ -254,8 +249,6 @@ void uiGenInputBoolFld::init( uiParent* p, const char* truetext,
     truetxt = truetext;
     falsetxt = falsetext;
     yn = yn_;
-
-    initClearValue();
 
     if ( truetxt.isEmpty()  || falsetxt.isEmpty() )
     { 

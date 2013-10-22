@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "plugins.h"
 
-#include "debugmasks.h"
+#include "debug.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"

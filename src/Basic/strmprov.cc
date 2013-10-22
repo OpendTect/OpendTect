@@ -43,7 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "callback.h"
 #include "namedobj.h"
-#include "debugmasks.h"
+#include "debug.h"
 #include "oddirs.h"
 #include "executor.h"
 #include "fixedstreambuf.h"

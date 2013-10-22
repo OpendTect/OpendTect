@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobcommunic.h"
 
-#include "debugmasks.h"
+#include "debug.h"
 #include "envvars.h"
 #include "hostdata.h"
 #include "mmdefs.h"

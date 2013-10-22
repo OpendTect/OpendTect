@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "ascstream.h"
-#include "debugmasks.h"
+#include "debug.h"
 
 #ifndef __msvc__
 # include <unistd.h>

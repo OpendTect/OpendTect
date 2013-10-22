@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobrunner.h"
 
-#include "debugmasks.h"
+#include "debug.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"

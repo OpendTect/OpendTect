@@ -12,7 +12,7 @@
 #include "fixedstring.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "debugmasks.h"
+#include "debug.h"
 #include "keystrs.h"
 
 #include <iostream>

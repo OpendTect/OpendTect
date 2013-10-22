@@ -78,7 +78,6 @@ protected:
 
     virtual void        setvalue_( int i )	{ setCurrentItem(i); }
     virtual int		getvalue_() const	{ return currentItem(); }
-    virtual bool	clear_()		{ setEmpty(); return true; }
 
     virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
     virtual bool	notifyValueChanging_(const CallBack&)	{return false;}

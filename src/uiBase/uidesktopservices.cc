@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidesktopservices.h"
 
 #include "bufstring.h"
-#include "debugmasks.h"
+#include "debug.h"
 #include "envvars.h"
 #include "uimsg.h"
 

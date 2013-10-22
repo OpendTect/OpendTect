@@ -190,7 +190,7 @@ Returns true, if changes are accepted.
     void		displayField(bool yn=true,int elemnr=-1,int fldnr=-1);
     void		setReadOnly( bool yn=true,int nr=-1);
     void		setSensitive(bool yn=true,int elemnr=-1,int fldnr=-1);
-    void		clear(int nr=-1);
+    void		setEmpty(int nr=-1);
 
 			//! returns 0 if not finalised.
     UserInputObj*	element(int idx); 
@@ -230,12 +230,10 @@ protected:
 
     BufferString	selText;
     bool		withchk;
-    bool		withclr;
 
     uiLabel*		labl;
     uiCheckBox*		cbox;
     uiPushButton*	selbut;
-    uiPushButton*	clrbut;
 
                         //! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);

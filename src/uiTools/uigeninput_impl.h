@@ -54,15 +54,14 @@ public:
 			    UserInputObj* obj = element( idx );
 			    if ( !obj ) return;
 			    if ( mIsUdf(t) )
-				obj->clear();
+				obj->setEmpty();
 			    else
 				obj->setValue(t);
 			}
     virtual void	setText(const char*,int);
     void		setValue(bool,int);
 
-    void		initClearValue();
-    void		clear();
+    void		setEmpty();
     void		display(bool,int elemidx);
     bool		isReadOnly(int idx=0) const;
     virtual void	setReadOnly(bool yn=true,int idx=0);

@@ -219,7 +219,7 @@ bool uiPositionInpFld::update_( const DataInpSpec& dis )
     myspec = spc;
 
 #define mSetFld(nr,val) \
-    { if ( mIsUdf(val) ) flds_[nr]->UserInputObjImpl<const char*>::clear(); \
+    { if ( mIsUdf(val) ) flds_[nr]->UserInputObjImpl<const char*>::setEmpty(); \
       else flds_[nr]->setValue( val ); }
 
     if ( su.wantcoords_ )
@@ -507,8 +507,8 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     : uiGroup(p,disptxt) \
     , finalised(false) \
     , idxes(*new TypeSet<uiGenInputFieldIdx>) \
-    , selText(""), withchk(false), withclr(false) \
-    , labl(0), cbox(0), selbut(0), clrbut(0) \
+    , selText(""), withchk(false) \
+    , labl(0), cbox(0), selbut(0) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
@@ -633,14 +633,6 @@ void uiGenInput::doFinalise( CallBacker* )
 	selbut->attach( rightOf, lastElem );
     }
 
-    if ( withclr )
-    {
-	clrbut = new uiPushButton( this, "&Clear", true );
-	clrbut->setName( BufferString("Clear ",name()) );
-	clrbut->attach( rightOf, selbut ? selbut : lastElem );
-	clrbut->activated.notify( mCB(this,uiGenInput,doClear) );
-    }
-
     deepErase( inputs ); // have been copied to fields.
     finalised = true;
 
@@ -699,34 +691,36 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 }
 
 
-void uiGenInput::clear( int nr )
+void uiGenInput::setEmpty( int nr )
 {
     if ( !finalised )
-    	{ pErrMsg("Nothing to clear. Not finalised yet."); return; }
-
-    if ( nr >= 0 )
-	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->clear(); return; }
+    	{ pErrMsg("Nothing to set empty. Not finalised yet."); return; }
 
     for( int idx=0; idx < flds.size(); idx++ )
-	flds[idx]->clear();
+    {
+	if ( nr < 0 || idx == nr )
+	    flds[idx]->setEmpty();
+    }
 }
 
 
 int uiGenInput::nrElements() const
 {
-    int nel=0;
+    int ret = 0;
     if ( finalised ) 
     {
 	for( int idx=0; idx<flds.size(); idx++ )
-	    if ( flds[idx] ) nel += flds[idx]->nElems();
+	    if ( flds[idx] )
+		ret  += flds[idx]->nElems();
     }
     else
     {
 	for( int idx=0; idx<inputs.size(); idx++ )
-	    if ( inputs[idx] ) nel += inputs[idx]->nElems();
+	    if ( inputs[idx] )
+		ret += inputs[idx]->nElems();
     }
 
-    return nel;
+    return ret;
 }
 
 
@@ -801,7 +795,8 @@ DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
 }
 
 
-uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr, int& idx ) const
+uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr,
+							int& idx ) const
 {
     if ( nr < 0 || nr >= idxes.size() ) return 0;
 
@@ -945,26 +940,26 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
     if ( !cbox ) return;
 
     checked_ = cbox->isChecked();
-
     const bool elemsens = cbox->sensitive() && cbox->isChecked();
 
     for ( int idx=0; idx<flds.size(); idx++ )
-    {
 	flds[idx]->setSensitive( elemsens );
-    }
 
     if ( selbut ) selbut->setSensitive( elemsens );
-    if ( clrbut ) clrbut->setSensitive( elemsens );
     checked.trigger(this);
 }
 
 
 void uiGenInput::doSelect_( CallBacker* cb )
-{ doSelect(cb); }
+{
+    doSelect(cb);
+}
 
 
 void uiGenInput::doClear( CallBacker* )
-{ clear(); }
+{
+    setEmpty();
+}
 
 
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )
