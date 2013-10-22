@@ -11,9 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ui2dsip.h"
 #include "uidialog.h"
+#include "uigroup.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uigeninput.h"
+#include "uiseparator.h"
 #include "cubesampling.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
 #include "errh.h"
 
 static const char* dlgtitle =
@@ -31,22 +36,95 @@ ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
 				 dlgtitle,"0.3.8"))
 {
-    grdspfld = new uiGenInput( this, "Default grid spacing for horizons",
-	    			 FloatInpSpec() );
+    FloatInpSpec fis;
     DoubleInpSpec dis;
-    xrgfld = new uiGenInput( this, "X-coordinate range", dis, dis );
-    xrgfld->attach( alignedBelow, grdspfld );
-    yrgfld = new uiGenInput( this, "Y-coordinate range", dis, dis );
-    yrgfld->attach( alignedBelow, xrgfld );
-    ismfld = new uiGenInput( this, "Above values are in",
-	    			    BoolInpSpec(true,"Meters","Feet") );
-    ismfld->attach( alignedBelow, yrgfld );
+
+    uiGroup* maingrp = new uiGroup( this, "Main parameters" );
+    grdspfld_ = new uiGenInput( maingrp, "Default grid spacing for horizons",
+	    			fis );
+    xrgfld_ = new uiGenInput( maingrp, "X-coordinate range", dis, dis );
+    xrgfld_->attach( alignedBelow, grdspfld_ );
+    yrgfld_ = new uiGenInput( maingrp, "Y-coordinate range", dis, dis );
+    yrgfld_->attach( alignedBelow, xrgfld_ );
+    ismfld_ = new uiGenInput( maingrp, "Above values are in",
+	    			      BoolInpSpec(true,"Meters","Feet") );
+    ismfld_->attach( alignedBelow, yrgfld_ );
+
+    uiSeparator* optsep = new uiSeparator( this, "Optional" );
+    optsep->attach( stretchedBelow, maingrp );
+
+    uiLabel* zrglbl = new uiLabel( this, "Optional:" );
+    zrglbl->attach( leftBorder );
+    zrglbl->attach( ensureBelow, optsep );
+
+    uiGroup* optgrp = new uiGroup( this, "Optional parameters" );
+
+    const BufferString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
+    zmaxfld_ = new uiGenInput( optgrp,
+	   		       BufferString( "[Z-max ", zunitlbl, "]" ), fis );
+    srfld_ = new uiGenInput( optgrp,
+		 BufferString( "[Default sampling rate ", zunitlbl, "]" ), fis);
+    srfld_->attach( alignedBelow, zmaxfld_ );
+
+    optgrp->attach( alignedBelow, maingrp );
+    optgrp->attach( ensureBelow, optsep );
 }
 
-    uiGenInput*		grdspfld;
-    uiGenInput*		xrgfld;
-    uiGenInput*		yrgfld;
-    uiGenInput*		ismfld;
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+#define cDefaultTWTMax 6000
+#define cDefaultZMaxm 6000
+#define cDefaultZMaxft 10000
+#define cDefautSRms 2
+#define cDefautSRm 5
+#define cDefautSRft 15
+
+
+bool acceptOK( CallBacker* )
+{
+    const float grdsp = grdspfld_->getfValue();
+    if ( mIsUdf(grdsp) )
+	mErrRet( "Invalid grid spacing" )
+    if ( grdsp < 0 )
+	mErrRet( "Grid spacing should be strictly positive" )
+    if ( grdsp < 0.1 )
+	mErrRet("Grid spacing should be > 0.1")
+
+    const Coord c0( xrgfld_->getdValue(0), yrgfld_->getdValue(0) );
+    const Coord c1( xrgfld_->getdValue(1), yrgfld_->getdValue(1) );
+    if ( mIsUdf(c0) || mIsUdf(c1) )
+	mErrRet( "Invalid input coordinates" )
+
+    const bool zintime = SI().zDomain().isTime();
+    const bool zinft = SI().depthsInFeet();
+    const float defzmax = zintime ? cDefaultTWTMax
+				  : ( zinft ? cDefaultZMaxft : cDefaultZMaxm );
+    if ( mIsUdf(zmaxfld_->getfValue()) )
+	zmaxfld_->setValue( defzmax );
+
+    const float defsr = zintime ? cDefautSRms
+				: ( zinft ? cDefautSRft : cDefautSRm );
+    if ( mIsUdf(srfld_->getfValue()) )
+	srfld_->setValue( defsr );
+
+    if ( zmaxfld_->getfValue() < 0 )
+	mErrRet( "Z Max should be strictly positive" )
+
+    if ( srfld_->getfValue() < 0 )
+	mErrRet( "The default sampling rate should be strictly positive" )
+
+    if ( zmaxfld_->getfValue() < srfld_->getfValue() )
+	mErrRet( "Z Max should be larger than the sampling rate" )
+
+    return true;
+}
+
+    uiGenInput*		grdspfld_;
+    uiGenInput*		xrgfld_;
+    uiGenInput*		yrgfld_;
+    uiGenInput*		ismfld_;
+    uiGenInput*		zmaxfld_;
+    uiGenInput*		srfld_;
 
 };
 
@@ -67,15 +145,12 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
 
-    double grdsp = dlg->grdspfld->getdValue();
-    Coord c0( dlg->xrgfld->getdValue(0), dlg->yrgfld->getdValue(0) );
-    Coord c1( dlg->xrgfld->getdValue(1), dlg->yrgfld->getdValue(1) );
-    if ( grdsp < 0 ) grdsp = -grdsp;
+    Coord c0( dlg->xrgfld_->getdValue(0), dlg->yrgfld_->getdValue(0) );
+    Coord c1( dlg->xrgfld_->getdValue(1), dlg->yrgfld_->getdValue(1) );
     if ( c0.x > c1.x ) Swap( c0.x, c1.x );
     if ( c0.y > c1.y ) Swap( c0.y, c1.y );
     const Coord d( c1.x - c0.x, c1.y - c0.y );
-    if ( grdsp < 0.1 )
-	mErrRet("Grid spacing should be > 0.1")
+    const double grdsp = dlg->grdspfld_->getdValue();
     const int nrinl = (int)(d.x / grdsp + 1.5);
     const int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
@@ -92,7 +167,12 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     crd[1] = cmax;
     crd[2] = Coord( c0.x, cmax.y );
 
-    cs.zrg.start = cs.zrg.stop = mSetUdf(cs.zrg.step);
-    xyft_ = !dlg->ismfld->getBoolValue();
+    const float zfac = SI().showZ2UserFactor();
+    cs.zrg.start = 0.f;
+    cs.zrg.stop = dlg->zmaxfld_->getfValue() / zfac;
+    cs.zrg.step = dlg->srfld_->getfValue() / zfac;
+
+    xyft_ = !dlg->ismfld_->getBoolValue();
+
     return true;
 }
