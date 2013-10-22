@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "interpol1d.h"
 #include "mathfunc.h"
-#include "sets.h"
 #include "sorting.h"
 
 /*!\brief Position-sorted indexable objects

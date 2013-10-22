@@ -62,7 +62,6 @@ public:
     				//!< incl=union, !incl=intersection
 
     int				nearestSegment(double) const;
-    IndexInfo			getIndexInfo(double) const;
 
 };
 

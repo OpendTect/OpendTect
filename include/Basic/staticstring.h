@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "basicmod.h"
-#include "sets.h"
+#include "objectset.h"
 #include "threadlock.h"
 #include "bufstringset.h"
 

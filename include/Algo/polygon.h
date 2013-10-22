@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "coord.h"
-#include "sets.h"
+#include "typeset.h"
 #include "iopar.h"
 #include "bufstring.h"
 #include "bendpointfinder.h"

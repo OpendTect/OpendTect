@@ -50,20 +50,6 @@ int PosInfo::LineData::nearestSegment( double x ) const
 }
 
 
-IndexInfo PosInfo::LineData::getIndexInfo( double x ) const
-{
-    const int seg = nearestSegment( x );
-    if ( seg < 0 )
-	return IndexInfo(-1,true,true);
-
-    IndexInfo ret( segments_[seg], x );
-    for ( int iseg=0; iseg<seg; iseg++ )
-	ret.nearest_ += segments_[iseg].nrSteps() + 1;
-
-    return ret;
-}
-
-
 int PosInfo::LineData::segmentOf( int nr ) const
 {
     for ( int iseg=0; iseg<segments_.size(); iseg++ )

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
-#include "sets.h"
 
 class QLocalSocket;
 class QLocalSocketComm;
@@ -51,7 +50,8 @@ protected:
     QLocalSocket*		qlocalsocket_;
     QLocalSocketComm*		comm_;
     mutable BufferString	errmsg_;
+
 };
 
-#endif
 
+#endif

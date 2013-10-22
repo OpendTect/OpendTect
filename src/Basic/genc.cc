@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 #include "envvars.h"
-#include "mallocdefs.h"
 #include "debugmasks.h"
 #include "oddirs.h"
 #include "svnversion.h"
@@ -18,9 +17,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "staticstring.h"
 #include "threadlock.h"
+#include "od_iostream.h"
+#include "iopar.h"
+#include <iostream>
 
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #ifndef __win__
@@ -35,10 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <shlobj.h>
 #endif
 
+static IOPar envvar_entries;
 static int insysadmmode_ = 0;
-
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
-
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 #ifdef __win__
@@ -147,9 +147,10 @@ mExternC(Basic) void ForkProcess(void)
 #ifndef __win__
     switch ( fork() )
     {
-    case 0:     break;
+    case 0:
+	break;
     case -1:
-	fprintf( stderr, "Cannot fork: %s\n", GetLastSystemErrorMessage() );
+	std::cerr << "Cannot fork: " << GetLastSystemErrorMessage() <<std::endl;
     default:
 	ExitProgram( 0 );
     }
@@ -176,7 +177,7 @@ int ExitProgram( int ret )
 {
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
-	printf( "\nExitProgram (PID: %d)\n", GetPID() );
+	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
 #ifndef __win__
 	system( "date" );
 #endif
@@ -209,82 +210,58 @@ mExternC(Basic) char* GetOSEnvVar( const char* env )
 }
 
 
-#define mMaxNrEnvEntries 1024
-typedef struct _GetEnvVarEntry
+static void loadEntries( const char* fnm, IOPar* iop=0 )
 {
-    char	varname[128];
-    char	value[1024];
-} GetEnvVarEntry;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	return;
 
-
-static void loadEntries( const char* fnm, int* pnrentries,
-    			 GetEnvVarEntry* entries[] )
-{
-    static FILE* fp;
-    static char linebuf[1024];
-    static char* ptr;
-    static const char* varptr;
-
-    fp = fnm && *fnm ? fopen( fnm, "r" ) : 0;
-    if ( !fp ) return;
-
-    while ( fgets(linebuf,1024,fp) )
+    if ( !iop ) iop = &envvar_entries;
+    BufferString line;
+    while ( strm.getLine(line) )
     {
-	ptr = linebuf;
-	mSkipBlanks(ptr);
-	varptr = ptr;
-	if ( *varptr == '#' || !*varptr ) continue;
+	char* nmptr = line.buf();
+	mSkipBlanks(nmptr);
+	if ( !*nmptr || *nmptr == '#' )
+	    continue;
 
-	mSkipNonBlanks( ptr );
-	if ( !*ptr ) continue;
-	*ptr++ = '\0';
-	mTrimBlanks(ptr);
-	if ( !*ptr ) continue;
+	char* valptr = nmptr;
+	mSkipNonBlanks( valptr );
+	if ( !*valptr ) continue;
+	*valptr++ = '\0';
+	mTrimBlanks(valptr);
+	if ( !*valptr ) continue;
 
-	entries[*pnrentries] = mMALLOC(1,GetEnvVarEntry);
-	strcpy( entries[*pnrentries]->varname, varptr );
-	strcpy( entries[*pnrentries]->value, ptr );
-	(*pnrentries)++;
+	iop->set( nmptr, valptr );
     }
-    fclose( fp );
 }
 
 
 mExternC(Basic) const char* GetEnvVar( const char* env )
 {
-    static int filesread = 0;
-    static int nrentries = 0;
-    static GetEnvVarEntry* entries[mMaxNrEnvEntries];
-    int idx;
+    if ( !env || !*env )
+	{ pFreeFnErrMsg( "Asked for empty env var", "GetEnvVar" ); return 0; }
+    if ( insysadmmode_ )
+	return GetOSEnvVar( env );
 
-    if ( !env || !*env ) return 0;
-    if ( insysadmmode_ ) return GetOSEnvVar( env );
-
+    mDefineStaticLocalObject( bool, filesread, = false );
     if ( !filesread )
     {
 	if ( !AreProgramArgsSet() )
 	{
 	    //We should not be here before SetProgramInfo() is called.
 	    pFreeFnErrMsg( "Use SetProgramArgs()", "GetEnvVar" );
-	    ExitProgram( 1 );
+	    return GetOSEnvVar( env );
 	}
-	    
-	filesread = 1;
-	loadEntries( GetSettingsFileName("envvars"), &nrentries, entries );
-	loadEntries( 
-		GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"EnvVars",1),
-		&nrentries, entries );
-	loadEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
-		     &nrentries, entries );
+
+	filesread = true;
+	loadEntries(GetSettingsFileName("envvars") );
+	loadEntries(GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"EnvVars",1));
+	loadEntries(GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1) );
     }
 
-    for ( idx=0; idx<nrentries; idx++ )
-    {
-	if ( !strcmp( entries[idx]->varname, env ) )
-	    return entries[idx]->value;
-    }
-
-    return GetOSEnvVar( env );
+    const char* res = envvar_entries.find( env );
+    return res ? res : GetOSEnvVar( env );
 }
 
 
@@ -314,78 +291,45 @@ mExternC(Basic) double GetEnvVarDVal( const char* env, double defltval )
 
 mExternC(Basic) int SetEnvVar( const char* env, const char* val )
 {
-    char* buf = (char*)"";
-    if ( !env || !*env ) return mC_False;
-    if ( !val ) val = "";
+    if ( !env || !*env )
+	return mC_False;
 
-    buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
-    strcpy( buf, env );
-    if ( *val ) strcat( buf, "=" );
-    strcat( buf, val );
-
+    BufferString topass( env, "=", val );
 #ifdef __msvc__
-    _putenv( buf );
+    _putenv( topass.buf() );
 #else
-    putenv( buf );
+    putenv( topass.buf() );
 #endif
 
     return mC_True;
 }
 
 
-static void writeEntries( const char* fnm, int nrentries,
-			  GetEnvVarEntry* entries[] )
+static bool writeEntries( const char* fnm, const IOPar& iop )
 {
-    FILE* fp;
-    int idx;
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	return false;
 
-    fp = fnm && *fnm ? fopen( fnm, "w" ) : 0;
-    if ( !fp ) return;
+    for ( int idx=0; idx<iop.size(); idx++ )
+	strm << iop.getKey(idx) << od_tab << iop.getValue(idx) << od_endl;
 
-    for ( idx=0; idx<nrentries; idx++ )
-	fprintf( fp, "%s %s\n", entries[idx]->varname, entries[idx]->value );
-
-    fclose( fp );
+    return strm.isOK();
 }
 
 
 mExternC(Basic) int WriteEnvVar( const char* env, const char* val )
 {
-    int nrentries = 0;
-    GetEnvVarEntry* entries[mMaxNrEnvEntries];
-    int idx, entryidx = -1;
+    if ( !env || !*env )
+	return 0;
 
-    if ( !env || !*env ) return 0;
-    if ( insysadmmode_ )
-	loadEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
-		     &nrentries, entries );
-    else
-	loadEntries( GetSettingsFileName("envvars"), &nrentries, entries );
-
-    for ( idx=0; idx<nrentries; idx++ )
-    {
-	if ( !strcmp( entries[idx]->varname, env ) )
-	{
-	    entryidx = idx;
-	    break;
-	}
-    }
-
-    if ( entryidx < 0 )
-    {
-	entries[nrentries] = mMALLOC(1,GetEnvVarEntry);
-	entryidx = nrentries++;
-    }
-
-    strcpy( entries[entryidx]->varname, env );
-    strcpy( entries[entryidx]->value, val );
-    if ( insysadmmode_ )
-	writeEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
-		      nrentries, entries );
-    else
-	writeEntries( GetSettingsFileName("envvars"), nrentries, entries );
-
-    return 1;
+    BufferString fnm( insysadmmode_
+	    ? GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1)
+	    : GetSettingsFileName("envvars") );
+    IOPar iop;
+    loadEntries( fnm, &iop );
+    iop.set( env, val );
+    return writeEntries( fnm, iop ) ? 1 : 0;
 }
 
 
@@ -396,15 +340,6 @@ mExternC(Basic) int GetSubversionRevision(void)
 mExternC(Basic) const char* GetSubversionUrl(void)
 { return mSVN_URL; }
 
-
-mExternC(Basic) char GetEnvSeparChar()
-{
-#ifdef __win__
-    return ';';
-#else
-    return ':';
-#endif
-}
 
 
 int argc = -1;

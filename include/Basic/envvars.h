@@ -36,9 +36,6 @@ mGlobal(Basic) int WriteEnvVar(const char* env,const char* val);
 		/*!< Writes environment variable to .od/envvars for user
 		     or data/Envvars for SysAdm */
 
-mGlobal(Basic) char GetEnvSeparChar(void);
-		/*!< The character separating entries in an env variable */
-
 }
 
 

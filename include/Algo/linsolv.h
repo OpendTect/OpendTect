@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "math.h"
 #include "string.h"
 #include "arrayndimpl.h"
-#include "sets.h"
+#include "typeset.h"
 #define TINY 1.0e-20
 
 /*!

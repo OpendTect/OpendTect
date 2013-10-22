@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "coord.h"
 #include "odmemory.h"
-#include "sets.h"
+#include "typeset.h"
 #include "task.h"
 #include "thread.h"
 #include "trigonometry.h"

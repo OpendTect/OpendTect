@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "math2.h"
 #include "stattype.h"
 #include "sorting.h"
-#include "sets.h"
+#include "typeset.h"
 
 #define mUndefReplacement 0
 

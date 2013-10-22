@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "timeser.h"
-#include "mallocdefs.h"
 #include <math.h>
 #include <string.h>
 
@@ -124,7 +123,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 	width++;
     hwidth = width / 2;
 
-    wts = mMALLOC(width,float);
+    wts = new float [width];
     for ( iwt=0; iwt<width; iwt++ )
 	wts[iwt] = (float) ( 0.5 * frac * 
 				(1 + cos( M_PI * iwt / hwidth - M_PI )) );
@@ -141,8 +140,7 @@ void AntiAlias( float frac, int sz, const float* arrin, float* arrout )
 	    arrout[ival] += wts[iwt] * arrin[inpidx];
 	}
     }
-
-    mFREE(wts);
+    delete [] wts;
 }
 
 

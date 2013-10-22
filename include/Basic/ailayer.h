@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 #include "math.h"
-#include "sets.h"
+#include "typeset.h"
 
 /*!
 \brief Acoustic Impedance layer.

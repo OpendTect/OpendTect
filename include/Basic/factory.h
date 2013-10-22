@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "staticstring.h"
 #include "ptrman.h"
+#include "typeset.h"
 
 /*!
 \brief Base class for Factories ( Factory, Factory1Param, Factory2Param

@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "sets.h"
+#include "typeset.h"
 #include "ranges.h"
 template <class T> class ValueSeries;
 template <class T> class ArrayND;
