@@ -27,6 +27,8 @@ public:
 
     bool		xyInFeet() const	{ return xyft_; }
 
+protected:
+
     bool		xyft_;
 };
 

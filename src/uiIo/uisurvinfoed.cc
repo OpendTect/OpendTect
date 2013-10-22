@@ -697,7 +697,11 @@ void uiSurveyInfoEditor::updatePar( CallBacker* cb )
 {
     const bool xyinft = xyinftfld_->isChecked();
     si_.setXYInFeet( xyinft );
+
+    const bool zistime = zunitfld_->currentItem() == 0;
     const bool zdepthft = zunitfld_->currentItem() == 2;
+    si_.setZUnit( zistime, zdepthft );
+
     const bool depthinft = xyinft || zdepthft || !depthdispfld_->getBoolValue();
     const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
 	    				  depthinft );
@@ -706,13 +710,11 @@ void uiSurveyInfoEditor::updatePar( CallBacker* cb )
 
 void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 {
+    updatePar(0);
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
     if ( sipidx < 1 ) return;
     sipfld_->setCurrentItem( 0 );
     delete impiop_; impiop_ = 0; lastsip_ = 0;
-
-    const int curzunititem = zunitfld_->currentItem();
-    si_.setZUnit( curzunititem == 0, curzunititem == 2 );
 
     uiSurvInfoProvider* sip = survInfoProvs()[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
@@ -722,10 +724,13 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
-    if ( sip->tdInfo() != uiSurvInfoProvider::Uknown )
-	si_.setZUnit( sip->tdInfo() == uiSurvInfoProvider::Time,
-		      sip->tdInfo() == uiSurvInfoProvider::DepthFeet );
-    si_.setXYInFeet( sip->xyInFeet() );
+    if ( sip->tdInfo() == uiSurvInfoProvider::Time )
+	zunitfld_->setCurrentItem( 0 );
+    else if ( sip->tdInfo() == uiSurvInfoProvider::Depth )
+	zunitfld_->setCurrentItem( 1 );
+    else if ( sip->tdInfo() == uiSurvInfoProvider::DepthFeet )
+	zunitfld_->setCurrentItem( 2 );
+    xyinftfld_->setChecked( sip->xyInFeet() );
     updatePar(0);
 
     const bool havez = !mIsUdf(cs.zrg.start);
