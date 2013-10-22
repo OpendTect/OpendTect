@@ -1,0 +1,66 @@
+#!/bin/csh -f
+# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
+# Description:  Script to create mac common zip files
+# Author:       Nageswara
+# Date:         September 2013
+# RCS:          $Id$
+
+if ( $#argv != 3 ) then
+    echo "Usage $0 <release-directory containing zip filei(s)> <releasenumber like 4.6.0a> <all/single zipfile name>"
+endif
+
+set reldir = $1
+set relnr = $2
+set pkgstoupdate=$3
+
+
+set presentdir=`pwd`
+if ( -d "${reldir}" ) then
+    cd ${reldir}
+else
+    echo "${reldir} does not exist"
+    exit 1
+endif
+
+set pkgsdir="$presentdir/${reldir}"
+set newreldir = "$relnr"
+if( -d ${newreldir} ) then
+    echo "Failed to create ${newreldir}."
+    echo "$newreldir is already exists under $pkgsdir"
+    exit 1
+else
+    mkdir "$newreldir"
+endif
+
+set pkgs=""
+if( $pkgstoupdate == all ) then
+    set pkgs=`ls *.zip`
+else
+    set pkgs=$pkgstoupdate
+endif
+
+cd "$newreldir"
+foreach pkg ( ${pkgs} )
+    /bin/cp -fp "$pkgsdir/$pkg" .
+    echo "Updating $pkg ..."
+    set instdir=`zipinfo -1 ${pkg} | sed -e 's@/.*@@' | uniq`
+    echo "DIR: $instdir"
+    set plfpkgnm=$pkg:r
+    set verfile="${instdir}/relinfo/ver.$plfpkgnm.txt"
+    echo "Ver file:$verfile"
+    set fileexists = `zipinfo -1 $pkg | grep "${verfile}" | wc -l`
+    if ( ${fileexists} == 0 ) then
+	echo "Error: Version file $verfile not found in $plfpkgnm"
+	exit 1
+    endif
+
+    mkdir "${instdir}" "${instdir}"/relinfo
+    echo $relnr > "$verfile"
+    zip $pkg "$verfile"
+    if( $status != 0 ) then
+	echo "Failed to update zip file of $pkg."
+	exit 1
+    endif
+    rm -rf "$instdir"
+    echo "Done"
+end
