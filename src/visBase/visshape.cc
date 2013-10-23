@@ -211,7 +211,9 @@ void ShapeNodeCallbackHandler::updateTexture()
     laytex->reInitTiling();
     const Coord size( Conv::to<Coord>(laytex->imageEnvelopeSize()) );
     if ( size.x>laytex->maxTextureSize() || size.y>laytex->maxTextureSize() )
+    {
 	pErrMsg( "Texture size overflow, because tiling not yet supported" );
+    }
 
     if ( laytex->isOn() &&
 		vtxshape_.coords_->size()!=vtxshape_.texturecoords_->size() )
