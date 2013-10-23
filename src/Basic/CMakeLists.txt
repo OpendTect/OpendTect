@@ -90,7 +90,6 @@ set( OD_MODULE_SOURCES
 	    undo.cc
 	    veldesc.cc
 	    winutils.cc
-	    winterminate.cc
 	    zdomain.cc
 	    ziputils.cc
 	    ziparchiveinfo.cc 
