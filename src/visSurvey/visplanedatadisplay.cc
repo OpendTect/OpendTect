@@ -145,9 +145,8 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
-    dragger_->ref();
 
-    addChild( dragger_->osgNode() );
+    dragger_->ref();
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
