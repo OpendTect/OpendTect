@@ -1,5 +1,5 @@
-#ifndef gravblockcalc_h
-#define gravblockcalc_h
+#ifndef grav_h
+#define grav_h
 /*
 ________________________________________________________________________
 
@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 */
 
-#include "position.h"
+#include "coord.h"
 
 
 namespace Grav
