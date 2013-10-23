@@ -71,7 +71,7 @@ if ( ${errsize} == 0 ) then
 	exit 1
     endif
 	
-    svn propset svn:eol-style "native" ${filename}
+    svn propset svn:eol-style "LF" ${filename}
     if ( ${status} != 0 ) then
 	echo "Cannot set eol-style property on ${filename}"
 	rm -rf ${tmpfile} ${tmperrfile}

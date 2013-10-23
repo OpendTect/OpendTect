@@ -9,7 +9,7 @@
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
 macro(OD_SETUP_OSG)
-    if ( (NOT DEFINED osgGeo_DIR) OR (osgGeo_DIR STREQUAL "") )
+    if ( (NOT DEFINED osgGeo_DIR) OR (osgGeo_DIR STREQUAL "") OR (osgGeo_DIR STREQUAL "osgGeo_DIR-NOTFOUND"))
         set(osgGeo_DIR ${OSG_DIR})
     endif()
 
@@ -27,8 +27,7 @@ macro(OD_SETUP_OSG)
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
     if ( (NOT DEFINED OSG_FOUND) OR (NOT DEFINED OSGGEO_FOUND) )
-	set(OSG_DIR "" CACHE PATH "OSG location" FORCE )
-	MESSAGE( FATAL_ERROR "OSG_DIR not set")
+	MESSAGE( FATAL_ERROR "OSG_DIR and/or osgGeo not set")
     endif()
 
 
