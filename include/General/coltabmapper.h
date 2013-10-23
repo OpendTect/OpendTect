@@ -237,7 +237,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	if ( isudf )
 	    res = mUndefColIdx;
 	else
-	    res = ColTab::Mapper::snappedPosition( &mapper_,input,
+	    res = (T) ColTab::Mapper::snappedPosition( &mapper_,input,
 						    nrsteps_, mUndefColIdx );
 
 	*valresult = res;
