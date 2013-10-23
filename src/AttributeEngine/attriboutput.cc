@@ -208,6 +208,10 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    datacubes_->addCube(mUdf(float));
     }
 
+    //something went wrong during memory allocation
+    if ( datacubes_->nrCubes()< desoutputs_.size() )
+	return;
+
     int zsz;
     mGetZSz();
 
@@ -697,7 +701,8 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
     if ( sampleinterval_.size() == 0 )
     {
 	Interval<float> zrg( seldata_->zRange() );
-	Interval<int> interval( mNINT32(zrg.start/zstep), mNINT32(zrg.stop/zstep) );
+	Interval<int> interval( mNINT32(zrg.start/zstep),
+				mNINT32(zrg.stop/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -1155,8 +1160,9 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 	    const int nrextrazintv = (poszvalues_->nrCols()-1)/2;
 	    for ( int idi=0; idi<nrextrazintv; idi+=2 ) //to keep it general
 	    {
-		Interval<int> intv( mNINT32(poszvalues_->value(idi+1,idx)/zstep),
-				    mNINT32(poszvalues_->value(idi+2,idx)/zstep));
+		Interval<int> intv(
+			mNINT32(poszvalues_->value(idi+1,idx)/zstep),
+			mNINT32(poszvalues_->value(idi+2,idx)/zstep));
 		sampleinterval += intv;
 	    }
 	}
