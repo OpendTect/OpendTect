@@ -529,7 +529,9 @@ uiContourTreeItem::~uiContourTreeItem()
 		 mCB(this,uiContourTreeItem,visClosingCB) );
 
     if ( lines_ || drawstyle_ )
+    {
 	pErrMsg("prepareForShutdown not run");
+    }
 
     if ( !parent_ )
 	return;

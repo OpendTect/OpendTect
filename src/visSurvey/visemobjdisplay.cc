@@ -653,7 +653,9 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     {
 	const Coord3 pos = emobject_->getPos((*pids)[idx]);
 	if ( !pos.isDefined() )
+	{
 	    pErrMsg("Undefined point.");
+	}
 
         markerset->getCoordinates()->setPos( idx, pos);
     }

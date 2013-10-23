@@ -116,7 +116,9 @@ void LocationDisplay::setSet( Pick::Set* s )
     if ( set_ )
     {
 	if ( set_!=s )
+	{
 	    pErrMsg("Cannot set set_ twice");
+	}
 	return;
     }
 
@@ -517,7 +519,9 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
     loc.pos_.z = newdepth;
 
     if ( hasDirection() )
+    {
 	pErrMsg("Direction not impl");
+    }
 
     return true;
 }
@@ -527,7 +531,10 @@ void LocationDisplay::locChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
     if ( !cd )
-	{ pErrMsg("Wrong pointer passed"); return; }
+    {
+	pErrMsg("Wrong pointer passed");
+	return;
+    }
     else if ( cd->set_ != set_ )
 	return;
 
@@ -577,7 +584,10 @@ void LocationDisplay::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps )
-	{ pErrMsg("Wrong pointer passed"); return; }
+    {
+	pErrMsg("Wrong pointer passed");
+       	return;
+    }
     else if ( ps != set_ )
 	return;
 

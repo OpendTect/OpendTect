@@ -52,8 +52,6 @@ macro( OD_BUILD_DOCUMENTATION )
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
-    message ( ${DOXYGEN_EXECUTABLE} )
-
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
