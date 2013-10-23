@@ -384,7 +384,9 @@ void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 
     mGetIndexedShapeWriteLocker4Geometries();
     if ( geometries_.isPresent( ig ) )
+    {
 	pErrMsg("Adding more than once");
+    }
 
     ig->ischanged_ = true;
     geometries_ += ig;
