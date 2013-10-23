@@ -208,6 +208,10 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    datacubes_->addCube(mUdf(float));
     }
 
+    //something went wrong during memory allocation
+    if ( datacubes_->nrCubes()< desoutputs_.size() )
+	return;
+
     int zsz;
     mGetZSz();
 
