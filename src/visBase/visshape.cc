@@ -305,7 +305,7 @@ void VertexShape::setupOsgNode()
 	setNormalBindType( BIND_PER_VERTEX );
 	setColorBindType( BIND_OVERALL );
 	osggeom_->setDataVariance( osg::Object::STATIC );
-	osggeom_->setFastPathHint( true );
+	// osggeom_->setFastPathHint( true );
 	geode_->addDrawable( osggeom_ );
 	node_->asGroup()->addChild( geode_ );
 	useVertexBufferRender( false );
