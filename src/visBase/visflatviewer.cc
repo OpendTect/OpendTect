@@ -168,7 +168,9 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 {
     const Coord3 center = 0.5 * (c01+c10);
     if ( (c00+c11-2*center).abs() > 1e-4*(c11-c00).abs() )
+    {
 	pErrMsg( "Non-rectangular flatviewing not yet implemented" );
+    }
 
     rectangle_->setCenter( center );
     rectangle_->setRotationAndWidth( c10-c00, c01-c00 );
