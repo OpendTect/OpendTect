@@ -652,7 +652,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     mDoAllScenes(sovwr_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     menuMgr().setCameraPixmap( isperspective );
-    zoomslider_->setSensitive( isperspective );
+    if ( zoomslider_ ) zoomslider_->setSensitive( isperspective );
 }
 
 
