@@ -15,28 +15,20 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visobject.h"
 #include "indexedshape.h"
+#include "draw.h"
 
-class SoIndexedShape;
-class SoMaterialBinding;
-class SoNormalBinding;
-class SoSeparator;
-class SoShape;
-class SoShapeHints;
-class SoSwitch;
-class SoVertexShape;
-
-namespace osg { class Geometry; class Geode; class Switch; }
+namespace osg { class Geometry; class Geode; class Switch; class PrimitiveSet; }
 
 namespace visBase
 {
 
-class ForegroundLifter;    
+class NodeState;
+class ForegroundLifter;
 class VisColorTab;
 class Material;
-class Texture2;
-class Texture3;
 class Coordinates;
 class Normals;
+class TextureChannels;
 class TextureCoords;
 
 
@@ -53,128 +45,131 @@ public: \
 mExpClass(visBase) Shape : public VisualObject
 {
 public:
-    void			turnOn(bool);
-    bool			isOn() const;
-   
-    void			setRenderCache(int mode);
-				    //!<\param mode=0 off, 1=on, 2=auto (deflt)
-    int				getRenderCache() const;
 
-    mDeclSetGetItem( Shape,	Texture2, texture2_ );
-    mDeclSetGetItem( Shape,	Texture3, texture3_ );
     mDeclSetGetItem( Shape,	Material, material_ );
 
     void			setMaterialBinding( int );
     static int			cOverallMaterialBinding()	{ return 0; }
-    static int			cPerFaceMaterialBinding()	{ return 1; }
     static int			cPerVertexMaterialBinding()	{ return 2; }
-    static int			cPerPartMaterialBinding()	{ return 3; }
 
     int				getMaterialBinding() const;
 
+    void			renderOneSide(int side);
+				/*!< 0 = visible from both sides.
+				     1 = visible from positive side
+				    -1 = visible from negative side. */
+
     int				usePar(const IOPar&);
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
 
-    void			insertNode( SoNode* );
-				    /*!< Inserts the node _before_ the shape */
-    void			removeNode(SoNode*);
-    virtual void		replaceShape(SoNode*);
-    SoNode*			getShape() { return shape_; }
-
-    void			turnOnForegroundLifter(bool);
-    
-    void			removeSwitch();
+    				// Latency, will be removed at next commit
+    void                        setTwoSidedLight(bool) { renderOneSide(0); }
 
 protected:
-
-				Shape( SoNode* );
+				Shape();
     virtual			~Shape();
-
-    SoNode*			shape_;
-    SoSwitch*			onoff_;
-
-    Texture2*			texture2_;
-    Texture3*			texture3_;
-    Material*			material_;
     
-    osg::Switch*		osgswitch_;
-
-    virtual SoNode*		gtInvntrNode();
-    osg::Node*			gtOsgNode();
+    Material*			material_;
 
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
     static const char*		sKeyMaterial();
-
-    SoSeparator*		root_;
-    SoMaterialBinding*		materialbinding_;
-    
-    ForegroundLifter*		lifter_;
-    SoSwitch*			lifterswitch_;
 };
 
 
+class ShapeNodeCallbackHandler;
+
 mExpClass(visBase) VertexShape : public Shape
 {
-public:
+    friend class ShapeNodeCallbackHandler;
 
-    mDeclSetGetItem( VertexShape, Coordinates, coords_ );
+public:
+    static VertexShape*	create()
+			mCreateDataObj(VertexShape);
+
+    void		setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType);
+			//!<Should be called before adding statesets
+
     mDeclSetGetItem( VertexShape, Normals, normals_ );
     mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
-    
+
+    virtual  void	  setCoordinates(Coordinates* coords);
+    virtual  Coordinates* getCoordinates() { return coords_; }
+    virtual  void	  setLineStyle(const LineStyle&) {};
+
     void		removeSwitch();
 			/*!<Will turn the object permanently on.
 			 \note Must be done before giving away the
 			 SoNode with getInventorNode() to take
 			 effect. */
 
-    void		setDisplayTransformation( const mVisTrans* );
+    virtual void	setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
 			     you will have to setTransformation again.  */
     const mVisTrans*	getDisplayTransformation() const;
     			/*!<\note Direcly relayed to the coordinates */
-
-    void		setNormalPerFaceBinding( bool yn );
-    			/*!< If yn==false, normals are set per vertex */
-    bool		getNormalPerFaceBinding() const;
-    			/*!< If yn==false, normals are set per vertex */
-
-    void		setVertexOrdering(int vo);
-    int			getVertexOrdering() const;
-    static int		cClockWiseVertexOrdering()		{ return 0; }
-    static int		cCounterClockWiseVertexOrdering()	{ return 1; }
-    static int		cUnknownVertexOrdering()		{ return 2; }
-
-    void		setFaceType(int);
-    int			getFaceType() const;
-    static int		cUnknownFaceType()			{ return 0; }
-    static int		cConvexFaceType()			{ return 1; }
-
-    void		setShapeType(int);
-    int			getShapeType() const;
-    static int		cUnknownShapeType()			{ return 0; }
-    static int		cSolidShapeType()			{ return 1; }
-    
     
     void		dirtyCoordinates();
 
+    void		addPrimitiveSet(Geometry::PrimitiveSet*);
+    void		removePrimitiveSet(const Geometry::PrimitiveSet*);
+    void		removeAllPrimitiveSets();
+    int			nrPrimitiveSets() const;
+    virtual void	touchPrimitiveSet(int)			{}
+    Geometry::PrimitiveSet*	getPrimitiveSet(int);
+    void		setMaterial( Material* mt );
+    void		materialChangeCB( CallBacker*  );
+    void		useOsgAutoNormalComputation(bool);
+
+    enum		BindType{ BIND_OFF = 0,BIND_OVERALL,
+				       BIND_PER_PRIMITIVE_SET,
+				       BIND_PER_PRIMITIVE, BIND_PER_VERTEX};
+    void		setColorBindType(BindType);
+    int			getNormalBindType();
+    void		setNormalBindType(BindType);
+    void		updatePartialGeometry(Interval<int>);
+    void		useVertexBufferRender(bool);
+			/*!<\true, osg use vertex buffer to render and ignore
+			    displaylist false, osg use display list to render.*/
+
+    void		setTextureChannels(TextureChannels*);
+
 protected:
-    			VertexShape( SoVertexShape* );
+    			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
+				     bool creategeode );
     			~VertexShape();
     
-    osg::Node*		gtOsgNode();
+    void		setupOsgNode();
+
+    virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
+    virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
 
     Normals*		normals_;
     Coordinates*	coords_;
     TextureCoords*	texturecoords_;
 
+    osg::Node*		node_;
+
     osg::Geode*		geode_;
     osg::Geometry*	osggeom_;
 
-private:
-    SoNormalBinding*	normalbinding_;
-    SoShapeHints*	shapehints_;
+    bool		useosgsmoothnormal_;
+
+    BindType		colorbindtype_;
+    BindType		normalbindtype_;
+
+    RefMan<TextureChannels>	channels_;
+    ShapeNodeCallbackHandler*	osgcallbackhandler_;
+    bool			needstextureupdate_;
+
+    Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
+
+    Threads::Lock 				lock_;
+						/*!<lock protects primitiveset
+						and osg color array*/
+    ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
+
 };
 
 #undef mDeclSetGetItem
@@ -184,11 +179,6 @@ mExpClass(visBase) IndexedShape : public VertexShape
 {
 public:
     
-    void	addPrimitiveSet(Geometry::IndexedPrimitiveSet*);
-    void	removePrimitiveSet(const Geometry::IndexedPrimitiveSet*);
-    
-    int		nrPrimitiveSets() const;
-    
     int		nrCoordIndex() const;
     void	setCoordIndex(int pos,int idx);
     void	setCoordIndices(const int* idxs, int sz);
@@ -196,7 +186,7 @@ public:
 			  they remain in memory. */
     void	setCoordIndices(const int* idxs, int sz, int start);
     		/*!<\note idxs are copied */
-    void	copyCoordIndicesFrom(const IndexedShape&);
+
     void	removeCoordIndexAfter(int);
     int		getCoordIndex(int) const;
 
@@ -234,22 +224,11 @@ public:
     void	replaceShape(SoNode*);
 
 protected:
-    		IndexedShape( SoIndexedShape* );
 		IndexedShape( Geometry::PrimitiveSet::PrimitiveType );
-    
-    void	updateFromPrimitives();
-
-    
-    ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
-    Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
-private:
-
-
-    SoIndexedShape*	indexedshape_;
 };
     
     
-mClass(visBase) PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
+class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
     Geometry::PrimitiveSet* doCreate( bool, bool );
 };

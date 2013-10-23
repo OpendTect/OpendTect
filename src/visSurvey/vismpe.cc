@@ -57,18 +57,17 @@ MPEDisplay::MPEDisplay()
     boxdragger_->ref();
     boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->setBoxTransparency( 0.7 );
-//    boxdragger_->turnOn( false );
-    addChild( boxdragger_->getInventorNode() );
+    addChild( boxdragger_->osgNode() );
+    showBoxDragger( false );
+
     updateBoxSpace();
 
     voltrans_->ref();
-    addChild( voltrans_->getInventorNode() );
+    addChild( voltrans_->osgNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
 
     channels_->ref();  // will be added in getInventorNode
     channels_->setChannels2RGBA( visBase::TextureChannel2VolData::create() );
-    
-    visBase::DM().getObject( channels_->getInventorNode() );
     
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
 
@@ -196,13 +195,13 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
     
     if ( voltrans_ )
     {
-	center = voltrans_->transform( center );
+	voltrans_->transform( center );
 	Coord3 spacelim( sx.start, sy.start, sz.start );
-	spacelim = voltrans_->transform( spacelim );
+	voltrans_->transform( spacelim );
 	sx.start = (float) spacelim.x; 
 	sy.start = (float) spacelim.y; 
 	sz.start = (float) spacelim.z;
-	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
+	voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ), spacelim );
 	sx.stop = (float) spacelim.x; 
 	sy.stop = (float) spacelim.y; 
 	sz.stop = (float) spacelim.z;
@@ -271,7 +270,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     if ( userrefs_.isEmpty() )
 	userrefs_ += attrnms;
     else
-	delete userrefs_.replace( attrib, attrnms );
+    delete userrefs_.replace( attrib, attrnms );
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->setEnabled( attrib, false );
@@ -324,13 +323,13 @@ void MPEDisplay::moveMPEPlane( int nr )
     
     if ( voltrans_ )
     {
-	center = voltrans_->transform( center );
+	voltrans_->transform( center );
 	Coord3 spacelim( sx.start, sy.start, sz.start );
-	spacelim = voltrans_->transform( spacelim );
+	voltrans_->transform( spacelim );
 	sx.start = (float) spacelim.x;	
 	sy.start = (float) spacelim.y;	
 	sz.start = (float) spacelim.z;
-	spacelim = voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ) ); 
+	voltrans_->transform( Coord3( sx.stop, sy.stop, sz.stop ), spacelim );
 	sx.stop = (float) spacelim.x;	
 	sy.stop = (float) spacelim.y;	
 	sz.stop = (float) spacelim.z;
@@ -365,9 +364,8 @@ void MPEDisplay::moveMPEPlane( int nr )
 	     !sz.includes(center.z,false) )
 	    return;
 	
-	Coord3 newcenter( center );
-	if ( voltrans_ )
-	    newcenter = voltrans_->transformBack( center );
+	Coord3 newcenter;
+	mVisTrans::transform( voltrans_, center, newcenter );
 	slices_[dim_]->setCenter( newcenter, false );
     }
 
@@ -671,7 +669,8 @@ void MPEDisplay::updateBoxSpace()
 float MPEDisplay::calcDist( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
-    const Coord3 xytpos = utm2display->transformBack( pos );
+    Coord3 xytpos;
+    utm2display->transformBack( pos, xytpos );
     const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
     CubeSampling cs; 
@@ -695,7 +694,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     zdiff = (float) ( cs.zrg.includes(xytpos.z,false)
 	     ? 0
 	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
-	       zfactor  * scene_->getZStretch() );
+	       zfactor  * scene_->getFixedZStretch() );
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
@@ -709,7 +708,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 float MPEDisplay::maxDist() const
 {
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    float maxzdist = zfactor * scene_->getZStretch() * SI().zStep() / 2;
+    float maxzdist = zfactor * scene_->getFixedZStretch() * SI().zStep() / 2;
     return engine_.trackPlane().boundingBox().nrZ()==1 
 				? maxzdist : SurveyObject::sDefMaxDist();
 }
@@ -726,17 +725,20 @@ void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
 }
 
 
-void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void MPEDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par );
 
+    /* TODO?
     mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
                      channels_ ? channels_->getChannels2RGBA() : 0 );
-    if ( !cttc2vd )
+
+     if ( !cttc2vd )
     {
 	par.set( sKeyTC2VolData(), channels_->getChannels2RGBA()->id() );
 	saveids += channels_->getChannels2RGBA()->id();
     }
+     */
 
     as_.fillPar( par );
     par.set( sKeyTransparency(), getDraggerTransparency() );
@@ -791,7 +793,7 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
     Coord3 center = slice.getDragger()->center();
 
     if ( voltrans_ )
-	center = voltrans_->transform( center );
+	voltrans_->transform( center );
 
     if ( slice.getDim() == cInLine() )
 	center.x = SI().inlRange(true).snap( center.x );
@@ -801,7 +803,7 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 	center.z = SI().zRange(true).snap( center.z );
 
     if ( voltrans_ )
-	center = voltrans_->transformBack( center );
+	voltrans_->transformBack( center );
 
     slice.setCenter( center, false );
 }
@@ -945,10 +947,10 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 
 	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
 	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
-	const Interval<int> dispinlrg( inlrg.getIndex(displaycs.hrg.start.inl()),
-				       inlrg.getIndex(displaycs.hrg.stop.inl()) );
-	const Interval<int> dispcrlrg( crlrg.getIndex(displaycs.hrg.start.crl()),
-				       crlrg.getIndex(displaycs.hrg.stop.crl()) );
+	const Interval<int> dispinlrg(inlrg.getIndex(displaycs.hrg.start.inl()),
+				      inlrg.getIndex(displaycs.hrg.stop.inl()));
+	const Interval<int> dispcrlrg(crlrg.getIndex(displaycs.hrg.start.crl()),
+				      crlrg.getIndex(displaycs.hrg.stop.crl()));
 
 	const StepInterval<float>& zrg( displaycs.zrg );
 	const Interval<int> dispzrg( attrcs.zrg.nearestIndex( zrg.start ),
@@ -1096,7 +1098,7 @@ int MPEDisplay::addSlice( int dim, bool show )
     slice->setName( dim==cTimeSlice() ? sKeyTime() : 
 	    (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
 
-    addChild( slice->getInventorNode() );
+    addChild( slice->osgNode() );
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
@@ -1153,31 +1155,6 @@ float MPEDisplay::getValue( const Coord3& pos_ ) const
 }
 
 
-SoNode* MPEDisplay::gtInvntrNode()
-{
-    if ( !isinited_ )
-    {
-	isinited_ = true;
-	if ( channels_ && channels_->getChannels2RGBA() )
-	channels_->getChannels2RGBA()->allowShading( allowshading_ );
-
-	const int voltransidx = childIndex( voltrans_->getInventorNode() );
-	insertChild( voltransidx+1, channels_->getInventorNode() );
-	
-	channels_->turnOn( true );
-
-	if ( !slices_.size() )
-	{
-	    addSlice( cInLine(), false );
-	    addSlice( cCrossLine(), false );
-	    addSlice( cTimeSlice(), false );
-	}
-    }
-
-    return VisualObjectImpl::gtInvntrNode();
-}
-
-
 void MPEDisplay::allowShading( bool yn )
 {
     if ( channels_ && channels_->getChannels2RGBA() )
@@ -1191,7 +1168,7 @@ void MPEDisplay::removeChild( int displayid )
     {
 	if ( slices_[idx]->id()==displayid )
 	{
-	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
+	    VisualObjectImpl::removeChild( slices_[idx]->osgNode() );
 	    slices_[idx]->motion.remove( mCB(this,MPEDisplay,sliceMoving) );
 	    slices_[idx]->unRef();
 	    slices_.removeSingle(idx,false);
@@ -1262,7 +1239,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
 	if ( dim==2 )
 	{
-	    const bool inc = planebox.hrg.start.inl()>engineplane.hrg.start.inl();
+	    const bool inc =
+		planebox.hrg.start.inl()>engineplane.hrg.start.inl();
 	    int& start = planebox.hrg.start.inl();
 	    int& stop =  planebox.hrg.stop.inl();
 	    const int step = SI().inlStep();
@@ -1271,7 +1249,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	}
 	else if ( dim==1 )
 	{
-	    const bool inc = planebox.hrg.start.crl()>engineplane.hrg.start.crl();
+	    const bool inc =
+		planebox.hrg.start.crl()>engineplane.hrg.start.crl();
 	    int& start = planebox.hrg.start.crl();
 	    int& stop =  planebox.hrg.stop.crl();
 	    const int step = SI().crlStep();

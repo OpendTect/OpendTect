@@ -384,9 +384,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const int attrib = newitem->attribNr();
 	if ( visserv_->getAttributeFormat(id,attrib) == uiVisPartServer::Cube )
 	{
-	    const bool selok = applMgr()->selectAttrib( id, attrib );
-	    if ( selok )
-		applMgr()->getNewData( id, attrib );
+	const bool selok = applMgr()->selectAttrib( id, attrib );
+	if ( selok )
+	    applMgr()->getNewData( id, attrib );
 	}
 	newitem->select();
 	applMgr()->updateColorTable( id, attrib );

@@ -133,27 +133,37 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	{
     	    if ( nrdefined==4 )
     	    {
-    		mAddTriangle( c21, c22, c11 );
+    		if ( stripcis_.size() >=3 )
+		    stripcis_ += c21;
+		mAddTriangle( c21, c22, c11 );
     		stripcis_ += c12;
 	    }
 	    else if ( !def11 )
 	    {
+		if ( stripcis_.size() >=3 )
+		    stripcis_ += c21;
 		mAddTriangle( c21, c22, c12 );
 	    }
 	    else if ( !def12 )
 	    {
+		if ( stripcis_.size() >=3 )
+		    stripcis_ += c21;
 		mAddTriangle( c21, c22, c11 );
 	    }
 	    else if ( !def21 )
 	    {
+		if ( stripcis_.size() >=3 )
+		    stripcis_ += c11;
 		mAddTriangle( c11, c22, c12 );
 	    }
 	    else
 	    {
+		if ( stripcis_.size() >=3 )
+		    stripcis_ += c11;
 		mAddTriangle( c11, c21, c12 );
 	    }
 
-	    stripcis_ += -1;
+	    stripcis_ += stripcis_[ stripcis_.size()-1 ];
 	}
 	else if ( def11 )
 	{
@@ -180,7 +190,6 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 		    {
 			linecis_ += c11;
 			linecis_ += c12;
-			linecis_ += -1;
 		    }
 		}
 		else if ( def21 && !def10 )
@@ -192,7 +201,6 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 		    {
 			linecis_ += c11;
 			linecis_ += c21;
-			linecis_ += -1;
 		    }
 		}
 	    }

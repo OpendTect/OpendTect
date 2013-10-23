@@ -22,8 +22,8 @@ namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
 {
     class HorizonSection;
-    class IndexedShape;
     class TextureChannel2RGBA;
+    class VertexShape;
 }
 
 
@@ -155,7 +155,7 @@ public:
     visBase::TextureChannel2RGBA* getChannels2RGBA();
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
 
     bool                        canBDispOn2DViewer() const      { return true; }
@@ -167,7 +167,7 @@ public:
     				/*!<Gives the shifts for all versions of an 
 				    attrib. */
 
-    const ObjectSet<visBase::IndexedShape>& getIntersectionLines() const;
+    const ObjectSet<visBase::VertexShape>& getIntersectionLines() const;
 
     void			displayIntersectionLines(bool);
     bool			displaysIntersectionLines() const;
@@ -178,6 +178,7 @@ public:
     void			doOtherObjectsMoved(
 	    				const ObjectSet<const SurveyObject>&,
 					int whichobj );
+
 protected:
     				~HorizonDisplay();
     void			removeEMStuff();
@@ -205,14 +206,16 @@ protected:
     void			traverseLine(bool oninline,
 				    const CubeSampling& cs,
 				    EM::SectionID sid,
-				    visBase::IndexedShape*,
+				    visBase::VertexShape*,
 				    int& cii,
 				    visBase::DataObjectGroup*) const;
     void			drawHorizonOnRandomTrack(const TypeSet<Coord>&,
 				    const StepInterval<float>&,
 				    const EM::SectionID&,
-				    visBase::IndexedShape*, int&,
+				    visBase::VertexShape*, int&,
 				    visBase::DataObjectGroup*) const;
+
+    void			emMovementCB(CallBacker*);
 
 
     bool				allowshading_;
@@ -223,7 +226,7 @@ protected:
     ObjectSet<visBase::HorizonSection> sections_;
     TypeSet<EM::SectionID>		sids_;
 
-    ObjectSet<visBase::IndexedShape>	intersectionlines_;
+    ObjectSet<visBase::VertexShape>	intersectionlines_;
     ObjectSet<visBase::DataObjectGroup>	intersectionpointsets_;
     float				maxintersectionlinethickness_;
     TypeSet<int>			intersectionlineids_;
@@ -239,7 +242,7 @@ protected:
 
     bool				usestexture_;
     bool				useswireframe_;
-    int					resolution_;
+    char				resolution_;
     int					curtextureidx_;
     float				edgelineradius_;
 

@@ -26,6 +26,21 @@ DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
 PrimitiveSet::PrimitiveSet()
     : primitivetype_( Triangles )
 {}
+
+
+void PrimitiveSet::getAll( TypeSet<int>& res, bool onlyunique ) const
+{
+    res.setEmpty();
+
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	if ( onlyunique )
+	    res.addIfNew( get( idx) );
+	else
+	    res += get( idx );
+    }
+}
+
     
 PrimitiveSet::PrimitiveType PrimitiveSet::getPrimitiveType() const
 {
@@ -57,6 +72,16 @@ RangePrimitiveSet* RangePrimitiveSet::create()
     return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
 }
 
+
+void RangePrimitiveSet::getAll(TypeSet<int>& res,bool) const
+{
+    res.erase();
+
+    Interval<int> range = getRange();
+
+    for ( int idx=range.start; idx<=range.stop; idx++ )
+	res += idx;
+}
     
     
 void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
@@ -65,20 +90,28 @@ void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
 }
     
 
-IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
-				  Coord3List* coords, Coord3List* normals,
-				  Coord3List* texturecoordlist )
+IndexedGeometry::IndexedGeometry( Type type, Coord3List* coords,
+				  Coord3List* normals,
+				  Coord3List* texturecoordlist,
+				  SetType settype)
     : coordlist_( coords )
-    , type_( type )
-    , normalbinding_( nb )
+    , primitivetype_( type )
     , texturecoordlist_( texturecoordlist )
     , normallist_( normals )
     , ischanged_( true )
     , ishidden_( false )
+    , primitivesettype_( settype )
 {
+    if ( primitivesettype_ == RangeSet )
+	primitiveset_ =  Geometry::RangePrimitiveSet::create();
+    else
+	primitiveset_ =  Geometry::IndexedPrimitiveSet::create( false );
+
+    if ( primitiveset_ )	primitiveset_->ref();
     if ( coordlist_ )		coordlist_->ref();
     if ( normallist_ )		normallist_->ref();
     if ( texturecoordlist_ )	texturecoordlist_->ref();
+
 }
 
 
@@ -86,98 +119,117 @@ IndexedGeometry::~IndexedGeometry()
 {
     removeAll( true );
     Threads::Locker lckr( lock_ );
+    if ( primitiveset_ ) primitiveset_->unRef();
     if ( coordlist_ ) coordlist_->unRef(); coordlist_ = 0;
     if ( normallist_ ) normallist_->unRef(); normallist_ = 0;
     if ( texturecoordlist_ ) texturecoordlist_->unRef(); texturecoordlist_=0;
 }
 
+
+void IndexedGeometry::appendCoordIndices( const TypeSet<int>& indices,
+					   bool reverse )
+{
+    if ( primitivesettype_ == RangeSet ) return;
+
+    if ( indices.size()<=2  ) return;
+
+    switch ( primitivetype_ )
+    {
+    case Triangles:
+	appendCoordIndicesAsTriangles( indices,reverse );
+	break;
+    case TriangleStrip:
+	appendCoordIndicesAsTriangleStrips( indices );
+	break;
+    case TriangleFan:
+	appendCoordIndicesAsTriangleFan( indices );
+	break;
+    case Points:
+    case Lines:
+	    primitiveset_->append( indices.arr(), indices.size() );
+	break;
+    default:
+	pErrMsg("Not implemented");
+	break;
+    }
+
+}
+
+
+void IndexedGeometry::appendCoordIndicesAsTriangleFan(
+			const TypeSet<int>& indices )
+{
+    pErrMsg("Not implemented");
+}
+
+
+void IndexedGeometry::setCoordIndices( const TypeSet<int>& indices )
+{
+    if ( !primitiveset_ ) return;
+    primitiveset_->setEmpty();
+    appendCoordIndices( indices );
+}
+
+
+void IndexedGeometry::appendCoordIndicesAsTriangles(
+	const TypeSet<int>& indices, bool reverse )
+{
+    if ( primitivesettype_ == RangeSet ) return;
+
+    for ( int idx = 0; idx< indices.size()-2; idx++ )
+    {
+	const bool doreverse = reverse != bool(idx%2);
+
+	const int startidx = doreverse ? idx+2 : idx;
+	const int endidx = doreverse ? idx : idx+2;
+	primitiveset_->append( indices[startidx] );
+	primitiveset_->append( indices[idx+1] );
+	primitiveset_->append( indices[endidx] );
+    }
+
+}
+
+
+void IndexedGeometry::appendCoordIndicesAsTriangleStrips(
+			const TypeSet<int>& indices )
+{
+    if ( primitivesettype_ == RangeSet ) return;
+    if ( primitiveset_->size() )
+    {
+	primitiveset_->append( primitiveset_->get( primitiveset_->size()-1 ) );
+	primitiveset_->append( indices.first() );
+    }
+    primitiveset_->append( indices.arr(),indices.size() );
+}
+
+
 void IndexedGeometry::removeAll( bool deep )
 {
+    if ( !primitiveset_ ) return;
+
     Threads::Locker lckr( lock_ );
-    if ( deep && coordlist_ )
-    {
-	for ( int idx=coordindices_.size()-1; idx>=0; idx-- )
-	{
-	    if ( coordindices_[idx]<0 )
-		continue;
 
-	    if ( idx<coordindices_.size()-1 &&
-	         coordindices_.indexOf( coordindices_[idx], true, idx+1 )!=-1 )
-	    {
-		continue;
-	    }
+    TypeSet<int> idxs;
 
-	    coordlist_->remove( coordindices_[idx] );
-	}
-    }
-
-    if ( deep && normallist_ )
-    {
-	for ( int idx=normalindices_.size()-1; idx>=0; idx-- )
-	{
-	    if ( normalindices_[idx]<0 )
-		continue;
-
-	    if ( idx<normalindices_.size()-1 && normalindices_.indexOf( 
-			normalindices_[idx], true, idx+1 )!=-1 )
-	    {
-		continue;
-	    }
-
-	    normallist_->remove( normalindices_[idx] );
-	}
-    }
-
-    if ( deep && texturecoordlist_ )
-    {
-	for ( int idx=texturecoordindices_.size()-1; idx>=0; idx-- )
-	{
-	    if ( texturecoordindices_[idx]<0 )
-		continue;
-
-	    if ( idx<texturecoordindices_.size()-1 && texturecoordindices_.
-		    indexOf( texturecoordindices_[idx], true, idx+1 )!=-1 )
-	    {
-		continue;
-	    }
-
-	    texturecoordlist_->remove( texturecoordindices_[idx] );
-	}
-    }
+    primitiveset_->getAll( idxs, true );
     
-    if ( primitivesets_.size() && deep )
-    {
-	for ( int idx=0; idx<primitivesets_.size(); idx++ )
-	{
-	    ConstRefMan<PrimitiveSet> primitive = primitivesets_[idx];
-	    for ( int idy=primitive->size()-1; idy>=0; idy-- )
-	    {
-		const int index = primitive->get(idy);
-		if ( coordlist_ )
-		    coordlist_->remove( index );
-		if ( normallist_ )
-		    normallist_->remove( index );
-		if ( texturecoordlist_ )
-		    texturecoordlist_->remove( index );
-	    }
-	}
-    }
+    if( coordlist_ )
+	coordlist_->remove( idxs );
+    if ( normallist_ )
+	normallist_->remove( idxs );
+    if ( texturecoordlist_ )
+	texturecoordlist_->remove( idxs );
 
-    if ( coordindices_.size() || normalindices_.size() ||
-	 texturecoordindices_.size() )
-	ischanged_ = true;
-
-    coordindices_.erase();
-    normalindices_.erase();
-    texturecoordindices_.erase();
-    
-    deepUnRef( primitivesets_ );
+    if ( deep )
+     unRefAndZeroPtr( primitiveset_ );
+    else
+	primitiveset_->setEmpty();
 }
 
 
 bool IndexedGeometry::isEmpty() const
 {
-    return coordindices_.isEmpty() && normalindices_.isEmpty();
+    return !primitiveset_->size();
 }
 
 
@@ -185,9 +237,7 @@ IndexedShape::IndexedShape()
     : coordlist_( 0 )
     , normallist_( 0 )
     , texturecoordlist_( 0 )
-    , righthandednormals_( true )
     , version_( 0 )
-    , geometrieslock_(Threads::Lock::MultiRead)
 {}
 
 
@@ -196,30 +246,37 @@ IndexedShape::~IndexedShape()
 
 
 void IndexedShape::setCoordList( Coord3List* cl, Coord3List* nl,
-       				 Coord3List* tcl )
+       				 Coord3List* tcl, bool createnew )
 {
-    removeAll( true );
+    if ( createnew )
+    {
+        removeAll( true );
+	if ( coordlist_ ) coordlist_->unRef();
+	coordlist_ = cl;
+	if ( coordlist_ ) coordlist_->ref();
 
-    if ( coordlist_ ) coordlist_->unRef();
-    coordlist_ = cl;
-    if ( coordlist_ ) coordlist_->ref();
+	if ( normallist_ ) normallist_->unRef();
+	normallist_ = nl;
+	if ( normallist_ ) normallist_->ref();
 
-    if ( normallist_ ) normallist_->unRef();
-    normallist_ = nl;
-    if ( normallist_ ) normallist_->ref();
-
-    if ( texturecoordlist_ ) texturecoordlist_->unRef();
-    texturecoordlist_ = tcl;
-    if ( texturecoordlist_ ) texturecoordlist_->ref();
+	if ( texturecoordlist_ ) texturecoordlist_->unRef();
+	texturecoordlist_ = tcl;
+	if ( texturecoordlist_ ) texturecoordlist_->ref();
+    }
+    else
+    {
+	if( cl ) cl->unRef();
+	    cl = coordlist_;
+	if ( cl ) cl->ref();
+	if( nl )  nl->unRef();
+	    nl = normallist_;
+	if ( nl ) nl->ref();
+	if( tcl ) tcl->unRef();
+	    tcl = texturecoordlist_;
+	if( tcl ) tcl->ref();
+    }
 }
 
-
-void IndexedShape::setRightHandedNormals( bool yn )
-{ righthandednormals_ = yn; }
-
-
-#define mGetIndexedShapeWriteLocker4Geometries() \
-    Threads::Locker lckr( geometrieslock_, Threads::Locker::WriteLock )
 
 void IndexedShape::removeAll( bool deep )
 {
@@ -232,6 +289,10 @@ void IndexedShape::removeAll( bool deep )
 
 
 const ObjectSet<IndexedGeometry>& IndexedShape::getGeometry() const
+{ return geometries_; }
+
+
+ObjectSet<IndexedGeometry>& IndexedShape::getGeometry()
 { return geometries_; }
 
 

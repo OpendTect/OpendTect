@@ -14,50 +14,54 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdrawstyle.h"
 #include "vismaterial.h"
 
-#include "SoIndexedLineSet3D.h"
-#include "SoLineSet3D.h"
-
-#include <Inventor/nodes/SoLineSet.h>
-#include <Inventor/nodes/SoIndexedLineSet.h>
+#include <osgGeo/PolyLine>
+#include <osg/Node>
+#include <osg/Geode>
 
 mCreateFactoryEntry( visBase::PolyLine );
 mCreateFactoryEntry( visBase::PolyLine3D );
-mCreateFactoryEntry( visBase::IndexedPolyLine );
-mCreateFactoryEntry( visBase::IndexedPolyLine3D );
 
 namespace visBase
 {
 
-PolyLineBase::PolyLineBase( SoVertexShape* node )
-    : VertexShape( node )
-    , numvertices_( 0 )
-{ }
+PolyLine::PolyLine()
+    : VertexShape( Geometry::PrimitiveSet::LineStrips, true )
+    , coordrange_( Geometry::RangePrimitiveSet::create() )
+    , drawstyle_( 0 )
+{
+    addPrimitiveSet( coordrange_ );
+    coordrange_->ref();
+}
 
 
-int PolyLineBase::size() const { return coords_->size(); }
+PolyLine::~PolyLine()
+{ coordrange_->unRef(); }
 
 
-void PolyLineBase::addPoint( const Coord3& pos )
+int PolyLine::size() const { return coords_->size(); }
+
+
+void PolyLine::addPoint( const Coord3& pos )
 {
     setPoint( size(), pos );
 }
 
 
-void PolyLineBase::setPoint(int idx, const Coord3& pos )
+void PolyLine::setPoint(int idx, const Coord3& pos )
 {
     if ( idx>size() ) return;
     coords_->setPos( idx, pos );
-    numvertices_->setValue( size() );
+    coordrange_->setRange( Interval<int>( 0, size()-1 ) );
 }
 
 
-Coord3 PolyLineBase::getPoint( int idx ) const 
+Coord3 PolyLine::getPoint( int idx ) const
 { return coords_->getPos( idx ); }
 
 
-void PolyLineBase::removePoint( int idx )
+void PolyLine::removePoint( int idx )
 {
-    numvertices_->setValue( size()-1 );
+    coordrange_->setRange( Interval<int>( 0, size()-2 ) );
     for ( int idy=idx; idy<size()-1; idy++ )
     {
 	coords_->setPos( idy, coords_->getPos( idy+1 ) );
@@ -67,23 +71,10 @@ void PolyLineBase::removePoint( int idx )
 }
 
 
-PolyLine::PolyLine()
-    : PolyLineBase( new SoLineSet )
-    , lineset_( dynamic_cast<SoLineSet*>( shape_ ) )
-    , drawstyle_(0)
-{
-    numvertices_ = &lineset_->numVertices;
-}
-
-
-
 void PolyLine::setLineStyle( const LineStyle& lst )
 {
-    if ( !drawstyle_ ) 
-    {
-	drawstyle_ = DrawStyle::create();
-	insertNode( drawstyle_->getInventorNode() );
-    }
+    if ( !drawstyle_ )
+	drawstyle_ = addNodeState( new DrawStyle );
 
     drawstyle_->setLineStyle( lst );
     if ( getMaterial() )
@@ -102,65 +93,78 @@ const LineStyle& PolyLine::lineStyle() const
 }
 
 
-PolyLine3D::PolyLine3D()
-    : PolyLineBase( new SoLineSet3D )
-    , lineset_( dynamic_cast<SoLineSet3D*>( shape_ ) )
+void PolyLine::setDisplayTransformation( const mVisTrans* trans)
 {
-    numvertices_ = &lineset_->numVertices;
+    VertexShape::setDisplayTransformation( trans );
 }
 
+
+PolyLine3D::PolyLine3D()
+    : VertexShape( Geometry::PrimitiveSet::Other, false )
+{
+    node_ = osgpoly_ = new osgGeo::PolyLineNode;
+    osgpoly_->ref();
+    setOsgNode( node_ );
+    osgpoly_->setVertexArray( coords_->osgArray() );
+}
 
 
 void PolyLine3D::setLineStyle( const LineStyle& lst )
 {
-    lineset_->radius = lst.width_*0.5f;
-	//divided by 2 just like evry other radius in visBase
-    getMaterial()->setColor( lst.color_ );
+    lst_ = lst_;
+    osgpoly_->setRadius( lst.width_ );
+}
+
+
+void PolyLine3D::setCoordinates( Coordinates* coords )
+{
+    VertexShape::setCoordinates( coords );
+    if ( coords && coords->osgArray() )
+        osgpoly_->setVertexArray( coords->osgArray() );
+}
+
+
+void PolyLine3D::setResolution( int res )
+{
+    osgpoly_->setResolution( res );
+}
+
+
+int PolyLine3D::getResolution() const
+{
+    return osgpoly_->getResolution();
 }
 
 
 const LineStyle& PolyLine3D::lineStyle() const
 {
-    static LineStyle ls;
-    ls.width_ = (int)(2*lineset_->radius.getValue());
-    ls.color_ = getMaterial()->getColor();
-    return ls;
+    return lst_;
 }
 
 
-IndexedPolyLine::IndexedPolyLine()
-    : IndexedShape( new SoIndexedLineSet )
-{ }
-
-
-IndexedPolyLine3D::IndexedPolyLine3D()
-    : IndexedShape( new SoIndexedLineSet3D )
-{ }
-
-
-float IndexedPolyLine3D::getRadius() const
+void PolyLine3D::addPrimitiveSetToScene( osg::PrimitiveSet* ps )
 {
-    return ((SoIndexedLineSet3D*) shape_)->radius.getValue();
+    osgpoly_->addPrimitiveSet( ps );
 }
 
 
-void IndexedPolyLine3D::setRadius(float nv,bool fixedonscreen,float maxdisplaysize)
+void PolyLine3D::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
 {
-    ((SoIndexedLineSet3D*) shape_)->radius.setValue(nv);
-    ((SoIndexedLineSet3D*) shape_)->screenSize.setValue(fixedonscreen);
-    ((SoIndexedLineSet3D*) shape_)->maxRadius.setValue(maxdisplaysize);
+    const int idx = osgpoly_->getPrimitiveSetIndex( ps );
+    osgpoly_->removePrimitiveSet( idx );
 }
 
 
-void IndexedPolyLine3D::setRightHandSystem( bool yn )
+void PolyLine3D::touchPrimitiveSet( int idx )
 {
-    //((SoIndexedLineSet3D*) shape_)->rightHandSystem.setValue( yn );
+    osgpoly_->touchPrimitiveSet( idx );
 }
 
 
-bool IndexedPolyLine3D::isRightHandSystem() const
-//{ return ((SoIndexedLineSet3D*) shape_)->rightHandSystem.getValue(); }
-{ return true; }
-
+void PolyLine3D::setDisplayTransformation( const mVisTrans* trans)
+{
+    VertexShape::setDisplayTransformation( trans );
+    setCoordinates( coords_ );
+}
 
 }; // namespace visBase

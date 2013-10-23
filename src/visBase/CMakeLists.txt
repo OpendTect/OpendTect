@@ -5,88 +5,71 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS SoOD Geometry)
-SET(OD_USECOIN 1)
-
+SET(OD_MODULE_DEPS Geometry)
 SET(OD_USEOSG 1)
+
 SET(OD_MODULE_SOURCES
 	   initvisbase.cc
-	   visanchor.cc
 	   visannot.cc
-	   visbeachball.cc
+	   visaxes.cc
 	   visboxdragger.cc
 	   viscamera.cc
-	   viscamerainfo.cc
 	   viscolorseq.cc
 	   viscolortab.cc
 	   viscolortabindexer.cc
 	   viscoltabmod.cc
 	   viscoord.cc
-	   viscube.cc
 	   visdata.cc
 	   visdatagroup.cc
 	   visdataman.cc
 	   visdepthtabplanedragger.cc
-	   visdetail.cc
 	   visdragger.cc
 	   visdrawstyle.cc
-	   visellipsoid.cc
 	   visevent.cc
-	   visfaceset.cc
 	   visflatviewer.cc
-	   visforegroundlifter.cc
 	   visgridlines.cc
-	   visimage.cc
-	   visinvisiblelinedragger.cc
 	   visgeomindexedshape.cc
+	   vishordatahandler.cc
 	   vishorizonsection.cc
-	   vislevelofdetail.cc
+	   vishorizonsectiontile.cc
+	   vishorizonsectiontileglue.cc
+	   vishorizontexturehandler.cc
+	   vishorthreadworks.cc
+	   vishortileresolutiondata.cc
+	   vishortilescreatorandupdator.cc
 	   vislight.cc
-	   vismarker.cc
+	   vislines.cc
+	   vismarkerset.cc
 	   vismarchingcubessurface.cc
 	   vismaterial.cc
-	   vismultitexture.cc
-	   vismultitexture2.cc
 	   visnormals.cc
+	   visnodestate.cc
 	   visobject.cc
-	   vispickstyle.cc
+	   visosg.cc
 	   visrandompos2body.cc
 	   vispointset.cc
 	   vispolygonoffset.cc
 	   vispolygonselection.cc
 	   vispolyline.cc
-	   visrandomtrack.cc
 	   visrandomtrackdragger.cc
-	   visrectangle.cc
 	   visrgbatexturechannel2rgba.cc
-	   visrotationdragger.cc
 	   visscene.cc
 	   visscenecoltab.cc
 	   visselman.cc
 	   visshape.cc
-	   visshapehints.cc
-	   visshapescale.cc
-	   vissplittexturerandomline.cc
-	   vissplittexture2rectangle.cc
-	   vissplittextureseis2d.cc
-	   visswitch.cc
 	   vistext.cc
-	   vistexture.cc
-	   vistexture2.cc
-	   vistexture3.cc
-	   vistexture3viewer.cc
 	   vistexturecoords.cc
 	   vistexturechannels.cc
 	   vistexturechannel2rgba.cc
            vistexturechannel2voldata.cc
 	   vistexturerect.cc
+	   vistexturepanelstrip.cc
+	   visthumbwheel.cc
 	   vistopbotimage.cc
 	   vistransform.cc
 	   vistristripset.cc
-	   visvolobliqueslice.cc
 	   visvolorthoslice.cc
 	   visvolrenscalarfield.cc
-	   visvolren.cc
 	   viswell.cc
 )
 

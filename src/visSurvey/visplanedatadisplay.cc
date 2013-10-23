@@ -31,14 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
 #include "visdrawstyle.h"
-#include "visfaceset.h"
 #include "visevent.h"
 #include "visgridlines.h"
 #include "vismaterial.h"
-#include "vismultitexture2.h"
 #include "vistexturechannels.h"
-#include "vispickstyle.h"
-#include "vissplittexture2rectangle.h"
 #include "vistexturecoords.h"
 #include "vistexturerect.h"
 #include "vistransform.h"
@@ -126,8 +122,6 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 
 PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject( true )
-    , rectangle_( visBase::SplitTexture2Rectangle::create() )
-    , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
     , curicstep_(inlcrlsystem_->inlStep(),inlcrlsystem_->crlStep())
@@ -140,77 +134,36 @@ PlaneDataDisplay::PlaneDataDisplay()
     , eventcatcher_( 0 )
     , minx0step_( -1 )
     , minx1step_( -1 )
-    , inl2displaytrans_( 0 )
     , texturerect_( 0 )
 {
-    if ( doOsg() )
-    {
-	inl2displaytrans_ = mVisTrans::create();
-	inl2displaytrans_->ref();
-	addChild( inl2displaytrans_->osgNode() );
+    texturerect_ = visBase::TextureRectangle::create();
+    addChild( texturerect_->osgNode() );
 
-	texturerect_ = visBase::TextureRectangle::create();
-	inl2displaytrans_->addObject( texturerect_ );
-	texturerect_->setTextureChannels( channels_ );
+    texturerect_->setTextureChannels( channels_ );
 
-	inl2displaytrans_->addObject( dragger_ );
-    }
+    addChild( dragger_->osgNode() );
 
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
     dragger_->ref();
 
-    int channelidx = childIndex( channels_->getInventorNode() );
-
-    insertChild( channelidx++, dragger_->getInventorNode() );
+    addChild( dragger_->osgNode() );
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
-    draggerrect_ = visBase::FaceSet::create();
-    draggerrect_->ref();
-    draggerrect_->removeSwitch();
-    draggerrect_->setVertexOrdering(
-	    visBase::VertexShape::cCounterClockWiseVertexOrdering() );
-    draggerrect_->getCoordinates()->addPos( Coord3(-1,-1,0) );
-    draggerrect_->getCoordinates()->addPos( Coord3(1,-1,0) );
-    draggerrect_->getCoordinates()->addPos( Coord3(1,1,0) );
-    draggerrect_->getCoordinates()->addPos( Coord3(-1,1,0) );
-    draggerrect_->setCoordIndex( 0, 0 );
-    draggerrect_->setCoordIndex( 1, 1 );
-    draggerrect_->setCoordIndex( 2, 2 );
-    draggerrect_->setCoordIndex( 3, 3 );
-    draggerrect_->setCoordIndex( 4, -1 );
-
-    draggermaterial_ = visBase::Material::create();
-    draggermaterial_->ref();
-    draggerrect_->setMaterial( draggermaterial_ );
-
-    draggerdrawstyle_ = visBase::DrawStyle::create();
-    draggerdrawstyle_->ref();
-    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
-    draggerrect_->insertNode( draggerdrawstyle_->getInventorNode() );
-
-    dragger_->setOwnShape( draggerrect_->getInventorNode() );
     dragger_->setDim( (int) 0 );
 
     if ( (int) orientation_ )
 	dragger_->setDim( (int) orientation_ );
 
-    rectanglepickstyle_->ref();
-    addChild( rectanglepickstyle_->getInventorNode() );
-
-    rectangle_->ref();
-    rectangle_->removeSwitch();
-    rectangle_->setMaterial( 0 );
-    addChild( rectangle_->getInventorNode() );
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 
     gridlines_->ref();
-    insertChild( channelidx, gridlines_->getInventorNode() );
+    addChild( gridlines_->osgNode() );
 
     updateRanges( true, true );
 
@@ -246,28 +199,10 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     deepErase( displaycache_ );
 
-    rectangle_->unRef();
     dragger_->unRef();
-    rectanglepickstyle_->unRef();
     gridlines_->unRef();
-    draggerrect_->unRef();
-    draggerdrawstyle_->unRef();
-    draggermaterial_->unRef();
 
     setBaseMap( 0 );
-
-    if ( inl2displaytrans_ ) inl2displaytrans_->unRef();
-}
-
-
-void PlaneDataDisplay::setInlCrlSystem(const InlCrlSystem* ics )
-{
-    SurveyObject::setInlCrlSystem( ics );
-    if ( inl2displaytrans_ )
-    {
-	STM().setIC2DispayTransform(inlcrlsystem_->sampling().hrg,
-				    inl2displaytrans_);
-    }
 }
 
 
@@ -296,9 +231,9 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger_->setWidthLimits(
-	    Interval<float>( mCast(float,4*survey.hrg.step.inl()),mUdf(float)),
-	    Interval<float>( mCast(float,4*survey.hrg.step.crl()),mUdf(float)),
-	    Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
+	  Interval<float>( mCast(float,4*survey.hrg.step.inl()), mUdf(float) ),
+	  Interval<float>( mCast(float,4*survey.hrg.step.crl()), mUdf(float) ),
+	  Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
 
     CubeSampling newpos = getCubeSampling(false,true);
     if ( !newpos.isEmpty() )
@@ -366,15 +301,16 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 	return Coord3(0,0,1);
     
     return Coord3( orientation_==Inline
-		  ? inlcrlsystem_->binID2Coord().inlDir()
-		  : inlcrlsystem_->binID2Coord().crlDir(), 0 );
+		  ? inlcrlsystem_->binID2Coord().rowDir()
+		  : inlcrlsystem_->binID2Coord().colDir(), 0 );
 }
 
 
 float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
-    const Coord3 xytpos = utm2display->transformBack( pos );
+    Coord3 xytpos;
+    utm2display->transformBack( pos, xytpos );
     const BinID binid = inlcrlsystem_->transform( Coord(xytpos.x,xytpos.y) );
 
     const CubeSampling cs = getCubeSampling(false,true);
@@ -397,8 +333,9 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
         : inlcrlsystem_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
-	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start), fabs(xytpos.z-cs.zrg.stop))
-	               * zfactor  * scene_->getZStretch() );
+	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start),
+	   fabs(xytpos.z-cs.zrg.stop))
+	   * zfactor  * scene_->getFixedZStretch() );
 
     const float inldist = inlcrlsystem_->inlDistance();
     const float crldist = inlcrlsystem_->crlDistance();
@@ -411,10 +348,9 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor =
-	scene_ ? scene_->getZScale() : inlcrlsystem_->zScale();
-    const float maxzdist =
-	zfactor * scene_->getZStretch() * inlcrlsystem_->zStep() / 2;
+    const float zfactor = scene_ ? scene_->getZScale():inlcrlsystem_->zScale();
+    float maxzdist = zfactor * scene_->getFixedZStretch()
+		     * inlcrlsystem_->zStep() / 2;
     return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -435,7 +371,7 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( datatransform_ )
     {
 	datatransform_->ref();
-        updateRanges( false, !haddatatransform && !csfromsession_.isDefined() );
+	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
 		    mCB(this,PlaneDataDisplay,dataTransformCB) );
@@ -491,17 +427,9 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 	showplane = true;
     else if ( orientation_==Zslice && dragcs.zrg.start!=oldcs.zrg.start )
 	showplane = true;
-   
-    draggerdrawstyle_->setDrawStyle( showplane
-	    ? visBase::DrawStyle::Filled
-	    : visBase::DrawStyle::Lines );
-    draggermaterial_->setTransparency( showplane ? 0.5f : 0 );
 
-    if ( doOsg() )
-    {
-	dragger_->showPlane( showplane );
-	dragger_->showDraggerBorder( !showplane );
-    }
+    dragger_->showPlane( showplane );
+    dragger_->showDraggerBorder( !showplane );
 }
 
 
@@ -525,7 +453,8 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 		         (thecs.hrg.start.crl()+thecs.hrg.stop.crl())/2.0, \
 		         thecs.zrg.center() ); \
     Coord3 width( thecs.hrg.stop.inl()-thecs.hrg.start.inl(), \
-	      thecs.hrg.stop.crl()-thecs.hrg.start.crl(), thecs.zrg.width() ); \
+		  thecs.hrg.stop.crl()-thecs.hrg.start.crl(), \
+	          thecs.zrg.width() ); \
     if ( width.x < 1 ) width.x = 1; \
     if ( width.y < 1 ) width.y = 1; \
     if ( width.z < thecs.zrg.step * 0.5 ) width.z = 1; \
@@ -554,10 +483,7 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
 void PlaneDataDisplay::showManipulator( bool yn )
 {
     dragger_->turnOn( yn );
-    rectanglepickstyle_->setStyle( yn ? visBase::PickStyle::Unpickable
-				      : visBase::PickStyle::Shape );
-    if ( doOsg() )
-	texturerect_->enableTraversal( visBase::IntersectionTraversal, !yn );
+    texturerect_->setPickable( !yn );
 }
 
 
@@ -575,14 +501,9 @@ void PlaneDataDisplay::resetManipulation()
 {
     CubeSampling cs = getCubeSampling( false, true );
     setDraggerPos( cs );
-    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
-    draggermaterial_->setTransparency( 0 );
 
-    if ( doOsg() )
-    {
-	dragger_->showPlane( false );
-	dragger_->showDraggerBorder( true );
-    }
+    dragger_->showPlane( false );
+    dragger_->showDraggerBorder( true );
 }
 
 
@@ -590,14 +511,9 @@ void PlaneDataDisplay::acceptManipulation()
 {
     CubeSampling cs = getCubeSampling( true, true );
     setCubeSampling( cs );
-    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
-    draggermaterial_->setTransparency( 0 );
 
-    if ( doOsg() )
-    {
-	dragger_->showPlane( false );
-	dragger_->showDraggerBorder( true );
-    }
+    dragger_->showPlane( false );
+    dragger_->showDraggerBorder( true );
 }
 
 
@@ -615,7 +531,7 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
-    return 3;
+    return 1;
 }
 
 
@@ -776,38 +692,19 @@ void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
 void PlaneDataDisplay::setCubeSampling( const CubeSampling& wantedcs )
 {
     CubeSampling cs = snapPosition( wantedcs );
-    const HorSampling& hrg = cs.hrg;
 
-    if ( orientation_==Inline || orientation_==Crossline )
-    {
-	rectangle_->setPosition(
-		Coord3( hrg.start.inl(), hrg.start.crl(), cs.zrg.start ),
-		Coord3( hrg.start.inl(),  hrg.start.crl(),  cs.zrg.stop ),
-		Coord3( hrg.stop.inl(), hrg.stop.crl(), cs.zrg.start ),
-		Coord3( hrg.stop.inl(),  hrg.stop.crl(),  cs.zrg.stop ) );
-    }
-    else 
-    {
-	rectangle_->setPosition(
-		Coord3( hrg.start.inl(), hrg.start.crl(), cs.zrg.stop ),
-		Coord3( hrg.start.inl(), hrg.stop.crl(),  cs.zrg.start ),
-		Coord3( hrg.stop.inl(),  hrg.start.crl(), cs.zrg.start ),
-		Coord3( hrg.stop.inl(),  hrg.stop.crl(),  cs.zrg.stop ) );
-    }
-
-    if ( texturerect_ )
-    {
-	mDefineCenterAndWidth( cs );
-	width[(int)orientation_] = 0;
-	texturerect_->setCenter( center );
-	texturerect_->setWidth( width );
-	texturerect_->swapTextureAxes();
-    }
+    mDefineCenterAndWidth( cs );
+    width[(int)orientation_] = 0;
+    texturerect_->setCenter( center );
+    texturerect_->setWidth( width );
+    texturerect_->swapTextureAxes();
 
     setDraggerPos( cs );
     if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
 
-    curicstep_ = hrg.step;
+    curicstep_ = cs.hrg.step;
+
+    setUpdateStageTextureTransform();
 
     //channels_->clearAll();
     movefinished_.trigger();
@@ -834,20 +731,12 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     }
     else
     {
-	if ( texturerect_ ) 
-	{
-	    const Coord3 center = texturerect_->getCenter();
-	    Coord3 halfsize = texturerect_->getWidth()/2;
-	    halfsize[orientation_] = 0;
+	const Coord3 center = texturerect_->getCenter();
+	Coord3 halfsize = texturerect_->getWidth()/2;
+	halfsize[orientation_] = 0;
 
-	    c0 = center + halfsize;
-	    c1 = center - halfsize;
-	}
-	else
-	{
-	    c0 = rectangle_->getPosition( false, false );
-	    c1 = rectangle_->getPosition( true, true );
-	}
+	c0 = center + halfsize;
+	c1 = center - halfsize;
     }
 
     res.hrg.start = res.hrg.stop = BinID(mNINT32(c0.x),mNINT32(c0.y) );
@@ -883,10 +772,6 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	}
     }
 
-    /*
-    res.hrg.geomid_ = inlcrlsystem_ ? inlcrlsystem_->getGeomID()
-				    : TraceID::std3DGeomID();
-    */
     return res;
 }
 
@@ -997,8 +882,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     const bool usetf = tfpacks.size();
     if ( nrAttribs()>1 )
     {
-	const int oldchannelsz0 = channels_->getSize(1) / (resolution_+1);
-	const int oldchannelsz1 = channels_->getSize(2) / (resolution_+1);
+	const int oldchannelsz0 = channels_->getSize(1);
+	const int oldchannelsz1 = channels_->getSize(2);
 	
 	//check current attribe sizes
 	int newsz0 = 0, newsz1 = 0;
@@ -1183,11 +1068,8 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	int sz0 = dparr.info().getSize(0);
 	int sz1 = dparr.info().getSize(1);
 
-	if ( !arr || resolution_>0 )
+	if ( !arr )
 	{
-	    sz0 *= (resolution_+1);
-	    sz1 *= (resolution_+1);
-
 	    const od_int64 totalsz = sz0*sz1;
 	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
 
@@ -1197,11 +1079,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 		continue;
 	    }
 
-	    if ( resolution_<1 )
-		dparr.getAll( tmparr );
-	    else
-	    	interpolArray( attrib, tmparr, sz0, sz1, dparr, tr );
-
+	    dparr.getAll( tmparr );
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
 	}
@@ -1209,7 +1087,6 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
 
-	rectangle_->setOriginalTextureSize( sz0, sz1 );
 	DPM(DataPackMgr::FlatID()).release( dpid );
     }
    
@@ -1230,25 +1107,6 @@ const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(int attrib)
 { 
     return displaycache_.validIdx(attrib) ? displaycache_[attrib] : 0; 
 } 
-
-
-inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
-		      int maxsz=INT_MAX )
-{
-    char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
-    int sz = actsz;
-    while ( sz>1 )
-    {
-	if ( above && !npowextra && sz % 2 )
-	npowextra = 1;
-	sz /= 2; npow++;
-    }
-
-    sz = intpow( 2, npow + npowextra );
-    if ( sz < minsz ) sz = minsz;
-    if ( sz > maxsz ) sz = maxsz;
-    return sz;
-}
 
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
@@ -1413,16 +1271,18 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 }
 
 
-void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void PlaneDataDisplay::fillPar( IOPar& par ) const
 {
-    MultiTextureSurveyObject::fillPar( par, saveids );
+    MultiTextureSurveyObject::fillPar( par );
 
     par.set( sKeyOrientation(), getOrientationString( orientation_) );
     getCubeSampling( false, true ).fillPar( par );
 
+    /*TODO: Save gridlines-settings
     const int gridlinesid = gridlines_->id();
     par.set( sKeyGridLinesID(), gridlinesid );
     if ( !saveids.isPresent(gridlinesid) ) saveids += gridlinesid;
+     */
 }
 
 
@@ -1444,6 +1304,8 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	setCubeSampling( cs );
     }
 
+    pErrMsg("Implement gridlines setting");
+/*
     int gridlinesid;
     if ( par.get(sKeyGridLinesID(),gridlinesid) )
     { 
@@ -1459,8 +1321,89 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	int childidx = childIndex( channels_->getInventorNode() );
 	insertChild( childidx, gridlines_->getInventorNode() );
     }
+ */
 
     return 1;
+}
+
+
+void PlaneDataDisplay::setDisplayTransformation( const mVisTrans* t )
+{
+    displaytrans_ = t;
+    texturerect_->setDisplayTransformation( t );
+    dragger_->setDisplayTransformation( t );
+    if ( gridlines_ )
+	gridlines_->setDisplayTransformation( t );
+}
+
+
+void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
+{
+    if ( !yn )
+    {
+	texturerect_->setTextureShift( Coord(0.0,0.0) );
+	texturerect_->setTextureGrowth( Coord(0.0,0.0) );
+    }
+    else if ( !getUpdateStageNr() )
+    {
+	updatestageinfo_.oldcs_ = getCubeSampling( false, true );
+	updatestageinfo_.oldorientation_ = orientation_;
+	updatestageinfo_.oldimagesize_.x = channels_->getSize(2);
+	updatestageinfo_.oldimagesize_.y = channels_->getSize(1);
+	updatestageinfo_.refreeze_ = true;
+    }
+    else if ( updatestageinfo_.refreeze_ )
+	texturerect_->freezeDisplay( false );	// thaw to refreeze
+
+    texturerect_->freezeDisplay( yn );
+    SurveyObject::annotateNextUpdateStage( yn );
+}
+
+
+void PlaneDataDisplay::setUpdateStageTextureTransform()
+{
+    if ( !getUpdateStageNr() )
+	return;
+
+    const CubeSampling& oldcs = updatestageinfo_.oldcs_;
+    const CubeSampling  newcs = getCubeSampling( false, true );
+
+    Coord samplingratio( updatestageinfo_.oldimagesize_.x/oldcs.nrZ(),
+			 updatestageinfo_.oldimagesize_.y/oldcs.nrInl() );
+    Coord startdif( (newcs.zrg.start-oldcs.zrg.start) / newcs.zrg.step,
+		    newcs.hrg.start.inl()-oldcs.hrg.start.inl() );
+    Coord growth( newcs.nrZ()-oldcs.nrZ(), newcs.nrInl()-oldcs.nrInl() );
+    updatestageinfo_.refreeze_ = newcs.hrg.start.crl()==oldcs.hrg.start.crl();
+
+    if ( orientation_ == Inline )
+    {
+	samplingratio.y = updatestageinfo_.oldimagesize_.y / oldcs.nrCrl();
+	startdif.y = newcs.hrg.start.crl() - oldcs.hrg.start.crl();
+	growth.y = newcs.nrCrl() - oldcs.nrCrl();
+	updatestageinfo_.refreeze_ =
+	    newcs.hrg.start.inl()==oldcs.hrg.start.inl();
+    }
+
+    if ( orientation_ == Zslice )
+    {
+	samplingratio.x = updatestageinfo_.oldimagesize_.x / oldcs.nrCrl();
+	startdif.x = newcs.hrg.start.crl() - oldcs.hrg.start.crl();
+	growth.x = newcs.nrCrl() - oldcs.nrCrl();
+	updatestageinfo_.refreeze_ = newcs.zrg.start==oldcs.zrg.start;
+    }
+
+    const int texturebordercoord = oldcs.nrInl() + oldcs.nrCrl() + oldcs.nrZ();
+    if ( updatestageinfo_.oldorientation_!=orientation_ )
+    {
+	startdif = Coord( texturebordercoord, texturebordercoord );
+	updatestageinfo_.refreeze_ = true;
+    }
+
+    startdif.x  *= samplingratio.x; startdif.y  *= samplingratio.y;
+    growth.x *= samplingratio.x; growth.y *= samplingratio.y;
+
+    texturerect_->setTextureGrowth( growth );
+    texturerect_->setTextureShift( -startdif - growth*0.5 );
 }
 
 

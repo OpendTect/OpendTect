@@ -38,9 +38,10 @@ uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
 	    mCB(this,uiViewer3DScalingTab,applyButPushedCB) );
     applybut_->attach( alignedBelow, symmidvalfld_ );
 
+    /*
     mDynamicCastGet(visBase::FlatViewer*,vwr,&vwr_);
     if ( vwr )
-    	mAttachCB( vwr->dispParsChanged, uiViewer3DScalingTab::dispChgCB );
+    	mAttachCB( vwr->dispParsChanged, uiViewer3DScalingTab::dispChgCB );*/
     putToScreen();
 }
 

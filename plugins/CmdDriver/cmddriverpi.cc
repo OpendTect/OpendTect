@@ -42,7 +42,6 @@ static void initExtraFunctions()
 
 static void initExtraComposers()
 {
-    WheelCmdComposer::initClass();
 }
 
 

@@ -19,12 +19,8 @@ ________________________________________________________________________
 
 
 namespace osgManipulator { class TabBoxDragger; }
-namespace osg { class Switch; }
+namespace osg { class ShapeDrawable; }
 
-class SoTabBoxDragger;
-class SoMaterial;
-class SoDragger;
-class SoSwitch;
 
 
 namespace visBase
@@ -37,7 +33,6 @@ mExpClass(visBase) BoxDragger : public DataObject
 public:
     friend class BoxDraggerCallbackHandler;
 
-//public:
     static BoxDragger*		create()
 				mCreateDataObj(BoxDragger);
 
@@ -58,12 +53,14 @@ public:
 	    				       const Interval<float>& y,
 					       const Interval<float>& z );
 
-    void			turnOn(bool yn);
-    bool			isOn() const;
-
+    void			showDraggerBorder(bool yn=true);
+    bool			isDraggerBorderShown() const;
 
     bool			selectable() const { return selectable_; }
     void			setSelectable(bool yn) { selectable_ = yn; }
+
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
 
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;
@@ -71,37 +68,21 @@ public:
     Notifier<BoxDragger>	finished;
 
 protected:
-				~BoxDragger();
-    void			setOwnShapeHints();
+					~BoxDragger();
 
-    void			initOsgDragger();
+    RefMan<const mVisTrans>		transform_;
 
-    static void			startCB( void*, SoDragger* );
-    static void			motionCB( void*, SoDragger* );
-    static void			valueChangedCB(void*, SoDragger* );
-    static void			finishCB( void*, SoDragger* );
-
-    SoSwitch*			onoff_;
-    SoTabBoxDragger*		boxdragger_;
-    SoMaterial*			boxmaterial_;
+    void				setOsgMatrix(const Coord3& worldscale,
+						     const Coord3& worldtrans);
 
     osgManipulator::TabBoxDragger*	osgboxdragger_;
-    osg::Switch*			osgdraggerroot_;
+    osg::ShapeDrawable*			osgdraggerbox_;
     BoxDraggerCallbackHandler*		osgcallbackhandler_;
 
-    Interval<float>*		xinterval_;
-    Interval<float>*		yinterval_;
-    Interval<float>*		zinterval_;
+    Interval<float>			widthranges_[3];
+    Interval<float>			spaceranges_[3];
 
-    Interval<float>		widthranges_[3];
-    Interval<float>		spaceranges_[3];
-
-    Coord3			prevwidth_;
-    Coord3			prevcenter_;
-    bool			selectable_;
-
-    virtual SoNode*		gtInvntrNode();
-    virtual osg::Node*		gtOsgNode();
+    bool				selectable_;
 };
 
 };

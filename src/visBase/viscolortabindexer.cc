@@ -92,22 +92,22 @@ bool ColorTabIndexer::doWork( od_int64 start, od_int64 stop, int threadid )
 
     if ( datacacheptr_ )
     {
-	for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+	for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
 	{
 	    int colorindex = colortab_->colIndex( datacacheptr_[idx] );
 	    if ( colorindex < 0 ) colorindex = 0;
-	    indexcache_[idx] = colorindex;
+	    indexcache_[idx] = (unsigned char) colorindex;
 	    if ( colorindex<nrhistogramsteps_ )
 		histogram[colorindex]++;
 	}
     }
     else
     {
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    int colorindex = colortab_->colIndex(datacache_->value(idx));
 	    if ( colorindex < 0 ) colorindex = 0;
-	    indexcache_[idx] = colorindex;
+	    indexcache_[idx] = (unsigned char) colorindex;
 	    if ( colorindex<nrhistogramsteps_ )
 	        histogram[colorindex]++;
 	}

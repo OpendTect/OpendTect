@@ -110,7 +110,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->unRef();
     }
 
-//    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+//  getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.remove(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -157,7 +157,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
-//    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+//  getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.notify(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -186,10 +186,10 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 
 bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 {
-    BufferString key( IOPar::compKey(sKey::Default(),
-			SeisTrcTranslatorGroup::sKeyDefault3D()) );
-    BufferString midstr( SI().pars().find(key) );
-    if ( midstr.isEmpty() )
+    BufferString keystr(
+	IOPar::compKey( sKey::Default(),
+		SI().pars().find(SeisTrcTranslatorGroup::sKeyDefault3D()) ) );
+    if ( keystr.isEmpty() )
     {
 	const IODir* iodir = IOM().dirPtr();
 	ObjectSet<IOObj> ioobjs = iodir->getObjs();
@@ -206,11 +206,11 @@ bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 	}
 
 	if ( nrod3d == 1 )
-	    midstr = ioobjs[def3didx]->key();
+	    keystr = ioobjs[def3didx]->key();
     }
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    descid = attrserv->getStoredID( midstr.buf(),false );
+    descid = attrserv->getStoredID( keystr.buf(),false );
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( false, true );
     if ( descid.isValid() && ads )
@@ -409,10 +409,13 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv_->getObject(displayid_))
 
+    pdd->annotateNextUpdateStage( true );
     pdd->setCubeSampling( cs );
     pdd->resetManipulation();
-    for ( int attrib=visserv_->getNrAttribs(displayid_); attrib>=0; attrib--)
+    pdd->annotateNextUpdateStage( true );
+    for ( int attrib=visserv_->getNrAttribs(displayid_)-1; attrib>=0; attrib--)
 	visserv_->calculateAttrib( displayid_, attrib, false );
+    pdd->annotateNextUpdateStage( false );
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );

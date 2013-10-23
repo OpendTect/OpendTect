@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdrawstyle.h"
 #include "vismaterial.h"
 #include "vistransform.h"
+#include "vispolygonoffset.h"
+#include "survinfo.h"
 #include "draw.h"
 #include "iopar.h"
 
@@ -31,17 +33,18 @@ const char* GridLines::sKeyZShown()     { return "Zlines shown"; }
 
 GridLines::GridLines()
     : VisualObjectImpl(false)
-    , drawstyle_(DrawStyle::create())
+    , drawstyle_( new DrawStyle )
     , transformation_(0)
     , gridcs_(false)
     , csinlchanged_(false)
     , cscrlchanged_(false)
     , cszchanged_(false)
+    , linematerial_( new Material )
 {
     inlines_ = crosslines_ = zlines_ = trcnrlines_ = 0;
+    drawstyle_->ref();
+    setMaterial( linematerial_ );
 
-    addChild( drawstyle_->getInventorNode() );
-    setMaterial( 0 );
 }
 
 
@@ -49,10 +52,12 @@ GridLines::~GridLines()
 {
     for ( int idx=0; idx<polylineset_.size(); idx++ )
     {
-	removeChild( polylineset_[idx]->getInventorNode() );
+	removeChild( polylineset_[idx]->osgNode() );
 	polylineset_[idx]->unRef();
 	polylineset_.removeSingle(idx--);
     }
+
+    drawstyle_->unRef();
 }
 
 
@@ -174,34 +179,39 @@ void GridLines::setPlaneCubeSampling( const CubeSampling& cs )
 }
 
 
-void GridLines::addLine( IndexedPolyLine& lines, const Coord3& start,
+void GridLines::addLine( PolyLine& lines, const Coord3& start,
 			 const Coord3& stop )
 {
-    Coordinates* coords = lines.getCoordinates();
-    const int startidx = coords->addPos( start );
-    const int stopidx = coords->addPos( stop );
-    const int nrcrdidx = lines.nrCoordIndex();
-    lines.setCoordIndex( nrcrdidx, startidx );
-    lines.setCoordIndex( nrcrdidx+1, stopidx );
-    lines.setCoordIndex( nrcrdidx+2, -1 );
+    lines.addPoint( start );
+    lines.addPoint( stop );
+    const int lastidx = lines.size();
+    Geometry::RangePrimitiveSet* ps =
+	Geometry::RangePrimitiveSet::create();
+    Interval<int> range( lastidx-2, lastidx -1);
+    ps->setRange( range );
+    ps->ref();
+    lines.addPrimitiveSet( ps );
 }
 
 
-IndexedPolyLine* GridLines::addLineSet()
+PolyLine* GridLines::addLineSet()
 {
-    IndexedPolyLine* polyline = IndexedPolyLine::create();
-    polyline->setMaterial( Material::create() );
+    PolyLine* polyline = PolyLine::create();
+    polyline->setMaterial( linematerial_ );
     polyline->ref();
+    polyline->removeAllPrimitiveSets();
+    polyline->addNodeState( drawstyle_ );
+    polyline->setDisplayTransformation( transformation_ );
     polylineset_ += polyline;
-    addChild( polyline->getInventorNode() );
+    addChild( polyline->osgNode() );
     return polyline;
 }
 
 
-void GridLines::emptyLineSet( IndexedPolyLine* line )
+void GridLines::emptyLineSet( PolyLine* line )
 {
-    line->removeCoordIndexAfter( -1 );
-    line->getCoordinates()->removeAfter( -1 );
+    line->removeAllPrimitiveSets();
+    line->getCoordinates()->setEmpty();
 }
 
 
@@ -238,6 +248,9 @@ void GridLines::drawCrosslines()
 		 Coord3(planecs_.hrg.start.inl(),crl,planecs_.zrg.start),
 		 Coord3(planecs_.hrg.stop.inl(),crl,planecs_.zrg.stop) );
     }
+    if ( crosslines_ )
+	crosslines_->dirtyCoordinates();
+
     cscrlchanged_ = false;
 }
 
@@ -309,59 +322,14 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
 {
     if ( transformation_ )
 	transformation_->unRef();
-    transformation_ = tf;
+
+    transformation_  = tf;
+
     if ( transformation_ )
 	transformation_->ref();
+
 }
 
-
-void GridLines::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    LineStyle ls;
-    getLineStyle( ls );
-    BufferString lsstr;
-    ls.toString( lsstr );
-    par.set( sKeyLineStyle(), lsstr );
-
-    gridcs_.fillPar( par );
-
-    par.setYN( sKeyInlShown(), areInlinesShown() );
-    par.setYN( sKeyCrlShown(), areCrosslinesShown() );
-    par.setYN( sKeyZShown(), areZlinesShown() );
-}
-
-
-int GridLines::usePar( const IOPar& par )
-{
-    const int res = VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
-
-    gridcs_.usePar( par );
-
-    bool inlshown = false;
-    par.getYN( sKeyInlShown(), inlshown );
-    showInlines( inlshown );
-
-    bool crlshown = false;
-    par.getYN( sKeyCrlShown(), crlshown );
-    showCrosslines( crlshown );
-
-    bool zshown = false;
-    par.getYN( sKeyZShown(), zshown );
-    showZlines( zshown );
-
-    BufferString lsstr;
-    if ( par.get(sKeyLineStyle(),lsstr) )
-    {
-	LineStyle ls;
-	ls.fromString( lsstr );
-	setLineStyle( ls );
-    }
-
-    return 1;
-}
 
 } // namespace visBase
 

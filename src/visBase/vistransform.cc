@@ -12,173 +12,60 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "iopar.h"
 #include "trigonometry.h"
-
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoMatrixTransform.h>
-#include <Inventor/nodes/SoRotation.h>
-#include <Inventor/SbLinear.h>
+#include "visosg.h"
 
 #include <osg/MatrixTransform>
 
+#include <osg/Vec3f>
+#include <osg/Vec3d>
+
 mCreateFactoryEntry( visBase::Transformation );
-mCreateFactoryEntry( visBase::Rotation );
 
-namespace visBase
-{
 
-const char* Transformation::matrixstr()  { return "Matrix Row "; }
+using namespace visBase;
 
 Transformation::Transformation()
-    : transform_( new SoMatrixTransform )
-    , transformgroup_( new SoGroup )
-    , node_( 0 )
+    : node_( 0 )
+    , curtrans_( *new osg::Vec3d )
+    , currot_( *new osg::Quat )
+    , curscale_( *new osg::Vec3d )
+    , curso_( *new osg::Quat )
 {
-    if ( doOsg() )
-    {
-	osggroup_ = node_ = new osg::MatrixTransform;
-	osggroup_->ref();
-    }
-    separate_ = false;
-    transformgroup_->ref();
-    transformgroup_->addChild( transform_ );
+    osggroup_ = node_ = setOsgNode( new osg::MatrixTransform );
+
+    reset();
 }
 
 
 Transformation::~Transformation()
 {
     //node is unreffed in visBase::DataObjectGroup
-    transformgroup_->unref();
-}
-
-
-void Transformation::ensureGroup()
-{
-    const bool setgrp = !group_;
-    DataObjectGroup::ensureGroup();
-    if ( group_ && setgrp )
-	transformgroup_->addChild( group_ );
-}
-
-
-void Transformation::setRotation( const Coord3& vec, double angle )
-{
-    SbVec3f translation;
-    SbRotation rotation;
-    SbVec3f scale;
-    SbRotation scaleorientation;
-
-    SbMatrix matrix = transform_->matrix.getValue();
-    matrix.getTransform( translation, rotation, scale, scaleorientation );
-    rotation = SbRotation( SbVec3f( vec.x, vec.y, vec.z ), angle );
-    matrix.setTransform( translation, rotation, scale, scaleorientation );
-
-    transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	const osg::Quat osgrotation( angle, osg::Vec3d(vec.x,vec.y,vec.z ) );
-	osgmatrix.setRotate( osgrotation );
-	node_->setMatrix( osgmatrix );
-    }
-}
-
-
-void Transformation::setTranslation( const Coord3& vec )
-{
-    SbVec3f translation;
-    SbRotation rotation;
-    SbVec3f scale;
-    SbRotation scaleorientation;
-
-    SbMatrix matrix = transform_->matrix.getValue();
-    matrix.getTransform( translation, rotation, scale, scaleorientation );
-    translation = SbVec3f( vec.x, vec.y, vec.z );
-    matrix.setTransform( translation, rotation, scale, scaleorientation );
-
-    transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	osgmatrix.setTrans( vec.x, vec.y, vec.z );
-	node_->setMatrix( osgmatrix );
-    }
-}
-
-
-Coord3 Transformation::getTranslation() const
-{
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	const osg::Vec3d vec = matrix.getTrans();
-	return Coord3( vec.x(), vec.y(), vec.z() );
-    }
-
-    SbVec3f translation;
-    SbRotation rotation;
-    SbVec3f scale;
-    SbRotation scaleorientation;
-
-    const SbMatrix matrix = transform_->matrix.getValue();
-    matrix.getTransform( translation, rotation, scale, scaleorientation );
-    return Coord3( translation[0], translation[1], translation[2] );
-}
-
-
-void Transformation::setScale( const Coord3& vec )
-{
-    SbVec3f translation;
-    SbRotation rotation;
-    SbVec3f scale;
-    SbRotation scaleorientation;
-
-    SbMatrix matrix = transform_->matrix.getValue();
-    matrix.getTransform( translation, rotation, scale, scaleorientation );
-    scale = SbVec3f( vec.x, vec.y, vec.z );
-    matrix.setTransform( translation, rotation, scale, scaleorientation );
-
-    transform_->matrix.setValue( matrix );
-    if ( node_ )
-    {
-	osg::Matrix osgmatrix = node_->getMatrix();
-	osgmatrix.makeScale( vec.x, vec.y, vec.z );
-	node_->setMatrix( osgmatrix );
-    }
-}
-
-
-Coord3 Transformation::getScale() const
-{
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	const osg::Vec3d vec = matrix.getScale();
-	return Coord3( vec.x(), vec.y(), vec.z() );
-    }
-
-    SbVec3f translation;
-    SbRotation rotation;
-    SbVec3f scale;
-    SbRotation scaleorientation;
-
-    const SbMatrix coinmatrix = transform_->matrix.getValue();
-    coinmatrix.getTransform( translation, rotation, scale, scaleorientation );
-    return Coord3( scale[0], scale[1], scale[2] );
+    delete &curtrans_;
+    delete &currot_;
+    delete &curscale_;
+    delete &curso_;
 }
 
 
 void Transformation::reset()
 {
-    if ( node_ )
-    {
-	node_->setMatrix( osg::Matrix::identity() );
-	return;
-    }
-    setA( 1, 0, 0, 0,
-	  0, 1, 0, 0,
-	  0, 0, 1, 0,
-	  0, 0, 0, 1 );
+    curtrans_ = osg::Vec3d( 0.0, 0.0, 0.0 );
+    currot_ = curso_ = osg::Quat( 0.0, 0.0, 0.0, 1.0 );
+    curscale_ = osg::Vec3d( 1.0, 1.0, 1.0 );
+    node_->setMatrix( osg::Matrix::identity() );
+    return;
+}
 
+
+Transformation& Transformation::operator *= (const Transformation& nt)
+{
+    const osg::MatrixTransform* mtrf = nt.getTransformNode();
+    if ( node_ && mtrf )
+    {
+	osg::Matrix mt = node_->getMatrix()*mtrf->getMatrix();
+	node_->setMatrix( mt );
+    }
+    return *this;
 }
 
 
@@ -187,217 +74,212 @@ void Transformation::setA( double a11, double a12, double a13, double a14,
 			   double a31, double a32, double a33, double a34,
 			   double a41, double a42, double a43, double a44 )
 {
-    transform_->matrix.setValue( a11, a21, a31, a41,
-	    			a12, a22, a32, a42,
-				a13, a23, a33, a43,
-				a14, a24, a34, a44 );
-    if ( node_ )
+    node_->setMatrix( osg::Matrix(
+			a11, a21, a31, a41,
+			a12, a22, a32, a42,
+			a13, a23, a33, a43,
+			a14, a24, a34, a44 ) );
+
+    node_->getMatrix().decompose( curtrans_, currot_, curscale_, curso_ );
+
+    updateNormalizationMode();
+}
+
+
+void Transformation::updateMatrix()
+{
+    osg::Matrix mat = osg::Matrix::scale( curscale_ );
+    if ( !curso_.zeroRotation() )
     {
-	node_->setMatrix( osg::Matrix(
-			    a11, a21, a31, a41,
-			    a12, a22, a32, a42,
-			    a13, a23, a33, a43,
-			    a14, a24, a34, a44 ) );
+	mat.preMult( osg::Matrix::inverse(osg::Matrix::rotate(curso_)) );
+	mat *= osg::Matrix::rotate( curso_ );
     }
+    mat *= osg::Matrix::rotate( currot_ );
+    mat *= osg::Matrix::translate( curtrans_ );
+    node_->setMatrix( mat );
 }
 
-/*
-void Transformation::setA( const SbMatrix& matrix )
-{
-    transform_->matrix.setValue(matrix);
-}
-*/
 
-
-Coord3 Transformation::transform( const Coord3& pos ) const
+void Transformation::updateNormalizationMode()
 {
-    if ( node_ )
+    const double eps = 1e-5;
+    const osg::Vec3d scale = node_->getMatrix().getScale();
+
+    if ( node_->getStateSet() )
     {
-	osg::Vec3d res( pos.x, pos.y, pos.z );
-	transform( res );
-	return Coord3( res[0], res[1], res[2] );
+	node_->getStateSet()->removeMode( GL_NORMALIZE );
+	node_->getStateSet()->removeMode( GL_RESCALE_NORMAL );
     }
-    SbVec3f res( pos.x, pos.y, pos.z );
-    transform( res );
-    if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
 
-    return Coord3( res[0], res[1], res[2] );
-}
-
-
-void Transformation::transform( SbVec3f& res ) const
-{ transform_->matrix.getValue().multVecMatrix( res, res ); } 
-
-
-void Transformation::transformBack( SbVec3f& res ) const
-{
-    SbMatrix inverse = transform_->matrix.getValue().inverse();
-    inverse.multVecMatrix( res, res );
-}
-
-
-void Transformation::transform( osg::Vec3d& res ) const
-{
-//TODO Check that we should use preMult
-    if ( node_ )
+    if ( fabs(scale.x()-scale.y()) > eps ||
+	 fabs(scale.y()-scale.z()) > eps ||
+	 fabs(scale.z()-scale.x()) > eps )
     {
-	res = node_->getMatrix().preMult( res );
+	node_->getOrCreateStateSet()->setMode( GL_NORMALIZE,
+					       osg::StateAttribute::ON );
     }
-} 
-
-
-void Transformation::transformBack( osg::Vec3d& res ) const
-{
-//TODO Check that we should use preMult, the inverse or postMult
-    if ( node_ )
+    else if ( fabs(scale.x()-1.0) > eps ||
+	      fabs(scale.y()-1.0) > eps ||
+	      fabs(scale.z()-1.0) > eps )
     {
-	res = osg::Matrixd::inverse(node_->getMatrix()).preMult( res );
+	node_->getOrCreateStateSet()->setMode( GL_RESCALE_NORMAL,
+					       osg::StateAttribute::ON );
     }
 }
 
 
-Coord3 Transformation::transformBack( const Coord3& pos ) const
+void Transformation::setMatrix( const Coord3& trans,
+				const Coord3& rotvec,double rotangle,
+				const Coord3& scale )
 {
-    if ( node_ )
-    {
-	osg::Vec3d res( pos.x, pos.y, pos.z );
-	transformBack( res );
-	return Coord3( res[0], res[1], res[2] );
-    }
-    SbVec3f res( pos.x, pos.y, pos.z );
-    transformBack( res );
-    if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
-
-    return Coord3( res[0], res[1], res[2] );
+    curtrans_ = Conv::to<osg::Vec3d>( trans );
+    currot_ = osg::Quat( rotangle, Conv::to<osg::Vec3d>(rotvec) );
+    curscale_ = Conv::to<osg::Vec3d>( scale );
+    curso_ = osg::Quat( 0.0, 0.0, 0.0, 1.0 );
+    updateMatrix();
+    updateNormalizationMode();
 }
 
 
-void Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Transformation::setTranslation( const Coord3& vec )
 {
-    DataObject::fillPar( par, saveids );
-    if ( node_ )
-    {
-	const osg::Matrix matrix = node_->getMatrix();
-	BufferString key = matrixstr(); key += 1; 
-	par.set( key, matrix(0,0), matrix(1,0), matrix(2,0), matrix(3,0) );
-
-	key = matrixstr(); key += 2;
-	par.set( key, matrix(0,1), matrix(1,1), matrix(2,1), matrix(3,1) );
-
-	key = matrixstr(); key += 3;
-	par.set( key, matrix(0,2), matrix(1,2), matrix(2,2), matrix(3,2) );
-
-	key = matrixstr(); key += 4;
-	par.set( key, matrix(0,3), matrix(1,3), matrix(2,3), matrix(3,3) );
-	return;
-    }
-    const SbMat& matrix = transform_->matrix.getValue().getValue();
-
-    BufferString key = matrixstr(); key += 1; 
-    par.set( key, matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0] );
-
-    key = matrixstr(); key += 2;
-    par.set( key, matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1] );
-
-    key = matrixstr(); key += 3;
-    par.set( key, matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2] );
-
-    key = matrixstr(); key += 4;
-    par.set( key, matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3] );
+    curtrans_ = Conv::to<osg::Vec3d>( vec );
+    updateMatrix();
 }
 
 
-int Transformation::usePar( const IOPar& par )
+void Transformation::setRotation( const Coord3& vec, double angle )
 {
-    int res = DataObject::usePar( par );
-    if ( res!= 1 ) return res;
-
-    double matrix[4][4];
-    BufferString key = matrixstr(); key += 1; 
-    SbMatrix inverse = transform_->matrix.getValue();
-    if ( !par.get( key, matrix[0][0],matrix[1][0],matrix[2][0],matrix[3][0] ))
-	return -1;
-
-    key = matrixstr(); key += 2;
-    if ( !par.get( key, matrix[0][1],matrix[1][1],matrix[2][1],matrix[3][1] ))
-	return -1;
-
-    key = matrixstr(); key += 3;
-    if ( !par.get( key, matrix[0][2],matrix[1][2],matrix[2][2],matrix[3][2] ))
-	return -1;
-
-    key = matrixstr(); key += 4;
-    if ( !par.get( key, matrix[0][3],matrix[1][3],matrix[2][3],matrix[3][3] ))
-	return -1;
-
-    setA(   matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0],
-	    matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
-	    matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
-	    matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3] );
-
-    return 1;
-}
-
-		  
-SoNode* Transformation::gtInvntrNode()
-{
-    return transformgroup_;
+    currot_ = osg::Quat( angle, Conv::to<osg::Vec3d>(vec) );
+    updateMatrix();
 }
 
 
-Rotation::Rotation()
-    : rotation_( new SoRotation )
+void Transformation::getRotation( Coord3& vec,double& angle) const
 {
-    rotation_->ref();
+    osg::Vec3d osgvec;
+    currot_.getRotate( angle, osgvec );
+    vec = Conv::to<Coord3>( osgvec );
 }
 
 
-Rotation::~Rotation()
+void Transformation::setScale( const Coord3& vec )
 {
-    rotation_->unref();
+    curscale_ = Conv::to<osg::Vec3d>( vec );
+    updateMatrix();
+    updateNormalizationMode();
 }
 
 
-void Rotation::set( const Coord3& vec, double angle )
+void Transformation::setScaleOrientation( const Coord3& vec, double angle )
 {
-    set( Quaternion( vec, angle ) );
+    curso_ = osg::Quat( angle, Conv::to<osg::Vec3d>(vec) );
+    updateMatrix();
 }
 
 
-void Rotation::set( const Quaternion& q )
+Coord3 Transformation::getTranslation() const
 {
-    rotation_->rotation.setValue( q.vec_.x, q.vec_.y, q.vec_.z, q.s_ );
+    return Conv::to<Coord3>( curtrans_ );
 }
 
 
-void Rotation::get( Quaternion& q ) const
+Coord3 Transformation::getScale() const
 {
-    const float* rot = rotation_->rotation.getValue().getValue();
-    q.s_ = rot[3];
-    q.vec_.x = rot[0];
-    q.vec_.y = rot[1];
-    q.vec_.z = rot[2];
+    return Conv::to<Coord3>( curscale_ );
 }
 
 
-Coord3 Rotation::transform( const Coord3& input ) const
+void Transformation::setAbsoluteReferenceFrame()
 {
-    const float* rot = rotation_->rotation.getValue().getValue();
-    const Quaternion q( rot[3], rot[0], rot[1], rot[2] );
-    return q.rotate( input );
+    node_->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 }
 
 
-Coord3 Rotation::transformBack( const Coord3& input ) const
-{
-    const float* rot = rotation_->rotation.getValue().getValue();
-    const Quaternion q = Quaternion(rot[3],rot[0],rot[1],rot[2]).inverse();
-    return q.rotate( input );
+#define mDeclTransType( func, tp, mat, post ) \
+void Transformation::func( tp& inp ) const \
+{ inp = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+void Transformation::func( const tp& inp, tp& to ) const \
+{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+void Transformation::func( const Transformation* tr, const tp& inp, tp& to ) \
+{ \
+    if ( tr ) tr->func( inp, to ); \
+    else to = inp; \
 }
 
 
-SoNode* Rotation::gtInvntrNode() { return rotation_; }
+#define mDeclTrans( tp ) \
+mDeclTransType( transform, tp, getMatrix, ) \
+mDeclTransType( transformBack, tp, getInverseMatrix, ) \
+mDeclTransType( transformDir, tp, getMatrix, -node_->getMatrix().getTrans() ) \
+mDeclTransType( transformBackDir, tp, getInverseMatrix, \
+		-node_->getInverseMatrix().getTrans() ) \
+mDeclTransType( transformNormal, tp, getInverseMatrix, \
+		-node_->getInverseMatrix().getTrans() ) \
+mDeclTransType( transformBackNormal, tp, getMatrix, \
+		-node_->getMatrix().getTrans() )
+
+#define mToOsgVec( inp ) inp
+#define mFromOsgVec( inp ) inp
+
+mDeclTrans( osg::Vec3f )
+mDeclTrans( osg::Vec3d )
+
+#undef mToOsgVec
+#undef mFromOsgVec
+
+#define mToOsgVec( inp ) Conv::to<osg::Vec3d>( inp )
+#define mFromOsgVec( inp ) Conv::to<Coord3>( inp )
+
+mDeclTrans( Coord3 )
+
+#undef mToOsgVec
+#undef mFromOsgVec
+
+#define mDeclConvTransType( func, frtp, totp, mat, post ) \
+void Transformation::func( const frtp& inp, totp& to ) const \
+{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+void Transformation::func( const Transformation* tr, const frtp& inp, \
+			   totp& to ) \
+{ \
+    if ( tr ) { tr->func( inp, to ); } \
+    else { to = Conv::to<totp>( inp ); } \
+}
 
 
+#define mDeclConvTrans( frtp, totp ) \
+mDeclConvTransType( transform, frtp, totp, getMatrix, ) \
+mDeclConvTransType( transformBack, frtp, totp, getInverseMatrix, ) \
+mDeclConvTransType( transformDir, frtp, totp, getMatrix, \
+		    -node_->getMatrix().getTrans() ) \
+mDeclConvTransType( transformBackDir, frtp, totp, getInverseMatrix, \
+		    -node_->getInverseMatrix().getTrans() ) \
+mDeclConvTransType( transformNormal, frtp, totp, getInverseMatrix, \
+		    -node_->getInverseMatrix().getTrans() ) \
+mDeclConvTransType( transformBackNormal, frtp, totp, getMatrix, \
+		    -node_->getMatrix().getTrans() )
 
-}; // namespace visBase
+#define mToOsgVec( inp ) inp
+#define mFromOsgVec( inp ) Conv::to<Coord3>( inp )
+mDeclConvTrans( osg::Vec3d, Coord3 )
+#undef mToOsgVec
+#undef mFromOsgVec
+
+#define mToOsgVec( inp ) Conv::to<osg::Vec3d>( inp )
+#define mFromOsgVec( inp ) inp
+mDeclConvTrans( Coord3, osg::Vec3d )
+#undef mToOsgVec
+#undef mFromOsgVec
+
+#define mToOsgVec( inp ) Conv::to<osg::Vec3d>( inp )
+#define mFromOsgVec( inp ) inp
+mDeclConvTrans( Coord3, osg::Vec3f )
+#undef mToOsgVec
+#undef mFromOsgVec
+
+#define mToOsgVec( inp ) osg::Vec3d(inp)
+#define mFromOsgVec( inp ) Conv::to<Coord3>( inp )
+mDeclConvTrans( osg::Vec3f, Coord3 )
+#undef mToOsgVec
+#undef mFromOsgVec
+

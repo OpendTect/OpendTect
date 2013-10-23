@@ -17,11 +17,13 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "position.h"
 
+
+namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
+
+
 namespace visBase
 {
 
-class TriangleStripSet;
-class Image;
 
 mExpClass(visBase) TopBotImage : public VisualObjectImpl
 {
@@ -33,14 +35,14 @@ public:
     void			setPos(const Coord& tl,const Coord& br,
 				       float z);
     const Coord&		topLeft() const	    { return pos0_.coord(); }
-    const Coord&		bottomRight() const { return pos2_.coord(); }
+    const Coord&		bottomRight() const { return pos1_.coord(); }
 
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
 
     void			setTransparency(float); // 0-1
     float			getTransparency() const; // returns value 0-1
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
 
 protected:
@@ -48,19 +50,18 @@ protected:
 
     void			updateCoords();
 
-    TriangleStripSet*		imgshape_;
-    Image*			image_;
     const mVisTrans*		trans_;
     Coord3			pos0_;
     Coord3			pos1_;
-    Coord3			pos2_;
-    Coord3			pos3_;
     BufferString		filenm_;
     
     static const char*		sKeyTopLeftCoord();
     static const char*		sKeyBottomRightCoord();
     static const char*		sKeyFileNameStr();
-   
+
+    int					layerid_;
+    osgGeo::LayeredTexture*		laytex_;
+    osgGeo::TexturePlaneNode*		texplane_;
 };
 
 } // namespace visBase

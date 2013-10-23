@@ -22,7 +22,8 @@ ________________________________________________________________________
 
 namespace Geometry { class ExplicitIndexedShape; }
 namespace EM { class MarchingCubesSurface; class ImplicitBody; }
-namespace visBase { class GeomIndexedShape; class MarchingCubesSurface; };
+namespace visBase { class GeomIndexedShape; class MarchingCubesSurface;
+		    class Transformation; };
 
 
 namespace visSurvey
@@ -50,7 +51,6 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
-    void			setRightHandSystem(bool);
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
     				//!<Creates an EMObject for it.
@@ -84,13 +84,16 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
 
+    bool			canRemoveSelection() const	{ return true; }
+    void			removeSelection(const Selector<Coord3>&,
+	    					TaskRunner*);
     EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
 
 protected:
 
     virtual			~MarchingCubesDisplay();
     bool			updateVisFromEM(bool onlyshape,TaskRunner*);
-    virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
+    virtual void		fillPar(IOPar&) const;
     virtual int			usePar(const IOPar&);
     void			materialChangeCB(CallBacker*);
 
@@ -132,6 +135,9 @@ protected:
     };
 
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
+    visBase::Transformation*			model2displayspacetransform_;
+    const mVisTrans*				intersectiontransform_;
+
 };
 
 };

@@ -37,7 +37,7 @@ bool ImplicitBodyPlaneIntersector::compute()
 	const_cast<IndexedGeometry*>(output_.getGeometry()[0]);
     if ( !geo || !output_.coordList() ) return false;
 
-    geo->removeAll( true );
+    geo->removeAll( false );
 
     const int sz0 = dim_ ? cs_.nrInl() : cs_.nrCrl();
     const int sz1 = dim_==2 ? cs_.nrCrl() : cs_.nrZ();
@@ -88,11 +88,10 @@ bool ImplicitBodyPlaneIntersector::compute()
 	    crdlist.add( Coord3(bid.inl(),bid.crl(),z) ); //Coord isInlCrl
 	    if ( val<threshold_ )
     		data->set( idx, idy, val );
-	    if ( normallist )
-		normallist->add( normal );
 	}
     }
 
+    normallist->add( normal );
     const int maxsz = sz0>sz1 ? sz0 : sz1;
     int resolution = maxsz<200 ? 1 : ( maxsz<400 ? 2 : (maxsz<600 ? 3 : 4) );
     if ( mMIN(sz0,sz1)<100 )
@@ -103,9 +102,7 @@ bool ImplicitBodyPlaneIntersector::compute()
     if ( !tesselator.execute() )
 	return false;
 
-    geo->coordindices_ = tesselator.getIndices();
-    if ( normallist )
-	geo->normalindices_ = geo->coordindices_;
+    geo->appendCoordIndices( tesselator.getIndices(),false );
     geo->ischanged_ = true;
 
     return true;

@@ -24,9 +24,7 @@ namespace visBase
 {
     class DrawStyle;
     class GeomIndexedShape;
-    class IndexedPolyLine3D;
-    class PickStyle;
-    class ShapeHints;
+    class PolyLine3D;
     class Transformation;
     class TriangleStripSet;
 };
@@ -40,8 +38,9 @@ namespace visSurvey
 {
 class MPEEditor;
 
-/*!
-\brief EM::PolygonBody display.
+/*!\brief
+
+
 */
 
 mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
@@ -62,14 +61,11 @@ public:
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
-    void			getLineWidthBounds(int& min,int& max);
-
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
-    void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -79,7 +75,7 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
 
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void                fillPar(IOPar&) const;
     virtual int                 usePar(const IOPar&);
 
     bool			setEMID(const EM::ObjectID&);
@@ -122,10 +118,11 @@ protected:
     Coord3			disp2world(const Coord3& displaypos) const;
     void			setLineRadius(visBase::GeomIndexedShape*);
     void			reMakeIntersectionSurface();
+    void			matChangeCB(CallBacker*);
+
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			displaytransform_;
-    visBase::ShapeHints*		shapehints_;
 
     visBase::GeomIndexedShape*		bodydisplay_;
     Geometry::ExplPolygonSurface*	explicitbody_;
@@ -138,8 +135,7 @@ protected:
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
-    visBase::PickStyle*			nearestpolygonmarkerpickstyle_;
-    visBase::IndexedPolyLine3D*		nearestpolygonmarker_;
+    visBase::PolyLine3D*		nearestpolygonmarker_;
     int					nearestpolygon_;
 
     EM::PolygonBody*			empolygonsurf_;

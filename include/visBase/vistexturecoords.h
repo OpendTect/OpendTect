@@ -16,66 +16,43 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
+#include "threadlock.h"
 #include "viscoord.h"
 
-class SoTextureCoordinate2;
-class SoTextureCoordinate3;
-namespace Threads { class Mutex; };
+
 
 namespace visBase
 {
 
-/*!\brief
-
-*/
 
 mExpClass(visBase) TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
 				mCreateDataObj(TextureCoords);
-
-    int				size(bool includedelete=false) const;
-    void			setCoord( int,  const Coord3& );
-    void			setCoord( int,  const Coord& );
-    int				addCoord( const Coord3& );
-    int				addCoord( const Coord& );
-    Coord3			getCoord( int ) const;
-    void			removeCoord( int );
-
+    int				size(bool includedeleted=false) const;
+    void			setCoord(int idx,const Coord3&);
+    void			setCoord(int idx,const Coord&);
+    int				addCoord(const Coord3&);
+    int				addCoord(const Coord&);
+    Coord3			getCoord(int) const;
+    void			clear();
     int				nextID(int previd) const;
+    void			removeCoord(int);
 
-    osg::Array*			osgArray() { return osgcoords_; }
-    const osg::Array*		osgArray() const { return osgcoords_; }
+    osg::Array*			osgArray()		{ return osgcoords_; }
+    const osg::Array*		osgArray() const	{ return osgcoords_; }
 
 protected:
     				~TextureCoords();
-    int				getFreeIdx();
-    				/*!< Object should be locked before calling */
 
-    SoTextureCoordinate3*	coords_;
+    int				searchFreeIdx();
+
+    int				lastsearchedidx_;
+    int				nrfreecoords_;
+
     osg::Array*			osgcoords_;
-    TypeSet<int>		unusedcoords_;
-    Threads::Mutex&		mutex_;
-
-    virtual SoNode*		gtInvntrNode();
-
-};
-
-
-mExpClass(visBase) TextureCoords2 : public DataObject
-{
-public:
-    static TextureCoords2*	create()
-				mCreateDataObj(TextureCoords2);
-
-    void			setCoord( int,  const Coord& );
-
-protected:
-    				~TextureCoords2();
-    SoTextureCoordinate2*	coords_;
-    virtual SoNode*		gtInvntrNode();
-    Threads::Mutex&		mutex_;
+    mutable Threads::Lock	lock_;
 };
 
 
@@ -92,6 +69,8 @@ public:
     void		remove(int id);
     int			getSize() const	{ return texturecoords_.size(); }
     void		addValue(int,const Coord3&);
+    void		remove(const TypeSet<int>&);
+    TextureCoords*	getTextureCoords() { return &texturecoords_; }
 
 protected:
     			~TextureCoordListAdapter();

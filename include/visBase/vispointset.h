@@ -38,12 +38,6 @@ protected:
     DrawStyle*		drawstyle_;
 };
 
-mExpClass(visBase) IndexedPointSet : public IndexedShape
-{
-public:
-    static IndexedPointSet*	create()
-				mCreateDataObj(IndexedPointSet);
-};
 
 }; // Namespace
 

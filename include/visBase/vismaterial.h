@@ -13,36 +13,53 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "visdata.h"
 #include "color.h"
+#include "visnodestate.h"
 
-class SoMaterial;
 namespace osg {
     class Material;
     class Array;
+    class Geometry;
 };
+
+class IOPar;
 
 namespace visBase
 {
-
 /*!\brief
 
 
 */
 
-mExpClass(visBase) Material : public DataObject
+mExpClass(visBase) Material : public NodeState
 {
 public:
-    static Material*	create()
-			mCreateDataObj(Material);
+    			Material();
 
     Notifier<Material>	change;
 
-    void		setFrom(const Material&);
+    void		setFrom(const Material&, bool trigger= false);
+
+    void		setPropertiesFrom(const Material&, bool trigger= false);
+			/*!< set materials by input material's properties */
+    void		setColors(const TypeSet<Color>&,
+				  bool synchronizing = true);
+			/*!< set material's od colors by input colors. */
+
+
+    enum ColorMode	{ Ambient, Diffuse, Specular, Emission,
+			  AmbientAndDiffuse, Off };
+
+    void		setColorMode( ColorMode );
+    ColorMode		getColorMode() const;
 
     void		setColor(const Color&,int=0);
-    const Color&	getColor(int matnr=0) const;
+			/*!< set material's od colors by input colors.
+			using setColors() to instead of this calling
+			if having to setColor many times. */
+    Color		getColor(int matnr=0) const;
+
+    void		removeColor(int idx);
 
     void		setDiffIntensity(float,int=0);
 			/*!< Should be between 0 and 1 */
@@ -66,36 +83,40 @@ public:
 
     void		setTransparency(float,int idx=0);
 			/*!< Should be between 0 and 1 */
+    void		setAllTransparencies( float n );
+			/*!< Should be between 0 and 1 */
+
+    void		setTransparencies(float,const Interval<int>& range);
+
     float		getTransparency(int idx=0) const;
 
-    void		setDisplayTransformation(const mVisTrans*) {}
     int			usePar(const IOPar&);
-    void		fillPar(IOPar&,TypeSet<int>&) const;
+    void		fillPar(IOPar&) const;
 
     int			nrOfMaterial() const;
-    
-    const osg::Array*	getColorArray() const;
-    osg::Material*	getMaterial();
+    void		setNrOfMaterials(int);
 
-protected:
+    void		clear();
+
+    void		attachGeometry(osg::Geometry*);
+    void		detachGeometry(osg::Geometry*);
+
+    void		setColorBindType(unsigned int);
+    
+    const TypeSet<Color>	getColors();
+
+private:
 			~Material();
-    void		setMinNrOfMaterials(int);
-    void		updateMaterial(int);
-    void		createArray();
-
-    TypeSet<Color>	color_;
-    TypeSet<float>	diffuseintencity_;
-    TypeSet<float>	transparency_;
-    
-    float		ambience_;
-    float		specularintensity_;
-    float		emmissiveintensity_;
-    float		shininess_;
-
-    SoMaterial*		coinmaterial_;
-    
-    osg::Material*	material_;
-    osg::Array*		colorarray_;
+    void		setMinNrOfMaterials(int,bool synchronize = true,
+						    bool trigger = true );
+			//!<Assumes that object is write locked
+    void		updateOsgColor(int,bool trigger = true);
+			//!<Needs to be read or write locked
+    void		createOsgColorArray(int);
+    void		synchronizingOsgColorArray(bool trigger = true);
+			//!Assumes object is write-locked
+    void		removeOsgColor(int);
+			//!Assumes object is write-locked
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -105,8 +126,24 @@ protected:
     static const char*	sKeyShininess();
     static const char*	sKeyTransparency();
 
-    virtual SoNode*	gtInvntrNode();
+    friend class	OsgColorArrayUpdator;
 
+    osg::Material*	material_;
+
+    float		ambience_;
+    float		specularintensity_;
+    float		emmissiveintensity_;
+    float		shininess_;
+
+    unsigned int	colorbindtype_;
+
+    mutable Threads::Lock lock_;
+    /*!< the lock will protect below variables */
+    TypeSet<Color>		colors_;
+    TypeSet<float>		diffuseintensity_;
+    TypeSet<float>		transparency_;
+    osg::Array*			osgcolorarray_;
+    ObjectSet<osg::Geometry>	attachedgeoms_;
 };
 
 } // namespace visBase

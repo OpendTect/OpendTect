@@ -38,8 +38,8 @@ void uiStereoDlg::doFinalise( CallBacker* )
     int maxval = (int)(offset + 1000); maxval /= 100; maxval *= 100;
     if ( minval < 10 ) minval = 10;
 
-    sliderfld->sldr()->setMinValue( minval );
-    sliderfld->sldr()->setMaxValue( maxval );
+    sliderfld->sldr()->setMinValue( (float) minval );
+    sliderfld->sldr()->setMaxValue( (float) maxval );
     sliderfld->sldr()->setValue( offset );
 }
 

@@ -12,10 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdrawstyle.h"
 #include "iopar.h"
 
-#include <Inventor/nodes/SoDrawStyle.h>
-#include "SoOD.h"
-
-mCreateFactoryEntry( visBase::DrawStyle );
+#include <osg/StateSet>
+#include <osg/LineStipple>
+#include <osg/Point>
+#include <osg/LineWidth>
 
 namespace visBase
 {
@@ -28,88 +28,80 @@ const char* DrawStyle::drawstylestr()  { return "Draw Style"; }
 const char* DrawStyle::pointsizestr()  { return "Point Size"; }
 
 DrawStyle::DrawStyle()
-    : drawstyle( new SoDrawStyle )
-{
-    drawstyle->ref();
-}
-
-
-DrawStyle::~DrawStyle()
-{
-    drawstyle->unref();
-}
+    : pointsize_(0)
+    , linestipple_(0)
+    , linewidth_(0)
+{}
 
 
 void DrawStyle::setDrawStyle( Style s )
 {
-    if ( s==Filled ) drawstyle->style = SoDrawStyle::FILLED;
-    else if ( s==Lines ) drawstyle->style = SoDrawStyle::LINES;
-    else if ( s==Points ) drawstyle->style = SoDrawStyle::POINTS;
-    else if ( s==Invisible ) drawstyle->style = SoDrawStyle::INVISIBLE;
+    pErrMsg( "Set drawstyle");
 }
 
 
 DrawStyle::Style DrawStyle::getDrawStyle() const
 {
-    SoDrawStyle::Style style = (SoDrawStyle::Style) drawstyle->style.getValue();
-    if ( style==SoDrawStyle::FILLED ) return Filled;
-    if ( style==SoDrawStyle::LINES ) return Lines;
-    if ( style==SoDrawStyle::POINTS ) return Points;
-    return Invisible;
+    pErrMsg("Implement");
+    return Filled;
 }
 
 
 void DrawStyle::setPointSize( float nsz )
 {
-    drawstyle->pointSize.setValue( nsz );
+    if ( !pointsize_ )
+	pointsize_ = addAttribute( new osg::Point );
+
+    pointsize_->setSize( nsz );
 }
 
 
 float DrawStyle::getPointSize() const
 {
-    return drawstyle->pointSize.getValue();
+    return pointsize_ ? pointsize_->getSize() : 1;
 }
 
 
 void DrawStyle::setLineStyle( const LineStyle& nls )
 {
-    linestyle = nls;
+    linestyle_ = nls;
     updateLineStyle();
 }
 
+
 void DrawStyle::setLineWidth( int width )
 {
-    drawstyle->lineWidth.setValue( width );
+    linestyle_.width_ = width;
+    updateLineStyle();
 }    
 
-
-SoNode* DrawStyle::gtInvntrNode()
-{
-    return drawstyle;
-}
 
 
 void DrawStyle::updateLineStyle()
 {
-    drawstyle->lineWidth.setValue( linestyle.width_ );
+
+    if ( !linestipple_ )
+	linestipple_ = addAttribute( new osg::LineStipple );
+
+    if ( !linewidth_ )
+	linewidth_ = addAttribute( new osg::LineWidth );
+
+    linewidth_->setWidth( linestyle_.width_ );
 
     unsigned short pattern;
 
-    if ( linestyle.type_==LineStyle::None )      pattern = 0;
-    else if ( linestyle.type_==LineStyle::Solid )pattern = 0xFFFF;
-    else if ( linestyle.type_==LineStyle::Dash ) pattern = 0xF0F0;
-    else if ( linestyle.type_==LineStyle::Dot )  pattern = 0xAAAA;
-    else if ( linestyle.type_==LineStyle::DashDot ) pattern = 0xF6F6;
+    if ( linestyle_.type_==LineStyle::None )      pattern = 0;
+    else if ( linestyle_.type_==LineStyle::Solid )pattern = 0xFFFF;
+    else if ( linestyle_.type_==LineStyle::Dash ) pattern = 0xF0F0;
+    else if ( linestyle_.type_==LineStyle::Dot )  pattern = 0xAAAA;
+    else if ( linestyle_.type_==LineStyle::DashDot ) pattern = 0xF6F6;
     else pattern = 0xEAEA;
 
-    drawstyle->linePattern.setValue( pattern );
-}
+    linestipple_->setPattern( pattern );
 
+    pErrMsg( "Set Factor as well?" );
 
-void DrawStyle::getLineWidthBounds( int& min, int& max )
-{
-    SoOD::getLineWidthBounds( min, max );
-}
+ }
 
 
 int DrawStyle::usePar( const IOPar& par )
@@ -117,7 +109,7 @@ int DrawStyle::usePar( const IOPar& par )
     const char* linestylepar = par.find( linestylestr() );
     if ( !linestylepar ) return -1;
 
-    linestyle.fromString( linestylepar );
+    linestyle_.fromString( linestylepar );
     updateLineStyle();
 
     const char* stylepar = par.find( drawstylestr() );
@@ -137,12 +129,10 @@ int DrawStyle::usePar( const IOPar& par )
 }
 
 
-void DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void DrawStyle::fillPar( IOPar& par ) const
 {
-    DataObject::fillPar( par, saveids );
-
     BufferString linestyleval;
-    linestyle.toString( linestyleval );
+    linestyle_.toString( linestyleval );
     par.set( linestylestr(), linestyleval );
 
     par.set( drawstylestr(), StyleNames()[(int)getDrawStyle()] );

@@ -939,7 +939,8 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
     {
 	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
 			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
-	visserv->turnSelectionModeOn( cointb_->isOn(polyselectid_) );
+	visserv->turnSelectionModeOn(
+	    !inviewmode_  && cointb_->isOn(polyselectid_) );
 	visserv->setSelectionMode( mode );
     }
 
@@ -1012,7 +1013,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
-    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;			
+    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
@@ -1253,6 +1254,8 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
 	sceneMgr().viewMode( cb );
     else
 	sceneMgr().actMode( cb );
+
+    selectionMode( 0 );
 }
 
 

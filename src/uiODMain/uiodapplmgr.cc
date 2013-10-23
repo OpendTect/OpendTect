@@ -340,7 +340,10 @@ void uiODApplMgr::addTimeDepthScene()
     
     StepInterval<float> zsampling;
     if ( !uitrans->getTargetSampling( zsampling ) )
-	{ pErrMsg( "Cannot get sampling."); return; }
+    {
+	pErrMsg( "Cannot get sampling.");
+	return;
+    }
 
     snm += " (using '";
     snm += ztrans->factoryDisplayName();
@@ -350,10 +353,12 @@ void uiODApplMgr::addTimeDepthScene()
     const int sceneid = sceneMgr().addScene( true, ztrans, snm );
     if ( sceneid!=-1 )
     {
+	const float zscale = ztrans->zScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	CubeSampling cs = SI().sampling( true );
 	cs.zrg = zsampling;
 	scene->setCubeSampling( cs );
+	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 );
     }
 }
@@ -388,8 +393,10 @@ bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 {
     const int sceneid = sceneMgr().askSelectScene();
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-    const float velocity = scene->getZStretch() * scene->getZScale();
-    return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0,velocity);
+    const float velocity = scene->getFixedZStretch() * scene->getZScale();
+    return attrserv_->setPickSetDirs(ps,
+				     nlaserv_ ? &nlaserv_->getModel() : 0,
+				     velocity);
 }
 
 bool uiODApplMgr::pickSetsStored() const
@@ -480,8 +487,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    mDynamicCastGet(const FlatDataPack*, fdp, dp);
 		    if ( fdp )
 		    {
-			const float newstep0 = (float) fdp->posData().range(true).step;
-			const float newstep1 = (float) fdp->posData().range(false).step;
+			const float newstep0 =
+			    (float) fdp->posData().range(true).step;
+			const float newstep1 =
+			    (float) fdp->posData().range(false).step;
 			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
 			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
 			{
@@ -558,7 +567,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    break;
 	}
 	default :
-	    { pErrMsg("Invalid format"); return false; }
+	{
+	    pErrMsg("Invalid format");
+	    return false;
+	}
     }
 
     updateColorTable( visid, attrib );
@@ -717,7 +729,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	createAndSetMapDataPack( visid, attrib, *data, dataidx );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1, (float) visserv_->getTranslation(visid).z );
+	    TypeSet<float> shifts( 1,
+		    		   (float) visserv_->getTranslation(visid).z );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -831,7 +844,9 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 	}
     }
     else
-	{ pErrMsg("deliverObject for unsupported part server"); }
+    {
+	pErrMsg("deliverObject for unsupported part server");
+    }
 
     return 0;
 }
@@ -980,7 +995,9 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->trackInVolume();
     }
     else
-	{ pErrMsg("Unknown event from mpeserv"); }
+    {
+	pErrMsg("Unknown event from mpeserv");
+    }
 
     return true;
 }
@@ -1094,7 +1111,9 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	return true;
     }
     else
-	{ pErrMsg("Unknown event from emserv"); }
+    {
+	pErrMsg("Unknown event from emserv");
+    }
 
     return true;
 }
@@ -1237,7 +1256,9 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else
-	{ pErrMsg("Unknown event from emattrserv"); }
+    {
+	pErrMsg("Unknown event from emattrserv");
+    }
 
     return true;
 }
@@ -1295,7 +1316,9 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	}
     }
     else
-	{ pErrMsg("Unknown event from pickserv"); }
+    {
+	pErrMsg("Unknown event from pickserv");
+    }
 
     return true;
 }
@@ -1372,9 +1395,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().setHeadOnLightIntensity( visserv_->getEventObjId(),
 	       visserv_->getHeadOnIntensity() );
     }
-
     else
-	{ pErrMsg("Unknown event from visserv"); }
+    {
+	pErrMsg("Unknown event from visserv");
+    }
 
     return true;
 }
@@ -1386,7 +1410,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	// Before NLA model can be written, the AttribSet's IOPar must be
 	// made available as it almost certainly needs to be stored there.
-	const Attrib::DescSet* ads = attrserv_->curDescSet(nlaserv_->is2DEvent());
+	const Attrib::DescSet* ads =
+	    attrserv_->curDescSet(nlaserv_->is2DEvent());
 	if ( !ads ) return false;
 	IOPar& iopar = nlaserv_->modelPars();
 	iopar.setEmpty();
@@ -1495,7 +1520,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	pickserv_->createRandom2DSet();
     }
     else
-	{ pErrMsg("Unknown event from nlaserv"); }
+    {
+	pErrMsg("Unknown event from nlaserv");
+    }
 
     return true;
 }
@@ -1625,7 +1652,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else
-	{ pErrMsg("Unknown event from attrserv"); }
+    {
+	pErrMsg("Unknown event from attrserv");
+    }
 
     return true;
 }

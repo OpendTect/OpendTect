@@ -45,6 +45,7 @@ public:
     inline virtual bool		setCapacity( size_type sz );
 				/*!<Allocates mem only, no size() change */
     inline void			setAll(T);
+    inline void			replace(T,T);
 
     inline T&			operator[](size_type);
     inline const T&		operator[](size_type) const;
@@ -284,6 +285,12 @@ void TypeSetBase<T,I>::setAll( T val )
 
 
 template <class T, class I> inline
+    void TypeSetBase<T,I>::replace( T val, T newval )
+{ vec_.replace( val, newval ); }
+
+
+
+template <class T, class I> inline
 void TypeSetBase<T,I>::swap( od_int64 idx0, od_int64 idx1 )
 {
     if ( !validIdx(idx0) || !validIdx(idx1) )
@@ -451,7 +458,8 @@ inline void TypeSetBase<T,I>::createIntersection( const TypeSetBase<T,I>& ts )
 
 
 template <class T, class I>
-inline void TypeSetBase<T,I>::createDifference( const TypeSetBase<T,I>& ts, bool kporder )
+inline void TypeSetBase<T,I>::createDifference( const TypeSetBase<T,I>& ts,
+    bool kporder )
 {
     const I sz = ts.size();
     for ( I idx=0; idx<sz; idx++ )

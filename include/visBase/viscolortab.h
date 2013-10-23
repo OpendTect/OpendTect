@@ -76,9 +76,6 @@ public:
     void			triggerSeqChange();
     void			triggerAutoScaleChange();
 
-    int				usePar(const IOPar&);
-    void			fillPar(IOPar&,TypeSet<int>&) const;
-
 protected:
     virtual			~VisColorTab();
 

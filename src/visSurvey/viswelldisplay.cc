@@ -17,12 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "refcount.h"
 #include "visdataman.h"
 #include "visevent.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vistransform.h"
-#include "viswell.h"
 
 #include "welldisp.h"
 #include "wellman.h"
@@ -115,7 +115,6 @@ WellDisplay::WellDisplay()
     , logsnumber_(0)
     , transformation_(0)
     , picksallowed_(false)
-    , group_(0)
     , pseudotrack_(0)
     , needsave_(false)
     , dispprop_(0)
@@ -123,30 +122,32 @@ WellDisplay::WellDisplay()
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
+    markerset_ = visBase::MarkerSet::create();
+    markerset_->ref();
+    addChild( markerset_->osgNode() );
+    markerset_->setMaterial( new visBase::Material );
+    MarkerStyle3D markerstyle;
+    markerstyle.size_ = mPickSz;
+    markerstyle.type_ = (MarkerStyle3D::Type) mPickSz;
+    markerset_->setMarkerStyle( markerstyle );
 }
 
 
 WellDisplay::~WellDisplay()
 {
     setZAxisTransform( 0, 0 );
-    removeChild( well_->getInventorNode() );
+    removeChild( well_->osgNode() );
     well_->unRef(); well_ = 0;
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
-    if ( group_ )
-    {
-	removeChild( group_->getInventorNode() );
-	group_->unRef(); group_ = 0;
-    }
 
     wd_ = 0;
     mGetWD(return);
     wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
     delete dispprop_;
     delete Well::MGR().release( wellid_ );
-
+    markerset_->unRef();
     setBaseMap( 0 );
-    delete pseudotrack_;
 }
 
 
@@ -203,12 +204,12 @@ void WellDisplay::setWell( visBase::Well* well )
 {
     if ( well_ )
     {
-	removeChild( well_->getInventorNode() );
+	removeChild( well_->osgNode() );
 	well_->unRef();
     }
     well_ = well;
     well_->ref();
-    addChild( well_->getInventorNode() );
+    addChild( well_->osgNode() );
 }
 
 
@@ -235,36 +236,37 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 }
 
 
-#define mGetLogPar(lognr,par) lognr==1 ? mGetDispPar(logs_[0]->left_.par)\
+#define mGetLogPar(side,par) side==0 ? mGetDispPar(logs_[0]->left_.par)\
 				       : mGetDispPar(logs_[0]->right_.par)
-void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
+void WellDisplay::fillLogParams(
+		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
     mGetWD(return);
-    lp.cliprate_ 	= mGetLogPar( lognr, cliprate_ );
-    lp.col_ 	 	= mGetLogPar( lognr, color_);
-    lp.fillname_ 	= mGetLogPar( lognr, fillname_ );
-    lp.fillrange_ 	= mGetLogPar( lognr, fillrange_ );
-    lp.isdatarange_ 	= mGetLogPar( lognr, isdatarange_ );
-    lp.isleftfilled_ 	= mGetLogPar( lognr, isleftfill_ );
-    lp.isrightfilled_ 	= mGetLogPar( lognr, isrightfill_ );
-    lp.issinglcol_	= mGetLogPar( lognr, issinglecol_);
-    lp.iswelllog_	= mGetLogPar( lognr, iswelllog_ );
-    lp.islogarithmic_ 	= mGetLogPar( lognr, islogarithmic_ );
-    lp.logwidth_ 	= mGetLogPar( lognr, logwidth_ );
-    lp.name_	 	= mGetLogPar( lognr, name_ );
-    lp.ovlap_ 	 	= mGetLogPar( lognr, repeatovlap_ );
-    lp.range_ 		= mGetLogPar( lognr, range_ );
-    lp.repeat_ 	 	= mGetLogPar( lognr, repeat_);
-    lp.seqname_	 	= mGetLogPar( lognr, seqname_ );
-    lp.size_	 	= mGetLogPar( lognr, size_ );
-    lp.seiscolor_	= mGetLogPar( lognr, seiscolor_ );
-    lp.iscoltabflipped_	= mGetLogPar( lognr, iscoltabflipped_ );
+    lp.cliprate_ 	= mGetLogPar( side, cliprate_ );
+    lp.col_ 	 	= mGetLogPar( side, color_);
+    lp.fillname_ 	= mGetLogPar( side, fillname_ );
+    lp.fillrange_ 	= mGetLogPar( side, fillrange_ );
+    lp.isdatarange_ 	= mGetLogPar( side, isdatarange_ );
+    lp.isleftfilled_ 	= mGetLogPar( side, isleftfill_ );
+    lp.isrightfilled_ 	= mGetLogPar( side, isrightfill_ );
+    lp.issinglcol_	= mGetLogPar( side, issinglecol_);
+    lp.iswelllog_	= mGetLogPar( side, iswelllog_ );
+    lp.islogarithmic_ 	= mGetLogPar( side, islogarithmic_ );
+    lp.logwidth_ 	= mGetLogPar( side, logwidth_ );
+    lp.name_	 	= mGetLogPar( side, name_ );
+    lp.ovlap_ 	 	= mGetLogPar( side, repeatovlap_ );
+    lp.range_ 		= mGetLogPar( side, range_ );
+    lp.repeat_ 	 	= mGetLogPar( side, repeat_);
+    lp.seqname_	 	= mGetLogPar( side, seqname_ );
+    lp.size_	 	= mGetLogPar( side, size_ );
+    lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
+    lp.iscoltabflipped_	= mGetLogPar( side, iscoltabflipped_ );
 }
 
 
-#define mDispLog( lognr, Side )\
+#define mDispLog( dsplSide, Side )\
 { \
-    BufferString& logname = mGetLogPar( lognr, name_ );\
+    BufferString& logname = mGetLogPar( dsplSide, name_ );\
     if ( wd->logs().indexOf( logname ) >= 0 )\
 	display##Side##Log();\
 }
@@ -283,18 +285,16 @@ void WellDisplay::fullRedraw( CallBacker* )
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
     tp.name_ = wd->name();
-    logsnumber_ = mMAX( mGetLogPar( 0, repeat_ ), mGetLogPar( 1, repeat_ ) );
     updateMarkers(0);
 
     well_->setTrack( trackpos );
     well_->setTrackProperties( tp.col_, tp.size_ );
     well_->setWellName( tp );
     well_->removeLogs();
-    well_->setRepeat( logsnumber_ );
     well_->setLogConstantSize( waslogconstsize );
 
-    mDispLog( 1, Left );
-    mDispLog( 2, Right );
+    mDispLog( visBase::Well::Left, Left );
+    mDispLog( visBase::Well::Right, Right );
 }
 
 
@@ -369,6 +369,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 
     visBase::Well::MarkerParams mp;
     fillMarkerParams( mp );
+    well_->setMarkerSetParams( mp );
     
     const BufferStringSet selnms(
 	    	wd->displayProperties(false).markers_.selmarkernms_ );
@@ -439,97 +440,113 @@ void WellDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
+#define getminVal(minval,val)  val < minval ? val : minval
+#define getmaxVal(maxval,val)  val > maxval ? val : maxval
+
 void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
     mGetWD(return);
 
-    const int logidx = isfilled ? lp.filllogidx_ : lp.logidx_;
-    Well::Log& wl = wd->logs().getLog( logidx );
+    Well::Log& wlF = wd->logs().getLog( lp.filllogidx_ );
+    Well::Log& wl  = wd->logs().getLog( lp.logidx_ );
+
     if ( wl.isEmpty() ) return;
     const int logsz = wl.size();
+    const int logszf = wlF.size();
+    const int longSize = logsz >= logszf ? logsz : logszf;
 
     const Well::Track& track = wd->track();
     float minval=mUdf(float), maxval=-mUdf(float);
+    float minvalF=mUdf(float), maxvalF=-mUdf(float);
+
     TypeSet<Coord3Value> crdvals;
-    for ( int idx=0; idx<logsz; idx++ )
+    TypeSet<Coord3Value> crdvalsF;
+
+    for ( int idx=0; idx<longSize; idx++ )
     {
-	const float dah = wl.dah(idx);
-	float val = wl.value(idx);
-
-	if ( mIsUdf(val) )
-	    continue;
-
-	if ( !isfilled )
+	if( idx < logsz )
+	{
+	    const float dah = wl.dah(idx);
+	    Coord3 pos = track.getPos( dah );
+	    if ( !pos.x && !pos.y && !pos.z )
+		continue;
+	    if ( zistime_ )
+		pos.z = wd->d2TModel()->getTime( dah, wd->track() );
+	    if ( mIsUdf( pos.z ) )
+		continue;
+	    float val = wl.value(idx);
+	    if ( mIsUdf(val) )
+		continue;
 	    val = lp.range_.limitValue( val );
+	    minval = getminVal(minval,val);
+	    maxval = getmaxVal(maxval,val);
+	    Coord3Value cv( pos, val );
+	    crdvals += cv;
+	}
 
-	Coord3 pos = track.getPos( dah );
-	if ( !pos.x && !pos.y && !pos.z ) 
-	    continue;
+	if( isfilled && logszf !=0 && idx < logszf )
+	{
+	    const float dah = wlF.dah(idx);
+	    Coord3 pos = track.getPos( dah );
+	    if ( !pos.x && !pos.y && !pos.z )
+		continue;
+	    if ( zistime_ )
+		pos.z = wd->d2TModel()->getTime( dah, wd->track() );
+	    if ( mIsUdf( pos.z ) )
+		continue;
+	    float valF = wlF.value(idx);
+	    if ( mIsUdf(valF) )
+		continue;
+	    minvalF = getminVal(minvalF,valF);
+	    maxvalF = getmaxVal(maxvalF,valF);
+	    Coord3Value cvf( pos, valF );
+	    crdvalsF += cvf;
+	}
 
-	if ( val < minval )
-	    minval = val;
-	if ( val > maxval )
-	    maxval = val;
-
-	if ( zistime_ )
-	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
-
-	if ( mIsUdf( pos.z ) )
-	    continue;
-
-	Coord3Value cv( pos, val );
-	crdvals += cv;
     }
-    if ( crdvals.isEmpty() )
+
+    if ( crdvals.isEmpty() && crdvalsF.isEmpty() )
 	return;
 
-    ( isfilled ? lp.valfillrange_ : lp.valrange_ ).set( minval, maxval );
+    lp.valfillrange_ .set( minvalF, maxvalF );
+    lp.valrange_.set( minval, maxval );
+    well_->setLogData( crdvals,crdvalsF,lp,isfilled );
 
-    if ( isfilled )
-	well_->setFilledLogData( crdvals, lp );
-    else
-	well_->setLogData( crdvals, lp );
 }
 
-
-void WellDisplay::setLogDisplay( int lognr )
+void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
     mGetWD(return);
 
-    BufferString& logname = mGetLogPar( lognr, name_);
+    BufferString& logname = mGetLogPar( side, name_);
     if ( wd->logs().isEmpty() ) return;
     const int logidx = wd->logs().indexOf( logname );
     if( logidx<0 )
     {
-	well_->clearLog( lognr );
-	well_->showLog( false, lognr );
+	well_->clearLog( side );
+	well_->showLog( false, side );
 	return;
     }
 
     visBase::Well::LogParams lp;
-    fillLogParams( lp, lognr );
-    lp.logidx_ = logidx;  lp.lognr_ = lognr;
+    fillLogParams( lp, side );
+    lp.logidx_ = logidx;  lp.side_ = side;
     setLogProperties( lp );
 
-    setLogData( lp, false );
+    lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
+    bool beFilled =( ( lp.isleftfilled_ || lp.isrightfilled_ ) &&
+			    lp.filllogidx_  >= 0 ) ? true : false;
 
-    if ( lp.isleftfilled_ || lp.isrightfilled_ )
-    {
-	lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
-	if ( lp.filllogidx_ >= 0 ) setLogData( lp, true );
-    }
-
-    if ( lp.repeat_<logsnumber_ )
-	well_->hideUnwantedLogs( lognr, lp.repeat_ );
+    setLogData( lp, beFilled );
 }
 
 
 void WellDisplay::displayRightLog()
-{ setLogDisplay( 2 ); }
+{ setLogDisplay( visBase::Well::Right ); }
 
 
 void WellDisplay::displayLeftLog()
-{ setLogDisplay( 1 ); }
+{ setLogDisplay( visBase::Well::Left ); }
 
 
 void WellDisplay::setOneLogDisplayed(bool yn)
@@ -546,17 +563,19 @@ bool WellDisplay::logConstantSize() const
 
 void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 {
-    const int lognr = lp.lognr_;
+    const visBase::Well::Side side = lp.side_;
 
-    well_->setOverlapp( lp.ovlap_, lognr );
-    well_->setLogStyle( lp.iswelllog_, lognr );
-    well_->setLogFill( ( lp.isleftfilled_ || lp.isrightfilled_ ), lognr );
-    well_->setLogFillColorTab( lp, lognr );
-    well_->setLogLineDisplayed( lp.size_ > 0, lognr );
+    well_->setOverlapp( lp.ovlap_, side );
+    well_->setRepeat( lp.repeat_,side );
+    well_->setLogStyle( lp.iswelllog_, side );
 
-    setLogColor( lp.col_, lognr );
-    setLogLineWidth( mCast(float,lp.size_), lognr );
-    setLogWidth( lp.logwidth_, lognr );
+    well_->setLogFill( ( lp.isleftfilled_ || lp.isrightfilled_ ), side );
+    well_->setLogFillColorTab( lp, side );
+    well_->setLogLineDisplayed( lp.size_ > 0, side );
+
+    well_->setLogColor( lp.col_, side );
+    well_->setLogLineWidth( mCast(float,lp.size_), side );
+    well_->setLogWidth( lp.logwidth_, side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -579,28 +598,28 @@ void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
 }
 
 
-const Color& WellDisplay::logColor( int lognr ) const
-{ return well_->logColor( lognr ); }
+const Color& WellDisplay::logColor( visBase::Well::Side side ) const
+{ return well_->logColor( side ); }
 
 
-void WellDisplay::setLogColor( const Color& col, int lognr )
-{ well_->setLogColor( col, lognr ); }
+void WellDisplay::setLogColor( const Color& col, visBase::Well::Side side )
+{ well_->setLogColor( col, side ); }
 
 
-float WellDisplay::logLineWidth( int lognr ) const
-{ return well_->logLineWidth( lognr ); }
+float WellDisplay::logLineWidth( visBase::Well::Side side ) const
+{ return well_->logLineWidth( side ); }
 
 
-void WellDisplay::setLogLineWidth( float width, int lognr )
-{ well_->setLogLineWidth( width, lognr ); }
+void WellDisplay::setLogLineWidth( float width, visBase::Well::Side side )
+{ well_->setLogLineWidth( width, side ); }
 
 
 int WellDisplay::logWidth() const
 { return well_->logWidth(); }
 
 
-void WellDisplay::setLogWidth( int width, int lognr )
-{ well_->setLogWidth( width, lognr ); }
+void WellDisplay::setLogWidth( int width, visBase::Well::Side side )
+{ well_->setLogWidth( width, side ); }
 
 
 bool WellDisplay::logsShown() const
@@ -627,68 +646,22 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    info = "Well: "; 
-    info += wd->name();
-    Well::D2TModel* d2t = wd->d2TModel();
-    Well::Track ttrack( wd->track() );
-    float dahtop, dahbase, dah = 0;
-    int nearestsegment = 0, nrsegment = 0;
-    double smallestdis = 0;
-    if ( zistime_ )
-	ttrack.toTime( *d2t, wd->track() );
-    int zuserfac = zistime_ ? scene_->zDomainInfo().userFactor() : 1;
-    pos.z *= zuserfac;
-    for ( int idx=0; idx<(ttrack.nrPoints()-1); idx++ )
+    PtrMan<Well::Track> ttrack = 0;
+    if ( zistime_ && wd->haveD2TModel() )
     {
-	Coord3 top = ttrack.pos( idx );
-	Coord3 base = ttrack.pos( idx+1 );
-	top.z *= zuserfac;
-	base.z *= zuserfac;
-	Vector3 vector = base - top;
-	Vector3 reversevector = top - base;
-	Line3 line ( top, vector );
-	Line3 reverseline ( base, reversevector );
-	double perpendiculardis = line.distanceToPoint( pos );
-	double paralleldis = fabs( line.closestPoint(pos) );
-	double paralleldis2 = fabs( reverseline.closestPoint(pos) );
-	if ( paralleldis <= 1.001 && paralleldis2 <= 1.001 )
-	{
-	    if ( nrsegment == 0 )
-	    {
-		smallestdis = perpendiculardis;
-		nrsegment++;
-	    }
-
-	    if ( smallestdis >= perpendiculardis )
-	    {
-		smallestdis = perpendiculardis;
-		nearestsegment = idx;
-	    }
-	}
+	mTryAlloc( ttrack, Well::Track( wd->track() ) );
+	ttrack->toTime( *wd->d2TModel(), wd->track() );
     }
+    const Well::Track& track = zistime_ ? *ttrack : wd->track();
 
-    dahtop = ttrack.dah( nearestsegment );
-    dahbase = ttrack.dah( nearestsegment+1 );
-    float dahdiff = dahbase - dahtop;
-    double ztop = ttrack.pos(nearestsegment).z;
-    double zbase = ttrack.pos(nearestsegment+1).z;
-    pos.z /= zuserfac;
-    if ( ztop == zbase )
-	dah = dahtop;
-    else
-	dah = (float)(dahtop + (dahdiff * ((pos.z - ztop) / (zbase - ztop))));
+    info = "Well: "; info += wd->name();
+    info += ", MD ";
 
-    if( dah == 0 )
-	return;
-
-    info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
-    const float zfac = SI().depthsInFeet() && SI().zIsTime()
-	? mToFeetFactorF : 1;
-    if ( nrsegment != 0 )
-    {
-	info += ", MD ";
-	info += toString( mNINT32(dah*zfac) );
-    }
+    info += zinfeet_ || SI().depthsInFeetByDefault() ? "(ft): " : "(m): ";
+    const float zfac = SI().depthsInFeetByDefault() && SI().zIsTime() ?
+							mToFeetFactorF : 1;
+    const float dah = track.nearestDah(pos);
+    info += toString( mNINT32(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
     setLogInfo( info, val, dah, false );
@@ -713,8 +686,10 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 {
     mGetWD(return);
 
-    const int lognr = isleft ? 1 : 2;
-    BufferString lognm( mGetLogPar( lognr , name_ ) );
+    const visBase::Well::Side side  =
+			isleft ? visBase::Well::Left : visBase::Well::Right;
+
+    BufferString lognm( mGetLogPar( side , name_ ) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
     {
 	info += isleft ? ", Left: " : ", Right: ";
@@ -745,7 +720,7 @@ const mVisTrans* WellDisplay::getDisplayTransformation() const
 
 void WellDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !picksallowed_ || !group_ || isLocked() ) return;
+    if ( !isSelected() || !picksallowed_ || !markerset_ || isLocked() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
@@ -780,11 +755,10 @@ void WellDisplay::pickCB( CallBacker* cb )
 	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
-		int removeidx = group_->getFirstIdx(mousepressid_);
-		if ( removeidx != -1 )
+		if ( mousepressid_!= -1 )
 		{
-		    group_->removeObject( removeidx );
-		    pseudotrack_->removePoint( removeidx );
+		    markerset_->removeMarker( mousepressid_ );
+		    pseudotrack_->removePoint( mousepressid_ );
 		    TypeSet<Coord3> wcoords;
 		    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 		    {
@@ -859,47 +833,15 @@ void WellDisplay::addPick( Coord3 pos )
 
     if ( insertidx > -1 )
     {
-	visBase::Marker* marker = visBase::Marker::create();
-	group_->insertObject( insertidx, marker );
-
-	marker->setDisplayTransformation( transformation_ );
-	marker->setCenterPos( pos );
-        marker->setScreenSize( mPickSz );
-	marker->setType( (MarkerStyle3D::Type)mPickSz );
-	marker->getMaterial()->setColor( lineStyle()->color_ );
-    }
-}
-
-
-void WellDisplay::addKnownPos()
-{
-    TypeSet<Coord3> wcoords;
-    if ( pseudotrack_ )
-    {
-	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
-	    wcoords += pseudotrack_->pos(idx);
-
-	well_->setTrack( wcoords );
-	needsave_ = true;
-	changed_.trigger();
-    }
-
-    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
-    {
-	visBase::Marker* marker = visBase::Marker::create();
-	group_->insertObject( idx, marker );
-	marker->setDisplayTransformation( transformation_ );
-	marker->setCenterPos( wcoords[idx] );
-        marker->setScreenSize( mPickSz );
-	marker->setType( (MarkerStyle3D::Type)mPickSz );
-	marker->getMaterial()->setColor( lineStyle()->color_ );
+	const int markerid = markerset_->getCoordinates()->addPos( pos );
+	markerset_->getMaterial()->setColor( lineStyle()->color_,markerid ) ;
     }
 }
 
 
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
-    if ( transformation_==newtr )
+    if ( transformation_==newtr || !markerset_ )
 	return;
 
     if ( transformation_ )
@@ -910,12 +852,7 @@ void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
     if ( transformation_ )
 	transformation_->ref();
 
-    if ( !group_ ) return;
-    for ( int idx=0; idx<group_->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
-	marker->setDisplayTransformation( transformation_ );
-    }
+    markerset_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -940,38 +877,31 @@ void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 void WellDisplay::setupPicking( bool yn )
 {
     picksallowed_ = yn;
-    if ( !group_ )
+    if ( !markerset_ )
     {
-	group_ = visBase::DataObjectGroup::create();
+	markerset_ = visBase::MarkerSet::create();
+	markerset_->ref();
+	addChild( markerset_->osgNode() );
+	markerset_->setMaterial( new visBase::Material );
 	mTryAlloc( pseudotrack_, Well::Track() );
-	group_->ref();
-	addChild( group_->getInventorNode() );
     }
 
-    for ( int idx=0; idx<group_->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
-	marker->turnOn( yn );
-    }
+    markerset_->turnOn( yn );
+
 }
 
 
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
-    const Well::D2TModel* d2t = wd->d2TModel();
-    setName( wd->name() );
-    if ( !pseudotrack_ )
-        return;
 
-    *pseudotrack_ = wd->track();
-    if ( zistime_ )
-	pseudotrack_->toTime( *d2t, wd->track() );
-
-    if ( pseudotrack_->nrPoints() <= 0 )
+    TypeSet<Coord3> trackpos;
+    getTrackPos( wd, trackpos );
+    if ( trackpos.isEmpty() )
 	return;
 
-    addKnownPos();
+    for ( int idx=0; idx<trackpos.size(); idx++ )
+	addPick( trackpos[idx] );
 }
 
 
@@ -1023,24 +953,21 @@ bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 const ZAxisTransform* WellDisplay::getZAxisTransform() const
 { return datatransform_; }
 
+
 void WellDisplay::dataTransformCB( CallBacker* )
 { fullRedraw(0); }
 
 
-void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void WellDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par );
 
     par.set( sKeyEarthModelID, wellid_ );
-
-    const int viswellid = well_->id();
-    par.set( sKeyWellID, viswellid );
-    if ( !saveids.isPresent(viswellid) ) saveids += viswellid;
 
     mGetWD(return);
     wd->displayProperties().fillPar( par );
 
-    fillSOPar( par, saveids );
+    fillSOPar( par );
 }
 
 
@@ -1048,21 +975,6 @@ int WellDisplay::usePar( const IOPar& par )
 {
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
-
-    int viswellid;
-    if ( par.get(sKeyWellID,viswellid) )
-    {
-	DataObject* dataobj = visBase::DM().getObject( viswellid );
-	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::Well*,well,dataobj)
-	if ( !well ) return -1;
-	setWell( well );
-    }
-    else
-    {
-	setWell( visBase::Well::create() );
-	viswellid = well_->id();
-    }
 
     MultiID newmid;
     if ( !par.get(sKeyEarthModelID,newmid) )
@@ -1077,15 +989,6 @@ int WellDisplay::usePar( const IOPar& par )
     wd->displayProperties().usePar( par );
     displayLeftLog();
     displayRightLog();
-
-// Support for old sessions
-    BufferString linestyle;
-    if ( par.get(visBase::Well::linestylestr(),linestyle) )
-    {
-	LineStyle lst;
-	lst.fromString( linestyle );
-	setLineStyle( lst );
-    }
 
     return useSOPar( par );
 }

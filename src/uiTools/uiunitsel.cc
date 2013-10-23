@@ -47,7 +47,7 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
     if ( !un )
     {
 	if ( !withempty_ )
-	    un = UoMR().getInternalFor( proptype_ );
+	un = UoMR().getInternalFor( proptype_ );
 	else
 	{
 	    inpfld_->setCurrentItem( 0 );

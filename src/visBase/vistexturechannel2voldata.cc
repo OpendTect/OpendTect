@@ -13,11 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
 
-#include "SoTextureChannelSet.h"
 
-#include <Inventor/nodes/SoGroup.h>
-#include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
+/* OSG-TODO: Port SoTransferFunction* transferfunc_ and SoVolumeData voldata_
+   to OSG equivalents if this class is prolongated */
 
 #include <limits.h>
 
@@ -32,6 +30,7 @@ namespace visBase
 /*!A destination where the texturechannels can put the mapped data. The class
    instanciation is provided by the TextureChannel2VolData. */
 
+/*
 class VolumeDataSet : public MappedTextureDataSet
 {
 public:
@@ -196,26 +195,30 @@ mCreateFactoryEntry( VolumeDataSetImpl );
 
 VolumeDataSetImpl::VolumeDataSetImpl()
 {}
-
+*/
 
 TextureChannel2VolData::TextureChannel2VolData()
-    : transferfunc_( 0 )
-    , enabled_ (false)
+    : enabled_ (false)
+//    , transferfunc_( 0 )
 {
 }
 
 
 TextureChannel2VolData::~TextureChannel2VolData()
 {
-    if ( transferfunc_ )
-	transferfunc_->unref(); 
+//    if ( transferfunc_ )
+//	transferfunc_->unref();
 }
 
 
 MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
-{ return VolumeDataSetImpl::create(); }
+{
+    return 0;
+//    return VolumeDataSetImpl::create();
+}
 
 
+/*
 SoNode* TextureChannel2VolData::gtInvntrNode()
 {
     enabled_ = true;
@@ -224,7 +227,7 @@ SoNode* TextureChannel2VolData::gtInvntrNode()
     makeColorTables();
     return transferfunc_;
 }
-
+*/
 
 void TextureChannel2VolData::setChannels( TextureChannels* texch )
 {
@@ -284,6 +287,7 @@ void TextureChannel2VolData::update()
 
 void TextureChannel2VolData::makeColorTables()
 {
+/*
     if ( !transferfunc_ )
 	return;
 
@@ -315,6 +319,7 @@ void TextureChannel2VolData::makeColorTables()
     
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
+*/
 }
 
 }; // namespace visBase

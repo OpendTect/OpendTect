@@ -16,13 +16,10 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 #include "thread.h"
+#include "visosg.h"
 
-class SoSeparator;
-class SoLockableSeparator;
-class SoNode;
-class SoSwitch;
 
-namespace osg { class Switch; }
+namespace osg { class Group; }
 
 namespace visBase
 {
@@ -38,14 +35,14 @@ class EventCatcher;
 mExpClass(visBase) VisualObject : public DataObject
 {
 public:
-    virtual void		turnOn(bool)				= 0;
-    virtual bool		isOn() const				= 0;
-
     virtual void		setMaterial( Material* )		= 0;
     virtual Material*		getMaterial()				= 0;
 
     virtual bool		getBoundingBox(Coord3& min,Coord3& max) const;
     virtual void		setSceneEventCatcher( EventCatcher* )	{}
+
+    void			setPickable(bool);
+    bool			isPickable() const;
 
     void			setSelectable(bool yn)	{ isselectable=yn; }
     bool			selectable() const 	{ return isselectable; }
@@ -54,12 +51,6 @@ public:
     virtual NotifierAccess*	rightClicked()		{ return &rightClick; }
     const EventInfo*		rightClickedEventInfo() const{return rcevinfo;}
     const TypeSet<int>*		rightClickedPath() const;
-
-    virtual int			usePar( const IOPar& iopar )
-				{ return DataObject::usePar(iopar); }
-    virtual void		fillPar( IOPar& iopar,
-	    				 TypeSet<int>& saveids ) const
-				{ DataObject::fillPar( iopar, saveids );}
 
 protected:
     void			triggerSel()
@@ -71,23 +62,18 @@ protected:
 				~VisualObject();
 
 private:
-    bool						isselectable;
-    Notifier<VisualObject>				selnotifier;
-    Notifier<VisualObject>				deselnotifier;
-    Notifier<VisualObject>				rightClick;
-    const EventInfo*					rcevinfo;
+    bool			isselectable;
+    Notifier<VisualObject>	selnotifier;
+    Notifier<VisualObject>	deselnotifier;
+    Notifier<VisualObject>	rightClick;
+    const EventInfo*		rcevinfo;
 };
 
 
 mExpClass(visBase) VisualObjectImpl : public VisualObject
 {
 public:
-    void		turnOn(bool);
-    bool		isOn() const;
-    void		removeSwitch();
-    			/*!<Will turn the object permanently on.
-			   \note Must be done before giving away the SoNode with
-			   getInventorNode() to take effect */
+
     void		setRightHandSystem(bool yn) { righthandsystem_=yn; }
     bool		isRightHandSystem() const { return righthandsystem_; }
 
@@ -104,13 +90,14 @@ public:
 
     void		setMaterial(Material*);
     const Material*	getMaterial() const { return material_; }
-    Material*		getMaterial() { return material_; }
+    Material*		getMaterial();
 
-    static const char*	sKeyMaterialID();
+    static const char*	sKeyMaterialID(); //Remove
+    static const char*	sKeyMaterial();
     static const char*	sKeyIsOn();
 
     virtual int		usePar(const IOPar&);
-    virtual void	fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void	fillPar(IOPar&) const;
 
 protected:
 
@@ -120,7 +107,8 @@ protected:
     int			childIndex(const SoNode*) const;
     SoNode*		getChild(int);
 
-    void		addChild(osg::Node*);
+    int			addChild(osg::Node*);
+			//!<\returns new child index
     void		insertChild(int pos,osg::Node*);
     void		removeChild(osg::Node*);
     int			childIndex(const osg::Node*) const;
@@ -129,17 +117,14 @@ protected:
 			VisualObjectImpl(bool selectable);
     virtual		~VisualObjectImpl();
 
-    SoSwitch*		onoff_;
+    virtual void	materialChangeCB(CallBacker*);
+
     Material*		material_;
     bool		righthandsystem_;
 
-    SoNode*		gtInvntrNode();
-    osg::Node*		gtOsgNode();
-
 private:
-    SoSeparator*	root_;
-    SoLockableSeparator* lockableroot_;
-    osg::Switch*	osgroot_;
+
+    osg::Group*		osgroot_;
 };
 
 mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,

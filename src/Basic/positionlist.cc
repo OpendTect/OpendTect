@@ -163,3 +163,10 @@ void Coord3ListImpl::remove( int id )
 {
      removedids_ += id;
 }
+
+void Coord3ListImpl::remove( const TypeSet<int>& idxs )
+{
+    for ( int idx =idxs.size()-1; idx>=0; idx-- )
+	remove( idxs[idx] );
+}
+

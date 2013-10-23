@@ -23,11 +23,12 @@ ________________________________________________________________________
 namespace visBase 
 { 
     class Transformation;
-    class IndexedPolyLine3D;
-    class PickStyle;
+    class Lines;
+    class MarkerSet;
+    class DrawStyle;
 }
 
-namespace Geometry { class FaultStickSet; } 
+namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
 namespace EM { class FaultStickSet; }
 namespace MPE { class FaultStickSetEditor; }
 
@@ -95,7 +96,7 @@ public:
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
 
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void                fillPar(IOPar&) const;
     virtual int                 usePar(const IOPar&);
 
 protected:
@@ -107,6 +108,10 @@ protected:
 					int whichobj);
 
     void			setActiveStick(const EM::PosID&);
+
+    static const char*		sKeyEarthModelID();
+    static const char*		sKeyDisplayOnlyAtSections();
+
 
     void			mouseCB(CallBacker*);
     void			stickSelectCB(CallBacker*);
@@ -127,6 +132,7 @@ protected:
 					int sticknr,
 					TypeSet<Coord3>& intersectpoints) const;
 
+
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		displaytransform_;
 
@@ -141,19 +147,15 @@ protected:
 
     TypeSet<EM::PosID>		editpids_;
 
-    visBase::IndexedPolyLine3D* sticks_;
-    visBase::IndexedPolyLine3D* activestick_;
-
-    visBase::PickStyle*		stickspickstyle_;
-    visBase::PickStyle*		activestickpickstyle_;
+    visBase::Lines*		sticks_;
+    visBase::Lines*		activestick_;
 
     bool			displayonlyatsections_;
     bool			stickselectmode_;
 
     bool			ctrldown_;
 
-    ObjectSet<visBase::DataObjectGroup>	knotmarkers_;
-
+    ObjectSet<visBase::MarkerSet>  knotmarkersets_;
     struct StickIntersectPoint
     {
 	Coord3			pos_;
@@ -163,8 +165,6 @@ protected:
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
-    static const char*		sKeyEarthModelID();
-    static const char*		sKeyDisplayOnlyAtSections();
 };
 
 } // namespace VisSurvey

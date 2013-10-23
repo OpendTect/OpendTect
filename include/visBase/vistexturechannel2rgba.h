@@ -16,22 +16,10 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 
-class SoColTabTextureChannel2RGBA;
-class SoComplexity;
-class SbImagei32;
-class SoSwitch;
-class SoGroup;
-class SoTextureUnit;
-class SoTexture2;
-class SoShaderProgram;
-class SoFragmentShader;
-class SoShaderParameter1i;
-class SoShaderParameterArray1f;
-class SoRGBATextureChannel2RGBA;
-class SoTextureComposerInfo;
 
 namespace ColTab { class Sequence; }
-namespace osgGeo { class ColorSequence; }
+namespace osgGeo { class LayeredTexture; class ColorSequence; }
+namespace osg { class Image; }
 
 namespace visBase
 { 
@@ -40,7 +28,7 @@ class TextureChannels;
 class MappedTextureDataSet;
 
 /*!
-\brief Interface for classes that can take one or more texture channels in an
+Interface for classes that can take one or more texture channels in an
 TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
@@ -54,9 +42,8 @@ public:
     virtual void		notifyChannelChange()			{}
     virtual void		notifyChannelInsert(int ch)		{}
     virtual void		notifyChannelRemove(int ch)		{}
-    virtual void		enableInterpolation(bool);
-    virtual bool		interpolationEnabled() const;
-    virtual bool		createRGBA(SbImagei32&) const		= 0;
+
+    virtual const osg::Image*	createRGBA();
 				/*!<Fill the image with the output, using
 				    current settings. */
 
@@ -70,24 +57,22 @@ public:
 
     virtual bool		canUseShading() const;
     virtual void		allowShading(bool);
-    virtual bool		usesShading() const		= 0;
+    virtual bool		usesShading() const;
+
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
     virtual void		getChannelName(int,BufferString&) const;
 
 protected:
-    			TextureChannel2RGBA();
+				TextureChannel2RGBA();
 
-    TextureChannels*	channels_;
-    bool		shadingallowed_;
-    bool		enableinterpolation_;
+    TextureChannels*		channels_;
+    osgGeo::LayeredTexture*     laytex_;
 };
 
 
-/*!
-\brief A destination where the texturechannels can put the mapped data. The
-class instantiation is provided by the TextureChannel2RGBA.
-*/
+/*!A destination where the texturechannels can put the mapped data. The class
+   instantiation is provided by the TextureChannel2RGBA. */
 
 mExpClass(visBase) MappedTextureDataSet : public DataObject
 {
@@ -98,20 +83,13 @@ public:
     			//!<\returns previous status
     virtual void	touch()					= 0;
     virtual void	setNrChannels(int)			= 0;
-
-    virtual void	setChannelData(int channel,const SbImagei32&) = 0;
-			/*!<The SbImage's dataptr is assumed to
-			    remain in memory until new SbImage comes,
-			    or object is deleted. */
-				 
-    virtual const SbImagei32*	getChannelData() const			= 0;
 };
 
 
-/*!
-\brief Implementation of TextureChannel2RGBA that takes a ColorSequence for each
-channel and blends it into an RGBA image.
-*/
+
+/*! Implementation of TextureChannel2RGBA that takes a ColorSequence for each
+channel and blends it into an RGBA image. */
+
 
 mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
@@ -120,7 +98,6 @@ public:
 				mCreateDataObj(ColTabTextureChannel2RGBA);
 
     void			swapChannels(int ch0,int ch1);
-    void			enableInterpolation(bool);
 
     bool			canSetSequence() const		{ return true;}
     void			setSequence(int ch,const ColTab::Sequence&);
@@ -132,62 +109,27 @@ public:
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
-    void			allowShading(bool);
-    bool			usesShading() const;
     int				maxNrChannels() const;
 
-    bool			createRGBA(SbImagei32&) const;
-
-    bool			canUseShading() const;
 protected:
-    void			notifyChannelChange()	{ update(); }
     void			notifyChannelInsert(int ch);
     void			notifyChannelRemove(int ch);
 
-    void			adjustNrChannels() const;
+    void			adjustNrChannels();
     void			setChannels(TextureChannels*);
-    void			updateOsgTexture() const;
 
-    					~ColTabTextureChannel2RGBA();
+				~ColTabTextureChannel2RGBA();
 
-    void				update();
-    void				getColors(int channel,
-					      TypeSet<unsigned char>&) const;
+    void			update();
+    void			getColors(int channel,
+					  TypeSet<unsigned char>&) const;
 
-    mutable ObjectSet<ColTab::Sequence>	coltabs_;
-    mutable BoolTypeSet			enabled_;
-    mutable TypeSet<unsigned char>	opacity_;
+    ObjectSet<ColTab::Sequence>	coltabs_;
+    BoolTypeSet			enabled_;
+    TypeSet<unsigned char>	opacity_;
 
-    mutable ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
-    mutable ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
-
-    SoSwitch*				shaderswitch_;
-
-    					//Shading stuff
-    void				setShadingVars();
-    void				createFragShadingProgram(int nrchannesl,
-	    					BufferString&) const;
-    char				getTextureTransparency(int ch) const;
-    					//See SoTextureComposerInfo for retvals
-    static const char*			sVertexShaderProgram();
-    SoGroup*				shadinggroup_;
-    SoTexture2*				shaderctab_;
-    SoFragmentShader*			fragmentshader_;
-    SoShaderParameter1i*		numlayers_;
-    SoShaderParameter1i*		startlayer_;
-    SoShaderParameterArray1f*		layeropacity_;
-    SoTextureComposerInfo*		tci_;
-    SoComplexity*			shadingcomplexity_;
-
-					//Non shading
-    void				doFill(
-	    				    SoColTabTextureChannel2RGBA*) const;
-    SoGroup*				noneshadinggroup_;
-    SoColTabTextureChannel2RGBA*	converter_;
-    SoComplexity*			nonshadingcomplexity_;
-
-    virtual SoNode*			gtInvntrNode();
-
+    ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
+    ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
 };
 
 } //namespace

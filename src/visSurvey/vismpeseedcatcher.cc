@@ -307,8 +307,10 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !emobj ) 
 	return;
     
-    const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
-						      eventinfo.pickedobjids );
+    const Coord3 clickedpos = eventinfo.displaypickedpos;
+
+    EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
+					    eventinfo.pickedobjids,clickedpos );
     info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
 
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
@@ -324,7 +326,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     float mindisttoseis2d = mUdf(float);
 
     TypeSet<int> seis2dinscene;
-    visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), seis2dinscene ); 
+    visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), seis2dinscene );
 
     for ( int idx=0; idx<seis2dinscene.size(); idx++ )
     {
@@ -341,7 +343,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
-		pos = transformation_->transform( pos );
+		transformation_->transform( pos );
 	    float disttoseis2d = seis2ddisp->calcDist( pos );
 	    
 	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
@@ -354,7 +356,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    continue;
 	}
 
-	if ( /*lineset==seis2ddisp->lineSetID() &&*/ linenm==seis2ddisp->name() )
+	if ( /*lineset==seis2ddisp->lineSetID() &&*/linenm==seis2ddisp->name() )
 	{
 	    mindisttoseis2d = 0;
 	    seis2dclosest = seis2ddisp;
@@ -409,8 +411,10 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     if ( !emobj ) 
 	return;
     
+    const Coord3 clickedpos = eventinfo.displaypickedpos;
+
     const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
-						      eventinfo.pickedobjids );
+					    eventinfo.pickedobjids,clickedpos);
     Coord3 nodepos = emobj->getPos( nodepid );
     info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
     
@@ -425,7 +429,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     const BinID nodebid = SI().transform( nodepos );
 
     TypeSet<int> mpedisplays;
-    visBase::DM().getIds( typeid(visSurvey::MPEDisplay), mpedisplays ); 
+    visBase::DM().getIDs( typeid(visSurvey::MPEDisplay), mpedisplays );
     
     CubeSampling trkplanecs(false);
     for ( int idx=0; idx<mpedisplays.size(); idx++ )
@@ -450,7 +454,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     }
 
     TypeSet<int> planesinscene;
-    visBase::DM().getIds( typeid(visSurvey::PlaneDataDisplay), planesinscene ); 
+    visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );
     
     for ( int idx=0; idx<planesinscene.size(); idx++ )
     {

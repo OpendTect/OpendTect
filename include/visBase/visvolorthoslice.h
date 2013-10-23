@@ -16,12 +16,10 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "position.h"
 
-class SoOrthoSlice;
-
 
 namespace visBase
 {
-class DepthTabPlaneDragger; class PickStyle;
+class DepthTabPlaneDragger;
 
 /*!\brief
 Slice that cuts orthogonal through a VolumeData.
@@ -52,9 +50,6 @@ public:
 
     void			removeDragger();
 
-    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int			usePar(const IOPar&);
-
     NotifierAccess&		dragStart();
     Notifier<OrthogonalSlice>	motion;
     NotifierAccess&		dragFinished();
@@ -65,8 +60,9 @@ protected:
     void			draggerMovementCB(CallBacker*);
     
     visBase::DepthTabPlaneDragger* dragger_;
-    visBase::PickStyle*		pickstyle_;
+/* OSG-TODO: Replace with  OSG equivalent if class is prolongated
     SoOrthoSlice*		slice_;
+*/
     int				xdatasz_, ydatasz_, zdatasz_;
 
     static const char*		dimstr();

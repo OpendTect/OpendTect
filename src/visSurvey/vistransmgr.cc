@@ -19,10 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linsolv.h"
 
 
-namespace visSurvey
-{
+using namespace visSurvey;
 
-SceneTransformManager& STM()
+
+SceneTransformManager& visSurvey::STM()
 {
     static SceneTransformManager* tm = 0;
     if ( !tm ) mTryAlloc( tm, SceneTransformManager );
@@ -30,54 +30,25 @@ SceneTransformManager& STM()
 }
 
 
-mVisTrans* SceneTransformManager::createZScaleTransform() const
+void SceneTransformManager::computeUTM2DisplayTransform(const InlCrlSystem& ics,
+					       float zfactor, mVisTrans* res)
 {
-    mVisTrans* tf = mVisTrans::create();
-    setZScale( tf, defZStretch() );
-    return tf;
-}
+    const Coord startpos = SI().transform( ics.sampling().hrg.start );
 
-
-void SceneTransformManager::setZScale( mVisTrans* tf,
-				       float zscale ) const
-{
-    if ( !tf ) return;
-
-    const float zsc = zscale / 2;
-    tf->setA(	1,	0,	0,	0,
-	    	0,	1,	0,	0,
-		0,	0,	zsc,	0,
-		0,	0,	0,	1 );
-}
-
-
-mVisTrans* 
-SceneTransformManager::createUTM2DisplayTransform( const HorSampling& hs ) const
-{
-    mVisTrans* tf = mVisTrans::create();
-
-    const Coord startpos = SI().transform( hs.start );
-
-    tf->setA(	1,	0,	0,	-startpos.x,
+    res->setA(	1,	0,	0,	-startpos.x,
 	    	0,	1,	0,	-startpos.y,
-		0,	0,	-1,	0,
+		0,	0,	zfactor,	0,
 		0,	0,	0,	1 );
-    return tf;
 }
 
 
-mVisTrans*
-SceneTransformManager::createIC2DisplayTransform( const HorSampling& hs ) const
+void SceneTransformManager::computeICRotationTransform( const InlCrlSystem& ics,
+	        float zfactor,
+		visBase::Transformation* rotation,
+		visBase::Transformation* disptrans )
 {
-    mVisTrans* tf = mVisTrans::create();
-    setIC2DispayTransform( hs, tf );
-    return tf;
-}
+    const HorSampling hs = ics.sampling().hrg;
 
-
-void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
-						  mVisTrans* tf ) const
-{
     const BinID startbid = hs.start;
     const BinID stopbid = hs.stop;
     const BinID extrabid( startbid.inl(), stopbid.crl() );
@@ -86,17 +57,20 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
     const Coord stoppos = SI().transform( stopbid );
     const Coord extrapos = SI().transform( extrabid );
 
+    const float inldist = ics.inlDistance();
+    const float crldist = ics.crlDistance();
+
     Array2DImpl<double> A(3,3);
-    A.set( 0, 0, startbid.inl() );
-    A.set( 0, 1, startbid.crl() );
+    A.set( 0, 0, startbid.inl()*inldist );
+    A.set( 0, 1, startbid.crl()*crldist );
     A.set( 0, 2, 1);
 
-    A.set( 1, 0, stopbid.inl() );
-    A.set( 1, 1, stopbid.crl() );
+    A.set( 1, 0, stopbid.inl()*inldist );
+    A.set( 1, 1, stopbid.crl()*crldist );
     A.set( 1, 2, 1);
 
-    A.set( 2, 0, extrabid.inl() );
-    A.set( 2, 1, extrabid.crl() );
+    A.set( 2, 0, extrabid.inl()*inldist );
+    A.set( 2, 1, extrabid.crl()*crldist );
     A.set( 2, 2, 1);
 
     double b[] = { 0, stoppos.x-startpos.x, extrapos.x-startpos.x };
@@ -106,17 +80,18 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
     
     const int inlwidth = hs.inlRange().width();
     const int crlwidth = hs.crlRange().width();
+
     if ( !inlwidth )
     {
 	if ( !crlwidth )
 	{
-	    tf->reset();
+	    rotation->reset();
 	    return;
 	}
 	
 	x[0] = 1;
-	x[1] = b[1] / crlwidth;
-	x[2] = -startbid.inl() - x[1] * startbid.crl();
+	x[1] = b[1] / (crlwidth*crldist);
+	x[2] = -startbid.inl()*inldist - x[1] * startbid.crl()*crldist;
     }
     else
 	linsolver.apply( b, x );
@@ -131,9 +106,9 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
 
     if ( !crlwidth )
     {
-	x[0] = b[1] / inlwidth;
+	x[0] = b[1] / (inlwidth*inldist);
 	x[1] = 1;
-	x[2] = -x[0] * startbid.inl() - startbid.crl();
+	x[2] = -x[0] * startbid.inl()*inldist - startbid.crl()*crldist;
     }
     else
     	linsolver.apply( b, x );
@@ -142,10 +117,17 @@ void SceneTransformManager::setIC2DispayTransform(const HorSampling& hs,
     const double mat22 = x[1];
     const double mat24 = x[2];
 
-    tf->setA(	mat11,	mat12,	0,	mat14,
-		mat21,	mat22,	0,	mat24,
-		0,	0,	-1,	0,
-		0,	0,	0,	1 );
+    const int sign = ics.isClockWise() ? -1 : 1;
+
+    rotation->setA(	mat11,	mat12,	0,	mat14,
+			mat21,	mat22,	0,	mat24,
+			0,	0,	sign,	0,
+			0,	0,	0,	1 );
+
+    if ( disptrans )
+	disptrans->setA( inldist,	0,		0,		0,
+			 0,		crldist,	0,		0,
+			 0,		0,		sign*zfactor,	0,
+			 0,		0,		0,		1 );
 }
 
-} // namespace visSurvey

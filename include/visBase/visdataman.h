@@ -19,9 +19,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include <typeinfo>
 namespace osg { class Node; }
-class SoPath;
-class SoNode;
-
 
 namespace visBase
 {
@@ -37,33 +34,15 @@ public:
     			DataManager();
     virtual		~DataManager();
 
-    static void		readLockDB();
-    static void		readUnLockDB();
-    static void		writeLockDB();
-    static void		writeUnLockDB();
-
-    bool		removeAll(int nriterations=1000);
-    			/*!< Will remove everything.  */
-
-    void		fillPar(IOPar&,TypeSet<int>&) const;
-    int			usePar(const IOPar&);
-    			/*!<\retval 1  success
-			    \retval -1 failure
-			    \retval 0  warnings. */
-
     const char*		errMsg() const;
 
-    void		getIds(const SoPath*,TypeSet<int>&) const;
-    			/*!< Gets the ids from lowest level to highest
-			     (i.e. scene ) */
-
-    void		getIds(const std::type_info&,TypeSet<int>&) const;
+    void		getIDs(const std::type_info&,TypeSet<int>&) const;
     int			highestID() const;
 
     DataObject*		getObject(int id);
     const DataObject*	getObject(int id) const;
-    DataObject*		getObject(const SoNode*);
-    const DataObject*	getObject(const SoNode*) const;
+    int			getID(const osg::Node*) const;
+			//!<Returns -1 if not found
 
     int			nrObjects() const;
     DataObject*		getIndexedObject(int idx);

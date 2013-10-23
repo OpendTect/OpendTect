@@ -1,3 +1,4 @@
+
 #ifndef viscoord_h
 #define viscoord_h
 
@@ -17,6 +18,7 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "thread.h"
 #include "visdata.h"
+#include "visosg.h"
 
 
 class SoCoordinate3;
@@ -26,10 +28,6 @@ class UTMPosition;
 namespace Geometry { class PosIdHolder; }
 
 namespace osg { class Array; }
-
-#define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
-
-#define mGetOsgVec2Arr(ptr) ((osg::Vec2Array*) ptr )
 
 
 namespace visBase
@@ -66,9 +64,6 @@ public:
 
     void		copyFrom(const Coordinates&);
 
-    void		setLocalTranslation(const Coord&);
-    Coord		getLocalTranslation() const;
-
     int			nextID(int previd) const;
 			//!<If previd == -1, first id is returned.
 			//!<If -1 is returned, no more id's are available.
@@ -77,28 +72,26 @@ public:
     Coord3		getPos(int,bool scenespace=false) const;
     bool		isDefined(int) const;
     void		setPos(int,const Coord3&);
-    void		setPositions(const Coord3*,int sz,int start);
+    void		setPositions(const Coord3*,int sz,int start,
+				     bool scenespace=false);
     void		insertPos(int,const Coord3&);
     void		removePos(int, bool keepidxafter=true );
     void		removeAfter(int);
+    void		setAllPositions(const Coord3 pos,int sz,int start);
 
     void		setAllZ(const float*,int sz,float zscale=1);
 
-    void		setAutoUpdate(bool);
-    bool		autoUpdate();
-    void		update();
-
     osg::Array*		osgArray() { return osgcoords_; }
     const osg::Array*	osgArray() const { return osgcoords_; }
+
+    void		setEmpty();
 
 protected:
 
     void		getPositions(TypeSet<Coord3>&) const;
     void		setPositions(const TypeSet<Coord3>&);
 
-    void		setPosWithoutLock(int, const Coord3&);
-    			/*!< Object should be locked when calling */
-    void		setLocalTranslationWithoutLock(const Coord&);
+    void		setPosWithoutLock(int, const Coord3&,bool scenespace);
     			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
@@ -106,17 +99,12 @@ protected:
 
     			~Coordinates();
 
-    SoCoordinate3*		coords_;
-    SoGroup*			root_;
-    UTMPosition*		utmposition_;
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
     const mVisTrans*		transformation_;
     
     osg::Array*			osgcoords_;
-
-    virtual SoNode*		gtInvntrNode();
-
+    friend class	 SetOrGetCoordinates;
 };
 
     
@@ -161,6 +149,9 @@ public:
     bool	isDefined(int) const;
     void	addValue(int,const Coord3&);
     int		getSize() const	{ return coords_.size(); }
+    void	remove(const TypeSet<int>&);
+
+    Coordinates*    getCoordinates() { return &coords_; }
 
 protected:
     virtual		~CoordListAdapter();
@@ -171,4 +162,3 @@ protected:
 };
 
 #endif
-

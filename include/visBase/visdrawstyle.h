@@ -15,8 +15,14 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visdata.h"
 #include "draw.h"
+#include "visnodestate.h"
 
-class SoDrawStyle;
+namespace osg {
+    class Point;
+    class LineStipple;
+    class LineWidth;
+};
+
 
 namespace visBase
 {
@@ -24,12 +30,10 @@ namespace visBase
 */
 
 
-mExpClass(visBase) DrawStyle : public DataObject
+mExpClass(visBase) DrawStyle : public NodeState
 {
 public:
-    static DrawStyle*	create()
-			mCreateDataObj(DrawStyle);
-
+			DrawStyle();
     enum Style		{ Filled, Lines, Points, Invisible };
     			DeclareEnumUtils(Style);
 
@@ -40,31 +44,29 @@ public:
     float		getPointSize() const;
 
     void		setLineStyle( const LineStyle& );
-    			/*!< Color in Linestyle is ignored, must be
-			     set separately.
-			*/
-    void 		setLineWidth(int);
-    const LineStyle&	lineStyle() const { return linestyle; }
+			/*!< Color in Linestyle is ignored, must be
+			 set separately.
+			 */
 
-    void		getLineWidthBounds( int& min, int& max );
+    void 		setLineWidth(int);
+    const LineStyle&	lineStyle() const 		{ return linestyle_; }
 
     int			usePar( const IOPar& );
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
+    void		fillPar( IOPar& ) const;
 
-private:
-    virtual		~DrawStyle();
+protected:
 
-    void		updateLineStyle();
-    
-    LineStyle		linestyle;
-    SoDrawStyle*	drawstyle;
+    void			updateLineStyle();
+
+    LineStyle			linestyle_;
+
+    osg::Point*			pointsize_;
+    osg::LineStipple*		linestipple_;
+    osg::LineWidth*		linewidth_;
 
     static const char*	linestylestr();
     static const char*	drawstylestr();
     static const char*	pointsizestr();
-
-    virtual SoNode*	gtInvntrNode();
-
 };
 
 };

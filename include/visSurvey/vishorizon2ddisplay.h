@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "visemobjdisplay.h"
 
-namespace visBase { class IndexedPolyLine3D; class PointSet; }
+namespace visBase { class PolyLine3D; class PointSet;  }
 namespace EM { class Horizon2D; }
 class ZAxisTransform;
 
@@ -49,7 +49,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
-    const visBase::IndexedPolyLine3D* getLine(const EM::SectionID&) const;
+    const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
@@ -83,10 +83,10 @@ protected:
 
     void			zAxisTransformChg(CallBacker*);
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
 
-    ObjectSet<visBase::IndexedPolyLine3D>	lines_;
+    ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
 };

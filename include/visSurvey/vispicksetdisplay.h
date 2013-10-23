@@ -22,8 +22,7 @@ namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
 namespace visSurvey
 {
 
-/*!
-\brief Used for displaying picks.
+/*!\brief Used for displaying picks.
 
   Picks are positions in 3d (x,y,z) selected by the user by mouseclicks,
   or generated at random. Picks have a constant size in pixels, and can be
@@ -47,22 +46,19 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
-    void			setScene(Scene*);
 
 protected:
 
-    visBase::VisualObject*	createLocation() const;
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;
-    int				isMarkerClick(const TypeSet<int>&) const;
+    int				isMarkerClick(const Coord3&) const;
 
     void			dispChg(CallBacker*);
     void			locChg(CallBacker*);
     void			setChg(CallBacker*);
-    void			sceneZChangeCB(CallBacker*);
     bool			hasColor() const	{ return true; }
     void			setColor(Color);
 

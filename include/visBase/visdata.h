@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 
 class SoNode;
+class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
 
@@ -28,7 +29,7 @@ namespace osg { class Node; }
 
 #define mVisTrans visBase::Transformation
 
-
+namespace osg { class Switch; class StateSet; }
 namespace visBase
 {
 
@@ -36,14 +37,16 @@ class Transformation;
 class SelectionManager;
 class DataManager;
 class Scene;
+class DataObjectGroup;
+class NodeState;
 
 
 // OSG traversal bitmasks defined by OpendTect
-enum TraversalType
-{
-    EventTraversal		=	0x00000001,
-    IntersectionTraversal	=	0x00000002
-}; 
+inline unsigned int cNoTraversalMask()			{ return 0; }
+inline unsigned int cAllTraversalMask()			{ return 0xFFFFFFFF; }
+inline unsigned int cEventTraversalMask() 		{ return 0x00000001; }
+inline unsigned int cIntersectionTraversalMask()	{ return 0x00000002; }
+inline unsigned int cBBoxTraversalMask()		{ return 0x00000004; }
 
 
 /*!\brief
@@ -59,31 +62,32 @@ public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
-    static void			setOsg();
-    static bool			doOsg();
-    
     virtual bool		isOK() const		{ return true; }
 
     int				id() const		{ return id_; }
+
     void			setID(int nid);
+    static int			getID(const osg::Node*);
 
     FixedString			name() const;
     virtual void		setName(const char*);
 
-    osg::Node*			osgNode()		{return gtOsgNode();}
-    const osg::Node*		osgNode() const
-				    { return const_cast<DataObject*>(this)->
-							gtOsgNode(); }
+    osg::Node*			osgNode()		{ return osgnode_; }
+    const osg::Node*		osgNode() const		{ return osgnode_; }
 
-    void			enableTraversal(TraversalType,bool yn=true); 
-    bool			isTraversalEnabled(TraversalType) const;
+    void			enableTraversal(unsigned int mask,bool yn=true);
+    bool			isTraversalEnabled(unsigned int mask) const;
 
-    inline SoNode*		getInventorNode()	{return gtInvntrNode();}
+    inline SoNode*		getInventorNode()	{return 0;}
     inline const SoNode*	getInventorNode() const
-				{ return const_cast<DataObject*>(this)->
-							gtInvntrNode(); }
+				{ return 0; }
 
-    virtual bool		pickable() const 	{ return selectable(); }
+    virtual bool		turnOn(bool yn);
+    virtual bool		isOn() const;
+
+    bool			isPickable() const;
+    void			setPickable(bool yn);
+
     virtual bool		rightClickable() const 	{ return selectable(); }
     virtual bool		selectable() const	{ return false; }
     void			select() const;
@@ -101,7 +105,7 @@ public:
     virtual void		setDisplayTransformation(const mVisTrans*);
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
-				     witht this transform. This enables us
+				     with this transform. This enables us
 				     to have different coord-systems outside
 				     OI, e.g. we can use UTM coords
 				     outside the vis without loosing precision
@@ -110,7 +114,7 @@ public:
     virtual const mVisTrans*	getDisplayTransformation() const { return 0; }
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
-				     witht this transform. This enables us
+				     with this transform. This enables us
 				     to have different coord-systems outside
 				     OI, e.g. we can use UTM coords
 				     outside the vis without loosing precision
@@ -121,30 +125,29 @@ public:
 				    right or left handed. */
     virtual bool		isRightHandSystem() const	{ return true; }
 
-    virtual int			usePar(const IOPar&);
-    				/*!< Returns -1 on error and 1 on success.
-				     If it returns 0 it is missing something.
-				     Parse everything else and retry later.  */
     virtual const char*		errMsg() const	{ return 0; }
 
-    virtual bool		acceptsIncompletePar() const    {return false;}
-				/*!<Returns true if it can cope with non-
-				    complete session-restores. If it returns
-				    false, DataManager::usePar() will
-				    fail if usePar of this function returns
-				    0, and it doesn't help to retry.  */
-
-    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
-
-    void			doSaveInSessions( bool yn )
-				{ saveinsessions_ = yn; }
-    bool			saveInSessions() const
-    				{ return saveinsessions_; }
-			
     bool			serialize(const char* filename,
 	    				  bool binary=false);
 
+    void			setParent(DataObjectGroup* g) { parent_ = g; }
+
+    template <class T> T*	addNodeState(T* ns)
+				{ doAddNodeState(ns); return ns; }
+    NodeState*			removeNodeState(NodeState*);
+    NodeState*			getNodeState( int idx );
+
+    static void			setVisualizationThread(const void*);
+				//!<Call only once from initialization
+    static bool			isVisualizationThread();
+
 protected:
+
+    virtual osg::StateSet*	getStateSet();
+    void			doAddNodeState(NodeState* ns);
+
+    virtual bool		init() { return true; }
+
     friend class		SelectionManager;
     friend class		Scene;
     virtual void		triggerSel()				{}
@@ -154,29 +157,41 @@ protected:
     virtual void		triggerRightClick(const EventInfo* =0)	{}
     
 				DataObject();
-    virtual bool		_init();
 
-    bool			saveinsessions_;
+    DataObjectGroup*		parent_;
 
-    virtual SoNode*		gtInvntrNode()		{ return 0; }
+    template <class T>
+    T*				setOsgNode(T* t)
+				{
+				    setOsgNodeInternal( (osg::Node*) t );
+				    return t;
+				}
 
-    virtual osg::Node*		gtOsgNode()		{ return 0; }
-
-    void			updateOsgNodeData();
+    void			updateNodemask();
 
 private:
-    int				id_;
-    BufferString*		name_;
+    void			setOsgNodeInternal( osg::Node* t );
+    void			updateOsgNodeData();
 
-    static bool			doosg_;
+    ObjectSet<NodeState>	nodestates_;
+    osg::Node*			osgnode_;
+    int				id_;
+    bool			ison_;
+    BufferString*		name_;
+    unsigned int		enabledmask_;
+    static const void*		visualizationthread_;
 };
 
 };
 
 #define _mCreateDataObj(clss) 					\
 {								\
-    clss* res = (clss*) createInternal();			\
-    return res;							\
+    clss* ret = new clss;					\
+    if ( !ret )							\
+        return 0;						\
+    if ( !ret->init() || !ret->isOK() )				\
+        { ret->ref(); ret->unRef(); return 0; }			\
+    return ret;							\
 }								\
 								\
 private:							\
@@ -188,8 +203,8 @@ public:								\
     static const char*	getStaticClassName();			\
 								\
     virtual const char*	getClassName() const; 			\
-protected:
-    
+protected:							\
+
 #define _mDeclConstr(clss)					\
     clss();							\
 public:
@@ -202,28 +217,12 @@ public:
 #define mImplVisInitClass( clss ) \
 void clss::initClass()						\
 {								\
-    visBase::DataManager::factory().addCreator(			\
-	clss::createInternal, #clss );				\
 }
 
 #define mCreateFactoryEntryNoInitClass( clss )			\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
-{ return clss::getStaticClassName(); }				\
-visBase::DataObject* clss::createInternal()			\
-{								\
-    clss* res = new clss;					\
-    if ( !res )							\
-	return 0;						\
-    if ( !res->_init() || !res->isOK() )			\
-    {								\
-	delete res;						\
-	return 0;						\
-    }								\
-								\
-    return res;							\
-}							
-
+{ return clss::getStaticClassName(); }
 
 #define mCreateFactoryEntry( clss )				\
 mImplVisInitClass( clss );					\

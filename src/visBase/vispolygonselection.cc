@@ -12,13 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonselection.h"
 
 #include "polygon.h"
+#include "viscamera.h"
 #include "vistransform.h"
 #include "visdrawstyle.h"
 
-#include "SoPolygonSelect.h"
-
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoMaterial.h>
+#include <osgGeo/PolygonSelection>
 
 #include <math.h>
 
@@ -27,42 +25,50 @@ mCreateFactoryEntry( visBase::PolygonSelection );
 namespace visBase
 {
 
-
-
 Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
 {
     static Notifier<PolygonSelection> polygonfinished(0);
     return &polygonfinished;
 }
 
+class SelectionCallBack : public osg::NodeCallback
+{
+public:
+		    SelectionCallBack(){}
+		    void operator() ( osg::Node* node, osg::NodeVisitor* nv )
+		    {
+			if ( nv )
+			    PolygonSelection::polygonFinished()->trigger();
+		    }
+protected:
+    		    ~SelectionCallBack(){}
+};
 
 PolygonSelection::PolygonSelection()
     : VisualObjectImpl( false )
-    , transformation_( 0 )
-    , selector_( new SoPolygonSelect )
-    , drawstyle_( DrawStyle::create() )
+    , utm2disptransform_( 0 )
+    , selector_( new osgGeo::PolygonSelection )
+    , drawstyle_( new DrawStyle )
     , polygon_( 0 )
 {
-    removeSwitch();
-
     drawstyle_->ref();
-    addChild( drawstyle_->getInventorNode() );
     addChild( selector_ );
-    selector_->polygonChange.addCallback(
-	    (SoCallbackListCB*) polygonChangeCB, this );
-    selector_->paintStop.addCallback(
-	    (SoCallbackListCB*) paintStopCB, this );
+    selectorcb_ = new SelectionCallBack;
+    selectorcb_->ref();
+    selector_->addCallBack( selectorcb_ );
+    mAttachCB( *PolygonSelection::polygonFinished(),
+		PolygonSelection::polygonChangeCB );
 }
 
 
 PolygonSelection::~PolygonSelection()
 {
-    selector_->polygonChange.removeCallback(
-	    (SoCallbackListCB*) polygonChangeCB, this );
-    selector_->paintStop.removeCallback(
-	    (SoCallbackListCB*) paintStopCB, this );
-    if ( transformation_ ) transformation_->unRef();
-    drawstyle_->unRef();
+    detachAllNotifiers();
+    unRefPtr( utm2disptransform_ );
+    unRefPtr( drawstyle_ );
+    unRefPtr( mastercamera_ );
+    selector_->removeCallBack( selectorcb_ );
+    selectorcb_->unref();
     delete polygon_;
 }
 
@@ -71,25 +77,34 @@ void PolygonSelection::setSelectionType( PolygonSelection::SelectionType st )
 {
     if ( st==Off )
     {
-	selector_->mode = SoPolygonSelect::OFF;
+	selector_->setShapeType( osgGeo::PolygonSelection::Off );
 	selector_->clear();
     }
     else if ( st==Rectangle )
-	selector_->mode = SoPolygonSelect::RECTANGLE;
+	selector_->setShapeType( osgGeo::PolygonSelection::Rectangle );
     else if ( st==Polygon )
-	selector_->mode = SoPolygonSelect::POLYGON;
+	selector_->setShapeType( osgGeo::PolygonSelection::Polygon );
 }
 
 
 PolygonSelection::SelectionType PolygonSelection::getSelectionType() const
 {
-    if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
+    if ( selector_->getShapeType() == osgGeo::PolygonSelection::Off )
 	return Off;
 
-    if ( selector_->mode.getValue() == SoPolygonSelect::RECTANGLE )
+    if ( selector_->getShapeType() == osgGeo::PolygonSelection::Rectangle )
 	return Rectangle;
 
     return Polygon;
+}
+
+
+void PolygonSelection::setMasterCamera( Camera* maincam )
+{
+    mastercamera_ = maincam;
+    mastercamera_->ref();
+    mDynamicCastGet(osg::Camera*,osgcamera,mastercamera_->osgNode());
+    selector_->addEventHandlerCamera( osgcamera );
 }
 
 
@@ -109,7 +124,7 @@ void PolygonSelection::clear()
 
 bool PolygonSelection::hasPolygon() const
 {
-    return selector_->getPolygon().getLength()>2;
+    return selector_->getCoords()->size() > 2;
 }
 
 
@@ -121,56 +136,36 @@ bool PolygonSelection::isSelfIntersecting() const
     if ( !polygon_ )
     {
 	polygon_ = new ODPolygon<double>;
-	const SbList<SbVec2f>& sopolygon = selector_->getPolygon();
-	for ( int idx=0; idx<sopolygon.getLength(); idx++ )
-	    polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
+	const osg::Vec3Array& coords = *selector_->getCoords();
+	for ( int idx=0; idx<coords.size(); idx++ )
+	{
+	    const osg::Vec3& coord = coords[idx];
+	    polygon_->add( Coord(coord.x(),coord.y()) );
+	}
     }
 
     return polygon_->isSelfIntersecting();
 }
 
-/*
-void PolygonSelection::getSelectionRays( TypeSet<Line3D>& rays ) const
-{
-    rays.empty();
-
-    const SbList<SbVec2f>& sopolygon = selector_->getPolygon();
-    for ( int idx=0; idx<sopolygon.getLength(); idx++ )
-    {
-	SbLine sodisplayspaceline;
-	selector_->projectPointFromScreen( sopolygon[idx], sodisplayspaceline );
-	SbVec3f pos = sodisplayspaceline.getPosition();
-	SbVec3f dir = sodisplayspaceline.getDirection();
-
-	Line3D displayspaceline( pos[0], pos[1], pos[2],
-				 dir[0], dir[1], dir[2] );
-
-	if ( transformation_ )
-	    transformation_.transformBack( pos );
-
-	rays += displayspaceline;
-    }
-}
-*/
-
 
 bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 {
-    if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
+   if ( selector_->getShapeType() == osgGeo::PolygonSelection::Off  )
 	return false;
 
     if ( !hasPolygon() )
 	return false;
 
     Coord3 checkcoord3d = crd;
-    if ( !displayspace && transformation_ )
-	checkcoord3d = transformation_->transform( checkcoord3d );
+    if ( !displayspace && utm2disptransform_ )
+	utm2disptransform_->transform( checkcoord3d );
 
-    const SbVec2f coord2d = selector_->projectPointToScreen(
-		     SbVec3f((float) checkcoord3d.x,
-		    (float) checkcoord3d.y,(float) checkcoord3d.z ) );
+    const osg::Vec2 coord2d = selector_->projectPointToScreen(
+					    osg::Vec3((float) checkcoord3d.x,
+						      (float) checkcoord3d.y,
+						      (float) checkcoord3d.z) );
 
-    const Coord checkcoord2d( coord2d[0], coord2d[1] );
+    const Coord checkcoord2d( coord2d.x(), coord2d.y() );
     if ( !checkcoord2d.isDefined() )
 	return false;
 
@@ -181,9 +176,13 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 	if ( !polygon_ )
 	{
 	    polygon_ = new ODPolygon<double>;
-	    const SbList<SbVec2f> sopolygon = selector_->getPolygon();
-	    for ( int idx=0; idx<sopolygon.getLength(); idx++ )
-		polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
+
+	    const osg::Vec3Array& polycoords = *selector_->getCoords();
+	    for ( int idx=0; idx<polycoords.size(); idx++ )
+	    {
+		Coord polycoord2d( polycoords[idx].x(), polycoords[idx].y() );
+		polygon_->add( polycoord2d );
+	    }
 	}
 
 	polygonlock_.convWriteToReadLock();
@@ -199,7 +198,7 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 				      bool displayspace ) const
 {
-    if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
+  if ( selector_->getShapeType() == osgGeo::PolygonSelection::Off  )
 	return 0;
 
     if ( !hasPolygon() )
@@ -215,10 +214,10 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     coords[6] = Coord3( stop.x, stop.y, start.z );
     coords[7] = Coord3( stop.x, stop.y, stop.z );
 
-    if ( !displayspace && transformation_ )
+    if ( !displayspace && utm2disptransform_ )
     {
 	for ( int idx=0; idx<8; idx++ )
-	    coords[idx] = transformation_->transform( coords[idx] );
+	    utm2disptransform_->transform( coords[idx] );
     }
 
     ODPolygon<double> screenpts;
@@ -226,8 +225,8 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     int nrundefs = 0;
     for ( int idx=0; idx<8; idx++ )
     {
-	const SbVec2f pt = selector_->projectPointToScreen(
-		      SbVec3f((float) coords[idx].x,
+	const osg::Vec2 pt = selector_->projectPointToScreen(
+		      osg::Vec3((float) coords[idx].x,
 		      (float) coords[idx].y,(float) coords[idx].z ) );
 
 	const Coord vertex( pt[0], pt[1] );
@@ -246,9 +245,9 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 	if ( polygonlock_.convReadToWriteLock() || !polygon_ )
 	{
 	    polygon_ = new ODPolygon<double>;
-	    const SbList<SbVec2f> sopolygon = selector_->getPolygon();
-	    for ( int idx=0; idx<sopolygon.getLength(); idx++ )
-		polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
+	    const osg::Vec3Array& sopolygon = *selector_->getCoords();
+	    for ( int idx=0; idx<sopolygon.size(); idx++ )
+		polygon_->add( Coord(sopolygon[idx].x(),sopolygon[idx].y()) );
 	}
 
 	polygonlock_.convWriteToReadLock();
@@ -268,44 +267,26 @@ bool PolygonSelection::rayPickThrough( const Coord3& worldpos,
 				       int depthidx ) const
 {
     pickedobjids.erase();
-    const Coord3 pos = !transformation_ ? worldpos :
-		       transformation_->transform( worldpos );
-
-    const SbVec3f displaypos( (float) pos.x, (float) pos.y, (float) pos.z );
-    const SoPath* path = selector_->rayPickThrough( displaypos, depthidx );
-    if ( !path )
-	return false;
-
-    DM().getIds( path, pickedobjids );
+    pErrMsg( "Not implemented");
     return true;
 }
 
 
-void PolygonSelection::polygonChangeCB( void* data, SoPolygonSelect* )
+void PolygonSelection::polygonChangeCB( CallBacker* )
 {
-    PolygonSelection* myptr = (PolygonSelection*) data;
-    myptr->polygonlock_.writeLock();
-    delete myptr->polygon_;
-    myptr->polygon_ = 0;
-
-    myptr->polygonlock_.writeUnLock();
+    polygonlock_.writeLock();
+    delete polygon_;
+    polygon_ = 0;
+    polygonlock_.writeUnLock();
 }
 
 
-void PolygonSelection::paintStopCB( void*, SoPolygonSelect* )
-{ polygonFinished()->trigger(); }
-
-
-void PolygonSelection::setDisplayTransformation( const mVisTrans* nt )
+void PolygonSelection::setUTMCoordinateTransform( const mVisTrans* nt )
 {
-    if ( transformation_ ) transformation_->unRef();
-    transformation_ = nt;
-    if ( transformation_ ) transformation_->ref();
+    if ( utm2disptransform_ ) utm2disptransform_->unRef();
+    utm2disptransform_ = nt;
+    if ( utm2disptransform_ ) utm2disptransform_->ref();
 }
-
-
-const mVisTrans* PolygonSelection::getDisplayTransformation() const
-{ return transformation_; }
 
 
 PolygonCoord3Selector::PolygonCoord3Selector( const PolygonSelection& vs )

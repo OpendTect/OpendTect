@@ -17,24 +17,22 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "visshape.h"
+#include "draw.h"
 
-namespace Geometry { class IndexedShape; class IndexedGeometry; }
-
-class SoMaterial;
-class SoMaterialBinding;
-class SoShapeHints;
-class SoIndexedShape;
-class SoSwitch;
+namespace Geometry { class IndexedGeometry; }
 class TaskRunner;
 class DataPointSet;
 
 namespace visBase
 {
-
+class Transformation;
 class Coordinates;
 class Normals;
 class TextureCoords;
 class ForegroundLifter;
+class VertexShape;
+class TextureChannels;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
@@ -51,21 +49,18 @@ public:
 	    				   TaskRunner* = 0);
     				//!<Does not become mine, should remain
 				//!<in memory
-    void			setRightHandSystem(bool);
 
-    bool			touch(bool forall,TaskRunner* =0);
+    bool			touch(bool forall,bool createnew=true,
+				      TaskRunner* =0);
 
-    void			set3DLineRadius(float radius,
-	    					bool constantonscreen=true,
-						float maxworldsize=-1);
-    				/*!<If radius is less than 0, a normal
-				    line will be drawn. */
     void			renderOneSide(int side);
-    				/*!< 0 = visisble from both sides.
-				     1 = visisble from positive side
-				     -1 = visisble from negative side. */
+    				/*!< 0 = visible from both sides.
+				     1 = visible from positive side
+				    -1 = visible from negative side. */
 
-    void			createColTab();
+    void			setLineStyle(const LineStyle&);
+				/*!<for polylin3d, only the radius is used.*/
+
     void			enableColTab(bool);
     bool			isColTabEnabled() const;
     void			setDataMapper(const ColTab::MapperSetup&,
@@ -75,6 +70,7 @@ public:
     const ColTab::Sequence*	getDataSequence() const;
 
     void			getAttribPositions(DataPointSet&,
+					mVisTrans* extratrans,
 	    				TaskRunner*) const;
     void			setAttribData(const DataPointSet&,
 	    				TaskRunner*);
@@ -82,53 +78,56 @@ public:
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);
 
-    void			turnOnForegroundLifter(bool);
+    void			setPrimitiveType(
+				const Geometry::PrimitiveSet::PrimitiveType);
+
+    enum			GeomShapeType{ Triangle, PolyLine, PolyLine3D };
+    void			setIndexedGeometryShapeType(
+						  GeomShapeType geomshapetype);
+    void			useOsgNormal(bool);
+    void			setNormalBindType(VertexShape::BindType);
+    void			setColorBindType(VertexShape::BindType);
+    void			addNodeState(visBase::NodeState*);
+
+    void			setTextureChannels(TextureChannels*);
 
 protected:
 				~GeomIndexedShape();
     void			reClip();
-    void			reMap(TaskRunner*);
+    void			mapAttributeToColorTableMaterial();
     void			matChangeCB(CallBacker*);
+    void			updateGeometryMaterial();
 
-    mExpClass(visBase)			ColTabMaterial
+    mExpClass(visBase)			ColorHandler
     {
     public:
-					ColTabMaterial();
-					~ColTabMaterial();
-	void				updatePropertiesFrom(const Material*);
+					ColorHandler();
+					~ColorHandler();
 	ColTab::Mapper			mapper_;
 	ColTab::Sequence                sequence_;
-
-	SoMaterialBinding*		materialbinding_;
-	visBase::Material*		coltab_;
-	ArrayValueSeries<float,float>	cache_;
+	visBase::Material*		material_;
+	ArrayValueSeries<float,float>	attributecache_;
     };
 
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
-    ColTabMaterial*				ctab_;
-
-    SoShapeHints*				hints_;
-    Coordinates*				coords_;
-    Normals*					normals_;
-    TextureCoords*				texturecoords_;
-
-    ObjectSet<SoIndexedShape>			strips_;
-    ObjectSet<const Geometry::IndexedGeometry>	stripgeoms_;
-
-    float					lineradius_;
-    bool					lineconstantonscreen_;
-    float					linemaxsize_;
-    ObjectSet<SoIndexedShape>			lines_;
-    ObjectSet<const Geometry::IndexedGeometry>	linegeoms_;
-
-    ObjectSet<SoIndexedShape>			fans_;
-    ObjectSet<const Geometry::IndexedGeometry>	fangeoms_;
+    ColorHandler*				colorhandler_;
 
     Geometry::IndexedShape*			shape_;
-    
-    ForegroundLifter*				lifter_;
-    SoSwitch*					lifterswitch_;   
+    VertexShape*				vtexshape_;
+    bool					colortableenabled_ ;
+    int						renderside_;
+       					    /*!< 0 = visisble from both sides.
+					       1 = visible from positive side
+					      -1 = visible from negative side.*/
+    Material*					singlematerial_;
+    Material*					coltabmaterial_;
+    ColTab::Sequence		                sequence_;
+    Geometry::PrimitiveSet::PrimitiveType	primitivesettype_;
+    GeomShapeType				geomshapetype_;
+
+    LineStyle					linestyle_;
+    bool					useosgnormal_;
 };
 
 };

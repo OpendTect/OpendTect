@@ -49,7 +49,7 @@ PointSetDisplay::~PointSetDisplay()
 void PointSetDisplay::setPointSet()
 {
     visBase::PointSet* pst = visBase::PointSet::create();
-    pst->setMaterial( visBase::Material::create() );
+    pst->setMaterial( new visBase::Material );
     pst->setMaterialBinding(
 	    visBase::Shape::cPerVertexMaterialBinding() );
     addChild( pst->getInventorNode() );

@@ -18,15 +18,16 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-
+#include "visosg.h"
 
 class TaskRunner;
-class SoGroup;
-class SoTransferFunction;
-class So2DTransferFunction;
-class SoVolumeData;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
+
+
+namespace osgVolume { class Volume; class VolumeTile; class ImageLayer; }
+namespace osg { class Switch; class Image; class TransferFunction1D; }
+
 
 namespace visBase
 {
@@ -38,8 +39,7 @@ public:
     static VolumeRenderScalarField*	create()
 	                        	mCreateDataObj(VolumeRenderScalarField);
 
-    void			useShading(bool yn) { useshading_=yn; }
-    				//!<\note must be called before getInventorNode
+    void			useShading(bool yn);
 
     bool			turnOn(bool);
     bool			isOn() const;
@@ -55,19 +55,12 @@ public:
 	    					   TaskRunner* tr );
     const ColTab::Mapper&	getColTabMapper();
 
-    void			setBlendColor(const Color&);
-    const Color&		getBlendColor() const;
+//    void			setBlendColor(const Color&);
+//    const Color&		getBlendColor() const;
     const TypeSet<float>&	getHistogram() const;
-
-    void			setVolumeSize(const Interval<float>& x,
-					      const Interval<float>& y,
-					      const Interval<float>& z);
-    Interval<float>		getVolumeSize(int dim) const;
 
     const char* 		writeVolumeFile(od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
-
-    virtual int			usePar(const IOPar&);
 
 protected:
     				~VolumeRenderScalarField();
@@ -76,11 +69,7 @@ protected:
     void			makeIndices(bool doset,TaskRunner*);
     void			clipData(TaskRunner*);
 
-    SoGroup*			root_;
-    SoTransferFunction*		transferfunc_;
-    So2DTransferFunction*	transferfunc2d_;
-    SoVolumeData*		voldata_;
-    unsigned char		dummytexture_;
+//    unsigned char		dummytexture_;
 
     ColTab::Sequence		sequence_;
     ColTab::Mapper		mapper_;
@@ -91,10 +80,16 @@ protected:
     const ValueSeries<float>*	datacache_;
     bool			ownsdatacache_;
     TypeSet<float>		histogram_;
-    Color			blendcolor_;
+//    Color			blendcolor_;
     bool			useshading_;
 
-    virtual SoNode*		gtInvntrNode();
+    osgVolume::VolumeTile*	osgvoltile_;
+    osg::Switch*		osgvolroot_;
+    osgVolume::Volume*		osgvolume_;
+    osgVolume::ImageLayer*	osgimagelayer_;
+    osg::Image*			osgvoldata_;
+    osg::TransferFunction1D*	osgtransfunc_;
+
 
 };
 

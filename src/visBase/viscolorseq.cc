@@ -58,26 +58,4 @@ void ColorSequence::colorsChanged()
 }
 
 
-int ColorSequence::usePar( const IOPar& par )
-{
-    int res = DataObject::usePar( par );
-    if ( res != 1 ) return res;
-
-    coltabsequence_.usePar( par );
-
-    if ( ColTab::SM().indexOf(coltabsequence_.name()) >= 0 )
-	ColTab::SM().get( coltabsequence_.name(), coltabsequence_ );
-    else
-	ColTab::SM().set( coltabsequence_ );
-
-    return 1;
-}
-
-
-void ColorSequence::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    DataObject::fillPar( par, saveids );
-    coltabsequence_.fillPar( par );
-}
-
 }; // namespace visBase

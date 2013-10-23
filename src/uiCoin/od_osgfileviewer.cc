@@ -1,85 +1,77 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Jaap Glas
- * DATE     : Sep 2012
+ * AUTHOR   : Kristofer Tingdahl
+ * DATE     : May 2000
 -*/
-static const char* __rcsID mUnusedVar = "$Id$";
 
-#include <VolumeViz/nodes/SoVolumeRendering.h>
+static const char* rcsID mUnusedVar = "$Id$";
 
-#include <Inventor/Qt/SoQt.h>
-#include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-#include <Inventor/SoInput.h>
-#include <Inventor/lists/SbStringList.h>
-#include <Inventor/nodes/SoSeparator.h>
+#include "genc.h"
+#include "bufstring.h"
+#include "file.h"
 
-#ifdef USESOODCLASSES
-# include "moddepmgr.h"
-# include "file.h"
-# include "uifiledlg.h"
 # ifdef __msvc__
 #  include "winmain.h"
 # endif
-#endif
 
-int main( int narg, char** argv )
+#include <QtGui/QApplication>
+#include <QtGui/QFileDialog>
+
+#include <osgViewer/Viewer>
+#include <osgGA/TrackballManipulator>
+#include <osgQt/GraphicsWindowQt>
+
+#include <osg/ShapeDrawable>
+#include <osg/MatrixTransform>
+#include <osgManipulator/TabBoxDragger>
+
+#include <osgDB/ReadFile>
+
+#include <iostream>
+
+int main( int argc, char** argv )
 {
-    QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
+    SetProgramArgs( argc, argv );
 
-#ifdef USESOODCLASSES
-    OD::ModDeps().ensureLoaded( "SoOD" );
-#endif
+    BufferString file;
+    if ( argc>1 )
+	file = argv[1];
 
-    if ( myWindow==NULL ) return 1;
+    QApplication app(argc, argv);
+    osgQt::initQtWindowingSystem();
 
-    const char* filename = 0;
-    if ( narg==2 )
-	filename = argv[1];
-#ifdef USESOODCLASSES
-    BufferString filebuf = filename;
-
-    while ( filebuf.isEmpty() || !File::exists( filebuf.buf() ) )
+    while ( !File::exists(file) )
     {
-	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
-			  "IV files (*.iv)", "Select file to view" );
-	dlg.setAllowAllExts( true );
-	if ( !dlg.go() )
+	QString newfile = QFileDialog::getOpenFileName( );
+	file = newfile.toAscii().constData();
+
+	if ( file.isEmpty() )
+	{
+	    std::cout << "Please select a osg file.\n" ;
 	    return 1;
-
-	filename = filebuf = dlg.fileName();
+	}
     }
-#endif
 
-    if ( !filename || !*filename )
+    osg::Node* root = osgDB::readNodeFile( file.buf() );
+
+    if ( !root )
     {
-	printf( "No filename given" );
-	exit( 1 );
+	return 1;
     }
 
-    SoInput mySceneInput;
-    //SoInput::addDirectoryFirst( "." ); // Add additional directories.
-    SbStringList dirlist = SoInput::getDirectories();
-    for ( int idx=0; idx<dirlist.getLength(); idx++ )
-	printf( "Looking for \"%s\" in %s\n", filename,
-		dirlist[idx]->getString() );
+    osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
+    viewer->setSceneData( root );
+    viewer->setCameraManipulator( new osgGA::TrackballManipulator );
+    osgQt::setViewer( viewer.get() );
 
-    if ( !mySceneInput.openFile(filename) )
-	return 1;
+    osgQt::GLWidget* glw = new osgQt::GLWidget;
+    osgQt::GraphicsWindowQt* graphicswin = new osgQt::GraphicsWindowQt( glw );
 
-    SoSeparator* myGraph = SoDB::readAll( &mySceneInput );
-    if ( !myGraph ) return 1;
-    mySceneInput.closeFile();
+    viewer->getCamera()->setViewport(
+		    new osg::Viewport(0, 0, glw->width(), glw->height() ) );
+    viewer->getCamera()->setGraphicsContext( graphicswin );
 
-    SoQtExaminerViewer* myViewer = new SoQtExaminerViewer( myWindow );
-    myViewer->setTitle( filename );
-    myViewer->setTransparencyType( SoGLRenderAction::SORTED_OBJECT_BLEND );
-    myViewer->setBackgroundColor( SbColor( 0.5, 0.5, 0.5) );
+    glw->show();
 
-    myViewer->setSceneGraph( myGraph );
-    myViewer->show();
-
-    SoQt::show( myWindow );
-    SoQt::mainLoop();
-
-    return 0;
+    return app.exec();
 }

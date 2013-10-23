@@ -61,7 +61,9 @@ protected:
     MenuItem		positionmnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
+    MenuItem		showgridmnuitem_;
     bool		rgba_;
+    bool		showgrid_;
 };
 
 

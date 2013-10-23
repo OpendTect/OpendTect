@@ -722,25 +722,38 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
+    uiMSG().message("Not complete yet");
+    return;
+    /*
+
     const int visid = displayID();
     const int attribnr = attribNr();
 
-    uiVisPartServer* visserv = applMgr()->visServer();
-    uiEMPartServer* emserv = applMgr()->EMServer();
-    mDynamicCastGet(visSurvey::FaultDisplay*,visflt,visserv->getObject(visid));
-    if ( !visflt )
-	return;
-
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const Array2D<float>* data = visflt->getTextureData( attribnr ); 
-	if ( !data )
-	    return;
-
-	BufferString auxdatanm;
-	emserv->storeFaultAuxData( emid_, auxdatanm, *data );
-	changed_ = false;
+	DataPointSet vals( false, true );
+	vals.bivSet().setNrVals( 3 );
+	visserv->getRandomPosCache( visid, attribnr, vals );
+	if ( vals.size() )
+	{
+	    BufferString auxdatanm;
+	    const bool saved =
+		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
+	    if ( saved )
+	    {
+		const Attrib::SelSpec newas( auxdatanm,
+			Attrib::SelSpec::cOtherAttrib() );
+		visserv->setSelSpec( visid, attribnr, newas );
+		BufferStringSet* userrefs = new BufferStringSet;
+		userrefs->add( "Section ID" );
+		userrefs->add( auxdatanm );
+		visserv->setUserRefs( visid, attribnr, userrefs );
+		updateColumnText( uiODSceneMgr::cNameColumn() );
+	    }
+	    changed_ = !saved;
+	}
     }
     else if ( mnuid==depthattribmnuitem_.id )
     {
@@ -752,18 +765,25 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	if ( !emserv->showLoadFaultAuxDataDlg(emid_) )
+	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
 	    return;
 
-	visflt->showSelectedSurfaceData();
-	const BufferStringSet* attrnames = visflt->selectedSurfaceDataNames();
-	if ( attrnames && !attrnames->isEmpty() ) //TODO:Only one for now
-	    visserv->setSelSpec( visid, attribnr, Attrib::SelSpec(
-			attrnames->get(0), Attrib::SelSpec::cOtherAttrib()) );
+	TypeSet<float> shifts;
+	DataPointSet vals( false, true );
+	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
+	setDataPointSet( vals );
+
+	//mDynamicCastGet( visSurvey::FaultDisplay*, visflt,
+	//	visserv->getObject(visid) );
+	//visflt->setAttribShift( attribnr, shifts );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
+    else
+    {
+    }
+    */
 }
 
 

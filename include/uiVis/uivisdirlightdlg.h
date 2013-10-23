@@ -23,7 +23,7 @@ class uiPushButton;
 class uiSliderExtra;
 class uiVisPartServer;
 
-namespace visBase { class DirectionalLight; }
+namespace visBase { class Light; }
 
 mExpClass(uiVis) uiDirLightDlg : public uiDialog
 {
@@ -37,7 +37,7 @@ public:
 
 protected:
 
-    visBase::DirectionalLight*	getDirLight(int) const;
+    visBase::Light*	getDirLight(int) const;
     void			setDirLight();
     float			getHeadOnLight(int) const;
     void			setHeadOnLight();

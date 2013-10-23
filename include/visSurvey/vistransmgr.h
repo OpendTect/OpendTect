@@ -17,33 +17,28 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 class HorSampling;
+class InlCrlSystem;
 
 namespace visSurvey
 {
 
 class Scene;
 
-/*!
-\brief Scene transform manager.
-*/
-
 mExpClass(visSurvey) SceneTransformManager
 {
 public:
     			SceneTransformManager()
-			    : scene_(0)	{}
+			    : scene_(0)
+    			{}
 
-    mVisTrans*		createZScaleTransform() const;
-    mVisTrans*		createUTM2DisplayTransform(const HorSampling&) const;
-    mVisTrans*		createIC2DisplayTransform(const HorSampling&) const;
+    static void		computeUTM2DisplayTransform(const InlCrlSystem&,
+				    float zfactor, mVisTrans* res);
+    			//!<Given to all objects in XY-space
 
-    void		setIC2DispayTransform(const HorSampling&,
-					      mVisTrans*) const;
-
-    void		setZScale(mVisTrans*,float) const;
-    float		defZStretch() const	{ return 2; }
-    const char*		zStretchStr() const	{ return "Z Stretch"; }
-    const char*		zOldStretchStr() const	{ return "Z Scale"; }
+    static void		computeICRotationTransform(const InlCrlSystem&,
+						   float zfactor,
+					      	   mVisTrans* rotation,
+						   mVisTrans* disptrans );
 
     void		setCurrentScene( Scene* scn ) { scene_ = scn; }
     Scene*		currentScene() const	{ return scene_; }

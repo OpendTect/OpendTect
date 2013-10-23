@@ -28,43 +28,42 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
 	       uiDialog::Setup("Z Scaling","Set scaling factor","50.0.7")
 	       .canceltext(""))
-    , valchgd(false)
-    , vwallbut(0)
-    , scenefld(0)
-    , sliderfld(0)
+    , valchgd_(false)
+    , vwallbut_(0)
+    , scenefld_(0)
+    , sliderfld_(0)
 {
-    visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
-    if ( sceneids.size() == 0 )
+    visBase::DM().getIDs( typeid(visSurvey::Scene), sceneids_ );
+    if ( sceneids_.size() == 0 )
     {
 	new uiLabel( this, "No scenes available" );
 	return;
     }
 
-    if ( sceneids.size() > 1 )
+    if ( sceneids_.size() > 1 )
     {
 	BufferStringSet scenenms;
 	scenenms.add( "All" );
-	for ( int idx=0; idx<sceneids.size(); idx++ )
+	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,
-		    	    visBase::DM().getObject(sceneids[idx]))
+		    	    visBase::DM().getObject(sceneids_[idx]))
 	    scenenms.add( scene->name() );
 	}
 
-	scenefld = new uiLabeledComboBox( this, scenenms, "Apply scaling to" );
-	scenefld->box()->setCurrentItem( 1 );
-	scenefld->box()->selectionChanged.notify( 
-					mCB(this,uiZStretchDlg,sceneSel) );
+	scenefld_ = new uiLabeledComboBox( this, scenenms, "Apply scaling to" );
+	scenefld_->box()->setCurrentItem( 1 );
+	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
     }
 
-    sliderfld = new uiSliderExtra( this, uiSliderExtra::Setup("Z stretch")
+    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup("Z stretch")
 				     .withedit(true).nrdec(3).logscale(true),
 	   				"Z stretch slider" );
-    sliderfld->sldr()->valueChanged.notify( mCB(this,uiZStretchDlg,sliderMove) );
-    if ( scenefld )
-	sliderfld->attach( alignedBelow, scenefld );
+    mAttachCB( sliderfld_->sldr()->valueChanged,uiZStretchDlg::sliderMove );
+    if ( scenefld_ )
+	sliderfld_->attach( alignedBelow, scenefld_ );
 
-    preFinalise().notify( mCB(this,uiZStretchDlg,doFinalise) );
+    mAttachCB( preFinalise(), uiZStretchDlg::doFinalise );
 }
 
 
@@ -79,21 +78,21 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     if ( vwallcb.willCall() )
     {
 	ioPixmap vwallpm( "view_all" );
-	vwallbut = new uiPushButton( grp, "&Fit to scene", vwallpm, true );
-	vwallbut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
+	vwallbut_ = new uiPushButton( grp, "&Fit to scene", vwallpm, true );
+	mAttachCB( vwallbut_->activated, uiZStretchDlg::butPush );
     }
     if ( homecb.willCall() )
     {
 	ioPixmap homepm( "home" );
 	uiButton* homebut = new uiPushButton( grp, "To &Home", homepm, true );
-	homebut->activated.notify( mCB(this,uiZStretchDlg,butPush) );
-	if ( vwallbut )
-	    homebut->attach( rightOf, vwallbut );
+	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
+	if ( vwallbut_ )
+	    homebut->attach( rightOf, vwallbut_ );
     }
 
-    grp->attach( centeredBelow, sliderfld );
-    savefld = new uiCheckBox( this, "Save as default" );
-    savefld->attach( alignedBelow, grp );
+    grp->attach( centeredBelow, sliderfld_ );
+    savefld_ = new uiCheckBox( this, "Save as default" );
+    savefld_->attach( alignedBelow, grp );
 }
 
 
@@ -105,73 +104,91 @@ void uiZStretchDlg::sceneSel( CallBacker* )
 
 void uiZStretchDlg::updateSliderValues()
 {
-    initslval = getCurrentZStretch();
-    sliderfld->sldr()->setMinValue( 0.04f*initslval );
-    sliderfld->sldr()->setMaxValue( 25*initslval );
-    sliderfld->sldr()->setValue( initslval );
+    initslval_ = getCurrentZStretch();
+    sliderfld_->sldr()->setMinValue( 0.04f*initslval_ );
+    sliderfld_->sldr()->setMaxValue( 25*initslval_ );
+    sliderfld_->sldr()->setValue( initslval_ );
 }
 
 
 float uiZStretchDlg::getCurrentZStretch() const
 {
-    if ( sceneids.size() == 0 )
-	return visSurvey::STM().defZStretch();
+    if ( sceneids_.size() == 0 )
+	return 1.0f;
 
-    int sceneidx = scenefld ? scenefld->box()->currentItem()-1 : 0;
+    int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
     if ( sceneidx < 0 ) sceneidx = 0;
     mDynamicCastGet(visSurvey::Scene*,scene,
-		    visBase::DM().getObject(sceneids[sceneidx]))
-    return scene->getZStretch();
+		    visBase::DM().getObject(sceneids_[sceneidx]));
+
+    return scene->getFixedZStretch() * scene->getTempZStretch();
 }
 
 
-void uiZStretchDlg::setZStretch( float zstretch )
+void uiZStretchDlg::setZStretch( float zstretch, bool permanent )
 {
-    const bool stretchall = scenefld && scenefld->box()->currentItem()==0;
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    const bool stretchall = scenefld_ && scenefld_->box()->currentItem()==0;
+    for ( int idx=0; idx<sceneids_.size(); idx++ )
     {
-	bool dostretch = !scenefld || stretchall ||
-		       idx == scenefld->box()->currentItem()-1;
+	bool dostretch = !scenefld_ || stretchall ||
+		       idx == scenefld_->box()->currentItem()-1;
 	if ( !dostretch ) continue;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,
-			visBase::DM().getObject(sceneids[idx]))
-	scene->setZStretch( zstretch );
+			visBase::DM().getObject(sceneids_[idx]));
+
+	if ( permanent )
+	{
+	    MouseCursorChanger cursorchanger( MouseCursor::Busy );
+	    scene->setTempZStretch( 1.f );
+	    scene->setFixedZStretch( zstretch );
+	}
+	else
+	{
+	    scene->setTempZStretch( zstretch/scene->getFixedZStretch() );
+	}
     }
 }
 
 
 bool uiZStretchDlg::acceptOK( CallBacker* )
 {
-    if ( !sliderfld )
+    if ( !sliderfld_ )
 	return true;
 
-    sliderfld->processInput();
-    const float slval = sliderfld->sldr()->getValue();
-    setZStretch( slval );
+    sliderfld_->processInput();
+    const float slval = sliderfld_->sldr()->getValue();
+    setZStretch( slval, true );
 
-    if ( savefld->isChecked() )
+    if ( savefld_->isChecked() )
     {
-	SI().getPars().set( visSurvey::STM().zStretchStr(), slval );
+	SI().getPars().set( visSurvey::Scene::sKeyZStretch(), slval );
 	SI().savePars();
     }
 
-    if ( slval != initslval )
-	valchgd = true;
+    if ( slval != initslval_ )
+	valchgd_ = true;
+    return true;
+}
+
+
+bool uiZStretchDlg::rejectOK( CallBacker* )
+{
+    setZStretch( initslval_, false );
     return true;
 }
 
 
 void uiZStretchDlg::sliderMove( CallBacker* )
 {
-    const float slval = sliderfld->sldr()->getValue();
-    setZStretch( slval );
+    const float slval = sliderfld_->sldr()->getValue();
+    setZStretch( slval, false );
 }
 
 
 void uiZStretchDlg::butPush( CallBacker* b )
 {
-    if ( b == vwallbut )
+    if ( b == vwallbut_ )
 	vwallcb.doCall( this );
     else
 	homecb.doCall( this );

@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "visdatagroup.h"
 #include "visdrawstyle.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
@@ -42,18 +42,23 @@ PSEventDisplay::PSEventDisplay()
     , eventman_( 0 )
     , qualityrange_( 0, 1 )
     , displaytransform_( 0 )
-    , linestyle_( visBase::DrawStyle::create() )
+    , linestyle_( new visBase::DrawStyle )
     , horid_( -1 )
     , offsetscale_( 1 )
     , markercolor_( Single )
-    , eventseeds_(visBase::DataObjectGroup::create())
+    , eventmarkerset_( visBase::MarkerSet::create() )
 {
     setLockable();
     linestyle_->ref();
-    addChild( linestyle_->getInventorNode() );
-    eventseeds_->ref();
-    addChild( eventseeds_->getInventorNode() );
+    addNodeState( linestyle_ );
+    eventmarkerset_->ref();
+    eventmarkerset_->setMarkerStyle( markerstyle_ );
+    eventmarkerset_->setScreenSize( 26 );
+    eventmarkerset_->setMaterial( getMaterial() );
+
+    addChild( eventmarkerset_->osgNode() );
     ctabmapper_.setup_.type( ColTab::MapperSetup::Auto );
+
 }
 
 
@@ -65,8 +70,8 @@ PSEventDisplay::~PSEventDisplay()
     setEventManager( 0 );
     linestyle_->unRef();
 
-    removeChild( eventseeds_->getInventorNode() );
-    eventseeds_->unRef();
+    removeChild( eventmarkerset_->osgNode() );
+    eventmarkerset_->unRef();
 }
 
 
@@ -75,7 +80,7 @@ void PSEventDisplay::clearAll()
     for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
     {
 	ParentAttachedObject* pao = parentattached_[idx];
-	removeChild( pao->separator_->getInventorNode() );
+	removeChild( pao->objectgroup_->osgNode() );
     }
 
     deepErase( parentattached_ );
@@ -237,8 +242,7 @@ void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st, bool update )
 	for ( int idx=0; idx<parentattached_.size(); idx++ )
 	{
 	    ParentAttachedObject* pao = parentattached_[idx];
-	    for ( int idy=0; idy<pao->markers_.size(); idy++ )
-		pao->markers_[idy]->setMarkerStyle( st );
+		pao->markerset_->setMarkerStyle( st );
 	}
     }
 }
@@ -277,7 +281,7 @@ void PSEventDisplay::updateDisplay()
 
 
 #define mRemoveParAttached( obj ) \
-    removeChild( obj->separator_->getInventorNode() ); \
+    removeChild( obj->objectgroup_->osgNode() ); \
     delete obj; \
     parentattached_ -= obj
 
@@ -347,9 +351,9 @@ void PSEventDisplay::otherObjectsMoved(
 	    }
 
 	    pao = new ParentAttachedObject( newparentsid[idx] );
-	    addChild( pao->separator_->getInventorNode() );
+	    addChild( pao->objectgroup_->osgNode() );
 	    parentattached_ += pao;
-	    pao->separator_->setDisplayTransformation( displaytransform_ );
+	    pao->objectgroup_->setDisplayTransformation( displaytransform_ );
 	}
 	
 	if ( displaymode_==FullOnSections || displaymode_==FullOnGathers ||
@@ -411,13 +415,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		const PreStack::Event* psevent = eventset->events_[idx];
 		if ( !psevent->sz_ )
 		    continue;
-
-		visBase::Marker* marker = visBase::Marker::create();
-		eventseeds_->addObject( marker );
-		marker->setMarkerStyle( markerstyle_ );
 		Coord3 pos( bid.inl(), bid.crl(), psevent->pick_[0] );
-		marker->setCenterPos( pos );
-	    	marker->setMaterial( getMaterial() );
+		eventmarkerset_->getCoordinates()->addPos( pos );
+
 		TypeSet<float> offsets;
 		TypeSet<float> picks;
 		for ( int idy=0; idy<psevent->sz_; idy++ )
@@ -433,20 +433,20 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 
 	if (  markercolor_ == Single )
+	{
 	    getMaterial()->setColor( eventman_->getColor() );
+	    eventmarkerset_->setMarkersSingleColor( eventman_->getColor() );
+	}
 	else
 	{
+	    eventmarkerset_->setMaterial( new visBase::Material );
 	    const ArrayValueSeries<float,float> vs(vals.arr(),0,vals.size());
 	    ctabmapper_.setData( &vs, vals.size() );
-	    for ( int idx=0; idx<eventseeds_->size(); idx++ )
+	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
 		const Color col = ctabsequence_.color(
 		    ctabmapper_.position( vals[idx]) );
-		RefMan<visBase::Material> mat = visBase::Material::create();
-		mDynamicCastGet(
-		    visBase::Marker*,marker,eventseeds_->getObject(idx))
-		mat->setColor( col );
-		marker->setMaterial( mat );
+		 eventmarkerset_->getMaterial()->setColor( col,idx) ;
 	    }
 	}
 	return;
@@ -463,14 +463,16 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		visBase::DM().getObject(pao->parentid_) );
 	if ( !gather )
 	{
-	    for ( int idx=pao->markers_.size()-1; idx>=0; idx-- )
-	    {
-		pao->separator_->removeObject(
-			pao->separator_->getFirstIdx( pao->markers_[idx] ) );
-		pao->markers_.removeSingle( idx );
-	    }
+	    pao->objectgroup_->removeObject(
+		pao->objectgroup_->getFirstIdx( pao->markerset_ ) );
+
+	    pao->markerset_->clearMarkers();
+
 	    if ( pao->lines_ )
-		pao->lines_->removeCoordIndexAfter( -1 );
+	    {
+		pao->lines_->removeAllPrimitiveSets();
+		pao->lines_->getCoordinates()->setEmpty();
+	    }
 	    
 	    return;
 	}
@@ -505,7 +507,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     BinID bid = cs.hrg.start;
     int cii = 0;
-    int ci = 0;
     int lastmarker = 0;
 
     PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
@@ -516,12 +517,11 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( fullevent && !pao->lines_ )
     {
-	pao->lines_ = visBase::IndexedPolyLine::create();
-	pao->separator_->addObject( pao->lines_ );
+	pao->lines_ = visBase::PolyLine::create();
+	pao->objectgroup_->addObject( pao->lines_ );
     }
 
     TypeSet<float> values;
-    ObjectSet<visBase::Marker> markers;
 
     do
     {
@@ -542,6 +542,16 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	pao->eventsets_ += eventset;
 	eventset->ref();
+
+	if ( markercolor_==Single )
+	    pao->markerset_->setMaterial( 0 );
+	else
+	{
+	    if ( !pao->markerset_->getMaterial() )
+		pao->markerset_->setMaterial(
+		new visBase::Material );
+	}
+
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
 	{
 	    const PreStack::Event* event = eventset->events_[idx];
@@ -567,14 +577,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    const bool doline = pickrg.start!=pickrg.stop;
 	    for ( int idy=pickrg.start; idy<=pickrg.stop; idy++ )
 	    {
-		if ( lastmarker>=pao->markers_.size() )
-		{
-		    visBase::Marker* marker = visBase::Marker::create();
-		    pao->separator_->addObject( marker );
-		    marker->setMarkerStyle( markerstyle_ );
-		    pao->markers_ += marker;
-		}
-
 		Coord3 pos( bid.inl(), bid.crl(),  picks[idy] );
 		if ( fullevent )
 		{
@@ -583,54 +585,51 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pos.y += offset.y;
 		}
 
-		pao->markers_[lastmarker]->setCenterPos( pos );
-		if ( markercolor_==Single )
-		    pao->markers_[lastmarker]->setMaterial( 0 );
-		else
-		{
-		    if ( !pao->markers_[lastmarker]->getMaterial() )
-			pao->markers_[lastmarker]->setMaterial( 
-			       visBase::Material::create() );
+		pao->markerset_->getCoordinates()->addPos( pos );
 
+		if ( markercolor_ != Single )
 		    values += value;
-		    markers += pao->markers_[lastmarker];
-		}
 
 		lastmarker++;
 		if ( doline )
-		{
-		    pao->lines_->getCoordinates()->setPos( ci, pos );
-		    pao->lines_->setCoordIndex( cii++, ci++ );
-		}
+		    pao->lines_->addPoint( pos );
 	    }
 
-	    if ( doline && cii && pao->lines_->getCoordIndex( cii-1 )!=-1 ) 
-		pao->lines_->setCoordIndex( cii++, -1 );
+	    const int size = pao->lines_->getCoordinates()->size();
+	    if ( doline && size > 0 )
+	    {
+		Geometry::RangePrimitiveSet* ps =
+		    Geometry::RangePrimitiveSet::create();
+		Interval<int> range( cii,size - 1 );
+		ps->setRange( range );
+		ps->ref();
+		cii = pao->lines_->getCoordinates()->size();
+	    }
 	}
 
     } while ( iter.next( bid ) );
 
-    if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( markercolor_ != Single )
     {
-	const ArrayValueSeries<float,float> vs(values.arr(),0,values.size());
-	ctabmapper_.setData( &vs, values.size() );
+	if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	{
+	    const ArrayValueSeries<float,float>
+		vs(values.arr(),0,values.size());
+	    ctabmapper_.setData( &vs, values.size() );
+	}
+
+	for ( int idx =0; idx<lastmarker; idx++ )
+	{
+	    Color color = ctabsequence_.color(
+		ctabmapper_.position(values[idx]) );
+	    pao->markerset_->getMaterial()->setColor(color, idx );
+	}
+
     }
 
-    for ( int idx=0; idx<markers.size(); idx++ )
-    {
-	markers[idx]->getMaterial()->setColor( 
-		ctabsequence_.color( ctabmapper_.position(values[idx])) );
-    }
-
-    for ( int idx=pao->markers_.size()-1; idx>=lastmarker; idx-- )
-    {
-	pao->separator_->removeObject(
-		pao->separator_->getFirstIdx( pao->markers_[idx] ) );
-	pao->markers_.removeSingle( idx );
-    }
-
-    if ( pao->lines_ )
-	pao->lines_->removeCoordIndexAfter( cii-1 );
+    for ( int idx=pao->markerset_->getCoordinates()->size()-1;
+	idx>=lastmarker; idx-- )
+	pao->markerset_->removeMarker( idx );
 
     deepUnRef( eventsetstounref );
     
@@ -639,17 +638,19 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 void PSEventDisplay::clearDisplay( ParentAttachedObject* pao )
 {
-    if ( eventseeds_ )
-	eventseeds_->removeAll();
+
+    if( eventmarkerset_ )
+	eventmarkerset_->clearMarkers();
 
     if ( !pao )
 	return;
-    
-    if ( pao->separator_ )
-    	pao->separator_->removeAll();
 
-    pao->markers_.erase();
+    pao->markerset_->clearMarkers();
     pao->lines_ = 0;
+
+    if ( pao->objectgroup_ )
+    	pao->objectgroup_->removeAll();
+
 }
 
 
@@ -658,8 +659,10 @@ void PSEventDisplay::setDisplayTransformation(const mVisTrans* nt)
     for ( int idx=0; idx<parentattached_.size(); idx++ )
     {
 	ParentAttachedObject* pao = parentattached_[idx];
-	pao->separator_->setDisplayTransformation( nt );
+	pao->objectgroup_->setDisplayTransformation( nt );
     }
+
+    eventmarkerset_->setDisplayTransformation( nt );
 
     if ( displaytransform_ )
 	displaytransform_->unRef();
@@ -749,9 +752,9 @@ void PSEventDisplay::retriveParents()
 	     pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) )
 	{
 	    ParentAttachedObject* pao = new ParentAttachedObject( visids[idx] );
-	    addChild( pao->separator_->getInventorNode() );
+	    addChild( pao->objectgroup_->osgNode() );
 	    parentattached_ += pao;
-	    pao->separator_->setDisplayTransformation( displaytransform_ );
+	    pao->objectgroup_->setDisplayTransformation( displaytransform_ );
 	    updateDisplay( pao );
 	}
     }
@@ -760,18 +763,22 @@ void PSEventDisplay::retriveParents()
 
 PSEventDisplay::ParentAttachedObject::ParentAttachedObject( int parent )
     : parentid_( parent )
-    , separator_( visBase::DataObjectGroup::create() )
+    , objectgroup_( visBase::DataObjectGroup::create() )
     , lines_( 0 )
+    , markerset_( visBase::MarkerSet::create() )
 {
-    separator_->ref();
-    separator_->setSeparate();
+    objectgroup_->ref();
+    markerset_->ref();
+    objectgroup_->addObject( markerset_ );
 }
 
 
 PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
 {
-    separator_->unRef();
+    objectgroup_->unRef();
     deepUnRef( eventsets_ );
+
+    markerset_->unRef();
 }
 
 } // namespace

@@ -13,13 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannels.h"
 
 #include "vistexturechannel2rgba.h"
-#include "SoTextureChannelSet.h"
-#include "SoTextureComposer.h"
-#include "Inventor/nodes/SoSwitch.h"
 #include "coltabmapper.h"
 
-#include <osg/Image>
 #include <osgGeo/LayeredTexture>
+#include <osg/Image>
 
 #define mNrColors	255
 
@@ -27,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mCreateFactoryEntry( visBase::TextureChannels );
-mCreateFactoryEntry( visBase::TextureComposer );
 
 
 namespace visBase
@@ -171,13 +167,13 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
     if ( channel < mappers_.size() )
 	return mappers_[channel]->setup_;
 
-    pErrMsg( "channel >= mappers_.size()" );
-    if ( mappers_.isEmpty() )
-    {
-	static ColTab::MapperSetup ctms;
-	return ctms;
-    }
-    return mappers_[mappers_.size()-1]->setup_;
+	pErrMsg( "channel >= mappers_.size()" );
+	if ( mappers_.isEmpty() )
+	{
+	    static ColTab::MapperSetup ctms;
+	    return ctms;
+	}
+	return mappers_[mappers_.size()-1]->setup_;
 }
 
 
@@ -380,7 +376,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     }
 
     const od_int64 nrelements = nrElements( false );
-    const unsigned char spacing = texturechannels_.doOsg() ? 2 : 1;
+    const unsigned char spacing = 2;
 
     if ( !mappeddata_[version] )
     {
@@ -395,7 +391,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], nrelements,
 	    mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
-	    texturechannels_.doOsg() ? mappeddata_[version]+1 : 0, spacing  );
+	    mappeddata_[version]+1, spacing  );
 
     if ( TaskRunner::execute( tr, maptask ) )
     {
@@ -511,21 +507,19 @@ void ChannelInfo::updateOsgImages()
 }
 
 
+#define mGetFilterType (interpolatetexture_ ? osgGeo::Linear : osgGeo::Nearest)
+
 TextureChannels::TextureChannels()
-    : tc_( 0 )
-    , onoff_ ( new SoSwitch )
-    , tc2rgba_( 0 )
-    , osgtexture_( 0 )
+    : tc2rgba_( 0 )
+    , osgtexture_( new osgGeo::LayeredTexture )
+    , interpolatetexture_( true )
 {
-    onoff_->ref();
     turnOn( true );
 
-    if ( doOsg() )
-    {
-	osgtexture_ = new osgGeo::LayeredTexture;
-	osgtexture_->invertUndefLayers();
-	osgtexture_->ref();
-    }
+    osgtexture_->invertUndefLayers();
+    osgtexture_->setDataLayerFilterType( osgtexture_->compositeLayerId(),
+					 mGetFilterType );
+    osgtexture_->ref();
 
     addChannel();
 }
@@ -535,9 +529,8 @@ TextureChannels::~TextureChannels()
 {
     deepErase( channelinfo_ );
     setChannels2RGBA( 0 );
-    onoff_->unref();
 
-    if ( osgtexture_ ) osgtexture_->unref();
+    osgtexture_->unref();
 }
 
 
@@ -577,17 +570,16 @@ int TextureChannels::getSize( unsigned char dim ) const
 
 bool TextureChannels::turnOn( bool yn )
 {
-    const bool res = isOn();
-    const int newval = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
-    if ( newval!=onoff_->whichChild.getValue() )
-	onoff_->whichChild = newval;
+    bool res = isOn();
+    osgtexture_->turnOn( yn );
+
     return res;
 }
 
 
 bool TextureChannels::isOn() const
 {
-    return onoff_->whichChild.getValue()!=SO_SWITCH_NONE;
+    return osgtexture_->isOn();
 }
 
 
@@ -599,15 +591,13 @@ int TextureChannels::addChannel()
 {
     TypeSet<int> osgids;
 
-    int osgid = -1;
-    if ( osgtexture_ )
-    {
-	osgid = osgtexture_->addDataLayer();
-	osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
-	osgtexture_->setDataLayerUndefChannel( osgid, 3 );
-	const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
-	osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
-    }
+    const int osgid = osgtexture_->addDataLayer();
+    osgtexture_->setDataLayerUndefLayerID( osgid, osgid );
+    osgtexture_->setDataLayerUndefChannel( osgid, 3 );
+    const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
+    osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
+    osgtexture_->setDataLayerBorderColor( osgid, imageudfcolor );
+    osgtexture_->setDataLayerFilterType( osgid, mGetFilterType );
 
     osgids += osgid;
 
@@ -674,21 +664,10 @@ void TextureChannels::removeChannel( int channel )
 
     PtrMan<ChannelInfo> info = channelinfo_[channel];
 
-    if ( osgtexture_ )
-    {
-	for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
-	    osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
-    }
+    for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
+	osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
 
     channelinfo_.removeSingle(channel);
-
-    bool oldenable = tc_->enableNotify( false );
-    for ( int idy=channel; idy<nrChannels(); idy++ )
-	update( idy, false );
-
-    tc_->setNrChannels( nrChannels() );
-    tc_->enableNotify( oldenable );
-    tc_->touch();
 
     if ( tc2rgba_ )
 	tc2rgba_->notifyChannelRemove( channel );
@@ -747,7 +726,11 @@ void TextureChannels::setNrComponents( int channel, int newsz )
 
     TypeSet<int> osgids = channelinfo_[channel]->getOsgIDs();
     while ( osgids.size()<newsz )
-	osgids += osgtexture_->addDataLayer();
+    {
+	const int osgid = osgtexture_->addDataLayer();
+	osgtexture_->setDataLayerFilterType( osgid, mGetFilterType );
+	osgids += osgid;
+    }
 
     while ( osgids.size()>newsz )
     {
@@ -865,30 +848,14 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 {
     if ( tc2rgba_ )
     {
-	onoff_->removeChild( tc2rgba_->getInventorNode() );
 	tc2rgba_->setChannels( 0 );
 	tc2rgba_->unRef();
-
-	onoff_->removeChild( tc_->getInventorNode() );
-	tc_->unRef();
-	tc_ = 0;
     }
 
     tc2rgba_ = nt;
 
     if ( tc2rgba_ )
     {
-	tc_ = tc2rgba_->createMappedDataSet();
-	if ( !tc_ )
-	{
-	    tc2rgba_ = 0;
-	    return false;
-	}
-
-	tc_->ref();
-	onoff_->addChild( tc_->getInventorNode() );
-
-	onoff_->addChild( tc2rgba_->getInventorNode() );
 	tc2rgba_->setChannels( this );
 	tc2rgba_->ref();
 
@@ -908,13 +875,9 @@ TextureChannel2RGBA* TextureChannels::getChannels2RGBA()
 { return tc2rgba_; }
 
 
-SoNode* TextureChannels::gtInvntrNode()
-{ return onoff_; }
-
-
 const SbImagei32* TextureChannels::getChannels() const
 {
-    return tc_->getChannelData();
+    return 0;
 }
 
 
@@ -930,39 +893,20 @@ void TextureChannels::update( ChannelInfo* ti, bool tc2rgba )
 
 void TextureChannels::update( int channel, bool tc2rgba )
 {
-    if ( osgtexture_ )
+    channelinfo_[channel]->updateOsgImages();
+    for ( int component=channelinfo_[channel]->nrComponents()-1;
+	  component>=0; component-- )
     {
-	channelinfo_[channel]->updateOsgImages();
-	for ( int component=channelinfo_[channel]->nrComponents()-1;
-	      component>=0; component-- )
-	{
-	    osgtexture_->setDataLayerImage(
-		    channelinfo_[channel]->osgids_[component],
-		    channelinfo_[channel]->osgimages_[component] );
-	}
-
-	return;
+	osgtexture_->setDataLayerImage(
+		channelinfo_[channel]->osgids_[component],
+		channelinfo_[channel]->osgimages_[component] );
     }
-
-    if ( !tc_ )
-	return;
-
-    SbImagei32 image;
-    const int curversion = channelinfo_[channel]->getCurrentVersion();
-    image.setValuePtr( SbVec3i32( channelinfo_[channel]->getSize(0),
-				  channelinfo_[channel]->getSize(1),
-				  channelinfo_[channel]->getSize(2) ), 1,
-	    	       channelinfo_[channel]->mappeddata_[curversion] );
-    tc_->setChannelData( channel, image );
-
-    if ( tc2rgba && tc2rgba_ )
-	tc2rgba_->notifyChannelChange();
 }
 
 
 void TextureChannels::touchMappedData()
 {
-    tc_->touch();
+    pErrMsg("Is this function needed?");
 }
 
 
@@ -975,36 +919,23 @@ const TypeSet<int>* TextureChannels::getOsgIDs( int channel ) const
 }
 
 
-// Texture Composer
-
-TextureComposer::TextureComposer()
-    : texturecomposer_(new SoTextureComposer())
+void TextureChannels::enableTextureInterpolation( bool yn )
 {
-    texturecomposer_->ref();
+    interpolatetexture_ = yn;
+
+    for ( int idx=0; idx<osgtexture_->nrDataLayers(); idx++ )
+    {
+	const int layerid = osgtexture_->getDataLayerID( idx );
+	if ( osgtexture_->getDataLayerFilterType(layerid) != mGetFilterType )
+	    osgtexture_->setDataLayerFilterType( layerid, mGetFilterType );
+    }
 }
 
 
-TextureComposer::~TextureComposer()
+bool TextureChannels::textureInterpolationEnabled() const
 {
-    texturecomposer_->unref();
+    return interpolatetexture_;
 }
 
-
-SoNode* TextureComposer::gtInvntrNode()
-{
-    return texturecomposer_;
-}
-
-
-void TextureComposer::setOrigin( int val1, int val2, int val3 )
-{
-    texturecomposer_->origin.setValue( val1, val2, val3 );
-}
-
-
-void TextureComposer::setSize( int xsz, int ysz, int zsz )
-{
-    texturecomposer_->size.setValue( xsz, ysz, zsz );
-}
 
 }; // namespace visBase

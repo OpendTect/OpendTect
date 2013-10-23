@@ -70,30 +70,17 @@ public:
     bool			isRightHandSystem() const;
 
     Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
-    void			fillPar(IOPar&,TypeSet<int>&) const;
-    int				usePar(const IOPar&);
-
 protected:
 
     virtual			~DataObjectGroup();
 
-    static const char*		nokidsstr();
-    static const char*		kidprefix();
-    virtual SoGroup*		createGroup();
-    virtual void		ensureGroup();
-    SoGroup*			group_;
     osg::Group*			osggroup_;
 
     bool			righthandsystem_;
 
-    virtual SoNode*		gtInvntrNode();
-    virtual osg::Node*		gtOsgNode();
-
 protected:
 
     ObjectSet<DataObject>	objects_;
-    ObjectSet<SoNode>		nodes_;
-
     bool			separate_;
 
 };

@@ -13,311 +13,118 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 
-#include <Inventor/nodes/SoPointLight.h>
-#include <Inventor/nodes/SoDirectionalLight.h>
-#include <Inventor/nodes/SoSpotLight.h>
-#include <Inventor/nodes/SoLightModel.h>
-
-
-mCreateFactoryEntry( visBase::PointLight );
-mCreateFactoryEntry( visBase::DirectionalLight );
-mCreateFactoryEntry( visBase::SpotLight );
-mCreateFactoryEntry( visBase::LightModel );
+#include <osg/Light>
 
 namespace visBase
 {
 
-const char* Light::isonstr()  { return "Is On"; }
-const char* Light::intensitystr()  { return "Intensity"; }
+const char* Light::sKeyIsOn()	{ return "Is on"; }
+const char* Light::sKeyAmbient()  { return "Ambient"; }
+const char* Light::sKeyDiffuse()  { return "Diffuse"; }
+const char* Light::sKeyLightNum() { return "Light num"; }
+const char* Light::sKeyDirection() { return "Direction"; }
 
 
-Light::Light( SoLight* light )
-    : light_( light )
+Light::Light( )
+    : light_( new osg::Light(0) )
     , ison_( true )
-    , intensity_( 1 )
-{ light_->ref(); }
-
-
-Light::~Light()
-{ light_->unref(); }
-
-
-void Light::turnOn(bool n)
+    , diffuse_( 0.8f )
+    , ambient_( 0.2f )
 {
-    ison_ = n;
-    light_->intensity.setValue( ison_ ? intensity_ : 0 );
+    updateLights();
 }
 
 
-bool Light::isOn() const
-{ return ison_; }
-
-
-void Light::setIntensity(float n)
+void Light::setLightNum( int num )
 {
-    intensity_ = n;
-    light_->intensity.setValue( ison_ ? intensity_ : 0 );
+    light_->setLightNum( num );
 }
 
 
-float Light::intensity() const
-{ return intensity_; }
-
-
-SoNode* Light::gtInvntrNode()
-{ return light_; }
-
-
-void Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+int Light::getLightNum() const
 {
-    DataObject::fillPar( par, storeids );
+    return light_->getLightNum();
+}
 
-    par.setYN( isonstr(), isOn() );
-    par.set( intensitystr(), intensity() );
+#define mSetGet( var, key ) \
+void Light::set##key(float n) \
+{ \
+    var = n; \
+    updateLights(); \
+} \
+ \
+\
+float Light::get##key() const \
+{ return var; }
+
+mSetGet( ambient_, Ambient )
+mSetGet( diffuse_, Diffuse )
+
+
+void Light::updateLights()
+{
+    float newlight = ison_ ? ambient_ : 0;
+    light_->setAmbient(osg::Vec4(newlight,newlight,newlight,1.0f));
+
+    newlight = ison_ ? diffuse_ : 0;
+    light_->setDiffuse(osg::Vec4(newlight,newlight,newlight,1.0f));
 }
 
 
-int Light::usePar( const IOPar& par )
+void Light::setDirection(float x, float y, float z )
 {
-    int res = DataObject::usePar( par );
-    if ( res != 1 ) return res;
+    light_->setDirection( osg::Vec3(x,y,z) );
+}
 
+
+float Light::direction( int dim ) const
+{
+    const osg::Vec3 dir = light_->getDirection();
+    return dir[dim];
+}
+
+
+
+
+void Light::fillPar( IOPar& par ) const
+{
+    par.setYN( sKeyIsOn(), isOn() );
+    par.set( sKeyAmbient(), getAmbient() );
+    par.set( sKeyDiffuse(), getDiffuse() );
+    par.set( sKeyLightNum(), getLightNum() );
+    par.set( sKeyDirection(), direction(0), direction(1), direction(2) );
+}
+
+
+bool Light::usePar( const IOPar& par )
+{
     bool yn;
-    if ( !par.getYN( isonstr(), yn ))
-	return -1;
+    if ( !par.getYN( sKeyIsOn(), yn ))
+	return false;
 
+    float diffuse;
+    if ( !par.get( sKeyDiffuse(), diffuse ))
+	return false;
+
+    float ambient;
+    if ( !par.get( sKeyAmbient(), ambient ))
+	return false;
+
+    int lightnum;
+    if ( !par.get( sKeyLightNum(), lightnum ))
+	return false;
+
+    float dirx, diry, dirz;
+    if ( !par.get( sKeyDirection(), dirx, diry, dirz ) )
+	return false;
+
+    setLightNum( lightnum );
+    setDiffuse( diffuse );
+    setAmbient( ambient );
     turnOn( yn );
+    setDirection( dirx, diry, dirz );
 
-    double intens;
-    if ( !par.get( intensitystr(), intens ))
-	return -1;
-
-    setIntensity( (float) intens );
-    return 1;
-}
-
-
-const char* PointLight::positionstr() { return sKey::Position(); }
-
-PointLight::PointLight()
-    : Light( new SoPointLight )
-{}
-
-
-void PointLight::setPosition(float x, float y, float z )
-{
-    ((SoPointLight*) light_)->location.setValue( x, y, z );
-}
-
-
-float PointLight::position( int dim ) const
-{
-    return ((SoPointLight*) light_)->location.getValue()[dim];
-}
-
-
-void PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
-{
-    Light::fillPar( par, storeids );
-
-    par.set( positionstr(), position(0), position(1), position(2) );
-}
-
-
-int PointLight::usePar( const IOPar& par )
-{
-    int res = Light::usePar( par );
-    if ( res != 1 ) return res;
-
-    double x, y, z;
-    if ( !par.get( positionstr(), x, y, z ))
-	return -1;
-
-    setPosition( (float) x, (float) y, (float) z );
-    return 1;
-}
-
-
-const char* DirectionalLight::directionstr() { return "Direction"; }
-
-
-DirectionalLight::DirectionalLight()
-    : Light( new SoDirectionalLight )
-{ }
-
-
-void DirectionalLight::setDirection(float x, float y, float z )
-{
-    ((SoDirectionalLight*) light_)->direction.setValue( x, y, z );
-}
-
-
-float DirectionalLight::direction( int dim ) const
-{
-    return ((SoDirectionalLight*) light_)->direction.getValue()[dim];
-}
-
-
-void DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
-{
-    Light::fillPar( par, storeids );
-
-    par.set( directionstr(), direction(0), direction(1), direction(2) );
-}
-
-
-int DirectionalLight::usePar( const IOPar& par )
-{
-    int res = Light::usePar( par );
-    if ( res != 1 ) return res;
-
-    double x, y, z;
-    if ( !par.get( directionstr(), x, y, z ))
-	return -1;
-
-    setDirection( (float) x, (float) y, (float) z );
-    return 1;
-}
-
-
-const char* SpotLight::directionstr()  { return "Direction"; }
-const char* SpotLight::positionstr()   { return sKey::Position(); }
-const char* SpotLight::coneanglestr()  { return "Cone Angle"; }
-const char* SpotLight::dropoffratestr(){ return "Drop Off Rate"; }
-
-SpotLight::SpotLight()
-    : Light( new SoSpotLight )
-{}
-
-
-void SpotLight::setDirection(float x, float y, float z )
-{
-    ((SoSpotLight*) light_)->direction.setValue( x, y, z );
-}
-
-
-float SpotLight::direction( int dim ) const
-{
-    return ((SoSpotLight*) light_)->direction.getValue()[dim];
-}
-
-
-void SpotLight::setPosition(float x, float y, float z )
-{
-    ((SoSpotLight*) light_)->location.setValue( x, y, z );
-}
-
-
-float SpotLight::position( int dim ) const
-{
-    return ((SoSpotLight*) light_)->location.getValue()[dim];
-}
-
-
-void SpotLight::setConeAngle(float n)
-{
-    ((SoSpotLight*) light_)->cutOffAngle.setValue(n);
-}
-
-
-float SpotLight::coneAngle() const
-{
-    return ((SoSpotLight*) light_)->cutOffAngle.getValue();
-}
-
-
-void SpotLight::setDropOffRate(float n)
-{
-    ((SoSpotLight*) light_)->dropOffRate.setValue(n);
-}
-
-
-float SpotLight::dropOffRate() const
-{
-    return ((SoSpotLight*) light_)->dropOffRate.getValue();
-}
-
-
-void SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
-{
-    Light::fillPar( par, storeids );
-
-    par.set( directionstr(), direction(0), direction(1), direction(2) );
-    par.set( positionstr(), position(0), position(1), position(2) );
-    par.set( coneanglestr(), coneAngle() );
-    par.set( dropoffratestr(), dropOffRate() );
-}
-
-
-int SpotLight::usePar( const IOPar& par )
-{
-    int res = Light::usePar( par );
-    if ( res != 1 ) return res;
-
-    double x, y, z;
-    if ( !par.get( directionstr(), x, y, z ))
-	return -1;
-
-    setDirection( (float) x, (float) y, (float) z );
-
-    if ( !par.get( positionstr(), x, y, z ))
-	return -1;
-
-    setPosition( (float) x, (float) y, (float) z );
-
-    if ( !par.get( coneanglestr(), x ))
-	return -1;
-
-    setConeAngle( (float) x );
-
-    if ( !par.get( dropoffratestr(), x ))
-	return -1;
-
-    setDropOffRate( (float) x );
-
-    return 1;
-}
-
-/// Light Model
-
-LightModel::LightModel()
-    : lightmodel_(new SoLightModel())
-{
-    lightmodel_->ref();
-    setModel( BaseColor );
-}
-
-
-LightModel::~LightModel()
-{
-    lightmodel_->unref();
-}
-
-
-void LightModel::setModel( Type tp )
-{
-    switch( tp )
-    {
-    case BaseColor:
-	lightmodel_->model = SoLightModel::BASE_COLOR;
-	break;
-    case Phong:
-	lightmodel_->model = SoLightModel::PHONG;
-	break;
-    }
-}
-
-
-LightModel::Type LightModel::getModel() const
-{
-    return lightmodel_->model.getValue() == SoLightModel::BASE_COLOR
-	? BaseColor : Phong;
-}
-
-
-SoNode* LightModel::gtInvntrNode()
-{
-    return lightmodel_;
+    return true;
 }
 
 } // namespace visBase

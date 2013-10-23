@@ -245,6 +245,9 @@ void uiODHorizonTreeItem::initMenuItems()
     filterhormnuitem_.text = "&Filtering ...";
     snapeventmnuitem_.text = "Snapping ...";
     geom2attrmnuitem_.text = "Store Z as &Attribute ...";
+    showgridmnuitem_.text = "&Surface Grid ...";
+    showgrid_ = false;
+
 }
 
 
@@ -377,10 +380,12 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &geom2attrmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
+	mResetMenuItem( &showgridmnuitem_ );
     }
     else
     {
 	mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
+	mAddMenuItem( &displaymnuitem_, &showgridmnuitem_,true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
 	
@@ -392,7 +397,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
 
 	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
-	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, true, false );
+	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
     }
 }
 
@@ -439,6 +444,19 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( applMgr()->EMServer()->geom2Attr(emid_) )
 	    mUpdateTexture();
     }
+    else if ( mnuid == showgridmnuitem_.id )
+    {
+	showgrid_ = !showgrid_;
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+	    visserv_->getObject(displayid_));
+	TypeSet<EM::SectionID> sid = hd->getSectionIDs();
+	for ( int id = 0; id<sid.size(); id++ )
+	{
+	    visBase::HorizonSection* section = hd->getHorizonSection( sid[id] );
+	    section->setDisplayGeometryType( (int)showgrid_ );
+	}
+    }
+
     else if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -751,3 +769,4 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( handled );
 }
+

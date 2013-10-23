@@ -19,14 +19,17 @@ ________________________________________________________________________
 #include "draw.h"
 #include "thread.h"
 
-class SoPolygonSelect;
-class SoSeparator;
+
+namespace osgGeo{ class PolygonSelection; }
+
 template <class T> class ODPolygon;
 
 namespace visBase
 {
 class Material;
+class SelectionCallBack;
 class DrawStyle;
+class Camera;
 
 /*!
 Paints a polygon or a rectangle just in front of near-clipping plane driven
@@ -63,31 +66,37 @@ public:
 				     4: some box points behind projection plane
 				*/
 
-    void			setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*		getDisplayTransformation() const;
+
+    void			setUTMCoordinateTransform(const mVisTrans*);
+				/*!< This is a special function to set transform
+				     for computing real-world coordinates from
+				     screen coordinates.
+				*/
 
     static Notifier<PolygonSelection>* polygonFinished();
 
     bool			rayPickThrough(const Coord3& worldpos,
 					       TypeSet<int>& pickedobjids,
 					       int depthidx=0) const;
-
-/*    void			getSelectionRays(TypeSet<Line3D>&) const;*/
+    void			setMasterCamera(Camera*);
 
 protected:
 
-    static void				polygonChangeCB(void*,SoPolygonSelect*);
-    static void				paintStopCB(void*,SoPolygonSelect*);
+    void			polygonChangeCB(CallBacker*);
 
 					~PolygonSelection();
 
-    const mVisTrans*			transformation_;
+
+    const mVisTrans*			utm2disptransform_;
 
     DrawStyle*				drawstyle_;
     mutable ODPolygon<double>*		polygon_;
     mutable Threads::ReadWriteLock	polygonlock_;
 
-    SoPolygonSelect*			selector_;
+
+    osgGeo::PolygonSelection*		selector_;
+    Camera*				mastercamera_;
+    SelectionCallBack*			selectorcb_;
 };
 
 

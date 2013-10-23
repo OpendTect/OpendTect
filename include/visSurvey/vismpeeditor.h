@@ -27,7 +27,7 @@ namespace visBase
 {
 
 class DataObjectGroup;
-class Marker;
+class MarkerSet;
 class Dragger;
 class EventInfo;
 class PolyLine;
@@ -50,11 +50,12 @@ public:
 			mCreateDataObj( MPEEditor );
 
     void		setEditor( MPE::ObjectEditor* );
-    MPE::ObjectEditor*	getMPEEditor() { return emeditor; }
+    MPE::ObjectEditor*	getMPEEditor() { return emeditor_; }
     void		setSceneEventCatcher( visBase::EventCatcher* );
 
     void		setDisplayTransformation( const mVisTrans* );
-    const mVisTrans*	getDisplayTransformation() const{return transformation;}
+    const mVisTrans*	getDisplayTransformation() const
+    			{ return transformation_;}
 
     void		setMarkerSize(float);
     void		turnOnMarker(EM::PosID,bool on);
@@ -89,7 +90,7 @@ public:
 				*/
     EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
 
-    bool			isDragging() const	{ return isdragging; }
+    bool			isDragging() const	{ return isdragging_; }
 
     Sower&			sower()			{ return *sower_; }
 
@@ -108,28 +109,26 @@ protected:
 
     void			interactionLineRightClickCB( CallBacker* );
 
-    int				rightclicknode;
+    int				rightclicknode_;
 
-    MPE::ObjectEditor*		emeditor;
+    MPE::ObjectEditor*		emeditor_;
 
-    visBase::Material*		nodematerial;
-    visBase::Material*		activenodematerial;
+    visBase::Material*		nodematerial_;
+    visBase::Material*		activenodematerial_;
 
-    ObjectSet<visBase::Dragger>		draggers;
-    ObjectSet<visBase::DataObjectGroup>	draggersshapesep;
-    ObjectSet<visBase::Marker>		draggermarkers;
-    visBase::DataObjectGroup*		dummyemptysep_;
-    TypeSet<EM::PosID>			posids;
-    float				markersize;
+    ObjectSet<visBase::Dragger>		draggers_;
+    ObjectSet<visBase::MarkerSet>       draggermarkers_;
+    TypeSet<EM::PosID>			posids_;
+    float				markersize_;
 
-    visBase::EventCatcher*	eventcatcher;
-    const mVisTrans*		transformation;
-    EM::PosID			activedragger;
+    visBase::EventCatcher*	eventcatcher_;
+    const mVisTrans*		transformation_;
+    EM::PosID			activedragger_;
 
-    bool			draggerinmotion;
-    bool			isdragging;
+    bool			draggerinmotion_;
+    bool			isdragging_;
 
-    EdgeLineSetDisplay*		interactionlinedisplay;
+    EdgeLineSetDisplay*		interactionlinedisplay_;
     void			setupInteractionLineDisplay();
     void			extendInteractionLine(const EM::PosID&);
 

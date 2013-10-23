@@ -11,23 +11,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iopar.h"
 #include "visdepthtabplanedragger.h"
-#include "vispickstyle.h"
 
-#include "VolumeViz/nodes/SoOrthoSlice.h"
+/* OSG-TODO: Port SoOrthoSlice slice_ to OSG if this class is prolongated */
 
 mCreateFactoryEntry( visBase::OrthogonalSlice );
 
 namespace visBase
 {
 
-const char* OrthogonalSlice::dimstr()	 { return "Dim"; }
-const char* OrthogonalSlice::slicestr()  { return "Slice"; }
-
 OrthogonalSlice::OrthogonalSlice()
     : VisualObjectImpl( false )
-    , slice_(new SoOrthoSlice)
+//    , slice_(new SoOrthoSlice)
     , dragger_(DepthTabPlaneDragger::create())
-    , pickstyle_(PickStyle::create())
     , motion(this)
     , xdatasz_(0), ydatasz_(0), zdatasz_(0)
 {
@@ -35,15 +30,11 @@ OrthogonalSlice::OrthogonalSlice()
     dragger_->setMaterial(0);
     dragger_->removeScaleTabs();
     dragger_->motion.notify( mCB(this,OrthogonalSlice,draggerMovementCB) );
-    addChild( dragger_->getInventorNode() );
+    addChild( dragger_->osgNode() );
     
-    pickstyle_->ref();
-    pickstyle_->setStyle( PickStyle::Unpickable );
-    addChild( pickstyle_->getInventorNode() );
-
-    slice_->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
+//    slice_->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
     
-    addChild( slice_ );
+//    addChild( slice_ );
 }
 
 
@@ -51,8 +42,6 @@ OrthogonalSlice::~OrthogonalSlice()
 {
     dragger_->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
     dragger_->unRef();
-
-    pickstyle_->unRef();
 }
 
 
@@ -89,19 +78,21 @@ visBase::DepthTabPlaneDragger* OrthogonalSlice::getDragger() const
 
 int OrthogonalSlice::getDim() const
 {
-    return slice_->axis.getValue();
+    return 0;
+//    return slice_->axis.getValue();
 }
 
 
 void OrthogonalSlice::setDim( int dim )
 {
+/*
     if ( !dim )
 	slice_->axis = SoOrthoSlice::X;
     else if ( dim==1 )
 	slice_->axis = SoOrthoSlice::Y;
     else
 	slice_->axis = SoOrthoSlice::Z;
-
+*/
     dragger_->setDim( dim );
     draggerMovementCB(0);
 }
@@ -119,10 +110,15 @@ float OrthogonalSlice::getPosition() const
 
 
 void OrthogonalSlice::setSliceNr( int nr )
-{ slice_->sliceNumber = nr; }
+{
+// slice_->sliceNumber = nr;
+}
 
 int  OrthogonalSlice::getSliceNr() const
-{ return slice_->sliceNumber.getValue(); }
+{
+    return 0;
+//    return slice_->sliceNumber.getValue();
+}
 
 
 NotifierAccess& OrthogonalSlice::dragStart()
@@ -185,36 +181,11 @@ void OrthogonalSlice::removeDragger()
     if ( dragger_ )
     {
 	dragger_->motion.remove(mCB(this, OrthogonalSlice, draggerMovementCB));
-	removeChild( dragger_->getInventorNode() );
+	removeChild( dragger_->osgNode() );
 	dragger_->unRef();
 	dragger_ = 0;
     }
 }
 
-
-void OrthogonalSlice::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    par.set( dimstr(), getDim() );
-    par.set( slicestr(), getSliceNr() );
-}
-
-
-int OrthogonalSlice::usePar( const IOPar& par )
-{
-    int res = VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
-
-    int dim;
-    if ( par.get(dimstr(),dim) )
-	setDim(dim);
-
-    int slicenr;
-    if ( par.get(slicestr(),slicenr) )
-	setSliceNr(slicenr);
-
-    return 1;
-}
 
 } // namespace visBase

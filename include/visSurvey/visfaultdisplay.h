@@ -26,9 +26,7 @@ namespace visBase
 {
     class GeomIndexedShape;
     class Transformation;
-    class PickStyle;
-    class ShapeHints;
-    class IndexedPolyLine3D;
+    class PolyLine3D;
     class DrawStyle;
 };
 
@@ -87,7 +85,6 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
-    void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -99,7 +96,7 @@ public:
     bool			arePanelsDisplayed() const;
     bool			arePanelsDisplayedInFull() const;
 
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void                fillPar(IOPar&) const;
     virtual int                 usePar(const IOPar&);
 
     bool			setEMID(const EM::ObjectID&);
@@ -127,8 +124,6 @@ public:
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
-    void			getLineWidthBounds(int& min,int& max);
-
     virtual void		getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const
 				{ return MultiTextureSurveyObject
@@ -157,6 +152,7 @@ public:
     void			showSelectedSurfaceData();
     const BufferStringSet*	selectedSurfaceDataNames() const;
     const Array2D<float>*	getTextureData(int attrib);
+    void			matChangeCB(CallBacker*);
 
 protected:
 
@@ -212,7 +208,6 @@ protected:
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			displaytransform_;
-    visBase::ShapeHints*		shapehints_;
 
     visBase::GeomIndexedShape*		paneldisplay_;
     Geometry::ExplFaultStickSurface*	explicitpanels_;
@@ -231,8 +226,7 @@ protected:
     bool				displayintersections_;
     bool				displayhorintersections_;
     
-    visBase::PickStyle*			activestickmarkerpickstyle_;
-    visBase::IndexedPolyLine3D*		activestickmarker_;
+    visBase::PolyLine3D*		activestickmarker_;
     int					activestick_;
 
     EM::Fault3D*			emfault_;
@@ -253,13 +247,13 @@ protected:
 
     bool				stickselectmode_;
     bool				ctrldown_;
-    ObjectSet<visBase::DataObjectGroup>	knotmarkers_;
+    ObjectSet<visBase::MarkerSet>	knotmarkersets_;
     ObjectSet<Array2D<float> >		texuredatas_;
 
     struct StickIntersectPoint
     {
 	Coord3				pos_;
-	EM::SectionID			sid_;
+	EM::SectionID		sid_;
 	int				sticknr_;
     };
 

@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "visvolorthoslice.h"
-#include "visvolren.h"
 #include "visvolumedisplay.h"
 
 #include "filepath.h"
@@ -42,6 +41,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+
+
+/* OSG-TODO: Port VolrenDisplay and OrthogonalSlice occurences to OSG
+   if these classes are prolongated. */
 
 
 uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
@@ -405,8 +408,9 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 
 bool uiODVolrenSubTreeItem::isVolume() const
 {
-    mDynamicCastGet(visBase::VolrenDisplay*,vd,visserv_->getObject(displayid_));
-    return vd;
+    return false;
+//  mDynamicCastGet(visBase::VolrenDisplay*,vd,visserv_->getObject(displayid_));
+//  return vd;
 }
 
 
@@ -426,13 +430,13 @@ bool uiODVolrenSubTreeItem::init()
 {
     if ( displayid_==-1 ) return false;
 
-    mDynamicCastGet(visBase::VolrenDisplay*,volren,
-	    	    visserv_->getObject(displayid_));
+//    mDynamicCastGet(visBase::VolrenDisplay*,volren,
+//	    	    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
 	    	    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 	    	    visserv_->getObject(displayid_));
-    if ( !volren && !slice && !isosurface )
+    if ( /*!volren && */ !slice && !isosurface )
 	return false;
 
     if ( slice )

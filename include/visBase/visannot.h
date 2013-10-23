@@ -15,88 +15,91 @@ ________________________________________________________________________
 
 
 #include "visbasemod.h"
+#include "visosg.h"
 #include "visobject.h"
 #include "color.h"
 #include "cubesampling.h"
 #include "position.h"
 #include "sets.h"
 
-class SoAction;
-class SbVec3f;
-class SoSwitch;
-class SoCallback;
-class SoCoordinate3;
-class SoIndexedLineSet;
 class AxisInfo;
-class SoOneSideRender;
+class FontData;
+class Color;
 
-namespace osg { class Geode; }
+namespace osg
+{
+    class Geode;
+    class Array;
+    class Group;
+    class Geometry;
+    class Vec3f;
+}
+
+namespace osgGeo
+{
+    class OneSideRenderNode;
+}
 
 namespace visBase
 {
 class Text2;
 class DataObjectGroup;
-class PickStyle;
 
-/*!
-\brief Annotation is a simple wireframe box with text on its axis.
+/*!\brief
+    Annotation is a simple wireframe box with text on its
+    axis.
 */
 
 mExpClass(visBase) Annotation : public VisualObjectImpl
 {
 public:
-    static Annotation*		create()
-				mCreateDataObj(Annotation);
+    static Annotation*	create()
+			mCreateDataObj(Annotation);
 
-    void			showText(bool yn);
-    bool			isTextShown() const;
+    void		showText(bool yn);
+    bool		isTextShown() const;
 
-    void			showScale(bool yn);
-    bool			isScaleShown() const;
+    void		showScale(bool yn);
+    bool		isScaleShown() const;
 
-    bool			canShowGridLines() const;
-    void			showGridLines(bool yn);
-    bool			isGridLinesShown() const;
+    bool		canShowGridLines() const;
+    void		showGridLines(bool yn);
+    bool		isGridLinesShown() const;
 
-    void			setCubeSampling(const CubeSampling&);
+    const FontData&	getFont() const;
+    void		setFont(const FontData&);
 
-    void			setAnnotScale(int dim,int scale);
+    void		setCubeSampling(const CubeSampling&);
 
-    void			setText( int dim, const char * );
-    void			setTextColor(int dim,const Color&);
-    const Color&		getColor()		{return annotcolor_;}
-    void			updateTextColor(const Color&);
+    void		setAnnotScale(int dim,int scale);
 
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
-    int				usePar( const IOPar& );
+    void		setText( int dim, const char * );
+    void		fillPar( IOPar& ) const;
+    int			usePar( const IOPar& );
+
+    void		setDisplayTransformation(const mVisTrans*);
 
 protected:
-    				~Annotation();
-    void			initGridLines();
-    void			updateGridLines();
-    void			updateGridLines( int dim );
-    void			updateTextPos(int dim);
-    void			updateTextPos();
-    Text2*			getText(int dim, int textnr);
-    void			getAxisCoords(int,SbVec3f&,SbVec3f&) const;
-    void			setCorner( int, float, float, float );
-    Coord3			getCorner(int) const;
+    			~Annotation();
+    void		initGridLines();
+    void		updateGridLines();
+    void		updateTextPos();
+    void		updateTextColor(CallBacker*);
+    void		getAxisCoords(int,osg::Vec3f&,osg::Vec3f&) const;
+    void		setCorner( int, float, float, float );
 
-    SoCoordinate3*		coords_;
     int				annotscale_[3];
 
-    ObjectSet<DataObjectGroup>	scales_;
-    PickStyle*			pickstyle_;
-    DataObjectGroup*		texts_;
-
-    SoOneSideRender*		onesiderender_;
-    SoSwitch*			gridlineswitch_; 
-    SoCoordinate3*		gridlinecoords_;
-    ObjectSet<SoIndexedLineSet>	gridlines_;
-
-    SoSwitch*			textswitch_;
-    SoSwitch*			scaleswitch_;
+    CubeSampling		cs_;
+    osg::Geometry*		box_;
+    osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;
+    osgGeo::OneSideRenderNode*	gridlines_;
+    RefMan<Text2>		axisnames_;
+    RefMan<Text2>		axisannot_;
+
+    const mVisTrans*		displaytrans_;
+
     Color			annotcolor_;
 
     static const char*		textprefixstr();

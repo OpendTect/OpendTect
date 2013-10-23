@@ -91,27 +91,4 @@ const LinScaler& VisColTabMod::getScale() const
 }
 
 
-int VisColTabMod::usePar( const IOPar& par )
-{
-    int res = DataObject::usePar( par );
-    if ( res != 1 ) return res;
-
-    par.get( clipratestr(), cliprate0, cliprate1 );
-    par.get( rangestr(), range );
-    par.getYN( reversestr(), reverse );
-    par.getYN( useclipstr(), useclip );
-
-    return 1;
-}
-
-
-void VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    DataObject::fillPar( par, saveids );
-    par.set( clipratestr(), cliprate0, cliprate1 );
-    par.set( rangestr(), range );
-    par.setYN( reversestr(), reverse );
-    par.setYN( useclipstr(), useclip );
-}
-
 }; // namespace visBase

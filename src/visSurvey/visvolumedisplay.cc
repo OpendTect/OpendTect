@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
-#include "visvolren.h"
 
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
@@ -45,6 +44,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransformer.h"
 
 #include <fstream>
+
+/* OSG-TODO: Port VolrenDisplay volren_ and set of OrthogonalSlice slices_
+   to OSG in case of prolongation. */
+
 
 #define mVisMCSurf visBase::MarchingCubesSurface
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
@@ -92,43 +95,37 @@ VolumeDisplay::VolumeDisplay()
     , boxdragger_(visBase::BoxDragger::create())
     , isinited_(0)
     , scalarfield_(0)
-    , volren_(0)
+//    , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
     , cacheid_(DataPack::cNoID())
     , slicemoving(this)
-    , voltrans_(visBase::Transformation::create())
+    , voltrans_(mVisTrans::create())
     , allowshading_(false)
     , datatransform_(0)
     , datatransformer_(0)
     , csfromsession_(true)
     , eventcatcher_( 0 )
     , onoffstatus_( true )
-    , inl2displaytrans_( 0 )
 {
-    if ( doOsg() )
-    {
-	inl2displaytrans_ = mVisTrans::create();
-	inl2displaytrans_->ref();
-	addChild( inl2displaytrans_->osgNode() );
-
-	inl2displaytrans_->addObject( boxdragger_ );
-    }
+    addChild( boxdragger_->osgNode() );
 
     boxdragger_->ref();
     boxdragger_->setBoxTransparency( 0.7 );
-    addChild( boxdragger_->getInventorNode() );
-    boxdragger_->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
+    updateRanges( true, true );
+
     getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.3 );
     getMaterial()->setDiffIntensity( 0.8 );
     getMaterial()->change.notify(mCB(this,VolumeDisplay,materialChange) );
     voltrans_->ref();
-    addChild( voltrans_->getInventorNode() );
-    voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
+
+    addChild( voltrans_->osgNode() );
 
     scalarfield_ = visBase::VolumeRenderScalarField::create();
     scalarfield_->ref(); //Don't add it here, do that in getInventorNode
+
+    voltrans_->addObject( scalarfield_ );
 
     CubeSampling sics = SI().sampling( true );
     CubeSampling cs = getInitCubeSampling( sics );
@@ -158,25 +155,13 @@ VolumeDisplay::~VolumeDisplay()
     scalarfield_->unRef();
 
     setZAxisTransform( 0,0 );
-
-    if ( inl2displaytrans_ ) inl2displaytrans_->unRef();
-}
-
-
-void VolumeDisplay::setInlCrlSystem(const InlCrlSystem* ics )
-{
-    SurveyObject::setInlCrlSystem( ics );
-    if ( inl2displaytrans_ )
-    {
-	STM().setIC2DispayTransform(inlcrlsystem_->sampling().hrg,
-				    inl2displaytrans_);
-    }
 }
 
 
 void VolumeDisplay::setMaterial( visBase::Material* nm )
 {
-    getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
+    if ( material_ )
+	material_->change.remove(mCB(this,VolumeDisplay,materialChange) );
     visBase::VisualObjectImpl::setMaterial( nm );
     if ( nm )
 	getMaterial()->change.notify( mCB(this,VolumeDisplay,materialChange) );
@@ -277,8 +262,29 @@ void VolumeDisplay::dataTransformCB( CallBacker* )
 }
 
 
+void VolumeDisplay::setScene( Scene* sc )
+{
+    SurveyObject::setScene( sc );
+    if ( sc ) updateRanges( false, false );
+}
+
+
 void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 {
+    const CubeSampling& csin = scene_ ? scene_->getCubeSampling()
+				      : getCubeSampling( 0 );
+
+    const Interval<float> inlrg( float(csin.hrg.start.inl()),
+				 float(csin.hrg.stop.inl()) );
+    const Interval<float> crlrg( float(csin.hrg.start.crl()),
+				 float(csin.hrg.stop.crl()) );
+
+    boxdragger_->setSpaceLimits( inlrg, crlrg, csin.zrg );
+    boxdragger_->setWidthLimits(
+		  Interval<float>( float(4*csin.hrg.step.inl()), mUdf(float) ),
+		  Interval<float>( float(4*csin.hrg.step.crl()), mUdf(float) ),
+		  Interval<float>( 4*csin.zrg.step, mUdf(float) ) );
+
     if ( !datatransform_ ) return;
 
     const CubeSampling defcs( true );
@@ -286,8 +292,6 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 	setCubeSampling( csfromsession_ );
     else
     {
-	const CubeSampling csin = scene_ ? scene_->getCubeSampling()
-					 : getCubeSampling( 0 );
 	CubeSampling cs = getInitCubeSampling( csin );
 	setCubeSampling( cs );
     }
@@ -301,7 +305,7 @@ void VolumeDisplay::getChildren( TypeSet<int>&res ) const
 	res += slices_[idx]->id();
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	res += isosurfaces_[idx]->id();
-    if ( volren_ ) res += volren_->id();
+//    if ( volren_ ) res += volren_->id();
 }
 
 
@@ -325,13 +329,6 @@ bool VolumeDisplay::canResetManipulation() const
 
 void VolumeDisplay::resetManipulation()
 {
-    if ( doOsg() )
-	return;
-
-    const Coord3 center = voltrans_->getTranslation();
-    const Coord3 width = voltrans_->getScale();
-    boxdragger_->setCenter( center );
-    boxdragger_->setWidth( Coord3(width.z, width.y, -width.x) );
 }
 
 
@@ -353,7 +350,7 @@ int VolumeDisplay::addSlice( int dim )
     slice->setName( dim==cTimeSlice() ? sKeyTime() : 
 	    	   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
 
-    addChild( slice->getInventorNode() );
+    addChild( slice->osgNode() );
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
@@ -371,19 +368,21 @@ int VolumeDisplay::addSlice( int dim )
 
 void VolumeDisplay::removeChild( int displayid )
 {
+/*
     if ( volren_ && displayid==volren_->id() )
     {
-	VisualObjectImpl::removeChild( volren_->getInventorNode() );
+	VisualObjectImpl::removeChild( volren_->osgNode() );
 	volren_->unRef();
 	volren_ = 0;
 	return;
     }
+*/
 
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	if ( slices_[idx]->id()==displayid )
 	{
-	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
+	    VisualObjectImpl::removeChild( slices_[idx]->osgNode() );
 	    slices_[idx]->motion.remove( mCB(this,VolumeDisplay,sliceMoving) );
 	    slices_.removeSingle(idx,false)->unRef();
 	    return;
@@ -395,7 +394,7 @@ void VolumeDisplay::removeChild( int displayid )
 	if ( isosurfaces_[idx]->id()==displayid )
 	{
 	    VisualObjectImpl::removeChild(
-		    isosurfaces_[idx]->getInventorNode() );
+		    isosurfaces_[idx]->osgNode() );
 
 	    isosurfaces_.removeSingle(idx,false)->unRef();
 	    isosurfsettings_.removeSingle(idx,false);
@@ -407,21 +406,26 @@ void VolumeDisplay::removeChild( int displayid )
 
 void VolumeDisplay::showVolRen( bool yn )
 {
+/*
     if ( yn && !volren_ )
     {
 	volren_ = visBase::VolrenDisplay::create();
 	volren_->ref();
 	volren_->setMaterial(0);
-	addChild( volren_->getInventorNode() );
+	addChild( volren_->osgNode() );
 	volren_->setName( sKeyVolRen() );
     }
 
     if ( volren_ ) volren_->turnOn( yn );
+*/
 }
 
 
 bool VolumeDisplay::isVolRenShown() const
-{ return volren_ && volren_->isOn(); }
+{
+    return false;
+//    return volren_ && volren_->isOn();
+}
 
 
 float VolumeDisplay::defaultIsoValue() const
@@ -448,16 +452,18 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     if ( updateisosurface )   
        	updateIsoSurface( isosurfaces_.size()-1, tr );
 
-    //Insert before the volume transform
-    insertChild( childIndex(voltrans_->getInventorNode()),
-	    		    isosurface->getInventorNode() );
+    //add before the volume transform
+    addChild( isosurface->osgNode() );
     materialChange( 0 ); //updates new surface's material
     return isosurface->id();
 }
 
 
 int VolumeDisplay::volRenID() const
-{ return volren_ ? volren_->id() : -1; }
+{
+    return -1;
+//    return volren_ ? volren_->id() : -1;
+}
 
     
 void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
@@ -468,13 +474,13 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 				    mCast(float,cs.hrg.stop.crl()) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
 
-    voltrans_->setTranslation( 
-	    	Coord3(xintv.center(),yintv.center(),zintv.center()) );
-    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
-    voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
-    scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
-	    		    Interval<float>(-0.5,0.5),
-			    Interval<float>(-0.5,0.5) );
+    Coord3 trans( xintv.center(), yintv.center(), zintv.center() );
+    mVisTrans::transform( displaytrans_, trans );
+    Coord3 scale( xintv.width(), yintv.width(), zintv.width() );
+    mVisTrans::transformDir( displaytrans_, scale );
+    trans -= 0.5*scale;
+    scale = Coord3( -scale.z, scale.y, scale.x );
+    voltrans_->setMatrix( trans, Coord3( 0, 1, 0 ), M_PI_2, scale );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5), 
@@ -491,13 +497,10 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 
     resetManipulation();
 
-    if ( doOsg() )
-    {
-	 boxdragger_->setCenter(
-		 	Coord3(xintv.center(),yintv.center(),zintv.center()) );
-	 boxdragger_->setWidth(
-		 	Coord3(xintv.width(),yintv.width(),zintv.width()) );
-    }
+    boxdragger_->setCenter(
+		    Coord3(xintv.center(),yintv.center(),zintv.center()) );
+    boxdragger_->setWidth(
+		    Coord3(xintv.width(),yintv.width(),zintv.width()) );
 }
 
 
@@ -621,7 +624,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     const Array3D<float>& data = cache_->getCube(0);
     if ( !data.isOK() )
 	return false;
-   
+
     Array3DImpl<float> newarr( data.info() );
     Array3DFloodfill<float> ff( data, isosurfsettings_[idx].isovalue_,
 	    isosurfsettings_[idx].seedsaboveisoval_, newarr );    
@@ -682,10 +685,12 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     	}
     }
 
-    const float threshold = isosurfsettings_[idx].seedsaboveisoval_ ? 0 :
-	isosurfsettings_[idx].isovalue_;
+    const float threshold = isosurfsettings_[idx].seedsaboveisoval_
+	? 0
+	: isosurfsettings_[idx].isovalue_;
+
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
-	    threshold, tr );
+						    threshold, tr );
     return true;
 }
 
@@ -713,46 +718,8 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		SamplingData<float>((float) (cache_->z0_*cache_->zstep_),
 					    (float) (cache_->zstep_) ) );
 	if ( isosurfsettings_[idx].mode_ )
-	{
-	    const Array3D<float>& arr = cache_->getCube(0);
-	    if ( !arr.isOK() )	return;
-
-	    const od_int64 size = arr.info().getTotalSz();
-	    PtrMan< Array3D<float> > newarr = 
-		new Array3DImpl<float>(arr.info());
-	    const float threshold = isosurfsettings_[idx].isovalue_;
-	    const float* data = arr.getData();
-	    if ( data && newarr->getData() )
-	    {
-		float* newdata = newarr->getData();
-		for ( od_int64 idy=0; idy<size; idy++ )
-		    newdata[idy] = threshold - data[idy];
-	    }
-	    else if ( arr.getStorage() && newarr->getStorage() )
-            {
-                ValueSeries<float>* newstor = newarr->getStorage();
-                const ValueSeries<float>* arrstor = arr.getStorage();
-
-		for ( od_int64 idy=0; idy<size; idy++ )
-		    newstor->setValue(idy, threshold - arrstor->value(idy) );
-            }
-            else
-	    {
-		for ( int id0=0; id0<arr.info().getSize(0); id0++ )
-                {
-		    for ( int idy=0; idy<arr.info().getSize(1); idy++ )
-                    {
-			for ( int idz=0; idz<arr.info().getSize(2); idz++ )
-                        {
-			    newarr->set( id0, idy, idz,
-				         threshold - arr.get(id0,idy,idz) );
-                        }
-                    }
-                }
-	    }
-
-	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
-	}
+    	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
@@ -765,9 +732,10 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     isosurfaces_[idx]->touch( false, tr );
 }
 
-
 void VolumeDisplay::manipMotionFinishCB( CallBacker* )
 {
+/* Looks like this will be obsolete (JCG)
+
     if ( scene_ && scene_->getZAxisTransform() )
 	return;
 
@@ -777,8 +745,8 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
 
-    Interval<int> inlrg( cs.hrg.start.inl(), cs.hrg.stop.inl() );
-    Interval<int> crlrg( cs.hrg.start.crl(), cs.hrg.stop.crl() );
+    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
+    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
     Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
     SI().checkInlRange( inlrg, true );
     SI().checkCrlRange( crlrg, true );
@@ -792,19 +760,20 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     }
     else
     {
-	cs.hrg.start.inl() = inlrg.start; cs.hrg.stop.inl() = inlrg.stop;
-	cs.hrg.start.crl() = crlrg.start; cs.hrg.stop.crl() = crlrg.stop;
+	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
+	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
 	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
     }
 
-    const Coord3 newwidth( cs.hrg.stop.inl() - cs.hrg.start.inl(),
-			   cs.hrg.stop.crl() - cs.hrg.start.crl(),
+    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
+			   cs.hrg.stop.crl - cs.hrg.start.crl,
 			   cs.zrg.stop - cs.zrg.start );
     boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl() + cs.hrg.start.inl()),
-			    0.5*(cs.hrg.stop.crl() + cs.hrg.start.crl()),
+    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
+			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
 			    0.5*(cs.zrg.stop + cs.zrg.start) );
     boxdragger_->setCenter( newcenter );
+    */
 }
 
 
@@ -1036,34 +1005,34 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
     CubeSampling res;
     if ( manippos )
     {
-	Coord3 center_ = boxdragger_->center();
-	Coord3 width_ = boxdragger_->width();
+	Coord3 center = boxdragger_->center();
+	Coord3 width = boxdragger_->width();
 
-	res.hrg.start = BinID( mNINT32( center_.x - width_.x / 2 ),
-			      mNINT32( center_.y - width_.y / 2 ) );
+	res.hrg.start = BinID( mNINT32( center.x - width.x/2 ),
+			      mNINT32( center.y - width.y/2 ) );
 
-	res.hrg.stop = BinID( mNINT32( center_.x + width_.x / 2 ),
-			     mNINT32( center_.y + width_.y / 2 ) );
+	res.hrg.stop = BinID( mNINT32( center.x + width.x/2 ),
+			     mNINT32( center.y + width.y/2 ) );
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( center_.z - width_.z / 2. );
-	res.zrg.stop = (float) ( center_.z + width_.z / 2. );
+	res.zrg.start = (float) ( center.z - width.z/2 );
+	res.zrg.stop = (float) ( center.z + width.z/2 );
     }
     else
     {
-	const Coord3 transl = voltrans_->getTranslation();
 	Coord3 scale = voltrans_->getScale();
-	double dummy = scale.x; scale.x=scale.z; scale.z = dummy;
+	scale = Coord3( scale.z, scale.y, -scale.x );
+	Coord3 transl = voltrans_->getTranslation();
+	mVisTrans::transformBackDir( displaytrans_, scale );
+	mVisTrans::transformBack( displaytrans_, transl );
 
-	res.hrg.start = BinID( mNINT32(transl.x+scale.x/2),
-			       mNINT32(transl.y+scale.y/2) );
-	res.hrg.stop = BinID( mNINT32(transl.x-scale.x/2),
-			       mNINT32(transl.y-scale.y/2) );
+	res.hrg.start = BinID( mNINT32(transl.x), mNINT32(transl.y) );
+	res.hrg.stop = BinID( mNINT32(transl.x+scale.x),
+			      mNINT32(transl.y+scale.y) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-
-	res.zrg.start = (float) ( transl.z+scale.z/2. );
-	res.zrg.stop = (float) ( transl.z-scale.z/2. );
+	res.zrg.start = float( transl.z );
+	res.zrg.stop = float( transl.z+scale.z );
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
@@ -1141,40 +1110,6 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 }
 
 
-void VolumeDisplay::init()
-{
-    isinited_ = true;
-    scalarfield_->useShading( allowshading_ );
-
-    const int voltransidx = childIndex( voltrans_->getInventorNode() );
-    insertChild( voltransidx+1, scalarfield_->getInventorNode() );
-
-    scalarfield_->turnOn( true );
-
-    if ( !slices_.size() )
-    {
-	addSlice( cInLine() );
-	addSlice( cCrossLine() );
-	addSlice( cTimeSlice() );
-    }
-    
-    if ( !volren_ )
-    {
-	showVolRen( true );
-	showVolRen( false );
-    }
-}
-
-
-SoNode* VolumeDisplay::gtInvntrNode()
-{
-    if ( !isinited_ )
-	init();
-
-    return VisualObjectImpl::gtInvntrNode();
-}
-
-
 void VolumeDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 {
     if ( eventcatcher_ )
@@ -1207,7 +1142,7 @@ void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( !eventinfo.pickedobjids.isPresent(boxdragger_->id()) )
+	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
 	    newstatus = 0;
 	else
 	{
@@ -1285,11 +1220,11 @@ const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int, int ) const
 }
 
 
-void VolumeDisplay::turnOn( bool yn )
+bool VolumeDisplay::turnOn( bool yn )
 {
     onoffstatus_ = yn;
     
-    VisualObjectImpl::turnOn( isAttribEnabled( 0 ) && yn );
+    return VisualObjectImpl::turnOn( isAttribEnabled( 0 ) && yn );
 }
 
 
@@ -1297,50 +1232,13 @@ bool VolumeDisplay::isOn() const
 { return onoffstatus_; }
 
 
-void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
+void VolumeDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
     const CubeSampling cs = getCubeSampling(false,true,0);
     cs.fillPar( par );
 
-    if ( volren_ )
-    {
-	int volid = volren_->id();
-	par.set( sKeyVolumeID(), volid );
-	if ( !saveids.isPresent( volid ) ) saveids += volid;
-    }
-
-    const int nrslices = slices_.size();
-    par.set( sKeyNrSlices(), nrslices );
-    for ( int idx=0; idx<nrslices; idx++ )
-    {
-	BufferString str( sKeySlice(), idx );
-	const int sliceid = slices_[idx]->id();
-	par.set( str, sliceid );
-	if ( !saveids.isPresent(sliceid) ) saveids += sliceid;
-    }
-
-    const int nrisosurfaces = isosurfaces_.size();
-    par.set( sKeyNrIsoSurfaces(), nrisosurfaces );
-    for ( int idx=0; idx<nrisosurfaces; idx++ )
-    {
-	BufferString str( sKeyIsoValueStart() ); str += idx;
-	par.set( str, isosurfsettings_[idx].isovalue_ );
-
-	str = sKeyIsoOnStart(); str += idx;
-	par.setYN( str, isosurfaces_[idx]->isOn() );
-
-	str = sKeySurfMode(); str += idx;
-	par.set( str, isosurfsettings_[idx].mode_ );
-
-	str = sKeySeedsAboveIsov(); str += idx;
-	par.set( str, isosurfsettings_[idx].seedsaboveisoval_ );
-
-	str = sKeySeedsMid(); str += idx;
-	par.set( str, isosurfsettings_[idx].seedsid_ );
-    }
-
-    fillSOPar( par, saveids );
+    pErrMsg( "Not implemented" );
+    fillSOPar( par );
 }
 
 
@@ -1349,8 +1247,9 @@ int VolumeDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    if ( !getMaterial() )
-	visBase::VisualObjectImpl::setMaterial( visBase::Material::create() );
+
+    pErrMsg( "Not implemented" );
+
 
     PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
     if ( texturepar ) //old format (up to 4.0)
@@ -1376,17 +1275,19 @@ int VolumeDisplay::usePar( const IOPar& par )
     {
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
 	if ( !dataobj ) return 0;
+/*
 	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
 	if ( !vr ) return -1;
-	if ( volren_ )
+/*
 	{
-	    if ( childIndex(volren_->getInventorNode())!=-1 )
-		VisualObjectImpl::removeChild(volren_->getInventorNode());
+	    if ( childIndex(volren_->osgNode())!=-1 )
+		VisualObjectImpl::removeChild(volren_->osgNode());
 	    volren_->unRef();
 	}
 	volren_ = vr;
 	volren_->ref();
-	addChild( volren_->getInventorNode() );
+	addChild( volren_->osgNode() );
+*/
     }
 
     while ( slices_.size() )
@@ -1409,7 +1310,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	os->ref();
 	os->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
 	slices_ += os;
-	addChild( os->getInventorNode() );
+	addChild( os->osgNode() );
 	// set correct dimensions ...
 	if ( os->name()==sKeyInline() )
 	    os->setDim( cInLine() );
@@ -1473,8 +1374,7 @@ bool VolumeDisplay::writeVolume( const char* filename ) const
     od_ostream strm( filename );
     if ( !strm.isOK() )
     {
-	errmsg_.set( "Cannot open file ").add( filename );
-	strm.addErrMsgTo( errmsg_ );
+	errmsg_ = "Cannot open file";
 	return false;
     }
 
@@ -1507,6 +1407,19 @@ CubeSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
     else if ( slice->getDim() == cInLine() )
 	cs.hrg.setInlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     return cs;
+}
+
+
+void VolumeDisplay::setDisplayTransformation( const mVisTrans* t )
+{
+    const bool voldisplayed = scalarfield_->isOn();
+    CubeSampling cs = getCubeSampling( false, true, 0 );
+
+    displaytrans_ = t;
+    boxdragger_->setDisplayTransformation( t );
+
+    setCubeSampling( cs );
+    scalarfield_->turnOn( voldisplayed );
 }
 
 } // namespace visSurvey

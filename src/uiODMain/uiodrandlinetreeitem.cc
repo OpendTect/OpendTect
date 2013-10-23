@@ -444,7 +444,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
 	PtrMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
-	rln->setZRange( hasztf ? SI().zRange(false) : rtd->getDepthInterval() );
+	const Interval<float> rtdzrg = rtd->getDepthInterval();
+	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
 	    

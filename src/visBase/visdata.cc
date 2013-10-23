@@ -8,78 +8,117 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visdata.h"
 
-#include "iopar.h"
 #include "keystrs.h"
+#include "thread.h"
 #include "visdataman.h"
 #include "visselman.h"
-
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/SoOutput.h>
+#include "vismaterial.h"
 
 #include <osg/Node>
 #include <osg/ValueObject>
 #include <osgDB/WriteFile>
 
-namespace visBase
+using namespace visBase;
+
+const void* DataObject::visualizationthread_ = 0;
+
+
+void DataObject::enableTraversal( unsigned int tt, bool yn )
 {
+    enabledmask_ = yn
+	? (enabledmask_ | tt )
+	: (enabledmask_ & ~tt );
 
-
-bool DataObject::doosg_ = false;
-
-void DataObject::setOsg()
-{ doosg_ = true; }
-
-bool DataObject::doOsg()
-{ return doosg_; }
-
-
-void DataObject::enableTraversal( TraversalType tt, bool yn )
-{
-    if ( osgNode() )
-    {
-	unsigned int mask = osgNode()->getNodeMask();
-	osgNode()->setNodeMask( yn ? (mask | tt) : (mask & ~tt) );
-    }
+    updateNodemask();
 }
 
 
-bool DataObject::isTraversalEnabled( TraversalType tt ) const
+bool DataObject::isTraversalEnabled( unsigned int tt ) const
 {
-    return osgNode() && (osgNode()->getNodeMask() & tt);
+    return enabledmask_ & tt;
 }
 
 
 FixedString DataObject::name() const
 {
+    osg::ref_ptr<const osg::Node> osgnode = osgNode();
+    if ( osgnode ) return osgnode->getName().c_str();
+
     return !name_ || name_->isEmpty() ? 0 : name_->buf();
 }
 
 
 void DataObject::setName( const char* nm )
 {
-    SoNode* node = getInventorNode();
-    if ( node )
-	node->setName( nm );
+    if ( osgnode_ )
+	osgnode_->setName( nm );
+    else if ( nm )
+    {
+	if ( !name_ )
+	    name_ = new BufferString;
+    }
 
-    if ( !name_ ) name_ = new BufferString;
-    (*name_) = nm;
-
-    updateOsgNodeData();
+    if ( name_ ) (*name_) = nm;
 }
 
 
 DataObject::DataObject()
     : id_( -1 )
     , name_( 0 )
-    , saveinsessions_(true)
-{}
+    , enabledmask_( cAllTraversalMask() )
+    , osgnode_( 0 )
+    , ison_( true )
+{
+    DM().addObject( this );
+}
 
 
 DataObject::~DataObject()
 {
     DM().removeObject( this );
     delete name_;
+    if ( osgnode_ ) osgnode_->unref();
+    while ( nodestates_.size() )
+	removeNodeState( nodestates_[0] );
+}
+
+
+void DataObject::doAddNodeState(visBase::NodeState* ns)
+{
+    ns->ref();
+    nodestates_ += ns;
+    osg::ref_ptr<osg::StateSet> stateset = getStateSet();
+    if ( !stateset )
+    {
+	pErrMsg("Setting nodestate on class without stateset.");
+    }
+    else
+	ns->attachStateSet( stateset );
+}
+
+
+visBase::NodeState* DataObject::removeNodeState( visBase::NodeState* ns )
+{
+    const int idx = nodestates_.indexOf( ns );
+    if ( nodestates_.validIdx(idx) )
+    {
+	ns->detachStateSet( getStateSet() );
+	nodestates_.removeSingle( idx )->unRef();
+    }
+
+    return ns;
+}
+
+
+NodeState* DataObject::getNodeState( int idx )
+{
+    return idx<=nodestates_.size() ? nodestates_[idx] : 0;
+}
+
+
+osg::StateSet* DataObject::getStateSet()
+{
+    return osgNode() ? osgNode()->getOrCreateStateSet() : 0;
 }
 
 
@@ -89,20 +128,79 @@ void DataObject::setID( int nid )
     updateOsgNodeData();
 }
 
+std::string idstr( sKey::ID() );
+
+int DataObject::getID( const osg::Node* node )
+{
+    if ( node )
+    {
+	int objid;
+	if ( node->getUserValue(idstr, objid) && objid>=0 )
+	    return objid;
+    }
+
+    return -1;
+}
+
+
+
+bool DataObject::turnOn( bool yn )
+{
+    const bool res = isOn();
+    ison_ = yn;
+
+    updateNodemask();
+
+
+    return res;
+}
+
+
+void DataObject::updateNodemask()
+{
+    if ( osgNode() )
+	osgNode()->setNodeMask( ison_ ? enabledmask_ :  cNoTraversalMask() );
+
+}
+
+
+bool DataObject::isOn() const
+{
+    return ison_;
+}
+
+
+void DataObject::setPickable( bool yn )
+{
+    enableTraversal( cEventTraversalMask(), yn );
+}
+
+
+bool DataObject::isPickable() const
+{
+    return isTraversalEnabled( cEventTraversalMask() );
+}
+
+
+void DataObject::setOsgNodeInternal( osg::Node* osgnode )
+{
+    //Do this reverse order as osgnode may be a child of osgnode_
+    if ( osgnode ) osgnode->ref();
+    if ( osgnode_ ) osgnode_->unref();
+    osgnode_ = osgnode;
+    updateOsgNodeData();
+}
+
 
 void DataObject::updateOsgNodeData()
 {
-    if ( !doOsg() )
-	return;
+    if ( osgnode_ )
+    {
+	osgnode_->setName( name_ ? name_->buf() : sKey::EmptyString().str() );
+	osgnode_->setUserValue( idstr, id() );
+    }
 
-    osg::Node* osgnode = gtOsgNode();
-    if ( !osgnode )
-	return;
-
-    osgnode->setName( name_ ? name_->buf() : "" );
-
-    static std::string idstr( sKey::ID() );
-    osgnode->setUserValue( idstr, id() );
+    updateNodemask();
 }
 
 
@@ -125,52 +223,36 @@ void DataObject::setDisplayTransformation( const mVisTrans* trans )
 }   
     
 
-void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
-{
-    par.set( sKey::Type(), getClassName() );
-
-    const char* nm = name();
-    if ( nm )
-	par.set( sKey::Name(), nm );
-}
-
-
 bool DataObject::serialize( const char* filename, bool binary )
 {
-    if ( doOsg() && osgNode() )
+    if ( !osgNode() )
+	return true;
+
+    return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
+}
+
+
+bool DataObject::isVisualizationThread()
+{
+    if ( !visualizationthread_ )
     {
-	return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
+	pFreeFnErrMsg("Visualization thread not set",
+		      "isVisualizationThread");
+	return false;
     }
 
-    SoNode* node = getInventorNode();
-    if ( !node ) return false;
-
-    SoWriteAction writeaction;
-    if ( !writeaction.getOutput()->openFile(filename) )
-	return false;
-
-    writeaction.getOutput()->setBinary(binary);
-    writeaction.apply( node );
-    writeaction.getOutput()->closeFile();
-    return true;
+    return Threads::currentThread()==visualizationthread_;
 }
 
 
-int DataObject::usePar( const IOPar& par )
+void DataObject::setVisualizationThread(const void* thread)
 {
-    const char* nm = par.find( sKey::Name() );
-    if ( nm )
-	setName( nm );
+    if ( visualizationthread_ )
+    {
+	pFreeFnErrMsg("Visualization thread set before.",
+		      "setVisualizationThread");
+	return;
+    }
 
-    return 1;
+    visualizationthread_ = thread;
 }
-
-
-bool DataObject::_init()
-{
-    DM().addObject( this );
-    return true;
-}
-
-
-}; // namespace visBase

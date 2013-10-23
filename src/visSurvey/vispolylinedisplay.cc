@@ -21,13 +21,13 @@ PolyLineDisplay::PolyLineDisplay()
     : VisualObjectImpl(true)
 {
     polyline_ = visBase::PolyLine::create();
-    addChild( polyline_->getInventorNode() );
+    addChild( polyline_->osgNode() );
 }
 
 
 PolyLineDisplay::~PolyLineDisplay()
 {
-    removeChild( polyline_->getInventorNode() );
+    removeChild( polyline_->osgNode() );
 }
 
 

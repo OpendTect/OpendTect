@@ -26,8 +26,6 @@ namespace visBase
     class DepthTabPlaneDragger;
     class FaceSet;
     class FlatViewer;
-    class ForegroundLifter;
-    class PickStyle;
 }
 
 namespace visSurvey 
@@ -36,9 +34,6 @@ namespace visSurvey
 class PlaneDataDisplay; 
 class Seis2DDisplay;
 
-/*!
-\brief PreStack display
-*/
 
 mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl, 
     		 public visSurvey::SurveyObject
@@ -106,7 +101,7 @@ public:
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
      
-    void			fillPar(IOPar&, TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
 
     static const char*		sKeyParent()	{ return "Parent"; }
@@ -131,12 +126,8 @@ protected:
     BinID			bid_;
     BinID			draggerpos_;
     visBase::DepthTabPlaneDragger* 	planedragger_;
-    visBase::FaceSet*		draggerrect_;
     visBase::FlatViewer*	flatviewer_;
-    visBase::Material*		draggermaterial_;
-    visBase::PickStyle*		pickstyle_;
     PreStack::ProcessManager*	preprocmgr_;
-    visBase::ForegroundLifter*	lifter_;
     
     MultiID			mid_;
     PlaneDataDisplay*		section_;

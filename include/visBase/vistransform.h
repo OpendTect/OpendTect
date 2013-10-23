@@ -16,16 +16,40 @@ ________________________________________________________________________
 #include "visdatagroup.h"
 #include "position.h"
 
-namespace osg { class MatrixTransform; class Vec3d; }
+namespace osg { class MatrixTransform; class Vec3d; class Vec3f; class Quat; }
 
-class SoMatrixTransform;
-class SbMatrix;
-class SoRotation;
-class SbVec3f;
-class Quaternion;
 
 namespace visBase
 {
+#define mDefTransType( func, tp ) \
+    void func( tp& ) const; \
+    void func( const tp& f, tp& t ) const; \
+    static void func( const Transformation* tr, tp& v ) \
+    { if ( tr ) tr->func( v ); } \
+    static void func( const Transformation* tr, const tp& f, tp& t );
+
+#define mDefTrans( tp ) \
+mDefTransType( transform, tp ); \
+mDefTransType( transformBack, tp ); \
+mDefTransType( transformDir, tp ); \
+mDefTransType( transformBackDir, tp ); \
+mDefTransType( transformNormal, tp ); \
+mDefTransType( transformBackNormal, tp );
+
+
+#define mDefConvTransType( func, frtp, totp ) \
+void func( const frtp&, totp& ) const; \
+static void func( const Transformation* tr, const frtp& f, totp& t);
+
+#define mDefConvTrans( frtp, totp ) \
+mDefConvTransType( transform, frtp, totp ); \
+mDefConvTransType( transformBack, frtp, totp ); \
+mDefConvTransType( transformDir, frtp, totp ); \
+mDefConvTransType( transformBackDir, frtp, totp ); \
+mDefConvTransType( transformNormal, frtp, totp ); \
+mDefConvTransType( transformBackNormal, frtp, totp );
+
+
 /*! \brief
 The Transformation is an object that transforms everything following the
 node.
@@ -49,73 +73,53 @@ public:
     static Transformation*	create()
 				mCreateDataObj(Transformation);
 
-    void		setRotation(const Coord3& vec,double angle);
-    void		setTranslation( const Coord3& );
-    Coord3		getTranslation() const;
-
-    void		setScale( const Coord3& );
-    Coord3		getScale() const;
-
     void		reset();
 
-    void		setA( double a11, double a12, double a13, double a14,
-	    		      double a21, double a22, double a23, double a24,
-			      double a31, double a32, double a33, double a34,
-			      double a41, double a42, double a43, double a44 );
+    void		setA(double a11,double a12,double a13,double a14,
+	    		     double a21,double a22,double a23,double a24,
+			     double a31,double a32,double a33,double a34,
+			     double a41,double a42,double a43,double a44 );
 
-    Coord3		transform( const Coord3& ) const;
-    Coord3		transformBack(  const Coord3& ) const;
-    void		transform( SbVec3f& ) const;
-    void		transformBack( SbVec3f& ) const;
-    void		transform(osg::Vec3d&) const;
-    void		transformBack(osg::Vec3d&) const;
+    void		setMatrix(const Coord3& trans,
+				  const Coord3& rotvec,double rotangle,
+				  const Coord3& scale);
 
-    Coord3		transformDir(const Coord3&) const;
-    Coord3		transformDirBack(const Coord3&) const;
+    void		setTranslation(const Coord3&);
+    void		setRotation(const Coord3& vec,double angle);
+    void		setScale(const Coord3&);
+    void		setScaleOrientation(const Coord3& vec,double angle);
 
-    virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
-    virtual int		usePar( const IOPar& );
+    Coord3		getTranslation() const;
+    Coord3		getScale() const;
+    void		getRotation(Coord3& vec,double& angle) const;
+
+
+    void		setAbsoluteReferenceFrame();
+    const osg::MatrixTransform* getTransformNode() const { return node_; };
+
+			mDefTrans( Coord3 );
+			mDefTrans( osg::Vec3d );
+			mDefTrans( osg::Vec3f );
+    			mDefConvTrans( Coord3, osg::Vec3d );
+    			mDefConvTrans( Coord3, osg::Vec3f );
+    			mDefConvTrans( osg::Vec3d, Coord3 );
+    			mDefConvTrans( osg::Vec3f, Coord3 );
+
+    Transformation&     operator*=(const Transformation&);
     
 private:
 
     virtual		~Transformation();
-    void		ensureGroup();
 
-    SoGroup*		transformgroup_;
-    SoMatrixTransform*	transform_;
+    void		updateMatrix();
+    void		updateNormalizationMode();
 
     osg::MatrixTransform* node_;
 
-    static const char*	matrixstr();
-
-    virtual SoNode*	gtInvntrNode();
-};
-
-
-/*!Rotation of following objects in 3d.*/
-
-
-
-mExpClass(visBase) Rotation : public DataObject
-{
-public:
-    static Rotation*	create()
-			mCreateDataObj(Rotation);
-
-    void		set(const Coord3& vec,double angle);
-    void		set(const Quaternion&);
-    void		get(Quaternion&) const;
-
-    Coord3		transform(const Coord3&) const;
-    Coord3		transformBack(const Coord3&) const;
-
-private:
-    virtual		~Rotation();
-
-    SoRotation*		rotation_;
-
-    virtual SoNode*	gtInvntrNode();
-
+    osg::Vec3d&		curscale_;
+    osg::Vec3d&		curtrans_;
+    osg::Quat&		currot_;
+    osg::Quat&		curso_;
 };
 
 }

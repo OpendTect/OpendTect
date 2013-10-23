@@ -187,7 +187,7 @@ void uiDirLightDlg::onOffChg( CallBacker* cb )
 	mDynamicCastGet(visSurvey::Scene*,scene,
     		visBase::DM().getObject(initinfo_[idx].sceneid_));
     	if ( scene )
-    	    scene->getDirectionalLight()->turnOn( turnedon );
+    	    scene->getLight()->turnOn( turnedon );
     }
 }
 
@@ -285,7 +285,7 @@ void uiDirLightDlg::updateInitInfo()
 	{
 	    scene->nameChanged.remove(
 		    mCB(this,uiDirLightDlg,sceneNameChangedCB) );
-	    scene->getDirectionalLight()->turnOn( 
+	    scene->getLight()->turnOn(
 		    initinfo_[idx].directlighton_ );
 	}
 
@@ -315,11 +315,11 @@ void uiDirLightDlg::updateInitInfo()
 
 	InitInfoType it;
 	it.sceneid_ = newsceneids[newidx];
-	it.directlighton_ = scene->getDirectionalLight()->isOn();
-	it.intensity_ = scene->getDirectionalLight()->intensity();
-	it.dx_ = scene->getDirectionalLight()->direction(0);
-	it.dy_ = scene->getDirectionalLight()->direction(1);
-	it.dz_ = scene->getDirectionalLight()->direction(2);
+	it.directlighton_ = scene->getLight()->isOn();
+	it.intensity_ = scene->getLight()->getDiffuse();
+	it.dx_ = scene->getLight()->direction(0);
+	it.dy_ = scene->getLight()->direction(1);
+	it.dz_ = scene->getLight()->direction(2);
 	initinfo_.add( it );
     }
     setlightSwitch();
@@ -393,7 +393,7 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 		ambintensityfld_->sldr()->getValue();
 
 	// directional light
-        visBase::DirectionalLight* dl = getDirLight( idx );
+        visBase::Light* dl = getDirLight( idx );
         if ( !dl )
         {
    	    if ( resetinitinfo )
@@ -416,25 +416,25 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
         {
     	    initinfo_[idx].azimuth_ = azimuth;
 	    initinfo_[idx].dip_ = dip;
-	    initinfo_[idx].intensity_ = dl->intensity() * 100;
+	    initinfo_[idx].intensity_ = dl->getDiffuse() * 100;
 	}
 
 	if ( !anySceneDone )
 	{
 	    azimuthfld_->dial()->setValue( (int)azimuth );
             dipfld_->sldr()->setValue( dip );
-            intensityfld_->sldr()->setValue( dl->intensity() * 100 );
+            intensityfld_->sldr()->setValue( dl->getDiffuse() * 100 );
    	    anySceneDone = true;
 	}
     }
 }
 
 
-visBase::DirectionalLight* uiDirLightDlg::getDirLight( int sceneidx ) const
+visBase::Light* uiDirLightDlg::getDirLight( int sceneidx ) const
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    visBase::DM().getObject( initinfo_[sceneidx].sceneid_));
-    return (scene) ? scene->getDirectionalLight() : 0;
+    return (scene) ? scene->getLight() : 0;
 }
 
 
@@ -466,17 +466,10 @@ void uiDirLightDlg::setDirLight()
 	float y = sin( az_rad ) * cos( dip_rad );
        	float z = sin (dip_rad );
 
-	if ( !getDirLight( idx ) )
-	{
-	    RefMan<visBase::DirectionalLight> dl =
-		visBase::DirectionalLight::create();
-	    scene->setDirectionalLight( *dl );
-	}
-
-	RefMan<visBase::DirectionalLight> dl = getDirLight( idx );
+	RefMan<visBase::Light> dl = getDirLight( idx );
 
 	dl->setDirection( x, y, z ); 
- 	dl->setIntensity( intensityfld_->sldr()->getValue() / 100 );
+ 	dl->setDiffuse( intensityfld_->sldr()->getValue() / 100 );
     }
 }
 
@@ -620,11 +613,11 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 	mDynamicCastGet(visSurvey::Scene*,scene,
     		visBase::DM().getObject(initinfo_[idx].sceneid_));
     	if ( !scene ) continue;
-	initinfo_[idx].directlighton_ = scene->getDirectionalLight()->isOn();
-	initinfo_[idx].intensity_ = scene->getDirectionalLight()->intensity();
-	initinfo_[idx].dx_ = scene->getDirectionalLight()->direction(0);
-	initinfo_[idx].dy_ = scene->getDirectionalLight()->direction(1);
-	initinfo_[idx].dz_ = scene->getDirectionalLight()->direction(2);
+	initinfo_[idx].directlighton_ = scene->getLight()->isOn();
+	initinfo_[idx].intensity_ = scene->getLight()->getDiffuse();
+	initinfo_[idx].dx_ = scene->getLight()->direction(0);
+	initinfo_[idx].dy_ = scene->getLight()->direction(1);
+	initinfo_[idx].dz_ = scene->getLight()->direction(2);
     }
 
     return true;
@@ -648,11 +641,11 @@ bool uiDirLightDlg::rejectOK( CallBacker* )
     		visBase::DM().getObject(initinfo_[idx].sceneid_));
     	if ( scene )
 	{
-	    visBase::DirectionalLight& dl = *scene->getDirectionalLight();
+	    visBase::Light& dl = *scene->getLight();
 	    dl.turnOn(initinfo_[idx].directlighton_);
 	    dl.setDirection( initinfo_[idx].dx_, initinfo_[idx].dy_, 
 		    	     initinfo_[idx].dz_ );
-	    dl.setIntensity( initinfo_[idx].intensity_ );
+	    dl.setDiffuse( initinfo_[idx].intensity_ );
 	    if ( !forall || initinfo_[idx].directlighton_ )
 		lighton = initinfo_[idx].directlighton_;
 	}
@@ -706,7 +699,7 @@ void uiDirLightDlg::setlightSwitch()
 	
 	mDynamicCastGet(visSurvey::Scene*,scene,
     		visBase::DM().getObject(initinfo_[idx].sceneid_));
-    	if ( scene && scene->getDirectionalLight()->isOn() )
+    	if ( scene && scene->getLight()->isOn() )
 	{
 	    lighton = true;
 	    break;

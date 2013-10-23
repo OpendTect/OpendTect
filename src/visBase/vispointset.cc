@@ -14,31 +14,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispointset.h"
 #include "visdrawstyle.h"
 
-#include <Inventor/nodes/SoPointSet.h>
-
-#if COIN_MAJOR_VERSION<3 || (COIN_MAJOR_VERSION==3 && COIN_MINOR_VERSION<1)
-# define USE_DGB_INDEXEDPOINTSET
-#endif
-
-#ifdef USE_DGB_INDEXEDPOINTSET
-# include "SoDGBIndexedPointSet.h"
-#else
-# include "Inventor/nodes/SoIndexedPointSet.h"
-#endif
-
-
 mCreateFactoryEntry( visBase::PointSet );
-mCreateFactoryEntry( visBase::IndexedPointSet );
 
 namespace visBase
 {
 
 PointSet::PointSet()
-    : VertexShape( new SoPointSet )
-    , drawstyle_( DrawStyle::create() )
+    : VertexShape( Geometry::PrimitiveSet::Points, true )
+    , drawstyle_( new DrawStyle )
 {
+    drawstyle_->ref();
     drawstyle_->setPointSize( 5.0 );
-    insertNode( drawstyle_->getInventorNode() );
+    pErrMsg("Fix drawstyle.");
+    //insertNode( drawstyle_->getInventorNode() );
 }
 
 
@@ -51,14 +39,5 @@ void PointSet::setPointSize( int sz )
 int PointSet::getPointSize() const
 { return mNINT32(drawstyle_->getPointSize()); }
 
-
-IndexedPointSet::IndexedPointSet()
-#ifdef USE_DGB_INDEXEDPOINTSET
-    : IndexedShape( new SoDGBIndexedPointSet )
-#else
-    : IndexedShape( new SoIndexedPointSet )
-#endif
-{
-}
 
 }; // namespace visBase

@@ -26,9 +26,7 @@ namespace visSurvey
 {
 class Scene;
 
-/*!
-\brief Used for displaying a set of random picks in xyz coordinates.
-*/
+/*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject
@@ -49,7 +47,6 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
-    void			setRightHandSystem(bool);
 
     bool			setVisBody(visBase::RandomPos2Body*);
     				//!<Creates an EMObject for it.
@@ -64,7 +61,7 @@ protected:
     virtual			~RandomPosBodyDisplay();
     
     bool			updateVisFromEM();
-    virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
+    virtual void		fillPar(IOPar&) const;
     virtual int			usePar(const IOPar&);
 
     const mVisTrans*		transform_;

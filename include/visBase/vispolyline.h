@@ -16,12 +16,15 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
+#include "draw.h"
 
-class SoLineSet;
-class SoLineSet3D;
-class SoIndexedLineSet;
+
 class LineStyle;
-class SoMFInt32;
+
+
+namespace osgGeo {
+    class PolyLineNode;
+}
 
 namespace visBase
 {
@@ -33,39 +36,34 @@ class DrawStyle;
 
 */
 
-mExpClass(visBase) PolyLineBase : public VertexShape
+mExpClass(visBase) PolyLine : public VertexShape
 {
 public:
+    static PolyLine*	create()
+    			mCreateDataObj(PolyLine);
+
     int 		size() const;
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
-    virtual void	setLineStyle(const LineStyle&) = 0;
-    virtual const LineStyle& lineStyle() const = 0;
-protected:
-    			PolyLineBase(SoVertexShape*);
-    SoMFInt32*		numvertices_;
-};
-
-
-
-mExpClass(visBase) PolyLine	: public PolyLineBase
-{
-public:
-    static PolyLine*	create()
-			mCreateDataObj(PolyLine);
-
     void		setLineStyle(const LineStyle&);
     const LineStyle&	lineStyle() const;
 
+    void		setDisplayTransformation( const mVisTrans* );
+    			/*!<\note The transformation is forwarded to the
+			     the coordinates, if you change coordinates,
+			     you will have to setTransformation again.  */
+
 protected:
-    SoLineSet*		lineset_;
-    DrawStyle*		drawstyle_;
+    					~PolyLine();
+    DrawStyle*				drawstyle_;
+    Geometry::RangePrimitiveSet*	coordrange_;
 };
 
 
-mExpClass(visBase) PolyLine3D : public PolyLineBase
+
+mExpClass(visBase) PolyLine3D : public VertexShape
 {
 public:
     static PolyLine3D*	create()
@@ -73,31 +71,20 @@ public:
 
     void		setLineStyle(const LineStyle&);
     const LineStyle&	lineStyle() const;
+    void		setResolution(int);
+    int			getResolution() const;
+    void		addPrimitiveSetToScene(osg::PrimitiveSet*);
+    void		removePrimitiveSetFromScene(const osg::PrimitiveSet*);
+    void		touchPrimitiveSet(int);
+    void		setCoordinates(Coordinates*);
+    void		setDisplayTransformation( const mVisTrans* );
+    			/*!<\note The transformation is forwarded to the
+			     the coordinates, if you change coordinates,
+			     you will have to setTransformation again.  */
 
 protected:
-    SoLineSet3D*	lineset_;
-};
-
-
-mExpClass(visBase) IndexedPolyLine	: public IndexedShape
-{
-public:
-    static IndexedPolyLine*	create()
-				mCreateDataObj(IndexedPolyLine);
-};
-
-
-mExpClass(visBase) IndexedPolyLine3D	: public IndexedShape
-{
-public:
-    static IndexedPolyLine3D*	create()
-				mCreateDataObj(IndexedPolyLine3D);
-
-    float			getRadius() const;
-    void			setRadius(float,bool constantonscreen=true,
-	    				  float maxworldsize=-1);
-    void			setRightHandSystem(bool yn);
-    bool			isRightHandSystem() const;
+    osgGeo::PolyLineNode*	osgpoly_;
+    LineStyle			lst_;
 };
 
 

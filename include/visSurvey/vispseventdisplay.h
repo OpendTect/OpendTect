@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 namespace visBase 
 { 
-    class IndexedPolyLine; 
+    class PolyLine;
     class DrawStyle;
     class DataObjectGroup;
 };
@@ -31,10 +31,6 @@ namespace PreStack { class EventManager; class EventSet; }
 
 namespace visSurvey
 {
-
-/*!
-\brief PreStack event display.
-*/
 
 mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 		       public SurveyObject
@@ -105,10 +101,10 @@ protected:
     {
 					ParentAttachedObject(int);
 					~ParentAttachedObject();
-	visBase::DataObjectGroup*	separator_;
-	visBase::IndexedPolyLine*	lines_;
+	visBase::DataObjectGroup*	objectgroup_;
+	visBase::PolyLine*		lines_;
 
-	ObjectSet<visBase::Marker>	markers_;
+	visBase::MarkerSet*		markerset_;
 	ObjectSet<PreStack::EventSet>	eventsets_;
 	HorSampling			hrg_;
 
@@ -137,7 +133,7 @@ protected:
     ColTab::Mapper			ctabmapper_;
     ColTab::Sequence			ctabsequence_;
     MarkerStyle3D			markerstyle_;
-    visBase::DataObjectGroup*		eventseeds_;
+    visBase::MarkerSet*			eventmarkerset_;
 };
 
 } // namespace visSurvey

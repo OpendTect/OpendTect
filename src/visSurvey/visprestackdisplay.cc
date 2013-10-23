@@ -30,13 +30,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
-#include "visfaceset.h"
 #include "visflatviewer.h"
-#include "visforegroundlifter.h"
 #include "vismaterial.h"
-#include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
+
 #include <math.h>
 
 mCreateFactoryEntry( visSurvey::PreStackDisplay );
@@ -51,8 +49,6 @@ namespace visSurvey
 
 PreStackDisplay::PreStackDisplay()
     : VisualObjectImpl( true )
-    , draggerrect_( visBase::FaceSet::create() )
-    , pickstyle_( visBase::PickStyle::create() )
     , planedragger_( visBase::DepthTabPlaneDragger::create() )	
     , flatviewer_( visBase::FlatViewer::create() )
     , draggermoving( this )
@@ -74,81 +70,43 @@ PreStackDisplay::PreStackDisplay()
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
-    , lifter_( visBase::ForegroundLifter::create() )  
 {
     setMaterial( 0 );
     
     flatviewer_->ref();
+    flatviewer_->setPickable( false );
     flatviewer_->setSelectable( false );
-    flatviewer_->removeSwitch();
     flatviewer_->appearance().setGeoDefaults( true );
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
     flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    flatviewer_->dataChanged.notify( mCB(this,PreStackDisplay,dataChangedCB) );
-    addChild( flatviewer_->getInventorNode() );
-    
-    lifter_->ref();
-    lifter_->setLift(0.8);
-    addChild( lifter_->getInventorNode() );
-    
+    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
+    addChild( flatviewer_->osgNode() );
+
     planedragger_->ref();
     planedragger_->removeScaleTabs();
     planedragger_->motion.notify( mCB(this,PreStackDisplay,draggerMotion) );
     planedragger_->finished.notify( mCB(this,PreStackDisplay,finishedCB) );
-    addChild( planedragger_->getInventorNode() );
-    
-    draggerrect_->ref();
-    draggerrect_->removeSwitch();
-    draggerrect_->setVertexOrdering( 
-	    visBase::VertexShape::cCounterClockWiseVertexOrdering() );
-    draggerrect_->setShapeType( 
-	    visBase::VertexShape::cUnknownShapeType() );
-    draggerrect_->getCoordinates()->addPos( Coord3( -1,-1,0 ) );
-    draggerrect_->getCoordinates()->addPos( Coord3( 1,-1,0 ) );
-    draggerrect_->getCoordinates()->addPos( Coord3( 1,1,0 ) );
-    draggerrect_->getCoordinates()->addPos( Coord3( -1,1,0 ) );
-    draggerrect_->setCoordIndex( 0, 0 );
-    draggerrect_->setCoordIndex( 1, 1 );
-    draggerrect_->setCoordIndex( 2, 2 );
-    draggerrect_->setCoordIndex( 3, 3 );
-    draggerrect_->setCoordIndex( 4, -1 );
-
-    draggermaterial_ = visBase::Material::create();
-    draggermaterial_->ref();
-    draggerrect_->setMaterial( draggermaterial_ );
-    draggermaterial_->setTransparency( 0.5 ); 
-
-    planedragger_->setOwnShape( draggerrect_->getInventorNode() );
-    
-    pickstyle_->ref();
-    addChild( pickstyle_->getInventorNode() );
-    pickstyle_->setStyle( visBase::PickStyle::Shape );
+    addChild( planedragger_->osgNode() );
 }
 
 
 PreStackDisplay::~PreStackDisplay()
 {
-    lifter_->unRef();
-
-    pickstyle_->unRef();
-    draggerrect_->unRef();
-    draggermaterial_->unRef();
-
-    flatviewer_->dataChanged.remove( mCB(this,PreStackDisplay,dataChangedCB) );
+    flatviewer_->dataChange.remove( mCB(this,PreStackDisplay,dataChangedCB) );
     flatviewer_->unRef();
     
+    if ( planedragger_ )
+    {
+	planedragger_->motion.remove(
+	    mCB(this,PreStackDisplay,draggerMotion) );
+	planedragger_->finished.remove(
+	    mCB(this,PreStackDisplay,finishedCB) );
+	planedragger_->unRef();
+    }
+
     if ( section_ )
     {
-	if ( planedragger_ )
-	{ 
-	    planedragger_->motion.remove(
-		mCB(this,PreStackDisplay,draggerMotion) );
-	    planedragger_->finished.remove(
-		mCB(this,PreStackDisplay,finishedCB) );
-	    planedragger_->unRef();
-	}
-
     	section_->getMovementNotifier()->remove( 
 		mCB(this,PreStackDisplay,sectionMovedCB) );
     	section_->unRef();
@@ -321,36 +279,36 @@ bool PreStackDisplay::updateData()
     const bool haddata = flatviewer_->pack( false );
     PreStack::Gather* gather = new PreStack::Gather;
 
-    DataPack::ID displayid = DataPack::cNoID();
-    if ( preprocmgr_ && preprocmgr_->nrProcessors() )
-    {
-	displayid = preProcess();
-	delete gather;
-    }
-    else
-    {
+	DataPack::ID displayid = DataPack::cNoID();
+	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
+	{
+	    displayid = preProcess();
+	    delete gather;
+	}
+	else
+	{
 	if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,bid_)) ||
 	     (!is3DSeis() && !gather->readFrom(*ioobj_,*reader_,
 					       BinID(0,trcnr_))) )
-	    delete gather;
-	else
-	{
-	    DPM(DataPackMgr::FlatID()).add( gather );
-	    displayid = gather->id();
+		delete gather;
+	    else
+	    {
+    		DPM(DataPackMgr::FlatID()).add( gather );
+    		displayid = gather->id();
+	    }
 	}
-    }
 
-    if ( displayid==DataPack::cNoID() )
-    {
-	if ( haddata )
-	    flatviewer_->setPack( false, DataPack::cNoID(), false );
+	if ( displayid==DataPack::cNoID() )
+	{
+	    if ( haddata )
+		flatviewer_->setPack( false, DataPack::cNoID(), false );
+	    else
+		dataChangedCB( 0 );
+
+	    return false;
+	}
 	else
-	    dataChangedCB( 0 );
-
-	return false;
-    }
-    else
-	flatviewer_->setPack( false, displayid, false, !haddata );
+	    flatviewer_->setPack( false, displayid, false, !haddata );
 
     turnOn( true );
     return true;  
@@ -438,7 +396,7 @@ int PreStackDisplay::getNearTraceNr( int trcnr ) const
     if ( posnrs.isEmpty() )
 	return -1;
 
-    int mindist=-1, residx=mUdf(int);
+    int mindist=-1, residx=0;
     for ( int idx=0; idx<posnrs.size(); idx++ )
     {
 	const int dist = abs( posnrs[idx].nr_ - trcnr );
@@ -536,6 +494,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     const Coord3 c10( stoppos, zrg_.start ); 
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
+
     if ( section_ )
     {
 	bool isinline = 
@@ -549,24 +508,25 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     
     	planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
 	
-    	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
-    	planedragger_->setCenter( center );
+    	planedragger_->setCenter( (c01+c10)/2 );
 
-        Interval<float> xlim( mCast( float, SI().inlRange( true ).start ),
-			      mCast( float, SI().inlRange( true ).stop ) );
-        Interval<float> ylim( mCast( float, SI().crlRange( true ).start ),
-			      mCast( float, SI().crlRange( true ).stop ) );
-#define mBigNumber 1e15
-	
+        Interval<float> xlim( mCast(float, SI().inlRange(true).start),
+			      mCast(float, SI().inlRange(true).stop) );
+        Interval<float> ylim( mCast(float, SI().crlRange(true).start),
+			      mCast(float, SI().crlRange(true).stop) );
 	if ( isinline )
-	    xlim.widen( mBigNumber );
+	{
+	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
+	    xlim.sort();
+	}
 	else
-	    ylim.widen( mBigNumber );
+	{
+	    ylim.set( mCast(float,startpos.y), mCast(float,stoppos.y) );
+	    ylim.sort();
+	}
 
-	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
+	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange(true) );
     }
-    
-    draggermaterial_->setTransparency( 1 );
 }
 
 
@@ -726,12 +686,13 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 
     if ( planedragger_ )
     { 
+	removeChild( planedragger_->osgNode() );
      	planedragger_->motion.remove( mCB(this,PreStackDisplay,draggerMotion) );
     	planedragger_->finished.remove( mCB(this,PreStackDisplay,finishedCB) );
     	planedragger_->unRef();
+	planedragger_ = 0;
     }
 
-    pickstyle_->setStyle( visBase::PickStyle::Shape );
     if ( seis2d_ ) 
     {
 	if ( seis2d_->getMovementNotifier() )
@@ -841,7 +802,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 	      newinl!=bid_.inl() )
 	showplane = true;
     
-    draggermaterial_->setTransparency( showplane ? 0.5f : 1 );
+    planedragger_->showPlane( showplane );
+    planedragger_->showDraggerBorder( !showplane );
     
     draggerpos_ = BinID(newinl, newcrl);
     draggermoving.trigger();
@@ -869,6 +831,9 @@ void PreStackDisplay::finishedCB( CallBacker* )
 	return;
 
     setPosition(newpos);
+
+    planedragger_->showPlane( false );
+    planedragger_->showDraggerBorder( true );
 }
 
 
@@ -921,7 +886,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     double traceoffset = 0;
     if ( posdata.isIrregular() )
     {
-	float mindist = 0;
+	float mindist = mUdf(float);
 	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
 	{
 	    const float dist = (float) fabs( posdata.position(true,idx)-offset);
@@ -959,26 +924,24 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 }
 
 
-void PreStackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void PreStackDisplay::fillPar( IOPar& par ) const
 {
     if ( !section_ && !seis2d_ )
 	return;
 
-    SurveyObject::fillSOPar( par, saveids );
-    VisualObjectImpl::fillPar( par, saveids );
+    SurveyObject::fillSOPar( par );
+    VisualObjectImpl::fillPar( par );
+
     if ( section_ )
     {
-	saveids.addIfNew( section_->id() );
-        par.set( sKeyParent(), section_->id() );
+	par.set( sKeyParent(), section_->id() );
 	par.set( sKey::Position(), bid_ );
     }
 
     if  ( seis2d_ )
     {
-	saveids.addIfNew( seis2d_->id() );
-    	par.set( sKeyParent(), seis2d_->id() );
+	par.set( sKeyParent(), seis2d_->id() );
 	par.set( sKeyTraceNr(), trcnr_ );
-	//Line name is kept with parent
     }
     
     par.set( sKeyMultiID(), mid_ );

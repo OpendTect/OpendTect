@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalue.h"
 #include "cubesampling.h"
 #include "envvars.h"
+#include "fontdata.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "separstr.h"
@@ -23,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
@@ -43,6 +44,7 @@ namespace visSurvey {
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
+const char* Scene::sKeyAnnotFont()	{ return "Annotation font"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
@@ -51,20 +53,17 @@ const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
-static const char* sKeyShowColTab()	{ return "Show ColTab"; }
+    //static const char* sKeyShowColTab()	{ return "Show ColTab"; }
 
 
 Scene::Scene()
-    : inlcrl2disptransform_(0)
-    , utm2disptransform_(0)
-    , zscaletransform_(0)
+    : tempzstretchtrans_(0)
     , annot_(0)
-    , marker_(0)
+    , markerset_(0)
     , mouseposchange(this)
     , mouseposval_(0)
     , mouseposstr_("")
-    , zstretchchange(this)
-    , curzstretch_(-1)
+    , curzstretch_( 2 )
     , datatransform_( 0 )
     , appallowshad_(true)
     , userwantsshading_(true)
@@ -79,7 +78,7 @@ Scene::Scene()
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
-    init();
+    setup();
 
     if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
 	userwantsshading_ = false;
@@ -112,30 +111,22 @@ void Scene::updateAnnotationText()
 }
 
 
-void Scene::init()
+void Scene::setup()
 {
     annot_ = visBase::Annotation::create();
 
     const CubeSampling& cs = SI().sampling(true);
-    createTransforms( cs.hrg );
-    float zsc = STM().defZStretch();
-    if ( !SI().pars().get( STM().zStretchStr(), zsc ) )
-	SI().pars().get( STM().zOldStretchStr(), zsc );
-    setZStretch( zsc );
+
+    SI().pars().get( sKeyZStretch(), curzstretch_ );
+    updateTransforms( cs.hrg );
 
     setCubeSampling( cs );
     addInlCrlZObject( annot_ );
     updateAnnotationText();
 
-    polyselector_ = visBase::PolygonSelection::create();
-    addUTMObject( polyselector_ );
-    polyselector_->getMaterial()->setColor( Color(255,0,0) );
-    mTryAlloc( coordselector_, visBase::PolygonCoord3Selector(*polyselector_) );
-
     scenecoltab_ = visBase::SceneColTab::create();
     addUTMObject( scenecoltab_ );
     scenecoltab_->turnOn( false );
-    scenecoltab_->doSaveInSessions( false );
 
     topimg_ = visBase::TopBotImage::create();
     topimg_->setName( "TopImage");
@@ -153,9 +144,21 @@ void Scene::init()
     Settings::common().getYN( BufferString(sKeydTectScene(),str), doshow ); \
     func( doshow );
 
+#define mGetFontFromPar( par ) \
+BufferString font; \
+if ( par.get( sKeyAnnotFont(), font ) ) \
+{ \
+    FontData fd; \
+    if ( fd.getFrom( font.buf() ) ) \
+	setAnnotFont( fd ); \
+}
+
+
     mShowAnnot( sKeyShowAnnot(), showAnnotText );
     mShowAnnot( sKeyShowScale(), showAnnotScale );
     mShowAnnot( sKeyShowGrid(), showAnnotGrid );
+
+    mGetFontFromPar( Settings::common() )
 }
 
 
@@ -170,7 +173,6 @@ Scene::~Scene()
 
     events_.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
-    if ( utm2disptransform_ ) utm2disptransform_->unRef();
     if ( datatransform_ ) datatransform_->unRef();
 
     for ( int idx=0; idx<size(); idx++ )
@@ -189,34 +191,70 @@ Scene::~Scene()
     delete coordselector_;
     delete &infopar_;
     delete zdomaininfo_;
+
 }
 
 
-void Scene::createTransforms( const HorSampling& hs )
+void Scene::updateTransforms( const HorSampling& hs )
 {
-    if ( !zscaletransform_ )
+    if ( !tempzstretchtrans_ )
     {
-	mVisTrans* trans = STM().createZScaleTransform();
-	zscaletransform_ = trans;
-	visBase::DataObjectGroup::addObject( trans );
+	tempzstretchtrans_ = mVisTrans::create();
+	visBase::DataObjectGroup::addObject( tempzstretchtrans_ );
     }
 
-    if ( !inlcrl2disptransform_ )
+    RefMan<mVisTrans> newinlcrlrotation = mVisTrans::create();
+    RefMan<mVisTrans> newinlcrlscale = mVisTrans::create();
+
+    const float zfactor = -1 * zscale_*curzstretch_;
+    //-1 to compensate for that we want z to increase with depth
+
+    SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
+	zfactor, newinlcrlrotation, newinlcrlscale );
+
+    tempzstretchtrans_->addObject( newinlcrlrotation );
+
+    RefMan<mVisTrans> oldinlcrlrotation = inlcrlrotation_;
+    inlcrlrotation_ = newinlcrlrotation;
+    inlcrlscale_ = newinlcrlscale;
+
+    if ( oldinlcrlrotation )
     {
-	mVisTrans* trans = STM().createIC2DisplayTransform( hs );
-	inlcrl2disptransform_ = trans;
-	zscaletransform_->addObject(  trans );
+	tempzstretchtrans_->removeObject(
+			tempzstretchtrans_->getFirstIdx( oldinlcrlrotation ));
+
+	for ( int idx=0; idx<oldinlcrlrotation->size(); idx++ )
+	{
+	    RefMan<visBase::DataObject> dobj =
+	    	oldinlcrlrotation->getObject(idx);
+	    inlcrlrotation_->addObject( dobj );
+	    dobj->setDisplayTransformation( inlcrlscale_ );
+	}
+
+	oldinlcrlrotation->removeAll();
     }
 
-    if ( !utm2disptransform_ )
+    RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
+    SceneTransformManager::computeUTM2DisplayTransform(
+		    *SI().get3DGeometry(true), zfactor, newutm2disptransform );
+
+    if ( utm2disptransform_ )
     {
-	utm2disptransform_ = STM().createUTM2DisplayTransform( hs );
-	utm2disptransform_->ref();
+	for ( int idx=0; idx<tempzstretchtrans_->size(); idx++ )
+	{
+	    visBase::DataObject* dobj = tempzstretchtrans_->getObject( idx );
+	    if ( dobj->getDisplayTransformation()==utm2disptransform_ )
+	    {
+		dobj->setDisplayTransformation( newutm2disptransform );
+	    }
+	}
     }
+
+    utm2disptransform_ = newutm2disptransform;
 
     ObjectSet<visBase::Transformation> utm2display;
     utm2display += utm2disptransform_;
-    utm2display += zscaletransform_;
+    utm2display += tempzstretchtrans_;
     events_.setUtm2Display( utm2display );
 }
 
@@ -229,6 +267,7 @@ bool Scene::isRightHandSystem() const
 
 const ZDomain::Info& Scene::zDomainInfo() const
 { return *zdomaininfo_; }
+
 
 void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 {
@@ -274,7 +313,7 @@ void Scene::setCubeSampling( const CubeSampling& cs )
 
 int Scene::size() const
 {
-    return zscaletransform_->size()+inlcrl2disptransform_->size();
+    return tempzstretchtrans_->size()+inlcrlrotation_->size();
 }
 
 
@@ -292,10 +331,10 @@ int Scene::getFirstIdx( const visBase::DataObject* dobj ) const
 
 visBase::DataObject* Scene::getObject( int idx )
 {
-    if ( idx<zscaletransform_->size() )
-	return zscaletransform_->getObject( idx );
+    if ( idx<tempzstretchtrans_->size() )
+	return tempzstretchtrans_->getObject( idx );
 
-    return inlcrl2disptransform_->getObject( idx-zscaletransform_->size() );
+    return inlcrlrotation_->getObject( idx-tempzstretchtrans_->size() );
 }
 
 
@@ -308,8 +347,7 @@ const visBase::DataObject* Scene::getObject( int idx ) const
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
     obj->setDisplayTransformation( utm2disptransform_ );
-    const int idx = zscaletransform_->getFirstIdx( inlcrl2disptransform_ );
-    zscaletransform_->insertObject( idx, obj );
+    tempzstretchtrans_->addObject( obj );
 }
 
 
@@ -321,7 +359,8 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
 	so->setInlCrlSystem( SI().get3DGeometry(true) );
     }
 
-    inlcrl2disptransform_->addObject( obj );
+    obj->setDisplayTransformation( inlcrlscale_ );
+    inlcrlrotation_->addObject( obj );
 }
 
 
@@ -365,37 +404,53 @@ void Scene::removeObject( int idx )
     if ( so && so->getMovementNotifier() )
 	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 
-    if ( idx<zscaletransform_->size() )
-	zscaletransform_->removeObject( idx );
+    if ( idx<tempzstretchtrans_->size() )
+	tempzstretchtrans_->removeObject( idx );
     else
-	inlcrl2disptransform_->removeObject( idx-zscaletransform_->size() );
+	inlcrlrotation_->removeObject( idx-tempzstretchtrans_->size() );
 
     if ( so )
 	objectMoved(0);
 }
 
 
-void Scene::setZStretch( float zstretch )
+void Scene::setFixedZStretch( float zstretch )
 {
-    if ( !zscaletransform_ ) return;
-
     if ( mIsEqual(zstretch,curzstretch_,mDefEps) ) return;
 
-    STM().setZScale( zscaletransform_, zstretch*zscale_ );
     curzstretch_ = zstretch;
-    zstretchchange.trigger();
+    updateTransforms( cs_.hrg );
 }
 
 
-float Scene::getZStretch() const
+float Scene::getFixedZStretch() const
 { return curzstretch_; }
+
+
+float Scene::getTempZStretch() const
+{
+    return tempzstretchtrans_
+    	? mCast(float,tempzstretchtrans_->getScale().z)
+    	: 1.f;
+}
+
+
+void Scene::setTempZStretch( float zstretch )
+{
+    if ( !tempzstretchtrans_ )
+    {
+	pErrMsg("No z-transform");
+	return;
+    }
+
+    tempzstretchtrans_->setScale( Coord3(1,1,zstretch) );
+}
 
 
 void Scene::setZScale( float zscale )
 {
     zscale_ = zscale;
-    if ( zscaletransform_ )
-       	STM().setZScale( zscaletransform_, curzstretch_*zscale_ );
+    updateTransforms( cs_.hrg );
 }
 
 
@@ -403,12 +458,12 @@ float Scene::getZScale() const
 { return zscale_; }
 
 
-const mVisTrans* Scene::getZScaleTransform() const
-{ return zscaletransform_; }
+const mVisTrans* Scene::getTempZStretchTransform() const
+{ return tempzstretchtrans_; }
 
 
 const mVisTrans* Scene::getInlCrl2DisplayTransform() const
-{ return inlcrl2disptransform_; }
+{ return inlcrlrotation_; }
 
 
 const mVisTrans* Scene::getUTM2DisplayTransform() const
@@ -456,10 +511,21 @@ void Scene::setAnnotText( int dim, const char* txt )
 }
 
 
+const FontData& Scene::getAnnotFont() const
+{
+    return annot_->getFont();
+}
+
+
+void Scene::setAnnotFont( const FontData& nf )
+{
+    return annot_->setFont( nf );
+}
+
+
 void Scene::setAnnotColor( const Color& col )
 {
     annot_->getMaterial()->setColor( col );
-    annot_->updateTextColor( col );
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -470,9 +536,9 @@ void Scene::setAnnotColor( const Color& col )
 }
 
 
-const Color& Scene::getAnnotColor() const
+const Color Scene::getAnnotColor() const
 {
-    return annot_->getColor();
+    return annot_->getMaterial()->getColor();
 }
 
 
@@ -650,6 +716,9 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
+ZAxisTransform* Scene::getZAxisTransform()
+{ return datatransform_; }
+
 const ZAxisTransform* Scene::getZAxisTransform() const
 { return datatransform_; }
 
@@ -680,19 +749,20 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     const bool defined = displaypos.isDefined();
     if ( !defined )
     {
-	if ( marker_ )
-	    marker_->turnOn( false );
+	if ( markerset_ )
+	    markerset_->turnOn( false );
 	return;
     }
 
-    if ( !marker_ )
+    if ( !markerset_ )
     {
-	marker_ = createMarker();
-	addUTMObject( marker_ );
+	markerset_ = createMarkerSet();
+	addUTMObject( markerset_ );
     }
 
-    marker_->turnOn( true );
-    marker_->setCenterPos( displaypos );
+    markerset_->clearMarkers();
+    markerset_->getCoordinates()->addPos( displaypos );
+    markerset_->turnMarkerOn( 0, true );
 }
 
 
@@ -721,7 +791,7 @@ void Scene::updateBaseMapCursor( const Coord& coord )
 	if ( !defined )
 	    basemapcursor_->positions().erase();
 	else if ( basemapcursor_->positions().isEmpty() )
-	    basemapcursor_->positions() += coord;
+		basemapcursor_->positions() += coord;
 	else
 	    basemapcursor_->positions()[0] = coord;
 
@@ -729,61 +799,63 @@ void Scene::updateBaseMapCursor( const Coord& coord )
 	basemapcursor_->updateGeometry();
     }
 
-    basemap_->addObject( basemapcursor_ );
+	basemap_->addObject( basemapcursor_ );
 }
 
 
-visBase::Marker* Scene::createMarker() const
+visBase::MarkerSet* Scene::createMarkerSet() const
 {
-    visBase::Marker* marker = visBase::Marker::create();
-    marker->setType( MarkerStyle3D::Cross );
-    marker->getMaterial()->setColor( cDefaultMarkerColor() );
-    marker->setScreenSize( 6 );
-    return marker;
+    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
+    markerset->ref();
+    markerset->setType( MarkerStyle3D::Cross );
+    markerset->setMarkersSingleColor( cDefaultMarkerColor() );
+    markerset->setScreenSize( 9 );
+    markerset->unRefNoDelete();
+    return markerset;
 }
 
 
 void Scene::setMarkerSize( float nv )
 {
-    if ( !marker_ )
+    if ( !markerset_ )
     {
-	marker_ = createMarker();
-	addUTMObject( marker_ );
-	marker_->turnOn( false );
+	markerset_ = createMarkerSet();
+	addUTMObject( markerset_ );
+	markerset_->turnOn( false );
     }
 
-    marker_->setScreenSize( nv );
+    markerset_->setScreenSize( nv );
 }
 
 
 float Scene::getMarkerSize() const
 {
-    if ( !marker_ )
-	return visBase::Marker::cDefaultScreenSize();
+    if ( !markerset_ )
+	return visBase::MarkerSet::cDefaultScreenSize();
 
-    return marker_->getScreenSize();
+    return markerset_->getScreenSize();
 }
 
 
 void Scene::setMarkerColor( const Color& nc )
 {
-    if ( !marker_ )
+    if ( !markerset_ )
     {
-	marker_ = createMarker();
-	addUTMObject( marker_ );
-	marker_->turnOn( false );
+	markerset_ = createMarkerSet();
+	addUTMObject( markerset_ );
+	markerset_->turnOn( false );
     }
 
-    marker_->getMaterial()->setColor( nc );
+    markerset_->setMarkersSingleColor( nc );
 }
 
 
 const Color& Scene::getMarkerColor() const
 {
-    if ( !marker_ )
+    if ( !markerset_ )
 	return cDefaultMarkerColor();
-
-    return marker_->getMaterial()->getColor();
+    static const Color singlecolor = markerset_->getMarkersSingleColor();
+    return singlecolor;
 }
 
 
@@ -796,20 +868,22 @@ const Color& Scene::cDefaultMarkerColor()
 
 void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::DataObject::fillPar( par, saveids );
+    pErrMsg("Not implemented");
+
+    /*
     visBase::Scene::fillOffsetPar( par );
 
     int kid = 0;
     int nrkids = 0;    
     for ( ; kid<size(); kid++ )
     {
-	if ( getObject(kid)==annot_ || (marker_ && getObject(kid)==marker_) ||
+	if ( getObject(kid)==annot_ ||
+	     (markerset_ && getObject(kid)==markerset_) ||
 	     getObject(kid)==inlcrl2disptransform_ ||
 	     getObject(kid)==polyselector_ ) continue;
 
 	const visBase::DataObject* dobj = getObject( kid );
-	const bool saveinsess = dobj && dobj->saveInSessions();
-	if ( !saveinsess )
+	if ( !dobj )
 	    continue;
 
 	const int objid = dobj->id();
@@ -831,6 +905,10 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyAppAllowShading(), appallowshad_ );
     par.setYN( sKeyShowColTab(), scenecoltab_->isOn() );
 
+    BufferString font;
+    getAnnotFont().putTo( font );
+    par.set( sKeyAnnotFont(), font );
+
     if ( datatransform_ )
     {
 	IOPar transpar;
@@ -848,19 +926,24 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKey::Scale(), zscale_ );
     par.set( sKeyTopImageID(), topimg_->id() );
     par.set( sKeyBotImageID(), botimg_->id() );
+     */
 }
 
+#define mRemoveSelector \
+unRefAndZeroPtr( polyselector_ ); \
+deleteAndZeroPtr( coordselector_ )
 
 void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
-    const int idx = visBase::DataObjectGroup::getFirstIdx( zscaletransform_ );
+    const int idx = visBase::DataObjectGroup::getFirstIdx( tempzstretchtrans_ );
     if ( idx!=-1 )
 	visBase::DataObjectGroup::removeObject( idx );
 
-    zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
-    polyselector_= 0;
-    delete coordselector_; coordselector_ = 0;
+    tempzstretchtrans_ = 0; inlcrlrotation_ = 0; annot_ = 0;
+
+    mRemoveSelector;
+
     curzstretch_ = -1;
 }
 
@@ -868,7 +951,11 @@ void Scene::removeAll()
 int Scene::usePar( const IOPar& par )
 {
     removeAll();
-    init();
+    setup();
+
+    pErrMsg("Not impl.");
+
+    /*
 
     appallowshad_ = true;
     if ( !par.getYN( sKeyAppAllowShading(), appallowshad_ ) )
@@ -913,6 +1000,8 @@ int Scene::usePar( const IOPar& par )
     par.getYN( sKeyShowAnnot(), txtshown );
     showAnnotText( txtshown );
 
+    mGetFontFromPar( par );
+
     bool scaleshown = true;
     par.getYN( sKeyShowScale(), scaleshown );
     showAnnotScale( scaleshown );
@@ -938,6 +1027,7 @@ int Scene::usePar( const IOPar& par )
     res = getImageFromPar( par, sKeyBotImageID(), botimg_ );
     if ( res != 1 ) return res;
 
+     */
     return 1;
 }
 
@@ -965,6 +1055,21 @@ visBase::TopBotImage* Scene::getTopBotImage( bool istop )
 { return istop ? topimg_ : botimg_; }
 
 
+void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
+{
+    mRemoveSelector;
+
+    if ( ps )
+    {
+	polyselector_ = ps;
+	polyselector_->ref();
+	polyselector_->setUTMCoordinateTransform( utm2disptransform_ );
+	mTryAlloc(coordselector_,
+		  visBase::PolygonCoord3Selector(*polyselector_));
+    }
+}
+
+
 void Scene::savePropertySettings()
 {
 #define mSaveProp(str,func) \
@@ -973,6 +1078,10 @@ void Scene::savePropertySettings()
     mSaveProp( sKeyShowAnnot(), isAnnotTextShown );
     mSaveProp( sKeyShowScale(), isAnnotScaleShown );
     mSaveProp( sKeyShowGrid(), isAnnotGridShown );
+
+    BufferString font;
+    getAnnotFont().putTo( font );
+    Settings::common().set( sKeyAnnotFont(), font );
     Settings::common().write();
 }
 

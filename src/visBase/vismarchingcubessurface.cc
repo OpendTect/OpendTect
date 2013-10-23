@@ -16,9 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "samplingdata.h"
 #include "viscoord.h"
 #include "visgeomindexedshape.h"
-
-#include <Inventor/nodes/SoShapeHints.h>
-#include <Inventor/nodes/SoMaterialBinding.h>
+#include "vistransform.h"
 
 mCreateFactoryEntry( visBase::MarchingCubesSurface );
 
@@ -35,17 +33,13 @@ MarchingCubesSurface::MarchingCubesSurface()
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
 {
-    SoMaterialBinding* materialbinding = new SoMaterialBinding;
-    addChild( materialbinding );
-    materialbinding->value = SoMaterialBinding::OVERALL;
 
     shape_->ref();
-    shape_->removeSwitch();
-    addChild( shape_->getInventorNode() );
+    addChild( shape_->osgNode() );
     shape_->setSelectable( false );
-
-    shape_->setSurface( surface_ );
     shape_->setMaterial( 0 );
+    shape_->useOsgNormal( true );
+
     renderOneSide( 0 );
 }
 
@@ -72,6 +66,7 @@ bool MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
        TaskRunner* tr	)
 {
     surface_->setSurface( &ns );
+    shape_->setSurface( surface_,tr );
     return touch( true, tr );
 }
 
@@ -143,14 +138,24 @@ void MarchingCubesSurface::setBoxBoundary( float maxx, float maxy, float maxz )
 }
 
 
+void MarchingCubesSurface::setDisplayTransformation( const mVisTrans* trans )
+{
+    shape_->setDisplayTransformation( trans );
+
+}
+
+void MarchingCubesSurface::getTransformCoord( Coord3& pos )
+{
+    Coord3 postoset = pos;
+    if ( postoset.isDefined() )
+    {
+	Transformation::transform( transform_, postoset );
+    }
+    pos =  postoset;
+}
+
 void MarchingCubesSurface::updateDisplayRange()
 {
-    if ( displaysection_==-1 )
-    {    
-	surface_->setAxisScales( SamplingData<float>(xrg_), 
-		SamplingData<float>(yrg_), SamplingData<float>(zrg_) );   
-	return;
-    }
 
     if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start) || 
 	 mIsUdf(yrg_.start) || mIsUdf(zrg_.start) || mIsUdf(xrg_.stop) ||
@@ -185,14 +190,15 @@ void MarchingCubesSurface::updateDisplayRange()
 	zrg_.step = 0;
     }
 
-    surface_->setAxisScales( SamplingData<float>(xrg_), 
-	    SamplingData<float>(yrg_), SamplingData<float>(zrg_) );
 }
 
 
-const SamplingData<float>& MarchingCubesSurface::getScale( int dim ) const
+const SamplingData<float> MarchingCubesSurface::getScale( int dim ) const
 {
-    return surface_->getAxisScale( dim );
+    if ( dim == 0 ) return SamplingData<float>( xrg_);
+    else if ( dim == 1) return SamplingData<float> ( yrg_ );
+    else if ( dim == 2) return SamplingData<float> ( zrg_ );
+    else return SamplingData<float>( 0, 1 );
 }
 
 

@@ -87,13 +87,16 @@ bool doWork( od_int64 start, od_int64 stop, int )
     {	
     	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;
-    
+
+	IndexedGeometry* idxgeom = const_cast<IndexedGeometry*> (inp);
+	Geometry::PrimitiveSet* geomps = idxgeom->getCoordsPrimitiveSet();
+
 	TypeSet<Coord3>& res = stickintersections_[idx];
-	for ( int idy=0; idy<inp->coordindices_.size()-3; idy+=4 )
+	for ( int idy=0; idy<geomps->size()-3; idy+=4 )
 	{
 	    Coord3 v[3];
 	    for ( int k=0; k<3; k++ )
-		v[k] = coordlist->get(inp->coordindices_[idy+k]);
+		v[k] = coordlist->get(geomps->get(idy+k));
 	    const Coord3 center = (v[0]+v[1]+v[2])/3;
       
 	    Interval<int> trrg, tcrg; 
@@ -378,10 +381,11 @@ void FaultBinIDSurfaceIntersector::compute()
     }
     
     geo->removeAll( true );
-    for ( int idx=0; idx<possize; idx++ )
-	geo->coordindices_ += crdlist_.add( res[idx] );
+    Geometry::PrimitiveSet* idxps = geo->getCoordsPrimitiveSet();
 
-    geo->coordindices_ += -1;
+    for ( int idx=0; idx<possize; idx++ )
+	idxps->append( crdlist_.add( res[idx] ) );
+
     geo->ischanged_ = true;
 }
 

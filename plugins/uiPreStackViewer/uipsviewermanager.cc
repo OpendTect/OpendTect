@@ -126,7 +126,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 
     if ( psv && psv->flatViewer() )
     {
- 	const int nrres = psv->flatViewer()->nrResolutions();
+ 	/*const int nrres = psv->flatViewer()->nrResolutions();
  	BufferStringSet resolutions;
  	for ( int idx=0; idx<nrres; idx++ )
   	    resolutions.add( psv->flatViewer()->getResolutionName(idx) );
@@ -136,7 +136,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
   	    resolutionmenuitem_.getItem(idx)->checkable = true;
  
 	resolutionmenuitem_.getItem(
-	  	psv->flatViewer()->getResolution() )->checked = true;
+	  	psv->flatViewer()->getResolution() )->checked = true;*/
     }
     viewermenuitem_.removeItems();
 
@@ -234,9 +234,9 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	    resolutionmenuitem_.itemIndex(mnuid)!=-1 )
     {
  	menu->setIsHandled( true );
-  	if ( psv->flatViewer() )
+  	/*if ( psv->flatViewer() )
    	    psv->flatViewer()->setResolution( 
-		    resolutionmenuitem_.itemIndex(mnuid) );
+		    resolutionmenuitem_.itemIndex(mnuid) );*/
     }
     else if ( mnuid == viewermenuitem_.id )
     {
@@ -343,16 +343,16 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	return false;
     }
 
+    /*
     const int res = pdd ? pdd->getResolution() : s2d->getResolution();
     if ( viewer->flatViewer() )
-   	viewer->flatViewer()->setResolution( res );
+   	viewer->flatViewer()->setResolution( res );*/
 
     //set viewer angle.
     const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
-    const Coord3 campos = sovwr->getCameraPosition();
-    const Coord3 displaycampos = 
+    Coord3 campos = sovwr->getCameraPosition();
 	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
-    const BinID dir0 = SI().transform(displaycampos)-SI().transform(pickedpos);
+    const BinID dir0 = SI().transform(campos)-SI().transform(pickedpos);
     const Coord dir( dir0.inl(), dir0.crl() );
     viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
     

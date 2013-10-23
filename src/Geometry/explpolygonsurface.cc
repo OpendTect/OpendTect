@@ -26,18 +26,18 @@ ExplPolygonSurface::ExplPolygonSurface( const PolygonSurface* surf,
     , scalefacs_( 1, 1, zscale)			  
     , needsupdate_( true )			  
 {
-    setSurface( surf );
+    setPolygonSurface( surf );
 }
 
 
 ExplPolygonSurface::~ExplPolygonSurface()
 {
     delete tetrahedratree_;
-    setSurface( 0 );
+    setPolygonSurface( 0 );
 }
 
 
-void ExplPolygonSurface::setSurface( const PolygonSurface* psurf )
+void ExplPolygonSurface::setPolygonSurface( const PolygonSurface* psurf )
 {
     removeAll( true );
     surface_ = psurf;
@@ -93,7 +93,6 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     		plgcrdindices += knotidx;
 	    
     	    plgcrdindices += prevnrknots;
-    	    plgcrdindices += -1;
 	}
     }
 
@@ -104,21 +103,35 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 
     if ( displaypolygons_ )
     {
-	polygondisplay_->coordindices_.erase();
-	for ( int idx=0; idx<plgcrdindices.size(); idx++ )
-    	    polygondisplay_->coordindices_ += plgcrdindices[idx];
-
+	polygondisplay_->setCoordIndices( plgcrdindices );
 	polygondisplay_->ischanged_ = true;
     }
   
     if ( displaybody_ && !updateBodyDisplay() )
 	return false;
 
-    setRightHandedNormals( true );
     needsupdate_ = true;
     return true;
 }
 
+void ExplPolygonSurface::addToTrianglePrimitiveSet(Geometry::PrimitiveSet* ps,
+    int idx1, int idx2, int idx3 )
+{
+    if ( !ps ) return;
+    Geometry::IndexedPrimitiveSet* idxps = (Geometry::IndexedPrimitiveSet*) ps;
+
+    const int pssize = idxps->size();
+    const int nrtriangles = pssize/3;
+
+    bool reverse = bool( nrtriangles%2 ) ? true : false;
+
+    //reverse = false;
+    const int startidx = reverse ? idx3 : idx1;
+    const int endidx = reverse ? idx1 : idx3;
+    idxps->append( startidx );
+    idxps->append( idx2 );
+    idxps->append( endidx );
+}
 
 bool ExplPolygonSurface::updateBodyDisplay()
 {
@@ -126,19 +139,28 @@ bool ExplPolygonSurface::updateBodyDisplay()
     if ( sampsz<3 || surface_->nrPolygons()<2 )
 	return true;
 
+    Geometry::IndexedPrimitiveSet* idxps =
+	(Geometry::IndexedPrimitiveSet*)bodytriangle_->getCoordsPrimitiveSet();
+
+    if ( !idxps ) return false;
+
     if ( sampsz==3 )
     {
-	bodytriangle_->coordindices_.erase();
- 	bodytriangle_->coordindices_ += 0;
- 	bodytriangle_->coordindices_ += 1;
- 	bodytriangle_->coordindices_ += 2;
-       	bodytriangle_->coordindices_ += -1;
+	idxps->setEmpty();
+	//addToTrianglePrimitiveSet(
+	//    bodytriangle_->getCoordsPrimitiveSet(), 0, 1, 2 );
+	TypeSet<int> smpidxs;
+	for ( int idx = 0; idx<3; idx ++)
+	    smpidxs += idx;
+	bodytriangle_->appendCoordIndices( smpidxs );
  	bodytriangle_->ischanged_ = true;
  	return true;	
     }
 
-    if ( !tetrahedratree_ ) 
-      tetrahedratree_ = new DAGTetrahedraTree;	
+    if ( tetrahedratree_ )
+	delete tetrahedratree_;
+
+    tetrahedratree_ = new DAGTetrahedraTree;
   
     TypeSet<Coord3> pts;
     for ( int idx=0; idx<sampsz; idx++ )
@@ -154,6 +176,11 @@ bool ExplPolygonSurface::updateBodyDisplay()
     sampleindices_.erase();
     tetrahedratree_->getSurfaceTriangles( sampleindices_ );
     
+    //TypeSet<Coord3> normals;
+    //
+    //tetrahedratree_->getSurfaceTrianglesAndNormals( sampleindices_, normals );
+
+
     const int nrindices = sampleindices_.size();
     TypeSet<int> invalidknots;
     for ( int idx=0; idx<pts.size(); idx++ )
@@ -167,9 +194,12 @@ bool ExplPolygonSurface::updateBodyDisplay()
 
 	if ( counts && counts<3 )
 	    invalidknots += idx;
+
+	normallist_->set( idx, Coord3( 0 , 0 , 0 ) );
     }
    
-    bodytriangle_->coordindices_.erase();
+    idxps->setEmpty();
+
     bool allvalid = !invalidknots.size();
     for ( int idx=0; idx<nrindices/3; idx++ )
     {
@@ -178,10 +208,18 @@ bool ExplPolygonSurface::updateBodyDisplay()
 			    invalidknots.validIdx(sampleindices_[3*idx+2]) ) )
 	    continue;
 
-	bodytriangle_->coordindices_ += sampleindices_[3*idx];
-	bodytriangle_->coordindices_ += sampleindices_[3*idx+1];
-	bodytriangle_->coordindices_ += sampleindices_[3*idx+2];
-	bodytriangle_->coordindices_ += -1;
+	TypeSet<int> triangleidxs;
+	for ( int triangleidx = 3*idx; triangleidx < (3*idx+3); triangleidx++)
+	{
+	    triangleidxs += sampleindices_[triangleidx];
+	   // normallist_->set( triangleidx, normals[idx] );
+	}
+	    //addToTrianglePrimitiveSet(
+	    //bodytriangle_->getCoordsPrimitiveSet(), ,
+	    //sampleindices_[3*idx+1], sampleindices_[3*idx+2] );
+	bodytriangle_->appendCoordIndices( triangleidxs );
+	calcNormals( idx, sampleindices_[3*idx],sampleindices_[3*idx+1],
+	    sampleindices_[3*idx+2] );
     }
 
     bodytriangle_->ischanged_ = true;
@@ -189,10 +227,52 @@ bool ExplPolygonSurface::updateBodyDisplay()
 }
 
 
+
+void ExplPolygonSurface::calcNormals( int nrtriangles,
+    int idx1, int idx2, int idx3 )
+{
+    if ( idx1>= sampleindices_.size() ||
+	idx2 >= sampleindices_.size() ||
+	idx3 >= sampleindices_.size() )
+    return;
+
+    bool reverse = bool( nrtriangles%2 ) ? true : false;
+
+    reverse = false;
+
+    const int startidx = reverse ? idx3 : idx1;
+    const int endidx = reverse ? idx1 : idx3;
+
+    const Coord3 cstart = coordlist_->get( startidx );
+    const Coord3 cmiddel = coordlist_->get( idx2 );
+    const Coord3 cend = coordlist_->get( endidx );
+
+    if ( !cstart.isDefined() || !cmiddel.isDefined() || !cend.isDefined() )
+	return;
+
+    const Coord3 v0 = cstart- cmiddel;
+    const Coord3 v1 = cend- cmiddel;
+
+    Coord3 normal = v0.cross( v1 ).normalize();
+
+    const double normalsqlen = normal.sqAbs();
+    if ( !normalsqlen )
+	normal = Coord3( 1, 0, 0 );
+    else
+	normal /= Math::Sqrt( normalsqlen );
+
+    normallist_->set( idx1, normal );
+    normallist_->set( idx2, normal );
+    normallist_->set( idx3, normal );
+}
+
+
 bool ExplPolygonSurface::prepareBodyDAGTree()
 {
-    if ( !tetrahedratree_ )
-	tetrahedratree_ = new DAGTetrahedraTree;
+    if ( tetrahedratree_ )
+	delete tetrahedratree_;
+
+    tetrahedratree_ = new DAGTetrahedraTree;
 
     if ( !surface_ )
 	return false;
@@ -259,7 +339,10 @@ char ExplPolygonSurfacerrlocationToSurface( const Coord3 pt )
 	    continue;
 
 	if ( !ptonplane.isDefined() )
-	    { pErrMsg( "Something is wrong!" ); continue; }
+	{
+	    pErrMsg( "Something is wrong!" );
+	    continue;
+	}
 
 	if ( pointInTriangle3D(ptonplane,v0,v1,v2,1e-3) )
 	{
@@ -301,7 +384,7 @@ void ExplPolygonSurface::addToGeometries( IndexedGeometry* ig )
 
     mGetIndexedShapeWriteLocker4Geometries();
     if ( geometries_.isPresent( ig ) )
-	{ pErrMsg("Adding more than once"); }
+	pErrMsg("Adding more than once");
 
     ig->ischanged_ = true;
     geometries_ += ig;
@@ -320,28 +403,6 @@ void ExplPolygonSurface::removeFromGeometries( const IndexedGeometry* ig )
 }
 
 
-void ExplPolygonSurface::setRightHandedNormals( bool yn )
-{
-    if ( yn==righthandednormals_ )
-	return;
-
-    IndexedShape::setRightHandedNormals( yn );
-
-    if ( !normallist_ )
-	return;
-
-    int id = -1;
-    while ( true )
-    {
-	id = normallist_->nextID( id );
-	if ( id==-1 )
-	    break;
-
-	normallist_->set( id, -normallist_->get( id ) );
-    }
-}
-
-
 void ExplPolygonSurface::updateGeometries()
 {
     if ( !displaybody_ && bodytriangle_ )
@@ -351,7 +412,7 @@ void ExplPolygonSurface::updateGeometries()
     else if ( !bodytriangle_ && displaybody_ )
     {
 	bodytriangle_ = new IndexedGeometry( IndexedGeometry::TriangleStrip,
-	       IndexedGeometry::PerVertex, coordlist_, normallist_, 0 );
+					     coordlist_, normallist_, 0 );
 
 	addToGeometries( bodytriangle_ );
     }
@@ -363,8 +424,7 @@ void ExplPolygonSurface::updateGeometries()
     else if ( !polygondisplay_ && displaypolygons_ )
     {
 	polygondisplay_ = new IndexedGeometry( IndexedGeometry::Lines, 
-		IndexedGeometry::PerFace, coordlist_, normallist_, 0 );
-
+					       coordlist_, normallist_, 0 );
 	addToGeometries( polygondisplay_ );
     }
 }

@@ -5,7 +5,6 @@ SET( INCLUDES
     ODUtils
     ODQtUtils
     ODZlibUtils
-    ODCoinUtils
     ODOsgUtils
     ODBreakPadUtils
     ODMacroUtils

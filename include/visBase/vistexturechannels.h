@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "odmemory.h"
 
-class SoSwitch;
-class SoTextureComposer;
 class SbImagei32;
 class TaskRunner;
 namespace osgGeo { class LayeredTexture; }
@@ -89,7 +87,10 @@ public:
 
     osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
     const TypeSet<int>*		getOsgIDs(int channel) const;
-    
+
+    void			enableTextureInterpolation(bool);
+    bool			textureInterpolationEnabled() const;
+
 protected:
     friend			class ChannelInfo;
     void			update(int channel,bool tc2rgba);
@@ -97,31 +98,12 @@ protected:
     				~TextureChannels();
 
     ObjectSet<ChannelInfo>	channelinfo_;
-    MappedTextureDataSet*	tc_;
-    SoSwitch*			onoff_;
+
     TextureChannel2RGBA*	tc2rgba_;
     osgGeo::LayeredTexture*	osgtexture_;
-
-    virtual SoNode*		gtInvntrNode();
-
+    bool			interpolatetexture_;
 };
 
-
-
-mExpClass(visBase) TextureComposer : public DataObject
-{
-public:
-
-    static TextureComposer*	create() 
-				mCreateDataObj(TextureComposer);
-    void			setOrigin(int,int,int);
-    void			setSize(int,int,int);
-protected:
-				~TextureComposer();
-    virtual SoNode*		gtInvntrNode();
-
-    SoTextureComposer*		texturecomposer_;
-};
 
 }; // Namespace
 

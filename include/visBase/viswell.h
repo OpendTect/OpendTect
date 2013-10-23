@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 
 #include "visbasemod.h"
-#include "visbasemod.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
@@ -26,19 +25,27 @@ class LineStyle;
 class TaskRunner;
 class VisColorTab;
 class ZAxisTransform;
-class SoPlaneWellLog;
 
-class SoSwitch;
+
+namespace osgGeo
+{
+    class PlaneWellLog;
+}
+
 
 namespace visBase
 {
-class PolyLineBase;
-class DataObjectGroup;
-class Text2;
-class Transformation;
 
-/*!
-\brief Base class for well display.
+class PolyLine3D;
+class PolyLine;
+class PolyLineBase;
+class Text2;
+class Text;
+class Transformation;
+class MarkerSet;
+
+/*! \brief
+Base class for well display
 */
 
 mExpClass(visBase) Well : public VisualObjectImpl
@@ -47,6 +54,8 @@ public:
 
     static Well*		create()
     				mCreateDataObj(Well);
+
+    enum			Side { Left, Right };
 
     mStruct(visBase) BasicParams
     {
@@ -88,7 +97,9 @@ public:
 	Coord3* 		pos_;
     };
 
+    void			setMarkerSetParams(const MarkerParams&);
     void			addMarker(const MarkerParams&);
+
     bool			canShowMarkers() const;
     void			showMarkers(bool);
     int				markerScreenSize() const;
@@ -117,7 +128,7 @@ public:
 	bool			isblock_;
 	int                 	logwidth_;
 	int                 	logidx_;
-	int                 	lognr_;
+	Well::Side              side_;
 	Interval<float> 	range_;
 	Interval<float> 	valrange_;
 	bool 			sclog_; 
@@ -138,44 +149,43 @@ public:
     void			setLineStyle(const LineStyle&);
 
     void 			initializeData(const LogParams&,int);
-    void			setLogData(const TypeSet<Coord3Value>&, 
-					   const LogParams&);
-    void			setFilledLogData(const TypeSet<Coord3Value>&, 
-					   	 const LogParams&);
     float 			getValue(const TypeSet<Coord3Value>&,int,bool,
 	    				 const LinScaler&) const;
     Coord3 			getPos(const TypeSet<Coord3Value>&,int) const;
-    void			setLogColor(const Color&,int);
-    const Color&		logColor(int) const;
+    void			setLogColor(const Color&,Side);
+    const Color&		logColor(Side) const;
     const Color&		logFillColor(int) const;
-    void			clearLog(int);
-    void			setLogLineDisplayed(bool,int);
-    bool			logLineDisplayed(int) const;
-    void			setLogLineWidth(float,int);
-    float			logLineWidth(int) const;
-    void			setLogWidth(int,int);
+    void			clearLog(Side);
+
+    void			setLogLineDisplayed(bool,Side);
+    bool			logLineDisplayed(Side) const;
+    void			setLogLineWidth(float,Side);
+    float			logLineWidth(Side) const;
+    void			setLogWidth(int,Side);
     int				logWidth() const;
     void			showLogs(bool);
-    void			showLog(bool,int);
+    void			showLog(bool,Side);
     bool			logsShown() const;
     void			showLogName(bool);
     bool			logNameShown() const; 
-    void			setLogStyle(bool,int);
-    void			setLogFill(bool,int);
+    void			setLogStyle(bool,Side);
+    void			setLogFill(bool,Side);
     void			setLogBlock(bool,int);
-    void			setOverlapp(float,int);
-    void			setRepeat(int);
+    void			setOverlapp(float,Side);
+    void			setRepeat( int,Side );
     void			removeLogs();
-    void			hideUnwantedLogs(int,int);
-    void			showOneLog(bool,int,int);
     void 			setTrackProperties(Color&,int);
-    void			setLogFillColorTab(const LogParams&,int);
+    void			setLogFillColorTab(const LogParams&,Side);
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			setLogData(const TypeSet<Coord3Value>& crdvals,
+					 const TypeSet<Coord3Value>& crdvalsF,
+					const LogParams& lp, bool isFilled );
+
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar& par);
     int				markersize_;
     
@@ -192,13 +202,14 @@ public:
 protected:
     				~Well();
 
-    PolyLineBase*		track_;
+    PolyLine*			track_;
+    MarkerSet*			markerset_;
+    osgGeo::PlaneWellLog*	leftlog_;
+    osgGeo::PlaneWellLog*	rightlog_;
+
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
-    DataObjectGroup*		markergroup_;
-    SoSwitch*			markernmswitch_;
-    DataObjectGroup*		markernames_;
-    SoSwitch*			lognmswitch_;
+    Text2*			markernames_;
     Text2*			lognmleft_;
     Text2*			lognmright_;
     const mVisTrans*		transformation_;
@@ -207,13 +218,21 @@ protected:
     bool			showlogs_;
     float			constantlogsizefac_;
     
-    ObjectSet<SoPlaneWellLog>	log_;
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
+
+private:
+    void			setText(Text*, const char*, Coord3*,
+					const FontData&);
+
+    void			getLinScale(const LogParams&,
+					    LinScaler&,
+					    bool isFill = true);
+    void			getLinScaleRange( const LinScaler&,
+				    Interval<float>&, float&, float&, bool);
+
 };
 
 } // namespace visBase
 
 #endif
-
-

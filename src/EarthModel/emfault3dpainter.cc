@@ -238,10 +238,10 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	    {
 		if ( cs_.defaultDir() == CubeSampling::Inl )
 		    stickauxdata.poly_ += FlatView::Point(
-			    		SI().transform(pos.coord()).crl(), pos.z);
+				    SI().transform(pos.coord()).crl(), pos.z);
 		else if ( cs_.defaultDir() == CubeSampling::Crl )
 		    stickauxdata.poly_ += FlatView::Point(
-			    		SI().transform(pos.coord()).inl(), pos.z);
+				    SI().transform(pos.coord()).inl(), pos.z);
 	    }
 	}
     }
@@ -384,10 +384,12 @@ bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
     if ( !idxshape->getGeometry().size() )
 	return false;
 
-    const Geometry::IndexedGeometry* idxgeom = idxshape->getGeometry()[0];
-    TypeSet<int> coordindices = idxgeom->coordindices_;
+    Geometry::IndexedGeometry* idxgeom = idxshape->getGeometry()[0];
+//    TypeSet<int> coordindices = idxgeom->coordindices_;
 
-    if ( !coordindices.size() )
+    Geometry::PrimitiveSet* geomps = idxgeom->getCoordsPrimitiveSet();
+
+    if ( !geomps->size() )
 	return false;
 
     Coord3List* clist = idxshape->coordList();
@@ -405,16 +407,16 @@ bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
     }
 
 
-    genIntersectionAuxData( f3d, f3dmaker, coordindices, intxnposs );
+    genIntersectionAuxData( f3d, f3dmaker, geomps, intxnposs );
 
     return true;
 }
 
 
 void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
-					    Fault3DMarker* f3dmaker,
-					    TypeSet<int>& coordindices,
-					    TypeSet<Coord3>& intxnposs)
+					Fault3DMarker* f3dmaker,
+					const Geometry::PrimitiveSet* coordps,
+					TypeSet<Coord3>& intxnposs)
 {
     FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
 
@@ -424,9 +426,9 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
     intsecauxdat->linestyle_.color_ = f3d.preferredColor();
     intsecauxdat->enabled_ = linenabled_;
 
-    for ( int idx=0; idx<coordindices.size(); idx++ )
+    for ( int idx=0; idx<coordps->size(); idx++ )
     {
-	if ( coordindices[idx] == -1 )
+	if ( coordps->get(idx) == -1 )
 	{
 	    viewer_.addAuxData( intsecauxdat );
 	    f3dmaker->intsecmarker_ += intsecauxdat;
@@ -439,7 +441,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	    continue;
 	}
 
-	const Coord3 pos = intxnposs[coordindices[idx]];
+	const Coord3 pos = intxnposs[coordps->get(idx)];
 	BinID posbid =  SI().transform( pos.coord() );
 
 	if ( path_ )
@@ -453,7 +455,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	}
 
 	if ( cs_.nrZ() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), posbid.crl() );
+	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), posbid.crl());
 	else if ( cs_.nrCrl() == 1 )
 	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), pos.z );
 	else if ( cs_.nrInl() == 1 )

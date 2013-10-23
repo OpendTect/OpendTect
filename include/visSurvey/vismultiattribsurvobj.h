@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 namespace visBase
 {
-    class MultiTexture2;
     class TextureChannels;
     class TextureChannel2RGBA;
 };
@@ -29,16 +28,16 @@ namespace ColTab  { class MapperSetup; class Sequence; }
 namespace visSurvey
 {
 
-/*!
-\brief Base class for objects with multitextures. Class handles all texture
-handling for inheriting classes, which avoids code duplication.
+/*!Base class for objects with multitextures. Class handles all texture handling
+   for inheriting classes, which avoids code duplication.
 */
 
-mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl,
-				  public SurveyObject
+
+mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl
+    					      , public SurveyObject
 {
 public:
-    void			turnOn(bool yn);
+    bool			turnOn(bool yn);
     bool			isOn() const;
     bool			isShown() const;
     				//!<Returns true if displayed, i.e. it is
@@ -93,7 +92,7 @@ public:
     void			selectTexture(int attrib, int texture );
     int				selectedTexture(int attrib) const;
 
-    void			fillPar(IOPar&, TypeSet<int>&) const;
+    void			fillPar(IOPar&) const;
     int				usePar(const IOPar&);
     virtual bool                canBDispOn2DViewer() const	{ return true; }
     bool			canEnableTextureInterpolation() const
@@ -103,7 +102,7 @@ public:
     
     static const char*		sKeyTC2RGBA();
 protected:
-
+// OSG-TODO: Remove usechannels parameter
     				MultiTextureSurveyObject(
 					bool usechannels );
 				~MultiTextureSurveyObject();
@@ -120,9 +119,8 @@ protected:
     virtual void		swapCache(int,int)			= 0;
     virtual void		emptyCache(int)				= 0;
     virtual bool		hasCache(int) const			= 0;
-    virtual bool		_init();
+    virtual bool		init();
 
-    visBase::MultiTexture2*	texture_;
     visBase::TextureChannels*	channels_;
 
     int				resolution_;

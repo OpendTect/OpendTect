@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "viscoord.h"
 
-class SoNormal;
 namespace Threads { class Mutex; };
 
 
@@ -46,34 +45,29 @@ public:
     void		removeNormal( int );
     Coord3		getNormal(int) const;
     void		addNormalValue(int,const Coord3&);
+    void		clear();
 
     void		setAll(const float* vals,int nmsz);
     			//!<vals are transformed, ordered in x,y,z.
 
-    void		setDisplayTransformation( const mVisTrans* nt );
-    const mVisTrans*	getDisplayTransformation() const { return transformation_; }
+    void		setDisplayTransformation(const mVisTrans* nt);
+    const mVisTrans*	getDisplayTransformation() const
+    			{ return transformation_; }
     
     osg::Array*		osgArray() { return osgnormals_; }
     const osg::Array*	osgArray() const { return osgnormals_; }
     
 protected:
-    void		transformNormal(const Transformation*,Coord3&,
-	    				bool todisplay) const;
-
     			~Normals();
-    int			getFreeIdx();
     			/*!< Object should be locked when calling */
-
-    SoNormal*			normals_;
 
     TypeSet<int>		unusednormals_;
     Threads::Mutex&		mutex_;
 
     const mVisTrans*		transformation_;
 
-    virtual SoNode*		gtInvntrNode();
-    
     osg::Array*			osgnormals_;
+    friend  class		DoTransformation;
     			
 };
 
@@ -94,6 +88,9 @@ public:
     		{ normals_.addNormalValue(idx,n ); }
     bool	isDefined(int idx) const
     		{ return normals_.getNormal(idx).isDefined(); }
+    void	remove(const TypeSet<int>&);
+
+    Normals*	getNormals() { return &normals_; }
 
 protected:
 		~NormalListAdapter()	{ normals_.unRef(); }

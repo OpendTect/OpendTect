@@ -28,8 +28,6 @@ namespace visBase
     class DrawStyle;
     class FaceSet;
     class GridLines;
-    class PickStyle;
-    class SplitTexture2Rectangle;
     class TextureRectangle;
 };
 
@@ -43,27 +41,25 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Used for displaying an inline, crossline or timeslice.
+/*!\brief Used for displaying an inline, crossline or timeslice.
 
-  A PlaneDataDisplay object is the front-end object for displaying an inline,
-  crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
-  setting the requested orientation of the slice.
+    A PlaneDataDisplay object is the front-end object for displaying an inline,
+    crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
+    setting the requested orientation of the slice.
 */
 
-mExpClass(visSurvey) PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
+mExpClass(visSurvey) PlaneDataDisplay :
+    				public visSurvey::MultiTextureSurveyObject
 {
 public:
 
-    bool			isInlCrl() const { return !inl2displaytrans_; }
+    bool			isInlCrl() const { return true; }
 
     enum Orientation		{ Inline=0, Crossline=1, Zslice=2 };
     				DeclareEnumUtils(Orientation);
 
     static PlaneDataDisplay*	create()
 				mCreateDataObj(PlaneDataDisplay);
-
-    void			setInlCrlSystem(const InlCrlSystem*);
 
     void			setOrientation(Orientation);
     Orientation			getOrientation() const { return orientation_; }
@@ -145,13 +141,15 @@ public:
     const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
     float			getDisplayMinDataStep(bool x0) const;
 
+    virtual void		annotateNextUpdateStage(bool yn);
+
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
 
-    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
+    virtual void		fillPar(IOPar&) const;
     virtual int			usePar(const IOPar&);
 
-    void			setDisplayTransformation(const mVisTrans*) {}
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
 
@@ -195,18 +193,14 @@ protected:
     void			triggerDeSel();
 
     CubeSampling		snapPosition(const CubeSampling&) const;
+    void			setUpdateStageTextureTransform();
 
     visBase::EventCatcher*		eventcatcher_;
     MouseCursor				mousecursor_;
-    visBase::DepthTabPlaneDragger*	dragger_;
-    visBase::Material*			draggermaterial_;
-    visBase::PickStyle*			rectanglepickstyle_;
-    visBase::SplitTexture2Rectangle*	rectangle_;
+    RefMan<visBase::DepthTabPlaneDragger> dragger_;
 
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
-    visBase::FaceSet*			draggerrect_;
-    visBase::DrawStyle*			draggerdrawstyle_;
     
     ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
@@ -222,8 +216,17 @@ protected:
     ZAxisTransform*			datatransform_;
     mutable int				voiidx_;
 
-    mVisTrans*				inl2displaytrans_;
-    visBase::TextureRectangle*		texturerect_;
+    RefMan<const mVisTrans>		displaytrans_;
+    RefMan<visBase::TextureRectangle>	texturerect_;
+
+    struct UpdateStageInfo
+    {
+	bool		refreeze_;
+	CubeSampling	oldcs_;
+	Orientation	oldorientation_;
+	Coord		oldimagesize_;
+    };
+    UpdateStageInfo			updatestageinfo_;
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyResolution()  { return "Resolution"; }

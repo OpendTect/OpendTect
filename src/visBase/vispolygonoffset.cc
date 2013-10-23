@@ -8,18 +8,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispolygonoffset.h"
 
-#include "Inventor/nodes/SoPolygonOffset.h"
+#include <osg/PolygonOffset>
 
 
 namespace visBase
 {
-mCreateFactoryEntry( PolygonOffset );
 
 
 PolygonOffset::PolygonOffset()
-    : offset_( new SoPolygonOffset )
+    : offset_( addAttribute( new osg::PolygonOffset ) )
 {
     offset_->ref();
+    mode_ = (unsigned int) ( On );
 }
 
 
@@ -29,55 +29,40 @@ PolygonOffset::~PolygonOffset()
 }
 
 
-void PolygonOffset::setStyle( Style st )
-{
-    if ( st==Filled )
-	offset_->styles.setValue( SoPolygonOffset::FILLED );
-    else if ( st==Lines )
-	offset_->styles.setValue( SoPolygonOffset::LINES );
-    else if ( st==Points )
-	offset_->styles.setValue( SoPolygonOffset::POINTS );
-}
-
-
-PolygonOffset::Style PolygonOffset::getStyle() const
-{
-    if ( offset_->styles.getValue()==SoPolygonOffset::FILLED )
-	return Filled;
-
-    if ( offset_->styles.getValue()==SoPolygonOffset::LINES )
-	return Lines;
-
-    return Points;
-}
-
-
 void PolygonOffset::setFactor( float f )
 {
-    offset_->factor.setValue( f );
+    offset_->setFactor( f );
 }
 
 
 float PolygonOffset::getFactor() const
 {
-    return offset_->factor.getValue();
+    return offset_->getFactor();
 }
 
 
 void PolygonOffset::setUnits( float f )
 {
-    offset_->units.setValue( f );
+    offset_->setUnits( f );
 }
 
 
 float PolygonOffset::getUnits() const
 {
-    return offset_->units.getValue();
+    return offset_->getUnits();
+}
+
+void PolygonOffset::applyAttribute( osg::StateSet* ns,
+    osg::StateAttribute* attr)
+{
+    osg::StateAttribute::GLMode mvalue = (osg::StateAttribute::GLMode)mode_;
+    ns->setAttributeAndModes( attr, mvalue );
 }
 
 
-SoNode* PolygonOffset::gtInvntrNode()
-{ return offset_; }
-
+void PolygonOffset::setMode( unsigned int modevalue )
+{
+    mode_ =  modevalue;
+}
 
 }; //namespace

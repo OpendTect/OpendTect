@@ -42,13 +42,11 @@ set( OD_MODULES
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiVolumeProcessing uiPreStackProcessing
 	uiAttributes uiEMAttrib uiMPE uiViewer2D uiWellAttrib
-	SoOD visBase visSurvey uiCoin uiVis
+	visBase visSurvey uiCoin uiVis
 	uiODMain
 )
 
 set( OD_PLUGINS
-	Annotations
-	Bouncy
 	ExpAttribs
 	GapDecon
 	GMT
@@ -61,7 +59,6 @@ set( OD_PLUGINS
 	TextureAttrib
 	Tut
 	VoxelConnectivityFilter
-	uiBouncy
 	uiDPSDemo
 	uiExpAttribs
 	uiGapDecon
@@ -102,7 +99,8 @@ if( NOT DEFINED APPLE )
     OD_ADD_SVNPROP_TEST()
 endif()
 
-set ( OD_TESTS_IGNORE_CONTINUOUS "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
+set ( OD_TESTS_IGNORE_CONTINUOUS
+      "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
 OD_SETUP_TEST_FILTER()
 
 if( BUILD_DOCUMENTATION )

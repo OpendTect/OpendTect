@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "refcount.h"
-#include "coord.h"
+#include "position.h"
 #include "typeset.h"
 
 /*!
@@ -42,6 +42,8 @@ protected:
 };
 
 
+class Coord3;
+
 /*!
 \brief Use Coord3ListImpl instead.
 */
@@ -60,6 +62,9 @@ public:
     virtual void	addValue(int id,const Coord3&)			= 0;
     			//!<Adds value to existing value at id
     virtual void	remove(int id)					= 0;
+    virtual void	remove(const TypeSet<int>&)			= 0;
+			//!<May contain duplicates.
+   // virtual void	removeAll()					= 0;
 };
 
 
@@ -122,6 +127,7 @@ public:
     void                remove(int id);
     int                 getSize() const         { return coords_.size(); }
     void		addValue(int id,const Coord3&);
+    void		remove(const TypeSet<int>&);
 
 protected:
 

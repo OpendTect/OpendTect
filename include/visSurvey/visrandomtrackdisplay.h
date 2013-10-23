@@ -22,11 +22,11 @@ class CubeSampling;
 
 namespace visBase 
 { 
-    class SplitTextureRandomLine; 
-    class MultiTexture2; 
     class EventCatcher;
     class PolyLine;
     class RandomTrackDragger; 
+    class MarkerSet;
+    class TexturePanelStrip;
 };
 
 
@@ -35,17 +35,17 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Used for displaying a random or arbitrary line.
+/*!\brief Used for displaying a random or arbitrary line.
 
-  RandomTrackDisplay is the front-end class for displaying arbitrary lines.
-  The complete line consists of separate sections connected at inline/crossline
-  positions, called knots or nodes. Several functions are available for adding
-  or inserting knot positions. The depth range of the line can be changed by
-  <code>setDepthInterval(const Interval<float>&)</code>
+    RandomTrackDisplay is the front-end class for displaying arbitrary lines.
+    The complete line consists of separate sections connected at
+    inline/crossline positions, called knots or nodes. Several functions are
+    available for adding or inserting knot positions. The depth range of the
+    line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
 mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
+
 {
 public:
     static RandomTrackDisplay*	create()
@@ -56,7 +56,7 @@ public:
 
     bool			isInlCrl() const { return true; }
 
-    int				nrResolutions() const 	{ return 3; }
+    int				nrResolutions() const 	{ return 1; }
     void			setResolution(int,TaskRunner*);
 
     void			showManipulator(bool yn);
@@ -115,7 +115,7 @@ public:
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setDepthInterval(const Interval<float>&);
-    const Interval<float>&	getDepthInterval() const;
+    Interval<float>		getDepthInterval() const;
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const
@@ -134,7 +134,7 @@ public:
     virtual float               calcDist(const Coord3&) const;
     virtual bool		allowsPicks() const		{ return true; }
 
-    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void		fillPar(IOPar&) const;
     virtual int			usePar(const IOPar&);
 
     bool			canBDispOn2DViewer() const	{ return true; }
@@ -153,6 +153,11 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
+
+    void			setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
+
+    virtual void		annotateNextUpdateStage(bool yn);
 				
 protected:
 				~RandomTrackDisplay();
@@ -182,14 +187,20 @@ protected:
     bool			checkValidPick(const visBase::EventInfo&,
 					       const Coord3& pos) const;
     void			setPickPos(const Coord3& pos);
-    void			removePickPos( const TypeSet<int>& );
+    void			removePickPos(const Coord3&);
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool,bool);
 
-    visBase::SplitTextureRandomLine* triangles_;
+    void			updatePanelStripPath();
+    void			setPanelStripZRange(const Interval<float>&);
+    float			appliedZRangeStep() const;
+
+    visBase::TexturePanelStrip*	panelstrip_;
+/* OSG-TODO: Replace
     visBase::RandomTrackDragger* dragger_;
+*/
     visBase::PolyLine*		polyline_;
-    visBase::DataObjectGroup*   markergrp_;
+    visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
 
     ObjectSet<SeisTrcBuf>	cache_;
@@ -211,7 +222,6 @@ protected:
     static const char*		sKeyKnotPrefix();
     static const char*		sKeyDepthInterval();
     static const char*		sKeyLockGeometry();
-
 };
 
 };

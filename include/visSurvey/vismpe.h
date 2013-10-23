@@ -105,7 +105,7 @@ public:
     virtual float	calcDist(const Coord3&) const;
     virtual float       maxDist() const;
 
-    virtual void	fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void	fillPar(IOPar&) const;
     virtual int		usePar( const IOPar&);
 
     NotifierAccess*	getMovementNotifier();
@@ -256,8 +256,6 @@ protected:
 
     // texture channel-related keys
     static const char*		sKeyTC2VolData()	{ return "TC2VolData"; }
-
-    virtual SoNode*		gtInvntrNode();
 
 };
 

@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "ui3dviewer.h"
 #include "uimsg.h"
+#include "fontdata.h"
+#include "uifontsel.h"
 
 bool uiScenePropertyDlg::savestatus_ = true;
 
@@ -57,6 +59,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	{
 	    hadsurveybox_ = scene_->isAnnotShown();
 	    hadannot_ = scene_->isAnnotTextShown();
+	    oldfont_ = scene_->getAnnotFont();
 	    hadannotscale_ = scene_->isAnnotScaleShown();
 	    hadannotgrid_ = scene_->isAnnotGridShown();
 	    annotcolor_ = scene_->getAnnotColor();
@@ -76,6 +79,10 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotfld_->attach( alignedBelow, survboxfld_ );
     annotfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotfld_->setSensitive( survboxfld_->isChecked() );
+
+    annotfontbut_ = new uiPushButton(this, "Font",
+			mCB(this,uiScenePropertyDlg,selAnnotFontCB), false);
+    annotfontbut_->attach(rightOf,annotfld_);
 
     annotscalefld_ = new uiCheckBox( this, "Annotation scale" );
     annotscalefld_->setChecked( hadannotscale_ );
@@ -131,6 +138,17 @@ uiScenePropertyDlg::~uiScenePropertyDlg()
 }
 
 
+void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
+{
+    if ( !scene_ )
+	return;
+
+    FontData fontdata = scene_->getAnnotFont();
+    if ( select( fontdata, this ) )
+	scene_->setAnnotFont( fontdata );
+}
+
+
 void uiScenePropertyDlg::updateCB( CallBacker* )
 {
     if ( scene_ )
@@ -178,6 +196,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     {
         scene_->showAnnot( hadsurveybox_ );
 	scene_->showAnnotScale( hadannot_ );
+	scene_->setAnnotFont( oldfont_ );
 	scene_->showAnnotText( hadannotscale_ );
 	scene_->showAnnotGrid( hadannotgrid_ );
 	scene_->setMarkerSize( oldmarkersize_ );

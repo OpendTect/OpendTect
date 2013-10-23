@@ -27,6 +27,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarchingcubessurface.h"
 #include "visplanedatadisplay.h"
 #include "vismaterial.h"
+#include "vistransform.h"
+#include "vispolygonoffset.h"
+#include "positionlist.h"
 
 
 mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
@@ -40,6 +43,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , displaysurface_( 0 )
     , impbody_( 0 )
     , displayintersections_( false )		   
+    , model2displayspacetransform_( 0 )
+    , intersectiontransform_( 0 )
+
 {
     cache_.allowNull( true );
     setColor( getRandomColor( false ) );
@@ -69,6 +75,12 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
 	delete cache_[idx];
     }
+
+    if ( model2displayspacetransform_ )
+	model2displayspacetransform_->unRef();
+
+    if ( intersectiontransform_ )
+	intersectiontransform_->unRef();
 }
 
 
@@ -92,7 +104,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 {
     if ( displaysurface_ )
     {
-	removeChild( displaysurface_->getInventorNode() );
+	removeChild( displaysurface_->osgNode() );
 	displaysurface_->unRef();
 	displaysurface_ = 0;
     }
@@ -139,8 +151,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     displaysurface_ = surface;
     displaysurface_->ref();
     displaysurface_->setSelectable( false );
-    displaysurface_->setRightHandSystem( righthandsystem_ );
-    addChild( displaysurface_->getInventorNode() );
+    addChild( displaysurface_->osgNode() );
 
     if ( displaysurface_->getMaterial() )
 	getMaterial()->setFrom( *displaysurface_->getMaterial() );
@@ -330,7 +341,22 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 					 TaskRunner* tr ) const
 {
     if ( displaysurface_ )
-	displaysurface_->getShape()->getAttribPositions( dps, tr );
+    {
+	SamplingData<float> inlinesampling = emsurface_->inlSampling();
+	SamplingData<float> crlinesampling = emsurface_->crlSampling();
+	SamplingData<float> zsampling = emsurface_->zSampling();
+
+	visBase::Transformation* toincrltransf
+	    = visBase::Transformation::create();
+	toincrltransf->ref();
+	toincrltransf->setScale(
+	    Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
+	toincrltransf->setTranslation(
+	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+
+	displaysurface_->getShape()->getAttribPositions(dps, toincrltransf,tr);
+	toincrltransf->unRef();
+    }
 }
 
 
@@ -451,7 +477,7 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-    return updateVisFromEM( false, tr );
+   return updateVisFromEM( false, tr );
 }
 
 
@@ -471,24 +497,24 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 	    displaysurface_->setMaterial( 0 );
 	    displaysurface_->setSelectable( false );
 	    displaysurface_->setRightHandSystem( righthandsystem_ );
-	    addChild( displaysurface_->getInventorNode() );
+	    addChild( displaysurface_->osgNode() );
 	    materialChangeCB( 0 );
 	}
 
 	displaysurface_->setScales(
-		SamplingData<float>(emsurface_->inlSampling()),
-		SamplingData<float>(emsurface_->crlSampling()),
-				    emsurface_->zSampling() );
+	    SamplingData<float>(emsurface_->inlSampling()),
+	    SamplingData<float>(emsurface_->crlSampling()),
+	    emsurface_->zSampling() );
 
 	if ( !displaysurface_->setSurface( emsurface_->surface(), tr ) )
 	{
-	    removeChild( displaysurface_->getInventorNode() );
+	    removeChild( displaysurface_->osgNode() );
 	    displaysurface_->unRef();
 	    displaysurface_ = 0;
 	    return false;
 	}
 	else
-    	    displaysurface_->turnOn( true );
+	displaysurface_->turnOn( true );
     }
 
     return displaysurface_->touch( !onlyshape, tr );
@@ -516,9 +542,9 @@ Color MarchingCubesDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
 
-void MarchingCubesDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void MarchingCubesDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
 
     IOPar attribpar;
@@ -602,20 +628,34 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 
 void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 {
-    if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
+    if ( intersectiontransform_ )
+	intersectiontransform_->unRef();
 
-    for ( int idx=0; idx<intsinfo_.size(); idx++ )
-	intsinfo_[idx]->visshape_->setDisplayTransformation( nt );
-}
+    intersectiontransform_ = nt;
 
+    if ( intersectiontransform_ )
+	intersectiontransform_->ref();
 
-void MarchingCubesDisplay::setRightHandSystem( bool yn )
-{
-    visBase::VisualObjectImpl::setRightHandSystem( yn );
-    if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
+    if ( emsurface_ )
+    {
+	SamplingData<float> inlinesampling = emsurface_->inlSampling();
+	SamplingData<float> crlinesampling = emsurface_->crlSampling();
+	SamplingData<float> zsampling = emsurface_->zSampling();
 
-    for ( int idx=0; idx<intsinfo_.size(); idx++ )
-	intsinfo_[idx]->visshape_->setRightHandSystem( yn );
+	model2displayspacetransform_ = visBase::Transformation::create();
+	model2displayspacetransform_->ref();
+	model2displayspacetransform_->setScale(
+	    Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
+	model2displayspacetransform_->setTranslation(
+	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+
+	*model2displayspacetransform_ *= *nt;
+
+    }
+
+    if ( displaysurface_ )
+	displaysurface_->setDisplayTransformation(model2displayspacetransform_);
+
 }
 
 
@@ -631,7 +671,76 @@ void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 	displaysurface_->getShape()->updateMaterialFrom( getMaterial() );
 
     for ( int idx=0; idx<intsinfo_.size(); idx++ )
-	intsinfo_[idx]->visshape_->setMaterial( getMaterial() );
+	intsinfo_[idx]->visshape_->updateMaterialFrom( getMaterial() );
+}
+
+
+void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
+	TaskRunner* tr )
+{
+    return; //TODO
+    /*
+    if ( !selector.isOK() || !displaysurface_ )
+	return;
+
+    const SamplingData<int>&  isp = emsurface_->inlSampling();
+    const SamplingData<int>&  csp = emsurface_->crlSampling();
+    const SamplingData<float>& zsp = emsurface_->zSampling();
+
+    ::MarchingCubesSurface* mcs = displaysurface_->getSurface();
+
+    Interval<int> inlrg, crlrg, zrg;
+    if ( !mcs || !mcs->models_.getRange(0,inlrg) ||
+	 !mcs->models_.getRange(1,crlrg) || !mcs->models_.getRange(2,zrg) )
+   	return;
+
+    const int inlsz = inlrg.width()+1;
+    const int crlsz = crlrg.width()+1;
+    const int zsz = zrg.width()+1;
+
+#define mRetDetele() { delete arr; delete narr; return; }
+
+    mDeclareAndTryAlloc( Array3DImpl<int>*, arr,
+	    Array3DImpl<int>(inlsz,crlsz,zsz) );
+    mDeclareAndTryAlloc( Array3DImpl<float>*, narr,
+	    Array3DImpl<float>(inlsz,crlsz,zsz) );
+    if ( !arr || !narr )
+       mRetDetele()
+
+    MarchingCubes2Implicit m2i( *mcs, *arr, 0, 0, 0, false );
+    if ( !m2i.execute() )
+	mRetDetele()
+
+    for ( int idx=0; idx<inlsz; idx++ )
+    {
+	const int inl = inlrg.start+idx*isp.step;
+	for ( int idy=0; idy<crlsz; idy++ )
+	{
+	    const int crl = crlrg.start+idy*csp.step;
+	    Coord3 pos( SI().transform(BinID(inl,crl)), 0 );
+	    for ( int idz=0; idz<zsz; idz++ )
+	    {
+		const int val = arr->get(idx, idy, idz);
+		narr->set(idx, idy, idz, val);
+		if ( val>0 )
+		    continue;
+
+		pos.z = zrg.start+idz*zsp.step;
+		if ( !selector.includes(pos) )
+	    	    continue;
+
+		arr->set( idx, idy, idz, 1 );
+		narr->set(idx, idy, idz, 1);
+	    }
+	}
+    }
+
+    Implicit2MarchingCubes i2m(0,0,0,*narr,0,*mcs);
+    if ( !i2m.execute() )
+	mRetDetele()
+
+    emsurface_->setChangedFlag();
+    */
 }
 
 
@@ -661,7 +770,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	     (whichobj<0 && activepids.isPresent(ipid)) )
 	    continue;
 
-	removeChild( intsinfo_[idx]->visshape_->getInventorNode() );	
+	removeChild( intsinfo_[idx]->visshape_->osgNode() );
 	delete intsinfo_.removeSingle( idx );
     }
 
@@ -680,16 +789,17 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	if ( planepresent ) continue;
 
 	PlaneIntersectInfo* pi = new PlaneIntersectInfo();
-	pi->visshape_->setDisplayTransformation( getDisplayTransformation() );
-	pi->visshape_->setRightHandSystem( righthandsystem_ );
-	pi->visshape_->setMaterial( getMaterial() );
+	pi->visshape_->updateMaterialFrom( getMaterial() );
 	pi->visshape_->turnOn( displayintersections_ );
-	addChild( pi->visshape_->getInventorNode() );
+	addChild( pi->visshape_->osgNode() );
 
 	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
 	PlaneDataDisplay::Orientation ori = activeplanes[idx]->getOrientation();
-	const float pos = ori==PlaneDataDisplay::Zslice ? cs.zrg.start :
-	    ori==PlaneDataDisplay::Inline ? cs.hrg.start.inl() : cs.hrg.start.crl();
+	const float pos = ori==PlaneDataDisplay::Zslice
+	    ? cs.zrg.start
+	    : ori==PlaneDataDisplay::Inline
+	    	? cs.hrg.start.inl()
+		: cs.hrg.start.crl();
 
 	pi->planeorientation_ = (char)ori;
 	pi->planepos_ = pos;
@@ -741,7 +851,11 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
     for ( int idx=0; idx<intsinfo_.size(); idx++ )
     {
 	if ( displayintersections_ )
-	    intsinfo_[idx]->visshape_->touch( false );
+	{
+	    intsinfo_[idx]->visshape_->setDisplayTransformation(
+		intersectiontransform_ );
+	    intsinfo_[idx]->visshape_->touch( false, false );
+	}
 	
 	intsinfo_[idx]->visshape_->turnOn( displayintersections_ );
     }
@@ -757,20 +871,28 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
     planeorientation_ = -1;
     planepos_ = mUdf(float);
     computed_ = false;
+    visBase::PolygonOffset* offset = new visBase::PolygonOffset;
+    offset->setFactor( -1.0f );
+    offset->setUnits( 1.0f );
+    offset->setMode(
+	visBase::PolygonOffset::Protected | visBase::PolygonOffset::On  );
 
     visshape_ = visBase::GeomIndexedShape::create();
-    visshape_->turnOnForegroundLifter( true );
-    if ( visshape_->getMaterial() )
-	visshape_->setMaterial( visBase::Material::create() );
     visshape_->ref();
     visshape_->setSelectable( false );
-    visshape_->renderOneSide( 0 );
-    
     shape_ = new Geometry::ExplicitIndexedShape();
+
+    visshape_->addNodeState( offset );
     visshape_->setSurface( shape_ );
+    visshape_->setIndexedGeometryShapeType(visBase::GeomIndexedShape::Triangle);
+    visshape_->setPrimitiveType( Geometry::PrimitiveSet::TriangleStrip );
+    visshape_->setNormalBindType( visBase::VertexShape::BIND_OVERALL );
+    visshape_->renderOneSide( 0 );
+
+   /* Coord3List* crdlist = shape_->normalCoordList();
+    crdlist->add( Coord3( 1, 0, 0) );*/
     shape_->addGeometry( new Geometry::IndexedGeometry(
-		Geometry::IndexedGeometry::TriangleStrip,
-		Geometry::IndexedGeometry::PerVertex, shape_->coordList(),
+		Geometry::IndexedGeometry::TriangleStrip,shape_->coordList(),
 		shape_->normalCoordList(),shape_->textureCoordList()) );
 }
 

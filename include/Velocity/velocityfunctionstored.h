@@ -80,8 +80,8 @@ protected:
 				~StoredFunctionSource();
     
     BinIDValueSet		veldata_;
-    bool			zit_;
-    VelocityDesc		desc_; 
+    bool                        zit_;
+    VelocityDesc                desc_;
 };
 
 }; // namespace

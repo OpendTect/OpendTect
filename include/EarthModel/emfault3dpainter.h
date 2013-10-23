@@ -21,7 +21,8 @@ ________________________________________________________________________
 #include "flatview.h"
 
 namespace FlatView { class Viewer; }
-namespace Geometry { class FaultStickSurface; class ExplPlaneIntersection; }
+namespace Geometry { class FaultStickSurface; class ExplPlaneIntersection;
+		     class PrimitiveSet;}
 
 class FlatPosData;
 
@@ -97,8 +98,8 @@ protected:
 	    				Geometry::ExplPlaneIntersection*,
 					TypeSet<Coord3>&);
     void		genIntersectionAuxData(EM::Fault3D&,Fault3DMarker*,
-	    				       TypeSet<int>& coordindices,
-					       TypeSet<Coord3>& intxnposs);
+	    				  const Geometry::PrimitiveSet* coordps,
+					  TypeSet<Coord3>& intxnposs);
     void		removePolyLine();
     void		repaintFault3D();
 

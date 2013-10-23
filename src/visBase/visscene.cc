@@ -18,18 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "visselman.h"
 #include "visevent.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vispolygonoffset.h"
 #include "vislight.h"
-#include "SoOD.h"
-
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/nodes/SoEnvironment.h>
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoTextureMatrixTransform.h>
-#include <Inventor/nodes/SoCallback.h>
 
 #include <osg/Group>
+#include <osg/Light>
 
 #define mDefaultFactor	1
 #define mDefaultUnits	200
@@ -41,32 +35,22 @@ namespace visBase
 {
 
 Scene::Scene()
-    : selroot_( new SoGroup )
-    , environment_( new SoEnvironment )
-    , polygonoffset_( PolygonOffset::create() )
-    , directionallight_( DirectionalLight::create() )  
+    : polygonoffset_( new PolygonOffset )
+    , light_( new Light )
     , events_( *EventCatcher::create() )
     , mousedownid_( -1 )
     , blockmousesel_( false )
     , nameChanged(this)
-    , callback_( 0 )
     , osgsceneroot_( 0 )
 {
-    directionallight_->ref();
-    directionallight_->turnOn( false );
-    insertObject( 0, directionallight_ );
+    light_->ref();
+    light_->turnOn( false );
+    light_->setAmbient( 0 );
+    light_->setLightNum( 1 );
+    osg::ref_ptr<osg::StateSet> stateset = osggroup_->getOrCreateStateSet();
+    stateset->setAttributeAndModes(light_->osgLight() );
     
-    selroot_->ref();
-
-    if ( !SoOD::getAllParams() )
-    {
-	callback_ = new SoCallback;
-	selroot_->addChild( callback_ );
-	callback_->setCallback( firstRender, this );
-    }
-
     polygonoffset_->ref();
-    polygonoffset_->setStyle( PolygonOffset::Filled );
 
     float units = mDefaultUnits;
     float factor = mDefaultFactor;
@@ -81,25 +65,16 @@ Scene::Scene()
     polygonoffset_->setFactor( factor );
     polygonoffset_->setUnits( units );
 
-    selroot_->addChild( polygonoffset_->getInventorNode() );
-
-    //Needed as some ATI-cards dont' have it set.
-    SoTextureMatrixTransform* texturetrans = new SoTextureMatrixTransform;
-    selroot_->addChild( texturetrans );
-
-    selroot_->addChild( environment_ );
     events_.ref();
-    selroot_->addChild( events_.getInventorNode() );
-    selroot_->addChild( DataObjectGroup::gtInvntrNode() );
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
 
-    if ( doOsg() )
-    {
-	osgsceneroot_ = new osg::Group;
-	osgsceneroot_->addChild( DataObjectGroup::gtOsgNode() );
-	osgsceneroot_->addChild( events_.osgNode() );
-	osgsceneroot_->ref();
-    }
+
+    osgsceneroot_ = new osg::Group;
+    osgsceneroot_->addChild( osgNode() );
+    osgsceneroot_->addChild( events_.osgNode() );
+    osgsceneroot_->ref();
+    setOsgNode( osgsceneroot_ );
+    polygonoffset_->attachStateSet( osgsceneroot_->getOrCreateStateSet() );
 }
 
 
@@ -119,54 +94,34 @@ Scene::~Scene()
     events_.nothandled.remove( mCB(this,Scene,mousePickCB) );
     events_.unRef();
 
-    polygonoffset_->unRef();
-    selroot_->unref();
-    directionallight_->unRef();
+    light_->unRef();
 }
 
 
 void Scene::addObject( DataObject* dataobj )
 {
-    removeCallback();
     mDynamicCastGet( VisualObject*, vo, dataobj );
     if ( vo ) vo->setSceneEventCatcher( &events_ );
     DataObjectGroup::addObject( dataobj );
 }
 
 
-void Scene::insertObject( int idx, DataObject* dataobj )
-{
-    removeCallback();
-    mDynamicCastGet( VisualObject*, vo, dataobj );
-    if ( vo ) vo->setSceneEventCatcher( &events_ );
-    DataObjectGroup::insertObject( idx, dataobj );
-}
-
-
 void Scene::setAmbientLight( float n )
 {
-    environment_->ambientIntensity.setValue( n );
+    //environment_->ambientIntensity.setValue( n );
 }
 
 
 float Scene::ambientLight() const
 {
-    return environment_->ambientIntensity.getValue();
+    return 0;
+    //return environment_->ambientIntensity.getValue();
 }
 
- 
-void Scene::setDirectionalLight( const DirectionalLight& dl )
-{
-    directionallight_->setIntensity( dl.intensity() );
-    directionallight_->setDirection( dl.direction( 0 ), dl.direction( 1 ),
-	    dl.direction( 2 ) );
-    directionallight_->turnOn( dl.isOn() );
-}
- 
 
-DirectionalLight* Scene::getDirectionalLight() const
+Light* Scene::getLight() const
 {
-    return directionallight_;
+    return light_;
 }
 
 
@@ -182,18 +137,6 @@ bool Scene::blockMouseSelection( bool yn )
     const bool res = blockmousesel_;
     blockmousesel_ = yn;
     return res;
-}
-
-
-SoNode* Scene::gtInvntrNode()
-{
-    return selroot_;
-}
-
-
-osg::Node* Scene::gtOsgNode()
-{
-    return osgsceneroot_;
 }
 
 
@@ -213,7 +156,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	return;
     }
 
-    if ( doOsg() && eventinfo.dragging )
+    if ( eventinfo.dragging )
     {
 	const TabletInfo* ti = TabletInfo::currentState();
 	if ( ti && ti->maxPostPressDist()<5 )
@@ -256,7 +199,7 @@ void Scene::mousePickCB( CallBacker* cb )
 		 !OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    {
 		DM().selMan().deSelectAll();
-		if ( doOsg() ) events_.setHandled();
+		events_.setHandled();
 	    }
 	}
 
@@ -273,14 +216,14 @@ void Scene::mousePickCB( CallBacker* cb )
 		     OD::rightMouseButton(eventinfo.buttonstate_) &&
 		     dataobj->rightClicked() )
 		{
-		    mDynamicCastGet( visBase::Marker*, emod, dataobj );
+		    mDynamicCastGet( visBase::MarkerSet*, emod, dataobj );
 		    if ( emod ) 
 		    {
 			markerclicked = true;
 			continue;
 		    }
 		    dataobj->triggerRightClick(&eventinfo);
-		    if ( doOsg() ) events_.setHandled();
+		    events_.setHandled();
 		}
 		else if ( dataobj->selectable() )
 		{
@@ -289,14 +232,14 @@ void Scene::mousePickCB( CallBacker* cb )
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    {
 			DM().selMan().select( mousedownid_, true );
-			if ( doOsg() ) events_.setHandled();
+			events_.setHandled();
 		    }
 		    else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    {
 			DM().selMan().select( mousedownid_, false );
-			if ( doOsg() ) events_.setHandled();
+			events_.setHandled();
 		    }
 		}
 
@@ -311,13 +254,6 @@ void Scene::mousePickCB( CallBacker* cb )
 }
 
 
-void Scene::fillPar( IOPar& par, TypeSet<int>& additionalsaves ) const
-{
-    DataObjectGroup::fillPar( par, additionalsaves );
-    fillOffsetPar( par );
-}
-
-
 void Scene::fillOffsetPar( IOPar& par ) const
 {
     IOPar offsetpar;
@@ -325,49 +261,6 @@ void Scene::fillOffsetPar( IOPar& par ) const
     offsetpar.set( sKeyUnits(), polygonoffset_->getUnits() );
     par.mergeComp( offsetpar, sKeyOffset() );
 }
-
-
-int Scene::usePar( const IOPar& par )
-{
-    int res = DataObjectGroup::usePar( par );
-    if ( res!=1 )
-	return res;
-
-    PtrMan<IOPar> settings = par.subselect( sKeyOffset() );
-    if ( settings )
-    {
-	float units, factor;
-	if ( settings->get( sKeyFactor(), factor ) &&
-	     settings->get( sKeyUnits(), units ) )
-	{
-	    polygonoffset_->setFactor( factor );
-	    polygonoffset_->setUnits( units );
-	}
-    }
-
-    return 1;
-}
-
-
-void Scene::firstRender( void*, SoAction* action )
-{
-    if ( action->isOfType( SoGLRenderAction::getClassTypeId()) )
-	SoOD::getAllParams();
-}
-
-
-void Scene::removeCallback()
-{
-    if ( !callback_ )
-	return;
-
-    if ( SoOD::getAllParams() )
-    {
-	selroot_->removeChild( callback_ );
-	callback_ = 0;
-    }
-}
-
 
 
 

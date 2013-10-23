@@ -17,6 +17,9 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "color.h"
 #include "externalattrib.h"
+#include "polygon.h"
+#include "visdata.h"
+#include "indexedshape.h"
 
 class visContourLabels;
 
@@ -28,22 +31,27 @@ namespace visSurvey { class SurveyObject; class HorizonDisplay; }
 namespace visBase
 {
     class DrawStyle;
-    class IndexedPolyLine;
+    class PolyLine;
     class Material;
     class Text2;
 }
+namespace EM { class Horizon3D; }
+
+class IsoContourTracer;
+class ZAxisTransform;
+class uiContourTreeItemContourData;
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
 mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
 {
 public:
+
     static void			initClass();
 				uiContourTreeItem(const char* parenttype);
 				~uiContourTreeItem();
 
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
-    void			setupChangeCB(CallBacker*);
     void			setAttribName( const char* attrnm )
 				{ attrnm_ = attrnm; }
 
@@ -52,49 +60,52 @@ public:
 
 protected:
 
-    bool			hasTransparencyMenu() const { return false; }
-    void			prepareForShutdown();
-    bool			init();
+    virtual bool		init();
+    virtual bool		hasTransparencyMenu() const { return false; }
+    virtual BufferString	createDisplayName() const;
+    virtual void		checkCB(CallBacker*);
+    virtual void		createMenu(MenuHandler*,bool istb);
+    virtual void		handleMenuCB(CallBacker*);
 
+    void			prepareForShutdown();
     void			removeAll();
     void			removeLabels();
-    void			checkCB(CallBacker*);
+    void			removeOldUICContoursFromScene();
+
     void			intvChangeCB(CallBacker*);
     void			propChangeCB(CallBacker*);
     void			visClosingCB(CallBacker*);
-    void			createMenu(MenuHandler*,bool istb);
-    void			handleMenuCB(CallBacker*);
 
-    void			createContours();
-    bool			computeContours(const Array2D<float>&,
-	    					const StepInterval<int>&,
-						const StepInterval<int>&);
-    void			updateContours(const StepInterval<float>&);
-    Array2D<float>*		getDataSet(visSurvey::HorizonDisplay*);
+    void			startCreateUICContours();
+    bool			createPolyLines();
+    bool			setLabels(visBase::Text2*);
+    bool			computeUICContourSteps(const Array2D<float>&);
+
+    void			updateUICContours(const StepInterval<float>&);
     void			updateColumnText(int);
-    void			createLines();
-    void			addText(const Coord3&,const char*);
     void			updateZShift();
 
-    Array2DImpl<int>*		arr_;
-    TypeSet<BinID>		bids_;
-    Interval<float>		rg_;
-    StepInterval<float>		contourintv_;
+    Array2D<float>*		getDataSet(visSurvey::HorizonDisplay*);
+    visSurvey::HorizonDisplay*	getHorDisp();
 
-    visBase::IndexedPolyLine*	lines_;
+				// Specified from outside
+    BufferString		attrnm_;
+    Color			color_;
+    float			zshift_;
+    bool			showlabels_;
+    int				linewidth_;
+				// objects for contours
+    visBase::PolyLine*		lines_;
     visBase::DrawStyle*		drawstyle_;
     visBase::Material*		material_;
-    ObjectSet<visBase::Text2>	labels_;
-    visContourLabels*		labelgrp_;
-    
-    Color			color_;
-    int				linewidth_;
+    visBase::Text2*		labels_;
+				//
+    Interval<float>		contoursteprange_;
+    StepInterval<float>		contourintv_;
     MenuItem			optionsmenuitem_;
-    float			zshift_;
-    BufferString		attrnm_;
-    bool			showlabels_;
 
-    BufferString		createDisplayName() const;
+    friend class	uiContourTreeItemContourGenerator;
+
 };
 
 #endif

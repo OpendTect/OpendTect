@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-namespace visBase { class IndexedPolyLine3D; class Transformation; };
+namespace visBase { class PolyLine3D; class Transformation; };
 namespace EM { class EdgeLineSet; };
 
 namespace visSurvey
@@ -67,7 +67,7 @@ protected:
     void			updateEdgeLineSetChangeCB(CallBacker*);
     void			triggerRightClick(const visBase::EventInfo*);
     const EM::EdgeLineSet*	edgelineset;
-    ObjectSet<visBase::IndexedPolyLine3D>	polylines;
+    ObjectSet<visBase::PolyLine3D>		polylines;
     ObjectSet<TypeSet<int> >			polylinesegments;
     ObjectSet<TypeSet<int> >			polylinesegmentpos;
     const mVisTrans*				transformation;

@@ -93,7 +93,7 @@ extern "C" int dGBPreStackEventsGetEventSize( int handle, int index )
 
 extern "C" void dGBPreStackEventsGetEvent( int handle, int index,
 				float* offsets, float* azimuths, float* depths,
-				  float* quality )
+       				      float* quality )
 {
     PreStack::EventsAPIMgr::getMgr().getEvent( handle, index, offsets, azimuths,
 	    				     depths, quality );

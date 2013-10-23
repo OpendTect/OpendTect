@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          May 2002
+ Author:        D. Zheng
+ Date:          Feb 2013
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
+#include "callback.h"
 
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpe.h"
 #include "vishorizonsection.h"
@@ -75,7 +76,7 @@ HorizonDisplay::HorizonDisplay()
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )
-    , enabletextureinterp_( true )    
+    , enabletextureinterp_( true )
 {
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -98,12 +99,13 @@ HorizonDisplay::HorizonDisplay()
 
     material_->setAmbience( 0.3 );
 
-    RefMan<visBase::Material> linemat = visBase::Material::create();
+    RefMan<visBase::Material> linemat = new visBase::Material;
     linemat->setFrom( *material_ );
     linemat->setColor( nontexturecol_ );
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
     setIntersectLineMaterial( linemat );
+    mAttachCB( *getMovementNotifier(), HorizonDisplay::emMovementCB );
 }
 
 
@@ -119,9 +121,9 @@ HorizonDisplay::~HorizonDisplay()
     setSceneEventCatcher( 0 );
     curshiftidx_.erase();
 
-    if ( translation_ )
+   if ( translation_ )
     {
-	removeChild( translation_->getInventorNode() );
+	removeChild( translation_->osgNode() );
 	translation_->unRef();
 	translation_ = 0;
     }
@@ -140,6 +142,14 @@ HorizonDisplay::~HorizonDisplay()
 	dpman.release( datapackids_[idx] );
 
     deepErase( shifts_ );
+
+}
+
+
+void HorizonDisplay::emMovementCB( CallBacker* )
+{
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->updateTiles();
 }
 
 
@@ -199,7 +209,6 @@ bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
     EMObjectDisplay::setChannels2RGBA( 0 );
     sections_[0]->setChannels2RGBA( t );
-    sections_[0]->getChannels2RGBA()->enableInterpolation(enabletextureinterp_);
 
     return true;
 }
@@ -238,10 +247,11 @@ void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
 
 EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 {
-    const mVisTrans* ztrans = scene_->getZScaleTransform();
-    Coord3 newpos = ztrans->transformBack( pickedpos );
+    const mVisTrans* ztrans = scene_->getTempZStretchTransform();
+    Coord3 newpos;
+    ztrans->transformBack( pickedpos, newpos );
     if ( transformation_ )
-	newpos = transformation_->transformBack( newpos );
+	transformation_->transformBack( newpos );
 
     const BinID pickedbid = SI().transform( newpos );
     const EM::SubID pickedsubid = pickedbid.toInt64();
@@ -260,8 +270,9 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
     for ( int idx=0; idx<closestnodes.size(); idx++ )
     {
 	const Coord3 coord = emobject_->getPos( closestnodes[idx] );
-	const Coord3 displaypos = ztrans->transform(
-		transformation_ ? transformation_->transform(coord) : coord );
+	Coord3 displaypos;
+	mVisTrans::transform( transformation_, coord, displaypos );
+	mVisTrans::transform( ztrans, displaypos );
 
 	const float dist = (float) displaypos.distTo( pickedpos );
 	if ( !idx || dist<mindist )
@@ -283,7 +294,7 @@ void HorizonDisplay::removeEMStuff()
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	removeChild( sections_[idx]->getInventorNode() );
+	removeChild( sections_[idx]->osgNode() );
 	sections_[idx]->unRef();
     }
 
@@ -298,7 +309,6 @@ void HorizonDisplay::removeEMStuff()
 	if ( zaxistransform_ )
 	    zaxistransform_->removeVolumeOfInterest( intersectionlinevoi_[0] );
 	intersectionlinevoi_.removeSingle(0);
-
     }
 
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
@@ -312,7 +322,7 @@ void HorizonDisplay::removeEMStuff()
 	edgelinedisplays_ -= elsd;
 	elsd->rightClicked()->remove(
 		 mCB(this,HorizonDisplay,edgeLineRightClickCB) );
-	removeChild( elsd->getInventorNode() );
+	removeChild( elsd->osgNode() );
 	elsd->unRef();
     }
 
@@ -354,7 +364,6 @@ bool HorizonDisplay::updateFromEM( TaskRunner* tr )
 { 
     if ( !EMObjectDisplay::updateFromEM( tr ) )
 	return false;
-
     updateSingleColor();
     return true;
 }
@@ -364,7 +373,6 @@ void HorizonDisplay::updateFromMPE()
 {
     if ( geometryRowRange().nrSteps()<=1 || geometryColRange().nrSteps()<=1 )
 	setResolution( 0, 0 ); //Automatic resolution
-
     EMObjectDisplay::updateFromMPE();
 }
 
@@ -395,7 +403,7 @@ bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
 	    elsd->setConnect(true);
 	    elsd->setEdgeLineSet(els);
 	    elsd->setRadius(edgelineradius_);
-	    addChild( elsd->getInventorNode() );
+	    addChild( elsd->osgNode() );
 	    elsd->setDisplayTransformation(transformation_);
 	    elsd->rightClicked()->notify(
 		    mCB(this,HorizonDisplay,edgeLineRightClickCB));
@@ -475,10 +483,6 @@ int HorizonDisplay::nrTextures( int channel ) const
 
 void HorizonDisplay::selectTexture( int channel, int textureidx )
 {
-    if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty()
-	    || textureidx >= sections_[0]->nrVersions(channel) )
-	return;
-
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
@@ -736,8 +740,6 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     setRandomPosData( channel, positions, tr );
     const BinIDValueSet* cache =
 	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
-    if ( !cache ) return;
-
     const bool isz = attrnms->size()>=1 && attrnms->get(0)=="Depth";
 
     StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
@@ -766,7 +768,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 
 void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
-    data.bivSet().allowDuplicateBinIDs(false);
+    //data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->getDataPositions( data, getTranslation().z, 
 					  sids_[idx], tr );
@@ -861,10 +863,10 @@ bool HorizonDisplay::hasDepth( int channel ) const
 Coord3 HorizonDisplay::getTranslation() const
 {
     if ( !translation_ ) return Coord3(0,0,0);
+    Coord3 zshift = translation_->getTranslation();
+    mVisTrans::transformBack( transformation_, zshift );
 
-    Coord3 shift = translation_->getTranslation();
-    shift.z *= -1; 
-    return shift;
+    return zshift;
 }
 
 
@@ -874,10 +876,23 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     {
 	translation_ = visBase::Transformation::create();
 	translation_->ref();
-	insertChild( 0, translation_->getInventorNode() );
+	addChild( translation_->osgNode() );
+
+	for ( int idx = 0; idx< sections_.size(); idx++ )
+	{
+	    removeChild( sections_[idx]->osgNode() );
+	    translation_->addObject( sections_[idx] );
+	}
     }
 
-    Coord3 shift( nt ); shift.z *= -1;
+    Coord3 origin( 0, 0, 0 );
+    Coord3 aftershift( nt ); aftershift.z *= -1;
+
+    mVisTrans::transform( transformation_, origin );
+    mVisTrans::transform( transformation_, aftershift );
+
+    const Coord3 shift = origin - aftershift;
+
     translation_->setTranslation( shift );
 
     setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
@@ -913,7 +928,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     const int idx = sids_.indexOf( sid );
     if ( idx<0 ) return;
 
-    removeChild( sections_[idx]->getInventorNode() );
+    removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
     sids_.removeSingle( idx );
 };
@@ -927,9 +942,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setZAxisTransform( zaxistransform_, tr );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
-    mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
-   
     while ( surf->nrChannels()<nrAttribs() ) 
 	surf->addChannel();
 
@@ -946,14 +958,16 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 	EMObjectDisplay::setChannels2RGBA( 0 );
     }
 
+    mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
+    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
+
     surf->getChannels2RGBA()->allowShading( allowshading_ );
-    surf->getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
+    surf->getChannels()->enableTextureInterpolation( enabletextureinterp_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
     surf->setMaterial( 0 );
-    const int index = childIndex(drawstyle_->getInventorNode());
-    insertChild( index, surf->getInventorNode() );
+    addChild( surf->osgNode() );
     surf->turnOn( !displayonlyatsections_ );
 
     sections_ += surf;
@@ -961,6 +975,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     hasmoved.trigger();
 
     return addEdgeLineDisplay( sid );
+
 }
 
 
@@ -972,15 +987,11 @@ void HorizonDisplay::enableTextureInterpolation( bool yn )
     enabletextureinterp_ = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	if ( !sections_[idx] || !sections_[idx]->getChannels2RGBA() )
+	if ( !sections_[idx] || !sections_[idx]->getChannels() )
 	    continue;
 	
-	sections_[idx]->getChannels2RGBA()->enableInterpolation( yn );
+	sections_[idx]->getChannels()->enableTextureInterpolation( yn );
 
-	//Crap, but does not work otherwise
-	if ( !yn && sections_[idx]->getChannels2RGBA()->canUseShading() )
-	    sections_[idx]->getChannels()->touchMappedData();
-	//End of crap
     }
 }
 
@@ -1002,7 +1013,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 		   pointgroup->getObject( 0 ) );
 	if ( material )
 	    pointgroup->removeObject( 0 );
-	pointgroup->insertObject( 0, intersectionlinematerial_ );
+	//pointgroup->inserObject( 0, intersectionlinematerial_ );
     }
 }
 
@@ -1041,6 +1052,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	nontexturecol_ = emobject_->preferredColor();
 
     updateSingleColor();
+
 }
 
 
@@ -1063,7 +1075,7 @@ void HorizonDisplay::emEdgeLineChangeCB( CallBacker* cb )
 		edgelinedisplays_ -= elsd;
 		elsd->rightClicked()->remove(
 			 mCB( this, HorizonDisplay, edgeLineRightClickCB ));
-		removeChild( elsd->getInventorNode() );
+		removeChild( elsd->osgNode() );
 		elsd->unRef();
 		break;
 	    }
@@ -1106,9 +1118,9 @@ int HorizonDisplay::getResolution() const
 
 void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 {
-    resolution_ = res;
+    resolution_ = (char)res;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setResolution( res-1, tr );
+	sections_[idx]->setResolution( resolution_-1, tr );
 }
 
 
@@ -1192,7 +1204,8 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
     if ( !emobject_ ) return mUdf(float);
 
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
-    const Coord3 xytpos = utm2display->transformBack( pickpos );
+    Coord3 xytpos;
+    utm2display->transformBack( pickpos, xytpos );
     mDynamicCastGet(const EM::Horizon3D*,hor,emobject_)
     if ( hor )
     {
@@ -1210,7 +1223,9 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const float zfactor = scene_ ? scene_->getZScale(): inlcrlsystem_->zScale();
+	    const float zfactor = scene_
+		? scene_->getZScale()
+		: inlcrlsystem_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = (float) fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
@@ -1356,34 +1371,52 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
+#define mAddLinePrimitiveSet()\
+{\
+    if ( idxps.size()>=2 )\
+    {\
+	Geometry::IndexedPrimitiveSet* primitiveset =  \
+	Geometry::IndexedPrimitiveSet::create( false );\
+	primitiveset->ref();\
+	primitiveset->append( idxps.arr(), idxps.size() );\
+	line->addPrimitiveSet( primitiveset ); \
+	primitiveset->unRef();\
+    }\
+}
+
+
 #define mEndLine \
 { \
     if ( curline.size()==1 ) \
     { \
-	visBase::Marker* marker = visBase::Marker::create(); \
-	marker->setDisplayTransformation(transformation_); \
-	marker->setMaterial( 0 ); \
-	marker->setScreenSize( mCast(float,lineStyle()->width_) ); \
-	marker->setType( MarkerStyle3D::Sphere ); \
-	marker->setCenterPos( curline[0] ); \
-	points->addObject( marker ); \
+	visBase::MarkerSet* markerset = visBase::MarkerSet::create(); \
+	MarkerStyle3D markerstyle;\
+	markerstyle.size_ = ( int )mCast(float,lineStyle()->width_);\
+	markerstyle.type_ = MarkerStyle3D::Sphere;\
+	markerset->setMarkerStyle( markerstyle );\
+	markerset->setDisplayTransformation(transformation_); \
+	markerset->setMaterial( 0 ); \
+	markerset->setMarkerHeightRatio( 1.0f );\
+	markerset->getCoordinates()->addPos( curline[0] ); \
+	points->addObject( markerset ); \
     } \
     else \
     { \
+	TypeSet<int> idxps;\
 	for ( int idx=0; idx<curline.size(); idx++ ) \
 	{ \
-	    line->setCoordIndex(cii++, \
-			line->getCoordinates()->addPos(curline[idx])); \
+	    idxps.add( cii++ );\
+	    line->getCoordinates()->addPos(curline[idx]);\
 	} \
 	if ( curline.size() ) \
-	    line->setCoordIndex(cii++,-1); \
+	mAddLinePrimitiveSet();\
     } \
     curline.erase(); \
 } 
 
 
 void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
-	EM::SectionID sid, visBase::IndexedShape* line, int& cii,
+	EM::SectionID sid, visBase::VertexShape* line, int& cii,
 	visBase::DataObjectGroup* points ) const
 {
     mDynamicCastGet( EM::Horizon3D*, hor, emobject_ );
@@ -1415,8 +1448,8 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
     const int prevline = rg.atIndex(rgindex);
     const int nextline = prevline<targetline ? rg.atIndex(rgindex+1) : prevline;
 
-    const TypeSet<EM::PosID>* seedposids =
-		hor->getPosAttribList( EM::EMObject::sSeedNode() );
+    const TypeSet<EM::PosID>* seedposids = hor->getPosAttribList
+						( EM::EMObject::sSeedNode() );
     TypeSet<Coord3> curline;
     for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep )
     {
@@ -1476,13 +1509,14 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
     }
 
     mEndLine;
+
 }
 
 
 void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	const StepInterval<float>& zrg,
 	const EM::SectionID&  sid,
-	visBase::IndexedShape* line, int& cii,
+	visBase::VertexShape* line, int& cii,
 	visBase::DataObjectGroup* points ) const
 {
     mDynamicCastGet( EM::Horizon3D*, hor, emobject_ );
@@ -1496,6 +1530,7 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int jumpstart = 0;
 
     TypeSet<Coord3> curline;
+    TypeSet<int> idxps;
     while ( true )
     {
 	startidx = stopidx;
@@ -1544,32 +1579,35 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		Coord3 pos = (1-frac) * Coord3(startcrd,0) +
 		    		frac  * Coord3(stopcrd, 0);
 	    
-		const float ifrac = (float) (trclist[cidx].x - inl0) / inlrg.step;
-		const float cfrac = (float) (trclist[cidx].y - crl0) / crlrg.step;
+		const float ifrac =
+		    (float) (trclist[cidx].x - inl0) / inlrg.step;
+		const float cfrac =
+		    (float) (trclist[cidx].y - crl0) / crlrg.step;
 		pos.z = (1-ifrac)*( (1-cfrac)*p00.z + cfrac*p01.z ) +
 			   ifrac *( (1-cfrac)*p10.z + cfrac*p11.z );
 
 		if ( zrg.includes(pos.z,true) )
 		{
-		    line->setCoordIndex( cii++, 
-			    		 line->getCoordinates()->addPos(pos) );
+		    line->getCoordinates()->addPos(pos);
+		    idxps.add( cii++ );
 		    continue;
 		}
 	    }
-	    mEndLine; 
+	    mAddLinePrimitiveSet();
 	}
 	
 	jumpstart = 1;
     }
 
-    mEndLine; 
+    mAddLinePrimitiveSet();
+
 }
 
 
 static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
-			visBase::IndexedShape* line, int& cii )
+			visBase::VertexShape* line, int& cii )
 {
     const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
     const Array2D<float>* field = geom->getArray();
@@ -1584,6 +1622,7 @@ static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
     ObjectSet<ODPolygon<float> > isocontours;
     ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
     
+    TypeSet<int> idxps;
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
     {
 	const ODPolygon<float>& ic = *isocontours[cidx];
@@ -1593,16 +1632,15 @@ static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
 	    Coord vrtxcoord( vertex.x, vertex.y );
 	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
 	    const Coord3 pos( vrtxcoord, cs.zrg.start-zshift );
-	    const int posidx = line->getCoordinates()->addPos( pos );
-	    line->setCoordIndex( cii++, posidx ); 
+	    line->getCoordinates()->addPos( pos );
+	    idxps.add( cii++ );
 	}
-	
+
 	if ( ic.isClosed() )
-	{
-	    const int posidx = line->getCoordIndex( cii-ic.size() );
-	    line->setCoordIndex( cii++, posidx );
-	}
-	line->setCoordIndex( cii++, -1 );
+	    idxps.add( idxps[0] );
+
+	mAddLinePrimitiveSet();
+	idxps.erase();
     }
 
     if ( zaxistransform ) delete field;
@@ -1627,7 +1665,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
 	    if ( plane )
 		objectid = plane->id();
-	    
+
 	    mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
 	    if ( mped && mped->isDraggerShown() )
 		objectid = mped->id();
@@ -1635,7 +1673,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
 	    if ( rtdisplay )
 		objectid = rtdisplay->id();
-	    
+
 	    mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
 	    if ( seis2ddisplay )
 		objectid = seis2ddisplay->id();
@@ -1652,12 +1690,12 @@ void HorizonDisplay::updateIntersectionLines(
 	    else
 	    {
 		if ( ( whichobj==objectid || whichobj==id() ) && 
-		     !linestoupdate.isPresent(whichobj) )
+		    linestoupdate.indexOf(whichobj)==-1 )
 		{
 		    linestoupdate += objectid;
 		}
 
-		lineshouldexist[idy] = true;
+		lineshouldexist[idy] = false;
 	    }
 	}
     }
@@ -1668,8 +1706,8 @@ void HorizonDisplay::updateIntersectionLines(
     {
 	if ( !lineshouldexist[idx] )
 	{
-	    removeChild( intersectionlines_[idx]->getInventorNode() );
-	    removeChild( intersectionpointsets_[idx]->getInventorNode() );
+	    removeChild( intersectionlines_[idx]->osgNode() );
+	    removeChild( intersectionpointsets_[idx]->osgNode() );
 
 	    lineshouldexist.removeSingle(idx);
 	    intersectionlines_.removeSingle(idx)->unRef();
@@ -1678,7 +1716,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( zaxistransform_ )
 	    {
 		zaxistransform_->removeVolumeOfInterest(
-			intersectionlinevoi_[idx] );
+		    intersectionlinevoi_[idx] );
 	    }
 
 	    intersectionlinevoi_.removeSingle(idx);
@@ -1690,18 +1728,18 @@ void HorizonDisplay::updateIntersectionLines(
     {
 	CubeSampling cs(false);
 	mDynamicCastGet( PlaneDataDisplay*, plane,
-			 visBase::DM().getObject(linestoupdate[idx]) );
+	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( plane )
 	    cs = plane->getCubeSampling(true,true,-1);
 
 	mDynamicCastGet( const MPEDisplay*, mped,
-			 visBase::DM().getObject(linestoupdate[idx]) );
+	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( mped )
 	    mped->getPlanePosition(cs);
 
 	TypeSet<Coord> trclist;
 	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay,
-			 visBase::DM().getObject(linestoupdate[idx]) );
+	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( rtdisplay )
 	{
 	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
@@ -1711,12 +1749,12 @@ void HorizonDisplay::updateIntersectionLines(
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
 	    {
 		cs.hrg.include( tracebids[bidx] );
-		trclist += Coord( tracebids[bidx].inl(), tracebids[bidx].crl() );
+		trclist += Coord( tracebids[bidx].inl(), tracebids[bidx].crl());
 	    }
 	}
 
 	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay,
-			 visBase::DM().getObject(linestoupdate[idx]) );
+	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( seis2ddisplay )
 	{
 	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
@@ -1734,7 +1772,7 @@ void HorizonDisplay::updateIntersectionLines(
 		trclist += crd; trclist += crd;
 	    }
 	}
-	
+
 	int lineidx = intersectionlineids_.indexOf(linestoupdate[idx]);
 	if ( lineidx==-1 )
 	{
@@ -1744,37 +1782,34 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    const bool do3d = lineStyle()->type_==LineStyle::Solid;
 
-	    visBase::IndexedShape* newline = do3d
-		? (visBase::IndexedShape*) visBase::IndexedPolyLine3D::create()
-		: (visBase::IndexedShape*) visBase::IndexedPolyLine::create();
+	    visBase::VertexShape* newline = do3d
+		? (visBase::VertexShape*) visBase::PolyLine3D::create()
+		: (visBase::VertexShape*) visBase::PolyLine::create();
 
 	    newline->ref();
 
 	    if ( do3d )
 	    {
-		const float radius = ((float) lineStyle()->width_) / 2;
-		((visBase::IndexedPolyLine3D* ) newline)->setRadius( radius,
-		    true, maxintersectionlinethickness_ );
+		((visBase::PolyLine3D* ) newline)->setLineStyle( *lineStyle() );
 	    }
 
-	    newline->setRightHandSystem( righthandsystem_ );
+	    newline->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
+
 	    newline->setDisplayTransformation(transformation_);
 	    if ( intersectionlinematerial_ ) 
 		newline->setMaterial( intersectionlinematerial_ );
 	    intersectionlines_ += newline;
-	    addChild( newline->getInventorNode() );
+	    addChild( newline->osgNode() );
 
 	    visBase::DataObjectGroup* pointgroup =
-				visBase::DataObjectGroup::create();
+		visBase::DataObjectGroup::create();
 	    pointgroup->setSeparate( false );
-	    if ( intersectionlinematerial_ )
-		pointgroup->addObject( intersectionlinematerial_ );
-	    pointgroup->setRightHandSystem( righthandsystem_ );
+
 	    pointgroup->setDisplayTransformation(transformation_);
 
 	    intersectionpointsets_ += pointgroup;
 	    pointgroup->ref();
-	    addChild( pointgroup->getInventorNode() );
+	    addChild( pointgroup->osgNode() );
 	}
 
 	if ( zaxistransform_ )
@@ -1787,17 +1822,17 @@ void HorizonDisplay::updateIntersectionLines(
 	    else
 	    {
 		zaxistransform_->setVolumeOfInterest(
-			intersectionlinevoi_[lineidx],cs,true);
+		    intersectionlinevoi_[lineidx],cs,true);
 	    }
 
 	    if ( intersectionlinevoi_[lineidx]>=0 )
 	    {
 		zaxistransform_->loadDataIfMissing(
-			intersectionlinevoi_[lineidx] );
+		    intersectionlinevoi_[lineidx] );
 	    }
 	}
-	    
-	visBase::IndexedShape* line = intersectionlines_[lineidx];
+
+	visBase::VertexShape* line = intersectionlines_[lineidx];
 	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[lineidx];
 
 	line->getCoordinates()->removeAfter(-1);
@@ -1811,7 +1846,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( rtdisplay || seis2ddisplay )
 	    {
 		drawHorizonOnRandomTrack( trclist, cs.zrg, sid, 
-					  line, cii, pointgroup );
+		    line, cii, pointgroup );
 	    }
 	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )
 	    {
@@ -1824,12 +1859,12 @@ void HorizonDisplay::updateIntersectionLines(
 	    else
 	    {
 		drawHorizonOnZSlice( cs, (float) getTranslation().z, horizon, 
-					    sid, zaxistransform_, line, cii );
+		    sid, zaxistransform_, line, cii );
 	    }
 	}
 
-	line->removeCoordIndexAfter(cii-1);
     }
+
 }
 
 
@@ -1849,27 +1884,25 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
-	    visBase::IndexedShape* newline = lst.type_==LineStyle::Solid
-		? (visBase::IndexedShape*) visBase::IndexedPolyLine3D::create()
-		: (visBase::IndexedShape*) visBase::IndexedPolyLine::create();
+	    visBase::VertexShape* newline = lst.type_==LineStyle::Solid
+		? (visBase::VertexShape*) visBase::PolyLine3D::create()
+		: (visBase::VertexShape*) visBase::PolyLine::create();
 	    newline->ref();
 	    newline->setRightHandSystem( righthandsystem_ );
 	    newline->setDisplayTransformation(transformation_);
-	    newline->copyCoordIndicesFrom( *intersectionlines_[idx] );
 	    newline->getCoordinates()->copyFrom(
 		    *intersectionlines_[idx]->getCoordinates() );
 	    if ( intersectionlinematerial_ ) 
 		newline->setMaterial( intersectionlinematerial_ );
 
-	    removeChild( intersectionlines_[idx]->getInventorNode() );
-	    addChild( newline->getInventorNode() );
+	    removeChild( intersectionlines_[idx]->osgNode() );
+	    addChild( newline->osgNode() );
 
 	    intersectionlines_.replace( idx, newline )->unRef();
 
 	    if ( lst.type_==LineStyle::Solid )
 	    {
-		((visBase::IndexedPolyLine3D* ) newline )->
-		    setRadius( radius, true, maxintersectionlinethickness_ );
+		((visBase::PolyLine3D* ) newline )->setLineStyle( lst );
 	    }
 	}
     }
@@ -1877,9 +1910,12 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
-	    visBase::IndexedPolyLine3D* pl =
-		(visBase::IndexedPolyLine3D*) intersectionlines_[idx];
-	    pl->setRadius( radius, true, maxintersectionlinethickness_ );
+	   LineStyle lnstyle( lst );
+	   lnstyle.width_ /=2;
+
+	    visBase::PolyLine3D* pl =
+		(visBase::PolyLine3D*) intersectionlines_[idx];
+	    pl->setLineStyle( *lineStyle() );
 	}
     }
 
@@ -1888,9 +1924,10 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[idx];
 	for ( int idy=1; idy<pointgroup->size(); idy++ )
 	{
-	    mDynamicCastGet(visBase::Marker*,marker,pointgroup->getObject(idx));
-	    if ( marker )
-		marker->setScreenSize( radius*2 );
+	    mDynamicCastGet(visBase::MarkerSet*,markerset,
+		            pointgroup->getObject(idx));
+	    if ( markerset )
+		markerset->setScreenSize( radius*2 );
 	}
     }
 }
@@ -1930,30 +1967,24 @@ void HorizonDisplay::updateSectionSeeds(
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
-	visBase::DataObjectGroup* group = posattribmarkers_[idx];
-	for ( int idy=0; idy<group->size(); idy++ )
+	visBase::MarkerSet* markerset = posattribmarkers_[idx];
+	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
-	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idy))
-	    if ( !marker ) continue;
-	
-	    marker->turnOn( !displayonlyatsections_ );
-	    Coord3 pos = marker->centerPos();
-	    if ( transformation_ )
-		pos = transformation_->transform( pos );
-            
-            if ( zaxistransform_ )
-            {
-                marker->turnOn( false );
-                continue;
-            }
-
-	    for ( int idz=0; idz<planelist.size(); idz++ )
+	    markerset->turnMarkerOn( idy,!displayonlyatsections_ );
+	    const visBase::Coordinates* markercoords =
+					markerset->getCoordinates();
+	    if ( markercoords->size() )
 	    {
-		const float dist = objs[planelist[idz]]->calcDist(pos);
-		if ( dist < objs[planelist[idz]]->maxDist() )
+		const Coord3 markerpos = markercoords->getPos( idy );
+		for ( int idz=0; idz<planelist.size(); idz++ )
 		{
-		    marker->turnOn(true);
-		    break;
+		    const float dist =
+			objs[planelist[idz]]->calcDist( markerpos );
+		    if ( dist < objs[planelist[idz]]->maxDist() )
+		    {
+			markerset->turnMarkerOn( idy,true );
+			break;
+		    }
 		}
 	    }
 	}
@@ -1975,10 +2006,10 @@ void HorizonDisplay::otherObjectsMoved(
 }
 
 
-void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void HorizonDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-    EMObjectDisplay::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par );
+    EMObjectDisplay::fillPar( par );
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
     {
@@ -1991,6 +2022,7 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
 
+    /* TODO: Implement something here
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
     mDynamicCastGet(const visBase::ColTabTextureChannel2RGBA*,cttc2rgba,tc2rgba)
     if ( tc2rgba && !cttc2rgba )
@@ -1999,6 +2031,7 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( MultiTextureSurveyObject::sKeyTC2RGBA(), ctid );
 	saveids += ctid;
     }
+     */
 
     for ( int channel=as_.size()-1; channel>=0; channel-- )
     {
@@ -2017,12 +2050,6 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
-
-    const int matid = 
-	intersectionlinematerial_ ? intersectionlinematerial_->id() : -1;
-    par.set( sKeyIntersectLineMaterialID(), matid );
-    if ( matid!=-1 && !saveids.isPresent(matid) )
-	saveids += matid;
 }
 
 
@@ -2077,7 +2104,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 }
 
 
-const ObjectSet<visBase::IndexedShape>&
+const ObjectSet<visBase::VertexShape>&
 HorizonDisplay::getIntersectionLines() const
 { return intersectionlines_; }
 
@@ -2110,7 +2137,7 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 {
     TypeSet<int> ids;
-    visBase::DM().getIds( typeid(visSurvey::HorizonDisplay), ids );
+    visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
     {

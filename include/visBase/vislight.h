@@ -15,145 +15,69 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "visdata.h"
+#include "visosg.h"
+
 
 class SoLight;
 class SoLightModel;
 
+
+namespace osg
+{
+    class Light;
+}
+
 namespace visBase
 {
 
-/*!
-\brief Base class for all lights.
+/*!\brief
+Class for all lights. More options are available in osg, but only what we
+ currently need is implemented.
+
 */
 
-mExpClass(visBase) Light : public DataObject
-{
+mExpClass(visBase) Light
+{ mRefCountImplNoDestructor(Light)
 public:
+			Light();
+    void		setLightNum(int);
+    int			getLightNum() const;
 
-    void		turnOn(bool);
-    bool		isOn() const;
+    void		turnOn(bool n)	{ ison_ = n; updateLights(); }
+    bool		isOn() const	{ return ison_; }
 
-    void		setIntensity(float);
+    void		setAmbient(float);
     			/*!< 0 = nada, 1 = full light */
-    float		intensity() const;
+    float		getAmbient() const;
 
-    virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
-    virtual int		usePar( const IOPar& );
-protected:
-    			Light(SoLight* light_);
-    virtual		~Light();
-
-    SoLight*		light_;	
-    bool		ison_;
-    float		intensity_;
-
-    static const char*	isonstr();
-    static const char*	intensitystr();
-
-    virtual SoNode*	gtInvntrNode();
-
-};
-
-
-/*!
-\brief A point that illuminates light.
-*/
-
-mExpClass(visBase) PointLight : public Light
-{
-public:
-    static PointLight*	create() mCreateDataObj( PointLight );
-
-    void		setPosition(float,float,float);
-    float		position(int dim) const;
-
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
-    int			usePar( const IOPar& );
-
-protected:
-    static const char*	positionstr();
-
-};
-
-
-/*!
-\brief A light in a certain direction from a position at an infinite distance.
-*/
-
-mExpClass(visBase) DirectionalLight : public Light
-{
-public:
-    static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
+    void		setDiffuse(float);
+			/*!< 0 = nada, 1 = full light */
+    float		getDiffuse() const;
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;
 
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
-    int			usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
+    bool		usePar( const IOPar& );
 
-protected:
-    static const char*	directionstr();
-
-};
-
-
-/*!
-\brief Spot light.
-*/
-
-mExpClass(visBase) SpotLight : public Light
-{
-public:
-    static SpotLight*	create() mCreateDataObj( SpotLight );
-
-    void		setDirection(float,float,float);
-    float		direction(int dim) const;
-    
-    void		setPosition(float,float,float);
-    float		position(int dim) const;
-
-    void		setConeAngle(float);
-    			//!< In radians, from one side of the cone to the other
-    float		coneAngle() const;
-
-    void		setDropOffRate(float);
-    			// 0=smooth, 1=sharp
-    float		dropOffRate() const;
-
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
-    int			usePar( const IOPar& );
-
-protected:
-    static const char*	directionstr();
-    static const char*	positionstr();
-    static const char*	coneanglestr();
-    static const char*	dropoffratestr();
-};
-
-
-/*!
-\brief Light model.
-*/
-
-mExpClass(visBase) LightModel : public DataObject
-{
-public:
-
-    static LightModel*	create() 
-			mCreateDataObj(LightModel);
-
-    enum Type		{ BaseColor, Phong };
-    void		setModel(Type);
-    Type		getModel() const;
+    osg::Light*		osgLight()	{ return light_; }
 
 protected:
 
-			~LightModel();
-    SoLightModel*	lightmodel_;
+    void			updateLights();
 
-    virtual SoNode*	gtInvntrNode();
+    bool			ison_;
+    float			ambient_;
+    float			diffuse_;
+    osg::Light*			light_;
 
+    static const char*	sKeyIsOn();
+    static const char*	sKeyAmbient();
+    static const char*	sKeyDiffuse();
+    static const char*	sKeyLightNum();
+    static const char*	sKeyDirection();
 };
+
 
 } //visBase
 

@@ -222,8 +222,6 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
     scenes_ += newscene;
-    newscene->getPolySelection()->setSelectionType(
-	    (visBase::PolygonSelection::SelectionType) seltype_ );
     pickretriever_->addScene( newscene );
     nrsceneschange_.trigger();
     return newscene->id();
@@ -361,7 +359,7 @@ void uiVisPartServer::triggerTreeUpdate()
 
 void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 {
-    visBase::DM().getIds( ti, res );
+    visBase::DM().getIDs( ti, res );
 }
 
 
@@ -396,19 +394,17 @@ visBase::DataObject* uiVisPartServer::getObject( int id ) const
 
 
 void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
-				 bool saveinsessions  )
+				 bool )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid));
     if ( !scene ) return;
 
     scene->addObject( dobj );
     objectaddedremoved.trigger();
-    dobj->doSaveInSessions( saveinsessions );
-
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {
-	int typesetidx = scenes_.indexOf(scene);
+	const int typesetidx = scenes_.indexOf(scene);
 	displayids_[typesetidx] += dobj->id();
 	turnOn( dobj->id(), true, true );
     }
@@ -468,12 +464,15 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
     if ( so && so->getScene() )
     {
+	return;
+	/*
 	const ColTab::Sequence* seq = so->getColTabSequence( selattrib_ );
 	const ColTab::MapperSetup* ms = so->getColTabMapperSetup( selattrib_ );
 	if ( seq )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
 	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
+	 */
     }
 }
 
@@ -852,8 +851,8 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabMapperSetup( attrib, ms, 0 );
-    if ( so->getScene() )
-	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
+    //if ( so->getScene() )
+	//so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
     if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
     {
@@ -894,8 +893,8 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabSequence( attrib, seq, 0 );
-    if ( so->getScene() )
-	so->getScene()->getSceneColTab()->setColTabSequence( seq );
+    //if ( so->getScene() )
+	//so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
     if ( multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setColTabSeq( attrib, seq );
@@ -1004,7 +1003,7 @@ bool uiVisPartServer::deleteAllObjects()
 
     scenes_.erase();
     nrsceneschange_.trigger();
-    return visBase::DM().removeAll();
+    return true; //visBase::DM().removeAll();
 }
 
 
@@ -1326,45 +1325,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
 
-    int sceneres = visBase::DM().usePar( par );
-    if ( sceneres==-1 )
-	return false;
+    pErrMsg("Not implemented yet.");
 
-    if ( sceneres==0 )
-    {
-	const char* errmsg = visBase::DM().errMsg();
-	if ( errmsg )
-	    uiMSG().errorWithDetails( errmsg );
-    }
-
-    TypeSet<int> sceneids;
-    visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
-
-    TypeSet<int> hasconnections;
-    for ( int idx=0; idx<sceneids.size(); idx++ )
-    {
-	visSurvey::Scene* newscene =
-		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
-	addScene( newscene );
-
-	float appvel;
-	if ( par.get(sKeyAppVel(),appvel) )
-	    newscene->setZStretch( appvel/1000 );
-
-	TypeSet<int> children;
-	getChildIds( newscene->id(), children );
-
-	for ( int idy=0; idy<children.size(); idy++ )
-	{
-	    int childid = children[idy];
-	    if ( hasconnections.isPresent( childid ) ) continue;
-
-	    setUpConnections( childid );
-	    hasconnections += childid;
-
-	    turnOn( childid, isOn(childid) );
-	}
-    }
 
     mpetools_->initFromDisplay();
 
@@ -1400,11 +1362,15 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
-    fms += cs.hrg.start.inl(); fms += cs.hrg.stop.inl(); fms += cs.hrg.start.crl();
-    fms += cs.hrg.stop.crl(); fms += cs.zrg.start; fms += cs.zrg.stop;
+    fms += cs.hrg.start.inl();
+    fms += cs.hrg.stop.inl();
+    fms += cs.hrg.start.crl();
+    fms += cs.hrg.stop.crl();
+    fms += cs.zrg.start;
+    fms += cs.zrg.stop;
     par.set( sKeyWorkArea(), fms );
 
-    visBase::DM().fillPar( par, storids );
+    //visBase::DM().fillPar( par, storids );
 }
 
 
@@ -1733,11 +1699,8 @@ void uiVisPartServer::setColor( int id, const Color& col )
 
 bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
 {
-    const char* extension = visBase::DataObject::doOsg()
-	? "*.osg"
-	: "*.iv";
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
-	    		extension, dlgtitle );
+	    		"*.osg", dlgtitle );
     if ( filedlg.go() )
     {
 	visBase::DataObject* obj = visBase::DM().getObject( id );
@@ -1881,9 +1844,14 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 		resetManipulation( oldsel );
 	    else
 	    {
+		so->annotateNextUpdateStage( true );
 		so->acceptManipulation();
+		so->annotateNextUpdateStage( true );
+
 		for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
 		    calculateAttrib( oldsel, attrib, false );
+
+		so->annotateNextUpdateStage( false );
 	    }
 	}
 
@@ -2173,7 +2141,7 @@ bool uiVisPartServer::isLocked( int id ) const
 }
 
 
-const Color& uiVisPartServer::getSceneAnnotCol( int sceneidx )
+Color uiVisPartServer::getSceneAnnotCol( int sceneidx )
 {
     return scenes_[ sceneidx ]->getAnnotColor();
 }

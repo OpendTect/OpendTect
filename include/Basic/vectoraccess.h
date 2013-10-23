@@ -102,6 +102,10 @@ public:
 
     inline void		fillWith( const T& val )
 			{ std::fill( v_.begin(), v_.end(), val ); }
+    inline void		replace( const T& val, const T& newval )
+			{
+			    std::replace( v_.begin(), v_.end(), val, newval );
+			}
 
     void moveAfter( const T& t, const T& aft )
     {

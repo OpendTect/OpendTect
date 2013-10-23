@@ -9,24 +9,12 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "keystrs.h"
 #include "visevent.h"
-#include "visdetail.h"
+//#include "visdetail.h"
 #include "visdataman.h"
 #include "vistransform.h"
 #include "iopar.h"
 #include "mouseevent.h"
-
-#include <Inventor/nodes/SoEventCallback.h>
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoViewVolumeElement.h>
-#include <Inventor/events/SoMouseButtonEvent.h>
-#include <Inventor/events/SoKeyboardEvent.h>
-#include <Inventor/events/SoLocation2Event.h>
-#include <Inventor/details/SoFaceDetail.h>
-#include <Inventor/SoPickedPoint.h>
-#include <Inventor/SbViewportRegion.h>
-#include <Inventor/SbLinear.h>
 
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
@@ -47,8 +35,7 @@ const char* EventCatcher::eventtypestr()  { return "EventType"; }
 
 
 EventInfo::EventInfo()
-    : detail( 0 )
-    , worldpickedpos( Coord3::udf() )
+    : worldpickedpos( Coord3::udf() )
     , localpickedpos( Coord3::udf() )
     , displaypickedpos( Coord3::udf() )
     , buttonstate_( OD::NoButton )
@@ -60,8 +47,7 @@ EventInfo::EventInfo()
 
 
 EventInfo::EventInfo(const EventInfo& eventinfo )
-    : detail( 0 )
-    , tabletinfo( 0 )
+    : tabletinfo( 0 )
 {
     *this = eventinfo;
 }
@@ -70,7 +56,6 @@ EventInfo::EventInfo(const EventInfo& eventinfo )
 EventInfo::~EventInfo()
 {
     setTabletInfo( 0 );
-    setDetail( 0 );
 }
 
 
@@ -92,8 +77,6 @@ EventInfo& EventInfo::operator=( const EventInfo& eventinfo )
     mousepos = eventinfo.mousepos;
 
     setTabletInfo( eventinfo.tabletinfo );
-    setDetail( eventinfo.detail );
-
     return *this;
 }
 
@@ -114,26 +97,6 @@ void EventInfo::setTabletInfo( const TabletInfo* newtabinf )
     }
 }
 
-
-void EventInfo::setDetail( const Detail* det )
-{
-    if ( detail )
-	delete detail;
-
-    detail = 0;
-
-    mDynamicCastGet( const FaceDetail*, facedetail, det );
-    if ( facedetail )
-    {
-	detail = new FaceDetail( 0 );
-	*detail = *facedetail;
-    }
-    else if ( det )
-    {
-	detail = new Detail( (DetailType) 0 );
-	*detail = *det;
-    }
-}
 
 //=============================================================================
 
@@ -240,57 +203,115 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     eventinfo.mousepos.x = ea.getX();
     eventinfo.mousepos.y = ea.getY(); 
 
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector =
-	    new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-						 ea.getX(), ea.getY() );
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
+	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
+					     ea.getX(), ea.getY() );
 
-    osgUtil::IntersectionVisitor iv( intersector.get() );
-    mDynamicCastGet( osg::View*, view, &aa );
+    const float frustrumPixelRadius = 1.0f;
+    osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
+	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
+	    ea.getX()-frustrumPixelRadius, ea.getY()-frustrumPixelRadius,
+	    ea.getX()+frustrumPixelRadius, ea.getY()+frustrumPixelRadius );
+
+    polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
+	    			       osgUtil::PolytopeIntersector::DimOne );
+
+    mDynamicCastGet( osgViewer::View*, view, &aa );
 
     if ( view )
     {
-	iv.setTraversalMask( IntersectionTraversal );
+	const osg::Camera* camera = view->getCamera();
+	const osg::Matrix MVPW = camera->getViewMatrix() *
+				 camera->getProjectionMatrix() *
+				 camera->getViewport()->computeWindowMatrix();
+
+	osg::Matrix invMVPW; invMVPW.invert( MVPW );
+
+	const osg::Vec3 startpos = lineintersector->getStart() * invMVPW;
+	const osg::Vec3 stoppos = lineintersector->getEnd() * invMVPW;
+	const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
+	const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
+	eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
+
+	osgUtil::IntersectionVisitor iv( lineintersector.get() );
+	iv.setTraversalMask( cIntersectionTraversalMask() );
 	view->getCamera()->accept( iv );
+	bool linehit = lineintersector->containsIntersections();
+	const osgUtil::LineSegmentIntersector::Intersection linepick =
+				    lineintersector->getFirstIntersection();
 
-	if ( intersector->containsIntersections() )
+	iv.setIntersector( polyintersector.get() );
+	view->getCamera()->accept( iv );
+	bool polyhit = polyintersector->containsIntersections();
+	const osgUtil::PolytopeIntersector::Intersection polypick =
+				    polyintersector->getFirstIntersection();
+
+	if ( linehit && polyhit )
 	{
-	    const osgUtil::LineSegmentIntersector::Intersection pick =
-					intersector->getFirstIntersection();
+	    BufferString bs;
+	    const osg::Plane triangleplane( linepick.getWorldIntersectNormal(),
+					    linepick.getWorldIntersectPoint() );
 
-	    osg::NodePath::const_reverse_iterator it = pick.nodePath.rbegin();
-	    for ( ; it!=pick.nodePath.rend(); it++ )
+	    const int sense = triangleplane.distance(startpos)<0.0 ? -1 : 1;
+
+	    linehit = false;
+	    const double epscoincide = 1e-6 * (stoppos-startpos).length();
+	    bool partlybehindplane = false;
+
+	    // Prefer lines/points over triangles if they fully coincide
+	    for ( int idx=polypick.numIntersectionPoints-1; idx>=0; idx-- )
 	    {
-		int objid;
-		static std::string idstr( sKey::ID() );
-		if ( (*it)->getUserValue(idstr, objid) && objid>=0 )
+		osg::Vec3 polypos = polypick.intersectionPoints[idx];
+		if ( polypick.matrix.valid() )
+		    polypos = polypos * (*polypick.matrix);
+
+		const double dist = sense * triangleplane.distance(polypos);
+
+		if ( dist >= epscoincide )	// partly in front of plane
+		    break;
+
+		if ( dist <= -epscoincide )
+		    partlybehindplane = true;
+
+		if ( !idx && partlybehindplane )
+		{
+		    linehit = true;
+		    polyhit = false;
+		}
+	    }
+	}
+
+	if ( linehit || polyhit )
+	{
+	    const osg::NodePath& nodepath = linehit ? linepick.nodePath
+						    : polypick.nodePath;
+
+	    osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
+	    for ( ; it!=nodepath.rend(); it++ )
+	    {
+		const int objid = DataObject::getID( *it );
+		if ( objid>=0 )
 		    eventinfo.pickedobjids += objid;
 	    }
 
-	    const osg::Vec3 lpos = pick.getLocalIntersectPoint();
-	    eventinfo.localpickedpos = Coord3( lpos[0], lpos[1], lpos[2] );
+	    osg::Vec3 pickpos = linehit ? linepick.localIntersectionPoint
+					: polypick.localIntersectionPoint;
 
-	    const osg::Vec3 dpos = pick.getWorldIntersectPoint();
-	    eventinfo.displaypickedpos = Coord3( dpos[0], dpos[1], dpos[2] );
+	    eventinfo.localpickedpos = Conv::to<Coord3>( pickpos );
+
+	    const osg::ref_ptr<osg::RefMatrix> mat = linehit ? linepick.matrix
+							     : polypick.matrix;
+	    if ( mat.valid() )
+		pickpos = pickpos * (*mat);
+
+	    eventinfo.displaypickedpos = Conv::to<Coord3>( pickpos );
 
 	    Coord3& pos( eventinfo.worldpickedpos );
 	    pos = eventinfo.displaypickedpos;
 	    for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
-		pos = eventcatcher_.utm2display_[idx]->transformBack( pos );
+		eventcatcher_.utm2display_[idx]->transformBack( pos );
 	}
     }
-
-    const osg::Camera* camera = view->getCamera();
-    const osg::Matrix MVPW = camera->getViewMatrix() *
-			     camera->getProjectionMatrix() *
-			     camera->getViewport()->computeWindowMatrix();
-
-    osg::Matrix invMVPW; invMVPW.invert( MVPW );
-
-    const osg::Vec3 startpos = intersector->getStart() * invMVPW;
-    const osg::Vec3 stoppos = intersector->getEnd() * invMVPW;
-    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
-    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
-    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
 
     ishandled_ = false;
 
@@ -450,45 +471,23 @@ void EventCatchHandler::initKeyMap()
 
 
 EventCatcher::EventCatcher()
-    : node_( new SoEventCallback )
-    , eventhappened( this )
+    : eventhappened( this )
     , nothandled( this )
     , type_( Any )
     , rehandling_( false )
-    , rehandled_( true )
+    , rehandled_( false )
     , osgnode_( 0 )
     , eventcatchhandler_( 0 )
 {
-    node_->ref();
-    setCBs();
-
-    if ( doOsg() )
-    {
-	osgnode_ = new osg::Node;
-	osgnode_->ref();
-	eventcatchhandler_ = new EventCatchHandler( *this );
-	osgnode_->setEventCallback( eventcatchhandler_ );
-    }
-}
-
-
-bool EventCatcher::_init()
-{
-    if ( !DataObject::_init() )
-	return false;
-
-    SO_ENABLE( SoHandleEventAction, SoModelMatrixElement );
-    SO_ENABLE( SoHandleEventAction, SoViewVolumeElement );
-
-    return true;
+    osgnode_ = setOsgNode( new osg::Node );
+    eventcatchhandler_ = new EventCatchHandler( *this );
+    osgnode_->setEventCallback( eventcatchhandler_ );
 }
 
 
 void EventCatcher::setEventType( int type )
 {
-    removeCBs();
     type_ = type;
-    setCBs();
 }
 
 
@@ -500,61 +499,11 @@ void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
 }
 
 
-void EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    DataObject::fillPar( par, saveids );
-    par.set( eventtypestr(), (int) type_ );
-}
-
-
-int EventCatcher::usePar( const IOPar& par )
-{
-    int res = DataObject::usePar( par );
-    if ( res!= 1 ) return res;
-
-    int inttype;
-    if ( !par.get( eventtypestr(), inttype ))
-	return -1;
-
-    setEventType( (EventType) inttype );
-
-    return 1;
-}
-	
-    
-void EventCatcher::setCBs()
-{
-    node_->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
-			     internalCB, this );
-    node_->addEventCallback( SoKeyboardEvent::getClassTypeId(),
-			     internalCB, this );
-    node_->addEventCallback( SoLocation2Event::getClassTypeId(),
-			     internalCB, this );
-}
-
-
-void EventCatcher::removeCBs()
-{
-    node_->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
-				internalCB, this );
-    node_->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
-				internalCB, this );
-    node_->removeEventCallback( SoLocation2Event::getClassTypeId(),
-				internalCB, this );
-}
-
-
 EventCatcher::~EventCatcher()
 {
-    removeCBs();
-    node_->unref();
     deepUnRef( utm2display_ );
 
-    if ( doOsg() )
-    {
-	osgnode_->removeEventCallback( eventcatchhandler_ );
-	osgnode_->unref();
-    }
+    osgnode_->removeEventCallback( eventcatchhandler_ );
 }
 
 
@@ -562,16 +511,7 @@ bool EventCatcher::isHandled() const
 {
     if ( rehandling_ ) return rehandled_;
 
-    if ( eventcatchhandler_ )
-	return eventcatchhandler_->isHandled();
-
-/*
-    For some reason, the action associated with some events
-    is NULL on Mac, which causes an undesired effect...
-*/
-    if ( !node_ || !node_->getAction() ) return true;
-
-    return node_->isHandled();
+    return eventcatchhandler_->isHandled();
 }
 
 
@@ -579,14 +519,7 @@ void EventCatcher::setHandled()
 {
     if ( rehandling_ ) { rehandled_ = true; return; }
 
-    if ( eventcatchhandler_ )
-	eventcatchhandler_->setHandled();
-
-/*
-    For some reason, the action associated with some events
-    is NULL on Mac, which causes an undesired effect...
-*/
-    if ( node_ && node_->getAction() ) node_->setHandled();
+    eventcatchhandler_->setHandled();
 }
 
 
@@ -599,131 +532,5 @@ void EventCatcher::reHandle( const EventInfo& eventinfo )
     rehandling_ = false;
 }
 
-
-SoNode* EventCatcher::gtInvntrNode()
-{ return node_; }
-
-
-osg::Node* EventCatcher::gtOsgNode()
-{ return osgnode_; }
-
-
-void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
-{
-    EventCatcher* eventcatcher = (EventCatcher*) userdata;
-    if ( eventcatcher->isHandled() ) return;
-    const SoEvent* event = evcb->getEvent();
-
-    int buttonstate = 0;
-    if ( event->wasShiftDown() )
-	buttonstate += OD::ShiftButton;
-
-    if ( event->wasCtrlDown() )
-	buttonstate += OD::ControlButton;
-
-    if ( event->wasAltDown() )
-	buttonstate += OD::AltButton;
-
-    EventInfo eventinfo;
-    const SbVec2s mousepos = event->getPosition();
-    eventinfo.mousepos.x = mousepos[0];
-    eventinfo.mousepos.y = mousepos[1];
-
-    const SoHandleEventAction* action = evcb->getAction();
-    SoState* state = action->getState();
-
-    const SoPickedPoint* pickedpoint = evcb->getPickedPoint();
-    const SbViewVolume& vv = SoViewVolumeElement::get(state);
-    const SbViewportRegion& viewportregion = action->getViewportRegion();
-
-    const SbVec2f normmousepos = event->getNormalizedPosition(viewportregion);
-    SbVec3f startpos, stoppos;
-    vv.projectPointToLine( normmousepos, startpos, stoppos );
-    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
-    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
-    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
-
-    if ( pickedpoint && pickedpoint->isOnGeometry() )
-    {
-	const SoPath* path = pickedpoint->getPath();
-	if ( path )
-	{
-	    DM().getIds( path, eventinfo.pickedobjids );
-	    if ( eventinfo.pickedobjids.size() )
-	    {
-		SbVec3f pos3d = pickedpoint->getPoint();
-		eventinfo.displaypickedpos.x = pos3d[0];
-		eventinfo.displaypickedpos.y = pos3d[1];
-		eventinfo.displaypickedpos.z = pos3d[2];
-		SbVec3f localpos;
-		pickedpoint->getWorldToObject().multVecMatrix(pos3d, localpos );
-		eventinfo.localpickedpos.x = localpos[0];
-		eventinfo.localpickedpos.y = localpos[1];
-		eventinfo.localpickedpos.z = localpos[2];
-
-		eventinfo.worldpickedpos = eventinfo.displaypickedpos;
-		for ( int idx=eventcatcher->utm2display_.size()-1;idx>=0; idx--)
-		{
-		    eventinfo.worldpickedpos =
-			eventcatcher->utm2display_[idx]->transformBack(
-				eventinfo.worldpickedpos);
-		}
-
-		const SoDetail* detail = pickedpoint->getDetail();
-		mDynamicCastGet( const SoFaceDetail*, facedetail, detail );
-		if ( facedetail )
-		{
-		    SoFaceDetail* fd = const_cast< SoFaceDetail* >(facedetail);
-		    eventinfo.detail = new FaceDetail( fd );
-		}
-	    }
-	}
-    }
-    else
-	eventinfo.pickedobjids.erase();
-
-    SoType eventtype = event->getTypeId();
-    if ( eventtype==SoKeyboardEvent::getClassTypeId() )
-    {
-	const SoKeyboardEvent* kbevent = (const SoKeyboardEvent*) event;
-	eventinfo.key = (int)kbevent->getKey();
-	eventinfo.type = Keyboard;
-	eventinfo.pressed = kbevent->getState()==SoButtonEvent::DOWN;
-    }
-    else if ( eventtype==SoLocation2Event::getClassTypeId() )
-    {
-	eventinfo.type = MouseMovement;
-	eventinfo.setTabletInfo( TabletInfo::currentState() );
-    }
-    else if ( eventtype==SoMouseButtonEvent::getClassTypeId() )
-    {
-	eventinfo.type = MouseClick;
-	eventinfo.setTabletInfo( TabletInfo::currentState() );
-
-	const SoMouseButtonEvent* mbevent = (const SoMouseButtonEvent*) event;
-	SoMouseButtonEvent::Button button = mbevent->getButton();
-	if ( button==SoMouseButtonEvent::BUTTON1 )
-	    buttonstate += OD::LeftButton;
-	if ( button==SoMouseButtonEvent::BUTTON2 )
-	    buttonstate += OD::RightButton;
-	if ( button==SoMouseButtonEvent::BUTTON3 )
-	    buttonstate += OD::MidButton;
-
-	if ( SoMouseButtonEvent::isButtonPressEvent( mbevent, button ) )
-	    eventinfo.pressed = true;
-	else
-	    eventinfo.pressed = false;
-    }
-
-    eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
-
-    if ( eventcatcher->eventType()==Any ||
-	 eventcatcher->eventType()==eventinfo.type )
-    {
-	eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
-    }
-    if ( !eventcatcher->isHandled() )
-	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
-}
 
 }; // namespace visBase

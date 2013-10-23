@@ -17,9 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "visdatagroup.h"
 
-class SoEnvironment;
-class SoAction;
-class SoCallback;
+/*!\brief Open Scene Graph*/
 
 /*!\brief Open Scene Graph*/
 
@@ -30,7 +28,7 @@ namespace visBase
     class SelectionManager;
     class EventCatcher;
     class PolygonOffset;
-    class DirectionalLight;
+    class Light;
 
 /*!\brief
     Scene manages all DataObjects and has some managing
@@ -45,13 +43,11 @@ public:
 			mCreateDataObj(Scene);
 
     void		addObject(DataObject*);
-    void		insertObject(int idx,DataObject*);
 
     void		setAmbientLight(float);
     float		ambientLight() const;
 
-    void		setDirectionalLight(const DirectionalLight&);
-    DirectionalLight*	getDirectionalLight() const;
+    Light*		getLight() const;
 
     PolygonOffset*	getPolygonOffset()	{ return polygonoffset_; }
     bool		saveCurrentOffsetAsDefault() const;
@@ -68,33 +64,23 @@ public:
     static const char*	sKeyOffset()	{ return "Polygon offset"; }
     static const char*	sKeyFactor()	{ return "Factor"; }
     static const char*	sKeyUnits()	{ return "Units"; }
+    static const char*	sKeyLight()	{ return "Light"; }
 
 
 protected:
     virtual		~Scene();
     EventCatcher&	events_;
 
-    void		fillPar(IOPar&,TypeSet<int>&) const;
-    int			usePar(const IOPar&);
-
     void		fillOffsetPar( IOPar& ) const;
-
-    virtual SoNode*	gtInvntrNode();
-    virtual osg::Node*	gtOsgNode();
-
-    static void		firstRender(void*,SoAction*);
 
 private:
     int			mousedownid_;
 
     void		mousePickCB(CallBacker*);
-    void		removeCallback();
 
-    SoEnvironment*	environment_;
     PolygonOffset*	polygonoffset_;
-    DirectionalLight*	directionallight_;
-    SoGroup*		selroot_;
-    SoCallback*		callback_;
+    Light*		light_;
+
     bool		blockmousesel_;
     osg::Group*		osgsceneroot_;
 };

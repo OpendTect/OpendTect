@@ -88,10 +88,6 @@ if( OD_MODULE_DEPS )
 endif()
 
 
-if(OD_USECOIN)
-    OD_SETUP_COIN()
-endif()
-
 if(OD_USEBREAKPAD)
     OD_SETUP_BREAKPAD()
 endif()

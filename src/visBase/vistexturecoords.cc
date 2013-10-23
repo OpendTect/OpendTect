@@ -14,184 +14,171 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "position.h"
 #include "thread.h"
 
-#include <Inventor/nodes/SoTextureCoordinate2.h>
-#include <Inventor/nodes/SoTextureCoordinate3.h>
-
 #include <osg/Array>
 
 mCreateFactoryEntry( visBase::TextureCoords );
-mCreateFactoryEntry( visBase::TextureCoords2 );
 
 namespace visBase
 {
 
-TextureCoords2::TextureCoords2()
-    : coords_( new SoTextureCoordinate2 )
-    , mutex_( *new Threads::Mutex )
-{ 
-    coords_->ref();
-}
+#define mFreeTag	1e32f	// preferably different than OD undef value
+#define mIsFreeTag(x)	( ((x)>9.99999e31f) && ((x)<1.00001e32f) )
 
-
-TextureCoords2::~TextureCoords2()
-{
-    delete &mutex_;
-    coords_->unref();
-}
-
-void TextureCoords2::setCoord( int idx, const Coord& pos )
-{
-    Threads::MutexLocker lock( mutex_ );
-    coords_->point.set1Value( idx, (float)pos.x, (float)pos.y );
-}
-
-
-SoNode* TextureCoords2::gtInvntrNode()
-{ return coords_; }
+#define mFreeOsgVec2	osg::Vec2( mFreeTag, mFreeTag )
+#define mIsFreeIdx(idx)	mIsFreeTag( (*mGetOsgVec2Arr(osgcoords_))[idx][0] )
 
 
 TextureCoords::TextureCoords()
-    : coords_( new SoTextureCoordinate3 )
-    , mutex_( *new Threads::Mutex )
-    , osgcoords_( doOsg() ? new osg::Vec2Array : 0 )
+    : lock_( Threads::Lock::MultiRead )
+    , osgcoords_( new osg::Vec2Array )
+    , nrfreecoords_( 0 )
+    , lastsearchedidx_( -1 )
 {
-    if ( coords_ )
-    {
-	coords_->ref();
-	unusedcoords_ += 0;
-	//!<To compensate for that the first coord is set by default by coin
-	return;
-    }
-    
     mGetOsgVec2Arr(osgcoords_)->ref();
 }
 
 
 TextureCoords::~TextureCoords()
 {
-    delete &mutex_;
-    
-    if ( coords_ )
-    {
-	coords_->unref();
-	return;
-    }
-    
     mGetOsgVec2Arr(osgcoords_)->unref();
 }
 
 
-int TextureCoords::size(bool includedeleted) const
-{ return coords_->point.getNum()-(includedeleted ? 0 : unusedcoords_.size()); }
+int TextureCoords::size( bool includedeleted ) const
+{
+    Threads::Locker locker( lock_ );
+    const int sz = mGetOsgVec2Arr(osgcoords_)->size();
+    return includedeleted ? sz : sz-nrfreecoords_;
+}
 
 
 void TextureCoords::setCoord( int idx, const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex_ );
-
-    for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
-	unusedcoords_ += idy;
-
-    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, 
-					     (float) pos.y, (float) pos.z ));
+    setCoord( idx, mCast(Coord,pos) );
 }
 
 
 void TextureCoords::setCoord( int idx, const Coord& pos )
 {
-    Threads::MutexLocker lock( mutex_ );
+    if ( idx<0 )
+	return;
 
-    for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
-	unusedcoords_ += idy;
+    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
+    int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
-    coords_->point.set1Value( idx, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
+    while ( idx >= sz )
+    {
+	mGetOsgVec2Arr(osgcoords_)->push_back( mFreeOsgVec2 );
+	nrfreecoords_++;
+	sz++;
+    }
+
+    if ( mIsFreeIdx(idx) )
+	nrfreecoords_--;
+
+    (*mGetOsgVec2Arr(osgcoords_))[idx] = Conv::to<osg::Vec2>( pos );
 }
 
 
 int TextureCoords::addCoord( const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex_ );
-    const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( (float) pos.x, 
-					      (float) pos.y, (float) pos.z ));
-
-    return res;
+    return addCoord( mCast(Coord,pos) );
 }
 
 
 int TextureCoords::addCoord( const Coord& pos )
 {
-    Threads::MutexLocker lock( mutex_ );
-    const int res = getFreeIdx();
-    coords_->point.set1Value( res, SbVec3f( (float) pos.x, (float) pos.y, 0 ));
-
-    return res;
+    const int idx = searchFreeIdx();
+    setCoord( idx, pos );
+    return idx;
 }
 
 
 Coord3 TextureCoords::getCoord( int idx ) const
 {
-    Threads::MutexLocker lock( mutex_ );
-    if ( idx<0 || idx>=coords_->point.getNum() ||
-	 unusedcoords_.isPresent(idx) )
-    {
-	return Coord3::udf();
-    }
+    Threads::Locker locker( lock_ );
+    const int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
-    SbVec3f res = coords_->point[idx];
-    return Coord3( res[0], res[1], res[2] );
+    if ( idx<0 || idx>=sz || mIsFreeIdx(idx) )
+	return Coord3::udf();
+
+    return Coord3( Conv::to<Coord>((*mGetOsgVec2Arr(osgcoords_))[idx]), 0.0 );
+}
+
+
+void TextureCoords::clear()
+{
+    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
+    mGetOsgVec2Arr( osgcoords_ )->clear();
+    nrfreecoords_ = 0;
+    lastsearchedidx_ = -1;
 }
 
 
 int TextureCoords::nextID( int previd ) const
 {
-    Threads::MutexLocker lock( mutex_ );
-    const int sz = coords_->point.getNum();
+    if ( previd < -1 )
+	return -1;
 
-    int res = previd+1;
-    while ( res<sz )
+    Threads::Locker locker( lock_ );
+    const int sz = mGetOsgVec2Arr(osgcoords_)->size();
+
+    for ( int idx=previd+1; idx<sz; idx++ )
     {
-	if ( !unusedcoords_.isPresent(res) )
-	    return res;
+	if ( !mIsFreeIdx(idx) )
+	    return idx;
     }
 
     return -1;
 }
 
 
-
-void TextureCoords::removeCoord(int idx)
+void TextureCoords::removeCoord( int idx )
 {
-    Threads::MutexLocker lock( mutex_ );
-    const int nrcoords = coords_->point.getNum();
-    if ( idx>=nrcoords )
-    {
-	pErrMsg("Invalid index");
+    Threads::Locker locker( lock_ );
+    int sz = mGetOsgVec2Arr(osgcoords_)->size();
+
+    if ( idx<0 || idx>=sz || mIsFreeIdx(idx) )
 	return;
-    }
 
-    if ( idx==nrcoords-1 )
-	coords_->point.deleteValues( idx );
-    else
-	unusedcoords_ += idx;
-}
+    locker.convertToWriteLock();
+    (*mGetOsgVec2Arr(osgcoords_))[idx] = mFreeOsgVec2;
+    nrfreecoords_++;
 
-
-SoNode* TextureCoords::gtInvntrNode()
-{ return coords_; }
-
-
-int  TextureCoords::getFreeIdx()
-{
-    if ( unusedcoords_.size() )
+    while ( sz && mIsFreeIdx(sz-1) )
     {
-	const int res = unusedcoords_[unusedcoords_.size()-1];
-	unusedcoords_.removeSingle(unusedcoords_.size()-1);
-	return res;
+	mGetOsgVec2Arr(osgcoords_)->pop_back();
+	nrfreecoords_--;
+	sz--;
+    }
+}
+
+
+int TextureCoords::searchFreeIdx()
+{
+    Threads::Locker locker( lock_ );
+    const int sz = mGetOsgVec2Arr(osgcoords_)->size();
+
+    if ( nrfreecoords_ > 0 )
+    {
+	locker.convertToWriteLock();
+
+	for ( int count=0; count<sz; count++ )
+	{
+	    lastsearchedidx_++;
+	    if ( lastsearchedidx_ >= sz )
+		lastsearchedidx_ = 0;
+
+	    if ( mIsFreeIdx(lastsearchedidx_) )
+		return lastsearchedidx_;
+	}
     }
 
-    return coords_->point.getNum();
+    return sz;
 }
+
+
+//==========================================================================
 
 
 TextureCoordListAdapter::TextureCoordListAdapter( TextureCoords& c )
@@ -230,6 +217,13 @@ void TextureCoordListAdapter::set( int idx, const Coord3& p )
 
 void TextureCoordListAdapter::remove( int idx )
 { texturecoords_.removeCoord( idx ); }
+
+
+void TextureCoordListAdapter::remove( const TypeSet<int>& idxs )
+{
+    for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	texturecoords_.removeCoord( idxs[idx] );
+}
 
 
 }; // namespace visBase

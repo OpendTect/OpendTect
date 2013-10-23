@@ -349,9 +349,9 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( pid.objectID() == -1 )
     {
 	visSurvey::Scene* scene = visSurvey::STM().currentScene();
-	const Coord3 pos0 = clickcatcher->info().getPos();
-	const Coord3 pos1 = scene->getZScaleTransform()->transformBack( pos0 );
-	seedpos = scene->getUTM2DisplayTransform()->transformBack( pos1 );
+	seedpos = clickcatcher->info().getPos();
+	scene->getTempZStretchTransform()->transformBack( seedpos );
+	scene->getUTM2DisplayTransform()->transformBack( seedpos );
     }
     else
     {

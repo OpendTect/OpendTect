@@ -11,8 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistristripset.h"
 
-#include <Inventor/nodes/SoIndexedTriangleStripSet.h>
-
 mCreateFactoryEntry( visBase::TriangleStripSet );
 
 namespace visBase

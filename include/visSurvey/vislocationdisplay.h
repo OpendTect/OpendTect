@@ -18,18 +18,16 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 class Sphere;
-class SoSeparator;
 namespace Pick { class Set; class Location; class SetMgr; }
 template <class T> class Selector;
 
 namespace visBase
 {
-    class DataObjectGroup;
     class DrawStyle;
     class EventCatcher;
-    class PickStyle;
     class PolyLine;
     class Transformation;
+    class MarkerSet;
 };
 
 
@@ -87,7 +85,7 @@ public:
     virtual const mVisTrans*	getDisplayTransformation() const;
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void                fillPar(IOPar&) const;
     virtual int                 usePar(const IOPar&);
 
     int				getPickIdx(visBase::DataObject*) const;
@@ -103,12 +101,11 @@ public:
 
 protected:
 					LocationDisplay();
-    virtual visBase::VisualObject*	createLocation() const  = 0;
     virtual void			setPosition(int idx,
 	    					    const Pick::Location&);
     virtual bool			hasDirection() const { return false; }
     virtual bool			hasText() const { return false; }
-    virtual int			isMarkerClick(const TypeSet<int>&) const;
+    virtual int			isMarkerClick(const Coord3&) const;
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();
 
@@ -116,14 +113,12 @@ protected:
 
     bool			addPick(const Coord3&,const Sphere&,bool);
     void			removePick(int);
-    void			addDisplayPick(const Pick::Location&,int);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
-    void			setUnpickable(bool yn);
 
     void			pickCB(CallBacker* cb);
     virtual void		locChg(CallBacker* cb);
@@ -144,8 +139,7 @@ protected:
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
 
-    visBase::PickStyle*		pickstyle_;
-    visBase::DataObjectGroup*	group_;
+    visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::PolyLine*          polyline_;
     const mVisTrans*		transformation_;

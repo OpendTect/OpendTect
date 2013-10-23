@@ -24,7 +24,7 @@ class TaskRunner;
 
 namespace visBase
 {
-
+class Transformation;
 class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface or body sections. */
@@ -45,13 +45,13 @@ public:
     void				setScales(const SamplingData<float>&,
 	    					  const SamplingData<float>&,
 						  const SamplingData<float>&);
-    const SamplingData<float>&		getScale(int dim) const;
+    const SamplingData<float>		getScale(int dim) const;
 
     bool			touch(bool forall,TaskRunner* =0);
     void			renderOneSide( int side );
-    				/*!< 0 = visisble from both sides.
-				     1 = visisble from positive side
-				    -1 = visisble from negative side. */
+    				/*!< 0 = visible from both sides.
+				     1 = visible from positive side
+				    -1 = visible from negative side. */
 					
     				//For body section display only. 
     char			enabledSection() const;
@@ -65,6 +65,10 @@ public:
     void			setBoxBoundary(float x,float y,float z);
 
     GeomIndexedShape*		getShape()		{ return shape_; }
+    virtual void		setDisplayTransformation(const mVisTrans*);
+    void			getTransformCoord(Coord3&);
+
+
 
 protected:
     					~MarchingCubesSurface();
@@ -81,6 +85,7 @@ protected:
     GeomIndexedShape*			shape_;
 
     ExplicitMarchingCubesSurface*	surface_;
+    const mVisTrans*			transform_;
 };
 
 };

@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visdrawstyle.h"
 #include "visevent.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
@@ -57,7 +57,7 @@ EMObjectDisplay::EMObjectDisplay()
     , hasmoved( this )
     , changedisplay( this )
     , locknotifier( this )
-    , drawstyle_( visBase::DrawStyle::create() )
+    , drawstyle_( new visBase::DrawStyle )
     , nontexturecolisset_( false )
     , enableedit_( false )
     , restoresessupdate_( false )
@@ -67,9 +67,9 @@ EMObjectDisplay::EMObjectDisplay()
     parposattrshown_.erase();
 
     drawstyle_->ref();
-    addChild( drawstyle_->getInventorNode() );
+    addNodeState( drawstyle_ );
 
-    LineStyle defls; defls.width_ = 2;
+    LineStyle defls; defls.width_ = 4;
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.8 );
@@ -81,7 +81,7 @@ EMObjectDisplay::~EMObjectDisplay()
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = 0;
 
-    removeChild( drawstyle_->getInventorNode() );
+    removeNodeState( drawstyle_ );
     drawstyle_->unRef();
     drawstyle_ = 0;
 
@@ -95,6 +95,12 @@ EMObjectDisplay::~EMObjectDisplay()
 	pErrMsg("You have not called removeEMStuff from"
 		"inheriting object's constructor." );
 	removeEMStuff(); //Lets hope for the best.
+    }
+
+    for ( int idx= 0; idx < posattribmarkers_.size(); idx++ )
+    {
+	removeChild( posattribmarkers_[idx]->osgNode() );
+	posattribmarkers_.removeSingle(idx)->unRef();
     }
 
 }
@@ -210,6 +216,7 @@ void EMObjectDisplay::removeEMStuff()
 
     if ( editor_ )
     {
+	removeChild( editor_->osgNode() );
 	editor_->unRef();
 	editor_ = 0;
     }
@@ -217,7 +224,8 @@ void EMObjectDisplay::removeEMStuff()
     if ( emobject_ )
     {
 	emobject_->change.remove( mCB(this,EMObjectDisplay,emChangeCB));
-	const int trackeridx = MPE::engine().getTrackerByObject(emobject_->id());
+	const int trackeridx =
+	    MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
 	{
 	    MPE::engine().removeTracker( trackeridx );
@@ -338,12 +346,11 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	if ( attribindex==-1 )
 	{
 	    posattribs_ += attr;
-	    visBase::DataObjectGroup* group= visBase::DataObjectGroup::create();
-	    group->ref();
-	    addChild( group->getInventorNode() );
-	    posattribmarkers_ += group;
-
-	    group->addObject( visBase::Material::create() );
+	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
+	    markerset->ref();
+	    addChild( markerset->osgNode() );
+	    posattribmarkers_ += markerset;
+	    markerset->setMaterial( 0 );
 	    attribindex = posattribs_.size()-1;
 	}
 
@@ -358,7 +365,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
     else if ( attribindex!=-1 && !yn )
     {
 	posattribs_ -= attr;
-	removeChild(posattribmarkers_[attribindex]->getInventorNode());
+	removeChild(posattribmarkers_[attribindex]->osgNode());
 	posattribmarkers_.removeSingle(attribindex)->unRef();
     }
 }
@@ -376,12 +383,6 @@ const LineStyle* EMObjectDisplay::lineStyle() const
 
 void EMObjectDisplay::setLineStyle( const LineStyle& ls )
 { drawstyle_->setLineStyle(ls); }
-
-
-void EMObjectDisplay::getLineWidthBounds( int& min, int& max )
-{
-    drawstyle_->getLineWidthBounds( min, max );
-}
 
 
 bool EMObjectDisplay::hasColor() const
@@ -453,7 +454,7 @@ void EMObjectDisplay::enableEditing( bool yn )
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	editor_->setEditor(mpeeditor);
-	addChild( editor_->getInventorNode() );
+	addChild( editor_->osgNode() );
     }
 
     if ( editor_ ) editor_->turnOn(yn);
@@ -558,10 +559,8 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void EMObjectDisplay::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-
     if ( emobject_ && !emobject_->isFullyLoaded() )
 	par.set( sKeySections(), displayedSections() );
 
@@ -578,7 +577,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyPosAttrShown(), posattribs_ );
-    fillSOPar( par, saveids );
+    fillSOPar( par );
 }
 
 
@@ -640,68 +639,57 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     const int attribindex = posattribs_.indexOf(attrib);
     if ( attribindex==-1 ) return;
 
-    mDynamicCastGet(visBase::Material*, posattrmat,
-		    posattribmarkers_[attribindex]->getObject(0) );
-    posattrmat->setColor( emobject_->getPosAttrMarkerStyle(attrib).color_ );
-
-    int markeridx = 1;		// element 0 contains material, start at 1
+    visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
+    markerset->setMarkersSingleColor(
+	emobject_->getPosAttrMarkerStyle(attrib).color_ );
+    markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
+    markerset->setDisplayTransformation(transformation_);
+    markerset->setScreenSize( (float) 3* lineStyle()->width_ );
+    markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
 
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
 
     for ( int idx=0; pids && idx<pids->size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos((*pids)[idx]);
-	if ( !pos.isDefined() ) continue;
+	if ( !pos.isDefined() )
+	    pErrMsg("Undefined point.");
 
-	visBase::Marker* marker;
-	if ( markeridx < posattribmarkers_[attribindex]->size() )
-	{
-	    mDynamicCast( visBase::Marker*, marker,
-			  posattribmarkers_[attribindex]->getObject(markeridx));
-	}
-	else
-	{
-	    marker = visBase::Marker::create();
-	    posattribmarkers_[attribindex]->addObject(marker);
-	    marker->setMaterial(0);
-	}
-
-	marker->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
-	marker->setDisplayTransformation(transformation_);
-	marker->setCenterPos(pos);
-	markeridx++;
+        markerset->getCoordinates()->setPos( idx, pos);
     }
 
-    while ( posattribmarkers_[attribindex]->size() > markeridx  )
-	posattribmarkers_[attribindex]->removeObject( markeridx );
+    markerset->getCoordinates()->removeAfter( pids->size()-1 );
 }
 
 
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
-					      const TypeSet<int>& path ) const
+    const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
     EM::PosID res(-1,-1,-1);
     const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;
 
-    const visBase::DataObjectGroup& group = *posattribmarkers_[attribidx];
-    TypeSet<int> visids;
-    for ( int idx=1; idx<group.size(); idx++ )
-	visids += group.getObject( idx )->id();
+    const visBase::MarkerSet* markerset = posattribmarkers_[attribidx];
+    if ( !path.isPresent(markerset->id()) )
+	return res;
 
-    for ( int idx=0; idx<path.size(); idx++ )
+    double minsqdist = mUdf(float);
+    int minidx = -1;
+    for ( int idx=0; idx<markerset->getCoordinates()->size(); idx++ )
     {
-	const int index = visids.indexOf( path[idx] );
-	if ( index==-1 )
-	    continue;
-
-	const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
-	if ( index < pids->size() )
-	    res = (*pids)[index];
-
-	break;
+	const double sqdist = clickeddisplaypos.sqDistTo(
+	    markerset->getCoordinates()->getPos(idx,true) );
+	if ( sqdist<minsqdist )
+	{
+	    minsqdist = sqdist;
+	    minidx = idx;
+	}
     }
+
+    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
+    if ( pids && pids->validIdx(minidx))
+	res = (*pids)[minidx];
 
     return res;
 }

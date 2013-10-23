@@ -19,18 +19,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mBucketSize 16	
 
-
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
 {
 public:
     ExplicitMarchingCubesSurfaceUpdater( ExplicitMarchingCubesSurface& is,
-	    bool updatecoords )
+	bool updatecoords )
 	: surface_( is )
 	, totalnr_( is.getSurface()->models_.totalSize() )
 	, xrg_( 0 )
 	, yrg_( 0 )
 	, zrg_( 0 )
-        , updatecoords_( updatecoords )
+	, updatecoords_( updatecoords )
 	, modelslocker_(is.getSurface()->modelslock_)
     {
 	MarchingCubeLookupTable::get(); // just to have the table ready
@@ -40,12 +39,12 @@ public:
     {
 	delete xrg_; delete yrg_; delete zrg_;
     }
-    
+
     void setUpdateCoords( bool yn ) { updatecoords_ = yn; }
-    
+
     void	setLimits(const Interval<int>& xrg,
-	    		  const Interval<int>& yrg,
-			  const Interval<int>& zrg)
+	const Interval<int>& yrg,
+	const Interval<int>& zrg)
     {
 	if ( xrg_ ) delete xrg_; xrg_ = new Interval<int>( xrg );
 	if ( yrg_ ) delete yrg_; yrg_ = new Interval<int>( yrg );
@@ -58,7 +57,7 @@ public:
 	stop[mX] = xrg.stop; stop[mY] = yrg.stop; stop[mZ] = zrg.stop;
 
 	surface_.getSurface()->models_.getIndicesInRange( start, stop,
-							  idxstocompute_);
+	    idxstocompute_);
 	totalnr_ = idxstocompute_.size()/3;
     }
 
@@ -68,7 +67,7 @@ protected:
     const char* message() const 
     { 
 	return updatecoords_ ? "Triangulation: updating coordinates" 
-	    		     : "Triangulation: updating indices"; 
+	    : "Triangulation: updating indices";
     }
 
     bool doWork( od_int64 start, od_int64 stop, int thread )
@@ -81,7 +80,7 @@ protected:
 	    surface_.getSurface()->models_;
 
 	for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
-	      idx++, addToNrDone(1) )
+	    idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
@@ -131,7 +130,7 @@ protected:
     Interval<int>*			zrg_;
 
     TypeSet<int>			idxstocompute_;
-    					//Only used if ranges
+    //Only used if ranges
 
     int					totalnr_;
     ExplicitMarchingCubesSurface&	surface_;
@@ -147,9 +146,6 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     : surface_( surf )
     , ibuckets_( 3, 1 )
     , coordindices_( 3, 3 )
-    , scale0_( 0 )
-    , scale1_( 0 )
-    , scale2_( 0 )
     , lastversionupdate_( -1 )
 {
     changedbucketranges_[mX] = 0;
@@ -169,9 +165,6 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
 ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 {
     setSurface( 0 );
-    delete scale0_;
-    delete scale1_;
-    delete scale2_;
     mRemoveBucketRanges;
 }
 
@@ -197,10 +190,8 @@ void ExplicitMarchingCubesSurface::setSurface( MarchingCubesSurface* ns )
     }
 }
 
-
 #define mGetWriteLock4CoordIndices(nm) \
     Threads::Locker nm( coordindiceslock_, Threads::Locker::WriteLock )
-
 
 void ExplicitMarchingCubesSurface::removeAll( bool deep )
 {
@@ -210,7 +201,7 @@ void ExplicitMarchingCubesSurface::removeAll( bool deep )
 	int idxs[] = { 0, 0, 0 };
 	if ( !coordindices_.isValidPos( idxs ) )
 	    return;
-	
+
 	do 
 	{
 	    const int* ci = &coordindices_.getRef( idxs, 0 );
@@ -348,69 +339,6 @@ void ExplicitMarchingCubesSurface::removeBuckets(
 }
 
 
-#define mSetScale( dim ) \
-    if ( mIsZero( scale##dim.start, mDefEps ) && \
-	 mIsEqual( scale##dim.step, 1, mDefEps ) ) \
-    { \
-	if ( scale##dim##_ ) delete scale##dim##_; \
-	scale##dim##_ = 0; \
-    } \
-    else \
-    { \
-	if ( !scale##dim##_ ) scale##dim##_ = \
-		new SamplingData<float>( scale##dim ); \
-	else *scale##dim##_ = scale##dim; \
-    }
-
-void ExplicitMarchingCubesSurface::setAxisScales(
-	const SamplingData<float>& scale0,
-	const SamplingData<float>& scale1,
-	const SamplingData<float>& scale2 )
-{
-    mSetScale( 0 );
-    mSetScale( 1 );
-    mSetScale( 2 );
-}
-
-
-#undef mSetScale
-
-const SamplingData<float>&
-ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
-{
-    const SamplingData<float>* scale = 0;
-    if ( dim==mX )
-	scale = scale0_;
-    else if ( dim==mY )
-	scale = scale1_;
-    else
-	scale = scale2_;
-
-    static const SamplingData<float> dummy( 0, 1 );
-    return scale ? *scale : dummy;
-}
-
-
-#define mEndTriangleStrip \
-    const int bsz = coordindices.size(); \
-    if ( bsz<3 ) \
-	coordindices.setEmpty(); \
-    else if ( coordindices[bsz-1]!=-1 ) \
-    { \
-	if ( coordindices[bsz-2]==-1 ) \
-	    coordindices.removeSingle( bsz-1 ); \
-	else if ( coordindices[bsz-3]==-1 ) \
-	{ \
-	    coordindices.removeSingle( bsz-1 ); \
-	    coordindices.removeSingle( bsz-2 ); \
-	} \
-	else \
-	    coordindices += -1; \
-    } \
-    if ( normallist_ ) \
-	triangles.erase()
-
-
 bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 {
     if ( !surface_ )
@@ -434,25 +362,29 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     Geometry::IndexedGeometry* bucket = 0;
     int bucketidx[3];
     Threads::Locker lckr( geometrieslock_ );
+
     if ( ibuckets_.findFirst( indicesbucket, bucketidx ) )
+    {
 	bucket = ibuckets_.getRef( bucketidx, 0 );
+    }
     else
     {
 	if ( !lckr.convertToWriteLock() &&
 	      ibuckets_.findFirst( indicesbucket, bucketidx ) )
+	{
 	    bucket = ibuckets_.getRef( bucketidx, 0 );
+	}
 	else
 	{
 	    bucket = new Geometry::IndexedGeometry(
-		    Geometry::IndexedGeometry::TriangleStrip,
-		    Geometry::IndexedGeometry::PerVertex, 0, normallist_ );
+		    Geometry::IndexedGeometry::Triangles,0, normallist_ );
 
 	    ibuckets_.add( &bucket, indicesbucket );
 	    geometries_ += bucket;
 	}
+
     }
     lckr.unlockNow();
-
     const char* tableindices = table.indices_[submodel];
 
 
@@ -471,7 +403,6 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	if ( neighbor==-1 )
 	{
 	    gotonextstrip = false;
-	    mEndTriangleStrip;
 	    continue;
 	}
 
@@ -526,7 +457,6 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	int indices[3];
 	if ( !getCoordIndices( neighborpos, indices ) )
 	{
-	    mEndTriangleStrip;
 	    gotonextstrip = true;
 	    continue;
 	}
@@ -534,7 +464,6 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	const int index = indices[axis];
 	if ( index==-1 )
 	{
-	    mEndTriangleStrip;
 	    gotonextstrip = true;
 	    continue;
 	}
@@ -547,7 +476,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    triangles += coordlist_->get( index );
 
 	    const int nrtri = triangles.size();
-	    const bool reverse = ((bool)(nrtri % 2))!=righthandednormals_;
+	    const bool reverse = ((bool)(nrtri % 2));
 
 	    if ( nrtri>=3 )
 	    {
@@ -578,17 +507,11 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	}
     }
 
-    mEndTriangleStrip;
-
     Threads::Locker lock( bucket->lock_ );
-    bucket->coordindices_.append( coordindices );
-    bucket->normalindices_.append( coordindices );
+    bucket->appendCoordIndices( coordindices );
 
     return true;
 }
-
-
-#undef mEndTriangleStrip
 
 
 void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
@@ -646,7 +569,9 @@ bool ExplicitMarchingCubesSurface::getCoordIndices( const int* pos, int* res )
     int cidxs[3];
     Threads::Locker lckr( coordindiceslock_ );
     if ( !coordindices_.findFirst( pos, cidxs ) )
+    {
 	return false;
+    }
 
     int* indices = &coordindices_.getRef( cidxs, 0 );
 
@@ -677,10 +602,6 @@ bool ExplicitMarchingCubesSurface::updateCoordinate( const int* pos,
 	    coord[dim] +=
 	      ((float) model.axispos_[dim])/MarchingCubesModel::cAxisSpacing;
 
-	    if ( scale0_ ) coord[mX] = scale0_->atIndex( coord[mX] );
-	    if ( scale1_ ) coord[mY] = scale1_->atIndex( coord[mY] );
-	    if ( scale2_ ) coord[mZ] = scale2_->atIndex( coord[mZ] );
-
 	    if ( res[dim]!=-1 )
 		coordlist_->set( res[dim], coord );
 	    else
@@ -701,13 +622,16 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
     if ( !surface_->models_.getPos( modelidxs, pos ) )
 	return false;
 
+
     int cidxs[3];
-    Threads::Locker lckr( coordindiceslock_ );
+     Threads::Locker lckr( coordindiceslock_ );
     if ( !coordindices_.findFirst( pos, cidxs ) )
     {
 	int indices[] = { -1, -1, -1 };
 	if ( !updateCoordinate( pos, modelidxs, indices ) )
+	{
 	    return false;
+	}
 
 	if ( lckr.convertToWriteLock() ||
 	     !coordindices_.findFirst( pos, cidxs ) )
@@ -718,6 +642,7 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
 
     int* indices = &coordindices_.getRef( cidxs, 0 );
     const int res = updateCoordinate( pos, modelidxs, indices );
+
     return res;
 }
 

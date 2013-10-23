@@ -18,10 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "visevent.h"
 #include "vislocationdisplay.h"
-#include "vismarker.h"
+#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
-#include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonselection.h"
 #include "vispolyline.h"
@@ -41,7 +40,6 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , transformation_(0)
     , mode_(Idle)
     , sowingline_(visBase::PolyLine::create())
-    , pickstyle_(visBase::PickStyle::create())
     , linelost_(false)
     , singleseeded_(true)
     , curpid_(EM::PosID::udf())
@@ -49,22 +47,17 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , workrange_(0)
     , underlyingobjid_(-1)
 {
-    pickstyle_->ref();
-    pickstyle_->setStyle( visBase::PickStyle::Unpickable );
-
     sowingline_->ref();
-    addChild( sowingline_->getInventorNode() );
-    sowingline_->setMaterial( visBase::Material::create() );
-    sowingline_->insertNode( pickstyle_->getInventorNode() );
+    sowingline_->setMaterial( new visBase::Material );
+    addChild( sowingline_->osgNode() );
     reInitSettings();
 }
 
 
 Sower::~Sower()
 {
-    removeChild( sowingline_->getInventorNode() );
+    removeChild( sowingline_->osgNode() );
     sowingline_->unRef();
-    pickstyle_->unRef();
     deepErase( eventlist_ );
 
     if ( workrange_ )
@@ -102,7 +95,13 @@ void Sower::intersow( bool yn )
 
 void Sower::setDisplayTransformation( const mVisTrans* transformation )
 {
+    if ( transformation_ )
+	transformation_->unRef();
+
     transformation_ = transformation;
+    if ( transformation_ )
+	transformation_->ref();
+
     sowingline_->setDisplayTransformation( transformation );
 }
 
@@ -124,10 +123,10 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     if ( mode_ != Idle )
 	mReturnHandled( false );
 
-    Scene* scene = STM().currentScene();
-    if ( scene && scene->getPolySelection()->getSelectionType() !=
+    //Scene* scene = STM().currentScene();
+ /*   if ( scene && scene->getPolySelection()->getSelectionType() !=
 	    					visBase::PolygonSelection::Off )
-	mReturnHandled( false );
+	mReturnHandled( false );*/
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	mReturnHandled( false );
@@ -160,7 +159,6 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
 	mode_ = Idle;
 	mReturnHandled( false );
     }
-
     sowingline_->getMaterial()->setColor( color );
     sowingline_->turnOn( true );
 
@@ -200,22 +198,22 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 
     CubeSampling cs = pdd->getCubeSampling( false, false );
     Coord3 p0( SI().transform(cs.hrg.start), cs.zrg.start );
-    p0 = transformation_->transform( p0 );
-    p0 = scene->getZScaleTransform()->transform( p0 );
+    transformation_->transform( p0 );
+    scene->getTempZStretchTransform()->transform( p0 );
     Coord3 p1( SI().transform( cs.hrg.stop), cs.zrg.start );
-    p1 = transformation_->transform( p1 );
-    p1 = scene->getZScaleTransform()->transform( p1 );
+    transformation_->transform( p1 );
+    scene->getTempZStretchTransform()->transform( p1 );
     Coord3 p2( SI().transform(cs.hrg.start), cs.zrg.stop );
-    p2 = transformation_->transform( p2 );
-    p2 = scene->getZScaleTransform()->transform( p2 );
+    transformation_->transform( p2 );
+    scene->getTempZStretchTransform()->transform( p2 );
 
     Coord3 pos;
     if ( !Plane3(p0,p1,p2).intersectWith(eventinfo.mouseline, pos) )
 	return;
 
     eventinfo.displaypickedpos = pos;
-    pos = scene->getZScaleTransform()->transformBack( pos );
-    eventinfo.worldpickedpos = transformation_->transformBack( pos );
+    scene->getTempZStretchTransform()->transformBack( pos );
+    transformation_->transformBack( pos, eventinfo.worldpickedpos );
 }
 
 
@@ -276,8 +274,8 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     if ( transformation_ && scene )
     {
 	Coord3& displaypos = eventlist_[eventlist_.size()-1]->displaypickedpos;
-	displaypos = transformation_->transform( lastworldpos );
-	displaypos = scene->getZScaleTransform()->transform( displaypos );
+	transformation_->transform( lastworldpos, displaypos );
+	scene->getTempZStretchTransform()->transform( displaypos );
     }
 }
 
@@ -314,8 +312,8 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	    const double t = eventinfo.mouseline.closestPoint(
 						eventinfo.displaypickedpos );
 	    furrowpos = eventinfo.mouseline.getPoint( t-0.01 );
-	    furrowpos = scene->getZScaleTransform()->transformBack( furrowpos );
-	    furrowpos = transformation_->transformBack( furrowpos );
+	    scene->getTempZStretchTransform()->transformBack( furrowpos );
+	    transformation_->transformBack( furrowpos );
 	}
 
 	bool isvalidpos = !sz ||
@@ -340,7 +338,10 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( !sz )
 	    singleseeded_ = true;
 	else if ( eventinfo.mousepos.distTo(eventlist_[0]->mousepos) > 5 )
+	{
 	    singleseeded_ = false;
+	    sowingline_->dirtyCoordinates();
+	}
 
 	eventlist_ += new visBase::EventInfo( eventinfo );
 	mousecoords_ += eventinfo.mousepos;
@@ -476,8 +477,8 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 	{
 	    const int visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	    mDynamicCastGet( const visBase::Marker*, marker, dataobj );
-	    if ( marker )
+	    mDynamicCastGet( const visBase::MarkerSet*, markerset, dataobj );
+	    if ( markerset )
 		return acceptEraser( eventinfo );
 	}
 
@@ -493,7 +494,9 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
     }
 
     if ( !pid.isUdf() && mode_==Furrowing && singleseeded_ )
+    {
 	sowingline_->turnOn( false );
+    }
 
     return acceptMouse( eventinfo );
 }
@@ -580,7 +583,7 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
     mDynamicCastGet( const LocationDisplay*, locdisp, editobject_ );
     if ( locdisp )
     {
-	const int knotid = locdisp->isMarkerClick( eventinfo.pickedobjids );
+	const int knotid = locdisp->isMarkerClick( eventinfo.worldpickedpos );
 	return knotid<0 ? EM::PosID::udf() : EM::PosID( 0, 0, knotid );
     }
 

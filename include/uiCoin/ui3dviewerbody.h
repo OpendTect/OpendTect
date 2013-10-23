@@ -13,32 +13,39 @@ ________________________________________________________________________
 -*/
 
 #include "uiobjbody.h"
-#include "uiosgviewer.h"
+
 #include "refcount.h"
+#include "visosg.h"
+#include "uieventfilter.h"
 
-namespace visBase { class Camera; class Scene; }
-
-/*!\brief 'GA' stands for 'GUI ( Graphical user interface ) Abstraction'.
-Provides facilities to help developers write the glue to allow the osg to work
-with varying window systems.
-*/
+namespace visBase
+{
+    class Axes;
+    class Camera;
+    class PolygonSelection;
+    class Scene;
+    class Transformation;
+    class ThumbWheel;
+    class DataObjectGroup;
+}
 
 namespace osgGA { class GUIActionAdapter; }
-
+namespace osgViewer { class CompositeViewer; class View; }
 class ui3DViewer;
 
 namespace osg
 {
+    class Group;
     class GraphicsContext;
     class Camera;
+    class MatrixTransform;
+    class Projection;
     class Vec3f;
     class Viewport;
 }
 
 
-/*!
-\brief Base class for different body implementation (direct & indirect) of OSG.
-*/
+//!Baseclass for different body implementation (direct & indirect) of OSG
 
 mClass(uiCoin) ui3DViewerBody : public uiObjectBody
 {
@@ -73,17 +80,32 @@ public:
     void			viewPlaneCrl();
     void			viewPlaneN();
 
+    void			uiRotate(float angle,bool horizontal);
+    void			uiZoom(float rel,const osg::Vec3f* dir=0);
+    void			setCameraZoom(float val);
+    float			getCameraZoom() const;
+
     				//Not sure were to put these
-    bool			isViewing() const;
-    virtual void		setViewing(bool);
-    void			uisetViewing(bool);
+    bool			isViewMode() const;
+    virtual void		setViewMode(bool viewmode,bool trigger);
 
     Coord3			getCameraPosition() const;
     visBase::Camera*		getVisCamera() { return camera_; }
 
     virtual void		reSizeEvent(CallBacker*);
+    void			toggleViewMode(CallBacker*);
 
+    void			setAnimationEnabled(bool) { pErrMsg("Impl!"); }
+    bool			isAnimationEnabled() { return true; }
+    void			showRotAxis(bool);
+    visBase::PolygonSelection*	getPolygonSelector() const;
 protected:
+
+    void				setupHUD();
+    void				setupView();
+    void				qtEventCB(CallBacker*);
+
+    static osgViewer::CompositeViewer*	getCompositeViewer();
     virtual osgGA::GUIActionAdapter&	getActionAdapter()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
 
@@ -93,14 +115,28 @@ protected:
     const osg::Camera*			getOsgCamera() const;
     void				setCameraPos(const osg::Vec3f&,
 						     const osg::Vec3f&, bool);
+    void				computeViewAllPosition();
+    void				thumbWheelRotationCB(CallBacker*);
 
-    uiOsgViewHandle			view_;
-    ui3DViewer&				handle_;
-    IOPar&				printpar_;
 
-    RefMan<visBase::Camera>		camera_;
-    RefMan<visBase::Scene>		scene_;
-    osg::Viewport*			viewport_;
+    ui3DViewer&						handle_;
+    IOPar&						printpar_;
+
+    RefMan<visBase::Camera>				camera_;
+    RefMan<visBase::Scene>				scene_;
+    RefMan<visBase::ThumbWheel>				horthumbwheel_;
+    RefMan<visBase::ThumbWheel>				verthumbwheel_;
+    osg::Group*						sceneroot_;
+    osgViewer::CompositeViewer*				compositeviewer_;
+    osgViewer::View*					view_;
+    osg::Viewport*					viewport_;
+
+    osgViewer::View*					hudview_;
+    RefMan<visBase::DataObjectGroup>			hudscene_;
+
+    uiEventFilter					eventfilter_;
+    RefMan<visBase::Axes>				axes_;
+    RefMan<visBase::PolygonSelection>			polygonselection_;
 };
 
 #endif

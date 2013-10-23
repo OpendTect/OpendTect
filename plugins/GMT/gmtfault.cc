@@ -136,12 +136,13 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	    if ( !clist )
 		continue;
 
-	    const Geometry::IndexedGeometry* idxgeom =
+	    Geometry::IndexedGeometry* idxgeom =
 						idxdshape->getGeometry()[0];
 	    if ( !idxgeom )
 		continue;
 
-	    const int sz = idxgeom->coordindices_.size();
+	    Geometry::PrimitiveSet* coordps = idxgeom->getCoordsPrimitiveSet();
+	    const int sz = coordps->size();
 	    if ( sz == 0 )
 	    {
 		BufferString msg( "Selected ZSlice and ", fault3d->name() );
@@ -152,12 +153,12 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 
 	    for ( int cidx=0; cidx<sz; cidx++ )
 	    {
-		if ( idxgeom->coordindices_[cidx] == -1 )
+		if ( coordps->get(cidx) == -1 )
 		    *sd.ostrm << "> " << std::endl;
 		else
 		{
-		    double x = clist->get( idxgeom->coordindices_[cidx] ).x;
-		    double y = clist->get( idxgeom->coordindices_[cidx] ).y;
+		    double x = clist->get( coordps->get(cidx) ).x;
+		    double y = clist->get( coordps->get(cidx) ).y;
 		    *sd.ostrm << x << " " << y << std::endl;
 		}
 	    }

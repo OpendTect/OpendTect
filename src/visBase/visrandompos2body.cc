@@ -17,53 +17,109 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "vistransform.h"
 #include "vistristripset.h"
+#include "visshape.h"
+#include "visnormals.h"
+#include "vispolygonoffset.h"
 
-#include <Inventor/nodes/SoShapeHints.h>
 
 mCreateFactoryEntry( visBase::RandomPos2Body );
 
 namespace visBase
 {
 
+class NormalCalculator: public ParallelTask
+{
+public:
+    NormalCalculator(Normals* normals, const od_int64 size,
+	const TypeSet<int>&,const TypeSet<Coord3>&);
+    od_int64	totalNr() const { return totalnrnormals_; }
+
+protected:
+    bool	doWork(od_int64 start, od_int64 stop, int);
+    od_int64	nrIterations() const { return totalnrnormals_; }
+
+private:
+    Normals* normals_;
+    Threads::Atomic<od_int64>	totalnrnormals_;
+    const TypeSet<int>& psidx_;
+    const TypeSet<Coord3>&	picks_;
+
+
+};
+
+
+NormalCalculator::NormalCalculator( Normals* normals, const od_int64 size,
+		   const TypeSet<int>& psidx,const TypeSet<Coord3>&picks)
+    : normals_( normals )
+    , totalnrnormals_( size )
+    , psidx_( psidx )
+    , picks_( picks )
+{
+}
+
+bool NormalCalculator::doWork(od_int64 start,od_int64 stop,int)
+{
+/* OSG-TODO: This implementation is not OK, and must be renewed in case
+   we decide to set useOsgAutoNormalComputation(false). Reversing is only
+   required when dealing with triangle strips, normals must be averaged
+   and not overwritten, and what about the display transformation? */
+
+/*
+    for ( int idx = mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	const int nrtriangle = idx/3;
+	const bool reverse = !((bool)((nrtriangle+1) % 2));
+	const int startidx = reverse ? idx + 2 : idx;
+	const int endidx = reverse ? idx : idx +2;
+
+	const Coord3 v0 = picks_[psidx_[startidx]]-picks_[psidx_[idx+1]];
+	const Coord3 v1 = picks_[psidx_[endidx]]-picks_[psidx_[idx+1]];
+
+	Coord3 normal = v0.cross( v1 );
+	const double normalsqlen = normal.sqAbs();
+	if ( !normalsqlen )
+	    normal = Coord3( 1, 0, 0 );
+	else
+	    normal /= Math::Sqrt( normalsqlen );
+
+	normals_->setNormal( psidx_[idx], normal );
+	normals_->setNormal( psidx_[idx+1], normal );
+	normals_->setNormal( psidx_[idx+2], normal );
+    }
+*/
+    return true;
+}
+
+
 RandomPos2Body::RandomPos2Body()
     : VisualObjectImpl( false )
     , transformation_( 0 )
-    , triset_( 0 )
-    , hints_( new SoShapeHints )		  
+    , vtxshape_( VertexShape::create() )
 {
-    addChild( hints_ );
+    vtxshape_->ref();
+    addChild( vtxshape_->osgNode() );
+    vtxshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
+    vtxshape_->setNormalBindType( VertexShape::BIND_PER_VERTEX );
+    vtxshape_->useOsgAutoNormalComputation( true );
+
     renderOneSide( 0 );
 }
 
 
 RandomPos2Body::~RandomPos2Body()
 {
-    if ( transformation_ ) transformation_->unRef();
-    if ( triset_ ) 
-    {
-	removeChild( triset_->getInventorNode() );
-	triset_->unRef();
-    }
-}
+    if ( transformation_ )
+	transformation_->unRef();
+    if ( vtxshape_ )
+	vtxshape_->unRef();
+ }
 
 
 void RandomPos2Body::renderOneSide( int side )
 {
-    hints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-    
-    if ( side==0 )
-    {
-	hints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-    }
-    else if ( side==1 )
-    {
-	hints_->shapeType = SoShapeHints::SOLID;
-    }
-    else
-    {
-	hints_->shapeType = SoShapeHints::SOLID;
-    }
+    vtxshape_->renderOneSide( side );
 }
+
 
 bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 {
@@ -72,14 +128,6 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 
     if ( !pts.size() )
 	return true;
-
-    if ( !triset_ )
-    {
-	triset_ = visBase::TriangleStripSet::create();
-	triset_->ref();
-	triset_->setDisplayTransformation( transformation_ );
-	addChild( triset_->getInventorNode() );
-    }
 
     TypeSet<Coord3> picks;
     const float zscale = SI().zDomain().userFactor();
@@ -90,7 +138,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 
     for ( int idx=0; idx<pts.size(); idx++ )
     {
-	triset_->getCoordinates()->setPos( idx, pts[idx] );
+	vtxshape_->getCoordinates()->setPos( idx, pts[idx] );
 	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
 
 	BinID bid = SI().transform( pts[idx] );
@@ -113,7 +161,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	}
     }
 
-    triset_->getCoordinates()->removeAfter( pts.size()-1 );
+    vtxshape_->getCoordinates()->removeAfter( pts.size()-1 );
 
     TypeSet<int> result;
     if ( !oninline && !oncrossline && !onzslice )
@@ -150,18 +198,30 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	PolygonTriangulate( knots, result );
     }
 
-    int cii = 0;
-    for ( int idx=0; idx<result.size()/3; idx++ )
-    {
-	triset_->setCoordIndex( cii++, result[3*idx] );
-	triset_->setCoordIndex( cii++, result[3*idx+1] );
-	triset_->setCoordIndex( cii++, result[3*idx+2] );
-	triset_->setCoordIndex( cii++, -1 );
-    }
+    Geometry::IndexedPrimitiveSet* primitiveset =
+	Geometry::IndexedPrimitiveSet::create( false );
+    primitiveset->ref();
+
+    primitiveset->append( result.arr(), result.size() );
+    vtxshape_->addPrimitiveSet( primitiveset );
+    primitiveset->unRef();
+
+/* OSG-TODO: Remove if we keep using useOsgAutoNormalComputation(true)
+    Normals* normals = Normals::create();
+    normals->ref();
+
+    NormalCalculator nlcalcator( normals, result.size()-2, result, picks_ );
+    TaskRunner tr;
+
+    if( TaskRunner::execute( &tr,nlcalcator ) )
+	vtxshape_->setNormals( normals );
     
-    triset_->removeCoordIndexAfter( cii-1 );
+    normals->unRef();
+*/
+    vtxshape_->dirtyCoordinates();
     
     return true;
+
 }
 
 
@@ -173,8 +233,9 @@ void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
     if ( transformation_ ) 
     {
 	transformation_->ref();
-    	if ( triset_ )
-    	    triset_->setDisplayTransformation( transformation_ );
+	if ( vtxshape_ )
+	    vtxshape_->setDisplayTransformation( transformation_ );
+
     }
 }
 

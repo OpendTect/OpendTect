@@ -35,7 +35,6 @@ namespace visBase
     class Material;
     class BoxDragger;
     class VolumeRenderScalarField;
-    class VolrenDisplay;
     class OrthogonalSlice;
 }
 
@@ -45,18 +44,13 @@ namespace visSurvey
 
 class Scene;
 
-/*!
-\brief Volume display
-*/
-
 mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:
     static VolumeDisplay*	create()
 				mCreateDataObj(VolumeDisplay);
-    bool			isInlCrl() const { return !inl2displaytrans_; }
-    void			setInlCrlSystem(const InlCrlSystem*);
+    bool			isInlCrl() const { return true; }
 
     static int			cInLine() 		{ return 2; }
     static int			cCrossLine() 		{ return 1; }
@@ -102,9 +96,10 @@ public:
 				    const visBase::MarchingCubesSurface*,bool);
     MultiID			getSeedsID(
 	    			    const visBase::MarchingCubesSurface*) const;
-    void			setSeedsID(const visBase::MarchingCubesSurface*,					   MultiID);
+    void			setSeedsID(const visBase::MarchingCubesSurface*,
+					   MultiID);
 
-    void                        turnOn(bool yn);
+    bool                        turnOn(bool yn);
     bool                        isOn() const;
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
@@ -175,16 +170,17 @@ public:
 
     void			setRightHandSystem(bool yn);
 
-    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void		fillPar(IOPar&) const;
     virtual int			usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
 
     bool			writeVolume( const char* filenm ) const;
 
+    void			setDisplayTransformation(const mVisTrans*);
+
 protected:
 				~VolumeDisplay();
 
-    void			init();
     bool			updateSeedBasedSurface(int,TaskRunner* = 0);
     void			materialChange(CallBacker*);
     void			updateIsoSurfColor();
@@ -193,11 +189,14 @@ protected:
     bool			selectable() const { return true; }
     bool			isSelected() const;
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+    void			setScene(Scene*);
 
     visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
     visBase::VolumeRenderScalarField*		scalarfield_;
+/* OSG_TODO: Replace VolrenDisplay with OSG equivalent
     visBase::VolrenDisplay*			volren_;
+*/
     ObjectSet<visBase::OrthogonalSlice>		slices_;
     ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
     struct IsosurfaceSetting
@@ -246,7 +245,7 @@ protected:
     bool			isinited_;
     bool                        onoffstatus_;
 
-    mVisTrans*			inl2displaytrans_;
+    RefMan<const mVisTrans>	displaytrans_;
 
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();
@@ -263,9 +262,6 @@ protected:
     static const char*		sKeySurfMode();
     static const char*		sKeySeedsMid();
     static const char*		sKeySeedsAboveIsov();
-
-    virtual SoNode*		gtInvntrNode();
-
 };
 
 } // namespace visSurvey

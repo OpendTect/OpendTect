@@ -17,9 +17,6 @@ ________________________________________________________________________
 #include "vistexturechannel2rgba.h"
 #include "coltabsequence.h"
 
-class SoVolumeData;
-class SoGroup;
-class SoTransferFunction;
 
 namespace visBase
 { 
@@ -34,7 +31,7 @@ public:
     static TextureChannel2VolData*	create()
 			mCreateDataObj(TextureChannel2VolData);
 
-    bool        	createRGBA(SbImagei32&) const	{ return false; }
+    const osg::Image*	createRGBA()		{ return 0; }
     bool		canSetSequence() const	{ return true; }
     void		setSequence(int channel,const ColTab::Sequence&);
     const ColTab::Sequence* getSequence(int channel) const;
@@ -57,12 +54,13 @@ protected:
     void		update();
     void		makeColorTables();
 
-    SoTransferFunction*	transferfunc_;
     ColTab::Sequence	sequence_;
     bool		enabled_;
 
+/*  OSG-TODO: Port to OSG if class is prolongated
+    SoTransferFunction*	transferfunc_;
     virtual SoNode*	gtInvntrNode();
-
+*/
 };
 
 } //namespace

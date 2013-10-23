@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 
-class SoRGBATextureChannel2RGBA;
+namespace osgGeo { class RGBALayerProcess; }
+
 
 namespace visBase
 { 
@@ -31,28 +32,32 @@ public:
     static RGBATextureChannel2RGBA*	create()
 				mCreateDataObj(RGBATextureChannel2RGBA);
 
-    void			setEnabled(int ch,bool yn);
-    bool			isEnabled(int ch) const;
     const ColTab::Sequence*	getSequence(int ch) const;
-
-    bool			canUseShading() const	{ return false; }
-    bool			usesShading() const	{ return false; }
-    int				maxNrChannels() const	{ return 4; }
-    int				minNrChannels() const	{ return 4; }
     void			getChannelName(int,BufferString&) const;
 
-    bool			createRGBA(SbImagei32&) const;
+    void			swapChannels(int ch0,int ch1);
+
+    void			setEnabled(int ch,bool yn);
+    bool			isEnabled(int ch) const;
+
+    void			setTransparency(unsigned char);
+    unsigned char		getTransparency() const;
+
+    void			applyUndefPerChannel(bool);
+    bool			isUndefPerChannel() const;
+
+    int				maxNrChannels() const	{ return 4; }
+    int				minNrChannels() const	{ return 4; }
 
 protected:
 
     				~RGBATextureChannel2RGBA();
 
+    void			notifyChannelInsert(int ch);
+
     static ArrPtrMan<ColTab::Sequence>	sequences_;
 
-    SoRGBATextureChannel2RGBA*	converter_;
-
-    virtual SoNode*		gtInvntrNode();
-
+    osgGeo::RGBALayerProcess*	proc_;
 };
 
 

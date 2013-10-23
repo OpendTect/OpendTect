@@ -14,103 +14,90 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+#include "visosg.h"
 #include "fontdata.h"
 #include "visobject.h"
 #include "position.h"
 
-class SoFont;
-class SoText2;
-class SoAsciiText;
-class SoTranslation;
+namespace osgText { class Text; class Font; }
+
+namespace osg { class Drawable; class Vec3f; class Geode; }
 
 namespace visBase
 {
-class PickStyle;
 
-mExpClass(visBase) Text : public VisualObjectImpl
+mExpClass(visBase) Text
 {
 public:
+				Text();
+				~Text();
     enum			Justification { Left, Right, Center };
 
-    Coord3			position() const;
-    void			setPosition(const Coord3&);
+    void			setPosition(const osg::Vec3f&);
+    void			setPosition(const Coord3&,
+					    bool scenespace = false);
+    Coord3			getPosition() const;
 
     void			setFontData(const FontData&);
     const FontData&		getFontData() const	{ return fontdata_; }
 
-    virtual const char*		getText() const			=0;
-    virtual void		setText(const char*)		=0;
+    void			setText(const char*);
+    void			getText(BufferString&) const;
 
-    virtual Justification	justification() const		=0;
-    virtual void		setJustification(Justification)	=0;
+    void			setColor(const Color&);
+    Color			getColor() const;
 
-    void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    void			setJustification(Justification);
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
-    int				usePar(const IOPar&);
+    osg::Drawable&		getDrawable();
+    const osg::Drawable&	getDrawable() const;
+
+    void			setDisplayTransformation( const mVisTrans*);
 
 protected:
-    				Text();
-				~Text();
+    const mVisTrans*		displaytrans_;
+    osgText::Text*		text_;
 
     FontData			fontdata_;
-    SoTranslation*		textpos_;
-    SoFont*			font_;
-    const mVisTrans*		transformation_;
-    PickStyle*			pickstyle_;
-
-    static const char*		sKeyString();
-    static const char*		sKeyFontData();
-    static const char*		sKeyJustification();
-    static const char*		sKeyPosition();
 };
 
 
-/*!\brief
-is a text that always is facing the user. The size is set in printer points
-on the screen. It is advisable to turn off the text when doing a viewAll,
-since their sizes will corrupt the bounding box calculation.
-*/
+mExpClass(visBase) OsgFontCreator
+{
+public:
+    virtual			~OsgFontCreator() 			{}
+    static osgText::Font*	create(const FontData&);
+protected:
+    static void			setCreator(OsgFontCreator*);
+    virtual osgText::Font*	createFont(const FontData&)		= 0;
+};
 
-mExpClass(visBase) Text2 : public Text
+
+mExpClass(visBase) Text2 : public VisualObjectImpl
 {
 public:
     static Text2*		create()
-    				mCreateDataObj(Text2);
-    				~Text2();
+				mCreateDataObj(Text2);
 
-    void			setText(const char*);
-    const char*			getText() const;
+    int				nrTexts() const		{return texts_.size();}
+    int				addText();
+    void			removeText(const Text*);
+    void			removeAll();
 
-    void			setJustification(Justification);
-    Justification		justification() const;
+    void			setFontData(const FontData&);
 
-protected:
-    SoText2*			text_;
+    const Text*			text(int idx=0) const;
+    Text*			text(int idx=0);
 
-};
-
-
-/*!Text that is not rotated to face text. */
-
-mExpClass(visBase) TextBox : public Text
-{
-public:
-    static TextBox*		create()
-    				mCreateDataObj(TextBox);
-    				~TextBox();
-
-    void			setText(const char*);
-    const char*			getText() const;
-
-    void			setJustification(Justification);
-    Justification		justification() const;
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
-    SoAsciiText*		text_;
-
+				~Text2();
+    osg::Geode*			geode_;
+    ManagedObjectSet<Text>	texts_;
+    const mVisTrans*		displaytransform_;
 };
+
 
 }; // Namespace
 

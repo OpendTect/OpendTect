@@ -44,9 +44,6 @@ public:
 
     Notifier<ColorSequence>	change;
 
-    int				usePar(const IOPar&);
-    void			fillPar(IOPar&,TypeSet<int>&) const;
-
 protected:
     virtual			~ColorSequence();
 

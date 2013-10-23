@@ -13,14 +13,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistopbotimage.h"
 #include "viscoord.h"
-#include "vistristripset.h"
-#include "visimage.h"
 #include "vistransform.h"
 #include "vismaterial.h"
-#include "vistexturecoords.h"
 #include "iopar.h"
 #include "keystrs.h"
 
+#include <osgGeo/TexturePlane>
+#include <osgGeo/LayeredTexture>
+#include <osg/Image>
+#include <osgDB/ReadFile>
 
 mCreateFactoryEntry( visBase::TopBotImage );
 
@@ -29,70 +30,52 @@ namespace visBase
 
     const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
     const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; } 
-    const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); } 	
+    const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); }
 
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
     , trans_(0)
-    , imgshape_( visBase::TriangleStripSet::create() )
-    , image_( visBase::Image::create() )
+    , laytex_( new osgGeo::LayeredTexture )
+    , texplane_( new osgGeo::TexturePlaneNode )
 {
-    image_->ref();
-    image_->replaceMaterial(false);
-    addChild( image_->getInventorNode() );
+    laytex_->ref();
+    texplane_->ref();
+    layerid_ = laytex_->addDataLayer();
+    laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
+    texplane_->setLayeredTexture( laytex_ );
+    addChild( texplane_ );
 
-    imgshape_->ref();
-    imgshape_->removeSwitch();
-    imgshape_->setVertexOrdering(
-		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
-    if ( doOsg() )
-	addChild( imgshape_->osgNode() );
-    else
-	addChild( imgshape_->getInventorNode() );
-   
-    visBase::TextureCoords* texturecoords = visBase::TextureCoords::create();
-    imgshape_->setTextureCoords( texturecoords );
-    texturecoords->setCoord( 0, Coord3(0,1,0) );
-    texturecoords->setCoord( 1, Coord3(0,0,0) );
-    texturecoords->setCoord( 2, Coord3(1,0,0) );
-    texturecoords->setCoord( 3, Coord3(1,1,0) );
-    
-    RefMan<Geometry::IndexedPrimitiveSet> triangles =
-	Geometry::IndexedPrimitiveSet::create( false );
-    const int indices[] = { 3, 2, 0, 1 };
-    triangles->set( indices, 4 );
-    
-    imgshape_->addPrimitiveSet( triangles );
+    setTransparency( 0.0 );
 }
 
 
 TopBotImage::~TopBotImage()
 {
-    imgshape_->unRef();
-    image_->unRef();
     if ( trans_ ) trans_->unRef();
+    laytex_->unref();
+    texplane_->unref();
 }
 
 
 void TopBotImage::setPos( const Coord& c1, const Coord& c2, float z )
 {
     pos0_ = Coord3( c1.x, c1.y, z );
-    pos1_ = Coord3( c1.x, c2.y, z);
-    pos2_ = Coord3( c2.x, c2.y, z );
-    pos3_ = Coord3( c2.x, c1.y, z ); 
+    pos1_ = Coord3( c2.x, c2.y, z );
     updateCoords();
 }
 
 
 void TopBotImage::updateCoords()
 {
-    visBase::Coordinates* facecoords = imgshape_->getCoordinates();
-   
-    facecoords->setPos( 0, trans_ ? trans_->transform(pos0_) : pos0_ );
-    facecoords->setPos( 1, trans_ ? trans_->transform(pos1_) : pos1_ ); 
-    facecoords->setPos( 2, trans_ ? trans_->transform(pos2_) : pos2_ );
-    facecoords->setPos( 3, trans_ ? trans_->transform(pos3_) : pos3_ );
-    imgshape_->dirtyCoordinates();
+    Coord3 pos0, pos1;
+    Transformation::transform( trans_, pos0_, pos0 );
+    Transformation::transform( trans_, pos1_, pos1 );
+
+    const Coord3 dif = pos1 - pos0;
+    texplane_->setWidth( osg::Vec3(dif.x, -dif.y, 0.0) );
+
+    const Coord3 avg = 0.5 * (pos0+pos1);
+    texplane_->setCenter( osg::Vec3(avg.x, avg.y, avg.z) );
 }
 
 
@@ -116,7 +99,8 @@ float TopBotImage::getTransparency() const
 void TopBotImage::setImageFilename( const char* fnm )
 {
     filenm_ = fnm;
-    image_->setFileName( fnm );
+    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( fnm );
+    laytex_->setDataLayerImage( layerid_, image );
 }
 
 
@@ -124,21 +108,16 @@ const char* TopBotImage::getImageFilename() const
 { return filenm_.buf(); }
 
 
-void TopBotImage::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void TopBotImage::fillPar( IOPar& iopar ) const
 {
-    VisualObjectImpl::fillPar( iopar, saveids );
-     
     iopar.set( sKeyTopLeftCoord(), pos0_ );
-    iopar.set( sKeyBottomRightCoord(), pos2_ );
+    iopar.set( sKeyBottomRightCoord(), pos1_ );
     iopar.set( sKeyFileNameStr(), filenm_  );
 }
 
 
 int TopBotImage::usePar( const IOPar& iopar )
 {
-    int res = VisualObjectImpl::usePar( iopar );
-    if ( res!=1 ) return res;
-    
     Coord3 ltpos;
     Coord3 brpos;
     iopar.get( sKeyTopLeftCoord(), ltpos );

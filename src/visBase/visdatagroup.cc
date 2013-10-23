@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "iopar.h"
 
-#include <Inventor/nodes/SoSeparator.h>
-
 #include <osg/Group>
 
 mCreateFactoryEntry( visBase::DataObjectGroup );
@@ -22,45 +20,21 @@ mCreateFactoryEntry( visBase::DataObjectGroup );
 namespace visBase
 {
 
-const char* DataObjectGroup::nokidsstr()	{ return "Number of Children"; }
-const char* DataObjectGroup::kidprefix()	{ return "Child "; }
-
 DataObjectGroup::DataObjectGroup()
-    : group_ ( 0 )
-    , osggroup_( 0 )
+    : osggroup_( new osg::Group )
     , separate_( true )
     , change( this )
     , righthandsystem_( true )
-{ }
+{
+    setOsgNode( osggroup_ );
+}
 
 
 DataObjectGroup::~DataObjectGroup()
 {
+    mObjectSetApplyToAll( objects_, objects_[idx]->setParent( 0 ));
+
     deepUnRef( objects_ );
-
-    if ( group_ ) group_->unref();
-    if ( osggroup_ ) osggroup_->unref();
-}
-
-
-void DataObjectGroup::ensureGroup()
-{
-    if ( doOsg() && !osggroup_ )
-    {
-	osggroup_ = new osg::Group;
-	osggroup_->ref();
-	updateOsgNodeData();
-    }
-
-    if ( group_ ) return;
-    group_ = createGroup();
-    group_->ref();
-}
-
-
-SoGroup* DataObjectGroup::createGroup()
-{
-    return separate_ ? new SoSeparator : new SoGroup;
 }
 
 
@@ -68,18 +42,19 @@ int DataObjectGroup::size() const
 { return objects_.size(); }
 
 
+#define mNewObjectOperations \
+no->ref(); \
+no->setRightHandSystem( isRightHandSystem() ); \
+no->setParent( this ); \
+change.trigger()
+
 void DataObjectGroup::addObject( DataObject* no )
 {
-    ensureGroup();
     objects_ += no;
-    group_->addChild( no->getInventorNode() );
-    nodes_ += no->getInventorNode();
 
     if ( osggroup_ && no->osgNode() ) osggroup_->addChild( no->osgNode() );
 
-    no->ref();
-    no->setRightHandSystem( isRightHandSystem() );
-    change.trigger();
+    mNewObjectOperations;
 }
 
 
@@ -130,13 +105,9 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     if ( insertpos>=size() ) return addObject( no );
 
     objects_.insertAt( no, insertpos );
-    nodes_.insertAt(no->getInventorNode(), insertpos );
-    ensureGroup();
-    group_->insertChild( no->getInventorNode(), insertpos );
-    if ( osggroup_ && no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
-    no->ref();
-    no->setRightHandSystem( isRightHandSystem() );
-    change.trigger();
+
+    if ( no->osgNode() ) osggroup_->insertChild( insertpos, no->osgNode() );
+    mNewObjectOperations;
 }
 
 
@@ -157,14 +128,14 @@ int DataObjectGroup::getFirstIdx( const DataObject* sceneobj ) const
 
 void DataObjectGroup::removeObject( int idx )
 {
+    if ( idx< 0 )  return;
     DataObject* sceneobject = objects_[idx];
-    SoNode* node = nodes_[idx];
-    group_->removeChild( node );
-    if ( osggroup_ ) osggroup_->removeChild( sceneobject->osgNode() );
+    osggroup_->removeChild( sceneobject->osgNode() );
 
-    nodes_.removeSingle( idx );
+
     objects_.removeSingle( idx );
 
+    sceneobject->setParent( 0 );
     sceneobject->unRef();
     change.trigger();
 }
@@ -175,74 +146,5 @@ void DataObjectGroup::removeAll()
     while ( size() ) removeObject( 0 );
 }
 
-
-SoNode*  DataObjectGroup::gtInvntrNode()
-{
-    ensureGroup();
-    return group_;
-}
-
-
-osg::Node* DataObjectGroup::gtOsgNode()
-{
-    ensureGroup();
-    return osggroup_;
-}
-
-
-void DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
-{
-    DataObject::fillPar( par, saveids );
-    
-    par.set( nokidsstr(), objects_.size() );
-    
-    BufferString key;
-    for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	key = kidprefix();
-	key += idx;
-
-	int saveid = objects_[idx]->id();
-	if ( !saveids.isPresent( saveid ) ) saveids += saveid;
-
-	par.set( key, saveid );
-    }
-}
-
-
-int DataObjectGroup::usePar( const IOPar& par )
-{
-    int res = DataObject::usePar( par );
-    if ( res!= 1 ) return res;
-
-    int nrkids;
-    if ( !par.get( nokidsstr(), nrkids ) )
-	return -1;
-
-    BufferString key;
-    TypeSet<int> ids;
-    for ( int idx=0; idx<nrkids; idx++ )
-    {
-	key = kidprefix();
-	key += idx;
-
-	int newid;
-	if ( !par.get( key, newid ) )
-	    return -1;
-
-	if ( !DM().getObject( newid ) )
-	{
-	    res = 0;
-	    continue;
-	}
-
-	ids += newid;
-    }
-
-    for ( int idx=0; idx<ids.size(); idx++ )
-	addObject( ids[idx] );
-
-    return res;
-}
 
 }; // namespace visBase

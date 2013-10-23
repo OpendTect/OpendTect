@@ -27,6 +27,7 @@ SurveyObject::SurveyObject()
     , inlcrlsystem_( 0 )
     , basemapobj_(0)
     , locked_(false)
+    , updatestagenr_( 0 )
 {
     setInlCrlSystem( SI().get3DGeometry(true) );
 }
@@ -141,7 +142,17 @@ const char* SurveyObject::getInlCrlSystemName() const
 }
 
 
-void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
+void SurveyObject::annotateNextUpdateStage( bool yn )
+{
+    updatestagenr_ = yn ? updatestagenr_+1 : 0;
+}
+
+
+int SurveyObject::getUpdateStageNr() const
+{ return updatestagenr_; }
+
+
+void SurveyObject::fillSOPar( IOPar& par ) const
 {
     if ( inlcrlsystem_ )
 	par.set( sKeySurvey(), inlcrlsystem_->getName() );
@@ -181,16 +192,19 @@ void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.mergeComp( attribpar, key );
     }
 
+    /* TODO: Save in own par
+
     const visBase::TextureChannel2RGBA* tc2rgba =
 	const_cast<SurveyObject*>(this)->getChannels2RGBA();
     mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
 		     tc2rgba );
 
-    if ( tc2rgba && !cttc2rgba )
+        if ( tc2rgba && !cttc2rgba )
     {
 	par.set( sKeyTC2RGBA(), tc2rgba->id() );
 	saveids += tc2rgba->id();
     }
+     */
 
     par.set( sKeyNrAttribs(), nrattribs );
 }

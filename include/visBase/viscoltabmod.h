@@ -46,9 +46,6 @@ public:
     void			setScale(const float*,int);
     const LinScaler&		getScale() const;
 
-    int				usePar( const IOPar& );
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
-
 protected:
     virtual			~VisColTabMod();
 

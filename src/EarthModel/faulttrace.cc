@@ -540,7 +540,8 @@ bool FaultTrace::isOnFault( const BinID& bid, float z,
 bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 			     const BinID& bid2, float z2  ) const
 {
-    if ( (isinl_ && bid1.inl() != bid2.inl()) || (!isinl_ && bid1.crl() != bid2.crl()) )
+    if ( (isinl_ && bid1.inl() != bid2.inl()) ||
+	 (!isinl_ && bid1.crl() != bid2.crl()) )
 	return false;
 
     Interval<int> trcrg( isinl_ ? bid1.crl() : bid1.inl(),
@@ -725,8 +726,10 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 
     const HorSampling& hs = holder_.hs_;
     const bool isinl = hs.nrCrl() > 1 && idx < hs.nrInl();
-    const int linenr = isinl ? hs.start.inl() + idx * hs.step.inl()
-	: hs.start.crl() + (hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl() );
+    const int linenr = isinl
+	? hs.start.inl() + idx * hs.step.inl()
+	: hs.start.crl() +
+		(hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl() );
 
     const StepInterval<float>& zrg = SI().zRange( false );
     BinID start( isinl ? linenr : holder_.hs_.start.inl(),
@@ -752,12 +755,20 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
     if ( !idxdshape->update(true,0) )
 	return false;
 
-    const Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
-    if ( !idxgeom ) return false;
+    Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
+
+    Geometry::PrimitiveSet* idxps = idxgeom->getCoordsPrimitiveSet();
+
+    if ( !idxps )
+	return false;
+
+    TypeSet<int> coordindices;
+    for ( int index = 0; index< idxps->size(); index++ )
+	coordindices += idxps->get( index );
 
     FaultTrace* flttrc = clist->clone();
     flttrc->ref();
-    flttrc->setIndices( idxgeom->coordindices_ );
+    flttrc->setIndices( coordindices );
     flttrc->setIsInl( isinl );
     flttrc->setEditedOnCrl( editedoncrl_ );
     flttrc->setLineNr( linenr );
@@ -1089,7 +1100,7 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 	if ( !is2d_ )
 	{
 	    const FaultTrace* inltrc = holders_[idx]->getTrc( bid.inl(), true );
-	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl(), false );
+	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl(), false);
 	    if ( (inltrc && inltrc->includes(bid))
 	      || (crltrc && crltrc->includes(bid)) )
 		return true;

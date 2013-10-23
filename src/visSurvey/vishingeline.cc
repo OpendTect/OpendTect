@@ -49,7 +49,8 @@ EdgeLineSetDisplay::EdgeLineSetDisplay()
     getMaterial()->setColor( Color(0,255,0), mConnectColor );
     getMaterial()->setDiffIntensity(1,mConnectColor);
 
-    Settings::common().getYN(IOPar::compKey("dTect","Surface.Show default edgelinesegments"),showdefault);
+    Settings::common().getYN(IOPar::compKey("dTect",
+			"Surface.Show default edgelinesegments"),showdefault);
 }
 
 
@@ -58,7 +59,7 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
     if ( transformation ) transformation->unRef();
     for ( int idx=0; idx<polylines.size(); idx++ )
     {
-	removeChild( polylines[idx]->getInventorNode() );
+	removeChild( polylines[idx]->osgNode() );
 	polylines[idx]->unRef();
 	polylines.removeSingle(idx--);
     }
@@ -74,12 +75,13 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
 void EdgeLineSetDisplay::setRadius( float nr )
 {
     for ( int idx=0; idx<polylines.size(); idx++ )
-	polylines[idx]->setRadius(nr, true, 40 );
+	polylines[idx]->setLineStyle(
+	LineStyle( LineStyle::Solid,(int)nr,Color(0,255,0) ) );
 }
 
 
 float EdgeLineSetDisplay::getRadius() const
-{ return polylines.size() ? polylines[0]->getRadius(): 5; }
+{ return polylines.size() ? (float)polylines[0]->lineStyle().width_: 5; }
 
 
 void EdgeLineSetDisplay::setConnect(bool yn)
@@ -158,20 +160,21 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
     {
 	if ( lineidx>=polylines.size() )
 	{
-	    visBase::IndexedPolyLine3D* polyline =
-				    visBase::IndexedPolyLine3D::create();
+	    visBase::PolyLine3D* polyline =
+				    visBase::PolyLine3D::create();
 	    polylines += polyline;
 	    polyline->ref();
 	    polyline->setDisplayTransformation( transformation );
-	    addChild( polyline->getInventorNode() );
+	    addChild( polyline->osgNode() );
 	    polyline->setMaterialBinding(
 		    visBase::Shape::cPerVertexMaterialBinding() );
 	    polylinesegments += new TypeSet<int>;
 	    polylinesegmentpos += new TypeSet<int>;
-	    polyline->setRadius( getRadius(), true, 40 );
+	    polyline->setLineStyle( LineStyle (
+		LineStyle::Solid,(int)getRadius(),Color(0,255,0) ) );
 	}
 
-	visBase::IndexedPolyLine3D* polyline = polylines[lineidx];
+	visBase::PolyLine3D* polyline = polylines[lineidx];
 	TypeSet<int>& segments = *polylinesegments[lineidx];
 	TypeSet<int>& segmentpos = *polylinesegmentpos[lineidx];
 	segments.erase();
@@ -208,14 +211,14 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 
 	    if ( !showdefault && showsegment )
 	    {
-		if ( coordindexindex &&
-			polyline->getCoordIndex(coordindexindex-1)!=-1 )
-		{
-		    polyline->setCoordIndex( coordindexindex, -1 );
-		    polyline->setMaterialIndex( coordindexindex, -1 );
-		    coordindexindex++;
-		    defprevrc = false;
-		}
+		//if ( coordindexindex &&
+		//	polyline->getCoordIndex(coordindexindex-1)!=-1 )
+		//{
+		//    polyline->setCoordIndex( coordindexindex, -1 );
+		//    polyline->setMaterialIndex( coordindexindex, -1 );
+		//    coordindexindex++;
+		//    defprevrc = false;
+		//}
 		continue;
 	    }
 
@@ -223,33 +226,33 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	    for ( int nodeidx=0; nodeidx<nrnodes; nodeidx++ )
 	    {
 		const RowCol& rc = (*edgelinesegment)[nodeidx];
-		if ( defprevrc &&
-			!rc.isNeighborTo(prevrc, surface.geometry().step()) &&
-			coordindexindex &&
-			polyline->getCoordIndex(coordindexindex-1)!=-1 )
-		{
-		    polyline->setCoordIndex( coordindexindex, -1 );
-		    polyline->setMaterialIndex( coordindexindex, -1 );
-		    coordindexindex++;
-		    defprevrc = false;
-		    continue;
-		}
+		//if ( defprevrc &&
+		//	!rc.isNeighborTo(prevrc, surface.geometry().step()) &&
+		//	coordindexindex &&
+		//	polyline->getCoordIndex(coordindexindex-1)!=-1 )
+		//{
+		//    polyline->setCoordIndex( coordindexindex, -1 );
+		//    polyline->setMaterialIndex( coordindexindex, -1 );
+		//    coordindexindex++;
+		//    defprevrc = false;
+		//    continue;
+		//}
 
 		const Coord3 pos = surface.getPos(section,rc.toInt64());
-		if ( !pos.isDefined() )
-		{
-		    polyline->setCoordIndex( coordindexindex, -1 );
-		    polyline->setMaterialIndex( coordindexindex, -1 );
-		    coordindexindex++;
-		    defprevrc = false;
-		    continue;
-		}
+		//if ( !pos.isDefined() )
+		//{
+		//    polyline->setCoordIndex( coordindexindex, -1 );
+		//    polyline->setMaterialIndex( coordindexindex, -1 );
+		//    coordindexindex++;
+		//    defprevrc = false;
+		//    continue;
+		//}
 
 		polyline->getCoordinates()->setPos(coordindex,pos);
 		segments += segmentidx;
 		segmentpos += nodeidx;
-		polyline->setCoordIndex( coordindexindex, coordindex );
-		polyline->setMaterialIndex( coordindexindex, materialindex );
+		//polyline->setCoordIndex( coordindexindex, coordindex );
+		//polyline->setMaterialIndex( coordindexindex, materialindex );
 		coordindex++; coordindexindex++;
 		prevrc = rc;
 		defprevrc = true;
@@ -258,27 +261,27 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	    }
 	}
 
-	if ( connect && deffirstrc && defprevrc &&
-		firstrc.isNeighborTo(prevrc, surface.geometry().step()) )
-	{
-	    polyline->setCoordIndex( coordindexindex,
-		    		     polyline->getCoordIndex(0) );
-	    polyline->setMaterialIndex( coordindexindex,
-				    polyline->getMaterialIndex(0) );
-	    coordindexindex++;
-	}
+	//if ( connect && deffirstrc && defprevrc &&
+	//	firstrc.isNeighborTo(prevrc, surface.geometry().step()) )
+	//{
+	//    polyline->setCoordIndex( coordindexindex,
+	//	    		     polyline->getCoordIndex(0) );
+	//    polyline->setMaterialIndex( coordindexindex,
+	//			    polyline->getMaterialIndex(0) );
+	//    coordindexindex++;
+	//}
 
-	
-	polyline->setCoordIndex( coordindexindex, -1 );
-	polyline->setMaterialIndex( coordindexindex, -1 );
-	coordindexindex++;
-	polyline->removeCoordIndexAfter(coordindexindex-1);
-	polyline->removeMaterialIndexAfter(coordindexindex-1);
+	//
+	//polyline->setCoordIndex( coordindexindex, -1 );
+	//polyline->setMaterialIndex( coordindexindex, -1 );
+	//coordindexindex++;
+	//polyline->removeCoordIndexAfter(coordindexindex-1);
+	//polyline->removeMaterialIndexAfter(coordindexindex-1);
     }
 
     for ( int idx=polylines.size()-1; idx>=edgelineset->nrLines(); idx-- )
     {
-	removeChild( polylines[idx]->getInventorNode() );
+	removeChild( polylines[idx]->osgNode() );
 	polylines[idx]->unRef();
 	polylines.removeSingle( idx );
 
@@ -305,18 +308,18 @@ void EdgeLineSetDisplay::triggerRightClick(const visBase::EventInfo* ei)
 	    }
 	}
 
-	if ( line!=-1 )
-	{
-	    const visBase::IndexedPolyLine3D* polyline = polylines[line];
-	    const int pickedcoordidx = polyline->getClosestCoordIndex(*ei);
-	    if ( pickedcoordidx!=-1 )
-	    {
-		rightclidedline = line;
-		rightclidedsegment = (*polylinesegments[line])[pickedcoordidx];
-		rightclidedsegmentpos =
-		    (*polylinesegmentpos[line])[pickedcoordidx];
-	    }
-	}
+//	if ( line!=-1 )
+//	{
+//	    const visBase::PolyLine3D* polyline = polylines[line];
+////	    const int pickedcoordidx = polyline->getClosestCoordIndex(*ei);
+//	 //   if ( pickedcoordidx!=-1 )
+//	 //   {
+//		//rightclidedline = line;
+//	//rightclidedsegment = (*polylinesegments[line])[pickedcoordidx];
+//	//rightclidedsegmentpos =
+//		//    (*polylinesegmentpos[line])[pickedcoordidx];
+//	 //   }
+//	}
     }
 
     visBase::VisualObject::triggerRightClick(ei);

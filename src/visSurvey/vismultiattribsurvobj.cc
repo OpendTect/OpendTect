@@ -14,8 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "viscolortab.h"
-#include "vismultitexture2.h"
 #include "vistexturechannel2rgba.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vistexturechannels.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "envvars.h"
 #include "settings.h"
-#include "vismaterial.h"
+
 
 namespace visSurvey {
 
@@ -35,32 +35,18 @@ const char* MultiTextureSurveyObject::sKeyTC2RGBA()	{ return "TC2RGBA"; }
 
 MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     : VisualObjectImpl(true)
-    , texture_( dochannels ? 0 : visBase::MultiTexture2::create() )
-    , channels_( dochannels ? visBase::TextureChannels::create() : 0 )
+    , channels_( visBase::TextureChannels::create() )
     , onoffstatus_( true )
     , resolution_( 0 )
     , enabletextureinterp_( true )
 {
-    if ( texture_ )
-    {
-	texture_->ref();
-#ifdef __mac__
-	texture_->allowShading( false );
-#endif
-	addChild( texture_->getInventorNode() );
-	texture_->setTextureRenderQuality(1);
-    }
-    else
-    {
-	channels_->ref();
-	addChild( channels_->getInventorNode() );
-	channels_->setChannels2RGBA( 
-		visBase::ColTabTextureChannel2RGBA::create() );
+    channels_->ref();
+    addChild( channels_->getInventorNode() );
+    channels_->setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
 
-	visBase::DM().getObject( channels_->getInventorNode() );
-    }
+    channels_->enableTextureInterpolation( enabletextureinterp_ );
 	
-    material_->setColor( Color::White() );
+    getMaterial()->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.8 );
 }
@@ -70,18 +56,15 @@ MultiTextureSurveyObject::~MultiTextureSurveyObject()
 {
     deepErase( as_ );
     setZAxisTransform( 0, 0 );
-    if ( texture_ )
-	texture_->unRef();
-    else
-	channels_->unRef();
+    channels_->unRef();
 
     deepErase( userrefs_ );
 }
 
 
-bool MultiTextureSurveyObject::_init()
+bool MultiTextureSurveyObject::init()
 {
-    if ( !visBase::DataObject::_init() )
+    if ( !visBase::DataObject::init() )
         return false;
 
     resolution_ = 0;
@@ -117,23 +100,17 @@ bool MultiTextureSurveyObject::_init()
 
 void MultiTextureSurveyObject::allowShading( bool yn )
 {
-    if ( texture_ )
-    {
-#ifdef __mac__
-	texture_->allowShading( false );
-#else
-	texture_->allowShading( yn );
-#endif
-    }
-    else if ( channels_ && channels_->getChannels2RGBA() )
+    if ( channels_ && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->allowShading( yn );
 }
 
 
-void MultiTextureSurveyObject::turnOn( bool yn )
+bool MultiTextureSurveyObject::turnOn( bool yn )
 {
+    const bool res = isOn();
     onoffstatus_ = yn;
     updateMainSwitch();
+    return res;
 }
 
 
@@ -151,12 +128,7 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( !channels_ ) return true;
 
-    const bool res = channels_->setChannels2RGBA( t );
-    if ( channels_ && channels_->getChannels2RGBA() )	
-	channels_->getChannels2RGBA()->enableInterpolation( 
-		enabletextureinterp_ );
-
-    return res;
+    return channels_->setChannels2RGBA(t);
 }
     
     
@@ -200,9 +172,8 @@ int MultiTextureSurveyObject::nrAttribs() const
 
 bool MultiTextureSurveyObject::canAddAttrib( int nr ) const
 {
-    const int maxnr = texture_
-	? texture_->maxNrTextures()
-	: channels_->getChannels2RGBA()->maxNrChannels();
+    const int maxnr = channels_->getChannels2RGBA()->maxNrChannels();
+
     if ( !maxnr ) return true;
 
     return nrAttribs()+nr<=maxnr;
@@ -211,8 +182,6 @@ bool MultiTextureSurveyObject::canAddAttrib( int nr ) const
 
 bool MultiTextureSurveyObject::canRemoveAttrib() const
 {
-    if ( texture_ )
-	return SurveyObject::canRemoveAttrib();
     const int newnrattribs = nrAttribs()-1;
     if ( newnrattribs<channels_->getChannels2RGBA()->minNrChannels() )
 	return false;
@@ -235,20 +204,8 @@ bool MultiTextureSurveyObject::addAttrib()
     }
     addCache();
 
-    if ( texture_ )
-    {
-	while ( texture_->nrTextures()<as_.size() )
-	{
-	    texture_->addTexture("");
-	    texture_->setOperation( texture_->nrTextures()-1,
-				    visBase::MultiTexture::BLEND );
-	}
-    }
-    else
-    {
-	while ( channels_->nrChannels()<as_.size() )
-	    channels_->addChannel();
-    }
+    while ( channels_->nrChannels()<as_.size() )
+	channels_->addChannel();
 
     updateMainSwitch();
     return true;
@@ -260,10 +217,7 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
     if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
 	return false;
 
-    if ( texture_ )
-	texture_->removeTexture( attrib );
-    else
-	channels_->removeChannel( attrib );
+    channels_->removeChannel( attrib );
 
     delete as_[attrib];
     as_.removeSingle( attrib );
@@ -281,8 +235,7 @@ bool MultiTextureSurveyObject::swapAttribs( int a0, int a1 )
     if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
 	return false;
 
-    if ( texture_ ) texture_->swapTextures( a0, a1 );
-    else channels_->swapChannels( a0, a1 );
+    channels_->swapChannels( a0, a1 );
     as_.swap( a0, a1 );
     userrefs_.swap( a0, a1 );
     swapCache( a0, a1 );
@@ -298,14 +251,7 @@ void MultiTextureSurveyObject::clearTextures()
 	Attrib::SelSpec as; setSelSpec( idx, as );
 
 	for ( int idy=nrTextures(idx)-1; idy>=0; idy-- )
-	{
-	    if ( texture_ )
-		texture_->setData( idx, idy, 0, false );
-	    else
-	    {
-		channels_->setUnMappedData( idx, idy, 0, OD::UsePtr, 0 );
-	    }
-	}
+	    channels_->setUnMappedData( idx, idy, 0, OD::UsePtr, 0 );
     }
 }
 
@@ -313,28 +259,30 @@ void MultiTextureSurveyObject::clearTextures()
 void MultiTextureSurveyObject::setAttribTransparency( int attrib,
 						      unsigned char nt )
 {
-    if ( texture_ ) texture_->setTextureTransparency( attrib, nt );
-    else
-    {
-	mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		channels_->getChannels2RGBA() );
-	if ( cttc2rgba )
-	    cttc2rgba->setTransparency( attrib, nt );
-    }
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
+		     channels_->getChannels2RGBA() );
+    if ( cttc2rgba )
+	cttc2rgba->setTransparency( attrib, nt );
+
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgbatc2rgba,
+		     channels_->getChannels2RGBA() );
+    if ( rgbatc2rgba )
+	rgbatc2rgba->setTransparency( nt );
 }
 
 
 
-unsigned char
-MultiTextureSurveyObject::getAttribTransparency( int attrib ) const
+unsigned char MultiTextureSurveyObject::getAttribTransparency(int attrib) const
 {
-    if ( texture_ )
-	return texture_->getTextureTransparency( attrib );
-
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-	    channels_->getChannels2RGBA() );
+		     channels_->getChannels2RGBA() );
     if ( cttc2rgba )
 	return cttc2rgba->getTransparency( attrib );
+
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgbatc2rgba,
+		     channels_->getChannels2RGBA() );
+    if ( rgbatc2rgba )
+	return rgbatc2rgba->getTransparency();
 
     return 0;
 }
@@ -360,12 +308,7 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
     delete userrefs_.replace( attrib, attrnms );
 
     if ( !usrref || !*usrref )
-    {
-	if ( texture_ )
-	    texture_->enableTexture( attrib, false );
-	else
-	    channels_->getChannels2RGBA()->setEnabled( attrib, true );
-    }
+	channels_->getChannels2RGBA()->setEnabled( attrib, true );
 }
 
 
@@ -379,47 +322,32 @@ void MultiTextureSurveyObject::enableTextureInterpolation( bool yn )
 	return;
 
     enabletextureinterp_ = yn;
-    if ( getChannels2RGBA() )
-    {
-	getChannels2RGBA()->enableInterpolation( yn );
 
-	//Should not be necessary, but buggy Coin/driver forces me
-	if ( !yn && getChannels2RGBA()->canUseShading() ) 
-	    channels_->touchMappedData();
-	//End of crap
-    }
+    if ( channels_ )
+	channels_->enableTextureInterpolation( yn );
 }
 
 
 bool MultiTextureSurveyObject::isAngle( int attrib ) const
 {
-    return texture_ ? texture_->isAngle( attrib ) : false;
+    return false;
 }
 
 
 void MultiTextureSurveyObject::setAngleFlag( int attrib, bool yn )
 {
-    if ( texture_ )
-	texture_->setAngleFlag( attrib, yn );
 }
 
 
 bool MultiTextureSurveyObject::isAttribEnabled( int attrib ) const 
 {
-    if ( texture_ )
-	return texture_->isTextureEnabled( attrib );
-
     return channels_->getChannels2RGBA()->isEnabled( attrib );
 }
 
 
 void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 {
-    if ( texture_ )
-	texture_->enableTexture( attrib, yn );
-    else
-	channels_->getChannels2RGBA()->setEnabled( attrib, yn );
-
+    channels_->getChannels2RGBA()->setEnabled( attrib, yn );
     updateMainSwitch();
 }
 
@@ -427,15 +355,13 @@ void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 const TypeSet<float>*
 MultiTextureSurveyObject::getHistogram( int attrib ) const
 {
-    return texture_ 
-	? texture_->getHistogram( attrib, texture_->currentVersion( attrib ) )
-	: channels_->getHistogram( attrib );
+    return channels_->getHistogram( attrib );
 }
 
 
 int MultiTextureSurveyObject::getColTabID( int attrib ) const
 {
-    return texture_ ? texture_->getColorTab( attrib ).id() : -1;
+    return -1;
 }
 
 
@@ -445,22 +371,12 @@ void MultiTextureSurveyObject::setColTabSequence( int attrib,
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    if ( texture_ )
-    {
-	visBase::VisColorTab& vt = texture_->getColorTab( attrib );
-	vt.colorSeq().colors() = seq;
-	vt.colorSeq().colorsChanged();
-    }
-    else
-    {
-	channels_->getChannels2RGBA()->setSequence( attrib, seq );
-    }
+    channels_->getChannels2RGBA()->setSequence( attrib, seq );
 }
 
 
 bool MultiTextureSurveyObject::canSetColTabSequence() const
 {
-    if ( texture_ ) return true;
     return channels_->getChannels2RGBA()->canSetSequence();
 }
 
@@ -472,12 +388,6 @@ MultiTextureSurveyObject::getColTabSequence( int attrib ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return 0;
 
-    if ( texture_ )
-    {
-	const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
-	return &vt.colorSeq().colors();
-    }
-
     return channels_->getChannels2RGBA()->getSequence( attrib );
 }
 
@@ -488,37 +398,12 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-
-    if ( texture_ )
+    const ColTab::MapperSetup& old = channels_->getColTabMapperSetup(attrib,0);
+    if ( old!=mapper )
     {
-	visBase::VisColorTab& vt = texture_->getColorTab( attrib );
-	const bool autoscalechange =
-	    mapper.type_!=vt.colorMapper().setup_.type_ &&
-	    mapper.type_!=ColTab::MapperSetup::Fixed;
-
-	vt.colorMapper().setup_ = mapper;
-
-	if ( autoscalechange )
-	{
-	    vt.colorMapper().setup_.triggerAutoscaleChange();
-	    vt.autoscalechange.trigger();
-	}
-	else
-	{
-	    vt.colorMapper().setup_.triggerRangeChange();
-	    vt.rangechange.trigger();
-	}
-    }
-    else
-    {
-	const ColTab::MapperSetup& old =
-	    channels_->getColTabMapperSetup( attrib, 0 );
-	if ( old!=mapper )
-	{
-	    const bool needsreclip = old.needsReClip( mapper );
-	    channels_->setColTabMapperSetup( attrib, mapper );
-	    channels_->reMapData( attrib, !needsreclip, 0 );
-	}
+	const bool needsreclip = old.needsReClip( mapper );
+	channels_->setColTabMapperSetup( attrib, mapper );
+	channels_->reMapData( attrib, !needsreclip, 0 );
     }
 }
 
@@ -536,13 +421,6 @@ MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return 0;
 
-    if ( texture_ )
-    {
-	//TODO: could it be handy to use other version than the current one?
-	const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
-	return &vt.colorMapper().setup_;
-    }
-
     if ( mIsUdf(version) || version<0
 	    		 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
@@ -553,9 +431,7 @@ MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
 
 int MultiTextureSurveyObject::nrTextures( int attrib ) const
 {
-    return texture_
-	? texture_->nrVersions( attrib )
-	: channels_->nrVersions( attrib );
+    return channels_->nrVersions( attrib );
 }
 
 
@@ -564,19 +440,10 @@ void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
     if ( attrib<0 || attrib>=nrAttribs() || idx<0 )
 	return;
 
-    if ( texture_ )
-    {
-	if ( idx>=texture_->nrVersions(attrib) ) return;
+    if ( idx>=channels_->nrVersions(attrib) )
+	return;
 
-	texture_->setCurrentVersion( attrib, idx );
-    }
-    else
-    {
-	if ( idx>=channels_->nrVersions(attrib) )
-	    return;
-
-	channels_->setCurrentVersion( attrib, idx );
-    }
+    channels_->setCurrentVersion( attrib, idx );
 
     if ( userrefs_[attrib]->validIdx(idx) )
     {
@@ -590,17 +457,12 @@ int MultiTextureSurveyObject::selectedTexture( int attrib ) const
 { 
     if ( attrib<0 || attrib>=nrAttribs() ) return 0;
 
-    return texture_
-	? texture_->currentVersion( attrib )
-	: channels_->currentVersion( attrib );
+    return channels_->currentVersion( attrib );
 }
 
 
-void MultiTextureSurveyObject::fillPar( IOPar& par,
-					TypeSet<int>& saveids ) const
+void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-
     par.set( sKeyResolution(), resolution_ );
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
@@ -637,6 +499,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 	par.mergeComp( attribpar, key );
     }
 
+    /*
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
                      channels_ ? channels_->getChannels2RGBA() : 0 );
     if ( !cttc2rgba && channels_ )
@@ -644,24 +507,15 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 	par.set( sKeyTC2RGBA(), channels_->getChannels2RGBA()->id() );
 	saveids += channels_->getChannels2RGBA()->id();
     }
+     */
 
     par.set( sKeyNrAttribs(), as_.size() );
-    fillSOPar( par, saveids );
+    fillSOPar( par );
 }
 
 
 int MultiTextureSurveyObject::usePar( const IOPar& par )
 {
-    // TODO: Replace following lines by outcommented one when OD-version>4.6
-    int matid = -1; int res = 0;
-    if ( !par.get(visBase::VisualObjectImpl::sKeyMaterialID(),matid) )
-	res = visBase::VisualObject::usePar( par );
-    else
-	res = visBase::VisualObjectImpl::usePar( par );
-    // const int res = visBase::VisualObjectImpl::usePar( par );
-
-    if ( res!=1 ) return res;
-
     par.get( sKeyResolution(), resolution_ );
 
     bool ison = true;
@@ -692,27 +546,10 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( !isAttribEnabled(idx) )
+	if ( !isAttribEnabled(idx) || !ctab || ctab->getTransparency(idx)==255 )
 	    continue;
 
-	int version;
-	if ( texture_ )
-	{
-	    if ( texture_->getTextureTransparency(idx)==255 )
-		continue;
-
-	    version = texture_->currentVersion(idx);
-	}
-	else if ( ctab )
-	{
-	    if ( ctab->getTransparency(idx)==255 )
-		continue;
-	    version = channels_->currentVersion( idx );
-	}
-	else
-	{
-	    continue;
-	}
+	const int version = channels_->currentVersion( idx );
 
 	float fval;
 	if ( !getCacheValue(idx, version, attribpos, fval ) )
@@ -724,9 +561,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
-	    if ( !hasCache(idy) ||
-		 !isAttribEnabled(idy) ||
-		 (texture_ && texture_->getTextureTransparency(idy)==255 ) ||
+	    if ( !hasCache(idy) || !isAttribEnabled(idy) ||
 		 (ctab && ctab->getTransparency(idx)==255 ) )
 		continue;
 
@@ -736,26 +571,13 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
 	if ( !islowest )
 	{
-	    Color col;
-	    if ( texture_ )
-	    {
-		col = texture_->getColorTab(idx).color(fval);
-	    }
-	    else if ( ctab )
-	    {
-		const ColTab::Sequence* seq = ctab->getSequence( idx );
-		const ColTab::Mapper& map = channels_->getColTabMapper(idx,
-			channels_->currentVersion( idx ) );
+	    if ( !ctab ) continue;
 
-		col = mIsUdf(fval)
-		    ? seq->undefColor()
-		    : seq->color( map.position(fval) );
-	    }
-	    else
-	    {
-		continue;
-	    }
+	    const ColTab::Sequence* seq = ctab->getSequence( idx );
+	    const ColTab::Mapper& map = channels_->getColTabMapper(idx,version);
 
+	    const Color col = mIsUdf(fval) ? seq->undefColor()
+					   : seq->color( map.position(fval) );
 	    if ( col.t()==255 )
 		continue;
 	}

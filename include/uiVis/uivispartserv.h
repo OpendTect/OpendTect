@@ -280,7 +280,7 @@ public:
     void			manageSceneColorbar(int);
     bool			sceneColorbarDisplayed();
 
-    const Color&		getSceneAnnotCol(int);
+    Color			getSceneAnnotCol(int);
 
 				//General stuff
     bool			deleteAllObjects();

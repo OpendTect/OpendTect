@@ -10,40 +10,23 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "visboxdragger.h"
+
+#include "vistransform.h"
 #include "ranges.h"
 #include "iopar.h"
 #include "survinfo.h"
 
-#include <Inventor/draggers/SoTabBoxDragger.h>
-#include <Inventor/nodes/SoCoordinate3.h>
-#include <Inventor/nodes/SoIndexedLineSet.h>
-#include <Inventor/nodes/SoIndexedTriangleStripSet.h>
-#include <Inventor/nodes/SoMaterial.h>
-#include <Inventor/nodes/SoNormalBinding.h>
-#include <Inventor/nodes/SoPickStyle.h>
-#include <Inventor/nodes/SoScale.h>
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoSwitch.h>
-#include <Inventor/nodes/SoShapeHints.h>
-
 #include <osgManipulator/TabBoxDragger>
 #include <osg/Switch>
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
+#include <osg/Version>
 
 mCreateFactoryEntry( visBase::BoxDragger );
 
 
 namespace visBase
 {
-
-
-static void setOsgMatrix( osgManipulator::TabBoxDragger& osgdragger,
-			  const osg::Vec3& scale, const osg::Vec3& trans )
-{
-    osg::Matrix mat;
-    mat *= osg::Matrix::scale( scale );
-    mat *= osg::Matrix::translate( trans );
-    osgdragger.setMatrix( mat );
-}
 
 
 class BoxDraggerCallbackHandler: public osgManipulator::DraggerCallback
@@ -59,10 +42,12 @@ public:
 
 protected:
 
-    void			constrain();
+    void			adjustPolygonOffset(bool start);
+    void			constrain(bool translated);
 
     BoxDragger&			dragger_;
-    osg::Matrix			startmatrix_;
+    osg::Matrix			initialosgmatrix_;
+    Coord3			initialcenter_;
 };
 
 
@@ -70,7 +55,10 @@ bool BoxDraggerCallbackHandler::receive(
 				    const osgManipulator::MotionCommand& cmd )
 {
     if ( cmd.getStage()==osgManipulator::MotionCommand::START )
-	startmatrix_ = dragger_.osgboxdragger_->getMatrix();
+    {
+	initialosgmatrix_ = dragger_.osgboxdragger_->getMatrix();
+	initialcenter_ = dragger_.center();
+    }
 
     mDynamicCastGet( const osgManipulator::Scale1DCommand*, s1d, &cmd );
     mDynamicCastGet( const osgManipulator::Scale2DCommand*, s2d, &cmd );
@@ -79,23 +67,25 @@ bool BoxDraggerCallbackHandler::receive(
 
     if ( !s1d && !s2d && !translatedinplane )
     {
-	dragger_.osgboxdragger_->setMatrix( startmatrix_ );
+	dragger_.osgboxdragger_->setMatrix( initialosgmatrix_ );
 	return true;
     }
 
     if ( cmd.getStage()==osgManipulator::MotionCommand::START )
     {
+	adjustPolygonOffset( true );
 	dragger_.started.trigger();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
     {
-	constrain();
+	constrain( translatedinplane );
 	dragger_.motion.trigger();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
     {
+	adjustPolygonOffset( false );
 	dragger_.finished.trigger();
-	if ( startmatrix_ != dragger_.osgboxdragger_->getMatrix() )
+	if ( initialosgmatrix_ != dragger_.osgboxdragger_->getMatrix() )
 	    dragger_.changed.trigger();
     }
 
@@ -103,10 +93,42 @@ bool BoxDraggerCallbackHandler::receive(
 }
 
 
-void BoxDraggerCallbackHandler::constrain()
+void BoxDraggerCallbackHandler::adjustPolygonOffset( bool start )
 {
-    osg::Vec3 scale = dragger_.osgboxdragger_->getMatrix().getScale();
-    osg::Vec3 center = dragger_.osgboxdragger_->getMatrix().getTrans();
+    for ( int idx=dragger_.osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
+			 dragger_.osgboxdragger_->getDragger(idx) );
+	if ( !tpd )
+	    continue;
+
+	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
+	{
+	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, dragger,
+			     tpd->getDragger(idy) );
+	    if ( !dragger )
+		continue;
+
+	    osg::StateSet* ss =
+		    dragger->getTranslate2DDragger()->getOrCreateStateSet();
+
+	    if ( !start )
+		ss->removeAttribute( osg::StateAttribute::POLYGONOFFSET );
+	    else if ( !ss->getAttribute(osg::StateAttribute::POLYGONOFFSET) )
+	    {
+		ss->setAttributeAndModes(
+		    new osg::PolygonOffset(0.0,0.0),
+		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
+	    }
+	}
+    }
+}
+
+
+void BoxDraggerCallbackHandler::constrain( bool translated )
+{
+    Coord3 scale = dragger_.width();
+    Coord3 center = dragger_.center();
 
     for ( int dim=0; dim<3; dim++ )
     {
@@ -116,25 +138,27 @@ void BoxDraggerCallbackHandler::constrain()
 			  dragger_.spaceranges_[dim].start;
 	    if ( diff < 0.0 )
 	    {
-		center[dim] -= 0.5*diff;
-		scale[dim] += diff;
+		center[dim] -= translated ? diff : 0.5*diff;
+		if ( !translated )
+		    scale[dim] += diff;
 	    }
 
 	    diff = center[dim] + 0.5*scale[dim] -
 		   dragger_.spaceranges_[dim].stop;
 	    if ( diff > 0.0 )
 	    {
-		center[dim] -= 0.5*diff;
-		scale[dim] -= diff;
+		center[dim] -= translated ? diff : 0.5*diff;
+		if ( !translated )
+		    scale[dim] -= diff;
 	    }
 	}
 
-	if ( dragger_.widthranges_[dim].width(false) > 0.0 )
+	if ( !translated && dragger_.widthranges_[dim].width(false)>0.0 )
 	{
 	    double diff = scale[dim] - dragger_.widthranges_[dim].start;
 	    if ( diff < 0 )
 	    {
-		if ( center[dim] < startmatrix_.getTrans()[dim] )
+		if ( center[dim] < initialcenter_[dim] )
 		    center[dim] -= 0.5*diff;
 		else
 		    center[dim] += 0.5*diff;
@@ -145,7 +169,7 @@ void BoxDraggerCallbackHandler::constrain()
 	    diff = scale[dim] - dragger_.widthranges_[dim].stop;
 	    if ( diff > 0 )
 	    {
-		if ( center[dim] > startmatrix_.getTrans()[dim] )
+		if ( center[dim] > initialcenter_[dim] )
 		    center[dim] -= 0.5*diff;
 		else
 		    center[dim] += 0.5*diff;
@@ -155,7 +179,7 @@ void BoxDraggerCallbackHandler::constrain()
 	}
     }
 
-    setOsgMatrix( *dragger_.osgboxdragger_, scale, center );
+    dragger_.setOsgMatrix( scale, center );
 }
 
 
@@ -167,208 +191,131 @@ BoxDragger::BoxDragger()
     , motion( this )
     , changed( this )
     , finished( this )
-    , onoff_( new SoSwitch )
-    , boxdragger_( new SoTabBoxDragger )
-    , xinterval_( 0 )
-    , yinterval_( 0 )
-    , zinterval_( 0 )
-    , selectable_( false )
-    , boxmaterial_ ( new SoMaterial )
-    , osgboxdragger_( 0 )
-    , osgdraggerroot_( 0 )
     , osgcallbackhandler_( 0 )
+    , osgboxdragger_( setOsgNode( new osgManipulator::TabBoxDragger() ) )
 {
-    if ( doOsg() )
-	initOsgDragger();
+    osgboxdragger_->setupDefaultGeometry();
+    osgboxdragger_->setHandleEvents( true );
 
-    boxmaterial_->ref();
-    onoff_->addChild( boxdragger_ );
-    onoff_->ref();
-    boxdragger_->addStartCallback(
-	    BoxDragger::startCB, this );
-    boxdragger_->addMotionCallback(
-	    BoxDragger::motionCB, this );
-    boxdragger_->addValueChangedCallback(
-	    BoxDragger::valueChangedCB, this );
-    boxdragger_->addFinishCallback(
-	    BoxDragger::finishCB, this );
+    osgcallbackhandler_ = new BoxDraggerCallbackHandler( *this );
+    osgboxdragger_->addDraggerCallback( osgcallbackhandler_ );
 
-    setOwnShapeHints();
+    for ( int idx=osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
+			 osgboxdragger_->getDragger(idx) );
+	if ( !tpd )
+	    continue;
 
-#ifdef __debug__
-    SoSeparator* boxsep = new SoSeparator;
-    boxsep->ref();
+	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
+	{
+	    osgManipulator::Dragger* dragger = tpd->getDragger( idy );
+	    mDynamicCastGet( osgManipulator::Scale1DDragger*, s1dd, dragger );
+	    if ( s1dd )
+	    {
+		s1dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
+		s1dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
+	    }
+	    mDynamicCastGet( osgManipulator::Scale2DDragger*, s2dd, dragger );
+	    if ( s2dd )
+	    {
+		s2dd->setColor( osg::Vec4(0.0,0.7,0.0,1.0) );
+		s2dd->setPickColor( osg::Vec4(0.0,1.0,0.0,1.0) );
+	    }
+	}
+    }
 
-    boxsep->addChild( boxmaterial_ );
-    
-    SoPickStyle* boxstyle = new SoPickStyle;
-    boxsep->addChild( boxstyle );
-    boxstyle->style = SoPickStyle::UNPICKABLE;
+    osgboxdragger_->getOrCreateStateSet()->setAttributeAndModes(
+		    new osg::PolygonOffset(-1.0,-1.0),
+		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
 
-    SoShapeHints* hints = new SoShapeHints;
-    boxsep->addChild( hints );
-    hints->vertexOrdering = SI().isClockWise()
-	? SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
-
-    SoCoordinate3* coords = new SoCoordinate3;
-    boxsep->addChild( coords );
-    coords->point.set1Value( 0, -1, -1, -1 );
-    coords->point.set1Value( 1, -1, -1,  1 );
-    coords->point.set1Value( 2, -1,  1, -1 );
-    coords->point.set1Value( 3, -1,  1,  1 );
-    coords->point.set1Value( 4,  1, -1, -1 );
-    coords->point.set1Value( 5,  1, -1,  1 );
-    coords->point.set1Value( 6,  1,  1, -1 );
-    coords->point.set1Value( 7,  1,  1,  1 );
-
-    SoNormalBinding* nb = new SoNormalBinding;
-    boxsep->addChild( nb );
-    nb->value = SoNormalBinding::PER_FACE;
-
-    SoIndexedTriangleStripSet* strip = new SoIndexedTriangleStripSet;
-    boxsep->addChild( strip );
-    const int tricoordindices[] =
-	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
-    strip->coordIndex.setValues( 0, 20, tricoordindices );
-
-    SoMaterial* linematerial = new SoMaterial;
-    boxsep->addChild( linematerial );
-
-    const int linecoordincices[] =
-	{ 0, 1, 3, 2, 0, 4, 6, 2, -1, 4, 5, 7, 6, -1, 3, 7, -1, 1, 5 };
-    SoIndexedLineSet* lines = new SoIndexedLineSet;
-    boxsep->addChild( lines );
-    lines->coordIndex.setValues( 0, 19, linecoordincices );
-
-    boxdragger_->setPart( "boxGeom", boxsep );
-    boxsep->unref();
+#if OSG_MIN_VERSION_REQUIRED(3,1,3)
+    osgboxdragger_->setIntersectionMask( cIntersectionTraversalMask() );
+    osgboxdragger_->setActivationMouseButtonMask(
+				osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON |
+				osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON );
 #endif
+
+    osgboxdragger_->getOrCreateStateSet()->setRenderingHint(
+					    osg::StateSet::TRANSPARENT_BIN );
+
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    osgdraggerbox_ = new osg::ShapeDrawable;
+    osgdraggerbox_->setShape( new osg::Box(osg::Vec3(0.0,0.0,0.0), 1.0) );
+
+    geode->addDrawable( osgdraggerbox_ );
+    geode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    geode->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    geode->getStateSet()->setAttributeAndModes(
+		    new osg::PolygonOffset(1.0,1.0),
+		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
+    geode->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    geode->setNodeMask( geode->getNodeMask() &
+	    		~visBase::cIntersectionTraversalMask() );
+
+    osgboxdragger_->addChild( geode );
+
+    showDraggerBorder( true );
 }
 
 
 BoxDragger::~BoxDragger()
 {
-    if ( osgdraggerroot_ && osgboxdragger_ )
-    {
-	osgboxdragger_->removeDraggerCallback( osgcallbackhandler_ );
-	osgdraggerroot_->unref();
-    }
-
-    boxdragger_->removeStartCallback(
-	    BoxDragger::startCB, this );
-    boxdragger_->removeMotionCallback(
-	    BoxDragger::motionCB, this );
-    boxdragger_->removeValueChangedCallback(
-	    BoxDragger::valueChangedCB, this );
-    boxdragger_->removeFinishCallback(
-	    BoxDragger::finishCB, this );
-
-    onoff_->unref();
-    boxmaterial_->unref();
-
-    delete xinterval_;
-    delete yinterval_;
-    delete zinterval_;
+    osgboxdragger_->removeDraggerCallback( osgcallbackhandler_ );
 }
 
 
-void BoxDragger::initOsgDragger()
+void BoxDragger::setOsgMatrix( const Coord3& worldscale,
+			       const Coord3& worldtrans )
 {
-    if ( !doOsg() || osgboxdragger_ )
-	return;
+    osg::Vec3d scale, trans;
+    mVisTrans::transformDir( transform_, worldscale, scale );
+    mVisTrans::transform( transform_, worldtrans, trans );
 
-    osgdraggerroot_ = new osg::Switch();
-    osgdraggerroot_->ref();
-
-    osgboxdragger_ = new osgManipulator::TabBoxDragger();
-    osgdraggerroot_->addChild( osgboxdragger_ );
-
-    osgboxdragger_->setupDefaultGeometry();
-    osgboxdragger_->setHandleEvents( true );
-    setBoxTransparency( 0.0 );
-
-    osgcallbackhandler_ = new BoxDraggerCallbackHandler( *this );
+    osg::Matrix mat;
+    mat *= osg::Matrix::scale( scale );
+    mat *= osg::Matrix::translate( trans );
+    osgboxdragger_->setMatrix( mat );
 }
 
 
-void BoxDragger::setBoxTransparency( float f )
+void BoxDragger::setBoxTransparency( float transparency )
 {
-    boxmaterial_->transparency.setValue( f );
-
-    if ( osgboxdragger_ )
-	osgboxdragger_->setPlaneColor( osg::Vec4(0.7,0.7,0.7,1.0-f) );
-}
-
-
-void BoxDragger::setOwnShapeHints()
-{
-    SoShapeHints* myHints = new SoShapeHints;
-    myHints->shapeType = SoShapeHints::SOLID;
-    myHints->vertexOrdering = SI().isClockWise()
-	? SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
-    
-    SoDragger* child;
-    const char* tabstr( "tabPlane" );
-    for ( int i = 1; i <= 6; i++ )
-    {
-	BufferString str( tabstr ); str += i;
-	child = (SoDragger*)boxdragger_->getPart( str.buf(), false );
-	child->setPart( "scaleTabHints", myHints );
-    }
+    osgdraggerbox_->setColor( osg::Vec4(0.7,0.7,0.7,1.0-transparency) );
 }
 
 
 void BoxDragger::setCenter( const Coord3& pos )
 {
-    boxdragger_->translation.setValue( (float) pos.x, 
-				    (float) pos.y, (float) pos.z );
-    prevcenter_ = pos;
-
-    if ( osgboxdragger_ )
-    {
-	setOsgMatrix( *osgboxdragger_, osgboxdragger_->getMatrix().getScale(),
-		      osg::Vec3(pos.x,pos.y,pos.z) );
-    }
+    setOsgMatrix( width(), pos );
 }
 
 
 Coord3 BoxDragger::center() const
 {
-    if ( osgboxdragger_ )
-    {
-	osg::Vec3 dragcenter = osgboxdragger_->getMatrix().getTrans();
-	return Coord3( dragcenter[0], dragcenter[1], dragcenter[2] );
-    }
-
-    SbVec3f pos = boxdragger_->translation.getValue();
-    return Coord3( pos[0], pos[1], pos[2] );
+    Coord3 trans;
+    mVisTrans::transformBack( transform_,
+			      osgboxdragger_->getMatrix().getTrans(),
+			      trans );
+    return trans;
 }
 
 
-void BoxDragger::setWidth( const Coord3& pos )
+void BoxDragger::setWidth( const Coord3& scale )
 {
-    boxdragger_->scaleFactor.setValue( (float) pos.x/2, 
-			    (float) pos.y/2, (float) pos.z/2 );
-    prevwidth_ = pos;
-
-    if ( osgboxdragger_ )
-    {
-	setOsgMatrix( *osgboxdragger_, osg::Vec3f(pos.x,pos.y,pos.z),	
-		      osgboxdragger_->getMatrix().getTrans() );
-    }
+    setOsgMatrix( scale, center() );
 }
 
 
 Coord3 BoxDragger::width() const
 {
-    if ( osgboxdragger_ )
-    {
-	osg::Vec3 boxwidth = osgboxdragger_->getMatrix().getScale();
-	return Coord3( boxwidth[0], boxwidth[1], boxwidth[2] );
-    }
+    Coord3 scale;
+    mVisTrans::transformBackDir( transform_,
+				 osgboxdragger_->getMatrix().getScale(),
+				 scale );
 
-    SbVec3f pos = boxdragger_->scaleFactor.getValue();
-    return Coord3( pos[0]*2, pos[1]*2, pos[2]*2 );
+    scale.x = fabs(scale.x); scale.y = fabs(scale.y); scale.z = fabs(scale.z);
+    return scale;
 }
 
 
@@ -376,22 +323,8 @@ void BoxDragger::setSpaceLimits( const Interval<float>& x,
 				 const Interval<float>& y,
 				 const Interval<float>& z )
 {
-    if ( !xinterval_ )
-    {
-	xinterval_ = new Interval<float>(x);
-	yinterval_ = new Interval<float>(y);
-	zinterval_ = new Interval<float>(z);
-	return;
-    }
+    spaceranges_[0] = x; spaceranges_[1] = y; spaceranges_[2] = z;
 
-    *xinterval_ = x;
-    *yinterval_ = y;
-    *zinterval_ = z;
-
-    if ( doOsg() )
-    {
-	spaceranges_[0] = x; spaceranges_[1] = y; spaceranges_[2] = z;
-    }
 }
 
 
@@ -403,98 +336,75 @@ void BoxDragger::setWidthLimits( const Interval<float>& x,
 }
 
 
-void BoxDragger::turnOn( bool yn )
+void BoxDragger::setDisplayTransformation( const mVisTrans* nt )
 {
-    onoff_->whichChild = yn ? 0 : SO_SWITCH_NONE;
-
-    if ( osgdraggerroot_ )
-	osgdraggerroot_->setValue( 0, yn );
-}
-
-
-bool BoxDragger::isOn() const
-{
-    if ( osgdraggerroot_ )
-	return osgdraggerroot_->getValue(0);
-
-    return !onoff_->whichChild.getValue();
-}
-
-
-SoNode* BoxDragger::gtInvntrNode()
-{ return onoff_; }
-
-
-osg::Node* BoxDragger::gtOsgNode()
-{ return osgdraggerroot_; }
-
-
-void BoxDragger::startCB( void* obj, SoDragger* )
-{
-    BoxDragger* thisp = (BoxDragger*)obj;
-    thisp->prevcenter_ = thisp->center();
-    thisp->prevwidth_ = thisp->width();
-    thisp->started.trigger();
-}
-
-
-void BoxDragger::motionCB( void* obj, SoDragger* )
-{
-    ( (BoxDragger*)obj )->motion.trigger();
-}
-
-#define mCheckDim(dim)\
-if ( thisp->dim##interval_ )\
-{\
-    if ( !thisp->dim##interval_->includes(center.dim-width.dim/2,true) || \
-	 !thisp->dim##interval_->includes(center.dim+width.dim/2,true))\
-    {\
-	if ( constantwidth ) center.dim = thisp->prevcenter_.dim; \
-	else \
-	{ \
-	    width.dim = thisp->prevwidth_.dim; \
-	    center.dim = thisp->prevcenter_.dim; \
-	} \
-	change = true; \
-    }\
-}
-
-void BoxDragger::valueChangedCB( void* obj, SoDragger* )
-{
-    BoxDragger* thisp = (BoxDragger*)obj;
-
-    Coord3 center = thisp->center();
-    Coord3 width = thisp->width();
-
-    const bool constantwidth =
-	mIsEqualRel(width.x,thisp->prevwidth_.x,1e-6) &&
-	mIsEqualRel(width.y,thisp->prevwidth_.y,1e-6) &&
-	mIsEqualRel(width.z,thisp->prevwidth_.z,1e-6);
-
-    if  ( constantwidth && center==thisp->prevcenter_ )
+    if ( transform_ == nt )
 	return;
 
-    bool change = false;
-    mCheckDim(x);
-    mCheckDim(y);
-    mCheckDim(z);
+    const Coord3 oldcenter = center();
+    const Coord3 oldwidth = width();
 
-    if ( change )
-    {
-	thisp->setCenter( center );
-	thisp->setWidth(  width );
-    }
+    transform_ = nt;
 
-    thisp->prevcenter_ = center;
-    thisp->prevwidth_ = width;
-
-    ( (BoxDragger*)obj )->changed.trigger();
+    setWidth( oldwidth );
+    setCenter( oldcenter );
 }
 
 
-void BoxDragger::finishCB( void* obj, SoDragger* )
+const mVisTrans* BoxDragger::getDisplayTransformation() const
 {
-    ( (BoxDragger*)obj )->finished.trigger();
+    return transform_;
+}
+
+
+void BoxDragger::showDraggerBorder( bool yn )
+{
+    const float borderopacity = yn ? 1.0 : 0.0;
+    for ( int idx=osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
+			 osgboxdragger_->getDragger(idx) );
+	if ( !tpd )
+	    continue;
+
+	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
+	{
+	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, dragger,
+			     tpd->getDragger(idy) );
+	    if ( !dragger )
+		continue;
+
+	    const osg::Vec4 col( 0.5, 0.5, 0.5, borderopacity );
+	    if ( col != dragger->getTranslate2DDragger()->getColor() )
+		dragger->getTranslate2DDragger()->setColor( col );
+
+	    const osg::Vec4 pickcol( 1.0, 1.0, 1.0, borderopacity );
+	    if ( pickcol != dragger->getTranslate2DDragger()->getPickColor() )
+		dragger->getTranslate2DDragger()->setPickColor( pickcol );
+	}
+    }
+}
+
+
+bool BoxDragger::isDraggerBorderShown() const
+{
+    for ( int idx=osgboxdragger_->getNumDraggers()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( osgManipulator::TabPlaneDragger*, tpd,
+			 osgboxdragger_->getDragger(idx) );
+	if ( !tpd )
+	    continue;
+
+	for ( int idy=tpd->getNumDraggers()-1; idy>=0; idy-- )
+	{
+	    mDynamicCastGet( osgManipulator::TranslatePlaneDragger*, dragger,
+		    	     tpd->getDragger(idy) );
+	    if ( dragger )
+		return dragger->getTranslate2DDragger()->getColor()[3];
+	}
+    }
+
+    return false;
 }
 
 

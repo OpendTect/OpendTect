@@ -16,35 +16,34 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "arrayndimpl.h"
 #include "rowcol.h"
-#include "thread.h"
 #include "visobject.h"
 #include "geomelement.h"
 
 class BinIDValueSet;
 class DataPointSet;
-class SbVec2f;
-class SoAction;
-class SoCallback;
-class SoGetBoundingBoxAction;
-class SoShapeHints;
-class SoState;
-class SoTextureCoordinate2;
+
 class ZAxisTransform;
 class TaskRunner;
 
+
 namespace Geometry { class BinIDSurface; }
 namespace ColTab { class Sequence; class MapperSetup; }
-namespace osgGeo { class Horizon3DNode; }
+namespace osgGeo { class LayeredTexture;  }
+namespace osg { class CullStack; }
 
 namespace visBase
 {
     class TextureChannel2RGBA;    
     class HorizonSectionTile;
     class TextureChannels;
+    class HorizonSectionDataHandler;
+    class HorizonTextureHandler;
+    class HorTilesCreatorAndUpdator;
 
 /*!Horizon geometry is divided into 64*64 pixel tiles. Each tile has it's own 
   glue edge to merge into it's neighbors in case of different resolutions. Each
-  tile has it's own coordinates and normals, but they all share the same texture  coordinates since the have the same size. Each tile holds its wireframe. It 
+  tile has it's own coordinates and normals, but they all share the same texture
+  coordinates since the have the same size. Each tile holds its wireframe. It
   would only turn on wireframe or lines and points depends if you use wireframe
   or not. */
 
@@ -57,9 +56,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
-    void			setRightHandSystem(bool);
-
-    				//Texture information
+    //Texture information
     void                        useChannel(bool);
     int                         nrChannels() const;
     void                        addChannel();
@@ -83,8 +80,9 @@ public:
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
-    void			getDataPositions(DataPointSet&,double zoff,
-	    					 int sid,TaskRunner*) const;
+    void			getDataPositions(DataPointSet&,
+	    					double zoff /*untransformed*/,
+	    					int sid,TaskRunner*) const;
     void			setTextureData(int channel,const DataPointSet*,
 	    				       int sid,TaskRunner*);
     const BinIDValueSet*	getCache(int channel) const;
@@ -93,7 +91,7 @@ public:
     void			setChannels2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
-    TextureChannels*		getChannels() const	{ return channels_; }
+    TextureChannels*		getChannels() const;	//{ return channels_; }
 
     				//Geometry stuff
     void			setSurface(Geometry::BinIDSurface*,bool conn,
@@ -107,36 +105,36 @@ public:
     void			useWireframe(bool);
     bool			usesWireframe() const;
     
-    char			nrResolutions() const;
-    char			currentResolution() const;
-    void			setResolution(int,TaskRunner*);
+    char	 		nrResolutions() const;
+    char 			currentResolution() const;
+    void			setResolution(char,TaskRunner*);
 
     void			setWireframeColor(Color col);
+    osgGeo::LayeredTexture*	getOsgTexture() const;
+    void			updatePrimitiveSets();
+    void			turnOsgOn( bool );
+    void			setDisplayGeometryType( int type );
+    void			updateTiles();
 
 protected:
     				~HorizonSection();
     friend class		HorizonSectionTile;			
-    friend class		HorizonTileRenderPreparer;			
+    friend class		HorizonTileRenderPreparer;
+    friend class		TileResolutionData;
+    friend class		HorizonSectionOsgCallBack;
+    friend class		HorizonSectionDataHandler;
+    friend class                HorizonTextureHandler;
+    friend class		HorTilesCreatorAndUpdator;
+    friend class		HorizonSectionTileGlue;
+
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
 	    				      TaskRunner*);
     void			removeZTransform();
     void			updateZAxisVOI();
 
-    void			updateTexture(int channel,const DataPointSet*,
-	    				      int sectionid);
-    void			updateAutoResolution(SoState*,TaskRunner*);
-    static void			updateAutoResolution(void*,SoAction*);
-    void			updateTileTextureOrigin(const RowCol& texorig);
-    void			updateTileArray();
-    void			updateBBox(SoGetBoundingBoxAction* action);
-    HorizonSectionTile*		createTile(int rowidx,int colidx);
-
-    void			setTextureCoords();
-    void			resetAllTiles(TaskRunner*);
-    void			updateNewPoints(const TypeSet<GeomPosID>*,
-	    					TaskRunner*);
-    void			setSizeParameters();
+    void			configSizeParameters();
+    void			updateAutoResolution( const osg::CullStack* );
 
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
@@ -145,55 +143,43 @@ protected:
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
     Threads::Mutex		updatelock_;
-    ObjectSet<BinIDValueSet>	cache_;
+    Threads::SpinLock		spinlock_;
 
-    TextureChannels*		channels_;
-    TextureChannel2RGBA*	channel2rgba_;
-    SoTextureCoordinate2*	texturecrds_;
-
-    SoCallback*			callbacker_;
-    SoShapeHints*		shapehints_;
+    HorizonSectionDataHandler*  hordatahandler_;
+    HorizonTextureHandler*	hortexturehandler_;
+    HorTilesCreatorAndUpdator*	hortilescreatorandupdator_;
 
     Array2DImpl<HorizonSectionTile*> tiles_;
     bool			usewireframe_;
 
     const mVisTrans*		transformation_;
-    ZAxisTransform*		zaxistransform_;
-    int				zaxistransformvoi_; 
-    				//-1 not needed by zaxistransform, -2 not set
 				
-    int				desiredresolution_;
-    bool			ismoving_;
-    double			cosanglexinl_;
-    double			sinanglexinl_;
+    char			lowestresidx_;
+    char			desiredresolution_;
+    char 			nrhorsectnrres_;
+
     float			rowdistance_;
     float			coldistance_;
-    Material*			wireframematerial_;
-
     bool			tesselationlock_;
 
-    int				mNrCoordsPerTileSide;
-    int 			mTotalNrCoordsPerTile;
-    int 			mTileSideSize;
-    int 			mTileLastIdx;
-    int 			mTotalNormalSize;
-    unsigned char 		mLowestResIdx;
-    int 			mHorSectNrRes;
+    int				nrcoordspertileside_;
+    int 			tilesidesize_;
+    int 			totalnormalsize_;
 
-    int*			spacing_;
-    int*			nrcells_;
-    int*			normalstartidx_;
-    int*			normalsidesize_;
+    TypeSet<int>		spacing_;
+    TypeSet<int>		nrcells_;
+    TypeSet<int>		normalstartidx_;
+    TypeSet<int>		normalsidesize_;
 
-    int				tesselationqueueid_;
+    osg::Group*		    	osghorizon_;
+    bool			forceupdate_;
 
-    osgGeo::Horizon3DNode*	osghorizon_;
-    
-    static const char*		sKeySectionID()	{ return "Section ID"; }
+    ObjectSet<HorizonSectionTile> updatedtiles_;
+    TypeSet<int>		  updatedtileresolutions_;
+
 };
 
 };
 
 
 #endif
-

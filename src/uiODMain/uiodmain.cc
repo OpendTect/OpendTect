@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 
 #include "uiattribpartserv.h"
-#include "uicmain.h"
+#include "uimain.h"
 #include "uicolortable.h"
 #include "uidockwin.h"
 #include "uigeninput.h"
@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
+#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 
@@ -85,23 +86,12 @@ int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
 
-    char** myargv = argv;
-    int myargc = argc;
-    for ( int iarg=1; iarg<myargc; iarg++ )
-    {
-	if ( !strcmp(myargv[iarg],"--osg") )
-	{
-	    visBase::DataObject::setOsg();
-	    break;
-	}
-    }
-
+    //PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
     uiDialog::setTitlePos( -1 );
 
-    PtrMan<uicMain> uimain = new uicMain(argc,argv);
-    PtrMan<uiODMain> odmain = new uiODMain( *uimain );
+    uiODMain* odmain = new uiODMain( *new uiMain(argc,argv) );
     ioPixmap pm( mGetSetupFileName("splash") );
   //  uiSplashScreen splash( pm );
   //  splash.show();
@@ -128,7 +118,7 @@ int ODMain( int argc, char** argv )
    // splash.finish( odmain );
 
     odmain->go();
-
+    delete odmain;
     return 0;
 }
 
@@ -136,7 +126,7 @@ int ODMain( int argc, char** argv )
 #define mMemStatusFld 4
 static BufferString cputxt_;
 
-uiODMain::uiODMain( uicMain& a )
+uiODMain::uiODMain( uiMain& a )
     : uiMainWin(0,"OpendTect Main Window",5,true)
     , uiapp_(a)
     , failed_(true)
@@ -158,6 +148,7 @@ uiODMain::uiODMain( uicMain& a )
     BufferString icntxt( "OpendTect V", GetFullODVersion() );
     setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
+    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
@@ -192,8 +183,6 @@ uiODMain::~uiODMain()
 	manODMainWin( 0 );
 
     delete ctabwin_;
-    delete ctabed_;
-
     delete &lastsession_;
     delete &timer_;
     delete &memtimer_;
@@ -201,7 +190,6 @@ uiODMain::~uiODMain()
     delete menumgr_;
     delete viewer2dmgr_;
     delete scenemgr_;
-    delete applmgr_;
 }
 
 
@@ -242,7 +230,7 @@ bool uiODMain::ensureGoodSurveySetup()
 	    msgs.add( BufferString("DTECT_DATA variable: ",
 				   GetEnvVar("DTECT_DATA")) );
 	    uiMSG().errorWithDetails( msgs, msg );
-	    return true;
+	    return false;
 	}
 
 	while ( !applmgr_->manageSurvey() )
@@ -404,7 +392,7 @@ public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
     : uiDialog(p,uiDialog::Setup("Auto-load session"
-				,"Set auto-load session","50.2.1"))
+				,"Set auto-load session","50.3.1"))
     , ctio_(*mMkCtxtIOObj(ODSession))
 {
     bool douse = false; MultiID id;
@@ -713,9 +701,9 @@ bool uiODMain::closeOK()
     saveSettings();
 
     bool askedanything = false;
-    if ( !askStore(askedanything,"Close OpendTect") )
+    if ( !askStore(askedanything,"Shutdown") )
     {
-	uiMSG().message("closing cancelled");
+	uiMSG().message("Shutdown cancelled");
 	return false;
     }
 
@@ -727,7 +715,7 @@ bool uiODMain::closeOK()
     {
 	bool doask = false;
 	Settings::common().getYN( "dTect.Ask close", doask );
-	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
+	if ( doask && !uiMSG().askGoOn( "Do you want to quit?" ) )
 	    return false;
     }
 

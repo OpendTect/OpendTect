@@ -100,6 +100,7 @@ public:
 
     inline bool		operator==(const Coord3&) const;
     inline bool		operator!=(const Coord3&) const;
+    bool		isSameAs(const Coord3&, const Coord3&) const;
 
     DistType		distTo(const Coord3&) const;
     DistType		sqDistTo(const Coord3&) const;

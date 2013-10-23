@@ -27,7 +27,7 @@ class LineStyle;
 
 namespace visBase
 {
-    class DataObjectGroup;
+    class MarkerSet;
     class EventCatcher;
     class EventInfo;
     class Transformation;
@@ -46,8 +46,9 @@ namespace visSurvey
 {
 class Scene;
 
-/*!
-\brief Used for displaying welltracks, markers and logs.
+/*!\brief Used for displaying welltracks, markers and logs
+
+
 */
 
 mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
@@ -81,24 +82,25 @@ public:
     void			setMarkerScreenSize(int);
     
     //logs
-    void 			fillLogParams(visBase::Well::LogParams&,int);
+    void 			fillLogParams(visBase::Well::LogParams&,
+						visBase::Well::Side side);
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
     void 			setLogData(visBase::Well::LogParams&,bool);
-    void			setLogDisplay(int);
+    void			setLogDisplay(visBase::Well::Side);
     void			calcClippedRange(float,Interval<float>&,int);
     void			displayRightLog();
     void			displayLeftLog();
     void			setOneLogDisplayed(bool);
-    const Color&		logColor(int) const;
-    void			setLogColor(const Color&,int);
-    float			logLineWidth(int) const;
-    void			setLogLineWidth(float,int);
+    const Color&		logColor(visBase::Well::Side) const;
+    void			setLogColor(const Color&,visBase::Well::Side);
+    float			logLineWidth(visBase::Well::Side) const;
+    void			setLogLineWidth(float,visBase::Well::Side);
     int				logWidth() const;
-    void			setLogWidth(int,int);
+    void			setLogWidth(int,visBase::Well::Side);
     bool			logsShown() const;
     void			showLogs(bool);
     bool			logNameShown() const;
@@ -135,7 +137,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
     
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual void                fillPar(IOPar&) const;
     virtual int                 usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
 
@@ -162,7 +164,7 @@ protected:
     const mVisTrans*		transformation_;
     MultiID			wellid_;
     visBase::EventCatcher*	eventcatcher_;
-    visBase::DataObjectGroup*	group_;
+    visBase::MarkerSet*		markerset_;
     visBase::Well*		well_;
     Well::Track*		pseudotrack_;
     Well::Data*			wd_;

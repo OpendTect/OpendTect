@@ -12,11 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 
 #include "vistransform.h"
-#include "UTMPosition.h"
 #include "visnormals.h"
-
-#include <Inventor/nodes/SoCoordinate3.h>
-#include <Inventor/nodes/SoGroup.h>
+#include "task.h"
 
 #include <osg/Array>
 
@@ -25,32 +22,68 @@ mCreateFactoryEntry( visBase::Coordinates );
 namespace visBase
 {
 
-Coordinates::Coordinates()
-    : coords_( doOsg() ? 0 : new SoCoordinate3 )
-    , transformation_( 0 )
-    , utmposition_( 0 )
-    , root_( doOsg() ? 0 : new SoGroup )
-    , osgcoords_( doOsg() ? new osg::Vec3Array : 0 )
+class SetOrGetCoordinates: public ParallelTask
 {
-    if ( osgcoords_ )
-	mGetOsgVec3Arr(osgcoords_)->ref();
-    else
-    {
-	root_->ref();
-	root_->addChild( coords_ );
-	unusedcoords_ += 0;
-	//!<To compensate for that the first coord is set by default by OI
+public:
+    SetOrGetCoordinates(Coordinates* p, const od_int64 size,
+		       const TypeSet<Coord3>* inpositions = 0,
+		       TypeSet<Coord3>* outpositions= 0 );
+    od_int64	totalNr() const { return totalnrcoords_; }
 
+protected:
+    bool	doWork(od_int64 start, od_int64 stop, int);
+    od_int64	nrIterations() const { return totalnrcoords_; }
+
+private:
+    Coordinates* coordinates_;
+    TypeSet<Coord3>* outpositions_;
+    const TypeSet<Coord3>* inpositions_;
+    Threads::Atomic<od_int64>	totalnrcoords_;
+
+};
+
+
+SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p,
+					const od_int64 size,
+					const TypeSet<Coord3>* inpositions,
+					TypeSet<Coord3>* outpositions )
+    : coordinates_( p )
+    , totalnrcoords_( size )
+    , inpositions_( inpositions )
+    , outpositions_( outpositions )
+{
+}
+
+
+bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
+{
+    if ( !inpositions_ && !outpositions_ )
+	return false;
+
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	if ( inpositions_ )
+	    coordinates_->setPosWithoutLock( idx, (*inpositions_)[idx], false );
+	else
+	    (*outpositions_)[idx] = coordinates_->getPos( idx );
     }
+    return true;
+}
+
+
+Coordinates::Coordinates()
+    : transformation_( 0 )
+    , osgcoords_( new osg::Vec3Array )
+{
+    mGetOsgVec3Arr(osgcoords_)->ref();
 }
 
 
 Coordinates::~Coordinates()
 {
-    if ( osgcoords_ )
-	mGetOsgVec3Arr(osgcoords_)->unref();
+
+    mGetOsgVec3Arr(osgcoords_)->unref();
     
-    if ( root_ ) root_->unref();
     if ( transformation_ ) transformation_->unRef();
 }
 
@@ -60,27 +93,13 @@ void Coordinates::copyFrom( const Coordinates& nc )
     Threads::MutexLocker lock( mutex_ );
     Threads::MutexLocker nclock( nc.mutex_ );
 
-    if ( doOsg() )
-    {
-	*mGetOsgVec3Arr(osgcoords_) = *mGetOsgVec3Arr(nc.osgcoords_);
-    }
-    else
-    {
-	coords_->point = nc.coords_->point;
-	if ( nc.utmposition_ )
-	{
-	    if ( !utmposition_ )
-	    {
-		utmposition_ = new UTMPosition;
-		root_->insertChild( utmposition_, 0 );
-	    }
-
-	    utmposition_->utmposition = nc.utmposition_->utmposition;
-	}
-    }
+    *mGetOsgVec3Arr(osgcoords_) = *mGetOsgVec3Arr(nc.osgcoords_);
 
     unusedcoords_ = nc.unusedcoords_;
 }
+
+#define mArrSize \
+    ( (int) mGetOsgVec3Arr(osgcoords_)->size() ) \
 
 
 void Coordinates::setDisplayTransformation( const mVisTrans* nt )
@@ -89,6 +108,7 @@ void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 
     Threads::MutexLocker lock( mutex_ );
     TypeSet<Coord3> worldpos;
+    worldpos.setSize( mArrSize );
     getPositions(worldpos);
 
     if ( transformation_ )
@@ -109,51 +129,19 @@ const mVisTrans*  Coordinates::getDisplayTransformation() const
 }
 
 
-void Coordinates::setLocalTranslation( const Coord& nc )
-{
-    Threads::MutexLocker lock( mutex_ );
-    setLocalTranslationWithoutLock( nc );
-}
-
-
-void Coordinates::setLocalTranslationWithoutLock( const Coord& nc )
-{
-    TypeSet<Coord3> worldpos;
-    getPositions(worldpos);
-
-    if ( !utmposition_ )
-    {
-	utmposition_ = new UTMPosition;
-	root_->insertChild( utmposition_, 0 );
-    }
-
-    Coord3 postoset( nc, 0 );
-    if ( transformation_ )
-	postoset = transformation_->transform( postoset );
-
-    utmposition_->utmposition.setValue( SbVec3d(postoset.x,postoset.y,0) );
-
-    setPositions(worldpos);
-}
-
-
-Coord Coordinates::getLocalTranslation() const
-{
-    if ( !utmposition_ ) return Coord(0,0);
-    SbVec3d transl = utmposition_->utmposition.getValue();
-    Coord3 res( transl[0], transl[1], 0 );
-    if ( transformation_ ) res = transformation_->transformBack( res );
-    return res;
-}
-
-
-#define mArrSize \
-    (doOsg() ? (int) mGetOsgVec3Arr(osgcoords_)->size() \
-	     : (int) coords_->point.getNum())
-
 int Coordinates::size(bool includedeleted) const
 {
-    return mArrSize -(includedeleted ? 0 : unusedcoords_.size()); }
+    return mArrSize -(includedeleted ? 0 : unusedcoords_.size());
+}
+
+
+void Coordinates::setEmpty()
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    unusedcoords_.erase();
+    mGetOsgVec3Arr(osgcoords_)->clear();
+}
 
 
 int Coordinates::nextID( int previd ) const
@@ -178,53 +166,30 @@ int Coordinates::nextID( int previd ) const
 int Coordinates::addPos( const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
-    int res;
     const int nrunused = unusedcoords_.size();
     if ( nrunused )
     {
-	res = unusedcoords_[nrunused-1];
-	unusedcoords_.removeSingle( nrunused-1 );
-    }
-    else
-    {
-	res = mArrSize;
+	int res = unusedcoords_.pop();
+	setPosWithoutLock( res, pos, false );
+	return res;
     }
 
     Coord3 postoset = pos;
     if ( postoset.isDefined() )
     {
-	if ( transformation_ )
-	    postoset = transformation_->transform( postoset );
-
-	if ( utmposition_ )
-	{
-	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
-	    postoset.x -= utmoffset[0];
-	    postoset.y -= utmoffset[1];
-	}
+	Transformation::transform( transformation_, postoset );
     }
 
-    if ( doOsg() )
-	mGetOsgVec3Arr(osgcoords_)->push_back(
-		osg::Vec3f( (float) postoset.x,
-			    (float) postoset.y,
-			    (float) postoset.z));
-    else
-	coords_->point.set1Value( res, SbVec3f((float) postoset.x,
-				(float) postoset.y,(float) postoset.z) );
-
-    return res;
+    mGetOsgVec3Arr(osgcoords_)->push_back( Conv::to<osg::Vec3>(postoset) );
+    return mGetOsgVec3Arr(osgcoords_)->size()-1;
 }
 
 
 void Coordinates::insertPos( int idx, const Coord3& pos )
 {
-    if ( doOsg() )
-    {
-	pErrMsg( "Not implemented" );
-	return;
-	
-    }
+    pErrMsg( "Not implemented" );
+    return;
+	/*
     Threads::MutexLocker lock( mutex_ );
     
     coords_->point.insertSpace( idx, 1 );
@@ -235,29 +200,20 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
     }
 
     setPosWithoutLock(idx,pos);
+	 */
 }
 
 
 Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
-    const float* scenepos;
-    if ( doOsg() )
-        scenepos = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
-    else
-	scenepos = coords_->point[idx].getValue();
+    const float* scenepos =
+	mGetOsgArrPtr(const osg::Vec3*,osgcoords_)[idx].ptr();
     
     Coord3 res( scenepos[0], scenepos[1], scenepos[2] );
     if ( res.isDefined() )
     {
-	if ( utmposition_ )
-	{
-	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
-	    res.x += utmoffset[0];
-	    res.y += utmoffset[1];
-	}
-
 	if ( transformation_ && !scenespace )
-	    res = transformation_->transformBack( res );
+	    transformation_->transformBack( res );
     }
 
     return res;
@@ -271,11 +227,7 @@ bool Coordinates::isDefined( int idx ) const
 	 unusedcoords_.isPresent( idx ) )
 	return false;
 
-    const float* coord;
-    if ( doOsg() )
-	coord = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
-    else
-	coord = coords_->point[idx].getValue();
+    const float* coord = (*mGetOsgVec3Arr(osgcoords_))[idx].ptr();
     
     return !mIsUdf(coord[2]) && !mIsUdf(coord[1]) && !mIsUdf(coord[0]);
 }
@@ -284,55 +236,28 @@ bool Coordinates::isDefined( int idx ) const
 void Coordinates::setPos( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
-    setPosWithoutLock(idx,pos);
+    setPosWithoutLock(idx,pos,false);
 }
 
 
-void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
+void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
+				     bool scenespace )
 {
+    if ( unusedcoords_.isPresent(idx) )
+	return;
+
     for ( int idy=mArrSize; idy<idx; idy++ )
 	unusedcoords_ += idy;
 
     Coord3 postoset = pos;
-    if ( postoset.isDefined() )
-    {
-	if ( transformation_ )
-	{
-	    postoset = transformation_->transform( postoset );
-
-	    //HACK: Moved here since it blocks the transform setting
-	    //      on inl/crl/t objects
-	    if ( !utmposition_ && !idx && !size(false) &&
-		    (fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
-		setLocalTranslationWithoutLock(postoset);
-	}
-
-	/* 
-	if ( !utmposition_ && !idx && !size(false) &&
-		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
-	    setLocalTranslationWithoutLock(postoset);
-	*/
-
-	if ( utmposition_ )
-	{
-	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
-	    postoset.x -= utmoffset[0];
-	    postoset.y -= utmoffset[1];
-	}
-    }
+    if ( !scenespace && postoset.isDefined() && transformation_ )
+	transformation_->transform( postoset );
     
-    if ( doOsg() )
-    {
-	if ( idx>=mGetOsgVec3Arr(osgcoords_)->size() )
-	    mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
-	
-	(*mGetOsgVec3Arr(osgcoords_))[idx] =
-	    osg::Vec3f((float) postoset.x,(float) postoset.y,(float)postoset.z);
-	    
-    }
-    else
-	coords_->point.set1Value( idx, SbVec3f((float) postoset.x,
-				(float) postoset.y,(float) postoset.z) );
+    if ( idx>=mGetOsgVec3Arr(osgcoords_)->size() )
+	mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
+
+    (*mGetOsgVec3Arr(osgcoords_))[idx] = Conv::to<osg::Vec3f>( postoset );
+    osgcoords_->dirty();
 
     const int unusedidx = unusedcoords_.indexOf(idx);
     if ( unusedidx!=-1 )
@@ -352,28 +277,24 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 
     if ( idx==nrcoords-1 )
     {
-	if ( doOsg() )
-	    mGetOsgVec3Arr(osgcoords_)->resize( idx );
-	else
-	    coords_->point.deleteValues( idx );
+	mGetOsgVec3Arr(osgcoords_)->resize( idx );
+
 	unusedcoords_ -= idx;
     }
     else if ( keepidxafter )
 	unusedcoords_ += idx;
     else
     {
-	if ( doOsg() )
+	if ( idx < mGetOsgVec3Arr(osgcoords_)->size()  )
 	{
 	    mGetOsgVec3Arr(osgcoords_)->erase(
-				 mGetOsgVec3Arr(osgcoords_)->begin() + idx );
-	}
-	else
-	    coords_->point.deleteValues( idx, 1 );
-	
-	for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
-	{
-	    if ( unusedcoords_[idy]>idx )
-		unusedcoords_[idy]--;
+		mGetOsgVec3Arr(osgcoords_)->begin() + idx );
+
+	    for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
+	    {
+		if ( unusedcoords_[idy]>idx )
+		    unusedcoords_[idy]--;
+	    }
 	}
     }
 }
@@ -385,10 +306,8 @@ void Coordinates::removeAfter( int idx )
     if ( idx<-1 || idx>=mArrSize-1 )
 	return;
 
-    if ( doOsg() )
-	mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
-    else
-	coords_->point.deleteValues( idx+1 );
+    mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
+
     for ( int idy=0; idy<unusedcoords_.size(); idy++ )
     {
 	if ( unusedcoords_[idy]>idx )
@@ -397,34 +316,12 @@ void Coordinates::removeAfter( int idx )
 }
 
 
-void Coordinates::setAutoUpdate( bool doupdate )
-{
-    bool oldvalue = coords_->point.enableNotify( doupdate );
-    if ( doupdate && !oldvalue ) coords_->point.touch();
-}    
-
-
-bool Coordinates::autoUpdate()
-{
-    return coords_->point.isNotifyEnabled();
-}
-
-
-void Coordinates::update()
-{
-    coords_->point.touch();
-}
-
-
-SoNode* Coordinates::gtInvntrNode() { return root_; }
-
-
 void Coordinates::setAllZ( const float* vals, int sz, float zscale )
 {
     if ( sz != mArrSize )
-	coords_->point.setNum( sz );
+	mGetOsgVec3Arr(osgcoords_)->resize( sz );
 
-    float* zvals = ((float*) coords_->point.startEditing())+2;
+    float* zvals = mGetOsgArrPtr(float*,osgcoords_)+2;
     float* stopptr = zvals + sz*3;
     if ( !mIsZero(zscale-1,1e-8) )
     {
@@ -444,48 +341,44 @@ void Coordinates::setAllZ( const float* vals, int sz, float zscale )
 	    vals++;
 	}
     }
-
-    coords_->point.finishEditing();
 }
-
 
 
 void Coordinates::getPositions(TypeSet<Coord3>& res) const
 {
-    for ( int idx=0; idx<mArrSize; idx++ )
-	res += getPos(idx);
+    SetOrGetCoordinates SetOrGetCoordinates( const_cast<Coordinates*>(this),
+	mArrSize, 0, &res );
+    TaskRunner tr;
+    TaskRunner::execute( &tr,SetOrGetCoordinates );
 }
 
 
 void Coordinates::setPositions( const TypeSet<Coord3>& pos)
 {
-    const bool oldstatus = coords_->point.enableNotify( false );
-    for ( int idx=0; idx<mArrSize; idx++ )
-    {
-	if ( unusedcoords_.isPresent(idx) )
-	    continue;
-
-	setPosWithoutLock(idx, pos[idx] );
-    }
-
-    coords_->point.enableNotify( oldstatus );
-    coords_->point.touch();
+    SetOrGetCoordinates SetOrGetCoordinates( this, pos.size(), &pos, 0 );
+    TaskRunner tr;
+    TaskRunner::execute( &tr,SetOrGetCoordinates );
 }
 
 
-void Coordinates::setPositions( const Coord3* pos, int sz, int start )
+void Coordinates::setPositions( const Coord3* pos, int sz, int start,
+				bool scenespace )
 {
     Threads::MutexLocker lock( mutex_ );
 
-    const bool oldstatus = coords_->point.enableNotify( false );
     for ( int idx=0; idx<sz; idx++ )
-	setPosWithoutLock(idx+start, pos[idx] );
-
-    coords_->point.enableNotify( oldstatus );
-    coords_->point.touch();
+	setPosWithoutLock(idx+start, pos[idx], scenespace );
 }
 
-    
+
+void Coordinates::setAllPositions( const Coord3 pos, int sz, int start )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    for ( int idx=0; idx<sz; idx++ )
+	setPosWithoutLock(idx+start, pos, false );
+}
+
     
 CoinFloatVertexAttribList::CoinFloatVertexAttribList(Coordinates& c, Normals* n)
     : coords_( c )
@@ -614,6 +507,13 @@ void CoordListAdapter::set( int idx, const Coord3& p )
 void CoordListAdapter::remove( int idx )
 {
     coords_.removePos( idx, true );
+}
+
+void CoordListAdapter::remove(const TypeSet<int>& idxs)
+{
+    for ( int idx = idxs.size()-1; idx>=0; idx-- )
+	coords_.removePos( idxs[idx], true );
+
 }
 
 };

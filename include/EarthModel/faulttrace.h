@@ -45,6 +45,7 @@ public:
     void		set(int,const Coord3&,float);
     void		setIndices(const TypeSet<int>&);
     void		remove(int);
+    void		remove(const TypeSet<int>&){};
     bool		isDefined(int) const;
     int			getSize() const	{ return coords_.size(); }
     FaultTrace*		clone();

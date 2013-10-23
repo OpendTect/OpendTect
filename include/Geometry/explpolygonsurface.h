@@ -26,7 +26,8 @@ class PolygonSurface;
 /*!A triangulated representation of a polygonsurface */
 
 
-mExpClass(Geometry) ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
+mExpClass(Geometry) ExplPolygonSurface : public Geometry::IndexedShape
+    				       , public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,
@@ -34,8 +35,8 @@ public:
     			~ExplPolygonSurface();
 
     void		display(bool polygons,bool body);
-    void		setSurface(const PolygonSurface*);
-    const PolygonSurface* getSurface() const	     { return surface_; }
+    void		setPolygonSurface(const PolygonSurface*);
+    const PolygonSurface* getPolygonSurface() const	{ return surface_; }
 
     void		setZScale(float);
 
@@ -58,7 +59,6 @@ public:
     bool		createsNormals() const       { return true; }
     
     bool		update(bool forceall,TaskRunner*);
-    void		setRightHandedNormals(bool yn);
 
 protected:
 
@@ -67,6 +67,11 @@ protected:
     void		removeAll(bool);
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
+    void		addToTrianglePrimitiveSet(Geometry::PrimitiveSet*,
+						  int,int,int);
+    void 		calcNormals(int nrtriangles,int idx1,int idx2,int idx3);
+
+
 
     bool		displaypolygons_;
     bool		displaybody_;

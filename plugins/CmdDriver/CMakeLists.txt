@@ -8,7 +8,7 @@
 SET(OD_MODULE_DEPS uiCmdDriver uiODMain)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
-	coincommands.cc
+	#coincommands.cc
 	cmddriverpi.cc
 )
 SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
