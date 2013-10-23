@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
+#include "gendefs.h"
 #include "uiiomod.h"
 class uiParent;
 

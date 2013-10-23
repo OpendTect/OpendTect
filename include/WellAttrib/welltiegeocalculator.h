@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
+#include "gendefs.h"
 #include "odcomplex.h"
 #include "wellattribmod.h"
 
