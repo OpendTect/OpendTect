@@ -72,12 +72,12 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define cDefaultTWTMax 6000
-#define cDefaultZMaxm 6000
-#define cDefaultZMaxft 10000
-#define cDefautSRms 2
-#define cDefautSRm 5
-#define cDefautSRft 15
+#define cDefaultTWTMax 6000.f
+#define cDefaultZMaxm 6000.f
+#define cDefaultZMaxft 10000.f
+#define cDefautSRms 2.f
+#define cDefautSRm 5.f
+#define cDefautSRft 15.f
 
 
 bool acceptOK( CallBacker* )
@@ -134,8 +134,6 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
     return new ui2DDefSurvInfoDlg( p );
 }
 
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
 				      Coord crd[3] )
