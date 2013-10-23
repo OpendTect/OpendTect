@@ -1075,8 +1075,8 @@ void ui3DViewer::saveHomePos()
 
 void ui3DViewer::showRotAxis( bool yn )
 {
+    // OSG-TODO
     osgbody_->showRotAxis( yn );
-    pErrMsg("Not impl");
 }
 
 

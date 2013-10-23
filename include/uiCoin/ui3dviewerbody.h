@@ -95,7 +95,7 @@ public:
     virtual void		reSizeEvent(CallBacker*);
     void			toggleViewMode(CallBacker*);
 
-    void			setAnimationEnabled(bool) { pErrMsg("Impl!"); }
+    void			setAnimationEnabled(bool) {} // OSG-TODO
     bool			isAnimationEnabled() { return true; }
     void			showRotAxis(bool);
     visBase::PolygonSelection*	getPolygonSelector() const;
