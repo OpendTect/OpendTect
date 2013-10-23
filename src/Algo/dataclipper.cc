@@ -165,10 +165,7 @@ void DataClipper::putData( const ArrayND<float>& vals )
     
     ArrayNDValseriesAdapter<float> adapter( vals );
     if ( !adapter.isOK() )
-    {
-	pErrMsg("Problem with adapter");
-	return;
-    }
+	{ pErrMsg("Problem with adapter"); return; }
     
     putData( adapter, vals.info().getTotalSz() );
 }
@@ -273,18 +270,13 @@ bool DataClipper::getRange( float lowclip, float highclip,
 			    Interval<float>& range ) const
 {
     if ( lowclip>1 || highclip>1 || highclip+lowclip>1 )
-    {
-	pErrMsg("The cliprate should between 0 and 1");
-	return false;
-    }
+	{ pErrMsg("Invalid clip rate passed"); return false; }
 
     od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
     
     if ( mIsZero(lowclip, 1e-5 ) )
-    {
 	range.start = absoluterg_.start;
-    }
     else
     {
 	const od_int64 firstidx = mNINT64(lowclip*nrvals);
@@ -293,9 +285,7 @@ bool DataClipper::getRange( float lowclip, float highclip,
     }
     
     if ( mIsZero( highclip, 1e-5 ) )
-    {
 	range.stop = absoluterg_.stop;
-    }
     else
     {
 	const od_int64 topnr = mNINT64(highclip*nrvals);

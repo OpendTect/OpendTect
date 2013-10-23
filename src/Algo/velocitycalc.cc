@@ -53,8 +53,7 @@ bool TimeDepthModel::isOK() const
     if ( idx >= sz_ ) \
     { \
 	BufferString msg("sz_=",sz_, " asked "); msg.add( idx ); \
-	pErrMsg(msg); \
-	idx = sz_ - 1; \
+	pErrMsg(msg); idx = sz_ - 1; \
     }
 #else
 # define mChkIdx \
