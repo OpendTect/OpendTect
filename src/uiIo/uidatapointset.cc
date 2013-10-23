@@ -331,6 +331,8 @@ void uiDataPointSet::mkToolBars()
 
     uiCheckBox* showbidsfld = new uiCheckBox( disptb_, "Show BinIDs" );
     showbidsfld->activated.notify( mCB(this,uiDataPointSet,chgPosDispType) );
+    NotifyStopper ns( showbidsfld->activated );
+    showbidsfld->setChecked( showbids_.getParam(this) );
     disptb_->addObject( showbidsfld );
 
     mAddButton( "statsinfo", showStatsWin,
