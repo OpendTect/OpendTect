@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "odcomplex.h"
 #include "sets.h"
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 \brief A reflectivity spike.
 */
 
-mClass(Basic) ReflectivitySpike
+mClass(Algo) ReflectivitySpike
 {
 public:
     			ReflectivitySpike()

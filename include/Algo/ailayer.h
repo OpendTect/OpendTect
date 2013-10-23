@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "commondefs.h"
 #include "math.h"
 #include "typeset.h"
@@ -22,7 +22,7 @@ ________________________________________________________________________
 */
 
 
-mExpClass(Basic) AILayer
+mExpClass(Algo) AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
@@ -39,7 +39,7 @@ public:
 
 typedef TypeSet<AILayer> AIModel;
 
-mGlobal(Basic) float getLayerDepth( const AIModel& mod, int layer );
+mGlobal(Algo) float getLayerDepth( const AIModel& mod, int layer );
 
 
 
@@ -47,7 +47,7 @@ mGlobal(Basic) float getLayerDepth( const AIModel& mod, int layer );
 \brief A table of elastic prop layers.
 */
 
-mExpClass(Basic) ElasticLayer : public AILayer
+mExpClass(Algo) ElasticLayer : public AILayer
 {
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
@@ -64,7 +64,7 @@ public:
 
 
 /*!\brief A table of elastic prop layers with processing utilities*/
-mExpClass(Basic) ElasticModel : public TypeSet<ElasticLayer>
+mExpClass(Algo) ElasticModel : public TypeSet<ElasticLayer>
 {
 public:
 

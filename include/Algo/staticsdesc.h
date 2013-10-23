@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "multiid.h"
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 constant velocity. Velocity is always in m/s.
 */
 
-mExpClass(Basic) StaticsDesc
+mExpClass(Algo) StaticsDesc
 {
 public:
 			StaticsDesc();

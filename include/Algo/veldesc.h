@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 */
 
-#include "basicmod.h"
+#include "algomod.h"
 #include "enums.h"
 #include "multiid.h"
 #include "staticsdesc.h"
@@ -34,7 +34,7 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 
 */
 
-mExpClass(Basic) VelocityDesc
+mExpClass(Algo) VelocityDesc
 {
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
