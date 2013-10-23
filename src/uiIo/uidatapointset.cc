@@ -259,8 +259,10 @@ uiDataPointSet::~uiDataPointSet()
 
 void uiDataPointSet::chgPosDispType( CallBacker* )
 {
+    const bool showbids = showbidsfld_->isChecked();
+    if ( showbids_ == showbids ) return;
+    showbids_ = showbids;
     posdisptypechgd_ = true;
-    showbids_ = showbidsfld_->isChecked();
     mCleanRunCalcs;
     handleAxisColChg();
     reDoTable();
@@ -326,6 +328,7 @@ void uiDataPointSet::mkToolBars()
 
     showbidsfld_ = new uiCheckBox( disptb_, "Show BinIDs" );
     showbidsfld_->activated.notify( mCB(this,uiDataPointSet,chgPosDispType) );
+    showbidsfld_->setChecked( showbids_ );
     disptb_->addObject( showbidsfld_ );
 
     mAddButton( "statsinfo", showStatsWin,
