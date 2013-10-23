@@ -33,7 +33,8 @@ class MuteDef;
 \brief Computes angle mute.
 */
 
-mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask, public AngleMuteBase
+mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask
+    						, public AngleMuteBase
 {
 public:
     				AngleMuteComputer();
@@ -65,7 +66,6 @@ protected:
     BufferString		errmsg_;
     MuteDef&			outputmute_;
     Threads::Lock		lock_;
-
 };
 
 }
