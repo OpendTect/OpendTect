@@ -128,7 +128,7 @@ mClass(General) MapperTask : public ParallelTask
 {
 public:    
     			MapperTask(const ColTab::Mapper& map,
-				   od_int64 sz,int nrsteps,
+				   od_int64 sz,T nrsteps,
 				   const float* unmapped,
 				   T* mappedvals,int mappedvalspacing=1,
 				   T* mappedundef=0,int mappedundefspacing=1);
@@ -160,14 +160,14 @@ private:
     int				mappedvalsspacing_;
     T*				mappedudfs_;
     int				mappedudfspacing_;
-    int				nrsteps_;
+    T				nrsteps_;
     unsigned int*		histogram_;
     Threads::Lock		lock_;
 };
 
 
 template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps, 
 			   const float* unmapped,
 			   T* mappedvals, int mappedvalsspacing,
        			   T* mappedudfs, int mappedudfspacing	)
