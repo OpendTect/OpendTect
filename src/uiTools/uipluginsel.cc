@@ -35,7 +35,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     setCancelText( "&Ok" );
     setSaveButtonChecked( true );
 
-    FileMultiString dontloadlist;
+    BufferStringSet dontloadlist;
     PIM().getNotLoadedByUser( dontloadlist );
 
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
@@ -80,7 +80,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
 	PluginManager::Data& pdata = *pimdata[pluginidx[realidx]];
 	pluginnms_.add( pdata.name_ );
-	cb->setChecked( dontloadlist.indexOf( dispnm )==-1 );
+	cb->setChecked( dontloadlist.indexOf(dispnm) < 0 );
 	cbs_ += cb;
 	if ( colnr != nrcols - 1 )
 	    cb->setPrefWidthInChar( maxlen+5.f );

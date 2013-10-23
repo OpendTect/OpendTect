@@ -17,11 +17,8 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "sharedlibs.h"
-#include "bufstring.h"
-#include "objectset.h"
+#include "bufstringset.h"
 
-
-class FileMultiString;
 
 extern "C" {
 
@@ -139,7 +136,7 @@ public:
 			{ return usr ? userlibdir_ : applibdir_; }
 
     static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
-    void		getNotLoadedByUser(FileMultiString&) const;
+    void		getNotLoadedByUser(BufferStringSet&) const;
 
 private:
 

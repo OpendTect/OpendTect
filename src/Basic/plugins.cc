@@ -320,9 +320,18 @@ static int getPluginType( SharedLibAccess* sla, const char* libnm )
 }
 
 
-void PluginManager::getNotLoadedByUser( FileMultiString& dontloadlist ) const
+void PluginManager::getNotLoadedByUser( BufferStringSet& dontloadlist ) const
 {
-    Settings::common().get( sKeyDontLoad(), dontloadlist.rep() );
+    BufferString bs;
+    Settings::common().get( sKeyDontLoad(), bs );
+    FileMultiString fms( bs );
+    const int sz = fms.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const BufferString pinm( fms[idx] );
+	if ( !pinm.isEmpty() )
+	    dontloadlist.add( pinm );
+    }
 }
 
 
@@ -484,7 +493,7 @@ bool PluginManager::load( const char* libnm )
 
 void PluginManager::loadAuto( bool late )
 {
-    FileMultiString dontloadlist;
+    BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
     for ( int idx=0; idx<data_.size(); idx++ )
@@ -497,7 +506,7 @@ void PluginManager::loadAuto( bool late )
 	if ( data.autotype_ != pitype )
 	    continue;
 
-	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname_ )!=-1 )
+	if ( data.info_ && dontloadlist.indexOf(data.info_->dispname_)>=0 )
 	    continue;
 
 	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )
