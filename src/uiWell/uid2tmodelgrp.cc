@@ -40,8 +40,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     {
 	BufferString velllbl( "Temporary model velocity ");
 	velllbl.add( VelocityDesc::getVelUnit( true ) );
-	const float vel = mCast( float, 
-			       SI().depthsInFeet() ? 8000 : 2000 );
+	const float vel = Well::getDefaultVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );

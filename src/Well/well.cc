@@ -237,3 +237,9 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeygroundelev(), groundelev );
 
 }
+
+
+float Well::getDefaultVelocity()
+{
+    return SI().depthsInFeet() ? 8000.f : 2000.f;
+}

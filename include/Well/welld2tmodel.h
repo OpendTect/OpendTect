@@ -90,6 +90,9 @@ protected:
 };
 
 
+mGlobal(Well) float getDefaultVelocity();
+
+
 }; // namespace Well
 
 #endif
