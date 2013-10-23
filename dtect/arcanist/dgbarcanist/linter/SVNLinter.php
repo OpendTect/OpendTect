@@ -43,16 +43,19 @@ final class SVNLinter extends ArcanistLinter {
 
   protected function lintSVNProperties($path) {
     $retval = 0;
-    exec("svn proplist $path", $svn_return, $retval );
+    exec("svn proplist -v $path", $svn_return, $retval );
     if ( $retval!==0 )
       return;
 
     $eolfound = false;
     $keywordfound = false;
+    $linefeedfound = false;
 
     foreach ( $svn_return as $line ) {
       if ( strpos($line,"svn:eol-style")!==false )
 	$eolfound = true;
+      if ( strpos($line,"LF")!==false )
+	$linefeedfound = true;
       if ( strpos($line,"svn:keywords")!==false )
 	$keywordfound = true;
     }
@@ -62,6 +65,11 @@ final class SVNLinter extends ArcanistLinter {
 	self::LINT_MISSING_PROPERTY,
         "File \"$path\" is missing svn::eol-style and/or svn::keyword ".
 	"subversion properties.");
+    }
+    else if ( $linefeedfound==false ) {
+      $this->raiseLintAtPath(
+	self::LINT_MISSING_PROPERTY,
+        "File \"$path\" has svn::eol-style != \"LF\" " );
     }
   }
 }
