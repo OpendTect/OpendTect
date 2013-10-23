@@ -185,18 +185,18 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	const EM::EdgeLine* edgeline = edgelineset->getLine(lineidx);
 
 	const int nrsegments = edgeline->nrSegments();
-	RowCol prevrc; bool defprevrc = false; 
+	RowCol prevrc; // bool defprevrc = false; 
 	RowCol firstrc; bool deffirstrc = false;
 	for ( int segmentidx=0; segmentidx<nrsegments; segmentidx++ )
 	{
 	    const EM::EdgeLineSegment* edgelinesegment =
 					edgeline->getSegment(segmentidx);
-	    int materialindex = 0;
+	    // int materialindex = 0;
 	    bool showsegment = true;
 	    if ( dynamic_cast<const EM::TerminationEdgeLineSegment*>(
 						    edgelinesegment) )
 	    {
-		materialindex = mStopColor;
+		// materialindex = mStopColor;
 		showsegment = false;
 	    }
 	    else if ( dynamic_cast<const EM::SurfaceConnectLine*>
@@ -204,7 +204,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	    {
 		mDynamicCastGet( const EM::SurfaceConnectLine*,
 				    connline, edgelinesegment );
-		materialindex = mConnectColor;
+		// materialindex = mConnectColor;
 		showsegment =
 		    connline->getSection()<connline->connectingSection();
 	    }
@@ -255,7 +255,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		//polyline->setMaterialIndex( coordindexindex, materialindex );
 		coordindex++; coordindexindex++;
 		prevrc = rc;
-		defprevrc = true;
+		// defprevrc = true;
 
 		if ( !deffirstrc ) { firstrc = rc; deffirstrc=true; }
 	    }
@@ -298,12 +298,12 @@ void EdgeLineSetDisplay::triggerRightClick(const visBase::EventInfo* ei)
     rightclidedline = rightclidedsegment = rightclidedsegmentpos = -1;
     if ( ei ) 
     {
-	int line = -1;
+	// int line = -1;
 	for ( int lineidx=0; lineidx<polylines.size(); lineidx++ )
 	{
 	    if ( ei->pickedobjids.isPresent(polylines[lineidx]->id()) )
 	    {
-		line = lineidx;
+		// line = lineidx;
 		break;
 	    }
 	}
