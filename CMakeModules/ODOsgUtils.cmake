@@ -19,6 +19,7 @@ macro(OD_SETUP_OSG)
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
 
+    find_package( OpenGL )
     find_package(OSG)
     find_package(osgGeo)
 

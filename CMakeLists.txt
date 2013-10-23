@@ -79,8 +79,7 @@ set( OD_PLUGINS
 	CmdDriver
 )
 
-#set( OD_SPECPROGS ODSeis visBase )
-set( OD_SPECPROGS ODSeis )
+set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 
 OD_ADD_MODULES( src ${OD_MODULES} )
