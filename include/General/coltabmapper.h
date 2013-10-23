@@ -229,7 +229,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     const float* inp = unmapped_+start;
 
     int nrdone = 0;
-    for ( int idx=start; idx<=stop; idx++, nrdone++ )
+    for ( od_int64 idx=start; idx<=stop; idx++, nrdone++ )
     {
 	const float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
 	T res;

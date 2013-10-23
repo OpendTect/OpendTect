@@ -14,7 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
 #include "odplugin.h"
-#include "coincommands.h"
+#include "cmddrivermod.h"
+//#include "coincommands.h"
 
 
 namespace CmdDrive
@@ -33,8 +34,8 @@ mDefODPluginInfo(CmdDriver)
 
 static void initExtraCommands()
 {
-    WheelCmd::initClass();
-    GetWheelCmd::initClass();
+ //   WheelCmd::initClass();
+    //GetWheelCmd::initClass();
 }
 
 static void initExtraFunctions()
