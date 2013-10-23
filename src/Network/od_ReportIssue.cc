@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "issuereporter.h"
 
-#include "fixedstring.h"
+#include "genc.h"
 
 #include "prog.h"
 #include <iostream>

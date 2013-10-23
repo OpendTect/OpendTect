@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "databasemod.h"
 #include "typeset.h"
+#include "bufstring.h"
 #include "objectset.h"
 
 class BufferStringSet;

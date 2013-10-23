@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
-#include "general.h"
+#include "gendefs.h"
 #include <algorithm>
 #include <vector>
 #include <stdexcept>

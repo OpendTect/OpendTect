@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "executor.h"
 
+#include "genc.h"
 #include "oddirs.h"
 #include "progressmeter.h"
 #include "thread.h"

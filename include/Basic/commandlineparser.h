@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "genc.h"
 #include "bufstringset.h"
 #include "debug.h" // easier for test programs, declares od_init_test_program
 

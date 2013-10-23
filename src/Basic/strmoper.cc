@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "strmdata.h"
 #include "staticstring.h"
+#include "genc.h"
 
 #include "bufstring.h"
 #include "thread.h"

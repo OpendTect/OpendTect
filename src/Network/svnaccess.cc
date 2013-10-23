@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "svnaccess.h"
 #include "filepath.h"
 #include "file.h"
+#include "genc.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include "dirlist.h"

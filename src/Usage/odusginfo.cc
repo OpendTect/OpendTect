@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "odusginfo.h"
 #include "hostdata.h"
+#include "genc.h"
 #include <iostream>
 
 

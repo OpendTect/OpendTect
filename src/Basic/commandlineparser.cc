@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 
 #include "filepath.h"
-#include "string2.h"
+#include "genc.h"
 
 
 CommandLineParser::CommandLineParser( int argc, char** argv )

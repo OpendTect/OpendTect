@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "gendefs.h"
+#include "bufstring.h"
 #include "threadlock.h"
 #include "callback.h"
 #include "od_iosfwd.h"

@@ -12,8 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "objectset.h"
 #include "basicmod.h"
+#include "objectset.h"
+#include "bufstring.h"
 
 class BufferStringSet;
 class ZipFileInfo;

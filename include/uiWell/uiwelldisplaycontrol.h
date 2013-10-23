@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "callback.h"
+#include "bufstring.h"
 
 class MouseEventHandler;
 class uiWellDahDisplay;
