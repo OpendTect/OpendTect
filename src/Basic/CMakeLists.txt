@@ -22,7 +22,6 @@ set( OD_TEST_PROGS
 		threadwork.cc
 )
 set( OD_MODULE_SOURCES
-	    ailayer.cc
 	    arrayndinfo.cc
 	    arrayndslice.cc
 	    ascstream.cc
@@ -73,7 +72,6 @@ set( OD_MODULE_SOURCES
 	    separstr.cc
 	    settings.cc
 	    sighndl.cc
-	    staticsdesc.cc
 	    staticstring.cc
 	    string2.cc
 	    strmoper.cc
@@ -88,7 +86,6 @@ set( OD_MODULE_SOURCES
 	    timer.cc
 	    undefarray.cc
 	    undo.cc
-	    veldesc.cc
 	    winutils.cc
 	    zdomain.cc
 	    ziputils.cc

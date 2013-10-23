@@ -9,6 +9,7 @@ set(OD_MODULE_DEPS Basic )
 set( OD_TEST_PROGS velocitycalc.cc simpnumer.cc )
 
 set(OD_MODULE_SOURCES
+	    ailayer.cc
 	    array1dinterpol.cc
 	    array2dinterpol.cc
             arrayndalgo.cc
@@ -44,6 +45,7 @@ set(OD_MODULE_SOURCES
 	    resizeimage.cc
 	    scaler.cc
 	    spectrogram.cc
+	    staticsdesc.cc
 	    stats.cc
 	    reflectivitysampler.cc
 	    timeser.cc
@@ -51,6 +53,7 @@ set(OD_MODULE_SOURCES
 	    trigonometry.cc
 	    valseriesevent.cc
 	    valseriestracker.cc
+	    veldesc.cc
 	    velocitycalc.cc
 	    wavelettrans.cc
 	    windowfunction.cc
