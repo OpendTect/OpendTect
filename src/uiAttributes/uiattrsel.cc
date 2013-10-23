@@ -285,6 +285,7 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
     attr2dfld_ = new uiGenInput( this, "Stored Attribute", StringListInpSpec());
+    attr2dfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     attr2dfld_->attach( alignedBelow, storoutfld_ );
 
     filtfld_ = new uiGenInput( this, "Filter", "*" );
@@ -451,11 +452,10 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
     compfld_->box()->setEmpty();
-    if ( !is2d )
-	compfld_->box()->addItem( "ALL" );
+    compfld_->box()->addItem( "ALL" );
 
     compfld_->box()->addItems( compnms );
-    compfld_->display( transl->componentInfo().size()>1 );
+    compfld_->display( compnms.size()>2 );
 }
 
 
@@ -500,7 +500,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else
     {
 	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
-	       				== BufferString("ALL");
+	       				== BufferString("ALL") 
+					&& compfld_->mainObject()->visible();
 	const int curselitmidx = compfld_->box()->currentItem(); 
 	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
