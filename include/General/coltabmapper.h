@@ -137,7 +137,7 @@ public:
 			    is undef or not. Mapped pointer should thus
 			    have space for 2*sz */
     			MapperTask(const ColTab::Mapper& map,
-				   od_int64 sz,int nrsteps,
+				   od_int64 sz,T nrsteps,
 				   const ValueSeries<float>& unmapped,
 				   T* mappedvals, int mappedvalspacing=1,
 				   T* mappedundef=0,int mappedundefspacing=1);
@@ -187,7 +187,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 
 
 template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps, 
 			   const ValueSeries<float>& unmapped,
 			   T* mappedvals, int mappedvalsspacing,
        			   T* mappedudfs, int mappedudfspacing	)
