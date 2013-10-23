@@ -128,7 +128,9 @@ void TextureRectangle::setRotation( const Coord3& spanvec0,
     const osg::Vec3 v2 = v0 ^ v1;
 
     if ( abs(v0*v1) > 1e-3 )
+    {
 	pErrMsg( "Rectangle vectors expected to be orthogonal" );
+    }
 
     const osg::Matrix mat( v0[0], v1[0], v2[0], 0.0,
 			   v0[1], v1[1], v2[1], 0.0,
