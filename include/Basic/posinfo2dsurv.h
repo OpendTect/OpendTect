@@ -1,5 +1,5 @@
-#ifndef surv2dgeom_h
-#define surv2dgeom_h
+#ifndef posinfo2dsurv_h
+#define posinfo2dsurv_h
 
 /*+
 ________________________________________________________________________
@@ -19,45 +19,70 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "threadlock.h"
 #include "callback.h"
+#include <utility>
 
 class FilePath;
 class BufferStringSet;
+namespace PosInfo { class Survey2D; }
+
+
+/*!\brief Your read-access to the 2D line geometry database */
+
+mGlobal(Basic) const PosInfo::Survey2D& S2DPOS();
 
 
 namespace PosInfo
 {
 
-/*!
-\brief Geometry ID. 
-*/
+/*!\brief Your R/W access to the 2D line geometry database */
 
-mExpClass(Basic) GeomID
+inline mGlobal(Basic) Survey2D& POS2DAdmin()
+{
+    return const_cast<Survey2D&>( S2DPOS() );
+}
+
+
+
+/*!\brief Key holding ID for both lineset and line. */
+
+typedef Pos::Index_Type Index_Type;
+typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
+
+
+mExpClass(Basic) Line2DKey : public Index_Type_Pair
 {
 public:
-    		GeomID( int lsid=-1, int lineid=-1 )
-		    : lsid_(lsid) ,lineid_(lineid)	{}
 
-    int		lsid_;
-    int		lineid_;
+    typedef Index_Type	IdxType;
 
-    bool	isOK() const;
-    void	setUndef();
-    bool	isUndef() const;
+			Line2DKey( int lsid=-1, int lineid=-1 )
+			    : Index_Type_Pair(lsid,lineid)	{}
 
-    bool	operator ==( const GeomID& a ) const
-   		{ return a.lsid_ == lsid_ && a.lineid_ == lineid_; }
-    bool	operator !=( const GeomID& a ) const
-		{ return !( operator==(a) ); }
-    BufferString toString() const;
-    bool	fromString(const char*);
+    bool		operator ==( const Line2DKey& oth ) const
+   			{ return first == oth.first && second == oth.second; }
+    bool		operator !=( const Line2DKey& oth ) const
+			{ return !( operator==(oth) ); }
+
+    inline IdxType&	lsID()		{ return first; }
+    inline IdxType	lsID() const	{ return first; }
+    inline IdxType&	lineID()	{ return second; }
+    inline IdxType	lineID() const	{ return second; }
+
+    bool		isOK() const;
+    void		setUdf()	{ *this = udf(); }
+    bool		isUdf() const	{ return *this == udf(); }
+    static const Line2DKey& udf();
+
+    BufferString	toString() const;
+    bool		fromString(const char*);
+
 };
 
+typedef Line2DKey GeomID;
 
-/*!
-\brief Repository for 2D line geometries.
 
-  You can access it using S2DPOS() (or PosInfo::POS2DAdmin()).
-*/
+
+/*!\brief Repository for 2D line geometries. */
 
 mExpClass(Basic) Survey2D : public CallBacker
 {
@@ -97,14 +122,14 @@ public:
     void		setCurLineSet(int lsid) const;
 
     bool		getGeometry(int lid,Line2DData&) const;
-    bool		getGeometry(const GeomID&,Line2DData&) const;
+    bool		getGeometry(const Line2DKey&,Line2DData&) const;
     			//!< thread safe
 
     void		renameLine(const char*oldnm,const char*newnm);
     void		removeLine(int lid);
     void		removeLineSet(int lsid);
 
-    GeomID		getGeomID(const char* lsnm,const char* linenm) const;
+    Line2DKey		getLine2DKey(const char* lsnm,const char* linenm) const;
     const char*		getLSFileNm(const char* lsnm) const;
     const char*		getLineFileNm(const char* lsnm,const char* lnm) const;
 
@@ -112,6 +137,7 @@ public:
 	    				      float& median) const;
 
 protected:
+
     int			getNewID(IOPar&);
     void		updateMaxID(int,IOPar&);
 
@@ -137,21 +163,19 @@ private:
     int			getLineSetIdx(int lsid) const;
     int			getLineIdx(int lineid) const;
 
-    mGlobal(Basic) friend Survey2D&	POS2DAdmin();
+    mGlobal(Basic) friend const Survey2D& ::S2DPOS();
 
     			Survey2D();
+
 public:
+
     			~Survey2D();
 
 };
 
-mGlobal(Basic) Survey2D& POS2DAdmin();
 
 } // namespace PosInfo
 
-
-inline mGlobal(Basic) const PosInfo::Survey2D& S2DPOS()
-{ return const_cast<PosInfo::Survey2D&>( PosInfo::POS2DAdmin() ); }
 
 
 

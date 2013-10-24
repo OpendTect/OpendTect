@@ -25,7 +25,7 @@ Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
     , orghor_(orghor)
     , newhor_(newhor)
 {
-    horgeomid_ = S2DPOS().getGeomID( su.ioobj_->name(), su.lk_.lineName() );
+    horgeomid_ = S2DPOS().getLine2DKey( su.ioobj_->name(), su.lk_.lineName() );
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
     seldata->lineKey() = su.lk_;
     seisrdr_ = new SeisTrcReader( su.ioobj_ );

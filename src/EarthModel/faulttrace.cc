@@ -796,8 +796,8 @@ FaultTraceExtractor2D::~FaultTraceExtractor2D()
 
 bool FaultTraceExtractor2D::doPrepare( int nrthreads )
 {
-    S2DPOS().setCurLineSet( geomid_.lsid_ );
-    if ( !S2DPOS().getGeometry(geomid_.lineid_,linegeom_) )
+    S2DPOS().setCurLineSet( geomid_.lsID() );
+    if ( !S2DPOS().getGeometry(geomid_.lineID(),linegeom_) )
 	return false;
 
     return FaultTraceExtractor::doPrepare( nrthreads );
@@ -894,7 +894,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     const char* linenm = fss->geometry().pickedName( sid, sticknr );
     if ( !linenm ) return true;
 
-    PosInfo::GeomID geomid = S2DPOS().getGeomID( lsobj->name(), linenm );
+    PosInfo::GeomID geomid = S2DPOS().getLine2DKey( lsobj->name(), linenm );
     if ( !(geomid==geomid_) ) return true;
 
     const int nrknots = fltgeom->nrKnots( sticknr );

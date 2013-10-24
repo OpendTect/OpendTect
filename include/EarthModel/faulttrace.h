@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "positionlist.h"
 #include "sets.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "trigonometry.h"
 #include "threadlock.h"
 

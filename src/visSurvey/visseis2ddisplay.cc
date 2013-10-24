@@ -118,7 +118,7 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
     if ( !seis2dobj )
 	return;
 
-    geomid_ = S2DPOS().getGeomID( seis2dobj->name(), lnm );
+    l2dkey_ = S2DPOS().getLine2DKey( seis2dobj->name(), lnm );
     setName( lnm );
 
     if ( scene_ )
@@ -132,16 +132,18 @@ void Seis2DDisplay::setLineInfo( const MultiID& lid, const char* lnm )
 
 const char* Seis2DDisplay::getLineName() const
 {
-    if ( !geomid_.isOK() )
+    if ( !l2dkey_.isOK() )
 	return name();
 
-    S2DPOS().setCurLineSet( geomid_.lsid_ );
-    return S2DPOS().getLineName( geomid_.lineid_ );
+    S2DPOS().setCurLineSet( l2dkey_.lsID() );
+    return S2DPOS().getLineName( l2dkey_.lineID() );
 }
 
 
-PosInfo::GeomID Seis2DDisplay::getGeomID() const
-{ return geomid_; }
+PosInfo::Line2DKey Seis2DDisplay::getLine2DKey() const
+{
+    return l2dkey_;
+}
 
 
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
@@ -1119,7 +1121,7 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
-    par.set( "GeomID", geomid_.toString() );
+    par.set( "GeomID", l2dkey_.toString() );
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     if ( !trcdisplayinfo_.alltrcnrs_.isEmpty() )
@@ -1200,12 +1202,12 @@ int Seis2DDisplay::usePar( const IOPar& par )
     BufferString geomidstr;
     if ( par.get("GeomID",geomidstr) )
     {
-	geomid_.fromString( geomidstr.buf() );
+	l2dkey_.fromString( geomidstr.buf() );
 	PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
 	if ( !seis2dobj )
 	    return -1;
 	S2DPOS().setCurLineSet( seis2dobj->name() );
-	linename = S2DPOS().getLineName( geomid_.lineid_ );
+	linename = S2DPOS().getLineName( l2dkey_.lineID() );
     }
 
     setName( linename );

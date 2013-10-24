@@ -1428,21 +1428,21 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	PtrMan<IOObj> ioobj = IOM().get( linesetid );
 	if ( !ioobj ) return;
 
-	PosInfo::GeomID geomid =
-	    S2DPOS().getGeomID( ioobj->name(), selectlines.get(lidx).buf() );
+	PosInfo::Line2DKey l2dky =
+	    S2DPOS().getLine2DKey( ioobj->name(), selectlines.get(lidx).buf() );
 	
-	int lineidx = hor2d1->geometry().lineIndex( geomid );
+	int lineidx = hor2d1->geometry().lineIndex( l2dky );
 	if ( lineidx<0 ) continue;
 
 	const TypeSet<PosInfo::Line2DPos>& posns = ld->positions();
 	for ( int trcidx=0; trcidx<posns.size(); trcidx++ )
 	{
 	    const PosInfo::Line2DPos& l2dp = posns[trcidx];
-	    const float z1 = (float) hor2d1->getPos( 0, geomid, l2dp.nr_ ).z;
+	    const float z1 = (float) hor2d1->getPos( 0, l2dky, l2dp.nr_ ).z;
 	    float z2 = mUdf(float);
 	 
 	    if ( issecondhor )
-		z2 = (float) hor2d2->getPos( 0, geomid, l2dp.nr_ ).z;
+		z2 = (float) hor2d2->getPos( 0, l2dky, l2dp.nr_ ).z;
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {

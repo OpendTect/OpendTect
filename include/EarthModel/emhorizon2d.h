@@ -17,14 +17,12 @@ ________________________________________________________________________
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "tableascio.h"
-#include "surv2dgeom.h"
 #include "od_istream.h"
 
 class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
-namespace PosInfo { class GeomID; }
 namespace Table { class FormatDesc; }
 template <class T> class Array1D;
 

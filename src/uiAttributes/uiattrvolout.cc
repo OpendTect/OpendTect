@@ -206,8 +206,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	PtrMan<IOObj> ioobj = 0;
 	if ( prov )
 	{
-	    PosInfo::GeomID geomid = prov->getGeomID();
-	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
+	    PosInfo::GeomID geomid = prov->getLine2DKey();
+	    BufferString lsnm = S2DPOS().getLineSet( geomid.lsID() );
 	    SeisIOObjInfo info( lsnm );
 	    ioobj = info.ioObj() ? info.ioObj()->clone() : 0;
 	}
@@ -510,8 +510,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		    Attrib::Provider::create( *desc, errmsg );
 		if ( prov )
 		{
-		    PosInfo::GeomID geomid = prov->getGeomID();
-		    BufferString lsnm = S2DPOS().getLineSet( geomid.lsid_ );
+		    PosInfo::GeomID geomid = prov->getLine2DKey();
+		    BufferString lsnm = S2DPOS().getLineSet( geomid.lsID() );
 		    SeisIOObjInfo info( lsnm );
 		    if ( info.ioObj() )
 			storedid = info.ioObj()->key();

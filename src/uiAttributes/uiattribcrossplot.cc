@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 #include "mousecursor.h"
 #include "uidatapointset.h"
@@ -365,7 +365,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 		    {
 			const char* lsnm = linesetnms[ls2didx]->buf();
 			if ( S2DPOS().hasLine(linenm,lsnm) )
-			    p2d->addLineID( S2DPOS().getGeomID(lsnm,linenm) );
+			    p2d->addLineID( S2DPOS().getLine2DKey(lsnm,linenm));
 		    }
 		}
 	    }
@@ -376,7 +376,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 		for ( int lidx=0; lidx<lnms.size(); lidx++ )
 		{
 		    PosInfo::GeomID geomid =
-			S2DPOS().getGeomID( lsobj->name(), lnms.get(lidx) );
+			S2DPOS().getLine2DKey( lsobj->name(), lnms.get(lidx) );
 		    if ( geomid.isOK() )
 			p2d->addLineID( geomid );
 		}

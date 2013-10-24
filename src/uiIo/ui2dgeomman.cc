@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "file.h"
 #include "geom2dascio.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "od_istream.h"
 
 #include "uitoolbutton.h"

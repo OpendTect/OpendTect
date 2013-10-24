@@ -1363,9 +1363,9 @@ int Provider::getTotalNrPos( bool is2d )
 
     if ( is2d )
     {
-	const PosInfo::GeomID geomid = getGeomID();
+	const PosInfo::Line2DKey l2dky = getLine2DKey();
 	PosInfo::Line2DData l2dd;
-	cs.hrg.step.crl() = S2DPOS().getGeometry(geomid,l2dd) ?
+	cs.hrg.step.crl() = S2DPOS().getGeometry(l2dky,l2dd) ?
 	    l2dd.trcNrRange().step : 1;
 	return cs.nrCrl();
     }
@@ -1425,20 +1425,20 @@ void Provider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::GeomID Provider::getGeomID() const
+PosInfo::Line2DKey Provider::getLine2DKey() const
 {
-    PosInfo::GeomID geomid;
+    PosInfo::Line2DKey l2dky;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )
             continue;
 
-        geomid = inputs_[idx]->getGeomID();
-        if ( geomid.lsid_ >= 0 )
-            return geomid;
+        l2dky = inputs_[idx]->getLine2DKey();
+        if ( l2dky.lsID() >= 0 )
+            return l2dky;
     }
 
-    return geomid;
+    return l2dky;
 }
 
 

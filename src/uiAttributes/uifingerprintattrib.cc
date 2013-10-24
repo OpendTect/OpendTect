@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "transl.h"
 
 #include "uiattribfactory.h"

@@ -10,7 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "survgeom2d.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 #include "keystrs.h"
 #include "multiid.h"

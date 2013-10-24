@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "coord.h"
 #include "factory.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 class TaskRunner;
 

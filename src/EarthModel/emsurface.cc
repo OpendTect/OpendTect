@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "posfilter.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -89,9 +89,9 @@ void SurfaceIOData::use( const Surface& surf )
 	    trcranges += geom->colRange( geom->getRowIndex(emgeom.geomID(idx)));
 #else
 	    const PosInfo::GeomID geomid = emgeom.lineGeomID( idx );
-	    linesets.add( S2DPOS().getLineSet(geomid.lsid_) );
-	    S2DPOS().setCurLineSet( geomid.lsid_ );
-	    linenames.add( S2DPOS().getLineName(geomid.lineid_) );
+	    linesets.add( S2DPOS().getLineSet(geomid.lsID()) );
+	    S2DPOS().setCurLineSet( geomid.lsID() );
+	    linenames.add( S2DPOS().getLineName(geomid.lineID()) );
 	    const Geometry::Horizon2DLine* geom =
 		emgeom.sectionGeometry( emgeom.sectionID(0) );
 	    trcranges += geom->colRange( geom->getRowIndex(geomid) );
@@ -128,14 +128,14 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
 #else
     for ( int idx=0; idx<linesets.size(); idx++ )
     {
-	PosInfo::GeomID geomid = S2DPOS().getGeomID( linesets.get(idx),
+	PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey( linesets.get(idx),
 						     linenames.get(idx) );
-	if ( !geomid.isOK() )
+	if ( !l2dky.isOK() )
 	    continue;
 
 	BufferString key = IOPar::compKey( "Line", idx );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		   geomid.toString() );
+		   l2dky.toString() );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		   trcranges[idx] );
     }
@@ -181,22 +181,22 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	    BufferString key = IOPar::compKey( "Line", idx );
 	    BufferString idstr;
 	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
+	    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
 #ifdef mNew2DGeometryImpl
-	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
-	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
+	    S2DPOS().setCurLineSet( l2dkey.lsID() );
+	    BufferString lnm = S2DPOS().getLineName( l2dkey.lineID() );
 		int geomid = Survey::GM().getGeomID( lnm );
 		if ( geomid < 0 )
 		{
-			lnm = Survey::Geometry2D::makeUniqueLineName( 
-									S2DPOS().getLineSet(oldgeomid.lsid_),
-									S2DPOS().getLineName(oldgeomid.lineid_) );
-			geomid = Survey::GM().getGeomID( lnm );
+		    lnm = Survey::Geometry2D::makeUniqueLineName( 
+				S2DPOS().getLineSet(l2dkey.lsID()),
+				S2DPOS().getLineName(l2dkey.lineID()) );
+		    geomid = Survey::GM().getGeomID( lnm );
 		}
 
 	    geomids_.add( geomid );
 #else
-	    linesets.add( S2DPOS().getLineSet(oldgeomid.lsid_) );
+	    linesets.add( S2DPOS().getLineSet(l2dkey.lsID()) );
 #endif
 
 	    StepInterval<int> trcrange;

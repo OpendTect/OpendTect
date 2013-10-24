@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 class uiComboBox;
 class uiListBox;
@@ -43,15 +43,15 @@ public:
     MultiID		lineSetID() const;
     void		set(const char* lsnm,const char* lnm=0);
 
-    const PosInfo::GeomID& getGeomID() const;
-    void		set(const PosInfo::GeomID&);
+    const PosInfo::Line2DKey& getLine2DKey() const;
+    void		set(const PosInfo::Line2DKey&);
 
 protected:
 
     BufferString	lnm_;
     BufferString	lsnm_;
     bool		fixedlsname_;
-    PosInfo::GeomID	geomid_;
+    PosInfo::Line2DKey	l2dky_;
 
     BufferString	getSummary() const;
 

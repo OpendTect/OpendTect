@@ -95,7 +95,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
 
     lsnm_ = newlsnm;
     lnm_ = lnms.get( dlg.selection() );
-    geomid_ = S2DPOS().getGeomID( lsnm_, lnm_ );
+    l2dky_ = S2DPOS().getLine2DKey( lsnm_, lnm_ );
 }
 
 
@@ -107,17 +107,17 @@ void uiSeis2DLineSel::set( const char* lsnm, const char* lnm )
 }
 
 
-void uiSeis2DLineSel::set( const PosInfo::GeomID& geomid )
+void uiSeis2DLineSel::set( const PosInfo::Line2DKey& l2dky )
 {
-    geomid_ = geomid;
-    lsnm_ = S2DPOS().getLineSet( geomid.lsid_ );
-    lnm_ = S2DPOS().getLineName( geomid.lineid_ );
+    l2dky_ = l2dky;
+    lsnm_ = S2DPOS().getLineSet( l2dky_.lsID() );
+    lnm_ = S2DPOS().getLineName( l2dky_.lineID() );
     updateSummary();
 }
 
 
-const PosInfo::GeomID& uiSeis2DLineSel::getGeomID() const
-{ return geomid_; }
+const PosInfo::Line2DKey& uiSeis2DLineSel::getLine2DKey() const
+{ return l2dky_; }
 
 
 MultiID uiSeis2DLineSel::lineSetID() const

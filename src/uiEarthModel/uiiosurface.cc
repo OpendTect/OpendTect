@@ -558,9 +558,9 @@ public:
 	    {
 		if ( fssvalid ) break;
 
-    		S2DPOS().setCurLineSet(geoids[gidx].lsid_);
+    		S2DPOS().setCurLineSet(geoids[gidx].lsID());
     		PosInfo::Line2DData linegeom;
-    		if ( !S2DPOS().getGeometry(geoids[gidx].lineid_,linegeom) )
+    		if ( !S2DPOS().getGeometry(geoids[gidx].lineID(),linegeom) )
     		    return;
 
 		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
@@ -583,11 +583,9 @@ public:
 		    const char* lnnm = fss->geometry().pickedName(sid,sticknr);
 		    if ( !lnnm ) continue;
 
-		    if ( geoids[gidx]==S2DPOS().getGeomID(lsobj->name(),lnnm) )
-		    {
-			fssvalid = true;
-			break;
-		    }
+		    if ( geoids[gidx]==S2DPOS().
+			    	getLine2DKey(lsobj->name(),lnnm) )
+			{ fssvalid = true; break; }
 		}
 	    }
 

@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "seis2dline.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 Hor2DFrom3DCreatorGrp::Hor2DFrom3DCreatorGrp( const EM::Horizon3D& hor3d,
 					      EM::Horizon2D& hor2d )
@@ -80,7 +80,7 @@ bool Hor2DFrom3DCreator::setCreator( const char* linename, const char* lsname )
     hor2d_.geometry().addLine( geomid_ );
 #else
     posdata_.setLineName( linename );
-    oldgeomid_ = S2DPOS().getGeomID( lsname, linename );
+    oldgeomid_ = S2DPOS().getLine2DKey( lsname, linename );
     if ( !oldgeomid_.isOK() ) return false;
 
     S2DPOS().getGeometry( posdata_ );

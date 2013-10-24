@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "debug.h"
 #include "sighndl.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "filepath.h"
 
 #define OD_EXT_KEYSTR_EXPAND 1

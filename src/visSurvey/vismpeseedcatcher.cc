@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "linekey.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
@@ -318,8 +318,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
     const int lineidx = nodepid.getRowCol().row();
     const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( lineidx );
-    S2DPOS().setCurLineSet( geomid.lsid_ );
-    BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );
+    S2DPOS().setCurLineSet( geomid.lsID() );
+    BufferString linenm = S2DPOS().getLineName( geomid.lineID() );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;

@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 LineKey::LineKey( const char* lnm, const char* attrnm )

@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "sets.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 class BinDataDesc;
 class CubeSampling;
@@ -96,7 +96,7 @@ public:
     int				getTotalNrPos(bool);
     void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
-    virtual PosInfo::GeomID	getGeomID() const;
+    virtual PosInfo::Line2DKey	getLine2DKey() const;
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);

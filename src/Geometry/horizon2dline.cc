@@ -540,7 +540,7 @@ int Horizon2DLine::rowIndex( int rowid ) const
     {
     	for ( int rowidx=0; rowidx<oldgeomids_.size(); rowidx++ )
     	{
-    	    if ( oldgeomids_[rowidx].lineid_==rowid )
+    	    if ( oldgeomids_[rowidx].lineID()==rowid )
     		return rowidx;
     	}
     }

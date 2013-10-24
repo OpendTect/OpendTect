@@ -43,7 +43,7 @@ ________________________________________________________________________
 #include "seiscbvs.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 

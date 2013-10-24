@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "stratsynth.h"
 #include "stratsynthexp.h"
 #include "stratsynthlevel.h"
@@ -447,8 +447,8 @@ bool uiStratSynthExport::createHor2Ds()
 		 "2D line", false );
     const char* linenm = createnew ? newlinenmsel_->getInput()
 				   : existlinenmsel_->getInput();
-    PosInfo::GeomID geomid =
-	S2DPOS().getGeomID( linesetsel_->getIOObj()->name(), linenm );
+    PosInfo::Line2DKey l2dky =
+	S2DPOS().getLine2DKey( linesetsel_->getIOObj()->name(), linenm );
     for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
     {
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
@@ -457,10 +457,10 @@ bool uiStratSynthExport::createHor2Ds()
 	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),hornm );
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,em.getObject(emid));
 	if ( !horizon2d ) continue;
-	horizon2d->geometry().addLine( geomid );
+	horizon2d->geometry().addLine( l2dky );
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
-	    horizon2d->setPos( horizon2d->sectionID(0), geomid, trcidx,
+	    horizon2d->setPos( horizon2d->sectionID(0), l2dky, trcidx,
 		    	       stratlvl->zvals_[trcidx], false );
 	}
 

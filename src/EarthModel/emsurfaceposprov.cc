@@ -368,8 +368,8 @@ const char* EMSurfaceProvider2D::curLine() const
 	    return 0;
 
 	const PosInfo::GeomID& geomid = hor2d->geometry().lineGeomID( bid.inl() );
-	S2DPOS().setCurLineSet( geomid.lsid_ );
-	return S2DPOS().getLineName( geomid.lineid_ );
+	S2DPOS().setCurLineSet( geomid.lsID() );
+	return S2DPOS().getLineName( geomid.lineID() );
     }
 
     return 0;

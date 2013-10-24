@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "objectset.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uiiomod.h"

@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "od_iostream.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "filepath.h"
 #include <limits.h>
 
@@ -257,13 +257,13 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
 	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
-	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
-	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
+	    S2DPOS().setCurLineSet( oldgeomid.lsID() );
+	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineID() );
 	    int geomid = Survey::GM().getGeomID( lnm.buf() );
 	    if ( geomid < 0 )
 	    {
 		lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().
-			curLineSet(),S2DPOS().getLineName(oldgeomid.lineid_) );
+			curLineSet(),S2DPOS().getLineName(oldgeomid.lineID()) );
 		geomid = Survey::GM().getGeomID( lnm.buf() );
 	    }
 
@@ -284,12 +284,11 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		continue;
 
 	    geomid.fromString( geomidstr );
-	    S2DPOS().setCurLineSet( geomid.lsid_ );
-	    linesets_.add(
-		    S2DPOS().hasLineSet(geomid.lsid_)
-		    ? S2DPOS().getLineSet(geomid.lsid_) : sKeyUndefLineSet() );
-	    linenames_.add(S2DPOS().hasLine(geomid.lineid_,geomid.lsid_)
-		    ? S2DPOS().getLineName(geomid.lineid_) : sKeyUndefLine() );
+	    S2DPOS().setCurLineSet( geomid.lsID() );
+	    linesets_.add( S2DPOS().hasLineSet(geomid.lsID())
+		    ? S2DPOS().getLineSet(geomid.lsID()) : sKeyUndefLineSet() );
+	    linenames_.add(S2DPOS().hasLine(geomid.lineID(),geomid.lsID())
+		    ? S2DPOS().getLineName(geomid.lineID()) : sKeyUndefLine() );
 	    
 	    SeparString linetrcrgkey( linekey.buf(), '.' );
 	    linetrcrgkey.add( Horizon2DGeometry::sKeyTrcRg() );
@@ -869,8 +868,8 @@ int dgbSurfaceReader::nextStep()
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
 	    PosInfo::GeomID geomid; geomid.fromString( idstr );
-	    lines.add( S2DPOS().hasLine(geomid.lineid_,geomid.lsid_) ?
-		S2DPOS().getLineName(geomid.lineid_) : sKeyUndefLine() );
+	    lines.add( S2DPOS().hasLine(geomid.lineID(),geomid.lsID()) ?
+		S2DPOS().getLineName(geomid.lineID()) : sKeyUndefLine() );
 	}
     }
 
@@ -930,13 +929,13 @@ int dgbSurfaceReader::nextStep()
 				(geomids_[rowindex_],firstcol+noofcoltoskip,
 				    firstcol+nrcols+noofcoltoskip-1, colstep );
 #else
-	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
-	    					 linenames_[rowindex_]->buf() );
-	if ( !geomid.isOK() )
+	const PosInfo::Line2DKey l2dky = S2DPOS().getLine2DKey(
+		linesets_[rowindex_]->buf(), linenames_[rowindex_]->buf() );
+	if ( !l2dky.isOK() )
 	     return ErrorOccurred();
 
 	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
-		geomid, firstcol+noofcoltoskip,
+		l2dky, firstcol+noofcoltoskip,
 		firstcol+nrcols+noofcoltoskip-1, colstep );
 #endif
     }

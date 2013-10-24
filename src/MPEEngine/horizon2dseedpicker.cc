@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "mpeengine.h"
 #include "sorting.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 namespace MPE 
@@ -106,24 +106,25 @@ bool Horizon2DSeedPicker::startSeedPick()
     if ( !ioobj )
 	return false;
 
-    const PosInfo::GeomID& geomid = S2DPOS().getGeomID(ioobj->name(),linename_);
-    if ( !geomid.isOK() )
+    const PosInfo::GeomID l2dky = S2DPOS().getLine2DKey(
+	    				ioobj->name(), linename_ );
+    if ( !l2dky.isOK() )
 	return false;
 
     EM::Horizon2DGeometry& geom = hor->geometry();
-    geomid_ = geomid;
+    geomid_ = l2dky;
 
     if ( sowermode_ )
 	return true;
 
     for ( int idx=0; idx<geom.nrLines(); idx++ )
     {
-	if ( geomid == geom.lineGeomID(idx) )
+	if ( l2dky == geom.lineGeomID(idx) )
 	    return true;
     }
 
     const int oldnrlines = geom.nrLines();
-    if ( geom.includeLine(geomid) && oldnrlines==geom.nrLines() )
+    if ( geom.includeLine(l2dky) && oldnrlines==geom.nrLines() )
     {
 	const TypeSet<EM::PosID>& pids =
 			    *hor->getPosAttribList(EM::EMObject::sSeedNode() );

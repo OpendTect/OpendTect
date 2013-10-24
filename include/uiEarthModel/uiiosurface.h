@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "faulttrace.h"
 #include "horsampling.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 class CtxtIOObj;
 class IODirEntryList;

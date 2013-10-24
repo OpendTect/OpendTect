@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfo2d.h"
 #include "math2.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "od_iostream.h"

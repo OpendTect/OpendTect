@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "seis2dline.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "undo.h"
 
 #include "uimsg.h"

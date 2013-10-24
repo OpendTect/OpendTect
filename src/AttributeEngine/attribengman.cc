@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 
@@ -142,7 +142,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    if ( lsobj )
 	    {
 		const PosInfo::GeomID& geomid =
-		    S2DPOS().getGeomID( lsobj->name(), linename );
+		    S2DPOS().getLine2DKey( lsobj->name(), linename );
 		PosInfo::Line2DData l2dd;
 		S2DPOS().getGeometry( geomid, l2dd );
 		cs_.hrg.setCrlRange( l2dd.trcNrRange() );

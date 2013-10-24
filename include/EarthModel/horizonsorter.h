@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "multiid.h"
 #include "binid.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 
 namespace EM { class Horizon; }

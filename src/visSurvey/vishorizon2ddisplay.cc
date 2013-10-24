@@ -445,7 +445,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 	{
 	    Interval<int> trcrg = h2d->geometry().colRange( geomid );
 	    trcrg.limitTo( seis2dlist[idx]->getTraceNrRange() );
-	    if ( geomid != seis2dlist[idx]->getGeomID() )
+	    if ( geomid != seis2dlist[idx]->getLine2DKey() )
 	    {
 		const Coord sp0 = seis2dlist[idx]->getCoord( trcrg.start );
 		const Coord sp1 = seis2dlist[idx]->getCoord( trcrg.stop );

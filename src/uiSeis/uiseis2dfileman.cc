@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dlinemerge.h"
 #include "seiscube2linedata.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "zdomain.h"
 #include "linesetposinfo.h"
 

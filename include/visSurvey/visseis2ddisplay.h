@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "multiid.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 class SeisTrcInfo;
 class ZAxisTransform;
@@ -49,7 +49,7 @@ public:
     void			setLineInfo(const MultiID& lid,const char* lnm);
     const char*			getLineName() const;
     const MultiID&		lineSetID() const;
-    PosInfo::GeomID		getGeomID() const;
+    PosInfo::Line2DKey		getLine2DKey() const;
     MultiID			getMultiID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
@@ -188,7 +188,7 @@ protected:
     visBase::Text2*		linename_;
     Notifier<Seis2DDisplay>	geomchanged_;
 
-    PosInfo::GeomID		geomid_;
+    PosInfo::Line2DKey		l2dkey_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
 

@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dline.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "uitaskrunner.h"
 #include "ptrman.h"
 #include "statrand.h"

@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posprovider.h"
 #include "progressmeter.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "od_ostream.h"
 
 #define mMaxSampInterpol	150;
@@ -161,7 +161,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
-				   const PosInfo::GeomID& geomid,
+				   const PosInfo::Line2DKey& geomid,
 				   const HorSampling& hsamp,
 				   ObjectSet<DataPointSet>& data )
 {
@@ -396,7 +396,7 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   DataPointSet* dtps,
 				   const HorSampling& horsamp,
 				   const Interval<float>& extraz,
-       				   const PosInfo::GeomID& geomid )
+       				   const PosInfo::Line2DKey& geomid )
 {
     ObjectSet<DataPointSet> possurf0;
     ObjectSet<DataPointSet> possurf1;

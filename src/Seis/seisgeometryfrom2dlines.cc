@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "survinfo.h"
 
 
@@ -68,7 +68,7 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 	    {
 		l2dd.setLineName( lnm );
 		PosInfo::GeomID geomid =
-		    PosInfo::POS2DAdmin().getGeomID( ls.name(), lnm );
+		    PosInfo::POS2DAdmin().getLine2DKey( ls.name(), lnm );
 		if ( !geomid.isOK() )
 		    PosInfo::POS2DAdmin().setGeometry( l2dd );
 		linesdone.add( lnm );

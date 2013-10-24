@@ -62,6 +62,7 @@ set( OD_MODULE_SOURCES
 	    plugins.cc
 	    posinfo.cc
 	    posinfo2d.cc
+	    posinfo2dsurv.cc
 	    position.cc
 	    positionlist.cc
 	    progressmeter.cc
@@ -78,7 +79,6 @@ set( OD_MODULE_SOURCES
 	    strmprov.cc
 	    survgeom.cc
 	    survinfo.cc
-	    surv2dgeom.cc
 	    task.cc
 	    thread.cc
 	    threadwork.cc

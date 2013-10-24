@@ -9,8 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "surv2dgeom.h"
-#include "survgeom2d.h"
+#include "posinfo2dsurv.h"
 
 #include "ascstream.h"
 #include "file.h"
@@ -22,16 +21,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "staticstring.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "timefun.h"
 
 #include <iostream>
 
 static PosInfo::Survey2D* theinst = 0;
+static PosInfo::Line2DKey udfl2dkey(-1,-1);
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
 static const char* sKeyTrcDist = "Inter-trace Distance";
 static bool cWriteAscii = false;
+const PosInfo::Line2DKey& PosInfo::Line2DKey::udf()	{ return udfl2dkey; }
 
 
 
@@ -41,44 +43,40 @@ void PosInfo::Survey2D::initClass()
 }
 
 
-namespace PosInfo {
-struct Survey2DDeleter : public NamedObject {
-void doDel( CallBacker* ) { delete theinst; theinst = 0; }
-};
+namespace PosInfo { struct Survey2DDeleter : public NamedObject {
+	void doDel( CallBacker* ) { delete theinst; theinst = 0; } }; }
+
+
+bool PosInfo::Line2DKey::isOK() const
+{
+    return S2DPOS().hasLine( lineID(), lsID() );
 }
 
-bool PosInfo::GeomID::isOK() const
-{ return S2DPOS().hasLine( lineid_, lsid_ ); }
 
-void PosInfo::GeomID::setUndef()
-{ lineid_ = lsid_ = -1; }
-
-bool PosInfo::GeomID::isUndef() const
-{ return lineid_==-1 || lsid_==-1; }
-
-BufferString PosInfo::GeomID::toString() const
+BufferString PosInfo::Line2DKey::toString() const
 {
-    BufferString str; str.add(lsid_).add(".").add(lineid_);
+    BufferString str;
+    str.add(lsID()).add(".").add(lineID());
     return str;
 }
 
-bool PosInfo::GeomID::fromString( const char* str )
+bool PosInfo::Line2DKey::fromString( const char* str )
 {
     BufferString idstr = str;
     char* ptr = strchr( idstr.buf(), '.' );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
 
-    ptr++;
-    lineid_ = toInt( ptr );
+    *ptr++ = '\0'; mTrimBlanks(ptr);
+    second = *ptr ? toInt( ptr ) : -1;
+    ptr = idstr.buf(); mTrimBlanks(ptr);
+    first = *ptr ? toInt( ptr ) : -1;
 
-    ptr--;
-    if ( ptr ) *ptr = '\0';
-    lsid_ = toInt( idstr.buf() );
-    return isOK();
+    return isUdf();
 }
 
 
-PosInfo::Survey2D& PosInfo::POS2DAdmin()
+const PosInfo::Survey2D& S2DPOS()
 {
     if ( !theinst )
     {
@@ -580,23 +578,23 @@ bool PosInfo::Survey2D::getGeometry( int lineid,
 }
 
 
-bool PosInfo::Survey2D::getGeometry( const GeomID& geomid,
+bool PosInfo::Survey2D::getGeometry( const Line2DKey& l2dky,
 				     PosInfo::Line2DData& l2dd ) const
 {
-    if ( !geomid.isOK() ) return false;
+    if ( !l2dky.isOK() ) return false;
 
     Threads::Locker* lckr = 0;
-    if ( geomid.lsid_ != S2DPOS().curLineSetID() )
+    if ( l2dky.lsID() != S2DPOS().curLineSetID() )
     {
 	lckr = new Threads::Locker( lock_ );
-	S2DPOS().setCurLineSet( geomid.lsid_ );
+	S2DPOS().setCurLineSet( l2dky.lsID() );
     }
 
-    const char* linenm = S2DPOS().getLineName( geomid.lineid_ );
+    const char* linenm = S2DPOS().getLineName( l2dky.lineID() );
     if ( !linenm )
 	{ delete lckr; return false; }
     
-    const bool ret = S2DPOS().getGeometry( geomid.lineid_, l2dd );
+    const bool ret = S2DPOS().getGeometry( l2dky.lineID(), l2dd );
     delete lckr;
     return ret;
 }
@@ -830,13 +828,12 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
 }
 
 
-PosInfo::GeomID PosInfo::Survey2D::getGeomID( const char* linesetnm,
+PosInfo::Line2DKey PosInfo::Survey2D::getLine2DKey( const char* linesetnm,
 					      const char* linenm ) const
 {
     if ( lsnm_ != linesetnm )
 	setCurLineSet( linesetnm );
-    PosInfo::GeomID geomid( getLineSetID(linesetnm), getLineID(linenm) );
-    return geomid;
+    return PosInfo::Line2DKey( getLineSetID(linesetnm), getLineID(linenm) );
 }
 
 
@@ -858,8 +855,8 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
     BufferString cllnm( linenm );
     cleanupString( cllnm.buf(), false, false, false );
     
-    PosInfo::GeomID geomid = getGeomID( lsnm, linenm );
-    if ( !geomid.isOK() )
+    PosInfo::Line2DKey l2dky = getLine2DKey( lsnm, linenm );
+    if ( !l2dky.isOK() )
 	return 0;
 
     mDeclStaticString( ret );

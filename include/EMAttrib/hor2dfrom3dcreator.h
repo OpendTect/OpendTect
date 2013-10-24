@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "executor.h"
-#include "posinfo2d.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 namespace EM { class Horizon3D; class Horizon2D; }
 class BufferStringSet;

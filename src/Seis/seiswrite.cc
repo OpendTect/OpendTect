@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "separstr.h"
 #include "survgeom2d.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "thread.h"
 #include "threadwork.h"
 #include "iopar.h"

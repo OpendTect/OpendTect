@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 #include "statruncalc.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "threadwork.h"
 #include "task.h"
 #include <math.h>
@@ -833,13 +833,13 @@ void StorageProvider::adjust2DLineStoredVolume()
 }
 
 
-PosInfo::GeomID StorageProvider::getGeomID() const
+PosInfo::GeomID StorageProvider::getLine2DKey() const
 {
     const ValParam* idpar = desc_.getValParam( keyStr() );
     LineKey lk( idpar->getStringValue() );
     PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
     return !ioobj ? PosInfo::GeomID()
-                  : S2DPOS().getGeomID( ioobj->name(), curlinekey_.lineName() );
+	      : S2DPOS().getLine2DKey( ioobj->name(), curlinekey_.lineName() );
 }
 
 

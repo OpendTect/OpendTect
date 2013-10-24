@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "pickretriever.h"
 #include "position.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 namespace visSurvey { class Scene; }
 class uiVisPartServer;

@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "tabledef.h"
 #include "file.h"
 #include "emhorizon2d.h"
@@ -64,7 +64,7 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 {
     const char* lsnm = IOM().get( setid )->name();
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomidset_ += S2DPOS().getGeomID( lsnm, lnms.get(lineidx).buf() );
+	geomidset_ += S2DPOS().getLine2DKey( lsnm, lnms.get(lineidx).buf() );
 }
 
 
@@ -107,7 +107,7 @@ int nextStep()
 	if ( !lsobj ) return Executor::ErrorOccurred();
 
 	S2DPOS().setCurLineSet( lsobj->name() );
-	BufferString linenm = S2DPOS().getLineName( geomid.lineid_ );
+	BufferString linenm = S2DPOS().getLineName( geomid.lineID() );
 	linegeom_.setLineName( linenm );
 	if ( !S2DPOS().getGeometry(linegeom_) )
 	    return Executor::ErrorOccurred();

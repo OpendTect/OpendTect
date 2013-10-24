@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "streamconn.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"

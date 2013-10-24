@@ -186,9 +186,9 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	if ( is2d_ )
 	{
 	    mytrcinfo.nr = curbid.crl();
-	    const PosInfo::GeomID geomid = provider_->getGeomID();
+	    const PosInfo::Line2DKey l2dky = provider_->getLine2DKey();
 	    PosInfo::Line2DData l2dd; PosInfo::Line2DPos pos2d;
-	    if ( S2DPOS().getGeometry(geomid,l2dd) &&
+	    if ( S2DPOS().getGeometry(l2dky,l2dd) &&
 		 l2dd.getPos(curbid.crl(),pos2d) )
 		mytrcinfo.coord = pos2d.coord_;
 	}

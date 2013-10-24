@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "zaxistransform.h"
 
-namespace PosInfo { class GeomID; }
+namespace PosInfo { class Line2DKey; }
 
 /*!Interface to when an application wants a pick somewere in a 3D environment.
    There should normally only be one instance in memory, and that should
@@ -41,7 +41,7 @@ public:
     virtual bool		success() const				= 0;
     virtual bool		waiting() const				= 0;
     virtual const Coord3&	getPos() const				= 0;
-    virtual const PosInfo::GeomID& getGeomID() const			= 0;
+    virtual const PosInfo::Line2DKey& getGeomID() const			= 0;
     virtual int			getTrcNr() const			= 0;
     virtual int			getSceneID() const			= 0;
     virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;

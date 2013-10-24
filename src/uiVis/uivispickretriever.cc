@@ -118,7 +118,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	if ( !s2dd || !s2dd->isOn() )
 	    continue;
 
-	pickedgeomid_ = s2dd->getGeomID();
+	pickedgeomid_ = s2dd->getLine2DKey();
 	PosInfo::Line2DPos pos2d;
 	const bool res =
 	    s2dd->getGeometry().getPos( pickedpos_, pos2d, mUdf(float) );
@@ -149,7 +149,7 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    pickedgeomid_.setUndef();
+    pickedgeomid_.setUdf();
     pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();
     pickedscene_ = -1;

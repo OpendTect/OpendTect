@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "sectionextender.h"
 #include "coord.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "binidvalue.h"
 
 namespace EM { class Horizon2D; };

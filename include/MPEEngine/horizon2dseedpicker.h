@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "emseedpicker.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 namespace Attrib { class SelSpec; }
 

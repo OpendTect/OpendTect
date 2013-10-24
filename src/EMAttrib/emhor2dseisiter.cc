@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "seis2dline.h"
 #include "survinfo.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 #include "ioman.h"
 #include "ioobj.h"
 
@@ -85,7 +85,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !isValid() )
 	{ delete lset_; lset_ = 0; return; }
 
-    const char* lsnm = S2DPOS().getLineSet( geom_->lineGeomID(lineidx_).lsid_ );
+    const char* lsnm = S2DPOS().getLineSet( geom_->lineGeomID(lineidx_).lsID());
     if ( !lset_ || lset_->name() != lsnm )
     {
 	delete lset_; lset_ = 0;
@@ -104,8 +104,8 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 const char* EM::Hor2DSeisLineIterator::lineName() const
 {
     const PosInfo::GeomID& geomid = geom_->lineGeomID( lineidx_ );
-    S2DPOS().setCurLineSet( geomid.lsid_ );
-    return isValid() ? S2DPOS().getLineName( geomid.lineid_ ) : 0;
+    S2DPOS().setCurLineSet( geomid.lsID() );
+    return isValid() ? S2DPOS().getLineName( geomid.lineID() ) : 0;
 }
 
 

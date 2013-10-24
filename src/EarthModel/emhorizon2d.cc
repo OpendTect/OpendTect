@@ -78,9 +78,9 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 #else
     for ( int idx=0; idx<oldgeomids_.size(); idx++ )
     {
-	if( S2DPOS().curLineSetID() != oldgeomids_[idx].lsid_ )
-	    S2DPOS().setCurLineSet( oldgeomids_[idx].lsid_ );
-	BufferString lnm = S2DPOS().getLineName( oldgeomids_[idx].lineid_ );
+	if( S2DPOS().curLineSetID() != oldgeomids_[idx].lsID() )
+	    S2DPOS().setCurLineSet( oldgeomids_[idx].lsID() );
+	BufferString lnm = S2DPOS().getLineName( oldgeomids_[idx].lineID() );
 	if ( lnm == linenm )
 	    return idx;
     }
@@ -103,9 +103,9 @@ const char* Horizon2DGeometry::lineName( int lid ) const
     const PosInfo::GeomID geomid = lineGeomID( lid );
     if ( !geomid.isOK() ) return 0;
 
-    if( S2DPOS().curLineSetID() != geomid.lsid_ )
-	S2DPOS().setCurLineSet( geomid.lsid_ );
-    return S2DPOS().getLineName( geomid.lineid_ );
+    if( S2DPOS().curLineSetID() != geomid.lsID() )
+	S2DPOS().setCurLineSet( geomid.lsID() );
+    return S2DPOS().getLineName( geomid.lineID() );
 #endif
 }
 
@@ -113,7 +113,7 @@ const char* Horizon2DGeometry::lineName( int lid ) const
 const char* Horizon2DGeometry::lineSet( int lid ) const
 {
     const PosInfo::GeomID geomid = lineGeomID( lid );
-    return geomid.isOK() ? S2DPOS().getLineSet( geomid.lsid_ ) : 0;
+    return geomid.isOK() ? S2DPOS().getLineSet( geomid.lsID() ) : 0;
 }
 
 
@@ -229,9 +229,9 @@ bool Horizon2DGeometry::doAddLine( const PosInfo::GeomID& geomid,
     if ( !geomid.isOK() || oldgeomids_.isPresent(geomid) )
 	return false;
 
-    if( S2DPOS().curLineSetID() != geomid.lsid_ )
-	S2DPOS().setCurLineSet( geomid.lsid_ );
-    PosInfo::Line2DData linegeom( S2DPOS().getLineName(geomid.lineid_) );
+    if( S2DPOS().curLineSetID() != geomid.lsID() )
+	S2DPOS().setCurLineSet( geomid.lsID() );
+    PosInfo::Line2DData linegeom( S2DPOS().getLineName(geomid.lineID()) );
     if ( !S2DPOS().getGeometry(linegeom) )
 	return false;
 
@@ -510,13 +510,13 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    par.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
 	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
 #ifdef mNew2DGeometryImpl
-	    S2DPOS().setCurLineSet( oldgeomid.lsid_ );
-	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineid_ );
+	    S2DPOS().setCurLineSet( oldgeomid.lsID() );
+	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineID() );
 	    int geomid = Survey::GM().getGeomID( lnm.buf() );
 		if ( geomid < 0 )
 		{
 		    lnm = Survey::Geometry2D::makeUniqueLineName( S2DPOS().
-			curLineSet(),S2DPOS().getLineName(oldgeomid.lineid_) );
+			curLineSet(),S2DPOS().getLineName(oldgeomid.lineID()) );
 		    geomid = Survey::GM().getGeomID( lnm.buf() );
 		}
 
@@ -539,10 +539,10 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    }
 #else
 	    oldgeomids_ += oldgeomid;
-	    if( S2DPOS().curLineSetID() != oldgeomid.lsid_ )
-		S2DPOS().setCurLineSet( oldgeomid.lsid_ );
+	    if( S2DPOS().curLineSetID() != oldgeomid.lsID() )
+		S2DPOS().setCurLineSet( oldgeomid.lsID() );
 	    PosInfo::Line2DData linegeom(
-		    	S2DPOS().getLineName(oldgeomid.lineid_));
+		    	S2DPOS().getLineName(oldgeomid.lineID()));
 	    if ( !S2DPOS().getGeometry(linegeom) )
 		continue;
 
@@ -577,9 +577,9 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	if ( !ioobj ) continue;
 
 #ifdef mNew2DGeometryImpl
-	int geomid = Survey::GM().getGeomID( linenames.get(idx).buf() );
+	int geomid = Survey::GM().getLine2DKey( linenames.get(idx).buf() );
 	if ( geomid < 0 )
-	    geomid = Survey::GM().getGeomID( Survey::Geometry2D::
+	    geomid = Survey::GM().getLine2DKey( Survey::Geometry2D::
 		   makeUniqueLineName(ioobj->name(),linenames.get(idx).buf()) );
 
 	geomids_ += geomid;
@@ -600,7 +600,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	    section->syncRow( geomid, linegeom );
 	}
 #else
-	PosInfo::GeomID geomid = S2DPOS().getGeomID( ioobj->name(),
+	PosInfo::GeomID geomid = S2DPOS().getLine2DKey( ioobj->name(),
 						     linenames[idx]->buf() );
 	if ( !geomid.isOK() ) continue;
 	oldgeomids_ += geomid;

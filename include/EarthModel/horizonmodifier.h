@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "surv2dgeom.h"
+#include "posinfo2dsurv.h"
 
 namespace EM { class Horizon; }
 class HorSamplingIterator;
