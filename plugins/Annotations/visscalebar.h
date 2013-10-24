@@ -34,6 +34,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     void			setLineWidth(int);
     void			setLength(double);
+    void			setOnInlCrl(bool);
     void			setOrientation(int);
 
 protected:
@@ -47,6 +48,8 @@ protected:
     visBase::IndexedPolyLine*	polyline_;
     visBase::DrawStyle*		linestyle_;
     const mVisTrans*		displaytrans_;
+
+    bool			oninlcrl_;
     double			length_;
     int				orientation_;
     Pick::Location&		firstloc_;
@@ -65,6 +68,8 @@ public:
 
     void			setScene(visSurvey::Scene*);
 
+    void			setOnInlCrl(bool);
+    bool			isOnInlCrl() const;
     void			setOrientation(int);
     int				getOrientation() const;
 
@@ -72,6 +77,9 @@ public:
     int				getLineWidth() const;
     void			setLength(double);
     double			getLength() const;
+
+    void			fromPar(const IOPar&);
+    void			toPar(IOPar&) const;
 
 protected:
 
@@ -82,6 +90,7 @@ protected:
     int				isMarkerClick(const TypeSet<int>&) const;
     bool			hasDirection() const { return false; }
 
+    bool			oninlcrl_;
     int				orientation_;
     int				linewidth_;
     double			length_;

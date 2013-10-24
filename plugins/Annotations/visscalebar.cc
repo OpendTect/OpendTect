@@ -30,6 +30,7 @@ ScaleBar::ScaleBar()
     , displaytrans_(0)
     , length_(1000)
     , firstloc_(*new Pick::Location)
+    , oninlcrl_(true)
     , orientation_(0)
 {
     firstloc_.pos_ = Coord3::udf();
@@ -80,6 +81,16 @@ void ScaleBar::setLength( double l )
 }
 
 
+void ScaleBar::setOnInlCrl( bool yn )
+{
+    if ( oninlcrl_ = yn )
+	return;
+
+    oninlcrl_ = yn;
+    updateVis( firstloc_ );
+}
+
+
 void ScaleBar::setOrientation( int orient )
 {
     if ( orientation_ == orient )
@@ -117,21 +128,35 @@ void ScaleBar::updateVis( const Pick::Location& loc )
 
 Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 {
-    if ( orientation_ == 1 )
+    Coord3 pos = Coord3::udf();
+    if ( oninlcrl_ )
     {
-	Coord3 pos = loc.pos_;
-	pos.z += length_;
-	return pos;
+	if ( orientation_ == 1 )
+	{
+	    pos = loc.pos_;
+	    pos.z += length_;
+	}
+	else
+	{
+	    const Coord3 normal = spherical2Cartesian( loc.dir_, true );
+	    const double l2 = length_*length_;
+	    const double ny2 = normal.x*normal.x;
+	    const double nx2 = normal.y*normal.y;
+	    const double term = 1 + nx2/ny2;
+	    const double dx2 = l2 / term;
+	    const double dy2 = l2 - dx2;
+	    pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
+	}
+    }
+    else
+    {
+	pos = loc.pos_;
+	if ( orientation_ == 0 )
+	    pos.x += length_;
+	else
+	    pos.y += length_;
     }
 
-    Coord3 normal = spherical2Cartesian( loc.dir_, true );
-    const double l2 = length_*length_;
-    const double ny2 = normal.x*normal.x;
-    const double nx2 = normal.y*normal.y;
-    const double term = 1 + nx2/ny2;
-    const double dx2 = l2 / term;
-    const double dy2 = l2 - dx2;
-    Coord3 pos = loc.pos_ + Coord3( Math::Sqrt(dx2), Math::Sqrt(dy2), 0 );
     return pos;
 }
 
@@ -154,10 +179,15 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
+static const char* sKeyOnInlCrl()	{ return "On Inl/Crl"; }
+static const char* sKeyOrientation()	{ return "Orientation"; }
+static const char* sKeyLineWidth()	{ return "Line width"; }
+static const char* sKeyLength()		{ return "Length"; }
 
 // ScaleBarDisplay
 ScaleBarDisplay::ScaleBarDisplay()
     : orientation_(0)
+    , oninlcrl_(true)
     , length_(1000)
     , linewidth_(2)
 {
@@ -221,6 +251,17 @@ int ScaleBarDisplay::getOrientation() const
 { return orientation_; }
 
 
+void ScaleBarDisplay::setOnInlCrl( bool yn )
+{
+    oninlcrl_ = yn;
+    mToGroup( setOnInlCrl, yn );
+}
+
+
+bool ScaleBarDisplay::isOnInlCrl() const
+{ return oninlcrl_; }
+
+
 void ScaleBarDisplay::zScaleCB( CallBacker* )
 { fullRedraw(); }
 
@@ -235,6 +276,7 @@ void ScaleBarDisplay::dispChg( CallBacker* cb )
 visBase::VisualObject* ScaleBarDisplay::createLocation() const
 {
     ScaleBar* sb = ScaleBar::create();
+    sb->setOnInlCrl( oninlcrl_ );
     sb->setLineWidth( linewidth_ );
     sb->setLength( length_ );
     sb->setOrientation( orientation_ );
@@ -244,6 +286,13 @@ visBase::VisualObject* ScaleBarDisplay::createLocation() const
 
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 {
+    const Coord3 normal = spherical2Cartesian( loc.dir_, true );
+    const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
+    if ( idx==0 )
+	setOnInlCrl( !pickedonz );
+    else if ( pickedonz == oninlcrl_ )
+	return;
+
     mDynamicCastGet(ScaleBar*,sb,group_->getObject(idx));
     if ( sb ) sb->setPick( loc );
 }
@@ -259,6 +308,35 @@ int ScaleBarDisplay::isMarkerClick( const TypeSet<int>& path ) const
     }
 
     return -1;
+}
+
+
+void ScaleBarDisplay::fromPar( const IOPar& par )
+{
+    bool oninlcrl = true;
+    par.getYN( sKeyOnInlCrl(), oninlcrl );
+    setOnInlCrl( oninlcrl );
+
+    int orientation = 0;
+    par.get( sKeyOrientation(), orientation );
+    setOrientation( orientation );
+
+    int linewidth = 2;
+    par.get( sKeyLineWidth(), linewidth );
+    setLineWidth( linewidth );
+
+    double length = 1000;
+    par.get( sKeyLength(), length );
+    setLength( length );
+}
+
+
+void ScaleBarDisplay::toPar( IOPar& par ) const
+{
+    par.setYN( sKeyOnInlCrl(), isOnInlCrl() );
+    par.set( sKeyOrientation(), getOrientation() );
+    par.set( sKeyLineWidth(), getLineWidth() );
+    par.set( sKeyLength(), getLength() );
 }
 
 } // namespace Annotation

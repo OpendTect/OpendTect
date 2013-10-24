@@ -238,9 +238,6 @@ protected:
 
     MenuItem		propmnuitem_;
 
-    static const char*		sKeyOrientation()      { return "Orientation"; }
-    static const char*		sKeyLineWidth()	       { return "Line width"; }
-    static const char*		sKeyLength()	       { return "Length"; }
 };
 
 
