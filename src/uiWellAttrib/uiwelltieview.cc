@@ -256,8 +256,8 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 {
     Interval<float> xrg( (float) vwr_->boundingBox().left(),
 				    (float) vwr_->boundingBox().right() );
-    auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
     auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
+    auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
 }	
 
 
