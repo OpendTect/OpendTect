@@ -1278,7 +1278,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 /*
 	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
 	if ( !vr ) return -1;
-/*
+
 	{
 	    if ( childIndex(volren_->osgNode())!=-1 )
 		VisualObjectImpl::removeChild(volren_->osgNode());

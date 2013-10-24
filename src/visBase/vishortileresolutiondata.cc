@@ -87,7 +87,7 @@ void TileResolutionData::setTexture( const unsigned int unit,
     osg::Array* tcarr, osg::StateSet* stateset )
 {
     const unsigned int dispgeometrytype = sectile_->dispgeometrytype_; 
-    if (dispgeometrytype <0 || dispgeometrytype > geodes_->getNumUserObjects()) 
+    if ( dispgeometrytype > geodes_->getNumUserObjects() ) 
 	return;
 
     osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype );
@@ -200,7 +200,6 @@ void TileResolutionData::setSingleVertex( int row, int col,
 
     const int coordidx = row*nrverticesperside_ + col;
 
-    Coord3 orgcrd = vertices_->getPos( coordidx );
     if ( pos == vertices_->getPos( coordidx) )
 	return;
 
@@ -335,7 +334,7 @@ bool TileResolutionData::setVerticesFromHighestResolution()
 void TileResolutionData::setPrimitiveSet( unsigned int geometrytype, 
     osg::DrawElementsUShort* geomps )
 {
-    if(!geomps || geometrytype <0 || geometrytype>geodes_->getNumUserObjects())
+    if( !geomps || geometrytype>geodes_->getNumUserObjects() )
 	return;
 
     osg::Geode* geode = mGetOsgGeode( geodes_, geometrytype );
