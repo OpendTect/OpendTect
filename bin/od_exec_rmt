@@ -27,15 +27,8 @@ if ( $#argv < 1 ) then
     echo "Usage: $0 remote_host [--rexec remote_shell_command]"
     echo "       [--with-dtect-appl <DTECT_APPL on remote host>"
     echo "       [--with-dtect-data <DTECT_DATA on remote host>"
-    echo "       [--with-remoteuser < user on remote host>"
-    echo "       [--with-remotepass < pass on remote host>"
-    echo "       [--with-data-host <win32 host were data is stored>"
-    echo "       [--with-data-drive <win32 data drive letter>"
-    echo "       [--with-data-share <win32 share name where data is stored>"
-    echo "       [--with-local-file-base <local base file name>"
-    echo "       [--with-remote-file-base <remote base file name>"
+    echo "       [--with-remoteuser <user on remote host>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
-    echo "       [--iswin]"
 endif
 
 set remotehost=$1
@@ -44,21 +37,11 @@ shift
 set rshcomm=rsh
 set transfvars=""
 set remoteuser=""
-set remotepass=""
-if ( $?DTECT_REMOTE_PASS ) then
-    set remotepass="$DTECT_REMOTE_PASS"
-endif
 
 set dtectappl="$DTECT_APPL"
 if ( $?DTECT_DATA ) then
     set dtectdata="$DTECT_DATA"
 endif
-
-set datahost=""
-set datadrive=""
-set datashare=""
-set datavars=""
-set iswin=0
 
 next_arg:
 
@@ -70,44 +53,12 @@ else if ( $1 == "--remoteuser" ) then
         set remoteuser=" -l $2"
         shift; shift
         goto next_arg
-else if ( $1 == "--remotepass" ) then
-        set remotepass="$2"
-	set datavars="${datavars} --remotepass $2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--data-host" ) then
-        set datahost="$2"
-	set datavars="${datavars} --data-host $2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--data-drive" ) then
-        set datadrive="$2"
-	set datavars="${datavars} --data-drive $2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--data-share" ) then
-        set datashare="$2"
-	set datavars="${datavars} --data-share $2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--iswin" ) then
-        set iswin=1
-        shift
-        goto next_arg
 else if ( $1 == "--with-dtect-appl" ) then
         set dtectappl="$2"
         shift; shift
         goto next_arg
 else if ( $1 == "--with-dtect-data" ) then
         set dtectdata="$2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--with-local-file-base" ) then
-        set locfilebase="$2"
-        shift; shift
-        goto next_arg
-else if ( $1 == "--with-remote-file-base" ) then
-        set remfilebase="$2"
         shift; shift
         goto next_arg
 else if ( "$1" == "--transfervars" ) then
@@ -183,62 +134,9 @@ foreach var ( $transfvars )
     endif
 end
 
-set transf=" $datavars $transf +-+-+ $*"
+set transf=" $transf +-+-+ $*"
 
 set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
-
-
-#if ( $iswin == 1 ) then
-if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
-
-    set loctransffile="${locfilebase}.vars"
-    set remtransffile="${remfilebase}.vars"
-
-    echo "${transf}" > "${loctransffile}"
-
-    set transf=`echo "${remtransffile}" | sed -e 's% %#-#%g'`
-
-    set usernm=""
-    if ( $?USERNAME ) then
-	set usernm="$USERNAME"
-    endif
-    if ( $?user ) then
-	set usernm="$user"
-    endif
-
-    set transf="$transf $datahost $datadrive $datashare $usernm $remotepass"
-
-    if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
-	set do_exec=`echo '%DTECT_WINAPPL%\\bin\\od_dormt.bat' \
-		     | sed -e "s% %\\ %g" -e 's%^%""%g' -e 's%$%""%g'`
-
-	setenv PRESCRIPT `"${DTECT_APPL}/bin/${HDIR}/SearchODFile" \
-	    od_prepare.bat | sed -e "s%\\%\\\\%g" -e 's%^%"%g' -e 's%$%"%g'`
-
-
-	if ( $?DTECT_SCRIPT_DEBUG) then
-	    echo cmd /c \
-		"%PRESCRIPT% $remotehost _none_ _none_ $usernm $remotepass"
-	endif
-
-        cmd /c "%PRESCRIPT% $remotehost _none_ _none_ $usernm $remotepass"
-
-	set remotehost="\\${remotehost}"
-
-	if ( $?DTECT_SCRIPT_DEBUG ) then
-	    echo ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
-	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
-	    exit $status 
-	endif
-
-	${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf >& /dev/null
-	exit $status 
-
-    else
-	set do_exec=`echo "${dtectappl}/bin/od_dormt.bat" | sed -e "s% %\\ %g"`
-    endif
-endif
-
 
 if ( $?DTECT_SCRIPT_DEBUG ) then
     echo ${rshcomm} ${remoteuser} "${remotehost}" "${do_exec} $transf"

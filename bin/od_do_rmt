@@ -15,34 +15,10 @@ if ( $?DTECT_SCRIPT_VERBOSE ) then
 endif
 
 set comm=""
-set datahost="_none_"
-set datadrive="_none_"
-set datashare="_none_"
-set remotepass="_none_"
 
 next_arg:
 
-if ( $1 == "--remotepass" ) then
-        set remotepass="$2"
-        shift; shift
-        goto next_arg
-
-else if ( $1 == "--data-host" ) then
-        set datahost="$2"
-        shift; shift
-        goto next_arg
-
-else if ( $1 == "--data-drive" ) then
-        set datadrive="$2"
-        shift; shift
-        goto next_arg
-
-else if ( $1 == "--data-share" ) then
-        set datashare="$2"
-        shift; shift
-        goto next_arg
-
-else if ( $1 == "+-+" ) then
+if ( $1 == "+-+" ) then
 
 	shift
 	set cmd=`echo $comm | sed "s%-=-%'%g"`
@@ -70,47 +46,6 @@ do_rest:
 if ( -e "$DTECT_APPL/bin/init_dtect" ) then
     if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : sourcing $DTECT_APPL/bin/init_dtect"
     source "$DTECT_APPL/bin/init_dtect"
-endif
-
-if ( "$HDIR" == "win" ) then
-    set attemptmount=yes
-
-    if ( -d "$DTECT_DATA" ) then
-	set attemptmount=no
-	echo "DTECT_DATA directory $DTECT_DATA is accessible. Ok."
-    endif
-
-    if ( $attemptmount == yes ) then
-
-	set usernm=""
-	if ( $?USERNAME ) then
-	    set usernm="$USERNAME"
-	endif
-	if ( $?user ) then
-	    set usernm="$user"
-	endif
-
-	set prescript=""
-	set precmd=""
-	if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
-	  set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
-		       | sed -e 's% %\ %g' -e 's%\\%\\\\%g'`
-	endif
-
-	set prescrargs="$datahost $datadrive $datashare $usernm $remotepass"
-	set precmd="cmd /c $prescript $prescrargs"
-
-	if ( "$prescript" != "" ) then
-	    cmd /c "$prescript" $prescrargs
-	endif
-
-	if ( -d "$DTECT_DATA" ) then
-	    echo "Succesfully mounted $datashare to ${datadrive}:"
-	else
-	    echo "Failed to mount $datashare to ${datadrive}:"
-	endif
-	
-    endif
 endif
 
 if ( $?DTECT_SCRIPT_DEBUG ) then
@@ -150,14 +85,6 @@ if ( $?DTECT_SCRIPT_DEBUG ) then
     else
 	echo "$0 : DISPLAY = <empty>" >> $logfile
     endif
-
-    if ( $?prescript ) then
-	echo "prescript = $prescript" >> $logfile
-	echo "precmd = $precmd" >> $logfile
-    else
-	echo "prescript = <empty>" >> $logfile
-    endif
-
 
     echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
     "$DTECT_APPL/bin/od_exec" $* >> $logfile
