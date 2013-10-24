@@ -16,6 +16,7 @@ final class TextLinter extends ArcanistLinter {
   const LINT_NO_COMMIT			= 7;
   const LINT_SPACE_ALIGNMENT		= 8;
   const LINT_FORBIDDEN_WORD		= 9;
+  const LINT_LOCAL_STATIC		= 10;
 
   private $maxLineLength = 80;
   private $nrautofixes = 0;
@@ -60,6 +61,7 @@ final class TextLinter extends ArcanistLinter {
       self::LINT_NO_COMMIT		=> pht('Explicit %s', '@no'.'commit'),
       self::LINT_SPACE_ALIGNMENT	=> pht('Spaces used instead of tabs'),
       self::LINT_FORBIDDEN_WORD 	=> pht('Forbidden words'),
+      self::LINT_LOCAL_STATIC 		=> pht('Local static variable'),
     );
   }
 
