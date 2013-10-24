@@ -105,6 +105,8 @@ int SoOD::maxNrTextureUnits()
 }
 
 
+static int maxtexturesize = -1;
+
 int SoOD::maxTexture2DSize()
 {
     static int answer = -1;
@@ -121,11 +123,22 @@ int SoOD::maxTexture2DSize()
 	    GLint maxr;
 	    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxr);
 	    if ( glGetError()==GL_NO_ERROR )
+	    {
+		if ( maxtexturesize!=-1 && maxr>maxtexturesize )
+		    maxr = maxtexturesize;
+
 		answer = maxr;
+	    }
 	}
     }
 
     return answer==-1 ? 1024 : answer;
+}
+
+
+void SoOD::setMaxTexture2DSize( unsigned int newsize )
+{
+    maxtexturesize = newsize;
 }
 
 

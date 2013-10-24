@@ -46,6 +46,10 @@ mSoODGlobal static int	maxTexture2DSize();
 			/*!<If not known, function will return 1024.
 			    which is a safe default.*/
 
+mSoODGlobal static void setMaxTexture2DSize(unsigned int newsize);
+			/*!<Sets maximum texture size that will be
+			    returned by maxTexture2DSize. */
+
 mSoODGlobal static void	getLineWidthBounds( int& min, int& max );
 			/*!<Get the bounds of the line width, which are 
 			 * OpenGL-dependent. */

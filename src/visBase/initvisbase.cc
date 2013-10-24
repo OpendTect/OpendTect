@@ -78,11 +78,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visvolrenscalarfield.h"
 #include "viswell.h"
 #include "indexedshape.h"
+#include "settings.h"
+
+#include "SoOD.h"
 
 
 mDefModInitFn(visBase)
 {
     mIfNotFirstTime( return );
+
+    unsigned int maxtexturesize;
+    if ( Settings::common().get( "dTect.Maximum Visualization Texture Size",
+				 maxtexturesize ))
+    {
+	SoOD::setMaxTexture2DSize( maxtexturesize );
+    }
 
     visBase::Anchor::initClass();
     visBase::Annotation::initClass();
