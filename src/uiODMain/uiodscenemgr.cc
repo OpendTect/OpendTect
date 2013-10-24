@@ -562,8 +562,8 @@ void uiODSceneMgr::setViewSelectMode( int md )
 
 void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
-    mDynamicCastGet(uiToolButton*,tb,cb)
-    mDoAllScenes(sovwr_,showRotAxis,tb?tb->isOn():false);
+    mDynamicCastGet(const uiAction*,act,cb)
+    mDoAllScenes(sovwr_,showRotAxis,act?act->isChecked():false);
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
