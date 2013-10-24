@@ -97,7 +97,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     if ( mIsUdf(manuoffssampl_.start) || mIsUdf(manuoffssampl_.step) )
 	manuoffssampl_ = vwr_->getDefaultGridSampling( true );
 
-    //mAttachCB( vwr_->dispParsChanged, uiViewer3DAppearanceTab::updateColTab );
+    mAttachCB( vwr_->dispParsChanged, uiViewer3DAppearanceTab::updateColTab );
 
     updateColTab( 0 );
     updateZFlds( 0 );

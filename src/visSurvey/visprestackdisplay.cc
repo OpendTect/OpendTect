@@ -80,7 +80,7 @@ PreStackDisplay::PreStackDisplay()
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
     flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    flatviewer_->dataChange.notify( mCB(this,PreStackDisplay,dataChangedCB) );
+    flatviewer_->dataChanged.notify( mCB(this,PreStackDisplay,dataChangedCB) );
     addChild( flatviewer_->osgNode() );
 
     planedragger_->ref();
@@ -93,7 +93,7 @@ PreStackDisplay::PreStackDisplay()
 
 PreStackDisplay::~PreStackDisplay()
 {
-    flatviewer_->dataChange.remove( mCB(this,PreStackDisplay,dataChangedCB) );
+    flatviewer_->dataChanged.remove( mCB(this,PreStackDisplay,dataChangedCB) );
     flatviewer_->unRef();
     
     if ( planedragger_ )

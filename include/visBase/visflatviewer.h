@@ -32,7 +32,8 @@ public:
     static FlatViewer*	       create()
 			       mCreateDataObj(FlatViewer);
 
-    Notifier<FlatViewer>       dataChange;
+    Notifier<FlatViewer>       dataChanged;
+    Notifier<FlatViewer>       dispParsChanged;
     void		       handleChange(unsigned int);
     void	               setPosition(const Coord3& c00,
 					   const Coord3& c01,
