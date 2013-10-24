@@ -145,8 +145,7 @@ void uiSeisFileMan::mkFileInfo()
 		{ txt.add("Inline") mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hrg.stop.crl()) )
 		{ txt.add("\nCrossline") mAddRangeTxt(crl()); }
-	    float area = SI().computeArea( cs.hrg.inlRange(),
-		    			   cs.hrg.crlRange() );
+	    float area = SI().getArea( cs.hrg.inlRange(), cs.hrg.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 
 	    txt.add("\n").add(zddef.userName()).add(" range ")

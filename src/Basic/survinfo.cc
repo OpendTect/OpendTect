@@ -50,13 +50,13 @@ DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
 
-Coord InlCrlSystem::toCoord( int linenr, int tracenr ) const
+Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 {
     return transform( BinID(linenr,tracenr) );
 }
 
 
-TrcKey InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
+TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 {
     TrcKey tk = TrcKey( getID(), transform(crd) );
     if ( dist )
@@ -77,13 +77,13 @@ TrcKey InlCrlSystem::nearestTrace( const Coord& crd, float* dist ) const
 }
 
 
-bool InlCrlSystem::includes( int line, int tracenr ) const
+bool Survey::Geometry3D::includes( int line, int tracenr ) const
 {
     return cs_.hrg.includes( BinID(line,tracenr) );
 }
 
 
-bool InlCrlSystem::isClockWise() const
+bool Survey::Geometry3D::isClockWise() const
 {
     const double xinl = b2c_.getTransform(true).b;
     const double xcrl = b2c_.getTransform(true).c;
@@ -95,19 +95,28 @@ bool InlCrlSystem::isClockWise() const
 }
 
 
-BinID InlCrlSystem::transform( const Coord& c ) const
+BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
     return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
 }
 
 
-Coord InlCrlSystem::transform( const BinID& b ) const
+Coord Survey::Geometry3D::transform( const BinID& b ) const
 {
     return b2c_.transform(b);
 }
 
 
-Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const
+void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
+				const CubeSampling& cs, float zscl )
+{
+    b2c_ = b2c;
+    cs_ = cs;
+    zscale_ = zscl;
+}
+
+
+Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
 {
     Coord3 translation( 0, 0, 0 );
 
@@ -130,7 +139,7 @@ Coord3 InlCrlSystem::oneStepTranslation( const Coord3& planenormal ) const
 }
 
 
-float InlCrlSystem::inlDistance() const
+float Survey::Geometry3D::inlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(1,0) );
@@ -138,7 +147,7 @@ float InlCrlSystem::inlDistance() const
 }
 
 
-float InlCrlSystem::crlDistance() const
+float Survey::Geometry3D::crlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c01 = transform( BinID(0,1) );
@@ -233,10 +242,10 @@ SurveyInfo::~SurveyInfo()
     delete &wcs_;
     delete &zdef_;
     
-    InlCrlSystem* old = winlcrlsystem_.setToNull();
+    Survey::Geometry3D* old = work_s3dgeom_.setToNull();
     if ( old ) old->unRef();
 
-    old = inlcrlsystem_.setToNull();
+    old = s3dgeom_.setToNull();
     if ( old ) old->unRef();
 }
 
@@ -466,19 +475,29 @@ int SurveyInfo::maxNrTraces( bool work ) const
 }
 
 
-int SurveyInfo::inlStep() const { return cs_.hrg.step.inl(); }
-int SurveyInfo::crlStep() const { return cs_.hrg.step.crl(); }
+int SurveyInfo::inlStep() const
+{
+    return cs_.hrg.step.inl();
+}
+int SurveyInfo::crlStep() const
+{
+    return cs_.hrg.step.crl();
+}
 
 
 float SurveyInfo::inlDistance() const
-{ return get3DGeometry(false)->inlDistance(); }
+{
+    return get3DGeometry(false)->inlDistance();
+}
 
 
 float SurveyInfo::crlDistance() const
-{ return get3DGeometry(false)->crlDistance(); }
+{
+    return get3DGeometry(false)->crlDistance();
+}
 
 
-float SurveyInfo::computeArea( const Interval<int>& inlrg,
+float SurveyInfo::getArea( const Interval<int>& inlrg,
 			       const Interval<int>& crlrg ) const 
 {
     const BinID step = sampling(false).hrg.step;
@@ -494,8 +513,10 @@ float SurveyInfo::computeArea( const Interval<int>& inlrg,
 }
 
 
-float SurveyInfo::computeArea( bool work ) const 
-{ return computeArea( inlRange( work ), crlRange( work ) ); }
+float SurveyInfo::getArea( bool work ) const 
+{
+    return getArea( inlRange( work ), crlRange( work ) );
+}
 
 
 
@@ -503,7 +524,9 @@ float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
-{ return get3DGeometry(false)->oneStepTranslation( planenormal ); }
+{
+    return get3DGeometry(false)->oneStepTranslation( planenormal );
+}
 
 
 void SurveyInfo::setRange( const CubeSampling& cs, bool work )
@@ -1006,32 +1029,28 @@ bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
 
 
-RefMan<InlCrlSystem> SurveyInfo::get3DGeometry(bool work) const
+RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 {
-    Threads::AtomicPointer<InlCrlSystem>& sys = work
-        ? winlcrlsystem_
-        : inlcrlsystem_;
-    
-    if ( !sys )
+    Threads::AtomicPointer<Survey::Geometry3D>& sgeom
+			= work ? work_s3dgeom_ : s3dgeom_;
+
+    if ( !sgeom )
     {
-	RefMan<InlCrlSystem> newsys = new InlCrlSystem( name(), zdef_ );
-	newsys->ref();
+	RefMan<Survey::Geometry3D> newsgeom
+	    		= new Survey::Geometry3D( name(), zdef_ );
+	newsgeom->ref();
 	if ( work )
-	    newsys->setID( Survey::GM().default3DSurvID() );
-	
-	newsys->b2c_ = b2c_;
-	newsys->cs_ = sampling( work );
-	newsys->zscale_ = zScale();
-	
-	 if ( sys.setIfEqual( 0, newsys ) )
-	    newsys->ref();
+	    newsgeom->setID( Survey::GM().default3DSurvID() );
+	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
+	if ( sgeom.setIfEqual( 0, newsgeom ) )
+	    newsgeom->ref();
     }
-    
-    return RefMan<InlCrlSystem>( sys );
+
+    return RefMan<Survey::Geometry3D>( sgeom );
 }
 
 
-float SurveyInfo::computeAngleXInl() const
+float SurveyInfo::angleXInl() const
 {
     Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
@@ -1047,6 +1066,3 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
     const Interval<int> crlrg( crlRange(work) );
     return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
 }
-
-
-

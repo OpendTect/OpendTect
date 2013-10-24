@@ -33,8 +33,8 @@ Horizon3DTesselator::Horizon3DTesselator( const Coord3List* coords,
     , stripni_( stripni )
     , normals_( normals )			 
     , nrnormalcols_( nrnormalcols )
-    , cosanglexinl_( cos(SI().computeAngleXInl()) )
-    , sinanglexinl_( sin(SI().computeAngleXInl()) )		     
+    , cosanglexinl_( cos(SI().angleXInl()) )
+    , sinanglexinl_( sin(SI().angleXInl()) )		     
     , nrcoordcols_( nrcoordcols )
 {}
 

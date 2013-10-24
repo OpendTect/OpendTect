@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 class HorSampling;
-class InlCrlSystem;
+namespace Survey { class Geometry3D; }
 
 namespace visSurvey
 {
@@ -31,11 +31,11 @@ public:
 			    : scene_(0)
     			{}
 
-    static void		computeUTM2DisplayTransform(const InlCrlSystem&,
+    static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
 				    float zfactor, mVisTrans* res);
     			//!<Given to all objects in XY-space
 
-    static void		computeICRotationTransform(const InlCrlSystem&,
+    static void		computeICRotationTransform(const Survey::Geometry3D&,
 						   float zfactor,
 					      	   mVisTrans* rotation,
 						   mVisTrans* disptrans );
@@ -46,6 +46,7 @@ public:
 protected:
 
     Scene*		scene_;
+
 };
 
 
@@ -53,5 +54,5 @@ mGlobal(visSurvey) SceneTransformManager& STM();
 
 } // namespace visSurvey
 
-#endif
 
+#endif

@@ -227,8 +227,8 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 
 int PickSetDisplay::isMarkerClick( const Coord3& clickworldpos ) const
 {
-    const double epsxy = getInlCrlSystem()->inlDistance()*0.1f;
-    const double epsz = 0.01f * getInlCrlSystem()->zStep();
+    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
+    const double epsz = 0.01f * get3DSurvGeom()->zStep();
     const Coord3 eps( epsxy,epsxy,epsz );
 
     const int markeridx = markerset_->findMarker( clickworldpos,eps );

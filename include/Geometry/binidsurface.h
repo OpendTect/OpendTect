@@ -30,8 +30,6 @@ public:
     			BinIDSurface(const BinID& step);
     			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
-    void		setInlCrlSystem(const SurveyInfo& si)
-			{ surveyinfo_ = &si; }
     BinIDSurface*	clone() const;
     bool		isEmpty() const { return !depths_; }
 
@@ -72,7 +70,7 @@ protected:
     const SurveyInfo*	surveyinfo_;
 };
 
-};
+} // namespace Geometry
+
 
 #endif
-

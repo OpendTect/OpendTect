@@ -17,73 +17,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 #include "zdomain.h"
-#include "refcount.h"
 #include "atomic.h"
-#include "cubesampling.h"
-#include "survgeom.h"
-#include "posidxpair2coord.h"
+#include "survgeom3d.h"
 
 class ascostream;
 class LatLong2Coord;
 
-
-/*!
-\brief Scaled down survey geometry for an inl/crl geometry.
-*/
-
-mExpClass(Basic) InlCrlSystem : public Survey::Geometry
-{
-public:
-    friend		class SurveyInfo;
-    
-			InlCrlSystem(const char* nm,const ZDomain::Def& zd )
-			    : name_( nm )
-    			    , zdomain_( zd )
-			{}
-    bool		is2D() const		{ return false; }
-    const char*		getName() const		{ return name_.buf(); }
-    			    
-    float		zScale() const 		{ return zscale_; }
-
-    StepInterval<int>	inlRange() const	{ return cs_.hrg.inlRange(); }
-    StepInterval<int>	crlRange() const	{ return cs_.hrg.crlRange(); }
-    StepInterval<float>	zRange() const		{ return cs_.zrg; }
-    int			inlStep() const 	{ return cs_.hrg.step.inl(); }
-    int			crlStep() const 	{ return cs_.hrg.step.crl(); }
-    
-    float		zStep() const 		{ return cs_.zrg.step; }
-    
-    Coord		toCoord(int line,int tracenr) const;
-    TrcKey		nearestTrace(const Coord&,float* distance) const;
-    bool		includes(int line,int tracenr) const;
-
-    Coord		transform(const BinID&) const;
-    BinID		transform(const Coord&) const;
-    const Pos::IdxPair2Coord& binID2Coord() const	{ return b2c_; }
-
-    float		inlDistance() const;
-    float		crlDistance() const;
-
-    bool		isClockWise() const;
-    			/*!< Orientation is determined by rotating the
-			     inline axis to the crossline axis. */
-    
-    const CubeSampling&	sampling() const	{ return cs_; }
-    
-    Coord3		oneStepTranslation(const Coord3& planenormal) const;
-    
-    
-    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
-    
-protected:
-    
-    BufferString	name_;
-    Pos::IdxPair2Coord	b2c_;
-    
-    CubeSampling	cs_; 
-    ZDomain::Def	zdomain_;
-    float		zscale_;
-};
 
 
 /*!
@@ -112,11 +51,6 @@ public:
 			~SurveyInfo();
     bool		has2D() const;
     bool		has3D() const;
-    
-    RefMan<InlCrlSystem> 		get3DGeometry(bool work) const;
-    Survey::GeometryManager&		geomManager()	{ return geometryman_; }
-    const Survey::GeometryManager&	geomManager() const
-    					{ return geometryman_; }
 
     StepInterval<int>	inlRange(bool work) const;
     StepInterval<int>	crlRange(bool work) const;
@@ -126,9 +60,9 @@ public:
     float		zStep() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
-    float		computeArea(const Interval<int>& inl,
+    float		getArea(const Interval<int>& inl,
 	    		     const Interval<int>& crl) const;	//!<returns m2
-    float		computeArea(bool work) const ;		//!<returns m2
+    float		getArea(bool work) const ;		//!<returns m2
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
@@ -199,10 +133,12 @@ public:
     const IOPar&	pars() const			{ return pars_; }
     void		putZDomain(IOPar&) const;
 
-    // Some public fns moved to bottom because they are rarely used; some fns
-    // that have 'no user servicable parts inside' are at the very bottom
+    RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
 
     enum Pol2D      	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
+
+    // Some public fns moved to bottom because they are rarely used; some fns
+    // that have 'no user servicable parts inside' are at the very bottom
 
 protected:
 
@@ -225,11 +161,9 @@ protected:
     
     double		seisrefdatum_;
     
-    mutable Threads::AtomicPointer<InlCrlSystem>	inlcrlsystem_;
-    mutable Threads::AtomicPointer<InlCrlSystem>	winlcrlsystem_;
+    mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
+    mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
     
-    Survey::GeometryManager geometryman_;
-
     Pos::IdxPair2Coord	b2c_;
     LatLong2Coord&	ll2c_;
     BinID		set3binids_[3];
@@ -275,7 +209,7 @@ public:
     bool		isClockWise() const;
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
-    float		computeAngleXInl() const;
+    float		angleXInl() const;
     			/*!< It's the angle (0 to pi/2) between
 			     the X-axis and the Inl-axis (not an inline) */
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }

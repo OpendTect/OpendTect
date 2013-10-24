@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "surv2dgeom.h"
+#include "survgeom2d.h"
 
 #include "ascstream.h"
 #include "file.h"
@@ -948,7 +949,7 @@ TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     if ( !data_.getPos(crd,pos,dist) )
 	return TrcKey::udf();
 
-    return TrcKey( get2DSurvID(), id_, pos.nr_ );
+    return TrcKey( Survey::GeometryManager::get2DSurvID(), id_, pos.nr_ );
 }
 
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "survgeom2d.h"
 #include "surv2dgeom.h"
 
 #include "keystrs.h"
@@ -20,18 +21,16 @@ using namespace Survey;
 
 static Pos::GeomID cSIGeomID = -1;
 
-
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
-static GeometryManager* theinst = 0;
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 
 
-GeometryManager& Survey::GMAdmin()
+const GeometryManager& Survey::GM()
 {
+    mDefineStaticLocalObject( GeometryManager*, theinst, = 0 );
     if( !theinst )
-	{ theinst = new GeometryManager(); }
-
+	{ theinst = new GeometryManager; }
     return *theinst;
 }
 
@@ -47,9 +46,9 @@ Geometry::~Geometry()
 }
 
 
-TrcKey::SurvID Geometry::get2DSurvID()
+const Geometry& Geometry::default3D()
 {
-    return GeometryManager::get2DSurvID();
+    return *GM().getGeometry( GM().default3DSurvID() );
 }
 
 
@@ -101,8 +100,8 @@ void GeometryManager::ensureSIPresent() const
 {
     if ( geometries_.isEmpty() )
     {
-	RefMan<InlCrlSystem> rm = SI().get3DGeometry( false );
-	InlCrlSystem* survicsys = rm.ptr();
+	RefMan<Geometry3D> rm = SI().get3DGeometry( false );
+	Geometry3D* survicsys = rm.ptr();
 	rm.set( 0, false );
 	survicsys->setID( cSIGeomID );
 	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );

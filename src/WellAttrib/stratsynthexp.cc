@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "syntheticdataimpl.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
+#include "separstr.h"
 #include "transl.h"
 
 StratSynthExporter::StratSynthExporter( const IOObj& outobj,

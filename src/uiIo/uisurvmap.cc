@@ -160,7 +160,7 @@ void uiNorthArrowObject::update()
     static const float halfpi = M_PI * .5;
     static const float quartpi = M_PI * .25;
 
-    float mathang = survinfo_->computeAngleXInl();
+    float mathang = survinfo_->angleXInl();
 
 	    // To [0,pi]
     if ( mathang < 0 )			mathang += M_PI;

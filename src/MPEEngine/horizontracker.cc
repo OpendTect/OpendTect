@@ -103,15 +103,13 @@ HorizonAutoTracker::HorizonAutoTracker( EM::Horizon& hor )
     , diptrcs_( 0 )
     , hor3d_( 0 )
     , hor2d_( 0 )
-    , inlcrlsystem_( 0 )
+    , s3dgeom_( 0 )
 {
     mDynamicCast( EM::Horizon3D*, hor3d_, &horizon_ );
     mDynamicCast( EM::Horizon2D*, hor2d_, &horizon_ );
     
     if ( hor3d_ )
-    {
-	inlcrlsystem_ = SI().get3DGeometry( true );
-    }    
+	s3dgeom_ = SI().get3DGeometry( true );
 }
 
 HorizonAutoTracker::~HorizonAutoTracker()
@@ -141,23 +139,23 @@ bool HorizonAutoTracker::init()
 	
 	const BinID step = hor3d_->geometry().step();
 	
-	arrayorigin_ = BinID ( inlrg.snap( inlcrlsystem_->inlRange().start ),
-		     crlrg.snap( inlcrlsystem_->crlRange().start ) );
+	arrayorigin_ = BinID ( inlrg.snap( s3dgeom_->inlRange().start ),
+		     crlrg.snap( s3dgeom_->crlRange().start ) );
 	
 	
-	if ( !inlcrlsystem_->inlRange().includes(arrayorigin_.row, false ) )
+	if ( !s3dgeom_->inlRange().includes(arrayorigin_.row, false ) )
 	    arrayorigin_.row += step.inl;
 	
-	if ( !inlcrlsystem_->crlRange().includes( arrayorigin_.col, false ) )
+	if ( !s3dgeom_->crlRange().includes( arrayorigin_.col, false ) )
 	    arrayorigin_.col += step.crl;
 	
-	BinID stop( inlrg.snap( inlcrlsystem_->inlRange().stop ),
-		    crlrg.snap( inlcrlsystem_->crlRange().stop ) );
+	BinID stop( inlrg.snap( s3dgeom_->inlRange().stop ),
+		    crlrg.snap( s3dgeom_->crlRange().stop ) );
 	
-	if ( !inlcrlsystem_->inlRange().includes( stop.inl, false ) )
+	if ( !s3dgeom_->inlRange().includes( stop.inl, false ) )
 	    stop.inl -= step.inl;
 	
-	if ( !inlcrlsystem_->crlRange().includes( stop.crl, false ) )
+	if ( !s3dgeom_->crlRange().includes( stop.crl, false ) )
 	    stop.crl -= step.crl;
 
 	arraysz = RowCol( ((stop.inl-arrayorigin_.row)/step.inl)+1,

@@ -24,19 +24,19 @@ namespace visSurvey {
 
 SurveyObject::SurveyObject()
     : scene_(0)
-    , inlcrlsystem_( 0 )
+    , s3dgeom_( 0 )
     , basemapobj_(0)
     , locked_(false)
     , updatestagenr_( 0 )
 {
-    setInlCrlSystem( SI().get3DGeometry(true) );
+    set3DSurvGeom( SI().get3DGeometry(true) );
 }
 
     
 SurveyObject::~SurveyObject()
 {
     deepErase(userrefs_);
-    setInlCrlSystem( 0 );
+    set3DSurvGeom( 0 );
 }
 
 float SurveyObject::sDefMaxDist()	{ return 10; }
@@ -126,19 +126,19 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 { min = mUdf(int); max= mUdf(int); }
 
 
-void SurveyObject::setInlCrlSystem(const InlCrlSystem* ics)
+void SurveyObject::set3DSurvGeom( const Survey::Geometry3D* sg )
 {
-    if ( inlcrlsystem_ ) inlcrlsystem_->unRef();
-    
-    inlcrlsystem_ = ics;
-    
-    if ( inlcrlsystem_ ) inlcrlsystem_->ref();
+    if ( s3dgeom_ )
+	s3dgeom_->unRef();
+    s3dgeom_ = sg;
+    if ( s3dgeom_ )
+	s3dgeom_->ref();
 }
 
 
-const char* SurveyObject::getInlCrlSystemName() const
+const char* SurveyObject::get3DSurvGeomName() const
 {
-    return inlcrlsystem_ ? inlcrlsystem_->getName() : survname_.str();
+    return s3dgeom_ ? s3dgeom_->getName() : survname_.str();
 }
 
 
@@ -154,8 +154,8 @@ int SurveyObject::getUpdateStageNr() const
 
 void SurveyObject::fillSOPar( IOPar& par ) const
 {
-    if ( inlcrlsystem_ )
-	par.set( sKeySurvey(), inlcrlsystem_->getName() );
+    if ( s3dgeom_ )
+	par.set( sKeySurvey(), s3dgeom_->getName() );
 
     par.setYN( sKeyLocked(), locked_ );
     const int nrattribs = nrAttribs();

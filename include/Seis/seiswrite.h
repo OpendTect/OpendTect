@@ -26,11 +26,11 @@ is done.
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
-#include "surv2dgeom.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
 namespace Threads { class ConditionVar; }
+namespace Survey { class Geometry2D; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess

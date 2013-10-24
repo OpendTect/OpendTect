@@ -30,10 +30,10 @@ SceneTransformManager& visSurvey::STM()
 }
 
 
-void SceneTransformManager::computeUTM2DisplayTransform(const InlCrlSystem& ics,
-					       float zfactor, mVisTrans* res)
+void SceneTransformManager::computeUTM2DisplayTransform(
+	const Survey::Geometry3D& sg, float zfactor, mVisTrans* res)
 {
-    const Coord startpos = SI().transform( ics.sampling().hrg.start );
+    const Coord startpos = SI().transform( sg.sampling().hrg.start );
 
     res->setA(	1,	0,	0,	-startpos.x,
 	    	0,	1,	0,	-startpos.y,
@@ -42,12 +42,12 @@ void SceneTransformManager::computeUTM2DisplayTransform(const InlCrlSystem& ics,
 }
 
 
-void SceneTransformManager::computeICRotationTransform( const InlCrlSystem& ics,
-	        float zfactor,
+void SceneTransformManager::computeICRotationTransform(
+	const Survey::Geometry3D& sg, float zfactor,
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {
-    const HorSampling hs = ics.sampling().hrg;
+    const HorSampling hs = sg.sampling().hrg;
 
     const BinID startbid = hs.start;
     const BinID stopbid = hs.stop;
@@ -57,8 +57,8 @@ void SceneTransformManager::computeICRotationTransform( const InlCrlSystem& ics,
     const Coord stoppos = SI().transform( stopbid );
     const Coord extrapos = SI().transform( extrabid );
 
-    const float inldist = ics.inlDistance();
-    const float crldist = ics.crlDistance();
+    const float inldist = sg.inlDistance();
+    const float crldist = sg.crlDistance();
 
     Array2DImpl<double> A(3,3);
     A.set( 0, 0, startbid.inl()*inldist );
@@ -117,7 +117,7 @@ void SceneTransformManager::computeICRotationTransform( const InlCrlSystem& ics,
     const double mat22 = x[1];
     const double mat24 = x[2];
 
-    const int sign = ics.isClockWise() ? -1 : 1;
+    const int sign = sg.isClockWise() ? -1 : 1;
 
     rotation->setA(	mat11,	mat12,	0,	mat14,
 			mat21,	mat22,	0,	mat24,

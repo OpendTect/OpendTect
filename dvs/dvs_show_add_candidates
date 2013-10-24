@@ -5,12 +5,7 @@ if ( $#argv < 2 ) then
     exit 1
 endif
 
-if ( ! -d CVS ) then
-    echo "No Subversion support yet"
-    exit 1
-endif
-
-set statcmd="dvs status"
+set statcmd="svn status"
 set ext=$1
 shift
 
@@ -18,7 +13,7 @@ foreach dir ( $* )
     if ( -d $dir && "$dir" != "CVS" ) then
 	echo "$dir ..."
 	cd $dir
-	$statcmd *.$ext > /dev/null
+	$statcmd *.$ext |& grep '\?'
 	cd ..
     endif
 end

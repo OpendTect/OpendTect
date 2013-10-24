@@ -27,7 +27,7 @@ namespace EM {
 
 template <class T> class Array2DImpl;
 
-class InlCrlSystem;
+namespace Survey { class Geometry3D; }
 class SeisTrc;
 
 
@@ -44,7 +44,7 @@ public:
     				HorizonAutoTracker( EM::Horizon& );
                                 ~HorizonAutoTracker();
     
-    void			setInlCrlSystem( const InlCrlSystem& );
+    void			set3DSurvGeom(const Survey::Geometry3D&);
     
     bool			init();
     
@@ -138,7 +138,8 @@ protected:
     RowCol					arrayorigin_;
     RowCol					step_;
     
-    RefMan<InlCrlSystem>			inlcrlsystem_;
+    RefMan<Survey::Geometry3D>			s3dgeom_;
+
 };
     
 

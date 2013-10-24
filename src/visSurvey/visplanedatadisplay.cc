@@ -94,18 +94,18 @@ const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
     const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
-    const InlCrlSystem* survinfo = pdd_->getInlCrlSystem();
+    const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
     if ( pdd_->getOrientation()==PlaneDataDisplay::Zslice )
     {
-	res += survinfo->transform(hrg.start);
-	res += survinfo->transform(BinID(hrg.start.inl(), hrg.stop.crl()) );
-	res += survinfo->transform(hrg.stop);
-	res += survinfo->transform(BinID(hrg.stop.inl(), hrg.start.crl()) );
+	res += survgeom.transform(hrg.start);
+	res += survgeom.transform(BinID(hrg.start.inl(), hrg.stop.crl()) );
+	res += survgeom.transform(hrg.stop);
+	res += survgeom.transform(BinID(hrg.stop.inl(), hrg.start.crl()) );
     }
     else
     {
-	res += survinfo->transform(hrg.start);
-	res += survinfo->transform(hrg.stop);
+	res += survgeom.transform(hrg.start);
+	res += survgeom.transform(hrg.stop);
     }
 }
 
@@ -124,7 +124,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject( true )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
-    , curicstep_(inlcrlsystem_->inlStep(),inlcrlsystem_->crlStep())
+    , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
     , datatransform_( 0 )
     , voiidx_(-1)
     , moving_(this)
@@ -285,10 +285,10 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 
     if ( orientation_==Inline )
 	res.hrg.start.inl() = res.hrg.stop.inl() =
-	    inlcrlsystem_->inlRange().snap( inlrg.center() );
+	    s3dgeom_->inlRange().snap( inlrg.center() );
     else if ( orientation_==Crossline )
 	res.hrg.start.crl() = res.hrg.stop.crl() =
-	    inlcrlsystem_->crlRange().snap( crlrg.center() );
+	    s3dgeom_->crlRange().snap( crlrg.center() );
 
     return res;
 }
@@ -300,8 +300,8 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 	return Coord3(0,0,1);
     
     return Coord3( orientation_==Inline
-		  ? inlcrlsystem_->binID2Coord().rowDir()
-		  : inlcrlsystem_->binID2Coord().colDir(), 0 );
+		  ? s3dgeom_->binID2Coord().rowDir()
+		  : s3dgeom_->binID2Coord().colDir(), 0 );
 }
 
 
@@ -310,7 +310,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
-    const BinID binid = inlcrlsystem_->transform( Coord(xytpos.x,xytpos.y) );
+    const BinID binid = s3dgeom_->transform( Coord(xytpos.x,xytpos.y) );
 
     const CubeSampling cs = getCubeSampling(false,true);
     
@@ -329,15 +329,15 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 		     abs( binid.crl()-cs.hrg.stop.crl()) );
     const float zfactor = scene_
     	? scene_->getZScale()
-        : inlcrlsystem_->zScale();
+        : s3dgeom_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
 	: (float)(mMIN(fabs(xytpos.z-cs.zrg.start),
 	   fabs(xytpos.z-cs.zrg.stop))
 	   * zfactor  * scene_->getFixedZStretch() );
 
-    const float inldist = inlcrlsystem_->inlDistance();
-    const float crldist = inlcrlsystem_->crlDistance();
+    const float inldist = s3dgeom_->inlDistance();
+    const float crldist = s3dgeom_->crlDistance();
     float inldiff = inlcrldist.inl() * inldist;
     float crldiff = inlcrldist.crl() * crldist;
 
@@ -347,9 +347,9 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZScale():inlcrlsystem_->zScale();
+    const float zfactor = scene_ ? scene_->getZScale():s3dgeom_->zScale();
     float maxzdist = zfactor * scene_->getFixedZStretch()
-		     * inlcrlsystem_->zStep() / 2;
+		     * s3dgeom_->zStep() / 2;
     return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -742,8 +742,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     res.zrg.start = res.zrg.stop = (float) c0.z;
     res.hrg.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
     res.zrg.include( (float) c1.z );
-    res.hrg.step = BinID( inlcrlsystem_->inlStep(), inlcrlsystem_->crlStep() );
-    res.zrg.step = inlcrlsystem_->zRange().step;
+    res.hrg.step = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
+    res.zrg.step = s3dgeom_->zRange().step;
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
@@ -1158,7 +1158,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 	 (!volumecache_[attrib] && !rposcache_[attrib]) )
 	return false;
 
-    const BinIDValue bidv( inlcrlsystem_->transform(pos), (float) pos.z );
+    const BinIDValue bidv( s3dgeom_->transform(pos), (float) pos.z );
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
 	const int ver = channels_->currentVersion(attrib);

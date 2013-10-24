@@ -355,9 +355,7 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
-    {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
-    }
+	so->set3DSurvGeom( SI().get3DGeometry(true) );
 
     obj->setDisplayTransformation( inlcrlscale_ );
     inlcrlrotation_->addObject( obj );
@@ -371,7 +369,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->setInlCrlSystem( SI().get3DGeometry(true) );
+	so->set3DSurvGeom( SI().get3DGeometry(true) );
 	if ( so->getMovementNotifier() )
 	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 

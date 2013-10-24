@@ -354,7 +354,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.x += inlcrlsystem_->inlDistance() * 0.5 * dir;
+		    pos.x += s3dgeom_->inlDistance() * 0.5 * dir;
 		    //const int ci = poly->getCoordinates()->addPos( pos );
 		    //poly->setCoordIndex( cii++, ci );
 		    //linergprimitiveset_->
@@ -364,7 +364,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.y += inlcrlsystem_->inlDistance() * 0.5 * dir;
+		    pos.y += s3dgeom_->inlDistance() * 0.5 * dir;
 		    //const int ci = poly->getCoordinates()->addPos( pos );
 		    //linergprimitiveset_->append( ci );
 		    //poly->setCoordIndex( cii++, ci );
@@ -374,7 +374,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		for ( int dir=-1; dir<=1; dir+=2 )
 		{
 		    Coord3 pos = fss->getKnot( rc );
-		    pos.z += inlcrlsystem_->zStep() * 0.5 * dir;
+		    pos.z += s3dgeom_->zStep() * 0.5 * dir;
 		    //const int ci = poly->getCoordinates()->addPos( pos );
 		    //poly->setCoordIndex( cii++, ci );
 		}
@@ -516,7 +516,7 @@ static float zdragoffset = 0;
 
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getFixedZStretch()\
-    : inlcrlsystem_->zScale() )\
+    : s3dgeom_->zScale() )\
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
@@ -726,8 +726,8 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick || !leftmousebutton )
 	return;
 
-    const double epsxy = getInlCrlSystem()->inlDistance()*0.1f;
-    const double epsz = 0.01f * getInlCrlSystem()->zStep();
+    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
+    const double epsz = 0.01f * get3DSurvGeom()->zStep();
     const Coord3 eps( epsxy,epsxy,epsz );
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -895,7 +895,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	    continue;
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
-		inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) );
+		s3dgeom_->oneStepTranslation(Coord3(0,0,1)) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
@@ -936,7 +936,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
-	    inlcrlsystem_->oneStepTranslation(plane->getNormal(Coord3::udf())));
+	    s3dgeom_->oneStepTranslation(plane->getNormal(Coord3::udf())));
 
 	float prevdist = -1;
 	Coord3 prevpos;
@@ -1082,8 +1082,8 @@ bool FaultStickSetDisplay::isSelectableMarkerInPolySel(
     if ( !polysel->isInside(markerworldpos) )
 	return false;
 
-    const double epsxy = getInlCrlSystem()->inlDistance()*0.1f;
-    const double epsz = 0.01 * getInlCrlSystem()->zStep();
+    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
+    const double epsz = 0.01 * get3DSurvGeom()->zStep();
     const Coord3 eps( epsxy,epsxy,epsz );
 
     TypeSet<int> pickedobjids;

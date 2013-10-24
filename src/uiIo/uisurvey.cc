@@ -1044,7 +1044,7 @@ void uiSurvey::putToScreen()
 	    int nr, rest;    
 	    bininfo += "inl: "; mAddDist(inldist);
 	    bininfo += "  crl: "; mAddDist(crldist);
-	    float area = (float) ( si.computeArea(false) * 1e-6 ); //in km2
+	    float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
 	    if ( si.xyInFeet() )
 		area /= 2.590; // square miles
 

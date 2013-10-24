@@ -23,11 +23,10 @@ class IOObj;
 namespace Survey
 {
 
-/*!
-\brief A Geometry which holds trace positions.
+/*!\brief A Geometry which holds trace positions.
 
-For 3D, a geometry is the InlCrlSystem.
-For 2D, each line has a Geometry.
+For 3D, a geometry is an Inl/Crl System.
+For 2D, each line has its own Geometry.
 
 Beware, the Geometry::ID != Survkey::ID for 2D geometries. The Geometry::ID
 will end up in the lineNr() of the TrcKey.
@@ -41,31 +40,27 @@ public:
     typedef Pos::GeomID	ID;
 
     virtual bool	is2D() const			= 0;
-    static TrcKey::SurvID get2DSurvID();
+    static const Geometry& default3D();
 
     ID			getID() const			{ return id_; }
     void		setID( ID id )			{ id_ = id; }
     virtual const char*	getName() const			= 0;
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
-    virtual bool	includes(Pos::LineID,Pos::TraceID) const	= 0;
-    bool		includes(const TrcKey&) const;
-
-    static Coord	toCoord(const TrcKey&);
-    static bool		exists(const TrcKey&);
-
     inline Coord	toCoord( const BinID& b ) const
 			{ return toCoord( b.lineNr(), b.trcNr() ); }
+
+    virtual bool	includes(Pos::LineID,Pos::TraceID) const	= 0;
+    bool		includes(const TrcKey&) const;
     inline bool		includes( const BinID& b ) const
 			{ return includes( b.lineNr(), b.trcNr() ); }
 
-    virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
-    virtual TrcKey	getTrace(const Coord&,float maxdist) const;
-				//!<returns undef if no trace found
+    static bool		exists(const TrcKey&);
+    static Coord	toCoord(const TrcKey&);
 
-    Geometry::ID	getID(const char* geomname) const;
-    const char*		getName(Geometry::ID) const;
-    
+    virtual TrcKey	getTrace(const Coord&,float maxdist) const;
+    virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
+
     virtual StepInterval<float> zRange() const				= 0;
 
 protected:
@@ -77,9 +72,7 @@ protected:
 };
 
 
-/*!
-\brief Makes geometries accessible from a geometry id, or a multi id.
-*/
+/*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
 
 mExpClass(Basic) GeometryManager
 {
@@ -127,20 +120,16 @@ protected:
 };
 
 
-mGlobal(Basic) GeometryManager& GMAdmin();
+mGlobal(Basic) const GeometryManager& GM();
+inline mGlobal(Basic) GeometryManager& GMAdmin()
+{ return const_cast<GeometryManager&>( Survey::GM() ); }
 
 
-inline mGlobal(Basic) const GeometryManager& GM()
-{ return const_cast<GeometryManager&>( Survey::GMAdmin() ); }
-
-
-/*!
-\brief Geometry Reader
-*/
 
 mExpClass(Basic) GeometryReader
 {
 public:
+
     virtual		~GeometryReader()		{};
 			mDefineFactoryInClass(GeometryReader,factory);
 
@@ -149,19 +138,19 @@ public:
 };
 
 
-/*!
-\brief Geometry Writer
-*/
 
 mExpClass(Basic) GeometryWriter
 {
 public:
+
     virtual		~GeometryWriter()		{};
 			mDefineFactoryInClass(GeometryWriter,factory);
 
     virtual bool	write(Geometry&) const		{ return true; }
     virtual IOObj*	createEntry(const char*) const	{ return 0; }
+
 };
+
 
 } //namespace Survey
 

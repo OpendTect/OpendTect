@@ -296,23 +296,23 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     {
 	const float zscale = scene_
 	    ? scene_->getZScale() *scene_->getFixedZStretch()
-	    : inlcrlsystem_->zScale();
+	    : s3dgeom_->zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
-		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
-				  inlcrlsystem_->crlRange().step),
-				  inlcrlsystem_->zStep() ) );
+		BinIDValue( BinID(s3dgeom_->inlRange().step,
+				  s3dgeom_->crlRange().step),
+				  s3dgeom_->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
-		BinIDValue( BinID(inlcrlsystem_->inlRange().step,
-				  inlcrlsystem_->crlRange().step),
-				  inlcrlsystem_->zStep() ) );
+		BinIDValue( BinID(s3dgeom_->inlRange().step,
+				  s3dgeom_->crlRange().step),
+				  s3dgeom_->zStep() ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
@@ -701,7 +701,7 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getFixedZStretch() \
-	     : inlcrlsystem_->zScale() )
+	     : s3dgeom_->zScale() )
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
@@ -891,8 +891,8 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick || !leftmousebutton )
 	return;
 
-    const double epsxy = getInlCrlSystem()->inlDistance()*0.1f;
-    const double epsz = 0.01 * getInlCrlSystem()->zStep();
+    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
+    const double epsz = 0.01 * get3DSurvGeom()->zStep();
     const Coord3 eps( epsxy,epsxy,epsz );
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -1391,10 +1391,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( inlcrlsystem_->transform(b00),cs.zrg.start );
-	const Coord3 c01( inlcrlsystem_->transform(b01),cs.zrg.stop );
-	const Coord3 c11( inlcrlsystem_->transform(b11),cs.zrg.stop );
-	const Coord3 c10( inlcrlsystem_->transform(b10),cs.zrg.start );
+	const Coord3 c00( s3dgeom_->transform(b00),cs.zrg.start );
+	const Coord3 c01( s3dgeom_->transform(b01),cs.zrg.stop );
+	const Coord3 c11( s3dgeom_->transform(b11),cs.zrg.stop );
+	const Coord3 c10( s3dgeom_->transform(b10),cs.zrg.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 
@@ -1463,8 +1463,8 @@ bool FaultDisplay::isSelectableMarkerInPolySel(
     if ( !polysel->isInside(markerworldpos) )
 	return false;
 
-    const double epsxy = getInlCrlSystem()->inlDistance()*0.1f;
-    const double epsz = 0.01f * getInlCrlSystem()->zStep();
+    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
+    const double epsz = 0.01f * get3DSurvGeom()->zStep();
     const Coord3 eps( epsxy,epsxy,epsz );
 
     TypeSet<int> pickedobjids;
@@ -1650,7 +1650,7 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 
 	const float onestepdist = 
 	    mCast( float, Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(Coord3(0,0,1)) ) );
+		    s3dgeom_->oneStepTranslation(Coord3(0,0,1)) ) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
@@ -1692,7 +1692,7 @@ bool FaultDisplay::coincidesWithPlane(
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist = 
 	    mCast( float, Coord3(1,1,mZScale()).dot(
-		    inlcrlsystem_->oneStepTranslation(planenormal) ) );
+		    s3dgeom_->oneStepTranslation(planenormal) ) );
 
 	float prevdist=-1;
 	Coord3 prevpos;

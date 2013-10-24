@@ -23,15 +23,15 @@ namespace Geometry
 BinIDSurface::BinIDSurface( const BinID& newstep )
     : ParametricSurface( RowCol(0,0), RowCol(newstep) ) 
     , depths_( 0 )
-    , surveyinfo_( &SI() )
-{ }
+{
+}
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
     : ParametricSurface( b.origin_, b.step_ ) 
     , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
-    , surveyinfo_( &SI() )
-{ }
+{
+}
 
 
 BinIDSurface::~BinIDSurface()

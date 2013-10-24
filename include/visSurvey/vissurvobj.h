@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 
 
-class InlCrlSystem;
 class BaseMap;
 class BaseMapObject;
 class DataPointSet;
@@ -45,6 +44,7 @@ namespace visBase
 };
 
 namespace Attrib  { class SelSpec; class DataCubes; }
+namespace Survey  { class Geometry3D; }
 
 namespace visSurvey
 {
@@ -57,9 +57,10 @@ namespace visSurvey
 mExpClass(visSurvey) SurveyObject
 {
 public:
-    virtual void		setInlCrlSystem(const InlCrlSystem*);
-    const InlCrlSystem*		getInlCrlSystem() const { return inlcrlsystem_;}
-    virtual const char*		getInlCrlSystemName() const;
+
+    virtual void		set3DSurvGeom(const Survey::Geometry3D*);
+    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_;}
+    virtual const char*		get3DSurvGeomName() const;
 
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
@@ -350,7 +351,7 @@ protected:
     virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
     BaseMapObject*		basemapobj_;
 
-    const InlCrlSystem*		inlcrlsystem_;
+    const Survey::Geometry3D*	s3dgeom_;
     BufferString		survname_; //Only from IOPar
 };
 

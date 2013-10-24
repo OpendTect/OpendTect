@@ -1225,7 +1225,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	{
 	    const float zfactor = scene_
 		? scene_->getZScale()
-		: inlcrlsystem_->zScale();
+		: s3dgeom_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = (float) fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
@@ -1240,7 +1240,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 
 float HorizonDisplay::maxDist() const
 {
-    return inlcrlsystem_->zStep();
+    return s3dgeom_->zStep();
 }
 
 
@@ -1335,11 +1335,11 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    if ( attribshifts.validIdx(version) )
 	    {
 		attribshift =
-		  attribshifts[version] * inlcrlsystem_->zDomain().userFactor();
+		  attribshifts[version] * s3dgeom_->zDomain().userFactor();
 	    }
 	    
 	    const float zshift = 
-	      (float) getTranslation().z*inlcrlsystem_->zDomain().userFactor();
+	      (float) getTranslation().z*s3dgeom_->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1743,7 +1743,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( rtdisplay )
 	{
 	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
-	    cs.zrg.step = inlcrlsystem_->zStep();
+	    cs.zrg.step = s3dgeom_->zStep();
 	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
@@ -1758,7 +1758,7 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( seis2ddisplay )
 	{
 	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
-	    cs.zrg.step = inlcrlsystem_->zStep();
+	    cs.zrg.step = s3dgeom_->zStep();
 	    const Interval<int>& trcnrrg = seis2ddisplay->getTraceNrRange();
 	    for ( int trcnr=trcnrrg.start; trcnr<=trcnrrg.stop; trcnr++ )
 	    {

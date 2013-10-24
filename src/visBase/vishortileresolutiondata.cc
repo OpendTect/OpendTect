@@ -54,8 +54,8 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
     , linesosgps_( 0 )
     , pointsosgps_( 0 )
     , wireframesosgps_( 0 )
-    , cosanglexinl_( cos(SI().computeAngleXInl()) )
-    , sinanglexinl_( sin(SI().computeAngleXInl()) )
+    , cosanglexinl_( cos(SI().angleXInl()) )
+    , sinanglexinl_( sin(SI().angleXInl()) )
     , needsetposition_( true )
 
 {
