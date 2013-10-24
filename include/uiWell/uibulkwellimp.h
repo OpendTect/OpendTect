@@ -53,6 +53,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     uiFileInput*	inpfld_;
+    uiGenInput*		istvdfld_;
 };
 
 

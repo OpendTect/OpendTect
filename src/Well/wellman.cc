@@ -6,12 +6,17 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "welldata.h"
 #include "wellman.h"
-#include "welltransl.h"
+
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "welldata.h"
+#include "wellreader.h"
+#include "welltransl.h"
+
 
 Well::Man* Well::Man::mgr_ = 0;
 
@@ -111,4 +116,36 @@ int Well::Man::gtByKey( const MultiID& key ) const
 	    return idx;
     }
     return -1;
+}
+
+
+IOObj* Well::findIOObj( const char* nm, const char* uwi )
+{
+    IOM().to( MultiID("100050") );
+    IODir iodir( MultiID("100050") );
+    if ( nm && *nm )
+    {
+	const IOObj* ioobj = iodir[nm];
+	if ( ioobj ) return ioobj->clone();
+    }
+
+    if ( uwi && *uwi )
+    {
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
+	IODirEntryList del( IOM().dirPtr(), ctio->ctxt );
+	Well::Data data;
+	for ( int idx=0; idx<del.size(); idx++ )
+	{
+	    const IOObj* ioobj = del[idx]->ioobj;
+	    if ( !ioobj ) continue;
+
+	    Well::Reader rdr( ioobj->fullUserExpr(), data );
+	    if ( !rdr.getInfo() ) continue;
+
+	    if ( data.info().uwid == uwi )
+		return ioobj->clone();
+	}
+    }
+
+    return 0;
 }

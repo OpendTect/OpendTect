@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "bufstring.h"
 
+class IOObj;
+class MultiID;
 
 namespace Well
 {
@@ -30,7 +32,6 @@ class Data;
 mExpClass(Well) Man
 {
 public:
-
     			~Man();
 
     void		removeAll();
@@ -60,8 +61,8 @@ protected:
 
 mGlobal(Well) Man& MGR();
 
-}; // namespace Well
+mGlobal(Well) IOObj* findIOObj(const char* wellnm,const char* uwi);
 
+} // namespace Well
 
 #endif
-

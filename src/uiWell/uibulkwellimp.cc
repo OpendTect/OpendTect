@@ -220,6 +220,10 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 {
     inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+
+    istvdfld_ = new uiGenInput( this, "Depth values are",
+				BoolInpSpec(false,"TVDSS","MD") );
+    istvdfld_->attach( alignedBelow, inpfld_ );
 }
 
 
@@ -237,9 +241,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	return false;
     }
 
+    const bool zistvd = istvdfld_->getBoolValue();
     BufferStringSet errors;
-    IOM().to( MultiID("100050") );
-    IODir iodir( MultiID("100050") );
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -252,7 +255,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const IOObj* ioobj = iodir[info.wellnm];
+	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
 	if ( !ioobj )
 	{
 	    errors.add( BufferString(fnm,": Cannot find ",info.wellnm) );
@@ -269,7 +272,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	}
 
 	lasimp.setData( wd );
-	errmsg = lasimp.getLogs( fnm, info );
+	errmsg = lasimp.getLogs( fnm, info, zistvd );
 	if ( !errmsg.isEmpty() )
 	    errors.add( BufferString(fnm,": ",errmsg) );
 
@@ -297,7 +300,8 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Bulk Marker Import",mNoDlgTitle,"107.0.12"))
     , fd_(BulkMarkerAscIO::getDesc())
 {
-    inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup());
+    inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
+		.withexamine(true).examstyle(uiFileInput::Setup::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
@@ -324,8 +328,68 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     BufferStringSet wellnms;
     ObjectSet<MarkerSet> markersets;
     readFile( strm, wellnms, markersets );
+    if ( wellnms.isEmpty() )
+	mErrRet( "No information read from file" );
 
-    return true;
+    const ObjectSet<Table::TargetInfo>& tis = fd_->bodyinfos_;
+    const bool doconv = tis.validIdx(1) && tis[1]->selection_.form_==1;
+
+    BufferStringSet errors;
+    for ( int idx=0; idx<wellnms.size(); idx++ )
+    {
+	const BufferString& wellnm = wellnms.get(idx);
+	if ( wellnm.isEmpty() ) continue;
+
+	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
+	if ( !ioobj )
+	{
+	    errors.add( BufferString("Cannot find ",wellnm," in database") );
+	    continue;
+	}
+
+	const bool isloaded = MGR().isLoaded( ioobj->key() );
+	Data* wd = MGR().get( ioobj->key() );
+	if ( !wd )
+	{
+	    errors.add( BufferString(wellnm,": Cannot load well") );
+	    continue;
+	}
+
+	if ( doconv )
+	{
+	    MarkerSet& ms = *markersets[idx];
+	    for ( int ids=0; ids<ms.size(); ids++ )
+	    {
+		float dah = ms[ids]->dah();
+		dah = wd->track().getDahForTVD( dah );
+		ms[ids]->setDah( dah );
+	    }
+	}
+
+	wd->markers() = *markersets[idx];
+	const BufferString wellfnm = ioobj->fullUserExpr();
+	Writer wtr( wellfnm, *wd );
+	if ( !wtr.putMarkers() )
+	{
+	    errors.add( BufferString(wellnm,
+			": Cannot write new markers to disk") );
+	    continue;
+	}
+
+	wd->markerschanged.trigger();
+	if ( !isloaded )
+	    delete MGR().release( ioobj->key() );
+    }
+
+    if ( errors.isEmpty() )
+    {
+	uiMSG().message( "All markers imported succesfully" );
+	return true;
+    }
+
+    uiMSG().errorWithDetails( errors,
+		"Could not import all marker files (See details)" );
+    return false;
 }
 
 
@@ -334,7 +398,7 @@ void uiBulkMarkerImport::readFile( od_istream& istrm,
 				   ObjectSet<MarkerSet>& markersets )
 {
     BulkMarkerAscIO aio( *fd_, istrm );
-    BufferString markernm, wellnm, uwi;
+    BufferString markernm, wellnm; // wellnm can be UWI as well
     float md = mUdf(float);
     while ( aio.get(wellnm,md,markernm) )
     {
@@ -370,8 +434,9 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 				 mNoDlgTitle,mTODOHelpID))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
-    inpfld_ = new uiFileInput( this, "Input Depth/Time Model file",
-			       uiFileInput::Setup());
+    uiFileInput::Setup fs;
+    fs.withexamine(true).examstyle(uiFileInput::Setup::Table);
+    inpfld_ = new uiFileInput( this, "Input Depth/Time Model file", fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "107.0.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
@@ -395,10 +460,57 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
-    ObjectSet<D2TModelData> data;
-    readFile( strm, data );
+    ObjectSet<D2TModelData> d2tdata;
+    readFile( strm, d2tdata );
+    if ( d2tdata.isEmpty() )
+	mErrRet( "No information read from file" );
 
-    return true;
+    BufferStringSet errors;
+    for ( int idx=0; idx<d2tdata.size(); idx++ )
+    {
+	const BufferString& wellnm = d2tdata[idx]->wellnm_;
+	if ( wellnm.isEmpty() ) continue;
+
+	const IOObj* ioobj = findIOObj( wellnm, wellnm );
+	if ( !ioobj )
+	{
+	    errors.add( BufferString("Cannot find ",wellnm," in database") );
+	    continue;
+	}
+
+	const bool isloaded = MGR().isLoaded( ioobj->key() );
+	Data* wd = MGR().get( ioobj->key() );
+	if ( !wd )
+	{
+	    errors.add( BufferString(wellnm,": Cannot load well") );
+	    continue;
+	}
+
+	D2TModel* d2t = new D2TModel();
+	// fill d2t
+	const BufferString wellfnm = ioobj->fullUserExpr();
+	Writer wtr( wellfnm, *wd );
+	if ( !wtr.putD2T() )
+	{
+	    errors.add( BufferString(wellnm,
+			": Cannot write new model to disk") );
+	    continue;
+	}
+
+	wd->d2tchanged.trigger();
+	if ( !isloaded )
+	    delete MGR().release( ioobj->key() );
+    }
+
+    if ( errors.isEmpty() )
+    {
+	uiMSG().message( "All models imported succesfully" );
+	return true;
+    }
+
+    uiMSG().errorWithDetails( errors,
+		"Could not import all model files (See details)" );
+    return false;
 }
 
 
@@ -413,6 +525,7 @@ static int getIndex( const ObjectSet<D2TModelData>& data,
 
     return -1;
 }
+
 
 void uiBulkD2TModelImport::readFile( od_istream& istrm,
 				     ObjectSet<D2TModelData>& data )
