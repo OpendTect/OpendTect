@@ -22,6 +22,7 @@ class BinID;
 class Coord;
 class Coord3;
 class TrcKey;
+class IdxPair;
 class MultiID;
 class BufferString;
 template<class T> class TypeSet;
@@ -29,14 +30,17 @@ template<class T> class Interval;
 template<class T> class ObjectSet;
 template<class T> class StepInterval;
 
+typedef od_int32	Index_Type;
+typedef od_int32	Index_Delta_Type;
+
 
 namespace Pos
 {
 
 class IdxPair;
 
-typedef od_int32	Index_Type;
-typedef od_int32	Index_Delta_Type;
+typedef ::Index_Type	Index_Type;
+typedef ::Index_Type	Index_Delta_Type;
 typedef Index_Type	SurvID;
 typedef Index_Type	LineID;
 typedef Index_Type	TraceID;

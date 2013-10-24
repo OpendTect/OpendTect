@@ -24,17 +24,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "timefun.h"
 
-#include <iostream>
+#define mIdxTyp PosInfo::Survey2D::IdxType
 
-static PosInfo::Survey2D* theinst = 0;
-static PosInfo::Line2DKey udfl2dkey(-1,-1);
+
 static const char* sIdxFilename = "idx.txt";
 static const char* sKeyStor = "Storage";
 static const char* sKeyMaxID = "Max ID";
 static const char* sKeyTrcDist = "Inter-trace Distance";
+static const PosInfo::Line2DKey udfl2dkey(
+			mUdf(IdxPair::IdxType), mUdf(IdxPair::IdxType) );
 static bool cWriteAscii = false;
-const PosInfo::Line2DKey& PosInfo::Line2DKey::udf()	{ return udfl2dkey; }
+static PosInfo::Survey2D* s2dpos_inst = 0;
+namespace PosInfo { struct Survey2DDeleter : public NamedObject {
+	void doDel( CallBacker* ) { delete s2dpos_inst; s2dpos_inst = 0; } }; }
 
+
+const PosInfo::Line2DKey& PosInfo::Line2DKey::udf()
+{
+    return udfl2dkey;
+}
+
+
+bool PosInfo::Line2DKey::haveLSID() const
+{
+    return first >= 0 && !mIsUdf(first);
+}
+
+
+bool PosInfo::Line2DKey::haveLineID() const
+{
+    return second >= 0 && !mIsUdf(second);
+}
 
 
 void PosInfo::Survey2D::initClass()
@@ -43,49 +63,35 @@ void PosInfo::Survey2D::initClass()
 }
 
 
-namespace PosInfo { struct Survey2DDeleter : public NamedObject {
-	void doDel( CallBacker* ) { delete theinst; theinst = 0; } }; }
-
-
 bool PosInfo::Line2DKey::isOK() const
 {
     return S2DPOS().hasLine( lineID(), lsID() );
 }
 
 
-BufferString PosInfo::Line2DKey::toString() const
+
+const char* PosInfo::Line2DKey::getUsrStr() const
 {
-    BufferString str;
-    str.add(lsID()).add(".").add(lineID());
-    return str;
+    return IdxPair::getUsrStr( "", ".", "", false );
 }
 
-bool PosInfo::Line2DKey::fromString( const char* str )
+
+bool PosInfo::Line2DKey::parseUsrStr( const char* str )
 {
-    BufferString idstr = str;
-    char* ptr = strchr( idstr.buf(), '.' );
-    if ( !ptr )
-	return false;
-
-    *ptr++ = '\0'; mTrimBlanks(ptr);
-    second = *ptr ? toInt( ptr ) : -1;
-    ptr = idstr.buf(); mTrimBlanks(ptr);
-    first = *ptr ? toInt( ptr ) : -1;
-
-    return isUdf();
+    return IdxPair::parseUsrStr( str, "", ".", "" );
 }
 
 
 const PosInfo::Survey2D& S2DPOS()
 {
-    if ( !theinst )
+    if ( !s2dpos_inst )
     {
-	theinst = new PosInfo::Survey2D;
+	s2dpos_inst = new PosInfo::Survey2D;
 	static PosInfo::Survey2DDeleter s2dd;
 	const_cast<SurveyInfo&>(SI()).deleteNotify(
 			mCB(&s2dd,PosInfo::Survey2DDeleter,doDel) );
     }
-    return *theinst;
+    return *s2dpos_inst;
 }
 
 
@@ -245,7 +251,7 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 }
 
 
-void PosInfo::Survey2D::updateMaxID( int maxid, IOPar& par )
+void PosInfo::Survey2D::updateMaxID( mIdxTyp maxid, IOPar& par )
 {
     par.remove( sKeyMaxID );
     par.set( sKeyMaxID, maxid );
@@ -265,7 +271,7 @@ void PosInfo::Survey2D::getKeys( const IOPar& iop, BufferStringSet& nms ) const
 }
 
 
-void PosInfo::Survey2D::getIDs( const IOPar& iop, TypeSet<int>& ids ) const
+void PosInfo::Survey2D::getIDs( const IOPar& iop, TypeSet<mIdxTyp>& ids ) const
 {
     ids.erase();
     for ( int idx=0; idx<iop.size(); idx++ )
@@ -278,15 +284,16 @@ void PosInfo::Survey2D::getIDs( const IOPar& iop, TypeSet<int>& ids ) const
 }
 
 
-int PosInfo::Survey2D::curLineSetID() const
+mIdxTyp PosInfo::Survey2D::curLineSetID() const
 {
     return getLineSetID( lsnm_.buf() );
 }
 
 
-int PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
+mIdxTyp PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
 {
-    if ( !lsnmstr ) return -1;
+    if ( !lsnmstr || !*lsnmstr )
+	return Line2DKey::udf().lsID();
 
     FixedString lsnm = lsnmstr;
 
@@ -297,13 +304,14 @@ int PosInfo::Survey2D::getLineSetID( const char* lsnmstr ) const
 	    return info.getIValue( 1 );
     }
 
-    return -1;
+    return Line2DKey::udf().lsID();
 }
 
 
-int PosInfo::Survey2D::getLineID( const char* linenm ) const
+mIdxTyp PosInfo::Survey2D::getLineID( const char* linenm ) const
 {
-    if ( !linenm ) return -1;
+    if ( !linenm || !*linenm )
+	return Line2DKey::udf().lineID();
 
     for ( int idx=0; idx<lineindex_.size(); idx++ )
     {
@@ -312,11 +320,11 @@ int PosInfo::Survey2D::getLineID( const char* linenm ) const
 	    return info.getIValue( 1 );
     }
 
-    return -1;
+    return Line2DKey::udf().lineID();
 }
 
 
-const char* PosInfo::Survey2D::getLineSet( int lsid ) const
+const char* PosInfo::Survey2D::getLineSet( mIdxTyp lsid ) const
 {
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
@@ -335,7 +343,7 @@ bool PosInfo::Survey2D::hasLineSet( const char* lsnm ) const
 }
 
 
-bool PosInfo::Survey2D::hasLineSet( int lsid ) const
+bool PosInfo::Survey2D::hasLineSet( mIdxTyp lsid ) const
 {
     for ( int idx=0; idx<lsindex_.size(); idx++ )
     {
@@ -348,7 +356,7 @@ bool PosInfo::Survey2D::hasLineSet( int lsid ) const
 }
 
 
-const char* PosInfo::Survey2D::getLineName( int lineid ) const
+const char* PosInfo::Survey2D::getLineName( mIdxTyp lineid ) const
 {
     if ( lineid < 0 )
 	return 0;
@@ -375,7 +383,7 @@ bool PosInfo::Survey2D::hasLine( const char* lnm, const char* lsnm ) const
 
 
 
-bool PosInfo::Survey2D::hasLine( int lineid, int lsid ) const
+bool PosInfo::Survey2D::hasLine( mIdxTyp lineid, mIdxTyp lsid ) const
 {
     if ( lsid < 0 )
 	lsid = curLineSetID();
@@ -383,7 +391,7 @@ bool PosInfo::Survey2D::hasLine( int lineid, int lsid ) const
     if ( !hasLineSet(lsid) )
 	return false; 
 
-    TypeSet<int> lineids; getLineIDs( lineids, lsid );
+    TypeSet<mIdxTyp> lineids; getLineIDs( lineids, lsid );
     return lineids.isPresent( lineid );
 }
 
@@ -421,9 +429,9 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
 }
 
 
-void PosInfo::Survey2D::getLines( BufferStringSet& nms, int lsid ) const
+void PosInfo::Survey2D::getLines( BufferStringSet& nms, mIdxTyp lsid ) const
 {
-    if ( lsid == -1 )
+    if ( mIsUdf(lsid) || lsid < 0 )
 	return getLines( nms, 0 );
 
     BufferString lsnm = getLineSet( lsid );
@@ -431,18 +439,15 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, int lsid ) const
 }
 
 
-void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
+void PosInfo::Survey2D::getLineIDs( TypeSet<mIdxTyp>& ids, mIdxTyp lsid ) const
 {
     if ( lsid >=0 && !hasLineSet(lsid) )
 	return;
 
     if ( lsid == curLineSetID() )
-    {
-	getIDs( lineindex_, ids );
-	return;
-    }
+	{ getIDs( lineindex_, ids ); return; }
 
-    if ( lsid == -1 )
+    if ( mIsUdf(lsid) || lsid < 0 )
 	lsid = curLineSetID();
 
     const int lsidx = getLineSetIdx( lsid );
@@ -457,11 +462,11 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<int>& ids, int lsid ) const
 }
 
 
-int PosInfo::Survey2D::getNewID( IOPar& iop ) 
+mIdxTyp PosInfo::Survey2D::getNewID( IOPar& iop ) 
 {
-    int savedmeaxid = -mUdf(int);
+    mIdxTyp savedmeaxid = -mUdf(int);
     iop.get( sKeyMaxID, savedmeaxid );
-    int newlineidx = 0;
+    mIdxTyp newlineidx = 0;
     
     if ( !iop.size() )
 	return 0;
@@ -511,13 +516,13 @@ BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
 }
 
 
-void PosInfo::Survey2D::setCurLineSet( int lsid ) const
+void PosInfo::Survey2D::setCurLineSet( mIdxTyp lsid ) const
 {
     if ( !hasLineSet(lsid) )
 	return;
 
     int lsidx = getLineSetIdx( lsid );
-    if ( lsidx < 0 || mIsUdf(lsidx) )
+    if ( lsidx < 0 )
 	return;
     
     BufferString maxidkey( sKeyMaxID );
@@ -560,7 +565,7 @@ void PosInfo::Survey2D::setCurLineSet( const char* lsnm ) const
 }
 
 
-bool PosInfo::Survey2D::getGeometry( int lineid,
+bool PosInfo::Survey2D::getGeometry( mIdxTyp lineid,
 				     PosInfo::Line2DData& l2dd ) const
 {
     for ( int idx=0; idx<lineindex_.size(); idx++ )
@@ -736,7 +741,7 @@ void PosInfo::Survey2D::removeLine( const char* lnm )
 }
 
 
-void PosInfo::Survey2D::removeLine( int lineid )
+void PosInfo::Survey2D::removeLine( mIdxTyp lineid )
 {
     const int lidx = getLineIdx( lineid );
     if ( lidx < 0 ) return;
@@ -749,7 +754,7 @@ void PosInfo::Survey2D::removeLine( int lineid )
 }
 
 
-void PosInfo::Survey2D::removeLineSet( int lsid )
+void PosInfo::Survey2D::removeLineSet( mIdxTyp lsid )
 {
     const int lsidx = getLineSetIdx( lsid );
     if ( lsidx<0 ) return;
@@ -910,8 +915,6 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
 }
 
 
-// New Stuff
-
 Survey::Geometry2D::Geometry2D()
     : data_(*new PosInfo::Line2DData)
 {
@@ -957,7 +960,9 @@ StepInterval<float> Survey::Geometry2D::zRange() const
 
 
 bool Survey::Geometry2D::includes( int line, int tracenr ) const
-{ return data_.indexOf(tracenr) >= 0; }
+{
+    return data_.indexOf(tracenr) >= 0;
+}
 
 
 BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
@@ -968,5 +973,3 @@ BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
     newlnm.add( lnm );
     return newlnm;
 }
-
-

@@ -23,23 +23,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 #include <string.h>
 
+#define mUdfIdx mUdf(IdxPair::IdxType)
+static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
+static const Pos::IdxPair udfposidxpair( mUdfIdx, mUdfIdx );
+#define mUdfOrd mUdf(Coord::OrdType)
+static const Coord udfcoord( mUdfOrd, mUdfOrd );
+static const Coord3 udfcoord3( mUdfOrd, mUdfOrd, mUdfOrd );
 
-od_int64 Pos::IdxPair::sqDistTo( const Pos::IdxPair& oth ) const
+
+const IdxPair& IdxPair::udf()
 {
-    od_int64 sqfrst = (first-oth.first); sqfrst *= sqfrst;
-    od_int64 sqsec = (second-oth.second); sqsec *= sqsec;
-    return sqfrst + sqsec;
+   return udfidxpair;
 }
 
 
-const Pos::IdxPair& Pos::IdxPair::udf()
-{
-   static Pos::IdxPair udfpair( mUdf(IdxType), mUdf(IdxType) );
-   return udfpair;
-}
-
-
-const char* Pos::IdxPair::getUsrStr( const char* prefx, const char* sep,
+const char* IdxPair::getUsrStr( const char* prefx, const char* sep,
 				     const char* postfx, bool only2nd ) const
 {
     mDeclStaticString( ret );
@@ -58,7 +56,7 @@ const char* Pos::IdxPair::getUsrStr( const char* prefx, const char* sep,
 }
 
 
-bool Pos::IdxPair::parseUsrStr( const char* str, const char* prefx,
+bool IdxPair::parseUsrStr( const char* str, const char* prefx,
        				const char* sep, const char* postfx )
 {
     if ( !str || !*str )
@@ -87,6 +85,20 @@ bool Pos::IdxPair::parseUsrStr( const char* str, const char* prefx,
     if ( ptr1st != ptr2nd )
 	first = toInt( ptr1st );
     return true;
+}
+
+
+const Pos::IdxPair& Pos::IdxPair::udf()
+{
+   return udfposidxpair;
+}
+
+
+od_int64 Pos::IdxPair::sqDistTo( const Pos::IdxPair& oth ) const
+{
+    od_int64 sqfrst = (first-oth.first); sqfrst *= sqfrst;
+    od_int64 sqsec = (second-oth.second); sqsec *= sqsec;
+    return sqfrst + sqsec;
 }
 
 
@@ -138,7 +150,6 @@ Coord::DistType Coord::dot( const Coord& b ) const
 
 const Coord& Coord::udf()
 {
-   static Coord udfcoord( mUdf(OrdType), mUdf(OrdType) );
    return udfcoord;
 }
 
@@ -275,8 +286,7 @@ bool Coord3::isSameAs(const Coord3& pos, const Coord3& eps) const
 
 const Coord3& Coord3::udf()
 {
-   static Coord3 udfc3( mUdf(OrdType), mUdf(OrdType), mUdf(OrdType) );
-   return udfc3;
+   return udfcoord3;
 }
 
 

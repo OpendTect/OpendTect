@@ -135,7 +135,7 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
 
 	BufferString key = IOPar::compKey( "Line", idx );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		   l2dky.toString() );
+		   l2dky.getUsrStr() );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		   trcranges[idx] );
     }
@@ -181,7 +181,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	    BufferString key = IOPar::compKey( "Line", idx );
 	    BufferString idstr;
 	    iopar.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::Line2DKey l2dkey; l2dkey.fromString( idstr );
+	    PosInfo::Line2DKey l2dkey; l2dkey.parseUsrStr( idstr );
 #ifdef mNew2DGeometryImpl
 	    S2DPOS().setCurLineSet( l2dkey.lsID() );
 	    BufferString lnm = S2DPOS().getLineName( l2dkey.lineID() );

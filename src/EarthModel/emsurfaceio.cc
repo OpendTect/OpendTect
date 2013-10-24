@@ -256,7 +256,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
+	    PosInfo::GeomID oldgeomid; oldgeomid.parseUsrStr( idstr );
 	    S2DPOS().setCurLineSet( oldgeomid.lsID() );
 	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineID() );
 	    int geomid = Survey::GM().getGeomID( lnm.buf() );
@@ -283,7 +283,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    if ( !par_->get(lineidkey.buf(),geomidstr) )
 		continue;
 
-	    geomid.fromString( geomidstr );
+	    geomid.parseUsrStr( geomidstr );
 	    S2DPOS().setCurLineSet( geomid.lsID() );
 	    linesets_.add( S2DPOS().hasLineSet(geomid.lsID())
 		    ? S2DPOS().getLineSet(geomid.lsID()) : sKeyUndefLineSet() );
@@ -867,7 +867,7 @@ int dgbSurfaceReader::nextStep()
 	    BufferString key = IOPar::compKey( "Line", idx );
 	    BufferString idstr;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::GeomID geomid; geomid.fromString( idstr );
+	    PosInfo::GeomID geomid; geomid.parseUsrStr( idstr );
 	    lines.add( S2DPOS().hasLine(geomid.lineID(),geomid.lsID()) ?
 		S2DPOS().getLineName(geomid.lineID()) : sKeyUndefLine() );
 	}

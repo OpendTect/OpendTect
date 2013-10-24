@@ -106,13 +106,13 @@ inline BinID BinID::fromInt64( od_int64 i64 )
 
 inline const char* BinID::getUsrStr( bool is2d ) const
 {
-    return Pos::IdxPair::getUsrStr( "", "/", "", is2d );
+    return IdxPair::getUsrStr( "", "/", "", is2d );
 }
 
 
 inline bool BinID::parseUsrStr( const char* str )
 {
-    return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
+    return IdxPair::parseUsrStr( str, "", "/", "" );
 }
 
 #endif

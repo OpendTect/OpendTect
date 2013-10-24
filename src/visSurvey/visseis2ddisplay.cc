@@ -1121,7 +1121,7 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
-    par.set( "GeomID", l2dkey_.toString() );
+    par.set( "GeomID", l2dkey_.getUsrStr() );
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     if ( !trcdisplayinfo_.alltrcnrs_.isEmpty() )
@@ -1202,7 +1202,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
     BufferString geomidstr;
     if ( par.get("GeomID",geomidstr) )
     {
-	l2dkey_.fromString( geomidstr.buf() );
+	l2dkey_.parseUsrStr( geomidstr.buf() );
 	PtrMan<IOObj> seis2dobj = IOM().get( linesetid_ );
 	if ( !seis2dobj )
 	    return -1;

@@ -454,7 +454,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	geomids_.erase();
 	BufferString str;
 	PosInfo::GeomID geomid;
-	while ( subpargeom->get(toString(idx++),str) && geomid.fromString(str) )
+	while ( subpargeom->get(toString(idx++),str) && geomid.parseUsrStr(str))
 	    addLineID( geomid );
     }
 
@@ -477,7 +477,7 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
     for ( int lidx=0; lidx<geomids_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::GeomID(),lidx),
-		 geomids_[lidx].toString() );
+		 geomids_[lidx].getUsrStr() );
     for ( int lidx=0; lidx<trcrgs_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
     for ( int lidx=0; lidx<zrgs_.size(); lidx++ )

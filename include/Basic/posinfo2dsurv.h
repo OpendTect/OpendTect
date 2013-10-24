@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "threadlock.h"
 #include "callback.h"
-#include <utility>
+#include "idxpair.h"
 
 class FilePath;
 class BufferStringSet;
@@ -45,22 +45,17 @@ inline mGlobal(Basic) Survey2D& POS2DAdmin()
 
 /*!\brief Key holding ID for both lineset and line. */
 
-typedef Pos::Index_Type Index_Type;
-typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
 
-
-mExpClass(Basic) Line2DKey : public Index_Type_Pair
+mExpClass(Basic) Line2DKey : public IdxPair
 {
 public:
 
-    typedef Index_Type	IdxType;
-
 			Line2DKey( int lsid=-1, int lineid=-1 )
-			    : Index_Type_Pair(lsid,lineid)	{}
+			    : IdxPair(lsid,lineid)	{}
 
-    bool		operator ==( const Line2DKey& oth ) const
-   			{ return first == oth.first && second == oth.second; }
-    bool		operator !=( const Line2DKey& oth ) const
+    inline bool		operator ==( const Line2DKey& oth ) const
+   			{ return IdxPair::operator==(oth); }
+    inline bool		operator !=( const Line2DKey& oth ) const
 			{ return !( operator==(oth) ); }
 
     inline IdxType&	lsID()		{ return first; }
@@ -68,13 +63,15 @@ public:
     inline IdxType&	lineID()	{ return second; }
     inline IdxType	lineID() const	{ return second; }
 
-    bool		isOK() const;
-    void		setUdf()	{ *this = udf(); }
-    bool		isUdf() const	{ return *this == udf(); }
-    static const Line2DKey& udf();
+    bool		isOK() const;	//!< true if a line exist with this key
 
-    BufferString	toString() const;
-    bool		fromString(const char*);
+    const char*		getUsrStr() const;
+    bool		parseUsrStr(const char*);
+
+    bool		haveLSID() const;
+    bool		haveLineID() const;
+
+    static const Line2DKey& udf();
 
 };
 
@@ -87,6 +84,8 @@ typedef Line2DKey GeomID;
 mExpClass(Basic) Survey2D : public CallBacker
 {
 public:
+
+    typedef Line2DKey::IdxType	IdxType;
 
     static void		initClass();
     bool		isEmpty() const		{ return lsnm_.isEmpty(); }
@@ -109,25 +108,25 @@ public:
     void		renameLineSet(const char*,const char*);
     
     // using ids
-    const char*		getLineSet(int lsid) const;
-    const char*		getLineName(int lineid) const;
-    int			getLineSetID(const char*) const;
-    int			getLineID(const char*) const;
-    bool		hasLineSet(int lsid) const;
-    bool		hasLine(int lineid,int lsid=-1) const;
-    void		getLineIDs(TypeSet<int>&,int lsid) const;
-    void		getLines(BufferStringSet&,int lsid) const;
+    const char*		getLineSet(IdxType lsid) const;
+    const char*		getLineName(IdxType lineid) const;
+    IdxType		getLineSetID(const char*) const;
+    IdxType		getLineID(const char*) const;
+    bool		hasLineSet(IdxType lsid) const;
+    bool		hasLine(IdxType lineid,IdxType lsid=-1) const;
+    void		getLineIDs(TypeSet<IdxType>&,IdxType lsid) const;
+    void		getLines(BufferStringSet&,IdxType lsid) const;
 
-    int			curLineSetID() const;
-    void		setCurLineSet(int lsid) const;
+    IdxType		curLineSetID() const;
+    void		setCurLineSet(IdxType lsid) const;
 
-    bool		getGeometry(int lid,Line2DData&) const;
+    bool		getGeometry(IdxType lid,Line2DData&) const;
     bool		getGeometry(const Line2DKey&,Line2DData&) const;
     			//!< thread safe
 
     void		renameLine(const char*oldnm,const char*newnm);
-    void		removeLine(int lid);
-    void		removeLineSet(int lsid);
+    void		removeLine(IdxType lid);
+    void		removeLineSet(IdxType lsid);
 
     Line2DKey		getLine2DKey(const char* lsnm,const char* linenm) const;
     const char*		getLSFileNm(const char* lsnm) const;
@@ -138,8 +137,8 @@ public:
 
 protected:
 
-    int			getNewID(IOPar&);
-    void		updateMaxID(int,IOPar&);
+    IdxType		getNewID(IOPar&);
+    void		updateMaxID(IdxType,IOPar&);
 
 private:
 
@@ -157,11 +156,11 @@ private:
     static void		readIdxFile(const char*,IOPar&);
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
-    void		getIDs(const IOPar&,TypeSet<int>&) const;
+    void		getIDs(const IOPar&,TypeSet<IdxType>&) const;
     BufferString	getNewStorageName(const char*,const FilePath&,
 	    				  const IOPar&) const;
-    int			getLineSetIdx(int lsid) const;
-    int			getLineIdx(int lineid) const;
+    int			getLineSetIdx(IdxType lsid) const;
+    int			getLineIdx(IdxType lineid) const;
 
     mGlobal(Basic) friend const Survey2D& ::S2DPOS();
 
