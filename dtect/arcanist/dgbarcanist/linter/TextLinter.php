@@ -86,6 +86,14 @@ final class TextLinter extends ArcanistLinter {
       if ($this->didStopAllLinters()) {
 	return;
       }
+
+/*
+      $this->lintStaticLocalVar($path);
+
+      if ($this->didStopAllLinters()) {
+	return;
+      }
+*/
     }
 
     $this->lintCharset($path);
@@ -177,6 +185,38 @@ final class TextLinter extends ArcanistLinter {
       $this->stopAllLinters();
     }
   }
+
+  private function lintStaticLocalVar($path) {
+    $data = $this->getData($path);
+
+    $matches = null;
+    $preg = preg_match_all(
+      '/\)\s*{[^}]*\s+static\s+/',
+      $data,
+      $matches,
+      PREG_OFFSET_CAPTURE);
+
+    if (!$preg) {
+      return;
+    }
+
+    foreach ($matches[0] as $match) {
+      list($string, $offset) = $match;
+      $offset = strpos( $data, 'static', $offset );
+      $this->raiseLintAtOffset(
+        $offset,
+        self::LINT_LOCAL_STATIC,
+        'Seems to contain local static variable, which is not allowed. '.
+	'Use mDefineStaticLocalObject macro instead.'
+        );
+    }
+
+    if ( $this->isMessageEnabled(self::LINT_LOCAL_STATIC)) {
+      $this->stopAllLinters();
+    }
+
+  }
+
 
   protected function lintEOFNewline($path) {
     $data = $this->getData($path);
