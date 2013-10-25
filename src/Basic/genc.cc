@@ -297,11 +297,11 @@ mExternC(Basic) int SetEnvVar( const char* env, const char* val )
     if ( !env || !*env )
 	return mC_False;
 
-    BufferString topass( env, "=", val );
 #ifdef __msvc__
+    BufferString topass( env, "=", val );
     _putenv( topass.buf() );
 #else
-    putenv( topass.buf() );
+    setenv( env, val, 1 );
 #endif
 
     return mC_True;
