@@ -528,7 +528,7 @@ void uiViewer2DMainWin::angleGatherCB( CallBacker* cb )
 	{
 	    tb->setOn( false );
 	    hasangles.setParam( this, false );
-	    doanglegathers.setParam( this, true );
+	    doanglegathers.setParam( this, false );
 	    return;
 	}
     }
@@ -542,14 +542,13 @@ void uiViewer2DMainWin::angleDataCB( CallBacker* cb )
     mDynamicCastGet(uiToolButton*,tb,cb);
     if ( !tb ) return;
     hasangles.setParam( this, tb->isOn() );
-    doanglegathers.setParam( this, true );
+    doanglegathers.setParam( this, false );
     if ( tb->isOn() )
     {
 	if ( !getAngleParams() )
 	{
 	    tb->setOn( false );
 	    hasangles.setParam( this, false );
-	    doanglegathers.setParam( this, false );
 	    return;
 	}
     }
