@@ -49,7 +49,12 @@ AngleCompParams::AngleCompParams()
     setup.fillPar( raypar_ );
     raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
 
-    const StepInterval<float> offsrange( 0, 6000, 100 );
+    const StepInterval<float> defoffsrange4metres( 0, 6000, 100 );
+    const StepInterval<float> defoffsrange4feet( 0, 19800*mFromFeetFactorF, 
+						 330*mFromFeetFactorF );
+    const StepInterval<float>& offsrange = 
+				SI().xyInFeet() ? defoffsrange4feet 
+						: defoffsrange4metres;
     TypeSet<float> offsetvals;
     for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
 	offsetvals += offsrange.atIndex( idx );
