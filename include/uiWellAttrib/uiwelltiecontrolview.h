@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
-#include "uiwellattribmod.h"
 #include "uiflatviewstdcontrol.h"
 
 class uiFlatViewer;
