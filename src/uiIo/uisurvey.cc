@@ -611,12 +611,12 @@ bool uiSurvey::acceptOK( CallBacker* )
     const BufferString selsurv( selectedSurveyName() );
     const bool samedataroot = initialdatadir_ == GetBaseDataDir();
     const bool samesurvey = samedataroot && initialsurvey_ == selsurv;
-    if ( samedataroot && samesurvey && !parschanged_ )
-	return true;
 
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(0)
+    if ( samedataroot && samesurvey && !parschanged_ )
+	return true;
 
     // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
