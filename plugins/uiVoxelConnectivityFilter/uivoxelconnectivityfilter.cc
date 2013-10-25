@@ -36,6 +36,8 @@ uiStepDialog* uiVoxelConnectivityFilter::createInstance( uiParent* p,
 #define mCutOutside 2
 #define mCutInside 3
 
+#define mMinBodySize 1
+
 
 uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 	VoxelConnectivityFilter* step )
@@ -88,7 +90,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     connectivityfld_->attach( ensureBelow, sep );
 
     int minsz = mCast(int,step->getMinimumBodySize());
-    if ( mIsUdf(minsz) ) minsz = 0;
+    if ( mIsUdf(minsz) ) minsz = mMinBodySize;
     minbodysizefld_ = new uiGenInput( this, "Keep bodies larger than [voxels]", 
 				      IntInpSpec(minsz) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
