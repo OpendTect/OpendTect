@@ -283,7 +283,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     const uiWorldPoint curwpt = w2ui.transform( curpt );
     
     uiWorldRect newwr( mousedownwr_ );
-    newwr.translate( startwpt-curwpt);
+    newwr.translate( startwpt-curwpt );
 
     uiWorldRect bb = vwrs_[0]->boundingBox();
     uiWorldRect oldwr = vwrs_[0]->curView();
