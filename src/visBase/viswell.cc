@@ -323,7 +323,8 @@ void Well::setMarkerScreenSize( int size )
 
 int Well::markerScreenSize() const
 {
-    return markerset_->getScreenSize();
+    //TODO: Should we simply cast to int?
+    return mNINT32(markerset_->getScreenSize());
 }
 
 
