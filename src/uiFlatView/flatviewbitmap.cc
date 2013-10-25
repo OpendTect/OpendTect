@@ -62,8 +62,8 @@ void FlatView::BitMapMgr::setupChg()
     }
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
-    pos_->setDim1Positions( (float) ( pd.range(false).start ), 
-					  (float) ( pd.range(false).stop ) );
+    pos_->setDim1Positions( mCast(float,pd.range(false).start),
+			    mCast(float,pd.range(false).stop) );
     data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )
@@ -84,17 +84,18 @@ void FlatView::BitMapMgr::setupChg()
 	wvagen->wvapars().overlap_ = wvapars.overlap_;
 	gen_ = wvagen;
     }
+
     const DataDispPars::Common* pars = &app.ddpars_.wva_;
     if ( !wva_ ) pars = &app.ddpars_.vd_;
+
     gen_->pars().clipratio_ = pars->mappersetup_.cliprate_;
     gen_->pars().midvalue_ = pars->mappersetup_.symmidval_;
-
     gen_->pars().nointerpol_ = pars->blocky_;
-        
     gen_->pars().autoscale_ =
 	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
     if ( !gen_->pars().autoscale_ )
 	gen_->pars().scale_ = pars->mappersetup_.range_;
+
     DPM(DataPackMgr::FlatID()).release( dp->id() );
 }
 
@@ -146,16 +147,16 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 
     mObtainDataPackToLocalVar( pack, const FlatDataPack*, DataPackMgr::FlatID(),
 	                                   vwr_.packID(wva_) );
-
     if ( !pack ) return true;
 
     Threads::Locker updlckr( pack->updateLock() );
 
     const FlatPosData& pd = pack->posData();
-    pos_->setDimRange( 0, Interval<float>((float) (wr.left()-pd.offset(true)),
-				      (float) (wr.right()-pd.offset(true))) );
-    pos_->setDimRange( 1, Interval<float>( (float) ( wr.bottom() ), 
-						 (float) ( wr.top() ) ) );
+    pos_->setDimRange( 0, Interval<float>(
+				mCast(float,wr.left()-pd.offset(true)),
+				mCast(float,wr.right()-pd.offset(true))) );
+    pos_->setDimRange( 1,
+	Interval<float>(mCast(float,wr.bottom()),mCast(float,wr.top())) );
 
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
@@ -205,7 +206,7 @@ void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 	drawWVA( *wva, offs );
 }
 
- 
+
 void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 				   const Geom::Point2D<int>& offs )
 {
@@ -243,10 +244,9 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
-	    Color col;
 	    const int idx = (int)bmpval-minfill;
 	    const int colidx = pars.mappersetup_.flipseq_ ? maxcolidx-idx : idx;
-	    col = ctindex.colorForIndex( colidx );
+	    const Color col = ctindex.colorForIndex( colidx );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}
@@ -267,7 +267,7 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
 	for ( int iy=0; iy<arrsz.height(); iy++ )
 	{
 	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
+	    const char bmpval = bmp.get( ix+offs.x, iy+offs.y );
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
@@ -284,4 +284,3 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
 	}
     }
 }
-
