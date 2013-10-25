@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "curvgrad.h"
 #include "grubbsfilterattrib.h"
-#include "semblanceattrib.h"
 #include "similaritybyaw.h"
 
 
@@ -35,7 +34,6 @@ mDefODInitPlugin(ExpAttribs)
 {
     Attrib::CurvGrad::initClass();
     Attrib::GrubbsFilter::initClass();
-    Attrib::Semblance::initClass();
     Attrib::SimilaritybyAW::initClass();
 
     return 0;

@@ -26,6 +26,7 @@ SET(OD_MODULE_SOURCES
 		referenceattrib.cc
 		samplevalueattrib.cc
 		scalingattrib.cc
+		semblanceattrib.cc
 		shiftattrib.cc
 		similarityattrib.cc
 		specdecompattrib.cc

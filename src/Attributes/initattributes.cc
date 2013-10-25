@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "referenceattrib.h"
 #include "samplevalueattrib.h"
 #include "scalingattrib.h"
+#include "semblanceattrib.h"
 #include "shiftattrib.h"
 #include "similarityattrib.h"
 #include "specdecompattrib.h"
@@ -55,6 +56,7 @@ mDefModInitFn(Attributes)
     Attrib::Reference::initClass();
     Attrib::SampleValue::initClass();
     Attrib::Scaling::initClass();
+    Attrib::Semblance::initClass();
     Attrib::Shift::initClass();
     Attrib::Similarity::initClass();
     Attrib::SpecDecomp::initClass();

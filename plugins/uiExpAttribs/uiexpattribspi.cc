@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicurvgrad.h"
 #include "uigrubbsfilterattrib.h"
-#include "uisemblanceattrib.h"
 #include "uisimilaritybyaw.h"
 
 
@@ -34,7 +33,6 @@ mDefODInitPlugin(uiExpAttribs)
 {
     uiCurvGrad::initClass();
     uiGrubbsFilterAttrib::initClass();
-    uiSemblanceAttrib::initClass();
     uiSimilaritybyAW::initClass();
 
     return 0;

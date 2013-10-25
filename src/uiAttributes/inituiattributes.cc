@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uireferenceattrib.h"
 #include "uisamplevalueattrib.h"
 #include "uiscalingattrib.h"
+#include "uisemblanceattrib.h"
 #include "uishiftattrib.h"
 #include "uisimilarityattrib.h"
 #include "uispecdecompattrib.h"
@@ -53,6 +54,7 @@ mDefModInitFn(uiAttributes)
     uiReferenceAttrib::initClass();
     uiSampleValueAttrib::initClass();
     uiScalingAttrib::initClass();
+    uiSemblanceAttrib::initClass();
     uiShiftAttrib::initClass();
     uiSimilarityAttrib::initClass();
     uiSpecDecompAttrib::initClass();

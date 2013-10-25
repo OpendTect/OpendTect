@@ -12,6 +12,6 @@ SET(OD_MODULE_SOURCES
 	curvgrad.cc
 	grubbsfilterattrib.cc
 	similaritybyaw.cc
-	semblanceattrib.cc)
+)
 SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
 OD_INIT_MODULE()

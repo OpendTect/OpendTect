@@ -46,6 +46,7 @@ SET(OD_MODULE_SOURCES
 		uireferenceattrib.cc
 		uisamplevalueattrib.cc
 		uiscalingattrib.cc
+		uisemblanceattrib.cc
 		uisetpickdirs.cc
 		uishiftattrib.cc
 		uisimilarityattrib.cc
