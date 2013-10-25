@@ -82,7 +82,7 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 		bid = SI().transform(c);
 	    else
 	    {
-		BufferString msg( "Position ", bid.getUsrStr() );
+		BufferString msg( "Position ", bid.toString() );
 		msg += " is probably wrong.\nDo you wish to discard it?";
 		if ( uiMSG().askGoOn(msg) )
 		{

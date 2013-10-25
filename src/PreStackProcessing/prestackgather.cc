@@ -286,7 +286,7 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( !is3D() )
 	par.set( sKey::TraceNr(), binid_.crl() );
     else
-	par.set( sKey::Position(), binid_.getUsrStr() );
+	par.set( sKey::Position(), binid_.toString() );
 }
 
 

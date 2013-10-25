@@ -194,7 +194,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	if ( typ == 0 )
 	    fms += elem.val_;
 	else if ( typ == 2 )
-	    fms += elem.pos_.getUsrStr();
+	    fms += elem.pos_.toString();
 	else
 	    { fms += elem.keyword_; fms += elem.pos_.col(); }
     }
@@ -243,7 +243,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 	if ( typ == 0 )
 	    elem.val_ = res;
 	else if ( typ == 2 )
-	    elem.pos_.parseUsrStr( res );
+	    elem.pos_.fromString( res );
 	else
 	{
 	    curfmsidx++;

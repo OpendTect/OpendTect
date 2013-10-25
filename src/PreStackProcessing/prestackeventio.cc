@@ -1218,7 +1218,7 @@ int EventPatchReader::nextStep()
     {
 	errmsg_ = "Could not read nr events from ";
 	errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		.add( " at " ).add( curbid.getUsrStr() );
+		.add( " at " ).add( curbid.toString() );
 	return ErrorOccurred();
     }
 
@@ -1236,7 +1236,7 @@ int EventPatchReader::nextStep()
 
 	    errmsg_ = "Could not read nr picks from ";
 	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		    .add( " at " ).add( curbid.getUsrStr() );
+		    .add( " at " ).add( curbid.toString() );
 	    errmsg_ += ". Event nr="; errmsg_ +=idx;
 
 	    return ErrorOccurred();
@@ -1272,7 +1272,7 @@ int EventPatchReader::nextStep()
 	    ge->unRef();
 	    errmsg_ = "Could not event from ";
 	    errmsg_.add( ((StreamConn*)conn_)->fileName() )
-		    .add( " at " ).add( curbid.getUsrStr() );
+		    .add( " at " ).add( curbid.toString() );
 	    errmsg_ += ". Event nr="; errmsg_ +=idx;
 	    return ErrorOccurred();
 	}

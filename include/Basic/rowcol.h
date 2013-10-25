@@ -44,8 +44,8 @@ public:
     inline const RowCol&	operator*=(int);
     inline const RowCol&	operator/=(const RowCol&);
 
-    inline const char*		getUsrStr(bool is2d=false) const;
-    inline bool			parseUsrStr(const char*);
+    inline const char*		toString(bool onlycol=false) const;
+    inline bool			fromString(const char*);
     static inline RowCol	fromInt64(od_int64);
     inline int			toInt32() const;
     static inline RowCol	fromInt32(int);
@@ -127,13 +127,13 @@ inline RowCol RowCol::fromInt32(int ll)
 
 
 
-inline const char* RowCol::getUsrStr( bool is2d ) const
+inline const char* RowCol::toString( bool onlycol ) const
 {
-    return Pos::IdxPair::getUsrStr( "", "/", "", is2d );
+    return Pos::IdxPair::getUsrStr( "", "/", "", onlycol );
 }
 
 
-inline bool RowCol::parseUsrStr( const char* str )
+inline bool RowCol::fromString( const char* str )
 {
     return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
 }

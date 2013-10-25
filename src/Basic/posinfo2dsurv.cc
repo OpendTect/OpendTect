@@ -70,13 +70,13 @@ bool PosInfo::Line2DKey::isOK() const
 
 
 
-const char* PosInfo::Line2DKey::getUsrStr() const
+const char* PosInfo::Line2DKey::toString() const
 {
     return IdxPair::getUsrStr( "", ".", "", false );
 }
 
 
-bool PosInfo::Line2DKey::parseUsrStr( const char* str )
+bool PosInfo::Line2DKey::fromString( const char* str )
 {
     return IdxPair::parseUsrStr( str, "", ".", "" );
 }

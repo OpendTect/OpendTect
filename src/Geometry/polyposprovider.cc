@@ -195,8 +195,8 @@ void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
     if ( poly_.isEmpty() )
 	{ txt += "No points. Unsaved?"; return; }
 
-    txt.add( "area " ).add( hs_.start.getUsrStr() ).add( "-" )
-		      .add( hs_.stop.getUsrStr() );
+    txt.add( "area " ).add( hs_.start.toString() );
+    txt.add( "-" ).add( hs_.stop.toString() );
     const int nrsamps = zrg_.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );

@@ -231,7 +231,7 @@ int SeisScanner::nextStep()
 		if ( dtctor_.is2D() )
 		    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
 		else
-		    { curmsg_ += bid.getUsrStr(); }
+		    { curmsg_ += bid.toString(); }
 	    }
 	}
 	wrapUp();
@@ -248,7 +248,7 @@ int SeisScanner::nextStep()
 	if ( dtctor_.is2D() )
 	    { curmsg_ += "trace number "; curmsg_ += bid.crl(); }
 	else
-	    { curmsg_ += bid.getUsrStr(); }
+	    { curmsg_ += bid.toString(); }
 	wrapUp();
 	return Executor::ErrorOccurred();
     }

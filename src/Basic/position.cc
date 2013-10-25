@@ -183,7 +183,7 @@ Coord::DistType  Coord::angle( const Coord& from, const Coord& to ) const
 } 
 
 
-const char* Coord::getUsrStr() const
+const char* Coord::toString() const
 {
     mDeclStaticString( ret );
     if ( isUdf() )
@@ -194,7 +194,7 @@ const char* Coord::getUsrStr() const
 }
 
 
-bool Coord::parseUsrStr( const char* s )
+bool Coord::fromString( const char* s )
 {
     if ( !s || !*s ) return false;
     if ( *s == '<' )
@@ -225,7 +225,7 @@ Coord::DistType Coord3::abs() const
 Coord::DistType Coord3::sqAbs() const { return x*x + y*y + z*z; }
 
 
-const char* Coord3::getUsrStr() const
+const char* Coord3::toString() const
 {
     mDeclStaticString( ret );
     if ( isUdf() )
@@ -236,7 +236,7 @@ const char* Coord3::getUsrStr() const
 }
 
 
-bool Coord3::parseUsrStr( const char* str )
+bool Coord3::fromString( const char* str )
 {
     if ( !str ) return false;
 

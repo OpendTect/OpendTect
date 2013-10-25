@@ -108,7 +108,7 @@ void uiSurveyBoxObject::update()
 		      bot ? Alignment::Top : Alignment::Bottom );
 	uiPoint txtpos( cpt[idx].x, cpt[idx].y );
 	labels_[idx]->setPos( txtpos );
-	labels_[idx]->setText( bid.getUsrStr() );
+	labels_[idx]->setText( bid.toString() );
 	labels_[idx]->setAlignment( al );
     }
 

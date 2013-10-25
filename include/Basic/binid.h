@@ -54,8 +54,8 @@ public:
 
     inline static BinID		fromInt64(od_int64);
 
-    inline const char*		getUsrStr(bool is2d=false) const;
-    inline bool			parseUsrStr(const char*);
+    inline const char*		toString(bool is2d=false) const;
+    inline bool			fromString(const char*);
 
 };
 
@@ -104,13 +104,13 @@ inline BinID BinID::fromInt64( od_int64 i64 )
 }
 
 
-inline const char* BinID::getUsrStr( bool is2d ) const
+inline const char* BinID::toString( bool is2d ) const
 {
     return IdxPair::getUsrStr( "", "/", "", is2d );
 }
 
 
-inline bool BinID::parseUsrStr( const char* str )
+inline bool BinID::fromString( const char* str )
 {
     return IdxPair::parseUsrStr( str, "", "/", "" );
 }

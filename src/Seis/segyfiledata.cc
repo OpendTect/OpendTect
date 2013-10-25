@@ -425,14 +425,14 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 	    if ( is2d )
 		pk.setTrcNr( keyw.getIValue(0) );
 	    else
-		pk.binID().parseUsrStr( keyw[0] );
+		pk.binID().fromString( keyw[0] );
 	    if ( isps )
 		pk.setOffset( keyw.getFValue(1) );
 
 	    const char ch( *val[0] );
 	    const bool usable = ch != 'U';
 	    if ( isrich )
-		crd.parseUsrStr( val[1] );
+		crd.fromString( val[1] );
 
 	    addTrace( fileidx, pk, crd, usable );
 	}

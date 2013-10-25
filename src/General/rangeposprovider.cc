@@ -121,8 +121,8 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 {
-    txt.set( cs_.hrg.start.getUsrStr() ).add( "-" );
-    txt.add( cs_.hrg.stop.getUsrStr() ); // needs to be a separate line
+    txt.set( cs_.hrg.start.toString() ).add( "-" );
+    txt.add( cs_.hrg.stop.toString() ); // needs to be a separate line
     const int nrsamps = cs_.zrg.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );
@@ -454,7 +454,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	geomids_.erase();
 	BufferString str;
 	PosInfo::GeomID geomid;
-	while ( subpargeom->get(toString(idx++),str) && geomid.parseUsrStr(str))
+	while ( subpargeom->get(toString(idx++),str) && geomid.fromString(str))
 	    addLineID( geomid );
     }
 
@@ -477,7 +477,7 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
     for ( int lidx=0; lidx<geomids_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::GeomID(),lidx),
-		 geomids_[lidx].getUsrStr() );
+		 geomids_[lidx].toString() );
     for ( int lidx=0; lidx<trcrgs_.size(); lidx++ )
 	iop.set( IOPar::compKey(sKey::TrcRange(),lidx), trcrgs_[lidx] );
     for ( int lidx=0; lidx<zrgs_.size(); lidx++ )

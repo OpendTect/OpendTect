@@ -558,8 +558,8 @@ void uiWellMan::mkFileInfo()
     const Well::Info& info = curwds_[0]->info();
     const Well::Track& track = curwds_[0]->track();
 
-    const BufferString posstr( info.surfacecoord.getUsrStr(), " ",
-	    	SI().transform(info.surfacecoord).getUsrStr() );
+    const BufferString posstr( info.surfacecoord.toString(), " ",
+	    	SI().transform(info.surfacecoord).toString() );
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
 
     if ( !track.isEmpty() )

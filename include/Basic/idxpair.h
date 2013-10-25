@@ -46,8 +46,6 @@ public:
     inline IdxType		operator[]( int idx ) const
 				{ return idx ? second : first; }
 
-protected:
-
     const char*			getUsrStr(const char* prefx,const char* sep,
 				    const char* postfx,bool only2nd) const;
     bool			parseUsrStr(const char* str,const char* prefx,

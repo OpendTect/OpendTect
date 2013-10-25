@@ -422,7 +422,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
     else if ( keyw == sKeyYTransf )
 	setTr( rdytr_, val );
     else if ( keyw == sKeyLatLongAnchor )
-	ll2c_.parseUsrStr( val );
+	ll2c_.fromString( val );
     else if ( matchString("Set Point",(const char*)keyw) )
     {
 	const char* ptr = strchr( (const char*)keyw, '.' );
@@ -432,8 +432,8 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	if ( ptidx > 3 ) ptidx = 2;
 	FileMultiString fms( val );
 	if ( fms.size() < 2 ) return;
-	set3binids_[ptidx].parseUsrStr( fms[0] );
-	set3coords_[ptidx].parseUsrStr( fms[1] );
+	set3binids_[ptidx].fromString( fms[0] );
+	set3coords_[ptidx].fromString( fms[1] );
     }
 }
 
@@ -976,13 +976,13 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     {
 	SeparString ky( "Set Point", '.' );
 	ky += idx + 1;
-	fms = set3binids_[idx].getUsrStr();
-	fms += set3coords_[idx].getUsrStr();
+	fms = set3binids_[idx].toString();
+	fms += set3coords_[idx].toString();
 	astream.put( ky.buf(), fms.buf() );
     }
 
     if ( ll2c_.isOK() )
-	astream.put( sKeyLatLongAnchor, ll2c_.getUsrStr() );
+	astream.put( sKeyLatLongAnchor, ll2c_.toString() );
     astream.putYN( sKeyXYInFt(), xyinfeet_ );
     astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
 }

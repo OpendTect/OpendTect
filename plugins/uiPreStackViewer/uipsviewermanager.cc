@@ -708,7 +708,7 @@ void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
 				    BufferString& title )
 {
     title.set( "Gather from [" ).add( name ).add( "] at " )
-	 .add( bid.getUsrStr() );
+	 .add( bid.toString() );
 }
 
 

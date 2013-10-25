@@ -416,7 +416,7 @@ void uiSeisBrowser::fillTable()
 
 void uiSeisBrowser::fillTableColumn( const SeisTrc& trc, int colidx )
 {
-    tbl_->setColumnLabel( colidx, trc.info().binid.getUsrStr( is2D() ) );
+    tbl_->setColumnLabel( colidx, trc.info().binid.toString( is2D() ) );
 
     RowCol rc; rc.col() = colidx;
     for ( rc.row()=0; rc.row()<nrsamples_; rc.row()++ )
@@ -788,7 +788,7 @@ void uiSeisBrowser::setTrcBufViewTitle()
 {
     if ( trcbufvwr_ )
 	trcbufvwr_->setWinTitle( BufferString( "Central Trace: ",
-		    curBinID().getUsrStr(Seis::is2D(setup_.geom_)) ) );
+		    curBinID().toString(Seis::is2D(setup_.geom_)) ) );
 
 }
 

@@ -52,8 +52,8 @@ public:
     Coord	normalize() const;
     OrdType	dot(const Coord&) const;
 
-    const char*	getUsrStr() const;
-    bool	parseUsrStr(const char*);
+    const char*	toString() const;
+    bool	fromString(const char*);
 
     static const Coord& udf();
     inline bool isUdf() const		{ return !isDefined(); }
@@ -115,8 +115,8 @@ public:
     inline bool		isDefined() const;
     inline bool		isUdf() const		{ return !isDefined(); }
 
-    const char*		getUsrStr() const;
-    bool		parseUsrStr(const char*);
+    const char*		toString() const;
+    bool		fromString(const char*);
 
     OrdType		z;
 

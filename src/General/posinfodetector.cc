@@ -261,7 +261,7 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 void PosInfo::Detector::addToErrMsg( const PosInfo::CrdBidOffs& cbo )
 {
     errmsg_.add( setup_.is2d_ ? "trace number " : "position " )
-	    .add( cbo.binid_.getUsrStr(setup_.is2d_) );
+	    .add( cbo.binid_.toString(setup_.is2d_) );
     if ( setup_.isps_ )
 	{ errmsg_.add( " (offset " ).add( cbo.offset_ ).add( ")" ); }
 }
@@ -583,7 +583,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( varstr, fao.binid_.crl() );
 	    else
-		iop.set( varstr, fao.binid_.getUsrStr() );
+		iop.set( varstr, fao.binid_.toString() );
 	}
     }
     else
@@ -597,7 +597,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( fdupstr, fdp.binid_.crl() );
 	    else
-		iop.set( fdupstr, fdp.binid_.getUsrStr() );
+		iop.set( fdupstr, fdp.binid_.toString() );
 	}
     }
 }

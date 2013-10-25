@@ -106,16 +106,16 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     {
 	putAt( 13, 6, 75, "Survey setup:" );
 	coord = SI().transform( bid );
-	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
+	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 14, 6, 75, str );
 	bid.crl() = SI().sampling(false).hrg.stop.crl();
 	coord = SI().transform( bid );
-	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
+	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 15, 6, 75, str );
 	bid.inl() = SI().sampling(false).hrg.stop.inl();
 	bid.crl() = SI().sampling(false).hrg.start.crl();
 	coord = SI().transform( bid );
-	str.set( bid.getUsrStr() ).add( " = " ).add( coord.getUsrStr() );
+	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 16, 6, 75, str );
     }
 

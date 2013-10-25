@@ -120,7 +120,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
 	if ( astrm.hasKeyword(sKey::Position()) )
 	{
-	    bid.parseUsrStr( astrm.value() );
+	    bid.fromString( astrm.value() );
 	    if ( !bid.inl() || !bid.crl() )
 		rejectpt = true;
 
@@ -225,7 +225,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	if ( !imd && !hasiopar )
 	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
 
-	astrm.put( sKey::Position(), md.getPos(imd).getUsrStr() );
+	astrm.put( sKey::Position(), md.getPos(imd).toString() );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	char buf[3];
 	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap

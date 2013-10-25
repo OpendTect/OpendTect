@@ -290,7 +290,7 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	    if ( is2D() )
 		msg += trc.info().nr;
 	    else
-		msg += trc.info().binid.getUsrStr();
+		msg += trc.info().binid.toString();
 	    msg.add( ": " ).add( rdr_.errMsg() );
 	    ErrMsg( msg );
 	}

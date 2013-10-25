@@ -65,8 +65,8 @@ public:
 
     bool		isOK() const;	//!< true if a line exist with this key
 
-    const char*		getUsrStr() const;
-    bool		parseUsrStr(const char*);
+    const char*		toString() const;
+    bool		fromString(const char*);
 
     bool		haveLSID() const;
     bool		haveLineID() const;

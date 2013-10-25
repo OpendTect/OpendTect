@@ -450,7 +450,7 @@ void Horizon2DGeometry::fillPar( IOPar& iopar ) const
     {
 	BufferString key = IOPar::compKey( "Line", idx );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyID()),
-		   oldgeomids_[idx].getUsrStr() );
+		   oldgeomids_[idx].toString() );
 	const int rowidx = geom->getRowIndex( oldgeomids_[idx] );
 	iopar.set( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		   geom->colRange(rowidx) );
@@ -508,7 +508,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 
 	    BufferString idstr;
 	    par.get( IOPar::compKey(key,Horizon2DGeometry::sKeyID()), idstr );
-	    PosInfo::GeomID oldgeomid; oldgeomid.parseUsrStr( idstr );
+	    PosInfo::GeomID oldgeomid; oldgeomid.fromString( idstr );
 #ifdef mNew2DGeometryImpl
 	    S2DPOS().setCurLineSet( oldgeomid.lsID() );
 	    BufferString lnm = S2DPOS().getLineName( oldgeomid.lineID() );
