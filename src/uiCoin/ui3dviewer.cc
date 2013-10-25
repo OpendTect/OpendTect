@@ -209,7 +209,7 @@ void ui3DViewerBody::setupView()
 	polygonselection_->setMasterCamera( camera_ );
     mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode() );
     osgcamera->setGraphicsContext( getGraphicsContext() );
-    osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.5f, 1.0f) );
+    osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
     osgcamera->setViewport( viewport_ );
     osgcamera->setRenderOrder(osg::Camera::POST_RENDER, mMainCameraOrder );
 
