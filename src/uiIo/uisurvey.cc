@@ -382,6 +382,7 @@ uiSurvey::uiSurvey( uiParent* p )
     , parschanged_(false)
     , cursurvremoved_(false)
 {
+    const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
     const int lbwidth = 250;
     const int noteshght = 5;
     const int totwdth = lbwidth + mMapWidth + 10;
@@ -413,7 +414,7 @@ uiSurvey::uiSurvey( uiParent* p )
     uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     dirfld_ = new uiListBox( leftgrp, "Surveys" );
     updateSurvList();
-    dirfld_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
+    dirfld_->selectionChanged.notify( selchgcb );
     dirfld_->doubleClicked.notify( mCB(this,uiSurvey,accept) );
     dirfld_->setPrefWidth( lbwidth );
     dirfld_->setStretch( 2, 2 );
@@ -511,6 +512,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     putToScreen();
     setOkText( "&Ok (Select)" );
+    postFinalise().notify( selchgcb );
 }
 
 
@@ -833,7 +835,7 @@ void uiSurvey::exportButPushed( CallBacker* )
     const BufferString survnm( selectedSurveyName() );
     const BufferString title( "Pack ", survnm, " survey into zip file" );
     uiDialog dlg( this,
-    uiDialog::Setup(title,mNoDlgTitle,mTODOHelpID));
+    uiDialog::Setup(title,mNoDlgTitle,"0.3.12"));
     uiFileInput* filepinput = new uiFileInput( &dlg,"Select output destination",
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
@@ -993,6 +995,9 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 
 void uiSurvey::selChange( CallBacker* )
 {
+    if ( dirfld_->isEmpty() )
+	return;
+
     writeSurvInfoFileIfCommentChanged();
     readSurvInfoFromFile();
     putToScreen();
