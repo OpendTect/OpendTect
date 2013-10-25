@@ -326,9 +326,9 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
     if ( dataset_ )
     {
 	float* ptr = dataset_->getData();
-	bool valseriesok = true;
+	bool canusevalseries = ptr;
 
-	for ( int idx=0; idx<nrdh; idx++ )
+	for ( int idx=0; idx<nrdh && canusevalseries; idx++ )
 	{
 	    for ( int idy=0; idy<nrseries; idy++ )
 	    {
@@ -340,16 +340,13 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 		}
 		else
 		{
-		    valseriesok = false;
+		    canusevalseries = false;
 		    break;
 		}
 	    }
-
-	    if ( !valseriesok )
-		break;
 	}
 
-	if ( !valseriesok )
+	if ( !canusevalseries )
 	{
 	    delete dataset_;
 	    dataset_ = 0;
