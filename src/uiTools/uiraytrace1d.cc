@@ -192,12 +192,16 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
     if ( offsets.size()>1 )
     {
+	const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
 	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
+	if ( SI().xyInFeet() )
+	    offsetrg.scale( mToFeetFactorF );
+
 	if ( offsetfld_ && offsetstepfld_  )
 	{
 	    offsetfld_->setValue( offsetrg );
 	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0] : 0;
-	    offsetstepfld_->setValue( step );
+	    offsetstepfld_->setValue( step * convfactor );
 	}
     }
 
@@ -222,6 +226,9 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
 	offsetrg.step = mCast( float, (int)offsetstepfld_->getfValue() );
+	if ( SI().xyInFeet() )
+	    offsetrg.scale( mFromFeetFactorF );
+
     }
     TypeSet<float> offsets; 
     for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )

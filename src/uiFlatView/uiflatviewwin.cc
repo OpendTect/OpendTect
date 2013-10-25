@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewcontrol.h"
 #include "uiflatviewer.h"
 #include "uistatusbar.h"
+#include "unitofmeasure.h"
 #include "keystrs.h"
 
 
@@ -77,10 +78,17 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
-    FixedString valstr = pars.find( sKey::Offset() );
-    if ( valstr && *valstr )
-	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
-    valstr = pars.find( sKey::Azimuth() );
+    float val;
+    if ( pars.get(sKey::Offset(),val) )
+    { 
+	if ( SI().xyInFeet() )
+	    val *= mToFeetFactorF;
+
+	mAddSep(); mesg += "Offs="; mesg += val; 
+	mesg += " "; mesg += SI().getXYUnitString();
+    }
+
+    FixedString valstr = pars.find( sKey::Azimuth() );
     if ( valstr && valstr!="0" )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 

@@ -83,7 +83,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const float defvel = mCast( float, zinft_ ? 8000 : 2000 );
+	const float defvel = Well::getDefaultVelocity();
 	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
 		   		  FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );

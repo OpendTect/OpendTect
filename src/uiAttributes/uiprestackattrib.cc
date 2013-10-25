@@ -229,7 +229,12 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     const MultiID ppid = aps->preProcID();
     dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
     preprocsel_->setSel( ppid );
-    offsrgfld_->setValue( aps->setup().offsrg_ );
+    
+    Interval<float> offsrg( aps->setup().offsrg_ );
+    if ( SI().xyInFeet() && !offsrg.isUdf() )
+	offsrg.scale( mToFeetFactorF );
+
+    offsrgfld_->setValue( offsrg );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
@@ -315,6 +320,9 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     }
 
     Interval<float> offsrg = offsrgfld_->getFInterval();
+    if ( SI().xyInFeet() && !offsrg.isUdf() )
+	offsrg.scale( mFromFeetFactorF );
+
     if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
     mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
     mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)

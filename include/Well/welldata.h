@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "namedobj.h"
 #include "callback.h"
+#include "welld2tmodel.h"
 
 class IOPar;
 
@@ -43,7 +44,7 @@ public:
 			Info( const char* nm )
 			    : ::NamedObject(nm)
 			    , srdelev(0)
-			    , replvel(2000.f)
+			    , replvel(Well::getDefaultVelocity())
 			    , groundelev(mUdf(float))	{}
 
     void                fillPar(IOPar&) const;
