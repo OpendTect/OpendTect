@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "manobjectset.h"
 #include "seistrctr.h"
-#include "strmdata.h"
+#include "od_istream.h"
 #include "strmoper.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -38,18 +38,18 @@ ________________________________________________________________________
 #include <iostream>
 
 
-#define mCloseRet(res) { sd.close(); return res; }
-
 static int getExitStatus( const char* logfile, BufferString& msg )
 {
-    StreamData sd = StreamProvider(logfile).makeIStream();
-    if ( !sd.usable() )
-	mCloseRet( -1 )
+    od_istream istream( logfile );
 
-    StrmOper::seek( *sd.istrm, -50, std::ios::end );
+    if ( !istream.isOK() )
+	return -1;
+
+    istream.setPosition( -50, od_stream::End );
+
     char buf[51];
-    if ( !StrmOper::readBlock(*sd.istrm,(void*) buf,50) )
-	mCloseRet( -1 )
+    if ( !istream.getBin( buf, 50 ) )
+	return -1;
 
     buf[50] = '\0';
     char* ptr = buf + 49;
@@ -62,12 +62,12 @@ static int getExitStatus( const char* logfile, BufferString& msg )
     if ( !ptr )
     {
 	msg.setEmpty();
-	mCloseRet( -1 )
+	return -1;
     }
 
     ptr += 19;
     *(ptr + 1) = '\0';
-    mCloseRet( atoi(ptr) );
+    return atoi(ptr);
 }
 
 
