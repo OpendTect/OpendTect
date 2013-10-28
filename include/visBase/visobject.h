@@ -32,6 +32,9 @@ class EventCatcher;
 \brief Base class for all objects that are visual on the scene.
 */
 
+enum RenderMode { RenderBackSide=-1, RenderBothSides, RenderFrontSide };
+
+
 mExpClass(visBase) VisualObject : public DataObject
 {
 public:

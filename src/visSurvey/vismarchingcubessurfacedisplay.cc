@@ -887,7 +887,7 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
     visshape_->setIndexedGeometryShapeType(visBase::GeomIndexedShape::Triangle);
     visshape_->setPrimitiveType( Geometry::PrimitiveSet::TriangleStrip );
     visshape_->setNormalBindType( visBase::VertexShape::BIND_OVERALL );
-    visshape_->renderOneSide( 0 );
+    visshape_->setRenderMode( visBase::RenderBothSides );
 
    /* Coord3List* crdlist = shape_->normalCoordList();
     crdlist->add( Coord3( 1, 0, 0) );*/

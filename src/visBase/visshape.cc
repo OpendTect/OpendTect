@@ -102,7 +102,7 @@ int Shape::getMaterialBinding() const
 }
 
 
-void Shape::renderOneSide( int side )
+void Shape::setRenderMode( RenderMode mode )
 {
     osg::StateSet* stateset = osgNode()->getOrCreateStateSet();
     if ( !stateset )
@@ -113,11 +113,12 @@ void Shape::renderOneSide( int side )
     stateset->setAttributeAndModes( lightmodel, osg::StateAttribute::ON );
 
     stateset->removeAttribute( osg::StateAttribute::CULLFACE );
-    if ( side == 0 )
+    if ( mode == RenderBothSides )
 	return;
 
     osg::ref_ptr<osg::CullFace> cullface = new osg::CullFace;
-    cullface->setMode( side<0 ? osg::CullFace::FRONT : osg::CullFace::BACK );
+    cullface->setMode( mode>=RenderFrontSide ? osg::CullFace::FRONT
+					     : osg::CullFace::BACK );
     stateset->setAttributeAndModes( cullface, osg::StateAttribute::ON );
 }
 

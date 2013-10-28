@@ -258,7 +258,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	paneldisplay_->setSelectable( false );
 	paneldisplay_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
 	paneldisplay_->useOsgNormal( true );
-	paneldisplay_->renderOneSide( 0 );
+	paneldisplay_->setRenderMode( visBase::RenderBothSides );
 	paneldisplay_->setTextureChannels( channels_ );
 
 	addChild( paneldisplay_->osgNode() );

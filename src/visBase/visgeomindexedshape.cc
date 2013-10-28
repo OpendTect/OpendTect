@@ -62,7 +62,7 @@ GeomIndexedShape::GeomIndexedShape()
     coltabmaterial_->setColorMode( visBase::Material::Diffuse );
     vtexshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
 
-    renderOneSide( 0 );
+    setRenderMode( RenderBothSides );
 
     if ( getMaterial() )
     {
@@ -109,9 +109,9 @@ GeomIndexedShape::ColorHandler::~ColorHandler()
 }
 
 
-void GeomIndexedShape::renderOneSide( int side )
+void GeomIndexedShape::setRenderMode( RenderMode mode )
 {
-    vtexshape_->renderOneSide( side );
+    vtexshape_->setRenderMode( mode );
 }
 
 

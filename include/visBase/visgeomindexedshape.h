@@ -53,10 +53,7 @@ public:
     bool			touch(bool forall,bool createnew=true,
 				      TaskRunner* =0);
 
-    void			renderOneSide(int side);
-    				/*!< 0 = visible from both sides.
-				     1 = visible from positive side
-				    -1 = visible from negative side. */
+    void			setRenderMode(RenderMode);
 
     void			setLineStyle(const LineStyle&);
 				/*!<for polylin3d, only the radius is used.*/

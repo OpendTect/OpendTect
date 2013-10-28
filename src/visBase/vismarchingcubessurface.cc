@@ -40,7 +40,7 @@ MarchingCubesSurface::MarchingCubesSurface()
     shape_->setMaterial( 0 );
     shape_->useOsgNormal( true );
 
-    renderOneSide( 0 );
+    setRenderMode( RenderBothSides );
 }
 
 
@@ -56,9 +56,9 @@ void MarchingCubesSurface::setRightHandSystem( bool yn )
 { shape_->setRightHandSystem( yn ); }
 
 
-void MarchingCubesSurface::renderOneSide( int side )
+void MarchingCubesSurface::setRenderMode( RenderMode mode )
 {
-    shape_->renderOneSide( side );
+    shape_->setRenderMode( mode );
 }
 
 

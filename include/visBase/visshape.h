@@ -54,16 +54,10 @@ public:
 
     int				getMaterialBinding() const;
 
-    void			renderOneSide(int side);
-				/*!< 0 = visible from both sides.
-				     1 = visible from positive side
-				    -1 = visible from negative side. */
+    void			setRenderMode(RenderMode);
 
     int				usePar(const IOPar&);
     void			fillPar(IOPar&) const;
-
-    				// Latency, will be removed at next commit
-    void                        setTwoSidedLight(bool) { renderOneSide(0); }
 
 protected:
 				Shape();

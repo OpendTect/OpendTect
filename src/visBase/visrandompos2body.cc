@@ -38,7 +38,7 @@ RandomPos2Body::RandomPos2Body()
     vtxshape_->setNormalBindType( VertexShape::BIND_PER_VERTEX );
     vtxshape_->useOsgAutoNormalComputation( true );
 
-    renderOneSide( 0 );
+    setRenderMode( RenderBothSides );
 }
 
 
@@ -51,9 +51,9 @@ RandomPos2Body::~RandomPos2Body()
  }
 
 
-void RandomPos2Body::renderOneSide( int side )
+void RandomPos2Body::setRenderMode( RenderMode mode )
 {
-    vtxshape_->renderOneSide( side );
+    vtxshape_->setRenderMode( mode );
 }
 
 
