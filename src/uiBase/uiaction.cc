@@ -12,13 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaction.h"
 #include "i_qaction.h"
 
-#include <limits.h> 
-#include "texttranslator.h"
+#include "uimain.h"
 #include "uimenu.h"
-#include "staticstring.h"
+
 #include "menuhandler.h"
 #include "pixmap.h"
-#include "uimain.h"
+#include "staticstring.h"
+#include "texttranslator.h"
+
+#include <limits.h>
 
 mUseQtnamespace
 
@@ -74,7 +76,7 @@ uiAction::uiAction( const char* txt, const CallBack& cb, const char* iconfile )
     init( txt );
     if ( pixmapfile )
 	setIcon( ioPixmap(pixmapfile) );
-    
+
     triggered.notify( cb );
 }
 
@@ -221,6 +223,13 @@ void uiAction::updateToolTip()
 }
 
 
+void uiAction::setSeparator( bool yn )
+{ qaction_->setSeparator( yn ); }
+
+bool uiAction::isSeparator() const
+{ return qaction_->isSeparator(); }
+
+
 void uiAction::updateToolTips()
 {
     for ( int idx=uiactionlist_.size()-1; idx>=0; idx-- )
@@ -255,7 +264,7 @@ int uiAction::getID() const
 {
     if ( !parentcontainer_ )
 	return -1;
-    
+
     return parentcontainer_->getID( this );
 }
 
@@ -282,7 +291,7 @@ void uiAction::doTranslate()
 }
 
 
-void uiAction::translate() 
+void uiAction::translate()
 {
     doTranslate();
 
@@ -297,14 +306,14 @@ void uiAction::reloadIcon()
 
     if ( iconfile_[0] == '[' )
 	return;
-    
+
     FileMultiString fms( iconfile_ );
     const int len = fms.size();
     const BufferString fnm( fms[0] );
     const ioPixmap pm( fnm.buf(), len > 1 ? fms[1] : 0 );
     if ( pm.isEmpty() )
 	return;
-    
+
     qaction_->setIcon( *pm.qpixmap() );
 }
 
@@ -362,9 +371,9 @@ int uiAction::beginCmdRecEvent( const char* msg )
 {
     if ( cmdrecorders_.isEmpty() )
 	return -1;
-    
+
     cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
-    
+
     BufferString actstr( "Begin " );
     actstr += cmdrecrefnr_; actstr += " "; actstr += msg;
     CBCapsule<const char*> caps( actstr, this );
@@ -399,7 +408,7 @@ void uiAction::addCmdRecorder( const CallBack& cb )
 
 uiActionContainer::uiActionContainer()
 {
-    
+
 }
 
 
@@ -423,14 +432,14 @@ uiAction* uiActionContainer::findAction( int mnuid )
     {
 	if ( ids_[idx] == mnuid )
 	    return actions_[idx];
-	
+
 	if ( actions_[idx]->getMenu() )
 	{
 	    uiAction* mnuitm = actions_[idx]->getMenu()->findAction( mnuid );
 	    if ( mnuitm ) return mnuitm;
 	}
     }
-    
+
     return 0;
 }
 
@@ -444,14 +453,14 @@ uiAction* uiActionContainer::findAction( const uiMenu* menu )
     {
 	if ( actions_[idx]->getMenu() == menu )
 	    return actions_[idx];
-	
+
 	if ( actions_[idx]->getMenu() )
 	{
 	    uiAction* mnuitm = actions_[idx]->getMenu()->findAction( menu );
 	    if ( mnuitm ) return mnuitm;
 	}
     }
-    
+
     return 0;
 }
 
@@ -462,15 +471,15 @@ uiAction* uiActionContainer::findAction( const uiActionSeparString& str )
     for ( int idx=0; idx<str.size(); idx++ )
     {
 	if ( !curcontainer ) return 0;
-	
+
 	uiAction* itm = curcontainer->findAction( str[idx] );
 	if ( !itm ) return 0;
 	if ( idx == str.size()-1 )
 	    return itm;
-	
+
 	curcontainer = itm->getMenu();
     }
-    
+
     return 0;
 }
 
@@ -483,7 +492,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
 	if ( !strcmp(itm->text(),itmtxt) )
 	    return itm;
     }
-    
+
     return 0;
 }
 
@@ -493,7 +502,7 @@ int uiActionContainer::getID( const uiAction* action ) const
     int idx = actions_.indexOf( action );
     if ( actions_.validIdx(idx) )
 	return ids_[idx];
-    
+
     for ( idx=0; idx<actions_.size(); idx++ )
     {
 	const uiAction* curaction = actions_[idx];
@@ -504,7 +513,7 @@ int uiActionContainer::getID( const uiAction* action ) const
 		return id;
 	}
     }
-    
+
     return -1;
 }
 
@@ -515,15 +524,15 @@ int uiActionContainer::getID( const QAction* qaction ) const
     {
 	if ( actions_[idx]->qaction()==qaction )
 	    return ids_[idx];
-	
+
 	if ( !actions_[idx]->getMenu() )
 	    continue;
-	
+
 	int res = actions_[idx]->getMenu()->getID(qaction);
 	if ( res>=0 )
 	    return res;
     }
-    
+
     return -1;
 }
 
@@ -533,18 +542,18 @@ int uiActionContainer::getFreeID() const
     int curid = 100000000;
     /* Huge number to not interfere with internal numbers that typically
        starts at 1, 2, 3, .. */
-    
+
     uiActionContainer* myptr = const_cast<uiActionContainer*>( this );
-    
+
     while( myptr->findAction(curid) )
 	curid++;
-    
+
     return curid;
 }
 
 
 int uiActionContainer::insertAction( uiAction* action, int id,
-				    const uiAction* before )
+				     const uiAction* before )
 {
     if ( actions_.isPresent(action) )
     {
@@ -566,7 +575,7 @@ int uiActionContainer::insertAction( uiAction* action, int id,
     QAction* beforeaction = actions_.validIdx(idx)
 	? actions_[idx]->qaction()
 	: 0;
-    
+
     if ( action->getMenu() )
 	doInsertMenu( action->getMenu()->getQMenu(), beforeaction );
     else
@@ -581,9 +590,9 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 	    pErrMsg("Duplicate menu id found.");
 	}
     }
-    
+
     action->setParentContainer( this );
-    
+
     if ( idx>=0 )
     {
 	actions_.insertAt( action, idx );
@@ -594,7 +603,7 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 	actions_ += action;
 	ids_ += id;
     }
-    
+
     return id;
 }
 
@@ -624,15 +633,18 @@ uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
 	    }
 	}
     }
-    
+
     insertItem( submenuitem, -1, beforeaction );
     return pm;
 }
 
 
-void uiActionContainer::insertSeparator()
+uiAction* uiActionContainer::insertSeparator()
 {
-    doInsertSeparator( 0 );
+    uiAction* action = new uiAction( "" );
+    action->setSeparator( true );
+    insertAction( action );
+    return action;
 }
 
 
@@ -651,7 +663,7 @@ void uiActionContainer::removeAction( uiAction* action )
     if ( actions_.validIdx(idx) )
     {
 	doRemoveAction( actions_[idx]->qaction() );
-	
+
 	delete actions_.removeSingle( idx );
 	ids_.removeSingle( idx );
     }

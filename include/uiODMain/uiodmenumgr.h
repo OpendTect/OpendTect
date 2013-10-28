@@ -72,6 +72,7 @@ public:
     void		enableMenuBar(bool);
     void		enableActButton(bool);
     void		setCameraPixmap(bool isperspective);
+    void		insertNewSceneItem(uiAction*,int id);
     void		updateSceneMenu();
 
     static int		ask2D3D(const char* txt,int res2d=2,int res3d=3,
@@ -153,6 +154,7 @@ protected:
     uiAction*		stereoquadbufitm_;
     uiAction*		stereooffsetitm_;
     uiAction*		addtimedepthsceneitm_;
+    uiAction*		lastsceneitm_;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
     int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;

@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 
 class ioPixmap;
-class uiMenu;
 class MenuItem;
+class uiMenu;
 class uiActionContainer;
 class i_ActionMessenger;
 mFDQtclass(QAction);
@@ -59,10 +59,10 @@ public:
 
     void		setMenu(uiMenu*);
     			//!<Becomes mine
-    
+
     uiMenu*		getMenu()		{ return menu_; }
     const uiMenu*	getMenu() const		{ return menu_; }
-    
+
     void		setShortcut(const char*);
 
     void		setIcon(const ioPixmap&);
@@ -76,20 +76,23 @@ public:
     bool		isEnabled() const;
     void		setVisible(bool);
     bool		isVisible() const;
-    
+
+    void		setSeparator(bool);
+    bool		isSeparator() const;
+
     void		setParentContainer(const uiActionContainer*);
     int			getID() const;
     			/*!<Only works if parent is set. */
-    
+
     mQtclass(QAction*)	qaction()		{ return qaction_; }
     const mQtclass(QAction*)	qaction() const { return qaction_; }
 
     Notifier<uiAction>	toggled;
     Notifier<uiAction>	triggered;
-    
+
     virtual void	translate();
     void		reloadIcon();
-    
+
 protected:
 
     virtual void	trigger(bool checked);
@@ -112,11 +115,11 @@ private:
 
     bool			checked_;
     int				translateid_;
-    
+
     int				cmdrecrefnr_;
 
     void			init(const char*);
-    
+
 public:
     //! Not for casual use
     static void         addCmdRecorder(const CallBack&);
@@ -144,40 +147,40 @@ mExpClass(uiBase) uiActionContainer
 {
 public:
     virtual 			~uiActionContainer();
-    
+
     int				nrActions() const;
     const ObjectSet<uiAction>&	actions() const;
-    
+
     uiAction*			findAction(const uiActionSeparString&);
     uiAction*			findAction(const char* itmtxt);
     uiAction*			findAction(int id);
     uiAction*			findAction(const uiMenu*);
     int				getID(const uiAction*) const;
     int				getID(const mQtclass(QAction)*) const;
-    
+
     int				insertAction(uiAction*,int id=-1,
 					     const uiAction* before = 0);
 				/*!<\param uiAction* becomes mine.
 				    \param id The ID that is returned if the
 					      item is selected.
 				 */
-    
+
     uiMenu*			addMenu(uiMenu*,const uiMenu* before = 0);
 				/*!<Becomes mine. Returns pointer to menu. */
-    
-    void			insertSeparator();
-    
+
+    uiAction*			insertSeparator();
+
     void			removeAction(uiAction*);
     void			removeAction(int id);
     void			removeAllActions();
     virtual void		translate();
     void			reloadIcons();
-    
+
 protected:
 			uiActionContainer();
-    
+
     int			getFreeID() const;
-    
+
     virtual void	doInsertSeparator(mQtclass(QAction)* before)	= 0;
     virtual void	doInsertMenu(mQtclass(QMenu)*,
 				 mQtclass(QAction)* before )		= 0;
@@ -185,12 +188,12 @@ protected:
 				       mQtclass(QAction)* before )	= 0;
     virtual void	doClear()					= 0;
     virtual void	doRemoveAction(mQtclass(QAction)*)		= 0;
-    
+
     ObjectSet<uiAction>	actions_;
     TypeSet<int>	ids_;
-    
+
 public:
-    
+
     int			insertItem(uiAction* a,int id=-1,
 				   const uiAction* before = 0)
 			{ return insertAction( a, id, before ); }
@@ -204,4 +207,3 @@ public:
 };
 
 #endif
-

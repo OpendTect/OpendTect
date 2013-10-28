@@ -96,7 +96,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillAnalMenu();
     fillProcMenu();
     fillSceneMenu();
-    fillViewMenu();	
+    fillViewMenu();
     fillUtilMenu();
     menubar->insertSeparator();
     helpmgr_ = new uiODHelpMenuMgr( this );
@@ -122,7 +122,7 @@ uiMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 
 void uiODMenuMgr::updateStereoMenu()
 {
-    ui3DViewer::StereoType type = 
+    ui3DViewer::StereoType type =
 			(ui3DViewer::StereoType)sceneMgr().getStereoType();
     stereooffitm_->setChecked( type == ui3DViewer::None );
     stereoredcyanitm_->setChecked( type == ui3DViewer::RedCyan );
@@ -260,7 +260,7 @@ void uiODMenuMgr::fillImportMenu()
     impseis->insertItem( impseissimple );
     uiMenu* impcbvsseis = new uiMenu( &appl_, "&CBVS" );
     mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impcbvsseis, "&From other survey ...", 
+    mInsertItem( impcbvsseis, "&From other survey ...",
 					   mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
@@ -356,7 +356,7 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
-    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm, 
+    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm,
 	    		"man_attrs" );
     mInsertPixmapItem( manmnu_, "&Body ...", mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, "Color Tables ...", mManColTabMnuItm,
@@ -364,10 +364,10 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, "&Cross Plot data ...", mManCrossPlotItm,
 	    		"manxplot" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
-    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm, 
+    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
 	    		"man_fltss" );
     if ( SI().survDataType() == SurveyInfo::No2D )
-	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm, 
+	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
 			"man_hor" )
     else
     {
@@ -511,18 +511,18 @@ void uiODMenuMgr::fillAnalMenu()
     analmnu_->insertItem( crsplot );
 
     analwellmnu_ = new uiMenu( &appl_, "&Wells", "well" );
-    analwellmnu_->insertItem( new uiAction( "&Edit logs ...", 
+    analwellmnu_->insertItem( new uiAction( "&Edit logs ...",
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiAction( "&Tie Well to Seismic ...", 
+	analwellmnu_->insertItem( new uiAction( "&Tie Well to Seismic ...",
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
     analwellmnu_->insertItem( new uiAction( "&Rock Physics ...",
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
     analmnu_->insertItem( analwellmnu_ );
 
-    layermodelmnu_ = new uiMenu( 
-	    		&appl_, "&Layer Modeling", "stratlayermodeling" ); 
-    layermodelmnu_->insertItem( new uiAction( "&Basic ...", 
+    layermodelmnu_ = new uiMenu(
+	    		&appl_, "&Layer Modeling", "stratlayermodeling" );
+    layermodelmnu_->insertItem( new uiAction( "&Basic ...",
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "" ) );
     analmnu_->insertItem( layermodelmnu_ );
 }
@@ -535,6 +535,7 @@ void uiODMenuMgr::fillSceneMenu()
     addtimedepthsceneitm_ = new uiAction( "Dummy",
 	    				    mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
+    lastsceneitm_ = scenemnu_->insertSeparator();
 
     mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
     uiMenu* tileitm = new uiMenu( &appl_, "&Tile" );
@@ -550,6 +551,12 @@ void uiODMenuMgr::fillSceneMenu()
     updateSceneMenu();
 }
 
+
+void uiODMenuMgr::insertNewSceneItem( uiAction* action, int id )
+{
+    scenemnu_->insertAction( action, id, lastsceneitm_ );
+    lastsceneitm_ = action;
+}
 
 
 void uiODMenuMgr::updateSceneMenu()
@@ -784,11 +791,11 @@ void uiODMenuMgr::fillManTB()
     //mAddTB(mantb_,"man_body","Manage body",false,manBody);
     mAddTB(mantb_,"man_wvlt","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat","Manage Stratigraphy",false,manStrat);
- 
+
     if ( SI().survDataType() == SurveyInfo::Both2DAnd3D )
 	mAddPopUp( "Seismics Menu", "2D Seismics", "3D Seismics",
 		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
- 
+
     if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
@@ -818,7 +825,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     cameraid_ = mAddTB(cointb_,"perspective",
 	    	       "Switch to orthographic camera",false,switchCameraType);
     mAddTB(cointb_,"seek","Seek: Change camera rotation point",false,seek);
-    
+
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
     Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
@@ -848,9 +855,9 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = -1;
     }
 
-    mAddTB( cointb_, "dir-light", "Set directional light", false, 
+    mAddTB( cointb_, "dir-light", "Set directional light", false,
 	    doDirectionalLight);
-    
+
     axisid_ = mAddTB(cointb_,"axis","Display orientation axis",
 	    	     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar", "Display color bar",
@@ -894,7 +901,7 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
     }
 
     if ( !itm ) return;
-   
+
     int itmid = itm->getID();
     BufferString pm( "cube_inl" );
     BufferString tt( "View Inline" );
@@ -905,10 +912,10 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 		curviewmode_ = ui3DViewer::Crl; break;
 	case 2: pm = "cube_z"; tt = "View Z";
 		curviewmode_ = ui3DViewer::Z; break;
-	case 3: pm = "view_N"; tt = "View North"; 
+	case 3: pm = "view_N"; tt = "View North";
 		curviewmode_ = ui3DViewer::Y; break;
-	case 4: pm = "view_NZ"; tt = "View North Z"; 
-		curviewmode_ = ui3DViewer::YZ; break; 
+	case 4: pm = "view_NZ"; tt = "View North Z";
+		curviewmode_ = ui3DViewer::YZ; break;
     }
 
     cointb_->setIcon( viewselectid_, pm );
@@ -1043,8 +1050,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
     case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
-    case mManBodyMnuItm:		mDoOp(Man,Body,0); break;		
-    case mManPropsMnuItm:		mDoOp(Man,Props,0); break;		
+    case mManBodyMnuItm:		mDoOp(Man,Body,0); break;
+    case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
@@ -1091,7 +1098,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mZScaleMnuItm: 	applMgr().setZStretch(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
-    case mPosconvMnuItm:	applMgr().posConversion(); break;	
+    case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
@@ -1146,11 +1153,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSettShortcutsMnuItm:	applMgr().manageShortcuts(); break;
 
     case mStereoOffsetMnuItm: 	applMgr().setStereoOffset(); break;
-    case mStereoOffMnuItm: 
-    case mStereoRCMnuItm : 
+    case mStereoOffMnuItm:
+    case mStereoRCMnuItm :
     case mStereoQuadMnuItm :
     {
-	const int type = id == mStereoRCMnuItm ? 1 
+	const int type = id == mStereoRCMnuItm ? 1
 	    				: (id == mStereoQuadMnuItm ? 2 : 0 );
 	sceneMgr().setStereoType( type );
 	updateStereoMenu();
@@ -1221,8 +1228,8 @@ void uiODMenuMgr::manSeis( CallBacker* )
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
-mDefManCBFn(Body)    
-mDefManCBFn(Props)    
+mDefManCBFn(Body)
+mDefManCBFn(Props)
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
 mDefManCBFn(PDF)
