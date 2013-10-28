@@ -45,10 +45,8 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
-    void			renderOneSide(int side);
-    				/*!< 0 = visible from both sides.
-				   1 = visible from positive side
-				  -1 = visible from negative side. */
+    void			setRenderMode(RenderMode);
+
 protected:
     				~RandomPos2Body();
 
