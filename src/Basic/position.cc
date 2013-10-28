@@ -277,10 +277,10 @@ Coord::DistType Coord3::sqDistTo( const Coord3& b ) const
     return dx*dx + dy*dy + dz*dz;
 }
 
-bool Coord3::isSameAs(const Coord3& pos, const Coord3& eps) const
+
+bool Coord3::isSameAs( const Coord3& pos, const Coord3& eps ) const
 {
-    const Coord3 diff = *this - eps;
-    return fabs(diff.x)<eps.x && fabs(diff.y)<eps.y && fabs(diff.z)<eps.z;
+    return fabs(x-pos.x)<eps.x && fabs(y-pos.y)<eps.y && fabs(z-pos.z)<eps.z;
 }
 
 
